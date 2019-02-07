@@ -3,7 +3,6 @@ package org.carlspring.strongbox.services;
 import org.carlspring.strongbox.artifact.MavenArtifact;
 import org.carlspring.strongbox.config.Maven2LayoutProviderTestConfig;
 import org.carlspring.strongbox.providers.layout.Maven2LayoutProvider;
-import org.carlspring.strongbox.resource.ConfigurationResourceResolver;
 import org.carlspring.strongbox.storage.repository.MutableRepository;
 import org.carlspring.strongbox.storage.repository.RepositoryPolicyEnum;
 import org.carlspring.strongbox.testing.TestCaseWithMavenArtifactGenerationAndIndexing;
@@ -47,14 +46,6 @@ public class MavenChecksumServiceTest
 
     private static final String REPOSITORY_SNAPSHOTS = "mcs-snapshots";
 
-    private static final File REPOSITORY_RELEASES_BASEDIR = new File(ConfigurationResourceResolver.getVaultDirectory() +
-                                                                     "/storages/" + STORAGE0 + "/" +
-                                                                     REPOSITORY_RELEASES);
-
-    private static final File REPOSITORY_SNAPSHOTS_BASEDIR = new File(ConfigurationResourceResolver.getVaultDirectory() +
-                                                                      "/storages/" + STORAGE0 + "/" +
-                                                                      REPOSITORY_SNAPSHOTS);
-
     private static MavenArtifact snapshotArtifact;
 
     @Inject
@@ -82,16 +73,19 @@ public class MavenChecksumServiceTest
 
         createRepository(STORAGE0, REPOSITORY_RELEASES, RepositoryPolicyEnum.RELEASE.getPolicy(), false);
 
-        generateArtifact(REPOSITORY_RELEASES_BASEDIR.getAbsolutePath(),
+        String repositoryReleasesBasedir = getRepositoryBasedir(STORAGE0, REPOSITORY_RELEASES).getAbsolutePath();
+        String repositorySnapshotsBasedir = getRepositoryBasedir(STORAGE0, REPOSITORY_SNAPSHOTS).getAbsolutePath();
+
+        generateArtifact(repositoryReleasesBasedir,
                          "org.carlspring.strongbox.checksum.maven:strongbox-checksum:1.0:jar");
-        generateArtifact(REPOSITORY_RELEASES_BASEDIR.getAbsolutePath(),
+        generateArtifact(repositoryReleasesBasedir,
                          "org.carlspring.strongbox.checksum.maven:strongbox-checksum:1.1:jar");
-        generateArtifact(REPOSITORY_RELEASES_BASEDIR.getAbsolutePath(),
+        generateArtifact(repositoryReleasesBasedir,
                          "org.carlspring.strongbox.checksum.maven:checksum-rewrite:1.0:jar");
 
         createRepository(STORAGE0, REPOSITORY_SNAPSHOTS, RepositoryPolicyEnum.SNAPSHOT.getPolicy(), false);
 
-        snapshotArtifact = createTimestampedSnapshotArtifact(REPOSITORY_SNAPSHOTS_BASEDIR.getAbsolutePath(),
+        snapshotArtifact = createTimestampedSnapshotArtifact(repositorySnapshotsBasedir,
                                                              "org.carlspring.strongbox",
                                                              "checksum",
                                                              "2.0",
@@ -122,8 +116,8 @@ public class MavenChecksumServiceTest
                    XmlPullParserException,
                    NoSuchAlgorithmException
     {
-        String artifactPath =
-                REPOSITORY_RELEASES_BASEDIR + "/org/carlspring/strongbox/checksum/maven/strongbox-checksum";
+        String repositoryReleasesBasedir = getRepositoryBasedir(STORAGE0, REPOSITORY_RELEASES).getAbsolutePath();
+        String artifactPath = repositoryReleasesBasedir+ "/org/carlspring/strongbox/checksum/maven/strongbox-checksum";
 
         // Remove these for the sake of the test:
         deleteIfExists(new File(artifactPath, "1.0/strongbox-checksum-1.0.jar.md5"));
@@ -182,7 +176,8 @@ public class MavenChecksumServiceTest
         deleteIfExists(new File(snapshotArtifact.getPath().toString() + ".pom.md5"));
         deleteIfExists(new File(snapshotArtifact.getPath().toString() + ".pom.sha1"));
 
-        String artifactPath = REPOSITORY_SNAPSHOTS_BASEDIR + "/org/carlspring/strongbox/checksum";
+        String repositoryReleasesBasedir = getRepositoryBasedir(STORAGE0, REPOSITORY_SNAPSHOTS).getAbsolutePath();
+        String artifactPath = repositoryReleasesBasedir + "/org/carlspring/strongbox/checksum";
 
         artifactMetadataService.rebuildMetadata(STORAGE0, REPOSITORY_SNAPSHOTS,
                                                 "org/carlspring/strongbox/checksum");
@@ -228,10 +223,10 @@ public class MavenChecksumServiceTest
                    XmlPullParserException,
                    NoSuchAlgorithmException
     {
-        String artifactPath = REPOSITORY_RELEASES_BASEDIR + "/org/carlspring/strongbox/checksum/maven/checksum-rewrite";
+        String repositoryReleasesBasedir = getRepositoryBasedir(STORAGE0, REPOSITORY_RELEASES).getAbsolutePath();
+        String artifactPath = repositoryReleasesBasedir+ "/org/carlspring/strongbox/checksum/maven/checksum-rewrite";
 
-        artifactMetadataService.rebuildMetadata(STORAGE0, REPOSITORY_RELEASES,
-                                                               "org/carlspring/strongbox/checksum");
+        artifactMetadataService.rebuildMetadata(STORAGE0, REPOSITORY_RELEASES, "org/carlspring/strongbox/checksum");
 
         File md5File = new File(artifactPath, "1.0/checksum-rewrite-1.0.jar.md5");
 

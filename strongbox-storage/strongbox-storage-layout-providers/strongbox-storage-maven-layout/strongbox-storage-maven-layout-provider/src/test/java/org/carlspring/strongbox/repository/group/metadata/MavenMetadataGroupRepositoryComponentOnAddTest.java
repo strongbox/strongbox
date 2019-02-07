@@ -3,12 +3,10 @@ package org.carlspring.strongbox.repository.group.metadata;
 import org.carlspring.strongbox.config.Maven2LayoutProviderTestConfig;
 import org.carlspring.strongbox.providers.layout.Maven2LayoutProvider;
 import org.carlspring.strongbox.repository.group.BaseMavenGroupRepositoryComponentTest;
-import org.carlspring.strongbox.resource.ConfigurationResourceResolver;
 import org.carlspring.strongbox.storage.Storage;
 import org.carlspring.strongbox.storage.repository.MutableRepository;
 import org.carlspring.strongbox.storage.repository.Repository;
 
-import java.io.File;
 import java.io.IOException;
 import java.nio.file.Path;
 import java.util.LinkedHashSet;
@@ -51,22 +49,6 @@ public class MavenMetadataGroupRepositoryComponentOnAddTest
 
     private static final String REPOSITORY_LEAF_U = "leaf-repo-u";
 
-    private static final File REPOSITORY_LEAF_L_BASEDIR = new File(ConfigurationResourceResolver.getVaultDirectory() +
-                                                                   "/storages/" + STORAGE0 + "/" +
-                                                                   REPOSITORY_LEAF_P);
-
-    private static final File REPOSITORY_LEAF_D_BASEDIR = new File(ConfigurationResourceResolver.getVaultDirectory() +
-                                                                   "/storages/" + STORAGE0 + "/" +
-                                                                   REPOSITORY_LEAF_S);
-
-    private static final File REPOSITORY_LEAF_G_BASEDIR = new File(ConfigurationResourceResolver.getVaultDirectory() +
-                                                                   "/storages/" + STORAGE0 + "/" +
-                                                                   REPOSITORY_LEAF_T);
-
-    private static final File REPOSITORY_LEAF_K_BASEDIR = new File(ConfigurationResourceResolver.getVaultDirectory() +
-                                                                   "/storages/" + STORAGE0 + "/" +
-                                                                   REPOSITORY_LEAF_U);
-
     private static final String REPOSITORY_GROUP_W = "group-repo-w";
 
     private static final String REPOSITORY_GROUP_X = "group-repo-x";
@@ -76,6 +58,7 @@ public class MavenMetadataGroupRepositoryComponentOnAddTest
     private static final String REPOSITORY_GROUP_Z = "group-repo-z";
 
     private static final String REPOSITORY_GROUP_ZQ = "group-repo-zq";
+
 
     protected Set<MutableRepository> getRepositories()
     {
@@ -113,26 +96,26 @@ public class MavenMetadataGroupRepositoryComponentOnAddTest
         createGroup(REPOSITORY_GROUP_ZQ, STORAGE0, REPOSITORY_GROUP_Z, REPOSITORY_LEAF_U);
 
         // whenAnArtifactWasDeletedAllGroupRepositoriesContainingShouldHaveMetadataUpdatedIfPossible
-        generateArtifact(REPOSITORY_LEAF_L_BASEDIR.getAbsolutePath(),
+        generateArtifact(getRepositoryBasedir(STORAGE0, REPOSITORY_LEAF_P).getAbsolutePath(),
                          "com.artifacts.to.delete.releases:delete-group",
                          new String[]{ "1.2.1",
                                        "1.2.2" }
         );
 
         // whenAnArtifactWasDeletedAllGroupRepositoriesContainingShouldHaveMetadataUpdatedIfPossible
-        generateArtifact(REPOSITORY_LEAF_G_BASEDIR.getAbsolutePath(),
+        generateArtifact(getRepositoryBasedir(STORAGE0, REPOSITORY_LEAF_T).getAbsolutePath(),
                          "com.artifacts.to.delete.releases:delete-group",
                          new String[]{ "1.2.1",
                                        "1.2.2" }
         );
 
-        generateArtifact(REPOSITORY_LEAF_D_BASEDIR.getAbsolutePath(),
+        generateArtifact(getRepositoryBasedir(STORAGE0, REPOSITORY_LEAF_S).getAbsolutePath(),
                          "com.artifacts.to.update.releases:update-group",
                          new String[]{ "1.2.1",
                                        "1.2.2" }
         );
 
-        generateArtifact(REPOSITORY_LEAF_K_BASEDIR.getAbsolutePath(),
+        generateArtifact(getRepositoryBasedir(STORAGE0, REPOSITORY_LEAF_U).getAbsolutePath(),
                          "com.artifacts.to.update.releases:update-group",
                          new String[]{ "1.2.1" }
         );
@@ -153,8 +136,7 @@ public class MavenMetadataGroupRepositoryComponentOnAddTest
          </rule-set>
          </denied>
          **/
-        createRoutingRuleSet(STORAGE0,
-                             REPOSITORY_GROUP_ZQ,
+        createRoutingRuleSet(REPOSITORY_GROUP_ZQ,
                              new String[]{ REPOSITORY_LEAF_S },
                              ".*(com|org)/artifacts/to/update/releases/update-group.*",
                              ROUTING_RULE_TYPE_DENIED);

@@ -14,8 +14,10 @@ public class FieldSpy<T>
     public static Set<FieldInfo> getAllFieldsInfo(final Class<?> cls)
     {
         Set<FieldInfo> fields = new HashSet<>();
-        FieldUtils.getAllFieldsList(cls).stream().forEach(
-                field -> fields.add(new FieldInfo(field.getName(), field.getType().getTypeName())));
+        FieldUtils.getAllFieldsList(cls)
+                  .stream()
+                  .forEach(field -> fields.add(new FieldInfo(field.getName(), field.getType().getTypeName())));
+
         return fields;
     }
 

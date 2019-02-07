@@ -7,7 +7,6 @@ import org.carlspring.strongbox.providers.ProviderImplementationException;
 import org.carlspring.strongbox.providers.layout.Maven2LayoutProvider;
 import org.carlspring.strongbox.providers.search.MavenIndexerSearchProvider;
 import org.carlspring.strongbox.repository.IndexedMavenRepositoryFeatures;
-import org.carlspring.strongbox.resource.ConfigurationResourceResolver;
 import org.carlspring.strongbox.services.ArtifactEntryService;
 import org.carlspring.strongbox.storage.repository.MutableRepository;
 import org.carlspring.strongbox.storage.search.SearchRequest;
@@ -22,7 +21,10 @@ import java.util.List;
 import java.util.Optional;
 import java.util.Set;
 
-import org.junit.jupiter.api.*;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.Assumptions;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.junit.jupiter.api.parallel.Execution;
 import org.springframework.test.context.ActiveProfiles;
@@ -44,7 +46,7 @@ public class MavenDependencyFormatterTest
 
     private static final String REPOSITORY_RELEASES = "mdft-releases";
 
-    public static final String REPOSITORY_BASEDIR = ConfigurationResourceResolver.getVaultDirectory() + "/storages/storage0/" + REPOSITORY_RELEASES;
+    public static final String REPOSITORY_BASEDIR = "target/strongbox-vault/storages/storage0/" + REPOSITORY_RELEASES;
 
     @Inject
     private CompatibleDependencyFormatRegistry compatibleDependencyFormatRegistry;

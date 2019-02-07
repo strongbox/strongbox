@@ -3,6 +3,7 @@ package org.carlspring.strongbox.authentication.registry.support;
 import org.carlspring.strongbox.resource.ConfigurationResourceResolver;
 import org.carlspring.strongbox.util.ClassLoaderFactory;
 
+import javax.inject.Inject;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.lang.reflect.UndeclaredThrowableException;
@@ -17,10 +18,12 @@ import java.util.regex.Pattern;
 import org.apache.commons.collections.CollectionUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.stereotype.Component;
 
 /**
  * @author Przemyslaw Fusik
  */
+@Component
 public class ExternalAuthenticatorsHelper
 {
 
@@ -29,18 +32,22 @@ public class ExternalAuthenticatorsHelper
 
     private static final Logger logger = LoggerFactory.getLogger(ExternalAuthenticatorsHelper.class);
 
+    @Inject
+    private ConfigurationResourceResolver configurationResourceResolver;
+
+
     private ExternalAuthenticatorsHelper()
     {
 
     }
 
-    public static ClassLoader getExternalAuthenticatorsClassLoader(ClassLoader parent)
+    public ClassLoader getExternalAuthenticatorsClassLoader(ClassLoader parent)
     {
         Path authenticatorsDirectory;
         try
         {
             authenticatorsDirectory = Paths.get(
-                    ConfigurationResourceResolver.getConfigurationResource("strongbox.authentication.lib",
+                    configurationResourceResolver.getConfigurationResource("strongbox.authentication.lib",
                                                                            "webapp/WEB-INF/lib").getURI());
         }
         catch (FileNotFoundException e)
@@ -67,7 +74,7 @@ public class ExternalAuthenticatorsHelper
 
         if (CollectionUtils.isEmpty(authenticatorsJarPaths))
         {
-            logger.debug(authenticatorsDirectory + "contains 0 authenticators jar files.");
+            logger.debug(authenticatorsDirectory + " contains 0 authenticators jar files.");
             return parent;
         }
 

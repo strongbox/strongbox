@@ -5,6 +5,7 @@ import org.carlspring.strongbox.configuration.AuthenticationConfiguration;
 import org.carlspring.strongbox.resource.ConfigurationResourceResolver;
 import org.carlspring.strongbox.xml.parsers.GenericParser;
 
+import javax.inject.Inject;
 import javax.xml.bind.JAXBException;
 import java.io.IOException;
 import java.util.List;
@@ -12,10 +13,12 @@ import java.util.List;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.core.io.Resource;
+import org.springframework.stereotype.Component;
 
 /**
  * @author mtodorov
  */
+@Component
 public class AuthenticationManager
         implements AuthenticationConfigurationManager
 {
@@ -26,12 +29,15 @@ public class AuthenticationManager
 
     private GenericParser<AuthenticationConfiguration> parser = new GenericParser<>(AuthenticationConfiguration.class);
 
+    @Inject
+    private ConfigurationResourceResolver configurationResourceResolver;
+
 
     @Override
     public void load()
             throws IOException, JAXBException
     {
-        Resource resource = ConfigurationResourceResolver.getConfigurationResource("strongbox.security.authentication.xml",
+        Resource resource = configurationResourceResolver.getConfigurationResource("strongbox.security.authentication.xml",
                                                                                    "etc/conf/security-authentication.xml");
 
         logger.info("Loading Strongbox configuration from " + resource.toString() + "...");
@@ -43,7 +49,7 @@ public class AuthenticationManager
     public void store()
             throws IOException, JAXBException
     {
-        Resource resource = ConfigurationResourceResolver.getConfigurationResource("strongbox.security.authentication.xml",
+        Resource resource = configurationResourceResolver.getConfigurationResource("strongbox.security.authentication.xml",
                                                                                    "etc/conf/security-authentication.xml");
 
         parser.store(configuration, resource);

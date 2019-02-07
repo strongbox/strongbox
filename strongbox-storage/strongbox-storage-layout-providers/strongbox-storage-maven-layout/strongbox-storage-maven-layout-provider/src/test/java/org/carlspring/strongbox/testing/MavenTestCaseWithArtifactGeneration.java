@@ -4,8 +4,8 @@ import org.carlspring.maven.commons.util.ArtifactUtils;
 import org.carlspring.strongbox.artifact.MavenArtifact;
 import org.carlspring.strongbox.artifact.MavenRepositoryArtifact;
 import org.carlspring.strongbox.artifact.generator.MavenArtifactGenerator;
+import org.carlspring.strongbox.booters.PropertiesBooter;
 import org.carlspring.strongbox.configuration.ConfigurationManager;
-import org.carlspring.strongbox.event.artifact.ArtifactEventListenerRegistry;
 import org.carlspring.strongbox.providers.io.LayoutFileSystem;
 import org.carlspring.strongbox.providers.io.RepositoryFiles;
 import org.carlspring.strongbox.providers.io.RepositoryPath;
@@ -17,7 +17,6 @@ import org.carlspring.strongbox.providers.repository.HostedRepositoryProvider;
 import org.carlspring.strongbox.repository.MavenRepositoryFeatures;
 import org.carlspring.strongbox.repository.RepositoryManagementStrategy;
 import org.carlspring.strongbox.repository.RepositoryManagementStrategyException;
-import org.carlspring.strongbox.resource.ConfigurationResourceResolver;
 import org.carlspring.strongbox.services.ConfigurationManagementService;
 import org.carlspring.strongbox.storage.MutableStorage;
 import org.carlspring.strongbox.storage.Storage;
@@ -67,14 +66,15 @@ public class MavenTestCaseWithArtifactGeneration
     protected MavenRepositoryFactory mavenRepositoryFactory;
 
     @Inject
+    private PropertiesBooter propertiesBooter;
+
+    @Inject
     protected ConfigurationManagementService configurationManagementService;
 
     @Inject
     protected ConfigurationManager configurationManager;
 
-    @Inject
-    protected ArtifactEventListenerRegistry artifactEventListenerRegistry;
-    
+
     protected MutableStorage getStorage(String storageId)
     {
         final Storage storage = configurationManager.getConfiguration().getStorage(storageId);
@@ -146,7 +146,8 @@ public class MavenTestCaseWithArtifactGeneration
 
     protected MavenArtifactGenerator createArtifactGenerator(String basedir)
     {
-        return new MavenArtifactGenerator(basedir) {
+        return new MavenArtifactGenerator(basedir)
+        {
 
             @Override
             protected OutputStream newOutputStream(File artifactFile)
@@ -464,12 +465,12 @@ public class MavenTestCaseWithArtifactGeneration
 
     public File getStorageBasedir(String storageId)
     {
-        return new File(ConfigurationResourceResolver.getVaultDirectory() + "/storages/" + storageId);
+        return new File(propertiesBooter.getVaultDirectory() + "/storages/" + storageId);
     }
 
     public File getRepositoryBasedir(String storageId, String repositoryId)
     {
-        return new File(ConfigurationResourceResolver.getVaultDirectory() + "/storages/" + storageId + "/" + repositoryId);
+        return new File(propertiesBooter.getVaultDirectory() + "/storages/" + storageId + "/" + repositoryId);
     }
 
     public MavenRepositoryFeatures getFeatures()

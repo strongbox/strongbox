@@ -52,6 +52,10 @@ public class AuthenticationProvidersRegistry
     @Inject
     private AuthenticationResourceManager authenticationResourceManager;
 
+    @Inject
+    private ExternalAuthenticatorsHelper externalAuthenticatorsHelper;
+
+
     public void reload()
         throws IOException
     {
@@ -107,7 +111,7 @@ public class AuthenticationProvidersRegistry
         AuthenticationConfigurationContext authenticationContext = new AuthenticationConfigurationContext();
 
         ClassLoader entryClassLoader = strongboxApplicationContext.getClassLoader();
-        ClassLoader requiredClassLoader = ExternalAuthenticatorsHelper.getExternalAuthenticatorsClassLoader(entryClassLoader);
+        ClassLoader requiredClassLoader = externalAuthenticatorsHelper.getExternalAuthenticatorsClassLoader(entryClassLoader);
 
         Resource authenticationConfigurationResource = authenticationResourceManager.getAuthenticationConfigurationResource();
         authenticationContext.setParent(strongboxApplicationContext);

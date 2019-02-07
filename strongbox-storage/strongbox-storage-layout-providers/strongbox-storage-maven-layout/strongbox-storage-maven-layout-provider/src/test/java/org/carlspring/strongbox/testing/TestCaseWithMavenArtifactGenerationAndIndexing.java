@@ -1,6 +1,7 @@
 package org.carlspring.strongbox.testing;
 
 import org.carlspring.strongbox.artifact.locator.ArtifactDirectoryLocator;
+import org.carlspring.strongbox.booters.PropertiesBooter;
 import org.carlspring.strongbox.event.artifact.ArtifactEventListenerRegistry;
 import org.carlspring.strongbox.locator.handlers.GenerateMavenMetadataOperation;
 import org.carlspring.strongbox.providers.io.RepositoryFiles;
@@ -12,7 +13,6 @@ import org.carlspring.strongbox.providers.search.MavenIndexerSearchProvider;
 import org.carlspring.strongbox.providers.search.SearchException;
 import org.carlspring.strongbox.repository.IndexedMavenRepositoryFeatures;
 import org.carlspring.strongbox.repository.RepositoryManagementStrategyException;
-import org.carlspring.strongbox.resource.ConfigurationResourceResolver;
 import org.carlspring.strongbox.services.ArtifactResolutionService;
 import org.carlspring.strongbox.services.ArtifactSearchService;
 import org.carlspring.strongbox.services.RepositoryManagementService;
@@ -74,6 +74,9 @@ public abstract class TestCaseWithMavenArtifactGenerationAndIndexing
 
     @Inject
     protected Optional<RepositoryIndexManager> repositoryIndexManager;
+
+    @Inject
+    private PropertiesBooter propertiesBooter;
 
     @Inject
     protected RepositoryManagementService repositoryManagementService;
@@ -172,15 +175,14 @@ public abstract class TestCaseWithMavenArtifactGenerationAndIndexing
                                                  String repositoryId,
                                                  String policy,
                                                  MutableMavenRepositoryConfiguration repositoryConfiguration)
-        throws IOException,
-        JAXBException,
-        RepositoryManagementStrategyException
+            throws IOException,
+                   JAXBException,
+                   RepositoryManagementStrategyException
     {
         MutableRepository repository = mavenRepositoryFactory.createRepository(repositoryId);
         repository.setPolicy(policy);
         repository.setRepositoryConfiguration(repositoryConfiguration);
-        repository.setBasedir(ConfigurationResourceResolver.getVaultDirectory()
-                + String.format("/storages/%s/%s", storageId, repositoryId));
+        repository.setBasedir(getRepositoryBasedir(storageId, repositoryId).getAbsolutePath());
         
         createRepository(storageId, repository);
         
@@ -232,8 +234,7 @@ public abstract class TestCaseWithMavenArtifactGenerationAndIndexing
     {
         for (String version : versions)
         {
-            String repositoryBaseDir = ConfigurationResourceResolver.getVaultDirectory() +
-                                       "/storages/" + storageId + "/" + repositoryId;
+            String repositoryBaseDir = getRepositoryBasedir(storageId, repositoryId).getAbsolutePath();
 
             generateArtifact(repositoryBaseDir, ga + ":" + version + ":jar");
         }
@@ -298,8 +299,7 @@ public abstract class TestCaseWithMavenArtifactGenerationAndIndexing
         }
     }
 
-    public void createRoutingRuleSet(String storageId,
-                                     String groupRepositoryId,
+    public void createRoutingRuleSet(String groupRepositoryId,
                                      String[] repositoryIds,
                                      String rulePattern,
                                      int type)
@@ -402,10 +402,10 @@ public abstract class TestCaseWithMavenArtifactGenerationAndIndexing
 
     protected Path getVaultDirectoryPath()
     {
-        String base = FilenameUtils.normalize(ConfigurationResourceResolver.getVaultDirectory());
+        String base = FilenameUtils.normalize(propertiesBooter.getVaultDirectory());
         if (StringUtils.isBlank(base))
         {
-            throw new IllegalStateException("ConfigurationResourceResolver.getVaultDirectory() resolves to '" + base +
+            throw new IllegalStateException("propertiesBooter.getVaultDirectory() resolves to '" + base +
                                             "' which is illegal base path here.");
         }
         return Paths.get(base);

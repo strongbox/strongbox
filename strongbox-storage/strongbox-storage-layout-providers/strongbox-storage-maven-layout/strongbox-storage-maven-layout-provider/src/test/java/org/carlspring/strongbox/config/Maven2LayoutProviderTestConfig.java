@@ -8,9 +8,6 @@ import org.carlspring.strongbox.cron.services.CronJobSchedulerService;
 import org.carlspring.strongbox.cron.services.CronTaskConfigurationService;
 import org.carlspring.strongbox.storage.indexing.downloader.ResourceFetcherFactory;
 
-import javax.xml.bind.JAXBException;
-import java.io.IOException;
-
 import org.apache.http.impl.client.CloseableHttpClient;
 import org.apache.maven.index.updater.ResourceFetcher;
 import org.mockito.ArgumentMatchers;
@@ -23,11 +20,11 @@ import static org.mockito.Matchers.any;
  * @author Przemyslaw Fusik
  */
 @Configuration
-@Import({ TestingCoreConfig.class,
+@Import({ CommonConfig.class,
+          TestingCoreConfig.class,
           EventsConfig.class,
           DataServiceConfig.class,
           CronTasksConfig.class,
-          CommonConfig.class,
           StorageCoreConfig.class,
           StorageApiConfig.class,
           Maven2LayoutProviderConfig.class,
@@ -43,8 +40,7 @@ public class Maven2LayoutProviderTestConfig
     {
         final ConfigurationFileManager configurationFileManager = Mockito.spy(new ConfigurationFileManager());
 
-        Mockito.doNothing().when(configurationFileManager).store(
-                any(MutableConfiguration.class));
+        Mockito.doNothing().when(configurationFileManager).store(any(MutableConfiguration.class));
 
         return configurationFileManager;
     }

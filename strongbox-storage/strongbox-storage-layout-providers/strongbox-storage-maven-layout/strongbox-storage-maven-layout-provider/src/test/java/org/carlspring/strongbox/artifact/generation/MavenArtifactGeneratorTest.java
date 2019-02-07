@@ -2,7 +2,6 @@ package org.carlspring.strongbox.artifact.generation;
 
 import org.carlspring.maven.commons.util.ArtifactUtils;
 import org.carlspring.strongbox.config.Maven2LayoutProviderTestConfig;
-import org.carlspring.strongbox.resource.ConfigurationResourceResolver;
 import org.carlspring.strongbox.testing.MavenTestCaseWithArtifactGeneration;
 import org.carlspring.strongbox.util.MessageDigestUtils;
 
@@ -38,7 +37,7 @@ public class MavenArtifactGeneratorTest
     public void testArtifactGeneration()
             throws Exception
     {
-        File basedir = new File(ConfigurationResourceResolver.getVaultDirectory() + "/storages/storage0/releases");
+        File basedir = getRepositoryBasedir(STORAGE0, "releases").getAbsoluteFile();
 
         Artifact artifact = ArtifactUtils.getArtifactFromGAVTC("org.carlspring.strongbox.testing:matg:1.2.3:jar");
 

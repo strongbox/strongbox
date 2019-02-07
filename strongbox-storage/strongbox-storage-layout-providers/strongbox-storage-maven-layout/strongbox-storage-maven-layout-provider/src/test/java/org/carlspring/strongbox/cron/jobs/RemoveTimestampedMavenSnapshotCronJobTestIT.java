@@ -5,7 +5,6 @@ import org.carlspring.maven.commons.util.ArtifactUtils;
 import org.carlspring.strongbox.config.Maven2LayoutProviderCronTasksTestConfig;
 import org.carlspring.strongbox.data.CacheManagerTestExecutionListener;
 import org.carlspring.strongbox.providers.layout.Maven2LayoutProvider;
-import org.carlspring.strongbox.resource.ConfigurationResourceResolver;
 import org.carlspring.strongbox.services.ArtifactMetadataService;
 import org.carlspring.strongbox.storage.repository.MutableRepository;
 import org.carlspring.strongbox.storage.repository.RepositoryPolicyEnum;
@@ -40,18 +39,13 @@ import static org.junit.jupiter.api.parallel.ExecutionMode.CONCURRENT;
 @ExtendWith(SpringExtension.class)
 @ActiveProfiles(profiles = "test")
 @TestExecutionListeners(listeners = { CacheManagerTestExecutionListener.class },
-        mergeMode = TestExecutionListeners.MergeMode.MERGE_WITH_DEFAULTS)
+                        mergeMode = TestExecutionListeners.MergeMode.MERGE_WITH_DEFAULTS)
 @Execution(CONCURRENT)
 public class RemoveTimestampedMavenSnapshotCronJobTestIT
         extends BaseCronJobWithMavenIndexingTestCase
 {
 
-    private static final String REPOSITORY_SNAPSHOTS_1 = "rtmscj-snapshots";
-
-    private static final File REPOSITORY_SNAPSHOTS_BASEDIR_1 = new File(
-            ConfigurationResourceResolver.getVaultDirectory() +
-            "/storages/" + STORAGE0 + "/" +
-            REPOSITORY_SNAPSHOTS_1);
+    private static final String REPOSITORY_SNAPSHOTS = "rtmscj-snapshots";
 
     private static final String ARTIFACT_BASE_PATH_STRONGBOX_TIMESTAMPED = "org/carlspring/strongbox/strongbox-timestamped-first";
 
@@ -62,7 +56,7 @@ public class RemoveTimestampedMavenSnapshotCronJobTestIT
     {
         Set<MutableRepository> repositories = new LinkedHashSet<>();
         repositories.add(createRepositoryMock(STORAGE0,
-                                              getRepositoryName(REPOSITORY_SNAPSHOTS_1, testInfo),
+                                              getRepositoryName(REPOSITORY_SNAPSHOTS, testInfo),
                                               Maven2LayoutProvider.ALIAS));
         return repositories;
     }
@@ -76,11 +70,13 @@ public class RemoveTimestampedMavenSnapshotCronJobTestIT
 
         //Create repository rtmscj-snapshots in storage0
         createRepository(STORAGE0,
-                         getRepositoryName(REPOSITORY_SNAPSHOTS_1, testInfo),
+                         getRepositoryName(REPOSITORY_SNAPSHOTS, testInfo),
                          RepositoryPolicyEnum.SNAPSHOT.getPolicy(),
                          false);
 
-        createTimestampedSnapshotArtifact(getRepositoryBasedir(REPOSITORY_SNAPSHOTS_BASEDIR_1, testInfo),
+        File repositoryBasedir = getRepositoryBasedir(STORAGE0, getRepositoryName(REPOSITORY_SNAPSHOTS, testInfo));
+
+        createTimestampedSnapshotArtifact(repositoryBasedir.getAbsolutePath(),
                                           "org.carlspring.strongbox",
                                           "strongbox-timestamped-first",
                                           "2.0",
@@ -88,7 +84,7 @@ public class RemoveTimestampedMavenSnapshotCronJobTestIT
                                           null,
                                           3);
 
-        createTimestampedSnapshotArtifact(getRepositoryBasedir(REPOSITORY_SNAPSHOTS_BASEDIR_1, testInfo),
+        createTimestampedSnapshotArtifact(repositoryBasedir.getAbsolutePath(),
                                           "org.carlspring.strongbox",
                                           "strongbox-timestamped-second",
                                           "2.0",
@@ -110,11 +106,11 @@ public class RemoveTimestampedMavenSnapshotCronJobTestIT
             throws Exception
     {
         artifactMetadataService.rebuildMetadata(STORAGE0,
-                                                getRepositoryName(REPOSITORY_SNAPSHOTS_1, testInfo),
+                                                getRepositoryName(REPOSITORY_SNAPSHOTS, testInfo),
                                                 "org/carlspring/strongbox/strongbox-timestamped-first");
 
         artifactMetadataService.rebuildMetadata(STORAGE0,
-                                                getRepositoryName(REPOSITORY_SNAPSHOTS_1, testInfo),
+                                                getRepositoryName(REPOSITORY_SNAPSHOTS, testInfo),
                                                 "org/carlspring/strongbox/strongbox-timestamped-second");
     }
 
@@ -124,7 +120,7 @@ public class RemoveTimestampedMavenSnapshotCronJobTestIT
     {
         final String jobName = expectedJobName;
 
-        String artifactPath = getRepositoryBasedir(REPOSITORY_SNAPSHOTS_BASEDIR_1, testInfo) +
+        String artifactPath = getRepositoryBasedir(STORAGE0, getRepositoryName(REPOSITORY_SNAPSHOTS, testInfo)) +
                               "/org/carlspring/strongbox/strongbox-timestamped-first";
 
         File file = new File(artifactPath, "2.0-SNAPSHOT");
@@ -149,7 +145,7 @@ public class RemoveTimestampedMavenSnapshotCronJobTestIT
         addCronJobConfig(jobName,
                          RemoveTimestampedMavenSnapshotCronJob.class,
                          STORAGE0,
-                         getRepositoryName(REPOSITORY_SNAPSHOTS_1,
+                         getRepositoryName(REPOSITORY_SNAPSHOTS,
                                            testInfo),
                          properties ->
                          {
@@ -167,7 +163,7 @@ public class RemoveTimestampedMavenSnapshotCronJobTestIT
     {
         final String jobName = expectedJobName;
 
-        String artifactPath = getRepositoryBasedir(REPOSITORY_SNAPSHOTS_BASEDIR_1, testInfo) +
+        String artifactPath = getRepositoryBasedir(STORAGE0, getRepositoryName(REPOSITORY_SNAPSHOTS, testInfo)) +
                               "/org/carlspring/strongbox/strongbox-timestamped-second";
 
         File file = new File(artifactPath, "2.0-SNAPSHOT");
@@ -192,7 +188,7 @@ public class RemoveTimestampedMavenSnapshotCronJobTestIT
         addCronJobConfig(jobName,
                          RemoveTimestampedMavenSnapshotCronJob.class,
                          STORAGE0,
-                         getRepositoryName(REPOSITORY_SNAPSHOTS_1, testInfo),
+                         getRepositoryName(REPOSITORY_SNAPSHOTS, testInfo),
                          properties ->
                          {
                              properties.put("basePath", null);

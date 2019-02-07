@@ -5,9 +5,7 @@ import org.carlspring.strongbox.data.CacheManagerTestExecutionListener;
 import org.carlspring.strongbox.providers.io.RepositoryFiles;
 import org.carlspring.strongbox.providers.io.RepositoryPath;
 import org.carlspring.strongbox.providers.io.RepositoryPathResolver;
-import org.carlspring.strongbox.providers.layout.LayoutProviderRegistry;
 import org.carlspring.strongbox.providers.layout.Maven2LayoutProvider;
-import org.carlspring.strongbox.resource.ConfigurationResourceResolver;
 import org.carlspring.strongbox.storage.MutableStorage;
 import org.carlspring.strongbox.storage.repository.MavenRepositoryFactory;
 import org.carlspring.strongbox.storage.repository.MutableRepository;
@@ -61,30 +59,14 @@ public class ClearTrashCronJobFromMaven2RepositoryTestIT
 
     private static final String REPOSITORY_RELEASES_2 = "crtcj-releases-test";
 
-    private static final File REPOSITORY_RELEASES_BASEDIR_1 = new File(
-            ConfigurationResourceResolver.getVaultDirectory() +
-            "/storages/" + STORAGE0 + "/" +
-            REPOSITORY_RELEASES_1);
-
-    private static final File REPOSITORY_RELEASES_BASEDIR_2 = new File(
-            ConfigurationResourceResolver.getVaultDirectory() +
-            "/storages/" + STORAGE0 + "/" +
-            REPOSITORY_RELEASES_2);
-
-    private static final File REPOSITORY_RELEASES_BASEDIR_3 = new File(
-            ConfigurationResourceResolver.getVaultDirectory() +
-            "/storages/" + STORAGE1 + "/" +
-            REPOSITORY_RELEASES_1);
-
     private static MutableRepository repository1;
+
     private static MutableRepository repository2;
+
     private static MutableRepository repository3;
 
     @Inject
     private MavenRepositoryFactory mavenRepositoryFactory;
-
-    @Inject
-    private LayoutProviderRegistry layoutProviderRegistry;
 
     @Inject
     private RepositoryPathResolver repositoryPathResolver;
@@ -123,7 +105,7 @@ public class ClearTrashCronJobFromMaven2RepositoryTestIT
 
         createRepository(STORAGE0, repository1);
 
-        generateArtifact(REPOSITORY_RELEASES_BASEDIR_1.getAbsolutePath(),
+        generateArtifact(getRepositoryBasedir(STORAGE0, REPOSITORY_RELEASES_1).getAbsolutePath(),
                          "org.carlspring.strongbox.clear:strongbox-test-one:1.0:jar");
 
         repository2 = mavenRepositoryFactory.createRepository(REPOSITORY_RELEASES_2);
@@ -131,9 +113,10 @@ public class ClearTrashCronJobFromMaven2RepositoryTestIT
         repository2.setTrashEnabled(true);
         repository2.setRepositoryConfiguration(mavenRepositoryConfiguration);
         repository2.setRepositoryConfiguration(mavenRepositoryConfiguration);
+
         createRepository(STORAGE0, repository2);
 
-        generateArtifact(REPOSITORY_RELEASES_BASEDIR_2.getAbsolutePath(),
+        generateArtifact(getRepositoryBasedir(STORAGE0, REPOSITORY_RELEASES_2).getAbsolutePath(),
                          "org.carlspring.strongbox.clear:strongbox-test-two:1.0:jar");
 
         createStorage(new MutableStorage(STORAGE1));
@@ -145,7 +128,7 @@ public class ClearTrashCronJobFromMaven2RepositoryTestIT
 
         createRepository(STORAGE1, repository3);
 
-        generateArtifact(REPOSITORY_RELEASES_BASEDIR_3.getAbsolutePath(),
+        generateArtifact(getRepositoryBasedir(STORAGE1, REPOSITORY_RELEASES_1).getAbsolutePath(),
                          "org.carlspring.strongbox.clear:strongbox-test-one:1.0:jar");
     }
 
@@ -208,6 +191,7 @@ public class ClearTrashCronJobFromMaven2RepositoryTestIT
         {
             throw new UndeclaredThrowableException(e);
         }
+
         return files.toArray(new File[0]);
     }
 

@@ -22,11 +22,12 @@ import static org.junit.jupiter.api.Assertions.*;
 @ContextConfiguration
 public class AuthenticationManagerTest
 {
+
     @Configuration
-    @Import({
-            StrongboxSecurityConfig.class,
-            CommonConfig.class
-    })
+    @Import({ CommonConfig.class,
+              StrongboxSecurityConfig.class
+              })
+
     public static class SpringConfig { }
 
     @Inject
@@ -34,7 +35,6 @@ public class AuthenticationManagerTest
 
     @Test
     public void testLoad()
-            throws Exception
     {
         assertNotNull(authenticationManager.getConfiguration(), "Failed to load configuration!");
         assertNotNull(authenticationManager.getRealms(), "Failed to load realms!");

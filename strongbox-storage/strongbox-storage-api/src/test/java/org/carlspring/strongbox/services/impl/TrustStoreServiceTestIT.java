@@ -7,7 +7,6 @@ import org.carlspring.strongbox.security.certificates.KeyStoreManager;
 import org.carlspring.strongbox.services.TrustStoreService;
 
 import javax.inject.Inject;
-import java.io.IOException;
 import java.net.InetAddress;
 import java.nio.file.Paths;
 
@@ -40,6 +39,9 @@ public class TrustStoreServiceTestIT
     @Inject
     private KeyStoreManager keyStoreManager;
 
+    @Inject
+    private ConfigurationResourceResolver configurationResourceResolver;
+
     private InetAddress inetAddress;
 
     @BeforeEach
@@ -56,20 +58,23 @@ public class TrustStoreServiceTestIT
             throws Exception
     {
         assertFalse(keyStoreManager.listCertificates(Paths.get(trustStore.getURI()),
-                                                            "password".toCharArray()).keySet().stream().filter(
-                name -> name.contains("*.apache.org")).findAny().isPresent());
+                                                            "password".toCharArray())
+                                   .keySet()
+                                   .stream()
+                                   .filter(name -> name.contains("*.apache.org")).findAny().isPresent());
 
         trustStoreService.addSslCertificatesToTrustStore("https://repository.apache.org/snapshots/");
 
         assertTrue(keyStoreManager.listCertificates(Paths.get(trustStore.getURI()),
-                                                           "password".toCharArray()).keySet().stream().filter(
-                name -> name.contains("*.apache.org")).findAny().isPresent());
+                                                           "password".toCharArray())
+                                  .keySet()
+                                  .stream()
+                                  .filter(name -> name.contains("*.apache.org")).findAny().isPresent());
     }
 
     private Resource getTrustStoreResource()
-            throws IOException
     {
-        return ConfigurationResourceResolver.getConfigurationResource("strongbox.truststore.jks",
+        return configurationResourceResolver.getConfigurationResource("strongbox.truststore.jks",
                                                                       "etc/ssl/truststore.jks");
     }
 

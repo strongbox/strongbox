@@ -1,11 +1,11 @@
 package org.carlspring.strongbox.cron.jobs;
 
+import org.carlspring.strongbox.booters.PropertiesBooter;
 import org.carlspring.strongbox.config.NugetLayoutProviderCronTasksTestConfig;
 import org.carlspring.strongbox.cron.domain.CronTaskConfigurationDto;
 import org.carlspring.strongbox.cron.services.CronTaskConfigurationService;
 import org.carlspring.strongbox.cron.services.JobManager;
 import org.carlspring.strongbox.repository.RepositoryManagementStrategyException;
-import org.carlspring.strongbox.resource.ConfigurationResourceResolver;
 import org.carlspring.strongbox.services.ConfigurationManagementService;
 import org.carlspring.strongbox.services.RepositoryManagementService;
 import org.carlspring.strongbox.services.StorageManagementService;
@@ -15,9 +15,9 @@ import org.carlspring.strongbox.storage.repository.NugetRepositoryFactory;
 import org.carlspring.strongbox.storage.repository.RepositoryPolicyEnum;
 
 import javax.inject.Inject;
-import javax.xml.bind.JAXBException;
 import java.io.File;
 import java.io.IOException;
+import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.LinkedHashSet;
 import java.util.List;
@@ -25,13 +25,11 @@ import java.util.Set;
 
 import org.junit.jupiter.api.*;
 import org.junit.jupiter.api.extension.ExtendWith;
-import org.junit.jupiter.api.parallel.Execution;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
 import static org.carlspring.strongbox.util.TestFileUtils.deleteIfExists;
 import static org.junit.jupiter.api.Assertions.*;
-import static org.junit.jupiter.api.parallel.ExecutionMode.CONCURRENT;
 
 /**
  * @author Kate Novik.
@@ -51,17 +49,8 @@ public class RegenerateNugetChecksumCronJobTestIT
 
     private static final String REPOSITORY_ALPHA = "rnccj-alpha";
 
-    private static final File REPOSITORY_RELEASES_BASEDIR_1 = new File(ConfigurationResourceResolver.getVaultDirectory() +
-                                                                       "/storages/" + STORAGE1 + "/" +
-                                                                       REPOSITORY_RELEASES);
-
-    private static final File REPOSITORY_ALPHA_BASEDIR = new File(ConfigurationResourceResolver.getVaultDirectory() +
-                                                                  "/storages/" + STORAGE1 + "/" +
-                                                                  REPOSITORY_ALPHA);
-
-    private static final File REPOSITORY_RELEASES_BASEDIR_2 = new File(ConfigurationResourceResolver.getVaultDirectory() +
-                                                                       "/storages/" + STORAGE2 + "/" +
-                                                                       REPOSITORY_RELEASES);
+    @Inject
+    private PropertiesBooter propertiesBooter;
 
     @Inject
     private CronTaskConfigurationService cronTaskConfigurationService;
@@ -101,13 +90,14 @@ public class RegenerateNugetChecksumCronJobTestIT
         createRepository(STORAGE1, REPOSITORY_RELEASES, RepositoryPolicyEnum.RELEASE.getPolicy());
 
         //Create released nuget package in the repository rnccj-releases (storage1)
-        generateNugetPackage(REPOSITORY_RELEASES_BASEDIR_1.getAbsolutePath(),
+        generateNugetPackage(getRepositoryBasedir(STORAGE1, REPOSITORY_RELEASES),
                              "org.carlspring.strongbox.checksum-second", "1.0");
 
         createRepository(STORAGE1, REPOSITORY_ALPHA, RepositoryPolicyEnum.SNAPSHOT.getPolicy());
 
         //Create pre-released nuget package in the repository rnccj-alpha
-        generateAlphaNugetPackage(REPOSITORY_ALPHA_BASEDIR.getAbsolutePath(), "org.carlspring.strongbox.checksum-one",
+        generateAlphaNugetPackage(getRepositoryBasedir(STORAGE1, REPOSITORY_ALPHA),
+                                  "org.carlspring.strongbox.checksum-one",
                                   "1.0.1");
 
         createStorage(STORAGE2);
@@ -115,13 +105,13 @@ public class RegenerateNugetChecksumCronJobTestIT
         createRepository(STORAGE2, REPOSITORY_RELEASES, RepositoryPolicyEnum.RELEASE.getPolicy());
 
         //Create released nuget package in the repository rnccj-releases (storage2)
-        generateNugetPackage(REPOSITORY_RELEASES_BASEDIR_2.getAbsolutePath(), "org.carlspring.strongbox.checksum-one",
+        generateNugetPackage(getRepositoryBasedir(STORAGE2, REPOSITORY_RELEASES),
+                             "org.carlspring.strongbox.checksum-one",
                              "1.0");
     }
 
     @AfterEach
     public void removeRepositories()
-            throws IOException, JAXBException
     {
         removeRepositories(getRepositoriesToClean());
     }
@@ -133,6 +123,12 @@ public class RegenerateNugetChecksumCronJobTestIT
         repositories.add(createRepositoryMock(STORAGE1, REPOSITORY_ALPHA));
         repositories.add(createRepositoryMock(STORAGE2, REPOSITORY_RELEASES));
         return repositories;
+    }
+
+    private String getRepositoryBasedir(String storageId, String repositoryId)
+    {
+        return Paths.get(propertiesBooter.getVaultDirectory() +
+                         "/storages/" + storageId + "/" + repositoryId).toAbsolutePath().toString();
     }
 
     public void addRegenerateCronJobConfig(String name,
@@ -164,10 +160,10 @@ public class RegenerateNugetChecksumCronJobTestIT
     {
         final String jobName = expectedJobName;
 
-        String artifactPath = REPOSITORY_RELEASES_BASEDIR_1 + "/org.carlspring.strongbox.checksum-second";
+        String artifactPath = getRepositoryBasedir(STORAGE1, REPOSITORY_RELEASES) +
+                              "/org.carlspring.strongbox.checksum-second";
 
-        deleteIfExists(
-                new File(artifactPath, "/1.0/org.carlspring.strongbox.checksum-second.1.0.nupkg.sha512"));
+        deleteIfExists(new File(artifactPath, "/1.0/org.carlspring.strongbox.checksum-second.1.0.nupkg.sha512"));
         deleteIfExists(new File(artifactPath, "/1.0/org.carlspring.strongbox.checksum-second.nuspec.sha512"));
 
         assertFalse(new File(artifactPath, "/1.0/org.carlspring.strongbox.checksum-second.1.0.nupkg.sha512").exists(),
@@ -210,14 +206,12 @@ public class RegenerateNugetChecksumCronJobTestIT
     {
         final String jobName = expectedJobName;
 
-        deleteIfExists(
-                                 new File(REPOSITORY_ALPHA_BASEDIR,
-                                         "/org.carlspring.strongbox.checksum-one/1.0.1-alpha/org.carlspring.strongbox.checksum-one.1.0.1-alpha.nupkg.sha512"));
-        deleteIfExists(
-                                 new File(REPOSITORY_ALPHA_BASEDIR,
-                                         "/org.carlspring.strongbox.checksum-one/1.0.1-alpha/org.carlspring.strongbox.checksum-one.nuspec.sha512"));
+        deleteIfExists(new File(getRepositoryBasedir(STORAGE1, REPOSITORY_ALPHA),
+                                "/org.carlspring.strongbox.checksum-one/1.0.1-alpha/org.carlspring.strongbox.checksum-one.1.0.1-alpha.nupkg.sha512"));
+        deleteIfExists(new File(getRepositoryBasedir(STORAGE1, REPOSITORY_ALPHA),
+                                "/org.carlspring.strongbox.checksum-one/1.0.1-alpha/org.carlspring.strongbox.checksum-one.nuspec.sha512"));
 
-        assertFalse(new File(REPOSITORY_ALPHA_BASEDIR,
+        assertFalse(new File(getRepositoryBasedir(STORAGE1, REPOSITORY_ALPHA),
                              "/org.carlspring.strongbox.checksum-one/1.0.1-alpha/org.carlspring.strongbox.checksum-one.1.0.1-alpha.nupkg.sha512").exists(),
                    "The checksum file for artifact exist!");
 
@@ -228,22 +222,23 @@ public class RegenerateNugetChecksumCronJobTestIT
             {
                 return;
             }
-            resultList.add(new File(REPOSITORY_ALPHA_BASEDIR,
+            resultList.add(new File(getRepositoryBasedir(STORAGE1, REPOSITORY_ALPHA),
                     "/org.carlspring.strongbox.checksum-one/1.0.1-alpha/org.carlspring.strongbox.checksum-one.1.0.1-alpha.nupkg.sha512"));
-            resultList.add(new File(REPOSITORY_ALPHA_BASEDIR,
+            resultList.add(new File(getRepositoryBasedir(STORAGE1, REPOSITORY_ALPHA),
                     "/org.carlspring.strongbox.checksum-one/1.0.1-alpha/org.carlspring.strongbox.checksum-one.nuspec.sha512"));
         });
-        addCronJobConfig(jobName, RegenerateChecksumCronJob.class, STORAGE1, REPOSITORY_ALPHA,
+        addCronJobConfig(jobName,
+                         RegenerateChecksumCronJob.class,
+                         STORAGE1,
+                         REPOSITORY_ALPHA,
                          properties -> properties.put("forceRegeneration", "false"));
         
         assertTrue(expectEvent(), "Failed to execute task!");
-        
         assertEquals(2, resultList.size());
+
         resultList.forEach(f -> {
-            assertTrue(f.exists(),
-                       "The checksum file doesn't exist!");
-            assertTrue(f.length() > 0,
-                       "The checksum file is empty!");
+            assertTrue(f.exists(), "The checksum file doesn't exist!");
+            assertTrue(f.length() > 0, "The checksum file is empty!");
         });
 
     }
@@ -254,12 +249,10 @@ public class RegenerateNugetChecksumCronJobTestIT
     {
         final String jobName = expectedJobName;
 
-        String artifactPath = REPOSITORY_RELEASES_BASEDIR_1 + "/org.carlspring.strongbox.checksum-second";
+        String artifactPath = getRepositoryBasedir(STORAGE1, REPOSITORY_RELEASES) + "/org.carlspring.strongbox.checksum-second";
 
-        deleteIfExists(new File(artifactPath,
-                                              "/1.0/org.carlspring.strongbox.checksum-second.1.0.nupkg.sha512"));
-        deleteIfExists(new File(artifactPath,
-                                              "/1.0/org.carlspring.strongbox.checksum-second.nuspec.sha512"));
+        deleteIfExists(new File(artifactPath, "/1.0/org.carlspring.strongbox.checksum-second.1.0.nupkg.sha512"));
+        deleteIfExists(new File(artifactPath, "/1.0/org.carlspring.strongbox.checksum-second.nuspec.sha512"));
 
         assertFalse(new File(artifactPath, "/1.0/org.carlspring.strongbox.checksum-second.1.0.nupkg.sha512").exists(),
                    "The checksum file for artifact exist!");
@@ -271,10 +264,8 @@ public class RegenerateNugetChecksumCronJobTestIT
             {
                 return;
             }
-            resultList.add(new File(artifactPath,
-                    "/1.0/org.carlspring.strongbox.checksum-second.1.0.nupkg.sha512"));
-            resultList.add(new File(artifactPath,
-                    "/1.0/org.carlspring.strongbox.checksum-second.nuspec.sha512"));
+            resultList.add(new File(artifactPath, "/1.0/org.carlspring.strongbox.checksum-second.1.0.nupkg.sha512"));
+            resultList.add(new File(artifactPath, "/1.0/org.carlspring.strongbox.checksum-second.nuspec.sha512"));
         });
 
         addCronJobConfig(jobName, RegenerateChecksumCronJob.class, STORAGE1, null,
@@ -284,10 +275,8 @@ public class RegenerateNugetChecksumCronJobTestIT
 
         assertEquals(2, resultList.size());
         resultList.forEach(f -> {
-            assertTrue(f.exists(),
-                       "The checksum file doesn't exist!");
-            assertTrue(f.length() > 0,
-                       "The checksum file is empty!");
+            assertTrue(f.exists(), "The checksum file doesn't exist!");
+            assertTrue(f.length() > 0, "The checksum file is empty!");
         });
     }
 
@@ -297,7 +286,7 @@ public class RegenerateNugetChecksumCronJobTestIT
     {
         final String jobName = expectedJobName;
 
-        String artifactPath = REPOSITORY_RELEASES_BASEDIR_2 + "/org.carlspring.strongbox.checksum-one";
+        String artifactPath = getRepositoryBasedir(STORAGE2, REPOSITORY_RELEASES) + "/org.carlspring.strongbox.checksum-one";
 
         deleteIfExists(new File(artifactPath, "/1.0/org.carlspring.strongbox.checksum-one.1.0.nupkg.sha512"));
         deleteIfExists(new File(artifactPath, "/1.0/org.carlspring.strongbox.checksum-one.nuspec.sha512"));
@@ -312,10 +301,8 @@ public class RegenerateNugetChecksumCronJobTestIT
             {
                 return;
             }
-            resultList.add(new File(artifactPath,
-                                        "/1.0/org.carlspring.strongbox.checksum-one.1.0.nupkg.sha512"));
-            resultList.add(new File(artifactPath,
-                                        "/1.0/org.carlspring.strongbox.checksum-one.nuspec.sha512"));
+            resultList.add(new File(artifactPath, "/1.0/org.carlspring.strongbox.checksum-one.1.0.nupkg.sha512"));
+            resultList.add(new File(artifactPath, "/1.0/org.carlspring.strongbox.checksum-one.nuspec.sha512"));
         });
 
         addCronJobConfig(jobName, RegenerateChecksumCronJob.class, null, null,
@@ -325,10 +312,8 @@ public class RegenerateNugetChecksumCronJobTestIT
         
         assertEquals(2, resultList.size());
         resultList.forEach(f -> {
-            assertTrue(f.exists(),
-                       "The checksum file doesn't exist!");
-            assertTrue(f.length() > 0,
-                       "The checksum file is empty!");
+            assertTrue(f.exists(), "The checksum file doesn't exist!");
+            assertTrue(f.length() > 0, "The checksum file is empty!");
         });
     }
 
@@ -336,7 +321,6 @@ public class RegenerateNugetChecksumCronJobTestIT
                                   String repositoryId,
                                   String policy)
             throws IOException,
-                   JAXBException,
                    RepositoryManagementStrategyException
     {
         MutableRepository repository = nugetRepositoryFactory.createRepository(repositoryId);
@@ -347,7 +331,6 @@ public class RegenerateNugetChecksumCronJobTestIT
 
     private void createRepository(String storageId, MutableRepository repository)
             throws IOException,
-                   JAXBException,
                    RepositoryManagementStrategyException
     {
         configurationManagementService.saveRepository(storageId, repository);
@@ -357,13 +340,13 @@ public class RegenerateNugetChecksumCronJobTestIT
     }
 
     private void createStorage(String storageId)
-            throws IOException, JAXBException
+            throws IOException
     {
         createStorage(new MutableStorage(storageId));
     }
 
     private void createStorage(MutableStorage storage)
-            throws IOException, JAXBException
+            throws IOException
     {
         configurationManagementService.saveStorage(storage);
         storageManagementService.createStorage(storage);
@@ -385,8 +368,7 @@ public class RegenerateNugetChecksumCronJobTestIT
                                                   String repositoryId)
             throws IOException
     {
-        File repositoryBaseDir = new File(ConfigurationResourceResolver.getVaultDirectory(),
-                                          "/storages/" + storageId + "/" + repositoryId);
+        File repositoryBaseDir = new File("target/strongbox-vault/storages/" + storageId + "/" + repositoryId);
 
         if (repositoryBaseDir.exists())
         {
@@ -395,7 +377,6 @@ public class RegenerateNugetChecksumCronJobTestIT
     }
 
     public void removeRepositories(Set<MutableRepository> repositoriesToClean)
-            throws IOException, JAXBException
     {
         for (MutableRepository repository : repositoriesToClean)
         {
@@ -418,4 +399,3 @@ public class RegenerateNugetChecksumCronJobTestIT
     }
 
 }
-

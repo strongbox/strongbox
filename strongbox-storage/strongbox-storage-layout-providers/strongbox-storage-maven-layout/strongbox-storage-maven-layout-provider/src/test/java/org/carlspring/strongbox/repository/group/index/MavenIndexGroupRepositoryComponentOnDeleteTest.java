@@ -5,9 +5,6 @@ import org.carlspring.strongbox.providers.io.RepositoryFiles;
 import org.carlspring.strongbox.providers.io.RepositoryPath;
 import org.carlspring.strongbox.providers.layout.Maven2LayoutProvider;
 import org.carlspring.strongbox.providers.search.MavenIndexerSearchProvider;
-import org.carlspring.strongbox.repository.group.BaseMavenGroupRepositoryComponentTest;
-import org.carlspring.strongbox.resource.ConfigurationResourceResolver;
-import org.carlspring.strongbox.services.ArtifactIndexesService;
 import org.carlspring.strongbox.storage.indexing.IndexTypeEnum;
 import org.carlspring.strongbox.storage.indexing.RepositoryIndexer;
 import org.carlspring.strongbox.storage.repository.MavenRepositoryFactory;
@@ -17,7 +14,6 @@ import org.carlspring.strongbox.storage.search.SearchRequest;
 import org.carlspring.strongbox.util.IndexContextHelper;
 
 import javax.inject.Inject;
-import java.io.File;
 import java.nio.file.Files;
 import java.util.LinkedHashSet;
 import java.util.Set;
@@ -60,22 +56,6 @@ public class MavenIndexGroupRepositoryComponentOnDeleteTest
 
     private static final String REPOSITORY_LEAF_XK = "leaf-repo-xk";
 
-    private static final File REPOSITORY_LEAF_XL_BASEDIR = new File(ConfigurationResourceResolver.getVaultDirectory() +
-                                                                    "/storages/" + STORAGE0 + "/" +
-                                                                    REPOSITORY_LEAF_XL);
-
-    private static final File REPOSITORY_LEAF_XD_BASEDIR = new File(ConfigurationResourceResolver.getVaultDirectory() +
-                                                                    "/storages/" + STORAGE0 + "/" +
-                                                                    REPOSITORY_LEAF_XD);
-
-    private static final File REPOSITORY_LEAF_XG_BASEDIR = new File(ConfigurationResourceResolver.getVaultDirectory() +
-                                                                    "/storages/" + STORAGE0 + "/" +
-                                                                    REPOSITORY_LEAF_XG);
-
-    private static final File REPOSITORY_LEAF_XK_BASEDIR = new File(ConfigurationResourceResolver.getVaultDirectory() +
-                                                                    "/storages/" + STORAGE0 + "/" +
-                                                                    REPOSITORY_LEAF_XK);
-
     private static final String REPOSITORY_GROUP_XO = "group-repo-xo";
 
     private static final String REPOSITORY_GROUP_XB = "group-repo-xb";
@@ -88,6 +68,7 @@ public class MavenIndexGroupRepositoryComponentOnDeleteTest
 
     @Inject
     private MavenRepositoryFactory mavenRepositoryFactory;
+
 
     protected Set<MutableRepository> getRepositories()
     {
@@ -125,25 +106,25 @@ public class MavenIndexGroupRepositoryComponentOnDeleteTest
         createGroup(REPOSITORY_GROUP_XF, STORAGE0, REPOSITORY_GROUP_XC, REPOSITORY_LEAF_XD, REPOSITORY_LEAF_XL);
         createGroup(REPOSITORY_GROUP_XH, STORAGE0, REPOSITORY_GROUP_XF, REPOSITORY_LEAF_XK);
 
-        generateArtifact(REPOSITORY_LEAF_XL_BASEDIR.getAbsolutePath(),
+        generateArtifact(getRepositoryBasedir(STORAGE0, REPOSITORY_LEAF_XL).getAbsolutePath(),
                          "com.artifacts.to.delete.releases:delete-group",
                          new String[]{ "1.2.1",
                                        "1.2.2" }
         );
 
-        generateArtifact(REPOSITORY_LEAF_XG_BASEDIR.getAbsolutePath(),
+        generateArtifact(getRepositoryBasedir(STORAGE0, REPOSITORY_LEAF_XG).getAbsolutePath(),
                          "com.artifacts.to.delete.releases:delete-group",
                          new String[]{ "1.2.1",
                                        "1.2.2" }
         );
 
-        generateArtifact(REPOSITORY_LEAF_XD_BASEDIR.getAbsolutePath(),
+        generateArtifact(getRepositoryBasedir(STORAGE0, REPOSITORY_LEAF_XD).getAbsolutePath(),
                          "com.artifacts.to.update.releases:update-group",
                          new String[]{ "1.2.1",
                                        "1.2.2" }
         );
 
-        generateArtifact(REPOSITORY_LEAF_XK_BASEDIR.getAbsolutePath(),
+        generateArtifact(getRepositoryBasedir(STORAGE0, REPOSITORY_LEAF_XK).getAbsolutePath(),
                          "com.artifacts.to.update.releases:update-group",
                          new String[]{ "1.2.1" }
         );
@@ -155,17 +136,16 @@ public class MavenIndexGroupRepositoryComponentOnDeleteTest
 
         /**
          <denied>
-         <rule-set group-repository="group-repo-h">
-         <rule pattern=".*(com|org)/artifacts/to/update/releases/update-group.*">
-         <repositories>
-         <repository>leaf-repo-d</repository>
-         </repositories>
-         </rule>
-         </rule-set>
+             <rule-set group-repository="group-repo-h">
+                 <rule pattern=".*(com|org)/artifacts/to/update/releases/update-group.*">
+                     <repositories>
+                         <repository>leaf-repo-d</repository>
+                     </repositories>
+                 </rule>
+             </rule-set>
          </denied>
          **/
-        createRoutingRuleSet(STORAGE0,
-                             REPOSITORY_GROUP_XH,
+        createRoutingRuleSet(REPOSITORY_GROUP_XH,
                              new String[]{ REPOSITORY_LEAF_XD },
                              ".*(com|org)/artifacts/to/update/releases/update-group.*",
                              ROUTING_RULE_TYPE_DENIED);

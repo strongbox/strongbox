@@ -1,5 +1,6 @@
 package org.carlspring.strongbox.testing;
 
+import org.carlspring.strongbox.booters.PropertiesBooter;
 import org.carlspring.strongbox.providers.layout.NpmLayoutProvider;
 import org.carlspring.strongbox.repository.RepositoryManagementStrategyException;
 import org.carlspring.strongbox.storage.repository.MutableRepository;
@@ -9,6 +10,7 @@ import org.carlspring.strongbox.storage.repository.remote.MutableRemoteRepositor
 
 import javax.inject.Inject;
 import javax.xml.bind.JAXBException;
+import java.io.File;
 import java.io.IOException;
 
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -26,6 +28,9 @@ public class NpmRepositoryTestCase
 
     @Inject
     NpmRepositoryFactory npmRepositoryFactory;
+
+    @Inject
+    private PropertiesBooter propertiesBooter;
 
 
     @Override
@@ -45,6 +50,11 @@ public class NpmRepositoryTestCase
         repository.setType(RepositoryTypeEnum.PROXY.getType());
 
         createRepository(storageId, repository);
+    }
+
+    public File getRepositoryBasedir(String storageId, String repositoryId)
+    {
+        return new File(propertiesBooter.getVaultDirectory() + "/storages/" + storageId + "/" + repositoryId);
     }
 
 }

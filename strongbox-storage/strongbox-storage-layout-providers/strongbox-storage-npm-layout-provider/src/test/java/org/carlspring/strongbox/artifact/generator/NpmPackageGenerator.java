@@ -1,5 +1,10 @@
 package org.carlspring.strongbox.artifact.generator;
 
+import org.carlspring.commons.io.RandomInputStream;
+import org.carlspring.strongbox.artifact.coordinates.NpmArtifactCoordinates;
+import org.carlspring.strongbox.npm.metadata.Dist;
+import org.carlspring.strongbox.npm.metadata.PackageVersion;
+
 import java.io.BufferedOutputStream;
 import java.io.IOException;
 import java.io.OutputStream;
@@ -13,19 +18,13 @@ import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 import java.util.Base64;
 
-import org.apache.commons.compress.archivers.tar.TarArchiveEntry;
-import org.apache.commons.compress.archivers.tar.TarArchiveOutputStream;
-import org.apache.commons.compress.compressors.gzip.GzipCompressorOutputStream;
-import org.carlspring.commons.io.RandomInputStream;
-import org.carlspring.strongbox.artifact.coordinates.NpmArtifactCoordinates;
-import org.carlspring.strongbox.booters.PropertiesBooter;
-import org.carlspring.strongbox.npm.metadata.Dist;
-import org.carlspring.strongbox.npm.metadata.PackageVersion;
-
 import com.fasterxml.jackson.core.JsonEncoding;
 import com.fasterxml.jackson.core.JsonFactory;
 import com.fasterxml.jackson.core.JsonGenerator;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import org.apache.commons.compress.archivers.tar.TarArchiveEntry;
+import org.apache.commons.compress.archivers.tar.TarArchiveOutputStream;
+import org.apache.commons.compress.compressors.gzip.GzipCompressorOutputStream;
 
 public class NpmPackageGenerator
 {
@@ -34,7 +33,7 @@ public class NpmPackageGenerator
 
     private PackageVersion packageJson = new PackageVersion();
 
-    private Path basePath = Paths.get(PropertiesBooter.getTempDirectory());
+    private Path basePath;
 
     private Path packagePath;
 
@@ -43,14 +42,10 @@ public class NpmPackageGenerator
     private ObjectMapper mapper = new ObjectMapper();
 
 
-    public static NpmPackageGenerator newInstance()
-    {
-        return new NpmPackageGenerator();
-    }
-
-    private NpmPackageGenerator()
+    public NpmPackageGenerator(String basedir)
     {
         super();
+        this.basePath = Paths.get(basedir);
 
         packageJson.setDist(new Dist());
     }

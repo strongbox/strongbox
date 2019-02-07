@@ -5,7 +5,6 @@ import org.carlspring.strongbox.configuration.ConfigurationManager;
 import org.carlspring.strongbox.providers.layout.LayoutProviderRegistry;
 import org.carlspring.strongbox.providers.repository.group.GroupRepositorySetCollector;
 import org.carlspring.strongbox.repository.RepositoryManagementStrategyException;
-import org.carlspring.strongbox.resource.ConfigurationResourceResolver;
 import org.carlspring.strongbox.services.RepositoryManagementService;
 import org.carlspring.strongbox.storage.Storage;
 import org.carlspring.strongbox.storage.repository.Repository;
@@ -25,10 +24,12 @@ import java.util.Map;
 import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.stereotype.Component;
 
 /**
  * @author mtodorov
  */
+@Component
 public class StorageBooter
 {
 
@@ -46,7 +47,10 @@ public class StorageBooter
     @Inject
     private GroupRepositorySetCollector groupRepositorySetCollector;
 
-    private Path lockFile = Paths.get(ConfigurationResourceResolver.getVaultDirectory()).resolve("storage-booter.lock");
+    @Inject
+    private PropertiesBooter propertiesBooter;
+
+    private Path lockFile;
 
 
     public StorageBooter()
@@ -57,6 +61,8 @@ public class StorageBooter
     public void initialize()
             throws IOException, RepositoryManagementStrategyException
     {
+        lockFile = Paths.get(propertiesBooter.getVaultDirectory()).resolve("storage-booter.lock");
+
         if (!lockExists())
         {
             createLockFile();
@@ -100,11 +106,11 @@ public class StorageBooter
         logger.debug("Removed lock file '" + lockFile.toAbsolutePath().toString() + "'.");
     }
 
-    public static void createTempDir()
+    public void createTempDir()
             throws IOException
     {
         String tempDirLocation = System.getProperty("java.io.tmpdir",
-                                                    Paths.get(ConfigurationResourceResolver.getVaultDirectory(), "tmp")
+                                                    Paths.get(propertiesBooter.getVaultDirectory(), "tmp")
                                                          .toAbsolutePath()
                                                          .toString());
         Path tempDirPath = Paths.get(tempDirLocation).toAbsolutePath();
@@ -138,11 +144,10 @@ public class StorageBooter
     }
 
     private boolean lockExists()
-            throws IOException
     {
         if (Files.exists(lockFile))
         {
-            logger.debug(" -> Lock found: '" + ConfigurationResourceResolver.getVaultDirectory() + "'!");
+            logger.debug(" -> Lock found: '" + propertiesBooter.getVaultDirectory() + "'!");
 
             return true;
         }
@@ -168,7 +173,7 @@ public class StorageBooter
         else
         {
             // Assuming this invocation is related to tests:
-            basedir = ConfigurationResourceResolver.getVaultDirectory() + "/storages";
+            basedir = propertiesBooter.getVaultDirectory() + "/storages";
         }
 
         for (Map.Entry<String, Storage> stringStorageEntry : storages.entrySet())

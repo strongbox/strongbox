@@ -1,10 +1,10 @@
 package org.carlspring.strongbox.cron.jobs;
 
+import org.carlspring.strongbox.booters.PropertiesBooter;
 import org.carlspring.strongbox.config.Maven2LayoutProviderCronTasksTestConfig;
 import org.carlspring.strongbox.data.CacheManagerTestExecutionListener;
 import org.carlspring.strongbox.providers.layout.Maven2LayoutProvider;
 import org.carlspring.strongbox.providers.search.MavenIndexerSearchProvider;
-import org.carlspring.strongbox.resource.ConfigurationResourceResolver;
 import org.carlspring.strongbox.services.ArtifactSearchService;
 import org.carlspring.strongbox.storage.repository.MutableRepository;
 import org.carlspring.strongbox.storage.search.SearchRequest;
@@ -44,12 +44,14 @@ public class RebuildMavenIndexesCronJobTestIT
         extends BaseCronJobWithMavenIndexingTestCase
 {
 
+    @Inject
+    private PropertiesBooter propertiesBooter;
+
     private static final String REPOSITORY_RELEASES_1 = "rmicj-releases";
 
-    private static final File REPOSITORY_RELEASES_BASEDIR_1 = new File(
-            ConfigurationResourceResolver.getVaultDirectory() +
-            "/storages/" + STORAGE0 + "/" +
-            REPOSITORY_RELEASES_1);
+    private final File REPOSITORY_RELEASES_BASEDIR_1 = new File(propertiesBooter.getVaultDirectory() +
+                                                                "/storages/" + STORAGE0 + "/" +
+                                                                REPOSITORY_RELEASES_1);
 
     private static final String ARTIFACT_BASE_PATH_STRONGBOX_INDEXES = "org/carlspring/strongbox/indexes/strongbox-test-one";
 

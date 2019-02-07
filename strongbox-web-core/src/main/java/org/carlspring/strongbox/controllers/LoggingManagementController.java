@@ -53,6 +53,9 @@ public class LoggingManagementController
     public final static String ROOT_CONTEXT = "/api/logging";
 
     @Inject
+    private PropertiesBooter propertiesBooter;
+
+    @Inject
     private LoggingManagementService loggingManagementService;
 
     @Inject
@@ -248,7 +251,7 @@ public class LoggingManagementController
 
         try
         {
-            Path logsBaseDir = Paths.get(PropertiesBooter.getVaultDirectory(), "/logs/");
+            Path logsBaseDir = Paths.get(propertiesBooter.getVaultDirectory(), "/logs/");
             Path requestedLogPath = Paths.get(logsBaseDir.toString(), rawPath.orElse(""));
 
             if(Files.exists(requestedLogPath) && !Files.isDirectory(requestedLogPath))

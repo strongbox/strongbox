@@ -1,7 +1,6 @@
 package org.carlspring.strongbox.testing;
 
 import org.carlspring.strongbox.configuration.Configuration;
-import org.carlspring.strongbox.resource.ConfigurationResourceResolver;
 import org.carlspring.strongbox.services.ConfigurationManagementService;
 import org.carlspring.strongbox.storage.MutableStorage;
 import org.carlspring.strongbox.storage.repository.MutableRepository;
@@ -30,6 +29,7 @@ public class TestCaseWithRepository
     @Inject
     protected ConfigurationManagementService configurationManagementService;
 
+
     public static void cleanUp(Set<MutableRepository> repositoriesToClean)
             throws Exception
     {
@@ -46,7 +46,7 @@ public class TestCaseWithRepository
                                                   String repositoryId)
             throws IOException
     {
-        File repositoryBaseDir = new File(ConfigurationResourceResolver.getVaultDirectory(),
+        File repositoryBaseDir = new File(System.getProperty("strongbox.vault"),
                                           "/storages/" + storageId + "/" + repositoryId);
 
         if (repositoryBaseDir.exists())

@@ -3,12 +3,10 @@ package org.carlspring.strongbox.storage.validation.resource;
 import org.carlspring.commons.io.RandomInputStream;
 import org.carlspring.strongbox.StorageApiTestConfig;
 import org.carlspring.strongbox.data.CacheManagerTestExecutionListener;
-import org.carlspring.strongbox.resource.ConfigurationResourceResolver;
 import org.carlspring.strongbox.services.ConfigurationManagementService;
 import org.carlspring.strongbox.storage.ArtifactResolutionException;
 
 import javax.inject.Inject;
-import javax.xml.bind.JAXBException;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
@@ -18,8 +16,6 @@ import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.springframework.mock.web.MockMultipartFile;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.ContextConfiguration;
@@ -34,14 +30,10 @@ import static org.junit.jupiter.api.Assertions.fail;
 @ExtendWith(SpringExtension.class)
 @ActiveProfiles(profiles = "test")
 @ContextConfiguration(classes = StorageApiTestConfig.class)
-@TestExecutionListeners(listeners = { CacheManagerTestExecutionListener.class }, mergeMode = TestExecutionListeners.MergeMode.MERGE_WITH_DEFAULTS)
+@TestExecutionListeners(listeners = { CacheManagerTestExecutionListener.class },
+                        mergeMode = TestExecutionListeners.MergeMode.MERGE_WITH_DEFAULTS)
 public class ArtifactOperationsValidatorTest
 {
-
-    private static final Logger logger = LoggerFactory.getLogger(ArtifactOperationsValidatorTest.class);
-
-    private static final File REPOSITORY_BASEDIR = new File(ConfigurationResourceResolver.getVaultDirectory() +
-                                                            "/storages/storage0/releases");
 
     private static final String STORAGE_ID = "storage0";
 
@@ -57,6 +49,7 @@ public class ArtifactOperationsValidatorTest
     @Inject
     private ConfigurationManagementService configurationManagementService;
 
+    private String REPOSITORY_BASEDIR = new File("target/strongbox-vault/storages/storage0/releases").getAbsolutePath();
 
     @BeforeEach
     public void setUp()
@@ -79,14 +72,13 @@ public class ArtifactOperationsValidatorTest
 
     @AfterEach
     public void tearDown()
-            throws Exception
     {
         configurationManagementService.setArtifactMaxSize(STORAGE_ID, REPOSITORY_ID, 0L);
     }
 
     @Test
     public void checkArtifactSizeTest()
-            throws IOException, JAXBException
+            throws IOException
     {
         long size = multipartFile.getSize();
 
@@ -125,10 +117,9 @@ public class ArtifactOperationsValidatorTest
 
         }
 
-        File file = new File(REPOSITORY_BASEDIR.getAbsolutePath() + "validate-test.jar");
+        File file = new File(REPOSITORY_BASEDIR + "validate-test.jar");
         //noinspection ResultOfMethodCallIgnored
-        file.getParentFile()
-            .mkdirs();
+        file.getParentFile().mkdirs();
         //noinspection ResultOfMethodCallIgnored
         file.createNewFile();
 
@@ -136,8 +127,6 @@ public class ArtifactOperationsValidatorTest
                                                             "strongbox-validate-empty.jar",
                                                             "application/octet-stream",
                                                             new FileInputStream(file));
-
-        size = emptyFile.getSize();
 
         try
         {

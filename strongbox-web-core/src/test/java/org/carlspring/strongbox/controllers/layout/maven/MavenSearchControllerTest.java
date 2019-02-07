@@ -4,7 +4,6 @@ import org.carlspring.strongbox.config.IntegrationTest;
 import org.carlspring.strongbox.providers.layout.Maven2LayoutProvider;
 import org.carlspring.strongbox.providers.search.MavenIndexerSearchProvider;
 import org.carlspring.strongbox.providers.search.OrientDbSearchProvider;
-import org.carlspring.strongbox.resource.ConfigurationResourceResolver;
 import org.carlspring.strongbox.rest.common.MavenRestAssuredBaseTest;
 import org.carlspring.strongbox.storage.indexing.IndexTypeEnum;
 import org.carlspring.strongbox.storage.indexing.RepositoryIndexer;
@@ -13,13 +12,10 @@ import org.carlspring.strongbox.storage.repository.RepositoryPolicyEnum;
 
 import java.io.IOException;
 import java.lang.reflect.UndeclaredThrowableException;
-import java.nio.file.Path;
-import java.nio.file.Paths;
 import java.util.LinkedHashSet;
 import java.util.Set;
 
 import org.junit.jupiter.api.AfterEach;
-import org.junit.jupiter.api.Assumptions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -42,11 +38,6 @@ public class MavenSearchControllerTest
     private static final String STORAGE_SC_TEST = "storage-sc-test";
 
     private static final String REPOSITORY_RELEASES = "sc-releases-search";
-
-    private static final Path GENERATOR_BASEDIR = Paths.get(ConfigurationResourceResolver.getVaultDirectory())
-                                                       .resolve("local")
-                                                       .resolve(STORAGE_SC_TEST)
-                                                       .resolve(REPOSITORY_RELEASES);
 
 
     public static void cleanUp()

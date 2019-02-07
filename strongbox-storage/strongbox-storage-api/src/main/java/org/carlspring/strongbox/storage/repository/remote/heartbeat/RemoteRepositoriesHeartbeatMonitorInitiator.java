@@ -47,14 +47,12 @@ public class RemoteRepositoriesHeartbeatMonitorInitiator
 
     @Override
     public void destroy()
-            throws Exception
     {
         executor.shutdown();
     }
 
     @Override
     public void afterPropertiesSet()
-            throws Exception
     {
         int heartbeatThreadsNumber = getRemoteRepositoriesHeartbeatThreadsNumber();
         executor = Executors.newScheduledThreadPool(heartbeatThreadsNumber);

@@ -1,9 +1,8 @@
 package org.carlspring.strongbox.configuration;
 
 import org.carlspring.strongbox.StorageApiTestConfig;
+import org.carlspring.strongbox.booters.PropertiesBooter;
 import org.carlspring.strongbox.data.CacheManagerTestExecutionListener;
-import org.carlspring.strongbox.resource.ConfigurationResourceResolver;
-import org.carlspring.strongbox.services.ArtifactResolutionService;
 import org.carlspring.strongbox.storage.MutableStorage;
 import org.carlspring.strongbox.storage.repository.MutableRepository;
 import org.carlspring.strongbox.storage.routing.MutableRoutingRule;
@@ -50,12 +49,11 @@ public class ConfigurationManagerTest
     private ConfigurationManager configurationManager;
 
     @Inject
-    private ArtifactResolutionService artifactResolutionService;
+    private PropertiesBooter propertiesBooter;
 
 
     @BeforeEach
     public void setUp()
-            throws Exception
     {
         File xmlDir = new File(CONFIGURATION_BASEDIR);
         if (!xmlDir.exists())
@@ -126,7 +124,7 @@ public class ConfigurationManagerTest
 
         MutableStorage storage = new MutableStorage();
         storage.setId("myStorageId");
-        storage.setBasedir(new File(ConfigurationResourceResolver.getVaultDirectory() + "/storages" + STORAGE0)
+        storage.setBasedir(new File(propertiesBooter.getVaultDirectory() + "/storages" + STORAGE0)
                                    .getAbsolutePath());
         storage.addRepository(repository1);
         storage.addRepository(repository2);
@@ -153,8 +151,7 @@ public class ConfigurationManagerTest
         repository3.addRepositoryToGroup(repository2.getId());
 
         MutableStorage storage = new MutableStorage("storage0");
-        storage.setBasedir(new File(ConfigurationResourceResolver.getVaultDirectory() + "/storages" + STORAGE0)
-                                   .getAbsolutePath());
+        storage.setBasedir(new File(propertiesBooter.getVaultDirectory() + "/storages" + STORAGE0).getAbsolutePath());
         storage.addRepository(repository1);
         storage.addRepository(repository2);
         storage.addRepository(repository3);

@@ -4,14 +4,12 @@ import org.carlspring.strongbox.config.Maven2LayoutProviderCronTasksTestConfig;
 import org.carlspring.strongbox.data.CacheManagerTestExecutionListener;
 import org.carlspring.strongbox.providers.layout.Maven2LayoutProvider;
 import org.carlspring.strongbox.providers.search.MavenIndexerSearchProvider;
-import org.carlspring.strongbox.resource.ConfigurationResourceResolver;
 import org.carlspring.strongbox.services.ArtifactSearchService;
 import org.carlspring.strongbox.storage.indexing.IndexTypeEnum;
 import org.carlspring.strongbox.storage.repository.MutableRepository;
 import org.carlspring.strongbox.storage.search.SearchRequest;
 
 import javax.inject.Inject;
-import java.io.File;
 import java.lang.reflect.UndeclaredThrowableException;
 import java.util.LinkedHashSet;
 import java.util.Set;
@@ -50,9 +48,6 @@ public class DownloadRemoteMavenIndexCronJobTestIT
 
     private static final String REPOSITORY_PROXIED_RELEASES = "drmicj-proxied-releases";
 
-    private static final File REPOSITORY_RELEASES_BASEDIR = new File(ConfigurationResourceResolver.getVaultDirectory() +
-                                                                     "/storages/" + STORAGE0 + "/" +
-                                                                     REPOSITORY_RELEASES);
 
     @Inject
     private ArtifactSearchService artifactSearchService;
@@ -86,10 +81,10 @@ public class DownloadRemoteMavenIndexCronJobTestIT
                               REPOSITORY_PROXIED_RELEASES,
                               "http://localhost:48080/storages/" + STORAGE0 + "/" + REPOSITORY_RELEASES);
 
-        generateArtifact(REPOSITORY_RELEASES_BASEDIR.getAbsolutePath(),
+        generateArtifact(getRepositoryBasedir(STORAGE0, REPOSITORY_RELEASES).getAbsolutePath(),
                          "org.carlspring.strongbox.indexes.download:strongbox-test-one:1.0:jar");
 
-        generateArtifact(REPOSITORY_RELEASES_BASEDIR.getAbsolutePath(),
+        generateArtifact(getRepositoryBasedir(STORAGE0, REPOSITORY_RELEASES).getAbsolutePath(),
                          "org.carlspring.strongbox.indexes.download:strongbox-test-two:1.0:jar");
 
         reIndex(STORAGE0, REPOSITORY_RELEASES, "/");

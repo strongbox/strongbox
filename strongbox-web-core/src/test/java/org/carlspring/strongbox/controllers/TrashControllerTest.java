@@ -1,9 +1,7 @@
 package org.carlspring.strongbox.controllers;
 
 import org.carlspring.strongbox.config.IntegrationTest;
-import org.carlspring.strongbox.configuration.ConfigurationManager;
 import org.carlspring.strongbox.providers.layout.Maven2LayoutProvider;
-import org.carlspring.strongbox.resource.ConfigurationResourceResolver;
 import org.carlspring.strongbox.rest.common.MavenRestAssuredBaseTest;
 import org.carlspring.strongbox.storage.repository.MavenRepositoryFactory;
 import org.carlspring.strongbox.storage.repository.MutableRepository;
@@ -40,22 +38,13 @@ public class TrashControllerTest
         extends MavenRestAssuredBaseTest
 {
 
-    private static final String BASEDIR = Paths.get(
-            ConfigurationResourceResolver.getVaultDirectory()).toAbsolutePath().toString();
-
     private static final String REPOSITORY_WITH_TRASH = "tct-releases-with-trash";
 
     private static final String REPOSITORY_WITH_FORCE_DELETE = "tct-releases-with-force-delete";
 
-    private static final String REPOSITORY_WITH_TRASH_BASEDIR = BASEDIR +
-                                                                "/storages/" + STORAGE0 + "/" + REPOSITORY_WITH_TRASH;
-
-    private static final Path ARTIFACT_FILE_IN_TRASH = Paths.get(REPOSITORY_WITH_TRASH_BASEDIR + "/.trash/" +
-                                                                 "org/carlspring/strongbox/test-artifact-to-trash/1.0/" +
-                                                                 "test-artifact-to-trash-1.0.jar");
-
-    @Inject
-    private ConfigurationManager configurationManager;
+    private static final String ARTIFACT_FILE_IN_TRASH = "/.trash/" +
+                                                         "org/carlspring/strongbox/test-artifact-to-trash/1.0/" +
+                                                         "test-artifact-to-trash-1.0.jar";
 
     @Inject
     private MavenRepositoryFactory mavenRepositoryFactory;
@@ -123,14 +112,13 @@ public class TrashControllerTest
 
     @Test
     public void testForceDeleteArtifactNotAllowed()
-            throws Exception
     {
         final String artifactPath = "org/carlspring/strongbox/test-artifact-to-trash/1.0/test-artifact-to-trash-1.0.jar";
 
         // Delete the artifact (this one should get placed under the .trash)
         client.delete(STORAGE0, REPOSITORY_WITH_TRASH, artifactPath, false);
 
-        final Path repositoryDir = Paths.get(BASEDIR + "/storages/" + STORAGE0 + "/" + REPOSITORY_WITH_TRASH + "/.trash");
+        final Path repositoryDir = Paths.get(getRepositoryBasedir(STORAGE0, REPOSITORY_WITH_TRASH).getAbsolutePath() + "/.trash");
 
         final Path artifactFile = repositoryDir.resolve(artifactPath);
 
@@ -142,24 +130,22 @@ public class TrashControllerTest
 
         Assumptions.assumeTrue(repositoryIndexManager.isPresent());
 
-        final Path repositoryIndexDir = Paths.get(BASEDIR + "/storages/" + STORAGE0 + "/" + REPOSITORY_WITH_TRASH + "/.index");
-        assertTrue(Files.exists(repositoryIndexDir),
-                   "Should not have deleted .index directory!");
+        final Path repositoryIndexDir = Paths.get(getRepositoryBasedir(STORAGE0, REPOSITORY_WITH_TRASH) + "/.index");
+
+        assertTrue(Files.exists(repositoryIndexDir), "Should not have deleted .index directory!");
     }
 
     @Test
     public void testForceDeleteArtifactAllowed()
-            throws Exception
     {
         final String artifactPath = "org/carlspring/strongbox/test-artifact-to-trash/1.1/test-artifact-to-trash-1.1.jar";
 
         // Delete the artifact (this one shouldn't get placed under the .trash)
         client.delete(STORAGE0, REPOSITORY_WITH_FORCE_DELETE, artifactPath, true);
 
-        final Path repositoryTrashDir = Paths.get(BASEDIR + "/storages/" + STORAGE0 + "/" +
-                                                  REPOSITORY_WITH_FORCE_DELETE + "/.trash");
+        final Path repositoryTrashDir = Paths.get(getRepositoryBasedir(STORAGE0, REPOSITORY_WITH_FORCE_DELETE) + "/.trash");
 
-        final Path repositoryDir = Paths.get(BASEDIR + "/storages/" + STORAGE0 + "/" +
+        final Path repositoryDir = Paths.get(getRepositoryBasedir(STORAGE0, REPOSITORY_WITH_FORCE_DELETE) + "/" +
                                              REPOSITORY_WITH_FORCE_DELETE + "/.trash");
 
         assertFalse(Files.exists(repositoryTrashDir.resolve(artifactPath)),
@@ -179,11 +165,16 @@ public class TrashControllerTest
                .peek()
                .then()
                .statusCode(HttpStatus.OK.value())
-               .body(equalTo(
-                       "The trash for '" + STORAGE0 + ":" + REPOSITORY_WITH_TRASH + "' was removed successfully."));
+               .body(equalTo( "The trash for '" + STORAGE0 + ":" + REPOSITORY_WITH_TRASH + "' was removed successfully."));
 
-        assertFalse(Files.exists(ARTIFACT_FILE_IN_TRASH),
+        assertFalse(Files.exists(getPathToArtifactInTrash()),
                     "Failed to empty trash for repository '" + REPOSITORY_WITH_TRASH + "'!");
+    }
+
+    private Path getPathToArtifactInTrash()
+    {
+        return Paths.get(getRepositoryBasedir(STORAGE0, REPOSITORY_WITH_TRASH).getAbsolutePath() + "/" +
+                         ARTIFACT_FILE_IN_TRASH);
     }
 
     @Test
@@ -200,7 +191,7 @@ public class TrashControllerTest
                .body("message", equalTo(
                        "The trash for '" + STORAGE0 + ":" + REPOSITORY_WITH_TRASH + "' was removed successfully."));
 
-        assertFalse(Files.exists(ARTIFACT_FILE_IN_TRASH),
+        assertFalse(Files.exists(getPathToArtifactInTrash()),
                     "Failed to empty trash for repository '" + REPOSITORY_WITH_TRASH + "'!");
     }
 
@@ -217,7 +208,7 @@ public class TrashControllerTest
                .statusCode(HttpStatus.OK.value())
                .body(equalTo("The trash for all repositories was successfully removed."));
 
-        assertFalse(Files.exists(ARTIFACT_FILE_IN_TRASH),
+        assertFalse(Files.exists(getPathToArtifactInTrash()),
                     "Failed to empty trash for repository '" + REPOSITORY_WITH_TRASH + "'!");
     }
 
@@ -234,7 +225,7 @@ public class TrashControllerTest
                .statusCode(HttpStatus.OK.value())
                .body("message", equalTo("The trash for all repositories was successfully removed."));
 
-        assertFalse(Files.exists(ARTIFACT_FILE_IN_TRASH), "Failed to empty trash for all repositories");
+        assertFalse(Files.exists(getPathToArtifactInTrash()), "Failed to empty trash for all repositories");
     }
 
 }

@@ -1,5 +1,6 @@
 package org.carlspring.strongbox.resource;
 
+import org.carlspring.strongbox.booters.PropertiesBooter;
 import org.carlspring.strongbox.booters.ResourcesBooter;
 import org.carlspring.strongbox.config.Maven2LayoutProviderTestConfig;
 import org.carlspring.strongbox.testing.TestCaseWithMavenArtifactGenerationAndIndexing;
@@ -29,19 +30,20 @@ public class ResourcesBooterTest
     @Inject
     private ResourcesBooter resourcesBooter;
 
+    @Inject
+    private PropertiesBooter propertiesBooter;
+
 
     @BeforeAll
     public static void cleanUp()
-            throws Exception
     {
         // No need to clean up anything, just overriding the method from the parent
     }
 
     @Test
     public void testResourceBooting()
-            throws Exception
     {
-        File file = new File(ConfigurationResourceResolver.getHomeDirectory() + "/etc/conf/strongbox.xml");
+        File file = new File(propertiesBooter.getHomeDirectory() + "/etc/conf/strongbox.xml");
 
         assertTrue(file.exists(), "Failed to copy configuration resource from classpath!");
     }

@@ -92,7 +92,7 @@ public class FetchChangesFeedCronJobTestIT
     private JobManager jobManager;
 
     @Inject
-    private ProxyRepositoryConnectionPoolConfigurationService proxyRepositoryConnectionPoolConfigurationService;;
+    private ProxyRepositoryConnectionPoolConfigurationService proxyRepositoryConnectionPoolConfigurationService;
 
     @PersistenceContext
     private EntityManager entityManager;

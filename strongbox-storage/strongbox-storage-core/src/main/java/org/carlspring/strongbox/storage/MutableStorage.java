@@ -1,14 +1,9 @@
 package org.carlspring.strongbox.storage;
 
-import org.carlspring.strongbox.resource.ConfigurationResourceResolver;
 import org.carlspring.strongbox.storage.repository.MutableRepository;
 import org.carlspring.strongbox.xml.RepositoryMapAdapter;
 
-import javax.xml.bind.annotation.XmlAccessType;
-import javax.xml.bind.annotation.XmlAccessorType;
-import javax.xml.bind.annotation.XmlAttribute;
-import javax.xml.bind.annotation.XmlElement;
-import javax.xml.bind.annotation.XmlRootElement;
+import javax.xml.bind.annotation.*;
 import javax.xml.bind.annotation.adapters.XmlJavaTypeAdapter;
 import java.io.Serializable;
 import java.nio.file.Files;
@@ -31,7 +26,7 @@ public class MutableStorage
     
     @XmlAttribute
     private String basedir;
-    
+
     @XmlElement(name = "repositories")
     @XmlJavaTypeAdapter(RepositoryMapAdapter.class)
     private Map<String, MutableRepository> repositories = new LinkedHashMap<>();
@@ -76,17 +71,9 @@ public class MutableStorage
         }
         else if (id != null)
         {
-            Path basedir;
-            if (System.getProperty("strongbox.storage.booter.basedir") != null)
-            {
-                basedir = Paths.get(System.getProperty("strongbox.storage.booter.basedir"));
-            }
-            else
-            {
-                // Assuming this invocation is related to tests:
-                basedir = Paths.get(ConfigurationResourceResolver.getVaultDirectory()).resolve("storages");
-            }
-            return basedir.resolve(id).toString();
+            Path basedirPath = Paths.get(System.getProperty("strongbox.storage.booter.basedir"));
+            basedir = basedirPath.resolve(id).toString();
+            return basedir;
         }
         else
         {

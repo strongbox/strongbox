@@ -63,7 +63,7 @@ public class CollectionUtils
 
     public static Map<String, Object> flattenMap(Map<String, Object> map)
     {
-        return flatten(map).collect(HashMap<String, Object>::new, flattenedEntryConsumer(null), HashMap::putAll);
+        return flatten(map).collect(HashMap::new, flattenedEntryConsumer(null), HashMap::putAll);
     }
 
     public static Object flattenObject(Object o)
@@ -77,9 +77,7 @@ public class CollectionUtils
 
     private static Stream<Entry<String, Object>> flatten(Map<String, Object> map)
     {
-        return map.entrySet()
-                  .stream()
-                  .flatMap(CollectionUtils::flatten);
+        return map.entrySet().stream().flatMap(CollectionUtils::flatten);
     }
 
     private static Stream<Map.Entry<String, Object>> flatten(Map.Entry<String, Object> entry)
@@ -113,8 +111,7 @@ public class CollectionUtils
 
     private static BiConsumer<HashMap<String, Object>, ? super Entry<String, Object>> flattenedEntryConsumer(String keyPrefix)
     {
-        return (m,
-                e) -> m.put(keyPrefix == null ? e.getKey() : keyPrefix + "." + e.getKey(), e.getValue());
+        return (m, e) -> m.put(keyPrefix == null ? e.getKey() : keyPrefix + "." + e.getKey(), e.getValue());
     }
 
 }

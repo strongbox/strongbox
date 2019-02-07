@@ -40,6 +40,8 @@ public class NpmArtifactControllerTest
     @Qualifier("contextBaseUrl")
     private String contextBaseUrl;
 
+    NpmPackageGenerator packageGenerator;
+
 
     @BeforeAll
     public static void cleanUp()
@@ -67,6 +69,10 @@ public class NpmArtifactControllerTest
         repository.setPolicy(RepositoryPolicyEnum.RELEASE.getPolicy());
 
         createRepository(STORAGE0, repository);
+
+        String repositoryBasedir = getRepositoryBasedir(STORAGE0, REPOSITORY_RELEASES).getAbsolutePath();
+
+        packageGenerator = new NpmPackageGenerator(repositoryBasedir);
     }
 
     @Test
@@ -74,7 +80,6 @@ public class NpmArtifactControllerTest
         throws Exception
     {
         NpmArtifactCoordinates coordinates = NpmArtifactCoordinates.of("@carlspring/npm-test-view", "1.0.0");
-        NpmPackageGenerator packageGenerator = NpmPackageGenerator.newInstance();
         Path publishJsonPath = packageGenerator.of(coordinates).buildPublishJson();
 
         byte[] publishJsonContent = Files.readAllBytes(publishJsonPath);
@@ -116,7 +121,6 @@ public class NpmArtifactControllerTest
         throws Exception
     {
         NpmArtifactCoordinates coordinates = NpmArtifactCoordinates.of("@carlspring/npm-test-release", "1.0.0");
-        NpmPackageGenerator packageGenerator = NpmPackageGenerator.newInstance();
         Path publishJsonPath = packageGenerator.of(coordinates).buildPublishJson();
         Path packagePath = packageGenerator.getPackagePath();
 

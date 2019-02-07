@@ -2,7 +2,6 @@ package org.carlspring.strongbox.controllers.layout.maven;
 
 import org.carlspring.strongbox.config.IntegrationTest;
 import org.carlspring.strongbox.providers.layout.Maven2LayoutProvider;
-import org.carlspring.strongbox.resource.ConfigurationResourceResolver;
 import org.carlspring.strongbox.rest.common.MavenRestAssuredBaseTest;
 import org.carlspring.strongbox.services.ArtifactMetadataService;
 import org.carlspring.strongbox.storage.metadata.MetadataHelper;
@@ -15,8 +14,6 @@ import javax.inject.Inject;
 import javax.xml.bind.JAXBException;
 import java.io.IOException;
 import java.io.InputStream;
-import java.nio.file.Path;
-import java.nio.file.Paths;
 import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Set;
@@ -43,11 +40,6 @@ public class MavenMetadataManagementControllerTest
     private static final String REPOSITORY_RELEASES = "mmct-releases";
 
     private static final String REPOSITORY_SNAPSHOTS = "mmct-snapshots";
-
-    private static final Path REPOSITORY_BASEDIR_SNAPSHOTS = Paths.get(ConfigurationResourceResolver.getVaultDirectory())
-                                                                  .resolve("storages")
-                                                                  .resolve(STORAGE0)
-                                                                  .resolve(REPOSITORY_SNAPSHOTS);
 
     @Inject
     private ArtifactMetadataService artifactMetadataService;
@@ -166,21 +158,21 @@ public class MavenMetadataManagementControllerTest
             throws Exception
     {
         // Generate snapshots in nested dirs
-        createTimestampedSnapshotArtifact(REPOSITORY_BASEDIR_SNAPSHOTS.toString(),
+        createTimestampedSnapshotArtifact(getRepositoryBasedir(STORAGE0, REPOSITORY_SNAPSHOTS).getAbsolutePath(),
                                           "org.carlspring.strongbox.metadata.foo",
                                           "strongbox-metadata-bar",
                                           "1.2.3",
                                           "jar",
                                           null,
                                           5);
-        createTimestampedSnapshotArtifact(REPOSITORY_BASEDIR_SNAPSHOTS.toString(),
+        createTimestampedSnapshotArtifact(getRepositoryBasedir(STORAGE0, REPOSITORY_SNAPSHOTS).getAbsolutePath(),
                                           "org.carlspring.strongbox.metadata.foo.bar",
                                           "strongbox-metadata-foo",
                                           "2.1",
                                           "jar",
                                           null,
                                           5);
-        createTimestampedSnapshotArtifact(REPOSITORY_BASEDIR_SNAPSHOTS.toString(),
+        createTimestampedSnapshotArtifact(getRepositoryBasedir(STORAGE0, REPOSITORY_SNAPSHOTS).getAbsolutePath(),
                                           "org.carlspring.strongbox.metadata.foo.bar",
                                           "strongbox-metadata-foo-bar",
                                           "5.4",
