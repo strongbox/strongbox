@@ -114,11 +114,11 @@ public class Maven2LayoutProvider
 
                     break;
                 case EXPIRED:
-                    final Instant oneMinuteAgo = Instant.now().minus(1, ChronoUnit.MINUTES);
+                    final Instant tenSecondsAgo = Instant.now().minus(10, ChronoUnit.SECONDS);
                     value = BooleanUtils.isTrue((Boolean) value) || (isMavenMetadata(repositoryPath)
                                                                      &&
                                                                      !RepositoryFiles.wasModifiedAfter(repositoryPath,
-                                                                                                       oneMinuteAgo));
+                                                                                                       tenSecondsAgo));
 
                     result.put(attributeType, value);
 
