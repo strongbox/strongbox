@@ -72,3 +72,4 @@ To accept, please:
 | Benjamin March               |                             			          | Munich, Germany                     				| 2018-10-28 |
 | Konstantina Papadopoulou	   |										  | Thessaloniki, Greece					| 2018-12-28 |
 | Jitesh Golatkar           |                                          | Charlotte, USA                      | 2019-01-25 |
+| Forrest Whiting              | Forbes Media                             | Jersey City, New Jersey, USA            | 2019-02-04 |
