@@ -1,8 +1,8 @@
 package org.carlspring.strongbox.configuration;
 
 import org.carlspring.strongbox.StorageApiTestConfig;
+import org.carlspring.strongbox.booters.PropertiesBooter;
 import org.carlspring.strongbox.data.CacheManagerTestExecutionListener;
-import org.carlspring.strongbox.resource.ConfigurationResourceResolver;
 import org.carlspring.strongbox.storage.MutableStorage;
 import org.carlspring.strongbox.storage.repository.MutableRepository;
 import org.carlspring.strongbox.storage.routing.MutableRoutingRule;
@@ -49,7 +49,7 @@ public class ConfigurationManagerTest
     private ConfigurationManager configurationManager;
 
     @Inject
-    private ConfigurationResourceResolver configurationResourceResolver;
+    private PropertiesBooter propertiesBooter;
 
 
     @BeforeEach
@@ -124,7 +124,7 @@ public class ConfigurationManagerTest
 
         MutableStorage storage = new MutableStorage();
         storage.setId("myStorageId");
-        storage.setBasedir(new File(configurationResourceResolver.getVaultDirectory() + "/storages" + STORAGE0)
+        storage.setBasedir(new File(propertiesBooter.getVaultDirectory() + "/storages" + STORAGE0)
                                    .getAbsolutePath());
         storage.addRepository(repository1);
         storage.addRepository(repository2);
@@ -151,8 +151,7 @@ public class ConfigurationManagerTest
         repository3.addRepositoryToGroup(repository2.getId());
 
         MutableStorage storage = new MutableStorage("storage0");
-        storage.setBasedir(new File(configurationResourceResolver.getVaultDirectory() + "/storages" + STORAGE0)
-                                   .getAbsolutePath());
+        storage.setBasedir(new File(propertiesBooter.getVaultDirectory() + "/storages" + STORAGE0).getAbsolutePath());
         storage.addRepository(repository1);
         storage.addRepository(repository2);
         storage.addRepository(repository3);

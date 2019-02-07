@@ -1,11 +1,11 @@
 package org.carlspring.strongbox.cron.jobs;
 
+import org.carlspring.strongbox.booters.PropertiesBooter;
 import org.carlspring.strongbox.config.NugetLayoutProviderCronTasksTestConfig;
 import org.carlspring.strongbox.cron.domain.CronTaskConfigurationDto;
 import org.carlspring.strongbox.cron.services.CronTaskConfigurationService;
 import org.carlspring.strongbox.cron.services.JobManager;
 import org.carlspring.strongbox.repository.RepositoryManagementStrategyException;
-import org.carlspring.strongbox.resource.ConfigurationResourceResolver;
 import org.carlspring.strongbox.services.ConfigurationManagementService;
 import org.carlspring.strongbox.services.RepositoryManagementService;
 import org.carlspring.strongbox.services.StorageManagementService;
@@ -50,7 +50,7 @@ public class RegenerateNugetChecksumCronJobTestIT
     private static final String REPOSITORY_ALPHA = "rnccj-alpha";
 
     @Inject
-    private ConfigurationResourceResolver configurationResourceResolver;
+    private PropertiesBooter propertiesBooter;
 
     @Inject
     private CronTaskConfigurationService cronTaskConfigurationService;
@@ -127,7 +127,7 @@ public class RegenerateNugetChecksumCronJobTestIT
 
     private String getRepositoryBasedir(String storageId, String repositoryId)
     {
-        return Paths.get(configurationResourceResolver.getVaultDirectory() +
+        return Paths.get(propertiesBooter.getVaultDirectory() +
                          "/storages/" + storageId + "/" + repositoryId).toAbsolutePath().toString();
     }
 

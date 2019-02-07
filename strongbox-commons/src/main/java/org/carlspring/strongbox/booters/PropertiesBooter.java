@@ -15,22 +15,22 @@ public class PropertiesBooter
     @Value("${strongbox.home}")
     private String homeDirectory;
 
-    @Value("${strongbox.vault:strongbox-vault}")
+    @Value("${strongbox.vault:../strongbox-vault}")
     private String vaultDirectory;
 
-    @Value("${strongbox.etc:strongbox/etc}")
+    @Value("${strongbox.etc:${strongbox.home}/etc}")
     private String etcDirectory;
 
     @Value("${strongbox.temp:strongbox/tmp}")
     private String tempDirectory;
 
-    @Value("${logging.dir:strongbox-vault/logs}")
+    @Value("${logging.dir:${strongbox.vault}/logs}")
     private String logsDirectory;
 
-    @Value("${strongbox.storage.booter.basedir:../strongbox-vault/storages}")
+    @Value("${strongbox.storage.booter.basedir:${strongbox.vault}/storages}")
     private String storageBooterBasedir;
 
-    @Value("${strongbox.config.xml:strongbox/etc/conf/strongbox.xml}")
+    @Value("${strongbox.config.xml:${strongbox.home}/etc/conf/strongbox.xml}")
     private String configFile;
 
     @Value("${strongbox.host:localhost}")

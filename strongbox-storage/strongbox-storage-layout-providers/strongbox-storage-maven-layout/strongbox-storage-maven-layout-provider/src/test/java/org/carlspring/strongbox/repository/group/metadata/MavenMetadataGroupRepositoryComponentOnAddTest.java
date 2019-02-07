@@ -136,8 +136,7 @@ public class MavenMetadataGroupRepositoryComponentOnAddTest
          </rule-set>
          </denied>
          **/
-        createRoutingRuleSet(STORAGE0,
-                             REPOSITORY_GROUP_ZQ,
+        createRoutingRuleSet(REPOSITORY_GROUP_ZQ,
                              new String[]{ REPOSITORY_LEAF_S },
                              ".*(com|org)/artifacts/to/update/releases/update-group.*",
                              ROUTING_RULE_TYPE_DENIED);

@@ -54,21 +54,6 @@ public class MavenMetadataGroupRepositoryComponentOnUploadTest
 
     private static final String REPOSITORY_LEAF_AK = "leaf-repo-ak";
 
-//    @Inject
-//    private ConfigurationResourceResolver configurationResourceResolver;
-//
-//    private final File REPOSITORY_LEAF_AL_BASEDIR = new File(configurationResourceResolver.getVaultDirectory() +
-//                                                             "/storages/" + STORAGE0 + "/" + REPOSITORY_LEAF_AL);
-//
-//    private final File REPOSITORY_LEAF_AD_BASEDIR = new File(configurationResourceResolver.getVaultDirectory() +
-//                                                             "/storages/" + STORAGE0 + "/" + REPOSITORY_LEAF_AD);
-//
-//    private final File REPOSITORY_LEAF_AG_BASEDIR = new File(configurationResourceResolver.getVaultDirectory() +
-//                                                             "/storages/" + STORAGE0 + "/" + REPOSITORY_LEAF_AG);
-//
-//    private final File REPOSITORY_LEAF_AK_BASEDIR = new File(configurationResourceResolver.getVaultDirectory() +
-//                                                             "/storages/" + STORAGE0 + "/" + REPOSITORY_LEAF_AK);
-
     private static final String REPOSITORY_GROUP_AA = "group-repo-aa";
 
     private static final String REPOSITORY_GROUP_AB = "group-repo-ab";
@@ -156,8 +141,7 @@ public class MavenMetadataGroupRepositoryComponentOnUploadTest
          </rule-set>
          </denied>
          **/
-        createRoutingRuleSet(STORAGE0,
-                             REPOSITORY_GROUP_AH,
+        createRoutingRuleSet(REPOSITORY_GROUP_AH,
                              new String[]{ REPOSITORY_LEAF_AD },
                              ".*(com|org)/artifacts/to/update/releases/update-group.*",
                              ROUTING_RULE_TYPE_DENIED);

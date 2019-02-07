@@ -1,11 +1,11 @@
 package org.carlspring.strongbox.providers.layout;
 
 import org.carlspring.strongbox.artifact.coordinates.NullArtifactCoordinates;
+import org.carlspring.strongbox.booters.PropertiesBooter;
 import org.carlspring.strongbox.config.RawLayoutProviderTestConfig;
 import org.carlspring.strongbox.configuration.Configuration;
 import org.carlspring.strongbox.providers.io.RepositoryPath;
 import org.carlspring.strongbox.repository.RepositoryManagementStrategyException;
-import org.carlspring.strongbox.resource.ConfigurationResourceResolver;
 import org.carlspring.strongbox.services.*;
 import org.carlspring.strongbox.storage.MutableStorage;
 import org.carlspring.strongbox.storage.repository.MutableRepository;
@@ -48,7 +48,7 @@ public class RawLayoutProviderTest
     private ConfigurationManagementService configurationManagementService;
 
     @Inject
-    private ConfigurationResourceResolver configurationResourceResolver;
+    private PropertiesBooter propertiesBooter;
 
     @Inject
     private StorageManagementService storageManagementService;
@@ -123,7 +123,7 @@ public class RawLayoutProviderTest
                                                    createZipFile());
 
         
-        File artifactFile = new File(configurationResourceResolver.getVaultDirectory() + "/storages/" + STORAGE + "/" + REPOSITORY + "/" + path);
+        File artifactFile = new File(propertiesBooter.getVaultDirectory() + "/storages/" + STORAGE + "/" + REPOSITORY + "/" + path);
         assertTrue(artifactFile.exists(), "Failed to deploy artifact!");
         assertTrue(artifactFile.length() > 0, "Failed to deploy artifact!");
 

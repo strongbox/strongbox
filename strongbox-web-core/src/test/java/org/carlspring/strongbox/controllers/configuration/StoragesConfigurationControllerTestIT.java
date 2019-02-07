@@ -1,9 +1,9 @@
 package org.carlspring.strongbox.controllers.configuration;
 
+import org.carlspring.strongbox.booters.PropertiesBooter;
 import org.carlspring.strongbox.config.IntegrationTest;
 import org.carlspring.strongbox.forms.configuration.*;
 import org.carlspring.strongbox.providers.layout.Maven2LayoutProvider;
-import org.carlspring.strongbox.resource.ConfigurationResourceResolver;
 import org.carlspring.strongbox.rest.common.RestAssuredBaseTest;
 import org.carlspring.strongbox.service.ProxyRepositoryConnectionPoolConfigurationService;
 import org.carlspring.strongbox.storage.Storage;
@@ -50,7 +50,7 @@ public class StoragesConfigurationControllerTestIT
     private RepositoryForm repositoryForm1;
 
     @Inject
-    private ConfigurationResourceResolver configurationResourceResolver;
+    private PropertiesBooter propertiesBooter;
 
     @Inject
     private ProxyRepositoryConnectionPoolConfigurationService proxyRepositoryConnectionPoolConfigurationService;
@@ -107,7 +107,7 @@ public class StoragesConfigurationControllerTestIT
 
     private String getBaseDir(String storageId)
     {
-        String directory = configurationResourceResolver.getVaultDirectory() + "/storages/" + storageId;
+        String directory = propertiesBooter.getVaultDirectory() + "/storages/" + storageId;
 
         return Paths.get(directory).toAbsolutePath().toString();
     }
@@ -496,4 +496,5 @@ public class StoragesConfigurationControllerTestIT
                      .then()
                      .statusCode(HttpStatus.NOT_FOUND.value());
     }
+
 }

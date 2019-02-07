@@ -1,5 +1,6 @@
 package org.carlspring.strongbox.resource;
 
+import org.carlspring.strongbox.booters.PropertiesBooter;
 import org.carlspring.strongbox.booters.ResourcesBooter;
 import org.carlspring.strongbox.config.Maven2LayoutProviderTestConfig;
 import org.carlspring.strongbox.testing.TestCaseWithMavenArtifactGenerationAndIndexing;
@@ -30,7 +31,7 @@ public class ResourcesBooterTest
     private ResourcesBooter resourcesBooter;
 
     @Inject
-    private ConfigurationResourceResolver configurationResourceResolver;
+    private PropertiesBooter propertiesBooter;
 
 
     @BeforeAll
@@ -42,7 +43,7 @@ public class ResourcesBooterTest
     @Test
     public void testResourceBooting()
     {
-        File file = new File(configurationResourceResolver.getHomeDirectory() + "/etc/conf/strongbox.xml");
+        File file = new File(propertiesBooter.getHomeDirectory() + "/etc/conf/strongbox.xml");
 
         assertTrue(file.exists(), "Failed to copy configuration resource from classpath!");
     }

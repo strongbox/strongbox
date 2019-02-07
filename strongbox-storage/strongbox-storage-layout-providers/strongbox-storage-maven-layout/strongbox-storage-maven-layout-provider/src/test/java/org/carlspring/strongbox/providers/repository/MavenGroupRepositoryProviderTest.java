@@ -333,15 +333,13 @@ public class MavenGroupRepositoryProviderTest
 
         createRepository(STORAGE0, repositoryGroup);
 
-        createRoutingRuleSet(STORAGE0,
-                             repositoryGroupName,
+        createRoutingRuleSet(repositoryGroupName,
                              new String[]{ repositoryReleases1Name,
                                            repositoryReleases2Name },
                              ".*(com|org)/artifacts.in.releases.*",
                              ROUTING_RULE_TYPE_ACCEPTED);
 
-        createRoutingRuleSet(STORAGE0,
-                             repositoryGroupName,
+        createRoutingRuleSet(repositoryGroupName,
                              new String[]{ repositoryReleases1Name },
                              ".*(com|org)/artifacts.in.*",
                              ROUTING_RULE_TYPE_DENIED);
@@ -588,8 +586,7 @@ public class MavenGroupRepositoryProviderTest
 
         createRepository(STORAGE0, repositoryGroup);
 
-        createRoutingRuleSet(STORAGE0,
-                             repositoryGroupName,
+        createRoutingRuleSet(repositoryGroupName,
                              new String[]{ repositoryReleases1Name },
                              ".*(com|org)/artifacts.denied.*",
                              ROUTING_RULE_TYPE_DENIED);
@@ -654,8 +651,7 @@ public class MavenGroupRepositoryProviderTest
 
         createRepository(STORAGE0, repositoryGroup);
 
-        createRoutingRuleSet(STORAGE0,
-                             repositoryGroupName,
+        createRoutingRuleSet(repositoryGroupName,
                              new String[]{ repositoryReleases2Name },
                              ".*(com|org)/carlspring.metadata.*",
                              ROUTING_RULE_TYPE_DENIED);

@@ -135,8 +135,7 @@ public class MavenIndexGroupRepositoryComponentOnCreateTest
              </rule-set>
          </denied>
          **/
-        createRoutingRuleSet(STORAGE0,
-                             REPOSITORY_GROUP_XH_2,
+        createRoutingRuleSet(REPOSITORY_GROUP_XH_2,
                              new String[]{ REPOSITORY_LEAF_XD_2 },
                              ".*(com|org)/artifacts/to/update/releases/update-group.*",
                              ROUTING_RULE_TYPE_DENIED);

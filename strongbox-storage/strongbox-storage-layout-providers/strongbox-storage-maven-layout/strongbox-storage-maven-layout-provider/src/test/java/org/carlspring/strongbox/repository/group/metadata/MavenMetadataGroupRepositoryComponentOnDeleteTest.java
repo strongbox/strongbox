@@ -141,8 +141,7 @@ public class MavenMetadataGroupRepositoryComponentOnDeleteTest
          </rule-set>
          </denied>
          **/
-        createRoutingRuleSet(STORAGE0,
-                             REPOSITORY_GROUP_H,
+        createRoutingRuleSet(REPOSITORY_GROUP_H,
                              new String[]{ REPOSITORY_LEAF_D },
                              ".*(com|org)/artifacts/to/update/releases/update-group.*",
                              ROUTING_RULE_TYPE_DENIED);

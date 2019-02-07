@@ -6,7 +6,6 @@ import javax.inject.Inject;
 import java.io.File;
 import java.io.IOException;
 import java.nio.file.Files;
-import java.nio.file.Path;
 import java.nio.file.Paths;
 
 import org.slf4j.Logger;
@@ -32,9 +31,9 @@ public class ConfigurationResourceResolver
     public Resource getConfigurationResource(String propertyKey,
                                              String propertyDefaultValue)
     {
-        final String configurationPath = propertyDefaultValue != null && !propertyDefaultValue.startsWith("classpath:")
-                ? getHomeDirectory() + "/" + propertyDefaultValue
-                : propertyDefaultValue;
+        final String configurationPath = propertyDefaultValue != null && !propertyDefaultValue.startsWith("classpath:") ?
+                                         propertiesBooter.getHomeDirectory() + "/" + propertyDefaultValue :
+                                         propertyDefaultValue;
 
         return getConfigurationResource(configurationPath, propertyKey, propertyDefaultValue);
     }
@@ -72,12 +71,12 @@ public class ConfigurationResourceResolver
         {
             String filename = System.getProperty(propertyKey);
 
-            logger.info(String.format("Using configured resource path [%s]", filename));
+            logger.debug(String.format("Using configured resource path [%s]", filename));
 
             return resourceLoader.getResource(filename);
         }
 
-        logger.info(String.format("Try to fetch configuration resource path [%s]", configurationPath));
+        logger.debug(String.format("Try to fetch configuration resource path [%s]", configurationPath));
 
         if (configurationPath != null &&
             (!configurationPath.startsWith("classpath") && !(Files.exists(Paths.get(configurationPath)))))
@@ -90,44 +89,16 @@ public class ConfigurationResourceResolver
 
         if (configurationPath != null)
         {
-            logger.info(String.format("Using provided resource path [%s]", configurationPath));
+            logger.debug(String.format("Using provided resource path [%s]", configurationPath));
 
             return resourceLoader.getResource(configurationPath);
         }
         else
         {
-            logger.info(String.format("Using default resource path [%s]", propertyDefaultValue));
+            logger.debug(String.format("Using default resource path [%s]", propertyDefaultValue));
 
             return resourceLoader.getResource(propertyDefaultValue);
         }
-    }
-
-    public String getHomeDirectory()
-    {
-        return propertiesBooter.getHomeDirectory();
-    }
-
-    public String getVaultDirectory()
-    {
-        return propertiesBooter.getVaultDirectory();
-    }
-
-    public String getTempDirectory()
-        throws IOException
-    {
-        final String tempDirectory = propertiesBooter.getTempDirectory();
-        final Path tempDirectoryPath = Paths.get(tempDirectory);
-        if (Files.notExists(tempDirectoryPath))
-        {
-            Files.createDirectories(tempDirectoryPath);
-        }
-
-        return tempDirectory;
-    }
-
-    public String getEtcDirectory()
-    {
-        return propertiesBooter.getEtcDirectory();
     }
 
 }

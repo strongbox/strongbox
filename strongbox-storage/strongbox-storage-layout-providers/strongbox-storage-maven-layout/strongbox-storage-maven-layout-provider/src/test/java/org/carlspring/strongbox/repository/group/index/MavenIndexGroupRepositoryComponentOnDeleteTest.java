@@ -56,22 +56,6 @@ public class MavenIndexGroupRepositoryComponentOnDeleteTest
 
     private static final String REPOSITORY_LEAF_XK = "leaf-repo-xk";
 
-//    private File REPOSITORY_LEAF_XL_BASEDIR = new File(configurationResourceResolver.getVaultDirectory() +
-//                                                       "/storages/" + STORAGE0 + "/" +
-//                                                       REPOSITORY_LEAF_XL);
-//
-//    private File REPOSITORY_LEAF_XD_BASEDIR = new File(configurationResourceResolver.getVaultDirectory() +
-//                                                       "/storages/" + STORAGE0 + "/" +
-//                                                       REPOSITORY_LEAF_XD);
-//
-//    private File REPOSITORY_LEAF_XG_BASEDIR = new File(configurationResourceResolver.getVaultDirectory() +
-//                                                       "/storages/" + STORAGE0 + "/" +
-//                                                       REPOSITORY_LEAF_XG);
-//
-//    private File REPOSITORY_LEAF_XK_BASEDIR = new File(configurationResourceResolver.getVaultDirectory() +
-//                                                       "/storages/" + STORAGE0 + "/" +
-//                                                       REPOSITORY_LEAF_XK);
-
     private static final String REPOSITORY_GROUP_XO = "group-repo-xo";
 
     private static final String REPOSITORY_GROUP_XB = "group-repo-xb";
@@ -161,8 +145,7 @@ public class MavenIndexGroupRepositoryComponentOnDeleteTest
              </rule-set>
          </denied>
          **/
-        createRoutingRuleSet(STORAGE0,
-                             REPOSITORY_GROUP_XH,
+        createRoutingRuleSet(REPOSITORY_GROUP_XH,
                              new String[]{ REPOSITORY_LEAF_XD },
                              ".*(com|org)/artifacts/to/update/releases/update-group.*",
                              ROUTING_RULE_TYPE_DENIED);

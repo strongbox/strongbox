@@ -1,5 +1,6 @@
 package org.carlspring.strongbox.cron.controller;
 
+import org.carlspring.strongbox.booters.PropertiesBooter;
 import org.carlspring.strongbox.controllers.BaseController;
 import org.carlspring.strongbox.cron.domain.CronTaskConfigurationDto;
 import org.carlspring.strongbox.cron.domain.CronTasksConfigurationDto;
@@ -8,7 +9,6 @@ import org.carlspring.strongbox.cron.jobs.GroovyCronJob;
 import org.carlspring.strongbox.cron.services.CronJobSchedulerService;
 import org.carlspring.strongbox.cron.services.CronTaskConfigurationService;
 import org.carlspring.strongbox.forms.cron.CronTaskConfigurationForm;
-import org.carlspring.strongbox.resource.ConfigurationResourceResolver;
 import org.carlspring.strongbox.validation.RequestBodyValidationException;
 
 import javax.inject.Inject;
@@ -81,7 +81,7 @@ public class CronTaskController
     private ConversionService conversionService;
 
     @Inject
-    private ConfigurationResourceResolver configurationResourceResolver;
+    private PropertiesBooter propertiesBooter;
 
 
     @ApiOperation(value = "Used to save a new configuration")
@@ -264,7 +264,7 @@ public class CronTaskController
         logger.info(">> CRON NAME: {}", cronTaskConfiguration.getName());
         logger.info(">> Properties: {}",  cronTaskConfiguration.getProperties());
 
-        String path = configurationResourceResolver.getVaultDirectory() + "/etc/conf/cron/groovy";
+        String path = propertiesBooter.getVaultDirectory() + "/etc/conf/cron/groovy";
 
         cronTaskConfiguration.addProperty(CRON_CONFIG_FILE_NAME_KEY, fileName);
         cronTaskConfiguration.addProperty(CRON_CONFIG_JOB_CLASS_KEY, GroovyCronJob.class.getName());

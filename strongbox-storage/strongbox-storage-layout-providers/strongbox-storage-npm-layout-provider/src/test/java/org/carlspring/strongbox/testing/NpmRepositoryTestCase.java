@@ -1,8 +1,8 @@
 package org.carlspring.strongbox.testing;
 
+import org.carlspring.strongbox.booters.PropertiesBooter;
 import org.carlspring.strongbox.providers.layout.NpmLayoutProvider;
 import org.carlspring.strongbox.repository.RepositoryManagementStrategyException;
-import org.carlspring.strongbox.resource.ConfigurationResourceResolver;
 import org.carlspring.strongbox.storage.repository.MutableRepository;
 import org.carlspring.strongbox.storage.repository.NpmRepositoryFactory;
 import org.carlspring.strongbox.storage.repository.RepositoryTypeEnum;
@@ -30,7 +30,7 @@ public class NpmRepositoryTestCase
     NpmRepositoryFactory npmRepositoryFactory;
 
     @Inject
-    private ConfigurationResourceResolver configurationResourceResolver;
+    private PropertiesBooter propertiesBooter;
 
 
     @Override
@@ -54,8 +54,7 @@ public class NpmRepositoryTestCase
 
     public File getRepositoryBasedir(String storageId, String repositoryId)
     {
-        return new File(configurationResourceResolver.getVaultDirectory() + "/storages/" +
-                        storageId + "/" + repositoryId);
+        return new File(propertiesBooter.getVaultDirectory() + "/storages/" + storageId + "/" + repositoryId);
     }
 
 }

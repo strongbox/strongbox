@@ -1,7 +1,5 @@
 package org.carlspring.strongbox.booters;
 
-import org.carlspring.strongbox.resource.ConfigurationResourceResolver;
-
 import javax.annotation.PostConstruct;
 import javax.inject.Inject;
 import java.io.IOException;
@@ -29,7 +27,7 @@ public class ResourcesBooter
     private PathMatchingResourcePatternResolver resolver = new PathMatchingResourcePatternResolver();
 
     @Inject
-    private ConfigurationResourceResolver configurationResourceResolver;
+    private PropertiesBooter propertiesBooter;
 
 
     @PostConstruct
@@ -65,7 +63,7 @@ public class ResourcesBooter
         final Resource[] resources = getResourcesExistingOnClasspathOnly(
                 getConfigurationResourcesFromClasspath(resourcesBasedir));
 
-        final Path configDir = Paths.get(configurationResourceResolver.getHomeDirectory(), resourcesBasedir);
+        final Path configDir = Paths.get(propertiesBooter.getHomeDirectory(), resourcesBasedir);
         if (!Files.exists(configDir))
         {
             Files.createDirectories(configDir);
