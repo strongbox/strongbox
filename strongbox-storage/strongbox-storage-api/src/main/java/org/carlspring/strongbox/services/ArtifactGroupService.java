@@ -11,6 +11,7 @@ public interface ArtifactGroupService<T extends ArtifactGroup>
         extends CrudService<T, String>
 {
 
-    T findOneOrCreate(ArtifactEntry repositoryPath);
+    void addArtifactToGroup(T artifactGroup,
+                            ArtifactEntry artifactEntry);
     
 }

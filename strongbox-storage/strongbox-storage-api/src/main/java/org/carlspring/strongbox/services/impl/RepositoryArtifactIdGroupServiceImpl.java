@@ -11,6 +11,7 @@ import org.carlspring.strongbox.services.RepositoryArtifactIdGroupService;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import com.orientechnologies.common.concur.ONeedRetryException;
 import com.orientechnologies.orient.core.record.impl.ODocument;
 import com.orientechnologies.orient.core.sql.query.OSQLSynchQuery;
 
@@ -26,19 +27,54 @@ public class RepositoryArtifactIdGroupServiceImpl
 {
 
     @Override
-    protected RepositoryArtifactIdGroup create(ArtifactEntry artifactEntry)
+    public void addArtifactToGroup(RepositoryArtifactIdGroup artifactGroup,
+                                   ArtifactEntry artifactEntry)
     {
-        return new RepositoryArtifactIdGroup(artifactEntry.getStorageId(), artifactEntry.getRepositoryId(),
-                artifactEntry.getArtifactCoordinates().getId());
+        //TODO: move `ArtifactEntryServiceImpl.updateLastVersionTag` logic here.
     }
 
-    @Override
-    protected Optional<RepositoryArtifactIdGroup> tryFind(ArtifactEntry artifactEntry)
+    public RepositoryArtifactIdGroup findOneOrCreate(String storageId,
+                                                     String repositoryId,
+                                                     String artifactId)
+    {
+        Optional<RepositoryArtifactIdGroup> optional = tryFind(storageId, repositoryId, artifactId);
+        if (optional.isPresent())
+        {
+            return optional.get();
+        }
+
+        RepositoryArtifactIdGroup artifactGroup = create(storageId, repositoryId, artifactId);
+
+        try
+        {
+            return save(artifactGroup);
+        }
+        catch (ONeedRetryException ex)
+        {
+            optional = tryFind(storageId, repositoryId, artifactId);
+            if (optional.isPresent())
+            {
+                return optional.get();
+            }
+            throw ex;
+        }
+    }
+
+    protected RepositoryArtifactIdGroup create(String storageId,
+                                               String repositoryId,
+                                               String artifactId)
+    {
+        return new RepositoryArtifactIdGroup(storageId, repositoryId, artifactId);
+    }
+
+    protected Optional<RepositoryArtifactIdGroup> tryFind(String storageId,
+                                                          String repositoryId,
+                                                          String artifactId)
     {
         Map<String, String> params = new HashMap<>();
-        params.put("storageId", artifactEntry.getStorageId());
-        params.put("repositoryId", artifactEntry.getRepositoryId());
-        params.put("id", artifactEntry.getArtifactCoordinates().getId());
+        params.put("storageId", storageId);
+        params.put("repositoryId", repositoryId);
+        params.put("id", artifactId);
 
         String sQuery = buildQuery(params);
 

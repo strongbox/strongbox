@@ -70,8 +70,10 @@ class ArtifactEntryServiceImpl extends AbstractArtifactEntryService
             entity.setCreated(new Date());
         }
 
-        RepositoryArtifactIdGroup artifactGroup = repositoryArtifactIdGroupService.findOneOrCreate(entity);
-
+        RepositoryArtifactIdGroup artifactGroup = repositoryArtifactIdGroupService.findOneOrCreate(entity.getStorageId(),
+                                                                                                   entity.getRepositoryId(),
+                                                                                                   entity.getArtifactCoordinates()
+                                                                                                         .getId());
         if (updateLastVersion)
         {
             updateLastVersionTag(entity, artifactGroup);
