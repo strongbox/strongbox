@@ -1,66 +1,44 @@
 package org.carlspring.strongbox.services.impl;
 
-import org.carlspring.strongbox.data.service.CommonCrudService;
-import org.carlspring.strongbox.domain.RepositoryArtifactIdGroup;
-import org.carlspring.strongbox.services.RepositoryArtifactIdGroupService;
-
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 
-import com.orientechnologies.common.concur.ONeedRetryException;
-import com.orientechnologies.orient.core.record.impl.ODocument;
-import com.orientechnologies.orient.core.sql.query.OSQLSynchQuery;
+import org.carlspring.strongbox.domain.ArtifactEntry;
+import org.carlspring.strongbox.domain.RepositoryArtifactIdGroup;
+import org.carlspring.strongbox.services.RepositoryArtifactIdGroupService;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import com.orientechnologies.orient.core.record.impl.ODocument;
+import com.orientechnologies.orient.core.sql.query.OSQLSynchQuery;
+
 /**
  * @author Przemyslaw Fusik
+ * @author sbespalov
  */
 @Service
 @Transactional
 public class RepositoryArtifactIdGroupServiceImpl
-        extends CommonCrudService<RepositoryArtifactIdGroup>
+        extends AbstractArtifactGroupService<RepositoryArtifactIdGroup>
         implements RepositoryArtifactIdGroupService
 {
 
     @Override
-    public RepositoryArtifactIdGroup findOneOrCreate(String storageId,
-                                                     String repositoryId,
-                                                     String id)
+    protected RepositoryArtifactIdGroup create(ArtifactEntry artifactEntry)
     {
-        Optional<RepositoryArtifactIdGroup> optional = tryFind(storageId, repositoryId, id);
-        if (optional.isPresent())
-        {
-            return optional.get();
-        }
-
-        RepositoryArtifactIdGroup artifactGroup = new RepositoryArtifactIdGroup(storageId, repositoryId, id);
-
-        try
-        {
-            return save(artifactGroup);
-        }
-        catch (ONeedRetryException ex)
-        {
-            optional = tryFind(storageId, repositoryId, id);
-            if (optional.isPresent())
-            {
-                return optional.get();
-            }
-            throw ex;
-        }
+        return new RepositoryArtifactIdGroup(artifactEntry.getStorageId(), artifactEntry.getRepositoryId(),
+                artifactEntry.getArtifactCoordinates().getId());
     }
 
-    private Optional<RepositoryArtifactIdGroup> tryFind(String storageId,
-                                                        String repositoryId,
-                                                        String id)
+    @Override
+    protected Optional<RepositoryArtifactIdGroup> tryFind(ArtifactEntry artifactEntry)
     {
         Map<String, String> params = new HashMap<>();
-        params.put("storageId", storageId);
-        params.put("repositoryId", repositoryId);
-        params.put("id", id);
+        params.put("storageId", artifactEntry.getStorageId());
+        params.put("repositoryId", artifactEntry.getRepositoryId());
+        params.put("id", artifactEntry.getArtifactCoordinates().getId());
 
         String sQuery = buildQuery(params);
 
@@ -69,7 +47,7 @@ public class RepositoryArtifactIdGroupServiceImpl
 
         List<RepositoryArtifactIdGroup> resultList = getDelegate().command(oQuery)
                                                                   .execute(params);
-        return resultList.stream()
-                         .findFirst();
+        return resultList.stream().findFirst();
     }
+
 }

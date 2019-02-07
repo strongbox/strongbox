@@ -1,5 +1,22 @@
 package org.carlspring.strongbox.services.impl;
 
+import java.util.Arrays;
+import java.util.Collection;
+import java.util.Collections;
+import java.util.Date;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.Map.Entry;
+import java.util.Optional;
+import java.util.Set;
+import java.util.stream.Collectors;
+import java.util.stream.IntStream;
+
+import javax.inject.Inject;
+
+import org.apache.commons.collections.CollectionUtils;
+import org.apache.commons.lang3.time.DateUtils;
 import org.carlspring.strongbox.artifact.ArtifactTag;
 import org.carlspring.strongbox.artifact.coordinates.ArtifactCoordinates;
 import org.carlspring.strongbox.data.service.support.search.PagingCriteria;
@@ -10,26 +27,18 @@ import org.carlspring.strongbox.services.ArtifactEntryService;
 import org.carlspring.strongbox.services.ArtifactTagService;
 import org.carlspring.strongbox.services.RepositoryArtifactIdGroupService;
 import org.carlspring.strongbox.services.support.ArtifactEntrySearchCriteria;
-
-import javax.inject.Inject;
-import java.util.*;
-import java.util.Map.Entry;
-import java.util.stream.Collectors;
-import java.util.stream.IntStream;
-
-import com.google.common.collect.Sets;
-import com.orientechnologies.orient.core.id.ORID;
-import com.orientechnologies.orient.core.record.impl.ODocument;
-import com.orientechnologies.orient.core.sql.OCommandSQL;
-import com.orientechnologies.orient.core.sql.query.OSQLSynchQuery;
-import org.apache.commons.collections.CollectionUtils;
-import org.apache.commons.lang3.time.DateUtils;
 import org.javatuples.Pair;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.Assert;
+
+import com.google.common.collect.Sets;
+import com.orientechnologies.orient.core.id.ORID;
+import com.orientechnologies.orient.core.record.impl.ODocument;
+import com.orientechnologies.orient.core.sql.OCommandSQL;
+import com.orientechnologies.orient.core.sql.query.OSQLSynchQuery;
 
 /**
  * DAO implementation for {@link ArtifactEntry} entities.
@@ -49,9 +58,6 @@ class ArtifactEntryServiceImpl extends AbstractArtifactEntryService
     @Inject
     private RepositoryArtifactIdGroupService repositoryArtifactIdGroupService;
 
-    @Inject
-    private ArtifactCoordinatesService artifactCoordinatesService;
-
     @Override
     public <S extends ArtifactEntry> S save(S entity,
                                             boolean updateLastVersion)
@@ -64,11 +70,7 @@ class ArtifactEntryServiceImpl extends AbstractArtifactEntryService
             entity.setCreated(new Date());
         }
 
-        RepositoryArtifactIdGroup artifactGroup = repositoryArtifactIdGroupService.findOneOrCreate(
-                entity.getStorageId(),
-                entity.getRepositoryId(),
-                entity.getArtifactCoordinates().getId()
-        );
+        RepositoryArtifactIdGroup artifactGroup = repositoryArtifactIdGroupService.findOneOrCreate(entity);
 
         if (updateLastVersion)
         {

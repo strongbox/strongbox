@@ -3,6 +3,7 @@ package org.carlspring.strongbox.providers.layout;
 import org.carlspring.strongbox.artifact.archive.*;
 import org.carlspring.strongbox.artifact.coordinates.ArtifactCoordinates;
 import org.carlspring.strongbox.configuration.ConfigurationManager;
+import org.carlspring.strongbox.domain.ArtifactEntry;
 import org.carlspring.strongbox.domain.ArtifactGroup;
 import org.carlspring.strongbox.domain.RepositoryArtifactIdGroup;
 import org.carlspring.strongbox.providers.datastore.StorageProviderRegistry;
@@ -224,11 +225,14 @@ public abstract class AbstractLayoutProvider<T extends ArtifactCoordinates>
     public Set<ArtifactGroup> getArtifactGroups(RepositoryPath path)
             throws IOException
     {
-        String repositoryId = path.getRepository().getId();
-        String storageId = path.getRepository().getStorage().getId();
-
-        T artifactCoordinates = getArtifactCoordinates(path);
-        RepositoryArtifactIdGroup artifactIdGroup = repositoryArtifactIdGroupService.findOneOrCreate(storageId, repositoryId, artifactCoordinates.getId());
+        if (!RepositoryFiles.isArtifact(path))
+        {
+            return Collections.emptySet();
+        }
+        
+        ArtifactEntry artifactEntry = path.getArtifactEntry();
+        RepositoryArtifactIdGroup artifactIdGroup = repositoryArtifactIdGroupService.findOneOrCreate(artifactEntry);
+        
         return Sets.newHashSet(artifactIdGroup);
     }
 }

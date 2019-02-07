@@ -15,7 +15,4 @@ public interface RepositoryArtifactIdGroupService
         return RepositoryArtifactIdGroup.class;
     }
 
-    RepositoryArtifactIdGroup findOneOrCreate(String storageId,
-                                              String repositoryId,
-                                              String id);
 }
