@@ -17,8 +17,30 @@ public abstract class ArtifactGroup
         extends GenericEntity
 {
 
+    private String name;
     @OneToMany
     private Set<ArtifactEntry> artifactEntries;
+
+    public ArtifactGroup()
+    {
+        super();
+    }
+
+    public ArtifactGroup(String name)
+    {
+        super();
+        this.name = name;
+    }
+
+    public String getName()
+    {
+        return name;
+    }
+
+    public void setName(String name)
+    {
+        this.name = name;
+    }
 
     @Nonnull
     public Set<ArtifactEntry> getArtifactEntries()

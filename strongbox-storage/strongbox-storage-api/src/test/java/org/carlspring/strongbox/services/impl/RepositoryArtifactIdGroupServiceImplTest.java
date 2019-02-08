@@ -34,13 +34,13 @@ class RepositoryArtifactIdGroupServiceImplTest
     {
         Assertions.assertThrows(ORecordDuplicatedException.class, () -> {
             RepositoryArtifactIdGroup g1 = new RepositoryArtifactIdGroup();
-            g1.setId("strongbox-art");
+            g1.setName("strongbox-art");
             g1.setRepositoryId("strongbox-rId");
             g1.setStorageId("strongbox-sId");
             repositoryArtifactIdGroupService.save(g1);
 
             RepositoryArtifactIdGroup g2 = new RepositoryArtifactIdGroup();
-            g2.setId("strongbox-art");
+            g2.setName("strongbox-art");
             g2.setRepositoryId("strongbox-rId");
             g2.setStorageId("strongbox-sId");
             repositoryArtifactIdGroupService.save(g2);

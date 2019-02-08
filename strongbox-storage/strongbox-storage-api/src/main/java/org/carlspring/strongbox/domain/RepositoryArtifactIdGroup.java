@@ -1,8 +1,6 @@
 package org.carlspring.strongbox.domain;
 
 import javax.persistence.Entity;
-import java.util.HashMap;
-import java.util.Map;
 
 /**
  * @author Przemyslaw Fusik
@@ -12,36 +10,22 @@ public class RepositoryArtifactIdGroup
         extends ArtifactGroup
 {
 
-    public RepositoryArtifactIdGroup(String storageId,
-                                     String repositoryId,
-                                     String id)
-    {
-        this.storageId = storageId;
-        this.repositoryId = repositoryId;
-        this.id = id;
-    }
+    private String storageId;
+    private String repositoryId;
 
     public RepositoryArtifactIdGroup()
     {
     }
 
-    private String storageId;
-
-    private String repositoryId;
-
-    private String id;
-
-    public static Map<String, ? extends Object> properties(String storageId,
-                                                           String repositoryId,
-                                                           String id)
+    public RepositoryArtifactIdGroup(String storageId,
+                                     String repositoryId,
+                                     String id)
     {
-        Map<String, Object> properties = new HashMap<>();
-        properties.put("storageId", storageId);
-        properties.put("repositoryId", repositoryId);
-        properties.put("id", id);
-        return properties;
+        super(id);
+        this.storageId = storageId;
+        this.repositoryId = repositoryId;
     }
-
+    
     public String getRepositoryId()
     {
         return repositoryId;
@@ -64,11 +48,7 @@ public class RepositoryArtifactIdGroup
 
     public String getId()
     {
-        return id;
+        return getName();
     }
 
-    public void setId(String id)
-    {
-        this.id = id;
-    }
 }
