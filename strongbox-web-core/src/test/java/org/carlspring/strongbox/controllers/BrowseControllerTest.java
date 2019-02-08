@@ -2,8 +2,8 @@ package org.carlspring.strongbox.controllers;
 
 import org.carlspring.strongbox.config.IntegrationTest;
 import org.carlspring.strongbox.domain.DirectoryListing;
+import org.carlspring.strongbox.domain.FileContent;
 import org.carlspring.strongbox.providers.layout.Maven2LayoutProvider;
-import org.carlspring.strongbox.resource.ConfigurationResourceResolver;
 import org.carlspring.strongbox.rest.common.MavenRestAssuredBaseTest;
 import org.carlspring.strongbox.storage.repository.MavenRepositoryFactory;
 import org.carlspring.strongbox.storage.repository.MutableRepository;
@@ -12,27 +12,29 @@ import org.carlspring.strongbox.xml.configuration.repository.MutableMavenReposit
 
 import javax.inject.Inject;
 import javax.xml.bind.JAXBException;
-import java.io.File;
 import java.io.IOException;
 import java.lang.reflect.UndeclaredThrowableException;
+import java.util.Comparator;
 import java.util.LinkedHashSet;
+import java.util.List;
 import java.util.Set;
+import java.util.stream.Collectors;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
 import static io.restassured.module.mockmvc.RestAssuredMockMvc.given;
+import static org.carlspring.strongbox.rest.client.RestAssuredArtifactClient.OK;
 import static org.junit.jupiter.api.Assertions.*;
 
 /**
  * @author Guido Grazioli
+ * @author Pablo Tirado
  */
 
 @IntegrationTest
@@ -40,9 +42,7 @@ import static org.junit.jupiter.api.Assertions.*;
 public class BrowseControllerTest
         extends MavenRestAssuredBaseTest
 {
-    
-    private static final Logger logger = LoggerFactory.getLogger(BrowseControllerTest.class);
-    
+
     private static final String REPOSITORY = "browsing-test-repository";
     
     @Inject
@@ -68,6 +68,8 @@ public class BrowseControllerTest
             throws Exception
     {
         super.init();
+
+        setContextBaseUrl(BrowseController.ROOT_CONTEXT);
 
         MutableMavenRepositoryConfiguration mavenRepositoryConfiguration = new MutableMavenRepositoryConfiguration();
         mavenRepositoryConfiguration.setIndexingEnabled(false);
@@ -114,60 +116,70 @@ public class BrowseControllerTest
             throws Exception
     {
 
-        String url = getContextBaseUrl() + BrowseController.ROOT_CONTEXT;
+        String url = getContextBaseUrl();
         
-        String jsonResponse = given().accept(MediaType.APPLICATION_JSON_VALUE)
-                                     .when()
-                                     .get(url)
-                                     .prettyPeek()
-                                     .asString();
+        DirectoryListing returned = given().accept(MediaType.APPLICATION_JSON_VALUE)
+                                               .when()
+                                               .get(url)
+                                               .prettyPeek()
+                                               .as(DirectoryListing.class);
 
-        DirectoryListing returned = new ObjectMapper().readValue(jsonResponse, DirectoryListing.class);
-              
         assertNotNull(returned, "Failed to get storage list!");
         assertNotNull(returned.getDirectories(), "Failed to get storage list!");
         assertFalse(returned.getDirectories().isEmpty(), "Returned storage size does not match");
-        
+
+        List<FileContent> expectedSortedList = returned.getDirectories()
+                                                       .stream()
+                                                       .sorted(Comparator.comparing(FileContent::getName))
+                                                       .collect(Collectors.toList());
+
+        assertEquals(expectedSortedList, returned.getDirectories(), "Returned storages are not sorted!");
+
         String htmlResponse = given().accept(MediaType.TEXT_HTML_VALUE)
                                      .when()
                                      .get(url + "/")
                                      .prettyPeek()
                                      .then()
-                                     .statusCode(200)
+                                     .statusCode(OK)
                                      .and()
                                      .extract()
                                      .asString();
        
-        assertTrue(htmlResponse.contains("storage0"), "Returned HTML is incorrect");
+        assertTrue(htmlResponse.contains(STORAGE0), "Returned HTML is incorrect");
     }
 
     @Test
     public void testGetRepositories()
             throws Exception
     {
-        String url = getContextBaseUrl() + BrowseController.ROOT_CONTEXT + "/" + STORAGE0;
-        
-        String jsonResponse = given().accept(MediaType.APPLICATION_JSON_VALUE)
+        String url = getContextBaseUrl() + "/" + STORAGE0;
+
+        DirectoryListing returned = given().accept(MediaType.APPLICATION_JSON_VALUE)
                                      .when()
                                      .get(url)
                                      .prettyPeek()
-                                     .asString();
+                                     .as(DirectoryListing.class);
 
-        DirectoryListing returned = new ObjectMapper().readValue(jsonResponse, DirectoryListing.class);
-        
         assertNotNull(returned, "Failed to get repository list!");
         assertNotNull(returned.getDirectories(), "Failed to get repository list!");
         assertFalse(returned.getDirectories().isEmpty(), "Returned repositories do not match");
         assertTrue(returned.getDirectories()
                            .stream()
                            .anyMatch(p -> p.getName().equals(REPOSITORY)), "Repository not found");
+
+        List<FileContent> expectedSortedList = returned.getDirectories()
+                                                       .stream()
+                                                       .sorted(Comparator.comparing(FileContent::getName))
+                                                       .collect(Collectors.toList());
+
+        assertEquals(expectedSortedList, returned.getDirectories(), "Returned repositories are not sorted!");
         
         String htmlResponse = given().accept(MediaType.TEXT_HTML_VALUE)
                                      .when()
                                      .get(url + "/")
                                      .prettyPeek()
                                      .then()
-                                     .statusCode(200)
+                                     .statusCode(OK)
                                      .and()
                                      .extract()
                                      .asString();
@@ -180,37 +192,35 @@ public class BrowseControllerTest
     @Test
     public void testGetRepositoriesWithStorageNotFound()
     {
-        String url = getContextBaseUrl() + BrowseController.ROOT_CONTEXT + "/storagefoo";
+        String url = getContextBaseUrl() + "/storagefoo";
         given().accept(MediaType.APPLICATION_JSON_VALUE)
                .when()
                .get(url)
                .prettyPeek()
                .then()
-               .statusCode(404);
+               .statusCode(HttpStatus.NOT_FOUND.value());
         
         given().accept(MediaType.TEXT_HTML_VALUE)
                .when()
                .get(url)
                .prettyPeek()
                .then()
-               .statusCode(404);
+               .statusCode(HttpStatus.NOT_FOUND.value());
     }
 
     @Test
     public void testRepositoryContents()
             throws Exception
     {
-        String url = getContextBaseUrl() + BrowseController.ROOT_CONTEXT + "/" + STORAGE0 + "/" + REPOSITORY
+        String url = getContextBaseUrl() + "/" + STORAGE0 + "/" + REPOSITORY
                      + "/org/carlspring/strongbox/browsing/test-browsing/1.1";
-        
-        String jsonResponse = given().accept(MediaType.APPLICATION_JSON_VALUE)
+
+        DirectoryListing returned = given().accept(MediaType.APPLICATION_JSON_VALUE)
                                      .when()
                                      .get(url)
                                      .prettyPeek()
-                                     .asString();
-        
-        DirectoryListing returned = new ObjectMapper().readValue(jsonResponse, DirectoryListing.class);
-        
+                                     .as(DirectoryListing.class);
+
         assertTrue(returned.getFiles().size() == 6
                    && returned.getFiles().get(0).getName().equals("test-browsing-1.1.jar"), "Invalid files returned");
     
@@ -220,8 +230,8 @@ public class BrowseControllerTest
                                      .prettyPeek()
                                      .asString();
 
-        String link = getContextBaseUrl() + "/storages/"
-                      + STORAGE0 + "/" + REPOSITORY + "/org/carlspring/strongbox/browsing/test-browsing/1.1/test-browsing-1.1.jar";
+        String link = "/storages/" + STORAGE0 + "/" + REPOSITORY +
+                      "/org/carlspring/strongbox/browsing/test-browsing/1.1/test-browsing-1.1.jar";
 
         assertTrue(htmlResponse.contains(link), "Expected to have found [ " + link + " ] in the response html");
     }
@@ -229,38 +239,38 @@ public class BrowseControllerTest
     @Test
     public void testRepositoryContentsWithRepositoryNotFound()
     {
-        String url = getContextBaseUrl() + BrowseController.ROOT_CONTEXT + "/storage0/repofoo";
+        String url = getContextBaseUrl() + "/" + STORAGE0 + "/repofoo";
         given().accept(MediaType.APPLICATION_JSON_VALUE)
                .when()
                .get(url)
                .prettyPeek()
                .then()
-               .statusCode(404);   
+               .statusCode(HttpStatus.NOT_FOUND.value());   
                 
         given().accept(MediaType.TEXT_HTML_VALUE)
                .when()
                .get(url)
                .prettyPeek()
                .then()
-               .statusCode(404);   
+               .statusCode(HttpStatus.NOT_FOUND.value());   
     }
   
     @Test
     public void testRepositoryContentsWithPathNotFound()
     {
-        String url = getContextBaseUrl() + BrowseController.ROOT_CONTEXT + "/storage0/releases/foo/bar";
+        String url = getContextBaseUrl() + "/" + STORAGE0  + "/releases/foo/bar";
         given().accept(MediaType.APPLICATION_JSON_VALUE)
                .when()
                .get(url)
                .prettyPeek()
                .then()
-               .statusCode(404);
+               .statusCode(HttpStatus.NOT_FOUND.value());
        
         given().accept(MediaType.TEXT_HTML_VALUE)
                .when()
                .get(url)
                .prettyPeek()
                .then()
-               .statusCode(404);        
+               .statusCode(HttpStatus.NOT_FOUND.value());        
     }
 }

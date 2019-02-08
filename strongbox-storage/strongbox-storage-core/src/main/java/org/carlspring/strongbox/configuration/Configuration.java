@@ -9,16 +9,11 @@ import org.carlspring.strongbox.storage.routing.MutableRoutingRules;
 import org.carlspring.strongbox.storage.routing.RoutingRules;
 
 import javax.annotation.concurrent.Immutable;
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.Iterator;
-import java.util.List;
-import java.util.Map;
-import java.util.Optional;
+import java.util.*;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
-import com.google.common.collect.ImmutableMap;
+import com.google.common.collect.ImmutableSortedMap;
 import static java.util.stream.Collectors.toMap;
 
 /**
@@ -85,7 +80,7 @@ public class Configuration
 
     private Map<String, Storage> immuteStorages(final Map<String, MutableStorage> source)
     {
-        return source != null ? ImmutableMap.copyOf(source.entrySet().stream().collect(
+        return source != null ? ImmutableSortedMap.copyOf(source.entrySet().stream().collect(
                 toMap(Map.Entry::getKey, e -> new Storage(e.getValue())))) : Collections.emptyMap();
     }
 
