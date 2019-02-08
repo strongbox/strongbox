@@ -8,6 +8,7 @@ import org.carlspring.strongbox.data.criteria.Expression.ExpOperator;
 import org.carlspring.strongbox.data.criteria.Predicate;
 import org.carlspring.strongbox.data.criteria.Selector;
 import org.carlspring.strongbox.domain.ArtifactEntry;
+import org.carlspring.strongbox.domain.RepositoryArtifactIdGroup;
 import org.carlspring.strongbox.event.artifact.ArtifactEvent;
 import org.carlspring.strongbox.event.artifact.ArtifactEventListenerRegistry;
 import org.carlspring.strongbox.event.artifact.ArtifactEventTypeEnum;
@@ -18,6 +19,8 @@ import org.carlspring.strongbox.providers.layout.LayoutProviderRegistry;
 import org.carlspring.strongbox.providers.repository.RepositoryProvider;
 import org.carlspring.strongbox.providers.repository.RepositoryProviderRegistry;
 import org.carlspring.strongbox.services.ArtifactEntryService;
+import org.carlspring.strongbox.services.RepositoryArtifactIdGroupService;
+import org.carlspring.strongbox.storage.Storage;
 import org.carlspring.strongbox.storage.repository.Repository;
 
 import javax.inject.Inject;
@@ -56,6 +59,9 @@ public abstract class AbstractRepositoryProvider extends RepositoryStreamSupport
 
     @Inject
     protected ArtifactEntryService artifactEntryService;
+    
+    @Inject
+    private RepositoryArtifactIdGroupService repositoryArtifactIdGroupService;
     
     @Inject
     protected ArtifactEventListenerRegistry artifactEventListenerRegistry;
@@ -201,6 +207,10 @@ public abstract class AbstractRepositoryProvider extends RepositoryStreamSupport
         RepositoryPath repositoryPath = (RepositoryPath) ctx.getPath();
         ArtifactEntry artifactEntry = repositoryPath.artifactEntry;
         
+        Repository repository = repositoryPath.getRepository();
+        Storage storage = repository.getStorage();
+        ArtifactCoordinates coordinates = RepositoryFiles.readCoordinates(repositoryPath);
+        
         repositoryPath.artifactEntry = null;
         if (artifactEntry == null)
         {
@@ -210,7 +220,8 @@ public abstract class AbstractRepositoryProvider extends RepositoryStreamSupport
         CountingOutputStream cos = StreamUtils.findSource(CountingOutputStream.class, ctx.getStream());
         artifactEntry.setSizeInBytes(cos.getByteCount());
         
-        artifactEntryService.save(artifactEntry, true);
+        RepositoryArtifactIdGroup artifactGroup = repositoryArtifactIdGroupService.findOneOrCreate(storage.getId(), repository.getId(), coordinates.getId());
+        repositoryArtifactIdGroupService.addArtifactToGroup(artifactGroup, artifactEntry);
     }
 
     protected ArtifactEntry provideArtifactEntry(RepositoryPath repositoryPath) throws IOException

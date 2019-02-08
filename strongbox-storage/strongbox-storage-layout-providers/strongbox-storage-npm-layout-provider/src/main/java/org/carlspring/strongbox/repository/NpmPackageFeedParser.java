@@ -11,21 +11,26 @@ import javax.inject.Inject;
 import javax.transaction.Transactional;
 
 import org.carlspring.strongbox.artifact.ArtifactTag;
+import org.carlspring.strongbox.artifact.coordinates.ArtifactCoordinates;
 import org.carlspring.strongbox.artifact.coordinates.NpmArtifactCoordinates;
 import org.carlspring.strongbox.domain.ArtifactEntry;
 import org.carlspring.strongbox.domain.ArtifactTagEntry;
 import org.carlspring.strongbox.domain.RemoteArtifactEntry;
+import org.carlspring.strongbox.domain.RepositoryArtifactIdGroup;
 import org.carlspring.strongbox.npm.metadata.PackageEntry;
 import org.carlspring.strongbox.npm.metadata.PackageFeed;
 import org.carlspring.strongbox.npm.metadata.PackageVersion;
 import org.carlspring.strongbox.npm.metadata.SearchResult;
 import org.carlspring.strongbox.npm.metadata.SearchResults;
 import org.carlspring.strongbox.npm.metadata.Versions;
+import org.carlspring.strongbox.providers.io.RepositoryFiles;
 import org.carlspring.strongbox.providers.io.RepositoryPath;
 import org.carlspring.strongbox.providers.io.RepositoryPathLock;
 import org.carlspring.strongbox.providers.io.RepositoryPathResolver;
 import org.carlspring.strongbox.services.ArtifactEntryService;
 import org.carlspring.strongbox.services.ArtifactTagService;
+import org.carlspring.strongbox.services.RepositoryArtifactIdGroupService;
+import org.carlspring.strongbox.storage.Storage;
 import org.carlspring.strongbox.storage.repository.Repository;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -45,6 +50,9 @@ public class NpmPackageFeedParser
 
     @Inject
     private ArtifactEntryService artifactEntryService;
+    
+    @Inject
+    private RepositoryArtifactIdGroupService repositoryArtifactIdGroupService;
 
     @Inject
     private RepositoryPathLock repositoryPathLock;
@@ -140,9 +148,11 @@ public class NpmPackageFeedParser
     private void saveArtifactEntry(RepositoryPath repositoryPath)
         throws IOException
     {
-        ArtifactTag lastVersionTag = artifactTagService.findOneOrCreate(ArtifactTagEntry.LAST_VERSION);
-
         ArtifactEntry e = repositoryPath.getArtifactEntry();
+        
+        Repository repository = repositoryPath.getRepository();
+        Storage storage = repository.getStorage();
+        ArtifactCoordinates coordinates = RepositoryFiles.readCoordinates(repositoryPath);
 
         Lock lock = repositoryPathLock.lock(repositoryPath).writeLock();
         lock.lock();
@@ -155,14 +165,8 @@ public class NpmPackageFeedParser
                 return;
             }
 
-            if (e.getTagSet().contains(lastVersionTag))
-            {
-                artifactEntryService.save(e, true);
-            }
-            else
-            {
-                artifactEntryService.save(e, false);
-            }
+            RepositoryArtifactIdGroup artifactGroup = repositoryArtifactIdGroupService.findOneOrCreate(storage.getId(), repository.getId(), coordinates.getId());
+            repositoryArtifactIdGroupService.addArtifactToGroup(artifactGroup, e);
         } 
         finally
         {
