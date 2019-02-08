@@ -112,7 +112,7 @@ class AbstractLayoutProviderTest
         ArtifactGroup artifactGroup = artifactGroups.iterator().next();
         MatcherAssert.assertThat(artifactGroup, CoreMatchers.instanceOf(RepositoryArtifactIdGroup.class));
         RepositoryArtifactIdGroup repositoryArtifactIdGroup = (RepositoryArtifactIdGroup) artifactGroup;
-        MatcherAssert.assertThat(repositoryArtifactIdGroup.getId(), CoreMatchers.equalTo("abs-lay-prov-test"));
+        MatcherAssert.assertThat(repositoryArtifactIdGroup.getArtifactId(), CoreMatchers.equalTo("abs-lay-prov-test"));
         MatcherAssert.assertThat(repositoryArtifactIdGroup.getRepositoryId(), CoreMatchers.equalTo("releases"));
         MatcherAssert.assertThat(repositoryArtifactIdGroup.getStorageId(), CoreMatchers.equalTo("storage0"));
         MatcherAssert.assertThat(artifactGroup.getClass(), CoreMatchers.equalTo(RepositoryArtifactIdGroup.class));

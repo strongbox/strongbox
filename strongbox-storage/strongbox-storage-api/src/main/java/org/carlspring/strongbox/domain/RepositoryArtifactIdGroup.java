@@ -46,7 +46,7 @@ public class RepositoryArtifactIdGroup
         this.storageId = storageId;
     }
 
-    public String getId()
+    public String getArtifactId()
     {
         return getName();
     }
