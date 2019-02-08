@@ -49,7 +49,7 @@ public abstract class CommonCrudService<T extends GenericEntity>
     {
         identifyEntity(entity);
         
-        ReflectionUtils.doWithFields(entity.getClass(), (field) -> {
+        ReflectionUtils.doWithFields(getEntityClass(), (field) -> {
             ReflectionUtils.makeAccessible(field);
 
             Set<CascadeType> cascadeTypeSet = Arrays.stream(field.getAnnotations())

@@ -63,21 +63,21 @@ public class RepositoryArtifactIdGroupServiceImpl
                           .map(lastVersionEntry -> checkAndUpdateLastVersionTagIfNeeded(lastVersionEntry, artifactEntry,
                                                                                         lastVersionTag))
                           .distinct()
-                          .forEach(artifactEntryService::save);
+                          .forEach(o -> o.ifPresent(artifactGroup::replaceArtifactEntry));
 
-        artifactGroup.addArtifactEntry(artifactEntry);
+        artifactGroup.addArtifactEntry(artifactEntryService.save(artifactEntry));
         save(artifactGroup);
     }
 
-    private <S extends ArtifactEntry> S checkAndUpdateLastVersionTagIfNeeded(S lastVersionEntry,
-                                                                             S entity,
-                                                                             ArtifactTag lastVersionTag)
+    private <S extends ArtifactEntry> Optional<S> checkAndUpdateLastVersionTagIfNeeded(S lastVersionEntry,
+                                                                                       S entity,
+                                                                                       ArtifactTag lastVersionTag)
     {
-        S result = entity;
+        Optional<S> result = Optional.empty();
+        ArtifactCoordinates coordinates = entity.getArtifactCoordinates();
+        
         int artifactCoordinatesComparison = entity.getArtifactCoordinates()
                                                   .compareTo(lastVersionEntry.getArtifactCoordinates());
-
-        ArtifactCoordinates coordinates = entity.getArtifactCoordinates();
         if (artifactCoordinatesComparison == 0)
         {
             logger.debug(String.format("Set [%s] last version to [%s]",
@@ -94,8 +94,7 @@ public class RepositoryArtifactIdGroupServiceImpl
             entity.getTagSet().add(lastVersionTag);
 
             lastVersionEntry.getTagSet().remove(lastVersionTag);
-
-            result = lastVersionEntry;
+            result  = Optional.of(artifactEntryService.save(lastVersionEntry));
         }
         else
         {

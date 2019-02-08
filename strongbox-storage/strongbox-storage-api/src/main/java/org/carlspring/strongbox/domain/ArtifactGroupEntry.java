@@ -54,6 +54,17 @@ public class ArtifactGroupEntry extends GenericEntity implements ArtifactGroup
         return artifactEntries != null ? artifactEntries : Collections.emptySet();
     }
 
+    public ArtifactEntry replaceArtifactEntry(ArtifactEntry artifactEntry) {
+        if (!artifactEntries.contains(artifactEntry)) {
+            return artifactEntry;
+        }
+        
+        artifactEntries.remove(artifactEntry);
+        artifactEntries.add(artifactEntry);
+        
+        return artifactEntry;
+    }
+    
     public void addArtifactEntry(ArtifactEntry artifactEntry)
     {
         if (artifactEntries == null)
