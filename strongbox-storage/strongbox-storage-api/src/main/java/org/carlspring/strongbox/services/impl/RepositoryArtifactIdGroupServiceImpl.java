@@ -13,7 +13,7 @@ import org.carlspring.strongbox.artifact.ArtifactTag;
 import org.carlspring.strongbox.artifact.coordinates.ArtifactCoordinates;
 import org.carlspring.strongbox.domain.ArtifactEntry;
 import org.carlspring.strongbox.domain.ArtifactTagEntry;
-import org.carlspring.strongbox.domain.RepositoryArtifactIdGroup;
+import org.carlspring.strongbox.domain.RepositoryArtifactIdGroupEntry;
 import org.carlspring.strongbox.services.ArtifactEntryService;
 import org.carlspring.strongbox.services.ArtifactTagService;
 import org.carlspring.strongbox.services.RepositoryArtifactIdGroupService;
@@ -35,11 +35,11 @@ import com.orientechnologies.orient.core.sql.query.OSQLSynchQuery;
 @Service
 @Transactional
 public class RepositoryArtifactIdGroupServiceImpl
-        extends AbstractArtifactGroupService<RepositoryArtifactIdGroup>
+        extends AbstractArtifactGroupService<RepositoryArtifactIdGroupEntry>
         implements RepositoryArtifactIdGroupService
 {
 
-    private static final Logger logger = LoggerFactory.getLogger(RepositoryArtifactIdGroup.class);
+    private static final Logger logger = LoggerFactory.getLogger(RepositoryArtifactIdGroupEntry.class);
     
     @Inject
     private ArtifactTagService artifactTagService;
@@ -48,7 +48,7 @@ public class RepositoryArtifactIdGroupServiceImpl
     private ArtifactEntryService artifactEntryService;
     
     @Override
-    public void addArtifactToGroup(RepositoryArtifactIdGroup artifactGroup,
+    public void addArtifactToGroup(RepositoryArtifactIdGroupEntry artifactGroup,
                                    ArtifactEntry artifactEntry)
     {
         ArtifactCoordinates coordinates = artifactEntry.getArtifactCoordinates();
@@ -108,7 +108,7 @@ public class RepositoryArtifactIdGroupServiceImpl
         return result;
     }
 
-    private <S extends ArtifactEntry> Set<ArtifactEntry> findLastVersionArtifactEntries(RepositoryArtifactIdGroup artifactGroup,
+    private <S extends ArtifactEntry> Set<ArtifactEntry> findLastVersionArtifactEntries(RepositoryArtifactIdGroupEntry artifactGroup,
                                                                                         ArtifactTag lastVersionTag,
                                                                                         S defaultArtifactEntry)
     {
@@ -126,17 +126,17 @@ public class RepositoryArtifactIdGroupServiceImpl
         return result;
     }
     
-    public RepositoryArtifactIdGroup findOneOrCreate(String storageId,
+    public RepositoryArtifactIdGroupEntry findOneOrCreate(String storageId,
                                                      String repositoryId,
                                                      String artifactId)
     {
-        Optional<RepositoryArtifactIdGroup> optional = tryFind(storageId, repositoryId, artifactId);
+        Optional<RepositoryArtifactIdGroupEntry> optional = tryFind(storageId, repositoryId, artifactId);
         if (optional.isPresent())
         {
             return optional.get();
         }
 
-        RepositoryArtifactIdGroup artifactGroup = create(storageId, repositoryId, artifactId);
+        RepositoryArtifactIdGroupEntry artifactGroup = create(storageId, repositoryId, artifactId);
 
         try
         {
@@ -153,30 +153,37 @@ public class RepositoryArtifactIdGroupServiceImpl
         }
     }
 
-    protected RepositoryArtifactIdGroup create(String storageId,
+    protected Optional<RepositoryArtifactIdGroupEntry> tryFind(String storageId,
+                                                        String repositoryId,
+                                                        String artifactId)
+    {
+        return Optional.ofNullable(findOne(storageId, repositoryId, artifactId));
+    }
+
+    protected RepositoryArtifactIdGroupEntry create(String storageId,
                                                String repositoryId,
                                                String artifactId)
     {
-        return new RepositoryArtifactIdGroup(storageId, repositoryId, artifactId);
+        return new RepositoryArtifactIdGroupEntry(storageId, repositoryId, artifactId);
     }
 
-    protected Optional<RepositoryArtifactIdGroup> tryFind(String storageId,
-                                                          String repositoryId,
-                                                          String artifactId)
+    public RepositoryArtifactIdGroupEntry findOne(String storageId,
+                                             String repositoryId,
+                                             String artifactId)
     {
         Map<String, String> params = new HashMap<>();
         params.put("storageId", storageId);
         params.put("repositoryId", repositoryId);
-        params.put("id", artifactId);
+        params.put("name", artifactId);
 
         String sQuery = buildQuery(params);
 
         OSQLSynchQuery<ODocument> oQuery = new OSQLSynchQuery<>(sQuery);
         oQuery.setLimit(1);
 
-        List<RepositoryArtifactIdGroup> resultList = getDelegate().command(oQuery)
+        List<RepositoryArtifactIdGroupEntry> resultList = getDelegate().command(oQuery)
                                                                   .execute(params);
-        return resultList.stream().findFirst();
+        return resultList.stream().findFirst().orElse(null);
     }
 
 }

@@ -1,8 +1,12 @@
 package org.carlspring.strongbox.domain;
 
+import org.carlspring.strongbox.artifact.ArtifactGroup;
 import org.carlspring.strongbox.data.domain.GenericEntity;
 
 import javax.annotation.Nonnull;
+import javax.persistence.CascadeType;
+import javax.persistence.Entity;
+import javax.persistence.ManyToOne;
 import javax.persistence.MappedSuperclass;
 import javax.persistence.OneToMany;
 import java.util.Collections;
@@ -12,21 +16,23 @@ import java.util.Set;
 /**
  * @author Przemyslaw Fusik
  */
-@MappedSuperclass
-public abstract class ArtifactGroup
-        extends GenericEntity
+@Entity
+public class ArtifactGroupEntry extends GenericEntity implements ArtifactGroup
 {
 
     private String name;
-    @OneToMany
+    @ManyToOne(cascade = { CascadeType.DETACH,
+                           CascadeType.MERGE,
+                           CascadeType.PERSIST,
+                           CascadeType.REFRESH })
     private Set<ArtifactEntry> artifactEntries;
 
-    public ArtifactGroup()
+    public ArtifactGroupEntry()
     {
         super();
     }
 
-    public ArtifactGroup(String name)
+    public ArtifactGroupEntry(String name)
     {
         super();
         this.name = name;

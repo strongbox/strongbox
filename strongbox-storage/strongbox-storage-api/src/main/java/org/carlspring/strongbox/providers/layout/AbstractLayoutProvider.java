@@ -14,6 +14,7 @@ import java.util.stream.Stream;
 import javax.inject.Inject;
 
 import org.apache.commons.codec.digest.MessageDigestAlgorithms;
+import org.carlspring.strongbox.artifact.ArtifactGroup;
 import org.carlspring.strongbox.artifact.archive.ArchiveListingFunction;
 import org.carlspring.strongbox.artifact.archive.Bzip2ArchiveListingFunction;
 import org.carlspring.strongbox.artifact.archive.CompositeArchiveListingFunction;
@@ -22,8 +23,7 @@ import org.carlspring.strongbox.artifact.archive.TarGzArchiveListingFunction;
 import org.carlspring.strongbox.artifact.archive.ZipArchiveListingFunction;
 import org.carlspring.strongbox.artifact.coordinates.ArtifactCoordinates;
 import org.carlspring.strongbox.configuration.ConfigurationManager;
-import org.carlspring.strongbox.domain.ArtifactGroup;
-import org.carlspring.strongbox.domain.RepositoryArtifactIdGroup;
+import org.carlspring.strongbox.domain.RepositoryArtifactIdGroupEntry;
 import org.carlspring.strongbox.providers.datastore.StorageProviderRegistry;
 import org.carlspring.strongbox.providers.io.LayoutFileSystem;
 import org.carlspring.strongbox.providers.io.RepositoryFileAttributeType;
@@ -237,8 +237,8 @@ public abstract class AbstractLayoutProvider<T extends ArtifactCoordinates>
         Repository repository = path.getFileSystem().getRepository();
         Storage storage = repository.getStorage();
         ArtifactCoordinates c = RepositoryFiles.readCoordinates(path);
-        RepositoryArtifactIdGroup artifactIdGroup = repositoryArtifactIdGroupService.findOneOrCreate(storage.getId(), repository.getId(), c.getId());
+        RepositoryArtifactIdGroupEntry artifactIdGroup = repositoryArtifactIdGroupService.findOne(storage.getId(), repository.getId(), c.getId());
         
-        return Sets.newHashSet(artifactIdGroup);
+        return artifactIdGroup == null ? Collections.emptySet() : Sets.newHashSet(artifactIdGroup);
     }
 }

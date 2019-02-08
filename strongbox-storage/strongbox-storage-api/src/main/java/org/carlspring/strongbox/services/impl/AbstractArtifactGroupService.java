@@ -1,7 +1,7 @@
 package org.carlspring.strongbox.services.impl;
 
 import org.carlspring.strongbox.data.service.CommonCrudService;
-import org.carlspring.strongbox.domain.ArtifactGroup;
+import org.carlspring.strongbox.domain.ArtifactGroupEntry;
 import org.carlspring.strongbox.services.ArtifactGroupService;
 
 /**
@@ -9,7 +9,7 @@ import org.carlspring.strongbox.services.ArtifactGroupService;
  *
  * @param <T>
  */
-public abstract class AbstractArtifactGroupService<T extends ArtifactGroup> extends CommonCrudService<T> implements ArtifactGroupService<T>
+public abstract class AbstractArtifactGroupService<T extends ArtifactGroupEntry> extends CommonCrudService<T> implements ArtifactGroupService<T>
 {
 
 

@@ -6,26 +6,26 @@ import javax.persistence.Entity;
  * @author Przemyslaw Fusik
  */
 @Entity
-public class RepositoryArtifactIdGroup
-        extends ArtifactGroup
+public class RepositoryArtifactIdGroupEntry
+        extends ArtifactGroupEntry
 {
 
     private String storageId;
     private String repositoryId;
 
-    public RepositoryArtifactIdGroup()
+    public RepositoryArtifactIdGroupEntry()
     {
     }
 
-    public RepositoryArtifactIdGroup(String storageId,
-                                     String repositoryId,
-                                     String id)
+    public RepositoryArtifactIdGroupEntry(String storageId,
+                                          String repositoryId,
+                                          String id)
     {
         super(id);
         this.storageId = storageId;
         this.repositoryId = repositoryId;
     }
-    
+
     public String getRepositoryId()
     {
         return repositoryId;

@@ -8,7 +8,7 @@ import org.carlspring.strongbox.data.criteria.Expression.ExpOperator;
 import org.carlspring.strongbox.data.criteria.Predicate;
 import org.carlspring.strongbox.data.criteria.Selector;
 import org.carlspring.strongbox.domain.ArtifactEntry;
-import org.carlspring.strongbox.domain.RepositoryArtifactIdGroup;
+import org.carlspring.strongbox.domain.RepositoryArtifactIdGroupEntry;
 import org.carlspring.strongbox.event.artifact.ArtifactEvent;
 import org.carlspring.strongbox.event.artifact.ArtifactEventListenerRegistry;
 import org.carlspring.strongbox.event.artifact.ArtifactEventTypeEnum;
@@ -220,7 +220,7 @@ public abstract class AbstractRepositoryProvider extends RepositoryStreamSupport
         CountingOutputStream cos = StreamUtils.findSource(CountingOutputStream.class, ctx.getStream());
         artifactEntry.setSizeInBytes(cos.getByteCount());
         
-        RepositoryArtifactIdGroup artifactGroup = repositoryArtifactIdGroupService.findOneOrCreate(storage.getId(), repository.getId(), coordinates.getId());
+        RepositoryArtifactIdGroupEntry artifactGroup = repositoryArtifactIdGroupService.findOneOrCreate(storage.getId(), repository.getId(), coordinates.getId());
         repositoryArtifactIdGroupService.addArtifactToGroup(artifactGroup, artifactEntry);
     }
 
