@@ -13,6 +13,7 @@ import javax.servlet.http.HttpServletRequest;
 import java.io.IOException;
 import java.net.URL;
 import java.nio.file.Files;
+import java.util.Map;
 import java.util.Optional;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -75,7 +76,8 @@ public class BrowseController extends BaseArtifactController
         
         try
         {
-            DirectoryListing directoryListing = getDirectoryListingService().fromStorages(configurationManager.getConfiguration().getStorages());
+            Map<String, Storage> storages = configurationManager.getConfiguration().getStorages();
+            DirectoryListing directoryListing = getDirectoryListingService().fromStorages(storages);
 
             if (acceptHeader != null && acceptHeader.contains(MediaType.APPLICATION_JSON_VALUE))
             {

@@ -13,7 +13,7 @@ import java.util.Map;
 import com.fasterxml.jackson.annotation.JsonView;
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 import com.fasterxml.jackson.databind.annotation.JsonSerialize;
-import com.google.common.collect.ImmutableMap;
+import com.google.common.collect.ImmutableSortedMap;
 import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
 import static java.util.stream.Collectors.toMap;
 
@@ -51,7 +51,7 @@ public class Storage
 
     private Map<String, Repository> immuteRepositories(final Map<String, MutableRepository> source)
     {
-        return source != null ? ImmutableMap.copyOf(source.entrySet().stream().collect(
+        return source != null ? ImmutableSortedMap.copyOf(source.entrySet().stream().collect(
                 toMap(Map.Entry::getKey, e -> new Repository(e.getValue(), this)))) : Collections.emptyMap();
     }
 
