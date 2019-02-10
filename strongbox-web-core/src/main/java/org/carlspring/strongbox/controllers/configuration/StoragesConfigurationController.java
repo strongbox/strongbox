@@ -370,7 +370,7 @@ public class StoragesConfigurationController
                 }
 
                 final RepositoryPath repositoryPath = repositoryPathResolver.resolve(repository);
-                if (!Files.exists(repositoryPath) && force)
+                if (Files.exists(repositoryPath) && force)
                 {
                     repositoryManagementService.removeRepository(storageId, repository.getId());
                 }

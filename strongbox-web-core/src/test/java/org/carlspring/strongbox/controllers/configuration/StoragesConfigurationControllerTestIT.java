@@ -11,12 +11,15 @@ import org.carlspring.strongbox.storage.repository.Repository;
 import org.carlspring.strongbox.xml.configuration.repository.MavenRepositoryConfiguration;
 
 import javax.inject.Inject;
+import java.nio.file.Files;
 import java.nio.file.Paths;
 import java.util.*;
 
 import com.google.common.collect.ImmutableSet;
 import com.google.common.collect.Lists;
 import org.apache.http.pool.PoolStats;
+import org.hamcrest.CoreMatchers;
+import org.hamcrest.MatcherAssert;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -415,7 +418,7 @@ public class StoragesConfigurationControllerTestIT
     private void deleteRepository(String storageId,
                                   String repositoryId)
     {
-        String url = getContextBaseUrl() + "/" + storageId + "/" + repositoryId;
+        String url = String.format("%s/%s/%s?force=%s", getContextBaseUrl(), storageId, repositoryId, true);
 
         givenCustom().contentType(MediaType.APPLICATION_JSON_VALUE)
                      .accept(MediaType.APPLICATION_JSON_VALUE)
@@ -424,6 +427,10 @@ public class StoragesConfigurationControllerTestIT
                      .then()
                      .statusCode(OK)
                      .body(containsString(SUCCESSFUL_REPOSITORY_REMOVAL));
+
+        String repoDir = getBaseDir(storageId) + "/" + repositoryId;
+
+        MatcherAssert.assertThat(Files.exists(Paths.get(repoDir)), CoreMatchers.equalTo(false));
     }
 
     @Test
