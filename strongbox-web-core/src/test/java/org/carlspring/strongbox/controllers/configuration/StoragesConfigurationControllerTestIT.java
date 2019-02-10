@@ -504,4 +504,57 @@ public class StoragesConfigurationControllerTestIT
                      .statusCode(HttpStatus.NOT_FOUND.value());
     }
 
+    @Test
+    public void whenStorageIsCreatedWithoutBasedirProvidedDefaultIsSet()
+    {
+        final String storageId = "storage3";
+
+        StorageForm storage3 = buildStorageForm(storageId);
+        storage3.setBasedir(null);
+
+        String url = getContextBaseUrl();
+
+        // 1. Create storage without base dir provided.
+        givenCustom().contentType(MediaType.APPLICATION_JSON_VALUE)
+                     .accept(MediaType.APPLICATION_JSON_VALUE)
+                     .body(storage3)
+                     .when()
+                     .put(url)
+                     .peek() // Use peek() to print the output
+                     .then()
+                     .statusCode(OK)
+                     .body(containsString(SUCCESSFUL_SAVE_STORAGE));
+
+        Storage storage = getStorage(storageId);
+        assertNotNull(storage, "Failed to get storage (" + storageId + ")!");
+
+        // 2. Confirm default base dir has been created
+        String storageBaseDir = getBaseDir(storageId);
+        MatcherAssert.assertThat(Files.exists(Paths.get(storageBaseDir)), CoreMatchers.equalTo(true));
+
+        url = getContextBaseUrl() + "/" + storageId;
+
+        // 3. Delete storage created.
+        givenCustom().contentType(MediaType.TEXT_PLAIN_VALUE)
+                     .accept(MediaType.TEXT_PLAIN_VALUE)
+                     .param("force", true)
+                     .when()
+                     .delete(url)
+                     .peek() // Use peek() to print the output
+                     .then()
+                     .statusCode(OK)
+                     .body(containsString(SUCCESSFUL_STORAGE_REMOVAL));
+
+        // 4. Check that the storage deleted does not exist anymore.
+        givenCustom().contentType(MediaType.TEXT_PLAIN_VALUE)
+                     .when()
+                     .get(url)
+                     .peek() // Use peek() to print the output
+                     .then()
+                     .statusCode(HttpStatus.NOT_FOUND.value());
+
+        // 5. Confirm base dir has been deleted
+        MatcherAssert.assertThat(Files.exists(Paths.get(storageBaseDir)), CoreMatchers.equalTo(false));
+    }
+
 }
