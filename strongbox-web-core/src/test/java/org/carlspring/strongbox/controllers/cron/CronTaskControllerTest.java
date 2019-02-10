@@ -1,6 +1,6 @@
 package org.carlspring.strongbox.controllers.cron;
 
-import org.carlspring.strongbox.config.CronTaskRestTest;
+import org.carlspring.strongbox.config.IntegrationTest;
 import org.carlspring.strongbox.cron.domain.CronTaskConfigurationDto;
 import org.carlspring.strongbox.cron.domain.CronTasksConfigurationDto;
 import org.carlspring.strongbox.cron.jobs.MyTask;
@@ -22,7 +22,6 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
-import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.junit.jupiter.EnabledIf;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
 import static io.restassured.module.mockmvc.RestAssuredMockMvc.given;
@@ -36,9 +35,8 @@ import static org.junit.jupiter.api.Assertions.assertFalse;
  * @author Alex Oreshkevich
  * @author Pablo Tirado
  */
-@CronTaskRestTest
+@IntegrationTest
 @ExtendWith(SpringExtension.class)
-@ActiveProfiles(profiles = "test")
 public class CronTaskControllerTest
         extends RestAssuredBaseTest
 {
@@ -352,7 +350,7 @@ public class CronTaskControllerTest
     {
         final CronTasksConfigurationDto cronTasksConfiguration = given().accept(MediaType.APPLICATION_XML_VALUE)
                                                                         .when()
-                                                                        .get(getContextBaseUrl() + "/")
+                                                                        .get(getContextBaseUrl())
                                                                         .peek()
                                                                         .as(CronTasksConfigurationDto.class);
 
