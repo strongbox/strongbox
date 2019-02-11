@@ -26,7 +26,6 @@
     <modules>
         <module>strongbox-cron-api</module>
         <module>strongbox-cron-tasks</module>
-        <module>strongbox-cron-rest</module>
     </modules>
 
 </project>
