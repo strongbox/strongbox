@@ -56,7 +56,7 @@ public class StorageManagementServiceImpl implements StorageManagementService
         }
 
         Path storageBaseDir = Paths.get(storage.getBasedir());
-        if (!Files.exists(storageBaseDir))
+        if (Files.exists(storageBaseDir))
         {
             logger.debug("Deleting directory for storage '" + storage.getId() + "' (" + storageBaseDir + ")...");
             Files.delete(storageBaseDir);

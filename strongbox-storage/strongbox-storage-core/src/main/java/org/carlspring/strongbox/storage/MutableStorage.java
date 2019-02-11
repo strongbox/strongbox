@@ -71,8 +71,7 @@ public class MutableStorage
         }
         else if (id != null)
         {
-            Path basedirPath = Paths.get(System.getProperty("strongbox.storage.booter.basedir"));
-            basedir = basedirPath.resolve(id).toString();
+            initDefaultBasedir(id);
             return basedir;
         }
         else
@@ -84,6 +83,12 @@ public class MutableStorage
     public void setBasedir(String basedir)
     {
         this.basedir = basedir;
+    }
+
+    public void initDefaultBasedir(String id)
+    {
+        Path basedirPath = Paths.get(System.getProperty("strongbox.storage.booter.basedir"));
+        basedir = basedirPath.resolve(id).toString();
     }
 
     public Map<String, MutableRepository> getRepositories()

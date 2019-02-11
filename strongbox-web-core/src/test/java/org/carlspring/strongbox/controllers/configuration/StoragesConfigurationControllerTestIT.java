@@ -11,12 +11,15 @@ import org.carlspring.strongbox.storage.repository.Repository;
 import org.carlspring.strongbox.xml.configuration.repository.MavenRepositoryConfiguration;
 
 import javax.inject.Inject;
+import java.nio.file.Files;
 import java.nio.file.Paths;
 import java.util.*;
 
 import com.google.common.collect.ImmutableSet;
 import com.google.common.collect.Lists;
 import org.apache.http.pool.PoolStats;
+import org.hamcrest.CoreMatchers;
+import org.hamcrest.MatcherAssert;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -415,7 +418,7 @@ public class StoragesConfigurationControllerTestIT
     private void deleteRepository(String storageId,
                                   String repositoryId)
     {
-        String url = getContextBaseUrl() + "/" + storageId + "/" + repositoryId;
+        String url = String.format("%s/%s/%s?force=%s", getContextBaseUrl(), storageId, repositoryId, true);
 
         givenCustom().contentType(MediaType.APPLICATION_JSON_VALUE)
                      .accept(MediaType.APPLICATION_JSON_VALUE)
@@ -424,6 +427,10 @@ public class StoragesConfigurationControllerTestIT
                      .then()
                      .statusCode(OK)
                      .body(containsString(SUCCESSFUL_REPOSITORY_REMOVAL));
+
+        String repoDir = getBaseDir(storageId) + "/" + repositoryId;
+
+        MatcherAssert.assertThat(Files.exists(Paths.get(repoDir)), CoreMatchers.equalTo(false));
     }
 
     @Test
@@ -495,6 +502,59 @@ public class StoragesConfigurationControllerTestIT
                      .peek() // Use peek() to print the output
                      .then()
                      .statusCode(HttpStatus.NOT_FOUND.value());
+    }
+
+    @Test
+    public void whenStorageIsCreatedWithoutBasedirProvidedDefaultIsSet()
+    {
+        final String storageId = "storage3";
+
+        StorageForm storage3 = buildStorageForm(storageId);
+        storage3.setBasedir(null);
+
+        String url = getContextBaseUrl();
+
+        // 1. Create storage without base dir provided.
+        givenCustom().contentType(MediaType.APPLICATION_JSON_VALUE)
+                     .accept(MediaType.APPLICATION_JSON_VALUE)
+                     .body(storage3)
+                     .when()
+                     .put(url)
+                     .peek() // Use peek() to print the output
+                     .then()
+                     .statusCode(OK)
+                     .body(containsString(SUCCESSFUL_SAVE_STORAGE));
+
+        Storage storage = getStorage(storageId);
+        assertNotNull(storage, "Failed to get storage (" + storageId + ")!");
+
+        // 2. Confirm default base dir has been created
+        String storageBaseDir = getBaseDir(storageId);
+        MatcherAssert.assertThat(Files.exists(Paths.get(storageBaseDir)), CoreMatchers.equalTo(true));
+
+        url = getContextBaseUrl() + "/" + storageId;
+
+        // 3. Delete storage created.
+        givenCustom().contentType(MediaType.TEXT_PLAIN_VALUE)
+                     .accept(MediaType.TEXT_PLAIN_VALUE)
+                     .param("force", true)
+                     .when()
+                     .delete(url)
+                     .peek() // Use peek() to print the output
+                     .then()
+                     .statusCode(OK)
+                     .body(containsString(SUCCESSFUL_STORAGE_REMOVAL));
+
+        // 4. Check that the storage deleted does not exist anymore.
+        givenCustom().contentType(MediaType.TEXT_PLAIN_VALUE)
+                     .when()
+                     .get(url)
+                     .peek() // Use peek() to print the output
+                     .then()
+                     .statusCode(HttpStatus.NOT_FOUND.value());
+
+        // 5. Confirm base dir has been deleted
+        MatcherAssert.assertThat(Files.exists(Paths.get(storageBaseDir)), CoreMatchers.equalTo(false));
     }
 
 }

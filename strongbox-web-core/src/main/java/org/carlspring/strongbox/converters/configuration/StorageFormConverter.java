@@ -9,6 +9,7 @@ import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 
+import org.apache.commons.lang3.StringUtils;
 import org.springframework.core.convert.converter.Converter;
 
 /**
@@ -23,7 +24,14 @@ public enum StorageFormConverter
     public MutableStorage convert(final StorageForm source)
     {
         MutableStorage result = new MutableStorage();
-        result.setBasedir(source.getBasedir());
+        if (StringUtils.isNotBlank(source.getBasedir()))
+        {
+            result.setBasedir(source.getBasedir());
+        }
+        else
+        {
+            result.initDefaultBasedir(source.getId());
+        }
         result.setId(source.getId());
         List<RepositoryForm> repositories = source.getRepositories();
         if (repositories != null)
