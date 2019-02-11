@@ -507,17 +507,17 @@ public class StoragesConfigurationControllerTestIT
     @Test
     public void whenStorageIsCreatedWithoutBasedirProvidedDefaultIsSet()
     {
-        final String storageId = "storage3";
+        final String storageId = "storage4";
 
-        StorageForm storage3 = buildStorageForm(storageId);
-        storage3.setBasedir(null);
+        StorageForm storage4 = buildStorageForm(storageId);
+        storage4.setBasedir(null);
 
         String url = getContextBaseUrl();
 
         // 1. Create storage without base dir provided.
         givenCustom().contentType(MediaType.APPLICATION_JSON_VALUE)
                      .accept(MediaType.APPLICATION_JSON_VALUE)
-                     .body(storage3)
+                     .body(storage4)
                      .when()
                      .put(url)
                      .peek() // Use peek() to print the output
