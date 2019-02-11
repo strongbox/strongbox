@@ -14,12 +14,10 @@ import org.carlspring.strongbox.converters.storage.routing.RuleSetFormToRuleSetC
 import org.carlspring.strongbox.converters.users.AccessModelFormToUserAccessModelDtoConverter;
 import org.carlspring.strongbox.converters.users.UserFormToUserDtoConverter;
 import org.carlspring.strongbox.cron.config.CronTasksConfig;
-import org.carlspring.strongbox.utils.CustomAntPathMatcher;
 import org.carlspring.strongbox.web.DirectoryTraversalFilter;
 import org.carlspring.strongbox.web.HeaderMappingFilter;
 
 import javax.inject.Inject;
-import javax.inject.Named;
 import javax.servlet.http.HttpServletRequest;
 import javax.xml.bind.Marshaller;
 import java.util.HashMap;
@@ -46,10 +44,7 @@ import org.springframework.validation.beanvalidation.LocalValidatorFactoryBean;
 import org.springframework.web.context.request.RequestContextListener;
 import org.springframework.web.filter.CommonsRequestLoggingFilter;
 import org.springframework.web.filter.RequestContextFilter;
-import org.springframework.web.servlet.config.annotation.EnableWebMvc;
-import org.springframework.web.servlet.config.annotation.PathMatchConfigurer;
-import org.springframework.web.servlet.config.annotation.ResourceHandlerRegistry;
-import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
+import org.springframework.web.servlet.config.annotation.*;
 import org.springframework.web.servlet.resource.GzipResourceResolver;
 import org.springframework.web.servlet.resource.PathResourceResolver;
 import org.springframework.web.servlet.view.InternalResourceView;
@@ -83,10 +78,6 @@ public class WebConfig
 {
 
     private static final Logger logger = LoggerFactory.getLogger(WebConfig.class);
-
-    @Inject
-    @Named("customAntPathMatcher")
-    private CustomAntPathMatcher antPathMatcher;
 
     @Inject
     private ObjectMapper objectMapper;
@@ -139,6 +130,12 @@ public class WebConfig
     DirectoryTraversalFilter directoryTraversalFilter()
     {
         return new DirectoryTraversalFilter();
+    }
+
+    @Override
+    public void configureContentNegotiation(ContentNegotiationConfigurer configurer)
+    {
+        configurer.favorPathExtension(false);
     }
 
     @Override
@@ -212,8 +209,7 @@ public class WebConfig
     {
         configurer.setUseSuffixPatternMatch(true)
                   .setUseTrailingSlashMatch(true)
-                  .setUseRegisteredSuffixPatternMatch(true)
-                  .setPathMatcher(antPathMatcher);
+                  .setUseRegisteredSuffixPatternMatch(true);
     }
 
     @Override

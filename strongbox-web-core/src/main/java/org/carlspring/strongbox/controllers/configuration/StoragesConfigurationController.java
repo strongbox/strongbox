@@ -139,8 +139,8 @@ public class StoragesConfigurationController
     @ApiResponses(value = { @ApiResponse(code = 200, message = "The storage was updated successfully."),
                             @ApiResponse(code = 500, message = "An error occurred.") })
     @PreAuthorize("hasAuthority('CONFIGURATION_ADD_UPDATE_STORAGE')")
-    @PutMapping(value = "{storageId}", consumes = MediaType.APPLICATION_JSON_VALUE, produces = { MediaType.TEXT_PLAIN_VALUE,
-                                                                                                 MediaType.APPLICATION_JSON_VALUE })
+    @PutMapping(value = "{storageId:.+}", consumes = MediaType.APPLICATION_JSON_VALUE, produces = { MediaType.TEXT_PLAIN_VALUE,
+                                                                                                    MediaType.APPLICATION_JSON_VALUE })
     public ResponseEntity updateStorage(
             @ApiParam(value = "The storageId", required = true)
             @PathVariable String storageId,
@@ -196,7 +196,7 @@ public class StoragesConfigurationController
     @ApiResponses(value = { @ApiResponse(code = 200, message = ""),
                             @ApiResponse(code = 404, message = "The storage ${storageId} was not found.") })
     @PreAuthorize("hasAuthority('CONFIGURATION_VIEW_STORAGE_CONFIGURATION')")
-    @GetMapping(value = "/{storageId}", produces = MediaType.APPLICATION_JSON_VALUE)
+    @GetMapping(value = "/{storageId:.+}", produces = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity getStorage(@ApiParam(value = "The storageId", required = true)
                                      @PathVariable final String storageId)
     {
@@ -217,8 +217,8 @@ public class StoragesConfigurationController
                             @ApiResponse(code = 404, message = "The storage ${storageId} was not found!"),
                             @ApiResponse(code = 500, message = "Failed to remove storage ${storageId}!") })
     @PreAuthorize("hasAuthority('CONFIGURATION_DELETE_STORAGE_CONFIGURATION')")
-    @DeleteMapping(value = "/{storageId}", produces = { MediaType.TEXT_PLAIN_VALUE,
-                                                        MediaType.APPLICATION_JSON_VALUE })
+    @DeleteMapping(value = "/{storageId:.+}", produces = { MediaType.TEXT_PLAIN_VALUE,
+                                                           MediaType.APPLICATION_JSON_VALUE })
     public ResponseEntity removeStorage(@ApiParam(value = "The storageId", required = true)
                                         @PathVariable final String storageId,
                                         @ApiParam(value = "Whether to force delete and remove the storage from the file system")
@@ -259,8 +259,8 @@ public class StoragesConfigurationController
                             @ApiResponse(code = 404, message = "The repository ${repositoryId} was not found!"),
                             @ApiResponse(code = 500, message = "Failed to remove the repository ${repositoryId}!") })
     @PreAuthorize("hasAuthority('CONFIGURATION_ADD_UPDATE_REPOSITORY')")
-    @PutMapping(value = "/{storageId}/{repositoryId}", consumes = MediaType.APPLICATION_JSON_VALUE, produces = { MediaType.TEXT_PLAIN_VALUE,
-                                                                                                                 MediaType.APPLICATION_JSON_VALUE })
+    @PutMapping(value = "/{storageId}/{repositoryId:.+}", consumes = MediaType.APPLICATION_JSON_VALUE, produces = { MediaType.TEXT_PLAIN_VALUE,
+                                                                                                                    MediaType.APPLICATION_JSON_VALUE })
     public ResponseEntity addOrUpdateRepository(@ApiParam(value = "The storageId", required = true)
                                                 @PathVariable String storageId,
                                                 @ApiParam(value = "The repositoryId", required = true)
@@ -308,12 +308,12 @@ public class StoragesConfigurationController
 
     @ApiOperation(value = "Returns the configuration of a repository.")
     @ApiResponses(value = { @ApiResponse(code = 200,
-                                         message = "The repository was updated successfully.",
-                                         response = MutableRepository.class),
+                                    message = "The repository was updated successfully.",
+                                    response = MutableRepository.class),
                             @ApiResponse(code = 404,
-                                         message = "The repository ${storageId}:${repositoryId} was not found!") })
+                                    message = "The repository ${storageId}:${repositoryId} was not found!") })
     @PreAuthorize("hasAuthority('CONFIGURATION_VIEW_REPOSITORY')")
-    @GetMapping(value = "/{storageId}/{repositoryId}", produces = MediaType.APPLICATION_JSON_VALUE)
+    @GetMapping(value = "/{storageId}/{repositoryId:.+}", produces = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity getRepository(@ApiParam(value = "The storageId", required = true)
                                         @PathVariable final String storageId,
                                         @ApiParam(value = "The repositoryId", required = true)
@@ -347,8 +347,8 @@ public class StoragesConfigurationController
                             @ApiResponse(code = 404, message = "The repository ${storageId}:${repositoryId} was not found!"),
                             @ApiResponse(code = 500, message = "Failed to remove the repository ${repositoryId}!") })
     @PreAuthorize("hasAuthority('CONFIGURATION_DELETE_REPOSITORY')")
-    @DeleteMapping(value = "/{storageId}/{repositoryId}", produces = { MediaType.TEXT_PLAIN_VALUE,
-                                                                       MediaType.APPLICATION_JSON_VALUE })
+    @DeleteMapping(value = "/{storageId}/{repositoryId:.+}", produces = { MediaType.TEXT_PLAIN_VALUE,
+                                                                          MediaType.APPLICATION_JSON_VALUE })
     public ResponseEntity removeRepository(@ApiParam(value = "The storageId", required = true)
                                            @PathVariable final String storageId,
                                            @ApiParam(value = "The repositoryId", required = true)

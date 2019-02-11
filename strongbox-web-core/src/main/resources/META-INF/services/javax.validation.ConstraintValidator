@@ -1,6 +1,7 @@
 org.carlspring.strongbox.validation.configuration.DescribableEnumValueValidator
 org.carlspring.strongbox.validation.configuration.LayoutProviderValueValidator
 org.carlspring.strongbox.validation.configuration.UniqueStorageValidator
+org.carlspring.strongbox.validation.configuration.ShouldNotContainValidator
 
 org.carlspring.strongbox.validation.cron.UniqueCronTaskConfigurationValidator
 
