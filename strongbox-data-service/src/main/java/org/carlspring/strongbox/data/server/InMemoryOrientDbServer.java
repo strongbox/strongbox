@@ -1,9 +1,10 @@
 package org.carlspring.strongbox.data.server;
 
-import org.carlspring.strongbox.data.domain.GenericEntityHook;
-
 import javax.annotation.PostConstruct;
 import javax.annotation.PreDestroy;
+
+import org.carlspring.strongbox.data.domain.GenericEntityHook;
+import org.strongbox.db.server.OrientDbServer;
 
 import com.orientechnologies.orient.core.Orient;
 import com.orientechnologies.orient.core.db.ODatabaseInternal;

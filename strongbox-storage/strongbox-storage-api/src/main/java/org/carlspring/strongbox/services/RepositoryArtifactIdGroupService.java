@@ -10,12 +10,12 @@ public interface RepositoryArtifactIdGroupService
 {
 
     RepositoryArtifactIdGroupEntry findOneOrCreate(String storageId,
-                                              String repositoryId,
-                                              String artifactId);
+                                                   String repositoryId,
+                                                   String artifactId);
 
     RepositoryArtifactIdGroupEntry findOne(String storageId,
-                                      String repositoryId,
-                                      String artifactId);
+                                           String repositoryId,
+                                           String artifactId);
 
     @Override
     default Class<RepositoryArtifactIdGroupEntry> getEntityClass()

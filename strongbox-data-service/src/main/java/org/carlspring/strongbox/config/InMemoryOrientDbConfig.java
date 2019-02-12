@@ -1,12 +1,7 @@
 package org.carlspring.strongbox.config;
 
-import org.carlspring.strongbox.data.server.InMemoryOrientDbServer;
-import org.carlspring.strongbox.data.server.OrientDbServer;
-
-import com.orientechnologies.orient.core.db.ODatabaseSession;
-import com.orientechnologies.orient.core.db.ODatabaseType;
-import com.orientechnologies.orient.core.db.OrientDB;
 import org.apache.commons.lang.StringUtils;
+import org.carlspring.strongbox.data.server.InMemoryOrientDbServer;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.context.annotation.Bean;
@@ -16,6 +11,12 @@ import org.springframework.context.annotation.Conditional;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.DependsOn;
 import org.springframework.core.type.AnnotatedTypeMetadata;
+import org.strongbox.db.server.OrientDbServer;
+import org.strongbox.db.server.OrientDbServerConfiguration;
+
+import com.orientechnologies.orient.core.db.ODatabaseSession;
+import com.orientechnologies.orient.core.db.ODatabaseType;
+import com.orientechnologies.orient.core.db.OrientDB;
 
 /**
  * @author Przemyslaw Fusik
@@ -35,14 +36,14 @@ class InMemoryOrientDbConfig
 
     @Bean(destroyMethod = "close")
     @DependsOn("orientDbServer")
-    OrientDB orientDB()
+    OrientDB orientDB(OrientDbServerConfiguration serverProperties)
     {
-        String database = connectionConfig.getDatabase();
+        String database = serverProperties.getDatabase();
         logger.info(String.format("Initialize In-Memory OrientDB server for [%s]", database));
 
-        OrientDB orientDB = new OrientDB(StringUtils.substringBeforeLast(connectionConfig.getUrl(), "/"),
-                                         connectionConfig.getUsername(),
-                                         connectionConfig.getPassword(),
+        OrientDB orientDB = new OrientDB(StringUtils.substringBeforeLast(serverProperties.getUrl(), "/"),
+                                         serverProperties.getUsername(),
+                                         serverProperties.getPassword(),
                                          getOrientDBConfig());
         if (!orientDB.exists(database))
         {
@@ -53,8 +54,8 @@ class InMemoryOrientDbConfig
                                                           ORIENTDB_DEFAULT_PASSWORD))
             {
                 session.command("UPDATE ouser SET password = :password WHERE name = :name",
-                                new Object[]{ connectionConfig.getPassword(),
-                                              connectionConfig.getUsername() });
+                                new Object[]{ serverProperties.getPassword(),
+                                              serverProperties.getUsername() });
                 session.commit();
             }
         }
@@ -73,7 +74,8 @@ class InMemoryOrientDbConfig
                            AnnotatedTypeMetadata metadata)
 
     {
-        return ConnectionConfigOrientDB.resolveProfile(conditionContext.getEnvironment())
-                                       .equals(ConnectionConfigOrientDB.PROFILE_MEMORY);
+        OrientDBProfile profile = OrientDBProfile.resolveProfile(conditionContext.getEnvironment());
+        
+        return profile.getName().equals(OrientDBProfile.PROFILE_MEMORY);
     }
 }

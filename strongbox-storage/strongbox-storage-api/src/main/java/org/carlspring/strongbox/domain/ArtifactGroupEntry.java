@@ -17,6 +17,7 @@ import java.util.Set;
  * @author Przemyslaw Fusik
  */
 @Entity
+@MappedSuperclass
 public class ArtifactGroupEntry extends GenericEntity implements ArtifactGroup
 {
 

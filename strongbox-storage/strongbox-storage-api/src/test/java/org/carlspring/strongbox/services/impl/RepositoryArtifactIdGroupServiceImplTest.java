@@ -32,18 +32,18 @@ class RepositoryArtifactIdGroupServiceImplTest
     @Test
     public void repositoryArtifactIdGroupShouldBeProtectedByIndex()
     {
+        RepositoryArtifactIdGroupEntry g1 = new RepositoryArtifactIdGroupEntry();
+        g1.setName("a1");
+        g1.setRepositoryId("r1");
+        g1.setStorageId("s1");
+        System.out.println(repositoryArtifactIdGroupService.save(g1).getObjectId());
+        
         Assertions.assertThrows(ORecordDuplicatedException.class, () -> {
-            RepositoryArtifactIdGroupEntry g1 = new RepositoryArtifactIdGroupEntry();
-            g1.setName("strongbox-art");
-            g1.setRepositoryId("strongbox-rId");
-            g1.setStorageId("strongbox-sId");
-            repositoryArtifactIdGroupService.save(g1);
-
             RepositoryArtifactIdGroupEntry g2 = new RepositoryArtifactIdGroupEntry();
-            g2.setName("strongbox-art");
-            g2.setRepositoryId("strongbox-rId");
-            g2.setStorageId("strongbox-sId");
-            repositoryArtifactIdGroupService.save(g2);
+            g2.setName("a1");
+            g2.setRepositoryId("r1");
+            g2.setStorageId("s1");
+            System.out.println(repositoryArtifactIdGroupService.save(g2).getObjectId());
         });
     }
 }
