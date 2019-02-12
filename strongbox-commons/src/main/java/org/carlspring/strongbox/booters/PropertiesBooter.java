@@ -15,7 +15,7 @@ public class PropertiesBooter
     @Value("${strongbox.home}")
     private String homeDirectory;
 
-    @Value("${strongbox.vault:../strongbox-vault}")
+    @Value("${strongbox.vault:${strongbox.home}/../strongbox-vault}")
     private String vaultDirectory;
 
     @Value("${strongbox.etc:${strongbox.home}/etc}")
