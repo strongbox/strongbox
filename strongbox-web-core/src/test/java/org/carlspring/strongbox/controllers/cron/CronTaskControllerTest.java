@@ -1,6 +1,5 @@
-package org.carlspring.strongbox.cron.controller;
+package org.carlspring.strongbox.controllers.cron;
 
-import org.carlspring.strongbox.cron.context.CronTaskRestTest;
 import org.carlspring.strongbox.cron.domain.CronTaskConfigurationDto;
 import org.carlspring.strongbox.cron.domain.CronTasksConfigurationDto;
 import org.carlspring.strongbox.cron.jobs.MyTask;
@@ -9,6 +8,7 @@ import org.carlspring.strongbox.rest.common.RestAssuredBaseTest;
 
 import java.io.File;
 import java.io.FileInputStream;
+import java.io.IOException;
 import java.io.InputStream;
 import java.util.List;
 import java.util.stream.Collectors;
@@ -21,22 +21,19 @@ import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
-import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.junit.jupiter.EnabledIf;
 import static io.restassured.module.mockmvc.RestAssuredMockMvc.given;
-import static org.carlspring.strongbox.cron.controller.CronTaskController.CRON_CONFIG_FILE_NAME_KEY;
-import static org.carlspring.strongbox.cron.controller.CronTaskController.CRON_CONFIG_JOB_CLASS_KEY;
+import static org.carlspring.strongbox.controllers.cron.CronTaskController.CRON_CONFIG_FILE_NAME_KEY;
+import static org.carlspring.strongbox.controllers.cron.CronTaskController.CRON_CONFIG_JOB_CLASS_KEY;
 import static org.carlspring.strongbox.rest.client.RestAssuredArtifactClient.OK;
-import static org.junit.Assert.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
 
 /**
  * @author Alex Oreshkevich
  * @author Pablo Tirado
  */
-@CronTaskRestTest
 @SpringBootTest
-@ActiveProfiles(profiles = "test")
 public class CronTaskControllerTest
         extends RestAssuredBaseTest
 {
@@ -48,6 +45,18 @@ public class CronTaskControllerTest
     {
         super.init();
         setContextBaseUrl("/api/configuration/crontasks");
+    }
+
+    @Test
+    public void getConfigurations()
+            throws IOException
+    {
+        MockMvcResponse response = getCronConfigurations();
+
+        assertEquals(OK, response.getStatusCode(), "Failed to get list of cron tasks: " + response.getStatusLine());
+
+        CronTasksConfigurationDto cronTasks = response.as(CronTasksConfigurationDto.class);
+        assertFalse(cronTasks.getCronTaskConfigurations().isEmpty(), "List of cron tasks is empty!");
     }
 
     @Test
@@ -317,6 +326,14 @@ public class CronTaskControllerTest
                       .peek();
     }
 
+    private MockMvcResponse getCronConfigurations()
+    {
+        return given().accept(MediaType.APPLICATION_JSON_VALUE)
+                      .when()
+                      .get(getContextBaseUrl())
+                      .peek();
+    }
+
     private MockMvcResponse getCronConfig(String uuid)
     {
         return given().contentType(MediaType.APPLICATION_JSON_VALUE)
@@ -330,7 +347,7 @@ public class CronTaskControllerTest
     {
         final CronTasksConfigurationDto cronTasksConfiguration = given().accept(MediaType.APPLICATION_XML_VALUE)
                                                                         .when()
-                                                                        .get(getContextBaseUrl() + "/")
+                                                                        .get(getContextBaseUrl())
                                                                         .peek()
                                                                         .as(CronTasksConfigurationDto.class);
 
