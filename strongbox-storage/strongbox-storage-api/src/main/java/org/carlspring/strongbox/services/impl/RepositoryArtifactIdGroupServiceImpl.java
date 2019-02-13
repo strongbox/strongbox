@@ -63,7 +63,7 @@ public class RepositoryArtifactIdGroupServiceImpl
                           .map(lastVersionEntry -> checkAndUpdateLastVersionTagIfNeeded(lastVersionEntry, artifactEntry,
                                                                                         lastVersionTag))
                           .distinct()
-                          .forEach(o -> o.ifPresent(artifactGroup::replaceArtifactEntry));
+                          .forEach(o -> o.ifPresent(artifactGroup::addArtifactEntry));
 
         artifactGroup.addArtifactEntry(artifactEntryService.save(artifactEntry));
         save(artifactGroup);
