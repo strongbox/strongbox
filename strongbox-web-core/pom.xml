@@ -230,6 +230,11 @@
                 <artifactId>spring-boot-maven-plugin</artifactId>
                 <configuration>
                     <mainClass>org.carlspring.strongbox.app.StrongboxSpringBootApplication</mainClass>
+                    <systemPropertyVariables>
+                        <strongbox.basedir>${project.build.directory}</strongbox.basedir>
+                        <logging.config.file>${project.build.directory}/strongbox/etc/logback-debug.xml</logging.config.file>
+                        <logging.dir>${project.build.directory}/strongbox-vault/logs</logging.dir>
+                    </systemPropertyVariables>
                 </configuration>
 
                 <executions>
