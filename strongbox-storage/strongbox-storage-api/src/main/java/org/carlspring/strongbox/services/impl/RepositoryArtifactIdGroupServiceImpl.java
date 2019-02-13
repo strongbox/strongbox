@@ -4,8 +4,6 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
-import java.util.Set;
-import java.util.stream.Collectors;
 
 import javax.inject.Inject;
 
@@ -23,7 +21,6 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.Assert;
 
-import com.google.common.collect.Sets;
 import com.orientechnologies.common.concur.ONeedRetryException;
 import com.orientechnologies.orient.core.record.impl.ODocument;
 import com.orientechnologies.orient.core.sql.query.OSQLSynchQuery;
@@ -56,16 +53,17 @@ public class RepositoryArtifactIdGroupServiceImpl
 
         ArtifactTag lastVersionTag = artifactTagService.findOneOrCreate(ArtifactTagEntry.LAST_VERSION);
 
-        Set<ArtifactEntry> lastVersionEntries = findLastVersionArtifactEntries(artifactGroup,
-                                                                               lastVersionTag,
-                                                                               artifactEntry);
-        lastVersionEntries.stream()
-                          .map(lastVersionEntry -> checkAndUpdateLastVersionTagIfNeeded(lastVersionEntry, artifactEntry,
-                                                                                        lastVersionTag))
-                          .distinct()
-                          .forEach(o -> o.ifPresent(artifactGroup::addArtifactEntry));
-
-        artifactGroup.addArtifactEntry(artifactEntryService.save(artifactEntry));
+        artifactEntry.getTagSet().add(lastVersionTag);
+        artifactGroup.putArtifactEntry(artifactEntry);
+        
+        artifactGroup.getArtifactEntries()
+                     .stream()
+                     .filter(e -> e.getTagSet().contains(lastVersionTag))
+                     .sorted((e1,
+                              e2) -> e1.getArtifactCoordinates().compareTo(e2.getArtifactCoordinates()))
+                     .forEach(e -> checkAndUpdateLastVersionTagIfNeeded(e, artifactEntry, lastVersionTag));
+        
+        
         save(artifactGroup);
     }
 
@@ -94,7 +92,7 @@ public class RepositoryArtifactIdGroupServiceImpl
             entity.getTagSet().add(lastVersionTag);
 
             lastVersionEntry.getTagSet().remove(lastVersionTag);
-            result  = Optional.of(artifactEntryService.save(lastVersionEntry));
+            result  = Optional.of(lastVersionEntry);
         }
         else
         {
@@ -104,24 +102,6 @@ public class RepositoryArtifactIdGroupServiceImpl
             entity.getTagSet().remove(lastVersionTag);
         }
         
-        return result;
-    }
-
-    private <S extends ArtifactEntry> Set<ArtifactEntry> findLastVersionArtifactEntries(RepositoryArtifactIdGroupEntry artifactGroup,
-                                                                                        ArtifactTag lastVersionTag,
-                                                                                        S defaultArtifactEntry)
-    {
-        Set<ArtifactEntry> result = artifactGroup.getArtifactEntries()
-                                                 .stream()
-                                                 .filter(artifactEntry -> artifactEntry.getTagSet()
-                                                                                       .contains(lastVersionTag))
-                                                 .collect(Collectors.toSet());
-
-        if (result.size() == 0)
-        {
-            result = Sets.newHashSet(defaultArtifactEntry);
-        }
-
         return result;
     }
     

@@ -51,7 +51,7 @@ class ArtifactEntryServiceImpl extends AbstractArtifactEntryService
     }
 
     @Override
-    public <S extends ArtifactEntry> S save(S entity)
+    protected <S extends ArtifactEntry> S cascadeEntitySave(ArtifactEntry entity)
     {
         entity.setArtifactCoordinates(entity.getArtifactCoordinates());
         if (artifactEntryIsSavedForTheFirstTime(entity))
@@ -59,7 +59,7 @@ class ArtifactEntryServiceImpl extends AbstractArtifactEntryService
             entity.setCreated(new Date());
         }
 
-        return super.save(entity);
+        return super.cascadeEntitySave(entity);
     }
 
     @Override
