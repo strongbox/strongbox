@@ -5,13 +5,12 @@ import org.carlspring.strongbox.config.IntegrationTest;
 import org.carlspring.strongbox.configuration.MutableProxyConfiguration;
 import org.carlspring.strongbox.rest.common.RestAssuredBaseTest;
 import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.api.extension.ExtendWith;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.ValueSource;
+import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.security.test.context.support.WithMockUser;
-import org.springframework.test.context.junit.jupiter.SpringExtension;
 
 import java.util.List;
 
@@ -25,7 +24,7 @@ import static org.junit.jupiter.api.Assertions.assertNotNull;
  * @author Pablo Tirado
  */
 @IntegrationTest
-@ExtendWith(SpringExtension.class)
+@SpringBootTest
 public class ProxyConfigurationControllerTestIT
         extends RestAssuredBaseTest
 {

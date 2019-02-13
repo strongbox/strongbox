@@ -20,7 +20,7 @@ public class StrongboxSecurityConfig
 {
 
     private static final Logger logger = LoggerFactory.getLogger(StrongboxSecurityConfig.class);
-    
+
     @Bean
     @Default
     PasswordEncoder passwordEncoder()

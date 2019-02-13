@@ -25,9 +25,8 @@ import io.restassured.module.mockmvc.specification.MockMvcRequestSpecification;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-import org.junit.jupiter.api.extension.ExtendWith;
+import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.http.HttpStatus;
-import org.springframework.test.context.junit.jupiter.SpringExtension;
 import ru.aristar.jnuget.rss.PackageFeed;
 import static io.restassured.module.mockmvc.RestAssuredMockMvc.given;
 import static org.hamcrest.CoreMatchers.equalTo;
@@ -38,7 +37,7 @@ import static org.junit.jupiter.api.Assertions.*;
  *
  */
 @IntegrationTest
-@ExtendWith(SpringExtension.class)
+@SpringBootTest
 public class NugetArtifactControllerTest extends NugetRestAssuredBaseTest
 {
 

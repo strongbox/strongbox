@@ -13,12 +13,11 @@ import java.util.stream.Stream;
 import org.apache.commons.lang3.StringUtils;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-import org.junit.jupiter.api.extension.ExtendWith;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.Arguments;
 import org.junit.jupiter.params.provider.MethodSource;
 import org.junit.jupiter.params.provider.ValueSource;
-import org.springframework.test.context.junit.jupiter.SpringExtension;
+import org.springframework.boot.test.context.SpringBootTest;
 import static org.assertj.core.api.Java6Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.*;
 
@@ -26,7 +25,7 @@ import static org.junit.jupiter.api.Assertions.*;
  * @author Pablo Tirado
  */
 @IntegrationTest
-@ExtendWith(SpringExtension.class)
+@SpringBootTest
 public class SmtpConfigurationFormTestIT
         extends RestAssuredBaseTest
 {

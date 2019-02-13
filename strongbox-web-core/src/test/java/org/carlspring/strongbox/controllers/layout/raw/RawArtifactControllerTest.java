@@ -21,9 +21,8 @@ import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-import org.junit.jupiter.api.extension.ExtendWith;
+import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.http.HttpStatus;
-import org.springframework.test.context.junit.jupiter.SpringExtension;
 import static io.restassured.module.mockmvc.RestAssuredMockMvc.given;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
@@ -31,7 +30,7 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
  * @author Martin Todorov
  */
 @IntegrationTest
-@ExtendWith(SpringExtension.class)
+@SpringBootTest
 public class RawArtifactControllerTest
         extends RawRestAssuredBaseTest
 {

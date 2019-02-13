@@ -12,9 +12,8 @@ import io.restassured.module.mockmvc.RestAssuredMockMvc;
 import org.hamcrest.CoreMatchers;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-import org.junit.jupiter.api.extension.ExtendWith;
+import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.security.test.context.support.WithAnonymousUser;
-import org.springframework.test.context.junit.jupiter.SpringExtension;
 import static org.hamcrest.Matchers.greaterThan;
 import static org.hamcrest.Matchers.hasSize;
 
@@ -22,7 +21,7 @@ import static org.hamcrest.Matchers.hasSize;
  * @author Przemyslaw Fusik
  */
 @IntegrationTest
-@ExtendWith(SpringExtension.class)
+@SpringBootTest
 public class LoginControllerTest
         extends RestAssuredBaseTest
 {

@@ -18,28 +18,28 @@ public class PropertiesBooter
     @Value("${strongbox.vault}")
     private String vaultDirectory;
 
-    @Value("${strongbox.etc:${strongbox.home}/etc}")
+    @Value("${strongbox.etc}")
     private String etcDirectory;
 
-    @Value("${strongbox.temp:strongbox/tmp}")
+    @Value("${strongbox.temp}")
     private String tempDirectory;
 
-    @Value("${logging.dir:${strongbox.vault}/logs}")
+    @Value("${logging.dir}")
     private String logsDirectory;
 
-    @Value("${strongbox.storage.booter.basedir:${strongbox.vault}/storages}")
+    @Value("${strongbox.storage.booter.basedir}")
     private String storageBooterBasedir;
 
-    @Value("${strongbox.config.xml:${strongbox.home}/etc/conf/strongbox.xml}")
+    @Value("${strongbox.config.xml}")
     private String configFile;
 
     @Value("${strongbox.host:localhost}")
     private String host;
 
-    @Value("${strongbox.port:48080}")
+    @Value("${strongbox.port}")
     private int port;
 
-    @Value("${strongbox.nuget.download.feed:false}")
+    @Value("${strongbox.nuget.download.feed}")
     private boolean strongboxNugetDownloadFeed;
 
 

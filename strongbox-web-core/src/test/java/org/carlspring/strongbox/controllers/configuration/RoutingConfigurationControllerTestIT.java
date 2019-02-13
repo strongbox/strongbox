@@ -5,12 +5,11 @@ import org.carlspring.strongbox.forms.storage.routing.RoutingRuleForm;
 import org.carlspring.strongbox.forms.storage.routing.RuleSetForm;
 import org.carlspring.strongbox.rest.common.RestAssuredBaseTest;
 import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.api.extension.ExtendWith;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.ValueSource;
+import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
-import org.springframework.test.context.junit.jupiter.SpringExtension;
 
 import java.util.HashSet;
 import java.util.LinkedList;
@@ -25,7 +24,7 @@ import static org.hamcrest.CoreMatchers.containsString;
  * @author Pablo Tirado
  */
 @IntegrationTest
-@ExtendWith(SpringExtension.class)
+@SpringBootTest
 public class RoutingConfigurationControllerTestIT
         extends RestAssuredBaseTest
 {
@@ -76,7 +75,7 @@ public class RoutingConfigurationControllerTestIT
         acceptedRuleSet(acceptHeader);
         acceptedRepository(acceptHeader);
     }
-    
+
     @ParameterizedTest
     @ValueSource(strings = { MediaType.APPLICATION_JSON_VALUE,
                              MediaType.TEXT_PLAIN_VALUE })
@@ -97,7 +96,7 @@ public class RoutingConfigurationControllerTestIT
         acceptedRepository(acceptHeader);
         removeAcceptedRepository(acceptHeader);
     }
-    
+
     @ParameterizedTest
     @ValueSource(strings = { MediaType.APPLICATION_JSON_VALUE,
                              MediaType.TEXT_PLAIN_VALUE })

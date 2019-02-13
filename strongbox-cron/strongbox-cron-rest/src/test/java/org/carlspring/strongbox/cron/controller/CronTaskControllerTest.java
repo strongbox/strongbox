@@ -17,13 +17,12 @@ import io.restassured.module.mockmvc.response.MockMvcResponse;
 import org.apache.commons.io.IOUtils;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-import org.junit.jupiter.api.extension.ExtendWith;
+import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.junit.jupiter.EnabledIf;
-import org.springframework.test.context.junit.jupiter.SpringExtension;
 import static io.restassured.module.mockmvc.RestAssuredMockMvc.given;
 import static org.carlspring.strongbox.cron.controller.CronTaskController.CRON_CONFIG_FILE_NAME_KEY;
 import static org.carlspring.strongbox.cron.controller.CronTaskController.CRON_CONFIG_JOB_CLASS_KEY;
@@ -36,7 +35,7 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
  * @author Pablo Tirado
  */
 @CronTaskRestTest
-@ExtendWith(SpringExtension.class)
+@SpringBootTest
 @ActiveProfiles(profiles = "test")
 public class CronTaskControllerTest
         extends RestAssuredBaseTest

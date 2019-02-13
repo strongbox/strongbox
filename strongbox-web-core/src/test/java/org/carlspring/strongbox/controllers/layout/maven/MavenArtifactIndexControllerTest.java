@@ -19,11 +19,13 @@ import java.util.Set;
 import io.restassured.http.Header;
 import io.restassured.module.mockmvc.response.MockMvcResponse;
 import org.hamcrest.CoreMatchers;
-import org.junit.jupiter.api.*;
-import org.junit.jupiter.api.extension.ExtendWith;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.http.HttpStatus;
 import org.springframework.test.context.junit.jupiter.EnabledIf;
-import org.springframework.test.context.junit.jupiter.SpringExtension;
 import static io.restassured.module.mockmvc.RestAssuredMockMvc.given;
 
 /**
@@ -31,7 +33,7 @@ import static io.restassured.module.mockmvc.RestAssuredMockMvc.given;
  * @author Martin Todorov
  */
 @IntegrationTest
-@ExtendWith(SpringExtension.class)
+@SpringBootTest
 @EnabledIf(expression = "#{containsObject('repositoryIndexManager')}", loadContext = true)
 public class MavenArtifactIndexControllerTest
         extends MavenRestAssuredBaseTest

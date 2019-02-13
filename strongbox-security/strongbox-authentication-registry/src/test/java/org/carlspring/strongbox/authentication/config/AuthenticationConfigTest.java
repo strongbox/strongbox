@@ -1,29 +1,26 @@
 package org.carlspring.strongbox.authentication.config;
 
-import static org.hamcrest.MatcherAssert.assertThat;
-
-import java.util.Collection;
-
-import javax.inject.Inject;
-
 import org.carlspring.strongbox.authentication.TestConfig;
 import org.carlspring.strongbox.authentication.api.impl.xml.PasswordAuthenticationProvider;
 import org.carlspring.strongbox.authentication.registry.AuthenticationProvidersRegistry;
+
+import javax.inject.Inject;
+import java.util.Collection;
+
+import com.google.common.collect.Lists;
 import org.hamcrest.CoreMatchers;
 import org.hamcrest.CustomMatcher;
 import org.junit.jupiter.api.Test;
-import org.junit.jupiter.api.extension.ExtendWith;
+import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.security.authentication.AuthenticationProvider;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.ContextConfiguration;
-import org.springframework.test.context.junit.jupiter.SpringExtension;
-
-import com.google.common.collect.Lists;
+import static org.hamcrest.MatcherAssert.assertThat;
 
 /**
  * @author Przemyslaw Fusik
  */
-@ExtendWith(SpringExtension.class)
+@SpringBootTest
 @ActiveProfiles(profiles = "test")
 @ContextConfiguration(classes = TestConfig.class)
 public class AuthenticationConfigTest

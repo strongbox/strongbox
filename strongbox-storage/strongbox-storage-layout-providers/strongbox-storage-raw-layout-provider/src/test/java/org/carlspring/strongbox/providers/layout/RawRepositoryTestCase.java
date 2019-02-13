@@ -12,16 +12,15 @@ import javax.inject.Inject;
 import javax.xml.bind.JAXBException;
 import java.io.IOException;
 
-import org.junit.jupiter.api.extension.ExtendWith;
+import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.ContextConfiguration;
-import org.springframework.test.context.junit.jupiter.SpringExtension;
 
 /**
  * @author carlspring
  */
 @ContextConfiguration(classes = RawLayoutProviderTestConfig.class)
-@ExtendWith(SpringExtension.class)
+@SpringBootTest
 @ActiveProfiles(profiles = "test")
 public class RawRepositoryTestCase
         extends TestCaseWithRepositoryManagement

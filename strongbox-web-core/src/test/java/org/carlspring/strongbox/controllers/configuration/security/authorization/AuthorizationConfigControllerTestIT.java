@@ -12,22 +12,18 @@ import org.carlspring.strongbox.rest.common.RestAssuredBaseTest;
 import org.carlspring.strongbox.users.domain.Privileges;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.api.extension.ExtendWith;
+import org.springframework.boot.test.context.SpringBootTest;
 import org.junit.jupiter.params.ParameterizedTest;
-import org.junit.jupiter.params.provider.Arguments;
 import org.junit.jupiter.params.provider.MethodSource;
 import org.junit.jupiter.params.provider.ValueSource;
-import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
-import org.springframework.test.context.junit.jupiter.SpringExtension;
 
 import javax.inject.Inject;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashSet;
 import java.util.List;
-import java.util.stream.Stream;
 
 import static io.restassured.module.mockmvc.RestAssuredMockMvc.given;
 import static org.carlspring.strongbox.controllers.configuration.security.authorization.AuthorizationConfigController.*;
@@ -37,7 +33,7 @@ import static org.hamcrest.CoreMatchers.containsString;
  * @author Pablo Tirado
  */
 @IntegrationTest
-@ExtendWith(SpringExtension.class)
+@SpringBootTest
 public class AuthorizationConfigControllerTestIT
         extends RestAssuredBaseTest
 {
@@ -46,26 +42,6 @@ public class AuthorizationConfigControllerTestIT
     private AuthorizationConfigService authorizationConfigService;
 
     private AuthorizationConfigDto config;
-
-    private static final String EXISTING_ROLE = "USER_ROLE";
-
-    private static Stream<Arguments> privilegesProvider()
-    {
-        return Stream.of(
-                Arguments.of("ADMIN_LIST_REPO", MediaType.APPLICATION_JSON_VALUE),
-                Arguments.of("ARTIFACTS_DEPLOY", MediaType.TEXT_PLAIN_VALUE)
-        );
-    }
-
-    private static Stream<Arguments> rolesProvider()
-    {
-        return Stream.of(
-                Arguments.of(EXISTING_ROLE, MediaType.APPLICATION_JSON_VALUE),
-                Arguments.of(EXISTING_ROLE, MediaType.TEXT_PLAIN_VALUE),
-                Arguments.of(StringUtils.EMPTY, MediaType.APPLICATION_JSON_VALUE),
-                Arguments.of(StringUtils.EMPTY, MediaType.TEXT_PLAIN_VALUE)
-        );
-    }
 
     @Override
     @BeforeEach

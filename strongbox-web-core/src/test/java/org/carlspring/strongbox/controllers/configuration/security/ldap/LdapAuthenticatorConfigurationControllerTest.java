@@ -1,17 +1,5 @@
 package org.carlspring.strongbox.controllers.configuration.security.ldap;
 
-import static io.restassured.module.mockmvc.RestAssuredMockMvc.given;
-import static org.hamcrest.CoreMatchers.equalTo;
-import static org.hamcrest.CoreMatchers.startsWith;
-
-import java.io.IOException;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.stream.Collectors;
-import java.util.stream.Stream;
-
-import javax.inject.Inject;
-
 import org.carlspring.strongbox.authentication.ConfigurableProviderManager;
 import org.carlspring.strongbox.authentication.api.AuthenticationItem;
 import org.carlspring.strongbox.authentication.api.AuthenticationItems;
@@ -23,23 +11,27 @@ import org.carlspring.strongbox.config.HazelcastInstanceId;
 import org.carlspring.strongbox.config.IntegrationTest;
 import org.carlspring.strongbox.forms.configuration.security.ldap.LdapConfigurationTestForm;
 import org.carlspring.strongbox.rest.common.RestAssuredBaseTest;
+
+import javax.inject.Inject;
+import java.io.IOException;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
+
+import io.restassured.http.ContentType;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
-import org.junit.jupiter.api.extension.ExtendWith;
-import org.springframework.context.annotation.Bean;
-import org.springframework.context.annotation.Configuration;
-import org.springframework.context.annotation.Import;
-import org.springframework.context.annotation.ImportResource;
-import org.springframework.context.annotation.Primary;
-import org.springframework.context.annotation.Profile;
+import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.context.annotation.*;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.security.test.context.support.WithMockUser;
 import org.springframework.test.context.ActiveProfiles;
-import org.springframework.test.context.junit.jupiter.SpringExtension;
-
-import io.restassured.http.ContentType;
+import static io.restassured.module.mockmvc.RestAssuredMockMvc.given;
+import static org.hamcrest.CoreMatchers.equalTo;
+import static org.hamcrest.CoreMatchers.startsWith;
 
 /**
  * @author Przemyslaw Fusik
@@ -48,7 +40,7 @@ import io.restassured.http.ContentType;
  */
 @IntegrationTest
 @ActiveProfiles({"LdapAuthenticatorConfigurationControllerTest","test"})
-@ExtendWith(SpringExtension.class)
+@SpringBootTest
 public class LdapAuthenticatorConfigurationControllerTest
         extends RestAssuredBaseTest
 {

@@ -1,20 +1,18 @@
 package org.carlspring.strongbox.authentication.api.impl.ldap;
 
-import static org.hamcrest.MatcherAssert.assertThat;
-
-import java.io.InputStream;
-import java.util.Properties;
-
-import javax.inject.Inject;
-
 import org.carlspring.strongbox.authentication.support.AuthenticationContextInitializer;
 import org.carlspring.strongbox.config.UsersConfig;
 import org.carlspring.strongbox.users.domain.Privileges;
+
+import javax.inject.Inject;
+import java.io.InputStream;
+import java.util.Properties;
+
 import org.hamcrest.CoreMatchers;
 import org.junit.jupiter.api.Test;
-import org.junit.jupiter.api.extension.ExtendWith;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.cglib.proxy.UndeclaredThrowableException;
 import org.springframework.core.env.PropertiesPropertySource;
 import org.springframework.core.env.PropertySource;
@@ -30,13 +28,13 @@ import org.springframework.security.ldap.userdetails.LdapUserDetailsService;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.ContextHierarchy;
-import org.springframework.test.context.junit.jupiter.SpringExtension;
+import static org.hamcrest.MatcherAssert.assertThat;
 
 /**
  * @author Przemyslaw Fusik
  * @author sbespalov
  */
-@ExtendWith(SpringExtension.class)
+@SpringBootTest
 @ContextHierarchy({ @ContextConfiguration(classes = UsersConfig.class),
                     @ContextConfiguration(locations = "classpath:/ldapServerApplicationContext.xml"),
                     @ContextConfiguration(initializers = LdapAuthenticationProviderTest.TestContextInitializer.class, locations = "classpath:/org/carlspring/strongbox/authentication/external/ldap/strongbox-authentication-providers.xml") })
