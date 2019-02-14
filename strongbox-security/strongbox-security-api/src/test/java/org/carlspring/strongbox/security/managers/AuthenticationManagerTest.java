@@ -31,7 +31,7 @@ public class AuthenticationManagerTest
     public static class SpringConfig { }
 
     @Inject
-    private AuthenticationManager authenticationManager;
+    private XmlAuthenticationConfigurationManager authenticationManager;
 
     @Test
     public void testLoad()

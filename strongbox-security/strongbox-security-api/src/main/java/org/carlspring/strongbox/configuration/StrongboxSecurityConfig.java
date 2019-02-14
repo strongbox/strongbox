@@ -2,7 +2,7 @@ package org.carlspring.strongbox.configuration;
 
 import javax.enterprise.inject.Default;
 
-import org.carlspring.strongbox.security.managers.AuthenticationManager;
+import org.carlspring.strongbox.security.managers.XmlAuthenticationConfigurationManager;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.context.annotation.Bean;
@@ -25,9 +25,9 @@ public class StrongboxSecurityConfig
     
     @Bean(name = "authenticationManager", initMethod = "load")
     @Lazy
-    AuthenticationManager authenticationManager()
+    XmlAuthenticationConfigurationManager authenticationConfigurationManager()
     {
-        return new AuthenticationManager();
+        return new XmlAuthenticationConfigurationManager();
     }
 
     @Bean

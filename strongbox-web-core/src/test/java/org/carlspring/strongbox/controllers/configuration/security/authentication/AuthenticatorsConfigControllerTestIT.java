@@ -179,7 +179,7 @@ public class AuthenticatorsConfigControllerTestIT
 
         @Primary
         @Bean
-        public HazelcastInstanceId hazelcastInstanceId() 
+        public HazelcastInstanceId hazelcastInstanceIdAcctit() 
         {
             return new HazelcastInstanceId("AuthenticatorsConfigControllerTestConfig-hazelcast-instance");
         }

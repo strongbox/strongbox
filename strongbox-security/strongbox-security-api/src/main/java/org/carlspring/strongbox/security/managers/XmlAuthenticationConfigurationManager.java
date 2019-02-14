@@ -19,11 +19,11 @@ import org.springframework.stereotype.Component;
  * @author mtodorov
  */
 @Component
-public class AuthenticationManager
+public class XmlAuthenticationConfigurationManager
         implements AuthenticationConfigurationManager
 {
 
-    private static final Logger logger = LoggerFactory.getLogger(AuthenticationManager.class);
+    private static final Logger logger = LoggerFactory.getLogger(XmlAuthenticationConfigurationManager.class);
 
     private AuthenticationConfiguration configuration;
 
