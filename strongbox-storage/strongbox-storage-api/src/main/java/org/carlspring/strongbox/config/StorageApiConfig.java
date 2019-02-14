@@ -33,7 +33,7 @@ public class StorageApiConfig
     @Inject
     private List<ArtifactCoordinatesValidator> versionValidators;
 
-    @Bean(name = "checksumCacheManager")
+    @Bean
     ChecksumCacheManager checksumCacheManager()
     {
         ChecksumCacheManager checksumCacheManager = new ChecksumCacheManager();
@@ -43,20 +43,20 @@ public class StorageApiConfig
         return checksumCacheManager;
     }
 
-    @Bean(name = "versionValidators")
+    @Bean
     LinkedHashSet<ArtifactCoordinatesValidator> versionValidators()
     {
         return new LinkedHashSet<>(versionValidators);
     }
 
-    @Bean(name = "resourcesBooter")
-    ResourcesBooter getResourcesBooter()
+    @Bean
+    ResourcesBooter resourcesBooter()
     {
         return new ResourcesBooter();
     }
 
-    @Bean(name = "storageBooter")
-    StorageBooter getStorageBooter()
+    @Bean
+    StorageBooter storageBooter()
     {
         return new StorageBooter();
     }

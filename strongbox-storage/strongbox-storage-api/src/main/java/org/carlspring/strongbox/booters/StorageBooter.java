@@ -29,7 +29,6 @@ import org.springframework.stereotype.Component;
 /**
  * @author mtodorov
  */
-@Component
 public class StorageBooter
 {
 
