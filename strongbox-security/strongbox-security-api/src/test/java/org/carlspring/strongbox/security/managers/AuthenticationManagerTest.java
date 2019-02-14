@@ -31,17 +31,17 @@ public class AuthenticationManagerTest
     public static class SpringConfig { }
 
     @Inject
-    private XmlAuthenticationConfigurationManager authenticationManager;
+    private XmlAuthenticationConfigurationManager authenticationConfigurationManager;
 
     @Test
     public void testLoad()
     {
-        assertNotNull(authenticationManager.getConfiguration(), "Failed to load configuration!");
-        assertNotNull(authenticationManager.getRealms(), "Failed to load realms!");
-        assertFalse(authenticationManager.getRealms().isEmpty(), "Failed to load realms!");
-        assertNotNull(authenticationManager.getAnonymousAccessConfiguration(),
+        assertNotNull(authenticationConfigurationManager.getConfiguration(), "Failed to load configuration!");
+        assertNotNull(authenticationConfigurationManager.getRealms(), "Failed to load realms!");
+        assertFalse(authenticationConfigurationManager.getRealms().isEmpty(), "Failed to load realms!");
+        assertNotNull(authenticationConfigurationManager.getAnonymousAccessConfiguration(),
                       "Failed to load settings for anonymous access!");
-        assertTrue(authenticationManager.getAnonymousAccessConfiguration().isEnabled(),
+        assertTrue(authenticationConfigurationManager.getAnonymousAccessConfiguration().isEnabled(),
                    "Failed to load settings for anonymous access!");
     }
 
