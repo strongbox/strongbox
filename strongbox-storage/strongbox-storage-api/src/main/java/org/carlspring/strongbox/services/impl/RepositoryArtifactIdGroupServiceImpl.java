@@ -41,9 +41,6 @@ public class RepositoryArtifactIdGroupServiceImpl
     @Inject
     private ArtifactTagService artifactTagService;
 
-    @Inject
-    private ArtifactEntryService artifactEntryService;
-    
     @Override
     public void addArtifactToGroup(RepositoryArtifactIdGroupEntry artifactGroup,
                                    ArtifactEntry artifactEntry)

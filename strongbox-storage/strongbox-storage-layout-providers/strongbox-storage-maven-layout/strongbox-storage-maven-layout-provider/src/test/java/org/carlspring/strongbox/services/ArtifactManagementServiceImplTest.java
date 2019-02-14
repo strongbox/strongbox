@@ -722,6 +722,7 @@ public class ArtifactManagementServiceImplTest
         catch (IOException e)
         {
             logger.error("Unexpected IOException while getting result:", e);
+            e.printStackTrace();
             return 0L;
         }
     }
@@ -807,7 +808,7 @@ public class ArtifactManagementServiceImplTest
                     return 0L;
                 }
                 
-                if (attempts++ > 3) {
+                if (attempts++ > 5) {
                     return 0L;
                 }
 
