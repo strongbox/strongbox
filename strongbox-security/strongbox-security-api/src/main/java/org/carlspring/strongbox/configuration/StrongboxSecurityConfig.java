@@ -23,7 +23,7 @@ public class StrongboxSecurityConfig
 
     private static final Logger logger = LoggerFactory.getLogger(StrongboxSecurityConfig.class);
     
-    @Bean(name = "authenticationManager", initMethod = "load")
+    @Bean(initMethod = "load")
     @Lazy
     XmlAuthenticationConfigurationManager authenticationConfigurationManager()
     {
