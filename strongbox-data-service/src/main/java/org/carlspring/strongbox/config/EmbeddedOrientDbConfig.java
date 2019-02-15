@@ -1,9 +1,7 @@
 package org.carlspring.strongbox.config;
 
-import org.carlspring.strongbox.booters.PropertiesBooter;
 import java.io.BufferedInputStream;
 import java.io.BufferedOutputStream;
-import javax.inject.Inject;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;

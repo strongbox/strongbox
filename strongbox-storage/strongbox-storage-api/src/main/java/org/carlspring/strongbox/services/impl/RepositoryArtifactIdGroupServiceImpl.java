@@ -12,7 +12,6 @@ import org.carlspring.strongbox.artifact.coordinates.ArtifactCoordinates;
 import org.carlspring.strongbox.domain.ArtifactEntry;
 import org.carlspring.strongbox.domain.ArtifactTagEntry;
 import org.carlspring.strongbox.domain.RepositoryArtifactIdGroupEntry;
-import org.carlspring.strongbox.services.ArtifactEntryService;
 import org.carlspring.strongbox.services.ArtifactTagService;
 import org.carlspring.strongbox.services.RepositoryArtifactIdGroupService;
 import org.slf4j.Logger;

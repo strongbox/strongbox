@@ -22,7 +22,6 @@ import org.carlspring.strongbox.providers.io.LayoutFileSystem;
 import org.carlspring.strongbox.providers.io.RepositoryFileAttributeType;
 import org.carlspring.strongbox.providers.io.RepositoryPath;
 import org.carlspring.strongbox.providers.io.StorageFileSystemProvider;
-import org.carlspring.strongbox.resource.ConfigurationResourceResolver;
 import org.carlspring.strongbox.services.RepositoryArtifactIdGroupService;
 import org.carlspring.strongbox.storage.MutableStorage;
 import org.carlspring.strongbox.storage.repository.MutableRepository;

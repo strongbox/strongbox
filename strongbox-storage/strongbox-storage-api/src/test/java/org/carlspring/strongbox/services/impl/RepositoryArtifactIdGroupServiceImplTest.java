@@ -1,13 +1,11 @@
 package org.carlspring.strongbox.services.impl;
 
+import javax.inject.Inject;
+
 import org.carlspring.strongbox.StorageApiTestConfig;
 import org.carlspring.strongbox.data.CacheManagerTestExecutionListener;
 import org.carlspring.strongbox.domain.RepositoryArtifactIdGroupEntry;
 import org.carlspring.strongbox.services.RepositoryArtifactIdGroupService;
-
-import javax.inject.Inject;
-
-import com.orientechnologies.orient.core.storage.ORecordDuplicatedException;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -15,6 +13,8 @@ import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.TestExecutionListeners;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
+
+import com.orientechnologies.orient.core.storage.ORecordDuplicatedException;
 
 /**
  * @author Przemyslaw Fusik
@@ -27,7 +27,7 @@ class RepositoryArtifactIdGroupServiceImplTest
 {
 
     @Inject
-    RepositoryArtifactIdGroupService repositoryArtifactIdGroupService;
+    private RepositoryArtifactIdGroupService repositoryArtifactIdGroupService;
 
     @Test
     public void repositoryArtifactIdGroupShouldBeProtectedByIndex()
