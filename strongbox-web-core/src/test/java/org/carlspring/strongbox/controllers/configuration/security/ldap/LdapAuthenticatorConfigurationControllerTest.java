@@ -40,7 +40,6 @@ import static org.hamcrest.CoreMatchers.startsWith;
  */
 @IntegrationTest
 @ActiveProfiles({"LdapAuthenticatorConfigurationControllerTest","test"})
-@SpringBootTest
 public class LdapAuthenticatorConfigurationControllerTest
         extends RestAssuredBaseTest
 {

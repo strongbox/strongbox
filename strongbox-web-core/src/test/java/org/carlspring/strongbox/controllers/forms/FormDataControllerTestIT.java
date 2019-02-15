@@ -16,7 +16,6 @@ import static org.hamcrest.Matchers.*;
  * @author Przemyslaw Fusik
  */
 @IntegrationTest
-@SpringBootTest
 @Transactional
 public class FormDataControllerTestIT
         extends RestAssuredBaseTest

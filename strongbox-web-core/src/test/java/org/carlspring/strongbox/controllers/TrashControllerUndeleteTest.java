@@ -39,7 +39,6 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
  * @author Pablo Tirado
  */
 @IntegrationTest
-@SpringBootTest
 public class TrashControllerUndeleteTest
         extends MavenRestAssuredBaseTest
 {

@@ -21,7 +21,6 @@ import static org.hamcrest.Matchers.hasSize;
  * @author Przemyslaw Fusik
  */
 @IntegrationTest
-@SpringBootTest
 public class LoginControllerTest
         extends RestAssuredBaseTest
 {

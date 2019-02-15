@@ -37,7 +37,6 @@ import static org.junit.jupiter.api.Assertions.*;
  *
  */
 @IntegrationTest
-@SpringBootTest
 public class NugetArtifactControllerTest extends NugetRestAssuredBaseTest
 {
 

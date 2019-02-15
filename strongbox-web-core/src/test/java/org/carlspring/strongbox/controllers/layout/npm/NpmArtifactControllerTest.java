@@ -25,7 +25,6 @@ import static io.restassured.module.mockmvc.RestAssuredMockMvc.given;
 import static org.hamcrest.CoreMatchers.equalTo;
 
 @IntegrationTest
-@SpringBootTest
 public class NpmArtifactControllerTest
         extends NpmRestAssuredBaseTest
 {

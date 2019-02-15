@@ -38,7 +38,6 @@ import static org.junit.jupiter.api.Assertions.*;
  * @author Pablo Tirado
  */
 @IntegrationTest
-@SpringBootTest
 public class StoragesConfigurationControllerTestIT
         extends RestAssuredBaseTest
 {

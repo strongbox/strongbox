@@ -27,7 +27,6 @@ import static io.restassured.module.mockmvc.RestAssuredMockMvc.given;
  *
  */
 @IntegrationTest
-@SpringBootTest
 public class AqlControllerTest extends MavenRestAssuredBaseTest
 {
 

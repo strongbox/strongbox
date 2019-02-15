@@ -34,7 +34,6 @@ import static org.hamcrest.Matchers.*;
  * @author Aditya Srinivasan
  */
 @IntegrationTest
-@SpringBootTest
 public class ArtifactCoordinateValidatorsManagementControllerTest
         extends MavenRestAssuredBaseTest
 {

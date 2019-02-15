@@ -24,7 +24,6 @@ import static org.junit.jupiter.api.Assertions.assertNotNull;
  * @author Pablo Tirado
  */
 @IntegrationTest
-@SpringBootTest
 public class ProxyConfigurationControllerTestIT
         extends RestAssuredBaseTest
 {

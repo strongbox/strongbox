@@ -38,7 +38,6 @@ import static org.hamcrest.CoreMatchers.is;
  */
 @ActiveProfiles("AuthenticatorsConfigControllerTestConfig")
 @IntegrationTest
-@SpringBootTest
 public class AuthenticatorsConfigControllerTestIT
         extends RestAssuredBaseTest
 {

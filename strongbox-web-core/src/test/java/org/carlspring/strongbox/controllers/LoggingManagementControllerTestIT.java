@@ -27,7 +27,6 @@ import static org.junit.jupiter.api.Assertions.fail;
  * @author Aditya Srinivasan
  */
 @IntegrationTest
-@SpringBootTest
 public class LoggingManagementControllerTestIT
         extends RestAssuredBaseTest
 {

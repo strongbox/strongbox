@@ -33,7 +33,6 @@ import static org.hamcrest.CoreMatchers.containsString;
  * @author Pablo Tirado
  */
 @IntegrationTest
-@SpringBootTest
 public class AuthorizationConfigControllerTestIT
         extends RestAssuredBaseTest
 {

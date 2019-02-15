@@ -20,7 +20,6 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
  * @author Przemyslaw Fusik
  */
 @IntegrationTest
-@SpringBootTest
 public class CustomLoginSupplierTest
 {
 

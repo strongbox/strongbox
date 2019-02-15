@@ -21,7 +21,6 @@ import static org.junit.jupiter.api.Assertions.*;
  * @author Pablo Tirado
  */
 @IntegrationTest
-@SpringBootTest
 public class RoleListFormTestIT
         extends RestAssuredBaseTest
 {

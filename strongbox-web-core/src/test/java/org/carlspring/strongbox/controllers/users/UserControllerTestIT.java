@@ -51,7 +51,6 @@ import static org.junit.jupiter.api.Assertions.*;
  * @author Pablo Tirado
  */
 @IntegrationTest
-@SpringBootTest
 @Transactional
 public class UserControllerTestIT
         extends RestAssuredBaseTest

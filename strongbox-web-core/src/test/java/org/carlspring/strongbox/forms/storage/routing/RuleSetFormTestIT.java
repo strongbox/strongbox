@@ -20,7 +20,6 @@ import static org.assertj.core.api.Java6Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.*;
 
 @IntegrationTest
-@SpringBootTest
 public class RuleSetFormTestIT
         extends RestAssuredBaseTest
 {

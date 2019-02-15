@@ -26,7 +26,6 @@ import static org.hamcrest.CoreMatchers.equalTo;
  * @author Pablo Tirado
  */
 @IntegrationTest
-@SpringBootTest
 public class HttpConnectionPoolConfigurationManagementControllerTestIT
         extends RestAssuredBaseTest
 {

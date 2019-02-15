@@ -21,7 +21,6 @@ import static org.junit.jupiter.api.Assertions.assertNotNull;
  * @author Alex Oreshkevich
  */
 @IntegrationTest
-@SpringBootTest
 public class CustomAntPathMatcherTest
 {
 

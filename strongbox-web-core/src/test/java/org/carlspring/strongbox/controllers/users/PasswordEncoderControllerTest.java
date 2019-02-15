@@ -17,7 +17,6 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
  * @author Przemyslaw Fusik
  */
 @IntegrationTest
-@SpringBootTest
 @Transactional
 public class PasswordEncoderControllerTest
         extends RestAssuredBaseTest

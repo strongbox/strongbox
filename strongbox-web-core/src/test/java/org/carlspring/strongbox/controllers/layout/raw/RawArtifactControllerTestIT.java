@@ -24,7 +24,6 @@ import org.springframework.boot.test.context.SpringBootTest;
  * @author Martin Todorov
  */
 @IntegrationTest
-@SpringBootTest
 public class RawArtifactControllerTestIT
         extends RawRestAssuredBaseTest
 {

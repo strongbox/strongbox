@@ -33,7 +33,6 @@ import static io.restassured.module.mockmvc.RestAssuredMockMvc.given;
  * @author Martin Todorov
  */
 @IntegrationTest
-@SpringBootTest
 @EnabledIf(expression = "#{containsObject('repositoryIndexManager')}", loadContext = true)
 public class MavenArtifactIndexControllerTest
         extends MavenRestAssuredBaseTest

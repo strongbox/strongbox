@@ -23,7 +23,6 @@ import static org.junit.jupiter.api.Assertions.*;
  * @author Pablo Tirado
  */
 @IntegrationTest
-@SpringBootTest
 public class UserFormTestIT
         extends RestAssuredBaseTest
 {

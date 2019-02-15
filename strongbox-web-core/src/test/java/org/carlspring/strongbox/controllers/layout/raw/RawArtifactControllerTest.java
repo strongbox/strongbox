@@ -30,7 +30,6 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
  * @author Martin Todorov
  */
 @IntegrationTest
-@SpringBootTest
 public class RawArtifactControllerTest
         extends RawRestAssuredBaseTest
 {

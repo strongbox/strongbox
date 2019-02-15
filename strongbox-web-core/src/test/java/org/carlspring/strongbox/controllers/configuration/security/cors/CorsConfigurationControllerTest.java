@@ -29,7 +29,6 @@ import static org.hamcrest.Matchers.*;
  * @author Pablo Tirado
  */
 @IntegrationTest
-@SpringBootTest
 public class CorsConfigurationControllerTest
         extends RestAssuredBaseTest
 {

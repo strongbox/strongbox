@@ -29,7 +29,6 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
  * @author Martin Todorov
  */
 @IntegrationTest
-@SpringBootTest
 public class MavenSearchControllerTest
         extends MavenRestAssuredBaseTest
 {

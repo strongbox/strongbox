@@ -29,7 +29,6 @@ import static org.hamcrest.Matchers.containsString;
  * @author Pablo Tirado
  */
 @IntegrationTest
-@SpringBootTest
 public class SpringSecurityTest
         extends RestAssuredBaseTest
 {

@@ -35,7 +35,6 @@ import static org.junit.jupiter.api.Assertions.*;
  * @author Pablo Tirado
  */
 @IntegrationTest
-@SpringBootTest
 @ActiveProfiles(profiles = "test")
 public class AccountControllerTest
         extends RestAssuredBaseTest
