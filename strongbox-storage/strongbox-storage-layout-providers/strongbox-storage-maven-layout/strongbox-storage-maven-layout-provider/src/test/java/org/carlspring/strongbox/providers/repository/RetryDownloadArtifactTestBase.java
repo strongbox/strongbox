@@ -167,7 +167,7 @@ public abstract class RetryDownloadArtifactTestBase
         
         @Primary
         @Bean
-        public HazelcastInstanceId hazelcastInstanceId() 
+        public HazelcastInstanceId hazelcastInstanceIdRdatb() 
         {
             return new HazelcastInstanceId("mocked-hazelcast-instance");
         }
