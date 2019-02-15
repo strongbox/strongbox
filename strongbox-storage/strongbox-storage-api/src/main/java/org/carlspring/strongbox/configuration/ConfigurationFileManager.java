@@ -22,7 +22,7 @@ public class ConfigurationFileManager
     @Override
     public String getPropertyKey()
     {
-        return "strongbox.config.xml";
+        return "strongbox.config.file";
     }
 
     @Override

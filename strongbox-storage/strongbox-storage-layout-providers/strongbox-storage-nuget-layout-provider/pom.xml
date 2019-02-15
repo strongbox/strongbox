@@ -64,7 +64,7 @@
                         <strongbox.home>${project.build.directory}/strongbox</strongbox.home>
                         <strongbox.vault>${project.build.directory}/strongbox-vault</strongbox.vault>
                         <strongbox.storage.booter.basedir>${project.build.directory}/strongbox-vault/storages</strongbox.storage.booter.basedir>
-                        <strongbox.config.xml>${project.build.directory}/strongbox/etc/conf/strongbox.xml</strongbox.config.xml>
+                        <strongbox.config.file>${project.build.directory}/strongbox/etc/conf/strongbox.xml</strongbox.config.file>
                         <java.io.tmpdir>${dir.strongbox.vault}/tmp</java.io.tmpdir>
                         <ehcache.disk.store.dir>${project.build.directory}/strongbox/cache</ehcache.disk.store.dir>
                         <strongbox.nuget.download.feed>false</strongbox.nuget.download.feed>
