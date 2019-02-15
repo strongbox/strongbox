@@ -6,6 +6,7 @@ import org.carlspring.strongbox.configuration.MutableConfiguration;
 import org.carlspring.strongbox.cron.config.CronTasksConfig;
 import org.carlspring.strongbox.cron.services.CronJobSchedulerService;
 import org.carlspring.strongbox.cron.services.CronTaskConfigurationService;
+import org.carlspring.strongbox.storage.indexing.downloader.MockedIndexResourceFetcher;
 import org.carlspring.strongbox.storage.indexing.downloader.ResourceFetcherFactory;
 
 import org.apache.http.impl.client.CloseableHttpClient;
@@ -47,7 +48,13 @@ public class Maven2LayoutProviderTestConfig
 
     @Bean
     @Primary
-    ResourceFetcherFactory resourceFetcherFactory(ResourceFetcher resourceFetcher)
+    ResourceFetcher indexResourceFetcher() {
+        return new MockedIndexResourceFetcher();
+    }
+    
+    @Bean
+    @Primary
+    ResourceFetcherFactory resourceFetcherMockFactory(ResourceFetcher resourceFetcher)
     {
         final ResourceFetcherFactory resourceFetcherFactory = Mockito.mock(ResourceFetcherFactory.class);
 
