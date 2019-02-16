@@ -123,7 +123,8 @@ public class AuthorizationConfigController
         catch (RuntimeException e)
         {
             String message = e.getMessage();
-            return getExceptionResponseEntity(HttpStatus.BAD_REQUEST, message, e, acceptHeader);
+            logger.error(message);
+            return getBadRequestResponseEntity(message, acceptHeader);
         }
 
         return processConfig(() -> SUCCESSFUL_DELETE_ROLE, acceptHeader);
