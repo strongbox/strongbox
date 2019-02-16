@@ -9,6 +9,7 @@ import org.carlspring.strongbox.storage.repository.Repository;
 import javax.inject.Inject;
 import java.io.FileNotFoundException;
 import java.io.IOException;
+import java.nio.file.Files;
 
 import org.apache.maven.artifact.repository.metadata.Metadata;
 import org.codehaus.plexus.util.xml.pull.XmlPullParserException;
@@ -33,7 +34,7 @@ public class MavenMetadataGroupRepositoryComponent
         final LayoutProvider layoutProvider = getRepositoryProvider(groupRepository);
         
         RepositoryPath repositoryPath = repositoryPathResolver.resolve(groupRepository, artifactPath);
-        layoutProvider.deleteMetadata(repositoryPath);
+        Files.delete(repositoryPath);
     }
 
     @Override

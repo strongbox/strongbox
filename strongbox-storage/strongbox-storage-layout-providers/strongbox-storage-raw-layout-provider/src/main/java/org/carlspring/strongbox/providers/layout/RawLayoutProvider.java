@@ -59,12 +59,6 @@ public class RawLayoutProvider
         return false;
     }
 
-    @Deprecated
-    @Override
-    public void deleteMetadata(RepositoryPath repositoryPath)
-    {
-        // Note: There's no known metadata for this format, hence no action is taken here
-    }
 
     @Override
     public RawRepositoryManagementStrategy getRepositoryManagementStrategy()
