@@ -83,7 +83,7 @@ public class ProxyConfigurationController
         }
         catch (Exception e)
         {
-            return getExceptionResponseEntity(HttpStatus.INTERNAL_SERVER_ERROR, FAILED_UPDATE, e, acceptHeader);
+            return getFailedResponseEntity(HttpStatus.INTERNAL_SERVER_ERROR, FAILED_UPDATE, acceptHeader);
         }
     }
 
