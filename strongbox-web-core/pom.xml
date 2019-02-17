@@ -41,7 +41,6 @@
 
     <properties>
 
-        <strongbox.host>localhost</strongbox.host>
         <strongbox.port>48080</strongbox.port>
 
         <dir.strongbox.home>${project.build.directory}/strongbox</dir.strongbox.home>
@@ -74,7 +73,6 @@
                         <strongbox.vault>${project.build.directory}/strongbox-vault</strongbox.vault>
                         <strongbox.storage.booter.basedir>${project.build.directory}/strongbox-vault/storages</strongbox.storage.booter.basedir>
                         <strongbox.config.xml>${project.build.directory}/strongbox/etc/conf/strongbox.xml</strongbox.config.xml>
-                        <strongbox.host>${strongbox.host}</strongbox.host>
                         <strongbox.port>${strongbox.port}</strongbox.port>
                         <logging.dir>${project.build.directory}/strongbox-vault/logs</logging.dir>
                         <logging.config.file>${project.build.directory}/strongbox/etc/logback-debug.xml</logging.config.file>
