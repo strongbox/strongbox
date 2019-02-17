@@ -33,7 +33,7 @@ import static org.junit.jupiter.api.parallel.ExecutionMode.CONCURRENT;
 /**
  * @author Kate Novik.
  */
-@SpringBootTest(properties = {"classpath:/application.properties", "classpath:/test-application.properties"})
+@SpringBootTest
 @ActiveProfiles(profiles = "test")
 @ContextConfiguration(classes = Maven2LayoutProviderTestConfig.class)
 @Execution(CONCURRENT)
