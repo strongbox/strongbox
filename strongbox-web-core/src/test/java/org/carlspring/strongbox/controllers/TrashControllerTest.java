@@ -1,5 +1,6 @@
 package org.carlspring.strongbox.controllers;
 
+import io.restassured.module.mockmvc.response.ValidatableMockMvcResponse;
 import org.carlspring.strongbox.config.IntegrationTest;
 import org.carlspring.strongbox.providers.layout.Maven2LayoutProvider;
 import org.carlspring.strongbox.rest.common.MavenRestAssuredBaseTest;
@@ -19,6 +20,8 @@ import java.util.Set;
 import org.apache.http.HttpHeaders;
 import org.junit.jupiter.api.*;
 import org.junit.jupiter.api.extension.ExtendWith;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.ValueSource;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
@@ -154,18 +157,21 @@ public class TrashControllerTest
                     "Failed to delete artifact during a force delete operation!");
     }
 
-    @Test
-    public void testDeleteArtifactAndEmptyTrashForRepositoryWithTextAcceptHeader()
+    @ParameterizedTest
+    @ValueSource(strings = { MediaType.APPLICATION_JSON_VALUE, MediaType.TEXT_PLAIN_VALUE })
+    public void testDeleteArtifactAndEmptyTrashForRepository(String acceptHeader)
     {
         String url = getContextBaseUrl() + "/api/trash/" + STORAGE0 + "/" + REPOSITORY_WITH_TRASH;
 
-        given().header(HttpHeaders.ACCEPT, MediaType.TEXT_PLAIN_VALUE)
+        ValidatableMockMvcResponse response = given().header(HttpHeaders.ACCEPT, acceptHeader)
                .when()
                .delete(url)
                .peek()
                .then()
-               .statusCode(HttpStatus.OK.value())
-               .body(equalTo( "The trash for '" + STORAGE0 + ":" + REPOSITORY_WITH_TRASH + "' was removed successfully."));
+               .statusCode(HttpStatus.OK.value());
+
+        String message = "The trash for '" + STORAGE0 + ":" + REPOSITORY_WITH_TRASH + "' was removed successfully.";
+        getResponseBody(response, acceptHeader, message);
 
         assertFalse(Files.exists(getPathToArtifactInTrash()),
                     "Failed to empty trash for repository '" + REPOSITORY_WITH_TRASH + "'!");
@@ -177,55 +183,35 @@ public class TrashControllerTest
                          ARTIFACT_FILE_IN_TRASH);
     }
 
-    @Test
-    public void testDeleteArtifactAndEmptyTrashForRepositoryWithJsonAcceptHeader()
-    {
-        String url = getContextBaseUrl() + "/api/trash/" + STORAGE0 + "/" + REPOSITORY_WITH_TRASH;
 
-        given().header(HttpHeaders.ACCEPT, MediaType.APPLICATION_JSON_VALUE)
+    @ParameterizedTest
+    @ValueSource(strings = { MediaType.APPLICATION_JSON_VALUE, MediaType.TEXT_PLAIN_VALUE })
+    public void testDeleteArtifactAndEmptyTrashForAllRepositories(String acceptHeader)
+    {
+        String url = getContextBaseUrl() + "/api/trash";
+
+        ValidatableMockMvcResponse response = given().header(HttpHeaders.ACCEPT, acceptHeader)
                .when()
                .delete(url)
                .peek()
                .then()
-               .statusCode(HttpStatus.OK.value())
-               .body("message", equalTo(
-                       "The trash for '" + STORAGE0 + ":" + REPOSITORY_WITH_TRASH + "' was removed successfully."));
+               .statusCode(HttpStatus.OK.value());
+
+        String message = "The trash for all repositories was successfully removed.";
+        getResponseBody(response, acceptHeader, message);
 
         assertFalse(Files.exists(getPathToArtifactInTrash()),
                     "Failed to empty trash for repository '" + REPOSITORY_WITH_TRASH + "'!");
     }
 
-    @Test
-    public void testDeleteArtifactAndEmptyTrashForAllRepositoriesWithTextAcceptHeader()
-    {
-        String url = getContextBaseUrl() + "/api/trash";
-
-        given().header(HttpHeaders.ACCEPT, MediaType.TEXT_PLAIN_VALUE)
-               .when()
-               .delete(url)
-               .peek()
-               .then()
-               .statusCode(HttpStatus.OK.value())
-               .body(equalTo("The trash for all repositories was successfully removed."));
-
-        assertFalse(Files.exists(getPathToArtifactInTrash()),
-                    "Failed to empty trash for repository '" + REPOSITORY_WITH_TRASH + "'!");
-    }
-
-    @Test
-    public void testDeleteArtifactAndEmptyTrashForAllRepositoriesWithJsonAcceptHeader()
-    {
-        String url = getContextBaseUrl() + "/api/trash";
-
-        given().header(HttpHeaders.ACCEPT, MediaType.APPLICATION_JSON_VALUE)
-               .when()
-               .delete(url)
-               .peek()
-               .then()
-               .statusCode(HttpStatus.OK.value())
-               .body("message", equalTo("The trash for all repositories was successfully removed."));
-
-        assertFalse(Files.exists(getPathToArtifactInTrash()), "Failed to empty trash for all repositories");
+    private void getResponseBody(ValidatableMockMvcResponse response, String acceptHeader, String message) {
+        if (acceptHeader.equals(MediaType.APPLICATION_JSON_VALUE)) {
+            response.body("message", equalTo(message));
+        } else if (acceptHeader.equals(MediaType.TEXT_PLAIN_VALUE)) {
+            response.body(equalTo(message));
+        } else {
+            throw new IllegalArgumentException("Unsupported content type: " + acceptHeader);
+        }
     }
 
 }

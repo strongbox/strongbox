@@ -1,5 +1,6 @@
 package org.carlspring.strongbox.controllers.configuration.security.authorization;
 
+import org.apache.commons.lang3.StringUtils;
 import org.carlspring.strongbox.authorization.dto.AuthorizationConfigDto;
 import org.carlspring.strongbox.authorization.dto.RoleDto;
 import org.carlspring.strongbox.authorization.service.AuthorizationConfigService;
@@ -9,21 +10,25 @@ import org.carlspring.strongbox.forms.PrivilegeListForm;
 import org.carlspring.strongbox.forms.RoleForm;
 import org.carlspring.strongbox.rest.common.RestAssuredBaseTest;
 import org.carlspring.strongbox.users.domain.Privileges;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.extension.ExtendWith;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.Arguments;
+import org.junit.jupiter.params.provider.MethodSource;
+import org.junit.jupiter.params.provider.ValueSource;
+import org.springframework.http.HttpHeaders;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.MediaType;
+import org.springframework.test.context.junit.jupiter.SpringExtension;
 
 import javax.inject.Inject;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashSet;
 import java.util.List;
+import java.util.stream.Stream;
 
-import org.junit.jupiter.api.AfterEach;
-import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.api.Test;
-import org.junit.jupiter.api.extension.ExtendWith;
-import org.springframework.http.HttpHeaders;
-import org.springframework.http.HttpStatus;
-import org.springframework.http.MediaType;
-import org.springframework.test.context.junit.jupiter.SpringExtension;
 import static io.restassured.module.mockmvc.RestAssuredMockMvc.given;
 import static org.carlspring.strongbox.controllers.configuration.security.authorization.AuthorizationConfigController.*;
 import static org.hamcrest.CoreMatchers.containsString;
@@ -42,6 +47,24 @@ public class AuthorizationConfigControllerTestIT
 
     private AuthorizationConfigDto config;
 
+    private static final String EXISTING_ROLE = "USER_ROLE";
+
+    private static Stream<Arguments> privilegesProvider() {
+        return Stream.of(
+                Arguments.of("ADMIN_LIST_REPO", MediaType.APPLICATION_JSON_VALUE),
+                Arguments.of("ARTIFACTS_DEPLOY", MediaType.TEXT_PLAIN_VALUE)
+        );
+    }
+
+    private static Stream<Arguments> rolesProvider() {
+        return Stream.of(
+                Arguments.of(EXISTING_ROLE, MediaType.APPLICATION_JSON_VALUE),
+                Arguments.of(EXISTING_ROLE, MediaType.TEXT_PLAIN_VALUE),
+                Arguments.of(StringUtils.EMPTY, MediaType.APPLICATION_JSON_VALUE),
+                Arguments.of(StringUtils.EMPTY, MediaType.TEXT_PLAIN_VALUE)
+        );
+    }
+
     @Override
     @BeforeEach
     public void init()
@@ -58,50 +81,16 @@ public class AuthorizationConfigControllerTestIT
         authorizationConfigService.setAuthorizationConfig(config);
     }
 
-    private void roleShouldBeAdded(String acceptHeader,
-                                   RoleForm role)
-    {
-        given().contentType(MediaType.APPLICATION_JSON_VALUE)
-               .header(HttpHeaders.ACCEPT, acceptHeader)
-               .body(role)
-               .when()
-               .post(getContextBaseUrl() + "/authorization/role")
-               .peek() // Use peek() to print the output
-               .then()
-               .statusCode(HttpStatus.OK.value()) // check http status code
-               .body(containsString(SUCCESSFUL_ADD_ROLE));
-    }
-
-    @Test
-    public void testRoleShouldBeAddedWithResponseInJson()
+    @ParameterizedTest
+    @ValueSource(strings = { MediaType.APPLICATION_JSON_VALUE, MediaType.TEXT_PLAIN_VALUE })
+    void roleShouldBeAdded(String acceptHeader)
     {
         final RoleForm customRole = new RoleForm();
         customRole.setName("TEST_ROLE");
         customRole.setDescription("Test role");
         customRole.setRepository("Test repository");
         customRole.setPrivileges(new HashSet<>(Arrays.asList(Privileges.ADMIN_LIST_REPO.name(),
-                                                             Privileges.ARTIFACTS_DEPLOY.name())));
-        roleShouldBeAdded(MediaType.APPLICATION_JSON_VALUE, customRole);
-    }
-
-    @Test
-    public void testRoleShouldBeAddedWithResponseInText()
-    {
-        final RoleForm customRole = new RoleForm();
-        customRole.setName("TEST_ROLE");
-        customRole.setDescription("Test role");
-        customRole.setRepository("Test repository");
-        customRole.setPrivileges(new HashSet<>(Arrays.asList(Privileges.ADMIN_LIST_REPO.name(),
-                                                             Privileges.ARTIFACTS_DEPLOY.name())));
-        roleShouldBeAdded(MediaType.TEXT_PLAIN_VALUE, customRole);
-    }
-
-    private void roleShouldNotBeAdded(String acceptHeader,
-                                      String roleName)
-    {
-        // prepare new role
-        final RoleDto customRole = new RoleDto();
-        customRole.setName(roleName);
+                Privileges.ARTIFACTS_DEPLOY.name())));
 
         given().contentType(MediaType.APPLICATION_JSON_VALUE)
                .header(HttpHeaders.ACCEPT, acceptHeader)
@@ -110,39 +99,31 @@ public class AuthorizationConfigControllerTestIT
                .post(getContextBaseUrl() + "/authorization/role")
                .peek() // Use peek() to print the output
                .then()
-               .statusCode(HttpStatus.BAD_REQUEST.value()) // check http status code
-               .body(containsString(FAILED_ADD_ROLE));
+               .statusCode(HttpStatus.OK.value()) // check http status code
+               .body(containsString(SUCCESSFUL_ADD_ROLE));
     }
 
-    @Test
-    public void testExistingRoleShouldNotBeAddedWithResponseInJson()
-    {
-        String existingRoleName = config.getRoles().iterator().next().getName();
-        roleShouldNotBeAdded(MediaType.APPLICATION_JSON_VALUE, existingRoleName);
+    @ParameterizedTest
+    @MethodSource("rolesProvider") // already existing, or empty role
+    void roleShouldNotBeAdded(String roleName, String acceptHeader) {
+        final RoleDto customRole = new RoleDto();
+        customRole.setName(roleName);
+
+        given()
+                .contentType(MediaType.APPLICATION_JSON_VALUE)
+                .header(HttpHeaders.ACCEPT, acceptHeader)
+                .body(customRole)
+                .when()
+                .post(getContextBaseUrl() + "/authorization/role")
+                .peek()
+                .then()
+                .statusCode(HttpStatus.BAD_REQUEST.value())
+                .body(containsString(FAILED_ADD_ROLE));
     }
 
-    @Test
-    public void testExistingRoleShouldNotBeAddedWithResponseInText()
-    {
-        String existingRoleName = config.getRoles().iterator().next().getName();
-        roleShouldNotBeAdded(MediaType.TEXT_PLAIN_VALUE, existingRoleName);
-    }
-
-    @Test
-    public void testEmptyRoleNameShouldNotBeAddedWithResponseInJson()
-    {
-        String roleName = "";
-        roleShouldNotBeAdded(MediaType.APPLICATION_JSON_VALUE, roleName);
-    }
-
-    @Test
-    public void testEmptyRoleNameShouldNotBeAddedWithResponseInText()
-    {
-        String roleName = "";
-        roleShouldNotBeAdded(MediaType.TEXT_PLAIN_VALUE, roleName);
-    }
-
-    private void configXMLCouldBeDownloaded(String acceptHeader)
+    @ParameterizedTest
+    @ValueSource(strings = { MediaType.APPLICATION_JSON_VALUE, MediaType.APPLICATION_XML_VALUE })
+    void configXMLCouldBeDownloaded(String acceptHeader)
     {
         given().contentType(MediaType.APPLICATION_JSON_VALUE)
                .header(HttpHeaders.ACCEPT, acceptHeader)
@@ -153,21 +134,12 @@ public class AuthorizationConfigControllerTestIT
                .statusCode(HttpStatus.OK.value()); // check http status code
     }
 
-    @Test
-    public void testThatConfigXMLCouldBeDownloadedWithResponseInJson()
+    @ParameterizedTest
+    @ValueSource(strings = { MediaType.APPLICATION_JSON_VALUE, MediaType.TEXT_PLAIN_VALUE })
+    void roleShouldBeDeleted(String acceptHeader)
     {
-        configXMLCouldBeDownloaded(MediaType.APPLICATION_JSON_VALUE);
-    }
-
-    @Test
-    public void testThatConfigXMLCouldBeDownloadedWithResponseInXml()
-    {
-        configXMLCouldBeDownloaded(MediaType.APPLICATION_XML_VALUE);
-    }
-
-    private void roleShouldBeDeleted(String acceptHeader,
-                                     String roleName)
-    {
+        // get role name
+        String roleName = config.getRoles().iterator().next().getName();
         // delete role
         given().contentType(MediaType.APPLICATION_JSON_VALUE)
                .header(HttpHeaders.ACCEPT, acceptHeader)
@@ -179,23 +151,12 @@ public class AuthorizationConfigControllerTestIT
                .body(containsString(SUCCESSFUL_DELETE_ROLE));
     }
 
-    @Test
-    public void testRoleShouldBeDeletedWithResponseInJson()
+    @ParameterizedTest
+    @ValueSource(strings = { MediaType.APPLICATION_JSON_VALUE, MediaType.TEXT_PLAIN_VALUE })
+    void roleShouldNotBeDeleted(String acceptHeader)
     {
-        String roleName = config.getRoles().iterator().next().getName();
-        roleShouldBeDeleted(MediaType.APPLICATION_JSON_VALUE, roleName);
-    }
-
-    @Test
-    public void testRoleShouldBeDeletedWithResponseInText()
-    {
-        String roleName = config.getRoles().iterator().next().getName();
-        roleShouldBeDeleted(MediaType.TEXT_PLAIN_VALUE, roleName);
-    }
-
-    private void roleShouldNotBeDeleted(String acceptHeader,
-                                        String roleName)
-    {
+        // init not existing role name
+        String roleName = "TEST_ROLE";
         // delete role
         given().contentType(MediaType.APPLICATION_JSON_VALUE)
                .header(HttpHeaders.ACCEPT, acceptHeader)
@@ -207,23 +168,9 @@ public class AuthorizationConfigControllerTestIT
                .body(containsString(FAILED_DELETE_ROLE));
     }
 
-    @Test
-    public void testRoleShouldNotBeDeletedWithResponseInJson()
-    {
-        String nonExistingRoleName = "TEST_ROLE";
-        roleShouldNotBeDeleted(MediaType.APPLICATION_JSON_VALUE, nonExistingRoleName);
-    }
-
-    @Test
-    public void testRoleShouldNotBeDeletedWithResponseInText()
-    {
-        String nonExistingRoleName = "TEST_ROLE";
-        roleShouldNotBeDeleted(MediaType.TEXT_PLAIN_VALUE, nonExistingRoleName);
-    }
-
-    private void privilegesToAnonymousShouldBeAdded(String acceptHeader,
-                                                    String privilegeName)
-    {
+    @ParameterizedTest
+    @MethodSource("privilegesProvider")
+    void privilegesToAnonymousShouldBeAdded(String privilegeName, String acceptHeader) {
         // assign privileges to anonymous user
         PrivilegeListForm privilegeListForm = new PrivilegeListForm();
         List<PrivilegeForm> privilegeForms = new ArrayList<>();
@@ -242,27 +189,14 @@ public class AuthorizationConfigControllerTestIT
                .body(containsString(SUCCESSFUL_ASSIGN_PRIVILEGES));
     }
 
-    @Test
-    public void testPrivilegesToAnonymousShouldBeAddedWithResponseInJson()
-    {
-        String privilegeName = Privileges.ADMIN_LIST_REPO.name();
-        privilegesToAnonymousShouldBeAdded(MediaType.APPLICATION_JSON_VALUE, privilegeName);
-    }
-
-    @Test
-    public void testPrivilegesToAnonymousShouldBeAddedWithResponseInText()
-    {
-        String privilegeName = Privileges.ARTIFACTS_DEPLOY.name();
-        privilegesToAnonymousShouldBeAdded(MediaType.TEXT_PLAIN_VALUE, privilegeName);
-    }
-
-    private void privilegesToAnonymousShouldNotBeAdded(String acceptHeader,
-                                                       String privilegeName)
+    @ParameterizedTest
+    @ValueSource(strings = { MediaType.APPLICATION_JSON_VALUE, MediaType.TEXT_PLAIN_VALUE })
+    void emptyPrivilegesNameToAnonymousShouldNotBeAdded(String acceptHeader)
     {
         // assign privileges to anonymous user
         PrivilegeListForm privilegeListForm = new PrivilegeListForm();
         List<PrivilegeForm> privilegeForms = new ArrayList<>();
-        PrivilegeForm privilegeForm = new PrivilegeForm(privilegeName, "");
+        PrivilegeForm privilegeForm = new PrivilegeForm(StringUtils.EMPTY, "");
         privilegeForms.add(privilegeForm);
         privilegeListForm.setPrivileges(privilegeForms);
 
@@ -275,20 +209,6 @@ public class AuthorizationConfigControllerTestIT
                .then()
                .statusCode(HttpStatus.BAD_REQUEST.value()) // check http status code
                .body(containsString(FAILED_ASSIGN_PRIVILEGES));
-    }
-
-    @Test
-    public void testEmptyPrivilegeNameToAnonymousShouldNotBeAddedWithResponseInJson()
-    {
-        String privilegeName = "";
-        privilegesToAnonymousShouldNotBeAdded(MediaType.APPLICATION_JSON_VALUE, privilegeName);
-    }
-
-    @Test
-    public void testEmptyPrivilegeNameToAnonymousShouldNotBeAddedWithResponseInText()
-    {
-        String privilegeName = "";
-        privilegesToAnonymousShouldNotBeAdded(MediaType.TEXT_PLAIN_VALUE, privilegeName);
     }
 
 }

@@ -19,6 +19,8 @@ import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.ValueSource;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
@@ -44,7 +46,7 @@ public class ArtifactCoordinateValidatorsManagementControllerTest
     @Inject
     private RedeploymentValidator redeploymentValidator;
 
-    public static Set<MutableRepository> getRepositoriesToClean()
+    public static Set<MutableRepository>    getRepositoriesToClean()
     {
         Set<MutableRepository> repositories = new LinkedHashSet<>();
         repositories.add(createRepositoryMock(STORAGE0, "releases-with-single-validator", Maven2LayoutProvider.ALIAS));
@@ -152,19 +154,9 @@ public class ArtifactCoordinateValidatorsManagementControllerTest
                .body("message", equalTo(NOT_FOUND_REPOSITORY_MESSAGE));
     }
 
-    @Test
-    public void validatorsForReleaseRepositoryShouldBeRemovableAndFailSafeWithResponseInJson()
-    {
-        validatorsForReleaseRepositoryShouldBeRemovableAndFailSafe(MediaType.APPLICATION_JSON_VALUE);
-    }
-
-    @Test
-    public void validatorsForReleaseRepositoryShouldBeRemovableAndFailSafeWithResponseInText()
-    {
-        validatorsForReleaseRepositoryShouldBeRemovableAndFailSafe(MediaType.TEXT_PLAIN_VALUE);
-    }
-
-    private void validatorsForReleaseRepositoryShouldBeRemovableAndFailSafe(String acceptHeader)
+    @ParameterizedTest
+    @ValueSource(strings = { MediaType.APPLICATION_JSON_VALUE, MediaType.TEXT_PLAIN_VALUE })
+    void validatorsForReleaseRepositoryShouldBeRemovableAndFailSafe(String acceptHeader)
     {
         String url = getContextBaseUrl() + "/{storageId}/{repositoryId}/{alias}";
         String repositoryId = "releases-with-default-validators";
@@ -198,19 +190,9 @@ public class ArtifactCoordinateValidatorsManagementControllerTest
                      containsInAnyOrder("redeployment-validator", "maven-release-version-validator"));
     }
 
-    @Test
-    public void shouldNotRemoveAliasNotFoundWithResponseInJson()
-    {
-        shouldNotRemoveAliasNotFound(MediaType.APPLICATION_JSON_VALUE);
-    }
-
-    @Test
-    public void shouldNotRemoveAliasNotFoundWithResponseInText()
-    {
-        shouldNotRemoveAliasNotFound(MediaType.TEXT_PLAIN_VALUE);
-    }
-
-    private void shouldNotRemoveAliasNotFound(String acceptHeader)
+    @ParameterizedTest
+    @ValueSource(strings = { MediaType.APPLICATION_JSON_VALUE, MediaType.TEXT_PLAIN_VALUE })
+    void shouldNotRemoveAliasNotFound(String acceptHeader)
     {
         String url = getContextBaseUrl() + "/{storageId}/{repositoryId}/{alias}";
         String repositoryId = "releases-with-default-validators";
@@ -223,18 +205,6 @@ public class ArtifactCoordinateValidatorsManagementControllerTest
                .then()
                .statusCode(HttpStatus.NOT_FOUND.value())
                .body(containsString(NOT_FOUND_ALIAS_MESSAGE));
-    }
-
-    @Test
-    public void validatorsForReleaseRepositoryShouldBeAddableAndFailSafeWithResponseInJson()
-    {
-        validatorsForReleaseRepositoryShouldBeAddableAndFailSafe(MediaType.APPLICATION_JSON_VALUE);
-    }
-
-    @Test
-    public void validatorsForReleaseRepositoryShouldBeAddableAndFailSafeWithResponseInText()
-    {
-        validatorsForReleaseRepositoryShouldBeAddableAndFailSafe(MediaType.TEXT_PLAIN_VALUE);
     }
     
     @Test
@@ -268,7 +238,9 @@ public class ArtifactCoordinateValidatorsManagementControllerTest
                .body(containsString("supportedLayoutProviders"),containsString(layoutProvider));
     }
 
-    private void validatorsForReleaseRepositoryShouldBeAddableAndFailSafe(String acceptHeader)
+    @ParameterizedTest
+    @ValueSource(strings = { MediaType.APPLICATION_JSON_VALUE, MediaType.TEXT_PLAIN_VALUE })
+    void validatorsForReleaseRepositoryShouldBeAddableAndFailSafe(String acceptHeader)
     {
         String urlList = getContextBaseUrl() + "/{storageId}/{repositoryId}";
         String urlAdd = getContextBaseUrl() + "/{storageId}/{repositoryId}/{alias}";
