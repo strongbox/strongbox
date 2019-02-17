@@ -50,7 +50,6 @@
 
         <dir.strongbox.home>${project.build.directory}/strongbox</dir.strongbox.home>
         <dir.strongbox.vault>${project.build.directory}/strongbox-vault</dir.strongbox.vault>
-        <dir.jetty.etc>${dir.strongbox.home}/etc/jetty</dir.jetty.etc>
 
     </properties>
 
