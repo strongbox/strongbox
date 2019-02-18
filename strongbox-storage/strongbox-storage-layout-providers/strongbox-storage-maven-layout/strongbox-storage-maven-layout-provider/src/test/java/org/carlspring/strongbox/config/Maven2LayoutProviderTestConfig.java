@@ -48,7 +48,8 @@ public class Maven2LayoutProviderTestConfig
 
     @Bean
     @Primary
-    ResourceFetcher mockedIndexResourceFetcher() {
+    ResourceFetcher mockedIndexResourceFetcher() 
+    {
         return new MockedIndexResourceFetcher();
     }
     
