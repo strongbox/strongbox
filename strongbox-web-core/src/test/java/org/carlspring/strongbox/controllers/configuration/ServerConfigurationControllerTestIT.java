@@ -161,13 +161,16 @@ public class ServerConfigurationControllerTestIT
                .body("baseUrl", equalTo(newBaseUrl));
     }
 
-    @WithMockUser(authorities = { "CONFIGURATION_SET_BASE_URL", "CONFIGURATION_SET_PORT" })
     @ParameterizedTest
-    @ValueSource(strings = { MediaType.APPLICATION_JSON_VALUE, MediaType.TEXT_PLAIN_VALUE })
+    @ValueSource(strings = { MediaType.APPLICATION_JSON_VALUE,
+                             MediaType.TEXT_PLAIN_VALUE })
+    @WithMockUser(authorities = { "CONFIGURATION_SET_BASE_URL",
+                                  "CONFIGURATION_SET_PORT" })
     void serverSettingsShouldBeSaved(String acceptHeader)
     {
 
         String baseUrl = "http://localhost:" + 40080 + "/newurl";
+
         Integer port = 18080;
 
         CorsConfigurationForm corsConfigurationForm = new CorsConfigurationForm(
@@ -232,13 +235,16 @@ public class ServerConfigurationControllerTestIT
 
     }
 
-    @WithMockUser(authorities = { "CONFIGURATION_SET_BASE_URL", "CONFIGURATION_SET_PORT" })
     @ParameterizedTest
-    @ValueSource(strings = { MediaType.APPLICATION_JSON_VALUE, MediaType.TEXT_PLAIN_VALUE })
+    @ValueSource(strings = { MediaType.APPLICATION_JSON_VALUE,
+                             MediaType.TEXT_PLAIN_VALUE })
+    @WithMockUser(authorities = { "CONFIGURATION_SET_BASE_URL",
+                                  "CONFIGURATION_SET_PORT" })
     void serverSettingsShouldNotBeSaved(String acceptHeader)
     {
 
         String baseUrl = "";
+
         Integer port = 0;
 
         // assign settings to server

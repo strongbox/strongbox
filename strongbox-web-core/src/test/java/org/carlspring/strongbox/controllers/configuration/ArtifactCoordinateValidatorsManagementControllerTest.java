@@ -155,14 +155,15 @@ public class ArtifactCoordinateValidatorsManagementControllerTest
     }
 
     @ParameterizedTest
-    @ValueSource(strings = { MediaType.APPLICATION_JSON_VALUE, MediaType.TEXT_PLAIN_VALUE })
+    @ValueSource(strings = { MediaType.APPLICATION_JSON_VALUE,
+                             MediaType.TEXT_PLAIN_VALUE })
     void validatorsForReleaseRepositoryShouldBeRemovableAndFailSafe(String acceptHeader)
     {
         String url = getContextBaseUrl() + "/{storageId}/{repositoryId}/{alias}";
         String repositoryId = "releases-with-default-validators";
         String alias = "maven-snapshot-version-validator";
 
-        given().header(HttpHeaders.ACCEPT, acceptHeader)
+        given().accept(acceptHeader)
                .when()
                .put(url, STORAGE0, repositoryId, alias)
                .peek()
@@ -170,7 +171,7 @@ public class ArtifactCoordinateValidatorsManagementControllerTest
                .statusCode(HttpStatus.OK.value())
                .body(containsString(SUCCESSFUL_ADD));
 
-        given().header(HttpHeaders.ACCEPT, acceptHeader)
+        given().accept(acceptHeader)
                .when()
                .delete(url, STORAGE0, repositoryId, alias)
                .peek()
@@ -180,7 +181,7 @@ public class ArtifactCoordinateValidatorsManagementControllerTest
 
         url = getContextBaseUrl() + "/{storageId}/{repositoryId}";
 
-        given().header(HttpHeaders.ACCEPT, MediaType.APPLICATION_JSON_VALUE)
+        given().accept(MediaType.APPLICATION_JSON_VALUE)
                .when()
                .get(url, STORAGE0, repositoryId)
                .peek()
@@ -191,14 +192,15 @@ public class ArtifactCoordinateValidatorsManagementControllerTest
     }
 
     @ParameterizedTest
-    @ValueSource(strings = { MediaType.APPLICATION_JSON_VALUE, MediaType.TEXT_PLAIN_VALUE })
+    @ValueSource(strings = { MediaType.APPLICATION_JSON_VALUE,
+                             MediaType.TEXT_PLAIN_VALUE })
     void shouldNotRemoveAliasNotFound(String acceptHeader)
     {
         String url = getContextBaseUrl() + "/{storageId}/{repositoryId}/{alias}";
         String repositoryId = "releases-with-default-validators";
         String alias = "alias-not-found";
 
-        given().header(HttpHeaders.ACCEPT, acceptHeader)
+        given().accept(acceptHeader)
                .when()
                .delete(url, STORAGE0, repositoryId, alias)
                .peek()
@@ -239,7 +241,8 @@ public class ArtifactCoordinateValidatorsManagementControllerTest
     }
 
     @ParameterizedTest
-    @ValueSource(strings = { MediaType.APPLICATION_JSON_VALUE, MediaType.TEXT_PLAIN_VALUE })
+    @ValueSource(strings = { MediaType.APPLICATION_JSON_VALUE,
+                             MediaType.TEXT_PLAIN_VALUE })
     void validatorsForReleaseRepositoryShouldBeAddableAndFailSafe(String acceptHeader)
     {
         String urlList = getContextBaseUrl() + "/{storageId}/{repositoryId}";
@@ -247,7 +250,7 @@ public class ArtifactCoordinateValidatorsManagementControllerTest
         String repositoryId = "releases-with-single-validator";
         String alias = "/maven-snapshot-version-validator";
 
-        given().header(HttpHeaders.ACCEPT, MediaType.APPLICATION_JSON_VALUE)
+        given().accept(MediaType.APPLICATION_JSON_VALUE)
                .when()
                .get(urlList, STORAGE0, repositoryId)
                .peek()
@@ -255,7 +258,7 @@ public class ArtifactCoordinateValidatorsManagementControllerTest
                .statusCode(HttpStatus.OK.value())
                .body("versionValidators", containsInAnyOrder("redeployment-validator"));
 
-        given().header(HttpHeaders.ACCEPT, acceptHeader)
+        given().accept(acceptHeader)
                .when()
                .put(urlAdd, STORAGE0, repositoryId, alias)
                .peek()
@@ -263,7 +266,7 @@ public class ArtifactCoordinateValidatorsManagementControllerTest
                .statusCode(HttpStatus.OK.value())
                .body(containsString(SUCCESSFUL_ADD));
 
-        given().header(HttpHeaders.ACCEPT, MediaType.APPLICATION_JSON_VALUE)
+        given().accept(MediaType.APPLICATION_JSON_VALUE)
                .when()
                .get(urlList, STORAGE0, repositoryId)
                .peek()
@@ -272,7 +275,7 @@ public class ArtifactCoordinateValidatorsManagementControllerTest
                .body("versionValidators",
                      containsInAnyOrder("redeployment-validator", "maven-snapshot-version-validator"));
 
-        given().header(HttpHeaders.ACCEPT, acceptHeader)
+        given().accept(acceptHeader)
                .when()
                .put(urlAdd, STORAGE0, repositoryId, alias)
                .peek()
@@ -280,7 +283,7 @@ public class ArtifactCoordinateValidatorsManagementControllerTest
                .statusCode(HttpStatus.OK.value())
                .body(containsString(SUCCESSFUL_ADD));
 
-        given().header(HttpHeaders.ACCEPT, MediaType.APPLICATION_JSON_VALUE)
+        given().accept(MediaType.APPLICATION_JSON_VALUE)
                .when()
                .get(urlList, STORAGE0, repositoryId)
                .peek()

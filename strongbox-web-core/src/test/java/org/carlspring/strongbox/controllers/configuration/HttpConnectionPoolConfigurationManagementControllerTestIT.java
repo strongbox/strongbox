@@ -46,7 +46,8 @@ public class HttpConnectionPoolConfigurationManagementControllerTestIT
     }
 
     @ParameterizedTest
-    @ValueSource(strings = { MediaType.APPLICATION_JSON_VALUE, MediaType.TEXT_PLAIN_VALUE })
+    @ValueSource(strings = { MediaType.APPLICATION_JSON_VALUE,
+                             MediaType.TEXT_PLAIN_VALUE })
     void testSetAndGetMaxNumberOfConnectionsForProxyRepository(String acceptHeader)
     {
 
@@ -54,60 +55,62 @@ public class HttpConnectionPoolConfigurationManagementControllerTestIT
 
         String url = getContextBaseUrl() + "/api/configuration/proxy/connection-pool/max/" + newMaxNumberOfConnections;
 
-        ValidatableMockMvcResponse response = given().header(HttpHeaders.ACCEPT, acceptHeader)
-                .when()
-                .put(url)
-                .peek()
-                .then()
-                .statusCode(HttpStatus.OK.value());
+        ValidatableMockMvcResponse response = given().accept(acceptHeader)
+                                                     .when()
+                                                     .put(url)
+                                                     .peek()
+                                                     .then()
+                                                     .statusCode(HttpStatus.OK.value());
 
         String message = "Max number of connections for proxy repository was updated successfully.";
-        getResponseBody(response, acceptHeader, message);
+        validateResponseBody(response, acceptHeader, message);
 
         url = getContextBaseUrl() + "/api/configuration/proxy/connection-pool";
-        response = given().header(HttpHeaders.ACCEPT, acceptHeader)
-                .when()
-                .get(url)
-                .peek()
-                .then()
-                .statusCode(HttpStatus.OK.value());
+        response = given().accept(acceptHeader)
+                          .when()
+                          .get(url)
+                          .peek()
+                          .then()
+                          .statusCode(HttpStatus.OK.value());
 
-        getResponseBodyConnections(response, acceptHeader, newMaxNumberOfConnections);
+        validateResponseBodyConnections(response, acceptHeader, newMaxNumberOfConnections);
     }
 
     @ParameterizedTest
-    @ValueSource(strings = { MediaType.APPLICATION_JSON_VALUE, MediaType.TEXT_PLAIN_VALUE })
-    public void testSetAndGetDefaultNumberOfConnectionsForProxyRepository(String acceptHeader)
+    @ValueSource(strings = { MediaType.APPLICATION_JSON_VALUE,
+                             MediaType.TEXT_PLAIN_VALUE })
+    void testSetAndGetDefaultNumberOfConnectionsForProxyRepository(String acceptHeader)
     {
         int newDefaultNumberOfConnections = 5;
 
         String url =
                 getContextBaseUrl() + "/api/configuration/proxy/connection-pool/default/" + newDefaultNumberOfConnections;
 
-        ValidatableMockMvcResponse response = given().header(HttpHeaders.ACCEPT, acceptHeader)
-               .when()
-               .put(url)
-               .peek()
-               .then()
-               .statusCode(HttpStatus.OK.value());
+        ValidatableMockMvcResponse response = given().accept(acceptHeader)
+                                                     .when()
+                                                     .put(url)
+                                                     .peek()
+                                                     .then()
+                                                     .statusCode(HttpStatus.OK.value());
 
         String message = "Default number of connections for proxy repository was updated successfully.";
-        getResponseBody(response, acceptHeader, message);
+        validateResponseBody(response, acceptHeader, message);
 
         url = getContextBaseUrl() + "/api/configuration/proxy/connection-pool/default-number";
 
-        response = given().header(HttpHeaders.ACCEPT, acceptHeader)
-               .when()
-               .get(url)
-               .peek()
-               .then()
-               .statusCode(HttpStatus.OK.value());
+        response = given().accept(acceptHeader)
+                          .when()
+                          .get(url)
+                          .peek()
+                          .then()
+                          .statusCode(HttpStatus.OK.value());
 
-        getResponseBodyConnections(response, acceptHeader, newDefaultNumberOfConnections);
+        validateResponseBodyConnections(response, acceptHeader, newDefaultNumberOfConnections);
     }
 
     @ParameterizedTest
-    @ValueSource(strings = { MediaType.APPLICATION_JSON_VALUE, MediaType.TEXT_PLAIN_VALUE })
+    @ValueSource(strings = { MediaType.APPLICATION_JSON_VALUE,
+                             MediaType.TEXT_PLAIN_VALUE })
     void testSetAndGetNumberOfConnectionsForProxyRepositoryWithTextAcceptHeader(String acceptHeader)
     {
         Configuration configuration = configurationManager.getConfiguration();
@@ -130,34 +133,34 @@ public class HttpConnectionPoolConfigurationManagementControllerTestIT
                      repository.getId() + "/" +
                      numberOfConnections;
 
-        ValidatableMockMvcResponse response = given().header(HttpHeaders.ACCEPT, acceptHeader)
-               .when()
-               .put(url)
-               .peek()
-               .then()
-               .statusCode(HttpStatus.OK.value());
+        ValidatableMockMvcResponse response = given().accept(acceptHeader)
+                                                     .when()
+                                                     .put(url)
+                                                     .peek()
+                                                     .then()
+                                                     .statusCode(HttpStatus.OK.value());
 
         String message = "Number of pool connections for repository was updated successfully.";
-        getResponseBody(response, acceptHeader, message);
+        validateResponseBody(response, acceptHeader, message);
 
         url = getContextBaseUrl() + "/api/configuration/proxy/connection-pool/" +
               repository.getStorage().getId() + "/" +
               repository.getId();
 
         PoolStats expectedPoolStats = new PoolStats(0, 0, 0, numberOfConnections);
-        response = given().header(HttpHeaders.ACCEPT, acceptHeader)
-               .when()
-               .get(url)
-               .peek()
-               .then()
-               .statusCode(HttpStatus.OK.value());
+        response = given().accept(acceptHeader)
+                          .when()
+                          .get(url)
+                          .peek()
+                          .then()
+                          .statusCode(HttpStatus.OK.value());
 
-        getResponseBodyPoolStats(acceptHeader, response, expectedPoolStats);
+        validateResponseBodyPoolStats(acceptHeader, response, expectedPoolStats);
     }
 
-    private void getResponseBodyConnections(ValidatableMockMvcResponse response,
-                                            String acceptHeader,
-                                            int newMaxNumberOfConnections)
+    private void validateResponseBodyConnections(ValidatableMockMvcResponse response,
+                                                 String acceptHeader,
+                                                 int newMaxNumberOfConnections)
     {
         if (acceptHeader.equals(MediaType.APPLICATION_JSON_VALUE))
         {
@@ -173,9 +176,9 @@ public class HttpConnectionPoolConfigurationManagementControllerTestIT
         }
     }
 
-    private void getResponseBody(ValidatableMockMvcResponse response,
-                                 String acceptHeader,
-                                 String message)
+    private void validateResponseBody(ValidatableMockMvcResponse response,
+                                      String acceptHeader,
+                                      String message)
     {
         if (acceptHeader.equals(MediaType.APPLICATION_JSON_VALUE))
         {
@@ -191,9 +194,9 @@ public class HttpConnectionPoolConfigurationManagementControllerTestIT
         }
     }
 
-    private void getResponseBodyPoolStats(String acceptHeader,
-                                          ValidatableMockMvcResponse response,
-                                          PoolStats expectedPoolStats)
+    private void validateResponseBodyPoolStats(String acceptHeader,
+                                               ValidatableMockMvcResponse response,
+                                               PoolStats expectedPoolStats)
     {
         if (acceptHeader.equals(MediaType.APPLICATION_JSON_VALUE))
         {

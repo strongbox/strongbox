@@ -40,7 +40,8 @@ public class RoutingConfigurationControllerTestIT
     }
 
     @ParameterizedTest
-    @ValueSource(strings = { MediaType.APPLICATION_JSON_VALUE, MediaType.TEXT_PLAIN_VALUE })
+    @ValueSource(strings = { MediaType.APPLICATION_JSON_VALUE,
+                             MediaType.TEXT_PLAIN_VALUE })
     void testAddAcceptedRuleSet(String acceptHeader)
             throws Exception
     {
@@ -48,7 +49,8 @@ public class RoutingConfigurationControllerTestIT
     }
 
     @ParameterizedTest
-    @ValueSource(strings = { MediaType.APPLICATION_JSON_VALUE, MediaType.TEXT_PLAIN_VALUE })
+    @ValueSource(strings = { MediaType.APPLICATION_JSON_VALUE,
+                             MediaType.TEXT_PLAIN_VALUE })
     void testShouldNotAddAcceptedRuleSet(String acceptHeader)
             throws Exception
     {
@@ -56,7 +58,8 @@ public class RoutingConfigurationControllerTestIT
     }
 
     @ParameterizedTest
-    @ValueSource(strings = { MediaType.APPLICATION_JSON_VALUE, MediaType.TEXT_PLAIN_VALUE })
+    @ValueSource(strings = { MediaType.APPLICATION_JSON_VALUE,
+                             MediaType.TEXT_PLAIN_VALUE })
     void testRemoveAcceptedRuleSet(String acceptHeader)
             throws Exception
     {
@@ -65,7 +68,8 @@ public class RoutingConfigurationControllerTestIT
     }
 
     @ParameterizedTest
-    @ValueSource(strings = { MediaType.APPLICATION_JSON_VALUE, MediaType.TEXT_PLAIN_VALUE })
+    @ValueSource(strings = { MediaType.APPLICATION_JSON_VALUE,
+                             MediaType.TEXT_PLAIN_VALUE })
     void testAddAcceptedRepository(String acceptHeader)
             throws Exception
     {
@@ -74,7 +78,8 @@ public class RoutingConfigurationControllerTestIT
     }
     
     @ParameterizedTest
-    @ValueSource(strings = { MediaType.APPLICATION_JSON_VALUE, MediaType.TEXT_PLAIN_VALUE })
+    @ValueSource(strings = { MediaType.APPLICATION_JSON_VALUE,
+                             MediaType.TEXT_PLAIN_VALUE })
     void testShouldNotAddAcceptedRepository(String acceptHeader)
             throws Exception
     {
@@ -83,7 +88,8 @@ public class RoutingConfigurationControllerTestIT
     }
 
     @ParameterizedTest
-    @ValueSource(strings = { MediaType.APPLICATION_JSON_VALUE, MediaType.TEXT_PLAIN_VALUE })
+    @ValueSource(strings = { MediaType.APPLICATION_JSON_VALUE,
+                             MediaType.TEXT_PLAIN_VALUE })
     void testRemoveAcceptedRepository(String acceptHeader)
             throws Exception
     {
@@ -93,7 +99,8 @@ public class RoutingConfigurationControllerTestIT
     }
     
     @ParameterizedTest
-    @ValueSource(strings = { MediaType.APPLICATION_JSON_VALUE, MediaType.TEXT_PLAIN_VALUE })
+    @ValueSource(strings = { MediaType.APPLICATION_JSON_VALUE,
+                             MediaType.TEXT_PLAIN_VALUE })
     void testOverrideAcceptedRepository(String acceptHeader)
             throws Exception
     {
@@ -103,7 +110,8 @@ public class RoutingConfigurationControllerTestIT
     }
 
     @ParameterizedTest
-    @ValueSource(strings = { MediaType.APPLICATION_JSON_VALUE, MediaType.TEXT_PLAIN_VALUE })
+    @ValueSource(strings = { MediaType.APPLICATION_JSON_VALUE,
+                             MediaType.TEXT_PLAIN_VALUE })
     void testShouldNotOverrideAcceptedRepository(String acceptHeader)
             throws Exception
     {

@@ -195,7 +195,8 @@ public class TrashControllerUndeleteTest
     }
 
     @ParameterizedTest
-    @ValueSource(strings = { MediaType.APPLICATION_JSON_VALUE, MediaType.TEXT_PLAIN_VALUE })
+    @ValueSource(strings = { MediaType.APPLICATION_JSON_VALUE,
+                             MediaType.TEXT_PLAIN_VALUE })
     void testUndeleteArtifactsForAllRepositories(String acceptHeader)
             throws Exception
     {
@@ -215,15 +216,15 @@ public class TrashControllerUndeleteTest
 
         String url = getContextBaseUrl() + "/api/trash";
 
-        ValidatableMockMvcResponse response = given().header(HttpHeaders.ACCEPT, acceptHeader)
-               .when()
-               .post(url)
-               .peek()
-               .then()
-               .statusCode(HttpStatus.OK.value());
+        ValidatableMockMvcResponse response = given().accept(acceptHeader)
+                                                     .when()
+                                                     .post(url)
+                                                     .peek()
+                                                     .then()
+                                                     .statusCode(HttpStatus.OK.value());
 
         String message = "The trash for all repositories was successfully restored.";
-        getResponseBody(response, acceptHeader, message);
+        validateResponseBody(response, acceptHeader, message);
 
         final Path artifactFileRestoredFromTrash = Paths.get(getRepositoryBasedir(STORAGE0, REPOSITORY_WITH_TRASH).getAbsolutePath() + "/" +
                                                              "org/carlspring/strongbox/undelete/test-artifact-undelete/1.1/" +
@@ -243,9 +244,9 @@ public class TrashControllerUndeleteTest
                                     "+p:jar");
     }
 
-    private void getResponseBody(ValidatableMockMvcResponse response,
-                                 String acceptHeader,
-                                 String message)
+    private void validateResponseBody(ValidatableMockMvcResponse response,
+                                      String acceptHeader,
+                                      String message)
     {
         if (acceptHeader.equals(MediaType.APPLICATION_JSON_VALUE))
         {

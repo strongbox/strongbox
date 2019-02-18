@@ -84,7 +84,8 @@ public class AuthorizationConfigControllerTestIT
     }
 
     @ParameterizedTest
-    @ValueSource(strings = { MediaType.APPLICATION_JSON_VALUE, MediaType.TEXT_PLAIN_VALUE })
+    @ValueSource(strings = { MediaType.APPLICATION_JSON_VALUE,
+                             MediaType.TEXT_PLAIN_VALUE })
     void roleShouldBeAdded(String acceptHeader)
     {
         final RoleForm customRole = new RoleForm();
@@ -95,7 +96,7 @@ public class AuthorizationConfigControllerTestIT
                 Privileges.ARTIFACTS_DEPLOY.name())));
 
         given().contentType(MediaType.APPLICATION_JSON_VALUE)
-               .header(HttpHeaders.ACCEPT, acceptHeader)
+               .accept(acceptHeader)
                .body(customRole)
                .when()
                .post(getContextBaseUrl() + "/authorization/role")
@@ -106,7 +107,7 @@ public class AuthorizationConfigControllerTestIT
     }
 
     @ParameterizedTest
-    @MethodSource("rolesProvider") // already existing, or empty role
+    @MethodSource("rolesProvider")
     void roleShouldNotBeAdded(String roleName,
                               String acceptHeader)
     {
@@ -115,7 +116,7 @@ public class AuthorizationConfigControllerTestIT
 
         given()
                 .contentType(MediaType.APPLICATION_JSON_VALUE)
-                .header(HttpHeaders.ACCEPT, acceptHeader)
+                .accept(acceptHeader)
                 .body(customRole)
                 .when()
                 .post(getContextBaseUrl() + "/authorization/role")
@@ -126,11 +127,12 @@ public class AuthorizationConfigControllerTestIT
     }
 
     @ParameterizedTest
-    @ValueSource(strings = { MediaType.APPLICATION_JSON_VALUE, MediaType.APPLICATION_XML_VALUE })
+    @ValueSource(strings = { MediaType.APPLICATION_JSON_VALUE,
+                             MediaType.APPLICATION_XML_VALUE })
     void configXMLCouldBeDownloaded(String acceptHeader)
     {
         given().contentType(MediaType.APPLICATION_JSON_VALUE)
-               .header(HttpHeaders.ACCEPT, acceptHeader)
+               .accept(acceptHeader)
                .when()
                .get(getContextBaseUrl() + "/authorization/xml")
                .peek() // Use peek() to print the output
@@ -139,14 +141,15 @@ public class AuthorizationConfigControllerTestIT
     }
 
     @ParameterizedTest
-    @ValueSource(strings = { MediaType.APPLICATION_JSON_VALUE, MediaType.TEXT_PLAIN_VALUE })
+    @ValueSource(strings = { MediaType.APPLICATION_JSON_VALUE,
+                             MediaType.TEXT_PLAIN_VALUE })
     void roleShouldBeDeleted(String acceptHeader)
     {
         // get role name
         String roleName = config.getRoles().iterator().next().getName();
         // delete role
         given().contentType(MediaType.APPLICATION_JSON_VALUE)
-               .header(HttpHeaders.ACCEPT, acceptHeader)
+               .accept(acceptHeader)
                .when()
                .delete(getContextBaseUrl() + "/authorization/role/" + roleName)
                .peek() // Use peek() to print the output
@@ -156,14 +159,15 @@ public class AuthorizationConfigControllerTestIT
     }
 
     @ParameterizedTest
-    @ValueSource(strings = { MediaType.APPLICATION_JSON_VALUE, MediaType.TEXT_PLAIN_VALUE })
+    @ValueSource(strings = { MediaType.APPLICATION_JSON_VALUE,
+                             MediaType.TEXT_PLAIN_VALUE })
     void roleShouldNotBeDeleted(String acceptHeader)
     {
         // init not existing role name
         String roleName = "TEST_ROLE";
         // delete role
         given().contentType(MediaType.APPLICATION_JSON_VALUE)
-               .header(HttpHeaders.ACCEPT, acceptHeader)
+               .accept(acceptHeader)
                .when()
                .delete(getContextBaseUrl() + "/authorization/role/" + roleName)
                .peek() // Use peek() to print the output
@@ -174,7 +178,8 @@ public class AuthorizationConfigControllerTestIT
 
     @ParameterizedTest
     @MethodSource("privilegesProvider")
-    void privilegesToAnonymousShouldBeAdded(String privilegeName, String acceptHeader)
+    void privilegesToAnonymousShouldBeAdded(String privilegeName,
+                                            String acceptHeader)
     {
         // assign privileges to anonymous user
         PrivilegeListForm privilegeListForm = new PrivilegeListForm();
@@ -184,7 +189,7 @@ public class AuthorizationConfigControllerTestIT
         privilegeListForm.setPrivileges(privilegeForms);
 
         given().contentType(MediaType.APPLICATION_JSON_VALUE)
-               .header(HttpHeaders.ACCEPT, acceptHeader)
+               .accept(acceptHeader)
                .body(privilegeListForm)
                .when()
                .post(getContextBaseUrl() + "/authorization/anonymous/privileges")
@@ -195,7 +200,8 @@ public class AuthorizationConfigControllerTestIT
     }
 
     @ParameterizedTest
-    @ValueSource(strings = { MediaType.APPLICATION_JSON_VALUE, MediaType.TEXT_PLAIN_VALUE })
+    @ValueSource(strings = { MediaType.APPLICATION_JSON_VALUE,
+                             MediaType.TEXT_PLAIN_VALUE })
     void emptyPrivilegesNameToAnonymousShouldNotBeAdded(String acceptHeader)
     {
         // assign privileges to anonymous user
@@ -206,7 +212,7 @@ public class AuthorizationConfigControllerTestIT
         privilegeListForm.setPrivileges(privilegeForms);
 
         given().contentType(MediaType.APPLICATION_JSON_VALUE)
-               .header(HttpHeaders.ACCEPT, acceptHeader)
+               .accept(acceptHeader)
                .body(privilegeListForm)
                .when()
                .post(getContextBaseUrl() + "/authorization/anonymous/privileges")

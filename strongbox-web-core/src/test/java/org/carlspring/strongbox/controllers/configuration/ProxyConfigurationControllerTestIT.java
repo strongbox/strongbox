@@ -71,9 +71,11 @@ public class ProxyConfigurationControllerTestIT
         return proxyConfiguration;
     }
 
-    @WithMockUser(authorities = {"CONFIGURATION_SET_GLOBAL_PROXY_CFG", "CONFIGURATION_VIEW_GLOBAL_PROXY_CFG"})
+    @WithMockUser(authorities = {"CONFIGURATION_SET_GLOBAL_PROXY_CFG",
+                                 "CONFIGURATION_VIEW_GLOBAL_PROXY_CFG"})
     @ParameterizedTest
-    @ValueSource(strings = { MediaType.APPLICATION_JSON_VALUE, MediaType.TEXT_PLAIN_VALUE })
+    @ValueSource(strings = { MediaType.APPLICATION_JSON_VALUE,
+                             MediaType.TEXT_PLAIN_VALUE })
     void testSetAndGetGlobalProxyConfiguration(String acceptHeader)
     {
         MutableProxyConfiguration proxyConfiguration = createProxyConfiguration();
@@ -109,7 +111,8 @@ public class ProxyConfigurationControllerTestIT
 
     @WithMockUser(authorities = "CONFIGURATION_SET_GLOBAL_PROXY_CFG")
     @ParameterizedTest
-    @ValueSource(strings = { MediaType.APPLICATION_JSON_VALUE, MediaType.TEXT_PLAIN_VALUE })
+    @ValueSource(strings = { MediaType.APPLICATION_JSON_VALUE,
+                             MediaType.TEXT_PLAIN_VALUE })
     void testSetGlobalProxyConfigurationNotFound(String acceptHeader)
     {
         MutableProxyConfiguration proxyConfiguration = createProxyConfiguration();
@@ -133,7 +136,8 @@ public class ProxyConfigurationControllerTestIT
 
     @WithMockUser(authorities = "CONFIGURATION_SET_GLOBAL_PROXY_CFG")
     @ParameterizedTest
-    @ValueSource(strings = { MediaType.APPLICATION_JSON_VALUE, MediaType.TEXT_PLAIN_VALUE })
+    @ValueSource(strings = { MediaType.APPLICATION_JSON_VALUE,
+                             MediaType.TEXT_PLAIN_VALUE })
     void testSetGlobalProxyConfigurationBadRequest(String acceptHeader)
     {
         MutableProxyConfiguration proxyConfiguration = createWrongProxyConfiguration();

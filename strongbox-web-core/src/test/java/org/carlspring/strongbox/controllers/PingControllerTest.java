@@ -1,7 +1,6 @@
 package org.carlspring.strongbox.controllers;
 
 import io.restassured.module.mockmvc.response.ValidatableMockMvcResponse;
-import org.apache.http.HttpHeaders;
 import org.carlspring.strongbox.config.IntegrationTest;
 import org.carlspring.strongbox.rest.common.MavenRestAssuredBaseTest;
 import org.junit.jupiter.api.BeforeEach;
@@ -36,55 +35,57 @@ public class PingControllerTest
     }
 
     @ParameterizedTest
-    @ValueSource(strings = { MediaType.APPLICATION_JSON_VALUE, MediaType.TEXT_PLAIN_VALUE })
+    @ValueSource(strings = { MediaType.APPLICATION_JSON_VALUE,
+                             MediaType.TEXT_PLAIN_VALUE })
     void shouldReturnPong(String acceptHeader)
     {
-        ValidatableMockMvcResponse response = given()
-                .header(HttpHeaders.ACCEPT, acceptHeader)
-                .when()
-                .get(getContextBaseUrl())
-                .peek()
-                .then()
-                .statusCode(HttpStatus.OK.value());
+        ValidatableMockMvcResponse response = given().accept(acceptHeader)
+                                                     .when()
+                                                     .get(getContextBaseUrl())
+                                                     .peek()
+                                                     .then()
+                                                     .statusCode(HttpStatus.OK.value());
 
         String message = "pong";
-        getResponseBody(response, acceptHeader, message);
+        validateResponseBody(response, acceptHeader, message);
     }
 
     @ParameterizedTest
-    @ValueSource(strings = { MediaType.APPLICATION_JSON_VALUE, MediaType.TEXT_PLAIN_VALUE })
+    @ValueSource(strings = { MediaType.APPLICATION_JSON_VALUE,
+                             MediaType.TEXT_PLAIN_VALUE })
     void shouldReturnPongForAuthenticatedUsers(String acceptHeader)
     {
-        ValidatableMockMvcResponse response = given()
-                .header(HttpHeaders.ACCEPT, acceptHeader)
-                .when()
-                .get(getContextBaseUrl() + "/token")
-                .peek()
-                .then()
-                .statusCode(HttpStatus.OK.value());
+        ValidatableMockMvcResponse response = given().accept(acceptHeader)
+                                                     .when()
+                                                     .get(getContextBaseUrl() + "/token")
+                                                     .peek()
+                                                     .then()
+                                                     .statusCode(HttpStatus.OK.value());
 
         String message = "pong";
-        getResponseBody(response, acceptHeader, message);
+        validateResponseBody(response, acceptHeader, message);
     }
 
     @ParameterizedTest
-    @ValueSource(strings = { MediaType.APPLICATION_JSON_VALUE, MediaType.TEXT_PLAIN_VALUE })
+    @ValueSource(strings = { MediaType.APPLICATION_JSON_VALUE,
+                             MediaType.TEXT_PLAIN_VALUE })
     @WithAnonymousUser
     void anonymousUsersShouldNotBeAbleToAccess(String acceptHeader)
     {
-        given().header(HttpHeaders.ACCEPT, acceptHeader)
-                .when()
-                .get(getContextBaseUrl() + "/token")
-                .peek()
-                .then()
-                .log().all()
-                .statusCode(HttpStatus.UNAUTHORIZED.value())
-                .body(notNullValue());
+        given().accept(acceptHeader)
+               .when()
+               .get(getContextBaseUrl() + "/token")
+               .peek()
+               .then()
+               .log()
+               .all()
+               .statusCode(HttpStatus.UNAUTHORIZED.value())
+               .body(notNullValue());
     }
 
-    private void getResponseBody(ValidatableMockMvcResponse response,
-                                 String acceptHeader,
-                                 String message)
+    private void validateResponseBody(ValidatableMockMvcResponse response,
+                                      String acceptHeader,
+                                      String message)
     {
         if (acceptHeader.equals(MediaType.APPLICATION_JSON_VALUE))
         {
