@@ -130,7 +130,7 @@ public class LoggingManagementController
         catch (LoggerNotFoundException e)
         {
             String message = "Logger '" + loggerPackage + "' not found!";
-            return getExceptionResponseEntity(NOT_FOUND, message, e, accept);
+            return getNotFoundResponseEntity(message, accept);
         }
     }
 
@@ -164,7 +164,7 @@ public class LoggingManagementController
         {
             String message = "Logger '" + loggerPackage + "' not found!";
 
-            return getExceptionResponseEntity(NOT_FOUND, message, e, accept);
+            return getNotFoundResponseEntity(message, accept);
         }
     }
 
