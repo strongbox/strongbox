@@ -7,6 +7,8 @@
         <resetJUL>true</resetJUL>
     </contextListener>
 
+    <springProperty scope="context" name="loggingPath" source="strongbox.vault" defaultValue="."/>
+
     <appender name="CONSOLE" class="ch.qos.logback.core.ConsoleAppender">
         <filter class="org.carlspring.strongbox.log.CronTaskContextFilter"/>
 
@@ -26,9 +28,9 @@
             <appender name="CRON-JOB-CONTEXT-SIFT-FILE-APPENDER"
                 class="ch.qos.logback.core.rolling.RollingFileAppender">
 
-                <file>${strongbox.vault}/logs/${strongbox-cron-context-name}.log</file>
+                <file>${loggingPath}/logs/${strongbox-cron-context-name}.log</file>
                 <rollingPolicy class="ch.qos.logback.core.rolling.SizeAndTimeBasedRollingPolicy">
-                    <fileNamePattern>${strongbox.vault}/logs/${strongbox-cron-context-name}-%d{yyyy-MM-dd}.%i.log.gz</fileNamePattern>
+                    <fileNamePattern>${loggingPath}/logs/${strongbox-cron-context-name}-%d{yyyy-MM-dd}.%i.log.gz</fileNamePattern>
                     <maxFileSize>128MB</maxFileSize>
                     <maxHistory>31</maxHistory>
                     <totalSizeCap>1GB</totalSizeCap>
