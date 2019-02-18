@@ -136,7 +136,8 @@ public class Maven2FileSystemProvider extends LayoutFileSystemProvider
     }
 
     @Override
-    public void deleteMetadata(RepositoryPath artifactPath) {
+    public void deleteMetadata(RepositoryPath artifactPath)
+    {
         try
         {
             RepositoryPath artifactBasePath = artifactPath;
@@ -155,7 +156,7 @@ public class Maven2FileSystemProvider extends LayoutFileSystemProvider
             {
 
                 RepositoryFileAttributes artifactFileAttributes = Files.readAttributes(artifactPath,
-                        RepositoryFileAttributes.class);
+                                                                                       RepositoryFileAttributes.class);
 
                 if (!artifactFileAttributes.isDirectory())
                 {
@@ -165,14 +166,17 @@ public class Maven2FileSystemProvider extends LayoutFileSystemProvider
                     // This is at the version level
                     try (Stream<Path> pathStream = Files.list(artifactBasePath))
                     {
-                        Path pomPath = pathStream.filter(
-                                p -> p.getFileName().toString().endsWith(".pom")).findFirst().orElse(null);
+                        Path pomPath = pathStream.filter(p -> p.getFileName()
+                                                 .toString()
+                                                 .endsWith(".pom"))
+                                                 .findFirst()
+                                                 .orElse(null);
 
                         if (pomPath != null)
                         {
-                            String version = ArtifactUtils.convertPathToArtifact(
-                                    RepositoryFiles.relativizePath(artifactPath))
-                                    .getVersion();
+                            String version = ArtifactUtils.convertPathToArtifact(RepositoryFiles
+                                                          .relativizePath(artifactPath))
+                                                          .getVersion();
                             version = version == null ? pomPath.getParent().getFileName().toString() : version;
 
                             deleteMetadataAtVersionLevel(artifactBasePath, version);
@@ -193,10 +197,10 @@ public class Maven2FileSystemProvider extends LayoutFileSystemProvider
                 try (Stream<Path> pathStream = Files.list(artifactIdLevelPath))
                 {
                     Path mavenMetadataPath = pathStream.filter(p -> p.getFileName()
-                            .toString()
-                            .endsWith("maven-metadata.xml"))
-                            .findFirst()
-                            .orElse(null);
+                                                       .toString()
+                                                       .endsWith("maven-metadata.xml"))
+                                                       .findFirst()
+                                                       .orElse(null);
 
                     if (mavenMetadataPath != null)
                     {
@@ -215,7 +219,10 @@ public class Maven2FileSystemProvider extends LayoutFileSystemProvider
     }
 
     public void deleteMetadataAtVersionLevel(RepositoryPath metadataBasePath,
-                                             String version) throws IOException, XmlPullParserException {
+                                             String version)
+        throws IOException,
+        XmlPullParserException
+    {
         
         if (ArtifactUtils.isSnapshot(version) && Files.exists(metadataBasePath))
         {
@@ -228,15 +235,18 @@ public class Maven2FileSystemProvider extends LayoutFileSystemProvider
                 MetadataHelper.setLastUpdated(metadataVersionLevel.getVersioning());
 
                 mavenMetadataManager.storeMetadata(metadataBasePath,
-                        null,
-                        metadataVersionLevel,
-                        MetadataType.SNAPSHOT_VERSION_LEVEL);
+                                                   null,
+                                                   metadataVersionLevel,
+                                                   MetadataType.SNAPSHOT_VERSION_LEVEL);
             }
         }
     }
 
     public void deleteMetadataAtArtifactLevel(RepositoryPath artifactPath,
-                                              String version) throws IOException, XmlPullParserException {
+                                              String version)
+        throws IOException,
+        XmlPullParserException
+    {
 
         Metadata metadataVersionLevel = mavenMetadataManager.readMetadata(artifactPath);
         if (metadataVersionLevel != null && metadataVersionLevel.getVersioning() != null)
@@ -256,9 +266,9 @@ public class Maven2FileSystemProvider extends LayoutFileSystemProvider
             MetadataHelper.setLastUpdated(metadataVersionLevel.getVersioning());
 
             mavenMetadataManager.storeMetadata(artifactPath,
-                    null,
-                    metadataVersionLevel,
-                    MetadataType.ARTIFACT_ROOT_LEVEL);
+                                               null,
+                                               metadataVersionLevel,
+                                               MetadataType.ARTIFACT_ROOT_LEVEL);
         }
     }
 }

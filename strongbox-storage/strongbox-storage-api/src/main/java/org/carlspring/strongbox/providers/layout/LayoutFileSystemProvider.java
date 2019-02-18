@@ -376,7 +376,9 @@ public abstract class LayoutFileSystemProvider extends StorageFileSystemProvider
         return getLayoutProvider().getRepositoryFileAttributes(repositoryRelativePath, attributeTypes);
     }
     
-    protected void deleteMetadata(RepositoryPath repositoryPath) throws IOException {
+    protected void deleteMetadata(RepositoryPath repositoryPath)
+        throws IOException
+    {
 
     }
     
