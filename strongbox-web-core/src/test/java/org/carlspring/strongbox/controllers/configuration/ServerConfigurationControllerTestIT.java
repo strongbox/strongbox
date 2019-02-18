@@ -15,6 +15,8 @@ import java.util.Arrays;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.ValueSource;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.security.test.context.support.WithMockUser;
@@ -159,10 +161,18 @@ public class ServerConfigurationControllerTestIT
                .body("baseUrl", equalTo(newBaseUrl));
     }
 
-    public void serverSettingsShouldBeSaved(String acceptHeader,
-                                            String baseUrl,
-                                            Integer port)
+    @ParameterizedTest
+    @ValueSource(strings = { MediaType.APPLICATION_JSON_VALUE,
+                             MediaType.TEXT_PLAIN_VALUE })
+    @WithMockUser(authorities = { "CONFIGURATION_SET_BASE_URL",
+                                  "CONFIGURATION_SET_PORT" })
+    void serverSettingsShouldBeSaved(String acceptHeader)
     {
+
+        String baseUrl = "http://localhost:" + 40080 + "/newurl";
+
+        Integer port = 18080;
+
         CorsConfigurationForm corsConfigurationForm = new CorsConfigurationForm(
                 Arrays.asList("http://example.com", "https://github.com/strongbox")
         );
@@ -225,30 +235,18 @@ public class ServerConfigurationControllerTestIT
 
     }
 
-    @Test
+    @ParameterizedTest
+    @ValueSource(strings = { MediaType.APPLICATION_JSON_VALUE,
+                             MediaType.TEXT_PLAIN_VALUE })
     @WithMockUser(authorities = { "CONFIGURATION_SET_BASE_URL",
                                   "CONFIGURATION_SET_PORT" })
-    public void testServerSettingsShouldBeSavedWithResponseInJson()
+    void serverSettingsShouldNotBeSaved(String acceptHeader)
     {
-        String newBaseUrl = "http://localhost:" + 40080 + "/newurl";
-        Integer newPort = 18080;
-        serverSettingsShouldBeSaved(MediaType.APPLICATION_JSON_VALUE, newBaseUrl, newPort);
-    }
 
-    @Test
-    @WithMockUser(authorities = { "CONFIGURATION_SET_BASE_URL",
-                                  "CONFIGURATION_SET_PORT" })
-    public void testServerSettingsShouldBeSavedWithResponseInText()
-    {
-        String newBaseUrl = "http://localhost:" + 40080 + "/newurl";
-        Integer newPort = 18080;
-        serverSettingsShouldBeSaved(MediaType.TEXT_PLAIN_VALUE, newBaseUrl, newPort);
-    }
+        String baseUrl = "";
 
-    public void serverSettingsShouldNotBeSaved(String acceptHeader,
-                                               String baseUrl,
-                                               Integer port)
-    {
+        Integer port = 0;
+
         // assign settings to server
         ServerSettingsForm serverSettingsForm = new ServerSettingsForm(baseUrl, port);
 
@@ -263,25 +261,5 @@ public class ServerConfigurationControllerTestIT
                .then()
                .statusCode(HttpStatus.BAD_REQUEST.value()) // check http status code
                .body(containsString(FAILED_SAVE_SERVER_SETTINGS));
-    }
-
-    @Test
-    @WithMockUser(authorities = { "CONFIGURATION_SET_BASE_URL",
-                                  "CONFIGURATION_SET_PORT" })
-    public void testWrongServerSettingsShouldNotBeSavedWithResponseInJson()
-    {
-        String newBaseUrl = "";
-        Integer newPort = 0;
-        serverSettingsShouldNotBeSaved(MediaType.APPLICATION_JSON_VALUE, newBaseUrl, newPort);
-    }
-
-    @Test
-    @WithMockUser(authorities = { "CONFIGURATION_SET_BASE_URL",
-                                  "CONFIGURATION_SET_PORT" })
-    public void testWrongServerSettingsShouldNotBeSavedWithResponseInText()
-    {
-        String newBaseUrl = null;
-        Integer newPort = 65536;
-        serverSettingsShouldNotBeSaved(MediaType.TEXT_PLAIN_VALUE, newBaseUrl, newPort);
     }
 }

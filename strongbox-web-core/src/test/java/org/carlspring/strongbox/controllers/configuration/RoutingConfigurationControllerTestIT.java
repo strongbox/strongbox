@@ -4,18 +4,19 @@ import org.carlspring.strongbox.config.IntegrationTest;
 import org.carlspring.strongbox.forms.storage.routing.RoutingRuleForm;
 import org.carlspring.strongbox.forms.storage.routing.RuleSetForm;
 import org.carlspring.strongbox.rest.common.RestAssuredBaseTest;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.extension.ExtendWith;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.ValueSource;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.MediaType;
+import org.springframework.test.context.junit.jupiter.SpringExtension;
 
 import java.util.HashSet;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Set;
 
-import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.api.Test;
-import org.junit.jupiter.api.extension.ExtendWith;
-import org.springframework.http.HttpStatus;
-import org.springframework.http.MediaType;
-import org.springframework.test.context.junit.jupiter.SpringExtension;
 import static io.restassured.module.mockmvc.RestAssuredMockMvc.given;
 import static org.carlspring.strongbox.controllers.configuration.RoutingConfigurationController.*;
 import static org.hamcrest.CoreMatchers.containsString;
@@ -38,134 +39,85 @@ public class RoutingConfigurationControllerTestIT
         setContextBaseUrl("/api/configuration/strongbox/routing");
     }
 
-    @Test
-    public void addAcceptedRuleSetWithTextAcceptHeader()
+    @ParameterizedTest
+    @ValueSource(strings = { MediaType.APPLICATION_JSON_VALUE,
+                             MediaType.TEXT_PLAIN_VALUE })
+    void testAddAcceptedRuleSet(String acceptHeader)
             throws Exception
     {
-        acceptedRuleSet(MediaType.TEXT_PLAIN_VALUE);
+        acceptedRuleSet(acceptHeader);
     }
 
-    @Test
-    public void addAcceptedRuleSetWithJsonAcceptHeader()
+    @ParameterizedTest
+    @ValueSource(strings = { MediaType.APPLICATION_JSON_VALUE,
+                             MediaType.TEXT_PLAIN_VALUE })
+    void testShouldNotAddAcceptedRuleSet(String acceptHeader)
             throws Exception
     {
-        acceptedRuleSet(MediaType.APPLICATION_JSON_VALUE);
+        shouldNotAddAcceptedRuleSet(acceptHeader);
     }
 
-    @Test
-    public void shouldNotAddAcceptedRuleSetWithTextAcceptHeader()
+    @ParameterizedTest
+    @ValueSource(strings = { MediaType.APPLICATION_JSON_VALUE,
+                             MediaType.TEXT_PLAIN_VALUE })
+    void testRemoveAcceptedRuleSet(String acceptHeader)
             throws Exception
     {
-        shouldNotAddAcceptedRuleSet(MediaType.TEXT_PLAIN_VALUE);
+        acceptedRuleSet(acceptHeader);
+        removeAcceptedRuleSet(acceptHeader);
     }
 
-    @Test
-    public void shouldNotAddAcceptedRuleSetWithJsonAcceptHeader()
+    @ParameterizedTest
+    @ValueSource(strings = { MediaType.APPLICATION_JSON_VALUE,
+                             MediaType.TEXT_PLAIN_VALUE })
+    void testAddAcceptedRepository(String acceptHeader)
             throws Exception
     {
-        shouldNotAddAcceptedRuleSet(MediaType.APPLICATION_JSON_VALUE);
+        acceptedRuleSet(acceptHeader);
+        acceptedRepository(acceptHeader);
+    }
+    
+    @ParameterizedTest
+    @ValueSource(strings = { MediaType.APPLICATION_JSON_VALUE,
+                             MediaType.TEXT_PLAIN_VALUE })
+    void testShouldNotAddAcceptedRepository(String acceptHeader)
+            throws Exception
+    {
+        acceptedRuleSet(acceptHeader);
+        shouldNotAddAcceptedRepository(acceptHeader);
     }
 
-    @Test
-    public void removeAcceptedRuleSetWithTextAcceptHeader()
+    @ParameterizedTest
+    @ValueSource(strings = { MediaType.APPLICATION_JSON_VALUE,
+                             MediaType.TEXT_PLAIN_VALUE })
+    void testRemoveAcceptedRepository(String acceptHeader)
             throws Exception
     {
-        acceptedRuleSet(MediaType.TEXT_PLAIN_VALUE);
-        removeAcceptedRuleSet(MediaType.TEXT_PLAIN_VALUE);
+        acceptedRuleSet(acceptHeader);
+        acceptedRepository(acceptHeader);
+        removeAcceptedRepository(acceptHeader);
+    }
+    
+    @ParameterizedTest
+    @ValueSource(strings = { MediaType.APPLICATION_JSON_VALUE,
+                             MediaType.TEXT_PLAIN_VALUE })
+    void testOverrideAcceptedRepository(String acceptHeader)
+            throws Exception
+    {
+        acceptedRuleSet(acceptHeader);
+        acceptedRepository(acceptHeader);
+        overrideAcceptedRepository(acceptHeader);
     }
 
-    @Test
-    public void removeAcceptedRuleSetWithJsonAcceptHeader()
+    @ParameterizedTest
+    @ValueSource(strings = { MediaType.APPLICATION_JSON_VALUE,
+                             MediaType.TEXT_PLAIN_VALUE })
+    void testShouldNotOverrideAcceptedRepository(String acceptHeader)
             throws Exception
     {
-        acceptedRuleSet(MediaType.APPLICATION_JSON_VALUE);
-        removeAcceptedRuleSet(MediaType.APPLICATION_JSON_VALUE);
-    }
-
-    @Test
-    public void addAcceptedRepositoryWithTextAcceptHeader()
-            throws Exception
-    {
-        acceptedRuleSet(MediaType.TEXT_PLAIN_VALUE);
-        acceptedRepository(MediaType.TEXT_PLAIN_VALUE);
-    }
-
-    @Test
-    public void addAcceptedRepositoryWithJsonAcceptHeader()
-            throws Exception
-    {
-        acceptedRuleSet(MediaType.APPLICATION_JSON_VALUE);
-        acceptedRepository(MediaType.APPLICATION_JSON_VALUE);
-    }
-
-    @Test
-    public void shouldNotAddAcceptedRepositoryWithTextAcceptHeader()
-            throws Exception
-    {
-        acceptedRuleSet(MediaType.TEXT_PLAIN_VALUE);
-        shouldNotAddAcceptedRepository(MediaType.TEXT_PLAIN_VALUE);
-    }
-
-    @Test
-    public void shouldNotAddAcceptedRepositoryWithJsonAcceptHeader()
-            throws Exception
-    {
-        acceptedRuleSet(MediaType.APPLICATION_JSON_VALUE);
-        shouldNotAddAcceptedRepository(MediaType.APPLICATION_JSON_VALUE);
-    }
-
-    @Test
-    public void removeAcceptedRepositoryWithTextAcceptHeader()
-            throws Exception
-    {
-        acceptedRuleSet(MediaType.TEXT_PLAIN_VALUE);
-        acceptedRepository(MediaType.TEXT_PLAIN_VALUE);
-        removeAcceptedRepository(MediaType.TEXT_PLAIN_VALUE);
-    }
-
-    @Test
-    public void removeAcceptedRepositoryWithJsonAcceptHeader()
-            throws Exception
-    {
-        acceptedRuleSet(MediaType.APPLICATION_JSON_VALUE);
-        acceptedRepository(MediaType.APPLICATION_JSON_VALUE);
-        removeAcceptedRepository(MediaType.APPLICATION_JSON_VALUE);
-    }
-
-    @Test
-    public void overrideAcceptedRepositoryWithTextAcceptHeader()
-            throws Exception
-    {
-        acceptedRuleSet(MediaType.TEXT_PLAIN_VALUE);
-        acceptedRepository(MediaType.TEXT_PLAIN_VALUE);
-        overrideAcceptedRepository(MediaType.TEXT_PLAIN_VALUE);
-    }
-
-    @Test
-    public void overrideAcceptedRepositoryWithJsonAcceptHeader()
-            throws Exception
-    {
-        acceptedRuleSet(MediaType.APPLICATION_JSON_VALUE);
-        acceptedRepository(MediaType.APPLICATION_JSON_VALUE);
-        overrideAcceptedRepository(MediaType.APPLICATION_JSON_VALUE);
-    }
-
-    @Test
-    public void shouldNotOverrideAcceptedRepositoryWithTextAcceptHeader()
-            throws Exception
-    {
-        acceptedRuleSet(MediaType.TEXT_PLAIN_VALUE);
-        acceptedRepository(MediaType.TEXT_PLAIN_VALUE);
-        shouldNotOverrideAcceptedRepository(MediaType.TEXT_PLAIN_VALUE);
-    }
-
-    @Test
-    public void shouldNotOverrideAcceptedRepositoryWithJsonAcceptHeader()
-            throws Exception
-    {
-        acceptedRuleSet(MediaType.APPLICATION_JSON_VALUE);
-        acceptedRepository(MediaType.APPLICATION_JSON_VALUE);
-        shouldNotOverrideAcceptedRepository(MediaType.APPLICATION_JSON_VALUE);
+        acceptedRuleSet(acceptHeader);
+        acceptedRepository(acceptHeader);
+        shouldNotOverrideAcceptedRepository(acceptHeader);
     }
 
     private void acceptedRuleSet(String acceptHeader)

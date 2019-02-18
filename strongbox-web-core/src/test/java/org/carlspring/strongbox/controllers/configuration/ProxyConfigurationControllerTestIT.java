@@ -1,19 +1,20 @@
 package org.carlspring.strongbox.controllers.configuration;
 
+import com.google.common.collect.Lists;
 import org.carlspring.strongbox.config.IntegrationTest;
 import org.carlspring.strongbox.configuration.MutableProxyConfiguration;
 import org.carlspring.strongbox.rest.common.RestAssuredBaseTest;
-
-import java.util.List;
-
-import com.google.common.collect.Lists;
 import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.ValueSource;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.security.test.context.support.WithMockUser;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
+
+import java.util.List;
+
 import static io.restassured.module.mockmvc.RestAssuredMockMvc.given;
 import static org.carlspring.strongbox.controllers.configuration.ProxyConfigurationController.*;
 import static org.hamcrest.CoreMatchers.containsString;
@@ -70,7 +71,12 @@ public class ProxyConfigurationControllerTestIT
         return proxyConfiguration;
     }
 
-    private void testSetAndGetGlobalProxyConfiguration(String acceptHeader)
+    @WithMockUser(authorities = {"CONFIGURATION_SET_GLOBAL_PROXY_CFG",
+                                 "CONFIGURATION_VIEW_GLOBAL_PROXY_CFG"})
+    @ParameterizedTest
+    @ValueSource(strings = { MediaType.APPLICATION_JSON_VALUE,
+                             MediaType.TEXT_PLAIN_VALUE })
+    void testSetAndGetGlobalProxyConfiguration(String acceptHeader)
     {
         MutableProxyConfiguration proxyConfiguration = createProxyConfiguration();
 
@@ -103,21 +109,11 @@ public class ProxyConfigurationControllerTestIT
                      "Failed to get proxy configuration!");
     }
 
-    @WithMockUser(authorities = {"CONFIGURATION_SET_GLOBAL_PROXY_CFG", "CONFIGURATION_VIEW_GLOBAL_PROXY_CFG"})
-    @Test
-    public void testSetAndGetGlobalProxyConfigurationWithTextAcceptHeader()
-    {
-        testSetAndGetGlobalProxyConfiguration(MediaType.TEXT_PLAIN_VALUE);
-    }
-
-    @WithMockUser(authorities = {"CONFIGURATION_SET_GLOBAL_PROXY_CFG", "CONFIGURATION_VIEW_GLOBAL_PROXY_CFG"})
-    @Test
-    public void testSetAndGetGlobalProxyConfigurationWithJsonAcceptHeader()
-    {
-        testSetAndGetGlobalProxyConfiguration(MediaType.APPLICATION_JSON_VALUE);
-    }
-
-    private void testSetGlobalProxyConfigurationNotFound(String acceptHeader)
+    @WithMockUser(authorities = "CONFIGURATION_SET_GLOBAL_PROXY_CFG")
+    @ParameterizedTest
+    @ValueSource(strings = { MediaType.APPLICATION_JSON_VALUE,
+                             MediaType.TEXT_PLAIN_VALUE })
+    void testSetGlobalProxyConfigurationNotFound(String acceptHeader)
     {
         MutableProxyConfiguration proxyConfiguration = createProxyConfiguration();
 
@@ -139,20 +135,10 @@ public class ProxyConfigurationControllerTestIT
     }
 
     @WithMockUser(authorities = "CONFIGURATION_SET_GLOBAL_PROXY_CFG")
-    @Test
-    public void testSetGlobalProxyConfigurationNotFoundWithTextAcceptHeader()
-    {
-        testSetGlobalProxyConfigurationNotFound(MediaType.TEXT_PLAIN_VALUE);
-    }
-
-    @WithMockUser(authorities = "CONFIGURATION_SET_GLOBAL_PROXY_CFG")
-    @Test
-    public void testSetGlobalProxyConfigurationNotFoundWithJsonAcceptHeader()
-    {
-        testSetGlobalProxyConfigurationNotFound(MediaType.APPLICATION_JSON_VALUE);
-    }
-
-    private void testSetGlobalProxyConfigurationBadRequest(String acceptHeader)
+    @ParameterizedTest
+    @ValueSource(strings = { MediaType.APPLICATION_JSON_VALUE,
+                             MediaType.TEXT_PLAIN_VALUE })
+    void testSetGlobalProxyConfigurationBadRequest(String acceptHeader)
     {
         MutableProxyConfiguration proxyConfiguration = createWrongProxyConfiguration();
 
@@ -167,19 +153,5 @@ public class ProxyConfigurationControllerTestIT
                .statusCode(HttpStatus.BAD_REQUEST.value())
                .body(containsString(FAILED_UPDATE_FORM_ERROR));
 
-    }
-
-    @WithMockUser(authorities = "CONFIGURATION_SET_GLOBAL_PROXY_CFG")
-    @Test
-    public void testSetGlobalProxyConfigurationBadRequestWithTextAcceptHeader()
-    {
-        testSetGlobalProxyConfigurationBadRequest(MediaType.TEXT_PLAIN_VALUE);
-    }
-
-    @WithMockUser(authorities = "CONFIGURATION_SET_GLOBAL_PROXY_CFG")
-    @Test
-    public void testSetGlobalProxyConfigurationBadRequestWithJsonAcceptHeader()
-    {
-        testSetGlobalProxyConfigurationBadRequest(MediaType.APPLICATION_JSON_VALUE);
     }
 }

@@ -1,5 +1,6 @@
 package org.carlspring.strongbox.controllers;
 
+import io.restassured.module.mockmvc.response.ValidatableMockMvcResponse;
 import org.carlspring.strongbox.config.IntegrationTest;
 import org.carlspring.strongbox.providers.layout.Maven2LayoutProvider;
 import org.carlspring.strongbox.rest.common.MavenRestAssuredBaseTest;
@@ -22,6 +23,8 @@ import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.ValueSource;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
@@ -191,8 +194,10 @@ public class TrashControllerUndeleteTest
                                     "+g:org.carlspring.strongbox.undelete +a:test-artifact-undelete +v:1.0 +p:jar");
     }
 
-    @Test
-    public void testUndeleteArtifactsForAllRepositoriesWithTextAcceptHeader()
+    @ParameterizedTest
+    @ValueSource(strings = { MediaType.APPLICATION_JSON_VALUE,
+                             MediaType.TEXT_PLAIN_VALUE })
+    void testUndeleteArtifactsForAllRepositories(String acceptHeader)
             throws Exception
     {
         assertFalse(indexContainsArtifact(STORAGE0,
@@ -211,13 +216,15 @@ public class TrashControllerUndeleteTest
 
         String url = getContextBaseUrl() + "/api/trash";
 
-        given().header(HttpHeaders.ACCEPT, MediaType.TEXT_PLAIN_VALUE)
-               .when()
-               .post(url)
-               .peek()
-               .then()
-               .statusCode(HttpStatus.OK.value())
-               .body(equalTo("The trash for all repositories was successfully restored."));
+        ValidatableMockMvcResponse response = given().accept(acceptHeader)
+                                                     .when()
+                                                     .post(url)
+                                                     .peek()
+                                                     .then()
+                                                     .statusCode(HttpStatus.OK.value());
+
+        String message = "The trash for all repositories was successfully restored.";
+        validateResponseBody(response, acceptHeader, message);
 
         final Path artifactFileRestoredFromTrash = Paths.get(getRepositoryBasedir(STORAGE0, REPOSITORY_WITH_TRASH).getAbsolutePath() + "/" +
                                                              "org/carlspring/strongbox/undelete/test-artifact-undelete/1.1/" +
@@ -237,50 +244,22 @@ public class TrashControllerUndeleteTest
                                     "+p:jar");
     }
 
-    @Test
-    public void testUndeleteArtifactsForAllRepositoriesWithJsonAcceptHeader()
-            throws Exception
+    private void validateResponseBody(ValidatableMockMvcResponse response,
+                                      String acceptHeader,
+                                      String message)
     {
-        assertFalse(indexContainsArtifact(STORAGE0,
-                                          REPOSITORY_WITH_TRASH,
-                                          "+g:org.carlspring.strongbox.undelete " +
-                                          "+a:test-artifact-undelete " +
-                                          "+v:1.1 " +
-                                          "+p:jar"));
-
-        final Path artifactFileInTrash = Paths.get(getRepositoryBasedir(STORAGE0, REPOSITORY_WITH_TRASH).getAbsolutePath() + "/.trash/" +
-                                                   "org/carlspring/strongbox/undelete/test-artifact-undelete/1.1/" +
-                                                   "test-artifact-undelete-1.1.jar");
-
-        assertTrue(Files.exists(artifactFileInTrash.getParent()),
-                   "Failed to undelete trash for repository '" + REPOSITORY_WITH_TRASH + "'!");
-
-        String url = getContextBaseUrl() + "/api/trash";
-
-        given().header(HttpHeaders.ACCEPT, MediaType.APPLICATION_JSON_VALUE)
-               .when()
-               .post(url)
-               .peek()
-               .then()
-               .statusCode(HttpStatus.OK.value())
-               .body("message", equalTo("The trash for all repositories was successfully restored."));
-
-        final Path artifactFileRestoredFromTrash = Paths.get(getRepositoryBasedir(STORAGE0, REPOSITORY_WITH_TRASH).getAbsolutePath() + "/" +
-                                                             "org/carlspring/strongbox/undelete/test-artifact-undelete/1.1/" +
-                                                             "test-artifact-undelete-1.1.jar");
-
-        assertFalse(Files.exists(artifactFileInTrash),
-                    "Failed to undelete trash for repository '" + REPOSITORY_WITH_TRASH + "'!");
-        assertTrue(Files.exists(artifactFileRestoredFromTrash),
-                   "Failed to undelete trash for repository '" + REPOSITORY_WITH_TRASH +
-                           "' (" + artifactFileRestoredFromTrash.toAbsolutePath().toString() + " does not exist)!");
-
-        assertIndexContainsArtifact(STORAGE0,
-                                    REPOSITORY_WITH_TRASH,
-                                    "+g:org.carlspring.strongbox.undelete " +
-                                    "+a:test-artifact-undelete " +
-                                    "+v:1.1 " +
-                                    "+p:jar");
+        if (acceptHeader.equals(MediaType.APPLICATION_JSON_VALUE))
+        {
+            response.body("message", equalTo(message));
+        }
+        else if (acceptHeader.equals(MediaType.TEXT_PLAIN_VALUE))
+        {
+            response.body(equalTo(message));
+        }
+        else
+        {
+            throw new IllegalArgumentException("Unsupported content type: " + acceptHeader);
+        }
     }
 
 }
