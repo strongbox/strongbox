@@ -67,7 +67,7 @@
                         <strongbox.home>${project.build.directory}/strongbox</strongbox.home>
                         <strongbox.vault>${project.build.directory}/strongbox-vault</strongbox.vault>
                         <strongbox.storage.booter.basedir>${project.build.directory}/strongbox-vault/storages</strongbox.storage.booter.basedir>
-                        <logging.config>${dir.strongbox.home}/etc/logback-debug.xml</logging.config>
+                        <logging.config>${dir.strongbox.home}/etc/logback-spring-debug.xml</logging.config>
                     </systemPropertyVariables>
                 </configuration>
             </plugin>

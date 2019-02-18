@@ -62,7 +62,7 @@ public class PropertiesBooter
 
         if (System.getProperty("logging.config.file") == null)
         {
-            System.setProperty("logging.config.file", getHomeDirectory() + "/etc/logback.xml");
+            System.setProperty("logging.config.file", getHomeDirectory() + "/etc/logback-spring.xml");
         }
 
         if (System.getProperty("java.io.tmpdir") == null)

@@ -93,7 +93,7 @@
                         <strongbox.host>${strongbox.host}</strongbox.host>
                         <strongbox.port>${strongbox.port}</strongbox.port>
                         <logging.dir>${strongbox.vault}/logs</logging.dir>
-                        <logging.config.file>${project.build.directory}/strongbox/etc/logback-debug.xml</logging.config.file>
+                        <logging.config.file>${project.build.directory}/strongbox/etc/logback-spring-debug.xml</logging.config.file>
                         <java.io.tmpdir>${dir.strongbox.vault}/tmp</java.io.tmpdir>
                         <ehcache.disk.store.dir>${project.build.directory}/strongbox/cache</ehcache.disk.store.dir>
                     </systemPropertyVariables>

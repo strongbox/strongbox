@@ -367,7 +367,7 @@
             </activation>
             
             <properties>
-                <strongbox.log.file>logback.xml</strongbox.log.file>
+                <strongbox.log.file>logback-spring.xml</strongbox.log.file>
             </properties>
         </profile>
         <profile>
@@ -377,7 +377,7 @@
             </activation>
             
             <properties>
-                <strongbox.log.file>logback-debug.xml</strongbox.log.file>
+                <strongbox.log.file>logback-spring-debug.xml</strongbox.log.file>
             </properties>
         </profile>
         <profile>
