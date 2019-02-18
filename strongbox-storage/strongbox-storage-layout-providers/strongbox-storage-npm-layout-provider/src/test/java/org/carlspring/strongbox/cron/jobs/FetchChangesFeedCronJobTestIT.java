@@ -1,5 +1,6 @@
 package org.carlspring.strongbox.cron.jobs;
 
+import org.awaitility.Awaitility;
 import org.carlspring.strongbox.config.NpmLayoutProviderCronTasksTestConfig;
 import org.carlspring.strongbox.cron.domain.CronTaskConfigurationDto;
 import org.carlspring.strongbox.cron.services.CronTaskConfigurationService;
@@ -21,6 +22,25 @@ import org.carlspring.strongbox.storage.repository.remote.MutableRemoteRepositor
 import org.carlspring.strongbox.testing.NpmRepositoryTestCase;
 import org.carlspring.strongbox.xml.configuration.repository.remote.MutableNpmRemoteRepositoryConfiguration;
 import org.carlspring.strongbox.xml.configuration.repository.remote.NpmRemoteRepositoryConfiguration;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.parallel.Execution;
+import org.mockito.Mockito;
+import org.springframework.beans.BeansException;
+import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.context.ApplicationContext;
+import org.springframework.context.ApplicationContextAware;
+import org.springframework.context.ApplicationListener;
+import org.springframework.context.ConfigurableApplicationContext;
+import org.springframework.context.annotation.Bean;
+import org.springframework.context.annotation.Configuration;
+import org.springframework.context.annotation.Primary;
+import org.springframework.context.annotation.Profile;
+import org.springframework.core.env.Environment;
+import org.springframework.test.context.ActiveProfiles;
+import org.springframework.test.context.ContextConfiguration;
 
 import javax.inject.Inject;
 import javax.persistence.EntityManager;
@@ -39,30 +59,11 @@ import java.util.Set;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicInteger;
 
-import org.awaitility.Awaitility;
-import org.junit.jupiter.api.AfterEach;
-import org.junit.jupiter.api.BeforeAll;
-import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.api.Test;
-import org.junit.jupiter.api.parallel.Execution;
-import org.mockito.Matchers;
-import org.mockito.Mockito;
-import org.springframework.beans.BeansException;
-import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.context.ApplicationContext;
-import org.springframework.context.ApplicationContextAware;
-import org.springframework.context.ApplicationListener;
-import org.springframework.context.ConfigurableApplicationContext;
-import org.springframework.context.annotation.Bean;
-import org.springframework.context.annotation.Configuration;
-import org.springframework.context.annotation.Primary;
-import org.springframework.context.annotation.Profile;
-import org.springframework.core.env.Environment;
-import org.springframework.test.context.ActiveProfiles;
-import org.springframework.test.context.ContextConfiguration;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.parallel.ExecutionMode.CONCURRENT;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.anyString;
 
 @ContextConfiguration(classes = { NpmLayoutProviderCronTasksTestConfig.class })
 @ActiveProfiles(profiles = { "test", "FetchChangesFeedCronJobTestConfig" })
@@ -218,13 +219,13 @@ public class FetchChangesFeedCronJobTestIT
         Mockito.when(mockedBuilder.buildGet()).thenReturn(mockedInvocation);
 
         WebTarget mockedWebTarget = Mockito.mock(WebTarget.class);
-        Mockito.when(mockedWebTarget.path(Matchers.anyString())).thenReturn(mockedWebTarget);
-        Mockito.when(mockedWebTarget.queryParam(Matchers.anyString(), Matchers.any()))
+        Mockito.when(mockedWebTarget.path(anyString())).thenReturn(mockedWebTarget);
+        Mockito.when(mockedWebTarget.queryParam(anyString(), any()))
                .thenReturn(mockedWebTarget);
 
         Mockito.when(mockedWebTarget.request()).thenReturn(mockedBuilder);
 
-        Mockito.when(mockedRestClient.target(Matchers.anyString())).thenReturn(mockedWebTarget);
+        Mockito.when(mockedRestClient.target(anyString())).thenReturn(mockedWebTarget);
 
         Mockito.when(proxyRepositoryConnectionPoolConfigurationService.getRestClient())
                .thenReturn(mockedRestClient);
