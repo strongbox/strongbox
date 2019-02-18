@@ -46,7 +46,7 @@ public class ArtifactCoordinateValidatorsManagementControllerTest
     @Inject
     private RedeploymentValidator redeploymentValidator;
 
-    public static Set<MutableRepository>    getRepositoriesToClean()
+    public static Set<MutableRepository> getRepositoriesToClean()
     {
         Set<MutableRepository> repositories = new LinkedHashSet<>();
         repositories.add(createRepositoryMock(STORAGE0, "releases-with-single-validator", Maven2LayoutProvider.ALIAS));
@@ -119,7 +119,8 @@ public class ArtifactCoordinateValidatorsManagementControllerTest
                .then()
                .statusCode(HttpStatus.OK.value())
                .body("versionValidators",
-                     containsInAnyOrder("maven-release-version-validator", "maven-snapshot-version-validator",
+                     containsInAnyOrder("maven-release-version-validator",
+                                        "maven-snapshot-version-validator",
                                         "redeployment-validator"));
     }
 
@@ -212,7 +213,6 @@ public class ArtifactCoordinateValidatorsManagementControllerTest
     @Test
     public void getCollectionOfArtifactCoordinateValidators()
     {
-
         String url = getContextBaseUrl() + "/validators";
         
         given().header(HttpHeaders.ACCEPT, MediaType.APPLICATION_JSON_VALUE)
