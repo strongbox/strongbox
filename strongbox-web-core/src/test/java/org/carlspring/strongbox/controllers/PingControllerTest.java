@@ -37,7 +37,8 @@ public class PingControllerTest
 
     @ParameterizedTest
     @ValueSource(strings = { MediaType.APPLICATION_JSON_VALUE, MediaType.TEXT_PLAIN_VALUE })
-    void shouldReturnPong(String acceptHeader) {
+    void shouldReturnPong(String acceptHeader)
+    {
         ValidatableMockMvcResponse response = given()
                 .header(HttpHeaders.ACCEPT, acceptHeader)
                 .when()
@@ -52,7 +53,8 @@ public class PingControllerTest
 
     @ParameterizedTest
     @ValueSource(strings = { MediaType.APPLICATION_JSON_VALUE, MediaType.TEXT_PLAIN_VALUE })
-    void shouldReturnPongForAuthenticatedUsers(String acceptHeader) {
+    void shouldReturnPongForAuthenticatedUsers(String acceptHeader)
+    {
         ValidatableMockMvcResponse response = given()
                 .header(HttpHeaders.ACCEPT, acceptHeader)
                 .when()
@@ -68,7 +70,8 @@ public class PingControllerTest
     @ParameterizedTest
     @ValueSource(strings = { MediaType.APPLICATION_JSON_VALUE, MediaType.TEXT_PLAIN_VALUE })
     @WithAnonymousUser
-    void anonymousUsersShouldNotBeAbleToAccess(String acceptHeader) {
+    void anonymousUsersShouldNotBeAbleToAccess(String acceptHeader)
+    {
         given().header(HttpHeaders.ACCEPT, acceptHeader)
                 .when()
                 .get(getContextBaseUrl() + "/token")
@@ -79,12 +82,20 @@ public class PingControllerTest
                 .body(notNullValue());
     }
 
-    private void getResponseBody(ValidatableMockMvcResponse response, String acceptHeader, String message) {
-        if (acceptHeader.equals(MediaType.APPLICATION_JSON_VALUE)) {
+    private void getResponseBody(ValidatableMockMvcResponse response,
+                                 String acceptHeader,
+                                 String message)
+    {
+        if (acceptHeader.equals(MediaType.APPLICATION_JSON_VALUE))
+        {
             response.body("message", equalTo(message));
-        } else if (acceptHeader.equals(MediaType.TEXT_PLAIN_VALUE)) {
+        }
+        else if (acceptHeader.equals(MediaType.TEXT_PLAIN_VALUE))
+        {
             response.body(equalTo(message));
-        } else {
+        }
+        else
+        {
             throw new IllegalArgumentException("Unsupported content type: " + acceptHeader);
         }
     }

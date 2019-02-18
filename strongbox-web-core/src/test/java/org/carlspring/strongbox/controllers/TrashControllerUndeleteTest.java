@@ -196,7 +196,9 @@ public class TrashControllerUndeleteTest
 
     @ParameterizedTest
     @ValueSource(strings = { MediaType.APPLICATION_JSON_VALUE, MediaType.TEXT_PLAIN_VALUE })
-    void testUndeleteArtifactsForAllRepositories(String acceptHeader) throws Exception {
+    void testUndeleteArtifactsForAllRepositories(String acceptHeader)
+            throws Exception
+    {
         assertFalse(indexContainsArtifact(STORAGE0,
                                           REPOSITORY_WITH_TRASH,
                                           "+g:org.carlspring.strongbox.undelete " +
@@ -241,12 +243,20 @@ public class TrashControllerUndeleteTest
                                     "+p:jar");
     }
 
-    private void getResponseBody(ValidatableMockMvcResponse response, String acceptHeader, String message) {
-        if (acceptHeader.equals(MediaType.APPLICATION_JSON_VALUE)) {
+    private void getResponseBody(ValidatableMockMvcResponse response,
+                                 String acceptHeader,
+                                 String message)
+    {
+        if (acceptHeader.equals(MediaType.APPLICATION_JSON_VALUE))
+        {
             response.body("message", equalTo(message));
-        } else if (acceptHeader.equals(MediaType.TEXT_PLAIN_VALUE)) {
+        }
+        else if (acceptHeader.equals(MediaType.TEXT_PLAIN_VALUE))
+        {
             response.body(equalTo(message));
-        } else {
+        }
+        else
+        {
             throw new IllegalArgumentException("Unsupported content type: " + acceptHeader);
         }
     }

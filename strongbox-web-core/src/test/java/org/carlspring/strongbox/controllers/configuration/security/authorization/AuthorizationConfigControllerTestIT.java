@@ -49,14 +49,16 @@ public class AuthorizationConfigControllerTestIT
 
     private static final String EXISTING_ROLE = "USER_ROLE";
 
-    private static Stream<Arguments> privilegesProvider() {
+    private static Stream<Arguments> privilegesProvider()
+    {
         return Stream.of(
                 Arguments.of("ADMIN_LIST_REPO", MediaType.APPLICATION_JSON_VALUE),
                 Arguments.of("ARTIFACTS_DEPLOY", MediaType.TEXT_PLAIN_VALUE)
         );
     }
 
-    private static Stream<Arguments> rolesProvider() {
+    private static Stream<Arguments> rolesProvider()
+    {
         return Stream.of(
                 Arguments.of(EXISTING_ROLE, MediaType.APPLICATION_JSON_VALUE),
                 Arguments.of(EXISTING_ROLE, MediaType.TEXT_PLAIN_VALUE),
@@ -105,7 +107,9 @@ public class AuthorizationConfigControllerTestIT
 
     @ParameterizedTest
     @MethodSource("rolesProvider") // already existing, or empty role
-    void roleShouldNotBeAdded(String roleName, String acceptHeader) {
+    void roleShouldNotBeAdded(String roleName,
+                              String acceptHeader)
+    {
         final RoleDto customRole = new RoleDto();
         customRole.setName(roleName);
 
@@ -170,7 +174,8 @@ public class AuthorizationConfigControllerTestIT
 
     @ParameterizedTest
     @MethodSource("privilegesProvider")
-    void privilegesToAnonymousShouldBeAdded(String privilegeName, String acceptHeader) {
+    void privilegesToAnonymousShouldBeAdded(String privilegeName, String acceptHeader)
+    {
         // assign privileges to anonymous user
         PrivilegeListForm privilegeListForm = new PrivilegeListForm();
         List<PrivilegeForm> privilegeForms = new ArrayList<>();

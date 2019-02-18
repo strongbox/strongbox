@@ -47,7 +47,8 @@ public class HttpConnectionPoolConfigurationManagementControllerTestIT
 
     @ParameterizedTest
     @ValueSource(strings = { MediaType.APPLICATION_JSON_VALUE, MediaType.TEXT_PLAIN_VALUE })
-    void testSetAndGetMaxNumberOfConnectionsForProxyRepository(String acceptHeader) {
+    void testSetAndGetMaxNumberOfConnectionsForProxyRepository(String acceptHeader)
+    {
 
         int newMaxNumberOfConnections = 200;
 
@@ -154,32 +155,56 @@ public class HttpConnectionPoolConfigurationManagementControllerTestIT
         getResponseBodyPoolStats(acceptHeader, response, expectedPoolStats);
     }
 
-    private void getResponseBodyConnections(ValidatableMockMvcResponse response, String acceptHeader, int newMaxNumberOfConnections) {
-        if (acceptHeader.equals(MediaType.APPLICATION_JSON_VALUE)) {
+    private void getResponseBodyConnections(ValidatableMockMvcResponse response,
+                                            String acceptHeader,
+                                            int newMaxNumberOfConnections)
+    {
+        if (acceptHeader.equals(MediaType.APPLICATION_JSON_VALUE))
+        {
             response.body("numberOfConnections", equalTo(newMaxNumberOfConnections));
-        } else if (acceptHeader.equals(MediaType.TEXT_PLAIN_VALUE)) {
+        }
+        else if (acceptHeader.equals(MediaType.TEXT_PLAIN_VALUE))
+        {
             response.body(equalTo(String.valueOf(newMaxNumberOfConnections)));
-        } else {
+        }
+        else
+        {
             throw new IllegalArgumentException("Unsupported content type: " + acceptHeader);
         }
     }
 
-    private void getResponseBody(ValidatableMockMvcResponse response, String acceptHeader, String message) {
-        if (acceptHeader.equals(MediaType.APPLICATION_JSON_VALUE)) {
+    private void getResponseBody(ValidatableMockMvcResponse response,
+                                 String acceptHeader,
+                                 String message)
+    {
+        if (acceptHeader.equals(MediaType.APPLICATION_JSON_VALUE))
+        {
             response.body("message", equalTo(message));
-        } else if (acceptHeader.equals(MediaType.TEXT_PLAIN_VALUE)) {
+        }
+        else if (acceptHeader.equals(MediaType.TEXT_PLAIN_VALUE))
+        {
             response.body(equalTo(message));
-        } else {
+        }
+        else
+        {
             throw new IllegalArgumentException("Unsupported content type: " + acceptHeader);
         }
     }
 
-    private void getResponseBodyPoolStats(String acceptHeader, ValidatableMockMvcResponse response, PoolStats expectedPoolStats) {
-        if (acceptHeader.equals(MediaType.APPLICATION_JSON_VALUE)) {
+    private void getResponseBodyPoolStats(String acceptHeader,
+                                          ValidatableMockMvcResponse response,
+                                          PoolStats expectedPoolStats)
+    {
+        if (acceptHeader.equals(MediaType.APPLICATION_JSON_VALUE))
+        {
             response.body("max", equalTo(expectedPoolStats.getMax()));
-        } else if (acceptHeader.equals(MediaType.TEXT_PLAIN_VALUE)) {
+        }
+        else if (acceptHeader.equals(MediaType.TEXT_PLAIN_VALUE))
+        {
             response.body(containsString("max: " + expectedPoolStats.getMax()));
-        } else {
+        }
+        else
+        {
             throw new IllegalArgumentException("Unsupported content type: " + acceptHeader);
         }
     }

@@ -159,7 +159,7 @@ public class TrashControllerTest
 
     @ParameterizedTest
     @ValueSource(strings = { MediaType.APPLICATION_JSON_VALUE, MediaType.TEXT_PLAIN_VALUE })
-    public void testDeleteArtifactAndEmptyTrashForRepository(String acceptHeader)
+    void testDeleteArtifactAndEmptyTrashForRepository(String acceptHeader)
     {
         String url = getContextBaseUrl() + "/api/trash/" + STORAGE0 + "/" + REPOSITORY_WITH_TRASH;
 
@@ -186,7 +186,7 @@ public class TrashControllerTest
 
     @ParameterizedTest
     @ValueSource(strings = { MediaType.APPLICATION_JSON_VALUE, MediaType.TEXT_PLAIN_VALUE })
-    public void testDeleteArtifactAndEmptyTrashForAllRepositories(String acceptHeader)
+    void testDeleteArtifactAndEmptyTrashForAllRepositories(String acceptHeader)
     {
         String url = getContextBaseUrl() + "/api/trash";
 
@@ -204,12 +204,20 @@ public class TrashControllerTest
                     "Failed to empty trash for repository '" + REPOSITORY_WITH_TRASH + "'!");
     }
 
-    private void getResponseBody(ValidatableMockMvcResponse response, String acceptHeader, String message) {
-        if (acceptHeader.equals(MediaType.APPLICATION_JSON_VALUE)) {
+    private void getResponseBody(ValidatableMockMvcResponse response,
+                                 String acceptHeader,
+                                 String message)
+    {
+        if (acceptHeader.equals(MediaType.APPLICATION_JSON_VALUE))
+        {
             response.body("message", equalTo(message));
-        } else if (acceptHeader.equals(MediaType.TEXT_PLAIN_VALUE)) {
+        }
+        else if (acceptHeader.equals(MediaType.TEXT_PLAIN_VALUE))
+        {
             response.body(equalTo(message));
-        } else {
+        }
+        else
+        {
             throw new IllegalArgumentException("Unsupported content type: " + acceptHeader);
         }
     }
