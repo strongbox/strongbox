@@ -11,6 +11,7 @@ import java.nio.file.attribute.BasicFileAttributes;
 import java.util.logging.Level;
 
 import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.http.HttpHeaders;
@@ -26,6 +27,7 @@ import static org.junit.jupiter.api.Assertions.fail;
  * @author Pablo Tirado
  * @author Aditya Srinivasan
  */
+@Disabled // TODO migrate to https://docs.spring.io/spring-boot/docs/current/actuator-api/html/#loggers after https://github.com/strongbox/strongbox/issues/1000
 @IntegrationTest
 public class LoggingManagementControllerTestIT
         extends RestAssuredBaseTest
