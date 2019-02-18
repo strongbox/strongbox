@@ -2,13 +2,20 @@ package org.carlspring.strongbox.booters;
 
 import javax.annotation.PostConstruct;
 
+import org.springframework.beans.BeansException;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.beans.factory.config.BeanFactoryPostProcessor;
+import org.springframework.beans.factory.config.BeanPostProcessor;
+import org.springframework.beans.factory.config.ConfigurableListableBeanFactory;
+import org.springframework.core.Ordered;
+import org.springframework.core.annotation.Order;
 import org.springframework.stereotype.Component;
 
 /**
  * @author carlspring
  */
 @Component
+@Order(Ordered.HIGHEST_PRECEDENCE)
 public class PropertiesBooter
 {
 
@@ -42,11 +49,6 @@ public class PropertiesBooter
     @Value("${strongbox.nuget.download.feed}")
     private boolean strongboxNugetDownloadFeed;
 
-
-    public PropertiesBooter()
-    {
-    }
-
     /**
      * Initialization method that sets default system properties, if none are set.
      */
@@ -71,6 +73,11 @@ public class PropertiesBooter
         if (System.getProperty("ehcache.disk.store.dir") == null)
         {
             System.setProperty("ehcache.disk.store.dir", getHomeDirectory() + "/cache");
+        }
+        
+        if (System.getProperty("strongbox.storage.booter.basedir") == null)
+        {
+            System.setProperty("strongbox.storage.booter.basedir", getStorageBooterBasedir());
         }
     }
 

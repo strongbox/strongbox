@@ -48,13 +48,13 @@ public class Maven2LayoutProviderTestConfig
 
     @Bean
     @Primary
-    ResourceFetcher indexResourceFetcher() {
+    ResourceFetcher mockedIndexResourceFetcher() {
         return new MockedIndexResourceFetcher();
     }
     
     @Bean
     @Primary
-    ResourceFetcherFactory resourceFetcherMockFactory(ResourceFetcher resourceFetcher)
+    ResourceFetcherFactory mockedResourceFetcherMockFactory(ResourceFetcher resourceFetcher)
     {
         final ResourceFetcherFactory resourceFetcherFactory = Mockito.mock(ResourceFetcherFactory.class);
 

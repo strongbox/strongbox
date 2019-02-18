@@ -256,7 +256,7 @@ public class FetchChangesFeedCronJobTestIT
 
         @Primary
         @Bean
-        public ProxyRepositoryConnectionPoolConfigurationService proxyRepositoryConnectionPoolConfigurationService()
+        public ProxyRepositoryConnectionPoolConfigurationService mockedProxyRepositoryConnectionPoolConfigurationService()
         {
             return Mockito.mock(ProxyRepositoryConnectionPoolConfigurationService.class);
         }

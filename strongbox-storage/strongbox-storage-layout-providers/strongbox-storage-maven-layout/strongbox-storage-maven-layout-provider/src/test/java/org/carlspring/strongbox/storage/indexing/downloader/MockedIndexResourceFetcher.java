@@ -19,7 +19,6 @@ import org.springframework.stereotype.Component;
 /**
  * @author carlspring
  */
-@Component
 public class MockedIndexResourceFetcher
         implements ResourceFetcher
 {

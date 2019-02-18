@@ -174,14 +174,14 @@ public abstract class RetryDownloadArtifactTestBase
         
         @Bean
         @Primary
-        RestArtifactResolverFactory artifactResolverFactory()
+        RestArtifactResolverFactory mockedArtifactResolverFactory()
         {
             return Mockito.mock(RestArtifactResolverFactory.class);
         }
 
         @Bean
         @Primary
-        ArtifactEventListenerRegistry artifactEventListenerRegistry()
+        ArtifactEventListenerRegistry testArtifactEventListenerRegistry()
         {
             return new TestArtifactEventListenerRegistry();
         }
