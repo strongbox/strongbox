@@ -115,26 +115,26 @@ public class NugetArtifactControllerTest extends NugetRestAssuredBaseTest
                .then()
                .statusCode(HttpStatus.OK.value());
     }
-    
+
     @Test
-    public void testHeaderFetch() 
-            throws Exception 
-    {   
+    public void testHeaderFetch()
+            throws Exception
+    {
         //Hosted repository
         String packageId = "Org.Carlspring.Strongbox.Examples.Nuget.Mono.Header";
         String packageVersion = "1.0.0";
         Path packageFile = generatePackageFile(packageId, packageVersion);
         byte[] packageContent = readPackageContent(packageFile);
-        
+
         createPushRequest(packageContent).when()
                                          .put(getContextBaseUrl() + "/storages/" + STORAGE_ID + "/" +
                                                  REPOSITORY_RELEASES_1 + "/")
                                          .peek()
                                          .then()
                                          .statusCode(HttpStatus.CREATED.value());
-        
-        
-        
+
+
+
         Headers headersFromGET = given().header("User-Agent", "NuGet/*")
                                         .header("X-NuGet-ApiKey", API_KEY)
                                         .accept(ContentType.BINARY)
@@ -142,7 +142,7 @@ public class NugetArtifactControllerTest extends NugetRestAssuredBaseTest
                                         .get(getContextBaseUrl() + "/storages/" + STORAGE_ID + "/" + REPOSITORY_RELEASES_1 + "/" +
                                                 packageId + "/" + packageVersion)
                                         .getHeaders();
-        
+
         Headers headersFromHEAD = given().header("User-Agent", "NuGet/*")
                                          .header("X-NuGet-ApiKey", API_KEY)
                                          .accept(ContentType.BINARY)
@@ -150,15 +150,15 @@ public class NugetArtifactControllerTest extends NugetRestAssuredBaseTest
                                          .head(getContextBaseUrl() + "/storages/" + STORAGE_ID + "/" + REPOSITORY_RELEASES_1 + "/" +
                                                   packageId + "/" + packageVersion)
                                          .getHeaders();
-        
+
         assertHeadersEquals(headersFromGET, headersFromHEAD);
     }
-    
+
     protected void assertHeadersEquals(Headers h1, Headers h2)
     {
         assertNotNull(h1);
         assertNotNull(h2);
-                
+
         for(Header header : h1)
         {
             if(h2.hasHeaderWithName(header.getName()))
@@ -167,7 +167,7 @@ public class NugetArtifactControllerTest extends NugetRestAssuredBaseTest
             }
         }
     }
-    
+
     @Test
     public void testPackageCommonFlow()
         throws Exception
@@ -215,7 +215,7 @@ public class NugetArtifactControllerTest extends NugetRestAssuredBaseTest
                    .statusCode(HttpStatus.OK.value())
                    .assertThat()
                    .header("Content-Length", equalTo(String.valueOf(packageSize)));
-            
+
             // Get2
             given().header("User-Agent", "NuGet/*")
                    .when()
@@ -313,7 +313,7 @@ public class NugetArtifactControllerTest extends NugetRestAssuredBaseTest
                                          .statusCode(HttpStatus.CREATED.value());
 
         String filter = String.format("tolower(Id) eq '%s' and IsLatestVersion", packageId.toLowerCase());
-        
+
         // VERSION 1.0.0
         // Count
         given().header("User-Agent", "NuGet/*")
@@ -381,7 +381,7 @@ public class NugetArtifactControllerTest extends NugetRestAssuredBaseTest
                .body("feed.entry[0].title", equalTo(packageId))
                .body("feed.entry[0].properties.Version", equalTo(packageVersion));
     }
-    
+
     public MockMvcRequestSpecification createPushRequest(byte[] packageContent)
     {
         return given().header("User-Agent", "NuGet/*")
@@ -389,7 +389,7 @@ public class NugetArtifactControllerTest extends NugetRestAssuredBaseTest
                       .header("Content-Type", "multipart/form-data; boundary=---------------------------123qwe")
                       .body(packageContent);
     }
-    
+
     @Test
     public void testRemoteProxyGroup()
     {
@@ -404,18 +404,18 @@ public class NugetArtifactControllerTest extends NugetRestAssuredBaseTest
                .and()
                .assertThat()
                .body("feed.entry[0].title", equalTo("NHibernate"));
-        
+
         Map<String, String> coordinates = new HashMap<>();
         coordinates.put("id", "NHibernate");
         coordinates.put("version", "4.1.1.4000");
 
         List<ArtifactEntry> artifactEntryList = artifactEntryService.findArtifactList("storage-common-proxies", "nuget.org", coordinates, true);
         assertTrue(artifactEntryList.size() > 0);
-        
+
         ArtifactEntry artifactEntry = artifactEntryList.iterator().next();
         assertTrue(artifactEntry instanceof RemoteArtifactEntry);
         assertFalse(((RemoteArtifactEntry)artifactEntry).getIsCached());
-        
+
         PrintStream originalSysOut = muteSystemOutput();
         try
         {
