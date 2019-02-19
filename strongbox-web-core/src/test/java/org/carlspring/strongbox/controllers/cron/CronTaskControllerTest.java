@@ -1,5 +1,6 @@
 package org.carlspring.strongbox.controllers.cron;
 
+import org.carlspring.strongbox.config.IntegrationTest;
 import org.carlspring.strongbox.cron.domain.CronTaskConfigurationDto;
 import org.carlspring.strongbox.cron.domain.CronTasksConfigurationDto;
 import org.carlspring.strongbox.cron.jobs.MyTask;
@@ -17,10 +18,10 @@ import io.restassured.module.mockmvc.response.MockMvcResponse;
 import org.apache.commons.io.IOUtils;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
+import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.junit.jupiter.EnabledIf;
 import static io.restassured.module.mockmvc.RestAssuredMockMvc.given;
 import static org.carlspring.strongbox.controllers.cron.CronTaskController.CRON_CONFIG_FILE_NAME_KEY;
@@ -33,7 +34,8 @@ import static org.junit.jupiter.api.Assertions.assertFalse;
  * @author Alex Oreshkevich
  * @author Pablo Tirado
  */
-@SpringBootTest
+@IntegrationTest
+@ActiveProfiles(profiles = "test")
 public class CronTaskControllerTest
         extends RestAssuredBaseTest
 {
