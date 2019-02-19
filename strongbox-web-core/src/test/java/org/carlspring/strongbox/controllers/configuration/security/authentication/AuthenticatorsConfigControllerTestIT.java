@@ -1,14 +1,5 @@
 package org.carlspring.strongbox.controllers.configuration.security.authentication;
 
-import static io.restassured.module.mockmvc.RestAssuredMockMvc.given;
-import static org.carlspring.strongbox.CustomMatchers.equalByToString;
-import static org.hamcrest.CoreMatchers.containsString;
-import static org.hamcrest.CoreMatchers.is;
-
-import java.io.IOException;
-
-import javax.inject.Inject;
-
 import org.carlspring.strongbox.authentication.ConfigurableProviderManager;
 import org.carlspring.strongbox.authentication.api.AuthenticationItem;
 import org.carlspring.strongbox.authentication.api.AuthenticationItems;
@@ -17,15 +8,15 @@ import org.carlspring.strongbox.config.HazelcastConfiguration;
 import org.carlspring.strongbox.config.HazelcastInstanceId;
 import org.carlspring.strongbox.config.IntegrationTest;
 import org.carlspring.strongbox.rest.common.RestAssuredBaseTest;
+
+import javax.inject.Inject;
+import java.io.IOException;
+
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-import org.junit.jupiter.api.extension.ExtendWith;
-import org.springframework.context.annotation.Bean;
-import org.springframework.context.annotation.Configuration;
-import org.springframework.context.annotation.Import;
-import org.springframework.context.annotation.Primary;
-import org.springframework.context.annotation.Profile;
+import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.context.annotation.*;
 import org.springframework.core.io.DefaultResourceLoader;
 import org.springframework.core.io.Resource;
 import org.springframework.http.HttpHeaders;
@@ -35,7 +26,10 @@ import org.springframework.security.authentication.AuthenticationProvider;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.AuthenticationException;
 import org.springframework.test.context.ActiveProfiles;
-import org.springframework.test.context.junit.jupiter.SpringExtension;
+import static io.restassured.module.mockmvc.RestAssuredMockMvc.given;
+import static org.carlspring.strongbox.CustomMatchers.equalByToString;
+import static org.hamcrest.CoreMatchers.containsString;
+import static org.hamcrest.CoreMatchers.is;
 
 /**
  * @author Przemyslaw Fusik
@@ -44,7 +38,6 @@ import org.springframework.test.context.junit.jupiter.SpringExtension;
  */
 @ActiveProfiles("AuthenticatorsConfigControllerTestConfig")
 @IntegrationTest
-@ExtendWith(SpringExtension.class)
 public class AuthenticatorsConfigControllerTestIT
         extends RestAssuredBaseTest
 {

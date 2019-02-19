@@ -165,7 +165,7 @@
                         <strongbox.home>${project.build.directory}/strongbox</strongbox.home>
                         <strongbox.vault>${project.build.directory}/strongbox-vault</strongbox.vault>
                         <strongbox.storage.booter.basedir>${project.build.directory}/strongbox-vault/storages</strongbox.storage.booter.basedir>
-                        <logback.configurationFile>${dir.strongbox.home}/etc/logback-debug.xml</logback.configurationFile>
+                        <logging.config>${dir.strongbox.home}/etc/logback-spring-debug.xml</logging.config>
                         <ehcache.disk.store.dir>${project.build.directory}/strongbox/cache</ehcache.disk.store.dir>
                     </systemPropertyVariables>
                 </configuration>

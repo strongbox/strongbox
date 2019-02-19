@@ -55,14 +55,14 @@ public @interface IntegrationTest
 
         @Bean
         @Primary
-        CronTaskConfigurationService cronTaskConfigurationService()
+        CronTaskConfigurationService mockedCronTaskConfigurationService()
         {
             return Mockito.mock(CronTaskConfigurationService.class);
         }
 
         @Bean
         @Primary
-        CronJobSchedulerService cronJobSchedulerService()
+        CronJobSchedulerService mockedCronJobSchedulerService()
         {
             return Mockito.mock(CronJobSchedulerService.class);
         }

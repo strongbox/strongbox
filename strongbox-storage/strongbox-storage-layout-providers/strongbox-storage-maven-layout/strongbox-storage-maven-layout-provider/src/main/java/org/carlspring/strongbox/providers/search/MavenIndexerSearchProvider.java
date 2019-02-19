@@ -29,7 +29,6 @@ import org.springframework.stereotype.Component;
 /**
  * @author carlspring
  */
-@Component("mavenIndexerSearchProvider")
 @Conditional(MavenIndexerEnabledCondition.class)
 public class MavenIndexerSearchProvider
         extends AbstractSearchProvider

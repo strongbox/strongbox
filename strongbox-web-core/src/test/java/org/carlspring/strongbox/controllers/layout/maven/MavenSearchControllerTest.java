@@ -18,10 +18,9 @@ import java.util.Set;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-import org.junit.jupiter.api.extension.ExtendWith;
+import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.http.MediaType;
 import org.springframework.test.context.junit.jupiter.EnabledIf;
-import org.springframework.test.context.junit.jupiter.SpringExtension;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
@@ -30,7 +29,6 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
  * @author Martin Todorov
  */
 @IntegrationTest
-@ExtendWith(SpringExtension.class)
 public class MavenSearchControllerTest
         extends MavenRestAssuredBaseTest
 {

@@ -2,50 +2,52 @@ package org.carlspring.strongbox.booters;
 
 import javax.annotation.PostConstruct;
 
+import org.springframework.beans.BeansException;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.beans.factory.config.BeanFactoryPostProcessor;
+import org.springframework.beans.factory.config.BeanPostProcessor;
+import org.springframework.beans.factory.config.ConfigurableListableBeanFactory;
+import org.springframework.core.Ordered;
+import org.springframework.core.annotation.Order;
 import org.springframework.stereotype.Component;
 
 /**
  * @author carlspring
  */
 @Component
+@Order(Ordered.HIGHEST_PRECEDENCE)
 public class PropertiesBooter
 {
 
     @Value("${strongbox.home}")
     private String homeDirectory;
 
-    @Value("${strongbox.vault:${strongbox.home}/../strongbox-vault}")
+    @Value("${strongbox.vault}")
     private String vaultDirectory;
 
-    @Value("${strongbox.etc:${strongbox.home}/etc}")
+    @Value("${strongbox.etc}")
     private String etcDirectory;
 
-    @Value("${strongbox.temp:strongbox/tmp}")
+    @Value("${strongbox.temp}")
     private String tempDirectory;
 
-    @Value("${logging.dir:${strongbox.vault}/logs}")
+    @Value("${logging.dir}")
     private String logsDirectory;
 
-    @Value("${strongbox.storage.booter.basedir:${strongbox.vault}/storages}")
+    @Value("${strongbox.storage.booter.basedir}")
     private String storageBooterBasedir;
 
-    @Value("${strongbox.config.xml:${strongbox.home}/etc/conf/strongbox.xml}")
+    @Value("${strongbox.config.xml}")
     private String configFile;
 
     @Value("${strongbox.host:localhost}")
     private String host;
 
-    @Value("${strongbox.port:48080}")
+    @Value("${strongbox.port}")
     private int port;
 
-    @Value("${strongbox.nuget.download.feed:false}")
+    @Value("${strongbox.nuget.download.feed}")
     private boolean strongboxNugetDownloadFeed;
-
-
-    public PropertiesBooter()
-    {
-    }
 
     /**
      * Initialization method that sets default system properties, if none are set.
@@ -60,7 +62,7 @@ public class PropertiesBooter
 
         if (System.getProperty("logging.config.file") == null)
         {
-            System.setProperty("logging.config.file", getHomeDirectory() + "/etc/logback.xml");
+            System.setProperty("logging.config.file", getHomeDirectory() + "/etc/logback-spring.xml");
         }
 
         if (System.getProperty("java.io.tmpdir") == null)
@@ -71,6 +73,11 @@ public class PropertiesBooter
         if (System.getProperty("ehcache.disk.store.dir") == null)
         {
             System.setProperty("ehcache.disk.store.dir", getHomeDirectory() + "/cache");
+        }
+        
+        if (System.getProperty("strongbox.storage.booter.basedir") == null)
+        {
+            System.setProperty("strongbox.storage.booter.basedir", getStorageBooterBasedir());
         }
     }
 

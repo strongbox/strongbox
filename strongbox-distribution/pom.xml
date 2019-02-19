@@ -42,7 +42,6 @@
         <dir.strongbox.vault>${dir.assembly}/strongbox-vault</dir.strongbox.vault>
 
         <!-- Spring Boot properties -->
-        <main.basedir>${basedir}/../..</main.basedir>
         <java.version>1.8</java.version>
         <jetty.version>${version.jetty}</jetty.version>
         <servlet-api.version>${version.servlet.api}</servlet-api.version>
@@ -262,13 +261,14 @@
                                     <systemProperty>appserver.base=%STRONGBOX_HOME%</systemProperty>
                                     <systemProperty>ehcache.disk.store.dir=../strongbox-vault/cache</systemProperty>
                                     <systemProperty>strongbox.home=%STRONGBOX_HOME%</systemProperty>
-                                    <systemProperty>strongbox.vault=../strongbox-vault</systemProperty>
-                                    <systemProperty>strongbox.storage.booter.basedir=../strongbox-vault/storages</systemProperty>
+                                    <systemProperty>strongbox.vault=%STRONGBOX_VAULT%</systemProperty>
+                                    <systemProperty>strongbox.storage.booter.basedir=%STRONGBOX_VAULT%/storages</systemProperty>
                                     <systemProperty>logging.config=%STRONGBOX_HOME%/etc/%STRONGBOX_LOG_FILE%</systemProperty>
-                                    <systemProperty>logging.dir=../strongbox-vault/logs</systemProperty>
+                                    <systemProperty>logging.dir=%STRONGBOX_VAULT%/logs</systemProperty>
                                     <systemProperty>jetty.logs=%STRONGBOX_HOME%/logs</systemProperty>
                                     <systemProperty>java.io.tmpdir=%STRONGBOX_HOME%/tmp</systemProperty>
                                     <systemProperty>strongbox.port=%STRONGBOX_PORT%</systemProperty>
+                                    <systemProperty>server.port=%STRONGBOX_PORT%</systemProperty>
                                     <systemProperty>strongbox.orientdb.port=%STRONGBOX_ORIENTDB_PORT%</systemProperty>
                                     <systemProperty>strongbox.orientdb.profile=%STRONGBOX_ORIENTDB_PROFILE%</systemProperty>
                                     <systemProperty>strongbox.orientdb.studio.enabled=%STRONGBOX_ORIENTDB_STUDIO_ENABLED%</systemProperty>
@@ -367,7 +367,7 @@
             </activation>
             
             <properties>
-                <strongbox.log.file>logback.xml</strongbox.log.file>
+                <strongbox.log.file>logback-spring.xml</strongbox.log.file>
             </properties>
         </profile>
         <profile>
@@ -377,7 +377,7 @@
             </activation>
             
             <properties>
-                <strongbox.log.file>logback-debug.xml</strongbox.log.file>
+                <strongbox.log.file>logback-spring-debug.xml</strongbox.log.file>
             </properties>
         </profile>
         <profile>

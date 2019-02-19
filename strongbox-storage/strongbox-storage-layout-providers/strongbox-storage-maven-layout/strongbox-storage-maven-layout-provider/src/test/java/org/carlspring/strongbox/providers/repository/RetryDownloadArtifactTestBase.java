@@ -167,21 +167,21 @@ public abstract class RetryDownloadArtifactTestBase
         
         @Primary
         @Bean
-        public HazelcastInstanceId hazelcastInstanceId() 
+        public HazelcastInstanceId hazelcastInstanceIdRdatb() 
         {
             return new HazelcastInstanceId("mocked-hazelcast-instance");
         }
         
         @Bean
         @Primary
-        RestArtifactResolverFactory artifactResolverFactory()
+        RestArtifactResolverFactory mockedArtifactResolverFactory()
         {
             return Mockito.mock(RestArtifactResolverFactory.class);
         }
 
         @Bean
         @Primary
-        ArtifactEventListenerRegistry artifactEventListenerRegistry()
+        ArtifactEventListenerRegistry testArtifactEventListenerRegistry()
         {
             return new TestArtifactEventListenerRegistry();
         }

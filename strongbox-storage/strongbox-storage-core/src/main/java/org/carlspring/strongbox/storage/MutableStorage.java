@@ -2,6 +2,8 @@ package org.carlspring.strongbox.storage;
 
 import org.carlspring.strongbox.storage.repository.MutableRepository;
 import org.carlspring.strongbox.xml.RepositoryMapAdapter;
+import org.checkerframework.checker.units.qual.s;
+import org.springframework.util.Assert;
 
 import javax.xml.bind.annotation.*;
 import javax.xml.bind.annotation.adapters.XmlJavaTypeAdapter;
@@ -87,7 +89,11 @@ public class MutableStorage
 
     public void initDefaultBasedir(String id)
     {
-        Path basedirPath = Paths.get(System.getProperty("strongbox.storage.booter.basedir"));
+        //TODO: we should rework this to use SpringBoot environment instead of `System.getProperty`
+        String storagesBaseDir = System.getProperty("strongbox.storage.booter.basedir");
+        Assert.notNull(storagesBaseDir, "System property `strongbox.storage.booter.basedir` should be configured.");
+        
+        Path basedirPath = Paths.get(storagesBaseDir);
         basedir = basedirPath.resolve(id).toString();
     }
 

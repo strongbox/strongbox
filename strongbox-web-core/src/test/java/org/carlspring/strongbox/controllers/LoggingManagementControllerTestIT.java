@@ -11,13 +11,13 @@ import java.nio.file.attribute.BasicFileAttributes;
 import java.util.logging.Level;
 
 import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
-import org.junit.jupiter.api.extension.ExtendWith;
+import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.security.test.context.support.WithMockUser;
-import org.springframework.test.context.junit.jupiter.SpringExtension;
 import static io.restassured.module.mockmvc.RestAssuredMockMvc.given;
 import static org.hamcrest.CoreMatchers.equalTo;
 import static org.junit.jupiter.api.Assertions.assertTrue;
@@ -27,8 +27,8 @@ import static org.junit.jupiter.api.Assertions.fail;
  * @author Pablo Tirado
  * @author Aditya Srinivasan
  */
+@Disabled // TODO migrate to https://docs.spring.io/spring-boot/docs/current/actuator-api/html/#loggers after https://github.com/strongbox/strongbox/issues/1000
 @IntegrationTest
-@ExtendWith(SpringExtension.class)
 public class LoggingManagementControllerTestIT
         extends RestAssuredBaseTest
 {

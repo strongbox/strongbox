@@ -24,10 +24,9 @@ import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-import org.junit.jupiter.api.extension.ExtendWith;
+import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
-import org.springframework.test.context.junit.jupiter.SpringExtension;
 import static io.restassured.module.mockmvc.RestAssuredMockMvc.given;
 import static org.carlspring.strongbox.rest.client.RestAssuredArtifactClient.OK;
 import static org.junit.jupiter.api.Assertions.*;
@@ -36,9 +35,7 @@ import static org.junit.jupiter.api.Assertions.*;
  * @author Guido Grazioli
  * @author Pablo Tirado
  */
-
 @IntegrationTest
-@ExtendWith(SpringExtension.class)
 public class BrowseControllerTest
         extends MavenRestAssuredBaseTest
 {
