@@ -1,6 +1,7 @@
 package org.carlspring.strongbox.controllers.forms;
 
 import org.carlspring.strongbox.authorization.service.AuthorizationConfigService;
+import org.carlspring.strongbox.configuration.Configuration;
 import org.carlspring.strongbox.controllers.BaseController;
 import org.carlspring.strongbox.forms.configuration.MavenRepositoryConfigurationForm;
 import org.carlspring.strongbox.forms.configuration.NugetRepositoryConfigurationForm;
@@ -21,6 +22,8 @@ import org.carlspring.strongbox.util.FieldSpy;
 
 import javax.inject.Inject;
 import java.util.Arrays;
+import java.util.LinkedHashSet;
+import java.util.Map;
 import java.util.Set;
 import java.util.stream.Collectors;
 
@@ -143,6 +146,25 @@ public class FormDataController
 
         return ResponseEntity.ok(new FormDataValuesCollection(ImmutableList.of(
                 FormDataValues.fromCollection("repositoryNames", repositoryNames))));
+    }
+
+    @ApiOperation(value = "Used to retrieve repository and storage ids")
+    @ApiResponses(value = { @ApiResponse(code = 200, message = "Storage and repository ids") })
+    @PreAuthorize("hasAuthority('CONFIGURATION_VIEW_STORAGE_CONFIGURATION') or hasAuthority('CONFIGURATION_VIEW_REPOSITORY')")
+    @GetMapping(value = "/storageAndRepositoryIds", produces = { MediaType.APPLICATION_JSON_VALUE })
+    public ResponseEntity getStorageAndRepositoryIds()
+    {
+        Set<String> storageAndRepositoryIds = new LinkedHashSet<>();
+        Configuration configuration = configurationManagementService.getConfiguration();
+        Map<String, Storage> storages = configuration.getStorages();
+        storages.keySet().stream().forEach(sId -> {
+            configuration.getStorage(sId).getRepositories().keySet().stream().forEach(rId -> {
+                storageAndRepositoryIds.add(String.format("%s:%s", sId, rId));
+            });
+        });
+
+        return ResponseEntity.ok(new FormDataValuesCollection(ImmutableList.of(
+                FormDataValues.fromCollection("storageAndRepositoryIds", storageAndRepositoryIds))));
     }
 
 }

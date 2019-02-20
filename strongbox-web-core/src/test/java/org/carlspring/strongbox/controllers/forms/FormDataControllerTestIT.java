@@ -5,9 +5,9 @@ import org.carlspring.strongbox.rest.common.RestAssuredBaseTest;
 
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
+import org.springframework.test.web.servlet.result.MockMvcResultMatchers;
 import org.springframework.transaction.annotation.Transactional;
 import static io.restassured.module.mockmvc.RestAssuredMockMvc.given;
 import static org.hamcrest.Matchers.*;
@@ -108,4 +108,17 @@ public class FormDataControllerTestIT
                .body("formDataValues", hasSize(greaterThan(0)));
     }
 
+    @Test
+    public void testGetStorageAndRepositoryIds()
+    {
+        given().accept(MediaType.APPLICATION_JSON_VALUE)
+               .when()
+               .get(getContextBaseUrl() + "/storageAndRepositoryIds")
+               .peek()
+               .then()
+               .statusCode(HttpStatus.OK.value())
+               .body("formDataValues", notNullValue())
+               .body("formDataValues[0].values", hasSize(greaterThan(0)))
+               .expect(MockMvcResultMatchers.jsonPath("formDataValues[0].values").value(hasItem("public:maven-group")));
+    }
 }
