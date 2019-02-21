@@ -46,10 +46,7 @@ import org.springframework.validation.beanvalidation.LocalValidatorFactoryBean;
 import org.springframework.web.context.request.RequestContextListener;
 import org.springframework.web.filter.CommonsRequestLoggingFilter;
 import org.springframework.web.filter.RequestContextFilter;
-import org.springframework.web.servlet.config.annotation.EnableWebMvc;
-import org.springframework.web.servlet.config.annotation.PathMatchConfigurer;
-import org.springframework.web.servlet.config.annotation.ResourceHandlerRegistry;
-import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
+import org.springframework.web.servlet.config.annotation.*;
 import org.springframework.web.servlet.resource.GzipResourceResolver;
 import org.springframework.web.servlet.resource.PathResourceResolver;
 import org.springframework.web.servlet.view.InternalResourceView;
@@ -155,6 +152,12 @@ public class WebConfig
         converters.add(new ResourceHttpMessageConverter());
     }
 
+    @Override
+    public void configureContentNegotiation(ContentNegotiationConfigurer configurer)
+    {
+        configurer.favorPathExtension(false);
+    }
+
     @Bean
     public MarshallingHttpMessageConverter marshallingMessageConverter()
     {
@@ -210,9 +213,9 @@ public class WebConfig
     @Override
     public void configurePathMatch(PathMatchConfigurer configurer)
     {
-        configurer.setUseSuffixPatternMatch(true)
+        configurer.setUseRegisteredSuffixPatternMatch(false)
+                  .setUseSuffixPatternMatch(false)
                   .setUseTrailingSlashMatch(true)
-                  .setUseRegisteredSuffixPatternMatch(true)
                   .setPathMatcher(antPathMatcher);
     }
 

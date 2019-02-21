@@ -32,6 +32,8 @@ import static io.restassured.module.mockmvc.RestAssuredMockMvc.given;
 import static org.carlspring.strongbox.controllers.configuration.StoragesConfigurationController.*;
 import static org.carlspring.strongbox.rest.client.RestAssuredArtifactClient.OK;
 import static org.hamcrest.Matchers.containsString;
+import static org.hamcrest.Matchers.equalTo;
+import static org.hamcrest.Matchers.not;
 import static org.junit.jupiter.api.Assertions.*;
 
 /**
@@ -245,15 +247,20 @@ public class StoragesConfigurationControllerTestIT
         return form;
     }
 
-    @Test
-    public void testAddGetRepository()
+    @ParameterizedTest
+    @ValueSource(strings = { "xml",
+                             "org",
+                             "com",
+                             "pl",
+                             "json" })
+    public void testAddGetRepository(String extension)
     {
         final String storageId = EXISTING_STORAGE_ID;
 
         StorageForm storage0 = buildStorageForm(storageId);
 
         RepositoryForm repositoryForm0_1 = new RepositoryForm();
-        repositoryForm0_1.setId("repository0_1");
+        repositoryForm0_1.setId("repository0_1_" + extension + "." + extension);
         repositoryForm0_1.setAllowsRedeployment(true);
         repositoryForm0_1.setSecured(true);
         repositoryForm0_1.setLayout(Maven2LayoutProvider.ALIAS);
@@ -275,7 +282,7 @@ public class StoragesConfigurationControllerTestIT
         Integer maxConnectionsRepository2 = 30;
 
         RepositoryForm repositoryForm0_2 = new RepositoryForm();
-        repositoryForm0_2.setId("repository0_2");
+        repositoryForm0_2.setId("repository0_2_" + extension + "." + extension);
         repositoryForm0_2.setAllowsForceDeletion(true);
         repositoryForm0_2.setTrashEnabled(true);
         repositoryForm0_2.setProxyConfiguration(createProxyConfiguration());
@@ -342,6 +349,47 @@ public class StoragesConfigurationControllerTestIT
 
         deleteRepository(storage0.getId(), repositoryForm0_1.getId());
         deleteRepository(storage0.getId(), repositoryForm0_2.getId());
+    }
+
+    @ParameterizedTest
+    @ValueSource(strings = { "/xml",
+                             "org/",
+                             "c/om",
+                             "p/l",
+                             "/json" })
+    public void disallowSlashesInRepositoryId(String extension)
+    {
+        final String storageId = EXISTING_STORAGE_ID;
+
+        RepositoryForm repositoryForm0_1 = new RepositoryForm();
+        repositoryForm0_1.setId("repository0_1_" + extension + "." + extension);
+        repositoryForm0_1.setAllowsRedeployment(true);
+        repositoryForm0_1.setSecured(true);
+        repositoryForm0_1.setLayout(Maven2LayoutProvider.ALIAS);
+        MavenRepositoryConfigurationForm mavenRepositoryConfigurationForm = new MavenRepositoryConfigurationForm();
+        mavenRepositoryConfigurationForm.setIndexingEnabled(true);
+        mavenRepositoryConfigurationForm.setIndexingClassNamesEnabled(false);
+        repositoryForm0_1.setRepositoryConfiguration(mavenRepositoryConfigurationForm);
+        repositoryForm0_1.setType("hosted");
+        repositoryForm0_1.setPolicy("release");
+        repositoryForm0_1.setImplementation("file-system");
+        repositoryForm0_1.setStatus("In Service");
+        Set<String> groupRepositories = new LinkedHashSet<>();
+        String groupRepository1 = "maven-central";
+        String groupRepository2 = "carlspring";
+        groupRepositories.add(groupRepository1);
+        groupRepositories.add(groupRepository2);
+        repositoryForm0_1.setGroupRepositories(groupRepositories);
+
+        String url = getContextBaseUrl() + "/" + storageId + "/" + repositoryForm0_1.getId();
+
+        givenCustom().contentType(MediaType.APPLICATION_JSON_VALUE)
+                     .accept(MediaType.APPLICATION_JSON_VALUE)
+                     .body(repositoryForm0_1)
+                     .when()
+                     .put(url)
+                     .then()
+                     .statusCode(not(equalTo(OK)));
     }
 
     @Test
@@ -431,10 +479,41 @@ public class StoragesConfigurationControllerTestIT
         MatcherAssert.assertThat(Files.exists(Paths.get(repoDir)), CoreMatchers.equalTo(false));
     }
 
-    @Test
-    public void testCreateAndDeleteStorage()
+    @ParameterizedTest
+    @ValueSource(strings = { "/xml",
+                             "org/",
+                             "c/om",
+                             "p/l",
+                             "/json" })
+    public void disallowSlashesInStorageId(String extension)
     {
-        final String storageId = "storage2";
+        final String storageId = "storage_" + extension + "." + extension;
+
+        StorageForm storage2 = buildStorageForm(storageId);
+
+        String url = getContextBaseUrl();
+
+        // 1. Create storage.
+        givenCustom().contentType(MediaType.APPLICATION_JSON_VALUE)
+                     .accept(MediaType.APPLICATION_JSON_VALUE)
+                     .body(storage2)
+                     .when()
+                     .put(url)
+                     .peek() // Use peek() to print the output
+                     .then()
+                     .statusCode(HttpStatus.BAD_REQUEST.value())
+                     .body(containsString("Storage id contains disallowed character"));
+    }
+
+    @ParameterizedTest
+    @ValueSource(strings = { "xml",
+                             "org",
+                             "com",
+                             "pl",
+                             "json" })
+    public void testCreateAndDeleteStorage(String extension)
+    {
+        final String storageId = "storage2_" + extension + "." + extension;
         final String repositoryId0 = repositoryForm0.getId();
         final String repositoryId1 = repositoryForm1.getId();
 
@@ -502,10 +581,15 @@ public class StoragesConfigurationControllerTestIT
                      .statusCode(HttpStatus.NOT_FOUND.value());
     }
 
-    @Test
-    public void whenStorageIsCreatedWithoutBasedirProvidedDefaultIsSet()
+    @ParameterizedTest
+    @ValueSource(strings = { "xml",
+                             "org",
+                             "com",
+                             "pl",
+                             "json" })
+    public void whenStorageIsCreatedWithoutBasedirProvidedDefaultIsSet(String extension)
     {
-        final String storageId = "storage4";
+        final String storageId = "storage4_" + extension + "." + extension;
 
         StorageForm storage4 = buildStorageForm(storageId);
         storage4.setBasedir(null);
