@@ -70,7 +70,7 @@
                         <strongbox.home>${project.build.directory}/strongbox</strongbox.home>
                         <strongbox.vault>${project.build.directory}/strongbox-vault</strongbox.vault>
                         <strongbox.storage.booter.basedir>${project.build.directory}/strongbox-vault/storages</strongbox.storage.booter.basedir>
-                        <strongbox.config.file>${project.build.directory}/strongbox/etc/conf/strongbox.xml</strongbox.config.file>
+                        <strongbox.config.file>${project.build.directory}/strongbox/etc/conf/strongbox.yaml</strongbox.config.file>
                         <logging.dir>${project.build.directory}/strongbox-vault/logs</logging.dir>
                         <logging.config.file>${project.build.directory}/strongbox/etc/logback-debug.xml</logging.config.file>
                         <java.io.tmpdir>${dir.strongbox.vault}/tmp</java.io.tmpdir>
@@ -167,7 +167,7 @@
 
                                     <overWrite>true</overWrite>
                                     <outputDirectory>${dir.strongbox.home}</outputDirectory>
-                                    <includes>etc/conf/strongbox.xml</includes>
+                                    <includes>etc/conf/strongbox.yaml</includes>
                                 </artifactItem>
                             </artifactItems>
                         </configuration>

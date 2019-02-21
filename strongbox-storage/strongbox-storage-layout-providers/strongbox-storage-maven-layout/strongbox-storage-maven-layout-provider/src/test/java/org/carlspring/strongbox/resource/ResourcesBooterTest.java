@@ -38,7 +38,7 @@ public class ResourcesBooterTest
     @Test
     public void testResourceBooting()
     {
-        File file = new File(propertiesBooter.getHomeDirectory() + "/etc/conf/strongbox.xml");
+        File file = new File(propertiesBooter.getHomeDirectory() + "/etc/conf/strongbox.yaml");
 
         assertTrue(file.exists(), "Failed to copy configuration resource from classpath!");
     }
