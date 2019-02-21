@@ -36,7 +36,7 @@ To accept, please:
   * `Mailing address` (**mandatory**)
   * `Country` (**mandatory**)
   * `Telephone` (**optional**)
-* Print, sign and scan the [Individual Contributor's License Agreement (ICLA)](https://github.com/strongbox/strongbox/blob/master/ICLA.md), or, alternatively, fill in the [ICLA PDF](https://github.com/strongbox/strongbox/wiki/resources/pdfs/ICLA.pdf) file and mail it back to [carlspring@gmail.com](mailto:carlspring@gmail.com).
+* Print, sign and scan the [Individual Contributor's License Agreement (ICLA)](https://github.com/strongbox/strongbox/blob/master/ICLA.md), or, alternatively, fill in the [ICLA PDF](https://strongbox.github.io/assets/resources/pdfs/ICLA.pdf) file and mail it back to [carlspring@gmail.com](mailto:carlspring@gmail.com).
 * Add your name and basic details below and open a pull request.
 
 **Notes:** Please, note that none of this information is shared with third-parties and is only required due to the legal agreement which you will be entering when contributing your code to the project. We require this minimal amount of information in order to be able to identify you, as we're not keeping record, or more sensitive information, such as passport/ID details. We will not send you any spam, or share your details with third parties.
