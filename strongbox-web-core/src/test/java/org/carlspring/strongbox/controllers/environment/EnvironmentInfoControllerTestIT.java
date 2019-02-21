@@ -72,6 +72,11 @@ public class EnvironmentInfoControllerTestIT
 
         assertNotNull(jvmArguments, "Failed to get JVM arguments list!");
         assertTrue(jvmArguments.isEmpty(), "Returned JVM arguments are not empty");
+
+        List<?> strongboxInfo = returnedMap.get("strongbox");
+
+        assertNotNull(strongboxInfo, "Failed to get strongbox info list!");
+        assertFalse(strongboxInfo.isEmpty(), "Returned strongbox info are empty");
     }
 
     @Test
