@@ -110,7 +110,8 @@ class EmbeddedOrientDbConfig
     }
     
     @Bean
-    OrientDbServer orientDbServer(OrientDbServerConfiguration serverProperties, OrientDbStudioConfiguration studioProperties) {
+    OrientDbServer orientDbServer(OrientDbServerConfiguration serverProperties, OrientDbStudioConfiguration studioProperties) 
+    {
         return new EmbeddedOrientDbServer(studioProperties, serverProperties);
     }
     
