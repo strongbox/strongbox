@@ -1,0 +1,331 @@
+configuration:
+  instanceName: strongbox
+  version: ${project.version}
+  revision: ${strongbox.revision}
+  baseUrl: http://localhost:48080/
+  port: 48080
+  sessionConfiguration:
+    timeoutSeconds: 3600
+  remoteRepositoriesConfiguration:
+    checkIntervalSeconds: 60
+    heartbeatThreadsNumber: 5
+    retryArtifactDownloadConfiguration:
+      timeoutSeconds: 60
+      maxNumberOfAttempts: 5
+      minAttemptsIntervalSeconds: 5
+  corsConfiguration:
+    allowedCredentials: true
+    maxAge: 600
+    allowedOrigins:
+      allowedOrigin: *
+    allowedMethods:
+      - GET
+      - PUT
+      - POST
+      - DELETE
+      - OPTIONS
+    allowedHeaders:
+      - Accept
+      - Accepts
+      - Authorization
+      - Access-Control-Allow-Headers
+      - Access-Control-Request-Headers
+      - Access-Control-Request-Method
+      - DNT
+      - Keep-Alive
+      - User-Agent
+      - X-Requested-With
+      - If-Modified-Since
+      - Cache-Control
+      - Content-Type
+      - Content-Range,Range
+  storages:
+    storage:
+      - id: storage0
+        repositories:
+          repository:
+            - id: releases
+              policy: release
+              dataStore: file-system
+              layout: Maven 2
+              type: hosted
+              allowsForceDeletion: true
+              checksumHeadersEnabled: true
+              mavenRepositoryConfiguration:
+                indexingEnabled: true
+            - id: snapshots
+              policy: snapshot
+              dataStore: file-system
+              layout: Maven 2
+              type: hosted
+              secured: true
+              checksumHeadersEnabled: true
+              mavenRepositoryConfiguration:
+                indexingEnabled: true
+      - id: storage-common-proxies
+        repositories:
+          - id: maven-central
+            policy: release
+            dataStore: file-system
+            layout: Maven 2
+            type: proxy
+            remoteRepository:
+              url: https://repo.maven.apache.org/maven2/
+              downloadRemoteIndexes: true
+              autoBlocking: true
+              checksumValidation: true
+            mavenRepositoryConfiguration:
+              indexingEnabled: true
+          - id: carlspring
+            policy: mixed
+            dataStore: file-system
+            layout: Maven 2
+            type: proxy
+            remoteRepository:
+              url: http://dev.carlspring.org/nexus/content/groups/carlspring
+              downloadRemoteIndexes: true
+              autoBlocking: true
+              checksumValidation: true
+          - id: apache-snapshots
+            policy: snapshot
+            dataStore: file-system
+            layout: Maven 2
+            type: proxy
+            remoteRepository:
+              url: https://repository.apache.org/snapshots/
+              downloadRemoteIndexes: true
+              autoBlocking: true
+              checksumValidation: true
+          - id: jboss-public-releases
+            policy: release
+            dataStore: file-system
+            layout: Maven 2
+            type: proxy
+            remoteRepository:
+              url: http://repository.jboss.org/nexus/content/groups/public-jboss/
+              downloadRemoteIndexes: true
+              autoBlocking: true
+              checksumValidation: true
+          - id: maven-oracle
+            policy: release
+            dataStore: file-system
+            layout: Maven 2
+            type: proxy
+            remoteRepository:
+              url: https://maven.oracle.com
+              downloadRemoteIndexes: true
+              autoBlocking: true
+              checksumValidation: true
+              allowsDirectoryBrowsing: false
+          - id: group-common-proxies
+            policy: release
+            dataStore: file-system
+            layout: Maven 2
+            type: group
+            secured: true
+            group:
+              repository:
+                - carlspring
+                - maven-central
+                - apache-snapshots
+                - jboss-public-releases
+          - id: nuget.org
+            policy: release
+            dataStore: file-system
+            layout: NuGet
+            type: proxy
+            remoteRepository:
+              url: https://www.nuget.org/api/v2
+            nugetRepositoryConfiguration:
+              remoteFeedPageSize: 1000
+      - id: storage-springsource-proxies
+        repositories:
+          - id: springsource-snapshots
+            policy: snapshot
+            dataStore: file-system
+            layout: Maven 2
+            type: proxy
+            remoteRepository:
+              url: http://repo.spring.io/snapshot
+              downloadRemoteIndexes: true
+              autoBlocking: true
+              checksumValidation: true
+          - id: springsource-releases
+            policy: release
+            dataStore: file-system
+            layout: Maven 2
+            type: proxy
+            remoteRepository:
+              url: http://repo.spring.io/libs-release
+              downloadRemoteIndexes: true
+              autoBlocking: true
+              checksumValidation: true
+          - id: springsource-milestones
+            policy: release
+            dataStore: file-system
+            layout: Maven 2
+            type: proxy
+            remoteRepository:
+              url: http://repo.spring.io/milestone
+              downloadRemoteIndexes: true
+              autoBlocking: true
+              checksumValidation: true
+          - id: springsource-proxies
+            policy: mixed
+            dataStore: file-system
+            layout: Maven 2
+            type: group
+            secured: true
+            group:
+              repository:
+                - springsource-snapshots
+                - springsource-releases
+                - springsource-milestones
+      - id: storage-ivy-proxies
+        repositories:
+          - id: typesafe-releases
+            policy: release
+            dataStore: file-system
+            layout: Maven 2
+            type: proxy
+            remoteRepository:
+              url: https://repo.typesafe.com/typesafe/releases
+              downloadRemoteIndexes: true
+              autoBlocking: true
+              checksumValidation: true
+          - id: typesafe-ivy-releases
+            policy: release
+            dataStore: file-system
+            layout: Maven 2
+            type: proxy
+            remoteRepository:
+              url: https://repo.typesafe.com/typesafe/ivy-releases
+              downloadRemoteIndexes: true
+              autoBlocking: true
+              checksumValidation: true
+          - id: group-ivy-proxies
+            policy: release
+            dataStore: file-system
+            layout: Maven 2
+            type: group
+            secured: true
+            group:
+              repository:
+                - typesafe-releases
+                - typesafe-ivy-releases
+      - id: storage-sbt-proxies
+        repositories:
+          - id: sbt-plugin-releases
+            policy: release
+            dataStore: file-system
+            layout: Maven 2
+            type: proxy
+            remoteRepository:
+              url: https://repo.scala-sbt.org/scalasbt/sbt-plugin-releases
+              downloadRemoteIndexes: true
+              autoBlocking: true
+              checksumValidation: true
+          - id: group-sbt-proxies
+            policy: release
+            dataStore: file-system
+            layout: Maven 2
+            type: group
+            secured: true
+            group:
+              repository:
+                - sbt-plugin-releases
+                - storage-ivy-proxies:group-ivy-proxies
+      - id: storage-third-party
+        repositories:
+          - id: third-party
+            policy: release
+            dataStore: file-system
+            layout: Maven 2
+            type: hosted
+            allowsForceDeletion: true
+            checksumHeadersEnabled: true
+          - id: nuget-third-party
+            policy: release
+            dataStore: file-system
+            layout: NuGet
+            type: hosted
+            allowsForceDeletion: true
+            checksumHeadersEnabled: true
+      - id: storage-npm
+        repositories:
+          - id: npm-releases
+            policy: release
+            dataStore: file-system
+            layout: npm
+            type: hosted
+            allowsForceDeletion: true
+            checksumHeadersEnabled: true
+          - id: npmjs
+            policy: release
+            dataStore: file-system
+            layout: npm
+            type: proxy
+            remoteRepository:
+              url: https://registry.npmjs.org/
+      - id: storage-nuget
+        repositories:
+          id: nuget-releases
+          policy: release
+          dataStore: file-system
+          layout: NuGet
+          type: hosted
+          allowsForceDeletion: true
+          checksumHeadersEnabled: true
+      - id: storage-raw
+        repositories:
+          id: raw-releases
+          policy: release
+          dataStore: file-system
+          layout: Raw
+          type: hosted
+          allowsForceDeletion: true
+          checksumHeadersEnabled: true
+      - id: public
+        repositories:
+          - id: maven-group
+            policy: mixed
+            dataStore: file-system
+            layout: Maven 2
+            type: group
+            secured: true
+            group:
+              repository:
+                - storage0:releases
+                - storage0:snapshots
+                - storage-common-proxies:group-common-proxies
+                - storage-springsource-proxies:springsource-proxies
+                - storage-ivy-proxies:group-ivy-proxies
+                - storage-sbt-proxies:group-sbt-proxies
+                - storage-third-party:third-party
+          - id: nuget-group
+            policy: mixed
+            dataStore: file-system
+            layout: NuGet
+            type: group
+            secured: true
+            group:
+              repository:
+                - storage-common-proxies:nuget.org
+                - storage-third-party:nuget-third-party
+          - id: npm-group
+            policy: mixed
+            dataStore: file-system
+            layout: npm
+            type: group
+            secured: true
+            group:
+              repository: storage-npm:npmjs
+  routingRules:
+    accepted:
+      ruleSet:
+        groupRepository: group-common-proxies
+        rule:
+          pattern: .*(com|org)/carlspring.*
+          repositories:
+            repository: carlspring
+    denied:

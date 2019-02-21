@@ -9,8 +9,6 @@
         <properties>
             <cronExpression>0 0 1 * * ?</cronExpression> <!-- mandatory -->
             <jobClass>org.carlspring.strongbox.cron.jobs.ClearRepositoryTrashCronJob</jobClass> <!-- mandatory -->
-            <!-- <storageId>storage-common-proxies</storageId> optional -->
-            <!-- <repositoryId>maven-central</repositoryId> optional -->
         </properties>
     </cron-task-configuration>
 
@@ -22,10 +20,6 @@
         <properties>
             <cronExpression>0 0 1 * * ?</cronExpression> <!-- mandatory -->
             <jobClass>org.carlspring.strongbox.cron.jobs.RegenerateChecksumCronJob</jobClass> <!-- mandatory -->
-            <!-- <storageId>storage-common-proxies</storageId> optional -->
-            <!-- <repositoryId>maven-central</repositoryId> optional -->
-            <!-- <basePath>org</basePath> optional -->
-            <!-- <forceRegeneration>true</forceRegeneration> optional, default false -->
         </properties>
     </cron-task-configuration>
 
@@ -42,24 +36,6 @@
         </properties>
     </cron-task-configuration>
 
-    <!--
-        - By default, this cron job is enabled by the system for every maven repository supporting indexing.
-        - Override, if needed.
-    <cron-task-configuration>
-        <uuid>648c0ca3-5727-4cb8-a726-e3b63d36d061</uuid>
-        <name>Rebuild maven-central Local Indexes Cron Job</name>
-        <one-time-execution>false</one-time-execution>
-        <immediate-execution>false</immediate-execution>
-        <properties>
-            <cronExpression>0 0 1 * * ?</cronExpression> mandatory
-            <jobClass>org.carlspring.strongbox.cron.jobs.RebuildMavenIndexesCronJob</jobClass> mandatory
-            <storageId>storage-common-proxies</storageId> mandatory
-            <repositoryId>maven-central</repositoryId> mandatory
-            <basePath>org</basePath> optional
-        </properties>
-    </cron-task-configuration>
-    -->
-
     <cron-task-configuration>
         <uuid>b44164a5-c900-43ff-8d13-7a0d0e509d1d</uuid>
         <name>Re-build All Maven Repositories Metadata Files Cron Job</name>
@@ -68,9 +44,6 @@
         <properties>
             <cronExpression>0 0 1 * * ?</cronExpression> <!-- mandatory -->
             <jobClass>org.carlspring.strongbox.cron.jobs.RebuildMavenMetadataCronJob</jobClass> <!-- mandatory -->
-            <!-- <storageId>storage-common-proxies</storageId> optional -->
-            <!-- <repositoryId>maven-central</repositoryId> optional -->
-            <!-- <basePath>org</basePath> optional -->
         </properties>
     </cron-task-configuration>
 
@@ -82,29 +55,8 @@
         <properties>
             <cronExpression>0 0 1 * * ?</cronExpression> <!-- mandatory -->
             <jobClass>org.carlspring.strongbox.cron.jobs.RemoveTimestampedMavenSnapshotCronJob</jobClass> <!-- mandatory -->
-            <!-- <storageId>storage-common-proxies</storageId> optional -->
-            <!-- <repositoryId>maven-central</repositoryId> optional -->
-            <!-- <basePath>org</basePath> optional -->
-            <!-- <numberToKeep>10</numberToKeep> optional, default 10 -->
-            <!-- <keepPeriod>30</keepPeriod> optional, default 30 -->
         </properties>
     </cron-task-configuration>
 
-    <!--
-        - By default, this cron job is enabled by the system for every nuget proxy repository
-        - Override, if needed.
-    <cron-task-configuration>
-        <uuid>2c28b782-f545-4c80-b5a4-14ebc392ac12</uuid>
-        <name>Remote feed download for storage-nuget:nuget-releases</name>
-        <one-time-execution>false</one-time-execution>
-        <immediate-execution>false</immediate-execution>
-        <properties>
-            <cronExpression>0 0 0 * * ?</cronExpression> mandatory
-            <jobClass>org.carlspring.strongbox.cron.jobs.DownloadRemoteFeedCronJob</jobClass> mandatory
-            <storageId>storage-nuget</storageId> mandatory
-            <repositoryId>nuget-releases</repositoryId> mandatory
-        </properties>
-    </cron-task-configuration>
-    -->
 
 </cron-tasks-configuration>
