@@ -1,0 +1,67 @@
+users:
+  user:
+    - username: admin
+      password: $2a$10$WqtVx7Iio0cndyR1lEaKW.SWhUYmF/zHHG5hkAXvH5hUmklM7QfMO
+      roles:
+        role: ADMIN
+      securityTokenKey: admin-secret
+    - username: maven
+      password: $2a$10$WqtVx7Iio0cndyR1lEaKW.SWhUYmF/zHHG5hkAXvH5hUmklM7QfMO
+      roles:
+        role: ADMIN
+      securityTokenKey: maven-secret
+    - username: user
+      password: $2a$10$WqtVx7Iio0cndyR1lEaKW.SWhUYmF/zHHG5hkAXvH5hUmklM7QfMO
+      roles:
+        role: ADMIN
+      securityTokenKey: user-secret
+    - username: deployer
+      password: $2a$10$WqtVx7Iio0cndyR1lEaKW.SWhUYmF/zHHG5hkAXvH5hUmklM7QfMO
+      roles:
+        role: UI_MANAGER
+      securityTokenKey: deployer-secret
+      accessModel:
+        storages:
+          storage:
+            id: storage0
+            repositories:
+              repository:
+                id: releases
+                privileges:
+                  privilege:
+                    - name: ARTIFACTS_DEPLOY
+                    - name: ARTIFACTS_RESOLVE
+    - username: developer01
+      password: $2a$10$WqtVx7Iio0cndyR1lEaKW.SWhUYmF/zHHG5hkAXvH5hUmklM7QfMO
+      roles:
+        role: UI_MANAGER
+      securityTokenKey: developer01-secret
+      accessModel:
+        storages:
+          storage:
+            id: storage0
+            repositories:
+              repository:
+                id: releases
+                repositoryPrivileges:
+                  privilege:
+                    name: ARTIFACTS_RESOLVE
+                pathPrivileges:
+                  pathPrivilege:
+                    - path: com/carlspring
+                      wildcard: true
+                      privileges:
+                        privilege:
+                          name: ARTIFACTS_VIEW
+                    - path: org/carlspring
+                      wildcard: true
+                      privileges:
+                        privilege:
+                          name: ARTIFACTS_DELETE
+                    - path: com/mycorp
+                      privileges:
+                        privilege:
+                          - name: ARTIFACTS_VIEW
+                          - name: ARTIFACTS_DEPLOY
+                          - name: ARTIFACTS_DELETE
+                          - name: ARTIFACTS_COPY
