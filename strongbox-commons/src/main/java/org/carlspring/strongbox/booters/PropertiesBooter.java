@@ -37,7 +37,7 @@ public class PropertiesBooter
     @Value("${strongbox.storage.booter.basedir}")
     private String storageBooterBasedir;
 
-    @Value("${strongbox.config.xml}")
+    @Value("${strongbox.config.file}")
     private String configFile;
 
     @Value("${strongbox.host:localhost}")
@@ -74,7 +74,7 @@ public class PropertiesBooter
         {
             System.setProperty("ehcache.disk.store.dir", getHomeDirectory() + "/cache");
         }
-        
+
         if (System.getProperty("strongbox.storage.booter.basedir") == null)
         {
             System.setProperty("strongbox.storage.booter.basedir", getStorageBooterBasedir());

@@ -24,7 +24,7 @@ public class AuthenticationResourceManager
 
     private static final Logger logger = LoggerFactory.getLogger(AuthenticationResourceManager.class);
 
-    private static final String PROPERTY_AUTHENTICATION_PROVIDERS_LOCATION = "strongbox.authentication.providers.xml";
+    private static final String PROPERTY_AUTHENTICATION_PROVIDERS_LOCATION = "strongbox.config.file.authentication.providers";
 
     private static final String DEFAULT_AUTHENTICATION_PROVIDERS_LOCATION = "classpath:strongbox-authentication-providers.xml";
 
