@@ -1,52 +1,47 @@
-package org.carlspring.strongbox.xml;
+package org.carlspring.strongbox.yaml;
 
 import org.carlspring.strongbox.resource.ConfigurationResourceResolver;
-import org.carlspring.strongbox.xml.parsers.GenericParser;
 
-import javax.xml.bind.JAXBException;
 import java.io.BufferedInputStream;
+import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
 import java.lang.reflect.ParameterizedType;
 import java.lang.reflect.UndeclaredThrowableException;
-import java.util.HashSet;
 import java.util.ServiceLoader;
-import java.util.Set;
 import java.util.stream.Stream;
 
+import com.fasterxml.jackson.databind.DeserializationFeature;
+import com.fasterxml.jackson.databind.JavaType;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.dataformat.yaml.YAMLMapper;
 import org.springframework.core.io.Resource;
 
 /**
  * @author Przemyslaw Fusik
+ * @author Pablo Tirado
  */
-public abstract class XmlFileManager<T>
+public abstract class YamlFileManager<T>
 {
 
-    private final GenericParser<T> parser;
+    private Class myClazz;
+    private ObjectMapper yamlMapper;
 
 
-    public XmlFileManager()
+    public YamlFileManager()
     {
         this(new Class[0]);
     }
 
-    public XmlFileManager(Class... classes)
+    @SuppressWarnings("unchecked")
+    public YamlFileManager(Class... classes)
     {
-        Set<Class<?>> contextClasses = new HashSet<>();
-        contextClasses.add(
-                (Class<T>) ((ParameterizedType) getClass().getGenericSuperclass()).getActualTypeArguments()[0]);
-        Stream.of(classes).forEach(
-                clazz ->
-                {
-                    ServiceLoader<?> loader = ServiceLoader.load(clazz);
-                    loader.forEach(impl ->
-                                   {
-                                       contextClasses.add(impl.getClass());
-                                   });
-                }
-        );
-        parser = new GenericParser<>(contextClasses.toArray(new Class[0]));
+        myClazz = (Class<T>) ((ParameterizedType) getClass().getGenericSuperclass()).getActualTypeArguments()[0];
+        Stream.of(classes).forEach(ServiceLoader::load);
+
+        yamlMapper = new YAMLMapper().configure(DeserializationFeature.UNWRAP_ROOT_VALUE, true);
     }
+
 
     public abstract String getPropertyKey();
 
@@ -63,9 +58,10 @@ public abstract class XmlFileManager<T>
     {
         try
         {
-            parser.store(configuration, getResource());
+            File inputFile = getResource().getFile();
+            yamlMapper.writeValue(inputFile, configuration);
         }
-        catch (JAXBException | IOException e)
+        catch (IOException e)
         {
             throw new UndeclaredThrowableException(e);
         }
@@ -79,12 +75,13 @@ public abstract class XmlFileManager<T>
         {
             return null;
         }
-        
+
         try (InputStream inputStream = new BufferedInputStream(resource.getInputStream()))
         {
-            return parser.parse(inputStream);
+            JavaType type = yamlMapper.getTypeFactory().constructType(myClazz);
+            return yamlMapper.readValue(inputStream, type);
         }
-        catch (JAXBException | IOException e)
+        catch (IOException e)
         {
             throw new UndeclaredThrowableException(e);
         }
