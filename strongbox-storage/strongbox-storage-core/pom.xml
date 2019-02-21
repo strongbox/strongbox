@@ -64,7 +64,7 @@
                         <strongbox.vault>${project.build.directory}/strongbox-vault</strongbox.vault>
                         <strongbox.storage.booter.basedir>${project.build.directory}/strongbox-vault/storages
                         </strongbox.storage.booter.basedir>
-                        <strongbox.config.file>${project.build.directory}/strongbox/etc/conf/strongbox.xml
+                        <strongbox.config.file>${project.build.directory}/strongbox/etc/conf/strongbox.yaml
                         </strongbox.config.file>
                         <java.io.tmpdir>${dir.strongbox.vault}/tmp</java.io.tmpdir>
                         <ehcache.disk.store.dir>${project.build.directory}/strongbox/cache</ehcache.disk.store.dir>
@@ -145,7 +145,7 @@
 
                                     <overWrite>true</overWrite>
                                     <outputDirectory>${dir.strongbox.home}</outputDirectory>
-                                    <includes>etc/conf/strongbox.xml</includes>
+                                    <includes>etc/conf/strongbox.yaml</includes>
                                 </artifactItem>
                             </artifactItems>
                         </configuration>

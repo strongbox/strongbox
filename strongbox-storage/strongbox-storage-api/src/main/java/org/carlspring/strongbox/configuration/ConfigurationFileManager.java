@@ -1,7 +1,7 @@
 package org.carlspring.strongbox.configuration;
 
 import org.carlspring.strongbox.resource.ConfigurationResourceResolver;
-import org.carlspring.strongbox.xml.XmlFileManager;
+import org.carlspring.strongbox.yaml.YamlFileManager;
 
 import javax.inject.Inject;
 
@@ -12,7 +12,7 @@ import org.springframework.stereotype.Component;
  */
 @Component
 public class ConfigurationFileManager
-        extends XmlFileManager<MutableConfiguration>
+        extends YamlFileManager<MutableConfiguration>
 {
 
     @Inject
@@ -28,7 +28,7 @@ public class ConfigurationFileManager
     @Override
     public String getDefaultLocation()
     {
-        return "etc/conf/strongbox.xml";
+        return "etc/conf/strongbox.yaml";
     }
 
     @Override
