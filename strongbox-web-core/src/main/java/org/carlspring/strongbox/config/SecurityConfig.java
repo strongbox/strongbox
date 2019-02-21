@@ -18,7 +18,6 @@ import java.util.ArrayList;
 import java.util.List;
 
 import org.apache.commons.lang.BooleanUtils;
-import org.springframework.boot.actuate.autoconfigure.security.servlet.EndpointRequest;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.ComponentScan;
 import org.springframework.context.annotation.Configuration;
@@ -89,10 +88,6 @@ public class SecurityConfig
             .accessDeniedHandler(accessDeniedHandler())
             // TODO SB-813
             .authenticationEntryPoint(customBasicAuthenticationEntryPoint())
-            .and()
-            .authorizeRequests()
-            .requestMatchers(EndpointRequest.toAnyEndpoint())
-            .hasAuthority("ADMIN")
             .and()
             .anonymous()
             .authenticationFilter(anonymousAuthenticationFilter())
