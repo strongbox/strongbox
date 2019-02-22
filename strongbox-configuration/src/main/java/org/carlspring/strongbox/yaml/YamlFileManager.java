@@ -6,15 +6,12 @@ import java.io.BufferedInputStream;
 import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
-import java.lang.reflect.ParameterizedType;
 import java.lang.reflect.UndeclaredThrowableException;
-import java.util.ServiceLoader;
-import java.util.stream.Stream;
 
 import com.fasterxml.jackson.databind.DeserializationFeature;
-import com.fasterxml.jackson.databind.JavaType;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.dataformat.yaml.YAMLMapper;
+import org.springframework.core.GenericTypeResolver;
 import org.springframework.core.io.Resource;
 
 /**
@@ -24,24 +21,15 @@ import org.springframework.core.io.Resource;
 public abstract class YamlFileManager<T>
 {
 
-    private Class myClazz;
+    private Class<T> myClazz;
     private ObjectMapper yamlMapper;
 
-
+    @SuppressWarnings("unchecked")
     public YamlFileManager()
     {
-        this(new Class[0]);
-    }
-
-    @SuppressWarnings("unchecked")
-    public YamlFileManager(Class... classes)
-    {
-        myClazz = (Class<T>) ((ParameterizedType) getClass().getGenericSuperclass()).getActualTypeArguments()[0];
-        Stream.of(classes).forEach(ServiceLoader::load);
-
+        myClazz = (Class<T>) GenericTypeResolver.resolveTypeArgument(getClass(), YamlFileManager.class);
         yamlMapper = new YAMLMapper().configure(DeserializationFeature.UNWRAP_ROOT_VALUE, true);
     }
-
 
     public abstract String getPropertyKey();
 
@@ -78,8 +66,7 @@ public abstract class YamlFileManager<T>
 
         try (InputStream inputStream = new BufferedInputStream(resource.getInputStream()))
         {
-            JavaType type = yamlMapper.getTypeFactory().constructType(myClazz);
-            return yamlMapper.readValue(inputStream, type);
+            return yamlMapper.readValue(inputStream, myClazz);
         }
         catch (IOException e)
         {

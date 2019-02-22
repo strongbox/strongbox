@@ -36,3 +36,4 @@ cronTasksConfiguration:
     properties:
       cronExpression: 0 0 1 * * ?
       jobClass: org.carlspring.strongbox.cron.jobs.RemoveTimestampedMavenSnapshotCronJob
+

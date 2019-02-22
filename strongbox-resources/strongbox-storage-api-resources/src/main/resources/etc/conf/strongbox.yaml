@@ -331,4 +331,3 @@ configuration:
           pattern: .*(com|org)/carlspring.*
           repositories:
             repository: carlspring
-    denied:
