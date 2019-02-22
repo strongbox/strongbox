@@ -633,8 +633,7 @@ public class ArtifactManagementServiceImplTest
         Artifact artifact = ArtifactUtils.getArtifactFromGAVTC(gavtc);
         String artifactPath = ArtifactUtils.convertArtifactToPath(artifact);
 
-        try (InputStream is = new ByteArrayInputStream(
-                "strongbox-lv-artifact-content".getBytes(StandardCharsets.UTF_8)))
+        try (InputStream is = new ByteArrayInputStream("strongbox-lv-artifact-content".getBytes(StandardCharsets.UTF_8)))
         {
             mavenArtifactManagementService.validateAndStore(STORAGE0,
                                                             repositoryId,
@@ -646,16 +645,15 @@ public class ArtifactManagementServiceImplTest
         ArtifactEntry artifactEntry = artifactEntryService.findOneArtifact(STORAGE0, repositoryId, artifactPath);
         MatcherAssert.assertThat(artifactEntry.getTagSet(), CoreMatchers.notNullValue());
         MatcherAssert.assertThat(artifactEntry.getTagSet().size(), CoreMatchers.equalTo(1));
-        MatcherAssert.assertThat(artifactEntry.getTagSet().iterator().next().getName(), CoreMatchers.equalTo(
-                ArtifactTag.LAST_VERSION));
+        MatcherAssert.assertThat(artifactEntry.getTagSet().iterator().next().getName(),
+                                 CoreMatchers.equalTo(ArtifactTag.LAST_VERSION));
 
         // store the file with classifier
         String gavtcWithClassifier = "org.carlspring.strongbox:strongbox-lv-artifact:1.0:jar:sources";
         Artifact artifactWithClassifier = ArtifactUtils.getArtifactFromGAVTC(gavtcWithClassifier);
         String artifactPathWithClassifier = ArtifactUtils.convertArtifactToPath(artifactWithClassifier);
 
-        try (InputStream is = new ByteArrayInputStream(
-                "strongbox-lv-artifact-content".getBytes(StandardCharsets.UTF_8)))
+        try (InputStream is = new ByteArrayInputStream("strongbox-lv-artifact-content".getBytes(StandardCharsets.UTF_8)))
         {
             mavenArtifactManagementService.validateAndStore(STORAGE0,
                                                             repositoryId,
@@ -667,27 +665,26 @@ public class ArtifactManagementServiceImplTest
         ArtifactEntry artifactEntryWithClassifier = artifactEntryService.findOneArtifact(STORAGE0,
                                                                                          repositoryId,
                                                                                          artifactPathWithClassifier);
+                                                                                         
         MatcherAssert.assertThat(artifactEntryWithClassifier.getTagSet(), CoreMatchers.notNullValue());
         MatcherAssert.assertThat(artifactEntryWithClassifier.getTagSet().size(), CoreMatchers.equalTo(1));
         MatcherAssert.assertThat(artifactEntryWithClassifier.getTagSet().iterator().next().getName(),
-                                 CoreMatchers.equalTo(
-                                         ArtifactTag.LAST_VERSION));
+                                 CoreMatchers.equalTo(ArtifactTag.LAST_VERSION));
 
         // re-fetch the artifact without classifier
         // and confirm it still has the last version tag
         artifactEntry = artifactEntryService.findOneArtifact(STORAGE0, repositoryId, artifactPath);
         MatcherAssert.assertThat(artifactEntry.getTagSet(), CoreMatchers.notNullValue());
         MatcherAssert.assertThat(artifactEntry.getTagSet().size(), CoreMatchers.equalTo(1));
-        MatcherAssert.assertThat(artifactEntry.getTagSet().iterator().next().getName(), CoreMatchers.equalTo(
-                ArtifactTag.LAST_VERSION));
+        MatcherAssert.assertThat(artifactEntry.getTagSet().iterator().next().getName(),
+                                 CoreMatchers.equalTo(ArtifactTag.LAST_VERSION));
 
         // store the newest version of file without classifier
         String gavtcV2 = "org.carlspring.strongbox:strongbox-lv-artifact:2.0:jar";
         Artifact artifactV2 = ArtifactUtils.getArtifactFromGAVTC(gavtcV2);
         String artifactPathV2 = ArtifactUtils.convertArtifactToPath(artifactV2);
 
-        try (InputStream is = new ByteArrayInputStream(
-                "strongbox-lv-artifact-content".getBytes(StandardCharsets.UTF_8)))
+        try (InputStream is = new ByteArrayInputStream("strongbox-lv-artifact-content".getBytes(StandardCharsets.UTF_8)))
         {
             mavenArtifactManagementService.validateAndStore(STORAGE0,
                                                             repositoryId,
@@ -699,11 +696,11 @@ public class ArtifactManagementServiceImplTest
         ArtifactEntry artifactEntryV2 = artifactEntryService.findOneArtifact(STORAGE0,
                                                                              repositoryId,
                                                                              artifactPathV2);
+                                                                             
         MatcherAssert.assertThat(artifactEntryV2.getTagSet(), CoreMatchers.notNullValue());
         MatcherAssert.assertThat(artifactEntryV2.getTagSet().size(), CoreMatchers.equalTo(1));
         MatcherAssert.assertThat(artifactEntryV2.getTagSet().iterator().next().getName(),
-                                 CoreMatchers.equalTo(
-                                         ArtifactTag.LAST_VERSION));
+                                 CoreMatchers.equalTo(ArtifactTag.LAST_VERSION));
 
         // re-fetch the artifact without classifier
         // and confirm it no longer has the last version tag
@@ -715,6 +712,7 @@ public class ArtifactManagementServiceImplTest
         artifactEntryWithClassifier = artifactEntryService.findOneArtifact(STORAGE0,
                                                                            repositoryId,
                                                                            artifactPathWithClassifier);
+                                                                           
         MatcherAssert.assertThat(artifactEntryWithClassifier.getTagSet(), CoreMatchers.notNullValue());
         MatcherAssert.assertThat(artifactEntryWithClassifier.getTagSet().size(), CoreMatchers.equalTo(0));
     }
@@ -728,9 +726,9 @@ public class ArtifactManagementServiceImplTest
         {
             Repository repository = repositoryPath.getRepository();
             String path = RepositoryFiles.relativizePath(repositoryPath);
-            return aBoolean.getAndSet(!aBoolean.get())
-                    ? new Store(new ByteArrayInputStream(loremIpsumContentArray[i / 2]), repository, path).call()
-                    : new Fetch(repository, path).call();
+            return aBoolean.getAndSet(!aBoolean.get()) ?
+                   new Store(new ByteArrayInputStream(loremIpsumContentArray[i / 2]), repository, path).call() :
+                   new Fetch(repository, path).call();
         }
         catch (IOException e)
         {
@@ -757,7 +755,6 @@ public class ArtifactManagementServiceImplTest
             this.repository = repository;
             this.is = is;
         }
-
 
         @Override
         public Long call()
@@ -821,7 +818,8 @@ public class ArtifactManagementServiceImplTest
                     return 0L;
                 }
                 
-                if (attempts++ > 5) {
+                if (attempts++ > 5)
+                {
                     return 0L;
                 }
 
