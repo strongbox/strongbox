@@ -1,18 +1,15 @@
 package org.carlspring.strongbox.controllers.environment;
 
-import org.carlspring.strongbox.controllers.BaseController;
-
-import java.lang.management.ManagementFactory;
-import java.lang.management.RuntimeMXBean;
-import java.util.*;
-import java.util.stream.Collectors;
-
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
 import io.swagger.annotations.ApiResponse;
 import io.swagger.annotations.ApiResponses;
+import org.carlspring.strongbox.controllers.BaseController;
+import org.carlspring.strongbox.storage.Storage;
+import org.carlspring.strongbox.users.service.UserService;
+import org.carlspring.strongbox.users.service.impl.XmlUserService;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
@@ -20,6 +17,12 @@ import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
+
+import javax.inject.Inject;
+import java.lang.management.ManagementFactory;
+import java.lang.management.RuntimeMXBean;
+import java.util.*;
+import java.util.stream.Collectors;
 
 /**
  * @author Pablo Tirado
@@ -33,12 +36,13 @@ public class EnvironmentInfoController
 {
 
     private static final String SYSTEM_PROPERTIES_PREFIX = "-D";
-    private ObjectMapper objectMapper;
 
-    public EnvironmentInfoController(ObjectMapper objectMapper)
-    {
-        this.objectMapper = objectMapper;
-    }
+    @Inject
+    @XmlUserService.XmlUserServiceQualifier
+    private UserService userService;
+
+    @Inject
+    private ObjectMapper objectMapper;
 
     @ApiOperation(value = "List all the environment variables, system properties and JVM arguments.")
     @ApiResponses(value = { @ApiResponse(code = 200, message = "The list was returned."),
@@ -52,6 +56,7 @@ public class EnvironmentInfoController
         propertiesMap.put("environment", getEnvironmentVariables());
         propertiesMap.put("system", getSystemProperties());
         propertiesMap.put("jvm", getJvmArguments());
+        propertiesMap.put("strongbox", getStrongboxInfo());
 
         try
         {
@@ -63,6 +68,35 @@ public class EnvironmentInfoController
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
                                  .body(String.format("{ 'error': '%s' }", e.getMessage()));
         }
+    }
+
+    private List<EnvironmentInfo> getStrongboxInfo()
+    {
+        List<EnvironmentInfo> strongboxInfo = new ArrayList();
+
+        Map<String, Storage> storageMap = getConfiguration().getStorages();
+        Long repositoriesCount = storageMap.values()
+                                           .stream()
+                                           .map(e -> e.getRepository(e.getId()))
+                                           .count();
+
+        strongboxInfo.add(new EnvironmentInfo("repositories", String.valueOf(repositoriesCount)));
+
+        Long storagesCount = storageMap.values()
+                                       .stream()
+                                       .count();
+
+        strongboxInfo.add(new EnvironmentInfo("storages", String.valueOf(storagesCount)));
+
+        Long usersCount = userService.findAll()
+                                     .getUsers()
+                                     .stream()
+                                     .count();
+
+        strongboxInfo.add(new EnvironmentInfo("users", String.valueOf(usersCount)));
+
+
+        return strongboxInfo;
     }
 
     private List<EnvironmentInfo> getEnvironmentVariables()
