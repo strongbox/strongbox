@@ -7,6 +7,7 @@
 [![Jenkins tests](https://img.shields.io/jenkins/t/https/jenkins.carlspring.org/job/strongbox/job/strongbox/job/master.svg)](https://jenkins.carlspring.org/job/strongbox/job/strongbox/job/master/)
 [![Codacy Badge](https://api.codacy.com/project/badge/Grade/50f1af2c3b2d4e31a5c686c9a9395cd2)](https://www.codacy.com/app/strongbox/strongbox?utm_source=github.com&amp;utm_medium=referral&amp;utm_content=strongbox/strongbox&amp;utm_campaign=Badge_Grade)
 [![Codacy Badge](https://api.codacy.com/project/badge/Coverage/50f1af2c3b2d4e31a5c686c9a9395cd2)](https://www.codacy.com/app/strongbox/strongbox?utm_source=github.com&utm_medium=referral&utm_content=strongbox/strongbox&utm_campaign=Badge_Coverage)
+[![FOSSA Status](https://app.fossa.io/api/projects/git%2Bgithub.com%2Fstrongbox%2Fstrongbox.svg?type=shield)](https://app.fossa.io/projects/git%2Bgithub.com%2Fstrongbox%2Fstrongbox?ref=badge_shield)
 
 Welcome to the Strongbox artifact repository manager's home.
 
@@ -83,3 +84,7 @@ Instructions on how to build the code, can be found [here](https://github.com/st
 # Contributing
 Contributions and contributors are always welcome! For more details, please check [here](https://github.com/strongbox/strongbox/blob/master/CONTRIBUTING.md). We have a helpful community of developers on our [channel](https://chat.carlspring.org/channel/community), please feel free to drop by, if you have questions, issues, or would like to contribute!
 
+
+
+## License
+[![FOSSA Status](https://app.fossa.io/api/projects/git%2Bgithub.com%2Fstrongbox%2Fstrongbox.svg?type=large)](https://app.fossa.io/projects/git%2Bgithub.com%2Fstrongbox%2Fstrongbox?ref=badge_large)
