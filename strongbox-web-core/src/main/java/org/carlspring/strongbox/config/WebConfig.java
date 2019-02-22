@@ -58,8 +58,7 @@ import org.springframework.web.servlet.view.InternalResourceViewResolver;
                  "org.carlspring.strongbox.validation",
                  "org.carlspring.strongbox.web",
                  "org.carlspring.strongbox.mapper",
-                 "org.carlspring.strongbox.utils",
-                 "org.carlspring.logging" })
+                 "org.carlspring.strongbox.utils" })
 @Import({ CommonConfig.class,
           StrongboxSecurityConfig.class,
           StorageApiConfig.class,

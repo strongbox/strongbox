@@ -430,10 +430,6 @@
             <groupId>org.carlspring.maven</groupId>
             <artifactId>maven-commons</artifactId>
         </dependency>
-        <dependency>
-            <groupId>org.carlspring.logging</groupId>
-            <artifactId>logback-configuration-rest</artifactId>
-        </dependency>
 
         <!-- Maven artifact management -->
         <dependency>
