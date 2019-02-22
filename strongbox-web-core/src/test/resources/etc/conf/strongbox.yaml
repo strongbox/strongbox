@@ -267,6 +267,9 @@ configuration:
             type: proxy
             remoteRepository:
               url: https://registry.npmjs.org/
+              npmRemoteRepositoryConfiguration:
+                lastChangeid: 0
+                replicateUrl: https://replicate.npmjs.com/
       - id: storage-nuget
         repositories:
           id: nuget-releases
