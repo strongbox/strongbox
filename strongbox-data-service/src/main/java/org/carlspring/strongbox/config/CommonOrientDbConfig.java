@@ -25,9 +25,9 @@ abstract class CommonOrientDbConfig
     @Bean
     @DependsOn("connectionConfig")
     public OrientDbStudioConfiguration orientDbStudioProperties(@Value("${strongbox.orientdb.studio.enabled}") boolean studioEnabled,
-                                                         @Value("${strongbox.orientdb.studio.ip.ipAddress}") String studioIpAddress,
-                                                         @Value("${strongbox.orientdb.studio.port}") int studioPort,
-                                                         OrientDbServerConfiguration serverConfiguration)
+                                                                @Value("${strongbox.orientdb.studio.ip.ipAddress}") String studioIpAddress,
+                                                                @Value("${strongbox.orientdb.studio.port}") int studioPort,
+                                                                OrientDbServerConfiguration serverConfiguration)
     {
         OrientDbStudioProperties studioProperties = new OrientDbStudioProperties();
         studioProperties.setEnabled(studioEnabled);
@@ -42,12 +42,12 @@ abstract class CommonOrientDbConfig
     @Bean
     @DependsOn("connectionConfig")
     public OrientDbServerConfiguration orientDbServerProperties(@Value("${strongbox.orientdb.server.protocol}") String protocol,
-                                                         @Value("${strongbox.orientdb.server.host}") String host,
-                                                         @Value("${strongbox.orientdb.server.port}") String port,
-                                                         @Value("${strongbox.orientdb.server.database}") String database,
-                                                         @Value("${strongbox.orientdb.server.username}") String username,
-                                                         @Value("${strongbox.orientdb.server.password}") String password,
-                                                         @Value("${strongbox.server.database.path}") String path)
+                                                                @Value("${strongbox.orientdb.server.host}") String host,
+                                                                @Value("${strongbox.orientdb.server.port}") String port,
+                                                                @Value("${strongbox.orientdb.server.database}") String database,
+                                                                @Value("${strongbox.orientdb.server.username}") String username,
+                                                                @Value("${strongbox.orientdb.server.password}") String password,
+                                                                @Value("${strongbox.server.database.path}") String path)
     {
         OrientDbServerProperties serverProperties = new OrientDbServerProperties();
         serverProperties.setUsername(username);
