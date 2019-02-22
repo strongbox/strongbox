@@ -1,5 +1,16 @@
 package org.carlspring.strongbox.users.domain;
 
+import static java.util.stream.Collectors.toSet;
+
+import java.io.Serializable;
+import java.util.Collection;
+import java.util.Collections;
+import java.util.HashSet;
+import java.util.Set;
+
+import javax.annotation.concurrent.Immutable;
+
+import org.apache.commons.lang.StringUtils;
 import org.carlspring.strongbox.users.dto.UserAccessModelDto;
 import org.carlspring.strongbox.users.dto.UserAccessModelReadContract;
 import org.carlspring.strongbox.users.dto.UserPathPrivelegiesReadContract;
@@ -7,16 +18,7 @@ import org.carlspring.strongbox.users.dto.UserRepositoryReadContract;
 import org.carlspring.strongbox.users.dto.UserStorageDto;
 import org.carlspring.strongbox.users.dto.UserStorageReadContract;
 
-import javax.annotation.concurrent.Immutable;
-import java.io.Serializable;
-import java.util.Collection;
-import java.util.Collections;
-import java.util.HashSet;
-import java.util.Set;
-
 import com.google.common.collect.ImmutableSet;
-import org.apache.commons.lang.StringUtils;
-import static java.util.stream.Collectors.toSet;
 
 /**
  * @author Przemyslaw Fusik
@@ -26,12 +28,15 @@ public class AccessModel
         implements Serializable, UserAccessModelReadContract
 {
 
-    private final Set<AccessModelStorage> storages;
+    private final Set<Privileges> apiAuthorities;
+    
+    private final Set<AccessModelStorage> storageAuthorities;
 
 
-    public AccessModel(final UserAccessModelDto delegate)
+    public AccessModel(UserAccessModelDto delegate)
     {
-        this.storages = immuteStorages(delegate.getStorages());
+        this.storageAuthorities = immuteStorages(delegate.getStorageAuthorities());
+        this.apiAuthorities = ImmutableSet.copyOf(delegate.getApiAuthorities());
     }
 
     private Set<AccessModelStorage> immuteStorages(final Set<UserStorageDto> source)
@@ -42,17 +47,29 @@ public class AccessModel
                Collections.emptySet();
     }
 
-    public Set<AccessModelStorage> getStorages()
+    @Override
+    public Set<Privileges> getApiAuthorities()
     {
-        return storages;
+        return apiAuthorities;
     }
 
-    public static Collection<String> getPathPrivileges(UserAccessModelReadContract accessModel, String url)
+    public Set<AccessModelStorage> getStorageAuthorities()
+    {
+        return storageAuthorities;
+    }
+
+    @Override
+    public Collection<Privileges> getPathPrivileges(String url)
+    {
+        return getPathPrivileges(url, getStorageAuthorities());
+    }
+    
+    public static Collection<Privileges> getPathPrivileges(String url, Set<? extends UserStorageReadContract> storages)
     {
         String normalizedUrl = StringUtils.chomp(url, "/");
 
-        Collection<String> privileges = new HashSet<>();
-        for (final UserStorageReadContract storage : accessModel.getStorages())
+        Collection<Privileges> privileges = new HashSet<>();
+        for (final UserStorageReadContract storage : storages)
         {
             String storageKey = "/storages/" + storage.getStorageId();
             if (!normalizedUrl.startsWith(storageKey))
@@ -66,10 +83,7 @@ public class AccessModel
                 {
                     continue;
                 }
-                privileges.addAll(repository.getRepositoryPrivileges()
-                                            .stream()
-                                            .map(p -> p.getName())
-                                            .collect(toSet()));
+                privileges.addAll(repository.getRepositoryPrivileges());
                 for (UserPathPrivelegiesReadContract pathPrivilege : repository.getPathPrivileges())
                 {
                     String normalizedPath = StringUtils.chomp(pathPrivilege.getPath(), "/");
@@ -81,14 +95,12 @@ public class AccessModel
                     }
                     if (normalizedUrl.equals(pathKey) || pathPrivilege.isWildcard())
                     {
-                        privileges.addAll(pathPrivilege.getPrivileges()
-                                                       .stream()
-                                                       .map(p -> p.getName())
-                                                       .collect(toSet()));
+                        privileges.addAll(pathPrivilege.getPrivileges());
                     }
                 }
             }
         }
         return privileges;
     }
+    
 }

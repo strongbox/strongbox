@@ -1,42 +1,38 @@
 package org.carlspring.strongbox.authorization.domain;
 
-import org.carlspring.strongbox.authorization.dto.RoleDto;
+import java.util.Objects;
 
 import javax.annotation.concurrent.Immutable;
-import javax.xml.bind.annotation.XmlAccessType;
-import javax.xml.bind.annotation.XmlAccessorType;
-import java.util.Collections;
-import java.util.Objects;
-import java.util.Set;
 
-import com.fasterxml.jackson.annotation.JsonIgnore;
-import com.google.common.collect.ImmutableSet;
+import org.carlspring.strongbox.authorization.dto.RoleDto;
+import org.carlspring.strongbox.authorization.dto.RoleReadContract;
+import org.carlspring.strongbox.users.domain.AccessModel;
+import org.carlspring.strongbox.users.dto.UserAccessModelDto;
+import org.carlspring.strongbox.users.dto.UserAccessModelReadContract;
 
 /**
  * @author Przemyslaw Fusik
  */
 @Immutable
-@XmlAccessorType(XmlAccessType.FIELD)
-public class Role
+public class Role implements RoleReadContract
 {
 
     private final String name;
 
     private final String description;
 
-    @JsonIgnore
-    private final Set<String> privileges;
+    private final UserAccessModelReadContract accessModel;
 
     public Role(final RoleDto source)
     {
         this.name = source.getName();
         this.description = source.getDescription();
-        this.privileges = immutePrivileges(source.getPrivileges());
+        this.accessModel = immuteAccessModel(source.getAccessModel());
     }
 
-    private Set<String> immutePrivileges(final Set<String> source)
+    private UserAccessModelReadContract immuteAccessModel(UserAccessModelDto source)
     {
-        return source != null ? ImmutableSet.copyOf(source) : Collections.emptySet();
+        return source != null ? new AccessModel(source) : null;
     }
 
     public String getName()
@@ -49,9 +45,9 @@ public class Role
         return description;
     }
 
-    public Set<String> getPrivileges()
+    public UserAccessModelReadContract getAccessModel()
     {
-        return privileges;
+        return accessModel;
     }
 
     @Override
@@ -63,7 +59,7 @@ public class Role
             return false;
         }
         final Role that = (Role) o;
-        return Objects.equals(name, that.name);
+        return Objects.equals(accessModel, that.accessModel);
     }
 
     @Override

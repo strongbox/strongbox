@@ -1,10 +1,10 @@
 package org.carlspring.strongbox.users.dto;
 
-import org.carlspring.strongbox.authorization.dto.PrivilegeDto;
-
 import java.io.Serializable;
 import java.util.LinkedHashSet;
 import java.util.Set;
+
+import org.carlspring.strongbox.users.domain.Privileges;
 
 import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonProperty;
@@ -22,7 +22,7 @@ public class UserPathPrivilegesDto
 
     private boolean wildcard;
 
-    private Set<PrivilegeDto> privileges = new LinkedHashSet<>();
+    private Set<Privileges> privileges = new LinkedHashSet<>();
 
     public UserPathPrivilegesDto()
     {
@@ -54,12 +54,12 @@ public class UserPathPrivilegesDto
         this.wildcard = wildcard;
     }
 
-    public Set<PrivilegeDto> getPrivileges()
+    public Set<Privileges> getPrivileges()
     {
         return privileges;
     }
 
-    public void setPrivileges(Set<PrivilegeDto> privileges)
+    public void setPrivileges(Set<Privileges> privileges)
     {
         this.privileges = privileges;
     }

@@ -38,9 +38,9 @@ public interface RepositoryManagementService
             throws IOException,
                    ProviderImplementationException;
 
-    void putInService(String storageId, String repositoryId);
+    void putInService(String storageId, String repositoryId) throws IOException;
 
-    void putOutOfService(String storageId, String repositoryId);
+    void putOutOfService(String storageId, String repositoryId) throws IOException;
 
     Storage getStorage(String storageId);
 

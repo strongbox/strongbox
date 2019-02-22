@@ -2,6 +2,7 @@ package org.carlspring.strongbox.forms.users;
 
 import javax.validation.Valid;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 
 /**
@@ -10,8 +11,10 @@ import java.util.List;
 public class AccessModelForm
 {
 
+    private List<String> apiAcess = new ArrayList<>();
+    
     @Valid
-    private List<RepositoryAccessModelForm> repositoriesAccess;
+    private List<RepositoryAccessModelForm> repositoriesAccess = new ArrayList<>();
 
     public List<RepositoryAccessModelForm> getRepositoriesAccess()
     {
@@ -31,4 +34,23 @@ public class AccessModelForm
         }
         repositoriesAccess.add(repositoryAccess);
     }
+
+    public List<String> getApiAcess()
+    {
+        return apiAcess;
+    }
+
+    public void setApiAcess(List<String> apiAcess)
+    {
+        this.apiAcess = apiAcess;
+    }
+    
+    public void addApiAccess(String privelegie) {
+        if (apiAcess == null) {
+            apiAcess = new ArrayList<>();
+        }
+        
+        apiAcess.add(privelegie);
+    }
+    
 }

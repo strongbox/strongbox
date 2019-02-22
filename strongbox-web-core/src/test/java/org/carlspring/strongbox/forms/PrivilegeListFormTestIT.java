@@ -41,17 +41,9 @@ public class PrivilegeListFormTestIT
     void testPrivilegeListFormValid()
     {
         // given
-        PrivilegeForm authenticatedUserPrivilege = new PrivilegeForm();
-        String privilegeName = Privileges.AUTHENTICATED_USER.name();
-        authenticatedUserPrivilege.setName(privilegeName);
-
-        PrivilegeForm adminUserPrivilege = new PrivilegeForm();
-        privilegeName = Privileges.ADMIN.name();
-        adminUserPrivilege.setName(privilegeName);
-
-        List<PrivilegeForm> privileges = new ArrayList<>();
-        privileges.add(authenticatedUserPrivilege);
-        privileges.add(adminUserPrivilege);
+        List<Privileges> privileges = new ArrayList<>();
+        privileges.add(Privileges.AUTHENTICATED_USER);
+        privileges.add(Privileges.ADMIN);
         PrivilegeListForm privilegeListForm = new PrivilegeListForm();
         privilegeListForm.setPrivileges(privileges);
 
@@ -66,17 +58,9 @@ public class PrivilegeListFormTestIT
     void testPrivilegeListFormInvalidPrivilegeWithEmptyName()
     {
         // given
-        PrivilegeForm emptyPrivilege = new PrivilegeForm();
-        String privilegeName = StringUtils.EMPTY;
-        emptyPrivilege.setName(privilegeName);
-
-        PrivilegeForm adminUserPrivilege = new PrivilegeForm();
-        privilegeName = Privileges.ADMIN.name();
-        adminUserPrivilege.setName(privilegeName);
-
-        List<PrivilegeForm> privileges = new ArrayList<>();
-        privileges.add(emptyPrivilege);
-        privileges.add(adminUserPrivilege);
+        List<Privileges> privileges = new ArrayList<>();
+        privileges.add(null);
+        privileges.add(Privileges.ADMIN);
         PrivilegeListForm privilegeListForm = new PrivilegeListForm();
         privilegeListForm.setPrivileges(privileges);
 
@@ -86,6 +70,6 @@ public class PrivilegeListFormTestIT
         // then
         assertFalse(violations.isEmpty(), "Violations are empty!");
         assertEquals(violations.size(), 1);
-        assertThat(violations).extracting("message").containsAnyOf("A name must be specified.");
+        assertThat(violations).extracting("messageTemplate").containsAnyOf("{javax.validation.constraints.NotNull.message}");
     }
 }

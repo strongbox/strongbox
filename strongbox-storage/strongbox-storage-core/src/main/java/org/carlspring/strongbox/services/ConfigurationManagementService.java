@@ -9,6 +9,7 @@ import org.carlspring.strongbox.storage.MutableStorage;
 import org.carlspring.strongbox.storage.repository.MutableRepository;
 import org.carlspring.strongbox.storage.routing.MutableRoutingRule;
 
+import java.io.IOException;
 import java.util.List;
 import java.util.UUID;
 
@@ -22,72 +23,72 @@ public interface ConfigurationManagementService
 
     Configuration getConfiguration();
 
-    void setConfiguration(MutableConfiguration configuration);
+    void setConfiguration(MutableConfiguration configuration) throws IOException;
 
-    void setInstanceName(String instanceName);
+    void setInstanceName(String instanceName) throws IOException;
 
-    void setBaseUrl(String baseUrl);
+    void setBaseUrl(String baseUrl) throws IOException;
 
-    void setPort(int port);
+    void setPort(int port) throws IOException;
 
     void setProxyConfiguration(String storageId,
                                String repositoryId,
-                               MutableProxyConfiguration proxyConfiguration);
+                               MutableProxyConfiguration proxyConfiguration) throws IOException;
 
-    void saveStorage(MutableStorage storage);
+    void saveStorage(MutableStorage storage) throws IOException;
     
-    void addStorageIfNotExists(MutableStorage storage);
+    void addStorageIfNotExists(MutableStorage storage) throws IOException;
 
-    void removeStorage(String storageId);
+    void removeStorage(String storageId) throws IOException;
 
     void saveRepository(String storageId,
-                        MutableRepository repository);
+                        MutableRepository repository) throws IOException;
 
     void removeRepositoryFromAssociatedGroups(String storageId,
-                                              String repositoryId);
+                                              String repositoryId) throws IOException;
 
     void removeRepository(String storageId,
-                          String repositoryId);
+                          String repositoryId) throws IOException;
 
     void setProxyRepositoryMaxConnections(String storageId,
                                           String repositoryId,
-                                          int numberOfConnections);
+                                          int numberOfConnections) throws IOException;
 
     boolean updateRoutingRule(UUID uuid,
-                              MutableRoutingRule routingRule);
+                              MutableRoutingRule routingRule) throws IOException;
 
-    boolean addRoutingRule(MutableRoutingRule routingRule);
+    boolean addRoutingRule(MutableRoutingRule routingRule) throws IOException;
 
-    boolean removeRoutingRule(UUID uuid);
+    boolean removeRoutingRule(UUID uuid) throws IOException;
 
     void addRepositoryToGroup(String storageId,
                               String repositoryId,
-                              String repositoryGroupMemberId);
+                              String repositoryGroupMemberId) throws IOException;
 
-    void setRepositoryArtifactCoordinateValidators();
+    void setRepositoryArtifactCoordinateValidators() throws IOException;
 
     void putInService(String storageId,
-                      String repositoryId);
+                      String repositoryId) throws IOException;
 
     void putOutOfService(String storageId,
-                         String repositoryId);
+                         String repositoryId) throws IOException;
 
     void setArtifactMaxSize(String storageId,
                             String repositoryId,
-                            long value);
+                            long value) throws IOException;
 
-    void set(MutableRemoteRepositoryRetryArtifactDownloadConfiguration remoteRepositoryRetryArtifactDownloadConfiguration);
+    void set(MutableRemoteRepositoryRetryArtifactDownloadConfiguration remoteRepositoryRetryArtifactDownloadConfiguration) throws IOException;
 
     void addRepositoryArtifactCoordinateValidator(String storageId,
                                                   String repositoryId,
-                                                  String alias);
+                                                  String alias) throws IOException;
 
     boolean removeRepositoryArtifactCoordinateValidator(String storageId,
                                                         String repositoryId,
-                                                        String alias);
+                                                        String alias) throws IOException;
 
-    void setCorsAllowedOrigins(List<String> allowedOrigins);
+    void setCorsAllowedOrigins(List<String> allowedOrigins) throws IOException;
 
-    void setSmtpSettings(MutableSmtpConfiguration smtpConfiguration);
+    void setSmtpSettings(MutableSmtpConfiguration smtpConfiguration) throws IOException;
 
 }

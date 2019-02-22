@@ -12,10 +12,6 @@ public interface UserReadContract
 
     Set<String> getRoles();
 
-    Set<String> getAuthorities();
-
-    UserAccessModelReadContract getUserAccessModel();
-
     String getSecurityTokenKey();
 
     boolean isEnabled();

@@ -6,6 +6,7 @@ import org.carlspring.strongbox.storage.routing.MutableRoutingRule;
 import org.carlspring.strongbox.storage.routing.MutableRoutingRules;
 import org.carlspring.strongbox.validation.RequestBodyValidationException;
 
+import java.io.IOException;
 import java.util.UUID;
 
 import io.swagger.annotations.Api;
@@ -80,7 +81,7 @@ public class RoutingConfigurationController
                          MediaType.APPLICATION_JSON_VALUE })
     public ResponseEntity add(@RequestBody @Validated RoutingRuleForm routingRule,
                               BindingResult bindingResult,
-                              @RequestHeader(HttpHeaders.ACCEPT) String acceptHeader)
+                              @RequestHeader(HttpHeaders.ACCEPT) String acceptHeader) throws IOException
     {
         if (bindingResult.hasErrors())
         {
@@ -101,7 +102,7 @@ public class RoutingConfigurationController
             produces = { MediaType.TEXT_PLAIN_VALUE,
                          MediaType.APPLICATION_JSON_VALUE })
     public ResponseEntity remove(@PathVariable UUID uuid,
-                                 @RequestHeader(HttpHeaders.ACCEPT) String acceptHeader)
+                                 @RequestHeader(HttpHeaders.ACCEPT) String acceptHeader) throws IOException
     {
         final boolean removed = configurationManagementService.removeRoutingRule(uuid);
 
@@ -119,7 +120,7 @@ public class RoutingConfigurationController
     public ResponseEntity update(@PathVariable UUID uuid,
                                  @RequestBody @Validated RoutingRuleForm routingRule,
                                  BindingResult bindingResult,
-                                 @RequestHeader(HttpHeaders.ACCEPT) String acceptHeader)
+                                 @RequestHeader(HttpHeaders.ACCEPT) String acceptHeader) throws IOException
     {
         if (bindingResult.hasErrors())
         {

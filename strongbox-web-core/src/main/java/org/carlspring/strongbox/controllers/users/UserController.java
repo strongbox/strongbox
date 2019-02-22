@@ -4,11 +4,9 @@ import org.carlspring.strongbox.controllers.BaseController;
 import org.carlspring.strongbox.controllers.users.support.TokenEntityBody;
 import org.carlspring.strongbox.controllers.users.support.UserOutput;
 import org.carlspring.strongbox.controllers.users.support.UserResponseEntity;
-import org.carlspring.strongbox.forms.users.AccessModelForm;
 import org.carlspring.strongbox.forms.users.UserForm;
 import org.carlspring.strongbox.users.domain.Privileges;
 import org.carlspring.strongbox.users.domain.User;
-import org.carlspring.strongbox.users.dto.UserAccessModelDto;
 import org.carlspring.strongbox.users.dto.UserDto;
 import org.carlspring.strongbox.users.security.AuthoritiesProvider;
 import org.carlspring.strongbox.users.service.UserService;
@@ -131,7 +129,6 @@ public class UserController
         if (includeFormFields)
         {
             responseEntity.setAssignableRoles(authoritiesProvider.getAssignableRoles());
-            responseEntity.setAssignablePrivileges(Arrays.asList(Privileges.values()));
         }
 
         return ResponseEntity.ok(responseEntity);
@@ -267,50 +264,6 @@ public class UserController
         Object body = getTokenEntityBody(securityToken, accept);
 
         return ResponseEntity.ok(body);
-    }
-
-    @ApiOperation(value = "Update custom access model for the user.")
-    @ApiResponses(value = { @ApiResponse(code = 200, message = SUCCESSFUL_UPDATE_ACCESS_MODEL),
-                            @ApiResponse(code = 400, message = FAILED_UPDATE_ACCESS_MODEL),
-                            @ApiResponse(code = 404, message = NOT_FOUND_USER) })
-    @PreAuthorize("hasAuthority('UPDATE_USER')")
-    @PutMapping(value = "{username}/access-model",
-                consumes = MediaType.APPLICATION_JSON_VALUE,
-                produces = { MediaType.TEXT_PLAIN_VALUE,
-                             MediaType.APPLICATION_JSON_VALUE })
-    public ResponseEntity updateAccessModel(@ApiParam(value = "The name of the user") @PathVariable String username,
-                                            @RequestBody @Validated AccessModelForm accessModelForm,
-                                            BindingResult bindingResult,
-                                            @RequestHeader(HttpHeaders.ACCEPT) String accept)
-    {
-        if (bindingResult.hasErrors())
-        {
-            throw new RequestBodyValidationException(FAILED_UPDATE_ACCESS_MODEL, bindingResult);
-        }
-
-        User user = userService.findByUserName(username);
-        if (user == null)
-        {
-            return getNotFoundResponseEntity(NOT_FOUND_USER, accept);
-        }
-
-        UserAccessModelDto accessModel = conversionService.convert(accessModelForm, UserAccessModelDto.class);
-        userService.updateAccessModel(username, accessModel);
-
-        return getSuccessfulResponseEntity(SUCCESSFUL_UPDATE_USER, accept);
-    }
-
-    private Object getUserOutputEntityBody(UserOutput userOutput,
-                                           String accept)
-    {
-        if (MediaType.APPLICATION_JSON_VALUE.equals(accept))
-        {
-            return userOutput;
-        }
-        else
-        {
-            return String.valueOf(userOutput);
-        }
     }
 
     private Object getTokenEntityBody(String token,

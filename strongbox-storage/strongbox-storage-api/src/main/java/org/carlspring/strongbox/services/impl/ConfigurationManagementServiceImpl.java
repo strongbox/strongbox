@@ -15,6 +15,8 @@ import org.carlspring.strongbox.storage.routing.MutableRoutingRule;
 
 import javax.annotation.PostConstruct;
 import javax.inject.Inject;
+
+import java.io.IOException;
 import java.lang.reflect.UndeclaredThrowableException;
 import java.util.*;
 import java.util.concurrent.locks.Lock;
@@ -72,9 +74,17 @@ public class ConfigurationManagementServiceImpl
 
     private Object doInit()
     {
-        final MutableConfiguration configuration = configurationFileManager.read();
-        setConfiguration(configuration);
-        setRepositoryArtifactCoordinateValidators();
+        MutableConfiguration configuration;
+        try
+        {
+            configuration = configurationFileManager.read();
+            setConfiguration(configuration);
+            setRepositoryArtifactCoordinateValidators();
+        }
+        catch (IOException e)
+        {
+            throw new org.springframework.cglib.proxy.UndeclaredThrowableException(e);
+        }
 
         return null;
     }
@@ -116,33 +126,39 @@ public class ConfigurationManagementServiceImpl
     }
 
     @Override
-    public void setConfiguration(MutableConfiguration newConf)
+    public void setConfiguration(MutableConfiguration newConf) throws IOException
     {
         Objects.requireNonNull(newConf, "Configuration cannot be null");
 
-        modifyInLock(configuration ->
-                     {
-                         ConfigurationManagementServiceImpl.this.configuration = newConf;
-                         setProxyRepositoryConnectionPoolConfigurations();
-                         setRepositoryStorageRelationships();
-                         setAllows();
-                     });
+        modifyInLock(configuration -> {
+            ConfigurationManagementServiceImpl.this.configuration = newConf;
+            try
+            {
+                setProxyRepositoryConnectionPoolConfigurations();
+                setRepositoryStorageRelationships();
+                setAllows();
+            }
+            catch (IOException e)
+            {
+                throw new UndeclaredThrowableException(e);
+            }
+        });
     }
 
     @Override
-    public void setInstanceName(String instanceName)
+    public void setInstanceName(String instanceName) throws IOException
     {
         modifyInLock(configuration -> configuration.setInstanceName(instanceName));
     }
 
     @Override
-    public void setBaseUrl(String baseUrl)
+    public void setBaseUrl(String baseUrl) throws IOException
     {
         modifyInLock(configuration -> configuration.setBaseUrl(baseUrl));
     }
 
     @Override
-    public void setPort(int port)
+    public void setPort(int port) throws IOException
     {
         modifyInLock(configuration -> configuration.setPort(port));
     }
@@ -150,7 +166,7 @@ public class ConfigurationManagementServiceImpl
     @Override
     public void setProxyConfiguration(String storageId,
                                       String repositoryId,
-                                      MutableProxyConfiguration proxyConfiguration)
+                                      MutableProxyConfiguration proxyConfiguration) throws IOException
     {
         modifyInLock(configuration ->
                      {
@@ -168,26 +184,26 @@ public class ConfigurationManagementServiceImpl
     }
 
     @Override
-    public void saveStorage(MutableStorage storage)
+    public void saveStorage(MutableStorage storage) throws IOException
     {
         modifyInLock(configuration -> configuration.addStorage(storage));
     }
     
     @Override
-    public void addStorageIfNotExists(MutableStorage storage)
+    public void addStorageIfNotExists(MutableStorage storage) throws IOException
     {
         modifyInLock(configuration -> configuration.addStorageIfNotExist(storage));
     }
 
     @Override
-    public void removeStorage(String storageId)
+    public void removeStorage(String storageId) throws IOException
     {
         modifyInLock(configuration -> configuration.getStorages().remove(storageId));
     }
 
     @Override
     public void saveRepository(String storageId,
-                               MutableRepository repository)
+                               MutableRepository repository) throws IOException
     {
         modifyInLock(configuration ->
                      {
@@ -206,7 +222,7 @@ public class ConfigurationManagementServiceImpl
 
     @Override
     public void removeRepositoryFromAssociatedGroups(String storageId,
-                                                     String repositoryId)
+                                                     String repositoryId) throws IOException
     {
         modifyInLock(configuration ->
                      {
@@ -227,19 +243,25 @@ public class ConfigurationManagementServiceImpl
 
     @Override
     public void removeRepository(String storageId,
-                                 String repositoryId)
+                                 String repositoryId) throws IOException
     {
-        modifyInLock(configuration ->
-                     {
-                         configuration.getStorage(storageId).removeRepository(repositoryId);
-                         removeRepositoryFromAssociatedGroups(storageId, repositoryId);
-                     });
+        modifyInLock(configuration -> {
+            configuration.getStorage(storageId).removeRepository(repositoryId);
+            try
+            {
+                removeRepositoryFromAssociatedGroups(storageId, repositoryId);
+            }
+            catch (IOException e)
+            {
+                throw new UndeclaredThrowableException(e);
+            }
+        });
     }
 
     @Override
     public void setProxyRepositoryMaxConnections(String storageId,
                                                  String repositoryId,
-                                                 int numberOfConnections)
+                                                 int numberOfConnections) throws IOException
     {
         modifyInLock(configuration ->
                      {
@@ -255,7 +277,7 @@ public class ConfigurationManagementServiceImpl
 
     @Override
     public boolean updateRoutingRule(UUID uuid,
-                                     MutableRoutingRule routingRule)
+                                     MutableRoutingRule routingRule) throws IOException
     {
         final MutableBoolean result = new MutableBoolean();
         modifyInLock(configuration ->
@@ -270,7 +292,7 @@ public class ConfigurationManagementServiceImpl
     }
 
     @Override
-    public boolean addRoutingRule(MutableRoutingRule routingRule)
+    public boolean addRoutingRule(MutableRoutingRule routingRule) throws IOException
     {
         final MutableBoolean result = new MutableBoolean();
         modifyInLock(configuration ->
@@ -285,7 +307,7 @@ public class ConfigurationManagementServiceImpl
     }
 
     @Override
-    public boolean removeRoutingRule(UUID uuid)
+    public boolean removeRoutingRule(UUID uuid) throws IOException
     {
         final MutableBoolean result = new MutableBoolean();
         modifyInLock(configuration ->
@@ -307,7 +329,7 @@ public class ConfigurationManagementServiceImpl
     @Override
     public void addRepositoryToGroup(String storageId,
                                      String repositoryId,
-                                     String repositoryGroupMemberId)
+                                     String repositoryGroupMemberId) throws IOException
     {
         modifyInLock(configuration ->
                      {
@@ -317,7 +339,7 @@ public class ConfigurationManagementServiceImpl
                      });
     }
 
-    private void setAllows()
+    private void setAllows() throws IOException
     {
         modifyInLock(configuration ->
                      {
@@ -353,8 +375,9 @@ public class ConfigurationManagementServiceImpl
     /**
      * Sets the repository <--> storage relationships explicitly, as initially, when these are deserialized from the
      * XML, they have no such relationship.
+     * @throws IOException 
      */
-    private void setRepositoryStorageRelationships()
+    private void setRepositoryStorageRelationships() throws IOException
     {
         modifyInLock(configuration ->
                      {
@@ -377,7 +400,7 @@ public class ConfigurationManagementServiceImpl
     }
 
     @Override
-    public void setRepositoryArtifactCoordinateValidators()
+    public void setRepositoryArtifactCoordinateValidators() throws IOException
     {
         modifyInLock(configuration ->
                      {
@@ -420,7 +443,7 @@ public class ConfigurationManagementServiceImpl
 
     @Override
     public void putInService(final String storageId,
-                             final String repositoryId)
+                             final String repositoryId) throws IOException
     {
         modifyInLock(configuration ->
                      {
@@ -439,7 +462,7 @@ public class ConfigurationManagementServiceImpl
 
     @Override
     public void putOutOfService(final String storageId,
-                                final String repositoryId)
+                                final String repositoryId) throws IOException
     {
         modifyInLock(configuration ->
                      {
@@ -459,7 +482,7 @@ public class ConfigurationManagementServiceImpl
     @Override
     public void setArtifactMaxSize(final String storageId,
                                    final String repositoryId,
-                                   final long value)
+                                   final long value) throws IOException
     {
         modifyInLock(configuration ->
                      {
@@ -470,7 +493,7 @@ public class ConfigurationManagementServiceImpl
     }
 
     @Override
-    public void set(final MutableRemoteRepositoryRetryArtifactDownloadConfiguration remoteRepositoryRetryArtifactDownloadConfiguration)
+    public void set(final MutableRemoteRepositoryRetryArtifactDownloadConfiguration remoteRepositoryRetryArtifactDownloadConfiguration) throws IOException
     {
         modifyInLock(configuration ->
                      {
@@ -483,7 +506,7 @@ public class ConfigurationManagementServiceImpl
     @Override
     public void addRepositoryArtifactCoordinateValidator(final String storageId,
                                                          final String repositoryId,
-                                                         final String alias)
+                                                         final String alias) throws IOException
     {
         modifyInLock(configuration ->
                      {
@@ -495,7 +518,7 @@ public class ConfigurationManagementServiceImpl
     @Override
     public boolean removeRepositoryArtifactCoordinateValidator(final String storageId,
                                                                final String repositoryId,
-                                                               final String alias)
+                                                               final String alias) throws IOException
     {
         final MutableBoolean result = new MutableBoolean();
         modifyInLock(config ->
@@ -508,7 +531,7 @@ public class ConfigurationManagementServiceImpl
     }
 
     @Override
-    public void setCorsAllowedOrigins(final List<String> allowedOrigins)
+    public void setCorsAllowedOrigins(final List<String> allowedOrigins) throws IOException
     {
         modifyInLock(configuration ->
                      {
@@ -528,7 +551,7 @@ public class ConfigurationManagementServiceImpl
                      });
     }
 
-    private void setProxyRepositoryConnectionPoolConfigurations()
+    private void setProxyRepositoryConnectionPoolConfigurations() throws IOException
     {
         modifyInLock(configuration ->
                      {
@@ -545,7 +568,7 @@ public class ConfigurationManagementServiceImpl
     }
 
     @Override
-    public void setSmtpSettings(MutableSmtpConfiguration smtpConfiguration)
+    public void setSmtpSettings(MutableSmtpConfiguration smtpConfiguration) throws IOException
     {
         modifyInLock(configuration -> {
             configuration.getSmtpConfiguration().setHost(smtpConfiguration.getHost());
@@ -556,13 +579,13 @@ public class ConfigurationManagementServiceImpl
         });
     }
 
-    private void modifyInLock(final Consumer<MutableConfiguration> operation)
+    private void modifyInLock(final Consumer<MutableConfiguration> operation) throws IOException
     {
         modifyInLock(operation, true);
     }
 
     private void modifyInLock(final Consumer<MutableConfiguration> operation,
-                              final boolean storeInFile)
+                              final boolean storeInFile) throws IOException
     {
         final Lock writeLock = configurationLock.writeLock();
         writeLock.lock();

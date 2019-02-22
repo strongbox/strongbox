@@ -16,17 +16,19 @@ public class RoleListFormToRoleListConverter
         implements Converter<RoleListForm, List<RoleDto>>
 {
 
+    private RoleFormToRoleConverter roleFormToRoleConverter = new RoleFormToRoleConverter();
+    
     @Override
     public List<RoleDto> convert(RoleListForm roleListForm)
     {
         List<RoleDto> roleList = new ArrayList<>();
         for (RoleForm roleForm : roleListForm.getRoles())
         {
-            RoleDto role = new RoleDto(roleForm.getName(), roleForm.getDescription());
-            role.setPrivileges(roleForm.getPrivileges());
+            RoleDto role = roleFormToRoleConverter.convert(roleForm);
             roleList.add(role);
         }
 
         return roleList;
     }
+    
 }

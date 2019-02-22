@@ -1,7 +1,6 @@
 package org.carlspring.strongbox.config;
 
 import org.carlspring.strongbox.configuration.StrongboxSecurityConfig;
-import org.carlspring.strongbox.converters.PrivilegeListFormToPrivilegeListConverter;
 import org.carlspring.strongbox.converters.RoleFormToRoleConverter;
 import org.carlspring.strongbox.converters.RoleListFormToRoleListConverter;
 import org.carlspring.strongbox.converters.configuration.ProxyConfigurationFormConverter;
@@ -228,7 +227,6 @@ public class WebConfig
     {
         registry.addConverter(new RoleFormToRoleConverter());
         registry.addConverter(new RoleListFormToRoleListConverter());
-        registry.addConverter(new PrivilegeListFormToPrivilegeListConverter());
         registry.addConverter(UserFormToUserDtoConverter.INSTANCE);
         registry.addConverter(AccessModelFormToUserAccessModelDtoConverter.INSTANCE);
         registry.addConverter(ProxyConfigurationFormConverter.INSTANCE);

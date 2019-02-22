@@ -18,6 +18,8 @@ import org.springframework.context.annotation.*;
 import org.springframework.core.type.AnnotatedTypeMetadata;
 import static org.mockito.Matchers.any;
 
+import java.io.IOException;
+
 /**
  * @author Przemyslaw Fusik
  */
@@ -39,7 +41,7 @@ public class Maven2LayoutProviderTestConfig
 
     @Bean(name = "mockedConfigurationFileManager")
     @Primary
-    ConfigurationFileManager configurationFileManager(YAMLMapperFactory yamlMapperFactory)
+    ConfigurationFileManager configurationFileManager(YAMLMapperFactory yamlMapperFactory) throws IOException
     {
         final ConfigurationFileManager configurationFileManager = Mockito.spy(new ConfigurationFileManager(yamlMapperFactory));
 

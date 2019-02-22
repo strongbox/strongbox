@@ -145,7 +145,7 @@ public class RegenerateNugetChecksumCronJobTestIT
     }
 
     @AfterEach
-    public void removeRepositories()
+    public void removeRepositories() throws IOException
     {
         removeRepositories(getRepositoriesToClean());
     }
@@ -366,7 +366,7 @@ public class RegenerateNugetChecksumCronJobTestIT
         storageManagementService.saveStorage(storage);
     }
 
-    public void removeRepositories(Set<MutableRepository> repositoriesToClean)
+    public void removeRepositories(Set<MutableRepository> repositoriesToClean) throws IOException
     {
         for (MutableRepository repository : repositoriesToClean)
         {

@@ -23,13 +23,8 @@ public enum UserFormToUserDtoConverter
         user.setPassword(userForm.getPassword());
         user.setEnabled(userForm.isEnabled());
         user.setRoles(userForm.getRoles());
-        if (userForm.getAccessModel() != null)
-        {
-            user.setUserAccessModel(
-                    AccessModelFormToUserAccessModelDtoConverter.INSTANCE.convert(userForm.getAccessModel()));
-        }
-
         user.setSecurityTokenKey(userForm.getSecurityTokenKey());
+        
         return user;
     }
 }

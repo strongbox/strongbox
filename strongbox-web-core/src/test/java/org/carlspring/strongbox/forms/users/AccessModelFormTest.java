@@ -1,6 +1,20 @@
 package org.carlspring.strongbox.forms.users;
 
-import org.carlspring.strongbox.authorization.dto.PrivilegeDto;
+import static org.hamcrest.MatcherAssert.assertThat;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertTrue;
+
+import java.util.Collection;
+import java.util.List;
+import java.util.Set;
+
+import javax.inject.Inject;
+import javax.validation.ConstraintViolation;
+import javax.validation.Validator;
+
+import org.apache.commons.lang3.StringUtils;
+import org.assertj.core.api.Java6Assertions;
 import org.carlspring.strongbox.config.IntegrationTest;
 import org.carlspring.strongbox.converters.users.AccessModelFormToUserAccessModelDtoConverter;
 import org.carlspring.strongbox.rest.common.RestAssuredBaseTest;
@@ -9,26 +23,14 @@ import org.carlspring.strongbox.users.dto.UserAccessModelDto;
 import org.carlspring.strongbox.users.dto.UserPathPrivilegesDto;
 import org.carlspring.strongbox.users.dto.UserRepositoryDto;
 import org.carlspring.strongbox.users.dto.UserStorageDto;
-
-import javax.inject.Inject;
-import javax.validation.ConstraintViolation;
-import javax.validation.Validator;
-import java.util.Collection;
-import java.util.List;
-import java.util.Set;
-
-import com.google.common.collect.ImmutableSet;
-import com.google.common.collect.Lists;
-import org.apache.commons.lang3.StringUtils;
-import org.assertj.core.api.Java6Assertions;
 import org.hamcrest.CoreMatchers;
 import org.hamcrest.Matchers;
 import org.hamcrest.core.IsCollectionContaining;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-import org.springframework.boot.test.context.SpringBootTest;
-import static org.hamcrest.MatcherAssert.assertThat;
-import static org.junit.jupiter.api.Assertions.*;
+
+import com.google.common.collect.ImmutableSet;
+import com.google.common.collect.Lists;
 
 /**
  * @author Przemyslaw Fusik
@@ -111,7 +113,7 @@ public class AccessModelFormTest
                 developer01AccessModel);
         assertThat(userAccessModel, CoreMatchers.notNullValue());
 
-        Set<UserStorageDto> userStorages = userAccessModel.getStorages();
+        Set<UserStorageDto> userStorages = userAccessModel.getStorageAuthorities();
         assertThat(userStorages, CoreMatchers.notNullValue());
         assertThat(userStorages.size(), CoreMatchers.equalTo(1));
 
@@ -130,7 +132,7 @@ public class AccessModelFormTest
                        CoreMatchers.anyOf(CoreMatchers.equalTo("releases"), CoreMatchers.equalTo("snapshots")));
 
 
-            Set<PrivilegeDto> repositoryPrivileges = userRepository.getRepositoryPrivileges();
+            Set<Privileges> repositoryPrivileges = userRepository.getRepositoryPrivileges();
             Set<UserPathPrivilegesDto> pathPrivileges = userRepository.getPathPrivileges();
 
             if ("releases".equals(userRepository.getRepositoryId()))
@@ -165,16 +167,16 @@ public class AccessModelFormTest
                 }
 
                 assertThat(repositoryPrivileges.size(), CoreMatchers.equalTo(2));
-                assertThat(repositoryPrivileges, IsCollectionContaining.hasItems(
-                        CoreMatchers.equalTo(new PrivilegeDto("ARTIFACTS_RESOLVE", null)),
-                        CoreMatchers.equalTo(new PrivilegeDto("ARTIFACTS_DEPLOY", null))));
+                assertThat(repositoryPrivileges,
+                           IsCollectionContaining.hasItems(CoreMatchers.equalTo(Privileges.ARTIFACTS_RESOLVE),
+                                                           CoreMatchers.equalTo(Privileges.ARTIFACTS_DEPLOY)));
             }
             if ("snapshots".equals(userRepository.getRepositoryId()))
             {
                 assertThat(pathPrivileges, Matchers.emptyCollectionOf(UserPathPrivilegesDto.class));
                 assertThat(repositoryPrivileges.size(), CoreMatchers.equalTo(1));
                 assertThat(repositoryPrivileges, IsCollectionContaining.hasItems(
-                        CoreMatchers.equalTo(new PrivilegeDto("ARTIFACTS_DEPLOY", null))));
+                        CoreMatchers.equalTo(Privileges.ARTIFACTS_DEPLOY)));
             }
         }
     }

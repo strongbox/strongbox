@@ -10,6 +10,8 @@ import org.carlspring.strongbox.cron.services.CronTaskDataService;
 import org.carlspring.strongbox.cron.services.support.CronTaskConfigurationSearchCriteria;
 
 import javax.inject.Inject;
+
+import java.io.IOException;
 import java.lang.reflect.UndeclaredThrowableException;
 import java.util.*;
 import java.util.concurrent.locks.Lock;
@@ -52,7 +54,7 @@ public class CronTaskDataServiceImpl
 
     @Inject
     public CronTaskDataServiceImpl(CronTasksConfigurationFileManager cronTasksConfigurationFileManager,
-                                   CronJobsDefinitionsRegistry cronJobsDefinitionsRegistry)
+                                   CronJobsDefinitionsRegistry cronJobsDefinitionsRegistry) throws IOException
     {
         this.cronTasksConfigurationFileManager = cronTasksConfigurationFileManager;
         this.cronJobsDefinitionsRegistry = cronJobsDefinitionsRegistry;
@@ -154,7 +156,7 @@ public class CronTaskDataServiceImpl
     }
 
     @Override
-    public UUID save(final CronTaskConfigurationDto dto)
+    public UUID save(final CronTaskConfigurationDto dto) throws IOException
     {
         if (dto.getUuid() == null || StringUtils.isBlank(dto.getUuid().toString()))
         {
@@ -196,7 +198,7 @@ public class CronTaskDataServiceImpl
     }
 
     @Override
-    public void delete(final UUID cronTaskConfigurationUuid)
+    public void delete(final UUID cronTaskConfigurationUuid) throws IOException
     {
         modifyInLock(configuration ->
                              configuration.getCronTaskConfigurations()
@@ -206,13 +208,13 @@ public class CronTaskDataServiceImpl
                                           .ifPresent(conf -> configuration.getCronTaskConfigurations().remove(conf)));
     }
 
-    private void modifyInLock(final Consumer<CronTasksConfigurationDto> operation)
+    private void modifyInLock(final Consumer<CronTasksConfigurationDto> operation) throws IOException
     {
         modifyInLock(operation, true);
     }
 
     private void modifyInLock(final Consumer<CronTasksConfigurationDto> operation,
-                              final boolean storeInFile)
+                              final boolean storeInFile) throws IOException
     {
         final Lock writeLock = cronTasksConfigurationLock.writeLock();
         writeLock.lock();

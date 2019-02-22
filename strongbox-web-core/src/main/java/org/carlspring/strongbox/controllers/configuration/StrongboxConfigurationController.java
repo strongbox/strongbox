@@ -16,6 +16,8 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import static org.carlspring.strongbox.net.MediaType.APPLICATION_YAML_VALUE;
 
+import java.io.IOException;
+
 /**
  * @author Pablo Tirado
  */
@@ -42,7 +44,7 @@ public class StrongboxConfigurationController
                          APPLICATION_YAML_VALUE })
     public ResponseEntity<ResponseMessage> setStrongboxConfiguration(
             @ApiParam(value = "The strongbox.yaml configuration file", required = true) @RequestBody
-                    MutableConfiguration configuration)
+                    MutableConfiguration configuration) throws IOException
     {
         configurationManagementService.setConfiguration(configuration);
 

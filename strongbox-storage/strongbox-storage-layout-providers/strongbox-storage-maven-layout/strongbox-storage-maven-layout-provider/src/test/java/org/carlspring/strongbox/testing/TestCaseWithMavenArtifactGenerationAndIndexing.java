@@ -301,7 +301,7 @@ public abstract class TestCaseWithMavenArtifactGenerationAndIndexing
                                         String groupRepositoryId,
                                         List<MutableRoutingRuleRepository> repositories,
                                         String rulePattern,
-                                        RoutingRuleTypeEnum type)
+                                        RoutingRuleTypeEnum type) throws IOException
     {
         MutableRoutingRule routingRule = MutableRoutingRule.create(groupStorageId, groupRepositoryId,
                                                                    repositories, rulePattern, type);

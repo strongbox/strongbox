@@ -1,5 +1,6 @@
 package org.carlspring.strongbox.users.dto;
 
+import java.io.Serializable;
 import java.util.LinkedHashSet;
 import java.util.Optional;
 import java.util.Set;
@@ -12,12 +13,12 @@ import com.fasterxml.jackson.annotation.JsonProperty;
  * @author Pablo Tirado
  */
 public class UserStorageDto
-        implements UserStorageReadContract
+        implements Serializable, UserStorageReadContract
 {
 
     private Set<UserRepositoryDto> repositories = new LinkedHashSet<>();
 
-    @JsonProperty(value = "id")
+    @JsonProperty(value = "storageId")
     private String storageId;
 
     public UserStorageDto()
@@ -25,7 +26,7 @@ public class UserStorageDto
     }
 
     @JsonCreator
-    public UserStorageDto(@JsonProperty(value = "id", required = true) String storageId)
+    public UserStorageDto(@JsonProperty(value = "storageId", required = true) String storageId)
     {
         this.storageId = storageId;
     }

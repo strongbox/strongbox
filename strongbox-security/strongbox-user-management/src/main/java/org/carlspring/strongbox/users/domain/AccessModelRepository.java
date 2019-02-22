@@ -1,18 +1,18 @@
 package org.carlspring.strongbox.users.domain;
 
-import org.carlspring.strongbox.authorization.dto.PrivelegieReadContract;
-import org.carlspring.strongbox.authorization.dto.PrivilegeDto;
-import org.carlspring.strongbox.users.dto.UserPathPrivilegesDto;
-import org.carlspring.strongbox.users.dto.UserRepositoryDto;
-import org.carlspring.strongbox.users.dto.UserRepositoryReadContract;
+import static java.util.stream.Collectors.toSet;
 
-import javax.annotation.concurrent.Immutable;
 import java.io.Serializable;
 import java.util.Collections;
 import java.util.Set;
 
+import javax.annotation.concurrent.Immutable;
+
+import org.carlspring.strongbox.users.dto.UserPathPrivilegesDto;
+import org.carlspring.strongbox.users.dto.UserRepositoryDto;
+import org.carlspring.strongbox.users.dto.UserRepositoryReadContract;
+
 import com.google.common.collect.ImmutableSet;
-import static java.util.stream.Collectors.toSet;
 
 /**
  * @author Przemyslaw Fusik
@@ -24,7 +24,7 @@ public class AccessModelRepository
 
     private final String repositoryId;
 
-    private final Set<AccessModelPrivilege> repositoryPrivileges;
+    private final Set<Privileges> repositoryPrivileges;
 
     private final Set<AccessModelPathPrivileges> pathPrivileges;
 
@@ -35,9 +35,9 @@ public class AccessModelRepository
         this.pathPrivileges = immutePathPrivileges(delegate.getPathPrivileges());
     }
 
-    private Set<AccessModelPrivilege> immuteRepositoryPrivileges(final Set<PrivilegeDto> set)
+    private Set<Privileges> immuteRepositoryPrivileges(final Set<Privileges> set)
     {
-        return set != null ? set.stream().map(p -> new AccessModelPrivilege(p)).collect(toSet())
+        return set != null ? Collections.unmodifiableSet(set)
                 : Collections.emptySet();
     }
 
@@ -53,7 +53,7 @@ public class AccessModelRepository
         return repositoryId;
     }
 
-    public Set<? extends PrivelegieReadContract> getRepositoryPrivileges()
+    public Set<Privileges> getRepositoryPrivileges()
     {
         return repositoryPrivileges;
     }

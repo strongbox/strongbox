@@ -1,9 +1,12 @@
 package org.carlspring.strongbox.users.userdetails;
 
 import java.util.Collection;
+import java.util.Set;
+import java.util.stream.Collectors;
 
-import org.carlspring.strongbox.users.dto.UserAccessModelReadContract;
-import org.springframework.security.core.GrantedAuthority;
+import org.carlspring.strongbox.authorization.dto.RoleReadContract;
+import org.carlspring.strongbox.users.domain.AccessModel;
+import org.carlspring.strongbox.users.domain.Privileges;
 import org.springframework.security.core.userdetails.UserDetails;
 
 import com.google.common.base.Objects;
@@ -18,9 +21,7 @@ public class SpringSecurityUser
 
     private boolean enabled;
 
-    private Collection<? extends GrantedAuthority> authorities;
-
-    private UserAccessModelReadContract accessModel;
+    private Set<RoleReadContract> roles;
 
     private String url;
 
@@ -77,27 +78,29 @@ public class SpringSecurityUser
         this.enabled = enabled;
     }
 
+    public Set<RoleReadContract> getRoles()
+    {
+        return roles;
+    }
+
+    public void setRoles(Set<RoleReadContract> roles)
+    {
+        this.roles = roles;
+    }
+
     @Override
-    public Collection<? extends GrantedAuthority> getAuthorities()
+    public Collection<Privileges> getAuthorities()
     {
-        return authorities;
+        return roles.stream().flatMap(r -> r.getAccessModel().getApiAuthorities().stream()).collect(Collectors.toSet());
     }
 
-    public void setAuthorities(Collection<? extends GrantedAuthority> authorities)
-    {
-        this.authorities = authorities;
+    public Collection<Privileges> getStorageAuthorities(String path) {
+        return getRoles().stream()
+                         .flatMap(r -> r.getAccessModel().getPathPrivileges(path)
+                                                  .stream())
+                         .collect(Collectors.toSet());
     }
-
-    public UserAccessModelReadContract getAccessModel()
-    {
-        return accessModel;
-    }
-
-    public void setAccessModel(UserAccessModelReadContract accessModel)
-    {
-        this.accessModel = accessModel;
-    }
-
+    
     public String getUrl()
     {
         return url;
@@ -127,8 +130,7 @@ public class SpringSecurityUser
         return enabled == user.enabled &&
                Objects.equal(username, user.username) &&
                Objects.equal(password, user.password) &&
-               Objects.equal(authorities, user.authorities) &&
-               Objects.equal(accessModel, user.accessModel) &&
+               Objects.equal(roles, user.roles) &&
                Objects.equal(url, user.url) &&
                Objects.equal(securityKey, user.securityKey);
     }
@@ -136,7 +138,7 @@ public class SpringSecurityUser
     @Override
     public int hashCode()
     {
-        return Objects.hashCode(username, password, enabled, authorities, accessModel, url);
+        return Objects.hashCode(username, password, enabled, roles, url);
     }
 
     @Override
@@ -148,13 +150,11 @@ public class SpringSecurityUser
           .append('\'');
         sb.append(", enabled=")
           .append(enabled);
-        if (authorities != null)
+        if (roles != null)
         {
-            sb.append(", authorities (count) = ")
-              .append(authorities.size());
+            sb.append(", roles (count) = ")
+              .append(roles.size());
         }
-        sb.append(", accessModel=")
-          .append(accessModel);
         sb.append(", url='")
           .append(url)
           .append('\'');

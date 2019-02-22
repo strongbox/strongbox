@@ -1,16 +1,13 @@
 package org.carlspring.strongbox.users.domain;
 
-import org.carlspring.strongbox.authorization.dto.PrivilegeDto;
-import org.carlspring.strongbox.users.dto.UserPathPrivelegiesReadContract;
-import org.carlspring.strongbox.users.dto.UserPathPrivilegesDto;
-
-import javax.annotation.concurrent.Immutable;
 import java.io.Serializable;
 import java.util.Collections;
 import java.util.Set;
 
-import com.google.common.collect.ImmutableSet;
-import static java.util.stream.Collectors.toSet;
+import javax.annotation.concurrent.Immutable;
+
+import org.carlspring.strongbox.users.dto.UserPathPrivelegiesReadContract;
+import org.carlspring.strongbox.users.dto.UserPathPrivilegesDto;
 
 /**
  * @author Przemyslaw Fusik
@@ -27,7 +24,7 @@ public class AccessModelPathPrivileges
      */
     private final boolean wildcard;
 
-    private final Set<AccessModelPrivilege> privileges;
+    private final Set<Privileges> privileges;
 
     public AccessModelPathPrivileges(final UserPathPrivilegesDto delegate)
     {
@@ -37,10 +34,10 @@ public class AccessModelPathPrivileges
     }
 
 
-    private Set<AccessModelPrivilege> immutePrivileges(final Set<PrivilegeDto> source)
+    private Set<Privileges> immutePrivileges(final Set<Privileges> source)
     {
         return source != null ?
-               ImmutableSet.copyOf(source.stream().map(p -> new AccessModelPrivilege(p)).collect(toSet())) :
+               Collections.unmodifiableSet(source) :
                Collections.emptySet();
     }
 
@@ -54,7 +51,7 @@ public class AccessModelPathPrivileges
         return wildcard;
     }
 
-    public Set<AccessModelPrivilege> getPrivileges()
+    public Set<Privileges> getPrivileges()
     {
         return privileges;
     }

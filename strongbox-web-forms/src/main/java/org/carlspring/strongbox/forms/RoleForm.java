@@ -1,12 +1,11 @@
 package org.carlspring.strongbox.forms;
 
+import javax.validation.constraints.NotEmpty;
+
+import org.carlspring.strongbox.forms.users.AccessModelForm;
 import org.carlspring.strongbox.validation.UniqueRoleName;
 
-import javax.validation.constraints.NotEmpty;
-import java.util.Set;
-
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
-import com.google.common.collect.Sets;
 
 /**
  * @author Pablo Tirado
@@ -21,7 +20,7 @@ public class RoleForm
 
     private String description;
 
-    private Set<String> privileges = Sets.newHashSet();
+    private AccessModelForm accessModel;
 
     public String getName()
     {
@@ -43,13 +42,14 @@ public class RoleForm
         this.description = description;
     }
 
-    public Set<String> getPrivileges()
+    public AccessModelForm getAccessModel()
     {
-        return privileges;
+        return accessModel;
     }
 
-    public void setPrivileges(Set<String> privileges)
+    public void setAccessModel(AccessModelForm accessModel)
     {
-        this.privileges = privileges;
+        this.accessModel = accessModel;
     }
+    
 }

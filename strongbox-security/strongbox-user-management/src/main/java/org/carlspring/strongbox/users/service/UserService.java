@@ -60,6 +60,4 @@ public interface UserService
 
     void delete(String username);
 
-    void updateAccessModel(String username,
-                           UserAccessModelDto accessModel);
 }

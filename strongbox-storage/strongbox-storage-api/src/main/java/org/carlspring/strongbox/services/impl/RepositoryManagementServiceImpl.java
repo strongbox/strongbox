@@ -271,14 +271,14 @@ public class RepositoryManagementServiceImpl
 
     @Override
     public void putInService(String storageId,
-                             String repositoryId)
+                             String repositoryId) throws IOException
     {
         configurationManagementService.putInService(storageId, repositoryId);
     }
 
     @Override
     public void putOutOfService(String storageId,
-                                String repositoryId)
+                                String repositoryId) throws IOException
     {
         configurationManagementService.putOutOfService(storageId, repositoryId);
     }

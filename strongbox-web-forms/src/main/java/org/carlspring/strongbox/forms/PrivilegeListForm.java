@@ -1,7 +1,11 @@
 package org.carlspring.strongbox.forms;
 
-import javax.validation.Valid;
 import java.util.List;
+
+import javax.validation.constraints.NotEmpty;
+import javax.validation.constraints.NotNull;
+
+import org.carlspring.strongbox.users.domain.Privileges;
 
 /**
  * @author Pablo Tirado
@@ -9,16 +13,17 @@ import java.util.List;
 public class PrivilegeListForm
 {
 
-    @Valid
-    private List<PrivilegeForm> privileges;
+    @NotEmpty
+    private List<@NotNull Privileges> privileges;
 
-    public List<PrivilegeForm> getPrivileges()
+    public List<Privileges> getPrivileges()
     {
         return privileges;
     }
 
-    public void setPrivileges(List<PrivilegeForm> privileges)
+    public void setPrivileges(List<Privileges> privileges)
     {
         this.privileges = privileges;
     }
+
 }

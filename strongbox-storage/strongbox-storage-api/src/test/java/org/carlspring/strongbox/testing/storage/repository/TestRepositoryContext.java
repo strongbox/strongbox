@@ -148,20 +148,21 @@ public class TestRepositoryContext implements AutoCloseable, Comparable<TestRepo
             repository.setRemoteRepository(remoteRepositoryConfiguration);
         });
 
-        Optional.ofNullable(groupRepository).ifPresent(g -> {
+        if (groupRepository != null)
+        {
             repository.setType(RepositoryTypeEnum.GROUP.getType());
             repository.getGroupRepositories().addAll(Arrays.asList(groupRepository.repositories()));
-            
-            Arrays.stream(groupRepository.rules()).forEach((rule) -> {
+
+            for (TestRepository.Group.Rule rule : groupRepository.rules())
+            {
                 MutableRoutingRule routingRule = MutableRoutingRule.create(testRepository.storageId(),
                                                                            testRepository.repositoryId(),
                                                                            routingRepositories(rule.repositories()),
                                                                            rule.pattern(),
                                                                            rule.type());
                 configurationManagementService.addRoutingRule(routingRule);
-            });
-            
-        });
+            }
+        }
 
         Optional.ofNullable(repositoryAttributes).ifPresent(a -> {
             repository.setAllowsDelete(repositoryAttributes.allowsDelete());
@@ -216,9 +217,9 @@ public class TestRepositoryContext implements AutoCloseable, Comparable<TestRepo
     private Storage createStorage()
     {
         MutableStorage newStorage = new MutableStorage(testRepository.storageId());
-        configurationManagementService.addStorageIfNotExists(newStorage);
         try
         {
+            configurationManagementService.addStorageIfNotExists(newStorage);
             storageManagementService.saveStorage(newStorage);
         }
         catch (IOException e)

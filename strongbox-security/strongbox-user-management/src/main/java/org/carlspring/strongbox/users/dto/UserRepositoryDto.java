@@ -1,10 +1,11 @@
 package org.carlspring.strongbox.users.dto;
 
-import org.carlspring.strongbox.authorization.dto.PrivilegeDto;
-
+import java.io.Serializable;
 import java.util.LinkedHashSet;
 import java.util.Optional;
 import java.util.Set;
+
+import org.carlspring.strongbox.users.domain.Privileges;
 
 import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonProperty;
@@ -15,12 +16,12 @@ import com.fasterxml.jackson.annotation.JsonProperty;
  * @author Przemyslaw Fusik
  */
 public class UserRepositoryDto
-        implements UserRepositoryReadContract
+        implements Serializable, UserRepositoryReadContract
 {
-    @JsonProperty("id")
+    @JsonProperty("repositoryId")
     private String repositoryId;
 
-    private Set<PrivilegeDto> repositoryPrivileges = new LinkedHashSet<>();
+    private Set<Privileges> repositoryPrivileges = new LinkedHashSet<>();
 
     private Set<UserPathPrivilegesDto> pathPrivileges = new LinkedHashSet<>();
 
@@ -29,7 +30,7 @@ public class UserRepositoryDto
     }
 
     @JsonCreator
-    public UserRepositoryDto(@JsonProperty(value = "id", required = true) String repositoryId)
+    public UserRepositoryDto(@JsonProperty(value = "repositoryId", required = true) String repositoryId)
     {
         this.repositoryId = repositoryId;
     }
@@ -44,7 +45,7 @@ public class UserRepositoryDto
         this.repositoryId = repositoryId;
     }
 
-    public Set<PrivilegeDto> getRepositoryPrivileges()
+    public Set<Privileges> getRepositoryPrivileges()
     {
         return repositoryPrivileges;
     }

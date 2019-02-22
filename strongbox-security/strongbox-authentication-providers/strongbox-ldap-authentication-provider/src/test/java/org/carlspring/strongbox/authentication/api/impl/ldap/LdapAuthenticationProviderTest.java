@@ -11,6 +11,7 @@ import javax.inject.Inject;
 import org.carlspring.strongbox.authentication.support.AuthenticationContextInitializer;
 import org.carlspring.strongbox.config.UsersConfig;
 import org.carlspring.strongbox.users.domain.Privileges;
+import org.carlspring.strongbox.users.domain.SystemRole;
 import org.hamcrest.CoreMatchers;
 import org.junit.jupiter.api.Test;
 import org.slf4j.Logger;
@@ -78,10 +79,8 @@ public class LdapAuthenticationProviderTest
         assertThat(ldapUserDetails.getPassword(), CoreMatchers.equalTo("password"));
         assertThat(ldapUserDetails.getUsername(), CoreMatchers.equalTo("przemyslaw.fusik"));
         assertThat(ldapUser.getAuthorities(),
-                   CoreMatchers.hasItems(CoreMatchers.equalTo((GrantedAuthority) Privileges.ADMIN_CREATE_REPO),
-                                         CoreMatchers.equalTo((GrantedAuthority) Privileges.ADMIN_DELETE_REPO),
-                                         CoreMatchers.equalTo((GrantedAuthority) Privileges.ADMIN_CREATE_REPO),
-                                         CoreMatchers.equalTo(new SimpleGrantedAuthority("VIEW_USER"))));
+                   CoreMatchers.hasItems(CoreMatchers.equalTo(new SimpleGrantedAuthority(SystemRole.REPOSITORY_MANAGER.name())),
+                                         CoreMatchers.equalTo(new SimpleGrantedAuthority("USER_ROLE"))));
     }
 
     public static class TestContextInitializer extends AuthenticationContextInitializer

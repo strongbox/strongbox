@@ -1,13 +1,12 @@
 package org.carlspring.strongbox.controllers.users.support;
 
-import org.carlspring.strongbox.authorization.domain.Role;
-import org.carlspring.strongbox.users.domain.Privileges;
-
 import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.List;
 import java.util.Set;
 import java.util.stream.Collectors;
+
+import org.carlspring.strongbox.authorization.domain.Role;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
 
@@ -21,11 +20,8 @@ public class UserResponseEntity
 
     private List<AssignableRoleOutput> assignableRoles;
 
-    private List<Privileges> assignablePrivileges;
-
     public UserResponseEntity()
     {
-
     }
 
     public UserResponseEntity(UserOutput user)
@@ -48,11 +44,6 @@ public class UserResponseEntity
         return assignableRoles;
     }
 
-    public List<Privileges> getAssignablePrivileges()
-    {
-        return assignablePrivileges;
-    }
-
     public void setAssignableRoles(Set<Role> assignableRoles)
     {
         this.assignableRoles = assignableRoles.stream()
@@ -61,8 +52,4 @@ public class UserResponseEntity
                                               .collect(Collectors.toCollection(ArrayList::new));
     }
 
-    public void setAssignablePrivileges(List<Privileges> assignablePrivileges)
-    {
-        this.assignablePrivileges = assignablePrivileges;
-    }
 }

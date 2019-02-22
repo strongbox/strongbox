@@ -1,36 +1,47 @@
 package org.carlspring.strongbox.controllers.configuration.security.authorization;
 
+import static org.carlspring.strongbox.net.MediaType.APPLICATION_YAML_VALUE;
+
+import java.io.IOException;
+import java.util.List;
+import java.util.function.Supplier;
+
+import javax.inject.Inject;
+import javax.xml.bind.JAXBException;
+
 import org.carlspring.strongbox.authorization.dto.AuthorizationConfigDto;
-import org.carlspring.strongbox.authorization.dto.PrivilegeDto;
 import org.carlspring.strongbox.authorization.dto.RoleDto;
 import org.carlspring.strongbox.authorization.service.AuthorizationConfigService;
 import org.carlspring.strongbox.controllers.BaseController;
 import org.carlspring.strongbox.forms.PrivilegeListForm;
 import org.carlspring.strongbox.forms.RoleForm;
+import org.carlspring.strongbox.users.domain.Privileges;
 import org.carlspring.strongbox.users.service.UserService;
 import org.carlspring.strongbox.users.service.impl.StrongboxUserService.StrongboxUserServiceQualifier;
 import org.carlspring.strongbox.validation.RequestBodyValidationException;
-
-import javax.inject.Inject;
-import javax.xml.bind.JAXBException;
-import java.util.List;
-import java.util.function.Supplier;
-
-import io.swagger.annotations.*;
 import org.springframework.core.convert.ConversionService;
-import org.springframework.core.convert.TypeDescriptor;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
-import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.web.authentication.AnonymousAuthenticationFilter;
 import org.springframework.stereotype.Controller;
 import org.springframework.validation.BindingResult;
 import org.springframework.validation.annotation.Validated;
-import org.springframework.web.bind.annotation.*;
-import static org.carlspring.strongbox.net.MediaType.APPLICATION_YAML_VALUE;
+import org.springframework.web.bind.annotation.DeleteMapping;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestHeader;
+import org.springframework.web.bind.annotation.RequestMapping;
+
+import io.swagger.annotations.Api;
+import io.swagger.annotations.ApiOperation;
+import io.swagger.annotations.ApiParam;
+import io.swagger.annotations.ApiResponse;
+import io.swagger.annotations.ApiResponses;
 
 /**
  * @author Pablo Tirado
@@ -79,7 +90,7 @@ public class AuthorizationConfigController
                  produces = { MediaType.TEXT_PLAIN_VALUE, MediaType.APPLICATION_JSON_VALUE })
     public ResponseEntity addRole(@RequestBody @Validated RoleForm roleForm,
                                   BindingResult bindingResult,
-                                  @RequestHeader(HttpHeaders.ACCEPT) String acceptHeader)
+                                  @RequestHeader(HttpHeaders.ACCEPT) String acceptHeader) throws IOException
     {
         if (bindingResult.hasErrors())
         {
@@ -110,7 +121,7 @@ public class AuthorizationConfigController
                    produces = { MediaType.TEXT_PLAIN_VALUE, MediaType.APPLICATION_JSON_VALUE })
     public ResponseEntity deleteRole(@ApiParam(value = "The name of the role", required = true)
                                      @PathVariable("name") String name,
-                                     @RequestHeader(HttpHeaders.ACCEPT) String acceptHeader)
+                                     @RequestHeader(HttpHeaders.ACCEPT) String acceptHeader) throws IOException
     {
         try
         {
@@ -126,7 +137,7 @@ public class AuthorizationConfigController
         return processConfig(() -> SUCCESSFUL_DELETE_ROLE, acceptHeader);
     }
 
-    private void deleteRole(String name)
+    private void deleteRole(String name) throws IOException
     {
         if (authorizationConfigService.deleteRole(name))
         {
@@ -147,19 +158,14 @@ public class AuthorizationConfigController
                  produces = { MediaType.TEXT_PLAIN_VALUE, MediaType.APPLICATION_JSON_VALUE })
     public ResponseEntity addPrivilegesToAnonymous(@RequestBody @Validated PrivilegeListForm privilegeListForm,
                                                    BindingResult bindingResult,
-                                                   @RequestHeader(HttpHeaders.ACCEPT) String acceptHeader)
+                                                   @RequestHeader(HttpHeaders.ACCEPT) String acceptHeader) throws IOException
     {
         if (bindingResult.hasErrors())
         {
             throw new RequestBodyValidationException(FAILED_ASSIGN_PRIVILEGES, bindingResult);
         }
 
-        TypeDescriptor sourceType = TypeDescriptor.valueOf(PrivilegeListForm.class);
-        TypeDescriptor targetType = TypeDescriptor.collection(List.class, TypeDescriptor.valueOf(PrivilegeDto.class));
-        List<PrivilegeDto> privilegeList = (List<PrivilegeDto>) conversionService.convert(privilegeListForm,
-                                                                                          sourceType,
-                                                                                          targetType);
-
+        List<Privileges> privilegeList = privilegeListForm.getPrivileges();
         authorizationConfigService.addPrivilegesToAnonymous(privilegeList);
         addAnonymousAuthority(privilegeList);
 
@@ -202,15 +208,14 @@ public class AuthorizationConfigController
         }
     }
 
-    private void addAnonymousAuthority(List<PrivilegeDto> authorities)
+    private void addAnonymousAuthority(List<Privileges> authorities)
     {
-        authorities.stream().map(PrivilegeDto::getName).forEach(this::addAnonymousAuthority);
+        authorities.stream().forEach(this::addAnonymousAuthority);
     }
 
-    private void addAnonymousAuthority(String authority)
+    private void addAnonymousAuthority(Privileges authority)
     {
-        SimpleGrantedAuthority simpleGrantedAuthority = new SimpleGrantedAuthority(authority.toUpperCase());
-        anonymousAuthenticationFilter.getAuthorities().add(simpleGrantedAuthority);
+        anonymousAuthenticationFilter.getAuthorities().add(authority);
     }
 
     private interface CustomSuccessResponseBuilder

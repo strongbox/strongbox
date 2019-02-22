@@ -1,17 +1,16 @@
 package org.carlspring.strongbox.converters.users;
 
-import org.carlspring.strongbox.authorization.dto.PrivilegeDto;
-import org.carlspring.strongbox.forms.users.AccessModelForm;
-import org.carlspring.strongbox.forms.users.RepositoryAccessModelForm;
-import org.carlspring.strongbox.users.dto.UserAccessModelDto;
-import org.carlspring.strongbox.users.dto.UserPathPrivilegesDto;
-import org.carlspring.strongbox.users.dto.UserRepositoryDto;
-import org.carlspring.strongbox.users.dto.UserStorageDto;
-
 import java.util.Collection;
 import java.util.stream.Collectors;
 
 import org.apache.commons.lang3.StringUtils;
+import org.carlspring.strongbox.forms.users.AccessModelForm;
+import org.carlspring.strongbox.forms.users.RepositoryAccessModelForm;
+import org.carlspring.strongbox.users.domain.Privileges;
+import org.carlspring.strongbox.users.dto.UserAccessModelDto;
+import org.carlspring.strongbox.users.dto.UserPathPrivilegesDto;
+import org.carlspring.strongbox.users.dto.UserRepositoryDto;
+import org.carlspring.strongbox.users.dto.UserStorageDto;
 import org.springframework.core.convert.converter.Converter;
 
 /**
@@ -31,8 +30,13 @@ public enum AccessModelFormToUserAccessModelDtoConverter
         {
             return null;
         }
+        
         UserAccessModelDto userAccessModelDto = new UserAccessModelDto();
-
+        accessModelForm.getApiAcess()
+                       .stream()
+                       .map(p -> Privileges.valueOf(p))
+                       .forEach(p -> userAccessModelDto.getApiAuthorities().add(p));
+        
         for (RepositoryAccessModelForm repositoryAccess : accessModelForm.getRepositoriesAccess())
         {
             UserStorageDto storage = userAccessModelDto.getStorage(repositoryAccess.getStorageId())
@@ -42,7 +46,7 @@ public enum AccessModelFormToUserAccessModelDtoConverter
                                                                    UserStorageDto userStorageDto = new UserStorageDto();
                                                                    userStorageDto.setStorageId(
                                                                            repositoryAccess.getStorageId());
-                                                                   userAccessModelDto.getStorages().add(userStorageDto);
+                                                                   userAccessModelDto.getStorageAuthorities().add(userStorageDto);
                                                                    return userStorageDto;
                                                                });
 
@@ -59,7 +63,7 @@ public enum AccessModelFormToUserAccessModelDtoConverter
 
             if (StringUtils.isBlank(repositoryAccess.getPath()))
             {
-                repository.getRepositoryPrivileges().addAll(pullPrivilegeDtos(repositoryAccess));
+                repository.getRepositoryPrivileges().addAll(pullPrivileges(repositoryAccess));
                 continue;
             }
 
@@ -77,17 +81,17 @@ public enum AccessModelFormToUserAccessModelDtoConverter
                                                                                  pathPrivilegesDto);
                                                                          return pathPrivilegesDto;
                                                                      });
-            pathPrivileges.getPrivileges().addAll(pullPrivilegeDtos(repositoryAccess));
+            pathPrivileges.getPrivileges().addAll(pullPrivileges(repositoryAccess));
 
         }
         return userAccessModelDto;
     }
 
-    private Collection<PrivilegeDto> pullPrivilegeDtos(final RepositoryAccessModelForm repositoryAccess)
+    private Collection<Privileges> pullPrivileges(final RepositoryAccessModelForm repositoryAccess)
     {
         return repositoryAccess.getPrivileges()
                                .stream()
-                               .map(p -> new PrivilegeDto(p, null))
-                               .collect(Collectors.toList());
+                               .map(p -> Privileges.valueOf(p))
+                               .collect(Collectors.toSet());
     }
 }

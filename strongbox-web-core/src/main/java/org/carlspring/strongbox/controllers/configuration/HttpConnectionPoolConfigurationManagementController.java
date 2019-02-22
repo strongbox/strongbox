@@ -12,6 +12,9 @@ import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
 import io.swagger.annotations.ApiResponse;
 import io.swagger.annotations.ApiResponses;
+
+import java.io.IOException;
+
 import org.apache.http.pool.PoolStats;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
@@ -50,8 +53,8 @@ public class HttpConnectionPoolConfigurationManagementController
                              MediaType.APPLICATION_JSON_VALUE })
     public ResponseEntity setNumberOfConnectionsForProxyRepository(@RepositoryMapping Repository repository,
                                                                    @PathVariable(value = "numberOfConnections") int numberOfConnections,
-                                                                   @RequestHeader(HttpHeaders.ACCEPT) String accept)
-    {
+                                                                   @RequestHeader(HttpHeaders.ACCEPT) String accept) throws IOException
+    { 
         final ImmutableRepository immutableRepository = (ImmutableRepository) repository;
         final String storageId = immutableRepository.getStorage().getId();
         final String repositoryId = immutableRepository.getId();

@@ -10,7 +10,7 @@ import org.carlspring.strongbox.rest.client.RestAssuredArtifactClient;
 import org.carlspring.strongbox.testing.MavenTestCaseWithArtifactGeneration;
 import org.carlspring.strongbox.testing.TestCaseWithMavenArtifactGenerationAndIndexing;
 import org.carlspring.strongbox.testing.artifact.MavenArtifactTestUtils;
-import org.carlspring.strongbox.users.domain.Roles;
+import org.carlspring.strongbox.users.domain.Privileges;
 
 import javax.inject.Inject;
 import java.io.IOException;
@@ -84,7 +84,7 @@ public abstract class MavenRestAssuredBaseTest
 
     protected Collection<? extends GrantedAuthority> provideAuthorities()
     {
-        return Roles.ADMIN.getPrivileges();
+        return Privileges.all();
     }
 
     /**

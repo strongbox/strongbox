@@ -1,11 +1,15 @@
 package org.carlspring.strongbox.users.dto;
 
 import java.io.Serializable;
+import java.util.Collection;
 import java.util.Set;
+
+import org.carlspring.strongbox.users.domain.Privileges;
 
 public interface UserAccessModelReadContract extends Serializable
 {
+    Set<Privileges> getApiAuthorities();
 
-    Set<? extends UserStorageReadContract> getStorages();
+    Collection<Privileges> getPathPrivileges(String url);
 
 }

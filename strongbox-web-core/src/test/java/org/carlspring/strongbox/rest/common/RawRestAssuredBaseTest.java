@@ -8,7 +8,7 @@ import org.carlspring.strongbox.storage.repository.RawRepositoryFactory;
 import org.carlspring.strongbox.storage.repository.RepositoryTypeEnum;
 import org.carlspring.strongbox.storage.repository.remote.MutableRemoteRepository;
 import org.carlspring.strongbox.testing.TestCaseWithRepositoryManagement;
-import org.carlspring.strongbox.users.domain.Roles;
+import org.carlspring.strongbox.users.domain.Privileges;
 
 import javax.inject.Inject;
 import javax.xml.bind.JAXBException;
@@ -75,7 +75,7 @@ public class RawRestAssuredBaseTest
 
     protected Collection<? extends GrantedAuthority> provideAuthorities()
     {
-        return Roles.ADMIN.getPrivileges();
+        return Privileges.all();
     }
 
     protected boolean pathExists(String url)

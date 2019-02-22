@@ -29,8 +29,6 @@ public class StrongboxUserActualizer implements UserDetailsToStrongboxUser
         userDto.setEnabled(user.isEnabled());
         userDto.setRoles(user.getRoles());
         userDto.setSecurityTokenKey(user.getSecurityTokenKey());
-        userDto.setUserAccessModel(user.getUserAccessModel());
-        
         userService.save(userDto);
 
         return userService.findByUserName(springUser.getUsername());

@@ -2,14 +2,14 @@ package org.carlspring.strongbox.users.dto;
 
 import java.util.Set;
 
-import org.carlspring.strongbox.authorization.dto.PrivelegieReadContract;
+import org.carlspring.strongbox.users.domain.Privileges;
 
 public interface UserRepositoryReadContract
 {
 
     String getRepositoryId();
 
-    Set<? extends PrivelegieReadContract> getRepositoryPrivileges();
+    Set<Privileges> getRepositoryPrivileges();
 
     Set<? extends UserPathPrivelegiesReadContract> getPathPrivileges();
 

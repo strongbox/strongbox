@@ -2,7 +2,7 @@ package org.carlspring.strongbox.users.dto;
 
 import java.util.Set;
 
-import org.carlspring.strongbox.authorization.dto.PrivelegieReadContract;
+import org.carlspring.strongbox.users.domain.Privileges;
 
 public interface UserPathPrivelegiesReadContract
 {
@@ -11,6 +11,6 @@ public interface UserPathPrivelegiesReadContract
 
     boolean isWildcard();
 
-    Set<? extends PrivelegieReadContract> getPrivileges();
+    Set<Privileges> getPrivileges();
 
 }

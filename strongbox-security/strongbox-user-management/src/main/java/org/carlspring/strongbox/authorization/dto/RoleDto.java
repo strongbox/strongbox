@@ -1,8 +1,9 @@
 package org.carlspring.strongbox.authorization.dto;
 
 import java.io.Serializable;
-import java.util.HashSet;
-import java.util.Set;
+
+import org.carlspring.strongbox.users.domain.Privileges;
+import org.carlspring.strongbox.users.dto.UserAccessModelDto;
 
 import com.google.common.base.Objects;
 
@@ -10,14 +11,14 @@ import com.google.common.base.Objects;
  * @author mtodorov
  */
 public class RoleDto
-        implements Serializable
+        implements Serializable, RoleReadContract
 {
 
     private String name;
 
     private String description;
 
-    private Set<String> privileges = new HashSet<>();
+    private UserAccessModelDto accessModel;
 
 
     public RoleDto()
@@ -25,12 +26,52 @@ public class RoleDto
     }
 
     public RoleDto(String name,
-                   String description)
+                   String description,
+                   UserAccessModelDto accessModel)
     {
         this.name = name;
         this.description = description;
+        this.accessModel = accessModel;
     }
 
+    @Override
+    public String getName()
+    {
+        return name;
+    }
+
+    public void setName(String name)
+    {
+        this.name = name;
+    }
+
+    @Override
+    public String getDescription()
+    {
+        return description;
+    }
+
+    public void setDescription(String description)
+    {
+        this.description = description;
+    }
+
+    @Override
+    public UserAccessModelDto getAccessModel()
+    {
+        return accessModel;
+    }
+
+    public void setAccessModel(UserAccessModelDto accessModel)
+    {
+        this.accessModel = accessModel;
+    }
+
+    public void addPrivilege(Privileges p)
+    {
+        accessModel.getApiAuthorities().add(p);
+    }
+    
     @Override
     public boolean equals(Object o)
     {
@@ -44,67 +85,21 @@ public class RoleDto
         }
 
         RoleDto role = (RoleDto) o;
-        return Objects.equal(name, role.name);
+        return Objects.equal(accessModel, role.accessModel);
     }
 
     @Override
     public int hashCode()
     {
-        return Objects.hashCode(name);
+        return Objects.hashCode(accessModel);
     }
-
-    public String getName()
-    {
-        return name;
-    }
-
-    public void setName(String name)
-    {
-        this.name = name;
-    }
-
-    public String getDescription()
-    {
-        return description;
-    }
-
-    public void setDescription(String description)
-    {
-        this.description = description;
-    }
-
-    public Set<String> getPrivileges()
-    {
-        return privileges;
-    }
-
-    public void setPrivileges(Set<String> privileges)
-    {
-        this.privileges = privileges;
-    }
-
-    public boolean addPrivilege(String privilege)
-    {
-        return privileges.add(privilege);
-    }
-
-    public boolean removePrivilege(String privilege)
-    {
-        return privileges.remove(privilege);
-    }
-
-    public boolean containsPrivilege(String privilege)
-    {
-        return privileges.contains(privilege);
-    }
-
+    
     @Override
     public String toString()
     {
         final StringBuilder sb = new StringBuilder("\n\t\tRole{");
         sb.append("name='").append(name).append('\'');
-        sb.append(", description='").append(description).append('\'');
-        sb.append(", privileges=").append(privileges);
+        sb.append(", description='").append(description);
         sb.append('}');
 
         return sb.toString();
