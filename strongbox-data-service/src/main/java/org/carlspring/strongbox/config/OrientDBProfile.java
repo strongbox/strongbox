@@ -25,6 +25,7 @@ public class OrientDBProfile
 
     private final String name;
     
+    
     public OrientDBProfile(String name)
     {
         super();
@@ -47,11 +48,11 @@ public class OrientDBProfile
         throws IOException
     {
         String profile = System.getProperty(PROPERTY_PROFILE, PROFILE_MEMORY);
-        logger.info(String.format("Bootstrap OrientDB connection properties with profile [%s].",
-                                  profile));
+        
+        logger.info(String.format("Bootstrap OrientDB connection properties with profile [%s].", profile));
 
-        try (InputStream is = OrientDBProfile.class
-                                                      .getResourceAsStream(String.format("/META-INF/properties/%s.properties", profile)))
+        try (InputStream is = OrientDBProfile.class.getResourceAsStream(String.format("/META-INF/properties/%s.properties",
+                                                                                      profile)))
         {
             Properties properties = new Properties();
             properties.load(is);
