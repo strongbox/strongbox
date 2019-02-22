@@ -113,8 +113,7 @@ class AbstractLayoutProviderTest
                                                                                           .resolve("carlspring")
                                                                                           .resolve("abs-lay-prov-test")
                                                                                           .resolve("1.8")
-                                                                                          .resolve(
-                                                                                                  "abs-lay-prov-test-1.8.jar");
+                                                                                          .resolve("abs-lay-prov-test-1.8.jar");
 
         Set<ArtifactGroupEntry> artifactGroups = layoutProvider.getArtifactGroups(path);
         MatcherAssert.assertThat(artifactGroups, Matchers.notNullValue());
@@ -134,7 +133,8 @@ class AbstractLayoutProviderTest
         MatcherAssert.assertThat(artifactGroup.getClass(), CoreMatchers.equalTo(RepositoryArtifactIdGroupEntry.class));
     }
     
-    private class StorageFileSystemProviderTest extends StorageFileSystemProvider{
+    private class StorageFileSystemProviderTest extends StorageFileSystemProvider
+    {
 
         public StorageFileSystemProviderTest(FileSystemProvider target)
         {
