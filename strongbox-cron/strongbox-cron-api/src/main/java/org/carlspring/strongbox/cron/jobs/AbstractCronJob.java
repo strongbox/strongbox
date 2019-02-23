@@ -12,6 +12,7 @@ import org.quartz.*;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.core.env.Environment;
+import org.springframework.core.env.Profiles;
 import org.springframework.scheduling.quartz.QuartzJobBean;
 
 /**
@@ -99,7 +100,7 @@ public abstract class AbstractCronJob
     public boolean enabled(CronTaskConfigurationDto configuration,
                            Environment env)
     {
-        return configuration.isOneTimeExecution() || !env.acceptsProfiles("test");
+        return configuration.isOneTimeExecution() || !env.acceptsProfiles(Profiles.of("test"));
     }
 
     public String getStatus()
