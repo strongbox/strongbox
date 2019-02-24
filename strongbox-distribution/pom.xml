@@ -347,6 +347,7 @@
                 <configuration>
                     <group>Strongbox</group>
                     <description>Strongbox distribution version ${project.version}.</description>
+                    <copyTo>target/strongbox-distribution-${project.version}.rpm</copyTo>
                     <defineStatements>
                         <defineStatement>_binaries_in_noarch_packages_terminate_build 0</defineStatement>
                     </defineStatements>
@@ -389,14 +390,6 @@
                             <sources>
                                 <source>
                                     <location>${project.build.directory}/assembly/strongbox-${project.version}/tmp</location>
-                                </source>
-                            </sources>
-                        </mapping>
-                        <mapping>
-                            <directory>/usr/local/strongbox/webapp</directory>
-                            <sources>
-                                <source>
-                                    <location>${project.build.directory}/assembly/strongbox-${project.version}/webapp</location>
                                 </source>
                             </sources>
                         </mapping>
