@@ -59,6 +59,7 @@ public class RawLayoutProvider
         return false;
     }
 
+    @Deprecated
     @Override
     public void deleteMetadata(RepositoryPath repositoryPath)
     {

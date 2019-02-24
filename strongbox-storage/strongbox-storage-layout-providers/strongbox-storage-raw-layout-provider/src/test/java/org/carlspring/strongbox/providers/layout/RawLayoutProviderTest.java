@@ -5,6 +5,7 @@ import org.carlspring.strongbox.booters.PropertiesBooter;
 import org.carlspring.strongbox.config.RawLayoutProviderTestConfig;
 import org.carlspring.strongbox.configuration.Configuration;
 import org.carlspring.strongbox.providers.io.RepositoryPath;
+import org.carlspring.strongbox.providers.io.RepositoryPathResolver;
 import org.carlspring.strongbox.repository.RepositoryManagementStrategyException;
 import org.carlspring.strongbox.services.*;
 import org.carlspring.strongbox.storage.MutableStorage;
@@ -61,6 +62,9 @@ public class RawLayoutProviderTest
     @Inject
     private ArtifactResolutionService artifactResolutionService;
 
+    @Inject
+    private RepositoryPathResolver repositoryPathResolver;
+
 
     @BeforeAll
     public static void cleanUp()
@@ -115,11 +119,10 @@ public class RawLayoutProviderTest
     {
         String path = "foo/bar.zip";
 
+        RepositoryPath repositoryPath = repositoryPathResolver.resolve(STORAGE, REPOSITORY, path);
+
         // Deploy the artifact
-        artifactManagementService.validateAndStore(STORAGE,
-                                                   REPOSITORY,
-                                                   path,
-                                                   createZipFile());
+        artifactManagementService.validateAndStore(repositoryPath, createZipFile());
 
         
         File artifactFile = new File(propertiesBooter.getVaultDirectory() + "/storages/" + STORAGE + "/" + REPOSITORY + "/" + path);
@@ -129,10 +132,7 @@ public class RawLayoutProviderTest
         // Attempt to re-deploy the artifact
         try
         {
-            artifactManagementService.validateAndStore(STORAGE,
-                                                       REPOSITORY,
-                                                       path,
-                                                       createZipFile());
+            artifactManagementService.validateAndStore(repositoryPath, createZipFile());
         }
         catch (Exception e)
         {
@@ -148,7 +148,6 @@ public class RawLayoutProviderTest
         }
 
         // Attempt to resolve the artifact
-        RepositoryPath repositoryPath = artifactResolutionService.resolvePath(STORAGE, REPOSITORY, path);
         try (InputStream is = artifactResolutionService.getInputStream(repositoryPath))
         {
             int total = 0;
