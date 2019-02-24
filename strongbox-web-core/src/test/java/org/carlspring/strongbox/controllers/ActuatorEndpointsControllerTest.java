@@ -15,8 +15,6 @@ import static org.hamcrest.CoreMatchers.notNullValue;
 /**
  * @author: adavid9
  */
-
-
 @IntegrationTest
 public class ActuatorEndpointsControllerTest
         extends RestAssuredBaseTest
@@ -29,6 +27,7 @@ public class ActuatorEndpointsControllerTest
     private static final String METRIC_NAME = "process.start.time";
 
     private static final String NOT_EXISTING_METRIC_NAME = "process.start.time.test";
+
 
     @Override
     @BeforeEach
