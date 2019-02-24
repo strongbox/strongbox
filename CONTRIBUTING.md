@@ -74,3 +74,4 @@ To accept, please:
 | Jitesh Golatkar           |                                          | Charlotte, USA                      | 2019-01-25 |
 | Forrest Whiting              | Forbes Media                             | Jersey City, New Jersey, USA            | 2019-02-04 |
 | Dawid Antecki           |                                          | Bielsko-Biala, Poland                      | 2019-02-18 |
+| Ekrem Candemir           |                                          | Ankara, Turkey                      | 2019-02-24 |
