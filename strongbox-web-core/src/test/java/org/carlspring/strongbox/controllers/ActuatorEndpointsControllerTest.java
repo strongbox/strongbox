@@ -42,7 +42,6 @@ public class ActuatorEndpointsControllerTest
     @Test
     public void testMonitoringEndpointWithAuthorizedUser()
     {
-
         given().accept(MediaType.APPLICATION_JSON_VALUE)
                .when()
                .get(getContextBaseUrl())
@@ -68,7 +67,6 @@ public class ActuatorEndpointsControllerTest
     @Test
     public void testHealthEndpointWithAuthorizedUser()
     {
-
         String url = getContextBaseUrl() + "/health";
 
         given().accept(MediaType.APPLICATION_JSON_VALUE)
@@ -84,7 +82,6 @@ public class ActuatorEndpointsControllerTest
     @WithAnonymousUser
     public void testHealthEndpointWithUnauthorizedUser()
     {
-
         String url = getContextBaseUrl() + "/health";
 
         given().accept(MediaType.APPLICATION_JSON_VALUE)
@@ -99,7 +96,6 @@ public class ActuatorEndpointsControllerTest
     @Test
     public void testHealthComponentEndpointWithAuthorizedUser()
     {
-
         String url = getContextBaseUrl() + "/health/db";
 
         given().accept(MediaType.APPLICATION_JSON_VALUE)
@@ -115,7 +111,6 @@ public class ActuatorEndpointsControllerTest
     @WithAnonymousUser
     public void testHealthComponentEndpointWithUnauthorizedUser()
     {
-
         String url = getContextBaseUrl() + "/health/db";
 
         given().accept(MediaType.APPLICATION_JSON_VALUE)
@@ -130,7 +125,6 @@ public class ActuatorEndpointsControllerTest
     @Test
     public void testHealthNotExistingComponentEndpoint()
     {
-
         String url = getContextBaseUrl() + "/health/not_existing_component";
 
         given().accept(MediaType.APPLICATION_JSON_VALUE)
@@ -144,7 +138,6 @@ public class ActuatorEndpointsControllerTest
     @Test
     public void testInfoEndpointWithAuthorizedUser()
     {
-
         String url = getContextBaseUrl() + "/info";
 
         given().accept(MediaType.APPLICATION_JSON_VALUE)
@@ -160,7 +153,6 @@ public class ActuatorEndpointsControllerTest
     @WithAnonymousUser
     public void testInfoEndpointWithUnauthorizedUser()
     {
-
         String url = getContextBaseUrl() + "/info";
 
         given().accept(MediaType.APPLICATION_JSON_VALUE)
@@ -175,7 +167,6 @@ public class ActuatorEndpointsControllerTest
     @Test
     public void testBeansEndpointWithAuthorizedUser()
     {
-
         String url = getContextBaseUrl() + "/beans";
 
         given().accept(MediaType.APPLICATION_JSON_VALUE)
@@ -191,7 +182,6 @@ public class ActuatorEndpointsControllerTest
     @WithAnonymousUser
     public void testBeansEndpointWithUnauthorizedUser()
     {
-
         String url = getContextBaseUrl() + "/beans";
 
         given().accept(MediaType.APPLICATION_JSON_VALUE)
@@ -222,7 +212,6 @@ public class ActuatorEndpointsControllerTest
     @WithAnonymousUser
     public void testMetricsEndpointWithUnauthorizedUser()
     {
-
         String url = getContextBaseUrl() + "/metrics";
 
         given().accept(MediaType.APPLICATION_JSON_VALUE)
@@ -237,7 +226,6 @@ public class ActuatorEndpointsControllerTest
     @Test
     public void testSingleMetricEndpointWithAuthorizedUser()
     {
-
         String url = getContextBaseUrl() + "/metrics/" + METRIC_NAME;
 
         given().accept(MediaType.APPLICATION_JSON_VALUE)
@@ -253,7 +241,6 @@ public class ActuatorEndpointsControllerTest
     @WithAnonymousUser
     public void testSingleMetricEndpointWithUnauthorizedUser()
     {
-
         String url = getContextBaseUrl() + "/metrics/" + METRIC_NAME;
 
         given().accept(MediaType.APPLICATION_JSON_VALUE)
@@ -268,7 +255,6 @@ public class ActuatorEndpointsControllerTest
     @Test
     public void testNotExistingMetricEndpoint()
     {
-
         String url = getContextBaseUrl() + "/metrics/" + NOT_EXISTING_METRIC_NAME;
 
         given().accept(MediaType.APPLICATION_JSON_VALUE)
@@ -282,7 +268,6 @@ public class ActuatorEndpointsControllerTest
     @Test
     public void testLoggersEndpointWithAuthorizedUser()
     {
-
         String url = getContextBaseUrl() + "/loggers";
 
         given().accept(MediaType.APPLICATION_JSON_VALUE)
@@ -297,7 +282,6 @@ public class ActuatorEndpointsControllerTest
     @WithAnonymousUser
     public void testLoggersEndpointWithUnauthorizedUser()
     {
-
         String url = getContextBaseUrl() + "/loggers";
 
         given().accept(MediaType.APPLICATION_JSON_VALUE)
@@ -311,7 +295,6 @@ public class ActuatorEndpointsControllerTest
     @Test
     public void testLoggersSinglePackageEndpointWithAuthorizedUser()
     {
-
         String url = getContextBaseUrl() + "/loggers/" + LOGGER_PACKAGE;
 
         given().accept(MediaType.APPLICATION_JSON_VALUE)
@@ -326,7 +309,6 @@ public class ActuatorEndpointsControllerTest
     @WithAnonymousUser
     public void testLoggersSinglePackageEndpointWithUnauthorizedUser()
     {
-
         String url = getContextBaseUrl() + "/loggers/" + LOGGER_PACKAGE;
 
         given().accept(MediaType.APPLICATION_JSON_VALUE)
