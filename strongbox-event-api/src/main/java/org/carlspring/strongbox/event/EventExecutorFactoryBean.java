@@ -1,24 +1,16 @@
 package org.carlspring.strongbox.event;
 
-import java.lang.reflect.Field;
-import java.util.Optional;
-import java.util.concurrent.Executor;
-
-import javax.servlet.ServletContext;
-
-import org.apache.catalina.Service;
-import org.apache.catalina.core.ApplicationContext;
-import org.apache.catalina.core.ApplicationContextFacade;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.FactoryBean;
 import org.springframework.core.task.SyncTaskExecutor;
-import org.springframework.data.util.ReflectionUtils;
+
+import javax.servlet.ServletContext;
+import java.util.Optional;
+import java.util.concurrent.Executor;
 
 public class EventExecutorFactoryBean implements FactoryBean<Executor>
 {
-
-    private static final String STRONGBOX_HTTP_REQUEST_EXECUTOR = "strongbox.httpRequestExecutor";
 
     private static final Logger logger = LoggerFactory.getLogger(EventExecutorFactoryBean.class);
 
@@ -50,10 +42,6 @@ public class EventExecutorFactoryBean implements FactoryBean<Executor>
         {
             return result;
         }
-        else if ((result = lookupTomcatExecutor()) != null)
-        {
-            return result;
-        }
         return null;
     }
 
@@ -66,57 +54,6 @@ public class EventExecutorFactoryBean implements FactoryBean<Executor>
         }
 
         logger.info("Jetty environment detected.");
-
-        return executor;
-    }
-
-    private Executor lookupTomcatExecutor()
-    {
-        try
-        {
-            Class.forName("org.apache.catalina.core.ApplicationContextFacade");
-        }
-        catch (ClassNotFoundException e)
-        {
-            return null;
-        }
-
-        logger.info("Tomcat environment detected.");
-
-        Service service;
-        try
-        {
-            Field field = ReflectionUtils.findField(servletContext.getClass(),
-                                                    (f) -> f.getName().equals("sc"));
-            field.setAccessible(true);
-
-            ApplicationContextFacade asc = (ApplicationContextFacade) field.get(servletContext);
-
-            field = ReflectionUtils.findField(ApplicationContextFacade.class,
-                                              (f) -> f.getName().equals("context"));
-            field.setAccessible(true);
-
-            ApplicationContext context = (ApplicationContext) field.get(asc);
-
-            field = ReflectionUtils.findField(ApplicationContext.class, (f) -> f.getName().equals("service"));
-            field.setAccessible(true);
-
-            service = (Service) field.get(context);
-        }
-        catch (IllegalAccessException e)
-        {
-            logger.error(String.format("Failed to get Tomcat Service: [%s] ", e.getMessage()));
-
-            return null;
-        }
-
-        Executor executor = service.getExecutor(STRONGBOX_HTTP_REQUEST_EXECUTOR);
-        if (executor == null)
-        {
-            logger.warn(String.format("Executor [%s] not found in Tomcat environment, you need to expectedly define it in `server.xml` configuration file.",
-                                      STRONGBOX_HTTP_REQUEST_EXECUTOR));
-            return null;
-        }
 
         return executor;
     }
