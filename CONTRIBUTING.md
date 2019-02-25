@@ -75,3 +75,4 @@ To accept, please:
 | Forrest Whiting              | Forbes Media                             | Jersey City, New Jersey, USA            | 2019-02-04 |
 | Dawid Antecki           |                                          | Bielsko-Biala, Poland                      | 2019-02-18 |
 | Ekrem Candemir           |                                          | Ankara, Turkey                      | 2019-02-24 |
+| Eugeniusz Fedchenko          |                                          | Warsaw, Poland                          |2019-02-25  |
