@@ -105,8 +105,26 @@ public class StorageFormTestIT
 
         // then
         assertFalse(violations.isEmpty(), "Violations are empty!");
-        assertEquals(violations.size(), 1);
+        assertEquals(violations.size(), 2);
         assertThat(violations).extracting("message").containsAnyOf("An id must be specified.");
+    }
+
+    @Test
+    void storageIdShouldDisallowIllegalCharacters()
+    {
+        // given
+        StorageForm storageForm = new StorageForm();
+        storageForm.setId("mama*");
+        storageForm.setBasedir(propertiesBooter.getVaultDirectory() + "/" + BASEDIR_VALID);
+        storageForm.setRepositories(repositories);
+
+        // when
+        Set<ConstraintViolation<StorageForm>> violations = validator.validate(storageForm);
+
+        // then
+        assertFalse(violations.isEmpty(), "Violations are empty!");
+        assertEquals(violations.size(), 1);
+        assertThat(violations).extracting("message").containsAnyOf("must match \"[a-zA-Z0-9\\-\\_\\.]+\"");
     }
 
     @Test
