@@ -47,6 +47,12 @@ public abstract class BaseArtifactController
         try
         {
             RepositoryPath repositoryPath = repositoryPathResolver.resolve(storageId, repositoryId, path);
+
+            if (!repositoryPath.getRepository().isInService())
+            {
+                return ResponseEntity.status(HttpStatus.SERVICE_UNAVAILABLE).body("Repository is not in service.");
+            }
+
             artifactManagementService.validateAndStore(repositoryPath, request.getInputStream());
 
             return ResponseEntity.ok("The artifact was deployed successfully.");

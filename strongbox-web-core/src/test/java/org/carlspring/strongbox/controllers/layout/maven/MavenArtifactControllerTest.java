@@ -47,6 +47,7 @@ import java.util.zip.ZipOutputStream;
 
 import io.restassured.http.Header;
 import io.restassured.http.Headers;
+import io.restassured.module.mockmvc.response.MockMvcResponse;
 import io.restassured.response.ExtractableResponse;
 import org.apache.maven.artifact.Artifact;
 import org.apache.maven.artifact.repository.metadata.Metadata;
@@ -65,6 +66,7 @@ import org.springframework.security.test.context.support.WithUserDetails;
 import org.w3c.dom.Document;
 import org.xml.sax.InputSource;
 import static io.restassured.module.mockmvc.RestAssuredMockMvc.given;
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.*;
 
 /**
@@ -88,6 +90,8 @@ public class MavenArtifactControllerTest
     private static final String REPOSITORY_RELEASES2 = "mact-releases-2";
 
     private static final String REPOSITORY_SNAPSHOTS = "mact-snapshots";
+
+    private static final String REPOSITORY_RELEASES_OUT_OF_SERVICE = "mact-releases-out-of-service";
 
     private static String pluginXmlFilePath;
 
@@ -133,6 +137,7 @@ public class MavenArtifactControllerTest
     {
         cleanUp(getRepositoriesToClean(REPOSITORY_RELEASES1,
                                        REPOSITORY_RELEASES2,
+                                       REPOSITORY_RELEASES_OUT_OF_SERVICE,
                                        REPOSITORY_SNAPSHOTS));
     }
 
@@ -338,6 +343,11 @@ public class MavenArtifactControllerTest
         //noinspection ResultOfMethodCallIgnored
         Files.createDirectories(Paths.get(TEST_RESOURCES));
 
+        MutableRepository repository4 = mavenRepositoryFactory.createRepository(REPOSITORY_RELEASES_OUT_OF_SERVICE);
+        repository4.setPolicy(RepositoryPolicyEnum.RELEASE.getPolicy());
+        repository4.putOutOfService();
+
+        createRepository(STORAGE0, repository4);
     }
 
     @Override
@@ -348,6 +358,7 @@ public class MavenArtifactControllerTest
         {
             closeIndexersForRepository(STORAGE0, REPOSITORY_RELEASES1);
             closeIndexersForRepository(STORAGE0, REPOSITORY_RELEASES2);
+            closeIndexersForRepository(STORAGE0, REPOSITORY_RELEASES_OUT_OF_SERVICE);
             closeIndexersForRepository(STORAGE0, REPOSITORY_SNAPSHOTS);
 
             removeRepositories();
@@ -657,6 +668,18 @@ public class MavenArtifactControllerTest
 
         assertFalse(deletedArtifact.exists(),
                     "Failed to delete artifact file '" + deletedArtifact.getAbsolutePath() + "'!");
+    }
+
+    @Test
+    public void whenRepositoryIsOutOfServiceWeShouldDisallowArtifactDeployment()
+    {
+        String artifactPath = "/storages/" + STORAGE0 + "/" + REPOSITORY_RELEASES_OUT_OF_SERVICE +
+                              "/com/artifacts/to/delete/releases/delete-foo/1.2.2";
+
+        MockMvcResponse mockMvcResponse = client.put2(artifactPath, "<body/>",
+                                                      javax.ws.rs.core.MediaType.APPLICATION_XML);
+
+        assertThat(mockMvcResponse.statusCode()).isEqualTo(503);
     }
 
     @Test
