@@ -1,13 +1,5 @@
 package org.carlspring.strongbox.controllers;
 
-import static io.restassured.module.mockmvc.RestAssuredMockMvc.given;
-import static org.hamcrest.Matchers.equalTo;
-import static org.hamcrest.Matchers.notNullValue;
-
-import java.util.Collections;
-
-import javax.inject.Inject;
-
 import org.carlspring.strongbox.config.IntegrationTest;
 import org.carlspring.strongbox.rest.common.RestAssuredBaseTest;
 import org.carlspring.strongbox.users.security.SecurityTokenProvider;
@@ -19,6 +11,13 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.test.context.TestSecurityContextHolder;
+
+import javax.inject.Inject;
+import java.util.Collections;
+
+import static io.restassured.module.mockmvc.RestAssuredMockMvc.given;
+import static org.hamcrest.Matchers.equalTo;
+import static org.hamcrest.Matchers.notNullValue;
 
 /**
  * @author: adavid9
@@ -107,9 +106,17 @@ public class JwtAuthenticationTest
         String url = getContextBaseUrl() + "/users";
 
         // generate token that will expire after 1 second
-        String expiredToken = securityTokenProvider.getToken("admin", Collections.emptyMap(), 1);
+        String expiredToken = securityTokenProvider.getToken("admin", Collections.emptyMap(), 3);
 
-        Thread.sleep(1500);
+        given().header(HttpHeaders.AUTHORIZATION, getAuthorizationHeader(expiredToken))
+               .header(HttpHeaders.ACCEPT, MediaType.APPLICATION_JSON_VALUE)
+               .when()
+               .get(url)
+               .then()
+               .statusCode(HttpStatus.OK.value())
+               .body(notNullValue());
+
+        Thread.sleep(3000);
 
         given().header(HttpHeaders.AUTHORIZATION, getAuthorizationHeader(expiredToken))
                .header(HttpHeaders.ACCEPT, MediaType.APPLICATION_JSON_VALUE)
