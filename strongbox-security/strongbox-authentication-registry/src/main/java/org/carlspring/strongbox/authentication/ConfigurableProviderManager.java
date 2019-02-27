@@ -34,7 +34,6 @@ import org.springframework.context.event.ContextRefreshedEvent;
 import org.springframework.context.event.EventListener;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.AuthenticationProvider;
-import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.security.authentication.ProviderManager;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.AuthenticationException;
@@ -303,7 +302,7 @@ public class ConfigurableProviderManager extends ProviderManager implements User
         public Authentication authenticate(Authentication authentication)
             throws AuthenticationException
         {
-            throw new BadCredentialsException("invalid.credentials");
+            return null;
         }
 
     }

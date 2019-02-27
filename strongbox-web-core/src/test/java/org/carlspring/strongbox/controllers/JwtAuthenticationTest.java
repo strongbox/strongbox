@@ -1,5 +1,13 @@
 package org.carlspring.strongbox.controllers;
 
+import static io.restassured.module.mockmvc.RestAssuredMockMvc.given;
+import static org.hamcrest.Matchers.equalTo;
+import static org.hamcrest.Matchers.notNullValue;
+
+import java.util.Collections;
+
+import javax.inject.Inject;
+
 import org.carlspring.strongbox.config.IntegrationTest;
 import org.carlspring.strongbox.rest.common.RestAssuredBaseTest;
 import org.carlspring.strongbox.users.security.SecurityTokenProvider;
@@ -9,20 +17,12 @@ import org.junit.jupiter.api.Test;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
-import org.springframework.security.test.context.support.WithAnonymousUser;
-
-import javax.inject.Inject;
-
-import java.util.Collections;
-
-import static io.restassured.module.mockmvc.RestAssuredMockMvc.given;
-import static org.hamcrest.Matchers.equalTo;
-import static org.hamcrest.Matchers.notNullValue;
+import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.security.test.context.TestSecurityContextHolder;
 
 /**
  * @author: adavid9
  */
-
 @IntegrationTest
 public class JwtAuthenticationTest
         extends RestAssuredBaseTest
@@ -40,10 +40,11 @@ public class JwtAuthenticationTest
     {
         super.init();
         setContextBaseUrl(getContextBaseUrl() + "/api");
+        TestSecurityContextHolder.clearContext();
+        SecurityContextHolder.clearContext();
     }
 
     @Test
-    @WithAnonymousUser
     public void testJWTAuthShouldPassWithToken()
             throws Exception
     {
@@ -60,22 +61,31 @@ public class JwtAuthenticationTest
                              .statusCode(HttpStatus.OK.value())
                              .extract()
                              .asString();
+        TestSecurityContextHolder.clearContext();
+        SecurityContextHolder.clearContext();
 
+        given().header(HttpHeaders.ACCEPT, MediaType.APPLICATION_JSON_VALUE)
+               .when()
+               .get(url)
+               .then()
+               .statusCode(HttpStatus.UNAUTHORIZED.value())
+               .body(notNullValue());
+        TestSecurityContextHolder.clearContext();
+        SecurityContextHolder.clearContext();
+        
         // this token will expire after 1 hour
         String tokenValue = getTokenValue(body);
-
-        given().header(HttpHeaders.AUTHORIZATION, tokenValue)
+        given().header(HttpHeaders.AUTHORIZATION, getAuthorizationHeader(tokenValue))
                .header(HttpHeaders.ACCEPT, MediaType.APPLICATION_JSON_VALUE)
                .when()
                .get(url)
                .then()
                .statusCode(HttpStatus.OK.value())
                .body(notNullValue());
-
+        
     }
 
     @Test
-    @WithAnonymousUser
     public void testJWTAuthShouldFailWithoutToken()
     {
 
@@ -90,7 +100,6 @@ public class JwtAuthenticationTest
     }
 
     @Test
-    @WithAnonymousUser
     public void testJWTExpirationToken()
             throws Exception
     {
@@ -102,13 +111,13 @@ public class JwtAuthenticationTest
 
         Thread.sleep(1500);
 
-        given().header(HttpHeaders.AUTHORIZATION, expiredToken)
+        given().header(HttpHeaders.AUTHORIZATION, getAuthorizationHeader(expiredToken))
                .header(HttpHeaders.ACCEPT, MediaType.APPLICATION_JSON_VALUE)
                .when()
                .get(url)
                .then()
                .statusCode(HttpStatus.UNAUTHORIZED.value())
-               .body("error", equalTo(UNAUTHORIZED_MESSAGE));
+               .body("error", equalTo("expired"));
     }
 
     private String getTokenValue(String body)
@@ -117,4 +126,10 @@ public class JwtAuthenticationTest
         JSONObject extractToken = new JSONObject(body);
         return extractToken.getString("token");
     }
+    
+    private String getAuthorizationHeader(String tokenValue)
+    {
+        return String.format("Bearer %s", tokenValue);
+    }
+
 }
