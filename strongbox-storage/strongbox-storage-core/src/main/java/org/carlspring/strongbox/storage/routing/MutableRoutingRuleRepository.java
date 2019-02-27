@@ -1,16 +1,17 @@
 package org.carlspring.strongbox.storage.routing;
 
-import javax.xml.bind.annotation.*;
+import javax.xml.bind.annotation.XmlAccessType;
+import javax.xml.bind.annotation.XmlAccessorType;
+import javax.xml.bind.annotation.XmlAttribute;
+import javax.xml.bind.annotation.XmlRootElement;
 import java.io.Serializable;
-import java.util.ArrayList;
-import java.util.List;
 
 /**
- * @author mtodorov
+ * @author Przemyslaw Fusik
  */
-@XmlRootElement(name = "rule-set")
 @XmlAccessorType(XmlAccessType.FIELD)
-public class MutableRuleSet
+@XmlRootElement(name = "repository")
+public class MutableRoutingRuleRepository
         implements Serializable
 {
 
@@ -19,9 +20,6 @@ public class MutableRuleSet
 
     @XmlAttribute(name = "repository-id")
     private String repositoryId;
-
-    @XmlElement(name = "rule")
-    private List<MutableRoutingRule> routingRules = new ArrayList<>();
 
     public String getStorageId()
     {
@@ -41,15 +39,5 @@ public class MutableRuleSet
     public void setRepositoryId(String repositoryId)
     {
         this.repositoryId = repositoryId;
-    }
-
-    public List<MutableRoutingRule> getRoutingRules()
-    {
-        return routingRules;
-    }
-
-    public void setRoutingRules(List<MutableRoutingRule> routingRules)
-    {
-        this.routingRules = routingRules;
     }
 }

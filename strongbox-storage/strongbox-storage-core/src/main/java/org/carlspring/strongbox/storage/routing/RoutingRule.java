@@ -2,10 +2,11 @@ package org.carlspring.strongbox.storage.routing;
 
 import javax.annotation.concurrent.Immutable;
 import java.util.Collections;
-import java.util.Set;
+import java.util.List;
 import java.util.regex.Pattern;
+import java.util.stream.Collectors;
 
-import com.google.common.collect.ImmutableSet;
+import com.google.common.collect.ImmutableList;
 
 /**
  * @author Przemyslaw Fusik
@@ -18,18 +19,20 @@ public class RoutingRule
 
     private final Pattern regex;
 
-    private final Set<String> repositories;
+    private final List<RoutingRuleRepository> repositories;
 
     public RoutingRule(final MutableRoutingRule delegate)
     {
         this.pattern = delegate.getPattern();
-        this.regex = delegate.getRegex();
+        this.regex = Pattern.compile(pattern);
         this.repositories = immuteRepositories(delegate.getRepositories());
     }
 
-    private Set<String> immuteRepositories(Set<String> source)
+
+    private List<RoutingRuleRepository> immuteRepositories(List<MutableRoutingRuleRepository> source)
     {
-        return source != null ? ImmutableSet.copyOf(source) : Collections.emptySet();
+        return source != null ? ImmutableList.copyOf(source.stream().map(RoutingRuleRepository::new).collect(
+                Collectors.toList())) : Collections.emptyList();
     }
 
     public String getPattern()
@@ -42,7 +45,7 @@ public class RoutingRule
         return regex;
     }
 
-    public Set<String> getRepositories()
+    public List<RoutingRuleRepository> getRepositories()
     {
         return repositories;
     }

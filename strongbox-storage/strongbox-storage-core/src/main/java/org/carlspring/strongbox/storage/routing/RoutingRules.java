@@ -2,10 +2,10 @@ package org.carlspring.strongbox.storage.routing;
 
 import javax.annotation.concurrent.Immutable;
 import java.util.Collections;
-import java.util.Map;
+import java.util.List;
 
-import com.google.common.collect.ImmutableMap;
-import static java.util.stream.Collectors.toMap;
+import com.google.common.collect.ImmutableList;
+import static java.util.stream.Collectors.toList;
 
 /**
  * @author Przemyslaw Fusik
@@ -14,11 +14,9 @@ import static java.util.stream.Collectors.toMap;
 public class RoutingRules
 {
 
-    public static final String WILDCARD = MutableRoutingRules.WILDCARD;
+    private final List<RuleSet> accepted;
 
-    private final Map<String, RuleSet> accepted;
-
-    private final Map<String, RuleSet> denied;
+    private final List<RuleSet> denied;
 
     public RoutingRules(final MutableRoutingRules delegate)
     {
@@ -26,46 +24,19 @@ public class RoutingRules
         this.denied = immuteRuleSet(delegate.getDenied());
     }
 
-    private Map<String, RuleSet> immuteRuleSet(final Map<String, MutableRuleSet> source)
+    private List<RuleSet> immuteRuleSet(final List<MutableRuleSet> source)
     {
-        return source != null ? ImmutableMap.copyOf(source.entrySet().stream().collect(
-                toMap(Map.Entry::getKey, e -> new RuleSet(e.getValue())))) : Collections.emptyMap();
+        return source != null ? ImmutableList.copyOf(source.stream().map(RuleSet::new).collect(toList())) :
+               Collections.emptyList();
     }
 
-    public Map<String, RuleSet> getAccepted()
+    public List<RuleSet> getAccepted()
     {
         return accepted;
     }
 
-    public Map<String, RuleSet> getDenied()
+    public List<RuleSet> getDenied()
     {
         return denied;
     }
-
-    public RuleSet getWildcardAcceptedRules()
-    {
-        return accepted.get(WILDCARD);
-    }
-
-    public RuleSet getWildcardDeniedRules()
-    {
-        return denied.get(WILDCARD);
-    }
-
-    public RuleSet getAcceptRules(String groupRepositoryId)
-    {
-        return accepted.get(groupRepositoryId);
-    }
-
-    public RuleSet getWildcardDenyRules()
-    {
-        return getDenyRules(WILDCARD);
-    }
-
-    public RuleSet getDenyRules(String groupRepositoryId)
-    {
-        return denied.get(groupRepositoryId);
-    }
-
-
 }

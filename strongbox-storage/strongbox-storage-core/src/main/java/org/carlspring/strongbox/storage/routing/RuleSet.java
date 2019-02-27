@@ -12,15 +12,19 @@ import com.google.common.collect.ImmutableList;
  */
 @Immutable
 public class RuleSet
+        implements RepositoryIdentifiable
 {
 
-    private final String groupRepository;
+    private final String storageId;
+
+    private final String repositoryId;
 
     private final List<RoutingRule> routingRules;
 
     public RuleSet(final MutableRuleSet delegate)
     {
-        this.groupRepository = delegate.getGroupRepository();
+        this.repositoryId = delegate.getRepositoryId();
+        this.storageId = delegate.getStorageId();
         this.routingRules = immuteRoutingRules(delegate.getRoutingRules());
     }
 
@@ -30,9 +34,14 @@ public class RuleSet
                 Collectors.toList())) : Collections.emptyList();
     }
 
-    public String getGroupRepository()
+    public String getStorageId()
     {
-        return groupRepository;
+        return storageId;
+    }
+
+    public String getRepositoryId()
+    {
+        return repositoryId;
     }
 
     public List<RoutingRule> getRoutingRules()
