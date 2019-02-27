@@ -13,7 +13,6 @@ import io.restassured.module.mockmvc.specification.MockMvcRequestSpecification;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.http.MediaType;
-import org.springframework.security.web.authentication.AnonymousAuthenticationFilter;
 import org.springframework.web.context.WebApplicationContext;
 import static io.restassured.module.mockmvc.RestAssuredMockMvc.given;
 import static org.carlspring.strongbox.rest.client.RestAssuredArtifactClient.OK;
@@ -42,9 +41,6 @@ public abstract class RestAssuredBaseTest
 
     @Inject
     protected ObjectMapper objectMapper;
-
-    @Inject
-    private AnonymousAuthenticationFilter anonymousAuthenticationFilter;
 
     @Inject
     protected RestAssuredArtifactClient client;

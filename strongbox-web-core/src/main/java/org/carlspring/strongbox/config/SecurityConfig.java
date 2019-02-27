@@ -2,7 +2,6 @@ package org.carlspring.strongbox.config;
 
 import org.carlspring.strongbox.authentication.AuthenticationConfig;
 import org.carlspring.strongbox.security.CustomAccessDeniedHandler;
-import org.carlspring.strongbox.security.authentication.CustomAnonymousAuthenticationFilter;
 import org.carlspring.strongbox.security.authentication.Http401AuthenticationEntryPoint;
 import org.carlspring.strongbox.security.authentication.StrongboxAuthenticationFilter;
 import org.carlspring.strongbox.security.authentication.suppliers.AuthenticationSupplier;
@@ -169,9 +168,9 @@ public class SecurityConfig
         List<GrantedAuthority> authorities = AuthorityUtils.createAuthorityList("ROLE_ANONYMOUS");
         authorities.addAll(authoritiesProvider.getAuthoritiesByRoleName(ANONYMOUS_ROLE));
 
-        return new CustomAnonymousAuthenticationFilter("strongbox-unique-key",
-                                                       "anonymousUser",
-                                                       authorities);
+        return new AnonymousAuthenticationFilter("strongbox-unique-key",
+                                                 "anonymousUser",
+                                                 authorities);
     }
 
 
