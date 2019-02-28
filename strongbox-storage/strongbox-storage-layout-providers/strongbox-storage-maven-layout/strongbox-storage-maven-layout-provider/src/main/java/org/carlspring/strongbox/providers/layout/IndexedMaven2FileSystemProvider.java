@@ -68,7 +68,8 @@ public class IndexedMaven2FileSystemProvider extends Maven2FileSystemProvider
             String fileName = e.getMessage();
             RepositoryPath indexRoot = ((LayoutFileSystem)path.getFileSystem()).getRootDirectory().resolve(LayoutFileSystem.INDEX);
             // We should ignore this error for index files because there is no index files in group repositories.
-            if (fileName == null || !fileName.startsWith(indexRoot.toString())) {
+            if (fileName == null || !fileName.startsWith(indexRoot.toString()))
+            {
                 throw e;
             }
         }
