@@ -2,6 +2,7 @@ package org.carlspring.strongbox.providers.layout;
 
 import org.carlspring.strongbox.artifact.coordinates.MavenArtifactCoordinates;
 import org.carlspring.strongbox.io.LayoutOutputStream;
+import org.carlspring.strongbox.providers.io.LayoutFileSystem;
 import org.carlspring.strongbox.providers.io.RepositoryFiles;
 import org.carlspring.strongbox.providers.io.RepositoryPath;
 import org.carlspring.strongbox.providers.io.TempRepositoryPath;
@@ -13,9 +14,11 @@ import org.carlspring.strongbox.storage.indexing.RepositoryIndexer;
 import org.carlspring.strongbox.storage.repository.Repository;
 
 import javax.inject.Inject;
+
 import java.io.IOException;
 import java.io.OutputStream;
 import java.nio.file.Files;
+import java.nio.file.NoSuchFileException;
 import java.nio.file.Path;
 import java.nio.file.spi.FileSystemProvider;
 import java.security.NoSuchAlgorithmException;
@@ -56,7 +59,19 @@ public class IndexedMaven2FileSystemProvider extends Maven2FileSystemProvider
     {
         super.delete(path, force);
 
-        deleteFromIndex((RepositoryPath) path);
+        try
+        {
+            deleteFromIndex((RepositoryPath) path);
+        }
+        catch (NoSuchFileException e)
+        {
+            String fileName = e.getMessage();
+            RepositoryPath indexRoot = ((LayoutFileSystem)path.getFileSystem()).getRootDirectory().resolve(LayoutFileSystem.INDEX);
+            // We should ignore this error for index files because there is no index files in group repositories.
+            if (fileName == null || !fileName.startsWith(indexRoot.toString())) {
+                throw e;
+            }
+        }
     }
 
     @Override

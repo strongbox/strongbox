@@ -21,6 +21,7 @@ import java.io.*;
 import java.lang.reflect.UndeclaredThrowableException;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.nio.file.StandardOpenOption;
 import java.util.Collections;
 import java.util.List;
 import java.util.concurrent.locks.Lock;
@@ -132,10 +133,10 @@ public class MavenMetadataManager
                      try
                      {
                          Path metadataPath = MetadataHelper.getMetadataPath(metadataBasePath, version, metadataType);
-                         Files.deleteIfExists(metadataPath);
-
                          try (OutputStream os = new MultipleDigestOutputStream(metadataPath,
-                                                                               Files.newOutputStream(metadataPath)))
+                                                                               Files.newOutputStream(metadataPath, 
+                                                                                                     StandardOpenOption.CREATE, 
+                                                                                                     StandardOpenOption.TRUNCATE_EXISTING)))
                          {
                              Writer writer = WriterFactory.newXmlWriter(os);
 
