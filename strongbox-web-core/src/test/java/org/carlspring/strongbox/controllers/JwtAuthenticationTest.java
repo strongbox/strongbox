@@ -5,6 +5,7 @@ import org.carlspring.strongbox.rest.common.RestAssuredBaseTest;
 import org.carlspring.strongbox.users.security.SecurityTokenProvider;
 import org.json.JSONObject;
 import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
@@ -96,6 +97,24 @@ public class JwtAuthenticationTest
                .then()
                .statusCode(HttpStatus.UNAUTHORIZED.value())
                .body("error", equalTo(UNAUTHORIZED_MESSAGE));
+    }
+
+    @Test
+    @Disabled
+    public void testJWTInvalidToken()
+    {
+
+        String url = getContextBaseUrl() + "/users";
+
+        String invalid_token = "ABCD";
+
+        given().header(HttpHeaders.AUTHORIZATION, getAuthorizationHeader(invalid_token))
+               .header(HttpHeaders.ACCEPT, MediaType.APPLICATION_JSON_VALUE)
+               .when()
+               .get(url)
+               .then()
+               .statusCode(HttpStatus.UNAUTHORIZED.value())
+               .body("error", equalTo("invalid.token"));
     }
 
     @Test
