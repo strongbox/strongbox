@@ -176,11 +176,6 @@ public class MavenMetadataGroupRepositoryComponentOnDeleteTest
     public void whenAnArtifactWasDeletedAllGroupRepositoriesContainingShouldHaveMetadataUpdatedIfPossible()
             throws Exception
     {
-        
-        System.out.println("*******************************");
-        System.out.println("*******************************");
-        System.out.println("*******************************");
-        
         Repository repository = configurationManager.getConfiguration()
                                                     .getStorage(STORAGE0)
                                                     .getRepository(REPOSITORY_LEAF_L);
