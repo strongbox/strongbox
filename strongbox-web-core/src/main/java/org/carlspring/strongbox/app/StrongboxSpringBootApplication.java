@@ -42,8 +42,7 @@ public class StrongboxSpringBootApplication
             System.setProperty(ConnectionConfigOrientDB.PROPERTY_PROFILE, ConnectionConfigOrientDB.PROFILE_EMBEDDED);
         }
 
-        applicationContext = SpringApplication.run(StrongboxSpringBootApplication.class,
-                                                                                  args);
+        applicationContext = SpringApplication.run(StrongboxSpringBootApplication.class, args);
         applicationContext.start();
     }
 
@@ -53,8 +52,7 @@ public class StrongboxSpringBootApplication
 
         Thread thread = new Thread(() -> {
             applicationContext.close();
-            applicationContext = SpringApplication.run(StrongboxSpringBootApplication.class,
-                                                                                      args.getSourceArgs());
+            applicationContext = SpringApplication.run(StrongboxSpringBootApplication.class, args.getSourceArgs());
         });
 
         thread.setDaemon(false);
