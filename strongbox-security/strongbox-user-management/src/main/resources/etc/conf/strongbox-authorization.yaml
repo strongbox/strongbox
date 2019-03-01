@@ -1,19 +1,19 @@
 authorizationConfiguration:
-  privileges: !!set
-    ? {description: This is an example of how you could add some custom privilege. Feel
-         free to use it by name at the REST API side to access restriction purposes.,
-       name: EXAMPLE_PRIVILEGE}
-      : null
-  roles: !!set
-    ? description: Common anonymous user role
-      name: ANONYMOUS_ROLE
-      privileges: !!set {ARTIFACTS_RESOLVE: null, SEARCH_ARTIFACTS: null}
-      : null
-    ? description: Common user role
-      name: USER_ROLE
-      privileges: !!set {VIEW_USER: null}
-      : null
-    ? description: Deployment role
-        name: CUSTOM_ROLE
-        privileges: !!set {Deploy: null}
-      : null
+  roles:
+    - name: ANONYMOUS_ROLE
+      description: Common anonymous user role
+      privileges:
+        - ARTIFACTS_RESOLVE
+        - SEARCH_ARTIFACTS
+    - name: USER_ROLE
+      description: Common user role
+      privileges:
+        - VIEW_USER
+    - name: CUSTOM_ROLE
+      description: Deployment role
+      privileges:
+        - Deploy
+  privileges:
+    - name: EXAMPLE_PRIVILEGE
+      description: This is an example of how you could add some custom privilege. Feel
+        free to use it by name at the REST API side to access restriction purposes.

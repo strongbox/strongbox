@@ -10,7 +10,7 @@ import java.lang.reflect.UndeclaredThrowableException;
 
 import com.fasterxml.jackson.databind.DeserializationFeature;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.fasterxml.jackson.dataformat.yaml.YAMLFactory;
+import com.fasterxml.jackson.dataformat.yaml.YAMLMapper;
 import org.springframework.core.GenericTypeResolver;
 import org.springframework.core.io.Resource;
 
@@ -28,8 +28,7 @@ public abstract class YamlFileManager<T>
     public YamlFileManager()
     {
         myClazz = (Class<T>) GenericTypeResolver.resolveTypeArgument(getClass(), YamlFileManager.class);
-        YAMLFactory yamlFactory = new YAMLFactory();
-        yamlMapper = new ObjectMapper(yamlFactory).configure(DeserializationFeature.UNWRAP_ROOT_VALUE, true);
+        yamlMapper = new YAMLMapper().configure(DeserializationFeature.UNWRAP_ROOT_VALUE, true);
     }
 
     public abstract String getPropertyKey();
