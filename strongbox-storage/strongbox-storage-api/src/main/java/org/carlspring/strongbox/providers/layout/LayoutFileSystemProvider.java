@@ -275,7 +275,11 @@ public abstract class LayoutFileSystemProvider extends StorageFileSystemProvider
         throws IOException
     {
         logger.debug("Deleting in (" + path + ")...");
-        
+
+
+        RepositoryPath repositoryPath = (RepositoryPath) path;
+        deleteMetadata(repositoryPath);
+
         if (!Files.exists(path))
         {
             logger.warn(String.format("Path not found: path-[%s]", path));
@@ -283,9 +287,12 @@ public abstract class LayoutFileSystemProvider extends StorageFileSystemProvider
             return;
         }
 
+        boolean directory = Files.isDirectory(path);
         super.delete(path, force);
-
-        artifactEventListenerRegistry.dispatchArtifactPathDeletedEvent(path);
+        if (!directory)
+        {
+            artifactEventListenerRegistry.dispatchArtifactPathDeletedEvent(path);
+        }
 
         logger.debug(String.format("Removed [%s]", path));
     }
@@ -370,6 +377,12 @@ public abstract class LayoutFileSystemProvider extends StorageFileSystemProvider
         throws IOException
     {
         return getLayoutProvider().getRepositoryFileAttributes(repositoryRelativePath, attributeTypes);
+    }
+    
+    protected void deleteMetadata(RepositoryPath repositoryPath)
+        throws IOException
+    {
+
     }
     
 }

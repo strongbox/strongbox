@@ -5,7 +5,6 @@ import org.carlspring.strongbox.providers.io.RepositoryPath;
 import org.carlspring.strongbox.repository.RepositoryManagementStrategy;
 
 import javax.annotation.Nonnull;
-import java.io.IOException;
 import java.util.Set;
 
 /**
@@ -13,12 +12,6 @@ import java.util.Set;
  */
 public interface LayoutProvider<T extends ArtifactCoordinates>
 {
-
-    //TODO: we should perform delete logic in RepositoryPath and RepositoryFileSystemProvider
-    @Deprecated
-    void deleteMetadata(RepositoryPath repositoryPath)
-            throws IOException;
-
     RepositoryManagementStrategy getRepositoryManagementStrategy();
 
     @Nonnull
