@@ -1,6 +1,6 @@
 # General
 
-This project is a research and development effort lead by Carlspring Consulting & Development Ltd. with the goal of providing an alternative to existing artifact repository managers. We aim to create an easy to use, well-developed universal artifact repository manager with native  implementations of the layout formats which we support. We are building on top of a modern, well-devised architecture and need help in various areas such as research, development and testing.
+This project is a research and development effort lead by Carlspring Consulting & Development Ltd. with the goal of providing an alternative to existing artifact repository managers. We aim to create a robust and easy to use, well-developed universal artifact repository manager with native implementations of the layout formats which we support. We are building on top of a modern, well-devised architecture and need help in various areas such as research, development and testing.
 
 We are also truly grateful to all of our countless contributors, without whom we wouldn't have come so far!
 
