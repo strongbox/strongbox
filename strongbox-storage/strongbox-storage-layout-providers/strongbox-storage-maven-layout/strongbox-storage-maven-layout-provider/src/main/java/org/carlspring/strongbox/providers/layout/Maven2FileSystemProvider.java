@@ -222,7 +222,7 @@ public class Maven2FileSystemProvider extends LayoutFileSystemProvider
     public void deleteMetadataAtVersionLevel(RepositoryPath metadataBasePath,
                                              String version)
         throws IOException,
-        XmlPullParserException
+               XmlPullParserException
     {
         
         if (ArtifactUtils.isSnapshot(version) && Files.exists(metadataBasePath))
