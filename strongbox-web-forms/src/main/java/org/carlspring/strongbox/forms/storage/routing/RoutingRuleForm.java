@@ -1,19 +1,51 @@
 package org.carlspring.strongbox.forms.storage.routing;
 
+import org.carlspring.strongbox.storage.routing.RoutingRuleTypeEnum;
+
 import javax.validation.constraints.NotEmpty;
-import java.util.LinkedHashSet;
-import java.util.Set;
+import javax.validation.constraints.NotNull;
+import java.util.ArrayList;
+import java.util.List;
 
 /**
  * @author Pablo Tirado
+ * @author Przemyslaw Fusik
  */
 public class RoutingRuleForm
 {
+
+    private String storageId;
+
+    private String repositoryId;
+
     @NotEmpty(message = "A pattern must be specified.")
     private String pattern;
 
-    @NotEmpty(message = "A set of repositories must be specified.")
-    private Set<String> repositories = new LinkedHashSet<>();
+    @NotNull(message = "A type must be specified.")
+    private RoutingRuleTypeEnum type;
+
+    @NotEmpty(message = "A list of repositories must be specified.")
+    private List<RoutingRuleRepositoryForm> repositories = new ArrayList<>();
+
+    public String getStorageId()
+    {
+        return storageId;
+    }
+
+    public void setStorageId(String storageId)
+    {
+        this.storageId = storageId;
+    }
+
+    public String getRepositoryId()
+    {
+        return repositoryId;
+    }
+
+    public void setRepositoryId(String repositoryId)
+    {
+        this.repositoryId = repositoryId;
+    }
 
     public String getPattern()
     {
@@ -25,12 +57,22 @@ public class RoutingRuleForm
         this.pattern = pattern;
     }
 
-    public Set<String> getRepositories()
+    public RoutingRuleTypeEnum getType()
+    {
+        return type;
+    }
+
+    public void setType(RoutingRuleTypeEnum type)
+    {
+        this.type = type;
+    }
+
+    public List<RoutingRuleRepositoryForm> getRepositories()
     {
         return repositories;
     }
 
-    public void setRepositories(Set<String> repositories)
+    public void setRepositories(List<RoutingRuleRepositoryForm> repositories)
     {
         this.repositories = repositories;
     }

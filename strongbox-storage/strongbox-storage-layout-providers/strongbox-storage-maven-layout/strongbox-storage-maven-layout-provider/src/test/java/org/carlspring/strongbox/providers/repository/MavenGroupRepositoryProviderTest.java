@@ -10,12 +10,15 @@ import org.carlspring.strongbox.storage.repository.MavenRepositoryFactory;
 import org.carlspring.strongbox.storage.repository.MutableRepository;
 import org.carlspring.strongbox.storage.repository.Repository;
 import org.carlspring.strongbox.storage.repository.RepositoryTypeEnum;
+import org.carlspring.strongbox.storage.routing.MutableRoutingRuleRepository;
+import org.carlspring.strongbox.storage.routing.RoutingRuleTypeEnum;
 import org.carlspring.strongbox.testing.TestCaseWithMavenArtifactGenerationAndIndexing;
 import org.carlspring.strongbox.xml.configuration.repository.MutableMavenRepositoryConfiguration;
 
 import javax.inject.Inject;
 import java.io.InputStream;
 import java.nio.file.Path;
+import java.util.Arrays;
 import java.util.LinkedHashSet;
 import java.util.Set;
 
@@ -332,16 +335,18 @@ public class MavenGroupRepositoryProviderTest
 
         createRepository(STORAGE0, repositoryGroup);
 
-        createRoutingRuleSet(repositoryGroupName,
-                             new String[]{ repositoryReleases1Name,
-                                           repositoryReleases2Name },
-                             ".*(com|org)/artifacts.in.releases.*",
-                             ROUTING_RULE_TYPE_ACCEPTED);
+        createAndAddRoutingRule(STORAGE0,
+                                repositoryGroupName,
+                                Arrays.asList(new MutableRoutingRuleRepository(STORAGE0, repositoryReleases1Name),
+                                        new MutableRoutingRuleRepository(STORAGE0, repositoryReleases2Name)),
+                                ".*(com|org)/artifacts.in.releases.*",
+                                RoutingRuleTypeEnum.ACCEPT);
 
-        createRoutingRuleSet(repositoryGroupName,
-                             new String[]{ repositoryReleases1Name },
-                             ".*(com|org)/artifacts.in.*",
-                             ROUTING_RULE_TYPE_DENIED);
+        createAndAddRoutingRule(STORAGE0,
+                                repositoryGroupName,
+                                Arrays.asList(new MutableRoutingRuleRepository(STORAGE0, repositoryReleases1Name)),
+                                ".*(com|org)/artifacts.in.*",
+                                RoutingRuleTypeEnum.DENY);
         // Test data initialized.
 
         System.out.println("# Testing group includes with out of service repository...");
@@ -585,11 +590,11 @@ public class MavenGroupRepositoryProviderTest
 
         createRepository(STORAGE0, repositoryGroup);
 
-        createRoutingRuleSet(repositoryGroupName,
-                             new String[]{ repositoryReleases1Name },
-                             ".*(com|org)/artifacts.denied.*",
-                             ROUTING_RULE_TYPE_DENIED);
-
+        createAndAddRoutingRule(STORAGE0,
+                                repositoryGroupName,
+                                Arrays.asList(new MutableRoutingRuleRepository(STORAGE0, repositoryReleases1Name)),
+                                ".*(com|org)/artifacts.denied.*",
+                                RoutingRuleTypeEnum.DENY);
         // Test data initialized.
 
         Repository repository = configurationManager.getRepository(STORAGE0 + ":" + repositoryGroupName);
@@ -650,10 +655,11 @@ public class MavenGroupRepositoryProviderTest
 
         createRepository(STORAGE0, repositoryGroup);
 
-        createRoutingRuleSet(repositoryGroupName,
-                             new String[]{ repositoryReleases2Name },
-                             ".*(com|org)/carlspring.metadata.*",
-                             ROUTING_RULE_TYPE_DENIED);
+        createAndAddRoutingRule(STORAGE0,
+                                repositoryGroupName,
+                                Arrays.asList(new MutableRoutingRuleRepository(STORAGE0, repositoryReleases2Name)),
+                                ".*(com|org)/artifacts.denied.*",
+                                RoutingRuleTypeEnum.DENY);
 
         generateMavenMetadata(STORAGE0, repositoryReleases1Name);
         generateMavenMetadata(STORAGE0, repositoryReleases2Name);

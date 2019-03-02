@@ -5,17 +5,17 @@ import org.carlspring.strongbox.configuration.Configuration;
 import org.carlspring.strongbox.providers.layout.Maven2LayoutProvider;
 import org.carlspring.strongbox.storage.Storage;
 import org.carlspring.strongbox.storage.repository.*;
-import org.carlspring.strongbox.storage.routing.MutableRoutingRule;
-import org.carlspring.strongbox.storage.routing.MutableRuleSet;
-import org.carlspring.strongbox.storage.routing.RuleSet;
+import org.carlspring.strongbox.storage.routing.*;
 import org.carlspring.strongbox.testing.TestCaseWithMavenArtifactGenerationAndIndexing;
 
 import javax.inject.Inject;
 import javax.xml.bind.JAXBException;
 import java.io.IOException;
 import java.util.*;
+import java.util.stream.Collectors;
 
 import org.hamcrest.CoreMatchers;
+import org.hamcrest.Matchers;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.BeforeEach;
@@ -138,7 +138,7 @@ public class ConfigurationManagementServiceImplTest
 
         Repository repository = configurationManagementService.getConfiguration()
                                                               .getRepository("storage-common-proxies",
-                                                                                      "group-common-proxies");
+                                                                             "group-common-proxies");
 
         assertThat(repository.getGroupRepositories().size(), CoreMatchers.equalTo(4));
         Iterator<String> iterator = repository.getGroupRepositories().keySet().iterator();
@@ -163,7 +163,7 @@ public class ConfigurationManagementServiceImplTest
 
         Repository repository = configurationManagementService.getConfiguration()
                                                               .getRepository("storage-common-proxies",
-                                                                                      "group-common-proxies");
+                                                                             "group-common-proxies");
 
         assertThat(repository.getGroupRepositories().size(), CoreMatchers.equalTo(4));
         Iterator<String> iterator = repository.getGroupRepositories().keySet().iterator();
@@ -244,100 +244,89 @@ public class ConfigurationManagementServiceImplTest
     }
 
     @Test
-    public void addAcceptedRuleSet()
+    public void shouldAddRoutingRule()
     {
-        final MutableRuleSet ruleSet = getRuleSet();
-        final boolean added = configurationManagementService.saveAcceptedRuleSet(ruleSet);
-        final Configuration configuration = configurationManagementService.getConfiguration();
-
-        final RuleSet addedRuleSet = configuration.getRoutingRules().getAccepted().get(REPOSITORY_GROUP_1);
-
-        assertTrue(added);
-        assertNotNull(addedRuleSet);
-        assertEquals(1, addedRuleSet.getRoutingRules().size());
-        assertTrue(addedRuleSet.getRoutingRules().get(0).getRepositories().contains(REPOSITORY_RELEASES_1));
-        assertEquals(1, addedRuleSet.getRoutingRules().get(0).getRepositories().size());
-        assertEquals(RULE_PATTERN, addedRuleSet.getRoutingRules().get(0).getPattern());
-    }
-
-    @Test
-    public void testRemoveAcceptedRuleSet()
-    {
-        configurationManagementService.saveAcceptedRuleSet(getRuleSet());
-
-        final boolean removed = configurationManagementService.removeAcceptedRuleSet(REPOSITORY_GROUP_1);
-
-        final Configuration configuration = configurationManagementService.getConfiguration();
-        final RuleSet addedRuleSet = configuration.getRoutingRules().getAccepted().get(REPOSITORY_GROUP_1);
-
-        assertTrue(removed);
-        assertNull(addedRuleSet);
-    }
-
-    @Test
-    public void testAddAcceptedRepo()
-    {
-        configurationManagementService.saveAcceptedRuleSet(getRuleSet());
-
-        final boolean added = configurationManagementService.saveAcceptedRepository(REPOSITORY_GROUP_1,
-                                                                                    getRoutingRule());
-        final Configuration configuration = configurationManagementService.getConfiguration();
-
+        final MutableRoutingRule routingRule = createRoutingRule(RoutingRuleTypeEnum.ACCEPT);
+        final boolean added = configurationManagementService.addRoutingRule(routingRule);
         assertTrue(added);
 
-        configuration.getRoutingRules()
-                     .getAccepted()
-                     .get(REPOSITORY_GROUP_1)
-                     .getRoutingRules()
-                     .stream()
-                     .filter(routingRule -> routingRule.getPattern().equals(RULE_PATTERN))
-                     .forEach(routingRule -> assertTrue(routingRule.getRepositories().contains(REPOSITORY_RELEASES_2)));
+        final Configuration configuration = configurationManagementService.getConfiguration();
+
+        final List<RoutingRule> routingRules = configuration.getRoutingRules()
+                                                            .getAccepted()
+                                                            .stream()
+                                                            .filter(a -> REPOSITORY_GROUP_1.equals(
+                                                                    a.getRepositoryId()) &&
+                                                                         STORAGE0.equals(a.getStorageId()))
+                                                            .collect(Collectors.toList());
+        assertThat(routingRules.size(), CoreMatchers.equalTo(1));
+        RoutingRule addedRoutingRule = routingRules.get(0);
+
+        assertNotNull(addedRoutingRule);
+
+        List<RoutingRuleRepository> repositories = addedRoutingRule.getRepositories();
+        assertEquals(1, repositories.size());
+        RoutingRuleRepository routingRuleRepository = repositories.get(0);
+        assertThat(routingRuleRepository.getRepositoryId(), CoreMatchers.equalTo(REPOSITORY_RELEASES_1));
+        assertThat(routingRuleRepository.getStorageId(), CoreMatchers.equalTo(STORAGE0));
+        assertThat(addedRoutingRule.getPattern(), CoreMatchers.equalTo(RULE_PATTERN));
     }
 
     @Test
-    public void testRemoveAcceptedRepository()
+    public void shouldAddAndRemoveRoutingRule()
     {
-        configurationManagementService.saveAcceptedRuleSet(getRuleSet());
+        final MutableRoutingRule routingRule = createRoutingRule(RoutingRuleTypeEnum.ACCEPT);
+        final boolean added = configurationManagementService.addRoutingRule(routingRule);
+        assertTrue(added);
 
-        final boolean removed = configurationManagementService.removeAcceptedRepository(REPOSITORY_GROUP_1,
-                                                                                        RULE_PATTERN,
-                                                                                        REPOSITORY_RELEASES_1);
+        RoutingRules routingRules = configurationManagementService.getConfiguration().getRoutingRules();
+        assertThat(routingRules.getRules().size(), Matchers.greaterThan(0));
 
-        final Configuration configuration = configurationManagementService.getConfiguration();
-        configuration.getRoutingRules().getAccepted().get(REPOSITORY_GROUP_1).getRoutingRules().forEach(
-                routingRule ->
-                {
-                    if (routingRule.getPattern().equals(RULE_PATTERN))
-                    {
-                        assertFalse(routingRule.getRepositories().contains(REPOSITORY_RELEASES_1));
-                    }
-                }
-        );
-
+        boolean removed = configurationManagementService.removeRoutingRule(routingRules.getRules().size() - 1);
         assertTrue(removed);
+
+        final Configuration configuration = configurationManagementService.getConfiguration();
+        final List<RoutingRule> allRoutingRules = configuration.getRoutingRules()
+                                                               .getAccepted()
+                                                               .stream()
+                                                               .filter(a -> REPOSITORY_GROUP_1.equals(
+                                                                       a.getRepositoryId()) &&
+                                                                            STORAGE0.equals(a.getStorageId()))
+                                                               .collect(Collectors.toList());
+
+        assertThat(allRoutingRules.size(), CoreMatchers.equalTo(0));
     }
 
     @Test
-    public void testOverrideAcceptedRepositories()
+    public void shouldAddAndEditRoutingRule()
     {
-        configurationManagementService.saveAcceptedRuleSet(getRuleSet());
+        final MutableRoutingRule routingRule = createRoutingRule(RoutingRuleTypeEnum.ACCEPT);
+        final boolean added = configurationManagementService.addRoutingRule(routingRule);
+        assertTrue(added);
 
-        final MutableRoutingRule rl = getRoutingRule();
-        final boolean overridden = configurationManagementService.overrideAcceptedRepositories(REPOSITORY_GROUP_1, rl);
+        RoutingRules routingRules = configurationManagementService.getConfiguration().getRoutingRules();
+        assertThat(routingRules.getRules().size(), Matchers.greaterThan(0));
+
+        routingRule.setType(RoutingRuleTypeEnum.DENY.getType());
+
+        boolean updated = configurationManagementService.updateRoutingRule(routingRules.getRules().size() - 1,
+                                                                           routingRule);
+        assertTrue(updated);
+
         final Configuration configuration = configurationManagementService.getConfiguration();
-        configuration.getRoutingRules().getAccepted().get(REPOSITORY_GROUP_1).getRoutingRules().forEach(
-                routingRule ->
-                {
-                    if (routingRule.getPattern().equals(rl.getPattern()))
-                    {
-                        assertEquals(1, routingRule.getRepositories().size());
-                        assertEquals(rl.getRepositories(), routingRule.getRepositories());
-                    }
-                }
-        );
+        final List<RoutingRule> allRoutingRules = configuration.getRoutingRules()
+                                                               .getAccepted()
+                                                               .stream()
+                                                               .filter(a -> REPOSITORY_GROUP_1.equals(
+                                                                       a.getRepositoryId()) &&
+                                                                            STORAGE0.equals(a.getStorageId()))
+                                                               .collect(Collectors.toList());
 
-        assertTrue(overridden);
+        assertThat(allRoutingRules.size(), CoreMatchers.equalTo(1));
+        RoutingRule routingRule1 = allRoutingRules.get(0);
+        assertThat(routingRule1.getType(), CoreMatchers.equalTo(RoutingRuleTypeEnum.DENY));
     }
+
 
     @Test
     public void testCanGetRepositoriesWithStorageAndLayout()
@@ -365,26 +354,17 @@ public class ConfigurationManagementServiceImplTest
         assertTrue(repositories.isEmpty());
     }
 
-    private MutableRoutingRule getRoutingRule()
+    private MutableRoutingRule createRoutingRule(RoutingRuleTypeEnum type)
     {
         MutableRoutingRule routingRule = new MutableRoutingRule();
         routingRule.setPattern(RULE_PATTERN);
-        routingRule.setRepositories(new HashSet<>(Collections.singletonList(REPOSITORY_RELEASES_2)));
-
+        routingRule.setRepositories(Collections.singletonList(REPOSITORY_RELEASES_1).stream().map(
+                r -> new MutableRoutingRuleRepository(STORAGE0, r)).collect(
+                Collectors.toList()));
+        routingRule.setType(type.getType());
+        routingRule.setRepositoryId(REPOSITORY_GROUP_1);
+        routingRule.setStorageId(STORAGE0);
         return routingRule;
-    }
-
-    private MutableRuleSet getRuleSet()
-    {
-        MutableRoutingRule routingRule = new MutableRoutingRule();
-        routingRule.setPattern(RULE_PATTERN);
-        routingRule.setRepositories(new HashSet<>(Collections.singletonList(REPOSITORY_RELEASES_1)));
-
-        MutableRuleSet ruleSet = new MutableRuleSet();
-        ruleSet.setGroupRepository(REPOSITORY_GROUP_1);
-        ruleSet.setRoutingRules(Collections.singletonList(routingRule));
-
-        return ruleSet;
     }
 
 }

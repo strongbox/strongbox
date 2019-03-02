@@ -1,37 +1,37 @@
 package org.carlspring.strongbox.converters.storage.routing;
 
 import org.carlspring.strongbox.forms.storage.routing.RoutingRuleForm;
-import org.carlspring.strongbox.forms.storage.routing.RuleSetForm;
 import org.carlspring.strongbox.storage.routing.MutableRoutingRule;
-import org.carlspring.strongbox.storage.routing.MutableRuleSet;
+import org.carlspring.strongbox.storage.routing.MutableRoutingRuleRepository;
 
-import java.util.ArrayList;
-import java.util.List;
+import java.util.stream.Collectors;
 
+import org.apache.commons.lang3.StringUtils;
 import org.springframework.core.convert.converter.Converter;
 
 /**
  * @author Pablo Tirado
+ * @author Przemyslaw Fusik
  */
 public class RuleSetFormToRuleSetConverter
-        implements Converter<RuleSetForm, MutableRuleSet>
+        implements Converter<RoutingRuleForm, MutableRoutingRule>
 {
 
     @Override
-    public MutableRuleSet convert(RuleSetForm ruleSetForm)
+    public MutableRoutingRule convert(RoutingRuleForm routingRuleForm)
     {
-        MutableRuleSet ruleSet = new MutableRuleSet();
-        ruleSet.setGroupRepository(ruleSetForm.getGroupRepository());
-        List<MutableRoutingRule> routingRulesList = new ArrayList<>();
-        for (RoutingRuleForm routingRuleForm : ruleSetForm.getRoutingRules())
-        {
-            MutableRoutingRule routingRule = new MutableRoutingRule();
-            routingRule.setPattern(routingRuleForm.getPattern());
-            routingRule.setRepositories(routingRuleForm.getRepositories());
-            routingRulesList.add(routingRule);
-        }
-        ruleSet.setRoutingRules(routingRulesList);
+        MutableRoutingRule rule = new MutableRoutingRule();
+        rule.setRepositoryId(StringUtils.defaultIfBlank(routingRuleForm.getRepositoryId(), "*"));
+        rule.setStorageId(StringUtils.defaultIfBlank(routingRuleForm.getStorageId(), "*"));
+        rule.setType(routingRuleForm.getType().getType());
+        rule.setPattern(routingRuleForm.getPattern());
+        rule.setRepositories(routingRuleForm.getRepositories().stream().map(r -> {
+            MutableRoutingRuleRepository repository = new MutableRoutingRuleRepository();
+            repository.setRepositoryId(StringUtils.defaultIfBlank(routingRuleForm.getRepositoryId(), "*"));
+            repository.setStorageId(StringUtils.defaultIfBlank(routingRuleForm.getStorageId(), "*"));
+            return repository;
+        }).collect(Collectors.toList()));
 
-        return ruleSet;
+        return rule;
     }
 }

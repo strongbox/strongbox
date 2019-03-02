@@ -372,15 +372,14 @@
     </storages>
 
     <routing-rules>
-        <denied>
-            <rule-set storage-id="storage-common-proxies" repository-id="group-common-proxies">
-                <rule pattern=".*(com|org)/carlspring.*">
-                    <repositories>
-                        <repository storage-id="storage-common-proxies" repository-id="jboss-public-releases" />
-                    </repositories>
-                </rule>
-            </rule-set>
-        </denied>
+        <routing-rule storage-id="storage-common-proxies"
+                      repository-id="group-common-proxies"
+                      pattern=".*(com|org)/carlspring.*"
+                      type="denied">
+            <repositories>
+                <repository storage-id="storage-common-proxies" repository-id="jboss-public-releases" />
+            </repositories>
+        </routing-rule>
     </routing-rules>
 
 </configuration>

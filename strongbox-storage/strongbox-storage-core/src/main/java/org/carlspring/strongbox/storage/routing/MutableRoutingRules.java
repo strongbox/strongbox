@@ -17,29 +17,16 @@ public class MutableRoutingRules
         implements Serializable
 {
 
-    @XmlElement(name = "accepted")
-    private List<MutableRuleSet> accepted = new ArrayList<>();
+    @XmlElement(name = "routing-rule")
+    private List<MutableRoutingRule> rules = new ArrayList<>();
 
-    @XmlElement(name = "denied")
-    private List<MutableRuleSet> denied = new ArrayList<>();
-
-    public List<MutableRuleSet> getAccepted()
+    public List<MutableRoutingRule> getRules()
     {
-        return accepted;
+        return rules;
     }
 
-    public void setAccepted(List<MutableRuleSet> accepted)
+    public void setRules(List<MutableRoutingRule> rules)
     {
-        this.accepted = accepted;
-    }
-
-    public List<MutableRuleSet> getDenied()
-    {
-        return denied;
-    }
-
-    public void setDenied(List<MutableRuleSet> denied)
-    {
-        this.denied = denied;
+        this.rules = rules;
     }
 }

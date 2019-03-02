@@ -5,8 +5,8 @@ import org.carlspring.strongbox.providers.io.RepositoryFiles;
 import org.carlspring.strongbox.providers.io.RepositoryPath;
 import org.carlspring.strongbox.storage.repository.Repository;
 import org.carlspring.strongbox.storage.routing.RepositoryIdentifiable;
+import org.carlspring.strongbox.storage.routing.RoutingRule;
 import org.carlspring.strongbox.storage.routing.RoutingRules;
-import org.carlspring.strongbox.storage.routing.RuleSet;
 
 import javax.inject.Inject;
 import java.io.IOException;
@@ -30,8 +30,8 @@ public class ArtifactRoutingRulesChecker
             throws IOException
     {
         final RoutingRules routingRules = configurationManager.getConfiguration().getRoutingRules();
-        final List<RuleSet> denyRules = routingRules.getDenied();
-        final List<RuleSet> acceptRules = routingRules.getAccepted();
+        final List<RoutingRule> denyRules = routingRules.getDenied();
+        final List<RoutingRule> acceptRules = routingRules.getAccepted();
 
         return fitsRoutingRules(groupRepository, repositoryPath, denyRules) &&
                !fitsRoutingRules(groupRepository, repositoryPath, acceptRules);
@@ -39,30 +39,29 @@ public class ArtifactRoutingRulesChecker
 
     private boolean fitsRoutingRules(Repository groupRepository,
                                      RepositoryPath repositoryPath,
-                                     List<RuleSet> ruleSets)
+                                     List<RoutingRule> routingRules)
             throws IOException
     {
 
         String artifactPath = RepositoryFiles.relativizePath(repositoryPath);
         Repository subRepository = repositoryPath.getRepository();
 
-        return ruleSets.stream()
-                       .filter(ruleSet -> repositoryMatchesExactly(groupRepository, ruleSet)
-                                          || repositoryStorageIdMatches(groupRepository.getStorage().getId(), ruleSet)
-                                          || repositoryIdMatches(groupRepository.getId(), ruleSet)
-                                          || allMatches(ruleSet))
-                       .flatMap(ruleSet -> ruleSet.getRoutingRules().stream())
-                       .filter(routingRule -> routingRule.getRegex().matcher(artifactPath).matches())
-                       .flatMap(routingRule -> routingRule.getRepositories().stream())
-                       .filter(routingRuleRepository -> repositoryMatchesExactly(subRepository, routingRuleRepository)
-                                                        ||
-                                                        repositoryStorageIdMatches(subRepository.getStorage().getId(),
-                                                                                   routingRuleRepository)
-                                                        || repositoryIdMatches(subRepository.getId(),
-                                                                               routingRuleRepository)
-                                                        || allMatches(routingRuleRepository))
-                       .findFirst()
-                       .isPresent();
+        return routingRules.stream()
+                           .filter(routingRule -> repositoryMatchesExactly(groupRepository, routingRule)
+                                                  || repositoryStorageIdMatches(groupRepository.getStorage().getId(),
+                                                                                routingRule)
+                                                  || repositoryIdMatches(groupRepository.getId(), routingRule)
+                                                  || allMatches(routingRule))
+                           .filter(routingRule -> routingRule.getRegex().matcher(artifactPath).matches())
+                           .flatMap(routingRule -> routingRule.getRepositories().stream())
+                           .filter(routingRuleRepository ->
+                                           repositoryMatchesExactly(subRepository, routingRuleRepository)
+                                           || repositoryStorageIdMatches(subRepository.getStorage().getId(),
+                                                                         routingRuleRepository)
+                                           || repositoryIdMatches(subRepository.getId(), routingRuleRepository)
+                                           || allMatches(routingRuleRepository))
+                           .findFirst()
+                           .isPresent();
     }
 
 

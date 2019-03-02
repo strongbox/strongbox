@@ -1,18 +1,17 @@
 package org.carlspring.strongbox.converters.storage.routing;
 
 import org.carlspring.strongbox.forms.storage.routing.RoutingRuleForm;
-import org.carlspring.strongbox.storage.routing.MutableRoutingRule;
 
 import org.springframework.core.convert.converter.Converter;
 
 public class RoutingRuleFormToRoutingRuleConverter
-        implements Converter<RoutingRuleForm, MutableRoutingRule>
+        implements Converter<RoutingRuleForm, MutableRoutingRuleOld>
 {
 
     @Override
-    public MutableRoutingRule convert(RoutingRuleForm routingRuleForm)
+    public MutableRoutingRuleOld convert(RoutingRuleForm routingRuleForm)
     {
-        MutableRoutingRule routingRule = new MutableRoutingRule();
+        MutableRoutingRuleOld routingRule = new MutableRoutingRuleOld();
         routingRule.setPattern(routingRuleForm.getPattern());
         routingRule.setRepositories(routingRuleForm.getRepositories());
 

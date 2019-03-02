@@ -2,12 +2,10 @@ package org.carlspring.strongbox.controllers.configuration;
 
 import org.carlspring.strongbox.config.IntegrationTest;
 import org.carlspring.strongbox.forms.storage.routing.RoutingRuleForm;
-import org.carlspring.strongbox.forms.storage.routing.RuleSetForm;
 import org.carlspring.strongbox.rest.common.RestAssuredBaseTest;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.ValueSource;
-import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 
@@ -142,7 +140,7 @@ public class RoutingConfigurationControllerTestIT
                .put(url)
                .then()
                .statusCode(HttpStatus.OK.value())
-               .body(containsString(SUCCESSFUL_ADD_RULE_SET));
+               .body(containsString(SUCCESSFUL_ADD_ROUTING_RULE));
     }
 
     private void shouldNotAddAcceptedRuleSet(String acceptHeader)
@@ -167,7 +165,7 @@ public class RoutingConfigurationControllerTestIT
                .put(url)
                .then()
                .statusCode(HttpStatus.BAD_REQUEST.value())
-               .body(containsString(FAILED_ADD_RULE_SET_FORM_ERROR));
+               .body(containsString(FAILED_ADD_ROUTING_RULE_FORM_ERRORS));
     }
 
     private void removeAcceptedRuleSet(String acceptHeader)
@@ -181,7 +179,7 @@ public class RoutingConfigurationControllerTestIT
                .delete(url)
                .then()
                .statusCode(HttpStatus.OK.value())
-               .body(containsString(SUCCESSFUL_REMOVE_RULE_SET));
+               .body(containsString(SUCCESSFUL_REMOVE_ROUTING_RULE));
     }
 
     private void acceptedRepository(String acceptHeader)
@@ -257,7 +255,7 @@ public class RoutingConfigurationControllerTestIT
                .put(url)
                .then()
                .statusCode(HttpStatus.OK.value())
-               .body(containsString(SUCCESSFUL_OVERRIDE_REPOSITORY));
+               .body(containsString(SUCCESSFUL_UPDATE_ROUTING_RULE));
     }
 
     private void shouldNotOverrideAcceptedRepository(String acceptHeader)

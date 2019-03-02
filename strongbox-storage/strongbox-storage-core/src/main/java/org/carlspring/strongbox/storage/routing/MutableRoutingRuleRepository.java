@@ -21,6 +21,17 @@ public class MutableRoutingRuleRepository
     @XmlAttribute(name = "repository-id")
     private String repositoryId;
 
+    public MutableRoutingRuleRepository()
+    {
+    }
+
+    public MutableRoutingRuleRepository(String storageId,
+                                        String repositoryId)
+    {
+        this.storageId = storageId;
+        this.repositoryId = repositoryId;
+    }
+
     public String getStorageId()
     {
         return storageId;

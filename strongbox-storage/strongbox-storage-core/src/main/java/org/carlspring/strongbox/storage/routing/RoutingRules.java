@@ -14,29 +14,44 @@ import static java.util.stream.Collectors.toList;
 public class RoutingRules
 {
 
-    private final List<RuleSet> accepted;
+    private final List<RoutingRule> rules;
 
-    private final List<RuleSet> denied;
+    private List<RoutingRule> denied;
+
+    private List<RoutingRule> accepted;
 
     public RoutingRules(final MutableRoutingRules delegate)
     {
-        this.accepted = immuteRuleSet(delegate.getAccepted());
-        this.denied = immuteRuleSet(delegate.getDenied());
+        this.rules = immuteRoutingRules(delegate.getRules());
     }
 
-    private List<RuleSet> immuteRuleSet(final List<MutableRuleSet> source)
+    private List<RoutingRule> immuteRoutingRules(final List<MutableRoutingRule> source)
     {
-        return source != null ? ImmutableList.copyOf(source.stream().map(RuleSet::new).collect(toList())) :
+        return source != null ? ImmutableList.copyOf(source.stream().map(RoutingRule::new).collect(toList())) :
                Collections.emptyList();
     }
 
-    public List<RuleSet> getAccepted()
+    public List<RoutingRule> getRules()
     {
-        return accepted;
+        return rules;
     }
 
-    public List<RuleSet> getDenied()
+    public List<RoutingRule> getDenied()
     {
-        return denied;
+        if (denied != null)
+        {
+            return denied;
+        }
+        return denied = rules.stream().filter(RoutingRule::isDeny).collect(toList());
+    }
+
+
+    public List<RoutingRule> getAccepted()
+    {
+        if (accepted != null)
+        {
+            return accepted;
+        }
+        return accepted = rules.stream().filter(RoutingRule::isAccept).collect(toList());
     }
 }
