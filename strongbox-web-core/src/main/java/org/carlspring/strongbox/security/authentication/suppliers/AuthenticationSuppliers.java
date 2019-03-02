@@ -37,6 +37,7 @@ public class AuthenticationSuppliers
             return null;
         }
 
+        AuthenticationException lastException = null;
         for (final AuthenticationSupplier supplier : suppliers)
         {
             final String supplierName = supplier.getClass()
@@ -57,15 +58,20 @@ public class AuthenticationSuppliers
             }
             catch (AuthenticationException e)
             {
+                lastException = e;
                 continue;
             }
 
             if (authentication != null)
             {
                 logger.debug("Authentication supplied by {}", supplierName);
-                
+
                 return authentication;
             }
+        }
+        if (lastException != null)
+        {
+            throw lastException;
         }
         
         return null;
