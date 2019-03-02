@@ -31,13 +31,15 @@ public class JwtAuthenticationTest
 
     @Inject
     private SecurityTokenProvider securityTokenProvider;
-
+    
+    
     @Override
     @BeforeEach
     public void init()
             throws Exception
     {
         super.init();
+        
         setContextBaseUrl(getContextBaseUrl() + "/api");
         TestSecurityContextHolder.clearContext();
         SecurityContextHolder.clearContext();
@@ -47,7 +49,6 @@ public class JwtAuthenticationTest
     public void testJWTAuthShouldPassWithToken()
             throws Exception
     {
-
         String url = getContextBaseUrl() + "/users";
 
         String basicAuth = "Basic YWRtaW46cGFzc3dvcmQ=";
@@ -81,13 +82,11 @@ public class JwtAuthenticationTest
                .then()
                .statusCode(HttpStatus.OK.value())
                .body(notNullValue());
-        
     }
 
     @Test
     public void testJWTAuthShouldFailWithoutToken()
     {
-
         String url = getContextBaseUrl() + "/users";
 
         given().header(HttpHeaders.ACCEPT, MediaType.APPLICATION_JSON_VALUE)
@@ -101,7 +100,6 @@ public class JwtAuthenticationTest
     @Test
     public void testJWTInvalidToken()
     {
-
         String url = getContextBaseUrl() + "/users";
 
         String invalid_token = "ABCD";
@@ -119,7 +117,6 @@ public class JwtAuthenticationTest
     public void testJWTExpirationToken()
             throws Exception
     {
-
         String url = getContextBaseUrl() + "/users";
 
         // generate token that will expire after 1 second
