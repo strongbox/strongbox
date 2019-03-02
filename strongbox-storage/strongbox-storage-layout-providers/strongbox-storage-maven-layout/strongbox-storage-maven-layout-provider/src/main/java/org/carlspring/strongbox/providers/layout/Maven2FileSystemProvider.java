@@ -52,6 +52,7 @@ public class Maven2FileSystemProvider extends LayoutFileSystemProvider
     @Inject
     private MavenMetadataManager mavenMetadataManager;
     
+    
     public Maven2FileSystemProvider(FileSystemProvider storageFileSystemProvider)
     {
         super(storageFileSystemProvider);
@@ -245,7 +246,7 @@ public class Maven2FileSystemProvider extends LayoutFileSystemProvider
     public void deleteMetadataAtArtifactLevel(RepositoryPath artifactPath,
                                               String version)
         throws IOException,
-        XmlPullParserException
+               XmlPullParserException
     {
 
         Metadata metadataVersionLevel = mavenMetadataManager.readMetadata(artifactPath);
