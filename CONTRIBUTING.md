@@ -34,7 +34,7 @@ Finding your first few jobs might sometimes be challenging, but having contribut
 
 # How To Help
 
-We could use all the help we can get, so, please feel free to have a good look at our issue tracker and find something of interest, that you think you would be able to help with and just add a comment under the respective issue that you'll be looking into it. If somebody else was looking at it, but seems to have been inactive for more than a few days, please feel free to ask them if they've abandoned the task, if they're blocked, or waiting for for information. They might still be researching the topic, but also, please keep in mind that sometimes people can no longer work on an issue (time constraints, change of circumstances, etc)
+We could use all the help we can get, so, please feel free to have a good look at our issue tracker and find something of interest, that you think you would be able to help with and just add a comment under the respective issue that you'll be looking into it. If somebody else was looking at it, but seems to have been inactive for more than a few days, please feel free to ask them if they've abandoned the task, if they're blocked, or waiting for information. They might still be researching the topic, but also, please keep in mind that sometimes people can no longer work on an issue (time constraints, change of circumstances, etc)
 
 # Code Style
 
