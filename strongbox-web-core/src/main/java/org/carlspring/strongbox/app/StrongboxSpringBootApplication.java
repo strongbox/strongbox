@@ -9,6 +9,7 @@ import javax.inject.Inject;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.boot.ApplicationArguments;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.boot.autoconfigure.jdbc.DataSourceAutoConfiguration;
@@ -29,6 +30,8 @@ public class StrongboxSpringBootApplication
 
     private static final Logger logger = LoggerFactory.getLogger(StrongboxSpringBootApplication.class);
 
+    private static ConfigurableApplicationContext applicationContext;
+
     public static void main(String[] args)
     {
         if (System.getProperty(ConnectionConfigOrientDB.PROPERTY_PROFILE) == null)
@@ -39,9 +42,21 @@ public class StrongboxSpringBootApplication
             System.setProperty(ConnectionConfigOrientDB.PROPERTY_PROFILE, ConnectionConfigOrientDB.PROFILE_EMBEDDED);
         }
 
-        ConfigurableApplicationContext applicationContext = SpringApplication.run(StrongboxSpringBootApplication.class,
-                                                                                  args);
+        applicationContext = SpringApplication.run(StrongboxSpringBootApplication.class, args);
         applicationContext.start();
+    }
+
+    public static void restart()
+    {
+        ApplicationArguments args = applicationContext.getBean(ApplicationArguments.class);
+
+        Thread thread = new Thread(() -> {
+            applicationContext.close();
+            applicationContext = SpringApplication.run(StrongboxSpringBootApplication.class, args.getSourceArgs());
+        });
+
+        thread.setDaemon(false);
+        thread.start();
     }
 
     @Configuration
