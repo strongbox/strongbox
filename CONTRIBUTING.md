@@ -109,7 +109,7 @@ To accept, please:
 | Sevastyan Pigarev			         |                              										  | Barnaul, Russian Federation				         | 2018-03-27 |
 | Michael Altenburger          | 						                             				  | Vienna, Austria                     				| 2018-09-29 |
 | Benjamin March               |                             			          | Munich, Germany                     				| 2018-10-28 |
-| Konstantina Papadopoulou	   |										  | Thessaloniki, Greece					| 2018-12-28 |
+| Konstantina Papadopoulou	   | Aristotle University of Thessaloniki	  | Thessaloniki, Greece					| 2018-12-28 |
 | Jitesh Golatkar           |                                          | Charlotte, USA                      | 2019-01-25 |
 | Forrest Whiting              | Forbes Media                             | Jersey City, New Jersey, USA            | 2019-02-04 |
 | Dawid Antecki           |                                          | Bielsko-Biala, Poland                      | 2019-02-18 |
