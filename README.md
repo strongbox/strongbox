@@ -11,7 +11,7 @@
 Welcome to the Strongbox artifact repository manager's home.
 
 ## What's implemented:
-* [Repositories](https://github.com/strongbox/strongbox/wiki/Repositories):
+* [Repositories](https://strongbox.github.io/knowledge-base/repositories.html):
   * Hosted
   * Proxy
   * Group
@@ -19,13 +19,15 @@ Welcome to the Strongbox artifact repository manager's home.
     * Support for routing rules
     * Support for nested group repositories
 * Layout providers:
-  * [Maven 2.x/3.x](https://github.com/strongbox/strongbox/wiki/Maven-2-Layout-Provider)
-  * [NPM](https://github.com/strongbox/strongbox/wiki/NPM-Layout-Provider)
-  * [NuGet v2](https://github.com/strongbox/strongbox/wiki/NuGet-Layout-Provider)
-  * [Raw](https://github.com/strongbox/strongbox/wiki/Raw-Layout-Provider)
-* [Search providers](https://github.com/strongbox/strongbox/wiki/Searching):
-  * OrientDB (default implementation for all repositories and layout formats)
-  * [Maven Indexer](https://github.com/strongbox/strongbox/wiki/Maven-Indexer) (additional implementation for Maven repositories)
+  * [Maven 2.x/3.x](https://strongbox.github.io/developer-guide/layout-providers/maven-2-layout-provider.html)
+  * [NPM](https://strongbox.github.io/developer-guide/layout-providers/npm-layout-provider.html)
+  * [NuGet v2](https://strongbox.github.io/developer-guide/layout-providers/nuget-layout-provider.html)
+  * [Raw](https://strongbox.github.io/developer-guide/layout-providers/raw-layout-provider.html)
+* Search
+  * [Search providers](https://strongbox.github.io/developer-guide/search-providers.html):
+    * OrientDB (default implementation for all repositories and layout formats)
+    * [Maven Indexer](https://strongbox.github.io/developer-guide/maven-indexer.html) (additional implementation for Maven repositories)
+  * [Artifact Query Language](https://strongbox.github.io/user-guide/artifact-query-language.html)
 * Directory browsing
 * Security
   * HTTP Basic authentication
@@ -33,7 +35,7 @@ Welcome to the Strongbox artifact repository manager's home.
   * LDAP
   * Custom authentication provider based on users that resides in second-level cache that exists in OrientDB
   * Users are predefined in the `etc/conf/strongbox-security-users.xml` file
-* [REST API](https://github.com/strongbox/strongbox/wiki/REST-API):
+* [REST API](https://strongbox.github.io/user-guide/rest-api.html):
   * Features:
     * Search for artifacts
     * Manage the server's core configuration
@@ -47,7 +49,7 @@ Welcome to the Strongbox artifact repository manager's home.
   * Implementations:
     * Java
     * Groovy
-* [Event handling](https://github.com/strongbox/strongbox/wiki/Using-the-event-API)
+* [Event handling](https://strongbox.github.io/developer-guide/using-the-event-api.html)
 * Logging:
   * Retrieve logs over HTTP
 
@@ -75,11 +77,12 @@ Welcome to the Strongbox artifact repository manager's home.
   * [other releases](https://github.com/strongbox/strongbox/releases)
 
 # Installation
-Please check [here](https://github.com/strongbox/strongbox/wiki/Installation) for detailed instruction on how to install and setup up Strongbox on the supported platforms.
+Please check [here](https://strongbox.github.io/user-guide/getting-started.html) for detailed instruction on how to install and setup up Strongbox on the supported platforms.
 
 # Building
-Instructions on how to build the code, can be found [here](https://github.com/strongbox/strongbox/wiki/Building-the-code).
+Instructions on how to build the code, can be found [here](https://strongbox.github.io/developer-guide/building-the-code.html).
 
 # Contributing
-Contributions and contributors are always welcome! For more details, please check [here](https://github.com/strongbox/strongbox/blob/master/CONTRIBUTING.md). We have a helpful community of developers on our [channel](https://chat.carlspring.org/channel/community), please feel free to drop by, if you have questions, issues, or would like to contribute!
+Contributions and contributors are always welcome! For more details, please check [here](https://strongbox.github.io/contributing.html).
+We have a helpful community of developers on our [channel](https://chat.carlspring.org/channel/community), please feel free to drop by, if you have questions, issues, or would like to contribute!
 
