@@ -28,10 +28,10 @@ General
 * Use our chat channel to ask for help [![RocketChat.Community.Channel](https://chat.carlspring.org/images/join-chat.svg)](https://chat.carlspring.org/channel/community)
 * If you're new to the project:
  * Read:
-   * [Getting Started Guide](https://github.com/strongbox/strongbox/wiki/Getting-Started)
-   * [Building The Code](https://github.com/strongbox/strongbox/wiki/Building-the-code)
-   * [Coding Convention](https://github.com/strongbox/strongbox/wiki/Coding-Convention)
-   * [Logging](https://github.com/strongbox/strongbox/wiki/Logging)
-   * [Writing Tests](https://github.com/strongbox/strongbox/wiki/Writing-Tests)
- * Have a general look around the [wiki](https://github.com/strongbox/strongbox/wiki/)
+   * [Getting Started Guide](https://strongbox.github.io/user-guide/getting-started.html)
+   * [Building The Code](https://strongbox.github.io/developer-guide/building-the-code.html)
+   * [Coding Convention](https://strongbox.github.io/developer-guide/coding-convention.html)
+   * [Logging](https://strongbox.github.io/developer-guide/logging.html)
+   * [Writing Tests](https://strongbox.github.io/developer-guide/writing-tests.html)
+ * Have a general look around at the "Developer Guide" of our [wiki](https://strongbox.github.io/)
  * Look around the Github issue tracker and find some ["good first issue" and "help wanted"](https://github.com/strongbox/strongbox/issues?utf8=%E2%9C%93&q=is%3Aissue+is%3Aopen+label%3A%22good+first+issue%22+label%3A%22help+wanted%22) tasks

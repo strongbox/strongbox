@@ -38,7 +38,7 @@ We could use all the help we can get, so, please feel free to have a good look a
 
 # Code Style
 
-While we appreciate all the help we can get, here are some more details on the [coding convention](https://github.com/strongbox/strongbox/wiki/Coding-Convention). Please, follow these guidelines and set up your IDE to use the respective code style configuration file.
+While we appreciate all the help we can get, here are some more details on the [coding convention](https://strongbox.github.io/developer-guide/coding-convention.html). Please, follow these guidelines and set up your IDE to use the respective code style configuration file.
 
 # Code of Conduct
 

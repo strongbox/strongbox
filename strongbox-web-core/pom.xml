@@ -103,7 +103,7 @@
                         <groupId>${project.groupId}</groupId>
                         <artifactId>strongbox-db-import</artifactId>
                         <version>${project.version}</version>
-                        <type>zip</type>
+                        <type>jar</type>
                     </dependency>
                 </dependencies>
                 <executions>
@@ -192,7 +192,7 @@
                                     <groupId>${project.groupId}</groupId>
                                     <artifactId>strongbox-db-import</artifactId>
                                     <version>${project.version}</version>
-                                    <type>zip</type>
+                                    <type>jar</type>
 
                                     <overWrite>true</overWrite>
                                     <outputDirectory>${project.build.outputDirectory}/db-import</outputDirectory>
