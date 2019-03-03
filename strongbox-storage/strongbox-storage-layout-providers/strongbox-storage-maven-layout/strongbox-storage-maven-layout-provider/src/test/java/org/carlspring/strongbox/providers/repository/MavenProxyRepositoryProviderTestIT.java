@@ -173,6 +173,7 @@ public class MavenProxyRepositoryProviderTestIT
                 repositoryPathResolver.resolve(repository, "org/carlspring/properties-injector/maven-metadata.xml")));
     }
 
+    @Disabled // Issue 1086: https://github.com/strongbox/strongbox/issues/1086
     @Test
     public void whenDownloadingArtifactMetadataFileShouldBeMergedWhenExist(TestInfo testInfo)
             throws Exception
