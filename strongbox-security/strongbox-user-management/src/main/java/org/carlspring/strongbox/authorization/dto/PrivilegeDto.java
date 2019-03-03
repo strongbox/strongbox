@@ -2,6 +2,7 @@ package org.carlspring.strongbox.authorization.dto;
 
 import java.io.Serializable;
 
+import com.fasterxml.jackson.annotation.JsonProperty;
 import com.google.common.base.Objects;
 
 /**
@@ -11,6 +12,7 @@ public class PrivilegeDto
         implements Serializable, PrivelegieReadContract
 {
 
+    @JsonProperty(required = true)
     private String name;
 
     private String description;
