@@ -49,10 +49,10 @@ public class PropertiesBooter
     @Value("${strongbox.nuget.download.feed}")
     private boolean strongboxNugetDownloadFeed;
 
-    @Value("${strongbox.project.version}")
-    private String strongboxProjectVersion;
+    @Value("${strongbox.version}")
+    private String strongboxVersion;
 
-    @Value("strongbox.revision")
+    @Value("${strongbox.revision}")
     private String strongboxRevision;
 
     /**
@@ -187,14 +187,14 @@ public class PropertiesBooter
         this.strongboxNugetDownloadFeed = strongboxNugetDownloadFeed;
     }
 
-    public String getStrongboxProjectVersion()
+    public String getStrongboxVersion()
     {
-        return strongboxProjectVersion;
+        return strongboxVersion;
     }
 
-    public void setStrongboxProjectVersion(String strongboxProjectVersion)
+    public void setStrongboxVersion(String strongboxVersion)
     {
-        this.strongboxProjectVersion = strongboxProjectVersion;
+        this.strongboxVersion = strongboxVersion;
     }
 
     public String getStrongboxRevision()
