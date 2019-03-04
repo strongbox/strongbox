@@ -279,8 +279,12 @@ public class CronTaskControllerTest
         String url = getContextBaseUrl() + "/cron/groovy/" + uuid;
 
         String contentDisposition = "attachment; filename=\"" + fileName + "\"";
-        InputStream is = new FileInputStream(file);
-        byte[] bytes = IOUtils.toByteArray(is);
+        byte[] bytes;
+
+        try (InputStream is = new FileInputStream(file))
+        {
+            bytes = IOUtils.toByteArray(is);
+        }
 
         given().contentType(MediaType.APPLICATION_JSON_VALUE)
                .accept(MediaType.APPLICATION_JSON_VALUE)
