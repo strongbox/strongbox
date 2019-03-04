@@ -25,7 +25,7 @@ abstract class CommonOrientDbConfig
     @Bean
     @DependsOn("connectionConfig")
     public OrientDbStudioConfiguration orientDbStudioProperties(@Value("${strongbox.orientdb.studio.enabled}") boolean studioEnabled,
-                                                                @Value("${strongbox.orientdb.studio.ip.ipAddress}") String studioIpAddress,
+                                                                @Value("${strongbox.orientdb.studio.ip.address}") String studioIpAddress,
                                                                 @Value("${strongbox.orientdb.studio.port}") int studioPort,
                                                                 OrientDbServerConfiguration serverConfiguration)
     {
