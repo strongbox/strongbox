@@ -1,26 +1,5 @@
 package org.carlspring.strongbox.providers.io;
 
-import org.carlspring.strongbox.artifact.ArtifactNotFoundException;
-import org.carlspring.strongbox.artifact.coordinates.ArtifactCoordinates;
-import org.carlspring.strongbox.configuration.Configuration;
-import org.carlspring.strongbox.configuration.ConfigurationManager;
-import org.carlspring.strongbox.data.criteria.Expression.ExpOperator;
-import org.carlspring.strongbox.data.criteria.Predicate;
-import org.carlspring.strongbox.data.criteria.Selector;
-import org.carlspring.strongbox.domain.ArtifactEntry;
-import org.carlspring.strongbox.event.artifact.ArtifactEvent;
-import org.carlspring.strongbox.event.artifact.ArtifactEventListenerRegistry;
-import org.carlspring.strongbox.event.artifact.ArtifactEventTypeEnum;
-import org.carlspring.strongbox.io.RepositoryStreamReadContext;
-import org.carlspring.strongbox.io.RepositoryStreamWriteContext;
-import org.carlspring.strongbox.io.StreamUtils;
-import org.carlspring.strongbox.providers.layout.LayoutProviderRegistry;
-import org.carlspring.strongbox.providers.repository.RepositoryProvider;
-import org.carlspring.strongbox.providers.repository.RepositoryProviderRegistry;
-import org.carlspring.strongbox.services.ArtifactEntryService;
-import org.carlspring.strongbox.storage.repository.Repository;
-
-import javax.inject.Inject;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
@@ -29,12 +8,32 @@ import java.nio.file.Path;
 import java.util.Date;
 import java.util.Optional;
 
+import javax.inject.Inject;
+
 import org.apache.commons.io.output.CountingOutputStream;
+import org.carlspring.strongbox.artifact.ArtifactNotFoundException;
+import org.carlspring.strongbox.artifact.coordinates.ArtifactCoordinates;
+import org.carlspring.strongbox.configuration.Configuration;
+import org.carlspring.strongbox.configuration.ConfigurationManager;
+import org.carlspring.strongbox.data.criteria.Expression.ExpOperator;
+import org.carlspring.strongbox.data.criteria.Predicate;
+import org.carlspring.strongbox.data.criteria.Selector;
+import org.carlspring.strongbox.domain.ArtifactEntry;
+import org.carlspring.strongbox.domain.RepositoryArtifactIdGroupEntry;
+import org.carlspring.strongbox.event.artifact.ArtifactEventListenerRegistry;
+import org.carlspring.strongbox.io.RepositoryStreamReadContext;
+import org.carlspring.strongbox.io.RepositoryStreamWriteContext;
+import org.carlspring.strongbox.io.StreamUtils;
+import org.carlspring.strongbox.providers.layout.LayoutProviderRegistry;
+import org.carlspring.strongbox.providers.repository.RepositoryProvider;
+import org.carlspring.strongbox.providers.repository.RepositoryProviderRegistry;
+import org.carlspring.strongbox.services.ArtifactEntryService;
+import org.carlspring.strongbox.services.RepositoryArtifactIdGroupService;
+import org.carlspring.strongbox.storage.Storage;
+import org.carlspring.strongbox.storage.repository.Repository;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.context.ApplicationEventPublisher;
-import org.springframework.context.event.EventListener;
-import org.springframework.stereotype.Component;
 import org.springframework.util.Assert;
 
 /**
@@ -56,6 +55,9 @@ public abstract class AbstractRepositoryProvider extends RepositoryStreamSupport
 
     @Inject
     protected ArtifactEntryService artifactEntryService;
+    
+    @Inject
+    private RepositoryArtifactIdGroupService repositoryArtifactIdGroupService;
     
     @Inject
     protected ArtifactEventListenerRegistry artifactEventListenerRegistry;
@@ -201,6 +203,10 @@ public abstract class AbstractRepositoryProvider extends RepositoryStreamSupport
         RepositoryPath repositoryPath = (RepositoryPath) ctx.getPath();
         ArtifactEntry artifactEntry = repositoryPath.artifactEntry;
         
+        Repository repository = repositoryPath.getRepository();
+        Storage storage = repository.getStorage();
+        ArtifactCoordinates coordinates = RepositoryFiles.readCoordinates(repositoryPath);
+        
         repositoryPath.artifactEntry = null;
         if (artifactEntry == null)
         {
@@ -210,7 +216,8 @@ public abstract class AbstractRepositoryProvider extends RepositoryStreamSupport
         CountingOutputStream cos = StreamUtils.findSource(CountingOutputStream.class, ctx.getStream());
         artifactEntry.setSizeInBytes(cos.getByteCount());
         
-        artifactEntryService.save(artifactEntry, true);
+        RepositoryArtifactIdGroupEntry artifactGroup = repositoryArtifactIdGroupService.findOneOrCreate(storage.getId(), repository.getId(), coordinates.getId());
+        repositoryArtifactIdGroupService.addArtifactToGroup(artifactGroup, artifactEntry);
     }
 
     protected ArtifactEntry provideArtifactEntry(RepositoryPath repositoryPath) throws IOException
@@ -257,5 +264,5 @@ public abstract class AbstractRepositoryProvider extends RepositoryStreamSupport
         
         return selector;
     }
-    
+
 }

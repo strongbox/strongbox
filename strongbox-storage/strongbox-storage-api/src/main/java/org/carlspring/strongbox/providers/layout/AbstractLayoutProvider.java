@@ -1,17 +1,5 @@
 package org.carlspring.strongbox.providers.layout;
 
-import org.carlspring.strongbox.artifact.archive.*;
-import org.carlspring.strongbox.artifact.coordinates.ArtifactCoordinates;
-import org.carlspring.strongbox.configuration.ConfigurationManager;
-import org.carlspring.strongbox.providers.datastore.StorageProviderRegistry;
-import org.carlspring.strongbox.providers.io.LayoutFileSystem;
-import org.carlspring.strongbox.providers.io.RepositoryFileAttributeType;
-import org.carlspring.strongbox.providers.io.RepositoryFiles;
-import org.carlspring.strongbox.providers.io.RepositoryPath;
-import org.carlspring.strongbox.storage.Storage;
-import org.carlspring.strongbox.storage.repository.Repository;
-
-import javax.inject.Inject;
 import java.io.IOException;
 import java.net.URI;
 import java.net.URL;
@@ -23,11 +11,33 @@ import java.util.Set;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
-import com.google.common.collect.ImmutableSet;
+import javax.inject.Inject;
+
 import org.apache.commons.codec.digest.MessageDigestAlgorithms;
+import org.carlspring.strongbox.artifact.ArtifactGroup;
+import org.carlspring.strongbox.artifact.archive.ArchiveListingFunction;
+import org.carlspring.strongbox.artifact.archive.Bzip2ArchiveListingFunction;
+import org.carlspring.strongbox.artifact.archive.CompositeArchiveListingFunction;
+import org.carlspring.strongbox.artifact.archive.TarArchiveListingFunction;
+import org.carlspring.strongbox.artifact.archive.TarGzArchiveListingFunction;
+import org.carlspring.strongbox.artifact.archive.ZipArchiveListingFunction;
+import org.carlspring.strongbox.artifact.coordinates.ArtifactCoordinates;
+import org.carlspring.strongbox.configuration.ConfigurationManager;
+import org.carlspring.strongbox.domain.RepositoryArtifactIdGroupEntry;
+import org.carlspring.strongbox.providers.datastore.StorageProviderRegistry;
+import org.carlspring.strongbox.providers.io.LayoutFileSystem;
+import org.carlspring.strongbox.providers.io.RepositoryFileAttributeType;
+import org.carlspring.strongbox.providers.io.RepositoryFiles;
+import org.carlspring.strongbox.providers.io.RepositoryPath;
+import org.carlspring.strongbox.services.RepositoryArtifactIdGroupService;
+import org.carlspring.strongbox.storage.Storage;
+import org.carlspring.strongbox.storage.repository.Repository;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.web.util.UriComponentsBuilder;
+
+import com.google.common.collect.ImmutableSet;
+import com.google.common.collect.Sets;
 
 /**
  * @author mtodorov
@@ -49,7 +59,10 @@ public abstract class AbstractLayoutProvider<T extends ArtifactCoordinates>
 
     @Inject
     private ConfigurationManager configurationManager;
-    
+
+    @Inject
+    private RepositoryArtifactIdGroupService repositoryArtifactIdGroupService;
+
     @Inject
     protected StorageProviderRegistry storageProviderRegistry;
 
@@ -58,7 +71,7 @@ public abstract class AbstractLayoutProvider<T extends ArtifactCoordinates>
     protected abstract boolean isArtifactMetadata(RepositoryPath repositoryPath);
 
     protected abstract T getArtifactCoordinates(RepositoryPath repositoryPath) throws IOException;
-    
+
     protected Set<String> getDigestAlgorithmSet()
     {
         return Stream.of(MessageDigestAlgorithms.MD5, MessageDigestAlgorithms.SHA_1)
@@ -79,11 +92,11 @@ public abstract class AbstractLayoutProvider<T extends ArtifactCoordinates>
                 return true;
             }
         }
-        
+
         return false;
     }
 
-    
+
     protected Map<RepositoryFileAttributeType, Object> getRepositoryFileAttributes(RepositoryPath repositoryPath,
                                                                                    RepositoryFileAttributeType... attributeTypes)
         throws IOException
@@ -102,11 +115,11 @@ public abstract class AbstractLayoutProvider<T extends ArtifactCoordinates>
             default:
                 Map<RepositoryFileAttributeType, Object> attributesLocal;
                 value = null;
-                
+
                 break;
             case CHECKSUM:
                 value = isChecksum(repositoryPath);
-                
+
                 break;
             case TEMP:
                 value = repositoryPath.isAbsolute()
@@ -120,44 +133,44 @@ public abstract class AbstractLayoutProvider<T extends ArtifactCoordinates>
                         && repositoryPath.startsWith(repositoryPath.getFileSystem()
                                                                    .getRootDirectory()
                                                                    .resolve(LayoutFileSystem.TRASH));
-                
+
                 break;
             case METADATA:
                 value = isArtifactMetadata(repositoryPath);
-                
+
                 break;
             case ARTIFACT:
                 attributesLocal = getRepositoryFileAttributes(repositoryPath,
                                                               RepositoryFileAttributeType.CHECKSUM);
-                
+
                 boolean isChecksum = Boolean.TRUE.equals(attributesLocal.get(RepositoryFileAttributeType.CHECKSUM));
                 boolean isDirectory = Files.isDirectory(repositoryPath);
-                
+
                 value = !isChecksum && !isDirectory;
-                
+
                 break;
             case COORDINATES:
                 attributesLocal = getRepositoryFileAttributes(repositoryPath,
                                                               RepositoryFileAttributeType.ARTIFACT);
-                
+
                 boolean isArtifact = Boolean.TRUE.equals(attributesLocal.get(RepositoryFileAttributeType.ARTIFACT));
-                
+
                 value = isArtifact ? getArtifactCoordinates(repositoryPath) : null;
                 break;
             case RESOURCE_URL:
                 value = resolveResource(repositoryPath);
-                
+
                 break;
             case ARTIFACT_PATH:
                 value = RepositoryFiles.relativizePath(repositoryPath);
 
                 break;
-                
+
             case STORAGE_ID:
                 value = repositoryPath.getRepository().getStorage().getId();
 
                 break;
-                
+
             case REPOSITORY_ID:
                 value = repositoryPath.getRepository().getId();
 
@@ -176,7 +189,7 @@ public abstract class AbstractLayoutProvider<T extends ArtifactCoordinates>
 
         return result;
     }
-    
+
     public URL resolveResource(RepositoryPath repositoryPath)
             throws IOException
     {
@@ -210,5 +223,22 @@ public abstract class AbstractLayoutProvider<T extends ArtifactCoordinates>
             }
         }
         return Collections.emptySet();
+    }
+
+    @Override
+    public Set<ArtifactGroup> getArtifactGroups(RepositoryPath path)
+            throws IOException
+    {
+        if (!RepositoryFiles.isArtifact(path))
+        {
+            return Collections.emptySet();
+        }
+        
+        Repository repository = path.getFileSystem().getRepository();
+        Storage storage = repository.getStorage();
+        ArtifactCoordinates c = RepositoryFiles.readCoordinates(path);
+        RepositoryArtifactIdGroupEntry artifactIdGroup = repositoryArtifactIdGroupService.findOne(storage.getId(), repository.getId(), c.getId());
+        
+        return artifactIdGroup == null ? Collections.emptySet() : Sets.newHashSet(artifactIdGroup);
     }
 }
