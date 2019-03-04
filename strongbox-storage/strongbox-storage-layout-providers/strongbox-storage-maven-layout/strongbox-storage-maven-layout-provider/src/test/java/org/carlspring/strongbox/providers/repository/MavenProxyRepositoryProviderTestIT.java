@@ -53,9 +53,13 @@ public class MavenProxyRepositoryProviderTestIT
 
     private static final String STORAGE_ID = "storage-common-proxies";
 
-    private static final String REPOSITORY_ID = "maven-central-proxies-it";
+    private static final String REPOSITORY_ID = "spring-libs-release-it";
 
-    private static final String REMOTE_URL = "http://maven.ibiblio.org/maven2/";
+    private static final String REMOTE_URL = "https://repo.spring.io/libs-release/";
+
+    private static final String CENTRAL_REPOSITORY_ID = "central-release-it";
+
+    private static final String CENTRAL_URL = "http://central.maven.org/maven2/";
 
     @Inject
     private ArtifactEntryService artifactEntryService;
@@ -66,7 +70,11 @@ public class MavenProxyRepositoryProviderTestIT
     private Set<MutableRepository> getRepositories(TestInfo testInfo)
     {
         Set<MutableRepository> repositories = new LinkedHashSet<>();
-        repositories.add(createRepositoryMock(STORAGE_ID, getRepositoryName(REPOSITORY_ID, testInfo),
+        repositories.add(createRepositoryMock(STORAGE_ID,
+                                              getRepositoryName(REPOSITORY_ID, testInfo),
+                                              Maven2LayoutProvider.ALIAS));
+        repositories.add(createRepositoryMock(STORAGE_ID,
+                                              getRepositoryName(CENTRAL_REPOSITORY_ID, testInfo),
                                               Maven2LayoutProvider.ALIAS));
         return repositories;
     }
@@ -88,6 +96,12 @@ public class MavenProxyRepositoryProviderTestIT
         createProxyRepository(STORAGE_ID,
                               repositoryId,
                               REMOTE_URL);
+
+        final String centralRepositoryId = getRepositoryName(CENTRAL_REPOSITORY_ID, testInfo);
+
+        createProxyRepository(STORAGE_ID,
+                              centralRepositoryId,
+                              CENTRAL_URL);
 
         artifactEntryService.delete(
                 artifactEntryService.findArtifactList(STORAGE_ID,
@@ -167,13 +181,10 @@ public class MavenProxyRepositoryProviderTestIT
         Storage storage = getConfiguration().getStorage(storageId);
         Repository repository = storage.getRepository(repositoryId);
 
-        LayoutProvider layoutProvider = layoutProviderRegistry.getProvider(repository.getLayout());
-
         assertTrue(RepositoryFiles.artifactExists(
                 repositoryPathResolver.resolve(repository, "org/carlspring/properties-injector/maven-metadata.xml")));
     }
 
-    @Disabled // Issue 1086: https://github.com/strongbox/strongbox/issues/1086
     @Test
     public void whenDownloadingArtifactMetadataFileShouldBeMergedWhenExist(TestInfo testInfo)
             throws Exception
@@ -181,39 +192,43 @@ public class MavenProxyRepositoryProviderTestIT
         String storageId = STORAGE_ID;
         Storage storage = getConfiguration().getStorage(storageId);
 
-        // 1. download the artifact and artifactId-level maven metadata-file from maven-central
-        String repositoryId = getRepositoryName(REPOSITORY_ID, testInfo);
-        assertStreamNotNull(storageId, repositoryId, "javax/media/jai_core/1.1.3/jai_core-1.1.3-javadoc.jar");
+        // 1. download the artifact and artifactId-level maven metadata-file from 1st repository
+        String repositoryId = getRepositoryName(CENTRAL_REPOSITORY_ID, testInfo);
+
+        assertStreamNotNull(storageId, repositoryId,
+                            "javax/interceptor/javax.interceptor-api/1.2.2/javax.interceptor-api-1.2.2.jar");
 
         // 2. resolve downloaded artifact base path
         Repository repository = storage.getRepository(repositoryId);
-        LayoutProvider layoutProvider = layoutProviderRegistry.getProvider(repository.getLayout());
-        final Path mavenCentralArtifactBaseBath = repositoryPathResolver.resolve(repository, "javax/media/jai_core");
+        final Path mavenCentralArtifactBaseBath = repositoryPathResolver.resolve(repository,
+                                                                                 "javax/interceptor/javax.interceptor-api");
 
-        // 3. copy the content to carlspring repository
-        repositoryId = "carlspring";
+        // 3. copy the content to 2nd repository
+        repositoryId = getRepositoryName(REPOSITORY_ID, testInfo);
         repository = storage.getRepository(repositoryId);
-        final Path carlspringArtifactBaseBath = repositoryPathResolver.resolve(repository, "javax/media/jai_core");
-        FileUtils.copyDirectory(mavenCentralArtifactBaseBath.toFile(), carlspringArtifactBaseBath.toFile());
+        final Path secondRepoArtifactBaseBath = repositoryPathResolver.resolve(repository,
+                                                                               "javax/interceptor/javax.interceptor-api");
+        FileUtils.copyDirectory(mavenCentralArtifactBaseBath.toFile(), secondRepoArtifactBaseBath.toFile());
 
-        // 4. confirm maven-metadata.xml lies in the carlspring repository
+        // 4. confirm maven-metadata.xml lies in the 2nd repository
         assertTrue(RepositoryFiles.artifactExists(
-                repositoryPathResolver.resolve(repository, "javax/media/jai_core/maven-metadata.xml")));
+                repositoryPathResolver.resolve(repository,
+                                               "javax/interceptor/javax.interceptor-api/maven-metadata.xml")));
 
         // 5. confirm some pre-merge state
-        Path artifactBasePath = repositoryPathResolver.resolve(repository, "javax/media/jai_core/");
+        Path artifactBasePath = repositoryPathResolver.resolve(repository, "javax/interceptor/javax.interceptor-api/");
         Metadata metadata = mavenMetadataManager.readMetadata(artifactBasePath);
-        assertThat(metadata.getVersioning().getVersions().size(), CoreMatchers.equalTo(1));
-        assertThat(metadata.getVersioning().getVersions().get(0), CoreMatchers.equalTo("1.1.2_01"));
+        assertThat(metadata.getVersioning().getVersions().size(), CoreMatchers.equalTo(9));
+        assertThat(metadata.getVersioning().getVersions().get(8), CoreMatchers.equalTo("1.2.2"));
 
-        // 6. download the artifact from remote carlspring repository - it contains different maven-metadata.xml file
-        assertStreamNotNull(storageId, repositoryId, "javax/media/jai_core/1.1.3/jai_core-1.1.3.jar");
+        // 6. download the artifact from remote 2nd repository - it contains different maven-metadata.xml file
+        assertStreamNotNull(storageId, repositoryId,
+                            "javax/interceptor/javax.interceptor-api/1.2.2/javax.interceptor-api-1.2.2.jar");
 
         // 7. confirm the state of maven-metadata.xml file has changed
         metadata = mavenMetadataManager.readMetadata(artifactBasePath);
-        assertThat(metadata.getVersioning().getVersions().size(), CoreMatchers.equalTo(2));
-        assertThat(metadata.getVersioning().getVersions().get(0), CoreMatchers.equalTo("1.1.2_01"));
-        assertThat(metadata.getVersioning().getVersions().get(1), CoreMatchers.equalTo("1.1.3"));
+        assertThat(metadata.getVersioning().getVersions().size(), CoreMatchers.equalTo(10));
+        assertThat(metadata.getVersioning().getVersions().get(9), CoreMatchers.equalTo("3.1"));
     }
 
     @Test
