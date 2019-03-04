@@ -222,13 +222,10 @@ public class CronTaskControllerTest
 
         return cronTasksConfiguration.getCronTaskConfigurations()
                                      .stream()
-                                     .filter(
-                                             p -> "org.carlspring.strongbox.cron.jobs.DownloadRemoteMavenIndexCronJob".equals(
+                                     .filter(p -> "org.carlspring.strongbox.cron.jobs.DownloadRemoteMavenIndexCronJob".equals(
                                                      p.getRequiredProperty(CRON_CONFIG_JOB_CLASS_KEY)))
-                                     .filter(
-                                             p -> "storage-common-proxies".equals(p.getProperty("storageId")))
-                                     .filter(
-                                             p -> "carlspring".equals(p.getProperty("repositoryId")))
+                                     .filter(p -> "storage-common-proxies".equals(p.getProperty("storageId")))
+                                     .filter(p -> "carlspring".equals(p.getProperty("repositoryId")))
                                      .collect(Collectors.toList());
     }
 
