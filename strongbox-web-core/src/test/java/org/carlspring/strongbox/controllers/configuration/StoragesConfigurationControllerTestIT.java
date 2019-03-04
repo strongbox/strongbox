@@ -502,7 +502,7 @@ public class StoragesConfigurationControllerTestIT
                      .peek() // Use peek() to print the output
                      .then()
                      .statusCode(HttpStatus.BAD_REQUEST.value())
-                     .body(containsString("Storage id contains disallowed character"));
+                     .body(containsString("must match \\\"[a-zA-Z0-9\\\\-\\\\_\\\\.]+\\\""));
     }
 
     @ParameterizedTest
