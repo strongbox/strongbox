@@ -1,13 +1,31 @@
 [Unit]
-Description=Strongbox
-After=network.target network-online.target
+Description=Strongbox Repository Manager
+Documentation=https://strongbox.github.io/
+After=network-online.target firewalld.service
 Wants=network-online.target
 
 [Service]
-ExecStart=/usr/local/strongbox/bin/strongbox start
-ExecStop=/usr/local/strongbox/bin/strongbox stop
-ExecReload=/usr/local/strongbox/bin/strongbox restart
+Type=simple
 User=strongbox
+Environment=STRONGBOX_HOME=/opt/strongbox
+Environment=STRONGBOX_VAULT=/opt/strongbox-vault
+Environment=STRONGBOX_PORT=48080
+ExecStart=/opt/strongbox/bin/strongbox console
+ExecStop=/opt/strongbox/bin/strongbox stop
+ExecReload=/bin/kill -s HUP $MAINPID
+TimeoutSec=0
+RestartSec=2
+Restart=always
+
+# Note that StartLimit* options were moved from "Service" to "Unit" in systemd 229.
+# Both the old, and new location are accepted by systemd 229 and up, so using the old location
+# to make them work for either version of systemd.
+StartLimitBurst=3
+
+# Note that StartLimitInterval was renamed to StartLimitIntervalSec in systemd 230.
+# Both the old, and new name are accepted by systemd 230 and up, so using the old name to make
+# this option work for either version of systemd.
+StartLimitInterval=60s
 
 [Install]
 WantedBy=multi-user.target

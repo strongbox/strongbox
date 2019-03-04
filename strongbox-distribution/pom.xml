@@ -340,7 +340,6 @@
                 <executions>
                     <execution>
                         <goals>
-                            <goal>rpm</goal>
                             <goal>attached-rpm</goal>
                         </goals>
                     </execution>
@@ -349,6 +348,8 @@
                     <group>Strongbox</group>
                     <description>Strongbox distribution version ${project.version}.</description>
                     <copyTo>target/strongbox-distribution-${project.version}.rpm</copyTo>
+                    <license>Apache 2.0</license>
+                    <!--<release>${strongbox.revision}</release>-->
                     <defineStatements>
                         <defineStatement>_binaries_in_noarch_packages_terminate_build 0</defineStatement>
                     </defineStatements>
