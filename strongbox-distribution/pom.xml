@@ -350,7 +350,8 @@
                     <description>Strongbox distribution version ${project.version}.</description>
                     <copyTo>target/strongbox-distribution-${project.version}.rpm</copyTo>
                     <license>Apache 2.0</license>
-                    <!--<release>${strongbox.revision}</release>-->
+                    <url>https://github.com/strongbox/strongbox/</url>
+                    <description>The Strongbox artifact repository manager.</description>
                     <defineStatements>
                         <defineStatement>_binaries_in_noarch_packages_terminate_build 0</defineStatement>
                     </defineStatements>
