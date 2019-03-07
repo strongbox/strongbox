@@ -280,9 +280,11 @@ public class ConfigurationManagementServiceImplTest
         assertTrue(added);
 
         RoutingRules routingRules = configurationManagementService.getConfiguration().getRoutingRules();
-        assertThat(routingRules.getRules().size(), Matchers.greaterThan(0));
+        int size = routingRules.getRules().size();
+        assertThat(size, Matchers.greaterThan(0));
+        RoutingRule lastRR = routingRules.getRules().get(size - 1);
 
-        boolean removed = configurationManagementService.removeRoutingRule(routingRules.getRules().size() - 1);
+        boolean removed = configurationManagementService.removeRoutingRule(lastRR.getUuid());
         assertTrue(removed);
 
         final Configuration configuration = configurationManagementService.getConfiguration();
@@ -305,11 +307,13 @@ public class ConfigurationManagementServiceImplTest
         assertTrue(added);
 
         RoutingRules routingRules = configurationManagementService.getConfiguration().getRoutingRules();
-        assertThat(routingRules.getRules().size(), Matchers.greaterThan(0));
+        int size = routingRules.getRules().size();
+        assertThat(size, Matchers.greaterThan(0));
+        RoutingRule lastRR = routingRules.getRules().get(size - 1);
 
         routingRule.setType(RoutingRuleTypeEnum.DENY.getType());
 
-        boolean updated = configurationManagementService.updateRoutingRule(routingRules.getRules().size() - 1,
+        boolean updated = configurationManagementService.updateRoutingRule(lastRR.getUuid(),
                                                                            routingRule);
         assertTrue(updated);
 

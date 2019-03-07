@@ -3,6 +3,7 @@ package org.carlspring.strongbox.storage.routing;
 import javax.annotation.concurrent.Immutable;
 import java.util.Collections;
 import java.util.List;
+import java.util.UUID;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 
@@ -15,6 +16,8 @@ import com.google.common.collect.ImmutableList;
 public class RoutingRule
         implements RepositoryIdentifiable
 {
+
+    private final UUID uuid;
 
     private final String storageId;
 
@@ -30,6 +33,7 @@ public class RoutingRule
 
     public RoutingRule(final MutableRoutingRule delegate)
     {
+        this.uuid = delegate.getUuid();
         this.repositoryId = delegate.getRepositoryId();
         this.storageId = delegate.getStorageId();
         this.pattern = delegate.getPattern();
@@ -42,6 +46,11 @@ public class RoutingRule
     {
         return source != null ? ImmutableList.copyOf(source.stream().map(RoutingRuleRepository::new).collect(
                 Collectors.toList())) : Collections.emptyList();
+    }
+
+    public UUID getUuid()
+    {
+        return uuid;
     }
 
     @Override

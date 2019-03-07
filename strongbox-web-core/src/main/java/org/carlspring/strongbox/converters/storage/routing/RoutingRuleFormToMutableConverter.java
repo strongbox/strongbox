@@ -13,7 +13,7 @@ import org.springframework.core.convert.converter.Converter;
  * @author Pablo Tirado
  * @author Przemyslaw Fusik
  */
-public class RuleSetFormToRuleSetConverter
+public class RoutingRuleFormToMutableConverter
         implements Converter<RoutingRuleForm, MutableRoutingRule>
 {
 
@@ -21,14 +21,14 @@ public class RuleSetFormToRuleSetConverter
     public MutableRoutingRule convert(RoutingRuleForm routingRuleForm)
     {
         MutableRoutingRule rule = new MutableRoutingRule();
-        rule.setRepositoryId(StringUtils.defaultIfBlank(routingRuleForm.getRepositoryId(), "*"));
-        rule.setStorageId(StringUtils.defaultIfBlank(routingRuleForm.getStorageId(), "*"));
+        rule.setRepositoryId(StringUtils.trimToEmpty(routingRuleForm.getRepositoryId()));
+        rule.setStorageId(StringUtils.trimToEmpty(routingRuleForm.getStorageId()));
         rule.setType(routingRuleForm.getType().getType());
         rule.setPattern(routingRuleForm.getPattern());
         rule.setRepositories(routingRuleForm.getRepositories().stream().map(r -> {
             MutableRoutingRuleRepository repository = new MutableRoutingRuleRepository();
-            repository.setRepositoryId(StringUtils.defaultIfBlank(routingRuleForm.getRepositoryId(), "*"));
-            repository.setStorageId(StringUtils.defaultIfBlank(routingRuleForm.getStorageId(), "*"));
+            repository.setRepositoryId(StringUtils.trimToEmpty(routingRuleForm.getRepositoryId()));
+            repository.setStorageId(StringUtils.trimToEmpty(routingRuleForm.getStorageId()));
             return repository;
         }).collect(Collectors.toList()));
 

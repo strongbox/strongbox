@@ -10,6 +10,7 @@ import org.carlspring.strongbox.storage.repository.MutableRepository;
 import org.carlspring.strongbox.storage.routing.MutableRoutingRule;
 
 import java.util.List;
+import java.util.UUID;
 
 /**
  * @author mtodorov
@@ -50,12 +51,12 @@ public interface ConfigurationManagementService
                                           String repositoryId,
                                           int numberOfConnections);
 
-    boolean updateRoutingRule(int index,
+    boolean updateRoutingRule(UUID uuid,
                               MutableRoutingRule routingRule);
 
     boolean addRoutingRule(MutableRoutingRule routingRule);
 
-    boolean removeRoutingRule(int index);
+    boolean removeRoutingRule(UUID uuid);
 
     void addRepositoryToGroup(String storageId,
                               String repositoryId,

@@ -39,7 +39,7 @@ public class EnvironmentInfoController
 
     @Inject
     @XmlUserService.XmlUserServiceQualifier
-    private UserService userService;ConfigurationManagementServiceImpl
+    private UserService userService;
 
     @Inject
     private ObjectMapper objectMapper;

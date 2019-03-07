@@ -2,19 +2,23 @@ package org.carlspring.strongbox.controllers.configuration;
 
 import org.carlspring.strongbox.config.IntegrationTest;
 import org.carlspring.strongbox.forms.storage.routing.RoutingRuleForm;
+import org.carlspring.strongbox.forms.storage.routing.RoutingRuleRepositoryForm;
 import org.carlspring.strongbox.rest.common.RestAssuredBaseTest;
+import org.carlspring.strongbox.storage.routing.MutableRoutingRule;
+import org.carlspring.strongbox.storage.routing.MutableRoutingRules;
+import org.carlspring.strongbox.storage.routing.RoutingRuleTypeEnum;
+
+import java.util.UUID;
+
+import com.google.common.collect.Lists;
+import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.ValueSource;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
-
-import java.util.HashSet;
-import java.util.LinkedList;
-import java.util.List;
-import java.util.Set;
-
 import static io.restassured.module.mockmvc.RestAssuredMockMvc.given;
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.carlspring.strongbox.controllers.configuration.RoutingConfigurationController.*;
 import static org.hamcrest.CoreMatchers.containsString;
 
@@ -26,116 +30,98 @@ public class RoutingConfigurationControllerTestIT
         extends RestAssuredBaseTest
 {
 
+    public static final String GROUP_RELEASES_2 = "group-releases-2";
+
     @Override
     @BeforeEach
     public void init()
             throws Exception
     {
         super.init();
-        setContextBaseUrl("/api/configuration/strongbox/routing");
+        setContextBaseUrl("/api/configuration/strongbox/routing/rules");
+    }
+
+    @AfterEach
+    public void cleanup()
+    {
+        MutableRoutingRules routingRules = getRoutingRules();
+        routingRules.getRules().stream().filter(r -> r.getRepositoryId().contains(GROUP_RELEASES_2))
+                    .forEach(r -> removeRoutingRule(MediaType.APPLICATION_JSON_VALUE, r.getUuid()));
     }
 
     @ParameterizedTest
     @ValueSource(strings = { MediaType.APPLICATION_JSON_VALUE,
                              MediaType.TEXT_PLAIN_VALUE })
-    void testAddAcceptedRuleSet(String acceptHeader)
-            throws Exception
+    void testAddAndRemoveRoutingRule(String acceptHeader)
     {
-        acceptedRuleSet(acceptHeader);
+        addRoutingRule(acceptHeader);
+        MutableRoutingRules routingRules = getRoutingRules();
+        assertThat(routingRules).isNotNull();
+        assertThat(routingRules.getRules().size()).isEqualTo(2);
+        MutableRoutingRule lastRule = routingRules.getRules().get(routingRules.getRules().size() - 1);
+
+        removeRoutingRule(acceptHeader, lastRule.getUuid());
+
+        routingRules = getRoutingRules();
+        assertThat(routingRules).isNotNull();
+        assertThat(routingRules.getRules().size()).isEqualTo(1);
     }
 
     @ParameterizedTest
     @ValueSource(strings = { MediaType.APPLICATION_JSON_VALUE,
                              MediaType.TEXT_PLAIN_VALUE })
     void testShouldNotAddAcceptedRuleSet(String acceptHeader)
-            throws Exception
     {
-        shouldNotAddAcceptedRuleSet(acceptHeader);
+        shouldNotAddRoutingRule(acceptHeader);
     }
 
     @ParameterizedTest
     @ValueSource(strings = { MediaType.APPLICATION_JSON_VALUE,
                              MediaType.TEXT_PLAIN_VALUE })
-    void testRemoveAcceptedRuleSet(String acceptHeader)
-            throws Exception
+    void testAddAndUpdateAndRemoveRoutingRule(String acceptHeader)
     {
-        acceptedRuleSet(acceptHeader);
-        removeAcceptedRuleSet(acceptHeader);
+        addRoutingRule(acceptHeader);
+
+        MutableRoutingRules routingRules = getRoutingRules();
+        assertThat(routingRules).isNotNull();
+        assertThat(routingRules.getRules().size()).isEqualTo(2);
+        MutableRoutingRule lastRule = routingRules.getRules().get(routingRules.getRules().size() - 1);
+
+        updateRoutingRule(acceptHeader, lastRule.getUuid());
+
+        routingRules = getRoutingRules();
+
+        assertThat(routingRules).isNotNull();
+        assertThat(routingRules.getRules().size()).isEqualTo(2);
+        lastRule = routingRules.getRules().get(routingRules.getRules().size() - 1);
+        assertThat(lastRule.getRepositoryId()).isEqualTo("group-releases-2-updated");
+        assertThat(lastRule.getPattern()).isEqualTo(".*some.test-updated");
+        assertThat(lastRule.getType()).isEqualTo(RoutingRuleTypeEnum.DENY.getType());
+
+        removeRoutingRule(acceptHeader, lastRule.getUuid());
+
+        routingRules = getRoutingRules();
+        assertThat(routingRules).isNotNull();
+        assertThat(routingRules.getRules().size()).isEqualTo(1);
     }
 
-    @ParameterizedTest
-    @ValueSource(strings = { MediaType.APPLICATION_JSON_VALUE,
-                             MediaType.TEXT_PLAIN_VALUE })
-    void testAddAcceptedRepository(String acceptHeader)
-            throws Exception
+    private void addRoutingRule(String acceptHeader)
     {
-        acceptedRuleSet(acceptHeader);
-        acceptedRepository(acceptHeader);
-    }
+        String url = getContextBaseUrl() + "/add";
 
-    @ParameterizedTest
-    @ValueSource(strings = { MediaType.APPLICATION_JSON_VALUE,
-                             MediaType.TEXT_PLAIN_VALUE })
-    void testShouldNotAddAcceptedRepository(String acceptHeader)
-            throws Exception
-    {
-        acceptedRuleSet(acceptHeader);
-        shouldNotAddAcceptedRepository(acceptHeader);
-    }
-
-    @ParameterizedTest
-    @ValueSource(strings = { MediaType.APPLICATION_JSON_VALUE,
-                             MediaType.TEXT_PLAIN_VALUE })
-    void testRemoveAcceptedRepository(String acceptHeader)
-            throws Exception
-    {
-        acceptedRuleSet(acceptHeader);
-        acceptedRepository(acceptHeader);
-        removeAcceptedRepository(acceptHeader);
-    }
-
-    @ParameterizedTest
-    @ValueSource(strings = { MediaType.APPLICATION_JSON_VALUE,
-                             MediaType.TEXT_PLAIN_VALUE })
-    void testOverrideAcceptedRepository(String acceptHeader)
-            throws Exception
-    {
-        acceptedRuleSet(acceptHeader);
-        acceptedRepository(acceptHeader);
-        overrideAcceptedRepository(acceptHeader);
-    }
-
-    @ParameterizedTest
-    @ValueSource(strings = { MediaType.APPLICATION_JSON_VALUE,
-                             MediaType.TEXT_PLAIN_VALUE })
-    void testShouldNotOverrideAcceptedRepository(String acceptHeader)
-            throws Exception
-    {
-        acceptedRuleSet(acceptHeader);
-        acceptedRepository(acceptHeader);
-        shouldNotOverrideAcceptedRepository(acceptHeader);
-    }
-
-    private void acceptedRuleSet(String acceptHeader)
-    {
-        String url = getContextBaseUrl() + "/rules/set/accepted";
-
-        RuleSetForm ruleSet = new RuleSetForm();
-        ruleSet.setGroupRepository("group-releases-2");
-        RoutingRuleForm routingRule = new RoutingRuleForm();
-        routingRule.setPattern(".*some.test");
-        Set<String> repositories = new HashSet<>();
-        repositories.add("releases-with-trash");
-        repositories.add("releases-with-redeployment");
-        routingRule.setRepositories(repositories);
-
-        List<RoutingRuleForm> rule = new LinkedList<>();
-        rule.add(routingRule);
-        ruleSet.setRoutingRules(rule);
+        RoutingRuleForm routingRuleForm = new RoutingRuleForm();
+        routingRuleForm.setPattern(".*some.test");
+        routingRuleForm.setType(RoutingRuleTypeEnum.ACCEPT);
+        routingRuleForm.setRepositoryId(GROUP_RELEASES_2);
+        RoutingRuleRepositoryForm routingRuleRepositoryForm = new RoutingRuleRepositoryForm();
+        routingRuleRepositoryForm.setRepositoryId("releases-with-trash");
+        RoutingRuleRepositoryForm routingRuleRepositoryForm2 = new RoutingRuleRepositoryForm();
+        routingRuleRepositoryForm2.setRepositoryId("releases-with-redeployment");
+        routingRuleForm.setRepositories(Lists.newArrayList(routingRuleRepositoryForm, routingRuleRepositoryForm2));
 
         given().contentType(MediaType.APPLICATION_JSON_VALUE)
                .accept(acceptHeader)
-               .body(ruleSet)
+               .body(routingRuleForm)
                .when()
                .put(url)
                .then()
@@ -143,24 +129,43 @@ public class RoutingConfigurationControllerTestIT
                .body(containsString(SUCCESSFUL_ADD_ROUTING_RULE));
     }
 
-    private void shouldNotAddAcceptedRuleSet(String acceptHeader)
+    private void updateRoutingRule(String acceptHeader,
+                                   UUID uuid)
     {
-        String url = getContextBaseUrl() + "/rules/set/accepted";
+        String url = getContextBaseUrl() + "/update/" + uuid.toString();
 
-        RuleSetForm ruleSet = new RuleSetForm();
-        ruleSet.setGroupRepository("");
-        RoutingRuleForm routingRule = new RoutingRuleForm();
-        routingRule.setPattern("");
-        Set<String> repositories = new HashSet<>();
-        routingRule.setRepositories(repositories);
-
-        List<RoutingRuleForm> rule = new LinkedList<>();
-        rule.add(routingRule);
-        ruleSet.setRoutingRules(rule);
+        RoutingRuleForm routingRuleForm = new RoutingRuleForm();
+        routingRuleForm.setPattern(".*some.test-updated");
+        routingRuleForm.setType(RoutingRuleTypeEnum.DENY);
+        routingRuleForm.setRepositoryId(GROUP_RELEASES_2 + "-updated");
+        RoutingRuleRepositoryForm routingRuleRepositoryForm = new RoutingRuleRepositoryForm();
+        routingRuleRepositoryForm.setRepositoryId("releases-with-trash");
+        RoutingRuleRepositoryForm routingRuleRepositoryForm2 = new RoutingRuleRepositoryForm();
+        routingRuleRepositoryForm2.setRepositoryId("releases-with-redeployment");
+        routingRuleForm.setRepositories(Lists.newArrayList(routingRuleRepositoryForm, routingRuleRepositoryForm2));
 
         given().contentType(MediaType.APPLICATION_JSON_VALUE)
                .accept(acceptHeader)
-               .body(ruleSet)
+               .body(routingRuleForm)
+               .when()
+               .put(url)
+               .then()
+               .statusCode(HttpStatus.OK.value())
+               .body(containsString(FAILED_UPDATE_ROUTING_RULE));
+    }
+
+    private void shouldNotAddRoutingRule(String acceptHeader)
+    {
+        String url = getContextBaseUrl() + "/add";
+
+        RoutingRuleForm routingRuleForm = new RoutingRuleForm();
+        routingRuleForm.setPattern("");
+        routingRuleForm.setType(RoutingRuleTypeEnum.ACCEPT);
+        routingRuleForm.setRepositories(Lists.newArrayList());
+
+        given().contentType(MediaType.APPLICATION_JSON_VALUE)
+               .accept(acceptHeader)
+               .body(routingRuleForm)
                .when()
                .put(url)
                .then()
@@ -168,10 +173,10 @@ public class RoutingConfigurationControllerTestIT
                .body(containsString(FAILED_ADD_ROUTING_RULE_FORM_ERRORS));
     }
 
-    private void removeAcceptedRuleSet(String acceptHeader)
+    private void removeRoutingRule(String acceptHeader,
+                                   UUID uuid)
     {
-
-        String url = getContextBaseUrl() + "/rules/set/accepted/group-releases-2";
+        String url = getContextBaseUrl() + "/remove/" + uuid.toString();
 
         given().contentType(MediaType.APPLICATION_JSON_VALUE)
                .accept(acceptHeader)
@@ -182,99 +187,18 @@ public class RoutingConfigurationControllerTestIT
                .body(containsString(SUCCESSFUL_REMOVE_ROUTING_RULE));
     }
 
-    private void acceptedRepository(String acceptHeader)
+    private MutableRoutingRules getRoutingRules()
     {
-        String url = getContextBaseUrl() + "/rules/accepted/group-releases-2/repositories";
+        String url = getContextBaseUrl();
 
-        RoutingRuleForm routingRule = new RoutingRuleForm();
-        routingRule.setPattern(".*some.test");
-        Set<String> repositories = new HashSet<>();
-        repositories.add("releases2");
-        repositories.add("releases3");
-        routingRule.setRepositories(repositories);
-
-        given().contentType(MediaType.APPLICATION_JSON_VALUE)
-               .accept(acceptHeader)
-               .body(routingRule)
-               .when()
-               .put(url)
-               .then()
-               .statusCode(HttpStatus.OK.value())
-               .body(containsString(SUCCESSFUL_ADD_REPOSITORY));
+        return given().contentType(MediaType.APPLICATION_JSON_VALUE)
+                      .accept(MediaType.APPLICATION_JSON_VALUE)
+                      .when()
+                      .get(url)
+                      .then()
+                      .statusCode(HttpStatus.OK.value())
+                      .extract()
+                      .as(MutableRoutingRules.class);
     }
 
-    private void shouldNotAddAcceptedRepository(String acceptHeader)
-    {
-        String url = getContextBaseUrl() + "/rules/accepted/group-releases-2/repositories";
-
-        RoutingRuleForm routingRule = new RoutingRuleForm();
-        routingRule.setPattern("");
-        Set<String> repositories = new HashSet<>();
-        routingRule.setRepositories(repositories);
-
-        given().contentType(MediaType.APPLICATION_JSON_VALUE)
-               .accept(acceptHeader)
-               .body(routingRule)
-               .when()
-               .put(url)
-               .then()
-               .statusCode(HttpStatus.BAD_REQUEST.value())
-               .body(containsString(FAILED_ADD_REPOSITORY_FORM_ERROR));
-    }
-
-    private void removeAcceptedRepository(String acceptHeader)
-    {
-        String url = getContextBaseUrl() + "/rules/accepted" +
-                     "/group-releases-2/repositories/releases3?pattern=.*some.test";
-
-        given().contentType(MediaType.APPLICATION_JSON_VALUE)
-               .accept(acceptHeader)
-               .when()
-               .delete(url)
-               .then()
-               .statusCode(HttpStatus.OK.value())
-               .body(containsString(SUCCESSFUL_REMOVE_REPOSITORY));
-    }
-
-    private void overrideAcceptedRepository(String acceptHeader)
-    {
-        String url = getContextBaseUrl() + "/rules/accepted" +
-                     "/group-releases-2/override/repositories";
-
-        RoutingRuleForm routingRule = new RoutingRuleForm();
-        routingRule.setPattern(".*some.test");
-        Set<String> repositories = new HashSet<>();
-        repositories.add("releases22");
-        repositories.add("releases32");
-        routingRule.setRepositories(repositories);
-
-        given().contentType(MediaType.APPLICATION_JSON_VALUE)
-               .accept(acceptHeader)
-               .body(routingRule)
-               .when()
-               .put(url)
-               .then()
-               .statusCode(HttpStatus.OK.value())
-               .body(containsString(SUCCESSFUL_UPDATE_ROUTING_RULE));
-    }
-
-    private void shouldNotOverrideAcceptedRepository(String acceptHeader)
-    {
-        String url = getContextBaseUrl() + "/rules/accepted" +
-                     "/group-releases-2/override/repositories";
-
-        RoutingRuleForm routingRule = new RoutingRuleForm();
-        routingRule.setPattern("");
-        Set<String> repositories = new HashSet<>();
-        routingRule.setRepositories(repositories);
-
-        given().contentType(MediaType.APPLICATION_JSON_VALUE)
-               .accept(acceptHeader)
-               .body(routingRule)
-               .when()
-               .put(url)
-               .then()
-               .statusCode(HttpStatus.BAD_REQUEST.value())
-               .body(containsString(FAILED_OVERRIDE_REPOSITORY_FORM_ERROR));
-    }
 }

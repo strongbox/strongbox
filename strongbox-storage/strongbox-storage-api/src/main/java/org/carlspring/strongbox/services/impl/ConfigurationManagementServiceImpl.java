@@ -248,17 +248,17 @@ public class ConfigurationManagementServiceImpl
     }
 
     @Override
-    public boolean updateRoutingRule(int index,
+    public boolean updateRoutingRule(UUID uuid,
                                      MutableRoutingRule routingRule)
     {
         final MutableBoolean result = new MutableBoolean();
         modifyInLock(configuration ->
-                     {
-                         result.setValue(
-                                 configuration.getRoutingRules()
-                                              .getRules()
-                                              .set(index, routingRule) != routingRule);
-                     });
+                             configuration.getRoutingRules()
+                                          .getRules()
+                                          .stream()
+                                          .filter(r -> r.getUuid().equals(uuid))
+                                          .findFirst()
+                                          .ifPresent(r -> result.setValue(r.updateBy(routingRule))));
 
         return result.isTrue();
     }
@@ -269,6 +269,7 @@ public class ConfigurationManagementServiceImpl
         final MutableBoolean result = new MutableBoolean();
         modifyInLock(configuration ->
                      {
+                         routingRule.setUuid(UUID.randomUUID());
                          result.setValue(configuration.getRoutingRules()
                                                       .getRules()
                                                       .add(routingRule));
@@ -278,14 +279,20 @@ public class ConfigurationManagementServiceImpl
     }
 
     @Override
-    public boolean removeRoutingRule(int index)
+    public boolean removeRoutingRule(UUID uuid)
     {
         final MutableBoolean result = new MutableBoolean();
         modifyInLock(configuration ->
                      {
-                         result.setValue(configuration.getRoutingRules()
-                                                      .getRules()
-                                                      .remove(index) != null);
+                         configuration.getRoutingRules()
+                                      .getRules()
+                                      .stream()
+                                      .filter(r -> r.getUuid().equals(uuid))
+                                      .findFirst()
+                                      .ifPresent(r -> result.setValue(configuration.getRoutingRules()
+                                                                                   .getRules()
+                                                                                   .remove(r)));
+
                      });
 
         return result.isTrue();
@@ -501,10 +508,11 @@ public class ConfigurationManagementServiceImpl
                      {
                          ArrayList origins;
 
-                         if(CollectionUtils.isEmpty(allowedOrigins))
+                         if (CollectionUtils.isEmpty(allowedOrigins))
                          {
                              origins = new ArrayList<>();
-                         } else
+                         }
+                         else
                          {
                              origins = new ArrayList<>(allowedOrigins);
                          }

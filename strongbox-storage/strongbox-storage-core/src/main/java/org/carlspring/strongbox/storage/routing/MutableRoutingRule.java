@@ -4,6 +4,7 @@ import javax.xml.bind.annotation.*;
 import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.UUID;
 
 /**
  * @author mtodorov
@@ -13,6 +14,9 @@ import java.util.List;
 public class MutableRoutingRule
         implements Serializable
 {
+
+    @XmlAttribute(name = "uuid")
+    private UUID uuid;
 
     @XmlAttribute(name = "storage-id")
     private String storageId;
@@ -29,6 +33,16 @@ public class MutableRoutingRule
     @XmlElement(name = "repository")
     @XmlElementWrapper(name = "repositories")
     private List<MutableRoutingRuleRepository> repositories = new ArrayList<>();
+
+    public UUID getUuid()
+    {
+        return uuid;
+    }
+
+    public void setUuid(UUID uuid)
+    {
+        this.uuid = uuid;
+    }
 
     public String getStorageId()
     {
@@ -93,5 +107,15 @@ public class MutableRoutingRule
         routingRule.setType(type.getType());
         routingRule.setRepositories(repositories);
         return routingRule;
+    }
+
+    public boolean updateBy(MutableRoutingRule routingRule)
+    {
+        this.setRepositories(routingRule.getRepositories());
+        this.setPattern(routingRule.getPattern());
+        this.setStorageId(routingRule.getStorageId());
+        this.setRepositoryId(routingRule.getRepositoryId());
+        this.setType(routingRule.getType());
+        return true;
     }
 }

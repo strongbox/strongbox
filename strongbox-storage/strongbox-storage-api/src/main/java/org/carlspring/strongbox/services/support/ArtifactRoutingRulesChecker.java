@@ -12,6 +12,7 @@ import javax.inject.Inject;
 import java.io.IOException;
 import java.util.List;
 
+import org.apache.commons.lang3.StringUtils;
 import org.springframework.stereotype.Component;
 
 /**
@@ -78,21 +79,21 @@ public class ArtifactRoutingRulesChecker
     {
         return repositoryIdentifiable.getStorageId().equals(storageId)
                &&
-               repositoryIdentifiable.getRepositoryId().equals("*");
+               StringUtils.trimToEmpty(repositoryIdentifiable.getRepositoryId()).equals(StringUtils.EMPTY);
     }
 
     private boolean repositoryIdMatches(String repositoryId,
                                         RepositoryIdentifiable repositoryIdentifiable)
     {
-        return repositoryIdentifiable.getStorageId().equals("*")
+        return StringUtils.trimToEmpty(repositoryIdentifiable.getStorageId()).equals(StringUtils.EMPTY)
                &&
                repositoryIdentifiable.getRepositoryId().equals(repositoryId);
     }
 
     private boolean allMatches(RepositoryIdentifiable repositoryIdentifiable)
     {
-        return repositoryIdentifiable.getStorageId().equals("*")
+        return StringUtils.trimToEmpty(repositoryIdentifiable.getStorageId()).equals(StringUtils.EMPTY)
                &&
-               repositoryIdentifiable.getRepositoryId().equals("*");
+               StringUtils.trimToEmpty(repositoryIdentifiable.getRepositoryId()).equals(StringUtils.EMPTY);
     }
 }

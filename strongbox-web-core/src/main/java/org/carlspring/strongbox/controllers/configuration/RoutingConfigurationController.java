@@ -6,6 +6,8 @@ import org.carlspring.strongbox.storage.routing.MutableRoutingRule;
 import org.carlspring.strongbox.storage.routing.MutableRoutingRules;
 import org.carlspring.strongbox.validation.RequestBodyValidationException;
 
+import java.util.UUID;
+
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
 import io.swagger.annotations.ApiResponse;
@@ -40,17 +42,11 @@ public class RoutingConfigurationController
 
     static final String FAILED_REMOVE_ROUTING_RULE = "Routing rule cannot be removed.";
 
-    static final String SUCCESSFUL_ADD_REPOSITORY = "Accepted repository added successfully.";
+    static final String NOT_FOUND_REPOSITORY = "Routing rule could not be found.";
 
-    static final String FAILED_ADD_REPOSITORY_FORM_ERROR = "Accepted repository cannot be added because the submitted form contains errors!";
+    static final String FAILED_UPDATE_ROUTING_RULE = "Successfully updated routing rule.";
 
-    static final String NOT_FOUND_REPOSITORY = "Accepted repository could not be found.";
-
-    static final String SUCCESSFUL_REMOVE_REPOSITORY = "Accepted repository deleted successfully.";
-
-    static final String SUCCESSFUL_UPDATE_ROUTING_RULE = "Accepted repository override succeeded.";
-
-    static final String FAILED_OVERRIDE_REPOSITORY_FORM_ERROR = "Accepted repository cannot be overridden because the submitted form contains errors!";
+    static final String FAILED_UPDATE_ROUTING_RULE_FORM_ERROR = "Routing rule cannot be updated because the submitted form contains errors!";
 
 
     private final ConversionService conversionService;
@@ -65,7 +61,8 @@ public class RoutingConfigurationController
 
     @ApiOperation(value = "Returns routing rules.")
     @ApiResponses(value = { @ApiResponse(code = 200, message = "Everything went ok.") })
-    @GetMapping(produces = { MediaType.APPLICATION_JSON_VALUE })
+    @GetMapping(produces = { MediaType.TEXT_PLAIN_VALUE,
+                             MediaType.APPLICATION_JSON_VALUE })
     public ResponseEntity getRoutingRules()
     {
         MutableRoutingRules body = configurationManagementService.getMutableConfigurationClone()
@@ -96,43 +93,43 @@ public class RoutingConfigurationController
         return getResponse(added, SUCCESSFUL_ADD_ROUTING_RULE, FAILED_ADD_ROUTING_RULE, acceptHeader);
     }
 
-    @ApiOperation(value = "Removes routing rule at the specified index.")
+    @ApiOperation(value = "Removes routing rule having provided uuid.")
     @ApiResponses(value = { @ApiResponse(code = 200, message = SUCCESSFUL_REMOVE_ROUTING_RULE),
                             @ApiResponse(code = 404, message = FAILED_ADD_ROUTING_RULE) })
-    @DeleteMapping(value = "/remove/{index}",
+    @DeleteMapping(value = "/remove/{uuid}",
             consumes = MediaType.APPLICATION_JSON_VALUE,
             produces = { MediaType.TEXT_PLAIN_VALUE,
                          MediaType.APPLICATION_JSON_VALUE })
-    public ResponseEntity remove(@PathVariable int index,
+    public ResponseEntity remove(@PathVariable UUID uuid,
                                  @RequestHeader(HttpHeaders.ACCEPT) String acceptHeader)
     {
-        final boolean removed = configurationManagementService.removeRoutingRule(index);
+        final boolean removed = configurationManagementService.removeRoutingRule(uuid);
 
         return getResponse(removed, SUCCESSFUL_REMOVE_ROUTING_RULE, FAILED_REMOVE_ROUTING_RULE, acceptHeader);
     }
 
     @ApiOperation(value = "Updates routing rule at the specified index.")
-    @ApiResponses(value = { @ApiResponse(code = 200, message = SUCCESSFUL_UPDATE_ROUTING_RULE),
-                            @ApiResponse(code = 400, message = FAILED_OVERRIDE_REPOSITORY_FORM_ERROR),
+    @ApiResponses(value = { @ApiResponse(code = 200, message = FAILED_UPDATE_ROUTING_RULE),
+                            @ApiResponse(code = 400, message = FAILED_UPDATE_ROUTING_RULE_FORM_ERROR),
                             @ApiResponse(code = 404, message = NOT_FOUND_REPOSITORY) })
-    @PutMapping(value = "/update/{index}",
+    @PutMapping(value = "/update/{uuid}",
             consumes = MediaType.APPLICATION_JSON_VALUE,
             produces = { MediaType.TEXT_PLAIN_VALUE,
                          MediaType.APPLICATION_JSON_VALUE })
-    public ResponseEntity update(@PathVariable int index,
+    public ResponseEntity update(@PathVariable UUID uuid,
                                  @RequestBody @Validated RoutingRuleForm routingRule,
                                  BindingResult bindingResult,
                                  @RequestHeader(HttpHeaders.ACCEPT) String acceptHeader)
     {
         if (bindingResult.hasErrors())
         {
-            throw new RequestBodyValidationException(FAILED_OVERRIDE_REPOSITORY_FORM_ERROR, bindingResult);
+            throw new RequestBodyValidationException(FAILED_UPDATE_ROUTING_RULE_FORM_ERROR, bindingResult);
         }
 
         MutableRoutingRule rule = conversionService.convert(routingRule, MutableRoutingRule.class);
 
-        final boolean updated = configurationManagementService.updateRoutingRule(index, rule);
-        return getResponse(updated, SUCCESSFUL_UPDATE_ROUTING_RULE, NOT_FOUND_REPOSITORY, acceptHeader);
+        final boolean updated = configurationManagementService.updateRoutingRule(uuid, rule);
+        return getResponse(updated, FAILED_UPDATE_ROUTING_RULE, FAILED_UPDATE_ROUTING_RULE, acceptHeader);
     }
 
     private ResponseEntity getResponse(boolean result,
