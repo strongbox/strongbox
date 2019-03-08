@@ -1,42 +1,29 @@
 package org.carlspring.strongbox.users.dto;
 
-import javax.xml.bind.annotation.XmlAccessType;
-import javax.xml.bind.annotation.XmlAccessorType;
-import javax.xml.bind.annotation.XmlAttribute;
-import javax.xml.bind.annotation.XmlElement;
-import javax.xml.bind.annotation.XmlElementWrapper;
-import javax.xml.bind.annotation.XmlRootElement;
 import java.util.LinkedHashSet;
 import java.util.Optional;
 import java.util.Set;
+
+import com.fasterxml.jackson.annotation.JsonProperty;
 
 /**
  * @author Alex Oreshkevich
  * @author Pablo Tirado
  */
-@XmlRootElement(name = "storage")
-@XmlAccessorType(XmlAccessType.NONE)
-public class UserStorageDto implements UserStorageReadContract
+public class UserStorageDto
+        implements UserStorageReadContract
 {
 
-    @XmlElement(name = "repository")
-    @XmlElementWrapper(name = "repositories")
     private Set<UserRepositoryDto> repositories = new LinkedHashSet<>();
 
-    @XmlAttribute(name = "id", required = true)
+    @JsonProperty(value = "id", required = true)
     private String storageId;
 
-    /* (non-Javadoc)
-     * @see org.carlspring.strongbox.users.dto.UserStorageReadContract#getRepositories()
-     */
     public Set<UserRepositoryDto> getRepositories()
     {
         return repositories;
     }
 
-    /* (non-Javadoc)
-     * @see org.carlspring.strongbox.users.dto.UserStorageReadContract#getStorageId()
-     */
     public String getStorageId()
     {
         return storageId;
