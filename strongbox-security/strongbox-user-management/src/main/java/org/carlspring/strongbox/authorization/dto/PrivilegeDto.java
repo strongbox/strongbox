@@ -2,28 +2,25 @@ package org.carlspring.strongbox.authorization.dto;
 
 import java.io.Serializable;
 
+import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.google.common.base.Objects;
 
 /**
  * @author mtodorov
+ * @author Pablo Tirado
  */
 public class PrivilegeDto
         implements Serializable, PrivelegieReadContract
 {
 
-    @JsonProperty(required = true)
     private String name;
 
     private String description;
 
-
-    public PrivilegeDto()
-    {
-    }
-
-    public PrivilegeDto(String name,
-                        String description)
+    @JsonCreator
+    public PrivilegeDto(@JsonProperty(value = "name", required = true) String name,
+                        @JsonProperty(value = "description") String description)
     {
         this.name = name;
         this.description = description;
@@ -44,9 +41,6 @@ public class PrivilegeDto
         return Objects.hashCode(name);
     }
 
-    /* (non-Javadoc)
-     * @see org.carlspring.strongbox.authorization.dto.PrivelegieReadContract#getName()
-     */
     public String getName()
     {
         return name;
@@ -57,9 +51,6 @@ public class PrivilegeDto
         this.name = name;
     }
 
-    /* (non-Javadoc)
-     * @see org.carlspring.strongbox.authorization.dto.PrivelegieReadContract#getDescription()
-     */
     public String getDescription()
     {
         return description;
