@@ -4,6 +4,7 @@ import java.io.Serializable;
 import java.util.HashMap;
 import java.util.Map;
 
+import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonGetter;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import org.springframework.util.Assert;
@@ -15,10 +16,8 @@ import org.springframework.util.Assert;
 public class CronTaskConfigurationDto
         implements Serializable
 {
-    @JsonProperty(required = true)
     private String uuid;
 
-    @JsonProperty(required = true)
     private String name;
 
     private Map<String, String> properties = new HashMap<>();
@@ -26,6 +25,18 @@ public class CronTaskConfigurationDto
     private boolean oneTimeExecution = false;
 
     private boolean immediateExecution = false;
+
+    public CronTaskConfigurationDto()
+    {
+    }
+
+    @JsonCreator
+    public CronTaskConfigurationDto(@JsonProperty(value = "uuid", required = true) String uuid,
+                                    @JsonProperty(value = "name", required = true) String name)
+    {
+        this.uuid = uuid;
+        this.name = name;
+    }
 
     public String getUuid()
     {
