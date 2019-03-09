@@ -1,44 +1,39 @@
 package org.carlspring.strongbox.configuration;
 
-import javax.xml.bind.annotation.XmlAccessType;
-import javax.xml.bind.annotation.XmlAccessorType;
-import javax.xml.bind.annotation.XmlAttribute;
-import javax.xml.bind.annotation.XmlRootElement;
 import java.io.Serializable;
+
+import com.fasterxml.jackson.annotation.JsonCreator;
+import com.fasterxml.jackson.annotation.JsonProperty;
 
 /**
  * @author Steve Todorov
+ * @author Pablo Tirado
  */
-@XmlRootElement(name = "smtp-configuration")
-@XmlAccessorType(XmlAccessType.FIELD)
 public class MutableSmtpConfiguration
         implements Serializable
 {
 
-    @XmlAttribute
     private String host;
 
-    @XmlAttribute
     private Integer port;
 
-    @XmlAttribute
     private String connection;
 
-    @XmlAttribute
     private String username;
 
-    @XmlAttribute
     private String password;
 
+    @JsonCreator
     public MutableSmtpConfiguration()
     {
     }
 
-    public MutableSmtpConfiguration(String host,
-                                    Integer port,
-                                    String connection,
-                                    String username,
-                                    String password)
+    @JsonCreator
+    public MutableSmtpConfiguration(@JsonProperty("host") String host,
+                                    @JsonProperty("port") Integer port,
+                                    @JsonProperty("connection") String connection,
+                                    @JsonProperty("username") String username,
+                                    @JsonProperty("password") String password)
     {
         this.host = host;
         this.port = port;

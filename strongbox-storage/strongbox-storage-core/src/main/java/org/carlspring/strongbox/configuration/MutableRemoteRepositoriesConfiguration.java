@@ -2,18 +2,12 @@ package org.carlspring.strongbox.configuration;
 
 import org.carlspring.strongbox.client.MutableRemoteRepositoryRetryArtifactDownloadConfiguration;
 
-import javax.xml.bind.annotation.XmlAccessType;
-import javax.xml.bind.annotation.XmlAccessorType;
-import javax.xml.bind.annotation.XmlAttribute;
-import javax.xml.bind.annotation.XmlElement;
-import javax.xml.bind.annotation.XmlRootElement;
 import java.io.Serializable;
 
 /**
  * @author Przemyslaw Fusik
+ * @author Pablo Tirado
  */
-@XmlRootElement(name = "remote-repositories-configuration")
-@XmlAccessorType(XmlAccessType.FIELD)
 public class MutableRemoteRepositoriesConfiguration
         implements Serializable
 {
@@ -36,23 +30,20 @@ public class MutableRemoteRepositoriesConfiguration
         }
     };
 
-    @XmlElement(name = "retry-artifact-download-configuration")
-    private MutableRemoteRepositoryRetryArtifactDownloadConfiguration remoteRepositoryRetryArtifactDownloadConfiguration = MutableRemoteRepositoryRetryArtifactDownloadConfiguration.DEFAULT;
+    private MutableRemoteRepositoryRetryArtifactDownloadConfiguration retryArtifactDownloadConfiguration = MutableRemoteRepositoryRetryArtifactDownloadConfiguration.DEFAULT;
 
-    @XmlAttribute(name = "check-interval-seconds")
     private int checkIntervalSeconds = DEFAULT_HEARTBEAT_INTERVAL_SECONDS;
 
-    @XmlAttribute(name = "heartbeat-threads-number")
     private int heartbeatThreadsNumber = 5;
 
-    public MutableRemoteRepositoryRetryArtifactDownloadConfiguration getRemoteRepositoryRetryArtifactDownloadConfiguration()
+    public MutableRemoteRepositoryRetryArtifactDownloadConfiguration getRetryArtifactDownloadConfiguration()
     {
-        return remoteRepositoryRetryArtifactDownloadConfiguration;
+        return retryArtifactDownloadConfiguration;
     }
 
-    public void setRemoteRepositoryRetryArtifactDownloadConfiguration(final MutableRemoteRepositoryRetryArtifactDownloadConfiguration remoteRepositoryRetryArtifactDownloadConfiguration)
+    public void setRetryArtifactDownloadConfiguration(final MutableRemoteRepositoryRetryArtifactDownloadConfiguration retryArtifactDownloadConfiguration)
     {
-        this.remoteRepositoryRetryArtifactDownloadConfiguration = remoteRepositoryRetryArtifactDownloadConfiguration;
+        this.retryArtifactDownloadConfiguration = retryArtifactDownloadConfiguration;
     }
 
     public int getCheckIntervalSeconds()

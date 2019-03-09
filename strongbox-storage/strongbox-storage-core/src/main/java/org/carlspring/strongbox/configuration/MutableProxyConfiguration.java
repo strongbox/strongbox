@@ -1,54 +1,49 @@
 package org.carlspring.strongbox.configuration;
 
-import javax.xml.bind.annotation.*;
 import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.List;
 
+import com.fasterxml.jackson.annotation.JsonCreator;
+import com.fasterxml.jackson.annotation.JsonProperty;
 import com.google.common.base.MoreObjects;
 import com.google.common.base.Objects;
 
 /**
  * @author mtodorov
+ * @author Pablo Tirado
  */
-@XmlRootElement(name = "proxy-configuration")
-@XmlAccessorType(XmlAccessType.FIELD)
 public class MutableProxyConfiguration
         implements Serializable
 {
 
-    @XmlAttribute
     private String host;
 
-    @XmlAttribute
     private Integer port;
 
-    @XmlAttribute
     private String username;
 
-    @XmlAttribute
     private String password;
 
     /**
      * Proxy type (HTTP, SOCKS5, etc)
      */
-    @XmlAttribute
     private String type;
 
-    @XmlElementWrapper(name = "non-proxy-hosts")
     private List<String> nonProxyHosts = new ArrayList<>();
 
-
+    @JsonCreator
     public MutableProxyConfiguration()
     {
     }
 
-    public MutableProxyConfiguration(String host,
-                                     Integer port,
-                                     String username,
-                                     String password,
-                                     String type,
-                                     List<String> nonProxyHosts)
+    @JsonCreator
+    public MutableProxyConfiguration(@JsonProperty("host") String host,
+                                     @JsonProperty("port") Integer port,
+                                     @JsonProperty("username") String username,
+                                     @JsonProperty("password") String password,
+                                     @JsonProperty("type") String type,
+                                     @JsonProperty("nonProxyHosts") List<String> nonProxyHosts)
     {
         this.host = host;
         this.port = port;
@@ -57,7 +52,6 @@ public class MutableProxyConfiguration
         this.type = type;
         this.nonProxyHosts = nonProxyHosts;
     }
-
     public String getHost()
     {
         return host;

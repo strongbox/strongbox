@@ -7,6 +7,8 @@ import javax.annotation.concurrent.Immutable;
 import javax.xml.bind.annotation.XmlAccessType;
 import javax.xml.bind.annotation.XmlAccessorType;
 
+import com.fasterxml.jackson.annotation.JsonCreator;
+import com.fasterxml.jackson.annotation.JsonProperty;
 import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
 
 /**
@@ -24,15 +26,17 @@ public class RemoteRepositoriesConfiguration
 
     private int heartbeatThreadsNumber;
 
-    RemoteRepositoriesConfiguration()
+    @JsonCreator
+    public RemoteRepositoriesConfiguration()
     {
 
     }
 
-    public RemoteRepositoriesConfiguration(final MutableRemoteRepositoriesConfiguration delegate)
+    @JsonCreator
+    public RemoteRepositoriesConfiguration(@JsonProperty("delegate") final MutableRemoteRepositoriesConfiguration delegate)
     {
         this.remoteRepositoryRetryArtifactDownloadConfiguration = immuteRemoteRepositoryRetryArtifactDownloadConfiguration(
-                delegate.getRemoteRepositoryRetryArtifactDownloadConfiguration());
+                delegate.getRetryArtifactDownloadConfiguration());
         this.checkIntervalSeconds = delegate.getCheckIntervalSeconds();
         this.heartbeatThreadsNumber = delegate.getHeartbeatThreadsNumber();
     }

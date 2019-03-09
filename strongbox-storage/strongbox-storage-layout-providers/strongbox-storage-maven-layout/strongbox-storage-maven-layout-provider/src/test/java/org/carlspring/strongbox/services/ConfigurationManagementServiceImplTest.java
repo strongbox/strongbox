@@ -98,11 +98,11 @@ public class ConfigurationManagementServiceImplTest
 
         MutableRepository groupRepository1 = mavenRepositoryFactory.createRepository(REPOSITORY_GROUP_1);
         groupRepository1.setType(RepositoryTypeEnum.GROUP.getType());
-        groupRepository1.getGroupRepositories().put(repository1.getId(), repository1.getId());
+        groupRepository1.getGroupRepositories().add(repository1.getId());
 
         MutableRepository groupRepository2 = mavenRepositoryFactory.createRepository(REPOSITORY_GROUP_2);
         groupRepository2.setType(RepositoryTypeEnum.GROUP.getType());
-        groupRepository2.getGroupRepositories().put(repository1.getId(), repository1.getId());
+        groupRepository2.getGroupRepositories().add(repository1.getId());
 
         createRepository(STORAGE0, repository1);
         createRepository(STORAGE0, repository2);

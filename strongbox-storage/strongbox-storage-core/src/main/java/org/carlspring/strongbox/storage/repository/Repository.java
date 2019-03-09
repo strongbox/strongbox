@@ -17,6 +17,7 @@ import javax.xml.bind.annotation.XmlAccessorType;
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 import java.util.stream.Collectors;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
@@ -25,6 +26,7 @@ import com.fasterxml.jackson.databind.annotation.JsonSerialize;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
 import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
+import static java.util.stream.Collectors.toMap;
 
 /**
  * @author Przemyslaw Fusik
@@ -138,9 +140,10 @@ public class Repository
         return source != null ? new RemoteRepository(source) : null;
     }
 
-    private Map<String, String> immuteGroupRepositories(final Map<String, String> source)
+    private Map<String, String> immuteGroupRepositories(final Set<String> source)
     {
-        return source != null ? ImmutableMap.copyOf(source) : Collections.emptyMap();
+        return source != null ? ImmutableMap.copyOf(source.stream().collect(toMap(e -> e, e -> e))) :
+               Collections.emptyMap();
     }
 
     private Storage immuteStorage(final MutableStorage source)
@@ -166,9 +169,10 @@ public class Repository
     }
 
 
-    private Map<String, String> immuteArtifactCoordinateValidators(final Map<String, String> source)
+    private Map<String, String> immuteArtifactCoordinateValidators(final Set<String> source)
     {
-        return source != null ? ImmutableMap.copyOf(source) : Collections.emptyMap();
+        return source != null ? ImmutableMap.copyOf(source.stream().collect(toMap(e -> e, e -> e))) :
+               Collections.emptyMap();
     }
 
     public String getId()

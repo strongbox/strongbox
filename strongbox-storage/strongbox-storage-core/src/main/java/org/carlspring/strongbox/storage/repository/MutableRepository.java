@@ -1,125 +1,92 @@
 package org.carlspring.strongbox.storage.repository;
 
-import java.io.Serializable;
-import java.nio.file.Paths;
-import java.util.ArrayList;
-import java.util.LinkedHashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
-
-import javax.xml.bind.annotation.XmlAccessType;
-import javax.xml.bind.annotation.XmlAccessorType;
-import javax.xml.bind.annotation.XmlAttribute;
-import javax.xml.bind.annotation.XmlElement;
-import javax.xml.bind.annotation.XmlElementRef;
-import javax.xml.bind.annotation.XmlRootElement;
-import javax.xml.bind.annotation.XmlTransient;
-import javax.xml.bind.annotation.adapters.XmlJavaTypeAdapter;
-
 import org.carlspring.strongbox.configuration.MutableProxyConfiguration;
 import org.carlspring.strongbox.providers.datastore.FileSystemStorageProvider;
 import org.carlspring.strongbox.storage.MutableStorage;
 import org.carlspring.strongbox.storage.repository.remote.MutableRemoteRepository;
-import org.carlspring.strongbox.xml.ArtifactCoordinateValidatorsAdapter;
-import org.carlspring.strongbox.xml.RepositoryGroupsAdapter;
 import org.carlspring.strongbox.xml.repository.MutableCustomRepositoryConfiguration;
 
+import java.io.Serializable;
+import java.nio.file.Paths;
+import java.util.ArrayList;
+import java.util.LinkedHashSet;
+import java.util.List;
+import java.util.Set;
+
+import com.fasterxml.jackson.annotation.JsonCreator;
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonProperty;
 
 /**
  * @author mtodorov
+ * @author Pablo Tirado
  */
-@XmlAccessorType(XmlAccessType.FIELD)
-@XmlRootElement(name = "repository")
 public class MutableRepository
         implements Serializable
 {
-
-    @XmlAttribute(required = true)
     private String id;
 
-    @XmlAttribute
     private String basedir;
 
-    @XmlAttribute
     private String policy = RepositoryPolicyEnum.MIXED.getPolicy();
 
-    @XmlAttribute
+    @JsonProperty("dataStore")
     private String implementation = FileSystemStorageProvider.ALIAS;
 
-    @XmlAttribute
     private String layout;
 
-    @XmlAttribute
     private String type = RepositoryTypeEnum.HOSTED.getType();
 
-    @XmlAttribute
     private boolean secured;
 
-    @XmlAttribute
     private String status = RepositoryStatusEnum.IN_SERVICE.getStatus();
 
-    @XmlAttribute(name = "artifact-max-size")
     private long artifactMaxSize;
 
-    @XmlAttribute(name = "trash-enabled")
     private boolean trashEnabled;
 
-    @XmlAttribute(name = "allows-force-deletion")
     private boolean allowsForceDeletion;
 
-    @XmlAttribute(name = "allows-deployment")
     private boolean allowsDeployment = true;
 
-    @XmlAttribute(name = "allows-redeployment")
     private boolean allowsRedeployment = true;
 
-    @XmlAttribute(name = "allows-delete")
     private boolean allowsDelete = true;
 
-    @XmlAttribute(name = "allows-directory-browsing")
     private boolean allowsDirectoryBrowsing = true;
 
-    @XmlAttribute(name = "checksum-headers-enabled")
     private boolean checksumHeadersEnabled;
 
     /**
      * The per-repository proxy settings that override the overall global proxy settings.
      */
-    @XmlElement(name = "proxy-configuration")
     private MutableProxyConfiguration proxyConfiguration;
 
-    @XmlElement(name = "remote-repository")
     private MutableRemoteRepository remoteRepository;
 
-    @XmlElement(name = "http-connection-pool")
     private MutableHttpConnectionPool httpConnectionPool;
 
-    @XmlElementRef
+    @JsonIgnore
+    //TODO YAML: Remove @JsonIgnore and create JsonSubtypes annotation in interface
     private List<MutableCustomConfiguration> customConfigurations = new ArrayList<>();
 
-    @XmlElementRef
-    @JsonProperty("repositoryConfiguration")
+    @JsonIgnore
+    //TODO YAML: Remove @JsonIgnore and create JsonSubtypes annotation in interface
     private MutableCustomRepositoryConfiguration repositoryConfiguration;
 
-    @XmlElement(name = "group")
-    @XmlJavaTypeAdapter(RepositoryGroupsAdapter.class)
-    private Map<String, String> groupRepositories = new LinkedHashMap<>();
+    private Set<String> groupRepositories = new LinkedHashSet<>();
 
-    @XmlElement(name = "artifact-coordinate-validators")
-    @XmlJavaTypeAdapter(ArtifactCoordinateValidatorsAdapter.class)
-    private Map<String, String> artifactCoordinateValidators = new LinkedHashMap<>();
+    private Set<String> artifactCoordinateValidators = new LinkedHashSet<>();
 
-    @XmlTransient
+    @JsonIgnore
     private MutableStorage storage;
-
 
     public MutableRepository()
     {
     }
 
-    public MutableRepository(String id)
+    @JsonCreator
+    public MutableRepository(@JsonProperty(value = "id", required = true) String id)
     {
         this.id = id;
     }
@@ -140,9 +107,13 @@ public class MutableRepository
         {
             return basedir;
         }
-        else
+        else if (storage != null)
         {
             return Paths.get(storage.getBasedir()).resolve(id).toString();
+        }
+        else
+        {
+            return null;
         }
     }
 
@@ -291,23 +262,19 @@ public class MutableRepository
         this.remoteRepository = remoteRepository;
     }
 
-    public Map<String, String> getGroupRepositories()
+    public Set<String> getGroupRepositories()
     {
         return groupRepositories;
     }
 
     public void setGroupRepositories(Set<String> groupRepositories)
     {
-        this.groupRepositories.clear();
-        if (groupRepositories != null)
-        {
-            groupRepositories.stream().forEach(value -> this.groupRepositories.put(value, value));
-        }
+        this.groupRepositories = groupRepositories;
     }
 
     public void addRepositoryToGroup(String repositoryId)
     {
-        groupRepositories.putIfAbsent(repositoryId, repositoryId);
+        groupRepositories.add(repositoryId);
     }
 
     public void removeRepositoryFromGroup(String repositoryId)
@@ -426,18 +393,14 @@ public class MutableRepository
         this.artifactMaxSize = artifactMaxSize;
     }
 
-    public Map<String, String> getArtifactCoordinateValidators()
+    public Set<String> getArtifactCoordinateValidators()
     {
         return artifactCoordinateValidators;
     }
 
     public void setArtifactCoordinateValidators(Set<String> artifactCoordinateValidators)
     {
-        this.artifactCoordinateValidators.clear();
-        if (artifactCoordinateValidators != null)
-        {
-            artifactCoordinateValidators.stream().forEach(value -> this.artifactCoordinateValidators.put(value, value));
-        }
+        this.artifactCoordinateValidators = artifactCoordinateValidators;
     }
 
     public boolean isEligibleForCustomConnectionPool()
