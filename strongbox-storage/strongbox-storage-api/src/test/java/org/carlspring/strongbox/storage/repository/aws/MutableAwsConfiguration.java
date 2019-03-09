@@ -1,25 +1,20 @@
 package org.carlspring.strongbox.storage.repository.aws;
 
-import javax.xml.bind.annotation.XmlAttribute;
-import javax.xml.bind.annotation.XmlRootElement;
-
 import org.carlspring.strongbox.storage.repository.CustomConfiguration;
 import org.carlspring.strongbox.storage.repository.MutableCustomConfiguration;
 import org.carlspring.strongbox.xml.CustomTag;
 
 /**
  * @author carlspring
+ * @author Pablo Tirado
  */
-@XmlRootElement(name = "aws-configuration")
 public class MutableAwsConfiguration
         extends MutableCustomConfiguration
         implements CustomTag
 {
 
-    @XmlAttribute
     private String bucket;
 
-    @XmlAttribute
     private String key;
 
 

@@ -2,56 +2,42 @@ package org.carlspring.strongbox.storage.repository.remote;
 
 import org.carlspring.strongbox.xml.repository.remote.MutableRemoteRepositoryConfiguration;
 
-import javax.xml.bind.annotation.*;
 import java.io.Serializable;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import static org.carlspring.strongbox.configuration.MutableRemoteRepositoriesConfiguration.DEFAULT_HEARTBEAT_INTERVAL_SECONDS;
 
 /**
  * @author mtodorov
+ * @author Pablo Tirado
  */
-@XmlRootElement(name = "remote-repository")
-@XmlAccessorType(XmlAccessType.FIELD)
 public class MutableRemoteRepository
         implements Serializable
 {
 
-    @XmlAttribute
     private String url;
 
-    @XmlAttribute(name = "download-remote-indexes")
     private boolean downloadRemoteIndexes;
 
-    @XmlAttribute(name = "auto-blocking")
     private boolean autoBlocking;
 
-    @XmlAttribute(name = "checksum-validation")
     private boolean checksumValidation;
 
-    @XmlAttribute
     private String username;
 
-    @XmlAttribute
     private String password;
 
-    @XmlAttribute(name = "checksum-policy")
     private String checksumPolicy;
 
-    @XmlAttribute(name = "check-interval-seconds")
     private Integer checkIntervalSeconds = DEFAULT_HEARTBEAT_INTERVAL_SECONDS;
 
-    @XmlAttribute(name = "allows-directory-browsing")
     private boolean allowsDirectoryBrowsing = true;
 
-    @XmlAttribute(name = "auto-import-remote-ssl-certificate")
     private boolean autoImportRemoteSSLCertificate;
 
-    @XmlElementRef
+    @JsonIgnore
+    //TODO YAML: Remove @JsonIgnore and create JsonSubtypes annotation in interface
     private MutableRemoteRepositoryConfiguration customConfiguration;
-    
-    public MutableRemoteRepository()
-    {
-    }
 
     public String getUrl()
     {
@@ -162,5 +148,5 @@ public class MutableRemoteRepository
     {
         this.customConfiguration = customConfiguration;
     }
-    
+
 }

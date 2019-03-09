@@ -1,13 +1,11 @@
 package org.carlspring.strongbox.configuration;
 
-import javax.xml.bind.annotation.XmlAccessType;
-import javax.xml.bind.annotation.XmlAccessorType;
 import java.io.Serializable;
 
 /**
  * @author mtodorov
+ * @author Pablo Tirado
  */
-@XmlAccessorType(XmlAccessType.FIELD)
 public abstract class ServerConfiguration
         implements Serializable
 {
