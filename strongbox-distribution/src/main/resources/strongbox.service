@@ -7,11 +7,11 @@ Wants=network-online.target
 [Service]
 Type=simple
 User=strongbox
-Environment=STRONGBOX_HOME=/opt/strongbox
-Environment=STRONGBOX_VAULT=/opt/strongbox-vault
+Environment=STRONGBOX_HOME=/usr/local/strongbox/strongbox
+Environment=STRONGBOX_VAULT=/usr/local/strongbox/strongbox-vault
 Environment=STRONGBOX_PORT=48080
-ExecStart=/opt/strongbox/bin/strongbox console
-ExecStop=/opt/strongbox/bin/strongbox stop
+ExecStart=/usr/local/strongbox/strongbox/bin/strongbox console
+ExecStop=/usr/local/strongbox/strongbox/bin/strongbox stop
 ExecReload=/bin/kill -s HUP $MAINPID
 TimeoutSec=0
 RestartSec=2

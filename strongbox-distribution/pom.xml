@@ -334,94 +334,6 @@
                     <tarLongFileMode>posix</tarLongFileMode>
                 </configuration>
             </plugin>
-            <plugin>
-                <groupId>org.codehaus.mojo</groupId>
-                <artifactId>rpm-maven-plugin</artifactId>
-
-                <executions>
-                    <execution>
-                        <goals>
-                            <goal>attached-rpm</goal>
-                        </goals>
-                    </execution>
-                </executions>
-                <configuration>
-                    <group>Strongbox</group>
-                    <description>Strongbox distribution version ${project.version}.</description>
-                    <copyTo>target/strongbox-distribution-${project.version}.rpm</copyTo>
-                    <license>Apache 2.0</license>
-                    <url>https://github.com/strongbox/strongbox/</url>
-                    <description>The Strongbox artifact repository manager.</description>
-                    <defineStatements>
-                        <defineStatement>_binaries_in_noarch_packages_terminate_build 0</defineStatement>
-                    </defineStatements>
-                    <mappings>
-                        <mapping>
-                            <filemode>0755</filemode>
-                            <directory>/usr/local/strongbox/bin</directory>
-                            <sources>
-                                <source>
-                                    <location>${project.build.directory}/assembly/strongbox-${project.version}/bin</location>
-                                </source>
-                            </sources>
-                        </mapping>
-                        <mapping>
-                            <directory>/usr/local/strongbox/etc</directory>
-                            <sources>
-                                <source>
-                                    <location>${project.build.directory}/assembly/strongbox-${project.version}/etc</location>
-                                </source>
-                            </sources>
-                        </mapping>
-                        <mapping>
-                            <directory>/usr/local/strongbox/lib</directory>
-                            <sources>
-                                <source>
-                                    <location>${project.build.directory}/assembly/strongbox-${project.version}/lib</location>
-                                </source>
-                            </sources>
-                        </mapping>
-                        <mapping>
-                            <directory>/usr/local/strongbox/logs</directory>
-                            <sources>
-                                <source>
-                                    <location>${project.build.directory}/assembly/strongbox-${project.version}/logs</location>
-                                </source>
-                            </sources>
-                        </mapping>
-                        <mapping>
-                            <directory>/usr/local/strongbox/tmp</directory>
-                            <sources>
-                                <source>
-                                    <location>${project.build.directory}/assembly/strongbox-${project.version}/tmp</location>
-                                </source>
-                            </sources>
-                        </mapping>
-                        <mapping>
-                            <directory>/usr/bin</directory>
-                            <sources>
-                                <softlinkSource>
-                                    <location>/usr/local/strongbox/bin/strongbox</location>
-                                </softlinkSource>
-                            </sources>
-                        </mapping>
-                        <mapping>
-                            <directory>/etc/systemd/system</directory>
-                            <directoryIncluded>false</directoryIncluded>
-                            <sources>
-                                <source>
-                                    <location>${project.basedir}/src/main/resources/strongbox.service</location>
-                                </source>
-                            </sources>
-                        </mapping>
-                    </mappings>
-                    <postinstallScriptlet>
-                        <scriptFile>src/main/resources/postinstall</scriptFile>
-                        <fileEncoding>utf-8</fileEncoding>
-                        <filter>true</filter>
-                    </postinstallScriptlet>
-                </configuration>
-            </plugin>
         </plugins>
     </build>
 
@@ -465,6 +377,108 @@
                 <strongbox.log.file>logback-spring-debug.xml</strongbox.log.file>
             </properties>
         </profile>
+
+        <profile>
+            <id>build-rpm</id>
+            <activation>
+                <activeByDefault>false</activeByDefault>
+            </activation>
+            <build>
+                <plugins>
+                    <plugin>
+                        <groupId>org.codehaus.mojo</groupId>
+                        <artifactId>rpm-maven-plugin</artifactId>
+
+                        <executions>
+                            <execution>
+                                <goals>
+                                    <goal>attached-rpm</goal>
+                                </goals>
+                            </execution>
+                        </executions>
+                        <configuration>
+                            <group>Strongbox</group>
+                            <description>Strongbox distribution version ${project.version}.</description>
+                            <copyTo>target/strongbox-distribution-${project.version}.rpm</copyTo>
+                            <license>Apache 2.0</license>
+                            <url>https://github.com/strongbox/strongbox/</url>
+                            <description>The Strongbox artifact repository manager.</description>
+                            <needarch>x86_64</needarch>
+                            <defineStatements>
+                                <defineStatement>_binaries_in_noarch_packages_terminate_build 0</defineStatement>
+                            </defineStatements>
+                            <mappings>
+                                <mapping>
+                                    <filemode>0755</filemode>
+                                    <directory>/usr/local/strongbox/strongbox/bin</directory>
+                                    <sources>
+                                        <source>
+                                            <location>${project.build.directory}/assembly/strongbox-${project.version}/bin</location>
+                                        </source>
+                                    </sources>
+                                </mapping>
+                                <mapping>
+                                    <directory>/usr/local/strongbox/strongbox/etc</directory>
+                                    <sources>
+                                        <source>
+                                            <location>${project.build.directory}/assembly/strongbox-${project.version}/etc</location>
+                                        </source>
+                                    </sources>
+                                </mapping>
+                                <mapping>
+                                    <directory>/usr/local/strongbox/strongbox/lib</directory>
+                                    <sources>
+                                        <source>
+                                            <location>${project.build.directory}/assembly/strongbox-${project.version}/lib</location>
+                                        </source>
+                                    </sources>
+                                </mapping>
+                                <mapping>
+                                    <directory>/usr/local/strongbox/strongbox/logs</directory>
+                                    <sources>
+                                        <source>
+                                            <location>${project.build.directory}/assembly/strongbox-${project.version}/logs</location>
+                                        </source>
+                                    </sources>
+                                </mapping>
+                                <mapping>
+                                    <directory>/usr/local/strongbox/strongbox/tmp</directory>
+                                    <sources>
+                                        <source>
+                                            <location>${project.build.directory}/assembly/strongbox-${project.version}/tmp</location>
+                                        </source>
+                                    </sources>
+                                </mapping>
+                                <mapping>
+                                    <directory>/usr/bin</directory>
+                                    <sources>
+                                        <softlinkSource>
+                                            <location>/usr/local/strongbox/strongbox/bin/strongbox</location>
+                                        </softlinkSource>
+                                    </sources>
+                                </mapping>
+                                <mapping>
+                                    <directory>/etc/systemd/system</directory>
+                                    <directoryIncluded>false</directoryIncluded>
+                                    <sources>
+                                        <source>
+                                            <location>${project.basedir}/src/main/resources/strongbox.service</location>
+                                        </source>
+                                    </sources>
+                                </mapping>
+                            </mappings>
+                            <postinstallScriptlet>
+                                <scriptFile>src/main/resources/postinstall</scriptFile>
+                                <fileEncoding>utf-8</fileEncoding>
+                                <filter>true</filter>
+                            </postinstallScriptlet>
+                        </configuration>
+                    </plugin>
+
+                </plugins>
+            </build>
+        </profile>
+
         <profile>
             <id>deploy-release-artifact-to-github</id>
             <activation>
