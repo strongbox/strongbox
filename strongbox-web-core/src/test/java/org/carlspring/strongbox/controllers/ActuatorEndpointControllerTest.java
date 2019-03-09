@@ -29,7 +29,9 @@ public class ActuatorEndpointControllerTest
 
     @Override
     @BeforeEach
-    public void init() throws Exception {
+    public void init()
+            throws Exception
+    {
         super.init();
         setContextBaseUrl(getContextBaseUrl() + "/api/monitoring");
     }

@@ -14,13 +14,15 @@ import java.util.Map;
  * @author: adavid9
  */
 @Component(value = "extendedInfoEndpoint")
-public class StrongboxCustomInfo implements InfoContributor {
+public class StrongboxCustomInfo implements InfoContributor
+{
 
     @Inject
     private PropertiesBooter propertiesBooter;
 
     @Override
-    public void contribute(Info.Builder builder) {
+    public void contribute(Info.Builder builder)
+    {
         Map<String, String> strongboxInfo = new HashMap<>();
         strongboxInfo.put("version", propertiesBooter.getStrongboxVersion());
         strongboxInfo.put("revision", propertiesBooter.getStrongboxRevision());
