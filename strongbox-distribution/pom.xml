@@ -401,7 +401,7 @@
                             <description>Strongbox distribution version ${project.version}.</description>
                             <copyTo>target/strongbox-distribution-${project.version}.rpm</copyTo>
                             <license>Apache 2.0</license>
-                            <url>https://github.com/strongbox/strongbox/</url>
+                            <url>https://strongbox.github.io/</url>
                             <description>The Strongbox artifact repository manager.</description>
                             <needarch>x86_64</needarch>
                             <defineStatements>
