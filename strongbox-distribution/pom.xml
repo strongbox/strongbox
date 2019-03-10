@@ -170,6 +170,37 @@
                             </artifactItems>
                         </configuration>
                     </execution>
+                    <execution>
+                        <id>copy-required-artifacts-to-assembly-lib</id>
+                        <phase>process-resources</phase>
+                        <goals>
+                            <goal>copy</goal>
+                        </goals>
+                        <configuration>
+                            <artifactItems>
+                                <artifactItem>
+                                    <groupId>org.codehaus.mojo.appassembler</groupId>
+                                    <artifactId>appassembler-booter</artifactId>
+                                    <type>jar</type>
+                                </artifactItem>
+                                <artifactItem>
+                                    <groupId>org.codehaus.mojo.appassembler</groupId>
+                                    <artifactId>appassembler-model</artifactId>
+                                    <type>jar</type>
+                                </artifactItem>
+                                <artifactItem>
+                                    <groupId>${project.groupId}</groupId>
+                                    <artifactId>strongbox-web-core</artifactId>
+                                    <classifier>spring-boot</classifier>
+                                    <type>jar</type>
+                                </artifactItem>
+                            </artifactItems>
+
+                            <outputDirectory>${dir.strongbox.standalone}/lib</outputDirectory>
+                            <overWriteReleases>true</overWriteReleases>
+                            <overWriteSnapshots>true</overWriteSnapshots>
+                        </configuration>
+                    </execution>
                 </executions>
             </plugin>
 
@@ -190,6 +221,11 @@
                     </binFileExtensions>
 
                     <configurationDirectory>etc/conf</configurationDirectory>
+
+                    <!-- This otherwise causes all the direct and transitive dependencies to be copied under
+                         ${dir.strongbox.standalone}/lib, completely unaware of the fact that all the required
+                         dependencies are already included in the Spring Boot package of the strongbox-web-core. -->
+                    <generateRepository>false</generateRepository>
 
                     <daemons>
                         <daemon>
@@ -331,7 +367,9 @@
                         <descriptor>src/main/assembly/distribution.xml</descriptor>
                     </descriptors>
                     <appendAssemblyId>false</appendAssemblyId>
-                    <tarLongFileMode>posix</tarLongFileMode>
+                    <!-- Do not, under any circumstances change this,
+                         as it truncates long file names inside the tar.gz! -->
+                    <tarLongFileMode>gnu</tarLongFileMode>
                 </configuration>
             </plugin>
         </plugins>
@@ -353,6 +391,10 @@
         <dependency>
             <groupId>org.codehaus.mojo.appassembler</groupId>
             <artifactId>appassembler-booter</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.codehaus.mojo.appassembler</groupId>
+            <artifactId>appassembler-model</artifactId>
         </dependency>
     </dependencies>
 
@@ -410,7 +452,7 @@
                             <mappings>
                                 <mapping>
                                     <filemode>0755</filemode>
-                                    <directory>/usr/local/strongbox/strongbox/bin</directory>
+                                    <directory>/opt/strongbox/bin</directory>
                                     <sources>
                                         <source>
                                             <location>${project.build.directory}/assembly/strongbox-${project.version}/bin</location>
@@ -418,7 +460,7 @@
                                     </sources>
                                 </mapping>
                                 <mapping>
-                                    <directory>/usr/local/strongbox/strongbox/etc</directory>
+                                    <directory>/opt/strongbox/etc</directory>
                                     <sources>
                                         <source>
                                             <location>${project.build.directory}/assembly/strongbox-${project.version}/etc</location>
@@ -426,7 +468,7 @@
                                     </sources>
                                 </mapping>
                                 <mapping>
-                                    <directory>/usr/local/strongbox/strongbox/lib</directory>
+                                    <directory>/opt/strongbox/lib</directory>
                                     <sources>
                                         <source>
                                             <location>${project.build.directory}/assembly/strongbox-${project.version}/lib</location>
@@ -434,7 +476,7 @@
                                     </sources>
                                 </mapping>
                                 <mapping>
-                                    <directory>/usr/local/strongbox/strongbox/logs</directory>
+                                    <directory>/opt/strongbox/logs</directory>
                                     <sources>
                                         <source>
                                             <location>${project.build.directory}/assembly/strongbox-${project.version}/logs</location>
@@ -442,7 +484,7 @@
                                     </sources>
                                 </mapping>
                                 <mapping>
-                                    <directory>/usr/local/strongbox/strongbox/tmp</directory>
+                                    <directory>/opt/strongbox/tmp</directory>
                                     <sources>
                                         <source>
                                             <location>${project.build.directory}/assembly/strongbox-${project.version}/tmp</location>
@@ -453,7 +495,7 @@
                                     <directory>/usr/bin</directory>
                                     <sources>
                                         <softlinkSource>
-                                            <location>/usr/local/strongbox/strongbox/bin/strongbox</location>
+                                            <location>/opt/strongbox/bin/strongbox</location>
                                         </softlinkSource>
                                     </sources>
                                 </mapping>
