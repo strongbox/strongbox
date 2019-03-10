@@ -102,14 +102,14 @@ public class GroupRepositoryProvider extends AbstractRepositoryProvider
             String sId = configurationManager.getStorageId(storage, storageAndRepositoryId);
             String rId = configurationManager.getRepositoryId(storageAndRepositoryId);
 
-            Repository r = getConfiguration().getStorage(sId).getRepository(rId);
-            if (!r.isInService())
+            Repository subRepository = getConfiguration().getStorage(sId).getRepository(rId);
+            if (!subRepository.isInService())
             {
                 continue;
             }
             
-            RepositoryPath result = repositoryPathResolver.resolve(r, repositoryPath);
-            if (artifactRoutingRulesChecker.isDenied(groupRepository.getId(), result))
+            RepositoryPath result = repositoryPathResolver.resolve(subRepository, repositoryPath);
+            if (artifactRoutingRulesChecker.isDenied(groupRepository, result))
             {
                 continue;
             }

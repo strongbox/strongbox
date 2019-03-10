@@ -6,8 +6,11 @@ import org.carlspring.strongbox.providers.layout.Maven2LayoutProvider;
 import org.carlspring.strongbox.providers.search.MavenIndexerSearchProvider;
 import org.carlspring.strongbox.storage.repository.MutableRepository;
 import org.carlspring.strongbox.storage.repository.Repository;
+import org.carlspring.strongbox.storage.routing.MutableRoutingRuleRepository;
+import org.carlspring.strongbox.storage.routing.RoutingRuleTypeEnum;
 import org.carlspring.strongbox.storage.search.SearchRequest;
 
+import java.util.Arrays;
 import java.util.LinkedHashSet;
 import java.util.Set;
 
@@ -134,10 +137,11 @@ public class MavenIndexGroupRepositoryComponentOnCreateTest
              </rule-set>
          </denied>
          **/
-        createRoutingRuleSet(REPOSITORY_GROUP_XH_2,
-                             new String[]{ REPOSITORY_LEAF_XD_2 },
-                             ".*(com|org)/artifacts/to/update/releases/update-group.*",
-                             ROUTING_RULE_TYPE_DENIED);
+        createAndAddRoutingRule(STORAGE0,
+                                REPOSITORY_GROUP_XH_2,
+                                Arrays.asList(new MutableRoutingRuleRepository(STORAGE0, REPOSITORY_LEAF_XD_2)),
+                                ".*(com|org)/artifacts/to/update/releases/update-group.*",
+                                RoutingRuleTypeEnum.DENY);
 
         rebuildIndexes(getRepositories());
     }

@@ -1,12 +1,12 @@
 package org.carlspring.strongbox.controllers.configuration;
 
 import org.carlspring.strongbox.forms.storage.routing.RoutingRuleForm;
-import org.carlspring.strongbox.forms.storage.routing.RuleSetForm;
 import org.carlspring.strongbox.services.ConfigurationManagementService;
 import org.carlspring.strongbox.storage.routing.MutableRoutingRule;
 import org.carlspring.strongbox.storage.routing.MutableRoutingRules;
-import org.carlspring.strongbox.storage.routing.MutableRuleSet;
 import org.carlspring.strongbox.validation.RequestBodyValidationException;
+
+import java.util.UUID;
 
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
@@ -23,39 +23,35 @@ import org.springframework.web.bind.annotation.*;
 
 /**
  * @author Pablo Tirado
+ * @author Przemyslaw Fusik
  */
 @Controller
-@RequestMapping("/api/configuration/strongbox/routing")
-@Api(value = "/api/configuration/strongbox/routing")
+@RequestMapping("/api/configuration/strongbox/routing/rules")
+@Api(value = "/api/configuration/strongbox/routing/rules")
 public class RoutingConfigurationController
         extends BaseConfigurationController
 {
 
-    static final String SUCCESSFUL_ADD_RULE_SET = "Successfully added rule set.";
-    
-    static final String FAILED_ADD_RULE_SET_FORM_ERROR = "Rule set cannot be added because the submitted form contains errors!";
-    
-    static final String NOT_FOUND_RULE_SET = "Rule set could not be found.";
-    
-    static final String SUCCESSFUL_REMOVE_RULE_SET = "Rule set deleted successfully.";
-    
-    static final String SUCCESSFUL_ADD_REPOSITORY = "Accepted repository added successfully.";
-    
-    static final String FAILED_ADD_REPOSITORY_FORM_ERROR = "Accepted repository cannot be added because the submitted form contains errors!";
-    
-    static final String NOT_FOUND_REPOSITORY = "Accepted repository could not be found.";
-    
-    static final String SUCCESSFUL_REMOVE_REPOSITORY = "Accepted repository deleted successfully.";
-    
-    static final String SUCCESSFUL_OVERRIDE_REPOSITORY = "Accepted repository override succeeded.";
-    
-    static final String FAILED_OVERRIDE_REPOSITORY_FORM_ERROR = "Accepted repository cannot be overridden because the submitted form contains errors!";
-    
-    static final String NOT_FOUND_ROUTING_RULE = "Routing rule is empty.";
+    static final String SUCCESSFUL_ADD_ROUTING_RULE = "Successfully added routing rule.";
+
+    static final String FAILED_ADD_ROUTING_RULE_FORM_ERRORS = "Routing rule cannot be added because the submitted form contains errors!";
+
+    static final String FAILED_ADD_ROUTING_RULE = "Routing rule cannot be added.";
+
+    static final String SUCCESSFUL_REMOVE_ROUTING_RULE = "Routing rule removed successfully.";
+
+    static final String FAILED_REMOVE_ROUTING_RULE = "Routing rule cannot be removed.";
+
+    static final String NOT_FOUND_REPOSITORY = "Routing rule could not be found.";
+
+    static final String FAILED_UPDATE_ROUTING_RULE = "Successfully updated routing rule.";
+
+    static final String FAILED_UPDATE_ROUTING_RULE_FORM_ERROR = "Routing rule cannot be updated because the submitted form contains errors!";
+
 
     private final ConversionService conversionService;
-    
-    
+
+
     public RoutingConfigurationController(ConfigurationManagementService configurationManagementService,
                                           ConversionService conversionService)
     {
@@ -65,8 +61,8 @@ public class RoutingConfigurationController
 
     @ApiOperation(value = "Returns routing rules.")
     @ApiResponses(value = { @ApiResponse(code = 200, message = "Everything went ok.") })
-    @GetMapping(value = "/rules",
-                produces = { MediaType.APPLICATION_JSON_VALUE })
+    @GetMapping(produces = { MediaType.TEXT_PLAIN_VALUE,
+                             MediaType.APPLICATION_JSON_VALUE })
     public ResponseEntity getRoutingRules()
     {
         MutableRoutingRules body = configurationManagementService.getMutableConfigurationClone()
@@ -74,119 +70,66 @@ public class RoutingConfigurationController
         return ResponseEntity.ok(body);
     }
 
-    @ApiOperation(value = "Adds an accepted rule set.")
-    @ApiResponses(value = { @ApiResponse(code = 200, message = SUCCESSFUL_ADD_RULE_SET),
-                            @ApiResponse(code = 400, message = FAILED_ADD_RULE_SET_FORM_ERROR),
-                            @ApiResponse(code = 404, message = NOT_FOUND_RULE_SET) })
-    @PutMapping(value = "/rules/set/accepted",
-                consumes = MediaType.APPLICATION_JSON_VALUE,
-                produces = { MediaType.TEXT_PLAIN_VALUE,
-                             MediaType.APPLICATION_JSON_VALUE })
-    public ResponseEntity addAcceptedRuleSet(@RequestBody @Validated RuleSetForm ruleSetForm,
-                                             BindingResult bindingResult,
-                                             @RequestHeader(HttpHeaders.ACCEPT) String acceptHeader)
+    @ApiOperation(value = "Adds a routing rule.")
+    @ApiResponses(value = { @ApiResponse(code = 200, message = SUCCESSFUL_ADD_ROUTING_RULE),
+                            @ApiResponse(code = 400, message = FAILED_ADD_ROUTING_RULE_FORM_ERRORS),
+                            @ApiResponse(code = 404, message = FAILED_ADD_ROUTING_RULE) })
+    @PutMapping(value = "/add",
+            consumes = MediaType.APPLICATION_JSON_VALUE,
+            produces = { MediaType.TEXT_PLAIN_VALUE,
+                         MediaType.APPLICATION_JSON_VALUE })
+    public ResponseEntity add(@RequestBody @Validated RoutingRuleForm routingRule,
+                              BindingResult bindingResult,
+                              @RequestHeader(HttpHeaders.ACCEPT) String acceptHeader)
     {
         if (bindingResult.hasErrors())
         {
-            throw new RequestBodyValidationException(FAILED_ADD_RULE_SET_FORM_ERROR, bindingResult);
+            throw new RequestBodyValidationException(FAILED_ADD_ROUTING_RULE_FORM_ERRORS, bindingResult);
         }
 
-        MutableRuleSet ruleSet = conversionService.convert(ruleSetForm, MutableRuleSet.class);
-        final boolean added = configurationManagementService.saveAcceptedRuleSet(ruleSet);
-        
-        return getResponse(added, SUCCESSFUL_ADD_RULE_SET, NOT_FOUND_RULE_SET, acceptHeader);
+        MutableRoutingRule rule = conversionService.convert(routingRule, MutableRoutingRule.class);
+        final boolean added = configurationManagementService.addRoutingRule(rule);
+
+        return getResponse(added, SUCCESSFUL_ADD_ROUTING_RULE, FAILED_ADD_ROUTING_RULE, acceptHeader);
     }
 
-    @ApiOperation(value = "Removes and accepted rule set.")
-    @ApiResponses(value = { @ApiResponse(code = 200, message = SUCCESSFUL_REMOVE_RULE_SET),
-                            @ApiResponse(code = 404, message = NOT_FOUND_RULE_SET) })
-    @DeleteMapping(value = "/rules/set/accepted/{groupRepository}",
-                   consumes = MediaType.APPLICATION_JSON_VALUE,
-                   produces = { MediaType.TEXT_PLAIN_VALUE,
-                                MediaType.APPLICATION_JSON_VALUE })
-    public ResponseEntity removeAcceptedRuleSet(@PathVariable String groupRepository,
-                                                @RequestHeader(HttpHeaders.ACCEPT) String acceptHeader)
+    @ApiOperation(value = "Removes routing rule having provided uuid.")
+    @ApiResponses(value = { @ApiResponse(code = 200, message = SUCCESSFUL_REMOVE_ROUTING_RULE),
+                            @ApiResponse(code = 404, message = FAILED_ADD_ROUTING_RULE) })
+    @DeleteMapping(value = "/remove/{uuid}",
+            consumes = MediaType.APPLICATION_JSON_VALUE,
+            produces = { MediaType.TEXT_PLAIN_VALUE,
+                         MediaType.APPLICATION_JSON_VALUE })
+    public ResponseEntity remove(@PathVariable UUID uuid,
+                                 @RequestHeader(HttpHeaders.ACCEPT) String acceptHeader)
     {
-        final boolean removed = configurationManagementService.removeAcceptedRuleSet(groupRepository);
-        
-        return getResponse(removed, SUCCESSFUL_REMOVE_RULE_SET, NOT_FOUND_RULE_SET, acceptHeader);
+        final boolean removed = configurationManagementService.removeRoutingRule(uuid);
+
+        return getResponse(removed, SUCCESSFUL_REMOVE_ROUTING_RULE, FAILED_REMOVE_ROUTING_RULE, acceptHeader);
     }
 
-    @ApiOperation(value = "Adds an accepted repository.")
-    @ApiResponses(value = { @ApiResponse(code = 200, message = SUCCESSFUL_ADD_REPOSITORY),
-                            @ApiResponse(code = 400, message = FAILED_ADD_REPOSITORY_FORM_ERROR),
+    @ApiOperation(value = "Updates routing rule at the specified index.")
+    @ApiResponses(value = { @ApiResponse(code = 200, message = FAILED_UPDATE_ROUTING_RULE),
+                            @ApiResponse(code = 400, message = FAILED_UPDATE_ROUTING_RULE_FORM_ERROR),
                             @ApiResponse(code = 404, message = NOT_FOUND_REPOSITORY) })
-    @PutMapping(value = "/rules/accepted/{groupRepository}/repositories",
-                consumes = MediaType.APPLICATION_JSON_VALUE,
-                produces = { MediaType.TEXT_PLAIN_VALUE,
-                             MediaType.APPLICATION_JSON_VALUE })
-    public ResponseEntity addAcceptedRepository(@PathVariable String groupRepository,
-                                                @RequestBody @Validated RoutingRuleForm routingRuleForm,
-                                                BindingResult bindingResult,
-                                                @RequestHeader(HttpHeaders.ACCEPT) String acceptHeader)
+    @PutMapping(value = "/update/{uuid}",
+            consumes = MediaType.APPLICATION_JSON_VALUE,
+            produces = { MediaType.TEXT_PLAIN_VALUE,
+                         MediaType.APPLICATION_JSON_VALUE })
+    public ResponseEntity update(@PathVariable UUID uuid,
+                                 @RequestBody @Validated RoutingRuleForm routingRule,
+                                 BindingResult bindingResult,
+                                 @RequestHeader(HttpHeaders.ACCEPT) String acceptHeader)
     {
         if (bindingResult.hasErrors())
         {
-            throw new RequestBodyValidationException(FAILED_ADD_REPOSITORY_FORM_ERROR, bindingResult);
+            throw new RequestBodyValidationException(FAILED_UPDATE_ROUTING_RULE_FORM_ERROR, bindingResult);
         }
 
-        MutableRoutingRule routingRule = conversionService.convert(routingRuleForm, MutableRoutingRule.class);
-        if (routingRule != null && routingRule.getPattern() == null && routingRule.getRepositories().isEmpty())
-        {
-            return getNotFoundResponseEntity(NOT_FOUND_ROUTING_RULE, acceptHeader);
-        }
+        MutableRoutingRule rule = conversionService.convert(routingRule, MutableRoutingRule.class);
 
-        final boolean saved = configurationManagementService.saveAcceptedRepository(groupRepository, routingRule);
-        
-        return getResponse(saved, SUCCESSFUL_ADD_REPOSITORY, NOT_FOUND_REPOSITORY, acceptHeader);
-    }
-
-    @ApiOperation(value = "Removes an accepted repository.")
-    @ApiResponses(value = { @ApiResponse(code = 200, message = SUCCESSFUL_REMOVE_REPOSITORY),
-                            @ApiResponse(code = 404, message = NOT_FOUND_REPOSITORY) })
-    @DeleteMapping(value = "/rules/accepted/{groupRepository}/repositories/{repositoryId}",
-                   consumes = MediaType.APPLICATION_JSON_VALUE,
-                   produces = { MediaType.TEXT_PLAIN_VALUE,
-                                MediaType.APPLICATION_JSON_VALUE })
-    public ResponseEntity removeAcceptedRepository(@PathVariable String groupRepository,
-                                                   @PathVariable String repositoryId,
-                                                   @RequestParam("pattern") String pattern,
-                                                   @RequestHeader(HttpHeaders.ACCEPT) String acceptHeader)
-    {
-        final boolean removed = configurationManagementService.removeAcceptedRepository(groupRepository,
-                                                                                        pattern,
-                                                                                        repositoryId);
-                                                                                        
-        return getResponse(removed, SUCCESSFUL_REMOVE_REPOSITORY, NOT_FOUND_REPOSITORY, acceptHeader);
-    }
-
-    @ApiOperation(value = "Overrides an accepted repository.")
-    @ApiResponses(value = { @ApiResponse(code = 200, message = SUCCESSFUL_OVERRIDE_REPOSITORY),
-                            @ApiResponse(code = 400, message = FAILED_OVERRIDE_REPOSITORY_FORM_ERROR),
-                            @ApiResponse(code = 404, message = NOT_FOUND_REPOSITORY) })
-    @PutMapping(value = "/rules/accepted/{groupRepository}/override/repositories",
-                consumes = MediaType.APPLICATION_JSON_VALUE,
-                produces = { MediaType.TEXT_PLAIN_VALUE,
-                             MediaType.APPLICATION_JSON_VALUE })
-    public ResponseEntity overrideAcceptedRepository(@PathVariable String groupRepository,
-                                                     @RequestBody @Validated RoutingRuleForm routingRuleForm,
-                                                     BindingResult bindingResult,
-                                                     @RequestHeader(HttpHeaders.ACCEPT) String acceptHeader)
-    {
-        if (bindingResult.hasErrors())
-        {
-            throw new RequestBodyValidationException(FAILED_OVERRIDE_REPOSITORY_FORM_ERROR, bindingResult);
-        }
-
-        MutableRoutingRule routingRule = conversionService.convert(routingRuleForm, MutableRoutingRule.class);
-        if (routingRule != null && routingRule.getPattern() == null && routingRule.getRepositories().isEmpty())
-        {
-            return getNotFoundResponseEntity(NOT_FOUND_ROUTING_RULE, acceptHeader);
-        }
-
-        final boolean overridden = configurationManagementService.overrideAcceptedRepositories(groupRepository,
-                                                                                               routingRule);
-        return getResponse(overridden, SUCCESSFUL_OVERRIDE_REPOSITORY, NOT_FOUND_REPOSITORY, acceptHeader);
+        final boolean updated = configurationManagementService.updateRoutingRule(uuid, rule);
+        return getResponse(updated, FAILED_UPDATE_ROUTING_RULE, FAILED_UPDATE_ROUTING_RULE, acceptHeader);
     }
 
     private ResponseEntity getResponse(boolean result,

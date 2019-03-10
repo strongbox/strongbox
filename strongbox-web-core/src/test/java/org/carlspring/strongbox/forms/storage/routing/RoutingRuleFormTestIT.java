@@ -2,51 +2,37 @@ package org.carlspring.strongbox.forms.storage.routing;
 
 import org.carlspring.strongbox.config.IntegrationTest;
 import org.carlspring.strongbox.rest.common.RestAssuredBaseTest;
+import org.carlspring.strongbox.storage.routing.RoutingRuleTypeEnum;
 
 import javax.inject.Inject;
 import javax.validation.ConstraintViolation;
 import javax.validation.Validator;
 import java.util.Set;
 
-import com.google.common.collect.Sets;
+import com.google.common.collect.Lists;
 import org.apache.commons.lang3.StringUtils;
-import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-import org.springframework.boot.test.context.SpringBootTest;
 import static org.assertj.core.api.Java6Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.*;
 
-/**
- * @author Pablo Tirado
- */
 @IntegrationTest
 public class RoutingRuleFormTestIT
         extends RestAssuredBaseTest
 {
 
-    private static final String PATTERN_VALID = "*";
-    private Set<String> repositories;
-
     @Inject
     private Validator validator;
 
-    @Override
-    @BeforeEach
-    public void init()
-            throws Exception
-    {
-        super.init();
-
-        repositories = Sets.newHashSet("releases-with-trash");
-    }
-
     @Test
-    void testRoutingRuleFormValid()
+    void testRuleSetFormValid()
     {
         // given
         RoutingRuleForm routingRuleForm = new RoutingRuleForm();
-        routingRuleForm.setPattern(PATTERN_VALID);
-        routingRuleForm.setRepositories(repositories);
+        routingRuleForm.setPattern("*");
+        routingRuleForm.setType(RoutingRuleTypeEnum.DENY);
+        RoutingRuleRepositoryForm routingRuleRepositoryForm = new RoutingRuleRepositoryForm();
+        routingRuleRepositoryForm.setRepositoryId("releases-with-trash");
+        routingRuleForm.setRepositories(Lists.newArrayList(routingRuleRepositoryForm));
 
         // when
         Set<ConstraintViolation<RoutingRuleForm>> violations = validator.validate(routingRuleForm);
@@ -56,12 +42,34 @@ public class RoutingRuleFormTestIT
     }
 
     @Test
-    void testRoutingRuleFormInvalidEmptyPattern()
+    void testRuleSetFormValidEmptyGroupRepository()
+    {
+        // given
+        RoutingRuleForm routingRuleForm = new RoutingRuleForm();
+        routingRuleForm.setPattern("*");
+        routingRuleForm.setType(RoutingRuleTypeEnum.DENY);
+        RoutingRuleRepositoryForm routingRuleRepositoryForm = new RoutingRuleRepositoryForm();
+        routingRuleRepositoryForm.setRepositoryId("releases-with-trash");
+        routingRuleForm.setRepositories(Lists.newArrayList(routingRuleRepositoryForm));
+        routingRuleForm.setRepositoryId(StringUtils.EMPTY);
+
+        // when
+        Set<ConstraintViolation<RoutingRuleForm>> violations = validator.validate(routingRuleForm);
+
+        // then
+        assertTrue(violations.isEmpty(), "Violations are not empty!");
+    }
+
+    @Test
+    void testRuleSetFormInvalidRoutingRulesWithEmptyPattern()
     {
         // given
         RoutingRuleForm routingRuleForm = new RoutingRuleForm();
         routingRuleForm.setPattern(StringUtils.EMPTY);
-        routingRuleForm.setRepositories(repositories);
+        routingRuleForm.setType(RoutingRuleTypeEnum.DENY);
+        RoutingRuleRepositoryForm routingRuleRepositoryForm = new RoutingRuleRepositoryForm();
+        routingRuleRepositoryForm.setRepositoryId("releases-with-trash");
+        routingRuleForm.setRepositories(Lists.newArrayList(routingRuleRepositoryForm));
 
         // when
         Set<ConstraintViolation<RoutingRuleForm>> violations = validator.validate(routingRuleForm);
@@ -73,12 +81,12 @@ public class RoutingRuleFormTestIT
     }
 
     @Test
-    void testRoutingRuleFormInvalidEmptyRepositories()
+    void testRuleSetFormInvalidEmptyRepositories()
     {
         // given
         RoutingRuleForm routingRuleForm = new RoutingRuleForm();
-        routingRuleForm.setPattern(PATTERN_VALID);
-        routingRuleForm.setRepositories(Sets.newHashSet());
+        routingRuleForm.setPattern("*");
+        routingRuleForm.setType(RoutingRuleTypeEnum.DENY);
 
         // when
         Set<ConstraintViolation<RoutingRuleForm>> violations = validator.validate(routingRuleForm);
@@ -86,6 +94,25 @@ public class RoutingRuleFormTestIT
         // then
         assertFalse(violations.isEmpty(), "Violations are empty!");
         assertEquals(violations.size(), 1);
-        assertThat(violations).extracting("message").containsAnyOf("A set of repositories must be specified.");
+        assertThat(violations).extracting("message").containsAnyOf("A list of repositories must be specified.");
+    }
+
+    @Test
+    void testRuleSetFormInvalidTypeNotProvided()
+    {
+        // given
+        RoutingRuleForm routingRuleForm = new RoutingRuleForm();
+        routingRuleForm.setPattern("*");
+        RoutingRuleRepositoryForm routingRuleRepositoryForm = new RoutingRuleRepositoryForm();
+        routingRuleRepositoryForm.setRepositoryId("releases-with-trash");
+        routingRuleForm.setRepositories(Lists.newArrayList(routingRuleRepositoryForm));
+
+        // when
+        Set<ConstraintViolation<RoutingRuleForm>> violations = validator.validate(routingRuleForm);
+
+        // then
+        assertFalse(violations.isEmpty(), "Violations are empty!");
+        assertEquals(violations.size(), 1);
+        assertThat(violations).extracting("message").containsAnyOf("A type must be specified.");
     }
 }
