@@ -8,7 +8,6 @@ import org.carlspring.strongbox.services.StorageManagementService;
 import org.carlspring.strongbox.storage.MutableStorage;
 import org.carlspring.strongbox.storage.repository.MutableRepository;
 import org.carlspring.strongbox.testing.TestCaseWithNugetPackageGeneration;
-import org.carlspring.strongbox.users.domain.Roles;
 
 import javax.inject.Inject;
 import javax.xml.bind.JAXBException;
@@ -17,14 +16,11 @@ import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
-import java.util.Collection;
 
 import org.apache.http.entity.mime.MultipartEntityBuilder;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.http.MediaType;
-import org.springframework.security.core.GrantedAuthority;
-import org.springframework.security.web.authentication.AnonymousAuthenticationFilter;
 import org.springframework.web.context.WebApplicationContext;
 import static io.restassured.module.mockmvc.RestAssuredMockMvc.given;
 import static org.carlspring.strongbox.rest.client.RestAssuredArtifactClient.OK;
@@ -61,9 +57,6 @@ public abstract class NugetRestAssuredBaseTest
     protected WebApplicationContext context;
 
     @Inject
-    private AnonymousAuthenticationFilter anonymousAuthenticationFilter;
-
-    @Inject
     protected RestAssuredArtifactClient client;
 
     private String contextBaseUrl;
@@ -72,11 +65,6 @@ public abstract class NugetRestAssuredBaseTest
             throws Exception
     {
         logger.debug("Initializing RestAssured...");
-
-        // Security settings for tests:
-        // By default all operations incl. deletion, etc. are allowed (be careful)!
-        // Override #provideAuthorities, if you want be more specific.
-        anonymousAuthenticationFilter.getAuthorities().addAll(provideAuthorities());
 
         client.setUserAgent("NuGet/*");
     }
@@ -93,11 +81,6 @@ public abstract class NugetRestAssuredBaseTest
 
         // base URL depends only on test execution context
         client.setContextBaseUrl(contextBaseUrl);
-    }
-
-    protected Collection<? extends GrantedAuthority> provideAuthorities()
-    {
-        return Roles.ADMIN.getPrivileges();
     }
 
     protected boolean pathExists(String url)

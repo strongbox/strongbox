@@ -12,6 +12,7 @@ import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Import;
 import org.springframework.util.ReflectionUtils;
+import org.strongbox.db.server.OrientDbServerConfiguration;
 
 /**
  * @author Przemyslaw Fusik
@@ -48,12 +49,12 @@ class OrientDbConfig
      * - org.carlspring.strongbox.config.InMemoryOrientDbConfig#orientDBConfig
      */
     @Bean(destroyMethod = "close")
-    ODatabasePool databasePool(ConnectionConfig connectionConfig)
+    ODatabasePool databasePool(OrientDbServerConfiguration serverProperties)
     {
         return new ODatabasePool(orientDB,
-                                 connectionConfig.getDatabase(),
-                                 connectionConfig.getUsername(),
-                                 connectionConfig.getPassword());
+                                 serverProperties.getDatabase(),
+                                 serverProperties.getUsername(),
+                                 serverProperties.getPassword());
     }
 
 }

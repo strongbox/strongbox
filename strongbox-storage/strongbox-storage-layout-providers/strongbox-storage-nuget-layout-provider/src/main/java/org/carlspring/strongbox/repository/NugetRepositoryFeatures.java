@@ -1,6 +1,7 @@
 package org.carlspring.strongbox.repository;
 
 import org.carlspring.strongbox.artifact.ArtifactTag;
+import org.carlspring.strongbox.artifact.coordinates.ArtifactCoordinates;
 import org.carlspring.strongbox.artifact.coordinates.NugetArtifactCoordinates;
 import org.carlspring.strongbox.client.ArtifactTransportException;
 import org.carlspring.strongbox.configuration.ConfigurationManager;
@@ -13,7 +14,9 @@ import org.carlspring.strongbox.data.criteria.Selector;
 import org.carlspring.strongbox.domain.ArtifactEntry;
 import org.carlspring.strongbox.domain.ArtifactTagEntry;
 import org.carlspring.strongbox.domain.RemoteArtifactEntry;
+import org.carlspring.strongbox.domain.RepositoryArtifactIdGroupEntry;
 import org.carlspring.strongbox.nuget.NugetSearchRequest;
+import org.carlspring.strongbox.providers.io.RepositoryFiles;
 import org.carlspring.strongbox.providers.io.RepositoryPath;
 import org.carlspring.strongbox.providers.io.RepositoryPathLock;
 import org.carlspring.strongbox.providers.io.RepositoryPathResolver;
@@ -21,6 +24,7 @@ import org.carlspring.strongbox.providers.repository.event.RemoteRepositorySearc
 import org.carlspring.strongbox.service.ProxyRepositoryConnectionPoolConfigurationService;
 import org.carlspring.strongbox.services.ArtifactEntryService;
 import org.carlspring.strongbox.services.ArtifactTagService;
+import org.carlspring.strongbox.services.RepositoryArtifactIdGroupService;
 import org.carlspring.strongbox.storage.Storage;
 import org.carlspring.strongbox.storage.repository.Repository;
 import org.carlspring.strongbox.storage.repository.remote.RemoteRepository;
@@ -98,6 +102,9 @@ public class NugetRepositoryFeatures
     @Inject
     private GenericSnapshotVersionValidator genericSnapshotVersionValidator;
 
+    @Inject
+    private RepositoryArtifactIdGroupService repositoryArtifactIdGroupService;
+    
     private Set<String> defaultMavenArtifactCoordinateValidators;
 
     @PostConstruct
@@ -235,19 +242,16 @@ public class NugetRepositoryFeatures
         {
             RepositoryPath repositoryPath = repositoryPathResolver.resolve(repository, (NugetArtifactCoordinates) e.getArtifactCoordinates());
 
+            Storage storage = repository.getStorage();
+            ArtifactCoordinates coordinates = RepositoryFiles.readCoordinates(repositoryPath);
+            
             Lock lock = repositoryPathLock.lock(repositoryPath).writeLock();
             lock.lock();
             
             try
             {
-                if (e.getTagSet().contains(lastVersionTag))
-                {
-                    artifactEntryService.save(e, true);
-                }
-                else
-                {
-                    artifactEntryService.save(e, false);
-                }
+                RepositoryArtifactIdGroupEntry artifactGroup = repositoryArtifactIdGroupService.findOneOrCreate(storage.getId(), repository.getId(), coordinates.getId());
+                repositoryArtifactIdGroupService.addArtifactToGroup(artifactGroup, e);
             }
             finally
             {

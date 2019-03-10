@@ -49,7 +49,7 @@ public abstract class CommonCrudService<T extends GenericEntity>
     {
         identifyEntity(entity);
         
-        ReflectionUtils.doWithFields(entity.getClass(), (field) -> {
+        ReflectionUtils.doWithFields(getEntityClass(), (field) -> {
             ReflectionUtils.makeAccessible(field);
 
             Set<CascadeType> cascadeTypeSet = Arrays.stream(field.getAnnotations())
@@ -151,7 +151,7 @@ public abstract class CommonCrudService<T extends GenericEntity>
         }
         
         String sQuery = String.format("SELECT @rid AS objectId FROM %s WHERE uuid = :uuid",
-                                      entity.getClass().getSimpleName());
+                                      getEntityClass().getSimpleName());
 
         OSQLSynchQuery<ODocument> oQuery = new OSQLSynchQuery<>(sQuery);
         oQuery.setLimit(1);

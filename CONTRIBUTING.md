@@ -1,7 +1,44 @@
+# General
+
+This project is a research and development effort lead by Carlspring Consulting & Development Ltd. with the goal of providing an alternative to existing artifact repository managers. We aim to create a robust and easy to use, well-developed universal artifact repository manager with native implementations of the layout formats which we support. We are building on top of a modern, well-devised architecture and need help in various areas such as research, development and testing.
+
+We are also truly grateful to all of our countless contributors, without whom we wouldn't have come so far!
+
+# Who Can Help
+
+We are always pleased to get help with our project! Both experienced and not so experienced developers are welcome!
+
+There are many tasks you can help with, so please feel free to look around our [issue tracker](https://github.com/strongbox/strongbox/issues?utf8=%E2%9C%93&q=is%3Aissue+is%3Aopen+label%3A%22help+wanted%22+label%3A%22good+first+issue%22) for some good first issues that we need help with.
+
+Let us know what you're good at on out [chat] channel, as well as what sort of tasks you're typically interested in, or what areas of your skills you'd like to develop and we'll try to accomodate, by finding you the right tasks. It might be the case that we have tasks that are suitable for you, but just haven't yet been added to the issue tracker, so feel free to ask us how you can help!
+
+We try our best to help new-joiners get started and eased into the project.
+
+*Please, note that while a certain level of help will be provided to newcomers, anyone who wishes to contribute to this project must be able to work independently.*
+
+## Academics
+
+While our aim is provide a stable usable application, we are also treating the project, as if it were a "learning excercise" meaning that we're all here to learn cool new things and share the knowledge. If you'd like to see an exciting new technology, or framework on this project and have a good use case for it, we'd be open to hear about it and help you implement it.
+
+### Professors
+
+Please, reach out to us, if you're teaching programming classes and would like your students to do some work on OSS projects!
+
+Either raise a question in the issue tracker, join our [chat], or contact @carlspring for more details. We would be happy to hear about your curriculum and expectations of your students. 
+
+### Students And Interns
+
+We welcome students from all backgrounds, who have sane knowledge of programming, a willingness to learn, an openness to constructive criticism and a passion to deliver working code!
+
+Finding your first few jobs might sometimes be challenging, but having contributed to an OSS project could give your CV quite a boost, as it shows initiative, dedication and self-drivenness, among other things.
+
+# How To Help
+
+We could use all the help we can get, so, please feel free to have a good look at our issue tracker and find something of interest, that you think you would be able to help with and just add a comment under the respective issue that you'll be looking into it. If somebody else was looking at it, but seems to have been inactive for more than a few days, please feel free to ask them if they've abandoned the task, if they're blocked, or waiting for information. They might still be researching the topic, but also, please keep in mind that sometimes people can no longer work on an issue (time constraints, change of circumstances, etc)
 
 # Code Style
 
-While we appreciate all the help we can get, here are some more details on the [coding convention](https://github.com/strongbox/strongbox/wiki/Coding-Convention). Please, follow these guidelines and set up your IDE to use the respective code style configuration file.
+While we appreciate all the help we can get, here are some more details on the [coding convention](https://strongbox.github.io/developer-guide/coding-convention.html). Please, follow these guidelines and set up your IDE to use the respective code style configuration file.
 
 # Code of Conduct
 
@@ -31,7 +68,7 @@ Once you've created a new pull request, kindly first review the diff thoroughly 
 To accept, please:
 * Fill in all the mandatory fields
   * `Full name` (**mandatory**)
-  * `Company` (**optional** -- please, only fill this, if you're contributing work on behalf of a company)
+  * `Company/Organization/University` (**optional** -- please, only fill this, if you're contributing work on behalf of a company, organization, or are studying)
   * `E-mail` (**mandatory**)
   * `Mailing address` (**mandatory**)
   * `Country` (**mandatory**)
@@ -41,7 +78,9 @@ To accept, please:
 
 **Notes:** Please, note that none of this information is shared with third-parties and is only required due to the legal agreement which you will be entering when contributing your code to the project. We require this minimal amount of information in order to be able to identify you, as we're not keeping record, or more sensitive information, such as passport/ID details. We will not send you any spam, or share your details with third parties.
 
-| Name                         | Company                                  | Location                                | Date       |
+# Contributors
+
+| Name                         | Company / Organization / University      | Location                                | Date       |
 |------------------------------|------------------------------------------|-----------------------------------------|------------|
 | Martin Todorov               | Carlspring Consulting & Development Ltd. | London, United Kingdom                  | 2013-08-02 |
 | Steve Todorov                | Carlspring Consulting & Development Ltd. | Sofia, Bulgaria                         | 2014-01-12 |
@@ -69,8 +108,15 @@ To accept, please:
 | Aditya Srinivasan            |                                          | Washington DC, USA                      | 2018-02-02 |
 | Sevastyan Pigarev			         |                              										  | Barnaul, Russian Federation				         | 2018-03-27 |
 | Michael Altenburger          | 						                             				  | Vienna, Austria                     				| 2018-09-29 |
+| Leonora Der                  | ELTE Faculty of Informatics              | Budapest, Hungary                       | 2018-10-20 |
 | Benjamin March               |                             			          | Munich, Germany                     				| 2018-10-28 |
-| Konstantina Papadopoulou	   |										  | Thessaloniki, Greece					| 2018-12-28 |
+| Konstantina Papadopoulou	   | Aristotle University of Thessaloniki	  | Thessaloniki, Greece					| 2018-12-28 |
 | Jitesh Golatkar           |                                          | Charlotte, USA                      | 2019-01-25 |
 | Forrest Whiting              | Forbes Media                             | Jersey City, New Jersey, USA            | 2019-02-04 |
 | Dawid Antecki           |                                          | Bielsko-Biala, Poland                      | 2019-02-18 |
+| Ekrem Candemir           |                                          | Ankara, Turkey                      | 2019-02-24 |
+| Eugeniusz Fedchenko          |                                          | Warsaw, Poland                          | 2019-02-25 |
+| Shumail Ahmed                | Middlesex University                     | London, United Kingdom                    | 05-03-19 |
+
+[chat]: https://chat.carlspring.org/
+[issue tracker]: https://github.com/strongbox/strongbox/issues?utf8=%E2%9C%93&q=is%3Aissue+is%3Aopen+label%3A%22help+wanted%22+label%3A%22good+first+issue%22

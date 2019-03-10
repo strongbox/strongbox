@@ -15,7 +15,7 @@ import org.springframework.stereotype.Component;
 
 /**
  * @author Przemyslaw Fusik
- * @see <a href="https://github.com/strongbox/strongbox/wiki/Artifact-Routing-Rules">Artifact Routing Rules</a>
+ * @see <a href="https://strongbox.github.io/user-guide/artifact-routing-rules.html">Artifact Routing Rules</a>
  */
 @Component
 public class ArtifactRoutingRulesChecker

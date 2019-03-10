@@ -1,10 +1,10 @@
 package org.carlspring.strongbox.forms.configuration;
 
-import org.carlspring.strongbox.validation.configuration.ShouldNotContain;
 import org.carlspring.strongbox.validation.configuration.UniqueStorage;
 
 import javax.validation.Valid;
 import javax.validation.constraints.NotEmpty;
+import javax.validation.constraints.Pattern;
 import java.io.Serializable;
 import java.util.List;
 
@@ -17,7 +17,7 @@ public class StorageForm
 
     @NotEmpty(message = "An id must be specified.")
     @UniqueStorage(groups = NewStorage.class, message = "Storage id is already taken.")
-    @ShouldNotContain(strings = "/", message = "Storage id contains disallowed character \"/\".")
+    @Pattern(regexp = "[a-zA-Z0-9\\-\\_\\.]+")
     private String id;
 
     private String basedir;

@@ -1,18 +1,13 @@
 package org.carlspring.strongbox.config;
 
-import org.carlspring.strongbox.data.tx.OEntityUnproxyAspect;
+import java.util.HashMap;
+import java.util.Map;
 
 import javax.inject.Inject;
 import javax.persistence.EntityManagerFactory;
 import javax.sql.DataSource;
-import java.util.HashMap;
-import java.util.Map;
 
-import com.hazelcast.core.HazelcastInstance;
-import com.hazelcast.spring.cache.HazelcastCacheManager;
-import com.hazelcast.spring.transaction.HazelcastTransactionManager;
-import com.orientechnologies.orient.object.jpa.OJPAObjectDatabaseTxPersistenceProvider;
-import liquibase.integration.spring.SpringLiquibase;
+import org.carlspring.strongbox.data.tx.OEntityUnproxyAspect;
 import org.springframework.cache.CacheManager;
 import org.springframework.cache.annotation.EnableCaching;
 import org.springframework.context.annotation.Bean;
@@ -28,6 +23,14 @@ import org.springframework.orm.jpa.JpaTransactionManager;
 import org.springframework.orm.jpa.LocalContainerEntityManagerFactoryBean;
 import org.springframework.transaction.PlatformTransactionManager;
 import org.springframework.transaction.annotation.EnableTransactionManagement;
+import org.strongbox.db.server.OrientDbServerConfiguration;
+
+import com.hazelcast.core.HazelcastInstance;
+import com.hazelcast.spring.cache.HazelcastCacheManager;
+import com.hazelcast.spring.transaction.HazelcastTransactionManager;
+import com.orientechnologies.orient.object.jpa.OJPAObjectDatabaseTxPersistenceProvider;
+
+import liquibase.integration.spring.SpringLiquibase;
 
 /**
  * Spring configuration for data service project.
@@ -74,12 +77,12 @@ public class DataServiceConfig
 
     @Bean
     @DependsOn("liquibase")
-    public LocalContainerEntityManagerFactoryBean entityManagerFactory(ConnectionConfig connectionConfig)
+    public LocalContainerEntityManagerFactoryBean entityManagerFactory(OrientDbServerConfiguration serverProperties)
     {
         Map<String, String> jpaProperties = new HashMap<>();
-        jpaProperties.put("javax.persistence.jdbc.url", connectionConfig.getUrl());
-        jpaProperties.put("javax.persistence.jdbc.user", connectionConfig.getUsername());
-        jpaProperties.put("javax.persistence.jdbc.password", connectionConfig.getPassword());
+        jpaProperties.put("javax.persistence.jdbc.url", serverProperties.getUrl());
+        jpaProperties.put("javax.persistence.jdbc.user", serverProperties.getUsername());
+        jpaProperties.put("javax.persistence.jdbc.password", serverProperties.getPassword());
 
         LocalContainerEntityManagerFactoryBean result = new LocalContainerEntityManagerFactoryBean();
         result.setJpaPropertyMap(jpaProperties);

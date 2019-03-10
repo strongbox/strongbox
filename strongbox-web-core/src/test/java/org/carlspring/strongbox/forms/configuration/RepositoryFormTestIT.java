@@ -171,7 +171,26 @@ public class RepositoryFormTestIT
         repositoryForm.setHttpConnectionPool(HTTP_CONNECTION_POOL_VALID);
         repositoryForm.setRepositoryConfiguration(repositoryConfiguration);
 
-        validateAndAssert(repositoryForm, 1, "An id must be specified.");
+        validateAndAssert(repositoryForm, 2, "An id must be specified.");
+    }
+
+    @Test
+    void repositoryIdShouldDisallowIllegalCharacters()
+    {
+        // given
+        RepositoryForm repositoryForm = new RepositoryForm();
+        repositoryForm.setId("mama*");
+        repositoryForm.setPolicy(POLICY_VALID.getPolicy());
+        repositoryForm.setImplementation(IMPLEMENTATION_VALID.describe());
+        repositoryForm.setLayout(LAYOUT_VALID);
+        repositoryForm.setType(TYPE_VALID.getType());
+        repositoryForm.setStatus(STATUS_VALID.getStatus());
+        repositoryForm.setProxyConfiguration(proxyConfigurationForm);
+        repositoryForm.setRemoteRepository(remoteRepositoryForm);
+        repositoryForm.setHttpConnectionPool(HTTP_CONNECTION_POOL_VALID);
+        repositoryForm.setRepositoryConfiguration(repositoryConfiguration);
+
+        validateAndAssert(repositoryForm, 1, "must match \"[a-zA-Z0-9\\-\\_\\.]+\"");
     }
 
     @ParameterizedTest

@@ -3,25 +3,17 @@ package org.carlspring.strongbox.controllers;
 import org.carlspring.strongbox.config.IntegrationTest;
 import org.carlspring.strongbox.forms.users.UserForm;
 import org.carlspring.strongbox.rest.common.RestAssuredBaseTest;
-import org.carlspring.strongbox.security.authentication.CustomAnonymousAuthenticationFilter;
 
-import javax.inject.Inject;
 
-import io.restassured.http.ContentType;
 import org.hamcrest.CoreMatchers;
 import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
-import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
-import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.test.context.support.WithUserDetails;
-import org.springframework.security.web.authentication.AnonymousAuthenticationFilter;
 import static io.restassured.module.mockmvc.RestAssuredMockMvc.given;
-import static org.hamcrest.CoreMatchers.equalTo;
 import static org.hamcrest.Matchers.containsString;
 
 /**
@@ -32,9 +24,6 @@ import static org.hamcrest.Matchers.containsString;
 public class SpringSecurityTest
         extends RestAssuredBaseTest
 {
-
-    @Inject
-    private AnonymousAuthenticationFilter anonymousAuthenticationFilter;
 
     @Override
     @BeforeEach
@@ -48,8 +37,6 @@ public class SpringSecurityTest
     @Test
     public void testThatAnonymousUserHasUserViewAccessAccordingToAuthorities()
     {
-        anonymousAuthenticationFilter.getAuthorities().add(new SimpleGrantedAuthority("VIEW_USER"));
-
         final String username = "admin";
 
         given().header(HttpHeaders.ACCEPT, MediaType.APPLICATION_JSON_VALUE)
@@ -65,7 +52,6 @@ public class SpringSecurityTest
     public void testUnauthorizedRequest()
     {
         // clear default anonymous authorization context and disable it's population
-        ((CustomAnonymousAuthenticationFilter) anonymousAuthenticationFilter).setContextAutoCreationEnabled(false);
         SecurityContextHolder.getContext()
                              .setAuthentication(null);
 
@@ -73,88 +59,6 @@ public class SpringSecurityTest
                .when()
                .get(getContextBaseUrl())
                .peek() // Use peek() to print the output
-               .then()
-               .statusCode(HttpStatus.UNAUTHORIZED.value());
-    }
-
-    @Test
-    @Disabled
-    public void testJWTAuth()
-    {
-        // TODO: Rewrite this test case.
-        String url = getContextBaseUrl() + "/api/users/user/authenticate";
-
-        String basicAuth = "Basic YWRtaW46cGFzc3dvcmQ=";
-        logger.info(String.format("Get JWT Token with Basic Authentication: user-[%s]; auth-[%s]", "admin",
-                                  basicAuth));
-        String token = given().contentType(ContentType.JSON)
-                              .header(HttpHeaders.AUTHORIZATION, basicAuth)
-                              .header(HttpHeaders.ACCEPT, MediaType.APPLICATION_JSON_VALUE)
-                              .when()
-                              .get(url)
-                              .then()
-                              .statusCode(HttpStatus.OK.value())
-                              .extract()
-                              .asString();
-
-        logger.info(String.format("Greet with Basic Authentication: user-[%s]; auth-[%s]", "admin",
-                                  basicAuth));
-        url = getContextBaseUrl() + "/users/greet";
-        given().header(HttpHeaders.AUTHORIZATION, basicAuth)
-               .header(HttpHeaders.ACCEPT, MediaType.APPLICATION_JSON_VALUE)
-               .when()
-               .get(url)
-               .then()
-               .statusCode(HttpStatus.UNAUTHORIZED.value());
-
-        logger.info(String.format("Greet with JWT Authentication: user-[%s]; token-[%s]", "admin",
-                                  token));
-        given().header(HttpHeaders.AUTHORIZATION, String.format("Bearer %s", token))
-               .header(HttpHeaders.ACCEPT, MediaType.APPLICATION_JSON_VALUE)
-               .when()
-               .get(url)
-               .then()
-               .statusCode(HttpStatus.OK.value())
-               .body("token", equalTo(token));
-    }
-
-    @Test
-    @Disabled
-    public void testJWTExpire()
-            throws InterruptedException
-    {
-        // TODO: Rewrite this test case.
-        String url = getContextBaseUrl() + "/api/users/user/authenticate";
-
-        String basicAuth = "Basic YWRtaW46cGFzc3dvcmQ=";
-        logger.info(String.format("Get JWT Token with Basic Authentication: user-[%s]; auth-[%s]", "admin",
-                                  basicAuth));
-        String token = given().header(HttpHeaders.AUTHORIZATION, basicAuth)
-                              .header(HttpHeaders.ACCEPT, MediaType.APPLICATION_JSON_VALUE)
-                              .when()
-                              .get(url + String.format("?expireSeconds=%s", 3))
-                              .then()
-                              .statusCode(HttpStatus.OK.value())
-                              .extract()
-                              .asString();
-
-        logger.info(String.format("Greet with JWT Authentication: user-[%s]; token-[%s]", "admin",
-                                  token));
-        url = getContextBaseUrl() + "/api/users/greet";
-        given().header(HttpHeaders.AUTHORIZATION, String.format("Bearer %s", token))
-               .header(HttpHeaders.ACCEPT, MediaType.APPLICATION_JSON_VALUE)
-               .when()
-               .get(url)
-               .then()
-               .statusCode(HttpStatus.OK.value());
-
-        Thread.sleep(3500);
-        logger.info(String.format("Check JWT Authentication expired: user-[%s]; token-[%s]", "admin",
-                                  token));
-        given().header(HttpHeaders.AUTHORIZATION, String.format("Bearer %s", token))
-               .header(HttpHeaders.ACCEPT, MediaType.APPLICATION_JSON_VALUE)
-               .when()
-               .get(url)
                .then()
                .statusCode(HttpStatus.UNAUTHORIZED.value());
     }

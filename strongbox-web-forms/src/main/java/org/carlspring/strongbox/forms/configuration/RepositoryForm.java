@@ -6,10 +6,10 @@ import org.carlspring.strongbox.storage.repository.RepositoryStatusEnum;
 import org.carlspring.strongbox.storage.repository.RepositoryTypeEnum;
 import org.carlspring.strongbox.validation.configuration.DescribableEnumValue;
 import org.carlspring.strongbox.validation.configuration.LayoutProviderValue;
-import org.carlspring.strongbox.validation.configuration.ShouldNotContain;
 
 import javax.validation.Valid;
 import javax.validation.constraints.NotEmpty;
+import javax.validation.constraints.Pattern;
 import javax.validation.constraints.PositiveOrZero;
 import java.util.LinkedHashSet;
 import java.util.Set;
@@ -23,7 +23,7 @@ public class RepositoryForm
 {
 
     @NotEmpty(message = "An id must be specified.")
-    @ShouldNotContain(strings = "/", message = "Repository id contains disallowed character \"/\".")
+    @Pattern(regexp = "[a-zA-Z0-9\\-\\_\\.]+")
     private String id;
 
     private String basedir;

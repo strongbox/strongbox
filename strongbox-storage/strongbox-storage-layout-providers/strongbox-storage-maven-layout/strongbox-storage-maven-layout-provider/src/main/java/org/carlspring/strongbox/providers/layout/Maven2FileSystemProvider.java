@@ -1,12 +1,17 @@
 package org.carlspring.strongbox.providers.layout;
 
+import org.apache.commons.io.FilenameUtils;
+import org.apache.maven.artifact.repository.metadata.Metadata;
+import org.carlspring.maven.commons.util.ArtifactUtils;
 import org.carlspring.strongbox.artifact.coordinates.MavenArtifactCoordinates;
-import org.carlspring.strongbox.providers.io.RepositoryPath;
-import org.carlspring.strongbox.providers.io.RepositoryPathResolver;
+import org.carlspring.strongbox.providers.io.*;
 import org.carlspring.strongbox.providers.search.MavenIndexerSearchProvider;
 import org.carlspring.strongbox.providers.search.SearchException;
 import org.carlspring.strongbox.services.ArtifactSearchService;
 import org.carlspring.strongbox.storage.Storage;
+import org.carlspring.strongbox.storage.metadata.MavenMetadataManager;
+import org.carlspring.strongbox.storage.metadata.MetadataHelper;
+import org.carlspring.strongbox.storage.metadata.MetadataType;
 import org.carlspring.strongbox.storage.repository.Repository;
 import org.carlspring.strongbox.storage.search.SearchRequest;
 import org.carlspring.strongbox.storage.search.SearchResult;
@@ -19,8 +24,10 @@ import java.nio.file.Path;
 import java.nio.file.spi.FileSystemProvider;
 import java.util.List;
 import java.util.stream.Collectors;
+import java.util.stream.Stream;
 import java.util.stream.StreamSupport;
 
+import org.codehaus.plexus.util.xml.pull.XmlPullParserException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -41,6 +48,10 @@ public class Maven2FileSystemProvider extends LayoutFileSystemProvider
 
     @Inject
     private RepositoryPathResolver repositoryPathResolver;
+
+    @Inject
+    private MavenMetadataManager mavenMetadataManager;
+    
     
     public Maven2FileSystemProvider(FileSystemProvider storageFileSystemProvider)
     {
@@ -66,8 +77,6 @@ public class Maven2FileSystemProvider extends LayoutFileSystemProvider
         {
             cleanupDirectory(repositoryPath.relativize(), force);
         }
-
-        layoutProvider.deleteMetadata(repositoryPath);
 
         super.delete(repositoryPath, force);
     }
@@ -127,5 +136,140 @@ public class Maven2FileSystemProvider extends LayoutFileSystemProvider
         // Otherwise, this is either not an artifact directory, or not a valid Maven artifact
     }
 
-    
+    @Override
+    public void deleteMetadata(RepositoryPath artifactPath)
+    {
+        try
+        {
+            RepositoryPath artifactBasePath = artifactPath;
+            RepositoryPath artifactIdLevelPath;
+            try
+            {
+                artifactIdLevelPath = artifactBasePath.getParent();
+            }
+            catch (RepositoryRelativePathConstructionException e)
+            {
+                //it's repository root directory, so we have nothing to clean here
+                return;
+            }
+
+            if (Files.exists(artifactPath))
+            {
+
+                RepositoryFileAttributes artifactFileAttributes = Files.readAttributes(artifactPath,
+                                                                                       RepositoryFileAttributes.class);
+
+                if (!artifactFileAttributes.isDirectory())
+                {
+                    artifactBasePath = artifactBasePath.getParent();
+                    artifactIdLevelPath = artifactIdLevelPath.getParent();
+
+                    // This is at the version level
+                    try (Stream<Path> pathStream = Files.list(artifactBasePath))
+                    {
+                        Path pomPath = pathStream.filter(p -> p.getFileName()
+                                                 .toString()
+                                                 .endsWith(".pom"))
+                                                 .findFirst()
+                                                 .orElse(null);
+
+                        if (pomPath != null)
+                        {
+                            String version = ArtifactUtils.convertPathToArtifact(RepositoryFiles
+                                                          .relativizePath(artifactPath))
+                                                          .getVersion();
+                            version = version == null ? pomPath.getParent().getFileName().toString() : version;
+
+                            deleteMetadataAtVersionLevel(artifactBasePath, version);
+                        }
+                    }
+
+                }
+            }
+            else
+            {
+                artifactBasePath = artifactBasePath.getParent();
+                artifactIdLevelPath = artifactIdLevelPath.getParent();
+            }
+
+            if (Files.exists(artifactIdLevelPath))
+            {
+                // This is at the artifact level
+                try (Stream<Path> pathStream = Files.list(artifactIdLevelPath))
+                {
+                    Path mavenMetadataPath = pathStream.filter(p -> p.getFileName()
+                                                       .toString()
+                                                       .endsWith("maven-metadata.xml"))
+                                                       .findFirst()
+                                                       .orElse(null);
+
+                    if (mavenMetadataPath != null)
+                    {
+                        String version = FilenameUtils.getName(artifactBasePath.toString());
+
+                        deleteMetadataAtArtifactLevel((RepositoryPath) mavenMetadataPath.getParent(), version);
+                    }
+                }
+            }
+        }
+        catch (IOException | XmlPullParserException e)
+        {
+            // We won't do anything in this case because it doesn't have an impact to the deletion
+            logger.error(e.getMessage(), e);
+        }
+    }
+
+    public void deleteMetadataAtVersionLevel(RepositoryPath metadataBasePath,
+                                             String version)
+        throws IOException,
+               XmlPullParserException
+    {
+        
+        if (ArtifactUtils.isSnapshot(version) && Files.exists(metadataBasePath))
+        {
+            Metadata metadataVersionLevel = mavenMetadataManager.readMetadata(metadataBasePath);
+            if (metadataVersionLevel != null && metadataVersionLevel.getVersioning() != null &&
+                    metadataVersionLevel.getVersioning().getVersions().contains(version))
+            {
+                metadataVersionLevel.getVersioning().getVersions().remove(version);
+
+                MetadataHelper.setLastUpdated(metadataVersionLevel.getVersioning());
+
+                mavenMetadataManager.storeMetadata(metadataBasePath,
+                                                   null,
+                                                   metadataVersionLevel,
+                                                   MetadataType.SNAPSHOT_VERSION_LEVEL);
+            }
+        }
+    }
+
+    public void deleteMetadataAtArtifactLevel(RepositoryPath artifactPath,
+                                              String version)
+        throws IOException,
+               XmlPullParserException
+    {
+
+        Metadata metadataVersionLevel = mavenMetadataManager.readMetadata(artifactPath);
+        if (metadataVersionLevel != null && metadataVersionLevel.getVersioning() != null)
+        {
+            metadataVersionLevel.getVersioning().getVersions().remove(version);
+
+            if (version.equals(metadataVersionLevel.getVersioning().getLatest()))
+            {
+                MetadataHelper.setLatest(metadataVersionLevel);
+            }
+
+            if (version.equals(metadataVersionLevel.getVersioning().getRelease()))
+            {
+                MetadataHelper.setRelease(metadataVersionLevel);
+            }
+
+            MetadataHelper.setLastUpdated(metadataVersionLevel.getVersioning());
+
+            mavenMetadataManager.storeMetadata(artifactPath,
+                                               null,
+                                               metadataVersionLevel,
+                                               MetadataType.ARTIFACT_ROOT_LEVEL);
+        }
+    }
 }

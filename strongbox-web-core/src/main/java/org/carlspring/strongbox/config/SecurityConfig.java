@@ -2,7 +2,6 @@ package org.carlspring.strongbox.config;
 
 import org.carlspring.strongbox.authentication.AuthenticationConfig;
 import org.carlspring.strongbox.security.CustomAccessDeniedHandler;
-import org.carlspring.strongbox.security.authentication.CustomAnonymousAuthenticationFilter;
 import org.carlspring.strongbox.security.authentication.Http401AuthenticationEntryPoint;
 import org.carlspring.strongbox.security.authentication.StrongboxAuthenticationFilter;
 import org.carlspring.strongbox.security.authentication.suppliers.AuthenticationSupplier;
@@ -18,6 +17,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import org.apache.commons.lang.BooleanUtils;
+import org.springframework.boot.actuate.autoconfigure.security.servlet.EndpointRequest;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.ComponentScan;
 import org.springframework.context.annotation.Configuration;
@@ -88,6 +88,11 @@ public class SecurityConfig
             .accessDeniedHandler(accessDeniedHandler())
             // TODO SB-813
             .authenticationEntryPoint(customBasicAuthenticationEntryPoint())
+            .and()
+            // this part of code is necessary to secure endpoints for not authorized users
+            .authorizeRequests()
+            .requestMatchers(EndpointRequest.toAnyEndpoint())
+            .hasAuthority("ADMIN")
             .and()
             .anonymous()
             .authenticationFilter(anonymousAuthenticationFilter())
@@ -163,9 +168,9 @@ public class SecurityConfig
         List<GrantedAuthority> authorities = AuthorityUtils.createAuthorityList("ROLE_ANONYMOUS");
         authorities.addAll(authoritiesProvider.getAuthoritiesByRoleName(ANONYMOUS_ROLE));
 
-        return new CustomAnonymousAuthenticationFilter("strongbox-unique-key",
-                                                       "anonymousUser",
-                                                       authorities);
+        return new AnonymousAuthenticationFilter("strongbox-unique-key",
+                                                 "anonymousUser",
+                                                 authorities);
     }
 
 
