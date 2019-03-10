@@ -69,31 +69,31 @@ public class ArtifactRoutingRulesChecker
     private boolean repositoryMatchesExactly(Repository repository,
                                              RepositoryIdentifiable repositoryIdentifiable)
     {
-        return repositoryIdentifiable.getStorageId().equals(repository.getStorage().getId())
-               &&
-               repositoryIdentifiable.getRepositoryId().equals(repository.getId());
+        return StringUtils.trimToEmpty(repositoryIdentifiable.getStorageId()).equals(
+                StringUtils.trimToEmpty(repository.getStorage().getId())) &&
+               StringUtils.trimToEmpty(repositoryIdentifiable.getRepositoryId()).equals(
+                       StringUtils.trimToEmpty(repository.getId()));
     }
 
     private boolean repositoryStorageIdMatches(String storageId,
                                                RepositoryIdentifiable repositoryIdentifiable)
     {
-        return repositoryIdentifiable.getStorageId().equals(storageId)
-               &&
+        return StringUtils.trimToEmpty(repositoryIdentifiable.getStorageId()).equals(
+                StringUtils.trimToEmpty(storageId)) &&
                StringUtils.trimToEmpty(repositoryIdentifiable.getRepositoryId()).equals(StringUtils.EMPTY);
     }
 
     private boolean repositoryIdMatches(String repositoryId,
                                         RepositoryIdentifiable repositoryIdentifiable)
     {
-        return StringUtils.trimToEmpty(repositoryIdentifiable.getStorageId()).equals(StringUtils.EMPTY)
-               &&
-               repositoryIdentifiable.getRepositoryId().equals(repositoryId);
+        return StringUtils.trimToEmpty(repositoryIdentifiable.getStorageId()).equals(StringUtils.EMPTY) &&
+               StringUtils.trimToEmpty(repositoryIdentifiable.getRepositoryId()).equals(
+                       StringUtils.trimToEmpty(repositoryId));
     }
 
     private boolean allMatches(RepositoryIdentifiable repositoryIdentifiable)
     {
-        return StringUtils.trimToEmpty(repositoryIdentifiable.getStorageId()).equals(StringUtils.EMPTY)
-               &&
+        return StringUtils.trimToEmpty(repositoryIdentifiable.getStorageId()).equals(StringUtils.EMPTY) &&
                StringUtils.trimToEmpty(repositoryIdentifiable.getRepositoryId()).equals(StringUtils.EMPTY);
     }
 }

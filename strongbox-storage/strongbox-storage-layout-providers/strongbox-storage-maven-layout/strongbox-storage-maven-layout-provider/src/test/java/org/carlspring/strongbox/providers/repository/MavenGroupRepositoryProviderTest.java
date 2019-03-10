@@ -16,6 +16,7 @@ import org.carlspring.strongbox.testing.TestCaseWithMavenArtifactGenerationAndIn
 import org.carlspring.strongbox.xml.configuration.repository.MutableMavenRepositoryConfiguration;
 
 import javax.inject.Inject;
+import java.io.IOException;
 import java.io.InputStream;
 import java.nio.file.Path;
 import java.util.Arrays;
@@ -338,7 +339,7 @@ public class MavenGroupRepositoryProviderTest
         createAndAddRoutingRule(STORAGE0,
                                 repositoryGroupName,
                                 Arrays.asList(new MutableRoutingRuleRepository(STORAGE0, repositoryReleases1Name),
-                                        new MutableRoutingRuleRepository(STORAGE0, repositoryReleases2Name)),
+                                              new MutableRoutingRuleRepository(STORAGE0, repositoryReleases2Name)),
                                 ".*(com|org)/artifacts.in.releases.*",
                                 RoutingRuleTypeEnum.ACCEPT);
 
@@ -631,6 +632,153 @@ public class MavenGroupRepositoryProviderTest
 
         String repositoryGroupName = getRepositoryName("grpt-releases-drsbv-group", testInfo);
 
+        prepareForDeniedTest(repositoryReleases1Name, repositoryReleases2Name, repositoryGroupName);
+
+        createAndAddRoutingRule(STORAGE0,
+                                repositoryGroupName,
+                                Arrays.asList(new MutableRoutingRuleRepository(STORAGE0, repositoryReleases2Name)),
+                                ".*(com|org)/carlspring.metadata.*",
+                                RoutingRuleTypeEnum.DENY);
+
+        testDeny(repositoryReleases1Name, repositoryReleases2Name, repositoryGroupName);
+    }
+
+    @Test
+    public void deniedRoutingRuleShouldWorkIfRepositoryAndStorageIsNotProvided(TestInfo testInfo)
+            throws Exception
+    {
+        String repositoryReleases1Name = getRepositoryName("grpt-releases-drsbv-1", testInfo);
+
+        String repositoryReleases2Name = getRepositoryName("grpt-releases-drsbv-2", testInfo);
+
+        String repositoryGroupName = getRepositoryName("grpt-releases-drsbv-group", testInfo);
+
+        prepareForDeniedTest(repositoryReleases1Name, repositoryReleases2Name, repositoryGroupName);
+
+        createAndAddRoutingRule(STORAGE0,
+                                repositoryGroupName,
+                                Arrays.asList(new MutableRoutingRuleRepository(null, null)),
+                                ".*(com|org)/carlspring.metadata.*",
+                                RoutingRuleTypeEnum.DENY);
+
+        testDeny(repositoryReleases1Name, repositoryReleases2Name, repositoryGroupName);
+    }
+
+    @Test
+    public void deniedRoutingRuleShouldWorkIfRepositoryIsNotProvided(TestInfo testInfo)
+            throws Exception
+    {
+
+        String repositoryReleases1Name = getRepositoryName("grpt-releases-drsbv-1", testInfo);
+
+        String repositoryReleases2Name = getRepositoryName("grpt-releases-drsbv-2", testInfo);
+
+        String repositoryGroupName = getRepositoryName("grpt-releases-drsbv-group", testInfo);
+
+        prepareForDeniedTest(repositoryReleases1Name, repositoryReleases2Name, repositoryGroupName);
+
+        createAndAddRoutingRule(STORAGE0,
+                                repositoryGroupName,
+                                Arrays.asList(new MutableRoutingRuleRepository(STORAGE0, null)),
+                                ".*(com|org)/carlspring.metadata.*",
+                                RoutingRuleTypeEnum.DENY);
+
+        testDeny(repositoryReleases1Name, repositoryReleases2Name, repositoryGroupName);
+    }
+
+    @Test
+    public void deniedRoutingRuleShouldWorkIfStorageIsNotProvided(TestInfo testInfo)
+            throws Exception
+    {
+
+        String repositoryReleases1Name = getRepositoryName("grpt-releases-drsbv-1", testInfo);
+
+        String repositoryReleases2Name = getRepositoryName("grpt-releases-drsbv-2", testInfo);
+
+        String repositoryGroupName = getRepositoryName("grpt-releases-drsbv-group", testInfo);
+
+        prepareForDeniedTest(repositoryReleases1Name, repositoryReleases2Name, repositoryGroupName);
+
+        createAndAddRoutingRule(STORAGE0,
+                                repositoryGroupName,
+                                Arrays.asList(new MutableRoutingRuleRepository(null, repositoryReleases2Name)),
+                                ".*(com|org)/carlspring.metadata.*",
+                                RoutingRuleTypeEnum.DENY);
+
+        testDeny(repositoryReleases1Name, repositoryReleases2Name, repositoryGroupName);
+    }
+
+    @Test
+    public void deniedRoutingRuleShouldWorkForAllGroupsUnderTheSameStorage(TestInfo testInfo)
+            throws Exception
+    {
+
+        String repositoryReleases1Name = getRepositoryName("grpt-releases-drsbv-1", testInfo);
+
+        String repositoryReleases2Name = getRepositoryName("grpt-releases-drsbv-2", testInfo);
+
+        String repositoryGroupName = getRepositoryName("grpt-releases-drsbv-group", testInfo);
+
+        prepareForDeniedTest(repositoryReleases1Name, repositoryReleases2Name, repositoryGroupName);
+
+        createAndAddRoutingRule(STORAGE0,
+                                null,
+                                Arrays.asList(new MutableRoutingRuleRepository(STORAGE0, repositoryReleases2Name)),
+                                ".*(com|org)/carlspring.metadata.*",
+                                RoutingRuleTypeEnum.DENY);
+
+        testDeny(repositoryReleases1Name, repositoryReleases2Name, repositoryGroupName);
+    }
+
+    @Test
+    public void deniedRoutingRuleShouldWorkForAllGroups(TestInfo testInfo)
+            throws Exception
+    {
+
+        String repositoryReleases1Name = getRepositoryName("grpt-releases-drsbv-1", testInfo);
+
+        String repositoryReleases2Name = getRepositoryName("grpt-releases-drsbv-2", testInfo);
+
+        String repositoryGroupName = getRepositoryName("grpt-releases-drsbv-group", testInfo);
+
+        prepareForDeniedTest(repositoryReleases1Name, repositoryReleases2Name, repositoryGroupName);
+
+        createAndAddRoutingRule(null,
+                                null,
+                                Arrays.asList(new MutableRoutingRuleRepository(STORAGE0, repositoryReleases2Name)),
+                                ".*(com|org)/carlspring.metadata.*",
+                                RoutingRuleTypeEnum.DENY);
+
+        testDeny(repositoryReleases1Name, repositoryReleases2Name, repositoryGroupName);
+    }
+
+    @Test
+    public void deniedRoutingRuleShouldWorkForAllGroupsUnderTheSameRepositoryName(TestInfo testInfo)
+            throws Exception
+    {
+
+        String repositoryReleases1Name = getRepositoryName("grpt-releases-drsbv-1", testInfo);
+
+        String repositoryReleases2Name = getRepositoryName("grpt-releases-drsbv-2", testInfo);
+
+        String repositoryGroupName = getRepositoryName("grpt-releases-drsbv-group", testInfo);
+
+        prepareForDeniedTest(repositoryReleases1Name, repositoryReleases2Name, repositoryGroupName);
+
+        createAndAddRoutingRule(null,
+                                repositoryGroupName,
+                                Arrays.asList(new MutableRoutingRuleRepository(STORAGE0, repositoryReleases2Name)),
+                                ".*(com|org)/carlspring.metadata.*",
+                                RoutingRuleTypeEnum.DENY);
+
+        testDeny(repositoryReleases1Name, repositoryReleases2Name, repositoryGroupName);
+    }
+
+    private void prepareForDeniedTest(String repositoryReleases1Name,
+                                      String repositoryReleases2Name,
+                                      String repositoryGroupName)
+            throws Exception
+    {
         // Initialize test data
         createRepository(STORAGE0, repositoryReleases1Name, false);
         createRepository(STORAGE0, repositoryReleases2Name, false);
@@ -654,13 +802,14 @@ public class MavenGroupRepositoryProviderTest
         repositoryGroup.addRepositoryToGroup(repositoryReleases2Name);
 
         createRepository(STORAGE0, repositoryGroup);
+    }
 
-        createAndAddRoutingRule(STORAGE0,
-                                repositoryGroupName,
-                                Arrays.asList(new MutableRoutingRuleRepository(STORAGE0, repositoryReleases2Name)),
-                                ".*(com|org)/artifacts.denied.*",
-                                RoutingRuleTypeEnum.DENY);
+    private void testDeny(String repositoryReleases1Name,
+                          String repositoryReleases2Name,
+                          String repositoryGroupName)
 
+            throws IOException
+    {
         generateMavenMetadata(STORAGE0, repositoryReleases1Name);
         generateMavenMetadata(STORAGE0, repositoryReleases2Name);
         // Test data initialized.

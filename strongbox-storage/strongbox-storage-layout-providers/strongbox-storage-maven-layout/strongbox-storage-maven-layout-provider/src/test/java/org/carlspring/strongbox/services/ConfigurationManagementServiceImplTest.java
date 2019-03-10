@@ -303,31 +303,38 @@ public class ConfigurationManagementServiceImplTest
     public void shouldAddAndEditRoutingRule()
     {
         final MutableRoutingRule routingRule = createRoutingRule(RoutingRuleTypeEnum.ACCEPT);
+        String repositoryId = routingRule.getRepositoryId();
+        String storageId = routingRule.getStorageId();
+
         final boolean added = configurationManagementService.addRoutingRule(routingRule);
         assertTrue(added);
 
-        RoutingRules routingRules = configurationManagementService.getConfiguration().getRoutingRules();
-        int size = routingRules.getRules().size();
-        assertThat(size, Matchers.greaterThan(0));
-        RoutingRule lastRR = routingRules.getRules().get(size - 1);
+        Configuration configuration = configurationManagementService.getConfiguration();
+        List<RoutingRule> routingRulesMatching = configuration.getRoutingRules()
+                                                              .getRules()
+                                                              .stream()
+                                                              .filter(a -> repositoryId.equals(a.getRepositoryId()) &&
+                                                                           storageId.equals(a.getStorageId()))
+                                                              .collect(Collectors.toList());
+
+        assertThat(routingRulesMatching.size(), CoreMatchers.equalTo(1));
+        RoutingRule dbRoutingRule = routingRulesMatching.get(0);
+        assertThat(dbRoutingRule.getType(), CoreMatchers.equalTo(RoutingRuleTypeEnum.ACCEPT));
 
         routingRule.setType(RoutingRuleTypeEnum.DENY.getType());
-
-        boolean updated = configurationManagementService.updateRoutingRule(lastRR.getUuid(),
-                                                                           routingRule);
+        boolean updated = configurationManagementService.updateRoutingRule(dbRoutingRule.getUuid(), routingRule);
         assertTrue(updated);
 
-        final Configuration configuration = configurationManagementService.getConfiguration();
-        final List<RoutingRule> allRoutingRules = configuration.getRoutingRules()
-                                                               .getAccepted()
-                                                               .stream()
-                                                               .filter(a -> REPOSITORY_GROUP_1.equals(
-                                                                       a.getRepositoryId()) &&
-                                                                            STORAGE0.equals(a.getStorageId()))
-                                                               .collect(Collectors.toList());
+        configuration = configurationManagementService.getConfiguration();
+        routingRulesMatching = configuration.getRoutingRules()
+                                            .getRules()
+                                            .stream()
+                                            .filter(a -> repositoryId.equals(a.getRepositoryId()) &&
+                                                         storageId.equals(a.getStorageId()))
+                                            .collect(Collectors.toList());
 
-        assertThat(allRoutingRules.size(), CoreMatchers.equalTo(1));
-        RoutingRule routingRule1 = allRoutingRules.get(0);
+        assertThat(routingRulesMatching.size(), CoreMatchers.equalTo(1));
+        RoutingRule routingRule1 = routingRulesMatching.get(0);
         assertThat(routingRule1.getType(), CoreMatchers.equalTo(RoutingRuleTypeEnum.DENY));
     }
 
