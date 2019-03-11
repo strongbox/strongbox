@@ -395,6 +395,7 @@
         <dependency>
             <groupId>org.codehaus.mojo.appassembler</groupId>
             <artifactId>appassembler-model</artifactId>
+            <version>${version.appassembler}</version>
         </dependency>
     </dependencies>
 
