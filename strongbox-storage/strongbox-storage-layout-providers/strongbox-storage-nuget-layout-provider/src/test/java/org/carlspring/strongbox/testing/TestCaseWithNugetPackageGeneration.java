@@ -3,6 +3,7 @@ package org.carlspring.strongbox.testing;
 import org.carlspring.strongbox.artifact.coordinates.NugetArtifactCoordinates;
 import org.carlspring.strongbox.artifact.generator.NugetPackageGenerator;
 import org.carlspring.strongbox.booters.PropertiesBooter;
+import org.carlspring.strongbox.nuget.NugetFormatException;
 import org.carlspring.strongbox.providers.ProviderImplementationException;
 import org.carlspring.strongbox.services.ArtifactManagementService;
 import org.carlspring.strongbox.storage.validation.artifact.ArtifactCoordinatesValidationException;
@@ -16,8 +17,6 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.security.NoSuchAlgorithmException;
-
-import ru.aristar.jnuget.files.NugetFormatException;
 
 /**
  * @author Kate Novik.

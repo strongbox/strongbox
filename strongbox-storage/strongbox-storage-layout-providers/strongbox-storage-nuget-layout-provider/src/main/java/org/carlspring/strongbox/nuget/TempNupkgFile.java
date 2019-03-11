@@ -24,7 +24,7 @@ import javax.xml.bind.DatatypeConverter;
  *
  * @author sviridov
  */
-public class NupkgFile implements AutoCloseable
+public class TempNupkgFile implements AutoCloseable
 {
 
     private static final String ALGORITHM_NAME = "SHA-512";
@@ -55,30 +55,13 @@ public class NupkgFile implements AutoCloseable
      *             the stream does not contain the NuGet package or the format
      *             of the package does not conform to the standard
      */
-    public NupkgFile(InputStream inputStream) throws IOException, NugetFormatException
-    {
-        this(inputStream, File.createTempFile("nupkg", "jnuget"));
-    }
-
-    /**
-     * Creates a NuGet package from a stream
-     *
-     * @param input
-     *            stream stream with package
-     * @param targetFile
-     *            the file to write content into
-     * @throws IOException
-     *             data reading error
-     * @throws NugetFormatException
-     *             the stream does not contain the NuGet package or the format
-     *             of the package does not conform to the standard
-     */
-    public NupkgFile(InputStream inputStream, File targetFile) throws IOException, NugetFormatException
+    public TempNupkgFile(InputStream inputStream) throws IOException, NugetFormatException
     {
         try
         {
+            this.file = File.createTempFile("nupkg", "jnuget");
             this.hash = copyDataAndCalculateHash(inputStream, this.file);
-            try (final FileInputStream fileInputStream = new FileInputStream(targetFile))
+            try (final FileInputStream fileInputStream = new FileInputStream(file))
             {
                 this.nuspec = loadNuspec(fileInputStream);
             }
@@ -189,11 +172,6 @@ public class NupkgFile implements AutoCloseable
         }
     }
 
-    public File getFile()
-    {
-        return file;
-    }
-
     public String getHash()
     {
         return hash;
@@ -205,7 +183,7 @@ public class NupkgFile implements AutoCloseable
     }
 
     @Override
-    public void close() throws Exception
+    public void close()
     {
         file.delete();
     }

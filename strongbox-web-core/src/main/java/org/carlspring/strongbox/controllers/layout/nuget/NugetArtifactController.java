@@ -11,7 +11,7 @@ import org.carlspring.strongbox.domain.ArtifactTagEntry;
 import org.carlspring.strongbox.io.ReplacingInputStream;
 import org.carlspring.strongbox.nuget.NugetSearchRequest;
 import org.carlspring.strongbox.nuget.Nuspec;
-import org.carlspring.strongbox.nuget.NupkgFile;
+import org.carlspring.strongbox.nuget.TempNupkgFile;
 import org.carlspring.strongbox.nuget.filter.NugetODataFilterQueryParser;
 import org.carlspring.strongbox.providers.io.RepositoryPath;
 import org.carlspring.strongbox.providers.io.RepositoryPathResolver;
@@ -647,7 +647,7 @@ public class NugetArtifactController extends BaseArtifactController
                              InputStream is)
         throws Exception
     {
-        try (NupkgFile nupkgFile = new NupkgFile(is))
+        try (TempNupkgFile nupkgFile = new TempNupkgFile(is))
         {
             Nuspec nuspec = nupkgFile.getNuspec();
             if (nuspec == null)

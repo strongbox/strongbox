@@ -16,17 +16,15 @@ import javax.xml.bind.JAXBException;
 
 import org.carlspring.commons.io.MultipleDigestInputStream;
 import org.carlspring.commons.io.RandomInputStream;
+import org.carlspring.strongbox.nuget.NugetFormatException;
+import org.carlspring.strongbox.nuget.Nuspec;
+import org.carlspring.strongbox.nuget.metadata.Dependencies;
+import org.carlspring.strongbox.nuget.metadata.Dependency;
 import org.carlspring.strongbox.resource.ResourceCloser;
 import org.carlspring.strongbox.util.MessageDigestUtils;
+import org.semver.Version;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
-import ru.aristar.jnuget.files.ClassicNupkg;
-import ru.aristar.jnuget.files.NugetFormatException;
-import ru.aristar.jnuget.files.Nupkg;
-import ru.aristar.jnuget.files.nuspec.Dependencies;
-import ru.aristar.jnuget.files.nuspec.Dependency;
-import ru.aristar.jnuget.files.nuspec.NuspecFile;
 
 /**
  * @author Kate Novik.
@@ -68,43 +66,41 @@ public class NugetPackageGenerator
     }
 
     public void generateNugetPackage(String id,
-                                     String version,
+                                     String versionString,
                                      String... dependencyList)
             throws NugetFormatException, JAXBException, IOException, NoSuchAlgorithmException
     {
-        File file = new File(getBasedir(), String.format("%s/%s/%s.%s.nupkg", id, version, id, version));
+        File file = new File(getBasedir(), String.format("%s/%s/%s.%s.nupkg", id, versionString, id, versionString));
         file.getParentFile()
             .mkdirs();
-        ClassicNupkg nupkgFile = new ClassicNupkg(file);
-
-        logger.debug("Version of the nupkg package: ", nupkgFile.getVersion()
-                                                                .toString());
-        generate(nupkgFile, dependencyList);
+        
+        Version version = Version.parse(versionString);
+        logger.debug("Version of the nupkg package: ", version.toString());
+        
+        generate(file, id, version, dependencyList);
     }
 
-    public void generate(ClassicNupkg nupkgFile, String... dependencyList)
+    public void generate(File nupkgFile, String id, Version version, String... dependencyList)
             throws IOException,
-                   JAXBException,
-                   NugetFormatException,
-                   NoSuchAlgorithmException
+                   JAXBException,                   
+                   NoSuchAlgorithmException, 
+                   NugetFormatException
     {
-        createArchive(nupkgFile, dependencyList);
-        generateNuspecFile(nupkgFile);
+        Nuspec nuspec = generateNuspec(id, version, dependencyList);
+        createArchive(nuspec, nupkgFile, dependencyList);
+        generateNuspecFile(nuspec);
     }
 
-    public void createArchive(ClassicNupkg nupkgFile, String... dependencyList)
+    public void createArchive(Nuspec nuspec, File packageFile, String... dependencyList)
             throws IOException,
                    JAXBException,
-                   NoSuchAlgorithmException, NugetFormatException
+                   NoSuchAlgorithmException, 
+                   NugetFormatException
     {
         ZipOutputStream zos = null;
 
-        File packageFile = null;
-
         try
         {
-            packageFile = nupkgFile.getLocalFile();
-
             // Make sure the artifact's parent directory exists before writing the model.
             //noinspection ResultOfMethodCallIgnored
             packageFile.getParentFile()
@@ -112,11 +108,15 @@ public class NugetPackageGenerator
 
             zos = new ZipOutputStream(new FileOutputStream(packageFile));
 
-            addNugetNuspecFile(nupkgFile, zos, dependencyList);
+            addNugetNuspecFile(nuspec, zos);
             createRandomNupkgFile(zos);
-            createMetadata(nupkgFile.getId(), nupkgFile.getVersion().toString(), zos);
+            
+            String id = nuspec.getId();
+            Version version = nuspec.getVersion();
+            createMetadata(id, version.toString(), zos);
+            
             createContentType(zos);
-            createRels(nupkgFile.getId(), zos);
+            createRels(id, zos);
         }
         finally
         {
@@ -183,32 +183,13 @@ public class NugetPackageGenerator
         zos.closeEntry();
     }
 
-    private void addNugetNuspecFile(ClassicNupkg nupkgFile,
-                                    ZipOutputStream zos,
-                                    String... dependencyList)
+    private void addNugetNuspecFile(Nuspec nuspec,
+                                    ZipOutputStream zos)
             throws IOException, JAXBException, NugetFormatException
     {
-        ZipEntry ze = new ZipEntry(nupkgFile.getId() + ".nuspec");
+        ZipEntry ze = new ZipEntry(nuspec.getId() + ".nuspec");
         zos.putNextEntry(ze);
 
-        NuspecFile nuspec = new NuspecFile();
-        NuspecFile.Metadata metadata = nuspec.getMetadata();
-        metadata.id = nupkgFile.getId();
-        metadata.version = nupkgFile.getVersion();
-        metadata.authors = "carlspring";
-        metadata.owners = "Carlspring Consulting &amp; Development Ltd.";
-        metadata.licenseUrl = "https://www.apache.org/licenses/LICENSE-2.0";
-        metadata.description = "Strongbox Nuget package for tests";
-
-        if (dependencyList != null)
-        {
-            metadata.dependencies = new Dependencies();
-            metadata.dependencies.dependencies = new ArrayList<>();
-            for (int i = 0; i < dependencyList.length; i++)
-            {
-                metadata.dependencies.dependencies.add(Dependency.parseString(dependencyList[i]));
-            }
-        }
         ByteArrayOutputStream baos = new ByteArrayOutputStream();
         nuspec.saveTo(baos);
 
@@ -223,7 +204,29 @@ public class NugetPackageGenerator
 
         bais.close();
         zos.closeEntry();
+    }
 
+    private Nuspec generateNuspec(String id, Version version, String... dependencyList) throws NugetFormatException
+    {
+        Nuspec nuspec = new Nuspec();
+        Nuspec.Metadata metadata = nuspec.getMetadata();
+        metadata.id = id;
+        metadata.version = version;
+        metadata.authors = "carlspring";
+        metadata.owners = "Carlspring Consulting &amp; Development Ltd.";
+        metadata.licenseUrl = "https://www.apache.org/licenses/LICENSE-2.0";
+        metadata.description = "Strongbox Nuget package for tests";
+
+        if (dependencyList != null)
+        {
+            metadata.dependencies = new Dependencies();
+            metadata.dependencies.dependencies = new ArrayList<>();
+            for (int i = 0; i < dependencyList.length; i++)
+            {
+                metadata.dependencies.dependencies.add(Dependency.parseString(dependencyList[i]));
+            }
+        }
+        return nuspec;
     }
 
     private void createRandomNupkgFile(ZipOutputStream zos)
@@ -246,11 +249,11 @@ public class NugetPackageGenerator
 
     }
 
-    private void generateNuspecFile(Nupkg nupkgFile)
+    private void generateNuspecFile(Nuspec nuspec)
             throws IOException, NugetFormatException, JAXBException, NoSuchAlgorithmException
     {
-        String packageId = nupkgFile.getId();
-        String packageVersion = nupkgFile.getVersion()
+        String packageId = nuspec.getId();
+        String packageVersion = nuspec.getVersion()
                                          .toString();
         File nuspecFile = new File(getBasedir(),
                 String.format("%s/%s/%s.nuspec", packageId, packageVersion,
@@ -260,8 +263,7 @@ public class NugetPackageGenerator
 
         try (FileOutputStream fileOutputStream = new FileOutputStream(nuspecFile))
         {
-            nupkgFile.getNuspecFile()
-                     .saveTo(fileOutputStream);
+            nuspec.saveTo(fileOutputStream);
         }
 
         generateChecksum(nuspecFile);

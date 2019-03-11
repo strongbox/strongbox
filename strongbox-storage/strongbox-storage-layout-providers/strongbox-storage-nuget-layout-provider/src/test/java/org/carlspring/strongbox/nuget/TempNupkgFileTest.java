@@ -9,17 +9,17 @@ import java.io.InputStream;
 import org.junit.jupiter.api.Test;
 import org.semver.Version;
 
-public class NupkgFileTest
+public class TempNupkgFileTest
 {
 
     @Test
     public void testHashTempFile() throws Exception
     {
         // GIVEN
-        try (InputStream inputStream = NugetTestResources.getAsStream("NUnit.2.5.9.10348.nupkg"))
+     // WHEN
+        try (InputStream inputStream = NugetTestResources.getAsStream("NUnit.2.5.9.10348.nupkg");
+                TempNupkgFile nupkgFile = new TempNupkgFile(inputStream);)
         {
-            // WHEN
-            NupkgFile nupkgFile = new NupkgFile(inputStream);
             // THEN
             assertEquals("kDPZtMu1BOZerHZvsbPnj7" + "DfOdEyn/j4fanlv7BWuuVOZ0+VwuuxWzUnpD7jo7pkLjFOqIs41Vkk7abFZj"
                     + "PRJA==", nupkgFile.getHash().toString(), "Hash file created from stream");
@@ -36,10 +36,10 @@ public class NupkgFileTest
     public void testGetNuspecTmpFile() throws Exception
     {
         // GIVEN
-        try (InputStream inputStream = NugetTestResources.getAsStream("NUnit.2.5.9.10348.nupkg"))
+        try (InputStream inputStream = NugetTestResources.getAsStream("NUnit.2.5.9.10348.nupkg");
+             TempNupkgFile nupkgFile = new TempNupkgFile(inputStream);)
         {
-            // WHEN
-            NupkgFile nupkgFile = new NupkgFile(inputStream);
+            // WHEN            
             Nuspec nuspecFile = nupkgFile.getNuspec();
             // THEN
             assertNotNull(nuspecFile, "Package Specification");
@@ -61,9 +61,10 @@ public class NupkgFileTest
         // GIVEN
         InputStream inputStream = NugetTestResources.getAsStream("nupkg/v3/Package.1.0.0.nupkg");
         // WHEN
-        NupkgFile nupkgFile = new NupkgFile(inputStream);
-        // THEN
-        assertNotNull(nupkgFile.getNuspec());
+        try (TempNupkgFile nupkgFile = new TempNupkgFile(inputStream)) {
+            // THEN
+            assertNotNull(nupkgFile.getNuspec());
+        }
     }
 
     /**
@@ -78,8 +79,9 @@ public class NupkgFileTest
         // GIVEN
         InputStream inputStream = NugetTestResources.getAsStream("nupkg/winscp.5.9.6.nupkg");
         // WHEN
-        NupkgFile nupkgFile = new NupkgFile(inputStream);
-        // THEN
-        assertNotNull(nupkgFile.getNuspec());
+        try (TempNupkgFile nupkgFile = new TempNupkgFile(inputStream)) {
+            // THEN
+            assertNotNull(nupkgFile.getNuspec());
+        }
     }
 }
