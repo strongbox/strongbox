@@ -117,6 +117,7 @@ To accept, please:
 | Ekrem Candemir           |                                          | Ankara, Turkey                      | 2019-02-24 |
 | Eugeniusz Fedchenko          |                                          | Warsaw, Poland                          | 2019-02-25 |
 | Shumail Ahmed                | Middlesex University                     | London, United Kingdom                    | 05-03-19 |
+| Divya Dyuti Gangwar          |                                          | Bengaluru, India                          | 10-03-2019 |
 
 [chat]: https://chat.carlspring.org/
 [issue tracker]: https://github.com/strongbox/strongbox/issues?utf8=%E2%9C%93&q=is%3Aissue+is%3Aopen+label%3A%22help+wanted%22+label%3A%22good+first+issue%22
