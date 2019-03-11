@@ -11,7 +11,6 @@ import org.apache.commons.io.IOUtils;
 import org.carlspring.strongbox.resource.ConfigurationResourceResolver;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.context.annotation.DependsOn;
 import org.springframework.core.io.ClassPathResource;
 import org.springframework.core.io.Resource;
 import org.springframework.core.io.WritableResource;
@@ -20,7 +19,6 @@ import org.springframework.stereotype.Component;
 import org.springframework.util.StreamUtils;
 
 @Component
-@DependsOn("resourcesBooter")
 public class AuthenticationResourceManager
 {
 
