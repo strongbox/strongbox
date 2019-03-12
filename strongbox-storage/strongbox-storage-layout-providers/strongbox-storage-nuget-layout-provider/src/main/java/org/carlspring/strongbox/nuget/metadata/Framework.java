@@ -1,3 +1,20 @@
+/*
+ * Copyright 2019 Carlspring Consulting & Development Ltd.
+ * Copyright 2014 Dmitry Sviridov
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ * http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
 package org.carlspring.strongbox.nuget.metadata;
 
 import static java.text.MessageFormat.format;
@@ -9,107 +26,182 @@ import org.slf4j.LoggerFactory;
 
 /**
  * Frameworks
+ * 
+ * @author Dmitry Sviridov
  */
-public enum Framework {
+public enum Framework
+{
 
     /**
      * NET 1.0
      */
-    net10(".NETFramework1.0", new String[]{"net10"}, new String[]{}),
+    net10(".NETFramework1.0",
+          new String[] { "net10" },
+          new String[] {}),
+    
     /**
      * NET 1.1
      */
-    net11(".NETFramework1.1", new String[]{"net11"}, new String[]{"net10"}),
+    net11(".NETFramework1.1",
+          new String[] { "net11" },
+          new String[] { "net10" }),
+    
     /**
      * NET 2.0
      */
-    net20(".NETFramework2.0", new String[]{"net20"}, new String[]{}),
+    net20(".NETFramework2.0",
+          new String[] { "net20" },
+          new String[] {}),
+    
     /**
      * NET 3.0
      */
-    net30(".NETFramework3.0", new String[]{"net30"}, new String[]{"net20"}),
+    net30(".NETFramework3.0",
+          new String[] { "net30" },
+          new String[] { "net20" }),
+    
     /**
      * NET 3.5
      */
-    net35(".NETFramework3.5", new String[]{"net35"}, new String[]{"net30", "net20"}),
+    net35(".NETFramework3.5",
+          new String[] { "net35" },
+          new String[] { "net30", "net20" }),
+    
     /**
      * NET 4.0
      */
-    net40(".NETFramework4.0", new String[]{"net40", "net40-Client"}, new String[]{"net35", "net30", "net20"}),
+    net40(".NETFramework4.0",
+          new String[] { "net40", "net40-Client" },
+          new String[] { "net35", "net30", "net20" }),
+    
     /**
      * NET 4.5
      */
-    net45(".NETFramework4.5", new String[]{"net45", "win80"}, new String[]{"net40", "net35", "net30", "net20"}),
+    net45(".NETFramework4.5",
+          new String[] { "net45", "win80" },
+          new String[] { "net40", "net35", "net30", "net20" }),
+    
     /**
      * NET 4.5.1
      */
-    net451(".NETFramework4.5.1", new String[]{"net451"}, new String[]{"net45", "net40", "net35", "net30", "net20"}),
+    net451(".NETFramework4.5.1",
+           new String[] { "net451" },
+           new String[] { "net45", "net40", "net35", "net30", "net20" }),
+    
     /**
      * NET 4.5.2
      */
-    net452(".NETFramework4.5.2", new String[]{"net452"}, new String[]{"net451", "net45", "net40", "net35", "net30", "net20"}),
+    net452(".NETFramework4.5.2",
+           new String[] { "net452" },
+           new String[] { "net451", "net45", "net40", "net35", "net30", "net20" }),
+    
     /**
      * NET 4.6
      */
-    net46(".NETFramework4.6", new String[]{"net46"}, new String[]{"net452", "net451", "net45", "net40", "net35", "net30", "net20"}),
+    net46(".NETFramework4.6",
+          new String[] { "net46" },
+          new String[] { "net452", "net451", "net45", "net40", "net35", "net30", "net20" }),
+    
     /**
      * NET 4.6.1
      */
-    net461(".NETFramework4.6.1", new String[]{"net461"}, new String[]{"net46", "net452", "net451", "net45", "net40", "net35", "net30", "net20"}),
+    net461(".NETFramework4.6.1",
+           new String[] { "net461" },
+           new String[] { "net46", "net452", "net451", "net45", "net40", "net35", "net30", "net20" }),
+    
     /**
      * NET 4.6.2
      */
-    net462(".NETFramework4.6.2", new String[]{"net462"}, new String[]{"net461", "net46", "net452", "net451", "net45", "net40", "net35", "net30", "net20"}),
+    net462(".NETFramework4.6.2",
+           new String[] { "net462" },
+           new String[] { "net461", "net46", "net452", "net451", "net45", "net40", "net35", "net30", "net20" }),
+    
     /**
      * NET 4.6.3
      */
-    net463(".NETFramework4.6.3", new String[]{"net463"}, new String[]{"net462", "net461", "net46", "net452", "net451", "net45", "net40", "net35", "net30", "net20"}),
+    net463(".NETFramework4.6.3",
+           new String[] { "net463" },
+           new String[] { "net462", "net461", "net46", "net452", "net451", "net45", "net40", "net35", "net30",
+                          "net20" }),
 
-    // TODO Add core frameworks according to : https://github.com/NuGet/NuGet.Client/blob/dev/src/NuGet.Core/NuGet.Frameworks/FrameworkConstants.cs
+    // TODO Add core frameworks according to :
+    // https://github.com/NuGet/NuGet.Client/blob/dev/src/NuGet.Core/NuGet.Frameworks/FrameworkConstants.cs
 
     /**
      * .NETFramework4.5 Portable
      */
-    portable_net45(".NETFramework4.5 Portable", new String[]{"portable-net45"}, new String[]{}),
+    portable_net45(".NETFramework4.5 Portable",
+                   new String[] { "portable-net45" },
+                   new String[] {}),
+    
     /**
      * WinRT 4.5
      */
-    winrt45("WinRT 4.5", new String[]{"winrt45"}, new String[]{}),
+    winrt45("WinRT 4.5",
+            new String[] { "winrt45" },
+            new String[] {}),
+    
     /**
      * SilverLight 2.0
      */
-    sl20("SilverLight 2", new String[]{"sl2"}, new String[]{}),
+    sl20("SilverLight 2",
+         new String[] { "sl2" },
+         new String[] {}),
+    
     /**
      * SilverLight 30
      */
-    sl30("SilverLight 30", new String[]{"sl30", "sl3"}, new String[]{}),
+    sl30("SilverLight 30",
+         new String[] { "sl30", "sl3" },
+         new String[] {}),
+    
     /**
      * SilverLight 4
      */
-    sl4("SilverLight 4", new String[]{"sl4", "sl40", "sl40-wp71"}, new String[]{}),
+    sl4("SilverLight 4",
+        new String[] { "sl4", "sl40", "sl40-wp71" },
+        new String[] {}),
+    
     /**
      * SilverLight 5
      */
-    sl5("SilverLight 5", new String[]{"sl5", "sl50"}, new String[]{}),
+    sl5("SilverLight 5",
+        new String[] { "sl5", "sl50" },
+        new String[] {}),
+    
     /**
      * WindowsPhone 7.1
      */
-    wp71("WindowsPhone 7.1", new String[]{"wp71"}, new String[]{}),
+    wp71("WindowsPhone 7.1",
+         new String[] { "wp71" },
+         new String[] {}),
+    
     /**
      * WindowsPhone 8.0
      */
-    wp80("WindowsPhone 8", new String[]{"wp80"}, new String[]{}),
+    wp80("WindowsPhone 8",
+         new String[] { "wp80" },
+         new String[] {}),
+    
     /**
      * Native application
      */
-    nativeFile("Native", new String[]{"native"}, new String[]{});
+    nativeFile("Native",
+               new String[] { "native" },
+               new String[] {});
 
     /**
-     * @param fullName              full name
-     * @param shortNames            all available short names
-     * @param compabilityFrameworks frameworks compatible with this
+     * @param fullName
+     *            full name
+     * @param shortNames
+     *            all available short names
+     * @param compabilityFrameworks
+     *            frameworks compatible with this
      */
-    private Framework(String fullName, String[] shortNames, String[] compabilityFrameworks) {
+    private Framework(String fullName,
+                      String[] shortNames,
+                      String[] compabilityFrameworks)
+    {
         this.shortNames = shortNames;
         this.fullName = fullName;
         fullCompabilyStringSet = compabilityFrameworks;
@@ -135,13 +227,18 @@ public enum Framework {
     /**
      * @return A set of frameworks compatible with this
      */
-    public EnumSet<Framework> getFullCopabilySet() {
-        if (fullCopabilySet == null) {
-            synchronized (this) {
-                if (fullCopabilySet == null) {
+    public EnumSet<Framework> getFullCopabilySet()
+    {
+        if (fullCopabilySet == null)
+        {
+            synchronized (this)
+            {
+                if (fullCopabilySet == null)
+                {
                     fullCopabilySet = EnumSet.noneOf(Framework.class);
                     fullCopabilySet.add(this);
-                    for (String frameworkName : fullCompabilyStringSet) {
+                    for (String frameworkName : fullCompabilyStringSet)
+                    {
                         fullCopabilySet.add(Framework.valueOf(frameworkName));
                     }
                 }
@@ -153,14 +250,16 @@ public enum Framework {
     /**
      * @return full name
      */
-    public String getFullName() {
+    public String getFullName()
+    {
         return this.fullName;
     }
 
     /**
      * @return short name
      */
-    public String getShortName() {
+    public String getShortName()
+    {
         return shortNames[0];
     }
 
@@ -176,27 +275,37 @@ public enum Framework {
     /**
      * Get frameworks collection from query string
      *
-     * @param value query string
+     * @param value
+     *            query string
      * @return frameworks collection
      */
-    public static EnumSet<Framework> parse(String value) {
+    public static EnumSet<Framework> parse(String value)
+    {
         EnumSet<Framework> result;
-        try {
-            if (value != null && !value.isEmpty()) {
+        try
+        {
+            if (value != null && !value.isEmpty())
+            {
                 result = EnumSet.noneOf(Framework.class);
                 String[] frameworkStrings = value.split(QUERY_STRING_DELIMETER);
-                for (String frameworkString : frameworkStrings) {
+                for (String frameworkString : frameworkStrings)
+                {
                     Framework framework = getByShortName(frameworkString.toLowerCase());
-                    if (framework == null) {
-                        logger.warn("Can not find framework for string : \"{}\"", new Object[]{frameworkString});
+                    if (framework == null)
+                    {
+                        logger.warn("Can not find framework for string : \"{}\"", new Object[] { frameworkString });
                         continue;
                     }
                     result.add(framework);
                 }
-            } else {
+            }
+            else
+            {
                 result = EnumSet.allOf(Framework.class);
             }
-        } catch (IllegalArgumentException e) {
+        }
+        catch (IllegalArgumentException e)
+        {
             logger.warn(format("Can not find framework for string \"{0}\" used default value", value), e);
             result = EnumSet.allOf(Framework.class);
         }
@@ -206,12 +315,16 @@ public enum Framework {
     /**
      * Find framework by full name
      *
-     * @param fullName full name
+     * @param fullName
+     *            full name
      * @return framework or <b>null</b> if not found
      */
-    public static Framework getByFullName(String fullName) {
-        for (Framework framework : values()) {
-            if (framework.getFullName().equalsIgnoreCase(fullName)) {
+    public static Framework getByFullName(String fullName)
+    {
+        for (Framework framework : values())
+        {
+            if (framework.getFullName().equalsIgnoreCase(fullName))
+            {
                 return framework;
             }
         }
@@ -221,13 +334,18 @@ public enum Framework {
     /**
      * Find framework by short name
      *
-     * @param shortName short name
+     * @param shortName
+     *            short name
      * @return framework or <b>null</b> if not found
      */
-    public static Framework getByShortName(String shortName) {
-        for (Framework framework : values()) {
-            for (String name : framework.shortNames) {
-                if (name.equalsIgnoreCase(shortName)) {
+    public static Framework getByShortName(String shortName)
+    {
+        for (Framework framework : values())
+        {
+            for (String name : framework.shortNames)
+            {
+                if (name.equalsIgnoreCase(shortName))
+                {
                     return framework;
                 }
             }

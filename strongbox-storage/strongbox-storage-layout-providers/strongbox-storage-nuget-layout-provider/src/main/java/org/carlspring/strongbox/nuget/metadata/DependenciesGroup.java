@@ -1,3 +1,20 @@
+/*
+ * Copyright 2019 Carlspring Consulting & Development Ltd.
+ * Copyright 2014 Dmitry Sviridov
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ * http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
 package org.carlspring.strongbox.nuget.metadata;
 
 import java.io.Serializable;
@@ -12,8 +29,12 @@ import javax.xml.bind.annotation.adapters.XmlJavaTypeAdapter;
 
 import org.carlspring.strongbox.nuget.Nuspec;
 
+/**
+ * @author sviridov
+ */
 @XmlAccessorType(XmlAccessType.NONE)
-public class DependenciesGroup implements Serializable {
+public class DependenciesGroup implements Serializable
+{
 
     /**
      * The framework for which the dependency group is intended
@@ -21,7 +42,7 @@ public class DependenciesGroup implements Serializable {
     @XmlAttribute(name = "targetFramework")
     @XmlJavaTypeAdapter(TargetFrameworkAdapter.class)
     private Framework targetFramework;
-    
+
     /**
      * Package dependencies
      */
@@ -31,56 +52,74 @@ public class DependenciesGroup implements Serializable {
     /**
      * @return package dependencies
      */
-    public List<Dependency> getDependencies() {
-        if (dependencies == null) {
+    public List<Dependency> getDependencies()
+    {
+        if (dependencies == null)
+        {
             dependencies = new ArrayList<>();
         }
+
         return dependencies;
     }
 
     /**
-     * @param dependencies package dependencies
+     * @param dependencies
+     *            package dependencies
      */
-    public void setDependencies(List<Dependency> dependencies) {
+    public void setDependencies(List<Dependency> dependencies)
+    {
         this.dependencies = dependencies;
     }
 
     /**
      * @return the framework for which the dependency group is intended
      */
-    public Framework getTargetFramework() {
+    public Framework getTargetFramework()
+    {
         return targetFramework;
     }
 
     /**
-     * @param targetFramework the framework for which the dependency group is intended
+     * @param targetFramework
+     *            the framework for which the dependency group is intended
      */
-    public void setTargetFramework(Framework targetFramework) {
+    public void setTargetFramework(Framework targetFramework)
+    {
         this.targetFramework = targetFramework;
     }
 
     /**
      * Convert list assembly to delimited string
      */
-    public static class TargetFrameworkAdapter extends XmlAdapter<String, Framework> {
+    public static class TargetFrameworkAdapter extends XmlAdapter<String, Framework>
+    {
 
         @Override
-        public String marshal(Framework framework) {
-            if (framework == null) {
+        public String marshal(Framework framework)
+        {
+            if (framework == null)
+            {
                 return null;
             }
+
             return framework.name();
         }
 
         @Override
-        public Framework unmarshal(String farmework) {
-            if (farmework == null) {
+        public Framework unmarshal(String farmework)
+        {
+            if (farmework == null)
+            {
                 return null;
             }
+
             Framework result = Framework.getByShortName(farmework);
-            if (result == null) {
+            if (result == null)
+            {
                 return Framework.getByFullName(farmework);
-            } else {
+            }
+            else
+            {
                 return result;
             }
         }

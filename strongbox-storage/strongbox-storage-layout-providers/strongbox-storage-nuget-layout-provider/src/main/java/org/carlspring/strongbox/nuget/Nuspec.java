@@ -1,3 +1,20 @@
+/*
+ * Copyright 2019 Carlspring Consulting & Development Ltd.
+ * Copyright 2014 Dmitry Sviridov
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ * http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
 package org.carlspring.strongbox.nuget;
 
 import java.io.InputStream;
@@ -33,10 +50,13 @@ import org.xml.sax.helpers.XMLReaderFactory;
 
 /**
  * Class containing information about the NuGet package
+ * 
+ * @author sviridov
  */
 @XmlRootElement(name = "package", namespace = Nuspec.NUSPEC_XML_NAMESPACE_2011)
 @XmlAccessorType(XmlAccessType.NONE)
-public class Nuspec implements Serializable {
+public class Nuspec implements Serializable
+{
 
     /**
      * Namespace for NuGet 2012 package specification
@@ -78,12 +98,17 @@ public class Nuspec implements Serializable {
     /**
      * Recovers package information from XML
      *
-     * @param inputStream XML
+     * @param inputStream
+     *            XML
      * @return recognized package information
-     * @throws NugetFormatException XML does not conform to the NuGet specification
+     * @throws NugetFormatException
+     *             XML does not conform to the NuGet specification
      */
-    public static Nuspec parse(InputStream inputStream) throws NugetFormatException {
-        try {
+    public static Nuspec parse(InputStream inputStream)
+        throws NugetFormatException
+    {
+        try
+        {
             JAXBContext context = JAXBContext.newInstance(Nuspec.class);
             Unmarshaller unmarshaller = context.createUnmarshaller();
             unmarshaller.setEventHandler(new NuspecXmlValidationEventHandler());
@@ -92,12 +117,15 @@ public class Nuspec implements Serializable {
             inFilter.setParent(reader);
             InputSource inputSource = new InputSource(inputStream);
             SAXSource saxSource = new SAXSource(inFilter, inputSource);
-            Nuspec result =(Nuspec) unmarshaller.unmarshal(saxSource);
+            Nuspec result = (Nuspec) unmarshaller.unmarshal(saxSource);
             return result;
-        } catch(JAXBException | SAXException e) {
+        }
+        catch (JAXBException | SAXException e)
+        {
             throw new NugetFormatException("Can not read nuspec from XML stream", e);
         }
     }
+
     /**
      * Package Metadata
      */
@@ -111,8 +139,10 @@ public class Nuspec implements Serializable {
     @XmlElementWrapper(name = "files", namespace = NUSPEC_XML_NAMESPACE_2011)
     private List<NugetFile> files;
 
-    public Metadata getMetadata() {
-        if(metadata == null) {
+    public Metadata getMetadata()
+    {
+        if (metadata == null)
+        {
             metadata = new Metadata();
         }
         return metadata;
@@ -121,8 +151,10 @@ public class Nuspec implements Serializable {
     /**
      * @return files
      */
-    public List<NugetFile> getFiles() {
-        if(files == null) {
+    public List<NugetFile> getFiles()
+    {
+        if (files == null)
+        {
             this.files = new ArrayList<>();
         }
         return files;
@@ -131,45 +163,54 @@ public class Nuspec implements Serializable {
     /**
      * @return Unique package identifier
      */
-    public String getId() {
+    public String getId()
+    {
         return getMetadata().id;
     }
 
     /**
      * @return package version
      */
-    public Version getVersion() {
+    public Version getVersion()
+    {
         return getMetadata().version;
     }
 
     /**
      * @return Title
      */
-    public String getTitle() {
+    public String getTitle()
+    {
         return getMetadata().title;
     }
 
     /**
      * @return List of package authors
      */
-    public String getAuthors() {
+    public String getAuthors()
+    {
         return getMetadata().authors;
     }
 
     /**
      * @return List of package owners
      */
-    public String getOwners() {
+    public String getOwners()
+    {
         return getMetadata().owners;
     }
 
     /**
      * @return Whether a license request is required
      */
-    public boolean isRequireLicenseAcceptance() {
-        if(getMetadata().requireLicenseAcceptance == null) {
+    public boolean isRequireLicenseAcceptance()
+    {
+        if (getMetadata().requireLicenseAcceptance == null)
+        {
             return false;
-        } else {
+        }
+        else
+        {
             return getMetadata().requireLicenseAcceptance;
         }
     }
@@ -177,63 +218,72 @@ public class Nuspec implements Serializable {
     /**
      * @return package description
      */
-    public String getDescription() {
+    public String getDescription()
+    {
         return getMetadata().description;
     }
 
     /**
      * @return license URL
      */
-    public String getLicenseUrl() {
+    public String getLicenseUrl()
+    {
         return getMetadata().licenseUrl;
     }
 
     /**
      * @return project URL
      */
-    public String getProjectUrl() {
+    public String getProjectUrl()
+    {
         return getMetadata().projectUrl;
     }
 
     /**
      * @return URL of project sources
      */
-    public String getProjectSourceUrl() {
+    public String getProjectSourceUrl()
+    {
         return getMetadata().projectSourceUrl;
     }
 
     /**
      * @return URL of package documentation
      */
-    public String getPackageSourceUrl() {
+    public String getPackageSourceUrl()
+    {
         return getMetadata().packageSourceUrl;
     }
 
     /**
      * @return URL of package sources
      */
-    public String getDocsUrl() {
+    public String getDocsUrl()
+    {
         return getMetadata().docsUrl;
     }
 
     /**
      * @return URL of package mailingList
      */
-    public String getMailingListUrl() {
+    public String getMailingListUrl()
+    {
         return getMetadata().mailingListUrl;
     }
 
     /**
      * @return URL of bug tracker
      */
-    public String getBugTrackerUrl() {
+    public String getBugTrackerUrl()
+    {
         return getMetadata().bugTrackerUrl;
     }
 
     /**
      * @return url icons
      */
-    public String getIconUrl() {
+    public String getIconUrl()
+    {
         return getMetadata().iconUrl;
     }
 
@@ -241,44 +291,52 @@ public class Nuspec implements Serializable {
      *
      * @return release notes
      */
-    public String getReleaseNotes() {
+    public String getReleaseNotes()
+    {
         return this.getMetadata().releaseNotes;
     }
 
     /**
      *
-     * @param releaseNotes release notes
+     * @param releaseNotes
+     *            release notes
      */
-    public void setReleaseNotes(String releaseNotes) {
+    public void setReleaseNotes(String releaseNotes)
+    {
         this.getMetadata().releaseNotes = releaseNotes;
     }
 
     /**
      * @return Short Package Description
      */
-    public String getSummary() {
+    public String getSummary()
+    {
         return getMetadata().summary;
     }
 
     /**
      * @return Who owns the rights to the package
      */
-    public String getCopyright() {
+    public String getCopyright()
+    {
         return getMetadata().copyright;
     }
 
     /**
      * @return Language
      */
-    public String getLanguage() {
+    public String getLanguage()
+    {
         return getMetadata().language;
     }
 
     /**
      * @return list of tags
      */
-    public List<String> getTags() {
-        if(getMetadata().tags == null) {
+    public List<String> getTags()
+    {
+        if (getMetadata().tags == null)
+        {
             return new ArrayList<>();
         }
         return getMetadata().tags;
@@ -287,8 +345,10 @@ public class Nuspec implements Serializable {
     /**
      * @return List of links
      */
-    public List<Reference> getReferences() {
-        if(getMetadata().references == null) {
+    public List<Reference> getReferences()
+    {
+        if (getMetadata().references == null)
+        {
             return new ArrayList<>();
         }
         return getMetadata().references;
@@ -297,8 +357,10 @@ public class Nuspec implements Serializable {
     /**
      * @return dependencies of packages, including those in groups
      */
-    public List<Dependency> getDependencies() {
-        if(getMetadata().dependencies == null) {
+    public List<Dependency> getDependencies()
+    {
+        if (getMetadata().dependencies == null)
+        {
             return new ArrayList<>();
         }
         return getMetadata().dependencies.getDependencies();
@@ -308,34 +370,43 @@ public class Nuspec implements Serializable {
      *
      * @return dependency groups, including root
      */
-    public List<DependenciesGroup> getDependenciesGroups() {
+    public List<DependenciesGroup> getDependenciesGroups()
+    {
         return getMetadata().dependencies.getGroups();
     }
 
     /**
      * @return depending on the assemblies that come with the .NET package
      */
-    public List<FrameworkAssembly> getFrameworkAssembly() {
-        if(getMetadata().frameworkAssembly == null) {
+    public List<FrameworkAssembly> getFrameworkAssembly()
+    {
+        if (getMetadata().frameworkAssembly == null)
+        {
             getMetadata().frameworkAssembly = new ArrayList<>();
         }
         return getMetadata().frameworkAssembly;
     }
 
     /**
-     * @param frameworkAssembly depending on the assemblies that come with the .NET package
+     * @param frameworkAssembly
+     *            depending on the assemblies that come with the .NET package
      */
-    public void setFrameworkAssembly(List<FrameworkAssembly> frameworkAssembly) {
+    public void setFrameworkAssembly(List<FrameworkAssembly> frameworkAssembly)
+    {
         getMetadata().frameworkAssembly = frameworkAssembly;
     }
 
     /**
      * Saves specification to data stream
      *
-     * @param outputStream stream for recording
-     * @throws JAXBException XML Conjugation Error
+     * @param outputStream
+     *            stream for recording
+     * @throws JAXBException
+     *             XML Conjugation Error
      */
-    public void saveTo(OutputStream outputStream) throws JAXBException {
+    public void saveTo(OutputStream outputStream)
+        throws JAXBException
+    {
         JAXBContext context = JAXBContext.newInstance(this.getClass());
         Marshaller marshaller = context.createMarshaller();
         marshaller.setProperty(Marshaller.JAXB_FORMATTED_OUTPUT, true);
@@ -345,10 +416,12 @@ public class Nuspec implements Serializable {
     /**
      * Class providing error validation in the NuSpec XML file structure
      */
-    private static class NuspecXmlValidationEventHandler implements ValidationEventHandler {
+    private static class NuspecXmlValidationEventHandler implements ValidationEventHandler
+    {
 
         @Override
-        public boolean handleEvent(ValidationEvent event) {
+        public boolean handleEvent(ValidationEvent event)
+        {
             return false;
         }
     }
@@ -356,7 +429,8 @@ public class Nuspec implements Serializable {
     /**
      * Class containing meta package data NuGet
      */
-    public static class Metadata implements Serializable {
+    public static class Metadata implements Serializable
+    {
 
         /**
          * Unique package identifier
@@ -494,35 +568,36 @@ public class Nuspec implements Serializable {
         @XmlElement(name = "serviceable", namespace = NUSPEC_XML_NAMESPACE_2011)
         public Boolean serviceable;
         /**
-        * Minimum required version of Nuget client to work with the package.
-        */
-       @XmlElement(name = "minClientVersion", namespace = NUSPEC_XML_NAMESPACE_2011)
-       public Boolean minClientVersion;
-       
-       @XmlElementWrapper(name = "packageTypes", namespace = NUSPEC_XML_NAMESPACE_2011)
-       @XmlElement(name = "packageType", namespace = NUSPEC_XML_NAMESPACE_2011)
-       public List<PackageType> packageType;
-       
-       @XmlElementWrapper(name = "contentFiles", namespace = NUSPEC_XML_NAMESPACE_2011)
-       @XmlElement(name = "files", namespace = NUSPEC_XML_NAMESPACE_2011)
-       public List<ContentFile> contentFile;
-       
-       @XmlElement(name = "repository", namespace = NUSPEC_XML_NAMESPACE_2011)
-       public Repository repository;
-       
-       @XmlElementWrapper(name = "files", namespace = NUSPEC_XML_NAMESPACE_2011)
-       @XmlElement(name = "file", namespace = NUSPEC_XML_NAMESPACE_2011)
-       public List<File> file;
-   }
+         * Minimum required version of Nuget client to work with the package.
+         */
+        @XmlElement(name = "minClientVersion", namespace = NUSPEC_XML_NAMESPACE_2011)
+        public Boolean minClientVersion;
 
-   public static class NugetFile implements Serializable {
+        @XmlElementWrapper(name = "packageTypes", namespace = NUSPEC_XML_NAMESPACE_2011)
+        @XmlElement(name = "packageType", namespace = NUSPEC_XML_NAMESPACE_2011)
+        public List<PackageType> packageType;
 
-       @XmlAttribute(name = "src")
-       public String src;
-       @XmlAttribute(name = "target")
-       public String target;
-       @XmlAttribute(name = "exclude")
-       public String exclude;
+        @XmlElementWrapper(name = "contentFiles", namespace = NUSPEC_XML_NAMESPACE_2011)
+        @XmlElement(name = "files", namespace = NUSPEC_XML_NAMESPACE_2011)
+        public List<ContentFile> contentFile;
 
-   }
+        @XmlElement(name = "repository", namespace = NUSPEC_XML_NAMESPACE_2011)
+        public Repository repository;
+
+        @XmlElementWrapper(name = "files", namespace = NUSPEC_XML_NAMESPACE_2011)
+        @XmlElement(name = "file", namespace = NUSPEC_XML_NAMESPACE_2011)
+        public List<File> file;
+    }
+
+    public static class NugetFile implements Serializable
+    {
+
+        @XmlAttribute(name = "src")
+        public String src;
+        @XmlAttribute(name = "target")
+        public String target;
+        @XmlAttribute(name = "exclude")
+        public String exclude;
+
+    }
 }

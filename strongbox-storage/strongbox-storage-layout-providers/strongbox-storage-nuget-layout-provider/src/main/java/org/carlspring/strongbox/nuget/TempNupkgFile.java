@@ -1,3 +1,20 @@
+/*
+ * Copyright 2019 Carlspring Consulting & Development Ltd.
+ * Copyright 2014 Dmitry Sviridov
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ * http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
 package org.carlspring.strongbox.nuget;
 
 import java.io.File;
@@ -55,12 +72,16 @@ public class TempNupkgFile implements AutoCloseable
      *             the stream does not contain the NuGet package or the format
      *             of the package does not conform to the standard
      */
-    public TempNupkgFile(InputStream inputStream) throws IOException, NugetFormatException
+    public TempNupkgFile(InputStream inputStream)
+        throws IOException,
+        NugetFormatException
     {
         try
         {
             this.file = File.createTempFile("nupkg", "jnuget");
+
             this.hash = copyDataAndCalculateHash(inputStream, this.file);
+
             try (final FileInputStream fileInputStream = new FileInputStream(file))
             {
                 this.nuspec = loadNuspec(fileInputStream);
@@ -84,7 +105,9 @@ public class TempNupkgFile implements AutoCloseable
      *             XML in the package archive does not conform to the NuGet
      *             specification
      */
-    private static final Nuspec loadNuspec(InputStream packageStream) throws IOException, NugetFormatException
+    private static final Nuspec loadNuspec(InputStream packageStream)
+        throws IOException,
+        NugetFormatException
     {
         try (ZipInputStream zipInputStream = new ZipInputStream(packageStream);)
         {
@@ -92,12 +115,13 @@ public class TempNupkgFile implements AutoCloseable
             do
             {
                 entry = zipInputStream.getNextEntry();
-            }
-            while (entry != null && !isNuspecZipEntry(entry));
+            } while (entry != null && !isNuspecZipEntry(entry));
+
             if (entry == null)
             {
                 return null;
             }
+
             return Nuspec.parse(zipInputStream);
         }
     }
@@ -129,16 +153,20 @@ public class TempNupkgFile implements AutoCloseable
      *             the system does not have an algorithm for calculating the
      *             value of HASH
      */
-    private static String copyDataAndCalculateHash(InputStream inputStream, File targetFile)
-            throws IOException, NoSuchAlgorithmException
+    private static String copyDataAndCalculateHash(InputStream inputStream,
+                                                   File targetFile)
+        throws IOException,
+        NoSuchAlgorithmException
     {
         MessageDigest messageDigest = MessageDigest.getInstance(ALGORITHM_NAME);
         DigestInputStream digestInputStream = new DigestInputStream(inputStream, messageDigest);
+
         try (FileOutputStream fileOutputStream = new FileOutputStream(targetFile);
                 ReadableByteChannel src = Channels.newChannel(digestInputStream);
                 FileChannel dest = fileOutputStream.getChannel();)
         {
             fastChannelCopy(src, dest);
+
             byte[] digest = digestInputStream.getMessageDigest().digest();
 
             return DatatypeConverter.printBase64Binary(digest);
@@ -155,17 +183,21 @@ public class TempNupkgFile implements AutoCloseable
      * @throws IOException
      *             input / output error
      */
-    private static void fastChannelCopy(final ReadableByteChannel src, final WritableByteChannel dest)
-            throws IOException
+    private static void fastChannelCopy(final ReadableByteChannel src,
+                                        final WritableByteChannel dest)
+        throws IOException
     {
         final ByteBuffer buffer = ByteBuffer.allocateDirect(16 * 1024);
+
         while (src.read(buffer) != -1)
         {
             buffer.flip();
             dest.write(buffer);
             buffer.compact();
         }
+
         buffer.flip();
+
         while (buffer.hasRemaining())
         {
             dest.write(buffer);
@@ -188,7 +220,8 @@ public class TempNupkgFile implements AutoCloseable
         file.delete();
     }
 
-    public InputStream getStream() throws IOException
+    public InputStream getStream()
+        throws IOException
     {
         if (file == null || !file.exists())
         {
