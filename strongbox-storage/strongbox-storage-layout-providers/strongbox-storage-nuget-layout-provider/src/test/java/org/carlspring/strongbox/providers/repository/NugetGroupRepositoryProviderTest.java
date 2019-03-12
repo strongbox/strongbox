@@ -141,30 +141,6 @@ public class NugetGroupRepositoryProviderTest
         createRepository(STORAGE0, repositoryWithNestedGroupLevel2);
     }
 
-    private void generateRepositoryPackages(String storageId, String repositoryId, int count)
-            throws NoSuchAlgorithmException,
-                   NugetFormatException,
-                   JAXBException,
-                   IOException,
-                   ProviderImplementationException,
-                   ArtifactCoordinatesValidationException
-    {
-        for (int i = 1; i <= count; i++)
-        {
-            String packageId = String.format("grpt.search.p%s", i);
-            String packageVersion = "1.0.0";
-            NugetArtifactCoordinates coordinates = new NugetArtifactCoordinates(packageId, packageVersion, "nupkg");
-            Path packageFilePath = generatePackageFile(packageId, packageVersion);
-            try (InputStream is = new BufferedInputStream(Files.newInputStream(packageFilePath)))
-            {
-                artifactManagementService.validateAndStore(storageId,
-                                                           repositoryId,
-                                                           coordinates.toPath(),
-                                                           is);
-            }
-        }
-    }
-
     private void createRepository(String storageId, MutableRepository repository)
         throws Exception
     {

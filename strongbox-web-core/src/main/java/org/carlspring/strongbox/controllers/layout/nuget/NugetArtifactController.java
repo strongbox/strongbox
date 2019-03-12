@@ -678,7 +678,7 @@ public class NugetArtifactController extends BaseArtifactController
                 nugetArtifactManagementService.validateAndStore(repositoryPath, bis);
             }
 
-            Path hashFile = Files.createTempFile(String.format("%s.%s", nuspecVersion),
+            Path hashFile = Files.createTempFile(String.format("%s.%s", nuspecId, nuspecVersion),
                                                 "nupkg.sha512");
 
             try (OutputStream bos = new BufferedOutputStream(Files.newOutputStream(hashFile)))
