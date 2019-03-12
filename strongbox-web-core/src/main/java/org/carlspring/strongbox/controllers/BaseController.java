@@ -110,13 +110,26 @@ public abstract class BaseController
      * Used for operations which have been successfully performed.
      *
      * @param message       Success to be returned to the client.
+     * @param headers       response headers
+     * @param acceptHeader  The Accept header, so that we can return the proper json/plain text response.
+     * @return ResponseEntity
+     */
+    protected ResponseEntity getSuccessfulResponseEntity(String message, HttpHeaders headers, String acceptHeader)
+    {
+        return ResponseEntity.ok().headers(headers).body(getResponseEntityBody(message, acceptHeader));
+    }
+
+    /**
+     * Used for operations which have been successfully performed.
+     *
+     * @param message       Success to be returned to the client.
      * @param acceptHeader  The Accept header, so that we can return the proper json/plain text response.
      *
      * @return ResponseEntity
      */
     protected ResponseEntity getSuccessfulResponseEntity(String message, String acceptHeader)
     {
-        return ResponseEntity.ok(getResponseEntityBody(message, acceptHeader));
+        return getSuccessfulResponseEntity(message, null, acceptHeader);
     }
 
     /**

@@ -2,6 +2,7 @@ package org.carlspring.strongbox.cron.jobs;
 
 import org.carlspring.strongbox.configuration.ConfigurationManager;
 import org.carlspring.strongbox.cron.domain.CronTaskConfigurationDto;
+import org.carlspring.strongbox.cron.jobs.fields.*;
 import org.carlspring.strongbox.cron.services.JobManager;
 import org.carlspring.strongbox.services.ArtifactMetadataService;
 import org.carlspring.strongbox.storage.Storage;
@@ -11,7 +12,9 @@ import javax.inject.Inject;
 import java.io.IOException;
 import java.security.NoSuchAlgorithmException;
 import java.util.Map;
+import java.util.Set;
 
+import com.google.common.collect.ImmutableSet;
 import org.codehaus.plexus.util.xml.pull.XmlPullParserException;
 
 /**
@@ -20,6 +23,20 @@ import org.codehaus.plexus.util.xml.pull.XmlPullParserException;
 public class RebuildMavenMetadataCronJob
         extends JavaCronJob
 {
+
+    private static final String PROPERTY_STORAGE_ID = "storageId";
+
+    private static final String PROPERTY_REPOSITORY_ID = "repositoryId";
+
+    private static final String PROPERTY_BASE_PATH = "basePath";
+
+    private static final Set<CronJobField> FIELDS = ImmutableSet.of(
+            new CronJobStorageIdAutocompleteField(new CronJobStringTypeField(
+                    new CronJobOptionalField(new CronJobNamedField(PROPERTY_STORAGE_ID)))),
+            new CronJobRepositoryIdAutocompleteField(new CronJobStringTypeField(
+                    new CronJobOptionalField(new CronJobNamedField(PROPERTY_REPOSITORY_ID)))),
+            new CronJobStringTypeField(
+                    new CronJobOptionalField(new CronJobNamedField(PROPERTY_BASE_PATH))));
 
     @Inject
     private ArtifactMetadataService artifactMetadataService;
@@ -35,9 +52,9 @@ public class RebuildMavenMetadataCronJob
     public void executeTask(CronTaskConfigurationDto config)
             throws Throwable
     {
-        String storageId = config.getProperty("storageId");
-        String repositoryId = config.getProperty("repositoryId");
-        String basePath = config.getProperty("basePath");
+        String storageId = config.getProperty(PROPERTY_STORAGE_ID);
+        String repositoryId = config.getProperty(PROPERTY_REPOSITORY_ID);
+        String basePath = config.getProperty(PROPERTY_BASE_PATH);
 
         if (storageId == null)
         {
@@ -55,6 +72,17 @@ public class RebuildMavenMetadataCronJob
         {
             artifactMetadataService.rebuildMetadata(storageId, repositoryId, basePath);
         }
+    }
+
+    @Override
+    public CronJobDefinition getCronJobDefinition()
+    {
+        return CronJobDefinition.newBuilder()
+                                .jobClass(RebuildMavenMetadataCronJob.class.getName())
+                                .name("Rebuild Maven Metadata Cron Job")
+                                .description("Rebuild Maven Metadata Cron Job")
+                                .fields(FIELDS)
+                                .build();
     }
 
     /**

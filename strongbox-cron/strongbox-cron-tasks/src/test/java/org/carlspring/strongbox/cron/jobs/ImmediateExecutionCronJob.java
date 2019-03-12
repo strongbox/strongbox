@@ -12,9 +12,20 @@ public class ImmediateExecutionCronJob
 
     @Override
     public void executeTask(CronTaskConfigurationDto config)
-            throws Throwable
     {
         System.out.println("ImmediateExecutionCronJob executed!");
+    }
+
+
+    @Override
+    public CronJobDefinition getCronJobDefinition()
+    {
+        return CronJobDefinition.newBuilder()
+                                .jobClass(ImmediateExecutionCronJob.class.getName())
+                                .name("Immediate Execution Cron Job")
+                                .description("Immediate Execution Cron Job")
+                                .fields(java.util.Collections.emptySet())
+                                .build();
     }
 
 }

@@ -30,7 +30,7 @@ public class CronJobSchedulerServiceImpl
     @Override
     public void scheduleJob(CronTaskConfigurationDto cronTaskConfiguration)
     {
-        String jobClassName = cronTaskConfiguration.getProperty("jobClass");
+        String jobClassName = cronTaskConfiguration.getJobClass();
         Class<? extends Job> jobClass;
         try
         {
@@ -38,10 +38,13 @@ public class CronJobSchedulerServiceImpl
         }
         catch (ClassNotFoundException e1)
         {
-            logger.error(String.format("Failed to shcedule cron job [%s]", jobClassName));
+            logger.error(String.format("Failed to schedule cron job [%s]", jobClassName));
 
             return;
         }
+
+        // delete old job if exists
+        deleteJob(cronTaskConfiguration.getUuid());
 
         JobDataMap jobDataMap = new JobDataMap();
         jobDataMap.put("config", cronTaskConfiguration);
@@ -53,42 +56,62 @@ public class CronJobSchedulerServiceImpl
                                         .storeDurably()
                                         .build();
 
+        try
+        {
+            scheduler.addJob(jobDetail, true);
+            logger.debug("Job '{}' added to the Scheduler.", cronTaskConfiguration.getUuid());
+        }
+        catch (SchedulerException e)
+        {
+            logger.error(String.format("Failed to add Cron Job [%s] to the Scheduler", cronTaskConfiguration), e);
+            return;
+        }
+
+        boolean scheduleJob = true;
+
+        if (cronTaskConfiguration.shouldExecuteImmediately())
+        {
+            try
+            {
+                scheduler.triggerJob(jobKey);
+                logger.debug("Job '{}' triggered by the Scheduler.", cronTaskConfiguration.getUuid());
+            }
+            catch (SchedulerException e)
+            {
+                logger.error(String.format("Failed to trigger Cron Job [%s] by the Scheduler", cronTaskConfiguration),
+                             e);
+                return;
+            }
+
+            scheduleJob = !cronTaskConfiguration.isOneTimeExecution();
+        }
+
+        if (!scheduleJob)
+        {
+            logger.debug("Job '{}' won't be scheduled based on the cron expression.", cronTaskConfiguration.getUuid());
+            return;
+        }
+
         TriggerKey triggerKey = TriggerKey.triggerKey(cronTaskConfiguration.getUuid());
         TriggerBuilder<Trigger> triggerBuilder = TriggerBuilder.newTrigger()
                                                                .withIdentity(triggerKey)
                                                                .forJob(jobDetail);
 
-        String cronExpression = cronTaskConfiguration.getProperty("cronExpression");
+        String cronExpression = cronTaskConfiguration.getCronExpression();
         triggerBuilder.withSchedule(CronScheduleBuilder.cronSchedule(cronExpression));
         Trigger trigger = triggerBuilder.build();
 
         try
         {
-            doScheduleJob(cronTaskConfiguration, jobKey, jobDetail, trigger);
+            scheduler.scheduleJob(trigger);
+            logger.debug("Job '{}' scheduled.", cronTaskConfiguration.getUuid());
         }
         catch (SchedulerException e)
         {
-            logger.error(String.format("Failed to add Cron Job:%n [%s]", cronTaskConfiguration), e);
+            logger.error(String.format("Failed to schedule Cron Job:%n [%s]", cronTaskConfiguration), e);
 
             return;
         }
-
-        logger.debug("Job '{}' scheduled.", cronTaskConfiguration.getUuid());
-    }
-
-    private void doScheduleJob(CronTaskConfigurationDto cronTaskConfiguration,
-                               JobKey jobKey,
-                               JobDetail jobDetail,
-                               Trigger trigger)
-        throws SchedulerException
-    {
-        scheduler.addJob(jobDetail, true);
-        if (cronTaskConfiguration.shouldExecuteImmediately())
-        {
-            scheduler.triggerJob(jobKey);
-        }
-
-        scheduler.scheduleJob(trigger);
     }
 
     @Override
@@ -99,13 +122,12 @@ public class CronJobSchedulerServiceImpl
         try
         {
             scheduler.deleteJob(jobKey);
+            logger.debug("Job '{}' deleted and un-scheduled.", cronTaskConfigurationUuid);
         }
         catch (SchedulerException e)
         {
             logger.error(String.format("Failed to delete cron job [%s]", jobKey));
         }
-
-        logger.debug("Job '{}' un-scheduled.", cronTaskConfigurationUuid);
     }
 
     @Override
@@ -137,12 +159,15 @@ public class CronJobSchedulerServiceImpl
             }
 
             JobDataMap jobDataMap = jobDetail.getJobDataMap();
-            if (!GroovyCronJob.class.getName().equals(jobDataMap.get("jobClass")))
+
+            CronTaskConfigurationDto configuration = (CronTaskConfigurationDto) jobDataMap.get("config");
+
+            if (!GroovyCronJob.class.getName().equals(configuration.getJobClass()))
             {
                 continue;
             }
 
-            String groovyScriptName = (String) jobDetail.getJobDataMap().get("fileName");
+            String groovyScriptName = configuration.getProperties().get("fileName");
             groovyScriptNames.addName(groovyScriptName);
         }
 

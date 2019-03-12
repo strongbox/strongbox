@@ -12,6 +12,7 @@ import java.lang.reflect.Method;
 import java.util.LinkedHashMap;
 import java.util.Map;
 import java.util.Optional;
+import java.util.UUID;
 import java.util.function.Consumer;
 
 import org.junit.jupiter.api.TestInfo;
@@ -85,7 +86,6 @@ public class BaseCronJobWithNugetIndexingTestCase
             throws Exception
     {
         Map<String, String> properties = new LinkedHashMap<>();
-        properties.put("cronExpression", "0 11 11 11 11 ? 2100");
         properties.put("storageId", storageId);
         properties.put("repositoryId", repositoryId);
         if (additionalProperties != null)
@@ -99,11 +99,12 @@ public class BaseCronJobWithNugetIndexingTestCase
             throws Exception
     {
         CronTaskConfigurationDto cronTaskConfiguration = new CronTaskConfigurationDto();
+        cronTaskConfiguration.setCronExpression("0 11 11 11 11 ? 2100");
         cronTaskConfiguration.setOneTimeExecution(true);
         cronTaskConfiguration.setImmediateExecution(true);
-        cronTaskConfiguration.setUuid(jobName);
+        cronTaskConfiguration.setUuid(UUID.randomUUID().toString());
         cronTaskConfiguration.setName(jobName);
-        cronTaskConfiguration.addProperty("jobClass", className.getName());
+        cronTaskConfiguration.setJobClass(className.getCanonicalName());
 
         for (String propertyKey : properties.keySet())
         {

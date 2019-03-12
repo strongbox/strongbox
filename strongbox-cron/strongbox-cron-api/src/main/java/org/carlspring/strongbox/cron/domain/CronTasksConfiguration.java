@@ -14,7 +14,7 @@ import com.google.common.collect.ImmutableSet;
 public class CronTasksConfiguration
 {
 
-    private Set<CronTaskConfiguration> cronTaskConfigurations;
+    private final Set<CronTaskConfiguration> cronTaskConfigurations;
 
     public CronTasksConfiguration(final CronTasksConfigurationDto source)
     {

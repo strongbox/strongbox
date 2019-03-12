@@ -141,8 +141,8 @@ public class RegenerateNugetChecksumCronJobTestIT
         cronTaskConfiguration.setOneTimeExecution(true);
         cronTaskConfiguration.setImmediateExecution(true);
         cronTaskConfiguration.setName(name);
-        cronTaskConfiguration.addProperty("jobClass", RegenerateChecksumCronJob.class.getName());
-        cronTaskConfiguration.addProperty("cronExpression", "0 11 11 11 11 ? 2100");
+        cronTaskConfiguration.setJobClass(RegenerateChecksumCronJob.class.getName());
+        cronTaskConfiguration.setCronExpression("0 11 11 11 11 ? 2100");
         cronTaskConfiguration.addProperty("storageId", storageId);
         cronTaskConfiguration.addProperty("repositoryId", repositoryId);
         cronTaskConfiguration.addProperty("basePath", basePath);
