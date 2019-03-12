@@ -88,7 +88,7 @@ public class FrameworksTest
         // GIVEN
         Framework framework = Framework.net20;
         // WHEN
-        EnumSet<Framework> result = framework.getFullCopabilySet();
+        EnumSet<Framework> result = framework.getFullCompatibilitySet();
         // THEN
         Framework[] expected = { Framework.net20 };
         assertArrayEquals(expected, result.toArray(new Framework[1]));

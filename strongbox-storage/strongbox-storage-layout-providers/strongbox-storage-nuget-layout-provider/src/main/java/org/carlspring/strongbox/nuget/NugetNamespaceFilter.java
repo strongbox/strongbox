@@ -71,11 +71,12 @@ public class NugetNamespaceFilter extends XMLFilterImpl
     }
 
     @Override
-    public void endElement(String uri,
+    public void endElement(String uriInput,
                            String localName,
                            String qName)
         throws SAXException
     {
+        String uri = uriInput;
         if (sourceUris.contains(uri))
         {
             uri = targetUri;
@@ -84,12 +85,13 @@ public class NugetNamespaceFilter extends XMLFilterImpl
     }
 
     @Override
-    public void startElement(String uri,
+    public void startElement(String uriInput,
                              String localName,
                              String qName,
                              Attributes atts)
         throws SAXException
     {
+        String uri = uriInput;
         if (sourceUris.contains(uri))
         {
             uri = targetUri;

@@ -52,8 +52,9 @@ public class Dependency implements Serializable
     /**
      * Dependency line format
      */
-    private static final String DEPENDENCY_FORMAT = "^(?<pkgId>" + PACKAGE_ID_FORMAT
-            + "):(?<version>[^:]+)?:?(?<frameWork>[^:]+)?$";
+    private static final String DEPENDENCY_FORMAT = "^(?<pkgId>" + PACKAGE_ID_FORMAT + ")"
+            + ":(?<version>[^:]+)?"
+            + ":?(?<frameWork>[^:]+)?$";
 
     /**
      * Parses the string representation of a dependency

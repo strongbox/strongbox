@@ -204,17 +204,17 @@ public enum Framework
     {
         this.shortNames = shortNames;
         this.fullName = fullName;
-        fullCompabilyStringSet = compabilityFrameworks;
+        fullCompatibilityStringSet = compabilityFrameworks;
     }
 
     /**
      * A set of framework names compatible with this
      */
-    private final String[] fullCompabilyStringSet;
+    private final String[] fullCompatibilityStringSet;
     /**
      * A set of frameworks compatible with this
      */
-    private volatile EnumSet<Framework> fullCopabilySet;
+    private volatile EnumSet<Framework> fullCompatibilitySet;
     /**
      * Full name
      */
@@ -227,24 +227,26 @@ public enum Framework
     /**
      * @return A set of frameworks compatible with this
      */
-    public EnumSet<Framework> getFullCopabilySet()
+    public EnumSet<Framework> getFullCompatibilitySet()
     {
-        if (fullCopabilySet == null)
+        if (fullCompatibilitySet == null)
         {
             synchronized (this)
             {
-                if (fullCopabilySet == null)
+                if (fullCompatibilitySet == null)
                 {
-                    fullCopabilySet = EnumSet.noneOf(Framework.class);
-                    fullCopabilySet.add(this);
-                    for (String frameworkName : fullCompabilyStringSet)
+                    EnumSet<Framework> localSet = EnumSet.noneOf(Framework.class);
+                    localSet.add(this);
+                    for (String frameworkName : fullCompatibilityStringSet)
                     {
-                        fullCopabilySet.add(Framework.valueOf(frameworkName));
+                        localSet.add(Framework.valueOf(frameworkName));
                     }
+                    
+                    fullCompatibilitySet = localSet;
                 }
             }
         }
-        return fullCopabilySet;
+        return fullCompatibilitySet;
     }
 
     /**
