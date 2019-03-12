@@ -1,54 +1,60 @@
 package org.carlspring.strongbox.forms.cron;
 
-import javax.validation.constraints.NotEmpty;
-import java.io.Serializable;
-import java.util.Map;
+import org.carlspring.strongbox.validation.cron.CronTaskConfigurationFormValid;
 
-import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
-import com.google.common.collect.Maps;
+import java.util.Collections;
+import java.util.List;
+
+import org.apache.commons.lang3.ObjectUtils;
+
 
 /**
- * @author Pablo Tirado
+ * @author Przemyslaw Fusik
  */
-@JsonIgnoreProperties(ignoreUnknown = true)
+@CronTaskConfigurationFormValid(message = "Invalid cron task configuration")
 public class CronTaskConfigurationForm
-        implements Serializable
 {
 
-    @NotEmpty(message = "Configuration name is required!")
-    private String name;
+    private String jobClass;
 
-    private Map<String, String> properties = Maps.newHashMap();
+    private String cronExpression;
 
     private boolean oneTimeExecution;
 
     private boolean immediateExecution;
 
-    public String getName()
+    private List<CronTaskConfigurationFormField> fields;
+
+    public String getJobClass()
     {
-        return name;
+        return jobClass;
     }
 
-    public void setName(String name)
+    public void setJobClass(String jobClass)
     {
-        this.name = name;
+        this.jobClass = jobClass;
     }
 
-    public Map<String, String> getProperties()
+    public List<CronTaskConfigurationFormField> getFields()
     {
-        return properties;
+        return ObjectUtils.defaultIfNull(fields, Collections.emptyList());
     }
 
-    public void setProperties(Map<String, String> properties)
+    public void setFields(List<CronTaskConfigurationFormField> fields)
     {
-        this.properties = properties;
+        this.fields = fields;
     }
 
-    public void addProperty(String key,
-                            String value)
+    public String getCronExpression()
     {
-        this.properties.put(key, value);
+        return cronExpression;
     }
+
+    public void setCronExpression(String cronExpression)
+    {
+        this.cronExpression = cronExpression;
+    }
+
     public boolean isOneTimeExecution()
     {
         return oneTimeExecution;

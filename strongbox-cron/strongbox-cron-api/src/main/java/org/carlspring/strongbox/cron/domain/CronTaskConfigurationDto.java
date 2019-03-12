@@ -12,19 +12,25 @@ import org.springframework.util.Assert;
 /**
  * @author Yougeshwar
  * @author Pablo Tirado
+ * @author Przemyslaw Fusik
  */
 public class CronTaskConfigurationDto
         implements Serializable
 {
+
     private String uuid;
 
     private String name;
 
-    private Map<String, String> properties = new HashMap<>();
+    private String jobClass;
+
+    private String cronExpression;
 
     private boolean oneTimeExecution = false;
 
     private boolean immediateExecution = false;
+
+    private Map<String, String> properties = new HashMap<>();
 
     public CronTaskConfigurationDto()
     {
@@ -86,6 +92,16 @@ public class CronTaskConfigurationDto
         properties.put(key, value);
     }
 
+    public String getCronExpression()
+    {
+        return cronExpression;
+    }
+
+    public void setCronExpression(String cronExpression)
+    {
+        this.cronExpression = cronExpression;
+    }
+
     public boolean contains(String key)
     {
         return properties.containsKey(key);
@@ -112,17 +128,28 @@ public class CronTaskConfigurationDto
         this.immediateExecution = immediateExecution;
     }
 
+    public String getJobClass()
+    {
+        return jobClass;
+    }
+
+    public void setJobClass(String jobClass)
+    {
+        this.jobClass = jobClass;
+    }
+
     @Override
     public String toString()
     {
-        final StringBuilder sb = new StringBuilder("CronTaskConfiguration{");
-        sb.append("uuid='").append(uuid).append('\'');
-        sb.append("name='").append(name).append('\'');
-        sb.append(", properties=").append(properties);
-        sb.append(", oneTimeExecution=").append(oneTimeExecution);
-        sb.append(", immediateExecution=").append(immediateExecution);
-        sb.append('}');
-        return sb.toString();
+        return "CronTaskConfigurationDto{" +
+               "uuid='" + uuid + '\'' +
+               ", name='" + name + '\'' +
+               ", jobClass='" + jobClass + '\'' +
+               ", cronExpression='" + cronExpression + '\'' +
+               ", oneTimeExecution=" + oneTimeExecution +
+               ", immediateExecution=" + immediateExecution +
+               ", properties=" + properties +
+               '}';
     }
 
     @Override

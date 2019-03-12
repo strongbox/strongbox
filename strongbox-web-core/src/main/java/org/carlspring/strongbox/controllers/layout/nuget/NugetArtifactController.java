@@ -276,12 +276,12 @@ public class NugetArtifactController extends BaseArtifactController
                                                HttpServletResponse response)
             throws JAXBException, IOException
     {
-        String normalisedPackageId = normaliseSearchTerm(packageId);        
-        
+        String normalisedPackageId = normaliseSearchTerm(packageId);
+
         NugetSearchRequest nugetSearchRequest = new NugetSearchRequest();
         nugetSearchRequest.setFilter(String.format("Id eq '%s'", packageId));
         repositorySearchEventListener.setNugetSearchRequest(nugetSearchRequest);
-        
+
         Repository repository = getRepository(storageId, repositoryId);
         RepositoryProvider provider = repositoryProviderRegistry.getProvider(repository.getType());
 
@@ -315,14 +315,14 @@ public class NugetArtifactController extends BaseArtifactController
     {
         Repository repository = getRepository(storageId, repositoryId);
         RepositoryProvider provider = repositoryProviderRegistry.getProvider(repository.getType());
-        
+
         Paginator paginator = new Paginator();
         paginator.setSkip(skip);
         paginator.setLimit(top);
         paginator.setProperty(orderBy);
-        
+
         Predicate rootPredicate = createSearchPredicate(filter, searchTerm);
-        
+
         return searchNupkg(storageId, repositoryId, provider, paginator, rootPredicate);
     }
 
@@ -358,10 +358,10 @@ public class NugetArtifactController extends BaseArtifactController
            NugetODataFilterQueryParser t = new NugetODataFilterQueryParser(filter);
            rootPredicate = t.parseQuery().getPredicate();
         }
-        
+
         rootPredicate.and(Predicate.of(ExpOperator.EQ.of("artifactCoordinates.coordinates.extension", "nupkg")));
-        
-        if (searchTerm != null && !searchTerm.trim().isEmpty()) 
+
+        if (searchTerm != null && !searchTerm.trim().isEmpty())
         {
             rootPredicate.and(Predicate.of(ExpOperator.LIKE.of("artifactCoordinates.coordinates.id",
                                                                "%" + searchTerm + "%")));

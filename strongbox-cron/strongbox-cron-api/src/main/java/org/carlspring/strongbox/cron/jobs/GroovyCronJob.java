@@ -1,11 +1,14 @@
 package org.carlspring.strongbox.cron.jobs;
 
 import org.carlspring.strongbox.cron.domain.CronTaskConfigurationDto;
+import org.carlspring.strongbox.cron.jobs.fields.CronJobField;
 
 import java.io.IOException;
 import java.lang.reflect.InvocationTargetException;
 import java.nio.file.Paths;
+import java.util.Set;
 
+import com.google.common.collect.ImmutableSet;
 import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
 import groovy.lang.GroovyClassLoader;
 import groovy.lang.GroovyCodeSource;
@@ -18,14 +21,20 @@ public class GroovyCronJob
         extends AbstractCronJob
 {
 
+    private static final String PATH_PROPERTY = "script.path";
+
+    // We do not require PATH_PROPERTY in the cron job definition.
+    // The path is automatically set when the script is uploaded.
+    private static final Set<CronJobField> FIELDS = ImmutableSet.of();
+
     @Override
     @SuppressFBWarnings(value = "DP_CREATE_CLASSLOADER_INSIDE_DO_PRIVILEGED")
     public void executeTask(CronTaskConfigurationDto config)
-            throws Throwable
     {
         try
         {
-            Class scriptClass = new GroovyClassLoader().parseClass(new GroovyCodeSource(Paths.get(getScriptPath(config)).toUri()));
+            Class scriptClass = new GroovyClassLoader().parseClass(
+                    new GroovyCodeSource(Paths.get(getScriptPath(config)).toUri()));
             Object scriptInstance = scriptClass.getConstructor().newInstance();
             //noinspection unchecked
             scriptClass.getDeclaredMethod("execute", new Class[]{}).invoke(scriptInstance);
@@ -36,9 +45,20 @@ public class GroovyCronJob
         }
     }
 
+    @Override
+    public CronJobDefinition getCronJobDefinition()
+    {
+        return CronJobDefinition.newBuilder()
+                                .jobClass(GroovyCronJob.class.getName())
+                                .name("Groovy Cron Job")
+                                .description("Groovy Cron Job")
+                                .fields(FIELDS)
+                                .build();
+    }
+
     public String getScriptPath(CronTaskConfigurationDto configuration)
     {
-        return configuration.getProperties().get("script.path");
+        return configuration.getRequiredProperty(PATH_PROPERTY);
     }
 
 }
