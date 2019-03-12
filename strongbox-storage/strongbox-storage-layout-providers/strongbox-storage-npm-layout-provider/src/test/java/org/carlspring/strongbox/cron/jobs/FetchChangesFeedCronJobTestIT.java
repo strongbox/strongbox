@@ -15,6 +15,7 @@ import org.carlspring.strongbox.event.cron.CronTaskEventTypeEnum;
 import org.carlspring.strongbox.providers.layout.NpmLayoutProvider;
 import org.carlspring.strongbox.service.ProxyRepositoryConnectionPoolConfigurationService;
 import org.carlspring.strongbox.services.ConfigurationManagementService;
+import org.carlspring.strongbox.storage.repository.ImmutableRepository;
 import org.carlspring.strongbox.storage.repository.MutableRepository;
 import org.carlspring.strongbox.storage.repository.Repository;
 import org.carlspring.strongbox.storage.repository.RepositoryTypeEnum;
@@ -189,8 +190,8 @@ public class FetchChangesFeedCronJobTestIT
         assertFalse(artifactEntry.getIsCached());
 
         Repository repository = configurationManagementService.getConfiguration().getRepository(STORAGE, REPOSITORY);
-        NpmRemoteRepositoryConfiguration customConfiguration = (NpmRemoteRepositoryConfiguration) repository.getRemoteRepository()
-                                                                                                            .getCustomConfiguration();
+        NpmRemoteRepositoryConfiguration customConfiguration = (NpmRemoteRepositoryConfiguration) ((ImmutableRepository) repository).getRemoteRepository()
+                                                                                                                                    .getCustomConfiguration();
         assertEquals(Long.valueOf(330), customConfiguration.getLastChangeId());
     }
 

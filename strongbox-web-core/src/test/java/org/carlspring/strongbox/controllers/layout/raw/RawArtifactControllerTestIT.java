@@ -69,7 +69,7 @@ public class RawArtifactControllerTestIT
         //noinspection ResultOfMethodCallIgnored
         Files.createDirectories(Paths.get(TEST_RESOURCES));
 
-        createFile(new Repository(repository1), "org/foo/bar/blah.zip");
+        createFile(new ImmutableRepository(repository1), "org/foo/bar/blah.zip");
 
         createProxyRepository(STORAGE0,
                               REPOSITORY_PROXY,
