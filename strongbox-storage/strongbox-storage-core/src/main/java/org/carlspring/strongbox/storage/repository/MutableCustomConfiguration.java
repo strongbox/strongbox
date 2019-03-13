@@ -7,14 +7,9 @@ import com.fasterxml.jackson.annotation.JsonTypeInfo;
 
 /**
  * @author carlspring
+ * @author Pablo Tirado
  */
 @JsonTypeInfo(use = JsonTypeInfo.Id.CLASS, include = JsonTypeInfo.As.PROPERTY, property = "@class")
-/*
-@JsonSubTypes({
-        @Type(value = MutableAwsConfiguration.class, name = "awsConfiguration"),
-        @Type(value = MutableGoogleCloudConfiguration.class, name = "awsConfiguration")
-})
-*/
 public abstract class MutableCustomConfiguration
         implements CustomTag
 {
