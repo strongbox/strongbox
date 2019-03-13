@@ -24,8 +24,9 @@ import org.carlspring.strongbox.storage.metadata.MavenMetadataManager;
 import org.carlspring.strongbox.storage.repository.*;
 import org.carlspring.strongbox.storage.repository.remote.MutableRemoteRepository;
 import org.carlspring.strongbox.storage.routing.MutableRoutingRule;
+import org.carlspring.strongbox.storage.routing.MutableRoutingRuleRepository;
 import org.carlspring.strongbox.storage.routing.MutableRoutingRules;
-import org.carlspring.strongbox.storage.routing.MutableRuleSet;
+import org.carlspring.strongbox.storage.routing.RoutingRuleTypeEnum;
 import org.carlspring.strongbox.storage.search.SearchRequest;
 import org.carlspring.strongbox.xml.configuration.repository.MutableMavenRepositoryConfiguration;
 
@@ -56,6 +57,7 @@ import org.codehaus.plexus.util.xml.pull.XmlPullParserException;
 import org.junit.jupiter.api.Assumptions;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.data.util.Pair;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
@@ -65,11 +67,6 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 public abstract class TestCaseWithMavenArtifactGenerationAndIndexing
         extends MavenTestCaseWithArtifactGeneration
 {
-
-    public static final int ROUTING_RULE_TYPE_DENIED = 0;
-
-    public static final int ROUTING_RULE_TYPE_ACCEPTED = 1;
-
     private static final Logger logger = LoggerFactory.getLogger(TestCaseWithMavenArtifactGenerationAndIndexing.class);
 
     @Inject
@@ -299,35 +296,15 @@ public abstract class TestCaseWithMavenArtifactGenerationAndIndexing
         }
     }
 
-    public void createRoutingRuleSet(String groupRepositoryId,
-                                     String[] repositoryIds,
-                                     String rulePattern,
-                                     int type)
+    public void createAndAddRoutingRule(String groupStorageId,
+                                        String groupRepositoryId,
+                                        List<MutableRoutingRuleRepository> repositories,
+                                        String rulePattern,
+                                        RoutingRuleTypeEnum type)
     {
-        Set<String> repositories = new LinkedHashSet<>();
-        repositories.addAll(Arrays.asList(repositoryIds));
-
-        MutableRoutingRule routingRule = new MutableRoutingRule(rulePattern, repositories);
-
-        List<MutableRoutingRule> routingRulesList = new ArrayList<>();
-        routingRulesList.add(routingRule);
-
-        MutableRuleSet ruleSet = new MutableRuleSet();
-        ruleSet.setGroupRepository(groupRepositoryId);
-        ruleSet.setRoutingRules(routingRulesList);
-
-        MutableRoutingRules routingRules = new MutableRoutingRules();
-
-        if (type == ROUTING_RULE_TYPE_ACCEPTED)
-        {
-            routingRules.addAcceptRule(groupRepositoryId, ruleSet);
-            configurationManagementService.saveAcceptedRuleSet(ruleSet);
-        }
-        else
-        {
-            routingRules.addDenyRule(groupRepositoryId, ruleSet);
-            configurationManagementService.saveDeniedRuleSet(ruleSet);
-        }
+        MutableRoutingRule routingRule = MutableRoutingRule.create(groupStorageId, groupRepositoryId,
+                                                                   repositories, rulePattern, type);
+        configurationManagementService.addRoutingRule(routingRule);
     }
 
     public void dumpIndex(String storageId,

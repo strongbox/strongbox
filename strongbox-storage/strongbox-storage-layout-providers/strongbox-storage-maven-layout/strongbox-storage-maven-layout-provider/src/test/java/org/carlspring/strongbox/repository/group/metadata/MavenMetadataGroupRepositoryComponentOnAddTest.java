@@ -6,9 +6,12 @@ import org.carlspring.strongbox.repository.group.BaseMavenGroupRepositoryCompone
 import org.carlspring.strongbox.storage.Storage;
 import org.carlspring.strongbox.storage.repository.MutableRepository;
 import org.carlspring.strongbox.storage.repository.Repository;
+import org.carlspring.strongbox.storage.routing.MutableRoutingRuleRepository;
+import org.carlspring.strongbox.storage.routing.RoutingRuleTypeEnum;
 
 import java.io.IOException;
 import java.nio.file.Path;
+import java.util.Arrays;
 import java.util.LinkedHashSet;
 import java.util.Set;
 
@@ -135,10 +138,11 @@ public class MavenMetadataGroupRepositoryComponentOnAddTest
          </rule-set>
          </denied>
          **/
-        createRoutingRuleSet(REPOSITORY_GROUP_ZQ,
-                             new String[]{ REPOSITORY_LEAF_S },
-                             ".*(com|org)/artifacts/to/update/releases/update-group.*",
-                             ROUTING_RULE_TYPE_DENIED);
+        createAndAddRoutingRule(STORAGE0,
+                                REPOSITORY_GROUP_ZQ,
+                                Arrays.asList(new MutableRoutingRuleRepository(STORAGE0, REPOSITORY_LEAF_S)),
+                                ".*(com|org)/artifacts/to/update/releases/update-group.*",
+                                RoutingRuleTypeEnum.DENY);
 
         copyArtifactMetadata(REPOSITORY_LEAF_P, REPOSITORY_GROUP_Z, FilenameUtils.normalize(
                 "com/artifacts/to/delete/releases/delete-group/maven-metadata.xml"));

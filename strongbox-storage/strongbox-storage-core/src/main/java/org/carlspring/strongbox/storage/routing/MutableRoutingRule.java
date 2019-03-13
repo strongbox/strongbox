@@ -1,44 +1,67 @@
 package org.carlspring.strongbox.storage.routing;
 
-import javax.xml.bind.annotation.XmlAccessType;
-import javax.xml.bind.annotation.XmlAccessorType;
-import javax.xml.bind.annotation.XmlAttribute;
-import javax.xml.bind.annotation.XmlElement;
-import javax.xml.bind.annotation.XmlElementWrapper;
-import javax.xml.bind.annotation.XmlRootElement;
+import javax.xml.bind.annotation.*;
 import java.io.Serializable;
-import java.util.LinkedHashSet;
-import java.util.Set;
-import java.util.regex.Pattern;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.UUID;
 
 /**
  * @author mtodorov
  */
+@XmlRootElement(name = "routing-rule")
 @XmlAccessorType(XmlAccessType.FIELD)
-@XmlRootElement(name = "rule")
 public class MutableRoutingRule
         implements Serializable
 {
 
+    @XmlAttribute(name = "uuid")
+    private UUID uuid;
+
+    @XmlAttribute(name = "storage-id")
+    private String storageId;
+
+    @XmlAttribute(name = "repository-id")
+    private String repositoryId;
+
     @XmlAttribute
     private String pattern;
-    
-    private volatile transient Pattern regex;
+
+    @XmlAttribute
+    private String type;
 
     @XmlElement(name = "repository")
     @XmlElementWrapper(name = "repositories")
-    private Set<String> repositories = new LinkedHashSet<>();
+    private List<MutableRoutingRuleRepository> repositories = new ArrayList<>();
 
-
-    public MutableRoutingRule()
+    public UUID getUuid()
     {
+        return uuid;
     }
 
-    public MutableRoutingRule(String pattern,
-                              Set<String> repositories)
+    public void setUuid(UUID uuid)
     {
-        setPattern(pattern);
-        this.repositories = repositories;
+        this.uuid = uuid;
+    }
+
+    public String getStorageId()
+    {
+        return storageId;
+    }
+
+    public void setStorageId(String storageId)
+    {
+        this.storageId = storageId;
+    }
+
+    public String getRepositoryId()
+    {
+        return repositoryId;
+    }
+
+    public void setRepositoryId(String repositoryId)
+    {
+        this.repositoryId = repositoryId;
     }
 
     public String getPattern()
@@ -48,37 +71,51 @@ public class MutableRoutingRule
 
     public void setPattern(String pattern)
     {
-        this.regex = Pattern.compile(pattern);
         this.pattern = pattern;
     }
 
-    public Pattern getRegex()
+    public String getType()
     {
-        if (regex == null)
-        {
-            regex = Pattern.compile(pattern);
-        }
-        
-        return regex;
+        return type;
     }
 
-    public Set<String> getRepositories()
+    public void setType(String type)
+    {
+        this.type = type;
+    }
+
+    public List<MutableRoutingRuleRepository> getRepositories()
     {
         return repositories;
     }
 
-    public void setRepositories(Set<String> repositories)
+    public void setRepositories(List<MutableRoutingRuleRepository> repositories)
     {
         this.repositories = repositories;
     }
 
-    @Override
-    public String toString()
+    public static MutableRoutingRule create(String groupStorageId,
+                                            String groupRepositoryId,
+                                            List<MutableRoutingRuleRepository> repositories,
+                                            String rulePattern,
+                                            RoutingRuleTypeEnum type)
     {
-        return "RoutingRule{" +
-                ", \n\tpattern='" + pattern + '\'' +
-                ", \n\trepositories=" + repositories +
-                '}';
+        MutableRoutingRule routingRule = new MutableRoutingRule();
+        routingRule.setPattern(rulePattern);
+        routingRule.setStorageId(groupStorageId);
+        routingRule.setRepositoryId(groupRepositoryId);
+        routingRule.setType(type.getType());
+        routingRule.setRepositories(repositories);
+        return routingRule;
     }
 
+    public boolean updateBy(MutableRoutingRule routingRule)
+    {
+        this.setRepositories(routingRule.getRepositories());
+        this.setPattern(routingRule.getPattern());
+        this.setStorageId(routingRule.getStorageId());
+        this.setRepositoryId(routingRule.getRepositoryId());
+        this.setType(routingRule.getType());
+        return true;
+    }
 }

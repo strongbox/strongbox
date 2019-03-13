@@ -159,7 +159,7 @@ public abstract class BaseMavenGroupRepositoryComponent
         for (final Repository leaf : leafRoute)
         {
             RepositoryPath repositoryPath = repositoryPathResolver.resolve(leaf).resolve(artifactPath);
-            if (artifactRoutingRulesChecker.isDenied(groupRepository.getId(), repositoryPath))
+            if (artifactRoutingRulesChecker.isDenied(groupRepository, repositoryPath))
             {
                 return true;
             }

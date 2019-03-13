@@ -9,8 +9,7 @@ import org.carlspring.strongbox.converters.configuration.RemoteRepositoryFormCon
 import org.carlspring.strongbox.converters.configuration.RepositoryFormConverter;
 import org.carlspring.strongbox.converters.configuration.StorageFormConverter;
 import org.carlspring.strongbox.converters.cron.CronTaskConfigurationFormToCronTaskConfigurationDtoConverter;
-import org.carlspring.strongbox.converters.storage.routing.RoutingRuleFormToRoutingRuleConverter;
-import org.carlspring.strongbox.converters.storage.routing.RuleSetFormToRuleSetConverter;
+import org.carlspring.strongbox.converters.storage.routing.RoutingRuleFormToMutableConverter;
 import org.carlspring.strongbox.converters.users.AccessModelFormToUserAccessModelDtoConverter;
 import org.carlspring.strongbox.converters.users.UserFormToUserDtoConverter;
 import org.carlspring.strongbox.cron.config.CronTasksConfig;
@@ -250,8 +249,7 @@ public class WebConfig
         registry.addConverter(UserFormToUserDtoConverter.INSTANCE);
         registry.addConverter(AccessModelFormToUserAccessModelDtoConverter.INSTANCE);
         registry.addConverter(ProxyConfigurationFormConverter.INSTANCE);
-        registry.addConverter(new RuleSetFormToRuleSetConverter());
-        registry.addConverter(new RoutingRuleFormToRoutingRuleConverter());
+        registry.addConverter(new RoutingRuleFormToMutableConverter());
         registry.addConverter(StorageFormConverter.INSTANCE);
         registry.addConverter(RepositoryFormConverter.INSTANCE);
         registry.addConverter(RemoteRepositoryFormConverter.INSTANCE);

@@ -56,6 +56,7 @@ Welcome to the Strongbox artifact repository manager's home.
 ## What's in the works (Q1/2019):
 * Web UI
 * Spring Bootification
+* Convert the strongbox configuration files from XML to YAML format ([#965](https://github.com/strongbox/strongbox/issues/965), [#1056](https://github.com/strongbox/strongbox/pull/1056))
 
 ## Upcoming:
 * Logging:

@@ -50,12 +50,6 @@ public class StorageApiConfig
     }
 
     @Bean
-    ResourcesBooter resourcesBooter()
-    {
-        return new ResourcesBooter();
-    }
-
-    @Bean
     StorageBooter storageBooter()
     {
         return new StorageBooter();

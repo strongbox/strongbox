@@ -1,16 +1,16 @@
 package org.carlspring.strongbox.services;
 
-import org.carlspring.strongbox.configuration.MutableConfiguration;
-import org.carlspring.strongbox.configuration.Configuration;
-import org.carlspring.strongbox.configuration.MutableProxyConfiguration;
 import org.carlspring.strongbox.client.MutableRemoteRepositoryRetryArtifactDownloadConfiguration;
+import org.carlspring.strongbox.configuration.Configuration;
+import org.carlspring.strongbox.configuration.MutableConfiguration;
+import org.carlspring.strongbox.configuration.MutableProxyConfiguration;
 import org.carlspring.strongbox.configuration.MutableSmtpConfiguration;
 import org.carlspring.strongbox.storage.MutableStorage;
 import org.carlspring.strongbox.storage.repository.MutableRepository;
 import org.carlspring.strongbox.storage.routing.MutableRoutingRule;
-import org.carlspring.strongbox.storage.routing.MutableRuleSet;
 
 import java.util.List;
+import java.util.UUID;
 
 /**
  * @author mtodorov
@@ -51,21 +51,12 @@ public interface ConfigurationManagementService
                                           String repositoryId,
                                           int numberOfConnections);
 
-    boolean saveAcceptedRuleSet(MutableRuleSet ruleSet);
+    boolean updateRoutingRule(UUID uuid,
+                              MutableRoutingRule routingRule);
 
-    boolean saveDeniedRuleSet(MutableRuleSet ruleSet);
+    boolean addRoutingRule(MutableRoutingRule routingRule);
 
-    boolean removeAcceptedRuleSet(String groupRepository);
-
-    boolean saveAcceptedRepository(String groupRepository,
-                                   MutableRoutingRule routingRule);
-
-    boolean removeAcceptedRepository(String groupRepository,
-                                     String pattern,
-                                     String repositoryId);
-
-    boolean overrideAcceptedRepositories(String groupRepository,
-                                         MutableRoutingRule routingRule);
+    boolean removeRoutingRule(UUID uuid);
 
     void addRepositoryToGroup(String storageId,
                               String repositoryId,
@@ -90,8 +81,8 @@ public interface ConfigurationManagementService
                                                   String alias);
 
     boolean removeRepositoryArtifactCoordinateValidator(String storageId,
-                                                     String repositoryId,
-                                                     String alias);
+                                                        String repositoryId,
+                                                        String alias);
 
     void setCorsAllowedOrigins(List<String> allowedOrigins);
 

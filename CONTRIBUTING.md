@@ -94,10 +94,11 @@ To accept, please:
 | Orest Kyrylchuk              |                                          | Lviv, Ukraine                           | 2016-05-28 |
 | Bohdan Hliva                 |                                          | Lviv, Ukraine                           | 2016-08-09 |
 | Yougeshwar Khatri            |                                          | Karachi, Pakistan                       | 2016-04-01 |
-| Kate Novik                   | redsoft.pro                              | Minsk, Republic of Belarus              | 2016-11-16 |
 | Sergey Bespalov              |                                          | Novosibirsk, Russia                     | 2016-11-02 |
 | Sergey Panov                 |                                          | Kiev, Ukraine                           | 2016-11-02 |
 | Nenko Tabakov                |                                          | Sofia, Bulgaria                         | 2016-11-07 |
+| Kate Novik                   | redsoft.pro                              | Minsk, Republic of Belarus              | 2016-11-16 |
+| Dmitry Sviridov              |                                          | Moscow, Russia                          | 2016-11-23 |
 | Przemyslaw Fusik             |                                          | Maszewo, Poland                         | 2017-04-09 |
 | Dinesh Arora                 |                                          | Charlotte, USA                          | 2017-12-07 |
 | Sanket Sawant                |                                          | Mumbai, India                           | 2017-12-09 |
@@ -118,6 +119,5 @@ To accept, please:
 | Eugeniusz Fedchenko          |                                          | Warsaw, Poland                          | 2019-02-25 |
 | Shumail Ahmed                | Middlesex University                     | London, United Kingdom                    | 05-03-19 |
 | Divya Dyuti Gangwar          |                                          | Bengaluru, India                          | 10-03-2019 |
-
 [chat]: https://chat.carlspring.org/
 [issue tracker]: https://github.com/strongbox/strongbox/issues?utf8=%E2%9C%93&q=is%3Aissue+is%3Aopen+label%3A%22help+wanted%22+label%3A%22good+first+issue%22
