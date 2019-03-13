@@ -32,7 +32,7 @@ public class StringListTypeAdapter extends XmlAdapter<String, List<String>>
      * Default splitter pattern
      */
     private String delimeter = "\\s+";
-    
+
     /**
      * Remove whitespaces
      */
@@ -86,13 +86,13 @@ public class StringListTypeAdapter extends XmlAdapter<String, List<String>>
         {
             return "";
         }
-        
+
         StringBuilder buffer = new StringBuilder(iter.next());
         while (iter.hasNext())
         {
             buffer.append(delimeter).append(iter.next());
         }
-        
+
         return buffer.toString();
     }
 }

@@ -34,6 +34,7 @@ public class NugetNamespaceFilter extends XMLFilterImpl
      * List of URIs to replace
      */
     private final HashSet<String> sourceUris = new HashSet<>();
+
     /**
      * URI to replace
      */
@@ -44,16 +45,13 @@ public class NugetNamespaceFilter extends XMLFilterImpl
      */
     public NugetNamespaceFilter()
     {
-        this(
-                new String[] {
-                               Nuspec.NUSPEC_XML_NAMESPACE_2010,
-                               Nuspec.NUSPEC_XML_NAMESPACE_EMPTY,
-                               Nuspec.NUSPEC_XML_NAMESPACE_2012,
-                               Nuspec.NUSPEC_XML_NAMESPACE_2013,
-                               Nuspec.NUSPEC_XML_NAMESPACE_2016,
-                               Nuspec.NUSPEC_XML_NAMESPACE_2017,
-                               Nuspec.NUSPEC_XML_NAMESPACE_2013_01
-                },
+        this(new String[] { Nuspec.NUSPEC_XML_NAMESPACE_2010,
+                            Nuspec.NUSPEC_XML_NAMESPACE_EMPTY,
+                            Nuspec.NUSPEC_XML_NAMESPACE_2012,
+                            Nuspec.NUSPEC_XML_NAMESPACE_2013,
+                            Nuspec.NUSPEC_XML_NAMESPACE_2016,
+                            Nuspec.NUSPEC_XML_NAMESPACE_2017,
+                            Nuspec.NUSPEC_XML_NAMESPACE_2013_01 },
                 Nuspec.NUSPEC_XML_NAMESPACE_2011);
     }
 

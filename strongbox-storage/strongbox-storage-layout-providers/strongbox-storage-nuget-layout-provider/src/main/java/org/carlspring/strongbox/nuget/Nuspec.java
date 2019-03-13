@@ -62,38 +62,59 @@ public class Nuspec implements Serializable
      * Namespace for NuGet 2012 package specification
      */
     public static final String NUSPEC_XML_NAMESPACE_2012 = "http://schemas.microsoft.com/packaging/2011/10/nuspec.xsd";
+
     /**
      * Namespace for NuGet 2013 package specification
      */
     public static final String NUSPEC_XML_NAMESPACE_2013 = "http://schemas.microsoft.com/packaging/2012/06/nuspec.xsd";
+
     /**
      * V3 namespace
      */
     public static final String NUSPEC_XML_NAMESPACE_2016 = "http://schemas.microsoft.com/packaging/2013/05/nuspec.xsd";
+
     /**
      * Another .nuspec XSD schema.
      */
     public static final String NUSPEC_XML_NAMESPACE_2013_01 = "http://schemas.microsoft.com/packaging/2013/01/nuspec.xsd";
+
     /**
      * Namespace for NuGet 2011 package specification
      */
     public static final String NUSPEC_XML_NAMESPACE_2011 = "http://schemas.microsoft.com/packaging/2011/08/nuspec.xsd";
+
     /**
      * Namespace for NuGet 2010 package specification
      */
     public static final String NUSPEC_XML_NAMESPACE_2010 = "http://schemas.microsoft.com/packaging/2010/07/nuspec.xsd";
+
     /**
      * V7 namespace
      */
     public static final String NUSPEC_XML_NAMESPACE_2017 = "http://schemas.microsoft.com/packaging/2015/06/nuspec.xsd";
+
     /**
      * Empty namespace
      */
     public static final String NUSPEC_XML_NAMESPACE_EMPTY = "";
+
     /**
      * File extension
      */
     public static final String DEFAULT_FILE_EXTENSION = ".nuspec";
+
+    /**
+     * Package Metadata
+     */
+    @XmlElement(name = "metadata", namespace = NUSPEC_XML_NAMESPACE_2011)
+    private Metadata metadata;
+
+    /**
+     * Files
+     */
+    @XmlElement(name = "file", namespace = NUSPEC_XML_NAMESPACE_2011)
+    @XmlElementWrapper(name = "files", namespace = NUSPEC_XML_NAMESPACE_2011)
+    private List<NugetFile> files;
 
     /**
      * Recovers package information from XML
@@ -125,19 +146,6 @@ public class Nuspec implements Serializable
             throw new NugetFormatException("Can not read nuspec from XML stream", e);
         }
     }
-
-    /**
-     * Package Metadata
-     */
-    @XmlElement(name = "metadata", namespace = NUSPEC_XML_NAMESPACE_2011)
-    private Metadata metadata;
-
-    /**
-     * Files
-     */
-    @XmlElement(name = "file", namespace = NUSPEC_XML_NAMESPACE_2011)
-    @XmlElementWrapper(name = "files", namespace = NUSPEC_XML_NAMESPACE_2011)
-    private List<NugetFile> files;
 
     public Metadata getMetadata()
     {
@@ -437,32 +445,38 @@ public class Nuspec implements Serializable
          */
         @XmlElement(name = "id", namespace = NUSPEC_XML_NAMESPACE_2011)
         public String id;
+
         /**
          * Package Version
          */
         @XmlElement(name = "version", namespace = NUSPEC_XML_NAMESPACE_2011)
         @XmlJavaTypeAdapter(value = VersionTypeAdapter.class)
         public Version version;
+
         /**
          * Title
          */
         @XmlElement(name = "title", namespace = NUSPEC_XML_NAMESPACE_2011)
         public String title;
+
         /**
          * List authors package
          */
         @XmlElement(name = "authors", namespace = NUSPEC_XML_NAMESPACE_2011)
         public String authors;
+
         /**
          * List of package owners
          */
         @XmlElement(name = "owners", namespace = NUSPEC_XML_NAMESPACE_2011)
         public String owners;
+
         /**
          * License URL
          */
         @XmlElement(name = "licenseUrl", namespace = NUSPEC_XML_NAMESPACE_2011)
         public String licenseUrl;
+
         /**
          * Project URL
          */
@@ -504,69 +518,82 @@ public class Nuspec implements Serializable
          */
         @XmlElement(name = "iconUrl", namespace = NUSPEC_XML_NAMESPACE_2011)
         public String iconUrl;
+
         /**
          * Dependencies on .NET assembly
          */
         @XmlElement(name = "frameworkAssembly", namespace = NUSPEC_XML_NAMESPACE_2011)
         @XmlElementWrapper(name = "frameworkAssemblies", namespace = NUSPEC_XML_NAMESPACE_2011)
         public List<FrameworkAssembly> frameworkAssembly;
+
         /**
          * Is a license request required?
          */
         @XmlElement(name = "requireLicenseAcceptance", namespace = NUSPEC_XML_NAMESPACE_2011)
         public Boolean requireLicenseAcceptance;
+
         /**
          * Package Description
          */
         @XmlElement(name = "description", namespace = NUSPEC_XML_NAMESPACE_2011)
         public String description;
+
         /**
          * Release Notes
          */
         @XmlElement(name = "releaseNotes", namespace = NUSPEC_XML_NAMESPACE_2011)
         public String releaseNotes;
+
         /**
          * Short description
          */
         @XmlElement(name = "summary", namespace = NUSPEC_XML_NAMESPACE_2011)
         public String summary;
+
         /**
          * Who is entitled to the package?
          */
         @XmlElement(name = "copyright", namespace = NUSPEC_XML_NAMESPACE_2011)
         public String copyright;
+
         /**
          * Tongue
          */
         @XmlElement(name = "language", namespace = NUSPEC_XML_NAMESPACE_2011)
         public String language;
+
         /**
          * List of labels, separated by commas
          */
         @XmlElement(name = "tags", namespace = NUSPEC_XML_NAMESPACE_2011)
         @XmlJavaTypeAdapter(value = StringListTypeAdapter.class)
         public List<String> tags;
+
         /**
          * List of links
          */
         @XmlElementWrapper(name = "references", namespace = NUSPEC_XML_NAMESPACE_2011)
         @XmlElement(name = "reference", namespace = NUSPEC_XML_NAMESPACE_2011)
         public List<Reference> references;
+
         /**
          * List of dependencies
          */
         @XmlElement(name = "dependencies", namespace = NUSPEC_XML_NAMESPACE_2011)
         public Dependencies dependencies;
+
         /**
          * Sign "Development Only Dependency"
          */
         @XmlElement(name = "developmentDependency", namespace = NUSPEC_XML_NAMESPACE_2011)
         public Boolean developmentDependency;
+
         /**
          * For internal use Nuget.
          */
         @XmlElement(name = "serviceable", namespace = NUSPEC_XML_NAMESPACE_2011)
         public Boolean serviceable;
+
         /**
          * Minimum required version of Nuget client to work with the package.
          */
@@ -594,8 +621,10 @@ public class Nuspec implements Serializable
 
         @XmlAttribute(name = "src")
         public String src;
+
         @XmlAttribute(name = "target")
         public String target;
+
         @XmlAttribute(name = "exclude")
         public String exclude;
 

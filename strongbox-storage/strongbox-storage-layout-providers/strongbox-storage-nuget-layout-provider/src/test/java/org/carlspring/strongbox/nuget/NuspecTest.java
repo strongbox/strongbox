@@ -104,7 +104,7 @@ public class NuspecTest
         throws Exception
     {
         final String fileName = "nuspec/test.nuspec.xml";
-        Nuspec result = Nuspec.parse(NugetTestResources.getAsStream(fileName));
+        Nuspec result = Nuspec.parse(NugetTestResourceUtil.getAsStream(fileName));
         assertEquals("Neolant.ProjectWise.IsolationLevel.Implementation", result.getId(), "Package ID");
         assertEquals(Version.parse("1.4.7.550"), result.getVersion(), "Package Version");
         assertEquals("Реализация уровня изоляции ProjecWise API", result.getTitle(), "Short description");
@@ -133,7 +133,7 @@ public class NuspecTest
         String[] tags = new String[] { "Unit", "test" };
 
         // WHEN
-        Nuspec result = Nuspec.parse(NugetTestResources.getAsStream(fileName));
+        Nuspec result = Nuspec.parse(NugetTestResourceUtil.getAsStream(fileName));
 
         // THEN
         assertEquals("NUnit", result.getId(), "Package ID");
@@ -168,7 +168,7 @@ public class NuspecTest
         String[] tags = new String[] { "ORM", "DataBase", "DAL", "ObjectRelationalMapping" };
 
         // WHEN
-        Nuspec result = Nuspec.parse(NugetTestResources.getAsStream(fileName));
+        Nuspec result = Nuspec.parse(NugetTestResourceUtil.getAsStream(fileName));
 
         // THEN
         assertEquals("NHibernate", result.getId(), "Package ID");
@@ -201,7 +201,7 @@ public class NuspecTest
         throws Exception
     {
         // GIVEN
-        InputStream inputStream = NugetTestResources.getAsStream("nuspec/FluentAssertions.nuspec.xml");
+        InputStream inputStream = NugetTestResourceUtil.getAsStream("nuspec/FluentAssertions.nuspec.xml");
         // WHEN
         Nuspec nuspecFile = Nuspec.parse(inputStream);
         // THEN
@@ -225,7 +225,7 @@ public class NuspecTest
         throws Exception
     {
         // GIVEN
-        InputStream inputStream = NugetTestResources.getAsStream("nuspec/NLog.nuspec.xml");
+        InputStream inputStream = NugetTestResourceUtil.getAsStream("nuspec/NLog.nuspec.xml");
         // WHEN
         Nuspec nuspecFile = Nuspec.parse(inputStream);
         // THEN
@@ -244,7 +244,7 @@ public class NuspecTest
         throws Exception
     {
         // GIVEN
-        InputStream inputStream = NugetTestResources.getAsStream("nuspec/PostSharp.nuspec.xml");
+        InputStream inputStream = NugetTestResourceUtil.getAsStream("nuspec/PostSharp.nuspec.xml");
         // WHEN
         Nuspec nuspecFile = Nuspec.parse(inputStream);
         // THEN
@@ -262,7 +262,7 @@ public class NuspecTest
         throws Exception
     {
         // GIVEN
-        InputStream inputStream = NugetTestResources.getAsStream("nuspec/fixed.dependency.nuspec.xml");
+        InputStream inputStream = NugetTestResourceUtil.getAsStream("nuspec/fixed.dependency.nuspec.xml");
         // WHEN
         Nuspec nuspecFile = Nuspec.parse(inputStream);
         List<Dependency> dependencys = nuspecFile.getDependencies();
@@ -281,7 +281,7 @@ public class NuspecTest
         throws Exception
     {
         // GIVEN
-        InputStream inputStream = NugetTestResources.getAsStream("nuspec/incorrect.version.nuspec.xml");
+        InputStream inputStream = NugetTestResourceUtil.getAsStream("nuspec/incorrect.version.nuspec.xml");
         // WHEN
         assertThrows(
                      NugetFormatException.class,
@@ -302,7 +302,7 @@ public class NuspecTest
         throws NugetFormatException
     {
         // GIVEN
-        InputStream inputStream = NugetTestResources.getAsStream("nuspec/Extended.Wpf.Toolkit.nuspec.xml");
+        InputStream inputStream = NugetTestResourceUtil.getAsStream("nuspec/Extended.Wpf.Toolkit.nuspec.xml");
         // WHEN
         Nuspec result = Nuspec.parse(inputStream);
         // THEN
@@ -338,7 +338,7 @@ public class NuspecTest
         throws NugetFormatException
     {
         // GIVEN
-        InputStream inputStream = NugetTestResources.getAsStream("nuspec/group.dependencies.nuspec.xml");
+        InputStream inputStream = NugetTestResourceUtil.getAsStream("nuspec/group.dependencies.nuspec.xml");
         // WHEN
         Nuspec result = Nuspec.parse(inputStream);
         // THEN
@@ -362,7 +362,7 @@ public class NuspecTest
         throws NugetFormatException
     {
         // GIVEN
-        InputStream inputStream = NugetTestResources.getAsStream("nuspec/Spring.Data.nuspec.xml");
+        InputStream inputStream = NugetTestResourceUtil.getAsStream("nuspec/Spring.Data.nuspec.xml");
         // WHEN
         Nuspec result = Nuspec.parse(inputStream);
         // THEN
@@ -380,7 +380,7 @@ public class NuspecTest
         throws NugetFormatException
     {
         // GIVEN
-        InputStream inputStream = NugetTestResources.getAsStream("nuspec/v3/Package.with.files.nuspec.xml");
+        InputStream inputStream = NugetTestResourceUtil.getAsStream("nuspec/v3/Package.with.files.nuspec.xml");
         // WHEN
         Nuspec result = Nuspec.parse(inputStream);
         // THEN
@@ -421,7 +421,7 @@ public class NuspecTest
         throws NugetFormatException
     {
         // GIVEN
-        InputStream inputStream = NugetTestResources.getAsStream("nuspec/DockPanelSuite.nuspec.xml");
+        InputStream inputStream = NugetTestResourceUtil.getAsStream("nuspec/DockPanelSuite.nuspec.xml");
         // WHEN
         Nuspec nuspecFile = Nuspec.parse(inputStream);
         // THEN
@@ -439,7 +439,7 @@ public class NuspecTest
         throws NugetFormatException
     {
         // GIVEN
-        InputStream inputStream = NugetTestResources.getAsStream("nuspec/NLog.nuspec.2.0.1.xml");
+        InputStream inputStream = NugetTestResourceUtil.getAsStream("nuspec/NLog.nuspec.2.0.1.xml");
         // WHEN
         Nuspec nuspecFile = Nuspec.parse(inputStream);
         // THEN
@@ -457,7 +457,7 @@ public class NuspecTest
         throws NugetFormatException
     {
         // GIVEN
-        InputStream inputStream = NugetTestResources.getAsStream("nuspec/v3/Package.v3.nuspec.xml");
+        InputStream inputStream = NugetTestResourceUtil.getAsStream("nuspec/v3/Package.v3.nuspec.xml");
         // WHEN
         Nuspec nuspecFile = Nuspec.parse(inputStream);
         // THEN

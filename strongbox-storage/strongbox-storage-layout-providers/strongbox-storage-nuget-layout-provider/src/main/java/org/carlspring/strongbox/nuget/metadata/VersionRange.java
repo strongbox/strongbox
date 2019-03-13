@@ -173,6 +173,16 @@ public class VersionRange implements Serializable
                 ")");
 
         /**
+         * Lower bound symbol
+         */
+        private final String lowBorderSymbol;
+
+        /**
+         * Upper bound symbol
+         */
+        private final String topBorderSymbol;
+
+        /**
          * Recognizes border type
          *
          * @param borderSymbol
@@ -199,16 +209,6 @@ public class VersionRange implements Serializable
                 return null;
             }
         }
-
-        /**
-         * Lower bound symbol
-         */
-        private final String lowBorderSymbol;
-
-        /**
-         * Upper bound symbol
-         */
-        private final String topBorderSymbol;
 
         /**
          * @param lowBorderSymbol
@@ -477,12 +477,7 @@ public class VersionRange implements Serializable
             return false;
         }
 
-        if (!Objects.equals(this.topVersion, other.topVersion))
-        {
-            return false;
-        }
-
-        return true;
+        return Objects.equals(this.topVersion, other.topVersion);
     }
 
     /**

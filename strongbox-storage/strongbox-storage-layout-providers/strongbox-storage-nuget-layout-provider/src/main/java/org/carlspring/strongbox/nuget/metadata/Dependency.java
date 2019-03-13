@@ -57,6 +57,22 @@ public class Dependency implements Serializable
             + ":?(?<frameWork>[^:]+)?$";
 
     /**
+     * Package ID
+     */
+    @XmlAttribute(name = "id")
+    private String id;
+
+    /**
+     * Package Version
+     */
+    public VersionRange versionRange;
+
+    /**
+     * Version of the framework for which the dependency is being established
+     */
+    public Framework framework;
+
+    /**
      * Parses the string representation of a dependency
      *
      * @param dependencyString
@@ -106,22 +122,6 @@ public class Dependency implements Serializable
 
         return dependency;
     }
-
-    /**
-     * Package ID
-     */
-    @XmlAttribute(name = "id")
-    private String id;
-
-    /**
-     * Package Version
-     */
-    public VersionRange versionRange;
-
-    /**
-     * Version of the framework for which the dependency is being established
-     */
-    public Framework framework;
 
     /**
      * @return Package ID
@@ -194,11 +194,8 @@ public class Dependency implements Serializable
         {
             return false;
         }
-        if (!Objects.equals(this.versionRange, other.versionRange))
-        {
-            return false;
-        }
-        return true;
+        
+        return Objects.equals(this.versionRange, other.versionRange);
     }
 
     /**

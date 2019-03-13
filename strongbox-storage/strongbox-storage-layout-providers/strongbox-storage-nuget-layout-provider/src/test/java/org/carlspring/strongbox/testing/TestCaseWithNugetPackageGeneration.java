@@ -67,7 +67,7 @@ public class TestCaseWithNugetPackageGeneration
         return generatePackageFile(basedir, packageId, packageVersion, dependencyList);
     }
 
-    public Path generatePackageFile(String basedir,
+    public static Path generatePackageFile(String basedir,
                                     String packageId,
                                     String packageVersion,
                                     String... dependencyList)

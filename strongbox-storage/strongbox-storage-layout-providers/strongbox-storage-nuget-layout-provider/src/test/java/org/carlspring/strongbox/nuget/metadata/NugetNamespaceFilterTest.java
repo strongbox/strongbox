@@ -28,7 +28,7 @@ import javax.xml.transform.dom.DOMResult;
 import javax.xml.transform.sax.SAXSource;
 
 import org.carlspring.strongbox.nuget.NugetNamespaceFilter;
-import org.carlspring.strongbox.nuget.NugetTestResources;
+import org.carlspring.strongbox.nuget.NugetTestResourceUtil;
 import org.carlspring.strongbox.nuget.Nuspec;
 import org.junit.jupiter.api.Test;
 import org.xml.sax.InputSource;
@@ -53,7 +53,7 @@ public class NugetNamespaceFilterTest
         throws Exception
     {
         // GIVEN
-        InputStream inputStream = NugetTestResources.getAsStream("nuspec/NLog.nuspec.xml");
+        InputStream inputStream = NugetTestResourceUtil.getAsStream("nuspec/NLog.nuspec.xml");
         InputSource inputSource = new InputSource(inputStream);
 
         XMLReader reader = XMLReaderFactory.createXMLReader();

@@ -38,84 +38,84 @@ public enum Framework
     net10(".NETFramework1.0",
           new String[] { "net10" },
           new String[] {}),
-    
+
     /**
      * NET 1.1
      */
     net11(".NETFramework1.1",
           new String[] { "net11" },
           new String[] { "net10" }),
-    
+
     /**
      * NET 2.0
      */
     net20(".NETFramework2.0",
           new String[] { "net20" },
           new String[] {}),
-    
+
     /**
      * NET 3.0
      */
     net30(".NETFramework3.0",
           new String[] { "net30" },
           new String[] { "net20" }),
-    
+
     /**
      * NET 3.5
      */
     net35(".NETFramework3.5",
           new String[] { "net35" },
           new String[] { "net30", "net20" }),
-    
+
     /**
      * NET 4.0
      */
     net40(".NETFramework4.0",
           new String[] { "net40", "net40-Client" },
           new String[] { "net35", "net30", "net20" }),
-    
+
     /**
      * NET 4.5
      */
     net45(".NETFramework4.5",
           new String[] { "net45", "win80" },
           new String[] { "net40", "net35", "net30", "net20" }),
-    
+
     /**
      * NET 4.5.1
      */
     net451(".NETFramework4.5.1",
            new String[] { "net451" },
            new String[] { "net45", "net40", "net35", "net30", "net20" }),
-    
+
     /**
      * NET 4.5.2
      */
     net452(".NETFramework4.5.2",
            new String[] { "net452" },
            new String[] { "net451", "net45", "net40", "net35", "net30", "net20" }),
-    
+
     /**
      * NET 4.6
      */
     net46(".NETFramework4.6",
           new String[] { "net46" },
           new String[] { "net452", "net451", "net45", "net40", "net35", "net30", "net20" }),
-    
+
     /**
      * NET 4.6.1
      */
     net461(".NETFramework4.6.1",
            new String[] { "net461" },
            new String[] { "net46", "net452", "net451", "net45", "net40", "net35", "net30", "net20" }),
-    
+
     /**
      * NET 4.6.2
      */
     net462(".NETFramework4.6.2",
            new String[] { "net462" },
            new String[] { "net461", "net46", "net452", "net451", "net45", "net40", "net35", "net30", "net20" }),
-    
+
     /**
      * NET 4.6.3
      */
@@ -133,62 +133,92 @@ public enum Framework
     portable_net45(".NETFramework4.5 Portable",
                    new String[] { "portable-net45" },
                    new String[] {}),
-    
+
     /**
      * WinRT 4.5
      */
     winrt45("WinRT 4.5",
             new String[] { "winrt45" },
             new String[] {}),
-    
+
     /**
      * SilverLight 2.0
      */
     sl20("SilverLight 2",
          new String[] { "sl2" },
          new String[] {}),
-    
+
     /**
      * SilverLight 30
      */
     sl30("SilverLight 30",
          new String[] { "sl30", "sl3" },
          new String[] {}),
-    
+
     /**
      * SilverLight 4
      */
     sl4("SilverLight 4",
         new String[] { "sl4", "sl40", "sl40-wp71" },
         new String[] {}),
-    
+
     /**
      * SilverLight 5
      */
     sl5("SilverLight 5",
         new String[] { "sl5", "sl50" },
         new String[] {}),
-    
+
     /**
      * WindowsPhone 7.1
      */
     wp71("WindowsPhone 7.1",
          new String[] { "wp71" },
          new String[] {}),
-    
+
     /**
      * WindowsPhone 8.0
      */
     wp80("WindowsPhone 8",
          new String[] { "wp80" },
          new String[] {}),
-    
+
     /**
      * Native application
      */
     nativeFile("Native",
                new String[] { "native" },
                new String[] {});
+
+    /**
+     * Logger
+     */
+    private static final Logger logger = LoggerFactory.getLogger(Framework.class);
+
+    /**
+     * Frameworks delimeter
+     */
+    public static final String QUERY_STRING_DELIMETER = "\\||\\+";
+
+    /**
+     * A set of framework names compatible with this
+     */
+    private final String[] fullCompatibilityStringSet;
+
+    /**
+     * A set of frameworks compatible with this
+     */
+    private volatile EnumSet<Framework> fullCompatibilitySet;
+
+    /**
+     * Full name
+     */
+    private final String fullName;
+
+    /**
+     * Short name
+     */
+    private final String[] shortNames;
 
     /**
      * @param fullName
@@ -208,23 +238,6 @@ public enum Framework
     }
 
     /**
-     * A set of framework names compatible with this
-     */
-    private final String[] fullCompatibilityStringSet;
-    /**
-     * A set of frameworks compatible with this
-     */
-    private volatile EnumSet<Framework> fullCompatibilitySet;
-    /**
-     * Full name
-     */
-    private final String fullName;
-    /**
-     * Short name
-     */
-    private final String[] shortNames;
-
-    /**
      * @return A set of frameworks compatible with this
      */
     public EnumSet<Framework> getFullCompatibilitySet()
@@ -241,7 +254,7 @@ public enum Framework
                     {
                         localSet.add(Framework.valueOf(frameworkName));
                     }
-                    
+
                     fullCompatibilitySet = localSet;
                 }
             }
@@ -264,15 +277,6 @@ public enum Framework
     {
         return shortNames[0];
     }
-
-    /**
-     * Logger
-     */
-    private static final Logger logger = LoggerFactory.getLogger(Framework.class);
-    /**
-     * Frameworks delimeter
-     */
-    public static final String QUERY_STRING_DELIMETER = "\\||\\+";
 
     /**
      * Get frameworks collection from query string

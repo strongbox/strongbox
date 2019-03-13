@@ -33,7 +33,7 @@ public class Repository implements Serializable
 
     @XmlAttribute(name = "type")
     private String type;
-    
+
     @XmlAttribute(name = "url")
     private String url;
 

@@ -8,11 +8,11 @@ import java.io.InputStream;
  * 
  * @author kalski
  */
-public class NugetTestResources
+public class NugetTestResourceUtil
 {
 
     public static InputStream getAsStream(String name)
     {
-        return NugetTestResources.class.getResourceAsStream(name);
+        return NugetTestResourceUtil.class.getResourceAsStream(name);
     }
 }
