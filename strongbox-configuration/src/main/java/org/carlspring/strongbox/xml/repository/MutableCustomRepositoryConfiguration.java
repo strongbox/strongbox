@@ -7,15 +7,7 @@ import com.fasterxml.jackson.annotation.JsonTypeInfo;
  * @author carlspring
  * @author Pablo Tirado
  */
-@JsonTypeInfo(use = JsonTypeInfo.Id.CLASS, include = JsonTypeInfo.As.PROPERTY, property = "type")
-/*
-@JsonSubTypes({
-        @Type(value = MutableMavenRepositoryConfiguration.class, name = "mavenRepositoryConfiguration"),
-        @Type(value = MutableNpmRepositoryConfiguration.class, name = "npmRepositoryConfiguration"),
-        @Type(value = MutableNugetRepositoryConfiguration.class, name = "nugetRepositoryConfiguration"),
-        @Type(value = MutableRawRepositoryConfiguration.class, name = "rawRepositoryConfiguration")
-})
-*/
+@JsonTypeInfo(use = JsonTypeInfo.Id.CLASS, include = JsonTypeInfo.As.PROPERTY, property = "@class")
 public abstract class MutableCustomRepositoryConfiguration
         implements RepositoryConfiguration
 {

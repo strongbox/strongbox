@@ -6,7 +6,6 @@ import org.carlspring.strongbox.storage.routing.MutableRoutingRules;
 import java.util.LinkedHashMap;
 import java.util.Map;
 
-import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonRootName;
 import com.google.common.base.MoreObjects;
 import com.google.common.base.Objects;
@@ -45,8 +44,6 @@ public class MutableConfiguration
      */
     private Map<String, MutableStorage> storages = new LinkedHashMap<>();
 
-    @JsonIgnore
-    //TODO YAML: Remove @JsonIgnore and map accordingly when SB-1360 is ready.
     private MutableRoutingRules routingRules = new MutableRoutingRules();
 
     private MutableCorsConfiguration corsConfiguration = new MutableCorsConfiguration();

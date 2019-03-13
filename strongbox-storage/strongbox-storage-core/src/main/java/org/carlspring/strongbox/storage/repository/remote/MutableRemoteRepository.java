@@ -4,7 +4,6 @@ import org.carlspring.strongbox.xml.repository.remote.MutableRemoteRepositoryCon
 
 import java.io.Serializable;
 
-import com.fasterxml.jackson.annotation.JsonIgnore;
 import static org.carlspring.strongbox.configuration.MutableRemoteRepositoriesConfiguration.DEFAULT_HEARTBEAT_INTERVAL_SECONDS;
 
 /**
@@ -35,8 +34,6 @@ public class MutableRemoteRepository
 
     private boolean autoImportRemoteSSLCertificate;
 
-    @JsonIgnore
-    //TODO YAML: Remove @JsonIgnore and create JsonSubtypes annotation in interface
     private MutableRemoteRepositoryConfiguration customConfiguration;
 
     public String getUrl()

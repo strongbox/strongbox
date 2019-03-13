@@ -15,12 +15,14 @@ import java.util.Set;
 
 import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonProperty;
 
 /**
  * @author mtodorov
  * @author Pablo Tirado
  */
+@JsonIgnoreProperties(ignoreUnknown = true)
 public class MutableRepository
         implements Serializable
 {
@@ -66,12 +68,8 @@ public class MutableRepository
 
     private MutableHttpConnectionPool httpConnectionPool;
 
-    @JsonIgnore
-    //TODO YAML: Remove @JsonIgnore and create JsonSubtypes annotation in interface
     private List<MutableCustomConfiguration> customConfigurations = new ArrayList<>();
 
-    @JsonIgnore
-    //TODO YAML: Remove @JsonIgnore and create JsonSubtypes annotation in interface
     private MutableCustomRepositoryConfiguration repositoryConfiguration;
 
     private Set<String> groupRepositories = new LinkedHashSet<>();
