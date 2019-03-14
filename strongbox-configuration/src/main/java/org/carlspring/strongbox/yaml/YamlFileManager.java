@@ -1,12 +1,17 @@
 package org.carlspring.strongbox.yaml;
 
 import org.carlspring.strongbox.resource.ConfigurationResourceResolver;
+import org.carlspring.strongbox.xml.parsers.GenericParser;
 
 import java.io.BufferedInputStream;
 import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
 import java.lang.reflect.UndeclaredThrowableException;
+import java.util.HashSet;
+import java.util.ServiceLoader;
+import java.util.Set;
+import java.util.stream.Stream;
 
 import com.fasterxml.jackson.databind.DeserializationFeature;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -25,10 +30,21 @@ public abstract class YamlFileManager<T>
     private Class<T> myClazz;
     private ObjectMapper yamlMapper;
 
-    @SuppressWarnings("unchecked")
     public YamlFileManager()
     {
+        this(new Class[0]);
+    }
+
+    @SuppressWarnings("unchecked")
+    public YamlFileManager(Class... classes)
+    {
         myClazz = (Class<T>) GenericTypeResolver.resolveTypeArgument(getClass(), YamlFileManager.class);
+
+        Stream.of(classes).forEach(ServiceLoader::load);
+        Set<Class<?>> contextClasses = new HashSet<>();
+        contextClasses.add(myClazz);
+        new GenericParser<>(contextClasses.toArray(new Class[0]));
+
         yamlMapper = new YAMLMapper().configure(SerializationFeature.WRAP_ROOT_VALUE, true)
                                      .configure(DeserializationFeature.UNWRAP_ROOT_VALUE, true);
     }

@@ -4,10 +4,13 @@ import org.carlspring.strongbox.storage.repository.CustomConfiguration;
 import org.carlspring.strongbox.storage.repository.MutableCustomConfiguration;
 import org.carlspring.strongbox.xml.CustomTag;
 
+import com.fasterxml.jackson.annotation.JsonRootName;
+
 /**
  * @author carlspring
  * @author Pablo Tirado
  */
+@JsonRootName("awsConfiguration")
 public class MutableAwsConfiguration
         extends MutableCustomConfiguration
         implements CustomTag

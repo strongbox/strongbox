@@ -3,6 +3,12 @@ package org.carlspring.strongbox.xml.configuration.repository.remote;
 import org.carlspring.strongbox.xml.repository.remote.CustomRemoteRepositoryConfiguration;
 import org.carlspring.strongbox.xml.repository.remote.MutableRemoteRepositoryConfiguration;
 
+import com.fasterxml.jackson.annotation.JsonRootName;
+
+/**
+ * @author Pablo Tirado
+ */
+@JsonRootName("npmRemoteRepositoryConfiguration")
 public class MutableNpmRemoteRepositoryConfiguration extends MutableRemoteRepositoryConfiguration
 {
     private Long lastChangeId = 0L;
