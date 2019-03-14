@@ -4,12 +4,14 @@ import org.carlspring.strongbox.xml.repository.remote.MutableRemoteRepositoryCon
 
 import java.io.Serializable;
 
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import static org.carlspring.strongbox.configuration.MutableRemoteRepositoriesConfiguration.DEFAULT_HEARTBEAT_INTERVAL_SECONDS;
 
 /**
  * @author mtodorov
  * @author Pablo Tirado
  */
+@JsonIgnoreProperties(ignoreUnknown = true)
 public class MutableRemoteRepository
         implements Serializable
 {
