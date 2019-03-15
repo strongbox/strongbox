@@ -4,13 +4,13 @@ import org.carlspring.strongbox.storage.repository.CustomConfiguration;
 import org.carlspring.strongbox.storage.repository.MutableCustomConfiguration;
 import org.carlspring.strongbox.xml.CustomTag;
 
-import com.fasterxml.jackson.annotation.JsonRootName;
+import com.fasterxml.jackson.annotation.JsonTypeName;
 
 /**
  * @author carlspring
  * @author Pablo Tirado
  */
-@JsonRootName("googleCloudConfiguration")
+@JsonTypeName("googleCloudConfiguration")
 public class MutableGoogleCloudConfiguration
         extends MutableCustomConfiguration
         implements CustomTag

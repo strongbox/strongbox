@@ -51,7 +51,8 @@ configuration:
           type: hosted
           allowsForceDeletion: true
           checksumHeadersEnabled: true
-          mavenRepositoryConfiguration:
+          repositoryConfiguration:
+            type: mavenRepositoryConfiguration
             indexingEnabled: true
         snapshots:
           id: snapshots
@@ -61,7 +62,8 @@ configuration:
           type: hosted
           secured: true
           checksumHeadersEnabled: true
-          mavenRepositoryConfiguration:
+          repositoryConfiguration:
+            type: mavenRepositoryConfiguration
             indexingEnabled: true
     storage-common-proxies:
       id: storage-common-proxies
@@ -77,7 +79,8 @@ configuration:
             downloadRemoteIndexes: true
             autoBlocking: true
             checksumValidation: true
-          mavenRepositoryConfiguration:
+          repositoryConfiguration:
+            type: mavenRepositoryConfiguration
             indexingEnabled: true
         carlspring:
           id: carlspring
@@ -144,7 +147,8 @@ configuration:
           type: proxy
           remoteRepository:
             url: https://www.nuget.org/api/v2
-          nugetRepositoryConfiguration:
+          repositoryConfiguration:
+            type: nugetRepositoryConfiguration
             remoteFeedPageSize: 1000
     storage-springsource-proxies:
       id: storage-springsource-proxies
@@ -290,7 +294,8 @@ configuration:
           type: proxy
           remoteRepository:
             url: https://registry.npmjs.org/
-            npmRemoteRepositoryConfiguration:
+            customConfiguration:
+              type: npmRemoteRepositoryConfiguration
               lastChangeId: 0
               replicateUrl: https://replicate.npmjs.com/
     storage-nuget:

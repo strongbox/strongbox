@@ -3,13 +3,13 @@ package org.carlspring.strongbox.xml.configuration.repository;
 import org.carlspring.strongbox.xml.repository.CustomRepositoryConfiguration;
 import org.carlspring.strongbox.xml.repository.MutableCustomRepositoryConfiguration;
 
-import com.fasterxml.jackson.annotation.JsonRootName;
+import com.fasterxml.jackson.annotation.JsonTypeName;
 
 /**
  * @author carlspring
  * @author Pablo Tirado
  */
-@JsonRootName("npmRepositoryConfiguration")
+@JsonTypeName("npmRepositoryConfiguration")
 public class MutableNpmRepositoryConfiguration
         extends MutableCustomRepositoryConfiguration
 {
