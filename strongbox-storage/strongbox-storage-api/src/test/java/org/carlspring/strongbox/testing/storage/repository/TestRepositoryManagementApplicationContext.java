@@ -36,6 +36,8 @@ public class TestRepositoryManagementApplicationContext extends AnnotationConfig
         implements TestRepositoryManagementContext
 {
 
+    private static final int REPOSITORY_LOCK_ATTEMPTS = 10;
+
     private static final Logger logger = LoggerFactory.getLogger(TestRepositoryManagementApplicationContext.class);
 
     private static ThreadLocal<TestRepositoryManagementContext> testApplicaitonContextHolder = new ThreadLocal<>();
@@ -107,12 +109,7 @@ public class TestRepositoryManagementApplicationContext extends AnnotationConfig
         int count = parameterContext.getDeclaringExecutable().getParameterCount();
         extensionsToApply.put(extensionType, index == (count - 1));
 
-        if (!parameterContext.isAnnotated(extensionType))
-        {
-            return false;
-        }
-
-        return true;
+        return parameterContext.isAnnotated(extensionType);
     }
 
     @Override
@@ -146,7 +143,7 @@ public class TestRepositoryManagementApplicationContext extends AnnotationConfig
             }
 
             ReentrantLock lock = entry.getValue();
-            for (int i = 0; i < 30; i++)
+            for (int i = 0; i < 10; i++)
             {
                 try
                 {
@@ -154,7 +151,9 @@ public class TestRepositoryManagementApplicationContext extends AnnotationConfig
                 }
                 catch (InterruptedException e)
                 {
-                    break;
+                    Thread.currentThread().interrupt();
+                    throw new ApplicationContextException(String.format("Failed to lock [%s].", testRepositoryId), e);
+
                 }
                 if (lock.isHeldByCurrentThread())
                 {
@@ -165,7 +164,8 @@ public class TestRepositoryManagementApplicationContext extends AnnotationConfig
             if (!lock.isHeldByCurrentThread())
             {
                 throw new ApplicationContextException(
-                        String.format("Failed to lock [%s].", testRepositoryId));
+                        String.format("Failed to lock [%s] after [%s] attempts.", testRepositoryId,
+                                      REPOSITORY_LOCK_ATTEMPTS));
             }
             logger.info(String.format("Test Repository [%s] locked.", testRepositoryId));
         }
@@ -262,7 +262,7 @@ public class TestRepositoryManagementApplicationContext extends AnnotationConfig
     {
         testRepositorySync.putIfAbsent(id(testRepository), new ReentrantLock());
 
-        registerBean(TestRepositoryContext.id(testRepository), TestRepositoryContext.class, testRepository);
+        registerBean(id(testRepository), TestRepositoryContext.class, testRepository);
     }
 
 }
