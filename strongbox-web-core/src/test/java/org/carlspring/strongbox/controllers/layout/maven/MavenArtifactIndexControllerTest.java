@@ -23,7 +23,6 @@ import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.http.HttpStatus;
 import org.springframework.test.context.junit.jupiter.EnabledIf;
 import static io.restassured.module.mockmvc.RestAssuredMockMvc.given;
@@ -74,7 +73,7 @@ public class MavenArtifactIndexControllerTest
     {
         super.init();
 
-        // prepare storage: create it from Java code instead of putting <storage/> in strongbox.xml
+        // prepare storage: create it from Java code instead of putting "storage" in strongbox.yaml
         createStorage(STORAGE_ID);
 
         // Used by:

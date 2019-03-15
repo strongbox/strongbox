@@ -1,6 +1,5 @@
 package org.carlspring.strongbox.controllers.configuration.security.authorization;
 
-import org.apache.commons.lang3.StringUtils;
 import org.carlspring.strongbox.authorization.dto.AuthorizationConfigDto;
 import org.carlspring.strongbox.authorization.dto.RoleDto;
 import org.carlspring.strongbox.authorization.service.AuthorizationConfigService;
@@ -10,14 +9,6 @@ import org.carlspring.strongbox.forms.PrivilegeListForm;
 import org.carlspring.strongbox.forms.RoleForm;
 import org.carlspring.strongbox.rest.common.RestAssuredBaseTest;
 import org.carlspring.strongbox.users.domain.Privileges;
-import org.junit.jupiter.api.AfterEach;
-import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.params.ParameterizedTest;
-import org.junit.jupiter.params.provider.Arguments;
-import org.junit.jupiter.params.provider.MethodSource;
-import org.junit.jupiter.params.provider.ValueSource;
-import org.springframework.http.HttpStatus;
-import org.springframework.http.MediaType;
 
 import javax.inject.Inject;
 import java.util.ArrayList;
@@ -26,6 +17,15 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.stream.Stream;
 
+import org.apache.commons.lang3.StringUtils;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.Arguments;
+import org.junit.jupiter.params.provider.MethodSource;
+import org.junit.jupiter.params.provider.ValueSource;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.MediaType;
 import static io.restassured.module.mockmvc.RestAssuredMockMvc.given;
 import static org.carlspring.strongbox.controllers.configuration.security.authorization.AuthorizationConfigController.*;
 import static org.hamcrest.CoreMatchers.containsString;
@@ -125,12 +125,12 @@ public class AuthorizationConfigControllerTestIT
     @ParameterizedTest
     @ValueSource(strings = { MediaType.APPLICATION_JSON_VALUE,
                              MediaType.APPLICATION_XML_VALUE })
-    void configXMLCouldBeDownloaded(String acceptHeader)
+    void configFileCouldBeDownloaded(String acceptHeader)
     {
         given().contentType(MediaType.APPLICATION_JSON_VALUE)
                .accept(acceptHeader)
                .when()
-               .get(getContextBaseUrl() + "/authorization/xml")
+               .get(getContextBaseUrl() + "/authorization")
                .peek() // Use peek() to print the output
                .then()
                .statusCode(HttpStatus.OK.value()); // check http status code

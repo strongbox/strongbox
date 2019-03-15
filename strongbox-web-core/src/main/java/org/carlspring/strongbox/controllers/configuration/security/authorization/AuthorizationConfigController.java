@@ -46,7 +46,7 @@ public class AuthorizationConfigController
     static final String FAILED_ADD_ROLE = "Role cannot be saved because the submitted form contains errors!";
 
     static final String SUCCESSFUL_GET_CONFIG = "Everything went ok.";
-    static final String FAILED_GET_CONFIG = "Could not retrieve the strongbox-authorization.xml configuration file.";
+    static final String FAILED_GET_CONFIG = "Could not retrieve the strongbox-authorization.yaml configuration file.";
 
     static final String SUCCESSFUL_DELETE_ROLE = "The role was deleted.";
     static final String FAILED_DELETE_ROLE = "Could not delete the role.";
@@ -96,11 +96,10 @@ public class AuthorizationConfigController
         return processConfig(() -> SUCCESSFUL_ADD_ROLE, acceptHeader);
     }
 
-    @ApiOperation(value = "Retrieves the strongbox-authorization.xml configuration file.")
+    @ApiOperation(value = "Retrieves the strongbox-authorization.yaml configuration file.")
     @ApiResponses(value = { @ApiResponse(code = 200, message = SUCCESSFUL_GET_CONFIG),
                             @ApiResponse(code = 500, message = FAILED_GET_CONFIG) })
-    @GetMapping(value = "/xml",
-                produces = { MediaType.APPLICATION_XML_VALUE,
+    @GetMapping(produces = { MediaType.APPLICATION_XML_VALUE,
                              MediaType.APPLICATION_JSON_VALUE })
     public ResponseEntity getAuthorizationConfig(@RequestHeader(HttpHeaders.ACCEPT) String acceptHeader)
     {

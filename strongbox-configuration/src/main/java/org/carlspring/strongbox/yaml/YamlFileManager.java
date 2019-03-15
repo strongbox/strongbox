@@ -13,6 +13,7 @@ import java.util.ServiceLoader;
 import java.util.Set;
 import java.util.stream.Stream;
 
+import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.databind.DeserializationFeature;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.SerializationFeature;
@@ -45,8 +46,9 @@ public abstract class YamlFileManager<T>
         contextClasses.add(myClazz);
         new GenericParser<>(contextClasses.toArray(new Class[0]));
 
-        yamlMapper = new YAMLMapper().configure(SerializationFeature.WRAP_ROOT_VALUE, true)
-                                     .configure(DeserializationFeature.UNWRAP_ROOT_VALUE, true);
+        yamlMapper = new YAMLMapper().enable(SerializationFeature.WRAP_ROOT_VALUE)
+                                     .enable(DeserializationFeature.UNWRAP_ROOT_VALUE)
+                                     .setSerializationInclusion(JsonInclude.Include.NON_NULL);
     }
 
     public abstract String getPropertyKey();
@@ -75,8 +77,7 @@ public abstract class YamlFileManager<T>
 
     public T read()
     {
-        Resource resource;
-        resource = getResource();
+        Resource resource = getResource();
         if (!resource.exists())
         {
             return null;

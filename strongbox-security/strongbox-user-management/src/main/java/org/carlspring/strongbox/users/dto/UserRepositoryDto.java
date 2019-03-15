@@ -17,7 +17,7 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 public class UserRepositoryDto
         implements UserRepositoryReadContract
 {
-
+    @JsonProperty("id")
     private String repositoryId;
 
     private Set<PrivilegeDto> repositoryPrivileges = new LinkedHashSet<>();
