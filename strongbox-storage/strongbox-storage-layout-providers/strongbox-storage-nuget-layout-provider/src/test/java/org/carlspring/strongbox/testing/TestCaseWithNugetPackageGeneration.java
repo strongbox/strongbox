@@ -3,9 +3,9 @@ package org.carlspring.strongbox.testing;
 import org.carlspring.strongbox.artifact.coordinates.NugetArtifactCoordinates;
 import org.carlspring.strongbox.artifact.generator.NugetPackageGenerator;
 import org.carlspring.strongbox.booters.PropertiesBooter;
-import org.carlspring.strongbox.nuget.NugetFormatException;
 import org.carlspring.strongbox.providers.ProviderImplementationException;
 import org.carlspring.strongbox.services.ArtifactManagementService;
+import org.carlspring.strongbox.storage.metadata.nuget.NugetFormatException;
 import org.carlspring.strongbox.storage.validation.artifact.ArtifactCoordinatesValidationException;
 
 import javax.inject.Inject;

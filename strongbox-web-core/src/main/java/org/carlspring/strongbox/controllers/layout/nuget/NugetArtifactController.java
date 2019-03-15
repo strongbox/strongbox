@@ -10,8 +10,6 @@ import org.carlspring.strongbox.domain.ArtifactEntry;
 import org.carlspring.strongbox.domain.ArtifactTagEntry;
 import org.carlspring.strongbox.io.ReplacingInputStream;
 import org.carlspring.strongbox.nuget.NugetSearchRequest;
-import org.carlspring.strongbox.nuget.Nuspec;
-import org.carlspring.strongbox.nuget.TempNupkgFile;
 import org.carlspring.strongbox.nuget.filter.NugetODataFilterQueryParser;
 import org.carlspring.strongbox.providers.io.RepositoryPath;
 import org.carlspring.strongbox.providers.io.RepositoryPathResolver;
@@ -21,6 +19,8 @@ import org.carlspring.strongbox.repository.NugetRepositoryFeatures.RepositorySea
 import org.carlspring.strongbox.services.ArtifactManagementService;
 import org.carlspring.strongbox.services.ArtifactTagService;
 import org.carlspring.strongbox.storage.Storage;
+import org.carlspring.strongbox.storage.metadata.nuget.Nuspec;
+import org.carlspring.strongbox.storage.metadata.nuget.TempNupkgFile;
 import org.carlspring.strongbox.storage.repository.Repository;
 import org.semver.Version;
 
