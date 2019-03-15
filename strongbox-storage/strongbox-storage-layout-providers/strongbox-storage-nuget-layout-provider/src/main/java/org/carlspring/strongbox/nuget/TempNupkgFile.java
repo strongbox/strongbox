@@ -36,6 +36,8 @@ import java.util.zip.ZipInputStream;
 
 import javax.xml.bind.DatatypeConverter;
 
+import org.apache.commons.codec.digest.MessageDigestAlgorithms;
+
 /**
  * Nuget nupkg file representation
  *
@@ -43,8 +45,6 @@ import javax.xml.bind.DatatypeConverter;
  */
 public class TempNupkgFile implements AutoCloseable
 {
-
-    private static final String ALGORITHM_NAME = "SHA-512";
 
     /**
      * File with package data
@@ -74,7 +74,7 @@ public class TempNupkgFile implements AutoCloseable
      */
     public TempNupkgFile(InputStream inputStream)
         throws IOException,
-        NugetFormatException
+               NugetFormatException
     {
         try
         {
@@ -107,7 +107,7 @@ public class TempNupkgFile implements AutoCloseable
      */
     private static final Nuspec loadNuspec(InputStream packageStream)
         throws IOException,
-        NugetFormatException
+               NugetFormatException
     {
         try (ZipInputStream zipInputStream = new ZipInputStream(packageStream);)
         {
@@ -156,9 +156,9 @@ public class TempNupkgFile implements AutoCloseable
     private static String copyDataAndCalculateHash(InputStream inputStream,
                                                    File targetFile)
         throws IOException,
-        NoSuchAlgorithmException
+               NoSuchAlgorithmException
     {
-        MessageDigest messageDigest = MessageDigest.getInstance(ALGORITHM_NAME);
+        MessageDigest messageDigest = MessageDigest.getInstance(MessageDigestAlgorithms.SHA_512);
         DigestInputStream digestInputStream = new DigestInputStream(inputStream, messageDigest);
 
         try (FileOutputStream fileOutputStream = new FileOutputStream(targetFile);

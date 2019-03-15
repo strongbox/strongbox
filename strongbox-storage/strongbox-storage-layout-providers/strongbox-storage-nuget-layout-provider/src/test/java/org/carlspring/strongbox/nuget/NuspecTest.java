@@ -77,9 +77,9 @@ public class NuspecTest
     private String getStringValue(byte[] xmlData,
                                   String xPath)
         throws XPathExpressionException,
-        SAXException,
-        IOException,
-        ParserConfigurationException
+               SAXException,
+               IOException,
+               ParserConfigurationException
     {
         DocumentBuilderFactory domFactory = DocumentBuilderFactory.newInstance();
         domFactory.setNamespaceAware(true);

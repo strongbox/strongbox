@@ -3,23 +3,26 @@ package org.carlspring.strongbox.artifact.generator;
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.File;
-import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
+import java.nio.charset.StandardCharsets;
 import java.security.NoSuchAlgorithmException;
 import java.util.ArrayList;
+import java.util.Base64;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipOutputStream;
 
 import javax.xml.bind.JAXBException;
 
-import org.carlspring.commons.io.MultipleDigestInputStream;
+import org.apache.commons.codec.digest.MessageDigestAlgorithms;
 import org.carlspring.commons.io.RandomInputStream;
+import org.carlspring.strongbox.io.LayoutOutputStream;
 import org.carlspring.strongbox.nuget.NugetFormatException;
 import org.carlspring.strongbox.nuget.Nuspec;
 import org.carlspring.strongbox.nuget.metadata.Dependencies;
 import org.carlspring.strongbox.nuget.metadata.Dependency;
+import org.carlspring.strongbox.providers.layout.NugetLayoutProvider;
 import org.carlspring.strongbox.resource.ResourceCloser;
 import org.carlspring.strongbox.util.MessageDigestUtils;
 import org.semver.Version;
@@ -99,6 +102,7 @@ public class NugetPackageGenerator
     {
         ZipOutputStream zos = null;
 
+        LayoutOutputStream layoutOutputStream = null;
         try
         {
             // Make sure the artifact's parent directory exists before writing the model.
@@ -106,7 +110,13 @@ public class NugetPackageGenerator
             packageFile.getParentFile()
                        .mkdirs();
 
-            zos = new ZipOutputStream(new FileOutputStream(packageFile));
+            FileOutputStream fileOutputStream = new FileOutputStream(packageFile);
+            
+            layoutOutputStream = new LayoutOutputStream(fileOutputStream);
+            layoutOutputStream.addAlgorithm(MessageDigestAlgorithms.SHA_512);
+            layoutOutputStream.setDigestStringifier(this::toBase64);
+            
+            zos = new ZipOutputStream(layoutOutputStream);
 
             addNugetNuspecFile(nuspec, zos);
             createRandomNupkgFile(zos);
@@ -122,7 +132,10 @@ public class NugetPackageGenerator
         {
             ResourceCloser.close(zos, logger);
 
-            generateChecksum(packageFile);
+            if (layoutOutputStream != null)
+            {                
+                generateChecksum(packageFile, layoutOutputStream);
+            }
         }
     }
 
@@ -263,34 +276,36 @@ public class NugetPackageGenerator
 
         try (FileOutputStream fileOutputStream = new FileOutputStream(nuspecFile))
         {
-            nuspec.saveTo(fileOutputStream);
+            LayoutOutputStream layoutOutputStream = new LayoutOutputStream(fileOutputStream);
+            layoutOutputStream.addAlgorithm(MessageDigestAlgorithms.SHA_512);
+            layoutOutputStream.setDigestStringifier(this::toBase64);
+            try {
+                nuspec.saveTo(layoutOutputStream);                
+            } finally {
+                layoutOutputStream.close();
+            }
+            
+            generateChecksum(nuspecFile, layoutOutputStream);
         }
 
-        generateChecksum(nuspecFile);
 
     }
 
-    private void generateChecksum(File file)
-            throws IOException, NoSuchAlgorithmException
+    private String toBase64(byte[] digest)
+    {
+        byte[] encoded = Base64.getEncoder()
+                               .encode(digest);
+        return new String(encoded, StandardCharsets.UTF_8);
+    }
+
+    private void generateChecksum(File file,
+                                  LayoutOutputStream layoutOutputStream)
+        throws IOException,
+               NoSuchAlgorithmException
     {
 
-        InputStream is = new FileInputStream(file);
-        MultipleDigestInputStream mdis = new MultipleDigestInputStream(is);
-
-        int size = 4096;
-        byte[] bytes = new byte[size];
-
-        //noinspection StatementWithEmptyBody
-        while (mdis.read(bytes, 0, size) != -1) ;
-
-        mdis.close();
-
-        mdis.addAlgorithm("SHA-512");
-
-        String sha512 = mdis.getMessageDigestAsHexadecimalString("SHA-512");
-
+        String sha512 = layoutOutputStream.getDigestMap().get(MessageDigestAlgorithms.SHA_512);
         MessageDigestUtils.writeChecksum(file.toPath(), ".sha512", sha512);
-
     }
 
     public String getBasedir()

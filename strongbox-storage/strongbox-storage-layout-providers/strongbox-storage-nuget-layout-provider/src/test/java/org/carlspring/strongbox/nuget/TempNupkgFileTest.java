@@ -35,6 +35,7 @@ import org.apache.commons.io.FileUtils;
 import org.carlspring.strongbox.booters.PropertiesBooter;
 import org.carlspring.strongbox.config.NugetBootersTestConfig;
 import org.carlspring.strongbox.testing.TestCaseWithNugetPackageGeneration;
+import org.carlspring.strongbox.util.MessageDigestUtils;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -69,7 +70,7 @@ public class TempNupkgFileTest
     @AfterEach
     public void tearDown()
         throws IOException,
-        JAXBException
+               JAXBException
     {
         getCleanBaseDirectory();
     }
@@ -100,15 +101,21 @@ public class TempNupkgFileTest
                                                                                                       * dependencyList
                                                                                                       */);
 
+        String checksumFileName = packageId + "." + packageVersion + ".nupkg.sha512";
+        Path checksumPath = packageFilePath.resolveSibling(checksumFileName);
+
+        String expectedHash = MessageDigestUtils.readChecksumFile(checksumPath.toString());
+
         // WHEN
         try (InputStream nupkgInputStream = new BufferedInputStream(Files.newInputStream(packageFilePath));
                 TempNupkgFile nupkgFile = new TempNupkgFile(nupkgInputStream);)
         {
-            // TODO: Assert that nupkgFile.getHash() equals generated .nupkg.sha512 file content
-            
             // THEN
             assertNotNull(nupkgFile.getHash().toString(),
                           "Hash file created from stream");
+            assertEquals(expectedHash,
+                         nupkgFile.getHash().toString(),
+                         "Hash file created from stream");
         }
     }
 
@@ -157,9 +164,9 @@ public class TempNupkgFileTest
     @Test
     public void testReadNupkg()
         throws IOException,
-        NugetFormatException,
-        NoSuchAlgorithmException,
-        JAXBException
+               NugetFormatException,
+               NoSuchAlgorithmException,
+               JAXBException
     {
         // GIVEN
         String packageId = "NUnit";

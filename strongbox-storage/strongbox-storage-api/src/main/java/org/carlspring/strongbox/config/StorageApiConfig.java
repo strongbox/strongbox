@@ -2,6 +2,7 @@ package org.carlspring.strongbox.config;
 
 import org.carlspring.strongbox.booters.ResourcesBooter;
 import org.carlspring.strongbox.booters.StorageBooter;
+import org.carlspring.strongbox.booters.TempDirBooter;
 import org.carlspring.strongbox.storage.checksum.ChecksumCacheManager;
 import org.carlspring.strongbox.storage.validation.ArtifactCoordinatesValidator;
 
@@ -12,6 +13,7 @@ import java.util.List;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.ComponentScan;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.context.annotation.DependsOn;
 import org.springframework.scheduling.annotation.EnableAsync;
 
 @Configuration
@@ -50,6 +52,13 @@ public class StorageApiConfig
     }
 
     @Bean
+    TempDirBooter tempDirBooter()
+    {
+        return new TempDirBooter();
+    }
+    
+    @Bean
+    @DependsOn("tempDirBooter")
     StorageBooter storageBooter()
     {
         return new StorageBooter();
