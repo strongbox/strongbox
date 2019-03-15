@@ -5,6 +5,8 @@ import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import java.nio.file.Files;
+import java.util.Set;
+import java.util.concurrent.ConcurrentHashMap;
 
 import javax.inject.Inject;
 
@@ -37,6 +39,8 @@ import org.springframework.test.context.TestExecutionListeners;
 public class RepositoryManagementTest
 {
 
+    private static Set<Repository> resolvedRepositoryInstances = ConcurrentHashMap.newKeySet();
+
     @Inject
     private RepositoryPathResolver repositoryPathResolver;
 
@@ -58,7 +62,7 @@ public class RepositoryManagementTest
                                      @TestRepository(layout = NullArtifactCoordinates.LAYOUT_NAME, repository = "r2", storage = "storage0") Repository r2,
                                      TestInfo testInfo)
     {
-        parametersShouldBeResolved(r1, r2, testInfo);
+        parametersShouldBeResolvedAndUnique(r1, r2, testInfo);
     }
 
     @ExtendWith(RepositoryManagementTestExecutionListener.class)
@@ -67,12 +71,12 @@ public class RepositoryManagementTest
                                       @TestRepository(layout = NullArtifactCoordinates.LAYOUT_NAME, repository = "r1", storage = "storage0") Repository r1,
                                       TestInfo testInfo)
     {
-        parametersShouldBeResolved(r1, r2, testInfo);
+        parametersShouldBeResolvedAndUnique(r1, r2, testInfo);
     }
 
-    private void parametersShouldBeResolved(Repository r1,
-                                            Repository r2,
-                                            TestInfo testInfo)
+    private void parametersShouldBeResolvedAndUnique(Repository r1,
+                                                     Repository r2,
+                                                     TestInfo testInfo)
     {
         // Check that other ParameterResolvers works
         assertNotNull(testInfo);
@@ -84,5 +88,8 @@ public class RepositoryManagementTest
         assertTrue(Files.exists(p1));
         RootRepositoryPath p2 = repositoryPathResolver.resolve(r2);
         assertTrue(Files.exists(p2));
+
+        assertTrue(resolvedRepositoryInstances.add(r1));
+        assertTrue(resolvedRepositoryInstances.add(r2));
     }
 }
