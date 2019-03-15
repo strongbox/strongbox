@@ -3,12 +3,12 @@ package org.carlspring.strongbox.xml.configuration.repository.remote;
 import org.carlspring.strongbox.xml.repository.remote.CustomRemoteRepositoryConfiguration;
 import org.carlspring.strongbox.xml.repository.remote.MutableRemoteRepositoryConfiguration;
 
-import com.fasterxml.jackson.annotation.JsonRootName;
+import com.fasterxml.jackson.annotation.JsonTypeName;
 
 /**
  * @author Pablo Tirado
  */
-@JsonRootName("mavenRemoteRepositoryConfiguration")
+@JsonTypeName("mavenRemoteRepositoryConfiguration")
 public class MutableMavenRemoteRepositoryConfiguration extends MutableRemoteRepositoryConfiguration
 {
 

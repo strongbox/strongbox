@@ -3,6 +3,7 @@ package org.carlspring.strongbox.yaml;
 import org.carlspring.strongbox.resource.ConfigurationResourceResolver;
 import org.carlspring.strongbox.xml.parsers.GenericParser;
 
+import javax.inject.Inject;
 import java.io.BufferedInputStream;
 import java.io.File;
 import java.io.IOException;
@@ -13,11 +14,8 @@ import java.util.ServiceLoader;
 import java.util.Set;
 import java.util.stream.Stream;
 
-import com.fasterxml.jackson.annotation.JsonInclude;
-import com.fasterxml.jackson.databind.DeserializationFeature;
-import com.fasterxml.jackson.databind.ObjectMapper;
-import com.fasterxml.jackson.databind.SerializationFeature;
 import com.fasterxml.jackson.dataformat.yaml.YAMLMapper;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.core.GenericTypeResolver;
 import org.springframework.core.io.Resource;
 
@@ -29,7 +27,10 @@ public abstract class YamlFileManager<T>
 {
 
     private Class<T> myClazz;
-    private ObjectMapper yamlMapper;
+
+    @Inject
+    @Qualifier("customYamlMapper")
+    private YAMLMapper yamlMapper;
 
     public YamlFileManager()
     {
@@ -45,10 +46,6 @@ public abstract class YamlFileManager<T>
         Set<Class<?>> contextClasses = new HashSet<>();
         contextClasses.add(myClazz);
         new GenericParser<>(contextClasses.toArray(new Class[0]));
-
-        yamlMapper = new YAMLMapper().enable(SerializationFeature.WRAP_ROOT_VALUE)
-                                     .enable(DeserializationFeature.UNWRAP_ROOT_VALUE)
-                                     .setSerializationInclusion(JsonInclude.Include.NON_NULL);
     }
 
     public abstract String getPropertyKey();
