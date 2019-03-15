@@ -162,7 +162,8 @@ public class TestRepositoryManagementApplicationContext extends AnnotationConfig
             }
 
             throw new ApplicationContextException(
-                    String.format("Failed to lock [%s] after [%s] attempts.", testRepositoryId,
+                    String.format("Failed to lock [%s] after [%s] attempts. Consider to use unique repository ID for your test.",
+                                  testRepositoryId,
                                   REPOSITORY_LOCK_ATTEMPTS));
 
         }
@@ -212,8 +213,7 @@ public class TestRepositoryManagementApplicationContext extends AnnotationConfig
         catch (IOException e)
         {
             throw new ApplicationContextException("Failed to close context.", e);
-        } 
-        finally
+        } finally
         {
             unlockRepositories();
         }

@@ -62,7 +62,7 @@ public class RepositoryManagementTest
                                      @TestRepository(layout = NullArtifactCoordinates.LAYOUT_NAME, repository = "r2", storage = "storage0") Repository r2,
                                      TestInfo testInfo)
     {
-        parametersShouldBeResolvedAndUnique(r1, r2, testInfo);
+        parametersShouldBeCorrectlyResolvedAndUnique(r1, r2, testInfo);
     }
 
     @ExtendWith(RepositoryManagementTestExecutionListener.class)
@@ -71,18 +71,22 @@ public class RepositoryManagementTest
                                       @TestRepository(layout = NullArtifactCoordinates.LAYOUT_NAME, repository = "r1", storage = "storage0") Repository r1,
                                       TestInfo testInfo)
     {
-        parametersShouldBeResolvedAndUnique(r1, r2, testInfo);
+        parametersShouldBeCorrectlyResolvedAndUnique(r1, r2, testInfo);
     }
 
-    private void parametersShouldBeResolvedAndUnique(Repository r1,
-                                                     Repository r2,
-                                                     TestInfo testInfo)
+    private void parametersShouldBeCorrectlyResolvedAndUnique(Repository r1,
+                                                              Repository r2,
+                                                              TestInfo testInfo)
     {
         // Check that other ParameterResolvers works
         assertNotNull(testInfo);
         // Check that @TestRepository resolved
         assertNotNull(r1);
         assertNotNull(r2);
+        // Check that repositories correctly resolved
+        assertNotNull(configurationManager.getRepository("storage0", "r1"));
+        assertNotNull(configurationManager.getRepository("storage0", "r2"));
+        
         // Check that paths created
         RootRepositoryPath p1 = repositoryPathResolver.resolve(r1);
         assertTrue(Files.exists(p1));
