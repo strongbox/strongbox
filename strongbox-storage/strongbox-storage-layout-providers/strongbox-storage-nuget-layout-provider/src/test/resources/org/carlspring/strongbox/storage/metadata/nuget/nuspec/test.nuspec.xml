@@ -3,11 +3,11 @@
     <metadata>
         <id>Neolant.ProjectWise.IsolationLevel.Implementation</id>
         <version>1.4.7.550</version>
-        <title>Реализация уровня изоляции ProjecWise API</title>
-        <authors>НЕОЛАНТ</authors>
-        <owners>НЕОЛАНТ</owners>
+        <title>Implementing the ProjecWise API isolation level</title>
+        <authors>NEOLANT</authors>
+        <owners>NEOLANT</owners>
         <requireLicenseAcceptance>false</requireLicenseAcceptance>
-        <description>Реализация контрактов уровня изоляции ProjecWise API</description>
-        <copyright>НЕОЛАНТ</copyright>
+        <description>Implementing ProjecWise API isolation level contracts</description>
+        <copyright>NEOLANT</copyright>
     </metadata>
 </package>

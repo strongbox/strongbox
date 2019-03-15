@@ -107,12 +107,12 @@ public class NuspecTest
         Nuspec result = Nuspec.parse(NugetTestResourceUtil.getAsStream(fileName));
         assertEquals("Neolant.ProjectWise.IsolationLevel.Implementation", result.getId(), "Package ID");
         assertEquals(Version.parse("1.4.7.550"), result.getVersion(), "Package Version");
-        assertEquals("Реализация уровня изоляции ProjecWise API", result.getTitle(), "Short description");
-        assertEquals("НЕОЛАНТ", result.getOwners(), "Authors");
-        assertEquals("НЕОЛАНТ", result.getOwners(), "Owners");
+        assertEquals("Implementing the ProjecWise API isolation level", result.getTitle(), "Short description");
+        assertEquals("NEOLANT", result.getOwners(), "Authors");
+        assertEquals("NEOLANT", result.getOwners(), "Owners");
         assertEquals(false, result.isRequireLicenseAcceptance(), "License Verification Required");
-        assertEquals("Реализация контрактов уровня изоляции ProjecWise API", result.getDescription(), "Description");
-        assertEquals("НЕОЛАНТ", result.getCopyright(), "Rights");
+        assertEquals("Implementing ProjecWise API isolation level contracts", result.getDescription(), "Description");
+        assertEquals("NEOLANT", result.getCopyright(), "Rights");
     }
 
     /**
@@ -141,7 +141,7 @@ public class NuspecTest
         assertEquals("NUnit", result.getAuthors(), "Authors");
         assertEquals("NUnit", result.getOwners(), "Owners");
         assertEquals(false, result.isRequireLicenseAcceptance(), "License Verification Required");
-        assertEquals("Пакет модульного тестирования", result.getDescription(), "Description");
+        assertEquals("Unit Testing Package", result.getDescription(), "Description");
         assertEquals("Copyright 2011", result.getCopyright(), "Rights");
         assertEquals(tags.length, result.getTags().size(), "Number of tags");
         assertArrayEquals(tags, result.getTags().toArray(), "Tags");

@@ -28,8 +28,8 @@ import javax.xml.bind.annotation.adapters.XmlJavaTypeAdapter;
 import org.carlspring.strongbox.storage.metadata.nuget.Nuspec;
 
 /**
- * A class that describes dependencies on assemblies that come with a .NET
- * package.
+ * A class that describes dependencies on assemblies that come with the .NET
+ * framework itself.
  *
  * @author sviridov
  */

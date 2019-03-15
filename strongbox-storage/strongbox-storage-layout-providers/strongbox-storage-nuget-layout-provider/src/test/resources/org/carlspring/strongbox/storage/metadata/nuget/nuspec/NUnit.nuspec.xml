@@ -6,7 +6,7 @@
     <authors>NUnit</authors>
     <owners>NUnit</owners>
     <requireLicenseAcceptance>false</requireLicenseAcceptance>
-    <description>Пакет модульного тестирования</description>
+    <description>Unit Testing Package</description>
     <copyright>Copyright 2011</copyright>
     <tags>Unit test</tags>
     <references>

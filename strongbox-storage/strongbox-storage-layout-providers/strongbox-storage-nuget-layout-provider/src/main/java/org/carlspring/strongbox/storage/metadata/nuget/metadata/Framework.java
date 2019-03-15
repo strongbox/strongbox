@@ -25,7 +25,8 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 /**
- * Frameworks
+ * Represents .net framework of a nuspec field. 
+ * This could be dependencies target framework or framework assemblies applicable framework version. 
  * 
  * @author Dmitry Sviridov
  */
