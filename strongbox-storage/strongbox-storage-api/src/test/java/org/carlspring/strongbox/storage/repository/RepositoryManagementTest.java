@@ -1,13 +1,10 @@
 package org.carlspring.strongbox.storage.repository;
 
-import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import java.nio.file.Files;
-import java.nio.file.Path;
-import java.nio.file.Paths;
 
 import javax.inject.Inject;
 
@@ -20,6 +17,7 @@ import org.carlspring.strongbox.providers.io.RepositoryPathResolver;
 import org.carlspring.strongbox.providers.io.RootRepositoryPath;
 import org.carlspring.strongbox.testing.storage.repository.RepositoryManagementTestExecutionListener;
 import org.carlspring.strongbox.testing.storage.repository.TestRepository;
+import org.carlspring.strongbox.testing.storage.repository.TestRepositoryManagementApplicationContext;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.RepeatedTest;
 import org.junit.jupiter.api.TestInfo;
@@ -49,26 +47,13 @@ public class RepositoryManagementTest
     protected PropertiesBooter propertiesBooter;
 
     @AfterEach
-    public void checkRepositoryCleanup()
+    public void checkRepositoryContextCleanup()
     {
-        repositoriesShouldBeCleaned();
-    }
-
-    private void repositoriesShouldBeCleaned()
-    {
-        Repository r1 = configurationManager.getRepository("storage0", "r1");
-        assertNull(r1);
-        Repository r2 = configurationManager.getRepository("storage0", "r2");
-        assertNull(r2);
-
-        Path p1 = Paths.get(propertiesBooter.getVaultDirectory(), "storages", "storage0", "r1");
-        assertFalse(Files.exists(p1));
-        Path p2 = Paths.get(propertiesBooter.getVaultDirectory(), "storages", "storage0", "r2");
-        assertFalse(Files.exists(p2));
+        assertNull(TestRepositoryManagementApplicationContext.getInstance());
     }
 
     @ExtendWith(RepositoryManagementTestExecutionListener.class)
-    @RepeatedTest(10)
+    @RepeatedTest(20)
     public void testRepositoryDirect(@TestRepository(layout = NullArtifactCoordinates.LAYOUT_NAME, repository = "r1", storage = "storage0") Repository r1,
                                      @TestRepository(layout = NullArtifactCoordinates.LAYOUT_NAME, repository = "r2", storage = "storage0") Repository r2,
                                      TestInfo testInfo)
@@ -77,7 +62,7 @@ public class RepositoryManagementTest
     }
 
     @ExtendWith(RepositoryManagementTestExecutionListener.class)
-    @RepeatedTest(10)
+    @RepeatedTest(20)
     public void testRepositoryReverse(@TestRepository(layout = NullArtifactCoordinates.LAYOUT_NAME, repository = "r2", storage = "storage0") Repository r2,
                                       @TestRepository(layout = NullArtifactCoordinates.LAYOUT_NAME, repository = "r1", storage = "storage0") Repository r1,
                                       TestInfo testInfo)
