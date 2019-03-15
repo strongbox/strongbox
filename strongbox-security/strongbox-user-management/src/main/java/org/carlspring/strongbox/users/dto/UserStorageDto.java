@@ -4,6 +4,7 @@ import java.util.LinkedHashSet;
 import java.util.Optional;
 import java.util.Set;
 
+import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonProperty;
 
 /**
@@ -16,8 +17,18 @@ public class UserStorageDto
 
     private Set<UserRepositoryDto> repositories = new LinkedHashSet<>();
 
-    @JsonProperty(value = "id", required = true)
+    @JsonProperty(value = "id")
     private String storageId;
+
+    public UserStorageDto()
+    {
+    }
+
+    @JsonCreator
+    public UserStorageDto(@JsonProperty(value = "id", required = true) String storageId)
+    {
+        this.storageId = storageId;
+    }
 
     public Set<UserRepositoryDto> getRepositories()
     {
