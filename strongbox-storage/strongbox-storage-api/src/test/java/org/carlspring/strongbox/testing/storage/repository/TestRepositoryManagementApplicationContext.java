@@ -134,7 +134,7 @@ public class TestRepositoryManagementApplicationContext extends AnnotationConfig
     private void lockRepositories()
     {
         Set<Entry<String, ReentrantLock>> entrySet = testRepositorySync.entrySet();
-        for (Entry<String, ReentrantLock> entry : entrySet)
+        outer: for (Entry<String, ReentrantLock> entry : entrySet)
         {
             String testRepositoryId = entry.getKey();
             if (!Arrays.stream(getBeanDefinitionNames()).anyMatch(n -> n.equals(testRepositoryId)))
@@ -147,7 +147,11 @@ public class TestRepositoryManagementApplicationContext extends AnnotationConfig
             {
                 try
                 {
-                    lock.tryLock(100, TimeUnit.MILLISECONDS);
+                    if (lock.tryLock() || lock.tryLock(100, TimeUnit.MILLISECONDS))
+                    {
+                        logger.info(String.format("Test Repository [%s] locked.", testRepositoryId));
+                        continue outer;
+                    }
                 }
                 catch (InterruptedException e)
                 {
@@ -155,19 +159,12 @@ public class TestRepositoryManagementApplicationContext extends AnnotationConfig
                     throw new ApplicationContextException(String.format("Failed to lock [%s].", testRepositoryId), e);
 
                 }
-                if (lock.isHeldByCurrentThread())
-                {
-                    break;
-                }
             }
 
-            if (!lock.isHeldByCurrentThread())
-            {
-                throw new ApplicationContextException(
-                        String.format("Failed to lock [%s] after [%s] attempts.", testRepositoryId,
-                                      REPOSITORY_LOCK_ATTEMPTS));
-            }
-            logger.info(String.format("Test Repository [%s] locked.", testRepositoryId));
+            throw new ApplicationContextException(
+                    String.format("Failed to lock [%s] after [%s] attempts.", testRepositoryId,
+                                  REPOSITORY_LOCK_ATTEMPTS));
+
         }
     }
 
