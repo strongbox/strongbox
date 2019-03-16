@@ -62,7 +62,8 @@ public class AuthenticatorsConfigController
     @ApiResponses(value = { @ApiResponse(code = 200, message = SUCCESSFUL_REORDER),
                             @ApiResponse(code = 400, message = FAILED_REORDER) })
     @PutMapping(path = "/reorder/{first}/{second}",
-                produces = MediaType.APPLICATION_JSON_VALUE)
+                produces = { MediaType.TEXT_PLAIN_VALUE,
+                             MediaType.APPLICATION_JSON_VALUE })
     public ResponseEntity reorder(@PathVariable String first,
                                   @PathVariable String second,
                                   @RequestHeader(HttpHeaders.ACCEPT) String acceptHeader)
@@ -100,7 +101,6 @@ public class AuthenticatorsConfigController
     @ApiResponses(value = { @ApiResponse(code = 200, message = SUCCESSFUL_RELOAD),
                             @ApiResponse(code = 500, message = FAILED_RELOAD) })
     @PutMapping(path = "/reload",
-                consumes = MediaType.APPLICATION_JSON_VALUE,
                 produces = { MediaType.TEXT_PLAIN_VALUE,
                              MediaType.APPLICATION_JSON_VALUE })
     public ResponseEntity reload(@RequestHeader(HttpHeaders.ACCEPT) String acceptHeader)
