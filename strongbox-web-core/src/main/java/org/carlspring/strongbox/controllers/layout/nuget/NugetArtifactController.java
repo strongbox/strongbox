@@ -19,7 +19,10 @@ import org.carlspring.strongbox.repository.NugetRepositoryFeatures.RepositorySea
 import org.carlspring.strongbox.services.ArtifactManagementService;
 import org.carlspring.strongbox.services.ArtifactTagService;
 import org.carlspring.strongbox.storage.Storage;
+import org.carlspring.strongbox.storage.metadata.nuget.Nuspec;
+import org.carlspring.strongbox.storage.metadata.nuget.TempNupkgFile;
 import org.carlspring.strongbox.storage.repository.Repository;
+import org.semver.Version;
 
 import javax.inject.Inject;
 import javax.servlet.ServletInputStream;
@@ -58,7 +61,6 @@ import org.springframework.web.context.request.RequestContextHolder;
 import org.springframework.web.context.request.ServletRequestAttributes;
 import ru.aristar.jnuget.files.NugetFormatException;
 import ru.aristar.jnuget.files.Nupkg;
-import ru.aristar.jnuget.files.TempNupkgFile;
 import ru.aristar.jnuget.rss.*;
 import static org.springframework.http.HttpStatus.INTERNAL_SERVER_ERROR;
 
@@ -647,45 +649,51 @@ public class NugetArtifactController extends BaseArtifactController
     {
         try (TempNupkgFile nupkgFile = new TempNupkgFile(is))
         {
-            if (nupkgFile.getNuspecFile() == null)
+            Nuspec nuspec = nupkgFile.getNuspec();
+            if (nuspec == null)
             {
                 return null;
             }
 
+            String nuspecId = nuspec.getId();
+            Version nuspecVersion = nuspec.getVersion();
             String path = String.format("%s/%s/%s.%s.nupkg",
-                                        nupkgFile.getId(),
-                                        nupkgFile.getVersion(),
-                                        nupkgFile.getId(),
-                                        nupkgFile.getVersion());
+                                        nuspecId,
+                                        nuspecVersion,
+                                        nuspecId,
+                                        nuspecVersion);
 
             RepositoryPath repositoryPath = repositoryPathResolver.resolve(storageId, repositoryId, path);
             nugetArtifactManagementService.validateAndStore(repositoryPath, nupkgFile.getStream());
 
-            Path nuspecFile = Files.createTempFile(nupkgFile.getId(), "nuspec");
+            Path nuspecFile = Files.createTempFile(nuspec.getId(), "nuspec");
             try (OutputStream outputStream = new BufferedOutputStream(Files.newOutputStream(nuspecFile)))
             {
-                nupkgFile.getNuspecFile().saveTo(outputStream);
+                nuspec.saveTo(outputStream);
             }
-            path = String.format("%s/%s/%s.nuspec", nupkgFile.getId(), nupkgFile.getVersion(), nupkgFile.getId());
+            path = String.format("%s/%s/%s.nuspec", nuspecId, nuspecVersion, nuspecId);
             repositoryPath = repositoryPathResolver.resolve(storageId, repositoryId, path);
             try (InputStream bis = new BufferedInputStream(Files.newInputStream(nuspecFile)))
             {
                 nugetArtifactManagementService.validateAndStore(repositoryPath, bis);
             }
 
-            Path hashFile = Files.createTempFile(String.format("%s.%s", nupkgFile.getId(), nupkgFile.getVersion()),
+            Path hashFile = Files.createTempFile(String.format("%s.%s", nuspecId, nuspecVersion),
                                                 "nupkg.sha512");
 
             try (OutputStream bos = new BufferedOutputStream(Files.newOutputStream(hashFile)))
             {
-                nupkgFile.getHash().saveTo(bos);
+                Writer writer = new OutputStreamWriter(bos);
+                writer.write(nupkgFile.getHash());
+                writer.flush();
+                bos.flush();
             }
 
             path = String.format("%s/%s/%s.%s.nupkg.sha512",
-                                 nupkgFile.getId(),
-                                 nupkgFile.getVersion(),
-                                 nupkgFile.getId(),
-                                 nupkgFile.getVersion());
+                                 nuspecId,
+                                 nuspecVersion,
+                                 nuspecId,
+                                 nuspecVersion);
             repositoryPath = repositoryPathResolver.resolve(storageId, repositoryId, path);
             try (InputStream bis = new BufferedInputStream(Files.newInputStream(hashFile)))
             {

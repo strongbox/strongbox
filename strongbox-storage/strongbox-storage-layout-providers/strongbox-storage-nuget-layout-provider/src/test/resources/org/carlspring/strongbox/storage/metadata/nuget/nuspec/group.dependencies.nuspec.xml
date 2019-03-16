@@ -1,0 +1,28 @@
+<?xml version="1.0"?>
+<package xmlns="http://schemas.microsoft.com/packaging/2011/08/nuspec.xsd">
+    <metadata>
+        <id>TEST.ID</id>
+        <version>1.2.3</version>
+        <title>TEST TITLE</title>
+        <authors>AUTHORS</authors>
+        <owners>OWNERS</owners>
+        <requireLicenseAcceptance>false</requireLicenseAcceptance>
+        <description>Descr</description>
+        <copyright>Copyright 2011</copyright>
+        <tags>TAG1 TAG2</tags>
+    
+        <dependencies> 
+            <group>
+                <dependency id="RouteMagic" version="1.1.0" />
+            </group>
+
+            <group targetFramework="net40">
+                <dependency id="jQuery" />
+                <dependency id="WebActivator" />
+            </group>
+
+            <group targetFramework="sl30">
+            </group>
+        </dependencies>
+    </metadata>
+</package>

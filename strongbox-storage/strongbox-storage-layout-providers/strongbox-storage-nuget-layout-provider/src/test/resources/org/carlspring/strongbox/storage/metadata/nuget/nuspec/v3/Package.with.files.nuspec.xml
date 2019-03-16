@@ -1,0 +1,18 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<package xmlns="http://schemas.microsoft.com/packaging/2015/06/nuspec.xsd">
+    <metadata>
+        <id>securepointsslvpn</id>
+        <version>2.0.20</version>
+        <title>Securepoint SSL VPN Client</title>
+        <authors>Securepoint GmbH</authors>
+        <copyright>2016 Securepoint GmbH</copyright>
+        <projectUrl>https://www.securepoint.de</projectUrl>
+        <projectSourceUrl>https://sourceforge.net/projects/securepoint/files/</projectSourceUrl>
+        <tags>securepoint ssl vpn admin install</tags>
+        <summary>SSL VPN Client</summary>
+        <description>Securepoint SSL VPN Client</description>
+    </metadata>
+    <files>
+        <file src="tools\**" target="tools" />
+    </files>
+</package>

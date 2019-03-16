@@ -1,0 +1,13 @@
+<?xml version="1.0"?>
+<package xmlns="http://schemas.microsoft.com/packaging/2011/08/nuspec.xsd">
+    <metadata>
+        <id>Neolant.ProjectWise.IsolationLevel.Implementation</id>
+        <version>1.4.7.550</version>
+        <title>Implementing the ProjecWise API isolation level</title>
+        <authors>NEOLANT</authors>
+        <owners>NEOLANT</owners>
+        <requireLicenseAcceptance>false</requireLicenseAcceptance>
+        <description>Implementing ProjecWise API isolation level contracts</description>
+        <copyright>NEOLANT</copyright>
+    </metadata>
+</package>
