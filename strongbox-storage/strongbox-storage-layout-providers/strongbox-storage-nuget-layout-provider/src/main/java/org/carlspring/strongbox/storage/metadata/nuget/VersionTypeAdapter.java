@@ -15,9 +15,10 @@
  * limitations under the License.
  */
 
-package org.carlspring.strongbox.storage.metadata.nuget.metadata;
+package org.carlspring.strongbox.storage.metadata.nuget;
 
 import javax.xml.bind.annotation.adapters.XmlAdapter;
+
 import org.semver.Version;
 
 /**

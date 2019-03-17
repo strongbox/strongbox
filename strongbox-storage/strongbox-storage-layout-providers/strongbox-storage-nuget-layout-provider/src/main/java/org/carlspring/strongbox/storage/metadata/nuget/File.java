@@ -15,16 +15,13 @@
  * limitations under the License.
  */
 
-package org.carlspring.strongbox.storage.metadata.nuget.metadata;
-
-import java.io.Serializable;
+package org.carlspring.strongbox.storage.metadata.nuget;
 
 import javax.xml.bind.annotation.XmlAccessType;
 import javax.xml.bind.annotation.XmlAccessorType;
 import javax.xml.bind.annotation.XmlAttribute;
 import javax.xml.bind.annotation.XmlRootElement;
-
-import org.carlspring.strongbox.storage.metadata.nuget.Nuspec;
+import java.io.Serializable;
 
 @XmlRootElement(name = "file", namespace = Nuspec.NUSPEC_XML_NAMESPACE_2011)
 @XmlAccessorType(XmlAccessType.NONE)

@@ -15,20 +15,19 @@
  * limitations under the License.
  */
 
-package org.carlspring.strongbox.storage.metadata.nuget.metadata;
+package org.carlspring.strongbox.storage.metadata.nuget;
 
-import java.io.Serializable;
-import static java.text.MessageFormat.format;
-import java.util.Objects;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
 import javax.xml.bind.annotation.XmlAccessType;
 import javax.xml.bind.annotation.XmlAccessorType;
 import javax.xml.bind.annotation.XmlAttribute;
+import java.io.Serializable;
+import java.util.Objects;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
-import org.carlspring.strongbox.storage.metadata.nuget.NugetFormatException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import static java.text.MessageFormat.format;
 
 /**
  * Description of dependence

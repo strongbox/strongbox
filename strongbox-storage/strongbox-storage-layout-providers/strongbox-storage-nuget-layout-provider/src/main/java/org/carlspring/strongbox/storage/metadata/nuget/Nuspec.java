@@ -17,31 +17,16 @@
 
 package org.carlspring.strongbox.storage.metadata.nuget;
 
+import javax.xml.bind.*;
+import javax.xml.bind.annotation.*;
+import javax.xml.bind.annotation.adapters.XmlJavaTypeAdapter;
+import javax.xml.transform.sax.SAXSource;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.List;
-import javax.xml.bind.*;
-import javax.xml.bind.annotation.XmlAccessType;
-import javax.xml.bind.annotation.XmlAccessorType;
-import javax.xml.bind.annotation.XmlAttribute;
-import javax.xml.bind.annotation.XmlElement;
-import javax.xml.bind.annotation.XmlElementWrapper;
-import javax.xml.bind.annotation.XmlRootElement;
-import javax.xml.bind.annotation.adapters.XmlJavaTypeAdapter;
-import javax.xml.transform.sax.SAXSource;
 
-import org.carlspring.strongbox.storage.metadata.nuget.metadata.ContentFile;
-import org.carlspring.strongbox.storage.metadata.nuget.metadata.Dependencies;
-import org.carlspring.strongbox.storage.metadata.nuget.metadata.DependenciesGroup;
-import org.carlspring.strongbox.storage.metadata.nuget.metadata.Dependency;
-import org.carlspring.strongbox.storage.metadata.nuget.metadata.File;
-import org.carlspring.strongbox.storage.metadata.nuget.metadata.FrameworkAssembly;
-import org.carlspring.strongbox.storage.metadata.nuget.metadata.PackageType;
-import org.carlspring.strongbox.storage.metadata.nuget.metadata.Repository;
-import org.carlspring.strongbox.storage.metadata.nuget.metadata.StringListTypeAdapter;
-import org.carlspring.strongbox.storage.metadata.nuget.metadata.VersionTypeAdapter;
 import org.semver.Version;
 import org.xml.sax.InputSource;
 import org.xml.sax.SAXException;

@@ -15,17 +15,15 @@
  * limitations under the License.
  */
 
-package org.carlspring.strongbox.storage.metadata.nuget.metadata;
+package org.carlspring.strongbox.storage.metadata.nuget;
 
-import java.io.Serializable;
-import java.util.EnumSet;
 import javax.xml.bind.annotation.XmlAccessType;
 import javax.xml.bind.annotation.XmlAccessorType;
 import javax.xml.bind.annotation.XmlAttribute;
 import javax.xml.bind.annotation.XmlRootElement;
 import javax.xml.bind.annotation.adapters.XmlJavaTypeAdapter;
-
-import org.carlspring.strongbox.storage.metadata.nuget.Nuspec;
+import java.io.Serializable;
+import java.util.EnumSet;
 
 /**
  * A class that describes dependencies on assemblies that come with the .NET
