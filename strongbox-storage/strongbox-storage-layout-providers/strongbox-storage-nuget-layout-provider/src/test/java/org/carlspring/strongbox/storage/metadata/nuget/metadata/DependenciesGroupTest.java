@@ -17,11 +17,11 @@
 
 package org.carlspring.strongbox.storage.metadata.nuget.metadata;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
+import org.carlspring.strongbox.storage.metadata.nuget.DependenciesGroup;
+import org.carlspring.strongbox.storage.metadata.nuget.Framework;
 
-import org.carlspring.strongbox.storage.metadata.nuget.metadata.DependenciesGroup;
-import org.carlspring.strongbox.storage.metadata.nuget.metadata.Framework;
 import org.junit.jupiter.api.Test;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 
 /**
  * @author Dmitry Sviridov

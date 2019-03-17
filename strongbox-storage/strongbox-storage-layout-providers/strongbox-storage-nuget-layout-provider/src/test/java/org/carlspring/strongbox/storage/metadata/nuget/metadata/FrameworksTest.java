@@ -17,11 +17,11 @@
 
 package org.carlspring.strongbox.storage.metadata.nuget.metadata;
 
+import org.carlspring.strongbox.storage.metadata.nuget.Framework;
+
 import java.util.EnumSet;
 
-import org.carlspring.strongbox.storage.metadata.nuget.metadata.Framework;
 import org.junit.jupiter.api.Test;
-
 import static org.hamcrest.CoreMatchers.hasItems;
 import static org.hamcrest.CoreMatchers.is;
 import static org.hamcrest.MatcherAssert.assertThat;

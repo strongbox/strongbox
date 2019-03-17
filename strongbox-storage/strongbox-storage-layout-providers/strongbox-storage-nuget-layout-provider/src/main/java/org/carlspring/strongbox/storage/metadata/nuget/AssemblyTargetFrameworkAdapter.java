@@ -15,14 +15,13 @@
  * limitations under the License.
  */
 
-package org.carlspring.strongbox.storage.metadata.nuget.metadata;
+package org.carlspring.strongbox.storage.metadata.nuget;
+
+import javax.xml.bind.annotation.adapters.XmlAdapter;
+import java.util.EnumSet;
 
 import com.google.common.base.Joiner;
 import com.google.common.base.Strings;
-
-import java.util.EnumSet;
-import javax.xml.bind.annotation.adapters.XmlAdapter;
-
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 

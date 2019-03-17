@@ -17,16 +17,14 @@
 
 package org.carlspring.strongbox.storage.metadata.nuget.metadata;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertNull;
-import static org.junit.jupiter.api.Assertions.assertTrue;
-
+import org.carlspring.strongbox.storage.metadata.nuget.Dependency;
+import org.carlspring.strongbox.storage.metadata.nuget.Framework;
 import org.carlspring.strongbox.storage.metadata.nuget.NugetFormatException;
-import org.carlspring.strongbox.storage.metadata.nuget.metadata.Dependency;
-import org.carlspring.strongbox.storage.metadata.nuget.metadata.Framework;
-import org.carlspring.strongbox.storage.metadata.nuget.metadata.VersionRange;
+import org.carlspring.strongbox.storage.metadata.nuget.VersionRange;
+
 import org.junit.jupiter.api.Test;
 import org.semver.Version;
+import static org.junit.jupiter.api.Assertions.*;
 
 /**
  * Test class dependencies

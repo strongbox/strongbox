@@ -1,11 +1,16 @@
 package org.carlspring.strongbox.artifact.generator;
 
-import java.io.ByteArrayInputStream;
-import java.io.ByteArrayOutputStream;
-import java.io.File;
-import java.io.FileOutputStream;
-import java.io.IOException;
-import java.io.InputStream;
+import org.carlspring.commons.io.RandomInputStream;
+import org.carlspring.strongbox.io.LayoutOutputStream;
+import org.carlspring.strongbox.resource.ResourceCloser;
+import org.carlspring.strongbox.storage.metadata.nuget.Dependencies;
+import org.carlspring.strongbox.storage.metadata.nuget.Dependency;
+import org.carlspring.strongbox.storage.metadata.nuget.NugetFormatException;
+import org.carlspring.strongbox.storage.metadata.nuget.Nuspec;
+import org.carlspring.strongbox.util.MessageDigestUtils;
+
+import javax.xml.bind.JAXBException;
+import java.io.*;
 import java.nio.charset.StandardCharsets;
 import java.security.NoSuchAlgorithmException;
 import java.util.ArrayList;
@@ -13,18 +18,7 @@ import java.util.Base64;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipOutputStream;
 
-import javax.xml.bind.JAXBException;
-
 import org.apache.commons.codec.digest.MessageDigestAlgorithms;
-import org.carlspring.commons.io.RandomInputStream;
-import org.carlspring.strongbox.io.LayoutOutputStream;
-import org.carlspring.strongbox.providers.layout.NugetLayoutProvider;
-import org.carlspring.strongbox.resource.ResourceCloser;
-import org.carlspring.strongbox.storage.metadata.nuget.NugetFormatException;
-import org.carlspring.strongbox.storage.metadata.nuget.Nuspec;
-import org.carlspring.strongbox.storage.metadata.nuget.metadata.Dependencies;
-import org.carlspring.strongbox.storage.metadata.nuget.metadata.Dependency;
-import org.carlspring.strongbox.util.MessageDigestUtils;
 import org.semver.Version;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;

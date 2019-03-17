@@ -15,12 +15,12 @@
  * limitations under the License.
  */
 
-package org.carlspring.strongbox.storage.metadata.nuget.metadata;
+package org.carlspring.strongbox.storage.metadata.nuget;
 
+import javax.xml.bind.annotation.adapters.XmlAdapter;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
-import javax.xml.bind.annotation.adapters.XmlAdapter;
 
 /**
  * @author Unlocker

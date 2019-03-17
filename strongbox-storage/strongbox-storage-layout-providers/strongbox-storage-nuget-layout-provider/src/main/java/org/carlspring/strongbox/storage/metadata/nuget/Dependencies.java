@@ -15,14 +15,12 @@
  * limitations under the License.
  */
 
-package org.carlspring.strongbox.storage.metadata.nuget.metadata;
+package org.carlspring.strongbox.storage.metadata.nuget;
 
+import javax.xml.bind.annotation.XmlElement;
 import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.List;
-import javax.xml.bind.annotation.XmlElement;
-
-import org.carlspring.strongbox.storage.metadata.nuget.Nuspec;
 
 /**
  * Package dependencies

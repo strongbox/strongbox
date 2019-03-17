@@ -17,6 +17,11 @@
 
 package org.carlspring.strongbox.storage.metadata.nuget;
 
+import javax.xml.namespace.NamespaceContext;
+import javax.xml.parsers.DocumentBuilder;
+import javax.xml.parsers.DocumentBuilderFactory;
+import javax.xml.parsers.ParserConfigurationException;
+import javax.xml.xpath.*;
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
@@ -24,32 +29,12 @@ import java.io.InputStream;
 import java.util.EnumSet;
 import java.util.Iterator;
 import java.util.List;
-import javax.xml.namespace.NamespaceContext;
-import javax.xml.parsers.DocumentBuilder;
-import javax.xml.parsers.DocumentBuilderFactory;
-import javax.xml.parsers.ParserConfigurationException;
-import javax.xml.xpath.XPath;
-import javax.xml.xpath.XPathConstants;
-import javax.xml.xpath.XPathExpression;
-import javax.xml.xpath.XPathExpressionException;
-import javax.xml.xpath.XPathFactory;
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertArrayEquals;
-import static org.junit.jupiter.api.Assertions.assertThrows;
-import static org.junit.jupiter.api.Assertions.assertNotNull;
-import static org.junit.jupiter.api.Assertions.assertNull;
 
-import org.carlspring.strongbox.storage.metadata.nuget.NugetFormatException;
-import org.carlspring.strongbox.storage.metadata.nuget.Nuspec;
-import org.carlspring.strongbox.storage.metadata.nuget.Reference;
-import org.carlspring.strongbox.storage.metadata.nuget.metadata.Dependency;
-import org.carlspring.strongbox.storage.metadata.nuget.metadata.Framework;
-import org.carlspring.strongbox.storage.metadata.nuget.metadata.VersionRange;
 import org.junit.jupiter.api.Test;
+import org.semver.Version;
 import org.w3c.dom.Document;
 import org.xml.sax.SAXException;
-
-import org.semver.Version;
+import static org.junit.jupiter.api.Assertions.*;
 
 /**
  * @author Dmitry Sviridov

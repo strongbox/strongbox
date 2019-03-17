@@ -15,46 +15,30 @@
  * limitations under the License.
  */
 
-package org.carlspring.strongbox.storage.metadata.nuget.metadata;
-
-import java.io.Serializable;
+package org.carlspring.strongbox.storage.metadata.nuget;
 
 import javax.xml.bind.annotation.XmlAccessType;
 import javax.xml.bind.annotation.XmlAccessorType;
 import javax.xml.bind.annotation.XmlAttribute;
 import javax.xml.bind.annotation.XmlRootElement;
+import java.io.Serializable;
 
-import org.carlspring.strongbox.storage.metadata.nuget.Nuspec;
-
-@XmlRootElement(name = "repository", namespace = Nuspec.NUSPEC_XML_NAMESPACE_2011)
+@XmlRootElement(name = "packageType", namespace = Nuspec.NUSPEC_XML_NAMESPACE_2011)
 @XmlAccessorType(XmlAccessType.NONE)
-public class Repository implements Serializable
+public class PackageType implements Serializable
 {
 
-    @XmlAttribute(name = "type")
-    private String type;
+    @XmlAttribute(name = "packageType")
+    private String packageType;
 
-    @XmlAttribute(name = "url")
-    private String url;
-
-    protected String getType()
+    protected String getPackageType()
     {
-        return type;
+        return packageType;
     }
 
-    protected void setType(String type)
+    protected void setPackageType(String packageType)
     {
-        this.type = type;
-    }
-
-    protected String getUrl()
-    {
-        return url;
-    }
-
-    protected void setUrl(String url)
-    {
-        this.url = url;
+        this.packageType = packageType;
     }
 
 }

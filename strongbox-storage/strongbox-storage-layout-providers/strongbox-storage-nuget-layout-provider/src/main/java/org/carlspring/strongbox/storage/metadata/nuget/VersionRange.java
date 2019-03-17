@@ -15,16 +15,14 @@
  * limitations under the License.
  */
 
-package org.carlspring.strongbox.storage.metadata.nuget.metadata;
+package org.carlspring.strongbox.storage.metadata.nuget;
 
+import javax.annotation.Nonnull;
 import java.io.Serializable;
 import java.util.Objects;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-import javax.annotation.Nonnull;
-
-import org.carlspring.strongbox.storage.metadata.nuget.NugetFormatException;
 import org.semver.Version;
 
 /**
