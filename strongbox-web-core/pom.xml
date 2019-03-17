@@ -616,4 +616,73 @@
 
     </dependencies>
 
+    <profiles>
+        <profile>
+            <id>generate-swagger-documentation</id>
+            <activation>
+                <property>
+                    <name>!skipSwagger</name>
+                </property>
+            </activation>
+
+            <build>
+                <plugins>
+                    <plugin>
+                        <groupId>com.github.kongchen</groupId>
+                        <artifactId>swagger-maven-plugin</artifactId>
+                        <configuration>
+                            <apiSources>
+                                <apiSource>
+                                    <springmvc>true</springmvc>
+                                    <locations>org.carlspring.strongbox.controllers</locations>
+                                    <schemes>http,https</schemes>
+                                    <host>carlspring.org</host>
+                                    <basePath>/strongbox</basePath>
+                                    <info>
+                                        <title>Carlspring Consulting &amp; Development Ltd.</title>
+                                        <version>${project.version}</version>
+                                        <description>This is the documentation of Strongbox's REST API.</description>
+                                        <termsOfService>http://github.com/strongbox/strongbox/</termsOfService>
+                                        <contact>
+                                            <email>carlspring@gmail.com</email>
+                                            <name>Martin Todorov</name>
+                                            <url>http://github.com/strongbox/strongbox/</url>
+                                        </contact>
+                                        <license>
+                                            <url>http://www.apache.org/licenses/LICENSE-2.0.html</url>
+                                            <name>Apache 2.0</name>
+                                        </license>
+                                    </info>
+                                    <!-- Support classpath or file absolute path here.
+                                    1) classpath e.g: "classpath:/markdown.hbs", "classpath:/templates/hello.html"
+                                    2) file e.g: "${basedir}/src/main/resources/markdown.hbs",
+                                        "${basedir}/src/main/resources/template/hello.html" -->
+                                    <templatePath>${basedir}/src/main/swagger/templates/strapdown.html.hbs</templatePath>
+                                    <outputPath>${project.build.directory}/generated/documentation/docs/rest/api.html</outputPath>
+                                    <swaggerDirectory>${project.build.directory}/generated/documentation/docs/rest/swagger-ui</swaggerDirectory>
+
+                                    <!--
+                                    <securityDefinitions>
+                                        <securityDefinition>
+                                            <json>/securityDefinitions.json</json>
+                                        </securityDefinition>
+                                    </securityDefinitions>
+                                    -->
+                                </apiSource>
+                            </apiSources>
+                        </configuration>
+                        <executions>
+                            <execution>
+                                <phase>compile</phase>
+                                <goals>
+                                    <goal>generate</goal>
+                                </goals>
+                            </execution>
+                        </executions>
+                    </plugin>
+                </plugins>
+            </build>
+        </profile>
+    </profiles>
+
 </project>
