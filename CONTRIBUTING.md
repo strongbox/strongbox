@@ -108,7 +108,7 @@ To accept, please:
 | Maxim Antonov                |                                          | Moscow, Russian Federation              | 2018-01-14 |
 | Aditya Srinivasan            |                                          | Washington DC, USA                      | 2018-02-02 |
 | Sevastyan Pigarev			         |                              										  | Barnaul, Russian Federation				         | 2018-03-27 |
-| Mariusz Kaligowski		         |                              										  | Poland 				                             | 2018-04-26 |
+| Mariusz Kaligowski		         |                              										  | Juszczyn, Poland                        | 2018-04-26 |
 | Michael Altenburger          | 						                             				  | Vienna, Austria                     				| 2018-09-29 |
 | Leonora Der                  | ELTE Faculty of Informatics              | Budapest, Hungary                       | 2018-10-20 |
 | Benjamin March               |                             			          | Munich, Germany                     				| 2018-10-28 |
