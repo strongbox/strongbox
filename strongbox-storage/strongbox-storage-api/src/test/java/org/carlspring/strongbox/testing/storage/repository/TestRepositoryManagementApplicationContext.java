@@ -1,5 +1,6 @@
 package org.carlspring.strongbox.testing.storage.repository;
 
+import static org.carlspring.strongbox.testing.artifact.TestArtifactContext.id;
 import static org.carlspring.strongbox.testing.storage.repository.TestRepositoryContext.id;
 
 import java.io.IOException;
@@ -17,6 +18,9 @@ import java.util.concurrent.TimeUnit;
 import java.util.concurrent.locks.ReentrantLock;
 import java.util.stream.Collectors;
 
+import org.carlspring.strongbox.testing.artifact.TestArtifact;
+import org.carlspring.strongbox.testing.artifact.TestArtifactContext;
+import org.junit.jupiter.api.TestInfo;
 import org.junit.jupiter.api.extension.ExtensionContext;
 import org.junit.jupiter.api.extension.ParameterContext;
 import org.slf4j.Logger;
@@ -44,7 +48,7 @@ public class TestRepositoryManagementApplicationContext extends AnnotationConfig
 
     private Map<Class<? extends Annotation>, Boolean> extensionsToApply = new HashMap<>();
 
-    private static Map<String, ReentrantLock> testRepositorySync = new ConcurrentSkipListMap<>();
+    private static Map<String, ReentrantLock> idSync = new ConcurrentSkipListMap<>();
 
     public static void registerExtension(Class<? extends Annotation> extensionType,
                                          ExtensionContext context)
@@ -117,6 +121,11 @@ public class TestRepositoryManagementApplicationContext extends AnnotationConfig
         throws BeansException,
         IllegalStateException
     {
+        if (isActive())
+        {
+            return;
+        }
+
         Boolean allApplied = extensionsToApply.values()
                                               .stream()
                                               .filter(applied -> applied)
@@ -127,17 +136,17 @@ public class TestRepositoryManagementApplicationContext extends AnnotationConfig
             return;
         }
 
-        lockRepositories();
+        lock();
         super.refresh();
     }
 
-    private void lockRepositories()
+    private void lock()
     {
-        Set<Entry<String, ReentrantLock>> entrySet = testRepositorySync.entrySet();
+        Set<Entry<String, ReentrantLock>> entrySet = idSync.entrySet();
         outer: for (Entry<String, ReentrantLock> entry : entrySet)
         {
-            String testRepositoryId = entry.getKey();
-            if (!Arrays.stream(getBeanDefinitionNames()).anyMatch(n -> n.equals(testRepositoryId)))
+            String resourceId = entry.getKey();
+            if (!Arrays.stream(getBeanDefinitionNames()).anyMatch(n -> n.equals(resourceId)))
             {
                 continue;
             }
@@ -149,27 +158,27 @@ public class TestRepositoryManagementApplicationContext extends AnnotationConfig
                 {
                     if (lock.tryLock() || lock.tryLock(100, TimeUnit.MILLISECONDS))
                     {
-                        logger.info(String.format("Test Repository [%s] locked.", testRepositoryId));
+                        logger.info(String.format("Test resource [%s] locked.", resourceId));
                         continue outer;
                     }
                 }
                 catch (InterruptedException e)
                 {
                     Thread.currentThread().interrupt();
-                    throw new ApplicationContextException(String.format("Failed to lock [%s].", testRepositoryId), e);
+                    throw new ApplicationContextException(String.format("Failed to lock [%s].", resourceId), e);
 
                 }
             }
 
             throw new ApplicationContextException(
-                    String.format("Failed to lock [%s] after [%s] attempts. Consider to use unique repository ID for your test.",
-                                  testRepositoryId,
+                    String.format("Failed to lock [%s] after [%s] attempts. Consider to use unique resource ID for your test.",
+                                  resourceId,
                                   REPOSITORY_LOCK_ATTEMPTS));
 
         }
     }
 
-    private void unlockRepositories()
+    private void unlock()
     {
         Comparator<Entry<String, ReentrantLock>> reversed = new Comparator<Entry<String, ReentrantLock>>()
         {
@@ -182,14 +191,15 @@ public class TestRepositoryManagementApplicationContext extends AnnotationConfig
             }
 
         };
-        Set<Entry<String, ReentrantLock>> reversedEntrySet = testRepositorySync.entrySet()
+        Set<Entry<String, ReentrantLock>> reversedEntrySet = idSync.entrySet()
                                                                                .stream()
                                                                                .sorted(reversed)
                                                                                .collect(Collectors.toSet());
+        String[] beanDefinitionNames = getBeanDefinitionNames();
         for (Entry<String, ReentrantLock> entry : reversedEntrySet)
         {
-            String testRepositoryId = entry.getKey();
-            if (!Arrays.stream(getBeanDefinitionNames()).anyMatch(n -> n.equals(testRepositoryId)))
+            String id = entry.getKey();
+            if (!Arrays.stream(beanDefinitionNames).anyMatch(n -> n.equals(id)))
             {
                 continue;
             }
@@ -197,7 +207,7 @@ public class TestRepositoryManagementApplicationContext extends AnnotationConfig
             ReentrantLock lock = entry.getValue();
             lock.unlock();
 
-            logger.info(String.format("Test Repository [%s] unlocked.", testRepositoryId));
+            logger.info(String.format("Test resource [%s] unlocked.", id));
         }
     }
 
@@ -215,7 +225,7 @@ public class TestRepositoryManagementApplicationContext extends AnnotationConfig
             throw new ApplicationContextException("Failed to close context.", e);
         } finally
         {
-            unlockRepositories();
+            unlock();
         }
     }
 
@@ -255,11 +265,24 @@ public class TestRepositoryManagementApplicationContext extends AnnotationConfig
     }
 
     @Override
+    public TestArtifactContext getTestArtifactContext(String id)
+    {
+        return (TestArtifactContext) getBean(id);
+    }
+
+    @Override
     public void register(TestRepository testRepository)
     {
-        testRepositorySync.putIfAbsent(id(testRepository), new ReentrantLock());
-
+        idSync.putIfAbsent(id(testRepository), new ReentrantLock());
         registerBean(id(testRepository), TestRepositoryContext.class, testRepository);
+    }
+
+    @Override
+    public void register(TestArtifact testArtifact,
+                         TestInfo testInfo)
+    {
+        idSync.putIfAbsent(id(testArtifact), new ReentrantLock());
+        registerBean(id(testArtifact), TestArtifactContext.class, testArtifact, testInfo);
     }
 
 }

@@ -3,9 +3,12 @@ package org.carlspring.strongbox.testing;
 import java.io.IOException;
 import java.util.Collections;
 import java.util.Set;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 import javax.inject.Inject;
 
+import org.apache.commons.codec.digest.MessageDigestAlgorithms;
 import org.carlspring.strongbox.artifact.coordinates.NullArtifactCoordinates;
 import org.carlspring.strongbox.providers.io.RepositoryFiles;
 import org.carlspring.strongbox.providers.io.RepositoryPath;
@@ -47,6 +50,12 @@ public class NullLayoutProvider extends AbstractLayoutProvider<NullArtifactCoord
         throws IOException
     {
         return new NullArtifactCoordinates(RepositoryFiles.relativizePath(repositoryPath));
+    }
+
+    protected Set<String> getDigestAlgorithmSet()
+    {
+        return Stream.of(MessageDigestAlgorithms.MD5)
+                     .collect(Collectors.toSet());
     }
 
 }

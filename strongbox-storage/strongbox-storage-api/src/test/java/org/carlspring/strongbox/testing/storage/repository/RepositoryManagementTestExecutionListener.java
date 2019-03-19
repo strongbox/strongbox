@@ -9,53 +9,20 @@ import java.lang.reflect.Parameter;
 import java.lang.reflect.Proxy;
 
 import org.carlspring.strongbox.storage.repository.Repository;
-import org.junit.jupiter.api.extension.AfterTestExecutionCallback;
-import org.junit.jupiter.api.extension.BeforeTestExecutionCallback;
 import org.junit.jupiter.api.extension.ExtensionContext;
 import org.junit.jupiter.api.extension.ParameterContext;
 import org.junit.jupiter.api.extension.ParameterResolutionException;
-import org.junit.jupiter.api.extension.ParameterResolver;
 
 /**
  * @author sbespalov
  *
  */
-public class RepositoryManagementTestExecutionListener
-        implements ParameterResolver, BeforeTestExecutionCallback, AfterTestExecutionCallback
+public class RepositoryManagementTestExecutionListener extends TestRepositoryManagementContextSupport<TestRepository>
 {
 
-    private TestRepositoryManagementContext getTestRepositoryManagementContext()
+    public RepositoryManagementTestExecutionListener()
     {
-        return TestRepositoryManagementApplicationContext.getInstance();
-    }
-
-    @Override
-    public void beforeTestExecution(ExtensionContext context)
-        throws Exception
-    {
-        TestRepositoryManagementApplicationContext.registerExtension(TestRepository.class, context);
-    }
-
-    @Override
-    public void afterTestExecution(ExtensionContext context)
-        throws Exception
-    {
-        TestRepositoryManagementApplicationContext.closeExtension(TestRepository.class, context);
-    }
-
-    @Override
-    public boolean supportsParameter(ParameterContext parameterContext,
-                                     ExtensionContext extensionContext)
-        throws ParameterResolutionException
-    {
-        boolean applying = getTestRepositoryManagementContext().tryToApply(TestRepository.class,
-                                                                                    parameterContext);
-        if (!applying)
-        {
-            getTestRepositoryManagementContext().refresh();
-        }
-
-        return applying;
+        super(TestRepository.class);
     }
 
     @Override
@@ -101,7 +68,7 @@ public class RepositoryManagementTestExecutionListener
         {
             if (target == null)
             {
-                target = ((TestRepositoryContext) getTestRepositoryManagementContext().getTestRepositoryContext(id)).getRepository();
+                target = getTestRepositoryManagementContext().getTestRepositoryContext(id).getRepository();
             }
 
             try
