@@ -1,0 +1,77 @@
+configuration:
+  instanceName: strongbox
+  version: ${project.version}
+  revision: ${strongbox.revision}
+  baseUrl: http://localhost:48080/
+  port: 48080
+  sessionConfiguration:
+    timeoutSeconds: 3600
+  remoteRepositoriesConfiguration:
+    checkIntervalSeconds: 60
+    heartbeatThreadsNumber: 5
+    retryArtifactDownloadConfiguration:
+      timeoutSeconds: 60
+      maxNumberOfAttempts: 5
+      minAttemptsIntervalSeconds: 5
+  corsConfiguration:
+    allowedCredentials: true
+    maxAge: 600
+    allowedOrigins:
+      - "*"
+    allowedMethods:
+      - GET
+      - PUT
+      - POST
+      - DELETE
+      - OPTIONS
+    allowedHeaders:
+      - Accept
+      - Accepts
+      - Authorization
+      - Access-Control-Allow-Headers
+      - Access-Control-Request-Headers
+      - Access-Control-Request-Method
+      - DNT
+      - Keep-Alive
+      - User-Agent
+      - X-Requested-With
+      - If-Modified-Since
+      - Cache-Control
+      - Content-Type
+      - Content-Range,Range
+  storages:
+    storage-npm:
+      id: storage-npm
+      repositories:
+        npm-releases:
+          id: npm-releases
+          policy: release
+          dataStore: file-system
+          layout: npm
+          type: hosted
+          allowsForceDeletion: true
+          checksumHeadersEnabled: true
+        npmjs:
+          id: npmjs
+          policy: release
+          dataStore: file-system
+          layout: npm
+          type: proxy
+          remoteRepository:
+            url: https://registry.npmjs.org/
+            customConfiguration:
+              type: npmRemoteRepositoryConfiguration
+              lastChangeId: 0
+              replicateUrl: https://replicate.npmjs.com/
+    public:
+      id: public
+      repositories:
+        npm-group:
+          id: npm-group
+          policy: mixed
+          dataStore: file-system
+          layout: npm
+          type: group
+          secured: true
+          groupRepositories:
+            - storage-npm:npmjs

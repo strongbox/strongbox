@@ -1,0 +1,91 @@
+configuration:
+  instanceName: strongbox
+  version: ${project.version}
+  revision: ${strongbox.revision}
+  baseUrl: http://localhost:48080/
+  port: 48080
+  sessionConfiguration:
+    timeoutSeconds: 3600
+  remoteRepositoriesConfiguration:
+    checkIntervalSeconds: 60
+    heartbeatThreadsNumber: 5
+    retryArtifactDownloadConfiguration:
+      timeoutSeconds: 60
+      maxNumberOfAttempts: 5
+      minAttemptsIntervalSeconds: 5
+  corsConfiguration:
+    allowedCredentials: true
+    maxAge: 600
+    allowedOrigins:
+      - "*"
+    allowedMethods:
+      - GET
+      - PUT
+      - POST
+      - DELETE
+      - OPTIONS
+    allowedHeaders:
+      - Accept
+      - Accepts
+      - Authorization
+      - Access-Control-Allow-Headers
+      - Access-Control-Request-Headers
+      - Access-Control-Request-Method
+      - DNT
+      - Keep-Alive
+      - User-Agent
+      - X-Requested-With
+      - If-Modified-Since
+      - Cache-Control
+      - Content-Type
+      - Content-Range,Range
+  storages:
+    storage-common-proxies:
+      id: storage-common-proxies
+      repositories:
+        nuget.org:
+          id: nuget.org
+          policy: release
+          dataStore: file-system
+          layout: NuGet
+          type: proxy
+          remoteRepository:
+            url: https://www.nuget.org/api/v2
+          repositoryConfiguration:
+            type: nugetRepositoryConfiguration
+            remoteFeedPageSize: 1000
+    storage-third-party:
+      id: storage-third-party
+      repositories:
+        nuget-third-party:
+          id: nuget-third-party
+          policy: release
+          dataStore: file-system
+          layout: NuGet
+          type: hosted
+          allowsForceDeletion: true
+          checksumHeadersEnabled: true
+    storage-nuget:
+      id: storage-nuget
+      repositories:
+        nuget-releases:
+          id: nuget-releases
+          policy: release
+          dataStore: file-system
+          layout: NuGet
+          type: hosted
+          allowsForceDeletion: true
+          checksumHeadersEnabled: true
+    public:
+      id: public
+      repositories:
+        nuget-group:
+          id: nuget-group
+          policy: mixed
+          dataStore: file-system
+          layout: NuGet
+          type: group
+          secured: true
+          groupRepositories:
+            - storage-common-proxies:nuget.org
+            - storage-third-party:nuget-third-party
