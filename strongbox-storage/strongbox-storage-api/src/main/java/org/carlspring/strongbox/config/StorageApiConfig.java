@@ -23,7 +23,7 @@ import org.springframework.scheduling.annotation.EnableAsync;
                  "org.carlspring.strongbox.providers",
                  "org.carlspring.strongbox.services",
                  "org.carlspring.strongbox.storage",
-                 "org.carlspring.strongbox.xml",
+                 "org.carlspring.strongbox.yaml",
                  "org.carlspring.strongbox.dependency",
                  "org.carlspring.strongbox.domain",
                  "org.carlspring.strongbox.booters"

@@ -188,7 +188,7 @@ public class WebConfig
                                      "org.carlspring.strongbox.storage.repository.aws",
                                      "org.carlspring.strongbox.storage.repository.gcs",
                                      "org.carlspring.strongbox.storage.routing",
-                                     "org.carlspring.strongbox.xml",
+                                     "org.carlspring.strongbox.yaml",
                                      "org.carlspring.strongbox.forms");
         Map<String, Object> props = new HashMap<>();
         props.put(Marshaller.JAXB_FORMATTED_OUTPUT, true);

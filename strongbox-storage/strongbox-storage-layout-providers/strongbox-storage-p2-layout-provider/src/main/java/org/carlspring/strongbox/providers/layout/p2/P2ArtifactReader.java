@@ -1,7 +1,7 @@
 package org.carlspring.strongbox.providers.layout.p2;
 
 import org.carlspring.strongbox.artifact.coordinates.P2ArtifactCoordinates;
-import org.carlspring.strongbox.xml.parsers.GenericParser;
+import org.carlspring.strongbox.yaml.parsers.GenericParser;
 
 import javax.xml.bind.JAXBException;
 import java.io.IOException;

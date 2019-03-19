@@ -1,6 +1,6 @@
 package org.carlspring.strongbox.storage.repository;
 
-import org.carlspring.strongbox.xml.CustomTag;
+import org.carlspring.strongbox.yaml.CustomTag;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonTypeInfo;

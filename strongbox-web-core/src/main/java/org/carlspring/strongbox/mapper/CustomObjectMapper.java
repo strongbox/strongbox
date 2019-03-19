@@ -7,11 +7,11 @@ import org.carlspring.strongbox.providers.layout.Maven2LayoutProvider;
 import org.carlspring.strongbox.providers.layout.NpmLayoutProvider;
 import org.carlspring.strongbox.providers.layout.NugetLayoutProvider;
 import org.carlspring.strongbox.providers.layout.RawLayoutProvider;
-import org.carlspring.strongbox.xml.configuration.repository.MavenRepositoryConfiguration;
-import org.carlspring.strongbox.xml.configuration.repository.NpmRepositoryConfiguration;
-import org.carlspring.strongbox.xml.configuration.repository.NugetRepositoryConfiguration;
-import org.carlspring.strongbox.xml.configuration.repository.RawRepositoryConfiguration;
-import org.carlspring.strongbox.xml.parsers.GenericParser;
+import org.carlspring.strongbox.yaml.configuration.repository.MavenRepositoryConfiguration;
+import org.carlspring.strongbox.yaml.configuration.repository.NpmRepositoryConfiguration;
+import org.carlspring.strongbox.yaml.configuration.repository.NugetRepositoryConfiguration;
+import org.carlspring.strongbox.yaml.configuration.repository.RawRepositoryConfiguration;
+import org.carlspring.strongbox.yaml.parsers.GenericParser;
 
 import javax.annotation.PostConstruct;
 

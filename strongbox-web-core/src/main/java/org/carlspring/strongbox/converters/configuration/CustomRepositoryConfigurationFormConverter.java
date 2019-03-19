@@ -4,10 +4,10 @@ import org.carlspring.strongbox.forms.configuration.CustomRepositoryConfiguratio
 import org.carlspring.strongbox.forms.configuration.MavenRepositoryConfigurationForm;
 import org.carlspring.strongbox.forms.configuration.NugetRepositoryConfigurationForm;
 import org.carlspring.strongbox.forms.configuration.RawRepositoryConfigurationForm;
-import org.carlspring.strongbox.xml.configuration.repository.MutableMavenRepositoryConfiguration;
-import org.carlspring.strongbox.xml.configuration.repository.MutableNugetRepositoryConfiguration;
-import org.carlspring.strongbox.xml.configuration.repository.MutableRawRepositoryConfiguration;
-import org.carlspring.strongbox.xml.repository.MutableCustomRepositoryConfiguration;
+import org.carlspring.strongbox.yaml.configuration.repository.MutableMavenRepositoryConfiguration;
+import org.carlspring.strongbox.yaml.configuration.repository.MutableNugetRepositoryConfiguration;
+import org.carlspring.strongbox.yaml.configuration.repository.MutableRawRepositoryConfiguration;
+import org.carlspring.strongbox.yaml.repository.MutableCustomRepositoryConfiguration;
 
 /**
  * @author Przemyslaw Fusik

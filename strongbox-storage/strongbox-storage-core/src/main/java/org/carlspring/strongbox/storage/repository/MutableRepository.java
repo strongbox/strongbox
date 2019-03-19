@@ -4,7 +4,7 @@ import org.carlspring.strongbox.configuration.MutableProxyConfiguration;
 import org.carlspring.strongbox.providers.datastore.FileSystemStorageProvider;
 import org.carlspring.strongbox.storage.MutableStorage;
 import org.carlspring.strongbox.storage.repository.remote.MutableRemoteRepository;
-import org.carlspring.strongbox.xml.repository.MutableCustomRepositoryConfiguration;
+import org.carlspring.strongbox.yaml.repository.MutableCustomRepositoryConfiguration;
 
 import java.io.Serializable;
 import java.nio.file.Paths;

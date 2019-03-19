@@ -32,7 +32,7 @@ import org.carlspring.strongbox.storage.repository.remote.RemoteRepository;
 import org.carlspring.strongbox.storage.validation.artifact.version.GenericReleaseVersionValidator;
 import org.carlspring.strongbox.storage.validation.artifact.version.GenericSnapshotVersionValidator;
 import org.carlspring.strongbox.storage.validation.deployment.RedeploymentValidator;
-import org.carlspring.strongbox.xml.configuration.repository.NugetRepositoryConfiguration;
+import org.carlspring.strongbox.yaml.configuration.repository.NugetRepositoryConfiguration;
 
 import javax.annotation.PostConstruct;
 import javax.inject.Inject;

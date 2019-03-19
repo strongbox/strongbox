@@ -1,8 +1,8 @@
 package org.carlspring.strongbox.configuration;
 
 import org.carlspring.strongbox.resource.ConfigurationResourceResolver;
-import org.carlspring.strongbox.xml.repository.RepositoryConfiguration;
-import org.carlspring.strongbox.xml.repository.remote.RemoteRepositoryConfiguration;
+import org.carlspring.strongbox.yaml.repository.RepositoryConfiguration;
+import org.carlspring.strongbox.yaml.repository.remote.RemoteRepositoryConfiguration;
 import org.carlspring.strongbox.yaml.YamlFileManager;
 
 import javax.inject.Inject;

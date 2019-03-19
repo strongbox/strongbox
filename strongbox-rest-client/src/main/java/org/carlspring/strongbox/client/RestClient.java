@@ -7,7 +7,7 @@ import org.carlspring.strongbox.forms.configuration.RepositoryForm;
 import org.carlspring.strongbox.forms.configuration.StorageForm;
 import org.carlspring.strongbox.storage.Storage;
 import org.carlspring.strongbox.storage.repository.ImmutableRepository;
-import org.carlspring.strongbox.xml.parsers.GenericParser;
+import org.carlspring.strongbox.yaml.parsers.GenericParser;
 
 import javax.ws.rs.ServerErrorException;
 import javax.ws.rs.client.Entity;

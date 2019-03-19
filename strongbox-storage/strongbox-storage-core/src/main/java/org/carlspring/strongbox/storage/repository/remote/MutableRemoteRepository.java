@@ -1,6 +1,6 @@
 package org.carlspring.strongbox.storage.repository.remote;
 
-import org.carlspring.strongbox.xml.repository.remote.MutableRemoteRepositoryConfiguration;
+import org.carlspring.strongbox.yaml.repository.remote.MutableRemoteRepositoryConfiguration;
 
 import java.io.Serializable;
 

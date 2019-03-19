@@ -4,7 +4,7 @@ import org.carlspring.strongbox.configuration.MutableConfiguration;
 import org.carlspring.strongbox.storage.MutableStorage;
 import org.carlspring.strongbox.storage.repository.aws.MutableAwsConfiguration;
 import org.carlspring.strongbox.storage.repository.gcs.MutableGoogleCloudConfiguration;
-import org.carlspring.strongbox.xml.parsers.GenericParser;
+import org.carlspring.strongbox.yaml.parsers.GenericParser;
 
 import javax.xml.bind.JAXBException;
 import java.io.ByteArrayInputStream;
