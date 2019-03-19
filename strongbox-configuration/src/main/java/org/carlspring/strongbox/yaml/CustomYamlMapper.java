@@ -14,7 +14,6 @@ import org.springframework.stereotype.Component;
 /**
  * @author Pablo Tirado
  */
-@Component
 public class CustomYamlMapper
         extends YAMLMapper
 {

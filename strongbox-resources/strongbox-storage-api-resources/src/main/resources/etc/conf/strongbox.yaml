@@ -139,7 +139,7 @@ configuration:
             - maven-central
             - apache-snapshots
             - jboss-public-releases
-        "[nuget.org]":
+        nuget.org:
           id: nuget.org
           policy: release
           dataStore: file-system

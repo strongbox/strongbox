@@ -2,18 +2,20 @@ package org.carlspring.strongbox.yaml;
 
 import org.carlspring.strongbox.resource.ConfigurationResourceResolver;
 
-import java.io.BufferedInputStream;
-import java.io.File;
-import java.io.IOException;
-import java.io.InputStream;
+import java.io.*;
 import java.lang.reflect.UndeclaredThrowableException;
+import java.nio.file.Files;
+import java.nio.file.Paths;
 import java.util.Arrays;
 import java.util.HashSet;
 import java.util.ServiceLoader;
 import java.util.Set;
 
 import com.fasterxml.jackson.dataformat.yaml.YAMLMapper;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.core.GenericTypeResolver;
+import org.springframework.core.io.ClassPathResource;
 import org.springframework.core.io.Resource;
 
 /**
@@ -22,6 +24,8 @@ import org.springframework.core.io.Resource;
  */
 public abstract class YamlFileManager<T>
 {
+
+    private final Logger logger = LoggerFactory.getLogger(getClass());
 
     private Class<T> myClazz;
 
@@ -63,13 +67,22 @@ public abstract class YamlFileManager<T>
         return getConfigurationResourceResolver().getConfigurationResource(getPropertyKey(), getDefaultLocation());
     }
 
-    // TODO this needs to be synchronized here or below
-    public void store(final T configuration)
+    public synchronized void store(final T configuration)
     {
         try
         {
-            File inputFile = getResource().getFile();
-            yamlMapper.writeValue(inputFile, configuration);
+            Resource resource = getResource();
+            //Check that target resource stored on FS and not under classpath for example
+            if (!resource.isFile() || resource instanceof ClassPathResource)
+            {
+                logger.warn(String.format("Skip resource store [%s]", resource));
+                return;
+            }
+
+            try (OutputStream os = new BufferedOutputStream(Files.newOutputStream(Paths.get(resource.getURI()))))
+            {
+                yamlMapper.writeValue(os, configuration);
+            }
         }
         catch (IOException e)
         {
@@ -77,8 +90,7 @@ public abstract class YamlFileManager<T>
         }
     }
 
-    // TODO this needs to be synchronized here or below
-    public T read()
+    public synchronized T read()
     {
         Resource resource = getResource();
         if (!resource.exists())
