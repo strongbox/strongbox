@@ -121,7 +121,7 @@ To accept, please:
 | Eugeniusz Fedchenko          |                                          | Warsaw, Poland                          | 2019-02-25 |
 | Shumail Ahmed                | Middlesex University                     | London, United Kingdom                  | 2019-03-05 |
 | Kaloyan Dimitrov             |                                          | Sofia, Bulgaria                         | 2019-03-12 |
-| Mujahid Thoufeek             |                                          | Colombo, Sti Lanka                      | 2019-03-19 |
+| Mujahid Thoufeek             |                                          | Colombo, Sri Lanka                      | 2019-03-19 |
 | Sarfraz Anwar                |                                          | Bengaluru, India                        | 2019-03-19 |
 
 [chat]: https://chat.carlspring.org/
