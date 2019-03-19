@@ -1,21 +1,18 @@
 package org.carlspring.strongbox.yaml;
 
 import org.carlspring.strongbox.resource.ConfigurationResourceResolver;
-import org.carlspring.strongbox.xml.parsers.GenericParser;
 
-import javax.inject.Inject;
 import java.io.BufferedInputStream;
 import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
 import java.lang.reflect.UndeclaredThrowableException;
+import java.util.Arrays;
 import java.util.HashSet;
 import java.util.ServiceLoader;
 import java.util.Set;
-import java.util.stream.Stream;
 
 import com.fasterxml.jackson.dataformat.yaml.YAMLMapper;
-import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.core.GenericTypeResolver;
 import org.springframework.core.io.Resource;
 
@@ -28,9 +25,7 @@ public abstract class YamlFileManager<T>
 
     private Class<T> myClazz;
 
-    @Inject
-    @Qualifier("customYamlMapper")
-    private YAMLMapper yamlMapper;
+    private final YAMLMapper yamlMapper;
 
     public YamlFileManager()
     {
@@ -38,14 +33,23 @@ public abstract class YamlFileManager<T>
     }
 
     @SuppressWarnings("unchecked")
-    public YamlFileManager(Class... classes)
+    public YamlFileManager(Class<?>... classes)
     {
         myClazz = (Class<T>) GenericTypeResolver.resolveTypeArgument(getClass(), YamlFileManager.class);
 
-        Stream.of(classes).forEach(ServiceLoader::load);
         Set<Class<?>> contextClasses = new HashSet<>();
-        contextClasses.add(myClazz);
-        new GenericParser<>(contextClasses.toArray(new Class[0]));
+        if (classes != null)
+        {
+            Arrays.asList(classes).forEach(
+                    clazz ->
+                    {
+                        ServiceLoader<?> loader = ServiceLoader.load(clazz);
+                        loader.forEach(impl -> contextClasses.add(impl.getClass()));
+                    }
+            );
+        }
+
+        yamlMapper = new CustomYamlMapper(contextClasses);
     }
 
     public abstract String getPropertyKey();
@@ -59,6 +63,7 @@ public abstract class YamlFileManager<T>
         return getConfigurationResourceResolver().getConfigurationResource(getPropertyKey(), getDefaultLocation());
     }
 
+    // TODO this needs to be synchronized here or below
     public void store(final T configuration)
     {
         try
@@ -72,6 +77,7 @@ public abstract class YamlFileManager<T>
         }
     }
 
+    // TODO this needs to be synchronized here or below
     public T read()
     {
         Resource resource = getResource();

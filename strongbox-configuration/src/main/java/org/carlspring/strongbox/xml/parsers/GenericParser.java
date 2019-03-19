@@ -29,6 +29,7 @@ import org.springframework.core.io.Resource;
 /**
  * @author mtodorov
  */
+@Deprecated // we need to drop it and change the package from `xml` to `yaml`
 public class GenericParser<T>
 {
 

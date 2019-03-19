@@ -1,6 +1,8 @@
 package org.carlspring.strongbox.configuration;
 
 import org.carlspring.strongbox.resource.ConfigurationResourceResolver;
+import org.carlspring.strongbox.xml.repository.RepositoryConfiguration;
+import org.carlspring.strongbox.xml.repository.remote.RemoteRepositoryConfiguration;
 import org.carlspring.strongbox.yaml.YamlFileManager;
 
 import javax.inject.Inject;
@@ -18,6 +20,10 @@ public class ConfigurationFileManager
     @Inject
     private ConfigurationResourceResolver configurationResourceResolver;
 
+    public ConfigurationFileManager()
+    {
+        super(RepositoryConfiguration.class, RemoteRepositoryConfiguration.class);
+    }
 
     @Override
     public String getPropertyKey()
