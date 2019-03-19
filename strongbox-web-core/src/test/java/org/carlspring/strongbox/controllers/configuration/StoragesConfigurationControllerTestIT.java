@@ -7,6 +7,7 @@ import org.carlspring.strongbox.providers.layout.Maven2LayoutProvider;
 import org.carlspring.strongbox.rest.common.RestAssuredBaseTest;
 import org.carlspring.strongbox.service.ProxyRepositoryConnectionPoolConfigurationService;
 import org.carlspring.strongbox.storage.Storage;
+import org.carlspring.strongbox.storage.repository.ImmutableRepository;
 import org.carlspring.strongbox.storage.repository.Repository;
 import org.carlspring.strongbox.xml.configuration.repository.MavenRepositoryConfiguration;
 
@@ -319,25 +320,24 @@ public class StoragesConfigurationControllerTestIT
                    "Failed to get storage (" + storageId + ")!");
         assertTrue(repository0.isSecured(),
                    "Failed to get storage (" + storageId + ")!");
-        assertNotNull(repository0.getRepositoryConfiguration(),
+        assertNotNull(((ImmutableRepository)repository0).getRepositoryConfiguration(),
                       "Failed to get storage (" + storageId + ")!");
-        assertTrue(repository0.getRepositoryConfiguration() instanceof MavenRepositoryConfiguration,
+        assertTrue(((ImmutableRepository)repository0).getRepositoryConfiguration() instanceof MavenRepositoryConfiguration,
                    "Failed to get storage (" + storageId + ")!");
-        assertTrue(((MavenRepositoryConfiguration) repository0.getRepositoryConfiguration()).isIndexingEnabled(),
+        assertTrue(((MavenRepositoryConfiguration) ((ImmutableRepository)repository0).getRepositoryConfiguration()).isIndexingEnabled(),
                    "Failed to get storage (" + storageId + ")!");
-        assertFalse(
-                ((MavenRepositoryConfiguration) repository0.getRepositoryConfiguration()).isIndexingClassNamesEnabled(),
-                "Failed to get storage (" + storageId + ")!");
+        assertFalse(((MavenRepositoryConfiguration) ((ImmutableRepository) repository0).getRepositoryConfiguration()).isIndexingClassNamesEnabled(),
+                    "Failed to get storage (" + storageId + ")!");
         assertEquals(groupRepositoriesMapExpected, groupRepositoriesMap);
 
         assertTrue(repository1.allowsForceDeletion(),
                    "Failed to get storage (" + storageId + ")!");
         assertTrue(repository1.isTrashEnabled(),
                    "Failed to get storage (" + storageId + ")!");
-        assertNotNull(repository1.getProxyConfiguration().getHost(),
+        assertNotNull(((ImmutableRepository)repository1).getProxyConfiguration().getHost(),
                       "Failed to get storage (" + storageId + ")!");
         assertEquals("localhost",
-                     repository1.getProxyConfiguration().getHost(),
+                     ((ImmutableRepository)repository1).getProxyConfiguration().getHost(),
                      "Failed to get storage (" + storageId + ")!");
 
         PoolStats poolStatsRepository2 = proxyRepositoryConnectionPoolConfigurationService.getPoolStats(

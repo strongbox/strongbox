@@ -1,13 +1,7 @@
 package org.carlspring.strongbox.repository.group.metadata;
 
-import org.carlspring.strongbox.config.Maven2LayoutProviderTestConfig;
-import org.carlspring.strongbox.providers.layout.Maven2LayoutProvider;
-import org.carlspring.strongbox.repository.group.BaseMavenGroupRepositoryComponentTest;
-import org.carlspring.strongbox.storage.Storage;
-import org.carlspring.strongbox.storage.repository.MutableRepository;
-import org.carlspring.strongbox.storage.repository.Repository;
-import org.carlspring.strongbox.storage.routing.MutableRoutingRuleRepository;
-import org.carlspring.strongbox.storage.routing.RoutingRuleTypeEnum;
+import static org.hamcrest.MatcherAssert.assertThat;
+import static org.junit.jupiter.api.parallel.ExecutionMode.CONCURRENT;
 
 import java.io.IOException;
 import java.nio.file.Path;
@@ -18,6 +12,15 @@ import java.util.Set;
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.FilenameUtils;
 import org.apache.maven.artifact.repository.metadata.Metadata;
+import org.carlspring.strongbox.config.Maven2LayoutProviderTestConfig;
+import org.carlspring.strongbox.providers.layout.Maven2LayoutProvider;
+import org.carlspring.strongbox.repository.group.BaseMavenGroupRepositoryComponentTest;
+import org.carlspring.strongbox.storage.Storage;
+import org.carlspring.strongbox.storage.repository.ImmutableRepository;
+import org.carlspring.strongbox.storage.repository.MutableRepository;
+import org.carlspring.strongbox.storage.repository.Repository;
+import org.carlspring.strongbox.storage.routing.MutableRoutingRuleRepository;
+import org.carlspring.strongbox.storage.routing.RoutingRuleTypeEnum;
 import org.hamcrest.CoreMatchers;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -25,8 +28,6 @@ import org.junit.jupiter.api.parallel.Execution;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.ContextConfiguration;
-import static org.hamcrest.MatcherAssert.assertThat;
-import static org.junit.jupiter.api.parallel.ExecutionMode.CONCURRENT;
 
 /**
  * @author Przemyslaw Fusik
@@ -175,7 +176,7 @@ public class MavenMetadataGroupRepositoryComponentOnAddTest
     public void generationOfMavenMetadataInLeafsShouldResultUpToDateMetadataInGroups()
             throws Exception
     {
-        Metadata metadata = mavenMetadataManager.readMetadata(repositoryPathResolver.resolve(new Repository(
+        Metadata metadata = mavenMetadataManager.readMetadata(repositoryPathResolver.resolve(new ImmutableRepository(
                                                                                                      createRepositoryMock(STORAGE0,
                                                                                                                           REPOSITORY_LEAF_S, Maven2LayoutProvider.ALIAS)),
                                                                                              "com/artifacts/to/update/releases/update-group"));
@@ -186,21 +187,21 @@ public class MavenMetadataGroupRepositoryComponentOnAddTest
 
         metadata = mavenMetadataManager.readMetadata(
                 repositoryPathResolver.resolve(
-                        new Repository(createRepositoryMock(STORAGE0, REPOSITORY_LEAF_U, Maven2LayoutProvider.ALIAS)),
+                        new ImmutableRepository(createRepositoryMock(STORAGE0, REPOSITORY_LEAF_U, Maven2LayoutProvider.ALIAS)),
                         "com/artifacts/to/update/releases/update-group"));
         assertThat(metadata.getVersioning().getVersions().size(), CoreMatchers.equalTo(1));
         assertThat(metadata.getVersioning().getVersions().get(0), CoreMatchers.equalTo("1.2.1"));
 
         metadata = mavenMetadataManager.readMetadata(
                 repositoryPathResolver.resolve(
-                        new Repository(createRepositoryMock(STORAGE0, REPOSITORY_GROUP_ZQ, Maven2LayoutProvider.ALIAS)),
+                        new ImmutableRepository(createRepositoryMock(STORAGE0, REPOSITORY_GROUP_ZQ, Maven2LayoutProvider.ALIAS)),
                         "com/artifacts/to/update/releases/update-group"));
         assertThat(metadata.getVersioning().getVersions().size(), CoreMatchers.equalTo(1));
         assertThat(metadata.getVersioning().getVersions().get(0), CoreMatchers.equalTo("1.2.1"));
 
         metadata = mavenMetadataManager.readMetadata(
                 repositoryPathResolver.resolve(
-                        new Repository(createRepositoryMock(STORAGE0, REPOSITORY_GROUP_X, Maven2LayoutProvider.ALIAS)),
+                        new ImmutableRepository(createRepositoryMock(STORAGE0, REPOSITORY_GROUP_X, Maven2LayoutProvider.ALIAS)),
                         "com/artifacts/to/update/releases/update-group"));
         assertThat(metadata.getVersioning().getVersions().size(), CoreMatchers.equalTo(2));
         assertThat(metadata.getVersioning().getVersions().get(0), CoreMatchers.equalTo("1.2.1"));
@@ -208,7 +209,7 @@ public class MavenMetadataGroupRepositoryComponentOnAddTest
 
         metadata = mavenMetadataManager.readMetadata(
                 repositoryPathResolver.resolve(
-                        new Repository(createRepositoryMock(STORAGE0, REPOSITORY_GROUP_W, Maven2LayoutProvider.ALIAS)),
+                        new ImmutableRepository(createRepositoryMock(STORAGE0, REPOSITORY_GROUP_W, Maven2LayoutProvider.ALIAS)),
                         "com/artifacts/to/update/releases/update-group"));
         assertThat(metadata.getVersioning().getVersions().size(), CoreMatchers.equalTo(2));
         assertThat(metadata.getVersioning().getVersions().get(0), CoreMatchers.equalTo("1.2.1"));

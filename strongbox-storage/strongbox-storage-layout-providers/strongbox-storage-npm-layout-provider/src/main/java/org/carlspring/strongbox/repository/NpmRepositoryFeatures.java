@@ -17,6 +17,7 @@ import org.carlspring.strongbox.providers.repository.event.RemoteRepositorySearc
 import org.carlspring.strongbox.service.ProxyRepositoryConnectionPoolConfigurationService;
 import org.carlspring.strongbox.services.ConfigurationManagementService;
 import org.carlspring.strongbox.storage.Storage;
+import org.carlspring.strongbox.storage.repository.ImmutableRepository;
 import org.carlspring.strongbox.storage.repository.MutableRepository;
 import org.carlspring.strongbox.storage.repository.Repository;
 import org.carlspring.strongbox.storage.repository.remote.RemoteRepository;
@@ -115,7 +116,7 @@ public class NpmRepositoryFeatures implements RepositoryFeatures
         Storage storage = getConfiguration().getStorage(storageId);
         Repository repository = storage.getRepository(repositoryId);
 
-        RemoteRepository remoteRepository = repository.getRemoteRepository();
+        RemoteRepository remoteRepository = ((ImmutableRepository)repository).getRemoteRepository();
         if (remoteRepository == null)
         {
             return;
@@ -166,7 +167,7 @@ public class NpmRepositoryFeatures implements RepositoryFeatures
         Storage storage = getConfiguration().getStorage(storageId);
         Repository repository = storage.getRepository(repositoryId);
 
-        RemoteRepository remoteRepository = repository.getRemoteRepository();
+        RemoteRepository remoteRepository = ((ImmutableRepository)repository).getRemoteRepository();
         if (remoteRepository == null)
         {
             return;
@@ -233,7 +234,7 @@ public class NpmRepositoryFeatures implements RepositoryFeatures
     {
         int result = 0;
 
-        RemoteRepository remoteRepository = repository.getRemoteRepository();
+        RemoteRepository remoteRepository = ((ImmutableRepository)repository).getRemoteRepository();
         NpmRemoteRepositoryConfiguration repositoryConfiguration = (NpmRemoteRepositoryConfiguration) remoteRepository.getCustomConfiguration();
 
         JsonFactory jfactory = new JsonFactory();
@@ -286,7 +287,7 @@ public class NpmRepositoryFeatures implements RepositoryFeatures
                 catch (Exception e)
                 {
                     logger.error(String.format("Failed to parse NPM feed [%s/%s]",
-                                               repository.getRemoteRepository().getUrl(),
+                                               ((ImmutableRepository)repository).getRemoteRepository().getUrl(),
                                                packageFeed.getName()),
                                  e);
 
@@ -313,7 +314,7 @@ public class NpmRepositoryFeatures implements RepositoryFeatures
         Storage storage = getConfiguration().getStorage(storageId);
         Repository repository = storage.getRepository(repositoryId);
 
-        RemoteRepository remoteRepository = repository.getRemoteRepository();
+        RemoteRepository remoteRepository = ((ImmutableRepository)repository).getRemoteRepository();
         if (remoteRepository == null)
         {
             return;
@@ -352,7 +353,7 @@ public class NpmRepositoryFeatures implements RepositoryFeatures
         catch (Exception e)
         {
             logger.error(String.format("Failed to parse NPM feed [%s/%s]",
-                                       repository.getRemoteRepository().getUrl(),
+                                       ((ImmutableRepository)repository).getRemoteRepository().getUrl(),
                                        packageFeed.getName()),
                          e);
         }
@@ -388,7 +389,7 @@ public class NpmRepositoryFeatures implements RepositoryFeatures
 
             Storage storage = getConfiguration().getStorage(storageId);
             Repository repository = storage.getRepository(repositoryId);
-            RemoteRepository remoteRepository = repository.getRemoteRepository();
+            RemoteRepository remoteRepository = ((ImmutableRepository)repository).getRemoteRepository();
             if (remoteRepository == null)
             {
                 return;
@@ -446,7 +447,7 @@ public class NpmRepositoryFeatures implements RepositoryFeatures
 
             Storage storage = getConfiguration().getStorage(storageId);
             Repository repository = storage.getRepository(repositoryId);
-            RemoteRepository remoteRepository = repository.getRemoteRepository();
+            RemoteRepository remoteRepository = ((ImmutableRepository)repository).getRemoteRepository();
             if (remoteRepository == null)
             {
                 return;

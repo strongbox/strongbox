@@ -13,8 +13,8 @@ public class NullArtifactCoordinates
         extends AbstractArtifactCoordinates<NullArtifactCoordinates, NullArtifactCoordinates>
 {
 
+    public static final String LAYOUT_NAME = "Null Layout";
     private static final String PATH = "path";
-
 
     public NullArtifactCoordinates()
     {

@@ -1,16 +1,9 @@
 package org.carlspring.strongbox.repository.group.metadata;
 
-import org.carlspring.strongbox.config.Maven2LayoutProviderTestConfig;
-import org.carlspring.strongbox.providers.io.RepositoryFiles;
-import org.carlspring.strongbox.providers.io.RepositoryPath;
-import org.carlspring.strongbox.providers.layout.IndexedMaven2FileSystemProvider;
-import org.carlspring.strongbox.providers.layout.Maven2LayoutProvider;
-import org.carlspring.strongbox.repository.group.BaseMavenGroupRepositoryComponentTest;
-import org.carlspring.strongbox.storage.Storage;
-import org.carlspring.strongbox.storage.repository.MutableRepository;
-import org.carlspring.strongbox.storage.repository.Repository;
-import org.carlspring.strongbox.storage.routing.MutableRoutingRuleRepository;
-import org.carlspring.strongbox.storage.routing.RoutingRuleTypeEnum;
+import static org.hamcrest.MatcherAssert.assertThat;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.junit.jupiter.api.parallel.ExecutionMode.SAME_THREAD;
 
 import java.io.File;
 import java.io.IOException;
@@ -23,6 +16,18 @@ import java.util.Set;
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.FilenameUtils;
 import org.apache.maven.artifact.repository.metadata.Metadata;
+import org.carlspring.strongbox.config.Maven2LayoutProviderTestConfig;
+import org.carlspring.strongbox.providers.io.RepositoryFiles;
+import org.carlspring.strongbox.providers.io.RepositoryPath;
+import org.carlspring.strongbox.providers.layout.IndexedMaven2FileSystemProvider;
+import org.carlspring.strongbox.providers.layout.Maven2LayoutProvider;
+import org.carlspring.strongbox.repository.group.BaseMavenGroupRepositoryComponentTest;
+import org.carlspring.strongbox.storage.Storage;
+import org.carlspring.strongbox.storage.repository.ImmutableRepository;
+import org.carlspring.strongbox.storage.repository.MutableRepository;
+import org.carlspring.strongbox.storage.repository.Repository;
+import org.carlspring.strongbox.storage.routing.MutableRoutingRuleRepository;
+import org.carlspring.strongbox.storage.routing.RoutingRuleTypeEnum;
 import org.hamcrest.CoreMatchers;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -30,10 +35,6 @@ import org.junit.jupiter.api.parallel.Execution;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.ContextConfiguration;
-import static org.hamcrest.MatcherAssert.assertThat;
-import static org.junit.jupiter.api.Assertions.assertFalse;
-import static org.junit.jupiter.api.Assertions.assertTrue;
-import static org.junit.jupiter.api.parallel.ExecutionMode.SAME_THREAD;
 
 /**
  * @author Przemyslaw Fusik
@@ -212,7 +213,7 @@ public class MavenMetadataGroupRepositoryComponentOnDeleteTest
         // author of changes
         Metadata metadata = mavenMetadataManager.readMetadata(
                 repositoryPathResolver.resolve(
-                        new Repository(createRepositoryMock(STORAGE0, REPOSITORY_LEAF_L, Maven2LayoutProvider.ALIAS)),
+                        new ImmutableRepository(createRepositoryMock(STORAGE0, REPOSITORY_LEAF_L, Maven2LayoutProvider.ALIAS)),
                         "com/artifacts/to/delete/releases/delete-group"));
         assertThat(metadata.getVersioning().getVersions().size(), CoreMatchers.equalTo(1));
         assertThat(metadata.getVersioning().getVersions().get(0), CoreMatchers.equalTo("1.2.2"));
@@ -220,7 +221,7 @@ public class MavenMetadataGroupRepositoryComponentOnDeleteTest
         // direct parent
         metadata = mavenMetadataManager.readMetadata(
                 repositoryPathResolver.resolve(
-                        new Repository(createRepositoryMock(STORAGE0, REPOSITORY_GROUP_F, Maven2LayoutProvider.ALIAS)),
+                        new ImmutableRepository(createRepositoryMock(STORAGE0, REPOSITORY_GROUP_F, Maven2LayoutProvider.ALIAS)),
                         "com/artifacts/to/delete/releases/delete-group"));
         assertThat(metadata.getVersioning().getVersions().size(), CoreMatchers.equalTo(1));
         assertThat(metadata.getVersioning().getVersions().get(0), CoreMatchers.equalTo("1.2.2"));
@@ -228,7 +229,7 @@ public class MavenMetadataGroupRepositoryComponentOnDeleteTest
         // next direct parent
         metadata = mavenMetadataManager.readMetadata(
                 repositoryPathResolver.resolve(
-                        new Repository(createRepositoryMock(STORAGE0, REPOSITORY_GROUP_B, Maven2LayoutProvider.ALIAS)),
+                        new ImmutableRepository(createRepositoryMock(STORAGE0, REPOSITORY_GROUP_B, Maven2LayoutProvider.ALIAS)),
                         "com/artifacts/to/delete/releases/delete-group"));
         assertThat(metadata.getVersioning().getVersions().size(), CoreMatchers.equalTo(1));
         assertThat(metadata.getVersioning().getVersions().get(0), CoreMatchers.equalTo("1.2.2"));
@@ -236,7 +237,7 @@ public class MavenMetadataGroupRepositoryComponentOnDeleteTest
         // grand parent
         metadata = mavenMetadataManager.readMetadata(
                 repositoryPathResolver.resolve(
-                        new Repository(createRepositoryMock(STORAGE0, REPOSITORY_GROUP_H, Maven2LayoutProvider.ALIAS)),
+                        new ImmutableRepository(createRepositoryMock(STORAGE0, REPOSITORY_GROUP_H, Maven2LayoutProvider.ALIAS)),
                         "com/artifacts/to/delete/releases/delete-group"));
         assertThat(metadata.getVersioning().getVersions().size(), CoreMatchers.equalTo(1));
         assertThat(metadata.getVersioning().getVersions().get(0), CoreMatchers.equalTo("1.2.2"));
@@ -244,7 +245,7 @@ public class MavenMetadataGroupRepositoryComponentOnDeleteTest
         // grand parent with other kids
         metadata = mavenMetadataManager.readMetadata(
                 repositoryPathResolver.resolve(
-                        new Repository(createRepositoryMock(STORAGE0, REPOSITORY_GROUP_A, Maven2LayoutProvider.ALIAS)),
+                        new ImmutableRepository(createRepositoryMock(STORAGE0, REPOSITORY_GROUP_A, Maven2LayoutProvider.ALIAS)),
                         "com/artifacts/to/delete/releases/delete-group"));
         assertThat(metadata.getVersioning().getVersions().size(), CoreMatchers.equalTo(2));
         assertThat(metadata.getVersioning().getVersions().get(0), CoreMatchers.equalTo("1.2.1"));

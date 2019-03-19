@@ -4,7 +4,7 @@ import org.carlspring.strongbox.config.MavenIndexerEnabledCondition;
 import org.carlspring.strongbox.configuration.ConfigurationManager;
 import org.carlspring.strongbox.providers.io.RepositoryPath;
 import org.carlspring.strongbox.repository.RepositoryInitializationException;
-import org.carlspring.strongbox.services.ArtifactIndexesService;
+import org.carlspring.strongbox.storage.repository.ImmutableRepository;
 import org.carlspring.strongbox.xml.configuration.repository.MavenRepositoryConfiguration;
 
 import javax.inject.Inject;
@@ -34,9 +34,6 @@ public class RepositoryIndexerFactory
 
     @Inject
     private IndexerConfiguration indexerConfiguration;
-
-    @Inject
-    private ArtifactIndexesService artifactIndexesService;
 
     @Inject
     private ApplicationContext applicationContext;
@@ -102,12 +99,10 @@ public class RepositoryIndexerFactory
                                                           final String repositoryId)
     {
         List<IndexCreator> indexCreators = Lists.newArrayList(indexerConfiguration.getIndexersAsList());
-        final MavenRepositoryConfiguration mavenRepositoryConfiguration = (MavenRepositoryConfiguration)
-                                                                                  configurationManager
-                                                                                          .getConfiguration()
-                                                                                          .getStorage(storageId)
-                                                                                          .getRepository(repositoryId)
-                                                                                          .getRepositoryConfiguration();
+        ImmutableRepository repository = (ImmutableRepository) configurationManager.getConfiguration()
+                                                                                   .getStorage(storageId)
+                                                                                   .getRepository(repositoryId);
+        final MavenRepositoryConfiguration mavenRepositoryConfiguration = (MavenRepositoryConfiguration) repository.getRepositoryConfiguration();
         if (mavenRepositoryConfiguration != null && !mavenRepositoryConfiguration.isIndexingClassNamesEnabled())
         {
             indexCreators = indexCreators.stream()

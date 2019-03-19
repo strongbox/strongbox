@@ -1,22 +1,22 @@
 package org.carlspring.strongbox.storage.validation.version;
 
-import org.carlspring.strongbox.artifact.coordinates.ArtifactCoordinates;
-import org.carlspring.strongbox.artifact.coordinates.MockedMavenArtifactCoordinates;
-import org.carlspring.strongbox.providers.layout.Maven2LayoutProvider;
-import org.carlspring.strongbox.storage.repository.MutableRepository;
-import org.carlspring.strongbox.storage.repository.Repository;
-import org.carlspring.strongbox.storage.repository.RepositoryPolicyEnum;
-import org.carlspring.strongbox.storage.validation.artifact.version.VersionValidationException;
+import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.junit.jupiter.api.Assertions.fail;
+import static org.junit.jupiter.api.parallel.ExecutionMode.CONCURRENT;
 
 import org.apache.maven.artifact.Artifact;
 import org.apache.maven.artifact.DefaultArtifact;
 import org.apache.maven.artifact.handler.DefaultArtifactHandler;
+import org.carlspring.strongbox.artifact.coordinates.ArtifactCoordinates;
+import org.carlspring.strongbox.artifact.coordinates.MockedMavenArtifactCoordinates;
+import org.carlspring.strongbox.providers.layout.Maven2LayoutProvider;
+import org.carlspring.strongbox.storage.repository.ImmutableRepository;
+import org.carlspring.strongbox.storage.repository.MutableRepository;
+import org.carlspring.strongbox.storage.repository.RepositoryPolicyEnum;
+import org.carlspring.strongbox.storage.validation.artifact.version.VersionValidationException;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.parallel.Execution;
-import static org.junit.jupiter.api.Assertions.assertTrue;
-import static org.junit.jupiter.api.Assertions.fail;
-import static org.junit.jupiter.api.parallel.ExecutionMode.CONCURRENT;
 
 /**
  * @author stodorov
@@ -42,7 +42,7 @@ public class MavenReleaseVersionValidatorTest
     @Test
     public void shouldSupportRepository()
     {
-        assertTrue(validator.supports(new Repository(repository)));
+        assertTrue(validator.supports(new ImmutableRepository(repository)));
     }
 
     @Test
@@ -58,8 +58,8 @@ public class MavenReleaseVersionValidatorTest
         ArtifactCoordinates coordinates1 = new MockedMavenArtifactCoordinates(validArtifact1);
         ArtifactCoordinates coordinates2 = new MockedMavenArtifactCoordinates(validArtifact2);
 
-        validator.validate(new Repository(repository), coordinates1);
-        validator.validate(new Repository(repository), coordinates2);
+        validator.validate(new ImmutableRepository(repository), coordinates1);
+        validator.validate(new ImmutableRepository(repository), coordinates2);
 
         // If we've gotten here without an exception, then things are alright.
     }
@@ -80,7 +80,7 @@ public class MavenReleaseVersionValidatorTest
 
         try
         {
-            validator.validate(new Repository(repository), coordinates1);
+            validator.validate(new ImmutableRepository(repository), coordinates1);
             fail("Incorrectly validated artifact with version 1.0-SNAPSHOT!");
         }
         catch (VersionValidationException e)
@@ -89,7 +89,7 @@ public class MavenReleaseVersionValidatorTest
 
         try
         {
-            validator.validate(new Repository(repository), coordinates3);
+            validator.validate(new ImmutableRepository(repository), coordinates3);
             fail("Incorrectly validated artifact with version 1.0-20131004.115330!");
         }
         catch (VersionValidationException e)
@@ -98,7 +98,7 @@ public class MavenReleaseVersionValidatorTest
 
         try
         {
-            validator.validate(new Repository(repository), coordinates4);
+            validator.validate(new ImmutableRepository(repository), coordinates4);
             fail("Incorrectly validated artifact with version 1.0-20131004.115330-1!");
         }
         catch (VersionValidationException e)

@@ -1,14 +1,15 @@
 package org.carlspring.strongbox.repository.group.index;
 
+import java.io.IOException;
+import java.util.Set;
+
+import javax.inject.Inject;
+
 import org.carlspring.strongbox.providers.io.RootRepositoryPath;
 import org.carlspring.strongbox.repository.group.BaseMavenGroupRepositoryComponentTest;
 import org.carlspring.strongbox.services.ArtifactIndexesService;
+import org.carlspring.strongbox.storage.repository.ImmutableRepository;
 import org.carlspring.strongbox.storage.repository.MutableRepository;
-import org.carlspring.strongbox.storage.repository.Repository;
-
-import javax.inject.Inject;
-import java.io.IOException;
-import java.util.Set;
 
 abstract class BaseMavenIndexGroupRepositoryComponentTest
         extends BaseMavenGroupRepositoryComponentTest
@@ -22,7 +23,7 @@ abstract class BaseMavenIndexGroupRepositoryComponentTest
     {
         for (MutableRepository repository : repositories)
         {
-            RootRepositoryPath repositoryPath = repositoryPathResolver.resolve(new Repository(repository));
+            RootRepositoryPath repositoryPath = repositoryPathResolver.resolve(new ImmutableRepository(repository));
             artifactIndexesService.rebuildIndex(repositoryPath);
         }
     }

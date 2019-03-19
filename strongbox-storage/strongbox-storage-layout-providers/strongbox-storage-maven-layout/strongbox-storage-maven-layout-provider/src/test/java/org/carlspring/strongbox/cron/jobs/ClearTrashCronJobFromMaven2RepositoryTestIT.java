@@ -1,18 +1,10 @@
 package org.carlspring.strongbox.cron.jobs;
 
-import org.carlspring.strongbox.config.Maven2LayoutProviderCronTasksTestConfig;
-import org.carlspring.strongbox.data.CacheManagerTestExecutionListener;
-import org.carlspring.strongbox.providers.io.RepositoryFiles;
-import org.carlspring.strongbox.providers.io.RepositoryPath;
-import org.carlspring.strongbox.providers.io.RepositoryPathResolver;
-import org.carlspring.strongbox.providers.layout.Maven2LayoutProvider;
-import org.carlspring.strongbox.storage.MutableStorage;
-import org.carlspring.strongbox.storage.repository.MavenRepositoryFactory;
-import org.carlspring.strongbox.storage.repository.MutableRepository;
-import org.carlspring.strongbox.storage.repository.Repository;
-import org.carlspring.strongbox.xml.configuration.repository.MutableMavenRepositoryConfiguration;
+import static org.awaitility.Awaitility.await;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.parallel.ExecutionMode.CONCURRENT;
 
-import javax.inject.Inject;
 import java.io.File;
 import java.io.IOException;
 import java.lang.reflect.UndeclaredThrowableException;
@@ -25,6 +17,19 @@ import java.util.List;
 import java.util.Set;
 import java.util.concurrent.TimeUnit;
 
+import javax.inject.Inject;
+
+import org.carlspring.strongbox.config.Maven2LayoutProviderCronTasksTestConfig;
+import org.carlspring.strongbox.data.CacheManagerTestExecutionListener;
+import org.carlspring.strongbox.providers.io.RepositoryFiles;
+import org.carlspring.strongbox.providers.io.RepositoryPath;
+import org.carlspring.strongbox.providers.io.RepositoryPathResolver;
+import org.carlspring.strongbox.providers.layout.Maven2LayoutProvider;
+import org.carlspring.strongbox.storage.MutableStorage;
+import org.carlspring.strongbox.storage.repository.ImmutableRepository;
+import org.carlspring.strongbox.storage.repository.MavenRepositoryFactory;
+import org.carlspring.strongbox.storage.repository.MutableRepository;
+import org.carlspring.strongbox.xml.configuration.repository.MutableMavenRepositoryConfiguration;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -34,10 +39,6 @@ import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.TestExecutionListeners;
-import static org.awaitility.Awaitility.await;
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertNotNull;
-import static org.junit.jupiter.api.parallel.ExecutionMode.CONCURRENT;
 
 /**
  * @author Kate Novik.
@@ -140,7 +141,7 @@ public class ClearTrashCronJobFromMaven2RepositoryTestIT
         assertNotNull(dirs, "There is no path to the repository trash!");
         assertEquals(0, dirs.length, "The repository trash isn't empty!");
 
-        RepositoryPath path = repositoryPathResolver.resolve(new Repository(repository1),
+        RepositoryPath path = repositoryPathResolver.resolve(new ImmutableRepository(repository1),
                                                              "org/carlspring/strongbox/clear/strongbox-test-one/1.0");
         RepositoryFiles.delete(path, false);
 
@@ -172,7 +173,7 @@ public class ClearTrashCronJobFromMaven2RepositoryTestIT
         RepositoryPath trashPath = null;
         try
         {
-            trashPath = RepositoryFiles.trash(repositoryPathResolver.resolve(new Repository(repository1)));
+            trashPath = RepositoryFiles.trash(repositoryPathResolver.resolve(new ImmutableRepository(repository1)));
         }
         catch (IOException e1)
         {

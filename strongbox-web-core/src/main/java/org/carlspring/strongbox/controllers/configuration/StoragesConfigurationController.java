@@ -13,6 +13,7 @@ import org.carlspring.strongbox.storage.MutableStorage;
 import org.carlspring.strongbox.storage.Storage;
 import org.carlspring.strongbox.storage.Views;
 import org.carlspring.strongbox.storage.indexing.RepositoryIndexManager;
+import org.carlspring.strongbox.storage.repository.ImmutableRepository;
 import org.carlspring.strongbox.storage.repository.MutableRepository;
 import org.carlspring.strongbox.storage.repository.Repository;
 import org.carlspring.strongbox.validation.RequestBodyValidationException;
@@ -288,7 +289,7 @@ public class StoragesConfigurationController
 
                 configurationManagementService.saveRepository(storageId, repository);
 
-                final RepositoryPath repositoryPath = repositoryPathResolver.resolve(new Repository(repository));
+                final RepositoryPath repositoryPath = repositoryPathResolver.resolve(new ImmutableRepository(repository));
                 if (!Files.exists(repositoryPath))
                 {
                     repositoryManagementService.createRepository(storageId, repository.getId());
