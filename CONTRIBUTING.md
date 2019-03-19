@@ -76,6 +76,7 @@ To accept, please:
 * Print, sign and scan the [Individual Contributor's License Agreement (ICLA)](https://github.com/strongbox/strongbox/blob/master/ICLA.md), or, alternatively, fill in the [ICLA PDF](https://strongbox.github.io/assets/resources/pdfs/ICLA.pdf) file and mail it back to [carlspring@gmail.com](mailto:carlspring@gmail.com).
 * Add your name and basic details below and open a pull request.
 
+
 **Notes:** Please, note that none of this information is shared with third-parties and is only required due to the legal agreement which you will be entering when contributing your code to the project. We require this minimal amount of information in order to be able to identify you, as we're not keeping record, or more sensitive information, such as passport/ID details. We will not send you any spam, or share your details with third parties.
 
 # Contributors
@@ -121,6 +122,7 @@ To accept, please:
 | Shumail Ahmed                | Middlesex University                     | London, United Kingdom                  | 2019-03-05 |
 | Kaloyan Dimitrov             |                                          | Sofia, Bulgaria                         | 2019-03-12 |
 | Mujahid Thoufeek             |                                          | Colombo, Sti Lanka                      | 2019-03-19 |
+| Sarfraz Anwar                |                                          | Bengaluru, India                        | 2019-03-19 |
 
 [chat]: https://chat.carlspring.org/
 [issue tracker]: https://github.com/strongbox/strongbox/issues?utf8=%E2%9C%93&q=is%3Aissue+is%3Aopen+label%3A%22help+wanted%22+label%3A%22good+first+issue%22
