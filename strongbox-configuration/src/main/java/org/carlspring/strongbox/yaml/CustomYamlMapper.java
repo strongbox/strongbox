@@ -4,12 +4,12 @@ import javax.annotation.Nonnull;
 import java.util.Set;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
+import com.fasterxml.jackson.annotation.JsonTypeName;
 import com.fasterxml.jackson.databind.DeserializationFeature;
 import com.fasterxml.jackson.databind.SerializationFeature;
 import com.fasterxml.jackson.databind.introspect.JacksonAnnotationIntrospector;
 import com.fasterxml.jackson.databind.jsontype.NamedType;
 import com.fasterxml.jackson.dataformat.yaml.YAMLMapper;
-import org.springframework.stereotype.Component;
 
 /**
  * @author Pablo Tirado
@@ -25,6 +25,23 @@ public class CustomYamlMapper
         setAnnotationIntrospector(new JacksonAnnotationIntrospector());
         setSerializationInclusion(JsonInclude.Include.NON_NULL);
 
-        contextClasses.forEach(contextClass -> registerSubtypes(new NamedType(contextClass)));
+        contextClasses.forEach(
+                contextClass -> {
+                    final String jsonTypeName = getJsonTypeNameValue(contextClass);
+                    if (jsonTypeName != null)
+                    {
+                        registerSubtypes(new NamedType(contextClass, jsonTypeName));
+                    }
+                });
+    }
+
+    private String getJsonTypeNameValue(final Class<?> contextClass)
+    {
+        final JsonTypeName annotation = contextClass.getAnnotation(JsonTypeName.class);
+        if (annotation != null)
+        {
+            return annotation.value();
+        }
+        return null;
     }
 }
