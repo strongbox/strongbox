@@ -35,6 +35,7 @@ import org.springframework.test.context.web.WebAppConfiguration;
 @SpringBootTest(classes = { StrongboxSpringBootApplication.class,
                             MockedRemoteRepositoriesHeartbeatConfig.class,
                             IntegrationTest.IntegrationTestsConfiguration.class,
+                            TestingCoreConfig.class,
                             RestAssuredConfig.class })
 @WebAppConfiguration("classpath:")
 @WithUserDetails(value = "admin")

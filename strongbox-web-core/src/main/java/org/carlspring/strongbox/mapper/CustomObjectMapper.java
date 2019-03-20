@@ -11,7 +11,6 @@ import org.carlspring.strongbox.yaml.configuration.repository.MavenRepositoryCon
 import org.carlspring.strongbox.yaml.configuration.repository.NpmRepositoryConfiguration;
 import org.carlspring.strongbox.yaml.configuration.repository.NugetRepositoryConfiguration;
 import org.carlspring.strongbox.yaml.configuration.repository.RawRepositoryConfiguration;
-import org.carlspring.strongbox.yaml.parsers.GenericParser;
 
 import javax.annotation.PostConstruct;
 
@@ -37,11 +36,6 @@ public class CustomObjectMapper
     @PostConstruct
     public void postConstruct()
     {
-
-        if (GenericParser.IS_OUTPUT_FORMATTED)
-        {
-            enable(SerializationFeature.INDENT_OUTPUT);
-        }
         disable(SerializationFeature.FAIL_ON_EMPTY_BEANS);
 
         final AnnotationIntrospector jaxbIntrospector = new JaxbAnnotationIntrospector(TypeFactory.defaultInstance());
