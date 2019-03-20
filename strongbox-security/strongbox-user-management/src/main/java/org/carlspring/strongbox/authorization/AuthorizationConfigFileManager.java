@@ -2,6 +2,7 @@ package org.carlspring.strongbox.authorization;
 
 import org.carlspring.strongbox.authorization.dto.AuthorizationConfigDto;
 import org.carlspring.strongbox.resource.ConfigurationResourceResolver;
+import org.carlspring.strongbox.yaml.YAMLMapperFactory;
 import org.carlspring.strongbox.yaml.YamlFileManager;
 
 import javax.inject.Inject;
@@ -20,6 +21,11 @@ public class AuthorizationConfigFileManager
     @Inject
     private ConfigurationResourceResolver configurationResourceResolver;
 
+    @Inject
+    public AuthorizationConfigFileManager(YAMLMapperFactory yamlMapperFactory)
+    {
+        super(yamlMapperFactory);
+    }
 
     @Override
     public String getPropertyKey()

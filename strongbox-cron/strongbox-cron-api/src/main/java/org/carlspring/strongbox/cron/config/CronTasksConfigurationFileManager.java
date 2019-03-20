@@ -2,6 +2,7 @@ package org.carlspring.strongbox.cron.config;
 
 import org.carlspring.strongbox.cron.domain.CronTasksConfigurationDto;
 import org.carlspring.strongbox.resource.ConfigurationResourceResolver;
+import org.carlspring.strongbox.yaml.YAMLMapperFactory;
 import org.carlspring.strongbox.yaml.YamlFileManager;
 
 import javax.inject.Inject;
@@ -19,6 +20,12 @@ public class CronTasksConfigurationFileManager
 
     @Inject
     private ConfigurationResourceResolver configurationResourceResolver;
+
+    @Inject
+    public CronTasksConfigurationFileManager(YAMLMapperFactory yamlMapperFactory)
+    {
+        super(yamlMapperFactory);
+    }
 
     @Override
     public String getPropertyKey()

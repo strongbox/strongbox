@@ -2,6 +2,7 @@ package org.carlspring.strongbox.users;
 
 import org.carlspring.strongbox.resource.ConfigurationResourceResolver;
 import org.carlspring.strongbox.users.dto.UsersDto;
+import org.carlspring.strongbox.yaml.YAMLMapperFactory;
 import org.carlspring.strongbox.yaml.YamlFileManager;
 
 import javax.inject.Inject;
@@ -19,6 +20,12 @@ public class UsersFileManager
 
     @Inject
     private ConfigurationResourceResolver configurationResourceResolver;
+
+    @Inject
+    public UsersFileManager(YAMLMapperFactory yamlMapperFactory)
+    {
+        super(yamlMapperFactory);
+    }
 
 
     @Override

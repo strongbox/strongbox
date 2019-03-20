@@ -27,17 +27,18 @@ public abstract class YamlFileManager<T>
 
     private final Logger logger = LoggerFactory.getLogger(getClass());
 
-    private Class<T> myClazz;
+    private final Class<T> myClazz;
 
     private final YAMLMapper yamlMapper;
 
-    public YamlFileManager()
+    public YamlFileManager(YAMLMapperFactory yamlMapperFactory)
     {
-        this(new Class[0]);
+        this(yamlMapperFactory, new Class[0]);
     }
 
     @SuppressWarnings("unchecked")
-    public YamlFileManager(Class<?>... classes)
+    public YamlFileManager(YAMLMapperFactory yamlMapperFactory,
+                           Class<?>... classes)
     {
         myClazz = (Class<T>) GenericTypeResolver.resolveTypeArgument(getClass(), YamlFileManager.class);
 
@@ -53,7 +54,7 @@ public abstract class YamlFileManager<T>
             );
         }
 
-        yamlMapper = new CustomYamlMapper(contextClasses);
+        yamlMapper = yamlMapperFactory.create(contextClasses);
     }
 
     public abstract String getPropertyKey();
