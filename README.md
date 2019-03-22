@@ -101,7 +101,7 @@ started with our project:
 [help-wanted-badge]: https://img.shields.io/github/issues-raw/strongbox/strongbox/help%20wanted.svg?label=help%20wanted&color=%23856bf9& 
 
 [<--# Docs links -->]: #
-[docs](https://strongbox.github.io/)
+[docs]: https://strongbox.github.io/
 [docs-maven]: https://strongbox.github.io/developer-guide/layout-providers/maven-2-layout-provider.html
 [docs-npm]: https://strongbox.github.io/developer-guide/layout-providers/npm-layout-provider.html
 [docs-nuget]: https://strongbox.github.io/developer-guide/layout-providers/nuget-layout-provider.html
