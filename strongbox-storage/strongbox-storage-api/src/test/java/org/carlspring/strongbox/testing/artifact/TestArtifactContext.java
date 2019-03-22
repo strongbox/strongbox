@@ -1,6 +1,7 @@
 package org.carlspring.strongbox.testing.artifact;
 
 import java.io.IOException;
+import java.io.InputStream;
 import java.net.URI;
 import java.nio.file.Files;
 import java.nio.file.Path;
@@ -82,10 +83,9 @@ public class TestArtifactContext implements AutoCloseable
                       .values()
                       .stream()
                       .forEach(p -> {
-                          try
+                          try(InputStream is = Files.newInputStream(artifactPathLocal.resolveSibling(p.getFileName())))
                           {
-                              artifactManagementService.store(p,
-                                                              Files.newInputStream(artifactPathLocal.resolveSibling(p.getFileName())));
+                              artifactManagementService.store(p,is);
                           }
                           catch (IOException e)
                           {
