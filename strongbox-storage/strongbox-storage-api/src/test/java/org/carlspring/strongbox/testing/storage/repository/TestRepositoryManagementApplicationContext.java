@@ -34,7 +34,6 @@ import org.springframework.util.Assert;
 
 /**
  * @author sbespalov
- *
  */
 public class TestRepositoryManagementApplicationContext extends AnnotationConfigApplicationContext
         implements TestRepositoryManagementContext
@@ -223,7 +222,8 @@ public class TestRepositoryManagementApplicationContext extends AnnotationConfig
         catch (IOException e)
         {
             throw new ApplicationContextException("Failed to close context.", e);
-        } finally
+        } 
+        finally
         {
             unlock();
         }
