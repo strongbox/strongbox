@@ -114,6 +114,6 @@ started with our project:
 
 [<--# Release links -->]: #
 [release-all]: https://github.com/strongbox/strongbox/releases
-[release-rpm]: https://github.com/strongbox/strongbox/releases/download/latest/strongbox-distribution.rpm
+[release-rpm]: https://github.com/strongbox/strongbox/releases/download/1.0-SNAPSHOT/strongbox-distribution-1.0-SNAPSHOT.rpm
 [release-tar.gz]: https://github.com/strongbox/strongbox/releases/download/1.0-SNAPSHOT/strongbox-distribution-1.0-SNAPSHOT.tar.gz
 [release-zip]: https://github.com/strongbox/strongbox/releases/download/1.0-SNAPSHOT/strongbox-distribution-1.0-SNAPSHOT.zip
