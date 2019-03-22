@@ -20,7 +20,7 @@ Our goal is to implement a universal repository manager that can host and serve 
 
 Strongbox has a search engine and an [Artifact Query Language][docs-aql].
 
-# What's in the works (Q1/2019):
+# What's in the works (Q1/2019)
 
 * Web UI
 * Spring Bootification
@@ -44,7 +44,7 @@ Strongbox has a search engine and an [Artifact Query Language][docs-aql].
 
 You can find our documentation [here][docs].
 
-# Requirements:
+# Requirements
 
 * Java 1.8.x
 * Maven 3.3.9 (or higher)
