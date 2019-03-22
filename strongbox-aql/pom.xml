@@ -82,16 +82,6 @@
                         <groupId>org.jtwig</groupId>
                         <artifactId>jtwig-core</artifactId>
                         <version>${version.jtwig}</version>
-                        <exclusions>
-                            <exclusion> 
-                                <groupId>com.googlecode.concurrentlinkedhashmap</groupId>   
-                                <artifactId>concurrentlinkedhashmap-lru</artifactId>    
-                            </exclusion>
-                            <exclusion>
-                                <groupId>com.google.guava</groupId>
-                                <artifactId>guava</artifactId>
-                            </exclusion>
-                        </exclusions>   
                     </dependency>
                     <dependency>
                         <groupId>org.codehaus.groovy</groupId>
