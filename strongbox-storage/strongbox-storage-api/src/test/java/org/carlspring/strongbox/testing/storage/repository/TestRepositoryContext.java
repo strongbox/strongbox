@@ -15,7 +15,6 @@ import org.carlspring.strongbox.storage.Storage;
 import org.carlspring.strongbox.storage.repository.ImmutableRepository;
 import org.carlspring.strongbox.storage.repository.MutableRepository;
 import org.carlspring.strongbox.storage.repository.Repository;
-import org.springframework.core.Ordered;
 
 /**
  * This class manages the resources used within {@link Repository}.
@@ -23,7 +22,7 @@ import org.springframework.core.Ordered;
  * @author sbespalov
  *
  */
-public class TestRepositoryContext implements AutoCloseable, Ordered, Comparable<TestRepositoryContext>
+public class TestRepositoryContext implements AutoCloseable, Comparable<TestRepositoryContext>
 {
 
     private final TestRepository testRepository;
@@ -35,8 +34,6 @@ public class TestRepositoryContext implements AutoCloseable, Ordered, Comparable
     private final RepositoryManagementService repositoryManagementService;
 
     private boolean opened;
-
-    private int order;
 
     public TestRepositoryContext(TestRepository testRepository,
                                  ConfigurationManagementService configurationManagementService,
@@ -124,17 +121,6 @@ public class TestRepositoryContext implements AutoCloseable, Ordered, Comparable
     public int compareTo(TestRepositoryContext o)
     {
         return id(getTestRepository()).compareTo(id(o.getTestRepository()));
-    }
-
-    @Override
-    public int getOrder()
-    {
-        return order;
-    }
-
-    public void setOrder(int order)
-    {
-        this.order = order;
     }
 
     public static String id(TestRepository tr)

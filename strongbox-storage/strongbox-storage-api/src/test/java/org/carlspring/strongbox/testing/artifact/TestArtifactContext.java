@@ -6,6 +6,8 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 
+import javax.annotation.PreDestroy;
+
 import org.carlspring.strongbox.artifact.generator.ArtifactGenerator;
 import org.carlspring.strongbox.booters.PropertiesBooter;
 import org.carlspring.strongbox.providers.io.RepositoryPath;
@@ -18,7 +20,7 @@ import org.springframework.cglib.proxy.UndeclaredThrowableException;
  * @author sbespalov
  *
  */
-public class TestArtifactContext
+public class TestArtifactContext implements AutoCloseable
 {
 
     private final TestArtifact testArtifact;
@@ -95,14 +97,22 @@ public class TestArtifactContext
         return repositoryPath;
     }
 
-    public static String id(TestArtifact testArtifact)
-    {
-        return String.format("%s", testArtifact.resource());
-    }
-
     public Path getArtifact()
     {
         return artifactPath;
+    }
+
+    @PreDestroy
+    @Override
+    public void close()
+        throws Exception
+    {
+        Files.deleteIfExists(artifactPath);
+    }
+
+    public static String id(TestArtifact testArtifact)
+    {
+        return String.format("%s", testArtifact.resource());
     }
 
 }
