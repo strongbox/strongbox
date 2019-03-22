@@ -1,88 +1,119 @@
-# ![strongbox](./strongbox.svg)
+# ![strongbox-logo][strongbox-logo]
 
-[![Master Build Status](https://dev.carlspring.org/jenkins/buildStatus/icon?job=strongbox/strongbox/master)](https://dev.carlspring.org/jenkins/blue/organizations/jenkins/strongbox%2Fstrongbox/activity?branch=master)
-[![RocketChat.Community.Channel](https://chat.carlspring.org/images/join-chat.svg)](https://chat.carlspring.org/channel/community)
-[![License](https://img.shields.io/badge/License-Apache%202.0-brightgreen.svg)](https://opensource.org/licenses/Apache-2.0)
-[![Help Contribute to Open Source](https://www.codetriage.com/strongbox/strongbox/badges/users.svg)](https://www.codetriage.com/strongbox/strongbox)
-[![Jenkins tests](https://img.shields.io/jenkins/t/https/jenkins.carlspring.org/job/strongbox/job/strongbox/job/master.svg)](https://jenkins.carlspring.org/job/strongbox/job/strongbox/job/master/)
-[![Codacy Badge](https://api.codacy.com/project/badge/Grade/50f1af2c3b2d4e31a5c686c9a9395cd2)](https://www.codacy.com/app/strongbox/strongbox?utm_source=github.com&amp;utm_medium=referral&amp;utm_content=strongbox/strongbox&amp;utm_campaign=Badge_Grade)
-[![Codacy Badge](https://api.codacy.com/project/badge/Coverage/50f1af2c3b2d4e31a5c686c9a9395cd2)](https://www.codacy.com/app/strongbox/strongbox?utm_source=github.com&utm_medium=referral&utm_content=strongbox/strongbox&utm_campaign=Badge_Coverage)
+[![Master Build Status][master-build-status-badge]][master-build-status-link]
+[![Master Build Tests][master-build-tests-badge]][master-build-status-link]
+[![RocketChat.Community.Channel][rocket-chat-badge]][rocket-chat-link]
+[![License][license-badge]][license-link]
+[![Help Contribute to Open Source][codetriage-badge]][codetriage-link]
+[![GitHub issues by-label][good-first-issue-badge]][good-first-issue-link]
+[![GitHub issues by-label][help-wanted-badge]][help-wanted-link]
 
 Welcome to the Strongbox artifact repository manager's home.
 
-## What's implemented:
-* [Repositories](https://strongbox.github.io/knowledge-base/repositories.html):
-  * Hosted
-  * Proxy
-  * Group
-    * Support for repository ordering
-    * Support for routing rules
-    * Support for nested group repositories
-* Layout providers:
-  * [Maven 2.x/3.x](https://strongbox.github.io/developer-guide/layout-providers/maven-2-layout-provider.html)
-  * [NPM](https://strongbox.github.io/developer-guide/layout-providers/npm-layout-provider.html)
-  * [NuGet v2](https://strongbox.github.io/developer-guide/layout-providers/nuget-layout-provider.html)
-  * [Raw](https://strongbox.github.io/developer-guide/layout-providers/raw-layout-provider.html)
-* Search
-  * [Search providers](https://strongbox.github.io/developer-guide/search-providers.html):
-    * OrientDB (default implementation for all repositories and layout formats)
-    * [Maven Indexer](https://strongbox.github.io/developer-guide/maven-indexer.html) (additional implementation for Maven repositories)
-  * [Artifact Query Language](https://strongbox.github.io/user-guide/artifact-query-language.html)
-* Directory browsing
-* Security
-  * HTTP Basic authentication
-  * JWT authentication
-  * LDAP
-  * Custom authentication provider based on users that resides in second-level cache that exists in OrientDB
-  * Users are predefined in the `etc/conf/strongbox-security-users.xml` file
-* [REST API](https://strongbox.github.io/user-guide/rest-api.html):
-  * Features:
-    * Search for artifacts
-    * Manage the server's core configuration
-    * Manage repositories
-    * Manage users
-    * Manage logging
-    * Manage cron tasks
-  * Automated generation of documentation using Swagger
-  * Ready-to-use Java-based client(s) covering each REST command.
-* [Cron Tasks](https://github.com/strongbox/strongbox/wiki/Cron-Tasks)
-  * Implementations:
-    * Java
-    * Groovy
-* [Event handling](https://strongbox.github.io/developer-guide/using-the-event-api.html)
-* Logging:
-  * Retrieve logs over HTTP
+# General
 
-## What's in the works (Q1/2019):
+Strongbox is a modern OSS artifact repository manager. With a well-developed architecture, it provides native 
+implementations for various layout formats, such as [Maven][docs-maven], [NPM][docs-npm], [NuGet][docs-nuget], and [Raw][docs-raw].
+
+All of the implemented layout formats (a.k.a. "[layout providers][docs-providers]") are written natively in Java. 
+Our goal is to implement a universal repository manager that can host and serve artifacts in every mainstream format.
+
+Strongbox has a search engine and an [Artifact Query Language][docs-aql].
+
+# What's in the works (Q1/2019):
+
 * Web UI
 * Spring Bootification
-* Convert the strongbox configuration files from XML to YAML format ([#965](https://github.com/strongbox/strongbox/issues/965), [#1056](https://github.com/strongbox/strongbox/pull/1056))
+* Convert the strongbox configuration files from XML to YAML format (strongbox/strongbox#965, strongbox/strongbox#1056)
 
-## Upcoming:
-* Logging:
-  * Log tailing over HTTP
-* Deploy as a transaction
+# Upcoming:
+
+* Log tailing over HTTP
 * Debian/Ubuntu distribution
 
-## What's not yet implemented:
-* Plugins
+# News
 
-## Requirements:
+* We have recently:
+  * Upgraded to JUnit 5 and we've been busy making all of our tests parallelizable! (Please, reach out, if you'd like to help, as there is still work to be done!).
+  * Migrated to Spring Boot! (We may need help improving our support).
+  * Migrated our Github wiki to [gihub.io](https://strongbox.github.io/). 
+* We now have an RPM distribution and need help testing it! (We need testers).
+* Our UI is under heavy development!
+
+# Documentation
+
+You can find our documentation [here][docs].
+
+# Requirements:
+
 * Java 1.8.x
 * Maven 3.3.9 (or higher)
 
-## Download
-* Standalone:
-  * [rpm](https://github.com/strongbox/strongbox/releases/download/1.0-SNAPSHOT/strongbox-distribution-1.0-SNAPSHOT.rpm), [tar.gz](https://github.com/strongbox/strongbox/releases/download/1.0-SNAPSHOT/strongbox-distribution-1.0-SNAPSHOT.tar.gz), [zip](https://github.com/strongbox/strongbox/releases/download/1.0-SNAPSHOT/strongbox-distribution-1.0-SNAPSHOT.zip)
-  * [other releases](https://github.com/strongbox/strongbox/releases)
+# Building
+
+Instructions on how to build the code, can be found [here][docs-building-the-code].
+
+# Download
+
+Strongbox is available in the following formats:
+* [rpm][release-rpm]
+* [tar.gz][release-tar.gz]
+* [zip][release-zip]
+
+Other release could be downloaded from [here][release-all].
 
 # Installation
-Please check [here](https://strongbox.github.io/user-guide/getting-started.html) for detailed instruction on how to install and setup up Strongbox on the supported platforms.
 
-# Building
-Instructions on how to build the code, can be found [here](https://strongbox.github.io/developer-guide/building-the-code.html).
+Please check [here][docs-user-getting-started] for detailed instruction on how to install and setup up Strongbox on the 
+supported platforms.
 
 # Contributing
-Contributions and contributors are always welcome! For more details, please check [here](https://strongbox.github.io/contributing.html).
-We have a helpful community of developers on our [channel](https://chat.carlspring.org/channel/community), please feel free to drop by, if you have questions, issues, or would like to contribute!
 
+Contributions and contributors are always welcome! For more details on how to contribute, please check [here][docs-contributing]. 
+We are also looking for people who would like to test our code and help improve our documentation!
+
+We have a helpful community of developers on our [chat channel][rocket-chat-link], so, please feel free to drop by, if 
+you have questions, issues, or would like to contribute!
+
+We need your help to make Strongbox better! Please, have a look at issues with these labels, if you'd like to get 
+started with our project:
+
+[![GitHub issues by-label][good-first-issue-badge]][good-first-issue-link]
+[![GitHub issues by-label][help-wanted-badge]][help-wanted-link]
+
+
+[<--# Generic Links -->]: #
+[strongbox-logo]: ./strongbox.svg
+
+[<--# Badges -->]: #
+[master-build-status-link]: https://dev.carlspring.org/jenkins/blue/organizations/jenkins/strongbox%2Fstrongbox/activity?branch=master
+[master-build-status-badge]: https://dev.carlspring.org/jenkins/buildStatus/icon?job=strongbox/strongbox/master
+[master-build-tests-badge]: https://img.shields.io/jenkins/t/https/jenkins.carlspring.org/job/strongbox/job/strongbox/job/master.svg 
+[rocket-chat-link]: https://chat.carlspring.org/channel/community
+[rocket-chat-badge]: https://chat.carlspring.org/images/join-chat.svg
+[license-link]: https://opensource.org/licenses/Apache-2.0
+[license-badge]: https://img.shields.io/badge/License-Apache%202.0-brightgreen.svg
+[codetriage-link]: https://www.codetriage.com/strongbox/strongbox
+[codetriage-badge]: https://www.codetriage.com/strongbox/strongbox/badges/users.svg
+[good-first-issue-link]: https://github.com/strongbox/strongbox/issues?q=is%3Aissue+is%3Aopen+label%3A%22good%20first%20issue%22
+[good-first-issue-badge]: https://img.shields.io/github/issues-raw/strongbox/strongbox/good%20first%20issue.svg?label=good%20first%20issue
+[help-wanted-link]: https://github.com/strongbox/strongbox/issues?q=is%3Aissue+is%3Aopen+label%3A%22help%20wanted%22
+[help-wanted-badge]: https://img.shields.io/github/issues-raw/strongbox/strongbox/help%20wanted.svg?label=help%20wanted&color=%23856bf9& 
+
+[<--# Docs links -->]: #
+[docs](https://strongbox.github.io/)
+[docs-maven]: https://strongbox.github.io/developer-guide/layout-providers/maven-2-layout-provider.html
+[docs-npm]: https://strongbox.github.io/developer-guide/layout-providers/npm-layout-provider.html
+[docs-nuget]: https://strongbox.github.io/developer-guide/layout-providers/nuget-layout-provider.html
+[docs-raw]: https://strongbox.github.io/developer-guide/layout-providers/raw-layout-provider.html
+[docs-providers]: https://strongbox.github.io/knowledge-base/layout-providers.html
+[docs-building-the-code]: https://strongbox.github.io/developer-guide/building-the-code.html
+[docs-user-getting-started]: https://strongbox.github.io/user-guide/getting-started.html
+[docs-contributing]: https://strongbox.github.io/contributing.html
+[docs-aql]: https://strongbox.github.io/user-guide/artifact-query-language.html
+
+[<--# Release links -->]: #
+[release-all]: https://github.com/strongbox/strongbox/releases
+[release-rpm]: https://github.com/strongbox/strongbox/releases/download/latest/strongbox-distribution.rpm
+[release-tar.gz]: https://github.com/strongbox/strongbox/releases/download/1.0-SNAPSHOT/strongbox-distribution-1.0-SNAPSHOT.tar.gz
+[release-zip]: https://github.com/strongbox/strongbox/releases/download/1.0-SNAPSHOT/strongbox-distribution-1.0-SNAPSHOT.zip
