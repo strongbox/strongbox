@@ -8,7 +8,6 @@ import org.carlspring.strongbox.xml.parsers.GenericParser;
 
 import javax.xml.bind.JAXBException;
 import java.io.ByteArrayInputStream;
-import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
@@ -107,10 +106,8 @@ public class RepositoryTest
     public void testMarshallAndUnmarshallStrongboxConfiguration()
             throws JAXBException, IOException
     {
-        File file = new File("target/strongbox/etc/conf/strongbox.xml");
-
         GenericParser<MutableConfiguration> parser = new GenericParser<>(MutableConfiguration.class);
-        MutableConfiguration configuration = parser.parse(file.toURI().toURL());
+        MutableConfiguration configuration = parser.parse(this.getClass().getResourceAsStream("/etc/conf/strongbox.xml"));
 
         MutableStorage storage = configuration.getStorage("storage0");
 
