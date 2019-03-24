@@ -51,7 +51,6 @@ public class CronTaskControllerTest
 
     @Test
     public void getConfigurations()
-            throws IOException
     {
         MockMvcResponse response = getCronConfigurations();
 
@@ -82,7 +81,6 @@ public class CronTaskControllerTest
     @Test
     @EnabledIf(expression = "#{containsObject('repositoryIndexManager')}", loadContext = true)
     public void updateDownloadRemoteMavenIndexCronJob()
-            throws Exception
     {
         final String currentCronExpression = "0 0 5 * * ?";
         final String newCronExpression = "0 0 0 * * ?";
@@ -348,7 +346,7 @@ public class CronTaskControllerTest
 
     private String getCronUuid(String cronName)
     {
-        final CronTasksConfigurationDto cronTasksConfiguration = given().accept(MediaType.APPLICATION_XML_VALUE)
+        final CronTasksConfigurationDto cronTasksConfiguration = given().accept(MediaType.APPLICATION_JSON_VALUE)
                                                                         .when()
                                                                         .get(getContextBaseUrl())
                                                                         .peek()
