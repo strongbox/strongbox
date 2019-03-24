@@ -1,19 +1,9 @@
 package org.carlspring.strongbox.mapper;
 
-import org.carlspring.strongbox.forms.configuration.MavenRepositoryConfigurationForm;
-import org.carlspring.strongbox.forms.configuration.NugetRepositoryConfigurationForm;
-import org.carlspring.strongbox.forms.configuration.RawRepositoryConfigurationForm;
-import org.carlspring.strongbox.providers.layout.Maven2LayoutProvider;
-import org.carlspring.strongbox.providers.layout.NpmLayoutProvider;
-import org.carlspring.strongbox.providers.layout.NugetLayoutProvider;
-import org.carlspring.strongbox.providers.layout.RawLayoutProvider;
-import org.carlspring.strongbox.yaml.configuration.repository.MavenRepositoryConfiguration;
-import org.carlspring.strongbox.yaml.configuration.repository.NpmRepositoryConfiguration;
-import org.carlspring.strongbox.yaml.configuration.repository.NugetRepositoryConfiguration;
-import org.carlspring.strongbox.yaml.configuration.repository.RawRepositoryConfiguration;
-
 import javax.annotation.PostConstruct;
+import java.util.Optional;
 
+import com.fasterxml.jackson.annotation.JsonTypeName;
 import com.fasterxml.jackson.databind.AnnotationIntrospector;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.SerializationFeature;
@@ -43,16 +33,11 @@ public class CustomObjectMapper
         AnnotationIntrospector introspector = AnnotationIntrospector.pair(jacksonIntrospector, jaxbIntrospector);
         setAnnotationIntrospector(introspector);
 
-        registerSubtypes(new NamedType(MavenRepositoryConfigurationForm.class, Maven2LayoutProvider.ALIAS));
-        registerSubtypes(new NamedType(NugetRepositoryConfigurationForm.class, NugetLayoutProvider.ALIAS));
-        registerSubtypes(new NamedType(RawRepositoryConfigurationForm.class, RawLayoutProvider.ALIAS));
-
-        registerSubtypes(new NamedType(MavenRepositoryConfiguration.class, Maven2LayoutProvider.ALIAS));
-        registerSubtypes(new NamedType(NugetRepositoryConfiguration.class, NugetLayoutProvider.ALIAS));
-        registerSubtypes(new NamedType(RawRepositoryConfiguration.class, RawLayoutProvider.ALIAS));
-        registerSubtypes(new NamedType(NpmRepositoryConfiguration.class, NpmLayoutProvider.ALIAS));
-
+        ObjectMapperSubtypes.subtypes().stream()
+                                     .forEach(contextClass -> registerSubtypes(
+                                             new NamedType(contextClass, Optional.ofNullable(
+                                                     contextClass.getAnnotation(JsonTypeName.class))
+                                                                                 .map(JsonTypeName::value).orElse(
+                                                             null))));
     }
-
-
 }

@@ -89,7 +89,7 @@ public class AuthorizationConfigControllerTestIT
         customRole.setDescription("Test role");
         customRole.setRepository("Test repository");
         customRole.setPrivileges(new HashSet<>(Arrays.asList(Privileges.ADMIN_LIST_REPO.name(),
-                Privileges.ARTIFACTS_DEPLOY.name())));
+                                                             Privileges.ARTIFACTS_DEPLOY.name())));
 
         given().contentType(MediaType.APPLICATION_JSON_VALUE)
                .accept(acceptHeader)
@@ -124,6 +124,7 @@ public class AuthorizationConfigControllerTestIT
 
     @ParameterizedTest
     @ValueSource(strings = { MediaType.APPLICATION_JSON_VALUE,
+                             // TODO are going to support YAML MEdia Type ?
                              MediaType.APPLICATION_XML_VALUE })
     void configFileCouldBeDownloaded(String acceptHeader)
     {

@@ -8,7 +8,7 @@ import com.fasterxml.jackson.annotation.JsonTypeInfo;
  * @author Przemyslaw Fusik
  */
 @Immutable
-@JsonTypeInfo(use = JsonTypeInfo.Id.NAME, include = JsonTypeInfo.As.PROPERTY, property = "layout")
+@JsonTypeInfo(use = JsonTypeInfo.Id.NAME, property = "layout")
 public abstract class CustomRepositoryConfiguration
 {
 

@@ -295,7 +295,7 @@ configuration:
           remoteRepository:
             url: https://registry.npmjs.org/
             customConfiguration:
-              type: npmRemoteRepositoryConfiguration
+              type: npm
               lastChangeId: 0
               replicateUrl: https://replicate.npmjs.com/
     storage-nuget:

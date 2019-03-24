@@ -1,6 +1,6 @@
 package org.carlspring.strongbox.config;
 
-import org.carlspring.strongbox.yaml.CustomYamlMapper;
+import org.carlspring.strongbox.yaml.StrongboxYamlMapper;
 
 import javax.annotation.Nonnull;
 import java.util.Set;
@@ -11,7 +11,7 @@ import com.fasterxml.jackson.databind.DeserializationFeature;
  * @author Przemyslaw Fusik
  */
 public class TestingYamlMapper
-        extends CustomYamlMapper
+        extends StrongboxYamlMapper
 {
 
     public TestingYamlMapper(@Nonnull final Set<Class<?>> contextClasses)

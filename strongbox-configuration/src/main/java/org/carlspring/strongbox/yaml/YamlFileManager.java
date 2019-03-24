@@ -1,15 +1,12 @@
 package org.carlspring.strongbox.yaml;
 
 import org.carlspring.strongbox.resource.ConfigurationResourceResolver;
+import org.carlspring.strongbox.util.ServiceLoaderUtils;
 
 import java.io.*;
 import java.lang.reflect.UndeclaredThrowableException;
 import java.nio.file.Files;
 import java.nio.file.Paths;
-import java.util.Arrays;
-import java.util.HashSet;
-import java.util.ServiceLoader;
-import java.util.Set;
 
 import com.fasterxml.jackson.dataformat.yaml.YAMLMapper;
 import org.slf4j.Logger;
@@ -41,20 +38,7 @@ public abstract class YamlFileManager<T>
                            Class<?>... classes)
     {
         myClazz = (Class<T>) GenericTypeResolver.resolveTypeArgument(getClass(), YamlFileManager.class);
-
-        Set<Class<?>> contextClasses = new HashSet<>();
-        if (classes != null)
-        {
-            Arrays.asList(classes).forEach(
-                    clazz ->
-                    {
-                        ServiceLoader<?> loader = ServiceLoader.load(clazz);
-                        loader.forEach(impl -> contextClasses.add(impl.getClass()));
-                    }
-            );
-        }
-
-        yamlMapper = yamlMapperFactory.create(contextClasses);
+        yamlMapper = yamlMapperFactory.create(ServiceLoaderUtils.load(classes));
     }
 
     public abstract String getPropertyKey();
