@@ -50,6 +50,7 @@ public class ArtifactCoordinateValidatorsManagementControllerTest
         repositories.add(createRepositoryMock(STORAGE0, "releases-with-single-validator", Maven2LayoutProvider.ALIAS));
         repositories.add(createRepositoryMock(STORAGE0, "releases-with-default-validators", Maven2LayoutProvider.ALIAS));
         repositories.add(createRepositoryMock(STORAGE0, "another-releases-with-default-validators", Maven2LayoutProvider.ALIAS));
+        repositories.add(createRepositoryMock(STORAGE0, "yet-another-releases-with-default-validators", Maven2LayoutProvider.ALIAS));
         repositories.add(createRepositoryMock(STORAGE0, "single-validator-only", Maven2LayoutProvider.ALIAS));
 
         return repositories;
@@ -79,12 +80,17 @@ public class ArtifactCoordinateValidatorsManagementControllerTest
 
         createRepository(STORAGE0, repository3);
 
-        MutableRepository repository4 = mavenRepositoryFactory.createRepository("single-validator-only");
+        MutableRepository repository4 = mavenRepositoryFactory.createRepository("yet-another-releases-with-default-validators");
         repository4.setPolicy(RepositoryPolicyEnum.RELEASE.getPolicy());
-        repository4.setArtifactCoordinateValidators(
-                new LinkedHashSet<>(Collections.singletonList(redeploymentValidator.getAlias())));
 
         createRepository(STORAGE0, repository4);
+
+        MutableRepository repository5 = mavenRepositoryFactory.createRepository("single-validator-only");
+        repository5.setPolicy(RepositoryPolicyEnum.RELEASE.getPolicy());
+        repository5.setArtifactCoordinateValidators(
+                new LinkedHashSet<>(Collections.singletonList(redeploymentValidator.getAlias())));
+
+        createRepository(STORAGE0, repository5);
 
         setContextBaseUrl(getContextBaseUrl() + "/api/configuration/artifact-coordinate-validators");
     }
@@ -196,7 +202,7 @@ public class ArtifactCoordinateValidatorsManagementControllerTest
     void shouldNotRemoveAliasNotFound(String acceptHeader)
     {
         String url = getContextBaseUrl() + "/{storageId}/{repositoryId}/{alias}";
-        String repositoryId = "releases-with-default-validators";
+        String repositoryId = "yet-another-releases-with-default-validators";
         String alias = "alias-not-found";
 
         given().accept(acceptHeader)
