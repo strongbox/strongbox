@@ -129,8 +129,8 @@ public class MavenSearchControllerTest
         // testSearchJSON
         response = client.search(query, MediaType.APPLICATION_JSON_VALUE, searchProvider);
 
-        assertTrue(response.contains("\"version\" : \"1.0.11.3\"") &&
-                   response.contains("\"version\" : \"1.0.11.3.1\""),
+        assertTrue(response.contains("\"version\":\"1.0.11.3\"") &&
+                   response.contains("\"version\":\"1.0.11.3.1\""),
                    "Received unexpected search results! \n" + response + "\n");
     }
 

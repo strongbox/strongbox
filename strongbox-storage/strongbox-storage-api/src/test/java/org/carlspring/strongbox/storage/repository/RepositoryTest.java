@@ -135,7 +135,7 @@ public class RepositoryTest
     public void testMarshallAndUnmarshallStrongboxConfiguration()
             throws IOException
     {
-        MutableConfiguration configuration = yamlMapper.readValue(this.getClass().getResourceAsStream("/etc/conf/strongbox.xml"), MutableConfiguration.class);
+        MutableConfiguration configuration = yamlMapper.readValue(this.getClass().getResourceAsStream("/etc/conf/strongbox.yaml"), MutableConfiguration.class);
         MutableStorage storage = configuration.getStorage("storage0");
 
         assertNotNull(storage);
