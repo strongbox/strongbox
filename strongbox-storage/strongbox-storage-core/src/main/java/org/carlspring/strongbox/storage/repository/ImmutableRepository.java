@@ -26,7 +26,7 @@ import com.fasterxml.jackson.databind.annotation.JsonSerialize;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
 import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
-import static java.util.stream.Collectors.toMap;
+import static org.carlspring.strongbox.util.CustomStreamCollectors.toLinkedHashMap;
 
 /**
  * @author Przemyslaw Fusik
@@ -34,7 +34,8 @@ import static java.util.stream.Collectors.toMap;
 @Immutable
 @XmlAccessorType(XmlAccessType.FIELD)
 @SuppressFBWarnings(value = "AJCIP_FIELD_ISNT_FINAL_IN_IMMUTABLE_CLASS")
-public class ImmutableRepository implements Repository
+public class ImmutableRepository
+        implements Repository
 {
 
     private String id;
@@ -142,7 +143,7 @@ public class ImmutableRepository implements Repository
 
     private Map<String, String> immuteGroupRepositories(final Set<String> source)
     {
-        return source != null ? ImmutableMap.copyOf(source.stream().collect(toMap(e -> e, e -> e))) :
+        return source != null ? ImmutableMap.copyOf(source.stream().collect(toLinkedHashMap(e -> e, e -> e))) :
                Collections.emptyMap();
     }
 
@@ -171,7 +172,7 @@ public class ImmutableRepository implements Repository
 
     private Map<String, String> immuteArtifactCoordinateValidators(final Set<String> source)
     {
-        return source != null ? ImmutableMap.copyOf(source.stream().collect(toMap(e -> e, e -> e))) :
+        return source != null ? ImmutableMap.copyOf(source.stream().collect(toLinkedHashMap(e -> e, e -> e))) :
                Collections.emptyMap();
     }
 

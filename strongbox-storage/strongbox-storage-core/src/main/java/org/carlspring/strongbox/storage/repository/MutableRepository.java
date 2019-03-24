@@ -26,6 +26,7 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 public class MutableRepository
         implements Serializable
 {
+
     private String id;
 
     private String basedir;
