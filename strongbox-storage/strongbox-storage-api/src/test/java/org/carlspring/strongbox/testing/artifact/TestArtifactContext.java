@@ -76,16 +76,23 @@ public class TestArtifactContext implements AutoCloseable
         RepositoryPath repositoryPath = repositoryPathResolver.resolve(testArtifact.storage(),
                                                                        testArtifact.repository(),
                                                                        testArtifact.resource());
-        artifactManagementService.store(repositoryPath, Files.newInputStream(artifactPathLocal));
+        try (InputStream is = Files.newInputStream(artifactPathLocal))
+        {
+            artifactManagementService.store(repositoryPath, is);
+        }
+        Files.delete(artifactPathLocal);
+
         repositoryPath.getFileSystem()
                       .provider()
                       .resolveChecksumPathMap(repositoryPath)
                       .values()
                       .stream()
                       .forEach(p -> {
-                          try(InputStream is = Files.newInputStream(artifactPathLocal.resolveSibling(p.getFileName())))
+                          Path checksumPath = artifactPathLocal.resolveSibling(p.getFileName());
+                          try (InputStream is = Files.newInputStream(checksumPath))
                           {
-                              artifactManagementService.store(p,is);
+                              artifactManagementService.store(p, is);
+                              Files.delete(checksumPath);
                           }
                           catch (IOException e)
                           {
@@ -93,7 +100,6 @@ public class TestArtifactContext implements AutoCloseable
                           }
                       });
 
-        Files.delete(artifactPathLocal);
         return repositoryPath;
     }
 
