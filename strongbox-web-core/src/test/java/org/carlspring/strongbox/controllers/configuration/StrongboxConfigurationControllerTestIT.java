@@ -9,8 +9,11 @@ import java.io.IOException;
 
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.ValueSource;
 import org.springframework.http.MediaType;
 import static io.restassured.module.mockmvc.RestAssuredMockMvc.given;
+import static org.carlspring.strongbox.net.MediaType.APPLICATION_YAML_VALUE;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 
 /**
@@ -29,8 +32,10 @@ public class StrongboxConfigurationControllerTestIT
         super.init();
     }
 
-    @Test
-    public void testGetAndSetConfiguration()
+    @ParameterizedTest
+    @ValueSource(strings = { MediaType.APPLICATION_JSON_VALUE,
+                             APPLICATION_YAML_VALUE })
+    public void testGetAndSetConfiguration(String acceptHeader)
     {
         MutableConfiguration configuration = getConfigurationFromRemote();
 
@@ -41,7 +46,7 @@ public class StrongboxConfigurationControllerTestIT
         String url = getContextBaseUrl() + "/api/configuration/strongbox";
 
         given().contentType(MediaType.APPLICATION_JSON_VALUE)
-               .accept(MediaType.APPLICATION_JSON_VALUE)
+               .accept(acceptHeader)
                .body(configuration)
                .when()
                .put(url)

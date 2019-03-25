@@ -14,6 +14,7 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
+import static org.carlspring.strongbox.net.MediaType.APPLICATION_YAML_VALUE;
 
 /**
  * @author Pablo Tirado
@@ -36,9 +37,9 @@ public class StrongboxConfigurationController
     @PreAuthorize("hasAuthority('CONFIGURATION_UPLOAD')")
     @PutMapping(produces = { MediaType.TEXT_PLAIN_VALUE,
                              MediaType.APPLICATION_JSON_VALUE,
-                             MediaType.APPLICATION_XML_VALUE },
+                             APPLICATION_YAML_VALUE },
             consumes = { MediaType.APPLICATION_JSON_VALUE,
-                         MediaType.APPLICATION_XML_VALUE })
+                         APPLICATION_YAML_VALUE })
     public ResponseEntity<ResponseMessage> setStrongboxConfiguration(
             @ApiParam(value = "The strongbox.yaml configuration file", required = true) @RequestBody
                     MutableConfiguration configuration)
@@ -55,7 +56,7 @@ public class StrongboxConfigurationController
     @ApiResponses(value = { @ApiResponse(code = 200, message = ""),
                             @ApiResponse(code = 500, message = "An error occurred.") })
     @PreAuthorize("hasAuthority('CONFIGURATION_VIEW')")
-    @GetMapping(produces = { MediaType.APPLICATION_XML_VALUE,
+    @GetMapping(produces = { APPLICATION_YAML_VALUE,
                              MediaType.APPLICATION_JSON_VALUE })
     public ResponseEntity<MutableConfiguration> getStrongboxConfiguration()
     {

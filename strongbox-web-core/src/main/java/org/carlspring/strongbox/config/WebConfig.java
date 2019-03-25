@@ -13,17 +13,17 @@ import org.carlspring.strongbox.converters.storage.routing.RoutingRuleFormToMuta
 import org.carlspring.strongbox.converters.users.AccessModelFormToUserAccessModelDtoConverter;
 import org.carlspring.strongbox.converters.users.UserFormToUserDtoConverter;
 import org.carlspring.strongbox.cron.config.CronTasksConfig;
+import org.carlspring.strongbox.mapper.ObjectMapperSubtypes;
 import org.carlspring.strongbox.utils.CustomAntPathMatcher;
 import org.carlspring.strongbox.web.DirectoryTraversalFilter;
 import org.carlspring.strongbox.web.HeaderMappingFilter;
+import org.carlspring.strongbox.yaml.YAMLMapperFactory;
 
 import javax.inject.Inject;
 import javax.inject.Named;
 import javax.servlet.http.HttpServletRequest;
-import javax.xml.bind.Marshaller;
-import java.util.HashMap;
+import java.util.Arrays;
 import java.util.List;
-import java.util.Map;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.jtwig.spring.boot.config.JtwigViewResolverConfigurer;
@@ -36,10 +36,9 @@ import org.springframework.context.annotation.ComponentScan;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Import;
 import org.springframework.format.FormatterRegistry;
+import org.springframework.http.MediaType;
 import org.springframework.http.converter.*;
 import org.springframework.http.converter.json.MappingJackson2HttpMessageConverter;
-import org.springframework.http.converter.xml.MarshallingHttpMessageConverter;
-import org.springframework.oxm.jaxb.Jaxb2Marshaller;
 import org.springframework.validation.Validator;
 import org.springframework.validation.beanvalidation.LocalValidatorFactoryBean;
 import org.springframework.web.context.request.RequestContextListener;
@@ -50,6 +49,8 @@ import org.springframework.web.servlet.resource.GzipResourceResolver;
 import org.springframework.web.servlet.resource.PathResourceResolver;
 import org.springframework.web.servlet.view.InternalResourceView;
 import org.springframework.web.servlet.view.InternalResourceViewResolver;
+import static org.carlspring.strongbox.net.MediaType.APPLICATION_YAML_VALUE;
+import static org.carlspring.strongbox.net.MediaType.APPLICATION_YML_VALUE;
 
 @Configuration
 @ComponentScan({ "com.carlspring.strongbox.controllers",
@@ -87,6 +88,9 @@ public class WebConfig
 
     @Inject
     private ObjectMapper objectMapper;
+
+    @Inject
+    private YAMLMapperFactory yamlMapperFactory;
 
     WebConfig()
     {
@@ -148,7 +152,7 @@ public class WebConfig
         converters.add(stringConverter);
         converters.add(new FormHttpMessageConverter());
         converters.add(jackson2Converter());
-        converters.add(marshallingMessageConverter());
+        converters.add(yamlConverter());
         converters.add(new ResourceHttpMessageConverter());
     }
 
@@ -158,42 +162,15 @@ public class WebConfig
         configurer.favorPathExtension(false);
     }
 
+    // TODO consider using the same MappingJackson2HttpMessageConverter for yaml and json !
     @Bean
-    public MarshallingHttpMessageConverter marshallingMessageConverter()
+    public MappingJackson2HttpMessageConverter yamlConverter()
     {
-        MarshallingHttpMessageConverter converter = new MarshallingHttpMessageConverter();
-        converter.setMarshaller(marshaller());
-        converter.setUnmarshaller(marshaller());
-        return converter;
-    }
-
-    @Bean
-    public Jaxb2Marshaller marshaller()
-    {
-        Jaxb2Marshaller marshaller = new Jaxb2Marshaller();
-        marshaller.setPackagesToScan("com.carlspring.strongbox.controllers",
-                                     "org.carlspring.strongbox.artifact.coordinates",
-                                     "org.carlspring.strongbox.users.dto",
-                                     "org.carlspring.strongbox.authorization.dto",
-                                     "org.carlspring.strongbox.authentication.registry",
-                                     "org.carlspring.strongbox.authentication.support",
-                                     "org.carlspring.strongbox.cron.domain",
-                                     "org.carlspring.strongbox.configuration",
-                                     "org.carlspring.strongbox.controllers",
-                                     //TODO: resolve @XmlRootElement(name = "repository") conflict with  org.carlspring.strongbox.storage.repository.Repository
-                                     //"org.carlspring.strongbox.providers.layout.p2",
-                                     "org.carlspring.strongbox.storage",
-                                     "org.carlspring.strongbox.storage.indexing",
-                                     "org.carlspring.strongbox.storage.repository",
-                                     "org.carlspring.strongbox.storage.repository.aws",
-                                     "org.carlspring.strongbox.storage.repository.gcs",
-                                     "org.carlspring.strongbox.storage.routing",
-                                     "org.carlspring.strongbox.yaml",
-                                     "org.carlspring.strongbox.forms");
-        Map<String, Object> props = new HashMap<>();
-        props.put(Marshaller.JAXB_FORMATTED_OUTPUT, true);
-        marshaller.setMarshallerProperties(props);
-        return marshaller;
+        MappingJackson2HttpMessageConverter yamlConverter = new MappingJackson2HttpMessageConverter(
+                yamlMapperFactory.create(ObjectMapperSubtypes.subtypes()));
+        yamlConverter.setSupportedMediaTypes(
+                Arrays.asList(MediaType.valueOf(APPLICATION_YML_VALUE), MediaType.valueOf(APPLICATION_YAML_VALUE)));
+        return yamlConverter;
     }
 
     @Bean

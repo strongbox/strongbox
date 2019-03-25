@@ -28,6 +28,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import static io.restassured.module.mockmvc.RestAssuredMockMvc.given;
 import static org.carlspring.strongbox.controllers.configuration.security.authorization.AuthorizationConfigController.*;
+import static org.carlspring.strongbox.net.MediaType.APPLICATION_YAML_VALUE;
 import static org.hamcrest.CoreMatchers.containsString;
 
 /**
@@ -124,8 +125,7 @@ public class AuthorizationConfigControllerTestIT
 
     @ParameterizedTest
     @ValueSource(strings = { MediaType.APPLICATION_JSON_VALUE,
-                             // TODO are going to support YAML MEdia Type ?
-                             MediaType.APPLICATION_XML_VALUE })
+                             APPLICATION_YAML_VALUE })
     void configFileCouldBeDownloaded(String acceptHeader)
     {
         given().contentType(MediaType.APPLICATION_JSON_VALUE)

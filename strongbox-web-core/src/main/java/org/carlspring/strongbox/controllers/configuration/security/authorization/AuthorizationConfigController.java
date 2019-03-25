@@ -30,6 +30,7 @@ import org.springframework.stereotype.Controller;
 import org.springframework.validation.BindingResult;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
+import static org.carlspring.strongbox.net.MediaType.APPLICATION_YAML_VALUE;
 
 /**
  * @author Pablo Tirado
@@ -99,7 +100,7 @@ public class AuthorizationConfigController
     @ApiOperation(value = "Retrieves the strongbox-authorization.yaml configuration file.")
     @ApiResponses(value = { @ApiResponse(code = 200, message = SUCCESSFUL_GET_CONFIG),
                             @ApiResponse(code = 500, message = FAILED_GET_CONFIG) })
-    @GetMapping(produces = { MediaType.APPLICATION_XML_VALUE,
+    @GetMapping(produces = { APPLICATION_YAML_VALUE,
                              MediaType.APPLICATION_JSON_VALUE })
     public ResponseEntity getAuthorizationConfig(@RequestHeader(HttpHeaders.ACCEPT) String acceptHeader)
     {
