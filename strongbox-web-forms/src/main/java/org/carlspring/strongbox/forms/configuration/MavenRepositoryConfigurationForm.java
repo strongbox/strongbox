@@ -5,7 +5,7 @@ import com.fasterxml.jackson.annotation.JsonTypeName;
 /**
  * @author Przemyslaw Fusik
  */
-@JsonTypeName("Maven 2")
+@JsonTypeName("mavenRepositoryConfiguration")
 public class MavenRepositoryConfigurationForm
         extends CustomRepositoryConfigurationForm
 {

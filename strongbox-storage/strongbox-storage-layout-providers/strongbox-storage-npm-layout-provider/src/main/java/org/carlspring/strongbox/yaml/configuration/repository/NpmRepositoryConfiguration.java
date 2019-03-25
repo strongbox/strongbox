@@ -16,7 +16,7 @@ import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
 @Immutable
 @XmlAccessorType(XmlAccessType.FIELD)
 @SuppressFBWarnings(value = "AJCIP_FIELD_ISNT_FINAL_IN_IMMUTABLE_CLASS")
-@JsonTypeName(NpmLayoutProvider.ALIAS)
+@JsonTypeName("npmRepositoryConfiguration")
 public class NpmRepositoryConfiguration
         extends CustomRepositoryConfiguration
 {

@@ -5,7 +5,7 @@ import com.fasterxml.jackson.annotation.JsonTypeName;
 /**
  * @author Przemyslaw Fusik
  */
-@JsonTypeName("NuGet")
+@JsonTypeName("nugetRepositoryConfiguration")
 public class NugetRepositoryConfigurationForm
         extends CustomRepositoryConfigurationForm
 {

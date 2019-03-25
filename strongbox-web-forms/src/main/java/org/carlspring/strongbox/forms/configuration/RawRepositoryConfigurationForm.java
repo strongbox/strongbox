@@ -5,7 +5,7 @@ import com.fasterxml.jackson.annotation.JsonTypeName;
 /**
  * @author Przemyslaw Fusik
  */
-@JsonTypeName("Raw")
+@JsonTypeName("rawRepositoryConfiguration")
 public class RawRepositoryConfigurationForm
         extends CustomRepositoryConfigurationForm
 {
