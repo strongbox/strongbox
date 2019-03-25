@@ -5,6 +5,7 @@ import static org.carlspring.strongbox.testing.storage.repository.TestRepository
 
 import java.io.IOException;
 import java.lang.annotation.Annotation;
+import java.lang.reflect.UndeclaredThrowableException;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.Comparator;
@@ -136,7 +137,38 @@ public class TestRepositoryManagementApplicationContext extends AnnotationConfig
         }
 
         lock();
-        super.refresh();
+        try
+        {
+            super.refresh();
+        }
+        catch (Throwable e)
+        {
+            unlockWithExceptionPropagation(e);
+        }
+    }
+
+    private void unlockWithExceptionPropagation(Throwable e)
+        throws BeansException,
+        IllegalStateException
+    {
+        try
+        {
+            unlock();
+        }
+        catch (Throwable e1)
+        {
+            e1.addSuppressed(e);
+            throw new ApplicationContextException("Failed to unlock test resources.", e1);
+        }
+        if (e instanceof BeansException)
+        {
+            throw (BeansException) e;
+        }
+        else if (e instanceof IllegalStateException)
+        {
+            throw (IllegalStateException) e;
+        }
+        throw new UndeclaredThrowableException(e);
     }
 
     private void lock()
@@ -191,9 +223,9 @@ public class TestRepositoryManagementApplicationContext extends AnnotationConfig
 
         };
         Set<Entry<String, ReentrantLock>> reversedEntrySet = idSync.entrySet()
-                                                                               .stream()
-                                                                               .sorted(reversed)
-                                                                               .collect(Collectors.toSet());
+                                                                   .stream()
+                                                                   .sorted(reversed)
+                                                                   .collect(Collectors.toSet());
         String[] beanDefinitionNames = getBeanDefinitionNames();
         for (Entry<String, ReentrantLock> entry : reversedEntrySet)
         {
