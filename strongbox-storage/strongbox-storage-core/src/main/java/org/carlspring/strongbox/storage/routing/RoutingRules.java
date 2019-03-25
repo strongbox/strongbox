@@ -2,10 +2,10 @@ package org.carlspring.strongbox.storage.routing;
 
 import javax.annotation.concurrent.Immutable;
 import java.util.Collections;
-import java.util.Map;
+import java.util.List;
 
-import com.google.common.collect.ImmutableMap;
-import static java.util.stream.Collectors.toMap;
+import com.google.common.collect.ImmutableList;
+import static java.util.stream.Collectors.toList;
 
 /**
  * @author Przemyslaw Fusik
@@ -14,58 +14,44 @@ import static java.util.stream.Collectors.toMap;
 public class RoutingRules
 {
 
-    public static final String WILDCARD = MutableRoutingRules.WILDCARD;
+    private final List<RoutingRule> rules;
 
-    private final Map<String, RuleSet> accepted;
+    private List<RoutingRule> denied;
 
-    private final Map<String, RuleSet> denied;
+    private List<RoutingRule> accepted;
 
     public RoutingRules(final MutableRoutingRules delegate)
     {
-        this.accepted = immuteRuleSet(delegate.getAccepted());
-        this.denied = immuteRuleSet(delegate.getDenied());
+        this.rules = immuteRoutingRules(delegate.getRules());
     }
 
-    private Map<String, RuleSet> immuteRuleSet(final Map<String, MutableRuleSet> source)
+    private List<RoutingRule> immuteRoutingRules(final List<MutableRoutingRule> source)
     {
-        return source != null ? ImmutableMap.copyOf(source.entrySet().stream().collect(
-                toMap(Map.Entry::getKey, e -> new RuleSet(e.getValue())))) : Collections.emptyMap();
+        return source != null ? ImmutableList.copyOf(source.stream().map(RoutingRule::new).collect(toList())) :
+               Collections.emptyList();
     }
 
-    public Map<String, RuleSet> getAccepted()
+    public List<RoutingRule> getRules()
     {
-        return accepted;
+        return rules;
     }
 
-    public Map<String, RuleSet> getDenied()
+    public List<RoutingRule> getDenied()
     {
-        return denied;
+        if (denied != null)
+        {
+            return denied;
+        }
+        return denied = rules.stream().filter(RoutingRule::isDeny).collect(toList());
     }
 
-    public RuleSet getWildcardAcceptedRules()
+
+    public List<RoutingRule> getAccepted()
     {
-        return accepted.get(WILDCARD);
+        if (accepted != null)
+        {
+            return accepted;
+        }
+        return accepted = rules.stream().filter(RoutingRule::isAccept).collect(toList());
     }
-
-    public RuleSet getWildcardDeniedRules()
-    {
-        return denied.get(WILDCARD);
-    }
-
-    public RuleSet getAcceptRules(String groupRepositoryId)
-    {
-        return accepted.get(groupRepositoryId);
-    }
-
-    public RuleSet getWildcardDenyRules()
-    {
-        return getDenyRules(WILDCARD);
-    }
-
-    public RuleSet getDenyRules(String groupRepositoryId)
-    {
-        return denied.get(groupRepositoryId);
-    }
-
-
 }

@@ -6,7 +6,7 @@ import org.carlspring.strongbox.configuration.ServerConfiguration;
 import org.carlspring.strongbox.forms.configuration.RepositoryForm;
 import org.carlspring.strongbox.forms.configuration.StorageForm;
 import org.carlspring.strongbox.storage.Storage;
-import org.carlspring.strongbox.storage.repository.Repository;
+import org.carlspring.strongbox.storage.repository.ImmutableRepository;
 import org.carlspring.strongbox.xml.parsers.GenericParser;
 
 import javax.ws.rs.ServerErrorException;
@@ -367,7 +367,7 @@ public class RestClient
      * @return
      * @throws java.io.IOException
      */
-    public Repository getRepository(String storageId,
+    public ImmutableRepository getRepository(String storageId,
                                     String repositoryId)
             throws JAXBException
     {
@@ -378,10 +378,10 @@ public class RestClient
 
         final Response response = resource.request(MediaType.APPLICATION_JSON).get();
 
-        Repository repository = null;
+        ImmutableRepository repository = null;
         if (response.getStatus() == 200)
         {
-            repository = response.readEntity(Repository.class);
+            repository = response.readEntity(ImmutableRepository.class);
         }
         else
         {

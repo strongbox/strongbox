@@ -86,7 +86,7 @@ public class MavenGroupRepositoryPathFetchEventListener
             }
 
             RepositoryPath resolvedPath = repositoryPathResolver.resolve(subRepository, repositoryPath);
-            if (artifactRoutingRulesChecker.isDenied(groupRepository.getId(), resolvedPath))
+            if (artifactRoutingRulesChecker.isDenied(groupRepository, resolvedPath))
             {
                 continue;
             }

@@ -6,8 +6,9 @@ import org.carlspring.strongbox.data.CacheManagerTestExecutionListener;
 import org.carlspring.strongbox.storage.MutableStorage;
 import org.carlspring.strongbox.storage.repository.MutableRepository;
 import org.carlspring.strongbox.storage.routing.MutableRoutingRule;
+import org.carlspring.strongbox.storage.routing.MutableRoutingRuleRepository;
 import org.carlspring.strongbox.storage.routing.MutableRoutingRules;
-import org.carlspring.strongbox.storage.routing.MutableRuleSet;
+import org.carlspring.strongbox.storage.routing.RoutingRuleTypeEnum;
 import org.carlspring.strongbox.xml.parsers.GenericParser;
 
 import javax.inject.Inject;
@@ -179,25 +180,18 @@ public class ConfigurationManagerTest
     public void testRoutingRules()
             throws JAXBException
     {
-        Set<String> repositories = new LinkedHashSet<>();
-        repositories.addAll(Arrays.asList("int-releases", "int-snapshots"));
 
-        MutableRoutingRule routingRule = new MutableRoutingRule(".*(com|org)/artifacts.denied.in.memory.*",
-                                                                repositories);
-
-        List<MutableRoutingRule> routingRulesList = new ArrayList<>();
-        routingRulesList.add(routingRule);
-
-        MutableRuleSet ruleSet = new MutableRuleSet();
-        ruleSet.setGroupRepository("group-internal");
-        ruleSet.setRoutingRules(routingRulesList);
-
+        MutableRoutingRule routingRule = MutableRoutingRule.create(STORAGE0,
+                                                                   "group-internal",
+                                                                   Arrays.asList(new MutableRoutingRuleRepository(STORAGE0, "int-releases"),
+                                                                                 new MutableRoutingRuleRepository(STORAGE0, "int-snapshots")),
+                                                                   ".*(com|org)/artifacts.denied.in.memory.*",
+                                                                   RoutingRuleTypeEnum.ACCEPT);
         MutableRoutingRules routingRules = new MutableRoutingRules();
-        routingRules.addAcceptRule("group-internal", ruleSet);
+        routingRules.setRules(Collections.singletonList(routingRule));
 
-        GenericParser<MutableRoutingRules> parser = new GenericParser<>(MutableRoutingRule.class,
-                                                                        MutableRoutingRules.class,
-                                                                        MutableRuleSet.class);
+        GenericParser<MutableRoutingRules> parser = new GenericParser<>(MutableRoutingRules.class,
+                                                                        MutableRoutingRule.class);
 
         parser.store(routingRules, new ByteArrayOutputStream());
         // parser.store(routingRules, System.out);

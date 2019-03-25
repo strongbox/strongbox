@@ -24,8 +24,8 @@ import org.carlspring.strongbox.providers.io.RepositoryPath;
 import org.carlspring.strongbox.providers.io.StorageFileSystemProvider;
 import org.carlspring.strongbox.services.RepositoryArtifactIdGroupService;
 import org.carlspring.strongbox.storage.MutableStorage;
+import org.carlspring.strongbox.storage.repository.ImmutableRepository;
 import org.carlspring.strongbox.storage.repository.MutableRepository;
-import org.carlspring.strongbox.storage.repository.Repository;
 import org.hamcrest.CoreMatchers;
 import org.hamcrest.MatcherAssert;
 import org.hamcrest.Matchers;
@@ -88,7 +88,7 @@ class AbstractLayoutProviderTest
         artifactAttributes.put(RepositoryFileAttributeType.ARTIFACT, Boolean.TRUE);
         artifactAttributes.put(RepositoryFileAttributeType.COORDINATES, artifactCoordinates);
         
-        repositoryFileSystem = new LayoutFileSystem(new Repository(repository), FileSystems.getDefault(), storageFileSystemProvider)
+        repositoryFileSystem = new LayoutFileSystem(new ImmutableRepository(repository), FileSystems.getDefault(), storageFileSystemProvider)
         {
             @Override
             public Set<String> getDigestAlgorithmSet()

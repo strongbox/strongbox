@@ -151,7 +151,6 @@ public class NpmArtifactControllerTest
                .when()
                .get(contextBaseUrl + "/storages/" + STORAGE0 + "/" + REPOSITORY_RELEASES + "/" +
                     coordinates.toResource())
-               .peek()
                .then()
                .statusCode(HttpStatus.OK.value())
                .assertThat()

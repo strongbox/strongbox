@@ -3,6 +3,7 @@ package org.carlspring.strongbox.configuration;
 import org.carlspring.strongbox.storage.MutableStorage;
 import org.carlspring.strongbox.storage.Storage;
 import org.carlspring.strongbox.storage.repository.HttpConnectionPool;
+import org.carlspring.strongbox.storage.repository.ImmutableRepository;
 import org.carlspring.strongbox.storage.repository.Repository;
 import org.carlspring.strongbox.storage.repository.RepositoryTypeEnum;
 import org.carlspring.strongbox.storage.routing.MutableRoutingRules;
@@ -238,7 +239,8 @@ public class Configuration
     public HttpConnectionPool getHttpConnectionPoolConfiguration(String storageId,
                                                                  String repositoryId)
     {
-        return getStorage(storageId).getRepository(repositoryId).getHttpConnectionPool();
+        Repository repository = getStorage(storageId).getRepository(repositoryId);
+        return ((ImmutableRepository)repository).getHttpConnectionPool();
     }
 
     public CorsConfiguration getCorsConfiguration()

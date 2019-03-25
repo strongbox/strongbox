@@ -10,6 +10,7 @@ import org.carlspring.strongbox.services.ArtifactEntryService;
 import org.carlspring.strongbox.services.ArtifactManagementService;
 import org.carlspring.strongbox.services.support.ArtifactEntrySearchCriteria;
 import org.carlspring.strongbox.storage.Storage;
+import org.carlspring.strongbox.storage.repository.ImmutableRepository;
 import org.carlspring.strongbox.storage.repository.Repository;
 import org.carlspring.strongbox.storage.repository.remote.RemoteRepository;
 import org.carlspring.strongbox.storage.repository.remote.heartbeat.RemoteRepositoryAlivenessCacheManager;
@@ -89,7 +90,7 @@ public class LocalStorageProxyRepositoryExpiredArtifactsCleaner
                 it.remove();
                 continue;
             }
-            final RemoteRepository remoteRepository = repository.getRemoteRepository();
+            final RemoteRepository remoteRepository = ((ImmutableRepository)repository).getRemoteRepository();
             if (remoteRepository == null)
             {
                 logger.warn("Repository {} is not associated with remote repository", repository.getId());

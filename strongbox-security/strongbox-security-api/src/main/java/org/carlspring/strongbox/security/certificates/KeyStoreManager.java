@@ -4,24 +4,9 @@ import org.carlspring.commons.io.resource.ResourceCloser;
 
 import javax.annotation.PostConstruct;
 import javax.inject.Inject;
-import javax.net.ssl.HttpsURLConnection;
-import javax.net.ssl.SSLContext;
-import javax.net.ssl.SSLException;
-import javax.net.ssl.SSLSocket;
-import javax.net.ssl.TrustManager;
-import javax.net.ssl.X509TrustManager;
-import java.io.BufferedInputStream;
-import java.io.BufferedOutputStream;
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.OutputStream;
-import java.net.Authenticator;
-import java.net.InetAddress;
-import java.net.InetSocketAddress;
-import java.net.PasswordAuthentication;
-import java.net.Proxy;
-import java.net.Socket;
-import java.net.URL;
+import javax.net.ssl.*;
+import java.io.*;
+import java.net.*;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.security.KeyManagementException;
@@ -147,7 +132,7 @@ public class KeyStoreManager
                    NoSuchAlgorithmException
     {
         KeyStore keyStore = load(path, password);
-        String prefix = host.getCanonicalHostName() + ":" + Integer.toString(port);
+        String prefix = host.getCanonicalHostName() + ":" + port;
 
         Enumeration<String> aliases = keyStore.aliases();
         while (aliases.hasMoreElements())
@@ -173,7 +158,7 @@ public class KeyStoreManager
                    KeyManagementException
     {
         KeyStore keyStore = load(path, password);
-        String prefix = host.getCanonicalHostName() + ":" + Integer.toString(port);
+        String prefix = host.getCanonicalHostName() + ":" + port;
         X509Certificate[] chain = remoteCertificateChain(host, port);
 
         for (X509Certificate cert : chain)
@@ -197,7 +182,7 @@ public class KeyStoreManager
                    KeyManagementException
     {
         KeyStore keyStore = load(path, password);
-        String prefix = host + ":" + Integer.toString(port);
+        String prefix = host + ":" + port;
         ChainCaptureTrustManager tm = new ChainCaptureTrustManager();
         SSLContext ctx = SSLContext.getInstance("TLS");
         ctx.init(null, new TrustManager[]{ tm }, null);
@@ -243,7 +228,7 @@ public class KeyStoreManager
                    KeyManagementException
     {
         KeyStore keyStore = load(path, password);
-        String prefix = host + ":" + Integer.toString(port);
+        String prefix = host + ":" + port;
         X509Certificate[] chain = remoteCertificateChain(socksProxy, credentials, host, port);
 
         for (X509Certificate cert : chain)
@@ -258,7 +243,6 @@ public class KeyStoreManager
                                                      int port)
             throws NoSuchAlgorithmException,
                    IOException,
-                   KeyStoreException,
                    KeyManagementException
     {
         ChainCaptureTrustManager tm = new ChainCaptureTrustManager();
@@ -284,7 +268,6 @@ public class KeyStoreManager
                                                      int port)
             throws NoSuchAlgorithmException,
                    IOException,
-                   KeyStoreException,
                    KeyManagementException
     {
         ChainCaptureTrustManager tm = new ChainCaptureTrustManager();
@@ -353,7 +336,6 @@ public class KeyStoreManager
         @Override
         public void checkClientTrusted(X509Certificate[] chain,
                                        String authType)
-                throws CertificateException
         {
             throw new UnsupportedOperationException();
         }
@@ -361,7 +343,6 @@ public class KeyStoreManager
         @Override
         public void checkServerTrusted(X509Certificate[] chain,
                                        String authType)
-                throws CertificateException
         {
             this.chain = chain;
         }

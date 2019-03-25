@@ -64,8 +64,7 @@ public class StorageBooter
         if (!lockExists())
         {
             createLockFile();
-            createTempDir();
-
+            
             final Configuration configuration = configurationManager.getConfiguration();
 
             initializeStorages(configuration.getStorages());
@@ -102,33 +101,6 @@ public class StorageBooter
         Files.deleteIfExists(lockFile);
 
         logger.debug("Removed lock file '" + lockFile.toAbsolutePath().toString() + "'.");
-    }
-
-    public void createTempDir()
-            throws IOException
-    {
-        String tempDirLocation = System.getProperty("java.io.tmpdir",
-                                                    Paths.get(propertiesBooter.getVaultDirectory(), "tmp")
-                                                         .toAbsolutePath()
-                                                         .toString());
-        Path tempDirPath = Paths.get(tempDirLocation).toAbsolutePath();
-        if (!Files.exists(tempDirPath))
-        {
-            Files.createDirectories(tempDirPath);
-        }
-
-        logger.debug("Temporary directory: " + tempDirPath.toString() + ".");
-
-        if (System.getProperty("java.io.tmpdir") == null)
-        {
-            System.setProperty("java.io.tmpdir", tempDirPath.toString());
-
-            logger.debug("Set java.io.tmpdir to " + tempDirPath.toString() + ".");
-        }
-        else
-        {
-            logger.debug("The java.io.tmpdir is already set to " + System.getProperty("java.io.tmpdir") + ".");
-        }
     }
 
     @SuppressFBWarnings(value = "NP_NULL_ON_SOME_PATH_FROM_RETURN_VALUE")

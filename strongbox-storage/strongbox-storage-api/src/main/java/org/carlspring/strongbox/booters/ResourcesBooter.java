@@ -1,8 +1,7 @@
 package org.carlspring.strongbox.booters;
 
-import javax.annotation.PostConstruct;
-import javax.inject.Inject;
 import java.io.IOException;
+import java.lang.reflect.UndeclaredThrowableException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
@@ -11,28 +10,34 @@ import java.util.List;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.context.ApplicationContextInitializer;
+import org.springframework.context.ConfigurableApplicationContext;
+import org.springframework.core.env.ConfigurableEnvironment;
 import org.springframework.core.io.Resource;
 import org.springframework.core.io.support.PathMatchingResourcePatternResolver;
 
 /**
  * @author mtodorov
  */
-public class ResourcesBooter
+public class ResourcesBooter implements ApplicationContextInitializer<ConfigurableApplicationContext>
 {
 
     private static final Logger logger = LoggerFactory.getLogger(ResourcesBooter.class);
 
     private PathMatchingResourcePatternResolver resolver = new PathMatchingResourcePatternResolver();
 
-    @Inject
-    private PropertiesBooter propertiesBooter;
-
-
-    @PostConstruct
-    public void execute()
-            throws IOException
+    @Override
+    public void initialize(ConfigurableApplicationContext applicationContext)
     {
-        copyConfigurationFilesFromClasspath("etc/conf");
+        ConfigurableEnvironment environment = applicationContext.getEnvironment();
+        try
+        {
+            copyConfigurationFilesFromClasspath(environment.getProperty("strongbox.home"), "etc/conf");
+        }
+        catch (IOException e)
+        {
+            throw new UndeclaredThrowableException(e);
+        }
     }
 
     public Resource[] getConfigurationResourcesFromClasspath(String resourcesBasedir)
@@ -55,13 +60,13 @@ public class ResourcesBooter
         return diff.toArray(new Resource[diff.size()]);
     }
 
-    public void copyConfigurationFilesFromClasspath(String resourcesBasedir)
+    public void copyConfigurationFilesFromClasspath(String strongboxHome, String resourcesBasedir)
             throws IOException
     {
         final Resource[] resources = getResourcesExistingOnClasspathOnly(
                 getConfigurationResourcesFromClasspath(resourcesBasedir));
 
-        final Path configDir = Paths.get(propertiesBooter.getHomeDirectory(), resourcesBasedir);
+        final Path configDir = Paths.get(strongboxHome, resourcesBasedir);
         if (!Files.exists(configDir))
         {
             Files.createDirectories(configDir);

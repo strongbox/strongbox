@@ -12,7 +12,6 @@ import org.carlspring.strongbox.services.ConfigurationManagementService;
 import org.carlspring.strongbox.storage.MutableStorage;
 import org.carlspring.strongbox.storage.repository.*;
 import org.carlspring.strongbox.storage.routing.MutableRoutingRule;
-import org.carlspring.strongbox.storage.routing.MutableRuleSet;
 
 import javax.annotation.PostConstruct;
 import javax.inject.Inject;
@@ -249,117 +248,51 @@ public class ConfigurationManagementServiceImpl
     }
 
     @Override
-    public boolean saveAcceptedRuleSet(MutableRuleSet ruleSet)
+    public boolean updateRoutingRule(UUID uuid,
+                                     MutableRoutingRule routingRule)
     {
+        final MutableBoolean result = new MutableBoolean();
         modifyInLock(configuration ->
-                     {
-                         configuration.getRoutingRules().addAcceptRule(ruleSet.getGroupRepository(), ruleSet);
-                     });
+                             configuration.getRoutingRules()
+                                          .getRules()
+                                          .stream()
+                                          .filter(r -> r.getUuid().equals(uuid))
+                                          .findFirst()
+                                          .ifPresent(r -> result.setValue(r.updateBy(routingRule))));
 
-        return true;
+        return result.isTrue();
     }
 
     @Override
-    public boolean saveDeniedRuleSet(MutableRuleSet ruleSet)
-    {
-        modifyInLock(configuration ->
-                     {
-                         configuration.getRoutingRules().addDenyRule(ruleSet.getGroupRepository(), ruleSet);
-                     });
-
-        return true;
-    }
-
-    @Override
-    public boolean removeAcceptedRuleSet(String groupRepository)
+    public boolean addRoutingRule(MutableRoutingRule routingRule)
     {
         final MutableBoolean result = new MutableBoolean();
         modifyInLock(configuration ->
                      {
-                         final Map<String, MutableRuleSet> accepted = configuration.getRoutingRules().getAccepted();
-
-                         if (accepted.containsKey(groupRepository))
-                         {
-                             result.setTrue();
-                             accepted.remove(groupRepository);
-                         }
+                         routingRule.setUuid(UUID.randomUUID());
+                         result.setValue(configuration.getRoutingRules()
+                                                      .getRules()
+                                                      .add(routingRule));
                      });
 
         return result.isTrue();
     }
 
     @Override
-    public boolean saveAcceptedRepository(String groupRepository,
-                                          MutableRoutingRule routingRule)
+    public boolean removeRoutingRule(UUID uuid)
     {
         final MutableBoolean result = new MutableBoolean();
         modifyInLock(configuration ->
                      {
-                         final Map<String, MutableRuleSet> acceptedRulesMap = configuration.getRoutingRules()
-                                                                                           .getAccepted();
-                         if (acceptedRulesMap.containsKey(groupRepository))
-                         {
-                             for (MutableRoutingRule rl : acceptedRulesMap.get(groupRepository).getRoutingRules())
-                             {
-                                 if (routingRule.getPattern().equals(rl.getPattern()))
-                                 {
-                                     result.setTrue();
-                                     rl.getRepositories().addAll(routingRule.getRepositories());
-                                 }
-                             }
-                         }
-                     });
+                         configuration.getRoutingRules()
+                                      .getRules()
+                                      .stream()
+                                      .filter(r -> r.getUuid().equals(uuid))
+                                      .findFirst()
+                                      .ifPresent(r -> result.setValue(configuration.getRoutingRules()
+                                                                                   .getRules()
+                                                                                   .remove(r)));
 
-        return result.isTrue();
-    }
-
-    @Override
-    public boolean removeAcceptedRepository(String groupRepository,
-                                            String pattern,
-                                            String repositoryId)
-    {
-        final MutableBoolean result = new MutableBoolean();
-        modifyInLock(configuration ->
-                     {
-                         final Map<String, MutableRuleSet> acceptedRules = configuration.getRoutingRules()
-                                                                                        .getAccepted();
-                         if (acceptedRules.containsKey(groupRepository))
-                         {
-                             for (MutableRoutingRule routingRule : acceptedRules.get(groupRepository).getRoutingRules())
-                             {
-                                 if (pattern.equals(routingRule.getPattern()))
-                                 {
-                                     result.setTrue();
-                                     routingRule.getRepositories().remove(repositoryId);
-                                 }
-                             }
-                         }
-                     });
-
-        return result.isTrue();
-    }
-
-    @Override
-    public boolean overrideAcceptedRepositories(String groupRepository,
-                                                MutableRoutingRule routingRule)
-    {
-        final MutableBoolean result = new MutableBoolean();
-        modifyInLock(configuration ->
-                     {
-                         if (configuration.getRoutingRules().getAccepted().containsKey(groupRepository))
-                         {
-                             for (MutableRoutingRule rule : configuration.getRoutingRules()
-                                                                         .getAccepted()
-                                                                         .get(groupRepository)
-                                                                         .getRoutingRules())
-                             {
-                                 if (routingRule.getPattern().equals(rule.getPattern()))
-                                 {
-                                     result.setTrue();
-                                     rule.setRepositories(routingRule.getRepositories());
-                                 }
-                             }
-                         }
                      });
 
         return result.isTrue();
@@ -575,10 +508,11 @@ public class ConfigurationManagementServiceImpl
                      {
                          ArrayList origins;
 
-                         if(CollectionUtils.isEmpty(allowedOrigins))
+                         if (CollectionUtils.isEmpty(allowedOrigins))
                          {
                              origins = new ArrayList<>();
-                         } else
+                         }
+                         else
                          {
                              origins = new ArrayList<>(allowedOrigins);
                          }

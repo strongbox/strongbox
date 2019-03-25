@@ -1,19 +1,19 @@
 package org.carlspring.strongbox.resource;
 
-import org.carlspring.strongbox.booters.PropertiesBooter;
-import org.carlspring.strongbox.booters.ResourcesBooter;
-import org.carlspring.strongbox.config.Maven2LayoutProviderTestConfig;
-import org.carlspring.strongbox.testing.TestCaseWithMavenArtifactGenerationAndIndexing;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
-import javax.inject.Inject;
 import java.io.File;
 
+import javax.inject.Inject;
+
+import org.carlspring.strongbox.booters.PropertiesBooter;
+import org.carlspring.strongbox.config.Maven2LayoutProviderTestConfig;
+import org.carlspring.strongbox.testing.TestCaseWithMavenArtifactGenerationAndIndexing;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.ContextConfiguration;
-import static org.junit.jupiter.api.Assertions.assertTrue;
 
 /**
  * @author mtodorov
@@ -24,10 +24,6 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 public class ResourcesBooterTest
         extends TestCaseWithMavenArtifactGenerationAndIndexing
 {
-
-    // This field is indeed used. It's execute() method is being invoked with a @PostConstruct.
-    @Inject
-    private ResourcesBooter resourcesBooter;
 
     @Inject
     private PropertiesBooter propertiesBooter;

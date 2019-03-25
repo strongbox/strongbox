@@ -1,7 +1,7 @@
 package org.carlspring.strongbox.providers.io;
 
-import org.carlspring.strongbox.storage.repository.MutableRepository;
-import org.carlspring.strongbox.storage.repository.Repository;
+import static org.hamcrest.MatcherAssert.assertThat;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 
 import java.io.File;
 import java.nio.file.FileSystems;
@@ -9,11 +9,11 @@ import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.Set;
 
+import org.carlspring.strongbox.storage.repository.ImmutableRepository;
+import org.carlspring.strongbox.storage.repository.MutableRepository;
 import org.hamcrest.CoreMatchers;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-import static org.hamcrest.MatcherAssert.assertThat;
-import static org.junit.jupiter.api.Assertions.assertThrows;
 
 /**
  * @author Przemyslaw Fusik
@@ -34,7 +34,7 @@ public class RepositoryPathTest
         repository = new MutableRepository();
         repository.setBasedir(REPOSITORY_BASEDIR.toAbsolutePath().toString());
 
-        repositoryFileSystem = new LayoutFileSystem(new Repository(repository), FileSystems.getDefault(), null)
+        repositoryFileSystem = new LayoutFileSystem(new ImmutableRepository(repository), FileSystems.getDefault(), null)
         {
             @Override
             public Set<String> getDigestAlgorithmSet()

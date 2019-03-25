@@ -90,7 +90,7 @@ public class RegenerateNugetChecksumCronJobTestIT
 
         //Create released nuget package in the repository rnccj-releases (storage1)
         generateNugetPackage(getRepositoryBasedir(STORAGE1, REPOSITORY_RELEASES),
-                             "org.carlspring.strongbox.checksum-second", "1.0");
+                             "org.carlspring.strongbox.checksum-second", "1.0.0");
 
         createRepository(STORAGE1, REPOSITORY_ALPHA, RepositoryPolicyEnum.SNAPSHOT.getPolicy());
 
@@ -106,7 +106,7 @@ public class RegenerateNugetChecksumCronJobTestIT
         //Create released nuget package in the repository rnccj-releases (storage2)
         generateNugetPackage(getRepositoryBasedir(STORAGE2, REPOSITORY_RELEASES),
                              "org.carlspring.strongbox.checksum-one",
-                             "1.0");
+                             "1.0.0");
     }
 
     @AfterEach
@@ -162,10 +162,10 @@ public class RegenerateNugetChecksumCronJobTestIT
         String artifactPath = getRepositoryBasedir(STORAGE1, REPOSITORY_RELEASES) +
                               "/org.carlspring.strongbox.checksum-second";
 
-        deleteIfExists(new File(artifactPath, "/1.0/org.carlspring.strongbox.checksum-second.1.0.nupkg.sha512"));
-        deleteIfExists(new File(artifactPath, "/1.0/org.carlspring.strongbox.checksum-second.nuspec.sha512"));
+        deleteIfExists(new File(artifactPath, "/1.0.0/org.carlspring.strongbox.checksum-second.1.0.0.nupkg.sha512"));
+        deleteIfExists(new File(artifactPath, "/1.0.0/org.carlspring.strongbox.checksum-second.nuspec.sha512"));
 
-        assertFalse(new File(artifactPath, "/1.0/org.carlspring.strongbox.checksum-second.1.0.nupkg.sha512").exists(),
+        assertFalse(new File(artifactPath, "/1.0.0/org.carlspring.strongbox.checksum-second.1.0.0.nupkg.sha512").exists(),
                    "The checksum file for artifact exist!");
 
         List<File> resultList = new ArrayList<>();
@@ -176,9 +176,9 @@ public class RegenerateNugetChecksumCronJobTestIT
                 return;
             }
             resultList.add(new File(artifactPath,
-                                        "/1.0/org.carlspring.strongbox.checksum-second.1.0.nupkg.sha512"));
+                                        "/1.0.0/org.carlspring.strongbox.checksum-second.1.0.0.nupkg.sha512"));
             resultList.add(new File(artifactPath,
-                                        "/1.0/org.carlspring.strongbox.checksum-second.nuspec.sha512"));
+                                        "/1.0.0/org.carlspring.strongbox.checksum-second.nuspec.sha512"));
         });
 
         addCronJobConfig(jobName, RegenerateChecksumCronJob.class, STORAGE1, REPOSITORY_RELEASES,
@@ -193,7 +193,7 @@ public class RegenerateNugetChecksumCronJobTestIT
         assertEquals(2, resultList.size());
         resultList.forEach(f -> {
             assertTrue(f.exists(),
-                       "The checksum file doesn't exist!");
+                       "The checksum file " + f.toString() + " doesn't exist!");
             assertTrue(f.length() > 0,
                        "The checksum file is empty!");
         });    
@@ -250,10 +250,10 @@ public class RegenerateNugetChecksumCronJobTestIT
 
         String artifactPath = getRepositoryBasedir(STORAGE1, REPOSITORY_RELEASES) + "/org.carlspring.strongbox.checksum-second";
 
-        deleteIfExists(new File(artifactPath, "/1.0/org.carlspring.strongbox.checksum-second.1.0.nupkg.sha512"));
-        deleteIfExists(new File(artifactPath, "/1.0/org.carlspring.strongbox.checksum-second.nuspec.sha512"));
+        deleteIfExists(new File(artifactPath, "/1.0.0/org.carlspring.strongbox.checksum-second.1.0.0.nupkg.sha512"));
+        deleteIfExists(new File(artifactPath, "/1.0.0/org.carlspring.strongbox.checksum-second.nuspec.sha512"));
 
-        assertFalse(new File(artifactPath, "/1.0/org.carlspring.strongbox.checksum-second.1.0.nupkg.sha512").exists(),
+        assertFalse(new File(artifactPath, "/1.0.0/org.carlspring.strongbox.checksum-second.1.0.0.nupkg.sha512").exists(),
                    "The checksum file for artifact exist!");
 
         List<File> resultList = new ArrayList<>();
@@ -263,8 +263,8 @@ public class RegenerateNugetChecksumCronJobTestIT
             {
                 return;
             }
-            resultList.add(new File(artifactPath, "/1.0/org.carlspring.strongbox.checksum-second.1.0.nupkg.sha512"));
-            resultList.add(new File(artifactPath, "/1.0/org.carlspring.strongbox.checksum-second.nuspec.sha512"));
+            resultList.add(new File(artifactPath, "/1.0.0/org.carlspring.strongbox.checksum-second.1.0.0.nupkg.sha512"));
+            resultList.add(new File(artifactPath, "/1.0.0/org.carlspring.strongbox.checksum-second.nuspec.sha512"));
         });
 
         addCronJobConfig(jobName, RegenerateChecksumCronJob.class, STORAGE1, null,
@@ -274,7 +274,7 @@ public class RegenerateNugetChecksumCronJobTestIT
 
         assertEquals(2, resultList.size());
         resultList.forEach(f -> {
-            assertTrue(f.exists(), "The checksum file doesn't exist!");
+            assertTrue(f.exists(), "The checksum file " + f.toString() + " doesn't exist!");
             assertTrue(f.length() > 0, "The checksum file is empty!");
         });
     }
@@ -287,10 +287,10 @@ public class RegenerateNugetChecksumCronJobTestIT
 
         String artifactPath = getRepositoryBasedir(STORAGE2, REPOSITORY_RELEASES) + "/org.carlspring.strongbox.checksum-one";
 
-        deleteIfExists(new File(artifactPath, "/1.0/org.carlspring.strongbox.checksum-one.1.0.nupkg.sha512"));
-        deleteIfExists(new File(artifactPath, "/1.0/org.carlspring.strongbox.checksum-one.nuspec.sha512"));
+        deleteIfExists(new File(artifactPath, "/1.0.0/org.carlspring.strongbox.checksum-one.1.0.0.nupkg.sha512"));
+        deleteIfExists(new File(artifactPath, "/1.0.0/org.carlspring.strongbox.checksum-one.nuspec.sha512"));
 
-        assertFalse(new File(artifactPath, "/1.0/org.carlspring.strongbox.checksum-one.1.0.nupkg.sha512").exists(),
+        assertFalse(new File(artifactPath, "/1.0.0/org.carlspring.strongbox.checksum-one.1.0.0.nupkg.sha512").exists(),
                    "The checksum file for artifact exist!");
 
         List<File> resultList = new ArrayList<>();
@@ -300,8 +300,8 @@ public class RegenerateNugetChecksumCronJobTestIT
             {
                 return;
             }
-            resultList.add(new File(artifactPath, "/1.0/org.carlspring.strongbox.checksum-one.1.0.nupkg.sha512"));
-            resultList.add(new File(artifactPath, "/1.0/org.carlspring.strongbox.checksum-one.nuspec.sha512"));
+            resultList.add(new File(artifactPath, "/1.0.0/org.carlspring.strongbox.checksum-one.1.0.0.nupkg.sha512"));
+            resultList.add(new File(artifactPath, "/1.0.0/org.carlspring.strongbox.checksum-one.nuspec.sha512"));
         });
 
         addCronJobConfig(jobName, RegenerateChecksumCronJob.class, null, null,
@@ -311,7 +311,7 @@ public class RegenerateNugetChecksumCronJobTestIT
         
         assertEquals(2, resultList.size());
         resultList.forEach(f -> {
-            assertTrue(f.exists(), "The checksum file doesn't exist!");
+            assertTrue(f.exists(), "The checksum file " + f.toString() + " doesn't exist!");
             assertTrue(f.length() > 0, "The checksum file is empty!");
         });
     }

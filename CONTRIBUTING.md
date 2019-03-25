@@ -76,6 +76,7 @@ To accept, please:
 * Print, sign and scan the [Individual Contributor's License Agreement (ICLA)](https://github.com/strongbox/strongbox/blob/master/ICLA.md), or, alternatively, fill in the [ICLA PDF](https://strongbox.github.io/assets/resources/pdfs/ICLA.pdf) file and mail it back to [carlspring@gmail.com](mailto:carlspring@gmail.com).
 * Add your name and basic details below and open a pull request.
 
+
 **Notes:** Please, note that none of this information is shared with third-parties and is only required due to the legal agreement which you will be entering when contributing your code to the project. We require this minimal amount of information in order to be able to identify you, as we're not keeping record, or more sensitive information, such as passport/ID details. We will not send you any spam, or share your details with third parties.
 
 # Contributors
@@ -94,10 +95,11 @@ To accept, please:
 | Orest Kyrylchuk              |                                          | Lviv, Ukraine                           | 2016-05-28 |
 | Bohdan Hliva                 |                                          | Lviv, Ukraine                           | 2016-08-09 |
 | Yougeshwar Khatri            |                                          | Karachi, Pakistan                       | 2016-04-01 |
-| Kate Novik                   | redsoft.pro                              | Minsk, Republic of Belarus              | 2016-11-16 |
 | Sergey Bespalov              |                                          | Novosibirsk, Russia                     | 2016-11-02 |
 | Sergey Panov                 |                                          | Kiev, Ukraine                           | 2016-11-02 |
 | Nenko Tabakov                |                                          | Sofia, Bulgaria                         | 2016-11-07 |
+| Kate Novik                   | redsoft.pro                              | Minsk, Republic of Belarus              | 2016-11-16 |
+| Dmitry Sviridov              |                                          | Moscow, Russia                          | 2016-11-23 |
 | Przemyslaw Fusik             |                                          | Maszewo, Poland                         | 2017-04-09 |
 | Dinesh Arora                 |                                          | Charlotte, USA                          | 2017-12-07 |
 | Sanket Sawant                |                                          | Mumbai, India                           | 2017-12-09 |
@@ -107,16 +109,21 @@ To accept, please:
 | Maxim Antonov                |                                          | Moscow, Russian Federation              | 2018-01-14 |
 | Aditya Srinivasan            |                                          | Washington DC, USA                      | 2018-02-02 |
 | Sevastyan Pigarev			         |                              										  | Barnaul, Russian Federation				         | 2018-03-27 |
+| Mariusz Kaligowski		         |                              										  | Juszczyn, Poland                        | 2018-04-26 |
 | Michael Altenburger          | 						                             				  | Vienna, Austria                     				| 2018-09-29 |
 | Leonora Der                  | ELTE Faculty of Informatics              | Budapest, Hungary                       | 2018-10-20 |
 | Benjamin March               |                             			          | Munich, Germany                     				| 2018-10-28 |
-| Konstantina Papadopoulou	   | Aristotle University of Thessaloniki	  | Thessaloniki, Greece					| 2018-12-28 |
-| Jitesh Golatkar           |                                          | Charlotte, USA                      | 2019-01-25 |
+| Konstantina Papadopoulou	    | Aristotle University of Thessaloniki	    | Thessaloniki, Greece		               			| 2018-12-28 |
+| Jitesh Golatkar              |                                          | Charlotte, USA                          | 2019-01-25 |
 | Forrest Whiting              | Forbes Media                             | Jersey City, New Jersey, USA            | 2019-02-04 |
-| Dawid Antecki           |                                          | Bielsko-Biala, Poland                      | 2019-02-18 |
-| Ekrem Candemir           |                                          | Ankara, Turkey                      | 2019-02-24 |
+| Dawid Antecki                |                                          | Bielsko-Biala, Poland                   | 2019-02-18 |
+| Ekrem Candemir               |                                          | Ankara, Turkey                          | 2019-02-24 |
 | Eugeniusz Fedchenko          |                                          | Warsaw, Poland                          | 2019-02-25 |
-| Shumail Ahmed                | Middlesex University                     | London, United Kingdom                    | 05-03-19 |
+| Shumail Ahmed                | Middlesex University                     | London, United Kingdom                  | 2019-03-05 |
+| Kaloyan Dimitrov             |                                          | Sofia, Bulgaria                         | 2019-03-12 |
+| Leif Brooks                  |                                          | Charlotte, USA                          | 2019-03-13 |
+| Mujahid Thoufeek             |                                          | Colombo, Sri Lanka                      | 2019-03-19 |
+| Sarfraz Anwar                |                                          | Bengaluru, India                        | 2019-03-19 |
 
 [chat]: https://chat.carlspring.org/
 [issue tracker]: https://github.com/strongbox/strongbox/issues?utf8=%E2%9C%93&q=is%3Aissue+is%3Aopen+label%3A%22help+wanted%22+label%3A%22good+first+issue%22

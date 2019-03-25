@@ -71,13 +71,6 @@
             <fileMode>0744</fileMode>
         </fileSet>
         <fileSet>
-            <directory>target/assembly/strongbox-${project.version}/webapp</directory>
-            <outputDirectory>strongbox-${project.version}/webapp</outputDirectory>
-            <includes>
-                <include>**/*</include>
-            </includes>
-        </fileSet>
-        <fileSet>
             <directory>target/assembly/strongbox-vault</directory>
             <outputDirectory>strongbox-vault</outputDirectory>
             <fileMode>0755</fileMode>

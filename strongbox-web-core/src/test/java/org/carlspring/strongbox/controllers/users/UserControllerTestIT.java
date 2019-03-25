@@ -1,5 +1,8 @@
 package org.carlspring.strongbox.controllers.users;
 
+import com.google.common.collect.ImmutableSet;
+import com.google.common.collect.Lists;
+import org.apache.commons.collections.SetUtils;
 import org.carlspring.strongbox.config.IntegrationTest;
 import org.carlspring.strongbox.controllers.users.support.AccessModelOutput;
 import org.carlspring.strongbox.controllers.users.support.RepositoryAccessModelOutput;
@@ -16,21 +19,14 @@ import org.carlspring.strongbox.users.domain.User;
 import org.carlspring.strongbox.users.dto.UserDto;
 import org.carlspring.strongbox.users.service.UserService;
 import org.carlspring.strongbox.users.service.impl.XmlUserService.XmlUserServiceQualifier;
-
-import javax.inject.Inject;
-import java.util.Collections;
-import java.util.Optional;
-import java.util.Set;
-import java.util.function.Consumer;
-
-import com.google.common.collect.ImmutableSet;
-import com.google.common.collect.Lists;
-import org.apache.commons.collections.SetUtils;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.Arguments;
+import org.junit.jupiter.params.provider.MethodSource;
+import org.junit.jupiter.params.provider.ValueSource;
 import org.springframework.beans.BeanUtils;
-import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.security.crypto.password.PasswordEncoder;
@@ -39,6 +35,14 @@ import org.springframework.security.test.context.support.WithUserDetails;
 import org.springframework.transaction.PlatformTransactionManager;
 import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
+
+import javax.inject.Inject;
+import java.util.Collections;
+import java.util.Optional;
+import java.util.Set;
+import java.util.function.Consumer;
+import java.util.stream.Stream;
+
 import static io.restassured.module.mockmvc.RestAssuredMockMvc.given;
 import static org.carlspring.strongbox.controllers.users.UserController.*;
 import static org.hamcrest.CoreMatchers.equalTo;
@@ -65,6 +69,14 @@ public class UserControllerTestIT
 
     @Inject
     private PlatformTransactionManager transactionManager;
+
+    private static Stream<Arguments> usersProvider()
+    {
+        return Stream.of(
+                Arguments.of(MediaType.APPLICATION_JSON_VALUE, "test-create-json"),
+                Arguments.of(MediaType.TEXT_PLAIN_VALUE, "test-create-text")
+        );
+    }
 
     @Override
     @BeforeEach
@@ -137,9 +149,12 @@ public class UserControllerTestIT
         userNotFound(MediaType.APPLICATION_JSON_VALUE);
     }
 
-    private void createUser(String username,
-                            String acceptHeader)
+    @ParameterizedTest
+    @MethodSource("usersProvider")
+    void createUser(String acceptHeader,
+                    String username)
     {
+        deleteCreatedUser(username);
         UserForm test = buildUser(username, "password");
 
         displayAllUsers();
@@ -157,23 +172,15 @@ public class UserControllerTestIT
                .asString();
 
         displayAllUsers();
+        deleteCreatedUser(username);
     }
 
-    @Test
-    public void testCreateUserWithJsonAcceptHeader()
+    @ParameterizedTest
+    @MethodSource("usersProvider")
+    void creatingUserWithExistingUsernameShouldFail(String acceptHeader,
+                                                    String username)
     {
-        createUser("test-create-json", MediaType.APPLICATION_JSON_VALUE);
-    }
-
-    @Test
-    public void testCreateUserWithTextAcceptHeader()
-    {
-        createUser("test-create-text", MediaType.TEXT_PLAIN_VALUE);
-    }
-
-    private void creatingUserWithExistingUsernameShouldFail(String username,
-                                                            String acceptHeader)
-    {
+        deleteCreatedUser(username);
         UserForm test = buildUser(username, "password");
 
         given().contentType(MediaType.APPLICATION_JSON_VALUE)
@@ -197,20 +204,7 @@ public class UserControllerTestIT
                .body(containsString(FAILED_CREATE_USER));
 
         displayAllUsers();
-    }
-
-    @Test
-    public void testCreatingUserWithExistingUsernameWithTextAcceptHeader()
-    {
-        String username = "test-same-username-text";
-        creatingUserWithExistingUsernameShouldFail(username, MediaType.TEXT_PLAIN_VALUE);
-    }
-
-    @Test
-    public void testCreatingUserWithExistingUsernameWithJsonAcceptHeader()
-    {
-        String username = "test-same-username-json";
-        creatingUserWithExistingUsernameShouldFail(username, MediaType.APPLICATION_JSON_VALUE);
+        deleteCreatedUser(username);
     }
 
     @Test
@@ -225,9 +219,12 @@ public class UserControllerTestIT
                .statusCode(HttpStatus.OK.value());
     }
 
-    private void updateUser(String acceptHeader,
-                            String username)
+    @ParameterizedTest
+    @MethodSource("usersProvider")
+    void updateUser(String acceptHeader,
+                    String username)
     {
+        deleteCreatedUser(username);
         // create new user
         UserForm test = buildUser(username, "password-update", "my-new-security-token");
 
@@ -270,23 +267,13 @@ public class UserControllerTestIT
 
         assertTrue(createdUser.isEnabled());
         assertEquals("my-new-security-token", createdUser.getSecurityTokenKey());
+        deleteCreatedUser(username);
     }
 
-    @Test
-    public void testUpdateUserWithTextAcceptHeader()
-    {
-        final String username = "test-update-text";
-        updateUser(MediaType.TEXT_PLAIN_VALUE, username);
-    }
-
-    @Test
-    public void testUpdateUserWithJsonAcceptHeader()
-    {
-        final String username = "test-update-json";
-        updateUser(MediaType.APPLICATION_JSON_VALUE, username);
-    }
-
-    private void updateExistingUserWithNullPassword(String acceptHeader)
+    @ParameterizedTest
+    @ValueSource(strings = { MediaType.APPLICATION_JSON_VALUE,
+                             MediaType.TEXT_PLAIN_VALUE })
+    void updateExistingUserWithNullPassword(String acceptHeader)
     {
         User mavenUser = retrieveUserByName("maven");
         UserForm input = buildFromUser(mavenUser, null);
@@ -310,19 +297,10 @@ public class UserControllerTestIT
         assertEquals(mavenUser.getPassword(), updatedUser.getPassword());
     }
 
-    @Test
-    public void testUpdatingExistingUserPasswordToNullShouldWorkWithTextAcceptHeader()
-    {
-        updateExistingUserWithNullPassword(MediaType.TEXT_PLAIN_VALUE);
-    }
-
-    @Test
-    public void testUpdatingExistingUserPasswordToNullShouldWorkWithJsonAcceptHeader()
-    {
-        updateExistingUserWithNullPassword(MediaType.APPLICATION_JSON_VALUE);
-    }
-
-    private void createNewUserWithNullPassword(String acceptHeader)
+    @ParameterizedTest
+    @ValueSource(strings = { MediaType.APPLICATION_JSON_VALUE,
+                             MediaType.TEXT_PLAIN_VALUE })
+    void createNewUserWithNullPassword(String acceptHeader)
     {
         UserDto newUserDto = new UserDto();
         newUserDto.setUsername("new-username-with-null-password");
@@ -348,19 +326,10 @@ public class UserControllerTestIT
         assertNull(databaseCheck);
     }
 
-    @Test
-    public void testSavingNewUserWithNullPasswordShouldFailWithTextAcceptHeader()
-    {
-        createNewUserWithNullPassword(MediaType.TEXT_PLAIN_VALUE);
-    }
-
-    @Test
-    public void testSavingNewUserWithNullPasswordShouldFailWithJsonAcceptHeader()
-    {
-        createNewUserWithNullPassword(MediaType.APPLICATION_JSON_VALUE);
-    }
-
-    private void setBlankPasswordExistingUser(String acceptHeader)
+    @ParameterizedTest
+    @ValueSource(strings = { MediaType.APPLICATION_JSON_VALUE,
+                             MediaType.TEXT_PLAIN_VALUE })
+    void setBlankPasswordExistingUser(String acceptHeader)
     {
         UserDto newUserDto = new UserDto();
         newUserDto.setUsername("new-username-with-blank-password");
@@ -386,21 +355,13 @@ public class UserControllerTestIT
         assertNull(databaseCheck);
     }
 
-    @Test
-    public void testSavingNewUserWithBlankPasswordShouldFailWithTextAcceptHeader()
+    @ParameterizedTest
+    @WithUserDetails("maven")
+    @ValueSource(strings = { MediaType.APPLICATION_JSON_VALUE,
+                             MediaType.TEXT_PLAIN_VALUE })
+    void changeOwnUser(String acceptHeader)
     {
-        setBlankPasswordExistingUser(MediaType.TEXT_PLAIN_VALUE);
-    }
-
-    @Test
-    public void testSavingNewUserWithBlankPasswordShouldFailWithJsonAcceptHeader()
-    {
-        setBlankPasswordExistingUser(MediaType.APPLICATION_JSON_VALUE);
-    }
-
-    private void changeOwnUser(final String username,
-                               String acceptHeader)
-    {
+        final String username = "maven";
         final String newPassword = "";
         UserForm user = buildUser(username, newPassword);
 
@@ -422,21 +383,10 @@ public class UserControllerTestIT
         assertFalse(passwordEncoder.matches(newPassword, updatedUser.getPassword()));
     }
 
-    @Test
-    @WithUserDetails("maven")
-    public void testChangingOwnUserShouldFailWithTextAcceptHeader()
-    {
-        changeOwnUser("maven", MediaType.TEXT_PLAIN_VALUE);
-    }
-
-    @Test
-    @WithUserDetails("maven")
-    public void testChangingOwnUserShouldFailWithJsonAcceptHeader()
-    {
-        changeOwnUser("maven", MediaType.APPLICATION_JSON_VALUE);
-    }
-
-    private void shouldBeAbleToUpdateRoles(String acceptHeader)
+    @ParameterizedTest
+    @ValueSource(strings = { MediaType.APPLICATION_JSON_VALUE,
+                             MediaType.TEXT_PLAIN_VALUE })
+    void shouldBeAbleToUpdateRoles(String acceptHeader)
     {
         final String username = "maven";
         final String newPassword = "password";
@@ -472,18 +422,6 @@ public class UserControllerTestIT
                .put(getContextBaseUrl() + "/{username}", username)
                .then()
                .statusCode(HttpStatus.OK.value());
-    }
-
-    @Test
-    public void testShouldBeAbleToUpdateRolesWithTextAcceptHeader()
-    {
-        shouldBeAbleToUpdateRoles(MediaType.TEXT_PLAIN_VALUE);
-    }
-
-    @Test
-    public void testShouldBeAbleToUpdateRolesWithJsonAcceptHeader()
-    {
-        shouldBeAbleToUpdateRoles(MediaType.APPLICATION_JSON_VALUE);
     }
 
     @Test
@@ -569,6 +507,8 @@ public class UserControllerTestIT
                .then()
                .statusCode(HttpStatus.OK.value())
                .body("token", startsWith("eyJhbGciOiJIUzI1NiJ9"));
+
+        deleteCreatedUser(username);
     }
 
     @Test
@@ -613,6 +553,8 @@ public class UserControllerTestIT
                .then()
                .statusCode(HttpStatus.BAD_REQUEST.value())
                .body("message", containsString(FAILED_GENERATE_SECURITY_TOKEN));
+
+        deleteCreatedUser(username);
     }
 
     @Test
@@ -844,6 +786,12 @@ public class UserControllerTestIT
                    .getUsers()
                    .stream()
                    .forEach(user -> logger.info(user.toString()));
+    }
+
+    private void deleteCreatedUser(String username)
+    {
+        logger.info("Delete created user: " + username);
+        userService.delete(username);
     }
 
     // get user through REST API

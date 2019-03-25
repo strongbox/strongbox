@@ -1,0 +1,19 @@
+<?xml version="1.0"?>
+<!-- Было -->
+<!-- <package xmlns="http://schemas.microsoft.com/packaging/2010/07/nuspec.xsd"> -->
+<package xmlns="http://schemas.microsoft.com/packaging/2011/08/nuspec.xsd">
+  <metadata>
+    <id>NHibernate</id>
+    <version>3.2.0.4000</version>
+    <authors>NHibernate community, Hibernate community</authors>
+    <owners>NHibernate community, Hibernate community</owners>
+    <requireLicenseAcceptance>false</requireLicenseAcceptance>
+    <description>NHibernate is a mature, open source object-relational mapper for the .NET framework. It's actively developed , fully featured and used in thousands of successful projects.</description>
+    <summary>NHibernate is a mature, open source object-relational mapper for the .NET framework. It's actively developed , fully featured and used in thousands of successful projects.</summary>
+    <language>en-US</language>
+    <tags>ORM DataBase DAL ObjectRelationalMapping</tags>
+    <dependencies>
+      <dependency id="Iesi.Collections" version="3.2.0.4000" />
+    </dependencies>
+  </metadata>
+</package>

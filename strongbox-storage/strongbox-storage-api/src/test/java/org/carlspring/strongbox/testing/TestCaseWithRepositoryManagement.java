@@ -10,6 +10,7 @@ import org.carlspring.strongbox.services.RepositoryManagementService;
 import org.carlspring.strongbox.services.StorageManagementService;
 import org.carlspring.strongbox.storage.MutableStorage;
 import org.carlspring.strongbox.storage.repository.Repository;
+import org.carlspring.strongbox.storage.repository.ImmutableRepository;
 import org.carlspring.strongbox.storage.repository.MutableRepository;
 
 import javax.inject.Inject;
@@ -68,7 +69,7 @@ public abstract class TestCaseWithRepositoryManagement extends TestCaseWithRepos
             throws IOException, JAXBException, RepositoryManagementStrategyException
     {
         createRepository(storageId, repository);
-        createFile(new Repository(repository), path);
+        createFile(new ImmutableRepository(repository), path);
     }
     
     public abstract void createProxyRepository(String storageId,

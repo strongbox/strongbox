@@ -5,6 +5,7 @@ import org.carlspring.strongbox.controllers.support.PoolStatsEntityBody;
 import org.carlspring.strongbox.service.ProxyRepositoryConnectionPoolConfigurationService;
 import org.carlspring.strongbox.services.ConfigurationManagementService;
 import org.carlspring.strongbox.storage.Storage;
+import org.carlspring.strongbox.storage.repository.ImmutableRepository;
 import org.carlspring.strongbox.storage.repository.Repository;
 
 import io.swagger.annotations.Api;
@@ -59,15 +60,14 @@ public class HttpConnectionPoolConfigurationManagementController
                                  .body(getResponseEntityBody("The storage does not exist!", accept));
         }
 
-        Repository repository = storage.getRepository(repositoryId);
+        ImmutableRepository repository = (ImmutableRepository) storage.getRepository(repositoryId);
         if (storage.getRepository(repositoryId) == null)
         {
             return ResponseEntity.status(HttpStatus.NOT_FOUND)
                                  .body(getResponseEntityBody("The repository does not exist!", accept));
         }
 
-        if (storage.getRepository(repositoryId)
-                   .getRemoteRepository() == null)
+        if (((ImmutableRepository)repository).getRemoteRepository() == null)
         {
             return ResponseEntity.status(HttpStatus.BAD_REQUEST)
                                  .body(getResponseEntityBody("The proxy repository has no associated remote repository.", accept));
@@ -103,15 +103,14 @@ public class HttpConnectionPoolConfigurationManagementController
                                  .body(getResponseEntityBody("The storage does not exist!", accept));
         }
 
-        Repository repository = storage.getRepository(repositoryId);
+        ImmutableRepository repository = (ImmutableRepository) storage.getRepository(repositoryId);
         if (repository == null)
         {
             return ResponseEntity.status(HttpStatus.NOT_FOUND)
                                  .body(getResponseEntityBody("The repository does not exist!", accept));
         }
 
-        if (storage.getRepository(repositoryId)
-                   .getRemoteRepository() == null)
+        if (repository.getRemoteRepository() == null)
         {
             return ResponseEntity.status(HttpStatus.BAD_REQUEST)
                                  .body(getResponseEntityBody("Repository doesn't have remote repository!", accept));

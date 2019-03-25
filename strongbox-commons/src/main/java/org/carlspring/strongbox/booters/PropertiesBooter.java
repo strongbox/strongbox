@@ -49,6 +49,12 @@ public class PropertiesBooter
     @Value("${strongbox.nuget.download.feed}")
     private boolean strongboxNugetDownloadFeed;
 
+    @Value("${strongbox.version}")
+    private String strongboxVersion;
+
+    @Value("${strongbox.revision}")
+    private String strongboxRevision;
+
     /**
      * Initialization method that sets default system properties, if none are set.
      */
@@ -181,4 +187,23 @@ public class PropertiesBooter
         this.strongboxNugetDownloadFeed = strongboxNugetDownloadFeed;
     }
 
+    public String getStrongboxVersion()
+    {
+        return strongboxVersion;
+    }
+
+    public void setStrongboxVersion(String strongboxVersion)
+    {
+        this.strongboxVersion = strongboxVersion;
+    }
+
+    public String getStrongboxRevision()
+    {
+        return strongboxRevision;
+    }
+
+    public void setStrongboxRevision(String strongboxRevision)
+    {
+        this.strongboxRevision = strongboxRevision;
+    }
 }

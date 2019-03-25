@@ -1138,7 +1138,6 @@ public class MavenArtifactControllerTest
                .contentType(MediaType.TEXT_PLAIN_VALUE)
                .when()
                .get(url)
-               .peek()
                .then()
                .statusCode(HttpStatus.OK.value());
     }
@@ -1164,7 +1163,6 @@ public class MavenArtifactControllerTest
                .contentType(MediaType.TEXT_PLAIN_VALUE)
                .when()
                .get(url)
-               .peek()
                .then()
                .statusCode(HttpStatus.OK.value());
 

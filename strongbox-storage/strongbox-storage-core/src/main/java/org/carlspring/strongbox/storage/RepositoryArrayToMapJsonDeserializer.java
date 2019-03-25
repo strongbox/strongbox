@@ -1,5 +1,6 @@
 package org.carlspring.strongbox.storage;
 
+import org.carlspring.strongbox.storage.repository.ImmutableRepository;
 import org.carlspring.strongbox.storage.repository.Repository;
 
 import java.io.IOException;
@@ -32,7 +33,7 @@ public class RepositoryArrayToMapJsonDeserializer
         TreeNode node = codec.readTree(parser);
         if (node.isArray() && node.size() > 0)
         {
-            Repository[] repositories = ((ObjectMapper) codec).readValue(node.toString(), Repository[].class);
+            Repository[] repositories = ((ObjectMapper) codec).readValue(node.toString(), ImmutableRepository[].class);
             Arrays.stream(repositories).forEach(r -> result.put(r.getId(), r));
         }
 

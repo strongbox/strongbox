@@ -6,6 +6,7 @@ import com.hazelcast.config.Config;
 import com.hazelcast.config.EvictionConfig;
 import com.hazelcast.config.EvictionConfig.MaxSizePolicy;
 import com.hazelcast.config.EvictionPolicy;
+import com.hazelcast.config.GroupConfig;
 import com.hazelcast.config.MapConfig;
 import com.hazelcast.config.MaxSizeConfig;
 import com.hazelcast.config.NearCacheConfig;
@@ -56,11 +57,11 @@ public class HazelcastConfiguration
     }
 
     @Bean
-    public HazelcastInstanceId hazelcastInstanceId() 
+    public HazelcastInstanceId hazelcastInstanceId()
     {
         return new HazelcastInstanceId("strongbox");
     }
-    
+
     @Bean
     public Config hazelcastConfig(HazelcastInstanceId hazelcastInstanceId)
     {
@@ -68,7 +69,7 @@ public class HazelcastConfiguration
                                           .addMapConfig(newDefaultMapConfig(CacheName.Repository.REMOTE_REPOSITORY_ALIVENESS))
                                           .addMapConfig(newDefaultMapConfig(CacheName.Artifact.TAGS))
                                           .addMapConfig(authenticationCacheConfig(CacheName.User.AUTHENTICATIONS));
-        config.getGroupConfig().setName("strongbox").setPassword("password");
+        config.setGroupConfig(new GroupConfig("strongbox", "password"));
         config.getNetworkConfig().getJoin().getMulticastConfig().setEnabled(false);
 
         return config;

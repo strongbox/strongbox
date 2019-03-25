@@ -1,6 +1,7 @@
 package org.carlspring.strongbox.storage;
 
 import org.carlspring.strongbox.json.MapValuesJsonSerializer;
+import org.carlspring.strongbox.storage.repository.ImmutableRepository;
 import org.carlspring.strongbox.storage.repository.MutableRepository;
 import org.carlspring.strongbox.storage.repository.Repository;
 
@@ -52,7 +53,7 @@ public class Storage
     private Map<String, Repository> immuteRepositories(final Map<String, MutableRepository> source)
     {
         return source != null ? ImmutableSortedMap.copyOf(source.entrySet().stream().collect(
-                toMap(Map.Entry::getKey, e -> new Repository(e.getValue(), this)))) : Collections.emptyMap();
+                toMap(Map.Entry::getKey, e -> new ImmutableRepository(e.getValue(), this)))) : Collections.emptyMap();
     }
 
     public Repository getRepository(final String repositoryId)
