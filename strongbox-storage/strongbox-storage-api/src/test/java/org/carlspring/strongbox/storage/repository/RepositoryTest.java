@@ -7,13 +7,10 @@ import org.carlspring.strongbox.storage.MutableStorage;
 import org.carlspring.strongbox.storage.repository.aws.MutableAwsConfiguration;
 import org.carlspring.strongbox.storage.repository.gcs.MutableGoogleCloudConfiguration;
 import org.carlspring.strongbox.yaml.YAMLMapperFactory;
-import org.carlspring.strongbox.yaml.parsers.GenericParser;
 import org.carlspring.strongbox.yaml.repository.RepositoryConfiguration;
 import org.carlspring.strongbox.yaml.repository.remote.RemoteRepositoryConfiguration;
 
 import javax.inject.Inject;
-import javax.xml.bind.JAXBException;
-import java.io.File;
 import java.io.IOException;
 import java.io.StringWriter;
 import java.util.ArrayList;

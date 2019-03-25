@@ -33,11 +33,13 @@ public class CustomObjectMapper
         AnnotationIntrospector introspector = AnnotationIntrospector.pair(jacksonIntrospector, jaxbIntrospector);
         setAnnotationIntrospector(introspector);
 
-        ObjectMapperSubtypes.subtypes().stream()
-                                     .forEach(contextClass -> registerSubtypes(
-                                             new NamedType(contextClass, Optional.ofNullable(
-                                                     contextClass.getAnnotation(JsonTypeName.class))
-                                                                                 .map(JsonTypeName::value).orElse(
-                                                             null))));
+        WebObjectMapperSubtypes.INSTANCE.subtypes()
+                                        .stream()
+                                        .forEach(contextClass -> registerSubtypes(new NamedType(contextClass,
+                                                                                             Optional.ofNullable(
+                                                                                                     contextClass.getAnnotation(
+                                                                                                             JsonTypeName.class))
+                                                                                                     .map(JsonTypeName::value)
+                                                                                                     .orElse(null))));
     }
 }

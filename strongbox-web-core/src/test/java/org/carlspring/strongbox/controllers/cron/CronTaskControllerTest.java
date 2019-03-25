@@ -9,7 +9,6 @@ import org.carlspring.strongbox.rest.common.RestAssuredBaseTest;
 
 import java.io.File;
 import java.io.FileInputStream;
-import java.io.IOException;
 import java.io.InputStream;
 import java.util.List;
 import java.util.stream.Collectors;
@@ -26,6 +25,7 @@ import org.springframework.test.context.junit.jupiter.EnabledIf;
 import static io.restassured.module.mockmvc.RestAssuredMockMvc.given;
 import static org.carlspring.strongbox.controllers.cron.CronTaskController.CRON_CONFIG_FILE_NAME_KEY;
 import static org.carlspring.strongbox.controllers.cron.CronTaskController.CRON_CONFIG_JOB_CLASS_KEY;
+import static org.carlspring.strongbox.net.MediaType.APPLICATION_YAML_VALUE;
 import static org.carlspring.strongbox.rest.client.RestAssuredArtifactClient.OK;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
@@ -212,7 +212,7 @@ public class CronTaskControllerTest
     private List<CronTaskConfigurationDto> getDownloadRemoteMavenIndexOfCarlspringCronJobs()
     {
 
-        final CronTasksConfigurationDto cronTasksConfiguration = given().accept(MediaType.APPLICATION_XML_VALUE)
+        final CronTasksConfigurationDto cronTasksConfiguration = given().accept(APPLICATION_YAML_VALUE)
                                                                         .when()
                                                                         .get(getContextBaseUrl() + "/")
                                                                         .peek()

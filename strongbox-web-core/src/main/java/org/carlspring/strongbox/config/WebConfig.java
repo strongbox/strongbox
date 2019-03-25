@@ -13,7 +13,7 @@ import org.carlspring.strongbox.converters.storage.routing.RoutingRuleFormToMuta
 import org.carlspring.strongbox.converters.users.AccessModelFormToUserAccessModelDtoConverter;
 import org.carlspring.strongbox.converters.users.UserFormToUserDtoConverter;
 import org.carlspring.strongbox.cron.config.CronTasksConfig;
-import org.carlspring.strongbox.mapper.ObjectMapperSubtypes;
+import org.carlspring.strongbox.mapper.WebObjectMapperSubtypes;
 import org.carlspring.strongbox.utils.CustomAntPathMatcher;
 import org.carlspring.strongbox.web.DirectoryTraversalFilter;
 import org.carlspring.strongbox.web.HeaderMappingFilter;
@@ -167,7 +167,7 @@ public class WebConfig
     public MappingJackson2HttpMessageConverter yamlConverter()
     {
         MappingJackson2HttpMessageConverter yamlConverter = new MappingJackson2HttpMessageConverter(
-                yamlMapperFactory.create(ObjectMapperSubtypes.subtypes()));
+                yamlMapperFactory.create(WebObjectMapperSubtypes.INSTANCE.subtypes()));
         yamlConverter.setSupportedMediaTypes(
                 Arrays.asList(MediaType.valueOf(APPLICATION_YML_VALUE), MediaType.valueOf(APPLICATION_YAML_VALUE)));
         return yamlConverter;
