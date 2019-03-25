@@ -788,6 +788,7 @@ public class ArtifactManagementServiceImplTest
         assertNotNull(expectedChecksums);
         assertNotNull(artifactEntryForTest.getChecksums());
         assertEquals(expectedChecksums, artifactEntryForTest.getChecksums());
+        // testing github branching
     }
 
 
