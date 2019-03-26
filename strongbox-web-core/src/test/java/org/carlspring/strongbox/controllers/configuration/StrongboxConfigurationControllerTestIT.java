@@ -5,14 +5,10 @@ import org.carlspring.strongbox.configuration.MutableConfiguration;
 import org.carlspring.strongbox.rest.common.RestAssuredBaseTest;
 import org.carlspring.strongbox.storage.MutableStorage;
 
-import java.io.IOException;
-
 import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.ValueSource;
 import org.springframework.http.MediaType;
-import static io.restassured.module.mockmvc.RestAssuredMockMvc.given;
 import static org.carlspring.strongbox.net.MediaType.APPLICATION_YAML_VALUE;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 
@@ -45,13 +41,13 @@ public class StrongboxConfigurationControllerTestIT
 
         String url = getContextBaseUrl() + "/api/configuration/strongbox";
 
-        given().contentType(MediaType.APPLICATION_JSON_VALUE)
-               .accept(acceptHeader)
-               .body(configuration)
-               .when()
-               .put(url)
-               .then()
-               .statusCode(200);
+        givenCustom().contentType(MediaType.APPLICATION_JSON_VALUE)
+                     .accept(acceptHeader)
+                     .body(configuration)
+                     .when()
+                     .put(url)
+                     .then()
+                     .statusCode(200);
 
         final MutableConfiguration c = getConfigurationFromRemote();
 
@@ -62,10 +58,10 @@ public class StrongboxConfigurationControllerTestIT
     {
         String url = getContextBaseUrl() + "/api/configuration/strongbox";
 
-        return given().accept(MediaType.APPLICATION_JSON_VALUE)
-                      .when()
-                      .get(url)
-                      .as(MutableConfiguration.class);
+        return givenCustom().accept(MediaType.APPLICATION_JSON_VALUE)
+                            .when()
+                            .get(url)
+                            .as(MutableConfiguration.class);
     }
 
 }

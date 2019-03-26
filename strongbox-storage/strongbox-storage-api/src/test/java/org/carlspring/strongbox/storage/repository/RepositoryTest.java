@@ -7,8 +7,8 @@ import org.carlspring.strongbox.storage.MutableStorage;
 import org.carlspring.strongbox.storage.repository.aws.MutableAwsConfiguration;
 import org.carlspring.strongbox.storage.repository.gcs.MutableGoogleCloudConfiguration;
 import org.carlspring.strongbox.yaml.YAMLMapperFactory;
-import org.carlspring.strongbox.yaml.repository.RepositoryConfiguration;
-import org.carlspring.strongbox.yaml.repository.remote.RemoteRepositoryConfiguration;
+import org.carlspring.strongbox.yaml.repository.MutableCustomRepositoryConfiguration;
+import org.carlspring.strongbox.yaml.repository.remote.MutableRemoteRepositoryConfiguration;
 
 import javax.inject.Inject;
 import java.io.IOException;
@@ -45,7 +45,7 @@ public class RepositoryTest
     public void init()
     {
         yamlMapper = yamlMapperFactory.create(
-                Sets.newHashSet(RepositoryConfiguration.class, RemoteRepositoryConfiguration.class));
+                Sets.newHashSet(MutableCustomRepositoryConfiguration.class, MutableRemoteRepositoryConfiguration.class));
     }
 
     @Test
@@ -132,7 +132,8 @@ public class RepositoryTest
     public void testMarshallAndUnmarshallStrongboxConfiguration()
             throws IOException
     {
-        MutableConfiguration configuration = yamlMapper.readValue(this.getClass().getResourceAsStream("/etc/conf/strongbox.yaml"), MutableConfiguration.class);
+        MutableConfiguration configuration = yamlMapper.readValue(
+                this.getClass().getResourceAsStream("/etc/conf/strongbox.yaml"), MutableConfiguration.class);
         MutableStorage storage = configuration.getStorage("storage0");
 
         assertNotNull(storage);

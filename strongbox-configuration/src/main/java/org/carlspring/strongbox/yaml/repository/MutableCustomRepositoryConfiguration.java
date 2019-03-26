@@ -1,5 +1,7 @@
 package org.carlspring.strongbox.yaml.repository;
 
+import java.io.Serializable;
+
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonTypeInfo;
 
@@ -9,7 +11,7 @@ import com.fasterxml.jackson.annotation.JsonTypeInfo;
  */
 @JsonTypeInfo(use = JsonTypeInfo.Id.NAME, property = "type")
 public abstract class MutableCustomRepositoryConfiguration
-        implements RepositoryConfiguration
+        implements Serializable
 {
 
     @JsonIgnore

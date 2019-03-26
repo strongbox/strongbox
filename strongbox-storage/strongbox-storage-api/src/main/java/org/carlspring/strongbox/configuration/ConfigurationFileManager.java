@@ -3,8 +3,8 @@ package org.carlspring.strongbox.configuration;
 import org.carlspring.strongbox.resource.ConfigurationResourceResolver;
 import org.carlspring.strongbox.yaml.YAMLMapperFactory;
 import org.carlspring.strongbox.yaml.YamlFileManager;
-import org.carlspring.strongbox.yaml.repository.RepositoryConfiguration;
-import org.carlspring.strongbox.yaml.repository.remote.RemoteRepositoryConfiguration;
+import org.carlspring.strongbox.yaml.repository.MutableCustomRepositoryConfiguration;
+import org.carlspring.strongbox.yaml.repository.remote.MutableRemoteRepositoryConfiguration;
 
 import javax.inject.Inject;
 
@@ -24,7 +24,7 @@ public class ConfigurationFileManager
     @Inject
     public ConfigurationFileManager(YAMLMapperFactory yamlMapperFactory)
     {
-        super(yamlMapperFactory, RepositoryConfiguration.class, RemoteRepositoryConfiguration.class);
+        super(yamlMapperFactory, MutableCustomRepositoryConfiguration.class, MutableRemoteRepositoryConfiguration.class);
     }
 
     @Override

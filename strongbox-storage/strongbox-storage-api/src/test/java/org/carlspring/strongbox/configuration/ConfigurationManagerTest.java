@@ -10,8 +10,8 @@ import org.carlspring.strongbox.storage.routing.MutableRoutingRuleRepository;
 import org.carlspring.strongbox.storage.routing.MutableRoutingRules;
 import org.carlspring.strongbox.storage.routing.RoutingRuleTypeEnum;
 import org.carlspring.strongbox.yaml.YAMLMapperFactory;
-import org.carlspring.strongbox.yaml.repository.RepositoryConfiguration;
-import org.carlspring.strongbox.yaml.repository.remote.RemoteRepositoryConfiguration;
+import org.carlspring.strongbox.yaml.repository.MutableCustomRepositoryConfiguration;
+import org.carlspring.strongbox.yaml.repository.remote.MutableRemoteRepositoryConfiguration;
 
 import javax.inject.Inject;
 import java.io.ByteArrayOutputStream;
@@ -71,7 +71,7 @@ public class ConfigurationManagerTest
         }
 
         yamlMapper = yamlMapperFactory.create(
-                Sets.newHashSet(RepositoryConfiguration.class, RemoteRepositoryConfiguration.class));
+                Sets.newHashSet(MutableCustomRepositoryConfiguration.class, MutableRemoteRepositoryConfiguration.class));
     }
 
     @Test

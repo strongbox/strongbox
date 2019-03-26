@@ -176,9 +176,7 @@ public class WebConfig
     @Bean
     public MappingJackson2HttpMessageConverter jackson2Converter()
     {
-        MappingJackson2HttpMessageConverter converter = new MappingJackson2HttpMessageConverter();
-        converter.setObjectMapper(objectMapper);
-        return converter;
+        return new MappingJackson2HttpMessageConverter(objectMapper);
     }
 
     @Bean

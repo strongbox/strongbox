@@ -2,7 +2,7 @@ package org.carlspring.strongbox.yaml;
 
 import org.carlspring.strongbox.util.ServiceLoaderUtils;
 import org.carlspring.strongbox.yaml.repository.CustomRepositoryConfiguration;
-import org.carlspring.strongbox.yaml.repository.RepositoryConfiguration;
+import org.carlspring.strongbox.yaml.repository.MutableCustomRepositoryConfiguration;
 
 import java.util.Set;
 
@@ -21,7 +21,7 @@ public class ObjectMapperSubtypes
 
     public static final ObjectMapperSubtypes INSTANCE = new ObjectMapperSubtypes();
 
-    private static final Set<Class<?>> TYPES = ImmutableSet.of(RepositoryConfiguration.class,
+    private static final Set<Class<?>> TYPES = ImmutableSet.of(MutableCustomRepositoryConfiguration.class,
                                                                CustomRepositoryConfiguration.class);
 
     private volatile Set<Class<?>> subtypes;
