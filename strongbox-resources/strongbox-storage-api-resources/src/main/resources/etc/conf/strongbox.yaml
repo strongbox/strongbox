@@ -52,7 +52,7 @@ configuration:
           allowsForceDeletion: true
           checksumHeadersEnabled: true
           repositoryConfiguration:
-            type: mavenRepositoryConfiguration
+            type: Maven 2
             indexingEnabled: true
         snapshots:
           id: snapshots
@@ -63,7 +63,7 @@ configuration:
           secured: true
           checksumHeadersEnabled: true
           repositoryConfiguration:
-            type: mavenRepositoryConfiguration
+            type: Maven 2
             indexingEnabled: true
     storage-common-proxies:
       id: storage-common-proxies
@@ -80,7 +80,7 @@ configuration:
             autoBlocking: true
             checksumValidation: true
           repositoryConfiguration:
-            type: mavenRepositoryConfiguration
+            type: Maven 2
             indexingEnabled: true
         carlspring:
           id: carlspring
@@ -148,7 +148,7 @@ configuration:
           remoteRepository:
             url: https://www.nuget.org/api/v2
           repositoryConfiguration:
-            type: nugetRepositoryConfiguration
+            type: NuGet
             remoteFeedPageSize: 1000
     storage-springsource-proxies:
       id: storage-springsource-proxies

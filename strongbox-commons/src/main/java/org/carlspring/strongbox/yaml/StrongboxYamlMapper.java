@@ -10,6 +10,7 @@ import com.fasterxml.jackson.databind.SerializationFeature;
 import com.fasterxml.jackson.databind.introspect.JacksonAnnotationIntrospector;
 import com.fasterxml.jackson.databind.jsontype.NamedType;
 import com.fasterxml.jackson.databind.module.SimpleModule;
+import com.fasterxml.jackson.dataformat.yaml.YAMLGenerator;
 import com.fasterxml.jackson.dataformat.yaml.YAMLMapper;
 
 /**
@@ -23,6 +24,7 @@ public class StrongboxYamlMapper
     {
         enable(SerializationFeature.WRAP_ROOT_VALUE);
         enable(DeserializationFeature.UNWRAP_ROOT_VALUE);
+        disable(YAMLGenerator.Feature.USE_NATIVE_TYPE_ID);
         setAnnotationIntrospector(new JacksonAnnotationIntrospector());
         setSerializationInclusion(JsonInclude.Include.NON_NULL);
 
