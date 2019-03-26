@@ -1,9 +1,5 @@
 grammar NugetODataFilter;
 
-@header {
-    package org.carlspring.strongbox.nuget.filter;
-}
-
 filter
 :
     filterExp

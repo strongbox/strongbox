@@ -175,7 +175,6 @@
                         </goals>
                         <configuration>
                             <visitor>true</visitor>
-                            <outputDirectory>${project.build.directory}/generated-sources/antlr4/org/carlspring/strongbox/nuget/filter</outputDirectory>
                         </configuration>
                     </execution>
                 </executions>
