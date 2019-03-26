@@ -65,6 +65,7 @@
     </properties>
 
     <modules>
+        <module>strongbox-parent</module>
         <module>strongbox-resources</module>
         <module>strongbox-commons</module>
         <module>strongbox-configuration</module>
@@ -112,12 +113,10 @@
 					<plugin>
 						<groupId>org.apache.maven.plugins</groupId>
 						<artifactId>maven-checkstyle-plugin</artifactId>
-						<version>3.0.0</version>
 						<dependencies>
 							<dependency>
 								<groupId>com.puppycrawl.tools</groupId>
 								<artifactId>checkstyle</artifactId>
-								<version>8.18</version>
 							</dependency>
 						</dependencies>
 						<configuration>

@@ -152,39 +152,6 @@
         </dependency>
 
         <dependency>
-            <groupId>com.orientechnologies</groupId>
-            <artifactId>orientdb-core</artifactId>
-        </dependency>
-        <dependency>
-            <groupId>com.orientechnologies</groupId>
-            <artifactId>orientdb-client</artifactId>
-        </dependency>
-        <dependency>
-            <groupId>com.orientechnologies</groupId>
-            <artifactId>orientdb-server</artifactId>
-        </dependency>
-        <dependency>
-            <groupId>com.orientechnologies</groupId>
-            <artifactId>orientdb-tools</artifactId>
-        </dependency>
-        <dependency>
-            <groupId>com.orientechnologies</groupId>
-            <artifactId>orientdb-object</artifactId>
-        </dependency>
-        <dependency>
-            <groupId>com.orientechnologies</groupId>
-            <artifactId>orientdb-graphdb</artifactId>
-        </dependency>
-        <dependency>
-            <groupId>com.orientechnologies</groupId>
-            <artifactId>orientdb-distributed</artifactId>
-        </dependency>
-        <dependency>
-            <groupId>com.orientechnologies</groupId>
-            <artifactId>orientdb-jdbc</artifactId>
-        </dependency>
-        
-        <dependency>
             <groupId>org.springframework</groupId>
             <artifactId>spring-orm</artifactId>
         </dependency>
@@ -258,9 +225,7 @@
         <dependency>
             <groupId>com.esotericsoftware</groupId>
             <artifactId>kryo</artifactId>
-            <version>5.0.0-RC1</version>
         </dependency>
-
     </dependencies>
 
 </project>
