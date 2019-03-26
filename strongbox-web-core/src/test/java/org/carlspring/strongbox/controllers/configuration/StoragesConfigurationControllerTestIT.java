@@ -28,7 +28,6 @@ import org.junit.jupiter.params.provider.ValueSource;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.web.client.HttpServerErrorException;
-import static io.restassured.module.mockmvc.RestAssuredMockMvc.given;
 import static org.carlspring.strongbox.controllers.configuration.StoragesConfigurationController.*;
 import static org.carlspring.strongbox.rest.client.RestAssuredArtifactClient.OK;
 import static org.hamcrest.Matchers.*;
@@ -223,15 +222,15 @@ public class StoragesConfigurationControllerTestIT
 
         String url = getContextBaseUrl();
 
-        given().contentType(MediaType.APPLICATION_JSON_VALUE)
-               .accept(acceptHeader)
-               .body(form)
-               .when()
-               .put(url)
-               .peek()
-               .then()
-               .statusCode(HttpStatus.BAD_REQUEST.value())
-               .body(containsString(FAILED_SAVE_STORAGE_FORM_ERROR));
+        givenCustom().contentType(MediaType.APPLICATION_JSON_VALUE)
+                     .accept(acceptHeader)
+                     .body(form)
+                     .when()
+                     .put(url)
+                     .peek()
+                     .then()
+                     .statusCode(HttpStatus.BAD_REQUEST.value())
+                     .body(containsString(FAILED_SAVE_STORAGE_FORM_ERROR));
     }
 
     private StorageForm buildStorageForm(final String storageId)
@@ -317,24 +316,27 @@ public class StoragesConfigurationControllerTestIT
                    "Failed to get storage (" + storageId + ")!");
         assertTrue(repository0.isSecured(),
                    "Failed to get storage (" + storageId + ")!");
-        assertNotNull(((ImmutableRepository)repository0).getRepositoryConfiguration(),
+        assertNotNull(((ImmutableRepository) repository0).getRepositoryConfiguration(),
                       "Failed to get storage (" + storageId + ")!");
-        assertTrue(((ImmutableRepository)repository0).getRepositoryConfiguration() instanceof MavenRepositoryConfiguration,
-                   "Failed to get storage (" + storageId + ")!");
-        assertTrue(((MavenRepositoryConfiguration) ((ImmutableRepository)repository0).getRepositoryConfiguration()).isIndexingEnabled(),
-                   "Failed to get storage (" + storageId + ")!");
-        assertFalse(((MavenRepositoryConfiguration) ((ImmutableRepository) repository0).getRepositoryConfiguration()).isIndexingClassNamesEnabled(),
-                    "Failed to get storage (" + storageId + ")!");
+        assertTrue(
+                ((ImmutableRepository) repository0).getRepositoryConfiguration() instanceof MavenRepositoryConfiguration,
+                "Failed to get storage (" + storageId + ")!");
+        assertTrue(
+                ((MavenRepositoryConfiguration) ((ImmutableRepository) repository0).getRepositoryConfiguration()).isIndexingEnabled(),
+                "Failed to get storage (" + storageId + ")!");
+        assertFalse(
+                ((MavenRepositoryConfiguration) ((ImmutableRepository) repository0).getRepositoryConfiguration()).isIndexingClassNamesEnabled(),
+                "Failed to get storage (" + storageId + ")!");
         assertEquals(groupRepositoriesMapExpected, groupRepositoriesMap);
 
         assertTrue(repository1.allowsForceDeletion(),
                    "Failed to get storage (" + storageId + ")!");
         assertTrue(repository1.isTrashEnabled(),
                    "Failed to get storage (" + storageId + ")!");
-        assertNotNull(((ImmutableRepository)repository1).getProxyConfiguration().getHost(),
+        assertNotNull(((ImmutableRepository) repository1).getProxyConfiguration().getHost(),
                       "Failed to get storage (" + storageId + ")!");
         assertEquals("localhost",
-                     ((ImmutableRepository)repository1).getProxyConfiguration().getHost(),
+                     ((ImmutableRepository) repository1).getProxyConfiguration().getHost(),
                      "Failed to get storage (" + storageId + ")!");
 
         PoolStats poolStatsRepository2 = proxyRepositoryConnectionPoolConfigurationService.getPoolStats(

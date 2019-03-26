@@ -1,5 +1,6 @@
 package org.carlspring.strongbox.yaml.configuration.repository;
 
+import org.carlspring.strongbox.providers.layout.Maven2LayoutProvider;
 import org.carlspring.strongbox.yaml.repository.CustomRepositoryConfiguration;
 
 import javax.annotation.concurrent.Immutable;
@@ -15,7 +16,7 @@ import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
 @Immutable
 @XmlAccessorType(XmlAccessType.FIELD)
 @SuppressFBWarnings(value = "AJCIP_FIELD_ISNT_FINAL_IN_IMMUTABLE_CLASS")
-@JsonTypeName("mavenRepositoryConfiguration")
+@JsonTypeName(Maven2LayoutProvider.ALIAS)
 public class MavenRepositoryConfiguration
         extends CustomRepositoryConfiguration
 {
