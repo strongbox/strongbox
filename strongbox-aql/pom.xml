@@ -102,13 +102,8 @@
                             <goal>antlr4</goal>
                         </goals>
                         <configuration>
-                            <arguments>
-                                <argument>-package</argument>
-                                <argument>org.carlspring.strongbox.aql.grammar</argument>
-                            </arguments>
                             <sourceDirectory>${project.build.directory}/antlr4</sourceDirectory>
                             <visitor>true</visitor>
-                            <outputDirectory>${project.build.directory}/generated-sources/antlr4/org/carlspring/strongbox/aql/grammar</outputDirectory>
                         </configuration>
                     </execution>
                 </executions>
