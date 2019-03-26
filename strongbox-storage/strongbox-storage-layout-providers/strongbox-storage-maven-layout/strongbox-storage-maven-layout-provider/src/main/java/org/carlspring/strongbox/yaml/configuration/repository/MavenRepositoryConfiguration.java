@@ -1,6 +1,5 @@
 package org.carlspring.strongbox.yaml.configuration.repository;
 
-import org.carlspring.strongbox.providers.layout.Maven2LayoutProvider;
 import org.carlspring.strongbox.yaml.repository.CustomRepositoryConfiguration;
 
 import javax.annotation.concurrent.Immutable;
@@ -25,7 +24,7 @@ public class MavenRepositoryConfiguration
 
     private boolean indexingClassNamesEnabled;
 
-    MavenRepositoryConfiguration()
+    public MavenRepositoryConfiguration()
     {
     }
 

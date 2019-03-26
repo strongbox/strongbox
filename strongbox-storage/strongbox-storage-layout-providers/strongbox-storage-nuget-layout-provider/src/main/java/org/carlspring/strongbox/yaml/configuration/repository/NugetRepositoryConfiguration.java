@@ -1,6 +1,5 @@
 package org.carlspring.strongbox.yaml.configuration.repository;
 
-import org.carlspring.strongbox.providers.layout.NugetLayoutProvider;
 import org.carlspring.strongbox.yaml.repository.CustomRepositoryConfiguration;
 
 import javax.annotation.concurrent.Immutable;
@@ -25,7 +24,7 @@ public class NugetRepositoryConfiguration
 
     private Integer remoteFeedPageSize;
 
-    NugetRepositoryConfiguration()
+    public NugetRepositoryConfiguration()
     {
 
     }
