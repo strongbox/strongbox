@@ -10,6 +10,7 @@ import java.io.IOException;
 import java.io.OutputStream;
 import java.io.UnsupportedEncodingException;
 import java.lang.reflect.UndeclaredThrowableException;
+import java.net.URI;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
@@ -27,6 +28,7 @@ import org.apache.commons.compress.archivers.tar.TarArchiveOutputStream;
 import org.apache.commons.compress.compressors.gzip.GzipCompressorOutputStream;
 
 public class NpmPackageGenerator
+        implements ArtifactGenerator
 {
 
     private NpmArtifactCoordinates coordinates;
@@ -236,4 +238,11 @@ public class NpmPackageGenerator
         return publishJsonPath;
     }
 
+    @Override
+    public Path generateArtifact(URI uri,
+                                 int size)
+            throws IOException
+    {
+        return null;
+    }
 }

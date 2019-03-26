@@ -11,7 +11,9 @@ import org.carlspring.strongbox.util.MessageDigestUtils;
 
 import javax.xml.bind.JAXBException;
 import java.io.*;
+import java.net.URI;
 import java.nio.charset.StandardCharsets;
+import java.nio.file.Path;
 import java.security.NoSuchAlgorithmException;
 import java.util.ArrayList;
 import java.util.Base64;
@@ -27,6 +29,7 @@ import org.slf4j.LoggerFactory;
  * @author Kate Novik.
  */
 public class NugetPackageGenerator
+        implements ArtifactGenerator
 {
 
     private static final Logger logger = LoggerFactory.getLogger(NugetPackageGenerator.class);
@@ -312,4 +315,11 @@ public class NugetPackageGenerator
         this.basedir = basedir;
     }
 
+    @Override
+    public Path generateArtifact(URI uri,
+                                 int size)
+            throws IOException
+    {
+        return null;
+    }
 }

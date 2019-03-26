@@ -7,6 +7,7 @@ import org.carlspring.commons.io.RandomInputStream;
 import org.carlspring.maven.commons.util.ArtifactUtils;
 
 import java.io.*;
+import java.net.URI;
 import java.nio.charset.Charset;
 import java.nio.file.Path;
 import java.security.NoSuchAlgorithmException;
@@ -29,6 +30,7 @@ import org.slf4j.LoggerFactory;
  * @author mtodorov
  */
 public class MavenArtifactGenerator
+        implements ArtifactGenerator
 {
 
     private static final Logger logger = LoggerFactory.getLogger(MavenArtifactGenerator.class);
@@ -316,4 +318,11 @@ public class MavenArtifactGenerator
         this.basedir = basedir;
     }
 
+    @Override
+    public Path generateArtifact(URI uri,
+                                 int size)
+            throws IOException
+    {
+        return null;
+    }
 }
