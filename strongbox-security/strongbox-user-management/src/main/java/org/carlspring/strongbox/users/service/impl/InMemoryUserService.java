@@ -255,10 +255,10 @@ public class InMemoryUserService implements UserService
 
     @Documented
     @Retention(RUNTIME)
-    @Qualifier("inMemoryUserServiceQualifier")
+    @Qualifier
     public @interface InMemoryUserServiceQualifier
     {
-
+        String value() default "inMemoryUserServiceQualifier";
     }
 
 }

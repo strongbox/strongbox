@@ -85,9 +85,9 @@ public class StrongboxUserService
 
     @Documented
     @Retention(RUNTIME)
-    @Qualifier("strongboxUserServiceQualifier")
+    @Qualifier
     public @interface StrongboxUserServiceQualifier
     {
-
+        String value() default "strongboxUserServiceQualifier";
     }
 }
