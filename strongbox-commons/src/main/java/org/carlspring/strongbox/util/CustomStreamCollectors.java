@@ -9,8 +9,14 @@ import java.util.stream.Collectors;
 /**
  * @author Przemyslaw Fusik
  */
-public class CustomStreamCollectors
+@SuppressWarnings("PMD.ClassNamingConventions")
+public final class CustomStreamCollectors
 {
+
+    private CustomStreamCollectors()
+    {
+
+    }
 
     public static <T, K, U> Collector<T, ?, Map<K, U>> toLinkedHashMap(Function<? super T, ? extends K> keyMapper,
                                                                        Function<? super T, ? extends U> valueMapper)

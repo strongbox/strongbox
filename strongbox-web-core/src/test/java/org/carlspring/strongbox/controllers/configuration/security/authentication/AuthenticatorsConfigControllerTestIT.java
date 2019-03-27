@@ -49,7 +49,7 @@ public class AuthenticatorsConfigControllerTestIT
     @Override
     @BeforeEach
     public void init()
-        throws Exception
+            throws Exception
     {
         super.init();
         setContextBaseUrl(getContextBaseUrl() + "/api/configuration");
@@ -57,7 +57,7 @@ public class AuthenticatorsConfigControllerTestIT
 
     @AfterEach
     public void afterEveryTest()
-        throws IOException
+            throws IOException
     {
         configurableProviderManager.reload();
 
@@ -111,7 +111,7 @@ public class AuthenticatorsConfigControllerTestIT
         given().accept(acceptHeader)
                .when()
                .put(getContextBaseUrl()
-                       + "/authenticators/reorder/authenticationProviderFirst/authenticationProviderSecond")
+                    + "/authenticators/reorder/authenticationProviderFirst/authenticationProviderSecond")
                .peek()
                .then()
                .statusCode(HttpStatus.OK.value())
@@ -139,7 +139,7 @@ public class AuthenticatorsConfigControllerTestIT
         assertInitialAuthenticationItems();
 
         AuthenticationItem authenticationItem = new AuthenticationItem("authenticationProviderThird",
-                AuthenticationProvider.class.getSimpleName());
+                                                                       AuthenticationProvider.class.getSimpleName());
         authenticationItem.setEnabled(true);
         authenticationItem.setOrder(2);
 
@@ -175,11 +175,11 @@ public class AuthenticatorsConfigControllerTestIT
 
         @Primary
         @Bean
-        public HazelcastInstanceId hazelcastInstanceIdAcctit() 
+        public HazelcastInstanceId hazelcastInstanceIdAcctit()
         {
             return new HazelcastInstanceId("AuthenticatorsConfigControllerTestConfig-hazelcast-instance");
         }
-        
+
         @Bean
         @Primary
         public AuthenticationResourceManager testAuthenticationResourceManager()
@@ -189,19 +189,20 @@ public class AuthenticatorsConfigControllerTestIT
 
     }
 
-    private static class TestAuthenticationResourceManager extends AuthenticationResourceManager
+    private static class TestAuthenticationResourceManager
+            extends AuthenticationResourceManager
     {
 
         @Override
         public Resource getAuthenticationConfigurationResource()
-            throws IOException
+                throws IOException
         {
             return new DefaultResourceLoader().getResource("classpath:accit-authentication-providers.xml");
         }
 
         @Override
         public Resource getAuthenticationPropertiesResource()
-            throws IOException
+                throws IOException
         {
             return new DefaultResourceLoader().getResource("classpath:accit-authentication-providers.yaml");
         }
@@ -214,7 +215,7 @@ public class AuthenticatorsConfigControllerTestIT
 
         @Override
         public Authentication authenticate(Authentication authentication)
-            throws AuthenticationException
+                throws AuthenticationException
         {
             return authentication;
         }

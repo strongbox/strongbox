@@ -15,11 +15,6 @@ import com.google.common.collect.ImmutableSet;
 public class ObjectMapperSubtypes
 {
 
-    protected ObjectMapperSubtypes()
-    {
-
-    }
-
     public static final ObjectMapperSubtypes INSTANCE = new ObjectMapperSubtypes();
 
     private static final Set<Class<?>> TYPES = ImmutableSet.of(CustomRepositoryConfiguration.class,
@@ -27,6 +22,11 @@ public class ObjectMapperSubtypes
                                                                MutableRemoteRepositoryConfiguration.class);
 
     private volatile Set<Class<?>> subtypes;
+
+    protected ObjectMapperSubtypes()
+    {
+
+    }
 
     public final synchronized Set<Class<?>> subtypes()
     {

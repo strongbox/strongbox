@@ -2,6 +2,7 @@ package org.carlspring.strongbox;
 
 import org.carlspring.strongbox.config.*;
 import org.carlspring.strongbox.testing.NullLayoutConfiguration;
+
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Import;
 

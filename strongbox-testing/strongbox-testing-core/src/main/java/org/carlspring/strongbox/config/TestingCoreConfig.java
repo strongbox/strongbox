@@ -14,13 +14,13 @@ public class TestingCoreConfig
 {
 
     @Bean(name = "assignedPorts")
-    AssignedPorts assignedPorts()
+    protected AssignedPorts assignedPorts()
     {
         return new AssignedPorts();
     }
 
     @Bean
-    YAMLMapperFactory yamlMapperFactory()
+    protected YAMLMapperFactory yamlMapperFactory()
     {
         return contextClasses -> new TestingYamlMapper(contextClasses);
     }

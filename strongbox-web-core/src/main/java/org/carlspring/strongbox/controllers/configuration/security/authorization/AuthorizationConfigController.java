@@ -55,11 +55,7 @@ public class AuthorizationConfigController
     static final String SUCCESSFUL_ASSIGN_PRIVILEGES = "The privileges were assigned.";
     static final String FAILED_ASSIGN_PRIVILEGES = "Privileges cannot be saved because the submitted form contains errors!";
 
-    static final String SUCCESSFUL_ASSIGN_ROLES = "The roles were assigned.";
-    static final String FAILED_ASSIGN_ROLES = "Roles cannot be saved because the submitted form contains errors!";
-
     static final String AUTHORIZATION_CONFIG_OPERATION_FAILED = "Error during config processing.";
-    static final String AUTHORIZATION_CONFIG_NOT_FOUND = "Unable to locate AuthorizationConfig to update...";
 
     @Inject
     private AuthorizationConfigService authorizationConfigService;
