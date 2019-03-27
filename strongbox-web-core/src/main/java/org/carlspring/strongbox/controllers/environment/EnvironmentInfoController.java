@@ -1,15 +1,22 @@
 package org.carlspring.strongbox.controllers.environment;
 
+import org.carlspring.strongbox.controllers.BaseController;
+import org.carlspring.strongbox.storage.Storage;
+import org.carlspring.strongbox.users.service.UserService;
+import org.carlspring.strongbox.users.service.impl.StrongboxUserService.StrongboxUserServiceQualifier;
+
+import javax.inject.Inject;
+import java.lang.management.ManagementFactory;
+import java.lang.management.RuntimeMXBean;
+import java.util.*;
+import java.util.stream.Collectors;
+
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
 import io.swagger.annotations.ApiResponse;
 import io.swagger.annotations.ApiResponses;
-import org.carlspring.strongbox.controllers.BaseController;
-import org.carlspring.strongbox.storage.Storage;
-import org.carlspring.strongbox.users.service.UserService;
-import org.carlspring.strongbox.users.service.impl.XmlUserService;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
@@ -17,12 +24,6 @@ import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
-
-import javax.inject.Inject;
-import java.lang.management.ManagementFactory;
-import java.lang.management.RuntimeMXBean;
-import java.util.*;
-import java.util.stream.Collectors;
 
 /**
  * @author Pablo Tirado
@@ -38,7 +39,7 @@ public class EnvironmentInfoController
     private static final String SYSTEM_PROPERTIES_PREFIX = "-D";
 
     @Inject
-    @XmlUserService.XmlUserServiceQualifier
+    @StrongboxUserServiceQualifier
     private UserService userService;
 
     @Inject

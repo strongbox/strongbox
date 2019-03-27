@@ -9,6 +9,6 @@ strongbox:
     authenticationProviderThird:
       order: 2
       enabled: false      
-    xmlUserDetailService:
+    strongboxUserDetailService:
       order: 0
       enabled: true

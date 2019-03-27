@@ -1,31 +1,31 @@
 package org.carlspring.strongbox.users.service.impl;
 
-import static java.lang.annotation.RetentionPolicy.RUNTIME;
+import org.carlspring.strongbox.users.UsersFileManager;
+import org.carlspring.strongbox.users.dto.UserDto;
+import org.carlspring.strongbox.users.dto.UserReadContract;
+import org.carlspring.strongbox.users.dto.UsersDto;
+import org.carlspring.strongbox.users.service.impl.StrongboxUserService.StrongboxUserServiceQualifier;
 
+import javax.inject.Inject;
+import javax.inject.Qualifier;
 import java.lang.annotation.Documented;
 import java.lang.annotation.Retention;
 import java.util.HashSet;
 import java.util.Map;
 import java.util.function.Consumer;
 
-import javax.inject.Inject;
-import javax.inject.Qualifier;
-
 import org.apache.commons.lang3.StringUtils;
-import org.carlspring.strongbox.users.UsersFileManager;
-import org.carlspring.strongbox.users.dto.UserDto;
-import org.carlspring.strongbox.users.dto.UserReadContract;
-import org.carlspring.strongbox.users.dto.UsersDto;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
+import static java.lang.annotation.RetentionPolicy.RUNTIME;
 
 /**
  * @author Alex Oreshkevich
  * @author Przemyslaw Fusik
  */
 @Service
-@XmlUserService.XmlUserServiceQualifier
-public class XmlUserService
+@StrongboxUserServiceQualifier
+public class StrongboxUserService
         extends InMemoryUserService
 {
 
@@ -55,7 +55,7 @@ public class XmlUserService
     @Override
     public void updatePassword(UserDto userToUpdate)
     {
-        encryptPassword((UserDto) userToUpdate, userToUpdate.getPassword());
+        encryptPassword(userToUpdate, userToUpdate.getPassword());
         
         super.updatePassword(userToUpdate);
     }
@@ -63,7 +63,7 @@ public class XmlUserService
     @Override
     public void updateAccountDetailsByUsername(UserDto userToUpdate)
     {
-        encryptPassword((UserDto) userToUpdate, userToUpdate.getPassword());
+        encryptPassword(userToUpdate, userToUpdate.getPassword());
         
         super.updateAccountDetailsByUsername(userToUpdate);
     }
@@ -86,7 +86,7 @@ public class XmlUserService
     @Documented
     @Retention(RUNTIME)
     @Qualifier
-    public @interface XmlUserServiceQualifier
+    public @interface StrongboxUserServiceQualifier
     {
 
     }
