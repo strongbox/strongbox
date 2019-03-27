@@ -3,6 +3,7 @@ package org.carlspring.strongbox.configuration;
 import org.carlspring.strongbox.storage.MutableStorage;
 import org.carlspring.strongbox.storage.routing.MutableRoutingRules;
 
+import java.io.Serializable;
 import java.util.LinkedHashMap;
 import java.util.Map;
 
@@ -13,11 +14,14 @@ import com.google.common.base.Objects;
 /**
  * @author mtodorov
  * @author Pablo Tirado
+ * @author Przemyslaw Fusik
  */
 @JsonRootName("configuration")
 public class MutableConfiguration
-        extends ServerConfiguration
+        implements Serializable
 {
+
+    private String id;
 
     private String instanceName = "strongbox";
 
@@ -49,6 +53,16 @@ public class MutableConfiguration
     private MutableCorsConfiguration corsConfiguration = new MutableCorsConfiguration();
 
     private MutableSmtpConfiguration smtpConfiguration = new MutableSmtpConfiguration();
+
+    public String getId()
+    {
+        return id;
+    }
+
+    public void setId(String id)
+    {
+        this.id = id;
+    }
 
     public String getInstanceName()
     {

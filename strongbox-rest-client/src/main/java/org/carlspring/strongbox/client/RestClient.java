@@ -2,7 +2,6 @@ package org.carlspring.strongbox.client;
 
 import org.carlspring.strongbox.configuration.MutableConfiguration;
 import org.carlspring.strongbox.configuration.MutableProxyConfiguration;
-import org.carlspring.strongbox.configuration.ServerConfiguration;
 import org.carlspring.strongbox.forms.configuration.RepositoryForm;
 import org.carlspring.strongbox.forms.configuration.StorageForm;
 import org.carlspring.strongbox.storage.Storage;
@@ -22,14 +21,18 @@ import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.UnsupportedEncodingException;
 import java.net.URLEncoder;
+import java.util.Set;
 
+import com.fasterxml.jackson.databind.DeserializationFeature;
 import com.fasterxml.jackson.dataformat.yaml.YAMLMapper;
+import org.apache.commons.lang3.exception.ExceptionUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import static org.carlspring.strongbox.net.MediaType.APPLICATION_YAML_VALUE;
 
 /**
  * @author mtodorov
+ * @author Przemyslaw Fusik
  */
 public class RestClient
         extends ArtifactClient
@@ -67,9 +70,14 @@ public class RestClient
                    Integer.parseInt(System.getProperty("strongbox.port")) :
                    48080;
 
-        YAMLMapperFactory yamlMapperFactory = new CustomYAMLMapperFactory();
+        Set<Class<?>> objectMapperSubtypes = ObjectMapperSubtypes.INSTANCE.subtypes();
+        logger.info("Found subtypes {} ", objectMapperSubtypes);
 
-        RestClient client = new RestClient(yamlMapperFactory.create(ObjectMapperSubtypes.INSTANCE.subtypes()));
+        YAMLMapperFactory yamlMapperFactory = new CustomYAMLMapperFactory();
+        YAMLMapper yamlMapper = yamlMapperFactory.create(objectMapperSubtypes);
+        yamlMapper.disable(DeserializationFeature.FAIL_ON_INVALID_SUBTYPE);
+
+        RestClient client = new RestClient(yamlMapper);
         client.setUsername(username);
         client.setPassword(password);
         client.setPort(port);
@@ -95,10 +103,10 @@ public class RestClient
     public MutableConfiguration getConfiguration()
             throws IOException
     {
-        return (MutableConfiguration) getServerConfiguration("/api/configuration/strongbox");
+        return getServerConfiguration("/api/configuration/strongbox");
     }
 
-    public int setServerConfiguration(ServerConfiguration configuration,
+    public int setServerConfiguration(MutableConfiguration configuration,
                                       String path)
             throws IOException
     {
@@ -119,7 +127,7 @@ public class RestClient
         }
     }
 
-    public ServerConfiguration getServerConfiguration(String path)
+    public MutableConfiguration getServerConfiguration(String path)
             throws IOException
     {
         String url = getContextBaseUrl() + path;
@@ -129,14 +137,19 @@ public class RestClient
 
         final Response response = resource.request(YAML_MEDIA_TYPE).get();
 
-        ServerConfiguration configuration = null;
+        MutableConfiguration configuration = null;
         if (response.getStatus() == 200)
         {
             final String yaml = response.readEntity(String.class);
 
             try (final ByteArrayInputStream bais = new ByteArrayInputStream(yaml.getBytes()))
             {
-                configuration = yamlMapper.readValue(bais, ServerConfiguration.class);
+                configuration = yamlMapper.readValue(bais, MutableConfiguration.class);
+            }
+            catch (Exception ex)
+            {
+                logger.error("Exception occurred {} ...", ExceptionUtils.getStackTrace(ex));
+                throw ex;
             }
         }
 
