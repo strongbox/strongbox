@@ -54,7 +54,7 @@
                 </executions>
                 <configuration>
                     <scripts>
-                        <script>file:///${basedir}/src/main/groovy/aql-dynamic-grammar.groovy</script>
+                        <script>${basedir}/src/main/groovy/aql-dynamic-grammar.groovy</script>
                     </scripts>
                 </configuration>
                 <dependencies>
@@ -77,11 +77,6 @@
                         <groupId>${project.groupId}</groupId>
                         <artifactId>strongbox-commons</artifactId>
                         <version>${project.version}</version>
-                    </dependency>
-                    <dependency>
-                        <groupId>org.jtwig</groupId>
-                        <artifactId>jtwig-core</artifactId>
-                        <version>${version.jtwig}</version>
                     </dependency>
                     <dependency>
                         <groupId>org.codehaus.groovy</groupId>
@@ -140,6 +135,11 @@
             <groupId>${project.groupId}</groupId>
             <artifactId>strongbox-storage-api</artifactId>
             <version>${project.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>org.jtwig</groupId>
+            <artifactId>jtwig-core</artifactId>
+            <scope>provided</scope>   
         </dependency>
 
         <dependency>
