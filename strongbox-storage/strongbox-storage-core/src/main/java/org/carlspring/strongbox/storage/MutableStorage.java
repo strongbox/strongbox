@@ -117,11 +117,6 @@ public class MutableStorage
         return !CollectionUtils.isEmpty(repositories);
     }
 
-    public boolean existsOnFileSystem()
-    {
-        return Paths.get(getBasedir()).toFile().exists();
-    }
-
     @Override
     public String toString()
     {

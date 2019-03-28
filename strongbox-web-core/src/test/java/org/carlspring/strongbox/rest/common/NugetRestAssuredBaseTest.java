@@ -109,7 +109,7 @@ public abstract class NugetRestAssuredBaseTest
             throws IOException, JAXBException
     {
         configurationManagementService.saveStorage(storage);
-        storageManagementService.createStorage(storage);
+        storageManagementService.saveStorage(storage);
     }
 
     public void createRepository(String storageId,

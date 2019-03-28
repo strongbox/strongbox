@@ -24,15 +24,9 @@ public enum StorageFormConverter
     public MutableStorage convert(final StorageForm source)
     {
         MutableStorage result = new MutableStorage();
-        if (StringUtils.isNotBlank(source.getBasedir()))
-        {
-            result.setBasedir(source.getBasedir());
-        }
-        else
-        {
-            result.initDefaultBasedir(source.getId());
-        }
+        result.setBasedir(source.getBasedir());
         result.setId(source.getId());
+        
         List<RepositoryForm> repositories = source.getRepositories();
         if (repositories != null)
         {

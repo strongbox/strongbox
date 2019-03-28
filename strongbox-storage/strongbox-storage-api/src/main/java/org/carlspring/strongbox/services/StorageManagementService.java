@@ -10,7 +10,7 @@ import java.io.IOException;
 public interface StorageManagementService
 {
 
-    void createStorage(MutableStorage storage)
+    void saveStorage(MutableStorage storage)
             throws IOException;
 
     void removeStorage(String storageId)
