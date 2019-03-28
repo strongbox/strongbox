@@ -6,6 +6,7 @@ import org.carlspring.strongbox.forms.configuration.*;
 import org.carlspring.strongbox.providers.layout.Maven2LayoutProvider;
 import org.carlspring.strongbox.rest.common.RestAssuredBaseTest;
 import org.carlspring.strongbox.service.ProxyRepositoryConnectionPoolConfigurationService;
+import org.carlspring.strongbox.storage.ImmutableStorage;
 import org.carlspring.strongbox.storage.Storage;
 import org.carlspring.strongbox.storage.repository.ImmutableRepository;
 import org.carlspring.strongbox.storage.repository.Repository;
@@ -415,7 +416,7 @@ public class StoragesConfigurationControllerTestIT
                             .when()
                             .get(url)
                             .prettyPeek()
-                            .as(Storage.class);
+                            .as(ImmutableStorage.class);
     }
 
     private void addRepository(RepositoryForm repository,

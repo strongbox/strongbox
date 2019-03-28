@@ -147,7 +147,7 @@ public class RepositoryManagementServiceImpl
             {
                 Storage storage = entry.getValue();
 
-                final Map<String, Repository> repositories = storage.getRepositories();
+                final Map<String, ? extends Repository> repositories = storage.getRepositories();
                 for (Repository repository : repositories.values())
                 {
                     if (repository.allowsDeletion())
@@ -239,7 +239,7 @@ public class RepositoryManagementServiceImpl
         {
             Storage storage = entry.getValue();
 
-            final Map<String, Repository> repositories = storage.getRepositories();
+            final Map<String, ? extends Repository> repositories = storage.getRepositories();
             for (Repository repository : repositories.values())
             {
                 final String storageId = storage.getId();

@@ -56,5 +56,5 @@ public interface Repository
     boolean acceptsSnapshots();
 
     boolean acceptsReleases();
-
+    
 }

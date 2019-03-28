@@ -122,11 +122,11 @@ public class ArtifactIndexesServiceImpl
     public void rebuildIndexes(String storageId)
             throws IOException
     {
-        Map<String, Repository> repositories = getRepositories(storageId);
+        Map<String, ? extends Repository> repositories = getRepositories(storageId);
 
         logger.debug("Rebuilding indexes for repositories " + repositories.keySet());
 
-        for (Entry<String, Repository> repositoryEntry : repositories.entrySet())
+        for (Entry<String, ? extends Repository> repositoryEntry : repositories.entrySet())
         {
             Repository repository = repositoryEntry.getValue();
             if (!(((ImmutableRepository)repository).getRepositoryConfiguration() instanceof MavenRepositoryConfiguration))
@@ -161,7 +161,7 @@ public class ArtifactIndexesServiceImpl
         return getConfiguration().getStorages();
     }
 
-    private Map<String, Repository> getRepositories(String storageId)
+    private Map<String, ? extends Repository> getRepositories(String storageId)
     {
         return getStorages().get(storageId).getRepositories();
     }

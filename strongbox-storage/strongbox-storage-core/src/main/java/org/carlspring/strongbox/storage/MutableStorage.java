@@ -1,18 +1,19 @@
 package org.carlspring.strongbox.storage;
 
-import org.carlspring.strongbox.storage.repository.MutableRepository;
-
 import java.io.Serializable;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.LinkedHashMap;
 import java.util.Map;
 
+import org.carlspring.strongbox.storage.repository.MutableRepository;
+import org.carlspring.strongbox.storage.repository.Repository;
+import org.springframework.util.Assert;
+import org.springframework.util.CollectionUtils;
+
 import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.annotation.JsonRootName;
-import org.springframework.util.Assert;
-import org.springframework.util.CollectionUtils;
 
 /**
  * @author mtodorov
@@ -20,7 +21,7 @@ import org.springframework.util.CollectionUtils;
  */
 @JsonRootName("storage")
 public class MutableStorage
-        implements Serializable
+        implements Serializable, Storage
 {
     private String id;
     
@@ -85,7 +86,8 @@ public class MutableStorage
         basedir = basedirPath.resolve(id).toString();
     }
 
-    public Map<String, MutableRepository> getRepositories()
+    @Override
+    public Map<String, ? extends Repository> getRepositories()
     {
         return repositories;
     }

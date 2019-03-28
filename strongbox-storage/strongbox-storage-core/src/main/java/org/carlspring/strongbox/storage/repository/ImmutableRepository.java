@@ -4,7 +4,7 @@ import org.carlspring.strongbox.configuration.MutableProxyConfiguration;
 import org.carlspring.strongbox.configuration.ProxyConfiguration;
 import org.carlspring.strongbox.json.MapValuesJsonSerializer;
 import org.carlspring.strongbox.json.StringArrayToMapJsonDeserializer;
-import org.carlspring.strongbox.storage.MutableStorage;
+import org.carlspring.strongbox.storage.ImmutableStorage;
 import org.carlspring.strongbox.storage.Storage;
 import org.carlspring.strongbox.storage.repository.remote.MutableRemoteRepository;
 import org.carlspring.strongbox.storage.repository.remote.RemoteRepository;
@@ -96,12 +96,12 @@ public class ImmutableRepository
 
     }
 
-    public ImmutableRepository(final MutableRepository delegate)
+    public ImmutableRepository(final Repository delegate)
     {
         this(delegate, null);
     }
 
-    public ImmutableRepository(final MutableRepository delegate,
+    public ImmutableRepository(final Repository delegate,
                                final Storage storage)
     {
         this.id = delegate.getId();
@@ -119,11 +119,11 @@ public class ImmutableRepository
         this.allowsDelete = delegate.allowsDeletion();
         this.allowsDirectoryBrowsing = delegate.allowsDirectoryBrowsing();
         this.checksumHeadersEnabled = delegate.isChecksumHeadersEnabled();
-        this.proxyConfiguration = immuteProxyConfiguration(delegate.getProxyConfiguration());
-        this.remoteRepository = immuteRemoteRepository(delegate.getRemoteRepository());
-        this.httpConnectionPool = immuteHttpConnectionPool(delegate.getHttpConnectionPool());
-        this.customConfigurations = immuteCustomConfigurations(delegate.getCustomConfigurations());
-        this.repositoryConfiguration = immuteCustomRepositoryConfiguration(delegate.getRepositoryConfiguration());
+        this.proxyConfiguration = immuteProxyConfiguration(((MutableRepository)delegate).getProxyConfiguration());
+        this.remoteRepository = immuteRemoteRepository(((MutableRepository)delegate).getRemoteRepository());
+        this.httpConnectionPool = immuteHttpConnectionPool(((MutableRepository)delegate).getHttpConnectionPool());
+        this.customConfigurations = immuteCustomConfigurations(((MutableRepository)delegate).getCustomConfigurations());
+        this.repositoryConfiguration = immuteCustomRepositoryConfiguration(((MutableRepository)delegate).getRepositoryConfiguration());
         this.groupRepositories = immuteGroupRepositories(delegate.getGroupRepositories());
         this.artifactCoordinateValidators = immuteArtifactCoordinateValidators(
                 delegate.getArtifactCoordinateValidators());
@@ -147,9 +147,9 @@ public class ImmutableRepository
                Collections.emptyMap();
     }
 
-    private Storage immuteStorage(final MutableStorage source)
+    private Storage immuteStorage(final Storage source)
     {
-        return source != null ? new Storage(source) : null;
+        return source != null ? new ImmutableStorage(source) : null;
     }
 
     private HttpConnectionPool immuteHttpConnectionPool(final MutableHttpConnectionPool source)
@@ -350,4 +350,5 @@ public class ImmutableRepository
     {
         return RepositoryPolicyEnum.ofPolicy(getPolicy()).acceptsReleases();
     }
+
 }
