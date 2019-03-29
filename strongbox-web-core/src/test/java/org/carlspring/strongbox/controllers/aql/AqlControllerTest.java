@@ -81,7 +81,8 @@ public class AqlControllerTest extends MavenRestAssuredBaseTest
                                                 @TestArtifact(storage = S1, repository = R1, resource = A1, generator = MavenArtifactGenerator.class) Path artifact1,
                                                 @TestArtifact(storage = S1, repository = R1, resource = A2, generator = MavenArtifactGenerator.class) Path artifact2,
                                                 @TestArtifact(storage = S1, repository = R1, resource = A3, generator = MavenArtifactGenerator.class) Path artifact3)
-            throws Exception {
+            throws Exception
+    {
         given().accept(MediaType.APPLICATION_JSON_VALUE)
                 .queryParam("query", "layout:maven+groupId:org.carlspring.strongbox.*")
                 .when()
@@ -106,4 +107,5 @@ public class AqlControllerTest extends MavenRestAssuredBaseTest
                .statusCode(HttpStatus.BAD_REQUEST.value())
                .body("error", Matchers.equalTo("Unknown layout [unknown-layout]."));
     }
+    
 }
