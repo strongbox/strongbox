@@ -3,6 +3,7 @@ package org.carlspring.strongbox.testing.storage.repository;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.util.Objects;
+import java.util.Optional;
 
 import javax.annotation.PreDestroy;
 
@@ -11,12 +12,15 @@ import org.carlspring.strongbox.providers.io.RepositoryPathResolver;
 import org.carlspring.strongbox.repository.RepositoryManagementStrategyException;
 import org.carlspring.strongbox.services.ConfigurationManagementService;
 import org.carlspring.strongbox.services.RepositoryManagementService;
+import org.carlspring.strongbox.services.StorageManagementService;
+import org.carlspring.strongbox.storage.MutableStorage;
 import org.carlspring.strongbox.storage.Storage;
 import org.carlspring.strongbox.storage.repository.ImmutableRepository;
 import org.carlspring.strongbox.storage.repository.MutableRepository;
 import org.carlspring.strongbox.storage.repository.Repository;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.cglib.proxy.UndeclaredThrowableException;
 
 /**
  * This class manages the resources used within {@link Repository}.
@@ -36,13 +40,16 @@ public class TestRepositoryContext implements AutoCloseable, Comparable<TestRepo
     private final RepositoryPathResolver repositoryPathResolver;
 
     private final RepositoryManagementService repositoryManagementService;
+    
+    private final StorageManagementService storageManagementService;
 
     private boolean opened;
 
     public TestRepositoryContext(TestRepository testRepository,
                                  ConfigurationManagementService configurationManagementService,
                                  RepositoryPathResolver repositoryPathResolver,
-                                 RepositoryManagementService repositoryManagementService)
+                                 RepositoryManagementService repositoryManagementService,
+                                 StorageManagementService storageManagementService)
         throws IOException,
         RepositoryManagementStrategyException
     {
@@ -50,7 +57,8 @@ public class TestRepositoryContext implements AutoCloseable, Comparable<TestRepo
         this.configurationManagementService = configurationManagementService;
         this.repositoryPathResolver = repositoryPathResolver;
         this.repositoryManagementService = repositoryManagementService;
-
+        this.storageManagementService = storageManagementService;
+        
         open();
     }
 
@@ -83,8 +91,9 @@ public class TestRepositoryContext implements AutoCloseable, Comparable<TestRepo
         RepositoryManagementStrategyException
     {
         logger.info(String.format("Create [%s] with id [%s] ", TestRepository.class.getSimpleName(), id(testRepository)));
-        Storage storage = configurationManagementService.getConfiguration().getStorage(testRepository.storage());
-        Objects.requireNonNull(storage, String.format("Storage [%s] not found.", testRepository.storage()));
+        Storage storage = Optional.ofNullable(configurationManagementService.getConfiguration()
+                                                                            .getStorage(testRepository.storage()))
+                                  .orElseGet(this::createStorage);
 
         if (configurationManagementService.getConfiguration()
                                           .getRepository(testRepository.storage(),
@@ -106,6 +115,23 @@ public class TestRepositoryContext implements AutoCloseable, Comparable<TestRepo
 
         opened = true;
         logger.info(String.format("Created [%s] with id [%s] ", TestRepository.class.getSimpleName(), id(testRepository)));
+    }
+
+    private Storage createStorage()
+    {
+        MutableStorage newStorage = new MutableStorage(testRepository.storage());
+        configurationManagementService.addStorageIfNotExists(newStorage);
+        try
+        {
+            storageManagementService.createStorage(newStorage);
+        }
+        catch (IOException e)
+        {
+            throw new UndeclaredThrowableException(e);
+        }
+
+        return configurationManagementService.getConfiguration()
+                                             .getStorage(testRepository.storage());
     }
 
     @PreDestroy

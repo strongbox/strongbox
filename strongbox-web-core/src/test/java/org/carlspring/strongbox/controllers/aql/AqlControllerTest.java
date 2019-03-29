@@ -1,6 +1,8 @@
 package org.carlspring.strongbox.controllers.aql;
 
 import static io.restassured.module.mockmvc.RestAssuredMockMvc.given;
+import static org.carlspring.strongbox.artifact.coordinates.MavenArtifactCoordinates.LAYOUT_NAME;
+import static org.junit.jupiter.api.parallel.ExecutionMode.CONCURRENT;
 
 import java.nio.file.Path;
 
@@ -13,21 +15,17 @@ import org.carlspring.strongbox.testing.artifact.TestArtifact;
 import org.carlspring.strongbox.testing.storage.repository.RepositoryManagementTestExecutionListener;
 import org.carlspring.strongbox.testing.storage.repository.TestRepository;
 import org.hamcrest.Matchers;
-import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.junit.jupiter.api.parallel.Execution;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
-
-import static org.junit.jupiter.api.parallel.ExecutionMode.SAME_THREAD;
-import static org.carlspring.strongbox.artifact.coordinates.MavenArtifactCoordinates.LAYOUT_NAME;
 /**
  * @author sbespalov
  *
  */
 @IntegrationTest
-@Execution(SAME_THREAD)
+@Execution(CONCURRENT)
 public class AqlControllerTest extends MavenRestAssuredBaseTest
 {
 
@@ -41,16 +39,6 @@ public class AqlControllerTest extends MavenRestAssuredBaseTest
 
     private static final String R1 = "sc-releases-search";
     
-    @Override
-    @BeforeEach
-    public void init()
-        throws Exception
-    {
-        super.init();
-
-        createStorage(S1);
-    }
-
     @Test
     @ExtendWith({RepositoryManagementTestExecutionListener.class, ArtifactManagementTestExecutionListener.class})
     public void testSearchExcludeVersion(@TestRepository(storage = S1, repository = R1, layout = LAYOUT_NAME) Repository repository,
