@@ -153,7 +153,7 @@ public class MavenTestCaseWithArtifactGeneration
             protected OutputStream newOutputStream(File artifactFile)
                 throws IOException
             {
-                Path basePath = Paths.get(basedir);
+                Path basePath = basedir;
                 Path artifactPath = artifactFile.toPath();
 
                 String path = FilenameUtils.separatorsToUnix(basePath.relativize(artifactPath).toString());
