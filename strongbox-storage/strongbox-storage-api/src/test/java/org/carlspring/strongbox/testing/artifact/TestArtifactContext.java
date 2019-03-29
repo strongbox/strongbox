@@ -8,6 +8,7 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.Objects;
+import java.util.stream.Stream;
 
 import javax.annotation.PreDestroy;
 
@@ -27,7 +28,7 @@ import org.springframework.cglib.proxy.UndeclaredThrowableException;
  */
 public class TestArtifactContext implements AutoCloseable
 {
-    
+
     private static final Logger logger = LoggerFactory.getLogger(TestArtifactContext.class);
 
     private final TestArtifact testArtifact;
@@ -73,6 +74,21 @@ public class TestArtifactContext implements AutoCloseable
             throw new IOException(e);
         }
 
+        Path directoryWhereGeneratedArtifactsWillBePlaced = vaultDirectoryPath.resolve(testArtifact.resource())
+                                                                              .getParent();
+        if (Files.exists(directoryWhereGeneratedArtifactsWillBePlaced))
+        {
+            try (Stream<Path> s = Files.list(directoryWhereGeneratedArtifactsWillBePlaced))
+            {
+                if (s.anyMatch(p -> !Files.isDirectory(p)))
+                {
+                    throw new IOException(
+                            String.format("Directory [%s] is not empty, consider to clean it up before other artifacts can be generated there.",
+                                          directoryWhereGeneratedArtifactsWillBePlaced));
+                }
+            }
+        }
+
         Path artifactPathLocal = artifactGenerator.generateArtifact(URI.create(testArtifact.resource()),
                                                                     testArtifact.size());
         if (testArtifact.repository().isEmpty())
@@ -80,8 +96,16 @@ public class TestArtifactContext implements AutoCloseable
             return artifactPathLocal;
         }
 
-        Objects.requireNonNull(testArtifact.storage(), String.format("Repository [%s] requires to specify Storage as well.", testArtifact.repository()));
-        
+        return deployArtifact(artifactPathLocal);
+    }
+
+    private Path deployArtifact(Path artifactPathLocal)
+        throws IOException
+    {
+        Objects.requireNonNull(testArtifact.storage(),
+                               String.format("Repository [%s] requires to specify Storage as well.",
+                                             testArtifact.repository()));
+
         RepositoryPath repositoryPath = repositoryPathResolver.resolve(testArtifact.storage(),
                                                                        testArtifact.repository(),
                                                                        testArtifact.resource());
@@ -98,7 +122,7 @@ public class TestArtifactContext implements AutoCloseable
                     throw new UndeclaredThrowableException(e);
                 }
             });
-        }        
+        }
 
         return repositoryPath;
     }
@@ -111,9 +135,33 @@ public class TestArtifactContext implements AutoCloseable
     @PreDestroy
     @Override
     public void close()
-        throws Exception
+        throws IOException
     {
-        Files.deleteIfExists(artifactPath);
+        if (artifactPath == null || artifactPath instanceof RepositoryPath)
+        {
+            return;
+        }
+
+        close(artifactPath);
+    }
+
+    private void close(Path path)
+        throws IOException
+    {
+        Path directoryWhereGeneratedArtifactsWasPlaced = path.getParent();
+        try (Stream<Path> s = Files.list(directoryWhereGeneratedArtifactsWasPlaced))
+        {
+            s.filter(p -> !Files.isDirectory(p)).forEach(p -> {
+                try
+                {
+                    Files.delete(p);
+                }
+                catch (IOException e)
+                {
+                    throw new UndeclaredThrowableException(e);
+                }
+            });
+        }
     }
 
     public static String id(TestArtifact testArtifact)

@@ -11,6 +11,7 @@ import org.carlspring.strongbox.providers.io.RepositoryPathResolver;
 import org.carlspring.strongbox.repository.RepositoryManagementStrategyException;
 import org.carlspring.strongbox.services.ConfigurationManagementService;
 import org.carlspring.strongbox.services.RepositoryManagementService;
+import org.carlspring.strongbox.storage.MutableStorage;
 import org.carlspring.strongbox.storage.Storage;
 import org.carlspring.strongbox.storage.repository.ImmutableRepository;
 import org.carlspring.strongbox.storage.repository.MutableRepository;
@@ -93,33 +94,36 @@ public class TestRepositoryContext implements AutoCloseable, Comparable<TestRepo
         {
             throw new IOException(String.format("Repository [%s] already exists.", id(testRepository)));
         }
+
         MutableRepository repository = new MutableRepository(testRepository.repository());
         repository.setLayout(testRepository.layout());
-        configurationManagementService.saveRepository(testRepository.storage(), (MutableRepository) repository);
 
-        final RepositoryPath repositoryPath = repositoryPathResolver.resolve(new ImmutableRepository(repository));
-        if (Files.exists(repositoryPath))
+        configurationManagementService.saveRepository(testRepository.storage(), (MutableRepository) repository);
+        repositoryManagementService.createRepository(storage.getId(), repository.getId());
+        final RepositoryPath repositoryPath = repositoryPathResolver.resolve(new ImmutableRepository(repository, storage));
+        if (!Files.exists(repositoryPath))
         {
-            throw new IOException(String.format("Repository [%s] already exists.", repositoryPath));
+            throw new IOException(String.format("Failed to create repository [%s].", repositoryPath));
         }
 
-        repositoryManagementService.createRepository(storage.getId(), repository.getId());
-
         opened = true;
+        logger.info(String.format("Created [%s] with id [%s] ", TestRepository.class.getSimpleName(), id(testRepository)));
     }
 
     @PreDestroy
     public void close()
         throws IOException
     {
+        logger.info(String.format("Close [%s] with id [%s] ", TestRepository.class.getSimpleName(), id(testRepository)));
         if (testRepository.cleanup())
         {
             repositoryManagementService.removeRepository(testRepository.storage(), testRepository.repository());
         }
 
         configurationManagementService.removeRepository(testRepository.storage(), testRepository.repository());
-
+        
         opened = false;
+        logger.info(String.format("Closed [%s] with id [%s] ", TestRepository.class.getSimpleName(), id(testRepository)));
     }
 
     @Override
