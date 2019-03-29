@@ -2,7 +2,7 @@ package org.carlspring.strongbox.controllers.aql;
 
 import static io.restassured.module.mockmvc.RestAssuredMockMvc.given;
 import static org.carlspring.strongbox.artifact.coordinates.MavenArtifactCoordinates.LAYOUT_NAME;
-import static org.junit.jupiter.api.parallel.ExecutionMode.CONCURRENT;
+import static org.junit.jupiter.api.parallel.ExecutionMode.SAME_THREAD;
 
 import java.nio.file.Path;
 
@@ -25,7 +25,7 @@ import org.springframework.http.MediaType;
  *
  */
 @IntegrationTest
-@Execution(CONCURRENT)
+@Execution(SAME_THREAD)
 public class AqlControllerTest extends MavenRestAssuredBaseTest
 {
 
