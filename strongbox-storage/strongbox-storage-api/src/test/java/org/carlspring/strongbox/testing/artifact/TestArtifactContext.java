@@ -17,6 +17,8 @@ import org.carlspring.strongbox.providers.io.RepositoryPath;
 import org.carlspring.strongbox.providers.io.RepositoryPathResolver;
 import org.carlspring.strongbox.services.ArtifactManagementService;
 import org.junit.jupiter.api.TestInfo;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.cglib.proxy.UndeclaredThrowableException;
 
 /**
@@ -25,6 +27,8 @@ import org.springframework.cglib.proxy.UndeclaredThrowableException;
  */
 public class TestArtifactContext implements AutoCloseable
 {
+    
+    private static final Logger logger = LoggerFactory.getLogger(TestArtifactContext.class);
 
     private final TestArtifact testArtifact;
     private final PropertiesBooter propertiesBooter;
@@ -52,6 +56,7 @@ public class TestArtifactContext implements AutoCloseable
     private Path createArtifact()
         throws IOException
     {
+        logger.info(String.format("Create [%s] resource [%s] ", TestArtifact.class.getSimpleName(), id(testArtifact)));
         Class<? extends ArtifactGenerator> generatorClass = testArtifact.generator();
 
         Path vaultDirectoryPath = Paths.get(propertiesBooter.getVaultDirectory(), ".temp",

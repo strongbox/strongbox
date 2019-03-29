@@ -15,6 +15,9 @@ import org.carlspring.strongbox.storage.Storage;
 import org.carlspring.strongbox.storage.repository.ImmutableRepository;
 import org.carlspring.strongbox.storage.repository.MutableRepository;
 import org.carlspring.strongbox.storage.repository.Repository;
+import org.carlspring.strongbox.testing.artifact.TestArtifact;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * This class manages the resources used within {@link Repository}.
@@ -25,6 +28,8 @@ import org.carlspring.strongbox.storage.repository.Repository;
 public class TestRepositoryContext implements AutoCloseable, Comparable<TestRepositoryContext>
 {
 
+    private static final Logger logger = LoggerFactory.getLogger(TestRepositoryContext.class);
+    
     private final TestRepository testRepository;
 
     private final ConfigurationManagementService configurationManagementService;
@@ -78,7 +83,7 @@ public class TestRepositoryContext implements AutoCloseable, Comparable<TestRepo
         throws IOException,
         RepositoryManagementStrategyException
     {
-
+        logger.info(String.format("Create [%s] with id [%s] ", TestRepository.class.getSimpleName(), id(testRepository)));
         Storage storage = configurationManagementService.getConfiguration().getStorage(testRepository.storage());
         Objects.requireNonNull(storage, String.format("Storage [%s] not found.", testRepository.storage()));
 
@@ -125,7 +130,12 @@ public class TestRepositoryContext implements AutoCloseable, Comparable<TestRepo
 
     public static String id(TestRepository tr)
     {
-        return String.format("%s/%s", tr.storage(), tr.repository());
+        return id(tr.storage(), tr.repository());
     }
 
+    public static String id(String storageId, String repositoryId)
+    {
+        return String.format("%s/%s", storageId, repositoryId);
+    }
+    
 }
