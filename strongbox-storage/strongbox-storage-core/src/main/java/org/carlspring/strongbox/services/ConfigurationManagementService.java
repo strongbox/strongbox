@@ -35,8 +35,6 @@ public interface ConfigurationManagementService
                                MutableProxyConfiguration proxyConfiguration);
 
     void saveStorage(MutableStorage storage);
-    
-    void addStorageIfNotExists(MutableStorage storage);
 
     void removeStorage(String storageId);
 

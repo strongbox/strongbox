@@ -172,12 +172,6 @@ public class ConfigurationManagementServiceImpl
     {
         modifyInLock(configuration -> configuration.addStorage(storage));
     }
-    
-    @Override
-    public void addStorageIfNotExists(MutableStorage storage)
-    {
-        modifyInLock(configuration -> configuration.addStorageIfNotExist(storage));
-    }
 
     @Override
     public void removeStorage(String storageId)

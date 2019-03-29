@@ -7,10 +7,8 @@ import org.carlspring.commons.io.RandomInputStream;
 import org.carlspring.maven.commons.util.ArtifactUtils;
 
 import java.io.*;
-import java.net.URI;
 import java.nio.charset.Charset;
 import java.nio.file.Path;
-import java.nio.file.Paths;
 import java.security.NoSuchAlgorithmException;
 import java.util.Properties;
 import java.util.zip.ZipEntry;
@@ -30,14 +28,15 @@ import org.slf4j.LoggerFactory;
 /**
  * @author mtodorov
  */
-public class MavenArtifactGenerator implements ArtifactGenerator
+public class MavenArtifactGenerator
 {
 
     private static final Logger logger = LoggerFactory.getLogger(MavenArtifactGenerator.class);
 
     public static final String PACKAGING_JAR = "jar";
 
-    protected Path basedir;
+    protected String basedir;
+
 
     public MavenArtifactGenerator()
     {
@@ -45,35 +44,12 @@ public class MavenArtifactGenerator implements ArtifactGenerator
 
     public MavenArtifactGenerator(String basedir)
     {
-        this.basedir = Paths.get(basedir);
+        this.basedir = basedir;
     }
 
     public MavenArtifactGenerator(File basedir)
     {
-        this.basedir = basedir.toPath();
-    }
-
-    public MavenArtifactGenerator(Path basedir)
-    {
-        this.basedir = basedir;
-    }
-    
-    @Override
-    public Path generateArtifact(URI uri,
-                                 int size)
-        throws IOException
-    {
-        Artifact artifact = ArtifactUtils.convertPathToArtifact(uri.toString());
-        try
-        {
-            generate(artifact);
-        }
-        catch (NoSuchAlgorithmException|XmlPullParserException e)
-        {
-            throw new IOException(e);
-        }
-        
-        return basedir.resolve(ArtifactUtils.convertArtifactToPath(artifact));
+        this.basedir = basedir.getAbsolutePath();
     }
 
     public void generate(String gavtc, String packaging, String... versions)
@@ -133,7 +109,7 @@ public class MavenArtifactGenerator implements ArtifactGenerator
             throws NoSuchAlgorithmException,
                    IOException
     {
-        File artifactFile = basedir.resolve(ArtifactUtils.convertArtifactToPath(artifact)).toFile();
+        File artifactFile = new File(basedir, ArtifactUtils.convertArtifactToPath(artifact));
 
         // Make sure the artifact's parent directory exists before writing the model.
         //noinspection ResultOfMethodCallIgnored
@@ -163,7 +139,7 @@ public class MavenArtifactGenerator implements ArtifactGenerator
 
         try
         {
-            metadataFile = basedir.resolve(metadataPath).toFile();
+            metadataFile = new File(basedir, metadataPath);
             
             if (metadataFile.exists())
             {
@@ -193,7 +169,7 @@ public class MavenArtifactGenerator implements ArtifactGenerator
     private void addMavenPomFile(Artifact artifact, ZipOutputStream zos) throws IOException
     {
         final Artifact pomArtifact = ArtifactUtils.getPOMArtifact(artifact);
-        File pomFile = basedir.resolve(ArtifactUtils.convertArtifactToPath(pomArtifact)).toFile();
+        File pomFile = new File(basedir, ArtifactUtils.convertArtifactToPath(pomArtifact));
 
         ZipEntry ze = new ZipEntry("META-INF/maven/" +
                                    artifact.getGroupId() + "/" +
@@ -272,7 +248,7 @@ public class MavenArtifactGenerator implements ArtifactGenerator
                    NoSuchAlgorithmException
     {
         final Artifact pomArtifact = ArtifactUtils.getPOMArtifact(artifact);
-        File pomFile = basedir.resolve(ArtifactUtils.convertArtifactToPath(pomArtifact)).toFile();
+        File pomFile = new File(basedir, ArtifactUtils.convertArtifactToPath(pomArtifact));
 
         // Make sure the artifact's parent directory exists before writing the model.
         //noinspection ResultOfMethodCallIgnored
@@ -332,7 +308,12 @@ public class MavenArtifactGenerator implements ArtifactGenerator
 
     public String getBasedir()
     {
-        return basedir.toAbsolutePath().toString();
+        return basedir;
+    }
+
+    public void setBasedir(String basedir)
+    {
+        this.basedir = basedir;
     }
 
 }

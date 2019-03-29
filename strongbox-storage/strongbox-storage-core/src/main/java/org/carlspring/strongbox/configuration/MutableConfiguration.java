@@ -162,18 +162,6 @@ public class MutableConfiguration
 
         storages.put(key, storage);
     }
-    
-    public void addStorageIfNotExist(MutableStorage storage)
-    {
-        String key = storage.getId();
-        if (key == null || key.isEmpty())
-        {
-            throw new IllegalArgumentException("Null keys are not supported!");
-        }
-
-        storages.put(key, storage);
-    }
-
 
     public MutableStorage getStorage(String storageId)
     {

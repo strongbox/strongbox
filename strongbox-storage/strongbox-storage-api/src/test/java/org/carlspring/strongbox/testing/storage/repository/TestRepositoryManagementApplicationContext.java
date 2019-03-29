@@ -27,7 +27,6 @@ import org.junit.jupiter.api.extension.ParameterContext;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.BeansException;
-import org.springframework.beans.factory.config.BeanDefinition;
 import org.springframework.context.ApplicationContext;
 import org.springframework.context.ApplicationContextException;
 import org.springframework.context.annotation.AnnotationConfigApplicationContext;
@@ -41,7 +40,7 @@ public class TestRepositoryManagementApplicationContext extends AnnotationConfig
         implements TestRepositoryManagementContext
 {
 
-    private static final int REPOSITORY_LOCK_ATTEMPTS = 30;
+    private static final int REPOSITORY_LOCK_ATTEMPTS = 10;
 
     private static final Logger logger = LoggerFactory.getLogger(TestRepositoryManagementApplicationContext.class);
 
@@ -129,7 +128,9 @@ public class TestRepositoryManagementApplicationContext extends AnnotationConfig
 
         Boolean allApplied = extensionsToApply.values()
                                               .stream()
-                                              .allMatch(applied -> applied);
+                                              .filter(applied -> applied)
+                                              .findFirst()
+                                              .orElse(false);
         if (!Boolean.TRUE.equals(allApplied))
         {
             return;
@@ -182,7 +183,7 @@ public class TestRepositoryManagementApplicationContext extends AnnotationConfig
             }
 
             ReentrantLock lock = entry.getValue();
-            for (int i = 0; i < REPOSITORY_LOCK_ATTEMPTS; i++)
+            for (int i = 0; i < 10; i++)
             {
                 try
                 {
@@ -314,13 +315,6 @@ public class TestRepositoryManagementApplicationContext extends AnnotationConfig
     {
         idSync.putIfAbsent(id(testArtifact), new ReentrantLock());
         registerBean(id(testArtifact), TestArtifactContext.class, testArtifact, testInfo);
-        if (testArtifact.repository().isEmpty())
-        {
-            return;
-        }
-        
-        BeanDefinition beanDefinition = getBeanDefinition(id(testArtifact));
-        beanDefinition.setDependsOn(id(testArtifact.storage(), testArtifact.repository()));
     }
 
 }
