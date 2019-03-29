@@ -128,7 +128,7 @@ public class TestRepositoryManagementApplicationContext extends AnnotationConfig
 
         Boolean allApplied = extensionsToApply.values()
                                               .stream()
-                                              .allMatch(applied -> true == applied);
+                                              .allMatch(applied -> applied);
         if (!Boolean.TRUE.equals(allApplied))
         {
             return;
