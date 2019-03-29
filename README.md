@@ -24,7 +24,7 @@ Strongbox has a search engine and an [Artifact Query Language][docs-aql].
 
 * Web UI
 * Spring Bootification
-* Convert the strongbox configuration files from XML to YAML format (#965, #1056)
+* Convert the strongbox configuration files from XML to YAML format ([#965](https://github.com/strongbox/strongbox/issues/965), [#1056](https://github.com/strongbox/strongbox/issues/1056))
 
 # Upcoming
 
