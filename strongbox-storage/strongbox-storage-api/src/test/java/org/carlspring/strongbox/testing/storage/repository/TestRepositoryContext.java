@@ -11,12 +11,10 @@ import org.carlspring.strongbox.providers.io.RepositoryPathResolver;
 import org.carlspring.strongbox.repository.RepositoryManagementStrategyException;
 import org.carlspring.strongbox.services.ConfigurationManagementService;
 import org.carlspring.strongbox.services.RepositoryManagementService;
-import org.carlspring.strongbox.storage.MutableStorage;
 import org.carlspring.strongbox.storage.Storage;
 import org.carlspring.strongbox.storage.repository.ImmutableRepository;
 import org.carlspring.strongbox.storage.repository.MutableRepository;
 import org.carlspring.strongbox.storage.repository.Repository;
-import org.carlspring.strongbox.testing.artifact.TestArtifact;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
