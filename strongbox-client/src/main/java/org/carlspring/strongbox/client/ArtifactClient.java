@@ -50,35 +50,6 @@ public class ArtifactClient
     {
     }
 
-    public static ArtifactClient getTestInstance()
-    {
-        return getTestInstance("maven", "password");
-    }
-
-    public static ArtifactClient getTestInstanceLoggedInAsAdmin()
-    {
-        return getTestInstance("admin", "password");
-    }
-
-    public static ArtifactClient getTestInstance(String username,
-                                                 String password)
-    {
-        String host = System.getProperty("strongbox.host") != null ?
-                      System.getProperty("strongbox.host") :
-                      "localhost";
-
-        int port = System.getProperty("strongbox.port") != null ?
-                   Integer.parseInt(System.getProperty("strongbox.port")) :
-                   48080;
-
-        ArtifactClient client = new ArtifactClient();
-        client.setUsername(username != null ? username : "maven");
-        client.setPassword(password != null ? password : "password");
-        client.setPort(port);
-        client.setContextBaseUrl("http://" + host + ":" + client.getPort());
-
-        return client;
-    }
 
     public Client getClientInstance()
     {

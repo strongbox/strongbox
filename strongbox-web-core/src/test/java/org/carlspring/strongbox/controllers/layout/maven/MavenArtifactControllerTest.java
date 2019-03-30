@@ -1095,29 +1095,6 @@ public class MavenArtifactControllerTest
                                    );
     }
 
-    /**
-     * User developer01 does not have general the ARTIFACTS_RESOLVE permission, but it's defined for single 'releases'
-     * repository. So because of dynamic privileges assignment they will be able to get access to artifacts in that
-     * repository.
-     */
-    @Test
-    @WithUserDetails("developer01")
-    public void testDynamicPrivilegeAssignmentForRepository()
-    {
-        String url = getContextBaseUrl() + "/storages/" + STORAGE0 + "/" + REPOSITORY_RELEASES;
-        String pathToJar = "/org/carlspring/strongbox/test/dynamic-privileges/1.0/dynamic-privileges-1.0.jar";
-        String artifactPath = url + pathToJar;
-
-        int statusCode = given().header("user-agent", "Maven/*")
-                                .contentType(MediaType.TEXT_PLAIN_VALUE)
-                                .when()
-                                .get(artifactPath)
-                                .getStatusCode();
-
-        assertEquals(HttpStatus.OK.value(), statusCode,
-                     "Access was wrongly restricted for user with custom access model");
-    }
-
     @Test
     public void shouldDownloadProxiedSnapshotArtifactFromGroup()
             throws Exception
