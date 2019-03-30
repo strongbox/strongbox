@@ -1,6 +1,7 @@
 package org.carlspring.strongbox.artifact.generator;
 
 import org.carlspring.commons.io.RandomInputStream;
+import org.carlspring.strongbox.artifact.coordinates.NugetArtifactCoordinates;
 import org.carlspring.strongbox.io.LayoutOutputStream;
 import org.carlspring.strongbox.resource.ResourceCloser;
 import org.carlspring.strongbox.storage.metadata.nuget.Dependencies;
@@ -11,7 +12,10 @@ import org.carlspring.strongbox.util.MessageDigestUtils;
 
 import javax.xml.bind.JAXBException;
 import java.io.*;
+import java.net.URI;
 import java.nio.charset.StandardCharsets;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.security.NoSuchAlgorithmException;
 import java.util.ArrayList;
 import java.util.Base64;
@@ -26,7 +30,7 @@ import org.slf4j.LoggerFactory;
 /**
  * @author Kate Novik.
  */
-public class NugetPackageGenerator
+public class NugetPackageGenerator implements ArtifactGenerator
 {
 
     private static final Logger logger = LoggerFactory.getLogger(NugetPackageGenerator.class);
@@ -60,6 +64,21 @@ public class NugetPackageGenerator
     public NugetPackageGenerator(File basedir)
     {
         this.basedir = basedir.getAbsolutePath();
+    }
+
+    @Override
+    public Path generateArtifact(URI uri,
+                                    int size)
+            throws IOException
+    {
+        try
+        {
+            NugetArtifactCoordinates nugetArtCoords = NugetArtifactCoordinates.parse(Paths.get(uri).toString());
+            generateNugetPackage(nugetArtCoords.getId(), nugetArtCoords.getVersion());
+        }catch(JAXBException | NoSuchAlgorithmException | NugetFormatException e){
+            logger.error(e.getMessage(),e);
+        }
+        return Paths.get(uri);
     }
 
     public void generateNugetPackage(String id,
