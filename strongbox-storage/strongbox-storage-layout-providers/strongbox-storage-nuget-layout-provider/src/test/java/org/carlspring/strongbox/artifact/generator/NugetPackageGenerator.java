@@ -73,10 +73,13 @@ public class NugetPackageGenerator implements ArtifactGenerator
     {
         try
         {
-            NugetArtifactCoordinates nugetArtCoords = NugetArtifactCoordinates.parse(Paths.get(uri).toString());
-            generateNugetPackage(nugetArtCoords.getId(), nugetArtCoords.getVersion());
-        }catch(JAXBException | NoSuchAlgorithmException | NugetFormatException e){
-            logger.error(e.getMessage(),e);
+            NugetArtifactCoordinates coordinates = NugetArtifactCoordinates.parse(Paths.get(uri).toString());
+
+            generateNugetPackage(coordinates.getId(), coordinates.getVersion());
+        }
+        catch(JAXBException | NoSuchAlgorithmException | NugetFormatException e)
+        {
+            throw new IOException(e);
         }
         return Paths.get(uri);
     }
