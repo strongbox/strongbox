@@ -26,7 +26,7 @@ import org.apache.commons.compress.archivers.tar.TarArchiveEntry;
 import org.apache.commons.compress.archivers.tar.TarArchiveOutputStream;
 import org.apache.commons.compress.compressors.gzip.GzipCompressorOutputStream;
 
-public class NpmPackageGenerator
+public class NpmPackageGenerator implements ArtifactGenerator
 {
 
     private NpmArtifactCoordinates coordinates;
@@ -64,6 +64,15 @@ public class NpmPackageGenerator
     {
         this.basePath = path;
         return this;
+    }
+
+    @Override
+    public Path generateArtifact(URI uri,
+                                 int size)
+            throws IOException
+    {
+        this.in(Paths.get(uri));
+        return(this.buildPublishJson());
     }
 
     public PackageVersion getPackageJson()
