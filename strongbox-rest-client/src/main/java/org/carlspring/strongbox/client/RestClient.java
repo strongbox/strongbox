@@ -42,12 +42,12 @@ public class RestClient
                                              String password)
     {
         String host = System.getProperty("strongbox.host") != null ?
-                System.getProperty("strongbox.host") :
-                "localhost";
+                      System.getProperty("strongbox.host") :
+                      "localhost";
 
         int port = System.getProperty("strongbox.port") != null ?
-                Integer.parseInt(System.getProperty("strongbox.port")) :
-                48080;
+                   Integer.parseInt(System.getProperty("strongbox.port")) :
+                   48080;
 
         RestClient client = new RestClient();
         client.setUsername(username);

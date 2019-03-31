@@ -1110,13 +1110,13 @@ public class MavenArtifactControllerTest
         String artifactPath = url + pathToJar;
 
         int statusCode = given().header("user-agent", "Maven/*")
-                .contentType(MediaType.TEXT_PLAIN_VALUE)
-                .when()
-                .get(artifactPath)
-                .getStatusCode();
+                                .contentType(MediaType.TEXT_PLAIN_VALUE)
+                                .when()
+                                .get(artifactPath)
+                                .getStatusCode();
 
         assertEquals(HttpStatus.OK.value(), statusCode,
-                "Access was wrongly restricted for user with custom access model");
+                     "Access was wrongly restricted for user with custom access model");
     }
 
     @Test

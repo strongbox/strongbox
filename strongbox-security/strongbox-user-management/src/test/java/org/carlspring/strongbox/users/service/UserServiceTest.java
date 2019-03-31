@@ -257,7 +257,7 @@ public class UserServiceTest
         Collection<String> privileges;
 
         privileges = AccessModel.getPathPrivileges(accessModel, "/storages/storage0/releases/" +
-                "org/carlspring/foo/1.1/foo-1.1.jar");
+                                                   "org/carlspring/foo/1.1/foo-1.1.jar");
 
         assertNotNull(privileges);
         assertFalse(privileges.isEmpty());
@@ -267,7 +267,7 @@ public class UserServiceTest
         assertTrue(privileges.contains("ARTIFACTS_DEPLOY"));
 
         privileges = AccessModel.getPathPrivileges(accessModel, "/storages/storage0/releases/" +
-                "com/carlspring/foo/1.2/foo-1.2.jar");
+                                                   "com/carlspring/foo/1.2/foo-1.2.jar");
 
         assertNotNull(privileges);
         assertFalse(privileges.isEmpty());
@@ -276,7 +276,7 @@ public class UserServiceTest
         assertTrue(privileges.contains("ARTIFACTS_VIEW"));
 
         privileges = AccessModel.getPathPrivileges(accessModel, "/storages/storage0/releases/" +
-                "org/carlspring/foo/1.3/foo-1.3.jar");
+                                                   "org/carlspring/foo/1.3/foo-1.3.jar");
 
         assertNotNull(privileges);
         assertFalse(privileges.isEmpty());
@@ -287,7 +287,7 @@ public class UserServiceTest
 
 
         privileges = AccessModel.getPathPrivileges(accessModel, "/storages/storage0/releases/" +
-                "com/mycorp/foo/1.2/foo-1.2.jar");
+                                                   "com/mycorp/foo/1.2/foo-1.2.jar");
 
         assertNotNull(privileges);
         assertFalse(privileges.isEmpty());
@@ -295,7 +295,7 @@ public class UserServiceTest
         assertTrue(privileges.contains("ARTIFACTS_RESOLVE"));
 
         privileges = AccessModel.getPathPrivileges(accessModel, "/storages/storage0/releases/" +
-                "com/mycorp/");
+                                                   "com/mycorp/");
 
         assertNotNull(privileges);
         assertFalse(privileges.isEmpty());
