@@ -425,7 +425,7 @@ public class UserControllerTestIT
     }
 
     @Test
-    @WithUserDetails("developer01")
+    @WithUserDetails("test-user")
     public void testUserWithoutViewUserRoleShouldNotBeAbleToViewUserAccountData()
     {
         given().accept(MediaType.APPLICATION_JSON_VALUE)
@@ -442,7 +442,7 @@ public class UserControllerTestIT
     }
 
     @Test
-    @WithUserDetails("developer01")
+    @WithUserDetails("test-user")
     public void testUserWithoutUpdateUserRoleShouldNotBeAbleToUpdateSomeoneElsePassword()
     {
         final String username = "admin";

@@ -12,8 +12,70 @@
         <username>deployer</username>
         <password>$2a$10$WqtVx7Iio0cndyR1lEaKW.SWhUYmF/zHHG5hkAXvH5hUmklM7QfMO</password>
         <roles>
-            <role>UI_MANAGER</role>
+            <role>ARTIFACT_MANAGER</role>
         </roles>
         <security-token-key>deployer-secret</security-token-key>
+    </user>
+    <user>
+        <username>test-user</username>
+        <password>$2a$10$WqtVx7Iio0cndyR1lEaKW.SWhUYmF/zHHG5hkAXvH5hUmklM7QfMO</password>
+        <roles>
+            <role>UI_MANAGER</role>
+        </roles>
+        <security-token-key>test-user-secret</security-token-key>
+        <access-model>
+            <storages>
+                <storage id="storage0">
+                    <repositories>
+                        <repository id="releases">
+                            <repository-privileges>
+                                <privilege>
+                                    <name>ARTIFACTS_RESOLVE</name>
+                                </privilege>
+                            </repository-privileges>
+                            <path-privileges>
+                                <path-privilege path="com/carlspring" wildcard="true">
+                                    <privileges>
+                                        <privilege>
+                                            <name>ARTIFACTS_VIEW</name>
+                                        </privilege>
+                                    </privileges>
+                                </path-privilege>
+                                <path-privilege path="org/carlspring" wildcard="true">
+                                    <privileges>
+                                        <privilege>
+                                            <name>ARTIFACTS_DELETE</name>
+                                        </privilege>
+                                    </privileges>
+                                </path-privilege>
+                                <path-privilege path="org/carlspring" wildcard="true">
+                                    <privileges>
+                                        <privilege>
+                                            <name>ARTIFACTS_DEPLOY</name>
+                                        </privilege>
+                                    </privileges>
+                                </path-privilege>
+                                <path-privilege path="com/mycorp">
+                                    <privileges>
+                                        <privilege>
+                                            <name>ARTIFACTS_VIEW</name>
+                                        </privilege>
+                                        <privilege>
+                                            <name>ARTIFACTS_DEPLOY</name>
+                                        </privilege>
+                                        <privilege>
+                                            <name>ARTIFACTS_DELETE</name>
+                                        </privilege>
+                                        <privilege>
+                                            <name>ARTIFACTS_COPY</name>
+                                        </privilege>
+                                    </privileges>
+                                </path-privilege>
+                            </path-privileges>
+                        </repository>
+                    </repositories>
+                </storage>
+            </storages>
+        </access-model>
     </user>
 </users>

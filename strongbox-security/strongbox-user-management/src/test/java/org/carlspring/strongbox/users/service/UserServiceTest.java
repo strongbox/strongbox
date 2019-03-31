@@ -241,6 +241,73 @@ public class UserServiceTest
     }
 
     @Test
+    public void testPrivilegesProcessingForAccessModel()
+    {
+        // Load the user
+        User user = userService.findByUserName("test-user");
+
+        assertNotNull(user, "Unable to find user by name test-user");
+
+        // Display the access model
+        UserAccessModelReadContract accessModel = user.getUserAccessModel();
+
+        logger.debug(accessModel.toString());
+
+        // Make sure that the privileges were correctly assigned for the example paths
+        Collection<String> privileges;
+
+        privileges = AccessModel.getPathPrivileges(accessModel, "/storages/storage0/releases/" +
+                "org/carlspring/foo/1.1/foo-1.1.jar");
+
+        assertNotNull(privileges);
+        assertFalse(privileges.isEmpty());
+        assertThat(privileges.size(), CoreMatchers.equalTo(3));
+        assertTrue(privileges.contains("ARTIFACTS_RESOLVE"));
+        assertTrue(privileges.contains("ARTIFACTS_DELETE"));
+        assertTrue(privileges.contains("ARTIFACTS_DEPLOY"));
+
+        privileges = AccessModel.getPathPrivileges(accessModel, "/storages/storage0/releases/" +
+                "com/carlspring/foo/1.2/foo-1.2.jar");
+
+        assertNotNull(privileges);
+        assertFalse(privileges.isEmpty());
+        assertThat(privileges.size(), CoreMatchers.equalTo(2));
+        assertTrue(privileges.contains("ARTIFACTS_RESOLVE"));
+        assertTrue(privileges.contains("ARTIFACTS_VIEW"));
+
+        privileges = AccessModel.getPathPrivileges(accessModel, "/storages/storage0/releases/" +
+                "org/carlspring/foo/1.3/foo-1.3.jar");
+
+        assertNotNull(privileges);
+        assertFalse(privileges.isEmpty());
+        assertThat(privileges.size(), CoreMatchers.equalTo(3));
+        assertTrue(privileges.contains("ARTIFACTS_RESOLVE"));
+        assertTrue(privileges.contains("ARTIFACTS_DELETE"));
+        assertTrue(privileges.contains("ARTIFACTS_DEPLOY"));
+
+
+        privileges = AccessModel.getPathPrivileges(accessModel, "/storages/storage0/releases/" +
+                "com/mycorp/foo/1.2/foo-1.2.jar");
+
+        assertNotNull(privileges);
+        assertFalse(privileges.isEmpty());
+        assertThat(privileges.size(), CoreMatchers.equalTo(1));
+        assertTrue(privileges.contains("ARTIFACTS_RESOLVE"));
+
+        privileges = AccessModel.getPathPrivileges(accessModel, "/storages/storage0/releases/" +
+                "com/mycorp/");
+
+        assertNotNull(privileges);
+        assertFalse(privileges.isEmpty());
+        assertThat(privileges.size(), CoreMatchers.equalTo(5));
+        assertTrue(privileges.contains("ARTIFACTS_RESOLVE"));
+        assertTrue(privileges.contains("ARTIFACTS_VIEW"));
+        assertTrue(privileges.contains("ARTIFACTS_DEPLOY"));
+        assertTrue(privileges.contains("ARTIFACTS_DELETE"));
+        assertTrue(privileges.contains("ARTIFACTS_COPY"));
+    }
+
+    @Test
     public void testDeleteUser()
             throws Exception
     {
