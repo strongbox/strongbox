@@ -90,7 +90,7 @@ public class UserControllerTestIT
     @Test
     public void testGetUser()
     {
-        final String username = "developer01";
+        final String username = "test-user";
 
         // By default assignableRoles should not be present in the response.
         given().accept(MediaType.APPLICATION_JSON_VALUE)
@@ -275,7 +275,7 @@ public class UserControllerTestIT
                              MediaType.TEXT_PLAIN_VALUE })
     void updateExistingUserWithNullPassword(String acceptHeader)
     {
-        User mavenUser = retrieveUserByName("maven");
+        User mavenUser = retrieveUserByName("test-user");
         UserForm input = buildFromUser(mavenUser, null);
         input.setPassword(null);
 
@@ -361,7 +361,7 @@ public class UserControllerTestIT
                              MediaType.TEXT_PLAIN_VALUE })
     void changeOwnUser(String acceptHeader)
     {
-        final String username = "maven";
+        final String username = "test-user";
         final String newPassword = "";
         UserForm user = buildUser(username, newPassword);
 
@@ -388,7 +388,7 @@ public class UserControllerTestIT
                              MediaType.TEXT_PLAIN_VALUE })
     void shouldBeAbleToUpdateRoles(String acceptHeader)
     {
-        final String username = "maven";
+        final String username = "test-user";
         final String newPassword = "password";
         UserForm admin = buildUser(username, newPassword);
 
@@ -708,7 +708,7 @@ public class UserControllerTestIT
     @Test
     public void testNotValidMapsShouldNotUpdateAccessModel()
     {
-        String username = "developer01";
+        String username = "test-user";
 
         // load user with custom access model
         UserOutput test = getUser(username);
@@ -743,7 +743,7 @@ public class UserControllerTestIT
     public void testUpdatingAccessModelForNonExistingUserShouldFail()
     {
         // load user with custom access model
-        UserOutput test = getUser("developer01");
+        UserOutput test = getUser("test-user");
 
         logger.debug(test.toString());
 
