@@ -21,11 +21,6 @@ public class RoleForm
 
     private String description;
 
-    /**
-     * The repository this role is associated with.
-     */
-    private String repository;
-
     private Set<String> privileges = Sets.newHashSet();
 
     public String getName()
@@ -46,16 +41,6 @@ public class RoleForm
     public void setDescription(String description)
     {
         this.description = description;
-    }
-
-    public String getRepository()
-    {
-        return repository;
-    }
-
-    public void setRepository(String repository)
-    {
-        this.repository = repository;
     }
 
     public Set<String> getPrivileges()

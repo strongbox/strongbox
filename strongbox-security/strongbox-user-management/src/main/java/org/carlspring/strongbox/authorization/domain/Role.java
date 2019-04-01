@@ -25,16 +25,12 @@ public class Role
     private final String description;
 
     @JsonIgnore
-    private final String repository;
-
-    @JsonIgnore
     private final Set<String> privileges;
 
     public Role(final RoleDto source)
     {
         this.name = source.getName();
         this.description = source.getDescription();
-        this.repository = source.getRepository();
         this.privileges = immutePrivileges(source.getPrivileges());
     }
 
@@ -51,11 +47,6 @@ public class Role
     public String getDescription()
     {
         return description;
-    }
-
-    public String getRepository()
-    {
-        return repository;
     }
 
     public Set<String> getPrivileges()
