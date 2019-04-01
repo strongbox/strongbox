@@ -43,6 +43,11 @@ public @interface TestRepository
     String repository();
 
     /**
+     * {@link RepositorySetup} strategies to use within {@link Repository} initialization.
+     */
+    Class<? extends RepositorySetup>[] setup() default {};
+    
+    /**
      * In case of <code>true</code> (default) will delete repository instance
      * and cleanup the repository folder after test method complete
      * execution.<br>

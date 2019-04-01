@@ -73,6 +73,22 @@ public class IndexedMavenRepositoryManagementStrategy
         }
     }
 
+    @Override
+    public void removeRepository(String storageId,
+                                 String repositoryId)
+        throws IOException
+    {
+        Storage storage = getStorage(storageId);
+        Repository repository = storage.getRepository(repositoryId);
+        
+        String contextId = storageId + ":" + repositoryId + ":" + (repository.isProxyRepository() ? IndexTypeEnum.REMOTE.getType() : IndexTypeEnum.LOCAL.getType());
+        repositoryIndexManager.closeIndexer(contextId);
+        
+        super.removeRepository(storageId, repositoryId);
+    }
+
+
+
     private void createRemoteIndexDownloaderCronTask(String storageId,
                                                      String repositoryId)
             throws RepositoryManagementStrategyException

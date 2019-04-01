@@ -2,6 +2,7 @@ package org.carlspring.strongbox.testing.storage.repository;
 
 import java.io.IOException;
 import java.nio.file.Files;
+import java.util.Arrays;
 import java.util.Objects;
 import java.util.Optional;
 
@@ -105,6 +106,8 @@ public class TestRepositoryContext implements AutoCloseable, Comparable<TestRepo
         MutableRepository repository = new MutableRepository(testRepository.repository());
         repository.setLayout(testRepository.layout());
 
+        Arrays.stream(testRepository.setup()).forEach(s -> setupRepository(s, repository));
+        
         configurationManagementService.saveRepository(testRepository.storage(), (MutableRepository) repository);
         repositoryManagementService.createRepository(storage.getId(), repository.getId());
         final RepositoryPath repositoryPath = repositoryPathResolver.resolve(new ImmutableRepository(repository, storage));
@@ -117,13 +120,27 @@ public class TestRepositoryContext implements AutoCloseable, Comparable<TestRepo
         logger.info(String.format("Created [%s] with id [%s] ", TestRepository.class.getSimpleName(), id(testRepository)));
     }
 
+    private void setupRepository(Class<? extends RepositorySetup> s, MutableRepository repository)
+    {
+        RepositorySetup repositorySetup;
+        try
+        {
+            repositorySetup = s.newInstance();
+        }
+        catch (InstantiationException | IllegalAccessException e)
+        {
+            throw new UndeclaredThrowableException(e);
+        }
+        repositorySetup.setup(repository);
+    }
+
     private Storage createStorage()
     {
         MutableStorage newStorage = new MutableStorage(testRepository.storage());
         configurationManagementService.addStorageIfNotExists(newStorage);
         try
         {
-            storageManagementService.createStorage(newStorage);
+            storageManagementService.saveStorage(newStorage);
         }
         catch (IOException e)
         {
