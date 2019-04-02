@@ -1,12 +1,5 @@
 package org.carlspring.strongbox.testing.storage.repository;
 
-import java.io.IOException;
-import java.nio.file.Files;
-import java.util.Objects;
-import java.util.Optional;
-
-import javax.annotation.PreDestroy;
-
 import org.carlspring.strongbox.providers.io.RepositoryPath;
 import org.carlspring.strongbox.providers.io.RepositoryPathResolver;
 import org.carlspring.strongbox.repository.RepositoryManagementStrategyException;
@@ -18,13 +11,21 @@ import org.carlspring.strongbox.storage.Storage;
 import org.carlspring.strongbox.storage.repository.ImmutableRepository;
 import org.carlspring.strongbox.storage.repository.MutableRepository;
 import org.carlspring.strongbox.storage.repository.Repository;
+
+import javax.annotation.PreDestroy;
+import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.Paths;
+import java.util.Objects;
+import java.util.Optional;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.cglib.proxy.UndeclaredThrowableException;
 
 /**
  * This class manages the resources used within {@link Repository}.
- * 
+ *
  * @author sbespalov
  *
  */
@@ -32,7 +33,7 @@ public class TestRepositoryContext implements AutoCloseable, Comparable<TestRepo
 {
 
     private static final Logger logger = LoggerFactory.getLogger(TestRepositoryContext.class);
-    
+
     private final TestRepository testRepository;
 
     private final ConfigurationManagementService configurationManagementService;
@@ -40,10 +41,12 @@ public class TestRepositoryContext implements AutoCloseable, Comparable<TestRepo
     private final RepositoryPathResolver repositoryPathResolver;
 
     private final RepositoryManagementService repositoryManagementService;
-    
+
     private final StorageManagementService storageManagementService;
 
     private boolean opened;
+
+    private boolean storageCreated;
 
     public TestRepositoryContext(TestRepository testRepository,
                                  ConfigurationManagementService configurationManagementService,
@@ -58,7 +61,7 @@ public class TestRepositoryContext implements AutoCloseable, Comparable<TestRepo
         this.repositoryPathResolver = repositoryPathResolver;
         this.repositoryManagementService = repositoryManagementService;
         this.storageManagementService = storageManagementService;
-        
+
         open();
     }
 
@@ -95,6 +98,14 @@ public class TestRepositoryContext implements AutoCloseable, Comparable<TestRepo
                                                                             .getStorage(testRepository.storage()))
                                   .orElseGet(this::createStorage);
 
+        if (!Files.exists(Paths.get(storage.getBasedir())))
+        {
+            throw new IOException(
+                    String.format(
+                            "Storage [%s] basedir [%s] does not exist . Have you cleaned up test resources properly ?",
+                            storage, storage.getBasedir()));
+        }
+
         if (configurationManagementService.getConfiguration()
                                           .getRepository(testRepository.storage(),
                                                          testRepository.repository()) != null)
@@ -105,7 +116,7 @@ public class TestRepositoryContext implements AutoCloseable, Comparable<TestRepo
         MutableRepository repository = new MutableRepository(testRepository.repository());
         repository.setLayout(testRepository.layout());
 
-        configurationManagementService.saveRepository(testRepository.storage(), (MutableRepository) repository);
+        configurationManagementService.saveRepository(testRepository.storage(), repository);
         repositoryManagementService.createRepository(storage.getId(), repository.getId());
         final RepositoryPath repositoryPath = repositoryPathResolver.resolve(new ImmutableRepository(repository, storage));
         if (!Files.exists(repositoryPath))
@@ -130,8 +141,12 @@ public class TestRepositoryContext implements AutoCloseable, Comparable<TestRepo
             throw new UndeclaredThrowableException(e);
         }
 
-        return configurationManagementService.getConfiguration()
-                                             .getStorage(testRepository.storage());
+        Storage storage = configurationManagementService.getConfiguration()
+                                                        .getStorage(testRepository.storage());
+
+        storageCreated = true;
+
+        return storage;
     }
 
     @PreDestroy
@@ -145,7 +160,16 @@ public class TestRepositoryContext implements AutoCloseable, Comparable<TestRepo
         }
 
         configurationManagementService.removeRepository(testRepository.storage(), testRepository.repository());
-        
+
+        if (storageCreated)
+        {
+            logger.info(String.format("Removing storage [%s] ... ", testRepository.storage()));
+            storageManagementService.removeStorage(testRepository.storage());
+            configurationManagementService.removeStorage(testRepository.storage());
+            logger.info(String.format("Storage [%s] removed.", testRepository.storage()));
+            storageCreated = false;
+        }
+
         opened = false;
         logger.info(String.format("Closed [%s] with id [%s] ", TestRepository.class.getSimpleName(), id(testRepository)));
     }
@@ -165,5 +189,5 @@ public class TestRepositoryContext implements AutoCloseable, Comparable<TestRepo
     {
         return String.format("%s/%s", storageId, repositoryId);
     }
-    
+
 }

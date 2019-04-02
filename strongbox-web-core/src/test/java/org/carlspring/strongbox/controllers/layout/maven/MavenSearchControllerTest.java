@@ -1,25 +1,26 @@
 package org.carlspring.strongbox.controllers.layout.maven;
 
+import org.carlspring.strongbox.artifact.generator.MavenArtifactGenerator;
 import org.carlspring.strongbox.config.IntegrationTest;
-import org.carlspring.strongbox.providers.layout.Maven2LayoutProvider;
 import org.carlspring.strongbox.providers.search.MavenIndexerSearchProvider;
 import org.carlspring.strongbox.providers.search.OrientDbSearchProvider;
 import org.carlspring.strongbox.rest.common.MavenRestAssuredBaseTest;
 import org.carlspring.strongbox.storage.indexing.IndexTypeEnum;
 import org.carlspring.strongbox.storage.indexing.RepositoryIndexer;
-import org.carlspring.strongbox.storage.repository.MutableRepository;
-import org.carlspring.strongbox.storage.repository.RepositoryPolicyEnum;
+import org.carlspring.strongbox.storage.repository.Repository;
+import org.carlspring.strongbox.testing.artifact.ArtifactManagementTestExecutionListener;
+import org.carlspring.strongbox.testing.artifact.TestArtifact;
+import org.carlspring.strongbox.testing.storage.repository.RepositoryManagementTestExecutionListener;
+import org.carlspring.strongbox.testing.storage.repository.TestRepository;
 
-import java.io.IOException;
-import java.lang.reflect.UndeclaredThrowableException;
-import java.util.LinkedHashSet;
-import java.util.Set;
+import java.nio.file.Path;
 
-import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.springframework.http.MediaType;
 import org.springframework.test.context.junit.jupiter.EnabledIf;
+import static org.carlspring.strongbox.artifact.coordinates.MavenArtifactCoordinates.LAYOUT_NAME;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
@@ -31,17 +32,36 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 public class MavenSearchControllerTest
         extends MavenRestAssuredBaseTest
 {
+    private static final String A3_2 = "org/carlspring/strongbox/searches/a3-msct-project/1.0.11.3.2/a3-msct-project-1.0.11.3.2.jar";
 
-    private static final String STORAGE_SC_TEST = "storage-sc-test";
+    private static final String A3_1 = "org/carlspring/strongbox/searches/a3-msct-project/1.0.11.3.1/a3-msct-project-1.0.11.3.1.jar";
 
-    private static final String REPOSITORY_RELEASES = "sc-releases-search";
+    private static final String A3_0 = "org/carlspring/strongbox/searches/a3-msct-project/1.0.11.3/a3-msct-project-1.0.11.3.jar";
 
+    private static final String A2_2 = "org/carlspring/strongbox/searches/a2-msct-project/1.0.11.3.2/a2-msct-project-1.0.11.3.2.jar";
 
-    public static void cleanUp()
-            throws Exception
-    {
-        cleanUp(getRepositoriesToClean());
-    }
+    private static final String A2_1 = "org/carlspring/strongbox/searches/a2-msct-project/1.0.11.3.1/a2-msct-project-1.0.11.3.1.jar";
+
+    private static final String A2_0 = "org/carlspring/strongbox/searches/a2-msct-project/1.0.11.3/a2-msct-project-1.0.11.3.jar";
+
+    private static final String A1_2 = "org/carlspring/strongbox/searches/a1-msct-project/1.0.11.3.2/a1-msct-project-1.0.11.3.2.jar";
+
+    private static final String A1_1 = "org/carlspring/strongbox/searches/a1-msct-project/1.0.11.3.1/a1-msct-project-1.0.11.3.1.jar";
+
+    private static final String A1_0 = "org/carlspring/strongbox/searches/a1-msct-project/1.0.11.3/a1-msct-project-1.0.11.3.jar";
+
+    private static final String S3 = "s3-msct-project";
+
+    private static final String R3 = "s3-msct-project";
+
+    private static final String S2 = "s2-msct-project";
+
+    private static final String R2 = "r2-msct-project";
+
+    private static final String S1 = "s1-msct-project";
+
+    private static final String R1 = "r1-msct-project";
+
 
     @Override
     @BeforeEach
@@ -49,81 +69,47 @@ public class MavenSearchControllerTest
             throws Exception
     {
         super.init();
-
-        cleanUp();
-
-        // prepare storage: create it from Java code instead of putting "storage" in strongbox.yaml
-        createStorage(STORAGE_SC_TEST);
-
-        MutableRepository repository = createRepository(STORAGE_SC_TEST, REPOSITORY_RELEASES, RepositoryPolicyEnum.RELEASE.getPolicy(), true);
-
-        generateArtifact(repository.getBasedir(), "org.carlspring.strongbox.searches:test-project:1.0.11.3:jar");
-        generateArtifact(repository.getBasedir(), "org.carlspring.strongbox.searches:test-project:1.0.11.3.1:jar");
-        generateArtifact(repository.getBasedir(), "org.carlspring.strongbox.searches:test-project:1.0.11.3.2:jar");
-
-        if (repositoryIndexManager.isPresent())
-        {
-            final RepositoryIndexer repositoryIndexer = repositoryIndexManager.get()
-                                                                              .getRepositoryIndexer(STORAGE_SC_TEST + ":" +
-                                                                                                    REPOSITORY_RELEASES + ":" +
-                                                                                                    IndexTypeEnum.LOCAL.getType());
-
-            assertNotNull(repositoryIndexer);
-
-            reIndex(STORAGE_SC_TEST, REPOSITORY_RELEASES, "org/carlspring/strongbox/searches");
-        }
-    }
-
-    @Override
-    @AfterEach
-    public void shutdown()
-    {
-        try
-        {
-            closeIndexersForRepository(STORAGE_SC_TEST, REPOSITORY_RELEASES);
-        }
-        catch (IOException e)
-        {
-            throw new UndeclaredThrowableException(e);
-        }
-        
-        super.shutdown();
-    }
-
-    public static Set<MutableRepository> getRepositoriesToClean()
-    {
-        Set<MutableRepository> repositories = new LinkedHashSet<>();
-        repositories.add(createRepositoryMock(STORAGE_SC_TEST, REPOSITORY_RELEASES, Maven2LayoutProvider.ALIAS));
-
-        return repositories;
     }
 
     @Test
     @EnabledIf(expression = "#{containsObject('repositoryIndexManager')}", loadContext = true)
-    public void testIndexSearches()
+    @ExtendWith({ RepositoryManagementTestExecutionListener.class, ArtifactManagementTestExecutionListener.class})
+    public void testIndexSearches(@TestRepository(storage = S1, repository = R1, layout = LAYOUT_NAME) Repository repository,
+                                  @TestArtifact(storage = S1, repository = R1, resource = A1_0, generator = MavenArtifactGenerator.class) Path artifact1,
+                                  @TestArtifact(storage = S1, repository = R1, resource = A1_1, generator = MavenArtifactGenerator.class) Path artifact2,
+                                  @TestArtifact(storage = S1, repository = R1, resource = A1_2, generator = MavenArtifactGenerator.class) Path artifact3)
             throws Exception
     {
-        testSearches("+g:org.carlspring.strongbox.searches +a:test-project",
+        reIndex(S1, R1);
+
+        testSearches("a1-msct-project",
+                     "+g:org.carlspring.strongbox.searches +a:a1-msct-project",
                      MavenIndexerSearchProvider.ALIAS);
     }
-    
+
     @Test
-    public void testDbSearches()
+    @ExtendWith({ RepositoryManagementTestExecutionListener.class, ArtifactManagementTestExecutionListener.class})
+    public void testDbSearches(@TestRepository(storage = S2, repository = R2, layout = LAYOUT_NAME) Repository repository,
+                               @TestArtifact(storage = S2, repository = R2, resource = A2_0, generator = MavenArtifactGenerator.class) Path artifact1,
+                               @TestArtifact(storage = S2, repository = R2, resource = A2_1, generator = MavenArtifactGenerator.class) Path artifact2,
+                               @TestArtifact(storage = S2, repository = R2, resource = A2_2, generator = MavenArtifactGenerator.class) Path artifact3)
             throws Exception
     {
-        testSearches("groupId=org.carlspring.strongbox.searches;artifactId=test-project;",
+        testSearches("a2-msct-project",
+                     "groupId=org.carlspring.strongbox.searches;artifactId=a2-msct-project;",
                      OrientDbSearchProvider.ALIAS);
     }
 
-    private void testSearches(String query,
+    private void testSearches(String artifactName,
+                              String query,
                               String searchProvider)
             throws Exception
     {
         // testSearchPlainText
         String response = client.search(query, MediaType.TEXT_PLAIN_VALUE, searchProvider);
 
-        assertTrue(response.contains("test-project-1.0.11.3.jar") &&
-                   response.contains("test-project-1.0.11.3.1.jar"),
+        assertTrue(response.contains(artifactName + "-1.0.11.3.jar") &&
+                   response.contains(artifactName + "-1.0.11.3.1.jar"),
                    "Received unexpected search results! \n" + response + "\n");
 
         // testSearchJSON
@@ -136,19 +122,36 @@ public class MavenSearchControllerTest
 
     @Test
     @EnabledIf(expression = "#{containsObject('repositoryIndexManager')}", loadContext = true)
-    public void testDumpIndex()
+    @ExtendWith({ RepositoryManagementTestExecutionListener.class, ArtifactManagementTestExecutionListener.class})
+    public void testDumpIndex(@TestRepository(storage = S3, repository = R3, layout = LAYOUT_NAME) Repository repository,
+                              @TestArtifact(storage = S3, repository = R3, resource = A3_0, generator = MavenArtifactGenerator.class) Path artifact1,
+                              @TestArtifact(storage = S3, repository = R3, resource = A3_1, generator = MavenArtifactGenerator.class) Path artifact2,
+                              @TestArtifact(storage = S3, repository = R3, resource = A3_2, generator = MavenArtifactGenerator.class) Path artifact3)
             throws Exception
     {
+        reIndex(S3, R3);
+
         // /storages/storage0/releases/.index/local
         // this index is present but artifacts are missing
         dumpIndex("storage0", "releases");
 
         // this index is not empty
-        dumpIndex(STORAGE_SC_TEST, REPOSITORY_RELEASES);
+        dumpIndex(S3, R3);
 
         // this index is not present, and even storage is not present
         // just to make sure that dump method will not produce any exceptions
         dumpIndex("foo", "bar");
     }
-    
+
+    private void reIndex(String storageId,
+                         String repositoryId)
+    {
+        final RepositoryIndexer repositoryIndexer = repositoryIndexManager.get()
+                                                                          .getRepositoryIndexer(
+                                                                                  storageId + ":" + repositoryId + ":" +
+                                                                                  IndexTypeEnum.LOCAL.getType());
+        assertNotNull(repositoryIndexer);
+        reIndex(S1, R1, "org/carlspring/strongbox/searches");
+    }
+
 }

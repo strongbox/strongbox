@@ -6,7 +6,6 @@ import org.carlspring.strongbox.storage.MutableStorage;
 import org.carlspring.strongbox.storage.repository.MutableRepository;
 
 import javax.inject.Inject;
-import javax.xml.bind.JAXBException;
 import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
@@ -56,7 +55,7 @@ public class TestCaseWithRepository
     }
 
     public void removeRepositories(Set<MutableRepository> repositoriesToClean)
-            throws IOException, JAXBException
+            throws IOException
     {
         for (MutableRepository repository : repositoriesToClean)
         {

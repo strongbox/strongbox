@@ -3,8 +3,8 @@ package org.carlspring.strongbox.services.impl;
 import org.carlspring.strongbox.configuration.ConfigurationManager;
 import org.carlspring.strongbox.services.RepositoryManagementService;
 import org.carlspring.strongbox.services.StorageManagementService;
-import org.carlspring.strongbox.storage.Storage;
 import org.carlspring.strongbox.storage.MutableStorage;
+import org.carlspring.strongbox.storage.Storage;
 import org.carlspring.strongbox.storage.repository.Repository;
 
 import javax.inject.Inject;
@@ -21,7 +21,8 @@ import org.springframework.stereotype.Component;
  * @author mtodorov
  */
 @Component("storageManagementService")
-public class StorageManagementServiceImpl implements StorageManagementService
+public class StorageManagementServiceImpl
+        implements StorageManagementService
 {
 
     private static final Logger logger = LoggerFactory.getLogger(StorageManagementServiceImpl.class);
@@ -50,6 +51,11 @@ public class StorageManagementServiceImpl implements StorageManagementService
             throws IOException
     {
         final Storage storage = configurationManager.getConfiguration().getStorage(storageId);
+        if (storage == null)
+        {
+            logger.warn(String.format("Storage %s not found", storageId));
+            return;
+        }
         for (Repository repository : storage.getRepositories().values())
         {
             repositoryManagementService.removeRepository(storageId, repository.getId());

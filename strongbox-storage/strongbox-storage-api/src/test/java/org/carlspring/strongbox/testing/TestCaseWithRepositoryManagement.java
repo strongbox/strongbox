@@ -9,9 +9,9 @@ import org.carlspring.strongbox.repository.RepositoryManagementStrategyException
 import org.carlspring.strongbox.services.RepositoryManagementService;
 import org.carlspring.strongbox.services.StorageManagementService;
 import org.carlspring.strongbox.storage.MutableStorage;
-import org.carlspring.strongbox.storage.repository.Repository;
 import org.carlspring.strongbox.storage.repository.ImmutableRepository;
 import org.carlspring.strongbox.storage.repository.MutableRepository;
+import org.carlspring.strongbox.storage.repository.Repository;
 
 import javax.inject.Inject;
 import javax.xml.bind.JAXBException;
@@ -22,7 +22,8 @@ import java.nio.file.Files;
 /**
  * @author carlspring
  */
-public abstract class TestCaseWithRepositoryManagement extends TestCaseWithRepository
+public abstract class TestCaseWithRepositoryManagement
+        extends TestCaseWithRepository
 {
 
     @Inject
@@ -30,16 +31,16 @@ public abstract class TestCaseWithRepositoryManagement extends TestCaseWithRepos
 
     @Inject
     protected RepositoryManagementService repositoryManagementService;
-    
+
     @Inject
     protected HostedRepositoryProvider hostedRepositoryProvider;
-    
+
     @Inject
     protected RepositoryPathResolver repositoryPathResolver;
 
     @Inject
     protected ArtifactEventListenerRegistry artifactEventListenerRegistry;
-    
+
     public void createStorage(String storageId)
             throws IOException
     {
@@ -51,6 +52,13 @@ public abstract class TestCaseWithRepositoryManagement extends TestCaseWithRepos
     {
         configurationManagementService.saveStorage(storage);
         storageManagementService.createStorage(storage);
+    }
+
+    public void removeStorage(String storageId)
+            throws IOException
+    {
+        storageManagementService.removeStorage(storageId);
+        configurationManagementService.removeStorage(storageId);
     }
 
     public void createRepository(String storageId,
@@ -71,7 +79,7 @@ public abstract class TestCaseWithRepositoryManagement extends TestCaseWithRepos
         createRepository(storageId, repository);
         createFile(new ImmutableRepository(repository), path);
     }
-    
+
     public abstract void createProxyRepository(String storageId,
                                                String repositoryId,
                                                String remoteRepositoryUrl)
@@ -84,7 +92,8 @@ public abstract class TestCaseWithRepositoryManagement extends TestCaseWithRepos
                            String path)
             throws IOException
     {
-        Repository repository = configurationManagementService.getConfiguration().getRepository(storageId, repositoryId);
+        Repository repository = configurationManagementService.getConfiguration().getRepository(storageId,
+                                                                                                repositoryId);
 
         createFile(repository, path);
     }
@@ -92,18 +101,18 @@ public abstract class TestCaseWithRepositoryManagement extends TestCaseWithRepos
     public void createFile(Repository repository,
                            String path)
             throws IOException
-    {       
+    {
         String repositoryId = repository.getId();
         String storageId = repository.getStorage().getId();
-        
+
         RepositoryPath repositoryPath = repositoryPathResolver.resolve(storageId, repositoryId, path);
         Files.createDirectories(repositoryPath.getParent());
-        
+
         createRandomSizeFile(repositoryPath);
     }
 
     private void createRandomSizeFile(RepositoryPath repositoryPath)
-        throws IOException
+            throws IOException
     {
         try (OutputStream fos = hostedRepositoryProvider.getOutputStream(repositoryPath))
         {
@@ -117,7 +126,7 @@ public abstract class TestCaseWithRepositoryManagement extends TestCaseWithRepos
                     fos.write(buffer, 0, len);
                 }
             }
-            
+
             fos.flush();
         }
     }

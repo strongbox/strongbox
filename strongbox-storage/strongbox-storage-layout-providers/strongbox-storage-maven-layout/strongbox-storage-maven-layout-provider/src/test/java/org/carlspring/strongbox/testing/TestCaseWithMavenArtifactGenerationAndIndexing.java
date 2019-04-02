@@ -472,8 +472,7 @@ public abstract class TestCaseWithMavenArtifactGenerationAndIndexing
 
     @Override
     public void removeRepositories(Set<MutableRepository> repositoriesToClean)
-        throws IOException,
-        JAXBException
+        throws IOException
     {
         for (MutableRepository mutableRepository : repositoriesToClean)
         {
