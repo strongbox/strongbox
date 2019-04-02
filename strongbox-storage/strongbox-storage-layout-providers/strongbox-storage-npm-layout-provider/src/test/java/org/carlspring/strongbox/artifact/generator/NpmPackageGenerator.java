@@ -10,6 +10,7 @@ import java.io.IOException;
 import java.io.OutputStream;
 import java.io.UnsupportedEncodingException;
 import java.lang.reflect.UndeclaredThrowableException;
+import java.io.File;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
@@ -51,6 +52,11 @@ public class NpmPackageGenerator implements ArtifactGenerator
         packageJson.setDist(new Dist());
     }
 
+    public NpmPackageGenerator(Path basedir){
+        super();
+        this.basePath = basedir;
+    }
+
     public NpmPackageGenerator of(NpmArtifactCoordinates c)
     {
         packageJson.setName(c.getId());
@@ -72,8 +78,11 @@ public class NpmPackageGenerator implements ArtifactGenerator
                                  int size)
             throws IOException
     {
-        this.in(Paths.get(uri));
-        return(this.buildPublishJson());
+        new NpmPackageGenerator(Paths.get(uri));
+
+        buildPublishJson();
+
+        return getPackagePath();
     }
 
     public PackageVersion getPackageJson()
