@@ -27,7 +27,7 @@ public abstract class LayoutFileSystem
 
     private Repository repository;
     private StorageFileSystemProvider provider;
-
+    
     public LayoutFileSystem(Repository repository,
                             FileSystem storageFileSystem,
                             StorageFileSystemProvider provider)

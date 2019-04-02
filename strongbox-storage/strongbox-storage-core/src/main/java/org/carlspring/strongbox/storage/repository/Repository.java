@@ -3,6 +3,8 @@ package org.carlspring.strongbox.storage.repository;
 import java.util.Map;
 
 import org.carlspring.strongbox.storage.Storage;
+import org.carlspring.strongbox.xml.repository.MutableCustomRepositoryConfiguration;
+import org.carlspring.strongbox.xml.repository.RepositoryConfiguration;
 
 public interface Repository
 {
