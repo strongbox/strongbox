@@ -9,6 +9,7 @@ import java.net.URL;
 
 import org.carlspring.strongbox.storage.Storage;
 import org.carlspring.strongbox.storage.repository.Repository;
+import org.carlspring.strongbox.storage.repository.RepositoryPolicyEnum;
 
 /**
  * This annotation provide ability to inject {@link Repository} instance as test
@@ -36,13 +37,18 @@ public @interface TestRepository
     /**
      * {@link Storage} ID.
      */
-    String storage();
+    String storage() default "storage0";
 
     /**
      * {@link Repository} ID.
      */
     String repository();
 
+    /**
+     * {@link RepositoryPolicyEnum}
+     */
+    RepositoryPolicyEnum policy() default RepositoryPolicyEnum.RELEASE;
+    
     /**
      * {@link RepositorySetup} strategies to use within {@link Repository}
      * initialization.

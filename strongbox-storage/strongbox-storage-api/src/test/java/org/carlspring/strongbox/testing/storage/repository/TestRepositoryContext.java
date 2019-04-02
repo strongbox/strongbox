@@ -112,6 +112,7 @@ public class TestRepositoryContext implements AutoCloseable, Comparable<TestRepo
 
         MutableRepository repository = new MutableRepository(testRepository.repository());
         repository.setLayout(testRepository.layout());
+        repository.setPolicy(testRepository.policy().toString());
 
         Optional.ofNullable(remoteRepository).ifPresent(r -> {
             MutableRemoteRepository remoteRepositoryConfiguration = new MutableRemoteRepository();
