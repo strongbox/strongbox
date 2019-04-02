@@ -16,7 +16,6 @@ import org.carlspring.strongbox.storage.Storage;
 import org.carlspring.strongbox.storage.indexing.IndexTypeEnum;
 import org.carlspring.strongbox.storage.indexing.RepositoryIndexManager;
 import org.carlspring.strongbox.storage.indexing.RepositoryIndexer;
-import org.carlspring.strongbox.storage.repository.ImmutableRepository;
 import org.carlspring.strongbox.storage.repository.Repository;
 import org.carlspring.strongbox.util.IndexContextHelper;
 import org.carlspring.strongbox.yaml.configuration.repository.MavenRepositoryConfiguration;
@@ -129,7 +128,7 @@ public class ArtifactIndexesServiceImpl
         for (Entry<String, ? extends Repository> repositoryEntry : repositories.entrySet())
         {
             Repository repository = repositoryEntry.getValue();
-            if (!(((ImmutableRepository)repository).getRepositoryConfiguration() instanceof MavenRepositoryConfiguration))
+            if (!(repository.getRepositoryConfiguration() instanceof MavenRepositoryConfiguration))
             {
                 logger.debug("Skip rebuilding indexes for " + repositoryEntry.getKey());
                 continue;
