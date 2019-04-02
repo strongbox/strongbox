@@ -475,7 +475,7 @@ public class ConfigurationManagementServiceImpl
         modifyInLock(configuration ->
                      {
                          configuration.getRemoteRepositoriesConfiguration()
-                                      .setRemoteRepositoryRetryArtifactDownloadConfiguration(
+                                      .setRetryArtifactDownloadConfiguration(
                                               remoteRepositoryRetryArtifactDownloadConfiguration);
                      });
     }
@@ -488,7 +488,7 @@ public class ConfigurationManagementServiceImpl
         modifyInLock(configuration ->
                      {
                          configuration.getStorage(storageId).getRepository(
-                                 repositoryId).getArtifactCoordinateValidators().put(alias, alias);
+                                 repositoryId).getArtifactCoordinateValidators().add(alias);
                      });
     }
 
@@ -498,10 +498,10 @@ public class ConfigurationManagementServiceImpl
                                                                final String alias)
     {
         final MutableBoolean result = new MutableBoolean();
-        modifyInLock(configuration ->
+        modifyInLock(config ->
                      {
-                         result.setValue(configuration.getStorage(storageId).getRepository(
-                                 repositoryId).getArtifactCoordinateValidators().remove(alias, alias));
+                         result.setValue(config.getStorage(storageId).getRepository(
+                                 repositoryId).getArtifactCoordinateValidators().remove(alias));
                      });
 
         return result.isTrue();

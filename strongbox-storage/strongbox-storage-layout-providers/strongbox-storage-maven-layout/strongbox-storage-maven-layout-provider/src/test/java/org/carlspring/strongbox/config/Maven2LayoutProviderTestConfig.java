@@ -8,6 +8,7 @@ import org.carlspring.strongbox.cron.services.CronJobSchedulerService;
 import org.carlspring.strongbox.cron.services.CronTaskConfigurationService;
 import org.carlspring.strongbox.storage.indexing.downloader.MockedIndexResourceFetcher;
 import org.carlspring.strongbox.storage.indexing.downloader.ResourceFetcherFactory;
+import org.carlspring.strongbox.yaml.YAMLMapperFactory;
 
 import org.apache.http.impl.client.CloseableHttpClient;
 import org.apache.maven.index.updater.ResourceFetcher;
@@ -37,9 +38,9 @@ public class Maven2LayoutProviderTestConfig
 
     @Bean(name = "mockedConfigurationFileManager")
     @Primary
-    ConfigurationFileManager configurationFileManager()
+    ConfigurationFileManager configurationFileManager(YAMLMapperFactory yamlMapperFactory)
     {
-        final ConfigurationFileManager configurationFileManager = Mockito.spy(new ConfigurationFileManager());
+        final ConfigurationFileManager configurationFileManager = Mockito.spy(new ConfigurationFileManager(yamlMapperFactory));
 
         Mockito.doNothing().when(configurationFileManager).store(any(MutableConfiguration.class));
 

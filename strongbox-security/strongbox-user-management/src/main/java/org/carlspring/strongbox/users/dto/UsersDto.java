@@ -1,32 +1,26 @@
 package org.carlspring.strongbox.users.dto;
 
-import javax.xml.bind.annotation.XmlAccessType;
-import javax.xml.bind.annotation.XmlAccessorType;
-import javax.xml.bind.annotation.XmlElement;
-import javax.xml.bind.annotation.XmlRootElement;
-import java.util.LinkedHashSet;
 import java.util.Optional;
 import java.util.Set;
 
+import com.fasterxml.jackson.annotation.JsonCreator;
+import com.fasterxml.jackson.annotation.JsonProperty;
+import com.fasterxml.jackson.annotation.JsonRootName;
 import org.apache.commons.collections.CollectionUtils;
 
 /**
  * @author mtodorov
+ * @author Pablo Tirado
  */
-@XmlRootElement(name = "users")
-@XmlAccessorType(XmlAccessType.FIELD)
+@JsonRootName("users")
 public class UsersDto
 {
 
-    @XmlElement(name = "user")
-    private Set<UserDto> users = new LinkedHashSet<>();
+    @JsonProperty("user")
+    private Set<UserDto> users;
 
-
-    public UsersDto()
-    {
-    }
-
-    public UsersDto(Set<UserDto> users)
+    @JsonCreator
+    public UsersDto(@JsonProperty("user") Set<UserDto> users)
     {
         this.users = users;
     }

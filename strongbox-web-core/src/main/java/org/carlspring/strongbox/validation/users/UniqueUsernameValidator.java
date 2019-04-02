@@ -2,7 +2,7 @@ package org.carlspring.strongbox.validation.users;
 
 import org.carlspring.strongbox.users.domain.User;
 import org.carlspring.strongbox.users.service.UserService;
-import org.carlspring.strongbox.users.service.impl.XmlUserService.XmlUserServiceQualifier;
+import org.carlspring.strongbox.users.service.impl.StrongboxUserService.StrongboxUserServiceQualifier;
 
 import javax.inject.Inject;
 import javax.validation.ConstraintValidator;
@@ -18,7 +18,7 @@ public class UniqueUsernameValidator
 {
 
     @Inject
-    @XmlUserServiceQualifier
+    @StrongboxUserServiceQualifier
     private UserService userService;
 
     @Override

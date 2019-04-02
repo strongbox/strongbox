@@ -144,7 +144,7 @@
 
                                     <overWrite>true</overWrite>
                                     <outputDirectory>${dir.strongbox.standalone}</outputDirectory>
-                                    <includes>etc/conf/strongbox.xml,META-INF/spring/**</includes>
+                                    <includes>etc/conf/strongbox.yaml,META-INF/spring/**</includes>
                                 </artifactItem>
                             </artifactItems>
                         </configuration>

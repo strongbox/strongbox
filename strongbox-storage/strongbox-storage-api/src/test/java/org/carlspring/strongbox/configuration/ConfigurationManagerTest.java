@@ -9,15 +9,20 @@ import org.carlspring.strongbox.storage.routing.MutableRoutingRule;
 import org.carlspring.strongbox.storage.routing.MutableRoutingRuleRepository;
 import org.carlspring.strongbox.storage.routing.MutableRoutingRules;
 import org.carlspring.strongbox.storage.routing.RoutingRuleTypeEnum;
-import org.carlspring.strongbox.xml.parsers.GenericParser;
+import org.carlspring.strongbox.yaml.YAMLMapperFactory;
+import org.carlspring.strongbox.yaml.repository.MutableCustomRepositoryConfiguration;
+import org.carlspring.strongbox.yaml.repository.remote.MutableRemoteRepositoryConfiguration;
 
 import javax.inject.Inject;
-import javax.xml.bind.JAXBException;
 import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.IOException;
-import java.util.*;
+import java.io.OutputStream;
+import java.util.Arrays;
+import java.util.Collections;
 
+import com.fasterxml.jackson.dataformat.yaml.YAMLMapper;
+import com.google.common.collect.Sets;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.boot.test.context.SpringBootTest;
@@ -39,11 +44,12 @@ public class ConfigurationManagerTest
 
     public static final String TEST_CLASSES = "target/test-classes";
 
-    public static final String CONFIGURATION_BASEDIR = TEST_CLASSES + "/xml";
+    public static final String CONFIGURATION_BASEDIR = TEST_CLASSES + "/yaml";
 
-    public static final String CONFIGURATION_OUTPUT_FILE = CONFIGURATION_BASEDIR + "/strongbox-saved-cm.xml";
+    public static final String CONFIGURATION_OUTPUT_FILE = CONFIGURATION_BASEDIR + "/strongbox-saved-cm.yaml";
 
-    private GenericParser<MutableConfiguration> parser = new GenericParser<>(MutableConfiguration.class);
+    @Inject
+    private YAMLMapperFactory yamlMapperFactory;
 
     @Inject
     private ConfigurationManager configurationManager;
@@ -51,16 +57,21 @@ public class ConfigurationManagerTest
     @Inject
     private PropertiesBooter propertiesBooter;
 
+    private YAMLMapper yamlMapper;
+
 
     @BeforeEach
     public void setUp()
     {
-        File xmlDir = new File(CONFIGURATION_BASEDIR);
-        if (!xmlDir.exists())
+        File yamlDir = new File(CONFIGURATION_BASEDIR);
+        if (!yamlDir.exists())
         {
             //noinspection ResultOfMethodCallIgnored
-            xmlDir.mkdirs();
+            yamlDir.mkdirs();
         }
+
+        yamlMapper = yamlMapperFactory.create(
+                Sets.newHashSet(MutableCustomRepositoryConfiguration.class, MutableRemoteRepositoryConfiguration.class));
     }
 
     @Test
@@ -99,7 +110,7 @@ public class ConfigurationManagerTest
 
     @Test
     public void testStoreConfiguration()
-            throws IOException, JAXBException
+            throws IOException
     {
         MutableProxyConfiguration proxyConfigurationGlobal = new MutableProxyConfiguration();
         proxyConfigurationGlobal.setUsername("maven");
@@ -134,15 +145,14 @@ public class ConfigurationManagerTest
         configuration.setProxyConfiguration(proxyConfigurationGlobal);
 
         File outputFile = new File(CONFIGURATION_OUTPUT_FILE);
+        yamlMapper.writeValue(outputFile, configuration);
 
-        parser.store(configuration, outputFile.getCanonicalPath());
-
-        assertTrue(outputFile.length() > 0, "Failed to store the produced XML!");
+        assertTrue(outputFile.length() > 0, "Failed to store the produced YAML!");
     }
 
     @Test
     public void testGroupRepositories()
-            throws IOException, JAXBException
+            throws IOException
     {
         MutableRepository repository1 = new MutableRepository("snapshots");
         MutableRepository repository2 = new MutableRepository("ext-snapshots");
@@ -161,11 +171,11 @@ public class ConfigurationManagerTest
 
         File outputFile = new File(CONFIGURATION_OUTPUT_FILE);
 
-        parser.store(configuration, outputFile.getCanonicalPath());
+        yamlMapper.writeValue(outputFile, configuration);
 
-        assertTrue(outputFile.length() > 0, "Failed to store the produced XML!");
+        assertTrue(outputFile.length() > 0, "Failed to store the produced YAML!");
 
-        MutableConfiguration c = parser.parse(outputFile.toURI().toURL());
+        MutableConfiguration c = yamlMapper.readValue(outputFile.toURI().toURL(), MutableConfiguration.class);
 
         assertEquals(2,
                      c.getStorages().get("storage0")
@@ -178,22 +188,26 @@ public class ConfigurationManagerTest
 
     @Test
     public void testRoutingRules()
-            throws JAXBException
+            throws IOException
     {
 
         MutableRoutingRule routingRule = MutableRoutingRule.create(STORAGE0,
                                                                    "group-internal",
-                                                                   Arrays.asList(new MutableRoutingRuleRepository(STORAGE0, "int-releases"),
-                                                                                 new MutableRoutingRuleRepository(STORAGE0, "int-snapshots")),
+                                                                   Arrays.asList(
+                                                                           new MutableRoutingRuleRepository(STORAGE0,
+                                                                                                            "int-releases"),
+                                                                           new MutableRoutingRuleRepository(STORAGE0,
+                                                                                                            "int-snapshots")),
                                                                    ".*(com|org)/artifacts.denied.in.memory.*",
                                                                    RoutingRuleTypeEnum.ACCEPT);
         MutableRoutingRules routingRules = new MutableRoutingRules();
         routingRules.setRules(Collections.singletonList(routingRule));
 
-        GenericParser<MutableRoutingRules> parser = new GenericParser<>(MutableRoutingRules.class,
-                                                                        MutableRoutingRule.class);
+        try (OutputStream os = new ByteArrayOutputStream())
+        {
+            yamlMapper.writeValue(os, routingRules);
+        }
 
-        parser.store(routingRules, new ByteArrayOutputStream());
         // parser.store(routingRules, System.out);
 
         // Assuming that if there is no error, there is no problem.
@@ -202,7 +216,7 @@ public class ConfigurationManagerTest
 
     @Test
     public void testCorsConfiguration()
-            throws IOException, JAXBException
+            throws IOException
     {
 
         MutableCorsConfiguration corsConfiguration = new MutableCorsConfiguration(
@@ -213,11 +227,11 @@ public class ConfigurationManagerTest
 
         File outputFile = new File(CONFIGURATION_OUTPUT_FILE);
 
-        parser.store(configuration, outputFile.getCanonicalPath());
+        yamlMapper.writeValue(outputFile, configuration);
 
-        assertTrue(outputFile.length() > 0, "Failed to store the produced XML!");
+        assertTrue(outputFile.length() > 0, "Failed to store the produced YAML!");
 
-        MutableConfiguration c = parser.parse(outputFile.toURI().toURL());
+        MutableConfiguration c = yamlMapper.readValue(outputFile, MutableConfiguration.class);
 
         assertEquals(3,
                      c.getCorsConfiguration().getAllowedOrigins().size(),
@@ -226,7 +240,7 @@ public class ConfigurationManagerTest
 
     @Test
     public void testSmtpConfiguration()
-            throws IOException, JAXBException
+            throws IOException
     {
 
         final String smtpHost = "localhost";
@@ -246,11 +260,11 @@ public class ConfigurationManagerTest
 
         File outputFile = new File(CONFIGURATION_OUTPUT_FILE);
 
-        parser.store(configuration, outputFile.getCanonicalPath());
+        yamlMapper.writeValue(outputFile, configuration);
 
-        assertTrue(outputFile.length() > 0, "Failed to store the produced XML!");
+        assertTrue(outputFile.length() > 0, "Failed to store the produced YAML!");
 
-        MutableConfiguration c = parser.parse(outputFile.toURI().toURL());
+        MutableConfiguration c = yamlMapper.readValue(outputFile, MutableConfiguration.class);
 
         MutableSmtpConfiguration savedSmtpConfiguration = c.getSmtpConfiguration();
 

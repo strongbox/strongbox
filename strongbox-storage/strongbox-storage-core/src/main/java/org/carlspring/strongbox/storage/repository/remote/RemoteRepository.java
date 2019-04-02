@@ -1,7 +1,7 @@
 package org.carlspring.strongbox.storage.repository.remote;
 
-import org.carlspring.strongbox.xml.repository.remote.CustomRemoteRepositoryConfiguration;
-import org.carlspring.strongbox.xml.repository.remote.MutableRemoteRepositoryConfiguration;
+import org.carlspring.strongbox.yaml.repository.remote.CustomRemoteRepositoryConfiguration;
+import org.carlspring.strongbox.yaml.repository.remote.MutableRemoteRepositoryConfiguration;
 
 import javax.annotation.concurrent.Immutable;
 import javax.xml.bind.annotation.XmlAccessType;

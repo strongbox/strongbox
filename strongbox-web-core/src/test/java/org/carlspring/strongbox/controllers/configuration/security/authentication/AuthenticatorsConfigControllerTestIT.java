@@ -8,16 +8,16 @@ import org.carlspring.strongbox.config.HazelcastConfiguration;
 import org.carlspring.strongbox.config.HazelcastInstanceId;
 import org.carlspring.strongbox.config.IntegrationTest;
 import org.carlspring.strongbox.rest.common.RestAssuredBaseTest;
+
+import javax.inject.Inject;
+import java.io.IOException;
+
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.ValueSource;
-import org.springframework.context.annotation.Bean;
-import org.springframework.context.annotation.Configuration;
-import org.springframework.context.annotation.Import;
-import org.springframework.context.annotation.Primary;
-import org.springframework.context.annotation.Profile;
+import org.springframework.context.annotation.*;
 import org.springframework.core.io.DefaultResourceLoader;
 import org.springframework.core.io.Resource;
 import org.springframework.http.HttpHeaders;
@@ -27,10 +27,6 @@ import org.springframework.security.authentication.AuthenticationProvider;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.AuthenticationException;
 import org.springframework.test.context.ActiveProfiles;
-
-import javax.inject.Inject;
-import java.io.IOException;
-
 import static io.restassured.module.mockmvc.RestAssuredMockMvc.given;
 import static org.carlspring.strongbox.CustomMatchers.equalByToString;
 import static org.hamcrest.CoreMatchers.containsString;
@@ -53,7 +49,7 @@ public class AuthenticatorsConfigControllerTestIT
     @Override
     @BeforeEach
     public void init()
-        throws Exception
+            throws Exception
     {
         super.init();
         setContextBaseUrl(getContextBaseUrl() + "/api/configuration");
@@ -61,7 +57,7 @@ public class AuthenticatorsConfigControllerTestIT
 
     @AfterEach
     public void afterEveryTest()
-        throws IOException
+            throws IOException
     {
         configurableProviderManager.reload();
 
@@ -98,7 +94,7 @@ public class AuthenticatorsConfigControllerTestIT
                .body("authenticationItemList[2].enabled",
                      equalByToString("false"))
                .body("authenticationItemList[3].name",
-                     equalByToString("xmlUserDetailService"))
+                     equalByToString("strongboxUserDetailService"))
                .body("authenticationItemList[3].order",
                      equalByToString("0"))
                .body("authenticationItemList.size()", is(4))
@@ -115,7 +111,7 @@ public class AuthenticatorsConfigControllerTestIT
         given().accept(acceptHeader)
                .when()
                .put(getContextBaseUrl()
-                       + "/authenticators/reorder/authenticationProviderFirst/authenticationProviderSecond")
+                    + "/authenticators/reorder/authenticationProviderFirst/authenticationProviderSecond")
                .peek()
                .then()
                .statusCode(HttpStatus.OK.value())
@@ -143,7 +139,7 @@ public class AuthenticatorsConfigControllerTestIT
         assertInitialAuthenticationItems();
 
         AuthenticationItem authenticationItem = new AuthenticationItem("authenticationProviderThird",
-                AuthenticationProvider.class.getSimpleName());
+                                                                       AuthenticationProvider.class.getSimpleName());
         authenticationItem.setEnabled(true);
         authenticationItem.setOrder(2);
 
@@ -179,11 +175,11 @@ public class AuthenticatorsConfigControllerTestIT
 
         @Primary
         @Bean
-        public HazelcastInstanceId hazelcastInstanceIdAcctit() 
+        public HazelcastInstanceId hazelcastInstanceIdAcctit()
         {
             return new HazelcastInstanceId("AuthenticatorsConfigControllerTestConfig-hazelcast-instance");
         }
-        
+
         @Bean
         @Primary
         public AuthenticationResourceManager testAuthenticationResourceManager()
@@ -193,19 +189,20 @@ public class AuthenticatorsConfigControllerTestIT
 
     }
 
-    private static class TestAuthenticationResourceManager extends AuthenticationResourceManager
+    private static class TestAuthenticationResourceManager
+            extends AuthenticationResourceManager
     {
 
         @Override
         public Resource getAuthenticationConfigurationResource()
-            throws IOException
+                throws IOException
         {
             return new DefaultResourceLoader().getResource("classpath:accit-authentication-providers.xml");
         }
 
         @Override
         public Resource getAuthenticationPropertiesResource()
-            throws IOException
+                throws IOException
         {
             return new DefaultResourceLoader().getResource("classpath:accit-authentication-providers.yaml");
         }
@@ -218,7 +215,7 @@ public class AuthenticatorsConfigControllerTestIT
 
         @Override
         public Authentication authenticate(Authentication authentication)
-            throws AuthenticationException
+                throws AuthenticationException
         {
             return authentication;
         }

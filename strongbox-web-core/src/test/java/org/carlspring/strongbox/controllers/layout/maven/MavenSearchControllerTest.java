@@ -18,7 +18,6 @@ import java.util.Set;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.http.MediaType;
 import org.springframework.test.context.junit.jupiter.EnabledIf;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
@@ -53,7 +52,7 @@ public class MavenSearchControllerTest
 
         cleanUp();
 
-        // prepare storage: create it from Java code instead of putting <storage/> in strongbox.xml
+        // prepare storage: create it from Java code instead of putting "storage" in strongbox.yaml
         createStorage(STORAGE_SC_TEST);
 
         MutableRepository repository = createRepository(STORAGE_SC_TEST, REPOSITORY_RELEASES, RepositoryPolicyEnum.RELEASE.getPolicy(), true);
@@ -130,8 +129,8 @@ public class MavenSearchControllerTest
         // testSearchJSON
         response = client.search(query, MediaType.APPLICATION_JSON_VALUE, searchProvider);
 
-        assertTrue(response.contains("\"version\" : \"1.0.11.3\"") &&
-                   response.contains("\"version\" : \"1.0.11.3.1\""),
+        assertTrue(response.contains("\"version\":\"1.0.11.3\"") &&
+                   response.contains("\"version\":\"1.0.11.3.1\""),
                    "Received unexpected search results! \n" + response + "\n");
     }
 

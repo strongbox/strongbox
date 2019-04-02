@@ -2,12 +2,13 @@ package org.carlspring.strongbox.client;
 
 import org.carlspring.strongbox.configuration.MutableConfiguration;
 import org.carlspring.strongbox.configuration.MutableProxyConfiguration;
-import org.carlspring.strongbox.configuration.ServerConfiguration;
 import org.carlspring.strongbox.forms.configuration.RepositoryForm;
 import org.carlspring.strongbox.forms.configuration.StorageForm;
 import org.carlspring.strongbox.storage.Storage;
 import org.carlspring.strongbox.storage.repository.ImmutableRepository;
-import org.carlspring.strongbox.xml.parsers.GenericParser;
+import org.carlspring.strongbox.yaml.CustomYAMLMapperFactory;
+import org.carlspring.strongbox.yaml.ObjectMapperSubtypes;
+import org.carlspring.strongbox.yaml.YAMLMapperFactory;
 
 import javax.ws.rs.ServerErrorException;
 import javax.ws.rs.client.Entity;
@@ -20,19 +21,33 @@ import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.UnsupportedEncodingException;
 import java.net.URLEncoder;
+import java.util.Set;
 
+import com.fasterxml.jackson.databind.DeserializationFeature;
+import com.fasterxml.jackson.dataformat.yaml.YAMLMapper;
+import org.apache.commons.lang3.exception.ExceptionUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import static org.carlspring.strongbox.net.MediaType.APPLICATION_YAML_VALUE;
 
 /**
  * @author mtodorov
+ * @author Przemyslaw Fusik
  */
 public class RestClient
         extends ArtifactClient
 {
 
+    private final YAMLMapper yamlMapper;
+
     private static final Logger logger = LoggerFactory.getLogger(RestClient.class);
 
+    private static final MediaType YAML_MEDIA_TYPE = MediaType.valueOf(APPLICATION_YAML_VALUE);
+
+    public RestClient(YAMLMapper yamlMapper)
+    {
+        this.yamlMapper = yamlMapper;
+    }
 
     public static RestClient getTestInstance()
     {
@@ -55,7 +70,14 @@ public class RestClient
                    Integer.parseInt(System.getProperty("strongbox.port")) :
                    48080;
 
-        RestClient client = new RestClient();
+        Set<Class<?>> objectMapperSubtypes = ObjectMapperSubtypes.INSTANCE.subtypes();
+        logger.info("Found subtypes {} ", objectMapperSubtypes);
+
+        YAMLMapperFactory yamlMapperFactory = new CustomYAMLMapperFactory();
+        YAMLMapper yamlMapper = yamlMapperFactory.create(objectMapperSubtypes);
+        yamlMapper.disable(DeserializationFeature.FAIL_ON_INVALID_SUBTYPE);
+
+        RestClient client = new RestClient(yamlMapper);
         client.setUsername(username);
         client.setPassword(password);
         client.setPort(port);
@@ -73,59 +95,62 @@ public class RestClient
     }
 
     public int setConfiguration(MutableConfiguration configuration)
-            throws IOException, JAXBException
+            throws IOException
     {
-        return setServerConfiguration(configuration, "/api/configuration/strongbox", MutableConfiguration.class);
+        return setServerConfiguration(configuration, "/api/configuration/strongbox");
     }
 
     public MutableConfiguration getConfiguration()
-            throws JAXBException
+            throws IOException
     {
-        return (MutableConfiguration) getServerConfiguration("/api/configuration/strongbox", MutableConfiguration.class);
+        return getServerConfiguration("/api/configuration/strongbox");
     }
 
-    public int setServerConfiguration(ServerConfiguration configuration,
-                                      String path,
-                                      Class... classes)
-            throws IOException, JAXBException
+    public int setServerConfiguration(MutableConfiguration configuration,
+                                      String path)
+            throws IOException
     {
         String url = getContextBaseUrl() + path;
 
         WebTarget resource = getClientInstance().target(url);
         setupAuthentication(resource);
 
-        final ByteArrayOutputStream baos = new ByteArrayOutputStream();
+        try (final ByteArrayOutputStream baos = new ByteArrayOutputStream())
+        {
 
-        GenericParser<ServerConfiguration> parser = new GenericParser<>(classes);
-        parser.store(configuration, baos);
+            yamlMapper.writeValue(baos, configuration);
 
-        Response response = resource.request(MediaType.TEXT_PLAIN_TYPE)
-                                    .put(Entity.entity(baos.toString("UTF-8"), MediaType.APPLICATION_XML));
+            Response response = resource.request(MediaType.TEXT_PLAIN_TYPE)
+                                        .put(Entity.entity(baos.toString("UTF-8"), YAML_MEDIA_TYPE));
 
-        return response.getStatus();
+            return response.getStatus();
+        }
     }
 
-    public ServerConfiguration getServerConfiguration(String path,
-                                                      Class... classes)
-            throws JAXBException
+    public MutableConfiguration getServerConfiguration(String path)
+            throws IOException
     {
         String url = getContextBaseUrl() + path;
 
         WebTarget resource = getClientInstance().target(url);
         setupAuthentication(resource);
 
-        final Response response = resource.request(MediaType.APPLICATION_XML).get();
+        final Response response = resource.request(YAML_MEDIA_TYPE).get();
 
-        ServerConfiguration configuration = null;
+        MutableConfiguration configuration = null;
         if (response.getStatus() == 200)
         {
-            final String xml = response.readEntity(String.class);
+            final String yaml = response.readEntity(String.class);
 
-            final ByteArrayInputStream bais = new ByteArrayInputStream(xml.getBytes());
-
-            GenericParser<ServerConfiguration> parser = new GenericParser<>(classes);
-
-            configuration = parser.parse(bais);
+            try (final ByteArrayInputStream bais = new ByteArrayInputStream(yaml.getBytes()))
+            {
+                configuration = yamlMapper.readValue(bais, MutableConfiguration.class);
+            }
+            catch (Exception ex)
+            {
+                logger.error("Exception occurred {} ...", ExceptionUtils.getStackTrace(ex));
+                throw ex;
+            }
         }
 
         return configuration;
@@ -198,27 +223,27 @@ public class RestClient
     }
 
     public int setProxyConfiguration(MutableProxyConfiguration proxyConfiguration)
-            throws IOException, JAXBException
+            throws IOException
     {
         String url = getContextBaseUrl() + "/api/configuration/strongbox/proxy-configuration";
 
         WebTarget resource = getClientInstance().target(url);
         setupAuthentication(resource);
 
-        final ByteArrayOutputStream baos = new ByteArrayOutputStream();
+        try (final ByteArrayOutputStream baos = new ByteArrayOutputStream())
+        {
+            yamlMapper.writeValue(baos, proxyConfiguration);
 
-        GenericParser<MutableProxyConfiguration> parser = new GenericParser<>(MutableProxyConfiguration.class);
-        parser.store(proxyConfiguration, baos);
+            Response response = resource.request(MediaType.TEXT_PLAIN_TYPE)
+                                        .put(Entity.entity(baos.toString("UTF-8"), YAML_MEDIA_TYPE));
 
-        Response response = resource.request(MediaType.APPLICATION_XML)
-                                    .put(Entity.entity(baos.toString("UTF-8"), MediaType.APPLICATION_XML));
-
-        return response.getStatus();
+            return response.getStatus();
+        }
     }
 
     public MutableProxyConfiguration getProxyConfiguration(String storageId,
                                                            String repositoryId)
-            throws JAXBException
+            throws IOException
     {
         String url = getContextBaseUrl() + "/api/configuration/strongbox/proxy-configuration" +
                      (storageId != null && repositoryId != null ?
@@ -227,18 +252,18 @@ public class RestClient
         WebTarget resource = getClientInstance().target(url);
         setupAuthentication(resource);
 
-        final Response response = resource.request(MediaType.APPLICATION_XML).get();
+        final Response response = resource.request(YAML_MEDIA_TYPE).get();
 
         @SuppressWarnings("UnnecessaryLocalVariable")
         MutableProxyConfiguration proxyConfiguration;
         if (response.getStatus() == 200)
         {
-            final String xml = response.readEntity(String.class);
-            final ByteArrayInputStream bais = new ByteArrayInputStream(xml.getBytes());
+            final String yaml = response.readEntity(String.class);
 
-            GenericParser<MutableProxyConfiguration> parser = new GenericParser<>(MutableProxyConfiguration.class);
-
-            proxyConfiguration = parser.parse(bais);
+            try (final ByteArrayInputStream bais = new ByteArrayInputStream(yaml.getBytes()))
+            {
+                proxyConfiguration = yamlMapper.readValue(bais, MutableProxyConfiguration.class);
+            }
         }
         else
         {
@@ -253,10 +278,8 @@ public class RestClient
      *
      * @param storage The storage object to create.
      * @return The response code.
-     * @throws IOException
      */
     public int addStorage(StorageForm storage)
-            throws IOException, JAXBException
     {
         String url = getContextBaseUrl() + "/api/configuration/strongbox/storages";
 
@@ -319,7 +342,8 @@ public class RestClient
         return response.getStatus();
     }
 
-    public int addRepository(RepositoryForm repository, String storageId)
+    public int addRepository(RepositoryForm repository,
+                             String storageId)
     {
         if (repository == null)
         {
@@ -368,7 +392,7 @@ public class RestClient
      * @throws java.io.IOException
      */
     public ImmutableRepository getRepository(String storageId,
-                                    String repositoryId)
+                                             String repositoryId)
             throws JAXBException
     {
         String url = getContextBaseUrl() + "/api/configuration/strongbox/storages/" + storageId + "/" + repositoryId;
@@ -508,14 +532,15 @@ public class RestClient
         if (response.getStatus() != 200)
         {
             displayResponseError(response);
-            throw new ServerErrorException(response.getEntity() + " | Unable to get Security Token", response.getStatus());
+            throw new ServerErrorException(response.getEntity() + " | Unable to get Security Token",
+                                           response.getStatus());
         }
         else
         {
             return response.readEntity(String.class);
         }
-    }    
-    
+    }
+
     public String greet()
     {
         String url = getContextBaseUrl() + "/storages/greet";
@@ -526,7 +551,8 @@ public class RestClient
         if (response.getStatus() != 200)
         {
             displayResponseError(response);
-            throw new ServerErrorException(response.getStatus() + " | Unable to greet()", Response.Status.INTERNAL_SERVER_ERROR);
+            throw new ServerErrorException(response.getStatus() + " | Unable to greet()",
+                                           Response.Status.INTERNAL_SERVER_ERROR);
         }
         else
         {
@@ -534,7 +560,8 @@ public class RestClient
         }
     }
 
-    public WebTarget prepareTarget(String arg){
+    public WebTarget prepareTarget(String arg)
+    {
         return setupAuthentication(prepareUnauthenticatedTarget(arg));
     }
 

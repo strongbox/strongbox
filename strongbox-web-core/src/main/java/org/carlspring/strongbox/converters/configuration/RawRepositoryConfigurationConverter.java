@@ -1,7 +1,7 @@
 package org.carlspring.strongbox.converters.configuration;
 
 import org.carlspring.strongbox.forms.configuration.RawRepositoryConfigurationForm;
-import org.carlspring.strongbox.xml.configuration.repository.MutableRawRepositoryConfiguration;
+import org.carlspring.strongbox.yaml.configuration.repository.MutableRawRepositoryConfiguration;
 
 import org.springframework.core.convert.converter.Converter;
 
