@@ -5,6 +5,7 @@ import java.lang.annotation.ElementType;
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
+import java.net.URL;
 
 import org.carlspring.strongbox.storage.Storage;
 import org.carlspring.strongbox.storage.repository.Repository;
@@ -43,10 +44,11 @@ public @interface TestRepository
     String repository();
 
     /**
-     * {@link RepositorySetup} strategies to use within {@link Repository} initialization.
+     * {@link RepositorySetup} strategies to use within {@link Repository}
+     * initialization.
      */
     Class<? extends RepositorySetup>[] setup() default {};
-    
+
     /**
      * In case of <code>true</code> (default) will delete repository instance
      * and cleanup the repository folder after test method complete
@@ -57,5 +59,24 @@ public @interface TestRepository
      */
     boolean cleanup() default true;
 
+    /**
+     * {@link org.carlspring.strongbox.storage.repository.remote.RemoteRepository}
+     * configuration support.
+     * 
+     * @author sbespalov
+     *
+     */
+    @Target(ElementType.PARAMETER)
+    @Retention(RetentionPolicy.RUNTIME)
+    @Documented
+    public static @interface RemoteRepository
+    {
+
+        /**
+         * remote {@link URL}
+         */
+        String url();
+
+    }
 
 }

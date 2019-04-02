@@ -21,6 +21,7 @@ import java.util.stream.Collectors;
 
 import org.carlspring.strongbox.testing.artifact.TestArtifact;
 import org.carlspring.strongbox.testing.artifact.TestArtifactContext;
+import org.carlspring.strongbox.testing.storage.repository.TestRepository.RemoteRepository;
 import org.junit.jupiter.api.TestInfo;
 import org.junit.jupiter.api.extension.ExtensionContext;
 import org.junit.jupiter.api.extension.ParameterContext;
@@ -302,10 +303,10 @@ public class TestRepositoryManagementApplicationContext extends AnnotationConfig
     }
 
     @Override
-    public void register(TestRepository testRepository)
+    public void register(TestRepository testRepository, RemoteRepository remoteRepository)
     {
         idSync.putIfAbsent(id(testRepository), new ReentrantLock());
-        registerBean(id(testRepository), TestRepositoryContext.class, testRepository);
+        registerBean(id(testRepository), TestRepositoryContext.class, testRepository, remoteRepository);
     }
 
     @Override

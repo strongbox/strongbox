@@ -19,6 +19,8 @@ import org.carlspring.strongbox.storage.Storage;
 import org.carlspring.strongbox.storage.repository.ImmutableRepository;
 import org.carlspring.strongbox.storage.repository.MutableRepository;
 import org.carlspring.strongbox.storage.repository.Repository;
+import org.carlspring.strongbox.storage.repository.remote.MutableRemoteRepository;
+import org.carlspring.strongbox.testing.storage.repository.TestRepository.RemoteRepository;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.cglib.proxy.UndeclaredThrowableException;
@@ -33,20 +35,23 @@ public class TestRepositoryContext implements AutoCloseable, Comparable<TestRepo
 {
 
     private static final Logger logger = LoggerFactory.getLogger(TestRepositoryContext.class);
-    
+
     private final TestRepository testRepository;
+
+    private final RemoteRepository remoteRepository;
 
     private final ConfigurationManagementService configurationManagementService;
 
     private final RepositoryPathResolver repositoryPathResolver;
 
     private final RepositoryManagementService repositoryManagementService;
-    
+
     private final StorageManagementService storageManagementService;
 
     private boolean opened;
 
     public TestRepositoryContext(TestRepository testRepository,
+                                 RemoteRepository remoteRepository,
                                  ConfigurationManagementService configurationManagementService,
                                  RepositoryPathResolver repositoryPathResolver,
                                  RepositoryManagementService repositoryManagementService,
@@ -55,11 +60,12 @@ public class TestRepositoryContext implements AutoCloseable, Comparable<TestRepo
         RepositoryManagementStrategyException
     {
         this.testRepository = testRepository;
+        this.remoteRepository = remoteRepository;
         this.configurationManagementService = configurationManagementService;
         this.repositoryPathResolver = repositoryPathResolver;
         this.repositoryManagementService = repositoryManagementService;
         this.storageManagementService = storageManagementService;
-        
+
         open();
     }
 
@@ -91,7 +97,8 @@ public class TestRepositoryContext implements AutoCloseable, Comparable<TestRepo
         throws IOException,
         RepositoryManagementStrategyException
     {
-        logger.info(String.format("Create [%s] with id [%s] ", TestRepository.class.getSimpleName(), id(testRepository)));
+        logger.info(String.format("Create [%s] with id [%s] ", TestRepository.class.getSimpleName(),
+                                  id(testRepository)));
         Storage storage = Optional.ofNullable(configurationManagementService.getConfiguration()
                                                                             .getStorage(testRepository.storage()))
                                   .orElseGet(this::createStorage);
@@ -106,21 +113,29 @@ public class TestRepositoryContext implements AutoCloseable, Comparable<TestRepo
         MutableRepository repository = new MutableRepository(testRepository.repository());
         repository.setLayout(testRepository.layout());
 
+        Optional.ofNullable(remoteRepository).ifPresent(r -> {
+            MutableRemoteRepository remoteRepositoryConfiguration = new MutableRemoteRepository();
+            remoteRepositoryConfiguration.setUrl(r.url());
+            repository.setRemoteRepository(remoteRepositoryConfiguration);
+        });
         Arrays.stream(testRepository.setup()).forEach(s -> setupRepository(s, repository));
-        
+
         configurationManagementService.saveRepository(testRepository.storage(), (MutableRepository) repository);
         repositoryManagementService.createRepository(storage.getId(), repository.getId());
-        final RepositoryPath repositoryPath = repositoryPathResolver.resolve(new ImmutableRepository(repository, storage));
+        final RepositoryPath repositoryPath = repositoryPathResolver.resolve(new ImmutableRepository(repository,
+                storage));
         if (!Files.exists(repositoryPath))
         {
             throw new IOException(String.format("Failed to create repository [%s].", repositoryPath));
         }
 
         opened = true;
-        logger.info(String.format("Created [%s] with id [%s] ", TestRepository.class.getSimpleName(), id(testRepository)));
+        logger.info(String.format("Created [%s] with id [%s] ", TestRepository.class.getSimpleName(),
+                                  id(testRepository)));
     }
 
-    private void setupRepository(Class<? extends RepositorySetup> s, MutableRepository repository)
+    private void setupRepository(Class<? extends RepositorySetup> s,
+                                 MutableRepository repository)
     {
         RepositorySetup repositorySetup;
         try
@@ -155,16 +170,18 @@ public class TestRepositoryContext implements AutoCloseable, Comparable<TestRepo
     public void close()
         throws IOException
     {
-        logger.info(String.format("Close [%s] with id [%s] ", TestRepository.class.getSimpleName(), id(testRepository)));
+        logger.info(String.format("Close [%s] with id [%s] ", TestRepository.class.getSimpleName(),
+                                  id(testRepository)));
         if (testRepository.cleanup())
         {
             repositoryManagementService.removeRepository(testRepository.storage(), testRepository.repository());
         }
 
         configurationManagementService.removeRepository(testRepository.storage(), testRepository.repository());
-        
+
         opened = false;
-        logger.info(String.format("Closed [%s] with id [%s] ", TestRepository.class.getSimpleName(), id(testRepository)));
+        logger.info(String.format("Closed [%s] with id [%s] ", TestRepository.class.getSimpleName(),
+                                  id(testRepository)));
     }
 
     @Override
@@ -178,9 +195,10 @@ public class TestRepositoryContext implements AutoCloseable, Comparable<TestRepo
         return id(tr.storage(), tr.repository());
     }
 
-    public static String id(String storageId, String repositoryId)
+    public static String id(String storageId,
+                            String repositoryId)
     {
         return String.format("%s/%s", storageId, repositoryId);
     }
-    
+
 }
