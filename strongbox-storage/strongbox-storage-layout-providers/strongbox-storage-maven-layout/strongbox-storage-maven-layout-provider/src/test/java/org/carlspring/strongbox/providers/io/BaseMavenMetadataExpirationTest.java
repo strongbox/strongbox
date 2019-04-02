@@ -59,8 +59,6 @@ abstract class BaseMavenMetadataExpirationTest
 
     protected MutableObject<Metadata> artifactLevelMetadata = new MutableObject<>();
 
-    protected MutableRepository localSourceRepository;
-
     @Inject
     protected RepositoryPathResolver repositoryPathResolver;
 
@@ -70,14 +68,13 @@ abstract class BaseMavenMetadataExpirationTest
     @Inject
     protected ArtifactManagementService artifactManagementService;
 
-    protected void mockHostedRepositoryMetadataUpdate(final MutableRepository localSourceRepository,
-                                                      final String hostedRepositoryId,
+    protected void mockHostedRepositoryMetadataUpdate(final String hostedRepositoryId,
                                                       final String localSourceRepositoryId,
                                                       final MutableObject<Metadata> versionLevelMetadata,
                                                       final MutableObject<Metadata> artifactLevelMetadata)
             throws Exception
     {
-        mockLocalRepositoryTestMetadataUpdate(localSourceRepository, versionLevelMetadata, artifactLevelMetadata);
+        mockLocalRepositoryTestMetadataUpdate(localSourceRepositoryId, versionLevelMetadata, artifactLevelMetadata);
 
         storeTestDataInHostedRepository(hostedRepositoryId, localSourceRepositoryId, true, "maven-metadata.xml");
         storeTestDataInHostedRepository(hostedRepositoryId, localSourceRepositoryId, true, "maven-metadata.xml.sha1");
@@ -87,13 +84,16 @@ abstract class BaseMavenMetadataExpirationTest
         storeTestDataInHostedRepository(hostedRepositoryId, localSourceRepositoryId, false, "maven-metadata.xml.md5");
     }
 
-    protected void mockLocalRepositoryTestMetadataUpdate(MutableRepository localSourceRepository,
+    protected void mockLocalRepositoryTestMetadataUpdate(String localRepositoryId,
                                                          MutableObject<Metadata> versionLevelMetadata,
                                                          MutableObject<Metadata> artifactLevelMetadata)
             throws Exception
     {
+        final Repository repository = getConfiguration().getStorage(STORAGE0).getRepository(localRepositoryId);
+        RepositoryPath repositoryPath = repositoryPathResolver.resolve(repository);
+        
         Artifact snapshotArtifact = new MavenRepositoryArtifact(groupId, artifactId, "1.0-20131004.115330-1");
-        MavenArtifactGenerator mavenArtifactGenerator = new MavenArtifactGenerator(localSourceRepository.getBasedir());
+        MavenArtifactGenerator mavenArtifactGenerator = new MavenArtifactGenerator(repositoryPath);
 
         versionLevelMetadata.setValue(
                 metadataMerger.updateMetadataAtVersionLevel(snapshotArtifact, versionLevelMetadata.getValue()));
