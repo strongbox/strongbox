@@ -1,9 +1,6 @@
 package org.carlspring.strongbox.services.impl;
 
 import java.io.IOException;
-import java.nio.file.Files;
-import java.nio.file.Path;
-import java.nio.file.Paths;
 
 import javax.inject.Inject;
 
@@ -24,7 +21,7 @@ import org.springframework.stereotype.Component;
 public class StorageManagementServiceImpl implements StorageManagementService
 {
 
-    private static final Logger logger = LoggerFactory.getLogger(StorageManagementServiceImpl.class);
+    protected static final Logger logger = LoggerFactory.getLogger(StorageManagementServiceImpl.class);
 
     @Inject
     private ConfigurationManagementService configurationManagementService;
@@ -32,19 +29,11 @@ public class StorageManagementServiceImpl implements StorageManagementService
     @Inject
     private RepositoryManagementService repositoryManagementService;
 
-
     @Override
     public void saveStorage(MutableStorage storage)
             throws IOException
     {
         configurationManagementService.saveStorage(storage);
-        
-        Path storageBaseDir = Paths.get(storage.getBasedir());
-        if (!Files.exists(storageBaseDir))
-        {
-            logger.debug("Creating directory for storage '" + storage.getId() + "' (" + storageBaseDir + ")...");
-            Files.createDirectories(storageBaseDir);
-        }
     }
 
     @Override
@@ -55,13 +44,6 @@ public class StorageManagementServiceImpl implements StorageManagementService
         for (Repository repository : storage.getRepositories().values())
         {
             repositoryManagementService.removeRepository(storageId, repository.getId());
-        }
-
-        Path storageBaseDir = Paths.get(storage.getBasedir());
-        if (Files.exists(storageBaseDir))
-        {
-            logger.debug("Deleting directory for storage '" + storage.getId() + "' (" + storageBaseDir + ")...");
-            Files.delete(storageBaseDir);
         }
     }
 

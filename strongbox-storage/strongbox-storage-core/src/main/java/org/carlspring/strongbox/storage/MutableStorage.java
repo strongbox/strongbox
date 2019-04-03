@@ -56,34 +56,12 @@ public class MutableStorage
 
     public String getBasedir()
     {
-        if (basedir != null)
-        {
-            return basedir;
-        }
-        else if (id != null)
-        {
-            initDefaultBasedir(id);
-            return basedir;
-        }
-        else
-        {
-            return null;
-        }
+        return basedir;
     }
 
     public void setBasedir(String basedir)
     {
         this.basedir = basedir;
-    }
-
-    public void initDefaultBasedir(String id)
-    {
-        //TODO: we should rework this to use SpringBoot environment instead of `System.getProperty`
-        String storagesBaseDir = System.getProperty("strongbox.storage.booter.basedir");
-        Assert.notNull(storagesBaseDir, "System property `strongbox.storage.booter.basedir` should be configured.");
-        
-        Path basedirPath = Paths.get(storagesBaseDir);
-        basedir = basedirPath.resolve(id).toString();
     }
 
     @Override

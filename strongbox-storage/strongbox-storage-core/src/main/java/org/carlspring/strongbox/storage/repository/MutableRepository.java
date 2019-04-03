@@ -8,7 +8,6 @@ import org.carlspring.strongbox.storage.repository.remote.MutableRemoteRepositor
 import org.carlspring.strongbox.yaml.repository.MutableCustomRepositoryConfiguration;
 
 import java.io.Serializable;
-import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.LinkedHashSet;
 import java.util.List;
@@ -103,18 +102,7 @@ public class MutableRepository
 
     public String getBasedir()
     {
-        if (basedir != null)
-        {
-            return basedir;
-        }
-        else if (storage != null)
-        {
-            return Paths.get(storage.getBasedir()).resolve(id).toString();
-        }
-        else
-        {
-            return null;
-        }
+        return basedir;
     }
 
     public void setBasedir(String basedir)

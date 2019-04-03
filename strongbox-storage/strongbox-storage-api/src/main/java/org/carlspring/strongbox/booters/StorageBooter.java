@@ -129,41 +129,23 @@ public class StorageBooter
         }
     }
 
-    private Path initializeStorages(final Map<String, Storage> storages)
+    private void initializeStorages(final Map<String, Storage> storages)
             throws IOException
     {
         logger.info("Running Strongbox storage booter...");
         logger.info(" -> Creating storage directory skeleton...");
-
-        String basedir;
-        if (System.getProperty("strongbox.storage.booter.basedir") != null)
-        {
-            basedir = System.getProperty("strongbox.storage.booter.basedir");
-        }
-        else
-        {
-            // Assuming this invocation is related to tests:
-            basedir = propertiesBooter.getVaultDirectory() + "/storages";
-        }
 
         for (Map.Entry<String, Storage> stringStorageEntry : storages.entrySet())
         {
             initializeStorage(stringStorageEntry.getValue());
         }
 
-        return Paths.get(basedir).toAbsolutePath();
     }
 
-    private Path initializeStorage(Storage storage)
+    private void initializeStorage(Storage storage)
             throws IOException
     {
-        Path storagesBaseDir = Paths.get(storage.getBasedir());
-        if (!Files.exists(storagesBaseDir))
-        {
-            Files.createDirectories(storagesBaseDir);
-        }
-
-        return storagesBaseDir;
+        logger.info("  * Initializing " + storage.getId() + "...");
     }
 
     private void initializeRepository(Repository repository)

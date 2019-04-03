@@ -29,6 +29,7 @@ import org.carlspring.strongbox.storage.routing.MutableRoutingRuleRepository;
 import org.carlspring.strongbox.storage.routing.RoutingRuleTypeEnum;
 import org.hamcrest.CoreMatchers;
 import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.parallel.Execution;
 import org.springframework.boot.test.context.SpringBootTest;
@@ -38,6 +39,7 @@ import org.springframework.test.context.ContextConfiguration;
 /**
  * @author Przemyslaw Fusik
  */
+@Disabled
 @SpringBootTest
 @ActiveProfiles(profiles = "test")
 @ContextConfiguration(classes = Maven2LayoutProviderTestConfig.class)

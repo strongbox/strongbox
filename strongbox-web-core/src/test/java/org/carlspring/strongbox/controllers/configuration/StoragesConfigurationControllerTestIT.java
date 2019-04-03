@@ -108,7 +108,7 @@ public class StoragesConfigurationControllerTestIT
 
     private String getBaseDir(String storageId)
     {
-        String directory = propertiesBooter.getVaultDirectory() + "/storages/" + storageId;
+        String directory = propertiesBooter.getStorageBooterBasedir() + "/" + storageId;
 
         return Paths.get(directory).toAbsolutePath().toString();
     }
@@ -610,6 +610,9 @@ public class StoragesConfigurationControllerTestIT
         Storage storage = getStorage(storageId);
         assertNotNull(storage, "Failed to get storage (" + storageId + ")!");
 
+        // Storage basedir will be created only when repository created.
+        addRepository(repositoryForm0, storage4);
+        
         // 2. Confirm default base dir has been created
         String storageBaseDir = getBaseDir(storageId);
         MatcherAssert.assertThat(Files.exists(Paths.get(storageBaseDir)), CoreMatchers.equalTo(true));

@@ -156,7 +156,7 @@ public class ArtifactDirectoryLocatorTest
         Storage storage = configurationManagementService.getConfiguration().getStorage(STORAGE0);
         Repository repository = storage.getRepository("releases");
         
-        RepositoryPath repositoryPath = repositoryPathResolver.resolve(repository);
+        RepositoryPath repositoryPath = repositoryPathResolver.resolve(repository).toAbsolutePath();
         
         ArtifactDirectoryLocator locator = new ArtifactDirectoryLocator();
         locator.setBasedir(repositoryPath);
