@@ -16,16 +16,18 @@ import springfox.documentation.swagger2.annotations.EnableSwagger2;
 
 @Configuration
 @EnableSwagger2
-public class SwaggerConfig {
+public class SwaggerConfig
+{
 
     @Value("${strongbox.version}")
     public String strongboxVersion;
 
     @Bean
-    public Docket strongboxApiDocket() {
-        Contact contact = new Contact("Martin Todorov",
+    public Docket strongboxApiDocket()
+    {
+        Contact contact = new Contact("Strongbox",
                                       "http://github.com/strongbox/strongbox/",
-                                      "carlspring@gmail.com");
+                                      "strongbox-dev@carlspring.com");
         ApiInfo apiInfo = new ApiInfo("Carlspring Consulting &amp; Development Ltd.",
                                       "This is the documentation of Strongbox's REST API.",
                                       strongboxVersion,
@@ -33,18 +35,18 @@ public class SwaggerConfig {
                                       contact,
                                       "Apache 2.0",
                                       "http://www.apache.org/licenses/LICENSE-2.0.html",
-                                      Collections.EMPTY_LIST
-                                      );
-        return new Docket(DocumentationType.SWAGGER_2)
-                .protocols(Sets.newHashSet("http", "https"))
-                .host("carlspring.org")
-                .pathMapping("/strongbox")
-                .apiInfo(apiInfo);
+                                      Collections.EMPTY_LIST);
+        
+        return new Docket(DocumentationType.SWAGGER_2).protocols(Sets.newHashSet("http", "https"))
+                                                      .host("carlspring.org")
+                                                      .pathMapping("/strongbox")
+                                                      .apiInfo(apiInfo);
     }
 
     @Bean
-    public UiConfiguration uiConfiguration() {
-        return UiConfigurationBuilder.builder()
-                .build();
+    public UiConfiguration uiConfiguration()
+    {
+        return UiConfigurationBuilder.builder().build();
     }
+    
 }
