@@ -1,7 +1,7 @@
-package org.carlspring.strongbox.xml.configuration.repository;
+package org.carlspring.strongbox.yaml.configuration.repository;
 
 import org.carlspring.strongbox.providers.layout.NugetLayoutProvider;
-import org.carlspring.strongbox.xml.repository.CustomRepositoryConfiguration;
+import org.carlspring.strongbox.yaml.repository.CustomRepositoryConfiguration;
 
 import javax.annotation.concurrent.Immutable;
 import javax.xml.bind.annotation.XmlAccessType;
@@ -25,7 +25,7 @@ public class ImmutableNugetRepositoryConfiguration
 
     private Integer remoteFeedPageSize;
 
-    ImmutableNugetRepositoryConfiguration()
+    public ImmutableNugetRepositoryConfiguration()
     {
 
     }
@@ -37,13 +37,11 @@ public class ImmutableNugetRepositoryConfiguration
         this.remoteFeedPageSize = delegate.getRemoteFeedPageSize();
     }
 
-    @Override
     public String getFeedVersion()
     {
         return feedVersion;
     }
 
-    @Override
     public Integer getRemoteFeedPageSize()
     {
         return remoteFeedPageSize;

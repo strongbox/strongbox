@@ -10,8 +10,7 @@ import com.fasterxml.jackson.annotation.JsonTypeInfo;
  * @author Pablo Tirado
  */
 @JsonTypeInfo(use = JsonTypeInfo.Id.NAME, property = "type")
-public abstract class MutableCustomRepositoryConfiguration
-        implements Serializable
+public abstract class MutableCustomRepositoryConfiguration implements RepositoryConfiguration, Serializable
 {
 
     @JsonIgnore

@@ -124,7 +124,7 @@ public class ConfigurationManagementServiceImplTest
                 "storage-common-proxies",
                 "group-common-proxies");
 
-        Iterator<String> iterator = repository.getGroupRepositories().keySet().iterator();
+        Iterator<String> iterator = repository.getGroupRepositories().iterator();
         assertThat(iterator.next(), CoreMatchers.equalTo("carlspring"));
         assertThat(iterator.next(), CoreMatchers.equalTo("maven-central"));
         assertThat(iterator.next(), CoreMatchers.equalTo("apache-snapshots"));
@@ -143,7 +143,7 @@ public class ConfigurationManagementServiceImplTest
                                                                              "group-common-proxies");
 
         assertThat(repository.getGroupRepositories().size(), CoreMatchers.equalTo(4));
-        Iterator<String> iterator = repository.getGroupRepositories().keySet().iterator();
+        Iterator<String> iterator = repository.getGroupRepositories().iterator();
         assertThat(iterator.next(), CoreMatchers.equalTo("carlspring"));
         assertThat(iterator.next(), CoreMatchers.equalTo("maven-central"));
         assertThat(iterator.next(), CoreMatchers.equalTo("apache-snapshots"));
@@ -168,7 +168,7 @@ public class ConfigurationManagementServiceImplTest
                                                                              "group-common-proxies");
 
         assertThat(repository.getGroupRepositories().size(), CoreMatchers.equalTo(4));
-        Iterator<String> iterator = repository.getGroupRepositories().keySet().iterator();
+        Iterator<String> iterator = repository.getGroupRepositories().iterator();
         assertThat(iterator.next(), CoreMatchers.equalTo("carlspring"));
         assertThat(iterator.next(), CoreMatchers.equalTo("maven-central"));
         assertThat(iterator.next(), CoreMatchers.equalTo("apache-snapshots"));

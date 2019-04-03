@@ -1,5 +1,17 @@
 package org.carlspring.strongbox.storage.repository;
 
+import static org.carlspring.strongbox.util.CustomStreamCollectors.toLinkedHashMap;
+
+import java.util.Collections;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
+import java.util.stream.Collectors;
+
+import javax.annotation.concurrent.Immutable;
+import javax.xml.bind.annotation.XmlAccessType;
+import javax.xml.bind.annotation.XmlAccessorType;
+
 import org.carlspring.strongbox.configuration.MutableProxyConfiguration;
 import org.carlspring.strongbox.configuration.ProxyConfiguration;
 import org.carlspring.strongbox.json.MapValuesJsonSerializer;
@@ -10,23 +22,15 @@ import org.carlspring.strongbox.storage.repository.remote.MutableRemoteRepositor
 import org.carlspring.strongbox.storage.repository.remote.RemoteRepository;
 import org.carlspring.strongbox.yaml.repository.CustomRepositoryConfiguration;
 import org.carlspring.strongbox.yaml.repository.MutableCustomRepositoryConfiguration;
-
-import javax.annotation.concurrent.Immutable;
-import javax.xml.bind.annotation.XmlAccessType;
-import javax.xml.bind.annotation.XmlAccessorType;
-import java.util.Collections;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
-import java.util.stream.Collectors;
+import org.carlspring.strongbox.yaml.repository.RepositoryConfiguration;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 import com.fasterxml.jackson.databind.annotation.JsonSerialize;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
+
 import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
-import static org.carlspring.strongbox.util.CustomStreamCollectors.toLinkedHashMap;
 
 /**
  * @author Przemyslaw Fusik
@@ -292,21 +296,21 @@ public class ImmutableRepository
         return customConfigurations;
     }
 
-    public CustomRepositoryConfiguration getRepositoryConfiguration()
+    public RepositoryConfiguration getRepositoryConfiguration()
     {
         return repositoryConfiguration;
     }
 
     @Override
-    public Map<String, String> getGroupRepositories()
+    public Set<String> getGroupRepositories()
     {
-        return groupRepositories;
+        return groupRepositories.keySet();
     }
 
     @Override
-    public Map<String, String> getArtifactCoordinateValidators()
+    public Set<String> getArtifactCoordinateValidators()
     {
-        return artifactCoordinateValidators;
+        return artifactCoordinateValidators.keySet();
     }
 
     @Override

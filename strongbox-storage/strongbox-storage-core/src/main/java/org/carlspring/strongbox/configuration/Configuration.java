@@ -224,7 +224,6 @@ public class Configuration
         {
             Repository repository = it.next();
             Optional<String> exists = repository.getGroupRepositories()
-                                                .keySet()
                                                 .stream()
                                                 .filter(groupName -> (groupName.equals(storageAndRepositoryId) ||
                                                                       (repository.getStorage().getId().equals(storageId) && groupName.equals(repositoryId))))

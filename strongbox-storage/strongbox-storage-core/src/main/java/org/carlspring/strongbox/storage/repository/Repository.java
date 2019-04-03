@@ -1,9 +1,9 @@
 package org.carlspring.strongbox.storage.repository;
 
-import java.util.Map;
+import java.util.Set;
 
 import org.carlspring.strongbox.storage.Storage;
-import org.carlspring.strongbox.xml.repository.RepositoryConfiguration;
+import org.carlspring.strongbox.yaml.repository.RepositoryConfiguration;
 
 public interface Repository
 {
@@ -40,9 +40,9 @@ public interface Repository
 
     boolean isChecksumHeadersEnabled();
 
-    Map<String, String> getGroupRepositories();
+    Set<String> getGroupRepositories();
 
-    Map<String, String> getArtifactCoordinateValidators();
+    Set<String> getArtifactCoordinateValidators();
 
     Storage getStorage();
 
@@ -57,5 +57,7 @@ public interface Repository
     boolean acceptsSnapshots();
 
     boolean acceptsReleases();
+    
+    RepositoryConfiguration getRepositoryConfiguration();
     
 }

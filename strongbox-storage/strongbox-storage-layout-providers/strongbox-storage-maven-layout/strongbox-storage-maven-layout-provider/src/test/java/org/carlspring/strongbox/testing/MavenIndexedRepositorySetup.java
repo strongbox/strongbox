@@ -2,7 +2,7 @@ package org.carlspring.strongbox.testing;
 
 import org.carlspring.strongbox.storage.repository.MutableRepository;
 import org.carlspring.strongbox.testing.storage.repository.RepositorySetup;
-import org.carlspring.strongbox.xml.configuration.repository.MutableMavenRepositoryConfiguration;
+import org.carlspring.strongbox.yaml.configuration.repository.MutableMavenRepositoryConfiguration;
 
 /**
  * @author sbespalov

@@ -306,10 +306,10 @@ public class StoragesConfigurationControllerTestIT
         Repository repository0 = storage.getRepositories().get(repositoryForm0_1.getId());
         Repository repository1 = storage.getRepositories().get(repositoryForm0_2.getId());
 
-        Map<String, String> groupRepositoriesMap = repository0.getGroupRepositories();
-        Map<String, String> groupRepositoriesMapExpected = new LinkedHashMap<>();
-        groupRepositoriesMapExpected.put(groupRepository1, groupRepository1);
-        groupRepositoriesMapExpected.put(groupRepository2, groupRepository2);
+        Set<String> groupRepositoriesMap = repository0.getGroupRepositories();
+        Set<String> groupRepositoriesMapExpected = new LinkedHashSet<>();
+        groupRepositoriesMapExpected.add(groupRepository1);
+        groupRepositoriesMapExpected.add(groupRepository2);
 
         assertNotNull(storage, "Failed to get storage (" + storageId + ")!");
         assertFalse(storage.getRepositories().isEmpty(), "Failed to get storage (" + storageId + ")!");
