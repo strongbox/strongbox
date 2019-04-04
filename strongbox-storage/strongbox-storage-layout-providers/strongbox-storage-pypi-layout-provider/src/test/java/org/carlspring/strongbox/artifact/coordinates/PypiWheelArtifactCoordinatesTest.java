@@ -2,7 +2,7 @@ package org.carlspring.strongbox.artifact.coordinates;
 
 import org.junit.jupiter.api.Test;
 
-public class PyPiArtifactCoordinatesTest
+public class PypiWheelArtifactCoordinatesTest
 {
 	
 	@Test
