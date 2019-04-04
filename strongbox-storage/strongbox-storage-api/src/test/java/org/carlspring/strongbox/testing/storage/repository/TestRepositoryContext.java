@@ -19,6 +19,7 @@ import org.carlspring.strongbox.storage.Storage;
 import org.carlspring.strongbox.storage.repository.ImmutableRepository;
 import org.carlspring.strongbox.storage.repository.MutableRepository;
 import org.carlspring.strongbox.storage.repository.Repository;
+import org.carlspring.strongbox.storage.repository.RepositoryTypeEnum;
 import org.carlspring.strongbox.storage.repository.remote.MutableRemoteRepository;
 import org.carlspring.strongbox.testing.storage.repository.TestRepository.RemoteRepository;
 import org.slf4j.Logger;
@@ -115,6 +116,8 @@ public class TestRepositoryContext implements AutoCloseable, Comparable<TestRepo
         repository.setPolicy(testRepository.policy().toString());
 
         Optional.ofNullable(remoteRepository).ifPresent(r -> {
+            repository.setType(RepositoryTypeEnum.PROXY.getType());
+            
             MutableRemoteRepository remoteRepositoryConfiguration = new MutableRemoteRepository();
             remoteRepositoryConfiguration.setUrl(r.url());
             repository.setRemoteRepository(remoteRepositoryConfiguration);
