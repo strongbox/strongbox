@@ -1,4 +1,4 @@
-package org.carlspring.strongbox.artifact.coordinates;
+package org.carlspring.strongbox.util;
 
 /*
  * Class to handle parsing of PyPi file string
