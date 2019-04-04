@@ -265,7 +265,7 @@ public class RepositoryPath
     {
         if (!isAbsolute())
         {
-            RepositoryPath result = wrap(getTarget().toAbsolutePath());
+            RepositoryPath result = getFileSystem().getRootDirectory().resolve(this);
             result.artifactEntry = this.artifactEntry;
             
             return result;
