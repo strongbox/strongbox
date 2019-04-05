@@ -348,7 +348,7 @@ public class RegenerateNugetChecksumCronJobTestIT
             throws IOException
     {
         configurationManagementService.saveStorage(storage);
-        storageManagementService.createStorage(storage);
+        storageManagementService.saveStorage(storage);
     }
 
     public static void cleanUp(Set<MutableRepository> repositoriesToClean)

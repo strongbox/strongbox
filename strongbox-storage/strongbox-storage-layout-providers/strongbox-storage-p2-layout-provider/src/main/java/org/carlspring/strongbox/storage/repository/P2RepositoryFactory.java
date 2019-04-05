@@ -4,6 +4,7 @@ import org.carlspring.strongbox.providers.layout.P2LayoutProvider;
 import org.carlspring.strongbox.repository.P2RepositoryFeatures;
 
 import javax.inject.Inject;
+import java.util.LinkedHashSet;
 
 import org.springframework.stereotype.Component;
 
@@ -14,6 +15,7 @@ import org.springframework.stereotype.Component;
 public class P2RepositoryFactory
         implements RepositoryFactory
 {
+
     @Inject
     private P2RepositoryFeatures p2RepositoryFeatures;
 
@@ -23,7 +25,8 @@ public class P2RepositoryFactory
     {
         MutableRepository repository = new MutableRepository(repositoryId);
         repository.setLayout(P2LayoutProvider.ALIAS);
-        repository.setArtifactCoordinateValidators(p2RepositoryFeatures.getDefaultArtifactCoordinateValidators());
+        repository.setArtifactCoordinateValidators(
+                new LinkedHashSet<>(p2RepositoryFeatures.getDefaultArtifactCoordinateValidators()));
 
         return repository;
     }

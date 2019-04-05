@@ -1,50 +1,39 @@
 package org.carlspring.strongbox.configuration;
 
-import javax.xml.bind.annotation.XmlAccessType;
-import javax.xml.bind.annotation.XmlAccessorType;
-import javax.xml.bind.annotation.XmlAttribute;
-import javax.xml.bind.annotation.XmlElement;
-import javax.xml.bind.annotation.XmlElementWrapper;
-import javax.xml.bind.annotation.XmlRootElement;
 import java.io.Serializable;
 import java.util.List;
 
+import com.fasterxml.jackson.annotation.JsonCreator;
+import com.fasterxml.jackson.annotation.JsonProperty;
+
 /**
  * @author Przemyslaw Fusik
+ * @author Pablo Tirado
  */
-@XmlRootElement(name = "cors-configuration")
-@XmlAccessorType(XmlAccessType.FIELD)
 public class MutableCorsConfiguration
         implements Serializable
 {
 
-    @XmlElementWrapper(name = "allowed-origins")
-    @XmlElement(name = "allowed-origin")
     private List<String> allowedOrigins;
 
-    @XmlElementWrapper(name = "allowed-methods")
-    @XmlElement(name = "allowed-method")
     private List<String> allowedMethods;
 
-    @XmlElementWrapper(name = "allowed-headers")
-    @XmlElement(name = "allowed-header")
     private List<String> allowedHeaders;
 
-    @XmlElementWrapper(name = "exposed-headers")
-    @XmlElement(name = "exposed-header")
     private List<String> exposedHeaders;
 
-    @XmlAttribute(name = "allowed-credentials")
+    @JsonProperty("allowedCredentials")
     private Boolean allowCredentials;
 
-    @XmlAttribute(name = "max-age")
     private Long maxAge;
 
+    @JsonCreator
     public MutableCorsConfiguration()
     {
     }
 
-    public MutableCorsConfiguration(List<String> allowedOrigins)
+    @JsonCreator
+    public MutableCorsConfiguration(@JsonProperty("allowedOrigins") List<String> allowedOrigins)
     {
         this.allowedOrigins = allowedOrigins;
     }

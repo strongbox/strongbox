@@ -16,10 +16,9 @@ import org.carlspring.strongbox.storage.Storage;
 import org.carlspring.strongbox.storage.indexing.IndexTypeEnum;
 import org.carlspring.strongbox.storage.indexing.RepositoryIndexManager;
 import org.carlspring.strongbox.storage.indexing.RepositoryIndexer;
-import org.carlspring.strongbox.storage.repository.ImmutableRepository;
 import org.carlspring.strongbox.storage.repository.Repository;
 import org.carlspring.strongbox.util.IndexContextHelper;
-import org.carlspring.strongbox.xml.configuration.repository.MavenRepositoryConfiguration;
+import org.carlspring.strongbox.yaml.configuration.repository.MavenRepositoryConfiguration;
 
 import javax.inject.Inject;
 import java.io.IOException;
@@ -122,14 +121,14 @@ public class ArtifactIndexesServiceImpl
     public void rebuildIndexes(String storageId)
             throws IOException
     {
-        Map<String, Repository> repositories = getRepositories(storageId);
+        Map<String, ? extends Repository> repositories = getRepositories(storageId);
 
         logger.debug("Rebuilding indexes for repositories " + repositories.keySet());
 
-        for (Entry<String, Repository> repositoryEntry : repositories.entrySet())
+        for (Entry<String, ? extends Repository> repositoryEntry : repositories.entrySet())
         {
             Repository repository = repositoryEntry.getValue();
-            if (!(((ImmutableRepository)repository).getRepositoryConfiguration() instanceof MavenRepositoryConfiguration))
+            if (!(repository.getRepositoryConfiguration() instanceof MavenRepositoryConfiguration))
             {
                 logger.debug("Skip rebuilding indexes for " + repositoryEntry.getKey());
                 continue;
@@ -161,7 +160,7 @@ public class ArtifactIndexesServiceImpl
         return getConfiguration().getStorages();
     }
 
-    private Map<String, Repository> getRepositories(String storageId)
+    private Map<String, ? extends Repository> getRepositories(String storageId)
     {
         return getStorages().get(storageId).getRepositories();
     }

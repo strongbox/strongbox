@@ -4,6 +4,7 @@ import org.carlspring.strongbox.MockedRemoteRepositoriesHeartbeatConfig;
 import org.carlspring.strongbox.configuration.ConfigurationFileManager;
 import org.carlspring.strongbox.configuration.MutableConfiguration;
 import org.carlspring.strongbox.cron.config.CronTasksConfig;
+import org.carlspring.strongbox.yaml.YAMLMapperFactory;
 
 import javax.xml.bind.JAXBException;
 import java.io.IOException;
@@ -35,10 +36,10 @@ public class NugetLayoutProviderTestConfig
 
     @Bean(name = "mockedConfigurationFileManager")
     @Primary
-    ConfigurationFileManager configurationFileManager()
+    ConfigurationFileManager configurationFileManager(YAMLMapperFactory yamlMapperFactory)
             throws IOException, JAXBException
     {
-        final ConfigurationFileManager configurationFileManager = Mockito.spy(new ConfigurationFileManager());
+        final ConfigurationFileManager configurationFileManager = Mockito.spy(new ConfigurationFileManager(yamlMapperFactory));
 
         Mockito.doNothing().when(configurationFileManager).store(
                 any(MutableConfiguration.class));

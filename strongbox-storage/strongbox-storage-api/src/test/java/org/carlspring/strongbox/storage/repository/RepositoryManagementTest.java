@@ -68,7 +68,7 @@ public class RepositoryManagementTest
     @RepeatedTest(20)
     public void testRepositoryDirect(@TestRepository(layout = NullArtifactCoordinates.LAYOUT_NAME, repository = "r1", storage = "storage0") Repository r1,
                                      @TestRepository(layout = NullArtifactCoordinates.LAYOUT_NAME, repository = "r2", storage = "storage0") Repository r2,
-                                     @TestArtifact(resource = "org/carlspring/test/artifact1.ext", generator = NullArtifactGenerator.class) Path standaloneArtifact,
+                                     @TestArtifact(resource = "artifact1.ext", generator = NullArtifactGenerator.class) Path standaloneArtifact,
                                      @TestArtifact(repository = "r2", storage = "storage0", resource = "org/carlspring/test/artifact2.ext", generator = NullArtifactGenerator.class) Path repositoryArtifact,
                                      TestInfo testInfo)
         throws IOException

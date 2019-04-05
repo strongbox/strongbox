@@ -4,6 +4,7 @@ import org.carlspring.strongbox.providers.layout.NugetLayoutProvider;
 import org.carlspring.strongbox.repository.NugetRepositoryFeatures;
 
 import javax.inject.Inject;
+import java.util.LinkedHashSet;
 
 import org.springframework.stereotype.Component;
 
@@ -24,7 +25,8 @@ public class NugetRepositoryFactory
     {
         MutableRepository repository = new MutableRepository(repositoryId);
         repository.setLayout(NugetLayoutProvider.ALIAS);
-        repository.setArtifactCoordinateValidators(nugetRepositoryFeatures.getDefaultArtifactCoordinateValidators());
+        repository.setArtifactCoordinateValidators(
+                new LinkedHashSet<>(nugetRepositoryFeatures.getDefaultArtifactCoordinateValidators()));
 
         return repository;
     }

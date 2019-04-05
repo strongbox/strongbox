@@ -1,27 +1,5 @@
 package org.carlspring.strongbox.users.service.impl;
 
-import static java.lang.annotation.RetentionPolicy.RUNTIME;
-
-import java.lang.annotation.Documented;
-import java.lang.annotation.Retention;
-import java.util.Collection;
-import java.util.Collections;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.Map;
-import java.util.Optional;
-import java.util.Set;
-import java.util.concurrent.ConcurrentHashMap;
-import java.util.concurrent.locks.Lock;
-import java.util.concurrent.locks.ReadWriteLock;
-import java.util.concurrent.locks.ReentrantReadWriteLock;
-import java.util.function.Consumer;
-import java.util.stream.Collectors;
-
-import javax.inject.Inject;
-import javax.inject.Qualifier;
-
-import org.apache.commons.lang3.StringUtils;
 import org.carlspring.strongbox.data.CacheName;
 import org.carlspring.strongbox.users.domain.User;
 import org.carlspring.strongbox.users.domain.Users;
@@ -32,10 +10,25 @@ import org.carlspring.strongbox.users.dto.UsersDto;
 import org.carlspring.strongbox.users.security.AuthoritiesProvider;
 import org.carlspring.strongbox.users.security.SecurityTokenProvider;
 import org.carlspring.strongbox.users.service.UserService;
+
+import javax.inject.Inject;
+import javax.inject.Qualifier;
+import java.lang.annotation.Documented;
+import java.lang.annotation.Retention;
+import java.util.*;
+import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.locks.Lock;
+import java.util.concurrent.locks.ReadWriteLock;
+import java.util.concurrent.locks.ReentrantReadWriteLock;
+import java.util.function.Consumer;
+import java.util.stream.Collectors;
+
+import org.apache.commons.lang3.StringUtils;
 import org.jose4j.lang.JoseException;
 import org.springframework.cache.annotation.CacheEvict;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.stereotype.Component;
+import static java.lang.annotation.RetentionPolicy.RUNTIME;
 
 
 @Component
@@ -265,7 +258,7 @@ public class InMemoryUserService implements UserService
     @Qualifier
     public @interface InMemoryUserServiceQualifier
     {
-
+        String value() default "inMemoryUserServiceQualifier";
     }
 
 }

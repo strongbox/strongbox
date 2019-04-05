@@ -50,7 +50,7 @@ public abstract class TestCaseWithRepositoryManagement extends TestCaseWithRepos
             throws IOException
     {
         configurationManagementService.saveStorage(storage);
-        storageManagementService.createStorage(storage);
+        storageManagementService.saveStorage(storage);
     }
 
     public void createRepository(String storageId,

@@ -4,6 +4,7 @@ import org.carlspring.strongbox.providers.layout.Maven2LayoutProvider;
 import org.carlspring.strongbox.repository.MavenRepositoryFeatures;
 
 import javax.inject.Inject;
+import java.util.LinkedHashSet;
 
 import org.springframework.stereotype.Component;
 
@@ -11,8 +12,10 @@ import org.springframework.stereotype.Component;
  * @author carlspring
  */
 @Component
-public class MavenRepositoryFactory implements RepositoryFactory
+public class MavenRepositoryFactory
+        implements RepositoryFactory
 {
+
     @Inject
     private MavenRepositoryFeatures mavenRepositoryFeatures;
 
@@ -21,7 +24,8 @@ public class MavenRepositoryFactory implements RepositoryFactory
     {
         MutableRepository repository = new MutableRepository(repositoryId);
         repository.setLayout(Maven2LayoutProvider.ALIAS);
-        repository.setArtifactCoordinateValidators(mavenRepositoryFeatures.getDefaultArtifactCoordinateValidators());
+        repository.setArtifactCoordinateValidators(
+                new LinkedHashSet<>(mavenRepositoryFeatures.getDefaultArtifactCoordinateValidators()));
 
         return repository;
     }

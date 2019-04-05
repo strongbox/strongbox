@@ -309,7 +309,7 @@ public class ArtifactManagementService
 
         try
         {
-            for (String validatorKey : repository.getArtifactCoordinateValidators().keySet())
+            for (String validatorKey : repository.getArtifactCoordinateValidators())
             {
                 ArtifactCoordinatesValidator validator = artifactCoordinatesValidatorRegistry.getProvider(
                         validatorKey);

@@ -32,7 +32,6 @@ public class GroupRepositorySetCollector
                                    boolean traverse)
     {
         Set<Repository> result = groupRepository.getGroupRepositories()
-                                                .keySet()
                                                 .stream()
                                                 .map(groupRepoId -> getRepository(groupRepository.getStorage(),
                                                                                   groupRepoId))
@@ -47,7 +46,7 @@ public class GroupRepositorySetCollector
         for (Iterator<Repository> i = result.iterator(); i.hasNext(); )
         {
             Repository r = i.next();
-            if (CollectionUtils.isEmpty(r.getGroupRepositories().keySet()))
+            if (CollectionUtils.isEmpty(r.getGroupRepositories()))
             {
                 traverseResult.add(r);
                 continue;

@@ -1,10 +1,18 @@
 package org.carlspring.strongbox.cron.jobs;
 
-import static org.awaitility.Awaitility.await;
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertNotNull;
-import static org.junit.jupiter.api.parallel.ExecutionMode.CONCURRENT;
+import org.carlspring.strongbox.config.Maven2LayoutProviderCronTasksTestConfig;
+import org.carlspring.strongbox.data.CacheManagerTestExecutionListener;
+import org.carlspring.strongbox.providers.io.RepositoryFiles;
+import org.carlspring.strongbox.providers.io.RepositoryPath;
+import org.carlspring.strongbox.providers.io.RepositoryPathResolver;
+import org.carlspring.strongbox.providers.layout.Maven2LayoutProvider;
+import org.carlspring.strongbox.storage.MutableStorage;
+import org.carlspring.strongbox.storage.repository.ImmutableRepository;
+import org.carlspring.strongbox.storage.repository.MavenRepositoryFactory;
+import org.carlspring.strongbox.storage.repository.MutableRepository;
+import org.carlspring.strongbox.yaml.configuration.repository.MutableMavenRepositoryConfiguration;
 
+import javax.inject.Inject;
 import java.io.File;
 import java.io.IOException;
 import java.lang.reflect.UndeclaredThrowableException;
@@ -17,19 +25,6 @@ import java.util.List;
 import java.util.Set;
 import java.util.concurrent.TimeUnit;
 
-import javax.inject.Inject;
-
-import org.carlspring.strongbox.config.Maven2LayoutProviderCronTasksTestConfig;
-import org.carlspring.strongbox.data.CacheManagerTestExecutionListener;
-import org.carlspring.strongbox.providers.io.RepositoryFiles;
-import org.carlspring.strongbox.providers.io.RepositoryPath;
-import org.carlspring.strongbox.providers.io.RepositoryPathResolver;
-import org.carlspring.strongbox.providers.layout.Maven2LayoutProvider;
-import org.carlspring.strongbox.storage.MutableStorage;
-import org.carlspring.strongbox.storage.repository.ImmutableRepository;
-import org.carlspring.strongbox.storage.repository.MavenRepositoryFactory;
-import org.carlspring.strongbox.storage.repository.MutableRepository;
-import org.carlspring.strongbox.xml.configuration.repository.MutableMavenRepositoryConfiguration;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -39,6 +34,10 @@ import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.TestExecutionListeners;
+import static org.awaitility.Awaitility.await;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.parallel.ExecutionMode.CONCURRENT;
 
 /**
  * @author Kate Novik.

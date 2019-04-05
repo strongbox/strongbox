@@ -1,9 +1,7 @@
 package org.carlspring.strongbox.providers.layout.p2;
 
 import org.carlspring.strongbox.artifact.coordinates.P2ArtifactCoordinates;
-import org.carlspring.strongbox.xml.parsers.GenericParser;
 
-import javax.xml.bind.JAXBException;
 import java.io.IOException;
 import java.nio.file.Path;
 import java.nio.file.Paths;
@@ -31,29 +29,23 @@ public class P2ArtifactReader
                                                     String bundle)
             throws IOException
     {
-        GenericParser<P2Repository> repositoryParser = new GenericParser<>(P2Repository.class);
-        try
+        // TODO we are dropping GenericParser and one day we will need to support P2
+        //GenericParser<P2Repository> repositoryParser = new GenericParser<>(P2Repository.class);
+        P2Repository p2Repository = null;//repositoryParser.parse(createPath(repositoryBaseDir).toUri().toURL());
+        final P2ArtifactCoordinates artifactToFind = P2ArtifactCoordinates.create(bundle);
+        for (P2Artifact p2Artifact : p2Repository.getArtifacts().getArtifacts())
         {
-            P2Repository p2Repository = repositoryParser.parse(createPath(repositoryBaseDir).toUri().toURL());
-            final P2ArtifactCoordinates artifactToFind = P2ArtifactCoordinates.create(bundle);
-            for (P2Artifact p2Artifact : p2Repository.getArtifacts().getArtifacts())
+            P2ArtifactCoordinates foundArtifact = new P2ArtifactCoordinates(p2Artifact.getId(),
+                                                                            p2Artifact.getVersion(),
+                                                                            p2Artifact.getClassifier());
+            if (foundArtifact.equals(artifactToFind))
             {
-                P2ArtifactCoordinates foundArtifact = new P2ArtifactCoordinates(p2Artifact.getId(),
-                                                                                p2Artifact.getVersion(),
-                                                                                p2Artifact.getClassifier());
-                if (foundArtifact.equals(artifactToFind))
-                {
-                    addProperties(foundArtifact, p2Artifact, repositoryBaseDir);
-                    String bundleFilename = P2ArtifactRuleProcessor.getFilename(p2Repository.getMappings(),
-                                                                                foundArtifact);
-                    foundArtifact.setFilename(bundleFilename);
-                    return foundArtifact;
-                }
+                addProperties(foundArtifact, p2Artifact, repositoryBaseDir);
+                String bundleFilename = P2ArtifactRuleProcessor.getFilename(p2Repository.getMappings(),
+                                                                            foundArtifact);
+                foundArtifact.setFilename(bundleFilename);
+                return foundArtifact;
             }
-        }
-        catch (JAXBException e)
-        {
-            logger.error(e.getMessage(), e);
         }
 
         return null;

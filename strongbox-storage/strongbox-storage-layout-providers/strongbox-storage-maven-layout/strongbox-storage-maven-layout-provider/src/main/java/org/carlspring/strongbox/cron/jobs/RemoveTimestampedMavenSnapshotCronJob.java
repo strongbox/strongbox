@@ -84,7 +84,7 @@ public class RemoveTimestampedMavenSnapshotCronJob
                    XmlPullParserException,
                    IOException
     {
-        Map<String, Repository> repositories = getRepositories(storageId);
+        Map<String, ? extends Repository> repositories = getRepositories(storageId);
 
         repositories.forEach((repositoryId, repository) ->
                              {
@@ -111,7 +111,7 @@ public class RemoveTimestampedMavenSnapshotCronJob
         return configurationManager.getConfiguration().getStorages();
     }
 
-    private Map<String, Repository> getRepositories(String storageId)
+    private Map<String, ? extends Repository> getRepositories(String storageId)
     {
         return getStorages().get(storageId).getRepositories();
     }

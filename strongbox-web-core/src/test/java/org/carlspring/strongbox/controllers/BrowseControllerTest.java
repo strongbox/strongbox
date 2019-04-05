@@ -8,7 +8,7 @@ import org.carlspring.strongbox.rest.common.MavenRestAssuredBaseTest;
 import org.carlspring.strongbox.storage.repository.MavenRepositoryFactory;
 import org.carlspring.strongbox.storage.repository.MutableRepository;
 import org.carlspring.strongbox.storage.repository.RepositoryPolicyEnum;
-import org.carlspring.strongbox.xml.configuration.repository.MutableMavenRepositoryConfiguration;
+import org.carlspring.strongbox.yaml.configuration.repository.MutableMavenRepositoryConfiguration;
 
 import javax.inject.Inject;
 import javax.xml.bind.JAXBException;
@@ -24,7 +24,6 @@ import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import static io.restassured.module.mockmvc.RestAssuredMockMvc.given;

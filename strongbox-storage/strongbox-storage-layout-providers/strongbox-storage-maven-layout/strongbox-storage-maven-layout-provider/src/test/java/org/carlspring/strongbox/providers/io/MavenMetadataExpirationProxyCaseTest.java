@@ -44,18 +44,17 @@ public class MavenMetadataExpirationProxyCaseTest
     public void initialize(TestInfo testInfo)
             throws Exception
     {
-        localSourceRepository = createRepository(STORAGE0,
-                                                 getRepositoryName(REPOSITORY_LOCAL_SOURCE, testInfo),
-                                                 RepositoryPolicyEnum.SNAPSHOT.getPolicy(),
-                                                 false);
+        createRepository(STORAGE0,
+                         getRepositoryName(REPOSITORY_LOCAL_SOURCE, testInfo),
+                         RepositoryPolicyEnum.SNAPSHOT.getPolicy(),
+                         false);
 
         createRepository(STORAGE0,
                          getRepositoryName(REPOSITORY_HOSTED, testInfo),
                          RepositoryPolicyEnum.SNAPSHOT.getPolicy(),
                          false);
 
-        mockHostedRepositoryMetadataUpdate(localSourceRepository,
-                                           getRepositoryName(REPOSITORY_HOSTED, testInfo),
+        mockHostedRepositoryMetadataUpdate(getRepositoryName(REPOSITORY_HOSTED, testInfo),
                                            getRepositoryName(REPOSITORY_LOCAL_SOURCE, testInfo),
                                            versionLevelMetadata,
                                            artifactLevelMetadata);
@@ -106,8 +105,7 @@ public class MavenMetadataExpirationProxyCaseTest
                                                                       EncryptionAlgorithmsEnum.SHA1));
         assertEquals(sha1ProxiedPathChecksum, calculatedProxiedPathChecksum);
 
-        mockHostedRepositoryMetadataUpdate(localSourceRepository,
-                                           getRepositoryName(REPOSITORY_HOSTED, testInfo),
+        mockHostedRepositoryMetadataUpdate(getRepositoryName(REPOSITORY_HOSTED, testInfo),
                                            getRepositoryName(REPOSITORY_LOCAL_SOURCE, testInfo),
                                            versionLevelMetadata,
                                            artifactLevelMetadata);

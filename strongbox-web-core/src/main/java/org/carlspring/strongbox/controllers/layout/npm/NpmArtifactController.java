@@ -190,7 +190,7 @@ public class NpmArtifactController extends BaseArtifactController
                                      HttpServletResponse response)
         throws Exception
     {
-        String packageId = NpmArtifactCoordinates.caclulatePackageId(packageScope, packageName);
+        String packageId = NpmArtifactCoordinates.calculatePackageId(packageScope, packageName);
         NpmArtifactCoordinates c = NpmArtifactCoordinates.of(packageId, packageVersion);
         
         NpmViewRequest npmSearchRequest = new NpmViewRequest();
@@ -222,7 +222,7 @@ public class NpmArtifactController extends BaseArtifactController
                                          HttpServletResponse response)
         throws Exception
     {
-        String packageId = NpmArtifactCoordinates.caclulatePackageId(packageScope, packageName);
+        String packageId = NpmArtifactCoordinates.calculatePackageId(packageScope, packageName);
         
         NpmViewRequest npmSearchRequest = new NpmViewRequest();
         npmSearchRequest.setPackageId(packageId);

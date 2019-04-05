@@ -6,6 +6,7 @@ import java.nio.file.spi.FileSystemProvider;
 import javax.inject.Inject;
 
 import org.carlspring.strongbox.artifact.coordinates.NullArtifactCoordinates;
+import org.carlspring.strongbox.booters.PropertiesBooter;
 import org.carlspring.strongbox.providers.datastore.StorageProvider;
 import org.carlspring.strongbox.providers.datastore.StorageProviderRegistry;
 import org.carlspring.strongbox.providers.io.LayoutFileSystemFactory;
@@ -58,25 +59,26 @@ public class NullLayoutConfiguration
     }
 
     @Bean(FILE_SYSTEM_ALIAS)
-    public LayoutFileSystemFactory nullRepositoryFileSystemFactory()
+    public LayoutFileSystemFactory nullRepositoryFileSystemFactory(PropertiesBooter propertiesBooter)
     {
         LayoutFileSystemProviderFactory providerFactory = nullRepositoryFileSystemProviderFactory();
 
         return (repository) -> {
             StorageProvider storageProvider = storageProviderRegistry.getProvider(repository.getImplementation());
 
-            return nullRepositoryFileSystem(repository, storageProvider.getFileSystem(),
+            return nullRepositoryFileSystem(propertiesBooter, repository, storageProvider.getFileSystem(),
                                             providerFactory.create(repository));
         };
     }
 
     @Bean
     @Scope("prototype")
-    public NullFileSystem nullRepositoryFileSystem(Repository repository,
+    public NullFileSystem nullRepositoryFileSystem(PropertiesBooter propertiesBooter,
+                                                   Repository repository,
                                                    FileSystem storageFileSystem,
                                                    LayoutFileSystemProvider provider)
     {
-        return new NullFileSystem(repository, storageFileSystem, provider);
+        return new NullFileSystem(propertiesBooter, repository, storageFileSystem, provider);
     }
 
 }

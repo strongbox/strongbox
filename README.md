@@ -20,11 +20,11 @@ Our goal is to implement a universal repository manager that can host and serve 
 
 Strongbox has a search engine and an [Artifact Query Language][docs-aql].
 
-# What's in the works (Q1/2019)
+# What's in the works (Q2/2019)
 
 * Web UI
 * Spring Bootification
-* Convert the strongbox configuration files from XML to YAML format (strongbox/strongbox#965, strongbox/strongbox#1056)
+* Convert the strongbox configuration files from XML to YAML format ([#965](https://github.com/strongbox/strongbox/issues/965), [#1056](https://github.com/strongbox/strongbox/issues/1056))
 
 # Upcoming
 

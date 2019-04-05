@@ -1,32 +1,21 @@
 package org.carlspring.strongbox.cron.domain;
 
-import javax.xml.bind.annotation.XmlAccessType;
-import javax.xml.bind.annotation.XmlAccessorType;
-import javax.xml.bind.annotation.XmlElement;
-import javax.xml.bind.annotation.XmlRootElement;
 import java.io.Serializable;
 import java.util.LinkedHashSet;
 import java.util.Set;
 
+import com.fasterxml.jackson.annotation.JsonRootName;
+
 /**
  * @author Przemyslaw Fusik
+ * @author Pablo Tirado
  */
-@XmlRootElement(name = "cron-tasks-configuration")
-@XmlAccessorType(XmlAccessType.FIELD)
-public class CronTasksConfigurationDto implements Serializable
+@JsonRootName("cronTasksConfiguration")
+public class CronTasksConfigurationDto
+        implements Serializable
 {
 
-    @XmlElement(name = "cron-task-configuration")
     private Set<CronTaskConfigurationDto> cronTaskConfigurations = new LinkedHashSet<>();
-
-    public CronTasksConfigurationDto()
-    {
-    }
-
-    public CronTasksConfigurationDto(final Set<CronTaskConfigurationDto> cronTaskConfigurations)
-    {
-        this.cronTaskConfigurations = cronTaskConfigurations;
-    }
 
     public Set<CronTaskConfigurationDto> getCronTaskConfigurations()
     {

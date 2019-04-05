@@ -22,6 +22,7 @@ import org.springframework.test.context.TestExecutionListeners;
 @ContextConfiguration(classes = { CommonConfig.class,
                                   StorageApiConfig.class,
                                   MockedRemoteRepositoriesHeartbeatConfig.class,
+                                  TestingCoreConfig.class,
                                   ClientConfig.class,
                                   EventsConfig.class,
                                   CronTasksConfig.class })
