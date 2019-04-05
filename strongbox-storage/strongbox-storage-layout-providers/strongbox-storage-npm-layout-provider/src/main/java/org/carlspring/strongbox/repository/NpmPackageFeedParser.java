@@ -199,7 +199,7 @@ public class NpmPackageFeedParser
                                              PackageEntry packageEntry)
     {
         String scope = packageEntry.getScope();
-        String packageId = NpmArtifactCoordinates.caclulatePackageId("unscoped".equals(scope) ? null : scope,
+        String packageId = NpmArtifactCoordinates.calculatePackageId("unscoped".equals(scope) ? null : scope,
                                                                      packageEntry.getName());
         NpmArtifactCoordinates c = NpmArtifactCoordinates.of(packageId, packageEntry.getVersion());
 
