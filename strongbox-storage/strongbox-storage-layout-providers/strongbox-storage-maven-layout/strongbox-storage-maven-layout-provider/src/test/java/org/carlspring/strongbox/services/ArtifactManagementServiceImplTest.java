@@ -10,15 +10,10 @@ import static org.junit.jupiter.api.parallel.ExecutionMode.CONCURRENT;
 import java.io.ByteArrayInputStream;
 import java.io.File;
 import java.io.FileInputStream;
-import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
-import java.io.OutputStream;
-import java.lang.reflect.Field;
-import java.nio.charset.Charset;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
-import java.nio.file.Path;
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 import java.util.Arrays;
@@ -37,42 +32,42 @@ import java.util.stream.IntStream;
 import javax.inject.Inject;
 import javax.xml.bind.JAXBException;
 
-import org.apache.commons.io.IOUtils;
 import org.apache.maven.artifact.Artifact;
 
-import org.carlspring.commons.encryption.EncryptionAlgorithmsEnum;
-import org.carlspring.commons.io.MultipleDigestInputStream;
 import org.carlspring.maven.commons.io.filters.JarFilenameFilter;
 import org.carlspring.maven.commons.util.ArtifactUtils;
 import org.carlspring.strongbox.artifact.ArtifactNotFoundException;
 import org.carlspring.strongbox.artifact.ArtifactTag;
 import org.carlspring.strongbox.artifact.MavenArtifact;
+import org.carlspring.strongbox.artifact.generator.NullArtifactGenerator;
 import org.carlspring.strongbox.config.Maven2LayoutProviderTestConfig;
 import org.carlspring.strongbox.domain.ArtifactEntry;
 import org.carlspring.strongbox.providers.io.RepositoryFiles;
 import org.carlspring.strongbox.providers.io.RepositoryPath;
 import org.carlspring.strongbox.providers.io.RepositoryPathResolver;
 import org.carlspring.strongbox.providers.io.RepositoryStreamSupport.RepositoryInputStream;
-import org.carlspring.strongbox.providers.layout.LayoutFileSystemProvider;
 import org.carlspring.strongbox.providers.layout.Maven2LayoutProvider;
 import org.carlspring.strongbox.repository.MavenRepositoryFeatures;
 import org.carlspring.strongbox.resource.ResourceCloser;
 import org.carlspring.strongbox.storage.ArtifactResolutionException;
 import org.carlspring.strongbox.storage.ArtifactStorageException;
-import org.carlspring.strongbox.storage.checksum.ArtifactChecksum;
-import org.carlspring.strongbox.storage.checksum.ChecksumCacheManager;
 import org.carlspring.strongbox.storage.repository.MavenRepositoryFactory;
 import org.carlspring.strongbox.storage.repository.MutableRepository;
 import org.carlspring.strongbox.storage.repository.Repository;
 import org.carlspring.strongbox.storage.repository.RepositoryPolicyEnum;
 import org.carlspring.strongbox.storage.repository.RepositoryTypeEnum;
 import org.carlspring.strongbox.testing.TestCaseWithMavenArtifactGenerationAndIndexing;
+import org.carlspring.strongbox.testing.artifact.ArtifactManagementTestExecutionListener;
+import org.carlspring.strongbox.testing.artifact.TestArtifact;
+import org.carlspring.strongbox.testing.storage.repository.RepositoryManagementTestExecutionListener;
+import org.carlspring.strongbox.testing.storage.repository.TestRepository;
 
 import org.hamcrest.CoreMatchers;
 import org.hamcrest.MatcherAssert;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.TestInfo;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.junit.jupiter.api.parallel.Execution;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -740,22 +735,28 @@ public class ArtifactManagementServiceImplTest
         MatcherAssert.assertThat(artifactEntryWithClassifier.getTagSet().size(), CoreMatchers.equalTo(0));
     }
 
+    @ExtendWith({ RepositoryManagementTestExecutionListener.class,
+                  ArtifactManagementTestExecutionListener.class })
     @Test
-    public void testChecksumsStorage(TestInfo testInfo)
+    public void testChecksumsStorage(TestInfo testInfo,
+                                     @TestRepository (layout = "NullArtifactCoordinates.LAYOUT_NAME",
+                                                      storage = "storage0",
+                                                      repository ="r1")
+                                     MutableRepository repositoryForChecksumTest,
+                                     @TestArtifact(storage = "storage0",
+                                                   repository = "r1",
+                                                   resource = "org/carlspring/test/artifact2.ext",
+                                                   generator = NullArtifactGenerator.class)
+                                     MavenArtifact artifact)
             throws Exception
     {
         String repositoryId = getRepositoryName("checksums-storage", testInfo);
 
-        MutableRepository repository = mavenRepositoryFactory.createRepository(repositoryId);
-        repository.setPolicy(RepositoryPolicyEnum.SNAPSHOT.getPolicy());
-        repository.setLayout(Maven2LayoutProvider.ALIAS);
-
-        createRepository(STORAGE0, repository);
+        createRepository(STORAGE0, repositoryForChecksumTest);
 
         String gavtc = "org.carlspring.strongbox:strongbox-utils:8.4:jar";
 
         File repositoryBasedir = getRepositoryBasedir(STORAGE0, repositoryId);
-        MavenArtifact artifact = generateArtifact(repositoryBasedir.getAbsolutePath(), gavtc);
 
         // Gets parameters for 'store' method of mavenArtifactManagementService and
         // invokes the method
@@ -788,7 +789,6 @@ public class ArtifactManagementServiceImplTest
         assertNotNull(expectedChecksums);
         assertNotNull(artifactEntryForTest.getChecksums());
         assertEquals(expectedChecksums, artifactEntryForTest.getChecksums());
-        // testing github branching
     }
 
 
