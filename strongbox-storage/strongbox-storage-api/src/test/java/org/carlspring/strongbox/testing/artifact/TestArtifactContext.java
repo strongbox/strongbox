@@ -7,13 +7,16 @@ import java.nio.file.DirectoryStream;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.util.Map;
 import java.util.Objects;
+import java.util.TreeMap;
 import java.util.stream.Stream;
 
 import javax.annotation.PreDestroy;
 
 import org.carlspring.strongbox.artifact.generator.ArtifactGenerator;
 import org.carlspring.strongbox.booters.PropertiesBooter;
+import org.carlspring.strongbox.providers.io.RepositoryFiles;
 import org.carlspring.strongbox.providers.io.RepositoryPath;
 import org.carlspring.strongbox.providers.io.RepositoryPathResolver;
 import org.carlspring.strongbox.services.ArtifactManagementService;
@@ -109,24 +112,39 @@ public class TestArtifactContext implements AutoCloseable
         RepositoryPath repositoryPath = repositoryPathResolver.resolve(testArtifact.storage(),
                                                                        testArtifact.repository(),
                                                                        testArtifact.resource());
+        Map<RepositoryPath, Path> repositoryPathMap = new TreeMap<RepositoryPath, Path>(this::repositoryPathChecksumComparator);
         try (DirectoryStream<Path> s = Files.newDirectoryStream(artifactPathLocal.getParent()))
         {
-            s.forEach(p -> {
-                try (InputStream is = Files.newInputStream(p))
-                {
-                    artifactManagementService.store(repositoryPath.resolveSibling(p.getFileName()), is);
-                    Files.delete(p);
-                }
-                catch (IOException e)
-                {
-                    throw new UndeclaredThrowableException(e);
-                }
-            });
+            s.forEach(p -> repositoryPathMap.put(repositoryPath.resolveSibling(p.getFileName()), p));
         }
+        repositoryPathMap.entrySet().stream().forEach(this::store);
 
         return repositoryPath;
     }
 
+    private void store(Map.Entry<RepositoryPath, Path> e) {
+        try (InputStream is = Files.newInputStream(e.getValue()))
+        {
+            artifactManagementService.store(e.getKey(), is);
+            Files.delete(e.getValue());
+        }
+        catch (IOException ioe)
+        {
+            throw new UndeclaredThrowableException(ioe);
+        }        
+    }
+    
+    private int repositoryPathChecksumComparator(RepositoryPath p1, RepositoryPath p2) {
+        try
+        {
+            return RepositoryFiles.isChecksum(p1) ? 1 : -1;
+        }
+        catch (IOException e)
+        {
+            throw new UndeclaredThrowableException(e);
+        }        
+    }
+    
     public Path getArtifact()
     {
         return artifactPath;
