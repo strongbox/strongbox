@@ -331,16 +331,17 @@ public class ConfigurationManagementServiceImpl
                                  {
                                      for (Repository repository : storage.getRepositories().values())
                                      {
-                                         if (repository.getType().equals(RepositoryTypeEnum.GROUP.getType()))
+                                        MutableRepository mutableRepository = (MutableRepository)repository;
+                                        if (repository.getType().equals(RepositoryTypeEnum.GROUP.getType()))
                                          {
-                                             ((MutableRepository)repository).setAllowsDelete(false);
-                                             ((MutableRepository)repository).setAllowsDeployment(false);
-                                             ((MutableRepository)repository).setAllowsRedeployment(false);
+                                             mutableRepository.setAllowsDelete(false);
+                                             mutableRepository.setAllowsDeployment(false);
+                                             mutableRepository.setAllowsRedeployment(false);
                                          }
                                          if (repository.getType().equals(RepositoryTypeEnum.PROXY.getType()))
                                          {
-                                             ((MutableRepository)repository).setAllowsDeployment(false);
-                                             ((MutableRepository)repository).setAllowsRedeployment(false);
+                                             mutableRepository.setAllowsDeployment(false);
+                                             mutableRepository.setAllowsRedeployment(false);
                                          }
                                      }
                                  }

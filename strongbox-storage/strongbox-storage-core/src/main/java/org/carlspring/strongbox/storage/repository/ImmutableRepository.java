@@ -123,11 +123,14 @@ public class ImmutableRepository
         this.allowsDelete = delegate.allowsDeletion();
         this.allowsDirectoryBrowsing = delegate.allowsDirectoryBrowsing();
         this.checksumHeadersEnabled = delegate.isChecksumHeadersEnabled();
-        this.proxyConfiguration = immuteProxyConfiguration(((MutableRepository)delegate).getProxyConfiguration());
-        this.remoteRepository = immuteRemoteRepository(((MutableRepository)delegate).getRemoteRepository());
-        this.httpConnectionPool = immuteHttpConnectionPool(((MutableRepository)delegate).getHttpConnectionPool());
-        this.customConfigurations = immuteCustomConfigurations(((MutableRepository)delegate).getCustomConfigurations());
-        this.repositoryConfiguration = immuteCustomRepositoryConfiguration(((MutableRepository)delegate).getRepositoryConfiguration());
+        
+        MutableRepository mutableRepository = (MutableRepository)delegate;
+        this.proxyConfiguration = immuteProxyConfiguration(mutableRepository.getProxyConfiguration());
+        this.remoteRepository = immuteRemoteRepository(mutableRepository.getRemoteRepository());
+        this.httpConnectionPool = immuteHttpConnectionPool(mutableRepository.getHttpConnectionPool());
+        this.customConfigurations = immuteCustomConfigurations(mutableRepository.getCustomConfigurations());
+        this.repositoryConfiguration = immuteCustomRepositoryConfiguration(mutableRepository.getRepositoryConfiguration());
+        
         this.groupRepositories = immuteGroupRepositories(delegate.getGroupRepositories());
         this.artifactCoordinateValidators = immuteArtifactCoordinateValidators(
                 delegate.getArtifactCoordinateValidators());
