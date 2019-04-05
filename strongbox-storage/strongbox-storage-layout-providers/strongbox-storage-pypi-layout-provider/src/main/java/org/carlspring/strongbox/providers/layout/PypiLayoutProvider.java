@@ -33,7 +33,7 @@ public class PypiLayoutProvider
 
     public static final String ALIAS = PypiArtifactCoordinates.LAYOUT_NAME;
 
-    public static final String USER_AGENT_PREFIX = ALIAS;
+    public static final String USER_AGENT_PREFIX = "pip";
 
     @Inject
     private HeaderMappingRegistry headerMappingRegistry;
