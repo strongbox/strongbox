@@ -134,15 +134,25 @@ public class TestArtifactContext implements AutoCloseable
         }        
     }
     
-    private int repositoryPathChecksumComparator(RepositoryPath p1, RepositoryPath p2) {
+    private int repositoryPathChecksumComparator(RepositoryPath p1,
+                                                 RepositoryPath p2)
+    {
+        Boolean isChecksumP1;
+        Boolean isChecksumP2;
         try
         {
-            return RepositoryFiles.isChecksum(p1) ? 1 : -1;
+            isChecksumP1 = RepositoryFiles.isChecksum(p1);
+            isChecksumP2 = RepositoryFiles.isChecksum(p2);
         }
         catch (IOException e)
         {
             throw new UndeclaredThrowableException(e);
-        }        
+        }
+        if (isChecksumP1 && isChecksumP2)
+        {
+            return 0;
+        }
+        return isChecksumP1 ? 1 : -1;
     }
     
     public Path getArtifact()
