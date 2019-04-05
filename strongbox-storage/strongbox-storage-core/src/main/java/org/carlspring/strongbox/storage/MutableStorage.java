@@ -1,18 +1,16 @@
 package org.carlspring.strongbox.storage;
 
-import org.carlspring.strongbox.storage.repository.MutableRepository;
-
 import java.io.Serializable;
-import java.nio.file.Path;
-import java.nio.file.Paths;
 import java.util.LinkedHashMap;
 import java.util.Map;
+
+import org.carlspring.strongbox.storage.repository.MutableRepository;
+import org.carlspring.strongbox.storage.repository.Repository;
+import org.springframework.util.CollectionUtils;
 
 import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.annotation.JsonRootName;
-import org.springframework.util.Assert;
-import org.springframework.util.CollectionUtils;
 
 /**
  * @author mtodorov
@@ -20,7 +18,7 @@ import org.springframework.util.CollectionUtils;
  */
 @JsonRootName("storage")
 public class MutableStorage
-        implements Serializable
+        implements Serializable, Storage
 {
     private String id;
     
@@ -55,19 +53,7 @@ public class MutableStorage
 
     public String getBasedir()
     {
-        if (basedir != null)
-        {
-            return basedir;
-        }
-        else if (id != null)
-        {
-            initDefaultBasedir(id);
-            return basedir;
-        }
-        else
-        {
-            return null;
-        }
+        return basedir;
     }
 
     public void setBasedir(String basedir)
@@ -75,17 +61,8 @@ public class MutableStorage
         this.basedir = basedir;
     }
 
-    public void initDefaultBasedir(String id)
-    {
-        //TODO: we should rework this to use SpringBoot environment instead of `System.getProperty`
-        String storagesBaseDir = System.getProperty("strongbox.storage.booter.basedir");
-        Assert.notNull(storagesBaseDir, "System property `strongbox.storage.booter.basedir` should be configured.");
-        
-        Path basedirPath = Paths.get(storagesBaseDir);
-        basedir = basedirPath.resolve(id).toString();
-    }
-
-    public Map<String, MutableRepository> getRepositories()
+    @Override
+    public Map<String, ? extends Repository> getRepositories()
     {
         return repositories;
     }
@@ -113,11 +90,6 @@ public class MutableStorage
     public boolean hasRepositories()
     {
         return !CollectionUtils.isEmpty(repositories);
-    }
-
-    public boolean existsOnFileSystem()
-    {
-        return Paths.get(getBasedir()).toFile().exists();
     }
 
     @Override

@@ -44,7 +44,7 @@ public class GroupRepositoryArtifactExistenceChecker
                                                              final Map<String, MutableBoolean> repositoryArtifactExistence)
             throws IOException
     {
-        for (final String maybeStorageAndRepositoryId : groupRepository.getGroupRepositories().keySet())
+        for (final String maybeStorageAndRepositoryId : groupRepository.getGroupRepositories())
         {
             final String subStorageId = getStorageId(groupRepository, maybeStorageAndRepositoryId);
             final String subRepositoryId = getRepositoryId(maybeStorageAndRepositoryId);

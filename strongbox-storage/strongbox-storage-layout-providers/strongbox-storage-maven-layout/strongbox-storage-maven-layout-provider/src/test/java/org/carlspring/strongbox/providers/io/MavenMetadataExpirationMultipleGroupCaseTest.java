@@ -48,8 +48,6 @@ public class MavenMetadataExpirationMultipleGroupCaseTest
     @Inject
     private GroupRepositoryProvider groupRepositoryProvider;
 
-    private MutableRepository localYahrSourceRepository;
-
     private MutableObject<Metadata> versionLevelMetadataYahr = new MutableObject<>();
 
     private MutableObject<Metadata> artifactLevelMetadataYahr = new MutableObject<>();
@@ -58,34 +56,32 @@ public class MavenMetadataExpirationMultipleGroupCaseTest
     public void initialize(TestInfo testInfo)
             throws Exception
     {
-        localSourceRepository = createRepository(STORAGE0,
-                                                 getRepositoryName(REPOSITORY_LOCAL_SOURCE, testInfo),
-                                                 RepositoryPolicyEnum.SNAPSHOT.getPolicy(),
-                                                 false);
+        createRepository(STORAGE0,
+                         getRepositoryName(REPOSITORY_LOCAL_SOURCE, testInfo),
+                         RepositoryPolicyEnum.SNAPSHOT.getPolicy(),
+                         false);
 
         createRepository(STORAGE0,
                          getRepositoryName(REPOSITORY_HOSTED, testInfo),
                          RepositoryPolicyEnum.SNAPSHOT.getPolicy(),
                          false);
 
-        mockHostedRepositoryMetadataUpdate(localSourceRepository,
-                                           getRepositoryName(REPOSITORY_HOSTED, testInfo),
+        mockHostedRepositoryMetadataUpdate(getRepositoryName(REPOSITORY_HOSTED, testInfo),
                                            getRepositoryName(REPOSITORY_LOCAL_SOURCE, testInfo),
                                            versionLevelMetadata,
                                            artifactLevelMetadata);
 
-        localYahrSourceRepository = createRepository(STORAGE0,
-                                                     getRepositoryName(REPOSITORY_LOCAL_YAHR_SOURCE, testInfo),
-                                                     RepositoryPolicyEnum.SNAPSHOT.getPolicy(),
-                                                     false);
+        createRepository(STORAGE0,
+                         getRepositoryName(REPOSITORY_LOCAL_YAHR_SOURCE, testInfo),
+                         RepositoryPolicyEnum.SNAPSHOT.getPolicy(),
+                         false);
 
         createRepository(STORAGE0,
                          getRepositoryName(REPOSITORY_HOSTED_YAHR, testInfo),
                          RepositoryPolicyEnum.SNAPSHOT.getPolicy(),
                          false);
 
-        mockHostedRepositoryMetadataUpdate(localYahrSourceRepository,
-                                           getRepositoryName(REPOSITORY_HOSTED_YAHR, testInfo),
+        mockHostedRepositoryMetadataUpdate(getRepositoryName(REPOSITORY_HOSTED_YAHR, testInfo),
                                            getRepositoryName(REPOSITORY_LOCAL_YAHR_SOURCE, testInfo),
                                            versionLevelMetadataYahr,
                                            artifactLevelMetadataYahr);
@@ -142,8 +138,7 @@ public class MavenMetadataExpirationMultipleGroupCaseTest
         sha1ProxyPathChecksum = readChecksum(resolveSiblingChecksum(proxyPath, EncryptionAlgorithmsEnum.SHA1));
         assertEquals(sha1ProxyPathChecksum, calculatedGroupPathChecksum);
 
-        mockHostedRepositoryMetadataUpdate(localSourceRepository,
-                                           getRepositoryName(REPOSITORY_HOSTED, testInfo),
+        mockHostedRepositoryMetadataUpdate(getRepositoryName(REPOSITORY_HOSTED, testInfo),
                                            getRepositoryName(REPOSITORY_LOCAL_SOURCE, testInfo),
                                            versionLevelMetadata,
                                            artifactLevelMetadata);
@@ -154,8 +149,7 @@ public class MavenMetadataExpirationMultipleGroupCaseTest
         assertEquals(sha1HostedPathChecksum, calculatedHostedPathChecksum);
         assertNotEquals(calculatedHostedPathChecksum, sha1ProxyPathChecksum);
 
-        mockHostedRepositoryMetadataUpdate(localYahrSourceRepository,
-                                           getRepositoryName(REPOSITORY_HOSTED_YAHR, testInfo),
+        mockHostedRepositoryMetadataUpdate(getRepositoryName(REPOSITORY_HOSTED_YAHR, testInfo),
                                            getRepositoryName(REPOSITORY_LOCAL_YAHR_SOURCE, testInfo),
                                            versionLevelMetadataYahr,
                                            artifactLevelMetadataYahr);

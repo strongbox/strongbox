@@ -1,5 +1,6 @@
 package org.carlspring.strongbox.configuration;
 
+import org.carlspring.strongbox.storage.ImmutableStorage;
 import org.carlspring.strongbox.storage.MutableStorage;
 import org.carlspring.strongbox.storage.Storage;
 import org.carlspring.strongbox.storage.repository.HttpConnectionPool;
@@ -82,7 +83,7 @@ public class Configuration
     private Map<String, Storage> immuteStorages(final Map<String, MutableStorage> source)
     {
         return source != null ? ImmutableSortedMap.copyOf(source.entrySet().stream().collect(
-                toMap(Map.Entry::getKey, e -> new Storage(e.getValue())))) : Collections.emptyMap();
+                toMap(Map.Entry::getKey, e -> new ImmutableStorage(e.getValue())))) : Collections.emptyMap();
     }
 
     private RemoteRepositoriesConfiguration immuteRemoteRepositoriesConfiguration(final MutableRemoteRepositoriesConfiguration source)
@@ -168,7 +169,7 @@ public class Configuration
     public List<Repository> getRepositoriesWithLayout(String storageId,
                                                       String layout)
     {
-        Stream<Repository> repositories;
+        Stream<? extends Repository> repositories;
         if (storageId != null)
         {
             Storage storage = getStorage(storageId);
@@ -223,7 +224,6 @@ public class Configuration
         {
             Repository repository = it.next();
             Optional<String> exists = repository.getGroupRepositories()
-                                                .keySet()
                                                 .stream()
                                                 .filter(groupName -> (groupName.equals(storageAndRepositoryId) ||
                                                                       (repository.getStorage().getId().equals(storageId) && groupName.equals(repositoryId))))

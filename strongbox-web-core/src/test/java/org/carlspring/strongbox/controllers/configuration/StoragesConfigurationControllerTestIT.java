@@ -6,6 +6,7 @@ import org.carlspring.strongbox.forms.configuration.*;
 import org.carlspring.strongbox.providers.layout.Maven2LayoutProvider;
 import org.carlspring.strongbox.rest.common.RestAssuredBaseTest;
 import org.carlspring.strongbox.service.ProxyRepositoryConnectionPoolConfigurationService;
+import org.carlspring.strongbox.storage.ImmutableStorage;
 import org.carlspring.strongbox.storage.Storage;
 import org.carlspring.strongbox.storage.repository.ImmutableRepository;
 import org.carlspring.strongbox.storage.repository.Repository;
@@ -107,7 +108,7 @@ public class StoragesConfigurationControllerTestIT
 
     private String getBaseDir(String storageId)
     {
-        String directory = propertiesBooter.getVaultDirectory() + "/storages/" + storageId;
+        String directory = propertiesBooter.getStorageBooterBasedir() + "/" + storageId;
 
         return Paths.get(directory).toAbsolutePath().toString();
     }
@@ -305,10 +306,10 @@ public class StoragesConfigurationControllerTestIT
         Repository repository0 = storage.getRepositories().get(repositoryForm0_1.getId());
         Repository repository1 = storage.getRepositories().get(repositoryForm0_2.getId());
 
-        Map<String, String> groupRepositoriesMap = repository0.getGroupRepositories();
-        Map<String, String> groupRepositoriesMapExpected = new LinkedHashMap<>();
-        groupRepositoriesMapExpected.put(groupRepository1, groupRepository1);
-        groupRepositoriesMapExpected.put(groupRepository2, groupRepository2);
+        Set<String> groupRepositoriesMap = repository0.getGroupRepositories();
+        Set<String> groupRepositoriesMapExpected = new LinkedHashSet<>();
+        groupRepositoriesMapExpected.add(groupRepository1);
+        groupRepositoriesMapExpected.add(groupRepository2);
 
         assertNotNull(storage, "Failed to get storage (" + storageId + ")!");
         assertFalse(storage.getRepositories().isEmpty(), "Failed to get storage (" + storageId + ")!");
@@ -415,7 +416,7 @@ public class StoragesConfigurationControllerTestIT
                             .when()
                             .get(url)
                             .prettyPeek()
-                            .as(Storage.class);
+                            .as(ImmutableStorage.class);
     }
 
     private void addRepository(RepositoryForm repository,
@@ -609,6 +610,9 @@ public class StoragesConfigurationControllerTestIT
         Storage storage = getStorage(storageId);
         assertNotNull(storage, "Failed to get storage (" + storageId + ")!");
 
+        // Storage basedir will be created only when repository created.
+        addRepository(repositoryForm0, storage4);
+        
         // 2. Confirm default base dir has been created
         String storageBaseDir = getBaseDir(storageId);
         MatcherAssert.assertThat(Files.exists(Paths.get(storageBaseDir)), CoreMatchers.equalTo(true));

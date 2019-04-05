@@ -9,7 +9,7 @@ import com.fasterxml.jackson.annotation.JsonTypeInfo;
  */
 @Immutable
 @JsonTypeInfo(use = JsonTypeInfo.Id.NAME, property = "layout")
-public abstract class CustomRepositoryConfiguration
+public abstract class CustomRepositoryConfiguration implements RepositoryConfiguration
 {
 
 }

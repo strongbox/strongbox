@@ -53,7 +53,7 @@ public class SemanticVersioningValidator
     @Override
     public boolean supports(Repository repository)
     {
-        return repository.getArtifactCoordinateValidators().keySet().contains(ALIAS);
+        return repository.getArtifactCoordinateValidators().contains(ALIAS);
     }
 
     @Override

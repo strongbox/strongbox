@@ -1,5 +1,6 @@
 package org.carlspring.strongbox.config;
 
+import org.carlspring.strongbox.booters.PropertiesBooter;
 import org.carlspring.strongbox.providers.datastore.StorageProvider;
 import org.carlspring.strongbox.providers.datastore.StorageProviderRegistry;
 import org.carlspring.strongbox.providers.io.LayoutFileSystemFactory;
@@ -56,25 +57,26 @@ public class NugetLayoutProviderConfig
     }
 
     @Bean(FILE_SYSTEM_ALIAS)
-    public LayoutFileSystemFactory nugetRepositoryFileSystemFactory()
+    public LayoutFileSystemFactory nugetRepositoryFileSystemFactory(PropertiesBooter propertiesBooter)
     {
         return (repository) -> {
             LayoutFileSystemProviderFactory providerFactory = nugetRepositoryFileSystemProviderFactory();
 
             StorageProvider storageProvider = storageProviderRegistry.getProvider(repository.getImplementation());
 
-            return nugetRepositoryFileSystem(repository, storageProvider.getFileSystem(),
+            return nugetRepositoryFileSystem(propertiesBooter, repository, storageProvider.getFileSystem(),
                                              providerFactory.create(repository));
         };
     }
 
     @Bean
     @Scope("prototype")
-    public NugetFileSystem nugetRepositoryFileSystem(Repository repository,
-                                                               FileSystem storageFileSystem,
-                                                               LayoutFileSystemProvider provider)
+    public NugetFileSystem nugetRepositoryFileSystem(PropertiesBooter propertiesBooter,
+                                                     Repository repository,
+                                                     FileSystem storageFileSystem,
+                                                     LayoutFileSystemProvider provider)
     {
-        return new NugetFileSystem(repository, storageFileSystem, provider);
+        return new NugetFileSystem(propertiesBooter, repository, storageFileSystem, provider);
     }
 
 }

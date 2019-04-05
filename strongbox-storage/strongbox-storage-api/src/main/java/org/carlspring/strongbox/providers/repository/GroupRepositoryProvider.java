@@ -97,7 +97,7 @@ public class GroupRepositoryProvider extends AbstractRepositoryProvider
         Repository groupRepository = repositoryPath.getRepository();
         Storage storage = groupRepository.getStorage();
         
-        for (String storageAndRepositoryId : groupRepository.getGroupRepositories().keySet())
+        for (String storageAndRepositoryId : groupRepository.getGroupRepositories())
         {
             String sId = configurationManager.getStorageId(storage, storageAndRepositoryId);
             String rId = configurationManager.getRepositoryId(storageAndRepositoryId);

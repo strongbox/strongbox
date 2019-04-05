@@ -1,7 +1,11 @@
 package org.carlspring.strongbox.mapper;
 
-import javax.annotation.PostConstruct;
 import java.util.Optional;
+
+import javax.annotation.PostConstruct;
+
+import org.springframework.context.annotation.Primary;
+import org.springframework.stereotype.Component;
 
 import com.fasterxml.jackson.annotation.JsonTypeName;
 import com.fasterxml.jackson.databind.AnnotationIntrospector;
@@ -11,8 +15,6 @@ import com.fasterxml.jackson.databind.introspect.JacksonAnnotationIntrospector;
 import com.fasterxml.jackson.databind.jsontype.NamedType;
 import com.fasterxml.jackson.databind.type.TypeFactory;
 import com.fasterxml.jackson.module.jaxb.JaxbAnnotationIntrospector;
-import org.springframework.context.annotation.Primary;
-import org.springframework.stereotype.Component;
 
 /**
  * @author Alex Oreshkevich

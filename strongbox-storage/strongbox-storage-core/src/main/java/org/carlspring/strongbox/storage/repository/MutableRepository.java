@@ -3,11 +3,11 @@ package org.carlspring.strongbox.storage.repository;
 import org.carlspring.strongbox.configuration.MutableProxyConfiguration;
 import org.carlspring.strongbox.providers.datastore.FileSystemStorageProvider;
 import org.carlspring.strongbox.storage.MutableStorage;
+import org.carlspring.strongbox.storage.Storage;
 import org.carlspring.strongbox.storage.repository.remote.MutableRemoteRepository;
 import org.carlspring.strongbox.yaml.repository.MutableCustomRepositoryConfiguration;
 
 import java.io.Serializable;
-import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.LinkedHashSet;
 import java.util.List;
@@ -24,7 +24,7 @@ import com.fasterxml.jackson.annotation.JsonProperty;
  */
 @JsonIgnoreProperties(ignoreUnknown = true)
 public class MutableRepository
-        implements Serializable
+        implements Serializable, Repository
 {
 
     private String id;
@@ -102,18 +102,7 @@ public class MutableRepository
 
     public String getBasedir()
     {
-        if (basedir != null)
-        {
-            return basedir;
-        }
-        else if (storage != null)
-        {
-            return Paths.get(storage.getBasedir()).resolve(id).toString();
-        }
-        else
-        {
-            return null;
-        }
+        return basedir;
     }
 
     public void setBasedir(String basedir)
@@ -291,7 +280,7 @@ public class MutableRepository
         return RepositoryPolicyEnum.ofPolicy(getPolicy()).acceptsReleases();
     }
 
-    public MutableStorage getStorage()
+    public Storage getStorage()
     {
         return storage;
     }

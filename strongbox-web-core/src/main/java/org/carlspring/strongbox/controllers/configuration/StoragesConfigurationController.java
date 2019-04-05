@@ -121,12 +121,7 @@ public class StoragesConfigurationController
         try
         {
             MutableStorage storage = conversionService.convert(storageForm, MutableStorage.class);
-            configurationManagementService.saveStorage(storage);
-
-            if (!storage.existsOnFileSystem())
-            {
-                storageManagementService.createStorage(storage);
-            }
+            storageManagementService.saveStorage(storage);
 
             return getSuccessfulResponseEntity(SUCCESSFUL_SAVE_STORAGE, accept);
         }
@@ -164,12 +159,7 @@ public class StoragesConfigurationController
         try
         {
             MutableStorage storage = conversionService.convert(storageFormToUpdate, MutableStorage.class);
-            configurationManagementService.saveStorage(storage);
-
-            if (!storage.existsOnFileSystem())
-            {
-                storageManagementService.createStorage(storage);
-            }
+            storageManagementService.saveStorage(storage);
 
             return getSuccessfulResponseEntity(SUCCESSFUL_UPDATE_STORAGE, accept);
         }

@@ -1,11 +1,18 @@
 package org.carlspring.strongbox.providers.io;
 
+import java.io.IOException;
+import java.nio.file.DirectoryStream;
+import java.nio.file.FileSystem;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.util.Optional;
+import java.util.Set;
+
+import org.carlspring.strongbox.booters.PropertiesBooter;
 import org.carlspring.strongbox.io.StorageFileSystem;
+import org.carlspring.strongbox.providers.layout.LayoutFileSystemProvider;
 import org.carlspring.strongbox.providers.layout.LayoutProvider;
 import org.carlspring.strongbox.storage.repository.Repository;
-
-import java.nio.file.FileSystem;
-import java.util.Set;
 
 /**
  * This class decorates {@link StorageFileSystem} with common layout specific
@@ -25,14 +32,15 @@ public abstract class LayoutFileSystem
     public static final String TEMP = ".temp";
     public static final String INDEX = ".index";
 
-    private Repository repository;
-    private StorageFileSystemProvider provider;
-
-    public LayoutFileSystem(Repository repository,
+    private final Repository repository;
+    private final StorageFileSystemProvider provider;
+    
+    public LayoutFileSystem(PropertiesBooter propertiesBooter,
+                            Repository repository,
                             FileSystem storageFileSystem,
-                            StorageFileSystemProvider provider)
+                            LayoutFileSystemProvider provider)
     {
-        super(storageFileSystem);
+        super(repository.getStorage(), propertiesBooter, storageFileSystem);
         this.repository = repository;
         this.provider = provider;
     }
@@ -48,9 +56,42 @@ public abstract class LayoutFileSystem
         return provider;
     }
 
+    public void createRootDirectory() throws IOException
+    {
+        Path rootPath = resolveRootPath();
+        Files.createDirectories(rootPath);
+    }
+    
+    public void cleanupRootDirectory()
+        throws IOException
+    {
+        Path storageRootPath = super.getRootDirectory();
+        if (!Files.exists(storageRootPath) || !Files.isDirectory(storageRootPath))
+        {
+            return;
+        }
+        
+        try (DirectoryStream<Path> dirStream = Files.newDirectoryStream(storageRootPath))
+        {
+            if (dirStream.iterator().hasNext())
+            {
+                return;
+            }
+        }
+        Files.delete(storageRootPath);
+    }
+    
     public RootRepositoryPath getRootDirectory()
     {
-        return new RootRepositoryPath(getTarget().getPath(repository.getBasedir()).toAbsolutePath().normalize(), this);
+        return new RootRepositoryPath(resolveRootPath(), this);
+    }
+
+    private Path resolveRootPath()
+    {
+        Path rootPath = Optional.ofNullable(repository.getBasedir())
+                                .map(p -> getTarget().getPath(p).toAbsolutePath().normalize())
+                                .orElseGet(() -> super.getRootDirectory().resolve(repository.getId())).toAbsolutePath().normalize();
+        return rootPath;
     }
 
     public RepositoryPath getTrashPath()

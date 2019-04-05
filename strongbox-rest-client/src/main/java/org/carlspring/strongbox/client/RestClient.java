@@ -4,6 +4,7 @@ import org.carlspring.strongbox.configuration.MutableConfiguration;
 import org.carlspring.strongbox.configuration.MutableProxyConfiguration;
 import org.carlspring.strongbox.forms.configuration.RepositoryForm;
 import org.carlspring.strongbox.forms.configuration.StorageForm;
+import org.carlspring.strongbox.storage.ImmutableStorage;
 import org.carlspring.strongbox.storage.Storage;
 import org.carlspring.strongbox.storage.repository.ImmutableRepository;
 import org.carlspring.strongbox.yaml.CustomYAMLMapperFactory;
@@ -309,10 +310,10 @@ public class RestClient
 
         final Response response = resource.request(MediaType.APPLICATION_JSON).get();
 
-        Storage storage = null;
+        ImmutableStorage storage = null;
         if (response.getStatus() == 200)
         {
-            storage = response.readEntity(Storage.class);
+            storage = response.readEntity(ImmutableStorage.class);
         }
         else
         {

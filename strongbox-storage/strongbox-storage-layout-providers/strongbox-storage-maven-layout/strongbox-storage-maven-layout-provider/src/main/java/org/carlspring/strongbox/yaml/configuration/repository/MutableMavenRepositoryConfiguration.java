@@ -12,13 +12,14 @@ import com.fasterxml.jackson.annotation.JsonTypeName;
  */
 @JsonTypeName(Maven2LayoutProvider.ALIAS)
 public class MutableMavenRepositoryConfiguration
-        extends MutableCustomRepositoryConfiguration
+        extends MutableCustomRepositoryConfiguration implements MavenRepositoryConfiguration
 {
 
     private boolean indexingEnabled = false;
 
     private boolean indexingClassNamesEnabled = true;
 
+    @Override
     public boolean isIndexingEnabled()
     {
         return indexingEnabled;
@@ -29,6 +30,7 @@ public class MutableMavenRepositoryConfiguration
         this.indexingEnabled = indexingEnabled;
     }
 
+    @Override
     public boolean isIndexingClassNamesEnabled()
     {
         return indexingClassNamesEnabled;
@@ -42,6 +44,6 @@ public class MutableMavenRepositoryConfiguration
     @Override
     public CustomRepositoryConfiguration getImmutable()
     {
-        return new MavenRepositoryConfiguration(this);
+        return new ImmutableMavenRepositoryConfiguration(this);
     }
 }
