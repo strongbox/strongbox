@@ -126,12 +126,19 @@ public class TestArtifactContext implements AutoCloseable
         try (InputStream is = Files.newInputStream(e.getValue()))
         {
             artifactManagementService.store(e.getKey(), is);
+        }
+        catch (IOException ioe)
+        {
+            throw new UndeclaredThrowableException(ioe);
+        }
+        try
+        {
             Files.delete(e.getValue());
         }
         catch (IOException ioe)
         {
             throw new UndeclaredThrowableException(ioe);
-        }        
+        }
     }
     
     private int repositoryPathChecksumComparator(RepositoryPath p1,
@@ -150,7 +157,7 @@ public class TestArtifactContext implements AutoCloseable
         }
         if (isChecksumP1 && isChecksumP2)
         {
-            return 0;
+            return p1.compareTo(p2);
         }
         return isChecksumP1 ? 1 : -1;
     }
