@@ -1,5 +1,14 @@
 package org.carlspring.strongbox.controllers.layout.maven;
 
+import io.restassured.http.Header;
+import io.restassured.http.Headers;
+import io.restassured.module.mockmvc.response.MockMvcResponse;
+import io.restassured.response.ExtractableResponse;
+import org.apache.maven.artifact.Artifact;
+import org.apache.maven.artifact.repository.metadata.Metadata;
+import org.apache.maven.artifact.repository.metadata.SnapshotVersion;
+import org.apache.maven.model.Plugin;
+import org.apache.maven.project.artifact.PluginArtifact;
 import org.carlspring.commons.encryption.EncryptionAlgorithmsEnum;
 import org.carlspring.commons.io.MultipleDigestOutputStream;
 import org.carlspring.maven.commons.util.ArtifactUtils;
@@ -23,6 +32,16 @@ import org.carlspring.strongbox.storage.search.SearchResult;
 import org.carlspring.strongbox.storage.search.SearchResults;
 import org.carlspring.strongbox.util.MessageDigestUtils;
 import org.carlspring.strongbox.yaml.configuration.repository.MutableMavenRepositoryConfiguration;
+import org.codehaus.plexus.util.xml.pull.XmlPullParserException;
+import org.junit.jupiter.api.*;
+import org.mockito.Mockito;
+import org.mockito.MockitoAnnotations;
+import org.mockito.Spy;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.MediaType;
+import org.springframework.security.test.context.support.WithMockUser;
+import org.w3c.dom.Document;
+import org.xml.sax.InputSource;
 
 import javax.inject.Inject;
 import javax.xml.bind.JAXBException;
@@ -45,25 +64,6 @@ import java.util.Set;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipOutputStream;
 
-import io.restassured.http.Header;
-import io.restassured.http.Headers;
-import io.restassured.module.mockmvc.response.MockMvcResponse;
-import io.restassured.response.ExtractableResponse;
-import org.apache.maven.artifact.Artifact;
-import org.apache.maven.artifact.repository.metadata.Metadata;
-import org.apache.maven.artifact.repository.metadata.SnapshotVersion;
-import org.apache.maven.model.Plugin;
-import org.apache.maven.project.artifact.PluginArtifact;
-import org.codehaus.plexus.util.xml.pull.XmlPullParserException;
-import org.junit.jupiter.api.*;
-import org.mockito.Mockito;
-import org.mockito.MockitoAnnotations;
-import org.mockito.Spy;
-import org.springframework.http.HttpStatus;
-import org.springframework.http.MediaType;
-import org.springframework.security.test.context.support.WithUserDetails;
-import org.w3c.dom.Document;
-import org.xml.sax.InputSource;
 import static io.restassured.module.mockmvc.RestAssuredMockMvc.given;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.*;
@@ -1100,7 +1100,7 @@ public class MavenArtifactControllerTest
      * repository.
      */
     @Test
-    @WithUserDetails("developer01")
+    @WithMockUser(username = "test-user", authorities = "ARTIFACTS_RESOLVE")
     public void testDynamicPrivilegeAssignmentForRepository()
     {
         String url = getContextBaseUrl() + "/storages/" + STORAGE0 + "/" + REPOSITORY_RELEASES;

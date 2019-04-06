@@ -50,11 +50,6 @@ public class RestClient
         this.yamlMapper = yamlMapper;
     }
 
-    public static RestClient getTestInstance()
-    {
-        return getTestInstance("maven", "password");
-    }
-
     public static RestClient getTestInstanceLoggedInAsAdmin()
     {
         return getTestInstance("admin", "password");

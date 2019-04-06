@@ -90,7 +90,7 @@ public class UserControllerTestIT
     @Test
     public void testGetUser()
     {
-        final String username = "developer01";
+        final String username = "test-user";
 
         // By default assignableRoles should not be present in the response.
         given().accept(MediaType.APPLICATION_JSON_VALUE)
@@ -275,7 +275,7 @@ public class UserControllerTestIT
                              MediaType.TEXT_PLAIN_VALUE })
     void updateExistingUserWithNullPassword(String acceptHeader)
     {
-        User mavenUser = retrieveUserByName("maven");
+        User mavenUser = retrieveUserByName("test-user");
         UserForm input = buildFromUser(mavenUser, null);
         input.setPassword(null);
 
@@ -291,7 +291,7 @@ public class UserControllerTestIT
                .extract()
                .asString();
 
-        User updatedUser = retrieveUserByName("maven");
+        User updatedUser = retrieveUserByName("deployer");
 
         assertNotNull(updatedUser.getPassword());
         assertEquals(mavenUser.getPassword(), updatedUser.getPassword());
@@ -355,77 +355,9 @@ public class UserControllerTestIT
         assertNull(databaseCheck);
     }
 
-    @ParameterizedTest
-    @WithUserDetails("maven")
-    @ValueSource(strings = { MediaType.APPLICATION_JSON_VALUE,
-                             MediaType.TEXT_PLAIN_VALUE })
-    void changeOwnUser(String acceptHeader)
-    {
-        final String username = "maven";
-        final String newPassword = "";
-        UserForm user = buildUser(username, newPassword);
-
-        given().contentType(MediaType.APPLICATION_JSON_VALUE)
-               .accept(acceptHeader)
-               .body(user)
-               .when()
-               .put(getContextBaseUrl() + "/{username}", username)
-               .peek()
-               .then()
-               .statusCode(HttpStatus.FORBIDDEN.value())
-               .body(containsString(OWN_USER_DELETE_FORBIDDEN))
-               .extract()
-               .asString();
-
-        User updatedUser = retrieveUserByName(user.getUsername());
-
-        assertEquals(username, updatedUser.getUsername());
-        assertFalse(passwordEncoder.matches(newPassword, updatedUser.getPassword()));
-    }
-
-    @ParameterizedTest
-    @ValueSource(strings = { MediaType.APPLICATION_JSON_VALUE,
-                             MediaType.TEXT_PLAIN_VALUE })
-    void shouldBeAbleToUpdateRoles(String acceptHeader)
-    {
-        final String username = "maven";
-        final String newPassword = "password";
-        UserForm admin = buildUser(username, newPassword);
-
-        User updatedUser = retrieveUserByName(admin.getUsername());
-
-        assertTrue(SetUtils.isEqualSet(updatedUser.getRoles(), ImmutableSet.of(Roles.ADMIN.name())));
-
-        admin.setRoles(ImmutableSet.of("UI_MANAGER"));
-        given().contentType(MediaType.APPLICATION_JSON_VALUE)
-               .accept(acceptHeader)
-               .body(admin)
-               .when()
-               .put(getContextBaseUrl() + "/{username}", username)
-               .peek()
-               .then()
-               .statusCode(HttpStatus.OK.value())
-               .body(containsString(SUCCESSFUL_UPDATE_USER))
-               .extract()
-               .asString();
-
-        updatedUser = retrieveUserByName(admin.getUsername());
-
-        assertTrue(SetUtils.isEqualSet(updatedUser.getRoles(), ImmutableSet.of("UI_MANAGER")));
-
-        // Rollback changes.
-        admin.setRoles(ImmutableSet.of(Roles.ADMIN.name()));
-        given().contentType(MediaType.APPLICATION_JSON_VALUE)
-               .accept(acceptHeader)
-               .body(admin)
-               .when()
-               .put(getContextBaseUrl() + "/{username}", username)
-               .then()
-               .statusCode(HttpStatus.OK.value());
-    }
 
     @Test
-    @WithUserDetails("developer01")
+    @WithUserDetails("test-user")
     public void testUserWithoutViewUserRoleShouldNotBeAbleToViewUserAccountData()
     {
         given().accept(MediaType.APPLICATION_JSON_VALUE)
@@ -436,13 +368,13 @@ public class UserControllerTestIT
 
         given().accept(MediaType.APPLICATION_JSON_VALUE)
                .when()
-               .get(getContextBaseUrl() + "/developer01")
+               .get(getContextBaseUrl() + "/deployer")
                .then()
                .statusCode(HttpStatus.FORBIDDEN.value());
     }
 
     @Test
-    @WithUserDetails("developer01")
+    @WithUserDetails("test-user")
     public void testUserWithoutUpdateUserRoleShouldNotBeAbleToUpdateSomeoneElsePassword()
     {
         final String username = "admin";
@@ -708,7 +640,7 @@ public class UserControllerTestIT
     @Test
     public void testNotValidMapsShouldNotUpdateAccessModel()
     {
-        String username = "developer01";
+        String username = "test-user";
 
         // load user with custom access model
         UserOutput test = getUser(username);
@@ -743,7 +675,7 @@ public class UserControllerTestIT
     public void testUpdatingAccessModelForNonExistingUserShouldFail()
     {
         // load user with custom access model
-        UserOutput test = getUser("developer01");
+        UserOutput test = getUser("test-user");
 
         logger.debug(test.toString());
 

@@ -48,9 +48,9 @@ public class UserServiceTest
     public void testFindByUsername()
     {
         // Load the user
-        User user = userService.findByUserName("developer01");
+        User user = userService.findByUserName("test-user");
 
-        assertNotNull(user, "Unable to find user by name developer01");
+        assertNotNull(user, "Unable to find user by name test-user");
         assertNotNull(user.getAuthorities(), "User authorities were not set!");
         assertTrue(user.getAuthorities().size() > 0, "Expected user authorities to be grater than 0!");
 
@@ -244,9 +244,9 @@ public class UserServiceTest
     public void testPrivilegesProcessingForAccessModel()
     {
         // Load the user
-        User user = userService.findByUserName("developer01");
+        User user = userService.findByUserName("test-user");
 
-        assertNotNull(user, "Unable to find user by name developer01");
+        assertNotNull(user, "Unable to find user by name test-user");
 
         // Display the access model
         UserAccessModelReadContract accessModel = user.getUserAccessModel();
@@ -261,9 +261,10 @@ public class UserServiceTest
 
         assertNotNull(privileges);
         assertFalse(privileges.isEmpty());
-        assertThat(privileges.size(), CoreMatchers.equalTo(2));
+        assertThat(privileges.size(), CoreMatchers.equalTo(3));
         assertTrue(privileges.contains("ARTIFACTS_RESOLVE"));
         assertTrue(privileges.contains("ARTIFACTS_DELETE"));
+        assertTrue(privileges.contains("ARTIFACTS_DEPLOY"));
 
         privileges = AccessModel.getPathPrivileges(accessModel, "/storages/storage0/releases/" +
                                                    "com/carlspring/foo/1.2/foo-1.2.jar");
@@ -273,6 +274,16 @@ public class UserServiceTest
         assertThat(privileges.size(), CoreMatchers.equalTo(2));
         assertTrue(privileges.contains("ARTIFACTS_RESOLVE"));
         assertTrue(privileges.contains("ARTIFACTS_VIEW"));
+
+        privileges = AccessModel.getPathPrivileges(accessModel, "/storages/storage0/releases/" +
+                                                    "org/carlspring/foo/1.3/foo-1.3.jar");
+
+        assertNotNull(privileges);
+        assertFalse(privileges.isEmpty());
+        assertThat(privileges.size(), CoreMatchers.equalTo(3));
+        assertTrue(privileges.contains("ARTIFACTS_RESOLVE"));
+        assertTrue(privileges.contains("ARTIFACTS_DELETE"));
+        assertTrue(privileges.contains("ARTIFACTS_DEPLOY"));
 
         privileges = AccessModel.getPathPrivileges(accessModel, "/storages/storage0/releases/" +
                                                    "com/mycorp/foo/1.2/foo-1.2.jar");

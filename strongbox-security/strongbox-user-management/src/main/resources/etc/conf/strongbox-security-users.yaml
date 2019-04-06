@@ -5,16 +5,6 @@ users:
       roles:
         - ADMIN
       securityTokenKey: admin-secret
-    - username: maven
-      password: $2a$10$WqtVx7Iio0cndyR1lEaKW.SWhUYmF/zHHG5hkAXvH5hUmklM7QfMO
-      roles:
-        - ADMIN
-      securityTokenKey: maven-secret
-    - username: user
-      password: $2a$10$WqtVx7Iio0cndyR1lEaKW.SWhUYmF/zHHG5hkAXvH5hUmklM7QfMO
-      roles:
-        - ADMIN
-      securityTokenKey: user-secret
     - username: deployer
       password: $2a$10$WqtVx7Iio0cndyR1lEaKW.SWhUYmF/zHHG5hkAXvH5hUmklM7QfMO
       roles:
@@ -28,11 +18,11 @@ users:
                 repositoryPrivileges:
                   - name: ARTIFACTS_DEPLOY
                   - name: ARTIFACTS_RESOLVE
-    - username: developer01
+    - username: test-user
       password: $2a$10$WqtVx7Iio0cndyR1lEaKW.SWhUYmF/zHHG5hkAXvH5hUmklM7QfMO
       roles:
         - UI_MANAGER
-      securityTokenKey: developer01-secret
+      securityTokenKey: test-user-secret
       accessModel:
         storages:
           - id: storage0
@@ -49,6 +39,7 @@ users:
                     wildcard: true
                     privileges:
                       - name: ARTIFACTS_DELETE
+                      - name: ARTIFACTS_DEPLOY
                   - path: com/mycorp
                     privileges:
                       - name: ARTIFACTS_VIEW
