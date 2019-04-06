@@ -366,16 +366,16 @@ public class UserControllerTestIT
         UserForm user = buildUser(username, newPassword);
 
         given().contentType(MediaType.APPLICATION_JSON_VALUE)
-                .accept(acceptHeader)
-                .body(user)
-                .when()
-                .put(getContextBaseUrl() + "/{username}", username)
-                .peek()
-                .then()
-                .statusCode(HttpStatus.FORBIDDEN.value())
-                .body(containsString(OWN_USER_DELETE_FORBIDDEN))
-                .extract()
-                .asString();
+               .accept(acceptHeader)
+               .body(user)
+               .when()
+               .put(getContextBaseUrl() + "/{username}", username)
+               .peek()
+               .then()
+               .statusCode(HttpStatus.FORBIDDEN.value())
+               .body(containsString(OWN_USER_DELETE_FORBIDDEN))
+               .extract()
+               .asString();
 
         User updatedUser = retrieveUserByName(user.getUsername());
 
