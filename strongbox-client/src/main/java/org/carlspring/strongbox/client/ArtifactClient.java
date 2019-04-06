@@ -67,7 +67,7 @@ public class ArtifactClient
                    48080;
 
         ArtifactClient client = new ArtifactClient();
-        client.setUsername(username != null ? username : "admin");
+        client.setUsername(username != null ? username : "deployer");
         client.setPassword(password != null ? password : "password");
         client.setPort(port);
         client.setContextBaseUrl("http://" + host + ":" + client.getPort());
