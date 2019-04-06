@@ -355,6 +355,74 @@ public class UserControllerTestIT
         assertNull(databaseCheck);
     }
 
+    @ParameterizedTest
+    @WithUserDetails("maven")
+    @ValueSource(strings = { MediaType.APPLICATION_JSON_VALUE,
+            MediaType.TEXT_PLAIN_VALUE })
+    void changeOwnUser(String acceptHeader)
+    {
+        final String username = "maven";
+        final String newPassword = "";
+        UserForm user = buildUser(username, newPassword);
+
+        given().contentType(MediaType.APPLICATION_JSON_VALUE)
+                .accept(acceptHeader)
+                .body(user)
+                .when()
+                .put(getContextBaseUrl() + "/{username}", username)
+                .peek()
+                .then()
+                .statusCode(HttpStatus.FORBIDDEN.value())
+                .body(containsString(OWN_USER_DELETE_FORBIDDEN))
+                .extract()
+                .asString();
+
+        User updatedUser = retrieveUserByName(user.getUsername());
+
+        assertEquals(username, updatedUser.getUsername());
+        assertFalse(passwordEncoder.matches(newPassword, updatedUser.getPassword()));
+    }
+
+    @ParameterizedTest
+    @ValueSource(strings = { MediaType.APPLICATION_JSON_VALUE,
+            MediaType.TEXT_PLAIN_VALUE })
+    void shouldBeAbleToUpdateRoles(String acceptHeader)
+    {
+        final String username = "maven";
+        final String newPassword = "password";
+        UserForm admin = buildUser(username, newPassword);
+
+        User updatedUser = retrieveUserByName(admin.getUsername());
+
+        assertTrue(SetUtils.isEqualSet(updatedUser.getRoles(), ImmutableSet.of(Roles.ADMIN.name())));
+
+        admin.setRoles(ImmutableSet.of("UI_MANAGER"));
+        given().contentType(MediaType.APPLICATION_JSON_VALUE)
+                .accept(acceptHeader)
+                .body(admin)
+                .when()
+                .put(getContextBaseUrl() + "/{username}", username)
+                .peek()
+                .then()
+                .statusCode(HttpStatus.OK.value())
+                .body(containsString(SUCCESSFUL_UPDATE_USER))
+                .extract()
+                .asString();
+
+        updatedUser = retrieveUserByName(admin.getUsername());
+
+        assertTrue(SetUtils.isEqualSet(updatedUser.getRoles(), ImmutableSet.of("UI_MANAGER")));
+
+        // Rollback changes.
+        admin.setRoles(ImmutableSet.of(Roles.ADMIN.name()));
+        given().contentType(MediaType.APPLICATION_JSON_VALUE)
+                .accept(acceptHeader)
+                .body(admin)
+                .when()
+                .put(getContextBaseUrl() + "/{username}", username)
+                .then()
+                .statusCode(HttpStatus.OK.value());
+    }
 
     @Test
     @WithUserDetails("test-user")
