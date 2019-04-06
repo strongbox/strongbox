@@ -398,16 +398,16 @@ public class UserControllerTestIT
 
         admin.setRoles(ImmutableSet.of("UI_MANAGER"));
         given().contentType(MediaType.APPLICATION_JSON_VALUE)
-                .accept(acceptHeader)
-                .body(admin)
-                .when()
-                .put(getContextBaseUrl() + "/{username}", username)
-                .peek()
-                .then()
-                .statusCode(HttpStatus.OK.value())
-                .body(containsString(SUCCESSFUL_UPDATE_USER))
-                .extract()
-                .asString();
+               .accept(acceptHeader)
+               .body(admin)
+               .when()
+               .put(getContextBaseUrl() + "/{username}", username)
+               .peek()
+               .then()
+               .statusCode(HttpStatus.OK.value())
+               .body(containsString(SUCCESSFUL_UPDATE_USER))
+               .extract()
+               .asString();
 
         updatedUser = retrieveUserByName(admin.getUsername());
 
@@ -416,12 +416,12 @@ public class UserControllerTestIT
         // Rollback changes.
         admin.setRoles(ImmutableSet.of(Roles.ADMIN.name()));
         given().contentType(MediaType.APPLICATION_JSON_VALUE)
-                .accept(acceptHeader)
-                .body(admin)
-                .when()
-                .put(getContextBaseUrl() + "/{username}", username)
-                .then()
-                .statusCode(HttpStatus.OK.value());
+               .accept(acceptHeader)
+               .body(admin)
+               .when()
+               .put(getContextBaseUrl() + "/{username}", username)
+               .then()
+               .statusCode(HttpStatus.OK.value());
     }
 
     @Test
