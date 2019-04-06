@@ -358,7 +358,7 @@ public class UserControllerTestIT
     @ParameterizedTest
     @WithUserDetails("maven")
     @ValueSource(strings = { MediaType.APPLICATION_JSON_VALUE,
-            MediaType.TEXT_PLAIN_VALUE })
+                             MediaType.TEXT_PLAIN_VALUE })
     void changeOwnUser(String acceptHeader)
     {
         final String username = "maven";
@@ -385,7 +385,7 @@ public class UserControllerTestIT
 
     @ParameterizedTest
     @ValueSource(strings = { MediaType.APPLICATION_JSON_VALUE,
-            MediaType.TEXT_PLAIN_VALUE })
+                             MediaType.TEXT_PLAIN_VALUE })
     void shouldBeAbleToUpdateRoles(String acceptHeader)
     {
         final String username = "maven";
