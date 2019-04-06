@@ -1,0 +1,3 @@
+org.carlspring.strongbox.forms.configuration.MavenRepositoryConfigurationForm
+org.carlspring.strongbox.forms.configuration.NugetRepositoryConfigurationForm
+org.carlspring.strongbox.forms.configuration.RawRepositoryConfigurationForm

@@ -11,7 +11,7 @@ import org.springframework.context.annotation.Configuration;
                  "org.carlspring.strongbox.resource",
                  "org.carlspring.strongbox.services",
                  "org.carlspring.strongbox.storage",
-                 "org.carlspring.strongbox.xml"
+                 "org.carlspring.strongbox.yaml"
                })
 public class StorageCoreConfig
 {

@@ -1,53 +1,39 @@
 package org.carlspring.strongbox.storage;
 
-import org.carlspring.strongbox.storage.repository.MutableRepository;
-import org.carlspring.strongbox.xml.RepositoryMapAdapter;
-import org.checkerframework.checker.units.qual.s;
-import org.springframework.util.Assert;
-
-import javax.xml.bind.annotation.*;
-import javax.xml.bind.annotation.adapters.XmlJavaTypeAdapter;
 import java.io.Serializable;
-import java.nio.file.Files;
-import java.nio.file.Path;
-import java.nio.file.Paths;
 import java.util.LinkedHashMap;
 import java.util.Map;
 
+import org.carlspring.strongbox.storage.repository.MutableRepository;
+import org.carlspring.strongbox.storage.repository.Repository;
+import org.springframework.util.CollectionUtils;
+
+import com.fasterxml.jackson.annotation.JsonCreator;
+import com.fasterxml.jackson.annotation.JsonProperty;
+import com.fasterxml.jackson.annotation.JsonRootName;
+
 /**
  * @author mtodorov
+ * @author Pablo Tirado
  */
-@XmlRootElement(name = "storage")
-@XmlAccessorType(XmlAccessType.FIELD)
+@JsonRootName("storage")
 public class MutableStorage
-        implements Serializable
+        implements Serializable, Storage
 {
-
-    @XmlAttribute(required = true)
     private String id;
     
-    @XmlAttribute
     private String basedir;
 
-    @XmlElement(name = "repositories")
-    @XmlJavaTypeAdapter(RepositoryMapAdapter.class)
     private Map<String, MutableRepository> repositories = new LinkedHashMap<>();
-
 
     public MutableStorage()
     {
     }
 
-    public MutableStorage(String id)
+    @JsonCreator
+    public MutableStorage(@JsonProperty(value = "id", required = true) String id)
     {
         this.id = id;
-    }
-
-    public MutableStorage(String id,
-                          String basedir)
-    {
-        this.id = id;
-        this.basedir = basedir;
     }
 
     public boolean containsRepository(String repository)
@@ -67,19 +53,7 @@ public class MutableStorage
 
     public String getBasedir()
     {
-        if (basedir != null)
-        {
-            return basedir;
-        }
-        else if (id != null)
-        {
-            initDefaultBasedir(id);
-            return basedir;
-        }
-        else
-        {
-            return null;
-        }
+        return basedir;
     }
 
     public void setBasedir(String basedir)
@@ -87,17 +61,8 @@ public class MutableStorage
         this.basedir = basedir;
     }
 
-    public void initDefaultBasedir(String id)
-    {
-        //TODO: we should rework this to use SpringBoot environment instead of `System.getProperty`
-        String storagesBaseDir = System.getProperty("strongbox.storage.booter.basedir");
-        Assert.notNull(storagesBaseDir, "System property `strongbox.storage.booter.basedir` should be configured.");
-        
-        Path basedirPath = Paths.get(storagesBaseDir);
-        basedir = basedirPath.resolve(id).toString();
-    }
-
-    public Map<String, MutableRepository> getRepositories()
+    @Override
+    public Map<String, ? extends Repository> getRepositories()
     {
         return repositories;
     }
@@ -124,12 +89,7 @@ public class MutableStorage
 
     public boolean hasRepositories()
     {
-        return !repositories.isEmpty();
-    }
-
-    public boolean existsOnFileSystem()
-    {
-        return Files.exists(Paths.get(getBasedir()));
+        return !CollectionUtils.isEmpty(repositories);
     }
 
     @Override
@@ -141,8 +101,6 @@ public class MutableStorage
           .append('\'');
         sb.append(", \n\t\tbasedir='").append(basedir).append('\'');
         sb.append(", \n\t\trepositories=").append(repositories);
-        //    sb.append(", \n\t\tdetachAll='").append(detachAll).append('\'');
-        //    sb.append(", \n\t\tversion=").append(version);
         sb.append('}');
         return sb.toString();
     }

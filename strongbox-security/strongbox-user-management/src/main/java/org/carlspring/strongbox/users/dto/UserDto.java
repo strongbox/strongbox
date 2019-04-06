@@ -1,55 +1,39 @@
 package org.carlspring.strongbox.users.dto;
 
-import javax.xml.bind.annotation.XmlAccessType;
-import javax.xml.bind.annotation.XmlAccessorType;
-import javax.xml.bind.annotation.XmlElement;
-import javax.xml.bind.annotation.XmlElementWrapper;
-import javax.xml.bind.annotation.XmlRootElement;
-import javax.xml.bind.annotation.XmlTransient;
-
 import java.io.Serializable;
 import java.util.Date;
 import java.util.HashSet;
 import java.util.Set;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.annotation.JsonProperty;
+import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
+
 /**
  * @author mtodorov
  */
-@XmlRootElement
-@XmlAccessorType(XmlAccessType.FIELD)
 public class UserDto
         implements Serializable, UserReadContract
 {
 
-    @XmlElement
     private String username;
 
-    @XmlElement
     private String password;
 
-    @XmlElement
     private boolean enabled = true;
 
-    @XmlElement(name = "role")
-    @XmlElementWrapper(name = "roles")
     private Set<String> roles = new HashSet<>();
 
-    @XmlElement(name = "authority")
-    @XmlElementWrapper(name = "authorities")
     private Set<String> authorities = new HashSet<>();
 
-    @XmlElement(name = "access-model", type = UserAccessModelDto.class)
+    @JsonProperty(value = "accessModel")
+    @JsonDeserialize(as = UserAccessModelDto.class)
     private UserAccessModelReadContract userAccessModel;
 
-    @XmlElement(name = "security-token-key")
     private String securityTokenKey;
 
-    @XmlTransient
+    @JsonIgnore
     private Date lastUpdate;
-    
-    public UserDto()
-    {
-    }
 
     @Override
     public String getUsername()

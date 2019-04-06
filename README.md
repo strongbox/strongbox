@@ -20,7 +20,7 @@ Our goal is to implement a universal repository manager that can host and serve 
 
 Strongbox has a search engine and an [Artifact Query Language][docs-aql].
 
-# What's in the works (Q1/2019)
+# What's in the works (Q2/2019)
 
 * Web UI
 * Spring Bootification

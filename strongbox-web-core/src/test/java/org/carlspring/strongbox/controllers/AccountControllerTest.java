@@ -6,7 +6,7 @@ import org.carlspring.strongbox.rest.common.RestAssuredBaseTest;
 import org.carlspring.strongbox.users.domain.User;
 import org.carlspring.strongbox.users.dto.UserDto;
 import org.carlspring.strongbox.users.service.UserService;
-import org.carlspring.strongbox.users.service.impl.XmlUserService.XmlUserServiceQualifier;
+import org.carlspring.strongbox.users.service.impl.StrongboxUserService.StrongboxUserServiceQualifier;
 
 import javax.inject.Inject;
 import javax.transaction.Transactional;
@@ -16,7 +16,6 @@ import java.util.HashSet;
 import org.apache.http.HttpHeaders;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.security.test.context.support.WithAnonymousUser;
@@ -43,7 +42,7 @@ public class AccountControllerTest
     private static final String TEST_DISABLED_USER_ACCOUNT = "test-disabled-user-account";
 
     @Inject
-    @XmlUserServiceQualifier
+    @StrongboxUserServiceQualifier
     private UserService userService;
     
     @Override

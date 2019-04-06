@@ -1,31 +1,33 @@
 package org.carlspring.strongbox.storage.indexing;
 
-import org.carlspring.strongbox.client.ArtifactTransportException;
-import org.carlspring.strongbox.config.Maven2LayoutProviderTestConfig;
-import org.carlspring.strongbox.configuration.ConfigurationManager;
-import org.carlspring.strongbox.providers.layout.Maven2LayoutProvider;
-import org.carlspring.strongbox.repository.IndexedMavenRepositoryFeatures;
-import org.carlspring.strongbox.storage.repository.MutableRepository;
-import org.carlspring.strongbox.storage.repository.Repository;
-import org.carlspring.strongbox.testing.TestCaseWithMavenArtifactGenerationAndIndexing;
+import static org.carlspring.strongbox.artifact.coordinates.MavenArtifactCoordinates.LAYOUT_NAME;
+import static org.junit.jupiter.api.Assertions.assertTrue;
+
+import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.Path;
 
 import javax.inject.Inject;
-import java.io.File;
-import java.io.IOException;
-import java.util.LinkedHashSet;
-import java.util.Set;
 
-import org.junit.jupiter.api.AfterEach;
-import org.junit.jupiter.api.BeforeAll;
-import org.junit.jupiter.api.BeforeEach;
+import org.carlspring.strongbox.artifact.generator.MavenArtifactGenerator;
+import org.carlspring.strongbox.client.ArtifactTransportException;
+import org.carlspring.strongbox.config.Maven2LayoutProviderTestConfig;
+import org.carlspring.strongbox.providers.io.RepositoryPathResolver;
+import org.carlspring.strongbox.repository.IndexedMavenRepositoryFeatures;
+import org.carlspring.strongbox.storage.repository.Repository;
+import org.carlspring.strongbox.testing.MavenIndexedRepositorySetup;
+import org.carlspring.strongbox.testing.TestCaseWithMavenArtifactGenerationAndIndexing;
+import org.carlspring.strongbox.testing.artifact.ArtifactManagementTestExecutionListener;
+import org.carlspring.strongbox.testing.artifact.TestArtifact;
+import org.carlspring.strongbox.testing.storage.repository.RepositoryManagementTestExecutionListener;
+import org.carlspring.strongbox.testing.storage.repository.TestRepository;
+import org.carlspring.strongbox.testing.storage.repository.TestRepository.RemoteRepository;
 import org.junit.jupiter.api.Test;
-import org.junit.jupiter.api.parallel.Execution;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit.jupiter.EnabledIf;
-import static org.junit.jupiter.api.Assertions.assertTrue;
-import static org.junit.jupiter.api.parallel.ExecutionMode.CONCURRENT;
 
 /**
  * @author carlspring
@@ -39,53 +41,27 @@ public class Maven2ProxyRepositoryTest
 
     private static final String REPOSITORY_RELEASES = "m2pr-releases";
 
+    private static final String PROXY_REPOSITORY_URL = "http://localhost:48080/storages/" + STORAGE0 + "/" + REPOSITORY_RELEASES + "/";
+
     private static final String REPOSITORY_PROXY = "m2pr-proxied-releases";
 
+    private static final String A1 = "org/carlspring/strongbox/strongbox-search-test/1.0/strongbox-search-test-1.0.jar";
+    
+    private static final String A2 = "org/carlspring/strongbox/strongbox-search-test/1.1/strongbox-search-test-1.1.jar";
+    
+    private static final String A3 = "org/carlspring/strongbox/strongbox-search-test/1.2/strongbox-search-test-1.2.jar";
+
     @Inject
-    private ConfigurationManager configurationManager;
-
-    @BeforeAll
-    public static void cleanUp()
-            throws Exception
-    {
-        cleanUp(getRepositoriesToClean());
-    }
-
-    public static Set<MutableRepository> getRepositoriesToClean()
-    {
-        Set<MutableRepository> repositories = new LinkedHashSet<>();
-        repositories.add(createRepositoryMock(STORAGE0, REPOSITORY_RELEASES, Maven2LayoutProvider.ALIAS));
-        repositories.add(createRepositoryMock(STORAGE0, REPOSITORY_PROXY, Maven2LayoutProvider.ALIAS));
-
-        return repositories;
-    }
-
-    @BeforeEach
-    public void initialize()
-            throws Exception
-    {
-        createRepositoryWithArtifacts(STORAGE0,
-                                      REPOSITORY_RELEASES,
-                                      true,
-                                      "org.carlspring.strongbox:strongbox-search-test",
-                                      "1.0", "1.1", "1.2");
-
-        createProxyRepository(STORAGE0,
-                              REPOSITORY_PROXY,
-                              "http://localhost:48080/storages/" + STORAGE0 + "/" + REPOSITORY_RELEASES + "/");
-    }
-
-    @AfterEach
-    public void removeRepositories()
-            throws Exception
-    {
-        removeRepositories(getRepositoriesToClean());
-    }
-
+    private RepositoryPathResolver repositoryPathResolver;
+    
     @Test
     @EnabledIf(expression = "#{containsObject('repositoryIndexManager')}", loadContext = true)
-    @Execution(CONCURRENT)
-    public void testRepositoryIndexFetching()
+    @ExtendWith({RepositoryManagementTestExecutionListener.class, ArtifactManagementTestExecutionListener.class})
+    public void testRepositoryIndexFetching(@TestRepository(layout = LAYOUT_NAME, storage = STORAGE0, repository = REPOSITORY_RELEASES, setup = MavenIndexedRepositorySetup.class) Repository repository,
+                                            @TestRepository(layout = LAYOUT_NAME, storage = STORAGE0, repository = REPOSITORY_PROXY, setup = MavenIndexedRepositorySetup.class) @RemoteRepository(url = PROXY_REPOSITORY_URL ) Repository proxyRepository,
+                                            @TestArtifact(storage = STORAGE0, repository = REPOSITORY_RELEASES, resource = A1, generator = MavenArtifactGenerator.class) Path a1,
+                                            @TestArtifact(storage = STORAGE0, repository = REPOSITORY_RELEASES, resource = A2, generator = MavenArtifactGenerator.class) Path a2,
+                                            @TestArtifact(storage = STORAGE0, repository = REPOSITORY_RELEASES, resource = A3, generator = MavenArtifactGenerator.class) Path a3)
             throws ArtifactTransportException, IOException
     {
         IndexedMavenRepositoryFeatures features = (IndexedMavenRepositoryFeatures) getFeatures();
@@ -93,22 +69,17 @@ public class Maven2ProxyRepositoryTest
         // Make sure the repository that is being proxied has a packed index to serve:
         features.pack(STORAGE0, REPOSITORY_RELEASES);
 
-        Repository repositoryReleases = configurationManager.getRepository(STORAGE0, REPOSITORY_RELEASES);
-        File indexPropertiesFile = new File(repositoryReleases.getBasedir(),
-                                            ".index/local/nexus-maven-repository-index.properties");
-
-        assertTrue(indexPropertiesFile.exists(),
+        Path indexPropertiesFile = repositoryPathResolver.resolve(repository).resolve(".index/local/nexus-maven-repository-index.properties");
+        assertTrue(Files.exists(indexPropertiesFile),
                    "Failed to produce packed index for " +
-                           repositoryReleases.getStorage().getId() + ":" + repositoryReleases.getId() + "!");
+                           repository.getStorage().getId() + ":" + repository.getId() + "!");
 
         // Download the remote index for the proxy repository
         features.downloadRemoteIndex(STORAGE0, REPOSITORY_PROXY);
 
-        Repository repositoryProxiedReleases = configurationManager.getRepository(STORAGE0, REPOSITORY_PROXY);
-        File indexPropertiesUpdaterFile = new File(repositoryProxiedReleases.getBasedir(),
-                                                   ".index/remote/nexus-maven-repository-index-updater.properties");
-
-        assertTrue(indexPropertiesUpdaterFile.exists(),
+        
+        Path indexPropertiesUpdaterFile = repositoryPathResolver.resolve(proxyRepository).resolve(".index/remote/nexus-maven-repository-index-updater.properties");
+        assertTrue(Files.exists(indexPropertiesUpdaterFile),
                    "Failed to retrieve nexus-maven-repository-index-updater.properties from the remote!");
     }
 

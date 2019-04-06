@@ -31,7 +31,7 @@ public class AuthorizationConfigServiceTest
     {
         // this is good enough because everything necessary happens inside provider
         // at the bean instantiation stage
-        // config will be loaded from db or XML file, going to be validated aso.
+        // config will be loaded from db or YAML file, going to be validated aso.
         // if optional is present, it means that everything is really ok
         assertNotNull(authorizationConfigService.get());
     }

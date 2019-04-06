@@ -1,6 +1,5 @@
 package org.carlspring.strongbox.storage.routing;
 
-import javax.xml.bind.annotation.*;
 import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.List;
@@ -8,30 +7,22 @@ import java.util.UUID;
 
 /**
  * @author mtodorov
+ * @author Pablo Tirado
  */
-@XmlRootElement(name = "routing-rule")
-@XmlAccessorType(XmlAccessType.FIELD)
 public class MutableRoutingRule
         implements Serializable
 {
 
-    @XmlAttribute(name = "uuid")
     private UUID uuid;
 
-    @XmlAttribute(name = "storage-id")
     private String storageId;
 
-    @XmlAttribute(name = "repository-id")
     private String repositoryId;
 
-    @XmlAttribute
     private String pattern;
 
-    @XmlAttribute
     private String type;
 
-    @XmlElement(name = "repository")
-    @XmlElementWrapper(name = "repositories")
     private List<MutableRoutingRuleRepository> repositories = new ArrayList<>();
 
     public UUID getUuid()

@@ -1,47 +1,41 @@
 package org.carlspring.strongbox.cron.domain;
 
-import org.carlspring.strongbox.xml.PropertiesAdapter;
-
-import javax.xml.bind.annotation.XmlAccessType;
-import javax.xml.bind.annotation.XmlAccessorType;
-import javax.xml.bind.annotation.XmlElement;
-import javax.xml.bind.annotation.XmlRootElement;
-import javax.xml.bind.annotation.adapters.XmlJavaTypeAdapter;
 import java.io.Serializable;
 import java.util.HashMap;
 import java.util.Map;
 
+import com.fasterxml.jackson.annotation.JsonCreator;
+import com.fasterxml.jackson.annotation.JsonGetter;
+import com.fasterxml.jackson.annotation.JsonProperty;
 import org.springframework.util.Assert;
 
 /**
  * @author Yougeshwar
  * @author Pablo Tirado
  */
-@XmlRootElement
-@XmlAccessorType(XmlAccessType.NONE)
 public class CronTaskConfigurationDto
         implements Serializable
 {
-
-    @XmlElement(name = "uuid", required = true)
     private String uuid;
 
-    @XmlElement(name = "name", required = true)
     private String name;
 
-    @XmlElement(name = "properties")
-    @XmlJavaTypeAdapter(PropertiesAdapter.class)
     private Map<String, String> properties = new HashMap<>();
 
-    @XmlElement(name = "one-time-execution")
     private boolean oneTimeExecution = false;
 
-    @XmlElement(name = "immediate-execution")
     private boolean immediateExecution = false;
-
 
     public CronTaskConfigurationDto()
     {
+    }
+
+    @JsonCreator
+    public CronTaskConfigurationDto(@JsonProperty(value = "uuid", required = true) String uuid,
+                                    @JsonProperty(value = "name", required = true) String name)
+    {
+        this.uuid = uuid;
+        this.name = name;
     }
 
     public String getUuid()
@@ -92,11 +86,6 @@ public class CronTaskConfigurationDto
         properties.put(key, value);
     }
 
-    public void removeProperty(String key)
-    {
-        properties.remove(key);
-    }
-
     public boolean contains(String key)
     {
         return properties.containsKey(key);
@@ -112,6 +101,7 @@ public class CronTaskConfigurationDto
         this.oneTimeExecution = oneTimeExecution;
     }
 
+    @JsonGetter("immediateExecution")
     public boolean shouldExecuteImmediately()
     {
         return immediateExecution;

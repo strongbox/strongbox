@@ -35,7 +35,7 @@ public @interface TestArtifact
     /**
      * {@link Storage} ID.
      */
-    String storage() default "";
+    String storage() default "storage0";
 
     /**
      * {@link Repository} ID.

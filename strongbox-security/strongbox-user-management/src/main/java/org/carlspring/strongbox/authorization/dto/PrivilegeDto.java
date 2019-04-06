@@ -1,34 +1,26 @@
 package org.carlspring.strongbox.authorization.dto;
 
-import javax.xml.bind.annotation.XmlAccessType;
-import javax.xml.bind.annotation.XmlAccessorType;
-import javax.xml.bind.annotation.XmlElement;
-import javax.xml.bind.annotation.XmlRootElement;
 import java.io.Serializable;
 
+import com.fasterxml.jackson.annotation.JsonCreator;
+import com.fasterxml.jackson.annotation.JsonProperty;
 import com.google.common.base.Objects;
 
 /**
  * @author mtodorov
+ * @author Pablo Tirado
  */
-@XmlRootElement(name = "privilege")
-@XmlAccessorType(XmlAccessType.FIELD)
 public class PrivilegeDto
         implements Serializable, PrivelegieReadContract
 {
 
-    @XmlElement(required = true)
     private String name;
 
     private String description;
 
-
-    public PrivilegeDto()
-    {
-    }
-
-    public PrivilegeDto(String name,
-                        String description)
+    @JsonCreator
+    public PrivilegeDto(@JsonProperty(value = "name", required = true) String name,
+                        @JsonProperty(value = "description") String description)
     {
         this.name = name;
         this.description = description;
@@ -49,9 +41,6 @@ public class PrivilegeDto
         return Objects.hashCode(name);
     }
 
-    /* (non-Javadoc)
-     * @see org.carlspring.strongbox.authorization.dto.PrivelegieReadContract#getName()
-     */
     public String getName()
     {
         return name;
@@ -62,9 +51,6 @@ public class PrivilegeDto
         this.name = name;
     }
 
-    /* (non-Javadoc)
-     * @see org.carlspring.strongbox.authorization.dto.PrivelegieReadContract#getDescription()
-     */
     public String getDescription()
     {
         return description;

@@ -1,13 +1,20 @@
 package org.carlspring.strongbox.io;
 
-import org.carlspring.strongbox.providers.datastore.StorageProvider;
-
 import java.io.IOException;
-import java.nio.file.*;
+import java.nio.file.FileStore;
+import java.nio.file.FileSystem;
+import java.nio.file.Path;
+import java.nio.file.PathMatcher;
+import java.nio.file.WatchService;
 import java.nio.file.attribute.UserPrincipalLookupService;
 import java.nio.file.spi.FileSystemProvider;
 import java.util.ArrayList;
+import java.util.Optional;
 import java.util.Set;
+
+import org.carlspring.strongbox.booters.PropertiesBooter;
+import org.carlspring.strongbox.providers.datastore.StorageProvider;
+import org.carlspring.strongbox.storage.Storage;
 
 /**
  * This class decoretes storage {@link FileSystem} implementation.
@@ -20,11 +27,17 @@ public abstract class StorageFileSystem
         extends FileSystem
 {
 
-    private FileSystem target;
+    private final PropertiesBooter propertiesBooter;
+    
+    private final FileSystem target;
+    
+    private final Storage storage;
 
-    public StorageFileSystem(FileSystem target)
+    public StorageFileSystem(Storage storage, PropertiesBooter propertiesBooter, FileSystem target)
     {
         this.target = target;
+        this.storage = storage;
+        this.propertiesBooter = propertiesBooter;
     }
 
     protected FileSystem getTarget()
@@ -65,7 +78,16 @@ public abstract class StorageFileSystem
         return result;
     }
 
-    public abstract Path getRootDirectory();
+    public Path getRootDirectory() {
+        Path storagesRoot = Optional.ofNullable(propertiesBooter.getStorageBooterBasedir())
+                                    .map(p -> getTarget().getPath(p))
+                                    .orElseGet(() -> getTarget().getPath(propertiesBooter.getVaultDirectory(),
+                                                                         "/storages")).toAbsolutePath().normalize();
+        
+        return Optional.ofNullable(storage.getBasedir())
+                       .map(p -> getTarget().getPath(p).toAbsolutePath().normalize())
+                       .orElseGet(() -> storagesRoot.resolve(storage.getId())).toAbsolutePath().normalize();
+    }
 
     public Iterable<FileStore> getFileStores()
     {

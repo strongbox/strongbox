@@ -329,18 +329,19 @@ public class ConfigurationManagementServiceImpl
                              {
                                  if (storage.getRepositories() != null && !storage.getRepositories().isEmpty())
                                  {
-                                     for (MutableRepository repository : storage.getRepositories().values())
+                                     for (Repository repository : storage.getRepositories().values())
                                      {
-                                         if (repository.getType().equals(RepositoryTypeEnum.GROUP.getType()))
+                                        MutableRepository mutableRepository = (MutableRepository)repository;
+                                        if (repository.getType().equals(RepositoryTypeEnum.GROUP.getType()))
                                          {
-                                             repository.setAllowsDelete(false);
-                                             repository.setAllowsDeployment(false);
-                                             repository.setAllowsRedeployment(false);
+                                             mutableRepository.setAllowsDelete(false);
+                                             mutableRepository.setAllowsDeployment(false);
+                                             mutableRepository.setAllowsRedeployment(false);
                                          }
                                          if (repository.getType().equals(RepositoryTypeEnum.PROXY.getType()))
                                          {
-                                             repository.setAllowsDeployment(false);
-                                             repository.setAllowsRedeployment(false);
+                                             mutableRepository.setAllowsDeployment(false);
+                                             mutableRepository.setAllowsRedeployment(false);
                                          }
                                      }
                                  }
@@ -365,9 +366,9 @@ public class ConfigurationManagementServiceImpl
                              {
                                  if (storage.getRepositories() != null && !storage.getRepositories().isEmpty())
                                  {
-                                     for (MutableRepository repository : storage.getRepositories().values())
+                                     for (Repository repository : storage.getRepositories().values())
                                      {
-                                         repository.setStorage(storage);
+                                         ((MutableRepository)repository).setStorage(storage);
                                      }
                                  }
                              }
@@ -388,7 +389,7 @@ public class ConfigurationManagementServiceImpl
                              {
                                  if (storage.getRepositories() != null && !storage.getRepositories().isEmpty())
                                  {
-                                     for (MutableRepository repository : storage.getRepositories().values())
+                                     for (Repository repository : storage.getRepositories().values())
                                      {
                                          LayoutProvider layoutProvider = layoutProviderRegistry.getProvider(
                                                  repository.getLayout());
@@ -407,8 +408,7 @@ public class ConfigurationManagementServiceImpl
                                                    repository.getArtifactCoordinateValidators().isEmpty())) &&
                                                  defaultArtifactCoordinateValidators != null)
                                              {
-                                                 repository.setArtifactCoordinateValidators(
-                                                         defaultArtifactCoordinateValidators);
+                                                 ((MutableRepository)repository).setArtifactCoordinateValidators(defaultArtifactCoordinateValidators);
                                              }
                                          }
                                      }
@@ -475,7 +475,7 @@ public class ConfigurationManagementServiceImpl
         modifyInLock(configuration ->
                      {
                          configuration.getRemoteRepositoriesConfiguration()
-                                      .setRemoteRepositoryRetryArtifactDownloadConfiguration(
+                                      .setRetryArtifactDownloadConfiguration(
                                               remoteRepositoryRetryArtifactDownloadConfiguration);
                      });
     }
@@ -488,7 +488,7 @@ public class ConfigurationManagementServiceImpl
         modifyInLock(configuration ->
                      {
                          configuration.getStorage(storageId).getRepository(
-                                 repositoryId).getArtifactCoordinateValidators().put(alias, alias);
+                                 repositoryId).getArtifactCoordinateValidators().add(alias);
                      });
     }
 
@@ -498,10 +498,10 @@ public class ConfigurationManagementServiceImpl
                                                                final String alias)
     {
         final MutableBoolean result = new MutableBoolean();
-        modifyInLock(configuration ->
+        modifyInLock(config ->
                      {
-                         result.setValue(configuration.getStorage(storageId).getRepository(
-                                 repositoryId).getArtifactCoordinateValidators().remove(alias, alias));
+                         result.setValue(config.getStorage(storageId).getRepository(
+                                 repositoryId).getArtifactCoordinateValidators().remove(alias));
                      });
 
         return result.isTrue();
@@ -535,11 +535,12 @@ public class ConfigurationManagementServiceImpl
                          configuration.getStorages().values().stream()
                                       .filter(storage -> MapUtils.isNotEmpty(storage.getRepositories()))
                                       .flatMap(storage -> storage.getRepositories().values().stream())
+                                      .map(r -> (MutableRepository) r)
                                       .filter(MutableRepository::isEligibleForCustomConnectionPool)
-                                      .forEach(
-                                              repository -> proxyRepositoryConnectionPoolConfigurationService.setMaxPerRepository(
-                                                      repository.getRemoteRepository().getUrl(),
-                                                      repository.getHttpConnectionPool().getAllocatedConnections()));
+                                      .forEach(repository -> proxyRepositoryConnectionPoolConfigurationService.setMaxPerRepository(repository.getRemoteRepository()
+                                                                                                                                             .getUrl(),
+                                                                                                                                   repository.getHttpConnectionPool()
+                                                                                                                                             .getAllocatedConnections()));
                      }, false);
     }
 

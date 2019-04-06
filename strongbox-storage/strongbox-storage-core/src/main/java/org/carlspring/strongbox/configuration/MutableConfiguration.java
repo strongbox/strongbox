@@ -2,74 +2,66 @@ package org.carlspring.strongbox.configuration;
 
 import org.carlspring.strongbox.storage.MutableStorage;
 import org.carlspring.strongbox.storage.routing.MutableRoutingRules;
-import org.carlspring.strongbox.xml.StorageMapAdapter;
 
-import javax.xml.bind.annotation.XmlAccessType;
-import javax.xml.bind.annotation.XmlAccessorType;
-import javax.xml.bind.annotation.XmlElement;
-import javax.xml.bind.annotation.XmlRootElement;
-import javax.xml.bind.annotation.adapters.XmlJavaTypeAdapter;
+import java.io.Serializable;
 import java.util.LinkedHashMap;
 import java.util.Map;
 
+import com.fasterxml.jackson.annotation.JsonRootName;
 import com.google.common.base.MoreObjects;
 import com.google.common.base.Objects;
 
 /**
  * @author mtodorov
+ * @author Pablo Tirado
+ * @author Przemyslaw Fusik
  */
-@XmlRootElement(name = "configuration")
-@XmlAccessorType(XmlAccessType.FIELD)
+@JsonRootName("configuration")
 public class MutableConfiguration
-        extends ServerConfiguration
+        implements Serializable
 {
 
-    @XmlElement(name = "instance-name")
+    private String id;
+
     private String instanceName = "strongbox";
 
-    @XmlElement
     private String version = "1.0";
 
-    @XmlElement
     private String revision;
 
-    @XmlElement
     private String baseUrl = "http://localhost/";
 
-    @XmlElement
     private int port = 48080;
 
     /**
      * The global proxy settings to use when no per-repository proxy settings have been defined.
      */
-    @XmlElement(name = "proxy-configuration")
     private MutableProxyConfiguration proxyConfiguration;
 
-    @XmlElement(name = "session-configuration")
     private MutableSessionConfiguration sessionConfiguration;
 
-    @XmlElement(name = "remote-repositories-configuration")
     private MutableRemoteRepositoriesConfiguration remoteRepositoriesConfiguration = MutableRemoteRepositoriesConfiguration.DEFAULT;
 
     /**
      * K: storageId
      * V: storage
      */
-    @XmlElement(name = "storages")
-    @XmlJavaTypeAdapter(StorageMapAdapter.class)
     private Map<String, MutableStorage> storages = new LinkedHashMap<>();
 
-    @XmlElement(name = "routing-rules")
     private MutableRoutingRules routingRules = new MutableRoutingRules();
 
-    @XmlElement(name = "cors-configuration")
     private MutableCorsConfiguration corsConfiguration = new MutableCorsConfiguration();
 
-    @XmlElement(name = "smtp-configuration")
     private MutableSmtpConfiguration smtpConfiguration = new MutableSmtpConfiguration();
 
-    public MutableConfiguration()
+    public String getId()
     {
+        return id;
+    }
+
+    public void setId(String id)
+    {
+        this.id = id;
     }
 
     public String getInstanceName()
@@ -182,7 +174,7 @@ public class MutableConfiguration
 
     public void removeStorage(MutableStorage storage)
     {
-        storages.remove(storage.getBasedir());
+        storages.remove(storage.getId());
     }
 
     public MutableRoutingRules getRoutingRules()

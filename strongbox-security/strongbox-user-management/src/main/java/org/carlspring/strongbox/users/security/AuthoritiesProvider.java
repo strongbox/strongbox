@@ -68,7 +68,7 @@ public class AuthoritiesProvider
             authorities.addAll(fullAuthorities);
         }
 
-        // add all privileges from etc/conf/strongbox-authorization.xml for any role that defines there
+        // add all privileges from etc/conf/strongbox-authorization.yaml for any role that defines there
         configuredRoles.forEach(role ->
                                 {
                                     if (role.getName()

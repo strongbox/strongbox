@@ -1,6 +1,6 @@
 strongbox:
   authentication:
-    xmlUserDetailService:
+    strongboxUserDetailService:
       order: 0
       enabled: true
     ldapUserDetailsService:

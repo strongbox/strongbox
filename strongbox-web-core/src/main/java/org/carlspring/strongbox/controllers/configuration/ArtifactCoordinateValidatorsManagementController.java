@@ -79,7 +79,6 @@ public class ArtifactCoordinateValidatorsManagementController
         }
 
         Set<String> versionValidators = repository.getArtifactCoordinateValidators()
-                                                  .keySet()
                                                   .stream()
                                                   .map(String::toString)
                                                   .collect(Collectors.toSet());

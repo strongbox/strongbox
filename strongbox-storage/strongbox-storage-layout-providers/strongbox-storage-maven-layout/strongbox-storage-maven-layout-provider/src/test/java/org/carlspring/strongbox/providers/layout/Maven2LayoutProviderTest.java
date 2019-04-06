@@ -1,36 +1,30 @@
 package org.carlspring.strongbox.providers.layout;
 
+import static org.carlspring.strongbox.artifact.coordinates.MavenArtifactCoordinates.LAYOUT_NAME;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.junit.jupiter.api.parallel.ExecutionMode.SAME_THREAD;
+
+import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.Path;
+
+import org.carlspring.strongbox.artifact.generator.MavenArtifactGenerator;
 import org.carlspring.strongbox.config.Maven2LayoutProviderTestConfig;
-import org.carlspring.strongbox.configuration.ConfigurationManager;
 import org.carlspring.strongbox.providers.io.RepositoryFiles;
 import org.carlspring.strongbox.providers.io.RepositoryPath;
-import org.carlspring.strongbox.storage.repository.MavenRepositoryFactory;
-import org.carlspring.strongbox.storage.repository.MutableRepository;
 import org.carlspring.strongbox.storage.repository.Repository;
 import org.carlspring.strongbox.testing.TestCaseWithMavenArtifactGenerationAndIndexing;
-import org.carlspring.strongbox.xml.configuration.repository.MutableMavenRepositoryConfiguration;
-
-import javax.inject.Inject;
-import javax.xml.bind.JAXBException;
-import java.io.File;
-import java.io.IOException;
-import java.security.NoSuchAlgorithmException;
-import java.util.LinkedHashSet;
-import java.util.Optional;
-import java.util.Set;
-
-import org.codehaus.plexus.util.xml.pull.XmlPullParserException;
-import org.junit.jupiter.api.AfterEach;
-import org.junit.jupiter.api.BeforeAll;
-import org.junit.jupiter.api.BeforeEach;
+import org.carlspring.strongbox.testing.artifact.ArtifactManagementTestExecutionListener;
+import org.carlspring.strongbox.testing.artifact.TestArtifact;
+import org.carlspring.strongbox.testing.storage.repository.RepositoryManagementTestExecutionListener;
+import org.carlspring.strongbox.testing.storage.repository.TestRepository;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.junit.jupiter.api.parallel.Execution;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.ContextConfiguration;
-import static org.junit.jupiter.api.Assertions.assertFalse;
-import static org.junit.jupiter.api.Assertions.assertTrue;
-import static org.junit.jupiter.api.parallel.ExecutionMode.SAME_THREAD;
 
 /**
  * @author mtodorov
@@ -43,123 +37,40 @@ public class Maven2LayoutProviderTest
         extends TestCaseWithMavenArtifactGenerationAndIndexing
 {
 
+    private static final String DELETE_FOO_1_2_1 = "com/artifacts/to/delete/releases/delete-foo/1.2.1/delete-foo-1.2.1.jar";
+    
+    private static final String DELETE_FOO_1_2_2 = "com/artifacts/to/delete/releases/delete-foo/1.2.2/delete-foo-1.2.2.jar";
+
     private static final String REPOSITORY_RELEASES = "m2lp-releases";
 
-    @Inject
-    private ConfigurationManager configurationManager;
-
-    @Inject
-    private MavenRepositoryFactory mavenRepositoryFactory;
-
-
-    @BeforeAll
-    public static void cleanUp()
-            throws Exception
+    @Test
+    @ExtendWith({RepositoryManagementTestExecutionListener.class, ArtifactManagementTestExecutionListener.class})
+    public void testDeleteArtifact(@TestRepository(layout = LAYOUT_NAME, storage = STORAGE0, repository = REPOSITORY_RELEASES) Repository repository,
+                                   @TestArtifact(storage = STORAGE0, repository = REPOSITORY_RELEASES, resource = DELETE_FOO_1_2_1, generator = MavenArtifactGenerator.class) Path artifactPath)
+            throws IOException
     {
-        cleanUp(getRepositoriesToClean());
-    }
+        assertTrue(Files.exists(artifactPath), "Failed to locate artifact file " + artifactPath);
 
-    @BeforeEach
-    public void initialize()
-            throws Exception
-    {
-        MutableMavenRepositoryConfiguration mavenRepositoryConfiguration = new MutableMavenRepositoryConfiguration();
-        mavenRepositoryConfiguration.setIndexingEnabled(true);
+        RepositoryPath repositoryPath = repositoryPathResolver.resolve(repository);
+        repositoryPath = repositoryPath.resolve(repositoryPath.relativize(artifactPath));
+        RepositoryFiles.delete(repositoryPath, false);           
 
-        MutableRepository repository = mavenRepositoryFactory.createRepository(REPOSITORY_RELEASES);
-        repository.setAllowsForceDeletion(true);
-        repository.setRepositoryConfiguration(mavenRepositoryConfiguration);
-
-        createRepository(STORAGE0, repository);
-    }
-
-    @AfterEach
-    public void removeRepositories()
-            throws IOException, JAXBException
-    {
-        removeRepositories(getRepositoriesToClean());
-    }
-
-    public static Set<MutableRepository> getRepositoriesToClean()
-    {
-        Set<MutableRepository> repositories = new LinkedHashSet<>();
-        repositories.add(createRepositoryMock(STORAGE0, REPOSITORY_RELEASES, Maven2LayoutProvider.ALIAS));
-
-        return repositories;
+        assertFalse(Files.exists(artifactPath), "Failed to delete artifact file " + artifactPath);
     }
 
     @Test
-    public void testDeleteArtifact()
-            throws IOException, NoSuchAlgorithmException, XmlPullParserException
+    @ExtendWith({RepositoryManagementTestExecutionListener.class, ArtifactManagementTestExecutionListener.class})
+    public void testDeleteArtifactDirectory(@TestRepository(layout = LAYOUT_NAME, storage = STORAGE0, repository = REPOSITORY_RELEASES) Repository repository,
+                                            @TestArtifact(storage = STORAGE0, repository = REPOSITORY_RELEASES, resource = DELETE_FOO_1_2_2, generator = MavenArtifactGenerator.class) Path artifactPath)
+            throws IOException
     {
-        generateArtifact(getRepositoryBasedir(STORAGE0, REPOSITORY_RELEASES).getAbsolutePath(),
-                         "com.artifacts.to.delete.releases:delete-foo",
-                         new String[] { "1.2.1" });
 
-        Repository repository = configurationManager.getConfiguration()
-                                                    .getStorage(STORAGE0)
-                                                    .getRepository(REPOSITORY_RELEASES);
+        assertTrue(Files.exists(artifactPath), "Failed to locate artifact file " + artifactPath);
 
-        String path = "com/artifacts/to/delete/releases/delete-foo/1.2.1/delete-foo-1.2.1.jar";
-        File artifactFile = new File(repository.getBasedir(), path);
-
-        assertTrue(artifactFile.exists(), "Failed to locate artifact file " + artifactFile.getAbsolutePath());
-
-        RepositoryPath repositoryPath = repositoryPathResolver.resolve(repository, path);
-        RepositoryFiles.delete(repositoryPath, false);
-            
-        Optional.of(repositoryPath.getFileSystem().provider())
-                .filter(p -> p instanceof IndexedMaven2FileSystemProvider)
-                .map(p -> (IndexedMaven2FileSystemProvider) p)
-                .ifPresent(p -> {
-                    try
-                    {
-                        p.closeIndex(repositoryPath);
-                    }
-                    catch (IOException e)
-                    {
-                        e.printStackTrace();
-                    }
-                });
-
-        assertFalse(artifactFile.exists(), "Failed to delete artifact file " + artifactFile.getAbsolutePath());
-    }
-
-    @Test
-    public void testDeleteArtifactDirectory()
-            throws IOException, NoSuchAlgorithmException, XmlPullParserException
-    {
-        generateArtifact(getRepositoryBasedir(STORAGE0, REPOSITORY_RELEASES).getAbsolutePath(),
-                         "com.artifacts.to.delete.releases:delete-foo",
-                         new String[] { "1.2.2" });
-
-        Repository repository = configurationManager.getConfiguration()
-                                                    .getStorage(STORAGE0)
-                                                    .getRepository(REPOSITORY_RELEASES);
-
-        String path = "com/artifacts/to/delete/releases/delete-foo/1.2.2";
-        File artifactFile = new File(repository.getBasedir(), path);
-
-        assertTrue(artifactFile.exists(), "Failed to locate artifact file " + artifactFile.getAbsolutePath());
-
-        RepositoryPath repositoryPath = repositoryPathResolver.resolve(repository, path);
+        RepositoryPath repositoryPath = (RepositoryPath) artifactPath.getParent();
         RepositoryFiles.delete(repositoryPath, false);
 
-        Optional.of(repositoryPath.getFileSystem().provider())
-                .filter(p -> p instanceof IndexedMaven2FileSystemProvider)
-                .map(p -> (IndexedMaven2FileSystemProvider) p)
-                .ifPresent(p -> {
-                    try
-                    {
-                        p.closeIndex(repositoryPath);
-                    }
-                    catch (IOException e)
-                    {
-                        e.printStackTrace();
-                    }
-                });        
-        
-        assertFalse(artifactFile.exists(), "Failed to delete artifact file " + artifactFile.getAbsolutePath());
+        assertFalse(Files.exists(artifactPath), "Failed to delete artifact file " + artifactPath);
     }
 
 }

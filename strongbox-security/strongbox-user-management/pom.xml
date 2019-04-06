@@ -150,7 +150,7 @@
 
                                     <overWrite>true</overWrite>
                                     <outputDirectory>${dir.strongbox.home}</outputDirectory>
-                                    <includes>etc/conf/strongbox.xml</includes>
+                                    <includes>etc/conf/strongbox.yaml</includes>
                                 </artifactItem>
                             </artifactItems>
                         </configuration>

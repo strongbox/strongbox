@@ -18,7 +18,6 @@ import org.carlspring.strongbox.repository.MavenRepositoryFeatures;
 import org.carlspring.strongbox.repository.RepositoryManagementStrategy;
 import org.carlspring.strongbox.repository.RepositoryManagementStrategyException;
 import org.carlspring.strongbox.services.ConfigurationManagementService;
-import org.carlspring.strongbox.storage.MutableStorage;
 import org.carlspring.strongbox.storage.Storage;
 import org.carlspring.strongbox.storage.repository.MavenRepositoryFactory;
 import org.carlspring.strongbox.storage.repository.MutableRepository;
@@ -73,17 +72,6 @@ public class MavenTestCaseWithArtifactGeneration
 
     @Inject
     protected ConfigurationManager configurationManager;
-
-
-    protected MutableStorage getStorage(String storageId)
-    {
-        final Storage storage = configurationManager.getConfiguration().getStorage(storageId);
-        final MutableStorage result = new MutableStorage();
-        result.setBasedir(storage.getBasedir());
-        result.setId(storage.getId());
-
-        return result;
-    }
 
     public MavenArtifact generateArtifact(String basedir, String gavtc)
             throws IOException,

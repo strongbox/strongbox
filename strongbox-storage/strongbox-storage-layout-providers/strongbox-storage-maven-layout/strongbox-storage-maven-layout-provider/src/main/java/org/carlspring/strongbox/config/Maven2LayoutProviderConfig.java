@@ -1,5 +1,6 @@
 package org.carlspring.strongbox.config;
 
+import org.carlspring.strongbox.booters.PropertiesBooter;
 import org.carlspring.strongbox.providers.datastore.StorageProvider;
 import org.carlspring.strongbox.providers.datastore.StorageProviderRegistry;
 import org.carlspring.strongbox.providers.io.LayoutFileSystemFactory;
@@ -70,25 +71,26 @@ public class Maven2LayoutProviderConfig
     }
 
     @Bean(FILE_SYSTEM_ALIAS)
-    public LayoutFileSystemFactory mavenRepositoryFileSystemFactory()
+    public LayoutFileSystemFactory mavenRepositoryFileSystemFactory(PropertiesBooter propertiesBooter)
     {
         LayoutFileSystemProviderFactory providerFactory = mavenRepositoryFileSystemProviderFactory();
         
         return (repository) -> {
             StorageProvider storageProvider = storageProviderRegistry.getProvider(repository.getImplementation());
 
-            return mavenRepositoryFileSystem(repository, storageProvider.getFileSystem(),
+            return mavenRepositoryFileSystem(propertiesBooter, repository, storageProvider.getFileSystem(),
                                              providerFactory.create(repository));
         };
     }
 
     @Bean
     @Scope("prototype")
-    public MavenFileSystem mavenRepositoryFileSystem(Repository repository,
+    public MavenFileSystem mavenRepositoryFileSystem(PropertiesBooter propertiesBooter,
+                                                     Repository repository,
                                                      FileSystem storageFileSystem,
                                                      LayoutFileSystemProvider provider)
     {
-        return new MavenFileSystem(repository, storageFileSystem, provider);
+        return new MavenFileSystem(propertiesBooter, repository, storageFileSystem, provider);
     }
 
 }
