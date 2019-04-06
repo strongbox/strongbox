@@ -291,7 +291,7 @@ public class UserControllerTestIT
                .extract()
                .asString();
 
-        User updatedUser = retrieveUserByName("maven");
+        User updatedUser = retrieveUserByName("test-user");
 
         assertNotNull(updatedUser.getPassword());
         assertEquals(mavenUser.getPassword(), updatedUser.getPassword());
@@ -394,7 +394,7 @@ public class UserControllerTestIT
 
         User updatedUser = retrieveUserByName(admin.getUsername());
 
-        assertTrue(SetUtils.isEqualSet(updatedUser.getRoles(), ImmutableSet.of(Roles.ADMIN.name())));
+        assertTrue(SetUtils.isEqualSet(updatedUser.getRoles(), ImmutableSet.of(Roles.UI_MANAGER.name())));
 
         admin.setRoles(ImmutableSet.of("UI_MANAGER"));
         given().contentType(MediaType.APPLICATION_JSON_VALUE)
