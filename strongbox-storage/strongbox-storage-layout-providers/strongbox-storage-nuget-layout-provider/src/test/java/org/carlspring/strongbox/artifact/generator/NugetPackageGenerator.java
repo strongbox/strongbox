@@ -50,7 +50,7 @@ public class NugetPackageGenerator implements ArtifactGenerator
             "<Relationship Type=\"http://schemas.openxmlformats.org/package/2006/relationships/metadata/core-properties\" Target=\"/package/services/metadata/core-properties/metadata.psmdcp\" Id=\"R23f62\r\ne2778b3442e\" />\r\n"  +
             "</Relationships>";
     
-    private String basedir;
+    private Path basedir;
 
     public NugetPackageGenerator()
     {
@@ -58,12 +58,17 @@ public class NugetPackageGenerator implements ArtifactGenerator
 
     public NugetPackageGenerator(String basedir)
     {
-        this.basedir = basedir;
+        this.basedir = Paths.get(basedir);
     }
 
     public NugetPackageGenerator(File basedir)
     {
-        this.basedir = basedir.getAbsolutePath();
+        this.basedir = basedir.toPath();
+    }
+
+    public NugetPackageGenerator(Path basedir)
+    {
+        this.basedir = basedir;
     }
 
     @Override
@@ -71,17 +76,21 @@ public class NugetPackageGenerator implements ArtifactGenerator
                                     int size)
             throws IOException
     {
+        NugetArtifactCoordinates coordinates = NugetArtifactCoordinates.parse(Paths.get(uri).toString());
+
         try
         {
-            NugetArtifactCoordinates coordinates = NugetArtifactCoordinates.parse(Paths.get(uri).toString());
-
             generateNugetPackage(coordinates.getId(), coordinates.getVersion());
         }
         catch(JAXBException | NoSuchAlgorithmException | NugetFormatException e)
         {
             throw new IOException(e);
         }
-        return Paths.get(uri);
+
+        return basedir.resolve(coordinates.getId())
+                      .resolve(coordinates.getVersion())
+                      .normalize()
+                      .toAbsolutePath();
     }
 
     public void generateNugetPackage(String id,
@@ -326,12 +335,12 @@ public class NugetPackageGenerator implements ArtifactGenerator
 
     public String getBasedir()
     {
-        return basedir;
+        return basedir.toAbsolutePath().toString();
     }
 
     public void setBasedir(String basedir)
     {
-        this.basedir = basedir;
+        this.basedir = Paths.get(basedir);
     }
 
 }
