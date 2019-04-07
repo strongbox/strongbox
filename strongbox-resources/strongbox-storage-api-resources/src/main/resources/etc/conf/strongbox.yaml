@@ -312,7 +312,7 @@ configuration:
     storage-pypi:
       id: storage-pypi
       repositories:
-        nuget-releases:
+        pypi-releases:
           id: pypi-releases
           policy: release
           dataStore: file-system

@@ -69,6 +69,7 @@ import static org.carlspring.strongbox.net.MediaType.APPLICATION_YML_VALUE;
           NugetLayoutProviderConfig.class,
           NpmLayoutProviderConfig.class,
           RawLayoutProviderConfig.class,
+          PypiLayoutProviderConfig.class,
           StorageCoreConfig.class,
           UsersConfig.class,
           SecurityConfig.class,
