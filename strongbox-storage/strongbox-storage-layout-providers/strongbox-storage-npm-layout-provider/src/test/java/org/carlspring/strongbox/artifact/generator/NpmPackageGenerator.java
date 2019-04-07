@@ -51,7 +51,8 @@ public class NpmPackageGenerator implements ArtifactGenerator
         packageJson.setDist(new Dist());
     }
 
-    public NpmPackageGenerator(Path basedir){
+    public NpmPackageGenerator(Path basedir)
+    {
         super();
         this.basePath = basedir;
     }

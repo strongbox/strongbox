@@ -73,7 +73,7 @@ public class NugetPackageGenerator implements ArtifactGenerator
 
     @Override
     public Path generateArtifact(URI uri,
-                                    int size)
+                                 int size)
             throws IOException
     {
         NugetArtifactCoordinates coordinates = NugetArtifactCoordinates.parse(Paths.get(uri).toString());
