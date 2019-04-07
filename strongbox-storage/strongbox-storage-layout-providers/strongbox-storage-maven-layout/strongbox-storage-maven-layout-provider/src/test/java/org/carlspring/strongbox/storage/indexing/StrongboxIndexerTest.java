@@ -115,10 +115,9 @@ public class StrongboxIndexerTest
         RepositoryIndexManager repositoryIndexManager = this.repositoryIndexManager.get();
 
         
-        RepositoryPath repositoryPath = repositoryPathResolver.resolve(STORAGE0, 
-        																REPOSITORY_RELEASES_1, 
-        																"org/carlspring/properties-injector/1.7/properties-injector-1.7.jar");
-        
+        RepositoryPath repositoryPath = repositoryPathResolver.resolve(STORAGE0,
+                                                                       REPOSITORY_RELEASES_1,
+                                                                       "org/carlspring/properties-injector/1.7/properties-injector-1.7.jar");
         artifactManagementService.validateAndStore(repositoryPath,
                                                    jarArtifact.getInputStream());
 
@@ -143,10 +142,9 @@ public class StrongboxIndexerTest
         Indexer indexer = this.indexer.get();
         RepositoryIndexManager repositoryIndexManager = this.repositoryIndexManager.get();
 
-        RepositoryPath repositoryPath = repositoryPathResolver.resolve(STORAGE0, 
-        																REPOSITORY_RELEASES_2, 
-        																"org/carlspring/properties-injector/1.7/properties-injector-1.7.jar");
-        
+        RepositoryPath repositoryPath = repositoryPathResolver.resolve(STORAGE0,
+                                                                       REPOSITORY_RELEASES_2,
+                                                                       "org/carlspring/properties-injector/1.7/properties-injector-1.7.jar");
         artifactManagementService.validateAndStore(repositoryPath,
                                                    jarArtifact.getInputStream());
 
@@ -247,10 +245,9 @@ public class StrongboxIndexerTest
         Indexer indexer = this.indexer.get();
         RepositoryIndexManager repositoryIndexManager = this.repositoryIndexManager.get();
 
-        RepositoryPath repositoryPath = repositoryPathResolver.resolve(STORAGE0, 
-        																REPOSITORY_RELEASES_5, 
-        																"org/carlspring/properties-injector/1.7/properties-injector-1.7.zip");
-        
+        RepositoryPath repositoryPath = repositoryPathResolver.resolve(STORAGE0,
+                                                                       REPOSITORY_RELEASES_5,
+                                                                       "org/carlspring/properties-injector/1.7/properties-injector-1.7.zip");
         artifactManagementService.validateAndStore(repositoryPath,
                                                    zipArtifact.getInputStream());
 
@@ -277,9 +274,8 @@ public class StrongboxIndexerTest
         RepositoryIndexManager repositoryIndexManager = this.repositoryIndexManager.get();
 
         RepositoryPath repositoryPath = repositoryPathResolver.resolve(STORAGE0, 
-        																REPOSITORY_RELEASES_6, 
-        																"org/carlspring/properties-injector/1.7/properties-injector-1.7.zip");
-        
+                                                                       REPOSITORY_RELEASES_6, 
+                                                                       "org/carlspring/properties-injector/1.7/properties-injector-1.7.zip");
         artifactManagementService.validateAndStore(repositoryPath,
                                                    zipArtifact.getInputStream());
 

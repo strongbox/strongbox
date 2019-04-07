@@ -90,7 +90,7 @@ public class ArtifactManagementService
         performRepositoryAcceptanceValidation(repositoryPath);
         return doStore(repositoryPath, is);
     }
-    
+
     @Transactional
     public long store(RepositoryPath repositoryPath,
                       InputStream is)

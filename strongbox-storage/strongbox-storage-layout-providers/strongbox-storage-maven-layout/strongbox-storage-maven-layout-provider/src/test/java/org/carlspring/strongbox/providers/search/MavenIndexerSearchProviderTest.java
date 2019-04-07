@@ -153,11 +153,10 @@ public class MavenIndexerSearchProviderTest
     public void shouldBeCapableToSearchByClassNameByDefault(TestInfo testInfo)
             throws Exception
     {
-    	
-    	RepositoryPath repositoryPath = repositoryPathResolver.resolve(STORAGE0,
-    																	getRepositoryName(REPOSITORY_RELEASES_WITH_CLASSNAMES_INDEXED, 
-    																			testInfo),
-    																	"org/carlspring/properties-injector/1.7/properties-injector-1.7.jar");
+        RepositoryPath repositoryPath = repositoryPathResolver.resolve(STORAGE0,
+                                                                       getRepositoryName(REPOSITORY_RELEASES_WITH_CLASSNAMES_INDEXED,
+                                                                                         testInfo),
+                                                                       "org/carlspring/properties-injector/1.7/properties-injector-1.7.jar");
         artifactManagementService.validateAndStore(repositoryPath,
                                                    jarArtifact.getInputStream());
 
@@ -174,11 +173,10 @@ public class MavenIndexerSearchProviderTest
     public void shouldBeCapableToSearchByFQNByDefault(TestInfo testInfo)
             throws Exception
     {
-    	RepositoryPath repositoryPath = repositoryPathResolver.resolve(STORAGE0, 
-																	   getRepositoryName(REPOSITORY_RELEASES_WITH_CLASSNAMES_INDEXED,
-				                                                                     testInfo),
-																	"org/carlspring/properties-injector/1.7/properties-injector-1.7.jar");
-
+        RepositoryPath repositoryPath = repositoryPathResolver.resolve(STORAGE0,
+                                                                       getRepositoryName(REPOSITORY_RELEASES_WITH_CLASSNAMES_INDEXED,
+                                                                                         testInfo),
+                                                                       "org/carlspring/properties-injector/1.7/properties-injector-1.7.jar");
         artifactManagementService.validateAndStore(repositoryPath,
                                                    jarArtifact.getInputStream());
 
@@ -195,13 +193,10 @@ public class MavenIndexerSearchProviderTest
     public void shouldBeCapableToSearchByClassNameFromZippedArtifactByDefault(TestInfo testInfo)
             throws Exception
     {
-    	
-    	RepositoryPath repositoryPath = repositoryPathResolver.resolve(STORAGE0, 
-    																	getRepositoryName(
-    																			REPOSITORY_RELEASES_WITH_CLASSNAMES_INDEXED,
-    																			testInfo),
-																		"org/carlspring/properties-injector/1.7/properties-injector-1.7.zip");
-    	
+        RepositoryPath repositoryPath = repositoryPathResolver.resolve(STORAGE0,
+                                                                       getRepositoryName(REPOSITORY_RELEASES_WITH_CLASSNAMES_INDEXED,
+                                                                                         testInfo),
+                                                                       "org/carlspring/properties-injector/1.7/properties-injector-1.7.zip");
         artifactManagementService.validateAndStore(repositoryPath,
                                                    zipArtifact.getInputStream());
 
@@ -218,12 +213,10 @@ public class MavenIndexerSearchProviderTest
     public void shouldBeCapableToSearchByFQNFromZippedArtifactByDefault(TestInfo testInfo)
             throws Exception
     {
-    	RepositoryPath repositoryPath = repositoryPathResolver.resolve(STORAGE0, 
-																		getRepositoryName(
-																				REPOSITORY_RELEASES_WITH_CLASSNAMES_INDEXED,
-																				testInfo),
-																		"org/carlspring/properties-injector/1.7/properties-injector-1.7.zip");
-    	
+        RepositoryPath repositoryPath = repositoryPathResolver.resolve(STORAGE0,
+                                                                       getRepositoryName(REPOSITORY_RELEASES_WITH_CLASSNAMES_INDEXED,
+                                                                                         testInfo),
+                                                                       "org/carlspring/properties-injector/1.7/properties-injector-1.7.zip");
         artifactManagementService.validateAndStore(repositoryPath,
                                                    zipArtifact.getInputStream());
 
@@ -241,11 +234,10 @@ public class MavenIndexerSearchProviderTest
     public void shouldBeAllowedToDisableSearchByClassName(TestInfo testInfo)
             throws Exception
     {
-    	RepositoryPath repositoryPath = repositoryPathResolver.resolve(STORAGE0, 
-																		getRepositoryName(REPOSITORY_RELEASES_WITHOUT_CLASSNAMES_INDEXED,
-																				testInfo),
-																		"org/carlspring/properties-injector/1.7/properties-injector-1.7.jar");
-    	
+        RepositoryPath repositoryPath = repositoryPathResolver.resolve(STORAGE0,
+                                                                       getRepositoryName(REPOSITORY_RELEASES_WITHOUT_CLASSNAMES_INDEXED,
+                                                                                         testInfo),
+                                                                       "org/carlspring/properties-injector/1.7/properties-injector-1.7.jar");
         artifactManagementService.validateAndStore(repositoryPath,
                                                    jarArtifact.getInputStream());
 
@@ -262,11 +254,10 @@ public class MavenIndexerSearchProviderTest
     public void shouldBeAllowedToDisableSearchByFQN(TestInfo testInfo)
             throws Exception
     {
-    	RepositoryPath repositoryPath = repositoryPathResolver.resolve(STORAGE0, 
-																		getRepositoryName(REPOSITORY_RELEASES_WITHOUT_CLASSNAMES_INDEXED,
-																				testInfo),
-																		"org/carlspring/properties-injector/1.7/properties-injector-1.7.jar");
-    	
+        RepositoryPath repositoryPath = repositoryPathResolver.resolve(STORAGE0,
+                                                                       getRepositoryName(REPOSITORY_RELEASES_WITHOUT_CLASSNAMES_INDEXED,
+                                                                                         testInfo),
+                                                                       "org/carlspring/properties-injector/1.7/properties-injector-1.7.jar");
         artifactManagementService.validateAndStore(repositoryPath,
                                                    jarArtifact.getInputStream());
 
@@ -283,11 +274,10 @@ public class MavenIndexerSearchProviderTest
     public void shouldBeAllowedToDisableSearchByClassNameFromZippedArtifact(TestInfo testInfo)
             throws Exception
     {
-    	RepositoryPath repositoryPath = repositoryPathResolver.resolve(STORAGE0, 
-																		getRepositoryName(REPOSITORY_RELEASES_WITHOUT_CLASSNAMES_INDEXED,
-																				testInfo),
-																		"org/carlspring/properties-injector/1.7/properties-injector-1.7.zip");
-    	
+        RepositoryPath repositoryPath = repositoryPathResolver.resolve(STORAGE0,
+                                                                       getRepositoryName(REPOSITORY_RELEASES_WITHOUT_CLASSNAMES_INDEXED,
+                                                                                         testInfo),
+                                                                       "org/carlspring/properties-injector/1.7/properties-injector-1.7.zip");
         artifactManagementService.validateAndStore(repositoryPath,
                                                    zipArtifact.getInputStream());
 
@@ -304,12 +294,10 @@ public class MavenIndexerSearchProviderTest
     public void shouldBeAllowedToDisableSearchByFQNFromZippedArtifact(TestInfo testInfo)
             throws Exception
     {
-    	
-    	RepositoryPath repositoryPath = repositoryPathResolver.resolve(STORAGE0, 
-																		getRepositoryName(REPOSITORY_RELEASES_WITHOUT_CLASSNAMES_INDEXED,
-																				testInfo),
-																		"org/carlspring/properties-injector/1.7/properties-injector-1.7.zip");
-    	
+        RepositoryPath repositoryPath = repositoryPathResolver.resolve(STORAGE0,
+                                                                       getRepositoryName(REPOSITORY_RELEASES_WITHOUT_CLASSNAMES_INDEXED,
+                                                                                         testInfo),
+                                                                        "org/carlspring/properties-injector/1.7/properties-injector-1.7.zip");
         artifactManagementService.validateAndStore(repositoryPath,
                                                    zipArtifact.getInputStream());
 

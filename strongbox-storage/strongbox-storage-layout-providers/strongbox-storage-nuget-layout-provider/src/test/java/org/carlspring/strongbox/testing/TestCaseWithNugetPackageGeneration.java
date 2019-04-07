@@ -54,10 +54,9 @@ public class TestCaseWithNugetPackageGeneration
             Path packageFilePath = generatePackageFile(packageId, packageVersion);
             try (InputStream is = new BufferedInputStream(Files.newInputStream(packageFilePath)))
             {
-            	RepositoryPath repositoryPath = repositoryPathResolver.resolve(storageId, 
-																				repositoryId, 
-																				coordinates.toPath());
-            	
+                RepositoryPath repositoryPath = repositoryPathResolver.resolve(storageId,
+                                                                                repositoryId,
+                                                                                coordinates.toPath());
                 artifactManagementService.validateAndStore(repositoryPath, is);
             }
         }
