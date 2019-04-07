@@ -42,6 +42,9 @@ public class NpmPackageGenerator implements ArtifactGenerator
 
     private ObjectMapper mapper = new ObjectMapper();
 
+    public NpmPackageGenerator()
+    {
+    }
 
     public NpmPackageGenerator(String basedir)
     {
