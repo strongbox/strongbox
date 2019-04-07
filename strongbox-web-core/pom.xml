@@ -206,6 +206,8 @@
                         <logging.config>${project.build.directory}/strongbox/etc/logback-spring-debug.xml</logging.config>
                         <logging.dir>${project.build.directory}/strongbox-vault/logs</logging.dir>
                     </systemPropertyVariables>
+                    <maxAttempts>120</maxAttempts>
+                    <wait>1000</wait>
                 </configuration>
 
                 <executions>
@@ -309,6 +311,17 @@
             <version>${project.version}</version>
             <type>test-jar</type>
             <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>${project.groupId}</groupId>
+            <artifactId>strongbox-storage-pypi-layout-provider</artifactId>
+            <version>${project.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>${project.groupId}</groupId>
+            <artifactId>strongbox-storage-pypi-layout-provider</artifactId>
+            <version>${project.version}</version>
+            <type>test-jar</type>
         </dependency>
         <dependency>
             <groupId>${project.groupId}</groupId>

@@ -22,7 +22,6 @@ import org.carlspring.strongbox.storage.Storage;
 import org.carlspring.strongbox.storage.metadata.nuget.Nuspec;
 import org.carlspring.strongbox.storage.metadata.nuget.TempNupkgFile;
 import org.carlspring.strongbox.storage.repository.Repository;
-import org.semver.Version;
 
 import javax.inject.Inject;
 import javax.servlet.ServletInputStream;
@@ -48,6 +47,7 @@ import io.swagger.annotations.ApiResponse;
 import io.swagger.annotations.ApiResponses;
 import org.apache.commons.fileupload.MultipartStream;
 import org.apache.commons.lang.StringUtils;
+import org.semver.Version;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.core.io.InputStreamResource;

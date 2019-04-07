@@ -89,7 +89,7 @@ configuration:
           layout: Maven 2
           type: proxy
           remoteRepository:
-            url: http://dev.carlspring.org/nexus/content/groups/carlspring
+            url: http://repo.carlspring.org/nexus/content/groups/carlspring
             downloadRemoteIndexes: true
             autoBlocking: true
             checksumValidation: true
@@ -306,6 +306,17 @@ configuration:
           policy: release
           dataStore: file-system
           layout: NuGet
+          type: hosted
+          allowsForceDeletion: true
+          checksumHeadersEnabled: true
+    storage-pypi:
+      id: storage-pypi
+      repositories:
+        nuget-releases:
+          id: pypi-releases
+          policy: release
+          dataStore: file-system
+          layout: PyPi
           type: hosted
           allowsForceDeletion: true
           checksumHeadersEnabled: true
