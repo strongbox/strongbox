@@ -1,6 +1,5 @@
 package org.carlspring.strongbox.testing;
 
-import org.carlspring.maven.commons.util.ArtifactUtils;
 import org.carlspring.strongbox.artifact.coordinates.NugetArtifactCoordinates;
 import org.carlspring.strongbox.artifact.generator.NugetPackageGenerator;
 import org.carlspring.strongbox.booters.PropertiesBooter;
