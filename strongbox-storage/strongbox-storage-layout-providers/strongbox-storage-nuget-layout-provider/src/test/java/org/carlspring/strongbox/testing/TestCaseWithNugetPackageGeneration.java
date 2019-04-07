@@ -1,9 +1,12 @@
 package org.carlspring.strongbox.testing;
 
+import org.carlspring.maven.commons.util.ArtifactUtils;
 import org.carlspring.strongbox.artifact.coordinates.NugetArtifactCoordinates;
 import org.carlspring.strongbox.artifact.generator.NugetPackageGenerator;
 import org.carlspring.strongbox.booters.PropertiesBooter;
 import org.carlspring.strongbox.providers.ProviderImplementationException;
+import org.carlspring.strongbox.providers.io.RepositoryPath;
+import org.carlspring.strongbox.providers.io.RepositoryPathResolver;
 import org.carlspring.strongbox.services.ArtifactManagementService;
 import org.carlspring.strongbox.storage.metadata.nuget.NugetFormatException;
 import org.carlspring.strongbox.storage.validation.artifact.ArtifactCoordinatesValidationException;
@@ -31,6 +34,8 @@ public class TestCaseWithNugetPackageGeneration
     @Inject
     private PropertiesBooter propertiesBooter;
 
+    @Inject
+    protected RepositoryPathResolver repositoryPathResolver;
     
     public void generateRepositoryPackages(String storageId,
                                            String repositoryId,
@@ -50,7 +55,11 @@ public class TestCaseWithNugetPackageGeneration
             Path packageFilePath = generatePackageFile(packageId, packageVersion);
             try (InputStream is = new BufferedInputStream(Files.newInputStream(packageFilePath)))
             {
-                artifactManagementService.validateAndStore(storageId, repositoryId, coordinates.toPath(), is);
+            	RepositoryPath repositoryPath = repositoryPathResolver.resolve(storageId, 
+																				repositoryId, 
+																				coordinates.toPath());
+            	
+                artifactManagementService.validateAndStore(repositoryPath, is);
             }
         }
     }

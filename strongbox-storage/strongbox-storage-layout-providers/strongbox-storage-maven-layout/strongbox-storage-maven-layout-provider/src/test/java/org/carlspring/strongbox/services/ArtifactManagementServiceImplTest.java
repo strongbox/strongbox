@@ -182,10 +182,12 @@ public class ArtifactManagementServiceImplTest
                                              true);
 
             Artifact artifact = ArtifactUtils.getArtifactFromGAVTC(gavtc);
-            mavenArtifactManagementService.validateAndStore(STORAGE0,
-                                                            repositoryId,
-                                                            ArtifactUtils.convertArtifactToPath(artifact),
-                                                            is);
+            
+            RepositoryPath repositoryPath = repositoryPathResolver.resolve(STORAGE0, 
+            																repositoryId, 
+            																ArtifactUtils.convertArtifactToPath(artifact));
+            
+            mavenArtifactManagementService.validateAndStore(repositoryPath, is);
 
             fail("Failed to deny artifact operation for repository with disallowed deployments.");
         }
@@ -229,10 +231,12 @@ public class ArtifactManagementServiceImplTest
                                              true);
 
             Artifact artifact = ArtifactUtils.getArtifactFromGAVTC(gavtc);
-            mavenArtifactManagementService.validateAndStore(STORAGE0,
-                                                            repositoryId,
-                                                            ArtifactUtils.convertArtifactToPath(artifact),
-                                                            is);
+            
+            RepositoryPath repositoryPath = repositoryPathResolver.resolve(STORAGE0,
+            																repositoryId, 
+            																ArtifactUtils.convertArtifactToPath(artifact));
+            
+            mavenArtifactManagementService.validateAndStore(repositoryPath, is);
 
             fail("Failed to deny artifact operation for repository with disallowed re-deployments.");
         }
@@ -327,10 +331,11 @@ public class ArtifactManagementServiceImplTest
                                              gavtc,
                                              true);
 
-            mavenArtifactManagementService.validateAndStore(STORAGE0,
-                                                            repositoryGroupId,
-                                                            ArtifactUtils.convertArtifactToPath(artifact),
-                                                            is);
+            RepositoryPath repositoryPath = repositoryPathResolver.resolve(STORAGE0, 
+            																repositoryGroupId, 
+            																ArtifactUtils.convertArtifactToPath(artifact));
+            
+            mavenArtifactManagementService.validateAndStore(repositoryPath, is);
 
             fail("Failed to deny artifact operation for repository with disallowed deployments.");
         }
@@ -349,10 +354,12 @@ public class ArtifactManagementServiceImplTest
             // Generate the artifact on the file-system anyway so that we could achieve
             // the state of having it there before attempting a re-deployment
             generateArtifact(getRepositoryBasedir(STORAGE0, repositoryId).getAbsolutePath(), gavtc);
-            mavenArtifactManagementService.validateAndStore(STORAGE0,
-                                                            repositoryGroupId,
-                                                            ArtifactUtils.convertArtifactToPath(artifact),
-                                                            is);
+            
+            RepositoryPath repositoryPath = repositoryPathResolver.resolve(STORAGE0, 
+            																repositoryGroupId, 
+            																ArtifactUtils.convertArtifactToPath(artifact));
+            
+            mavenArtifactManagementService.validateAndStore(repositoryPath, is);
 
             fail("Failed to deny artifact operation for repository with disallowed re-deployments.");
         }
@@ -635,10 +642,11 @@ public class ArtifactManagementServiceImplTest
 
         try (InputStream is = new ByteArrayInputStream("strongbox-lv-artifact-content".getBytes(StandardCharsets.UTF_8)))
         {
-            mavenArtifactManagementService.validateAndStore(STORAGE0,
-                                                            repositoryId,
-                                                            artifactPath,
-                                                            is);
+        	RepositoryPath repositoryPath = repositoryPathResolver.resolve(STORAGE0, 
+																			repositoryId, 
+																			artifactPath);
+        	
+            mavenArtifactManagementService.validateAndStore(repositoryPath, is);
         }
 
         // confirm it has last-version tag
@@ -655,10 +663,11 @@ public class ArtifactManagementServiceImplTest
 
         try (InputStream is = new ByteArrayInputStream("strongbox-lv-artifact-content".getBytes(StandardCharsets.UTF_8)))
         {
-            mavenArtifactManagementService.validateAndStore(STORAGE0,
-                                                            repositoryId,
-                                                            artifactPathWithClassifier,
-                                                            is);
+        	RepositoryPath repositoryPath = repositoryPathResolver.resolve(STORAGE0, 
+    																		repositoryId, 
+    																		artifactPathWithClassifier);
+        	
+            mavenArtifactManagementService.validateAndStore(repositoryPath, is);
         }
 
         // confirm it has last-version tag
@@ -686,10 +695,12 @@ public class ArtifactManagementServiceImplTest
 
         try (InputStream is = new ByteArrayInputStream("strongbox-lv-artifact-content".getBytes(StandardCharsets.UTF_8)))
         {
-            mavenArtifactManagementService.validateAndStore(STORAGE0,
-                                                            repositoryId,
-                                                            artifactPathV2,
-                                                            is);
+        	
+        	RepositoryPath repositoryPath = repositoryPathResolver.resolve(STORAGE0, 
+																			repositoryId, 
+																			artifactPathV2);
+        	
+            mavenArtifactManagementService.validateAndStore(repositoryPath, is);
         }
 
         // confirm it has last-version tag

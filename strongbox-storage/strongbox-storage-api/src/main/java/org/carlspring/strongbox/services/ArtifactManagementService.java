@@ -86,27 +86,10 @@ public class ArtifactManagementService
                                  InputStream is)
         throws IOException,
         ProviderImplementationException,
-        NoSuchAlgorithmException,
         ArtifactCoordinatesValidationException
     {
         performRepositoryAcceptanceValidation(repositoryPath);
         return doStore(repositoryPath, is);
-    }
-    
-    @Deprecated
-    @Transactional
-    public long validateAndStore(String storageId,
-                                 String repositoryId,
-                                 String path,
-                                 InputStream is)
-            throws IOException,
-                   ProviderImplementationException,
-                   NoSuchAlgorithmException,
-                   ArtifactCoordinatesValidationException
-    {
-        RepositoryPath repositoryPath = repositoryPathResolver.resolve(storageId, repositoryId, path);
-
-        return validateAndStore(repositoryPath, is);
     }
     
     @Transactional
