@@ -9,7 +9,6 @@ import java.util.Map;
 import org.semver.Version;
 
 
-
 /*
  * Represents {@link ArtifactCoordinates} for PyPi repository
  * <p>
@@ -29,12 +28,12 @@ import org.semver.Version;
 public class PypiWheelArtifactCoordinates
         extends AbstractArtifactCoordinates<PypiWheelArtifactCoordinates, Version>
 {
-	
 	public static final String LAYOUT_NAME = "PyPi";
     public static final String LAYOUT_ALIAS = "pypi";
     
     
     // these are the variables used to store the artifact coordinates for PypiWheels
+
 	public static final String DISTRIBUTION = "distribution";
 
     public static final String VERSION = "version";
@@ -115,6 +114,7 @@ public class PypiWheelArtifactCoordinates
     public String getBuild()
     {
         return getCoordinate(BUILD_TAG);
+
     }
     
 
@@ -129,10 +129,11 @@ public class PypiWheelArtifactCoordinates
     @ArtifactLayoutCoordinate
     public String getLang()
     {
+
         return getCoordinate(LANG_IMPL_VERSION_TAG);
     }
-    
-    
+
+
     // set language implementation and version tag coordinate
     public void setLang(String lang)
     {
