@@ -31,7 +31,6 @@ public class HeaderMappingRegistry
     {
         layout2UserAgentKeywodMap.put(layoutProviderAlias,
                                       Arrays.stream(userAgentKeywords)
-                                            .map(s -> s.toUpperCase())
                                             .collect(Collectors.toList()));
     }
 
@@ -44,8 +43,8 @@ public class HeaderMappingRegistry
         return layout2UserAgentKeywodMap.values()
                                         .stream()
                                         .flatMap(l -> l.stream())
-                                        .filter(s -> originalUserAgentHeaverValue.toUpperCase().contains(s))
-                                        .map(s -> String.format(USER_AGENT_FORMAT, s))
+                                        .filter(s -> originalUserAgentHeaverValue.toUpperCase().contains(s.toUpperCase()))
+                                        .map(this::formatHeader)
                                         .findFirst();
     }
 
@@ -53,7 +52,13 @@ public class HeaderMappingRegistry
     {
         return Optional.ofNullable(layout2UserAgentKeywodMap.get(layout))
                        .flatMap(s -> s.stream().findFirst())
+                       .map(this::formatHeader)
                        .orElse(USER_AGENT_UNKNOWN);
+    }
+
+    private String formatHeader(String s)
+    {
+        return String.format(USER_AGENT_FORMAT, s);
     }
 
 }
