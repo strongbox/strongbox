@@ -6,7 +6,7 @@ import org.springframework.stereotype.Component;
  * @author carlspring
  */
 @Component
-public class PypiRepositoryManagementStrategy
+public class PypiWheelRepositoryManagementStrategy
         extends AbstractRepositoryManagementStrategy
 {
 

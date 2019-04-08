@@ -1,7 +1,7 @@
 package org.carlspring.strongbox.storage.repository;
 
 import org.carlspring.strongbox.providers.layout.PypiLayoutProvider;
-import org.carlspring.strongbox.repository.PypiRepositoryFeatures;
+import org.carlspring.strongbox.repository.PypiWheelRepositoryFeatures;
 
 import javax.inject.Inject;
 import java.util.LinkedHashSet;
@@ -12,12 +12,12 @@ import org.springframework.stereotype.Component;
  * @author carlspring
  */
 @Component
-public class PypiRepositoryFactory
+public class PypiWheelRepositoryFactory
         implements RepositoryFactory
 {
 
     @Inject
-    private PypiRepositoryFeatures pypiRepositoryFeatures;
+    private PypiWheelRepositoryFeatures pypiRepositoryFeatures;
 
 
     @Override

@@ -18,11 +18,11 @@ import org.springframework.stereotype.Component;
  * @author carlspring
  */
 @Component
-public class PypiRepositoryFeatures
+public class PypiWheelRepositoryFeatures
         implements RepositoryFeatures
 {
 
-    private static final Logger logger = LoggerFactory.getLogger(PypiRepositoryFeatures.class);
+    private static final Logger logger = LoggerFactory.getLogger(PypiWheelRepositoryFeatures.class);
 
     @Inject
     private RedeploymentValidator redeploymentValidator;
