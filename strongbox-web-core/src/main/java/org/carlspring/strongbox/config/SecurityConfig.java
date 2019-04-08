@@ -12,7 +12,6 @@ import org.carlspring.strongbox.users.security.AuthoritiesProvider;
 
 import javax.inject.Inject;
 import javax.inject.Qualifier;
-
 import java.util.ArrayList;
 import java.util.List;
 
@@ -197,7 +196,8 @@ public class SecurityConfig
     }
 
     @Configuration
-    public static class SharedObjectsConfig{
+    public static class SharedObjectsConfig
+    {
 
         @Bean
         AuthenticationTrustResolver authenticationTrustResolver() {

@@ -44,6 +44,7 @@ import org.springframework.validation.beanvalidation.LocalValidatorFactoryBean;
 import org.springframework.web.context.request.RequestContextListener;
 import org.springframework.web.filter.CommonsRequestLoggingFilter;
 import org.springframework.web.filter.RequestContextFilter;
+import org.springframework.web.multipart.commons.CommonsMultipartResolver;
 import org.springframework.web.servlet.config.annotation.*;
 import org.springframework.web.servlet.resource.GzipResourceResolver;
 import org.springframework.web.servlet.resource.PathResourceResolver;
@@ -245,7 +246,6 @@ public class WebConfig
         };
     }
 
-
     @Bean
     InternalResourceViewResolver internalResourceViewResolver()
     {
@@ -256,4 +256,12 @@ public class WebConfig
 
         return viewResolver;
     }
+
+    @Bean(name = "multipartResolver")
+    public CommonsMultipartResolver multipartResolver()
+    {
+        return new CommonsMultipartResolver();
+    }
+
+
 }

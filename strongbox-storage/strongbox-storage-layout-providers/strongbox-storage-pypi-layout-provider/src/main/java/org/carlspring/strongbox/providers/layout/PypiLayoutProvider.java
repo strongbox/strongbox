@@ -33,7 +33,9 @@ public class PypiLayoutProvider
 
     public static final String ALIAS = PypiWheelArtifactCoordinates.LAYOUT_NAME;
 
-    public static final String USER_AGENT_PREFIX = "pip";
+    public static final String USER_AGENT_PREFIX_PYTHON = "Python-urllib";
+
+    public static final String USER_AGENT_PREFIX_PIP = "pip";
 
     @Inject
     private HeaderMappingRegistry headerMappingRegistry;
@@ -48,7 +50,8 @@ public class PypiLayoutProvider
     @PostConstruct
     public void register()
     {
-        headerMappingRegistry.register(ALIAS, USER_AGENT_PREFIX);
+        headerMappingRegistry.register(ALIAS, USER_AGENT_PREFIX_PYTHON);
+        headerMappingRegistry.register(ALIAS, USER_AGENT_PREFIX_PIP);
 
         logger.info("Registered layout provider '" + getClass().getCanonicalName() + "' with alias '" + ALIAS + "'.");
     }
