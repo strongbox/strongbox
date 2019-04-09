@@ -71,7 +71,8 @@ public class ArtifactManagementTestExecutionListener extends TestRepositoryManag
         });
         testApplicationContext.refresh();
 
-        if (List.class == parameter.getType()) {
+        if (List.class == parameter.getType())
+        {
             return Proxy.newProxyInstance(ArtifactManagementTestExecutionListener.class.getClassLoader(),
                                           new Class[] { List.class },
                                           new ListInvocationHandler(id(testArtifact)));
@@ -79,11 +80,11 @@ public class ArtifactManagementTestExecutionListener extends TestRepositoryManag
         
         return Proxy.newProxyInstance(ArtifactManagementTestExecutionListener.class.getClassLoader(),
                                       new Class[] { Path.class },
-                                      new TestArtifactProxyInvocationHandler(
-                                              id(testArtifact)));
+                                      new TestArtifactProxyInvocationHandler(id(testArtifact)));
     }
     
-    private class ListInvocationHandler implements InvocationHandler {
+    private class ListInvocationHandler implements InvocationHandler
+    {
 
         private List<Path> target;
         private final String id;
@@ -119,8 +120,7 @@ public class ArtifactManagementTestExecutionListener extends TestRepositoryManag
 
             return target;
         }
-
-        
+       
     }
 
     /**
