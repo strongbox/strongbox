@@ -49,7 +49,7 @@ public abstract class AbstractRepositoryManagementStrategy
         final RepositoryPath rootRepositoryPath = repositoryPathResolver.resolve(repository);
         if (!Files.exists(rootRepositoryPath))
         {
-            Files.createDirectories(rootRepositoryPath);
+            rootRepositoryPath.getFileSystem().createRootDirectory();
         }
 
         final RepositoryPath trashRepositoryPath = rootRepositoryPath.resolve(LayoutFileSystem.TRASH);
@@ -104,6 +104,8 @@ public abstract class AbstractRepositoryManagementStrategy
         {
             throw new IOException(String.format("Failed to delete non-existing repository '%s'.", repositoryPath));
         }
+        
+        repositoryPath.getFileSystem().cleanupRootDirectory();
     }
 
 

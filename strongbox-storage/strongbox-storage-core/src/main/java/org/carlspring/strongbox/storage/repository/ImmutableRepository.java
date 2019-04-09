@@ -1,32 +1,36 @@
 package org.carlspring.strongbox.storage.repository;
 
-import org.carlspring.strongbox.configuration.MutableProxyConfiguration;
-import org.carlspring.strongbox.configuration.ProxyConfiguration;
-import org.carlspring.strongbox.json.MapValuesJsonSerializer;
-import org.carlspring.strongbox.json.StringArrayToMapJsonDeserializer;
-import org.carlspring.strongbox.storage.MutableStorage;
-import org.carlspring.strongbox.storage.Storage;
-import org.carlspring.strongbox.storage.repository.remote.MutableRemoteRepository;
-import org.carlspring.strongbox.storage.repository.remote.RemoteRepository;
-import org.carlspring.strongbox.yaml.repository.CustomRepositoryConfiguration;
-import org.carlspring.strongbox.yaml.repository.MutableCustomRepositoryConfiguration;
+import static org.carlspring.strongbox.util.CustomStreamCollectors.toLinkedHashMap;
 
-import javax.annotation.concurrent.Immutable;
-import javax.xml.bind.annotation.XmlAccessType;
-import javax.xml.bind.annotation.XmlAccessorType;
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.stream.Collectors;
 
+import javax.annotation.concurrent.Immutable;
+import javax.xml.bind.annotation.XmlAccessType;
+import javax.xml.bind.annotation.XmlAccessorType;
+
+import org.carlspring.strongbox.configuration.MutableProxyConfiguration;
+import org.carlspring.strongbox.configuration.ProxyConfiguration;
+import org.carlspring.strongbox.json.MapValuesJsonSerializer;
+import org.carlspring.strongbox.json.StringArrayToMapJsonDeserializer;
+import org.carlspring.strongbox.storage.ImmutableStorage;
+import org.carlspring.strongbox.storage.Storage;
+import org.carlspring.strongbox.storage.repository.remote.MutableRemoteRepository;
+import org.carlspring.strongbox.storage.repository.remote.RemoteRepository;
+import org.carlspring.strongbox.yaml.repository.CustomRepositoryConfiguration;
+import org.carlspring.strongbox.yaml.repository.MutableCustomRepositoryConfiguration;
+import org.carlspring.strongbox.yaml.repository.RepositoryConfiguration;
+
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 import com.fasterxml.jackson.databind.annotation.JsonSerialize;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
+
 import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
-import static org.carlspring.strongbox.util.CustomStreamCollectors.toLinkedHashMap;
 
 /**
  * @author Przemyslaw Fusik
@@ -96,12 +100,12 @@ public class ImmutableRepository
 
     }
 
-    public ImmutableRepository(final MutableRepository delegate)
+    public ImmutableRepository(final Repository delegate)
     {
         this(delegate, null);
     }
 
-    public ImmutableRepository(final MutableRepository delegate,
+    public ImmutableRepository(final Repository delegate,
                                final Storage storage)
     {
         this.id = delegate.getId();
@@ -119,11 +123,14 @@ public class ImmutableRepository
         this.allowsDelete = delegate.allowsDeletion();
         this.allowsDirectoryBrowsing = delegate.allowsDirectoryBrowsing();
         this.checksumHeadersEnabled = delegate.isChecksumHeadersEnabled();
-        this.proxyConfiguration = immuteProxyConfiguration(delegate.getProxyConfiguration());
-        this.remoteRepository = immuteRemoteRepository(delegate.getRemoteRepository());
-        this.httpConnectionPool = immuteHttpConnectionPool(delegate.getHttpConnectionPool());
-        this.customConfigurations = immuteCustomConfigurations(delegate.getCustomConfigurations());
-        this.repositoryConfiguration = immuteCustomRepositoryConfiguration(delegate.getRepositoryConfiguration());
+        
+        MutableRepository mutableRepository = (MutableRepository)delegate;
+        this.proxyConfiguration = immuteProxyConfiguration(mutableRepository.getProxyConfiguration());
+        this.remoteRepository = immuteRemoteRepository(mutableRepository.getRemoteRepository());
+        this.httpConnectionPool = immuteHttpConnectionPool(mutableRepository.getHttpConnectionPool());
+        this.customConfigurations = immuteCustomConfigurations(mutableRepository.getCustomConfigurations());
+        this.repositoryConfiguration = immuteCustomRepositoryConfiguration(mutableRepository.getRepositoryConfiguration());
+        
         this.groupRepositories = immuteGroupRepositories(delegate.getGroupRepositories());
         this.artifactCoordinateValidators = immuteArtifactCoordinateValidators(
                 delegate.getArtifactCoordinateValidators());
@@ -147,9 +154,9 @@ public class ImmutableRepository
                Collections.emptyMap();
     }
 
-    private Storage immuteStorage(final MutableStorage source)
+    private Storage immuteStorage(final Storage source)
     {
-        return source != null ? new Storage(source) : null;
+        return source != null ? new ImmutableStorage(source) : null;
     }
 
     private HttpConnectionPool immuteHttpConnectionPool(final MutableHttpConnectionPool source)
@@ -292,21 +299,21 @@ public class ImmutableRepository
         return customConfigurations;
     }
 
-    public CustomRepositoryConfiguration getRepositoryConfiguration()
+    public RepositoryConfiguration getRepositoryConfiguration()
     {
         return repositoryConfiguration;
     }
 
     @Override
-    public Map<String, String> getGroupRepositories()
+    public Set<String> getGroupRepositories()
     {
-        return groupRepositories;
+        return groupRepositories.keySet();
     }
 
     @Override
-    public Map<String, String> getArtifactCoordinateValidators()
+    public Set<String> getArtifactCoordinateValidators()
     {
-        return artifactCoordinateValidators;
+        return artifactCoordinateValidators.keySet();
     }
 
     @Override
@@ -350,4 +357,5 @@ public class ImmutableRepository
     {
         return RepositoryPolicyEnum.ofPolicy(getPolicy()).acceptsReleases();
     }
+
 }

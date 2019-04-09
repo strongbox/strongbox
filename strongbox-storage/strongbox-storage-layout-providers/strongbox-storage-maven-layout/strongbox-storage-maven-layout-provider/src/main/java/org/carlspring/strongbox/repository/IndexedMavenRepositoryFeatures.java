@@ -200,7 +200,7 @@ public class IndexedMavenRepositoryFeatures
 
     public boolean isIndexingEnabled(Repository repository)
     {
-        MavenRepositoryConfiguration repositoryConfiguration = (MavenRepositoryConfiguration) ((ImmutableRepository)repository).getRepositoryConfiguration();
+        MavenRepositoryConfiguration repositoryConfiguration = (MavenRepositoryConfiguration) repository.getRepositoryConfiguration();
 
         return repositoryConfiguration != null && repositoryConfiguration.isIndexingEnabled();
     }

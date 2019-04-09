@@ -1,12 +1,14 @@
 package org.carlspring.strongbox.providers.io;
 
 import org.carlspring.strongbox.domain.ArtifactEntry;
+import org.carlspring.strongbox.io.ProxyPathInvocationHandler;
 import org.carlspring.strongbox.storage.Storage;
 import org.carlspring.strongbox.storage.repository.Repository;
 import org.carlspring.strongbox.util.PathUtils;
 
 import java.io.File;
 import java.io.IOException;
+import java.lang.reflect.Proxy;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.nio.file.LinkOption;
@@ -177,6 +179,10 @@ public class RepositoryPath
 
     protected Path unwrap(Path other)
     {
+        other = other != null && Proxy.isProxyClass(other.getClass())
+                ? ((ProxyPathInvocationHandler) Proxy.getInvocationHandler(other)).getTarget()
+                : other;
+        
         other = other instanceof RepositoryPath ? ((RepositoryPath)other).getTarget() : other;
         
         return other;
@@ -329,7 +335,7 @@ public class RepositoryPath
 
     private void validatePathRelativized(final Path other)
     {
-        if (!PathUtils.isRelativized(target, other))
+        if (!PathUtils.isRelativized(unwrap(target), unwrap(other)))
         {
             throw new RepositoryRelativePathConstructionException();
         }
@@ -337,7 +343,7 @@ public class RepositoryPath
 
     private void validateStringPathRelativized(final String other)
     {
-        if (!PathUtils.isRelativized(target, other))
+        if (!PathUtils.isRelativized(unwrap(target), other))
         {
             throw new RepositoryRelativePathConstructionException();
         }

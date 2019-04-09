@@ -68,7 +68,7 @@ public class RebuildMavenMetadataCronJob
     private void rebuildRepositories(String storageId)
             throws NoSuchAlgorithmException, XmlPullParserException, IOException
     {
-        Map<String, Repository> repositories = getRepositories(storageId);
+        Map<String, ? extends Repository> repositories = getRepositories(storageId);
 
         for (String repository : repositories.keySet())
         {
@@ -81,7 +81,7 @@ public class RebuildMavenMetadataCronJob
         return configurationManager.getConfiguration().getStorages();
     }
 
-    private Map<String, Repository> getRepositories(String storageId)
+    private Map<String, ? extends Repository> getRepositories(String storageId)
     {
         return getStorages().get(storageId).getRepositories();
     }

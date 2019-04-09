@@ -12,9 +12,9 @@ import org.carlspring.strongbox.storage.repository.Repository;
 public interface DirectoryListingService
 {
 
-    DirectoryListing fromStorages(Map<String, Storage> storages) throws IOException;
+    DirectoryListing fromStorages(Map<String, ? extends Storage> storages) throws IOException;
 
-    DirectoryListing fromRepositories(Map<String, Repository> repositories) throws IOException;
+    DirectoryListing fromRepositories(Map<String, ? extends Repository> repositories) throws IOException;
 
     DirectoryListing fromRepositoryPath(RepositoryPath path)
         throws IOException;

@@ -15,13 +15,13 @@ import javax.inject.Inject;
 
 import org.carlspring.strongbox.StorageApiTestConfig;
 import org.carlspring.strongbox.artifact.coordinates.AbstractArtifactCoordinates;
+import org.carlspring.strongbox.booters.PropertiesBooter;
 import org.carlspring.strongbox.data.CacheManagerTestExecutionListener;
 import org.carlspring.strongbox.domain.ArtifactGroupEntry;
 import org.carlspring.strongbox.domain.RepositoryArtifactIdGroupEntry;
 import org.carlspring.strongbox.providers.io.LayoutFileSystem;
 import org.carlspring.strongbox.providers.io.RepositoryFileAttributeType;
 import org.carlspring.strongbox.providers.io.RepositoryPath;
-import org.carlspring.strongbox.providers.io.StorageFileSystemProvider;
 import org.carlspring.strongbox.services.RepositoryArtifactIdGroupService;
 import org.carlspring.strongbox.storage.MutableStorage;
 import org.carlspring.strongbox.storage.repository.ImmutableRepository;
@@ -54,6 +54,9 @@ class AbstractLayoutProviderTest
     @Inject
     private ApplicationContext ctx;
 
+    @Inject
+    private PropertiesBooter propertiesBooter;
+    
     @SuppressWarnings({ "PMD.UnusedPrivateField",
                         "PMD.SingularField" })
     @Spy
@@ -88,7 +91,7 @@ class AbstractLayoutProviderTest
         artifactAttributes.put(RepositoryFileAttributeType.ARTIFACT, Boolean.TRUE);
         artifactAttributes.put(RepositoryFileAttributeType.COORDINATES, artifactCoordinates);
         
-        repositoryFileSystem = new LayoutFileSystem(new ImmutableRepository(repository), FileSystems.getDefault(), storageFileSystemProvider)
+        repositoryFileSystem = new LayoutFileSystem(propertiesBooter, new ImmutableRepository(repository), FileSystems.getDefault(), storageFileSystemProvider)
         {
             @Override
             public Set<String> getDigestAlgorithmSet()
@@ -133,14 +136,20 @@ class AbstractLayoutProviderTest
         MatcherAssert.assertThat(artifactGroup.getClass(), CoreMatchers.equalTo(RepositoryArtifactIdGroupEntry.class));
     }
     
-    private class StorageFileSystemProviderTest extends StorageFileSystemProvider
+    private class StorageFileSystemProviderTest extends LayoutFileSystemProvider
     {
-
+        
         public StorageFileSystemProviderTest(FileSystemProvider target)
         {
             super(target);
         }
 
+        @Override
+        protected AbstractLayoutProvider getLayoutProvider()
+        {
+            return layoutProvider;
+        }
+        
         @Override
         protected Map<RepositoryFileAttributeType, Object> getRepositoryFileAttributes(RepositoryPath repositoryRelativePath,
                                                                                        RepositoryFileAttributeType... attributeTypes)

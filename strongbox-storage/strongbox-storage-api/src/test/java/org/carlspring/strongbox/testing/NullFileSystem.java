@@ -6,18 +6,20 @@ import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 import org.apache.commons.codec.digest.MessageDigestAlgorithms;
+import org.carlspring.strongbox.booters.PropertiesBooter;
 import org.carlspring.strongbox.providers.io.LayoutFileSystem;
-import org.carlspring.strongbox.providers.io.StorageFileSystemProvider;
+import org.carlspring.strongbox.providers.layout.LayoutFileSystemProvider;
 import org.carlspring.strongbox.storage.repository.Repository;
 
 public class NullFileSystem extends LayoutFileSystem
 {
 
-    public NullFileSystem(Repository repository,
+    public NullFileSystem(PropertiesBooter propertiesBooter,
+                          Repository repository,
                           FileSystem storageFileSystem,
-                          StorageFileSystemProvider provider)
+                          LayoutFileSystemProvider provider)
     {
-        super(repository, storageFileSystem, provider);
+        super(propertiesBooter, repository, storageFileSystem, provider);
     }
 
     @Override

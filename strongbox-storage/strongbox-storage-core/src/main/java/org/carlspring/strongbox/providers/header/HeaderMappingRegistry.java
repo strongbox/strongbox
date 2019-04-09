@@ -1,7 +1,11 @@
 package org.carlspring.strongbox.providers.header;
 
+import java.util.Arrays;
 import java.util.LinkedHashMap;
+import java.util.List;
 import java.util.Map;
+import java.util.Optional;
+import java.util.stream.Collectors;
 
 import org.springframework.stereotype.Component;
 
@@ -12,43 +16,49 @@ import org.springframework.stereotype.Component;
 public class HeaderMappingRegistry
 {
 
+    public static final String USER_AGENT_UNKNOWN = "unknown/*";
+
     private static final String USER_AGENT_FORMAT = "%s/*";
 
-    private Map<String, String> userAgentMap = new LinkedHashMap<>();
-
-    private Map<String, String> layoutMap = new LinkedHashMap<>();
-
+    private Map<String, List<String>> layout2UserAgentKeywodMap = new LinkedHashMap<>();
 
     public HeaderMappingRegistry()
     {
     }
 
     public void register(String layoutProviderAlias,
-                         String userAgentPrefix)
+                         String... userAgentKeywords)
     {
-        userAgentMap.put(userAgentPrefix, String.format(USER_AGENT_FORMAT, userAgentPrefix));
-
-        layoutMap.put(layoutProviderAlias, String.format(USER_AGENT_FORMAT, userAgentPrefix));
+        layout2UserAgentKeywodMap.put(layoutProviderAlias,
+                                      Arrays.stream(userAgentKeywords)
+                                            .collect(Collectors.toList()));
     }
 
-    public Map<String, String> getUserAgentMap()
+    public Optional<String> lookupUserAgent(String originalUserAgentHeaverValue)
     {
-        return userAgentMap;
+        if (originalUserAgentHeaverValue == null) {
+            return Optional.empty();
+        }
+        
+        return layout2UserAgentKeywodMap.values()
+                                        .stream()
+                                        .flatMap(l -> l.stream())
+                                        .filter(s -> originalUserAgentHeaverValue.toUpperCase().contains(s.toUpperCase()))
+                                        .map(this::formatHeader)
+                                        .findFirst();
     }
 
-    public void setUserAgentMap(Map<String, String> userAgentMap)
+    public String defaultLayoutUserAgent(String layout)
     {
-        this.userAgentMap = userAgentMap;
+        return Optional.ofNullable(layout2UserAgentKeywodMap.get(layout))
+                       .flatMap(s -> s.stream().findFirst())
+                       .map(this::formatHeader)
+                       .orElse(USER_AGENT_UNKNOWN);
     }
 
-    public Map<String, String> getLayoutMap()
+    private String formatHeader(String s)
     {
-        return layoutMap;
-    }
-
-    public void setLayoutMap(Map<String, String> layoutMap)
-    {
-        this.layoutMap = layoutMap;
+        return String.format(USER_AGENT_FORMAT, s);
     }
 
 }

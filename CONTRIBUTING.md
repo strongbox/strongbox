@@ -125,6 +125,8 @@ To accept, please:
 | Mujahid Thoufeek             |                                          | Colombo, Sri Lanka                      | 2019-03-19 |
 | Sarfraz Anwar                |                                          | Bengaluru, India                        | 2019-03-19 |
 | Brian Hill                   |                                          | Orlando, Florida, USA                   | 2019-03-26 |
+| Ben Falter                   |                                          | New York, New York, USA                 | 2019-04-04 |
+| Akhilesh Bedre               |                                          | Hyderabad, India                        | 2019-04-07 |
 
 [chat]: https://chat.carlspring.org/
 [issue tracker]: https://github.com/strongbox/strongbox/issues?utf8=%E2%9C%93&q=is%3Aissue+is%3Aopen+label%3A%22help+wanted%22+label%3A%22good+first+issue%22

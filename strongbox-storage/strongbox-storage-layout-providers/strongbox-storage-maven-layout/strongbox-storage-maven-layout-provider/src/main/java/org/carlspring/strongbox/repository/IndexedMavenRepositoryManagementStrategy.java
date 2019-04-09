@@ -65,13 +65,33 @@ public class IndexedMavenRepositoryManagementStrategy
                 // Create a scheduled task for downloading the remote's index
                 createRemoteIndexDownloaderCronTask(storageId, repositoryId);
             }
-
+            
             // Create a local index
             createRepositoryIndexer(storageId, repositoryId, IndexTypeEnum.LOCAL.getType(), repositoryBasedir);
 
             createRebuildMavenIndexCronJob(storageId, repositoryId);
         }
     }
+
+    @Override
+    public void removeRepository(String storageId,
+                                 String repositoryId)
+        throws IOException
+    {
+        Storage storage = getStorage(storageId);
+        Repository repository = storage.getRepository(repositoryId);
+        if (repository.isProxyRepository())
+        {
+            String remoteContextId = storageId + ":" + repositoryId + ":" + IndexTypeEnum.REMOTE.getType();
+            repositoryIndexManager.closeIndexer(remoteContextId);
+        }
+        String localContextId = storageId + ":" + repositoryId + ":" + IndexTypeEnum.LOCAL.getType();
+        repositoryIndexManager.closeIndexer(localContextId);
+        
+        super.removeRepository(storageId, repositoryId);
+    }
+
+
 
     private void createRemoteIndexDownloaderCronTask(String storageId,
                                                      String repositoryId)

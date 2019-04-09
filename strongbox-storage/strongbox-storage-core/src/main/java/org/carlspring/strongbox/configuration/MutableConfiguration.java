@@ -174,7 +174,7 @@ public class MutableConfiguration
 
     public void removeStorage(MutableStorage storage)
     {
-        storages.remove(storage.getBasedir());
+        storages.remove(storage.getId());
     }
 
     public MutableRoutingRules getRoutingRules()

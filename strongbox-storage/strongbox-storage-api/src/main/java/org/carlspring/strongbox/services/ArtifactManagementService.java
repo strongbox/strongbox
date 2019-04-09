@@ -7,7 +7,6 @@ import java.io.OutputStream;
 import java.net.URI;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
-import java.security.NoSuchAlgorithmException;
 import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
@@ -86,29 +85,12 @@ public class ArtifactManagementService
                                  InputStream is)
         throws IOException,
         ProviderImplementationException,
-        NoSuchAlgorithmException,
         ArtifactCoordinatesValidationException
     {
         performRepositoryAcceptanceValidation(repositoryPath);
         return doStore(repositoryPath, is);
     }
-    
-    @Deprecated
-    @Transactional
-    public long validateAndStore(String storageId,
-                                 String repositoryId,
-                                 String path,
-                                 InputStream is)
-            throws IOException,
-                   ProviderImplementationException,
-                   NoSuchAlgorithmException,
-                   ArtifactCoordinatesValidationException
-    {
-        RepositoryPath repositoryPath = repositoryPathResolver.resolve(storageId, repositoryId, path);
 
-        return validateAndStore(repositoryPath, is);
-    }
-    
     @Transactional
     public long store(RepositoryPath repositoryPath,
                       InputStream is)
@@ -309,7 +291,7 @@ public class ArtifactManagementService
 
         try
         {
-            for (String validatorKey : repository.getArtifactCoordinateValidators().keySet())
+            for (String validatorKey : repository.getArtifactCoordinateValidators())
             {
                 ArtifactCoordinatesValidator validator = artifactCoordinatesValidatorRegistry.getProvider(
                         validatorKey);
