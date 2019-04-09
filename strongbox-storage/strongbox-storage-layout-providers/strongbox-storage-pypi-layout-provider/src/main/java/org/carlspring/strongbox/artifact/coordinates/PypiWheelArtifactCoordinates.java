@@ -50,16 +50,21 @@ extends AbstractArtifactCoordinates<PypiWheelArtifactCoordinates, Version>
      * @return bar Returns bar
      */
     public PypiWheelArtifactCoordinates(String distribution,
-            String version,
-            String build,
-            String lang_impl_version,
-            String abi,
-            String platform)
+                                        String version,
+                                        String build,
+                                        String lang_impl_version,
+                                        String abi,
+                                        String platform)
     {
         // if any of the required arguments are empty, throw an error
         if (distribution == "" || version == "" || lang_impl_version == "" || abi == "" || platform == "")
         {
             throw new IllegalArgumentException("distribution, version, language_implementation_version_tag, abi_tag, and platform_tag must be specified");
+        }
+        
+        if (build != "" && !Character.isDigit(build.charAt(0)))
+        {
+            throw new IllegalArgumentException("illegal build tag");
         }
 
         setId(distribution);
@@ -192,10 +197,10 @@ extends AbstractArtifactCoordinates<PypiWheelArtifactCoordinates, Version>
         // if optional BUILD_TAG coordinate is empty, don't include it in the reconstruction
         if (getBuild() == "")
         {
-            return String.format("%s-%s-%s-%s-%s", getId(), getVersion(), getLang(), getAbi(), getPlatform());
+            return String.format("%s-%s-%s-%s-%s", getId(), getVersion(), getLang(), getAbi(), getPlatform()) + ".whl";
         }
 
-        return String.format("%s-%s-%s-%s-%s-%s", getId(), getVersion(), getBuild(), getLang(), getAbi(), getPlatform());
+        return String.format("%s-%s-%s-%s-%s-%s", getId(), getVersion(), getBuild(), getLang(), getAbi(), getPlatform()) + ".whl";
     }
 
     /**
