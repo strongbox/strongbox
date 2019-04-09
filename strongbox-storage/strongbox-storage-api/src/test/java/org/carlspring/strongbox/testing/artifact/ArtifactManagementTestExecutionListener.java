@@ -2,10 +2,13 @@ package org.carlspring.strongbox.testing.artifact;
 
 import static org.carlspring.strongbox.testing.artifact.TestArtifactContext.id;
 
+import java.lang.reflect.InvocationHandler;
+import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.lang.reflect.Parameter;
 import java.lang.reflect.Proxy;
 import java.nio.file.Path;
+import java.util.List;
 import java.util.Optional;
 import java.util.Set;
 
@@ -68,10 +71,56 @@ public class ArtifactManagementTestExecutionListener extends TestRepositoryManag
         });
         testApplicationContext.refresh();
 
+        if (List.class == parameter.getType()) {
+            return Proxy.newProxyInstance(ArtifactManagementTestExecutionListener.class.getClassLoader(),
+                                          new Class[] { List.class },
+                                          new ListInvocationHandler(id(testArtifact)));
+        }
+        
         return Proxy.newProxyInstance(ArtifactManagementTestExecutionListener.class.getClassLoader(),
                                       new Class[] { Path.class },
                                       new TestArtifactProxyInvocationHandler(
                                               id(testArtifact)));
+    }
+    
+    private class ListInvocationHandler implements InvocationHandler {
+
+        private List<Path> target;
+        private final String id;
+
+        private ListInvocationHandler(String id)
+        {
+            this.id = id;
+        }
+
+        @Override
+        public Object invoke(Object proxy,
+                             Method method,
+                             Object[] args)
+            throws Throwable
+        {
+
+            try
+            {
+                return method.invoke(getTarget(), args);
+            }
+            catch (InvocationTargetException e)
+            {
+                throw e.getTargetException();
+            }
+        }
+        
+        public List<Path> getTarget()
+        {
+            if (target == null)
+            {
+                target = getTestRepositoryManagementContext().getTestArtifactContext(id).getArtifacts();
+            }
+
+            return target;
+        }
+
+        
     }
 
     /**
@@ -96,7 +145,7 @@ public class ArtifactManagementTestExecutionListener extends TestRepositoryManag
         {
             if (target == null)
             {
-                target = getTestRepositoryManagementContext().getTestArtifactContext(id).getArtifact();
+                target = getTestRepositoryManagementContext().getTestArtifactContext(id).getArtifacts().stream().findFirst().get();
             }
 
             return target;
