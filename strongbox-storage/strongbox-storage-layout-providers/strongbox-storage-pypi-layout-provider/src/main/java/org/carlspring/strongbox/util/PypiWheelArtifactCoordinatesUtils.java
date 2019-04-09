@@ -1,5 +1,4 @@
 package org.carlspring.strongbox.util;
-import java.util.regex.PatternSyntaxException;
 
 import org.carlspring.strongbox.artifact.coordinates.PypiWheelArtifactCoordinates;
 
@@ -54,6 +53,5 @@ public class PypiWheelArtifactCoordinatesUtils
         }
 
         return new PypiWheelArtifactCoordinates(distribution, version, build, lang_impl_version, abi, platform);
-
     }	
 }

@@ -2,8 +2,6 @@ package org.carlspring.strongbox.artifact.coordinates;
 
 import org.carlspring.strongbox.artifact.coordinates.PypiWheelArtifactCoordinates;
 import org.junit.jupiter.api.Test;
-import org.junit.jupiter.api.Disabled;
-import org.junit.jupiter.api.parallel.Execution;
 import static org.junit.jupiter.api.Assertions.*;
 import java.util.*; 
 
@@ -251,7 +249,7 @@ public class PypiWheelArtifactCoordinatesTest
             PypiWheelArtifactCoordinates.parse("bcrypt-3.1.6-1-test1-cp27-cp27m-macosx_10_6_intel.whl");
         });
     }
-    
+
     /**
      * Test that the PypiWheelArtifactCoordinate method toString returns the correct original filename
      */
@@ -262,9 +260,8 @@ public class PypiWheelArtifactCoordinatesTest
         {
             PypiWheelArtifactCoordinates coordsParsed = PypiWheelArtifactCoordinates.parse(wheelExamples.get(i));
             String filename = coordsParsed.toString();
-            
+
             assertEquals(wheelExamples.get(i), filename);
         }
     }
-    
 }
