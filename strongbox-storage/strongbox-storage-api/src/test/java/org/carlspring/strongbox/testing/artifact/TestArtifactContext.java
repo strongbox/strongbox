@@ -7,6 +7,9 @@ import java.nio.file.DirectoryStream;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 import java.util.TreeMap;
@@ -27,7 +30,6 @@ import org.springframework.cglib.proxy.UndeclaredThrowableException;
 
 /**
  * @author sbespalov
- *
  */
 public class TestArtifactContext implements AutoCloseable
 {
@@ -39,7 +41,10 @@ public class TestArtifactContext implements AutoCloseable
     private final ArtifactManagementService artifactManagementService;
     private final RepositoryPathResolver repositoryPathResolver;
     private final TestInfo testInfo;
-    private final Path artifactPath;
+    private final List<Path> artifactPaths;
+    
+    private ArtifactGenerator artifactGenerator;
+    private Path generatorBasePath;
 
     public TestArtifactContext(TestArtifact testArtifact,
                                PropertiesBooter propertiesBooter,
@@ -54,31 +59,32 @@ public class TestArtifactContext implements AutoCloseable
         this.repositoryPathResolver = repositoryPathResolver;
         this.testInfo = testInfo;
 
-        artifactPath = createArtifact();
+        artifactPaths = createArtifacts();
     }
 
-    private Path createArtifact()
+    private List<Path> createArtifacts()
         throws IOException
     {
+        checkArguments();
+            
         logger.info(String.format("Create [%s] resource [%s] ", TestArtifact.class.getSimpleName(), id(testArtifact)));
         Class<? extends ArtifactGenerator> generatorClass = testArtifact.generator();
 
-        Path vaultDirectoryPath = Paths.get(propertiesBooter.getVaultDirectory(), ".temp",
-                                            testInfo.getTestClass().get().getSimpleName(),
-                                            testInfo.getTestMethod().get().getName());
+        generatorBasePath = Paths.get(propertiesBooter.getVaultDirectory(), ".temp",
+                                      testInfo.getTestClass().get().getSimpleName(),
+                                      testInfo.getTestMethod().get().getName());
 
-        ArtifactGenerator artifactGenerator;
         try
         {
-            artifactGenerator = generatorClass.getConstructor(Path.class).newInstance(vaultDirectoryPath);
+            artifactGenerator = generatorClass.getConstructor(Path.class).newInstance(generatorBasePath);
         }
         catch (Exception e)
         {
             throw new IOException(e);
         }
 
-        Path directoryWhereGeneratedArtifactsWillBePlaced = vaultDirectoryPath.resolve(testArtifact.resource())
-                                                                              .getParent();
+        Path directoryWhereGeneratedArtifactsWillBePlaced = generatorBasePath.resolve(testArtifact.resource())
+                                                                             .getParent();
         if (Files.exists(directoryWhereGeneratedArtifactsWillBePlaced))
         {
             try (Stream<Path> s = Files.list(directoryWhereGeneratedArtifactsWillBePlaced))
@@ -91,9 +97,53 @@ public class TestArtifactContext implements AutoCloseable
                 }
             }
         }
+        
+        if (!testArtifact.resource().trim().isEmpty())
+        {
+            return Collections.singletonList(generateArtifact(testArtifact.resource(), testArtifact.size()));
+        }
 
-        Path artifactPathLocal = artifactGenerator.generateArtifact(URI.create(testArtifact.resource()),
-                                                                    testArtifact.size());
+        if (testArtifact.versions().length == 0)
+        {
+            throw new IllegalArgumentException(String.format("Versions should be provided for [%s]", testArtifact.id()));
+        }
+        
+        List<Path> paths = new ArrayList<Path>(testArtifact.versions().length);
+        for (String version : testArtifact.versions())
+        {
+            paths.add(generateArtifact(testArtifact.id(), version, testArtifact.size()));
+        }
+        
+        return paths;
+    }
+
+    private void checkArguments()
+    {
+        if (testArtifact.resource().trim().isEmpty() && testArtifact.id().trim().isEmpty()
+                || !testArtifact.resource().trim().isEmpty() && !testArtifact.id().trim().isEmpty())
+        {
+            throw new IllegalArgumentException("One of the TestArtifact.resource() or TestArtifact.id() should be provided.");
+        }
+    }
+
+    private Path generateArtifact(String id,
+                                  String version,
+                                  int size)
+        throws IOException
+    {
+        Path artifactPathLocal = artifactGenerator.generateArtifact(id, version, size);
+        if (testArtifact.repository().isEmpty())
+        {
+            return artifactPathLocal;
+        }
+
+        return deployArtifact(artifactPathLocal);
+    }
+    
+    private Path generateArtifact(String resource, int size)
+        throws IOException
+    {
+        Path artifactPathLocal = artifactGenerator.generateArtifact(URI.create(resource), size);
         if (testArtifact.repository().isEmpty())
         {
             return artifactPathLocal;
@@ -109,9 +159,10 @@ public class TestArtifactContext implements AutoCloseable
                                String.format("Repository [%s] requires to specify Storage as well.",
                                              testArtifact.repository()));
 
+        String relativePath = generatorBasePath.relativize(artifactPathLocal).toString();
         RepositoryPath repositoryPath = repositoryPathResolver.resolve(testArtifact.storage(),
                                                                        testArtifact.repository(),
-                                                                       testArtifact.resource());
+                                                                       relativePath);
         Map<RepositoryPath, Path> repositoryPathMap = new TreeMap<RepositoryPath, Path>(this::repositoryPathChecksumComparator);
         try (DirectoryStream<Path> s = Files.newDirectoryStream(artifactPathLocal.getParent()))
         {
@@ -122,7 +173,8 @@ public class TestArtifactContext implements AutoCloseable
         return repositoryPath;
     }
 
-    private void store(Map.Entry<RepositoryPath, Path> e) {
+    private void store(Map.Entry<RepositoryPath, Path> e)
+    {
         try (InputStream is = Files.newInputStream(e.getValue()))
         {
             artifactManagementService.store(e.getKey(), is);
@@ -131,6 +183,7 @@ public class TestArtifactContext implements AutoCloseable
         {
             throw new UndeclaredThrowableException(ioe);
         }
+        
         try
         {
             Files.delete(e.getValue());
@@ -155,16 +208,18 @@ public class TestArtifactContext implements AutoCloseable
         {
             throw new UndeclaredThrowableException(e);
         }
+        
         if (isChecksumP1 && isChecksumP2)
         {
             return p1.compareTo(p2);
         }
+        
         return isChecksumP1 ? 1 : -1;
     }
     
-    public Path getArtifact()
+    public List<Path> getArtifacts()
     {
-        return artifactPath;
+        return artifactPaths;
     }
 
     @PreDestroy
@@ -172,12 +227,20 @@ public class TestArtifactContext implements AutoCloseable
     public void close()
         throws IOException
     {
-        if (artifactPath == null || artifactPath instanceof RepositoryPath)
+        if (artifactPaths == null)
         {
             return;
         }
+        
+        for (Path artifactPath : artifactPaths)
+        {
+            if (artifactPath == null || artifactPath instanceof RepositoryPath)
+            {
+                continue;
+            }
 
-        close(artifactPath);
+            close(artifactPath);
+        }
     }
 
     private void close(Path path)
@@ -201,7 +264,12 @@ public class TestArtifactContext implements AutoCloseable
 
     public static String id(TestArtifact testArtifact)
     {
-        return String.format("%s", testArtifact.resource());
+        if (!testArtifact.resource().trim().isEmpty())
+        {
+            return testArtifact.resource();
+        }
+        
+        return testArtifact.id();
     }
 
 }

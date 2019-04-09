@@ -34,13 +34,29 @@ public class NullArtifactGenerator implements ArtifactGenerator
     }
 
     @Override
+    public Path generateArtifact(String id,
+                                 String version,
+                                 int size)
+        throws IOException
+    {
+        throw new UnsupportedOperationException();
+    }
+
+    @Override
     public Path generateArtifact(URI uri,
                                  int size)
         throws IOException
     {
         Path path = baseDir.resolve(uri.toString());
-        Files.createDirectories(path.getParent());
+        
+        return generateArtifact(size, path);
+    }
 
+    private Path generateArtifact(int size,
+                                  Path path)
+        throws IOException
+    {
+        Files.createDirectories(path.getParent());
         try (OutputStream fileOutputStream = Files.newOutputStream(path,
                                                                    StandardOpenOption.TRUNCATE_EXISTING,
                                                                    StandardOpenOption.CREATE);

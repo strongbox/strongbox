@@ -1,19 +1,20 @@
 package org.carlspring.strongbox.services;
 
+import static java.nio.file.StandardOpenOption.CREATE_NEW;
+import static java.nio.file.StandardOpenOption.TRUNCATE_EXISTING;
 import static org.carlspring.strongbox.artifact.coordinates.MavenArtifactCoordinates.LAYOUT_NAME;
 import static org.carlspring.strongbox.storage.repository.RepositoryPolicyEnum.SNAPSHOT;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.junit.jupiter.api.parallel.ExecutionMode.SAME_THREAD;
-import static java.nio.file.StandardOpenOption.CREATE_NEW;
-import static java.nio.file.StandardOpenOption.TRUNCATE_EXISTING;
 
 import java.io.IOException;
 import java.io.OutputStream;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.security.NoSuchAlgorithmException;
+import java.util.List;
 
 import javax.inject.Inject;
 
@@ -48,9 +49,7 @@ public class MavenChecksumServiceTest
 
     private static final String REPOSITORY_SNAPSHOTS = "mcs-snapshots";
 
-    private static final String A1 = "org/carlspring/strongbox/checksum/maven/strongbox-checksum/1.0/strongbox-checksum-1.0.jar";
-    
-    private static final String A2 = "org/carlspring/strongbox/checksum/maven/strongbox-checksum/2.0/strongbox-checksum-2.0.jar";
+    private static final String A1 = "org.carlspring.strongbox.checksum.maven:strongbox-checksum";
     
     private static final String A3 = "org/carlspring/strongbox/checksum/maven/checksum-rewrite/1.0/checksum-rewrite-1.0.jar";
     
@@ -65,12 +64,14 @@ public class MavenChecksumServiceTest
     @Test
     @ExtendWith({RepositoryManagementTestExecutionListener.class, ArtifactManagementTestExecutionListener.class})
     public void testGenerateMavenChecksumForReleaseArtifact(@TestRepository(repository = REPOSITORY_RELEASES, layout = LAYOUT_NAME) Repository repository,
-                                                            @TestArtifact(repository = REPOSITORY_RELEASES, resource = A1, generator = MavenArtifactGenerator.class) Path artifact1,
-                                                            @TestArtifact(repository = REPOSITORY_RELEASES, resource = A2, generator = MavenArtifactGenerator.class) Path artifact2)
+                                                            @TestArtifact(repository = REPOSITORY_RELEASES, id = A1, versions = {"1.0", "2.0"}, generator = MavenArtifactGenerator.class) List<Path> artifactGroupPath)
             throws IOException,
                    XmlPullParserException,
                    NoSuchAlgorithmException
     {
+        Path artifact1 = artifactGroupPath.get(0);
+        Path artifact2 = artifactGroupPath.get(1);
+                
         // Remove these for the sake of the test:
         Path artifact1Md5 = artifact1.resolveSibling("strongbox-checksum-1.0.jar.md5");
         Path artifact1Sha1 = artifact1.resolveSibling("strongbox-checksum-1.0.jar.sha1");
