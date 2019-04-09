@@ -754,7 +754,7 @@ public class ArtifactManagementServiceImplTest
 
         // Obtains two expected checksums
         String sha1Checksum = new String(Files.readAllBytes(artifact.resolveSibling(artifact.getFileName()+ ".sha1")));
-        String md5Checksum = new String(Files.readAllBytes(artifact.resolveSibling(artifact.getFileName()+ ".md5")));;
+        String md5Checksum = new String(Files.readAllBytes(artifact.resolveSibling(artifact.getFileName()+ ".md5")));
 
         Map <String, String> expectedChecksums = new HashMap<>();
         expectedChecksums.put("SHA-1", sha1Checksum);
