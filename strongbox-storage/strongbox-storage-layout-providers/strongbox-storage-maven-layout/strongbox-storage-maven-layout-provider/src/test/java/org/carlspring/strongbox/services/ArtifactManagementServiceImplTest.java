@@ -9,11 +9,11 @@ import static org.junit.jupiter.api.parallel.ExecutionMode.CONCURRENT;
 
 import java.io.ByteArrayInputStream;
 import java.io.File;
-import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
+import java.nio.file.Path;
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 import java.util.Arrays;
@@ -38,8 +38,8 @@ import org.carlspring.maven.commons.io.filters.JarFilenameFilter;
 import org.carlspring.maven.commons.util.ArtifactUtils;
 import org.carlspring.strongbox.artifact.ArtifactNotFoundException;
 import org.carlspring.strongbox.artifact.ArtifactTag;
-import org.carlspring.strongbox.artifact.MavenArtifact;
-import org.carlspring.strongbox.artifact.generator.NullArtifactGenerator;
+import org.carlspring.strongbox.artifact.coordinates.MavenArtifactCoordinates;
+import org.carlspring.strongbox.artifact.generator.MavenArtifactGenerator;
 import org.carlspring.strongbox.config.Maven2LayoutProviderTestConfig;
 import org.carlspring.strongbox.domain.ArtifactEntry;
 import org.carlspring.strongbox.providers.io.RepositoryFiles;
@@ -735,60 +735,38 @@ public class ArtifactManagementServiceImplTest
         MatcherAssert.assertThat(artifactEntryWithClassifier.getTagSet().size(), CoreMatchers.equalTo(0));
     }
 
+    @Test
     @ExtendWith({ RepositoryManagementTestExecutionListener.class,
                   ArtifactManagementTestExecutionListener.class })
-    @Test
     public void testChecksumsStorage(TestInfo testInfo,
-                                     @TestRepository (layout = "NullArtifactCoordinates.LAYOUT_NAME",
-                                                      storage = "storage0",
-                                                      repository ="r1")
-                                     MutableRepository repositoryForChecksumTest,
-                                     @TestArtifact(storage = "storage0",
-                                                   repository = "r1",
-                                                   resource = "org/carlspring/test/artifact2.ext",
-                                                   generator = NullArtifactGenerator.class)
-                                     MavenArtifact artifact)
+                                     @TestRepository (layout = MavenArtifactCoordinates.LAYOUT_NAME,
+                                                      repository = "checksums-storage")
+                                     Repository repository,
+                                     @TestArtifact(resource = "org/carlspring/strongbox/strongbox-checksum-test/8.4/strongbox-checksum-test-8.4.jar",
+                                                   generator = MavenArtifactGenerator.class)
+                                     Path artifact)
             throws Exception
     {
-        String repositoryId = getRepositoryName("checksums-storage", testInfo);
-
-        createRepository(STORAGE0, repositoryForChecksumTest);
-
-        String gavtc = "org.carlspring.strongbox:strongbox-utils:8.4:jar";
-
-        File repositoryBasedir = getRepositoryBasedir(STORAGE0, repositoryId);
-
-        // Gets parameters for 'store' method of mavenArtifactManagementService and
-        // invokes the method
-        String artifactPath = ArtifactUtils.convertArtifactToPath(artifact);
-        RepositoryPath repositoryPath = repositoryPathResolver.resolve(STORAGE0,
-                                                                       repositoryId,
-                                                                       artifactPath);
-
-        // Gets a file needed to obtain an InputStream
-        // The option is taken from 'createArchive method' called by 'generate' method of MavenArtifactGenerator.
-        // The latter in its turn gets invoked by geherateArtifact method of MavenTestCaseWithArtifactGeneration
-        File artifactFile = new File(repositoryBasedir, ArtifactUtils.convertArtifactToPath(artifact));
-
-        // Converts a variable of type File into an InputStream needed as a parameter for 'store' method
-        InputStream is = new FileInputStream(artifactFile);
-
-        mavenArtifactManagementService.store(repositoryPath, is);
+        RepositoryPath repositoryPath = repositoryPathResolver.resolve(repository).resolve("org/carlspring/strongbox/strongbox-checksum-test/8.4/strongbox-checksum-test-8.4.jar");
+        try(InputStream is = Files.newInputStream(artifact)){
+            mavenArtifactManagementService.store(repositoryPath, is);
+        }
 
         // Obtains two expected checksums
-        String sha1Checksum = new String(Files.readAllBytes(new File(repositoryBasedir, ArtifactUtils.convertArtifactToPath(artifact) + ".sha1").toPath()));
-        String md5Checksum = new String(Files.readAllBytes(new File(repositoryBasedir, ArtifactUtils.convertArtifactToPath(artifact) + ".md5").toPath()));
+        String sha1Checksum = new String(Files.readAllBytes(artifact.resolveSibling(artifact.getFileName()+ ".sha1")));
+        String md5Checksum = new String(Files.readAllBytes(artifact.resolveSibling(artifact.getFileName()+ ".md5")));;
 
         Map <String, String> expectedChecksums = new HashMap<>();
         expectedChecksums.put("SHA-1", sha1Checksum);
         expectedChecksums.put("MD5", md5Checksum);
 
-        ArtifactEntry artifactEntryForTest = artifactEntryService.findOneArtifact(STORAGE0, repositoryId, artifactPath);
-
-        // Tests against the checksums found through ArtifactEntryService
-        assertNotNull(expectedChecksums);
-        assertNotNull(artifactEntryForTest.getChecksums());
-        assertEquals(expectedChecksums, artifactEntryForTest.getChecksums());
+        String path = RepositoryFiles.relativizePath(repositoryPath);
+        ArtifactEntry artifactEntry = artifactEntryService.findOneArtifact(STORAGE0, repository.getId(), path);
+        assertNotNull(artifactEntry);
+        
+        Map<String, String> actualChecksums = artifactEntry.getChecksums();
+        assertNotNull(actualChecksums);
+        assertEquals(expectedChecksums, actualChecksums);
     }
 
 
