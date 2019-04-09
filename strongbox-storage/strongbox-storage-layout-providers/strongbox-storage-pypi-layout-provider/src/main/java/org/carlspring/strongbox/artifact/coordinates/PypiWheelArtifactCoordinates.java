@@ -50,18 +50,18 @@ extends AbstractArtifactCoordinates<PypiWheelArtifactCoordinates, Version>
      * @return bar Returns bar
      */
     public PypiWheelArtifactCoordinates(String distribution,
-                                        String version,
-                                        String build,
-                                        String lang_impl_version,
-                                        String abi,
-                                        String platform)
+            String version,
+            String build,
+            String lang_impl_version,
+            String abi,
+            String platform)
     {
         // if any of the required arguments are empty, throw an error
         if (distribution == "" || version == "" || lang_impl_version == "" || abi == "" || platform == "")
         {
             throw new IllegalArgumentException("distribution, version, language_implementation_version_tag, abi_tag, and platform_tag must be specified");
         }
-        
+
         if (build != "" && !Character.isDigit(build.charAt(0)))
         {
             throw new IllegalArgumentException("illegal build tag");
@@ -163,9 +163,9 @@ extends AbstractArtifactCoordinates<PypiWheelArtifactCoordinates, Version>
         return getCoordinate(ABI_TAG);
     }
 
-   /**
-    * @param abi: ABI_TAG coordinate takes this value
-    */
+    /**
+     * @param abi: ABI_TAG coordinate takes this value
+     */
     public void setAbi(String abi)
     {
         setCoordinate(ABI_TAG, abi);
@@ -210,7 +210,7 @@ extends AbstractArtifactCoordinates<PypiWheelArtifactCoordinates, Version>
     public Version getNativeVersion()
     {
         String versionLocal = getVersion();
-        
+
         if (versionLocal == null)
         {
             return null;
