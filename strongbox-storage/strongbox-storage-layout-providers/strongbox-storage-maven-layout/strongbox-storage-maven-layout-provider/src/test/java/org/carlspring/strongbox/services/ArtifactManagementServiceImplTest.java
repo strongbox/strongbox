@@ -286,10 +286,8 @@ public class ArtifactManagementServiceImplTest
             Artifact artifact = ArtifactUtils.getArtifactFromGAVTC(gavtc);
             RepositoryPath repositoryPath = repositoryPathResolver.resolve(STORAGE0,
                                                                            repositoryId,
-                                                                           ArtifactUtils.convertArtifactToPath(
-                                                                                   artifact));
-            mavenArtifactManagementService.delete(repositoryPath,
-                                                  false);
+                                                                           ArtifactUtils.convertArtifactToPath(artifact));
+            mavenArtifactManagementService.delete(repositoryPath, false);
 
             fail("Failed to deny artifact operation for repository with disallowed deletions.");
         }
@@ -535,6 +533,7 @@ public class ArtifactManagementServiceImplTest
                                                            0);
 
         File[] files = artifactVersionBaseDir.listFiles(new JarFilenameFilter());
+        
         assertEquals(1, files.length, "Amount of timestamped snapshots doesn't equal 1.");
         assertTrue(files[0].toString().endsWith("-3.jar"));
 
@@ -555,7 +554,8 @@ public class ArtifactManagementServiceImplTest
 
         artifactMetadataService.rebuildMetadata(STORAGE0, repositoryid, "org/carlspring/strongbox/timestamped");
 
-        assertEquals(2, artifactVersionBaseDir.listFiles(new JarFilenameFilter()).length,
+        assertEquals(2,
+                     artifactVersionBaseDir.listFiles(new JarFilenameFilter()).length,
                      "Amount of timestamped snapshots doesn't equal 2.");
 
         // To check removing timestamped snapshot with keepPeriod = 3 and numberToKeep = 0
@@ -566,6 +566,7 @@ public class ArtifactManagementServiceImplTest
                                                            3);
 
         files = artifactVersionBaseDir.listFiles(new JarFilenameFilter());
+        
         assertEquals(1, files.length, "Amount of timestamped snapshots doesn't equal 1.");
         assertTrue(files[0].toString().endsWith("-3.jar"));
     }
@@ -611,7 +612,8 @@ public class ArtifactManagementServiceImplTest
         {
             assertEquals(Long.valueOf(CONTENT_SIZE),
                          resultList.get(i),
-                         String.format("Operation [%s:%s] content size don't match.", i % 2 == 0 ? "write" : "read",
+                         String.format("Operation [%s:%s] content size don't match.",
+                                       i % 2 == 0 ? "write" : "read",
                                        i));
         }
 
@@ -625,7 +627,7 @@ public class ArtifactManagementServiceImplTest
 
         assertTrue(Arrays.stream(loremIpsumContentArray)
                          .map(c -> Arrays.equals(repositoryPathContent, c))
-                         .reduce((r1,
+                         .reduce((r1, 
                                   r2) -> r1 || r2)
                          .get());
 
@@ -648,8 +650,7 @@ public class ArtifactManagementServiceImplTest
         Artifact artifact = ArtifactUtils.getArtifactFromGAVTC(gavtc);
         String artifactPath = ArtifactUtils.convertArtifactToPath(artifact);
 
-        try (InputStream is = new ByteArrayInputStream(
-                "strongbox-lv-artifact-content".getBytes(StandardCharsets.UTF_8)))
+        try (InputStream is = new ByteArrayInputStream("strongbox-lv-artifact-content".getBytes(StandardCharsets.UTF_8)))
         {
             mavenArtifactManagementService.validateAndStore(STORAGE0,
                                                             repositoryId,
@@ -701,8 +702,7 @@ public class ArtifactManagementServiceImplTest
         Artifact artifactV2 = ArtifactUtils.getArtifactFromGAVTC(gavtcV2);
         String artifactPathV2 = ArtifactUtils.convertArtifactToPath(artifactV2);
 
-        try (InputStream is = new ByteArrayInputStream(
-                "strongbox-lv-artifact-content".getBytes(StandardCharsets.UTF_8)))
+        try (InputStream is = new ByteArrayInputStream("strongbox-lv-artifact-content".getBytes(StandardCharsets.UTF_8)))
         {
             mavenArtifactManagementService.validateAndStore(STORAGE0,
                                                             repositoryId,
@@ -748,7 +748,8 @@ public class ArtifactManagementServiceImplTest
             throws Exception
     {
         RepositoryPath repositoryPath = repositoryPathResolver.resolve(repository).resolve("org/carlspring/strongbox/strongbox-checksum-test/8.4/strongbox-checksum-test-8.4.jar");
-        try(InputStream is = Files.newInputStream(artifact)){
+        try (InputStream is = Files.newInputStream(artifact))
+        {
             mavenArtifactManagementService.store(repositoryPath, is);
         }
 
@@ -762,9 +763,11 @@ public class ArtifactManagementServiceImplTest
 
         String path = RepositoryFiles.relativizePath(repositoryPath);
         ArtifactEntry artifactEntry = artifactEntryService.findOneArtifact(STORAGE0, repository.getId(), path);
+        
         assertNotNull(artifactEntry);
         
         Map<String, String> actualChecksums = artifactEntry.getChecksums();
+        
         assertNotNull(actualChecksums);
         assertEquals(expectedChecksums, actualChecksums);
     }
@@ -787,6 +790,7 @@ public class ArtifactManagementServiceImplTest
         {
             logger.error("Unexpected IOException while getting result:", e);
             e.printStackTrace();
+            
             return 0L;
         }
     }
@@ -860,6 +864,7 @@ public class ArtifactManagementServiceImplTest
                     {
                         break;
                     }
+                    
                     result += n;
                 }
             }
@@ -884,6 +889,7 @@ public class ArtifactManagementServiceImplTest
             catch (Exception ex)
             {
                 logger.error(String.format("Failed to read artifact [%s]", repositoryPath), ex);
+                
                 return 0L;
             }
 
