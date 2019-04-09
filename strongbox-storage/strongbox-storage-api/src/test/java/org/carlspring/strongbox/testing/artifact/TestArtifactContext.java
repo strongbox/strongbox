@@ -30,7 +30,6 @@ import org.springframework.cglib.proxy.UndeclaredThrowableException;
 
 /**
  * @author sbespalov
- *
  */
 public class TestArtifactContext implements AutoCloseable
 {
@@ -85,7 +84,7 @@ public class TestArtifactContext implements AutoCloseable
         }
 
         Path directoryWhereGeneratedArtifactsWillBePlaced = generatorBasePath.resolve(testArtifact.resource())
-                                                                              .getParent();
+                                                                             .getParent();
         if (Files.exists(directoryWhereGeneratedArtifactsWillBePlaced))
         {
             try (Stream<Path> s = Files.list(directoryWhereGeneratedArtifactsWillBePlaced))
@@ -106,8 +105,7 @@ public class TestArtifactContext implements AutoCloseable
 
         if (testArtifact.versions().length == 0)
         {
-            throw new IllegalArgumentException(
-                    String.format("Versions should be provided for [%s]", testArtifact.id()));
+            throw new IllegalArgumentException(String.format("Versions should be provided for [%s]", testArtifact.id()));
         }
         
         List<Path> paths = new ArrayList<Path>(testArtifact.versions().length);
@@ -133,8 +131,7 @@ public class TestArtifactContext implements AutoCloseable
                                   int size)
         throws IOException
     {
-        Path artifactPathLocal = artifactGenerator.generateArtifact(id, version,
-                                                                    size);
+        Path artifactPathLocal = artifactGenerator.generateArtifact(id, version, size);
         if (testArtifact.repository().isEmpty())
         {
             return artifactPathLocal;
@@ -146,8 +143,7 @@ public class TestArtifactContext implements AutoCloseable
     private Path generateArtifact(String resource, int size)
         throws IOException
     {
-        Path artifactPathLocal = artifactGenerator.generateArtifact(URI.create(resource),
-                                                                    size);
+        Path artifactPathLocal = artifactGenerator.generateArtifact(URI.create(resource), size);
         if (testArtifact.repository().isEmpty())
         {
             return artifactPathLocal;
@@ -177,7 +173,8 @@ public class TestArtifactContext implements AutoCloseable
         return repositoryPath;
     }
 
-    private void store(Map.Entry<RepositoryPath, Path> e) {
+    private void store(Map.Entry<RepositoryPath, Path> e)
+    {
         try (InputStream is = Files.newInputStream(e.getValue()))
         {
             artifactManagementService.store(e.getKey(), is);
@@ -186,6 +183,7 @@ public class TestArtifactContext implements AutoCloseable
         {
             throw new UndeclaredThrowableException(ioe);
         }
+        
         try
         {
             Files.delete(e.getValue());
@@ -210,10 +208,12 @@ public class TestArtifactContext implements AutoCloseable
         {
             throw new UndeclaredThrowableException(e);
         }
+        
         if (isChecksumP1 && isChecksumP2)
         {
             return p1.compareTo(p2);
         }
+        
         return isChecksumP1 ? 1 : -1;
     }
     
