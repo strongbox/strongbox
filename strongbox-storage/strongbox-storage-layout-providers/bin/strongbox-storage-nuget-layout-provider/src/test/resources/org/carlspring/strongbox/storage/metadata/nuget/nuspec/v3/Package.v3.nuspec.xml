@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="utf-8"?>
+<package xmlns="http://schemas.microsoft.com/packaging/2013/05/nuspec.xsd">
+    <metadata>
+        <id>Package</id>
+        <version>1.0.0</version>
+        <authors>Sergey.Rodionov</authors>
+        <owners>Sergey.Rodionov</owners>
+        <requireLicenseAcceptance>false</requireLicenseAcceptance>
+        <licenseUrl>http://license_url.ru</licenseUrl>
+        <projectUrl>http://project_url.ru/</projectUrl>
+        <iconUrl>http://icon_url.ru</iconUrl>
+        <description>Package description</description>
+        <releaseNotes>Summary of changes made in this release of the package.</releaseNotes>
+        <copyright>Copyright 2016</copyright>
+        <tags>Tag1 Tag2</tags>
+        <dependencies>
+            <dependency id="SampleDependency" version="1.0.0" />
+        </dependencies>
+    </metadata>
+</package>

@@ -8,6 +8,9 @@ import java.util.Map;
 
 import org.carlspring.strongbox.util.PypiWheelArtifactCoordinatesUtils;
 import org.semver.Version;
+import org.apache.commons.lang3.StringUtils;
+
+
 
 /**
  * Represents {@link ArtifactCoordinates} for PyPi repository
@@ -57,14 +60,14 @@ public class PypiWheelArtifactCoordinates
                                         String platform)
     {
         // if any of the required arguments are empty, throw an error
-        if (distribution == "" || version == "" || languageImplementationVersion == "" || abi == "" || platform == "")
+        if (StringUtils.isBlank(distribution) || StringUtils.isBlank(version) || StringUtils.isBlank(languageImplementationVersion) || StringUtils.isBlank(abi) || StringUtils.isBlank(platform))
         {
-            throw new IllegalArgumentException("distribution, version, language_implementation_version_tag, abi_tag, and platform_tag must be specified");
+            throw new IllegalArgumentException("The distribution, version, language_implementation_version_tag, abi_tag, and platform_tag are mandatory fields.");
         }
 
-        if (build != "" && !Character.isDigit(build.charAt(0)))
+        if (!StringUtils.isBlank(build) && !Character.isDigit(build.charAt(0)))
         {
-            throw new IllegalArgumentException("illegal build tag");
+            throw new IllegalArgumentException("Illegal build tag!");
         }
 
         setId(distribution);
@@ -195,7 +198,7 @@ public class PypiWheelArtifactCoordinates
     public String toPath()
     {
         // if optional BUILD_TAG coordinate is empty, don't include it in the reconstruction
-        if (getBuild() == "")
+        if (StringUtils.isBlank(getBuild()))
         {
             return String.format("%s-%s-%s-%s-%s", getId(), getVersion(), getLanguageImplementationVersion(), getAbi(), getPlatform()) + ".whl";
         }
