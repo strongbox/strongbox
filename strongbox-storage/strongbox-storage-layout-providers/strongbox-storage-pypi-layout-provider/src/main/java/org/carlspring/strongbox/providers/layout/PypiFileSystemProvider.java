@@ -9,13 +9,11 @@ import org.slf4j.LoggerFactory;
 /**
  * @author carlspring
  */
-
-
 public class PypiFileSystemProvider
         extends LayoutFileSystemProvider
 {
 
-	private static final Logger logger = LoggerFactory.getLogger(PypiFileSystemProvider.class);
+    private static final Logger logger = LoggerFactory.getLogger(PypiFileSystemProvider.class);
 
     @Inject
     private PypiLayoutProvider layoutProvider;
@@ -34,4 +32,3 @@ public class PypiFileSystemProvider
     }
 
 }
-
