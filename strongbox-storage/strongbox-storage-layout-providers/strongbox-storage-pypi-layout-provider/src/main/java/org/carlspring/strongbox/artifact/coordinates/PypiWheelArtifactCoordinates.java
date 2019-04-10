@@ -18,7 +18,6 @@ import org.semver.Version;
  * 
  * @author alecg956
  */
-
 @Entity
 @SuppressWarnings("serial")
 @XmlRootElement(name = "PypiWheelArtifactCoordinates")
@@ -27,14 +26,21 @@ import org.semver.Version;
 public class PypiWheelArtifactCoordinates
     extends AbstractArtifactCoordinates<PypiWheelArtifactCoordinates, Version>
 {
+
     public static final String LAYOUT_NAME = "PyPi";
+    
     public static final String LAYOUT_ALIAS = "pypi";
 
     public static final String DISTRIBUTION = "distribution";
+    
     public static final String VERSION = "version";
+    
     public static final String BUILD_TAG = "build_tag";
+    
     public static final String LANGUAGE_IMPLEMENTATION_VERSION_TAG = "languageImplementationVersion_tag";
+    
     private static final String ABI_TAG = "abi_tag";
+    
     private static final String PLATFORM_TAG = "platform_tag";
 
     /**
