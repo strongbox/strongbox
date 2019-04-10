@@ -70,7 +70,8 @@ public class RoutingConfigurationController
                                          @RequestHeader(HttpHeaders.ACCEPT) String accept)
     {
         MutableRoutingRule body = configurationManagementService.getRoutingRule(uuid);
-        if(body == null) {
+        if(body == null)
+        {
             return getNotFoundResponseEntity(NOT_FOUND_REPOSITORY,accept);
         }
 
