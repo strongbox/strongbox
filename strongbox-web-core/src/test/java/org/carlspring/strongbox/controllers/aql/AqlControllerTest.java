@@ -16,6 +16,7 @@ import org.carlspring.strongbox.testing.storage.repository.RepositoryManagementT
 import org.carlspring.strongbox.testing.storage.repository.TestRepository;
 import org.hamcrest.Matchers;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.junit.jupiter.api.parallel.Execution;
 import org.springframework.http.HttpStatus;
@@ -39,6 +40,7 @@ public class AqlControllerTest extends MavenRestAssuredBaseTest
 
     private static final String R1 = "sc-releases-search";
     
+    @Disabled
     @Test
     @ExtendWith({RepositoryManagementTestExecutionListener.class, ArtifactManagementTestExecutionListener.class})
     public void testSearchExcludeVersion(@TestRepository(storage = S1, repository = R1, layout = LAYOUT_NAME) Repository repository,
@@ -74,7 +76,8 @@ public class AqlControllerTest extends MavenRestAssuredBaseTest
                .statusCode(HttpStatus.BAD_REQUEST.value())
                .body("error", Matchers.containsString("[1:103]"));
     }
-
+    
+    @Disabled
     @Test
     @ExtendWith({RepositoryManagementTestExecutionListener.class, ArtifactManagementTestExecutionListener.class})
     public void testSearchValidMavenCoordinates(@TestRepository(storage = S1, repository = R1, layout = LAYOUT_NAME) Repository repository,
