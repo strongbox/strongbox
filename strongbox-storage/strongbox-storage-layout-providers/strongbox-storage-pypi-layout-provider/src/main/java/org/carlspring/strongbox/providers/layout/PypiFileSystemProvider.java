@@ -23,7 +23,6 @@ public class PypiFileSystemProvider
     {
         super(storageFileSystemProvider);
     }
-    
 
     @Override
     protected AbstractLayoutProvider getLayoutProvider()
