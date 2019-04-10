@@ -1,7 +1,7 @@
 package org.carlspring.strongbox.providers.layout;
 
+import org.carlspring.strongbox.booters.PropertiesBooter;
 import org.carlspring.strongbox.providers.io.LayoutFileSystem;
-import org.carlspring.strongbox.providers.io.StorageFileSystemProvider;
 import org.carlspring.strongbox.storage.repository.Repository;
 
 import javax.inject.Inject;
@@ -18,11 +18,12 @@ public class PypiFileSystem
     @Inject
     private PypiLayoutProvider layoutProvider;
 
-    public PypiFileSystem(Repository repository,
+    public PypiFileSystem(PropertiesBooter propertiesBooter,
+                          Repository repository,
                           FileSystem storageFileSystem,
-                          StorageFileSystemProvider provider)
+                          LayoutFileSystemProvider provider)
     {
-        super(repository, storageFileSystem, provider);
+        super(propertiesBooter, repository, storageFileSystem, provider);
     }
 
     @Override
