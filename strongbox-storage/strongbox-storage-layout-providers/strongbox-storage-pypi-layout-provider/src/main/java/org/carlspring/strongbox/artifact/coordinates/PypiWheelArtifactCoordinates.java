@@ -25,7 +25,7 @@ import org.semver.Version;
 @XmlAccessorType(XmlAccessType.NONE)
 @ArtifactCoordinatesLayout(name = PypiWheelArtifactCoordinates.LAYOUT_NAME, alias = PypiWheelArtifactCoordinates.LAYOUT_ALIAS)
 public class PypiWheelArtifactCoordinates
-extends AbstractArtifactCoordinates<PypiWheelArtifactCoordinates, Version>
+    extends AbstractArtifactCoordinates<PypiWheelArtifactCoordinates, Version>
 {
     public static final String LAYOUT_NAME = "PyPi";
     public static final String LAYOUT_ALIAS = "pypi";
@@ -33,7 +33,7 @@ extends AbstractArtifactCoordinates<PypiWheelArtifactCoordinates, Version>
     public static final String DISTRIBUTION = "distribution";
     public static final String VERSION = "version";
     public static final String BUILD_TAG = "build_tag";
-    public static final String LANG_IMPL_VERSION_TAG = "lang_impl_version_tag";
+    public static final String LANGUAGE_IMPLEMENTATION_VERSION_TAG = "languageImplementationVersion_tag";
     private static final String ABI_TAG = "abi_tag";
     private static final String PLATFORM_TAG = "platform_tag";
 
@@ -44,20 +44,20 @@ extends AbstractArtifactCoordinates<PypiWheelArtifactCoordinates, Version>
      * @param distribution: Uniquely identifying artifact coordinate (required)
      * @param version: Packages current version (required)
      * @param build: Build_tag parameter (optional)
-     * @param lang_impl_version: Language and Implementation version argument (required)
+     * @param languageImplementationVersion: Language and Implementation version argument (required)
      * @param abi: ABI tag parameter (required)
      * @param platform: Platform tag parameter (required)
      * @return bar Returns bar
      */
     public PypiWheelArtifactCoordinates(String distribution,
-            String version,
-            String build,
-            String lang_impl_version,
-            String abi,
-            String platform)
+                                        String version,
+                                        String build,
+                                        String languageImplementationVersion,
+                                        String abi,
+                                        String platform)
     {
         // if any of the required arguments are empty, throw an error
-        if (distribution == "" || version == "" || lang_impl_version == "" || abi == "" || platform == "")
+        if (distribution == "" || version == "" || languageImplementationVersion == "" || abi == "" || platform == "")
         {
             throw new IllegalArgumentException("distribution, version, language_implementation_version_tag, abi_tag, and platform_tag must be specified");
         }
@@ -70,7 +70,7 @@ extends AbstractArtifactCoordinates<PypiWheelArtifactCoordinates, Version>
         setId(distribution);
         setVersion(version);
         setBuild(build);
-        setLang(lang_impl_version);
+        setLanguageImplementationVersion(languageImplementationVersion);
         setAbi(abi);
         setPlatform(platform);
     }
@@ -138,20 +138,20 @@ extends AbstractArtifactCoordinates<PypiWheelArtifactCoordinates, Version>
     }
 
     /**
-     * @return Returns the LANG_IMPL_VERSION_TAG coordinate value
+     * @return Returns the LANGUAGE_IMPLEMENTATION_VERSION_TAG coordinate value
      */
     @ArtifactLayoutCoordinate
-    public String getLang()
+    public String getLanguageImplementationVersion()
     {
-        return getCoordinate(LANG_IMPL_VERSION_TAG);
+        return getCoordinate(LANGUAGE_IMPLEMENTATION_VERSION_TAG);
     }
 
     /**
-     * @param lang: LANG_IMPL_VERSION_TAG takes this value
+     * @param lang: LANGUAGE_IMPLEMENTATION_VERSION_TAG takes this value
      */
-    public void setLang(String lang)
+    public void setLanguageImplementationVersion(String lang)
     {
-        setCoordinate(LANG_IMPL_VERSION_TAG, lang);
+        setCoordinate(LANGUAGE_IMPLEMENTATION_VERSION_TAG, lang);
     }
 
     /**
@@ -197,10 +197,10 @@ extends AbstractArtifactCoordinates<PypiWheelArtifactCoordinates, Version>
         // if optional BUILD_TAG coordinate is empty, don't include it in the reconstruction
         if (getBuild() == "")
         {
-            return String.format("%s-%s-%s-%s-%s", getId(), getVersion(), getLang(), getAbi(), getPlatform()) + ".whl";
+            return String.format("%s-%s-%s-%s-%s", getId(), getVersion(), getLanguageImplementationVersion(), getAbi(), getPlatform()) + ".whl";
         }
 
-        return String.format("%s-%s-%s-%s-%s-%s", getId(), getVersion(), getBuild(), getLang(), getAbi(), getPlatform()) + ".whl";
+        return String.format("%s-%s-%s-%s-%s-%s", getId(), getVersion(), getBuild(), getLanguageImplementationVersion(), getAbi(), getPlatform()) + ".whl";
     }
 
     /**

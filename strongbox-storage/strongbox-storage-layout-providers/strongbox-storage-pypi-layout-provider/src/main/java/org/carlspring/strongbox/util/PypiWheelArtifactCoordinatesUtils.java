@@ -31,27 +31,27 @@ public class PypiWheelArtifactCoordinatesUtils
         String distribution = splitArray[0];
         String version = splitArray[1];
         String build = "";
-        String lang_impl_version = "";
-        String abi = "";
-        String platform = "";
+        String languageImplementationVersion;
+        String abi;
+        String platform;
 
         // build tag not included
         if (splitArray.length == 5)
         {
-            lang_impl_version = splitArray[2];
+            languageImplementationVersion = splitArray[2];
             abi = splitArray[3];
             platform = splitArray[4].substring(0, splitArray[4].indexOf(".whl"));
 
         }
         // build tag is included
-        else if (splitArray.length == 6)
+        else
         {
             build = splitArray[2];            
-            lang_impl_version = splitArray[3];
+            languageImplementationVersion = splitArray[3];
             abi = splitArray[4];
             platform = splitArray[5].substring(0, splitArray[5].indexOf(".whl"));
         }
 
-        return new PypiWheelArtifactCoordinates(distribution, version, build, lang_impl_version, abi, platform);
+        return new PypiWheelArtifactCoordinates(distribution, version, build, languageImplementationVersion, abi, platform);
     }	
 }

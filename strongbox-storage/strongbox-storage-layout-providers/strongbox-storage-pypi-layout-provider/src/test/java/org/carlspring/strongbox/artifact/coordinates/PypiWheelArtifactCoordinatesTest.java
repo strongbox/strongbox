@@ -6,7 +6,7 @@ import static org.junit.jupiter.api.Assertions.*;
 import java.util.*; 
 
 /**
- * Class to test the functionality of PypiArtifactCoordinates and PypiArtifactCoordinatesUtils
+ * Class to test the functionality of PypiWheelArtifactCoordinates and PypiWheelArtifactCoordinatesUtils
  * 
  * @author alecg956
  */
@@ -113,7 +113,7 @@ public class PypiWheelArtifactCoordinatesTest
     }
 
     /**
-     * Tests the constructor of PypiArtifactCoordinates with real Python Wheel package names.  
+     * Tests the constructor of PypiWheelArtifactCoordinates with real Python Wheel package names.  
      * Simply add more pre-parsed filenames to parsedWheels array to test additional filenames.
      */
     @Test
@@ -126,14 +126,14 @@ public class PypiWheelArtifactCoordinatesTest
             assertEquals(wheel.get(0), testCoords.getId());
             assertEquals(wheel.get(1), testCoords.getVersion());
             assertEquals(wheel.get(2), testCoords.getBuild());
-            assertEquals(wheel.get(3), testCoords.getLang());
+            assertEquals(wheel.get(3), testCoords.getLanguageImplementationVersion());
             assertEquals(wheel.get(4), testCoords.getAbi());
             assertEquals(wheel.get(5), testCoords.getPlatform());
         }
     }
 
     /**
-     * Tests the constructor of PypiArtifactCoordinates with illegal argument values
+     * Tests the constructor of PypiWheelArtifactCoordinates with illegal argument values
      */
     @Test
     public void testCreateArtifactExceptions()
@@ -184,7 +184,7 @@ public class PypiWheelArtifactCoordinatesTest
             assertEquals(parsedWheels.get(i).get(0), coordsParsed.getId());
             assertEquals(parsedWheels.get(i).get(1), coordsParsed.getVersion());
             assertEquals(parsedWheels.get(i).get(2), coordsParsed.getBuild());
-            assertEquals(parsedWheels.get(i).get(3), coordsParsed.getLang());
+            assertEquals(parsedWheels.get(i).get(3), coordsParsed.getLanguageImplementationVersion());
             assertEquals(parsedWheels.get(i).get(4), coordsParsed.getAbi());
             assertEquals(parsedWheels.get(i).get(5), coordsParsed.getPlatform());
         }
