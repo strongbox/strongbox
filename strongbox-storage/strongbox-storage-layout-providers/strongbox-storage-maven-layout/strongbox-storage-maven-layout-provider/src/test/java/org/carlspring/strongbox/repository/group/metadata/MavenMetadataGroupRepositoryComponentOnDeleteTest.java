@@ -5,13 +5,15 @@ import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.junit.jupiter.api.parallel.ExecutionMode.SAME_THREAD;
 
-import java.io.File;
 import java.io.IOException;
+import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.Arrays;
 import java.util.LinkedHashSet;
 import java.util.Optional;
 import java.util.Set;
+
+import javax.inject.Inject;
 
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.FilenameUtils;
@@ -19,6 +21,7 @@ import org.apache.maven.artifact.repository.metadata.Metadata;
 import org.carlspring.strongbox.config.Maven2LayoutProviderTestConfig;
 import org.carlspring.strongbox.providers.io.RepositoryFiles;
 import org.carlspring.strongbox.providers.io.RepositoryPath;
+import org.carlspring.strongbox.providers.io.RepositoryPathResolver;
 import org.carlspring.strongbox.providers.layout.IndexedMaven2FileSystemProvider;
 import org.carlspring.strongbox.providers.layout.Maven2LayoutProvider;
 import org.carlspring.strongbox.repository.group.BaseMavenGroupRepositoryComponentTest;
@@ -69,7 +72,9 @@ public class MavenMetadataGroupRepositoryComponentOnDeleteTest
 
     private static final String REPOSITORY_GROUP_H = "group-repo-h";
 
-
+    @Inject
+    private RepositoryPathResolver repositoryPathResolver;
+    
     protected Set<MutableRepository> getRepositories()
     {
         Set<MutableRepository> repositories = new LinkedHashSet<>();
@@ -186,9 +191,9 @@ public class MavenMetadataGroupRepositoryComponentOnDeleteTest
                                                     .getRepository(REPOSITORY_LEAF_L);
 
         String path = "com/artifacts/to/delete/releases/delete-group/1.2.1/delete-group-1.2.1.jar";
-        File artifactFile = new File(repository.getBasedir(), path);
+        Path artifactFile = repositoryPathResolver.resolve(repository, path);
 
-        assertTrue(artifactFile.exists(), "Failed to locate artifact file " + artifactFile.getAbsolutePath());
+        assertTrue(Files.exists(artifactFile), "Failed to locate artifact file " + artifactFile);
 
         RepositoryPath repositoryPath = repositoryPathResolver.resolve(repository, path);
         RepositoryFiles.delete(repositoryPath, false);
@@ -207,7 +212,7 @@ public class MavenMetadataGroupRepositoryComponentOnDeleteTest
                     }
                 });
 
-        assertFalse(artifactFile.exists(), "Failed to delete artifact file " + artifactFile.getAbsolutePath());
+        assertFalse(Files.exists(artifactFile), "Failed to delete artifact file " + artifactFile);
 
 
         // author of changes

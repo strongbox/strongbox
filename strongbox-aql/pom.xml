@@ -54,7 +54,7 @@
                 </executions>
                 <configuration>
                     <scripts>
-                        <script>file:///${basedir}/src/main/groovy/aql-dynamic-grammar.groovy</script>
+                        <script>${basedir}/src/main/groovy/aql-dynamic-grammar.groovy</script>
                     </scripts>
                 </configuration>
                 <dependencies>
@@ -79,11 +79,6 @@
                         <version>${project.version}</version>
                     </dependency>
                     <dependency>
-                        <groupId>org.jtwig</groupId>
-                        <artifactId>jtwig-core</artifactId>
-                        <version>${version.jtwig}</version>
-                    </dependency>
-                    <dependency>
                         <groupId>org.codehaus.groovy</groupId>
                         <artifactId>groovy-all</artifactId>
                         <version>${version.groovy}</version>
@@ -102,13 +97,8 @@
                             <goal>antlr4</goal>
                         </goals>
                         <configuration>
-                            <arguments>
-                                <argument>-package</argument>
-                                <argument>org.carlspring.strongbox.aql.grammar</argument>
-                            </arguments>
                             <sourceDirectory>${project.build.directory}/antlr4</sourceDirectory>
                             <visitor>true</visitor>
-                            <outputDirectory>${project.build.directory}/generated-sources/antlr4/org/carlspring/strongbox/aql/grammar</outputDirectory>
                         </configuration>
                     </execution>
                 </executions>
@@ -145,6 +135,11 @@
             <groupId>${project.groupId}</groupId>
             <artifactId>strongbox-storage-api</artifactId>
             <version>${project.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>org.jtwig</groupId>
+            <artifactId>jtwig-core</artifactId>
+            <scope>provided</scope>   
         </dependency>
 
         <dependency>

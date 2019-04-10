@@ -7,8 +7,10 @@ import org.carlspring.commons.io.RandomInputStream;
 import org.carlspring.maven.commons.util.ArtifactUtils;
 
 import java.io.*;
+import java.net.URI;
 import java.nio.charset.Charset;
 import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.security.NoSuchAlgorithmException;
 import java.util.Properties;
 import java.util.zip.ZipEntry;
@@ -28,15 +30,14 @@ import org.slf4j.LoggerFactory;
 /**
  * @author mtodorov
  */
-public class MavenArtifactGenerator
+public class MavenArtifactGenerator implements ArtifactGenerator
 {
 
     private static final Logger logger = LoggerFactory.getLogger(MavenArtifactGenerator.class);
 
     public static final String PACKAGING_JAR = "jar";
 
-    protected String basedir;
-
+    protected Path basedir;
 
     public MavenArtifactGenerator()
     {
@@ -44,12 +45,53 @@ public class MavenArtifactGenerator
 
     public MavenArtifactGenerator(String basedir)
     {
-        this.basedir = basedir;
+        this.basedir = Paths.get(basedir);
     }
 
     public MavenArtifactGenerator(File basedir)
     {
-        this.basedir = basedir.getAbsolutePath();
+        this.basedir = basedir.toPath();
+    }
+
+    public MavenArtifactGenerator(Path basedir)
+    {
+        this.basedir = basedir;
+    }
+    
+    @Override
+    public Path generateArtifact(String id,
+                                 String version,
+                                 int size)
+        throws IOException
+    {
+        Artifact artifact = ArtifactUtils.getArtifactFromGAVTC(String.format("%s:%s", id, version));
+        
+        return generateArtifact(artifact);
+    }
+
+    @Override
+    public Path generateArtifact(URI uri,
+                                 int size)
+        throws IOException
+    {
+        Artifact artifact = ArtifactUtils.convertPathToArtifact(uri.toString());
+        
+        return generateArtifact(artifact);
+    }
+
+    private Path generateArtifact(Artifact artifact)
+        throws IOException
+    {
+        try
+        {
+            generate(artifact);
+        }
+        catch (NoSuchAlgorithmException|XmlPullParserException e)
+        {
+            throw new IOException(e);
+        }
+        
+        return basedir.resolve(ArtifactUtils.convertArtifactToPath(artifact));
     }
 
     public void generate(String gavtc, String packaging, String... versions)
@@ -109,7 +151,7 @@ public class MavenArtifactGenerator
             throws NoSuchAlgorithmException,
                    IOException
     {
-        File artifactFile = new File(basedir, ArtifactUtils.convertArtifactToPath(artifact));
+        File artifactFile = basedir.resolve(ArtifactUtils.convertArtifactToPath(artifact)).toFile();
 
         // Make sure the artifact's parent directory exists before writing the model.
         //noinspection ResultOfMethodCallIgnored
@@ -139,7 +181,7 @@ public class MavenArtifactGenerator
 
         try
         {
-            metadataFile = new File(basedir, metadataPath);
+            metadataFile = basedir.resolve(metadataPath).toFile();
             
             if (metadataFile.exists())
             {
@@ -169,7 +211,7 @@ public class MavenArtifactGenerator
     private void addMavenPomFile(Artifact artifact, ZipOutputStream zos) throws IOException
     {
         final Artifact pomArtifact = ArtifactUtils.getPOMArtifact(artifact);
-        File pomFile = new File(basedir, ArtifactUtils.convertArtifactToPath(pomArtifact));
+        File pomFile = basedir.resolve(ArtifactUtils.convertArtifactToPath(pomArtifact)).toFile();
 
         ZipEntry ze = new ZipEntry("META-INF/maven/" +
                                    artifact.getGroupId() + "/" +
@@ -248,7 +290,7 @@ public class MavenArtifactGenerator
                    NoSuchAlgorithmException
     {
         final Artifact pomArtifact = ArtifactUtils.getPOMArtifact(artifact);
-        File pomFile = new File(basedir, ArtifactUtils.convertArtifactToPath(pomArtifact));
+        File pomFile = basedir.resolve(ArtifactUtils.convertArtifactToPath(pomArtifact)).toFile();
 
         // Make sure the artifact's parent directory exists before writing the model.
         //noinspection ResultOfMethodCallIgnored
@@ -308,12 +350,7 @@ public class MavenArtifactGenerator
 
     public String getBasedir()
     {
-        return basedir;
-    }
-
-    public void setBasedir(String basedir)
-    {
-        this.basedir = basedir;
+        return basedir.toAbsolutePath().toString();
     }
 
 }

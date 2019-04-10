@@ -11,6 +11,12 @@ import java.nio.file.Path;
 public interface ArtifactGenerator
 {
 
+    Path generateArtifact(String id,
+                          String version,
+                          int size)
+        throws IOException;
+
+    
     Path generateArtifact(URI uri,
                           int size)
         throws IOException;

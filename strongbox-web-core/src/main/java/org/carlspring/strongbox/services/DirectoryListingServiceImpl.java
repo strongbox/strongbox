@@ -38,7 +38,7 @@ public class DirectoryListingServiceImpl implements DirectoryListingService
     }
 
     @Override
-    public DirectoryListing fromStorages(Map<String, Storage> storages)
+    public DirectoryListing fromStorages(Map<String, ? extends Storage> storages)
         throws IOException
     {
         DirectoryListing directoryListing = new DirectoryListing();
@@ -56,7 +56,7 @@ public class DirectoryListingServiceImpl implements DirectoryListingService
     }
 
     @Override
-    public DirectoryListing fromRepositories(Map<String, Repository> repositories)
+    public DirectoryListing fromRepositories(Map<String, ? extends Repository> repositories)
         throws IOException
     {
         DirectoryListing directoryListing = new DirectoryListing();

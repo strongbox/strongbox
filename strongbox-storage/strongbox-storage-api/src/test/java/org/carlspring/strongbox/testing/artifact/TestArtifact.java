@@ -7,6 +7,7 @@ import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
 import java.nio.file.Path;
 
+import org.carlspring.strongbox.artifact.coordinates.ArtifactCoordinates;
 import org.carlspring.strongbox.artifact.generator.ArtifactGenerator;
 import org.carlspring.strongbox.providers.io.RepositoryPath;
 import org.carlspring.strongbox.storage.Storage;
@@ -21,7 +22,7 @@ import org.carlspring.strongbox.storage.repository.Repository;
  * <br>
  * If there is no {@link Storage} and {@link Repository} provided then Artifact
  * will be just regular {@link Path} instance located in
- * `{testMethodName}/{artifactURI}`.
+ * `{vaultDirectory}/.temp/{testClassName}/{testMethodName}/{artifactURI}`.
  * 
  * @author sbespalov
  *
@@ -35,7 +36,7 @@ public @interface TestArtifact
     /**
      * {@link Storage} ID.
      */
-    String storage() default "";
+    String storage() default "storage0";
 
     /**
      * {@link Repository} ID.
@@ -45,7 +46,17 @@ public @interface TestArtifact
     /**
      * Layout specific artifact URI (ex.'path/to/artifact.zip').
      */
-    String resource();
+    String resource() default "";
+    
+    /**
+     * Layout specific {@link ArtifactCoordinates} ID.
+     */
+    String id() default "";
+    
+    /**
+     * Layout specific {@link ArtifactCoordinates} versions.
+     */
+    String[] versions() default {};
 
     /**
      * {@link ArtifactGenerator} class to use.

@@ -14,7 +14,7 @@ import org.springframework.context.annotation.Configuration;
                  "org.carlspring.strongbox.storage.repository",
                  "org.carlspring.strongbox.url",
                  "org.carlspring.strongbox.util",
-                 "org.carlspring.strongbox.xml" })
+                 "org.carlspring.strongbox.yaml" })
 public class CommonConfig
 {
 }

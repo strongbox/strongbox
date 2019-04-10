@@ -57,7 +57,7 @@ public class GenericReleaseVersionValidator
     @Override
     public boolean supports(Repository repository)
     {
-        return repository.getArtifactCoordinateValidators().keySet().contains(ALIAS);
+        return repository.getArtifactCoordinateValidators().contains(ALIAS);
     }
 
     @Override

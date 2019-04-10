@@ -74,7 +74,7 @@ public class MavenGroupRepositoryPathFetchEventListener
         Storage storage = groupRepository.getStorage();
         List<Callable<Path>> fetchActions = new ArrayList<>();
 
-        for (String storageAndRepositoryId : groupRepository.getGroupRepositories().keySet())
+        for (String storageAndRepositoryId : groupRepository.getGroupRepositories())
         {
             String sId = configurationManager.getStorageId(storage, storageAndRepositoryId);
             String rId = configurationManager.getRepositoryId(storageAndRepositoryId);

@@ -49,11 +49,16 @@ public abstract class TestRepositoryManagementContextSupport<T extends Annotatio
                                      ExtensionContext extensionContext)
         throws ParameterResolutionException
     {
-        boolean applying = getTestRepositoryManagementContext().tryToApply(type,
-                                                                           parameterContext);
+        TestRepositoryManagementContext testRepositoryManagementContext = getTestRepositoryManagementContext();
+        if (testRepositoryManagementContext == null)
+        {
+            return false;
+        }
+
+        boolean applying = testRepositoryManagementContext.tryToApply(type, parameterContext);
         if (!applying)
         {
-            getTestRepositoryManagementContext().refresh();
+            testRepositoryManagementContext.refresh();
         }
 
         return applying;

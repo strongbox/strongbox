@@ -4,7 +4,7 @@ import org.carlspring.strongbox.config.IntegrationTest;
 import org.carlspring.strongbox.rest.common.RestAssuredBaseTest;
 import org.carlspring.strongbox.users.dto.UserDto;
 import org.carlspring.strongbox.users.service.UserService;
-import org.carlspring.strongbox.users.service.impl.XmlUserService.XmlUserServiceQualifier;
+import org.carlspring.strongbox.users.service.impl.StrongboxUserService.StrongboxUserServiceQualifier;
 
 import javax.inject.Inject;
 
@@ -12,7 +12,6 @@ import io.restassured.module.mockmvc.RestAssuredMockMvc;
 import org.hamcrest.CoreMatchers;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.security.test.context.support.WithAnonymousUser;
 import static org.hamcrest.Matchers.greaterThan;
 import static org.hamcrest.Matchers.hasSize;
@@ -26,7 +25,7 @@ public class LoginControllerTest
 {
 
     @Inject
-    @XmlUserServiceQualifier
+    @StrongboxUserServiceQualifier
     private UserService userService;
 
     @Override

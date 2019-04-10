@@ -1,7 +1,7 @@
 package org.carlspring.strongbox.converters.configuration;
 
 import org.carlspring.strongbox.forms.configuration.NugetRepositoryConfigurationForm;
-import org.carlspring.strongbox.xml.configuration.repository.MutableNugetRepositoryConfiguration;
+import org.carlspring.strongbox.yaml.configuration.repository.MutableNugetRepositoryConfiguration;
 
 import org.springframework.core.convert.converter.Converter;
 

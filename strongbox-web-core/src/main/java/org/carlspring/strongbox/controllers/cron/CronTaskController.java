@@ -33,6 +33,7 @@ import org.springframework.stereotype.Controller;
 import org.springframework.validation.BindingResult;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
+import static org.carlspring.strongbox.net.MediaType.APPLICATION_YAML_VALUE;
 
 /**
  * Defines cron task processing API.
@@ -207,7 +208,7 @@ public class CronTaskController
                             @ApiResponse(code = 404, message = NOT_FOUND_CONFIGURATION)})
     @GetMapping(value = "/{UUID}",
                 produces = { MediaType.APPLICATION_JSON_VALUE,
-                             MediaType.APPLICATION_XML_VALUE })
+                             APPLICATION_YAML_VALUE })
     public ResponseEntity getConfiguration(@PathVariable("UUID") String uuid,
                                            @RequestHeader(HttpHeaders.ACCEPT) String acceptHeader)
     {
@@ -224,7 +225,7 @@ public class CronTaskController
     @ApiResponses(value = { @ApiResponse(code = 200, message = SUCCESSFUL_GET_CONFIGURATIONS),
                             @ApiResponse(code = 404, message = NOT_FOUND_CONFIGURATIONS) })
     @GetMapping(produces = { MediaType.APPLICATION_JSON_VALUE,
-                             MediaType.APPLICATION_XML_VALUE })
+                             APPLICATION_YAML_VALUE })
     public ResponseEntity getConfigurations(@RequestHeader(HttpHeaders.ACCEPT) String acceptHeader)
     {
         CronTasksConfigurationDto config = cronTaskConfigurationService.getTasksConfigurationDto();

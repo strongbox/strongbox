@@ -4,6 +4,7 @@ import org.carlspring.strongbox.providers.layout.NpmLayoutProvider;
 import org.carlspring.strongbox.repository.NpmRepositoryFeatures;
 
 import javax.inject.Inject;
+import java.util.LinkedHashSet;
 
 import org.springframework.stereotype.Component;
 
@@ -14,6 +15,7 @@ import org.springframework.stereotype.Component;
 public class NpmRepositoryFactory
         implements RepositoryFactory
 {
+
     @Inject
     private NpmRepositoryFeatures npmRepositoryFeatures;
 
@@ -23,7 +25,8 @@ public class NpmRepositoryFactory
     {
         MutableRepository repository = new MutableRepository(repositoryId);
         repository.setLayout(NpmLayoutProvider.ALIAS);
-        repository.setArtifactCoordinateValidators(npmRepositoryFeatures.getDefaultArtifactCoordinateValidators());
+        repository.setArtifactCoordinateValidators(
+                new LinkedHashSet<>(npmRepositoryFeatures.getDefaultArtifactCoordinateValidators()));
 
         return repository;
     }

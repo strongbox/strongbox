@@ -1,27 +1,24 @@
 package org.carlspring.strongbox.storage.repository.gcs;
 
-import javax.xml.bind.annotation.XmlAttribute;
-import javax.xml.bind.annotation.XmlRootElement;
-
 import org.carlspring.strongbox.storage.repository.CustomConfiguration;
 import org.carlspring.strongbox.storage.repository.MutableCustomConfiguration;
-import org.carlspring.strongbox.xml.CustomTag;
+import org.carlspring.strongbox.yaml.CustomTag;
+
+import com.fasterxml.jackson.annotation.JsonTypeName;
 
 /**
  * @author carlspring
+ * @author Pablo Tirado
  */
-@XmlRootElement(name = "google-cloud-configuration")
+@JsonTypeName("googleCloudConfiguration")
 public class MutableGoogleCloudConfiguration
         extends MutableCustomConfiguration
         implements CustomTag
 {
 
-    @XmlAttribute
     private String bucket;
 
-    @XmlAttribute
     private String key;
-
 
     public String getBucket()
     {

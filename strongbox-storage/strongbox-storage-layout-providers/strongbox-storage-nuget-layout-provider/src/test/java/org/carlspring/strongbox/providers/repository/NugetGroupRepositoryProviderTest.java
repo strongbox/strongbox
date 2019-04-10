@@ -1,11 +1,9 @@
 package org.carlspring.strongbox.providers.repository;
 
-import org.carlspring.strongbox.artifact.coordinates.NugetArtifactCoordinates;
 import org.carlspring.strongbox.config.NugetLayoutProviderTestConfig;
 import org.carlspring.strongbox.configuration.ConfigurationManager;
 import org.carlspring.strongbox.data.criteria.Paginator;
 import org.carlspring.strongbox.data.criteria.Predicate;
-import org.carlspring.strongbox.providers.ProviderImplementationException;
 import org.carlspring.strongbox.providers.layout.NugetLayoutProvider;
 import org.carlspring.strongbox.services.ArtifactManagementService;
 import org.carlspring.strongbox.services.RepositoryManagementService;
@@ -13,18 +11,13 @@ import org.carlspring.strongbox.storage.repository.MutableRepository;
 import org.carlspring.strongbox.storage.repository.NugetRepositoryFactory;
 import org.carlspring.strongbox.storage.repository.Repository;
 import org.carlspring.strongbox.storage.repository.RepositoryTypeEnum;
-import org.carlspring.strongbox.storage.validation.artifact.ArtifactCoordinatesValidationException;
 import org.carlspring.strongbox.testing.TestCaseWithNugetPackageGeneration;
-import org.carlspring.strongbox.xml.configuration.repository.MutableNugetRepositoryConfiguration;
+import org.carlspring.strongbox.yaml.configuration.repository.MutableNugetRepositoryConfiguration;
 
 import javax.inject.Inject;
 import javax.xml.bind.JAXBException;
-import java.io.BufferedInputStream;
 import java.io.IOException;
-import java.io.InputStream;
-import java.nio.file.Files;
 import java.nio.file.Path;
-import java.security.NoSuchAlgorithmException;
 import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Set;

@@ -1,5 +1,6 @@
 package org.carlspring.strongbox.config;
 
+import org.carlspring.strongbox.booters.PropertiesBooter;
 import org.carlspring.strongbox.npm.metadata.jackson.NpmJacksonMapperFactory;
 import org.carlspring.strongbox.providers.datastore.StorageProvider;
 import org.carlspring.strongbox.providers.datastore.StorageProviderRegistry;
@@ -70,25 +71,26 @@ public class NpmLayoutProviderConfig
     }
 
     @Bean(FILE_SYSTEM_ALIAS)
-    public LayoutFileSystemFactory npmRepositoryFileSystemFactory()
+    public LayoutFileSystemFactory npmRepositoryFileSystemFactory(PropertiesBooter propertiesBooter)
     {
         LayoutFileSystemProviderFactory providerFactory = npmRepositoryFileSystemProviderFactory();
         
         return (repository) -> {
             StorageProvider storageProvider = storageProviderRegistry.getProvider(repository.getImplementation());
 
-            return npmRepositoryFileSystem(repository, storageProvider.getFileSystem(),
+            return npmRepositoryFileSystem(propertiesBooter, repository, storageProvider.getFileSystem(),
                                            providerFactory.create(repository));
         };
     }
 
     @Bean
     @Scope("prototype")
-    public NpmFileSystem npmRepositoryFileSystem(Repository repository,
+    public NpmFileSystem npmRepositoryFileSystem(PropertiesBooter propertiesBooter,
+                                                 Repository repository,
                                                  FileSystem storageFileSystem,
                                                  LayoutFileSystemProvider provider)
     {
-        return new NpmFileSystem(repository, storageFileSystem, provider);
+        return new NpmFileSystem(propertiesBooter, repository, storageFileSystem, provider);
     }
     
     @Documented

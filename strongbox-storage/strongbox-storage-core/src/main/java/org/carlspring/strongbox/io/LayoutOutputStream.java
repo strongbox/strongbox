@@ -38,7 +38,8 @@ public class LayoutOutputStream extends MultipleDigestOutputStream
      */
     private OutputStream cacheOutputStream;
     private Function<OutputStreamFunction, ?> cacheOutputStreamTemplate = this::doWithOutputStream;
-
+    private Map<String, String> digestMap;
+    
     public LayoutOutputStream(OutputStream source)
             throws NoSuchAlgorithmException
     {
@@ -72,10 +73,17 @@ public class LayoutOutputStream extends MultipleDigestOutputStream
 
     public Map<String, String> getDigestMap()
     {
-        return getDigests().entrySet()
-                           .stream()
-                           .collect(Collectors.toMap(Map.Entry::getKey,
-                                                     e -> stringifyDigest(digestStringifier, e.getValue().digest())));
+        if (digestMap == null)
+        {
+            digestMap = getDigests().entrySet()
+                                    .stream()
+                                    .collect(Collectors.toMap(Map.Entry::getKey,
+                                                              e -> stringifyDigest(digestStringifier,
+                                                                                   e.getValue()
+                                                                                    .digest())));
+        }
+        
+        return digestMap;
     }
 
     protected String stringifyDigest(Function<byte[], String> digestStringifier,

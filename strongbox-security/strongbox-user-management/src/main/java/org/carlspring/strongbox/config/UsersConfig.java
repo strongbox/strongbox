@@ -2,8 +2,8 @@ package org.carlspring.strongbox.config;
 
 import org.carlspring.strongbox.users.UsersFileManager;
 import org.carlspring.strongbox.users.dto.UsersDto;
-import org.carlspring.strongbox.users.service.impl.XmlUserService;
-import org.carlspring.strongbox.users.service.impl.XmlUserService.XmlUserServiceQualifier;
+import org.carlspring.strongbox.users.service.impl.StrongboxUserService;
+import org.carlspring.strongbox.users.service.impl.StrongboxUserService.StrongboxUserServiceQualifier;
 
 import javax.annotation.PostConstruct;
 import javax.inject.Inject;
@@ -27,8 +27,8 @@ public class UsersConfig
 {
 
     @Inject
-    @XmlUserServiceQualifier
-    private XmlUserService userService;
+    @StrongboxUserServiceQualifier
+    private StrongboxUserService userService;
 
     @Inject
     private UsersFileManager usersFileManager;

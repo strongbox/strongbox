@@ -8,7 +8,7 @@ import org.carlspring.strongbox.controllers.BaseArtifactController;
 import org.carlspring.strongbox.forms.PrivilegeListForm;
 import org.carlspring.strongbox.forms.RoleForm;
 import org.carlspring.strongbox.users.service.UserService;
-import org.carlspring.strongbox.users.service.impl.XmlUserService.XmlUserServiceQualifier;
+import org.carlspring.strongbox.users.service.impl.StrongboxUserService.StrongboxUserServiceQualifier;
 import org.carlspring.strongbox.validation.RequestBodyValidationException;
 
 import javax.inject.Inject;
@@ -30,6 +30,7 @@ import org.springframework.stereotype.Controller;
 import org.springframework.validation.BindingResult;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
+import static org.carlspring.strongbox.net.MediaType.APPLICATION_YAML_VALUE;
 
 /**
  * @author Pablo Tirado
@@ -46,7 +47,7 @@ public class AuthorizationConfigController
     static final String FAILED_ADD_ROLE = "Role cannot be saved because the submitted form contains errors!";
 
     static final String SUCCESSFUL_GET_CONFIG = "Everything went ok.";
-    static final String FAILED_GET_CONFIG = "Could not retrieve the strongbox-authorization.xml configuration file.";
+    static final String FAILED_GET_CONFIG = "Could not retrieve the strongbox-authorization.yaml configuration file.";
 
     static final String SUCCESSFUL_DELETE_ROLE = "The role was deleted.";
     static final String FAILED_DELETE_ROLE = "Could not delete the role.";
@@ -54,17 +55,13 @@ public class AuthorizationConfigController
     static final String SUCCESSFUL_ASSIGN_PRIVILEGES = "The privileges were assigned.";
     static final String FAILED_ASSIGN_PRIVILEGES = "Privileges cannot be saved because the submitted form contains errors!";
 
-    static final String SUCCESSFUL_ASSIGN_ROLES = "The roles were assigned.";
-    static final String FAILED_ASSIGN_ROLES = "Roles cannot be saved because the submitted form contains errors!";
-
     static final String AUTHORIZATION_CONFIG_OPERATION_FAILED = "Error during config processing.";
-    static final String AUTHORIZATION_CONFIG_NOT_FOUND = "Unable to locate AuthorizationConfig to update...";
 
     @Inject
     private AuthorizationConfigService authorizationConfigService;
 
     @Inject
-    @XmlUserServiceQualifier
+    @StrongboxUserServiceQualifier
     private UserService userService;
 
     @Inject
@@ -96,11 +93,10 @@ public class AuthorizationConfigController
         return processConfig(() -> SUCCESSFUL_ADD_ROLE, acceptHeader);
     }
 
-    @ApiOperation(value = "Retrieves the strongbox-authorization.xml configuration file.")
+    @ApiOperation(value = "Retrieves the strongbox-authorization.yaml configuration file.")
     @ApiResponses(value = { @ApiResponse(code = 200, message = SUCCESSFUL_GET_CONFIG),
                             @ApiResponse(code = 500, message = FAILED_GET_CONFIG) })
-    @GetMapping(value = "/xml",
-                produces = { MediaType.APPLICATION_XML_VALUE,
+    @GetMapping(produces = { APPLICATION_YAML_VALUE,
                              MediaType.APPLICATION_JSON_VALUE })
     public ResponseEntity getAuthorizationConfig(@RequestHeader(HttpHeaders.ACCEPT) String acceptHeader)
     {

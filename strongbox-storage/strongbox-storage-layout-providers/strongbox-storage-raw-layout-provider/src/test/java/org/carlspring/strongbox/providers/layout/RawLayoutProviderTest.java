@@ -187,7 +187,7 @@ public class RawLayoutProviderTest
         MutableStorage storage = new MutableStorage(storageId);
 
         configurationManagementService.saveStorage(storage);
-        storageManagementService.createStorage(storage);
+        storageManagementService.saveStorage(storage);
     }
 
     private InputStream createZipFile()

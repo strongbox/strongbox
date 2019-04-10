@@ -13,7 +13,7 @@ import org.carlspring.strongbox.storage.repository.RepositoryTypeEnum;
 import org.carlspring.strongbox.storage.routing.MutableRoutingRuleRepository;
 import org.carlspring.strongbox.storage.routing.RoutingRuleTypeEnum;
 import org.carlspring.strongbox.testing.TestCaseWithMavenArtifactGenerationAndIndexing;
-import org.carlspring.strongbox.xml.configuration.repository.MutableMavenRepositoryConfiguration;
+import org.carlspring.strongbox.yaml.configuration.repository.MutableMavenRepositoryConfiguration;
 
 import javax.inject.Inject;
 import java.io.IOException;

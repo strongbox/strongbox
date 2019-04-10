@@ -1,8 +1,5 @@
 package org.carlspring.strongbox.controllers.users;
 
-import com.google.common.collect.ImmutableSet;
-import com.google.common.collect.Lists;
-import org.apache.commons.collections.SetUtils;
 import org.carlspring.strongbox.config.IntegrationTest;
 import org.carlspring.strongbox.controllers.users.support.AccessModelOutput;
 import org.carlspring.strongbox.controllers.users.support.RepositoryAccessModelOutput;
@@ -18,7 +15,18 @@ import org.carlspring.strongbox.users.domain.Roles;
 import org.carlspring.strongbox.users.domain.User;
 import org.carlspring.strongbox.users.dto.UserDto;
 import org.carlspring.strongbox.users.service.UserService;
-import org.carlspring.strongbox.users.service.impl.XmlUserService.XmlUserServiceQualifier;
+import org.carlspring.strongbox.users.service.impl.StrongboxUserService.StrongboxUserServiceQualifier;
+
+import javax.inject.Inject;
+import java.util.Collections;
+import java.util.Optional;
+import java.util.Set;
+import java.util.function.Consumer;
+import java.util.stream.Stream;
+
+import com.google.common.collect.ImmutableSet;
+import com.google.common.collect.Lists;
+import org.apache.commons.collections.SetUtils;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
@@ -35,14 +43,6 @@ import org.springframework.security.test.context.support.WithUserDetails;
 import org.springframework.transaction.PlatformTransactionManager;
 import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
-
-import javax.inject.Inject;
-import java.util.Collections;
-import java.util.Optional;
-import java.util.Set;
-import java.util.function.Consumer;
-import java.util.stream.Stream;
-
 import static io.restassured.module.mockmvc.RestAssuredMockMvc.given;
 import static org.carlspring.strongbox.controllers.users.UserController.*;
 import static org.hamcrest.CoreMatchers.equalTo;
@@ -61,7 +61,7 @@ public class UserControllerTestIT
 {
 
     @Inject
-    @XmlUserServiceQualifier
+    @StrongboxUserServiceQualifier
     private UserService userService;
 
     @Inject
