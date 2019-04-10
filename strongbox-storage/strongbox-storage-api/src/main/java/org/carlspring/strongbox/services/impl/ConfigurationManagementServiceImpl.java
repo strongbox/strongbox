@@ -277,19 +277,20 @@ public class ConfigurationManagementServiceImpl
     }
 
     @Override
-    public MutableRoutingRules getRoutingRules() {
+    public MutableRoutingRules getRoutingRules()
+    {
         return getMutableConfigurationClone().getRoutingRules();
     }
 
     @Override
-    public MutableRoutingRule getRoutingRule(UUID uuid) {
-        return getMutableConfigurationClone()
-                .getRoutingRules()
-                .getRules()
-                .stream()
-                .filter(r -> r.getUuid().equals(uuid))
-                .findFirst()
-                .orElse(null);
+    public MutableRoutingRule getRoutingRule(UUID uuid)
+    {
+        return getMutableConfigurationClone().getRoutingRules()
+                                             .getRules()
+                                             .stream()
+                                             .filter(r -> r.getUuid().equals(uuid))
+                                             .findFirst()
+                                             .orElse(null);
     }
 
     @Override
@@ -297,13 +298,12 @@ public class ConfigurationManagementServiceImpl
                                      MutableRoutingRule routingRule) throws IOException
     {
         final MutableBoolean result = new MutableBoolean();
-        modifyInLock(configuration ->
-                             configuration.getRoutingRules()
-                                          .getRules()
-                                          .stream()
-                                          .filter(r -> r.getUuid().equals(uuid))
-                                          .findFirst()
-                                          .ifPresent(r -> result.setValue(r.updateBy(routingRule))));
+        modifyInLock(configuration -> configuration.getRoutingRules()
+                                                   .getRules()
+                                                   .stream()
+                                                   .filter(r -> r.getUuid().equals(uuid))
+                                                   .findFirst()
+                                                   .ifPresent(r -> result.setValue(r.updateBy(routingRule))));
 
         return result.isTrue();
     }
