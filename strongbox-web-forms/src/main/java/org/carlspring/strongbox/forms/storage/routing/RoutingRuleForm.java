@@ -1,5 +1,6 @@
 package org.carlspring.strongbox.forms.storage.routing;
 
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import org.carlspring.strongbox.storage.routing.RoutingRuleTypeEnum;
 
 import javax.validation.constraints.NotEmpty;
@@ -11,6 +12,7 @@ import java.util.List;
  * @author Pablo Tirado
  * @author Przemyslaw Fusik
  */
+@JsonIgnoreProperties(ignoreUnknown = true)
 public class RoutingRuleForm
 {
 

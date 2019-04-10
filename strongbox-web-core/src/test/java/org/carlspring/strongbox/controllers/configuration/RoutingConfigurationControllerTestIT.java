@@ -17,6 +17,9 @@ import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.ValueSource;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
+
+import javax.validation.constraints.AssertTrue;
+
 import static io.restassured.module.mockmvc.RestAssuredMockMvc.given;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.carlspring.strongbox.controllers.configuration.RoutingConfigurationController.*;
@@ -47,6 +50,20 @@ public class RoutingConfigurationControllerTestIT
         MutableRoutingRules routingRules = getRoutingRules();
         routingRules.getRules().stream().filter(r -> r.getRepositoryId().contains(GROUP_RELEASES_2))
                     .forEach(r -> removeRoutingRule(MediaType.APPLICATION_JSON_VALUE, r.getUuid()));
+    }
+
+    @ParameterizedTest
+    @ValueSource(strings = { MediaType.APPLICATION_JSON_VALUE,
+                             MediaType.TEXT_PLAIN_VALUE })
+    void testGetRoutingRule(String acceptHeader)
+    {
+        addRoutingRule(acceptHeader);
+        MutableRoutingRules routingRules = getRoutingRules();
+        assertThat(routingRules).isNotNull();
+        MutableRoutingRule rule1 = routingRules.getRules().get(routingRules.getRules().size() - 1);
+        MutableRoutingRule rule2 = getRoutingRule(rule1.getUuid());
+        assertThat(rule2).isNotNull();
+        assertThat(rule1.getUuid()).isEqualTo(rule2.getUuid());
     }
 
     @ParameterizedTest
@@ -199,6 +216,20 @@ public class RoutingConfigurationControllerTestIT
                       .statusCode(HttpStatus.OK.value())
                       .extract()
                       .as(MutableRoutingRules.class);
+    }
+
+    private MutableRoutingRule getRoutingRule(UUID uuid)
+    {
+        String url = getContextBaseUrl();
+
+        return given().contentType(MediaType.APPLICATION_JSON_VALUE)
+                .accept(MediaType.APPLICATION_JSON_VALUE)
+                .when()
+                .get(url+'/'+uuid.toString())
+                .then()
+                .statusCode(HttpStatus.OK.value())
+                .extract()
+                .as(MutableRoutingRule.class);
     }
 
 }

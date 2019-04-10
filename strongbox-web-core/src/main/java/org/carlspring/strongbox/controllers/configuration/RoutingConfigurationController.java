@@ -60,14 +60,30 @@ public class RoutingConfigurationController
         this.conversionService = conversionService;
     }
 
+    @ApiOperation(value = "Returns routing rule for uuid.")
+    @ApiResponses(value = { @ApiResponse(code = 200, message = "Everything went ok."),
+                            @ApiResponse(code = 404, message = NOT_FOUND_REPOSITORY)})
+    @GetMapping(value = "{uuid}",
+            produces = { MediaType.TEXT_PLAIN_VALUE,
+                         MediaType.APPLICATION_JSON_VALUE })
+    public ResponseEntity getRoutingRule(@PathVariable UUID uuid,
+                                         @RequestHeader(HttpHeaders.ACCEPT) String accept)
+    {
+        MutableRoutingRule body = configurationManagementService.getRoutingRule(uuid);
+        if(body == null) {
+            return getNotFoundResponseEntity(NOT_FOUND_REPOSITORY,accept);
+        }
+
+        return ResponseEntity.ok(body);
+    }
+
     @ApiOperation(value = "Returns routing rules.")
-    @ApiResponses(value = { @ApiResponse(code = 200, message = "Everything went ok.") })
+    @ApiResponses(value = { @ApiResponse(code = 200, message = "Everything went ok.")})
     @GetMapping(produces = { MediaType.TEXT_PLAIN_VALUE,
                              MediaType.APPLICATION_JSON_VALUE })
     public ResponseEntity getRoutingRules()
     {
-        MutableRoutingRules body = configurationManagementService.getMutableConfigurationClone()
-                                                                 .getRoutingRules();
+        MutableRoutingRules body = configurationManagementService.getRoutingRules();
         return ResponseEntity.ok(body);
     }
 

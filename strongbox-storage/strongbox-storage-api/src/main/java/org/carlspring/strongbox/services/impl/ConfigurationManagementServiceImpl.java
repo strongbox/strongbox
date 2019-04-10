@@ -28,6 +28,7 @@ import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.collections4.MapUtils;
 import org.apache.commons.lang3.SerializationUtils;
 import org.apache.commons.lang3.mutable.MutableBoolean;
+import org.carlspring.strongbox.storage.routing.MutableRoutingRules;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.PlatformTransactionManager;
 import org.springframework.transaction.support.TransactionTemplate;
@@ -273,6 +274,22 @@ public class ConfigurationManagementServiceImpl
 
                          repository.getHttpConnectionPool().setAllocatedConnections(numberOfConnections);
                      });
+    }
+
+    @Override
+    public MutableRoutingRules getRoutingRules() {
+        return getMutableConfigurationClone().getRoutingRules();
+    }
+
+    @Override
+    public MutableRoutingRule getRoutingRule(UUID uuid) {
+        return getMutableConfigurationClone()
+                .getRoutingRules()
+                .getRules()
+                .stream()
+                .filter(r -> r.getUuid().equals(uuid))
+                .findFirst()
+                .orElse(null);
     }
 
     @Override
