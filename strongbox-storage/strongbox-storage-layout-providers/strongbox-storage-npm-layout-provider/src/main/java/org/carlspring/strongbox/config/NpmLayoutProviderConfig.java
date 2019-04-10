@@ -96,7 +96,7 @@ public class NpmLayoutProviderConfig
     @Documented
     @Qualifier
     @Retention(RUNTIME)
-    public static @interface NpmObjectMapper 
+    public @interface NpmObjectMapper
     {
         
     }

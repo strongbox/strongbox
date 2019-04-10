@@ -22,7 +22,7 @@ import org.springframework.web.multipart.MultipartFile;
  */
 @RestController
 @RequestMapping(path = PypiArtifactController.ROOT_CONTEXT,
-                headers = { /*"user-agent=pip/*",*/ "user-agent=Python-urllib/*" })
+                headers = { "user-agent=pip/*", "user-agent=Python-urllib/*" })
 public class PypiArtifactController
         extends BaseArtifactController
 {

@@ -1,5 +1,6 @@
 package org.carlspring.strongbox.config;
 
+import org.carlspring.strongbox.booters.PropertiesBooter;
 import org.carlspring.strongbox.providers.datastore.StorageProvider;
 import org.carlspring.strongbox.providers.datastore.StorageProviderRegistry;
 import org.carlspring.strongbox.providers.io.LayoutFileSystemFactory;
@@ -54,6 +55,7 @@ public class PypiLayoutProviderConfig
 
     }
 
+
     @Bean
     @Scope("prototype")
     public PypiFileSystemProvider pypiFileSystemProvider(FileSystemProvider provider)
@@ -62,14 +64,15 @@ public class PypiLayoutProviderConfig
     }
 
     @Bean(FILE_SYSTEM_ALIAS)
-    public LayoutFileSystemFactory pypiRepositoryFileSystemFactory()
+    public LayoutFileSystemFactory pypiRepositoryFileSystemFactory(PropertiesBooter propertiesBooter)
     {
         LayoutFileSystemProviderFactory providerFactory = pypiRepositoryFileSystemProviderFactory();
 
         return (repository) -> {
             StorageProvider storageProvider = storageProviderRegistry.getProvider(repository.getImplementation());
 
-            return pypiRepositoryFileSystem(repository,
+            return pypiRepositoryFileSystem(propertiesBooter,
+                                            repository,
                                             storageProvider.getFileSystem(),
                                             providerFactory.create(repository));
         };
@@ -77,12 +80,14 @@ public class PypiLayoutProviderConfig
 
     @Bean
     @Scope("prototype")
-    public PypiFileSystem pypiRepositoryFileSystem(Repository repository,
+    public PypiFileSystem pypiRepositoryFileSystem(PropertiesBooter propertiesBooter,
+                                                   Repository repository,
                                                    FileSystem storageFileSystem,
                                                    LayoutFileSystemProvider provider)
     {
-        return new PypiFileSystem(repository, storageFileSystem, provider);
+        return new PypiFileSystem(propertiesBooter, repository, storageFileSystem, provider);
     }
+
 
     @Documented
     @Qualifier
