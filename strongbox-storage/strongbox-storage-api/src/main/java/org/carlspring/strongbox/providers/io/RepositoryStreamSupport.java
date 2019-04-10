@@ -160,8 +160,8 @@ public abstract class RepositoryStreamSupport implements RepositoryStreamCallbac
         public void flush()
             throws IOException
         {
-            RepositoryStreamSupport.this.commit();
             super.flush();
+            RepositoryStreamSupport.this.commit();
         }
 
         @Override
