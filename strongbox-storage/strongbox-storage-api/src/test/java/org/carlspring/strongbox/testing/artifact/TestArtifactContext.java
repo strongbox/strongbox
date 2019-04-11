@@ -44,7 +44,10 @@ public class TestArtifactContext implements AutoCloseable
     private final List<Path> artifactPaths;
     
     private ArtifactGenerator artifactGenerator;
+    @SuppressWarnings("rawtypes")
+    private ArtifactGeneratorStrategy strategy;
     private Path generatorBasePath;
+    
 
     public TestArtifactContext(TestArtifact testArtifact,
                                PropertiesBooter propertiesBooter,
@@ -103,6 +106,15 @@ public class TestArtifactContext implements AutoCloseable
             return Collections.singletonList(generateArtifact(testArtifact.resource(), testArtifact.size()));
         }
 
+        try
+        {
+            strategy = testArtifact.strategy().newInstance();
+        }
+        catch (InstantiationException|IllegalAccessException e)
+        {
+            throw new IOException(e);
+        }
+        
         if (testArtifact.versions().length == 0)
         {
             throw new IllegalArgumentException(String.format("Versions should be provided for [%s]", testArtifact.id()));
@@ -131,7 +143,8 @@ public class TestArtifactContext implements AutoCloseable
                                   int size)
         throws IOException
     {
-        Path artifactPathLocal = artifactGenerator.generateArtifact(id, version, size);
+        @SuppressWarnings("unchecked")
+        Path artifactPathLocal = strategy.generateArtifact(artifactGenerator, id, version, size);
         if (testArtifact.repository().isEmpty())
         {
             return artifactPathLocal;

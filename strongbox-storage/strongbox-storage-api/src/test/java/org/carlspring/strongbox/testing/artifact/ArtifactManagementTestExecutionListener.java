@@ -19,6 +19,7 @@ import org.junit.jupiter.api.TestInfo;
 import org.junit.jupiter.api.extension.ExtensionContext;
 import org.junit.jupiter.api.extension.ParameterContext;
 import org.junit.jupiter.api.extension.ParameterResolutionException;
+import org.springframework.core.annotation.AnnotatedElementUtils;
 
 /**
  * @author sbespalov
@@ -38,7 +39,7 @@ public class ArtifactManagementTestExecutionListener extends TestRepositoryManag
         throws ParameterResolutionException
     {
         Parameter parameter = parameterContext.getParameter();
-        TestArtifact testArtifact = parameter.getAnnotation(TestArtifact.class);
+        TestArtifact testArtifact = AnnotatedElementUtils.findMergedAnnotation(parameterContext.getParameter(), TestArtifact.class);
 
         TestRepositoryManagementContext testApplicationContext = getTestRepositoryManagementContext();
         testApplicationContext.register(testArtifact, new TestInfo()
