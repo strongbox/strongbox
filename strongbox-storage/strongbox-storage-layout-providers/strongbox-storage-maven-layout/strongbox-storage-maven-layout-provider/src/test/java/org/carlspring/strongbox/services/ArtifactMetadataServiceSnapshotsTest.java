@@ -21,11 +21,14 @@ import java.util.List;
 import javax.inject.Inject;
 
 import org.apache.maven.artifact.repository.metadata.Metadata;
+import org.apache.maven.artifact.repository.metadata.Snapshot;
 import org.apache.maven.artifact.repository.metadata.Versioning;
 import org.carlspring.strongbox.artifact.MavenArtifact;
+import org.carlspring.strongbox.artifact.MavenArtifactUtils;
 import org.carlspring.strongbox.artifact.MavenRepositoryArtifact;
 import org.carlspring.strongbox.artifact.coordinates.MavenArtifactCoordinates;
 import org.carlspring.strongbox.config.Maven2LayoutProviderTestConfig;
+import org.carlspring.strongbox.providers.ProviderImplementationException;
 import org.carlspring.strongbox.providers.io.RepositoryFiles;
 import org.carlspring.strongbox.providers.io.RepositoryPath;
 import org.carlspring.strongbox.storage.metadata.MetadataHelper;
@@ -54,6 +57,8 @@ import org.springframework.test.context.ContextConfiguration;
 public class ArtifactMetadataServiceSnapshotsTest
         extends TestCaseWithMavenArtifactGenerationAndIndexing
 {
+
+    private static final String TIMESTAMPED_SNAPSHOT_VERSION_FORMAT = "yyyyMMdd.HHmmss";
 
     private static final String REPOSITORY_SNAPSHOTS = "amss-snapshots";
 
@@ -131,7 +136,7 @@ public class ArtifactMetadataServiceSnapshotsTest
             assertTrue(MetadataHelper.containsTimestampedSnapshotVersion(metadataBefore, coordinates.getVersion(), null));
         }
 
-        SimpleDateFormat formatter = new SimpleDateFormat("yyyyMMdd.HHmmss");
+        SimpleDateFormat formatter = new SimpleDateFormat(TIMESTAMPED_SNAPSHOT_VERSION_FORMAT);
         String timestamp = formatter.format(Calendar.getInstance().getTime());
         String version = "1.0-" + timestamp + "-" + 6;
 
@@ -185,15 +190,12 @@ public class ArtifactMetadataServiceSnapshotsTest
     }
 
     @Test
-    public void testSnapshotWithoutTimestampMetadataRebuild()
+    @ExtendWith({ RepositoryManagementTestExecutionListener.class, ArtifactManagementTestExecutionListener.class })
+    public void testSnapshotWithoutTimestampMetadataRebuild(@MavenSnapshotRepository Repository repository,
+                                                            @MavenArtifactWithClassifiers(repository = REPOSITORY_SNAPSHOTS, id = "org.carlspring.strongbox.snapshots:metadata", versions = "2.0-SNAPSHOT") List<Path> snapshotArtifactPath)
             throws IOException, XmlPullParserException, NoSuchAlgorithmException
     {
         String version = "2.0-SNAPSHOT";
-
-        String repositoryBasedir = getRepositoryBasedir(STORAGE0, REPOSITORY_SNAPSHOTS).getAbsolutePath();
-
-        generateArtifact(repositoryBasedir,
-                         "org.carlspring.strongbox.snapshots:metadata:" + version);
 
         final String artifactPath = "org/carlspring/strongbox/snapshots/metadata";
 
@@ -259,54 +261,50 @@ public class ArtifactMetadataServiceSnapshotsTest
         assertEquals(1, versioning.getVersions().size(), "Incorrect number of versions stored in metadata!");
     }
 
-//    @Test
-//    public void testMetadataMerge()
-//            throws IOException, XmlPullParserException, NoSuchAlgorithmException, ProviderImplementationException
-//    {
-//        String repositoryBasedir = getRepositoryBasedir(STORAGE0, REPOSITORY_SNAPSHOTS).getAbsolutePath();
-//
-//        // Create an artifact for metadata merging tests
-//        MavenArtifact mergeArtifact = createTimestampedSnapshotArtifact(repositoryBasedir,
-//                                                                        "org.carlspring.strongbox",
-//                                                                        "strongbox-metadata-merge",
-//                                                                        "2.0",
-//                                                                        CLASSIFIERS);
-//
-//        // Generate a proper maven-metadata.xml
-//        artifactMetadataService.rebuildMetadata(STORAGE0,
-//                                                REPOSITORY_SNAPSHOTS,
-//                                                "org/carlspring/strongbox/strongbox-metadata-merge");
-//
-//        // Generate metadata to merge
-//        Metadata mergeMetadata = new Metadata();
-//        Versioning appendVersioning = new Versioning();
-//
-//        appendVersioning.addVersion("1.0-SNAPSHOT");
-//        appendVersioning.addVersion("1.3-SNAPSHOT");
-//
-//        Snapshot snapshot = new Snapshot();
-//        snapshot.setTimestamp(formatter.format(calendar.getTime()));
-//        snapshot.setBuildNumber(1);
-//
-//        appendVersioning.setRelease(null);
-//        appendVersioning.setSnapshot(snapshot);
-//        appendVersioning.setLatest("1.3-SNAPSHOT");
-//
-//        mergeMetadata.setVersioning(appendVersioning);
-//
-//        // Merge
-//        artifactMetadataService.mergeMetadata(mergeArtifact, mergeMetadata);
-//
-//        Metadata metadata = artifactMetadataService.getMetadata(STORAGE0,
-//                                                                REPOSITORY_SNAPSHOTS,
-//                                                                "org/carlspring/strongbox/strongbox-metadata-merge");
-//
-//        assertNotNull(metadata);
-//
-//        assertEquals("1.3-SNAPSHOT", metadata.getVersioning().getLatest(), "Incorrect latest release version!");
-//        assertEquals(3, metadata.getVersioning().getVersions().size(),
-//                     "Incorrect number of versions stored in metadata!");
-//    }
+    @Test
+    @ExtendWith({ RepositoryManagementTestExecutionListener.class, ArtifactManagementTestExecutionListener.class })
+    public void testMetadataMerge(@MavenSnapshotRepository Repository repository,
+                                  @MavenArtifactWithClassifiers(repository = REPOSITORY_SNAPSHOTS, id = "org.carlspring.strongbox:strongbox-metadata-merge", versions = "2.0-20180328.195810-1") List<Path> snapshotArtifact)
+            throws IOException, XmlPullParserException, NoSuchAlgorithmException, ProviderImplementationException
+    {
+        // Generate a proper maven-metadata.xml
+        artifactMetadataService.rebuildMetadata(STORAGE0,
+                                                REPOSITORY_SNAPSHOTS,
+                                                "org/carlspring/strongbox/strongbox-metadata-merge");
+
+        // Generate metadata to merge
+        Metadata mergeMetadata = new Metadata();
+        Versioning appendVersioning = new Versioning();
+
+        appendVersioning.addVersion("1.0-SNAPSHOT");
+        appendVersioning.addVersion("1.3-SNAPSHOT");
+
+        SimpleDateFormat formatter = new SimpleDateFormat(TIMESTAMPED_SNAPSHOT_VERSION_FORMAT);
+        Snapshot snapshot = new Snapshot();
+        snapshot.setTimestamp(formatter.format(Calendar.getInstance().getTime()));
+        snapshot.setBuildNumber(1);
+
+        appendVersioning.setRelease(null);
+        appendVersioning.setSnapshot(snapshot);
+        appendVersioning.setLatest("1.3-SNAPSHOT");
+
+        mergeMetadata.setVersioning(appendVersioning);
+
+        // Merge
+        RepositoryPath snapshotPath = (RepositoryPath) snapshotArtifact.iterator().next().normalize();
+        MavenArtifact mergeArtifact = MavenArtifactUtils.convertPathToArtifact(snapshotPath);
+        artifactMetadataService.mergeMetadata(mergeArtifact, mergeMetadata);
+
+        Metadata metadata = artifactMetadataService.getMetadata(STORAGE0,
+                                                                REPOSITORY_SNAPSHOTS,
+                                                                "org/carlspring/strongbox/strongbox-metadata-merge");
+
+        assertNotNull(metadata);
+
+        assertEquals("1.3-SNAPSHOT", metadata.getVersioning().getLatest(), "Incorrect latest release version!");
+        assertEquals(3, metadata.getVersioning().getVersions().size(),
+                     "Incorrect number of versions stored in metadata!");
+    }
 
     @Target({ ElementType.PARAMETER, ElementType.ANNOTATION_TYPE })
     @Retention(RetentionPolicy.RUNTIME)
