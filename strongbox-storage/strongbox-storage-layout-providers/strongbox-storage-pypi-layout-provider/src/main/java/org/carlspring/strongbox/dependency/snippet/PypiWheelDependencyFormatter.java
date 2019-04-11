@@ -58,8 +58,8 @@ public class PypiWheelDependencyFormatter
     
     if (coordinates.getVersion() != NULL)
     {
-    sb += " == " + coordinates.getVersion();
-    return sb;
+      sb += " == " + coordinates.getVersion();
+      return sb;
     }
   }
 }
