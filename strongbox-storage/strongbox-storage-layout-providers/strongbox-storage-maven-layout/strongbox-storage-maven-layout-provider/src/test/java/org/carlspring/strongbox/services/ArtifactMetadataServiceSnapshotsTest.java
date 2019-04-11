@@ -38,6 +38,7 @@ import org.carlspring.strongbox.storage.repository.RepositoryPolicyEnum;
 import org.carlspring.strongbox.testing.TestCaseWithMavenArtifactGenerationAndIndexing;
 import org.carlspring.strongbox.testing.artifact.ArtifactManagementTestExecutionListener;
 import org.carlspring.strongbox.testing.artifact.MavenArtifactWithClassifiers;
+import org.carlspring.strongbox.testing.artifact.MavenPluginArtifact;
 import org.carlspring.strongbox.testing.storage.repository.RepositoryManagementTestExecutionListener;
 import org.carlspring.strongbox.testing.storage.repository.TestRepository;
 import org.codehaus.plexus.util.xml.pull.XmlPullParserException;
@@ -229,19 +230,11 @@ public class ArtifactMetadataServiceSnapshotsTest
     }
 
     @Test
-    public void testSnapshotPluginMetadataRebuild()
+    @ExtendWith({ RepositoryManagementTestExecutionListener.class, ArtifactManagementTestExecutionListener.class })
+    public void testSnapshotPluginMetadataRebuild(@MavenSnapshotRepository Repository repository,
+                                                  @MavenPluginArtifact(repository = REPOSITORY_SNAPSHOTS, id = "org.carlspring.strongbox.maven:strongbox-metadata-plugin", versions = "1.1-20180328.195810-1") List<Path> pluginSnapshotPath)
             throws IOException, XmlPullParserException, NoSuchAlgorithmException
     {
-        // Create plugin artifact
-        String repositoryBasedir = getRepositoryBasedir(STORAGE0, REPOSITORY_SNAPSHOTS).getAbsolutePath();
-
-        MavenArtifact pluginArtifact = createTimestampedSnapshotArtifact(repositoryBasedir,
-                                                                         "org.carlspring.strongbox.maven",
-                                                                         "strongbox-metadata-plugin",
-                                                                         "1.1",
-                                                                         "maven-plugin",
-                                                                         null);
-
         artifactMetadataService.rebuildMetadata(STORAGE0,
                                                 REPOSITORY_SNAPSHOTS,
                                                 "org/carlspring/strongbox/maven/strongbox-metadata-plugin");
@@ -254,8 +247,8 @@ public class ArtifactMetadataServiceSnapshotsTest
 
         Versioning versioning = metadata.getVersioning();
 
-        assertEquals(pluginArtifact.getArtifactId(), metadata.getArtifactId(), "Incorrect artifactId!");
-        assertEquals(pluginArtifact.getGroupId(), metadata.getGroupId(), "Incorrect groupId!");
+        assertEquals("strongbox-metadata-plugin", metadata.getArtifactId(), "Incorrect artifactId!");
+        assertEquals("org.carlspring.strongbox.maven", metadata.getGroupId(), "Incorrect groupId!");
         assertNull(versioning.getRelease(), "Incorrect latest release version!");
 
         assertEquals(1, versioning.getVersions().size(), "Incorrect number of versions stored in metadata!");
@@ -309,7 +302,7 @@ public class ArtifactMetadataServiceSnapshotsTest
     @Target({ ElementType.PARAMETER, ElementType.ANNOTATION_TYPE })
     @Retention(RetentionPolicy.RUNTIME)
     @Documented
-    @TestRepository(layout = MavenArtifactCoordinates.LAYOUT_NAME, repository = REPOSITORY_SNAPSHOTS, policy = RepositoryPolicyEnum.SNAPSHOT, cleanup = false)
+    @TestRepository(layout = MavenArtifactCoordinates.LAYOUT_NAME, repository = REPOSITORY_SNAPSHOTS, policy = RepositoryPolicyEnum.SNAPSHOT)
     private static @interface MavenSnapshotRepository
     {
 

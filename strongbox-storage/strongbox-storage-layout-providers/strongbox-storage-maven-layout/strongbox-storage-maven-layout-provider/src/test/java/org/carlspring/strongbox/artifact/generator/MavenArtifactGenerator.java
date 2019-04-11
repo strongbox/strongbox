@@ -353,4 +353,8 @@ public class MavenArtifactGenerator implements ArtifactGenerator
         return basedir.toAbsolutePath().toString();
     }
 
+    public Path getBasedirPath()
+    {
+        return basedir;
+    }
 }
