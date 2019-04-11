@@ -46,9 +46,9 @@ public class PypiWheelDependencyFormatter
   {
     PypiWheelArtifactCoordinates coordinates = (PypiWheelArtifactCoordinates) input_coordinates;
 
-    String dist_name = coordinates.getID();
+    String version = coordinates.getVersion();
     String sb;
-    if (dist_name.substring(dist_name.length() - 1) == "*")
+    if (version.substring(version.length() - 1) == "*")
     {
       sb = coordinates.getID() + "==" + coordinates.getVersion();
     }
