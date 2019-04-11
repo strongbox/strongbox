@@ -46,7 +46,9 @@ public class RoutingConfigurationControllerTestIT
     public void cleanup()
     {
         MutableRoutingRules routingRules = getRoutingRules();
-        routingRules.getRules().stream().filter(r -> r.getRepositoryId().contains(GROUP_RELEASES_2))
+        routingRules.getRules()
+                    .stream()
+                    .filter(r -> r.getRepositoryId().contains(GROUP_RELEASES_2))
                     .forEach(r -> removeRoutingRule(MediaType.APPLICATION_JSON_VALUE, r.getUuid()));
     }
 
@@ -57,9 +59,12 @@ public class RoutingConfigurationControllerTestIT
     {
         addRoutingRule(acceptHeader);
         MutableRoutingRules routingRules = getRoutingRules();
+        
         assertThat(routingRules).isNotNull();
+        
         MutableRoutingRule rule1 = routingRules.getRules().get(routingRules.getRules().size() - 1);
         MutableRoutingRule rule2 = getRoutingRule(rule1.getUuid());
+        
         assertThat(rule2).isNotNull();
         assertThat(rule1.getUuid()).isEqualTo(rule2.getUuid());
     }
@@ -70,14 +75,18 @@ public class RoutingConfigurationControllerTestIT
     void testAddAndRemoveRoutingRule(String acceptHeader)
     {
         addRoutingRule(acceptHeader);
+        
         MutableRoutingRules routingRules = getRoutingRules();
+        
         assertThat(routingRules).isNotNull();
         assertThat(routingRules.getRules().size()).isEqualTo(2);
+        
         MutableRoutingRule lastRule = routingRules.getRules().get(routingRules.getRules().size() - 1);
 
         removeRoutingRule(acceptHeader, lastRule.getUuid());
 
         routingRules = getRoutingRules();
+        
         assertThat(routingRules).isNotNull();
         assertThat(routingRules.getRules().size()).isEqualTo(1);
     }
@@ -98,8 +107,10 @@ public class RoutingConfigurationControllerTestIT
         addRoutingRule(acceptHeader);
 
         MutableRoutingRules routingRules = getRoutingRules();
+        
         assertThat(routingRules).isNotNull();
         assertThat(routingRules.getRules().size()).isEqualTo(2);
+        
         MutableRoutingRule lastRule = routingRules.getRules().get(routingRules.getRules().size() - 1);
 
         updateRoutingRule(acceptHeader, lastRule.getUuid());
@@ -108,7 +119,9 @@ public class RoutingConfigurationControllerTestIT
 
         assertThat(routingRules).isNotNull();
         assertThat(routingRules.getRules().size()).isEqualTo(2);
+        
         lastRule = routingRules.getRules().get(routingRules.getRules().size() - 1);
+        
         assertThat(lastRule.getRepositoryId()).isEqualTo("group-releases-2-updated");
         assertThat(lastRule.getPattern()).isEqualTo(".*some.test-updated");
         assertThat(lastRule.getType()).isEqualTo(RoutingRuleTypeEnum.DENY.getType());
@@ -116,6 +129,7 @@ public class RoutingConfigurationControllerTestIT
         removeRoutingRule(acceptHeader, lastRule.getUuid());
 
         routingRules = getRoutingRules();
+        
         assertThat(routingRules).isNotNull();
         assertThat(routingRules.getRules().size()).isEqualTo(1);
     }
@@ -221,13 +235,13 @@ public class RoutingConfigurationControllerTestIT
         String url = getContextBaseUrl();
 
         return given().contentType(MediaType.APPLICATION_JSON_VALUE)
-                .accept(MediaType.APPLICATION_JSON_VALUE)
-                .when()
-                .get(url+'/'+uuid.toString())
-                .then()
-                .statusCode(HttpStatus.OK.value())
-                .extract()
-                .as(MutableRoutingRule.class);
+                      .accept(MediaType.APPLICATION_JSON_VALUE)
+                      .when()
+                      .get(url+'/'+uuid.toString())
+                      .then()
+                      .statusCode(HttpStatus.OK.value())
+                      .extract()
+                      .as(MutableRoutingRule.class);
     }
 
 }
