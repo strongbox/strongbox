@@ -41,13 +41,17 @@ public class PypiWheelDependencyFormatter
     return PypiLayoutProvider.ALIAS;
   }
 
+  /**
+  * This method takes in a set of Pypi Artifact Coordinates and returns the properly formatted dependency snippet
+  * ex: Django>=1.8.4
+  **/
   @Override
   public String getDependencySnippet(ArtifactCoordinates input_coordinates)
   {
     PypiWheelArtifactCoordinates coordinates = (PypiWheelArtifactCoordinates) input_coordinates;
-
     String version = coordinates.getVersion();
     String sb;
+    
     if (version.charAt(version.length() - 1) == '*')
     {
       sb = coordinates.getID() + "==" + version;
