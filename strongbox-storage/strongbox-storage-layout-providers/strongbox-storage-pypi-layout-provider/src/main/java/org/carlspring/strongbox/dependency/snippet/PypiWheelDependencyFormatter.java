@@ -54,18 +54,8 @@ public class PypiWheelDependencyFormatter
   public String getDependencySnippet(ArtifactCoordinates input_coordinates)
   {
     PypiWheelArtifactCoordinates coordinates = (PypiWheelArtifactCoordinates) input_coordinates;
-    String version = coordinates.getVersion();
-    String sb;
-    
-    if (version.charAt(version.length() - 1) == '*')
-    {
-      sb = coordinates.getID() + "==" + version;
-    }
-    else
-    {
-      sb = coordinates.getID() + ">=" + version;
-    }
 
+    sb = coordinates.getID() + " == " + coordinates.getVersion();
     return sb;
   }
 }
