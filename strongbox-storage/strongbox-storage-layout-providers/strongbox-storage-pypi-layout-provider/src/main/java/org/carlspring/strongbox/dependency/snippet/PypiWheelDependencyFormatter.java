@@ -48,13 +48,13 @@ public class PypiWheelDependencyFormatter
 
     String version = coordinates.getVersion();
     String sb;
-    if (version.substring(version.length() - 1) == "*")
+    if (version.charAt(version.length() - 1) == '*')
     {
-      sb = coordinates.getID() + "==" + coordinates.getVersion();
+      sb = coordinates.getID() + "==" + version;
     }
     else
     {
-      sb = coordinates.getID() + ">=" + coordinates.getVersion();
+      sb = coordinates.getID() + ">=" + version;
     }
 
     return sb;
