@@ -11,7 +11,7 @@ import org.semver.Version;
 import org.apache.commons.lang3.StringUtils;
 
 /**
- * Represents {@link ArtifactCoordinates} for PyPi repository
+ * This class is an {@link ArtifactCoordinates} implementation for pypi artifacts
  * 
  * Proper path for this coordinates is in the format of: 
  * {distribution}-{version}(-{build tag})?-{python tag}-{abi tag}-{platform tag}.whl.
@@ -29,26 +29,31 @@ public class PypiWheelArtifactCoordinates
 {
 
     public static final String LAYOUT_NAME = "PyPi";
+    
     public static final String LAYOUT_ALIAS = "pypi";
 
     public static final String DISTRIBUTION = "distribution";
+    
     public static final String VERSION = "version";
+    
     public static final String BUILD_TAG = "build_tag";
-    public static final String LANG_IMPL_VERSION_TAG = "languageImplementationVersion_tag";
-    private static final String ABI_TAG = "abi_tag";
-    private static final String PLATFORM_TAG = "platform_tag";
+    
+    public static final String LANGUAGE_IMPLEMENTATION_VERSION_TAG = "languageImplementationVersion_tag";
+    
+    public static final String ABI_TAG = "abi_tag";
+    
+    public static final String PLATFORM_TAG = "platform_tag";
 
     /**
      * This method takes in all artifact coordinates of a PyPi Wheel filename, with build being 
      * the empty string if it is not included in the filename
      * 
-     * @param distribution: Uniquely identifying artifact coordinate (required)
-     * @param version: Packages current version (required)
-     * @param build: Build_tag parameter (optional)
-     * @param languageImplementationVersion: Language and Implementation version argument (required)
-     * @param abi: ABI tag parameter (required)
-     * @param platform: Platform tag parameter (required)
-     * @return bar Returns bar
+     * @param distribution Uniquely identifying artifact coordinate (required)
+     * @param version Packages current version (required)
+     * @param build Build_tag parameter (optional)
+     * @param languageImplementationVersion Language and Implementation version argument (required)
+     * @param abi ABI tag parameter (required)
+     * @param platform Platform tag parameter (required)
      */
     public PypiWheelArtifactCoordinates(String distribution,
                                         String version,
@@ -58,12 +63,12 @@ public class PypiWheelArtifactCoordinates
                                         String platform)
     {
         // if any of the required arguments are empty, throw an error
-        if (distribution == "" || version == "" || languageImplementationVersion == "" || abi == "" || platform == "")
+        if (StringUtils.isBlank(distribution) || StringUtils.isBlank(version) || StringUtils.isBlank(languageImplementationVersion) || StringUtils.isBlank(abi) || StringUtils.isBlank(platform))
         {
             throw new IllegalArgumentException("The distribution, version, language_implementation_version_tag, abi_tag, and platform_tag are mandatory fields.");
         }
 
-        if (build != "" && !Character.isDigit(build.charAt(0)))
+        if (!StringUtils.isBlank(build) && !Character.isDigit(build.charAt(0)))
         {
             throw new IllegalArgumentException("Illegal build tag!");
         }
@@ -77,7 +82,7 @@ public class PypiWheelArtifactCoordinates
     }
 
     /**
-     * @param path: The filename of the PyPi Wheel package
+     * @param path The filename of the PyPi Wheel package
      * @return Returns a PyPiWheelArtifactCoordinates object with all included coordinates set
      */
     public static PypiWheelArtifactCoordinates parse(String path)
@@ -95,7 +100,7 @@ public class PypiWheelArtifactCoordinates
     }
 
     /**
-     * @param id: DISTRIBUTION coordinate will take this value
+     * @param id DISTRIBUTION coordinate will take this value
      */
     @Override
     public void setId(String id)
@@ -113,7 +118,7 @@ public class PypiWheelArtifactCoordinates
     }
 
     /**
-     * @param version: VERSION coordinate takes this value
+     * @param version VERSION coordinate takes this value
      */
     @Override
     public void setVersion(String version)
@@ -131,7 +136,7 @@ public class PypiWheelArtifactCoordinates
     }
 
     /**
-     * @param build: BUILD_TAG coordinate will take this value
+     * @param build BUILD_TAG coordinate will take this value
      */
     public void setBuild(String build)
     {
@@ -139,20 +144,20 @@ public class PypiWheelArtifactCoordinates
     }
 
     /**
-     * @return Returns the LANG_IMPL_VERSION_TAG coordinate value
+     * @return Returns the LANGUAGE_IMPLEMENTATION_VERSION_TAG coordinate value
      */
     @ArtifactLayoutCoordinate
     public String getLanguageImplementationVersion()
     {
-        return getCoordinate(LANG_IMPL_VERSION_TAG);
+        return getCoordinate(LANGUAGE_IMPLEMENTATION_VERSION_TAG);
     }
 
     /**
-     * @param lang: LANG_IMPL_VERSION_TAG takes this value
+     * @param lang LANGUAGE_IMPLEMENTATION_VERSION_TAG takes this value
      */
     public void setLanguageImplementationVersion(String lang)
     {
-        setCoordinate(LANG_IMPL_VERSION_TAG, lang);
+        setCoordinate(LANGUAGE_IMPLEMENTATION_VERSION_TAG, lang);
     }
 
     /**
@@ -165,7 +170,7 @@ public class PypiWheelArtifactCoordinates
     }
 
     /**
-     * @param abi: ABI_TAG coordinate takes this value
+     * @param abi ABI_TAG coordinate takes this value
      */
     public void setAbi(String abi)
     {
@@ -182,7 +187,7 @@ public class PypiWheelArtifactCoordinates
     }
 
     /**
-     * @param platform: PLATFORM_TAG coordinate takes this value
+     * @param platform PLATFORM_TAG coordinate takes this value
      */
     public void setPlatform(String platform)
     {

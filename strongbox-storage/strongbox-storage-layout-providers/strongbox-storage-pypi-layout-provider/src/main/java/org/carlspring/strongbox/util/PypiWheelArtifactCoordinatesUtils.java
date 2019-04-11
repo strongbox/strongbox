@@ -15,7 +15,7 @@ public class PypiWheelArtifactCoordinatesUtils
      * 
      * Format of Wheel: {distribution}-{version}(-{build tag})?-{python tag}-{abi tag}-{platform tag}.whl.
      * 
-     * @param path: The filename of the PyPi Wheel artifact
+     * @param path The filename of the PyPi Wheel artifact
      * @return Returns a PypiWheelArtifactCoordinate object with all coordinates in the filename set
      */
     public static PypiWheelArtifactCoordinates parse(String path)
