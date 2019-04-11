@@ -36,13 +36,13 @@ public class PypiWheelArtifactCoordinates
     
     public static final String VERSION = "version";
     
-    public static final String BUILD_TAG = "build_tag";
+    public static final String BUILD = "build";
     
-    public static final String LANGUAGE_IMPLEMENTATION_VERSION_TAG = "languageImplementationVersion_tag";
+    public static final String LANGUAGE_IMPLEMENTATION_VERSION = "languageImplementationVersion";
     
-    public static final String ABI_TAG = "abi_tag";
+    public static final String ABI = "abi";
     
-    public static final String PLATFORM_TAG = "platform_tag";
+    public static final String PLATFORM = "platform";
 
     /**
      * This method takes in all artifact coordinates of a PyPi Wheel filename, with build being 
@@ -65,7 +65,7 @@ public class PypiWheelArtifactCoordinates
         // if any of the required arguments are empty, throw an error
         if (StringUtils.isBlank(distribution) || StringUtils.isBlank(version) || StringUtils.isBlank(languageImplementationVersion) || StringUtils.isBlank(abi) || StringUtils.isBlank(platform))
         {
-            throw new IllegalArgumentException("The distribution, version, language_implementation_version_tag, abi_tag, and platform_tag are mandatory fields.");
+            throw new IllegalArgumentException("The distribution, version, languageImplementationVersion, abi, and platform fields are mandatory.");
         }
 
         if (!StringUtils.isBlank(build) && !Character.isDigit(build.charAt(0)))
@@ -127,71 +127,71 @@ public class PypiWheelArtifactCoordinates
     }
 
     /**
-     * @return Returns the BUILD_TAG coordinate value
+     * @return Returns the BUILD coordinate value
      */
     @ArtifactLayoutCoordinate
     public String getBuild()
     {
-        return getCoordinate(BUILD_TAG);
+        return getCoordinate(BUILD);
     }
 
     /**
-     * @param build BUILD_TAG coordinate will take this value
+     * @param build BUILD coordinate will take this value
      */
     public void setBuild(String build)
     {
-        setCoordinate(BUILD_TAG, build);
+        setCoordinate(BUILD, build);
     }
 
     /**
-     * @return Returns the LANGUAGE_IMPLEMENTATION_VERSION_TAG coordinate value
+     * @return Returns the LANGUAGE_IMPLEMENTATION_VERSION coordinate value
      */
     @ArtifactLayoutCoordinate
     public String getLanguageImplementationVersion()
     {
-        return getCoordinate(LANGUAGE_IMPLEMENTATION_VERSION_TAG);
+        return getCoordinate(LANGUAGE_IMPLEMENTATION_VERSION);
     }
 
     /**
-     * @param lang LANGUAGE_IMPLEMENTATION_VERSION_TAG takes this value
+     * @param lang LANGUAGE_IMPLEMENTATION_VERSION takes this value
      */
     public void setLanguageImplementationVersion(String lang)
     {
-        setCoordinate(LANGUAGE_IMPLEMENTATION_VERSION_TAG, lang);
+        setCoordinate(LANGUAGE_IMPLEMENTATION_VERSION, lang);
     }
 
     /**
-     * @return Returns the ABI_TAG coordinate value
+     * @return Returns the ABI coordinate value
      */
     @ArtifactLayoutCoordinate
     public String getAbi()
     {
-        return getCoordinate(ABI_TAG);
+        return getCoordinate(ABI);
     }
 
     /**
-     * @param abi ABI_TAG coordinate takes this value
+     * @param abi ABI coordinate takes this value
      */
     public void setAbi(String abi)
     {
-        setCoordinate(ABI_TAG, abi);
+        setCoordinate(ABI, abi);
     }
 
     /**
-     * @return Returns the PLATFORM_TAG coordinate value
+     * @return Returns the PLATFORM coordinate value
      */
     @ArtifactLayoutCoordinate
     public String getPlatform()
     {
-        return getCoordinate(PLATFORM_TAG);
+        return getCoordinate(PLATFORM);
     }
 
     /**
-     * @param platform PLATFORM_TAG coordinate takes this value
+     * @param platform PLATFORM coordinate takes this value
      */
     public void setPlatform(String platform)
     {
-        setCoordinate(PLATFORM_TAG, platform);
+        setCoordinate(PLATFORM, platform);
     }
 
     /**
@@ -200,7 +200,7 @@ public class PypiWheelArtifactCoordinates
     @Override
     public String toPath()
     {
-        // if optional BUILD_TAG coordinate is empty, don't include it in the reconstruction
+        // if optional BUILD coordinate is empty, don't include it in the reconstruction
         if (StringUtils.isBlank(getBuild()))
         {
             return String.format("%s-%s-%s-%s-%s", getId(), getVersion(), getLanguageImplementationVersion(), getAbi(), getPlatform()) + ".whl";
