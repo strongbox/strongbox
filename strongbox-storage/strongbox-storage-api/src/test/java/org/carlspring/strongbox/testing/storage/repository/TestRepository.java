@@ -23,7 +23,7 @@ import org.carlspring.strongbox.storage.repository.RepositoryPolicyEnum;
  * @author sbespalov
  *
  */
-@Target(ElementType.PARAMETER)
+@Target({ElementType.PARAMETER, ElementType.ANNOTATION_TYPE})
 @Retention(RetentionPolicy.RUNTIME)
 @Documented
 public @interface TestRepository

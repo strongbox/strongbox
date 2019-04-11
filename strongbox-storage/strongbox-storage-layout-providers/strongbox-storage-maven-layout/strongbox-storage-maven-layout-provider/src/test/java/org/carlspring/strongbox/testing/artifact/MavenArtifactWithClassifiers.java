@@ -1,6 +1,7 @@
 package org.carlspring.strongbox.testing.artifact;
 
 import static java.lang.annotation.ElementType.PARAMETER;
+import static java.lang.annotation.ElementType.ANNOTATION_TYPE;
 import static java.lang.annotation.RetentionPolicy.RUNTIME;
 
 import java.lang.annotation.Documented;
@@ -19,7 +20,7 @@ import org.springframework.core.annotation.AliasFor;
  */
 @Documented
 @Retention(RUNTIME)
-@Target(PARAMETER)
+@Target({PARAMETER, ANNOTATION_TYPE})
 @TestArtifact(generator = MavenArtifactGenerator.class, strategy = MavenArtifactWithClassifiersGeneratorStrategy.class)
 public @interface MavenArtifactWithClassifiers
 {
@@ -40,12 +41,12 @@ public @interface MavenArtifactWithClassifiers
      * The artifact "GA" (ex. "org.carlspring.test:test-artifact").
      */
     @AliasFor(annotation = TestArtifact.class)
-    String id();
+    String id() default "";
 
     /**
      * The {@link MavenArtifactCoordinates} versions.
      */
     @AliasFor(annotation = TestArtifact.class)
-    String[] versions();
+    String[] versions() default {};
 
 }
