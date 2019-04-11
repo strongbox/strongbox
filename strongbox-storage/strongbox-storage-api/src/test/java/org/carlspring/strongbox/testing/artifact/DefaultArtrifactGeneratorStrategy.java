@@ -16,7 +16,5 @@ public class DefaultArtrifactGeneratorStrategy implements ArtifactGeneratorStrat
     {
         return artifactGenerator.generateArtifact(id, version, size);
     }
-
-    
     
 }
