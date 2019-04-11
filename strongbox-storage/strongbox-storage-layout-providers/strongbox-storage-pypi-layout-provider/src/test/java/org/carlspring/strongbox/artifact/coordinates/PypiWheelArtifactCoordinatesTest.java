@@ -2,7 +2,8 @@ package org.carlspring.strongbox.artifact.coordinates;
 
 import org.carlspring.strongbox.artifact.coordinates.PypiWheelArtifactCoordinates;
 import org.junit.jupiter.api.Test;
-import static org.junit.jupiter.api.Assertions.*;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 import java.util.*; 
 
 /**
@@ -13,6 +14,7 @@ import java.util.*;
 public class PypiWheelArtifactCoordinatesTest
 {
     private ArrayList<ArrayList<String>> parsedWheels = new ArrayList<ArrayList<String>>();
+    
     private ArrayList<String> wheelExamples = new ArrayList<String>();
 
     public PypiWheelArtifactCoordinatesTest()
