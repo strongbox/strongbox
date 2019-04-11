@@ -43,7 +43,8 @@ public class PypiWheelDependencyFormatter
 
   /**
   * This method takes in a set of Pypi Artifact Coordinates and returns the properly formatted dependency snippet
-  * ex: Django>=1.8.4
+  * @param a PyPiWheelArtifactCoordinates object
+  * @return a string representing a properly formatted dependency snippet
   **/
   @Override
   public String getDependencySnippet(ArtifactCoordinates input_coordinates)
