@@ -193,7 +193,7 @@ public class ArtifactMetadataServiceSnapshotsTest
     @Test
     @ExtendWith({ RepositoryManagementTestExecutionListener.class, ArtifactManagementTestExecutionListener.class })
     public void testSnapshotWithoutTimestampMetadataRebuild(@MavenSnapshotRepository Repository repository,
-                                                            @MavenArtifactWithClassifiers(repository = REPOSITORY_SNAPSHOTS, id = "org.carlspring.strongbox.snapshots:metadata", versions = "2.0-SNAPSHOT") List<Path> snapshotArtifactPath)
+                                                            @MavenArtifactWithClassifiers(repository = REPOSITORY_SNAPSHOTS, id = "org.carlspring.strongbox.snapshots:metadata", versions = "2.0-SNAPSHOT") Path snapshotArtifactPath)
             throws IOException, XmlPullParserException, NoSuchAlgorithmException
     {
         String version = "2.0-SNAPSHOT";
@@ -232,7 +232,7 @@ public class ArtifactMetadataServiceSnapshotsTest
     @Test
     @ExtendWith({ RepositoryManagementTestExecutionListener.class, ArtifactManagementTestExecutionListener.class })
     public void testSnapshotPluginMetadataRebuild(@MavenSnapshotRepository Repository repository,
-                                                  @MavenPluginArtifact(repository = REPOSITORY_SNAPSHOTS, id = "org.carlspring.strongbox.maven:strongbox-metadata-plugin", versions = "1.1-20180328.195810-1") List<Path> pluginSnapshotPath)
+                                                  @MavenPluginArtifact(repository = REPOSITORY_SNAPSHOTS, id = "org.carlspring.strongbox.maven:strongbox-metadata-plugin", versions = "1.1-20180328.195810-1") Path pluginSnapshotPath)
             throws IOException, XmlPullParserException, NoSuchAlgorithmException
     {
         artifactMetadataService.rebuildMetadata(STORAGE0,
@@ -257,7 +257,7 @@ public class ArtifactMetadataServiceSnapshotsTest
     @Test
     @ExtendWith({ RepositoryManagementTestExecutionListener.class, ArtifactManagementTestExecutionListener.class })
     public void testMetadataMerge(@MavenSnapshotRepository Repository repository,
-                                  @MavenArtifactWithClassifiers(repository = REPOSITORY_SNAPSHOTS, id = "org.carlspring.strongbox:strongbox-metadata-merge", versions = "2.0-20180328.195810-1") List<Path> snapshotArtifact)
+                                  @MavenArtifactWithClassifiers(repository = REPOSITORY_SNAPSHOTS, id = "org.carlspring.strongbox:strongbox-metadata-merge", versions = "2.0-20180328.195810-1") Path snapshotArtifact)
             throws IOException, XmlPullParserException, NoSuchAlgorithmException, ProviderImplementationException
     {
         // Generate a proper maven-metadata.xml
@@ -284,7 +284,7 @@ public class ArtifactMetadataServiceSnapshotsTest
         mergeMetadata.setVersioning(appendVersioning);
 
         // Merge
-        RepositoryPath snapshotPath = (RepositoryPath) snapshotArtifact.iterator().next().normalize();
+        RepositoryPath snapshotPath = (RepositoryPath) snapshotArtifact.normalize();
         MavenArtifact mergeArtifact = MavenArtifactUtils.convertPathToArtifact(snapshotPath);
         artifactMetadataService.mergeMetadata(mergeArtifact, mergeMetadata);
 
