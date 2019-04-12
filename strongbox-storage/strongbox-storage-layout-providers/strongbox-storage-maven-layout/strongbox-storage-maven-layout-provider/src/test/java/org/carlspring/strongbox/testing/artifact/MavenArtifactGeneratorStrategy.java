@@ -27,6 +27,7 @@ public class MavenArtifactGeneratorStrategy implements ArtifactGeneratorStrategy
         {
             String gavtc = String.format("%s:%s:maven-plugin", id, version);
             Artifact pluginArtifact = ArtifactUtils.getArtifactFromGAVTC(gavtc);
+            
             try
             {
                 artifactGenerator.generate(pluginArtifact);
@@ -35,6 +36,7 @@ public class MavenArtifactGeneratorStrategy implements ArtifactGeneratorStrategy
             {
                 throw new IOException(e);
             }
+            
             result = artifactGenerator.getBasedirPath().resolve(MavenArtifactUtils.convertArtifactToPath(pluginArtifact));
         }
         else
@@ -61,9 +63,6 @@ public class MavenArtifactGeneratorStrategy implements ArtifactGeneratorStrategy
         }
 
         return result;
-
     }
-
-    
     
 }
