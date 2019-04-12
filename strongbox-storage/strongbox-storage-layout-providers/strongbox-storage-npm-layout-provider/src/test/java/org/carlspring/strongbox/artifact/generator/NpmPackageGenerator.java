@@ -42,10 +42,6 @@ public class NpmPackageGenerator implements ArtifactGenerator
 
     private ObjectMapper mapper = new ObjectMapper();
 
-    public NpmPackageGenerator()
-    {
-    }
-
     public NpmPackageGenerator(String basedir)
     {
         super();
@@ -56,7 +52,6 @@ public class NpmPackageGenerator implements ArtifactGenerator
 
     public NpmPackageGenerator(Path basedir)
     {
-        super();
         this.basePath = basedir;
     }
 
@@ -81,8 +76,17 @@ public class NpmPackageGenerator implements ArtifactGenerator
                                  int size)
             throws IOException
     {
-        new NpmPackageGenerator(Paths.get(uri));
+        buildPublishJson();
 
+        return getPackagePath();
+    }
+
+    @Override
+    public Path generateArtifact(String id,
+                                 String version,
+                                 int size)
+            throws IOException
+    {
         buildPublishJson();
 
         return getPackagePath();

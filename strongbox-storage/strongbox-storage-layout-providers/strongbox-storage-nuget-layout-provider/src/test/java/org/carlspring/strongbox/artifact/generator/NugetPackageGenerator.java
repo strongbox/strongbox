@@ -76,7 +76,7 @@ public class NugetPackageGenerator implements ArtifactGenerator
                                  int size)
             throws IOException
     {
-        NugetArtifactCoordinates coordinates = NugetArtifactCoordinates.parse(Paths.get(uri).toString());
+        NugetArtifactCoordinates coordinates = NugetArtifactCoordinates.parse(uri.toString());
 
         try
         {
@@ -87,10 +87,25 @@ public class NugetPackageGenerator implements ArtifactGenerator
             throw new IOException(e);
         }
 
-        return basedir.resolve(coordinates.getId())
-                      .resolve(coordinates.getVersion())
-                      .normalize()
-                      .toAbsolutePath();
+        return basedir.resolve(coordinates.toPath()).normalize().toAbsolutePath();
+    }
+
+    @Override
+    public Path generateArtifact(String id,
+                                 String version,
+                                 int size)
+            throws IOException
+    {
+        try
+        {
+            generateNugetPackage(id, version);
+        }
+        catch(JAXBException | NoSuchAlgorithmException | NugetFormatException e)
+        {
+            throw new IOException(e);
+        }
+
+        return basedir.resolve(id).resolve(version).normalize().toAbsolutePath();
     }
 
     public void generateNugetPackage(String id,
