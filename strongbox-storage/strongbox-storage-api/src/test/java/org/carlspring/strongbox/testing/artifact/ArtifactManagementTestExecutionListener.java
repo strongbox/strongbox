@@ -2,7 +2,6 @@ package org.carlspring.strongbox.testing.artifact;
 
 import static org.carlspring.strongbox.testing.artifact.TestArtifactContext.id;
 
-import java.lang.annotation.Annotation;
 import java.lang.reflect.InvocationHandler;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
@@ -24,7 +23,6 @@ import org.junit.jupiter.api.extension.ExtensionContext;
 import org.junit.jupiter.api.extension.ParameterContext;
 import org.junit.jupiter.api.extension.ParameterResolutionException;
 import org.springframework.core.annotation.AnnotatedElementUtils;
-import org.springframework.core.annotation.AnnotationAttributes;
 
 /**
  * @author sbespalov
