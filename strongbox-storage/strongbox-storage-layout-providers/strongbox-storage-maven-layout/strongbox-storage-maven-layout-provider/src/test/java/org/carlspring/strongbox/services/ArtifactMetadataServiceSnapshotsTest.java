@@ -70,7 +70,7 @@ public class ArtifactMetadataServiceSnapshotsTest
     @Test
     @ExtendWith({ RepositoryManagementTestExecutionListener.class, ArtifactManagementTestExecutionListener.class })
     public void testSnapshotMetadataRebuild(@MavenSnapshotRepository Repository repository,
-                                            @MavenSnapshotArtifactWithClassifiers(id = "org.carlspring.strongbox:strongbox-metadata") List<Path> snapshotArtifacts)
+                                            @MavenSnapshotArtifactsWithClassifiers(id = "org.carlspring.strongbox:strongbox-metadata") List<Path> snapshotArtifacts)
             throws IOException, XmlPullParserException, NoSuchAlgorithmException
     {
         artifactMetadataService.rebuildMetadata(STORAGE0, REPOSITORY_SNAPSHOTS, ARTIFACT_BASE_PATH_STRONGBOX_METADATA);
@@ -93,7 +93,7 @@ public class ArtifactMetadataServiceSnapshotsTest
     @Test
     @ExtendWith({ RepositoryManagementTestExecutionListener.class, ArtifactManagementTestExecutionListener.class })
     public void testDeleteVersionFromMetadata(@MavenSnapshotRepository Repository repository,
-                                              @MavenSnapshotArtifactWithClassifiers(id = "org.carlspring.strongbox:deleted") List<Path> snapshotArtifacts)
+                                              @MavenSnapshotArtifactsWithClassifiers(id = "org.carlspring.strongbox:deleted") List<Path> snapshotArtifacts)
             throws IOException, XmlPullParserException, NoSuchAlgorithmException
     {
         String artifactPath = "org/carlspring/strongbox/deleted";
@@ -120,7 +120,7 @@ public class ArtifactMetadataServiceSnapshotsTest
     @Test
     @ExtendWith({ RepositoryManagementTestExecutionListener.class, ArtifactManagementTestExecutionListener.class })
     public void testAddTimestampedSnapshotVersionToMetadata(@MavenSnapshotRepository Repository repository,
-                                                            @MavenSnapshotArtifactWithClassifiers(id = "org.carlspring.strongbox:added") List<Path> snapshotArtifacts)
+                                                            @MavenSnapshotArtifactsWithClassifiers(id = "org.carlspring.strongbox:added") List<Path> snapshotArtifacts)
             throws IOException, XmlPullParserException, NoSuchAlgorithmException
     {
         
@@ -161,7 +161,7 @@ public class ArtifactMetadataServiceSnapshotsTest
     @Test
     @ExtendWith({ RepositoryManagementTestExecutionListener.class, ArtifactManagementTestExecutionListener.class })
     public void testDeleteTimestampedSnapshotVersionFromMetadata(@MavenSnapshotRepository Repository repository,
-                                                                 @MavenSnapshotArtifactWithClassifiers(id = "org.carlspring.strongbox:deleted") List<Path> snapshotArtifacts)
+                                                                 @MavenSnapshotArtifactsWithClassifiers(id = "org.carlspring.strongbox:deleted") List<Path> snapshotArtifacts)
             throws IOException, XmlPullParserException, NoSuchAlgorithmException
     {
         String artifactPath = "org/carlspring/strongbox/deleted";
@@ -332,7 +332,7 @@ public class ArtifactMetadataServiceSnapshotsTest
                                                "1.0-20180328.195810-3",
                                                "1.0-20180328.195810-4",
                                                "1.0-20180328.195810-5" })
-    private static @interface MavenSnapshotArtifactWithClassifiers
+    private static @interface MavenSnapshotArtifactsWithClassifiers
     {
 
         @AliasFor(annotation = MavenTestArtifact.class)
