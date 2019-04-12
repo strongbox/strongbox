@@ -27,7 +27,7 @@ import org.carlspring.strongbox.storage.repository.Repository;
  * @author sbespalov
  *
  */
-@Target(ElementType.PARAMETER)
+@Target({ElementType.PARAMETER, ElementType.ANNOTATION_TYPE})
 @Retention(RetentionPolicy.RUNTIME)
 @Documented
 public @interface TestArtifact
@@ -63,6 +63,11 @@ public @interface TestArtifact
      */
     Class<? extends ArtifactGenerator> generator();
 
+    /**
+     * {@link ArtifactGeneratorStrategy} class to use.
+     */
+    Class<? extends ArtifactGeneratorStrategy<?>> strategy() default DefaultArtrifactGeneratorStrategy.class;    
+    
     /**
      * Artifact size in bytes.
      */

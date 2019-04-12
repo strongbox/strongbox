@@ -109,6 +109,13 @@ public class RepositoryPathResolver
 
         }
 
+        @Override
+        public RepositoryPath normalize()
+        {
+            RepositoryPath target = super.normalize();
+            return new CachedRepositoryPath(target);
+        }
+        
     }
 
 }

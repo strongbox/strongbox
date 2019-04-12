@@ -37,16 +37,22 @@ public class TestArtifactContext implements AutoCloseable
     private static final Logger logger = LoggerFactory.getLogger(TestArtifactContext.class);
 
     private final TestArtifact testArtifact;
+    private final Map<String, Object> attributesMap;
     private final PropertiesBooter propertiesBooter;
     private final ArtifactManagementService artifactManagementService;
     private final RepositoryPathResolver repositoryPathResolver;
     private final TestInfo testInfo;
     private final List<Path> artifactPaths;
     
+    
     private ArtifactGenerator artifactGenerator;
+    @SuppressWarnings("rawtypes")
+    private ArtifactGeneratorStrategy strategy;
     private Path generatorBasePath;
+    
 
     public TestArtifactContext(TestArtifact testArtifact,
+                               Map<String, Object> attributesMap,
                                PropertiesBooter propertiesBooter,
                                ArtifactManagementService artifactManagementService,
                                RepositoryPathResolver repositoryPathResolver,
@@ -54,11 +60,12 @@ public class TestArtifactContext implements AutoCloseable
         throws IOException
     {
         this.testArtifact = testArtifact;
+        this.attributesMap = attributesMap;
         this.propertiesBooter = propertiesBooter;
         this.artifactManagementService = artifactManagementService;
         this.repositoryPathResolver = repositoryPathResolver;
         this.testInfo = testInfo;
-
+        
         artifactPaths = createArtifacts();
     }
 
@@ -103,6 +110,15 @@ public class TestArtifactContext implements AutoCloseable
             return Collections.singletonList(generateArtifact(testArtifact.resource(), testArtifact.size()));
         }
 
+        try
+        {
+            strategy = testArtifact.strategy().newInstance();
+        }
+        catch (InstantiationException|IllegalAccessException e)
+        {
+            throw new IOException(e);
+        }
+        
         if (testArtifact.versions().length == 0)
         {
             throw new IllegalArgumentException(String.format("Versions should be provided for [%s]", testArtifact.id()));
@@ -131,7 +147,8 @@ public class TestArtifactContext implements AutoCloseable
                                   int size)
         throws IOException
     {
-        Path artifactPathLocal = artifactGenerator.generateArtifact(id, version, size);
+        @SuppressWarnings("unchecked")
+        Path artifactPathLocal = strategy.generateArtifact(artifactGenerator, id, version, size, attributesMap);
         if (testArtifact.repository().isEmpty())
         {
             return artifactPathLocal;

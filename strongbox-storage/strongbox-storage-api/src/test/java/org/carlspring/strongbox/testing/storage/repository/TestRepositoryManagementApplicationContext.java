@@ -32,6 +32,7 @@ import org.springframework.beans.factory.config.BeanDefinition;
 import org.springframework.context.ApplicationContext;
 import org.springframework.context.ApplicationContextException;
 import org.springframework.context.annotation.AnnotationConfigApplicationContext;
+import org.springframework.core.annotation.AnnotatedElementUtils;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
 import org.springframework.util.Assert;
 
@@ -114,8 +115,8 @@ public class TestRepositoryManagementApplicationContext extends AnnotationConfig
         int index = parameterContext.getIndex();
         int count = parameterContext.getDeclaringExecutable().getParameterCount();
         extensionsToApply.put(extensionType, index == (count - 1));
-
-        return parameterContext.isAnnotated(extensionType);
+        
+        return AnnotatedElementUtils.isAnnotated(parameterContext.getParameter(), extensionType);
     }
 
     @Override
@@ -311,10 +312,11 @@ public class TestRepositoryManagementApplicationContext extends AnnotationConfig
 
     @Override
     public void register(TestArtifact testArtifact,
+                         Map<String, Object> attributesMap,
                          TestInfo testInfo)
     {
         idSync.putIfAbsent(id(testArtifact), new ReentrantLock());
-        registerBean(id(testArtifact), TestArtifactContext.class, testArtifact, testInfo);
+        registerBean(id(testArtifact), TestArtifactContext.class, testArtifact, attributesMap, testInfo);
         if (testArtifact.repository().isEmpty())
         {
             return;
