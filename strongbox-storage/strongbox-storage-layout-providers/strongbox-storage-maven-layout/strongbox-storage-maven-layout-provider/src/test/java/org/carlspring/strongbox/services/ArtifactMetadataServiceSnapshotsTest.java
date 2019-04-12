@@ -37,8 +37,7 @@ import org.carlspring.strongbox.storage.repository.Repository;
 import org.carlspring.strongbox.storage.repository.RepositoryPolicyEnum;
 import org.carlspring.strongbox.testing.TestCaseWithMavenArtifactGenerationAndIndexing;
 import org.carlspring.strongbox.testing.artifact.ArtifactManagementTestExecutionListener;
-import org.carlspring.strongbox.testing.artifact.MavenArtifactWithClassifiers;
-import org.carlspring.strongbox.testing.artifact.MavenPluginArtifact;
+import org.carlspring.strongbox.testing.artifact.MavenTestArtifact;
 import org.carlspring.strongbox.testing.storage.repository.RepositoryManagementTestExecutionListener;
 import org.carlspring.strongbox.testing.storage.repository.TestRepository;
 import org.codehaus.plexus.util.xml.pull.XmlPullParserException;
@@ -193,7 +192,7 @@ public class ArtifactMetadataServiceSnapshotsTest
     @Test
     @ExtendWith({ RepositoryManagementTestExecutionListener.class, ArtifactManagementTestExecutionListener.class })
     public void testSnapshotWithoutTimestampMetadataRebuild(@MavenSnapshotRepository Repository repository,
-                                                            @MavenArtifactWithClassifiers(repository = REPOSITORY_SNAPSHOTS, id = "org.carlspring.strongbox.snapshots:metadata", versions = "2.0-SNAPSHOT") Path snapshotArtifactPath)
+                                                            @MavenArtifactWithClassifiers(id = "org.carlspring.strongbox.snapshots:metadata", versions = "2.0-SNAPSHOT") Path snapshotArtifactPath)
             throws IOException, XmlPullParserException, NoSuchAlgorithmException
     {
         String version = "2.0-SNAPSHOT";
@@ -232,7 +231,7 @@ public class ArtifactMetadataServiceSnapshotsTest
     @Test
     @ExtendWith({ RepositoryManagementTestExecutionListener.class, ArtifactManagementTestExecutionListener.class })
     public void testSnapshotPluginMetadataRebuild(@MavenSnapshotRepository Repository repository,
-                                                  @MavenPluginArtifact(repository = REPOSITORY_SNAPSHOTS, id = "org.carlspring.strongbox.maven:strongbox-metadata-plugin", versions = "1.1-20180328.195810-1") Path pluginSnapshotPath)
+                                                  @MavenPluginArtifact(id = "org.carlspring.strongbox.maven:strongbox-metadata-plugin", versions = "1.1-20180328.195810-1") Path pluginSnapshotPath)
             throws IOException, XmlPullParserException, NoSuchAlgorithmException
     {
         artifactMetadataService.rebuildMetadata(STORAGE0,
@@ -257,7 +256,7 @@ public class ArtifactMetadataServiceSnapshotsTest
     @Test
     @ExtendWith({ RepositoryManagementTestExecutionListener.class, ArtifactManagementTestExecutionListener.class })
     public void testMetadataMerge(@MavenSnapshotRepository Repository repository,
-                                  @MavenArtifactWithClassifiers(repository = REPOSITORY_SNAPSHOTS, id = "org.carlspring.strongbox:strongbox-metadata-merge", versions = "2.0-20180328.195810-1") Path snapshotArtifact)
+                                  @MavenArtifactWithClassifiers(id = "org.carlspring.strongbox:strongbox-metadata-merge", versions = "2.0-20180328.195810-1") Path snapshotArtifact)
             throws IOException, XmlPullParserException, NoSuchAlgorithmException, ProviderImplementationException
     {
         // Generate a proper maven-metadata.xml
@@ -311,20 +310,49 @@ public class ArtifactMetadataServiceSnapshotsTest
     @Target({ ElementType.PARAMETER, ElementType.ANNOTATION_TYPE })
     @Retention(RetentionPolicy.RUNTIME)
     @Documented
-    @MavenArtifactWithClassifiers(repository = REPOSITORY_SNAPSHOTS, versions = { "1.0-20180328.195810-1",
-                                                                                  "1.0-20180328.195810-2",
-                                                                                  "1.0-20180328.195810-3",
-                                                                                  "1.0-20180328.195810-4",
-                                                                                  "1.0-20180328.195810-5" })
-    private static @interface MavenSnapshotArtifactWithClassifiers
+    @MavenTestArtifact(repository = REPOSITORY_SNAPSHOTS, classifiers = { "javadoc",
+                                                                          "sources",
+                                                                          "source-release" })
+    private static @interface MavenArtifactWithClassifiers
     {
 
-        /**
-         * The artifact "GA" (ex. "org.carlspring.test:test-artifact").
-         */
-        @AliasFor(annotation = MavenArtifactWithClassifiers.class)
+        @AliasFor(annotation = MavenTestArtifact.class)
         String id() default "";
+        
+        @AliasFor(annotation = MavenTestArtifact.class)
+        String[] versions() default {};
 
     }
     
+    @Target({ ElementType.PARAMETER, ElementType.ANNOTATION_TYPE })
+    @Retention(RetentionPolicy.RUNTIME)
+    @Documented
+    @MavenArtifactWithClassifiers(versions = { "1.0-20180328.195810-1",
+                                               "1.0-20180328.195810-2",
+                                               "1.0-20180328.195810-3",
+                                               "1.0-20180328.195810-4",
+                                               "1.0-20180328.195810-5" })
+    private static @interface MavenSnapshotArtifactWithClassifiers
+    {
+
+        @AliasFor(annotation = MavenTestArtifact.class)
+        String id() default "";
+
+    }
+
+    
+    @Target({ ElementType.PARAMETER, ElementType.ANNOTATION_TYPE })
+    @Retention(RetentionPolicy.RUNTIME)
+    @Documented
+    @MavenTestArtifact(repository = REPOSITORY_SNAPSHOTS, packaging = "maven-plugin")
+    private static @interface MavenPluginArtifact
+    {
+
+        @AliasFor(annotation = MavenTestArtifact.class)
+        String id() default "";
+        
+        @AliasFor(annotation = MavenTestArtifact.class)
+        String[] versions() default {};
+
+    }
 }

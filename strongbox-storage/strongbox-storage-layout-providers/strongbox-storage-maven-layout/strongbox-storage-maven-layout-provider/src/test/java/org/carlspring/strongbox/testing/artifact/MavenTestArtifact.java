@@ -21,8 +21,8 @@ import org.springframework.core.annotation.AliasFor;
 @Documented
 @Retention(RUNTIME)
 @Target({PARAMETER, ANNOTATION_TYPE})
-@TestArtifact(generator = MavenArtifactGenerator.class, strategy = MavenPluginArtifactGeneratorStrategy.class)
-public @interface MavenPluginArtifact
+@TestArtifact(generator = MavenArtifactGenerator.class, strategy = MavenArtifactGeneratorStrategy.class)
+public @interface MavenTestArtifact
 {
 
     /**
@@ -48,5 +48,18 @@ public @interface MavenPluginArtifact
      */
     @AliasFor(annotation = TestArtifact.class)
     String[] versions() default {};
+    
+    /**
+     * Maven classifiers ("javadoc","sources", etc.).
+     */
+    String[] classifiers() default {};
+    
+    /**
+     * Maven artifact packaging.
+     * <br>
+     * <br>
+     * <b>TODO:</b> only "maven-plugin" currently supported besides default "jar" packaging
+     */
+    String packaging() default "jar";
 
 }

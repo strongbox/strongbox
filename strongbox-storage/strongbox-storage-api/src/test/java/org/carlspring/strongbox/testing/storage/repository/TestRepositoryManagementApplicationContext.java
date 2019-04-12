@@ -312,10 +312,11 @@ public class TestRepositoryManagementApplicationContext extends AnnotationConfig
 
     @Override
     public void register(TestArtifact testArtifact,
+                         Map<String, Object> attributesMap,
                          TestInfo testInfo)
     {
         idSync.putIfAbsent(id(testArtifact), new ReentrantLock());
-        registerBean(id(testArtifact), TestArtifactContext.class, testArtifact, testInfo);
+        registerBean(id(testArtifact), TestArtifactContext.class, testArtifact, attributesMap, testInfo);
         if (testArtifact.repository().isEmpty())
         {
             return;
