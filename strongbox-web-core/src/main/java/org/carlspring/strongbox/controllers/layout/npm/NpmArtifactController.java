@@ -121,13 +121,6 @@ public class NpmArtifactController extends BaseArtifactController
     @Inject
     private SearchPackagesEventListener searcPackagesEventListener;
     
-    @GetMapping(path = { "{storageId}/{repositoryId}/npm" })
-    public ResponseEntity<String> greet()
-    {
-        // TODO: find out what NPM expect to receive here
-        return ResponseEntity.ok("");
-    }
-
     @GetMapping(path = "{storageId}/{repositoryId}/-/v1/search")
     @PreAuthorize("hasAuthority('ARTIFACTS_VIEW')")
     public void search(@PathVariable(name = "storageId") String storageId,
