@@ -24,11 +24,7 @@ public class PypiWheelDependencyFormatterTest
 
         PypiWheelArtifactCoordinates coordinates;
 
-        // test register
-        formatter.register();
-
         // fake examples
-
         coordinates = PypiWheelArtifactCoordinates.parse("distribution-1.0-1-py27-none-any.whl");
         wheelArtifactcoordinates.add(formatter.getDependencySnippet(coordinates));
 
@@ -120,9 +116,8 @@ public class PypiWheelDependencyFormatterTest
         //bcyrpt
         formattedWheels.add("bcrypt == 3.1.6");
         formattedWheels.add("bcrypt == 3.1.6");
-
-
   }
+
   @Test
   public void testGetDependencySnippet()
   {
