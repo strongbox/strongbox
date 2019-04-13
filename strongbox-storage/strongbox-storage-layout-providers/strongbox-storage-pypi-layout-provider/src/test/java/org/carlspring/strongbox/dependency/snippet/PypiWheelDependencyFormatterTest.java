@@ -13,11 +13,11 @@ import java.util.*;
 */
 public class PypiWheelDependencyFormatterTest
 {
-  private ArrayList<String> wheelArtifactcoordinates = new ArrayList<String>();
-  private ArrayList<String> formattedWheels = new ArrayList<String>();
+    private ArrayList<String> wheelArtifactcoordinates = new ArrayList<String>();
+    private ArrayList<String> formattedWheels = new ArrayList<String>();
 
-  public PypiWheelDependencyFormatterTest()
-  {
+    public PypiWheelDependencyFormatterTest()
+    {
         PypiWheelDependencyFormatter formatter = new PypiWheelDependencyFormatter();
 
         assertNotNull(formatter, "Failed to look up dependency synonym formatter!");
@@ -80,56 +80,56 @@ public class PypiWheelDependencyFormatterTest
 
         // We are now populating formattedWheels with manually pre-parsed coordinate arrays
         constructCorrectSolution();
-  }
-
-  private void constructCorrectSolution()
-  {
-    // We are now populating formattedWheels with manually pre-parsed coordinate arrays
-    //fake examples
-    formattedWheels.add("distribution == 1.0");
-    formattedWheels.add("example_pkg_your_username == 1.5.0");
-    formattedWheels.add("someproject == 1.5.0");
-
-    //six
-    formattedWheels.add("six == 1.12.0");
-
-    //futures
-    formattedWheels.add("futures == 3.2.0");
-
-    //pytz
-    formattedWheels.add("pytz == 2018.9");
-
-    //numpy
-    formattedWheels.add("numpy == 1.16.2");
-
-    //cryptography
-    formattedWheels.add("cryptography == 2.6.1");
-    formattedWheels.add("cryptography == 2.6.1");
-
-    //protobuf
-    formattedWheels.add("protobuf == 3.7.1");
-
-    //virtualenv
-    formattedWheels.add("virtualenv == 16.4.3");
-
-    //coverage
-    formattedWheels.add("coverage == 4.5.3");
-
-    //docker
-    formattedWheels.add("docker == 3.7.2");
-
-    //bcyrpt
-    formattedWheels.add("bcrypt == 3.1.6");
-    formattedWheels.add("bcrypt == 3.1.6");
-  }
-
-  @Test
-  public void testGetDependencySnippet()
-  {
-    for (int i = 0; i < formattedWheels.size(); ++i)
-    {
-      assertEquals(wheelArtifactcoordinates.get(i), formattedWheels.get(i));
     }
-  }
+
+    private void constructCorrectSolution()
+    {
+        // We are now populating formattedWheels with manually pre-parsed coordinate arrays
+        //fake examples
+        formattedWheels.add("distribution == 1.0");
+        formattedWheels.add("example_pkg_your_username == 1.5.0");
+        formattedWheels.add("someproject == 1.5.0");
+
+        //six
+        formattedWheels.add("six == 1.12.0");
+
+        //futures
+        formattedWheels.add("futures == 3.2.0");
+
+        //pytz
+        formattedWheels.add("pytz == 2018.9");
+
+        //numpy
+        formattedWheels.add("numpy == 1.16.2");
+
+        //cryptography
+        formattedWheels.add("cryptography == 2.6.1");
+        formattedWheels.add("cryptography == 2.6.1");
+
+        //protobuf
+        formattedWheels.add("protobuf == 3.7.1");
+
+        //virtualenv
+        formattedWheels.add("virtualenv == 16.4.3");
+
+        //coverage
+        formattedWheels.add("coverage == 4.5.3");
+
+        //docker
+        formattedWheels.add("docker == 3.7.2");
+
+        //bcyrpt
+        formattedWheels.add("bcrypt == 3.1.6");
+        formattedWheels.add("bcrypt == 3.1.6");
+    }
+
+    @Test
+    public void testGetDependencySnippet()
+    {
+        for (int i = 0; i < formattedWheels.size(); ++i)
+        {
+            assertEquals(wheelArtifactcoordinates.get(i), formattedWheels.get(i));
+        }
+    }
 }
 
