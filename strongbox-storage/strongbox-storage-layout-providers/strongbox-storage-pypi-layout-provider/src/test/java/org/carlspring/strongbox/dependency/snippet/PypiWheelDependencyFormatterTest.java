@@ -78,44 +78,49 @@ public class PypiWheelDependencyFormatterTest
         coordinates = PypiWheelArtifactCoordinates.parse("bcrypt-3.1.6-cp34-cp34m-manylinux1_i686.whl");
         wheelArtifactcoordinates.add(formatter.getDependencySnippet(coordinates));
 
-
         // We are now populating formattedWheels with manually pre-parsed coordinate arrays
-        //fake examples
-        formattedWheels.add("distribution == 1.0");
-        formattedWheels.add("example_pkg_your_username == 1.5.0");
-        formattedWheels.add("someproject == 1.5.0");
+        constructCorrectSolution();
+  }
 
-        //six
-        formattedWheels.add("six == 1.12.0");
+  private void constructCorrectSolution()
+  {
+    // We are now populating formattedWheels with manually pre-parsed coordinate arrays
+    //fake examples
+    formattedWheels.add("distribution == 1.0");
+    formattedWheels.add("example_pkg_your_username == 1.5.0");
+    formattedWheels.add("someproject == 1.5.0");
 
-        //futures
-        formattedWheels.add("futures == 3.2.0");
+    //six
+    formattedWheels.add("six == 1.12.0");
 
-        //pytz
-        formattedWheels.add("pytz == 2018.9");
+    //futures
+    formattedWheels.add("futures == 3.2.0");
 
-        //numpy
-        formattedWheels.add("numpy == 1.16.2");
+    //pytz
+    formattedWheels.add("pytz == 2018.9");
 
-        //cryptography
-        formattedWheels.add("cryptography == 2.6.1");
-        formattedWheels.add("cryptography == 2.6.1");
+    //numpy
+    formattedWheels.add("numpy == 1.16.2");
 
-        //protobuf
-        formattedWheels.add("protobuf == 3.7.1");
+    //cryptography
+    formattedWheels.add("cryptography == 2.6.1");
+    formattedWheels.add("cryptography == 2.6.1");
 
-        //virtualenv
-        formattedWheels.add("virtualenv == 16.4.3");
+    //protobuf
+    formattedWheels.add("protobuf == 3.7.1");
 
-        //coverage
-        formattedWheels.add("coverage == 4.5.3");
+    //virtualenv
+    formattedWheels.add("virtualenv == 16.4.3");
 
-        //docker
-        formattedWheels.add("docker == 3.7.2");
+    //coverage
+    formattedWheels.add("coverage == 4.5.3");
 
-        //bcyrpt
-        formattedWheels.add("bcrypt == 3.1.6");
-        formattedWheels.add("bcrypt == 3.1.6");
+    //docker
+    formattedWheels.add("docker == 3.7.2");
+
+    //bcyrpt
+    formattedWheels.add("bcrypt == 3.1.6");
+    formattedWheels.add("bcrypt == 3.1.6");
   }
 
   @Test
