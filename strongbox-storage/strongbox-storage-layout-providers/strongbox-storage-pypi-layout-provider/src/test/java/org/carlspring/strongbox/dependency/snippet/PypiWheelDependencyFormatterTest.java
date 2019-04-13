@@ -3,22 +3,21 @@ package org.carlspring.strongbox.dependency.snippet;
 import org.carlspring.strongbox.artifact.coordinates.PypiWheelArtifactCoordinates;
 import org.carlspring.strongbox.dependency.snippet.PypiWheelDependencyFormatter;
 import org.carlspring.strongbox.providers.layout.PypiLayoutProvider;
+
 import org.junit.jupiter.api.Test;
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.junit.jupiter.api.Assertions.*;
+import javax.inject.Inject;
 import java.util.*;
 
 public class PypiWheelDependencyFormatterTest
 {
   private ArrayList<String> wheelartifactcoordinates = new ArrayList<String>();
   private ArrayList<String> formattedwheels = new ArrayList<String>();
+  @Inject
+  private CompatibleDependencyFormatRegistry compatibleDependencyFormatRegistry;
   public PypiWheelDependencyFormatterTest()
   {
-        @Inject
-        private CompatibleDependencyFormatRegistry compatibleDependencyFormatRegistry;
-        
-        DependencySynonymFormatter formatter = compatibleDependencyFormatRegistry.getProviderImplementation(PypiLayoutProvider.ALIAS,
-                                                                                                        PypiLayoutProvider.ALIAS);
+        PypiWheelDependencyFormatter formatter = new PypiWheelDependencyFormatter();
         assertNotNull(formatter, "Failed to look up dependency synonym formatter!");
         PypiWheelArtifactCoordinates coordinates;
         // fake examples
@@ -117,7 +116,7 @@ public class PypiWheelDependencyFormatterTest
 
         for (int i = 0; i < formattedwheels.size(); ++i)
         {
-          assertEquals(wheelartifactcoordinates[i] == formattedwheels[i]);
+          assertEquals(wheelartifactcoordinates.get(i), formattedwheels.get(i));
         }
 
   }
