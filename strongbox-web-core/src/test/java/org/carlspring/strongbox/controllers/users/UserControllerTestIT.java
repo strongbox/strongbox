@@ -354,12 +354,12 @@ public class UserControllerTestIT
     }
 
     @ParameterizedTest
-    @WithUserDetails("maven")
+    @WithUserDetails("admin")
     @ValueSource(strings = { MediaType.APPLICATION_JSON_VALUE,
                              MediaType.TEXT_PLAIN_VALUE })
     void changeOwnUser(String acceptHeader)
     {
-        final String username = "maven";
+        final String username = "admin";
         final String newPassword = "";
         UserForm user = buildUser(username, newPassword);
 
@@ -384,17 +384,27 @@ public class UserControllerTestIT
     @ParameterizedTest
     @ValueSource(strings = { MediaType.APPLICATION_JSON_VALUE,
                              MediaType.TEXT_PLAIN_VALUE })
+    @WithUserDetails("admin")
     void shouldBeAbleToUpdateRoles(String acceptHeader)
     {
-        final String username = "maven";
+        final String username = "test-user";
         final String newPassword = "password";
+
+        UserDto user = new UserDto();
+        user.setEnabled(true);
+        user.setUsername(username);
+        user.setPassword(newPassword);
+        user.setSecurityTokenKey("some-security-token");
+        user.setRoles(ImmutableSet.of(Roles.UI_MANAGER.name()));
+        userService.save(user);
+
         UserForm admin = buildUser(username, newPassword);
 
         User updatedUser = retrieveUserByName(admin.getUsername());
 
-        assertTrue(SetUtils.isEqualSet(updatedUser.getRoles(), ImmutableSet.of(Roles.ADMIN.name())));
+        assertTrue(SetUtils.isEqualSet(updatedUser.getRoles(), ImmutableSet.of(Roles.UI_MANAGER.name())));
 
-        admin.setRoles(ImmutableSet.of("UI_MANAGER"));
+        admin.setRoles(ImmutableSet.of("ADMIN"));
         given().contentType(MediaType.APPLICATION_JSON_VALUE)
                .accept(acceptHeader)
                .body(admin)
@@ -409,10 +419,10 @@ public class UserControllerTestIT
 
         updatedUser = retrieveUserByName(admin.getUsername());
 
-        assertTrue(SetUtils.isEqualSet(updatedUser.getRoles(), ImmutableSet.of("UI_MANAGER")));
+        assertTrue(SetUtils.isEqualSet(updatedUser.getRoles(), ImmutableSet.of("ADMIN")));
 
         // Rollback changes.
-        admin.setRoles(ImmutableSet.of(Roles.ADMIN.name()));
+        admin.setRoles(ImmutableSet.of(Roles.UI_MANAGER.name()));
         given().contentType(MediaType.APPLICATION_JSON_VALUE)
                .accept(acceptHeader)
                .body(admin)
