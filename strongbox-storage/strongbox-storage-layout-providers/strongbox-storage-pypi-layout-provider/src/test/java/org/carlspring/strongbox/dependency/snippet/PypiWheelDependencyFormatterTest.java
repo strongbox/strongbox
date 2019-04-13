@@ -15,6 +15,7 @@ public class PypiWheelDependencyFormatterTest
   private ArrayList<String> formattedwheels = new ArrayList<String>();
   @Inject
   private CompatibleDependencyFormatRegistry compatibleDependencyFormatRegistry;
+  
   public PypiWheelDependencyFormatterTest()
   {
         PypiWheelDependencyFormatter formatter = new PypiWheelDependencyFormatter();
@@ -122,6 +123,5 @@ public class PypiWheelDependencyFormatterTest
         {
           assertEquals(wheelartifactcoordinates.get(i), formattedwheels.get(i));
         }
-
   }
 }
