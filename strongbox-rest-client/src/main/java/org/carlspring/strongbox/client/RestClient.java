@@ -542,25 +542,6 @@ public class RestClient
         }
     }
 
-    public String greet()
-    {
-        String url = getContextBaseUrl() + "/storages/greet";
-        WebTarget resource = getClientInstance().target(url);
-        setupAuthentication(resource);
-
-        Response response = resource.request(MediaType.TEXT_PLAIN).get();
-        if (response.getStatus() != 200)
-        {
-            displayResponseError(response);
-            throw new ServerErrorException(response.getStatus() + " | Unable to greet()",
-                                           Response.Status.INTERNAL_SERVER_ERROR);
-        }
-        else
-        {
-            return response.getEntity().toString();
-        }
-    }
-
     public WebTarget prepareTarget(String arg)
     {
         return setupAuthentication(prepareUnauthenticatedTarget(arg));
