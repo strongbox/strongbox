@@ -51,12 +51,12 @@ public class PypiWheelDependencyFormatter
   * @return a string representing a properly formatted dependency snippet
   **/
   @Override
-  public String getDependencySnippet(ArtifactCoordinates input_coordinates)
+  public String getDependencySnippet(ArtifactCoordinates inputCoordinates)
   {
-    PypiWheelArtifactCoordinates coordinates = (PypiWheelArtifactCoordinates) input_coordinates;
+    PypiWheelArtifactCoordinates coordinates = (PypiWheelArtifactCoordinates) inputCoordinates;
     String sb = coordinates.getId(); 
-    
-    if (!coordinates.getVersion().equals("version"))
+
+    if (!"version".equals(coordinates.getVersion()))
     {
       sb += " == " + coordinates.getVersion();
     }
