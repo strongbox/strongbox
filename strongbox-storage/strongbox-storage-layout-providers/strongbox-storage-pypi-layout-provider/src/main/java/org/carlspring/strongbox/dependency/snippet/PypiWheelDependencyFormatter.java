@@ -25,7 +25,6 @@ public class PypiWheelDependencyFormatter
 
   @Inject
   private CompatibleDependencyFormatRegistry compatibleDependencyFormatRegistry;
-
   @PostConstruct
   @Override
   public void register()
