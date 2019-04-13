@@ -6,16 +6,16 @@ users:
         - ADMIN
       securityTokenKey: admin-secret
     - username: deployer
-      password: $2a$10$WqtVx7Iio0cndyR1lEaKW.SWhUYmF/zHHG5hkAXvH5hUmklM7QfMO
-      roles:
-        - UI_MANAGER
-      securityTokenKey: deployer-secret
-      accessModel:
-        storages:
-          - id: storage0
-            repositories:
-              - id: releases
-                repositoryPrivileges:
-                  - name: ARTIFACTS_DEPLOY
-                  - name: ARTIFACTS_RESOLVE
-
+        password: $2a$10$WqtVx7Iio0cndyR1lEaKW.SWhUYmF/zHHG5hkAXvH5hUmklM7QfMO
+        roles:
+          - UI_MANAGER
+          - ARTIFACTS_MANAGER
+        securityTokenKey: deployer-secret
+        accessModel:
+          storages:
+            - id: storage0
+              repositories:
+                - id: releases
+                  repositoryPrivileges:
+                    - name: ARTIFACTS_DEPLOY
+                    - name: ARTIFACTS_RESOLVE
