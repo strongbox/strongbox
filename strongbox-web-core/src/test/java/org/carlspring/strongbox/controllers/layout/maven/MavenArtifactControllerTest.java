@@ -1100,7 +1100,7 @@ public class MavenArtifactControllerTest
      * repository.
      */
     @Test
-    @WithMockUser(username = "test-user", authorities = "ARTIFACTS_RESOLVE")
+    @WithMockUser(username = "deployer", authorities = "ARTIFACTS_RESOLVE")
     public void testDynamicPrivilegeAssignmentForRepository()
     {
         String url = getContextBaseUrl() + "/storages/" + STORAGE0 + "/" + REPOSITORY_RELEASES;

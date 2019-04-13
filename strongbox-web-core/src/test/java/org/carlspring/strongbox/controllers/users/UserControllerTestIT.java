@@ -18,9 +18,7 @@ import org.carlspring.strongbox.users.service.UserService;
 import org.carlspring.strongbox.users.service.impl.StrongboxUserService.StrongboxUserServiceQualifier;
 
 import javax.inject.Inject;
-import java.util.Collections;
-import java.util.Optional;
-import java.util.Set;
+import java.util.*;
 import java.util.function.Consumer;
 import java.util.stream.Stream;
 
@@ -90,7 +88,7 @@ public class UserControllerTestIT
     @Test
     public void testGetUser()
     {
-        final String username = "test-user";
+        final String username = "deployer";
 
         // By default assignableRoles should not be present in the response.
         given().accept(MediaType.APPLICATION_JSON_VALUE)
@@ -275,7 +273,7 @@ public class UserControllerTestIT
                              MediaType.TEXT_PLAIN_VALUE })
     void updateExistingUserWithNullPassword(String acceptHeader)
     {
-        User mavenUser = retrieveUserByName("test-user");
+        User mavenUser = retrieveUserByName("deployer");
         UserForm input = buildFromUser(mavenUser, null);
         input.setPassword(null);
 
@@ -442,7 +440,7 @@ public class UserControllerTestIT
     }
 
     @Test
-    @WithUserDetails("test-user")
+    @WithUserDetails("deployer")
     public void testUserWithoutUpdateUserRoleShouldNotBeAbleToUpdateSomeoneElsePassword()
     {
         final String username = "admin";
@@ -708,7 +706,7 @@ public class UserControllerTestIT
     @Test
     public void testNotValidMapsShouldNotUpdateAccessModel()
     {
-        String username = "test-user";
+        String username = "deployer";
 
         // load user with custom access model
         UserOutput test = getUser(username);
@@ -743,7 +741,7 @@ public class UserControllerTestIT
     public void testUpdatingAccessModelForNonExistingUserShouldFail()
     {
         // load user with custom access model
-        UserOutput test = getUser("test-user");
+        UserOutput test = getUser("deployer");
 
         logger.debug(test.toString());
 
