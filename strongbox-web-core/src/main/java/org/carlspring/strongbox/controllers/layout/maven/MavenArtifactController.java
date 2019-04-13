@@ -53,6 +53,13 @@ public class MavenArtifactController
     @Inject
     private RepositoryPathResolver repositoryPathResolver;
     
+    @PreAuthorize("authenticated")
+    @RequestMapping(value = "greet", method = RequestMethod.GET)
+    public ResponseEntity greet()
+    {
+        return new ResponseEntity<>("success", HttpStatus.OK);
+    }
+
     @ApiOperation(value = "Used to retrieve an artifact")
     @ApiResponses(value = { @ApiResponse(code = 200, message = ""),
                             @ApiResponse(code = 404, message = "Requested path not found."),
