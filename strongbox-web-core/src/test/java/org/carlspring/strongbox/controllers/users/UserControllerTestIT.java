@@ -433,7 +433,7 @@ public class UserControllerTestIT
     }
 
     @Test
-    @WithUserDetails("test-user")
+    @WithUserDetails("deployer")
     public void testUserWithoutViewUserRoleShouldNotBeAbleToViewUserAccountData()
     {
         given().accept(MediaType.APPLICATION_JSON_VALUE)
