@@ -104,6 +104,7 @@ public class UserControllerTestIT
         user.setUsername(username);
         user.setPassword("test-password");
         user.setSecurityTokenKey("before");
+        user.getAuthorities().add("A");
 
         UserAccessModelDto userAccessModelDto = new UserAccessModelDto();
         UserStorageDto userStorageDto = new UserStorageDto();
@@ -882,12 +883,12 @@ public class UserControllerTestIT
                 .asString();
 
         // retrieve newly created user and store the objectId
-        User createdUser = retrieveUserByName(user.getUsername());
-        assertEquals(testUsername, createdUser.getUsername());
+        UserOutput test = getUser(testUsername);
+        assertEquals(testUsername, test.getUsername());
 
         logger.debug(testUsername);
 
-        AccessModelForm accessModel = buildFromAccessModel(createdUser.getUserAccessModel());
+        AccessModelForm accessModel = buildFromAccessModel(test.getAccessModel());
 
         logger.debug(accessModel.toString());
 
@@ -1007,17 +1008,6 @@ public class UserControllerTestIT
     }
 
     private AccessModelForm buildFromAccessModel(AccessModelOutput accessModel)
-    {
-        AccessModelForm dto = null;
-        if (accessModel != null)
-        {
-            dto = new AccessModelForm();
-            BeanUtils.copyProperties(accessModel, dto);
-        }
-        return dto;
-    }
-
-    private AccessModelForm buildFromAccessModel(UserAccessModelReadContract accessModel)
     {
         AccessModelForm dto = null;
         if (accessModel != null)
