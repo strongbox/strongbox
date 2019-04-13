@@ -403,6 +403,23 @@ public class NugetArtifactController extends BaseArtifactController
         return new ResponseEntity<>(new InputStreamResource(inputStream), HttpStatus.OK);
     }
 
+    /**
+     * This method is used to check storage availability.<br>
+     * For example NuGet pings the root without credentials to determine if the repository is healthy. If this receives
+     * a 401 response then NuGet will prompt for authentication.
+     * 
+     * @return
+     */
+    @ApiOperation(value = "Used to check storage availability")
+    @ApiResponses(value = { @ApiResponse(code = HttpURLConnection.HTTP_OK, message = "Storage available."),
+                            @ApiResponse(code = HttpURLConnection.HTTP_UNAUTHORIZED, message = "Storage requires authorization.") })
+    @GetMapping(path = { "{storageId}/{repositoryId}", "greet" })
+    @PreAuthorize("hasAuthority('ARTIFACTS_DEPLOY')")
+    public ResponseEntity<String> greet()
+    {
+        return new ResponseEntity<>("success", HttpStatus.OK);
+    }
+
     @ApiOperation(value = "Used to deploy a package")
     @ApiResponses(value = { @ApiResponse(code = HttpURLConnection.HTTP_OK, message = "The package was deployed successfully."),
                             @ApiResponse(code = HttpURLConnection.HTTP_INTERNAL_ERROR, message = "An error occurred.") })
