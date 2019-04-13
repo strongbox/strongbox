@@ -9,6 +9,9 @@ import static org.junit.jupiter.api.Assertions.*;
 import javax.inject.Inject;
 import java.util.*;
 
+/**
+*  Class to test the functionality of PypiWheelDependencyFormatter
+*/
 public class PypiWheelDependencyFormatterTest
 {
   private ArrayList<String> wheelartifactcoordinates = new ArrayList<String>();
