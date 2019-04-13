@@ -1,37 +1,24 @@
 package org.carlspring.strongbox.providers.repository;
 
-import org.carlspring.strongbox.artifact.coordinates.MavenArtifactCoordinates;
 import org.carlspring.strongbox.domain.ArtifactEntry;
 import org.carlspring.strongbox.providers.io.RepositoryPath;
 import org.carlspring.strongbox.providers.io.RepositoryPathResolver;
-import org.carlspring.strongbox.providers.layout.Maven2LayoutProvider;
 import org.carlspring.strongbox.providers.repository.proxied.LocalStorageProxyRepositoryExpiredArtifactsCleaner;
-import org.carlspring.strongbox.providers.search.SearchException;
 import org.carlspring.strongbox.services.ArtifactEntryService;
-import org.carlspring.strongbox.storage.repository.MutableRepository;
-import org.carlspring.strongbox.storage.repository.remote.RemoteRepository;
 import org.carlspring.strongbox.storage.repository.remote.heartbeat.RemoteRepositoryAlivenessCacheManager;
 import org.carlspring.strongbox.testing.TestCaseWithMavenArtifactGenerationAndIndexing;
 
 import javax.inject.Inject;
 import javax.inject.Named;
-import java.io.IOException;
 import java.io.InputStream;
-import java.util.LinkedHashSet;
 import java.util.Optional;
-import java.util.Set;
 
 import com.google.common.collect.ImmutableMap;
 import org.apache.commons.lang.time.DateUtils;
-import org.apache.commons.lang3.StringUtils;
 import org.hamcrest.CoreMatchers;
 import org.hamcrest.Matchers;
-import org.junit.jupiter.api.*;
-import org.mockito.ArgumentMatcher;
-import org.mockito.Mockito;
+import org.junit.jupiter.api.AfterEach;
 import static org.hamcrest.MatcherAssert.assertThat;
-import static org.mockito.ArgumentMatchers.argThat;
-import static org.mockito.Matchers.any;
 
 /**
  * @author Przemyslaw Fusik
@@ -60,13 +47,12 @@ abstract class BaseLocalStorageProxyRepositoryExpiredArtifactsCleanerTest
     @AfterEach
     public void cleanup()
     {
-        artifactEntryService.delete(
-                artifactEntryService.findArtifactList(STORAGE_ID,
-                                                      getRepositoryId(),
-                                                      ImmutableMap.of("groupId", getGroupId(),
-                                                                      "artifactId", getArtifactId(),
-                                                                      "version", getVersion()),
-                                                      true));
+        artifactEntryService.delete(artifactEntryService.findArtifactList(STORAGE_ID,
+                                                                          getRepositoryId(),
+                                                                          ImmutableMap.of("groupId", getGroupId(),
+                                                                                          "artifactId", getArtifactId(),
+                                                                                          "version", getVersion()),
+                                                                          true));
     }
 
     protected abstract String getRepositoryId();
