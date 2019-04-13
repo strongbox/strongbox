@@ -11,6 +11,7 @@ import javax.inject.Inject;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Component;
+
 /**
 * This class is an implementation of DependencySynonymFormatter for Pypi artifacts
 *
