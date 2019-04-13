@@ -1,5 +1,6 @@
 package org.carlspring.strongbox.controllers.users;
 
+import org.carlspring.strongbox.authorization.dto.PrivilegeDto;
 import org.carlspring.strongbox.config.IntegrationTest;
 import org.carlspring.strongbox.controllers.users.support.AccessModelOutput;
 import org.carlspring.strongbox.controllers.users.support.RepositoryAccessModelOutput;
@@ -13,7 +14,7 @@ import org.carlspring.strongbox.rest.common.RestAssuredBaseTest;
 import org.carlspring.strongbox.users.domain.Privileges;
 import org.carlspring.strongbox.users.domain.Roles;
 import org.carlspring.strongbox.users.domain.User;
-import org.carlspring.strongbox.users.dto.UserDto;
+import org.carlspring.strongbox.users.dto.*;
 import org.carlspring.strongbox.users.service.UserService;
 import org.carlspring.strongbox.users.service.impl.StrongboxUserService.StrongboxUserServiceQualifier;
 
@@ -33,6 +34,7 @@ import org.junit.jupiter.params.provider.Arguments;
 import org.junit.jupiter.params.provider.MethodSource;
 import org.junit.jupiter.params.provider.ValueSource;
 import org.springframework.beans.BeanUtils;
+import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.security.crypto.password.PasswordEncoder;
@@ -85,10 +87,49 @@ public class UserControllerTestIT
         setContextBaseUrl(getContextBaseUrl() + "/api/users");
     }
 
-    @Test
-    public void testGetUser()
+    @ParameterizedTest
+    @MethodSource("usersProvider")
+    public void testGetUser(String acceptHeader)
     {
-        final String username = "deployer";
+        String username = "test-user-1";
+
+        deleteCreatedUser(username);
+
+        UserDto user = new UserDto();
+        user.setEnabled(true);
+        user.setUsername(username);
+        user.setPassword("test-password");
+        user.setSecurityTokenKey("before");
+
+        UserAccessModelDto userAccessModelDto = new UserAccessModelDto();
+        UserStorageDto userStorageDto = new UserStorageDto();
+        userStorageDto.setStorageId("storage0");
+        UserRepositoryDto userRepositoryDto = new UserRepositoryDto();
+        userRepositoryDto.setRepositoryId("releases");
+        PrivilegeDto repositoryPrivilege = new PrivilegeDto("ARTIFACTS_RESOLVE","ARTIFACTS_RESOLVE");
+        userRepositoryDto.getRepositoryPrivileges().add(repositoryPrivilege);
+        userStorageDto.getRepositories().add(userRepositoryDto);
+        userAccessModelDto.getStorages().add(userStorageDto);
+        user.setUserAccessModel(userAccessModelDto);
+
+        UserForm userForm = buildFromUser(new User(user), u -> u.setEnabled(true));
+
+        // create new user
+        given().contentType(MediaType.APPLICATION_JSON_VALUE)
+                .accept(acceptHeader)
+                .body(userForm)
+                .when()
+                .put(getContextBaseUrl())
+                .peek() // Use peek() to print the output
+                .then()
+                .statusCode(HttpStatus.OK.value()) // check http status code
+                .body(containsString(SUCCESSFUL_CREATE_USER))
+                .extract()
+                .asString();
+
+        // retrieve newly created user and store the objectId
+        User createdUser = retrieveUserByName(user.getUsername());
+        assertEquals(username, createdUser.getUsername());
 
         // By default assignableRoles should not be present in the response.
         given().accept(MediaType.APPLICATION_JSON_VALUE)
@@ -121,6 +162,8 @@ public class UserControllerTestIT
                .body("assignableRoles", hasSize(greaterThan(0)))
                .body("assignablePrivileges", notNullValue())
                .body("assignablePrivileges", hasSize(greaterThan(0)));
+
+        deleteCreatedUser(username);
     }
 
     private void userNotFound(String acceptHeader)
@@ -713,10 +756,52 @@ public class UserControllerTestIT
         assertTrue(repositoryAccess.get().getPrivileges().contains(mockPrivilege));
     }
 
-    @Test
-    public void testNotValidMapsShouldNotUpdateAccessModel()
+    @ParameterizedTest
+    @MethodSource("usersProvider")
+    public void testNotValidMapsShouldNotUpdateAccessModel(String acceptHeader)
     {
-        String username = "deployer";
+        String username = "test-user";
+
+        deleteCreatedUser(username);
+
+        UserDto user = new UserDto();
+        user.setEnabled(true);
+        user.setUsername(username);
+        user.setPassword("test-password");
+        user.setSecurityTokenKey("before");
+
+        UserAccessModelDto userAccessModelDto = new UserAccessModelDto();
+        UserStorageDto userStorageDto = new UserStorageDto();
+        userStorageDto.setStorageId("storage0");
+        UserRepositoryDto userRepositoryDto = new UserRepositoryDto();
+        userRepositoryDto.setRepositoryId("releases");
+        PrivilegeDto repositoryPrivilege = new PrivilegeDto("ARTIFACTS_RESOLVE","ARTIFACTS_RESOLVE");
+        userRepositoryDto.getRepositoryPrivileges().add(repositoryPrivilege);
+        UserPathPrivilegesDto userPathPrivilegesDto = new UserPathPrivilegesDto();
+        userPathPrivilegesDto.setPath("com/carlspring");
+        userPathPrivilegesDto.setWildcard(true);
+        userStorageDto.getRepositories().add(userRepositoryDto);
+        userAccessModelDto.getStorages().add(userStorageDto);
+        user.setUserAccessModel(userAccessModelDto);
+
+        UserForm userForm = buildFromUser(new User(user), u -> u.setEnabled(true));
+
+        // create new user
+        given().contentType(MediaType.APPLICATION_JSON_VALUE)
+                .accept(acceptHeader)
+                .body(userForm)
+                .when()
+                .put(getContextBaseUrl())
+                .peek() // Use peek() to print the output
+                .then()
+                .statusCode(HttpStatus.OK.value()) // check http status code
+                .body(containsString(SUCCESSFUL_CREATE_USER))
+                .extract()
+                .asString();
+
+        // retrieve newly created user and store the objectId
+        User createdUser = retrieveUserByName(user.getUsername());
+        assertEquals(username, createdUser.getUsername());
 
         // load user with custom access model
         UserOutput test = getUser(username);
@@ -745,17 +830,60 @@ public class UserControllerTestIT
                .then()
                .statusCode(HttpStatus.BAD_REQUEST.value())
                .body(containsString(FAILED_UPDATE_ACCESS_MODEL));
+
+        deleteCreatedUser(username);
     }
 
-    @Test
-    public void testUpdatingAccessModelForNonExistingUserShouldFail()
+    @ParameterizedTest
+    @MethodSource("usersProvider")
+    public void testUpdatingAccessModelForNonExistingUserShouldFail(String acceptHeader)
     {
-        // load user with custom access model
-        UserOutput test = getUser("deployer");
+        String testUsername = "test-user";
 
-        logger.debug(test.toString());
+        deleteCreatedUser(testUsername);
 
-        AccessModelForm accessModel = buildFromAccessModel(test.getAccessModel());
+        UserDto user = new UserDto();
+        user.setEnabled(true);
+        user.setUsername(testUsername);
+        user.setPassword("test-password");
+        user.setSecurityTokenKey("before");
+
+        UserAccessModelDto userAccessModelDto = new UserAccessModelDto();
+        UserStorageDto userStorageDto = new UserStorageDto();
+        userStorageDto.setStorageId("storage0");
+        UserRepositoryDto userRepositoryDto = new UserRepositoryDto();
+        userRepositoryDto.setRepositoryId("releases");
+        PrivilegeDto repositoryPrivilege = new PrivilegeDto("ARTIFACTS_RESOLVE","ARTIFACTS_RESOLVE");
+        userRepositoryDto.getRepositoryPrivileges().add(repositoryPrivilege);
+        UserPathPrivilegesDto userPathPrivilegesDto = new UserPathPrivilegesDto();
+        userPathPrivilegesDto.setPath("com/carlspring");
+        userPathPrivilegesDto.setWildcard(true);
+        userStorageDto.getRepositories().add(userRepositoryDto);
+        userAccessModelDto.getStorages().add(userStorageDto);
+        user.setUserAccessModel(userAccessModelDto);
+
+        UserForm userForm = buildFromUser(new User(user), u -> u.setEnabled(true));
+
+        // create new user
+        given().contentType(MediaType.APPLICATION_JSON_VALUE)
+                .accept(acceptHeader)
+                .body(userForm)
+                .when()
+                .put(getContextBaseUrl())
+                .peek() // Use peek() to print the output
+                .then()
+                .statusCode(HttpStatus.OK.value()) // check http status code
+                .body(containsString(SUCCESSFUL_CREATE_USER))
+                .extract()
+                .asString();
+
+        // retrieve newly created user and store the objectId
+        User createdUser = retrieveUserByName(user.getUsername());
+        assertEquals(testUsername, createdUser.getUsername());
+
+        logger.debug(testUsername);
+
+        AccessModelForm accessModel = buildFromAccessModel(createdUser.getUserAccessModel());
 
         logger.debug(accessModel.toString());
 
@@ -784,6 +912,8 @@ public class UserControllerTestIT
                .then()
                .statusCode(HttpStatus.NOT_FOUND.value()) // check http status code
                .body(containsString(NOT_FOUND_USER));
+
+        deleteCreatedUser(testUsername);
     }
 
     private void displayAllUsers()
@@ -873,6 +1003,17 @@ public class UserControllerTestIT
     }
 
     private AccessModelForm buildFromAccessModel(AccessModelOutput accessModel)
+    {
+        AccessModelForm dto = null;
+        if (accessModel != null)
+        {
+            dto = new AccessModelForm();
+            BeanUtils.copyProperties(accessModel, dto);
+        }
+        return dto;
+    }
+
+    private AccessModelForm buildFromAccessModel(UserAccessModelReadContract accessModel)
     {
         AccessModelForm dto = null;
         if (accessModel != null)
