@@ -11,11 +11,3 @@ users:
           - UI_MANAGER
           - ARTIFACTS_MANAGER
         securityTokenKey: deployer-secret
-        accessModel:
-          storages:
-            - id: storage0
-              repositories:
-                - id: releases
-                  repositoryPrivileges:
-                    - name: ARTIFACTS_DEPLOY
-                    - name: ARTIFACTS_RESOLVE
