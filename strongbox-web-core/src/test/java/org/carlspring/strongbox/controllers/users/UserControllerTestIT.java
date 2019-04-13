@@ -103,7 +103,6 @@ public class UserControllerTestIT
         user.setUsername(username);
         user.setPassword("test-password");
         user.setSecurityTokenKey("before");
-        user.getAuthorities().add("A");
 
         UserAccessModelDto userAccessModelDto = new UserAccessModelDto();
         UserStorageDto userStorageDto = new UserStorageDto();
@@ -143,8 +142,6 @@ public class UserControllerTestIT
                .then()
                .statusCode(HttpStatus.OK.value())
                .body("user.username", equalTo(username))
-               .body("user.authorities", notNullValue())
-               .body("user.authorities", hasSize(greaterThan(0)))
                .body("user.accessModel.repositoriesAccess", notNullValue())
                .body("user.accessModel.repositoriesAccess", hasSize(greaterThan(0)))
                .body("assignableRoles", nullValue());
@@ -158,8 +155,6 @@ public class UserControllerTestIT
                .then()
                .statusCode(HttpStatus.OK.value())
                .body("user.username", equalTo(username))
-               .body("user.authorities", notNullValue())
-               .body("user.authorities", hasSize(greaterThan(0)))
                .body("user.accessModel.repositoriesAccess", notNullValue())
                .body("user.accessModel.repositoriesAccess", hasSize(greaterThan(0)))
                .body("assignableRoles", notNullValue())
