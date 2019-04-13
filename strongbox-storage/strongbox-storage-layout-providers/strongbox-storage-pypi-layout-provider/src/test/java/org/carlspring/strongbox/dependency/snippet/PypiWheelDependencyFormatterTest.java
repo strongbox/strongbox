@@ -20,6 +20,10 @@ public class PypiWheelDependencyFormatterTest
         PypiWheelDependencyFormatter formatter = new PypiWheelDependencyFormatter();
         assertNotNull(formatter, "Failed to look up dependency synonym formatter!");
         PypiWheelArtifactCoordinates coordinates;
+    
+        // test register
+        formatter.register();
+    
         // fake examples
 
         coordinates = PypiWheelArtifactCoordinates.parse("distribution-1.0-1-py27-none-any.whl");
