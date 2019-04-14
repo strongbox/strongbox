@@ -30,8 +30,6 @@ public class HeaderMappingFilter
         implements Filter
 {
 
-    private static final String USER_AGENT_UNKNOWN = "unknown";
-
     @Inject
     private HeaderMappingRegistry headerMappingRegistry;
 
@@ -52,22 +50,27 @@ public class HeaderMappingFilter
             throws IOException,
                    ServletException
     {
+        if (!(request instanceof HttpServletRequest)) {
+            chain.doFilter(request, response);
+        }
+
+        HttpServletRequest httpRequest = (HttpServletRequest) request;
+        HttpServletResponse httpResponse = (HttpServletResponse)response;
+        
         String layout;
         try
         {
-            layout = getRequestedLayout(((HttpServletRequest) request).getServletPath());
+            layout = getRequestedLayout(httpRequest.getServletPath());
         }
         catch (IllegalArgumentException e)
         {
-            ((HttpServletResponse)response).setStatus(404);
-            ((HttpServletResponse)response).getWriter().append(e.getMessage());
+            httpResponse.setStatus(404);
+            httpResponse.getWriter().append(e.getMessage());
 
             return;
         }
 
-        ServletRequest targetRequest = request instanceof HttpServletRequest
-                                       ? new ServletRequestDecorator((HttpServletRequest) request, layout)
-                                       : request;
+        ServletRequest targetRequest = new ServletRequestDecorator(httpRequest, layout);
         chain.doFilter(targetRequest, response);
     }
 
@@ -136,29 +139,8 @@ public class HeaderMappingFilter
                 return headerValue;
             }
 
-            if (headerValue == null)
-            {
-                return USER_AGENT_UNKNOWN;
-            }
-
-            Optional<String> targetUserAgent = headerMappingRegistry.getUserAgentMap()
-                                                                    .keySet()
-                                                                    .stream()
-                                                                    .filter((k) ->
-                                                                            {
-                                                                                return headerValue.toUpperCase()
-                                                                                                  .contains(k.toUpperCase());
-                                                                            })
-                                                                    .findFirst();
-
-            String result = targetUserAgent.map((k) ->
-                                                {
-                                                    return headerMappingRegistry.getUserAgentMap().get(k);
-                                                })
-                                           .orElseGet(() -> headerMappingRegistry.getLayoutMap().get(layout));
-
-            return Optional.ofNullable(result)
-                           .orElse(String.format("%s/*", USER_AGENT_UNKNOWN));
+            return headerMappingRegistry.lookupUserAgent(headerValue)
+                                        .orElseGet(() -> headerMappingRegistry.defaultLayoutUserAgent(layout));
         }
 
         public Object getAttribute(String name)

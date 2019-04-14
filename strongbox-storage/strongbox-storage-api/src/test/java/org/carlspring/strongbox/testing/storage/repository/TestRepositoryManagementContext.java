@@ -2,6 +2,7 @@ package org.carlspring.strongbox.testing.storage.repository;
 
 import java.lang.annotation.Annotation;
 import java.util.Collection;
+import java.util.Map;
 
 import org.carlspring.strongbox.testing.artifact.TestArtifact;
 import org.carlspring.strongbox.testing.artifact.TestArtifactContext;
@@ -24,6 +25,7 @@ public interface TestRepositoryManagementContext
     public void register(TestRepository testRepository, RemoteRepository remoteRepository);
 
     public void register(TestArtifact testArtifact,
+                         Map<String, Object> attributesMap,
                          TestInfo testInfo);
 
     Collection<TestRepositoryContext> getTestRepositoryContexts();

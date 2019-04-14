@@ -15,7 +15,7 @@ import org.javatuples.Pair;
 public class MavenArtifactUtils
 {
 
-    public static String convertArtifactToPath(MavenArtifact artifact)
+    public static String convertArtifactToPath(Artifact artifact)
     {
         return ArtifactUtils.convertArtifactToPath(artifact);
     }

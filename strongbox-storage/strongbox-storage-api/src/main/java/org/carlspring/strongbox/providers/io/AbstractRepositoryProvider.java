@@ -21,6 +21,7 @@ import org.carlspring.strongbox.data.criteria.Selector;
 import org.carlspring.strongbox.domain.ArtifactEntry;
 import org.carlspring.strongbox.domain.RepositoryArtifactIdGroupEntry;
 import org.carlspring.strongbox.event.artifact.ArtifactEventListenerRegistry;
+import org.carlspring.strongbox.io.LayoutOutputStream;
 import org.carlspring.strongbox.io.RepositoryStreamReadContext;
 import org.carlspring.strongbox.io.RepositoryStreamWriteContext;
 import org.carlspring.strongbox.io.StreamUtils;
@@ -215,7 +216,11 @@ public abstract class AbstractRepositoryProvider extends RepositoryStreamSupport
         
         CountingOutputStream cos = StreamUtils.findSource(CountingOutputStream.class, ctx.getStream());
         artifactEntry.setSizeInBytes(cos.getByteCount());
-        
+
+        LayoutOutputStream los = StreamUtils.findSource(LayoutOutputStream.class, ctx.getStream());
+        artifactEntry.getChecksums().clear();
+        artifactEntry.getChecksums().putAll(los.getDigestMap());
+
         RepositoryArtifactIdGroupEntry artifactGroup = repositoryArtifactIdGroupService.findOneOrCreate(storage.getId(), repository.getId(), coordinates.getId());
         repositoryArtifactIdGroupService.addArtifactToGroup(artifactGroup, artifactEntry);
     }

@@ -79,7 +79,7 @@ public abstract class RetryDownloadArtifactTestBase
 
     protected String getVaultDirectoryVersionPath()
     {
-        return "storages/storage-common-proxies/maven-central/" + getGroupId().replaceAll(".", "/") + "/" +
+        return "storages/storage-common-proxies/maven-central/" + getGroupId().replaceAll("\\.", "/") + "/" +
                getArtifactId() + "/" + getArtifactVersion();
     }
 

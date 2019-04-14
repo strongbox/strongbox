@@ -15,6 +15,8 @@ import java.util.Date;
 import java.util.HashSet;
 import java.util.Optional;
 import java.util.Set;
+import java.util.Map;
+import java.util.HashMap;
 
 /**
  * @author carlspring
@@ -37,6 +39,8 @@ public class ArtifactEntry
 
     @ManyToMany(targetEntity = ArtifactTagEntry.class)
     private Set<ArtifactTag> tagSet;
+
+    private Map<String, String> checksums;
 
     @Embedded
     private ArtifactArchiveListing artifactArchiveListing;
@@ -93,6 +97,16 @@ public class ArtifactEntry
     protected void setTagSet(Set<ArtifactTag> tagSet)
     {
         this.tagSet = tagSet;
+    }
+
+    public Map<String, String> getChecksums()
+    {
+        return checksums = Optional.ofNullable(checksums).orElse(new HashMap<>());
+    }
+
+    protected void setChecksums(Map<String, String> checksums)
+    {
+        this.checksums = checksums;
     }
 
     public Long getSizeInBytes()
@@ -171,6 +185,7 @@ public class ArtifactEntry
         sb.append(", repositoryId='").append(repositoryId).append('\'');
         sb.append(", artifactCoordinates=").append(artifactCoordinates).append('\n');
         sb.append(", tagSet=").append(tagSet);
+        sb.append(", checksums=").append(checksums);
         sb.append(", objectId='").append(objectId).append('\'');
         sb.append(", uuid='").append(uuid).append('\'');
         sb.append(", artifactArchiveListing=").append(artifactArchiveListing);

@@ -24,7 +24,7 @@ Strongbox has a search engine and an [Artifact Query Language][docs-aql].
 
 * Web UI
 * Spring Bootification
-* Convert the strongbox configuration files from XML to YAML format ([#965](https://github.com/strongbox/strongbox/issues/965), [#1056](https://github.com/strongbox/strongbox/issues/1056))
+* PyPi (Wheel) layout support ([#807](https://github.com/strongbox/strongbox/issues/807), [#808](https://github.com/strongbox/strongbox/issues/808), [#809](https://github.com/strongbox/strongbox/issues/809), [#810](https://github.com/strongbox/strongbox/issues/810), [#811](https://github.com/strongbox/strongbox/issues/811), [#812](https://github.com/strongbox/strongbox/issues/812), [#813](https://github.com/strongbox/strongbox/issues/813), [#814](https://github.com/strongbox/strongbox/issues/814), [#815](https://github.com/strongbox/strongbox/issues/815), [#816](https://github.com/strongbox/strongbox/issues/816), [#1176](https://github.com/strongbox/strongbox/issues/1176), [#1179](https://github.com/strongbox/strongbox/issues/1179), [#1180](https://github.com/strongbox/strongbox/issues/1180), [#1185](https://github.com/strongbox/strongbox/issues/1185))
 
 # Upcoming
 
@@ -37,6 +37,7 @@ Strongbox has a search engine and an [Artifact Query Language][docs-aql].
   * Upgraded to JUnit 5 and we've been busy making all of our tests parallelizable! (Please, reach out, if you'd like to help, as there is still work to be done!).
   * Migrated to Spring Boot! (We may need help improving our support).
   * Migrated our Github wiki to [gihub.io](https://strongbox.github.io/). 
+  * Migrated our configuration files from XML to YAML format.
 * We now have an RPM distribution and need help testing it! (We need testers).
 * Our UI is under heavy development!
 

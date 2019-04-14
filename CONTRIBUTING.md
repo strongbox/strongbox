@@ -120,6 +120,7 @@ To accept, please:
 | Ekrem Candemir               |                                          | Ankara, Turkey                          | 2019-02-24 |
 | Eugeniusz Fedchenko          |                                          | Warsaw, Poland                          | 2019-02-25 |
 | Shumail Ahmed                | Middlesex University                     | London, United Kingdom                  | 2019-03-05 |
+| Oleksandr Gryniuk            |                                          | Kyiv, Ukraine                           | 2019-03-07  
 | Kaloyan Dimitrov             |                                          | Sofia, Bulgaria                         | 2019-03-12 |
 | Leif Brooks                  |                                          | Charlotte, USA                          | 2019-03-13 |
 | Mujahid Thoufeek             |                                          | Colombo, Sri Lanka                      | 2019-03-19 |
@@ -127,6 +128,8 @@ To accept, please:
 | Brian Hill                   |                                          | Orlando, Florida, USA                   | 2019-03-26 |
 | Ben Falter                   |                                          | New York, New York, USA                 | 2019-04-04 |
 | Evrim Nur Celik              |                                          | Istanbul, Turkey                        | 2019-04-14 |
+| Akhilesh Bedre               |                                          | Hyderabad, India                        | 2019-04-07 |
+| Theodore Ravindranathh       |                                          | Chennai, India                          | 2019-04-13 |
 
 [chat]: https://chat.carlspring.org/
 [issue tracker]: https://github.com/strongbox/strongbox/issues?utf8=%E2%9C%93&q=is%3Aissue+is%3Aopen+label%3A%22help+wanted%22+label%3A%22good+first+issue%22

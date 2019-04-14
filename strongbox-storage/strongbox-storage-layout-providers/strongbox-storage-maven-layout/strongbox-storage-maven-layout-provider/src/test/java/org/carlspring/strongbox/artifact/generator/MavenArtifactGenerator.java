@@ -59,11 +59,29 @@ public class MavenArtifactGenerator implements ArtifactGenerator
     }
     
     @Override
+    public Path generateArtifact(String id,
+                                 String version,
+                                 int size)
+        throws IOException
+    {
+        Artifact artifact = ArtifactUtils.getArtifactFromGAVTC(String.format("%s:%s", id, version));
+        
+        return generateArtifact(artifact);
+    }
+
+    @Override
     public Path generateArtifact(URI uri,
                                  int size)
         throws IOException
     {
         Artifact artifact = ArtifactUtils.convertPathToArtifact(uri.toString());
+        
+        return generateArtifact(artifact);
+    }
+
+    private Path generateArtifact(Artifact artifact)
+        throws IOException
+    {
         try
         {
             generate(artifact);
@@ -335,4 +353,8 @@ public class MavenArtifactGenerator implements ArtifactGenerator
         return basedir.toAbsolutePath().toString();
     }
 
+    public Path getBasedirPath()
+    {
+        return basedir;
+    }
 }

@@ -13,12 +13,15 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
+import java.nio.file.Path;
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 import java.util.Arrays;
 import java.util.Calendar;
+import java.util.HashMap;
 import java.util.LinkedHashSet;
 import java.util.List;
+import java.util.Map;
 import java.util.Random;
 import java.util.Set;
 import java.util.concurrent.Callable;
@@ -30,10 +33,13 @@ import javax.inject.Inject;
 import javax.xml.bind.JAXBException;
 
 import org.apache.maven.artifact.Artifact;
+
 import org.carlspring.maven.commons.io.filters.JarFilenameFilter;
 import org.carlspring.maven.commons.util.ArtifactUtils;
 import org.carlspring.strongbox.artifact.ArtifactNotFoundException;
 import org.carlspring.strongbox.artifact.ArtifactTag;
+import org.carlspring.strongbox.artifact.coordinates.MavenArtifactCoordinates;
+import org.carlspring.strongbox.artifact.generator.MavenArtifactGenerator;
 import org.carlspring.strongbox.config.Maven2LayoutProviderTestConfig;
 import org.carlspring.strongbox.domain.ArtifactEntry;
 import org.carlspring.strongbox.providers.io.RepositoryFiles;
@@ -51,12 +57,17 @@ import org.carlspring.strongbox.storage.repository.Repository;
 import org.carlspring.strongbox.storage.repository.RepositoryPolicyEnum;
 import org.carlspring.strongbox.storage.repository.RepositoryTypeEnum;
 import org.carlspring.strongbox.testing.TestCaseWithMavenArtifactGenerationAndIndexing;
+import org.carlspring.strongbox.testing.artifact.ArtifactManagementTestExecutionListener;
+import org.carlspring.strongbox.testing.artifact.TestArtifact;
+import org.carlspring.strongbox.testing.storage.repository.RepositoryManagementTestExecutionListener;
+import org.carlspring.strongbox.testing.storage.repository.TestRepository;
 
 import org.hamcrest.CoreMatchers;
 import org.hamcrest.MatcherAssert;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.TestInfo;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.junit.jupiter.api.parallel.Execution;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -76,7 +87,7 @@ public class ArtifactManagementServiceImplTest
 {
 
     private static final Logger logger = LoggerFactory.getLogger(ArtifactManagementServiceImplTest.class);
-    
+
     private static final int CONTENT_SIZE = 40000;
 
     private DateFormat formatter = new SimpleDateFormat("yyyyMMdd.HHmmss");
@@ -89,7 +100,7 @@ public class ArtifactManagementServiceImplTest
 
     @Inject
     private ArtifactResolutionService artifactResolutionService;
-    
+
     @Inject
     private MavenRepositoryFeatures mavenRepositoryFeatures;
 
@@ -98,7 +109,7 @@ public class ArtifactManagementServiceImplTest
 
     @Inject
     private MavenRepositoryFactory mavenRepositoryFactory;
-    
+
     @Inject
     private RepositoryPathResolver repositoryPathResolver;
 
@@ -141,7 +152,9 @@ public class ArtifactManagementServiceImplTest
         repositories.add(createRepositoryMock(STORAGE0,
                                               getRepositoryName("last-version-releases", testInfo),
                                               Maven2LayoutProvider.ALIAS));
-
+        repositories.add(createRepositoryMock(STORAGE0,
+                                              getRepositoryName("checksums-storage", testInfo),
+                                              Maven2LayoutProvider.ALIAS));
         return repositories;
     }
 
@@ -182,10 +195,10 @@ public class ArtifactManagementServiceImplTest
                                              true);
 
             Artifact artifact = ArtifactUtils.getArtifactFromGAVTC(gavtc);
-            mavenArtifactManagementService.validateAndStore(STORAGE0,
-                                                            repositoryId,
-                                                            ArtifactUtils.convertArtifactToPath(artifact),
-                                                            is);
+            RepositoryPath repositoryPath = repositoryPathResolver.resolve(STORAGE0,
+                                                                           repositoryId,
+                                                                           ArtifactUtils.convertArtifactToPath(artifact));
+            mavenArtifactManagementService.validateAndStore(repositoryPath, is);
 
             fail("Failed to deny artifact operation for repository with disallowed deployments.");
         }
@@ -229,10 +242,10 @@ public class ArtifactManagementServiceImplTest
                                              true);
 
             Artifact artifact = ArtifactUtils.getArtifactFromGAVTC(gavtc);
-            mavenArtifactManagementService.validateAndStore(STORAGE0,
-                                                            repositoryId,
-                                                            ArtifactUtils.convertArtifactToPath(artifact),
-                                                            is);
+            RepositoryPath repositoryPath = repositoryPathResolver.resolve(STORAGE0,
+                                                                           repositoryId, 
+                                                                           ArtifactUtils.convertArtifactToPath(artifact));
+            mavenArtifactManagementService.validateAndStore(repositoryPath, is);
 
             fail("Failed to deny artifact operation for repository with disallowed re-deployments.");
         }
@@ -274,8 +287,7 @@ public class ArtifactManagementServiceImplTest
             RepositoryPath repositoryPath = repositoryPathResolver.resolve(STORAGE0,
                                                                            repositoryId,
                                                                            ArtifactUtils.convertArtifactToPath(artifact));
-            mavenArtifactManagementService.delete(repositoryPath,
-                                                  false);
+            mavenArtifactManagementService.delete(repositoryPath, false);
 
             fail("Failed to deny artifact operation for repository with disallowed deletions.");
         }
@@ -327,10 +339,10 @@ public class ArtifactManagementServiceImplTest
                                              gavtc,
                                              true);
 
-            mavenArtifactManagementService.validateAndStore(STORAGE0,
-                                                            repositoryGroupId,
-                                                            ArtifactUtils.convertArtifactToPath(artifact),
-                                                            is);
+            RepositoryPath repositoryPath = repositoryPathResolver.resolve(STORAGE0,
+                                                                           repositoryGroupId,
+                                                                           ArtifactUtils.convertArtifactToPath(artifact));
+            mavenArtifactManagementService.validateAndStore(repositoryPath, is);
 
             fail("Failed to deny artifact operation for repository with disallowed deployments.");
         }
@@ -349,10 +361,11 @@ public class ArtifactManagementServiceImplTest
             // Generate the artifact on the file-system anyway so that we could achieve
             // the state of having it there before attempting a re-deployment
             generateArtifact(getRepositoryBasedir(STORAGE0, repositoryId).getAbsolutePath(), gavtc);
-            mavenArtifactManagementService.validateAndStore(STORAGE0,
-                                                            repositoryGroupId,
-                                                            ArtifactUtils.convertArtifactToPath(artifact),
-                                                            is);
+            
+            RepositoryPath repositoryPath = repositoryPathResolver.resolve(STORAGE0,
+                                                                           repositoryGroupId,
+                                                                           ArtifactUtils.convertArtifactToPath(artifact));
+            mavenArtifactManagementService.validateAndStore(repositoryPath, is);
 
             fail("Failed to deny artifact operation for repository with disallowed re-deployments.");
         }
@@ -521,6 +534,7 @@ public class ArtifactManagementServiceImplTest
                                                            0);
 
         File[] files = artifactVersionBaseDir.listFiles(new JarFilenameFilter());
+        
         assertEquals(1, files.length, "Amount of timestamped snapshots doesn't equal 1.");
         assertTrue(files[0].toString().endsWith("-3.jar"));
 
@@ -541,7 +555,8 @@ public class ArtifactManagementServiceImplTest
 
         artifactMetadataService.rebuildMetadata(STORAGE0, repositoryid, "org/carlspring/strongbox/timestamped");
 
-        assertEquals(2, artifactVersionBaseDir.listFiles(new JarFilenameFilter()).length,
+        assertEquals(2,
+                     artifactVersionBaseDir.listFiles(new JarFilenameFilter()).length,
                      "Amount of timestamped snapshots doesn't equal 2.");
 
         // To check removing timestamped snapshot with keepPeriod = 3 and numberToKeep = 0
@@ -552,6 +567,7 @@ public class ArtifactManagementServiceImplTest
                                                            3);
 
         files = artifactVersionBaseDir.listFiles(new JarFilenameFilter());
+        
         assertEquals(1, files.length, "Amount of timestamped snapshots doesn't equal 1.");
         assertTrue(files[0].toString().endsWith("-3.jar"));
     }
@@ -597,7 +613,9 @@ public class ArtifactManagementServiceImplTest
         {
             assertEquals(Long.valueOf(CONTENT_SIZE),
                          resultList.get(i),
-                         String.format("Operation [%s:%s] content size don't match.", i % 2 == 0 ? "write" : "read", i));
+                         String.format("Operation [%s:%s] content size don't match.",
+                                       i % 2 == 0 ? "write" : "read",
+                                       i));
         }
 
         RepositoryPath repositoryPathResult = repositoryPathResolver.resolve(repository, path);
@@ -610,7 +628,7 @@ public class ArtifactManagementServiceImplTest
 
         assertTrue(Arrays.stream(loremIpsumContentArray)
                          .map(c -> Arrays.equals(repositoryPathContent, c))
-                         .reduce((r1,
+                         .reduce((r1, 
                                   r2) -> r1 || r2)
                          .get());
 
@@ -635,10 +653,10 @@ public class ArtifactManagementServiceImplTest
 
         try (InputStream is = new ByteArrayInputStream("strongbox-lv-artifact-content".getBytes(StandardCharsets.UTF_8)))
         {
-            mavenArtifactManagementService.validateAndStore(STORAGE0,
-                                                            repositoryId,
-                                                            artifactPath,
-                                                            is);
+            RepositoryPath repositoryPath = repositoryPathResolver.resolve(STORAGE0,
+                                                                           repositoryId,
+                                                                           artifactPath);
+            mavenArtifactManagementService.validateAndStore(repositoryPath, is);
         }
 
         // confirm it has last-version tag
@@ -653,19 +671,20 @@ public class ArtifactManagementServiceImplTest
         Artifact artifactWithClassifier = ArtifactUtils.getArtifactFromGAVTC(gavtcWithClassifier);
         String artifactPathWithClassifier = ArtifactUtils.convertArtifactToPath(artifactWithClassifier);
 
-        try (InputStream is = new ByteArrayInputStream("strongbox-lv-artifact-content".getBytes(StandardCharsets.UTF_8)))
+        try (InputStream is = new ByteArrayInputStream(
+                "strongbox-lv-artifact-content".getBytes(StandardCharsets.UTF_8)))
         {
-            mavenArtifactManagementService.validateAndStore(STORAGE0,
-                                                            repositoryId,
-                                                            artifactPathWithClassifier,
-                                                            is);
+            RepositoryPath repositoryPath = repositoryPathResolver.resolve(STORAGE0,
+                                                                           repositoryId,
+                                                                           artifactPathWithClassifier);
+            mavenArtifactManagementService.validateAndStore(repositoryPath, is);
         }
 
         // confirm it has last-version tag
         ArtifactEntry artifactEntryWithClassifier = artifactEntryService.findOneArtifact(STORAGE0,
                                                                                          repositoryId,
                                                                                          artifactPathWithClassifier);
-                                                                                         
+
         MatcherAssert.assertThat(artifactEntryWithClassifier.getTagSet(), CoreMatchers.notNullValue());
         MatcherAssert.assertThat(artifactEntryWithClassifier.getTagSet().size(), CoreMatchers.equalTo(1));
         MatcherAssert.assertThat(artifactEntryWithClassifier.getTagSet().iterator().next().getName(),
@@ -686,17 +705,17 @@ public class ArtifactManagementServiceImplTest
 
         try (InputStream is = new ByteArrayInputStream("strongbox-lv-artifact-content".getBytes(StandardCharsets.UTF_8)))
         {
-            mavenArtifactManagementService.validateAndStore(STORAGE0,
-                                                            repositoryId,
-                                                            artifactPathV2,
-                                                            is);
+            RepositoryPath repositoryPath = repositoryPathResolver.resolve(STORAGE0,
+                                                                           repositoryId,
+                                                                           artifactPathV2);
+            mavenArtifactManagementService.validateAndStore(repositoryPath, is);
         }
 
         // confirm it has last-version tag
         ArtifactEntry artifactEntryV2 = artifactEntryService.findOneArtifact(STORAGE0,
                                                                              repositoryId,
                                                                              artifactPathV2);
-                                                                             
+
         MatcherAssert.assertThat(artifactEntryV2.getTagSet(), CoreMatchers.notNullValue());
         MatcherAssert.assertThat(artifactEntryV2.getTagSet().size(), CoreMatchers.equalTo(1));
         MatcherAssert.assertThat(artifactEntryV2.getTagSet().iterator().next().getName(),
@@ -712,10 +731,48 @@ public class ArtifactManagementServiceImplTest
         artifactEntryWithClassifier = artifactEntryService.findOneArtifact(STORAGE0,
                                                                            repositoryId,
                                                                            artifactPathWithClassifier);
-                                                                           
+
         MatcherAssert.assertThat(artifactEntryWithClassifier.getTagSet(), CoreMatchers.notNullValue());
         MatcherAssert.assertThat(artifactEntryWithClassifier.getTagSet().size(), CoreMatchers.equalTo(0));
     }
+
+    @Test
+    @ExtendWith({ RepositoryManagementTestExecutionListener.class,
+                  ArtifactManagementTestExecutionListener.class })
+    public void testChecksumsStorage(TestInfo testInfo,
+                                     @TestRepository (layout = MavenArtifactCoordinates.LAYOUT_NAME,
+                                                      repository = "checksums-storage")
+                                     Repository repository,
+                                     @TestArtifact(resource = "org/carlspring/strongbox/strongbox-checksum-test/8.4/strongbox-checksum-test-8.4.jar",
+                                                   generator = MavenArtifactGenerator.class)
+                                     Path artifact)
+            throws Exception
+    {
+        RepositoryPath repositoryPath = repositoryPathResolver.resolve(repository).resolve("org/carlspring/strongbox/strongbox-checksum-test/8.4/strongbox-checksum-test-8.4.jar");
+        try (InputStream is = Files.newInputStream(artifact))
+        {
+            mavenArtifactManagementService.store(repositoryPath, is);
+        }
+
+        // Obtains two expected checksums
+        String sha1Checksum = new String(Files.readAllBytes(artifact.resolveSibling(artifact.getFileName()+ ".sha1")));
+        String md5Checksum = new String(Files.readAllBytes(artifact.resolveSibling(artifact.getFileName()+ ".md5")));
+
+        Map <String, String> expectedChecksums = new HashMap<>();
+        expectedChecksums.put("SHA-1", sha1Checksum);
+        expectedChecksums.put("MD5", md5Checksum);
+
+        String path = RepositoryFiles.relativizePath(repositoryPath);
+        ArtifactEntry artifactEntry = artifactEntryService.findOneArtifact(STORAGE0, repository.getId(), path);
+        
+        assertNotNull(artifactEntry);
+        
+        Map<String, String> actualChecksums = artifactEntry.getChecksums();
+        
+        assertNotNull(actualChecksums);
+        assertEquals(expectedChecksums, actualChecksums);
+    }
+
 
     private Long getResult(int i,
                            AtomicBoolean aBoolean,
@@ -734,15 +791,17 @@ public class ArtifactManagementServiceImplTest
         {
             logger.error("Unexpected IOException while getting result:", e);
             e.printStackTrace();
+            
             return 0L;
         }
     }
 
-    private class Store implements Callable<Long>
+    private class Store
+            implements Callable<Long>
     {
 
         private final Repository repository;
-        
+
         private final String path;
 
         private final InputStream is;
@@ -768,20 +827,22 @@ public class ArtifactManagementServiceImplTest
             catch (Exception ex)
             {
                 logger.error(String.format("Failed to store artifact [%s]", repositoryPath), ex);
-                
+
                 return 0L;
             }
         }
     }
 
-    private class Fetch implements Callable<Long>
+    private class Fetch
+            implements Callable<Long>
     {
 
         private final Repository repository;
         private final String path;
         private int attempts = 0;
 
-        private Fetch(Repository repository, String path)
+        private Fetch(Repository repository,
+                      String path)
         {
             this.path = path;
             this.repository = repository;
@@ -791,9 +852,9 @@ public class ArtifactManagementServiceImplTest
         public Long call()
         {
             RepositoryPath repositoryPath = repositoryPathResolver.resolve(repository, path);
-            
+
             long result = 0;
-            
+
             byte[] buffer = new byte[1024];
             try (RepositoryInputStream is = artifactResolutionService.getInputStream(repositoryPath))
             {
@@ -804,6 +865,7 @@ public class ArtifactManagementServiceImplTest
                     {
                         break;
                     }
+                    
                     result += n;
                 }
             }
@@ -817,7 +879,7 @@ public class ArtifactManagementServiceImplTest
                 {
                     return 0L;
                 }
-                
+
                 if (attempts++ > 5)
                 {
                     return 0L;
@@ -828,11 +890,12 @@ public class ArtifactManagementServiceImplTest
             catch (Exception ex)
             {
                 logger.error(String.format("Failed to read artifact [%s]", repositoryPath), ex);
+                
                 return 0L;
             }
 
             return result;
         }
     }
-    
+
 }
