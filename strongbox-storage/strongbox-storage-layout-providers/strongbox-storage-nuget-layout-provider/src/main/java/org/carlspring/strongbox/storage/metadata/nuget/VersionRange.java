@@ -17,13 +17,13 @@
 
 package org.carlspring.strongbox.storage.metadata.nuget;
 
+import org.carlspring.strongbox.artifact.coordinates.versioning.SemanticVersion;
+
 import javax.annotation.Nonnull;
 import java.io.Serializable;
 import java.util.Objects;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
-
-import org.semver.Version;
 
 /**
  * Range of versions
@@ -79,7 +79,7 @@ public class VersionRange implements Serializable
     /**
      * Version on the bottom border
      */
-    private Version lowVersion;
+    private SemanticVersion lowVersion;
 
     /**
      * Bottom type
@@ -94,7 +94,7 @@ public class VersionRange implements Serializable
     /**
      * Version on the upper border
      */
-    private Version topVersion;
+    private SemanticVersion topVersion;
 
     /**
      * @return range indicates the latest version of the package.
@@ -141,9 +141,9 @@ public class VersionRange implements Serializable
      * @param topBorderType
      *            Type of upper bound
      */
-    public VersionRange(Version lowVersion,
+    public VersionRange(SemanticVersion lowVersion,
                         BorderType lowBorderType,
-                        Version topVersion,
+                        SemanticVersion topVersion,
                         BorderType topBorderType)
     {
         this.lowVersion = lowVersion;
@@ -241,7 +241,7 @@ public class VersionRange implements Serializable
     /**
      * @return Version on lower bound
      */
-    public Version getLowVersion()
+    public SemanticVersion getLowVersion()
     {
         return lowVersion;
     }
@@ -250,7 +250,7 @@ public class VersionRange implements Serializable
      * @param lowVersion
      *            Version on the bottom border
      */
-    public void setLowVersion(Version lowVersion)
+    public void setLowVersion(SemanticVersion lowVersion)
     {
         this.lowVersion = lowVersion;
     }
@@ -258,7 +258,7 @@ public class VersionRange implements Serializable
     /**
      * @return Version on the upper border
      */
-    public Version getTopVersion()
+    public SemanticVersion getTopVersion()
     {
         return topVersion;
     }
@@ -267,7 +267,7 @@ public class VersionRange implements Serializable
      * @param topVersion
      *            Version on the upper border
      */
-    public void setTopVersion(Version topVersion)
+    public void setTopVersion(SemanticVersion topVersion)
     {
         this.topVersion = topVersion;
     }
@@ -370,7 +370,7 @@ public class VersionRange implements Serializable
             return new VersionRange();
         }
 
-        Version version = tryParseVersion(versionRangeString, true/* silent */);
+        SemanticVersion version = tryParseVersion(versionRangeString, true/* silent */);
         if (version != null)
         {
             return new VersionRange(version, BorderType.INCLUDE, null, null);
@@ -380,7 +380,7 @@ public class VersionRange implements Serializable
         Matcher matcher = pattern.matcher(versionRangeString);
         if (matcher.matches())
         {
-            Version lowVersion = null;
+            SemanticVersion lowVersion = null;
             BorderType lowBorder = null;
 
             String lowVersionString = matcher.group("left");
@@ -390,7 +390,7 @@ public class VersionRange implements Serializable
                 lowBorder = BorderType.getBorderType(matcher.group("leftBorder"));
             }
 
-            Version topVersion = null;
+            SemanticVersion topVersion = null;
             BorderType topBorder = null;
 
             String topVersionString = matcher.group("right");
@@ -418,14 +418,15 @@ public class VersionRange implements Serializable
                 "<" + versionRangeString + "> does not match a semantic version or a version range.");
     }
 
-    private static Version tryParseVersion(@Nonnull
+    private static SemanticVersion tryParseVersion(@Nonnull
     final String versionString,
                                            boolean silent)
         throws NugetFormatException
     {
         try
         {
-            Version version = Version.parse(versionString);
+            SemanticVersion version = SemanticVersion.parse(versionString);
+
             return version;
         }
         catch (IllegalArgumentException e)

@@ -1,5 +1,7 @@
 package org.carlspring.strongbox.artifact.coordinates;
 
+import org.carlspring.strongbox.artifact.coordinates.versioning.SemanticVersion;
+
 import javax.persistence.Entity;
 import javax.xml.bind.annotation.XmlAccessType;
 import javax.xml.bind.annotation.XmlAccessorType;
@@ -9,7 +11,6 @@ import java.util.Map;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-import org.semver.Version;
 import org.springframework.util.Assert;
 
 /**
@@ -19,32 +20,43 @@ import org.springframework.util.Assert;
  * specification</a>.
  * 
  * @author sbespalov
- *
  */
 @Entity
 @SuppressWarnings("serial")
 @XmlRootElement(name = "npmArtifactCoordinates")
 @XmlAccessorType(XmlAccessType.NONE)
 @ArtifactCoordinatesLayout(name = NpmArtifactCoordinates.LAYOUT_NAME, alias = NpmArtifactCoordinates.LAYOUT_ALIAS)
-public class NpmArtifactCoordinates extends AbstractArtifactCoordinates<NpmArtifactCoordinates, Version>
+public class NpmArtifactCoordinates extends AbstractArtifactCoordinates<NpmArtifactCoordinates, SemanticVersion>
 {
+
     public static final String LAYOUT_NAME = "npm";
+
     public static final String LAYOUT_ALIAS = LAYOUT_NAME;
     
     public static final String NPM_VERSION_REGEX = "(\\d+)\\.(\\d+)(?:\\.)?(\\d*)(\\.|-|\\+)?([0-9A-Za-z-.]*)?";
+
     public static final String NPM_NAME_REGEX = "[a-zA-Z0-9][\\w-.]*";
+
     public static final String NPM_EXTENSION_REGEX = "(tgz|json)";
-    public static final String NPM_PACKAGE_PATH_REGEX = "(@?" + NPM_NAME_REGEX + ")/(" + NPM_NAME_REGEX + ")/("
-            + NPM_VERSION_REGEX + ")/" + NPM_NAME_REGEX + "(-(" + NPM_VERSION_REGEX + "))?\\." + NPM_EXTENSION_REGEX;
+
+    public static final String NPM_PACKAGE_PATH_REGEX = "(@?" + NPM_NAME_REGEX + ")/(" + NPM_NAME_REGEX + ")/(" +
+                                                        NPM_VERSION_REGEX + ")/" + NPM_NAME_REGEX + "(-(" +
+                                                        NPM_VERSION_REGEX + "))?\\." + NPM_EXTENSION_REGEX;
 
     private static final Pattern NPM_NAME_PATTERN = Pattern.compile(NPM_NAME_REGEX);
+
     private static final Pattern NPM_PATH_PATTERN = Pattern.compile(NPM_PACKAGE_PATH_REGEX);
+
     private static final Pattern NPM_EXTENSION_PATTERN = Pattern.compile(NPM_EXTENSION_REGEX);
 
     private static final String SCOPE = "scope";
+
     private static final String NAME = "name";
+
     private static final String VERSION = "version";
+
     private static final String EXTENSION = "extension";
+
 
     public NpmArtifactCoordinates()
     {
@@ -88,7 +100,8 @@ public class NpmArtifactCoordinates extends AbstractArtifactCoordinates<NpmArtif
     {
         Matcher matcher = NPM_NAME_PATTERN.matcher(name);
         Assert.isTrue(matcher.matches(),
-                      String.format("The artifact's name [%s] should follow the NPM specification  (https://docs.npmjs.com/files/package.json#name).",
+                      String.format("The artifact's name [%s] should follow the NPM specification " +
+                                    "(https://docs.npmjs.com/files/package.json#name).",
                                     name));
 
         setCoordinate(NAME, name);
@@ -101,6 +114,7 @@ public class NpmArtifactCoordinates extends AbstractArtifactCoordinates<NpmArtif
         {
             return getName();
         }
+
         return String.format("%s/%s", getScope(), getName());
     }
 
@@ -119,7 +133,7 @@ public class NpmArtifactCoordinates extends AbstractArtifactCoordinates<NpmArtif
     @Override
     public void setVersion(String version)
     {
-        Version.parse(version);
+        SemanticVersion.parse(version);
         setCoordinate(VERSION, version);
     }
 
@@ -167,16 +181,17 @@ public class NpmArtifactCoordinates extends AbstractArtifactCoordinates<NpmArtif
     }
 
     @Override
-    public Version getNativeVersion()
+    public SemanticVersion getNativeVersion()
     {
         String versionLocal = getVersion();
         if (versionLocal == null)
         {
             return null;
         }
+
         try
         {
-            return Version.parse(versionLocal);
+            return SemanticVersion.parse(versionLocal);
         }
         catch (IllegalArgumentException e)
         {
@@ -189,6 +204,7 @@ public class NpmArtifactCoordinates extends AbstractArtifactCoordinates<NpmArtif
     {
         Map<String, String> result = getCoordinates();
         result.remove(VERSION);
+
         return result;
     }
 
@@ -197,7 +213,8 @@ public class NpmArtifactCoordinates extends AbstractArtifactCoordinates<NpmArtif
         Matcher matcher = NPM_PATH_PATTERN.matcher(path);
 
         Assert.isTrue(matcher.matches(),
-                      String.format("Illegal artifact path [%s], NPM artifact path should be in the form of '{artifactGroup}/{artifactName}/{artifactVersion}/{artifactFile}'.",
+                      String.format("Illegal artifact path [%s], NPM artifact path should be in the form of " +
+                                    "'{artifactGroup}/{artifactName}/{artifactVersion}/{artifactFile}'.",
                                     path));
 
         String group = matcher.group(1);
@@ -219,8 +236,10 @@ public class NpmArtifactCoordinates extends AbstractArtifactCoordinates<NpmArtif
         if (packageId.contains("/"))
         {
             String[] nameSplit = packageId.split("/");
+
             return new NpmArtifactCoordinates(nameSplit[0], nameSplit[1], version, "tgz");
         }
+
         return new NpmArtifactCoordinates(null, packageId, version, "tgz");
     }
 

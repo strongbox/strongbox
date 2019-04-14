@@ -1,5 +1,7 @@
 package org.carlspring.strongbox.artifact.coordinates;
 
+import org.carlspring.strongbox.artifact.coordinates.versioning.SemanticVersion;
+
 import javax.persistence.Entity;
 import javax.xml.bind.annotation.XmlAccessType;
 import javax.xml.bind.annotation.XmlAccessorType;
@@ -10,7 +12,6 @@ import java.util.Map;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-import org.semver.Version;
 import org.springframework.util.Assert;
 
 /**
@@ -22,16 +23,23 @@ import org.springframework.util.Assert;
 @XmlAccessorType(XmlAccessType.NONE)
 @ArtifactCoordinatesLayout(name = NugetArtifactCoordinates.LAYOUT_NAME, alias = NugetArtifactCoordinates.LAYOUT_ALIAS)
 public class NugetArtifactCoordinates
-        extends AbstractArtifactCoordinates<NugetArtifactCoordinates, Version>
+        extends AbstractArtifactCoordinates<NugetArtifactCoordinates, SemanticVersion>
 {
+
     public static final String LAYOUT_NAME = "NuGet";
+
     public static final String LAYOUT_ALIAS = "nuget";
     
     public static final String ID = "id";
+
     public static final String VERSION = "version";
+
     public static final String EXTENSION = "extension";
+
     private static final String NUGET_PACKAGE_REGEXP_PATTERN = "([a-zA-Z0-9_.-]+)/([a-zA-Z0-9_.-]+)/([a-zA-Z0-9_.-]+).(nupkg|nuspec|nupkg\\.sha512)";
+
     private static final Pattern NUGET_PACKAGE_REGEXP = Pattern.compile(NUGET_PACKAGE_REGEXP_PATTERN);
+
 
     public NugetArtifactCoordinates()
     {
@@ -108,7 +116,7 @@ public class NugetArtifactCoordinates
     }
     
     @Override
-    public Version getNativeVersion()
+    public SemanticVersion getNativeVersion()
     {
         String versionLocal = getVersion();
         if (versionLocal == null)
@@ -117,7 +125,7 @@ public class NugetArtifactCoordinates
         }
         try
         {
-            return Version.parse(versionLocal);
+            return SemanticVersion.parse(versionLocal);
         }
         catch (IllegalArgumentException e)
         {
@@ -130,6 +138,7 @@ public class NugetArtifactCoordinates
     {
         Map<String, String> result = getCoordinates();
         result.remove(VERSION);
+
         return result;
     }
     
@@ -152,7 +161,7 @@ public class NugetArtifactCoordinates
         result.setVersion(version);
         result.setType(packageArtifactType);
         
-        return result ;
+        return result;
     }
     
 }

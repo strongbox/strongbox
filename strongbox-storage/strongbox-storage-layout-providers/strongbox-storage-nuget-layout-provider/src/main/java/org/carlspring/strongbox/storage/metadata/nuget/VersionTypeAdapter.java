@@ -17,19 +17,18 @@
 
 package org.carlspring.strongbox.storage.metadata.nuget;
 
-import javax.xml.bind.annotation.adapters.XmlAdapter;
+import org.carlspring.strongbox.artifact.coordinates.versioning.SemanticVersion;
 
-import org.semver.Version;
+import javax.xml.bind.annotation.adapters.XmlAdapter;
 
 /**
  * @author Dmitry Sviridov
  */
-public class VersionTypeAdapter extends XmlAdapter<String, Version>
+public class VersionTypeAdapter extends XmlAdapter<String, SemanticVersion>
 {
 
     @Override
-    public String marshal(Version version)
-        throws Exception
+    public String marshal(SemanticVersion version)
     {
         if (version == null)
         {
@@ -42,8 +41,7 @@ public class VersionTypeAdapter extends XmlAdapter<String, Version>
     }
 
     @Override
-    public Version unmarshal(String string)
-        throws Exception
+    public SemanticVersion unmarshal(String string)
     {
         if (string == null)
         {
@@ -51,7 +49,8 @@ public class VersionTypeAdapter extends XmlAdapter<String, Version>
         }
         else
         {
-            return Version.parse(string);
+            return SemanticVersion.parse(string);
         }
     }
+
 }

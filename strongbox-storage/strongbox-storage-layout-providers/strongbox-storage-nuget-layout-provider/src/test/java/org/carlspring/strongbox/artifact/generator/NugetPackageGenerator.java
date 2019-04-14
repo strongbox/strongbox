@@ -1,6 +1,7 @@
 package org.carlspring.strongbox.artifact.generator;
 
 import org.carlspring.commons.io.RandomInputStream;
+import org.carlspring.strongbox.artifact.coordinates.versioning.SemanticVersion;
 import org.carlspring.strongbox.io.LayoutOutputStream;
 import org.carlspring.strongbox.resource.ResourceCloser;
 import org.carlspring.strongbox.storage.metadata.nuget.Dependencies;
@@ -19,7 +20,6 @@ import java.util.zip.ZipEntry;
 import java.util.zip.ZipOutputStream;
 
 import org.apache.commons.codec.digest.MessageDigestAlgorithms;
-import org.semver.Version;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -68,23 +68,26 @@ public class NugetPackageGenerator
             throws NugetFormatException, JAXBException, IOException, NoSuchAlgorithmException
     {
         File file = new File(getBasedir(), String.format("%s/%s/%s.%s.nupkg", id, versionString, id, versionString));
-        file.getParentFile()
-            .mkdirs();
-        
-        Version version = Version.parse(versionString);
+
+        //noinspection ResultOfMethodCallIgnored
+        file.getParentFile().mkdirs();
+
+        SemanticVersion version = SemanticVersion.parse(versionString);
         logger.debug("Version of the nupkg package: ", version.toString());
         
         generate(file, id, version, dependencyList);
     }
 
-    public void generate(File nupkgFile, String id, Version version, String... dependencyList)
+    public void generate(File nupkgFile, String id, SemanticVersion version, String... dependencyList)
             throws IOException,
                    JAXBException,                   
                    NoSuchAlgorithmException, 
                    NugetFormatException
     {
         Nuspec nuspec = generateNuspec(id, version, dependencyList);
+
         createArchive(nuspec, nupkgFile, dependencyList);
+
         generateNuspecFile(nuspec);
     }
 
@@ -101,8 +104,7 @@ public class NugetPackageGenerator
         {
             // Make sure the artifact's parent directory exists before writing the model.
             //noinspection ResultOfMethodCallIgnored
-            packageFile.getParentFile()
-                       .mkdirs();
+            packageFile.getParentFile().mkdirs();
 
             FileOutputStream fileOutputStream = new FileOutputStream(packageFile);
             
@@ -116,7 +118,8 @@ public class NugetPackageGenerator
             createRandomNupkgFile(zos);
             
             String id = nuspec.getId();
-            Version version = nuspec.getVersion();
+
+            SemanticVersion version = nuspec.getVersion();
             createMetadata(id, version.toString(), zos);
             
             createContentType(zos);
@@ -192,7 +195,7 @@ public class NugetPackageGenerator
 
     private void addNugetNuspecFile(Nuspec nuspec,
                                     ZipOutputStream zos)
-            throws IOException, JAXBException, NugetFormatException
+            throws IOException, JAXBException
     {
         ZipEntry ze = new ZipEntry(nuspec.getId() + ".nuspec");
         zos.putNextEntry(ze);
@@ -213,7 +216,8 @@ public class NugetPackageGenerator
         zos.closeEntry();
     }
 
-    private Nuspec generateNuspec(String id, Version version, String... dependencyList) throws NugetFormatException
+    private Nuspec generateNuspec(String id, SemanticVersion version, String... dependencyList)
+            throws NugetFormatException
     {
         Nuspec nuspec = new Nuspec();
         Nuspec.Metadata metadata = nuspec.getMetadata();
@@ -228,11 +232,13 @@ public class NugetPackageGenerator
         {
             metadata.dependencies = new Dependencies();
             metadata.dependencies.dependencies = new ArrayList<>();
+
             for (int i = 0; i < dependencyList.length; i++)
             {
                 metadata.dependencies.dependencies.add(Dependency.parseString(dependencyList[i]));
             }
         }
+
         return nuspec;
     }
 
@@ -253,51 +259,50 @@ public class NugetPackageGenerator
 
         ris.close();
         zos.closeEntry();
-
     }
 
     private void generateNuspecFile(Nuspec nuspec)
-            throws IOException, NugetFormatException, JAXBException, NoSuchAlgorithmException
+            throws IOException, JAXBException, NoSuchAlgorithmException
     {
         String packageId = nuspec.getId();
-        String packageVersion = nuspec.getVersion()
-                                         .toString();
+        String packageVersion = nuspec.getVersion().toString();
+
         File nuspecFile = new File(getBasedir(),
-                String.format("%s/%s/%s.nuspec", packageId, packageVersion,
-                              packageId));
-        nuspecFile.getParentFile()
-                  .mkdirs();
+                                   String.format("%s/%s/%s.nuspec", packageId, packageVersion, packageId));
+
+        //noinspection ResultOfMethodCallIgnored
+        nuspecFile.getParentFile().mkdirs();
 
         try (FileOutputStream fileOutputStream = new FileOutputStream(nuspecFile))
         {
             LayoutOutputStream layoutOutputStream = new LayoutOutputStream(fileOutputStream);
             layoutOutputStream.addAlgorithm(MessageDigestAlgorithms.SHA_512);
             layoutOutputStream.setDigestStringifier(this::toBase64);
-            try {
-                nuspec.saveTo(layoutOutputStream);                
-            } finally {
+
+            try
+            {
+                nuspec.saveTo(layoutOutputStream);
+            }
+            finally
+            {
                 layoutOutputStream.close();
             }
             
             generateChecksum(nuspecFile, layoutOutputStream);
         }
-
-
     }
 
     private String toBase64(byte[] digest)
     {
-        byte[] encoded = Base64.getEncoder()
-                               .encode(digest);
+        byte[] encoded = Base64.getEncoder().encode(digest);
+
         return new String(encoded, StandardCharsets.UTF_8);
     }
 
     private void generateChecksum(File file,
                                   LayoutOutputStream layoutOutputStream)
-        throws IOException,
-               NoSuchAlgorithmException
+        throws IOException
     {
-
         String sha512 = layoutOutputStream.getDigestMap().get(MessageDigestAlgorithms.SHA_512);
         MessageDigestUtils.writeChecksum(file.toPath(), ".sha512", sha512);
     }

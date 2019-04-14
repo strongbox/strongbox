@@ -17,13 +17,13 @@
 
 package org.carlspring.strongbox.storage.metadata.nuget.metadata;
 
+import org.carlspring.strongbox.artifact.coordinates.versioning.SemanticVersion;
 import org.carlspring.strongbox.storage.metadata.nuget.Dependency;
 import org.carlspring.strongbox.storage.metadata.nuget.Framework;
 import org.carlspring.strongbox.storage.metadata.nuget.NugetFormatException;
 import org.carlspring.strongbox.storage.metadata.nuget.VersionRange;
 
 import org.junit.jupiter.api.Test;
-import org.semver.Version;
 import static org.junit.jupiter.api.Assertions.*;
 
 /**
@@ -170,7 +170,7 @@ public class DependencyTest
         // THEN
         assertEquals("PACKAGE.ID", result.getId(), "Package ID");
         assertTrue(result.versionRange.isFixedVersion(), "This is the fixed version");
-        assertEquals(Version.parse("3.0.0.1029-rc"), result.versionRange.getLowVersion(), "Package Version");
+        assertEquals(SemanticVersion.parse("3.0.0.1029-rc"), result.versionRange.getLowVersion(), "Package Version");
     }
 
     /**
@@ -191,11 +191,12 @@ public class DependencyTest
         Dependency result = Dependency.parseString(dependencyString);
         // THEN
         assertEquals("PACKAGE.ID", result.getId(), "Package ID");
-        assertEquals(Version.parse("2.5-a"), result.versionRange.getLowVersion(), "Lower Range");
+        assertEquals(SemanticVersion.parse("2.5-a"), result.versionRange.getLowVersion(), "Lower Range");
         assertEquals(VersionRange.BorderType.INCLUDE, result.versionRange.getLowBorderType(), "Type Bottom Range");
-        assertEquals(Version.parse("3.0"), result.versionRange.getTopVersion(), "Upper Range Limit");
+        assertEquals(SemanticVersion.parse("3.0"), result.versionRange.getTopVersion(), "Upper Range Limit");
         assertEquals(VersionRange.BorderType.EXCLUDE,
                      result.versionRange.getTopBorderType(),
                      "Type of the upper bound of the range");
     }
+
 }
