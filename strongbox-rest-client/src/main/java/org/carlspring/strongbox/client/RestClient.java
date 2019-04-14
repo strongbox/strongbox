@@ -50,6 +50,11 @@ public class RestClient
         this.yamlMapper = yamlMapper;
     }
 
+    public static ArtifactClient getTestInstance()
+    {
+        return getTestInstance("deployer", "password");
+    }
+
     public static RestClient getTestInstanceLoggedInAsAdmin()
     {
         return getTestInstance("admin", "password");
