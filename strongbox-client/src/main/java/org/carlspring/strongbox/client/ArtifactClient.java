@@ -50,6 +50,11 @@ public class ArtifactClient
     {
     }
 
+    public static ArtifactClient getTestInstance()
+    {
+        return getTestInstance("deployer", "password");
+    }
+
     public static ArtifactClient getTestInstanceLoggedInAsAdmin()
     {
         return getTestInstance("admin", "password");
