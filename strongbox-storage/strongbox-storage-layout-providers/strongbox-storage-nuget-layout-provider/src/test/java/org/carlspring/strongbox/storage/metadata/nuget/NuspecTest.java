@@ -17,6 +17,8 @@
 
 package org.carlspring.strongbox.storage.metadata.nuget;
 
+import org.carlspring.strongbox.artifact.coordinates.versioning.SemanticVersion;
+
 import javax.xml.namespace.NamespaceContext;
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
@@ -31,7 +33,6 @@ import java.util.Iterator;
 import java.util.List;
 
 import org.junit.jupiter.api.Test;
-import org.semver.Version;
 import org.w3c.dom.Document;
 import org.xml.sax.SAXException;
 import static org.junit.jupiter.api.Assertions.*;
@@ -91,7 +92,7 @@ public class NuspecTest
         final String fileName = "nuspec/test.nuspec.xml";
         Nuspec result = Nuspec.parse(NugetTestResourceUtil.getAsStream(fileName));
         assertEquals("Neolant.ProjectWise.IsolationLevel.Implementation", result.getId(), "Package ID");
-        assertEquals(Version.parse("1.4.7.550"), result.getVersion(), "Package Version");
+        assertEquals(SemanticVersion.parse("1.4.7.550"), result.getVersion(), "Package Version");
         assertEquals("Implementing the ProjecWise API isolation level", result.getTitle(), "Short description");
         assertEquals("NEOLANT", result.getOwners(), "Authors");
         assertEquals("NEOLANT", result.getOwners(), "Owners");
@@ -122,7 +123,7 @@ public class NuspecTest
 
         // THEN
         assertEquals("NUnit", result.getId(), "Package ID");
-        assertEquals(Version.parse("2.5.9.10348"), result.getVersion(), "Package Version");
+        assertEquals(SemanticVersion.parse("2.5.9.10348"), result.getVersion(), "Package Version");
         assertEquals("NUnit", result.getAuthors(), "Authors");
         assertEquals("NUnit", result.getOwners(), "Owners");
         assertEquals(false, result.isRequireLicenseAcceptance(), "License Verification Required");
@@ -157,12 +158,11 @@ public class NuspecTest
 
         // THEN
         assertEquals("NHibernate", result.getId(), "Package ID");
-        assertEquals(Version.parse("3.2.0.4000"), result.getVersion(), "Package Version");
+        assertEquals(SemanticVersion.parse("3.2.0.4000"), result.getVersion(), "Package Version");
         assertEquals("NHibernate community, Hibernate community", result.getAuthors(), "Authors");
         assertEquals("NHibernate community, Hibernate community", result.getOwners(), "Owners");
         assertEquals(false, result.isRequireLicenseAcceptance(), "License Verification Required");
-        assertEquals(
-                     "NHibernate is a mature, open source object-relational mapper for the .NET framework. It's actively developed , fully featured and used in thousands of successful projects.",
+        assertEquals("NHibernate is a mature, open source object-relational mapper for the .NET framework. It's actively developed , fully featured and used in thousands of successful projects.",
                      result.getDescription(),
                      "Description");
         assertEquals(

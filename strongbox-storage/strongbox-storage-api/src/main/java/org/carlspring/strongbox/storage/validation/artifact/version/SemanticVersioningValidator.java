@@ -1,6 +1,7 @@
 package org.carlspring.strongbox.storage.validation.artifact.version;
 
 import org.carlspring.strongbox.artifact.coordinates.ArtifactCoordinates;
+import org.carlspring.strongbox.artifact.coordinates.versioning.SemanticVersion;
 import org.carlspring.strongbox.storage.repository.Repository;
 import org.carlspring.strongbox.storage.validation.ArtifactCoordinatesValidator;
 import org.carlspring.strongbox.storage.validation.artifact.ArtifactCoordinatesValidatorRegistry;
@@ -8,7 +9,6 @@ import org.carlspring.strongbox.storage.validation.artifact.ArtifactCoordinatesV
 import javax.annotation.PostConstruct;
 import javax.inject.Inject;
 
-import org.semver.Version;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Component;
@@ -68,9 +68,10 @@ public class SemanticVersioningValidator
             throws VersionValidationException
     {
         String version = coordinates.getVersion();
+
         try
         {
-            Version.parse(version);
+            SemanticVersion.parse(version);
         }
         catch (IllegalArgumentException e)
         {

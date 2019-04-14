@@ -2,6 +2,7 @@ package org.carlspring.strongbox.controllers.layout.nuget;
 
 import org.carlspring.strongbox.artifact.ArtifactTag;
 import org.carlspring.strongbox.artifact.coordinates.PathNupkg;
+import org.carlspring.strongbox.artifact.coordinates.versioning.SemanticVersion;
 import org.carlspring.strongbox.controllers.BaseArtifactController;
 import org.carlspring.strongbox.data.criteria.Expression.ExpOperator;
 import org.carlspring.strongbox.data.criteria.Paginator;
@@ -22,7 +23,6 @@ import org.carlspring.strongbox.storage.Storage;
 import org.carlspring.strongbox.storage.metadata.nuget.Nuspec;
 import org.carlspring.strongbox.storage.metadata.nuget.TempNupkgFile;
 import org.carlspring.strongbox.storage.repository.Repository;
-import org.semver.Version;
 
 import javax.inject.Inject;
 import javax.servlet.ServletInputStream;
@@ -656,7 +656,8 @@ public class NugetArtifactController extends BaseArtifactController
             }
 
             String nuspecId = nuspec.getId();
-            Version nuspecVersion = nuspec.getVersion();
+
+            SemanticVersion nuspecVersion = nuspec.getVersion();
             String path = String.format("%s/%s/%s.%s.nupkg",
                                         nuspecId,
                                         nuspecVersion,

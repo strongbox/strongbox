@@ -17,9 +17,14 @@
 
 package org.carlspring.strongbox.storage.metadata.nuget;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertNotNull;
+import org.carlspring.strongbox.artifact.coordinates.versioning.SemanticVersion;
+import org.carlspring.strongbox.booters.PropertiesBooter;
+import org.carlspring.strongbox.config.NugetBootersTestConfig;
+import org.carlspring.strongbox.testing.TestCaseWithNugetPackageGeneration;
+import org.carlspring.strongbox.util.MessageDigestUtils;
 
+import javax.inject.Inject;
+import javax.xml.bind.JAXBException;
 import java.io.BufferedInputStream;
 import java.io.File;
 import java.io.IOException;
@@ -28,24 +33,15 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.security.NoSuchAlgorithmException;
 
-import javax.inject.Inject;
-import javax.xml.bind.JAXBException;
-
 import org.apache.commons.io.FileUtils;
-import org.carlspring.strongbox.booters.PropertiesBooter;
-import org.carlspring.strongbox.config.NugetBootersTestConfig;
-import org.carlspring.strongbox.storage.metadata.nuget.NugetFormatException;
-import org.carlspring.strongbox.storage.metadata.nuget.Nuspec;
-import org.carlspring.strongbox.storage.metadata.nuget.TempNupkgFile;
-import org.carlspring.strongbox.testing.TestCaseWithNugetPackageGeneration;
-import org.carlspring.strongbox.util.MessageDigestUtils;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-import org.semver.Version;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.ContextConfiguration;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
 
 /**
  * @author Dmitry Sviridov
@@ -145,14 +141,15 @@ public class TempNupkgFileTest
 
         // WHEN
         try (InputStream nupkgInputStream = new BufferedInputStream(Files.newInputStream(packageFilePath));
-                TempNupkgFile nupkgFile = new TempNupkgFile(nupkgInputStream);)
+             TempNupkgFile nupkgFile = new TempNupkgFile(nupkgInputStream))
         {
             // WHEN
             Nuspec nuspecFile = nupkgFile.getNuspec();
+
             // THEN
             assertNotNull(nuspecFile, "Package Specification");
             assertEquals(expectedPackageId, nuspecFile.getId(), "Package ID");
-            assertEquals(Version.parse(expectedPackageVersion), nuspecFile.getVersion(), "Package Version");
+            assertEquals(SemanticVersion.parse(expectedPackageVersion), nuspecFile.getVersion(), "Package Version");
         }
     }
 
@@ -184,7 +181,7 @@ public class TempNupkgFileTest
 
         // WHEN
         try (InputStream nupkgInputStream = new BufferedInputStream(Files.newInputStream(packageFilePath));
-                TempNupkgFile nupkgFile = new TempNupkgFile(nupkgInputStream);)
+             TempNupkgFile nupkgFile = new TempNupkgFile(nupkgInputStream))
         {
             // THEN
             assertNotNull(nupkgFile.getNuspec());

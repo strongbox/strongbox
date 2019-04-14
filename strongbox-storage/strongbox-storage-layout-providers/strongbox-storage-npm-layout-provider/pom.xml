@@ -203,11 +203,6 @@
         </dependency>
 
         <dependency>
-            <groupId>org.semver</groupId>
-            <artifactId>api</artifactId>
-        </dependency>
-
-        <dependency>
             <groupId>org.apache.commons</groupId>
             <artifactId>commons-compress</artifactId>
         </dependency>
