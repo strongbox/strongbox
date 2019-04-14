@@ -105,14 +105,17 @@ public class UserControllerTestIT
         user.setSecurityTokenKey("before");
 
         UserAccessModelDto userAccessModelDto = new UserAccessModelDto();
-        UserStorageDto userStorageDto = new UserStorageDto();
-        userStorageDto.setStorageId("storage0");
+
         UserRepositoryDto userRepositoryDto = new UserRepositoryDto();
         userRepositoryDto.setRepositoryId("releases");
-        PrivilegeDto repositoryPrivilege = new PrivilegeDto("ARTIFACTS_RESOLVE","ARTIFACTS_RESOLVE");
-        userRepositoryDto.getRepositoryPrivileges().add(repositoryPrivilege);
+        userRepositoryDto.getRepositoryPrivileges().add( new PrivilegeDto("ARTIFACTS_RESOLVE","ARTIFACTS_RESOLVE"));
+
+        UserStorageDto userStorageDto = new UserStorageDto();
+        userStorageDto.setStorageId("storage0");
         userStorageDto.getRepositories().add(userRepositoryDto);
+
         userAccessModelDto.getStorages().add(userStorageDto);
+
         user.setUserAccessModel(userAccessModelDto);
 
         UserForm userForm = buildFromUser(new User(user), u -> u.setEnabled(true));
@@ -770,17 +773,18 @@ public class UserControllerTestIT
         user.setSecurityTokenKey("before");
 
         UserAccessModelDto userAccessModelDto = new UserAccessModelDto();
-        UserStorageDto userStorageDto = new UserStorageDto();
-        userStorageDto.setStorageId("storage0");
+
         UserRepositoryDto userRepositoryDto = new UserRepositoryDto();
         userRepositoryDto.setRepositoryId("releases");
-        PrivilegeDto repositoryPrivilege = new PrivilegeDto("ARTIFACTS_RESOLVE","ARTIFACTS_RESOLVE");
-        userRepositoryDto.getRepositoryPrivileges().add(repositoryPrivilege);
-        UserPathPrivilegesDto userPathPrivilegesDto = new UserPathPrivilegesDto();
-        userPathPrivilegesDto.setPath("com/carlspring");
-        userPathPrivilegesDto.setWildcard(true);
+        userRepositoryDto.getRepositoryPrivileges().add(new PrivilegeDto("ARTIFACTS_RESOLVE","ARTIFACTS_RESOLVE"));
+
+        UserStorageDto userStorageDto = new UserStorageDto();
+        userStorageDto.setStorageId("storage0");
+
         userStorageDto.getRepositories().add(userRepositoryDto);
+
         userAccessModelDto.getStorages().add(userStorageDto);
+
         user.setUserAccessModel(userAccessModelDto);
 
         UserForm userForm = buildFromUser(new User(user), u -> u.setEnabled(true));
@@ -848,17 +852,18 @@ public class UserControllerTestIT
         user.setSecurityTokenKey("before");
 
         UserAccessModelDto userAccessModelDto = new UserAccessModelDto();
-        UserStorageDto userStorageDto = new UserStorageDto();
-        userStorageDto.setStorageId("storage0");
+
         UserRepositoryDto userRepositoryDto = new UserRepositoryDto();
         userRepositoryDto.setRepositoryId("releases");
-        PrivilegeDto repositoryPrivilege = new PrivilegeDto("ARTIFACTS_RESOLVE","ARTIFACTS_RESOLVE");
-        userRepositoryDto.getRepositoryPrivileges().add(repositoryPrivilege);
-        UserPathPrivilegesDto userPathPrivilegesDto = new UserPathPrivilegesDto();
-        userPathPrivilegesDto.setPath("com/carlspring");
-        userPathPrivilegesDto.setWildcard(true);
+        userRepositoryDto.getRepositoryPrivileges().add(new PrivilegeDto("ARTIFACTS_RESOLVE","ARTIFACTS_RESOLVE"));
+
+        UserStorageDto userStorageDto = new UserStorageDto();
+        userStorageDto.setStorageId("storage0");
+
         userStorageDto.getRepositories().add(userRepositoryDto);
+
         userAccessModelDto.getStorages().add(userStorageDto);
+
         user.setUserAccessModel(userAccessModelDto);
 
         UserForm userForm = buildFromUser(new User(user), u -> u.setEnabled(true));
