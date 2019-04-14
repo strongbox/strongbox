@@ -28,7 +28,7 @@ public class UserFormTestIT
 {
 
     private static final String VALID_USERNAME = "new-user";
-    private static final String EXISTING_USERNAME = "user";
+    private static final String EXISTING_USERNAME = "deployer";
     private static final String VALID_PASSWORD = "new-password";
     private static final String INVALID_PASSWORD = "newpass";
 

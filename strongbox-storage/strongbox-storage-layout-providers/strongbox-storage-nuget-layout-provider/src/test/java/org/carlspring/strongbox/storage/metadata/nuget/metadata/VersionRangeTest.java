@@ -17,10 +17,10 @@
 
 package org.carlspring.strongbox.storage.metadata.nuget.metadata;
 
+import org.carlspring.strongbox.artifact.coordinates.versioning.SemanticVersion;
 import org.carlspring.strongbox.storage.metadata.nuget.VersionRange;
 
 import org.junit.jupiter.api.Test;
-import org.semver.Version;
 import static org.junit.jupiter.api.Assertions.*;
 
 /**
@@ -42,8 +42,8 @@ public class VersionRangeTest
     {
         // GIVEN
         VersionRange versionRange = new VersionRange();
-        versionRange.setLowVersion(Version.parse("1.2.3"));
-        versionRange.setTopVersion(Version.parse("2.3.1"));
+        versionRange.setLowVersion(SemanticVersion.parse("1.2.3"));
+        versionRange.setTopVersion(SemanticVersion.parse("2.3.1"));
         versionRange.setLowBorderType(VersionRange.BorderType.INCLUDE);
         versionRange.setTopBorderType(VersionRange.BorderType.INCLUDE);
         // WHEN
@@ -64,8 +64,8 @@ public class VersionRangeTest
     {
         // GIVEN
         VersionRange versionRange = new VersionRange();
-        versionRange.setLowVersion(Version.parse("1.2.3"));
-        versionRange.setTopVersion(Version.parse("2.3.1"));
+        versionRange.setLowVersion(SemanticVersion.parse("1.2.3"));
+        versionRange.setTopVersion(SemanticVersion.parse("2.3.1"));
         versionRange.setLowBorderType(VersionRange.BorderType.EXCLUDE);
         versionRange.setTopBorderType(VersionRange.BorderType.EXCLUDE);
         // WHEN
@@ -86,8 +86,8 @@ public class VersionRangeTest
     {
         // GIVEN
         VersionRange versionRange = new VersionRange();
-        versionRange.setLowVersion(Version.parse("1.2.3"));
-        versionRange.setTopVersion(Version.parse("2.3.1"));
+        versionRange.setLowVersion(SemanticVersion.parse("1.2.3"));
+        versionRange.setTopVersion(SemanticVersion.parse("2.3.1"));
         versionRange.setLowBorderType(VersionRange.BorderType.INCLUDE);
         versionRange.setTopBorderType(VersionRange.BorderType.EXCLUDE);
         // WHEN
@@ -108,7 +108,7 @@ public class VersionRangeTest
     {
         // GIVEN
         VersionRange versionRange = new VersionRange();
-        versionRange.setLowVersion(Version.parse("1.2.3"));
+        versionRange.setLowVersion(SemanticVersion.parse("1.2.3"));
         versionRange.setTopVersion(null);
         versionRange.setLowBorderType(VersionRange.BorderType.INCLUDE);
         versionRange.setTopBorderType(null);
@@ -131,7 +131,7 @@ public class VersionRangeTest
         // GIVEN
         VersionRange versionRange = new VersionRange();
         versionRange.setLowVersion(null);
-        versionRange.setTopVersion(Version.parse("1.2.3"));
+        versionRange.setTopVersion(SemanticVersion.parse("1.2.3"));
         versionRange.setLowBorderType(null);
         versionRange.setTopBorderType(VersionRange.BorderType.INCLUDE);
         // WHEN
@@ -153,7 +153,7 @@ public class VersionRangeTest
         // GIVEN
         VersionRange versionRange = new VersionRange();
         versionRange.setLowVersion(null);
-        versionRange.setTopVersion(Version.parse("1.2.3"));
+        versionRange.setTopVersion(SemanticVersion.parse("1.2.3"));
         versionRange.setLowBorderType(null);
         versionRange.setTopBorderType(VersionRange.BorderType.EXCLUDE);
         // WHEN
@@ -174,8 +174,8 @@ public class VersionRangeTest
     {
         // GIVEN
         VersionRange versionRange = new VersionRange();
-        versionRange.setLowVersion(Version.parse("1.2.3"));
-        versionRange.setTopVersion(Version.parse("1.2.3"));
+        versionRange.setLowVersion(SemanticVersion.parse("1.2.3"));
+        versionRange.setTopVersion(SemanticVersion.parse("1.2.3"));
         versionRange.setLowBorderType(VersionRange.BorderType.INCLUDE);
         versionRange.setTopBorderType(VersionRange.BorderType.INCLUDE);
         // WHEN
@@ -196,7 +196,7 @@ public class VersionRangeTest
     {
         // GIVEN
         VersionRange versionRange = new VersionRange();
-        versionRange.setLowVersion(Version.parse("1.2.3"));
+        versionRange.setLowVersion(SemanticVersion.parse("1.2.3"));
         versionRange.setTopVersion(null);
         versionRange.setLowBorderType(VersionRange.BorderType.EXCLUDE);
         versionRange.setTopBorderType(null);
@@ -243,7 +243,7 @@ public class VersionRangeTest
         // WHEN
         VersionRange versionRange = VersionRange.parse(versionString);
         // THEN
-        assertEquals(Version.parse(versionString), versionRange.getLowVersion(), "Lower Bound");
+        assertEquals(SemanticVersion.parse(versionString), versionRange.getLowVersion(), "Lower Bound");
         assertEquals(VersionRange.BorderType.INCLUDE, versionRange.getLowBorderType(), "Type of lower border");
         assertNull(versionRange.getTopVersion(), "Upper Bound");
         assertNull(versionRange.getTopBorderType(), "Type of upper border");
@@ -267,7 +267,7 @@ public class VersionRangeTest
         // THEN
         assertNull(versionRange.getLowVersion(), "Lower bound");
         assertNull(versionRange.getLowBorderType(), "Type lower border");
-        assertEquals(Version.parse("1.0"), versionRange.getTopVersion(), "Upper bound");
+        assertEquals(SemanticVersion.parse("1.0"), versionRange.getTopVersion(), "Upper bound");
         assertEquals(VersionRange.BorderType.INCLUDE, versionRange.getTopBorderType(), "Type of upper border");
     }
 
@@ -289,7 +289,7 @@ public class VersionRangeTest
         // THEN
         assertNull(versionRange.getLowVersion(), "Lower bound");
         assertNull(versionRange.getLowBorderType(), "Type lower border");
-        assertEquals(Version.parse("1.0"), versionRange.getTopVersion(), "Upper bound");
+        assertEquals(SemanticVersion.parse("1.0"), versionRange.getTopVersion(), "Upper bound");
         assertEquals(VersionRange.BorderType.EXCLUDE, versionRange.getTopBorderType(), "Type of upper border");
     }
 
@@ -309,9 +309,9 @@ public class VersionRangeTest
         // WHEN
         VersionRange versionRange = VersionRange.parse(versionString);
         // THEN
-        assertEquals(Version.parse("1.0"), versionRange.getLowVersion(), "Lower Bound");
+        assertEquals(SemanticVersion.parse("1.0"), versionRange.getLowVersion(), "Lower Bound");
         assertEquals(VersionRange.BorderType.INCLUDE, versionRange.getLowBorderType(), "Type of lower border");
-        assertEquals(Version.parse("1.0"), versionRange.getTopVersion(), "Upper Bound");
+        assertEquals(SemanticVersion.parse("1.0"), versionRange.getTopVersion(), "Upper Bound");
         assertEquals(VersionRange.BorderType.INCLUDE, versionRange.getTopBorderType(), "Type of upper border");
         assertTrue(versionRange.isFixedVersion(), "fixed version");
     }
@@ -332,7 +332,7 @@ public class VersionRangeTest
         // WHEN
         VersionRange versionRange = VersionRange.parse(versionString);
         // THEN
-        assertEquals(Version.parse("1.0"), versionRange.getLowVersion(), "Lower Bound");
+        assertEquals(SemanticVersion.parse("1.0"), versionRange.getLowVersion(), "Lower Bound");
         assertEquals(VersionRange.BorderType.EXCLUDE, versionRange.getLowBorderType(), "Type lower border");
         assertNull(versionRange.getTopVersion(), "Upper Bound");
         assertNull(versionRange.getTopBorderType(), "Type of upper border");
@@ -353,9 +353,9 @@ public class VersionRangeTest
         // WHEN
         VersionRange versionRange = VersionRange.parse(versionString);
         // THEN
-        assertEquals(Version.parse("1.0"), versionRange.getLowVersion(), "Lower Bound");
+        assertEquals(SemanticVersion.parse("1.0"), versionRange.getLowVersion(), "Lower Bound");
         assertEquals(VersionRange.BorderType.EXCLUDE, versionRange.getLowBorderType(), "Type lower border");
-        assertEquals(Version.parse("2.0"), versionRange.getTopVersion(), "Upper Bound");
+        assertEquals(SemanticVersion.parse("2.0"), versionRange.getTopVersion(), "Upper Bound");
         assertEquals(VersionRange.BorderType.EXCLUDE, versionRange.getTopBorderType(), "Type of upper border");
     }
 
@@ -374,9 +374,9 @@ public class VersionRangeTest
         // WHEN
         VersionRange versionRange = VersionRange.parse(versionString);
         // THEN
-        assertEquals(Version.parse("1.0"), versionRange.getLowVersion(), "Lower Bound");
+        assertEquals(SemanticVersion.parse("1.0"), versionRange.getLowVersion(), "Lower Bound");
         assertEquals(VersionRange.BorderType.INCLUDE, versionRange.getLowBorderType(), "Type of lower border");
-        assertEquals(Version.parse("2.0"), versionRange.getTopVersion(), "Upper Bound");
+        assertEquals(SemanticVersion.parse("2.0"), versionRange.getTopVersion(), "Upper Bound");
         assertEquals(VersionRange.BorderType.INCLUDE, versionRange.getTopBorderType(), "Type of upper border");
     }
 
