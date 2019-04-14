@@ -122,16 +122,16 @@ public class UserControllerTestIT
 
         // create new user
         given().contentType(MediaType.APPLICATION_JSON_VALUE)
-                .accept(acceptHeader)
-                .body(userForm)
-                .when()
-                .put(getContextBaseUrl())
-                .peek() // Use peek() to print the output
-                .then()
-                .statusCode(HttpStatus.OK.value()) // check http status code
-                .body(containsString(SUCCESSFUL_CREATE_USER))
-                .extract()
-                .asString();
+               .accept(acceptHeader)
+               .body(userForm)
+               .when()
+               .put(getContextBaseUrl())
+               .peek() // Use peek() to print the output
+               .then()
+               .statusCode(HttpStatus.OK.value()) // check http status code
+               .body(containsString(SUCCESSFUL_CREATE_USER))
+               .extract()
+               .asString();
 
         // retrieve newly created user and store the objectId
         User createdUser = retrieveUserByName(user.getUsername());
