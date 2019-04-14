@@ -1,11 +1,16 @@
 package org.carlspring.strongbox.users.service;
 
+import org.carlspring.strongbox.authorization.dto.PrivilegeDto;
 import org.carlspring.strongbox.config.DataServiceConfig;
 import org.carlspring.strongbox.config.UsersConfig;
 import org.carlspring.strongbox.users.domain.AccessModel;
 import org.carlspring.strongbox.users.domain.User;
-import org.carlspring.strongbox.users.dto.UserAccessModelReadContract;
 import org.carlspring.strongbox.users.dto.UserDto;
+import org.carlspring.strongbox.users.dto.UserAccessModelDto;
+import org.carlspring.strongbox.users.dto.UserStorageDto;
+import org.carlspring.strongbox.users.dto.UserPathPrivilegesDto;
+import org.carlspring.strongbox.users.dto.UserRepositoryDto;
+import org.carlspring.strongbox.users.dto.UserAccessModelReadContract;
 import org.carlspring.strongbox.users.service.impl.StrongboxUserService.StrongboxUserServiceQualifier;
 
 import javax.inject.Inject;
@@ -48,9 +53,9 @@ public class UserServiceTest
     public void testFindByUsername()
     {
         // Load the user
-        User user = userService.findByUserName("developer01");
+        User user = userService.findByUserName("deployer");
 
-        assertNotNull(user, "Unable to find user by name developer01");
+        assertNotNull(user, "Unable to find user by name test-user");
         assertNotNull(user.getAuthorities(), "User authorities were not set!");
         assertTrue(user.getAuthorities().size() > 0, "Expected user authorities to be grater than 0!");
 
@@ -243,10 +248,58 @@ public class UserServiceTest
     @Test
     public void testPrivilegesProcessingForAccessModel()
     {
-        // Load the user
-        User user = userService.findByUserName("developer01");
+        String testUserName = "test-user";
 
-        assertNotNull(user, "Unable to find user by name developer01");
+        UserDto userAdd = new UserDto();
+        userAdd.setEnabled(true);
+        userAdd.setUsername(testUserName);
+        userAdd.setPassword("test-password");
+        userAdd.setSecurityTokenKey("before");
+
+        UserAccessModelDto userAccessModelDto = new UserAccessModelDto();
+
+        UserStorageDto userStorageDto = new UserStorageDto();
+
+        userStorageDto.setStorageId("storage0");
+
+        UserRepositoryDto userRepositoryDto = new UserRepositoryDto();
+        userRepositoryDto.setRepositoryId("releases");
+        userRepositoryDto.getRepositoryPrivileges().add(new PrivilegeDto("ARTIFACTS_RESOLVE","ARTIFACTS_RESOLVE"));
+
+        UserPathPrivilegesDto userPathPrivilegesDto = new UserPathPrivilegesDto();
+        userPathPrivilegesDto.setPath("com/carlspring");
+        userPathPrivilegesDto.setWildcard(true);
+
+        userPathPrivilegesDto.getPrivileges().add(new PrivilegeDto("ARTIFACTS_VIEW","ARTIFACTS_VIEW"));
+        userRepositoryDto.getPathPrivileges().add(userPathPrivilegesDto);
+
+        UserPathPrivilegesDto userPathPrivilegesDto2 = new UserPathPrivilegesDto();
+        userPathPrivilegesDto2.setPath("org/carlspring");
+        userPathPrivilegesDto2.setWildcard(true);
+
+        userPathPrivilegesDto2.getPrivileges().add( new PrivilegeDto("ARTIFACTS_DELETE","ARTIFACTS_DELETE"));
+        userRepositoryDto.getPathPrivileges().add(userPathPrivilegesDto2);
+
+        UserPathPrivilegesDto userPathPrivilegesDto3 = new UserPathPrivilegesDto();
+        userPathPrivilegesDto3.setPath("com/mycorp");
+
+        userPathPrivilegesDto3.getPrivileges().add(new PrivilegeDto("ARTIFACTS_DELETE","ARTIFACTS_DELETE"));
+        userPathPrivilegesDto3.getPrivileges().add( new PrivilegeDto("ARTIFACTS_VIEW","ARTIFACTS_VIEW"));
+        userPathPrivilegesDto3.getPrivileges().add(new PrivilegeDto("ARTIFACTS_DEPLOY","ARTIFACTS_DEPLOY"));
+        userPathPrivilegesDto3.getPrivileges().add(new PrivilegeDto("ARTIFACTS_COPY","ARTIFACTS_COPY"));
+
+        userRepositoryDto.getPathPrivileges().add(userPathPrivilegesDto3);
+
+        userStorageDto.getRepositories().add(userRepositoryDto);
+        userAccessModelDto.getStorages().add(userStorageDto);
+
+        userAdd.setUserAccessModel(userAccessModelDto);
+        userService.save(userAdd);
+
+        // Load the user
+        User user = userService.findByUserName("test-user");
+
+        assertNotNull(user, "Unable to find user by name test-user");
 
         // Display the access model
         UserAccessModelReadContract accessModel = user.getUserAccessModel();
@@ -273,6 +326,15 @@ public class UserServiceTest
         assertThat(privileges.size(), CoreMatchers.equalTo(2));
         assertTrue(privileges.contains("ARTIFACTS_RESOLVE"));
         assertTrue(privileges.contains("ARTIFACTS_VIEW"));
+
+        privileges = AccessModel.getPathPrivileges(accessModel, "/storages/storage0/releases/" +
+                                                    "org/carlspring/foo/1.3/foo-1.3.jar");
+
+        assertNotNull(privileges);
+        assertFalse(privileges.isEmpty());
+        assertThat(privileges.size(), CoreMatchers.equalTo(2));
+        assertTrue(privileges.contains("ARTIFACTS_RESOLVE"));
+        assertTrue(privileges.contains("ARTIFACTS_DELETE"));
 
         privileges = AccessModel.getPathPrivileges(accessModel, "/storages/storage0/releases/" +
                                                    "com/mycorp/foo/1.2/foo-1.2.jar");

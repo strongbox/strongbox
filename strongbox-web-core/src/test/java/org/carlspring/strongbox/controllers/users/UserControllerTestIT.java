@@ -1,5 +1,6 @@
 package org.carlspring.strongbox.controllers.users;
 
+import org.carlspring.strongbox.authorization.dto.PrivilegeDto;
 import org.carlspring.strongbox.config.IntegrationTest;
 import org.carlspring.strongbox.controllers.users.support.AccessModelOutput;
 import org.carlspring.strongbox.controllers.users.support.RepositoryAccessModelOutput;
@@ -13,14 +14,15 @@ import org.carlspring.strongbox.rest.common.RestAssuredBaseTest;
 import org.carlspring.strongbox.users.domain.Privileges;
 import org.carlspring.strongbox.users.domain.Roles;
 import org.carlspring.strongbox.users.domain.User;
+import org.carlspring.strongbox.users.dto.UserAccessModelDto;
+import org.carlspring.strongbox.users.dto.UserRepositoryDto;
+import org.carlspring.strongbox.users.dto.UserStorageDto;
 import org.carlspring.strongbox.users.dto.UserDto;
 import org.carlspring.strongbox.users.service.UserService;
 import org.carlspring.strongbox.users.service.impl.StrongboxUserService.StrongboxUserServiceQualifier;
 
 import javax.inject.Inject;
-import java.util.Collections;
-import java.util.Optional;
-import java.util.Set;
+import java.util.*;
 import java.util.function.Consumer;
 import java.util.stream.Stream;
 
@@ -87,10 +89,52 @@ public class UserControllerTestIT
         setContextBaseUrl(getContextBaseUrl() + "/api/users");
     }
 
-    @Test
-    public void testGetUser()
+    @ParameterizedTest
+    @MethodSource("usersProvider")
+    public void testGetUser(String acceptHeader)
     {
-        final String username = "developer01";
+        String username = "test-user-1";
+
+        deleteCreatedUser(username);
+
+        UserDto user = new UserDto();
+        user.setEnabled(true);
+        user.setUsername(username);
+        user.setPassword("test-password");
+        user.setSecurityTokenKey("before");
+
+        UserAccessModelDto userAccessModelDto = new UserAccessModelDto();
+
+        UserRepositoryDto userRepositoryDto = new UserRepositoryDto();
+        userRepositoryDto.setRepositoryId("releases");
+        userRepositoryDto.getRepositoryPrivileges().add( new PrivilegeDto("ARTIFACTS_RESOLVE","ARTIFACTS_RESOLVE"));
+
+        UserStorageDto userStorageDto = new UserStorageDto();
+        userStorageDto.setStorageId("storage0");
+        userStorageDto.getRepositories().add(userRepositoryDto);
+
+        userAccessModelDto.getStorages().add(userStorageDto);
+
+        user.setUserAccessModel(userAccessModelDto);
+
+        UserForm userForm = buildFromUser(new User(user), u -> u.setEnabled(true));
+
+        // create new user
+        given().contentType(MediaType.APPLICATION_JSON_VALUE)
+               .accept(acceptHeader)
+               .body(userForm)
+               .when()
+               .put(getContextBaseUrl())
+               .peek() // Use peek() to print the output
+               .then()
+               .statusCode(HttpStatus.OK.value()) // check http status code
+               .body(containsString(SUCCESSFUL_CREATE_USER))
+               .extract()
+               .asString();
+
+        // retrieve newly created user and store the objectId
+        User createdUser = retrieveUserByName(user.getUsername());
+        assertEquals(username, createdUser.getUsername());
 
         // By default assignableRoles should not be present in the response.
         given().accept(MediaType.APPLICATION_JSON_VALUE)
@@ -100,8 +144,6 @@ public class UserControllerTestIT
                .then()
                .statusCode(HttpStatus.OK.value())
                .body("user.username", equalTo(username))
-               .body("user.authorities", notNullValue())
-               .body("user.authorities", hasSize(greaterThan(0)))
                .body("user.accessModel.repositoriesAccess", notNullValue())
                .body("user.accessModel.repositoriesAccess", hasSize(greaterThan(0)))
                .body("assignableRoles", nullValue());
@@ -115,14 +157,14 @@ public class UserControllerTestIT
                .then()
                .statusCode(HttpStatus.OK.value())
                .body("user.username", equalTo(username))
-               .body("user.authorities", notNullValue())
-               .body("user.authorities", hasSize(greaterThan(0)))
                .body("user.accessModel.repositoriesAccess", notNullValue())
                .body("user.accessModel.repositoriesAccess", hasSize(greaterThan(0)))
                .body("assignableRoles", notNullValue())
                .body("assignableRoles", hasSize(greaterThan(0)))
                .body("assignablePrivileges", notNullValue())
                .body("assignablePrivileges", hasSize(greaterThan(0)));
+
+        deleteCreatedUser(username);
     }
 
     private void userNotFound(String acceptHeader)
@@ -275,7 +317,7 @@ public class UserControllerTestIT
                              MediaType.TEXT_PLAIN_VALUE })
     void updateExistingUserWithNullPassword(String acceptHeader)
     {
-        User mavenUser = retrieveUserByName("maven");
+        User mavenUser = retrieveUserByName("deployer");
         UserForm input = buildFromUser(mavenUser, null);
         input.setPassword(null);
 
@@ -291,7 +333,7 @@ public class UserControllerTestIT
                .extract()
                .asString();
 
-        User updatedUser = retrieveUserByName("maven");
+        User updatedUser = retrieveUserByName("deployer");
 
         assertNotNull(updatedUser.getPassword());
         assertEquals(mavenUser.getPassword(), updatedUser.getPassword());
@@ -356,12 +398,12 @@ public class UserControllerTestIT
     }
 
     @ParameterizedTest
-    @WithUserDetails("maven")
+    @WithUserDetails("admin")
     @ValueSource(strings = { MediaType.APPLICATION_JSON_VALUE,
                              MediaType.TEXT_PLAIN_VALUE })
     void changeOwnUser(String acceptHeader)
     {
-        final String username = "maven";
+        final String username = "admin";
         final String newPassword = "";
         UserForm user = buildUser(username, newPassword);
 
@@ -386,17 +428,27 @@ public class UserControllerTestIT
     @ParameterizedTest
     @ValueSource(strings = { MediaType.APPLICATION_JSON_VALUE,
                              MediaType.TEXT_PLAIN_VALUE })
+    @WithUserDetails("admin")
     void shouldBeAbleToUpdateRoles(String acceptHeader)
     {
-        final String username = "maven";
+        final String username = "test-user";
         final String newPassword = "password";
+
+        UserDto user = new UserDto();
+        user.setEnabled(true);
+        user.setUsername(username);
+        user.setPassword(newPassword);
+        user.setSecurityTokenKey("some-security-token");
+        user.setRoles(ImmutableSet.of(Roles.UI_MANAGER.name()));
+        userService.save(user);
+
         UserForm admin = buildUser(username, newPassword);
 
         User updatedUser = retrieveUserByName(admin.getUsername());
 
-        assertTrue(SetUtils.isEqualSet(updatedUser.getRoles(), ImmutableSet.of(Roles.ADMIN.name())));
+        assertTrue(SetUtils.isEqualSet(updatedUser.getRoles(), ImmutableSet.of(Roles.UI_MANAGER.name())));
 
-        admin.setRoles(ImmutableSet.of("UI_MANAGER"));
+        admin.setRoles(ImmutableSet.of("ADMIN"));
         given().contentType(MediaType.APPLICATION_JSON_VALUE)
                .accept(acceptHeader)
                .body(admin)
@@ -411,10 +463,10 @@ public class UserControllerTestIT
 
         updatedUser = retrieveUserByName(admin.getUsername());
 
-        assertTrue(SetUtils.isEqualSet(updatedUser.getRoles(), ImmutableSet.of("UI_MANAGER")));
+        assertTrue(SetUtils.isEqualSet(updatedUser.getRoles(), ImmutableSet.of("ADMIN")));
 
         // Rollback changes.
-        admin.setRoles(ImmutableSet.of(Roles.ADMIN.name()));
+        admin.setRoles(ImmutableSet.of(Roles.UI_MANAGER.name()));
         given().contentType(MediaType.APPLICATION_JSON_VALUE)
                .accept(acceptHeader)
                .body(admin)
@@ -425,7 +477,7 @@ public class UserControllerTestIT
     }
 
     @Test
-    @WithUserDetails("developer01")
+    @WithUserDetails("deployer")
     public void testUserWithoutViewUserRoleShouldNotBeAbleToViewUserAccountData()
     {
         given().accept(MediaType.APPLICATION_JSON_VALUE)
@@ -436,13 +488,13 @@ public class UserControllerTestIT
 
         given().accept(MediaType.APPLICATION_JSON_VALUE)
                .when()
-               .get(getContextBaseUrl() + "/developer01")
+               .get(getContextBaseUrl() + "/deployer")
                .then()
                .statusCode(HttpStatus.FORBIDDEN.value());
     }
 
     @Test
-    @WithUserDetails("developer01")
+    @WithUserDetails("deployer")
     public void testUserWithoutUpdateUserRoleShouldNotBeAbleToUpdateSomeoneElsePassword()
     {
         final String username = "admin";
@@ -705,10 +757,53 @@ public class UserControllerTestIT
         assertTrue(repositoryAccess.get().getPrivileges().contains(mockPrivilege));
     }
 
-    @Test
-    public void testNotValidMapsShouldNotUpdateAccessModel()
+    @ParameterizedTest
+    @MethodSource("usersProvider")
+    public void testNotValidMapsShouldNotUpdateAccessModel(String acceptHeader)
     {
-        String username = "developer01";
+        String username = "test-user";
+
+        deleteCreatedUser(username);
+
+        UserDto user = new UserDto();
+        user.setEnabled(true);
+        user.setUsername(username);
+        user.setPassword("test-password");
+        user.setSecurityTokenKey("before");
+
+        UserAccessModelDto userAccessModelDto = new UserAccessModelDto();
+
+        UserRepositoryDto userRepositoryDto = new UserRepositoryDto();
+        userRepositoryDto.setRepositoryId("releases");
+        userRepositoryDto.getRepositoryPrivileges().add(new PrivilegeDto("ARTIFACTS_RESOLVE","ARTIFACTS_RESOLVE"));
+
+        UserStorageDto userStorageDto = new UserStorageDto();
+        userStorageDto.setStorageId("storage0");
+
+        userStorageDto.getRepositories().add(userRepositoryDto);
+
+        userAccessModelDto.getStorages().add(userStorageDto);
+
+        user.setUserAccessModel(userAccessModelDto);
+
+        UserForm userForm = buildFromUser(new User(user), u -> u.setEnabled(true));
+
+        // create new user
+        given().contentType(MediaType.APPLICATION_JSON_VALUE)
+                .accept(acceptHeader)
+                .body(userForm)
+                .when()
+                .put(getContextBaseUrl())
+                .peek() // Use peek() to print the output
+                .then()
+                .statusCode(HttpStatus.OK.value()) // check http status code
+                .body(containsString(SUCCESSFUL_CREATE_USER))
+                .extract()
+                .asString();
+
+        // retrieve newly created user and store the objectId
+        User createdUser = retrieveUserByName(user.getUsername());
+        assertEquals(username, createdUser.getUsername());
 
         // load user with custom access model
         UserOutput test = getUser(username);
@@ -737,15 +832,59 @@ public class UserControllerTestIT
                .then()
                .statusCode(HttpStatus.BAD_REQUEST.value())
                .body(containsString(FAILED_UPDATE_ACCESS_MODEL));
+
+        deleteCreatedUser(username);
     }
 
-    @Test
-    public void testUpdatingAccessModelForNonExistingUserShouldFail()
+    @ParameterizedTest
+    @MethodSource("usersProvider")
+    public void testUpdatingAccessModelForNonExistingUserShouldFail(String acceptHeader)
     {
-        // load user with custom access model
-        UserOutput test = getUser("developer01");
+        String testUsername = "test-user";
 
-        logger.debug(test.toString());
+        deleteCreatedUser(testUsername);
+
+        UserDto user = new UserDto();
+        user.setEnabled(true);
+        user.setUsername(testUsername);
+        user.setPassword("test-password");
+        user.setSecurityTokenKey("before");
+
+        UserAccessModelDto userAccessModelDto = new UserAccessModelDto();
+
+        UserRepositoryDto userRepositoryDto = new UserRepositoryDto();
+        userRepositoryDto.setRepositoryId("releases");
+        userRepositoryDto.getRepositoryPrivileges().add(new PrivilegeDto("ARTIFACTS_RESOLVE","ARTIFACTS_RESOLVE"));
+
+        UserStorageDto userStorageDto = new UserStorageDto();
+        userStorageDto.setStorageId("storage0");
+
+        userStorageDto.getRepositories().add(userRepositoryDto);
+
+        userAccessModelDto.getStorages().add(userStorageDto);
+
+        user.setUserAccessModel(userAccessModelDto);
+
+        UserForm userForm = buildFromUser(new User(user), u -> u.setEnabled(true));
+
+        // create new user
+        given().contentType(MediaType.APPLICATION_JSON_VALUE)
+                .accept(acceptHeader)
+                .body(userForm)
+                .when()
+                .put(getContextBaseUrl())
+                .peek() // Use peek() to print the output
+                .then()
+                .statusCode(HttpStatus.OK.value()) // check http status code
+                .body(containsString(SUCCESSFUL_CREATE_USER))
+                .extract()
+                .asString();
+
+        // retrieve newly created user and store the objectId
+        UserOutput test = getUser(testUsername);
+        assertEquals(testUsername, test.getUsername());
+
+        logger.debug(testUsername);
 
         AccessModelForm accessModel = buildFromAccessModel(test.getAccessModel());
 
@@ -776,6 +915,8 @@ public class UserControllerTestIT
                .then()
                .statusCode(HttpStatus.NOT_FOUND.value()) // check http status code
                .body(containsString(NOT_FOUND_USER));
+
+        deleteCreatedUser(testUsername);
     }
 
     private void displayAllUsers()

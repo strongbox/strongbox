@@ -50,11 +50,6 @@ public class ArtifactClient
     {
     }
 
-    public static ArtifactClient getTestInstance()
-    {
-        return getTestInstance("maven", "password");
-    }
-
     public static ArtifactClient getTestInstanceLoggedInAsAdmin()
     {
         return getTestInstance("admin", "password");
@@ -72,7 +67,7 @@ public class ArtifactClient
                    48080;
 
         ArtifactClient client = new ArtifactClient();
-        client.setUsername(username != null ? username : "maven");
+        client.setUsername(username != null ? username : "deployer");
         client.setPassword(password != null ? password : "password");
         client.setPort(port);
         client.setContextBaseUrl("http://" + host + ":" + client.getPort());

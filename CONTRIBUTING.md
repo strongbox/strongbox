@@ -127,6 +127,7 @@ To accept, please:
 | Sarfraz Anwar                |                                          | Bengaluru, India                        | 2019-03-19 |
 | Brian Hill                   |                                          | Orlando, Florida, USA                   | 2019-03-26 |
 | Ben Falter                   |                                          | New York, New York, USA                 | 2019-04-04 |
+| Evrim Nur Celik              |                                          | Istanbul, Turkey                        | 2019-04-14 |
 | Akhilesh Bedre               |                                          | Hyderabad, India                        | 2019-04-07 |
 | Theodore Ravindranathh       |                                          | Chennai, India                          | 2019-04-13 |
 
