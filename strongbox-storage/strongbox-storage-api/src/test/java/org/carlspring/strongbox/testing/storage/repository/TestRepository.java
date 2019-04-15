@@ -85,4 +85,23 @@ public @interface TestRepository
 
     }
 
+    /**
+     * Group Repository configuration support.
+     * 
+     * @author sbespalov
+     *
+     */
+    @Target(ElementType.PARAMETER)
+    @Retention(RetentionPolicy.RUNTIME)
+    @Documented
+    public static @interface GroupRepository
+    {
+
+        /**
+         * Group member repositories list.
+         */
+        String[] value();
+
+    }
+    
 }
