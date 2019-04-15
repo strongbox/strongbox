@@ -14,6 +14,7 @@
     <version>1.0-SNAPSHOT</version>
     <packaging>pom</packaging>
 
+    <inceptionYear>2019</inceptionYear>
     <url>https://github.com/strongbox/strongbox-npm-metadata</url>
 
     <licenses>
