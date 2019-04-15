@@ -28,7 +28,7 @@ public class SwaggerConfig
         Contact contact = new Contact("Strongbox",
                                       "http://github.com/strongbox/strongbox/",
                                       "strongbox-dev@carlspring.com");
-        ApiInfo apiInfo = new ApiInfo("Carlspring Consulting &amp; Development Ltd.",
+        ApiInfo apiInfo = new ApiInfo("Carlspring Consulting & Development Ltd.",
                                       "This is the documentation of Strongbox's REST API.",
                                       strongboxVersion,
                                       "http://github.com/strongbox/strongbox/",
