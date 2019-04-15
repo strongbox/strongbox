@@ -1,5 +1,6 @@
 package org.carlspring.strongbox.providers.repository;
 
+import org.carlspring.strongbox.artifact.coordinates.MavenArtifactCoordinates;
 import org.carlspring.strongbox.config.Maven2LayoutProviderTestConfig;
 import org.carlspring.strongbox.providers.io.RepositoryPath;
 import org.carlspring.strongbox.providers.io.RepositoryPathResolver;
@@ -13,6 +14,11 @@ import org.carlspring.strongbox.storage.repository.RepositoryTypeEnum;
 import org.carlspring.strongbox.storage.routing.MutableRoutingRuleRepository;
 import org.carlspring.strongbox.storage.routing.RoutingRuleTypeEnum;
 import org.carlspring.strongbox.testing.TestCaseWithMavenArtifactGenerationAndIndexing;
+import org.carlspring.strongbox.testing.artifact.ArtifactManagementTestExecutionListener;
+import org.carlspring.strongbox.testing.artifact.MavenTestArtifact;
+import org.carlspring.strongbox.testing.repository.MavenRepository;
+import org.carlspring.strongbox.testing.storage.repository.RepositoryManagementTestExecutionListener;
+import org.carlspring.strongbox.testing.storage.repository.TestRepository;
 import org.carlspring.strongbox.yaml.configuration.repository.MutableMavenRepositoryConfiguration;
 
 import javax.inject.Inject;
@@ -27,6 +33,7 @@ import org.apache.maven.artifact.repository.metadata.Metadata;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.TestInfo;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.junit.jupiter.api.parallel.Execution;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.context.ActiveProfiles;
@@ -162,60 +169,23 @@ public class MavenGroupRepositoryProviderTest
     }
 
     @Test
-    public void testGroupIncludes(TestInfo testInfo)
+    @ExtendWith({RepositoryManagementTestExecutionListener.class, ArtifactManagementTestExecutionListener.class})
+    public void testGroupIncludes(@MavenRepository(repository = "grpt-releases-tgi-1") Repository releasesTgi1,
+                                  @MavenRepository(repository = "grpt-releases-tgi-2") Repository releasesTgi2,
+                                  @MavenRepository(repository = "grpt-releases-tgi-1") Repository releasesTgiGroup,
+                                  @MavenTestArtifact(repository = "grpt-releases-tgi-1", id = "com.artifacts.in.releases.one:foo", versions = "1.2.3") Path a1,
+                                  @MavenTestArtifact(repository = "grpt-releases-tgi-1", id = "com.artifacts.in.releases.under:group", versions = "1.2.3") Path a2,
+                                  @MavenTestArtifact(repository = "grpt-releases-tgi-2", id =  "com.artifacts.in.releases.four:foo", versions = "1.2.4") Path a3,
+                                  @MavenTestArtifact(repository = "grpt-releases-tgi-2", id =  "com.artifacts.in.releases.under:group", versions = "1.2.4") Path a4)
             throws Exception
     {
         System.out.println("# Testing group includes...");
 
-        String repositoryReleases1Name = getRepositoryName("grpt-releases-tgi-1", testInfo);
-
-        String repositoryReleases2Name = getRepositoryName("grpt-releases-tgi-2", testInfo);
-
-        String repositoryGroupName = getRepositoryName("grpt-releases-tgi-group", testInfo);
-
-        // Initialize test data
-        createRepository(STORAGE0, repositoryReleases1Name, false);
-
-        generateArtifact(getRepositoryBasedir(STORAGE0, repositoryReleases1Name).getAbsolutePath(),
-                         "com.artifacts.in.releases.one:foo",
-                         new String[]{ "1.2.3" });
-
-        createRepositoryWithArtifacts(STORAGE0,
-                                      repositoryReleases1Name,
-                                      false,
-                                      "com.artifacts.in.releases.under:group",
-                                      "1.2.3");
-
-        createRepository(STORAGE0, repositoryReleases2Name, false);
-        generateArtifact(getRepositoryBasedir(STORAGE0, repositoryReleases2Name).getAbsolutePath(),
-                         "com.artifacts.in.releases.four:foo",
-                         new String[]{ "1.2.4" });
-
-        generateArtifact(getRepositoryBasedir(STORAGE0, repositoryReleases2Name).getAbsolutePath(),
-                         "com.artifacts.in.releases.under:group",
-                         new String[]{ "1.2.4" });
-
-        MutableMavenRepositoryConfiguration mavenRepositoryConfiguration = new MutableMavenRepositoryConfiguration();
-        mavenRepositoryConfiguration.setIndexingEnabled(false);
-
-        MutableRepository repositoryGroup = mavenRepositoryFactory.createRepository(repositoryGroupName);
-        repositoryGroup.setType(RepositoryTypeEnum.GROUP.getType());
-        repositoryGroup.setAllowsRedeployment(false);
-        repositoryGroup.setAllowsDelete(false);
-        repositoryGroup.setAllowsForceDeletion(false);
-        repositoryGroup.setRepositoryConfiguration(mavenRepositoryConfiguration);
-        repositoryGroup.addRepositoryToGroup(repositoryReleases1Name);
-        repositoryGroup.addRepositoryToGroup(repositoryReleases2Name);
-
-        createRepository(STORAGE0, repositoryGroup);
         // Test data initialized.
-
-        Repository repository = configurationManager.getRepository(STORAGE0 + ":" + repositoryGroupName);
+        Repository repository = releasesTgiGroup;
         RepositoryProvider repositoryProvider = repositoryProviderRegistry.getProvider(repository.getType());
 
-        RepositoryPath resolvedPath1 = repositoryPathResolver.resolve(STORAGE0,
-                                                                      repositoryGroupName,
-                                                                      "com/artifacts/in/releases/one/foo/1.2.3/foo-1.2.3.jar");
+        RepositoryPath resolvedPath1 = (RepositoryPath) a1.normalize();
 
         Path repositoryPath = repositoryProvider.fetchPath(resolvedPath1);
         try (InputStream is = repositoryProvider.getInputStream(repositoryPath))
@@ -223,9 +193,7 @@ public class MavenGroupRepositoryProviderTest
             assertNotNull(is);
         }
 
-        RepositoryPath resolvedPath2 = repositoryPathResolver.resolve(STORAGE0,
-                                                                      repositoryGroupName,
-                                                                      "com/artifacts/in/releases/four/foo/1.2.4/foo-1.2.4.jar");
+        RepositoryPath resolvedPath2 = (RepositoryPath) a3.normalize();
         repositoryPath = repositoryProvider.fetchPath(resolvedPath2);
         try (InputStream is = repositoryProvider.getInputStream(repositoryPath))
         {

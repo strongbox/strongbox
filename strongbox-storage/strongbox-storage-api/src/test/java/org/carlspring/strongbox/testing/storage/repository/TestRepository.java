@@ -42,7 +42,7 @@ public @interface TestRepository
     /**
      * {@link Repository} ID.
      */
-    String repository();
+    String repository() default "releases";
 
     /**
      * {@link RepositoryPolicyEnum}
