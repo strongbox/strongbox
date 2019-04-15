@@ -130,6 +130,7 @@ To accept, please:
 | Evrim Nur Celik              |                                          | Istanbul, Turkey                        | 2019-04-14 |
 | Akhilesh Bedre               |                                          | Hyderabad, India                        | 2019-04-07 |
 | Theodore Ravindranathh       |                                          | Chennai, India                          | 2019-04-13 |
+| Solomon Yakubov              |                                          | New York, New York, US                  | 2019-04-15 |
 
 [chat]: https://chat.carlspring.org/
 [issue tracker]: https://github.com/strongbox/strongbox/issues?utf8=%E2%9C%93&q=is%3Aissue+is%3Aopen+label%3A%22help+wanted%22+label%3A%22good+first+issue%22
