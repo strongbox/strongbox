@@ -18,6 +18,7 @@
 
     <name>Strongbox: User Management</name>
 
+    <inceptionYear>2019</inceptionYear>
     <licenses>
         <license>
             <name>Apache 2.0</name>
