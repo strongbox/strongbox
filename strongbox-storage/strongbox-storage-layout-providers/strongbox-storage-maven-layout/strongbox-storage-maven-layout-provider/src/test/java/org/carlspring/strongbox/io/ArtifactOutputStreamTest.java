@@ -55,7 +55,7 @@ public class ArtifactOutputStreamTest
                                                                 layout = Maven2LayoutProvider.ALIAS)
                                                 Repository repository,
                                                 @MavenTestArtifact(id = "org.carlspring.foo:temp-file-test",
-                                                                   repository = "aost=tcwtl-releases",
+                                                                   repository = "aost-tcwtl-releases",
                                                                    versions = { "1.2.3" })
                                                 Path path)
             throws IOException
@@ -81,7 +81,7 @@ public class ArtifactOutputStreamTest
 
     @Test
     @ExtendWith({ RepositoryManagementTestExecutionListener.class, ArtifactManagementTestExecutionListener.class })
-    public void testCreateWithTemporaryLocationNoMoveOnClose(@TestRepository(repository = "aost=tcwtlnmoc-releases",
+    public void testCreateWithTemporaryLocationNoMoveOnClose(@TestRepository(repository = "aost-tcwtlnmoc-releases",
                                                                              layout = Maven2LayoutProvider.ALIAS)
                                                              Repository repository,
                                                              @MavenTestArtifact(id = "org.carlspring.foo:temp-file-test",
