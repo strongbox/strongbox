@@ -1,5 +1,18 @@
 package org.carlspring.strongbox.io;
 
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.junit.jupiter.api.parallel.ExecutionMode.CONCURRENT;
+
+import java.io.ByteArrayInputStream;
+import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.Path;
+
+import javax.inject.Inject;
+
+import org.apache.commons.io.IOUtils;
+import org.apache.maven.artifact.Artifact;
 import org.carlspring.maven.commons.util.ArtifactUtils;
 import org.carlspring.strongbox.artifact.coordinates.ArtifactCoordinates;
 import org.carlspring.strongbox.artifact.coordinates.MavenArtifactCoordinates;
@@ -15,24 +28,12 @@ import org.carlspring.strongbox.testing.artifact.ArtifactManagementTestExecution
 import org.carlspring.strongbox.testing.artifact.MavenTestArtifact;
 import org.carlspring.strongbox.testing.storage.repository.RepositoryManagementTestExecutionListener;
 import org.carlspring.strongbox.testing.storage.repository.TestRepository;
-
-import javax.inject.Inject;
-import java.io.ByteArrayInputStream;
-import java.io.IOException;
-import java.nio.file.Files;
-import java.nio.file.Path;
-
-import org.apache.commons.io.IOUtils;
-import org.apache.maven.artifact.Artifact;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.junit.jupiter.api.parallel.Execution;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.ContextConfiguration;
-import static org.junit.jupiter.api.Assertions.assertFalse;
-import static org.junit.jupiter.api.Assertions.assertTrue;
-import static org.junit.jupiter.api.parallel.ExecutionMode.CONCURRENT;
 
 /**
  * @author mtodorov
@@ -45,24 +46,23 @@ public class ArtifactOutputStreamTest
         extends TestCaseWithMavenArtifactGenerationAndIndexing
 {
 
+    private static final String REPOSITORY_RELEASES = "aos-releases";
+
     @Inject
     private RepositoryPathResolver repositoryPathResolver;
-
-
+    
     @Test
     @ExtendWith({ RepositoryManagementTestExecutionListener.class, ArtifactManagementTestExecutionListener.class })
-    public void testCreateWithTemporaryLocation(@TestRepository(repository = "aost=tcwtl-releases",
+    public void testCreateWithTemporaryLocation(@TestRepository(repository = REPOSITORY_RELEASES,
                                                                 layout = Maven2LayoutProvider.ALIAS)
                                                 Repository repository,
                                                 @MavenTestArtifact(id = "org.carlspring.foo:temp-file-test",
-                                                                   repository = "aost-tcwtl-releases",
+                                                                   repository = REPOSITORY_RELEASES,
                                                                    versions = { "1.2.3" })
                                                 Path path)
             throws IOException
     {
-        ArtifactCoordinates coordinates = RepositoryFiles.readCoordinates((RepositoryPath) path.normalize());
-
-        RepositoryPath artifactPath = repositoryPathResolver.resolve(repository, coordinates);
+        RepositoryPath artifactPath = (RepositoryPath) path.normalize();
 
         TempRepositoryPath artifactPathTemp = RepositoryFiles.temporary(artifactPath);
 
@@ -80,19 +80,17 @@ public class ArtifactOutputStreamTest
     }
 
     @Test
-    @ExtendWith({ RepositoryManagementTestExecutionListener.class, ArtifactManagementTestExecutionListener.class })
-    public void testCreateWithTemporaryLocationNoMoveOnClose(@TestRepository(repository = "aost-tcwtlnmoc-releases",
+    @ExtendWith({ RepositoryManagementTestExecutionListener.class})
+    public void testCreateWithTemporaryLocationNoMoveOnClose(@TestRepository(repository = REPOSITORY_RELEASES,
                                                                              layout = Maven2LayoutProvider.ALIAS)
-                                                             Repository repository,
-                                                             @MavenTestArtifact(id = "org.carlspring.foo:temp-file-test",
-                                                                                versions = { "1.2.4" })
-                                                             Path path)
+                                                             Repository repository)
             throws IOException
     {
         final Artifact artifact = ArtifactUtils.getArtifactFromGAVTC("org.carlspring.foo:temp-file-test:1.2.4:jar");
         final ArtifactCoordinates coordinates = new MavenArtifactCoordinates(artifact);
 
         RepositoryPath artifactPath = repositoryPathResolver.resolve(repository, coordinates);
+
 
         TempRepositoryPath artifactPathTemp = RepositoryFiles.temporary(artifactPath);
 
