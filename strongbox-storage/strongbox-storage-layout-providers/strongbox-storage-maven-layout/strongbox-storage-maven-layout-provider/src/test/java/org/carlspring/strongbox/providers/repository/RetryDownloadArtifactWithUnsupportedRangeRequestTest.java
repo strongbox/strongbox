@@ -47,11 +47,10 @@ public class RetryDownloadArtifactWithUnsupportedRangeRequestTest
         final String storageId = "storage-common-proxies";
         final String repositoryId = "maven-central";
         final String path = getJarPath();
-        final Path destinationPath = getVaultDirectoryPath()
-                                             .resolve("storages")
-                                             .resolve(storageId)
-                                             .resolve(repositoryId)
-                                             .resolve(path);
+        final Path destinationPath = getVaultDirectoryPath().resolve("storages")
+                                                            .resolve(storageId)
+                                                            .resolve(repositoryId)
+                                                            .resolve(path);
 
         // given
         assertFalse(Files.exists(destinationPath));

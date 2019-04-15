@@ -88,7 +88,6 @@ public class RetryDownloadArtifactWithSingleFailureAtSomePointTest
         public int read()
                 throws IOException
         {
-
             if (currentReadSize == BUF_SIZE && !exceptionAlreadyThrown)
             {
                 exceptionAlreadyThrown = true;
@@ -96,6 +95,7 @@ public class RetryDownloadArtifactWithSingleFailureAtSomePointTest
             }
 
             currentReadSize++;
+
             return artifactInputStream.read();
         }
     }

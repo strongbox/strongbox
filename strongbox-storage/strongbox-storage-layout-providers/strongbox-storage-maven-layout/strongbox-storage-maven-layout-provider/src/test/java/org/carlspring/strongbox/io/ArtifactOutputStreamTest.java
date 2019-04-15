@@ -1,5 +1,18 @@
 package org.carlspring.strongbox.io;
 
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.junit.jupiter.api.parallel.ExecutionMode.CONCURRENT;
+
+import java.io.ByteArrayInputStream;
+import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.Path;
+
+import javax.inject.Inject;
+
+import org.apache.commons.io.IOUtils;
+import org.apache.maven.artifact.Artifact;
 import org.carlspring.maven.commons.util.ArtifactUtils;
 import org.carlspring.strongbox.artifact.coordinates.ArtifactCoordinates;
 import org.carlspring.strongbox.artifact.coordinates.MavenArtifactCoordinates;
@@ -9,34 +22,18 @@ import org.carlspring.strongbox.providers.io.RepositoryPath;
 import org.carlspring.strongbox.providers.io.RepositoryPathResolver;
 import org.carlspring.strongbox.providers.io.TempRepositoryPath;
 import org.carlspring.strongbox.providers.layout.Maven2LayoutProvider;
-import org.carlspring.strongbox.storage.Storage;
-import org.carlspring.strongbox.storage.repository.MutableRepository;
 import org.carlspring.strongbox.storage.repository.Repository;
 import org.carlspring.strongbox.testing.TestCaseWithMavenArtifactGenerationAndIndexing;
-
-import javax.inject.Inject;
-import javax.xml.bind.JAXBException;
-import java.io.ByteArrayInputStream;
-import java.io.IOException;
-import java.lang.reflect.Method;
-import java.nio.file.Files;
-import java.util.LinkedHashSet;
-import java.util.Optional;
-import java.util.Set;
-
-import org.apache.commons.io.IOUtils;
-import org.apache.maven.artifact.Artifact;
-import org.junit.jupiter.api.AfterEach;
-import org.junit.jupiter.api.BeforeEach;
+import org.carlspring.strongbox.testing.artifact.ArtifactManagementTestExecutionListener;
+import org.carlspring.strongbox.testing.artifact.MavenTestArtifact;
+import org.carlspring.strongbox.testing.storage.repository.RepositoryManagementTestExecutionListener;
+import org.carlspring.strongbox.testing.storage.repository.TestRepository;
 import org.junit.jupiter.api.Test;
-import org.junit.jupiter.api.TestInfo;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.junit.jupiter.api.parallel.Execution;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.ContextConfiguration;
-import static org.junit.jupiter.api.Assertions.assertFalse;
-import static org.junit.jupiter.api.Assertions.assertTrue;
-import static org.junit.jupiter.api.parallel.ExecutionMode.CONCURRENT;
 
 /**
  * @author mtodorov
@@ -53,49 +50,19 @@ public class ArtifactOutputStreamTest
 
     @Inject
     private RepositoryPathResolver repositoryPathResolver;
-
-    private Set<MutableRepository> getRepositoriesToClean(TestInfo testInfo)
-    {
-        Set<MutableRepository> repositories = new LinkedHashSet<>();
-        repositories.add(createRepositoryMock(STORAGE0, getRepositoryName(testInfo), Maven2LayoutProvider.ALIAS));
-
-        return repositories;
-    }
-
-    private String getRepositoryName(TestInfo testInfo)
-    {
-        Optional<Method> method = testInfo.getTestMethod();
-        return REPOSITORY_RELEASES + method.get().getName();
-    }
-
-    @BeforeEach
-    public void initialize(TestInfo testInfo)
-            throws Exception
-    {
-        createRepository(STORAGE0, getRepositoryName(testInfo), false);
-
-        generateArtifact(getRepositoryBasedir(STORAGE0, getRepositoryName(testInfo)).getAbsolutePath(),
-                         "org.carlspring.foo:temp-file-test:1.2.3");
-    }
-
-    @AfterEach
-    public void removeRepositories(TestInfo testInfo)
-            throws IOException, JAXBException
-    {
-        removeRepositories(getRepositoriesToClean(testInfo));
-    }
-
+    
     @Test
-    public void testCreateWithTemporaryLocation(TestInfo testInfo)
+    @ExtendWith({ RepositoryManagementTestExecutionListener.class, ArtifactManagementTestExecutionListener.class })
+    public void testCreateWithTemporaryLocation(@TestRepository(repository = REPOSITORY_RELEASES,
+                                                                layout = Maven2LayoutProvider.ALIAS)
+                                                Repository repository,
+                                                @MavenTestArtifact(id = "org.carlspring.foo:temp-file-test",
+                                                                   repository = REPOSITORY_RELEASES,
+                                                                   versions = { "1.2.3" })
+                                                Path path)
             throws IOException
     {
-        final Storage storage = getConfiguration().getStorage(STORAGE0);
-        final Repository repository = storage.getRepository(getRepositoryName(testInfo));
-
-        final Artifact artifact = ArtifactUtils.getArtifactFromGAVTC("org.carlspring.foo:temp-file-test:1.2.3:jar");
-        final ArtifactCoordinates coordinates = new MavenArtifactCoordinates(artifact);
-
-        RepositoryPath artifactPath = repositoryPathResolver.resolve(repository, coordinates);
+        RepositoryPath artifactPath = (RepositoryPath) path.normalize();
 
         TempRepositoryPath artifactPathTemp = RepositoryFiles.temporary(artifactPath);
 
@@ -107,20 +74,18 @@ public class ArtifactOutputStreamTest
 
         assertTrue(Files.exists(artifactPathTemp), "Failed to create temporary artifact file!");
 
-
-
         artifactPathTemp.getFileSystem().provider().moveFromTemporaryDirectory(artifactPathTemp);
 
         assertTrue(Files.exists(artifactPath), "Failed to the move temporary artifact file to original location!");
     }
 
     @Test
-    public void testCreateWithTemporaryLocationNoMoveOnClose(TestInfo testInfo)
+    @ExtendWith({ RepositoryManagementTestExecutionListener.class})
+    public void testCreateWithTemporaryLocationNoMoveOnClose(@TestRepository(repository = REPOSITORY_RELEASES,
+                                                                             layout = Maven2LayoutProvider.ALIAS)
+                                                             Repository repository)
             throws IOException
     {
-        final Storage storage = getConfiguration().getStorage(STORAGE0);
-        final Repository repository = storage.getRepository(getRepositoryName(testInfo));
-
         final Artifact artifact = ArtifactUtils.getArtifactFromGAVTC("org.carlspring.foo:temp-file-test:1.2.4:jar");
         final ArtifactCoordinates coordinates = new MavenArtifactCoordinates(artifact);
 
@@ -135,8 +100,6 @@ public class ArtifactOutputStreamTest
         afos.close();
 
         assertTrue(Files.exists(artifactPathTemp), "Failed to create temporary artifact file!");
-
-
 
         assertFalse(Files.exists(artifactPath),
                     "Should not have move temporary the artifact file to original location!");

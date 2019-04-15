@@ -4,18 +4,21 @@ import org.carlspring.strongbox.config.Maven2LayoutProviderTestConfig;
 import org.carlspring.strongbox.providers.layout.Maven2LayoutProvider;
 import org.carlspring.strongbox.providers.search.MavenIndexerSearchProvider;
 import org.carlspring.strongbox.repository.IndexedMavenRepositoryFeatures;
-import org.carlspring.strongbox.storage.repository.MutableRepository;
+import org.carlspring.strongbox.storage.repository.Repository;
 import org.carlspring.strongbox.storage.search.SearchRequest;
+import org.carlspring.strongbox.testing.MavenIndexedRepositorySetup;
 import org.carlspring.strongbox.testing.TestCaseWithMavenArtifactGenerationAndIndexing;
+import org.carlspring.strongbox.testing.artifact.ArtifactManagementTestExecutionListener;
+import org.carlspring.strongbox.testing.artifact.MavenTestArtifact;
+import org.carlspring.strongbox.testing.storage.repository.RepositoryManagementTestExecutionListener;
+import org.carlspring.strongbox.testing.storage.repository.TestRepository;
 
 import javax.inject.Inject;
-import java.util.LinkedHashSet;
-import java.util.Set;
+import java.nio.file.Path;
+import java.util.List;
 
-import org.junit.jupiter.api.AfterEach;
-import org.junit.jupiter.api.BeforeAll;
-import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.junit.jupiter.api.parallel.Execution;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.context.ActiveProfiles;
@@ -41,42 +44,18 @@ public class ArtifactSearchServiceImplTest
     private ArtifactSearchService artifactSearchService;
 
 
-    @BeforeAll
-    public static void cleanUp()
-            throws Exception
-    {
-        cleanUp(getRepositoriesToClean());
-    }
-
-    @BeforeEach
-    public void initialize()
-            throws Exception
-    {
-        createRepositoryWithArtifacts(STORAGE0,
-                                      REPOSITORYID,
-                                      true,
-                                      "org.carlspring.strongbox:strongbox-utils",
-                                      "1.0.1", "1.1.1", "1.2.1");
-    }
-
-    @AfterEach
-    public void removeRepositories()
-            throws Exception
-    {
-        removeRepositories(getRepositoriesToClean());
-    }
-
-    public static Set<MutableRepository> getRepositoriesToClean()
-    {
-        Set<MutableRepository> repositories = new LinkedHashSet<>();
-        repositories.add(createRepositoryMock(STORAGE0, REPOSITORYID, Maven2LayoutProvider.ALIAS));
-
-        return repositories;
-    }
-
     @Test
     @EnabledIf(expression = "#{containsObject('repositoryIndexManager')}", loadContext = true)
-    public void testContains() throws Exception
+    @ExtendWith({ RepositoryManagementTestExecutionListener.class, ArtifactManagementTestExecutionListener.class })
+    public void testContains(@TestRepository(storage = STORAGE0,
+                                             repository = REPOSITORYID,
+                                             layout = Maven2LayoutProvider.ALIAS,
+                                             setup = MavenIndexedRepositorySetup.class) Repository repository,
+                             @MavenTestArtifact(storage = STORAGE0,
+                                                repository = REPOSITORYID,
+                                                id = "org.carlspring.strongbox:strongbox-utils",
+                                                versions = { "1.0.1", "1.1.1", "1.2.1" }) List<Path> paths)
+            throws Exception
     {
         IndexedMavenRepositoryFeatures features = (IndexedMavenRepositoryFeatures) getFeatures();
         final int x = features.reIndex(STORAGE0, REPOSITORYID, "org/carlspring/strongbox/strongbox-utils");

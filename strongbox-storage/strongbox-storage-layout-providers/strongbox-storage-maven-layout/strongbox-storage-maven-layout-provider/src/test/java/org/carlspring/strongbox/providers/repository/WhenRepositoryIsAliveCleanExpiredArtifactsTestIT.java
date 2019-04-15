@@ -4,7 +4,6 @@ import org.carlspring.strongbox.config.Maven2LayoutProviderCronTasksTestConfig;
 import org.carlspring.strongbox.data.CacheManagerTestExecutionListener;
 import org.carlspring.strongbox.domain.ArtifactEntry;
 import org.carlspring.strongbox.providers.io.RepositoryFiles;
-import org.carlspring.strongbox.providers.layout.LayoutProvider;
 import org.carlspring.strongbox.providers.layout.Maven2LayoutProvider;
 import org.carlspring.strongbox.storage.Storage;
 import org.carlspring.strongbox.storage.repository.MutableRepository;
@@ -68,7 +67,6 @@ public class WhenRepositoryIsAliveCleanExpiredArtifactsTestIT
 
         final Storage storage = getConfiguration().getStorage(artifactEntry.getStorageId());
         final Repository repository = storage.getRepository(artifactEntry.getRepositoryId());
-        final LayoutProvider layoutProvider = layoutProviderRegistry.getProvider(repository.getLayout());
 
         assertFalse(RepositoryFiles.artifactExists(repositoryPathResolver.resolve(repository, getPath())));
         assertTrue(RepositoryFiles.artifactExists(repositoryPathResolver.resolve(repository, StringUtils.replace(getPath(),
@@ -80,6 +78,7 @@ public class WhenRepositoryIsAliveCleanExpiredArtifactsTestIT
     {
         Set<MutableRepository> repositories = new LinkedHashSet<>();
         repositories.add(createRepositoryMock(STORAGE_ID, REPOSITORY_ID, Maven2LayoutProvider.ALIAS));
+
         return repositories;
     }
 
@@ -87,9 +86,7 @@ public class WhenRepositoryIsAliveCleanExpiredArtifactsTestIT
     public void init()
             throws Exception
     {
-        createProxyRepository(STORAGE_ID,
-                              REPOSITORY_ID,
-                              REMOTE_URL);
+        createProxyRepository(STORAGE_ID, REPOSITORY_ID, REMOTE_URL);
     }
 
     @AfterEach

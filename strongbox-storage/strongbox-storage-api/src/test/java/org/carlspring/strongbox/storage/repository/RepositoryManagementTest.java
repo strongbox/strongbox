@@ -1,20 +1,5 @@
 package org.carlspring.strongbox.storage.repository;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertNotNull;
-import static org.junit.jupiter.api.Assertions.assertNull;
-import static org.junit.jupiter.api.Assertions.assertTrue;
-import static org.junit.jupiter.api.parallel.ExecutionMode.CONCURRENT;
-
-import java.io.IOException;
-import java.nio.file.Files;
-import java.nio.file.Path;
-import java.util.Set;
-import java.util.concurrent.ConcurrentHashMap;
-
-import javax.inject.Inject;
-
-import org.apache.commons.codec.digest.MessageDigestAlgorithms;
 import org.carlspring.strongbox.StorageApiTestConfig;
 import org.carlspring.strongbox.artifact.coordinates.NullArtifactCoordinates;
 import org.carlspring.strongbox.artifact.generator.NullArtifactGenerator;
@@ -28,6 +13,15 @@ import org.carlspring.strongbox.testing.artifact.TestArtifact;
 import org.carlspring.strongbox.testing.storage.repository.RepositoryManagementTestExecutionListener;
 import org.carlspring.strongbox.testing.storage.repository.TestRepository;
 import org.carlspring.strongbox.testing.storage.repository.TestRepositoryManagementApplicationContext;
+
+import javax.inject.Inject;
+import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.util.Set;
+import java.util.concurrent.ConcurrentHashMap;
+
+import org.apache.commons.codec.digest.MessageDigestAlgorithms;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.RepeatedTest;
 import org.junit.jupiter.api.TestInfo;
@@ -37,11 +31,14 @@ import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.TestExecutionListeners;
+import static org.junit.jupiter.api.Assertions.*;
+import static org.junit.jupiter.api.parallel.ExecutionMode.CONCURRENT;
 
 @SpringBootTest
 @ActiveProfiles(profiles = "test")
 @ContextConfiguration(classes = { StorageApiTestConfig.class })
-@TestExecutionListeners(listeners = { CacheManagerTestExecutionListener.class }, mergeMode = TestExecutionListeners.MergeMode.MERGE_WITH_DEFAULTS)
+@TestExecutionListeners(listeners = { CacheManagerTestExecutionListener.class },
+                        mergeMode = TestExecutionListeners.MergeMode.MERGE_WITH_DEFAULTS)
 @Execution(CONCURRENT)
 public class RepositoryManagementTest
 {
@@ -66,10 +63,10 @@ public class RepositoryManagementTest
 
     @ExtendWith({ RepositoryManagementTestExecutionListener.class, ArtifactManagementTestExecutionListener.class })
     @RepeatedTest(20)
-    public void testRepositoryDirect(@TestRepository(layout = NullArtifactCoordinates.LAYOUT_NAME, repository = "r1", storage = "storage0") Repository r1,
-                                     @TestRepository(layout = NullArtifactCoordinates.LAYOUT_NAME, repository = "r2", storage = "storage0") Repository r2,
+    public void testRepositoryDirect(@TestRepository(layout = NullArtifactCoordinates.LAYOUT_NAME, repository = "r1") Repository r1,
+                                     @TestRepository(layout = NullArtifactCoordinates.LAYOUT_NAME, repository = "r2") Repository r2,
                                      @TestArtifact(resource = "artifact1.ext", generator = NullArtifactGenerator.class) Path standaloneArtifact,
-                                     @TestArtifact(repository = "r2", storage = "storage0", resource = "org/carlspring/test/artifact2.ext", generator = NullArtifactGenerator.class) Path repositoryArtifact,
+                                     @TestArtifact(repository = "r2", resource = "org/carlspring/test/artifact2.ext", generator = NullArtifactGenerator.class) Path repositoryArtifact,
                                      TestInfo testInfo)
         throws IOException
     {
@@ -80,8 +77,8 @@ public class RepositoryManagementTest
 
     @ExtendWith(RepositoryManagementTestExecutionListener.class)
     @RepeatedTest(20)
-    public void testRepositoryReverse(@TestRepository(layout = NullArtifactCoordinates.LAYOUT_NAME, repository = "r2", storage = "storage0") Repository r2,
-                                      @TestRepository(layout = NullArtifactCoordinates.LAYOUT_NAME, repository = "r1", storage = "storage0") Repository r1,
+    public void testRepositoryReverse(@TestRepository(layout = NullArtifactCoordinates.LAYOUT_NAME, repository = "r2") Repository r2,
+                                      @TestRepository(layout = NullArtifactCoordinates.LAYOUT_NAME, repository = "r1") Repository r1,
                                       TestInfo testInfo)
     {
         parametersShouldBeCorrectlyResolvedAndUnique(r1, r2, testInfo);
@@ -96,6 +93,7 @@ public class RepositoryManagementTest
         String fileName = artifact.getFileName().toString();
         String checksumFileName = fileName + "." + MessageDigestAlgorithms.MD5.toLowerCase();
         Path artifactChecksum = artifact.resolveSibling(checksumFileName);
+
         assertTrue(Files.exists(artifactChecksum));
         assertTrue(resolvedArtifactChecksums.add(Files.readAllBytes(artifactChecksum)));
     }
@@ -122,4 +120,5 @@ public class RepositoryManagementTest
         assertTrue(resolvedRepositoryInstances.add(r1));
         assertTrue(resolvedRepositoryInstances.add(r2));
     }
+
 }
