@@ -55,12 +55,12 @@ public class ArtifactOutputStreamTest
                                                                 layout = Maven2LayoutProvider.ALIAS)
                                                 Repository repository,
                                                 @MavenTestArtifact(id = "org.carlspring.foo:temp-file-test",
+                                                                   repository = "aost=tcwtl-releases",
                                                                    versions = { "1.2.3" })
                                                 Path path)
             throws IOException
     {
-        final Artifact artifact = ArtifactUtils.getArtifactFromGAVTC("org.carlspring.foo:temp-file-test:1.2.3:jar");
-        final ArtifactCoordinates coordinates = new MavenArtifactCoordinates(artifact);
+        ArtifactCoordinates coordinates = RepositoryFiles.readCoordinates((RepositoryPath) path.normalize());
 
         RepositoryPath artifactPath = repositoryPathResolver.resolve(repository, coordinates);
 
