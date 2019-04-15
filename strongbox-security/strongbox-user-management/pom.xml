@@ -18,6 +18,7 @@
 
     <name>Strongbox: User Management</name>
 
+    <inceptionYear>2019</inceptionYear>
     <licenses>
         <license>
             <name>Apache 2.0</name>
@@ -31,8 +32,6 @@
         <name>Carlspring Consulting &amp; Development Ltd.</name>
         <url>http://www.carlspring.org/</url>
     </organization>
-
-    <inceptionYear>2016</inceptionYear>
 
     <scm>
         <url>https://github.com/strongbox/strongbox/</url>

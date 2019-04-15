@@ -16,6 +16,8 @@
 
     <name>Strongbox: Cron [Tasks]</name>
 
+    <inceptionYear>2019</inceptionYear>
+
     <scm>
         <url>https://github.com/strongbox/strongbox/</url>
         <connection>scm:git:git://github.com/strongbox/strongbox.git</connection>
