@@ -48,7 +48,7 @@ public class SwaggerConfigTestIT extends RestAssuredBaseTest
                .peek() // Use peek() to print the output
                .then()
                .statusCode(HttpStatus.OK.value()) // check http status code
-               .body(containsString("Martin"));
+               .body(containsString("carlspring"));
     }
 
 }
