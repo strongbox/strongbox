@@ -12,6 +12,7 @@
     <artifactId>strongbox-npm-metadata-schema</artifactId>
     <packaging>jar</packaging>
 
+    <inceptionYear>2019</inceptionYear>
     <url>https://github.com/sbespalov/strongbox-npm-metadata</url>
     <licenses>
         <license>
