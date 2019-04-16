@@ -10,6 +10,8 @@ import java.net.URL;
 import org.carlspring.strongbox.storage.Storage;
 import org.carlspring.strongbox.storage.repository.Repository;
 import org.carlspring.strongbox.storage.repository.RepositoryPolicyEnum;
+import org.carlspring.strongbox.storage.routing.RoutingRuleTypeEnum;
+import org.springframework.core.annotation.AliasFor;
 
 /**
  * This annotation provide ability to inject {@link Repository} instance as test
@@ -75,7 +77,7 @@ public @interface TestRepository
     @Target(ElementType.PARAMETER)
     @Retention(RetentionPolicy.RUNTIME)
     @Documented
-    public static @interface RemoteRepository
+    public static @interface Remote
     {
 
         /**
@@ -94,14 +96,40 @@ public @interface TestRepository
     @Target(ElementType.PARAMETER)
     @Retention(RetentionPolicy.RUNTIME)
     @Documented
-    public static @interface GroupRepository
+    public static @interface Group
     {
 
+
+        /**
+         * Alias for `repositories`.
+         */
+        @AliasFor(attribute = "repositories")
+        String[] value();
+        
         /**
          * Group member repositories list.
+         */        
+        String[] repositories();
+
+        /**
+         * Routing rules.
          */
-        String[] value();
+        Rule[] rules() default {};
+        
+        @Retention(RetentionPolicy.RUNTIME)
+        @Documented
+        public static @interface Rule
+        {
+
+            String[] repositories();
+            
+            String pattern() default "*";
+            
+            RoutingRuleTypeEnum type() default RoutingRuleTypeEnum.ACCEPT;
+
+        }
 
     }
-    
+
+
 }

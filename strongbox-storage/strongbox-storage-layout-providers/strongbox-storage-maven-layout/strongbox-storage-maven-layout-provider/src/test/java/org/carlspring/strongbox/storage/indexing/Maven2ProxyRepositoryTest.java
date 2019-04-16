@@ -21,7 +21,7 @@ import org.carlspring.strongbox.testing.artifact.ArtifactManagementTestExecution
 import org.carlspring.strongbox.testing.artifact.TestArtifact;
 import org.carlspring.strongbox.testing.storage.repository.RepositoryManagementTestExecutionListener;
 import org.carlspring.strongbox.testing.storage.repository.TestRepository;
-import org.carlspring.strongbox.testing.storage.repository.TestRepository.RemoteRepository;
+import org.carlspring.strongbox.testing.storage.repository.TestRepository.Remote;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.springframework.boot.test.context.SpringBootTest;
@@ -58,7 +58,7 @@ public class Maven2ProxyRepositoryTest
     @EnabledIf(expression = "#{containsObject('repositoryIndexManager')}", loadContext = true)
     @ExtendWith({RepositoryManagementTestExecutionListener.class, ArtifactManagementTestExecutionListener.class})
     public void testRepositoryIndexFetching(@TestRepository(layout = LAYOUT_NAME, storage = STORAGE0, repository = REPOSITORY_RELEASES, setup = MavenIndexedRepositorySetup.class) Repository repository,
-                                            @TestRepository(layout = LAYOUT_NAME, storage = STORAGE0, repository = REPOSITORY_PROXY, setup = MavenIndexedRepositorySetup.class) @RemoteRepository(url = PROXY_REPOSITORY_URL ) Repository proxyRepository,
+                                            @TestRepository(layout = LAYOUT_NAME, storage = STORAGE0, repository = REPOSITORY_PROXY, setup = MavenIndexedRepositorySetup.class) @Remote(url = PROXY_REPOSITORY_URL ) Repository proxyRepository,
                                             @TestArtifact(storage = STORAGE0, repository = REPOSITORY_RELEASES, resource = A1, generator = MavenArtifactGenerator.class) Path a1,
                                             @TestArtifact(storage = STORAGE0, repository = REPOSITORY_RELEASES, resource = A2, generator = MavenArtifactGenerator.class) Path a2,
                                             @TestArtifact(storage = STORAGE0, repository = REPOSITORY_RELEASES, resource = A3, generator = MavenArtifactGenerator.class) Path a3)

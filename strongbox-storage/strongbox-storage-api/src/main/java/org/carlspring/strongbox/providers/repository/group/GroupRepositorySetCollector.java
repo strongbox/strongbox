@@ -1,6 +1,7 @@
 package org.carlspring.strongbox.providers.repository.group;
 
 import org.carlspring.strongbox.configuration.ConfigurationManager;
+import org.carlspring.strongbox.configuration.ConfigurationUtils;
 import org.carlspring.strongbox.storage.Storage;
 import org.carlspring.strongbox.storage.repository.Repository;
 
@@ -62,8 +63,8 @@ public class GroupRepositorySetCollector
     private Repository getRepository(Storage storage,
                                      String id)
     {
-        String sId = configurationManager.getStorageId(storage, id);
-        String rId = configurationManager.getRepositoryId(id);
+        String sId = ConfigurationUtils.getStorageId(storage.getId(), id);
+        String rId = ConfigurationUtils.getRepositoryId(id);
 
         return configurationManager.getConfiguration().getStorage(sId).getRepository(rId);
     }

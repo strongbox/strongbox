@@ -34,21 +34,6 @@ public class ConfigurationManager
         return getConfiguration().getStorage(storageId).getRepository(repositoryId);
     }
 
-    public String getStorageId(Storage storage,
-                               String storageAndRepositoryId)
-    {
-        String[] storageAndRepositoryIdTokens = storageAndRepositoryId.split(":");
-
-        return storageAndRepositoryIdTokens.length == 2 ? storageAndRepositoryIdTokens[0] : storage.getId();
-    }
-
-    public String getRepositoryId(String storageAndRepositoryId)
-    {
-        String[] storageAndRepositoryIdTokens = storageAndRepositoryId.split(":");
-
-        return storageAndRepositoryIdTokens[storageAndRepositoryIdTokens.length < 2 ? 0 : 1];
-    }
-
     public Configuration getConfiguration()
     {
         return configurationService.getConfiguration();
