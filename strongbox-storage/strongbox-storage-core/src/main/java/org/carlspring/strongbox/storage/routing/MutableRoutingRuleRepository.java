@@ -23,9 +23,10 @@ public class MutableRoutingRuleRepository
     {
     }
 
-    public MutableRoutingRuleRepository(String storageAndRepositoryId) {
+    public MutableRoutingRuleRepository(String storageAndRepositoryId)
+    {
         this(ConfigurationUtils.getStorageId(null, storageAndRepositoryId),
-                ConfigurationUtils.getRepositoryId(storageAndRepositoryId));
+             ConfigurationUtils.getRepositoryId(storageAndRepositoryId));
     }
 
     
@@ -56,4 +57,5 @@ public class MutableRoutingRuleRepository
     {
         this.repositoryId = repositoryId;
     }
+    
 }
