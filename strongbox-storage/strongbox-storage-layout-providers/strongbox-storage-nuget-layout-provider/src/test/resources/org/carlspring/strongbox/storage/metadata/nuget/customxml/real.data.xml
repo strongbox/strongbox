@@ -1,0 +1,49 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<atom:feed xmlns:atom="http://www.w3.org/2005/Atom" xmlns:m="http://schemas.microsoft.com/ado/2007/08/dataservices/metadata">
+    <atom:title type="text">Packages</atom:title>
+    <atom:id>http://ws209.neolant.loc:8084/nuget/</atom:id>
+    <atom:updated>2012-01-27T19:09:02.127+04:00</atom:updated>
+    <atom:entry>
+        <atom:id>http://ws209.neolant.loc:8084/nuget/nuget/Packages(Id='FluentAssertions',Version='1.6.0')</atom:id>
+        <atom:title type="text">FluentAssertions</atom:title>
+        <atom:summary type="text"/>
+        <atom:updated>2011-11-24T14:52:58.763+04:00</atom:updated>
+        <atom:author>
+            <name>Dennis Doomen, Martin Opdam</name>
+        </atom:author>
+        <atom:link href="Packages(Id='FluentAssertions',Version='1.6.0')/$value" title="Package" rel="edit-media"/>
+        <atom:link href="Packages(Id='FluentAssertions',Version='1.6.0')" title="Package" rel="edit"/>
+        <atom:category scheme="http://schemas.microsoft.com/ado/2007/08/dataservices/scheme" term="NuGet.Server.DataServices.Package"/>
+        <atom:content src="http://ws209.neolant.loc:8084/nuget/download/FluentAssertions/1.6.0" type="application/zip"/>
+        <m:properties>
+            <Version:Version xmlns="http://schemas.microsoft.com/ado/2007/08/dataservices" xmlns:Version="http://schemas.microsoft.com/ado/2007/08/dataservices">1.6.0</Version:Version>
+            <Title:Title NS1:null="true" xmlns="http://schemas.microsoft.com/ado/2007/08/dataservices" xmlns:NS1="http://schemas.microsoft.com/ado/2007/08/dataservices/metadata" xmlns:Title="http://schemas.microsoft.com/ado/2007/08/dataservices">Fluent Assertions</Title:Title>
+            <IconUrl:IconUrl NS1:null="true" xmlns="http://schemas.microsoft.com/ado/2007/08/dataservices" xmlns:NS1="http://schemas.microsoft.com/ado/2007/08/dataservices/metadata" xmlns:IconUrl="http://schemas.microsoft.com/ado/2007/08/dataservices"/>
+            <LicenseUrl:LicenseUrl NS1:null="true" xmlns="http://schemas.microsoft.com/ado/2007/08/dataservices" xmlns:NS1="http://schemas.microsoft.com/ado/2007/08/dataservices/metadata" xmlns:LicenseUrl="http://schemas.microsoft.com/ado/2007/08/dataservices"/>
+            <ProjectUrl:ProjectUrl NS1:null="true" xmlns="http://schemas.microsoft.com/ado/2007/08/dataservices" xmlns:NS1="http://schemas.microsoft.com/ado/2007/08/dataservices/metadata" xmlns:ProjectUrl="http://schemas.microsoft.com/ado/2007/08/dataservices"/>
+            <ReportAbuseUrl:ReportAbuseUrl NS1:null="true" xmlns="http://schemas.microsoft.com/ado/2007/08/dataservices" xmlns:NS1="http://schemas.microsoft.com/ado/2007/08/dataservices/metadata" xmlns:ReportAbuseUrl="http://schemas.microsoft.com/ado/2007/08/dataservices"/>
+            <DownloadCount:DownloadCount NS1:type="Edm.Int32" xmlns="http://schemas.microsoft.com/ado/2007/08/dataservices" xmlns:NS1="http://schemas.microsoft.com/ado/2007/08/dataservices/metadata" xmlns:DownloadCount="http://schemas.microsoft.com/ado/2007/08/dataservices">-1</DownloadCount:DownloadCount>
+            <VersionDownloadCount:VersionDownloadCount NS1:type="Edm.Int32" xmlns="http://schemas.microsoft.com/ado/2007/08/dataservices" xmlns:NS1="http://schemas.microsoft.com/ado/2007/08/dataservices/metadata" xmlns:VersionDownloadCount="http://schemas.microsoft.com/ado/2007/08/dataservices">-1</VersionDownloadCount:VersionDownloadCount>
+            <RatingsCount:RatingsCount NS1:type="Edm.Int32" xmlns="http://schemas.microsoft.com/ado/2007/08/dataservices" xmlns:NS1="http://schemas.microsoft.com/ado/2007/08/dataservices/metadata" xmlns:RatingsCount="http://schemas.microsoft.com/ado/2007/08/dataservices">0</RatingsCount:RatingsCount>
+            <VersionRatingsCount:VersionRatingsCount NS1:type="Edm.Int32" xmlns="http://schemas.microsoft.com/ado/2007/08/dataservices" xmlns:NS1="http://schemas.microsoft.com/ado/2007/08/dataservices/metadata" xmlns:VersionRatingsCount="http://schemas.microsoft.com/ado/2007/08/dataservices">0</VersionRatingsCount:VersionRatingsCount>
+            <Rating:Rating NS1:type="Edm.Double" xmlns="http://schemas.microsoft.com/ado/2007/08/dataservices" xmlns:NS1="http://schemas.microsoft.com/ado/2007/08/dataservices/metadata" xmlns:Rating="http://schemas.microsoft.com/ado/2007/08/dataservices">0.0</Rating:Rating>
+            <VersionRating:VersionRating NS1:type="Edm.Double" xmlns="http://schemas.microsoft.com/ado/2007/08/dataservices" xmlns:NS1="http://schemas.microsoft.com/ado/2007/08/dataservices/metadata" xmlns:VersionRating="http://schemas.microsoft.com/ado/2007/08/dataservices">0.0</VersionRating:VersionRating>
+            <RequireLicenseAcceptance:RequireLicenseAcceptance NS1:type="Edm.Boolean" xmlns="http://schemas.microsoft.com/ado/2007/08/dataservices" xmlns:RequireLicenseAcceptance="http://schemas.microsoft.com/ado/2007/08/dataservices" xmlns:NS1="http://schemas.microsoft.com/ado/2007/08/dataservices/metadata">false</RequireLicenseAcceptance:RequireLicenseAcceptance>
+            <Description:Description xmlns="http://schemas.microsoft.com/ado/2007/08/dataservices" xmlns:Description="http://schemas.microsoft.com/ado/2007/08/dataservices">A very extensive set of extension methods for .NET 3.5, 4.0 and Silverlight 4.0 that allow you to more naturally specify the expected outcome of a TDD or BDD-style unit test.</Description:Description>
+            <ReleaseNotes:ReleaseNotes NS1:null="true" xmlns="http://schemas.microsoft.com/ado/2007/08/dataservices" xmlns:NS1="http://schemas.microsoft.com/ado/2007/08/dataservices/metadata" xmlns:ReleaseNotes="http://schemas.microsoft.com/ado/2007/08/dataservices"/>
+            <Language:Language NS1:null="true" xmlns="http://schemas.microsoft.com/ado/2007/08/dataservices" xmlns:NS1="http://schemas.microsoft.com/ado/2007/08/dataservices/metadata" xmlns:Language="http://schemas.microsoft.com/ado/2007/08/dataservices"/>
+            <Published:Published NS1:type="Edm.DateTime" xmlns="http://schemas.microsoft.com/ado/2007/08/dataservices" xmlns:NS1="http://schemas.microsoft.com/ado/2007/08/dataservices/metadata" xmlns:Published="http://schemas.microsoft.com/ado/2007/08/dataservices">2011-11-24T14:52:58.763+04:00</Published:Published>
+            <Price:Price NS1:type="Edm.Double" xmlns="http://schemas.microsoft.com/ado/2007/08/dataservices" xmlns:NS1="http://schemas.microsoft.com/ado/2007/08/dataservices/metadata" xmlns:Price="http://schemas.microsoft.com/ado/2007/08/dataservices">0.0</Price:Price>
+            <Dependencies:Dependencies xmlns="http://schemas.microsoft.com/ado/2007/08/dataservices" xmlns:Dependencies="http://schemas.microsoft.com/ado/2007/08/dataservices"/>
+            <PackageHash:PackageHash xmlns="http://schemas.microsoft.com/ado/2007/08/dataservices" xmlns:PackageHash="http://schemas.microsoft.com/ado/2007/08/dataservices">a9eVz+INJgmwcM+MHYN0JdIfh2mBYwif8JMhCQEXavFNphH1POEMdVSnqlVRpq/dLsNdVSIJgiAuFZV7uZiYSw==</PackageHash:PackageHash>
+            <PackageSize:PackageSize NS1:type="Edm.Int64" xmlns="http://schemas.microsoft.com/ado/2007/08/dataservices" xmlns:NS1="http://schemas.microsoft.com/ado/2007/08/dataservices/metadata" xmlns:PackageSize="http://schemas.microsoft.com/ado/2007/08/dataservices">862116</PackageSize:PackageSize>
+            <ExternalPackageUri:ExternalPackageUri NS1:null="true" xmlns="http://schemas.microsoft.com/ado/2007/08/dataservices" xmlns:NS1="http://schemas.microsoft.com/ado/2007/08/dataservices/metadata" xmlns:ExternalPackageUri="http://schemas.microsoft.com/ado/2007/08/dataservices"/>
+            <Categories:Categories NS1:null="true" xmlns="http://schemas.microsoft.com/ado/2007/08/dataservices" xmlns:NS1="http://schemas.microsoft.com/ado/2007/08/dataservices/metadata" xmlns:Categories="http://schemas.microsoft.com/ado/2007/08/dataservices"/>
+            <Copyright:Copyright NS1:null="true" xmlns="http://schemas.microsoft.com/ado/2007/08/dataservices" xmlns:NS1="http://schemas.microsoft.com/ado/2007/08/dataservices/metadata" xmlns:Copyright="http://schemas.microsoft.com/ado/2007/08/dataservices"/>
+            <PackageType:PackageType NS1:null="true" xmlns="http://schemas.microsoft.com/ado/2007/08/dataservices" xmlns:NS1="http://schemas.microsoft.com/ado/2007/08/dataservices/metadata" xmlns:PackageType="http://schemas.microsoft.com/ado/2007/08/dataservices"/>
+            <Tags:Tags NS1:null="true" NS1:type="Edm.DateTime" xml:space="preserve" xmlns="http://schemas.microsoft.com/ado/2007/08/dataservices" xmlns:NS1="http://schemas.microsoft.com/ado/2007/08/dataservices/metadata" xmlns:Tags="http://schemas.microsoft.com/ado/2007/08/dataservices">MSTest xUnit NUnit TDD BDD Fluent Silverlight</Tags:Tags>
+            <IsLatestVersion:IsLatestVersion NS1:type="Edm.Boolean" xmlns="http://schemas.microsoft.com/ado/2007/08/dataservices" xmlns:NS1="http://schemas.microsoft.com/ado/2007/08/dataservices/metadata" xmlns:IsLatestVersion="http://schemas.microsoft.com/ado/2007/08/dataservices">true</IsLatestVersion:IsLatestVersion>
+            <Summary:Summary NS1:null="true" xmlns="http://schemas.microsoft.com/ado/2007/08/dataservices" xmlns:NS1="http://schemas.microsoft.com/ado/2007/08/dataservices/metadata" xmlns:Summary="http://schemas.microsoft.com/ado/2007/08/dataservices"/>
+        </m:properties>
+    </atom:entry>
+</atom:feed>

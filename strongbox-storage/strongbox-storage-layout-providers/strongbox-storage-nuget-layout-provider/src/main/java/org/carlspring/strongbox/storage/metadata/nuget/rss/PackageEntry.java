@@ -161,7 +161,7 @@ public class PackageEntry
         this.author = new Author(nuspec.getAuthors());
         PackageEntry.this.getLinks()
                          .add(new Link("edit-media", "Package",
-                                 "Packages" + getCombineIdAndVersion() + "/ $ value"));
+                                 "Packages" + getCombineIdAndVersion() + "/$value"));
         PackageEntry.this.getLinks()
                          .add(new Link("edit", "Package",
                                  "Packages" + getCombineIdAndVersion()));
