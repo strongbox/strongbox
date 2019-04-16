@@ -142,7 +142,7 @@ public class TestRepositoryContext implements AutoCloseable, Comparable<TestRepo
         });
         Optional.ofNullable(groupRepository).ifPresent(g -> {
             repository.setType(RepositoryTypeEnum.GROUP.getType());
-            repository.getGroupRepositories().addAll(Arrays.asList(groupRepository.value()));
+            repository.getGroupRepositories().addAll(Arrays.asList(groupRepository.repositories()));
             
             Arrays.stream(groupRepository.rules()).forEach((rule) -> {
                 MutableRoutingRule routingRule = MutableRoutingRule.create(testRepository.storage(),

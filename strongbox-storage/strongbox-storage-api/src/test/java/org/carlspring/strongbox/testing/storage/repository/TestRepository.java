@@ -104,12 +104,13 @@ public @interface TestRepository
          * Alias for `repositories`.
          */
         @AliasFor(attribute = "repositories")
-        String[] value();
+        String[] value() default {};
         
         /**
          * Group member repositories list.
-         */        
-        String[] repositories();
+         */
+        @AliasFor(attribute = "value")
+        String[] repositories() default {};
 
         /**
          * Routing rules.

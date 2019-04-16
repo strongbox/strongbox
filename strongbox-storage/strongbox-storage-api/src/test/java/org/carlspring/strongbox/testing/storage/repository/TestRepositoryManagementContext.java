@@ -23,7 +23,9 @@ public interface TestRepositoryManagementContext
 
     public void refresh();
 
-    public void register(TestRepository testRepository, Remote remoteRepository, Group groupRepository);
+    public void register(TestRepository testRepository,
+                         Remote remoteRepository,
+                         Group groupRepository);
 
     public void register(TestArtifact testArtifact,
                          Map<String, Object> attributesMap,

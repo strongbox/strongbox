@@ -1,6 +1,22 @@
 package org.carlspring.strongbox.providers.repository;
 
-import org.carlspring.strongbox.artifact.coordinates.MavenArtifactCoordinates;
+import static org.hamcrest.MatcherAssert.assertThat;
+import static org.hamcrest.Matchers.contains;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertNull;
+import static org.junit.jupiter.api.parallel.ExecutionMode.CONCURRENT;
+
+import java.io.IOException;
+import java.io.InputStream;
+import java.nio.file.Path;
+import java.util.Arrays;
+import java.util.LinkedHashSet;
+import java.util.Set;
+
+import javax.inject.Inject;
+
+import org.apache.maven.artifact.repository.metadata.Metadata;
 import org.carlspring.strongbox.config.Maven2LayoutProviderTestConfig;
 import org.carlspring.strongbox.providers.io.RepositoryPath;
 import org.carlspring.strongbox.providers.io.RepositoryPathResolver;
@@ -20,16 +36,6 @@ import org.carlspring.strongbox.testing.repository.MavenRepository;
 import org.carlspring.strongbox.testing.storage.repository.RepositoryManagementTestExecutionListener;
 import org.carlspring.strongbox.testing.storage.repository.TestRepository;
 import org.carlspring.strongbox.yaml.configuration.repository.MutableMavenRepositoryConfiguration;
-
-import javax.inject.Inject;
-import java.io.IOException;
-import java.io.InputStream;
-import java.nio.file.Path;
-import java.util.Arrays;
-import java.util.LinkedHashSet;
-import java.util.Set;
-
-import org.apache.maven.artifact.repository.metadata.Metadata;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.TestInfo;
@@ -38,10 +44,6 @@ import org.junit.jupiter.api.parallel.Execution;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.ContextConfiguration;
-import static org.hamcrest.MatcherAssert.assertThat;
-import static org.hamcrest.Matchers.contains;
-import static org.junit.jupiter.api.Assertions.*;
-import static org.junit.jupiter.api.parallel.ExecutionMode.CONCURRENT;
 
 /**
  * @author mtodorov
@@ -170,19 +172,20 @@ public class MavenGroupRepositoryProviderTest
 
     @Test
     @ExtendWith({RepositoryManagementTestExecutionListener.class, ArtifactManagementTestExecutionListener.class})
-    public void testGroupIncludes(@MavenRepository(repository = "grpt-releases-tgi-1") Repository releasesTgi1,
-                                  @MavenRepository(repository = "grpt-releases-tgi-2") Repository releasesTgi2,
-                                  @MavenRepository(repository = "grpt-releases-tgi-1") Repository releasesTgiGroup,
+    public void testGroupIncludes(@MavenRepository(repository = "grpt-releases-tgi-1") Repository releases1,
+                                  @MavenRepository(repository = "grpt-releases-tgi-2") Repository releases2,
+                                  @TestRepository.Group({ "grpt-releases-tgi-1",
+                                                          "grpt-releases-tgi-2" }) @MavenRepository(repository = "grpt-releases-tgi-group") Repository releasesGroup,
                                   @MavenTestArtifact(repository = "grpt-releases-tgi-1", id = "com.artifacts.in.releases.one:foo", versions = "1.2.3") Path a1,
                                   @MavenTestArtifact(repository = "grpt-releases-tgi-1", id = "com.artifacts.in.releases.under:group", versions = "1.2.3") Path a2,
-                                  @MavenTestArtifact(repository = "grpt-releases-tgi-2", id =  "com.artifacts.in.releases.four:foo", versions = "1.2.4") Path a3,
-                                  @MavenTestArtifact(repository = "grpt-releases-tgi-2", id =  "com.artifacts.in.releases.under:group", versions = "1.2.4") Path a4)
+                                  @MavenTestArtifact(repository = "grpt-releases-tgi-2", id = "com.artifacts.in.releases.four:foo", versions = "1.2.4") Path a3,
+                                  @MavenTestArtifact(repository = "grpt-releases-tgi-2", id = "com.artifacts.in.releases.under:group", versions = "1.2.4") Path a4)
             throws Exception
     {
         System.out.println("# Testing group includes...");
 
         // Test data initialized.
-        Repository repository = releasesTgiGroup;
+        Repository repository = releasesGroup;
         RepositoryProvider repositoryProvider = repositoryProviderRegistry.getProvider(repository.getType());
 
         RepositoryPath resolvedPath1 = (RepositoryPath) a1.normalize();
@@ -203,59 +206,24 @@ public class MavenGroupRepositoryProviderTest
     }
 
     @Test
-    public void mavenMetadataFileShouldBeFetchedFromGroupPathRepository(TestInfo testInfo)
+    @ExtendWith({RepositoryManagementTestExecutionListener.class, ArtifactManagementTestExecutionListener.class})
+    public void mavenMetadataFileShouldBeFetchedFromGroupPathRepository(@MavenRepository(repository = "grpt-releases-mmfsbffgpr-1") Repository releases1,
+                                                                        @MavenRepository(repository = "grpt-releases-mmfsbffgpr-2") Repository releases2,
+                                                                        @TestRepository.Group({ "grpt-releases-mmfsbffgpr-1",
+                                                                                                "grpt-releases-mmfsbffgpr-2" }) @MavenRepository(repository = "grpt-releases-mmfsbffgpr-group") Repository releasesGroup,
+                                                                        @MavenTestArtifact(repository = "grpt-releases-mmfsbffgpr-1", id = "com.artifacts.in.releases.one:foo", versions = "1.2.3") Path a1,
+                                                                        @MavenTestArtifact(repository = "grpt-releases-mmfsbffgpr-1", id = "com.artifacts.in.releases.under123:group", versions = "1.2.3") Path a2,
+                                                                        @MavenTestArtifact(repository = "grpt-releases-mmfsbffgpr-2", id = "com.artifacts.in.releases.under123:group", versions = "1.2.4") Path a3)
             throws Exception
     {
-        String repositoryReleases1Name = getRepositoryName("grpt-releases-mmfsbffgpr-1", testInfo);
+        generateMavenMetadata(STORAGE0, "grpt-releases-mmfsbffgpr-1");
+        generateMavenMetadata(STORAGE0, "grpt-releases-mmfsbffgpr-2");
+        
+        RepositoryProvider repositoryProvider = repositoryProviderRegistry.getProvider(RepositoryTypeEnum.GROUP.getType());
 
-        String repositoryReleases2Name = getRepositoryName("grpt-releases-mmfsbffgpr-2", testInfo);
-
-        String repositoryGroupName = getRepositoryName("grpt-releases-mmfsbffgpr-group", testInfo);
-
-        // Initialize test data
-        createRepository(STORAGE0, repositoryReleases1Name, false);
-
-        generateArtifact(getRepositoryBasedir(STORAGE0, repositoryReleases1Name).getAbsolutePath(),
-                         "com.artifacts.in.releases.one:foo",
-                         new String[]{ "1.2.3" });
-
-        createRepositoryWithArtifacts(STORAGE0,
-                                      repositoryReleases1Name,
-                                      false,
-                                      "com.artifacts.in.releases.under123:group",
-                                      "1.2.3");
-
-        createRepository(STORAGE0, repositoryReleases2Name, false);
-
-        generateArtifact(getRepositoryBasedir(STORAGE0, repositoryReleases2Name).getAbsolutePath(),
-                         "com.artifacts.in.releases.under123:group",
-                         new String[]{ "1.2.4" });
-
-        MutableMavenRepositoryConfiguration mavenRepositoryConfiguration = new MutableMavenRepositoryConfiguration();
-        mavenRepositoryConfiguration.setIndexingEnabled(false);
-
-        MutableRepository repositoryGroup = mavenRepositoryFactory.createRepository(repositoryGroupName);
-        repositoryGroup.setType(RepositoryTypeEnum.GROUP.getType());
-        repositoryGroup.setAllowsRedeployment(false);
-        repositoryGroup.setAllowsDelete(false);
-        repositoryGroup.setAllowsForceDeletion(false);
-        repositoryGroup.setRepositoryConfiguration(mavenRepositoryConfiguration);
-        repositoryGroup.addRepositoryToGroup(repositoryReleases1Name);
-        repositoryGroup.addRepositoryToGroup(repositoryReleases2Name);
-
-        createRepository(STORAGE0, repositoryGroup);
-
-        generateMavenMetadata(STORAGE0, repositoryReleases1Name);
-        generateMavenMetadata(STORAGE0, repositoryReleases2Name);
-        // Test data initialized.
-
-        Repository repository = configurationManager.getRepository(STORAGE0 + ":" + repositoryGroupName);
-        RepositoryProvider repositoryProvider = repositoryProviderRegistry.getProvider(repository.getType());
-
-        RepositoryPath resolvedPath = repositoryPathResolver.resolve(STORAGE0,
-                                                                     repositoryGroupName,
+        RepositoryPath resolvedPath = repositoryPathResolver.resolve(releasesGroup,
                                                                      "com/artifacts/in/releases/under123/group/maven-metadata.xml");
-
+        
         Path repositoryPath = repositoryProvider.fetchPath(resolvedPath);
         InputStream is = repositoryProvider.getInputStream(repositoryPath);
 
@@ -263,7 +231,7 @@ public class MavenGroupRepositoryProviderTest
 
         Metadata metadata = artifactMetadataService.getMetadata(is);
 
-        assertEquals(metadata.getVersioning().getVersions().size(), 2);
+        assertEquals(2, metadata.getVersioning().getVersions().size());
         assertThat(metadata.getVersioning().getVersions(), contains("1.2.3", "1.2.4"));
     }
 

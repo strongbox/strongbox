@@ -281,12 +281,13 @@ public class TestArtifactContext implements AutoCloseable
 
     public static String id(TestArtifact testArtifact)
     {
+        String format = "%s/%s/%s";
         if (!testArtifact.resource().trim().isEmpty())
         {
-            return testArtifact.resource();
+            return String.format(format, testArtifact.storage(), testArtifact.repository(), testArtifact.resource());
         }
         
-        return testArtifact.id();
+        return String.format(format, testArtifact.storage(), testArtifact.repository(), testArtifact.id());
     }
 
 }
