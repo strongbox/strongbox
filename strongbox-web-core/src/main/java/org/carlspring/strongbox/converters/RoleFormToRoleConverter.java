@@ -16,7 +16,6 @@ public class RoleFormToRoleConverter
     public RoleDto convert(RoleForm roleForm)
     {
         RoleDto role = new RoleDto(roleForm.getName(), roleForm.getDescription());
-        role.setRepository(roleForm.getRepository());
         role.setPrivileges(roleForm.getPrivileges());
         return role;
     }

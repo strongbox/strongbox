@@ -17,11 +17,6 @@ public class RoleDto
 
     private String description;
 
-    /**
-     * The repository this role is associated with.
-     */
-    private String repository;
-
     private Set<String> privileges = new HashSet<>();
 
 
@@ -78,16 +73,6 @@ public class RoleDto
         this.description = description;
     }
 
-    public String getRepository()
-    {
-        return repository;
-    }
-
-    public void setRepository(String repository)
-    {
-        this.repository = repository;
-    }
-
     public Set<String> getPrivileges()
     {
         return privileges;
@@ -119,7 +104,6 @@ public class RoleDto
         final StringBuilder sb = new StringBuilder("\n\t\tRole{");
         sb.append("name='").append(name).append('\'');
         sb.append(", description='").append(description).append('\'');
-        sb.append(", repository='").append(repository).append('\'');
         sb.append(", privileges=").append(privileges);
         sb.append('}');
 

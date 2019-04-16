@@ -88,7 +88,6 @@ public class AuthorizationConfigControllerTestIT
         final RoleForm customRole = new RoleForm();
         customRole.setName("TEST_ROLE");
         customRole.setDescription("Test role");
-        customRole.setRepository("Test repository");
         customRole.setPrivileges(new HashSet<>(Arrays.asList(Privileges.ADMIN_LIST_REPO.name(),
                                                              Privileges.ARTIFACTS_DEPLOY.name())));
 

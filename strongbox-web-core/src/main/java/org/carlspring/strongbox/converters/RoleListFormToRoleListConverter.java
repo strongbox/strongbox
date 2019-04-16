@@ -23,7 +23,6 @@ public class RoleListFormToRoleListConverter
         for (RoleForm roleForm : roleListForm.getRoles())
         {
             RoleDto role = new RoleDto(roleForm.getName(), roleForm.getDescription());
-            role.setRepository(roleForm.getRepository());
             role.setPrivileges(roleForm.getPrivileges());
             roleList.add(role);
         }
