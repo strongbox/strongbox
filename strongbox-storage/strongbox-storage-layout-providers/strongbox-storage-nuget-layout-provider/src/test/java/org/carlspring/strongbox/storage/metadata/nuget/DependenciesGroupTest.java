@@ -15,7 +15,7 @@
  * limitations under the License.
  */
 
-package org.carlspring.strongbox.storage.metadata.nuget.metadata;
+package org.carlspring.strongbox.storage.metadata.nuget;
 
 import org.carlspring.strongbox.storage.metadata.nuget.DependenciesGroup;
 import org.carlspring.strongbox.storage.metadata.nuget.Framework;
