@@ -9,7 +9,8 @@ import java.lang.reflect.Parameter;
 import java.lang.reflect.Proxy;
 
 import org.carlspring.strongbox.storage.repository.Repository;
-import org.carlspring.strongbox.testing.storage.repository.TestRepository.RemoteRepository;
+import org.carlspring.strongbox.testing.storage.repository.TestRepository.Group;
+import org.carlspring.strongbox.testing.storage.repository.TestRepository.Remote;
 import org.junit.jupiter.api.extension.ExtensionContext;
 import org.junit.jupiter.api.extension.ParameterContext;
 import org.junit.jupiter.api.extension.ParameterResolutionException;
@@ -34,10 +35,11 @@ public class RepositoryManagementTestExecutionListener extends TestRepositoryMan
     {
         Parameter parameter = parameterContext.getParameter();
         TestRepository testRepository = AnnotatedElementUtils.findMergedAnnotation(parameter, TestRepository.class);
-        RemoteRepository remoteRepository = parameter.getAnnotation(RemoteRepository.class);
+        Remote remoteRepository = AnnotatedElementUtils.findMergedAnnotation(parameter, Remote.class);
+        Group groupRepository = AnnotatedElementUtils.findMergedAnnotation(parameter, Group.class);
         
         TestRepositoryManagementContext testApplicationContext = getTestRepositoryManagementContext();
-        testApplicationContext.register(testRepository, remoteRepository);
+        testApplicationContext.register(testRepository, remoteRepository, groupRepository);
         testApplicationContext.refresh();
 
         return Proxy.newProxyInstance(RepositoryManagementTestExecutionListener.class.getClassLoader(),

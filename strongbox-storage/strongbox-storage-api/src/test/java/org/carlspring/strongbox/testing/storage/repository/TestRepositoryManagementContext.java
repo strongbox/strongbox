@@ -6,7 +6,8 @@ import java.util.Map;
 
 import org.carlspring.strongbox.testing.artifact.TestArtifact;
 import org.carlspring.strongbox.testing.artifact.TestArtifactContext;
-import org.carlspring.strongbox.testing.storage.repository.TestRepository.RemoteRepository;
+import org.carlspring.strongbox.testing.storage.repository.TestRepository.Group;
+import org.carlspring.strongbox.testing.storage.repository.TestRepository.Remote;
 import org.junit.jupiter.api.TestInfo;
 import org.junit.jupiter.api.extension.ParameterContext;
 
@@ -22,7 +23,9 @@ public interface TestRepositoryManagementContext
 
     public void refresh();
 
-    public void register(TestRepository testRepository, RemoteRepository remoteRepository);
+    public void register(TestRepository testRepository,
+                         Remote remoteRepository,
+                         Group groupRepository);
 
     public void register(TestArtifact testArtifact,
                          Map<String, Object> attributesMap,

@@ -19,9 +19,11 @@ import java.util.concurrent.TimeUnit;
 import java.util.concurrent.locks.ReentrantLock;
 import java.util.stream.Collectors;
 
+import org.carlspring.strongbox.configuration.ConfigurationUtils;
 import org.carlspring.strongbox.testing.artifact.TestArtifact;
 import org.carlspring.strongbox.testing.artifact.TestArtifactContext;
-import org.carlspring.strongbox.testing.storage.repository.TestRepository.RemoteRepository;
+import org.carlspring.strongbox.testing.storage.repository.TestRepository.Group;
+import org.carlspring.strongbox.testing.storage.repository.TestRepository.Remote;
 import org.junit.jupiter.api.TestInfo;
 import org.junit.jupiter.api.extension.ExtensionContext;
 import org.junit.jupiter.api.extension.ParameterContext;
@@ -304,10 +306,22 @@ public class TestRepositoryManagementApplicationContext extends AnnotationConfig
     }
 
     @Override
-    public void register(TestRepository testRepository, RemoteRepository remoteRepository)
+    public void register(TestRepository testRepository,
+                         Remote remoteRepository,
+                         Group groupRepository)
     {
         idSync.putIfAbsent(id(testRepository), new ReentrantLock());
-        registerBean(id(testRepository), TestRepositoryContext.class, testRepository, remoteRepository);
+        registerBean(id(testRepository), TestRepositoryContext.class, testRepository, remoteRepository, groupRepository);
+        
+        if (groupRepository == null)
+        {
+            return;
+        }
+        
+        Arrays.stream(groupRepository.repositories()).forEach(r -> {
+            BeanDefinition beanDefinition = getBeanDefinition(id(ConfigurationUtils.getStorageId(testRepository.storage(), r), ConfigurationUtils.getRepositoryId(r)));
+            beanDefinition.setDependsOn(id(testRepository));
+        });
     }
 
     @Override

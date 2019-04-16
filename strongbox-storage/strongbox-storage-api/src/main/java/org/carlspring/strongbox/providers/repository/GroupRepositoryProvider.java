@@ -19,6 +19,7 @@ import javax.persistence.EntityManager;
 import javax.persistence.PersistenceContext;
 
 import org.carlspring.strongbox.artifact.coordinates.ArtifactCoordinates;
+import org.carlspring.strongbox.configuration.ConfigurationUtils;
 import org.carlspring.strongbox.data.criteria.OQueryTemplate;
 import org.carlspring.strongbox.data.criteria.Paginator;
 import org.carlspring.strongbox.data.criteria.Predicate;
@@ -34,7 +35,6 @@ import org.carlspring.strongbox.providers.repository.group.GroupRepositorySetCol
 import org.carlspring.strongbox.services.support.ArtifactRoutingRulesChecker;
 import org.carlspring.strongbox.storage.Storage;
 import org.carlspring.strongbox.storage.repository.Repository;
-
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Component;
@@ -99,8 +99,8 @@ public class GroupRepositoryProvider extends AbstractRepositoryProvider
         
         for (String storageAndRepositoryId : groupRepository.getGroupRepositories())
         {
-            String sId = configurationManager.getStorageId(storage, storageAndRepositoryId);
-            String rId = configurationManager.getRepositoryId(storageAndRepositoryId);
+            String sId = ConfigurationUtils.getStorageId(storage.getId(), storageAndRepositoryId);
+            String rId = ConfigurationUtils.getRepositoryId(storageAndRepositoryId);
 
             Repository subRepository = getConfiguration().getStorage(sId).getRepository(rId);
             if (!subRepository.isInService())

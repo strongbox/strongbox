@@ -1,19 +1,20 @@
 package org.carlspring.strongbox.providers.repository.group;
 
+import java.io.IOException;
+import java.util.HashMap;
+import java.util.Map;
+
+import javax.inject.Inject;
+
+import org.apache.commons.lang3.mutable.MutableBoolean;
 import org.carlspring.strongbox.configuration.ConfigurationManager;
+import org.carlspring.strongbox.configuration.ConfigurationUtils;
+import org.carlspring.strongbox.providers.io.RepositoryFiles;
 import org.carlspring.strongbox.providers.io.RepositoryPath;
 import org.carlspring.strongbox.providers.io.RepositoryPathResolver;
 import org.carlspring.strongbox.providers.layout.LayoutProvider;
 import org.carlspring.strongbox.providers.layout.LayoutProviderRegistry;
 import org.carlspring.strongbox.storage.repository.Repository;
-
-import javax.inject.Inject;
-import java.io.IOException;
-import java.util.HashMap;
-import java.util.Map;
-
-import org.apache.commons.lang3.mutable.MutableBoolean;
-import org.carlspring.strongbox.providers.io.RepositoryFiles;
 import org.springframework.stereotype.Component;
 
 /**
@@ -93,14 +94,14 @@ public class GroupRepositoryArtifactExistenceChecker
 
     private String getRepositoryId(final String maybeStorageAndRepositoryId)
     {
-        return configurationManager.getRepositoryId(maybeStorageAndRepositoryId);
+        return ConfigurationUtils.getRepositoryId(maybeStorageAndRepositoryId);
     }
 
     private String getStorageId(final Repository groupRepository,
                                 final String maybeStorageAndRepositoryId)
     {
-        return configurationManager.getStorageId(groupRepository.getStorage(),
-                                                 maybeStorageAndRepositoryId);
+        return ConfigurationUtils.getStorageId(groupRepository.getStorage().getId(),
+                                               maybeStorageAndRepositoryId);
     }
 
 }

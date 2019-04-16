@@ -3,8 +3,10 @@ package org.carlspring.strongbox.testing.storage.repository;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.util.Arrays;
+import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
+import java.util.stream.Collectors;
 
 import javax.annotation.PreDestroy;
 
@@ -21,7 +23,10 @@ import org.carlspring.strongbox.storage.repository.MutableRepository;
 import org.carlspring.strongbox.storage.repository.Repository;
 import org.carlspring.strongbox.storage.repository.RepositoryTypeEnum;
 import org.carlspring.strongbox.storage.repository.remote.MutableRemoteRepository;
-import org.carlspring.strongbox.testing.storage.repository.TestRepository.RemoteRepository;
+import org.carlspring.strongbox.storage.routing.MutableRoutingRule;
+import org.carlspring.strongbox.storage.routing.MutableRoutingRuleRepository;
+import org.carlspring.strongbox.testing.storage.repository.TestRepository.Group;
+import org.carlspring.strongbox.testing.storage.repository.TestRepository.Remote;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.cglib.proxy.UndeclaredThrowableException;
@@ -39,7 +44,9 @@ public class TestRepositoryContext implements AutoCloseable, Comparable<TestRepo
 
     private final TestRepository testRepository;
 
-    private final RemoteRepository remoteRepository;
+    private final Remote remoteRepository;
+    
+    private final Group groupRepository;
 
     private final ConfigurationManagementService configurationManagementService;
 
@@ -52,7 +59,8 @@ public class TestRepositoryContext implements AutoCloseable, Comparable<TestRepo
     private boolean opened;
 
     public TestRepositoryContext(TestRepository testRepository,
-                                 RemoteRepository remoteRepository,
+                                 Remote remoteRepository,
+                                 Group groupRepository,
                                  ConfigurationManagementService configurationManagementService,
                                  RepositoryPathResolver repositoryPathResolver,
                                  RepositoryManagementService repositoryManagementService,
@@ -62,6 +70,7 @@ public class TestRepositoryContext implements AutoCloseable, Comparable<TestRepo
     {
         this.testRepository = testRepository;
         this.remoteRepository = remoteRepository;
+        this.groupRepository = groupRepository;
         this.configurationManagementService = configurationManagementService;
         this.repositoryPathResolver = repositoryPathResolver;
         this.repositoryManagementService = repositoryManagementService;
@@ -100,6 +109,15 @@ public class TestRepositoryContext implements AutoCloseable, Comparable<TestRepo
     {
         logger.info(String.format("Create [%s] with id [%s] ", TestRepository.class.getSimpleName(),
                                   id(testRepository)));
+
+        if (groupRepository != null && remoteRepository != null)
+        {
+            throw new IllegalStateException(
+                    String.format("The repository [%s] shoudn't be configured as [%s] and [%s] at the same time.",
+                                  id(testRepository), Group.class.getSimpleName(),
+                                  Remote.class.getSimpleName()));
+        }
+        
         Storage storage = Optional.ofNullable(configurationManagementService.getConfiguration()
                                                                             .getStorage(testRepository.storage()))
                                   .orElseGet(this::createStorage);
@@ -122,6 +140,19 @@ public class TestRepositoryContext implements AutoCloseable, Comparable<TestRepo
             remoteRepositoryConfiguration.setUrl(r.url());
             repository.setRemoteRepository(remoteRepositoryConfiguration);
         });
+        Optional.ofNullable(groupRepository).ifPresent(g -> {
+            repository.setType(RepositoryTypeEnum.GROUP.getType());
+            repository.getGroupRepositories().addAll(Arrays.asList(groupRepository.repositories()));
+            
+            Arrays.stream(groupRepository.rules()).forEach((rule) -> {
+                MutableRoutingRule routingRule = MutableRoutingRule.create(testRepository.storage(),
+                                                                           testRepository.repository(),
+                                                                           routingRepositories(rule.repositories()), rule.pattern(),
+                                                                           rule.type());
+                configurationManagementService.addRoutingRule(routingRule);
+            });
+            
+        });
         Arrays.stream(testRepository.setup()).forEach(s -> setupRepository(s, repository));
 
         configurationManagementService.saveRepository(testRepository.storage(), (MutableRepository) repository);
@@ -136,6 +167,11 @@ public class TestRepositoryContext implements AutoCloseable, Comparable<TestRepo
         opened = true;
         logger.info(String.format("Created [%s] with id [%s] ", TestRepository.class.getSimpleName(),
                                   id(testRepository)));
+    }
+
+    private List<MutableRoutingRuleRepository> routingRepositories(String[] repositories)
+    {
+        return Arrays.stream(repositories).map(MutableRoutingRuleRepository::new).collect(Collectors.toList());
     }
 
     private void setupRepository(Class<? extends RepositorySetup> s,
