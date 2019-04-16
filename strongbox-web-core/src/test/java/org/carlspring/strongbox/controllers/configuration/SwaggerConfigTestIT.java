@@ -26,7 +26,7 @@ public class SwaggerConfigTestIT extends RestAssuredBaseTest
     @Test
     public void testSwaggerUIStaticResources()
     {
-        String url = getContextBaseUrl() + "/swagger-ui.html";
+        String url = getContextBaseUrl() + "/docs/rest/api.html";
 
         given().header(HttpHeaders.ACCEPT, MediaType.TEXT_HTML_VALUE)
                .when()
