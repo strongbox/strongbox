@@ -83,24 +83,6 @@ public class MavenGroupRepositoryProviderTest
     {
         Set<MutableRepository> repositories = new LinkedHashSet<>();
         repositories.add(createRepositoryMock(STORAGE0,
-                                              getRepositoryName("grpt-releases-tgi-1", testInfo),
-                                              Maven2LayoutProvider.ALIAS));
-        repositories.add(createRepositoryMock(STORAGE0,
-                                              getRepositoryName("grpt-releases-tgi-2", testInfo),
-                                              Maven2LayoutProvider.ALIAS));
-        repositories.add(createRepositoryMock(STORAGE0,
-                                              getRepositoryName("grpt-releases-tgi-group", testInfo),
-                                              Maven2LayoutProvider.ALIAS));
-        repositories.add(createRepositoryMock(STORAGE0,
-                                              getRepositoryName("grpt-releases-mmfsbffgpr-1", testInfo),
-                                              Maven2LayoutProvider.ALIAS));
-        repositories.add(createRepositoryMock(STORAGE0,
-                                              getRepositoryName("grpt-releases-mmfsbffgpr-2", testInfo),
-                                              Maven2LayoutProvider.ALIAS));
-        repositories.add(createRepositoryMock(STORAGE0,
-                                              getRepositoryName("grpt-releases-mmfsbffgpr-group", testInfo),
-                                              Maven2LayoutProvider.ALIAS));
-        repositories.add(createRepositoryMock(STORAGE0,
                                               getRepositoryName("grpt-releases-tgiwoosr-1", testInfo),
                                               Maven2LayoutProvider.ALIAS));
         repositories.add(createRepositoryMock(STORAGE0,
