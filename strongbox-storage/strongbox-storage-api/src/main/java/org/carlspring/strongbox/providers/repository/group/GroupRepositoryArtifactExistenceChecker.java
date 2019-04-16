@@ -101,7 +101,7 @@ public class GroupRepositoryArtifactExistenceChecker
                                 final String maybeStorageAndRepositoryId)
     {
         return ConfigurationUtils.getStorageId(groupRepository.getStorage().getId(),
-                                                 maybeStorageAndRepositoryId);
+                                               maybeStorageAndRepositoryId);
     }
 
 }
