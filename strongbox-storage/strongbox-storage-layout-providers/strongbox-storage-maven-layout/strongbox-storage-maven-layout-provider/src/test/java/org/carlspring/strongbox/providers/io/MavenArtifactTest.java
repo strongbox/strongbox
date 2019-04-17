@@ -2,9 +2,11 @@ package org.carlspring.strongbox.providers.io;
 
 import static org.hamcrest.CoreMatchers.instanceOf;
 import static org.hamcrest.MatcherAssert.assertThat;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.parallel.ExecutionMode.CONCURRENT;
 
 import java.io.IOException;
+import java.net.URI;
 import java.nio.file.Path;
 
 import org.carlspring.strongbox.config.Maven2LayoutProviderTestConfig;
@@ -41,7 +43,9 @@ public class MavenArtifactTest
                                                  @MavenTestArtifact(repository = REPOSITORY_RELEASES, id = "org.bitbucket.b_c:jose4j", versions = "0.6.3") Path path)
         throws IOException
     {
-        assertThat(path.normalize(), instanceOf(RepositoryPath.class));
+        Path repositoryPath = path.normalize();
+        assertThat(repositoryPath, instanceOf(RepositoryPath.class));
+        assertEquals(URI.create("strongbox:/storage0/mrpl-releases/org/bitbucket/b_c/jose4j/0.6.3/jose4j-0.6.3.jar"), repositoryPath.toUri());
     }
 
 }
