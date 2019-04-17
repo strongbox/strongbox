@@ -1,25 +1,27 @@
 package org.carlspring.strongbox.providers.io;
 
+import static org.hamcrest.CoreMatchers.instanceOf;
+import static org.hamcrest.MatcherAssert.assertThat;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.parallel.ExecutionMode.CONCURRENT;
+
+import java.io.IOException;
+import java.net.URI;
+import java.nio.file.Path;
+
 import org.carlspring.strongbox.config.Maven2LayoutProviderTestConfig;
-import org.carlspring.strongbox.providers.layout.Maven2LayoutProvider;
 import org.carlspring.strongbox.storage.repository.Repository;
 import org.carlspring.strongbox.testing.TestCaseWithMavenArtifactGenerationAndIndexing;
 import org.carlspring.strongbox.testing.artifact.ArtifactManagementTestExecutionListener;
 import org.carlspring.strongbox.testing.artifact.MavenTestArtifact;
+import org.carlspring.strongbox.testing.repository.MavenRepository;
 import org.carlspring.strongbox.testing.storage.repository.RepositoryManagementTestExecutionListener;
-import org.carlspring.strongbox.testing.storage.repository.TestRepository;
-
-import javax.inject.Inject;
-import java.io.IOException;
-import java.nio.file.Path;
-
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.junit.jupiter.api.parallel.Execution;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.ContextConfiguration;
-import static org.junit.jupiter.api.parallel.ExecutionMode.CONCURRENT;
 
 /**
  * @author Przemyslaw Fusik
@@ -28,25 +30,22 @@ import static org.junit.jupiter.api.parallel.ExecutionMode.CONCURRENT;
 @ActiveProfiles(profiles = "test")
 @ContextConfiguration(classes = Maven2LayoutProviderTestConfig.class)
 @Execution(CONCURRENT)
-public class MavenRepositoryPathLockTest
+public class MavenArtifactTest
         extends TestCaseWithMavenArtifactGenerationAndIndexing
 {
 
     private static final String REPOSITORY_RELEASES = "mrpl-releases";
 
-    @Inject
-    private RepositoryPathLock repositoryPathLock;
-
     @Test
     @ExtendWith({ RepositoryManagementTestExecutionListener.class,
                   ArtifactManagementTestExecutionListener.class })
-    public void repositoryPathLockShouldNotThrowAnyException(
-            @TestRepository(repository = REPOSITORY_RELEASES, layout = Maven2LayoutProvider.ALIAS) Repository repository,
-            @MavenTestArtifact(id = "org.bitbucket.b_c:jose4j", repository = REPOSITORY_RELEASES, versions = { "0.6.3" }) Path path)
-            throws IOException
+    public void artifactWithUnderscoreShouldWork(@MavenRepository(repository = REPOSITORY_RELEASES) Repository repository,
+                                                 @MavenTestArtifact(repository = REPOSITORY_RELEASES, id = "org.bitbucket.b_c:jose4j", versions = "0.6.3") Path path)
+        throws IOException
     {
-        RepositoryPath artifactPath = (RepositoryPath) path.normalize();
-
-        repositoryPathLock.lock(artifactPath);
+        Path repositoryPath = path.normalize();
+        assertThat(repositoryPath, instanceOf(RepositoryPath.class));
+        assertEquals(URI.create("strongbox:/storage0/mrpl-releases/org/bitbucket/b_c/jose4j/0.6.3/jose4j-0.6.3.jar"), repositoryPath.toUri());
     }
+
 }
