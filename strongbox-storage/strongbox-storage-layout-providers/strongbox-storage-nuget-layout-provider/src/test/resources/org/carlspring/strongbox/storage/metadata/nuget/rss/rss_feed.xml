@@ -33,7 +33,7 @@
             <d:Rating m:type="Edm.Double">-1</d:Rating>
             <d:VersionRating m:type="Edm.Double">-1</d:VersionRating>
             <d:RequireLicenseAcceptance m:type="Edm.Boolean">false</d:RequireLicenseAcceptance>
-            <d:Description>Mock для unit тестов</d:Description>
+            <d:Description>Mock for unit tests</d:Description>
             <d:ReleaseNotes m:null="true"></d:ReleaseNotes>
             <d:Language m:null="true"></d:Language>
             <d:Published m:type="Edm.DateTime">2011-09-23T05:58:43.8858747Z</d:Published>
@@ -76,7 +76,7 @@
             <d:Rating m:type="Edm.Double">-1</d:Rating>
             <d:VersionRating m:type="Edm.Double">-1</d:VersionRating>
             <d:RequireLicenseAcceptance m:type="Edm.Boolean">false</d:RequireLicenseAcceptance>
-            <d:Description>Дополнительные task для MSBuild</d:Description>
+            <d:Description>Additional tasks for MSBuild</d:Description>
             <d:ReleaseNotes m:null="true"></d:ReleaseNotes>
             <d:Language m:null="true"></d:Language>
             <d:Published m:type="Edm.DateTime">2011-09-23T06:30:05.1869954Z</d:Published>
@@ -99,7 +99,7 @@
         <summary type="text"></summary>
         <updated>2011-09-26T06:56:36Z</updated>
         <author>
-            <name>ЗАО "НЕОЛАНТ"</name>
+            <name>ZAO "NEOLANT"</name>
         </author>
         <link rel="edit-media" title="Package" href="Packages(Id='Neolant.IOT.EventBus',Version='0.0.2.557')/$value" />
         <link rel="edit" title="Package" href="Packages(Id='Neolant.IOT.EventBus',Version='0.0.2.557')" />
@@ -119,7 +119,7 @@
             <d:Rating m:type="Edm.Double">-1</d:Rating>
             <d:VersionRating m:type="Edm.Double">-1</d:VersionRating>
             <d:RequireLicenseAcceptance m:type="Edm.Boolean">false</d:RequireLicenseAcceptance>
-            <d:Description>Шина обмена сообщениями между компонентами приложения</d:Description>
+            <d:Description>Messaging Bus Between Application Components</d:Description>
             <d:ReleaseNotes m:null="true"></d:ReleaseNotes>
             <d:Language m:null="true"></d:Language>
             <d:Published m:type="Edm.DateTime">2011-09-26T06:56:35.9946285Z</d:Published>
@@ -142,7 +142,7 @@
         <summary type="text"></summary>
         <updated>2011-09-26T08:34:35Z</updated>
         <author>
-            <name>ЗАО "НЕОЛАНТ"</name>
+            <name>ZAO "NEOLANT"</name>
         </author>
         <link rel="edit-media" title="Package" href="Packages(Id='Neolant.IOT.EventBus',Version='0.0.2.558')/$value" />
         <link rel="edit" title="Package" href="Packages(Id='Neolant.IOT.EventBus',Version='0.0.2.558')" />
@@ -162,7 +162,7 @@
             <d:Rating m:type="Edm.Double">-1</d:Rating>
             <d:VersionRating m:type="Edm.Double">-1</d:VersionRating>
             <d:RequireLicenseAcceptance m:type="Edm.Boolean">false</d:RequireLicenseAcceptance>
-            <d:Description>Шина обмена сообщениями между компонентами приложения</d:Description>
+            <d:Description>Messaging Bus Between Application Components</d:Description>
             <d:ReleaseNotes m:null="true"></d:ReleaseNotes>
             <d:Language m:null="true"></d:Language>
             <d:Published m:type="Edm.DateTime">2011-09-26T08:34:35.6404562Z</d:Published>
@@ -185,7 +185,7 @@
         <summary type="text"></summary>
         <updated>2011-09-27T05:49:15Z</updated>
         <author>
-            <name>ЗАО "НЕОЛАНТ"</name>
+            <name>ZAO "NEOLANT"</name>
         </author>
         <link rel="edit-media" title="Package" href="Packages(Id='Neolant.IOT.EventBus',Version='0.0.2.563')/$value" />
         <link rel="edit" title="Package" href="Packages(Id='Neolant.IOT.EventBus',Version='0.0.2.563')" />
@@ -205,7 +205,7 @@
             <d:Rating m:type="Edm.Double">-1</d:Rating>
             <d:VersionRating m:type="Edm.Double">-1</d:VersionRating>
             <d:RequireLicenseAcceptance m:type="Edm.Boolean">false</d:RequireLicenseAcceptance>
-            <d:Description>Шина обмена сообщениями между компонентами приложения</d:Description>
+            <d:Description>Messaging Bus Between Application Components</d:Description>
             <d:ReleaseNotes m:null="true"></d:ReleaseNotes>
             <d:Language m:null="true"></d:Language>
             <d:Published m:type="Edm.DateTime">2011-09-27T05:49:15.0496393Z</d:Published>
@@ -228,7 +228,7 @@
         <summary type="text"></summary>
         <updated>2011-09-28T10:27:49Z</updated>
         <author>
-            <name>ЗАО "НЕОЛАНТ"</name>
+            <name>ZAO "NEOLANT"</name>
         </author>
         <link rel="edit-media" title="Package" href="Packages(Id='Neolant.IOT.EventBus',Version='0.0.2.566')/$value" />
         <link rel="edit" title="Package" href="Packages(Id='Neolant.IOT.EventBus',Version='0.0.2.566')" />
@@ -248,7 +248,7 @@
             <d:Rating m:type="Edm.Double">-1</d:Rating>
             <d:VersionRating m:type="Edm.Double">-1</d:VersionRating>
             <d:RequireLicenseAcceptance m:type="Edm.Boolean">false</d:RequireLicenseAcceptance>
-            <d:Description>Шина обмена сообщениями между компонентами приложения</d:Description>
+            <d:Description>Messaging Bus Between Application Components</d:Description>
             <d:ReleaseNotes m:null="true"></d:ReleaseNotes>
             <d:Language m:null="true"></d:Language>
             <d:Published m:type="Edm.DateTime">2011-09-28T10:27:49.5829086Z</d:Published>
@@ -271,7 +271,7 @@
         <summary type="text"></summary>
         <updated>2011-09-28T12:00:54Z</updated>
         <author>
-            <name>ЗАО "НЕОЛАНТ"</name>
+            <name>ZAO "NEOLANT"</name>
         </author>
         <link rel="edit-media" title="Package" href="Packages(Id='Neolant.IOT.EventBus',Version='0.0.2.567')/$value" />
         <link rel="edit" title="Package" href="Packages(Id='Neolant.IOT.EventBus',Version='0.0.2.567')" />
@@ -291,7 +291,7 @@
             <d:Rating m:type="Edm.Double">-1</d:Rating>
             <d:VersionRating m:type="Edm.Double">-1</d:VersionRating>
             <d:RequireLicenseAcceptance m:type="Edm.Boolean">false</d:RequireLicenseAcceptance>
-            <d:Description>Шина обмена сообщениями между компонентами приложения</d:Description>
+            <d:Description>Messaging Bus Between Application Components</d:Description>
             <d:ReleaseNotes m:null="true"></d:ReleaseNotes>
             <d:Language m:null="true"></d:Language>
             <d:Published m:type="Edm.DateTime">2011-09-28T12:00:54.2553153Z</d:Published>
@@ -314,7 +314,7 @@
         <summary type="text"></summary>
         <updated>2011-09-28T12:19:36Z</updated>
         <author>
-            <name>ЗАО "НЕОЛАНТ"</name>
+            <name>ZAO "NEOLANT"</name>
         </author>
         <link rel="edit-media" title="Package" href="Packages(Id='Neolant.IOT.EventBus',Version='0.0.2.569')/$value" />
         <link rel="edit" title="Package" href="Packages(Id='Neolant.IOT.EventBus',Version='0.0.2.569')" />
@@ -334,7 +334,7 @@
             <d:Rating m:type="Edm.Double">-1</d:Rating>
             <d:VersionRating m:type="Edm.Double">-1</d:VersionRating>
             <d:RequireLicenseAcceptance m:type="Edm.Boolean">false</d:RequireLicenseAcceptance>
-            <d:Description>Шина обмена сообщениями между компонентами приложения</d:Description>
+            <d:Description>Messaging Bus Between Application Components</d:Description>
             <d:ReleaseNotes m:null="true"></d:ReleaseNotes>
             <d:Language m:null="true"></d:Language>
             <d:Published m:type="Edm.DateTime">2011-09-28T12:19:36.0934879Z</d:Published>
@@ -357,7 +357,7 @@
         <summary type="text"></summary>
         <updated>2011-09-30T05:19:21Z</updated>
         <author>
-            <name>ЗАО "НЕОЛАНТ"</name>
+            <name>ZAO "NEOLANT"</name>
         </author>
         <link rel="edit-media" title="Package" href="Packages(Id='Neolant.IOT.EventBus',Version='0.0.2.576')/$value" />
         <link rel="edit" title="Package" href="Packages(Id='Neolant.IOT.EventBus',Version='0.0.2.576')" />
@@ -377,7 +377,7 @@
             <d:Rating m:type="Edm.Double">-1</d:Rating>
             <d:VersionRating m:type="Edm.Double">-1</d:VersionRating>
             <d:RequireLicenseAcceptance m:type="Edm.Boolean">false</d:RequireLicenseAcceptance>
-            <d:Description>Шина обмена сообщениями между компонентами приложения</d:Description>
+            <d:Description>Messaging Bus Between Application Components</d:Description>
             <d:ReleaseNotes m:null="true"></d:ReleaseNotes>
             <d:Language m:null="true"></d:Language>
             <d:Published m:type="Edm.DateTime">2011-09-30T05:07:56.0679806Z</d:Published>
@@ -400,7 +400,7 @@
         <summary type="text"></summary>
         <updated>2011-09-30T05:26:57Z</updated>
         <author>
-            <name>ЗАО "НЕОЛАНТ"</name>
+            <name>ZAO "NEOLANT"</name>
         </author>
         <link rel="edit-media" title="Package" href="Packages(Id='Neolant.IOT.EventBus',Version='0.0.2.579')/$value" />
         <link rel="edit" title="Package" href="Packages(Id='Neolant.IOT.EventBus',Version='0.0.2.579')" />
@@ -420,7 +420,7 @@
             <d:Rating m:type="Edm.Double">-1</d:Rating>
             <d:VersionRating m:type="Edm.Double">-1</d:VersionRating>
             <d:RequireLicenseAcceptance m:type="Edm.Boolean">false</d:RequireLicenseAcceptance>
-            <d:Description>Шина обмена сообщениями между компонентами приложения</d:Description>
+            <d:Description>Messaging Bus Between Application Components</d:Description>
             <d:ReleaseNotes m:null="true"></d:ReleaseNotes>
             <d:Language m:null="true"></d:Language>
             <d:Published m:type="Edm.DateTime">2011-09-30T05:26:57.526262Z</d:Published>
@@ -443,7 +443,7 @@
         <summary type="text"></summary>
         <updated>2011-10-03T09:54:45Z</updated>
         <author>
-            <name>ЗАО "НЕОЛАНТ"</name>
+            <name>ZAO "NEOLANT"</name>
         </author>
         <link rel="edit-media" title="Package" href="Packages(Id='Neolant.IOT.EventBus',Version='0.0.2.580')/$value" />
         <link rel="edit" title="Package" href="Packages(Id='Neolant.IOT.EventBus',Version='0.0.2.580')" />
@@ -463,7 +463,7 @@
             <d:Rating m:type="Edm.Double">-1</d:Rating>
             <d:VersionRating m:type="Edm.Double">-1</d:VersionRating>
             <d:RequireLicenseAcceptance m:type="Edm.Boolean">false</d:RequireLicenseAcceptance>
-            <d:Description>Шина обмена сообщениями между компонентами приложения</d:Description>
+            <d:Description>Messaging Bus Between Application Components</d:Description>
             <d:ReleaseNotes m:null="true"></d:ReleaseNotes>
             <d:Language m:null="true"></d:Language>
             <d:Published m:type="Edm.DateTime">2011-09-30T05:34:25.330262Z</d:Published>
@@ -486,7 +486,7 @@
         <summary type="text"></summary>
         <updated>2011-10-07T09:12:18Z</updated>
         <author>
-            <name>ЗАО "НЕОЛАНТ"</name>
+            <name>ZAO "NEOLANT"</name>
         </author>
         <link rel="edit-media" title="Package" href="Packages(Id='Neolant.IOT.EventBus',Version='0.0.2.610')/$value" />
         <link rel="edit" title="Package" href="Packages(Id='Neolant.IOT.EventBus',Version='0.0.2.610')" />
@@ -506,7 +506,7 @@
             <d:Rating m:type="Edm.Double">-1</d:Rating>
             <d:VersionRating m:type="Edm.Double">-1</d:VersionRating>
             <d:RequireLicenseAcceptance m:type="Edm.Boolean">false</d:RequireLicenseAcceptance>
-            <d:Description>Шина обмена сообщениями между компонентами приложения</d:Description>
+            <d:Description>Messaging Bus Between Application Components</d:Description>
             <d:ReleaseNotes m:null="true"></d:ReleaseNotes>
             <d:Language m:null="true"></d:Language>
             <d:Published m:type="Edm.DateTime">2011-10-05T08:49:56.8739957Z</d:Published>
@@ -529,7 +529,7 @@
         <summary type="text"></summary>
         <updated>2011-10-07T10:03:01Z</updated>
         <author>
-            <name>ЗАО "НЕОЛАНТ"</name>
+            <name>ZAO "NEOLANT"</name>
         </author>
         <link rel="edit-media" title="Package" href="Packages(Id='Neolant.IOT.EventBus',Version='0.0.2.619')/$value" />
         <link rel="edit" title="Package" href="Packages(Id='Neolant.IOT.EventBus',Version='0.0.2.619')" />
@@ -549,7 +549,7 @@
             <d:Rating m:type="Edm.Double">-1</d:Rating>
             <d:VersionRating m:type="Edm.Double">-1</d:VersionRating>
             <d:RequireLicenseAcceptance m:type="Edm.Boolean">false</d:RequireLicenseAcceptance>
-            <d:Description>Шина обмена сообщениями между компонентами приложения</d:Description>
+            <d:Description>Messaging Bus Between Application Components</d:Description>
             <d:ReleaseNotes m:null="true"></d:ReleaseNotes>
             <d:Language m:null="true"></d:Language>
             <d:Published m:type="Edm.DateTime">2011-10-07T10:03:01.1834933Z</d:Published>
@@ -572,7 +572,7 @@
         <summary type="text"></summary>
         <updated>2011-10-07T10:31:50Z</updated>
         <author>
-            <name>ЗАО "НЕОЛАНТ"</name>
+            <name>ZAO "NEOLANT"</name>
         </author>
         <link rel="edit-media" title="Package" href="Packages(Id='Neolant.IOT.EventBus',Version='0.0.2.620')/$value" />
         <link rel="edit" title="Package" href="Packages(Id='Neolant.IOT.EventBus',Version='0.0.2.620')" />
@@ -592,7 +592,7 @@
             <d:Rating m:type="Edm.Double">-1</d:Rating>
             <d:VersionRating m:type="Edm.Double">-1</d:VersionRating>
             <d:RequireLicenseAcceptance m:type="Edm.Boolean">false</d:RequireLicenseAcceptance>
-            <d:Description>Шина обмена сообщениями между компонентами приложения</d:Description>
+            <d:Description>Messaging Bus Between Application Components</d:Description>
             <d:ReleaseNotes m:null="true"></d:ReleaseNotes>
             <d:Language m:null="true"></d:Language>
             <d:Published m:type="Edm.DateTime">2011-10-07T10:31:50.6633201Z</d:Published>
@@ -615,7 +615,7 @@
         <summary type="text"></summary>
         <updated>2011-10-07T11:50:18Z</updated>
         <author>
-            <name>ЗАО "НЕОЛАНТ"</name>
+            <name>ZAO "NEOLANT"</name>
         </author>
         <link rel="edit-media" title="Package" href="Packages(Id='Neolant.IOT.EventBus',Version='0.0.2.622')/$value" />
         <link rel="edit" title="Package" href="Packages(Id='Neolant.IOT.EventBus',Version='0.0.2.622')" />
@@ -635,7 +635,7 @@
             <d:Rating m:type="Edm.Double">-1</d:Rating>
             <d:VersionRating m:type="Edm.Double">-1</d:VersionRating>
             <d:RequireLicenseAcceptance m:type="Edm.Boolean">false</d:RequireLicenseAcceptance>
-            <d:Description>Шина обмена сообщениями между компонентами приложения</d:Description>
+            <d:Description>Messaging Bus Between Application Components</d:Description>
             <d:ReleaseNotes m:null="true"></d:ReleaseNotes>
             <d:Language m:null="true"></d:Language>
             <d:Published m:type="Edm.DateTime">2011-10-07T11:50:18.2735799Z</d:Published>
@@ -658,7 +658,7 @@
         <summary type="text"></summary>
         <updated>2011-10-07T12:59:52Z</updated>
         <author>
-            <name>ЗАО "НЕОЛАНТ"</name>
+            <name>ZAO "NEOLANT"</name>
         </author>
         <link rel="edit-media" title="Package" href="Packages(Id='Neolant.IOT.EventBus',Version='0.0.2.623')/$value" />
         <link rel="edit" title="Package" href="Packages(Id='Neolant.IOT.EventBus',Version='0.0.2.623')" />
@@ -678,7 +678,7 @@
             <d:Rating m:type="Edm.Double">-1</d:Rating>
             <d:VersionRating m:type="Edm.Double">-1</d:VersionRating>
             <d:RequireLicenseAcceptance m:type="Edm.Boolean">false</d:RequireLicenseAcceptance>
-            <d:Description>Шина обмена сообщениями между компонентами приложения</d:Description>
+            <d:Description>Messaging Bus Between Application Components</d:Description>
             <d:ReleaseNotes m:null="true"></d:ReleaseNotes>
             <d:Language m:null="true"></d:Language>
             <d:Published m:type="Edm.DateTime">2011-10-07T12:59:51.9859556Z</d:Published>
@@ -764,7 +764,7 @@
             <d:Rating m:type="Edm.Double">-1</d:Rating>
             <d:VersionRating m:type="Edm.Double">-1</d:VersionRating>
             <d:RequireLicenseAcceptance m:type="Edm.Boolean">false</d:RequireLicenseAcceptance>
-            <d:Description>Симулятор работы по демонтажу реактора</d:Description>
+            <d:Description>Simulator work on dismantling the reactor</d:Description>
             <d:ReleaseNotes m:null="true"></d:ReleaseNotes>
             <d:Language m:null="true"></d:Language>
             <d:Published m:type="Edm.DateTime">2011-09-30T12:02:02.6950378Z</d:Published>
@@ -807,7 +807,7 @@
             <d:Rating m:type="Edm.Double">-1</d:Rating>
             <d:VersionRating m:type="Edm.Double">-1</d:VersionRating>
             <d:RequireLicenseAcceptance m:type="Edm.Boolean">false</d:RequireLicenseAcceptance>
-            <d:Description>Симулятор работы по демонтажу реактора</d:Description>
+            <d:Description>Simulator work on dismantling the reactor</d:Description>
             <d:ReleaseNotes m:null="true"></d:ReleaseNotes>
             <d:Language m:null="true"></d:Language>
             <d:Published m:type="Edm.DateTime">2011-10-03T10:15:38.2443778Z</d:Published>
@@ -850,7 +850,7 @@
             <d:Rating m:type="Edm.Double">-1</d:Rating>
             <d:VersionRating m:type="Edm.Double">-1</d:VersionRating>
             <d:RequireLicenseAcceptance m:type="Edm.Boolean">false</d:RequireLicenseAcceptance>
-            <d:Description>Симулятор работы по демонтажу реактора</d:Description>
+            <d:Description>Simulator work on dismantling the reactor</d:Description>
             <d:ReleaseNotes m:null="true"></d:ReleaseNotes>
             <d:Language m:null="true"></d:Language>
             <d:Published m:type="Edm.DateTime">2011-10-04T05:16:18.1633603Z</d:Published>
@@ -893,7 +893,7 @@
             <d:Rating m:type="Edm.Double">-1</d:Rating>
             <d:VersionRating m:type="Edm.Double">-1</d:VersionRating>
             <d:RequireLicenseAcceptance m:type="Edm.Boolean">false</d:RequireLicenseAcceptance>
-            <d:Description>Симулятор работы по демонтажу реактора</d:Description>
+            <d:Description>Simulator work on dismantling the reactor</d:Description>
             <d:ReleaseNotes m:null="true"></d:ReleaseNotes>
             <d:Language m:null="true"></d:Language>
             <d:Published m:type="Edm.DateTime">2011-10-05T08:14:02.9545968Z</d:Published>
@@ -981,7 +981,7 @@
             <d:Rating m:type="Edm.Double">-1</d:Rating>
             <d:VersionRating m:type="Edm.Double">-1</d:VersionRating>
             <d:RequireLicenseAcceptance m:type="Edm.Boolean">false</d:RequireLicenseAcceptance>
-            <d:Description>Пакет модульного тестирования</d:Description>
+            <d:Description>Unit Testing Package</d:Description>
             <d:ReleaseNotes m:null="true"></d:ReleaseNotes>
             <d:Language m:null="true"></d:Language>
             <d:Published m:type="Edm.DateTime">2011-09-23T05:18:55.5327281Z</d:Published>
@@ -1024,7 +1024,7 @@
             <d:Rating m:type="Edm.Double">-1</d:Rating>
             <d:VersionRating m:type="Edm.Double">-1</d:VersionRating>
             <d:RequireLicenseAcceptance m:type="Edm.Boolean">false</d:RequireLicenseAcceptance>
-            <d:Description>Исполняемый файл, загружающий сцену</d:Description>
+            <d:Description>Unit Testing Package</d:Description>
             <d:ReleaseNotes m:null="true"></d:ReleaseNotes>
             <d:Language m:null="true"></d:Language>
             <d:Published m:type="Edm.DateTime">2011-10-05T07:59:09.2352338Z</d:Published>
@@ -1067,7 +1067,7 @@
             <d:Rating m:type="Edm.Double">-1</d:Rating>
             <d:VersionRating m:type="Edm.Double">-1</d:VersionRating>
             <d:RequireLicenseAcceptance m:type="Edm.Boolean">false</d:RequireLicenseAcceptance>
-            <d:Description>Исполняемый файл, загружающий сцену</d:Description>
+            <d:Description>Unit Testing Package</d:Description>
             <d:ReleaseNotes m:null="true"></d:ReleaseNotes>
             <d:Language m:null="true"></d:Language>
             <d:Published m:type="Edm.DateTime">2011-10-05T07:59:09.2492352Z</d:Published>
@@ -1110,7 +1110,7 @@
             <d:Rating m:type="Edm.Double">-1</d:Rating>
             <d:VersionRating m:type="Edm.Double">-1</d:VersionRating>
             <d:RequireLicenseAcceptance m:type="Edm.Boolean">false</d:RequireLicenseAcceptance>
-            <d:Description>.NET машина для Unity</d:Description>
+            <d:Description>.NET machine for Unity</d:Description>
             <d:ReleaseNotes m:null="true"></d:ReleaseNotes>
             <d:Language m:null="true"></d:Language>
             <d:Published m:type="Edm.DateTime">2011-10-05T07:59:09.2622365Z</d:Published>
