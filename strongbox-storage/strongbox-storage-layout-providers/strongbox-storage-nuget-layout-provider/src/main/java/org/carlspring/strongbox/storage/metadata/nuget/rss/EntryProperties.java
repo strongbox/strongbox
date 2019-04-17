@@ -172,7 +172,7 @@ public class EntryProperties
     /**
      * Package price
      */
-    private double price;
+    private Double price;
 
     /**
      * Package dependencies
