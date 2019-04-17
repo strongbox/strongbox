@@ -3,6 +3,7 @@ package org.carlspring.strongbox.providers.io;
 import java.io.IOException;
 import java.io.InputStream;
 import java.net.URI;
+import java.net.URLEncoder;
 import java.util.Optional;
 import java.util.concurrent.locks.Lock;
 import java.util.concurrent.locks.ReadWriteLock;
@@ -63,7 +64,7 @@ public class RepositoryPathLock
             // We should lock all the RepositoryArtifactIdGroup because there can be
             // `ArtifactEntryServiceImpl.updateLastVersionTag()` operations
             // which affetcs on other artifacts from group.
-            return URI.create(c.getId());
+            return URI.create(URLEncoder.encode(c.getId(), "UTF-8"));
         }
 
         final URI lock = repositoryPath.toUri();
