@@ -31,21 +31,22 @@ import java.nio.channels.WritableByteChannel;
 import java.security.DigestInputStream;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
+import java.util.Date;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipInputStream;
 
 import javax.xml.bind.DatatypeConverter;
 
 import org.apache.commons.codec.digest.MessageDigestAlgorithms;
+import org.carlspring.strongbox.artifact.coordinates.versioning.SemanticVersion;
 
 /**
  * Nuget nupkg file representation
  *
  * @author sviridov
  */
-public class TempNupkgFile implements AutoCloseable
+public class TempNupkgFile implements AutoCloseable, Nupkg
 {
-
     /**
      * File with package data
      */
@@ -60,6 +61,11 @@ public class TempNupkgFile implements AutoCloseable
      * Specification file
      */
     private Nuspec nuspec;
+
+    /**
+     * Package refresh date
+     */
+    private Date updated;
 
     /**
      * Creates a NuGet package from a stream
@@ -231,5 +237,43 @@ public class TempNupkgFile implements AutoCloseable
         {
             return new FileInputStream(file);
         }
+    }
+
+    @Override
+    public String getFileName()
+    {
+        return getId() + "." + getVersion().toString() + DEFAULT_EXTENSION;
+    }
+
+    @Override
+    public Long getSize()
+    {
+        if (file == null)
+        {
+            return null;
+        }
+        return file.length();
+    }
+
+    @Override
+    public Date getUpdated()
+    {
+        if (updated == null)
+        {
+            this.updated = new Date(file.lastModified());
+        }
+        return updated;
+    }
+
+    @Override
+    public String getId()
+    {
+        return getNuspec().getId();
+    }
+
+    @Override
+    public SemanticVersion getVersion()
+    {
+        return getNuspec().getVersion();
     }
 }

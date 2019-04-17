@@ -15,7 +15,7 @@
  * limitations under the License.
  */
 
-package org.carlspring.strongbox.storage.metadata.nuget.metadata;
+package org.carlspring.strongbox.storage.metadata.nuget;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
@@ -28,7 +28,6 @@ import javax.xml.transform.dom.DOMResult;
 import javax.xml.transform.sax.SAXSource;
 
 import org.carlspring.strongbox.storage.metadata.nuget.NugetNamespaceFilter;
-import org.carlspring.strongbox.storage.metadata.nuget.NugetTestResourceUtil;
 import org.carlspring.strongbox.storage.metadata.nuget.Nuspec;
 import org.junit.jupiter.api.Test;
 import org.xml.sax.InputSource;

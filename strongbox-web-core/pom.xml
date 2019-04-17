@@ -515,15 +515,6 @@
             <artifactId>swagger-core</artifactId>
         </dependency>
 
-        <dependency>
-            <groupId>ru.aristar.nuget</groupId>
-            <artifactId>jnuget-core</artifactId>
-        </dependency>
-        <dependency>
-            <groupId>ru.aristar.nuget</groupId>
-            <artifactId>jnuget-server</artifactId>
-        </dependency>
-
         <!-- Testing frameworks -->
         <dependency>
             <groupId>org.springframework.security</groupId>

@@ -1,24 +1,23 @@
 package org.carlspring.strongbox.artifact.coordinates;
 
+import org.carlspring.strongbox.artifact.coordinates.versioning.SemanticVersion;
 import org.carlspring.strongbox.providers.io.RepositoryPath;
+import org.carlspring.strongbox.storage.metadata.nuget.NugetFormatException;
+import org.carlspring.strongbox.storage.metadata.nuget.Nupkg;
+import org.carlspring.strongbox.storage.metadata.nuget.Nuspec;
+import org.carlspring.strongbox.storage.metadata.nuget.Nuspec.Metadata;
 
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.UnsupportedEncodingException;
 import java.nio.file.Files;
-import java.security.NoSuchAlgorithmException;
 import java.util.*;
+
+import javax.xml.bind.DatatypeConverter;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.util.Assert;
-import ru.aristar.jnuget.Version;
-import ru.aristar.jnuget.files.Framework;
-import ru.aristar.jnuget.files.Hash;
-import ru.aristar.jnuget.files.NugetFormatException;
-import ru.aristar.jnuget.files.Nupkg;
-import ru.aristar.jnuget.files.nuspec.NuspecFile;
-import ru.aristar.jnuget.files.nuspec.NuspecFile.Metadata;
 
 public class PathNupkg implements Nupkg
 {
@@ -26,11 +25,10 @@ public class PathNupkg implements Nupkg
     private static final Logger logger = LoggerFactory.getLogger(PathNupkg.class);
 
     private RepositoryPath path;
-    private NuspecFile nuspecFile;
-    private Hash hash;
+    private Nuspec nuspecFile;
+    private String hash;
     private NugetArtifactCoordinates artifactCoordinates;
-    private boolean exists;
-
+    
     public PathNupkg(RepositoryPath path)
         throws NugetFormatException,
         UnsupportedEncodingException,
@@ -57,14 +55,12 @@ public class PathNupkg implements Nupkg
     }
 
     @Override
-    public Hash getHash()
-        throws NoSuchAlgorithmException,
-        IOException
+    public String getHash()
     {
         return hash;
     }
 
-    private Hash createHash()
+    private String createHash()
         throws IOException,
         UnsupportedEncodingException
     {
@@ -78,7 +74,7 @@ public class PathNupkg implements Nupkg
         if (!Files.exists(checkSumPath))
         {
             logger.trace(String.format("Failed to resolve checksum file for [%s]", path));
-            return new Hash(new byte[] {});
+            return "";
         }
         List<String> checkSumContents = Files.readAllLines(checkSumPath);
         if (checkSumContents.isEmpty() || checkSumContents.size() > 1)
@@ -86,35 +82,37 @@ public class PathNupkg implements Nupkg
             logger.error(String.format("Found illegal checksum contents for [%s]", path));
             return null;
         }
+        
         String checkSumStr = checkSumContents.iterator().next();
-        return new Hash(Base64.getDecoder().decode(checkSumStr.getBytes("UTF-8")));
+        
+        return checkSumStr;
     }
 
     @Override
-    public NuspecFile getNuspecFile()
+    public Nuspec getNuspec()
         throws NugetFormatException
     {
         return nuspecFile;
     }
 
-    private NuspecFile createNuspecFile()
+    private Nuspec createNuspecFile()
         throws NugetFormatException
     {
         RepositoryPath nuspecPath = path.resolveSibling(artifactCoordinates.getId() + ".nuspec");
         if (!Files.exists(nuspecPath))
         {
             logger.trace(String.format("Failed to resolve .nuspec file for [%s]", path));
-            NuspecFile result = new NuspecFile();
+            Nuspec result = new Nuspec();
             Metadata metadata = result.getMetadata();
             metadata.id = artifactCoordinates.getId();
-            metadata.version = Version.parse(artifactCoordinates.getVersion());
+            metadata.version = SemanticVersion.parse(artifactCoordinates.getVersion());
             metadata.title = metadata.id;
             return result;
         }
-        exists = true;
+        
         try
         {
-            return NuspecFile.Parse(Files.newInputStream(nuspecPath));
+            return Nuspec.parse(Files.newInputStream(nuspecPath));
         }
         catch (IOException e)
         {
@@ -163,30 +161,17 @@ public class PathNupkg implements Nupkg
     }
 
     @Override
-    public Version getVersion()
+    public SemanticVersion getVersion()
     {
         try
         {
-            return Version.parse(artifactCoordinates.getVersion());
+            return SemanticVersion.parse(artifactCoordinates.getVersion());
         }
-        catch (NugetFormatException e)
+        catch (Exception e)
         {
             logger.error(String.format("Failed to parse version for [%s]", path));
             return null;
         }
-    }
-
-    @Override
-    public EnumSet<Framework> getTargetFramework()
-    {
-        // TODO: add framework into RepositoryPath attributes for nuget packages.
-        return EnumSet.allOf(Framework.class);
-    }
-
-    @Override
-    public void load()
-        throws IOException
-    {
     }
 
     @Override
