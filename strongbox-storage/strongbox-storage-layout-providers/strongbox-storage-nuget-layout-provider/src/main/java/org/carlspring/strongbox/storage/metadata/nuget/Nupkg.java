@@ -43,15 +43,8 @@ public interface Nupkg extends Serializable
 
     /**
      * @return HASH package file
-     * @throws NoSuchAlgorithmException
-     *             in the system is not found the calculation algorithm
-     *             HASH
-     * @throws IOException
-     *             data reading error
      */
-    String getHash()
-        throws NoSuchAlgorithmException,
-               IOException;
+    String getHash();
 
     /**
      * @return package specification file

@@ -151,11 +151,6 @@
             <groupId>javax.servlet</groupId>
             <artifactId>javax.servlet-api</artifactId>
         </dependency>
-
-        <dependency>
-            <groupId>ru.aristar.nuget</groupId>
-            <artifactId>jnuget-core</artifactId>
-        </dependency>
     </dependencies>
 
     <profiles>
