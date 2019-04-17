@@ -74,7 +74,7 @@ public class PathNupkg implements Nupkg
         if (!Files.exists(checkSumPath))
         {
             logger.trace(String.format("Failed to resolve checksum file for [%s]", path));
-            return DatatypeConverter.printBase64Binary(new byte[] {});
+            return "";
         }
         List<String> checkSumContents = Files.readAllLines(checkSumPath);
         if (checkSumContents.isEmpty() || checkSumContents.size() > 1)
