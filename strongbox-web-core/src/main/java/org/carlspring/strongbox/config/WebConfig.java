@@ -73,7 +73,8 @@ import static org.carlspring.strongbox.net.MediaType.APPLICATION_YML_VALUE;
           UsersConfig.class,
           SecurityConfig.class,
           ClientConfig.class,
-          CronTasksConfig.class })
+          CronTasksConfig.class,
+          SwaggerConfig.class})
 @EnableCaching(order = 105)
 @EnableWebMvc
 public class WebConfig
@@ -213,6 +214,14 @@ public class WebConfig
                 .resourceChain(true)
                 .addResolver(new GzipResourceResolver())
                 .addResolver(new PathResourceResolver());
+
+        // Swagger-UI mapping needs to be after the *.html mapping in order to override it.
+        registry.addResourceHandler("swagger-ui.html")
+                .addResourceLocations("classpath:/META-INF/resources/");
+
+        registry.addResourceHandler("/webjars/**")
+                .addResourceLocations("classpath:/META-INF/resources/webjars/");
+
     }
 
     @Override
