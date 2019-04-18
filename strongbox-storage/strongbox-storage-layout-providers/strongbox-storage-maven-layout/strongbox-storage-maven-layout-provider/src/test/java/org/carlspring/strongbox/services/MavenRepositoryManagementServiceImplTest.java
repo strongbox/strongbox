@@ -3,31 +3,23 @@ package org.carlspring.strongbox.services;
 import org.carlspring.strongbox.artifact.coordinates.MavenArtifactCoordinates;
 import org.carlspring.strongbox.artifact.generator.MavenArtifactGenerator;
 import org.carlspring.strongbox.config.Maven2LayoutProviderTestConfig;
-import org.carlspring.strongbox.providers.io.RepositoryFiles;
-import org.carlspring.strongbox.providers.io.RepositoryPath;
-import org.carlspring.strongbox.providers.layout.Maven2LayoutProvider;
 import org.carlspring.strongbox.providers.search.MavenIndexerSearchProvider;
 import org.carlspring.strongbox.repository.IndexedMavenRepositoryFeatures;
 import org.carlspring.strongbox.storage.indexing.IndexTypeEnum;
-import org.carlspring.strongbox.storage.repository.MutableRepository;
 import org.carlspring.strongbox.storage.repository.Repository;
 import org.carlspring.strongbox.storage.repository.RepositoryPolicyEnum;
 import org.carlspring.strongbox.storage.search.SearchRequest;
 import org.carlspring.strongbox.testing.MavenIndexedRepositorySetup;
 import org.carlspring.strongbox.testing.TestCaseWithMavenArtifactGenerationAndIndexing;
 import org.carlspring.strongbox.testing.artifact.ArtifactManagementTestExecutionListener;
-import org.carlspring.strongbox.testing.artifact.MavenTestArtifact;
 import org.carlspring.strongbox.testing.artifact.TestArtifact;
 import org.carlspring.strongbox.testing.storage.repository.RepositoryManagementTestExecutionListener;
 import org.carlspring.strongbox.testing.storage.repository.TestRepository;
 
 import java.io.File;
 import java.nio.file.Path;
-import java.util.LinkedHashSet;
 import java.util.List;
-import java.util.Set;
 
-import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.junit.jupiter.api.parallel.Execution;
@@ -74,20 +66,25 @@ public class MavenRepositoryManagementServiceImplTest
         assertTrue(repositoryBaseDir.exists(), "Failed to create repository '" + REPOSITORY_RELEASES_1 + "'!");
     }
 
+    @ExtendWith(RepositoryManagementTestExecutionListener.class)
     @Test
-    public void testCreateAndDelete()
+    public void testCreateAndDelete(@TestRepository(storage = STORAGE0,
+                                    repository = REPOSITORY_RELEASES_1,
+                                    layout = MavenArtifactCoordinates.LAYOUT_NAME,
+                                    policy = RepositoryPolicyEnum.RELEASE,
+                                    setup = MavenIndexedRepositorySetup.class,
+                                    cleanup = false)
+                                    Repository repository)
             throws Exception
     {
-        createRepository(STORAGE0, REPOSITORY_RELEASES_2, true);
-
-        File repositoryDir = getRepositoryBasedir(STORAGE0,  REPOSITORY_RELEASES_2).getAbsoluteFile();
+        File repositoryDir = getRepositoryBasedir(STORAGE0,  REPOSITORY_RELEASES_1).getAbsoluteFile();
 
         assertTrue(repositoryDir.exists(),
                    "Failed to create the repository \"" + repositoryDir.getAbsolutePath() + "\"!");
 
-        closeIndexer(STORAGE0 + ":" + REPOSITORY_RELEASES_2 + ":" + IndexTypeEnum.LOCAL.getType());
+        closeIndexer(STORAGE0 + ":" + REPOSITORY_RELEASES_1 + ":" + IndexTypeEnum.LOCAL.getType());
 
-        getRepositoryManagementService().removeRepository(STORAGE0, REPOSITORY_RELEASES_2);
+        getRepositoryManagementService().removeRepository(STORAGE0, REPOSITORY_RELEASES_1);
 
         assertFalse(repositoryDir.exists(), "Failed to remove the repository!");
     }
