@@ -144,10 +144,10 @@ public class ArtifactMetadataServiceReleasesTest
                                                          policy = RepositoryPolicyEnum.RELEASE)
                                          Repository repository,
                                          @TestArtifact(repository = R2,
-                                                 id = "org.carlspring.strongbox:added",
-                                                 versions = { "1.0","1.1", "1.2", "1.3" },
-                                                 generator = MavenArtifactGenerator.class)
-                                                 List<Path> artifactGroupPath)
+                                                       id = "org.carlspring.strongbox:added",
+                                                       versions = { "1.0","1.1", "1.2", "1.3" },
+                                                       generator = MavenArtifactGenerator.class)
+                                                       List<Path> artifactGroupPath)
             throws IOException, XmlPullParserException, NoSuchAlgorithmException
     {
         String artifactPath = "org/carlspring/strongbox/added";
@@ -218,7 +218,7 @@ public class ArtifactMetadataServiceReleasesTest
                                                                     id = "org.carlspring.strongbox.metadata.maven:strongbox-metadata-plugin",
                                                                     versions = { "1.0" },
                                                                     packaging = "maven-plugin")
-                                                         List<Path> artifactGroupPath)
+                                                 List<Path> artifactGroupPath)
             throws IOException, XmlPullParserException, NoSuchAlgorithmException
     {
         Artifact pluginArtifact = ArtifactUtils.getArtifactFromGAVTC(
@@ -254,7 +254,7 @@ public class ArtifactMetadataServiceReleasesTest
                                                 id = "org.carlspring.strongbox.metadata:strongbox-metadata-merge",
                                                 versions = { "1.0" },
                                                 generator = MavenArtifactGenerator.class)
-                                          List<Path> artifactGroupPath)
+                                  List<Path> artifactGroupPath)
             throws IOException, XmlPullParserException, NoSuchAlgorithmException, ProviderImplementationException
     {
         RepositoryPath repositoryPath = (RepositoryPath)artifactGroupPath.get(0);
