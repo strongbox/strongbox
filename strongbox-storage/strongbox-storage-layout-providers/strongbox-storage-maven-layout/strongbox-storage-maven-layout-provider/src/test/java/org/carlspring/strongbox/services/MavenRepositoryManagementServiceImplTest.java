@@ -1,20 +1,35 @@
 package org.carlspring.strongbox.services;
 
+import org.carlspring.strongbox.artifact.coordinates.MavenArtifactCoordinates;
+import org.carlspring.strongbox.artifact.generator.MavenArtifactGenerator;
 import org.carlspring.strongbox.config.Maven2LayoutProviderTestConfig;
+import org.carlspring.strongbox.providers.io.RepositoryFiles;
+import org.carlspring.strongbox.providers.io.RepositoryPath;
 import org.carlspring.strongbox.providers.layout.Maven2LayoutProvider;
 import org.carlspring.strongbox.providers.search.MavenIndexerSearchProvider;
 import org.carlspring.strongbox.repository.IndexedMavenRepositoryFeatures;
 import org.carlspring.strongbox.storage.indexing.IndexTypeEnum;
 import org.carlspring.strongbox.storage.repository.MutableRepository;
+import org.carlspring.strongbox.storage.repository.Repository;
+import org.carlspring.strongbox.storage.repository.RepositoryPolicyEnum;
 import org.carlspring.strongbox.storage.search.SearchRequest;
+import org.carlspring.strongbox.testing.MavenIndexedRepositorySetup;
 import org.carlspring.strongbox.testing.TestCaseWithMavenArtifactGenerationAndIndexing;
+import org.carlspring.strongbox.testing.artifact.ArtifactManagementTestExecutionListener;
+import org.carlspring.strongbox.testing.artifact.MavenTestArtifact;
+import org.carlspring.strongbox.testing.artifact.TestArtifact;
+import org.carlspring.strongbox.testing.storage.repository.RepositoryManagementTestExecutionListener;
+import org.carlspring.strongbox.testing.storage.repository.TestRepository;
 
 import java.io.File;
+import java.nio.file.Path;
 import java.util.LinkedHashSet;
+import java.util.List;
 import java.util.Set;
 
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.junit.jupiter.api.parallel.Execution;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.context.ActiveProfiles;
@@ -43,32 +58,18 @@ public class MavenRepositoryManagementServiceImplTest
 
     private static final String REPOSITORY_RELEASES_MERGE_2 = "rmsi-releases-merge-2";
 
-
-    @BeforeAll
-    public static void cleanUp()
-            throws Exception
-    {
-        cleanUp(getRepositoriesToClean());
-    }
-
-    public static Set<MutableRepository> getRepositoriesToClean()
-    {
-        Set<MutableRepository> repositories = new LinkedHashSet<>();
-        repositories.add(createRepositoryMock(STORAGE0, REPOSITORY_RELEASES_1, Maven2LayoutProvider.ALIAS));
-        repositories.add(createRepositoryMock(STORAGE0, REPOSITORY_RELEASES_2, Maven2LayoutProvider.ALIAS));
-        repositories.add(createRepositoryMock(STORAGE0, REPOSITORY_RELEASES_MERGE_1, Maven2LayoutProvider.ALIAS));
-        repositories.add(createRepositoryMock(STORAGE0, REPOSITORY_RELEASES_MERGE_2, Maven2LayoutProvider.ALIAS));
-
-        return repositories;
-    }
-
+    @ExtendWith(RepositoryManagementTestExecutionListener.class)
     @Test
-    public void testCreateRepository()
+    public void testCreateRepository(@TestRepository(storage = STORAGE0,
+                                                     repository = REPOSITORY_RELEASES_1,
+                                                     layout = MavenArtifactCoordinates.LAYOUT_NAME,
+                                                     setup = MavenIndexedRepositorySetup.class)
+                                     Repository repository)
             throws Exception
     {
-        createRepository(STORAGE0, REPOSITORY_RELEASES_1, true);
-
         File repositoryBaseDir = getRepositoryBasedir(STORAGE0, REPOSITORY_RELEASES_1).getAbsoluteFile();
+
+        System.out.println(repositoryBaseDir.getAbsolutePath());
 
         assertTrue(repositoryBaseDir.exists(), "Failed to create repository '" + REPOSITORY_RELEASES_1 + "'!");
     }
@@ -91,23 +92,32 @@ public class MavenRepositoryManagementServiceImplTest
         assertFalse(repositoryDir.exists(), "Failed to remove the repository!");
     }
 
+    @ExtendWith({ RepositoryManagementTestExecutionListener.class, ArtifactManagementTestExecutionListener.class })
     @Test
     @EnabledIf(expression = "#{containsObject('repositoryIndexManager')}", loadContext = true)
-    public void testMerge()
+    public void testMerge(@TestRepository(storage = STORAGE0,
+                                          repository = REPOSITORY_RELEASES_MERGE_1,
+                                          layout = MavenArtifactCoordinates.LAYOUT_NAME,
+                                          setup = MavenIndexedRepositorySetup.class)
+                          Repository r1,
+                          @TestRepository(storage = STORAGE0,
+                                          repository = REPOSITORY_RELEASES_MERGE_2,
+                                          layout = MavenArtifactCoordinates.LAYOUT_NAME,
+                                          setup = MavenIndexedRepositorySetup.class)
+                          Repository r2,
+                          @TestArtifact(repository = REPOSITORY_RELEASES_MERGE_1,
+                                        id = "org.carlspring.strongbox:strongbox-utils",
+                                        versions = { "6.2.2" },
+                                        generator = MavenArtifactGenerator.class)
+                          List<Path> repositoryArtifact1,
+                          @TestArtifact(repository = REPOSITORY_RELEASES_MERGE_2,
+                                        id = "org.carlspring.strongbox:strongbox-utils",
+                                        versions = { "6.2.3" },
+                                        generator = MavenArtifactGenerator.class)
+                          List<Path> repositoryArtifact2
+                                  )
             throws Exception
     {
-        createRepositoryWithArtifacts(STORAGE0,
-                                      REPOSITORY_RELEASES_MERGE_1,
-                                      true,
-                                      "org.carlspring.strongbox:strongbox-utils",
-                                      "6.2.2");
-
-        createRepositoryWithArtifacts(STORAGE0,
-                                      REPOSITORY_RELEASES_MERGE_2,
-                                      true,
-                                      "org.carlspring.strongbox:strongbox-utils",
-                                      "6.2.3");
-
         // dumpIndex(STORAGE0, REPOSITORY_RELEASES_MERGE_1, IndexTypeEnum.LOCAL.getType());
 
         // 1) Check that an exists in the first repository
