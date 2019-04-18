@@ -116,6 +116,17 @@ public class NugetArtifactControllerTest extends NugetRestAssuredBaseTest
     }
 
     @Test
+    public void testGetMetadata()
+    {
+        given().header("User-Agent", "NuGet/*")
+               .when()
+               .get(getContextBaseUrl() + "/storages/" + STORAGE_ID + "/" + REPOSITORY_RELEASES_1 +
+                    "/$metadata;client=127.0.0.1")
+               .then()
+               .statusCode(HttpStatus.OK.value());
+    }
+
+    @Test
     public void testHeaderFetch()
             throws Exception
     {
