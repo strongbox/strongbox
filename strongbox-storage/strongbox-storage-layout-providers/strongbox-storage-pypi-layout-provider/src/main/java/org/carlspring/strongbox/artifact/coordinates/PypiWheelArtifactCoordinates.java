@@ -1,13 +1,14 @@
 package org.carlspring.strongbox.artifact.coordinates;
 
+import org.carlspring.strongbox.artifact.coordinates.versioning.SemanticVersion;
+import org.carlspring.strongbox.util.PypiWheelArtifactCoordinatesUtils;
+
 import javax.persistence.Entity;
 import javax.xml.bind.annotation.XmlAccessType;
 import javax.xml.bind.annotation.XmlAccessorType;
 import javax.xml.bind.annotation.XmlRootElement;
 import java.util.Map;
 
-import org.carlspring.strongbox.util.PypiWheelArtifactCoordinatesUtils;
-import org.semver.Version;
 import org.apache.commons.lang3.StringUtils;
 
 /**
@@ -25,7 +26,7 @@ import org.apache.commons.lang3.StringUtils;
 @XmlAccessorType(XmlAccessType.NONE)
 @ArtifactCoordinatesLayout(name = PypiWheelArtifactCoordinates.LAYOUT_NAME, alias = PypiWheelArtifactCoordinates.LAYOUT_ALIAS)
 public class PypiWheelArtifactCoordinates
-    extends AbstractArtifactCoordinates<PypiWheelArtifactCoordinates, Version>
+    extends AbstractArtifactCoordinates<PypiWheelArtifactCoordinates, SemanticVersion>
 {
 
     public static final String LAYOUT_NAME = "PyPi";
@@ -213,7 +214,7 @@ public class PypiWheelArtifactCoordinates
      * @return Returns the native version of the package
      */
     @Override
-    public Version getNativeVersion()
+    public SemanticVersion getNativeVersion()
     {
         String versionLocal = getVersion();
 
@@ -223,7 +224,7 @@ public class PypiWheelArtifactCoordinates
         }
         try
         {
-            return Version.parse(versionLocal);
+            return SemanticVersion.parse(versionLocal);
         }
         catch (IllegalArgumentException e)
         {
@@ -239,6 +240,7 @@ public class PypiWheelArtifactCoordinates
     {
         Map<String, String> result = getCoordinates();
         result.remove(VERSION);
+        
         return result;
     }
 }
