@@ -46,6 +46,7 @@
         <module>strongbox-storage-npm-layout-provider</module>
         <module>strongbox-storage-raw-layout-provider</module>
         <module>strongbox-storage-maven-layout</module>
+        <module>strongbox-storage-composer-layout-provider</module>
     </modules>
 
 </project>
