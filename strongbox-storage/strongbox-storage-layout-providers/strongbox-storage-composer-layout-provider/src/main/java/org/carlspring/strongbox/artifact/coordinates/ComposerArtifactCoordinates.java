@@ -50,7 +50,7 @@ public class ComposerArtifactCoordinates extends AbstractArtifactCoordinates<Com
 
     private String version;
 
-    ComposerArtifactCoordinates(String vendor, String name, String version){
+    public ComposerArtifactCoordinates(String vendor, String name, String version){
         setVendor(vendor);
         setName(name);
         setVersion(version);
