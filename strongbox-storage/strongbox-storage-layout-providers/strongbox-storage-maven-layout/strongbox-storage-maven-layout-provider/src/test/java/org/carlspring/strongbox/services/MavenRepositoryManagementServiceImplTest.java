@@ -114,8 +114,7 @@ public class MavenRepositoryManagementServiceImplTest
                                         id = "org.carlspring.strongbox:strongbox-utils",
                                         versions = { "6.2.3" },
                                         generator = MavenArtifactGenerator.class)
-                          List<Path> repositoryArtifact2
-                                  )
+                          List<Path> repositoryArtifact2)
             throws Exception
     {
         // dumpIndex(STORAGE0, REPOSITORY_RELEASES_MERGE_1, IndexTypeEnum.LOCAL.getType());
