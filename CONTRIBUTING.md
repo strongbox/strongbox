@@ -129,6 +129,8 @@ To accept, please:
 | Ben Falter                   |                                          | New York, New York, USA                 | 2019-04-04 |
 | Evrim Nur Celik              |                                          | Istanbul, Turkey                        | 2019-04-14 |
 | Akhilesh Bedre               |                                          | Hyderabad, India                        | 2019-04-07 |
+| Alec Goldberg                | University of Michigan                   | Saint Louis, USA                        | 2019-04-10 |
+| David Whalen                 | University of Michigan                   | Ann Arbor, Michigan, USA                | 2019-04-13 |
 | Theodore Ravindranathh       |                                          | Chennai, India                          | 2019-04-13 |
 | Solomon Yakubov              |                                          | New York, New York, USA                 | 2019-04-15 |
 | Yugander Krishan Singh       |                                          | Himachal Pradesh, India                 | 2019-04-25 |
