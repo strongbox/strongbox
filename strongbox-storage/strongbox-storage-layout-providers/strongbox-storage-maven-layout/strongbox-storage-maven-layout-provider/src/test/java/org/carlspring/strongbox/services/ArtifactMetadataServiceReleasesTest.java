@@ -2,32 +2,38 @@ package org.carlspring.strongbox.services;
 
 import org.carlspring.maven.commons.util.ArtifactUtils;
 import org.carlspring.strongbox.artifact.MavenArtifact;
+import org.carlspring.strongbox.artifact.MavenArtifactUtils;
 import org.carlspring.strongbox.artifact.MavenRepositoryArtifact;
+import org.carlspring.strongbox.artifact.coordinates.MavenArtifactCoordinates;
+import org.carlspring.strongbox.artifact.generator.MavenArtifactGenerator;
 import org.carlspring.strongbox.config.Maven2LayoutProviderTestConfig;
 import org.carlspring.strongbox.providers.ProviderImplementationException;
 import org.carlspring.strongbox.providers.io.RepositoryPath;
 import org.carlspring.strongbox.providers.io.RepositoryPathResolver;
-import org.carlspring.strongbox.providers.layout.Maven2LayoutProvider;
 import org.carlspring.strongbox.storage.metadata.MetadataHelper;
 import org.carlspring.strongbox.storage.metadata.MetadataType;
-import org.carlspring.strongbox.storage.repository.MutableRepository;
+import org.carlspring.strongbox.storage.repository.Repository;
 import org.carlspring.strongbox.storage.repository.RepositoryPolicyEnum;
 import org.carlspring.strongbox.testing.TestCaseWithMavenArtifactGenerationAndIndexing;
+import org.carlspring.strongbox.testing.artifact.MavenTestArtifact;
+import org.carlspring.strongbox.testing.artifact.TestArtifact;
+import org.carlspring.strongbox.testing.storage.repository.RepositoryManagementTestExecutionListener;
+import org.carlspring.strongbox.testing.artifact.ArtifactManagementTestExecutionListener;
+import org.carlspring.strongbox.testing.storage.repository.TestRepository;
 
 import javax.inject.Inject;
 import java.io.File;
 import java.io.IOException;
+import java.nio.file.Path;
 import java.security.NoSuchAlgorithmException;
-import java.util.LinkedHashSet;
-import java.util.Set;
+import java.util.List;
 
 import org.apache.maven.artifact.Artifact;
 import org.apache.maven.artifact.repository.metadata.Metadata;
 import org.apache.maven.artifact.repository.metadata.Versioning;
 import org.codehaus.plexus.util.xml.pull.XmlPullParserException;
-import org.junit.jupiter.api.BeforeAll;
-import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.junit.jupiter.api.parallel.Execution;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.context.ActiveProfiles;
@@ -47,7 +53,12 @@ public class ArtifactMetadataServiceReleasesTest
         extends TestCaseWithMavenArtifactGenerationAndIndexing
 {
 
-    private static final String REPOSITORY_RELEASES = "amsr-releases";
+    private static final String R1 = "amsr-releases1";
+    private static final String R2 = "amsr-releases2";
+    private static final String R3 = "amsr-releases3";
+    private static final String R4 = "amsr-releases4";
+    private static final String R5 = "amsr-releases5";
+
 
     @Inject
     private ArtifactMetadataService artifactMetadataService;
@@ -55,37 +66,26 @@ public class ArtifactMetadataServiceReleasesTest
     @Inject
     private RepositoryPathResolver repositoryPathResolver;
 
-
-    @BeforeAll
-    public static void cleanUp()
-            throws Exception
-    {
-        cleanUp(getRepositoriesToClean());
-    }
-
-    @BeforeEach
-    public void initialize()
-            throws Exception
-    {
-        createRepository(STORAGE0, REPOSITORY_RELEASES, RepositoryPolicyEnum.RELEASE.getPolicy(), false);
-    }
-
-    public static Set<MutableRepository> getRepositoriesToClean()
-    {
-        Set<MutableRepository> repositories = new LinkedHashSet<>();
-        repositories.add(createRepositoryMock(STORAGE0, REPOSITORY_RELEASES, Maven2LayoutProvider.ALIAS));
-
-        return repositories;
-    }
-
+    @ExtendWith({ RepositoryManagementTestExecutionListener.class, ArtifactManagementTestExecutionListener.class })
     @Test
-    public void testReleaseMetadataRebuild()
+    public void testReleaseMetadataRebuild(@TestRepository(storage = STORAGE0,
+                                                           repository = R1,
+                                                           layout = MavenArtifactCoordinates.LAYOUT_NAME,
+                                                           policy = RepositoryPolicyEnum.RELEASE)
+                                           Repository repository,
+                                           @TestArtifact(repository = R1,
+                                                         id = "org.carlspring.strongbox.metadata.nested:foo",
+                                                         versions = { "2.1" },
+                                                         generator = MavenArtifactGenerator.class)
+                                           List<Path> repositoryArtifact1,
+                                           @TestArtifact(repository = R1,
+                                                         id = "org.carlspring.strongbox.metadata.nested:bar",
+                                                         versions = { "3.1" },
+                                                         generator = MavenArtifactGenerator.class)
+                                           List<Path> repositoryArtifact2)
             throws IOException, XmlPullParserException, NoSuchAlgorithmException
     {
-        createRelease("org.carlspring.strongbox.metadata.nested:foo:2.1:jar");
-        createRelease("org.carlspring.strongbox.metadata.nested:bar:3.1:jar");
-
-        File strongboxMetadataDir = new File(getRepositoryBasedir(STORAGE0, REPOSITORY_RELEASES),
+        File strongboxMetadataDir = new File(getRepositoryBasedir(STORAGE0, R1),
                                              "org/carlspring/strongbox/metadata/strongbox-metadata");
 
         String ga = "org.carlspring.strongbox.metadata:strongbox-metadata";
@@ -106,10 +106,10 @@ public class ArtifactMetadataServiceReleasesTest
 
         changeCreationDate(artifact);
 
-        artifactMetadataService.rebuildMetadata(STORAGE0, REPOSITORY_RELEASES, "org/carlspring/strongbox/metadata");
+        artifactMetadataService.rebuildMetadata(STORAGE0, R1, "org/carlspring/strongbox/metadata");
 
         Metadata metadata = artifactMetadataService.getMetadata(STORAGE0,
-                                                                REPOSITORY_RELEASES,
+                                                                R1,
                                                                 "org/carlspring/strongbox/metadata/strongbox-metadata");
 
         assertNotNull(metadata);
@@ -124,42 +124,47 @@ public class ArtifactMetadataServiceReleasesTest
         assertEquals(6, versioning.getVersions().size(), "Incorrect number of versions stored in metadata!");
 
         Metadata nestedMetadata1 = artifactMetadataService.getMetadata(STORAGE0,
-                                                                       REPOSITORY_RELEASES,
+                                                                       R1,
                                                                        "org/carlspring/strongbox/metadata/nested/foo");
 
         assertNotNull(nestedMetadata1);
 
         Metadata nestedMetadata2 = artifactMetadataService.getMetadata(STORAGE0,
-                                                                       REPOSITORY_RELEASES,
+                                                                       R1,
                                                                        "org/carlspring/strongbox/metadata/nested/bar");
 
         assertNotNull(nestedMetadata2);
     }
 
+    @ExtendWith({ RepositoryManagementTestExecutionListener.class, ArtifactManagementTestExecutionListener.class })
     @Test
-    public void testAddVersionToMetadata()
+    public void testAddVersionToMetadata(@TestRepository(storage = STORAGE0,
+                                                         repository = R2,
+                                                         layout = MavenArtifactCoordinates.LAYOUT_NAME,
+                                                         policy = RepositoryPolicyEnum.RELEASE)
+                                         Repository repository,
+                                         @TestArtifact(repository = R2,
+                                                       id = "org.carlspring.strongbox:added",
+                                                       versions = { "1.0","1.1", "1.2", "1.3" },
+                                                       generator = MavenArtifactGenerator.class)
+                                                       List<Path> artifactGroupPath)
             throws IOException, XmlPullParserException, NoSuchAlgorithmException
     {
-        createRelease("org.carlspring.strongbox:added:1.0:jar");
-        createRelease("org.carlspring.strongbox:added:1.1:jar");
-        createRelease("org.carlspring.strongbox:added:1.2:jar");
-        createRelease("org.carlspring.strongbox:added:1.3:jar");
-
         String artifactPath = "org/carlspring/strongbox/added";
 
-        artifactMetadataService.rebuildMetadata(STORAGE0, REPOSITORY_RELEASES, artifactPath);
+        artifactMetadataService.rebuildMetadata(STORAGE0, R2, artifactPath);
 
-        Metadata metadataBefore = artifactMetadataService.getMetadata(STORAGE0, REPOSITORY_RELEASES, artifactPath);
+        Metadata metadataBefore = artifactMetadataService.getMetadata(STORAGE0, R2, artifactPath);
 
         assertNotNull(metadataBefore);
         assertTrue(MetadataHelper.containsVersion(metadataBefore, "1.3"), "Unexpected set of versions!");
 
         artifactMetadataService.addVersion(STORAGE0,
-                                           REPOSITORY_RELEASES, artifactPath,
+                                           R2, artifactPath,
                                            "1.4",
                                            MetadataType.ARTIFACT_ROOT_LEVEL);
 
-        Metadata metadataAfter = artifactMetadataService.getMetadata(STORAGE0, REPOSITORY_RELEASES, artifactPath);
+        Metadata metadataAfter = artifactMetadataService.getMetadata(STORAGE0, R2, artifactPath);
 
         assertNotNull(metadataAfter);
         assertTrue(MetadataHelper.containsVersion(metadataAfter, "1.4"), "Unexpected set of versions!");
@@ -167,54 +172,64 @@ public class ArtifactMetadataServiceReleasesTest
         assertEquals("1.4", metadataAfter.getVersioning().getRelease(), "Unexpected set of versions!");
     }
 
+    @ExtendWith({ RepositoryManagementTestExecutionListener.class, ArtifactManagementTestExecutionListener.class })
     @Test
-    public void testDeleteVersionFromMetadata()
+    public void testDeleteVersionFromMetadata(@TestRepository(storage = STORAGE0,
+                                                              repository = R3,
+                                                              layout = MavenArtifactCoordinates.LAYOUT_NAME,
+                                                              policy = RepositoryPolicyEnum.RELEASE)
+                                              Repository repository,
+                                              @TestArtifact(repository = R3,
+                                                            id = "org.carlspring.strongbox:deleted",
+                                                            versions = { "1.0","1.1", "1.2", "1.3" },
+                                                            generator = MavenArtifactGenerator.class)
+                                              List<Path> artifactGroupPath)
             throws IOException, XmlPullParserException, NoSuchAlgorithmException
     {
-        createRelease("org.carlspring.strongbox:deleted:1.0:jar");
-        createRelease("org.carlspring.strongbox:deleted:1.1:jar");
-        createRelease("org.carlspring.strongbox:deleted:1.2:jar");
-        createRelease("org.carlspring.strongbox:deleted:1.3:jar");
-
         String artifactPath = "org/carlspring/strongbox/deleted";
 
-        artifactMetadataService.rebuildMetadata(STORAGE0, REPOSITORY_RELEASES, artifactPath);
+        artifactMetadataService.rebuildMetadata(STORAGE0, R3, artifactPath);
 
-        Metadata metadataBefore = artifactMetadataService.getMetadata(STORAGE0, REPOSITORY_RELEASES, artifactPath);
+        Metadata metadataBefore = artifactMetadataService.getMetadata(STORAGE0, R3, artifactPath);
 
         assertNotNull(metadataBefore);
         assertTrue(MetadataHelper.containsVersion(metadataBefore, "1.3"), "Unexpected set of versions!");
 
         artifactMetadataService.removeVersion(STORAGE0,
-                                              REPOSITORY_RELEASES,
+                                              R3,
                                               artifactPath,
                                               "1.3",
                                               MetadataType.ARTIFACT_ROOT_LEVEL);
 
-        Metadata metadataAfter = artifactMetadataService.getMetadata(STORAGE0, REPOSITORY_RELEASES, artifactPath);
+        Metadata metadataAfter = artifactMetadataService.getMetadata(STORAGE0, R3, artifactPath);
 
         assertNotNull(metadataAfter);
         assertFalse(MetadataHelper.containsVersion(metadataAfter, "1.3"), "Unexpected set of versions!");
     }
 
+    @ExtendWith({ RepositoryManagementTestExecutionListener.class, ArtifactManagementTestExecutionListener.class  })
     @Test
-    public void testReleasePluginMetadataRebuild()
+    public void testReleasePluginMetadataRebuild(@TestRepository(storage = STORAGE0,
+                                                                 repository = R4,
+                                                                 layout = MavenArtifactCoordinates.LAYOUT_NAME,
+                                                                 policy = RepositoryPolicyEnum.RELEASE)
+                                                 Repository repository,
+                                                 @MavenTestArtifact(repository = R4,
+                                                                    id = "org.carlspring.strongbox.metadata.maven:strongbox-metadata-plugin",
+                                                                    versions = { "1.0" },
+                                                                    packaging = "maven-plugin")
+                                                 List<Path> artifactGroupPath)
             throws IOException, XmlPullParserException, NoSuchAlgorithmException
     {
-        // Create plugin artifact
-        generatePluginArtifact(getRepositoryBasedir(STORAGE0, REPOSITORY_RELEASES).getAbsolutePath(),
-                               "org.carlspring.strongbox.metadata.maven:strongbox-metadata-plugin",
-                               "1.0");
-
         Artifact pluginArtifact = ArtifactUtils.getArtifactFromGAVTC(
                 "org.carlspring.strongbox.metadata.maven:strongbox-metadata-plugin:1.0");
 
         artifactMetadataService.rebuildMetadata(STORAGE0,
-                                                REPOSITORY_RELEASES,
+                                                R4,
                                                 "org/carlspring/strongbox/metadata/maven/strongbox-metadata-plugin");
 
         Metadata metadata = artifactMetadataService.getMetadata(STORAGE0,
-                                                                REPOSITORY_RELEASES,
+                                                                R4,
                                                                 "org/carlspring/strongbox/metadata/maven/strongbox-metadata-plugin");
 
         assertNotNull(metadata);
@@ -228,16 +243,26 @@ public class ArtifactMetadataServiceReleasesTest
         assertEquals(1, versioning.getVersions().size(), "Incorrect number of versions stored in metadata!");
     }
 
+    @ExtendWith({RepositoryManagementTestExecutionListener.class,ArtifactManagementTestExecutionListener.class})
     @Test
-    public void testMetadataMerge()
+    public void testMetadataMerge(@TestRepository(storage = STORAGE0,
+                                                            repository = R5,
+                                                            layout = MavenArtifactCoordinates.LAYOUT_NAME,
+                                                            policy = RepositoryPolicyEnum.RELEASE)
+                                  Repository repository,
+                                  @TestArtifact(repository = R5,
+                                                id = "org.carlspring.strongbox.metadata:strongbox-metadata-merge",
+                                                versions = { "1.0" },
+                                                generator = MavenArtifactGenerator.class)
+                                  List<Path> artifactGroupPath)
             throws IOException, XmlPullParserException, NoSuchAlgorithmException, ProviderImplementationException
     {
-        // Create an artifact for metadata merging tests
-        MavenArtifact mergeArtifact = createRelease("org.carlspring.strongbox.metadata:strongbox-metadata-merge:1.0:jar");
+        RepositoryPath repositoryPath = (RepositoryPath)artifactGroupPath.get(0);
+        MavenArtifact mergeArtifact = MavenArtifactUtils.convertPathToArtifact(repositoryPath);
 
         // Generate a proper maven-metadata.xml
         artifactMetadataService.rebuildMetadata(STORAGE0,
-                                                REPOSITORY_RELEASES,
+                                                R5,
                                                 "org/carlspring/strongbox/metadata/strongbox-metadata-merge");
 
         // Generate metadata to merge
@@ -255,7 +280,7 @@ public class ArtifactMetadataServiceReleasesTest
         artifactMetadataService.mergeMetadata(mergeArtifact, mergeMetadata);
 
         Metadata metadata = artifactMetadataService.getMetadata(STORAGE0,
-                                                                REPOSITORY_RELEASES,
+                                                                R5,
                                                                 "org/carlspring/strongbox/metadata/strongbox-metadata-merge");
 
         assertNotNull(metadata);
@@ -279,12 +304,13 @@ public class ArtifactMetadataServiceReleasesTest
     private MavenArtifact createRelease(String gavtc)
             throws NoSuchAlgorithmException, XmlPullParserException, IOException
     {
-        File repositoryBasedir = getRepositoryBasedir(STORAGE0, REPOSITORY_RELEASES);
+        File repositoryBasedir = getRepositoryBasedir(STORAGE0, R1);
         MavenArtifact result = new MavenRepositoryArtifact(generateArtifact(repositoryBasedir.getAbsolutePath(), gavtc));
 
         RepositoryPath repositoryPath = repositoryPathResolver.resolve(STORAGE0,
-                                                                       REPOSITORY_RELEASES,
+                                                                       R1,
                                                                        ArtifactUtils.convertArtifactToPath(result));
+
         result.setPath(repositoryPath);
         
         return result;
