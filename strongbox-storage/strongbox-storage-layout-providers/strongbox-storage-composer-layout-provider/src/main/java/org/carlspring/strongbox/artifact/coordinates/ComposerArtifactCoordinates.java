@@ -26,7 +26,8 @@ import org.springframework.util.Assert;
 @XmlRootElement(name = "composerArtifactCoordinates")
 @XmlAccessorType(XmlAccessType.NONE)
 @ArtifactCoordinatesLayout(name = ComposerArtifactCoordinates.LAYOUT_NAME, alias = ComposerArtifactCoordinates.LAYOUT_ALIAS)
-public class ComposerArtifactCoordinates extends AbstractArtifactCoordinates<ComposerArtifactCoordinates, SemanticVersion>
+public class ComposerArtifactCoordinates
+        extends AbstractArtifactCoordinates<ComposerArtifactCoordinates, SemanticVersion>
 {
 
 
@@ -50,7 +51,10 @@ public class ComposerArtifactCoordinates extends AbstractArtifactCoordinates<Com
 
     private String version;
 
-    public ComposerArtifactCoordinates(String vendor, String name, String version){
+    public ComposerArtifactCoordinates(String vendor,
+                                       String name,
+                                       String version)
+    {
         setVendor(vendor);
         setName(name);
         setVersion(version);
@@ -90,9 +94,12 @@ public class ComposerArtifactCoordinates extends AbstractArtifactCoordinates<Com
     @Override
     public SemanticVersion getNativeVersion()
     {
-        try{
+        try
+        {
             return SemanticVersion.parse(this.version);
-        }catch(IllegalArgumentException e){
+        }
+        catch (IllegalArgumentException e)
+        {
             return null;
         }
     }
