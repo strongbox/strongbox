@@ -66,7 +66,7 @@ public class ArtifactMetadataServiceReleasesTest
     @Inject
     private RepositoryPathResolver repositoryPathResolver;
 
-    @ExtendWith({ RepositoryManagementTestExecutionListener.class,ArtifactManagementTestExecutionListener.class })
+    @ExtendWith({ RepositoryManagementTestExecutionListener.class, ArtifactManagementTestExecutionListener.class })
     @Test
     public void testReleaseMetadataRebuild(@TestRepository(storage = STORAGE0,
                                                            repository = R1,
