@@ -449,6 +449,7 @@
                             <defineStatements>
                                 <defineStatement>_binaries_in_noarch_packages_terminate_build 0</defineStatement>
                             </defineStatements>
+                            <requires>jre &gt;= 1.8.0</requires>
                             <mappings>
                                 <mapping>
                                     <filemode>0755</filemode>
