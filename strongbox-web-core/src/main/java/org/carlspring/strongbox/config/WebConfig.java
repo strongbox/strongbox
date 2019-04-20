@@ -201,7 +201,7 @@ public class WebConfig
         registry.setOrder(-1);
 
         registry.addResourceHandler("/docs/**")
-                .addResourceLocations("/docs/")
+                .addResourceLocations("classpath:/META-INF/resources/docs/")
                 .setCachePeriod(3600);
 
         registry.addResourceHandler("*.html")
@@ -214,10 +214,6 @@ public class WebConfig
                 .resourceChain(true)
                 .addResolver(new GzipResourceResolver())
                 .addResolver(new PathResourceResolver());
-
-        // Swagger-UI mapping needs to be after the *.html mapping in order to override it.
-        registry.addResourceHandler("swagger-ui.html")
-                .addResourceLocations("classpath:/META-INF/resources/");
 
         registry.addResourceHandler("/webjars/**")
                 .addResourceLocations("classpath:/META-INF/resources/webjars/");
