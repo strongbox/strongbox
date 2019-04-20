@@ -38,8 +38,7 @@ public class SwaggerConfig
                                       Collections.EMPTY_LIST);
         
         return new Docket(DocumentationType.SWAGGER_2).protocols(Sets.newHashSet("http", "https"))
-                                                      .host("carlspring.org")
-                                                      .pathMapping("/strongbox")
+                                                      .pathMapping("/")
                                                       .apiInfo(apiInfo);
     }
 
