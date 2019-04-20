@@ -2,6 +2,7 @@ package org.carlspring.strongbox.testing;
 
 import org.carlspring.strongbox.providers.layout.Maven2LayoutProvider;
 import org.carlspring.strongbox.storage.repository.MutableRepository;
+import org.carlspring.strongbox.storage.repository.RepositoryTypeEnum;
 import org.carlspring.strongbox.testing.storage.repository.RepositorySetup;
 
 public abstract class MavenRepositorySetup implements RepositorySetup
@@ -42,6 +43,18 @@ public abstract class MavenRepositorySetup implements RepositorySetup
         public void setup(MutableRepository repository)
         {
             repository.setAllowsRedeployment(false);
+        }
+    }
+
+    public static class MavenRepositorySetupWithForbiddenDeleteDeploymentForceDelete extends MavenRepositorySetup
+    {
+        @Override
+        public void setup(MutableRepository repository)
+        {
+            repository.setType(RepositoryTypeEnum.GROUP.getType());
+            repository.setAllowsRedeployment(false);
+            repository.setAllowsDelete(false);
+            repository.setAllowsForceDeletion(false);
         }
     }
 }

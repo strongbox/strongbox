@@ -301,33 +301,26 @@ public class ArtifactManagementServiceImplTest
         }
     }
 
+    @ExtendWith({ RepositoryManagementTestExecutionListener.class, ArtifactManagementTestExecutionListener.class })
     @Test
-    public void testDeploymentRedeploymentAndDeletionAgainstGroupRepository(TestInfo testInfo)
+    public void testDeploymentRedeploymentAndDeletionAgainstGroupRepository(@TestRepository(storage = STORAGE0,
+                                                                                            repository = REPO_PREFIX4+"-testDeploymentRedeploymentAndDeletionAgainstGroupRepository",
+                                                                                            layout = Maven2LayoutProvider.ALIAS,
+                                                                                            setup = MavenRepositorySetup.MavenRepositorySetupWithForbiddenDeletes.class)
+                                                                            Repository repository,
+                                                                            @TestRepository.Group({REPO_PREFIX4+"-testDeploymentRedeploymentAndDeletionAgainstGroupRepository"})
+                                                                            @TestRepository(storage = STORAGE0,
+                                                                                            repository = REPO_PREFIX5+"-testDeploymentRedeploymentAndDeletionAgainstGroupRepository",
+                                                                                            layout = Maven2LayoutProvider.ALIAS,
+                                                                                            setup = MavenRepositorySetup.MavenRepositorySetupWithForbiddenDeletes.class)
+                                                                            Repository repositoryGroup,
+                                                                            @TestArtifact(repository = REPO_PREFIX4+"-testDeploymentRedeploymentAndDeletionAgainstGroupRepository",
+                                                                                          id = "org.carlspring.strongbox:strongbox-utils",
+                                                                                          versions = { "8.3" },
+                                                                                          generator = MavenArtifactGenerator.class)
+                                                                            List<Path> repositoryArtifact)
             throws Exception
     {
-        // Test resource initialization start:
-        String repositoryId = getRepositoryName("tdradagr-releases", testInfo);
-        String repositoryGroupId = getRepositoryName("tdradagr-group", testInfo);
-
-        MutableRepository repository = mavenRepositoryFactory.createRepository(repositoryId);
-        repository.setAllowsDelete(false);
-        repository.setLayout(Maven2LayoutProvider.ALIAS);
-
-        MutableRepository repositoryGroup = mavenRepositoryFactory.createRepository(repositoryGroupId);
-        repositoryGroup.setType(RepositoryTypeEnum.GROUP.getType());
-        repositoryGroup.setAllowsRedeployment(false);
-        repositoryGroup.setAllowsDelete(false);
-        repositoryGroup.setAllowsForceDeletion(false);
-        repositoryGroup.addRepositoryToGroup(repositoryId);
-
-        createRepositoryWithArtifacts(STORAGE0,
-                                      repository,
-                                      "org.carlspring.strongbox:strongbox-utils",
-                                      "8.3");
-
-        createRepository(STORAGE0, repositoryGroup);
-        // Test resource initialization end.
-
         InputStream is = null;
 
         String gavtc = "org.carlspring.strongbox:strongbox-utils:8.3:jar";
@@ -337,14 +330,14 @@ public class ArtifactManagementServiceImplTest
         //noinspection EmptyCatchBlock
         try
         {
-            File repositoryDir = getRepositoryBasedir(STORAGE0, repositoryGroupId);
+            File repositoryDir = getRepositoryBasedir(STORAGE0, REPO_PREFIX5+"-testDeploymentRedeploymentAndDeletionAgainstGroupRepository");
             is = generateArtifactInputStream(repositoryDir.toPath().getParent().toAbsolutePath().toString(),
-                                             repositoryGroupId,
+                                             REPO_PREFIX5+"-testDeploymentRedeploymentAndDeletionAgainstGroupRepository",
                                              gavtc,
                                              true);
 
             RepositoryPath repositoryPath = repositoryPathResolver.resolve(STORAGE0,
-                                                                           repositoryGroupId,
+                                                                           REPO_PREFIX5+"-testDeploymentRedeploymentAndDeletionAgainstGroupRepository",
                                                                            ArtifactUtils.convertArtifactToPath(artifact));
             mavenArtifactManagementService.validateAndStore(repositoryPath, is);
 
@@ -364,10 +357,10 @@ public class ArtifactManagementServiceImplTest
         {
             // Generate the artifact on the file-system anyway so that we could achieve
             // the state of having it there before attempting a re-deployment
-            generateArtifact(getRepositoryBasedir(STORAGE0, repositoryId).getAbsolutePath(), gavtc);
+            // generateArtifact(getRepositoryBasedir(STORAGE0, REPO_PREFIX5+"-testDeploymentRedeploymentAndDeletionAgainstGroupRepository").getAbsolutePath(), gavtc);
             
             RepositoryPath repositoryPath = repositoryPathResolver.resolve(STORAGE0,
-                                                                           repositoryGroupId,
+                                                                           REPO_PREFIX5+"-testDeploymentRedeploymentAndDeletionAgainstGroupRepository",
                                                                            ArtifactUtils.convertArtifactToPath(artifact));
             mavenArtifactManagementService.validateAndStore(repositoryPath, is);
 
@@ -383,7 +376,7 @@ public class ArtifactManagementServiceImplTest
         }
 
         RepositoryPath repositoryPath = repositoryPathResolver.resolve(STORAGE0,
-                                                                       repositoryGroupId,
+                                                                       REPO_PREFIX5+"-testDeploymentRedeploymentAndDeletionAgainstGroupRepository",
                                                                        ArtifactUtils.convertArtifactToPath(artifact));
 
         // Delete: Case 1: No forcing
