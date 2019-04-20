@@ -99,6 +99,10 @@ public class ArtifactManagementServiceImplTest
 
     private static final String REPO_PREFIX3 = "amsi-releases-without-deletes";
 
+    private static final String REPO_PREFIX4 = "tdradagr-releases";
+
+    private static final String REPO_PREFIX5 = "tdradagr-group";
+
     @Inject
     private ArtifactManagementService mavenArtifactManagementService;
 
@@ -267,15 +271,15 @@ public class ArtifactManagementServiceImplTest
     @ExtendWith({ RepositoryManagementTestExecutionListener.class, ArtifactManagementTestExecutionListener.class })
     @Test
     public void testDeletionFromRepositoryWithForbiddenDeletes(@TestRepository(storage = STORAGE0,
-            repository = REPO_PREFIX3+"-testDeletionFromRepositoryWithForbiddenDeletes",
-            layout = Maven2LayoutProvider.ALIAS,
-            setup = MavenRepositorySetup.MavenRepositorySetupWithForbiddenDeletes.class)
-                                                                       Repository repositoryWithoutDeployment,
+                                                                               repository = REPO_PREFIX3+"-testDeletionFromRepositoryWithForbiddenDeletes",
+                                                                               layout = Maven2LayoutProvider.ALIAS,
+                                                                               setup = MavenRepositorySetup.MavenRepositorySetupWithForbiddenDeletes.class)
+                                                               Repository repositoryWithoutDeployment,
                                                                @TestArtifact(repository = REPO_PREFIX3+"-testDeletionFromRepositoryWithForbiddenDeletes",
-                                                                       id = "org.carlspring.strongbox:strongbox-utils",
-                                                                       versions = { "8.2", "8.6" },
-                                                                       generator = MavenArtifactGenerator.class)
-                                                                       List<Path> repositoryArtifact)
+                                                                             id = "org.carlspring.strongbox:strongbox-utils",
+                                                                             versions = { "8.2", "8.6" },
+                                                                             generator = MavenArtifactGenerator.class)
+                                                               List<Path> repositoryArtifact)
             throws Exception
     {
         //noinspection EmptyCatchBlock
