@@ -103,6 +103,10 @@ public class ArtifactManagementServiceImplTest
 
     private static final String REPO_PREFIX5 = "tdradagr-group";
 
+    private static final String REPO_PREFIX6 = "tarfg-releases";
+
+    private static final String REPO_PREFIX7 = "tarfg-group";
+
     @Inject
     private ArtifactManagementService mavenArtifactManagementService;
 
@@ -312,7 +316,7 @@ public class ArtifactManagementServiceImplTest
                                                                             @TestRepository(storage = STORAGE0,
                                                                                             repository = REPO_PREFIX5+"-testDeploymentRedeploymentAndDeletionAgainstGroupRepository",
                                                                                             layout = Maven2LayoutProvider.ALIAS,
-                                                                                            setup = MavenRepositorySetup.MavenRepositorySetupWithForbiddenDeletes.class)
+                                                                                            setup = MavenRepositorySetup.MavenRepositorySetupWithForbiddenDeleteDeploymentForceDelete.class)
                                                                             Repository repositoryGroup,
                                                                             @TestArtifact(repository = REPO_PREFIX4+"-testDeploymentRedeploymentAndDeletionAgainstGroupRepository",
                                                                                           id = "org.carlspring.strongbox:strongbox-utils",
@@ -414,35 +418,27 @@ public class ArtifactManagementServiceImplTest
         }
     }
 
+    @ExtendWith({ RepositoryManagementTestExecutionListener.class, ArtifactManagementTestExecutionListener.class })
     @Test
-    public void testArtifactResolutionFromGroup(TestInfo testInfo)
+    public void testArtifactResolutionFromGroup(@TestRepository(storage = STORAGE0,
+                                                                repository = REPO_PREFIX6+"-testArtifactResolutionFromGroup",
+                                                                layout = Maven2LayoutProvider.ALIAS,
+                                                                setup = MavenRepositorySetup.MavenRepositorySetupWithForbiddenDeletes.class)
+                                                Repository repository,
+                                                @TestRepository.Group({REPO_PREFIX6+"-testArtifactResolutionFromGroup"})
+                                                @TestRepository(storage = STORAGE0,
+                                                                repository = REPO_PREFIX7+"-testArtifactResolutionFromGroup",
+                                                                layout = Maven2LayoutProvider.ALIAS,
+                                                                setup = MavenRepositorySetup.MavenRepositorySetupWithForbiddenDeleteDeploymentForceDelete.class)
+                                                Repository repositoryGroup,
+                                                @TestArtifact(repository = REPO_PREFIX6+"-testArtifactResolutionFromGroup",
+                                                              id = "org.carlspring.strongbox:strongbox-utils",
+                                                        versions = { "8.0.5" },
+                                                        generator = MavenArtifactGenerator.class)
+                                                        List<Path> repositoryArtifact)
             throws Exception
     {
-        String repositoryId = getRepositoryName("tarfg-releases", testInfo);
-        String repositoryGroupId = getRepositoryName("tarfg-group", testInfo);
-
-        MutableRepository repository = mavenRepositoryFactory.createRepository(repositoryId);
-        repository.setAllowsDelete(false);
-        repository.setLayout(Maven2LayoutProvider.ALIAS);
-
-        MutableRepository repositoryGroup = mavenRepositoryFactory.createRepository(repositoryGroupId);
-        repositoryGroup.setType(RepositoryTypeEnum.GROUP.getType());
-        repositoryGroup.setAllowsRedeployment(false);
-        repositoryGroup.setAllowsDelete(false);
-        repositoryGroup.setAllowsForceDeletion(false);
-        repositoryGroup.addRepositoryToGroup(repositoryId);
-
-        createRepositoryWithArtifacts(STORAGE0,
-                                      repository,
-                                      "org.carlspring.strongbox:strongbox-utils",
-                                      "8.0.5");
-
-        createRepository(STORAGE0, repositoryGroup);
-
-        RepositoryPath path = artifactResolutionService.resolvePath(STORAGE0,
-                                                                    repositoryGroupId,
-                                                                    "org/carlspring/strongbox/strongbox-utils/8.0.5/strongbox-utils-8.0.5.jar");
-
+        RepositoryPath path = (RepositoryPath)repositoryArtifact.get(0);
         try (InputStream is = artifactResolutionService.getInputStream(path))
         {
             assertNotNull(is, "Failed to resolve artifact from group repository!");
