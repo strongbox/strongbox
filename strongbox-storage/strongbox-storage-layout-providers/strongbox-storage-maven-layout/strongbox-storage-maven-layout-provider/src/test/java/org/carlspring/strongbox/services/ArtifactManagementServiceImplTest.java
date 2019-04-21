@@ -138,58 +138,6 @@ public class ArtifactManagementServiceImplTest
     @Inject
     private RepositoryPathResolver repositoryPathResolver;
 
-    private Set<MutableRepository> getRepositories(TestInfo testInfo)
-    {
-        Set<MutableRepository> repositories = new LinkedHashSet<>();
-        repositories.add(createRepositoryMock(STORAGE0,
-                                              getRepositoryName("amsi-releases-without-deployment", testInfo),
-                                              Maven2LayoutProvider.ALIAS));
-        repositories.add(createRepositoryMock(STORAGE0,
-                                              getRepositoryName("amsi-releases-without-redeployment", testInfo),
-                                              Maven2LayoutProvider.ALIAS));
-        repositories.add(createRepositoryMock(STORAGE0,
-                                              getRepositoryName("amsi-releases-without-deletes", testInfo),
-                                              Maven2LayoutProvider.ALIAS));
-        repositories.add(createRepositoryMock(STORAGE0,
-                                              getRepositoryName("tdradagr-releases", testInfo),
-                                              Maven2LayoutProvider.ALIAS));
-        repositories.add(createRepositoryMock(STORAGE0,
-                                              getRepositoryName("tdradagr-group", testInfo),
-                                              Maven2LayoutProvider.ALIAS));
-        repositories.add(createRepositoryMock(STORAGE0,
-                                              getRepositoryName("tarfg-releases", testInfo),
-                                              Maven2LayoutProvider.ALIAS));
-        repositories.add(createRepositoryMock(STORAGE0,
-                                              getRepositoryName("tarfg-group", testInfo),
-                                              Maven2LayoutProvider.ALIAS));
-        repositories.add(createRepositoryMock(STORAGE0,
-                                              getRepositoryName("tfd-release-with-trash", testInfo),
-                                              Maven2LayoutProvider.ALIAS));
-        repositories.add(createRepositoryMock(STORAGE0,
-                                              getRepositoryName("tfd-release-without-delete", testInfo),
-                                              Maven2LayoutProvider.ALIAS));
-        repositories.add(createRepositoryMock(STORAGE0,
-                                              getRepositoryName("trts-snapshots", testInfo),
-                                              Maven2LayoutProvider.ALIAS));
-        repositories.add(createRepositoryMock(STORAGE0,
-                                              getRepositoryName("tcrw-releases-with-lock", testInfo),
-                                              Maven2LayoutProvider.ALIAS));
-        repositories.add(createRepositoryMock(STORAGE0,
-                                              getRepositoryName("last-version-releases", testInfo),
-                                              Maven2LayoutProvider.ALIAS));
-        repositories.add(createRepositoryMock(STORAGE0,
-                                              getRepositoryName("checksums-storage", testInfo),
-                                              Maven2LayoutProvider.ALIAS));
-        return repositories;
-    }
-
-    //@AfterEach
-    public void removeRepositories(TestInfo testInfo)
-            throws IOException, JAXBException
-    {
-        //removeRepositories(getRepositories(testInfo));
-    }
-
     @ExtendWith({ RepositoryManagementTestExecutionListener.class, ArtifactManagementTestExecutionListener.class })
     @Test
     public void testDeploymentToRepositoryWithForbiddenDeployments(@TestRepository(storage = STORAGE0,
@@ -301,6 +249,7 @@ public class ArtifactManagementServiceImplTest
             throws Exception
     {
         String repositoryWithoutDeploymentId = repositoryWithoutDeployment.getId();
+
         //noinspection EmptyCatchBlock
         try
         {
@@ -450,12 +399,13 @@ public class ArtifactManagementServiceImplTest
                                                 Repository repositoryGroup,
                                                 @TestArtifact(repository = REPO_PREFIX6+"-testArtifactResolutionFromGroup",
                                                               id = "org.carlspring.strongbox:strongbox-utils",
-                                                        versions = { "8.0.5" },
-                                                        generator = MavenArtifactGenerator.class)
-                                                        List<Path> repositoryArtifact)
+                                                              versions = { "8.0.5" },
+                                                              generator = MavenArtifactGenerator.class)
+                                                List<Path> repositoryArtifact)
             throws Exception
     {
         RepositoryPath path = (RepositoryPath)repositoryArtifact.get(0);
+
         try (InputStream is = artifactResolutionService.getInputStream(path))
         {
             assertNotNull(is, "Failed to resolve artifact from group repository!");
@@ -485,22 +435,16 @@ public class ArtifactManagementServiceImplTest
                                 @TestArtifact(repository = REPO_PREFIX9+"-testForceDelete",
                                               id = "org.carlspring.strongbox:strongbox-utils",
                                               versions = { "7.2" },
-
                                               generator = MavenArtifactGenerator.class)
                                 List<Path> repositoryArtifact2)
             throws Exception
     {
-        //String repositoryId = getRepositoryName("tfd-release-without-delete", testInfo);
-        //String repositoryWithTrashId = getRepositoryName("tfd-release-with-trash", testInfo);
-
-        //createRepositoryWithArtifacts(STORAGE0, repositoryId, false, "org.carlspring.strongbox:strongbox-utils", "7.0");
 
         String repositoryid = repository1.getId();
+
         String repositoryWithTrashId = repository2.getId();
 
         final String artifactPath = "org/carlspring/strongbox/strongbox-utils/7.0/strongbox-utils-7.0.jar";
-
-        //RepositoryPath repositoryPath = repositoryPathResolver.resolve(STORAGE0, repositoryId, artifactPath);
 
         RepositoryPath repositoryPath = (RepositoryPath)repositoryArtifact1.get(0);
 
@@ -508,16 +452,6 @@ public class ArtifactManagementServiceImplTest
 
         assertFalse(new File(getRepositoryBasedir(STORAGE0, repositoryid), artifactPath).exists(),
                     "Failed to delete artifact during a force delete operation!");
-
-        //MutableRepository repositoryWithTrash = mavenRepositoryFactory.createRepository(repositoryWithTrashId);
-        //repositoryWithTrash.setTrashEnabled(true);
-        //repositoryWithTrash.setLayout(Maven2LayoutProvider.ALIAS);
-
-        //createRepository(STORAGE0, repositoryWithTrash);
-
-        //generateArtifact(getRepositoryBasedir(STORAGE0, repositoryWithTrashId).getAbsolutePath(),
-          //               "org.carlspring.strongbox:strongbox-utils",
-            //             new String[]{ "7.2" });
 
         final String artifactPath2 = "org/carlspring/strongbox/strongbox-utils/7.2/strongbox-utils-7.2.jar";
         //repositoryPath = repositoryPathResolver.resolve(STORAGE0, repositoryWithTrashId, artifactPath2);
@@ -544,6 +478,7 @@ public class ArtifactManagementServiceImplTest
             throws Exception
     {
         String repositoryid = repository.getId();
+
         String repositoryBasedir = getRepositoryBasedir(STORAGE0, repositoryid).getAbsolutePath();
 
         String artifactPath = repositoryBasedir + "/org/carlspring/strongbox/timestamped";
