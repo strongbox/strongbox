@@ -45,19 +45,25 @@ public class ComposerArtifactCoordinates
 
     private static final String VERSION = "version";
 
+    private static final String TYPE = "type";
+
     private String vendor;
 
     private String name;
 
     private String version;
 
+    private String type = "library";
+
     public ComposerArtifactCoordinates(String vendor,
                                        String name,
-                                       String version)
+                                       String version,
+                                       String type)
     {
         setVendor(vendor);
         setName(name);
         setVersion(version);
+        setType(type);
     }
 
     @Override
@@ -142,6 +148,30 @@ public class ComposerArtifactCoordinates
     {
         this.name = name;
         setCoordinate(NAME, name);
+    }
+
+    public static ComposerArtifactCoordinates parse(String path)
+    {
+        String[] coordinates = path.split("/");
+
+        if (coordinates.length != 2 || coordinates[0].isEmpty() || coordinates[1].isEmpty())
+        {
+            throw new IllegalArgumentException("Invalid Composer package path");
+        }
+
+        return new ComposerArtifactCoordinates(coordinates[0], coordinates[1], null, null);
+    }
+
+    @ArtifactLayoutCoordinate
+    @XmlAttribute(name = TYPE)
+    public String getType()
+    {
+        return type;
+    }
+
+    public void setType(String type)
+    {
+        this.type = type;
     }
 
 }
