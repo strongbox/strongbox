@@ -113,6 +113,10 @@ public class ArtifactManagementServiceImplTest
 
     private static final String REPO_PREFIX10 = "trts-snapshots";
 
+    private static final String REPO_PREFIX11 = "tcrw-releases-with-lock";
+
+    private static final String REPO_PREFIX12 = "last-version-releases";
+
     @Inject
     private ArtifactManagementService mavenArtifactManagementService;
 
@@ -598,17 +602,24 @@ public class ArtifactManagementServiceImplTest
         assertTrue(files[0].toString().endsWith("-3.jar"));
     }
 
+    @ExtendWith({ RepositoryManagementTestExecutionListener.class })
     @Test
-    public void testConcurrentReadWrite(TestInfo testInfo)
+    public void testConcurrentReadWrite(@TestRepository(storage = STORAGE0,
+                                                        repository = REPO_PREFIX11+"-testConcurrentReadWrite",
+                                                        layout = Maven2LayoutProvider.ALIAS)
+                                        Repository repository,
+                                        TestInfo testInfo)
             throws Exception
     {
-        String repositoryId = getRepositoryName("tcrw-releases-with-lock", testInfo);
+        //String repositoryId = getRepositoryName("tcrw-releases-with-lock", testInfo);
 
-        MutableRepository repositoryWithLock = mavenRepositoryFactory.createRepository(repositoryId);
+        //MutableRepository repositoryWithLock = mavenRepositoryFactory.createRepository(repositoryId);
 
-        createRepository(STORAGE0, repositoryWithLock);
+        //createRepository(STORAGE0, repositoryWithLock);
 
-        Repository repository = getConfiguration().getStorage(STORAGE0).getRepository(repositoryId);
+        String repositoryId = repository.getId();
+
+        //Repository repository = getConfiguration().getStorage(STORAGE0).getRepository(repositoryId);
 
         int concurrency = 64;
 
@@ -660,17 +671,25 @@ public class ArtifactManagementServiceImplTest
 
     }
 
+    @ExtendWith({ RepositoryManagementTestExecutionListener.class })
     @Test
-    public void testLastVersionManagement(TestInfo testInfo)
+    public void testLastVersionManagement(@TestRepository(storage = STORAGE0,
+                                                          repository = REPO_PREFIX12+"-testLastVersionManagement",
+                                                          layout = Maven2LayoutProvider.ALIAS,
+                                                          setup = MavenRepositorySetup.MavenHostedRepositorySetup.class)
+                                                          Repository repository,
+                                          TestInfo testInfo)
             throws Exception
     {
-        String repositoryId = getRepositoryName("last-version-releases", testInfo);
+        //String repositoryId = getRepositoryName("last-version-releases", testInfo);
 
-        MutableRepository repository = mavenRepositoryFactory.createRepository(repositoryId);
-        repository.setLayout(Maven2LayoutProvider.ALIAS);
-        repository.setType(RepositoryTypeEnum.HOSTED.getType());
+        //MutableRepository repository = mavenRepositoryFactory.createRepository(repositoryId);
+        //repository.setLayout(Maven2LayoutProvider.ALIAS);
+        //repository.setType(RepositoryTypeEnum.HOSTED.getType());
 
-        createRepository(STORAGE0, repository);
+        //createRepository(STORAGE0, repository);
+
+        String repositoryId = repository.getId();
 
         // store the file without classifier
         String gavtc = "org.carlspring.strongbox:strongbox-lv-artifact:1.0:jar";

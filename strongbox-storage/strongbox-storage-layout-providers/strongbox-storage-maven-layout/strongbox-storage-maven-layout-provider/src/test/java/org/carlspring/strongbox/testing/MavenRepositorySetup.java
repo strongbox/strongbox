@@ -67,4 +67,14 @@ public abstract class MavenRepositorySetup implements RepositorySetup
             repository.setTrashEnabled(true);
         }
     }
+
+    public static class MavenHostedRepositorySetup extends MavenRepositorySetup
+    {
+        @Override
+        public void setup(MutableRepository repository)
+        {
+            repository.setLayout(Maven2LayoutProvider.ALIAS);
+            repository.setType(RepositoryTypeEnum.HOSTED.getType());
+        }
+    }
 }
