@@ -183,11 +183,11 @@ public class ArtifactManagementServiceImplTest
         return repositories;
     }
 
-    @AfterEach
+    //@AfterEach
     public void removeRepositories(TestInfo testInfo)
             throws IOException, JAXBException
     {
-        removeRepositories(getRepositories(testInfo));
+        //removeRepositories(getRepositories(testInfo));
     }
 
     @ExtendWith({ RepositoryManagementTestExecutionListener.class, ArtifactManagementTestExecutionListener.class })
@@ -204,6 +204,8 @@ public class ArtifactManagementServiceImplTest
                                                                                  List<Path> repositoryArtifact2)
             throws Exception
     {
+        String repositoryWithoutDeploymentId = repositoryWithoutDeployment.getId();
+
         InputStream is = null;
 
         //noinspection EmptyCatchBlock
@@ -211,15 +213,15 @@ public class ArtifactManagementServiceImplTest
         {
             String gavtc = "org.carlspring.strongbox:strongbox-utils:8.0:jar";
 
-            File repositoryDir = getRepositoryBasedir(STORAGE0, REPO_PREFIX+"testDeploymentToRepositoryWithForbiddenDeployments");
+            File repositoryDir = getRepositoryBasedir(STORAGE0, repositoryWithoutDeploymentId);
             is = generateArtifactInputStream(repositoryDir.toPath().getParent().toAbsolutePath().toString(),
-                                             REPO_PREFIX+"-testDeploymentToRepositoryWithForbiddenDeployments",
+                                             repositoryWithoutDeploymentId,
                                              gavtc,
                                              true);
 
             Artifact artifact = ArtifactUtils.getArtifactFromGAVTC(gavtc);
             RepositoryPath repositoryPath = repositoryPathResolver.resolve(STORAGE0,
-                                                                           REPO_PREFIX+"-testDeploymentToRepositoryWithForbiddenDeployments",
+                                                                           repositoryWithoutDeploymentId,
                                                                            ArtifactUtils.convertArtifactToPath(artifact));
             mavenArtifactManagementService.validateAndStore(repositoryPath, is);
 
@@ -249,6 +251,8 @@ public class ArtifactManagementServiceImplTest
                                                                        List<Path> repositoryArtifact2)
             throws Exception
     {
+        String repositoryWithoutDeploymentId = repositoryWithoutDeployment.getId();
+
         InputStream is = null;
 
         //noinspection EmptyCatchBlock
@@ -256,17 +260,17 @@ public class ArtifactManagementServiceImplTest
         {
             String gavtc = "org.carlspring.strongbox:strongbox-utils:8.1:jar";
 
-            File repositoryBasedir = getRepositoryBasedir(STORAGE0, REPO_PREFIX2+"-testRedeploymentToRepositoryWithForbiddenRedeployments");
+            File repositoryBasedir = getRepositoryBasedir(STORAGE0, repositoryWithoutDeploymentId);
             //generateArtifact(repositoryBasedir.getAbsolutePath(), gavtc);
 
             is = generateArtifactInputStream(repositoryBasedir.toPath().getParent().toAbsolutePath().toString(),
-                                             REPO_PREFIX2+"-testRedeploymentToRepositoryWithForbiddenRedeployments",
+                                             repositoryWithoutDeploymentId,
                                              gavtc,
                                              true);
 
             Artifact artifact = ArtifactUtils.getArtifactFromGAVTC(gavtc);
             RepositoryPath repositoryPath = repositoryPathResolver.resolve(STORAGE0,
-                                                                           REPO_PREFIX2+"-testRedeploymentToRepositoryWithForbiddenRedeployments",
+                                                                           repositoryWithoutDeploymentId,
                                                                            ArtifactUtils.convertArtifactToPath(artifact));
             mavenArtifactManagementService.validateAndStore(repositoryPath, is);
 
@@ -296,6 +300,7 @@ public class ArtifactManagementServiceImplTest
                                                                List<Path> repositoryArtifact)
             throws Exception
     {
+        String repositoryWithoutDeploymentId = repositoryWithoutDeployment.getId();
         //noinspection EmptyCatchBlock
         try
         {
@@ -303,7 +308,7 @@ public class ArtifactManagementServiceImplTest
 
             Artifact artifact = ArtifactUtils.getArtifactFromGAVTC(gavtc);
             RepositoryPath repositoryPath = repositoryPathResolver.resolve(STORAGE0,
-                                                                           REPO_PREFIX3+"-testDeletionFromRepositoryWithForbiddenDeletes",
+                                                                           repositoryWithoutDeploymentId,
                                                                            ArtifactUtils.convertArtifactToPath(artifact));
             mavenArtifactManagementService.delete(repositoryPath, false);
 
@@ -335,6 +340,8 @@ public class ArtifactManagementServiceImplTest
                                                                             List<Path> repositoryArtifact)
             throws Exception
     {
+        String repositoryGroupId = repositoryGroup.getId();
+
         InputStream is = null;
 
         String gavtc = "org.carlspring.strongbox:strongbox-utils:8.3:jar";
@@ -344,14 +351,14 @@ public class ArtifactManagementServiceImplTest
         //noinspection EmptyCatchBlock
         try
         {
-            File repositoryDir = getRepositoryBasedir(STORAGE0, REPO_PREFIX5+"-testDeploymentRedeploymentAndDeletionAgainstGroupRepository");
+            File repositoryDir = getRepositoryBasedir(STORAGE0, repositoryGroupId);
             is = generateArtifactInputStream(repositoryDir.toPath().getParent().toAbsolutePath().toString(),
-                                             REPO_PREFIX5+"-testDeploymentRedeploymentAndDeletionAgainstGroupRepository",
+                                             repositoryGroupId,
                                              gavtc,
                                              true);
 
             RepositoryPath repositoryPath = repositoryPathResolver.resolve(STORAGE0,
-                                                                           REPO_PREFIX5+"-testDeploymentRedeploymentAndDeletionAgainstGroupRepository",
+                                                                           repositoryGroupId,
                                                                            ArtifactUtils.convertArtifactToPath(artifact));
             mavenArtifactManagementService.validateAndStore(repositoryPath, is);
 
@@ -374,7 +381,7 @@ public class ArtifactManagementServiceImplTest
             // generateArtifact(getRepositoryBasedir(STORAGE0, REPO_PREFIX5+"-testDeploymentRedeploymentAndDeletionAgainstGroupRepository").getAbsolutePath(), gavtc);
             
             RepositoryPath repositoryPath = repositoryPathResolver.resolve(STORAGE0,
-                                                                           REPO_PREFIX5+"-testDeploymentRedeploymentAndDeletionAgainstGroupRepository",
+                                                                           repositoryGroupId,
                                                                            ArtifactUtils.convertArtifactToPath(artifact));
             mavenArtifactManagementService.validateAndStore(repositoryPath, is);
 
@@ -390,7 +397,7 @@ public class ArtifactManagementServiceImplTest
         }
 
         RepositoryPath repositoryPath = repositoryPathResolver.resolve(STORAGE0,
-                                                                       REPO_PREFIX5+"-testDeploymentRedeploymentAndDeletionAgainstGroupRepository",
+                                                                       repositoryGroupId,
                                                                        ArtifactUtils.convertArtifactToPath(artifact));
 
         // Delete: Case 1: No forcing
@@ -488,6 +495,9 @@ public class ArtifactManagementServiceImplTest
 
         //createRepositoryWithArtifacts(STORAGE0, repositoryId, false, "org.carlspring.strongbox:strongbox-utils", "7.0");
 
+        String repositoryid = repository1.getId();
+        String repositoryWithTrashId = repository2.getId();
+
         final String artifactPath = "org/carlspring/strongbox/strongbox-utils/7.0/strongbox-utils-7.0.jar";
 
         //RepositoryPath repositoryPath = repositoryPathResolver.resolve(STORAGE0, repositoryId, artifactPath);
@@ -496,7 +506,7 @@ public class ArtifactManagementServiceImplTest
 
         mavenArtifactManagementService.delete(repositoryPath, true);
 
-        assertFalse(new File(getRepositoryBasedir(STORAGE0, REPO_PREFIX8+"-testForceDelete"), artifactPath).exists(),
+        assertFalse(new File(getRepositoryBasedir(STORAGE0, repositoryid), artifactPath).exists(),
                     "Failed to delete artifact during a force delete operation!");
 
         //MutableRepository repositoryWithTrash = mavenRepositoryFactory.createRepository(repositoryWithTrashId);
@@ -516,7 +526,7 @@ public class ArtifactManagementServiceImplTest
 
         mavenArtifactManagementService.delete(repositoryPath, true);
 
-        final File repositoryDir = new File(getStorageBasedir(STORAGE0), repository2.getId() + "/.trash");
+        final File repositoryDir = new File(getStorageBasedir(STORAGE0), repositoryWithTrashId + "/.trash");
 
         assertTrue(new File(repositoryDir, artifactPath2).exists(),
                    "Should have moved the artifact to the trash during a force delete operation, " +
@@ -529,11 +539,11 @@ public class ArtifactManagementServiceImplTest
                                                                repository = REPO_PREFIX10+"-testRemoveTimestampedSnapshots",
                                                                layout = Maven2LayoutProvider.ALIAS,
                                                                policy = RepositoryPolicyEnum.SNAPSHOT)
-                                               Repository repository1,
+                                               Repository repository,
                                                TestInfo testInfo)
             throws Exception
     {
-        String repositoryid = repository1.getId();
+        String repositoryid = repository.getId();
         String repositoryBasedir = getRepositoryBasedir(STORAGE0, repositoryid).getAbsolutePath();
 
         String artifactPath = repositoryBasedir + "/org/carlspring/strongbox/timestamped";
@@ -611,15 +621,7 @@ public class ArtifactManagementServiceImplTest
                                         TestInfo testInfo)
             throws Exception
     {
-        //String repositoryId = getRepositoryName("tcrw-releases-with-lock", testInfo);
-
-        //MutableRepository repositoryWithLock = mavenRepositoryFactory.createRepository(repositoryId);
-
-        //createRepository(STORAGE0, repositoryWithLock);
-
         String repositoryId = repository.getId();
-
-        //Repository repository = getConfiguration().getStorage(STORAGE0).getRepository(repositoryId);
 
         int concurrency = 64;
 
@@ -681,14 +683,6 @@ public class ArtifactManagementServiceImplTest
                                           TestInfo testInfo)
             throws Exception
     {
-        //String repositoryId = getRepositoryName("last-version-releases", testInfo);
-
-        //MutableRepository repository = mavenRepositoryFactory.createRepository(repositoryId);
-        //repository.setLayout(Maven2LayoutProvider.ALIAS);
-        //repository.setType(RepositoryTypeEnum.HOSTED.getType());
-
-        //createRepository(STORAGE0, repository);
-
         String repositoryId = repository.getId();
 
         // store the file without classifier
