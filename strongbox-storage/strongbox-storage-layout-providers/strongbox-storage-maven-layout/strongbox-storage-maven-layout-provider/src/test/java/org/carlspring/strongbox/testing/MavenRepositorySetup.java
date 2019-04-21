@@ -57,4 +57,14 @@ public abstract class MavenRepositorySetup implements RepositorySetup
             repository.setAllowsForceDeletion(false);
         }
     }
+
+    public static class MavenRepositorySetupWithTrashEnabled extends MavenRepositorySetup
+    {
+        @Override
+        public void setup(MutableRepository repository)
+        {
+            repository.setLayout(Maven2LayoutProvider.ALIAS);
+            repository.setTrashEnabled(true);
+        }
+    }
 }

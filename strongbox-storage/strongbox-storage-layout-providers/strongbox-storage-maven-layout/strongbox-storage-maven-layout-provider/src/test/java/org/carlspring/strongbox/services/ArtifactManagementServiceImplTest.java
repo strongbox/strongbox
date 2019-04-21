@@ -107,6 +107,12 @@ public class ArtifactManagementServiceImplTest
 
     private static final String REPO_PREFIX7 = "tarfg-group";
 
+    private static final String REPO_PREFIX8 = "tfd-release-without-delete";
+
+    private static final String REPO_PREFIX9 = "tfd-release-with-trash";
+
+    private static final String REPO_PREFIX10 = "trts-snapshots";
+
     @Inject
     private ArtifactManagementService mavenArtifactManagementService;
 
@@ -446,59 +452,86 @@ public class ArtifactManagementServiceImplTest
         }
     }
 
+    @ExtendWith({ RepositoryManagementTestExecutionListener.class, ArtifactManagementTestExecutionListener.class })
     @Test
-    public void testForceDelete(TestInfo testInfo)
+    public void testForceDelete(@TestRepository(storage = STORAGE0,
+                                                repository = REPO_PREFIX8+"-testForceDelete",
+                                                layout = Maven2LayoutProvider.ALIAS,
+                                                policy = RepositoryPolicyEnum.RELEASE)
+                                Repository repository1,
+                                @TestArtifact(repository = REPO_PREFIX8+"-testForceDelete",
+                                                id = "org.carlspring.strongbox:strongbox-utils",
+                                                versions = { "7.0" },
+                                                generator = MavenArtifactGenerator.class)
+                                List<Path> repositoryArtifact1,
+                                @TestRepository(storage = STORAGE0,
+                                        repository = REPO_PREFIX9+"-testForceDelete",
+                                        layout = Maven2LayoutProvider.ALIAS,
+                                        policy = RepositoryPolicyEnum.RELEASE,
+                                        cleanup = false,
+                                        setup = MavenRepositorySetup.MavenRepositorySetupWithTrashEnabled.class)
+                                Repository repository2,
+                                @TestArtifact(repository = REPO_PREFIX9+"-testForceDelete",
+                                              id = "org.carlspring.strongbox:strongbox-utils",
+                                              versions = { "7.2" },
+
+                                              generator = MavenArtifactGenerator.class)
+                                List<Path> repositoryArtifact2)
             throws Exception
     {
-        String repositoryId = getRepositoryName("tfd-release-without-delete", testInfo);
-        String repositoryWithTrashId = getRepositoryName("tfd-release-with-trash", testInfo);
+        //String repositoryId = getRepositoryName("tfd-release-without-delete", testInfo);
+        //String repositoryWithTrashId = getRepositoryName("tfd-release-with-trash", testInfo);
 
-        createRepositoryWithArtifacts(STORAGE0, repositoryId, false, "org.carlspring.strongbox:strongbox-utils", "7.0");
+        //createRepositoryWithArtifacts(STORAGE0, repositoryId, false, "org.carlspring.strongbox:strongbox-utils", "7.0");
 
         final String artifactPath = "org/carlspring/strongbox/strongbox-utils/7.0/strongbox-utils-7.0.jar";
 
-        RepositoryPath repositoryPath = repositoryPathResolver.resolve(STORAGE0, repositoryId, artifactPath);
+        //RepositoryPath repositoryPath = repositoryPathResolver.resolve(STORAGE0, repositoryId, artifactPath);
+
+        RepositoryPath repositoryPath = (RepositoryPath)repositoryArtifact1.get(0);
 
         mavenArtifactManagementService.delete(repositoryPath, true);
 
-        assertFalse(new File(getRepositoryBasedir(STORAGE0, repositoryId), artifactPath).exists(),
+        assertFalse(new File(getRepositoryBasedir(STORAGE0, REPO_PREFIX8+"-testForceDelete"), artifactPath).exists(),
                     "Failed to delete artifact during a force delete operation!");
 
-        MutableRepository repositoryWithTrash = mavenRepositoryFactory.createRepository(repositoryWithTrashId);
-        repositoryWithTrash.setTrashEnabled(true);
-        repositoryWithTrash.setLayout(Maven2LayoutProvider.ALIAS);
+        //MutableRepository repositoryWithTrash = mavenRepositoryFactory.createRepository(repositoryWithTrashId);
+        //repositoryWithTrash.setTrashEnabled(true);
+        //repositoryWithTrash.setLayout(Maven2LayoutProvider.ALIAS);
 
-        createRepository(STORAGE0, repositoryWithTrash);
+        //createRepository(STORAGE0, repositoryWithTrash);
 
-        generateArtifact(getRepositoryBasedir(STORAGE0, repositoryWithTrashId).getAbsolutePath(),
-                         "org.carlspring.strongbox:strongbox-utils",
-                         new String[]{ "7.2" });
+        //generateArtifact(getRepositoryBasedir(STORAGE0, repositoryWithTrashId).getAbsolutePath(),
+          //               "org.carlspring.strongbox:strongbox-utils",
+            //             new String[]{ "7.2" });
 
         final String artifactPath2 = "org/carlspring/strongbox/strongbox-utils/7.2/strongbox-utils-7.2.jar";
-        repositoryPath = repositoryPathResolver.resolve(STORAGE0, repositoryWithTrashId, artifactPath2);
+        //repositoryPath = repositoryPathResolver.resolve(STORAGE0, repositoryWithTrashId, artifactPath2);
+
+        repositoryPath = (RepositoryPath)repositoryArtifact2.get(0);
 
         mavenArtifactManagementService.delete(repositoryPath, true);
 
-        final File repositoryDir = new File(getStorageBasedir(STORAGE0), repositoryWithTrashId + "/.trash");
+        final File repositoryDir = new File(getStorageBasedir(STORAGE0), repository2.getId() + "/.trash");
 
         assertTrue(new File(repositoryDir, artifactPath2).exists(),
                    "Should have moved the artifact to the trash during a force delete operation, " +
                    "when allowsForceDeletion is not enabled!");
     }
 
+    @ExtendWith({ RepositoryManagementTestExecutionListener.class })
     @Test
-    public void testRemoveTimestampedSnapshots(TestInfo testInfo)
+    public void testRemoveTimestampedSnapshots(@TestRepository(storage = STORAGE0,
+                                                               repository = REPO_PREFIX10+"-testRemoveTimestampedSnapshots",
+                                                               layout = Maven2LayoutProvider.ALIAS,
+                                                               policy = RepositoryPolicyEnum.SNAPSHOT)
+                                               Repository repository1,
+                                               TestInfo testInfo)
             throws Exception
     {
-        String repositoryid = getRepositoryName("trts-snapshots", testInfo);
-
-        MutableRepository repositoryWithSnapshots = mavenRepositoryFactory.createRepository(repositoryid);
-        repositoryWithSnapshots.setPolicy(RepositoryPolicyEnum.SNAPSHOT.getPolicy());
-        repositoryWithSnapshots.setLayout(Maven2LayoutProvider.ALIAS);
-
-        createRepository(STORAGE0, repositoryWithSnapshots);
-
+        String repositoryid = repository1.getId();
         String repositoryBasedir = getRepositoryBasedir(STORAGE0, repositoryid).getAbsolutePath();
+
         String artifactPath = repositoryBasedir + "/org/carlspring/strongbox/timestamped";
 
         File artifactVersionBaseDir = new File(artifactPath, "2.0-SNAPSHOT");
