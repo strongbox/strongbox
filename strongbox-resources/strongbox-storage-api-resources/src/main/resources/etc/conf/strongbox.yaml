@@ -309,6 +309,17 @@ configuration:
           type: hosted
           allowsForceDeletion: true
           checksumHeadersEnabled: true
+    storage-pypi:
+      id: storage-pypi
+      repositories:
+        raw-releases:
+          id: pypi-releases
+          policy: release
+          dataStore: file-system
+          layout: PyPi
+          type: hosted
+          allowsForceDeletion: true
+          checksumHeadersEnabled: true
     storage-raw:
       id: storage-raw
       repositories:
