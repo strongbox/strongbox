@@ -69,7 +69,8 @@ public class MavenMetadataExpirationMultipleGroupCaseTest
         mockHostedRepositoryMetadataUpdate(getRepositoryName(REPOSITORY_HOSTED, testInfo),
                                            getRepositoryName(REPOSITORY_LOCAL_SOURCE, testInfo),
                                            versionLevelMetadata,
-                                           artifactLevelMetadata);
+                                           artifactLevelMetadata,
+                                           testInfo);
 
         createRepository(STORAGE0,
                          getRepositoryName(REPOSITORY_LOCAL_YAHR_SOURCE, testInfo),
@@ -84,7 +85,8 @@ public class MavenMetadataExpirationMultipleGroupCaseTest
         mockHostedRepositoryMetadataUpdate(getRepositoryName(REPOSITORY_HOSTED_YAHR, testInfo),
                                            getRepositoryName(REPOSITORY_LOCAL_YAHR_SOURCE, testInfo),
                                            versionLevelMetadataYahr,
-                                           artifactLevelMetadataYahr);
+                                           artifactLevelMetadataYahr,
+                                           testInfo);
 
         createProxyRepository(STORAGE0,
                               getRepositoryName(REPOSITORY_PROXY, testInfo),
@@ -105,17 +107,21 @@ public class MavenMetadataExpirationMultipleGroupCaseTest
     {
         final RepositoryPath hostedPath = resolvePath(getRepositoryName(REPOSITORY_HOSTED, testInfo),
                                                       true,
-                                                      "maven-metadata.xml");
+                                                      "maven-metadata.xml",
+                                                      testInfo);
 
         String sha1HostedPathChecksum = readChecksum(resolveSiblingChecksum(hostedPath, EncryptionAlgorithmsEnum.SHA1));
         assertNotNull(sha1HostedPathChecksum);
 
 
-        final RepositoryPath proxyPath = resolvePath(getRepositoryName(REPOSITORY_PROXY, testInfo), true,
-                                                     "maven-metadata.xml");
+        final RepositoryPath proxyPath = resolvePath(getRepositoryName(REPOSITORY_PROXY, testInfo),
+                                                     true,
+                                                     "maven-metadata.xml",
+                                                     testInfo);
         final RepositoryPath groupPath = resolvePath(getRepositoryName(REPOSITORY_GROUP, testInfo),
                                                      true,
-                                                     "maven-metadata.xml");
+                                                     "maven-metadata.xml",
+                                                     testInfo);
         String sha1ProxyPathChecksum = readChecksum(resolveSiblingChecksum(proxyPath, EncryptionAlgorithmsEnum.SHA1));
         assertNull(sha1ProxyPathChecksum);
 
@@ -141,7 +147,8 @@ public class MavenMetadataExpirationMultipleGroupCaseTest
         mockHostedRepositoryMetadataUpdate(getRepositoryName(REPOSITORY_HOSTED, testInfo),
                                            getRepositoryName(REPOSITORY_LOCAL_SOURCE, testInfo),
                                            versionLevelMetadata,
-                                           artifactLevelMetadata);
+                                           artifactLevelMetadata,
+                                           testInfo);
 
         sha1HostedPathChecksum = readChecksum(resolveSiblingChecksum(hostedPath, EncryptionAlgorithmsEnum.SHA1));
         final String calculatedHostedPathChecksum = calculateChecksum(hostedPath,
@@ -152,7 +159,8 @@ public class MavenMetadataExpirationMultipleGroupCaseTest
         mockHostedRepositoryMetadataUpdate(getRepositoryName(REPOSITORY_HOSTED_YAHR, testInfo),
                                            getRepositoryName(REPOSITORY_LOCAL_YAHR_SOURCE, testInfo),
                                            versionLevelMetadataYahr,
-                                           artifactLevelMetadataYahr);
+                                           artifactLevelMetadataYahr,
+                                           testInfo);
 
         Files.setLastModifiedTime(proxyPath, oneHourAgo());
 

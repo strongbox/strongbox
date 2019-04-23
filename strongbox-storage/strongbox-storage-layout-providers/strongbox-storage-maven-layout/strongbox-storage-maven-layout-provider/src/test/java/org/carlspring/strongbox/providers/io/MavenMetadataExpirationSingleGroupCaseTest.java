@@ -60,7 +60,8 @@ public class MavenMetadataExpirationSingleGroupCaseTest
         mockHostedRepositoryMetadataUpdate(getRepositoryName(REPOSITORY_HOSTED, testInfo),
                                            getRepositoryName(REPOSITORY_LOCAL_SOURCE, testInfo),
                                            versionLevelMetadata,
-                                           artifactLevelMetadata);
+                                           artifactLevelMetadata,
+                                           testInfo);
 
         createProxyRepository(STORAGE0,
                               getRepositoryName(REPOSITORY_PROXY, testInfo),
@@ -80,16 +81,19 @@ public class MavenMetadataExpirationSingleGroupCaseTest
     {
         final RepositoryPath hostedPath = resolvePath(getRepositoryName(REPOSITORY_HOSTED, testInfo),
                                                       true,
-                                                      "maven-metadata.xml");
+                                                      "maven-metadata.xml",
+                                                      testInfo);
         String sha1HostedPathChecksum = readChecksum(resolveSiblingChecksum(hostedPath, EncryptionAlgorithmsEnum.SHA1));
         assertNotNull(sha1HostedPathChecksum);
 
         final RepositoryPath proxyPath = resolvePath(getRepositoryName(REPOSITORY_PROXY, testInfo),
                                                      true,
-                                                     "maven-metadata.xml");
+                                                     "maven-metadata.xml",
+                                                     testInfo);
         final RepositoryPath groupPath = resolvePath(getRepositoryName(REPOSITORY_GROUP, testInfo),
                                                      true,
-                                                     "maven-metadata.xml");
+                                                     "maven-metadata.xml",
+                                                     testInfo);
         String sha1ProxyPathChecksum = readChecksum(resolveSiblingChecksum(proxyPath, EncryptionAlgorithmsEnum.SHA1));
         assertNull(sha1ProxyPathChecksum);
 
@@ -113,7 +117,8 @@ public class MavenMetadataExpirationSingleGroupCaseTest
         mockHostedRepositoryMetadataUpdate(getRepositoryName(REPOSITORY_HOSTED, testInfo),
                                            getRepositoryName(REPOSITORY_LOCAL_SOURCE, testInfo),
                                            versionLevelMetadata,
-                                           artifactLevelMetadata);
+                                           artifactLevelMetadata,
+                                           testInfo);
 
         sha1HostedPathChecksum = readChecksum(resolveSiblingChecksum(hostedPath,
                                                                      EncryptionAlgorithmsEnum.SHA1));
