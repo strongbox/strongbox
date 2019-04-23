@@ -19,18 +19,15 @@ import java.text.SimpleDateFormat;
 import java.util.Arrays;
 import java.util.Calendar;
 import java.util.HashMap;
-import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Random;
-import java.util.Set;
 import java.util.concurrent.Callable;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 
 import javax.inject.Inject;
-import javax.xml.bind.JAXBException;
 
 import org.apache.maven.artifact.Artifact;
 
@@ -52,10 +49,8 @@ import org.carlspring.strongbox.resource.ResourceCloser;
 import org.carlspring.strongbox.storage.ArtifactResolutionException;
 import org.carlspring.strongbox.storage.ArtifactStorageException;
 import org.carlspring.strongbox.storage.repository.MavenRepositoryFactory;
-import org.carlspring.strongbox.storage.repository.MutableRepository;
 import org.carlspring.strongbox.storage.repository.Repository;
 import org.carlspring.strongbox.storage.repository.RepositoryPolicyEnum;
-import org.carlspring.strongbox.storage.repository.RepositoryTypeEnum;
 import org.carlspring.strongbox.testing.MavenRepositorySetup;
 import org.carlspring.strongbox.testing.TestCaseWithMavenArtifactGenerationAndIndexing;
 import org.carlspring.strongbox.testing.artifact.ArtifactManagementTestExecutionListener;
@@ -65,7 +60,6 @@ import org.carlspring.strongbox.testing.storage.repository.TestRepository;
 
 import org.hamcrest.CoreMatchers;
 import org.hamcrest.MatcherAssert;
-import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.TestInfo;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -93,29 +87,27 @@ public class ArtifactManagementServiceImplTest
 
     private DateFormat formatter = new SimpleDateFormat("yyyyMMdd.HHmmss");
 
-    private static final String REPO_PREFIX = "amsi-releases-without-deployment";
+    private static final String AMSI_RELEASES_WITHOUT_DEPLOYMENT = "amsi-releases-without-deployment";
 
-    private static final String REPO_PREFIX2 = "amsi-releases-without-redeployment";
+    private static final String AMSI_RELEASES_WITHOUT_DELETES = "amsi-releases-without-deletes";
 
-    private static final String REPO_PREFIX3 = "amsi-releases-without-deletes";
+    private static final String TDRADAGR_RELEASES = "tdradagr-releases";
 
-    private static final String REPO_PREFIX4 = "tdradagr-releases";
+    private static final String TDRADAGR_GROUP = "tdradagr-group";
 
-    private static final String REPO_PREFIX5 = "tdradagr-group";
+    private static final String TARFG_RELEASES = "tarfg-releases";
 
-    private static final String REPO_PREFIX6 = "tarfg-releases";
+    private static final String TARFG_GROUP = "tarfg-group";
 
-    private static final String REPO_PREFIX7 = "tarfg-group";
+    private static final String TFD_RELEASE_WITHOUT_DELETE = "tfd-release-without-delete";
 
-    private static final String REPO_PREFIX8 = "tfd-release-without-delete";
+    private static final String TFD_RELEASE_WITH_TRASH = "tfd-release-with-trash";
 
-    private static final String REPO_PREFIX9 = "tfd-release-with-trash";
+    private static final String TRTS_SNAPSHOTS = "trts-snapshots";
 
-    private static final String REPO_PREFIX10 = "trts-snapshots";
+    private static final String TCRW_RELEASES_WITH_LOCK = "tcrw-releases-with-lock";
 
-    private static final String REPO_PREFIX11 = "tcrw-releases-with-lock";
-
-    private static final String REPO_PREFIX12 = "last-version-releases";
+    private static final String LAST_VERSION_RELEASES = "last-version-releases";
 
     @Inject
     private ArtifactManagementService mavenArtifactManagementService;
@@ -141,11 +133,11 @@ public class ArtifactManagementServiceImplTest
     @ExtendWith({ RepositoryManagementTestExecutionListener.class, ArtifactManagementTestExecutionListener.class })
     @Test
     public void testDeploymentToRepositoryWithForbiddenDeployments(@TestRepository(storage = STORAGE0,
-                                                                                   repository = REPO_PREFIX+"-testDeploymentToRepositoryWithForbiddenDeployments",
+                                                                                   repository = AMSI_RELEASES_WITHOUT_DEPLOYMENT,
                                                                                    layout = Maven2LayoutProvider.ALIAS,
                                                                                    setup = MavenRepositorySetup.MavenRepositorySetupWithForbiddenDeleteAndDeloyment.class)
                                                                                    Repository repositoryWithoutDeployment,
-                                                                   @TestArtifact(repository = REPO_PREFIX+"-testDeploymentToRepositoryWithForbiddenDeployments",
+                                                                   @TestArtifact(repository = AMSI_RELEASES_WITHOUT_DEPLOYMENT,
                                                                                  id = "org.carlspring.strongbox:strongbox-utils",
                                                                                  versions = { "8.0" },
                                                                                  generator = MavenArtifactGenerator.class)
@@ -188,11 +180,11 @@ public class ArtifactManagementServiceImplTest
     @ExtendWith({ RepositoryManagementTestExecutionListener.class, ArtifactManagementTestExecutionListener.class })
     @Test
     public void testRedeploymentToRepositoryWithForbiddenRedeployments(@TestRepository(storage = STORAGE0,
-                                                                                       repository = REPO_PREFIX2+"-testRedeploymentToRepositoryWithForbiddenRedeployments",
+                                                                                       repository = AMSI_RELEASES_WITHOUT_DEPLOYMENT,
                                                                                        layout = Maven2LayoutProvider.ALIAS,
                                                                                        setup = MavenRepositorySetup.MavenRepositorySetupWithForbiddenRedeloyment.class)
                                                                        Repository repositoryWithoutDeployment,
-                                                                       @TestArtifact(repository = REPO_PREFIX2+"-testRedeploymentToRepositoryWithForbiddenRedeployments",
+                                                                       @TestArtifact(repository = AMSI_RELEASES_WITHOUT_DEPLOYMENT,
                                                                                      id = "org.carlspring.strongbox:strongbox-utils",
                                                                                      versions = { "8.1" },
                                                                                      generator = MavenArtifactGenerator.class)
@@ -237,11 +229,11 @@ public class ArtifactManagementServiceImplTest
     @ExtendWith({ RepositoryManagementTestExecutionListener.class, ArtifactManagementTestExecutionListener.class })
     @Test
     public void testDeletionFromRepositoryWithForbiddenDeletes(@TestRepository(storage = STORAGE0,
-                                                                               repository = REPO_PREFIX3+"-testDeletionFromRepositoryWithForbiddenDeletes",
+                                                                               repository = AMSI_RELEASES_WITHOUT_DELETES,
                                                                                layout = Maven2LayoutProvider.ALIAS,
                                                                                setup = MavenRepositorySetup.MavenRepositorySetupWithForbiddenDeletes.class)
                                                                Repository repositoryWithoutDeployment,
-                                                               @TestArtifact(repository = REPO_PREFIX3+"-testDeletionFromRepositoryWithForbiddenDeletes",
+                                                               @TestArtifact(repository = AMSI_RELEASES_WITHOUT_DELETES,
                                                                              id = "org.carlspring.strongbox:strongbox-utils",
                                                                              versions = { "8.2", "8.6" },
                                                                              generator = MavenArtifactGenerator.class)
@@ -272,17 +264,17 @@ public class ArtifactManagementServiceImplTest
     @ExtendWith({ RepositoryManagementTestExecutionListener.class, ArtifactManagementTestExecutionListener.class })
     @Test
     public void testDeploymentRedeploymentAndDeletionAgainstGroupRepository(@TestRepository(storage = STORAGE0,
-                                                                                            repository = REPO_PREFIX4+"-testDeploymentRedeploymentAndDeletionAgainstGroupRepository",
+                                                                                            repository = TDRADAGR_RELEASES,
                                                                                             layout = Maven2LayoutProvider.ALIAS,
                                                                                             setup = MavenRepositorySetup.MavenRepositorySetupWithForbiddenDeletes.class)
                                                                             Repository repository,
-                                                                            @TestRepository.Group({REPO_PREFIX4+"-testDeploymentRedeploymentAndDeletionAgainstGroupRepository"})
+                                                                            @TestRepository.Group({ TDRADAGR_RELEASES })
                                                                             @TestRepository(storage = STORAGE0,
-                                                                                            repository = REPO_PREFIX5+"-testDeploymentRedeploymentAndDeletionAgainstGroupRepository",
+                                                                                            repository = TDRADAGR_GROUP,
                                                                                             layout = Maven2LayoutProvider.ALIAS,
                                                                                             setup = MavenRepositorySetup.MavenRepositorySetupWithForbiddenDeleteDeploymentForceDelete.class)
                                                                             Repository repositoryGroup,
-                                                                            @TestArtifact(repository = REPO_PREFIX4+"-testDeploymentRedeploymentAndDeletionAgainstGroupRepository",
+                                                                            @TestArtifact(repository = TDRADAGR_RELEASES,
                                                                                           id = "org.carlspring.strongbox:strongbox-utils",
                                                                                           versions = { "8.3" },
                                                                                           generator = MavenArtifactGenerator.class)
@@ -325,10 +317,6 @@ public class ArtifactManagementServiceImplTest
         //noinspection EmptyCatchBlock
         try
         {
-            // Generate the artifact on the file-system anyway so that we could achieve
-            // the state of having it there before attempting a re-deployment
-            // generateArtifact(getRepositoryBasedir(STORAGE0, REPO_PREFIX5+"-testDeploymentRedeploymentAndDeletionAgainstGroupRepository").getAbsolutePath(), gavtc);
-            
             RepositoryPath repositoryPath = repositoryPathResolver.resolve(STORAGE0,
                                                                            repositoryGroupId,
                                                                            ArtifactUtils.convertArtifactToPath(artifact));
@@ -387,17 +375,18 @@ public class ArtifactManagementServiceImplTest
     @ExtendWith({ RepositoryManagementTestExecutionListener.class, ArtifactManagementTestExecutionListener.class })
     @Test
     public void testArtifactResolutionFromGroup(@TestRepository(storage = STORAGE0,
-                                                                repository = REPO_PREFIX6+"-testArtifactResolutionFromGroup",
+                                                                repository = TARFG_RELEASES,
                                                                 layout = Maven2LayoutProvider.ALIAS,
                                                                 setup = MavenRepositorySetup.MavenRepositorySetupWithForbiddenDeletes.class)
                                                 Repository repository,
-                                                @TestRepository.Group({REPO_PREFIX6+"-testArtifactResolutionFromGroup"})
+                                                @TestRepository.Group({
+                                                        TARFG_RELEASES})
                                                 @TestRepository(storage = STORAGE0,
-                                                                repository = REPO_PREFIX7+"-testArtifactResolutionFromGroup",
+                                                                repository = TARFG_GROUP,
                                                                 layout = Maven2LayoutProvider.ALIAS,
                                                                 setup = MavenRepositorySetup.MavenRepositorySetupWithForbiddenDeleteDeploymentForceDelete.class)
                                                 Repository repositoryGroup,
-                                                @TestArtifact(repository = REPO_PREFIX6+"-testArtifactResolutionFromGroup",
+                                                @TestArtifact(repository = TARFG_RELEASES,
                                                               id = "org.carlspring.strongbox:strongbox-utils",
                                                               versions = { "8.0.5" },
                                                               generator = MavenArtifactGenerator.class)
@@ -416,23 +405,23 @@ public class ArtifactManagementServiceImplTest
     @ExtendWith({ RepositoryManagementTestExecutionListener.class, ArtifactManagementTestExecutionListener.class })
     @Test
     public void testForceDelete(@TestRepository(storage = STORAGE0,
-                                                repository = REPO_PREFIX8+"-testForceDelete",
+                                                repository = TFD_RELEASE_WITHOUT_DELETE,
                                                 layout = Maven2LayoutProvider.ALIAS,
                                                 policy = RepositoryPolicyEnum.RELEASE)
                                 Repository repository1,
-                                @TestArtifact(repository = REPO_PREFIX8+"-testForceDelete",
+                                @TestArtifact(repository = TFD_RELEASE_WITHOUT_DELETE,
                                                 id = "org.carlspring.strongbox:strongbox-utils",
                                                 versions = { "7.0" },
                                                 generator = MavenArtifactGenerator.class)
                                 List<Path> repositoryArtifact1,
                                 @TestRepository(storage = STORAGE0,
-                                        repository = REPO_PREFIX9+"-testForceDelete",
+                                        repository = TFD_RELEASE_WITH_TRASH,
                                         layout = Maven2LayoutProvider.ALIAS,
                                         policy = RepositoryPolicyEnum.RELEASE,
                                         cleanup = false,
                                         setup = MavenRepositorySetup.MavenRepositorySetupWithTrashEnabled.class)
                                 Repository repository2,
-                                @TestArtifact(repository = REPO_PREFIX9+"-testForceDelete",
+                                @TestArtifact(repository = TFD_RELEASE_WITH_TRASH,
                                               id = "org.carlspring.strongbox:strongbox-utils",
                                               versions = { "7.2" },
                                               generator = MavenArtifactGenerator.class)
@@ -470,7 +459,7 @@ public class ArtifactManagementServiceImplTest
     @ExtendWith({ RepositoryManagementTestExecutionListener.class })
     @Test
     public void testRemoveTimestampedSnapshots(@TestRepository(storage = STORAGE0,
-                                                               repository = REPO_PREFIX10+"-testRemoveTimestampedSnapshots",
+                                                               repository = TRTS_SNAPSHOTS,
                                                                layout = Maven2LayoutProvider.ALIAS,
                                                                policy = RepositoryPolicyEnum.SNAPSHOT)
                                                Repository repository,
@@ -550,7 +539,7 @@ public class ArtifactManagementServiceImplTest
     @ExtendWith({ RepositoryManagementTestExecutionListener.class })
     @Test
     public void testConcurrentReadWrite(@TestRepository(storage = STORAGE0,
-                                                        repository = REPO_PREFIX11+"-testConcurrentReadWrite",
+                                                        repository = TCRW_RELEASES_WITH_LOCK,
                                                         layout = Maven2LayoutProvider.ALIAS)
                                         Repository repository,
                                         TestInfo testInfo)
@@ -611,7 +600,7 @@ public class ArtifactManagementServiceImplTest
     @ExtendWith({ RepositoryManagementTestExecutionListener.class })
     @Test
     public void testLastVersionManagement(@TestRepository(storage = STORAGE0,
-                                                          repository = REPO_PREFIX12+"-testLastVersionManagement",
+                                                          repository = LAST_VERSION_RELEASES,
                                                           layout = Maven2LayoutProvider.ALIAS,
                                                           setup = MavenRepositorySetup.MavenHostedRepositorySetup.class)
                                                           Repository repository,

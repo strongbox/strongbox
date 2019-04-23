@@ -13,10 +13,8 @@ public abstract class MavenRepositorySetup implements RepositorySetup
         @Override
         public void setup(MutableRepository repository)
         {
-            //MavenRepositoryFeatures mavenRepositoryFeatures = new MavenRepositoryFeatures();
             repository.setAllowsDelete(false);
             repository.setAllowsDeployment(false);
-            //repository.setArtifactCoordinateValidators(new LinkedHashSet<>(mavenRepositoryFeatures.getDefaultArtifactCoordinateValidators()));
             //repository.setArtsetAsetArtifactCoordinateValidators(
             //new LinkedHashSet<>(mavenRepositoryFeatures.getDefaultArtifactCoordinateValidators()));
         }
@@ -27,11 +25,8 @@ public abstract class MavenRepositorySetup implements RepositorySetup
         @Override
         public void setup(MutableRepository repository)
         {
-            //MavenRepositoryFeatures mavenRepositoryFeatures = new MavenRepositoryFeatures();
             repository.setAllowsDelete(false);
             repository.setLayout(Maven2LayoutProvider.ALIAS);
-            //repository.setAllowsDeployment(false);
-            //repository.setArtifactCoordinateValidators(new LinkedHashSet<>(mavenRepositoryFeatures.getDefaultArtifactCoordinateValidators()));
             //repository.setArtsetAsetArtifactCoordinateValidators(
             //new LinkedHashSet<>(mavenRepositoryFeatures.getDefaultArtifactCoordinateValidators()));
         }
