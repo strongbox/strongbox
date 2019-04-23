@@ -31,13 +31,9 @@ public class ComposerArtifactCoordinatesTest
     static void setup()
     {
 
-
         packages.add("symfony/polyfill-mbstring");
-
         packages.add("psr/log");
-
         packages.add("symfony/polyfill-ctype");
-
         packages.add("guzzlehttp/psr7");
 
     }
@@ -62,7 +58,6 @@ public class ComposerArtifactCoordinatesTest
     public void testCreateArtifactFromParseExceptions()
     {
 
-
         assertThrows(IllegalArgumentException.class, () -> {
             ComposerArtifactCoordinates artifactCoordinates = ComposerArtifactCoordinates.parse(
                     "symfony/polyfill-mbstring/invalid");
@@ -81,16 +76,18 @@ public class ComposerArtifactCoordinatesTest
     @Test
     public void testGetPathFromCoordinates()
     {
-        for (String _package : packages)
+
+        for (String p : packages)
         {
 
-            String vendor = _package.split("/")[0];
-            String name = _package.split("/")[1];
+            String vendor = p.split("/")[0];
+            String name = p.split("/")[1];
             ComposerArtifactCoordinates artifactCoordinates = new ComposerArtifactCoordinates(vendor, name, null, null);
 
-            assertEquals(_package, artifactCoordinates.toPath(), "Invalid path from coordinates");
+            assertEquals(p, artifactCoordinates.toPath(), "Invalid path from coordinates");
 
         }
+
     }
 
 }
