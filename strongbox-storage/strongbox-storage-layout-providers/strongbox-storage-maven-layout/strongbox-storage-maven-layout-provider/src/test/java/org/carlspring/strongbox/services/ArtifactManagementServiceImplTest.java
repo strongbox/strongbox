@@ -545,8 +545,6 @@ public class ArtifactManagementServiceImplTest
                                         TestInfo testInfo)
             throws Exception
     {
-        String repositoryId = repository.getId();
-
         int concurrency = 64;
 
         Random random = new Random();

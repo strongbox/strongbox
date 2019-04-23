@@ -4,9 +4,31 @@ import org.carlspring.strongbox.providers.layout.Maven2LayoutProvider;
 import org.carlspring.strongbox.storage.repository.MutableRepository;
 import org.carlspring.strongbox.storage.repository.RepositoryTypeEnum;
 import org.carlspring.strongbox.testing.storage.repository.RepositorySetup;
+import org.carlspring.strongbox.yaml.configuration.repository.MutableMavenRepositoryConfiguration;
 
 public abstract class MavenRepositorySetup implements RepositorySetup
 {
+    public static class MavenRepositorySetupWithProxyType extends MavenRepositorySetup
+    {
+        @Override
+        public void setup(MutableRepository repository)
+        {
+            MutableMavenRepositoryConfiguration repositoryConfiguration = new MutableMavenRepositoryConfiguration();
+            repositoryConfiguration.setIndexingEnabled(true);
+
+            repository.setRepositoryConfiguration(repositoryConfiguration);
+            repository.setType(RepositoryTypeEnum.PROXY.getType());
+        }
+    }
+
+    public static class MavenRepositorySetupWithGroupType extends MavenRepositorySetup
+    {
+        @Override
+        public void setup(MutableRepository repository)
+        {
+            repository.setType(RepositoryTypeEnum.GROUP.getType());
+        }
+    }
 
     public static class MavenRepositorySetupWithForbiddenDeleteAndDeloyment extends MavenRepositorySetup
     {
