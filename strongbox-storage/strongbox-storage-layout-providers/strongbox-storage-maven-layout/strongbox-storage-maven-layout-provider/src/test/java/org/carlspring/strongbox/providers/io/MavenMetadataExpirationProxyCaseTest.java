@@ -57,7 +57,8 @@ public class MavenMetadataExpirationProxyCaseTest
         mockHostedRepositoryMetadataUpdate(getRepositoryName(REPOSITORY_HOSTED, testInfo),
                                            getRepositoryName(REPOSITORY_LOCAL_SOURCE, testInfo),
                                            versionLevelMetadata,
-                                           artifactLevelMetadata);
+                                           artifactLevelMetadata,
+                                           testInfo);
 
         createProxyRepository(STORAGE0,
                               getRepositoryName(REPOSITORY_PROXY, testInfo),
@@ -73,13 +74,15 @@ public class MavenMetadataExpirationProxyCaseTest
     {
         final RepositoryPath hostedPath = resolvePath(getRepositoryName(REPOSITORY_HOSTED, testInfo),
                                                       true,
-                                                      "maven-metadata.xml");
+                                                      "maven-metadata.xml",
+                                                      testInfo);
         String sha1HostedPathChecksum = readChecksum(resolveSiblingChecksum(hostedPath, EncryptionAlgorithmsEnum.SHA1));
         assertNotNull(sha1HostedPathChecksum);
 
         final RepositoryPath proxiedPath = resolvePath(getRepositoryName(REPOSITORY_PROXY, testInfo),
                                                        true,
-                                                       "maven-metadata.xml");
+                                                       "maven-metadata.xml",
+                                                       testInfo);
         String sha1ProxiedPathChecksum = readChecksum(resolveSiblingChecksum(proxiedPath,
                                                                              EncryptionAlgorithmsEnum.SHA1));
         assertNull(sha1ProxiedPathChecksum);
@@ -108,7 +111,8 @@ public class MavenMetadataExpirationProxyCaseTest
         mockHostedRepositoryMetadataUpdate(getRepositoryName(REPOSITORY_HOSTED, testInfo),
                                            getRepositoryName(REPOSITORY_LOCAL_SOURCE, testInfo),
                                            versionLevelMetadata,
-                                           artifactLevelMetadata);
+                                           artifactLevelMetadata,
+                                           testInfo);
 
         sha1HostedPathChecksum = readChecksum(resolveSiblingChecksum(hostedPath,
                                                                      EncryptionAlgorithmsEnum.SHA1));
