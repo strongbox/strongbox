@@ -106,7 +106,7 @@ public class ComposerArtifactCoordinatesTest
         for (String p : packages)
         {
             ComposerArtifactCoordinates artifactCoordinates = ComposerArtifactCoordinates.parse(p);
-            if(artifactCoordinates.getVersion() != null)
+            if (artifactCoordinates.getVersion() != null)
             {
                 SemanticVersion.parse(artifactCoordinates.getVersion());
             }

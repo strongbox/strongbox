@@ -55,7 +55,9 @@ public class ComposerArtifactCoordinates
 
     private String type;
 
-    public ComposerArtifactCoordinates(String vendor, String name){
+    public ComposerArtifactCoordinates(String vendor,
+                                       String name)
+    {
         setVendor(vendor);
         setName(name);
     }
@@ -128,12 +130,12 @@ public class ComposerArtifactCoordinates
     {
         String path = String.format("%s/%s", getVendor(), getName());
 
-        if(getVersion() != null)
+        if (getVersion() != null)
         {
             path += "/" + getVersion();
         }
 
-        if(getType() != null)
+        if (getType() != null)
         {
             path += "/" + getType();
         }
@@ -176,17 +178,18 @@ public class ComposerArtifactCoordinates
             throw new IllegalArgumentException("Invalid Composer package path");
         }
 
-        if(coordinates.length == 2)
+        if (coordinates.length == 2)
         {
             return new ComposerArtifactCoordinates(coordinates[0], coordinates[1]);
         }
-        else if(coordinates.length == 3)
+        else if (coordinates.length == 3)
         {
-            try{
+            try
+            {
                 String version = SemanticVersion.parse(coordinates[2]).toString();
                 return new ComposerArtifactCoordinates(coordinates[0], coordinates[1], version, null);
             }
-            catch(IllegalArgumentException e)
+            catch (IllegalArgumentException e)
             {
                 ComposerArtifactCoordinates cac = new ComposerArtifactCoordinates(coordinates[0], coordinates[1]);
                 cac.setType(coordinates[2]);
