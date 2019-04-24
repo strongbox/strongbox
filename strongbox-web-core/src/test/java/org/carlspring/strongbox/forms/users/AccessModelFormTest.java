@@ -40,11 +40,14 @@ public class AccessModelFormTest
 {
 
     private static final String STORAGE_ID_VALID = "storage0";
+
     private static final String REPOSITORY_ID_VALID = "releases";
+
     private Collection<String> privileges;
 
     @Inject
     private Validator validator;
+
 
     @Override
     @BeforeEach
@@ -58,7 +61,6 @@ public class AccessModelFormTest
 
     @Test
     public void shouldProperlyMapToDto()
-            throws Exception
     {
 
         AccessModelForm developer01AccessModel = new AccessModelForm();
@@ -213,4 +215,5 @@ public class AccessModelFormTest
         assertEquals(violations.size(), 1);
         Java6Assertions.assertThat(violations).extracting("message").containsAnyOf("A storage id must be specified.");
     }
+
 }
