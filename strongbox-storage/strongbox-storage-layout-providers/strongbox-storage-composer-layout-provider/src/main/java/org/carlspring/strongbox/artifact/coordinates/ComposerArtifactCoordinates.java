@@ -53,7 +53,12 @@ public class ComposerArtifactCoordinates
 
     private String version;
 
-    private String type = "library";
+    private String type;
+
+    public ComposerArtifactCoordinates(String vendor, String name){
+        setVendor(vendor);
+        setName(name);
+    }
 
     public ComposerArtifactCoordinates(String vendor,
                                        String name,
@@ -121,7 +126,19 @@ public class ComposerArtifactCoordinates
     @Override
     public String toPath()
     {
-        return String.format("%s/%s", getVendor(), getName());
+        String path = String.format("%s/%s", getVendor(), getName());
+
+        if(getVersion() != null)
+        {
+            path += "/" + getVersion();
+        }
+
+        if(getType() != null)
+        {
+            path += "/" + getType();
+        }
+
+        return path;
     }
 
     @ArtifactLayoutCoordinate
@@ -154,12 +171,32 @@ public class ComposerArtifactCoordinates
     {
         String[] coordinates = path.split("/");
 
-        if (coordinates.length != 2 || coordinates[0].isEmpty() || coordinates[1].isEmpty())
+        if (coordinates.length < 2 || coordinates[0].isEmpty() || coordinates[1].isEmpty())
         {
             throw new IllegalArgumentException("Invalid Composer package path");
         }
 
-        return new ComposerArtifactCoordinates(coordinates[0], coordinates[1], null, null);
+        if(coordinates.length == 2)
+        {
+            return new ComposerArtifactCoordinates(coordinates[0], coordinates[1]);
+        }
+        else if(coordinates.length == 3)
+        {
+            try{
+                String version = SemanticVersion.parse(coordinates[2]).toString();
+                return new ComposerArtifactCoordinates(coordinates[0], coordinates[1], version, null);
+            }
+            catch(IllegalArgumentException e)
+            {
+                ComposerArtifactCoordinates cac = new ComposerArtifactCoordinates(coordinates[0], coordinates[1]);
+                cac.setType(coordinates[2]);
+                return cac;
+            }
+        }
+        else
+        {
+            return new ComposerArtifactCoordinates(coordinates[0], coordinates[1], coordinates[2], coordinates[3]);
+        }
     }
 
     @ArtifactLayoutCoordinate
