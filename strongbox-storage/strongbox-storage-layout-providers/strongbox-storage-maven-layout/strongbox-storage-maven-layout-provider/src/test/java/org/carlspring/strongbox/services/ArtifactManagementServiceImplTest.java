@@ -24,6 +24,8 @@ import java.util.Map;
 import java.util.Random;
 import java.util.concurrent.Callable;
 import java.util.concurrent.atomic.AtomicBoolean;
+import java.util.concurrent.locks.Lock;
+import java.util.concurrent.locks.ReentrantLock;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 
@@ -559,6 +561,7 @@ public class ArtifactManagementServiceImplTest
 
         RepositoryPath repositoryPath = repositoryPathResolver.resolve(repository, path);
 
+        Lock lock = new ReentrantLock();
         // when
         AtomicBoolean aBoolean = new AtomicBoolean(true);
         List<Long> resultList = IntStream.range(0, concurrency * 2)
@@ -566,7 +569,8 @@ public class ArtifactManagementServiceImplTest
                                          .mapToObj(i -> getResult(i,
                                                                   aBoolean,
                                                                   repositoryPath,
-                                                                  loremIpsumContentArray))
+                                                                  loremIpsumContentArray,
+                                                                  lock))
                                          .collect(Collectors.toList());
 
         // then
@@ -738,15 +742,16 @@ public class ArtifactManagementServiceImplTest
     private Long getResult(int i,
                            AtomicBoolean aBoolean,
                            RepositoryPath repositoryPath,
-                           byte[][] loremIpsumContentArray)
+                           byte[][] loremIpsumContentArray,
+                           Lock lock)
     {
         try
         {
             Repository repository = repositoryPath.getRepository();
             String path = RepositoryFiles.relativizePath(repositoryPath);
             return aBoolean.getAndSet(!aBoolean.get()) ?
-                   new Store(new ByteArrayInputStream(loremIpsumContentArray[i / 2]), repository, path).call() :
-                   new Fetch(repository, path).call();
+                   new Store(new ByteArrayInputStream(loremIpsumContentArray[i / 2]), repository, path, lock).call() :
+                   new Fetch(repository, path, lock).call();
         }
         catch (IOException e)
         {
@@ -767,18 +772,23 @@ public class ArtifactManagementServiceImplTest
 
         private final InputStream is;
 
+        private final Lock lock;
+
         private Store(InputStream is,
                       Repository repository,
-                      String path)
+                      String path,
+                      Lock lock)
         {
             this.path = path;
             this.repository = repository;
             this.is = is;
+            this.lock = lock;
         }
 
         @Override
         public Long call()
         {
+            this.lock.lock();
             RepositoryPath repositoryPath = repositoryPathResolver.resolve(repository, path);
 
             try
@@ -791,6 +801,10 @@ public class ArtifactManagementServiceImplTest
 
                 return 0L;
             }
+            finally
+            {
+                this.lock.unlock();
+            }
         }
     }
 
@@ -801,17 +815,21 @@ public class ArtifactManagementServiceImplTest
         private final Repository repository;
         private final String path;
         private int attempts = 0;
+        private final Lock lock;
 
         private Fetch(Repository repository,
-                      String path)
+                      String path,
+                      Lock lock)
         {
             this.path = path;
             this.repository = repository;
+            this.lock = lock;
         }
 
         @Override
         public Long call()
         {
+            this.lock.lock();
             RepositoryPath repositoryPath = repositoryPathResolver.resolve(repository, path);
 
             long result = 0;
@@ -853,6 +871,10 @@ public class ArtifactManagementServiceImplTest
                 logger.error(String.format("Failed to read artifact [%s]", repositoryPath), ex);
                 
                 return 0L;
+            }
+            finally
+            {
+                this.lock.unlock();
             }
 
             return result;
