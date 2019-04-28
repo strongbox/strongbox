@@ -7,6 +7,7 @@ import javax.inject.Inject;
 import javax.persistence.EntityManagerFactory;
 import javax.sql.DataSource;
 
+import org.carlspring.strongbox.config.hazelcast.HazelcastConfiguration;
 import org.carlspring.strongbox.data.tx.OEntityUnproxyAspect;
 import org.springframework.cache.CacheManager;
 import org.springframework.cache.annotation.EnableCaching;

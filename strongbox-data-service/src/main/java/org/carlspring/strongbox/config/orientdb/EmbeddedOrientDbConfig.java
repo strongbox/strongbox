@@ -1,4 +1,4 @@
-package org.carlspring.strongbox.config;
+package org.carlspring.strongbox.config.orientdb;
 
 import java.io.BufferedInputStream;
 import java.io.BufferedOutputStream;
@@ -37,7 +37,7 @@ import com.orientechnologies.orient.core.db.OrientDB;
  */
 @Configuration
 @Conditional(EmbeddedOrientDbConfig.class)
-class EmbeddedOrientDbConfig
+public class EmbeddedOrientDbConfig
         extends CommonOrientDbConfig
         implements Condition
 {
@@ -120,8 +120,8 @@ class EmbeddedOrientDbConfig
                            AnnotatedTypeMetadata metadata)
 
     {
-        OrientDBProfile profile = OrientDBProfile.resolveProfile(conditionContext.getEnvironment());
+        OrientDbProfile profile = OrientDbProfile.resolveProfile(conditionContext.getEnvironment());
         
-        return profile.getName().equals(OrientDBProfile.PROFILE_EMBEDDED);
+        return profile.getName().equals(OrientDbProfile.PROFILE_EMBEDDED);
     }
 }

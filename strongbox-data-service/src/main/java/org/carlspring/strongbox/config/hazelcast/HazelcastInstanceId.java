@@ -1,4 +1,4 @@
-package org.carlspring.strongbox.config;
+package org.carlspring.strongbox.config.hazelcast;
 
 public class HazelcastInstanceId
 {

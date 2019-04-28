@@ -1,4 +1,4 @@
-package org.carlspring.strongbox.config;
+package org.carlspring.strongbox.config.orientdb;
 
 import org.apache.commons.lang.StringUtils;
 import org.carlspring.strongbox.data.server.InMemoryOrientDbServer;
@@ -23,7 +23,7 @@ import com.orientechnologies.orient.core.db.OrientDB;
  */
 @Configuration
 @Conditional(InMemoryOrientDbConfig.class)
-class InMemoryOrientDbConfig
+public class InMemoryOrientDbConfig
         extends CommonOrientDbConfig
         implements Condition
 {
@@ -74,8 +74,8 @@ class InMemoryOrientDbConfig
                            AnnotatedTypeMetadata metadata)
 
     {
-        OrientDBProfile profile = OrientDBProfile.resolveProfile(conditionContext.getEnvironment());
+        OrientDbProfile profile = OrientDbProfile.resolveProfile(conditionContext.getEnvironment());
         
-        return profile.getName().equals(OrientDBProfile.PROFILE_MEMORY);
+        return profile.getName().equals(OrientDbProfile.PROFILE_MEMORY);
     }
 }
