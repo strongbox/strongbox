@@ -1,4 +1,4 @@
-package org.carlspring.strongbox.config;
+package org.carlspring.strongbox.config.orientdb;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -8,10 +8,10 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.core.env.Environment;
 
-public class OrientDBProfile
+public class OrientDbProfile
 {
 
-    private static final Logger logger = LoggerFactory.getLogger(OrientDBProfile.class);
+    private static final Logger logger = LoggerFactory.getLogger(OrientDbProfile.class);
 
     public static final String PROPERTY_PROFILE = "strongbox.orientdb.profile";
 
@@ -26,7 +26,7 @@ public class OrientDBProfile
     private final String name;
     
     
-    public OrientDBProfile(String name)
+    public OrientDbProfile(String name)
     {
         super();
         this.name = name;
@@ -37,11 +37,11 @@ public class OrientDBProfile
         return name;
     }
 
-    public static OrientDBProfile resolveProfile(Environment environment)
+    public static OrientDbProfile resolveProfile(Environment environment)
     {
         String profile = environment.getProperty(PROPERTY_PROFILE, PROFILE_MEMORY);
         
-        return new OrientDBProfile(profile);
+        return new OrientDbProfile(profile);
     }
 
     public static void bootstrap()
@@ -51,7 +51,7 @@ public class OrientDBProfile
         
         logger.info(String.format("Bootstrap OrientDB connection properties with profile [%s].", profile));
 
-        try (InputStream is = OrientDBProfile.class.getResourceAsStream(String.format("/META-INF/properties/%s.properties",
+        try (InputStream is = OrientDbProfile.class.getResourceAsStream(String.format("/META-INF/properties/%s.properties",
                                                                                       profile)))
         {
             Properties properties = new Properties();

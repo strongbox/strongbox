@@ -4,8 +4,8 @@ import org.carlspring.strongbox.authentication.ConfigurableProviderManager;
 import org.carlspring.strongbox.authentication.api.AuthenticationItem;
 import org.carlspring.strongbox.authentication.api.AuthenticationItems;
 import org.carlspring.strongbox.authentication.registry.AuthenticationResourceManager;
-import org.carlspring.strongbox.config.HazelcastConfiguration;
-import org.carlspring.strongbox.config.HazelcastInstanceId;
+import org.carlspring.strongbox.config.hazelcast.HazelcastConfiguration;
+import org.carlspring.strongbox.config.hazelcast.HazelcastInstanceId;
 import org.carlspring.strongbox.config.IntegrationTest;
 import org.carlspring.strongbox.rest.common.RestAssuredBaseTest;
 

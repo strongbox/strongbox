@@ -14,6 +14,9 @@ import org.springframework.context.annotation.Import;
 import org.springframework.util.ReflectionUtils;
 import org.strongbox.db.server.OrientDbServerConfiguration;
 
+import org.carlspring.strongbox.config.orientdb.EmbeddedOrientDbConfig;
+import org.carlspring.strongbox.config.orientdb.InMemoryOrientDbConfig;
+
 /**
  * @author Przemyslaw Fusik
  */

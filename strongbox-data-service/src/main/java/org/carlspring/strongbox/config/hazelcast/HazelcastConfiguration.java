@@ -1,4 +1,4 @@
-package org.carlspring.strongbox.config;
+package org.carlspring.strongbox.config.hazelcast;
 
 import org.carlspring.strongbox.data.CacheName;
 

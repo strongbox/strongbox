@@ -1,8 +1,8 @@
 package org.carlspring.strongbox.app;
 
 import org.carlspring.strongbox.booters.PropertiesBooter;
-import org.carlspring.strongbox.config.OrientDBProfile;
 import org.carlspring.strongbox.config.WebConfig;
+import org.carlspring.strongbox.config.orientdb.OrientDbProfile;
 
 import javax.annotation.PostConstruct;
 import javax.inject.Inject;
@@ -34,12 +34,12 @@ public class StrongboxSpringBootApplication
 
     public static void main(String[] args)
     {
-        if (System.getProperty(OrientDBProfile.PROPERTY_PROFILE) == null)
+        if (System.getProperty(OrientDbProfile.PROPERTY_PROFILE) == null)
         {
             logger.info(String.format("OrientDB profile not set, will use [%s] profile as default",
-                                      OrientDBProfile.PROFILE_EMBEDDED));
+                                      OrientDbProfile.PROFILE_EMBEDDED));
 
-            System.setProperty(OrientDBProfile.PROPERTY_PROFILE, OrientDBProfile.PROFILE_EMBEDDED);
+            System.setProperty(OrientDbProfile.PROPERTY_PROFILE, OrientDbProfile.PROFILE_EMBEDDED);
         }
 
         applicationContext = SpringApplication.run(StrongboxSpringBootApplication.class, args);

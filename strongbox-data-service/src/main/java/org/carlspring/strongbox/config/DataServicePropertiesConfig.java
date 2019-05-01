@@ -2,6 +2,7 @@ package org.carlspring.strongbox.config;
 
 import java.io.IOException;
 
+import org.carlspring.strongbox.config.orientdb.OrientDbProfile;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.core.env.Environment;
@@ -11,11 +12,11 @@ public class DataServicePropertiesConfig
 {
 
     @Bean
-    public OrientDBProfile connectionConfig(Environment environment)
+    public OrientDbProfile connectionConfig(Environment environment)
         throws IOException
     {
-        OrientDBProfile.bootstrap();
+        OrientDbProfile.bootstrap();
 
-        return OrientDBProfile.resolveProfile(environment);
+        return OrientDbProfile.resolveProfile(environment);
     }
 }
