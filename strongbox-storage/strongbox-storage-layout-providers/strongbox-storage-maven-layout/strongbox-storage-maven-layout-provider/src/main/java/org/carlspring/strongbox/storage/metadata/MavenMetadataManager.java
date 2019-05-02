@@ -8,7 +8,6 @@ import org.carlspring.strongbox.providers.io.RepositoryPath;
 import org.carlspring.strongbox.providers.io.RepositoryPathLock;
 import org.carlspring.strongbox.providers.layout.LayoutProvider;
 import org.carlspring.strongbox.providers.layout.LayoutProviderRegistry;
-import org.carlspring.strongbox.resource.ResourceCloser;
 import org.carlspring.strongbox.storage.metadata.comparators.SnapshotVersionComparator;
 import org.carlspring.strongbox.storage.metadata.comparators.VersionComparator;
 import org.carlspring.strongbox.storage.metadata.versions.MetadataVersion;
@@ -57,7 +56,7 @@ public class MavenMetadataManager
 
     @Inject
     private LayoutProviderRegistry layoutProviderRegistry;
-    
+
     @Inject
     private RepositoryPathLock repositoryPathLock;
 
@@ -69,15 +68,15 @@ public class MavenMetadataManager
     {
         RepositoryPath repositoryPath = artifact.getPath();
         Repository repository = repositoryPath.getRepository();
-        
+
         LayoutProvider layoutProvider = getLayoutProvider(repository, layoutProviderRegistry);
         if (!RepositoryFiles.artifactExists(repositoryPath))
         {
             throw new IOException("Artifact " + artifact.toString() + " does not exist in repository " + repository +
-                    " !");
+                                  " !");
 
         }
-        
+
         Path artifactBasePath = repositoryPath;
         if (artifact.getVersion() != null)
         {
@@ -108,15 +107,11 @@ public class MavenMetadataManager
     {
         Metadata metadata;
 
-        try
+        try (InputStream inputStream = is)
         {
             MetadataXpp3Reader reader = new MetadataXpp3Reader();
 
-            metadata = reader.read(is);
-        }
-        finally
-        {
-            ResourceCloser.close(is, logger);
+            metadata = reader.read(inputStream);
         }
 
         return metadata;
@@ -134,8 +129,8 @@ public class MavenMetadataManager
                      {
                          Path metadataPath = MetadataHelper.getMetadataPath(metadataBasePath, version, metadataType);
                          try (OutputStream os = new MultipleDigestOutputStream(metadataPath,
-                                                                               Files.newOutputStream(metadataPath, 
-                                                                                                     StandardOpenOption.CREATE, 
+                                                                               Files.newOutputStream(metadataPath,
+                                                                                                     StandardOpenOption.CREATE,
                                                                                                      StandardOpenOption.TRUNCATE_EXISTING)))
                          {
                              Writer writer = WriterFactory.newXmlWriter(os);
@@ -168,10 +163,10 @@ public class MavenMetadataManager
         if (!RepositoryFiles.artifactExists(artifactGroupDirectoryPath))
         {
             logger.error("Artifact metadata generation failed: " + artifactGroupDirectoryPath + ").");
-            
+
             return;
         }
-        
+
         logger.debug("Artifact metadata generation triggered for " + artifactGroupDirectoryPath +
                      " in '" + repository.getStorage().getId() + ":" + repository.getId() + "'" +
                      " [policy: " + repository.getPolicy() + "].");
@@ -179,7 +174,7 @@ public class MavenMetadataManager
         Pair<String, String> artifactGroup = MavenArtifactUtils.getArtifactGroupId(artifactGroupDirectoryPath);
         String artifactGroupId = artifactGroup.getValue0();
         String artifactId = artifactGroup.getValue1();
-        
+
         Metadata metadata = new Metadata();
         metadata.setGroupId(artifactGroupId);
         metadata.setArtifactId(artifactId);
@@ -359,17 +354,17 @@ public class MavenMetadataManager
     {
         RepositoryPath repositoryPath = artifact.getPath();
         Repository repository = repositoryPath.getRepository();
-        
+
         LayoutProvider layoutProvider = getLayoutProvider(repository, layoutProviderRegistry);
         if (!RepositoryFiles.artifactExists(repositoryPath))
         {
             throw new IOException("Artifact " + artifact.toString() + " does not exist in repository " + repository +
-                    " !");
+                                  " !");
         }
-        
+
         RepositoryPath artifactBasePath = repositoryPath.getParent().getParent();
         logger.debug("Artifact merge metadata triggered for " + artifact.toString() + "(" + artifactBasePath + "). "
-                + repository.getType());
+                     + repository.getType());
 
         try
         {
@@ -418,15 +413,14 @@ public class MavenMetadataManager
     {
         Lock lock = repositoryPathLock.lock(metadataBasePath).writeLock();
         lock.lock();
-        
+
         try
         {
             operation.accept(metadataBasePath);
-        } 
+        }
         finally
         {
             lock.unlock();
         }
     }
-
 }

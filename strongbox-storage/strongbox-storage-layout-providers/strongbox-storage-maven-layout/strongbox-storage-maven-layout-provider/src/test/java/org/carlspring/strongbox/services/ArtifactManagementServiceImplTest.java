@@ -48,7 +48,6 @@ import org.carlspring.strongbox.providers.io.RepositoryPathResolver;
 import org.carlspring.strongbox.providers.io.RepositoryStreamSupport.RepositoryInputStream;
 import org.carlspring.strongbox.providers.layout.Maven2LayoutProvider;
 import org.carlspring.strongbox.repository.MavenRepositoryFeatures;
-import org.carlspring.strongbox.resource.ResourceCloser;
 import org.carlspring.strongbox.storage.ArtifactResolutionException;
 import org.carlspring.strongbox.storage.ArtifactStorageException;
 import org.carlspring.strongbox.storage.repository.MavenRepositoryFactory;
@@ -182,19 +181,17 @@ public class ArtifactManagementServiceImplTest
                                       "org.carlspring.strongbox:strongbox-utils",
                                       "8.0");
 
-        InputStream is = null;
-
         //noinspection EmptyCatchBlock
-        try
+
+        String gavtc = "org.carlspring.strongbox:strongbox-utils:8.0:jar";
+
+        File repositoryDir = getRepositoryBasedir(STORAGE0, repositoryId);
+
+        try (InputStream is = generateArtifactInputStream(repositoryDir.toPath().getParent().toAbsolutePath().toString(),
+                                                          repositoryId,
+                                                          gavtc,
+                                                          true))
         {
-            String gavtc = "org.carlspring.strongbox:strongbox-utils:8.0:jar";
-
-            File repositoryDir = getRepositoryBasedir(STORAGE0, repositoryId);
-            is = generateArtifactInputStream(repositoryDir.toPath().getParent().toAbsolutePath().toString(),
-                                             repositoryId,
-                                             gavtc,
-                                             true);
-
             Artifact artifact = ArtifactUtils.getArtifactFromGAVTC(gavtc);
             RepositoryPath repositoryPath = repositoryPathResolver.resolve(STORAGE0,
                                                                            repositoryId,
@@ -203,13 +200,10 @@ public class ArtifactManagementServiceImplTest
 
             fail("Failed to deny artifact operation for repository with disallowed deployments.");
         }
+
         catch (ArtifactStorageException e)
         {
             // This is the expected correct behavior
-        }
-        finally
-        {
-            ResourceCloser.close(is, null);
         }
     }
 
@@ -227,24 +221,20 @@ public class ArtifactManagementServiceImplTest
                                       "org.carlspring.strongbox:strongbox-utils",
                                       "8.1");
 
-        InputStream is = null;
+        String gavtc = "org.carlspring.strongbox:strongbox-utils:8.1:jar";
+
+        File repositoryBasedir = getRepositoryBasedir(STORAGE0, repositoryId);
+        generateArtifact(repositoryBasedir.getAbsolutePath(), gavtc);
 
         //noinspection EmptyCatchBlock
-        try
+        try (InputStream is = generateArtifactInputStream(repositoryBasedir.toPath().getParent().toAbsolutePath().toString(),
+                                                          repositoryId,
+                                                          gavtc,
+                                                          true))
         {
-            String gavtc = "org.carlspring.strongbox:strongbox-utils:8.1:jar";
-
-            File repositoryBasedir = getRepositoryBasedir(STORAGE0, repositoryId);
-            generateArtifact(repositoryBasedir.getAbsolutePath(), gavtc);
-
-            is = generateArtifactInputStream(repositoryBasedir.toPath().getParent().toAbsolutePath().toString(),
-                                             repositoryId,
-                                             gavtc,
-                                             true);
-
             Artifact artifact = ArtifactUtils.getArtifactFromGAVTC(gavtc);
             RepositoryPath repositoryPath = repositoryPathResolver.resolve(STORAGE0,
-                                                                           repositoryId, 
+                                                                           repositoryId,
                                                                            ArtifactUtils.convertArtifactToPath(artifact));
             mavenArtifactManagementService.validateAndStore(repositoryPath, is);
 
@@ -253,10 +243,6 @@ public class ArtifactManagementServiceImplTest
         catch (ArtifactStorageException e)
         {
             // This is the expected correct behavior
-        }
-        finally
-        {
-            ResourceCloser.close(is, null);
         }
     }
 
@@ -325,96 +311,80 @@ public class ArtifactManagementServiceImplTest
         createRepository(STORAGE0, repositoryGroup);
         // Test resource initialization end.
 
-        InputStream is = null;
-
         String gavtc = "org.carlspring.strongbox:strongbox-utils:8.3:jar";
 
         Artifact artifact = ArtifactUtils.getArtifactFromGAVTC(gavtc);
 
-        //noinspection EmptyCatchBlock
-        try
+        File repositoryDir = getRepositoryBasedir(STORAGE0, repositoryGroupId);
+
+        try (InputStream is = generateArtifactInputStream(repositoryDir.toPath().getParent().toAbsolutePath().toString(),
+                                                          repositoryGroupId,
+                                                          gavtc,
+                                                          true))
         {
-            File repositoryDir = getRepositoryBasedir(STORAGE0, repositoryGroupId);
-            is = generateArtifactInputStream(repositoryDir.toPath().getParent().toAbsolutePath().toString(),
-                                             repositoryGroupId,
-                                             gavtc,
-                                             true);
+            //noinspection EmptyCatchBlock
+            try
+            {
+                RepositoryPath repositoryPath = repositoryPathResolver.resolve(STORAGE0,
+                                                                               repositoryGroupId,
+                                                                               ArtifactUtils.convertArtifactToPath(artifact));
+                mavenArtifactManagementService.validateAndStore(repositoryPath, is);
+
+                fail("Failed to deny artifact operation for repository with disallowed deployments.");
+            }
+            catch (ArtifactStorageException e)
+            {
+                // This is the expected correct behavior
+            }
+
+            //noinspection EmptyCatchBlock
+            try
+            {
+                // Generate the artifact on the file-system anyway so that we could achieve
+                // the state of having it there before attempting a re-deployment
+                generateArtifact(getRepositoryBasedir(STORAGE0, repositoryId).getAbsolutePath(), gavtc);
+
+                RepositoryPath repositoryPath = repositoryPathResolver.resolve(STORAGE0,
+                                                                               repositoryGroupId,
+                                                                               ArtifactUtils.convertArtifactToPath(artifact));
+                mavenArtifactManagementService.validateAndStore(repositoryPath, is);
+
+                fail("Failed to deny artifact operation for repository with disallowed re-deployments.");
+            }
+            catch (ArtifactStorageException e)
+            {
+                // This is the expected correct behavior
+            }
 
             RepositoryPath repositoryPath = repositoryPathResolver.resolve(STORAGE0,
                                                                            repositoryGroupId,
                                                                            ArtifactUtils.convertArtifactToPath(artifact));
-            mavenArtifactManagementService.validateAndStore(repositoryPath, is);
 
-            fail("Failed to deny artifact operation for repository with disallowed deployments.");
-        }
-        catch (ArtifactStorageException e)
-        {
-            // This is the expected correct behavior
-        }
-        finally
-        {
-            ResourceCloser.close(is, null);
-        }
+            // Delete: Case 1: No forcing
+            //noinspection EmptyCatchBlock
+            try
+            {
+                mavenArtifactManagementService.delete(repositoryPath, false);
 
-        //noinspection EmptyCatchBlock
-        try
-        {
-            // Generate the artifact on the file-system anyway so that we could achieve
-            // the state of having it there before attempting a re-deployment
-            generateArtifact(getRepositoryBasedir(STORAGE0, repositoryId).getAbsolutePath(), gavtc);
-            
-            RepositoryPath repositoryPath = repositoryPathResolver.resolve(STORAGE0,
-                                                                           repositoryGroupId,
-                                                                           ArtifactUtils.convertArtifactToPath(artifact));
-            mavenArtifactManagementService.validateAndStore(repositoryPath, is);
+                fail("Failed to deny artifact operation for repository with disallowed deletions (non-forced test).");
+            }
+            catch (ArtifactStorageException e)
+            {
+                // This is the expected correct behavior
+            }
 
-            fail("Failed to deny artifact operation for repository with disallowed re-deployments.");
-        }
-        catch (ArtifactStorageException e)
-        {
-            // This is the expected correct behavior
-        }
-        finally
-        {
-            ResourceCloser.close(is, null);
-        }
+            // Delete: Case 2: Force delete
+            //noinspection EmptyCatchBlock
+            try
+            {
+                mavenArtifactManagementService.delete(repositoryPath, true);
 
-        RepositoryPath repositoryPath = repositoryPathResolver.resolve(STORAGE0,
-                                                                       repositoryGroupId,
-                                                                       ArtifactUtils.convertArtifactToPath(artifact));
-
-        // Delete: Case 1: No forcing
-        //noinspection EmptyCatchBlock
-        try
-        {
-            mavenArtifactManagementService.delete(repositoryPath, false);
-
-            fail("Failed to deny artifact operation for repository with disallowed deletions (non-forced test).");
-        }
-        catch (ArtifactStorageException e)
-        {
-            // This is the expected correct behavior
-        }
-        finally
-        {
-            ResourceCloser.close(is, null);
-        }
-
-        // Delete: Case 2: Force delete
-        //noinspection EmptyCatchBlock
-        try
-        {
-            mavenArtifactManagementService.delete(repositoryPath, true);
-
-            fail("Failed to deny artifact operation for repository with disallowed deletions (forced test).");
-        }
-        catch (ArtifactStorageException e)
-        {
-            // This is the expected correct behavior
-        }
-        finally
-        {
-            ResourceCloser.close(is, null);
+                fail("Failed to deny artifact operation for repository with disallowed deletions (forced test).");
+            }
+            catch (ArtifactStorageException e)
+            {
+                // This is the expected correct behavior
+            }
         }
     }
 
@@ -535,7 +505,7 @@ public class ArtifactManagementServiceImplTest
                                                            0);
 
         File[] files = artifactVersionBaseDir.listFiles(new JarFilenameFilter());
-        
+
         assertEquals(1, files.length, "Amount of timestamped snapshots doesn't equal 1.");
         assertTrue(files[0].toString().endsWith("-3.jar"));
 
@@ -568,7 +538,7 @@ public class ArtifactManagementServiceImplTest
                                                            3);
 
         files = artifactVersionBaseDir.listFiles(new JarFilenameFilter());
-        
+
         assertEquals(1, files.length, "Amount of timestamped snapshots doesn't equal 1.");
         assertTrue(files[0].toString().endsWith("-3.jar"));
     }
@@ -630,7 +600,7 @@ public class ArtifactManagementServiceImplTest
 
         assertTrue(Arrays.stream(loremIpsumContentArray)
                          .map(c -> Arrays.equals(repositoryPathContent, c))
-                         .reduce((r1, 
+                         .reduce((r1,
                                   r2) -> r1 || r2)
                          .get());
 
@@ -673,8 +643,7 @@ public class ArtifactManagementServiceImplTest
         Artifact artifactWithClassifier = ArtifactUtils.getArtifactFromGAVTC(gavtcWithClassifier);
         String artifactPathWithClassifier = ArtifactUtils.convertArtifactToPath(artifactWithClassifier);
 
-        try (InputStream is = new ByteArrayInputStream(
-                "strongbox-lv-artifact-content".getBytes(StandardCharsets.UTF_8)))
+        try (InputStream is = new ByteArrayInputStream("strongbox-lv-artifact-content".getBytes(StandardCharsets.UTF_8)))
         {
             RepositoryPath repositoryPath = repositoryPathResolver.resolve(STORAGE0,
                                                                            repositoryId,
@@ -743,14 +712,15 @@ public class ArtifactManagementServiceImplTest
                   ArtifactManagementTestExecutionListener.class })
     public void testChecksumsStorage(TestInfo testInfo,
                                      @TestRepository (layout = MavenArtifactCoordinates.LAYOUT_NAME,
-                                                      repository = "checksums-storage")
-                                     Repository repository,
+                                             repository = "checksums-storage")
+                                             Repository repository,
                                      @TestArtifact(resource = "org/carlspring/strongbox/strongbox-checksum-test/8.4/strongbox-checksum-test-8.4.jar",
-                                                   generator = MavenArtifactGenerator.class)
-                                     Path artifact)
+                                             generator = MavenArtifactGenerator.class)
+                                             Path artifact)
             throws Exception
     {
         RepositoryPath repositoryPath = repositoryPathResolver.resolve(repository).resolve("org/carlspring/strongbox/strongbox-checksum-test/8.4/strongbox-checksum-test-8.4.jar");
+
         try (InputStream is = Files.newInputStream(artifact))
         {
             mavenArtifactManagementService.store(repositoryPath, is);
@@ -766,11 +736,11 @@ public class ArtifactManagementServiceImplTest
 
         String path = RepositoryFiles.relativizePath(repositoryPath);
         ArtifactEntry artifactEntry = artifactEntryService.findOneArtifact(STORAGE0, repository.getId(), path);
-        
+
         assertNotNull(artifactEntry);
-        
+
         Map<String, String> actualChecksums = artifactEntry.getChecksums();
-        
+
         assertNotNull(actualChecksums);
         assertEquals(expectedChecksums, actualChecksums);
     }
@@ -793,7 +763,7 @@ public class ArtifactManagementServiceImplTest
         {
             logger.error("Unexpected IOException while getting result:", e);
             e.printStackTrace();
-            
+
             return 0L;
         }
     }
@@ -867,7 +837,7 @@ public class ArtifactManagementServiceImplTest
                     {
                         break;
                     }
-                    
+
                     result += n;
                 }
             }
@@ -892,12 +862,11 @@ public class ArtifactManagementServiceImplTest
             catch (Exception ex)
             {
                 logger.error(String.format("Failed to read artifact [%s]", repositoryPath), ex);
-                
+
                 return 0L;
             }
 
             return result;
         }
     }
-
 }

@@ -1,7 +1,6 @@
 package org.carlspring.strongbox.client;
 
 import org.carlspring.strongbox.config.ClientConfig;
-import org.carlspring.strongbox.resource.ResourceCloser;
 import org.carlspring.strongbox.service.ProxyRepositoryConnectionPoolConfigurationService;
 
 import javax.inject.Inject;
@@ -26,7 +25,7 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 public class ArtifactResolverIntegrationTest
 {
 
-    private static final Logger LOGGER = LoggerFactory.getLogger(ArtifactResolverIntegrationTest.class);
+    private static final Logger logger = LoggerFactory.getLogger(ArtifactResolverIntegrationTest.class);
 
     @Configuration
     @Import({ClientConfig.class})
@@ -86,8 +85,15 @@ public class ArtifactResolverIntegrationTest
         @Override
         public final void run()
         {
-            CloseableRestResponse response = artifactResolver.get(url);
-            ResourceCloser.close(response, LOGGER);
+            try (CloseableRestResponse response = artifactResolver.get(url))
+            {
+                // Left empty because the original method had no other logic than the now-removed
+                // closure of a CloseableRestResponse
+            }
+            catch (Exception e)
+            {
+                logger.error(e.getMessage(), e);
+            }
         }
 
     }
