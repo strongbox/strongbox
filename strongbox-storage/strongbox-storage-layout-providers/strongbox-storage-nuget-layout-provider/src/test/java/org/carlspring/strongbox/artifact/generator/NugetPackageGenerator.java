@@ -3,7 +3,6 @@ package org.carlspring.strongbox.artifact.generator;
 import org.carlspring.commons.io.RandomInputStream;
 import org.carlspring.strongbox.artifact.coordinates.versioning.SemanticVersion;
 import org.carlspring.strongbox.io.LayoutOutputStream;
-import org.carlspring.strongbox.resource.ResourceCloser;
 import org.carlspring.strongbox.storage.metadata.nuget.Dependencies;
 import org.carlspring.strongbox.storage.metadata.nuget.Dependency;
 import org.carlspring.strongbox.storage.metadata.nuget.NugetFormatException;
@@ -94,11 +93,9 @@ public class NugetPackageGenerator
     public void createArchive(Nuspec nuspec, File packageFile, String... dependencyList)
             throws IOException,
                    JAXBException,
-                   NoSuchAlgorithmException, 
+                   NoSuchAlgorithmException,
                    NugetFormatException
     {
-        ZipOutputStream zos = null;
-
         LayoutOutputStream layoutOutputStream = null;
         try
         {
@@ -107,30 +104,30 @@ public class NugetPackageGenerator
             packageFile.getParentFile().mkdirs();
 
             FileOutputStream fileOutputStream = new FileOutputStream(packageFile);
-            
+
             layoutOutputStream = new LayoutOutputStream(fileOutputStream);
             layoutOutputStream.addAlgorithm(MessageDigestAlgorithms.SHA_512);
             layoutOutputStream.setDigestStringifier(this::toBase64);
-            
-            zos = new ZipOutputStream(layoutOutputStream);
 
-            addNugetNuspecFile(nuspec, zos);
-            createRandomNupkgFile(zos);
-            
-            String id = nuspec.getId();
+            try (ZipOutputStream zos = new ZipOutputStream(layoutOutputStream))
+            {
+                addNugetNuspecFile(nuspec, zos);
+                createRandomNupkgFile(zos);
 
-            SemanticVersion version = nuspec.getVersion();
-            createMetadata(id, version.toString(), zos);
-            
-            createContentType(zos);
-            createRels(id, zos);
+                String id = nuspec.getId();
+
+                SemanticVersion version = nuspec.getVersion();
+                createMetadata(id, version.toString(), zos);
+
+                createContentType(zos);
+                createRels(id, zos);
+            }
+
         }
         finally
         {
-            ResourceCloser.close(zos, logger);
-
             if (layoutOutputStream != null)
-            {                
+            {
                 generateChecksum(packageFile, layoutOutputStream);
             }
         }

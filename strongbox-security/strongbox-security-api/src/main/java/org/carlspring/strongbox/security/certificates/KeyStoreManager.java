@@ -1,7 +1,5 @@
 package org.carlspring.strongbox.security.certificates;
 
-import org.carlspring.commons.io.resource.ResourceCloser;
-
 import javax.annotation.PostConstruct;
 import javax.inject.Inject;
 import javax.net.ssl.*;
@@ -279,22 +277,22 @@ public class KeyStoreManager
             proxyAuthenticator.getCredentials().set(credentials);
         }
 
-        Socket proxySocket = socksProxy != null ? new Socket(socksProxy) : null;
+        try (Socket proxySocket = socksProxy != null ? new Socket(socksProxy) : null)
+        {
+            if (proxySocket != null)
+            {
+                proxySocket.connect(new InetSocketAddress(host, port));
+            }
 
-        if (proxySocket != null)
-        {
-            proxySocket.connect(new InetSocketAddress(host, port));
-        }
-
-        try
-        {
-            handshake(ctx, proxySocket, host, port);
-            return tm.chain;
-        }
-        finally
-        {
-            proxyAuthenticator.getCredentials().remove();
-            ResourceCloser.close(proxySocket, logger);
+            try
+            {
+                handshake(ctx, proxySocket, host, port);
+                return tm.chain;
+            }
+            finally
+            {
+                proxyAuthenticator.getCredentials().remove();
+            }
         }
     }
 
@@ -304,20 +302,17 @@ public class KeyStoreManager
                            int port)
             throws IOException
     {
-        SSLSocket socket = (SSLSocket) (proxySocket == null ?
-                                        ctx.getSocketFactory().createSocket(host, port) :
-                                        ctx.getSocketFactory().createSocket(proxySocket, host, port, true));
-
-        try
+        try (SSLSocket socket = (SSLSocket) (proxySocket == null ?
+                                             ctx.getSocketFactory().createSocket(host, port) :
+                                             ctx.getSocketFactory().createSocket(proxySocket, host, port, true)))
         {
-            socket.startHandshake();
-        }
-        catch (SSLException ignore) // non trusted certificates should be returned as well
-        {
-        }
-        finally
-        {
-            ResourceCloser.close(socket, logger);
+            try
+            {
+                socket.startHandshake();
+            }
+            catch (SSLException ignore) // non trusted certificates should be returned as well
+            {
+            }
         }
     }
 
@@ -347,5 +342,4 @@ public class KeyStoreManager
             this.chain = chain;
         }
     }
-
 }
