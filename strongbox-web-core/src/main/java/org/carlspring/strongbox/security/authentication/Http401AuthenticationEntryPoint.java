@@ -37,7 +37,8 @@ public class Http401AuthenticationEntryPoint implements AuthenticationEntryPoint
     {
         String message = Optional.ofNullable(authException).map(e -> e.getMessage()).orElse("unauthorized");
         
-        if (!IS_AJAX_REQUEST_HEADER_VALUE.equals(request.getHeader(IS_AJAX_REQUEST_HEADER_NAME))  &&  !request.getMethod().equalsIgnoreCase(IS_REQUEST_OPTIONS))
+        if (!IS_AJAX_REQUEST_HEADER_VALUE.equals(request.getHeader(IS_AJAX_REQUEST_HEADER_NAME)) &&
+            !request.getMethod().equalsIgnoreCase(IS_REQUEST_OPTIONS))
         {
             response.setHeader("WWW-Authenticate", "Basic realm=\"" + STRONGBOX_REALM + "\"");
         }
