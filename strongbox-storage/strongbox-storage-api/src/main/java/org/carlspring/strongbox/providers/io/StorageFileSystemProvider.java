@@ -1,5 +1,6 @@
 package org.carlspring.strongbox.providers.io;
 
+import org.carlspring.strongbox.io.LazyOutputStream;
 import org.carlspring.strongbox.storage.repository.Repository;
 
 import javax.inject.Inject;
@@ -17,11 +18,13 @@ import java.nio.file.attribute.FileAttributeView;
 import java.nio.file.spi.FileSystemProvider;
 import java.util.*;
 import java.util.function.Consumer;
+import java.util.function.Supplier;
 import java.util.stream.Collectors;
 
 import org.apache.commons.io.output.ProxyOutputStream;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.cglib.proxy.UndeclaredThrowableException;
 import org.springframework.util.FileSystemUtils;
 
 /**
@@ -345,11 +348,12 @@ public abstract class StorageFileSystemProvider
     public RepositoryPath moveFromTemporaryDirectory(TempRepositoryPath tempPath)
         throws IOException
     {
+        logger.debug(String.format("Mooving [%s]", tempPath.getTarget()));
         RepositoryPath path = tempPath.getTempTarget();
 
         if (!Files.exists(tempPath.getTarget()))
         {
-            return null;
+            throw new IOException(String.format("[%s] target for [%s] don't exists!", TempRepositoryPath.class.getSimpleName(), tempPath));
         }
 
         if (!Files.exists(unwrap(path).getParent()))
@@ -652,7 +656,7 @@ public abstract class StorageFileSystemProvider
                                 OpenOption... options)
             throws IOException
         {
-            super(StorageFileSystemProvider.super.newOutputStream(unwrap(path), options));
+            super(new LazyOutputStream(new PathOutputStreamSupplier(path, options)));
 
             this.path = path;
         }

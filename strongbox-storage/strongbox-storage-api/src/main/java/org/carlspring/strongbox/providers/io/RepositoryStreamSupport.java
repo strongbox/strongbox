@@ -160,8 +160,11 @@ public abstract class RepositoryStreamSupport implements RepositoryStreamCallbac
         public void flush()
             throws IOException
         {
+            logger.debug(String.format("Flushing [%s]", getContext().getPath()));
             super.flush();
+            logger.debug(String.format("Flushed [%s]", getContext().getPath()));
             RepositoryStreamSupport.this.commit();
+            logger.debug(String.format("Commited [%s]", getContext().getPath()));
         }
 
         @Override
@@ -171,7 +174,13 @@ public abstract class RepositoryStreamSupport implements RepositoryStreamCallbac
             try
             {
                 super.close();
-            } 
+            }
+            catch (Exception e) 
+            {
+                logger.error(String.format("Failed to close [%s].", getContext().getPath()), e);
+                
+                throw e;
+            }
             finally
             {
                 RepositoryStreamSupport.this.close();

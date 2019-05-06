@@ -123,7 +123,8 @@ public class RepositoryPathLock
                 try
                 {
                     super.close();
-                } finally
+                } 
+                finally
                 {
                     unlock(lock);
                 }

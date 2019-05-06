@@ -1,8 +1,37 @@
 package org.carlspring.strongbox.services;
 
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.junit.jupiter.api.Assertions.fail;
+import static org.junit.jupiter.api.parallel.ExecutionMode.CONCURRENT;
+
+import java.io.ByteArrayInputStream;
+import java.io.File;
+import java.io.IOException;
+import java.io.InputStream;
+import java.nio.charset.StandardCharsets;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.text.DateFormat;
+import java.text.SimpleDateFormat;
+import java.util.Arrays;
+import java.util.Calendar;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.Random;
+import java.util.concurrent.Callable;
+import java.util.concurrent.CountDownLatch;
+import java.util.stream.Collectors;
+import java.util.stream.IntStream;
+
+import javax.inject.Inject;
+
+import org.apache.maven.artifact.Artifact;
 import org.carlspring.maven.commons.io.filters.JarFilenameFilter;
 import org.carlspring.maven.commons.util.ArtifactUtils;
-import org.carlspring.strongbox.artifact.ArtifactNotFoundException;
 import org.carlspring.strongbox.artifact.ArtifactTag;
 import org.carlspring.strongbox.config.Maven2LayoutProviderTestConfig;
 import org.carlspring.strongbox.domain.ArtifactEntry;
@@ -12,7 +41,6 @@ import org.carlspring.strongbox.providers.io.RepositoryPathResolver;
 import org.carlspring.strongbox.providers.io.RepositoryStreamSupport.RepositoryInputStream;
 import org.carlspring.strongbox.providers.layout.Maven2LayoutProvider;
 import org.carlspring.strongbox.repository.MavenRepositoryFeatures;
-import org.carlspring.strongbox.storage.ArtifactResolutionException;
 import org.carlspring.strongbox.storage.ArtifactStorageException;
 import org.carlspring.strongbox.storage.repository.Repository;
 import org.carlspring.strongbox.storage.repository.RepositoryPolicyEnum;
@@ -23,27 +51,8 @@ import org.carlspring.strongbox.testing.repository.MavenRepository;
 import org.carlspring.strongbox.testing.storage.repository.RepositoryAttributes;
 import org.carlspring.strongbox.testing.storage.repository.RepositoryManagementTestExecutionListener;
 import org.carlspring.strongbox.testing.storage.repository.TestRepository.Group;
-
-import javax.inject.Inject;
-import java.io.ByteArrayInputStream;
-import java.io.File;
-import java.io.IOException;
-import java.io.InputStream;
-import java.nio.charset.StandardCharsets;
-import java.nio.file.Files;
-import java.nio.file.Path;
-import java.text.DateFormat;
-import java.text.SimpleDateFormat;
-import java.util.*;
-import java.util.concurrent.Callable;
-import java.util.concurrent.atomic.AtomicBoolean;
-import java.util.stream.Collectors;
-import java.util.stream.IntStream;
-
-import org.apache.maven.artifact.Artifact;
 import org.hamcrest.CoreMatchers;
 import org.hamcrest.MatcherAssert;
-import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.TestInfo;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -53,8 +62,6 @@ import org.slf4j.LoggerFactory;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.ContextConfiguration;
-import static org.junit.jupiter.api.Assertions.*;
-import static org.junit.jupiter.api.parallel.ExecutionMode.CONCURRENT;
 
 /**
  * @author mtodorov
@@ -462,7 +469,6 @@ public class ArtifactManagementServiceImplTest
         assertTrue(files[0].toString().endsWith("-3.jar"));
     }
 
-    @Disabled // TODO FIXME ASAP
     @ExtendWith({ RepositoryManagementTestExecutionListener.class })
     @Test
     public void testConcurrentReadWrite(@MavenRepository(repositoryId = TCRW_RELEASES_WITH_LOCK)
@@ -484,11 +490,11 @@ public class ArtifactManagementServiceImplTest
         RepositoryPath repositoryPath = repositoryPathResolver.resolve(repository, path);
 
         // when
-        AtomicBoolean aBoolean = new AtomicBoolean(true);
+        CountDownLatch storedSync = new CountDownLatch(1);
         List<Long> resultList = IntStream.range(0, concurrency * 2)
                                          .parallel()
                                          .mapToObj(i -> getResult(i,
-                                                                  aBoolean,
+                                                                  storedSync,
                                                                   repositoryPath,
                                                                   loremIpsumContentArray))
                                          .collect(Collectors.toList());
@@ -654,7 +660,7 @@ public class ArtifactManagementServiceImplTest
 
 
     private Long getResult(int i,
-                           AtomicBoolean aBoolean,
+                           CountDownLatch storedSync, 
                            RepositoryPath repositoryPath,
                            byte[][] loremIpsumContentArray)
     {
@@ -662,9 +668,9 @@ public class ArtifactManagementServiceImplTest
         {
             Repository repository = repositoryPath.getRepository();
             String path = RepositoryFiles.relativizePath(repositoryPath);
-            return aBoolean.getAndSet(!aBoolean.get()) ?
-                   new Store(new ByteArrayInputStream(loremIpsumContentArray[i / 2]), repository, path).call() :
-                   new Fetch(repository, path).call();
+            return i % 2 == 0 ?
+                   new Store(storedSync, new ByteArrayInputStream(loremIpsumContentArray[i / 2]), repository, path).call() :
+                   new Fetch(storedSync, repository, path).call();
         }
         catch (IOException e)
         {
@@ -679,16 +685,19 @@ public class ArtifactManagementServiceImplTest
             implements Callable<Long>
     {
 
+        private CountDownLatch storedSync = new CountDownLatch(1);
+        
         private final Repository repository;
 
         private final String path;
 
         private final InputStream is;
 
-        private Store(InputStream is,
+        private Store(CountDownLatch storedSync, InputStream is,
                       Repository repository,
                       String path)
         {
+            this.storedSync = storedSync;
             this.path = path;
             this.repository = repository;
             this.is = is;
@@ -701,7 +710,10 @@ public class ArtifactManagementServiceImplTest
 
             try
             {
-                return mavenArtifactManagementService.store(repositoryPath, is);
+                long result = mavenArtifactManagementService.store(repositoryPath, is);
+                storedSync.countDown();
+                
+                return result;
             }
             catch (Exception ex)
             {
@@ -716,13 +728,14 @@ public class ArtifactManagementServiceImplTest
             implements Callable<Long>
     {
 
+        private final CountDownLatch storedSync;
         private final Repository repository;
         private final String path;
-        private int attempts = 0;
 
-        private Fetch(Repository repository,
+        private Fetch(CountDownLatch storedSync, Repository repository,
                       String path)
         {
+            this.storedSync = storedSync;
             this.path = path;
             this.repository = repository;
         }
@@ -730,6 +743,15 @@ public class ArtifactManagementServiceImplTest
         @Override
         public Long call()
         {
+            try
+            {
+                storedSync.await();
+            }
+            catch (InterruptedException e)
+            {
+                return 0L;
+            }
+            
             RepositoryPath repositoryPath = repositoryPathResolver.resolve(repository, path);
 
             long result = 0;
@@ -747,24 +769,6 @@ public class ArtifactManagementServiceImplTest
 
                     result += n;
                 }
-            }
-            catch (ArtifactResolutionException | ArtifactNotFoundException e)
-            {
-                try
-                {
-                    Thread.sleep(100);
-                }
-                catch (InterruptedException e1)
-                {
-                    return 0L;
-                }
-
-                if (attempts++ > 5)
-                {
-                    return 0L;
-                }
-
-                return this.call();
             }
             catch (Exception ex)
             {
