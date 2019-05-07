@@ -72,6 +72,103 @@ public class AqlParserTest
     }
 
     @Test
+    public void testValidDoubleQuotedQuerySpecificChars()
+    {
+        String query = "repository: \"releases#1\"";
+
+        AqlQueryParser aqlParser = new AqlQueryParser(query);
+        Map<Pair<Integer, Integer>, String> errorMap = null;
+        try
+        {
+            aqlParser.parseQuery();
+        }
+        catch (QueryParserException e)
+        {
+            errorMap = aqlParser.getErrors();
+        }
+
+        logger.info(String.format("Query [%s] parse tree:\n[%s]", query, aqlParser));
+
+        assertFalse(aqlParser.hasErrors());
+        assertNull(errorMap);
+
+    }
+
+
+    @Test
+    public void testValidSingleQuotedQuerySpecificChars()
+    {
+        String query = "repository: 'releases#1'";
+
+        AqlQueryParser aqlParser = new AqlQueryParser(query);
+        Map<Pair<Integer, Integer>, String> errorMap = null;
+        try
+        {
+            aqlParser.parseQuery();
+        }
+        catch (QueryParserException e)
+        {
+            errorMap = aqlParser.getErrors();
+        }
+
+        logger.info(String.format("Query [%s] parse tree:\n[%s]", query, aqlParser));
+
+        assertFalse(aqlParser.hasErrors());
+        assertNull(errorMap);
+
+    }
+
+    @Test
+    public void testInvalidUnquotedStringQuery()
+    {
+        String query = "repository: releases#1";
+
+        AqlQueryParser aqlParser = new AqlQueryParser(query);
+        Map<Pair<Integer, Integer>, String> errorMap = null;
+        try
+        {
+            aqlParser.parseQuery();
+        }
+        catch (QueryParserException e)
+        {
+            errorMap = aqlParser.getErrors();
+        }
+
+        logger.info(String.format("Query [%s] parse tree:\n[%s]", query, aqlParser));
+
+        assertTrue(aqlParser.hasErrors());
+        assertNotNull(errorMap);
+
+
+        List<Pair<Integer, Integer>> errorPositionList = new ArrayList<>(errorMap.keySet());
+
+        assertEquals(Pair.with(1, 20), errorPositionList.get(0));
+        assertEquals(Pair.with(1, 21), errorPositionList.get(1));
+    }
+
+    @Test
+    public void testValidUnquotedStringQuery()
+    {
+        String query = "repository: releases_1";
+
+        AqlQueryParser aqlParser = new AqlQueryParser(query);
+        Map<Pair<Integer, Integer>, String> errorMap = null;
+        try
+        {
+            aqlParser.parseQuery();
+        }
+        catch (QueryParserException e)
+        {
+            errorMap = aqlParser.getErrors();
+        }
+
+        logger.info(String.format("Query [%s] parse tree:\n[%s]", query, aqlParser));
+
+        assertFalse(aqlParser.hasErrors());
+        assertNull(errorMap);
+    }
+
+    @Test
     @Disabled
     public void testValidQueryWithUpperLowercaseCheck()
     {
@@ -157,68 +254,4 @@ public class AqlParserTest
         assertEquals(Pair.with(1, 78), errorPositionList.get(3));
     }
 
-
-    @Test
-    public void testInvalidQuerySpecificChars()
-    {
-        String query = "[storage:storage0] ++repository0:releases ||| groupId:org.carlspring-version:1.2.3) \'" +
-                "\'\'\'\'\'\'\'\\ ";
-
-        AqlQueryParser aqlParser = new AqlQueryParser(query);
-        Map<Pair<Integer, Integer>, String> errorMap = null;
-        try
-        {
-            aqlParser.parseQuery();
-        }
-        catch (QueryParserException e)
-        {
-            errorMap = aqlParser.getErrors();
-        }
-
-        logger.info(String.format("Query [%s] parse tree:\n[%s]", query, aqlParser));
-
-        assertTrue(aqlParser.hasErrors());
-        assertNotNull(errorMap);
-        assertEquals(5, errorMap.size());
-
-        List<Pair<Integer, Integer>> errorPositionList = new ArrayList<>(errorMap.keySet());
-
-        assertEquals(Pair.with(1, 0), errorPositionList.get(0));
-        assertEquals(Pair.with(1, 17), errorPositionList.get(1));
-        assertEquals(Pair.with(1, 20), errorPositionList.get(2));
-        assertEquals(Pair.with(1, 76), errorPositionList.get(3));
-        assertEquals(Pair.with(1, 92), errorPositionList.get(4));
-
-    }
-
-    @Test
-    public void testValidQuerySpecificChars()
-    {
-        String query = "[storage:storage0] ++repository0:releases ||| groupId:org.carlspring-version:1.2.3) \'" +
-                "\'\'\'\'\'\'\'\'\' ";
-
-        AqlQueryParser aqlParser = new AqlQueryParser(query);
-        Map<Pair<Integer, Integer>, String> errorMap = null;
-        try
-        {
-            aqlParser.parseQuery();
-        }
-        catch (QueryParserException e)
-        {
-            errorMap = aqlParser.getErrors();
-        }
-
-        logger.info(String.format("Query [%s] parse tree:\n[%s]", query, aqlParser));
-
-        assertTrue(aqlParser.hasErrors());
-        assertNotNull(errorMap);
-        assertEquals(4, errorMap.size());
-
-        List<Pair<Integer, Integer>> errorPositionList = new ArrayList<>(errorMap.keySet());
-
-        assertEquals(Pair.with(1, 0), errorPositionList.get(0));
-        assertEquals(Pair.with(1, 17), errorPositionList.get(1));
-        assertEquals(Pair.with(1, 20), errorPositionList.get(2));
-        assertEquals(Pair.with(1, 76), errorPositionList.get(3));
-    }
 }
