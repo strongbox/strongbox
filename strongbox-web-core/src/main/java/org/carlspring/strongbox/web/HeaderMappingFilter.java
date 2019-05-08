@@ -1,20 +1,41 @@
 package org.carlspring.strongbox.web;
 
-import org.carlspring.strongbox.configuration.ConfigurationManager;
+import java.io.BufferedReader;
+import java.io.IOException;
+import java.io.UnsupportedEncodingException;
+import java.security.Principal;
+import java.util.Arrays;
+import java.util.Collection;
+import java.util.Collections;
+import java.util.Enumeration;
+import java.util.Locale;
+import java.util.Map;
+
+import javax.inject.Inject;
+import javax.servlet.AsyncContext;
+import javax.servlet.DispatcherType;
+import javax.servlet.Filter;
+import javax.servlet.FilterChain;
+import javax.servlet.FilterConfig;
+import javax.servlet.RequestDispatcher;
+import javax.servlet.ServletContext;
+import javax.servlet.ServletException;
+import javax.servlet.ServletInputStream;
+import javax.servlet.ServletRequest;
+import javax.servlet.ServletResponse;
+import javax.servlet.http.Cookie;
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
+import javax.servlet.http.HttpSession;
+import javax.servlet.http.HttpUpgradeHandler;
+import javax.servlet.http.Part;
+
+import org.carlspring.strongbox.configuration.StoragesConfigurationManager;
 import org.carlspring.strongbox.controllers.layout.maven.MavenArtifactController;
 import org.carlspring.strongbox.controllers.layout.nuget.NugetArtifactController;
 import org.carlspring.strongbox.providers.header.HeaderMappingRegistry;
 import org.carlspring.strongbox.storage.Storage;
 import org.carlspring.strongbox.storage.repository.Repository;
-
-import javax.inject.Inject;
-import javax.servlet.*;
-import javax.servlet.http.*;
-import java.io.BufferedReader;
-import java.io.IOException;
-import java.io.UnsupportedEncodingException;
-import java.security.Principal;
-import java.util.*;
 
 /**
  * This filter used to map HTTP header values from one to another.<br>
@@ -34,7 +55,7 @@ public class HeaderMappingFilter
     private HeaderMappingRegistry headerMappingRegistry;
 
     @Inject
-    private ConfigurationManager configurationManager;
+    private StoragesConfigurationManager configurationManager;
 
 
     @Override
@@ -90,7 +111,7 @@ public class HeaderMappingFilter
         String storageId = pathParts[2];
         String repositoryId = pathParts[3];
 
-        Storage storage = configurationManager.getConfiguration().getStorage(storageId);
+        Storage storage = configurationManager.getStorage(storageId);
         if (storage == null)
         {
             throw new IllegalArgumentException(String.format("Storage not found [%s]", storageId));
