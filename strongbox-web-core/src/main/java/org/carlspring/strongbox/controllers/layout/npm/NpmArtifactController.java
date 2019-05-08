@@ -54,6 +54,7 @@ import org.carlspring.strongbox.repository.NpmRepositoryFeatures.ViewPackageEven
 import org.carlspring.strongbox.services.ArtifactManagementService;
 import org.carlspring.strongbox.storage.repository.Repository;
 import org.carlspring.strongbox.storage.validation.artifact.ArtifactCoordinatesValidationException;
+import org.carlspring.strongbox.web.LayoutRequestMapping;
 import org.javatuples.Pair;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -85,7 +86,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
  *
  */
 @RestController
-@RequestMapping(path = NpmArtifactController.ROOT_CONTEXT, headers = "user-agent=npm/*")
+@LayoutRequestMapping(NpmArtifactCoordinates.LAYOUT_NAME)
 public class NpmArtifactController extends BaseArtifactController
 {
 
