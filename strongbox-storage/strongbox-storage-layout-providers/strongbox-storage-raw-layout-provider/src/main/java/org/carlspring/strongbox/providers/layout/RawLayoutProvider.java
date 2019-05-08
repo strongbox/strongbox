@@ -8,7 +8,6 @@ import javax.annotation.PostConstruct;
 import javax.inject.Inject;
 
 import org.carlspring.strongbox.artifact.coordinates.NullArtifactCoordinates;
-import org.carlspring.strongbox.providers.header.HeaderMappingRegistry;
 import org.carlspring.strongbox.providers.io.RepositoryFiles;
 import org.carlspring.strongbox.providers.io.RepositoryPath;
 import org.carlspring.strongbox.repository.RawRepositoryFeatures;
@@ -29,11 +28,6 @@ public class RawLayoutProvider
 
     public static final String ALIAS = "Raw";
 
-    public static final String USER_AGENT_PREFIX = "Raw";
-
-    @Inject
-    private HeaderMappingRegistry headerMappingRegistry;
-
     @Inject
     private RawRepositoryManagementStrategy rawRepositoryManagementStrategy;
 
@@ -44,8 +38,6 @@ public class RawLayoutProvider
     @PostConstruct
     public void register()
     {
-        headerMappingRegistry.register(ALIAS, USER_AGENT_PREFIX);
-
         logger.info("Registered layout provider '" + getClass().getCanonicalName() + "' with alias '" + ALIAS + "'.");
     }
 

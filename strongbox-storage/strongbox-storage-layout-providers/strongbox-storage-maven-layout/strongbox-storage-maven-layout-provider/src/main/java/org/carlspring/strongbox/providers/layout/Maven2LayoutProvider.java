@@ -1,19 +1,6 @@
 package org.carlspring.strongbox.providers.layout;
 
 
-import org.carlspring.maven.commons.util.ArtifactUtils;
-import org.carlspring.strongbox.artifact.MavenArtifact;
-import org.carlspring.strongbox.artifact.MavenArtifactUtils;
-import org.carlspring.strongbox.artifact.archive.JarArchiveListingFunction;
-import org.carlspring.strongbox.artifact.coordinates.MavenArtifactCoordinates;
-import org.carlspring.strongbox.providers.header.HeaderMappingRegistry;
-import org.carlspring.strongbox.providers.io.*;
-import org.carlspring.strongbox.repository.MavenRepositoryFeatures;
-import org.carlspring.strongbox.repository.MavenRepositoryManagementStrategy;
-import org.carlspring.strongbox.storage.metadata.MetadataHelper;
-
-import javax.annotation.PostConstruct;
-import javax.inject.Inject;
 import java.io.IOException;
 import java.time.Instant;
 import java.time.temporal.ChronoUnit;
@@ -21,7 +8,22 @@ import java.util.Collections;
 import java.util.Map;
 import java.util.Set;
 
+import javax.annotation.PostConstruct;
+import javax.inject.Inject;
+
 import org.apache.commons.lang3.BooleanUtils;
+import org.carlspring.maven.commons.util.ArtifactUtils;
+import org.carlspring.strongbox.artifact.MavenArtifact;
+import org.carlspring.strongbox.artifact.MavenArtifactUtils;
+import org.carlspring.strongbox.artifact.archive.JarArchiveListingFunction;
+import org.carlspring.strongbox.artifact.coordinates.MavenArtifactCoordinates;
+import org.carlspring.strongbox.providers.io.LayoutFileSystem;
+import org.carlspring.strongbox.providers.io.RepositoryFileAttributeType;
+import org.carlspring.strongbox.providers.io.RepositoryFiles;
+import org.carlspring.strongbox.providers.io.RepositoryPath;
+import org.carlspring.strongbox.repository.MavenRepositoryFeatures;
+import org.carlspring.strongbox.repository.MavenRepositoryManagementStrategy;
+import org.carlspring.strongbox.storage.metadata.MetadataHelper;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Component;
@@ -36,12 +38,7 @@ public class Maven2LayoutProvider
 
     public static final String ALIAS = MavenArtifactCoordinates.LAYOUT_NAME;
 
-    public static final String USER_AGENT_PREFIX = "Maven";
-
     private static final Logger logger = LoggerFactory.getLogger(Maven2LayoutProvider.class);
-
-    @Inject
-    private HeaderMappingRegistry headerMappingRegistry;
 
     @Inject
     private MavenRepositoryManagementStrategy mavenRepositoryManagementStrategy;
@@ -53,8 +50,6 @@ public class Maven2LayoutProvider
     @PostConstruct
     public void register()
     {
-        headerMappingRegistry.register(ALIAS, USER_AGENT_PREFIX);
-
         logger.info("Registered layout provider '" + getClass().getCanonicalName() + "' with alias '" + ALIAS + "'.");
     }
 
