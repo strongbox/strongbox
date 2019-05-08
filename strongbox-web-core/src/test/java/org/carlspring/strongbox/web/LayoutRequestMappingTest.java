@@ -30,10 +30,10 @@ import org.springframework.web.servlet.mvc.method.annotation.RequestMappingHandl
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 
-@ContextConfiguration(classes = HeaderMappingFilterTest.HeaderMappingFilterTestApplication.class)
+@ContextConfiguration(classes = LayoutRequestMappingTest.LayoutRequestMappingConfiguration.class)
 @ExtendWith(SpringExtension.class)
-@WebMvcTest(controllers = { HeaderMappingFilterTest.TestLayoutController.class }, secure = false)
-public class HeaderMappingFilterTest
+@WebMvcTest(controllers = { LayoutRequestMappingTest.TestLayoutController.class }, secure = false)
+public class LayoutRequestMappingTest
 {
 
     private static final String TEST_LAYOUT_ALIAS = "test-layout-alias";
@@ -76,7 +76,7 @@ public class HeaderMappingFilterTest
     }
 
     @Configuration
-    static class HeaderMappingFilterTestApplication
+    static class LayoutRequestMappingConfiguration
     {
 
         @Bean
