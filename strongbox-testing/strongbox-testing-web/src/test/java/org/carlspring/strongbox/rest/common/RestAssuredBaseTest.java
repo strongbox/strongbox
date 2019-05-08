@@ -1,22 +1,26 @@
 package org.carlspring.strongbox.rest.common;
 
-import org.carlspring.strongbox.rest.client.RestAssuredArtifactClient;
-import org.carlspring.strongbox.testing.TestCaseWithRepository;
+import static io.restassured.module.mockmvc.RestAssuredMockMvc.given;
+import static org.carlspring.strongbox.rest.client.RestAssuredArtifactClient.OK;
+import static org.junit.jupiter.api.Assertions.assertTrue;
+
+import java.io.File;
+import java.net.URI;
 
 import javax.inject.Inject;
-import java.io.File;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
-import io.restassured.config.ObjectMapperConfig;
-import io.restassured.module.mockmvc.config.RestAssuredMockMvcConfig;
-import io.restassured.module.mockmvc.specification.MockMvcRequestSpecification;
+import org.carlspring.strongbox.rest.client.RestAssuredArtifactClient;
+import org.carlspring.strongbox.testing.TestCaseWithRepository;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.http.MediaType;
 import org.springframework.web.context.WebApplicationContext;
-import static io.restassured.module.mockmvc.RestAssuredMockMvc.given;
-import static org.carlspring.strongbox.rest.client.RestAssuredArtifactClient.OK;
-import static org.junit.jupiter.api.Assertions.assertTrue;
+
+import com.fasterxml.jackson.databind.ObjectMapper;
+
+import io.restassured.config.ObjectMapperConfig;
+import io.restassured.module.mockmvc.config.RestAssuredMockMvcConfig;
+import io.restassured.module.mockmvc.specification.MockMvcRequestSpecification;
 
 /**
  * General settings for the testing sub-system.
@@ -68,14 +72,18 @@ public abstract class RestAssuredBaseTest
     }
 
     @Inject
-    public void setContextBaseUrl(String contextBaseUrl)
+    public void setContextBaseUrl(URI contextBaseUrl)
     {
+        setContextBaseUrl(contextBaseUrl.toString());
+    }
+
+    public void setContextBaseUrl(String contextBaseUrl) {
         this.contextBaseUrl = contextBaseUrl;
 
         // base URL depends only on test execution context
-        client.setContextBaseUrl(contextBaseUrl);
+        client.setContextBaseUrl(contextBaseUrl);        
     }
-
+    
     public static void removeDir(String path)
     {
         removeDir(new File(path));
