@@ -75,6 +75,7 @@ public class LayoutRequestMappingTest
         mockMvc.perform(get("/storages/storage0/another-releases/path/to/artifact"))
                .andDo(print())
                .andExpect(status().isNotFound());
+        Mockito.verifyZeroInteractions(testLayoutController);
 
     }
 
