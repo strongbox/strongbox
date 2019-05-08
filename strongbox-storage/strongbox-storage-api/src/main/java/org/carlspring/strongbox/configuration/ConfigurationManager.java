@@ -13,7 +13,7 @@ import org.springframework.stereotype.Component;
  * @author mtodorov
  */
 @Component
-public class ConfigurationManager
+public class ConfigurationManager implements StoragesConfigurationManager
 {
 
     @Inject
@@ -34,6 +34,11 @@ public class ConfigurationManager
         return getConfiguration().getStorage(storageId).getRepository(repositoryId);
     }
 
+    public Storage getStorage(String storageId)
+    {
+        return getConfiguration().getStorage(storageId);
+    }
+    
     public Configuration getConfiguration()
     {
         return configurationService.getConfiguration();
