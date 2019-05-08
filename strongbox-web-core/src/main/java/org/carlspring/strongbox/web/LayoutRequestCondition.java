@@ -1,16 +1,19 @@
 package org.carlspring.strongbox.web;
 
+import java.util.Collection;
+import java.util.Collections;
+
 import javax.servlet.http.HttpServletRequest;
 
 import org.carlspring.strongbox.configuration.StoragesConfigurationManager;
 import org.carlspring.strongbox.storage.Storage;
 import org.carlspring.strongbox.storage.repository.Repository;
-import org.springframework.web.servlet.mvc.condition.RequestCondition;
+import org.springframework.web.servlet.mvc.condition.AbstractRequestCondition;
 
 /**
  * @author sbespalov
  */
-public class LayoutRequestCondition implements RequestCondition<LayoutRequestCondition>
+public class LayoutRequestCondition extends AbstractRequestCondition<LayoutRequestCondition>
 {
 
     private final String layout;
@@ -70,7 +73,19 @@ public class LayoutRequestCondition implements RequestCondition<LayoutRequestCon
     public int compareTo(LayoutRequestCondition other,
                          HttpServletRequest request)
     {
-        return 0;
+        return 1;
+    }
+
+    @Override
+    protected Collection<?> getContent()
+    {
+        return Collections.singleton(layout);
+    }
+
+    @Override
+    protected String getToStringInfix()
+    {
+        return layout;
     }
 
 }
