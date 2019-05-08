@@ -43,6 +43,8 @@ public class LayoutRequestMappingTest
     private MockMvc mockMvc;
     @Inject
     private StoragesConfigurationManager storagesConfigurationManager;
+    @Inject
+    private TestLayoutController testLayoutController;
 
     @BeforeEach
     public void setup()
@@ -62,13 +64,14 @@ public class LayoutRequestMappingTest
     }
 
     @Test
-    public void testMultipleUserAgentMapping()
+    public void testLayoutRequestMapping()
         throws Exception
     {
         mockMvc.perform(get("/storages/storage0/releases/path/to/artifact"))
                .andDo(print())
                .andExpect(status().isOk());
-
+        Mockito.verify(testLayoutController).download("storage0", "releases");
+        
         mockMvc.perform(get("/storages/storage0/another-releases/path/to/artifact"))
                .andDo(print())
                .andExpect(status().isNotFound());
@@ -82,7 +85,7 @@ public class LayoutRequestMappingTest
         @Bean
         TestLayoutController testLayoutController()
         {
-            return new TestLayoutController();
+            return Mockito.mock(TestLayoutController.class);
         }
 
         @Bean
@@ -109,18 +112,14 @@ public class LayoutRequestMappingTest
 
     @Controller
     @LayoutRequestMapping(TEST_LAYOUT_ALIAS)
-    static class TestLayoutController
+    static interface TestLayoutController
     {
 
         @GetMapping(path = "/{storageId}/{repositoryId}/**")
-        public void mmua(@PathVariable(name = "storageId") String storageId,
-                         @PathVariable(name = "repositoryId") String repositoryId,
-                         HttpServletRequest request)
+        void download(@PathVariable(name = "storageId") String storageId,
+                  @PathVariable(name = "repositoryId") String repositoryId)
             throws JsonProcessingException,
-            IOException
-        {
-            System.out.println(request.getHeader("user-agent"));
-        }
+            IOException;
 
     }
 
