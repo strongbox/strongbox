@@ -7,7 +7,6 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 import java.io.IOException;
 
 import javax.inject.Inject;
-import javax.servlet.http.HttpServletRequest;
 
 import org.carlspring.strongbox.configuration.StoragesConfigurationManager;
 import org.carlspring.strongbox.storage.MutableStorage;
@@ -32,7 +31,7 @@ import com.fasterxml.jackson.core.JsonProcessingException;
 
 @ContextConfiguration(classes = LayoutRequestMappingTest.LayoutRequestMappingConfiguration.class)
 @ExtendWith(SpringExtension.class)
-@WebMvcTest(controllers = { LayoutRequestMappingTest.TestLayoutController.class }, secure = false)
+@WebMvcTest(controllers = { LayoutRequestMappingTest.TestLayoutController.class, LayoutRequestMappingTest.AnotherLayoutController.class }, secure = false)
 public class LayoutRequestMappingTest
 {
 
@@ -45,6 +44,8 @@ public class LayoutRequestMappingTest
     private StoragesConfigurationManager storagesConfigurationManager;
     @Inject
     private TestLayoutController testLayoutController;
+    @Inject
+    private AnotherLayoutController anotherLayoutController;
 
     @BeforeEach
     public void setup()
@@ -67,15 +68,24 @@ public class LayoutRequestMappingTest
     public void testLayoutRequestMapping()
         throws Exception
     {
+        //Verify `test-layout-alias` mapping
         mockMvc.perform(get("/storages/storage0/releases/path/to/artifact"))
                .andDo(print())
                .andExpect(status().isOk());
         Mockito.verify(testLayoutController).download("storage0", "releases");
-        
+
+        //Verify `another-layout-alias` mapping
         mockMvc.perform(get("/storages/storage0/another-releases/path/to/artifact"))
+               .andDo(print())
+               .andExpect(status().isOk());
+        Mockito.verify(anotherLayoutController).download("storage0", "another-releases");
+
+        //Verify 404        
+        mockMvc.perform(get("/storages/storage0/no-such-repository/path/to/artifact"))
                .andDo(print())
                .andExpect(status().isNotFound());
         Mockito.verifyZeroInteractions(testLayoutController);
+        Mockito.verifyZeroInteractions(anotherLayoutController);
 
     }
 
@@ -89,6 +99,13 @@ public class LayoutRequestMappingTest
             return Mockito.mock(TestLayoutController.class);
         }
 
+        @Bean
+        AnotherLayoutController anotherLayoutController()
+        {
+            return Mockito.mock(AnotherLayoutController.class);
+        }
+
+        
         @Bean
         StoragesConfigurationManager configurationManager()
         {
@@ -124,4 +141,17 @@ public class LayoutRequestMappingTest
 
     }
 
+    
+    @Controller
+    @LayoutRequestMapping(ANOTHER_LAYOUT_ALIAS)
+    static interface AnotherLayoutController
+    {
+
+        @GetMapping(path = "/{storageId}/{repositoryId}/**")
+        void download(@PathVariable(name = "storageId") String storageId,
+                  @PathVariable(name = "repositoryId") String repositoryId)
+            throws JsonProcessingException,
+            IOException;
+
+    }
 }

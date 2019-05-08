@@ -1,14 +1,5 @@
 package org.carlspring.strongbox.providers.layout;
 
-import org.carlspring.strongbox.artifact.coordinates.NugetArtifactCoordinates;
-import org.carlspring.strongbox.providers.header.HeaderMappingRegistry;
-import org.carlspring.strongbox.providers.io.RepositoryFiles;
-import org.carlspring.strongbox.providers.io.RepositoryPath;
-import org.carlspring.strongbox.repository.NugetRepositoryFeatures;
-import org.carlspring.strongbox.repository.NugetRepositoryManagementStrategy;
-
-import javax.annotation.PostConstruct;
-import javax.inject.Inject;
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
 import java.util.Base64;
@@ -16,7 +7,15 @@ import java.util.Set;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
+import javax.annotation.PostConstruct;
+import javax.inject.Inject;
+
 import org.apache.commons.codec.digest.MessageDigestAlgorithms;
+import org.carlspring.strongbox.artifact.coordinates.NugetArtifactCoordinates;
+import org.carlspring.strongbox.providers.io.RepositoryFiles;
+import org.carlspring.strongbox.providers.io.RepositoryPath;
+import org.carlspring.strongbox.repository.NugetRepositoryFeatures;
+import org.carlspring.strongbox.repository.NugetRepositoryManagementStrategy;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Component;
@@ -45,9 +44,6 @@ public class NugetLayoutProvider
     public static final String USER_AGENT_PREFIX = ALIAS;
 
     @Inject
-    private HeaderMappingRegistry headerMappingRegistry;
-
-    @Inject
     private NugetRepositoryManagementStrategy nugetRepositoryManagementStrategy;
 
     @Inject
@@ -57,8 +53,6 @@ public class NugetLayoutProvider
     @PostConstruct
     public void register()
     {
-        headerMappingRegistry.register(ALIAS, USER_AGENT_PREFIX);
-
         logger.info("Registered layout provider '" + getClass().getCanonicalName() + "' with alias '" + ALIAS + "'.");
     }
 
