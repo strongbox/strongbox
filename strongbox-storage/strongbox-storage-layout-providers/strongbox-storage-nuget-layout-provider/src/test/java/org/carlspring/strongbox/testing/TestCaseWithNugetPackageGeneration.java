@@ -35,17 +35,17 @@ public class TestCaseWithNugetPackageGeneration
 
     @Inject
     protected RepositoryPathResolver repositoryPathResolver;
-    
+
     public void generateRepositoryPackages(String storageId,
                                            String repositoryId,
                                            String packageId,
                                            int count)
-        throws NoSuchAlgorithmException,
-               NugetFormatException,
-               JAXBException,
-               IOException,
-               ProviderImplementationException, 
-               ArtifactCoordinatesValidationException
+            throws NoSuchAlgorithmException,
+                   NugetFormatException,
+                   JAXBException,
+                   IOException,
+                   ProviderImplementationException,
+                   ArtifactCoordinatesValidationException
     {
         for (int i = 0; i < count; i++)
         {
@@ -55,8 +55,8 @@ public class TestCaseWithNugetPackageGeneration
             try (InputStream is = new BufferedInputStream(Files.newInputStream(packageFilePath)))
             {
                 RepositoryPath repositoryPath = repositoryPathResolver.resolve(storageId,
-                                                                                repositoryId,
-                                                                                coordinates.toPath());
+                                                                               repositoryId,
+                                                                               coordinates.toPath());
                 artifactManagementService.validateAndStore(repositoryPath, is);
             }
         }
@@ -65,23 +65,23 @@ public class TestCaseWithNugetPackageGeneration
     public Path generatePackageFile(String packageId,
                                     String packageVersion,
                                     String... dependencyList)
-        throws NoSuchAlgorithmException,
-               NugetFormatException,
-               JAXBException,
-               IOException
+            throws NoSuchAlgorithmException,
+                   NugetFormatException,
+                   JAXBException,
+                   IOException
     {
         String basedir = propertiesBooter.getHomeDirectory() + "/tmp";
         return generatePackageFile(basedir, packageId, packageVersion, dependencyList);
     }
 
     public static Path generatePackageFile(String basedir,
-                                    String packageId,
-                                    String packageVersion,
-                                    String... dependencyList)
-        throws NugetFormatException,
-               JAXBException,
-               IOException,
-               NoSuchAlgorithmException
+                                           String packageId,
+                                           String packageVersion,
+                                           String... dependencyList)
+            throws NugetFormatException,
+                   JAXBException,
+                   IOException,
+                   NoSuchAlgorithmException
     {
         String packageFileName = packageId + "." + packageVersion + ".nupkg";
 
@@ -100,10 +100,10 @@ public class TestCaseWithNugetPackageGeneration
                                      String id,
                                      String version,
                                      String... dependencyList)
-        throws IOException,
-               NoSuchAlgorithmException,
-               NugetFormatException,
-               JAXBException
+            throws IOException,
+                   NoSuchAlgorithmException,
+                   NugetFormatException,
+                   JAXBException
     {
         NugetPackageGenerator generator = new NugetPackageGenerator(repositoryDir);
         generator.generateNugetPackage(id, version, dependencyList);
@@ -113,10 +113,10 @@ public class TestCaseWithNugetPackageGeneration
                                           String id,
                                           String version,
                                           String... dependencyList)
-        throws IOException,
-               NoSuchAlgorithmException,
-               NugetFormatException,
-               JAXBException
+            throws IOException,
+                   NoSuchAlgorithmException,
+                   NugetFormatException,
+                   JAXBException
     {
         NugetPackageGenerator generator = new NugetPackageGenerator(repositoryDir);
 

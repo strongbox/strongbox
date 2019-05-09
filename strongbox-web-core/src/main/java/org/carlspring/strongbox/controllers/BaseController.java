@@ -7,7 +7,6 @@ import org.carlspring.strongbox.controllers.support.ErrorResponseEntityBody;
 import org.carlspring.strongbox.controllers.support.ListEntityBody;
 import org.carlspring.strongbox.controllers.support.ResponseEntityBody;
 import org.carlspring.strongbox.providers.io.RepositoryPathResolver;
-import org.carlspring.strongbox.resource.ResourceCloser;
 import org.carlspring.strongbox.services.ArtifactResolutionService;
 import org.carlspring.strongbox.services.ConfigurationManagementService;
 
@@ -46,7 +45,7 @@ public abstract class BaseController
 
     @Inject
     protected RepositoryPathResolver repositoryPathResolver;
-    
+
     @Inject
     protected ArtifactResolutionService artifactResolutionService;
 
@@ -260,15 +259,14 @@ public abstract class BaseController
                                   HttpServletResponse response)
             throws IOException
     {
-        OutputStream os = response.getOutputStream();
-
-        try
+        try (InputStream inputStream = is;
+             OutputStream os = response.getOutputStream())
         {
             long totalBytes = 0L;
 
             int readLength;
             byte[] bytes = new byte[4096];
-            while ((readLength = is.read(bytes, 0, bytes.length)) != -1)
+            while ((readLength = inputStream.read(bytes, 0, bytes.length)) != -1)
             {
                 // Write the artifact
                 os.write(bytes, 0, readLength);
@@ -280,11 +278,5 @@ public abstract class BaseController
             response.setHeader(HttpHeaders.CONTENT_LENGTH, Long.toString(totalBytes));
             response.flushBuffer();
         }
-        finally
-        {
-            ResourceCloser.close(is, logger);
-            ResourceCloser.close(os, logger);
-        }
     }
-
 }
