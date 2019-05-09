@@ -363,8 +363,8 @@ public class MavenMetadataManager
         }
 
         RepositoryPath artifactBasePath = repositoryPath.getParent().getParent();
-        logger.debug("Artifact merge metadata triggered for " + artifact.toString() + "(" + artifactBasePath + "). "
-                     + repository.getType());
+        logger.debug("Artifact merge metadata triggered for " + artifact.toString() + "(" + artifactBasePath + "). " +
+                     repository.getType());
 
         try
         {
