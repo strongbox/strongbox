@@ -7,12 +7,10 @@ import org.carlspring.strongbox.rest.common.RestAssuredBaseTest;
 import javax.inject.Inject;
 import javax.servlet.http.HttpServletResponse;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
 import io.restassured.http.ContentType;
 import org.hamcrest.CoreMatchers;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.mock.web.MockHttpServletRequest;
@@ -33,9 +31,6 @@ public class CustomAccessDeniedHandlerTest
 
     @Inject
     private CustomAccessDeniedHandler customAccessDeniedHandler;
-
-    @Inject
-    private ObjectMapper objectMapper;
 
     @Override
     @BeforeEach

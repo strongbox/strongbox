@@ -3,7 +3,6 @@ package org.carlspring.strongbox.security;
 import org.carlspring.strongbox.controllers.support.ErrorResponseEntityBody;
 
 import javax.inject.Inject;
-import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
@@ -28,7 +27,7 @@ public class CustomAccessDeniedHandler
     public void handle(HttpServletRequest request,
                        HttpServletResponse response,
                        AccessDeniedException accessDeniedException)
-            throws IOException, ServletException
+            throws IOException
     {
         response.setContentType(MediaType.APPLICATION_JSON_VALUE);
         response.setStatus(HttpServletResponse.SC_FORBIDDEN);

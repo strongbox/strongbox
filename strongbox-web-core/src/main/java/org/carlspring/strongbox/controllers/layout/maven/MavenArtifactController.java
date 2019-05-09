@@ -3,13 +3,11 @@ package org.carlspring.strongbox.controllers.layout.maven;
 import org.carlspring.strongbox.artifact.coordinates.MavenArtifactCoordinates;
 import org.carlspring.strongbox.controllers.BaseArtifactController;
 import org.carlspring.strongbox.providers.io.RepositoryPath;
-import org.carlspring.strongbox.providers.io.RepositoryPathResolver;
 import org.carlspring.strongbox.storage.ArtifactStorageException;
 import org.carlspring.strongbox.storage.Storage;
 import org.carlspring.strongbox.storage.repository.Repository;
 import org.carlspring.strongbox.web.LayoutRequestMapping;
 
-import javax.inject.Inject;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
@@ -19,14 +17,12 @@ import io.swagger.annotations.ApiOperation;
 import io.swagger.annotations.ApiParam;
 import io.swagger.annotations.ApiResponse;
 import io.swagger.annotations.ApiResponses;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
-import static org.springframework.http.HttpStatus.INTERNAL_SERVER_ERROR;
+import static org.springframework.http.HttpHeaders.USER_AGENT;
 import static org.springframework.http.HttpStatus.NOT_FOUND;
 
 /**
@@ -47,14 +43,6 @@ public class MavenArtifactController
         extends BaseArtifactController
 {
 
-    private static final Logger logger = LoggerFactory.getLogger(MavenArtifactController.class);
-
-    // must be the same as @RequestMapping value on the class definition
-    public final static String ROOT_CONTEXT = "/storages";
-
-    @Inject
-    private RepositoryPathResolver repositoryPathResolver;
-    
     @PreAuthorize("authenticated")
     @RequestMapping(value = "greet", method = RequestMethod.GET)
     public ResponseEntity greet()
@@ -81,38 +69,9 @@ public class MavenArtifactController
     {
         logger.debug("Requested /" + storageId + "/" + repositoryId + "/" + path + ".");
 
-        Storage storage = configurationManager.getConfiguration().getStorage(storageId);
-        if (storage == null)
-        {
-            logger.error("Unable to find storage by ID " + storageId);
-
-            response.sendError(INTERNAL_SERVER_ERROR.value(), "Unable to find storage by ID " + storageId);
-
-            return;
-        }
-
-        Repository repository = storage.getRepository(repositoryId);
-        if (repository == null)
-        {
-            logger.error("Unable to find repository by ID " + repositoryId + " for storage " + storageId);
-
-            response.sendError(INTERNAL_SERVER_ERROR.value(),
-                               "Unable to find repository by ID " + repositoryId + " for storage " + storageId);
-            return;
-        }
-
-        if (!repository.isInService())
-        {
-            logger.error("Repository is not in service...");
-
-            response.setStatus(HttpStatus.SERVICE_UNAVAILABLE.value());
-
-            return;
-        }
-        
         path = correctIndexPathIfNecessary(path);
         RepositoryPath repositoryPath = artifactResolutionService.resolvePath(storageId, repositoryId, path);
-        
+
         provideArtifactDownloadResponse(request, response, httpHeaders, repositoryPath);
     }
 
@@ -148,7 +107,7 @@ public class MavenArtifactController
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(e.getMessage());
         }
     }
-    
+
     @ApiOperation(value = "Copies a path from one repository to another.")
     @ApiResponses(value = { @ApiResponse(code = 200, message = "The path was copied successfully."),
                             @ApiResponse(code = 400, message = "Bad request."),
@@ -246,19 +205,7 @@ public class MavenArtifactController
 
         try
         {
-            final Storage storage = getStorage(storageId);
-            if (storage == null)
-            {
-                return ResponseEntity.status(NOT_FOUND)
-                                     .body("The specified storageId does not exist!");
-            }
-            final Repository repository = storage.getRepository(repositoryId);
-            if (repository == null)
-            {
-                return ResponseEntity.status(NOT_FOUND)
-                                     .body("The specified repositoryId does not exist!");
-            }
-            final RepositoryPath repositoryPath = repositoryPathResolver.resolve(repository, path);
+            final RepositoryPath repositoryPath = repositoryPathResolver.resolve(storageId, repositoryId, path);
             if (!Files.exists(repositoryPath))
             {
                 return ResponseEntity.status(NOT_FOUND)

@@ -19,6 +19,7 @@ import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.web.authentication.preauth.PreAuthenticatedCredentialsNotFoundException;
 import org.springframework.stereotype.Component;
+import static org.carlspring.strongbox.web.Constants.ARTIFACT_ROOT_PATH;
 
 /**
  * @author Sergey Bespalov
@@ -63,7 +64,7 @@ public class NugetApiKeyAuthenticationSupplier implements AuthenticationSupplier
     public boolean supports(@Nonnull HttpServletRequest request)
     {
         String servletPath = request.getServletPath();
-        if (!servletPath.startsWith("/storages"))
+        if (!servletPath.startsWith(ARTIFACT_ROOT_PATH))
         {
             return false;
         }

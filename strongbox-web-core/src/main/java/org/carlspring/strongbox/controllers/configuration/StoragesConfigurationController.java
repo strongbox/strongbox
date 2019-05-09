@@ -188,8 +188,8 @@ public class StoragesConfigurationController
                             @ApiResponse(code = 404, message = "The storage ${storageId} was not found.") })
     @PreAuthorize("hasAuthority('CONFIGURATION_VIEW_STORAGE_CONFIGURATION')")
     @GetMapping(value = "/{storageId}", produces = MediaType.APPLICATION_JSON_VALUE)
-    public ResponseEntity getStorage(@ApiParam(value = "The storageId", required = true)
-                                     @PathVariable final String storageId)
+    public ResponseEntity getStorageResponseEntity(@ApiParam(value = "The storageId", required = true)
+                                                   @PathVariable final String storageId)
     {
         final Storage storage = configurationManagementService.getConfiguration().getStorage(storageId);
 
@@ -302,13 +302,13 @@ public class StoragesConfigurationController
                                          message = "The repository was updated successfully.",
                                          response = MutableRepository.class),
                             @ApiResponse(code = 404,
-                                         message = "The repository ${storageId}:${repositoryId} was not found!") })
+                                    message = "The repository ${storageId}:${repositoryId} was not found!") })
     @PreAuthorize("hasAuthority('CONFIGURATION_VIEW_REPOSITORY')")
     @GetMapping(value = "/{storageId}/{repositoryId}", produces = MediaType.APPLICATION_JSON_VALUE)
-    public ResponseEntity getRepository(@ApiParam(value = "The storageId", required = true)
-                                        @PathVariable final String storageId,
-                                        @ApiParam(value = "The repositoryId", required = true)
-                                        @PathVariable final String repositoryId)
+    public ResponseEntity getRepositoryResponseEntity(@ApiParam(value = "The storageId", required = true)
+                                                      @PathVariable final String storageId,
+                                                      @ApiParam(value = "The repositoryId", required = true)
+                                                      @PathVariable final String repositoryId)
     {
         try
         {

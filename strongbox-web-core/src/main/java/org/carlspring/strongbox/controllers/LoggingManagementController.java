@@ -17,7 +17,6 @@ import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.Optional;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
 import io.swagger.annotations.*;
 import org.apache.commons.io.FilenameUtils;
 import org.apache.commons.lang.StringUtils;
@@ -32,7 +31,6 @@ import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.ModelAndView;
 import static org.carlspring.strongbox.controllers.LoggingManagementController.ROOT_CONTEXT;
 import static org.springframework.http.HttpStatus.BAD_REQUEST;
-import static org.springframework.http.HttpStatus.NOT_FOUND;
 import static org.springframework.http.MediaType.APPLICATION_XML_VALUE;
 import static org.springframework.http.MediaType.TEXT_PLAIN_VALUE;
 
@@ -57,9 +55,6 @@ public class LoggingManagementController
 
     @Inject
     private LoggingManagementService loggingManagementService;
-
-    @Inject
-    private ObjectMapper objectMapper;
 
     private DirectoryListingService directoryListingService;
     

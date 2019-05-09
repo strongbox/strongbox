@@ -19,7 +19,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 @RequestMapping("/api/ping")
 @Api(value = "/api/ping")
 public class PingController
-        extends BaseArtifactController
+        extends BaseController
 {
 
     @ApiResponses(value = { @ApiResponse(code = 200, message = "Strongbox is up and working.") })

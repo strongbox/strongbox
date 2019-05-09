@@ -66,6 +66,7 @@ import org.w3c.dom.Document;
 import org.xml.sax.InputSource;
 import static io.restassured.module.mockmvc.RestAssuredMockMvc.given;
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.hamcrest.CoreMatchers.equalTo;
 import static org.junit.jupiter.api.Assertions.*;
 
 /**
@@ -91,6 +92,12 @@ public class MavenArtifactControllerTest
     private static final String REPOSITORY_SNAPSHOTS = "mact-snapshots";
 
     private static final String REPOSITORY_RELEASES_OUT_OF_SERVICE = "mact-releases-out-of-service";
+
+    private static final Path REPOSITORY_RELEASES_BASE_PATH = Paths.get("target")
+                                                                   .resolve("strongbox-vault")
+                                                                   .resolve("storages")
+                                                                   .resolve(STORAGE0)
+                                                                   .resolve(REPOSITORY_RELEASES);
 
     private static String pluginXmlFilePath;
 
@@ -682,27 +689,12 @@ public class MavenArtifactControllerTest
     }
 
     @Test
-    public void testNonExistingDirectoryDownload()
+    public void testDirectoryDownload()
     {
         String path = "/storages/storage-common-proxies/maven-central/john/doe/";
         ExtractableResponse response = client.getResourceWithResponse(path, "");
-        assertEquals(HttpStatus.NOT_FOUND.value(), response.statusCode(), "Wrong response");
-    }
-
-    @Test
-    public void testNonExistingArtifactDownload()
-    {
-        String path = "/storages/storage-common-proxies/maven-central/john/doe";
-        ExtractableResponse response = client.getResourceWithResponse(path, "");
-        assertEquals(response.statusCode(), HttpStatus.NOT_FOUND.value(), "Wrong response");
-    }
-
-    @Test
-    public void testNonExistingArtifactInNonExistingDirectory()
-    {
-        String path = "/storages/storage-common-proxies/maven-central/john/doe/who.jar";
-        ExtractableResponse response = client.getResourceWithResponse(path, "");
-        assertEquals(response.statusCode(), HttpStatus.NOT_FOUND.value(), "Wrong response");
+        assertEquals(HttpStatus.BAD_REQUEST.value(), response.statusCode(),
+                     "The specified path should not ends with `/` character!");
     }
 
     @Test
@@ -1139,6 +1131,50 @@ public class MavenArtifactControllerTest
                .get(url)
                .then()
                .statusCode(HttpStatus.OK.value());
+    }
+
+    @Test
+    public void shouldNotAllowRequestingPathsWithSlashAtTheEnd()
+    {
+        given().when()
+               .get(getContextBaseUrl() + "/storages/public/maven-group/org/carlspring/commons/commons-io/")
+               .peek()
+               .then()
+               .statusCode(HttpStatus.BAD_REQUEST.value())
+               .statusLine(equalTo("400 The specified path should not ends with `/` character!"));
+    }
+
+    @Test
+    public void shouldRequireArtifactVersion()
+    {
+        given().when()
+               .get(getContextBaseUrl() + "/storages/public/maven-group/org/carlspring/logging/logback-configuration")
+               .peek()
+               .then()
+               .statusCode(HttpStatus.BAD_REQUEST.value())
+               .statusLine(equalTo("400 The specified path is invalid. Maven artifact version not recognized."));
+    }
+
+    @Test
+    public void shouldNotAllowGettingExistingDirectories()
+            throws IOException
+    {
+
+        Files.createDirectories(
+                REPOSITORY_RELEASES_BASE_PATH.resolve("org").resolve("carlspring").resolve("logging").resolve(
+                        "logback-configuration-core"));
+
+        given().when()
+               .get(getContextBaseUrl() + "/storages/" + STORAGE0 + "/" + REPOSITORY_RELEASES +
+                    "/org/carlspring/logging/logback-configuration-core")
+               .peek()
+               .then()
+               .statusCode(HttpStatus.BAD_REQUEST.value())
+               .statusLine(equalTo("400 The specified path is a directory!"));
+
+        Files.delete(REPOSITORY_RELEASES_BASE_PATH.resolve("org").resolve("carlspring").resolve("logging").resolve(
+                "logback-configuration-core"));
+        Files.delete(REPOSITORY_RELEASES_BASE_PATH.resolve("org").resolve("carlspring").resolve("logging"));
     }
 
     @Test

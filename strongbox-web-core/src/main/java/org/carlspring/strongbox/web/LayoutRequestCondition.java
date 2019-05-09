@@ -1,21 +1,25 @@
 package org.carlspring.strongbox.web;
 
+import org.carlspring.strongbox.configuration.StoragesConfigurationManager;
+import org.carlspring.strongbox.storage.Storage;
+import org.carlspring.strongbox.storage.repository.Repository;
+
+import javax.servlet.http.HttpServletRequest;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.Optional;
 
-import javax.servlet.http.HttpServletRequest;
-
-import org.carlspring.strongbox.configuration.StoragesConfigurationManager;
-import org.carlspring.strongbox.storage.Storage;
-import org.carlspring.strongbox.storage.repository.Repository;
 import org.springframework.web.servlet.mvc.condition.AbstractRequestCondition;
+import static org.carlspring.strongbox.web.Constants.ARTIFACT_ROOT_PATH;
 
 /**
  * @author sbespalov
  */
-public class LayoutRequestCondition extends AbstractRequestCondition<LayoutRequestCondition>
+public class LayoutRequestCondition
+        extends AbstractRequestCondition<LayoutRequestCondition>
 {
+
+    private static final String ARTIFACT_COPY_PATH = ARTIFACT_ROOT_PATH + "/copy";
 
     private final String layout;
     private final StoragesConfigurationManager configurationManager;
@@ -37,11 +41,11 @@ public class LayoutRequestCondition extends AbstractRequestCondition<LayoutReque
     public LayoutRequestCondition getMatchingCondition(HttpServletRequest request)
     {
         String servletPath = Optional.ofNullable(request.getServletPath()).filter(s -> s != null && s.trim().length() > 0).orElse(request.getPathInfo());
-        if (servletPath.startsWith("/storages/copy"))
+        if (servletPath.startsWith(ARTIFACT_COPY_PATH))
         {
             return getPathCopyCondition(request);
         }
-        else if (servletPath.startsWith("/storages"))
+        else if (servletPath.startsWith(ARTIFACT_ROOT_PATH))
         {
             return getStorageAndRepositoryCondition(servletPath);
         }

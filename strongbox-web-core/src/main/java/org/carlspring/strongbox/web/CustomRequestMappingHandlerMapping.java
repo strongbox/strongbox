@@ -1,19 +1,19 @@
 package org.carlspring.strongbox.web;
 
-import java.util.Optional;
+import org.carlspring.strongbox.configuration.StoragesConfigurationManager;
 
 import javax.inject.Inject;
+import java.util.Optional;
 
-import org.carlspring.strongbox.configuration.StoragesConfigurationManager;
 import org.springframework.core.annotation.AnnotationUtils;
 import org.springframework.web.servlet.mvc.condition.RequestCondition;
 import org.springframework.web.servlet.mvc.method.annotation.RequestMappingHandlerMapping;
 
 /**
  * @author sbespalov
- *
  */
-public class CustomRequestMappingHandlerMapping extends RequestMappingHandlerMapping
+public class CustomRequestMappingHandlerMapping
+        extends RequestMappingHandlerMapping
 {
 
     @Inject
@@ -22,10 +22,8 @@ public class CustomRequestMappingHandlerMapping extends RequestMappingHandlerMap
     @Override
     protected RequestCondition<LayoutRequestCondition> getCustomTypeCondition(Class<?> handlerType)
     {
-        return Optional.ofNullable(AnnotationUtils.findAnnotation(handlerType,
-                                                                  LayoutRequestMapping.class))
-                       .map(m -> new LayoutRequestCondition(
-                               CustomRequestMappingHandlerMapping.this.configurationManager, m.value()))
+        return Optional.ofNullable(AnnotationUtils.findAnnotation(handlerType, LayoutRequestMapping.class))
+                       .map(m -> new LayoutRequestCondition(configurationManager, m.value()))
                        .orElse(null);
     }
 
