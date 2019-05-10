@@ -164,8 +164,8 @@ public class FetchChangesFeedCronJobTestIT
     {
         CronTaskConfigurationDto configuration = new CronTaskConfigurationDto();
         configuration.setName(CRON_JOB_NAME);
-        configuration.addProperty("jobClass", TestFetchRemoteChangesFeedCronJob.class.getName());
-        configuration.addProperty("cronExpression", "0 0 * ? * * *");
+        configuration.setJobClass(TestFetchRemoteChangesFeedCronJob.class.getName());
+        configuration.setCronExpression("0 0 * ? * * *");
         configuration.addProperty("storageId", STORAGE);
         configuration.addProperty("repositoryId", REPOSITORY);
         configuration.setImmediateExecution(true);

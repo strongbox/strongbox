@@ -42,8 +42,8 @@ public class NpmRepositoryManagementStrategy
     {
         CronTaskConfigurationDto configuration = new CronTaskConfigurationDto();
         configuration.setName(FetchRemoteNpmChangesFeedCronJob.calculateJobName(storageId, repositoryId));
-        configuration.addProperty("jobClass", FetchRemoteNpmChangesFeedCronJob.class.getName());
-        configuration.addProperty("cronExpression", "0 0 * ? * * *"); // Execute every hour
+        configuration.setJobClass(FetchRemoteNpmChangesFeedCronJob.class.getName());
+        configuration.setCronExpression("0 0 * ? * * *"); // Execute every hour
         configuration.addProperty("storageId", storageId);
         configuration.addProperty("repositoryId", repositoryId);
         configuration.setImmediateExecution(true);

@@ -18,19 +18,25 @@ public class CronTaskConfiguration
 
     private final String name;
 
-    private final Map<String, String> properties;
+    private final String jobClass;
+
+    private final String cronExpression;
 
     private final boolean oneTimeExecution;
 
     private final boolean immediateExecution;
 
+    private final Map<String, String> properties;
+
     public CronTaskConfiguration(final CronTaskConfigurationDto source)
     {
         this.uuid = source.getUuid();
         this.name = source.getName();
-        this.properties = immuteProperties(source.getProperties());
+        this.jobClass = source.getJobClass();
+        this.cronExpression = source.getCronExpression();
         this.oneTimeExecution = source.isOneTimeExecution();
         this.immediateExecution = source.shouldExecuteImmediately();
+        this.properties = immuteProperties(source.getProperties());
     }
 
     private Map<String, String> immuteProperties(final Map<String, String> source)
@@ -69,6 +75,21 @@ public class CronTaskConfiguration
     }
 
     public boolean shouldExecuteImmediately()
+    {
+        return immediateExecution;
+    }
+
+    public String getJobClass()
+    {
+        return jobClass;
+    }
+
+    public String getCronExpression()
+    {
+        return cronExpression;
+    }
+
+    public boolean isImmediateExecution()
     {
         return immediateExecution;
     }

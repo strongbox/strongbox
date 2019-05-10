@@ -48,8 +48,8 @@ public class NugetRepositoryManagementStrategy
         
         CronTaskConfigurationDto configuration = new CronTaskConfigurationDto();
         configuration.setName(downloadRemoteFeedCronJobName);
-        configuration.addProperty("jobClass", DownloadRemoteFeedCronJob.class.getName());
-        configuration.addProperty("cronExpression", "0 0 0 * * ?"); // Execute once daily at 00:00:00
+        configuration.setJobClass(DownloadRemoteFeedCronJob.class.getName());
+        configuration.setCronExpression("0 0 0 * * ?"); // Execute once daily at 00:00:00
         configuration.addProperty("storageId", storageId);
         configuration.addProperty("repositoryId", repositoryId);
         configuration.setImmediateExecution(true);

@@ -8,7 +8,9 @@ import org.carlspring.strongbox.event.cron.CronTaskEventListenerRegistry;
 
 import javax.inject.Inject;
 
-import org.quartz.*;
+import org.quartz.DisallowConcurrentExecution;
+import org.quartz.InterruptableJob;
+import org.quartz.JobExecutionContext;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.core.env.Environment;
@@ -41,17 +43,16 @@ public abstract class AbstractCronJob
     private String status = CronJobStatusEnum.SLEEPING.getStatus();
 
     public abstract void executeTask(CronTaskConfigurationDto config)
-        throws Throwable;
+            throws Throwable;
 
     @Override
     protected void executeInternal(JobExecutionContext jobExecutionContext)
-        throws JobExecutionException
     {
 
         String jobKey = jobExecutionContext.getJobDetail().getKey().getName();
-        
+
         CronTaskConfigurationDto configuration = cronTaskConfigurationService.getTaskConfigurationDto(jobKey);
-        
+
         if (configuration == null)
         {
             configuration = (CronTaskConfigurationDto) jobExecutionContext.getJobDetail().getJobDataMap().get("config");
@@ -93,7 +94,6 @@ public abstract class AbstractCronJob
 
     @Override
     public void interrupt()
-        throws UnableToInterruptJobException
     {
     }
 
@@ -112,5 +112,7 @@ public abstract class AbstractCronJob
     {
         this.status = status;
     }
+
+    public abstract CronJobDefinition getCronJobDefinition();
 
 }

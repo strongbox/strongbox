@@ -3,16 +3,18 @@ package org.carlspring.strongbox.controllers.cron;
 import org.carlspring.strongbox.config.IntegrationTest;
 import org.carlspring.strongbox.cron.domain.CronTaskConfigurationDto;
 import org.carlspring.strongbox.cron.domain.CronTasksConfigurationDto;
-import org.carlspring.strongbox.cron.jobs.MyTask;
+import org.carlspring.strongbox.cron.jobs.*;
 import org.carlspring.strongbox.forms.cron.CronTaskConfigurationForm;
+import org.carlspring.strongbox.forms.cron.CronTaskConfigurationFormField;
 import org.carlspring.strongbox.rest.common.RestAssuredBaseTest;
 
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.InputStream;
-import java.util.List;
-import java.util.stream.Collectors;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
+import edu.emory.mathcs.backport.java.util.Arrays;
+import io.restassured.http.Headers;
 import io.restassured.module.mockmvc.response.MockMvcResponse;
 import org.apache.commons.io.IOUtils;
 import org.junit.jupiter.api.BeforeEach;
@@ -21,12 +23,13 @@ import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.test.context.ActiveProfiles;
-import org.springframework.test.context.junit.jupiter.EnabledIf;
+import org.springframework.test.web.servlet.result.MockMvcResultMatchers;
 import static io.restassured.module.mockmvc.RestAssuredMockMvc.given;
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.carlspring.strongbox.controllers.cron.CronTaskController.CRON_CONFIG_FILE_NAME_KEY;
-import static org.carlspring.strongbox.controllers.cron.CronTaskController.CRON_CONFIG_JOB_CLASS_KEY;
-import static org.carlspring.strongbox.net.MediaType.APPLICATION_YAML_VALUE;
+import static org.carlspring.strongbox.controllers.cron.CronTaskController.HEADER_NAME_CRON_TASK_ID;
 import static org.carlspring.strongbox.rest.client.RestAssuredArtifactClient.OK;
+import static org.hamcrest.Matchers.*;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 
@@ -39,6 +42,8 @@ import static org.junit.jupiter.api.Assertions.assertFalse;
 public class CronTaskControllerTest
         extends RestAssuredBaseTest
 {
+
+    private static final File GROOVY_TASK_FILE = new File("target/test-classes/groovy/GroovyTask.groovy");
 
     @Override
     @BeforeEach
@@ -61,222 +66,410 @@ public class CronTaskControllerTest
     }
 
     @Test
-    @EnabledIf(expression = "#{containsObject('repositoryIndexManager')}", loadContext = true)
-    public void createNewCronJob()
+    public void shouldReturnInvalidIdValidationError()
     {
-        final String name = "Cron Job Test";
-        final String cronExpression = "0 0 0 * * ?";
-        final String className = MyTask.class.getName();
+        CronTaskConfigurationForm cronTaskConfigurationForm = new CronTaskConfigurationForm();
+        cronTaskConfigurationForm.setJobClass("mummy");
 
-        // 1. Create cron job.
-        CronTaskConfigurationForm configurationForm = createForm(name, cronExpression, className);
-        createConfig(configurationForm);
+        given().contentType(MediaType.APPLICATION_JSON_VALUE)
+               .accept(MediaType.APPLICATION_JSON_VALUE)
+               .body(cronTaskConfigurationForm)
+               .when()
+               .put(getContextBaseUrl())
+               .peek()
+               .then()
+               .statusCode(HttpStatus.BAD_REQUEST.value())
+               .expect(MockMvcResultMatchers.jsonPath("errors[0].messages").value(hasItem("Cron job not found")))
+               .expect(MockMvcResultMatchers.jsonPath("errors[0].name").value(equalTo("jobClass")));
+    }
 
-        final String cronUuid = getCronUuid(name);
+    @Test
+    public void shouldRequireRequiredFields()
+    {
+        CronTaskConfigurationForm cronTaskConfigurationForm = new CronTaskConfigurationForm();
+        cronTaskConfigurationForm.setJobClass(
+                CleanupExpiredArtifactsFromProxyRepositoriesCronJob.class.getName());
+        cronTaskConfigurationForm.setCronExpression("0 11 11 11 11 ? 2100");
 
-        // 2. Delete cron job.
+        given().contentType(MediaType.APPLICATION_JSON_VALUE)
+               .accept(MediaType.APPLICATION_JSON_VALUE)
+               .body(cronTaskConfigurationForm)
+               .when()
+               .put(getContextBaseUrl())
+               .peek()
+               .then()
+               .statusCode(HttpStatus.BAD_REQUEST.value())
+               .expect(MockMvcResultMatchers.jsonPath("errors[0].messages").value(hasItem(stringContainsInOrder(
+                       Arrays.asList(new String[]{ "Required field",
+                                                   "not provided" })))))
+               .expect(MockMvcResultMatchers.jsonPath("errors[0].name").value(equalTo("fields")));
+    }
+
+    @Test
+    public void cronExpressionIsRequired()
+    {
+        CronTaskConfigurationForm cronTaskConfigurationForm = new CronTaskConfigurationForm();
+        cronTaskConfigurationForm.setJobClass(RebuildMavenIndexesCronJob.class.getName());
+        cronTaskConfigurationForm.setFields(Arrays.asList(
+                new CronTaskConfigurationFormField[]{ CronTaskConfigurationFormField.newBuilder().name(
+                        "storageId").value(
+                        "storage0").build(),
+                                                      CronTaskConfigurationFormField.newBuilder().name(
+                                                              "repositoryId").value(
+                                                              "releases").build() }));
+
+        given().contentType(MediaType.APPLICATION_JSON_VALUE)
+               .accept(MediaType.APPLICATION_JSON_VALUE)
+               .body(cronTaskConfigurationForm)
+               .when()
+               .put(getContextBaseUrl())
+               .peek()
+               .then()
+               .statusCode(HttpStatus.BAD_REQUEST.value())
+               .expect(MockMvcResultMatchers.jsonPath("errors[0].messages").value(hasItem(stringContainsInOrder(
+                       Arrays.asList(
+                               new String[]{ "Cron expression is required" })))))
+               .expect(MockMvcResultMatchers.jsonPath("errors[0].name").value(equalTo("cronExpression")));
+    }
+
+    @Test
+    public void cronExpressionIsValidatable()
+    {
+        CronTaskConfigurationForm cronTaskConfigurationForm = new CronTaskConfigurationForm();
+        cronTaskConfigurationForm.setJobClass(RebuildMavenIndexesCronJob.class.getName());
+        cronTaskConfigurationForm.setCronExpression("daddy");
+        cronTaskConfigurationForm.setFields(Arrays.asList(
+                new CronTaskConfigurationFormField[]{ CronTaskConfigurationFormField.newBuilder().name(
+                        "storageId").value(
+                        "storage0").build(),
+                                                      CronTaskConfigurationFormField.newBuilder().name(
+                                                              "repositoryId").value(
+                                                              "releases").build() }));
+
+        given().contentType(MediaType.APPLICATION_JSON_VALUE)
+               .accept(MediaType.APPLICATION_JSON_VALUE)
+               .body(cronTaskConfigurationForm)
+               .when()
+               .put(getContextBaseUrl())
+               .peek()
+               .then()
+               .statusCode(HttpStatus.BAD_REQUEST.value())
+               .expect(MockMvcResultMatchers.jsonPath("errors[0].messages").value(hasItem(stringContainsInOrder(
+                       Arrays.asList(
+                               new String[]{ "Cron expression is invalid" })))))
+               .expect(MockMvcResultMatchers.jsonPath("errors[0].name").value(equalTo("cronExpression")));
+    }
+
+    @Test
+    public void cronExpressionShouldNotBeProvidedIfOneTimeExecutionAndImmediateExecutionAreSet()
+    {
+        CronTaskConfigurationForm cronTaskConfigurationForm = new CronTaskConfigurationForm();
+        cronTaskConfigurationForm.setFields(Arrays.asList(
+                new CronTaskConfigurationFormField[]{ CronTaskConfigurationFormField.newBuilder().name(
+                        "storageId").value(
+                        "storage0").build(),
+                                                      CronTaskConfigurationFormField.newBuilder().name(
+                                                              "repositoryId").value(
+                                                              "releases").build() }));
+
+        cronTaskConfigurationForm.setJobClass(RebuildMavenIndexesCronJob.class.getName());
+        cronTaskConfigurationForm.setCronExpression("0 11 11 11 11 ? 2100");
+        cronTaskConfigurationForm.setImmediateExecution(true);
+        cronTaskConfigurationForm.setOneTimeExecution(true);
+
+        given().contentType(MediaType.APPLICATION_JSON_VALUE)
+               .accept(MediaType.APPLICATION_JSON_VALUE)
+               .body(cronTaskConfigurationForm)
+               .when()
+               .put(getContextBaseUrl())
+               .peek()
+               .then()
+               .statusCode(HttpStatus.BAD_REQUEST.value())
+               .expect(MockMvcResultMatchers.jsonPath("errors[0].messages").value(hasItem(stringContainsInOrder(
+                       Arrays.asList(
+                               new String[]{ "Cron expression should not be provided when both immediateExecution and oneTimeExecution are set to true" })))))
+               .expect(MockMvcResultMatchers.jsonPath("errors[0].name").value(equalTo("cronExpression")));
+    }
+
+    @Test
+    public void valueShouldBeProvidedForRequiredField()
+    {
+        CronTaskConfigurationForm cronTaskConfigurationForm = new CronTaskConfigurationForm();
+        cronTaskConfigurationForm.setJobClass(RebuildMavenIndexesCronJob.class.getName());
+        cronTaskConfigurationForm.setCronExpression("0 11 11 11 11 ? 2100");
+        cronTaskConfigurationForm.setFields(Arrays.asList(
+                new CronTaskConfigurationFormField[]{ CronTaskConfigurationFormField.newBuilder().name(
+                        "storageId").value(
+                        "storage0").build(),
+                                                      CronTaskConfigurationFormField.newBuilder().name(
+                                                              "repositoryId").value(
+                                                              "").build() }));
+
+        given().contentType(MediaType.APPLICATION_JSON_VALUE)
+               .accept(MediaType.APPLICATION_JSON_VALUE)
+               .body(cronTaskConfigurationForm)
+               .when()
+               .put(getContextBaseUrl())
+               .peek()
+               .then()
+               .statusCode(HttpStatus.BAD_REQUEST.value())
+               .expect(MockMvcResultMatchers.jsonPath("errors[0].messages").value(hasItem(stringContainsInOrder(
+                       Arrays.asList(
+                               new String[]{ "Required field value [repositoryId] not provided" })))))
+               .expect(MockMvcResultMatchers.jsonPath("errors[0].name").value(equalTo("fields[1].value")));
+    }
+
+    @Test
+    public void repositoryIdShouldBeAutocompletablyValidated()
+    {
+        CronTaskConfigurationForm cronTaskConfigurationForm = new CronTaskConfigurationForm();
+        cronTaskConfigurationForm.setJobClass(RebuildMavenMetadataCronJob.class.getName());
+        cronTaskConfigurationForm.setCronExpression("0 11 11 11 11 ? 2100");
+        cronTaskConfigurationForm.setFields(
+                Arrays.asList(new CronTaskConfigurationFormField[]{ CronTaskConfigurationFormField.newBuilder().name(
+                        "repositoryId").value("mummy").build() }));
+
+        given().contentType(MediaType.APPLICATION_JSON_VALUE)
+               .accept(MediaType.APPLICATION_JSON_VALUE)
+               .body(cronTaskConfigurationForm)
+               .when()
+               .put(getContextBaseUrl())
+               .peek()
+               .then()
+               .statusCode(HttpStatus.BAD_REQUEST.value())
+               .expect(MockMvcResultMatchers.jsonPath("errors[0].messages").value(hasItem(stringContainsInOrder(
+                       Arrays.asList(
+                               new String[]{ "Invalid value [mummy] provided. Possible values do not contain this value." })))))
+               .expect(MockMvcResultMatchers.jsonPath("errors[0].name").value(equalTo("fields[0].value")));
+    }
+
+    @Test
+    public void storageIdIdShouldBeAutocompletablyValidated()
+            throws JsonProcessingException
+    {
+        CronTaskConfigurationForm cronTaskConfigurationForm = new CronTaskConfigurationForm();
+        cronTaskConfigurationForm.setJobClass(RebuildMavenMetadataCronJob.class.getName());
+        cronTaskConfigurationForm.setCronExpression("0 11 11 11 11 ? 2100");
+        cronTaskConfigurationForm.setFields(
+                Arrays.asList(new CronTaskConfigurationFormField[]{ CronTaskConfigurationFormField.newBuilder().name(
+                        "storageId").value("mummy").build() }));
+
+        System.out.println(objectMapper.writeValueAsString(cronTaskConfigurationForm));
+
+        given().contentType(MediaType.APPLICATION_JSON_VALUE)
+               .accept(MediaType.APPLICATION_JSON_VALUE)
+               .body(cronTaskConfigurationForm)
+               .when()
+               .put(getContextBaseUrl())
+               .peek()
+               .then()
+               .statusCode(HttpStatus.BAD_REQUEST.value())
+               .expect(MockMvcResultMatchers.jsonPath("errors[0].messages").value(hasItem(stringContainsInOrder(
+                       Arrays.asList(
+                               new String[]{ "Invalid value [mummy] provided. Possible values do not contain this value." })))))
+               .expect(MockMvcResultMatchers.jsonPath("errors[0].name").value(equalTo("fields[0].value")));
+    }
+
+    @Test
+    public void shouldValidateIntTypeFields()
+    {
+        CronTaskConfigurationForm cronTaskConfigurationForm = new CronTaskConfigurationForm();
+        cronTaskConfigurationForm.setJobClass(
+                CleanupExpiredArtifactsFromProxyRepositoriesCronJob.class.getName());
+        cronTaskConfigurationForm.setCronExpression("0 11 11 11 11 ? 2100");
+        cronTaskConfigurationForm.setFields(
+                Arrays.asList(new CronTaskConfigurationFormField[]{ CronTaskConfigurationFormField.newBuilder().name(
+                        "lastAccessedTimeInDays").value("piecdziesiat").build() }));
+
+        given().contentType(MediaType.APPLICATION_JSON_VALUE)
+               .accept(MediaType.APPLICATION_JSON_VALUE)
+               .body(cronTaskConfigurationForm)
+               .when()
+               .put(getContextBaseUrl())
+               .peek()
+               .then()
+               .statusCode(HttpStatus.BAD_REQUEST.value())
+               .expect(MockMvcResultMatchers.jsonPath("errors[0].messages").value(hasItem(stringContainsInOrder(
+                       Arrays.asList(
+                               new String[]{ "Invalid value [piecdziesiat] type provided. [int] was expected." })))))
+               .expect(MockMvcResultMatchers.jsonPath("errors[0].name").value(equalTo("fields[0].value")));
+    }
+
+    @Test
+    public void shouldValidateBooleanTypeFields()
+    {
+        CronTaskConfigurationForm cronTaskConfigurationForm = new CronTaskConfigurationForm();
+        cronTaskConfigurationForm.setJobClass(RegenerateChecksumCronJob.class.getName());
+        cronTaskConfigurationForm.setCronExpression("0 11 11 11 11 ? 2100");
+        cronTaskConfigurationForm.setFields(
+                Arrays.asList(new CronTaskConfigurationFormField[]{ CronTaskConfigurationFormField.newBuilder().name(
+                        "forceRegeneration").value("prawda").build() }));
+
+        given().contentType(MediaType.APPLICATION_JSON_VALUE)
+               .accept(MediaType.APPLICATION_JSON_VALUE)
+               .body(cronTaskConfigurationForm)
+               .when()
+               .put(getContextBaseUrl())
+               .peek()
+               .then()
+               .statusCode(HttpStatus.BAD_REQUEST.value())
+               .expect(MockMvcResultMatchers.jsonPath("errors[0].messages").value(hasItem(stringContainsInOrder(
+                       Arrays.asList(
+                               new String[]{ "Invalid value [prawda] type provided. [boolean] was expected." })))))
+               .expect(MockMvcResultMatchers.jsonPath("errors[0].name").value(equalTo("fields[0].value")));
+    }
+
+    @Test
+    public void afterSuccessfulCronTaskCreationHeadersShouldContainCronUuid()
+    {
+        CronTaskConfigurationForm cronTaskConfigurationForm = new CronTaskConfigurationForm();
+        cronTaskConfigurationForm.setJobClass(RegenerateChecksumCronJob.class.getName());
+        cronTaskConfigurationForm.setCronExpression("0 11 11 11 11 ? 2100");
+        cronTaskConfigurationForm.setFields(
+                Arrays.asList(new CronTaskConfigurationFormField[]{ CronTaskConfigurationFormField.newBuilder().name(
+                        "forceRegeneration").value("false").build() }));
+
+        Headers headers = given().contentType(MediaType.APPLICATION_JSON_VALUE)
+                                 .accept(MediaType.APPLICATION_JSON_VALUE)
+                                 .body(cronTaskConfigurationForm)
+                                 .when()
+                                 .put(getContextBaseUrl())
+                                 .peek()
+                                 .then()
+                                 .statusCode(HttpStatus.OK.value())
+                                 .and()
+                                 .extract()
+                                 .headers();
+
+        String cronUuid = headers.getValue(HEADER_NAME_CRON_TASK_ID);
+        assertThat(cronUuid).isNotEmpty();
+
         deleteConfig(cronUuid);
     }
 
     @Test
-    @EnabledIf(expression = "#{containsObject('repositoryIndexManager')}", loadContext = true)
-    public void updateDownloadRemoteMavenIndexCronJob()
+    public void completeCronTaskCrudTest()
     {
-        final String currentCronExpression = "0 0 5 * * ?";
-        final String newCronExpression = "0 0 0 * * ?";
+        CronTaskConfigurationForm cronTaskConfigurationForm = new CronTaskConfigurationForm();
+        cronTaskConfigurationForm.setJobClass(RegenerateChecksumCronJob.class.getName());
+        cronTaskConfigurationForm.setCronExpression("0 11 11 11 11 ? 2100");
+        cronTaskConfigurationForm.setFields(
+                Arrays.asList(new CronTaskConfigurationFormField[]{ CronTaskConfigurationFormField.newBuilder().name(
+                        "forceRegeneration").value("false").build() }));
 
-        List<CronTaskConfigurationDto> configurationList = getDownloadRemoteMavenIndexOfCarlspringCronJobs();
-        assertFalse(configurationList.isEmpty());
+        Headers headers = given().contentType(MediaType.APPLICATION_JSON_VALUE)
+                                 .accept(MediaType.APPLICATION_JSON_VALUE)
+                                 .body(cronTaskConfigurationForm)
+                                 .when()
+                                 .put(getContextBaseUrl())
+                                 .peek()
+                                 .then()
+                                 .statusCode(HttpStatus.OK.value())
+                                 .and()
+                                 .extract()
+                                 .headers();
 
-        CronTaskConfigurationDto configuration = configurationList.get(0);
-        assertEquals(configuration.getProperties().keySet().size(), 4);
-        assertEquals(configuration.getProperties().get("cronExpression"), currentCronExpression);
+        String cronUuid = headers.getValue(HEADER_NAME_CRON_TASK_ID);
+        assertThat(cronUuid).isNotEmpty();
 
-        configuration.addProperty("cronExpression", newCronExpression);
+        CronTaskConfigurationDto config = given().contentType(MediaType.APPLICATION_JSON_VALUE)
+                                                 .accept(MediaType.APPLICATION_JSON_VALUE)
+                                                 .when()
+                                                 .get(getContextBaseUrl() + "/" + cronUuid)
+                                                 .peek()
+                                                 .then()
+                                                 .statusCode(HttpStatus.OK.value())
+                                                 .and()
+                                                 .extract()
+                                                 .as(CronTaskConfigurationDto.class);
 
-        CronTaskConfigurationForm configurationForm = convertToForm(configuration);
+        assertThat(config).isNotNull();
+        assertThat(config.getCronExpression()).isEqualTo("0 11 11 11 11 ? 2100");
+        assertThat(config.getProperty("forceRegeneration")).isEqualTo("false");
+
+        cronTaskConfigurationForm.setCronExpression("0 11 11 11 11 ? 2099");
+        cronTaskConfigurationForm.setFields(
+                Arrays.asList(new CronTaskConfigurationFormField[]{ CronTaskConfigurationFormField.newBuilder().name(
+                        "forceRegeneration").value("true").build() }));
 
         given().contentType(MediaType.APPLICATION_JSON_VALUE)
                .accept(MediaType.APPLICATION_JSON_VALUE)
-               .body(configurationForm)
+               .body(cronTaskConfigurationForm)
                .when()
-               .put(getContextBaseUrl() + "/" + configuration.getUuid())
+               .put(getContextBaseUrl() + "/" + cronUuid)
                .peek()
                .then()
-               .statusCode(OK);
+               .statusCode(HttpStatus.OK.value())
+               .and()
+               .extract();
 
-        configurationList = getDownloadRemoteMavenIndexOfCarlspringCronJobs();
-        assertFalse(configurationList.isEmpty());
+        config = given().contentType(MediaType.APPLICATION_JSON_VALUE)
+                        .accept(MediaType.APPLICATION_JSON_VALUE)
+                        .when()
+                        .get(getContextBaseUrl() + "/" + cronUuid)
+                        .peek()
+                        .then()
+                        .statusCode(HttpStatus.OK.value())
+                        .and()
+                        .extract()
+                        .as(CronTaskConfigurationDto.class);
 
-        configuration = configurationList.get(0);
-        assertEquals(configuration.getProperties().keySet().size(), 4);
-        assertEquals(configuration.getProperties().get("cronExpression"), newCronExpression);
-
-        // Revert changes
-        configuration.addProperty("cronExpression", currentCronExpression);
-        configurationForm = convertToForm(configuration);
-
-        given().contentType(MediaType.APPLICATION_JSON_VALUE)
-               .accept(MediaType.APPLICATION_JSON_VALUE)
-               .body(configurationForm)
-               .when()
-               .put(getContextBaseUrl() + "/" + configuration.getUuid())
-               .peek()
-               .then()
-               .statusCode(OK);
-    }
-
-    @Test
-    public void testJavaCronTaskConfiguration()
-    {
-        final String cronName = "CRJ001";
-        final String cronExpression = "0 11 11 11 11 ? 2100";
-        final String className = MyTask.class.getName();
-
-        // 1. Create cron config.
-        CronTaskConfigurationForm configurationForm = createForm(cronName, cronExpression, className);
-        createConfig(configurationForm);
-
-        final String cronUuid = getCronUuid(cronName);
-
-        // 2. Update cron config.
-        saveCronConfig(cronUuid, configurationForm);
-
-        // Remove comments to test cron job execution
-        // saveCronConfig("0 0/2 * 1/1 * ? *", cronUuid, cronName, MyTask.class.getName());
+        assertThat(config).isNotNull();
+        assertThat(config.getCronExpression()).isEqualTo("0 11 11 11 11 ? 2099");
+        assertThat(config.getProperty("forceRegeneration")).isEqualTo("true");
 
         deleteConfig(cronUuid);
     }
-
 
     @Test
     public void testGroovyCronTaskConfiguration()
             throws Exception
     {
-        final String cronName = "CRJG001";
-        final String cronExpression = "0 11 11 11 11 ? 2100";
+        CronTaskConfigurationForm cronTaskConfigurationForm = new CronTaskConfigurationForm();
+        cronTaskConfigurationForm.setJobClass(GroovyCronJob.class.getName());
+        cronTaskConfigurationForm.setCronExpression("0 11 11 11 11 ? 2100");
 
-        // 1. Create cron config.
-        CronTaskConfigurationForm configurationForm = createForm(cronName, cronExpression, null);
-        createConfig(configurationForm);
+        Headers headers = given().contentType(MediaType.APPLICATION_JSON_VALUE)
+                                 .accept(MediaType.APPLICATION_JSON_VALUE)
+                                 .body(cronTaskConfigurationForm)
+                                 .when()
+                                 .put(getContextBaseUrl())
+                                 .peek()
+                                 .then()
+                                 .statusCode(HttpStatus.OK.value())
+                                 .and()
+                                 .extract()
+                                 .headers();
 
-        final String cronUuid = getCronUuid(cronName);
+        String cronUuid = headers.getValue(HEADER_NAME_CRON_TASK_ID);
+        assertThat(cronUuid).isNotEmpty();
 
-        // 2. Update cron config.
-        saveCronConfig(cronUuid, configurationForm);
         uploadGroovyScript(cronUuid);
-
-        // Remove comments to test cron job execution *
-        // listOfGroovyScriptsName();
-        // saveCronConfig("0 0/2 * 1/1 * ? *", cronUuid, cronName, null);
 
         deleteConfig(cronUuid);
     }
 
-    private CronTaskConfigurationForm createForm(String name,
-                                                 String cronExpression,
-                                                 String className)
+    @Test
+    public void testListCronJobs()
     {
-        CronTaskConfigurationForm form = new CronTaskConfigurationForm();
-        form.setName(name);
-        form.addProperty("cronExpression", cronExpression);
-
-        if (className != null)
-        {
-            form.addProperty(CRON_CONFIG_JOB_CLASS_KEY, className);
-        }
-
-        form.setOneTimeExecution(true);
-        form.setImmediateExecution(true);
-
-        return form;
-    }
-
-    private void createConfig(CronTaskConfigurationForm configurationForm)
-    {
-        MockMvcResponse response = createCronConfig(configurationForm);
-
-        assertEquals(OK, response.getStatusCode(), "Failed to create cron config job: " + response.getStatusLine());
-    }
-
-    private MockMvcResponse createCronConfig(CronTaskConfigurationForm configurationForm)
-    {
-        return given().contentType(MediaType.APPLICATION_JSON_VALUE)
-                      .accept(MediaType.APPLICATION_JSON_VALUE)
-                      .body(configurationForm)
-                      .when()
-                      .put(getContextBaseUrl() + "/")
-                      .peek();
-    }
-
-    private List<CronTaskConfigurationDto> getDownloadRemoteMavenIndexOfCarlspringCronJobs()
-    {
-
-        final CronTasksConfigurationDto cronTasksConfiguration = given().accept(APPLICATION_YAML_VALUE)
-                                                                        .when()
-                                                                        .get(getContextBaseUrl() + "/")
-                                                                        .peek()
-                                                                        .as(CronTasksConfigurationDto.class);
-
-        return cronTasksConfiguration.getCronTaskConfigurations()
-                                     .stream()
-                                     .filter(p -> "org.carlspring.strongbox.cron.jobs.DownloadRemoteMavenIndexCronJob".equals(
-                                                     p.getRequiredProperty(CRON_CONFIG_JOB_CLASS_KEY)))
-                                     .filter(p -> "storage-common-proxies".equals(p.getProperty("storageId")))
-                                     .filter(p -> "carlspring".equals(p.getProperty("repositoryId")))
-                                     .collect(Collectors.toList());
-    }
-
-    private CronTaskConfigurationForm convertToForm(CronTaskConfigurationDto configuration)
-    {
-        CronTaskConfigurationForm form = new CronTaskConfigurationForm();
-        form.setName(configuration.getName());
-        form.setProperties(configuration.getProperties());
-        form.setOneTimeExecution(configuration.isOneTimeExecution());
-        form.setImmediateExecution(configuration.shouldExecuteImmediately());
-
-        return form;
-    }
-
-
-    private void saveCronConfig(String uuid,
-                                CronTaskConfigurationForm form)
-    {
-        MockMvcResponse response = given().contentType(MediaType.APPLICATION_JSON_VALUE)
-                                          .accept(MediaType.APPLICATION_JSON_VALUE)
-                                          .body(form)
-                                          .when()
-                                          .put(getContextBaseUrl() + "/" + uuid)
-                                          .peek();
-
-        int status = response.getStatusCode();
-        if (OK != status)
-        {
-            logger.error(status + " | " + response.getStatusLine());
-        }
-
-        assertEquals(OK, status, "Failed to schedule job!");
-
-        // Retrieve saved config
-        response = getCronConfig(uuid);
-
-        assertEquals(OK, response.getStatusCode(), "Failed to get cron task config! " + response.getStatusLine());
-
-        logger.debug("Retrieved config " + response.getBody().asString());
+        given().contentType(MediaType.APPLICATION_JSON_VALUE)
+               .accept(MediaType.APPLICATION_JSON_VALUE)
+               .when()
+               .get(getContextBaseUrl() + "/types/list")
+               .peek()
+               .then()
+               .statusCode(OK);
     }
 
     private void uploadGroovyScript(String uuid)
             throws Exception
     {
-        String fileName = "GroovyTask.groovy";
-        File file = new File("target/test-classes/groovy/" + fileName);
-
         String url = getContextBaseUrl() + "/cron/groovy/" + uuid;
 
-        String contentDisposition = "attachment; filename=\"" + fileName + "\"";
+        String contentDisposition = "attachment; filename=\"" + GROOVY_TASK_FILE.getName() + "\"";
         byte[] bytes;
 
-        try (InputStream is = new FileInputStream(file))
+        try (InputStream is = new FileInputStream(GROOVY_TASK_FILE))
         {
             bytes = IOUtils.toByteArray(is);
         }
@@ -284,23 +477,10 @@ public class CronTaskControllerTest
         given().contentType(MediaType.APPLICATION_JSON_VALUE)
                .accept(MediaType.APPLICATION_JSON_VALUE)
                .header(HttpHeaders.CONTENT_DISPOSITION, contentDisposition)
-               .header(CRON_CONFIG_FILE_NAME_KEY, fileName)
+               .header(CRON_CONFIG_FILE_NAME_KEY, GROOVY_TASK_FILE.getName())
                .body(bytes)
                .when()
                .put(url)
-               .peek()
-               .then()
-               .statusCode(OK);
-    }
-
-    /**
-     * Retrieve list of Groovy script file names
-     */
-    private void listOfGroovyScriptsName()
-    {
-        given().contentType(MediaType.APPLICATION_JSON_VALUE)
-               .when()
-               .get(getContextBaseUrl() + "/groovy/names")
                .peek()
                .then()
                .statusCode(OK);
@@ -342,23 +522,6 @@ public class CronTaskControllerTest
                       .when()
                       .get(getContextBaseUrl() + "/" + uuid)
                       .peek();
-    }
-
-    private String getCronUuid(String cronName)
-    {
-        final CronTasksConfigurationDto cronTasksConfiguration = given().accept(MediaType.APPLICATION_JSON_VALUE)
-                                                                        .when()
-                                                                        .get(getContextBaseUrl())
-                                                                        .peek()
-                                                                        .as(CronTasksConfigurationDto.class);
-
-        final CronTaskConfigurationDto cronTaskConfiguration = cronTasksConfiguration.getCronTaskConfigurations()
-                                                                                     .stream()
-                                                                                     .filter(p -> cronName.equals(
-                                                                                             p.getName()))
-                                                                                     .findFirst().get();
-
-        return cronTaskConfiguration.getUuid();
     }
 
 }

@@ -4,13 +4,15 @@ import org.carlspring.strongbox.cron.domain.CronTaskConfigurationDto;
 import org.carlspring.strongbox.cron.domain.CronTasksConfigurationDto;
 import org.carlspring.strongbox.cron.exceptions.CronTaskNotFoundException;
 
+import java.util.UUID;
+
 import org.quartz.SchedulerException;
 
 public interface CronTaskConfigurationService
 {
 
 
-    void saveConfiguration(CronTaskConfigurationDto cronTaskConfiguration)
+    UUID saveConfiguration(CronTaskConfigurationDto cronTaskConfiguration)
             throws Exception;
 
     void deleteConfiguration(String cronTaskConfigurationUuid)

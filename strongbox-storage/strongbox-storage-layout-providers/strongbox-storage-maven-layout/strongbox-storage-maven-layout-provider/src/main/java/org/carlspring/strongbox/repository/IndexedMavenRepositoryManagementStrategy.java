@@ -99,8 +99,8 @@ public class IndexedMavenRepositoryManagementStrategy
     {
         CronTaskConfigurationDto configuration = new CronTaskConfigurationDto();
         configuration.setName("Remote index download for " + storageId + ":" + repositoryId);
-        configuration.addProperty("jobClass", DownloadRemoteMavenIndexCronJob.class.getName());
-        configuration.addProperty("cronExpression", "0 0 0 * * ?"); // Execute once daily at 00:00:00
+        configuration.setJobClass(DownloadRemoteMavenIndexCronJob.class.getName());
+        configuration.setCronExpression("0 0 0 * * ?"); // Execute once daily at 00:00:00
         configuration.addProperty("storageId", storageId);
         configuration.addProperty("repositoryId", repositoryId);
         configuration.setImmediateExecution(true);
@@ -121,8 +121,8 @@ public class IndexedMavenRepositoryManagementStrategy
     {
         CronTaskConfigurationDto configuration = new CronTaskConfigurationDto();
         configuration.setName("Rebuild Maven Index Cron Job for " + storageId + ":" + repositoryId);
-        configuration.addProperty("jobClass", RebuildMavenIndexesCronJob.class.getName());
-        configuration.addProperty("cronExpression", "0 0 2 * * ?");
+        configuration.setJobClass(RebuildMavenIndexesCronJob.class.getName());
+        configuration.setCronExpression("0 0 2 * * ?");
         configuration.addProperty("storageId", storageId);
         configuration.addProperty("repositoryId", repositoryId);
         configuration.setImmediateExecution(true);

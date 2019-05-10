@@ -2,6 +2,7 @@ package org.carlspring.strongbox.cron.jobs;
 
 import org.carlspring.strongbox.configuration.ConfigurationManager;
 import org.carlspring.strongbox.cron.domain.CronTaskConfigurationDto;
+import org.carlspring.strongbox.cron.jobs.fields.*;
 import org.carlspring.strongbox.repository.MavenRepositoryFeatures;
 import org.carlspring.strongbox.storage.Storage;
 import org.carlspring.strongbox.storage.repository.Repository;
@@ -11,7 +12,9 @@ import javax.inject.Inject;
 import java.io.IOException;
 import java.security.NoSuchAlgorithmException;
 import java.util.Map;
+import java.util.Set;
 
+import com.google.common.collect.ImmutableSet;
 import org.codehaus.plexus.util.xml.pull.XmlPullParserException;
 
 /**
@@ -20,6 +23,28 @@ import org.codehaus.plexus.util.xml.pull.XmlPullParserException;
 public class RemoveTimestampedMavenSnapshotCronJob
         extends JavaCronJob
 {
+
+    private static final String PROPERTY_STORAGE_ID = "storageId";
+
+    private static final String PROPERTY_REPOSITORY_ID = "repositoryId";
+
+    private static final String PROPERTY_BASE_PATH = "basePath";
+
+    private static final String PROPERTY_NUMBER_TO_KEEP = "numberToKeep";
+
+    private static final String PROPERTY_KEEP_PERIOD = "keepPeriod";
+
+    private static final Set<CronJobField> FIELDS = ImmutableSet.of(
+            new CronJobStorageIdAutocompleteField(new CronJobStringTypeField(
+                    new CronJobOptionalField(new CronJobNamedField(PROPERTY_STORAGE_ID)))),
+            new CronJobRepositoryIdAutocompleteField(new CronJobStringTypeField(
+                    new CronJobOptionalField(new CronJobNamedField(PROPERTY_REPOSITORY_ID)))),
+            new CronJobStringTypeField(
+                    new CronJobOptionalField(new CronJobNamedField(PROPERTY_BASE_PATH))),
+            new CronJobIntegerTypeField(
+                    new CronJobOptionalField(new CronJobNamedField(PROPERTY_NUMBER_TO_KEEP))),
+            new CronJobIntegerTypeField(
+                    new CronJobOptionalField(new CronJobNamedField(PROPERTY_KEEP_PERIOD))));
 
     @Inject
     private MavenRepositoryFeatures mavenRepositoryFeatures;
@@ -31,18 +56,18 @@ public class RemoveTimestampedMavenSnapshotCronJob
     public void executeTask(CronTaskConfigurationDto config)
             throws Throwable
     {
-        String storageId = config.getProperty("storageId");
-        String repositoryId = config.getProperty("repositoryId");
-        String basePath = config.getProperty("basePath");
+        String storageId = config.getProperty(PROPERTY_STORAGE_ID);
+        String repositoryId = config.getProperty(PROPERTY_REPOSITORY_ID);
+        String basePath = config.getProperty(PROPERTY_BASE_PATH);
 
         // The number of artifacts to keep
-        int numberToKeep = config.getProperty("numberToKeep") != null ?
-                           Integer.valueOf(config.getProperty("numberToKeep")) :
+        int numberToKeep = config.getProperty(PROPERTY_NUMBER_TO_KEEP) != null ?
+                           Integer.valueOf(config.getProperty(PROPERTY_NUMBER_TO_KEEP)) :
                            10;
 
         // The period to keep artifacts (the number of days)
-        int keepPeriod = config.getProperty("keepPeriod") != null ?
-                         Integer.valueOf(config.getProperty("keepPeriod")) :
+        int keepPeriod = config.getProperty(PROPERTY_KEEP_PERIOD) != null ?
+                         Integer.valueOf(config.getProperty(PROPERTY_KEEP_PERIOD)) :
                          30;
 
         if (storageId == null)
@@ -65,6 +90,17 @@ public class RemoveTimestampedMavenSnapshotCronJob
                                                                numberToKeep,
                                                                keepPeriod);
         }
+    }
+
+    @Override
+    public CronJobDefinition getCronJobDefinition()
+    {
+        return CronJobDefinition.newBuilder()
+                                .jobClass(RemoveTimestampedMavenSnapshotCronJob.class.getName())
+                                .name("Remove Timestamped Maven Snapshot Cron Job")
+                                .description("Remove Timestamped Maven Snapshot Cron Job")
+                                .fields(FIELDS)
+                                .build();
     }
 
     /**
@@ -92,11 +128,11 @@ public class RemoveTimestampedMavenSnapshotCronJob
                                  {
                                      try
                                      {
-                                        mavenRepositoryFeatures.removeTimestampedSnapshots(storageId,
-                                                                                           repositoryId,
-                                                                                           null,
-                                                                                           numberToKeep,
-                                                                                           keepPeriod);
+                                         mavenRepositoryFeatures.removeTimestampedSnapshots(storageId,
+                                                                                            repositoryId,
+                                                                                            null,
+                                                                                            numberToKeep,
+                                                                                            keepPeriod);
                                      }
                                      catch (IOException e)
                                      {
