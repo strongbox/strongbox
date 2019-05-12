@@ -88,9 +88,9 @@ started with our project:
 [strongbox-logo]: ./strongbox.svg
 
 [<--# Badges -->]: #
-[master-build-status-link]: https://dev.carlspring.org/jenkins/blue/organizations/jenkins/strongbox%2Fstrongbox/activity?branch=master
-[master-build-status-badge]: https://dev.carlspring.org/jenkins/buildStatus/icon?job=strongbox/strongbox/master
-[master-build-tests-badge]: https://img.shields.io/jenkins/t/https/jenkins.carlspring.org/job/strongbox/job/strongbox/job/master.svg 
+[master-build-status-link]: https://jenkins.carlspring.org/blue/organizations/jenkins/strongbox%2Fbuilds%2Fstrongbox/activity?branch=master
+[master-build-status-badge]: https://jenkins.carlspring.org/buildStatus/icon?job=strongbox/builds/strongbox/master
+[master-build-tests-badge]: https://img.shields.io/jenkins/t/https/jenkins.carlspring.org/job/strongbox/job/builds/job/strongbox/job/master.svg 
 [rocket-chat-link]: https://chat.carlspring.org/channel/community
 [rocket-chat-badge]: https://chat.carlspring.org/images/join-chat.svg
 [license-link]: https://opensource.org/licenses/Apache-2.0
