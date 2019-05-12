@@ -9,6 +9,7 @@ import java.lang.annotation.Retention;
 import java.lang.annotation.Target;
 
 import org.carlspring.strongbox.artifact.coordinates.MavenArtifactCoordinates;
+import org.carlspring.strongbox.providers.layout.Maven2LayoutProvider;
 import org.carlspring.strongbox.storage.repository.RepositoryPolicyEnum;
 import org.carlspring.strongbox.testing.storage.repository.RepositorySetup;
 import org.carlspring.strongbox.testing.storage.repository.TestRepository;
@@ -16,7 +17,6 @@ import org.springframework.core.annotation.AliasFor;
 
 /**
  * @author sbespalov
- *
  */
 @Documented
 @Retention(RUNTIME)
@@ -39,5 +39,8 @@ public @interface MavenRepository
 
     @AliasFor(annotation = TestRepository.class)
     boolean cleanup() default true;
+
+    @AliasFor(annotation = TestRepository.class)
+    String layout() default Maven2LayoutProvider.ALIAS;
 
 }
