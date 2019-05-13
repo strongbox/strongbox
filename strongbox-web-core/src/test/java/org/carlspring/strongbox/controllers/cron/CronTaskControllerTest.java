@@ -35,7 +35,6 @@ import static org.junit.jupiter.api.Assertions.assertFalse;
  * @author Pablo Tirado
  */
 @IntegrationTest
-@ActiveProfiles(profiles = "test")
 public class CronTaskControllerTest
         extends RestAssuredBaseTest
 {

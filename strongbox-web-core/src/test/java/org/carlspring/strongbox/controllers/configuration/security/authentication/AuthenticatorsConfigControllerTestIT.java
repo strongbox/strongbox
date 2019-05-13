@@ -37,7 +37,7 @@ import static org.hamcrest.CoreMatchers.is;
  * @author Pablo Tirado
  * @author sbespalov
  */
-@ActiveProfiles("AuthenticatorsConfigControllerTestConfig")
+@ActiveProfiles({"test", "AuthenticatorsConfigControllerTestConfig"})
 @IntegrationTest
 public class AuthenticatorsConfigControllerTestIT
         extends RestAssuredBaseTest
