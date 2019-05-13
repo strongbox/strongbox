@@ -5,7 +5,6 @@ import static org.carlspring.strongbox.rest.client.RestAssuredArtifactClient.OK;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import java.io.File;
-import java.net.URI;
 
 import javax.inject.Inject;
 
@@ -13,6 +12,7 @@ import org.carlspring.strongbox.rest.client.RestAssuredArtifactClient;
 import org.carlspring.strongbox.testing.TestCaseWithRepository;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.MediaType;
 import org.springframework.web.context.WebApplicationContext;
 
@@ -49,6 +49,7 @@ public abstract class RestAssuredBaseTest
     @Inject
     protected RestAssuredArtifactClient client;
 
+    @Value("${strongbox.url}")
     private String contextBaseUrl;
 
     private RestAssuredMockMvcConfig restAssuredMockMvcConfig;
@@ -58,6 +59,8 @@ public abstract class RestAssuredBaseTest
     {
         logger.debug("Initializing RestAssured...");
 
+        client.setContextBaseUrl(contextBaseUrl);
+        
         restAssuredMockMvcConfig = RestAssuredMockMvcConfig.config().objectMapperConfig(
                 new ObjectMapperConfig().jackson2ObjectMapperFactory((aClass, s) -> objectMapper));
     }
@@ -67,21 +70,14 @@ public abstract class RestAssuredBaseTest
         return contextBaseUrl;
     }
 
-    protected MockMvcRequestSpecification givenCustom() {
+    protected MockMvcRequestSpecification givenCustom()
+    {
         return given().config(restAssuredMockMvcConfig);
     }
 
-    @Inject
-    public void setContextBaseUrl(URI contextBaseUrl)
+    public void setContextBaseUrl(String contextBaseUrl)
     {
-        setContextBaseUrl(contextBaseUrl.toString());
-    }
-
-    public void setContextBaseUrl(String contextBaseUrl) {
         this.contextBaseUrl = contextBaseUrl;
-
-        // base URL depends only on test execution context
-        client.setContextBaseUrl(contextBaseUrl);        
     }
     
     public static void removeDir(String path)
