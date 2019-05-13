@@ -2,6 +2,7 @@ package org.carlspring.strongbox.web;
 
 import java.util.Collection;
 import java.util.Collections;
+import java.util.Optional;
 
 import javax.servlet.http.HttpServletRequest;
 
@@ -35,7 +36,7 @@ public class LayoutRequestCondition extends AbstractRequestCondition<LayoutReque
     @Override
     public LayoutRequestCondition getMatchingCondition(HttpServletRequest request)
     {
-        String servletPath = request.getPathInfo();
+        String servletPath = Optional.ofNullable(request.getServletPath()).orElse(request.getPathInfo());
         if (servletPath.startsWith("/storages/copy"))
         {
             return getPathCopyCondition(request);
