@@ -20,7 +20,7 @@ public class LayoutRequestCondition extends AbstractRequestCondition<LayoutReque
     private final StoragesConfigurationManager configurationManager;
 
     public LayoutRequestCondition(StoragesConfigurationManager configurationManager,
-                                    String layout)
+                                  String layout)
     {
         this.layout = layout;
         this.configurationManager = configurationManager;
@@ -36,11 +36,36 @@ public class LayoutRequestCondition extends AbstractRequestCondition<LayoutReque
     public LayoutRequestCondition getMatchingCondition(HttpServletRequest request)
     {
         String servletPath = request.getPathInfo();
-        if (!servletPath.startsWith("/storages"))
+        if (servletPath.startsWith("/storages/copy"))
+        {
+            return getPathCopyCondition(request);
+        }
+        else if (servletPath.startsWith("/storages"))
+        {
+            return getStorageAndRepositoryCondition(servletPath);
+        }
+
+        return null;
+    }
+
+    private LayoutRequestCondition getPathCopyCondition(HttpServletRequest request)
+    {
+        String storageId = request.getParameter("srcStorageId");
+        if (storageId == null)
+        {
+            return null;
+        }
+        String repositoryId = request.getParameter("srcRepositoryId");
+        if (repositoryId == null)
         {
             return null;
         }
 
+        return getStorageAndRepositoryCondition(storageId, repositoryId);
+    }
+
+    private LayoutRequestCondition getStorageAndRepositoryCondition(String servletPath)
+    {
         String[] pathParts = servletPath.split("/");
         if (pathParts.length < 4)
         {
@@ -49,6 +74,13 @@ public class LayoutRequestCondition extends AbstractRequestCondition<LayoutReque
 
         String storageId = pathParts[2];
         String repositoryId = pathParts[3];
+
+        return getStorageAndRepositoryCondition(storageId, repositoryId);
+    }
+
+    private LayoutRequestCondition getStorageAndRepositoryCondition(String storageId,
+                                                                    String repositoryId)
+    {
         Storage storage = configurationManager.getStorage(storageId);
         if (storage == null)
         {
