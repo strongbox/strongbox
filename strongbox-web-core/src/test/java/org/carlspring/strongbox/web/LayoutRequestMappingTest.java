@@ -59,12 +59,12 @@ public class LayoutRequestMappingTest
         MutableRepository testLayoutRepository = new MutableRepository("releases");
         testLayoutRepository.setStorage(storage);
         testLayoutRepository.setLayout(TEST_LAYOUT_ALIAS);
-        Mockito.when(storagesConfigurationManager.getRepository("releases")).thenReturn(testLayoutRepository);
+        Mockito.when(storagesConfigurationManager.getRepository("storage0", "releases")).thenReturn(testLayoutRepository);
 
         MutableRepository anotherRepository = new MutableRepository("another-releases");
         anotherRepository.setStorage(storage);
         anotherRepository.setLayout(ANOTHER_LAYOUT_ALIAS);
-        Mockito.when(storagesConfigurationManager.getRepository("another-releases")).thenReturn(anotherRepository);
+        Mockito.when(storagesConfigurationManager.getRepository("storage0", "another-releases")).thenReturn(anotherRepository);
     }
 
     @Test
