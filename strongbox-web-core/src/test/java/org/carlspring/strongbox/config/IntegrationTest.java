@@ -35,11 +35,10 @@ import org.springframework.test.context.web.WebAppConfiguration;
 @SpringBootTest(classes = { StrongboxSpringBootApplication.class,
                             MockedRemoteRepositoriesHeartbeatConfig.class,
                             IntegrationTest.IntegrationTestsConfiguration.class,
-                            TestingCoreConfig.class,
-                            RestAssuredConfig.class })
+                            TestingCoreConfig.class })
 @WebAppConfiguration("classpath:")
-@WithUserDetails(value = "admin")
-@ActiveProfiles(profiles = "test")
+@WithUserDetails("admin")
+@ActiveProfiles("test")
 @TestExecutionListeners(listeners = { RestAssuredTestExecutionListener.class,
                                       CacheManagerTestExecutionListener.class }, mergeMode = TestExecutionListeners.MergeMode.MERGE_WITH_DEFAULTS)
 @Execution(ExecutionMode.SAME_THREAD)
