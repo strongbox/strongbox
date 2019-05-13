@@ -54,7 +54,7 @@ public class LayoutRequestCondition extends AbstractRequestCondition<LayoutReque
         {
             return null;
         }
-        Repository repository = configurationManager.getRepository(repositoryId);
+        Repository repository = configurationManager.getRepository(storageId, repositoryId);
         if (repository == null)
         {
             return null;
