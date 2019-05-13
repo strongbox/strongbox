@@ -34,7 +34,7 @@ import com.fasterxml.jackson.core.JsonProcessingException;
 @ContextConfiguration(classes = LayoutRequestMappingTest.LayoutRequestMappingConfiguration.class)
 @ExtendWith(SpringExtension.class)
 @WebMvcTest(controllers = { LayoutRequestMappingTest.TestLayoutController.class, LayoutRequestMappingTest.AnotherLayoutController.class }, secure = false)
-@ActiveProfiles("LayoutRequestMappingTest")
+@ActiveProfiles({"test", "LayoutRequestMappingTest"})
 public class LayoutRequestMappingTest
 {
 
