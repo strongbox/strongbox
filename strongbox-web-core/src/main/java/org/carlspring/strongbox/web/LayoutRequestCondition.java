@@ -36,7 +36,7 @@ public class LayoutRequestCondition extends AbstractRequestCondition<LayoutReque
     @Override
     public LayoutRequestCondition getMatchingCondition(HttpServletRequest request)
     {
-        String servletPath = Optional.ofNullable(request.getServletPath()).orElse(request.getPathInfo());
+        String servletPath = Optional.ofNullable(request.getServletPath()).filter(s -> s != null && s.trim().length() > 0).orElse(request.getPathInfo());
         if (servletPath.startsWith("/storages/copy"))
         {
             return getPathCopyCondition(request);
