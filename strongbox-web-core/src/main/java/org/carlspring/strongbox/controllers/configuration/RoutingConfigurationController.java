@@ -62,24 +62,24 @@ public class RoutingConfigurationController
 
     @ApiOperation(value = "Returns routing rule for uuid.")
     @ApiResponses(value = { @ApiResponse(code = 200, message = "Everything went ok."),
-                            @ApiResponse(code = 404, message = NOT_FOUND_REPOSITORY)})
+                            @ApiResponse(code = 404, message = NOT_FOUND_REPOSITORY) })
     @GetMapping(value = "{uuid}",
-            produces = { MediaType.TEXT_PLAIN_VALUE,
-                         MediaType.APPLICATION_JSON_VALUE })
+                produces = { MediaType.TEXT_PLAIN_VALUE,
+                             MediaType.APPLICATION_JSON_VALUE })
     public ResponseEntity getRoutingRule(@PathVariable UUID uuid,
                                          @RequestHeader(HttpHeaders.ACCEPT) String accept)
     {
         MutableRoutingRule body = configurationManagementService.getRoutingRule(uuid);
-        if(body == null)
+        if (body == null)
         {
-            return getNotFoundResponseEntity(NOT_FOUND_REPOSITORY,accept);
+            return getNotFoundResponseEntity(NOT_FOUND_REPOSITORY, accept);
         }
 
         return ResponseEntity.ok(body);
     }
 
     @ApiOperation(value = "Returns routing rules.")
-    @ApiResponses(value = { @ApiResponse(code = 200, message = "Everything went ok.")})
+    @ApiResponses(value = { @ApiResponse(code = 200, message = "Everything went ok.") })
     @GetMapping(produces = { MediaType.TEXT_PLAIN_VALUE,
                              MediaType.APPLICATION_JSON_VALUE })
     public ResponseEntity getRoutingRules()
@@ -93,9 +93,9 @@ public class RoutingConfigurationController
                             @ApiResponse(code = 400, message = FAILED_ADD_ROUTING_RULE_FORM_ERRORS),
                             @ApiResponse(code = 404, message = FAILED_ADD_ROUTING_RULE) })
     @PutMapping(value = "/add",
-            consumes = MediaType.APPLICATION_JSON_VALUE,
-            produces = { MediaType.TEXT_PLAIN_VALUE,
-                         MediaType.APPLICATION_JSON_VALUE })
+                consumes = MediaType.APPLICATION_JSON_VALUE,
+                produces = { MediaType.TEXT_PLAIN_VALUE,
+                             MediaType.APPLICATION_JSON_VALUE })
     public ResponseEntity add(@RequestBody @Validated RoutingRuleForm routingRule,
                               BindingResult bindingResult,
                               @RequestHeader(HttpHeaders.ACCEPT) String acceptHeader) throws IOException
@@ -115,9 +115,9 @@ public class RoutingConfigurationController
     @ApiResponses(value = { @ApiResponse(code = 200, message = SUCCESSFUL_REMOVE_ROUTING_RULE),
                             @ApiResponse(code = 404, message = FAILED_ADD_ROUTING_RULE) })
     @DeleteMapping(value = "/remove/{uuid}",
-            consumes = MediaType.APPLICATION_JSON_VALUE,
-            produces = { MediaType.TEXT_PLAIN_VALUE,
-                         MediaType.APPLICATION_JSON_VALUE })
+                   consumes = MediaType.APPLICATION_JSON_VALUE,
+                   produces = { MediaType.TEXT_PLAIN_VALUE,
+                                MediaType.APPLICATION_JSON_VALUE })
     public ResponseEntity remove(@PathVariable UUID uuid,
                                  @RequestHeader(HttpHeaders.ACCEPT) String acceptHeader) throws IOException
     {
@@ -131,9 +131,9 @@ public class RoutingConfigurationController
                             @ApiResponse(code = 400, message = FAILED_UPDATE_ROUTING_RULE_FORM_ERROR),
                             @ApiResponse(code = 404, message = NOT_FOUND_REPOSITORY) })
     @PutMapping(value = "/update/{uuid}",
-            consumes = MediaType.APPLICATION_JSON_VALUE,
-            produces = { MediaType.TEXT_PLAIN_VALUE,
-                         MediaType.APPLICATION_JSON_VALUE })
+                consumes = MediaType.APPLICATION_JSON_VALUE,
+                produces = { MediaType.TEXT_PLAIN_VALUE,
+                             MediaType.APPLICATION_JSON_VALUE })
     public ResponseEntity update(@PathVariable UUID uuid,
                                  @RequestBody @Validated RoutingRuleForm routingRule,
                                  BindingResult bindingResult,
