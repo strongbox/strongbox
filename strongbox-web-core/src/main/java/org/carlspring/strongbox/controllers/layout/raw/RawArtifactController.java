@@ -15,9 +15,11 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestHeader;
 import org.springframework.web.bind.annotation.RestController;
 
@@ -40,6 +42,38 @@ public class RawArtifactController
     // must be the same as @RequestMapping value on the class definition
     public final static String ROOT_CONTEXT = "/storages";
 
+    @ApiOperation(value = "Used to deploy an artifact")
+    @ApiResponses(value = { @ApiResponse(code = 200, message = "The artifact was deployed successfully."),
+                            @ApiResponse(code = 400, message = "An error occurred.") })
+    @PreAuthorize("hasAuthority('ARTIFACTS_DEPLOY')")
+    @PutMapping(value = "{storageId}/{repositoryId}/{path:.+}")
+    public ResponseEntity upload(@ApiParam(value = "The storageId", required = true)
+                                 @PathVariable(name = "storageId") String storageId,
+                                 @ApiParam(value = "The repositoryId", required = true)
+                                 @PathVariable(name = "repositoryId") String repositoryId,
+                                 @PathVariable String path,
+                                 HttpServletRequest request)
+    {
+        try
+        {
+            RepositoryPath repositoryPath = repositoryPathResolver.resolve(storageId, repositoryId, path);
+
+            if (!repositoryPath.getRepository().isInService())
+            {
+                return ResponseEntity.status(HttpStatus.SERVICE_UNAVAILABLE).body("Repository is not in service.");
+            }
+
+            artifactManagementService.validateAndStore(repositoryPath, request.getInputStream());
+
+            return ResponseEntity.ok("The artifact was deployed successfully.");
+        }
+        catch (Exception e)
+        {
+            logger.error(e.getMessage(), e);
+
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(e.getMessage());
+        }
+    }
 
     @ApiOperation(value = "Used to retrieve an artifact")
     @ApiResponses(value = { @ApiResponse(code = 200, message = ""),
