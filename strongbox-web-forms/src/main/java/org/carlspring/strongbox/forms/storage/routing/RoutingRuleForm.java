@@ -3,6 +3,7 @@ package org.carlspring.strongbox.forms.storage.routing;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import org.carlspring.strongbox.storage.routing.RoutingRuleTypeEnum;
 
+import javax.validation.constraints.NotBlank;
 import javax.validation.constraints.NotEmpty;
 import javax.validation.constraints.NotNull;
 import java.util.ArrayList;
@@ -20,7 +21,7 @@ public class RoutingRuleForm
 
     private String repositoryId;
 
-    @NotEmpty(message = "A pattern must be specified.")
+    @NotBlank(message = "A pattern must be specified.")
     private String pattern;
 
     @NotNull(message = "A type must be specified.")

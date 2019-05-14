@@ -61,7 +61,7 @@ public class RoutingRuleFormTestIT
     }
 
     @Test
-    void testRuleSetFormInvalidRoutingRulesWithEmptyPattern()
+    void testRuleSetFormInvalidRoutingRulesWithBlankPattern()
     {
         // given
         RoutingRuleForm routingRuleForm = new RoutingRuleForm();
