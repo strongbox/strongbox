@@ -136,8 +136,6 @@ public class RoutingConfigurationControllerTestIT
 
     private void addRoutingRule(String acceptHeader)
     {
-        String url = getContextBaseUrl() + "/add";
-
         RoutingRuleForm routingRuleForm = new RoutingRuleForm();
         routingRuleForm.setPattern(".*some.test");
         routingRuleForm.setType(RoutingRuleTypeEnum.ACCEPT);
@@ -152,7 +150,7 @@ public class RoutingConfigurationControllerTestIT
                .accept(acceptHeader)
                .body(routingRuleForm)
                .when()
-               .put(url)
+               .put(getContextBaseUrl())
                .then()
                .statusCode(HttpStatus.OK.value())
                .body(containsString(SUCCESSFUL_ADD_ROUTING_RULE));
@@ -161,7 +159,7 @@ public class RoutingConfigurationControllerTestIT
     private void updateRoutingRule(String acceptHeader,
                                    UUID uuid)
     {
-        String url = getContextBaseUrl() + "/update/" + uuid.toString();
+        String url = getContextBaseUrl() + "/" + uuid.toString();
 
         RoutingRuleForm routingRuleForm = new RoutingRuleForm();
         routingRuleForm.setPattern(".*some.test-updated");
@@ -185,8 +183,6 @@ public class RoutingConfigurationControllerTestIT
 
     private void shouldNotAddRoutingRule(String acceptHeader)
     {
-        String url = getContextBaseUrl() + "/add";
-
         RoutingRuleForm routingRuleForm = new RoutingRuleForm();
         routingRuleForm.setPattern("");
         routingRuleForm.setType(RoutingRuleTypeEnum.ACCEPT);
@@ -196,7 +192,7 @@ public class RoutingConfigurationControllerTestIT
                .accept(acceptHeader)
                .body(routingRuleForm)
                .when()
-               .put(url)
+               .put(getContextBaseUrl())
                .then()
                .statusCode(HttpStatus.BAD_REQUEST.value())
                .body(containsString(FAILED_ADD_ROUTING_RULE_FORM_ERRORS));
@@ -205,7 +201,7 @@ public class RoutingConfigurationControllerTestIT
     private void removeRoutingRule(String acceptHeader,
                                    UUID uuid)
     {
-        String url = getContextBaseUrl() + "/remove/" + uuid.toString();
+        String url = getContextBaseUrl() + "/" + uuid.toString();
 
         given().contentType(MediaType.APPLICATION_JSON_VALUE)
                .accept(acceptHeader)
