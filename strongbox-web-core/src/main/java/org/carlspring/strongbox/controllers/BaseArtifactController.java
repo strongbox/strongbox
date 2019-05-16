@@ -27,7 +27,7 @@ public abstract class BaseArtifactController
     }
 
     protected Repository getRepository(String storageId,
-                                    String repositoryId)
+                                       String repositoryId)
     {
         return getStorage(storageId).getRepository(repositoryId);
     }
