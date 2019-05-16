@@ -417,7 +417,6 @@ public class ArtifactManagementServiceImplTest
                     "Failed to delete artifact during a force delete operation!");
 
         final String artifactPath2 = "org/carlspring/strongbox/strongbox-utils/7.2/strongbox-utils-7.2.jar";
-        //repositoryPath = repositoryPathResolver.resolve(STORAGE0, repositoryWithTrashId, artifactPath2);
 
         repositoryPath = (RepositoryPath)repositoryArtifact2.get(0);
 
