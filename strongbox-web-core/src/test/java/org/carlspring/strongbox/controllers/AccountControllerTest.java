@@ -21,7 +21,6 @@ import org.springframework.http.MediaType;
 import org.springframework.security.test.context.support.WithAnonymousUser;
 import org.springframework.security.test.context.support.WithMockUser;
 import org.springframework.security.test.context.support.WithUserDetails;
-import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.transaction.BeforeTransaction;
 import static io.restassured.module.mockmvc.RestAssuredMockMvc.given;
 import static org.hamcrest.CoreMatchers.notNullValue;
@@ -34,7 +33,6 @@ import static org.junit.jupiter.api.Assertions.*;
  * @author Pablo Tirado
  */
 @IntegrationTest
-@ActiveProfiles(profiles = "test")
 public class AccountControllerTest
         extends RestAssuredBaseTest
 {

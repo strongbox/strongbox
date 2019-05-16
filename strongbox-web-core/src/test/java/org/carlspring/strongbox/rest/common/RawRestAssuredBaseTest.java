@@ -21,6 +21,7 @@ import java.util.Collection;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.MediaType;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.web.context.WebApplicationContext;
@@ -52,12 +53,14 @@ public class RawRestAssuredBaseTest
     @Inject
     RawRepositoryFactory rawRepositoryFactory;
 
+    @Value("${strongbox.url}")
     private String contextBaseUrl;
 
     public void init()
             throws Exception
     {
         client.setUserAgent("Raw/*");
+        client.setContextBaseUrl(contextBaseUrl);
     }
 
     public String getContextBaseUrl()
@@ -65,13 +68,9 @@ public class RawRestAssuredBaseTest
         return contextBaseUrl;
     }
 
-    @Inject
     public void setContextBaseUrl(String contextBaseUrl)
     {
         this.contextBaseUrl = contextBaseUrl;
-
-        // base URL depends only on test execution context
-        client.setContextBaseUrl(contextBaseUrl);
     }
 
     protected Collection<? extends GrantedAuthority> provideAuthorities()

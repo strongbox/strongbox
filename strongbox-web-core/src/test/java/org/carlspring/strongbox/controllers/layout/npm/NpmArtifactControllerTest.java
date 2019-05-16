@@ -19,6 +19,7 @@ import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Qualifier;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.http.HttpStatus;
 import static io.restassured.module.mockmvc.RestAssuredMockMvc.given;
@@ -34,8 +35,7 @@ public class NpmArtifactControllerTest
     @Inject
     private NpmRepositoryFactory npmRepositoryFactory;
 
-    @Inject
-    @Qualifier("contextBaseUrl")
+    @Value("${strongbox.url}")
     private String contextBaseUrl;
 
     NpmPackageGenerator packageGenerator;

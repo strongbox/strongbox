@@ -1,24 +1,22 @@
 package org.carlspring.strongbox.providers.layout;
 
-import org.carlspring.strongbox.artifact.coordinates.NpmArtifactCoordinates;
-import org.carlspring.strongbox.providers.header.HeaderMappingRegistry;
-import org.carlspring.strongbox.providers.io.RepositoryFileAttributeType;
-import org.carlspring.strongbox.providers.io.RepositoryFiles;
-import org.carlspring.strongbox.providers.io.RepositoryPath;
-import org.carlspring.strongbox.repository.NpmRepositoryFeatures;
-import org.carlspring.strongbox.repository.NpmRepositoryManagementStrategy;
-import org.carlspring.strongbox.repository.RepositoryManagementStrategy;
-
-import javax.annotation.PostConstruct;
-import javax.inject.Inject;
-
 import java.io.IOException;
 import java.util.Map;
 import java.util.Set;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
+import javax.annotation.PostConstruct;
+import javax.inject.Inject;
+
 import org.apache.commons.codec.digest.MessageDigestAlgorithms;
+import org.carlspring.strongbox.artifact.coordinates.NpmArtifactCoordinates;
+import org.carlspring.strongbox.providers.io.RepositoryFileAttributeType;
+import org.carlspring.strongbox.providers.io.RepositoryFiles;
+import org.carlspring.strongbox.providers.io.RepositoryPath;
+import org.carlspring.strongbox.repository.NpmRepositoryFeatures;
+import org.carlspring.strongbox.repository.NpmRepositoryManagementStrategy;
+import org.carlspring.strongbox.repository.RepositoryManagementStrategy;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Component;
@@ -36,11 +34,6 @@ public class NpmLayoutProvider
 
     public static final String ALIAS = NpmArtifactCoordinates.LAYOUT_NAME;
 
-    public static final String USER_AGENT_PREFIX = ALIAS;
-
-    @Inject
-    private HeaderMappingRegistry headerMappingRegistry;
-
     @Inject
     private NpmRepositoryManagementStrategy npmRepositoryManagementStrategy;
 
@@ -51,8 +44,6 @@ public class NpmLayoutProvider
     @PostConstruct
     public void register()
     {
-        headerMappingRegistry.register(ALIAS, USER_AGENT_PREFIX);
-
         logger.info("Registered layout provider '" + getClass().getCanonicalName() + "' with alias '" + ALIAS + "'.");
     }
 
