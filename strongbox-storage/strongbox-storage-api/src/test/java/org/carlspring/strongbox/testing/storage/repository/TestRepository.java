@@ -10,6 +10,8 @@ import java.net.URL;
 import org.carlspring.strongbox.storage.Storage;
 import org.carlspring.strongbox.storage.repository.Repository;
 import org.carlspring.strongbox.storage.repository.RepositoryPolicyEnum;
+import org.carlspring.strongbox.storage.repository.RepositoryStatusEnum;
+import org.carlspring.strongbox.storage.repository.RepositoryTypeEnum;
 import org.carlspring.strongbox.storage.routing.RoutingRuleTypeEnum;
 import org.springframework.core.annotation.AliasFor;
 
@@ -39,18 +41,46 @@ public @interface TestRepository
     /**
      * {@link Storage} ID.
      */
-    String storage() default "storage0";
+    String storageId() default "storage0";
 
     /**
      * {@link Repository} ID.
      */
-    String repository() default "releases";
+    String repositoryId() default "releases";
+
+    /**
+     * {@link RepositoryTypeEnum}
+     */
+    RepositoryTypeEnum type() default RepositoryTypeEnum.HOSTED;
+
+    String implementation() default "file-system";
 
     /**
      * {@link RepositoryPolicyEnum}
      */
     RepositoryPolicyEnum policy() default RepositoryPolicyEnum.RELEASE;
-    
+
+    /**
+     * {@link RepositoryStatusEnum}
+     */
+    RepositoryStatusEnum status() default RepositoryStatusEnum.IN_SERVICE;
+
+    long artifactMaxSize() default 0;
+
+    boolean trashEnabled() default true;
+
+    boolean allowsForceDeletion() default false;
+
+    boolean allowsDeployment() default true;
+
+    boolean allowsRedeployment() default false;
+
+    boolean allowsDeletion() default true;
+
+    boolean allowsDirectoryBrowsing() default true;
+
+    boolean checksumHeadersEnabled() default true;
+
     /**
      * {@link RepositorySetup} strategies to use within {@link Repository}
      * initialization.
@@ -77,7 +107,7 @@ public @interface TestRepository
     @Target(ElementType.PARAMETER)
     @Retention(RetentionPolicy.RUNTIME)
     @Documented
-    public static @interface Remote
+    @interface Remote
     {
 
         /**
@@ -96,9 +126,8 @@ public @interface TestRepository
     @Target(ElementType.PARAMETER)
     @Retention(RetentionPolicy.RUNTIME)
     @Documented
-    public static @interface Group
+    @interface Group
     {
-
 
         /**
          * Alias for `repositories`.
@@ -119,7 +148,7 @@ public @interface TestRepository
         
         @Retention(RetentionPolicy.RUNTIME)
         @Documented
-        public static @interface Rule
+        @interface Rule
         {
 
             String[] repositories();
@@ -131,6 +160,5 @@ public @interface TestRepository
         }
 
     }
-
 
 }

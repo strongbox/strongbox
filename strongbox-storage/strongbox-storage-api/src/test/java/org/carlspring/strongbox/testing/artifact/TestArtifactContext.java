@@ -37,17 +37,24 @@ public class TestArtifactContext implements AutoCloseable
     private static final Logger logger = LoggerFactory.getLogger(TestArtifactContext.class);
 
     private final TestArtifact testArtifact;
+
     private final Map<String, Object> attributesMap;
+
     private final PropertiesBooter propertiesBooter;
+
     private final ArtifactManagementService artifactManagementService;
+
     private final RepositoryPathResolver repositoryPathResolver;
+
     private final TestInfo testInfo;
+
     private final List<Path> artifactPaths;
-    
-    
+
     private ArtifactGenerator artifactGenerator;
+
     @SuppressWarnings("rawtypes")
     private ArtifactGeneratorStrategy strategy;
+
     private Path generatorBasePath;
     
 
@@ -57,7 +64,7 @@ public class TestArtifactContext implements AutoCloseable
                                ArtifactManagementService artifactManagementService,
                                RepositoryPathResolver repositoryPathResolver,
                                TestInfo testInfo)
-        throws IOException
+            throws IOException
     {
         this.testArtifact = testArtifact;
         this.attributesMap = attributesMap;
@@ -70,7 +77,7 @@ public class TestArtifactContext implements AutoCloseable
     }
 
     private List<Path> createArtifacts()
-        throws IOException
+            throws IOException
     {
         checkArguments();
             
@@ -149,7 +156,7 @@ public class TestArtifactContext implements AutoCloseable
     {
         @SuppressWarnings("unchecked")
         Path artifactPathLocal = strategy.generateArtifact(artifactGenerator, id, version, size, attributesMap);
-        if (testArtifact.repository().isEmpty())
+        if (testArtifact.repositoryId().isEmpty())
         {
             return artifactPathLocal;
         }
@@ -158,10 +165,10 @@ public class TestArtifactContext implements AutoCloseable
     }
     
     private Path generateArtifact(String resource, int size)
-        throws IOException
+            throws IOException
     {
         Path artifactPathLocal = artifactGenerator.generateArtifact(URI.create(resource), size);
-        if (testArtifact.repository().isEmpty())
+        if (testArtifact.repositoryId().isEmpty())
         {
             return artifactPathLocal;
         }
@@ -170,22 +177,24 @@ public class TestArtifactContext implements AutoCloseable
     }
 
     private Path deployArtifact(Path artifactPathLocal)
-        throws IOException
+            throws IOException
     {
-        Objects.requireNonNull(testArtifact.storage(),
+        Objects.requireNonNull(testArtifact.storageId(),
                                String.format("Repository [%s] requires to specify Storage as well.",
-                                             testArtifact.repository()));
+                                             testArtifact.repositoryId()));
 
         String relativePath = generatorBasePath.relativize(artifactPathLocal).toString();
-        RepositoryPath repositoryPath = repositoryPathResolver.resolve(testArtifact.storage(),
-                                                                       testArtifact.repository(),
+        RepositoryPath repositoryPath = repositoryPathResolver.resolve(testArtifact.storageId(),
+                                                                       testArtifact.repositoryId(),
                                                                        relativePath);
+
         Map<RepositoryPath, Path> repositoryPathMap = new TreeMap<RepositoryPath, Path>(this::repositoryPathChecksumComparator);
         try (DirectoryStream<Path> s = Files.newDirectoryStream(artifactPathLocal.getParent()))
         {
             s.forEach(p -> repositoryPathMap.put(repositoryPath.resolveSibling(p.getFileName()), p));
         }
-        repositoryPathMap.entrySet().stream().forEach(this::store);
+
+        repositoryPathMap.entrySet().forEach(this::store);
 
         return repositoryPath;
     }
@@ -261,7 +270,7 @@ public class TestArtifactContext implements AutoCloseable
     }
 
     private void close(Path path)
-        throws IOException
+            throws IOException
     {
         Path directoryWhereGeneratedArtifactsWasPlaced = path.getParent();
         try (Stream<Path> s = Files.list(directoryWhereGeneratedArtifactsWasPlaced))
@@ -284,10 +293,10 @@ public class TestArtifactContext implements AutoCloseable
         String format = "%s/%s/%s";
         if (!testArtifact.resource().trim().isEmpty())
         {
-            return String.format(format, testArtifact.storage(), testArtifact.repository(), testArtifact.resource());
+            return String.format(format, testArtifact.storageId(), testArtifact.repositoryId(), testArtifact.resource());
         }
         
-        return String.format(format, testArtifact.storage(), testArtifact.repository(), testArtifact.id());
+        return String.format(format, testArtifact.storageId(), testArtifact.repositoryId(), testArtifact.id());
     }
 
 }

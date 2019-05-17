@@ -39,8 +39,8 @@ public class MavenArtifactTest
     @Test
     @ExtendWith({ RepositoryManagementTestExecutionListener.class,
                   ArtifactManagementTestExecutionListener.class })
-    public void artifactWithUnderscoreShouldWork(@MavenRepository(repository = REPOSITORY_RELEASES) Repository repository,
-                                                 @MavenTestArtifact(repository = REPOSITORY_RELEASES, id = "org.bitbucket.b_c:jose4j", versions = "0.6.3") Path path)
+    public void artifactWithUnderscoreShouldWork(@MavenRepository(repositoryId = REPOSITORY_RELEASES) Repository repository,
+                                                 @MavenTestArtifact(repositoryId = REPOSITORY_RELEASES, id = "org.bitbucket.b_c:jose4j", versions = "0.6.3") Path path)
         throws IOException
     {
         Path repositoryPath = path.normalize();

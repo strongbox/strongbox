@@ -675,7 +675,7 @@ public class ArtifactManagementServiceImplTest
                   ArtifactManagementTestExecutionListener.class })
     public void testChecksumsStorage(TestInfo testInfo,
                                      @TestRepository (layout = MavenArtifactCoordinates.LAYOUT_NAME,
-                                             repository = "checksums-storage")
+                                                      repositoryId = "checksums-storage")
                                              Repository repository,
                                      @TestArtifact(resource = "org/carlspring/strongbox/strongbox-checksum-test/8.4/strongbox-checksum-test-8.4.jar",
                                              generator = MavenArtifactGenerator.class)

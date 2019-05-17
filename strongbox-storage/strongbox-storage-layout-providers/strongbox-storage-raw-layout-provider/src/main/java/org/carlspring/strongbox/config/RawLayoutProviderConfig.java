@@ -23,13 +23,14 @@ import org.springframework.context.annotation.Scope;
 @ComponentScan({ "org.carlspring.strongbox.repository",
                  "org.carlspring.strongbox.providers",
                  "org.carlspring.strongbox.services",
-                 "org.carlspring.strongbox.storage",
-})
+                 "org.carlspring.strongbox.storage" })
 public class RawLayoutProviderConfig
 {
+
     public static final String FILE_SYSTEM_ALIAS = "LayoutFileSystemFactory." + RawLayoutProvider.ALIAS;
-    public static final String FILE_SYSTEM_PROVIDER_ALIAS = "LayoutFileSystemProviderFactory."
-            + RawLayoutProvider.ALIAS;
+
+    public static final String FILE_SYSTEM_PROVIDER_ALIAS = "LayoutFileSystemProviderFactory." +
+                                                            RawLayoutProvider.ALIAS;
 
     @Bean(FILE_SYSTEM_PROVIDER_ALIAS)
     public LayoutFileSystemProviderFactory rawRepositoryFileSystemProviderFactory(StorageProviderRegistry storageProviderRegistry)
@@ -52,7 +53,8 @@ public class RawLayoutProviderConfig
     }
 
     @Bean(FILE_SYSTEM_ALIAS)
-    public LayoutFileSystemFactory rawRepositoryFileSystemFactory(PropertiesBooter propertiesBooter, StorageProviderRegistry storageProviderRegistry)
+    public LayoutFileSystemFactory rawRepositoryFileSystemFactory(PropertiesBooter propertiesBooter,
+                                                                  StorageProviderRegistry storageProviderRegistry)
     {
         LayoutFileSystemProviderFactory providerFactory = rawRepositoryFileSystemProviderFactory(storageProviderRegistry);
         

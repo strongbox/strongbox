@@ -60,9 +60,9 @@ public class RegenerateMavenChecksumCronJobTestIT
     @Test
     @ExtendWith({ RepositoryManagementTestExecutionListener.class,
                   ArtifactManagementTestExecutionListener.class })
-    public void testRegenerateArtifactChecksum(@MavenRepository(repository = REPOSITORY_SNAPSHOTS)
+    public void testRegenerateArtifactChecksum(@MavenRepository(repositoryId = REPOSITORY_SNAPSHOTS)
                                                Repository repository,
-                                               @MavenTestArtifact(repository = REPOSITORY_SNAPSHOTS,
+                                               @MavenTestArtifact(repositoryId = REPOSITORY_SNAPSHOTS,
                                                                   id = "org.carlspring.strongbox:strongbox-checksum-one",
                                                                   versions = { "2.0-20190512.202015-1",
                                                                                "2.0-20190512.202101-2",
@@ -146,9 +146,9 @@ public class RegenerateMavenChecksumCronJobTestIT
     @Test
     @ExtendWith({ RepositoryManagementTestExecutionListener.class,
                   ArtifactManagementTestExecutionListener.class })
-    public void testRegenerateChecksumInRepository(@MavenRepository(repository = REPOSITORY_SNAPSHOTS)
+    public void testRegenerateChecksumInRepository(@MavenRepository(repositoryId = REPOSITORY_SNAPSHOTS)
                                                    Repository repository,
-                                                   @MavenTestArtifact(repository = REPOSITORY_SNAPSHOTS,
+                                                   @MavenTestArtifact(repositoryId = REPOSITORY_SNAPSHOTS,
                                                                       id = "org.carlspring.strongbox:strongbox-checksum-two",
                                                                       versions = { "2.0-20190512.202015-1",
                                                                                    "2.0-20190512.202101-2",

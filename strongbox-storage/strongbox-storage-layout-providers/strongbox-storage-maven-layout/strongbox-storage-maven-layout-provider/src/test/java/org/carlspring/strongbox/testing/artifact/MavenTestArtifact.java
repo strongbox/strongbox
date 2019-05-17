@@ -29,13 +29,13 @@ public @interface MavenTestArtifact
      * {@link Storage} ID.
      */
     @AliasFor(annotation = TestArtifact.class)
-    String storage() default "storage0";
+    String storageId() default "storage0";
 
     /**
      * {@link Repository} ID.
      */
     @AliasFor(annotation = TestArtifact.class)
-    String repository() default "";
+    String repositoryId() default "";
 
     /**
      * The artifact "GA" (ex. "org.carlspring.test:test-artifact").

@@ -26,14 +26,16 @@ public class Maven2LayoutProviderConfig
 {
 
     public static final String FILE_SYSTEM_ALIAS = "LayoutFileSystemFactory." + Maven2LayoutProvider.ALIAS;
-    public static final String FILE_SYSTEM_PROVIDER_ALIAS = "LayoutFileSystemProviderFactory."
-            + Maven2LayoutProvider.ALIAS;
+
+    public static final String FILE_SYSTEM_PROVIDER_ALIAS = "LayoutFileSystemProviderFactory." +
+                                                            Maven2LayoutProvider.ALIAS;
 
     @Inject
     protected StorageProviderRegistry storageProviderRegistry;
 
     @Inject
     private Environment environment;
+
 
     @Bean(FILE_SYSTEM_PROVIDER_ALIAS)
     public LayoutFileSystemProviderFactory mavenRepositoryFileSystemProviderFactory()
@@ -78,7 +80,9 @@ public class Maven2LayoutProviderConfig
         return (repository) -> {
             StorageProvider storageProvider = storageProviderRegistry.getProvider(repository.getImplementation());
 
-            return mavenRepositoryFileSystem(propertiesBooter, repository, storageProvider.getFileSystem(),
+            return mavenRepositoryFileSystem(propertiesBooter,
+                                             repository,
+                                             storageProvider.getFileSystem(),
                                              providerFactory.create(repository));
         };
     }

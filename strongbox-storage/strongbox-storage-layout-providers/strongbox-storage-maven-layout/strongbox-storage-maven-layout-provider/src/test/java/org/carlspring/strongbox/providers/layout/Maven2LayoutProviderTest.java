@@ -45,8 +45,8 @@ public class Maven2LayoutProviderTest
 
     @Test
     @ExtendWith({RepositoryManagementTestExecutionListener.class, ArtifactManagementTestExecutionListener.class})
-    public void testDeleteArtifact(@TestRepository(layout = LAYOUT_NAME, storage = STORAGE0, repository = REPOSITORY_RELEASES) Repository repository,
-                                   @TestArtifact(storage = STORAGE0, repository = REPOSITORY_RELEASES, resource = DELETE_FOO_1_2_1, generator = MavenArtifactGenerator.class) Path artifactPath)
+    public void testDeleteArtifact(@TestRepository(layout = LAYOUT_NAME, repositoryId = REPOSITORY_RELEASES) Repository repository,
+                                   @TestArtifact(repositoryId = REPOSITORY_RELEASES, resource = DELETE_FOO_1_2_1, generator = MavenArtifactGenerator.class) Path artifactPath)
             throws IOException
     {
         assertTrue(Files.exists(artifactPath), "Failed to locate artifact file " + artifactPath);
@@ -60,8 +60,8 @@ public class Maven2LayoutProviderTest
 
     @Test
     @ExtendWith({RepositoryManagementTestExecutionListener.class, ArtifactManagementTestExecutionListener.class})
-    public void testDeleteArtifactDirectory(@TestRepository(layout = LAYOUT_NAME, storage = STORAGE0, repository = REPOSITORY_RELEASES) Repository repository,
-                                            @TestArtifact(storage = STORAGE0, repository = REPOSITORY_RELEASES, resource = DELETE_FOO_1_2_2, generator = MavenArtifactGenerator.class) Path artifactPath)
+    public void testDeleteArtifactDirectory(@TestRepository(layout = LAYOUT_NAME, repositoryId = REPOSITORY_RELEASES) Repository repository,
+                                            @TestArtifact(repositoryId = REPOSITORY_RELEASES, resource = DELETE_FOO_1_2_2, generator = MavenArtifactGenerator.class) Path artifactPath)
             throws IOException
     {
 

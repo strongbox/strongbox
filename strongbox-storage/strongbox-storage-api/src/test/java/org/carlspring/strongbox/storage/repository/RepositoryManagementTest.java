@@ -63,10 +63,10 @@ public class RepositoryManagementTest
 
     @ExtendWith({ RepositoryManagementTestExecutionListener.class, ArtifactManagementTestExecutionListener.class })
     @RepeatedTest(20)
-    public void testRepositoryDirect(@TestRepository(layout = NullArtifactCoordinates.LAYOUT_NAME, repository = "r1") Repository r1,
-                                     @TestRepository(layout = NullArtifactCoordinates.LAYOUT_NAME, repository = "r2") Repository r2,
+    public void testRepositoryDirect(@TestRepository(layout = NullArtifactCoordinates.LAYOUT_NAME, repositoryId = "r1") Repository r1,
+                                     @TestRepository(layout = NullArtifactCoordinates.LAYOUT_NAME, repositoryId = "r2") Repository r2,
                                      @TestArtifact(resource = "artifact1.ext", generator = NullArtifactGenerator.class) Path standaloneArtifact,
-                                     @TestArtifact(repository = "r2", resource = "org/carlspring/test/artifact2.ext", generator = NullArtifactGenerator.class) Path repositoryArtifact,
+                                     @TestArtifact(repositoryId = "r2", resource = "org/carlspring/test/artifact2.ext", generator = NullArtifactGenerator.class) Path repositoryArtifact,
                                      TestInfo testInfo)
         throws IOException
     {
@@ -77,8 +77,8 @@ public class RepositoryManagementTest
 
     @ExtendWith(RepositoryManagementTestExecutionListener.class)
     @RepeatedTest(20)
-    public void testRepositoryReverse(@TestRepository(layout = NullArtifactCoordinates.LAYOUT_NAME, repository = "r2") Repository r2,
-                                      @TestRepository(layout = NullArtifactCoordinates.LAYOUT_NAME, repository = "r1") Repository r1,
+    public void testRepositoryReverse(@TestRepository(layout = NullArtifactCoordinates.LAYOUT_NAME, repositoryId = "r2") Repository r2,
+                                      @TestRepository(layout = NullArtifactCoordinates.LAYOUT_NAME, repositoryId = "r1") Repository r1,
                                       TestInfo testInfo)
     {
         parametersShouldBeCorrectlyResolvedAndUnique(r1, r2, testInfo);
