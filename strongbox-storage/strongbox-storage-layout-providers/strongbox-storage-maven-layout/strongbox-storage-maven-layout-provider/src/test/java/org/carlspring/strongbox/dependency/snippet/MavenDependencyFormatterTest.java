@@ -223,9 +223,11 @@ public class MavenDependencyFormatterTest
 
         assertNotNull(codeSnippets, "Failed to look up dependency synonym formatter!");
         assertFalse(codeSnippets.isEmpty(), "No synonyms found!");
-        assertEquals(6, codeSnippets.size(), "Incorrect number of dependency synonyms!");
+        assertEquals(7, codeSnippets.size(), "Incorrect number of dependency synonyms!");
 
-        String[] synonyms = new String[]{ "Maven 2", "Buildr", "Gradle", "Ivy", "Leiningen", "SBT", };
+
+
+        String[] synonyms = new String[]{ "Maven 2", "Bazel", "Buildr", "Gradle", "Ivy", "Leiningen", "SBT", };
 
         int i = 0;
         for (CodeSnippet snippet : codeSnippets)
