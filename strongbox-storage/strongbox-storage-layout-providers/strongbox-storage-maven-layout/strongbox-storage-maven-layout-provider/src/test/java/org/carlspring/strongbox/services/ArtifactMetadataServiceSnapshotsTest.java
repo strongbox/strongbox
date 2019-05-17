@@ -301,7 +301,7 @@ public class ArtifactMetadataServiceSnapshotsTest
     @Target({ ElementType.PARAMETER, ElementType.ANNOTATION_TYPE })
     @Retention(RetentionPolicy.RUNTIME)
     @Documented
-    @TestRepository(layout = MavenArtifactCoordinates.LAYOUT_NAME, repository = REPOSITORY_SNAPSHOTS, policy = RepositoryPolicyEnum.SNAPSHOT)
+    @TestRepository(layout = MavenArtifactCoordinates.LAYOUT_NAME, repositoryId = REPOSITORY_SNAPSHOTS, policy = RepositoryPolicyEnum.SNAPSHOT)
     private static @interface MavenSnapshotRepository
     {
 
@@ -310,9 +310,9 @@ public class ArtifactMetadataServiceSnapshotsTest
     @Target({ ElementType.PARAMETER, ElementType.ANNOTATION_TYPE })
     @Retention(RetentionPolicy.RUNTIME)
     @Documented
-    @MavenTestArtifact(repository = REPOSITORY_SNAPSHOTS, classifiers = { "javadoc",
-                                                                          "sources",
-                                                                          "source-release" })
+    @MavenTestArtifact(repositoryId = REPOSITORY_SNAPSHOTS, classifiers = { "javadoc",
+                                                                            "sources",
+                                                                            "source-release" })
     private static @interface MavenArtifactWithClassifiers
     {
 
@@ -344,7 +344,7 @@ public class ArtifactMetadataServiceSnapshotsTest
     @Target({ ElementType.PARAMETER, ElementType.ANNOTATION_TYPE })
     @Retention(RetentionPolicy.RUNTIME)
     @Documented
-    @MavenTestArtifact(repository = REPOSITORY_SNAPSHOTS, packaging = "maven-plugin")
+    @MavenTestArtifact(repositoryId = REPOSITORY_SNAPSHOTS, packaging = "maven-plugin")
     private static @interface MavenPluginArtifact
     {
 

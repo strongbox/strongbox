@@ -36,12 +36,12 @@ public @interface TestArtifact
     /**
      * {@link Storage} ID.
      */
-    String storage() default "storage0";
+    String storageId() default "storage0";
 
     /**
      * {@link Repository} ID.
      */
-    String repository() default "";
+    String repositoryId() default "";
 
     /**
      * Layout specific artifact URI (ex.'path/to/artifact.zip').
