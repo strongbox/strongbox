@@ -226,6 +226,7 @@ public class MavenDependencyFormatterTest
         assertEquals(7, codeSnippets.size(), "Incorrect number of dependency synonyms!");
 
 
+
         String[] synonyms = new String[]{ "Maven 2", "Bazel", "Buildr", "Gradle", "Ivy", "Leiningen", "SBT", };
 
         int i = 0;
