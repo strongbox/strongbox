@@ -1,18 +1,13 @@
 package org.carlspring.strongbox.testing.storage.repository;
 
-import java.lang.annotation.Documented;
-import java.lang.annotation.ElementType;
-import java.lang.annotation.Retention;
-import java.lang.annotation.RetentionPolicy;
-import java.lang.annotation.Target;
-import java.net.URL;
-
 import org.carlspring.strongbox.storage.Storage;
 import org.carlspring.strongbox.storage.repository.Repository;
 import org.carlspring.strongbox.storage.repository.RepositoryPolicyEnum;
-import org.carlspring.strongbox.storage.repository.RepositoryStatusEnum;
-import org.carlspring.strongbox.storage.repository.RepositoryTypeEnum;
 import org.carlspring.strongbox.storage.routing.RoutingRuleTypeEnum;
+
+import java.lang.annotation.*;
+import java.net.URL;
+
 import org.springframework.core.annotation.AliasFor;
 
 /**
@@ -49,37 +44,9 @@ public @interface TestRepository
     String repositoryId() default "releases";
 
     /**
-     * {@link RepositoryTypeEnum}
-     */
-    RepositoryTypeEnum type() default RepositoryTypeEnum.HOSTED;
-
-    String implementation() default "file-system";
-
-    /**
      * {@link RepositoryPolicyEnum}
      */
     RepositoryPolicyEnum policy() default RepositoryPolicyEnum.RELEASE;
-
-    /**
-     * {@link RepositoryStatusEnum}
-     */
-    RepositoryStatusEnum status() default RepositoryStatusEnum.IN_SERVICE;
-
-    long artifactMaxSize() default 0;
-
-    boolean trashEnabled() default true;
-
-    boolean allowsForceDeletion() default false;
-
-    boolean allowsDeployment() default true;
-
-    boolean allowsRedeployment() default false;
-
-    boolean allowsDeletion() default true;
-
-    boolean allowsDirectoryBrowsing() default true;
-
-    boolean checksumHeadersEnabled() default true;
 
     /**
      * {@link RepositorySetup} strategies to use within {@link Repository}
