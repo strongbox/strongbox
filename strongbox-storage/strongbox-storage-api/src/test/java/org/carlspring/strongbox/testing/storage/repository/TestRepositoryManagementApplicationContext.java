@@ -49,7 +49,7 @@ public class TestRepositoryManagementApplicationContext extends AnnotationConfig
 
     private static final Logger logger = LoggerFactory.getLogger(TestRepositoryManagementApplicationContext.class);
 
-    private static ThreadLocal<TestRepositoryManagementContext> testApplicaitonContextHolder = new ThreadLocal<>();
+    private static ThreadLocal<TestRepositoryManagementContext> testApplicationContextHolder = new ThreadLocal<>();
 
     private Map<Class<? extends Annotation>, Boolean> extensionsToApply = new HashMap<>();
 
@@ -67,13 +67,14 @@ public class TestRepositoryManagementApplicationContext extends AnnotationConfig
             testApplicationContext = new TestRepositoryManagementApplicationContext();
             testApplicationContext.setParent(applicationContext);
 
-            testApplicaitonContextHolder.set(testApplicationContext);
+            testApplicationContextHolder.set(testApplicationContext);
         }
 
         if (testApplicationContext.extensionsToApply.containsKey(extensionType))
         {
-            throw new IllegalStateException(String.format("Extensoon [%s] already registered.", extensionType));
+            throw new IllegalStateException(String.format("Extension [%s] already registered.", extensionType));
         }
+
         testApplicationContext.extensionsToApply.put(extensionType, false);
     }
 
@@ -92,7 +93,7 @@ public class TestRepositoryManagementApplicationContext extends AnnotationConfig
             return;
         }
 
-        testApplicaitonContextHolder.remove();
+        testApplicationContextHolder.remove();
         if (testApplicationContext.isActive())
         {
             testApplicationContext.close();
@@ -101,7 +102,7 @@ public class TestRepositoryManagementApplicationContext extends AnnotationConfig
 
     public static TestRepositoryManagementContext getInstance()
     {
-        return testApplicaitonContextHolder.get();
+        return testApplicationContextHolder.get();
     }
 
     @Override
@@ -123,8 +124,8 @@ public class TestRepositoryManagementApplicationContext extends AnnotationConfig
 
     @Override
     public void refresh()
-        throws BeansException,
-        IllegalStateException
+            throws BeansException,
+                   IllegalStateException
     {
         if (isActive())
         {
@@ -151,8 +152,8 @@ public class TestRepositoryManagementApplicationContext extends AnnotationConfig
     }
 
     private void unlockWithExceptionPropagation(Throwable e)
-        throws BeansException,
-        IllegalStateException
+            throws BeansException,
+                   IllegalStateException
     {
         try
         {
@@ -214,21 +215,12 @@ public class TestRepositoryManagementApplicationContext extends AnnotationConfig
 
     private void unlock()
     {
-        Comparator<Entry<String, ReentrantLock>> reversed = new Comparator<Entry<String, ReentrantLock>>()
-        {
-
-            @Override
-            public int compare(Entry<String, ReentrantLock> o1,
-                               Entry<String, ReentrantLock> o2)
-            {
-                return o2.getKey().compareTo(o1.getKey());
-            }
-
-        };
+        Comparator<Entry<String, ReentrantLock>> reversed = (o1, o2) -> o2.getKey().compareTo(o1.getKey());
         Set<Entry<String, ReentrantLock>> reversedEntrySet = idSync.entrySet()
                                                                    .stream()
                                                                    .sorted(reversed)
                                                                    .collect(Collectors.toSet());
+
         String[] beanDefinitionNames = getBeanDefinitionNames();
         for (Entry<String, ReentrantLock> entry : reversedEntrySet)
         {
@@ -271,8 +263,8 @@ public class TestRepositoryManagementApplicationContext extends AnnotationConfig
         {
             // Error if we have some not properly closed Repository Contexts
             throw testRepositoryContexts.stream()
-                                        .filter(r -> r.isOpened())
-                                        .map(r -> r.getTestRepository().repository())
+                                        .filter(TestRepositoryContext::isOpened)
+                                        .map(r -> r.getTestRepository().repositoryId())
                                         .reduce((s1,
                                                  s2) -> String.format("%s, %s", s1, s2))
                                         .map(m -> new IOException(
@@ -319,7 +311,7 @@ public class TestRepositoryManagementApplicationContext extends AnnotationConfig
         }
         
         Arrays.stream(groupRepository.repositories()).forEach(r -> {
-            BeanDefinition beanDefinition = getBeanDefinition(id(ConfigurationUtils.getStorageId(testRepository.storage(), r), ConfigurationUtils.getRepositoryId(r)));
+            BeanDefinition beanDefinition = getBeanDefinition(id(ConfigurationUtils.getStorageId(testRepository.storageId(), r), ConfigurationUtils.getRepositoryId(r)));
             beanDefinition.setDependsOn(id(testRepository));
         });
     }
@@ -331,13 +323,13 @@ public class TestRepositoryManagementApplicationContext extends AnnotationConfig
     {
         idSync.putIfAbsent(id(testArtifact), new ReentrantLock());
         registerBean(id(testArtifact), TestArtifactContext.class, testArtifact, attributesMap, testInfo);
-        if (testArtifact.repository().isEmpty())
+        if (testArtifact.repositoryId().isEmpty())
         {
             return;
         }
         
         BeanDefinition beanDefinition = getBeanDefinition(id(testArtifact));
-        beanDefinition.setDependsOn(id(testArtifact.storage(), testArtifact.repository()));
+        beanDefinition.setDependsOn(id(testArtifact.storageId(), testArtifact.repositoryId()));
     }
 
 }

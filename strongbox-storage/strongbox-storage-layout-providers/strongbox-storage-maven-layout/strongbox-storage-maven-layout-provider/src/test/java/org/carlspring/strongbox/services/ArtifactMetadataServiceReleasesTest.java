@@ -68,17 +68,16 @@ public class ArtifactMetadataServiceReleasesTest
 
     @ExtendWith({ RepositoryManagementTestExecutionListener.class, ArtifactManagementTestExecutionListener.class })
     @Test
-    public void testReleaseMetadataRebuild(@TestRepository(storage = STORAGE0,
-                                                           repository = R1,
+    public void testReleaseMetadataRebuild(@TestRepository(repositoryId = R1,
                                                            layout = MavenArtifactCoordinates.LAYOUT_NAME,
                                                            policy = RepositoryPolicyEnum.RELEASE)
                                            Repository repository,
-                                           @TestArtifact(repository = R1,
+                                           @TestArtifact(repositoryId = R1,
                                                          id = "org.carlspring.strongbox.metadata.nested:foo",
                                                          versions = { "2.1" },
                                                          generator = MavenArtifactGenerator.class)
                                            List<Path> repositoryArtifact1,
-                                           @TestArtifact(repository = R1,
+                                           @TestArtifact(repositoryId = R1,
                                                          id = "org.carlspring.strongbox.metadata.nested:bar",
                                                          versions = { "3.1" },
                                                          generator = MavenArtifactGenerator.class)
@@ -138,12 +137,11 @@ public class ArtifactMetadataServiceReleasesTest
 
     @ExtendWith({ RepositoryManagementTestExecutionListener.class, ArtifactManagementTestExecutionListener.class })
     @Test
-    public void testAddVersionToMetadata(@TestRepository(storage = STORAGE0,
-                                                         repository = R2,
+    public void testAddVersionToMetadata(@TestRepository(repositoryId = R2,
                                                          layout = MavenArtifactCoordinates.LAYOUT_NAME,
                                                          policy = RepositoryPolicyEnum.RELEASE)
                                          Repository repository,
-                                         @TestArtifact(repository = R2,
+                                         @TestArtifact(repositoryId = R2,
                                                        id = "org.carlspring.strongbox:added",
                                                        versions = { "1.0","1.1", "1.2", "1.3" },
                                                        generator = MavenArtifactGenerator.class)
@@ -174,12 +172,11 @@ public class ArtifactMetadataServiceReleasesTest
 
     @ExtendWith({ RepositoryManagementTestExecutionListener.class, ArtifactManagementTestExecutionListener.class })
     @Test
-    public void testDeleteVersionFromMetadata(@TestRepository(storage = STORAGE0,
-                                                              repository = R3,
+    public void testDeleteVersionFromMetadata(@TestRepository(repositoryId = R3,
                                                               layout = MavenArtifactCoordinates.LAYOUT_NAME,
                                                               policy = RepositoryPolicyEnum.RELEASE)
                                               Repository repository,
-                                              @TestArtifact(repository = R3,
+                                              @TestArtifact(repositoryId = R3,
                                                             id = "org.carlspring.strongbox:deleted",
                                                             versions = { "1.0","1.1", "1.2", "1.3" },
                                                             generator = MavenArtifactGenerator.class)
@@ -209,12 +206,11 @@ public class ArtifactMetadataServiceReleasesTest
 
     @ExtendWith({ RepositoryManagementTestExecutionListener.class, ArtifactManagementTestExecutionListener.class  })
     @Test
-    public void testReleasePluginMetadataRebuild(@TestRepository(storage = STORAGE0,
-                                                                 repository = R4,
+    public void testReleasePluginMetadataRebuild(@TestRepository(repositoryId = R4,
                                                                  layout = MavenArtifactCoordinates.LAYOUT_NAME,
                                                                  policy = RepositoryPolicyEnum.RELEASE)
                                                  Repository repository,
-                                                 @MavenTestArtifact(repository = R4,
+                                                 @MavenTestArtifact(repositoryId = R4,
                                                                     id = "org.carlspring.strongbox.metadata.maven:strongbox-metadata-plugin",
                                                                     versions = { "1.0" },
                                                                     packaging = "maven-plugin")
@@ -245,12 +241,11 @@ public class ArtifactMetadataServiceReleasesTest
 
     @ExtendWith({RepositoryManagementTestExecutionListener.class,ArtifactManagementTestExecutionListener.class})
     @Test
-    public void testMetadataMerge(@TestRepository(storage = STORAGE0,
-                                                            repository = R5,
-                                                            layout = MavenArtifactCoordinates.LAYOUT_NAME,
-                                                            policy = RepositoryPolicyEnum.RELEASE)
+    public void testMetadataMerge(@TestRepository(repositoryId = R5,
+                                                  layout = MavenArtifactCoordinates.LAYOUT_NAME,
+                                                  policy = RepositoryPolicyEnum.RELEASE)
                                   Repository repository,
-                                  @TestArtifact(repository = R5,
+                                  @TestArtifact(repositoryId = R5,
                                                 id = "org.carlspring.strongbox.metadata:strongbox-metadata-merge",
                                                 versions = { "1.0" },
                                                 generator = MavenArtifactGenerator.class)

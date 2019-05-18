@@ -63,8 +63,8 @@ public class MavenChecksumServiceTest
 
     @Test
     @ExtendWith({RepositoryManagementTestExecutionListener.class, ArtifactManagementTestExecutionListener.class})
-    public void testGenerateMavenChecksumForReleaseArtifact(@TestRepository(repository = REPOSITORY_RELEASES, layout = LAYOUT_NAME) Repository repository,
-                                                            @TestArtifact(repository = REPOSITORY_RELEASES, id = A1, versions = {"1.0", "2.0"}, generator = MavenArtifactGenerator.class) List<Path> artifactGroupPath)
+    public void testGenerateMavenChecksumForReleaseArtifact(@TestRepository(repositoryId = REPOSITORY_RELEASES, layout = LAYOUT_NAME) Repository repository,
+                                                            @TestArtifact(repositoryId = REPOSITORY_RELEASES, id = A1, versions = { "1.0", "2.0"}, generator = MavenArtifactGenerator.class) List<Path> artifactGroupPath)
             throws IOException,
                    XmlPullParserException,
                    NoSuchAlgorithmException
@@ -146,8 +146,8 @@ public class MavenChecksumServiceTest
 
     @Test
     @ExtendWith({RepositoryManagementTestExecutionListener.class, ArtifactManagementTestExecutionListener.class})
-    public void testGenerateMavenChecksumForSnapshotArtifact(@TestRepository(repository = REPOSITORY_SNAPSHOTS, policy = SNAPSHOT, layout = LAYOUT_NAME) Repository repository,
-                                                             @TestArtifact(repository = REPOSITORY_SNAPSHOTS, resource = S2, generator = MavenArtifactGenerator.class) Path artifact)
+    public void testGenerateMavenChecksumForSnapshotArtifact(@TestRepository(repositoryId = REPOSITORY_SNAPSHOTS, policy = SNAPSHOT, layout = LAYOUT_NAME) Repository repository,
+                                                             @TestArtifact(repositoryId = REPOSITORY_SNAPSHOTS, resource = S2, generator = MavenArtifactGenerator.class) Path artifact)
             throws IOException,
                    XmlPullParserException,
                    NoSuchAlgorithmException
@@ -206,8 +206,8 @@ public class MavenChecksumServiceTest
 
     @Test
     @ExtendWith({RepositoryManagementTestExecutionListener.class, ArtifactManagementTestExecutionListener.class})
-    public void testRewriteMavenChecksum(@TestRepository(repository = REPOSITORY_RELEASES, layout = LAYOUT_NAME) Repository repository,
-                                         @TestArtifact(repository = REPOSITORY_RELEASES, resource = A3, generator = MavenArtifactGenerator.class) Path artifact)
+    public void testRewriteMavenChecksum(@TestRepository(repositoryId = REPOSITORY_RELEASES, layout = LAYOUT_NAME) Repository repository,
+                                         @TestArtifact(repositoryId = REPOSITORY_RELEASES, resource = A3, generator = MavenArtifactGenerator.class) Path artifact)
             throws IOException,
                    XmlPullParserException,
                    NoSuchAlgorithmException

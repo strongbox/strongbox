@@ -41,11 +41,10 @@ public class AqlControllerTest extends MavenRestAssuredBaseTest
     
     @Test
     @ExtendWith({RepositoryManagementTestExecutionListener.class, ArtifactManagementTestExecutionListener.class})
-    public void testSearchExcludeVersion(@TestRepository(storage = S1, repository = R1, layout = LAYOUT_NAME) Repository repository,
-                                         @TestArtifact(storage = S1, repository = R1, resource = A1, generator = MavenArtifactGenerator.class) Path artifact1,
-                                         @TestArtifact(storage = S1, repository = R1, resource = A2, generator = MavenArtifactGenerator.class) Path artifact2,
-                                         @TestArtifact(storage = S1, repository = R1, resource = A3, generator = MavenArtifactGenerator.class) Path artifact3)
-        throws Exception
+    public void testSearchExcludeVersion(@TestRepository(storageId = S1, repositoryId = R1, layout = LAYOUT_NAME) Repository repository,
+                                         @TestArtifact(storageId = S1, repositoryId = R1, resource = A1, generator = MavenArtifactGenerator.class) Path artifact1,
+                                         @TestArtifact(storageId = S1, repositoryId = R1, resource = A2, generator = MavenArtifactGenerator.class) Path artifact2,
+                                         @TestArtifact(storageId = S1, repositoryId = R1, resource = A3, generator = MavenArtifactGenerator.class) Path artifact3)
     {
         given().accept(MediaType.APPLICATION_JSON_VALUE)
                .queryParam("query",
@@ -62,7 +61,6 @@ public class AqlControllerTest extends MavenRestAssuredBaseTest
 
     @Test
     public void testBadAqlSyntaxRequest()
-        throws Exception
     {
         given().accept(MediaType.APPLICATION_JSON_VALUE)
                .queryParam("query",
@@ -77,11 +75,10 @@ public class AqlControllerTest extends MavenRestAssuredBaseTest
 
     @Test
     @ExtendWith({RepositoryManagementTestExecutionListener.class, ArtifactManagementTestExecutionListener.class})
-    public void testSearchValidMavenCoordinates(@TestRepository(storage = S1, repository = R1, layout = LAYOUT_NAME) Repository repository,
-                                                @TestArtifact(storage = S1, repository = R1, resource = A1, generator = MavenArtifactGenerator.class) Path artifact1,
-                                                @TestArtifact(storage = S1, repository = R1, resource = A2, generator = MavenArtifactGenerator.class) Path artifact2,
-                                                @TestArtifact(storage = S1, repository = R1, resource = A3, generator = MavenArtifactGenerator.class) Path artifact3)
-            throws Exception
+    public void testSearchValidMavenCoordinates(@TestRepository(storageId = S1, repositoryId = R1, layout = LAYOUT_NAME) Repository repository,
+                                                @TestArtifact(storageId = S1, repositoryId = R1, resource = A1, generator = MavenArtifactGenerator.class) Path artifact1,
+                                                @TestArtifact(storageId = S1, repositoryId = R1, resource = A2, generator = MavenArtifactGenerator.class) Path artifact2,
+                                                @TestArtifact(storageId = S1, repositoryId = R1, resource = A3, generator = MavenArtifactGenerator.class) Path artifact3)
     {
         given().accept(MediaType.APPLICATION_JSON_VALUE)
                 .queryParam("query", String.format("storage:%s+repository:%s+layout:maven+groupId:org.carlspring.strongbox.*", S1, R1))
@@ -95,7 +92,6 @@ public class AqlControllerTest extends MavenRestAssuredBaseTest
     
     @Test
     public void testSearchInvalidMavenCoordinates()
-        throws Exception
     {
         given().accept(MediaType.APPLICATION_JSON_VALUE)
                .queryParam("query", "layout:unknown-layout+id:org.carlspring.strongbox.*")

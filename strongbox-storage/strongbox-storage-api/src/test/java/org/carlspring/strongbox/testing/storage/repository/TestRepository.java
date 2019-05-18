@@ -1,16 +1,13 @@
 package org.carlspring.strongbox.testing.storage.repository;
 
-import java.lang.annotation.Documented;
-import java.lang.annotation.ElementType;
-import java.lang.annotation.Retention;
-import java.lang.annotation.RetentionPolicy;
-import java.lang.annotation.Target;
-import java.net.URL;
-
 import org.carlspring.strongbox.storage.Storage;
 import org.carlspring.strongbox.storage.repository.Repository;
 import org.carlspring.strongbox.storage.repository.RepositoryPolicyEnum;
 import org.carlspring.strongbox.storage.routing.RoutingRuleTypeEnum;
+
+import java.lang.annotation.*;
+import java.net.URL;
+
 import org.springframework.core.annotation.AliasFor;
 
 /**
@@ -39,18 +36,18 @@ public @interface TestRepository
     /**
      * {@link Storage} ID.
      */
-    String storage() default "storage0";
+    String storageId() default "storage0";
 
     /**
      * {@link Repository} ID.
      */
-    String repository() default "releases";
+    String repositoryId() default "releases";
 
     /**
      * {@link RepositoryPolicyEnum}
      */
     RepositoryPolicyEnum policy() default RepositoryPolicyEnum.RELEASE;
-    
+
     /**
      * {@link RepositorySetup} strategies to use within {@link Repository}
      * initialization.
@@ -77,7 +74,7 @@ public @interface TestRepository
     @Target(ElementType.PARAMETER)
     @Retention(RetentionPolicy.RUNTIME)
     @Documented
-    public static @interface Remote
+    @interface Remote
     {
 
         /**
@@ -96,9 +93,8 @@ public @interface TestRepository
     @Target(ElementType.PARAMETER)
     @Retention(RetentionPolicy.RUNTIME)
     @Documented
-    public static @interface Group
+    @interface Group
     {
-
 
         /**
          * Alias for `repositories`.
@@ -119,7 +115,7 @@ public @interface TestRepository
         
         @Retention(RetentionPolicy.RUNTIME)
         @Documented
-        public static @interface Rule
+        @interface Rule
         {
 
             String[] repositories();
@@ -131,6 +127,5 @@ public @interface TestRepository
         }
 
     }
-
 
 }

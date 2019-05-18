@@ -6,7 +6,6 @@ import org.carlspring.strongbox.yaml.configuration.repository.MutableMavenReposi
 
 /**
  * @author sbespalov
- *
  */
 public class MavenIndexedRepositorySetup implements RepositorySetup
 {

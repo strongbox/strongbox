@@ -43,6 +43,7 @@ public class MavenSearchControllerTest
 
     private static final String A1 = "org/carlspring/strongbox/searches/test-project/1.0.11.3/test-project-1.0.11.3.jar";
 
+
     @Override
     @BeforeEach
     public void init()
@@ -54,10 +55,10 @@ public class MavenSearchControllerTest
     @Test
     @ExtendWith({RepositoryManagementTestExecutionListener.class, ArtifactManagementTestExecutionListener.class})
     @EnabledIf(expression = "#{containsObject('repositoryIndexManager')}", loadContext = true)
-    public void testIndexSearches(@TestRepository(layout = LAYOUT_NAME, storage = STORAGE_SC_TEST, repository = REPOSITORY_RELEASES, setup = MavenIndexedRepositorySetup.class) Repository repository,
-                                  @TestArtifact(storage = STORAGE_SC_TEST, repository = REPOSITORY_RELEASES, resource = A1, generator = MavenArtifactGenerator.class) Path a1,
-                                  @TestArtifact(storage = STORAGE_SC_TEST, repository = REPOSITORY_RELEASES, resource = A2, generator = MavenArtifactGenerator.class) Path a2,
-                                  @TestArtifact(storage = STORAGE_SC_TEST, repository = REPOSITORY_RELEASES, resource = A3, generator = MavenArtifactGenerator.class) Path a3)
+    public void testIndexSearches(@TestRepository(layout = LAYOUT_NAME, storageId = STORAGE_SC_TEST, repositoryId = REPOSITORY_RELEASES, setup = MavenIndexedRepositorySetup.class) Repository repository,
+                                  @TestArtifact(storageId = STORAGE_SC_TEST, repositoryId = REPOSITORY_RELEASES, resource = A1, generator = MavenArtifactGenerator.class) Path a1,
+                                  @TestArtifact(storageId = STORAGE_SC_TEST, repositoryId = REPOSITORY_RELEASES, resource = A2, generator = MavenArtifactGenerator.class) Path a2,
+                                  @TestArtifact(storageId = STORAGE_SC_TEST, repositoryId = REPOSITORY_RELEASES, resource = A3, generator = MavenArtifactGenerator.class) Path a3)
             throws Exception
     {
         testSearches("+g:org.carlspring.strongbox.searches +a:test-project",
@@ -66,10 +67,10 @@ public class MavenSearchControllerTest
     
     @Test
     @ExtendWith({RepositoryManagementTestExecutionListener.class, ArtifactManagementTestExecutionListener.class})
-    public void testDbSearches(@TestRepository(layout = LAYOUT_NAME, storage = STORAGE_SC_TEST, repository = REPOSITORY_RELEASES) Repository repository,
-                               @TestArtifact(storage = STORAGE_SC_TEST, repository = REPOSITORY_RELEASES, resource = A1, generator = MavenArtifactGenerator.class) Path a1,
-                               @TestArtifact(storage = STORAGE_SC_TEST, repository = REPOSITORY_RELEASES, resource = A2, generator = MavenArtifactGenerator.class) Path a2,
-                               @TestArtifact(storage = STORAGE_SC_TEST, repository = REPOSITORY_RELEASES, resource = A3, generator = MavenArtifactGenerator.class) Path a3)
+    public void testDbSearches(@TestRepository(layout = LAYOUT_NAME, storageId = STORAGE_SC_TEST, repositoryId = REPOSITORY_RELEASES) Repository repository,
+                               @TestArtifact(storageId = STORAGE_SC_TEST, repositoryId = REPOSITORY_RELEASES, resource = A1, generator = MavenArtifactGenerator.class) Path a1,
+                               @TestArtifact(storageId = STORAGE_SC_TEST, repositoryId = REPOSITORY_RELEASES, resource = A2, generator = MavenArtifactGenerator.class) Path a2,
+                               @TestArtifact(storageId = STORAGE_SC_TEST, repositoryId = REPOSITORY_RELEASES, resource = A3, generator = MavenArtifactGenerator.class) Path a3)
             throws Exception
     {
         testSearches("groupId=org.carlspring.strongbox.searches;artifactId=test-project;",
@@ -98,10 +99,10 @@ public class MavenSearchControllerTest
     @Test
     @EnabledIf(expression = "#{containsObject('repositoryIndexManager')}", loadContext = true)
     @ExtendWith({RepositoryManagementTestExecutionListener.class, ArtifactManagementTestExecutionListener.class})
-    public void testDumpIndex(@TestRepository(layout = LAYOUT_NAME, storage = STORAGE_SC_TEST, repository = REPOSITORY_RELEASES, setup = MavenIndexedRepositorySetup.class) Repository repository,
-                              @TestArtifact(storage = STORAGE_SC_TEST, repository = REPOSITORY_RELEASES, resource = A1, generator = MavenArtifactGenerator.class) Path a1,
-                              @TestArtifact(storage = STORAGE_SC_TEST, repository = REPOSITORY_RELEASES, resource = A2, generator = MavenArtifactGenerator.class) Path a2,
-                              @TestArtifact(storage = STORAGE_SC_TEST, repository = REPOSITORY_RELEASES, resource = A3, generator = MavenArtifactGenerator.class) Path a3)
+    public void testDumpIndex(@TestRepository(layout = LAYOUT_NAME, storageId = STORAGE_SC_TEST, repositoryId = REPOSITORY_RELEASES, setup = MavenIndexedRepositorySetup.class) Repository repository,
+                              @TestArtifact(storageId = STORAGE_SC_TEST, repositoryId = REPOSITORY_RELEASES, resource = A1, generator = MavenArtifactGenerator.class) Path a1,
+                              @TestArtifact(storageId = STORAGE_SC_TEST, repositoryId = REPOSITORY_RELEASES, resource = A2, generator = MavenArtifactGenerator.class) Path a2,
+                              @TestArtifact(storageId = STORAGE_SC_TEST, repositoryId = REPOSITORY_RELEASES, resource = A3, generator = MavenArtifactGenerator.class) Path a3)
             throws Exception
     {
         // /storages/storage0/releases/.index/local
