@@ -32,8 +32,8 @@ public class OneTimeExecutionCronJobTestIT
     {
         CronTaskConfigurationDto configuration = new CronTaskConfigurationDto();
         configuration.setName(name);
-        configuration.addProperty("cronExpression", "0 11 11 11 11 ? 2100");
-        configuration.addProperty("jobClass", OneTimeExecutionCronJob.class.getName());
+        configuration.setCronExpression("0 11 11 11 11 ? 2100");
+        configuration.setJobClass(OneTimeExecutionCronJob.class.getName());
         configuration.setOneTimeExecution(true);
         configuration.setImmediateExecution(true);
 

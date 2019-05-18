@@ -1,11 +1,13 @@
 package org.carlspring.strongbox.controllers.layout.maven;
 
+import org.carlspring.strongbox.artifact.coordinates.MavenArtifactCoordinates;
 import org.carlspring.strongbox.controllers.BaseArtifactController;
 import org.carlspring.strongbox.providers.io.RepositoryPath;
 import org.carlspring.strongbox.providers.io.RepositoryPathResolver;
 import org.carlspring.strongbox.storage.ArtifactStorageException;
 import org.carlspring.strongbox.storage.Storage;
 import org.carlspring.strongbox.storage.repository.Repository;
+import org.carlspring.strongbox.web.LayoutRequestMapping;
 
 import javax.inject.Inject;
 import javax.servlet.http.HttpServletRequest;
@@ -40,7 +42,7 @@ import static org.springframework.http.HttpStatus.NOT_FOUND;
  * @see {@linkplain http://docs.spring.io/spring/docs/current/spring-framework-reference/html/mvc.html#mvc-config-path-matching}
  */
 @RestController
-@RequestMapping(path = MavenArtifactController.ROOT_CONTEXT, headers = "user-agent=Maven/*")
+@LayoutRequestMapping(MavenArtifactCoordinates.LAYOUT_NAME)
 public class MavenArtifactController
         extends BaseArtifactController
 {
@@ -114,6 +116,39 @@ public class MavenArtifactController
         provideArtifactDownloadResponse(request, response, httpHeaders, repositoryPath);
     }
 
+    @ApiOperation(value = "Used to deploy an artifact")
+    @ApiResponses(value = { @ApiResponse(code = 200, message = "The artifact was deployed successfully."),
+                            @ApiResponse(code = 400, message = "An error occurred.") })
+    @PreAuthorize("hasAuthority('ARTIFACTS_DEPLOY')")
+    @PutMapping(value = "{storageId}/{repositoryId}/{path:.+}")
+    public ResponseEntity upload(@ApiParam(value = "The storageId", required = true)
+                                 @PathVariable(name = "storageId") String storageId,
+                                 @ApiParam(value = "The repositoryId", required = true)
+                                 @PathVariable(name = "repositoryId") String repositoryId,
+                                 @PathVariable String path,
+                                 HttpServletRequest request)
+    {
+        try
+        {
+            RepositoryPath repositoryPath = repositoryPathResolver.resolve(storageId, repositoryId, path);
+
+            if (!repositoryPath.getRepository().isInService())
+            {
+                return ResponseEntity.status(HttpStatus.SERVICE_UNAVAILABLE).body("Repository is not in service.");
+            }
+
+            artifactManagementService.validateAndStore(repositoryPath, request.getInputStream());
+
+            return ResponseEntity.ok("The artifact was deployed successfully.");
+        }
+        catch (Exception e)
+        {
+            logger.error(e.getMessage(), e);
+
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(e.getMessage());
+        }
+    }
+    
     @ApiOperation(value = "Copies a path from one repository to another.")
     @ApiResponses(value = { @ApiResponse(code = 200, message = "The path was copied successfully."),
                             @ApiResponse(code = 400, message = "Bad request."),

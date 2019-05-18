@@ -52,8 +52,7 @@ public class MavenRepositoryManagementServiceImplTest
 
     @ExtendWith(RepositoryManagementTestExecutionListener.class)
     @Test
-    public void testCreateRepository(@TestRepository(storage = STORAGE0,
-                                                     repository = REPOSITORY_RELEASES_1,
+    public void testCreateRepository(@TestRepository(repositoryId = REPOSITORY_RELEASES_1,
                                                      layout = MavenArtifactCoordinates.LAYOUT_NAME,
                                                      setup = MavenIndexedRepositorySetup.class)
                                      Repository repository)
@@ -68,12 +67,11 @@ public class MavenRepositoryManagementServiceImplTest
 
     @ExtendWith(RepositoryManagementTestExecutionListener.class)
     @Test
-    public void testCreateAndDelete(@TestRepository(storage = STORAGE0,
-                                    repository = REPOSITORY_RELEASES_1,
-                                    layout = MavenArtifactCoordinates.LAYOUT_NAME,
-                                    policy = RepositoryPolicyEnum.RELEASE,
-                                    setup = MavenIndexedRepositorySetup.class,
-                                    cleanup = false)
+    public void testCreateAndDelete(@TestRepository(repositoryId = REPOSITORY_RELEASES_1,
+                                                    layout = MavenArtifactCoordinates.LAYOUT_NAME,
+                                                    policy = RepositoryPolicyEnum.RELEASE,
+                                                    setup = MavenIndexedRepositorySetup.class,
+                                                    cleanup = false)
                                     Repository repository)
             throws Exception
     {
@@ -92,22 +90,20 @@ public class MavenRepositoryManagementServiceImplTest
     @ExtendWith({ RepositoryManagementTestExecutionListener.class, ArtifactManagementTestExecutionListener.class })
     @Test
     @EnabledIf(expression = "#{containsObject('repositoryIndexManager')}", loadContext = true)
-    public void testMerge(@TestRepository(storage = STORAGE0,
-                                          repository = REPOSITORY_RELEASES_MERGE_1,
+    public void testMerge(@TestRepository(repositoryId = REPOSITORY_RELEASES_MERGE_1,
                                           layout = MavenArtifactCoordinates.LAYOUT_NAME,
                                           setup = MavenIndexedRepositorySetup.class)
                           Repository r1,
-                          @TestRepository(storage = STORAGE0,
-                                          repository = REPOSITORY_RELEASES_MERGE_2,
+                          @TestRepository(repositoryId = REPOSITORY_RELEASES_MERGE_2,
                                           layout = MavenArtifactCoordinates.LAYOUT_NAME,
                                           setup = MavenIndexedRepositorySetup.class)
                           Repository r2,
-                          @TestArtifact(repository = REPOSITORY_RELEASES_MERGE_1,
+                          @TestArtifact(repositoryId = REPOSITORY_RELEASES_MERGE_1,
                                         id = "org.carlspring.strongbox:strongbox-utils",
                                         versions = { "6.2.2" },
                                         generator = MavenArtifactGenerator.class)
                           List<Path> repositoryArtifact1,
-                          @TestArtifact(repository = REPOSITORY_RELEASES_MERGE_2,
+                          @TestArtifact(repositoryId = REPOSITORY_RELEASES_MERGE_2,
                                         id = "org.carlspring.strongbox:strongbox-utils",
                                         versions = { "6.2.3" },
                                         generator = MavenArtifactGenerator.class)

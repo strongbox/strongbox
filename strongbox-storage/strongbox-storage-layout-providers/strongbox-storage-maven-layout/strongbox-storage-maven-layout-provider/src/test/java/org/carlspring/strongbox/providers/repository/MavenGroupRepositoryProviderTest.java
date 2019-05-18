@@ -137,14 +137,14 @@ public class MavenGroupRepositoryProviderTest
 
     @Test
     @ExtendWith({RepositoryManagementTestExecutionListener.class, ArtifactManagementTestExecutionListener.class})
-    public void testGroupIncludes(@MavenRepository(repository = "grpt-releases-tgi-1") Repository releases1,
-                                  @MavenRepository(repository = "grpt-releases-tgi-2") Repository releases2,
+    public void testGroupIncludes(@MavenRepository(repositoryId = "grpt-releases-tgi-1") Repository releases1,
+                                  @MavenRepository(repositoryId = "grpt-releases-tgi-2") Repository releases2,
                                   @TestRepository.Group({ "grpt-releases-tgi-1",
-                                                          "grpt-releases-tgi-2" }) @MavenRepository(repository = "grpt-releases-tgi-group") Repository releasesGroup,
-                                  @MavenTestArtifact(repository = "grpt-releases-tgi-1", id = "com.artifacts.in.releases.one:foo", versions = "1.2.3") Path a1,
-                                  @MavenTestArtifact(repository = "grpt-releases-tgi-1", id = "com.artifacts.in.releases.under:group", versions = "1.2.3") Path a2,
-                                  @MavenTestArtifact(repository = "grpt-releases-tgi-2", id = "com.artifacts.in.releases.four:foo", versions = "1.2.4") Path a3,
-                                  @MavenTestArtifact(repository = "grpt-releases-tgi-2", id = "com.artifacts.in.releases.under:group", versions = "1.2.4") Path a4)
+                                                          "grpt-releases-tgi-2" }) @MavenRepository(repositoryId = "grpt-releases-tgi-group") Repository releasesGroup,
+                                  @MavenTestArtifact(repositoryId = "grpt-releases-tgi-1", id = "com.artifacts.in.releases.one:foo", versions = "1.2.3") Path a1,
+                                  @MavenTestArtifact(repositoryId = "grpt-releases-tgi-1", id = "com.artifacts.in.releases.under:group", versions = "1.2.3") Path a2,
+                                  @MavenTestArtifact(repositoryId = "grpt-releases-tgi-2", id = "com.artifacts.in.releases.four:foo", versions = "1.2.4") Path a3,
+                                  @MavenTestArtifact(repositoryId = "grpt-releases-tgi-2", id = "com.artifacts.in.releases.under:group", versions = "1.2.4") Path a4)
             throws Exception
     {
         System.out.println("# Testing group includes...");
@@ -172,13 +172,14 @@ public class MavenGroupRepositoryProviderTest
 
     @Test
     @ExtendWith({RepositoryManagementTestExecutionListener.class, ArtifactManagementTestExecutionListener.class})
-    public void mavenMetadataFileShouldBeFetchedFromGroupPathRepository(@MavenRepository(repository = "grpt-releases-mmfsbffgpr-1") Repository releases1,
-                                                                        @MavenRepository(repository = "grpt-releases-mmfsbffgpr-2") Repository releases2,
+    public void mavenMetadataFileShouldBeFetchedFromGroupPathRepository(@MavenRepository(repositoryId = "grpt-releases-mmfsbffgpr-1") Repository releases1,
+                                                                        @MavenRepository(repositoryId = "grpt-releases-mmfsbffgpr-2") Repository releases2,
                                                                         @TestRepository.Group({ "grpt-releases-mmfsbffgpr-1",
-                                                                                                "grpt-releases-mmfsbffgpr-2" }) @MavenRepository(repository = "grpt-releases-mmfsbffgpr-group") Repository releasesGroup,
-                                                                        @MavenTestArtifact(repository = "grpt-releases-mmfsbffgpr-1", id = "com.artifacts.in.releases.one:foo", versions = "1.2.3") Path a1,
-                                                                        @MavenTestArtifact(repository = "grpt-releases-mmfsbffgpr-1", id = "com.artifacts.in.releases.under123:group", versions = "1.2.3") Path a2,
-                                                                        @MavenTestArtifact(repository = "grpt-releases-mmfsbffgpr-2", id = "com.artifacts.in.releases.under123:group", versions = "1.2.4") Path a3)
+                                                                                                "grpt-releases-mmfsbffgpr-2" }) @MavenRepository(
+                                                                                repositoryId = "grpt-releases-mmfsbffgpr-group") Repository releasesGroup,
+                                                                        @MavenTestArtifact(repositoryId = "grpt-releases-mmfsbffgpr-1", id = "com.artifacts.in.releases.one:foo", versions = "1.2.3") Path a1,
+                                                                        @MavenTestArtifact(repositoryId = "grpt-releases-mmfsbffgpr-1", id = "com.artifacts.in.releases.under123:group", versions = "1.2.3") Path a2,
+                                                                        @MavenTestArtifact(repositoryId = "grpt-releases-mmfsbffgpr-2", id = "com.artifacts.in.releases.under123:group", versions = "1.2.4") Path a3)
             throws Exception
     {
         generateMavenMetadata(STORAGE0, "grpt-releases-mmfsbffgpr-1");
@@ -202,8 +203,8 @@ public class MavenGroupRepositoryProviderTest
 
     @Test
     @ExtendWith({RepositoryManagementTestExecutionListener.class, ArtifactManagementTestExecutionListener.class})
-    public void testGroupIncludesWithOutOfServiceRepository(@MavenRepository(repository = "grpt-releases-tgiwoosr-1") Repository releases1,
-                                                            @MavenRepository(repository = "grpt-releases-tgiwoosr-2") Repository releases2,
+    public void testGroupIncludesWithOutOfServiceRepository(@MavenRepository(repositoryId = "grpt-releases-tgiwoosr-1") Repository releases1,
+                                                            @MavenRepository(repositoryId = "grpt-releases-tgiwoosr-2") Repository releases2,
                                                             @TestRepository.Group(repositories = { "grpt-releases-tgiwoosr-1",
                                                                                                    "grpt-releases-tgiwoosr-2" }, 
                                                                                   rules = { @Rule(repositories = { "grpt-releases-tgiwoosr-1",
@@ -212,9 +213,9 @@ public class MavenGroupRepositoryProviderTest
                                                                                             @Rule(repositories = { "grpt-releases-tgiwoosr-1" },
                                                                                                   pattern = ".*(com|org)/artifacts.in.*",
                                                                                                   type = RoutingRuleTypeEnum.DENY)})
-                                                            @MavenRepository(repository = "grpt-releases-tgiwoosr-group") Repository releasesGroup,
-                                                            @MavenTestArtifact(repository = "grpt-releases-tgiwoosr-1", id = "com.artifacts.in.releases.one:foo", versions = "1.2.3") Path a1,
-                                                            @MavenTestArtifact(repository = "grpt-releases-tgiwoosr-2", id = "com.artifacts.in.releases.two:foo", versions = "1.2.4") Path a2)
+                                                            @MavenRepository(repositoryId = "grpt-releases-tgiwoosr-group") Repository releasesGroup,
+                                                            @MavenTestArtifact(repositoryId = "grpt-releases-tgiwoosr-1", id = "com.artifacts.in.releases.one:foo", versions = "1.2.3") Path a1,
+                                                            @MavenTestArtifact(repositoryId = "grpt-releases-tgiwoosr-2", id = "com.artifacts.in.releases.two:foo", versions = "1.2.4") Path a2)
             throws Exception
     {
 
@@ -421,17 +422,17 @@ public class MavenGroupRepositoryProviderTest
 
     @Test
     @ExtendWith({RepositoryManagementTestExecutionListener.class, ArtifactManagementTestExecutionListener.class})
-    public void testGroupExcludes(@MavenRepository(repository = "grpt-releases-tge-1") Repository releases1,
-                                  @MavenRepository(repository = "grpt-releases-tge-2") Repository releases2,
+    public void testGroupExcludes(@MavenRepository(repositoryId = "grpt-releases-tge-1") Repository releases1,
+                                  @MavenRepository(repositoryId = "grpt-releases-tge-2") Repository releases2,
                                   @TestRepository.Group(repositories = { "grpt-releases-tge-1",
                                                                          "grpt-releases-tge-2" }, 
                                                         rules = { @Rule(repositories = { "grpt-releases-tge-1" },
                                                                         pattern = ".*(com|org)/artifacts.denied.*",
                                                                         type = RoutingRuleTypeEnum.DENY)})
-                                  @MavenRepository(repository = "grpt-releases-tge-group") Repository releasesGroup,
-                                  @MavenTestArtifact(repository = "grpt-releases-tge-1", id = "com.artifacts.accepted:foo", versions = "1.2.6") Path a1,
-                                  @MavenTestArtifact(repository = "grpt-releases-tge-1", id = "com.artifacts.denied.by.wildcard:foo", versions = "1.2.6") Path a2,
-                                  @MavenTestArtifact(repository = "grpt-releases-tge-2", id = "com.artifacts.denied.by.wildcard:foo", versions = "1.2.7") Path a3)
+                                  @MavenRepository(repositoryId = "grpt-releases-tge-group") Repository releasesGroup,
+                                  @MavenTestArtifact(repositoryId = "grpt-releases-tge-1", id = "com.artifacts.accepted:foo", versions = "1.2.6") Path a1,
+                                  @MavenTestArtifact(repositoryId = "grpt-releases-tge-1", id = "com.artifacts.denied.by.wildcard:foo", versions = "1.2.6") Path a2,
+                                  @MavenTestArtifact(repositoryId = "grpt-releases-tge-2", id = "com.artifacts.denied.by.wildcard:foo", versions = "1.2.7") Path a3)
             throws Exception
     {
         System.out.println("# Testing group excludes...");

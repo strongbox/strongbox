@@ -5,6 +5,7 @@ import org.carlspring.strongbox.controllers.BaseController;
 import org.carlspring.strongbox.cron.domain.CronTaskConfigurationDto;
 import org.carlspring.strongbox.cron.domain.CronTasksConfigurationDto;
 import org.carlspring.strongbox.cron.domain.GroovyScriptNamesDto;
+import org.carlspring.strongbox.cron.jobs.CronJobsDefinitionsRegistry;
 import org.carlspring.strongbox.cron.jobs.GroovyCronJob;
 import org.carlspring.strongbox.cron.services.CronJobSchedulerService;
 import org.carlspring.strongbox.cron.services.CronTaskConfigurationService;
@@ -18,6 +19,7 @@ import java.io.InputStream;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.util.UUID;
 
 import io.swagger.annotations.ApiOperation;
 import io.swagger.annotations.ApiResponse;
@@ -48,8 +50,9 @@ public class CronTaskController
         extends BaseController
 {
 
+    static final String HEADER_NAME_CRON_TASK_ID = "X-CRON-TASK-ID";
+
     static final String CRON_CONFIG_FILE_NAME_KEY = "fileName";
-    static final String CRON_CONFIG_JOB_CLASS_KEY = "jobClass";
     static final String CRON_CONFIG_SCRIPT_PATH_KEY = "script.path";
 
     private static final String SUCCESSFUL_SAVE_CONFIGURATION = "The configuration was saved successfully.";
@@ -76,6 +79,9 @@ public class CronTaskController
     private CronTaskConfigurationService cronTaskConfigurationService;
 
     @Inject
+    private CronJobsDefinitionsRegistry cronJobsDefinitionsRegistry;
+
+    @Inject
     private CronJobSchedulerService cronJobSchedulerService;
 
     @Inject
@@ -85,16 +91,15 @@ public class CronTaskController
     private PropertiesBooter propertiesBooter;
 
 
-    @ApiOperation(value = "Used to save a new configuration")
+    @ApiOperation(value = "Used to save a new cron task job")
     @ApiResponses(value = { @ApiResponse(code = 200, message = SUCCESSFUL_SAVE_CONFIGURATION),
                             @ApiResponse(code = 400, message = FAILED_SAVE_CONFIGURATION) })
-    @PutMapping(value = "/",
-                consumes = MediaType.APPLICATION_JSON_VALUE,
+    @PutMapping(consumes = MediaType.APPLICATION_JSON_VALUE,
                 produces = { MediaType.TEXT_PLAIN_VALUE,
                              MediaType.APPLICATION_JSON_VALUE })
-    public ResponseEntity createConfiguration(@RequestBody @Validated CronTaskConfigurationForm cronTaskConfigurationForm,
-                                              BindingResult bindingResult,
-                                              @RequestHeader(HttpHeaders.ACCEPT) String acceptHeader)
+    public ResponseEntity create(@RequestBody @Validated CronTaskConfigurationForm cronTaskConfigurationForm,
+                                 BindingResult bindingResult,
+                                 @RequestHeader(HttpHeaders.ACCEPT) String acceptHeader)
     {
         if (bindingResult.hasErrors())
         {
@@ -105,9 +110,14 @@ public class CronTaskController
         {
             CronTaskConfigurationDto cronTaskConfiguration = conversionService.convert(cronTaskConfigurationForm,
                                                                                        CronTaskConfigurationDto.class);
-            cronTaskConfigurationService.saveConfiguration(cronTaskConfiguration);
+            UUID uuid = cronTaskConfigurationService.saveConfiguration(cronTaskConfiguration);
 
-            return getSuccessfulResponseEntity(SUCCESSFUL_SAVE_CONFIGURATION, acceptHeader);
+            HttpHeaders httpHeaders = new HttpHeaders();
+            httpHeaders.add(HEADER_NAME_CRON_TASK_ID, uuid.toString());
+
+            return getSuccessfulResponseEntity(SUCCESSFUL_SAVE_CONFIGURATION,
+                                               httpHeaders,
+                                               acceptHeader);
         }
         catch (Exception e)
         {
@@ -121,7 +131,7 @@ public class CronTaskController
     @ApiOperation(value = "Used to update an existing configuration")
     @ApiResponses(value = { @ApiResponse(code = 200, message = SUCCESSFUL_UPDATE_CONFIGURATION),
                             @ApiResponse(code = 400, message = FAILED_UPDATE_CONFIGURATION) })
-    @PutMapping(value = "{UUID}",
+    @PutMapping(value = "/{UUID}",
                 consumes = MediaType.APPLICATION_JSON_VALUE,
                 produces = { MediaType.TEXT_PLAIN_VALUE,
                              MediaType.APPLICATION_JSON_VALUE })
@@ -152,7 +162,9 @@ public class CronTaskController
         }
         catch (Exception e)
         {
-            return getExceptionResponseEntity(HttpStatus.INTERNAL_SERVER_ERROR, FAILED_SAVE_CONFIGURATION, e,
+            return getExceptionResponseEntity(HttpStatus.INTERNAL_SERVER_ERROR,
+                                              FAILED_SAVE_CONFIGURATION,
+                                              e,
                                               acceptHeader);
         }
     }
@@ -161,8 +173,8 @@ public class CronTaskController
     @ApiResponses(value = { @ApiResponse(code = 200, message = SUCCESSFUL_DELETE_CONFIGURATION),
                             @ApiResponse(code = 400, message = FAILED_DELETE_CONFIGURATION) })
     @DeleteMapping(value = "{UUID}",
-                   produces = { MediaType.TEXT_PLAIN_VALUE,
-                                MediaType.APPLICATION_JSON_VALUE })
+            produces = { MediaType.TEXT_PLAIN_VALUE,
+                         MediaType.APPLICATION_JSON_VALUE })
     public ResponseEntity deleteConfiguration(@PathVariable("UUID") String uuid,
                                               @RequestHeader(HttpHeaders.ACCEPT) String acceptHeader)
     {
@@ -175,24 +187,18 @@ public class CronTaskController
         try
         {
             cronTaskConfigurationService.deleteConfiguration(config.getUuid());
-            if (config.contains(CRON_CONFIG_JOB_CLASS_KEY))
+            if (config.getJobClass().equals(GroovyCronJob.class.getName()) &&
+                config.getProperty(CRON_CONFIG_SCRIPT_PATH_KEY) != null)
             {
-                String className = config.getProperty(CRON_CONFIG_JOB_CLASS_KEY);
-                Class<?> c = Class.forName(className);
-                Object classInstance = c.getConstructor().newInstance();
-
-                logger.debug("> {}", c.getSuperclass().getCanonicalName());
-
-                if (classInstance instanceof GroovyCronJob)
-                {
-                    Path path = Paths.get(config.getProperty(CRON_CONFIG_SCRIPT_PATH_KEY));
-                    Files.deleteIfExists(path);
-                }
+                Path path = Paths.get(config.getProperty(CRON_CONFIG_SCRIPT_PATH_KEY));
+                Files.deleteIfExists(path);
             }
         }
         catch (Exception e)
         {
-            return getExceptionResponseEntity(HttpStatus.INTERNAL_SERVER_ERROR, FAILED_DELETE_CONFIGURATION, e,
+            return getExceptionResponseEntity(HttpStatus.INTERNAL_SERVER_ERROR,
+                                              FAILED_DELETE_CONFIGURATION,
+                                              e,
                                               acceptHeader);
         }
 
@@ -203,9 +209,19 @@ public class CronTaskController
         return getSuccessfulResponseEntity(SUCCESSFUL_DELETE_CONFIGURATION, acceptHeader);
     }
 
+    @ApiOperation(value = "Lists all of the cron task types and the field types of those tasks.")
+    @ApiResponses(value = { @ApiResponse(code = 200, message = SUCCESSFUL_GET_CONFIGURATION),
+                            @ApiResponse(code = 404, message = NOT_FOUND_CONFIGURATION) })
+    @GetMapping(value = "/types/list",
+                produces = { MediaType.APPLICATION_JSON_VALUE })
+    public ResponseEntity listCronJobs()
+    {
+        return ResponseEntity.ok(cronJobsDefinitionsRegistry.getCronJobDefinitions());
+    }
+
     @ApiOperation(value = "Used to get the configuration on given cron task UUID")
     @ApiResponses(value = { @ApiResponse(code = 200, message = SUCCESSFUL_GET_CONFIGURATION),
-                            @ApiResponse(code = 404, message = NOT_FOUND_CONFIGURATION)})
+                            @ApiResponse(code = 404, message = NOT_FOUND_CONFIGURATION) })
     @GetMapping(value = "/{UUID}",
                 produces = { MediaType.APPLICATION_JSON_VALUE,
                              APPLICATION_YAML_VALUE })
@@ -262,12 +278,12 @@ public class CronTaskController
 
         logger.info(">> CRON UUID: {}", cronTaskConfiguration.getUuid());
         logger.info(">> CRON NAME: {}", cronTaskConfiguration.getName());
-        logger.info(">> Properties: {}",  cronTaskConfiguration.getProperties());
+        logger.info(">> Properties: {}", cronTaskConfiguration.getProperties());
 
         String path = propertiesBooter.getVaultDirectory() + "/etc/conf/cron/groovy";
 
         cronTaskConfiguration.addProperty(CRON_CONFIG_FILE_NAME_KEY, fileName);
-        cronTaskConfiguration.addProperty(CRON_CONFIG_JOB_CLASS_KEY, GroovyCronJob.class.getName());
+        cronTaskConfiguration.setJobClass(GroovyCronJob.class.getName());
         cronTaskConfiguration.addProperty(CRON_CONFIG_SCRIPT_PATH_KEY, path + "/" + fileName);
 
         try

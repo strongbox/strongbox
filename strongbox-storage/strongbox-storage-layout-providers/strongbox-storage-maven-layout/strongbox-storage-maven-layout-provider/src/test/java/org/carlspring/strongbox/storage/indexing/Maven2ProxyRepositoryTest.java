@@ -57,11 +57,11 @@ public class Maven2ProxyRepositoryTest
     @Test
     @EnabledIf(expression = "#{containsObject('repositoryIndexManager')}", loadContext = true)
     @ExtendWith({RepositoryManagementTestExecutionListener.class, ArtifactManagementTestExecutionListener.class})
-    public void testRepositoryIndexFetching(@TestRepository(layout = LAYOUT_NAME, storage = STORAGE0, repository = REPOSITORY_RELEASES, setup = MavenIndexedRepositorySetup.class) Repository repository,
-                                            @TestRepository(layout = LAYOUT_NAME, storage = STORAGE0, repository = REPOSITORY_PROXY, setup = MavenIndexedRepositorySetup.class) @Remote(url = PROXY_REPOSITORY_URL ) Repository proxyRepository,
-                                            @TestArtifact(storage = STORAGE0, repository = REPOSITORY_RELEASES, resource = A1, generator = MavenArtifactGenerator.class) Path a1,
-                                            @TestArtifact(storage = STORAGE0, repository = REPOSITORY_RELEASES, resource = A2, generator = MavenArtifactGenerator.class) Path a2,
-                                            @TestArtifact(storage = STORAGE0, repository = REPOSITORY_RELEASES, resource = A3, generator = MavenArtifactGenerator.class) Path a3)
+    public void testRepositoryIndexFetching(@TestRepository(layout = LAYOUT_NAME, repositoryId = REPOSITORY_RELEASES, setup = MavenIndexedRepositorySetup.class) Repository repository,
+                                            @TestRepository(layout = LAYOUT_NAME, repositoryId = REPOSITORY_PROXY, setup = MavenIndexedRepositorySetup.class) @Remote(url = PROXY_REPOSITORY_URL ) Repository proxyRepository,
+                                            @TestArtifact(repositoryId = REPOSITORY_RELEASES, resource = A1, generator = MavenArtifactGenerator.class) Path a1,
+                                            @TestArtifact(repositoryId = REPOSITORY_RELEASES, resource = A2, generator = MavenArtifactGenerator.class) Path a2,
+                                            @TestArtifact(repositoryId = REPOSITORY_RELEASES, resource = A3, generator = MavenArtifactGenerator.class) Path a3)
             throws ArtifactTransportException, IOException
     {
         IndexedMavenRepositoryFeatures features = (IndexedMavenRepositoryFeatures) getFeatures();

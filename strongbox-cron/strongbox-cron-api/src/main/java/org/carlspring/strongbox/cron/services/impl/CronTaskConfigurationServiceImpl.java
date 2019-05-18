@@ -2,7 +2,6 @@ package org.carlspring.strongbox.cron.services.impl;
 
 import org.carlspring.strongbox.cron.domain.CronTaskConfigurationDto;
 import org.carlspring.strongbox.cron.domain.CronTasksConfigurationDto;
-import org.carlspring.strongbox.cron.exceptions.CronTaskNotFoundException;
 import org.carlspring.strongbox.cron.services.CronJobSchedulerService;
 import org.carlspring.strongbox.cron.services.CronTaskConfigurationService;
 import org.carlspring.strongbox.cron.services.CronTaskDataService;
@@ -10,7 +9,8 @@ import org.carlspring.strongbox.event.cron.CronTaskEventListenerRegistry;
 
 import javax.inject.Inject;
 
-import org.quartz.SchedulerException;
+import java.util.UUID;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.context.ApplicationListener;
@@ -44,32 +44,24 @@ class CronTaskConfigurationServiceImpl
             {
                 continue;
             }
-            
+
             cronJobSchedulerService.scheduleJob(dto);
         }
     }
 
-    public void saveConfiguration(CronTaskConfigurationDto configuration)
-        throws Exception
+    public UUID saveConfiguration(CronTaskConfigurationDto configuration)
     {
         logger.debug("CronTaskConfigurationService.saveConfiguration()");
 
-        //TODO: validate configuration properties
-        
-        cronTaskDataService.save(configuration);
-
-        if (configuration.contains("jobClass"))
-        {
-            cronJobSchedulerService.scheduleJob(configuration);
-        }
+        UUID configurationId = cronTaskDataService.save(configuration);
+        cronJobSchedulerService.scheduleJob(configuration);
 
         cronTaskEventListenerRegistry.dispatchCronTaskCreatedEvent(configuration.getUuid());
+
+        return configurationId;
     }
 
     public void deleteConfiguration(String cronTaskConfigurationUuid)
-            throws SchedulerException,
-                   CronTaskNotFoundException,
-                   ClassNotFoundException
     {
         logger.debug("Deleting cron task configuration {}", cronTaskConfigurationUuid);
 

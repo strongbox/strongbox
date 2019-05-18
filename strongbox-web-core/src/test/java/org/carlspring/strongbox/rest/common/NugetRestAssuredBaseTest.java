@@ -20,6 +20,7 @@ import java.nio.file.Path;
 import org.apache.http.entity.mime.MultipartEntityBuilder;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.MediaType;
 import org.springframework.web.context.WebApplicationContext;
 import static io.restassured.module.mockmvc.RestAssuredMockMvc.given;
@@ -59,6 +60,7 @@ public abstract class NugetRestAssuredBaseTest
     @Inject
     protected RestAssuredArtifactClient client;
 
+    @Value("${strongbox.url}")
     private String contextBaseUrl;
 
     public void init()
@@ -67,6 +69,7 @@ public abstract class NugetRestAssuredBaseTest
         logger.debug("Initializing RestAssured...");
 
         client.setUserAgent("NuGet/*");
+        client.setContextBaseUrl(contextBaseUrl);
     }
     
     public String getContextBaseUrl()
@@ -74,13 +77,9 @@ public abstract class NugetRestAssuredBaseTest
         return contextBaseUrl;
     }
 
-    @Inject
     public void setContextBaseUrl(String contextBaseUrl)
     {
         this.contextBaseUrl = contextBaseUrl;
-
-        // base URL depends only on test execution context
-        client.setContextBaseUrl(contextBaseUrl);
     }
 
     protected boolean pathExists(String url)

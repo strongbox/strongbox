@@ -1,39 +1,5 @@
 package org.carlspring.strongbox.services;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertFalse;
-import static org.junit.jupiter.api.Assertions.assertNotNull;
-import static org.junit.jupiter.api.Assertions.assertTrue;
-import static org.junit.jupiter.api.Assertions.fail;
-import static org.junit.jupiter.api.parallel.ExecutionMode.CONCURRENT;
-
-import java.io.ByteArrayInputStream;
-import java.io.File;
-import java.io.IOException;
-import java.io.InputStream;
-import java.nio.charset.StandardCharsets;
-import java.nio.file.Files;
-import java.nio.file.Path;
-import java.text.DateFormat;
-import java.text.SimpleDateFormat;
-import java.util.Arrays;
-import java.util.Calendar;
-import java.util.HashMap;
-import java.util.LinkedHashSet;
-import java.util.List;
-import java.util.Map;
-import java.util.Random;
-import java.util.Set;
-import java.util.concurrent.Callable;
-import java.util.concurrent.atomic.AtomicBoolean;
-import java.util.stream.Collectors;
-import java.util.stream.IntStream;
-
-import javax.inject.Inject;
-import javax.xml.bind.JAXBException;
-
-import org.apache.maven.artifact.Artifact;
-
 import org.carlspring.maven.commons.io.filters.JarFilenameFilter;
 import org.carlspring.maven.commons.util.ArtifactUtils;
 import org.carlspring.strongbox.artifact.ArtifactNotFoundException;
@@ -48,23 +14,36 @@ import org.carlspring.strongbox.providers.io.RepositoryPathResolver;
 import org.carlspring.strongbox.providers.io.RepositoryStreamSupport.RepositoryInputStream;
 import org.carlspring.strongbox.providers.layout.Maven2LayoutProvider;
 import org.carlspring.strongbox.repository.MavenRepositoryFeatures;
-import org.carlspring.strongbox.resource.ResourceCloser;
 import org.carlspring.strongbox.storage.ArtifactResolutionException;
 import org.carlspring.strongbox.storage.ArtifactStorageException;
-import org.carlspring.strongbox.storage.repository.MavenRepositoryFactory;
-import org.carlspring.strongbox.storage.repository.MutableRepository;
 import org.carlspring.strongbox.storage.repository.Repository;
 import org.carlspring.strongbox.storage.repository.RepositoryPolicyEnum;
-import org.carlspring.strongbox.storage.repository.RepositoryTypeEnum;
+import org.carlspring.strongbox.testing.MavenRepositorySetup;
 import org.carlspring.strongbox.testing.TestCaseWithMavenArtifactGenerationAndIndexing;
 import org.carlspring.strongbox.testing.artifact.ArtifactManagementTestExecutionListener;
 import org.carlspring.strongbox.testing.artifact.TestArtifact;
 import org.carlspring.strongbox.testing.storage.repository.RepositoryManagementTestExecutionListener;
 import org.carlspring.strongbox.testing.storage.repository.TestRepository;
 
+import javax.inject.Inject;
+import java.io.ByteArrayInputStream;
+import java.io.File;
+import java.io.IOException;
+import java.io.InputStream;
+import java.nio.charset.StandardCharsets;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.text.DateFormat;
+import java.text.SimpleDateFormat;
+import java.util.*;
+import java.util.concurrent.Callable;
+import java.util.concurrent.atomic.AtomicBoolean;
+import java.util.stream.Collectors;
+import java.util.stream.IntStream;
+
+import org.apache.maven.artifact.Artifact;
 import org.hamcrest.CoreMatchers;
 import org.hamcrest.MatcherAssert;
-import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.TestInfo;
@@ -75,6 +54,8 @@ import org.slf4j.LoggerFactory;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.ContextConfiguration;
+import static org.junit.jupiter.api.Assertions.*;
+import static org.junit.jupiter.api.parallel.ExecutionMode.CONCURRENT;
 
 /**
  * @author mtodorov
@@ -93,6 +74,28 @@ public class ArtifactManagementServiceImplTest
 
     private DateFormat formatter = new SimpleDateFormat("yyyyMMdd.HHmmss");
 
+    private static final String AMSI_RELEASES_WITHOUT_DEPLOYMENT = "amsi-releases-without-deployment";
+
+    private static final String AMSI_RELEASES_WITHOUT_DELETES = "amsi-releases-without-deletes";
+
+    private static final String TDRADAGR_RELEASES = "tdradagr-releases";
+
+    private static final String TDRADAGR_GROUP = "tdradagr-group";
+
+    private static final String TARFG_RELEASES = "tarfg-releases";
+
+    private static final String TARFG_GROUP = "tarfg-group";
+
+    private static final String TFD_RELEASE_WITHOUT_DELETE = "tfd-release-without-delete";
+
+    private static final String TFD_RELEASE_WITH_TRASH = "tfd-release-with-trash";
+
+    private static final String TRTS_SNAPSHOTS = "trts-snapshots";
+
+    private static final String TCRW_RELEASES_WITH_LOCK = "tcrw-releases-with-lock";
+
+    private static final String LAST_VERSION_RELEASES = "last-version-releases";
+
     @Inject
     private ArtifactManagementService mavenArtifactManagementService;
 
@@ -109,142 +112,76 @@ public class ArtifactManagementServiceImplTest
     private ArtifactMetadataService artifactMetadataService;
 
     @Inject
-    private MavenRepositoryFactory mavenRepositoryFactory;
-
-    @Inject
     private RepositoryPathResolver repositoryPathResolver;
 
-    private Set<MutableRepository> getRepositories(TestInfo testInfo)
-    {
-        Set<MutableRepository> repositories = new LinkedHashSet<>();
-        repositories.add(createRepositoryMock(STORAGE0,
-                                              getRepositoryName("amsi-releases-without-deployment", testInfo),
-                                              Maven2LayoutProvider.ALIAS));
-        repositories.add(createRepositoryMock(STORAGE0,
-                                              getRepositoryName("amsi-releases-without-redeployment", testInfo),
-                                              Maven2LayoutProvider.ALIAS));
-        repositories.add(createRepositoryMock(STORAGE0,
-                                              getRepositoryName("amsi-releases-without-deletes", testInfo),
-                                              Maven2LayoutProvider.ALIAS));
-        repositories.add(createRepositoryMock(STORAGE0,
-                                              getRepositoryName("tdradagr-releases", testInfo),
-                                              Maven2LayoutProvider.ALIAS));
-        repositories.add(createRepositoryMock(STORAGE0,
-                                              getRepositoryName("tdradagr-group", testInfo),
-                                              Maven2LayoutProvider.ALIAS));
-        repositories.add(createRepositoryMock(STORAGE0,
-                                              getRepositoryName("tarfg-releases", testInfo),
-                                              Maven2LayoutProvider.ALIAS));
-        repositories.add(createRepositoryMock(STORAGE0,
-                                              getRepositoryName("tarfg-group", testInfo),
-                                              Maven2LayoutProvider.ALIAS));
-        repositories.add(createRepositoryMock(STORAGE0,
-                                              getRepositoryName("tfd-release-with-trash", testInfo),
-                                              Maven2LayoutProvider.ALIAS));
-        repositories.add(createRepositoryMock(STORAGE0,
-                                              getRepositoryName("tfd-release-without-delete", testInfo),
-                                              Maven2LayoutProvider.ALIAS));
-        repositories.add(createRepositoryMock(STORAGE0,
-                                              getRepositoryName("trts-snapshots", testInfo),
-                                              Maven2LayoutProvider.ALIAS));
-        repositories.add(createRepositoryMock(STORAGE0,
-                                              getRepositoryName("tcrw-releases-with-lock", testInfo),
-                                              Maven2LayoutProvider.ALIAS));
-        repositories.add(createRepositoryMock(STORAGE0,
-                                              getRepositoryName("last-version-releases", testInfo),
-                                              Maven2LayoutProvider.ALIAS));
-        repositories.add(createRepositoryMock(STORAGE0,
-                                              getRepositoryName("checksums-storage", testInfo),
-                                              Maven2LayoutProvider.ALIAS));
-        return repositories;
-    }
-
-    @AfterEach
-    public void removeRepositories(TestInfo testInfo)
-            throws IOException, JAXBException
-    {
-        removeRepositories(getRepositories(testInfo));
-    }
-
+    @ExtendWith({ RepositoryManagementTestExecutionListener.class, ArtifactManagementTestExecutionListener.class })
     @Test
-    public void testDeploymentToRepositoryWithForbiddenDeployments(TestInfo testInfo)
+    public void testDeploymentToRepositoryWithForbiddenDeployments(@TestRepository(repositoryId = AMSI_RELEASES_WITHOUT_DEPLOYMENT,
+                                                                                   layout = Maven2LayoutProvider.ALIAS,
+                                                                                   setup = MavenRepositorySetup.MavenRepositorySetupWithForbiddenDeleteAndDeloyment.class)
+                                                                   Repository repositoryWithoutDeployment,
+                                                                   @TestArtifact(repositoryId = AMSI_RELEASES_WITHOUT_DEPLOYMENT,
+                                                                                   id = "org.carlspring.strongbox:strongbox-utils",
+                                                                                   versions = { "8.0" },
+                                                                                   generator = MavenArtifactGenerator.class)
+                                                                   List<Path> repositoryArtifact)
             throws Exception
     {
-        String repositoryId = getRepositoryName("amsi-releases-without-deployment", testInfo);
+        String repositoryWithoutDeploymentId = repositoryWithoutDeployment.getId();
 
-        MutableRepository repositoryWithoutDeployment = mavenRepositoryFactory.createRepository(repositoryId);
-        repositoryWithoutDeployment.setAllowsDelete(false);
-        repositoryWithoutDeployment.setLayout(Maven2LayoutProvider.ALIAS);
-        repositoryWithoutDeployment.setAllowsDeployment(false);
+        File repositoryDir = getRepositoryBasedir(STORAGE0, repositoryWithoutDeploymentId);
 
-        createRepositoryWithArtifacts(STORAGE0,
-                                      repositoryWithoutDeployment,
-                                      "org.carlspring.strongbox:strongbox-utils",
-                                      "8.0");
-
-        InputStream is = null;
+        String gavtc = "org.carlspring.strongbox:strongbox-utils:8.0:jar";
 
         //noinspection EmptyCatchBlock
-        try
+        try (InputStream is = generateArtifactInputStream(repositoryDir.toPath().getParent().toAbsolutePath().toString(),
+                                                          repositoryWithoutDeploymentId,
+                                                          gavtc,
+                                                          true))
         {
-            String gavtc = "org.carlspring.strongbox:strongbox-utils:8.0:jar";
-
-            File repositoryDir = getRepositoryBasedir(STORAGE0, repositoryId);
-            is = generateArtifactInputStream(repositoryDir.toPath().getParent().toAbsolutePath().toString(),
-                                             repositoryId,
-                                             gavtc,
-                                             true);
-
             Artifact artifact = ArtifactUtils.getArtifactFromGAVTC(gavtc);
             RepositoryPath repositoryPath = repositoryPathResolver.resolve(STORAGE0,
-                                                                           repositoryId,
+                                                                           repositoryWithoutDeploymentId,
                                                                            ArtifactUtils.convertArtifactToPath(artifact));
             mavenArtifactManagementService.validateAndStore(repositoryPath, is);
 
             fail("Failed to deny artifact operation for repository with disallowed deployments.");
         }
+
         catch (ArtifactStorageException e)
         {
             // This is the expected correct behavior
         }
-        finally
-        {
-            ResourceCloser.close(is, null);
-        }
     }
 
+    @ExtendWith({ RepositoryManagementTestExecutionListener.class, ArtifactManagementTestExecutionListener.class })
     @Test
-    public void testRedeploymentToRepositoryWithForbiddenRedeployments(TestInfo testInfo)
+    public void testRedeploymentToRepositoryWithForbiddenRedeployments(@TestRepository(repositoryId = AMSI_RELEASES_WITHOUT_DEPLOYMENT,
+                                                                                       layout = Maven2LayoutProvider.ALIAS,
+                                                                                       setup = MavenRepositorySetup.MavenRepositorySetupWithForbiddenRedeloyment.class)
+                                                                       Repository repositoryWithoutDeployment,
+                                                                       @TestArtifact(repositoryId = AMSI_RELEASES_WITHOUT_DEPLOYMENT,
+                                                                                     id = "org.carlspring.strongbox:strongbox-utils",
+                                                                                     versions = { "8.1" },
+                                                                                     generator = MavenArtifactGenerator.class)
+                                                                       List<Path> repositoryArtifact2)
             throws Exception
     {
-        String repositoryId = getRepositoryName("amsi-releases-without-redeployment", testInfo);
+        String repositoryWithoutDeploymentId = repositoryWithoutDeployment.getId();
 
-        MutableRepository repositoryWithoutRedeployments = mavenRepositoryFactory.createRepository(repositoryId);
-        repositoryWithoutRedeployments.setAllowsRedeployment(false);
+        String gavtc = "org.carlspring.strongbox:strongbox-utils:8.1:jar";
 
-        createRepositoryWithArtifacts(STORAGE0,
-                                      repositoryWithoutRedeployments,
-                                      "org.carlspring.strongbox:strongbox-utils",
-                                      "8.1");
-
-        InputStream is = null;
+        File repositoryBasedir = getRepositoryBasedir(STORAGE0, repositoryWithoutDeploymentId);
 
         //noinspection EmptyCatchBlock
-        try
+        try (InputStream is = generateArtifactInputStream(repositoryBasedir.toPath().getParent().toAbsolutePath().toString(),
+                                                          repositoryWithoutDeployment.getId(),
+                                                          gavtc,
+                                                          true))
         {
-            String gavtc = "org.carlspring.strongbox:strongbox-utils:8.1:jar";
-
-            File repositoryBasedir = getRepositoryBasedir(STORAGE0, repositoryId);
-            generateArtifact(repositoryBasedir.getAbsolutePath(), gavtc);
-
-            is = generateArtifactInputStream(repositoryBasedir.toPath().getParent().toAbsolutePath().toString(),
-                                             repositoryId,
-                                             gavtc,
-                                             true);
-
             Artifact artifact = ArtifactUtils.getArtifactFromGAVTC(gavtc);
             RepositoryPath repositoryPath = repositoryPathResolver.resolve(STORAGE0,
-                                                                           repositoryId, 
+                                                                           repositoryWithoutDeployment.getId(),
                                                                            ArtifactUtils.convertArtifactToPath(artifact));
             mavenArtifactManagementService.validateAndStore(repositoryPath, is);
 
@@ -254,30 +191,22 @@ public class ArtifactManagementServiceImplTest
         {
             // This is the expected correct behavior
         }
-        finally
-        {
-            ResourceCloser.close(is, null);
-        }
     }
 
+    @ExtendWith({ RepositoryManagementTestExecutionListener.class, ArtifactManagementTestExecutionListener.class })
     @Test
-    public void testDeletionFromRepositoryWithForbiddenDeletes(TestInfo testInfo)
+    public void testDeletionFromRepositoryWithForbiddenDeletes(@TestRepository(repositoryId = AMSI_RELEASES_WITHOUT_DELETES,
+                                                                               layout = Maven2LayoutProvider.ALIAS,
+                                                                               setup = MavenRepositorySetup.MavenRepositorySetupWithForbiddenDeletes.class)
+                                                               Repository repositoryWithoutDeployment,
+                                                               @TestArtifact(repositoryId = AMSI_RELEASES_WITHOUT_DELETES,
+                                                                               id = "org.carlspring.strongbox:strongbox-utils",
+                                                                               versions = { "8.2", "8.6" },
+                                                                               generator = MavenArtifactGenerator.class)
+                                                               List<Path> repositoryArtifact)
             throws Exception
     {
-        String repositoryId = getRepositoryName("amsi-releases-without-deletes", testInfo);
-
-        MutableRepository repositoryWithoutDelete = mavenRepositoryFactory.createRepository(repositoryId);
-        repositoryWithoutDelete.setAllowsDelete(false);
-        repositoryWithoutDelete.setLayout(Maven2LayoutProvider.ALIAS);
-
-        createRepositoryWithArtifacts(STORAGE0,
-                                      repositoryWithoutDelete,
-                                      "org.carlspring.strongbox:strongbox-utils",
-                                      "8.6");
-
-        generateArtifact(getRepositoryBasedir(STORAGE0, repositoryId).getAbsolutePath(),
-                         "org.carlspring.strongbox:strongbox-utils",
-                         new String[]{ "8.2" });
+        String repositoryWithoutDeploymentId = repositoryWithoutDeployment.getId();
 
         //noinspection EmptyCatchBlock
         try
@@ -286,7 +215,7 @@ public class ArtifactManagementServiceImplTest
 
             Artifact artifact = ArtifactUtils.getArtifactFromGAVTC(gavtc);
             RepositoryPath repositoryPath = repositoryPathResolver.resolve(STORAGE0,
-                                                                           repositoryId,
+                                                                           repositoryWithoutDeploymentId,
                                                                            ArtifactUtils.convertArtifactToPath(artifact));
             mavenArtifactManagementService.delete(repositoryPath, false);
 
@@ -298,154 +227,118 @@ public class ArtifactManagementServiceImplTest
         }
     }
 
+    @ExtendWith({ RepositoryManagementTestExecutionListener.class, ArtifactManagementTestExecutionListener.class })
     @Test
-    public void testDeploymentRedeploymentAndDeletionAgainstGroupRepository(TestInfo testInfo)
+    public void testDeploymentRedeploymentAndDeletionAgainstGroupRepository(@TestRepository(repositoryId = TDRADAGR_RELEASES,
+                                                                                            layout = Maven2LayoutProvider.ALIAS,
+                                                                                            setup = MavenRepositorySetup.MavenRepositorySetupWithForbiddenDeletes.class)
+                                                                            Repository repository,
+                                                                            @TestRepository.Group({ TDRADAGR_RELEASES })
+                                                                            @TestRepository(repositoryId = TDRADAGR_GROUP,
+                                                                                            layout = Maven2LayoutProvider.ALIAS,
+                                                                                            setup = MavenRepositorySetup.MavenRepositorySetupWithForbiddenDeleteDeploymentForceDelete.class)
+                                                                            Repository repositoryGroup,
+                                                                            @TestArtifact(repositoryId = TDRADAGR_RELEASES,
+                                                                                          id = "org.carlspring.strongbox:strongbox-utils",
+                                                                                          versions = { "8.3" },
+                                                                                          generator = MavenArtifactGenerator.class)
+                                                                            List<Path> repositoryArtifact)
             throws Exception
     {
-        // Test resource initialization start:
-        String repositoryId = getRepositoryName("tdradagr-releases", testInfo);
-        String repositoryGroupId = getRepositoryName("tdradagr-group", testInfo);
-
-        MutableRepository repository = mavenRepositoryFactory.createRepository(repositoryId);
-        repository.setAllowsDelete(false);
-        repository.setLayout(Maven2LayoutProvider.ALIAS);
-
-        MutableRepository repositoryGroup = mavenRepositoryFactory.createRepository(repositoryGroupId);
-        repositoryGroup.setType(RepositoryTypeEnum.GROUP.getType());
-        repositoryGroup.setAllowsRedeployment(false);
-        repositoryGroup.setAllowsDelete(false);
-        repositoryGroup.setAllowsForceDeletion(false);
-        repositoryGroup.addRepositoryToGroup(repositoryId);
-
-        createRepositoryWithArtifacts(STORAGE0,
-                                      repository,
-                                      "org.carlspring.strongbox:strongbox-utils",
-                                      "8.3");
-
-        createRepository(STORAGE0, repositoryGroup);
-        // Test resource initialization end.
-
-        InputStream is = null;
+        String repositoryGroupId = repositoryGroup.getId();
 
         String gavtc = "org.carlspring.strongbox:strongbox-utils:8.3:jar";
 
         Artifact artifact = ArtifactUtils.getArtifactFromGAVTC(gavtc);
 
-        //noinspection EmptyCatchBlock
-        try
+        File repositoryDir = getRepositoryBasedir(STORAGE0, repositoryGroupId);
+
+        try (InputStream is = generateArtifactInputStream(repositoryDir.toPath().getParent().toAbsolutePath().toString(),
+                                                          repositoryGroupId,
+                                                          gavtc,
+                                                          true))
         {
-            File repositoryDir = getRepositoryBasedir(STORAGE0, repositoryGroupId);
-            is = generateArtifactInputStream(repositoryDir.toPath().getParent().toAbsolutePath().toString(),
-                                             repositoryGroupId,
-                                             gavtc,
-                                             true);
+            //noinspection EmptyCatchBlock
+            try
+            {
+                RepositoryPath repositoryPath = repositoryPathResolver.resolve(STORAGE0,
+                                                                               repositoryGroupId,
+                                                                               ArtifactUtils.convertArtifactToPath(artifact));
+                mavenArtifactManagementService.validateAndStore(repositoryPath, is);
+
+                fail("Failed to deny artifact operation for repository with disallowed deployments.");
+            }
+            catch (ArtifactStorageException e)
+            {
+                // This is the expected correct behavior
+            }
+
+            //noinspection EmptyCatchBlock
+            try
+            {
+                RepositoryPath repositoryPath = repositoryPathResolver.resolve(STORAGE0,
+                                                                               repositoryGroupId,
+                                                                               ArtifactUtils.convertArtifactToPath(artifact));
+                mavenArtifactManagementService.validateAndStore(repositoryPath, is);
+
+                fail("Failed to deny artifact operation for repository with disallowed re-deployments.");
+            }
+            catch (ArtifactStorageException e)
+            {
+                // This is the expected correct behavior
+            }
 
             RepositoryPath repositoryPath = repositoryPathResolver.resolve(STORAGE0,
                                                                            repositoryGroupId,
                                                                            ArtifactUtils.convertArtifactToPath(artifact));
-            mavenArtifactManagementService.validateAndStore(repositoryPath, is);
 
-            fail("Failed to deny artifact operation for repository with disallowed deployments.");
-        }
-        catch (ArtifactStorageException e)
-        {
-            // This is the expected correct behavior
-        }
-        finally
-        {
-            ResourceCloser.close(is, null);
-        }
+            // Delete: Case 1: No forcing
+            //noinspection EmptyCatchBlock
+            try
+            {
+                mavenArtifactManagementService.delete(repositoryPath, false);
 
-        //noinspection EmptyCatchBlock
-        try
-        {
-            // Generate the artifact on the file-system anyway so that we could achieve
-            // the state of having it there before attempting a re-deployment
-            generateArtifact(getRepositoryBasedir(STORAGE0, repositoryId).getAbsolutePath(), gavtc);
-            
-            RepositoryPath repositoryPath = repositoryPathResolver.resolve(STORAGE0,
-                                                                           repositoryGroupId,
-                                                                           ArtifactUtils.convertArtifactToPath(artifact));
-            mavenArtifactManagementService.validateAndStore(repositoryPath, is);
+                fail("Failed to deny artifact operation for repository with disallowed deletions (non-forced test).");
+            }
+            catch (ArtifactStorageException e)
+            {
+                // This is the expected correct behavior
+            }
 
-            fail("Failed to deny artifact operation for repository with disallowed re-deployments.");
-        }
-        catch (ArtifactStorageException e)
-        {
-            // This is the expected correct behavior
-        }
-        finally
-        {
-            ResourceCloser.close(is, null);
-        }
+            // Delete: Case 2: Force delete
+            //noinspection EmptyCatchBlock
+            try
+            {
+                mavenArtifactManagementService.delete(repositoryPath, true);
 
-        RepositoryPath repositoryPath = repositoryPathResolver.resolve(STORAGE0,
-                                                                       repositoryGroupId,
-                                                                       ArtifactUtils.convertArtifactToPath(artifact));
-
-        // Delete: Case 1: No forcing
-        //noinspection EmptyCatchBlock
-        try
-        {
-            mavenArtifactManagementService.delete(repositoryPath, false);
-
-            fail("Failed to deny artifact operation for repository with disallowed deletions (non-forced test).");
-        }
-        catch (ArtifactStorageException e)
-        {
-            // This is the expected correct behavior
-        }
-        finally
-        {
-            ResourceCloser.close(is, null);
-        }
-
-        // Delete: Case 2: Force delete
-        //noinspection EmptyCatchBlock
-        try
-        {
-            mavenArtifactManagementService.delete(repositoryPath, true);
-
-            fail("Failed to deny artifact operation for repository with disallowed deletions (forced test).");
-        }
-        catch (ArtifactStorageException e)
-        {
-            // This is the expected correct behavior
-        }
-        finally
-        {
-            ResourceCloser.close(is, null);
+                fail("Failed to deny artifact operation for repository with disallowed deletions (forced test).");
+            }
+            catch (ArtifactStorageException e)
+            {
+                // This is the expected correct behavior
+            }
         }
     }
 
+    @ExtendWith({ RepositoryManagementTestExecutionListener.class, ArtifactManagementTestExecutionListener.class })
     @Test
-    public void testArtifactResolutionFromGroup(TestInfo testInfo)
+    public void testArtifactResolutionFromGroup(@TestRepository(repositoryId = TARFG_RELEASES,
+                                                                layout = Maven2LayoutProvider.ALIAS,
+                                                                setup = MavenRepositorySetup.MavenRepositorySetupWithForbiddenDeletes.class)
+                                                Repository repository,
+                                                @TestRepository.Group({ TARFG_RELEASES })
+                                                @TestRepository(repositoryId = TARFG_GROUP,
+                                                                layout = Maven2LayoutProvider.ALIAS,
+                                                                setup = MavenRepositorySetup.MavenRepositorySetupWithForbiddenDeleteDeploymentForceDelete.class)
+                                                Repository repositoryGroup,
+                                                @TestArtifact(repositoryId = TARFG_RELEASES,
+                                                              id = "org.carlspring.strongbox:strongbox-utils",
+                                                              versions = { "8.0.5" },
+                                                              generator = MavenArtifactGenerator.class)
+                                                List<Path> repositoryArtifact)
             throws Exception
     {
-        String repositoryId = getRepositoryName("tarfg-releases", testInfo);
-        String repositoryGroupId = getRepositoryName("tarfg-group", testInfo);
-
-        MutableRepository repository = mavenRepositoryFactory.createRepository(repositoryId);
-        repository.setAllowsDelete(false);
-        repository.setLayout(Maven2LayoutProvider.ALIAS);
-
-        MutableRepository repositoryGroup = mavenRepositoryFactory.createRepository(repositoryGroupId);
-        repositoryGroup.setType(RepositoryTypeEnum.GROUP.getType());
-        repositoryGroup.setAllowsRedeployment(false);
-        repositoryGroup.setAllowsDelete(false);
-        repositoryGroup.setAllowsForceDeletion(false);
-        repositoryGroup.addRepositoryToGroup(repositoryId);
-
-        createRepositoryWithArtifacts(STORAGE0,
-                                      repository,
-                                      "org.carlspring.strongbox:strongbox-utils",
-                                      "8.0.5");
-
-        createRepository(STORAGE0, repositoryGroup);
-
-        RepositoryPath path = artifactResolutionService.resolvePath(STORAGE0,
-                                                                    repositoryGroupId,
-                                                                    "org/carlspring/strongbox/strongbox-utils/8.0.5/strongbox-utils-8.0.5.jar");
+        RepositoryPath path = (RepositoryPath)repositoryArtifact.get(0);
 
         try (InputStream is = artifactResolutionService.getInputStream(path))
         {
@@ -454,36 +347,47 @@ public class ArtifactManagementServiceImplTest
         }
     }
 
+    @ExtendWith({ RepositoryManagementTestExecutionListener.class, ArtifactManagementTestExecutionListener.class })
     @Test
-    public void testForceDelete(TestInfo testInfo)
+    public void testForceDelete(@TestRepository(repositoryId = TFD_RELEASE_WITHOUT_DELETE,
+                                                layout = Maven2LayoutProvider.ALIAS,
+                                                policy = RepositoryPolicyEnum.RELEASE)
+                                Repository repository1,
+                                @TestArtifact(repositoryId = TFD_RELEASE_WITHOUT_DELETE,
+                                              id = "org.carlspring.strongbox:strongbox-utils",
+                                              versions = { "7.0" },
+                                              generator = MavenArtifactGenerator.class)
+                                List<Path> repositoryArtifact1,
+                                @TestRepository(repositoryId = TFD_RELEASE_WITH_TRASH,
+                                                layout = Maven2LayoutProvider.ALIAS,
+                                                policy = RepositoryPolicyEnum.RELEASE,
+                                                cleanup = false,
+                                                setup = MavenRepositorySetup.MavenRepositorySetupWithTrashEnabled.class)
+                                Repository repository2,
+                                @TestArtifact(repositoryId = TFD_RELEASE_WITH_TRASH,
+                                              id = "org.carlspring.strongbox:strongbox-utils",
+                                              versions = { "7.2" },
+                                              generator = MavenArtifactGenerator.class)
+                                List<Path> repositoryArtifact2)
             throws Exception
     {
-        String repositoryId = getRepositoryName("tfd-release-without-delete", testInfo);
-        String repositoryWithTrashId = getRepositoryName("tfd-release-with-trash", testInfo);
 
-        createRepositoryWithArtifacts(STORAGE0, repositoryId, false, "org.carlspring.strongbox:strongbox-utils", "7.0");
+        String repositoryid = repository1.getId();
+
+        String repositoryWithTrashId = repository2.getId();
 
         final String artifactPath = "org/carlspring/strongbox/strongbox-utils/7.0/strongbox-utils-7.0.jar";
 
-        RepositoryPath repositoryPath = repositoryPathResolver.resolve(STORAGE0, repositoryId, artifactPath);
+        RepositoryPath repositoryPath = (RepositoryPath)repositoryArtifact1.get(0);
 
         mavenArtifactManagementService.delete(repositoryPath, true);
 
-        assertFalse(new File(getRepositoryBasedir(STORAGE0, repositoryId), artifactPath).exists(),
+        assertFalse(new File(getRepositoryBasedir(STORAGE0, repositoryid), artifactPath).exists(),
                     "Failed to delete artifact during a force delete operation!");
 
-        MutableRepository repositoryWithTrash = mavenRepositoryFactory.createRepository(repositoryWithTrashId);
-        repositoryWithTrash.setTrashEnabled(true);
-        repositoryWithTrash.setLayout(Maven2LayoutProvider.ALIAS);
-
-        createRepository(STORAGE0, repositoryWithTrash);
-
-        generateArtifact(getRepositoryBasedir(STORAGE0, repositoryWithTrashId).getAbsolutePath(),
-                         "org.carlspring.strongbox:strongbox-utils",
-                         new String[]{ "7.2" });
-
         final String artifactPath2 = "org/carlspring/strongbox/strongbox-utils/7.2/strongbox-utils-7.2.jar";
-        repositoryPath = repositoryPathResolver.resolve(STORAGE0, repositoryWithTrashId, artifactPath2);
+
+        repositoryPath = (RepositoryPath)repositoryArtifact2.get(0);
 
         mavenArtifactManagementService.delete(repositoryPath, true);
 
@@ -494,19 +398,18 @@ public class ArtifactManagementServiceImplTest
                    "when allowsForceDeletion is not enabled!");
     }
 
+    @ExtendWith({ RepositoryManagementTestExecutionListener.class })
     @Test
-    public void testRemoveTimestampedSnapshots(TestInfo testInfo)
+    public void testRemoveTimestampedSnapshots(@TestRepository(repositoryId = TRTS_SNAPSHOTS,
+                                                               layout = Maven2LayoutProvider.ALIAS,
+                                                               policy = RepositoryPolicyEnum.SNAPSHOT)
+                                               Repository repository)
             throws Exception
     {
-        String repositoryid = getRepositoryName("trts-snapshots", testInfo);
-
-        MutableRepository repositoryWithSnapshots = mavenRepositoryFactory.createRepository(repositoryid);
-        repositoryWithSnapshots.setPolicy(RepositoryPolicyEnum.SNAPSHOT.getPolicy());
-        repositoryWithSnapshots.setLayout(Maven2LayoutProvider.ALIAS);
-
-        createRepository(STORAGE0, repositoryWithSnapshots);
+        String repositoryid = repository.getId();
 
         String repositoryBasedir = getRepositoryBasedir(STORAGE0, repositoryid).getAbsolutePath();
+
         String artifactPath = repositoryBasedir + "/org/carlspring/strongbox/timestamped";
 
         File artifactVersionBaseDir = new File(artifactPath, "2.0-SNAPSHOT");
@@ -535,7 +438,7 @@ public class ArtifactManagementServiceImplTest
                                                            0);
 
         File[] files = artifactVersionBaseDir.listFiles(new JarFilenameFilter());
-        
+
         assertEquals(1, files.length, "Amount of timestamped snapshots doesn't equal 1.");
         assertTrue(files[0].toString().endsWith("-3.jar"));
 
@@ -568,24 +471,19 @@ public class ArtifactManagementServiceImplTest
                                                            3);
 
         files = artifactVersionBaseDir.listFiles(new JarFilenameFilter());
-        
+
         assertEquals(1, files.length, "Amount of timestamped snapshots doesn't equal 1.");
         assertTrue(files[0].toString().endsWith("-3.jar"));
     }
 
     @Disabled // TODO FIXME ASAP
+    @ExtendWith({ RepositoryManagementTestExecutionListener.class })
     @Test
-    public void testConcurrentReadWrite(TestInfo testInfo)
+    public void testConcurrentReadWrite(@TestRepository(repositoryId = TCRW_RELEASES_WITH_LOCK,
+                                                        layout = Maven2LayoutProvider.ALIAS)
+                                        Repository repository)
             throws Exception
     {
-        String repositoryId = getRepositoryName("tcrw-releases-with-lock", testInfo);
-
-        MutableRepository repositoryWithLock = mavenRepositoryFactory.createRepository(repositoryId);
-
-        createRepository(STORAGE0, repositoryWithLock);
-
-        Repository repository = getConfiguration().getStorage(STORAGE0).getRepository(repositoryId);
-
         int concurrency = 64;
 
         Random random = new Random();
@@ -630,23 +528,21 @@ public class ArtifactManagementServiceImplTest
 
         assertTrue(Arrays.stream(loremIpsumContentArray)
                          .map(c -> Arrays.equals(repositoryPathContent, c))
-                         .reduce((r1, 
+                         .reduce((r1,
                                   r2) -> r1 || r2)
                          .get());
 
     }
 
+    @ExtendWith({ RepositoryManagementTestExecutionListener.class })
     @Test
-    public void testLastVersionManagement(TestInfo testInfo)
+    public void testLastVersionManagement(@TestRepository(repositoryId = LAST_VERSION_RELEASES,
+                                                          layout = Maven2LayoutProvider.ALIAS,
+                                                          setup = MavenRepositorySetup.MavenHostedRepositorySetup.class)
+                                          Repository repository)
             throws Exception
     {
-        String repositoryId = getRepositoryName("last-version-releases", testInfo);
-
-        MutableRepository repository = mavenRepositoryFactory.createRepository(repositoryId);
-        repository.setLayout(Maven2LayoutProvider.ALIAS);
-        repository.setType(RepositoryTypeEnum.HOSTED.getType());
-
-        createRepository(STORAGE0, repository);
+        String repositoryId = repository.getId();
 
         // store the file without classifier
         String gavtc = "org.carlspring.strongbox:strongbox-lv-artifact:1.0:jar";
@@ -673,8 +569,7 @@ public class ArtifactManagementServiceImplTest
         Artifact artifactWithClassifier = ArtifactUtils.getArtifactFromGAVTC(gavtcWithClassifier);
         String artifactPathWithClassifier = ArtifactUtils.convertArtifactToPath(artifactWithClassifier);
 
-        try (InputStream is = new ByteArrayInputStream(
-                "strongbox-lv-artifact-content".getBytes(StandardCharsets.UTF_8)))
+        try (InputStream is = new ByteArrayInputStream("strongbox-lv-artifact-content".getBytes(StandardCharsets.UTF_8)))
         {
             RepositoryPath repositoryPath = repositoryPathResolver.resolve(STORAGE0,
                                                                            repositoryId,
@@ -743,7 +638,7 @@ public class ArtifactManagementServiceImplTest
                   ArtifactManagementTestExecutionListener.class })
     public void testChecksumsStorage(TestInfo testInfo,
                                      @TestRepository (layout = MavenArtifactCoordinates.LAYOUT_NAME,
-                                                      repository = "checksums-storage")
+                                                      repositoryId = "checksums-storage")
                                      Repository repository,
                                      @TestArtifact(resource = "org/carlspring/strongbox/strongbox-checksum-test/8.4/strongbox-checksum-test-8.4.jar",
                                                    generator = MavenArtifactGenerator.class)
@@ -751,6 +646,7 @@ public class ArtifactManagementServiceImplTest
             throws Exception
     {
         RepositoryPath repositoryPath = repositoryPathResolver.resolve(repository).resolve("org/carlspring/strongbox/strongbox-checksum-test/8.4/strongbox-checksum-test-8.4.jar");
+
         try (InputStream is = Files.newInputStream(artifact))
         {
             mavenArtifactManagementService.store(repositoryPath, is);
@@ -766,11 +662,11 @@ public class ArtifactManagementServiceImplTest
 
         String path = RepositoryFiles.relativizePath(repositoryPath);
         ArtifactEntry artifactEntry = artifactEntryService.findOneArtifact(STORAGE0, repository.getId(), path);
-        
+
         assertNotNull(artifactEntry);
-        
+
         Map<String, String> actualChecksums = artifactEntry.getChecksums();
-        
+
         assertNotNull(actualChecksums);
         assertEquals(expectedChecksums, actualChecksums);
     }
@@ -793,7 +689,7 @@ public class ArtifactManagementServiceImplTest
         {
             logger.error("Unexpected IOException while getting result:", e);
             e.printStackTrace();
-            
+
             return 0L;
         }
     }
@@ -867,7 +763,7 @@ public class ArtifactManagementServiceImplTest
                     {
                         break;
                     }
-                    
+
                     result += n;
                 }
             }
@@ -892,7 +788,7 @@ public class ArtifactManagementServiceImplTest
             catch (Exception ex)
             {
                 logger.error(String.format("Failed to read artifact [%s]", repositoryPath), ex);
-                
+
                 return 0L;
             }
 

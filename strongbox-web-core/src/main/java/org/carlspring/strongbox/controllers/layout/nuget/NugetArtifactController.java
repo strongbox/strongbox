@@ -1,6 +1,39 @@
 package org.carlspring.strongbox.controllers.layout.nuget;
 
+import static org.springframework.http.HttpStatus.INTERNAL_SERVER_ERROR;
+
+import java.io.BufferedInputStream;
+import java.io.BufferedOutputStream;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.OutputStream;
+import java.io.OutputStreamWriter;
+import java.io.Writer;
+import java.net.HttpURLConnection;
+import java.net.URI;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.StandardCopyOption;
+import java.security.NoSuchAlgorithmException;
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.Date;
+import java.util.List;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
+import java.util.stream.Collectors;
+
+import javax.inject.Inject;
+import javax.servlet.ServletInputStream;
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
+import javax.ws.rs.core.MediaType;
+import javax.xml.bind.JAXBException;
+
+import org.apache.commons.fileupload.MultipartStream;
+import org.apache.commons.lang.StringUtils;
 import org.carlspring.strongbox.artifact.ArtifactTag;
+import org.carlspring.strongbox.artifact.coordinates.NugetArtifactCoordinates;
 import org.carlspring.strongbox.artifact.coordinates.PathNupkg;
 import org.carlspring.strongbox.artifact.coordinates.versioning.SemanticVersion;
 import org.carlspring.strongbox.controllers.BaseArtifactController;
@@ -28,31 +61,7 @@ import org.carlspring.strongbox.storage.metadata.nuget.rss.EntryProperties;
 import org.carlspring.strongbox.storage.metadata.nuget.rss.PackageEntry;
 import org.carlspring.strongbox.storage.metadata.nuget.rss.PackageFeed;
 import org.carlspring.strongbox.storage.repository.Repository;
-
-import javax.inject.Inject;
-import javax.servlet.ServletInputStream;
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
-import javax.ws.rs.core.MediaType;
-import javax.xml.bind.JAXBException;
-import java.io.*;
-import java.net.HttpURLConnection;
-import java.net.URI;
-import java.nio.file.Files;
-import java.nio.file.Path;
-import java.nio.file.StandardCopyOption;
-import java.security.NoSuchAlgorithmException;
-import java.util.*;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
-import java.util.stream.Collectors;
-
-import io.swagger.annotations.ApiOperation;
-import io.swagger.annotations.ApiParam;
-import io.swagger.annotations.ApiResponse;
-import io.swagger.annotations.ApiResponses;
-import org.apache.commons.fileupload.MultipartStream;
-import org.apache.commons.lang.StringUtils;
+import org.carlspring.strongbox.web.LayoutRequestMapping;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.core.io.InputStreamResource;
@@ -61,10 +70,21 @@ import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
-import org.springframework.web.bind.annotation.*;
+import org.springframework.web.bind.annotation.DeleteMapping;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.RequestHeader;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestMethod;
+import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.context.request.RequestContextHolder;
 import org.springframework.web.context.request.ServletRequestAttributes;
-import static org.springframework.http.HttpStatus.INTERNAL_SERVER_ERROR;
+
+import io.swagger.annotations.ApiOperation;
+import io.swagger.annotations.ApiParam;
+import io.swagger.annotations.ApiResponse;
+import io.swagger.annotations.ApiResponses;
 
 /**
  * This Controller used to handle Nuget requests.
@@ -73,7 +93,7 @@ import static org.springframework.http.HttpStatus.INTERNAL_SERVER_ERROR;
  *
  */
 @RestController
-@RequestMapping(path = NugetArtifactController.ROOT_CONTEXT, headers = "user-agent=NuGet/*")
+@LayoutRequestMapping(NugetArtifactCoordinates.LAYOUT_NAME)
 public class NugetArtifactController extends BaseArtifactController
 {
 
@@ -276,12 +296,12 @@ public class NugetArtifactController extends BaseArtifactController
                                                HttpServletResponse response)
             throws JAXBException, IOException
     {
-        String normalisedPackageId = normaliseSearchTerm(packageId);        
-        
+        String normalisedPackageId = normaliseSearchTerm(packageId);
+
         NugetSearchRequest nugetSearchRequest = new NugetSearchRequest();
         nugetSearchRequest.setFilter(String.format("Id eq '%s'", packageId));
         repositorySearchEventListener.setNugetSearchRequest(nugetSearchRequest);
-        
+
         Repository repository = getRepository(storageId, repositoryId);
         RepositoryProvider provider = repositoryProviderRegistry.getProvider(repository.getType());
 
@@ -315,14 +335,14 @@ public class NugetArtifactController extends BaseArtifactController
     {
         Repository repository = getRepository(storageId, repositoryId);
         RepositoryProvider provider = repositoryProviderRegistry.getProvider(repository.getType());
-        
+
         Paginator paginator = new Paginator();
         paginator.setSkip(skip);
         paginator.setLimit(top);
         paginator.setProperty(orderBy);
-        
+
         Predicate rootPredicate = createSearchPredicate(filter, searchTerm);
-        
+
         return searchNupkg(storageId, repositoryId, provider, paginator, rootPredicate);
     }
 
@@ -358,10 +378,10 @@ public class NugetArtifactController extends BaseArtifactController
            NugetODataFilterQueryParser t = new NugetODataFilterQueryParser(filter);
            rootPredicate = t.parseQuery().getPredicate();
         }
-        
+
         rootPredicate.and(Predicate.of(ExpOperator.EQ.of("artifactCoordinates.coordinates.extension", "nupkg")));
-        
-        if (searchTerm != null && !searchTerm.trim().isEmpty()) 
+
+        if (searchTerm != null && !searchTerm.trim().isEmpty())
         {
             rootPredicate.and(Predicate.of(ExpOperator.LIKE.of("artifactCoordinates.coordinates.id",
                                                                "%" + searchTerm + "%")));

@@ -47,12 +47,10 @@ public class ArtifactSearchServiceImplTest
     @Test
     @EnabledIf(expression = "#{containsObject('repositoryIndexManager')}", loadContext = true)
     @ExtendWith({ RepositoryManagementTestExecutionListener.class, ArtifactManagementTestExecutionListener.class })
-    public void testContains(@TestRepository(storage = STORAGE0,
-                                             repository = REPOSITORYID,
+    public void testContains(@TestRepository(repositoryId = REPOSITORYID,
                                              layout = Maven2LayoutProvider.ALIAS,
                                              setup = MavenIndexedRepositorySetup.class) Repository repository,
-                             @MavenTestArtifact(storage = STORAGE0,
-                                                repository = REPOSITORYID,
+                             @MavenTestArtifact(repositoryId = REPOSITORYID,
                                                 id = "org.carlspring.strongbox:strongbox-utils",
                                                 versions = { "1.0.1", "1.1.1", "1.2.1" }) List<Path> paths)
             throws Exception

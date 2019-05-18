@@ -26,6 +26,7 @@ import java.util.stream.Collectors;
 import org.codehaus.plexus.util.xml.pull.XmlPullParserException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.MediaType;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.web.context.WebApplicationContext;
@@ -56,12 +57,14 @@ public abstract class MavenRestAssuredBaseTest
     @Inject
     private RepositoryPathResolver repositoryPathResolver;
     
+    @Value("${strongbox.url}")
     private String contextBaseUrl;
 
     public void init()
             throws Exception
     {
         client.setUserAgent("Maven/*");
+        client.setContextBaseUrl(contextBaseUrl);
     }
 
     public void shutdown()
@@ -73,13 +76,9 @@ public abstract class MavenRestAssuredBaseTest
         return contextBaseUrl;
     }
 
-    @Inject
     public void setContextBaseUrl(String contextBaseUrl)
     {
         this.contextBaseUrl = contextBaseUrl;
-
-        // base URL depends only on test execution context
-        client.setContextBaseUrl(contextBaseUrl);
     }
 
     protected Collection<? extends GrantedAuthority> provideAuthorities()

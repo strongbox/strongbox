@@ -32,10 +32,10 @@ public class MavenRepositoryArtifact
     }
 
     public MavenRepositoryArtifact(final String groupId,
-                                 final String artifactId,
-                                 final VersionRange version,
-                                 final String type,
-                                 final String classifier)
+                                   final String artifactId,
+                                   final VersionRange version,
+                                   final String type,
+                                   final String classifier)
     {
         super(groupId, artifactId, version, type, classifier);
     }
@@ -65,7 +65,7 @@ public class MavenRepositoryArtifact
     }
 
     public MavenRepositoryArtifact(final String groupId,
-                                 final String artifactId)
+                                   final String artifactId)
     {
         super(groupId, artifactId);
     }
