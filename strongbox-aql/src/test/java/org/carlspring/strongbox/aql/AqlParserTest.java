@@ -28,8 +28,13 @@ public class AqlParserTest
     @Test
     public void testLayoutSpecificKeywords()
     {
-        String query = "storage:storage-common-proxies +repository:carlspring +groupId:'org.carlspring'" +
-                       " +artifactId:'some strange group' asc: version";
+        String query = "l:'Maven 2' " +
+                       "s:storage-common-proxies " +
+                       "r:carlspring " +
+                       "+groupId:org.carlspring " +
+                       "+artifactId:'some strange group' " +
+                       "v:1.2.3 " +
+                       "asc: v";
 
         AqlQueryParser aqlParser = new AqlQueryParser(query);
 
@@ -42,8 +47,11 @@ public class AqlParserTest
         assertFalse(predicate.isEmpty());
         assertFalse(aqlParser.hasErrors());
 
-        query = "storage:storage-common-proxies +repository:carlspring +invalidId:'org.carlspring'" +
-                " +artifactId:'test-artifact' asc: unknownCoordinateId";
+        query = "storage:storage-common-proxies" +
+                " +repository:carlspring" +
+                " +invalidId:'org.carlspring'" +
+                " +artifactId:'test-artifact'" +
+                " asc: unknownCoordinateId";
 
         aqlParser = new AqlQueryParser(query);
 
@@ -75,7 +83,10 @@ public class AqlParserTest
     @Disabled
     public void testValidQueryWithUpperLowercaseCheck()
     {
-        String query = "(storagE:storage-common-proxies) +Repository:carlspring Or +(groupId:'org.carlspring')" +
+        String query = "(storagE:storage-common-proxies)" +
+                       " +Repository:carlspring" +
+                       " Or" +
+                       " +(groupId:'org.carlspring')" +
                        " AnD (!(artifactId:'some strange group') || !version:0.*) aSc: agE sKip: 12";
 
         AqlQueryParser aqlParser = new AqlQueryParser(query);
