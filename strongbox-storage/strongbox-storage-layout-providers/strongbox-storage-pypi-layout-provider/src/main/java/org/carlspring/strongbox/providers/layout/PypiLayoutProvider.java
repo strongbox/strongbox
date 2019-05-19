@@ -1,6 +1,6 @@
 package org.carlspring.strongbox.providers.layout;
 
-import org.carlspring.strongbox.artifact.coordinates.PypiWheelArtifactCoordinates;
+import org.carlspring.strongbox.artifact.coordinates.PypiArtifactCoordinates;
 import org.carlspring.strongbox.providers.io.RepositoryFileAttributeType;
 import org.carlspring.strongbox.providers.io.RepositoryFiles;
 import org.carlspring.strongbox.providers.io.RepositoryPath;
@@ -26,11 +26,12 @@ import org.springframework.stereotype.Component;
  */
 @Component
 public class PypiLayoutProvider
-        extends AbstractLayoutProvider<PypiWheelArtifactCoordinates>
+        extends AbstractLayoutProvider<PypiArtifactCoordinates>
 {
+
     private static final Logger logger = LoggerFactory.getLogger(PypiLayoutProvider.class);
 
-    public static final String ALIAS = PypiWheelArtifactCoordinates.LAYOUT_NAME;
+    public static final String ALIAS = PypiArtifactCoordinates.LAYOUT_NAME;
 
     @Inject
     private PypiRepositoryManagementStrategy pypiRepositoryManagementStrategy;
@@ -45,9 +46,9 @@ public class PypiLayoutProvider
         logger.info("Registered layout provider '" + getClass().getCanonicalName() + "' with alias '" + ALIAS + "'.");
     }
 
-    protected PypiWheelArtifactCoordinates getArtifactCoordinates(RepositoryPath path) throws IOException
+    protected PypiArtifactCoordinates getArtifactCoordinates(RepositoryPath path) throws IOException
     {
-        return PypiWheelArtifactCoordinates.parse(RepositoryFiles.relativizePath(path));
+        return PypiArtifactCoordinates.parse(RepositoryFiles.relativizePath(path));
     }
 
     public boolean isArtifactMetadata(RepositoryPath path)

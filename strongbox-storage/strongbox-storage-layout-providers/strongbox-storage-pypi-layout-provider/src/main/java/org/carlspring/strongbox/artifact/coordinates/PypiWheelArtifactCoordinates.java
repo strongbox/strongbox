@@ -207,7 +207,11 @@ public class PypiWheelArtifactCoordinates
             return String.format("%s-%s-%s-%s-%s", getId(), getVersion(), getLanguageImplementationVersion(), getAbi(), getPlatform()) + ".whl";
         }
 
-        return String.format("%s-%s-%s-%s-%s-%s", getId(), getVersion(), getBuild(), getLanguageImplementationVersion(), getAbi(), getPlatform()) + ".whl";
+        return String.format("%s/%s/%s-%s-%s-%s-%s-%s",
+                             // foo/1.2.3
+                             getId(), getVersion(),
+
+                             getId(), getVersion(), getBuild(), getLanguageImplementationVersion(), getAbi(), getPlatform()) + ".whl";
     }
 
     /**

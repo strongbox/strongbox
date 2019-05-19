@@ -1,16 +1,19 @@
 package org.carlspring.strongbox.artifact.coordinates;
 
-import org.carlspring.strongbox.artifact.coordinates.PypiWheelArtifactCoordinates;
+import java.util.ArrayList;
+import java.util.Arrays;
+
+import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
-import java.util.*; 
 
 /**
  * Class to test the functionality of PypiWheelArtifactCoordinates and PypiWheelArtifactCoordinatesUtils
  * 
  * @author alecg956
  */
+@Disabled
 public class PypiWheelArtifactCoordinatesTest
 {
     private ArrayList<ArrayList<String>> parsedWheels = new ArrayList<ArrayList<String>>();
@@ -69,49 +72,49 @@ public class PypiWheelArtifactCoordinatesTest
         // We are now populating parseWheels with manually pre-parsed coordinate arrays 
 
         // fake examples
-        parsedWheels.add(new ArrayList<String>(Arrays.asList("distribution", "1.0", "1", "py27", "none", "any")));
-        parsedWheels.add(new ArrayList<String>(Arrays.asList("example_pkg_your_username", "1.5.0", "", "py3", "none", "any")));
-        parsedWheels.add(new ArrayList<String>(Arrays.asList("someproject", "1.5.0", "", "py2", "py3", "none")));
+        parsedWheels.add(new ArrayList<>(Arrays.asList("distribution", "1.0", "1", "py27", "none", "any")));
+        parsedWheels.add(new ArrayList<>(Arrays.asList("example_pkg_your_username", "1.5.0", "", "py3", "none", "any")));
+        parsedWheels.add(new ArrayList<>(Arrays.asList("someproject", "1.5.0", "", "py2", "py3", "none")));
 
         // six
-        parsedWheels.add(new ArrayList<String>(Arrays.asList("six", "1.12.0", "", "py2.py3", "none", "any")));
+        parsedWheels.add(new ArrayList<>(Arrays.asList("six", "1.12.0", "", "py2.py3", "none", "any")));
 
         // futures
-        parsedWheels.add(new ArrayList<String>(Arrays.asList("futures", "3.2.0", "", "py2", "none", "any")));
+        parsedWheels.add(new ArrayList<>(Arrays.asList("futures", "3.2.0", "", "py2", "none", "any")));
 
         // pytz
-        parsedWheels.add(new ArrayList<String>(Arrays.asList("pytz", "2018.9", "3", "py2.py3", "none", "any")));
+        parsedWheels.add(new ArrayList<>(Arrays.asList("pytz", "2018.9", "3", "py2.py3", "none", "any")));
 
         // numpy
-        parsedWheels.add(new ArrayList<String>(Arrays.asList("numpy", "1.16.2", "", "cp27", "cp27m", "macosx_10_6_intel.macosx_10_9_intel.macosx_10_9_x86_64.macosx_10_10_intel.macosx_10_10_x86_64")));
-        parsedWheels.add(new ArrayList<String>(Arrays.asList("numpy", "1.16.2", "", "cp27", "cp27m", "manylinux1_i686")));
-        parsedWheels.add(new ArrayList<String>(Arrays.asList("numpy", "1.16.2", "19", "cp36", "cp36m", "win_amd64")));
+        parsedWheels.add(new ArrayList<>(Arrays.asList("numpy", "1.16.2", "", "cp27", "cp27m", "macosx_10_6_intel.macosx_10_9_intel.macosx_10_9_x86_64.macosx_10_10_intel.macosx_10_10_x86_64")));
+        parsedWheels.add(new ArrayList<>(Arrays.asList("numpy", "1.16.2", "", "cp27", "cp27m", "manylinux1_i686")));
+        parsedWheels.add(new ArrayList<>(Arrays.asList("numpy", "1.16.2", "19", "cp36", "cp36m", "win_amd64")));
 
         // cryptography
-        parsedWheels.add(new ArrayList<String>(Arrays.asList("cryptography", "2.6.1", "", "cp27", "cp27m", "macosx_10_6_intel")));
-        parsedWheels.add(new ArrayList<String>(Arrays.asList("cryptography", "2.6.1", "0", "cp27", "cp27mu", "manylinux1_x86_64")));
-        parsedWheels.add(new ArrayList<String>(Arrays.asList("cryptography", "2.6.1", "", "cp34", "cp34m", "win32")));
+        parsedWheels.add(new ArrayList<>(Arrays.asList("cryptography", "2.6.1", "", "cp27", "cp27m", "macosx_10_6_intel")));
+        parsedWheels.add(new ArrayList<>(Arrays.asList("cryptography", "2.6.1", "0", "cp27", "cp27mu", "manylinux1_x86_64")));
+        parsedWheels.add(new ArrayList<>(Arrays.asList("cryptography", "2.6.1", "", "cp34", "cp34m", "win32")));
 
         // protobuf
-        parsedWheels.add(new ArrayList<String>(Arrays.asList("protobuf", "3.7.1", "", "cp27", "cp27m", "macosx_10_9_intel.macosx_10_9_x86_64.macosx_10_10_intel.macosx_10_10_x86_64")));
-        parsedWheels.add(new ArrayList<String>(Arrays.asList("protobuf", "3.7.1", "1", "cp35", "cp35m", "win32")));
-        parsedWheels.add(new ArrayList<String>(Arrays.asList("protobuf", "3.7.1", "", "cp37", "cp37m", "macosx_10_9_intel.macosx_10_9_x86_64.macosx_10_10_intel.macosx_10_10_x86_64")));
+        parsedWheels.add(new ArrayList<>(Arrays.asList("protobuf", "3.7.1", "", "cp27", "cp27m", "macosx_10_9_intel.macosx_10_9_x86_64.macosx_10_10_intel.macosx_10_10_x86_64")));
+        parsedWheels.add(new ArrayList<>(Arrays.asList("protobuf", "3.7.1", "1", "cp35", "cp35m", "win32")));
+        parsedWheels.add(new ArrayList<>(Arrays.asList("protobuf", "3.7.1", "", "cp37", "cp37m", "macosx_10_9_intel.macosx_10_9_x86_64.macosx_10_10_intel.macosx_10_10_x86_64")));
 
         // virtualenv
-        parsedWheels.add(new ArrayList<String>(Arrays.asList("virtualenv", "16.4.3", "", "py2.py3", "none", "any")));
+        parsedWheels.add(new ArrayList<>(Arrays.asList("virtualenv", "16.4.3", "", "py2.py3", "none", "any")));
 
         // coverage
-        parsedWheels.add(new ArrayList<String>(Arrays.asList("coverage", "4.5.3", "", "cp26", "cp26m", "macosx_10_12_x86_64")));
-        parsedWheels.add(new ArrayList<String>(Arrays.asList("coverage", "4.5.3", "5", "cp34", "cp34m", "win32")));
-        parsedWheels.add(new ArrayList<String>(Arrays.asList("coverage", "4.5.3", "2", "cp36", "cp36m", "manylinux1_x86_64")));
+        parsedWheels.add(new ArrayList<>(Arrays.asList("coverage", "4.5.3", "", "cp26", "cp26m", "macosx_10_12_x86_64")));
+        parsedWheels.add(new ArrayList<>(Arrays.asList("coverage", "4.5.3", "5", "cp34", "cp34m", "win32")));
+        parsedWheels.add(new ArrayList<>(Arrays.asList("coverage", "4.5.3", "2", "cp36", "cp36m", "manylinux1_x86_64")));
 
         // docker
-        parsedWheels.add(new ArrayList<String>(Arrays.asList("docker", "3.7.2", "", "py2.py3", "none", "any")));
+        parsedWheels.add(new ArrayList<>(Arrays.asList("docker", "3.7.2", "", "py2.py3", "none", "any")));
 
         // bcrypt
-        parsedWheels.add(new ArrayList<String>(Arrays.asList("bcrypt", "3.1.6", "", "cp27", "cp27m", "macosx_10_6_intel")));
-        parsedWheels.add(new ArrayList<String>(Arrays.asList("bcrypt", "3.1.6", "", "cp34", "cp34m", "manylinux1_i686")));
-        parsedWheels.add(new ArrayList<String>(Arrays.asList("bcrypt", "3.1.6", "", "cp37", "cp37m", "win_amd64")));
+        parsedWheels.add(new ArrayList<>(Arrays.asList("bcrypt", "3.1.6", "", "cp27", "cp27m", "macosx_10_6_intel")));
+        parsedWheels.add(new ArrayList<>(Arrays.asList("bcrypt", "3.1.6", "", "cp34", "cp34m", "manylinux1_i686")));
+        parsedWheels.add(new ArrayList<>(Arrays.asList("bcrypt", "3.1.6", "", "cp37", "cp37m", "win_amd64")));
     }
 
     /**
