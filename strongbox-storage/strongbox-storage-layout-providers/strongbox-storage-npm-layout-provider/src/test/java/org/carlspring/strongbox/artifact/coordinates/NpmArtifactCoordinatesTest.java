@@ -9,7 +9,7 @@ import static org.junit.jupiter.api.parallel.ExecutionMode.CONCURRENT;
  * @author sbespalov
  */
 @Execution(CONCURRENT)
-public class NpmArtifactCoorinatesTest
+public class NpmArtifactCoordinatesTest
 {
 
     @Test
