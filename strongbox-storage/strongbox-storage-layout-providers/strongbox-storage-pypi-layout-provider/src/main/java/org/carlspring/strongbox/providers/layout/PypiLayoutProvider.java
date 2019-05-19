@@ -1,7 +1,6 @@
 package org.carlspring.strongbox.providers.layout;
 
 import org.carlspring.strongbox.artifact.coordinates.PypiWheelArtifactCoordinates;
-import org.carlspring.strongbox.providers.header.HeaderMappingRegistry;
 import org.carlspring.strongbox.providers.io.RepositoryFileAttributeType;
 import org.carlspring.strongbox.providers.io.RepositoryFiles;
 import org.carlspring.strongbox.providers.io.RepositoryPath;
@@ -34,9 +33,6 @@ public class PypiLayoutProvider
     public static final String ALIAS = PypiWheelArtifactCoordinates.LAYOUT_NAME;
 
     @Inject
-    private HeaderMappingRegistry headerMappingRegistry;
-
-    @Inject
     private PypiRepositoryManagementStrategy pypiRepositoryManagementStrategy;
 
     @Inject
@@ -46,8 +42,6 @@ public class PypiLayoutProvider
     @PostConstruct
     public void register()
     {
-        headerMappingRegistry.register(ALIAS, "Python-urllib/*");
-
         logger.info("Registered layout provider '" + getClass().getCanonicalName() + "' with alias '" + ALIAS + "'.");
     }
 
