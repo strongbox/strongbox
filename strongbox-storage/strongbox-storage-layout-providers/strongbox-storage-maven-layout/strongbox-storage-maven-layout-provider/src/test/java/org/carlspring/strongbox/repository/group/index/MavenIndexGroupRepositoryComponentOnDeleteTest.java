@@ -26,6 +26,7 @@ import org.carlspring.strongbox.storage.routing.RoutingRuleTypeEnum;
 import org.carlspring.strongbox.storage.search.SearchRequest;
 import org.carlspring.strongbox.util.IndexContextHelper;
 import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Tag;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.parallel.Execution;
 import org.springframework.boot.test.context.SpringBootTest;
@@ -41,6 +42,7 @@ import org.springframework.test.context.junit.jupiter.EnabledIf;
 @ContextConfiguration(classes = Maven2LayoutProviderTestConfig.class)
 @Execution(CONCURRENT)
 @EnabledIf(expression = "#{containsObject('artifactIndexesService')}", loadContext = true)
+@Tag("concurrency")
 public class MavenIndexGroupRepositoryComponentOnDeleteTest
         extends BaseMavenIndexGroupRepositoryComponentTest
 {

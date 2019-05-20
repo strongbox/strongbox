@@ -9,7 +9,6 @@ import static org.junit.jupiter.api.parallel.ExecutionMode.CONCURRENT;
 
 import java.io.ByteArrayInputStream;
 import java.io.File;
-import java.io.IOException;
 import java.io.InputStream;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
@@ -53,6 +52,7 @@ import org.carlspring.strongbox.testing.storage.repository.RepositoryManagementT
 import org.carlspring.strongbox.testing.storage.repository.TestRepository.Group;
 import org.hamcrest.CoreMatchers;
 import org.hamcrest.MatcherAssert;
+import org.junit.jupiter.api.Tag;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.TestInfo;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -70,6 +70,7 @@ import org.springframework.test.context.ContextConfiguration;
 @ActiveProfiles(profiles = "test")
 @ContextConfiguration(classes = Maven2LayoutProviderTestConfig.class)
 @Execution(CONCURRENT)
+@Tag("concurrency")
 public class ArtifactManagementServiceImplTest
         extends TestCaseWithMavenArtifactGenerationAndIndexing
 {
@@ -672,9 +673,9 @@ public class ArtifactManagementServiceImplTest
                    new Store(storedSync, new ByteArrayInputStream(loremIpsumContentArray[i / 2]), repository, path).call() :
                    new Fetch(storedSync, repository, path).call();
         }
-        catch (IOException e)
+        catch (Exception e)
         {
-            logger.error("Unexpected IOException while getting result:", e);
+            logger.error("Unexpected Exception while getting result:", e);
             e.printStackTrace();
 
             return 0L;
@@ -717,6 +718,7 @@ public class ArtifactManagementServiceImplTest
             }
             catch (Exception ex)
             {
+                ex.printStackTrace();
                 logger.error(String.format("Failed to store artifact [%s]", repositoryPath), ex);
 
                 return 0L;
@@ -749,6 +751,9 @@ public class ArtifactManagementServiceImplTest
             }
             catch (InterruptedException e)
             {
+                e.printStackTrace();
+                logger.error(String.format("Failed to read artifact [%s]", path), e);
+                
                 return 0L;
             }
             
@@ -772,8 +777,9 @@ public class ArtifactManagementServiceImplTest
             }
             catch (Exception ex)
             {
+                ex.printStackTrace();
                 logger.error(String.format("Failed to read artifact [%s]", repositoryPath), ex);
-
+                
                 return 0L;
             }
 

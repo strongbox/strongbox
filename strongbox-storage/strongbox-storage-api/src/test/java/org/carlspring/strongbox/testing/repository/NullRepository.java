@@ -25,10 +25,10 @@ public @interface NullRepository
 {
 
     @AliasFor(annotation = TestRepository.class)
-    String storage() default "storage0";
+    String storageId() default "storage0";
 
     @AliasFor(annotation = TestRepository.class)
-    String repository() default "releases";
+    String repositoryId() default "releases";
 
     @AliasFor(annotation = TestRepository.class)
     RepositoryPolicyEnum policy() default RepositoryPolicyEnum.RELEASE;

@@ -140,9 +140,9 @@ public class ConfigurationManagementServiceImplTest
 
     @Test
     @ExtendWith(RepositoryManagementTestExecutionListener.class)
-    public void testGetGroupRepositoriesContainingRepository(@NullRepository(repository = REPOSITORY_RELEASES_1) Repository releases1,
+    public void testGetGroupRepositoriesContainingRepository(@NullRepository(repositoryId = REPOSITORY_RELEASES_1) Repository releases1,
                                                              @TestRepository.Group(repositories = REPOSITORY_RELEASES_1)
-                                                             @NullRepository(repository = REPOSITORY_GROUP_1) Repository releasesGroup)
+                                                             @NullRepository(repositoryId = REPOSITORY_GROUP_1) Repository releasesGroup)
     {
         List<Repository> groups = configurationManagementService.getConfiguration()
                                                                 .getGroupRepositoriesContaining(STORAGE0,
@@ -160,13 +160,13 @@ public class ConfigurationManagementServiceImplTest
 
     @Test
     @ExtendWith(RepositoryManagementTestExecutionListener.class)
-    public void testRemoveRepositoryFromAssociatedGroups(@NullRepository(repository = REPOSITORY_RELEASES_1) 
+    public void testRemoveRepositoryFromAssociatedGroups(@NullRepository(repositoryId = REPOSITORY_RELEASES_1) 
                                                          Repository releases1,
                                                          @TestRepository.Group(repositories = REPOSITORY_RELEASES_1)
-                                                         @NullRepository(repository = REPOSITORY_GROUP_1) 
+                                                         @NullRepository(repositoryId = REPOSITORY_GROUP_1) 
                                                          Repository releasesGroup1,
                                                          @TestRepository.Group(repositories = REPOSITORY_RELEASES_1)
-                                                         @NullRepository(repository = REPOSITORY_GROUP_2) 
+                                                         @NullRepository(repositoryId = REPOSITORY_GROUP_2) 
                                                          Repository releasesGroup2)
     {
         assertEquals(2,
@@ -186,7 +186,7 @@ public class ConfigurationManagementServiceImplTest
 
     @Test
     @ExtendWith(RepositoryManagementTestExecutionListener.class)
-    public void testSetProxyRepositoryMaxConnections(@NullRepository(repository = REPOSITORY_RELEASES_2) 
+    public void testSetProxyRepositoryMaxConnections(@NullRepository(repositoryId = REPOSITORY_RELEASES_2) 
                                                      Repository releases1)
     {
         Storage storage = configurationManagementService.getConfiguration().getStorage(STORAGE0);
@@ -205,9 +205,9 @@ public class ConfigurationManagementServiceImplTest
 
     @Test
     @ExtendWith(RepositoryManagementTestExecutionListener.class)
-    public void shouldAddEditAndRemoveRoutingRule(@NullRepository(repository = REPOSITORY_RELEASES_1) Repository releases1,
+    public void shouldAddEditAndRemoveRoutingRule(@NullRepository(repositoryId = REPOSITORY_RELEASES_1) Repository releases1,
                                                   @TestRepository.Group(repositories = REPOSITORY_RELEASES_1)
-                                                  @NullRepository(repository = REPOSITORY_GROUP_1) Repository releasesGroup)
+                                                  @NullRepository(repositoryId = REPOSITORY_GROUP_1) Repository releasesGroup)
     {
         final MutableRoutingRule routingRule = createRoutingRule(RoutingRuleTypeEnum.ACCEPT);
         String repositoryId = routingRule.getRepositoryId();
@@ -263,15 +263,15 @@ public class ConfigurationManagementServiceImplTest
 
     @Test
     @ExtendWith(RepositoryManagementTestExecutionListener.class)
-    public void testCanGetRepositoriesWithStorageAndLayout(@NullRepository(repository = REPOSITORY_RELEASES_1) 
+    public void testCanGetRepositoriesWithStorageAndLayout(@NullRepository(repositoryId = REPOSITORY_RELEASES_1) 
                                                            Repository releases1,
-                                                           @NullRepository(repository = REPOSITORY_RELEASES_2) 
+                                                           @NullRepository(repositoryId = REPOSITORY_RELEASES_2) 
                                                            Repository releases2,
                                                            @TestRepository.Group(repositories = REPOSITORY_RELEASES_1)
-                                                           @NullRepository(repository = REPOSITORY_GROUP_1) 
+                                                           @NullRepository(repositoryId = REPOSITORY_GROUP_1) 
                                                            Repository releasesGroup1,
                                                            @TestRepository.Group(repositories = REPOSITORY_RELEASES_1)
-                                                           @NullRepository(repository = REPOSITORY_GROUP_2) 
+                                                           @NullRepository(repositoryId = REPOSITORY_GROUP_2) 
                                                            Repository releasesGroup2)
     {
         List<Repository> repositories = configurationManagementService.getConfiguration()
@@ -287,15 +287,15 @@ public class ConfigurationManagementServiceImplTest
 
     @Test
     @ExtendWith(RepositoryManagementTestExecutionListener.class)
-    public void testCanGetRepositoriesWithStorageAndLayoutNotExistedStorage(@NullRepository(repository = REPOSITORY_RELEASES_1) 
+    public void testCanGetRepositoriesWithStorageAndLayoutNotExistedStorage(@NullRepository(repositoryId = REPOSITORY_RELEASES_1) 
                                                                             Repository releases1,
-                                                                            @NullRepository(repository = REPOSITORY_RELEASES_2) 
+                                                                            @NullRepository(repositoryId = REPOSITORY_RELEASES_2) 
                                                                             Repository releases2,
                                                                             @TestRepository.Group(repositories = REPOSITORY_RELEASES_1)
-                                                                            @NullRepository(repository = REPOSITORY_GROUP_1) 
+                                                                            @NullRepository(repositoryId = REPOSITORY_GROUP_1) 
                                                                             Repository releasesGroup1,
                                                                             @TestRepository.Group(repositories = REPOSITORY_RELEASES_1)
-                                                                            @NullRepository(repository = REPOSITORY_GROUP_2) 
+                                                                            @NullRepository(repositoryId = REPOSITORY_GROUP_2) 
                                                                             Repository releasesGroup2)
     {
         List<Repository> repositories = configurationManagementService.getConfiguration()
