@@ -23,7 +23,6 @@ import org.carlspring.strongbox.storage.repository.remote.RemoteRepository;
 import org.carlspring.strongbox.testing.TestCaseWithMavenArtifactGenerationAndIndexing;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.api.Tag;
 import org.junit.jupiter.api.parallel.Execution;
 import org.mockito.ArgumentMatchers;
 import org.mockito.Mockito;
@@ -45,7 +44,6 @@ import org.springframework.test.context.ContextConfiguration;
 @SpringBootTest
 @ContextConfiguration(classes = Maven2LayoutProviderTestConfig.class)
 @Execution(CONCURRENT)
-@Tag("concurrency")
 public abstract class MockedRestArtifactResolverTestBase
         extends TestCaseWithMavenArtifactGenerationAndIndexing
 {
