@@ -1,17 +1,14 @@
 package org.carlspring.strongbox.providers.io;
 
 import java.io.IOException;
-import java.io.InputStream;
 import java.net.URI;
 import java.net.URLEncoder;
 import java.util.Optional;
-import java.util.concurrent.locks.Lock;
 import java.util.concurrent.locks.ReadWriteLock;
 
 import javax.annotation.Nonnull;
 import javax.inject.Inject;
 
-import org.apache.commons.io.input.ProxyInputStream;
 import org.carlspring.strongbox.artifact.coordinates.ArtifactCoordinates;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -48,11 +45,11 @@ public class RepositoryPathLock
                               String id) throws IOException
     {
         URI lock = getLock(repositoryPath);
-
         String lockName = Optional.ofNullable(id)
                                   .map(p -> String.format("%s?%s", lock, p))
                                   .orElseGet(() -> lock.toString());
-
+        logger.debug(String.format("Get lock for [%s]", lock));
+        
         return lockService.getReentrantReadWriteLock(lockName);
     }
 
@@ -72,74 +69,6 @@ public class RepositoryPathLock
         Assert.isTrue(lock.isAbsolute(), String.format("Unable to lock relative path %s", lock));
 
         return lock;
-    }
-
-    public InputStream lockInputStream(RepositoryPath repositoryPath,
-                                       StreamSupplier<? extends InputStream> streamSuplier)
-        throws IOException
-    {
-        Lock lock = lock(repositoryPath).readLock();
-        try
-        {
-            lock.lock();
-            return newInputStream(lock, streamSuplier);
-        }
-        catch (Exception e)
-        {
-            unlock(lock);
-            throw e instanceof IOException ? (IOException) e : new IOException(e);
-        }
-
-    }
-
-    private void unlock(Lock lock)
-    {
-        if (lock == null)
-        {
-            return;
-        }
-        try
-        {
-            lock.unlock();
-        }
-        catch (Exception e)
-        {
-            logger.error(String.format("Failed to unlock [%s].", RepositoryPath.class.getSimpleName()), e);
-        }
-    }
-
-    private InputStream newInputStream(Lock lock,
-                                       StreamSupplier<? extends InputStream> streamSuplier)
-        throws IOException
-    {
-        InputStream is = streamSuplier.get();
-        return new ProxyInputStream(is)
-        {
-
-            @Override
-            public void close()
-                throws IOException
-            {
-                try
-                {
-                    super.close();
-                } 
-                finally
-                {
-                    unlock(lock);
-                }
-            }
-
-        };
-    }
-
-    @FunctionalInterface
-    public interface StreamSupplier<T>
-    {
-
-        T get()
-            throws IOException;
-
     }
 
 }

@@ -4,11 +4,8 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.nio.file.Path;
-import java.util.Optional;
 import java.util.concurrent.locks.Lock;
 import java.util.concurrent.locks.ReadWriteLock;
-
-import javax.inject.Inject;
 
 import org.apache.commons.io.input.CountingInputStream;
 import org.apache.commons.io.input.ProxyInputStream;
@@ -25,28 +22,35 @@ import org.slf4j.LoggerFactory;
  * @author sbespalov
  *
  */
-public abstract class RepositoryStreamSupport implements RepositoryStreamCallback
+public class RepositoryStreamSupport
 {
     private static final Logger logger = LoggerFactory.getLogger(RepositoryStreamSupport.class);
 
-    private ThreadLocal<RepositoryStreamContext> ctx = new ThreadLocal<RepositoryStreamContext>();
+    private RepositoryStreamContext ctx = new RepositoryStreamContext();
 
-    @Inject
-    protected RepositoryPathLock repositoryPathLock;
+    protected final ReadWriteLock lockSource;
+    protected final RepositoryStreamCallback callback;
     
+    public RepositoryStreamSupport(ReadWriteLock lockSource,
+                                   RepositoryStreamCallback callback)
+    {
+        this.lockSource = lockSource;
+        this.callback = callback;
+    }
+
     protected void initContext(RepositoryStreamContext ctx)
     {
-        this.ctx.set(ctx);
+        this.ctx = ctx;
     }
 
     protected RepositoryStreamContext getContext()
     {
-        return ctx.get();
+        return ctx;
     }
 
     private void clearContext()
     {
-        ctx.remove();
+        ctx = null;
     }
 
     private void open()
@@ -61,7 +65,6 @@ public abstract class RepositoryStreamSupport implements RepositoryStreamCallbac
         RepositoryPath path = (RepositoryPath) ctx.getPath();
         logger.debug(String.format("Locking [%s]", path));
         
-        ReadWriteLock lockSource = repositoryPathLock.lock(path);
         Lock lock;
         if (ctx instanceof RepositoryStreamWriteContext)
         {
@@ -87,11 +90,11 @@ public abstract class RepositoryStreamSupport implements RepositoryStreamCallbac
 
         if (ctx instanceof RepositoryStreamWriteContext)
         {
-            onBeforeWrite((RepositoryStreamWriteContext) ctx);
+            callback.onBeforeWrite((RepositoryStreamWriteContext) ctx);
         }
         else
         {
-            onBeforeRead((RepositoryStreamReadContext) ctx);
+            callback.onBeforeRead((RepositoryStreamReadContext) ctx);
         }
     }
 
@@ -120,17 +123,17 @@ public abstract class RepositoryStreamSupport implements RepositoryStreamCallbac
     {
         if (ctx instanceof RepositoryStreamWriteContext)
         {
-            onAfterWrite((RepositoryStreamWriteContext) ctx);
+            callback.onAfterWrite((RepositoryStreamWriteContext) ctx);
         }
         else
         {
-            onAfterRead((RepositoryStreamReadContext) ctx);
+            callback.onAfterRead((RepositoryStreamReadContext) ctx);
         }
     }
     
     protected void commit() throws IOException
     {
-        commit((RepositoryStreamWriteContext) getContext());
+        callback.commit((RepositoryStreamWriteContext) getContext());
     }
 
     public class RepositoryOutputStream extends ProxyOutputStream

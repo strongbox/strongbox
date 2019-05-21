@@ -1,22 +1,5 @@
 package org.carlspring.strongbox.providers.layout;
 
-import org.carlspring.commons.io.reloading.FSReloadableInputStreamHandler;
-import org.carlspring.strongbox.domain.ArtifactEntry;
-import org.carlspring.strongbox.event.artifact.ArtifactEventListenerRegistry;
-import org.carlspring.strongbox.event.repository.RepositoryEventListenerRegistry;
-import org.carlspring.strongbox.io.ByteRangeInputStream;
-import org.carlspring.strongbox.io.LayoutInputStream;
-import org.carlspring.strongbox.io.LayoutOutputStream;
-import org.carlspring.strongbox.providers.io.RepositoryFileAttributeType;
-import org.carlspring.strongbox.providers.io.RepositoryFiles;
-import org.carlspring.strongbox.providers.io.RepositoryPath;
-import org.carlspring.strongbox.providers.io.StorageFileSystemProvider;
-import org.carlspring.strongbox.services.ArtifactEntryService;
-import org.carlspring.strongbox.storage.Storage;
-import org.carlspring.strongbox.storage.repository.Repository;
-import org.carlspring.strongbox.util.MessageDigestUtils;
-
-import javax.inject.Inject;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStream;
@@ -26,12 +9,31 @@ import java.nio.file.OpenOption;
 import java.nio.file.Path;
 import java.nio.file.spi.FileSystemProvider;
 import java.security.NoSuchAlgorithmException;
+import java.util.Collections;
 import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
 
+import javax.inject.Inject;
+
+import org.carlspring.commons.io.reloading.FSReloadableInputStreamHandler;
+import org.carlspring.strongbox.domain.ArtifactEntry;
+import org.carlspring.strongbox.event.artifact.ArtifactEventListenerRegistry;
+import org.carlspring.strongbox.event.repository.RepositoryEventListenerRegistry;
+import org.carlspring.strongbox.io.ByteRangeInputStream;
+import org.carlspring.strongbox.io.LayoutInputStream;
+import org.carlspring.strongbox.io.LayoutOutputStream;
+import org.carlspring.strongbox.io.LazyInputStream;
+import org.carlspring.strongbox.providers.io.RepositoryFileAttributeType;
+import org.carlspring.strongbox.providers.io.RepositoryFiles;
+import org.carlspring.strongbox.providers.io.RepositoryPath;
+import org.carlspring.strongbox.providers.io.StorageFileSystemProvider;
+import org.carlspring.strongbox.services.ArtifactEntryService;
+import org.carlspring.strongbox.storage.Storage;
+import org.carlspring.strongbox.storage.repository.Repository;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.cglib.proxy.UndeclaredThrowableException;
 
 /**
  * This class decorates {@link StorageFileSystemProvider} with common layout specific
@@ -65,33 +67,36 @@ public abstract class LayoutFileSystemProvider extends StorageFileSystemProvider
     public LayoutInputStream newInputStream(Path path,
                                               OpenOption... options)
         throws IOException
-    {
-        if (!Files.exists(path))
-        {
-            throw new FileNotFoundException(path.toString());
-        }
-        if (Files.isDirectory(path))
-        {
-            throw new FileNotFoundException(String.format("The artifact path is a directory: [%s]",
-                                                          path.toString()));
-        }
-        
-        InputStream is = super.newInputStream(path, options);
-        ByteRangeInputStream bris;
+    {        
+        InputStream target = super.newInputStream(path, options);        
+        InputStream is = new LazyInputStream(() -> {
+            try
+            {
+                if (!Files.exists(path))
+                {
+                    throw new FileNotFoundException(path.toString());
+                }
+                if (Files.isDirectory(path))
+                {
+                    throw new FileNotFoundException(String.format("The artifact path is a directory: [%s]",
+                                                                  path.toString()));
+                }
+                
+                ByteRangeInputStream bris = new ByteRangeInputStream(target);
+                bris.setReloadableInputStreamHandler(new FSReloadableInputStreamHandler(path.toFile()));
+                bris.setLength(Files.size(path));
+
+                return bris;
+            }
+            catch (NoSuchAlgorithmException | IOException e)
+            {
+                throw new UndeclaredThrowableException(e);
+            }
+        });
+
         try
         {
-            bris = new ByteRangeInputStream(is);
-        }
-        catch (NoSuchAlgorithmException e)
-        {
-            throw new IOException(e);
-        }
-        bris.setReloadableInputStreamHandler(new FSReloadableInputStreamHandler(path.toFile()));
-        bris.setLength(Files.size(path));
-        
-        try
-        {
-            return decorateStream((RepositoryPath) path, bris);
+            return decorateStream((RepositoryPath) path, is);
         }
         catch (NoSuchAlgorithmException e)
         {
@@ -103,53 +108,12 @@ public abstract class LayoutFileSystemProvider extends StorageFileSystemProvider
                                                InputStream is)
             throws NoSuchAlgorithmException, IOException
     {
-        Set<String> digestAlgorithmSet = path.getFileSystem().getDigestAlgorithmSet();
-        LayoutInputStream result = new LayoutInputStream(is, digestAlgorithmSet);
-        
         // Add digest algorithm only if it is not a Checksum (we don't need a Checksum of Checksum).
-        if (Boolean.TRUE.equals(RepositoryFiles.isChecksum(path)))
-        {
-            return result;
-        }
-        
-        digestAlgorithmSet.stream().forEach(a -> {
-            String checksum = null;
-            try
-            {
-                checksum = getChecksum(path, result, a);
-            }
-            catch (IOException e)
-            {
-                logger.error(String.format("Failed to get checksum for [%s]", path), e);
-            }
-            if (checksum == null)
-            {
-                return;
-            }
-
-            result.getHexDigests().put(a, checksum);
-        });
-        
-        return result;
-    }
-
-    private String getChecksum(RepositoryPath path,
-                               LayoutInputStream is,
-                               String digestAlgorithm) throws IOException
-    {
-        RepositoryPath checksumPath = getChecksumPath(path, digestAlgorithm);
-        
-        String checksum = null;
-        if (Files.exists(checksumPath) && Files.size(checksumPath) != 0)
-        {
-            checksum = MessageDigestUtils.readChecksumFile(Files.newInputStream(checksumPath));
-        }
-        else
-        {
-            checksum = is.getMessageDigestAsHexadecimalString(digestAlgorithm);
+        if (Boolean.FALSE.equals(RepositoryFiles.isChecksum(path))) {
+            return new LayoutInputStream(is, Collections.emptySet());
         }
 
-        return checksum;
+        return new LayoutInputStream(is, path.getFileSystem().getDigestAlgorithmSet());
     }
 
     public RepositoryPath getChecksumPath(RepositoryPath path,

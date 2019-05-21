@@ -48,6 +48,7 @@ import org.carlspring.strongbox.testing.artifact.ArtifactManagementTestExecution
 import org.carlspring.strongbox.testing.artifact.MavenTestArtifact;
 import org.carlspring.strongbox.testing.repository.MavenRepository;
 import org.carlspring.strongbox.testing.storage.repository.RepositoryAttributes;
+import org.carlspring.strongbox.testing.repository.MavenRepository;
 import org.carlspring.strongbox.testing.storage.repository.RepositoryManagementTestExecutionListener;
 import org.carlspring.strongbox.testing.storage.repository.TestRepository.Group;
 import org.hamcrest.CoreMatchers;
@@ -476,7 +477,7 @@ public class ArtifactManagementServiceImplTest
                                         Repository repository)
             throws Exception
     {
-        int concurrency = 64;
+        int concurrency = 1024;
 
         Random random = new Random();
 

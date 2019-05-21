@@ -1,27 +1,44 @@
 package org.carlspring.strongbox.providers.io;
 
-import org.carlspring.strongbox.io.LazyOutputStream;
-import org.carlspring.strongbox.storage.repository.Repository;
-
-import javax.inject.Inject;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.net.URI;
 import java.nio.channels.FileChannel;
 import java.nio.channels.SeekableByteChannel;
-import java.nio.file.*;
+import java.nio.file.AccessMode;
+import java.nio.file.CopyOption;
+import java.nio.file.DirectoryNotEmptyException;
+import java.nio.file.DirectoryStream;
 import java.nio.file.DirectoryStream.Filter;
+import java.nio.file.FileStore;
+import java.nio.file.FileSystem;
+import java.nio.file.FileVisitResult;
+import java.nio.file.Files;
+import java.nio.file.LinkOption;
+import java.nio.file.NoSuchFileException;
+import java.nio.file.OpenOption;
+import java.nio.file.Path;
+import java.nio.file.SimpleFileVisitor;
+import java.nio.file.StandardCopyOption;
 import java.nio.file.attribute.BasicFileAttributes;
 import java.nio.file.attribute.FileAttribute;
 import java.nio.file.attribute.FileAttributeView;
 import java.nio.file.spi.FileSystemProvider;
-import java.util.*;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.Iterator;
+import java.util.Map;
+import java.util.Optional;
+import java.util.Set;
 import java.util.function.Consumer;
 import java.util.function.Supplier;
 import java.util.stream.Collectors;
 
 import org.apache.commons.io.output.ProxyOutputStream;
+import org.carlspring.strongbox.io.LazyInputStream;
+import org.carlspring.strongbox.io.LazyOutputStream;
+import org.carlspring.strongbox.storage.repository.Repository;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.cglib.proxy.UndeclaredThrowableException;
@@ -47,9 +64,6 @@ public abstract class StorageFileSystemProvider
 
     private FileSystemProvider target;
 
-    @Inject
-    private RepositoryPathLock repositoryPathLock;
-    
     public StorageFileSystemProvider(FileSystemProvider target)
     {
         super();
@@ -434,7 +448,16 @@ public abstract class StorageFileSystemProvider
                                       OpenOption... options)
         throws IOException
     {
-        return repositoryPathLock.lockInputStream((RepositoryPath) path, () -> super.newInputStream(unwrap(path), options));
+        return new LazyInputStream(() -> {
+            try
+            {
+                return super.newInputStream(unwrap(path), options);
+            }
+            catch (IOException e)
+            {
+                throw new UndeclaredThrowableException(e);
+            }
+        });
     }
 
     @Override
