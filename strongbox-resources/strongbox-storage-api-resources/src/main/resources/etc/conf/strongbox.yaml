@@ -1,7 +1,7 @@
 configuration:
   instanceName: strongbox
-  version: @{project.version}
-  revision: @{strongbox.revision}
+  version: ${project.version}
+  revision: ${strongbox.revision}
   baseUrl: http://localhost:48080/
   port: 48080
   sessionConfiguration:
