@@ -21,7 +21,7 @@ public class PythonWheelArtifactGenerator
                                                    "Summary: Strongbox wheel package for test\n" +
                                                    "Home-page: https://strongbox.github.io\n" +
                                                    "Author: Strongbox\n" +
-                                                   "Author-email: strongbox@strongbox.com\n" +
+                                                   "Author-email: strongbox@carlspring.com\n" +
                                                    "License: Test license\n" +
                                                    "Platform: Test platform\n" +
                                                    "Classifier: Programming Language :: Python :: 3\n" +
