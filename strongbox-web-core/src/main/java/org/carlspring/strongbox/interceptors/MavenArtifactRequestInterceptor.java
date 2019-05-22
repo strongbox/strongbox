@@ -9,6 +9,7 @@ import org.carlspring.strongbox.services.ConfigurationManagementService;
 import org.carlspring.strongbox.storage.Storage;
 import org.carlspring.strongbox.storage.repository.Repository;
 
+import javax.inject.Inject;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
@@ -16,24 +17,24 @@ import java.nio.file.Files;
 import java.util.Map;
 
 import org.apache.commons.lang3.StringUtils;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.method.HandlerMethod;
 import org.springframework.web.servlet.HandlerMapping;
+import org.springframework.web.servlet.handler.HandlerInterceptorAdapter;
 import static org.carlspring.strongbox.storage.metadata.MetadataHelper.MAVEN_METADATA_XML;
 import static org.springframework.http.HttpStatus.BAD_REQUEST;
 
 /**
  * @author Przemyslaw Fusik
  */
-public class MavenArtifactControllerInterceptor
-        extends BaseArtifactControllerInterceptor
+public class MavenArtifactRequestInterceptor
+        extends HandlerInterceptorAdapter
 {
 
-    @Autowired
-    protected RepositoryPathResolver repositoryPathResolver;
+    @Inject
+    private RepositoryPathResolver repositoryPathResolver;
 
-    @Autowired
-    protected ConfigurationManagementService configurationManagementService;
+    @Inject
+    private ConfigurationManagementService configurationManagementService;
 
     @Override
     public boolean preHandle(final HttpServletRequest request,
@@ -77,42 +78,44 @@ public class MavenArtifactControllerInterceptor
         }
 
         final boolean mavenArtifactRequest = isMavenArtifactRequest(request.getMethod());
-        if (mavenArtifactRequest)
+        if (!mavenArtifactRequest)
         {
-            final RepositoryPath repositoryPath = repositoryPathResolver.resolve(repository, path);
-            if (Files.exists(repositoryPath) && Files.isDirectory(repositoryPath))
-            {
-                response.sendError(BAD_REQUEST.value(), "The specified path is a directory!");
-                return false;
-            }
-            final MavenArtifact mavenArtifact = MavenArtifactUtils.convertPathToArtifact(repositoryPath);
-            if (StringUtils.isBlank(mavenArtifact.getArtifactId()))
-            {
-                response.sendError(BAD_REQUEST.value(),
-                                   "The specified path is invalid. Maven artifact artifactId not recognized.");
-                return false;
-            }
-            if (StringUtils.isBlank(mavenArtifact.getGroupId()))
-            {
-                response.sendError(BAD_REQUEST.value(),
-                                   "The specified path is invalid. Maven artifact groupId not recognized.");
-                return false;
-            }
-            if (!mavenArtifact.getArtifactId().startsWith(MAVEN_METADATA_XML))
-            {
-                if (StringUtils.isBlank(mavenArtifact.getVersion()))
-                {
-                    response.sendError(BAD_REQUEST.value(),
-                                       "The specified path is invalid. Maven artifact version not recognized.");
-                    return false;
-                }
-                if (StringUtils.isBlank(mavenArtifact.getType()))
-                {
-                    response.sendError(BAD_REQUEST.value(),
-                                       "The specified path is invalid. Maven artifact type not recognized.");
-                    return false;
-                }
-            }
+            return true;
+        }
+        final RepositoryPath repositoryPath = repositoryPathResolver.resolve(repository, path);
+        if (Files.exists(repositoryPath) && Files.isDirectory(repositoryPath))
+        {
+            response.sendError(BAD_REQUEST.value(), "The specified path is a directory!");
+            return false;
+        }
+        final MavenArtifact mavenArtifact = MavenArtifactUtils.convertPathToArtifact(repositoryPath);
+        if (StringUtils.isBlank(mavenArtifact.getArtifactId()))
+        {
+            response.sendError(BAD_REQUEST.value(),
+                               "The specified path is invalid. Maven artifact artifactId not recognized.");
+            return false;
+        }
+        if (StringUtils.isBlank(mavenArtifact.getGroupId()))
+        {
+            response.sendError(BAD_REQUEST.value(),
+                               "The specified path is invalid. Maven artifact groupId not recognized.");
+            return false;
+        }
+        if (mavenArtifact.getArtifactId().startsWith(MAVEN_METADATA_XML))
+        {
+            return true;
+        }
+        if (StringUtils.isBlank(mavenArtifact.getVersion()))
+        {
+            response.sendError(BAD_REQUEST.value(),
+                               "The specified path is invalid. Maven artifact version not recognized.");
+            return false;
+        }
+        if (StringUtils.isBlank(mavenArtifact.getType()))
+        {
+            response.sendError(BAD_REQUEST.value(),
+                               "The specified path is invalid. Maven artifact type not recognized.");
+            return false;
         }
 
         return true;
@@ -125,6 +128,11 @@ public class MavenArtifactControllerInterceptor
                "post".equalsIgnoreCase(method) ||
                "put".equalsIgnoreCase(method) ||
                "patch".equalsIgnoreCase(method);
+    }
+
+    protected Storage getStorage(String storageId)
+    {
+        return configurationManagementService.getConfiguration().getStorage(storageId);
     }
 
 }

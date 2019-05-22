@@ -1156,6 +1156,14 @@ public class MavenArtifactControllerTest
     }
 
     @Test
+    public void testNonExistingArtifactInNonExistingDirectory()
+    {
+        String path = "/storages/storage-common-proxies/maven-central/john/doe/who.jar";
+        ExtractableResponse response = client.getResourceWithResponse(path, "");
+        assertEquals(response.statusCode(), HttpStatus.BAD_REQUEST.value(), "Wrong response");
+    }
+
+    @Test
     public void shouldNotAllowGettingExistingDirectories()
             throws IOException
     {

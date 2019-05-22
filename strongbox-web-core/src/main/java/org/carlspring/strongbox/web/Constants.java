@@ -11,4 +11,10 @@ public final class Constants
     }
 
     public static final String ARTIFACT_ROOT_PATH = "/storages";
+
+    public static final String REPOSITORY_ATTRIBUTE = Constants.class.getName() + ".repository";
+
+    public static final String SOURCE_REPOSITORY_ATTRIBUTE = Constants.class.getName() + ".srcRepository";
+
+
 }

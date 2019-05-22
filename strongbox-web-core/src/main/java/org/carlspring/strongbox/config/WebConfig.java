@@ -13,9 +13,10 @@ import org.carlspring.strongbox.converters.storage.routing.RoutingRuleFormToMuta
 import org.carlspring.strongbox.converters.users.AccessModelFormToUserAccessModelDtoConverter;
 import org.carlspring.strongbox.converters.users.UserFormToUserDtoConverter;
 import org.carlspring.strongbox.cron.config.CronTasksConfig;
-import org.carlspring.strongbox.interceptors.BaseArtifactControllerInterceptor;
-import org.carlspring.strongbox.interceptors.MavenArtifactControllerInterceptor;
+import org.carlspring.strongbox.interceptors.MavenArtifactRequestInterceptor;
+import org.carlspring.strongbox.interceptors.RepositoryRequestInterceptor;
 import org.carlspring.strongbox.mapper.WebObjectMapperSubtypes;
+import org.carlspring.strongbox.services.ConfigurationManagementService;
 import org.carlspring.strongbox.utils.CustomAntPathMatcher;
 import org.carlspring.strongbox.web.CustomRequestMappingHandlerMapping;
 import org.carlspring.strongbox.web.DirectoryTraversalFilter;
@@ -28,6 +29,7 @@ import java.util.Arrays;
 import java.util.List;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.google.common.collect.Lists;
 import org.jtwig.spring.boot.config.JtwigViewResolverConfigurer;
 import org.jtwig.web.servlet.JtwigRenderer;
 import org.slf4j.Logger;
@@ -54,7 +56,7 @@ import org.springframework.web.servlet.view.InternalResourceView;
 import org.springframework.web.servlet.view.InternalResourceViewResolver;
 import static org.carlspring.strongbox.net.MediaType.APPLICATION_YAML_VALUE;
 import static org.carlspring.strongbox.net.MediaType.APPLICATION_YML_VALUE;
-import static org.carlspring.strongbox.web.Constants.ARTIFACT_ROOT_PATH;
+import static org.carlspring.strongbox.web.Constants.*;
 
 @Configuration
 @ComponentScan({ "com.carlspring.strongbox.controllers",
@@ -95,6 +97,9 @@ public class WebConfig
 
     @Inject
     private YAMLMapperFactory yamlMapperFactory;
+
+    @Inject
+    private ConfigurationManagementService configurationManagementService;
 
     WebConfig()
     {
@@ -137,7 +142,9 @@ public class WebConfig
     @Override
     protected RequestMappingHandlerMapping createRequestMappingHandlerMapping()
     {
-        return new CustomRequestMappingHandlerMapping();
+        RequestMappingHandlerMapping handlerMapping = new CustomRequestMappingHandlerMapping();
+        handlerMapping.setInterceptors(repositoryRequestInterceptors().toArray());
+        return handlerMapping;
     }
 
     @Bean
@@ -265,23 +272,28 @@ public class WebConfig
     }
 
     @Bean
-    MavenArtifactControllerInterceptor mavenArtifactControllerInterceptor()
+    MavenArtifactRequestInterceptor mavenArtifactRequestInterceptor()
     {
-        return new MavenArtifactControllerInterceptor();
+        return new MavenArtifactRequestInterceptor();
     }
 
     @Bean
-    BaseArtifactControllerInterceptor baseArtifactControllerInterceptor()
+    public List<RepositoryRequestInterceptor> repositoryRequestInterceptors()
     {
-        return new BaseArtifactControllerInterceptor();
+        return Lists.newArrayList(new RepositoryRequestInterceptor("storageId",
+                                                                   "repositoryId",
+                                                                   REPOSITORY_ATTRIBUTE,
+                                                                   configurationManagementService),
+                                  new RepositoryRequestInterceptor("srcStorageId",
+                                                                   "srcRepositoryId",
+                                                                   SOURCE_REPOSITORY_ATTRIBUTE,
+                                                                   configurationManagementService));
     }
 
     @Override
     protected void addInterceptors(InterceptorRegistry registry)
     {
-        registry.addInterceptor(baseArtifactControllerInterceptor())
-                .addPathPatterns(ARTIFACT_ROOT_PATH + "/**");
-        registry.addInterceptor(mavenArtifactControllerInterceptor())
+        registry.addInterceptor(mavenArtifactRequestInterceptor())
                 .addPathPatterns(ARTIFACT_ROOT_PATH + "/**");
     }
 }
