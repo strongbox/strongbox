@@ -15,15 +15,15 @@ import static org.mockito.ArgumentMatchers.any;
 
 @Configuration
 @Import({ TestingCoreConfig.class,
-        EventsConfig.class,
-        DataServiceConfig.class,
-        CommonConfig.class,
-        StorageCoreConfig.class,
-        StorageApiConfig.class,
-        PypiLayoutProviderConfig.class,
-        MockedRemoteRepositoriesHeartbeatConfig.class,
-        ClientConfig.class,
-        CronTasksConfig.class })
+          EventsConfig.class,
+          DataServiceConfig.class,
+          CommonConfig.class,
+          StorageCoreConfig.class,
+          StorageApiConfig.class,
+          PypiLayoutProviderConfig.class,
+          MockedRemoteRepositoriesHeartbeatConfig.class,
+          ClientConfig.class,
+          CronTasksConfig.class })
 public class PypiMetadataFileParserTestConfig
 {
 
