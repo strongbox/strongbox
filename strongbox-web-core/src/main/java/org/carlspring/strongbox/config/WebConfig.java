@@ -29,7 +29,6 @@ import java.util.Arrays;
 import java.util.List;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.google.common.collect.Lists;
 import org.jtwig.spring.boot.config.JtwigViewResolverConfigurer;
 import org.jtwig.web.servlet.JtwigRenderer;
 import org.slf4j.Logger;
@@ -56,7 +55,8 @@ import org.springframework.web.servlet.view.InternalResourceView;
 import org.springframework.web.servlet.view.InternalResourceViewResolver;
 import static org.carlspring.strongbox.net.MediaType.APPLICATION_YAML_VALUE;
 import static org.carlspring.strongbox.net.MediaType.APPLICATION_YML_VALUE;
-import static org.carlspring.strongbox.web.Constants.*;
+import static org.carlspring.strongbox.web.Constants.ARTIFACT_ROOT_PATH;
+import static org.carlspring.strongbox.web.Constants.REPOSITORY_ATTRIBUTE;
 
 @Configuration
 @ComponentScan({ "com.carlspring.strongbox.controllers",
@@ -142,9 +142,7 @@ public class WebConfig
     @Override
     protected RequestMappingHandlerMapping createRequestMappingHandlerMapping()
     {
-        RequestMappingHandlerMapping handlerMapping = new CustomRequestMappingHandlerMapping();
-        handlerMapping.setInterceptors(repositoryRequestInterceptors().toArray());
-        return handlerMapping;
+        return new CustomRequestMappingHandlerMapping();
     }
 
     @Bean
@@ -278,21 +276,19 @@ public class WebConfig
     }
 
     @Bean
-    public List<RepositoryRequestInterceptor> repositoryRequestInterceptors()
+    public RepositoryRequestInterceptor repositoryRequestInterceptor()
     {
-        return Lists.newArrayList(new RepositoryRequestInterceptor("storageId",
-                                                                   "repositoryId",
-                                                                   REPOSITORY_ATTRIBUTE,
-                                                                   configurationManagementService),
-                                  new RepositoryRequestInterceptor("srcStorageId",
-                                                                   "srcRepositoryId",
-                                                                   SOURCE_REPOSITORY_ATTRIBUTE,
-                                                                   configurationManagementService));
+        return new RepositoryRequestInterceptor("storageId",
+                                                "repositoryId",
+                                                REPOSITORY_ATTRIBUTE,
+                                                configurationManagementService);
     }
 
     @Override
     protected void addInterceptors(InterceptorRegistry registry)
     {
+        registry.addInterceptor(repositoryRequestInterceptor())
+                .addPathPatterns(ARTIFACT_ROOT_PATH + "/**");
         registry.addInterceptor(mavenArtifactRequestInterceptor())
                 .addPathPatterns(ARTIFACT_ROOT_PATH + "/**");
     }

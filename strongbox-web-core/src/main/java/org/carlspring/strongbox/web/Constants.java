@@ -14,7 +14,4 @@ public final class Constants
 
     public static final String REPOSITORY_ATTRIBUTE = Constants.class.getName() + ".repository";
 
-    public static final String SOURCE_REPOSITORY_ATTRIBUTE = Constants.class.getName() + ".srcRepository";
-
-
 }
