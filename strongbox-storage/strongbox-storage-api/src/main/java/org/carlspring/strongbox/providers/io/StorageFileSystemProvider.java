@@ -374,8 +374,11 @@ public abstract class StorageFileSystemProvider
         {
             Files.createDirectories(unwrap(path).getParent());
         }
-
-        Files.move(tempPath.getTarget(), path.getTarget(), StandardCopyOption.REPLACE_EXISTING);
+        if (Files.exists(path.getTarget()))
+        {
+            Files.delete(path.getTarget());
+        }
+        Files.move(tempPath.getTarget(), path.getTarget(), StandardCopyOption.ATOMIC_MOVE);
 
         //path.artifactEntry = tempPath.artifactEntry;
 
