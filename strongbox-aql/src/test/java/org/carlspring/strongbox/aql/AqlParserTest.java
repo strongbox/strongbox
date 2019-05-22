@@ -77,20 +77,13 @@ public class AqlParserTest
         String query = "repository: \"releases#1\"";
 
         AqlQueryParser aqlParser = new AqlQueryParser(query);
-        Map<Pair<Integer, Integer>, String> errorMap = null;
-        try
-        {
-            aqlParser.parseQuery();
-        }
-        catch (QueryParserException e)
-        {
-            errorMap = aqlParser.getErrors();
-        }
+
+        aqlParser.parseQuery();
+
 
         logger.info(String.format("Query [%s] parse tree:\n[%s]", query, aqlParser));
 
         assertFalse(aqlParser.hasErrors());
-        assertNull(errorMap);
 
     }
 
@@ -101,20 +94,12 @@ public class AqlParserTest
         String query = "repository: 'releases#1'";
 
         AqlQueryParser aqlParser = new AqlQueryParser(query);
-        Map<Pair<Integer, Integer>, String> errorMap = null;
-        try
-        {
-            aqlParser.parseQuery();
-        }
-        catch (QueryParserException e)
-        {
-            errorMap = aqlParser.getErrors();
-        }
+
+        aqlParser.parseQuery();
 
         logger.info(String.format("Query [%s] parse tree:\n[%s]", query, aqlParser));
 
         assertFalse(aqlParser.hasErrors());
-        assertNull(errorMap);
 
     }
 
@@ -152,20 +137,13 @@ public class AqlParserTest
         String query = "repository: releases_1";
 
         AqlQueryParser aqlParser = new AqlQueryParser(query);
-        Map<Pair<Integer, Integer>, String> errorMap = null;
-        try
-        {
-            aqlParser.parseQuery();
-        }
-        catch (QueryParserException e)
-        {
-            errorMap = aqlParser.getErrors();
-        }
+
+        aqlParser.parseQuery();
+
 
         logger.info(String.format("Query [%s] parse tree:\n[%s]", query, aqlParser));
 
         assertFalse(aqlParser.hasErrors());
-        assertNull(errorMap);
     }
 
     @Test
