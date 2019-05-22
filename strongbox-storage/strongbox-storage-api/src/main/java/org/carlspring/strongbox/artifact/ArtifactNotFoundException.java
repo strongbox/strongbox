@@ -1,16 +1,18 @@
 package org.carlspring.strongbox.artifact;
 
-import java.io.IOException;
 import java.net.URI;
 
-public class ArtifactNotFoundException extends IOException
+import org.carlspring.strongbox.storage.ArtifactResolutionException;
+
+public class ArtifactNotFoundException extends ArtifactResolutionException
 {
 
     private URI artifactResource;
 
     public ArtifactNotFoundException(URI artifactResource)
     {
-        super();
+        super(String.format("Artifact [%s] not found.", artifactResource));
+        
         this.artifactResource = artifactResource;
     }
 

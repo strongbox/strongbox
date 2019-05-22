@@ -1,5 +1,6 @@
 package org.carlspring.strongbox.io;
 
+import java.io.FilterInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.lang.reflect.UndeclaredThrowableException;
@@ -9,17 +10,16 @@ import java.util.function.Supplier;
  * @author sbespalov
  *
  */
-public class LazyInputStream extends InputStream
+public class LazyInputStream extends FilterInputStream
 {
 
     private static final String ERROR_FAILED_TO_CREATE_INPUT_STREAM = "Failed to create InputStream.";
 
     private Supplier<? extends InputStream> creator;
 
-    private InputStream in;
-
     public LazyInputStream(Supplier<? extends InputStream> creator)
     {
+        super(null);
         this.creator = creator;
     }
 

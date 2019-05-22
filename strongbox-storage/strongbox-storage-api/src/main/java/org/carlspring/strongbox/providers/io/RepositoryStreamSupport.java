@@ -11,6 +11,7 @@ import org.apache.commons.io.input.CountingInputStream;
 import org.apache.commons.io.input.ProxyInputStream;
 import org.apache.commons.io.output.CountingOutputStream;
 import org.apache.commons.io.output.ProxyOutputStream;
+import org.carlspring.strongbox.artifact.ArtifactNotFoundException;
 import org.carlspring.strongbox.io.RepositoryStreamCallback;
 import org.carlspring.strongbox.io.RepositoryStreamContext;
 import org.carlspring.strongbox.io.RepositoryStreamReadContext;
@@ -63,39 +64,14 @@ public class RepositoryStreamSupport
         }
 
         RepositoryPath path = (RepositoryPath) ctx.getPath();
-        logger.debug(String.format("Locking [%s]", path));
+        logger.debug(String.format("Locking [%s].", path));
         
-        Lock lock;
-        if (ctx instanceof RepositoryStreamWriteContext)
-        {
-            lock = lockSource.writeLock();
-        }
-        else
-        {
-            lock = lockSource.readLock();
-        }
-
+        Lock lock = ctx instanceof RepositoryStreamWriteContext ? lockSource.writeLock() : lockSource.readLock();
         ctx.setLock(lock);
         lock.lock();
 
-        logger.debug(String.format("Locked [%s]", path));
-        
-        doOpen(ctx);
-    }
-
-    private void doOpen(RepositoryStreamContext ctx)
-        throws IOException
-    {
+        logger.debug(String.format("Locked [%s].", path));
         ctx.setOpened(true);
-
-        if (ctx instanceof RepositoryStreamWriteContext)
-        {
-            callback.onBeforeWrite((RepositoryStreamWriteContext) ctx);
-        }
-        else
-        {
-            callback.onBeforeRead((RepositoryStreamReadContext) ctx);
-        }
     }
 
     protected void close()
@@ -107,30 +83,11 @@ public class RepositoryStreamSupport
             return;
         }
 
-        try
-        {
-            doClose(ctx);
-        } 
-        finally
-        {
-            ctx.getLock().unlock();
-            clearContext();
-        }
+        ctx.getLock().unlock();
+        logger.debug(String.format("Unlocked [%s].", ctx.getPath()));
+        clearContext();
     }
 
-    private void doClose(RepositoryStreamContext ctx)
-        throws IOException
-    {
-        if (ctx instanceof RepositoryStreamWriteContext)
-        {
-            callback.onAfterWrite((RepositoryStreamWriteContext) ctx);
-        }
-        else
-        {
-            callback.onAfterRead((RepositoryStreamReadContext) ctx);
-        }
-    }
-    
     protected void commit() throws IOException
     {
         callback.commit((RepositoryStreamWriteContext) getContext());
@@ -156,7 +113,10 @@ public class RepositoryStreamSupport
         {
             open();
             
-            super.beforeWrite(n);
+            if (((CountingOutputStream) out).getByteCount() == 0)
+            {
+                callback.onBeforeWrite((RepositoryStreamWriteContext) ctx);
+            }
         }
 
 
@@ -177,6 +137,10 @@ public class RepositoryStreamSupport
             try
             {
                 super.close();
+                if (((CountingOutputStream) out).getByteCount() > 0) 
+                {
+                    callback.onAfterWrite((RepositoryStreamWriteContext) ctx);
+                }
             }
             catch (Exception e) 
             {
@@ -197,22 +161,45 @@ public class RepositoryStreamSupport
     {
 
         protected RepositoryInputStream(Path path,
-                                        InputStream in)
+                                        InputStream in) throws IOException
         {
             super(new CountingInputStream(in));
-
+            
             RepositoryStreamReadContext ctx = new RepositoryStreamReadContext();
             ctx.setPath(path);
             ctx.setStream(this);
-
             initContext(ctx);
+            
+            try
+            {
+                open();
+                
+                //Check that artifact exists.
+                if (!RepositoryFiles.artifactExists((RepositoryPath) path)) 
+                {
+                    logger.debug(String.format("The path [%s] does not exist!", path));
+                    
+                    throw new ArtifactNotFoundException(path.toUri());
+                }
+                
+                // Force init LazyInputStream
+                available();
+            }
+            catch (Exception e)
+            {
+                close();
+                throw new IOException(e);
+            }
         }
 
         @Override
         protected void beforeRead(int n)
             throws IOException
         {
-            open();
+            if (((CountingInputStream) in).getByteCount() == 0)
+            {
+                callback.onBeforeRead((RepositoryStreamReadContext) ctx);
+            }
         }
 
         @Override
@@ -222,6 +209,10 @@ public class RepositoryStreamSupport
             try
             {
                 super.close();
+                if (((CountingInputStream) in).getByteCount() > 0) 
+                {
+                    callback.onAfterRead((RepositoryStreamReadContext) ctx);
+                }
             } 
             finally
             {

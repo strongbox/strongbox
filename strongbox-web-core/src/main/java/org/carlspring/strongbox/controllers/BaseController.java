@@ -288,14 +288,13 @@ public abstract class BaseController
                                   HttpServletResponse response)
             throws IOException
     {
-        try (InputStream inputStream = is;
-             OutputStream os = response.getOutputStream())
+        try (OutputStream os = response.getOutputStream())
         {
             long totalBytes = 0L;
 
             int readLength;
             byte[] bytes = new byte[4096];
-            while ((readLength = inputStream.read(bytes, 0, bytes.length)) != -1)
+            while ((readLength = is.read(bytes, 0, bytes.length)) != -1)
             {
                 // Write the artifact
                 os.write(bytes, 0, readLength);
