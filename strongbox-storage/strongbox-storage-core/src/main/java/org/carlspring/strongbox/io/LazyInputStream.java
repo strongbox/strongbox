@@ -27,7 +27,7 @@ public class LazyInputStream extends FilterInputStream
     public int read()
         throws IOException
     {
-        ensureInitialized();
+        init();
         return in.read();
     }
 
@@ -35,7 +35,7 @@ public class LazyInputStream extends FilterInputStream
     public int read(byte[] b)
         throws IOException
     {
-        ensureInitialized();
+        init();
         return in.read(b);
     }
 
@@ -45,7 +45,7 @@ public class LazyInputStream extends FilterInputStream
                     int len)
         throws IOException
     {
-        ensureInitialized();
+        init();
         return in.read(b, off, len);
     }
 
@@ -53,7 +53,7 @@ public class LazyInputStream extends FilterInputStream
     public long skip(long n)
         throws IOException
     {
-        ensureInitialized();
+        init();
         return in.skip(n);
     }
 
@@ -61,7 +61,7 @@ public class LazyInputStream extends FilterInputStream
     public int available()
         throws IOException
     {
-        ensureInitialized();
+        init();
         return in.available();
     }
 
@@ -86,7 +86,7 @@ public class LazyInputStream extends FilterInputStream
     public synchronized void reset()
         throws IOException
     {
-        ensureInitialized();
+        init();
         in.reset();
     }
 
@@ -96,7 +96,7 @@ public class LazyInputStream extends FilterInputStream
         return in.markSupported();
     }
 
-    protected void ensureInitialized()
+    public void init()
         throws IOException
     {
         if (in != null)

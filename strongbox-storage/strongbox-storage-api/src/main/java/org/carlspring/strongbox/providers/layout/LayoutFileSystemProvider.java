@@ -72,10 +72,6 @@ public abstract class LayoutFileSystemProvider extends StorageFileSystemProvider
         InputStream is = new LazyInputStream(() -> {
             try
             {
-                if (!Files.exists(path))
-                {
-                    throw new FileNotFoundException(path.toString());
-                }
                 if (Files.isDirectory(path))
                 {
                     throw new FileNotFoundException(String.format("The artifact path is a directory: [%s]",
@@ -109,7 +105,7 @@ public abstract class LayoutFileSystemProvider extends StorageFileSystemProvider
             throws NoSuchAlgorithmException, IOException
     {
         // Add digest algorithm only if it is not a Checksum (we don't need a Checksum of Checksum).
-        if (Boolean.FALSE.equals(RepositoryFiles.isChecksum(path))) {
+        if (Boolean.TRUE.equals(RepositoryFiles.isChecksum(path))) {
             return new LayoutInputStream(is, Collections.emptySet());
         }
 
@@ -214,7 +210,7 @@ public abstract class LayoutFileSystemProvider extends StorageFileSystemProvider
             digestAlgorithmSet.stream()
                               .forEach(p ->
                                        {
-                                           String checksum = is.getHexDigests().get(p);
+                                           String checksum = is.getMessageDigestAsHexadecimalString(p);
                                            RepositoryPath checksumPath = getChecksumPath(path, p);
                                            if (Files.exists(checksumPath) && !force)
                                            {

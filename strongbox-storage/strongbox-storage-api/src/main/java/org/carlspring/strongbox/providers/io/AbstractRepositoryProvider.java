@@ -81,6 +81,10 @@ public abstract class AbstractRepositoryProvider implements RepositoryProvider, 
     public RepositoryInputStream getInputStream(Path path)
         throws IOException
     {
+        if (path == null)
+        {
+            return null;
+        }
         Assert.isInstanceOf(RepositoryPath.class, path);
         RepositoryPath repositoryPath = (RepositoryPath) path;
 

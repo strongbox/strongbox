@@ -1,20 +1,20 @@
 package org.carlspring.strongbox.io;
 
+import java.io.FilterOutputStream;
 import java.io.IOException;
 import java.io.OutputStream;
 import java.lang.reflect.UndeclaredThrowableException;
 import java.util.function.Supplier;
 
-public class LazyOutputStream extends OutputStream
+public class LazyOutputStream extends FilterOutputStream
 {
     private static final String ERROR_FAILED_TO_CREATE_OUTPUT_STREAM = "Failed to create OutputStream.";
 
     private Supplier<? extends OutputStream> creator;
 
-    private OutputStream out;
-
     public LazyOutputStream(Supplier<? extends OutputStream> creator)
     {
+        super(null);
         this.creator = creator;
     }
 
@@ -22,7 +22,7 @@ public class LazyOutputStream extends OutputStream
     public void write(int b)
         throws IOException
     {
-        ensureInitialized();
+        init();
         out.write(b);
     }
 
@@ -30,7 +30,7 @@ public class LazyOutputStream extends OutputStream
     public void write(byte[] b)
         throws IOException
     {
-        ensureInitialized();
+        init();
         out.write(b);
     }
 
@@ -40,7 +40,7 @@ public class LazyOutputStream extends OutputStream
                       int len)
         throws IOException
     {
-        ensureInitialized();
+        init();
         out.write(b, off, len);
     }
 
@@ -48,7 +48,7 @@ public class LazyOutputStream extends OutputStream
     public void flush()
         throws IOException
     {
-        ensureInitialized();
+        init();
         out.flush();
     }
 
@@ -62,7 +62,7 @@ public class LazyOutputStream extends OutputStream
         }
     }
 
-    protected void ensureInitialized()
+    public void init()
         throws IOException
     {
         if (out != null)

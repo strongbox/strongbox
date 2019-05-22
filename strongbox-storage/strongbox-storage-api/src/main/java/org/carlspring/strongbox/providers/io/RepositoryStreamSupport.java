@@ -4,6 +4,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.nio.file.Path;
+import java.util.Optional;
 import java.util.concurrent.locks.Lock;
 import java.util.concurrent.locks.ReadWriteLock;
 
@@ -12,10 +13,13 @@ import org.apache.commons.io.input.ProxyInputStream;
 import org.apache.commons.io.output.CountingOutputStream;
 import org.apache.commons.io.output.ProxyOutputStream;
 import org.carlspring.strongbox.artifact.ArtifactNotFoundException;
+import org.carlspring.strongbox.io.LazyInputStream;
+import org.carlspring.strongbox.io.LazyOutputStream;
 import org.carlspring.strongbox.io.RepositoryStreamCallback;
 import org.carlspring.strongbox.io.RepositoryStreamContext;
 import org.carlspring.strongbox.io.RepositoryStreamReadContext;
 import org.carlspring.strongbox.io.RepositoryStreamWriteContext;
+import org.carlspring.strongbox.io.StreamUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -96,23 +100,37 @@ public class RepositoryStreamSupport
     public class RepositoryOutputStream extends ProxyOutputStream
     {
         protected RepositoryOutputStream(Path path,
-                                         OutputStream out)
+                                         OutputStream out) throws IOException
         {
             super(new CountingOutputStream(out));
 
             RepositoryStreamWriteContext ctx = new RepositoryStreamWriteContext();
             ctx.setStream(this);
             ctx.setPath(path);
-
             initContext(ctx);
+            
+            try
+            {
+                open();
+                
+                // Force init LazyInputStream
+                LazyOutputStream lazyOutputStream = StreamUtils.findSource(LazyOutputStream.class, out);
+                if (lazyOutputStream != null)
+                {
+                    lazyOutputStream.init();
+                }
+            }
+            catch (Exception e)
+            {
+                close();
+                throw new IOException(e);
+            }
         }
         
         @Override
         protected void beforeWrite(int n)
             throws IOException
         {
-            open();
-            
             if (((CountingOutputStream) out).getByteCount() == 0)
             {
                 callback.onBeforeWrite((RepositoryStreamWriteContext) ctx);
@@ -183,7 +201,11 @@ public class RepositoryStreamSupport
                 }
                 
                 // Force init LazyInputStream
-                available();
+                LazyInputStream lazyInputStream = StreamUtils.findSource(LazyInputStream.class, in);
+                if (lazyInputStream != null)
+                {
+                    lazyInputStream.init();
+                }
             }
             catch (Exception e)
             {
