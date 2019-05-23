@@ -8,7 +8,8 @@ public class ArtifactNotFoundException extends FileNotFoundException
 
     private URI artifactResource;
 
-    public ArtifactNotFoundException(URI artifactResource, String message) {
+    public ArtifactNotFoundException(URI artifactResource, String message)
+    {
         super(message);
         
         this.artifactResource = artifactResource;
