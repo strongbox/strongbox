@@ -76,7 +76,7 @@ public abstract class LayoutFileSystemProvider extends StorageFileSystemProvider
         return new LazyInputStream(() -> {
             try
             {
-                if (!RepositoryFiles.artifactExists((RepositoryPath) path))
+                if (!Files.exists(path))
                 {
                     throw new ArtifactNotFoundException(path.toUri());
                 }
