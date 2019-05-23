@@ -46,7 +46,7 @@ public class ArtifactEntryServiceTest
 
     final String storageId = "storage0";
 
-    final String repositoryId = "release";
+    final String repositoryId = "aest";
 
     final String groupId = "org.carlspring.strongbox";
 
