@@ -209,7 +209,8 @@ public abstract class LayoutFileSystemProvider extends StorageFileSystemProvider
     {
         try (InputStream is = newInputStream(path))
         {
-            while (is.read() > 0)
+            byte[] buffer = new byte[1024];
+            while (is.read(buffer) > 0)
             {
                 //calculate checksum while reading the stream
             }
