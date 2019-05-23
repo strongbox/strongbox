@@ -475,7 +475,7 @@ public class ArtifactManagementServiceImplTest
                                         Repository repository)
             throws Exception
     {
-        int concurrency = 1024;
+        int concurrency = 64;
 
         Random random = new Random();
 
