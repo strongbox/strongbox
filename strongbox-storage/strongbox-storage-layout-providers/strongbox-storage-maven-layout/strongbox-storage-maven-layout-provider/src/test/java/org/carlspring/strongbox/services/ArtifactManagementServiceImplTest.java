@@ -53,7 +53,6 @@ import org.carlspring.strongbox.testing.storage.repository.RepositoryManagementT
 import org.carlspring.strongbox.testing.storage.repository.TestRepository.Group;
 import org.hamcrest.CoreMatchers;
 import org.hamcrest.MatcherAssert;
-import org.junit.jupiter.api.Tag;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.TestInfo;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -71,7 +70,6 @@ import org.springframework.test.context.ContextConfiguration;
 @ActiveProfiles(profiles = "test")
 @ContextConfiguration(classes = Maven2LayoutProviderTestConfig.class)
 @Execution(CONCURRENT)
-@Tag("concurrency")
 public class ArtifactManagementServiceImplTest
         extends TestCaseWithMavenArtifactGenerationAndIndexing
 {
