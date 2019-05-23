@@ -16,6 +16,7 @@ import java.util.Set;
 
 import javax.inject.Inject;
 
+import org.apache.commons.io.IOUtils;
 import org.carlspring.commons.io.reloading.FSReloadableInputStreamHandler;
 import org.carlspring.strongbox.artifact.ArtifactNotFoundException;
 import org.carlspring.strongbox.domain.ArtifactEntry;
@@ -208,6 +209,10 @@ public abstract class LayoutFileSystemProvider extends StorageFileSystemProvider
     {
         try (InputStream is = newInputStream(path))
         {
+            while (is.read() > 0)
+            {
+                //calculate checksum while reading the stream
+            }
             Set<String> digestAlgorithmSet = path.getFileSystem().getDigestAlgorithmSet();
             digestAlgorithmSet.stream()
                               .forEach(p ->
