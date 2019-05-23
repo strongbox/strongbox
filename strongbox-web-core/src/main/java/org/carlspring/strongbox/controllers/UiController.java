@@ -16,7 +16,7 @@ public class UiController implements ErrorController
 {
 
     @GetMapping(path = { "/**", "/error" }, produces = { MediaType.TEXT_HTML_VALUE })
-    public String intexWithRoute(HttpServletResponse response)
+    public String indexWithRoute(HttpServletResponse response)
     {
         response.setStatus(HttpStatus.NOT_FOUND.value());
         
