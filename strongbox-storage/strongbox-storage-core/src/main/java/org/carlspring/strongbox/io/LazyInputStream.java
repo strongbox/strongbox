@@ -3,8 +3,6 @@ package org.carlspring.strongbox.io;
 import java.io.FilterInputStream;
 import java.io.IOException;
 import java.io.InputStream;
-import java.lang.reflect.UndeclaredThrowableException;
-import java.util.function.Supplier;
 
 /**
  * @author sbespalov
@@ -15,12 +13,12 @@ public class LazyInputStream extends FilterInputStream
 
     private static final String ERROR_FAILED_TO_CREATE_INPUT_STREAM = "Failed to create InputStream.";
 
-    private Supplier<? extends InputStream> creator;
+    private InputStreamSupplier supplier;
 
-    public LazyInputStream(Supplier<? extends InputStream> creator)
+    public LazyInputStream(InputStreamSupplier supplier)
     {
         super(null);
-        this.creator = creator;
+        this.supplier = supplier;
     }
 
     @Override
@@ -106,11 +104,11 @@ public class LazyInputStream extends FilterInputStream
 
         try
         {
-            in = creator.get();
+            in = supplier.get();
         }
-        catch (UndeclaredThrowableException e)
+        catch (IOException e)
         {
-            throw new IOException(ERROR_FAILED_TO_CREATE_INPUT_STREAM, e.getUndeclaredThrowable());
+            throw e;
         }
         catch (Exception e)
         {
@@ -118,8 +116,17 @@ public class LazyInputStream extends FilterInputStream
         } 
         finally
         {
-            creator = null;
+            supplier = null;
         }
+    }
+
+    @FunctionalInterface
+    public static interface InputStreamSupplier
+    {
+
+        InputStream get()
+            throws IOException;
+
     }
 
 }

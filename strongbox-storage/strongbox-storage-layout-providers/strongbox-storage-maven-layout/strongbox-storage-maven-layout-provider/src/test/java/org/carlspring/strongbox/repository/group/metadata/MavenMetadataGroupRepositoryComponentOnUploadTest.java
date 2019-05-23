@@ -1,7 +1,7 @@
 package org.carlspring.strongbox.repository.group.metadata;
 
 import static org.hamcrest.MatcherAssert.assertThat;
-import static org.junit.jupiter.api.Assertions.fail;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.parallel.ExecutionMode.CONCURRENT;
 
 import java.io.FileNotFoundException;
@@ -216,58 +216,33 @@ public class MavenMetadataGroupRepositoryComponentOnUploadTest
                                                      .resolve(
                                                              "com/artifacts/to/update/releases/update-group/maven-metadata.xml"),
                                false);
-        RepositoryFiles.delete(repositoryPathResolver.resolve(
-                new ImmutableRepository(createRepositoryMock(STORAGE0, REPOSITORY_GROUP_AB, Maven2LayoutProvider.ALIAS)))
-                                                     .resolve(
-                                                             "com/artifacts/to/update/releases/update-group/maven-metadata.xml"),
+        RepositoryFiles.delete(repositoryPathResolver.resolve(new ImmutableRepository(
+                createRepositoryMock(STORAGE0, REPOSITORY_GROUP_AB, Maven2LayoutProvider.ALIAS)))
+                                                     .resolve("com/artifacts/to/update/releases/update-group/maven-metadata.xml"),
                                false);
-        RepositoryFiles.delete(repositoryPathResolver.resolve(
-                new ImmutableRepository(createRepositoryMock(STORAGE0, REPOSITORY_GROUP_AA, Maven2LayoutProvider.ALIAS)))
-                                                     .resolve(
-                                                             "com/artifacts/to/update/releases/update-group/maven-metadata.xml"),
+        RepositoryFiles.delete(repositoryPathResolver.resolve(new ImmutableRepository(
+                createRepositoryMock(STORAGE0,
+                                     REPOSITORY_GROUP_AA,
+                                     Maven2LayoutProvider.ALIAS)))
+                                                     .resolve("com/artifacts/to/update/releases/update-group/maven-metadata.xml"),
                                false);
 
-        try
-        {
-            metadata = mavenMetadataManager.readMetadata(
-                    repositoryPathResolver.resolve(new ImmutableRepository(
-                                                           createRepositoryMock(STORAGE0, REPOSITORY_GROUP_AF, Maven2LayoutProvider.ALIAS)),
-                                                   "com/artifacts/to/update/releases/update-group"));
+        assertThrows(FileNotFoundException.class,
+                     () -> mavenMetadataManager.readMetadata(repositoryPathResolver.resolve(new ImmutableRepository(
+                             createRepositoryMock(STORAGE0,
+                                                  REPOSITORY_GROUP_AF,
+                                                  Maven2LayoutProvider.ALIAS)), "com/artifacts/to/update/releases/update-group")));
 
-            fail("metadata SHOULD NOT exist");
-        }
-        catch (FileNotFoundException expected)
-        {
-            // do nothing, by design
-        }
+        assertThrows(FileNotFoundException.class,
+                     () -> mavenMetadataManager.readMetadata(repositoryPathResolver.resolve(new ImmutableRepository(
+                             createRepositoryMock(STORAGE0,
+                                                  REPOSITORY_GROUP_AB,
+                                                  Maven2LayoutProvider.ALIAS)), "com/artifacts/to/update/releases/update-group")));
 
-        try
-        {
-            metadata = mavenMetadataManager.readMetadata(
-                    repositoryPathResolver.resolve(new ImmutableRepository(
-                                                           createRepositoryMock(STORAGE0, REPOSITORY_GROUP_AB, Maven2LayoutProvider.ALIAS)),
-                                                   "com/artifacts/to/update/releases/update-group"));
-
-            fail("metadata SHOULD NOT exist");
-        }
-        catch (FileNotFoundException expected)
-        {
-            // do nothing, by design
-        }
-
-        try
-        {
-            metadata = mavenMetadataManager.readMetadata(
-                    repositoryPathResolver.resolve(new ImmutableRepository(
-                                                           createRepositoryMock(STORAGE0, REPOSITORY_GROUP_AA, Maven2LayoutProvider.ALIAS)),
-                                                   "com/artifacts/to/update/releases/update-group"));
-
-            fail("metadata SHOULD NOT exist");
-        }
-        catch (FileNotFoundException expected)
-        {
-            // do nothing, by design
-        }
+        assertThrows(FileNotFoundException.class,
+                     () -> mavenMetadataManager.readMetadata(repositoryPathResolver.resolve(new ImmutableRepository(
+                             createRepositoryMock(STORAGE0, REPOSITORY_GROUP_AA,
+                                                  Maven2LayoutProvider.ALIAS)), "com/artifacts/to/update/releases/update-group")));
 
         assertThat(metadata.getVersioning().getVersions().size(), CoreMatchers.equalTo(1));
         assertThat(metadata.getVersioning().getVersions().get(0), CoreMatchers.equalTo("1.2.1"));

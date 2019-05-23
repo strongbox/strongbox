@@ -3,19 +3,17 @@ package org.carlspring.strongbox.io;
 import java.io.FilterOutputStream;
 import java.io.IOException;
 import java.io.OutputStream;
-import java.lang.reflect.UndeclaredThrowableException;
-import java.util.function.Supplier;
 
 public class LazyOutputStream extends FilterOutputStream
 {
     private static final String ERROR_FAILED_TO_CREATE_OUTPUT_STREAM = "Failed to create OutputStream.";
 
-    private Supplier<? extends OutputStream> creator;
+    private OutputStreamSupplier supplier;
 
-    public LazyOutputStream(Supplier<? extends OutputStream> creator)
+    public LazyOutputStream(OutputStreamSupplier supplier)
     {
         super(null);
-        this.creator = creator;
+        this.supplier = supplier;
     }
 
     @Override
@@ -72,11 +70,11 @@ public class LazyOutputStream extends FilterOutputStream
 
         try
         {
-            out = creator.get();
+            out = supplier.get();
         }
-        catch (UndeclaredThrowableException e)
+        catch (IOException e)
         {
-            throw new IOException(ERROR_FAILED_TO_CREATE_OUTPUT_STREAM, e.getUndeclaredThrowable());
+            throw e;
         }
         catch (Exception e)
         {
@@ -84,7 +82,16 @@ public class LazyOutputStream extends FilterOutputStream
         } 
         finally
         {
-            creator = null;
+            supplier = null;
         }
+    }
+
+    @FunctionalInterface
+    public static interface OutputStreamSupplier
+    {
+
+        OutputStream get()
+            throws IOException;
+
     }
 }

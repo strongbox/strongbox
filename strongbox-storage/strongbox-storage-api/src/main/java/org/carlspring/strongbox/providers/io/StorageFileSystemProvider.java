@@ -1,7 +1,6 @@
 package org.carlspring.strongbox.providers.io;
 
 import java.io.IOException;
-import java.io.InputStream;
 import java.io.OutputStream;
 import java.net.URI;
 import java.nio.channels.FileChannel;
@@ -447,23 +446,6 @@ public abstract class StorageFileSystemProvider
     }
 
     @Override
-    public InputStream newInputStream(Path path,
-                                      OpenOption... options)
-        throws IOException
-    {
-        return new LazyInputStream(() -> {
-            try
-            {
-                return super.newInputStream(unwrap(path), options);
-            }
-            catch (IOException e)
-            {
-                throw new UndeclaredThrowableException(e);
-            }
-        });
-    }
-
-    @Override
     public OutputStream newOutputStream(Path path,
                                         OpenOption... options)
         throws IOException
@@ -682,7 +664,7 @@ public abstract class StorageFileSystemProvider
                                 OpenOption... options)
             throws IOException
         {
-            super(new LazyOutputStream(new PathOutputStreamSupplier(path, options)));
+            super(StorageFileSystemProvider.super.newOutputStream(path, options));
 
             this.path = path;
         }
@@ -708,30 +690,4 @@ public abstract class StorageFileSystemProvider
 
     }
 
-    private static class LayoutDirectoryStreamFilter implements Filter<Path>
-    {
-
-        private final Filter<? super Path> delegate;
-        private final Path root;
-
-        public LayoutDirectoryStreamFilter(Path root, Filter<? super Path> delegate)
-        {
-            this.delegate = delegate;
-            this.root = root;
-        }
-
-        @Override
-        public boolean accept(Path p)
-            throws IOException
-        {
-            if (p.isAbsolute() && !p.startsWith(root.resolve(LayoutFileSystem.TRASH))
-                    && !p.startsWith(root.resolve(LayoutFileSystem.TEMP)))
-            {
-                return delegate == null ? true : delegate.accept(p);
-            }
-
-            return false;
-        }
-
-    }
 }

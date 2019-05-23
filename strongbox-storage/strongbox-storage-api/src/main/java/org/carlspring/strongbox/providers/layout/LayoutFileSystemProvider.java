@@ -17,6 +17,7 @@ import java.util.Set;
 import javax.inject.Inject;
 
 import org.carlspring.commons.io.reloading.FSReloadableInputStreamHandler;
+import org.carlspring.strongbox.artifact.ArtifactNotFoundException;
 import org.carlspring.strongbox.domain.ArtifactEntry;
 import org.carlspring.strongbox.event.artifact.ArtifactEventListenerRegistry;
 import org.carlspring.strongbox.event.repository.RepositoryEventListenerRegistry;
@@ -24,11 +25,15 @@ import org.carlspring.strongbox.io.ByteRangeInputStream;
 import org.carlspring.strongbox.io.LayoutInputStream;
 import org.carlspring.strongbox.io.LayoutOutputStream;
 import org.carlspring.strongbox.io.LazyInputStream;
+import org.carlspring.strongbox.io.LazyOutputStream;
+import org.carlspring.strongbox.io.LazyOutputStream.OutputStreamSupplier;
+import org.carlspring.strongbox.io.StreamUtils;
 import org.carlspring.strongbox.providers.io.RepositoryFileAttributeType;
 import org.carlspring.strongbox.providers.io.RepositoryFiles;
 import org.carlspring.strongbox.providers.io.RepositoryPath;
 import org.carlspring.strongbox.providers.io.StorageFileSystemProvider;
 import org.carlspring.strongbox.services.ArtifactEntryService;
+import org.carlspring.strongbox.storage.ArtifactResolutionException;
 import org.carlspring.strongbox.storage.Storage;
 import org.carlspring.strongbox.storage.repository.Repository;
 import org.slf4j.Logger;
@@ -64,40 +69,36 @@ public abstract class LayoutFileSystemProvider extends StorageFileSystemProvider
     protected abstract AbstractLayoutProvider getLayoutProvider();
     
     @Override
-    public LayoutInputStream newInputStream(Path path,
-                                              OpenOption... options)
+    public InputStream newInputStream(Path path,
+                                            OpenOption... options)
         throws IOException
     {        
-        InputStream target = super.newInputStream(path, options);        
-        InputStream is = new LazyInputStream(() -> {
+        return new LazyInputStream(() -> {
             try
             {
-                if (Files.isDirectory(path))
+                if (!RepositoryFiles.artifactExists((RepositoryPath) path))
                 {
-                    throw new FileNotFoundException(String.format("The artifact path is a directory: [%s]",
-                                                                  path.toString()));
+                    throw new ArtifactNotFoundException(path.toUri());
                 }
                 
-                ByteRangeInputStream bris = new ByteRangeInputStream(target);
+                if (Files.isDirectory(path))
+                {
+                    throw new ArtifactNotFoundException(path.toUri(),
+                                                        String.format("The artifact path is a directory: [%s]",
+                                                                      path.toString()));
+                }
+                
+                ByteRangeInputStream bris = new ByteRangeInputStream(super.newInputStream(path, options));
                 bris.setReloadableInputStreamHandler(new FSReloadableInputStreamHandler(path.toFile()));
                 bris.setLength(Files.size(path));
 
-                return bris;
+                return decorateStream((RepositoryPath) path, bris);
             }
-            catch (NoSuchAlgorithmException | IOException e)
+            catch (NoSuchAlgorithmException e)
             {
-                throw new UndeclaredThrowableException(e);
+                throw new IOException(e);
             }
         });
-
-        try
-        {
-            return decorateStream((RepositoryPath) path, is);
-        }
-        catch (NoSuchAlgorithmException e)
-        {
-            throw new IOException(e);
-        }
     }
 
     protected LayoutInputStream decorateStream(RepositoryPath path,
@@ -125,23 +126,24 @@ public abstract class LayoutFileSystemProvider extends StorageFileSystemProvider
                                         OpenOption... options)
         throws IOException
     {
-        if (Files.exists(path) && Files.isDirectory(path))
-        {
-            throw new FileNotFoundException(String.format("The artifact path is a directory: [%s]",
-                                                          path.toString()));
-        }
-        
-        Files.createDirectories(path.getParent());
-        
-        OutputStream os = super.newOutputStream(path, options);
-        try
-        {
-            return decorateStream((RepositoryPath) path, os);
-        }
-        catch (NoSuchAlgorithmException e)
-        {
-            throw new IOException(e);
-        }
+        return new LazyOutputStream(() -> {
+            if (Files.exists(path) && Files.isDirectory(path))
+            {
+                throw new ArtifactResolutionException(String.format("The artifact path is a directory: [%s]",
+                                                                    path.toString()));
+            }
+
+            Files.createDirectories(path.getParent());
+
+            try
+            {
+                return decorateStream((RepositoryPath) path, super.newOutputStream(path, options));
+            }
+            catch (NoSuchAlgorithmException e)
+            {
+                throw new IOException(e);
+            }
+        });
     }
 
     protected LayoutOutputStream decorateStream(RepositoryPath path,
@@ -200,17 +202,18 @@ public abstract class LayoutFileSystemProvider extends StorageFileSystemProvider
     }
 
     
-    public void writeChecksum(RepositoryPath path,
-                              boolean force)
+    protected void writeChecksum(RepositoryPath path,
+                                 boolean force)
         throws IOException
     {
-        try (LayoutInputStream is = newInputStream(path))
+        try (InputStream is = newInputStream(path))
         {
             Set<String> digestAlgorithmSet = path.getFileSystem().getDigestAlgorithmSet();
             digestAlgorithmSet.stream()
                               .forEach(p ->
                                        {
-                                           String checksum = is.getMessageDigestAsHexadecimalString(p);
+                                           String checksum = StreamUtils.findSource(LayoutInputStream.class, is)
+                                                                        .getMessageDigestAsHexadecimalString(p);
                                            RepositoryPath checksumPath = getChecksumPath(path, p);
                                            if (Files.exists(checksumPath) && !force)
                                            {
@@ -342,6 +345,26 @@ public abstract class LayoutFileSystemProvider extends StorageFileSystemProvider
     protected void deleteMetadata(RepositoryPath repositoryPath)
         throws IOException
     {
+
+    }
+
+    public class PathOutputStreamSupplier implements OutputStreamSupplier
+    {
+        private Path path;
+        private OpenOption[] options;
+
+        public PathOutputStreamSupplier(Path path,
+                                        OpenOption... options)
+        {
+            this.path = path;
+            this.options = options;
+        }
+
+        @Override
+        public OutputStream get() throws IOException
+        {
+            return LayoutFileSystemProvider.super.newOutputStream(unwrap(path), options);
+        }
 
     }
 
