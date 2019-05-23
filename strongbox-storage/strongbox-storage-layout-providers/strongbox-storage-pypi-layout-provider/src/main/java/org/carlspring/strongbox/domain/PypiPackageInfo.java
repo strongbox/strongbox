@@ -37,11 +37,11 @@ public class PypiPackageInfo
 
     @PypiMetadataKey(name = "Platform")
     private String platform;
-
+    
+    
     public PypiPackageInfo()
     {
     }
-
 
     public String getMetadataVersion()
     {
