@@ -51,6 +51,7 @@ import org.springframework.cglib.proxy.UndeclaredThrowableException;
  */
 public abstract class LayoutFileSystemProvider extends StorageFileSystemProvider
 {
+
     private static final Logger logger = LoggerFactory.getLogger(LayoutFileSystemProvider.class);
 
     @Inject
@@ -61,7 +62,8 @@ public abstract class LayoutFileSystemProvider extends StorageFileSystemProvider
     
     @Inject
     private ArtifactEntryService artifactEntryService;
-    
+
+
     public LayoutFileSystemProvider(FileSystemProvider storageFileSystemProvider)
     {
         super(storageFileSystemProvider);
@@ -71,8 +73,8 @@ public abstract class LayoutFileSystemProvider extends StorageFileSystemProvider
     
     @Override
     public InputStream newInputStream(Path path,
-                                            OpenOption... options)
-        throws IOException
+                                      OpenOption... options)
+            throws IOException
     {        
         return new LazyInputStream(() -> {
             try
@@ -125,7 +127,7 @@ public abstract class LayoutFileSystemProvider extends StorageFileSystemProvider
     @Override
     public OutputStream newOutputStream(Path path,
                                         OpenOption... options)
-        throws IOException
+            throws IOException
     {
         return new LazyOutputStream(() -> {
             if (Files.exists(path) && Files.isDirectory(path))
@@ -159,6 +161,7 @@ public abstract class LayoutFileSystemProvider extends StorageFileSystemProvider
         {
             return result;
         }
+        
         digestAlgorithmSet.stream()
                           .forEach(e -> {
                               try
@@ -175,7 +178,7 @@ public abstract class LayoutFileSystemProvider extends StorageFileSystemProvider
     
     public void storeChecksum(RepositoryPath basePath,
                               boolean forceRegeneration)
-        throws IOException
+            throws IOException
     {
         Files.walk(basePath)
              .filter(p -> !Files.isDirectory(p))
@@ -205,7 +208,7 @@ public abstract class LayoutFileSystemProvider extends StorageFileSystemProvider
     
     protected void writeChecksum(RepositoryPath path,
                                  boolean force)
-        throws IOException
+            throws IOException
     {
         try (InputStream is = newInputStream(path))
         {
@@ -241,7 +244,7 @@ public abstract class LayoutFileSystemProvider extends StorageFileSystemProvider
     @Override
     public void delete(Path path,
                        boolean force)
-        throws IOException
+            throws IOException
     {
         logger.debug("Deleting in (" + path + ")...");
 
@@ -269,7 +272,7 @@ public abstract class LayoutFileSystemProvider extends StorageFileSystemProvider
     @Override
     protected void doDeletePath(RepositoryPath repositoryPath,
                                 boolean force)
-        throws IOException
+            throws IOException
     {
         if (!RepositoryFiles.isArtifact(repositoryPath))
         {
@@ -308,7 +311,7 @@ public abstract class LayoutFileSystemProvider extends StorageFileSystemProvider
 
     @Override
     public void deleteTrash(RepositoryPath path)
-        throws IOException
+            throws IOException
     {
         Repository repository = path.getRepository();
         Storage storage = repository.getStorage();
@@ -326,7 +329,7 @@ public abstract class LayoutFileSystemProvider extends StorageFileSystemProvider
     
     @Override
     public void undelete(RepositoryPath path)
-        throws IOException
+            throws IOException
     {
         Repository repository = path.getRepository();
         Storage storage = repository.getStorage();
@@ -343,13 +346,13 @@ public abstract class LayoutFileSystemProvider extends StorageFileSystemProvider
     @Override
     protected Map<RepositoryFileAttributeType, Object> getRepositoryFileAttributes(RepositoryPath repositoryRelativePath,
                                                                                    RepositoryFileAttributeType... attributeTypes)
-        throws IOException
+            throws IOException
     {
         return getLayoutProvider().getRepositoryFileAttributes(repositoryRelativePath, attributeTypes);
     }
     
     protected void deleteMetadata(RepositoryPath repositoryPath)
-        throws IOException
+            throws IOException
     {
 
     }
@@ -357,6 +360,7 @@ public abstract class LayoutFileSystemProvider extends StorageFileSystemProvider
     public class PathOutputStreamSupplier implements OutputStreamSupplier
     {
         private Path path;
+        
         private OpenOption[] options;
 
         public PathOutputStreamSupplier(Path path,
