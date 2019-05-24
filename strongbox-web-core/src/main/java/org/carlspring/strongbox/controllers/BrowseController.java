@@ -7,6 +7,7 @@ import org.carlspring.strongbox.services.DirectoryListingService;
 import org.carlspring.strongbox.services.DirectoryListingServiceImpl;
 import org.carlspring.strongbox.storage.Storage;
 import org.carlspring.strongbox.storage.repository.Repository;
+import org.carlspring.strongbox.web.RepositoryMapping;
 
 import javax.inject.Inject;
 import javax.servlet.http.HttpServletRequest;
@@ -149,32 +150,18 @@ public class BrowseController
                 produces = { MediaType.TEXT_PLAIN_VALUE,
                              MediaType.TEXT_HTML_VALUE,
                              MediaType.APPLICATION_JSON_VALUE })
-    public Object repositoryContent(@ApiParam(value = "The storageId", required = true)
-                                    @PathVariable("storageId") String storageId,
-                                    @ApiParam(value = "The repositoryId", required = true)
-                                    @PathVariable("repositoryId") String repositoryId,
-                                    @ApiParam(value = "The repository path", required = false)
+    public Object repositoryContent(@RepositoryMapping Repository repository,
                                     @PathVariable("path") String rawPath,
                                     HttpServletRequest request,
                                     ModelMap model,
                                     @RequestHeader(value = HttpHeaders.ACCEPT, required = false) String acceptHeader)
     {
+        final String storageId = repository.getStorage().getId();
+        final String repositoryId = repository.getId();
         logger.debug("Requested browsing repository content at {}/{}/{} ", storageId, repositoryId, rawPath);
 
         try
         {
-            Storage storage = configurationManager.getConfiguration().getStorage(storageId);
-            if (storage == null)
-            {
-                return getNotFoundResponseEntity("The requested storage was not found.", acceptHeader);
-            }
-
-            Repository repository = storage.getRepository(repositoryId);
-            if (repository == null)
-            {
-                return getNotFoundResponseEntity("The requested repository was not found.", acceptHeader);
-            }
-
             final RepositoryPath repositoryPath = repositoryPathResolver.resolve(repository, rawPath);
             if (repositoryPath == null || !Files.exists(repositoryPath))
             {

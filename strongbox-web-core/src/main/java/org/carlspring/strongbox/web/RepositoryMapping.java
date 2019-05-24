@@ -25,4 +25,5 @@ public @interface RepositoryMapping
 
     boolean required() default true;
 
+    boolean validateRepository() default true;
 }

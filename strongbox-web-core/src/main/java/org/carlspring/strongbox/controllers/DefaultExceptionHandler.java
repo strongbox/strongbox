@@ -1,6 +1,7 @@
 package org.carlspring.strongbox.controllers;
 
 import org.carlspring.strongbox.controllers.support.ErrorResponseEntityBody;
+import org.carlspring.strongbox.controllers.support.ResponseEntityBody;
 import org.carlspring.strongbox.data.criteria.QueryParserException;
 import org.carlspring.strongbox.validation.ElementNotFoundException;
 import org.carlspring.strongbox.validation.RequestBodyValidationError;
@@ -63,14 +64,18 @@ public class DefaultExceptionHandler extends ResponseEntityExceptionHandler
     protected ResponseEntity<?> handleElementNotFoundException(final ElementNotFoundException ex,
                                                                final WebRequest request)
     {
-        return provideDefaultErrorResponse(ex, request, HttpStatus.NOT_FOUND);
+        ResponseEntityBody body = new ResponseEntityBody(ex.getMessage());
+        HttpHeaders headers = new HttpHeaders();
+        return handleExceptionInternal(ex, body, headers, HttpStatus.NOT_FOUND, request);
     }
 
     @ExceptionHandler(ServiceUnavailableException.class)
     protected ResponseEntity<?> handleServiceUnavailableException(final ServiceUnavailableException ex,
                                                                   final WebRequest request)
     {
-        return provideDefaultErrorResponse(ex, request, HttpStatus.SERVICE_UNAVAILABLE);
+        ResponseEntityBody body = new ResponseEntityBody(ex.getMessage());
+        HttpHeaders headers = new HttpHeaders();
+        return handleExceptionInternal(ex, body, headers, HttpStatus.SERVICE_UNAVAILABLE, request);
     }
 
     @ExceptionHandler(Exception.class)

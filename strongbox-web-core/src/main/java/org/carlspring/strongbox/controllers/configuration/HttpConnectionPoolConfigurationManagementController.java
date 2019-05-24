@@ -4,9 +4,9 @@ import org.carlspring.strongbox.controllers.support.NumberOfConnectionsEntityBod
 import org.carlspring.strongbox.controllers.support.PoolStatsEntityBody;
 import org.carlspring.strongbox.service.ProxyRepositoryConnectionPoolConfigurationService;
 import org.carlspring.strongbox.services.ConfigurationManagementService;
-import org.carlspring.strongbox.storage.Storage;
 import org.carlspring.strongbox.storage.repository.ImmutableRepository;
 import org.carlspring.strongbox.storage.repository.Repository;
+import org.carlspring.strongbox.web.RepositoryMapping;
 
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
@@ -48,34 +48,24 @@ public class HttpConnectionPoolConfigurationManagementController
     @PutMapping(value = "{storageId}/{repositoryId}/{numberOfConnections}",
                 produces = { MediaType.TEXT_PLAIN_VALUE,
                              MediaType.APPLICATION_JSON_VALUE })
-    public ResponseEntity setNumberOfConnectionsForProxyRepository(@PathVariable(value = "storageId") String storageId,
-                                                                   @PathVariable(value = "repositoryId") String repositoryId,
+    public ResponseEntity setNumberOfConnectionsForProxyRepository(@RepositoryMapping Repository repository,
                                                                    @PathVariable(value = "numberOfConnections") int numberOfConnections,
                                                                    @RequestHeader(HttpHeaders.ACCEPT) String accept)
     {
-        Storage storage = getConfiguration().getStorage(storageId);
-        if (storage == null)
-        {
-            return ResponseEntity.status(HttpStatus.NOT_FOUND)
-                                 .body(getResponseEntityBody("The storage does not exist!", accept));
-        }
+        final ImmutableRepository immutableRepository = (ImmutableRepository) repository;
+        final String storageId = immutableRepository.getStorage().getId();
+        final String repositoryId = immutableRepository.getId();
 
-        ImmutableRepository repository = (ImmutableRepository) storage.getRepository(repositoryId);
-        if (storage.getRepository(repositoryId) == null)
-        {
-            return ResponseEntity.status(HttpStatus.NOT_FOUND)
-                                 .body(getResponseEntityBody("The repository does not exist!", accept));
-        }
-
-        if (((ImmutableRepository)repository).getRemoteRepository() == null)
+        if (immutableRepository.getRemoteRepository() == null)
         {
             return ResponseEntity.status(HttpStatus.BAD_REQUEST)
                                  .body(getResponseEntityBody("The proxy repository has no associated remote repository.", accept));
         }
 
         configurationManagementService.setProxyRepositoryMaxConnections(storageId, repositoryId, numberOfConnections);
-        proxyRepositoryConnectionPoolConfigurationService.setMaxPerRepository(repository.getRemoteRepository().getUrl(),
-                                                                              numberOfConnections);
+        proxyRepositoryConnectionPoolConfigurationService.setMaxPerRepository(
+                immutableRepository.getRemoteRepository().getUrl(),
+                numberOfConnections);
 
         String message = "Number of pool connections for repository was updated successfully.";
 
@@ -92,33 +82,19 @@ public class HttpConnectionPoolConfigurationManagementController
     @GetMapping(value = "{storageId}/{repositoryId}",
                 produces = { MediaType.TEXT_PLAIN_VALUE,
                              MediaType.APPLICATION_JSON_VALUE })
-    public ResponseEntity getPoolStatsForProxyRepository(@PathVariable(value = "storageId") String storageId,
-                                                         @PathVariable(value = "repositoryId") String repositoryId,
+    public ResponseEntity getPoolStatsForProxyRepository(@RepositoryMapping Repository repository,
                                                          @RequestHeader(HttpHeaders.ACCEPT) String accept)
     {
-        Storage storage = getConfiguration().getStorage(storageId);
-        if (storage == null)
-        {
-            return ResponseEntity.status(HttpStatus.NOT_FOUND)
-                                 .body(getResponseEntityBody("The storage does not exist!", accept));
-        }
-
-        ImmutableRepository repository = (ImmutableRepository) storage.getRepository(repositoryId);
-        if (repository == null)
-        {
-            return ResponseEntity.status(HttpStatus.NOT_FOUND)
-                                 .body(getResponseEntityBody("The repository does not exist!", accept));
-        }
-
-        if (repository.getRemoteRepository() == null)
+        final ImmutableRepository immutableRepository = (ImmutableRepository) repository;
+        if (immutableRepository.getRemoteRepository() == null)
         {
             return ResponseEntity.status(HttpStatus.BAD_REQUEST)
                                  .body(getResponseEntityBody("Repository doesn't have remote repository!", accept));
         }
 
         PoolStats poolStats = proxyRepositoryConnectionPoolConfigurationService
-                                      .getPoolStats(repository.getRemoteRepository()
-                                                              .getUrl());
+                                      .getPoolStats(immutableRepository.getRemoteRepository()
+                                                                       .getUrl());
 
         return ResponseEntity.ok(getPoolStatsEntityBody(poolStats, accept));
     }

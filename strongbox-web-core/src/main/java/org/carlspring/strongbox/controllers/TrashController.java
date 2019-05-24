@@ -6,12 +6,16 @@ import org.carlspring.strongbox.providers.io.RepositoryPathResolver;
 import org.carlspring.strongbox.services.RepositoryManagementService;
 import org.carlspring.strongbox.storage.ArtifactStorageException;
 import org.carlspring.strongbox.storage.repository.Repository;
+import org.carlspring.strongbox.web.RepositoryMapping;
 
 import javax.inject.Inject;
 import java.io.IOException;
 import java.nio.file.Files;
 
-import io.swagger.annotations.*;
+import io.swagger.annotations.Api;
+import io.swagger.annotations.ApiOperation;
+import io.swagger.annotations.ApiResponse;
+import io.swagger.annotations.ApiResponses;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
@@ -49,23 +53,12 @@ public class TrashController
     @DeleteMapping(value = "{storageId}/{repositoryId}",
                    produces = { MediaType.TEXT_PLAIN_VALUE,
                                 MediaType.APPLICATION_JSON_VALUE })
-    public ResponseEntity delete(@ApiParam(value = "The storageId", required = true)
-                                 @PathVariable String storageId,
-                                 @ApiParam(value = "The repositoryId", required = true)
-                                 @PathVariable String repositoryId,
+    public ResponseEntity delete(@RepositoryMapping Repository repository,
                                  @RequestHeader(HttpHeaders.ACCEPT) String accept)
             throws IOException
     {
-        if (getStorage(storageId) == null)
-        {
-            return ResponseEntity.status(HttpStatus.NOT_FOUND)
-                                 .body(getResponseEntityBody("The specified storageId does not exist!", accept));
-        }
-        if (getRepository(storageId, repositoryId) == null)
-        {
-            return ResponseEntity.status(HttpStatus.NOT_FOUND)
-                                 .body(getResponseEntityBody("The specified repositoryId does not exist!", accept));
-        }
+        final String storageId = repository.getStorage().getId();
+        final String repositoryId = repository.getId();
 
         try
         {
@@ -125,26 +118,14 @@ public class TrashController
                                          message = "The specified (storageId/repositoryId/path) does not exist!") })
     @PreAuthorize("hasAuthority('MANAGEMENT_UNDELETE_TRASH')")
     @PostMapping("{storageId}/{repositoryId}/{path:.+}")
-    public ResponseEntity undelete(@ApiParam(value = "The storageId", required = true)
-                                   @PathVariable String storageId,
-                                   @ApiParam(value = "The repositoryId", required = true)
-                                   @PathVariable String repositoryId,
+    public ResponseEntity undelete(@RepositoryMapping Repository repository,
                                    @PathVariable String path,
                                    @RequestHeader(HttpHeaders.ACCEPT) String accept)
             throws IOException
     {
-        if (getStorage(storageId) == null)
-        {
-            return ResponseEntity.status(HttpStatus.NOT_FOUND)
-                                 .body(getResponseEntityBody("The specified storageId does not exist!", accept));
-        }
-        Repository repository = getRepository(storageId, repositoryId);
-        if (repository == null)
-        {
-            return ResponseEntity.status(HttpStatus.NOT_FOUND)
-                                 .body(getResponseEntityBody("The specified repositoryId does not exist!", accept));
-        }
-        
+        final String storageId = repository.getStorage().getId();
+        final String repositoryId = repository.getId();
+
         RepositoryPath repositoryPath = repositoryPathResolver.resolve(repository, path);
         RepositoryPath trashPath = RepositoryFiles.trash(repositoryPath);
         if (!Files.exists(trashPath))
@@ -184,48 +165,39 @@ public class TrashController
     @PutMapping(value = "{storageId}/{repositoryId}",
                 produces = { MediaType.TEXT_PLAIN_VALUE,
                              MediaType.APPLICATION_JSON_VALUE })
-    public ResponseEntity undelete(@ApiParam(value = "The storageId", required = true)
-                                   @PathVariable String storageId,
-                                   @ApiParam(value = "The repositoryId", required = true)
-                                   @PathVariable String repositoryId,
+    public ResponseEntity undelete(@RepositoryMapping Repository repository,
                                    @RequestHeader(HttpHeaders.ACCEPT) String accept)
             throws Exception
     {
-        if (getConfiguration().getStorage(storageId)
-                              .getRepository(repositoryId) != null)
+        final String storageId = repository.getStorage().getId();
+        final String repositoryId = repository.getId();
+
+        try
         {
-            try
-            {
-                repositoryManagementService.undeleteTrash(storageId, repositoryId);
+            repositoryManagementService.undeleteTrash(storageId, repositoryId);
 
-                logger.debug("Undeleted trash for repository {}.", repositoryId);
+            logger.debug("Undeleted trash for repository {}.", repositoryId);
+        }
+        catch (ArtifactStorageException e)
+        {
+            if (repositoryManagementService.getStorage(storageId) == null)
+            {
+                return ResponseEntity.status(HttpStatus.NOT_FOUND)
+                                     .body(getResponseEntityBody("The specified storageId does not exist!", accept));
             }
-            catch (ArtifactStorageException e)
+            else if (repositoryManagementService.getStorage(storageId)
+                                                .getRepository(repositoryId) == null)
             {
-                if (repositoryManagementService.getStorage(storageId) == null)
-                {
-                    return ResponseEntity.status(HttpStatus.NOT_FOUND)
-                                         .body(getResponseEntityBody("The specified storageId does not exist!", accept));
-                }
-                else if (repositoryManagementService.getStorage(storageId)
-                                                    .getRepository(repositoryId) == null)
-                {
-                    return ResponseEntity.status(HttpStatus.NOT_FOUND)
-                                         .body(getResponseEntityBody("The specified repositoryId does not exist!", accept));
-                }
-
-                return ResponseEntity.status(HttpStatus.BAD_REQUEST)
-                                     .body(getResponseEntityBody("Could not restore the trash for a specified repository.", accept));
+                return ResponseEntity.status(HttpStatus.NOT_FOUND)
+                                     .body(getResponseEntityBody("The specified repositoryId does not exist!", accept));
             }
 
-            return ResponseEntity.ok(getResponseEntityBody("The trash in '" + storageId + ":" + repositoryId + "' " +
-                                                           "has been restored successfully.", accept));
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST)
+                                 .body(getResponseEntityBody("Could not restore the trash for a specified repository.", accept));
         }
-        else
-        {
-            return ResponseEntity.status(HttpStatus.NOT_FOUND)
-                                 .body(getResponseEntityBody("Storage or repository could not be found!", accept));
-        }
+
+        return ResponseEntity.ok(getResponseEntityBody("The trash in '" + storageId + ":" + repositoryId + "' " +
+                                                       "has been restored successfully.", accept));
     }
 
     @ApiOperation(value = "Used to undelete the trash for all repositories.")

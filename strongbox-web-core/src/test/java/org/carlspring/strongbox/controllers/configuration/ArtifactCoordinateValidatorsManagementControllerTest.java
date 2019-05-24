@@ -18,7 +18,6 @@ import java.util.Set;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-import org.springframework.boot.test.context.SpringBootTest;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.ValueSource;
 import org.springframework.http.HttpHeaders;
@@ -26,6 +25,8 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import static io.restassured.module.mockmvc.RestAssuredMockMvc.given;
 import static org.carlspring.strongbox.controllers.configuration.ArtifactCoordinateValidatorsManagementController.*;
+import static org.carlspring.strongbox.web.RepositoryInstanceMethodArgumentResolver.NOT_FOUND_REPOSITORY_MESSAGE;
+import static org.carlspring.strongbox.web.RepositoryInstanceMethodArgumentResolver.NOT_FOUND_STORAGE_MESSAGE;
 import static org.hamcrest.Matchers.*;
 
 /**
@@ -134,6 +135,7 @@ public class ArtifactCoordinateValidatorsManagementControllerTest
         String url = getContextBaseUrl() + "/{storageId}/{repositoryId}";
         String storageId = "storage-not-found";
         String repositoryId = "releases-with-single-validator";
+        String message = String.format(NOT_FOUND_STORAGE_MESSAGE, storageId);
 
         given().header(HttpHeaders.ACCEPT, MediaType.APPLICATION_JSON_VALUE)
                .when()
@@ -141,22 +143,24 @@ public class ArtifactCoordinateValidatorsManagementControllerTest
                .peek()
                .then()
                .statusCode(HttpStatus.NOT_FOUND.value())
-               .body("message", equalTo(NOT_FOUND_STORAGE_MESSAGE));
+               .body("message", equalTo(message));
     }
 
     @Test
     public void shouldNotGetValidatorWithNoRepositoryFound()
     {
         String url = getContextBaseUrl() + "/{storageId}/{repositoryId}";
+        String storageId = STORAGE0;
         String repositoryId = "releases-not-found";
+        String message = String.format(NOT_FOUND_REPOSITORY_MESSAGE, storageId, repositoryId);
 
         given().header(HttpHeaders.ACCEPT, MediaType.APPLICATION_JSON_VALUE)
                .when()
-               .get(url, STORAGE0, repositoryId)
+               .get(url, storageId, repositoryId)
                .peek()
                .then()
                .statusCode(HttpStatus.NOT_FOUND.value())
-               .body("message", equalTo(NOT_FOUND_REPOSITORY_MESSAGE));
+               .body("message", equalTo(message));
     }
 
     @ParameterizedTest

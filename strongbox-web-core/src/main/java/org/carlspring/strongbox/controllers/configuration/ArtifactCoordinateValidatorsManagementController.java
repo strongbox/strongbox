@@ -1,12 +1,10 @@
 package org.carlspring.strongbox.controllers.configuration;
 
-import org.carlspring.strongbox.configuration.Configuration;
 import org.carlspring.strongbox.controllers.BaseController;
-import org.carlspring.strongbox.services.ConfigurationManagementService;
-import org.carlspring.strongbox.storage.Storage;
 import org.carlspring.strongbox.storage.repository.Repository;
 import org.carlspring.strongbox.storage.validation.ArtifactCoordinatesValidator;
 import org.carlspring.strongbox.storage.validation.artifact.ArtifactCoordinatesValidatorRegistry;
+import org.carlspring.strongbox.web.RepositoryMapping;
 
 import javax.inject.Inject;
 import java.util.Map;
@@ -51,9 +49,6 @@ public class ArtifactCoordinateValidatorsManagementController
     static final String NOT_FOUND_ALIAS_MESSAGE = "Could not delete requested alias from the requested repository.";
 
     @Inject
-    private ConfigurationManagementService configurationManagementService;
-    
-    @Inject
     private ArtifactCoordinatesValidatorRegistry artifactCoordinatesValidatorRegistry;
     
     
@@ -62,22 +57,8 @@ public class ArtifactCoordinateValidatorsManagementController
                             @ApiResponse(code = 404, message = NOT_FOUND_REPOSITORY_MESSAGE) })
     @GetMapping(value = "/{storageId}/{repositoryId}",
                 produces = MediaType.APPLICATION_JSON_VALUE)
-    public ResponseEntity listArtifactCoordinatesForRepository(@PathVariable String storageId,
-                                                               @PathVariable String repositoryId,
-                                                               @RequestHeader(HttpHeaders.ACCEPT) String acceptHeader)
+    public ResponseEntity listArtifactCoordinatesForRepository(@RepositoryMapping Repository repository)
     {
-        Storage storage = configurationManager.getConfiguration().getStorage(storageId);
-        if (storage == null)
-        {
-            return getNotFoundResponseEntity(NOT_FOUND_STORAGE_MESSAGE, acceptHeader);
-        }
-
-        Repository repository = storage.getRepository(repositoryId);
-        if (repository == null)
-        {
-            return getNotFoundResponseEntity(NOT_FOUND_REPOSITORY_MESSAGE, acceptHeader);
-        }
-
         Set<String> versionValidators = repository.getArtifactCoordinateValidators()
                                                   .stream()
                                                   .map(String::toString)
@@ -92,22 +73,12 @@ public class ArtifactCoordinateValidatorsManagementController
     @PutMapping(value = "/{storageId}/{repositoryId}/{alias}",
                 produces = { MediaType.TEXT_PLAIN_VALUE,
                              MediaType.APPLICATION_JSON_VALUE })
-    public ResponseEntity add(@PathVariable String storageId,
-                              @PathVariable String repositoryId,
+    public ResponseEntity add(@RepositoryMapping Repository repository,
                               @PathVariable String alias,
                               @RequestHeader(HttpHeaders.ACCEPT) String acceptHeader)
     {
-        Storage storage = getConfiguration().getStorage(storageId);
-        if (storage == null)
-        {
-            return getNotFoundResponseEntity(NOT_FOUND_STORAGE_MESSAGE, acceptHeader);
-        }
-
-        Repository repository = storage.getRepository(repositoryId);
-        if (repository == null)
-        {
-            return getNotFoundResponseEntity(NOT_FOUND_REPOSITORY_MESSAGE, acceptHeader);
-        }
+        final String storageId = repository.getStorage().getId();
+        final String repositoryId = repository.getId();
 
         configurationManagementService.addRepositoryArtifactCoordinateValidator(storageId, repositoryId, alias);
 
@@ -119,23 +90,12 @@ public class ArtifactCoordinateValidatorsManagementController
     @DeleteMapping(value = "/{storageId}/{repositoryId}/{alias}",
                    produces = { MediaType.TEXT_PLAIN_VALUE,
                                 MediaType.APPLICATION_JSON_VALUE })
-    public ResponseEntity delete(@PathVariable String storageId,
-                                 @PathVariable String repositoryId,
+    public ResponseEntity delete(@RepositoryMapping Repository repository,
                                  @PathVariable String alias,
                                  @RequestHeader(HttpHeaders.ACCEPT) String acceptHeader)
     {
-        Configuration configuration = configurationManager.getConfiguration();
-        Storage storage = configuration.getStorage(storageId);
-        if (storage == null)
-        {
-            return getNotFoundResponseEntity(NOT_FOUND_STORAGE_MESSAGE, acceptHeader);
-        }
-
-        Repository repository = storage.getRepository(repositoryId);
-        if (repository == null)
-        {
-            return getNotFoundResponseEntity(NOT_FOUND_REPOSITORY_MESSAGE, acceptHeader);
-        }
+        final String storageId = repository.getStorage().getId();
+        final String repositoryId = repository.getId();
 
         boolean resultOk = configurationManagementService.removeRepositoryArtifactCoordinateValidator(storageId,
                                                                                                       repositoryId,

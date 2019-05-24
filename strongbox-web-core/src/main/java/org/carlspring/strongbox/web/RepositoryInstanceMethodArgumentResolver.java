@@ -28,9 +28,9 @@ public class RepositoryInstanceMethodArgumentResolver
         implements HandlerMethodArgumentResolver
 {
 
-    static final String NOT_FOUND_STORAGE_MESSAGE = "Could not find requested storage %s.";
-    static final String NOT_FOUND_REPOSITORY_MESSAGE = "Could not find requested repository %s:%s.";
-    static final String NOT_IN_SERVICE_REPOSITORY_MESSAGE = "Requested repository %s:%s is out of service.";
+    public static final String NOT_FOUND_STORAGE_MESSAGE = "Could not find requested storage %s.";
+    public static final String NOT_FOUND_REPOSITORY_MESSAGE = "Could not find requested repository %s:%s.";
+    public static final String NOT_IN_SERVICE_REPOSITORY_MESSAGE = "Requested repository %s:%s is out of service.";
 
     @Inject
     protected ConfigurationManager configurationManager;
