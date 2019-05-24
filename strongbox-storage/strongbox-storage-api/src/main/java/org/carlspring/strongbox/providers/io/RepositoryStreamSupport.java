@@ -29,12 +29,15 @@ import org.slf4j.LoggerFactory;
  */
 public class RepositoryStreamSupport
 {
+    
     private static final Logger logger = LoggerFactory.getLogger(RepositoryStreamSupport.class);
 
     private RepositoryStreamContext ctx = new RepositoryStreamContext();
 
     protected final ReadWriteLock lockSource;
+    
     protected final RepositoryStreamCallback callback;
+    
     
     public RepositoryStreamSupport(ReadWriteLock lockSource,
                                    RepositoryStreamCallback callback)
@@ -68,6 +71,7 @@ public class RepositoryStreamSupport
         }
 
         RepositoryPath path = (RepositoryPath) ctx.getPath();
+        
         logger.debug(String.format("Locking [%s].", path));
         
         Lock lock = ctx instanceof RepositoryStreamWriteContext ? lockSource.writeLock() : lockSource.readLock();
@@ -75,6 +79,7 @@ public class RepositoryStreamSupport
         lock.lock();
 
         logger.debug(String.format("Locked [%s].", path));
+        
         ctx.setOpened(true);
     }
 
@@ -88,7 +93,9 @@ public class RepositoryStreamSupport
         }
 
         ctx.getLock().unlock();
+        
         logger.debug(String.format("Unlocked [%s].", ctx.getPath()));
+        
         clearContext();
     }
 
@@ -142,9 +149,13 @@ public class RepositoryStreamSupport
             throws IOException
         {
             logger.debug(String.format("Flushing [%s]", getContext().getPath()));
+            
             super.flush();
+            
             logger.debug(String.format("Flushed [%s]", getContext().getPath()));
+            
             RepositoryStreamSupport.this.commit();
+            
             logger.debug(String.format("Commited [%s]", getContext().getPath()));
         }
 
