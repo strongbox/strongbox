@@ -5,6 +5,7 @@ import org.carlspring.strongbox.data.criteria.QueryParserException;
 import org.carlspring.strongbox.validation.ElementNotFoundException;
 import org.carlspring.strongbox.validation.RequestBodyValidationError;
 import org.carlspring.strongbox.validation.RequestBodyValidationException;
+import org.carlspring.strongbox.validation.ServiceUnavailableException;
 
 import javax.inject.Inject;
 import javax.servlet.http.HttpServletRequest;
@@ -63,6 +64,13 @@ public class DefaultExceptionHandler extends ResponseEntityExceptionHandler
                                                                final WebRequest request)
     {
         return provideDefaultErrorResponse(ex, request, HttpStatus.NOT_FOUND);
+    }
+
+    @ExceptionHandler(ServiceUnavailableException.class)
+    protected ResponseEntity<?> handleServiceUnavailableException(final ServiceUnavailableException ex,
+                                                                  final WebRequest request)
+    {
+        return provideDefaultErrorResponse(ex, request, HttpStatus.SERVICE_UNAVAILABLE);
     }
 
     @ExceptionHandler(Exception.class)

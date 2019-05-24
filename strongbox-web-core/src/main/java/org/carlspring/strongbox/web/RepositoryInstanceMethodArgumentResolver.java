@@ -5,6 +5,7 @@ import org.carlspring.strongbox.configuration.ConfigurationManager;
 import org.carlspring.strongbox.storage.Storage;
 import org.carlspring.strongbox.storage.repository.Repository;
 import org.carlspring.strongbox.validation.ElementNotFoundException;
+import org.carlspring.strongbox.validation.ServiceUnavailableException;
 
 import javax.inject.Inject;
 import java.util.Map;
@@ -75,7 +76,7 @@ public class RepositoryInstanceMethodArgumentResolver
         if (!inService)
         {
             final String message = String.format(NOT_IN_SERVICE_REPOSITORY_MESSAGE, storageId, repositoryId);
-            throw new ElementNotFoundException(message);
+            throw new ServiceUnavailableException(message);
         }
 
         return repository;
