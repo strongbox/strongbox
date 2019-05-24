@@ -109,7 +109,8 @@ public abstract class LayoutFileSystemProvider extends StorageFileSystemProvider
             throws NoSuchAlgorithmException, IOException
     {
         // Add digest algorithm only if it is not a Checksum (we don't need a Checksum of Checksum).
-        if (Boolean.TRUE.equals(RepositoryFiles.isChecksum(path))) {
+        if (Boolean.TRUE.equals(RepositoryFiles.isChecksum(path)))
+        {
             return new LayoutInputStream(is, Collections.emptySet());
         }
 
