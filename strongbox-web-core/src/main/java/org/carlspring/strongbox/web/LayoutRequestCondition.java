@@ -14,15 +14,16 @@ import static org.carlspring.strongbox.web.Constants.ARTIFACT_ROOT_PATH;
 
 /**
  * @author sbespalov
+ * @author Przemyslaw Fusik
  */
 public class LayoutRequestCondition
-        extends AbstractRequestCondition<LayoutRequestCondition>
+        extends AbstractRequestCondition<ExposableRequestCondition>
 {
 
     private static final String ARTIFACT_COPY_PATH = ARTIFACT_ROOT_PATH + "/copy";
 
-    private final String layout;
-    private final StoragesConfigurationManager configurationManager;
+    protected final String layout;
+    protected final StoragesConfigurationManager configurationManager;
 
     public LayoutRequestCondition(StoragesConfigurationManager configurationManager,
                                   String layout)
@@ -32,15 +33,16 @@ public class LayoutRequestCondition
     }
 
     @Override
-    public LayoutRequestCondition combine(LayoutRequestCondition other)
+    public ExposableRequestCondition combine(ExposableRequestCondition other)
     {
-        return this;
+        return other;
     }
 
     @Override
-    public LayoutRequestCondition getMatchingCondition(HttpServletRequest request)
+    public ExposableRequestCondition getMatchingCondition(HttpServletRequest request)
     {
-        String servletPath = Optional.ofNullable(request.getServletPath()).filter(s -> s != null && s.trim().length() > 0).orElse(request.getPathInfo());
+        String servletPath = Optional.ofNullable(request.getServletPath()).filter(
+                s -> s != null && s.trim().length() > 0).orElse(request.getPathInfo());
         if (servletPath.startsWith(ARTIFACT_COPY_PATH))
         {
             return getPathCopyCondition(request);
@@ -53,7 +55,7 @@ public class LayoutRequestCondition
         return null;
     }
 
-    private LayoutRequestCondition getPathCopyCondition(HttpServletRequest request)
+    private ExposableRequestCondition getPathCopyCondition(HttpServletRequest request)
     {
         String storageId = request.getParameter("srcStorageId");
         if (storageId == null)
@@ -69,7 +71,7 @@ public class LayoutRequestCondition
         return getStorageAndRepositoryCondition(storageId, repositoryId);
     }
 
-    private LayoutRequestCondition getStorageAndRepositoryCondition(String servletPath)
+    private ExposableRequestCondition getStorageAndRepositoryCondition(String servletPath)
     {
         String[] pathParts = servletPath.split("/");
         if (pathParts.length < 4)
@@ -83,18 +85,18 @@ public class LayoutRequestCondition
         return getStorageAndRepositoryCondition(storageId, repositoryId);
     }
 
-    private LayoutRequestCondition getStorageAndRepositoryCondition(String storageId,
-                                                                    String repositoryId)
+    private ExposableRequestCondition getStorageAndRepositoryCondition(String storageId,
+                                                                       String repositoryId)
     {
         Storage storage = configurationManager.getStorage(storageId);
         if (storage == null)
         {
-            return null;
+            return new StorageNotFoundRequestCondition(storageId);
         }
         Repository repository = configurationManager.getRepository(storageId, repositoryId);
         if (repository == null)
         {
-            return null;
+            return new RepositoryNotFoundRequestCondition(repositoryId);
         }
 
         String requestedLayout = repository.getLayout();
@@ -103,11 +105,11 @@ public class LayoutRequestCondition
             return null;
         }
 
-        return this;
+        return new RepositoryRequestCondition(repository);
     }
 
     @Override
-    public int compareTo(LayoutRequestCondition other,
+    public int compareTo(ExposableRequestCondition other,
                          HttpServletRequest request)
     {
         return 1;

@@ -56,7 +56,6 @@ import org.springframework.web.servlet.view.InternalResourceViewResolver;
 import static org.carlspring.strongbox.net.MediaType.APPLICATION_YAML_VALUE;
 import static org.carlspring.strongbox.net.MediaType.APPLICATION_YML_VALUE;
 import static org.carlspring.strongbox.web.Constants.ARTIFACT_ROOT_PATH;
-import static org.carlspring.strongbox.web.Constants.REPOSITORY_ATTRIBUTE;
 
 @Configuration
 @ComponentScan({ "com.carlspring.strongbox.controllers",
@@ -142,7 +141,9 @@ public class WebConfig
     @Override
     protected RequestMappingHandlerMapping createRequestMappingHandlerMapping()
     {
-        return new CustomRequestMappingHandlerMapping();
+        RequestMappingHandlerMapping requestMappingHandlerMapping = new CustomRequestMappingHandlerMapping();
+        requestMappingHandlerMapping.setInterceptors(new RepositoryRequestInterceptor());
+        return requestMappingHandlerMapping;
     }
 
     @Bean
@@ -275,20 +276,9 @@ public class WebConfig
         return new MavenArtifactRequestInterceptor();
     }
 
-    @Bean
-    public RepositoryRequestInterceptor repositoryRequestInterceptor()
-    {
-        return new RepositoryRequestInterceptor("storageId",
-                                                "repositoryId",
-                                                REPOSITORY_ATTRIBUTE,
-                                                configurationManagementService);
-    }
-
     @Override
     protected void addInterceptors(InterceptorRegistry registry)
     {
-        registry.addInterceptor(repositoryRequestInterceptor())
-                .addPathPatterns(ARTIFACT_ROOT_PATH + "/**");
         registry.addInterceptor(mavenArtifactRequestInterceptor())
                 .addPathPatterns(ARTIFACT_ROOT_PATH + "/**");
     }
