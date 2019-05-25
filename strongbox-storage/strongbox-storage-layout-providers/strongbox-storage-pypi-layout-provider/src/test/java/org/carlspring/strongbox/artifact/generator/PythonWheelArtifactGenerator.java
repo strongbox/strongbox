@@ -3,6 +3,9 @@ package org.carlspring.strongbox.artifact.generator;
 import org.carlspring.strongbox.artifact.coordinates.PypiWheelArtifactCoordinates;
 
 import java.io.IOException;
+import java.net.URI;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.util.Base64;
 
 
@@ -11,8 +14,9 @@ import java.util.zip.ZipEntry;
 import java.util.zip.ZipOutputStream;
 
 import com.google.common.hash.Hashing;
+import org.apache.commons.io.FilenameUtils;
 
-public class PythonWheelArtifactGenerator
+public class PythonWheelArtifactGenerator implements ArtifactGenerator
 {
 
     private static final String METADATA_CONTENT = "Metadata-Version: 2.1\n" +
@@ -30,24 +34,58 @@ public class PythonWheelArtifactGenerator
                                                    "\n" +
                                                    "Strongbox wheel package for test";
 
-    private String basedir;
+    private Path basedir;
 
-    public PythonWheelArtifactGenerator(String basedir)
+    public PythonWheelArtifactGenerator(Path basedir)
     {
         this.basedir = basedir;
     }
 
-    public void generateWheelPackage(PypiWheelArtifactCoordinates coordinates)
+    public PythonWheelArtifactGenerator(String basedir)
+    {
+        this.basedir = Paths.get(basedir);
+    }
+
+    @Override
+    public Path generateArtifact(String id,
+                                 String version,
+                                 int size)
             throws IOException
     {
-        String packagePath = String.format("%s/%s-%s-py2-none-any.whl", basedir, coordinates.getId(),
-                                           coordinates.getVersion());
+        PypiWheelArtifactCoordinates coordinates = new PypiWheelArtifactCoordinates(id,
+                                                                                    version,
+                                                                                    null,
+                                                                                    "py3",
+                                                                                    "none",
+                                                                                    "any");
+        return generateArtifact(coordinates);
+    }
 
-        ZipOutputStream zos = new ZipOutputStream(new FileOutputStream(packagePath));
+    @Override
+    public Path generateArtifact(URI uri,
+                                 int size)
+            throws IOException
+    {
+        PypiWheelArtifactCoordinates coordinates = PypiWheelArtifactCoordinates.parse(FilenameUtils.getName(uri.getPath()));
+        return generateArtifact(coordinates);
+    }
+
+    public Path generateArtifact(PypiWheelArtifactCoordinates coordinates)
+            throws IOException
+    {
+        String packagePath = String.format("%s-%s-py2-none-any.whl",
+                                                   coordinates.getId(),
+                                                   coordinates.getVersion());
+
+        Path fullPath = basedir.resolve(packagePath);
+
+        ZipOutputStream zos = new ZipOutputStream(new FileOutputStream(fullPath.toString()));
 
         createPackageFiles(zos, coordinates.getId(), coordinates.getVersion());
 
         zos.close();
+
+        return fullPath;
     }
 
     private void createPackageFiles(ZipOutputStream zos,
