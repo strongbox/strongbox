@@ -16,7 +16,7 @@ import org.carlspring.strongbox.cron.config.CronTasksConfig;
 import org.carlspring.strongbox.interceptors.MavenArtifactRequestInterceptor;
 import org.carlspring.strongbox.interceptors.RepositoryRequestInterceptor;
 import org.carlspring.strongbox.mapper.WebObjectMapperSubtypes;
-import org.carlspring.strongbox.services.ConfigurationManagementService;
+import org.carlspring.strongbox.providers.io.RepositoryPathResolver;
 import org.carlspring.strongbox.utils.CustomAntPathMatcher;
 import org.carlspring.strongbox.web.CustomRequestMappingHandlerMapping;
 import org.carlspring.strongbox.web.DirectoryTraversalFilter;
@@ -47,7 +47,11 @@ import org.springframework.validation.beanvalidation.LocalValidatorFactoryBean;
 import org.springframework.web.context.request.RequestContextListener;
 import org.springframework.web.filter.CommonsRequestLoggingFilter;
 import org.springframework.web.filter.RequestContextFilter;
-import org.springframework.web.servlet.config.annotation.*;
+import org.springframework.web.servlet.config.annotation.ContentNegotiationConfigurer;
+import org.springframework.web.servlet.config.annotation.PathMatchConfigurer;
+import org.springframework.web.servlet.config.annotation.ResourceHandlerRegistry;
+import org.springframework.web.servlet.config.annotation.WebMvcConfigurationSupport;
+import org.springframework.web.servlet.handler.MappedInterceptor;
 import org.springframework.web.servlet.mvc.method.annotation.RequestMappingHandlerMapping;
 import org.springframework.web.servlet.resource.GzipResourceResolver;
 import org.springframework.web.servlet.resource.PathResourceResolver;
@@ -97,9 +101,6 @@ public class WebConfig
     @Inject
     private YAMLMapperFactory yamlMapperFactory;
 
-    @Inject
-    private ConfigurationManagementService configurationManagementService;
-
     WebConfig()
     {
         logger.debug("Initialized web configuration.");
@@ -141,9 +142,7 @@ public class WebConfig
     @Override
     protected RequestMappingHandlerMapping createRequestMappingHandlerMapping()
     {
-        RequestMappingHandlerMapping requestMappingHandlerMapping = new CustomRequestMappingHandlerMapping();
-        requestMappingHandlerMapping.setInterceptors(new RepositoryRequestInterceptor());
-        return requestMappingHandlerMapping;
+        return new CustomRequestMappingHandlerMapping();
     }
 
     @Bean
@@ -271,15 +270,16 @@ public class WebConfig
     }
 
     @Bean
-    MavenArtifactRequestInterceptor mavenArtifactRequestInterceptor()
+    MappedInterceptor repositoryRequestInterceptor()
     {
-        return new MavenArtifactRequestInterceptor();
+        return new MappedInterceptor(new String[]{ ARTIFACT_ROOT_PATH + "/**" },
+                                     new RepositoryRequestInterceptor());
     }
 
-    @Override
-    protected void addInterceptors(InterceptorRegistry registry)
+    @Bean
+    MappedInterceptor mavenArtifactRequestInterceptor(RepositoryPathResolver repositoryPathResolver)
     {
-        registry.addInterceptor(mavenArtifactRequestInterceptor())
-                .addPathPatterns(ARTIFACT_ROOT_PATH + "/**");
+        return new MappedInterceptor(new String[]{ ARTIFACT_ROOT_PATH + "/**" },
+                                     new MavenArtifactRequestInterceptor(repositoryPathResolver));
     }
 }
