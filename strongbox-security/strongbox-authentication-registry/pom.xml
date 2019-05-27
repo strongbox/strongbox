@@ -134,12 +134,6 @@
             <groupId>org.apache.directory.server</groupId>
             <artifactId>apacheds-core</artifactId>
             <scope>test</scope>
-            <exclusions>
-                <exclusion>
-                    <groupId>commons-collections</groupId>
-                    <artifactId>commons-collections</artifactId>
-                </exclusion>
-            </exclusions>
         </dependency>
         <dependency>
             <groupId>org.apache.directory.server</groupId>
