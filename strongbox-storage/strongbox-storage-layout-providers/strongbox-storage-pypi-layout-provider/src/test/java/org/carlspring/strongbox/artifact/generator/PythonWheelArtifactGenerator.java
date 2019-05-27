@@ -35,7 +35,8 @@ public class PythonWheelArtifactGenerator implements ArtifactGenerator
                                                    "Strongbox wheel package for test";
 
     private Path basedir;
-
+    
+    
     public PythonWheelArtifactGenerator(Path basedir)
     {
         this.basedir = basedir;
@@ -74,8 +75,8 @@ public class PythonWheelArtifactGenerator implements ArtifactGenerator
             throws IOException
     {
         String packagePath = String.format("%s-%s-py2-none-any.whl",
-                                                   coordinates.getId(),
-                                                   coordinates.getVersion());
+                                           coordinates.getId(),
+                                           coordinates.getVersion());
 
         Path fullPath = basedir.resolve(packagePath);
 
@@ -128,17 +129,24 @@ public class PythonWheelArtifactGenerator implements ArtifactGenerator
         String recordPath = dirPath + "/" + "RECORD";
         String recordLineTmpl = "%s,sha256=%s,%s\n";
         StringBuilder recordContent = new StringBuilder()
-                                              .append(String.format(recordLineTmpl, binPath, calculateHash(binContent),
+                                              .append(String.format(recordLineTmpl,
+                                                                    binPath,
+                                                                    calculateHash(binContent),
                                                                     binContent.length))
-                                              .append(String.format(recordLineTmpl, licensePath,
+                                              .append(String.format(recordLineTmpl,
+                                                                    licensePath,
                                                                     calculateHash(licenseContent),
                                                                     licenseContent.length))
-                                              .append(String.format(recordLineTmpl, metadataPath,
+                                              .append(String.format(recordLineTmpl,
+                                                                    metadataPath,
                                                                     calculateHash(metadataContent),
                                                                     metadataContent.length))
-                                              .append(String.format(recordLineTmpl, wheelPath,
-                                                                    calculateHash(wheelContent), wheelContent.length))
-                                              .append(String.format(recordLineTmpl, topLevelPath,
+                                              .append(String.format(recordLineTmpl,
+                                                                    wheelPath,
+                                                                    calculateHash(wheelContent),
+                                                                    wheelContent.length))
+                                              .append(String.format(recordLineTmpl,
+                                                                    topLevelPath,
                                                                     calculateHash(topLevelContent),
                                                                     topLevelContent.length))
                                               .append(recordPath)
