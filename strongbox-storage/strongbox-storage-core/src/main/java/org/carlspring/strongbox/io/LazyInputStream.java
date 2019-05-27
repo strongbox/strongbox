@@ -5,8 +5,12 @@ import java.io.IOException;
 import java.io.InputStream;
 
 /**
+ * Allows to create {@link InputStream} instance with "lazy" initialization.
+ * This mean that underlaing {@link InputStream} instance will be created only
+ * when reading directly occures. <br>
+ * For example this needed if resource should be locked before reading.
+ * 
  * @author sbespalov
- *
  */
 public class LazyInputStream extends FilterInputStream
 {
@@ -113,8 +117,7 @@ public class LazyInputStream extends FilterInputStream
         catch (Exception e)
         {
             throw new IOException(ERROR_FAILED_TO_CREATE_INPUT_STREAM, e);
-        } 
-        finally
+        } finally
         {
             supplier = null;
         }

@@ -4,6 +4,15 @@ import java.io.FilterOutputStream;
 import java.io.IOException;
 import java.io.OutputStream;
 
+/**
+ * Allows to create {@link OutputStream} instance with "lazy" initialization.
+ * This mean that underlaing {@link OutputStream} instance will be created only
+ * when writing directly occures. <br>
+ * For example this needed if resource should be locked before writing.
+ * 
+ * @author sbespalov
+ *
+ */
 public class LazyOutputStream extends FilterOutputStream
 {
     private static final String ERROR_FAILED_TO_CREATE_OUTPUT_STREAM = "Failed to create OutputStream.";
@@ -79,8 +88,7 @@ public class LazyOutputStream extends FilterOutputStream
         catch (Exception e)
         {
             throw new IOException(ERROR_FAILED_TO_CREATE_OUTPUT_STREAM, e);
-        } 
-        finally
+        } finally
         {
             supplier = null;
         }

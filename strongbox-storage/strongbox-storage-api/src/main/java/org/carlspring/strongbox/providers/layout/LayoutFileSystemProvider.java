@@ -16,7 +16,6 @@ import java.util.Set;
 
 import javax.inject.Inject;
 
-import org.apache.commons.io.IOUtils;
 import org.carlspring.commons.io.reloading.FSReloadableInputStreamHandler;
 import org.carlspring.strongbox.artifact.ArtifactNotFoundException;
 import org.carlspring.strongbox.domain.ArtifactEntry;
@@ -72,8 +71,8 @@ public abstract class LayoutFileSystemProvider extends StorageFileSystemProvider
     protected abstract AbstractLayoutProvider getLayoutProvider();
     
     @Override
-    public InputStream newInputStream(Path path,
-                                      OpenOption... options)
+    public LazyInputStream newInputStream(Path path,
+                                          OpenOption... options)
             throws IOException
     {        
         return new LazyInputStream(() -> {
@@ -126,8 +125,8 @@ public abstract class LayoutFileSystemProvider extends StorageFileSystemProvider
     }
     
     @Override
-    public OutputStream newOutputStream(Path path,
-                                        OpenOption... options)
+    public LazyOutputStream newOutputStream(Path path,
+                                            OpenOption... options)
             throws IOException
     {
         return new LazyOutputStream(() -> {
