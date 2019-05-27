@@ -2,6 +2,7 @@ package org.carlspring.strongbox.web;
 
 import static java.lang.annotation.ElementType.TYPE;
 import static java.lang.annotation.RetentionPolicy.RUNTIME;
+import static org.carlspring.strongbox.web.Constants.ARTIFACT_ROOT_PATH;
 
 import java.lang.annotation.Documented;
 import java.lang.annotation.Retention;
@@ -21,7 +22,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 @Documented
 @Retention(RUNTIME)
 @Target(TYPE)
-@RequestMapping("/storages")
+@RequestMapping(ARTIFACT_ROOT_PATH)
 public @interface LayoutRequestMapping
 {
 

@@ -2,8 +2,6 @@ package org.carlspring.strongbox.controllers;
 
 import org.carlspring.strongbox.providers.io.RepositoryPath;
 import org.carlspring.strongbox.services.ArtifactManagementService;
-import org.carlspring.strongbox.storage.Storage;
-import org.carlspring.strongbox.storage.repository.Repository;
 import org.carlspring.strongbox.utils.ArtifactControllerHelper;
 
 import javax.inject.Inject;
@@ -18,19 +16,9 @@ import org.springframework.web.bind.annotation.RequestMethod;
 public abstract class BaseArtifactController
         extends BaseController
 {
+
     @Inject
     protected ArtifactManagementService artifactManagementService;
-
-    protected Storage getStorage(String storageId)
-    {
-        return configurationManager.getConfiguration().getStorage(storageId);
-    }
-
-    protected Repository getRepository(String storageId,
-                                       String repositoryId)
-    {
-        return getStorage(storageId).getRepository(repositoryId);
-    }
 
     protected boolean provideArtifactDownloadResponse(HttpServletRequest request,
                                                       HttpServletResponse response,
@@ -39,7 +27,7 @@ public abstract class BaseArtifactController
             throws Exception
     {
         logger.debug("Resolved path: " + repositoryPath);
-        
+
         ArtifactControllerHelper.provideArtifactHeaders(response, repositoryPath);
         if (response.getStatus() == HttpStatus.NOT_FOUND.value())
         {

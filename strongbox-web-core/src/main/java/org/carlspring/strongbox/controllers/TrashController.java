@@ -28,7 +28,7 @@ import org.springframework.web.bind.annotation.*;
 @RequestMapping("/api/trash")
 @Api(value = "/api/trash")
 public class TrashController
-        extends BaseArtifactController
+        extends BaseController
 {
 
     @Inject

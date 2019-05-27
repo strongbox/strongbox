@@ -40,16 +40,14 @@ import org.springframework.web.servlet.ModelAndView;
  */
 @RestController
 @RequestMapping(path = BrowseController.ROOT_CONTEXT)
-public class BrowseController extends BaseArtifactController
+public class BrowseController
+        extends BaseController
 {
 
     private static final Logger logger = LoggerFactory.getLogger(BrowseController.class);
 
     // must be the same as @RequestMapping value on the class definition
     public final static String ROOT_CONTEXT = "/api/browse";
-
-    @Inject
-    private ObjectMapper objectMapper;
 
     private volatile DirectoryListingService directoryListingService;
     

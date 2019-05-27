@@ -1,7 +1,5 @@
 package org.carlspring.strongbox.controllers.layout.nuget;
 
-import static org.springframework.http.HttpStatus.INTERNAL_SERVER_ERROR;
-
 import java.io.BufferedInputStream;
 import java.io.BufferedOutputStream;
 import java.io.IOException;
@@ -46,13 +44,10 @@ import org.carlspring.strongbox.io.ReplacingInputStream;
 import org.carlspring.strongbox.nuget.NugetSearchRequest;
 import org.carlspring.strongbox.nuget.filter.NugetODataFilterQueryParser;
 import org.carlspring.strongbox.providers.io.RepositoryPath;
-import org.carlspring.strongbox.providers.io.RepositoryPathResolver;
 import org.carlspring.strongbox.providers.repository.RepositoryProvider;
 import org.carlspring.strongbox.providers.repository.RepositoryProviderRegistry;
 import org.carlspring.strongbox.repository.NugetRepositoryFeatures.RepositorySearchEventListener;
-import org.carlspring.strongbox.services.ArtifactManagementService;
 import org.carlspring.strongbox.services.ArtifactTagService;
-import org.carlspring.strongbox.storage.Storage;
 import org.carlspring.strongbox.storage.metadata.nuget.NugetFormatException;
 import org.carlspring.strongbox.storage.metadata.nuget.Nupkg;
 import org.carlspring.strongbox.storage.metadata.nuget.Nuspec;
@@ -61,9 +56,14 @@ import org.carlspring.strongbox.storage.metadata.nuget.rss.EntryProperties;
 import org.carlspring.strongbox.storage.metadata.nuget.rss.PackageEntry;
 import org.carlspring.strongbox.storage.metadata.nuget.rss.PackageFeed;
 import org.carlspring.strongbox.storage.repository.Repository;
+
+import io.swagger.annotations.ApiOperation;
+import io.swagger.annotations.ApiParam;
+import io.swagger.annotations.ApiResponse;
+import io.swagger.annotations.ApiResponses;
+
 import org.carlspring.strongbox.web.LayoutRequestMapping;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+
 import org.springframework.core.io.InputStreamResource;
 import org.springframework.core.io.Resource;
 import org.springframework.http.HttpHeaders;
@@ -81,11 +81,6 @@ import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.context.request.RequestContextHolder;
 import org.springframework.web.context.request.ServletRequestAttributes;
 
-import io.swagger.annotations.ApiOperation;
-import io.swagger.annotations.ApiParam;
-import io.swagger.annotations.ApiResponse;
-import io.swagger.annotations.ApiResponses;
-
 /**
  * This Controller used to handle Nuget requests.
  * 
@@ -94,28 +89,18 @@ import io.swagger.annotations.ApiResponses;
  */
 @RestController
 @LayoutRequestMapping(NugetArtifactCoordinates.LAYOUT_NAME)
-public class NugetArtifactController extends BaseArtifactController
+public class NugetArtifactController
+        extends BaseArtifactController
 {
-
-    private static final Logger logger = LoggerFactory.getLogger(NugetArtifactController.class);
-
-    public final static String ROOT_CONTEXT = "/storages";
-
-    @Inject
-    private ArtifactManagementService nugetArtifactManagementService;
 
     @Inject
     private ArtifactTagService artifactTagService;
 
     @Inject
     private RepositoryProviderRegistry repositoryProviderRegistry;
-    
+
     @Inject
     private RepositorySearchEventListener repositorySearchEventListener;
-    
-    @Inject
-    private RepositoryPathResolver repositoryPathResolver;
-
 
     @DeleteMapping(path = { "{storageId}/{repositoryId}/{packageId}/{version}" })
     @PreAuthorize("hasAuthority('ARTIFACTS_DEPLOY')")
@@ -131,11 +116,11 @@ public class NugetArtifactController extends BaseArtifactController
         try
         {
             //TODO: we should move associated files deletion into corresponding layout providers.
-            nugetArtifactManagementService.delete(path, true);
+            artifactManagementService.delete(path, true);
             path = repositoryPathResolver.resolve(storageId, repositoryId, String.format("%s/%s/%s.%s.nupkg", packageId, version, packageId,version));
-            nugetArtifactManagementService.delete(path, true);
+            artifactManagementService.delete(path, true);
             path = repositoryPathResolver.resolve(storageId, repositoryId, String.format("%s/%s/%s.%s.nupkg.sha512", packageId, version, packageId,version));
-            nugetArtifactManagementService.delete(path, true);
+            artifactManagementService.delete(path, true);
         }
         catch (IOException e)
         {
@@ -515,7 +500,7 @@ public class NugetArtifactController extends BaseArtifactController
     {
         getPackageInternal(storageId, repositoryId, packageId, packageVersion, response, request, httpHeaders);
     }
-    
+
     private void getPackageInternal(String storageId,
                                     String repositoryId,
                                     String packageId,
@@ -526,35 +511,6 @@ public class NugetArtifactController extends BaseArtifactController
             throws Exception
     {
         logger.debug("Requested Nuget Package %s, %s, %s, %s.", storageId, repositoryId, packageId, packageVersion);
-
-        Storage storage = configurationManager.getConfiguration().getStorage(storageId);
-        if (storage == null)
-        {
-            logger.error("Unable to find storage by ID " + storageId);
-
-            response.sendError(INTERNAL_SERVER_ERROR.value(), "Unable to find storage by ID " + storageId);
-
-            return;
-        }
-
-        Repository repository = storage.getRepository(repositoryId);
-        if (repository == null)
-        {
-            logger.error("Unable to find repository by ID " + repositoryId + " for storage " + storageId);
-
-            response.sendError(INTERNAL_SERVER_ERROR.value(),
-                               "Unable to find repository by ID " + repositoryId + " for storage " + storageId);
-            return;
-        }
-
-        if (!repository.isInService())
-        {
-            logger.error("Repository is not in service...");
-
-            response.sendError(HttpStatus.SERVICE_UNAVAILABLE.value(),
-                               "The " + storageId + ":" + repositoryId + " repository is currently out of service.");
-            return;
-        }
 
         String fileName = String.format("%s.%s.nupkg", packageId, packageVersion);
         String path = String.format("%s/%s/%s", packageId, packageVersion, fileName);
@@ -672,7 +628,7 @@ public class NugetArtifactController extends BaseArtifactController
                                         nuspecVersion);
 
             RepositoryPath repositoryPath = repositoryPathResolver.resolve(storageId, repositoryId, path);
-            nugetArtifactManagementService.validateAndStore(repositoryPath, nupkgFile.getStream());
+            artifactManagementService.validateAndStore(repositoryPath, nupkgFile.getStream());
 
             Path nuspecFile = Files.createTempFile(nuspec.getId(), "nuspec");
             try (OutputStream outputStream = new BufferedOutputStream(Files.newOutputStream(nuspecFile)))
@@ -683,7 +639,7 @@ public class NugetArtifactController extends BaseArtifactController
             repositoryPath = repositoryPathResolver.resolve(storageId, repositoryId, path);
             try (InputStream bis = new BufferedInputStream(Files.newInputStream(nuspecFile)))
             {
-                nugetArtifactManagementService.validateAndStore(repositoryPath, bis);
+                artifactManagementService.validateAndStore(repositoryPath, bis);
             }
 
             Path hashFile = Files.createTempFile(String.format("%s.%s", nuspecId, nuspecVersion),
@@ -705,7 +661,7 @@ public class NugetArtifactController extends BaseArtifactController
             repositoryPath = repositoryPathResolver.resolve(storageId, repositoryId, path);
             try (InputStream bis = new BufferedInputStream(Files.newInputStream(hashFile)))
             {
-                nugetArtifactManagementService.validateAndStore(repositoryPath, bis);
+                artifactManagementService.validateAndStore(repositoryPath, bis);
             }
         }
 

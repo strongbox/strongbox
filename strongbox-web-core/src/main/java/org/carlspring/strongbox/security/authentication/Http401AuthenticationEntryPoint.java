@@ -1,18 +1,17 @@
 package org.carlspring.strongbox.security.authentication;
 
+import org.carlspring.strongbox.controllers.support.ErrorResponseEntityBody;
+
 import javax.inject.Inject;
-import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
 import java.util.Optional;
 
-import org.carlspring.strongbox.controllers.support.ErrorResponseEntityBody;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import org.springframework.http.MediaType;
 import org.springframework.security.core.AuthenticationException;
 import org.springframework.security.web.AuthenticationEntryPoint;
-
-import com.fasterxml.jackson.databind.ObjectMapper;
 
 public class Http401AuthenticationEntryPoint implements AuthenticationEntryPoint
 {
@@ -32,8 +31,7 @@ public class Http401AuthenticationEntryPoint implements AuthenticationEntryPoint
     public void commence(HttpServletRequest request,
                          HttpServletResponse response,
                          AuthenticationException authException)
-            throws IOException,
-                   ServletException
+            throws IOException
     {
         String message = Optional.ofNullable(authException).map(e -> e.getMessage()).orElse("unauthorized");
         

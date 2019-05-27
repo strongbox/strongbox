@@ -9,6 +9,8 @@ import org.carlspring.strongbox.controllers.support.ResponseEntityBody;
 import org.carlspring.strongbox.providers.io.RepositoryPathResolver;
 import org.carlspring.strongbox.services.ArtifactResolutionService;
 import org.carlspring.strongbox.services.ConfigurationManagementService;
+import org.carlspring.strongbox.storage.Storage;
+import org.carlspring.strongbox.storage.repository.Repository;
 
 import javax.inject.Inject;
 import javax.servlet.http.HttpServletResponse;
@@ -17,6 +19,7 @@ import java.io.InputStream;
 import java.io.OutputStream;
 import java.util.List;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
 import org.apache.commons.collections.IteratorUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -31,11 +34,15 @@ import org.springframework.http.ResponseEntity;
  *
  * @author Alex Oreshkevich
  * @author Pablo Tirado
+ * @author Przemyslaw Fusik
  */
 public abstract class BaseController
 {
 
     protected final Logger logger = LoggerFactory.getLogger(getClass());
+
+    @Inject
+    protected ObjectMapper objectMapper;
 
     @Inject
     protected ConfigurationManagementService configurationManagementService;
@@ -54,6 +61,17 @@ public abstract class BaseController
         return configurationManagementService.getConfiguration();
     }
 
+    protected Storage getStorage(String storageId)
+    {
+        return configurationManager.getConfiguration().getStorage(storageId);
+    }
+
+    protected Repository getRepository(String storageId,
+                                       String repositoryId)
+    {
+        return getStorage(storageId).getRepository(repositoryId);
+    }
+
     protected MutableConfiguration getMutableConfigurationClone()
     {
         return configurationManagementService.getMutableConfigurationClone();
@@ -63,18 +81,18 @@ public abstract class BaseController
      * You will rarely need to use this method directly. In most cases you should consider using the methods below
      * to guarantee consistency in the returned responses to the client request.
      *
-     * @param message       Message to be returned to the client.
-     * @param acceptHeader  The Accept header, so that we can return the proper json/plain text response.
-     *
+     * @param message      Message to be returned to the client.
+     * @param acceptHeader The Accept header, so that we can return the proper json/plain text response.
      * @return Object
      */
-    protected Object getResponseEntityBody(String message, String acceptHeader)
+    protected Object getResponseEntityBody(String message,
+                                           String acceptHeader)
     {
         if (acceptHeader != null && !acceptHeader.isEmpty())
         {
             acceptHeader = acceptHeader.toLowerCase();
-            if((acceptHeader.contains(MediaType.TEXT_PLAIN_VALUE.toLowerCase()) ||
-                acceptHeader.contains(MediaType.TEXT_HTML_VALUE.toLowerCase())))
+            if ((acceptHeader.contains(MediaType.TEXT_PLAIN_VALUE.toLowerCase()) ||
+                 acceptHeader.contains(MediaType.TEXT_HTML_VALUE.toLowerCase())))
             {
                 return message;
             }
@@ -86,10 +104,10 @@ public abstract class BaseController
     /**
      * @param fieldName JSON field name
      * @param list      the list
-     *
      * @return
      */
-    protected ResponseEntity getJSONListResponseEntityBody(String fieldName, List<?> list)
+    protected ResponseEntity getJSONListResponseEntityBody(String fieldName,
+                                                           List<?> list)
     {
         return ResponseEntity.ok(new ListEntityBody(fieldName, list));
     }
@@ -99,7 +117,8 @@ public abstract class BaseController
      * @param iterable  the iterable
      * @return ResponseEntity
      */
-    protected ResponseEntity getJSONListResponseEntityBody(String fieldName, final Iterable<?> iterable)
+    protected ResponseEntity getJSONListResponseEntityBody(String fieldName,
+                                                           final Iterable<?> iterable)
     {
         List<?> list = IteratorUtils.toList(iterable.iterator());
         return getJSONListResponseEntityBody(fieldName, list);
@@ -121,12 +140,12 @@ public abstract class BaseController
     /**
      * Used for operations which have been successfully performed.
      *
-     * @param message       Success to be returned to the client.
-     * @param acceptHeader  The Accept header, so that we can return the proper json/plain text response.
-     *
+     * @param message      Success to be returned to the client.
+     * @param acceptHeader The Accept header, so that we can return the proper json/plain text response.
      * @return ResponseEntity
      */
-    protected ResponseEntity getSuccessfulResponseEntity(String message, String acceptHeader)
+    protected ResponseEntity getSuccessfulResponseEntity(String message,
+                                                         String acceptHeader)
     {
         return getSuccessfulResponseEntity(message, null, acceptHeader);
     }
@@ -134,25 +153,26 @@ public abstract class BaseController
     /**
      * Used for operations which have failed.
      *
-     * @param status        Status code to be returned (i.e. 400 Bad Request)
-     * @param message       Error to be returned to the client.
-     * @param acceptHeader  The Accept header, so that we can return the proper json/plain text response.
-     *
+     * @param status       Status code to be returned (i.e. 400 Bad Request)
+     * @param message      Error to be returned to the client.
+     * @param acceptHeader The Accept header, so that we can return the proper json/plain text response.
      * @return ResponseEntity
      */
-    protected ResponseEntity getFailedResponseEntity(HttpStatus status, String message, String acceptHeader)
+    protected ResponseEntity getFailedResponseEntity(HttpStatus status,
+                                                     String message,
+                                                     String acceptHeader)
     {
         return ResponseEntity.status(status)
                              .body(getResponseEntityBody(message, acceptHeader));
     }
 
     /**
-     * @param message       Error to be returned to the client.
-     * @param acceptHeader  The Accept header, so that we can return the proper json/plain text response.
-     *
+     * @param message      Error to be returned to the client.
+     * @param acceptHeader The Accept header, so that we can return the proper json/plain text response.
      * @return ResponseEntity
      */
-    protected ResponseEntity getBadRequestResponseEntity(String message, String acceptHeader)
+    protected ResponseEntity getBadRequestResponseEntity(String message,
+                                                         String acceptHeader)
     {
         return getFailedResponseEntity(HttpStatus.BAD_REQUEST, message, acceptHeader);
     }
@@ -160,12 +180,12 @@ public abstract class BaseController
     /**
      * Used in cases where resource could not be found.
      *
-     * @param message       Error to be returned to the client.
-     * @param acceptHeader  The Accept header, so that we can return the proper json/plain text response.
-     *
+     * @param message      Error to be returned to the client.
+     * @param acceptHeader The Accept header, so that we can return the proper json/plain text response.
      * @return ResponseEntity
      */
-    protected ResponseEntity getNotFoundResponseEntity(String message, String acceptHeader)
+    protected ResponseEntity getNotFoundResponseEntity(String message,
+                                                       String acceptHeader)
     {
         return ResponseEntity.status(HttpStatus.NOT_FOUND)
                              .body(getResponseEntityBody(message, acceptHeader));
@@ -175,21 +195,20 @@ public abstract class BaseController
     /**
      * Used in cases where resource is not available not be found.
      *
-     * @param message       Error to be returned to the client.
-     * @param acceptHeader  The Accept header, so that we can return the proper json/plain text response.
-     *
+     * @param message      Error to be returned to the client.
+     * @param acceptHeader The Accept header, so that we can return the proper json/plain text response.
      * @return ResponseEntity
      */
-    protected ResponseEntity getServiceUnavailableResponseEntity(String message, String acceptHeader)
+    protected ResponseEntity getServiceUnavailableResponseEntity(String message,
+                                                                 String acceptHeader)
     {
         return ResponseEntity.status(HttpStatus.SERVICE_UNAVAILABLE)
                              .body(getResponseEntityBody(message, acceptHeader));
     }
 
     /**
-     * @param message       Error message to be returned to the client.
-     * @param acceptHeader  The Accept header, so that we can return the proper json/plain text response.
-     *
+     * @param message      Error message to be returned to the client.
+     * @param acceptHeader The Accept header, so that we can return the proper json/plain text response.
      * @return ResponseEntity
      */
     protected ResponseEntity getRuntimeExceptionResponseEntity(String message,
@@ -201,10 +220,9 @@ public abstract class BaseController
     }
 
     /**
-     * @param httpStatus    HttpStatus to be returned.
-     * @param cause         Exception.
-     * @param acceptHeader  The Accept header, so that we can return the proper json/plain text response.
-     *
+     * @param httpStatus   HttpStatus to be returned.
+     * @param cause        Exception.
+     * @param acceptHeader The Accept header, so that we can return the proper json/plain text response.
      * @return ResponseEntity
      */
     protected ResponseEntity getExceptionResponseEntity(HttpStatus httpStatus,
@@ -215,11 +233,10 @@ public abstract class BaseController
     }
 
     /**
-     * @param httpStatus    HttpStatus to be returned.
-     * @param message       Error message to display in the logs and returned to the client.
-     * @param cause         Exception.
-     * @param acceptHeader  The Accept header, so that we can return the proper json/plain text response.
-     *
+     * @param httpStatus   HttpStatus to be returned.
+     * @param message      Error message to display in the logs and returned to the client.
+     * @param cause        Exception.
+     * @param acceptHeader The Accept header, so that we can return the proper json/plain text response.
      * @return ResponseEntity
      */
     protected ResponseEntity getExceptionResponseEntity(HttpStatus httpStatus,
@@ -237,14 +254,13 @@ public abstract class BaseController
     /**
      * Used to stream files to the client.
      *
-     * @param is        InputStream
-     * @param filename  String
-     *
+     * @param is       InputStream
+     * @param filename String
      * @return ResponseEntity
-     *
      * @throws IllegalStateException
      */
-    protected ResponseEntity<InputStreamResource> getStreamToResponseEntity(InputStream is, String filename)
+    protected ResponseEntity<InputStreamResource> getStreamToResponseEntity(InputStream is,
+                                                                            String filename)
             throws IllegalStateException
     {
         InputStreamResource inputStreamResource = new InputStreamResource(is);
