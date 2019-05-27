@@ -1,24 +1,23 @@
 package org.carlspring.strongbox.controllers.configuration;
 
-import io.restassured.module.mockmvc.response.ValidatableMockMvcResponse;
-import org.apache.commons.collections.MapUtils;
-import org.apache.http.pool.PoolStats;
 import org.carlspring.strongbox.config.IntegrationTest;
 import org.carlspring.strongbox.configuration.Configuration;
 import org.carlspring.strongbox.configuration.ConfigurationManager;
 import org.carlspring.strongbox.rest.common.RestAssuredBaseTest;
 import org.carlspring.strongbox.storage.repository.ImmutableRepository;
 import org.carlspring.strongbox.storage.repository.Repository;
-import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.params.ParameterizedTest;
-import org.junit.jupiter.params.provider.ValueSource;
-import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.http.HttpStatus;
-import org.springframework.http.MediaType;
 
 import javax.inject.Inject;
 import java.util.Optional;
 
+import io.restassured.module.mockmvc.response.ValidatableMockMvcResponse;
+import org.apache.commons.collections4.MapUtils;
+import org.apache.http.pool.PoolStats;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.ValueSource;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.MediaType;
 import static io.restassured.module.mockmvc.RestAssuredMockMvc.given;
 import static org.hamcrest.CoreMatchers.containsString;
 import static org.hamcrest.CoreMatchers.equalTo;
