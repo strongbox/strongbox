@@ -1,7 +1,7 @@
 package org.carlspring.strongbox.controllers.configuration;
 
 import io.restassured.module.mockmvc.response.ValidatableMockMvcResponse;
-import org.apache.commons.collections.MapUtils;
+import org.apache.commons.collections4.MapUtils;
 import org.apache.http.pool.PoolStats;
 import org.carlspring.strongbox.config.IntegrationTest;
 import org.carlspring.strongbox.configuration.Configuration;
