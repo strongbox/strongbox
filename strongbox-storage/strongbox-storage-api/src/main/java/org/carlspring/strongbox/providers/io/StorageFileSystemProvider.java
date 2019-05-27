@@ -257,7 +257,7 @@ public abstract class StorageFileSystemProvider
         throws IOException
     {
         Repository repository = repositoryPath.getFileSystem().getRepository();
-        if (!repository.isTrashEnabled())
+        if (!repository.isTrashEnabled() || RepositoryFiles.isTrash(repositoryPath))
         {
             Files.deleteIfExists(repositoryPath.getTarget());
 

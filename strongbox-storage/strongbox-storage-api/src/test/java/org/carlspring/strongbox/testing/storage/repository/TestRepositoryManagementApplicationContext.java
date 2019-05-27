@@ -300,10 +300,11 @@ public class TestRepositoryManagementApplicationContext extends AnnotationConfig
     @Override
     public void register(TestRepository testRepository,
                          Remote remoteRepository,
-                         Group groupRepository)
+                         Group groupRepository,
+                         RepositoryAttributes repositoryAttributes)
     {
         idSync.putIfAbsent(id(testRepository), new ReentrantLock());
-        registerBean(id(testRepository), TestRepositoryContext.class, testRepository, remoteRepository, groupRepository);
+        registerBean(id(testRepository), TestRepositoryContext.class, testRepository, remoteRepository, groupRepository, repositoryAttributes);
         
         if (groupRepository == null)
         {

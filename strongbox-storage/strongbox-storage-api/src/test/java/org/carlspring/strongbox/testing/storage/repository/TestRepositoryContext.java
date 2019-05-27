@@ -46,6 +46,8 @@ public class TestRepositoryContext implements AutoCloseable, Comparable<TestRepo
     private final Remote remoteRepository;
     
     private final Group groupRepository;
+    
+    private final RepositoryAttributes repositoryAttributes;
 
     private final ConfigurationManagementService configurationManagementService;
 
@@ -61,6 +63,7 @@ public class TestRepositoryContext implements AutoCloseable, Comparable<TestRepo
     public TestRepositoryContext(TestRepository testRepository,
                                  Remote remoteRepository,
                                  Group groupRepository,
+                                 RepositoryAttributes repositoryAttributes,
                                  ConfigurationManagementService configurationManagementService,
                                  RepositoryPathResolver repositoryPathResolver,
                                  RepositoryManagementService repositoryManagementService,
@@ -71,6 +74,7 @@ public class TestRepositoryContext implements AutoCloseable, Comparable<TestRepo
         this.testRepository = testRepository;
         this.remoteRepository = remoteRepository;
         this.groupRepository = groupRepository;
+        this.repositoryAttributes = repositoryAttributes;
         this.configurationManagementService = configurationManagementService;
         this.repositoryPathResolver = repositoryPathResolver;
         this.repositoryManagementService = repositoryManagementService;
@@ -159,6 +163,17 @@ public class TestRepositoryContext implements AutoCloseable, Comparable<TestRepo
             
         });
 
+        Optional.ofNullable(repositoryAttributes).ifPresent(a -> {
+            repository.setAllowsDelete(repositoryAttributes.allowsDelete());
+            repository.setAllowsDeployment(repositoryAttributes.allowsDeployment());
+            repository.setAllowsDirectoryBrowsing(repositoryAttributes.allowsDirectoryBrowsing());
+            repository.setAllowsForceDeletion(repositoryAttributes.allowsForceDeletion());
+            repository.setAllowsRedeployment(repositoryAttributes.allowsRedeployment());
+            repository.setChecksumHeadersEnabled(repositoryAttributes.checksumHeadersEnabled());
+            repository.setStatus(repositoryAttributes.status().getStatus());
+            repository.setTrashEnabled(repositoryAttributes.trashEnabled());
+        });
+        
         Arrays.stream(testRepository.setup()).forEach(s -> setupRepository(s, repository));
 
         configurationManagementService.saveRepository(testRepository.storageId(), repository);
@@ -222,6 +237,35 @@ public class TestRepositoryContext implements AutoCloseable, Comparable<TestRepo
                                   TestRepository.class.getSimpleName(),
                                   id(testRepository)));
 
+        try
+        {
+            closeInternal();
+        }
+        catch (IOException e)
+        {
+            logger.error(String.format("Failed to close [%s] with id [%s] ",
+                                       TestRepository.class.getSimpleName(),
+                                       id(testRepository)), e);
+
+            throw e;
+        }
+        catch (Exception e)
+        {
+            logger.error(String.format("Failed to close [%s] with id [%s] ",
+                                       TestRepository.class.getSimpleName(),
+                                       id(testRepository)), e);
+
+            throw new IOException(e);
+        }
+
+        logger.info(String.format("Closed [%s] with id [%s] ",
+                                  TestRepository.class.getSimpleName(),
+                                  id(testRepository)));
+    }
+
+    private void closeInternal()
+        throws IOException
+    {
         if (testRepository.cleanup())
         {
             repositoryManagementService.removeRepository(testRepository.storageId(), testRepository.repositoryId());
@@ -230,10 +274,6 @@ public class TestRepositoryContext implements AutoCloseable, Comparable<TestRepo
         configurationManagementService.removeRepository(testRepository.storageId(), testRepository.repositoryId());
 
         opened = false;
-
-        logger.info(String.format("Closed [%s] with id [%s] ",
-                                  TestRepository.class.getSimpleName(),
-                                  id(testRepository)));
     }
 
     @Override

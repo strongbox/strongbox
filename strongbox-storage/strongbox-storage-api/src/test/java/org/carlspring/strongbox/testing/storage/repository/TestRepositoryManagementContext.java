@@ -25,7 +25,8 @@ public interface TestRepositoryManagementContext
 
     public void register(TestRepository testRepository,
                          Remote remoteRepository,
-                         Group groupRepository);
+                         Group groupRepository,
+                         RepositoryAttributes repositoryAttributes);
 
     public void register(TestArtifact testArtifact,
                          Map<String, Object> attributesMap,
