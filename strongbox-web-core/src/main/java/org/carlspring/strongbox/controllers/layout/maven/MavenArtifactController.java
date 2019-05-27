@@ -193,7 +193,7 @@ public class MavenArtifactController
     {
         final String storageId = repository.getStorage().getId();
         final String repositoryId = repository.getId();
-        logger.info("Deleting {}:{}/{}...", storageId, repositoryId, path);
+        logger.info("Deleting {}:{}/{}...", storageId, repositoryId, artifactPath);
 
         try
         {
