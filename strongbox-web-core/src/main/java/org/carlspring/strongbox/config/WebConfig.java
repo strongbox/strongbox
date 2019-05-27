@@ -14,7 +14,6 @@ import org.carlspring.strongbox.converters.users.AccessModelFormToUserAccessMode
 import org.carlspring.strongbox.converters.users.UserFormToUserDtoConverter;
 import org.carlspring.strongbox.cron.config.CronTasksConfig;
 import org.carlspring.strongbox.interceptors.MavenArtifactRequestInterceptor;
-import org.carlspring.strongbox.interceptors.RepositoryRequestInterceptor;
 import org.carlspring.strongbox.mapper.WebObjectMapperSubtypes;
 import org.carlspring.strongbox.providers.io.RepositoryPathResolver;
 import org.carlspring.strongbox.utils.CustomAntPathMatcher;
@@ -51,7 +50,6 @@ import org.springframework.web.servlet.config.annotation.ContentNegotiationConfi
 import org.springframework.web.servlet.config.annotation.PathMatchConfigurer;
 import org.springframework.web.servlet.config.annotation.ResourceHandlerRegistry;
 import org.springframework.web.servlet.config.annotation.WebMvcConfigurationSupport;
-import org.springframework.web.servlet.handler.MappedInterceptor;
 import org.springframework.web.servlet.mvc.method.annotation.RequestMappingHandlerMapping;
 import org.springframework.web.servlet.resource.GzipResourceResolver;
 import org.springframework.web.servlet.resource.PathResourceResolver;
@@ -59,7 +57,6 @@ import org.springframework.web.servlet.view.InternalResourceView;
 import org.springframework.web.servlet.view.InternalResourceViewResolver;
 import static org.carlspring.strongbox.net.MediaType.APPLICATION_YAML_VALUE;
 import static org.carlspring.strongbox.net.MediaType.APPLICATION_YML_VALUE;
-import static org.carlspring.strongbox.web.Constants.ARTIFACT_ROOT_PATH;
 
 @Configuration
 @ComponentScan({ "com.carlspring.strongbox.controllers",
@@ -270,16 +267,8 @@ public class WebConfig
     }
 
     @Bean
-    MappedInterceptor repositoryRequestInterceptor()
+    MavenArtifactRequestInterceptor mavenArtifactRequestInterceptor(RepositoryPathResolver repositoryPathResolver)
     {
-        return new MappedInterceptor(new String[]{ ARTIFACT_ROOT_PATH + "/**" },
-                                     new RepositoryRequestInterceptor());
-    }
-
-    @Bean
-    MappedInterceptor mavenArtifactRequestInterceptor(RepositoryPathResolver repositoryPathResolver)
-    {
-        return new MappedInterceptor(new String[]{ ARTIFACT_ROOT_PATH + "/**" },
-                                     new MavenArtifactRequestInterceptor(repositoryPathResolver));
+        return new MavenArtifactRequestInterceptor(repositoryPathResolver);
     }
 }

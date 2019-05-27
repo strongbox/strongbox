@@ -120,13 +120,6 @@ public class LayoutRequestMappingTest
         }
 
         @Bean
-        MappedInterceptor repositoryRequestInterceptor()
-        {
-            return new MappedInterceptor(new String[]{ ARTIFACT_ROOT_PATH + "/**" },
-                                         new RepositoryRequestInterceptor());
-        }
-
-        @Bean
         WebMvcRegistrations webMvcRegistrations()
         {
             return new WebMvcRegistrations()

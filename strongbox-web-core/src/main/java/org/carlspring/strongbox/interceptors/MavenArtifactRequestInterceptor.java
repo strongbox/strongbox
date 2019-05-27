@@ -14,31 +14,30 @@ import java.util.Map;
 
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.web.servlet.HandlerMapping;
-import org.springframework.web.servlet.handler.HandlerInterceptorAdapter;
-import static org.carlspring.strongbox.artifact.coordinates.MavenArtifactCoordinates.LAYOUT_NAME;
 import static org.carlspring.strongbox.storage.metadata.MetadataHelper.MAVEN_METADATA_XML;
-import static org.carlspring.strongbox.web.Constants.REPOSITORY_REQUEST_ATTRIBUTE;
 import static org.springframework.http.HttpStatus.BAD_REQUEST;
+import static org.carlspring.strongbox.artifact.coordinates.MavenArtifactCoordinates.LAYOUT_NAME;
 
 /**
  * @author Przemyslaw Fusik
  */
 public class MavenArtifactRequestInterceptor
-        extends HandlerInterceptorAdapter
+        extends ArtifactRequestInterceptor
 {
 
     private final RepositoryPathResolver repositoryPathResolver;
 
     public MavenArtifactRequestInterceptor(RepositoryPathResolver repositoryPathResolver)
     {
+        super(LAYOUT_NAME);
         this.repositoryPathResolver = repositoryPathResolver;
     }
-
+    
     @Override
-    public boolean preHandle(final HttpServletRequest request,
-                             final HttpServletResponse response,
-                             final Object handler)
-            throws IOException
+    protected boolean preHandle(Repository repository,
+                                String artifactPath,
+                                HttpServletRequest request,
+                                HttpServletResponse response) throws IOException
     {
         final Map pathVariables = (Map) request.getAttribute(HandlerMapping.URI_TEMPLATE_VARIABLES_ATTRIBUTE);
         if (pathVariables == null)
@@ -46,27 +45,7 @@ public class MavenArtifactRequestInterceptor
             return true;
         }
 
-        final Repository repository = (Repository) request.getAttribute(REPOSITORY_REQUEST_ATTRIBUTE);
-        if (repository == null || !LAYOUT_NAME.equals(repository.getLayout()))
-        {
-            return true;
-        }
-
-        final String storageId = (String) pathVariables.get("storageId");
-        final String repositoryId = (String) pathVariables.get("repositoryId");
-
-        if (StringUtils.isBlank(storageId) || StringUtils.isBlank(repositoryId))
-        {
-            return true;
-        }
-
-        final String path = (String) pathVariables.get("path");
-        if (StringUtils.isBlank(path))
-        {
-            response.sendError(BAD_REQUEST.value(), "Path should be provided!");
-            return false;
-        }
-        if (path.endsWith("/"))
+        if (artifactPath.endsWith("/"))
         {
             response.sendError(BAD_REQUEST.value(), "The specified path should not ends with `/` character!");
             return false;
@@ -77,7 +56,7 @@ public class MavenArtifactRequestInterceptor
         {
             return true;
         }
-        final RepositoryPath repositoryPath = repositoryPathResolver.resolve(repository, path);
+        final RepositoryPath repositoryPath = repositoryPathResolver.resolve(repository, artifactPath);
         if (Files.exists(repositoryPath) && Files.isDirectory(repositoryPath))
         {
             response.sendError(BAD_REQUEST.value(), "The specified path is a directory!");

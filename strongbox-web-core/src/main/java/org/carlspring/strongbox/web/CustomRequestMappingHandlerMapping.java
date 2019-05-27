@@ -1,12 +1,18 @@
 package org.carlspring.strongbox.web;
 
 import org.carlspring.strongbox.configuration.StoragesConfigurationManager;
+import org.carlspring.strongbox.interceptors.ArtifactRequestInterceptor;
+import org.carlspring.strongbox.interceptors.RepositoryRequestInterceptor;
 
 import javax.inject.Inject;
 import javax.servlet.http.HttpServletRequest;
+
+import java.util.List;
 import java.util.Optional;
 
+import org.springframework.beans.factory.BeanFactoryUtils;
 import org.springframework.core.annotation.AnnotationUtils;
+import org.springframework.web.servlet.HandlerInterceptor;
 import org.springframework.web.servlet.mvc.condition.RequestCondition;
 import org.springframework.web.servlet.mvc.method.RequestMappingInfo;
 import org.springframework.web.servlet.mvc.method.annotation.RequestMappingHandlerMapping;
@@ -21,6 +27,16 @@ public class CustomRequestMappingHandlerMapping
 
     @Inject
     private StoragesConfigurationManager configurationManager;
+    
+    @Override
+    protected void detectMappedInterceptors(List<HandlerInterceptor> mappedInterceptors)
+    {
+        mappedInterceptors.add(new RepositoryRequestInterceptor());
+        mappedInterceptors.addAll(BeanFactoryUtils.beansOfTypeIncludingAncestors(obtainApplicationContext(),
+                                                                                 ArtifactRequestInterceptor.class, true,
+                                                                                 false)
+                                                  .values());
+    }
 
     @Override
     protected RequestCondition<ExposableRequestCondition> getCustomTypeCondition(Class<?> handlerType)
