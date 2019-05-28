@@ -117,7 +117,8 @@ public class LazyInputStream extends FilterInputStream
         catch (Exception e)
         {
             throw new IOException(ERROR_FAILED_TO_CREATE_INPUT_STREAM, e);
-        } finally
+        }
+        finally
         {
             supplier = null;
         }
