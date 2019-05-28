@@ -60,10 +60,10 @@ public class RepositoryMethodArgumentResolver
     {
         final RepositoryMapping repositoryMapping = parameter.getParameterAnnotation(RepositoryMapping.class);
         final String storageVariableName = repositoryMapping.storageVariableName();
-        final String storageId = validateAndGetPathVariable(parameter, nativeWebRequest, storageVariableName);
+        final String storageId = getRequiredPathVariable(parameter, nativeWebRequest, storageVariableName);
 
         final String repositoryVariableName = repositoryMapping.repositoryVariableName();
-        final String repositoryId = validateAndGetPathVariable(parameter, nativeWebRequest, repositoryVariableName);
+        final String repositoryId = getRequiredPathVariable(parameter, nativeWebRequest, repositoryVariableName);
 
         Repository repository = (Repository) nativeWebRequest.getAttribute(REPOSITORY_REQUEST_ATTRIBUTE,
                                                                            RequestAttributes.SCOPE_REQUEST);
@@ -98,24 +98,32 @@ public class RepositoryMethodArgumentResolver
         return repository;
     }
 
-    private String validateAndGetPathVariable(final MethodParameter parameter,
-                                              final NativeWebRequest nativeWebRequest,
-                                              final String pathVariableName)
+    private String getRequiredPathVariable(final MethodParameter parameter,
+                                           final NativeWebRequest nativeWebRequest,
+                                           final String variableName)
             throws MissingPathVariableException
     {
+        // Check @PathVariable parameter.
         @SuppressWarnings("unchecked")
         final Map<String, String> uriTemplateVars = (Map<String, String>) nativeWebRequest.getAttribute(
                 HandlerMapping.URI_TEMPLATE_VARIABLES_ATTRIBUTE, RequestAttributes.SCOPE_REQUEST);
         if (MapUtils.isNotEmpty(uriTemplateVars))
         {
-            final String pathVariable = uriTemplateVars.get(pathVariableName);
+            final String pathVariable = uriTemplateVars.get(variableName);
             if (StringUtils.isNotEmpty(pathVariable))
             {
                 return pathVariable;
             }
         }
 
-        throw new MissingPathVariableException(pathVariableName, parameter);
+        // Check @RequestParam parameter.
+        final String requestParam = nativeWebRequest.getParameter(variableName);
+        if (StringUtils.isNotEmpty(requestParam))
+        {
+            return requestParam;
+        }
+
+        throw new MissingPathVariableException(variableName, parameter);
     }
 
     private Storage getStorage(final String storageId)

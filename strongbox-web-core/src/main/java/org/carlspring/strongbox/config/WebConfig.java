@@ -277,11 +277,11 @@ public class WebConfig
     @Override
     public void addArgumentResolvers(List<HandlerMethodArgumentResolver> argumentResolvers)
     {
-        argumentResolvers.add(repositoryInstanceMethodArgumentResolver());
+        argumentResolvers.add(repositoryMethodArgumentResolver());
     }
 
     @Bean
-    public RepositoryMethodArgumentResolver repositoryInstanceMethodArgumentResolver()
+    public RepositoryMethodArgumentResolver repositoryMethodArgumentResolver()
     {
         return new RepositoryMethodArgumentResolver();
     }

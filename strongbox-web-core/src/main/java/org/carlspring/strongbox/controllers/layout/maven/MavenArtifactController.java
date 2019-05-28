@@ -4,7 +4,6 @@ import org.carlspring.strongbox.artifact.coordinates.MavenArtifactCoordinates;
 import org.carlspring.strongbox.controllers.BaseArtifactController;
 import org.carlspring.strongbox.providers.io.RepositoryPath;
 import org.carlspring.strongbox.storage.ArtifactStorageException;
-import org.carlspring.strongbox.storage.Storage;
 import org.carlspring.strongbox.storage.repository.Repository;
 import org.carlspring.strongbox.web.LayoutRequestMapping;
 import org.carlspring.strongbox.web.RepositoryMapping;
@@ -107,46 +106,23 @@ public class MavenArtifactController
                             @ApiResponse(code = 404, message = "The source/destination storageId/repositoryId/path does not exist!") })
     @PreAuthorize("hasAuthority('ARTIFACTS_COPY')")
     @PostMapping(value = "/copy/{path:.+}")
-    public ResponseEntity copy(@ApiParam(value = "The source storageId", required = true)
-                               @RequestParam(name = "srcStorageId") String srcStorageId,
-                               @ApiParam(value = "The source repositoryId", required = true)
-                               @RequestParam(name = "srcRepositoryId") String srcRepositoryId,
-                               @ApiParam(value = "The destination storageId", required = true)
-                               @RequestParam(name = "destStorageId") String destStorageId,
-                               @ApiParam(value = "The destination repositoryId", required = true)
-                               @RequestParam(name = "destRepositoryId") String destRepositoryId,
-                               @PathVariable String path)
+    public ResponseEntity copy(
+            @RepositoryMapping(storageVariableName = "srcStorageId", repositoryVariableName = "srcRepositoryId")
+                    Repository srcRepository,
+            @RepositoryMapping(storageVariableName = "destStorageId", repositoryVariableName = "destRepositoryId")
+                    Repository destRepository,
+            @PathVariable String path)
     {
-        logger.debug("Copying " + path +
-                     " from " + srcStorageId + ":" + srcRepositoryId +
-                     " to " + destStorageId + ":" + destRepositoryId + "...");
+        final String srcStorageId = srcRepository.getStorage().getId();
+        final String srcRepositoryId = srcRepository.getId();
+        final String destStorageId = destRepository.getStorage().getId();
+        final String destRepositoryId = destRepository.getId();
+
+        logger.debug("Copying {} from {}:{} to {}:{}...", path, srcStorageId, srcRepositoryId, destStorageId,
+                     destRepositoryId);
 
         try
         {
-            final Storage srcStorage = getStorage(srcStorageId);
-            if (srcStorage == null)
-            {
-                return ResponseEntity.status(NOT_FOUND)
-                                     .body("The source storageId does not exist!");
-            }
-            final Storage destStorage = getStorage(destStorageId);
-            if (destStorage == null)
-            {
-                return ResponseEntity.status(NOT_FOUND)
-                                     .body("The destination storageId does not exist!");
-            }
-            final Repository srcRepository = srcStorage.getRepository(srcRepositoryId);
-            if (srcRepository == null)
-            {
-                return ResponseEntity.status(NOT_FOUND)
-                                     .body("The source repositoryId does not exist!");
-            }
-            final Repository destRepository = destStorage.getRepository(destRepositoryId);
-            if (destRepository == null)
-            {
-                return ResponseEntity.status(NOT_FOUND)
-                                     .body("The destination repositoryId does not exist!");
-            }
             final RepositoryPath srcRepositoryPath = repositoryPathResolver.resolve(srcRepository, path);
             if (!Files.exists(srcRepositoryPath))
             {
