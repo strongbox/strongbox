@@ -294,7 +294,7 @@ public abstract class LayoutFileSystemProvider extends StorageFileSystemProvider
             artifactEventListenerRegistry.dispatchArtifactPathDeletedEvent(path);
         }
 
-        logger.debug(String.format("Removed [%s]", path));
+        logger.debug(String.format("Deleted [%s]", path));
     }
     
     @Override
@@ -384,5 +384,5 @@ public abstract class LayoutFileSystemProvider extends StorageFileSystemProvider
     {
 
     }
-    
+
 }

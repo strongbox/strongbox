@@ -96,19 +96,10 @@ public abstract class StorageFileSystemProvider
                                                     Filter<? super Path> filter)
         throws IOException
     {
-        boolean isRepositoryPath = dir instanceof RepositoryPath;
+        RepositoryPath repositoryPath = (RepositoryPath) dir;
+        Path root = repositoryPath.getFileSystem().getRootDirectory();
+        DirectoryStream<Path> directoryStream = getTarget().newDirectoryStream(unwrap(dir), new LayoutDirectoryStreamFilter(unwrap(root), filter));
         
-        Path root = isRepositoryPath ? ((RepositoryPath) dir).getFileSystem().getRootDirectory() : null;
-        filter = new StorageDirectoryStreamFilter(root, filter);
-        DirectoryStream<Path> ds = getTarget().newDirectoryStream(unwrap(dir), filter);
-        
-        if (!isRepositoryPath)
-        {
-            return ds;
-        }
-
-        RepositoryPath repositoryDir = (RepositoryPath) dir;
-
         return new DirectoryStream<Path>()
         {
 
@@ -116,13 +107,13 @@ public abstract class StorageFileSystemProvider
             public void close()
                 throws IOException
             {
-                ds.close();
+                directoryStream.close();
             }
 
             @Override
             public Iterator<Path> iterator()
             {
-                return createRepositoryDsIterator(repositoryDir.getFileSystem(), ds.iterator());
+                return createRepositoryDsIterator(repositoryPath.getFileSystem(), directoryStream.iterator());
             }
 
         };
@@ -172,20 +163,7 @@ public abstract class StorageFileSystemProvider
     public void delete(Path path)
         throws IOException
     {
-        delete(path, false);
-        
-        if (!(path instanceof RepositoryPath))
-        {
-            return;
-        }
-        RepositoryPath repositoryPath = (RepositoryPath) path;
-        RootRepositoryPath root = repositoryPath.getFileSystem().getRootDirectory();
-        if (!root.equals(path)) {
-            return;
-        }
-        
-        FileSystemUtils.deleteRecursively(unwrap(root).resolve(LayoutFileSystem.TEMP));
-        FileSystemUtils.deleteRecursively(unwrap(root).resolve(LayoutFileSystem.TRASH));
+        delete(path, false);        
     }
 
     public void delete(Path path,
@@ -194,7 +172,8 @@ public abstract class StorageFileSystemProvider
     {
         if (!(path instanceof RepositoryPath))
         {
-            getTarget().delete(path);
+            Files.delete(path);
+            
             return;
         }
 
@@ -207,44 +186,70 @@ public abstract class StorageFileSystemProvider
         if (!Files.isDirectory(repositoryPath))
         {
             doDeletePath(repositoryPath, force, true);
+
+            return;
         }
-        else
+
+        RootRepositoryPath root = repositoryPath.getFileSystem().getRootDirectory();
+        recursiveDeleteExceptRoot(repositoryPath, force);
+        if (!root.equals(path)) {
+            return;
+        }
+        
+        logger.debug(String.format("Deleting hidden folders for [%s]", path));
+        
+        FileSystemUtils.deleteRecursively(unwrap(root).resolve(LayoutFileSystem.TEMP));
+        FileSystemUtils.deleteRecursively(unwrap(root).resolve(LayoutFileSystem.TRASH));
+        Files.delete(unwrap(root));
+        
+        logger.debug(String.format("Hidden folders deleted [%s]", path));
+
+    }
+
+    protected void recursiveDeleteExceptRoot(RepositoryPath repositoryPath,
+                                             boolean force)
+        throws IOException
+    {
+        RootRepositoryPath root = repositoryPath.getFileSystem().getRootDirectory();
+        
+        Files.walkFileTree(repositoryPath, new SimpleFileVisitor<Path>()
         {
-            Files.walkFileTree(repositoryPath, new SimpleFileVisitor<Path>()
+            @Override
+            public FileVisitResult visitFile(Path file,
+                                             BasicFileAttributes attrs)
+                throws IOException
             {
-                @Override
-                public FileVisitResult visitFile(Path file,
-                                                 BasicFileAttributes attrs)
-                    throws IOException
-                {
-                    // Checksum files will be deleted during directory walking
-                    doDeletePath((RepositoryPath) file, force, false);
+                // Checksum files will be deleted during directory walking
+                doDeletePath((RepositoryPath) file, force, false);
 
-                    return FileVisitResult.CONTINUE;
-                }
+                return FileVisitResult.CONTINUE;
+            }
 
-                @Override
-                public FileVisitResult postVisitDirectory(Path dir,
-                                                          IOException exc)
-                    throws IOException
-                {
-                    try
-                    {
-                        Files.delete(unwrap(dir));
-                    }
-                    catch (DirectoryNotEmptyException e)
-                    {
-                        String message = Files.list(unwrap(dir))
-                                              .map(p -> p.getFileName().toString())
-                                              .reduce((p1,
-                                                       p2) -> String.format("%s%n%s", p1, p2))
-                                              .get();
-                        throw new IOException(message, e);
-                    }
-                    return FileVisitResult.CONTINUE;
+            @Override
+            public FileVisitResult postVisitDirectory(Path dir,
+                                                      IOException exc)
+                throws IOException
+            {
+                if (root.equals(dir)) {
+                    return FileVisitResult.TERMINATE;
                 }
-            });
-        }
+                
+                try
+                {
+                    Files.delete(unwrap(dir));
+                }
+                catch (DirectoryNotEmptyException e)
+                {
+                    String message = Files.list(unwrap(dir))
+                                          .map(p -> p.getFileName().toString())
+                                          .reduce((p1,
+                                                   p2) -> String.format("%s%n%s", p1, p2))
+                                          .get();
+                    throw new IOException(message, e);
+                }
+                return FileVisitResult.CONTINUE;
+            }
+        });
     }
 
     protected void doDeletePath(RepositoryPath repositoryPath,
@@ -582,7 +587,7 @@ public abstract class StorageFileSystemProvider
         getTarget().setAttribute(unwrap(path), attribute, value, options);
     }
 
-    private Path unwrap(Path path)
+    protected Path unwrap(Path path)
     {
         return path instanceof RepositoryPath ? ((RepositoryPath) path).getTarget() : path;
     }
@@ -670,13 +675,13 @@ public abstract class StorageFileSystemProvider
 
     }
 
-    private class StorageDirectoryStreamFilter implements Filter<Path>
+    private static class LayoutDirectoryStreamFilter implements Filter<Path>
     {
 
         private final Filter<? super Path> delegate;
         private final Path root;
 
-        public StorageDirectoryStreamFilter(Path root, Filter<? super Path> delegate)
+        public LayoutDirectoryStreamFilter(Path root, Filter<? super Path> delegate)
         {
             this.delegate = delegate;
             this.root = root;
@@ -686,7 +691,7 @@ public abstract class StorageFileSystemProvider
         public boolean accept(Path p)
             throws IOException
         {
-            if (root != null && p.isAbsolute() && !p.startsWith(root.resolve(LayoutFileSystem.TRASH))
+            if (p.isAbsolute() && !p.startsWith(root.resolve(LayoutFileSystem.TRASH))
                     && !p.startsWith(root.resolve(LayoutFileSystem.TEMP)))
             {
                 return delegate == null ? true : delegate.accept(p);
