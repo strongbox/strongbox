@@ -2,7 +2,6 @@ package org.carlspring.strongbox.controllers;
 
 import org.carlspring.strongbox.providers.io.RepositoryPath;
 import org.carlspring.strongbox.services.ArtifactManagementService;
-import org.carlspring.strongbox.storage.Storage;
 import org.carlspring.strongbox.utils.ArtifactControllerHelper;
 
 import javax.inject.Inject;
@@ -20,11 +19,6 @@ public abstract class BaseArtifactController
 
     @Inject
     protected ArtifactManagementService artifactManagementService;
-
-    protected Storage getStorage(String storageId)
-    {
-        return configurationManager.getConfiguration().getStorage(storageId);
-    }
 
     protected boolean provideArtifactDownloadResponse(HttpServletRequest request,
                                                       HttpServletResponse response,

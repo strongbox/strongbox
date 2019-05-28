@@ -2,16 +2,17 @@ package org.carlspring.strongbox.web;
 
 import org.carlspring.strongbox.configuration.Configuration;
 import org.carlspring.strongbox.configuration.ConfigurationManager;
+import org.carlspring.strongbox.exception.RepositoryNotFoundException;
+import org.carlspring.strongbox.exception.ServiceUnavailableException;
+import org.carlspring.strongbox.exception.StorageNotFoundException;
 import org.carlspring.strongbox.storage.Storage;
 import org.carlspring.strongbox.storage.repository.Repository;
-import org.carlspring.strongbox.validation.ElementNotFoundException;
-import org.carlspring.strongbox.validation.ServiceUnavailableException;
 
 import javax.inject.Inject;
 import java.util.Map;
 
 import liquibase.util.StringUtils;
-import org.apache.commons.collections.MapUtils;
+import org.apache.commons.collections4.MapUtils;
 import org.springframework.core.MethodParameter;
 import org.springframework.web.bind.MissingPathVariableException;
 import org.springframework.web.bind.support.WebDataBinderFactory;
@@ -24,7 +25,7 @@ import org.springframework.web.servlet.HandlerMapping;
 /**
  * @author Pablo Tirado
  */
-public class RepositoryInstanceMethodArgumentResolver
+public class RepositoryMethodArgumentResolver
         implements HandlerMethodArgumentResolver
 {
 
@@ -55,21 +56,24 @@ public class RepositoryInstanceMethodArgumentResolver
                                   final WebDataBinderFactory webDataBinderFactory)
             throws MissingPathVariableException
     {
-        final String storageId = validateAndGetPathVariable(parameter, nativeWebRequest, "storageId");
+        final RepositoryMapping repositoryMapping = parameter.getParameterAnnotation(RepositoryMapping.class);
+        final String storageVariableName = repositoryMapping.storageVariableName();
+        final String storageId = validateAndGetPathVariable(parameter, nativeWebRequest, storageVariableName);
 
         final Storage storage = getStorage(storageId);
         if (storage == null)
         {
             final String message = String.format(NOT_FOUND_STORAGE_MESSAGE, storageId);
-            throw new ElementNotFoundException(message);
+            throw new StorageNotFoundException(message);
         }
 
-        final String repositoryId = validateAndGetPathVariable(parameter, nativeWebRequest, "repositoryId");
+        final String repositoryVariableName = repositoryMapping.repositoryVariableName();
+        final String repositoryId = validateAndGetPathVariable(parameter, nativeWebRequest, repositoryVariableName);
         final Repository repository = getRepository(storageId, repositoryId);
         if (repository == null)
         {
             final String message = String.format(NOT_FOUND_REPOSITORY_MESSAGE, storageId, repositoryId);
-            throw new ElementNotFoundException(message);
+            throw new RepositoryNotFoundException(message);
         }
 
         final boolean inService = repository.isInService();

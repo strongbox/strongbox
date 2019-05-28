@@ -2,7 +2,6 @@ package org.carlspring.strongbox.controllers;
 
 import org.carlspring.strongbox.providers.io.RepositoryFiles;
 import org.carlspring.strongbox.providers.io.RepositoryPath;
-import org.carlspring.strongbox.providers.io.RepositoryPathResolver;
 import org.carlspring.strongbox.services.RepositoryManagementService;
 import org.carlspring.strongbox.storage.ArtifactStorageException;
 import org.carlspring.strongbox.storage.repository.Repository;
@@ -37,10 +36,6 @@ public class TrashController
 
     @Inject
     private RepositoryManagementService repositoryManagementService;
-
-    @Inject
-    private RepositoryPathResolver repositoryPathResolver;
-
 
     @ApiOperation(value = "Used to delete the trash for a specified repository.")
     @ApiResponses(value = { @ApiResponse(code = 200,
@@ -180,18 +175,6 @@ public class TrashController
         }
         catch (ArtifactStorageException e)
         {
-            if (repositoryManagementService.getStorage(storageId) == null)
-            {
-                return ResponseEntity.status(HttpStatus.NOT_FOUND)
-                                     .body(getResponseEntityBody("The specified storageId does not exist!", accept));
-            }
-            else if (repositoryManagementService.getStorage(storageId)
-                                                .getRepository(repositoryId) == null)
-            {
-                return ResponseEntity.status(HttpStatus.NOT_FOUND)
-                                     .body(getResponseEntityBody("The specified repositoryId does not exist!", accept));
-            }
-
             return ResponseEntity.status(HttpStatus.BAD_REQUEST)
                                  .body(getResponseEntityBody("Could not restore the trash for a specified repository.", accept));
         }

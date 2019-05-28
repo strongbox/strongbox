@@ -25,8 +25,8 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import static io.restassured.module.mockmvc.RestAssuredMockMvc.given;
 import static org.carlspring.strongbox.controllers.configuration.ArtifactCoordinateValidatorsManagementController.*;
-import static org.carlspring.strongbox.web.RepositoryInstanceMethodArgumentResolver.NOT_FOUND_REPOSITORY_MESSAGE;
-import static org.carlspring.strongbox.web.RepositoryInstanceMethodArgumentResolver.NOT_FOUND_STORAGE_MESSAGE;
+import static org.carlspring.strongbox.web.RepositoryMethodArgumentResolver.NOT_FOUND_REPOSITORY_MESSAGE;
+import static org.carlspring.strongbox.web.RepositoryMethodArgumentResolver.NOT_FOUND_STORAGE_MESSAGE;
 import static org.hamcrest.Matchers.*;
 
 /**

@@ -3,10 +3,11 @@ package org.carlspring.strongbox.controllers;
 import org.carlspring.strongbox.controllers.support.ErrorResponseEntityBody;
 import org.carlspring.strongbox.controllers.support.ResponseEntityBody;
 import org.carlspring.strongbox.data.criteria.QueryParserException;
-import org.carlspring.strongbox.validation.ElementNotFoundException;
+import org.carlspring.strongbox.exception.RepositoryNotFoundException;
+import org.carlspring.strongbox.exception.ServiceUnavailableException;
+import org.carlspring.strongbox.exception.StorageNotFoundException;
 import org.carlspring.strongbox.validation.RequestBodyValidationError;
 import org.carlspring.strongbox.validation.RequestBodyValidationException;
-import org.carlspring.strongbox.validation.ServiceUnavailableException;
 
 import javax.inject.Inject;
 import javax.servlet.http.HttpServletRequest;
@@ -60,9 +61,18 @@ public class DefaultExceptionHandler extends ResponseEntityExceptionHandler
         return provideValidationErrorResponse(ex, request);
     }
 
-    @ExceptionHandler(ElementNotFoundException.class)
-    protected ResponseEntity<?> handleElementNotFoundException(final ElementNotFoundException ex,
+    @ExceptionHandler(StorageNotFoundException.class)
+    protected ResponseEntity<?> handleStorageNotFoundException(final StorageNotFoundException ex,
                                                                final WebRequest request)
+    {
+        ResponseEntityBody body = new ResponseEntityBody(ex.getMessage());
+        HttpHeaders headers = new HttpHeaders();
+        return handleExceptionInternal(ex, body, headers, HttpStatus.NOT_FOUND, request);
+    }
+
+    @ExceptionHandler(RepositoryNotFoundException.class)
+    protected ResponseEntity<?> handleRepositoryNotFoundException(final RepositoryNotFoundException ex,
+                                                                  final WebRequest request)
     {
         ResponseEntityBody body = new ResponseEntityBody(ex.getMessage());
         HttpHeaders headers = new HttpHeaders();

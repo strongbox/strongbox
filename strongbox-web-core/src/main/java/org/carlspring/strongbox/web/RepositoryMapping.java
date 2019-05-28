@@ -19,11 +19,7 @@ import static java.lang.annotation.RetentionPolicy.RUNTIME;
 public @interface RepositoryMapping
 {
 
-    String value() default "";
+    String storageVariableName() default "storageId";
 
-    String name() default "";
-
-    boolean required() default true;
-
-    boolean validateRepository() default true;
+    String repositoryVariableName() default "repositoryId";
 }

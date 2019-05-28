@@ -19,7 +19,7 @@ import org.carlspring.strongbox.providers.io.RepositoryPathResolver;
 import org.carlspring.strongbox.utils.CustomAntPathMatcher;
 import org.carlspring.strongbox.web.CustomRequestMappingHandlerMapping;
 import org.carlspring.strongbox.web.DirectoryTraversalFilter;
-import org.carlspring.strongbox.web.RepositoryInstanceMethodArgumentResolver;
+import org.carlspring.strongbox.web.RepositoryMethodArgumentResolver;
 import org.carlspring.strongbox.yaml.YAMLMapperFactory;
 
 import javax.inject.Inject;
@@ -275,13 +275,14 @@ public class WebConfig
     }
 
     @Override
-    public void addArgumentResolvers(List<HandlerMethodArgumentResolver> argumentResolvers) {
+    public void addArgumentResolvers(List<HandlerMethodArgumentResolver> argumentResolvers)
+    {
         argumentResolvers.add(repositoryInstanceMethodArgumentResolver());
     }
 
     @Bean
-    public RepositoryInstanceMethodArgumentResolver repositoryInstanceMethodArgumentResolver()
+    public RepositoryMethodArgumentResolver repositoryInstanceMethodArgumentResolver()
     {
-        return new RepositoryInstanceMethodArgumentResolver();
+        return new RepositoryMethodArgumentResolver();
     }
 }
