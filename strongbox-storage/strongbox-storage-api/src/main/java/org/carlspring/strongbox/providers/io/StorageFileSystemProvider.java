@@ -212,11 +212,11 @@ public abstract class StorageFileSystemProvider
                 {
                     try
                     {
-                        Files.delete(dir);
+                        Files.delete(unwrap(dir));
                     }
                     catch (DirectoryNotEmptyException e)
                     {
-                        String message = Files.list(dir)
+                        String message = Files.list(unwrap(dir))
                                               .map(p -> p.getFileName().toString())
                                               .reduce((p1,
                                                        p2) -> String.format("%s%n%s", p1, p2))
