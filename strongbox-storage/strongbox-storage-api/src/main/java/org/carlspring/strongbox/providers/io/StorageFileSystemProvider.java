@@ -163,7 +163,7 @@ public abstract class StorageFileSystemProvider
     public void delete(Path path)
         throws IOException
     {
-        delete(path, false);        
+        delete(path, false);
     }
 
     public void delete(Path path,
