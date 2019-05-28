@@ -1,5 +1,14 @@
 server:
   port: 48080
+  ssl:
+    enabled: true
+    key-store-type: PKCS12
+    key-store: ${strongbox.basedir}/etc/ssl/keystore.p12
+    key-store-password: password
+    key-alias: localhost
+    trust-store-type: PKCS12
+    trust-store: ${strongbox.basedir}/etc/ssl/truststore.p12
+    trust-store-password: password
 spring:
   liquibase:
     enabled: false

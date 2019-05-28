@@ -2,23 +2,21 @@ package org.carlspring.strongbox.security.certificates;
 
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.core.io.FileSystemResource;
-import org.springframework.core.io.Resource;
-import org.springframework.core.io.WritableResource;
 
 /**
  * @author Przemyslaw Fusik
  */
-public class KeyStoreManager
+public class TrustStoreManager
         extends AbstractKeyStoreManager
 {
 
-    @Value("${server.ssl.key-store-type:PKCS12}")
+    @Value("${server.ssl.trust-store-type:PKCS12}")
     private String keyStoreType;
 
-    @Value("${server.ssl.key-store-password:password}")
+    @Value("${server.ssl.trust-store-password:password}")
     private String keyStorePassword;
 
-    @Value("${server.ssl.key-store:keystore.p12}")
+    @Value("${server.ssl.trust-store:truststore.p12}")
     private FileSystemResource keyStoreResource;
 
     @Override
