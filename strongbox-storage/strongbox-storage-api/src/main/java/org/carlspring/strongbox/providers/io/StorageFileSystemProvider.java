@@ -210,7 +210,19 @@ public abstract class StorageFileSystemProvider
                                                           IOException exc)
                     throws IOException
                 {
-                    Files.delete(unwrap(dir));
+                    try
+                    {
+                        Files.delete(dir);
+                    }
+                    catch (DirectoryNotEmptyException e)
+                    {
+                        String message = Files.list(dir)
+                                              .map(p -> p.getFileName().toString())
+                                              .reduce((p1,
+                                                       p2) -> String.format("%s%n%s", p1, p2))
+                                              .get();
+                        throw new IOException(message, e);
+                    }
                     return FileVisitResult.CONTINUE;
                 }
             });
