@@ -96,8 +96,13 @@ public abstract class StorageFileSystemProvider
                                                     Filter<? super Path> filter)
         throws IOException
     {
+        boolean isRepositoryPath = dir instanceof RepositoryPath;
+        
+        Path root = isRepositoryPath ? ((RepositoryPath) dir).getFileSystem().getRootDirectory() : null;
+        filter = new StorageDirectoryStreamFilter(root, filter);
         DirectoryStream<Path> ds = getTarget().newDirectoryStream(unwrap(dir), filter);
-        if (!(dir instanceof RepositoryPath))
+        
+        if (!isRepositoryPath)
         {
             return ds;
         }
@@ -168,6 +173,19 @@ public abstract class StorageFileSystemProvider
         throws IOException
     {
         delete(path, false);
+        
+        if (!(path instanceof RepositoryPath))
+        {
+            return;
+        }
+        RepositoryPath repositoryPath = (RepositoryPath) path;
+        RootRepositoryPath root = repositoryPath.getFileSystem().getRootDirectory();
+        if (!root.equals(path)) {
+            return;
+        }
+        
+        FileSystemUtils.deleteRecursively(unwrap(root).resolve(LayoutFileSystem.TEMP));
+        FileSystemUtils.deleteRecursively(unwrap(root).resolve(LayoutFileSystem.TRASH));
     }
 
     public void delete(Path path,
@@ -651,5 +669,31 @@ public abstract class StorageFileSystemProvider
         }
 
     }
-    
+
+    private class StorageDirectoryStreamFilter implements Filter<Path>
+    {
+
+        private final Filter<? super Path> delegate;
+        private final Path root;
+
+        public StorageDirectoryStreamFilter(Path root, Filter<? super Path> delegate)
+        {
+            this.delegate = delegate;
+            this.root = root;
+        }
+
+        @Override
+        public boolean accept(Path p)
+            throws IOException
+        {
+            if (root != null && p.isAbsolute() && !p.startsWith(root.resolve(LayoutFileSystem.TRASH))
+                    && !p.startsWith(root.resolve(LayoutFileSystem.TEMP)))
+            {
+                return delegate == null ? true : delegate.accept(p);
+            }
+
+            return false;
+        }
+
+    }
 }
