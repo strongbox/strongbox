@@ -10,6 +10,7 @@ import org.carlspring.strongbox.storage.repository.Repository;
 
 import javax.inject.Inject;
 import java.util.Map;
+import java.util.Objects;
 
 import liquibase.util.StringUtils;
 import org.apache.commons.collections4.MapUtils;
@@ -21,6 +22,7 @@ import org.springframework.web.context.request.RequestAttributes;
 import org.springframework.web.method.support.HandlerMethodArgumentResolver;
 import org.springframework.web.method.support.ModelAndViewContainer;
 import org.springframework.web.servlet.HandlerMapping;
+import static org.carlspring.strongbox.web.Constants.REPOSITORY_REQUEST_ATTRIBUTE;
 
 /**
  * @author Pablo Tirado
@@ -60,6 +62,18 @@ public class RepositoryMethodArgumentResolver
         final String storageVariableName = repositoryMapping.storageVariableName();
         final String storageId = validateAndGetPathVariable(parameter, nativeWebRequest, storageVariableName);
 
+        final String repositoryVariableName = repositoryMapping.repositoryVariableName();
+        final String repositoryId = validateAndGetPathVariable(parameter, nativeWebRequest, repositoryVariableName);
+
+        Repository repository = (Repository) nativeWebRequest.getAttribute(REPOSITORY_REQUEST_ATTRIBUTE,
+                                                                           RequestAttributes.SCOPE_REQUEST);
+
+        if (repository != null && Objects.equals(repository.getId(), repositoryId) &&
+            Objects.equals(repository.getStorage().getId(), storageId))
+        {
+            return repository;
+        }
+
         final Storage storage = getStorage(storageId);
         if (storage == null)
         {
@@ -67,9 +81,7 @@ public class RepositoryMethodArgumentResolver
             throw new StorageNotFoundException(message);
         }
 
-        final String repositoryVariableName = repositoryMapping.repositoryVariableName();
-        final String repositoryId = validateAndGetPathVariable(parameter, nativeWebRequest, repositoryVariableName);
-        final Repository repository = getRepository(storageId, repositoryId);
+        repository = getRepository(storageId, repositoryId);
         if (repository == null)
         {
             final String message = String.format(NOT_FOUND_REPOSITORY_MESSAGE, storageId, repositoryId);
