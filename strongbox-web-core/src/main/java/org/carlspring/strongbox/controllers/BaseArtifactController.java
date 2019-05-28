@@ -39,7 +39,8 @@ public abstract class BaseArtifactController
         }
 
         
-        try (InputStream is = artifactResolutionService.getInputStream(repositoryPath);){
+        try (InputStream is = artifactResolutionService.getInputStream(repositoryPath);)
+        {
             if (ArtifactControllerHelper.isRangedRequest(httpHeaders))
             {
                 logger.debug("Detected ranged request.");
