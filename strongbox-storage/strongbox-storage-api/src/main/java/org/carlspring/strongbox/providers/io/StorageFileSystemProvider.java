@@ -31,16 +31,12 @@ import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
 import java.util.function.Consumer;
-import java.util.function.Supplier;
 import java.util.stream.Collectors;
 
 import org.apache.commons.io.output.ProxyOutputStream;
-import org.carlspring.strongbox.io.LazyInputStream;
-import org.carlspring.strongbox.io.LazyOutputStream;
 import org.carlspring.strongbox.storage.repository.Repository;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.cglib.proxy.UndeclaredThrowableException;
 import org.springframework.util.FileSystemUtils;
 
 /**
@@ -664,7 +660,7 @@ public abstract class StorageFileSystemProvider
                                 OpenOption... options)
             throws IOException
         {
-            super(StorageFileSystemProvider.super.newOutputStream(path, options));
+            super(StorageFileSystemProvider.super.newOutputStream(unwrap(path), options));
 
             this.path = path;
         }
@@ -690,4 +686,30 @@ public abstract class StorageFileSystemProvider
 
     }
 
+    private static class LayoutDirectoryStreamFilter implements Filter<Path>
+    {
+
+        private final Filter<? super Path> delegate;
+        private final Path root;
+
+        public LayoutDirectoryStreamFilter(Path root, Filter<? super Path> delegate)
+        {
+            this.delegate = delegate;
+            this.root = root;
+        }
+
+        @Override
+        public boolean accept(Path p)
+            throws IOException
+        {
+            if (p.isAbsolute() && !p.startsWith(root.resolve(LayoutFileSystem.TRASH))
+                    && !p.startsWith(root.resolve(LayoutFileSystem.TEMP)))
+            {
+                return delegate == null ? true : delegate.accept(p);
+            }
+
+            return false;
+        }
+
+    }
 }
