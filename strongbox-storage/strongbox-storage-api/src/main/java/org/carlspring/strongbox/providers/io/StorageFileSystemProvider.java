@@ -231,7 +231,7 @@ public abstract class StorageFileSystemProvider
                 throws IOException
             {
                 if (root.equals(dir)) {
-                    return FileVisitResult.TERMINATE;
+                    return FileVisitResult.CONTINUE;
                 }
                 
                 try
