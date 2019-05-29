@@ -242,11 +242,17 @@ public class MavenChecksumServiceTest
         )
         {
             os1.write("".getBytes());
+            os1.flush();
             os2.write("".getBytes());
+            os2.flush();
             os3.write("".getBytes());
+            os3.flush();
             os4.write("".getBytes());
+            os4.flush();
             os5.write("".getBytes());
+            os5.flush();
             os6.write("".getBytes());
+            os6.flush();
         }
 
         assertEquals(0, Files.size(md5File), "The checksum file for artifact isn't empty!");

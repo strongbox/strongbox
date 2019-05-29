@@ -38,15 +38,18 @@ public abstract class BaseArtifactController
             return true;
         }
 
-        InputStream is = artifactResolutionService.getInputStream(repositoryPath);
-        if (ArtifactControllerHelper.isRangedRequest(httpHeaders))
+        
+        try (InputStream is = artifactResolutionService.getInputStream(repositoryPath);)
         {
-            logger.debug("Detected ranged request.");
+            if (ArtifactControllerHelper.isRangedRequest(httpHeaders))
+            {
+                logger.debug("Detected ranged request.");
 
-            ArtifactControllerHelper.handlePartialDownload(is, httpHeaders, response);
+                ArtifactControllerHelper.handlePartialDownload(is, httpHeaders, response);
+            }
+            
+            copyToResponse(is, response);
         }
-
-        copyToResponse(is, response);
 
         return true;
     }

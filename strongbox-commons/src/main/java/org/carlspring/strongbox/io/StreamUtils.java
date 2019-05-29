@@ -33,12 +33,17 @@ public class StreamUtils
     }
 
     public static <T extends InputStream> T findSource(Class<T> sourceClass,
-                                                       InputStream is)
+                                                       InputStream in)
     {
+        if (sourceClass.isAssignableFrom(in.getClass()))
+        {
+            return (T) in;
+        }
+        
         Field inField = ReflectionUtils.findField(FilterInputStream.class, "in");
         inField.setAccessible(true);
 
-        InputStream source = is;
+        InputStream source = in;
         while (source instanceof FilterInputStream)
         {
             try
@@ -58,12 +63,17 @@ public class StreamUtils
     }
 
     public static <T extends OutputStream> T findSource(Class<T> sourceClass,
-                                                        OutputStream os)
+                                                        OutputStream out)
     {
+        if (sourceClass.isAssignableFrom(out.getClass()))
+        {
+            return (T) out;
+        }
+        
         Field inField = ReflectionUtils.findField(FilterOutputStream.class, "out");
         inField.setAccessible(true);
 
-        OutputStream source = os;
+        OutputStream source = out;
         while (source instanceof FilterOutputStream)
         {
             try

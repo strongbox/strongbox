@@ -1,78 +1,88 @@
 package org.carlspring.strongbox.providers.repository;
 
-import org.carlspring.strongbox.config.Maven2LayoutProviderTestConfig;
-
-import java.io.IOException;
-import java.nio.file.Files;
-import java.nio.file.Path;
-
-import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.api.Test;
-import org.junit.jupiter.api.parallel.Execution;
-import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.core.io.Resource;
-import org.springframework.test.context.ActiveProfiles;
-import org.springframework.test.context.ContextConfiguration;
 import static org.hamcrest.CoreMatchers.containsString;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertThrows;
-import static org.junit.jupiter.api.parallel.ExecutionMode.CONCURRENT;
+
+import java.io.IOException;
+import java.io.InputStream;
+import java.nio.file.Files;
+
+import org.apache.maven.artifact.Artifact;
+import org.carlspring.maven.commons.util.ArtifactUtils;
+import org.carlspring.strongbox.artifact.MavenArtifactUtils;
+import org.carlspring.strongbox.providers.io.RepositoryPath;
+import org.carlspring.strongbox.storage.repository.Repository;
+import org.carlspring.strongbox.testing.repository.MavenRepository;
+import org.carlspring.strongbox.testing.storage.repository.RepositoryManagementTestExecutionListener;
+import org.carlspring.strongbox.testing.storage.repository.TestRepository.Remote;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
+import org.springframework.core.io.Resource;
 
 /**
  * @author Przemyslaw Fusik
  */
-@ActiveProfiles({"MockedRestArtifactResolverTestConfig","test"})
-@SpringBootTest
-@ContextConfiguration(classes = Maven2LayoutProviderTestConfig.class)
-@Execution(CONCURRENT)
 public class RetryDownloadArtifactWithUnsupportedRangeRequestTest
-        extends RetryDownloadArtifactTestBase
+        extends MockedRestArtifactResolverTestBase implements ArtifactResolverContext
 {
+    
+    private static final String REPOSITORY = "rdawurrt-repository";
+
+    private static final String PROXY_REPOSITORY_URL = "https://repo.maven.apache.org/maven2/";
+    
     private boolean exceptionAlreadyThrown;
     
     private OneTimeBrokenArtifactInputStream brokenArtifactInputStream;
 
-
-    @BeforeEach
-    public void setup()
+    public RetryDownloadArtifactWithUnsupportedRangeRequestTest()
     {
         brokenArtifactInputStream = new OneTimeBrokenArtifactInputStream(jarArtifact);
-        prepareArtifactResolverContext(brokenArtifactInputStream, false);
+    }
+
+    @Override
+    public InputStream getInputStream()
+    {
+        return brokenArtifactInputStream;
+    }
+    
+    @Override
+    public boolean isByteRangeRequestSupported()
+    {
+        return false;
+    }
+
+    @Override
+    protected ArtifactResolverContext lookupArtifactResolverContext()
+    {
+        return this;
     }
 
     @Test
-    public void unsupportedRangeProxyRepositoryRequestShouldSkipRetryFeature()
+    @ExtendWith(RepositoryManagementTestExecutionListener.class)
+    public void unsupportedRangeProxyRepositoryRequestShouldSkipRetryFeature(@MavenRepository(repositoryId = REPOSITORY) @Remote(url = PROXY_REPOSITORY_URL) Repository proxyRepository)
     {
-        final String storageId = "storage-common-proxies";
-        final String repositoryId = "maven-central";
-        final String path = getJarPath();
-        final Path destinationPath = getVaultDirectoryPath().resolve("storages")
-                                                            .resolve(storageId)
-                                                            .resolve(repositoryId)
+        Artifact artifact = ArtifactUtils.getArtifactFromGAVTC("org.apache.commons:commons-lang3:3.2");
+        String path = MavenArtifactUtils.convertArtifactToPath(artifact);
+        RepositoryPath artifactPath = repositoryPathResolver.resolve(proxyRepository)
                                                             .resolve(path);
-
+        
         // given
-        assertFalse(Files.exists(destinationPath));
+        assertFalse(Files.exists(artifactPath));
         assertFalse(exceptionAlreadyThrown);
 
         IOException exception = assertThrows(IOException.class, () -> {
             // when
-            assertStreamNotNull(storageId, repositoryId, path);
+            assertStreamNotNull(STORAGE0, REPOSITORY, path);
         });
 
         //then
         assertThat(exception.getMessage(), containsString("does not support range requests."));
     }
 
-    @Override
-    protected String getArtifactVersion()
-    {
-        return "3.3";
-    }
-
     private class OneTimeBrokenArtifactInputStream
-            extends RetryDownloadArtifactTestBase.BrokenArtifactInputStream
+            extends MockedRestArtifactResolverTestBase.BrokenArtifactInputStream
     {
 
         private int currentReadSize;

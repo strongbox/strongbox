@@ -75,10 +75,9 @@ public class RestArtifactResolver
 
         logger.debug("Getting " + url + "...");
 
-        WebTarget resource = new WebTargetBuilder(url)
-                                     .withAuthentication()
-                                     .customRequestConfig()
-                                     .build();
+        WebTarget resource = new WebTargetBuilder(url).withAuthentication()
+                                                      .customRequestConfig()
+                                                      .build();
 
         Invocation.Builder request = resource.request();
         Response response;

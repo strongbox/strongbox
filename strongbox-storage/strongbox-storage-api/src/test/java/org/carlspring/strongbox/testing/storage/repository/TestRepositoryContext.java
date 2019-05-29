@@ -1,6 +1,7 @@
 package org.carlspring.strongbox.testing.storage.repository;
 
 import java.io.IOException;
+import java.lang.reflect.UndeclaredThrowableException;
 import java.nio.file.Files;
 import java.util.Arrays;
 import java.util.List;
@@ -29,7 +30,6 @@ import org.carlspring.strongbox.testing.storage.repository.TestRepository.Group;
 import org.carlspring.strongbox.testing.storage.repository.TestRepository.Remote;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.cglib.proxy.UndeclaredThrowableException;
 
 /**
  * This class manages the resources used within {@link Repository}.

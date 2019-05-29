@@ -1,52 +1,59 @@
-package org.carlspring.strongbox.services;
+package org.carlspring.strongbox.services.impl;
 
-import org.carlspring.strongbox.config.Maven2LayoutProviderTestConfig;
+import static org.hamcrest.MatcherAssert.assertThat;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.junit.jupiter.api.parallel.ExecutionMode.CONCURRENT;
+
+import java.util.Collections;
+import java.util.Iterator;
+import java.util.List;
+import java.util.stream.Collectors;
+
+import javax.inject.Inject;
+
+import org.carlspring.strongbox.StorageApiTestConfig;
+import org.carlspring.strongbox.artifact.coordinates.NullArtifactCoordinates;
 import org.carlspring.strongbox.configuration.Configuration;
-import org.carlspring.strongbox.providers.layout.Maven2LayoutProvider;
+import org.carlspring.strongbox.services.ConfigurationManagementService;
 import org.carlspring.strongbox.storage.Storage;
-import org.carlspring.strongbox.storage.repository.*;
+import org.carlspring.strongbox.storage.repository.HttpConnectionPool;
+import org.carlspring.strongbox.storage.repository.Repository;
 import org.carlspring.strongbox.storage.routing.MutableRoutingRule;
 import org.carlspring.strongbox.storage.routing.MutableRoutingRuleRepository;
 import org.carlspring.strongbox.storage.routing.RoutingRule;
 import org.carlspring.strongbox.storage.routing.RoutingRuleTypeEnum;
-import org.carlspring.strongbox.testing.TestCaseWithMavenArtifactGenerationAndIndexing;
-
-import javax.inject.Inject;
-import javax.xml.bind.JAXBException;
-import java.io.IOException;
-import java.util.*;
-import java.util.stream.Collectors;
-
+import org.carlspring.strongbox.testing.repository.NullRepository;
+import org.carlspring.strongbox.testing.storage.repository.RepositoryManagementTestExecutionListener;
+import org.carlspring.strongbox.testing.storage.repository.TestRepository;
 import org.hamcrest.CoreMatchers;
-import org.junit.jupiter.api.AfterEach;
-import org.junit.jupiter.api.BeforeAll;
-import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.junit.jupiter.api.parallel.Execution;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.ContextConfiguration;
-import static org.hamcrest.MatcherAssert.assertThat;
-import static org.junit.jupiter.api.Assertions.*;
-import static org.junit.jupiter.api.parallel.ExecutionMode.CONCURRENT;
 
 /**
  * @author mtodorov
  */
 @SpringBootTest
 @ActiveProfiles(profiles = "test")
-@ContextConfiguration(classes = Maven2LayoutProviderTestConfig.class)
+@ContextConfiguration(classes = StorageApiTestConfig.class)
 @Execution(CONCURRENT)
 public class ConfigurationManagementServiceImplTest
-        extends TestCaseWithMavenArtifactGenerationAndIndexing
 {
 
     private static final Logger logger = LoggerFactory.getLogger(ConfigurationManagementServiceImplTest.class);
 
     private static final String RULE_PATTERN = "\\*.org.test";
 
+    private static final String STORAGE0 = "storage0";
+    
     private static final String REPOSITORY_RELEASES_1 = "cmsi-releases-1";
 
     private static final String REPOSITORY_RELEASES_2 = "cmsi-releases-2";
@@ -55,67 +62,8 @@ public class ConfigurationManagementServiceImplTest
 
     private static final String REPOSITORY_GROUP_2 = "csmi-group-2";
 
-    private static final String REPOSITORY_4_DB_VERSION_1 = "db-versioned-conf-release-1";
-
-    private static final String REPOSITORY_4_DB_VERSION_2 = "db-versioned-conf-release-2";
-
     @Inject
     private ConfigurationManagementService configurationManagementService;
-
-    @Inject
-    private MavenRepositoryFactory mavenRepositoryFactory;
-
-
-    @BeforeAll
-    public static void cleanUp()
-            throws Exception
-    {
-        cleanUp(getRepositoriesToClean());
-    }
-
-    public static Set<MutableRepository> getRepositoriesToClean()
-    {
-        Set<MutableRepository> repositories = new LinkedHashSet<>();
-        repositories.add(createRepositoryMock(STORAGE0, REPOSITORY_RELEASES_1, Maven2LayoutProvider.ALIAS));
-        repositories.add(createRepositoryMock(STORAGE0, REPOSITORY_RELEASES_2, Maven2LayoutProvider.ALIAS));
-        repositories.add(createRepositoryMock(STORAGE0, REPOSITORY_GROUP_1, Maven2LayoutProvider.ALIAS));
-        repositories.add(createRepositoryMock(STORAGE0, REPOSITORY_GROUP_2, Maven2LayoutProvider.ALIAS));
-        repositories.add(createRepositoryMock(STORAGE0, REPOSITORY_4_DB_VERSION_1, Maven2LayoutProvider.ALIAS));
-        repositories.add(createRepositoryMock(STORAGE0, REPOSITORY_4_DB_VERSION_2, Maven2LayoutProvider.ALIAS));
-
-        return repositories;
-    }
-
-    @BeforeEach
-    public void setUp()
-            throws Exception
-    {
-        MutableRepository repository1 = mavenRepositoryFactory.createRepository(REPOSITORY_RELEASES_1);
-        repository1.setType(RepositoryTypeEnum.HOSTED.getType());
-
-        MutableRepository repository2 = mavenRepositoryFactory.createRepository(REPOSITORY_RELEASES_2);
-        repository2.setType(RepositoryTypeEnum.HOSTED.getType());
-
-        MutableRepository groupRepository1 = mavenRepositoryFactory.createRepository(REPOSITORY_GROUP_1);
-        groupRepository1.setType(RepositoryTypeEnum.GROUP.getType());
-        groupRepository1.getGroupRepositories().add(repository1.getId());
-
-        MutableRepository groupRepository2 = mavenRepositoryFactory.createRepository(REPOSITORY_GROUP_2);
-        groupRepository2.setType(RepositoryTypeEnum.GROUP.getType());
-        groupRepository2.getGroupRepositories().add(repository1.getId());
-
-        createRepository(STORAGE0, repository1);
-        createRepository(STORAGE0, repository2);
-        createRepository(STORAGE0, groupRepository1);
-        createRepository(STORAGE0, groupRepository2);
-    }
-
-    @AfterEach
-    public void removeRepositories()
-            throws IOException, JAXBException
-    {
-        removeRepositories(getRepositoriesToClean());
-    }
 
     @Test
     public void groupRepositoriesShouldBeSortedAsExpected()
@@ -191,7 +139,10 @@ public class ConfigurationManagementServiceImplTest
     }
 
     @Test
-    public void testGetGroupRepositoriesContainingRepository()
+    @ExtendWith(RepositoryManagementTestExecutionListener.class)
+    public void testGetGroupRepositoriesContainingRepository(@NullRepository(repositoryId = REPOSITORY_RELEASES_1) Repository releases1,
+                                                             @TestRepository.Group(repositories = REPOSITORY_RELEASES_1)
+                                                             @NullRepository(repositoryId = REPOSITORY_GROUP_1) Repository releasesGroup)
     {
         List<Repository> groups = configurationManagementService.getConfiguration()
                                                                 .getGroupRepositoriesContaining(STORAGE0,
@@ -208,7 +159,15 @@ public class ConfigurationManagementServiceImplTest
     }
 
     @Test
-    public void testRemoveRepositoryFromAssociatedGroups()
+    @ExtendWith(RepositoryManagementTestExecutionListener.class)
+    public void testRemoveRepositoryFromAssociatedGroups(@NullRepository(repositoryId = REPOSITORY_RELEASES_1) 
+                                                         Repository releases1,
+                                                         @TestRepository.Group(repositories = REPOSITORY_RELEASES_1)
+                                                         @NullRepository(repositoryId = REPOSITORY_GROUP_1) 
+                                                         Repository releasesGroup1,
+                                                         @TestRepository.Group(repositories = REPOSITORY_RELEASES_1)
+                                                         @NullRepository(repositoryId = REPOSITORY_GROUP_2) 
+                                                         Repository releasesGroup2)
     {
         assertEquals(2,
                      configurationManagementService.getConfiguration()
@@ -223,13 +182,12 @@ public class ConfigurationManagementServiceImplTest
                                                    .getGroupRepositoriesContaining(STORAGE0,
                                                                                    REPOSITORY_RELEASES_1).size(),
                      "Failed to remove repository from all associated groups!");
-
-        configurationManagementService.removeRepository(STORAGE0, REPOSITORY_GROUP_1);
-        configurationManagementService.removeRepository(STORAGE0, REPOSITORY_GROUP_2);
     }
 
     @Test
-    public void testSetProxyRepositoryMaxConnections()
+    @ExtendWith(RepositoryManagementTestExecutionListener.class)
+    public void testSetProxyRepositoryMaxConnections(@NullRepository(repositoryId = REPOSITORY_RELEASES_2) 
+                                                     Repository releases1)
     {
         Storage storage = configurationManagementService.getConfiguration().getStorage(STORAGE0);
 
@@ -246,7 +204,10 @@ public class ConfigurationManagementServiceImplTest
     }
 
     @Test
-    public void shouldAddEditAndRemoveRoutingRule()
+    @ExtendWith(RepositoryManagementTestExecutionListener.class)
+    public void shouldAddEditAndRemoveRoutingRule(@NullRepository(repositoryId = REPOSITORY_RELEASES_1) Repository releases1,
+                                                  @TestRepository.Group(repositories = REPOSITORY_RELEASES_1)
+                                                  @NullRepository(repositoryId = REPOSITORY_GROUP_1) Repository releasesGroup)
     {
         final MutableRoutingRule routingRule = createRoutingRule(RoutingRuleTypeEnum.ACCEPT);
         String repositoryId = routingRule.getRepositoryId();
@@ -301,27 +262,45 @@ public class ConfigurationManagementServiceImplTest
 
 
     @Test
-    public void testCanGetRepositoriesWithStorageAndLayout()
+    @ExtendWith(RepositoryManagementTestExecutionListener.class)
+    public void testCanGetRepositoriesWithStorageAndLayout(@NullRepository(repositoryId = REPOSITORY_RELEASES_1) 
+                                                           Repository releases1,
+                                                           @NullRepository(repositoryId = REPOSITORY_RELEASES_2) 
+                                                           Repository releases2,
+                                                           @TestRepository.Group(repositories = REPOSITORY_RELEASES_1)
+                                                           @NullRepository(repositoryId = REPOSITORY_GROUP_1) 
+                                                           Repository releasesGroup1,
+                                                           @TestRepository.Group(repositories = REPOSITORY_RELEASES_1)
+                                                           @NullRepository(repositoryId = REPOSITORY_GROUP_2) 
+                                                           Repository releasesGroup2)
     {
-        String maven2Layout = Maven2LayoutProvider.ALIAS;
         List<Repository> repositories = configurationManagementService.getConfiguration()
                                                                       .getRepositoriesWithLayout(STORAGE0,
-                                                                                                 maven2Layout);
+                                                                                                 NullArtifactCoordinates.LAYOUT_NAME);
 
         assertFalse(repositories.isEmpty());
 
-        repositories.forEach(repository -> assertTrue(repository.getLayout().equals(maven2Layout)));
+        repositories.forEach(repository -> assertTrue(repository.getLayout().equals(NullArtifactCoordinates.LAYOUT_NAME)));
 
         repositories.forEach(repository -> assertTrue(repository.getStorage().getId().equals(STORAGE0)));
     }
 
     @Test
-    public void testCanGetRepositoriesWithStorageAndLayoutNotExistedStorage()
+    @ExtendWith(RepositoryManagementTestExecutionListener.class)
+    public void testCanGetRepositoriesWithStorageAndLayoutNotExistedStorage(@NullRepository(repositoryId = REPOSITORY_RELEASES_1) 
+                                                                            Repository releases1,
+                                                                            @NullRepository(repositoryId = REPOSITORY_RELEASES_2) 
+                                                                            Repository releases2,
+                                                                            @TestRepository.Group(repositories = REPOSITORY_RELEASES_1)
+                                                                            @NullRepository(repositoryId = REPOSITORY_GROUP_1) 
+                                                                            Repository releasesGroup1,
+                                                                            @TestRepository.Group(repositories = REPOSITORY_RELEASES_1)
+                                                                            @NullRepository(repositoryId = REPOSITORY_GROUP_2) 
+                                                                            Repository releasesGroup2)
     {
-        String maven2Layout = Maven2LayoutProvider.ALIAS;
         List<Repository> repositories = configurationManagementService.getConfiguration()
                                                                       .getRepositoriesWithLayout("notExistedStorage",
-                                                                                                 maven2Layout);
+                                                                                                 NullArtifactCoordinates.LAYOUT_NAME);
 
         assertTrue(repositories.isEmpty());
     }
