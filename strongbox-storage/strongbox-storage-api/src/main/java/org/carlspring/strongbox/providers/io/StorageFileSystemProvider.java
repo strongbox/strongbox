@@ -361,7 +361,7 @@ public abstract class StorageFileSystemProvider
     public RepositoryPath moveFromTemporaryDirectory(TempRepositoryPath tempPath)
         throws IOException
     {
-        logger.debug(String.format("Mooving [%s]", tempPath.getTarget()));
+        logger.debug(String.format("Moving [%s]", tempPath.getTarget()));
         RepositoryPath path = tempPath.getTempTarget();
 
         if (!Files.exists(tempPath.getTarget()))
