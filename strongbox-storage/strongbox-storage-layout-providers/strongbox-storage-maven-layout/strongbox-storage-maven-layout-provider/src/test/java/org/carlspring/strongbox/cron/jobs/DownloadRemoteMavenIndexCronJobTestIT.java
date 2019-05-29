@@ -13,8 +13,10 @@ import javax.inject.Inject;
 import java.lang.reflect.UndeclaredThrowableException;
 import java.util.LinkedHashSet;
 import java.util.Set;
+import java.util.UUID;
 import java.util.concurrent.TimeUnit;
 
+import org.apache.commons.lang3.StringUtils;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -125,12 +127,13 @@ public class DownloadRemoteMavenIndexCronJobTestIT
     public void testDownloadRemoteIndexAndExecuteSearch()
             throws Exception
     {
+        final UUID jobKey = expectedJobKey;
         final String jobName = expectedJobName;
 
         // Checking if job was executed
-        jobManager.registerExecutionListener(jobName, (jobName1, statusExecuted) ->
+        jobManager.registerExecutionListener(jobKey.toString(), (jobKey1, statusExecuted) ->
         {
-            if (jobName1.equals(jobName) && statusExecuted)
+            if (StringUtils.equals(jobKey1, jobKey.toString()) && statusExecuted)
             {
                 // Requests against the remote index on the proxied repository:
                 // org.carlspring.strongbox.indexes.download:strongbox-test-one:1.0:jar
@@ -173,7 +176,7 @@ public class DownloadRemoteMavenIndexCronJobTestIT
             }
         });
 
-        addCronJobConfig(jobName, DownloadRemoteMavenIndexCronJob.class, STORAGE0,
+        addCronJobConfig(jobKey, jobName, DownloadRemoteMavenIndexCronJob.class, STORAGE0,
                          REPOSITORY_PROXIED_RELEASES);
 
         await().atMost(EVENT_TIMEOUT_SECONDS, TimeUnit.SECONDS).untilTrue(receivedExpectedEvent());

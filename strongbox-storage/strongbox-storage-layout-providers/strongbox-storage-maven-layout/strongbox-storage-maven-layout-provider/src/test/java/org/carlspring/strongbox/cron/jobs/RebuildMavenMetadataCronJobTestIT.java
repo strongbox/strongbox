@@ -14,8 +14,10 @@ import java.lang.reflect.UndeclaredThrowableException;
 import java.security.NoSuchAlgorithmException;
 import java.util.LinkedHashSet;
 import java.util.Set;
+import java.util.UUID;
 import java.util.concurrent.TimeUnit;
 
+import org.apache.commons.lang3.StringUtils;
 import org.apache.maven.artifact.repository.metadata.Metadata;
 import org.apache.maven.artifact.repository.metadata.Versioning;
 import org.codehaus.plexus.util.xml.pull.XmlPullParserException;
@@ -95,10 +97,11 @@ public class RebuildMavenMetadataCronJobTestIT
 
         MavenArtifact artifact1 = createTestArtifact1(repositoryId);
 
+        final UUID jobKey = expectedJobKey;
         final String jobName = expectedJobName;
-        jobManager.registerExecutionListener(jobName, (jobName1, statusExecuted) ->
+        jobManager.registerExecutionListener(jobKey.toString(), (jobKey1, statusExecuted) ->
         {
-            if (jobName1.equals(jobName) && statusExecuted)
+            if (StringUtils.equals(jobKey1, jobKey.toString()) && statusExecuted)
             {
                 try
                 {
@@ -125,7 +128,8 @@ public class RebuildMavenMetadataCronJobTestIT
             }
         });
 
-        addCronJobConfig(jobName,
+        addCronJobConfig(jobKey,
+                         jobName,
                          RebuildMavenMetadataCronJob.class,
                          STORAGE0,
                          repositoryId,
@@ -153,10 +157,11 @@ public class RebuildMavenMetadataCronJobTestIT
                          RepositoryPolicyEnum.SNAPSHOT.getPolicy(),
                          false);
 
+        final UUID jobKey = expectedJobKey;
         final String jobName = expectedJobName;
-        jobManager.registerExecutionListener(jobName, (jobName1, statusExecuted) ->
+        jobManager.registerExecutionListener(jobKey.toString(), (jobKey1, statusExecuted) ->
         {
-            if (jobName1.equals(jobName) && statusExecuted)
+            if (StringUtils.equals(jobKey1, jobKey.toString()) && statusExecuted)
             {
                 try
                 {
@@ -196,7 +201,8 @@ public class RebuildMavenMetadataCronJobTestIT
             }
         });
 
-        addCronJobConfig(jobName,
+        addCronJobConfig(jobKey,
+                         jobName,
                          RebuildMavenMetadataCronJob.class,
                          STORAGE0,
                          repositoryId);

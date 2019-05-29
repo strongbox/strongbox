@@ -8,7 +8,6 @@ import org.carlspring.strongbox.cron.services.CronTaskDataService;
 import org.carlspring.strongbox.event.cron.CronTaskEventListenerRegistry;
 
 import javax.inject.Inject;
-
 import java.util.UUID;
 
 import org.slf4j.Logger;
@@ -17,6 +16,9 @@ import org.springframework.context.ApplicationListener;
 import org.springframework.context.event.ContextStartedEvent;
 import org.springframework.stereotype.Service;
 
+/**
+ * @author Pablo Tirado
+ */
 @Service
 class CronTaskConfigurationServiceImpl
         implements CronTaskConfigurationService, ApplicationListener<ContextStartedEvent>
@@ -61,7 +63,7 @@ class CronTaskConfigurationServiceImpl
         return configurationId;
     }
 
-    public void deleteConfiguration(String cronTaskConfigurationUuid)
+    public void deleteConfiguration(UUID cronTaskConfigurationUuid)
     {
         logger.debug("Deleting cron task configuration {}", cronTaskConfigurationUuid);
 
@@ -72,7 +74,7 @@ class CronTaskConfigurationServiceImpl
     }
 
     @Override
-    public CronTaskConfigurationDto getTaskConfigurationDto(String uuid)
+    public CronTaskConfigurationDto getTaskConfigurationDto(UUID uuid)
     {
         return cronTaskDataService.getTaskConfigurationDto(uuid);
     }

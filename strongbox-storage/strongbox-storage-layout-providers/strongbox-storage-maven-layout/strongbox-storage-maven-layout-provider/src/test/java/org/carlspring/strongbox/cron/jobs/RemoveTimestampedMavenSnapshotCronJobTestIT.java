@@ -14,8 +14,10 @@ import java.io.File;
 import java.lang.reflect.UndeclaredThrowableException;
 import java.util.LinkedHashSet;
 import java.util.Set;
+import java.util.UUID;
 import java.util.concurrent.TimeUnit;
 
+import org.apache.commons.lang3.StringUtils;
 import org.apache.maven.artifact.Artifact;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
@@ -117,6 +119,7 @@ public class RemoveTimestampedMavenSnapshotCronJobTestIT
     public void testRemoveTimestampedSnapshot(TestInfo testInfo)
             throws Exception
     {
+        final UUID jobKey = expectedJobKey;
         final String jobName = expectedJobName;
 
         String artifactPath = getRepositoryBasedir(STORAGE0, getRepositoryName(REPOSITORY_SNAPSHOTS, testInfo)) +
@@ -124,11 +127,11 @@ public class RemoveTimestampedMavenSnapshotCronJobTestIT
 
         File file = new File(artifactPath, "2.0-SNAPSHOT");
 
-        jobManager.registerExecutionListener(jobName, (jobName1, statusExecuted) ->
+        jobManager.registerExecutionListener(jobKey.toString(), (jobKey1, statusExecuted) ->
         {
             try
             {
-                if (jobName.equals(jobName1) && statusExecuted)
+                if (StringUtils.equals(jobKey1, jobKey.toString()) && statusExecuted)
                 {
                     assertEquals(1, file.listFiles(new JarFilenameFilter()).length,
                                  "Amount of timestamped snapshots doesn't equal 1.");
@@ -141,7 +144,8 @@ public class RemoveTimestampedMavenSnapshotCronJobTestIT
             }
         });
 
-        addCronJobConfig(jobName,
+        addCronJobConfig(jobKey,
+                         jobName,
                          RemoveTimestampedMavenSnapshotCronJob.class,
                          STORAGE0,
                          getRepositoryName(REPOSITORY_SNAPSHOTS,
@@ -160,6 +164,7 @@ public class RemoveTimestampedMavenSnapshotCronJobTestIT
     public void testRemoveTimestampedSnapshotInRepository(TestInfo testInfo)
             throws Exception
     {
+        final UUID jobKey = expectedJobKey;
         final String jobName = expectedJobName;
 
         String artifactPath = getRepositoryBasedir(STORAGE0, getRepositoryName(REPOSITORY_SNAPSHOTS, testInfo)) +
@@ -167,11 +172,11 @@ public class RemoveTimestampedMavenSnapshotCronJobTestIT
 
         File file = new File(artifactPath, "2.0-SNAPSHOT");
 
-        jobManager.registerExecutionListener(jobName, (jobName1, statusExecuted) ->
+        jobManager.registerExecutionListener(jobKey.toString(), (jobKey1, statusExecuted) ->
         {
             try
             {
-                if (jobName.equals(jobName1) && statusExecuted)
+                if (StringUtils.equals(jobKey1, jobKey.toString()) && statusExecuted)
                 {
                     assertEquals(1, file.listFiles(new JarFilenameFilter()).length,
                                  "Amount of timestamped snapshots doesn't equal 1.");
@@ -184,7 +189,8 @@ public class RemoveTimestampedMavenSnapshotCronJobTestIT
             }
         });
 
-        addCronJobConfig(jobName,
+        addCronJobConfig(jobKey,
+                         jobName,
                          RemoveTimestampedMavenSnapshotCronJob.class,
                          STORAGE0,
                          getRepositoryName(REPOSITORY_SNAPSHOTS, testInfo),

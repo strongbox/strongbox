@@ -5,12 +5,14 @@ import org.carlspring.strongbox.cron.domain.CronTaskConfigurationDto;
 import org.carlspring.strongbox.cron.services.JobManager;
 
 import javax.inject.Inject;
+import java.util.UUID;
 
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.TestInfo;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.context.ActiveProfiles;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 /**
@@ -34,10 +36,11 @@ public class ImmediateExecutionCronJobTestIT
         super.init(testInfo);
     }
 
-    public void addImmediateExecutionCronJobConfig(String name)
+    public void addImmediateExecutionCronJobConfig(final UUID uuid, final String name)
             throws Exception
     {
         CronTaskConfigurationDto configuration = new CronTaskConfigurationDto();
+        configuration.setUuid(uuid);
         configuration.setName(name);
         configuration.setJobClass(ImmediateExecutionCronJob.class.getName());
         configuration.setCronExpression("0 11 11 11 11 ? 2100");
@@ -51,15 +54,17 @@ public class ImmediateExecutionCronJobTestIT
     public void testImmediateExecutionCronJob()
             throws Exception
     {
-        String jobName = expectedCronTaskName;
+        final UUID jobKey = expectedCronTaskUuid;
+        final String jobName = expectedCronTaskName;
 
         // Checking if job was executed
-        jobManager.registerExecutionListener(jobName, (jobName1, statusExecuted) ->
+        jobManager.registerExecutionListener(jobKey.toString(), (jobKey1, statusExecuted) ->
         {
-            assertTrue(jobName1.equals(jobName) && statusExecuted);
+            assertEquals(jobKey1, jobKey.toString());
+            assertTrue(statusExecuted);
         });
 
-        addImmediateExecutionCronJobConfig(jobName);
+        addImmediateExecutionCronJobConfig(jobKey, jobName);
 
         assertTrue(expectEvent(), "Failed to execute task within a reasonable time!");
     }

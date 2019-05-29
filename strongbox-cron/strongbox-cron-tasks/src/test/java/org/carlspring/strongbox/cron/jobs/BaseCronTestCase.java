@@ -3,13 +3,14 @@ package org.carlspring.strongbox.cron.jobs;
 import org.carlspring.strongbox.cron.domain.CronTaskConfigurationDto;
 import org.carlspring.strongbox.cron.services.CronTaskConfigurationService;
 import org.carlspring.strongbox.event.cron.CronTaskEvent;
-import org.carlspring.strongbox.event.cron.CronTaskEventListenerRegistry;
 import org.carlspring.strongbox.event.cron.CronTaskEventTypeEnum;
 
 import javax.inject.Inject;
 import java.lang.reflect.Method;
 import java.util.Optional;
+import java.util.UUID;
 
+import org.apache.commons.lang.StringUtils;
 import org.junit.jupiter.api.TestInfo;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -30,10 +31,9 @@ abstract class BaseCronTestCase implements ApplicationListener<CronTaskEvent>, A
     private final Logger logger = LoggerFactory.getLogger(getClass());
 
     @Inject
-    protected CronTaskEventListenerRegistry cronTaskEventListenerRegistry;
-
-    @Inject
     protected CronTaskConfigurationService cronTaskConfigurationService;
+
+    protected UUID expectedCronTaskUuid;
 
     protected String expectedCronTaskName;
 
@@ -46,6 +46,8 @@ abstract class BaseCronTestCase implements ApplicationListener<CronTaskEvent>, A
     public void init(TestInfo testInfo)
             throws Exception
     {
+        expectedCronTaskUuid = UUID.randomUUID();
+
         Optional<Method> method = testInfo.getTestMethod();
         expectedCronTaskName = method.map(Method::getName).orElse(null);
     }
@@ -76,7 +78,8 @@ abstract class BaseCronTestCase implements ApplicationListener<CronTaskEvent>, A
         logger.debug("Received event type {} for {}. Expected event type {}, Expected event name {}", event.getType(),
                      event.getName(), expectedEventType, expectedCronTaskName);
 
-        if (event.getType() == expectedEventType && expectedCronTaskName.equals(event.getName()))
+        if (event.getType() == expectedEventType &&
+            StringUtils.equals(expectedCronTaskUuid.toString(), event.getName()))
         {
             receivedExpectedEvent = true;
             receivedEvent = event;
