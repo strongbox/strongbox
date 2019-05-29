@@ -163,7 +163,7 @@ public abstract class StorageFileSystemProvider
     public void delete(Path path)
         throws IOException
     {
-        delete(path, false);        
+        delete(path, false);
     }
 
     public void delete(Path path,
@@ -192,7 +192,8 @@ public abstract class StorageFileSystemProvider
 
         RootRepositoryPath root = repositoryPath.getFileSystem().getRootDirectory();
         recursiveDeleteExceptRoot(repositoryPath, force);
-        if (!root.equals(path)) {
+        if (!root.equals(path))
+        {
             return;
         }
         
@@ -230,7 +231,8 @@ public abstract class StorageFileSystemProvider
                                                       IOException exc)
                 throws IOException
             {
-                if (root.equals(dir)) {
+                if (root.equals(dir))
+                {
                     return FileVisitResult.CONTINUE;
                 }
                 
@@ -247,6 +249,7 @@ public abstract class StorageFileSystemProvider
                                           .get();
                     throw new IOException(message, e);
                 }
+                
                 return FileVisitResult.CONTINUE;
             }
         });
