@@ -80,13 +80,10 @@ public class AqlParserTest
 
         aqlParser.parseQuery();
 
-
         logger.info(String.format("Query [%s] parse tree:\n[%s]", query, aqlParser));
 
         assertFalse(aqlParser.hasErrors());
-
     }
-
 
     @Test
     public void testValidSingleQuotedQuerySpecificChars()
@@ -100,7 +97,6 @@ public class AqlParserTest
         logger.info(String.format("Query [%s] parse tree:\n[%s]", query, aqlParser));
 
         assertFalse(aqlParser.hasErrors());
-
     }
 
     @Test
@@ -124,7 +120,6 @@ public class AqlParserTest
         assertTrue(aqlParser.hasErrors());
         assertNotNull(errorMap);
 
-
         List<Pair<Integer, Integer>> errorPositionList = new ArrayList<>(errorMap.keySet());
 
         assertEquals(Pair.with(1, 20), errorPositionList.get(0));
@@ -139,7 +134,6 @@ public class AqlParserTest
         AqlQueryParser aqlParser = new AqlQueryParser(query);
 
         aqlParser.parseQuery();
-
 
         logger.info(String.format("Query [%s] parse tree:\n[%s]", query, aqlParser));
 
