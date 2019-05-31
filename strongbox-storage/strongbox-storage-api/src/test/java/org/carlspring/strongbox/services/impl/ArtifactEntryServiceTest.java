@@ -243,7 +243,6 @@ public class ArtifactEntryServiceTest
 
         int left = count();
         assertThat(left, CoreMatchers.equalTo(1));
-        assertThat(findAll(), CoreMatchers.not(CoreMatchers.equalTo(Optional.empty())));
     }
 
     @Test
