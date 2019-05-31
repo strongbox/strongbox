@@ -45,7 +45,7 @@ public class TestRepositoryManagementApplicationContext extends AnnotationConfig
         implements TestRepositoryManagementContext
 {
 
-    private static final int REPOSITORY_LOCK_ATTEMPTS = 30;
+    private static final long REPOSITORY_LOCK_TIMEOUT = 8000;
 
     private static final Logger logger = LoggerFactory.getLogger(TestRepositoryManagementApplicationContext.class);
 
@@ -187,7 +187,8 @@ public class TestRepositoryManagementApplicationContext extends AnnotationConfig
             }
 
             ReentrantLock lock = entry.getValue();
-            for (int i = 0; i < REPOSITORY_LOCK_ATTEMPTS; i++)
+            long now = System.currentTimeMillis();
+            while (System.currentTimeMillis() - now < REPOSITORY_LOCK_TIMEOUT)
             {
                 try
                 {
@@ -206,9 +207,9 @@ public class TestRepositoryManagementApplicationContext extends AnnotationConfig
             }
 
             throw new ApplicationContextException(
-                    String.format("Failed to lock [%s] after [%s] attempts. Consider to use unique resource ID for your test.",
+                    String.format("Failed to lock [%s] after [%s] seconds. Consider to use unique resource ID for your test.",
                                   resourceId,
-                                  REPOSITORY_LOCK_ATTEMPTS));
+                                  REPOSITORY_LOCK_TIMEOUT/1000));
 
         }
     }

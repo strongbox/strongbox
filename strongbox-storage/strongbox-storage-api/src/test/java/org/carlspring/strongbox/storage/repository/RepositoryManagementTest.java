@@ -62,11 +62,11 @@ public class RepositoryManagementTest
     }
 
     @ExtendWith({ RepositoryManagementTestExecutionListener.class, ArtifactManagementTestExecutionListener.class })
-    @RepeatedTest(20)
-    public void testRepositoryDirect(@TestRepository(layout = NullArtifactCoordinates.LAYOUT_NAME, repositoryId = "r1") Repository r1,
-                                     @TestRepository(layout = NullArtifactCoordinates.LAYOUT_NAME, repositoryId = "r2") Repository r2,
+    @RepeatedTest(10)
+    public void testRepositoryDirect(@TestRepository(layout = NullArtifactCoordinates.LAYOUT_NAME, repositoryId = "rmt1") Repository r1,
+                                     @TestRepository(layout = NullArtifactCoordinates.LAYOUT_NAME, repositoryId = "rmt2") Repository r2,
                                      @TestArtifact(resource = "artifact1.ext", generator = NullArtifactGenerator.class) Path standaloneArtifact,
-                                     @TestArtifact(repositoryId = "r2", resource = "org/carlspring/test/artifact2.ext", generator = NullArtifactGenerator.class) Path repositoryArtifact,
+                                     @TestArtifact(repositoryId = "rmt2", resource = "org/carlspring/test/artifact2.ext", generator = NullArtifactGenerator.class) Path repositoryArtifact,
                                      TestInfo testInfo)
         throws IOException
     {
@@ -76,9 +76,9 @@ public class RepositoryManagementTest
     }
 
     @ExtendWith(RepositoryManagementTestExecutionListener.class)
-    @RepeatedTest(20)
-    public void testRepositoryReverse(@TestRepository(layout = NullArtifactCoordinates.LAYOUT_NAME, repositoryId = "r2") Repository r2,
-                                      @TestRepository(layout = NullArtifactCoordinates.LAYOUT_NAME, repositoryId = "r1") Repository r1,
+    @RepeatedTest(10)
+    public void testRepositoryReverse(@TestRepository(layout = NullArtifactCoordinates.LAYOUT_NAME, repositoryId = "rmt2") Repository r2,
+                                      @TestRepository(layout = NullArtifactCoordinates.LAYOUT_NAME, repositoryId = "rmt1") Repository r1,
                                       TestInfo testInfo)
     {
         parametersShouldBeCorrectlyResolvedAndUnique(r1, r2, testInfo);
@@ -108,8 +108,8 @@ public class RepositoryManagementTest
         assertNotNull(r1);
         assertNotNull(r2);
         // Check that repositories correctly resolved
-        assertNotNull(configurationManager.getRepository("storage0", "r1"));
-        assertNotNull(configurationManager.getRepository("storage0", "r2"));
+        assertNotNull(configurationManager.getRepository(r1.getStorage().getId(), r1.getId()));
+        assertNotNull(configurationManager.getRepository(r2.getStorage().getId(), r2.getId()));
 
         // Check that paths created
         RootRepositoryPath p1 = repositoryPathResolver.resolve(r1);

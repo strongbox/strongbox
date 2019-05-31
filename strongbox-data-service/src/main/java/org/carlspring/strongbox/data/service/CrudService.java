@@ -31,6 +31,8 @@ public interface CrudService<T extends GenericEntity, ID extends Serializable>
     void delete(ID id);
 
     void delete(T entity);
+    
+    int delete(List<T> entityList);
 
     void deleteAll();
 

@@ -121,11 +121,7 @@ public class RepositoryStreamSupport
                 open();
                 
                 // Force init LazyInputStream
-                LazyOutputStream lazyOutputStream = StreamUtils.findSource(LazyOutputStream.class, out);
-                if (lazyOutputStream != null)
-                {
-                    lazyOutputStream.init();
-                }
+                StreamUtils.findSource(LazyOutputStream.class, out).init();;
             }
             catch (Exception e)
             {
@@ -212,11 +208,7 @@ public class RepositoryStreamSupport
                 }
                 
                 // Force init LazyInputStream
-                LazyInputStream lazyInputStream = StreamUtils.findSource(LazyInputStream.class, in);
-                if (lazyInputStream != null)
-                {
-                    lazyInputStream.init();
-                }
+                StreamUtils.findSource(LazyInputStream.class, in).init();
             }
             catch (Exception e)
             {

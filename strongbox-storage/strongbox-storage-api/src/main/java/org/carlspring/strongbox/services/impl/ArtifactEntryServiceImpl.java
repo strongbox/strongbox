@@ -15,9 +15,7 @@ import java.util.stream.IntStream;
 
 import com.orientechnologies.orient.core.id.ORID;
 import com.orientechnologies.orient.core.record.impl.ODocument;
-import com.orientechnologies.orient.core.sql.OCommandSQL;
 import com.orientechnologies.orient.core.sql.query.OSQLSynchQuery;
-import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.lang3.time.DateUtils;
 import org.javatuples.Pair;
 import org.slf4j.Logger;
@@ -390,24 +388,6 @@ class ArtifactEntryServiceImpl extends AbstractArtifactEntryService
     public void deleteAll()
     {
         super.deleteAll();
-    }
-
-    @Override
-    public int delete(List<ArtifactEntry> artifactEntries)
-    {
-        if (CollectionUtils.isEmpty(artifactEntries))
-        {
-            return 0;
-        }
-
-        StringBuilder sb = new StringBuilder();
-        sb.append("DELETE FROM ").append(getEntityClass().getSimpleName()).append(" WHERE uuid in :uuids");
-
-        Map<String, Object> parameterMap = new HashMap<>();
-        parameterMap.put("uuids", artifactEntries.stream().map(ArtifactEntry::getUuid).collect(Collectors.toList()));
-
-        OCommandSQL oCommandSQL = new OCommandSQL(sb.toString());
-        return getDelegate().command(oCommandSQL).execute(parameterMap);
     }
 
     private ORID findArtifactEntryId(String storageId,
