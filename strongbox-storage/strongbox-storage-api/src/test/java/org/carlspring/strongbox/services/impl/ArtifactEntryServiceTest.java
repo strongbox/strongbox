@@ -27,6 +27,7 @@ import org.carlspring.strongbox.services.ArtifactEntryService;
 import org.hamcrest.CoreMatchers;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.parallel.Execution;
 import org.junit.jupiter.api.parallel.ExecutionMode;
@@ -229,6 +230,7 @@ public class ArtifactEntryServiceTest
     }
 
     @Test
+    @Disabled
     public void deleteButNotAllShouldWork()
             throws Exception
     {
