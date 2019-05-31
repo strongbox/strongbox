@@ -178,14 +178,16 @@ public class ArtifactEntryServiceTest
             throws Exception
     {
         createArtifacts(groupId, artifactId, storageId, repositoryId);
-        int all = (int) count();
+        int all = count();
         updateArtifactAttributes();
 
-        List<ArtifactEntry> entries = artifactEntryService.findMatching(
-                anArtifactEntrySearchCriteria()
-                        .withMinSizeInBytes(500l)
-                        .build(),
-                PagingCriteria.ALL);
+        List<ArtifactEntry> entries = artifactEntryService.findMatching(anArtifactEntrySearchCriteria()
+                                                                                                       .withMinSizeInBytes(500l)
+                                                                                                       .build(),
+                                                                        PagingCriteria.ALL)
+                                                          .stream()
+                                                          .filter(e -> e.getRepositoryId().equals(repositoryId))
+                                                          .collect(Collectors.toList());
 
         assertThat(entries.size(), CoreMatchers.equalTo(all - 1));
     }
@@ -195,14 +197,16 @@ public class ArtifactEntryServiceTest
             throws Exception
     {
         createArtifacts(groupId, artifactId, storageId, repositoryId);
-        int all = (int) count();
+        int all = count();
         updateArtifactAttributes();
 
-        List<ArtifactEntry> entries = artifactEntryService.findMatching(
-                anArtifactEntrySearchCriteria()
-                        .withLastAccessedTimeInDays(5)
-                        .build(),
-                PagingCriteria.ALL);
+        List<ArtifactEntry> entries = artifactEntryService.findMatching(anArtifactEntrySearchCriteria()
+                                                                                                       .withLastAccessedTimeInDays(5)
+                                                                                                       .build(),
+                                                                        PagingCriteria.ALL)
+                                                          .stream()
+                                                          .filter(e -> e.getRepositoryId().equals(repositoryId))
+                                                          .collect(Collectors.toList());
 
         assertThat(entries.size(), CoreMatchers.equalTo(all - 1));
     }
@@ -212,14 +216,14 @@ public class ArtifactEntryServiceTest
             throws Exception
     {
         createArtifacts(groupId, artifactId, storageId, repositoryId);
-        int all = (int) count();
+        int all = count();
         assertThat(all, CoreMatchers.equalTo(3));
 
         List<ArtifactEntry> artifactEntries = findAll();
         int removed = artifactEntryService.delete(artifactEntries);
         assertThat(removed, CoreMatchers.equalTo(all));
 
-        int left = (int) count();
+        int left = count();
         assertThat(left, CoreMatchers.equalTo(0));
         assertTrue(findAll().isEmpty());
     }
@@ -229,7 +233,7 @@ public class ArtifactEntryServiceTest
             throws Exception
     {
         createArtifacts(groupId, artifactId, storageId, repositoryId);
-        int all = (int) count();
+        int all = count();
         assertThat(all, CoreMatchers.equalTo(3));
 
         List<ArtifactEntry> artifactEntries = findAll();
@@ -237,7 +241,7 @@ public class ArtifactEntryServiceTest
         int removed = artifactEntryService.delete(artifactEntries);
         assertThat(removed, CoreMatchers.equalTo(all - 1));
 
-        int left = (int) count();
+        int left = count();
         assertThat(left, CoreMatchers.equalTo(1));
         assertThat(findAll(), CoreMatchers.not(CoreMatchers.equalTo(Optional.empty())));
     }
@@ -247,17 +251,17 @@ public class ArtifactEntryServiceTest
             throws Exception
     {
         createArtifacts(groupId, artifactId, storageId, repositoryId);
-        int all = (int) count();
+        int all = count();
         updateArtifactAttributes();
 
-        Object o = findAll();
-
-        List<ArtifactEntry> entries = artifactEntryService.findMatching(
-                anArtifactEntrySearchCriteria()
-                        .withMinSizeInBytes(500l)
-                        .withLastAccessedTimeInDays(5)
-                        .build(),
-                PagingCriteria.ALL);
+        List<ArtifactEntry> entries = artifactEntryService.findMatching(anArtifactEntrySearchCriteria()
+                                                                                                       .withMinSizeInBytes(500l)
+                                                                                                       .withLastAccessedTimeInDays(5)
+                                                                                                       .build(),
+                                                                        PagingCriteria.ALL)
+                                                          .stream()
+                                                          .filter(e -> e.getRepositoryId().equals(repositoryId))
+                                                          .collect(Collectors.toList());
 
         assertThat(entries.size(), CoreMatchers.equalTo(all - 1));
     }
