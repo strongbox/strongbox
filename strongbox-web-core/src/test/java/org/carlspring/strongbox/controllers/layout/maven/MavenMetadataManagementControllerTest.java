@@ -37,9 +37,9 @@ public class MavenMetadataManagementControllerTest
         extends MavenRestAssuredBaseTest
 {
 
-    private static final String R1 = "mmct-releases";
+    private static final String REPOSITORY_RELEASES = "mmct-releases";
 
-    private static final String R2 = "mmct-snapshots";
+    private static final String REPOSITORY_SNAPSHOTS = "mmct-snapshots";
 
     @Inject
     private ArtifactMetadataService artifactMetadataService;
@@ -54,13 +54,13 @@ public class MavenMetadataManagementControllerTest
 
     }
 
-	@ExtendWith({ RepositoryManagementTestExecutionListener.class})
+    @ExtendWith({ RepositoryManagementTestExecutionListener.class})
     @Test
-    public void testRebuildSnapshotMetadata(@TestRepository(repositoryId = R2, layout = MavenArtifactCoordinates.LAYOUT_NAME, policy = RepositoryPolicyEnum.SNAPSHOT) Repository repository)
+    public void testRebuildSnapshotMetadata(@TestRepository(repositoryId = REPOSITORY_SNAPSHOTS, layout = MavenArtifactCoordinates.LAYOUT_NAME, policy = RepositoryPolicyEnum.SNAPSHOT) Repository repository)
             throws Exception
     {
-		String repositoryId = repository.getId();
-        String metadataPath = "/storages/" + STORAGE0 + "/" + R2 +
+        String repositoryId = repository.getId();
+        String metadataPath = "/storages/" + STORAGE0 + "/" + REPOSITORY_SNAPSHOTS +
                               "/org/carlspring/strongbox/metadata/strongbox-metadata/maven-metadata.xml";
 
         // Generate snapshots
@@ -97,7 +97,7 @@ public class MavenMetadataManagementControllerTest
 
         String url = getContextBaseUrl() + metadataPath;
 
-        client.rebuildMetadata(STORAGE0, R2, null);
+        client.rebuildMetadata(STORAGE0, REPOSITORY_SNAPSHOTS, null);
         given().header("user-agent", "Maven/*")
                .contentType(MediaType.TEXT_PLAIN_VALUE)
                .when()
@@ -106,7 +106,6 @@ public class MavenMetadataManagementControllerTest
                .then()
                .statusCode(HttpStatus.OK.value());
 
-        //artifactMetadataService.
         InputStream is = client.getResource(metadataPath);
         Metadata metadata = artifactMetadataService.getMetadata(is);
 
@@ -114,27 +113,27 @@ public class MavenMetadataManagementControllerTest
        assertNotNull(metadata.getVersioning().getLatest(), "Incorrect metadata!");
     }
 
-	@ExtendWith({ RepositoryManagementTestExecutionListener.class})
+    @ExtendWith({ RepositoryManagementTestExecutionListener.class})
     @Test
-    public void testRebuildSnapshotMetadataWithBasePath(@TestRepository(repositoryId = R2, layout = MavenArtifactCoordinates.LAYOUT_NAME, policy = RepositoryPolicyEnum.SNAPSHOT) Repository repository)
+    public void testRebuildSnapshotMetadataWithBasePath(@TestRepository(repositoryId = REPOSITORY_SNAPSHOTS, layout = MavenArtifactCoordinates.LAYOUT_NAME, policy = RepositoryPolicyEnum.SNAPSHOT) Repository repository)
             throws Exception
     {
         // Generate snapshots in nested dirs
-        createTimestampedSnapshotArtifact(getRepositoryBasedir(STORAGE0, R2).getAbsolutePath(),
+        createTimestampedSnapshotArtifact(getRepositoryBasedir(STORAGE0, REPOSITORY_SNAPSHOTS).getAbsolutePath(),
                                           "org.carlspring.strongbox.metadata.foo",
                                           "strongbox-metadata-bar",
                                           "1.2.3",
                                           "jar",
                                           null,
                                           5);
-        createTimestampedSnapshotArtifact(getRepositoryBasedir(STORAGE0, R2).getAbsolutePath(),
+        createTimestampedSnapshotArtifact(getRepositoryBasedir(STORAGE0, REPOSITORY_SNAPSHOTS).getAbsolutePath(),
                                           "org.carlspring.strongbox.metadata.foo.bar",
                                           "strongbox-metadata-foo",
                                           "2.1",
                                           "jar",
                                           null,
                                           5);
-        createTimestampedSnapshotArtifact(getRepositoryBasedir(STORAGE0, R2).getAbsolutePath(),
+        createTimestampedSnapshotArtifact(getRepositoryBasedir(STORAGE0, REPOSITORY_SNAPSHOTS).getAbsolutePath(),
                                           "org.carlspring.strongbox.metadata.foo.bar",
                                           "strongbox-metadata-foo-bar",
                                           "5.4",
@@ -142,7 +141,7 @@ public class MavenMetadataManagementControllerTest
                                           null,
                                           4);
 
-        String metadataUrl = "/storages/" + STORAGE0 + "/" + R2 + "/org/carlspring/strongbox/metadata";
+        String metadataUrl = "/storages/" + STORAGE0 + "/" + REPOSITORY_SNAPSHOTS + "/org/carlspring/strongbox/metadata";
         String metadataPath1 = metadataUrl + "/foo/strongbox-metadata-bar/maven-metadata.xml";
         String metadataPath2 = metadataUrl + "/foo/bar/strongbox-metadata-foo/maven-metadata.xml";
         String metadataPath2Snapshot = metadataUrl + "/foo/bar/strongbox-metadata-foo/2.1-SNAPSHOT/maven-metadata.xml";
@@ -152,7 +151,7 @@ public class MavenMetadataManagementControllerTest
         assertFalse(client.pathExists(metadataPath2), "Metadata already exists!");
         assertFalse(client.pathExists(metadataPath3), "Metadata already exists!");
 
-        client.rebuildMetadata(STORAGE0, R2, "org/carlspring/strongbox/metadata/foo/bar");
+        client.rebuildMetadata(STORAGE0, REPOSITORY_SNAPSHOTS, "org/carlspring/strongbox/metadata/foo/bar");
 
         assertFalse(client.pathExists(metadataPath1), "Failed to rebuild snapshot metadata!");
         assertTrue(client.pathExists(metadataPath2), "Failed to rebuild snapshot metadata!");
@@ -182,7 +181,7 @@ public class MavenMetadataManagementControllerTest
         logger.info("[testRebuildSnapshotMetadataWithBasePath] latestTimestamp " + latestTimestamp);
 
         client.removeVersionFromMetadata(STORAGE0,
-                                         R2,
+                                         REPOSITORY_SNAPSHOTS,
                                          "org/carlspring/strongbox/metadata/foo/bar/strongbox-metadata-foo",
                                          latestTimestamp,
                                          "",
@@ -212,13 +211,13 @@ public class MavenMetadataManagementControllerTest
     }
 
 
-	@ExtendWith({ RepositoryManagementTestExecutionListener.class, ArtifactManagementTestExecutionListener.class })
+    @ExtendWith({ RepositoryManagementTestExecutionListener.class, ArtifactManagementTestExecutionListener.class })
     @Test
-    public void testRebuildReleaseMetadataAndDeleteAVersion(@TestRepository(repositoryId = R1, layout = MavenArtifactCoordinates.LAYOUT_NAME, policy = RepositoryPolicyEnum.RELEASE) Repository repository,
-    		@TestArtifact(repositoryId = R1, id = "org.carlspring.strongbox.metadata:strongbox-metadata", versions = { "3.1","3.2" }, generator = MavenArtifactGenerator.class) List<Path> repositoryArtifacts)
+    public void testRebuildReleaseMetadataAndDeleteAVersion(@TestRepository(repositoryId = REPOSITORY_RELEASES, layout = MavenArtifactCoordinates.LAYOUT_NAME, policy = RepositoryPolicyEnum.RELEASE) Repository repository,
+            @TestArtifact(repositoryId = REPOSITORY_RELEASES, id = "org.carlspring.strongbox.metadata:strongbox-metadata", versions = { "3.1","3.2" }, generator = MavenArtifactGenerator.class) List<Path> repositoryArtifacts)
             throws Exception
     {
-        String metadataPath = "/storages/" + STORAGE0 + "/" + R1 +
+        String metadataPath = "/storages/" + STORAGE0 + "/" + REPOSITORY_RELEASES +
                               "/org/carlspring/strongbox/metadata/strongbox-metadata/maven-metadata.xml";
         String artifactPath = "org/carlspring/strongbox/metadata/strongbox-metadata";
         String repositoryId = repository.getId();
@@ -238,7 +237,7 @@ public class MavenMetadataManagementControllerTest
         assertEquals("3.2", metadataBefore.getVersioning().getLatest(), "Incorrect metadata!");
 
         client.removeVersionFromMetadata(STORAGE0,
-                                         R1,
+                                         REPOSITORY_RELEASES,
                                          artifactPath,
                                          "3.2",
                                          null,
