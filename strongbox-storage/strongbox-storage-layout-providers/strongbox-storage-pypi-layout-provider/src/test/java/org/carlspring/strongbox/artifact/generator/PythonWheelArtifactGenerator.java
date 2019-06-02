@@ -4,6 +4,7 @@ import org.carlspring.strongbox.artifact.coordinates.PypiWheelArtifactCoordinate
 
 import java.io.IOException;
 import java.net.URI;
+import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.Base64;
@@ -15,6 +16,7 @@ import java.util.zip.ZipOutputStream;
 
 import com.google.common.hash.Hashing;
 import org.apache.commons.io.FilenameUtils;
+import org.apache.commons.lang.StringUtils;
 
 public class PythonWheelArtifactGenerator implements ArtifactGenerator
 {
@@ -35,7 +37,6 @@ public class PythonWheelArtifactGenerator implements ArtifactGenerator
                                                    "Strongbox wheel package for test";
 
     private Path basedir;
-    
     
     public PythonWheelArtifactGenerator(Path basedir)
     {
@@ -67,20 +68,23 @@ public class PythonWheelArtifactGenerator implements ArtifactGenerator
                                  int size)
             throws IOException
     {
-        PypiWheelArtifactCoordinates coordinates = PypiWheelArtifactCoordinates.parse(FilenameUtils.getName(uri.getPath()));
+        PypiWheelArtifactCoordinates coordinates = PypiWheelArtifactCoordinates.parse(FilenameUtils.getName(uri.toString()));
         return generateArtifact(coordinates);
     }
 
     public Path generateArtifact(PypiWheelArtifactCoordinates coordinates)
             throws IOException
     {
-        String packagePath = String.format("%s-%s-py2-none-any.whl",
-                                           coordinates.getId(),
-                                           coordinates.getVersion());
+        String packagePath = coordinates.getId() + "-" +
+                             coordinates.getVersion() + "-" +
+                             (StringUtils.isNotBlank(coordinates.getBuild()) ? (coordinates.getBuild() + "-") : "") +
+                             coordinates.getLanguageImplementationVersion() + "-" +
+                             coordinates.getAbi() + "-" +
+                             coordinates.getPlatform() + ".whl";
 
         Path fullPath = basedir.resolve(packagePath);
 
-        ZipOutputStream zos = new ZipOutputStream(new FileOutputStream(fullPath.toString()));
+        ZipOutputStream zos = new ZipOutputStream(Files.newOutputStream(fullPath));
 
         createPackageFiles(zos, coordinates.getId(), coordinates.getVersion());
 

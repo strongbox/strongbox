@@ -27,13 +27,13 @@ public @interface PythonWheelTestArtifact
      * {@link Storage} ID.
      */
     @AliasFor(annotation = TestArtifact.class)
-    String storageId() default "storage1";
+    String storageId() default "storage0";
 
     /**
      * {@link Repository} ID.1
      */
     @AliasFor(annotation = TestArtifact.class)
-    String repositoryId() default "";
+    String repositoryId() default "releases";
 
     /**
      * The artifact distribution (ex. mysql-connector).
