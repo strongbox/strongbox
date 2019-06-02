@@ -25,7 +25,7 @@ import static java.lang.annotation.RetentionPolicy.RUNTIME;
 public @interface PypiTestRepository
 {
     @AliasFor(annotation = TestRepository.class)
-    String storageId() default "storage1";
+    String storageId() default "storage0";
 
     @AliasFor(annotation = TestRepository.class)
     String repositoryId() default "releases";
