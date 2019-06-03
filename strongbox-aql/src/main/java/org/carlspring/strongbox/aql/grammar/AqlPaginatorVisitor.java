@@ -11,12 +11,12 @@ import org.carlspring.strongbox.data.criteria.Paginator.Order;
  * @author sbespalov
  *
  */
-public class AQLPaginatorVisitor extends AQLBaseVisitor<Paginator>
+public class AqlPaginatorVisitor extends AQLBaseVisitor<Paginator>
 {
 
     private Paginator paginator = new Paginator();
 
-    public AQLPaginatorVisitor()
+    public AqlPaginatorVisitor()
     {
         super();
         paginator.setLimit(25);
