@@ -7,6 +7,7 @@ import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
+import java.util.ArrayList;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
@@ -91,7 +92,7 @@ public class ArtifactEntryServiceTest
     {
         HashMap<String, String> coordinates = new HashMap<>();
         coordinates.put("path", String.format("%s", groupId));
-        List<ArtifactEntry> artifactEntries = artifactEntryService.findArtifactList(null, null, coordinates, false);
+        List<ArtifactEntry> artifactEntries = new ArrayList<ArtifactEntry>(artifactEntryService.findArtifactList(null, null, coordinates, false));
         return artifactEntries;
     }
     
