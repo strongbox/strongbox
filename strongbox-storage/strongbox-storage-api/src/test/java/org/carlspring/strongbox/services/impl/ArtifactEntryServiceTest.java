@@ -7,6 +7,7 @@ import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
+import java.util.ArrayList;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
@@ -27,7 +28,6 @@ import org.carlspring.strongbox.services.ArtifactEntryService;
 import org.hamcrest.CoreMatchers;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.parallel.Execution;
 import org.junit.jupiter.api.parallel.ExecutionMode;
@@ -69,8 +69,14 @@ public class ArtifactEntryServiceTest
     ArtifactCoordinatesService artifactCoordinatesService;
 
     @BeforeEach
-    @AfterEach
     public void setup() {
+        createArtifacts(groupId, artifactId, storageId, repositoryId);
+        
+        displayAllEntries();
+    }
+    
+    @AfterEach
+    public void cleanup() {
         List<ArtifactEntry> artifactEntries = findAll();
         artifactEntries.forEach(e -> e.getCreated());
         List<AbstractArtifactCoordinates> artifactCoordinates = artifactEntries.stream()
@@ -86,7 +92,7 @@ public class ArtifactEntryServiceTest
     {
         HashMap<String, String> coordinates = new HashMap<>();
         coordinates.put("path", String.format("%s", groupId));
-        List<ArtifactEntry> artifactEntries = artifactEntryService.findArtifactList(null, null, coordinates, false);
+        List<ArtifactEntry> artifactEntries = new ArrayList<ArtifactEntry>(artifactEntryService.findArtifactList(null, null, coordinates, false));
         return artifactEntries;
     }
     
@@ -102,7 +108,7 @@ public class ArtifactEntryServiceTest
         artifactEntry.setRepositoryId(repositoryId);
         artifactEntry.setArtifactCoordinates(new NullArtifactCoordinates(String.format("%s/%s/%s/%s",
                                                                                        groupId,
-                                                                                       artifactId + "123",
+                                                                                       artifactId + "1234",
                                                                                        "1.2.3",
                                                                                        "jar")));
 
@@ -123,9 +129,6 @@ public class ArtifactEntryServiceTest
     @Test
     public void cascadeUpdateShouldWork()
     {
-        createArtifacts(groupId, artifactId, storageId, repositoryId);
-        displayAllEntries();
-
         Optional<ArtifactEntry> artifactEntryOptional = Optional.ofNullable(artifactEntryService.findOneArtifact(storageId,
                                                                                                                  repositoryId,
                                                                                                                  "org.carlspring.strongbox.aest/coordinates-test123/1.2.3/jar"));
@@ -178,7 +181,6 @@ public class ArtifactEntryServiceTest
     public void searchBySizeShouldWork()
             throws Exception
     {
-        createArtifacts(groupId, artifactId, storageId, repositoryId);
         int all = count();
         updateArtifactAttributes();
 
@@ -197,7 +199,6 @@ public class ArtifactEntryServiceTest
     public void searchByLastUsedShouldWork()
             throws Exception
     {
-        createArtifacts(groupId, artifactId, storageId, repositoryId);
         int all = count();
         updateArtifactAttributes();
 
@@ -216,7 +217,6 @@ public class ArtifactEntryServiceTest
     public void deleteAllShouldWork()
             throws Exception
     {
-        createArtifacts(groupId, artifactId, storageId, repositoryId);
         int all = count();
         assertThat(all, CoreMatchers.equalTo(3));
 
@@ -230,11 +230,9 @@ public class ArtifactEntryServiceTest
     }
 
     @Test
-    @Disabled
     public void deleteButNotAllShouldWork()
             throws Exception
     {
-        createArtifacts(groupId, artifactId, storageId, repositoryId);
         int all = count();
         assertThat(all, CoreMatchers.equalTo(3));
 
@@ -251,7 +249,6 @@ public class ArtifactEntryServiceTest
     public void searchByLastUsedAndBySizeShouldWork()
             throws Exception
     {
-        createArtifacts(groupId, artifactId, storageId, repositoryId);
         int all = count();
         updateArtifactAttributes();
 
@@ -276,9 +273,6 @@ public class ArtifactEntryServiceTest
     public void searchBySingleCoordinate()
             throws Exception
     {
-        createArtifacts(groupId, artifactId, storageId, repositoryId);
-        displayAllEntries();
-
         logger.debug("There are a total of " + count() + " artifacts.");
 
         // prepare search query key (coordinates)
@@ -304,9 +298,6 @@ public class ArtifactEntryServiceTest
     public void searchByTwoCoordinate()
             throws Exception
     {
-        createArtifacts(groupId, artifactId, storageId, repositoryId);
-        displayAllEntries();
-
         logger.debug("There are a total of " + count() + " artifacts.");
 
         // prepare search query key (coordinates)
@@ -333,10 +324,10 @@ public class ArtifactEntryServiceTest
         List<ArtifactEntry> result = findAll();
         if (result == null || result.isEmpty())
         {
-            logger.warn("Artifact repository is empty");
+            logger.info("Artifact repository is empty");
         }
 
-        result.forEach(artifactEntry -> logger.debug("Found artifact " + "["
+        result.forEach(artifactEntry -> logger.info("Found artifact " + "["
                 + artifactEntry.getArtifactCoordinates().getId() + "]" + artifactEntry));
     }
 
