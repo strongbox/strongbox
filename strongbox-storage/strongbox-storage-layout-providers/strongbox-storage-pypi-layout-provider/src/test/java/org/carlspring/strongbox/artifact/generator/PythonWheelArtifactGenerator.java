@@ -9,14 +9,11 @@ import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.Base64;
 
-
-import java.io.FileOutputStream;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipOutputStream;
 
 import com.google.common.hash.Hashing;
 import org.apache.commons.io.FilenameUtils;
-import org.apache.commons.lang.StringUtils;
 
 public class PythonWheelArtifactGenerator implements ArtifactGenerator
 {
@@ -75,20 +72,13 @@ public class PythonWheelArtifactGenerator implements ArtifactGenerator
     public Path generateArtifact(PypiWheelArtifactCoordinates coordinates)
             throws IOException
     {
-        String packagePath = coordinates.getId() + "-" +
-                             coordinates.getVersion() + "-" +
-                             (StringUtils.isNotBlank(coordinates.getBuild()) ? (coordinates.getBuild() + "-") : "") +
-                             coordinates.getLanguageImplementationVersion() + "-" +
-                             coordinates.getAbi() + "-" +
-                             coordinates.getPlatform() + ".whl";
+        String packagePath = coordinates.toPath();
 
         Path fullPath = basedir.resolve(packagePath);
 
-        ZipOutputStream zos = new ZipOutputStream(Files.newOutputStream(fullPath));
-
-        createPackageFiles(zos, coordinates.getId(), coordinates.getVersion());
-
-        zos.close();
+        try(ZipOutputStream zos = new ZipOutputStream(Files.newOutputStream(fullPath))) {
+            createPackageFiles(zos, coordinates.getId(), coordinates.getVersion());
+        }
 
         return fullPath;
     }

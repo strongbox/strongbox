@@ -36,6 +36,12 @@ public @interface PythonWheelTestArtifact
     String repositoryId() default "releases";
 
     /**
+     * Layout specific artifact URI (ex.'path/to/strbox-1.0-none-any.whl').
+     */
+    @AliasFor(annotation = TestArtifact.class)
+    String resource() default "";
+
+    /**
      * The artifact distribution (ex. mysql-connector).
      */
     @AliasFor(annotation = TestArtifact.class)
