@@ -4,17 +4,19 @@ import javax.annotation.concurrent.Immutable;
 import java.util.Collections;
 import java.util.Map;
 import java.util.Objects;
+import java.util.UUID;
 
 import com.google.common.collect.ImmutableMap;
 
 /**
  * @author Przemyslaw Fusik
+ * @author Pablo Tirado
  */
 @Immutable
 public class CronTaskConfiguration
 {
 
-    private final String uuid;
+    private final UUID uuid;
 
     private final String name;
 
@@ -44,7 +46,7 @@ public class CronTaskConfiguration
         return source != null ? ImmutableMap.copyOf(source) : Collections.emptyMap();
     }
 
-    public String getUuid()
+    public UUID getUuid()
     {
         return uuid;
     }

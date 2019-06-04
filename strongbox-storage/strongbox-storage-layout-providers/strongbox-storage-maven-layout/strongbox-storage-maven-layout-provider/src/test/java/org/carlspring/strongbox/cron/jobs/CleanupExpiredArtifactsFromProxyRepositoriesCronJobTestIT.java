@@ -5,7 +5,6 @@ import org.carlspring.strongbox.data.CacheManagerTestExecutionListener;
 import org.carlspring.strongbox.domain.ArtifactEntry;
 import org.carlspring.strongbox.providers.io.RepositoryFiles;
 import org.carlspring.strongbox.providers.io.RepositoryPathResolver;
-import org.carlspring.strongbox.providers.layout.LayoutProvider;
 import org.carlspring.strongbox.providers.repository.ProxyRepositoryProvider;
 import org.carlspring.strongbox.services.ArtifactEntryService;
 import org.carlspring.strongbox.storage.Storage;
@@ -17,6 +16,7 @@ import java.io.InputStream;
 import java.lang.reflect.UndeclaredThrowableException;
 import java.nio.file.Path;
 import java.util.Optional;
+import java.util.UUID;
 import java.util.concurrent.TimeUnit;
 
 import com.google.common.collect.ImmutableMap;
@@ -122,10 +122,11 @@ public class CleanupExpiredArtifactsFromProxyRepositoriesCronJobTestIT
 
         artifactEntryService.save(artifactEntry);
 
+        final UUID jobKey = expectedJobKey;
         final String jobName = expectedJobName;
-        jobManager.registerExecutionListener(jobName, (jobName1, statusExecuted) ->
+        jobManager.registerExecutionListener(jobKey.toString(), (jobKey1, statusExecuted) ->
         {
-            if (jobName1.equals(jobName) && statusExecuted)
+            if (StringUtils.equals(jobKey1, jobKey.toString()) && statusExecuted)
             {
                 Optional<ArtifactEntry> optionalArtifactEntryFromDb = Optional.ofNullable(artifactEntryService.findOneArtifact(storageId,
                                                                                                                                repositoryId,
@@ -134,7 +135,6 @@ public class CleanupExpiredArtifactsFromProxyRepositoriesCronJobTestIT
 
                 final Storage storage = getConfiguration().getStorage(artifactEntry.getStorageId());
                 final Repository repository = storage.getRepository(artifactEntry.getRepositoryId());
-                final LayoutProvider layoutProvider = layoutProviderRegistry.getProvider(repository.getLayout());
 
                 try
                 {
@@ -152,7 +152,7 @@ public class CleanupExpiredArtifactsFromProxyRepositoriesCronJobTestIT
             }
         });
 
-        addCronJobConfig(jobName, CleanupExpiredArtifactsFromProxyRepositoriesCronJob.class, storageId, repositoryId,
+        addCronJobConfig(jobKey, jobName, CleanupExpiredArtifactsFromProxyRepositoriesCronJob.class, storageId, repositoryId,
                          properties ->
                          {
                              properties.put("lastAccessedTimeInDays", "5");

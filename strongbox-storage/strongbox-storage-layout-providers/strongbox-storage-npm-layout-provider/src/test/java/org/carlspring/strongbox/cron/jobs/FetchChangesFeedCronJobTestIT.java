@@ -3,7 +3,6 @@ package org.carlspring.strongbox.cron.jobs;
 import org.carlspring.strongbox.config.NpmLayoutProviderCronTasksTestConfig;
 import org.carlspring.strongbox.cron.domain.CronTaskConfigurationDto;
 import org.carlspring.strongbox.cron.services.CronTaskConfigurationService;
-import org.carlspring.strongbox.cron.services.JobManager;
 import org.carlspring.strongbox.data.criteria.Expression.ExpOperator;
 import org.carlspring.strongbox.data.criteria.OQueryTemplate;
 import org.carlspring.strongbox.data.criteria.Predicate;
@@ -34,17 +33,14 @@ import javax.xml.bind.JAXBException;
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.io.InputStream;
-import java.util.LinkedHashSet;
-import java.util.List;
-import java.util.Set;
+import java.lang.reflect.Method;
+import java.util.*;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicInteger;
 
+import org.apache.commons.lang3.StringUtils;
 import org.awaitility.Awaitility;
-import org.junit.jupiter.api.AfterEach;
-import org.junit.jupiter.api.BeforeAll;
-import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.*;
 import org.junit.jupiter.api.parallel.Execution;
 import org.mockito.Mockito;
 import org.springframework.beans.BeansException;
@@ -66,6 +62,9 @@ import static org.junit.jupiter.api.parallel.ExecutionMode.CONCURRENT;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyString;
 
+/**
+ * @author Pablo Tirado
+ */
 @ContextConfiguration(classes = { NpmLayoutProviderCronTasksTestConfig.class })
 @ActiveProfiles(profiles = { "test", "FetchChangesFeedCronJobTestConfig" })
 @SpringBootTest
@@ -73,8 +72,6 @@ import static org.mockito.ArgumentMatchers.anyString;
 public class FetchChangesFeedCronJobTestIT
         extends NpmRepositoryTestCase implements ApplicationListener<CronTaskEvent>, ApplicationContextAware
 {
-
-    private static final String CRON_JOB_NAME = "testRegenerateNugetPackageChecksum";
 
     private static final long EVENT_TIMEOUT_SECONDS = 3600L;
 
@@ -84,13 +81,14 @@ public class FetchChangesFeedCronJobTestIT
 
     private static final String REPOSITORY = "fcfcjt-releases";
 
+    private UUID expectedJobKey;
+
+    private String expectedJobName;
+
     protected AtomicInteger receivedExpectedEvent = new AtomicInteger(0);
 
     @Inject
     private CronTaskConfigurationService cronTaskConfigurationService;
-
-    @Inject
-    private JobManager jobManager;
 
     @Inject
     private ProxyRepositoryConnectionPoolConfigurationService proxyRepositoryConnectionPoolConfigurationService;
@@ -108,6 +106,16 @@ public class FetchChangesFeedCronJobTestIT
         cleanUp(getRepositoriesToClean());
     }
 
+    @BeforeEach
+    public void init(TestInfo testInfo)
+            throws Exception
+    {
+        expectedJobKey = UUID.randomUUID();
+
+        Optional<Method> method = testInfo.getTestMethod();
+        expectedJobName = method.map(Method::getName).orElse(null);
+    }
+
     @AfterEach
     public void removeRepositories()
         throws IOException,
@@ -120,15 +128,6 @@ public class FetchChangesFeedCronJobTestIT
     public void initialize()
         throws Exception
     {
-
-        String jobName = FetchRemoteNpmChangesFeedCronJob.calculateJobName(STORAGE, REPOSITORY);
-        jobManager.registerExecutionListener(jobName, (jobName1,
-                                                       statusExecuted) -> {
-            if (!jobName1.equals(jobName) || !statusExecuted)
-            {
-                return;
-            }
-        });
 
         createStorage(STORAGE);
 
@@ -163,7 +162,8 @@ public class FetchChangesFeedCronJobTestIT
         throws Exception
     {
         CronTaskConfigurationDto configuration = new CronTaskConfigurationDto();
-        configuration.setName(CRON_JOB_NAME);
+        configuration.setUuid(expectedJobKey);
+        configuration.setName(expectedJobName);
         configuration.setJobClass(TestFetchRemoteChangesFeedCronJob.class.getName());
         configuration.setCronExpression("0 0 * ? * * *");
         configuration.addProperty("storageId", STORAGE);
@@ -236,7 +236,7 @@ public class FetchChangesFeedCronJobTestIT
     public void onApplicationEvent(CronTaskEvent event)
     {
         if (event.getType() != CronTaskEventTypeEnum.EVENT_CRON_TASK_EXECUTION_COMPLETE.getType()
-                || !CRON_JOB_NAME.equals(event.getName()))
+                || !StringUtils.equals(expectedJobKey.toString(), event.getName()))
         {
             return;
         }

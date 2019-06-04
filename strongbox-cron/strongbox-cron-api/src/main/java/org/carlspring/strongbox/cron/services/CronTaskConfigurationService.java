@@ -8,6 +8,9 @@ import java.util.UUID;
 
 import org.quartz.SchedulerException;
 
+/**
+ * @author Pablo Tirado
+ */
 public interface CronTaskConfigurationService
 {
 
@@ -15,12 +18,12 @@ public interface CronTaskConfigurationService
     UUID saveConfiguration(CronTaskConfigurationDto cronTaskConfiguration)
             throws Exception;
 
-    void deleteConfiguration(String cronTaskConfigurationUuid)
+    void deleteConfiguration(UUID cronTaskConfigurationUuid)
             throws SchedulerException,
                    CronTaskNotFoundException,
                    ClassNotFoundException;
 
-    CronTaskConfigurationDto getTaskConfigurationDto(String cronTaskConfigurationUuid);
+    CronTaskConfigurationDto getTaskConfigurationDto(UUID cronTaskConfigurationUuid);
 
     CronTasksConfigurationDto getTasksConfigurationDto();
 

@@ -7,6 +7,7 @@ import org.carlspring.strongbox.cron.services.JobManager;
 import org.carlspring.strongbox.event.cron.CronTaskEventListenerRegistry;
 
 import javax.inject.Inject;
+import java.util.UUID;
 
 import org.quartz.DisallowConcurrentExecution;
 import org.quartz.InterruptableJob;
@@ -49,9 +50,10 @@ public abstract class AbstractCronJob
     protected void executeInternal(JobExecutionContext jobExecutionContext)
     {
 
-        String jobKey = jobExecutionContext.getJobDetail().getKey().getName();
+        final String jobKey = jobExecutionContext.getJobDetail().getKey().getName();
+        final UUID jobKeyUuid = UUID.fromString(jobKey);
 
-        CronTaskConfigurationDto configuration = cronTaskConfigurationService.getTaskConfigurationDto(jobKey);
+        CronTaskConfigurationDto configuration = cronTaskConfigurationService.getTaskConfigurationDto(jobKeyUuid);
 
         if (configuration == null)
         {
@@ -59,35 +61,35 @@ public abstract class AbstractCronJob
         }
         if (configuration == null)
         {
-            logger.info(String.format("Configuration not found for [%s].", jobKey));
+            logger.info("Configuration not found for UUID [{}].", jobKeyUuid);
 
             return;
         }
 
         if (!enabled(configuration, environment))
         {
-            logger.info(String.format("Cron job [%s] disabled, skip execution.", configuration.getName()));
+            logger.info("Cron job [{}] disabled, skip execution.", configuration.getName());
 
             return;
         }
 
-        logger.info(String.format("Cron job [%s] enabled, executing.", configuration.getName()));
+        logger.info("Cron job [{}] enabled, executing.", configuration.getName());
 
         setStatus(CronJobStatusEnum.EXECUTING.getStatus());
-        cronTaskEventListenerRegistry.dispatchCronTaskExecutingEvent(configuration.getName());
+        cronTaskEventListenerRegistry.dispatchCronTaskExecutingEvent(configuration.getUuid());
 
         try
         {
             executeTask(configuration);
-            logger.info(String.format("Cron job task [%s] execution completed.", configuration.getName()));
+            logger.info("Cron job task [{}] execution completed.", configuration.getName());
         }
         catch (Throwable e)
         {
             logger.error(String.format("Failed to execute cron job task [%s].", configuration.getName()), e);
         }
-        manager.addExecutedJob(configuration.getName(), true);
+        manager.addExecutedJob(configuration.getUuid().toString(), true);
 
-        cronTaskEventListenerRegistry.dispatchCronTaskExecutedEvent(configuration.getName());
+        cronTaskEventListenerRegistry.dispatchCronTaskExecutedEvent(configuration.getUuid());
         setStatus(CronJobStatusEnum.SLEEPING.getStatus());
 
     }
