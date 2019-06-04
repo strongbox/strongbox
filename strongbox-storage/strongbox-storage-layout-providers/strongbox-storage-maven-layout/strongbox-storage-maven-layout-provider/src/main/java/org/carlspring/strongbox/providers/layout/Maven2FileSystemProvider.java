@@ -1,8 +1,6 @@
 package org.carlspring.strongbox.providers.layout;
 
-import org.apache.commons.io.FilenameUtils;
-import org.apache.maven.artifact.repository.metadata.Metadata;
-import org.carlspring.maven.commons.util.ArtifactUtils;
+import org.carlspring.strongbox.artifact.MavenArtifactUtils;
 import org.carlspring.strongbox.artifact.coordinates.MavenArtifactCoordinates;
 import org.carlspring.strongbox.providers.io.*;
 import org.carlspring.strongbox.providers.search.MavenIndexerSearchProvider;
@@ -27,6 +25,9 @@ import java.util.stream.Collectors;
 import java.util.stream.Stream;
 import java.util.stream.StreamSupport;
 
+import org.apache.commons.io.FilenameUtils;
+import org.apache.maven.artifact.ArtifactUtils;
+import org.apache.maven.artifact.repository.metadata.Metadata;
 import org.codehaus.plexus.util.xml.pull.XmlPullParserException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -175,9 +176,9 @@ public class Maven2FileSystemProvider extends LayoutFileSystemProvider
 
                         if (pomPath != null)
                         {
-                            String version = ArtifactUtils.convertPathToArtifact(RepositoryFiles
-                                                          .relativizePath(artifactPath))
-                                                          .getVersion();
+                            String version = MavenArtifactUtils
+                                                     .convertPathToArtifact(RepositoryFiles.relativizePath(artifactPath))
+                                                     .getVersion();
                             version = version == null ? pomPath.getParent().getFileName().toString() : version;
 
                             deleteMetadataAtVersionLevel(artifactBasePath, version);

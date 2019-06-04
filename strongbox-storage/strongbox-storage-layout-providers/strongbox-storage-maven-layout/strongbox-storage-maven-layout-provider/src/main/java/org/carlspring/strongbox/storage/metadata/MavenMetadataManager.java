@@ -27,6 +27,7 @@ import java.util.concurrent.locks.Lock;
 import java.util.function.Consumer;
 
 import org.apache.commons.lang3.builder.ReflectionToStringBuilder;
+import org.apache.maven.artifact.ArtifactUtils;
 import org.apache.maven.artifact.repository.metadata.Metadata;
 import org.apache.maven.artifact.repository.metadata.Plugin;
 import org.apache.maven.artifact.repository.metadata.SnapshotVersion;
@@ -171,7 +172,7 @@ public class MavenMetadataManager
                      " in '" + repository.getStorage().getId() + ":" + repository.getId() + "'" +
                      " [policy: " + repository.getPolicy() + "].");
 
-        Pair<String, String> artifactGroup = MavenArtifactUtils.getArtifactGroupId(artifactGroupDirectoryPath);
+        Pair<String, String> artifactGroup = MavenArtifactUtils.getDirectoryGA(artifactGroupDirectoryPath);
         String artifactGroupId = artifactGroup.getValue0();
         String artifactId = artifactGroup.getValue1();
 
@@ -234,7 +235,7 @@ public class MavenMetadataManager
                 for (String version : metadata.getVersioning().getVersions())
                 {
                     RepositoryPath snapshotBasePath = artifactGroupDirectoryPath.toAbsolutePath()
-                                                                                .resolve(MavenArtifactUtils.getSnapshotBaseVersion(version));
+                                                                                .resolve(ArtifactUtils.toSnapshotVersion(version));
 
                     generateSnapshotVersioningMetadata(artifactGroupId, artifactId, snapshotBasePath,
                                                        version, true);

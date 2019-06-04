@@ -1,6 +1,7 @@
 package org.carlspring.strongbox.artifact.coordinates;
 
-import org.carlspring.maven.commons.util.ArtifactUtils;
+import org.carlspring.strongbox.artifact.MavenArtifact;
+import org.carlspring.strongbox.artifact.MavenArtifactUtils;
 
 import org.hamcrest.CoreMatchers;
 import org.junit.jupiter.api.Test;
@@ -18,43 +19,50 @@ public class MavenArtifactCoordinatesTest
     @Test
     public void mavenArtifactCoordinatesShouldReturnProperExtensionForZipFile()
     {
-        MavenArtifactCoordinates o = new MavenArtifactCoordinates(ArtifactUtils.convertPathToArtifact("org/carlspring/properties-injector/1.7/properties-injector-1.7.zip"));
+        MavenArtifactCoordinates o = new MavenArtifactCoordinates(
+                MavenArtifactUtils.convertPathToArtifact(
+                        "org/carlspring/properties-injector/1.7/properties-injector-1.7.zip"));
         assertThat(o.getExtension(), CoreMatchers.equalTo("zip"));
     }
 
     @Test
     public void mavenArtifactCoordinatesShouldReturnProperExtensionForJarFile()
     {
-        MavenArtifactCoordinates o = new MavenArtifactCoordinates(ArtifactUtils.convertPathToArtifact("org/carlspring/properties-injector/1.7/properties-injector-1.7.jar"));
+        MavenArtifactCoordinates o = new MavenArtifactCoordinates(MavenArtifactUtils.convertPathToArtifact(
+                "org/carlspring/properties-injector/1.7/properties-injector-1.7.jar"));
         assertThat(o.getExtension(), CoreMatchers.equalTo("jar"));
     }
 
     @Test
     public void mavenArtifactCoordinatesShouldReturnProperExtensionForPomFile()
     {
-        MavenArtifactCoordinates o = new MavenArtifactCoordinates(ArtifactUtils.convertPathToArtifact("org/carlspring/properties-injector/1.7/properties-injector-1.7.pom"));
+        MavenArtifactCoordinates o = new MavenArtifactCoordinates(MavenArtifactUtils.convertPathToArtifact(
+                "org/carlspring/properties-injector/1.7/properties-injector-1.7.pom"));
         assertThat(o.getExtension(), CoreMatchers.equalTo("pom"));
     }
 
     @Test
     public void mavenArtifactCoordinatesShouldReturnProperExtensionForSha1File()
     {
-        MavenArtifactCoordinates o = new MavenArtifactCoordinates(ArtifactUtils.convertPathToArtifact("org/carlspring/properties-injector/1.7/properties-injector-1.7.jar.sha1"));
-        assertThat(o.getExtension(), CoreMatchers.equalTo("sha1"));
+        MavenArtifactCoordinates o = new MavenArtifactCoordinates(MavenArtifactUtils.convertPathToArtifact(
+                "org/carlspring/properties-injector/1.7/properties-injector-1.7.jar.sha1"));
+        assertThat(o.getExtension(), CoreMatchers.equalTo("jar"));
     }
 
     @Test
     public void mavenArtifactCoordinatesShouldReturnProperExtensionForMd5File()
     {
-        MavenArtifactCoordinates o = new MavenArtifactCoordinates(ArtifactUtils.convertPathToArtifact("org/carlspring/properties-injector/1.7/properties-injector-1.7-javadoc.jar.md5"));
-        assertThat(o.getExtension(), CoreMatchers.equalTo("md5"));
+        MavenArtifactCoordinates o = new MavenArtifactCoordinates(MavenArtifactUtils.convertPathToArtifact(
+                "org/carlspring/properties-injector/1.7/properties-injector-1.7-javadoc.jar.md5"));
+        assertThat(o.getExtension(), CoreMatchers.equalTo("jar"));
     }
 
     @Test
-    public void ifTheArtifactDoesNotMatchFullArtifactRepositoryLayoutCoordinatesExtensionShouldResolveToJarByDefault()
+    public void mavenMetadataShouldNotBeResolvedAsArtifact()
     {
-        MavenArtifactCoordinates o = new MavenArtifactCoordinates(ArtifactUtils.convertPathToArtifact("org/carlspring/properties-injector/maven-metadata.xml"));
-        assertThat(o.getExtension(), CoreMatchers.equalTo("jar"));
+        MavenArtifact artifact = MavenArtifactUtils.convertPathToArtifact(
+                "org/carlspring/properties-injector/maven-metadata.xml");
+        assertThat(artifact, CoreMatchers.nullValue());
     }
 
 }

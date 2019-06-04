@@ -50,19 +50,16 @@ public class MavenSnapshotVersionValidatorTest
             throws VersionValidationException
     {
         Artifact validArtifact1 = generateArtifact("1.0-SNAPSHOT");
-        Artifact validArtifact3 = generateArtifact("1.0-20131004.115330");
         Artifact validArtifact4 = generateArtifact("1.0-20131004.115330-1");
         Artifact validArtifact5 = generateArtifact("1.0.8-20151025.032208-1");
         Artifact validArtifact6 = generateArtifact("1.0.8-alpha-1-20151025.032208-1");
 
         ArtifactCoordinates coordinates1 = new MockedMavenArtifactCoordinates(validArtifact1);
-        ArtifactCoordinates coordinates3 = new MockedMavenArtifactCoordinates(validArtifact3);
         ArtifactCoordinates coordinates4 = new MockedMavenArtifactCoordinates(validArtifact4);
         ArtifactCoordinates coordinates5 = new MockedMavenArtifactCoordinates(validArtifact5);
         ArtifactCoordinates coordinates6 = new MockedMavenArtifactCoordinates(validArtifact6);
 
         validator.validate(new ImmutableRepository(repository), coordinates1);
-        validator.validate(new ImmutableRepository(repository), coordinates3);
         validator.validate(new ImmutableRepository(repository), coordinates4);
         validator.validate(new ImmutableRepository(repository), coordinates5);
         validator.validate(new ImmutableRepository(repository), coordinates6);

@@ -1,17 +1,18 @@
 package org.carlspring.strongbox.artifact.coordinates;
 
-import java.util.Map;
-
 import javax.xml.bind.annotation.XmlAccessType;
 import javax.xml.bind.annotation.XmlAccessorType;
 import javax.xml.bind.annotation.XmlAttribute;
 import javax.xml.bind.annotation.XmlRootElement;
+import java.util.Map;
 
+import org.apache.commons.lang3.StringUtils;
 import org.apache.maven.artifact.Artifact;
 import org.apache.maven.artifact.DefaultArtifact;
 import org.apache.maven.artifact.handler.DefaultArtifactHandler;
 import org.apache.maven.artifact.versioning.ComparableVersion;
-import org.carlspring.maven.commons.util.ArtifactUtils;
+import org.apache.maven.index.artifact.Gav;
+import org.apache.maven.index.artifact.M2GavCalculator;
 
 /**
  * @author carlspring
@@ -22,6 +23,7 @@ public class MockedMavenArtifactCoordinates
         extends AbstractArtifactCoordinates<MockedMavenArtifactCoordinates, ComparableVersion>
 {
 
+    private static final M2GavCalculator M2_GAV_CALCULATOR = new M2GavCalculator();
 
     private static final String GROUPID = "groupId";
 
@@ -49,45 +51,6 @@ public class MockedMavenArtifactCoordinates
         resetCoordinates(GROUPID, ARTIFACTID, VERSION, CLASSIFIER, EXTENSION);
     }
 
-    public MockedMavenArtifactCoordinates(String path)
-    {
-        this(ArtifactUtils.convertPathToArtifact(path));
-    }
-
-    public MockedMavenArtifactCoordinates(String... coordinateValues)
-    {
-        this();
-
-        int i = 0;
-        for (String coordinateValue : coordinateValues)
-        {
-            // Please, forgive the following construct...
-            // (In my defense, I felt equally stupid and bad for doing it this way):
-            switch (i)
-            {
-                case 0:
-                    setGroupId(coordinateValue);
-                    break;
-                case 1:
-                    setArtifactId(coordinateValue);
-                    break;
-                case 2:
-                    setVersion(coordinateValue);
-                    break;
-                case 3:
-                    setClassifier(coordinateValue);
-                    break;
-                case 4:
-                    setExtension(coordinateValue);
-                    break;
-                default:
-                    break;
-            }
-
-            i++;
-        }
-    }
-
     public MockedMavenArtifactCoordinates(Artifact artifact)
     {
         this();
@@ -101,7 +64,7 @@ public class MockedMavenArtifactCoordinates
         {
             String extension = artifact.getFile()
                                        .getAbsolutePath();
-            extension = extension.substring(extension.lastIndexOf('.'), extension.length());
+            extension = extension.substring(extension.lastIndexOf('.'));
 
             setExtension(extension);
         }
@@ -116,7 +79,7 @@ public class MockedMavenArtifactCoordinates
     {
         try
         {
-            return ArtifactUtils.convertArtifactToPath(toArtifact());
+            return convertArtifactToPath(toArtifact());
         }
         catch (Exception e)
         {
@@ -227,5 +190,16 @@ public class MockedMavenArtifactCoordinates
         Map<String, String> result = getCoordinates();
         result.remove(VERSION);
         return result;
+    }
+
+
+    private static String convertArtifactToPath(Artifact artifact)
+    {
+        final Gav gav = new Gav(artifact.getGroupId(),
+                                StringUtils.defaultString(artifact.getArtifactId()),
+                                StringUtils.defaultString(artifact.getVersion()),
+                                artifact.getClassifier(), artifact.getType(), null, null, null, false, null, false,
+                                null);
+        return M2_GAV_CALCULATOR.gavToPath(gav).substring(1);
     }
 }

@@ -1,7 +1,5 @@
 package org.carlspring.strongbox.storage.metadata;
 
-import org.carlspring.maven.commons.io.filters.PomFilenameFilter;
-import org.carlspring.maven.commons.util.ArtifactUtils;
 import org.carlspring.strongbox.io.filters.ArtifactVersionDirectoryFilter;
 import org.carlspring.strongbox.storage.metadata.comparators.MetadataVersionComparator;
 import org.carlspring.strongbox.storage.metadata.comparators.SnapshotVersionComparator;
@@ -24,9 +22,14 @@ import java.util.List;
 import com.google.common.collect.Lists;
 import org.apache.commons.io.FilenameUtils;
 import org.apache.maven.artifact.Artifact;
+import org.apache.maven.artifact.ArtifactUtils;
+import org.apache.maven.artifact.DefaultArtifact;
+import org.apache.maven.artifact.handler.DefaultArtifactHandler;
 import org.apache.maven.artifact.repository.metadata.Plugin;
 import org.apache.maven.artifact.repository.metadata.SnapshotVersion;
 import org.apache.maven.artifact.repository.metadata.Versioning;
+import org.apache.maven.index.artifact.Gav;
+import org.apache.maven.index.artifact.M2GavCalculator;
 import org.apache.maven.model.Model;
 import org.apache.maven.model.io.xpp3.MavenXpp3Reader;
 import org.apache.maven.plugin.descriptor.PluginDescriptor;
@@ -42,10 +45,7 @@ public class VersionCollector
 
     private static final Logger logger = LoggerFactory.getLogger(VersionCollector.class);
 
-
-    public VersionCollector()
-    {
-    }
+    private static final M2GavCalculator M2_GAV_CALCULATOR = new M2GavCalculator();
 
     public VersionCollectionRequest collectVersions(Path artifactBasePath)
             throws IOException
@@ -90,7 +90,7 @@ public class VersionCollector
 
                     if (ArtifactUtils.isSnapshot(version))
                     {
-                        version = ArtifactUtils.getSnapshotBaseVersion(version);
+                        version = ArtifactUtils.toSnapshotVersion(version);
                     }
 
                     MetadataVersion metadataVersion = new MetadataVersion();
@@ -140,7 +140,7 @@ public class VersionCollector
                             Path versionDirectoryPath)
     {
         String version = versionDirectoryPath.getFileName().toString();
-        if (ArtifactUtils.isReleaseVersion(version))
+        if (!ArtifactUtils.isSnapshot(version))
         {
             return Paths.get(versionDirectoryPath.toAbsolutePath().toString(),
                              artifactBasePath.getFileName().toString() + "-" +
@@ -149,7 +149,8 @@ public class VersionCollector
         else
         {
             // Attempt to get the latest available POM
-            List<String> filePaths = Arrays.asList(versionDirectoryPath.toFile().list(new PomFilenameFilter()));
+            List<String> filePaths = Arrays.asList(versionDirectoryPath.toFile()
+                                                                       .list((dir, name) -> name.endsWith(".pom")));
 
             if (filePaths != null && !filePaths.isEmpty())
             {
@@ -181,7 +182,16 @@ public class VersionCollector
 
         for (Path filePath : artifactVersionDirectoryVisitor.getMatchingPaths())
         {
-            Artifact artifact = ArtifactUtils.convertPathToArtifact(filePath.toString());
+            String unixBasedFilePath = FilenameUtils.separatorsToUnix(filePath.toString());
+            Gav gav = M2_GAV_CALCULATOR.pathToGav(unixBasedFilePath);
+
+            Artifact artifact = new DefaultArtifact(gav.getGroupId(),
+                                                    gav.getArtifactId(),
+                                                    gav.getVersion(),
+                                                    null,
+                                                    gav.getExtension(),
+                                                    gav.getClassifier(),
+                                                    new DefaultArtifactHandler(gav.getExtension()));
 
             String name = filePath.toFile().getName();
 
@@ -236,11 +246,6 @@ public class VersionCollector
     private boolean artifactIsPlugin(Model model)
     {
         return model.getPackaging().equals("maven-plugin");
-    }
-
-    private boolean artifactIsSnapshot(Model model)
-    {
-        return model.getVersion().matches("^(.+)-((?i)snapshot).*$");
     }
 
     private Model getPom(Path filePath)

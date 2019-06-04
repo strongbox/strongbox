@@ -1,8 +1,8 @@
 package org.carlspring.strongbox.artifact.generation;
 
-import org.carlspring.maven.commons.util.ArtifactUtils;
 import org.carlspring.strongbox.config.Maven2LayoutProviderTestConfig;
 import org.carlspring.strongbox.testing.MavenTestCaseWithArtifactGeneration;
+import org.carlspring.strongbox.testing.artifact.MavenArtifactTestUtils;
 import org.carlspring.strongbox.util.MessageDigestUtils;
 
 import java.io.File;
@@ -38,7 +38,7 @@ public class MavenArtifactGeneratorTest
     {
         File basedir = getRepositoryBasedir(STORAGE0, "releases").getAbsoluteFile();
 
-        Artifact artifact = ArtifactUtils.getArtifactFromGAVTC("org.carlspring.strongbox.testing:matg:1.2.3:jar");
+        Artifact artifact = MavenArtifactTestUtils.getArtifactFromGAVTC("org.carlspring.strongbox.testing:matg:1.2.3:jar");
 
         generateArtifact(basedir.getAbsolutePath(), artifact);
 

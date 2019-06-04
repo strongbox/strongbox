@@ -27,9 +27,9 @@ public class MavenArtifactCoordinates
 {
 
     public static final String LAYOUT_NAME = "Maven 2";
-    
+
     public static final String LAYOUT_ALIAS = "maven";
-    
+
     private static final String GROUPID = "groupId";
 
     private static final String ARTIFACTID = "artifactId";
@@ -102,7 +102,7 @@ public class MavenArtifactCoordinates
         setArtifactId(artifact.getArtifactId());
         setVersion(artifact.getVersion());
         setClassifier(artifact.getClassifier());
-        
+
         String type = artifact.getType();
         if (StringUtils.isNotBlank(type))
         {
@@ -112,7 +112,7 @@ public class MavenArtifactCoordinates
         {
             setExtension("jar");
         }
-        
+
     }
 
     @Override

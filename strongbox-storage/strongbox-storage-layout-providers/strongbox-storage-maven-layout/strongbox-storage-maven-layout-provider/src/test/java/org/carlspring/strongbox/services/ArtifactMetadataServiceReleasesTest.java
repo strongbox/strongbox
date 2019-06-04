@@ -1,9 +1,7 @@
 package org.carlspring.strongbox.services;
 
-import org.carlspring.maven.commons.util.ArtifactUtils;
 import org.carlspring.strongbox.artifact.MavenArtifact;
 import org.carlspring.strongbox.artifact.MavenArtifactUtils;
-import org.carlspring.strongbox.artifact.MavenRepositoryArtifact;
 import org.carlspring.strongbox.artifact.coordinates.MavenArtifactCoordinates;
 import org.carlspring.strongbox.artifact.generator.MavenArtifactGenerator;
 import org.carlspring.strongbox.config.Maven2LayoutProviderTestConfig;
@@ -15,10 +13,11 @@ import org.carlspring.strongbox.storage.metadata.MetadataType;
 import org.carlspring.strongbox.storage.repository.Repository;
 import org.carlspring.strongbox.storage.repository.RepositoryPolicyEnum;
 import org.carlspring.strongbox.testing.TestCaseWithMavenArtifactGenerationAndIndexing;
+import org.carlspring.strongbox.testing.artifact.ArtifactManagementTestExecutionListener;
+import org.carlspring.strongbox.testing.artifact.MavenArtifactTestUtils;
 import org.carlspring.strongbox.testing.artifact.MavenTestArtifact;
 import org.carlspring.strongbox.testing.artifact.TestArtifact;
 import org.carlspring.strongbox.testing.storage.repository.RepositoryManagementTestExecutionListener;
-import org.carlspring.strongbox.testing.artifact.ArtifactManagementTestExecutionListener;
 import org.carlspring.strongbox.testing.storage.repository.TestRepository;
 
 import javax.inject.Inject;
@@ -217,7 +216,7 @@ public class ArtifactMetadataServiceReleasesTest
                                                  List<Path> artifactGroupPath)
             throws IOException, XmlPullParserException, NoSuchAlgorithmException
     {
-        Artifact pluginArtifact = ArtifactUtils.getArtifactFromGAVTC(
+        Artifact pluginArtifact = MavenArtifactTestUtils.getArtifactFromGAVTC(
                 "org.carlspring.strongbox.metadata.maven:strongbox-metadata-plugin:1.0");
 
         artifactMetadataService.rebuildMetadata(STORAGE0,
@@ -300,11 +299,11 @@ public class ArtifactMetadataServiceReleasesTest
             throws NoSuchAlgorithmException, XmlPullParserException, IOException
     {
         File repositoryBasedir = getRepositoryBasedir(STORAGE0, R1);
-        MavenArtifact result = new MavenRepositoryArtifact(generateArtifact(repositoryBasedir.getAbsolutePath(), gavtc));
+        MavenArtifact result = generateArtifact(repositoryBasedir.getAbsolutePath(), gavtc);
 
         RepositoryPath repositoryPath = repositoryPathResolver.resolve(STORAGE0,
                                                                        R1,
-                                                                       ArtifactUtils.convertArtifactToPath(result));
+                                                                       MavenArtifactUtils.convertArtifactToPath(result));
 
         result.setPath(repositoryPath);
         

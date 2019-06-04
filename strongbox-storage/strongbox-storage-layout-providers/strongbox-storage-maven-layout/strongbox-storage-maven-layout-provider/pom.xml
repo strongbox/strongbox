@@ -8,7 +8,7 @@
     <parent>
         <groupId>org.carlspring.strongbox</groupId>
         <artifactId>strongbox-parent</artifactId>
-        <version>1.0-SNAPSHOT</version>
+        <version>1.0-PR-31-SNAPSHOT</version>
         <relativePath/>
     </parent>
 
@@ -178,10 +178,6 @@
         <dependency>
             <groupId>org.apache.maven.indexer</groupId>
             <artifactId>indexer-core</artifactId>
-        </dependency>
-        <dependency>
-            <groupId>org.carlspring.maven</groupId>
-            <artifactId>maven-commons</artifactId>
         </dependency>
 
         <dependency>

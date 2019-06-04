@@ -1,37 +1,7 @@
 package org.carlspring.strongbox.services;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertFalse;
-import static org.junit.jupiter.api.Assertions.assertNotNull;
-import static org.junit.jupiter.api.Assertions.assertTrue;
-import static org.junit.jupiter.api.Assertions.fail;
-import static org.junit.jupiter.api.parallel.ExecutionMode.CONCURRENT;
-
-import java.io.ByteArrayInputStream;
-import java.io.File;
-import java.io.InputStream;
-import java.nio.charset.StandardCharsets;
-import java.nio.file.Files;
-import java.nio.file.Path;
-import java.text.DateFormat;
-import java.text.SimpleDateFormat;
-import java.util.Arrays;
-import java.util.Calendar;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.Random;
-import java.util.concurrent.Callable;
-import java.util.concurrent.CountDownLatch;
-import java.util.stream.Collectors;
-import java.util.stream.IntStream;
-
-import javax.inject.Inject;
-
-import org.apache.maven.artifact.Artifact;
-import org.carlspring.maven.commons.io.filters.JarFilenameFilter;
-import org.carlspring.maven.commons.util.ArtifactUtils;
 import org.carlspring.strongbox.artifact.ArtifactTag;
+import org.carlspring.strongbox.artifact.MavenArtifactUtils;
 import org.carlspring.strongbox.config.Maven2LayoutProviderTestConfig;
 import org.carlspring.strongbox.domain.ArtifactEntry;
 import org.carlspring.strongbox.providers.io.RepositoryFiles;
@@ -45,12 +15,29 @@ import org.carlspring.strongbox.storage.repository.Repository;
 import org.carlspring.strongbox.storage.repository.RepositoryPolicyEnum;
 import org.carlspring.strongbox.testing.TestCaseWithMavenArtifactGenerationAndIndexing;
 import org.carlspring.strongbox.testing.artifact.ArtifactManagementTestExecutionListener;
+import org.carlspring.strongbox.testing.artifact.MavenArtifactTestUtils;
 import org.carlspring.strongbox.testing.artifact.MavenTestArtifact;
 import org.carlspring.strongbox.testing.repository.MavenRepository;
 import org.carlspring.strongbox.testing.storage.repository.RepositoryAttributes;
-import org.carlspring.strongbox.testing.repository.MavenRepository;
 import org.carlspring.strongbox.testing.storage.repository.RepositoryManagementTestExecutionListener;
 import org.carlspring.strongbox.testing.storage.repository.TestRepository.Group;
+
+import javax.inject.Inject;
+import java.io.ByteArrayInputStream;
+import java.io.File;
+import java.io.InputStream;
+import java.nio.charset.StandardCharsets;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.text.DateFormat;
+import java.text.SimpleDateFormat;
+import java.util.*;
+import java.util.concurrent.Callable;
+import java.util.concurrent.CountDownLatch;
+import java.util.stream.Collectors;
+import java.util.stream.IntStream;
+
+import org.apache.maven.artifact.Artifact;
 import org.hamcrest.CoreMatchers;
 import org.hamcrest.MatcherAssert;
 import org.junit.jupiter.api.Test;
@@ -62,6 +49,8 @@ import org.slf4j.LoggerFactory;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.ContextConfiguration;
+import static org.junit.jupiter.api.Assertions.*;
+import static org.junit.jupiter.api.parallel.ExecutionMode.CONCURRENT;
 
 /**
  * @author mtodorov
@@ -144,10 +133,10 @@ public class ArtifactManagementServiceImplTest
                                                           gavtc,
                                                           true))
         {
-            Artifact artifact = ArtifactUtils.getArtifactFromGAVTC(gavtc);
+            Artifact artifact = MavenArtifactTestUtils.getArtifactFromGAVTC(gavtc);
             RepositoryPath repositoryPath = repositoryPathResolver.resolve(STORAGE0,
                                                                            repositoryWithoutDeploymentId,
-                                                                           ArtifactUtils.convertArtifactToPath(artifact));
+                                                                           MavenArtifactUtils.convertArtifactToPath(artifact));
             mavenArtifactManagementService.validateAndStore(repositoryPath, is);
 
             fail("Failed to deny artifact operation for repository with disallowed deployments.");
@@ -182,10 +171,10 @@ public class ArtifactManagementServiceImplTest
                                                           gavtc,
                                                           true))
         {
-            Artifact artifact = ArtifactUtils.getArtifactFromGAVTC(gavtc);
+            Artifact artifact = MavenArtifactTestUtils.getArtifactFromGAVTC(gavtc);
             RepositoryPath repositoryPath = repositoryPathResolver.resolve(STORAGE0,
                                                                            repositoryWithoutDeployment.getId(),
-                                                                           ArtifactUtils.convertArtifactToPath(artifact));
+                                                                           MavenArtifactUtils.convertArtifactToPath(artifact));
             mavenArtifactManagementService.validateAndStore(repositoryPath, is);
 
             fail("Failed to deny artifact operation for repository with disallowed re-deployments.");
@@ -214,10 +203,10 @@ public class ArtifactManagementServiceImplTest
         {
             String gavtc = "org.carlspring.strongbox:strongbox-utils:8.2:jar";
 
-            Artifact artifact = ArtifactUtils.getArtifactFromGAVTC(gavtc);
+            Artifact artifact = MavenArtifactTestUtils.getArtifactFromGAVTC(gavtc);
             RepositoryPath repositoryPath = repositoryPathResolver.resolve(STORAGE0,
                                                                            repositoryWithoutDeploymentId,
-                                                                           ArtifactUtils.convertArtifactToPath(artifact));
+                                                                           MavenArtifactUtils.convertArtifactToPath(artifact));
             mavenArtifactManagementService.delete(repositoryPath, false);
 
             fail("Failed to deny artifact operation for repository with disallowed deletions.");
@@ -250,7 +239,7 @@ public class ArtifactManagementServiceImplTest
 
         String gavtc = "org.carlspring.strongbox:strongbox-utils:8.3:jar";
 
-        Artifact artifact = ArtifactUtils.getArtifactFromGAVTC(gavtc);
+        Artifact artifact = MavenArtifactTestUtils.getArtifactFromGAVTC(gavtc);
 
         File repositoryDir = getRepositoryBasedir(STORAGE0, repositoryGroupId);
 
@@ -264,7 +253,7 @@ public class ArtifactManagementServiceImplTest
             {
                 RepositoryPath repositoryPath = repositoryPathResolver.resolve(STORAGE0,
                                                                                repositoryGroupId,
-                                                                               ArtifactUtils.convertArtifactToPath(artifact));
+                                                                               MavenArtifactUtils.convertArtifactToPath(artifact));
                 mavenArtifactManagementService.validateAndStore(repositoryPath, is);
 
                 fail("Failed to deny artifact operation for repository with disallowed deployments.");
@@ -279,7 +268,7 @@ public class ArtifactManagementServiceImplTest
             {
                 RepositoryPath repositoryPath = repositoryPathResolver.resolve(STORAGE0,
                                                                                repositoryGroupId,
-                                                                               ArtifactUtils.convertArtifactToPath(artifact));
+                                                                               MavenArtifactUtils.convertArtifactToPath(artifact));
                 mavenArtifactManagementService.validateAndStore(repositoryPath, is);
 
                 fail("Failed to deny artifact operation for repository with disallowed re-deployments.");
@@ -291,7 +280,7 @@ public class ArtifactManagementServiceImplTest
 
             RepositoryPath repositoryPath = repositoryPathResolver.resolve(STORAGE0,
                                                                            repositoryGroupId,
-                                                                           ArtifactUtils.convertArtifactToPath(artifact));
+                                                                           MavenArtifactUtils.convertArtifactToPath(artifact));
 
             // Delete: Case 1: No forcing
             //noinspection EmptyCatchBlock
@@ -418,7 +407,7 @@ public class ArtifactManagementServiceImplTest
                                           3);
 
         assertEquals(3,
-                     artifactVersionBaseDir.listFiles(new JarFilenameFilter()).length,
+                     artifactVersionBaseDir.listFiles((dir, name) -> name.endsWith(".jar")).length,
                      "Amount of timestamped snapshots doesn't equal 3.");
 
         artifactMetadataService.rebuildMetadata(STORAGE0, repositoryid, "org/carlspring/strongbox/timestamped");
@@ -430,7 +419,7 @@ public class ArtifactManagementServiceImplTest
                                                            1,
                                                            0);
 
-        File[] files = artifactVersionBaseDir.listFiles(new JarFilenameFilter());
+        File[] files = artifactVersionBaseDir.listFiles((dir, name) -> name.endsWith(".jar"));
 
         assertEquals(1, files.length, "Amount of timestamped snapshots doesn't equal 1.");
         assertTrue(files[0].toString().endsWith("-3.jar"));
@@ -453,7 +442,7 @@ public class ArtifactManagementServiceImplTest
         artifactMetadataService.rebuildMetadata(STORAGE0, repositoryid, "org/carlspring/strongbox/timestamped");
 
         assertEquals(2,
-                     artifactVersionBaseDir.listFiles(new JarFilenameFilter()).length,
+                     artifactVersionBaseDir.listFiles((dir, name) -> name.endsWith(".jar")).length,
                      "Amount of timestamped snapshots doesn't equal 2.");
 
         // To check removing timestamped snapshot with keepPeriod = 3 and numberToKeep = 0
@@ -463,7 +452,7 @@ public class ArtifactManagementServiceImplTest
                                                            0,
                                                            3);
 
-        files = artifactVersionBaseDir.listFiles(new JarFilenameFilter());
+        files = artifactVersionBaseDir.listFiles((dir, name) -> name.endsWith(".jar"));
 
         assertEquals(1, files.length, "Amount of timestamped snapshots doesn't equal 1.");
         assertTrue(files[0].toString().endsWith("-3.jar"));
@@ -535,8 +524,8 @@ public class ArtifactManagementServiceImplTest
 
         // store the file without classifier
         String gavtc = "org.carlspring.strongbox:strongbox-lv-artifact:1.0:jar";
-        Artifact artifact = ArtifactUtils.getArtifactFromGAVTC(gavtc);
-        String artifactPath = ArtifactUtils.convertArtifactToPath(artifact);
+        Artifact artifact = MavenArtifactTestUtils.getArtifactFromGAVTC(gavtc);
+        String artifactPath = MavenArtifactUtils.convertArtifactToPath(artifact);
 
         try (InputStream is = new ByteArrayInputStream("strongbox-lv-artifact-content".getBytes(StandardCharsets.UTF_8)))
         {
@@ -555,8 +544,8 @@ public class ArtifactManagementServiceImplTest
 
         // store the file with classifier
         String gavtcWithClassifier = "org.carlspring.strongbox:strongbox-lv-artifact:1.0:jar:sources";
-        Artifact artifactWithClassifier = ArtifactUtils.getArtifactFromGAVTC(gavtcWithClassifier);
-        String artifactPathWithClassifier = ArtifactUtils.convertArtifactToPath(artifactWithClassifier);
+        Artifact artifactWithClassifier = MavenArtifactTestUtils.getArtifactFromGAVTC(gavtcWithClassifier);
+        String artifactPathWithClassifier = MavenArtifactUtils.convertArtifactToPath(artifactWithClassifier);
 
         try (InputStream is = new ByteArrayInputStream("strongbox-lv-artifact-content".getBytes(StandardCharsets.UTF_8)))
         {
@@ -586,8 +575,8 @@ public class ArtifactManagementServiceImplTest
 
         // store the newest version of file without classifier
         String gavtcV2 = "org.carlspring.strongbox:strongbox-lv-artifact:2.0:jar";
-        Artifact artifactV2 = ArtifactUtils.getArtifactFromGAVTC(gavtcV2);
-        String artifactPathV2 = ArtifactUtils.convertArtifactToPath(artifactV2);
+        Artifact artifactV2 = MavenArtifactTestUtils.getArtifactFromGAVTC(gavtcV2);
+        String artifactPathV2 = MavenArtifactUtils.convertArtifactToPath(artifactV2);
 
         try (InputStream is = new ByteArrayInputStream("strongbox-lv-artifact-content".getBytes(StandardCharsets.UTF_8)))
         {

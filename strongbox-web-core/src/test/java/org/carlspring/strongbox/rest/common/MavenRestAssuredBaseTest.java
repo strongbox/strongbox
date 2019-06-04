@@ -1,6 +1,5 @@
 package org.carlspring.strongbox.rest.common;
 
-import org.carlspring.maven.commons.util.ArtifactUtils;
 import org.carlspring.strongbox.artifact.MavenArtifact;
 import org.carlspring.strongbox.artifact.MavenArtifactUtils;
 import org.carlspring.strongbox.artifact.MavenRepositoryArtifact;
@@ -10,6 +9,7 @@ import org.carlspring.strongbox.providers.io.RepositoryPathResolver;
 import org.carlspring.strongbox.rest.client.RestAssuredArtifactClient;
 import org.carlspring.strongbox.testing.MavenTestCaseWithArtifactGeneration;
 import org.carlspring.strongbox.testing.TestCaseWithMavenArtifactGenerationAndIndexing;
+import org.carlspring.strongbox.testing.artifact.MavenArtifactTestUtils;
 import org.carlspring.strongbox.users.domain.Roles;
 
 import javax.inject.Inject;
@@ -23,6 +23,7 @@ import java.util.Comparator;
 import java.util.List;
 import java.util.stream.Collectors;
 
+import org.apache.maven.index.artifact.Gav;
 import org.codehaus.plexus.util.xml.pull.XmlPullParserException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -56,7 +57,7 @@ public abstract class MavenRestAssuredBaseTest
 
     @Inject
     private RepositoryPathResolver repositoryPathResolver;
-    
+
     @Value("${strongbox.url}")
     private String contextBaseUrl;
 
@@ -146,13 +147,15 @@ public abstract class MavenRestAssuredBaseTest
         {
             String version = createSnapshotVersion(baseSnapshotVersion, i + 1);
 
-            artifact = new MavenRepositoryArtifact(groupId, artifactId, version);
+            artifact = new MavenRepositoryArtifact(new Gav(groupId, artifactId, version));
 
             Path repositoryPath = Paths.get(repositoryBasedir);
             String repositoryId = repositoryPath.getFileName().toString();
             String storageId = repositoryPath.getParent().getFileName().toString();
-            
-            RepositoryPath artifactPath = repositoryPathResolver.resolve(storageId, repositoryId, MavenArtifactUtils.convertArtifactToPath(artifact));
+
+            RepositoryPath artifactPath = repositoryPathResolver.resolve(storageId, repositoryId,
+                                                                         MavenArtifactUtils.convertArtifactToPath(
+                                                                                 artifact));
             artifact.setPath(artifactPath);
 
             generateArtifact(repositoryBasedir, artifact, packaging);
@@ -162,7 +165,7 @@ public abstract class MavenRestAssuredBaseTest
                 for (String classifier : classifiers)
                 {
                     String gavtc = groupId + ":" + artifactId + ":" + version + ":jar:" + classifier;
-                    generateArtifact(repositoryBasedir, ArtifactUtils.getArtifactFromGAVTC(gavtc));
+                    generateArtifact(repositoryBasedir, MavenArtifactTestUtils.getArtifactFromGAVTC(gavtc));
                 }
             }
         }

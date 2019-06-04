@@ -14,9 +14,9 @@ import java.util.Map;
 
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.web.servlet.HandlerMapping;
-import static org.carlspring.strongbox.storage.metadata.MetadataHelper.MAVEN_METADATA_XML;
-import static org.springframework.http.HttpStatus.BAD_REQUEST;
 import static org.carlspring.strongbox.artifact.coordinates.MavenArtifactCoordinates.LAYOUT_NAME;
+import static org.carlspring.strongbox.storage.metadata.MetadataHelper.*;
+import static org.springframework.http.HttpStatus.BAD_REQUEST;
 
 /**
  * @author Przemyslaw Fusik
@@ -32,12 +32,13 @@ public class MavenArtifactRequestInterceptor
         super(LAYOUT_NAME);
         this.repositoryPathResolver = repositoryPathResolver;
     }
-    
+
     @Override
     protected boolean preHandle(Repository repository,
                                 String artifactPath,
                                 HttpServletRequest request,
-                                HttpServletResponse response) throws IOException
+                                HttpServletResponse response)
+            throws IOException
     {
         final Map pathVariables = (Map) request.getAttribute(HandlerMapping.URI_TEMPLATE_VARIABLES_ATTRIBUTE);
         if (pathVariables == null)
@@ -62,6 +63,18 @@ public class MavenArtifactRequestInterceptor
             response.sendError(BAD_REQUEST.value(), "The specified path is a directory!");
             return false;
         }
+        if (MAVEN_METADATA_XML.equals(repositoryPath.getFileName().toString()) ||
+            MAVEN_METADATA_XML_CHECKSUM_MD5.equals(repositoryPath.getFileName().toString()) ||
+            MAVEN_METADATA_XML_CHECKSUM_SHA1.equals(repositoryPath.getFileName().toString()))
+        {
+            return true;
+        }
+        boolean isValidGavPath = MavenArtifactUtils.isGAV(repositoryPath);
+        if (!isValidGavPath)
+        {
+            response.sendError(BAD_REQUEST.value(), "The specified path is invalid. Maven GAV not recognized.");
+            return false;
+        }
         final MavenArtifact mavenArtifact = MavenArtifactUtils.convertPathToArtifact(repositoryPath);
         if (StringUtils.isBlank(mavenArtifact.getArtifactId()))
         {
@@ -74,10 +87,6 @@ public class MavenArtifactRequestInterceptor
             response.sendError(BAD_REQUEST.value(),
                                "The specified path is invalid. Maven artifact groupId not recognized.");
             return false;
-        }
-        if (mavenArtifact.getArtifactId().startsWith(MAVEN_METADATA_XML))
-        {
-            return true;
         }
         if (StringUtils.isBlank(mavenArtifact.getVersion()))
         {

@@ -11,10 +11,10 @@ import org.carlspring.strongbox.rest.common.RestAssuredBaseTest;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.InputStream;
+import java.util.Arrays;
 import java.util.UUID;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
-import edu.emory.mathcs.backport.java.util.Arrays;
 import io.restassured.http.Headers;
 import io.restassured.module.mockmvc.response.MockMvcResponse;
 import org.apache.commons.io.IOUtils;
