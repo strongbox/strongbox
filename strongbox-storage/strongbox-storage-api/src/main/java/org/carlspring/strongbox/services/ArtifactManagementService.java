@@ -114,6 +114,7 @@ public class ArtifactManagementService
         try (final RepositoryOutputStream aos = artifactResolutionService.getOutputStream(repositoryPath))
         {
             result = writeArtifact(repositoryPath, is, aos);
+            logger.debug(String.format("Stored [%s] bytes for [%s].", result, repositoryPath));
             aos.flush();
         }
         catch (IOException e)

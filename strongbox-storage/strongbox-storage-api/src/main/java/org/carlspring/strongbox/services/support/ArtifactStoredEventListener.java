@@ -6,7 +6,6 @@ import org.carlspring.strongbox.domain.ArtifactArchiveListing;
 import org.carlspring.strongbox.domain.ArtifactEntry;
 import org.carlspring.strongbox.event.artifact.ArtifactEventTypeEnum;
 import org.carlspring.strongbox.providers.io.RepositoryPath;
-import org.carlspring.strongbox.providers.io.RepositoryPathLock;
 import org.carlspring.strongbox.providers.layout.LayoutProvider;
 import org.carlspring.strongbox.providers.layout.LayoutProviderRegistry;
 import org.carlspring.strongbox.storage.repository.Repository;
@@ -14,8 +13,6 @@ import org.carlspring.strongbox.storage.repository.Repository;
 import javax.inject.Inject;
 import java.io.IOException;
 import java.util.Set;
-import java.util.concurrent.locks.Lock;
-import java.util.concurrent.locks.ReadWriteLock;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -36,9 +33,6 @@ public class ArtifactStoredEventListener extends AsyncArtifactEntryHandler
     @Inject
     protected ConfigurationManager configurationManager;
 
-    @Inject
-    private RepositoryPathLock repositoryPathLock;
-    
     public ArtifactStoredEventListener()
     {
         super(ArtifactEventTypeEnum.EVENT_ARTIFACT_FILE_STORED);
@@ -60,24 +54,10 @@ public class ArtifactStoredEventListener extends AsyncArtifactEntryHandler
         
         final Repository repository = repositoryPath.getRepository();
         final LayoutProvider layoutProvider = layoutProviderRegistry.getProvider(repository.getLayout());
-        
-        ReadWriteLock lockSource = repositoryPathLock.lock(repositoryPath);
-        Lock lock = lockSource.readLock();
-        lock.lock();
-        
-        final Set<String> archiveFilenames;
-        try
-        {
-            archiveFilenames = layoutProvider.listArchiveFilenames(repositoryPath);
-        } 
-        finally
-        {
-            lock.unlock();
-        }
-        
+        final Set<String> archiveFilenames = layoutProvider.listArchiveFilenames(repositoryPath);
         if (archiveFilenames.isEmpty())
         {
-            return artifactEntry;
+            return null;
         }
 
         ArtifactArchiveListing artifactArchiveListing = artifactEntry.getArtifactArchiveListing();

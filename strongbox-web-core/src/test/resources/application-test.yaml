@@ -1,0 +1,3 @@
+strongbox:
+  basedir: ./target
+  url: http://${strongbox.host:localhost}:${strongbox.port:48080}

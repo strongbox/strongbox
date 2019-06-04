@@ -1,7 +1,5 @@
 package org.carlspring.strongbox.providers.repository;
 
-import java.io.BufferedInputStream;
-import java.io.BufferedOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
@@ -14,6 +12,7 @@ import javax.inject.Inject;
 import javax.persistence.EntityManager;
 import javax.persistence.PersistenceContext;
 
+import org.carlspring.strongbox.artifact.ArtifactNotFoundException;
 import org.carlspring.strongbox.data.criteria.DetachQueryTemplate;
 import org.carlspring.strongbox.data.criteria.OQueryTemplate;
 import org.carlspring.strongbox.data.criteria.Paginator;
@@ -58,21 +57,21 @@ public class HostedRepositoryProvider extends AbstractRepositoryProvider
 
     protected InputStream getInputStreamInternal(RepositoryPath repositoryPath) throws IOException
     {
-        if (artifactNotExists(repositoryPath))
-        {
-            logger.debug(String.format("The path [%s] does not exist!", repositoryPath));
-
-            return null;
-        }
-                
         try
         {
             return Files.newInputStream(repositoryPath);
         }
+        catch (ArtifactNotFoundException e) 
+        {
+            logger.debug(String.format("The path [%s] does not exist!%n*\t[%s]", repositoryPath, e.getMessage()));
+
+            return null;
+        }
         catch (IOException ex)
         {
             logger.error(String.format("Failed to decorate InputStream for [%s]", repositoryPath), ex);
-            return null;
+            
+            throw ex;
         }
     }
 

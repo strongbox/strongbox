@@ -12,7 +12,6 @@ import java.util.*;
 import java.util.stream.Collectors;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.databind.ObjectMapper;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
 import io.swagger.annotations.ApiResponse;
@@ -41,9 +40,6 @@ public class EnvironmentInfoController
     @Inject
     @StrongboxUserServiceQualifier
     private UserService userService;
-
-    @Inject
-    private ObjectMapper objectMapper;
 
     @ApiOperation(value = "List all the environment variables, system properties and JVM arguments.")
     @ApiResponses(value = { @ApiResponse(code = 200, message = "The list was returned."),

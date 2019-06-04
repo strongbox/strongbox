@@ -6,6 +6,7 @@ import static org.junit.jupiter.api.parallel.ExecutionMode.CONCURRENT;
 
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
+import java.io.OutputStream;
 import java.nio.file.Files;
 import java.nio.file.Path;
 
@@ -66,7 +67,7 @@ public class ArtifactOutputStreamTest
 
         TempRepositoryPath artifactPathTemp = RepositoryFiles.temporary(artifactPath);
 
-        LayoutOutputStream afos = (LayoutOutputStream) Files.newOutputStream(artifactPathTemp);
+        OutputStream afos = Files.newOutputStream(artifactPathTemp);
 
         ByteArrayInputStream bais = new ByteArrayInputStream("This is a test\n".getBytes());
         IOUtils.copy(bais, afos);
@@ -94,7 +95,7 @@ public class ArtifactOutputStreamTest
 
         TempRepositoryPath artifactPathTemp = RepositoryFiles.temporary(artifactPath);
 
-        LayoutOutputStream afos = (LayoutOutputStream) Files.newOutputStream(artifactPathTemp);
+        OutputStream afos = Files.newOutputStream(artifactPathTemp);
         ByteArrayInputStream bais = new ByteArrayInputStream("This is a test\n".getBytes());
         IOUtils.copy(bais, afos);
         afos.close();

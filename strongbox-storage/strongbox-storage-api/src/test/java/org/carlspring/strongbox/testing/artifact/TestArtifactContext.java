@@ -2,6 +2,7 @@ package org.carlspring.strongbox.testing.artifact;
 
 import java.io.IOException;
 import java.io.InputStream;
+import java.lang.reflect.UndeclaredThrowableException;
 import java.net.URI;
 import java.nio.file.DirectoryStream;
 import java.nio.file.Files;
@@ -26,7 +27,6 @@ import org.carlspring.strongbox.services.ArtifactManagementService;
 import org.junit.jupiter.api.TestInfo;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.cglib.proxy.UndeclaredThrowableException;
 
 /**
  * @author sbespalov

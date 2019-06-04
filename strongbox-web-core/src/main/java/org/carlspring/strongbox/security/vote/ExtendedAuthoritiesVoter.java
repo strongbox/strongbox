@@ -1,15 +1,15 @@
 package org.carlspring.strongbox.security.vote;
 
+import org.carlspring.strongbox.users.domain.AccessModel;
+import org.carlspring.strongbox.users.dto.UserAccessModelReadContract;
+import org.carlspring.strongbox.users.userdetails.SpringSecurityUser;
+import org.carlspring.strongbox.utils.UrlUtils;
+
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
 
 import org.aopalliance.intercept.MethodInvocation;
-import org.carlspring.strongbox.controllers.layout.maven.MavenArtifactController;
-import org.carlspring.strongbox.users.domain.AccessModel;
-import org.carlspring.strongbox.users.dto.UserAccessModelReadContract;
-import org.carlspring.strongbox.users.userdetails.SpringSecurityUser;
-import org.carlspring.strongbox.utils.UrlUtils;
 import org.springframework.security.access.ConfigAttribute;
 import org.springframework.security.access.expression.method.ExpressionBasedPreInvocationAdvice;
 import org.springframework.security.access.prepost.PreInvocationAuthorizationAdviceVoter;
@@ -18,6 +18,7 @@ import org.springframework.security.core.Authentication;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.stereotype.Component;
+import static org.carlspring.strongbox.web.Constants.ARTIFACT_ROOT_PATH;
 
 /**
  * @author sbespalov
@@ -85,7 +86,7 @@ public class ExtendedAuthoritiesVoter extends PreInvocationAuthorizationAdviceVo
             }
 
             String requestUri = UrlUtils.getRequestUri();
-            if (!requestUri.startsWith(MavenArtifactController.ROOT_CONTEXT))
+            if (!requestUri.startsWith(ARTIFACT_ROOT_PATH))
             {
                 return authorities;
             }

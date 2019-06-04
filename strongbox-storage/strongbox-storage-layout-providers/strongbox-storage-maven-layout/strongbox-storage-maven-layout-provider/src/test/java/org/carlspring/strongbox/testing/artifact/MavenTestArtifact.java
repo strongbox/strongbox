@@ -43,6 +43,9 @@ public @interface MavenTestArtifact
     @AliasFor(annotation = TestArtifact.class)
     String id() default "";
 
+    @AliasFor(annotation = TestArtifact.class)
+    String resource() default "";    
+    
     /**
      * The {@link MavenArtifactCoordinates} versions.
      */

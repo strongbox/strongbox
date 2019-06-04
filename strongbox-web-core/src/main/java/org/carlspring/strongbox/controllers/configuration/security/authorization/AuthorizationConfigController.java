@@ -4,7 +4,7 @@ import org.carlspring.strongbox.authorization.dto.AuthorizationConfigDto;
 import org.carlspring.strongbox.authorization.dto.PrivilegeDto;
 import org.carlspring.strongbox.authorization.dto.RoleDto;
 import org.carlspring.strongbox.authorization.service.AuthorizationConfigService;
-import org.carlspring.strongbox.controllers.BaseArtifactController;
+import org.carlspring.strongbox.controllers.BaseController;
 import org.carlspring.strongbox.forms.PrivilegeListForm;
 import org.carlspring.strongbox.forms.RoleForm;
 import org.carlspring.strongbox.users.service.UserService;
@@ -40,7 +40,7 @@ import static org.carlspring.strongbox.net.MediaType.APPLICATION_YAML_VALUE;
 @RequestMapping(value = "/api/configuration/authorization")
 @Api(value = "/api/configuration/authorization")
 public class AuthorizationConfigController
-        extends BaseArtifactController
+        extends BaseController
 {
 
     static final String SUCCESSFUL_ADD_ROLE = "The role was created successfully.";

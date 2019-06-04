@@ -1,25 +1,40 @@
 package org.carlspring.strongbox.providers.io;
 
-import org.carlspring.strongbox.storage.repository.Repository;
-
-import javax.inject.Inject;
 import java.io.IOException;
-import java.io.InputStream;
 import java.io.OutputStream;
 import java.net.URI;
 import java.nio.channels.FileChannel;
 import java.nio.channels.SeekableByteChannel;
-import java.nio.file.*;
+import java.nio.file.AccessMode;
+import java.nio.file.CopyOption;
+import java.nio.file.DirectoryNotEmptyException;
+import java.nio.file.DirectoryStream;
 import java.nio.file.DirectoryStream.Filter;
+import java.nio.file.FileStore;
+import java.nio.file.FileSystem;
+import java.nio.file.FileVisitResult;
+import java.nio.file.Files;
+import java.nio.file.LinkOption;
+import java.nio.file.NoSuchFileException;
+import java.nio.file.OpenOption;
+import java.nio.file.Path;
+import java.nio.file.SimpleFileVisitor;
+import java.nio.file.StandardCopyOption;
 import java.nio.file.attribute.BasicFileAttributes;
 import java.nio.file.attribute.FileAttribute;
 import java.nio.file.attribute.FileAttributeView;
 import java.nio.file.spi.FileSystemProvider;
-import java.util.*;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.Iterator;
+import java.util.Map;
+import java.util.Optional;
+import java.util.Set;
 import java.util.function.Consumer;
 import java.util.stream.Collectors;
 
 import org.apache.commons.io.output.ProxyOutputStream;
+import org.carlspring.strongbox.storage.repository.Repository;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.util.FileSystemUtils;
@@ -44,9 +59,6 @@ public abstract class StorageFileSystemProvider
 
     private FileSystemProvider target;
 
-    @Inject
-    private RepositoryPathLock repositoryPathLock;
-    
     public StorageFileSystemProvider(FileSystemProvider target)
     {
         super();
@@ -96,14 +108,10 @@ public abstract class StorageFileSystemProvider
                                                     Filter<? super Path> filter)
         throws IOException
     {
-        DirectoryStream<Path> ds = getTarget().newDirectoryStream(unwrap(dir), filter);
-        if (!(dir instanceof RepositoryPath))
-        {
-            return ds;
-        }
-
-        RepositoryPath repositoryDir = (RepositoryPath) dir;
-
+        RepositoryPath repositoryPath = (RepositoryPath) dir;
+        Path root = repositoryPath.getFileSystem().getRootDirectory();
+        DirectoryStream<Path> directoryStream = getTarget().newDirectoryStream(unwrap(dir), new LayoutDirectoryStreamFilter(unwrap(root), filter));
+        
         return new DirectoryStream<Path>()
         {
 
@@ -111,13 +119,13 @@ public abstract class StorageFileSystemProvider
             public void close()
                 throws IOException
             {
-                ds.close();
+                directoryStream.close();
             }
 
             @Override
             public Iterator<Path> iterator()
             {
-                return createRepositoryDsIterator(repositoryDir.getFileSystem(), ds.iterator());
+                return createRepositoryDsIterator(repositoryPath.getFileSystem(), directoryStream.iterator());
             }
 
         };
@@ -176,7 +184,8 @@ public abstract class StorageFileSystemProvider
     {
         if (!(path instanceof RepositoryPath))
         {
-            getTarget().delete(path);
+            Files.delete(path);
+            
             return;
         }
 
@@ -189,32 +198,73 @@ public abstract class StorageFileSystemProvider
         if (!Files.isDirectory(repositoryPath))
         {
             doDeletePath(repositoryPath, force, true);
-        }
-        else
-        {
-            Files.walkFileTree(repositoryPath, new SimpleFileVisitor<Path>()
-            {
-                @Override
-                public FileVisitResult visitFile(Path file,
-                                                 BasicFileAttributes attrs)
-                    throws IOException
-                {
-                    // Checksum files will be deleted during directory walking
-                    doDeletePath((RepositoryPath) file, force, false);
 
+            return;
+        }
+
+        RootRepositoryPath root = repositoryPath.getFileSystem().getRootDirectory();
+        recursiveDeleteExceptRoot(repositoryPath, force);
+        if (!root.equals(path))
+        {
+            return;
+        }
+        
+        logger.debug(String.format("Deleting hidden folders for [%s]", path));
+        
+        FileSystemUtils.deleteRecursively(unwrap(root).resolve(LayoutFileSystem.TEMP));
+        FileSystemUtils.deleteRecursively(unwrap(root).resolve(LayoutFileSystem.TRASH));
+        Files.delete(unwrap(root));
+        
+        logger.debug(String.format("Hidden folders deleted [%s]", path));
+
+    }
+
+    protected void recursiveDeleteExceptRoot(RepositoryPath repositoryPath,
+                                             boolean force)
+        throws IOException
+    {
+        RootRepositoryPath root = repositoryPath.getFileSystem().getRootDirectory();
+        
+        Files.walkFileTree(repositoryPath, new SimpleFileVisitor<Path>()
+        {
+            @Override
+            public FileVisitResult visitFile(Path file,
+                                             BasicFileAttributes attrs)
+                throws IOException
+            {
+                // Checksum files will be deleted during directory walking
+                doDeletePath((RepositoryPath) file, force, false);
+
+                return FileVisitResult.CONTINUE;
+            }
+
+            @Override
+            public FileVisitResult postVisitDirectory(Path dir,
+                                                      IOException exc)
+                throws IOException
+            {
+                if (root.equals(dir))
+                {
                     return FileVisitResult.CONTINUE;
                 }
-
-                @Override
-                public FileVisitResult postVisitDirectory(Path dir,
-                                                          IOException exc)
-                    throws IOException
+                
+                try
                 {
                     Files.delete(unwrap(dir));
-                    return FileVisitResult.CONTINUE;
                 }
-            });
-        }
+                catch (DirectoryNotEmptyException e)
+                {
+                    String message = Files.list(unwrap(dir))
+                                          .map(p -> p.getFileName().toString())
+                                          .reduce((p1,
+                                                   p2) -> String.format("%s%n%s", p1, p2))
+                                          .get();
+                    throw new IOException(message, e);
+                }
+                
+                return FileVisitResult.CONTINUE;
+            }
+        });
     }
 
     protected void doDeletePath(RepositoryPath repositoryPath,
@@ -257,7 +307,7 @@ public abstract class StorageFileSystemProvider
         throws IOException
     {
         Repository repository = repositoryPath.getFileSystem().getRepository();
-        if (!repository.isTrashEnabled())
+        if (!repository.isTrashEnabled() || RepositoryFiles.isTrash(repositoryPath))
         {
             Files.deleteIfExists(repositoryPath.getTarget());
 
@@ -307,19 +357,23 @@ public abstract class StorageFileSystemProvider
     public RepositoryPath moveFromTemporaryDirectory(TempRepositoryPath tempPath)
         throws IOException
     {
+        logger.debug(String.format("Moving [%s]", tempPath.getTarget()));
         RepositoryPath path = tempPath.getTempTarget();
 
         if (!Files.exists(tempPath.getTarget()))
         {
-            return null;
+            throw new IOException(String.format("[%s] target for [%s] don't exists!", TempRepositoryPath.class.getSimpleName(), tempPath));
         }
 
         if (!Files.exists(unwrap(path).getParent()))
         {
             Files.createDirectories(unwrap(path).getParent());
         }
-
-        Files.move(tempPath.getTarget(), path.getTarget(), StandardCopyOption.REPLACE_EXISTING);
+        if (Files.exists(path.getTarget()))
+        {
+            Files.delete(path.getTarget());
+        }
+        Files.move(tempPath.getTarget(), path.getTarget(), StandardCopyOption.ATOMIC_MOVE);
 
         //path.artifactEntry = tempPath.artifactEntry;
 
@@ -385,14 +439,6 @@ public abstract class StorageFileSystemProvider
         String sTargetPath = sourceRelative;
 
         return targetBase.resolve(sTargetPath).toAbsolutePath();
-    }
-
-    @Override
-    public InputStream newInputStream(Path path,
-                                      OpenOption... options)
-        throws IOException
-    {
-        return repositoryPathLock.lockInputStream((RepositoryPath) path, () -> super.newInputStream(unwrap(path), options));
     }
 
     @Override
@@ -552,7 +598,7 @@ public abstract class StorageFileSystemProvider
         getTarget().setAttribute(unwrap(path), attribute, value, options);
     }
 
-    private Path unwrap(Path path)
+    protected Path unwrap(Path path)
     {
         return path instanceof RepositoryPath ? ((RepositoryPath) path).getTarget() : path;
     }
@@ -639,5 +685,31 @@ public abstract class StorageFileSystemProvider
         }
 
     }
-    
+
+    private static class LayoutDirectoryStreamFilter implements Filter<Path>
+    {
+
+        private final Filter<? super Path> delegate;
+        private final Path root;
+
+        public LayoutDirectoryStreamFilter(Path root, Filter<? super Path> delegate)
+        {
+            this.delegate = delegate;
+            this.root = root;
+        }
+
+        @Override
+        public boolean accept(Path p)
+            throws IOException
+        {
+            if (p.isAbsolute() && !p.startsWith(root.resolve(LayoutFileSystem.TRASH))
+                    && !p.startsWith(root.resolve(LayoutFileSystem.TEMP)))
+            {
+                return delegate == null ? true : delegate.accept(p);
+            }
+
+            return false;
+        }
+
+    }
 }

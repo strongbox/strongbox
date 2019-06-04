@@ -14,7 +14,6 @@ import org.carlspring.strongbox.providers.io.RepositoryStreamSupport.RepositoryO
 import org.carlspring.strongbox.providers.repository.RepositoryProvider;
 import org.carlspring.strongbox.providers.repository.RepositoryProviderRegistry;
 import org.carlspring.strongbox.services.ArtifactResolutionService;
-import org.carlspring.strongbox.storage.ArtifactResolutionException;
 import org.carlspring.strongbox.storage.ArtifactStorageException;
 import org.carlspring.strongbox.storage.Storage;
 import org.carlspring.strongbox.storage.repository.Repository;
@@ -49,13 +48,7 @@ public class ArtifactResolutionServiceImpl
         artifactOperationsValidator.validate(path);
         
         RepositoryProvider repositoryProvider = repositoryProviderRegistry.getProvider(repository.getType());
-        RepositoryInputStream is = (RepositoryInputStream) repositoryProvider.getInputStream(path);
-        if (is == null)
-        {
-            throw new ArtifactResolutionException(String.format("Artifact [%s] not found.", path));
-        }
-
-        return is;
+        return (RepositoryInputStream) repositoryProvider.getInputStream(path);
     }
 
     @Override

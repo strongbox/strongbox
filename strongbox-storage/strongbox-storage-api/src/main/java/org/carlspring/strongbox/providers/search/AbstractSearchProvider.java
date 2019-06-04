@@ -1,5 +1,11 @@
 package org.carlspring.strongbox.providers.search;
 
+import java.io.IOException;
+import java.net.URL;
+import java.util.List;
+
+import javax.inject.Inject;
+
 import org.carlspring.strongbox.configuration.Configuration;
 import org.carlspring.strongbox.configuration.ConfigurationManager;
 import org.carlspring.strongbox.dependency.snippet.CodeSnippet;
@@ -7,19 +13,14 @@ import org.carlspring.strongbox.dependency.snippet.SnippetGenerator;
 import org.carlspring.strongbox.domain.ArtifactEntry;
 import org.carlspring.strongbox.providers.io.RepositoryFiles;
 import org.carlspring.strongbox.providers.io.RepositoryPath;
+import org.carlspring.strongbox.providers.io.RepositoryPathResolver;
 import org.carlspring.strongbox.services.ArtifactEntryService;
-import org.carlspring.strongbox.services.ArtifactResolutionService;
 import org.carlspring.strongbox.storage.Storage;
 import org.carlspring.strongbox.storage.repository.Repository;
 import org.carlspring.strongbox.storage.search.SearchRequest;
 import org.carlspring.strongbox.storage.search.SearchResult;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
-import javax.inject.Inject;
-import java.io.IOException;
-import java.net.URL;
-import java.util.List;
 
 /**
  * @author carlspring
@@ -40,7 +41,7 @@ public abstract class AbstractSearchProvider
     private SnippetGenerator snippetGenerator;
     
     @Inject
-    private ArtifactResolutionService artifactResolutionService;
+    private RepositoryPathResolver repositoryPathResolver;
 
 
     @Override
@@ -81,7 +82,7 @@ public abstract class AbstractSearchProvider
         URL artifactResource;
         try
         {
-            RepositoryPath repositoryPath = artifactResolutionService.resolvePath(a.getStorageId(), a.getRepositoryId(), a.getArtifactPath());
+            RepositoryPath repositoryPath = repositoryPathResolver.resolve(a.getStorageId(), a.getRepositoryId(), a.getArtifactPath());
             artifactResource = RepositoryFiles.readResourceUrl(repositoryPath);
         }
         catch (IOException e)
