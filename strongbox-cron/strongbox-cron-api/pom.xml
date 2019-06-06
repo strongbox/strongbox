@@ -7,7 +7,7 @@
     <parent>
         <groupId>org.carlspring.strongbox</groupId>
         <artifactId>strongbox-parent</artifactId>
-        <version>1.0-SNAPSHOT</version>
+        <version>1.0-PR-30-SNAPSHOT</version>
         <relativePath/>
     </parent>
 
@@ -23,19 +23,6 @@
         <connection>scm:git:git://github.com/strongbox/strongbox.git</connection>
         <developerConnection>scm:git:git://github.com/strongbox/strongbox.git</developerConnection>
     </scm>
-
-    <properties>
-        <!-- Default ports for local development: -->
-        <port.jetty.listen>48080</port.jetty.listen>
-        <port.jetty.shutdown>19081</port.jetty.shutdown>
-
-        <strongbox.host>localhost</strongbox.host>
-        <strongbox.port>${port.jetty.listen}</strongbox.port>
-
-        <dir.strongbox.home>${project.build.directory}/strongbox</dir.strongbox.home>
-        <dir.strongbox.vault>${project.build.directory}/strongbox-vault</dir.strongbox.vault>
-        <dir.jetty.etc>${dir.strongbox.home}/etc/jetty</dir.jetty.etc>
-    </properties>
 
     <build>
         <resources>
@@ -70,23 +57,12 @@
             </plugin>
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
-                <artifactId>maven-surefire-plugin</artifactId>
-                <configuration>
-                    <systemPropertyVariables>
-                        <strongbox.home>${project.build.directory}/strongbox</strongbox.home>
-                        <strongbox.vault>${project.build.directory}/strongbox-vault</strongbox.vault>
-                        <strongbox.storage.booter.basedir>${project.build.directory}/strongbox-vault/storages</strongbox.storage.booter.basedir>
-                        <strongbox.config.file>${project.build.directory}/strongbox/etc/conf/strongbox.yaml</strongbox.config.file>
-                        <strongbox.host>${strongbox.host}</strongbox.host>
-                        <strongbox.port>${strongbox.port}</strongbox.port>
-                        <logging.dir>${strongbox.vault}/logs</logging.dir>
-                        <logging.config.file>${project.build.directory}/strongbox/etc/logback-spring-debug.xml</logging.config.file>
-                        <java.io.tmpdir>${dir.strongbox.vault}/tmp</java.io.tmpdir>
-                        <ehcache.disk.store.dir>${project.build.directory}/strongbox/cache</ehcache.disk.store.dir>
-                    </systemPropertyVariables>
-                </configuration>
+                <artifactId>maven-dependency-plugin</artifactId>
             </plugin>
-
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-surefire-plugin</artifactId>
+            </plugin>
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-jar-plugin</artifactId>

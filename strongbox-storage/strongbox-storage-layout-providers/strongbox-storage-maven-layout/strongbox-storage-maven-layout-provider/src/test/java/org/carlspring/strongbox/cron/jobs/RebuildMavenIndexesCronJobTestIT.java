@@ -9,6 +9,7 @@ import org.carlspring.strongbox.services.ArtifactSearchService;
 import org.carlspring.strongbox.storage.repository.MutableRepository;
 import org.carlspring.strongbox.storage.search.SearchRequest;
 
+import javax.annotation.PostConstruct;
 import javax.inject.Inject;
 import java.io.File;
 import java.lang.reflect.UndeclaredThrowableException;
@@ -45,19 +46,16 @@ public class RebuildMavenIndexesCronJobTestIT
         extends BaseCronJobWithMavenIndexingTestCase
 {
 
+    private static final String REPOSITORY_RELEASES_1 = "rmicj-releases";
+    private static final String ARTIFACT_BASE_PATH_STRONGBOX_INDEXES = "org/carlspring/strongbox/indexes/strongbox-test-one";
+    
     @Inject
     private PropertiesBooter propertiesBooter;
 
-    private static final String REPOSITORY_RELEASES_1 = "rmicj-releases";
-
-    private final File REPOSITORY_RELEASES_BASEDIR_1 = new File(propertiesBooter.getVaultDirectory() +
-                                                                "/storages/" + STORAGE0 + "/" +
-                                                                REPOSITORY_RELEASES_1);
-
-    private static final String ARTIFACT_BASE_PATH_STRONGBOX_INDEXES = "org/carlspring/strongbox/indexes/strongbox-test-one";
-
     @Inject
     private ArtifactSearchService artifactSearchService;
+
+    private File repositoryReleasesDasedir1;
 
     private Set<MutableRepository> getRepositories(TestInfo testInfo)
     {
@@ -69,6 +67,13 @@ public class RebuildMavenIndexesCronJobTestIT
         return repositories;
     }
 
+    @PostConstruct
+    public void setup() {
+        repositoryReleasesDasedir1 = new File(propertiesBooter.getVaultDirectory() +
+                                                 "/storages/" + STORAGE0 + "/" +
+                                                 REPOSITORY_RELEASES_1);
+    }
+    
     @Override
     @BeforeEach
     public void init(TestInfo testInfo)
@@ -80,10 +85,10 @@ public class RebuildMavenIndexesCronJobTestIT
                          getRepositoryName(REPOSITORY_RELEASES_1, testInfo),
                          true);
 
-        generateArtifact(getRepositoryBasedir(REPOSITORY_RELEASES_BASEDIR_1, testInfo),
+        generateArtifact(getRepositoryBasedir(repositoryReleasesDasedir1, testInfo),
                          "org.carlspring.strongbox.indexes:strongbox-test-one:1.0:jar");
 
-        generateArtifact(getRepositoryBasedir(REPOSITORY_RELEASES_BASEDIR_1, testInfo),
+        generateArtifact(getRepositoryBasedir(repositoryReleasesDasedir1, testInfo),
                          "org.carlspring.strongbox.indexes:strongbox-test-two:1.0:jar");
     }
 

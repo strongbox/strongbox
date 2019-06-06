@@ -8,7 +8,7 @@
     <parent>
         <groupId>org.carlspring.strongbox</groupId>
         <artifactId>strongbox-parent</artifactId>
-        <version>1.0-SNAPSHOT</version>
+        <version>1.0-PR-30-SNAPSHOT</version>
         <relativePath/>
     </parent>
 
@@ -298,7 +298,10 @@
                                     <systemProperty>strongbox.home=%STRONGBOX_HOME%</systemProperty>
                                     <systemProperty>strongbox.vault=%STRONGBOX_VAULT%</systemProperty>
                                     <systemProperty>strongbox.storage.booter.basedir=%STRONGBOX_VAULT%/storages</systemProperty>
-                                    <systemProperty>logging.config=%STRONGBOX_HOME%/etc/%STRONGBOX_LOG_FILE%</systemProperty>
+                                    <systemProperty>logging.config=%STRONGBOX_HOME%/etc/logback-spring.xml</systemProperty>
+                                    <systemProperty>logging.debug=%STRONGBOX_DEBUG%</systemProperty>
+                                    <systemProperty>logging.file=%STRONGBOX_LOG_FILE%</systemProperty>
+                                    <systemProperty>logging.console=%STRONGBOX_LOG_CONSOLE%</systemProperty>
                                     <systemProperty>logging.dir=%STRONGBOX_VAULT%/logs</systemProperty>
                                     <systemProperty>jetty.logs=%STRONGBOX_HOME%/logs</systemProperty>
                                     <systemProperty>java.io.tmpdir=%STRONGBOX_HOME%/tmp</systemProperty>

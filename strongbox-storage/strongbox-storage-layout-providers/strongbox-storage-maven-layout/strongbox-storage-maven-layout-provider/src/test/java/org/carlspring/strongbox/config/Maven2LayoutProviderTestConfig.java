@@ -22,6 +22,7 @@ import static org.mockito.Matchers.any;
  * @author Przemyslaw Fusik
  */
 @Configuration
+@PropertySource(name = "mavenTestProperties", value = "classpath:maven-test.properties")
 @Import({ CommonConfig.class,
           TestingCoreConfig.class,
           EventsConfig.class,

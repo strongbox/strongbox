@@ -34,16 +34,17 @@ strongbox:
     database:
       path: ${strongbox.vault}/db
 logging:
-  dir: strongbox-vault/logs
-  config:
-    file: strongbox/etc/logback-spring-debug.xml
+  debug: true
+  console: true
+  file: true
+  dir: ${strongbox.vault}/logs
 java:
   io:
-    tmpdir: strongbox-vault/tmp
+    tmpdir: ${strongbox.vault}/tmp
 ehcache:
   disk:
     store:
-      dir: strongbox/cache
+      dir: ${strongbox.vault}/cache
 management:
   endpoint:
     health:
