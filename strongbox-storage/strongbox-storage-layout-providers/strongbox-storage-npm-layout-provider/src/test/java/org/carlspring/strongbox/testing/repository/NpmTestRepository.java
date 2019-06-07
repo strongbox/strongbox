@@ -23,10 +23,10 @@ public @interface NpmTestRepository
 {
 
     @AliasFor(annotation = TestRepository.class)
-    String storageId() default "storage0";
+    String storageId() default "storage-npm";
 
     @AliasFor(annotation = TestRepository.class)
-    String repositoryId() default "releases";
+    String repositoryId() default "npm-releases";
 
     @AliasFor(annotation = TestRepository.class)
     RepositoryPolicyEnum policy() default RepositoryPolicyEnum.RELEASE;
