@@ -22,6 +22,7 @@ import org.carlspring.strongbox.repository.NpmRepositoryFeatures.ViewPackageEven
 import org.carlspring.strongbox.storage.repository.Repository;
 import org.carlspring.strongbox.storage.validation.artifact.ArtifactCoordinatesValidationException;
 import org.carlspring.strongbox.web.LayoutRequestMapping;
+import org.carlspring.strongbox.web.RepositoryMapping;
 
 import javax.inject.Inject;
 import javax.servlet.ServletInputStream;
@@ -104,20 +105,20 @@ public class NpmArtifactController
 
     @GetMapping(path = "{storageId}/{repositoryId}/-/v1/search")
     @PreAuthorize("hasAuthority('ARTIFACTS_VIEW')")
-    public void search(@PathVariable(name = "storageId") String storageId,
-                       @PathVariable(name = "repositoryId") String repositoryId,
+    public void search(@RepositoryMapping Repository repository,
                        @RequestParam(name = "text") String text,
                        @RequestParam(name = "size", defaultValue = "20") Integer size,
-                       HttpServletResponse response) throws JsonProcessingException, IOException
+                       HttpServletResponse response) throws IOException
     {
+        final String storageId = repository.getStorage().getId();
+        final String repositoryId = repository.getId();
+
         NpmSearchRequest npmSearchRequest = new NpmSearchRequest();
         npmSearchRequest.setText(text);
         npmSearchRequest.setSize(size);
         
         searcPackagesEventListener.setNpmSearchRequest(npmSearchRequest);
 
-        
-        Repository repository = getRepository(storageId, repositoryId);
         RepositoryProvider provider = repositoryProviderRegistry.getProvider(repository.getType());
         
         Predicate predicate = Predicate.empty();
@@ -156,14 +157,16 @@ public class NpmArtifactController
     
     @GetMapping(path = "{storageId}/{repositoryId}/{packageScope}/{packageName:[^-].+}/{packageVersion}")
     @PreAuthorize("hasAuthority('ARTIFACTS_VIEW')")
-    public void viewPackageWithScope(@PathVariable(name = "storageId") String storageId,
-                                     @PathVariable(name = "repositoryId") String repositoryId,
+    public void viewPackageWithScope(@RepositoryMapping Repository repository,
                                      @PathVariable(name = "packageScope") String packageScope,
                                      @PathVariable(name = "packageName") String packageName,
                                      @PathVariable(name = "packageVersion") String packageVersion,
                                      HttpServletResponse response)
         throws Exception
     {
+        final String storageId = repository.getStorage().getId();
+        final String repositoryId = repository.getId();
+
         String packageId = NpmArtifactCoordinates.calculatePackageId(packageScope, packageName);
         NpmArtifactCoordinates c = NpmArtifactCoordinates.of(packageId, packageVersion);
         
@@ -189,20 +192,20 @@ public class NpmArtifactController
     
     @GetMapping(path = "{storageId}/{repositoryId}/{packageScope}/{packageName}")
     @PreAuthorize("hasAuthority('ARTIFACTS_VIEW')")
-    public void viewPackageFeedWithScope(@PathVariable(name = "storageId") String storageId,
-                                         @PathVariable(name = "repositoryId") String repositoryId,
+    public void viewPackageFeedWithScope(@RepositoryMapping Repository repository,
                                          @PathVariable(name = "packageScope") String packageScope,
                                          @PathVariable(name = "packageName") String packageName,
                                          HttpServletResponse response)
         throws Exception
     {
+        final String storageId = repository.getStorage().getId();
+        final String repositoryId = repository.getId();
+
         String packageId = NpmArtifactCoordinates.calculatePackageId(packageScope, packageName);
         
         NpmViewRequest npmSearchRequest = new NpmViewRequest();
         npmSearchRequest.setPackageId(packageId);
         viewPackageEventListener.setNpmSearchRequest(npmSearchRequest);
-        
-        Repository repository = getRepository(storageId, repositoryId);
 
         PackageFeed packageFeed = new PackageFeed();
 
@@ -253,13 +256,12 @@ public class NpmArtifactController
 
     @GetMapping(path = "{storageId}/{repositoryId}/{packageName}")
     @PreAuthorize("hasAuthority('ARTIFACTS_VIEW')")
-    public void viewPackageFeed(@PathVariable(name = "storageId") String storageId,
-                                @PathVariable(name = "repositoryId") String repositoryId,
+    public void viewPackageFeed(@RepositoryMapping Repository repository,
                                 @PathVariable(name = "packageName") String packageName,
                                 HttpServletResponse response)
         throws Exception
     {
-        viewPackageFeedWithScope(storageId, repositoryId, null, packageName, response);
+        viewPackageFeedWithScope(repository, null, packageName, response);
     }
 
     private Predicate createSearchPredicate(String packageScope,
@@ -280,8 +282,7 @@ public class NpmArtifactController
     @PreAuthorize("hasAuthority('ARTIFACTS_RESOLVE')")
     @RequestMapping(path = "{storageId}/{repositoryId}/{packageScope}/{packageName}/-/{packageName}-{packageVersion}.{packageExtension}",
                     method = { RequestMethod.GET, RequestMethod.HEAD })
-    public void downloadPackageWithScope(@PathVariable(name = "storageId") String storageId,
-                                         @PathVariable(name = "repositoryId") String repositoryId,
+    public void downloadPackageWithScope(@RepositoryMapping Repository repository,
                                          @PathVariable(name = "packageScope") String packageScope,
                                          @PathVariable(name = "packageName") String packageName,
                                          @PathVariable(name = "packageVersion") String packageVersion,
@@ -291,6 +292,9 @@ public class NpmArtifactController
                                          HttpServletResponse response)
         throws Exception
     {
+        final String storageId = repository.getStorage().getId();
+        final String repositoryId = repository.getId();
+
         NpmArtifactCoordinates coordinates;
         try
         {
@@ -310,8 +314,7 @@ public class NpmArtifactController
     @PreAuthorize("hasAuthority('ARTIFACTS_RESOLVE')")
     @RequestMapping(path = "{storageId}/{repositoryId}/{packageName}/-/{packageName}-{packageVersion}.{packageExtension}",
                     method = { RequestMethod.GET, RequestMethod.HEAD })
-    public void downloadPackage(@PathVariable(name = "storageId") String storageId,
-                                @PathVariable(name = "repositoryId") String repositoryId,
+    public void downloadPackage(@RepositoryMapping Repository repository,
                                 @PathVariable(name = "packageName") String packageName,
                                 @PathVariable(name = "packageVersion") String packageVersion,
                                 @PathVariable(name = "packageExtension") String packageExtension,
@@ -320,6 +323,9 @@ public class NpmArtifactController
                                 HttpServletResponse response)
         throws Exception
     {
+        final String storageId = repository.getStorage().getId();
+        final String repositoryId = repository.getId();
+
         NpmArtifactCoordinates coordinates;
         try
         {
@@ -338,14 +344,15 @@ public class NpmArtifactController
 
     @PreAuthorize("hasAuthority('ARTIFACTS_DEPLOY')")
     @PutMapping(path = "{storageId}/{repositoryId}/{name:.+}", consumes = MediaType.APPLICATION_JSON)
-    public ResponseEntity publish(@PathVariable(name = "storageId") String storageId,
-                                  @PathVariable(name = "repositoryId") String repositoryId,
+    public ResponseEntity publish(@RepositoryMapping Repository repository,
                                   @PathVariable(name = "name") String name,
                                   HttpServletRequest request)
         throws Exception
     {
-        logger.info(String.format("npm publish request for [%s]/[%s]/[%s]", storageId,
-                                  repositoryId, name));
+        final String storageId = repository.getStorage().getId();
+        final String repositoryId = repository.getId();
+
+        logger.info("npm publish request for {}/{}/{}", storageId, repositoryId, name);
         Pair<PackageVersion, Path> packageEntry;
         try
         {
@@ -360,7 +367,6 @@ public class NpmArtifactController
         PackageVersion packageJson = packageEntry.getValue0();
         Path packageTgz = packageEntry.getValue1();
 
-        Repository repository = getRepository(storageId, repositoryId);
         NpmArtifactCoordinates coordinates = NpmArtifactCoordinates.of(name, packageJson.getVersion());
 
         storeNpmPackage(repository, coordinates, packageJson, packageTgz);

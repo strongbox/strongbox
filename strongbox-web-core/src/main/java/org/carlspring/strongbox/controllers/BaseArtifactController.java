@@ -26,8 +26,7 @@ public abstract class BaseArtifactController
                                                       RepositoryPath repositoryPath)
             throws Exception
     {
-        logger.debug("Resolved path: " + repositoryPath);
-
+        logger.debug("Resolved path: {}", repositoryPath);
         ArtifactControllerHelper.provideArtifactHeaders(response, repositoryPath);
         if (response.getStatus() == HttpStatus.NOT_FOUND.value())
         {

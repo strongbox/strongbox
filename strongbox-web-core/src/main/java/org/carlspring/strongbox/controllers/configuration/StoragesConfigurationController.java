@@ -17,6 +17,7 @@ import org.carlspring.strongbox.storage.repository.ImmutableRepository;
 import org.carlspring.strongbox.storage.repository.MutableRepository;
 import org.carlspring.strongbox.storage.repository.Repository;
 import org.carlspring.strongbox.validation.RequestBodyValidationException;
+import org.carlspring.strongbox.web.RepositoryMapping;
 
 import javax.validation.groups.Default;
 import java.io.IOException;
@@ -275,7 +276,7 @@ public class StoragesConfigurationController
             {
                 MutableRepository repository = conversionService.convert(repositoryForm, MutableRepository.class);
 
-                logger.debug("Creating repository " + storageId + ":" + repositoryId + "...");
+                logger.debug("Creating repository {}:{}...", storageId, repositoryId);
 
                 configurationManagementService.saveRepository(storageId, repository);
 
@@ -305,32 +306,9 @@ public class StoragesConfigurationController
                                     message = "The repository ${storageId}:${repositoryId} was not found!") })
     @PreAuthorize("hasAuthority('CONFIGURATION_VIEW_REPOSITORY')")
     @GetMapping(value = "/{storageId}/{repositoryId}", produces = MediaType.APPLICATION_JSON_VALUE)
-    public ResponseEntity getRepositoryResponseEntity(@ApiParam(value = "The storageId", required = true)
-                                                      @PathVariable final String storageId,
-                                                      @ApiParam(value = "The repositoryId", required = true)
-                                                      @PathVariable final String repositoryId)
+    public ResponseEntity getRepositoryResponseEntity(@RepositoryMapping Repository repository)
     {
-        try
-        {
-            Repository repository = configurationManagementService.getConfiguration()
-                                                                  .getStorage(storageId)
-                                                                  .getRepository(repositoryId);
-
-            if (repository != null)
-            {
-                return ResponseEntity.ok(repository);
-            }
-            else
-            {
-                return getFailedResponseEntity(HttpStatus.NOT_FOUND, REPOSITORY_NOT_FOUND,
-                                               MediaType.APPLICATION_JSON_VALUE);
-            }
-        }
-        catch (Exception e)
-        {
-            return getExceptionResponseEntity(HttpStatus.INTERNAL_SERVER_ERROR, FAILED_GET_REPOSITORY, e,
-                                              MediaType.APPLICATION_JSON_VALUE);
-        }
+        return ResponseEntity.ok(repository);
     }
 
     @ApiOperation(value = "Deletes a repository.")
@@ -340,46 +318,35 @@ public class StoragesConfigurationController
     @PreAuthorize("hasAuthority('CONFIGURATION_DELETE_REPOSITORY')")
     @DeleteMapping(value = "/{storageId}/{repositoryId}", produces = { MediaType.TEXT_PLAIN_VALUE,
                                                                        MediaType.APPLICATION_JSON_VALUE })
-    public ResponseEntity removeRepository(@ApiParam(value = "The storageId", required = true)
-                                           @PathVariable final String storageId,
-                                           @ApiParam(value = "The repositoryId", required = true)
-                                           @PathVariable final String repositoryId,
+    public ResponseEntity removeRepository(@RepositoryMapping Repository repository,
                                            @ApiParam(value = "Whether to force delete the repository from the file system")
                                            @RequestParam(name = "force", defaultValue = "false") final boolean force,
                                            @RequestHeader(HttpHeaders.ACCEPT) String accept)
     {
-        final Repository repository = configurationManagementService.getConfiguration()
-                                                                    .getStorage(storageId)
-                                                                    .getRepository(repositoryId);
-        if (repository != null)
+        final String storageId = repository.getStorage().getId();
+        final String repositoryId = repository.getId();
+        try
         {
-            try
+            if (repositoryIndexManager.isPresent())
             {
-                if (repositoryIndexManager.isPresent())
-                {
-                    repositoryIndexManager.get().closeIndexer(storageId + ":" + repositoryId);
-                }
-
-                final RepositoryPath repositoryPath = repositoryPathResolver.resolve(repository);
-                if (Files.exists(repositoryPath) && force)
-                {
-                    repositoryManagementService.removeRepository(storageId, repository.getId());
-                }
-
-                configurationManagementService.removeRepository(storageId, repositoryId);
-
-                logger.debug("Removed repository " + storageId + ":" + repositoryId + ".");
-
-                return getSuccessfulResponseEntity(SUCCESSFUL_REPOSITORY_REMOVAL, accept);
+                repositoryIndexManager.get().closeIndexer(storageId + ":" + repositoryId);
             }
-            catch (IOException | ConfigurationException e)
+
+            final RepositoryPath repositoryPath = repositoryPathResolver.resolve(repository);
+            if (Files.exists(repositoryPath) && force)
             {
-                return getExceptionResponseEntity(HttpStatus.INTERNAL_SERVER_ERROR, FAILED_REPOSITORY_REMOVAL, e, accept);
+                repositoryManagementService.removeRepository(storageId, repository.getId());
             }
+
+            configurationManagementService.removeRepository(storageId, repositoryId);
+
+            logger.debug("Removed repository {}:{}.", storageId, repositoryId);
+
+            return getSuccessfulResponseEntity(SUCCESSFUL_REPOSITORY_REMOVAL, accept);
         }
-        else
+        catch (IOException | ConfigurationException e)
         {
-            return getFailedResponseEntity(HttpStatus.NOT_FOUND, REPOSITORY_NOT_FOUND, accept);
+            return getExceptionResponseEntity(HttpStatus.INTERNAL_SERVER_ERROR, FAILED_REPOSITORY_REMOVAL, e, accept);
         }
     }
 

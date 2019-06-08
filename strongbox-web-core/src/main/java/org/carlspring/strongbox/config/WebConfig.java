@@ -19,6 +19,7 @@ import org.carlspring.strongbox.providers.io.RepositoryPathResolver;
 import org.carlspring.strongbox.utils.CustomAntPathMatcher;
 import org.carlspring.strongbox.web.CustomRequestMappingHandlerMapping;
 import org.carlspring.strongbox.web.DirectoryTraversalFilter;
+import org.carlspring.strongbox.web.RepositoryMethodArgumentResolver;
 import org.carlspring.strongbox.yaml.YAMLMapperFactory;
 
 import javax.inject.Inject;
@@ -46,6 +47,7 @@ import org.springframework.validation.beanvalidation.LocalValidatorFactoryBean;
 import org.springframework.web.context.request.RequestContextListener;
 import org.springframework.web.filter.CommonsRequestLoggingFilter;
 import org.springframework.web.filter.RequestContextFilter;
+import org.springframework.web.method.support.HandlerMethodArgumentResolver;
 import org.springframework.web.servlet.config.annotation.ContentNegotiationConfigurer;
 import org.springframework.web.servlet.config.annotation.PathMatchConfigurer;
 import org.springframework.web.servlet.config.annotation.ResourceHandlerRegistry;
@@ -270,5 +272,17 @@ public class WebConfig
     MavenArtifactRequestInterceptor mavenArtifactRequestInterceptor(RepositoryPathResolver repositoryPathResolver)
     {
         return new MavenArtifactRequestInterceptor(repositoryPathResolver);
+    }
+
+    @Override
+    public void addArgumentResolvers(List<HandlerMethodArgumentResolver> argumentResolvers)
+    {
+        argumentResolvers.add(repositoryMethodArgumentResolver());
+    }
+
+    @Bean
+    public RepositoryMethodArgumentResolver repositoryMethodArgumentResolver()
+    {
+        return new RepositoryMethodArgumentResolver();
     }
 }
