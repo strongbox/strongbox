@@ -72,6 +72,75 @@ public class AqlParserTest
     }
 
     @Test
+    public void testValidDoubleQuotedQuerySpecificChars()
+    {
+        String query = "repository: \"releases#1\"";
+
+        AqlQueryParser aqlParser = new AqlQueryParser(query);
+
+        aqlParser.parseQuery();
+
+        logger.info(String.format("Query [%s] parse tree:\n[%s]", query, aqlParser));
+
+        assertFalse(aqlParser.hasErrors());
+    }
+
+    @Test
+    public void testValidSingleQuotedQuerySpecificChars()
+    {
+        String query = "repository: 'releases#1'";
+
+        AqlQueryParser aqlParser = new AqlQueryParser(query);
+
+        aqlParser.parseQuery();
+
+        logger.info(String.format("Query [%s] parse tree:\n[%s]", query, aqlParser));
+
+        assertFalse(aqlParser.hasErrors());
+    }
+
+    @Test
+    public void testInvalidUnquotedStringQuery()
+    {
+        String query = "repository: releases#1";
+
+        AqlQueryParser aqlParser = new AqlQueryParser(query);
+        Map<Pair<Integer, Integer>, String> errorMap = null;
+        try
+        {
+            aqlParser.parseQuery();
+        }
+        catch (QueryParserException e)
+        {
+            errorMap = aqlParser.getErrors();
+        }
+
+        logger.info(String.format("Query [%s] parse tree:\n[%s]", query, aqlParser));
+
+        assertTrue(aqlParser.hasErrors());
+        assertNotNull(errorMap);
+
+        List<Pair<Integer, Integer>> errorPositionList = new ArrayList<>(errorMap.keySet());
+
+        assertEquals(Pair.with(1, 20), errorPositionList.get(0));
+        assertEquals(Pair.with(1, 21), errorPositionList.get(1));
+    }
+
+    @Test
+    public void testValidUnquotedStringQuery()
+    {
+        String query = "repository: releases_1";
+
+        AqlQueryParser aqlParser = new AqlQueryParser(query);
+
+        aqlParser.parseQuery();
+
+        logger.info(String.format("Query [%s] parse tree:\n[%s]", query, aqlParser));
+
+        assertFalse(aqlParser.hasErrors());
+    }
+
+    @Test
     @Disabled
     public void testValidQueryWithUpperLowercaseCheck()
     {
