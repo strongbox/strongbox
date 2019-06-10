@@ -10,6 +10,7 @@ import java.io.IOException;
 import java.io.OutputStream;
 import java.io.UnsupportedEncodingException;
 import java.lang.reflect.UndeclaredThrowableException;
+import java.net.URI;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
@@ -26,7 +27,7 @@ import org.apache.commons.compress.archivers.tar.TarArchiveEntry;
 import org.apache.commons.compress.archivers.tar.TarArchiveOutputStream;
 import org.apache.commons.compress.compressors.gzip.GzipCompressorOutputStream;
 
-public class NpmPackageGenerator
+public class NpmArtifactGenerator implements ArtifactGenerator
 {
 
     private NpmArtifactCoordinates coordinates;
@@ -42,7 +43,7 @@ public class NpmPackageGenerator
     private ObjectMapper mapper = new ObjectMapper();
 
 
-    public NpmPackageGenerator(String basedir)
+    public NpmArtifactGenerator(String basedir)
     {
         super();
         this.basePath = Paths.get(basedir);
@@ -50,7 +51,7 @@ public class NpmPackageGenerator
         packageJson.setDist(new Dist());
     }
 
-    public NpmPackageGenerator of(NpmArtifactCoordinates c)
+    public NpmArtifactGenerator of(NpmArtifactCoordinates c)
     {
         packageJson.setName(c.getId());
         packageJson.setVersion(c.getVersion());
@@ -60,7 +61,7 @@ public class NpmPackageGenerator
         return this;
     }
 
-    public NpmPackageGenerator in(Path path)
+    public NpmArtifactGenerator in(Path path)
     {
         this.basePath = path;
         return this;
@@ -174,7 +175,45 @@ public class NpmPackageGenerator
         tarOut.closeArchiveEntry();
     }
 
-    public Path buildPublishJson()
+    public Path generateArtifact(NpmArtifactCoordinates coordinates)
+            throws IOException
+    {
+        return this.of(coordinates).buildPublishJson();
+    }
+
+    public Path generateArtifact(URI uri)
+            throws IOException
+    {
+        return this.of(NpmArtifactCoordinates.parse(uri.toString())).buildPublishJson();
+    }
+
+    public Path generateArtifact(String id,
+                                 String version)
+            throws IOException
+    {
+        return this.of(NpmArtifactCoordinates.of(id,version)).buildPublishJson();
+    }
+
+    @Override
+    public Path generateArtifact(URI uri,
+                                 int size)
+            throws IOException
+    {
+        // Use of size is not implemented
+        return generateArtifact(uri);
+    }
+
+    @Override
+    public Path generateArtifact(String id,
+                                 String version,
+                                 int size)
+            throws IOException
+    {
+        // Use of size is not implemented
+        return generateArtifact(id,version);
+    }
+
+    private Path buildPublishJson()
         throws IOException
     {
         if (packagePath == null)
