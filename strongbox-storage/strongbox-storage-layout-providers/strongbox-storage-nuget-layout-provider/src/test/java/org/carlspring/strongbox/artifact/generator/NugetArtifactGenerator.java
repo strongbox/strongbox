@@ -1,6 +1,7 @@
 package org.carlspring.strongbox.artifact.generator;
 
 import org.carlspring.commons.io.RandomInputStream;
+import org.carlspring.strongbox.artifact.coordinates.NugetArtifactCoordinates;
 import org.carlspring.strongbox.artifact.coordinates.versioning.SemanticVersion;
 import org.carlspring.strongbox.io.LayoutOutputStream;
 import org.carlspring.strongbox.storage.metadata.nuget.Dependencies;
@@ -11,7 +12,11 @@ import org.carlspring.strongbox.util.MessageDigestUtils;
 
 import javax.xml.bind.JAXBException;
 import java.io.*;
+import java.net.URI;
 import java.nio.charset.StandardCharsets;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.security.NoSuchAlgorithmException;
 import java.util.ArrayList;
 import java.util.Base64;
@@ -24,88 +29,123 @@ import org.slf4j.LoggerFactory;
 
 /**
  * @author Kate Novik.
+ * @author Pablo Tirado
  */
-public class NugetPackageGenerator
+public class NugetArtifactGenerator
+        implements ArtifactGenerator
 {
 
-    private static final Logger logger = LoggerFactory.getLogger(NugetPackageGenerator.class);
-    
-    private static final String PSMDCP_CONTENT = "<?xml version=\"1.0\" encoding=\"utf-8\"?>\r\n" + 
-            "<coreProperties xmlns:dc=\"http://purl.org/dc/elements/1.1/\" xmlns:dcterms=\"http://purl.org/dc/terms/\" xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\" xmlns=\"http://schemas.openxmlformats.org/package/2006/m\r\netadata/core-properties\">\r\n  " +
-            "<dc:creator>Carlspring</dc:creator>\r\n  " +
-            "<dc:description>Strongbox Nuget generated package for tests</dc:description>\r\n  " +
-            "<dc:identifier>%s</dc:identifier>\r\n  " +
-            "<version>%s</version>\r\n  <keywords>mono strongbox nuget</keywords>\r\n  " +
-            "<lastModifiedBy>org.carlspring.strongbox.artifact.generator.NugetPackageGenerator</lastModifiedBy>\r\n" +
-            "</coreProperties>";
+    private static final Logger logger = LoggerFactory.getLogger(NugetArtifactGenerator.class);
+
+    private static final String PSMDCP_CONTENT = "<?xml version=\"1.0\" encoding=\"utf-8\"?>\r\n" +
+                                                 "<coreProperties xmlns:dc=\"http://purl.org/dc/elements/1.1/\" xmlns:dcterms=\"http://purl.org/dc/terms/\" xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\" xmlns=\"http://schemas.openxmlformats.org/package/2006/m\r\netadata/core-properties\">\r\n  " +
+                                                 "<dc:creator>Carlspring</dc:creator>\r\n  " +
+                                                 "<dc:description>Strongbox Nuget generated package for tests</dc:description>\r\n  " +
+                                                 "<dc:identifier>%s</dc:identifier>\r\n  " +
+                                                 "<version>%s</version>\r\n  <keywords>mono strongbox nuget</keywords>\r\n  " +
+                                                 "<lastModifiedBy>org.carlspring.strongbox.artifact.generator.NugetArtifactGenerator</lastModifiedBy>\r\n" +
+                                                 "</coreProperties>";
 
     private static final String RELS_CONTENT = "<?xml version=\"1.0\" encoding=\"utf-8\"?>\r\n" +
-            "<Relationships xmlns=\"http://schemas.openxmlformats.org/package/2006/relationships\">\r\n  " +
-            "<Relationship Type=\"http://schemas.microsoft.com/packaging/2010/07/manifest\" Target=\"/%s.nuspec\" Id=\"Rc20b205c579d4f85\" />\r\n  " +
-            "<Relationship Type=\"http://schemas.openxmlformats.org/package/2006/relationships/metadata/core-properties\" Target=\"/package/services/metadata/core-properties/metadata.psmdcp\" Id=\"R23f62\r\ne2778b3442e\" />\r\n"  +
-            "</Relationships>";
-    
-    private String basedir;
+                                               "<Relationships xmlns=\"http://schemas.openxmlformats.org/package/2006/relationships\">\r\n  " +
+                                               "<Relationship Type=\"http://schemas.microsoft.com/packaging/2010/07/manifest\" Target=\"/%s.nuspec\" Id=\"Rc20b205c579d4f85\" />\r\n  " +
+                                               "<Relationship Type=\"http://schemas.openxmlformats.org/package/2006/relationships/metadata/core-properties\" Target=\"/package/services/metadata/core-properties/metadata.psmdcp\" Id=\"R23f62\r\ne2778b3442e\" />\r\n" +
+                                               "</Relationships>";
 
-    public NugetPackageGenerator()
+    private Path basedir;
+
+    public NugetArtifactGenerator()
     {
     }
 
-    public NugetPackageGenerator(String basedir)
+    public NugetArtifactGenerator(String basedir)
+    {
+        this.basedir = Paths.get(basedir);
+    }
+
+    public NugetArtifactGenerator(Path basedir)
     {
         this.basedir = basedir;
     }
 
-    public NugetPackageGenerator(File basedir)
+    @Override
+    public Path generateArtifact(String id,
+                                 String version,
+                                 int size)
+            throws IOException
     {
-        this.basedir = basedir.getAbsolutePath();
+        // Use of size is not implemented
+        return generateArtifact(id, version);
     }
 
-    public void generateNugetPackage(String id,
-                                     String versionString,
-                                     String... dependencyList)
-            throws NugetFormatException, JAXBException, IOException, NoSuchAlgorithmException
+    @Override
+    public Path generateArtifact(URI uri,
+                                 int size)
+            throws IOException
     {
-        File file = new File(getBasedir(), String.format("%s/%s/%s.%s.nupkg", id, versionString, id, versionString));
+        // Use of size is not implemented
+        NugetArtifactCoordinates nac = NugetArtifactCoordinates.parse(uri.toString());
 
-        //noinspection ResultOfMethodCallIgnored
-        file.getParentFile().mkdirs();
-
-        SemanticVersion version = SemanticVersion.parse(versionString);
-        logger.debug("Version of the nupkg package: ", version.toString());
-        
-        generate(file, id, version, dependencyList);
+        return generateArtifact(nac.getId(), nac.getVersion());
     }
 
-    public void generate(File nupkgFile, String id, SemanticVersion version, String... dependencyList)
-            throws IOException,
-                   JAXBException,                   
-                   NoSuchAlgorithmException, 
-                   NugetFormatException
+    private Path generateArtifact(String id,
+                                  String version)
+            throws IOException
+    {
+        try
+        {
+            return generate(id, version);
+        }
+        catch (NoSuchAlgorithmException | JAXBException | NugetFormatException e)
+        {
+            throw new IOException(e);
+        }
+    }
+
+    public Path generate(String id,
+                         String version,
+                         String... dependencyList)
+            throws IOException, NoSuchAlgorithmException, JAXBException, NugetFormatException
+    {
+        NugetArtifactCoordinates nac = new NugetArtifactCoordinates(id, version, "nupkg");
+        Path basePath = Paths.get(getBasedir()).normalize().toAbsolutePath();
+        Path nupkgPath = basePath.resolve(nac.toPath()).normalize().toAbsolutePath();
+        Files.createDirectories(nupkgPath.getParent());
+
+        SemanticVersion semanticVersion = SemanticVersion.parse(version);
+        logger.debug("Version of the nupkg package: {}", semanticVersion.toString());
+
+        generate(nupkgPath, id, semanticVersion, dependencyList);
+
+        return nupkgPath;
+    }
+
+    public void generate(Path nupkgPath,
+                         String id,
+                         SemanticVersion version,
+                         String... dependencyList)
+            throws IOException, JAXBException, NoSuchAlgorithmException, NugetFormatException
     {
         Nuspec nuspec = generateNuspec(id, version, dependencyList);
 
-        createArchive(nuspec, nupkgFile, dependencyList);
+        createArchive(nuspec, nupkgPath);
 
         generateNuspecFile(nuspec);
     }
 
-    public void createArchive(Nuspec nuspec, File packageFile, String... dependencyList)
+    public void createArchive(Nuspec nuspec,
+                              Path packagePath)
             throws IOException,
                    JAXBException,
-                   NoSuchAlgorithmException,
-                   NugetFormatException
+                   NoSuchAlgorithmException
     {
-        LayoutOutputStream layoutOutputStream = null;
-        try
+        // Make sure the artifact's parent directory exists before writing the model.
+        Files.createDirectories(packagePath.getParent());
+
+        try (OutputStream fileOutputStream = Files.newOutputStream(packagePath))
         {
-            // Make sure the artifact's parent directory exists before writing the model.
-            //noinspection ResultOfMethodCallIgnored
-            packageFile.getParentFile().mkdirs();
-
-            FileOutputStream fileOutputStream = new FileOutputStream(packageFile);
-
-            layoutOutputStream = new LayoutOutputStream(fileOutputStream);
+            LayoutOutputStream layoutOutputStream = new LayoutOutputStream(fileOutputStream);
             layoutOutputStream.addAlgorithm(MessageDigestAlgorithms.SHA_512);
             layoutOutputStream.setDigestStringifier(this::toBase64);
 
@@ -122,20 +162,18 @@ public class NugetPackageGenerator
                 createContentType(zos);
                 createRels(id, zos);
             }
-
-        }
-        finally
-        {
-            if (layoutOutputStream != null)
+            finally
             {
-                generateChecksum(packageFile, layoutOutputStream);
+                layoutOutputStream.close();
             }
+
+            generateChecksum(packagePath, layoutOutputStream);
         }
     }
 
     private void createRels(String id,
                             ZipOutputStream zos)
-        throws IOException
+            throws IOException
     {
         ZipEntry ze = new ZipEntry("_rels/.rels");
         zos.putNextEntry(ze);
@@ -152,7 +190,8 @@ public class NugetPackageGenerator
         zos.closeEntry();
     }
 
-    private void createContentType(ZipOutputStream zos) throws IOException
+    private void createContentType(ZipOutputStream zos)
+            throws IOException
     {
         ZipEntry ze = new ZipEntry("[Content_Types].xml");
         zos.putNextEntry(ze);
@@ -173,7 +212,7 @@ public class NugetPackageGenerator
     private void createMetadata(String id,
                                 String version,
                                 ZipOutputStream zos)
-        throws IOException
+            throws IOException
     {
         ZipEntry ze = new ZipEntry("package/services/metadata/core-properties/metadata.psmdcp");
         zos.putNextEntry(ze);
@@ -213,7 +252,9 @@ public class NugetPackageGenerator
         zos.closeEntry();
     }
 
-    private Nuspec generateNuspec(String id, SemanticVersion version, String... dependencyList)
+    private Nuspec generateNuspec(String id,
+                                  SemanticVersion version,
+                                  String... dependencyList)
             throws NugetFormatException
     {
         Nuspec nuspec = new Nuspec();
@@ -230,9 +271,9 @@ public class NugetPackageGenerator
             metadata.dependencies = new Dependencies();
             metadata.dependencies.dependencies = new ArrayList<>();
 
-            for (int i = 0; i < dependencyList.length; i++)
+            for (String dependency : dependencyList)
             {
-                metadata.dependencies.dependencies.add(Dependency.parseString(dependencyList[i]));
+                metadata.dependencies.dependencies.add(Dependency.parseString(dependency));
             }
         }
 
@@ -264,13 +305,12 @@ public class NugetPackageGenerator
         String packageId = nuspec.getId();
         String packageVersion = nuspec.getVersion().toString();
 
-        File nuspecFile = new File(getBasedir(),
-                                   String.format("%s/%s/%s.nuspec", packageId, packageVersion, packageId));
+        NugetArtifactCoordinates nac = new NugetArtifactCoordinates(packageId, packageVersion, "nuspec");
+        Path basePath = Paths.get(getBasedir()).normalize().toAbsolutePath();
+        Path nuspecPath = basePath.resolve(nac.toPath()).normalize().toAbsolutePath();
+        Files.createDirectories(nuspecPath.getParent());
 
-        //noinspection ResultOfMethodCallIgnored
-        nuspecFile.getParentFile().mkdirs();
-
-        try (FileOutputStream fileOutputStream = new FileOutputStream(nuspecFile))
+        try (OutputStream fileOutputStream = Files.newOutputStream(nuspecPath))
         {
             LayoutOutputStream layoutOutputStream = new LayoutOutputStream(fileOutputStream);
             layoutOutputStream.addAlgorithm(MessageDigestAlgorithms.SHA_512);
@@ -284,8 +324,8 @@ public class NugetPackageGenerator
             {
                 layoutOutputStream.close();
             }
-            
-            generateChecksum(nuspecFile, layoutOutputStream);
+
+            generateChecksum(nuspecPath, layoutOutputStream);
         }
     }
 
@@ -296,22 +336,17 @@ public class NugetPackageGenerator
         return new String(encoded, StandardCharsets.UTF_8);
     }
 
-    private void generateChecksum(File file,
+    private void generateChecksum(Path artifactPath,
                                   LayoutOutputStream layoutOutputStream)
-        throws IOException
+            throws IOException
     {
         String sha512 = layoutOutputStream.getDigestMap().get(MessageDigestAlgorithms.SHA_512);
-        MessageDigestUtils.writeChecksum(file.toPath(), ".sha512", sha512);
+        MessageDigestUtils.writeChecksum(artifactPath, ".sha512", sha512);
     }
 
     public String getBasedir()
     {
-        return basedir;
-    }
-
-    public void setBasedir(String basedir)
-    {
-        this.basedir = basedir;
+        return basedir.toAbsolutePath().toString();
     }
 
 }

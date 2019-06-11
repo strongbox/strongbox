@@ -1,5 +1,13 @@
 package org.carlspring.strongbox.storage.metadata.nuget.rss;
 
+import org.carlspring.strongbox.booters.PropertiesBooter;
+import org.carlspring.strongbox.config.NugetBootersTestConfig;
+import org.carlspring.strongbox.storage.metadata.nuget.NugetTestResourceUtil;
+import org.carlspring.strongbox.storage.metadata.nuget.TempNupkgFile;
+import org.carlspring.strongbox.testing.TestCaseWithNugetArtifactGeneration;
+
+import javax.inject.Inject;
+import javax.xml.bind.JAXBException;
 import java.io.BufferedInputStream;
 import java.io.File;
 import java.io.IOException;
@@ -8,25 +16,16 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.Date;
 
-import javax.inject.Inject;
-import javax.xml.bind.JAXBException;
-
 import org.apache.commons.io.FileUtils;
-import org.carlspring.strongbox.booters.PropertiesBooter;
-import org.carlspring.strongbox.config.NugetBootersTestConfig;
-import org.carlspring.strongbox.storage.metadata.nuget.NugetTestResourceUtil;
-import org.carlspring.strongbox.storage.metadata.nuget.TempNupkgFile;
-import org.carlspring.strongbox.testing.TestCaseWithNugetPackageGeneration;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.ContextConfiguration;
-
-import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.core.StringContains.containsString;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 
 /**
  * Test class RSS
@@ -122,12 +121,9 @@ public class PackageFeedTest
         // GIVEN
         String packageId = "NUnit";
         String packageVersion = "2.5.9.10348";
-        Path packageFilePath = TestCaseWithNugetPackageGeneration.generatePackageFile(baseDirectoryPath,
-                                                                                      packageId,
-                                                                                      packageVersion,
-                                                                                      (String[]) null/*
-                                                                                                      * dependencyList
-                                                                                                      */);
+        Path packageFilePath = TestCaseWithNugetArtifactGeneration.generateArtifactFile(baseDirectoryPath,
+                                                                                        packageId,
+                                                                                        packageVersion);
 
         try (InputStream nupkgInputStream = new BufferedInputStream(Files.newInputStream(packageFilePath));
                 TempNupkgFile nupkgFile = new TempNupkgFile(nupkgInputStream);)

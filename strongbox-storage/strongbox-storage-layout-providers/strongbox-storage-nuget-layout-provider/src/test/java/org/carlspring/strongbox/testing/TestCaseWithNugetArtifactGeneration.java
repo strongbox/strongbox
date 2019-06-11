@@ -1,7 +1,8 @@
 package org.carlspring.strongbox.testing;
 
 import org.carlspring.strongbox.artifact.coordinates.NugetArtifactCoordinates;
-import org.carlspring.strongbox.artifact.generator.NugetPackageGenerator;
+import org.carlspring.strongbox.artifact.generator.ArtifactGenerator;
+import org.carlspring.strongbox.artifact.generator.NugetArtifactGenerator;
 import org.carlspring.strongbox.booters.PropertiesBooter;
 import org.carlspring.strongbox.providers.ProviderImplementationException;
 import org.carlspring.strongbox.providers.io.RepositoryPath;
@@ -22,8 +23,9 @@ import java.security.NoSuchAlgorithmException;
 
 /**
  * @author Kate Novik.
+ * @author Pablo Tirado
  */
-public class TestCaseWithNugetPackageGeneration
+public class TestCaseWithNugetArtifactGeneration
         extends TestCaseWithRepository
 {
 
@@ -36,10 +38,10 @@ public class TestCaseWithNugetPackageGeneration
     @Inject
     protected RepositoryPathResolver repositoryPathResolver;
 
-    public void generateRepositoryPackages(String storageId,
-                                           String repositoryId,
-                                           String packageId,
-                                           int count)
+    public void generateRepositoryArtifacts(String storageId,
+                                            String repositoryId,
+                                            String packageId,
+                                            int count)
             throws NoSuchAlgorithmException,
                    NugetFormatException,
                    JAXBException,
@@ -51,8 +53,8 @@ public class TestCaseWithNugetPackageGeneration
         {
             String packageVersion = String.format("1.0.%s", i);
             NugetArtifactCoordinates coordinates = new NugetArtifactCoordinates(packageId, packageVersion, "nupkg");
-            Path packageFilePath = generatePackageFile(packageId, packageVersion);
-            try (InputStream is = new BufferedInputStream(Files.newInputStream(packageFilePath)))
+            Path artifactFilePath = generateArtifactFile(packageId, packageVersion);
+            try (InputStream is = new BufferedInputStream(Files.newInputStream(artifactFilePath)))
             {
                 RepositoryPath repositoryPath = repositoryPathResolver.resolve(storageId,
                                                                                repositoryId,
@@ -62,22 +64,20 @@ public class TestCaseWithNugetPackageGeneration
         }
     }
 
-    public Path generatePackageFile(String packageId,
-                                    String packageVersion,
-                                    String... dependencyList)
+    public Path generateArtifactFile(String packageId,
+                                     String packageVersion)
             throws NoSuchAlgorithmException,
                    NugetFormatException,
                    JAXBException,
                    IOException
     {
         String basedir = propertiesBooter.getHomeDirectory() + "/tmp";
-        return generatePackageFile(basedir, packageId, packageVersion, dependencyList);
+        return generateArtifactFile(basedir, packageId, packageVersion);
     }
 
-    public static Path generatePackageFile(String basedir,
-                                           String packageId,
-                                           String packageVersion,
-                                           String... dependencyList)
+    public static Path generateArtifactFile(String basedir,
+                                            String packageId,
+                                            String packageVersion)
             throws NugetFormatException,
                    JAXBException,
                    IOException,
@@ -85,8 +85,8 @@ public class TestCaseWithNugetPackageGeneration
     {
         String packageFileName = packageId + "." + packageVersion + ".nupkg";
 
-        NugetPackageGenerator nugetPackageGenerator = new NugetPackageGenerator(basedir);
-        nugetPackageGenerator.generateNugetPackage(packageId, packageVersion, dependencyList);
+        ArtifactGenerator nugetArtifactGenerator = new NugetArtifactGenerator(basedir);
+        nugetArtifactGenerator.generateArtifact(packageId, packageVersion, 0);
 
         Path basePath = Paths.get(basedir).normalize().toAbsolutePath();
         return basePath.resolve(packageId)
@@ -96,31 +96,29 @@ public class TestCaseWithNugetPackageGeneration
                        .toAbsolutePath();
     }
 
-    public void generateNugetPackage(String repositoryDir,
-                                     String id,
-                                     String version,
-                                     String... dependencyList)
+    public void generateNugetArtifact(String repositoryDir,
+                                      String id,
+                                      String version)
             throws IOException,
                    NoSuchAlgorithmException,
                    NugetFormatException,
                    JAXBException
     {
-        NugetPackageGenerator generator = new NugetPackageGenerator(repositoryDir);
-        generator.generateNugetPackage(id, version, dependencyList);
+        ArtifactGenerator generator = new NugetArtifactGenerator(repositoryDir);
+        generator.generateArtifact(id, version, 0);
     }
 
-    public void generateAlphaNugetPackage(String repositoryDir,
-                                          String id,
-                                          String version,
-                                          String... dependencyList)
+    public void generateAlphaNugetArtifact(String repositoryDir,
+                                           String id,
+                                           String version)
             throws IOException,
                    NoSuchAlgorithmException,
                    NugetFormatException,
                    JAXBException
     {
-        NugetPackageGenerator generator = new NugetPackageGenerator(repositoryDir);
+        ArtifactGenerator generator = new NugetArtifactGenerator(repositoryDir);
 
-        generator.generateNugetPackage(id, getNugetSnapshotVersion(version), dependencyList);
+        generator.generateArtifact(id, getNugetSnapshotVersion(version), 0);
     }
 
     private String getNugetSnapshotVersion(String version)

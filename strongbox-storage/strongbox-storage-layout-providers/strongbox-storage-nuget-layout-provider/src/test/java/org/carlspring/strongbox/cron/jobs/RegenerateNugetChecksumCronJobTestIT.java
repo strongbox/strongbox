@@ -124,24 +124,24 @@ public class RegenerateNugetChecksumCronJobTestIT
         createRepository(STORAGE1, REPOSITORY_RELEASES, RepositoryPolicyEnum.RELEASE.getPolicy());
 
         //Create released nuget package in the repository rnccj-releases (storage1)
-        generateNugetPackage(getRepositoryBasedir(STORAGE1, REPOSITORY_RELEASES),
-                             "org.carlspring.strongbox.checksum-second", "1.0.0");
+        generateNugetArtifact(getRepositoryBasedir(STORAGE1, REPOSITORY_RELEASES),
+                              "org.carlspring.strongbox.checksum-second", "1.0.0");
 
         createRepository(STORAGE1, REPOSITORY_ALPHA, RepositoryPolicyEnum.SNAPSHOT.getPolicy());
 
         //Create pre-released nuget package in the repository rnccj-alpha
-        generateAlphaNugetPackage(getRepositoryBasedir(STORAGE1, REPOSITORY_ALPHA),
-                                  "org.carlspring.strongbox.checksum-one",
-                                  "1.0.1");
+        generateAlphaNugetArtifact(getRepositoryBasedir(STORAGE1, REPOSITORY_ALPHA),
+                                   "org.carlspring.strongbox.checksum-one",
+                                   "1.0.1");
 
         createStorage(STORAGE2);
 
         createRepository(STORAGE2, REPOSITORY_RELEASES, RepositoryPolicyEnum.RELEASE.getPolicy());
 
         //Create released nuget package in the repository rnccj-releases (storage2)
-        generateNugetPackage(getRepositoryBasedir(STORAGE2, REPOSITORY_RELEASES),
-                             "org.carlspring.strongbox.checksum-one",
-                             "1.0.0");
+        generateNugetArtifact(getRepositoryBasedir(STORAGE2, REPOSITORY_RELEASES),
+                              "org.carlspring.strongbox.checksum-one",
+                              "1.0.0");
     }
 
     @AfterEach
@@ -158,7 +158,7 @@ public class RegenerateNugetChecksumCronJobTestIT
     }
 
     @Test
-    public void testRegenerateNugetPackageChecksum()
+    public void testRegenerateNugetArtifactChecksum()
             throws Exception
     {
         final UUID jobKey = expectedJobKey;
