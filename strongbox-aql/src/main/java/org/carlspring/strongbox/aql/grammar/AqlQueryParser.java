@@ -12,7 +12,7 @@ import org.carlspring.strongbox.domain.ArtifactEntry;
  * @author sbespalov
  *
  */
-public class AqlQueryParser extends QueryParser<QueryContext, ArtifactEntry, AQLStatementVisitor>
+public class AqlQueryParser extends QueryParser<QueryContext, ArtifactEntry, AqlStatementVisitor>
 {
 
     public AqlQueryParser(String query)
@@ -28,9 +28,9 @@ public class AqlQueryParser extends QueryParser<QueryContext, ArtifactEntry, AQL
     }
 
     @Override
-    protected AQLStatementVisitor createTreeVisitor()
+    protected AqlStatementVisitor createTreeVisitor()
     {
-        return new AQLStatementVisitor();
+        return new AqlStatementVisitor();
     }
 
     @Override

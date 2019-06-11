@@ -11,7 +11,7 @@ import org.carlspring.strongbox.domain.ArtifactEntryExpressionBuilder;
  * @author sbespalov
  *
  */
-public class AQLExpressionVisitor extends AQLBaseVisitor<ArtifactEntryExpressionBuilder>
+public class AqlExpressionVisitor extends AQLBaseVisitor<ArtifactEntryExpressionBuilder>
 {
 
     private ArtifactEntryExpressionBuilder expressionBuilder = new ArtifactEntryExpressionBuilder(

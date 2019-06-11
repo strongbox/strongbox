@@ -12,12 +12,12 @@ import org.carlspring.strongbox.domain.ArtifactEntry;
  * @author sbespalov
  *
  */
-public class AQLStatementVisitor extends AQLBaseVisitor<Selector<ArtifactEntry>>
+public class AqlStatementVisitor extends AQLBaseVisitor<Selector<ArtifactEntry>>
 {
 
     private Selector<ArtifactEntry> selector = new Selector<>(ArtifactEntry.class);
 
-    public AQLStatementVisitor()
+    public AqlStatementVisitor()
     {
     }
 
@@ -25,7 +25,7 @@ public class AQLStatementVisitor extends AQLBaseVisitor<Selector<ArtifactEntry>>
     public Selector<ArtifactEntry> visitQuery(QueryContext ctx)
     {
         Predicate artifactPredicate = Predicate.of(ExpOperator.IS_NOT_NULL.of("artifactCoordinates"));
-        AQLQueryVisitor queryVisitor = new AQLQueryVisitor(artifactPredicate);
+        AqlQueryVisitor queryVisitor = new AqlQueryVisitor(artifactPredicate);
 
         for (QueryExpContext queryExpContext : ctx.queryExp())
         {
@@ -33,7 +33,7 @@ public class AQLStatementVisitor extends AQLBaseVisitor<Selector<ArtifactEntry>>
         }
         selector.where(queryVisitor.getRoot());
 
-        AQLPaginatorVisitor aqlPaginatorVisitor = new AQLPaginatorVisitor();
+        AqlPaginatorVisitor aqlPaginatorVisitor = new AqlPaginatorVisitor();
         Paginator paginator = aqlPaginatorVisitor.visitOrderExp(ctx.orderExp());
         paginator = aqlPaginatorVisitor.visitPageExp(ctx.pageExp());
 

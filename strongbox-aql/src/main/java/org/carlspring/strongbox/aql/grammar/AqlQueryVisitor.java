@@ -12,12 +12,12 @@ import org.carlspring.strongbox.domain.ArtifactEntryExpressionBuilder;
  * @author sbespalov
  *
  */
-public class AQLQueryVisitor extends AQLBaseVisitor<Predicate>
+public class AqlQueryVisitor extends AQLBaseVisitor<Predicate>
 {
 
     private Predicate root;
 
-    public AQLQueryVisitor(Predicate predicate)
+    public AqlQueryVisitor(Predicate predicate)
     {
         this.root = predicate;
     }
@@ -75,7 +75,7 @@ public class AQLQueryVisitor extends AQLBaseVisitor<Predicate>
     @Override
     public Predicate visitTokenExp(TokenExpContext ctx)
     {
-        AQLExpressionVisitor nestedVisitor = new AQLExpressionVisitor();
+        AqlExpressionVisitor nestedVisitor = new AqlExpressionVisitor();
         
         nestedVisitor.visitTokenExp(ctx);
         
