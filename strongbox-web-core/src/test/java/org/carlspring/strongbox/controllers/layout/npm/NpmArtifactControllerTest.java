@@ -1,7 +1,7 @@
 package org.carlspring.strongbox.controllers.layout.npm;
 
 import org.carlspring.strongbox.artifact.coordinates.NpmArtifactCoordinates;
-import org.carlspring.strongbox.artifact.generator.NpmPackageGenerator;
+import org.carlspring.strongbox.artifact.generator.NpmArtifactGenerator;
 import org.carlspring.strongbox.config.IntegrationTest;
 import org.carlspring.strongbox.providers.layout.NpmLayoutProvider;
 import org.carlspring.strongbox.rest.common.NpmRestAssuredBaseTest;
@@ -18,9 +18,7 @@ import java.util.Set;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.http.HttpStatus;
 import static io.restassured.module.mockmvc.RestAssuredMockMvc.given;
 import static org.hamcrest.CoreMatchers.equalTo;
@@ -38,7 +36,7 @@ public class NpmArtifactControllerTest
     @Value("${strongbox.url}")
     private String contextBaseUrl;
 
-    NpmPackageGenerator packageGenerator;
+    private NpmArtifactGenerator artifactGenerator;
 
 
     @BeforeAll
@@ -70,7 +68,7 @@ public class NpmArtifactControllerTest
 
         String repositoryBasedir = getRepositoryBasedir(STORAGE0, REPOSITORY_RELEASES).getAbsolutePath();
 
-        packageGenerator = new NpmPackageGenerator(repositoryBasedir);
+        artifactGenerator = new NpmArtifactGenerator(repositoryBasedir);
     }
 
     @Test
@@ -78,7 +76,7 @@ public class NpmArtifactControllerTest
         throws Exception
     {
         NpmArtifactCoordinates coordinates = NpmArtifactCoordinates.of("@carlspring/npm-test-view", "1.0.0");
-        Path publishJsonPath = packageGenerator.of(coordinates).buildPublishJson();
+        Path publishJsonPath = artifactGenerator.generateArtifact(coordinates);
 
         byte[] publishJsonContent = Files.readAllBytes(publishJsonPath);
 
@@ -119,8 +117,8 @@ public class NpmArtifactControllerTest
         throws Exception
     {
         NpmArtifactCoordinates coordinates = NpmArtifactCoordinates.of("@carlspring/npm-test-release", "1.0.0");
-        Path publishJsonPath = packageGenerator.of(coordinates).buildPublishJson();
-        Path packagePath = packageGenerator.getPackagePath();
+        Path publishJsonPath = artifactGenerator.generateArtifact(coordinates);
+        Path packagePath = artifactGenerator.getPackagePath();
 
         byte[] publishJsonContent = Files.readAllBytes(publishJsonPath);
 
