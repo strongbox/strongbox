@@ -10,9 +10,9 @@ import org.carlspring.strongbox.storage.metadata.MetadataType;
 import org.carlspring.strongbox.storage.repository.Repository;
 import org.carlspring.strongbox.storage.repository.RepositoryPolicyEnum;
 import org.carlspring.strongbox.testing.artifact.ArtifactManagementTestExecutionListener;
-import org.carlspring.strongbox.testing.artifact.TestArtifact;
+import org.carlspring.strongbox.testing.artifact.MavenTestArtifact;
+import org.carlspring.strongbox.testing.repository.MavenRepository;
 import org.carlspring.strongbox.testing.storage.repository.RepositoryManagementTestExecutionListener;
-import org.carlspring.strongbox.testing.storage.repository.TestRepository;
 
 import javax.inject.Inject;
 import java.io.InputStream;
@@ -54,7 +54,7 @@ public class MavenMetadataManagementControllerTest
 
     @ExtendWith({ RepositoryManagementTestExecutionListener.class})
     @Test
-    public void testRebuildSnapshotMetadata(@TestRepository(repositoryId = REPOSITORY_SNAPSHOTS, layout = MavenArtifactCoordinates.LAYOUT_NAME, policy = RepositoryPolicyEnum.SNAPSHOT) Repository repository)
+    public void testRebuildSnapshotMetadata(@MavenRepository(repositoryId = REPOSITORY_SNAPSHOTS, layout = MavenArtifactCoordinates.LAYOUT_NAME, policy = RepositoryPolicyEnum.SNAPSHOT) Repository repository)
             throws Exception
     {
         String repositoryId = repository.getId();
@@ -113,7 +113,7 @@ public class MavenMetadataManagementControllerTest
 
     @ExtendWith({ RepositoryManagementTestExecutionListener.class})
     @Test
-    public void testRebuildSnapshotMetadataWithBasePath(@TestRepository(repositoryId = REPOSITORY_SNAPSHOTS, layout = MavenArtifactCoordinates.LAYOUT_NAME, policy = RepositoryPolicyEnum.SNAPSHOT) Repository repository)
+    public void testRebuildSnapshotMetadataWithBasePath(@MavenRepository(repositoryId = REPOSITORY_SNAPSHOTS, layout = MavenArtifactCoordinates.LAYOUT_NAME, policy = RepositoryPolicyEnum.SNAPSHOT) Repository repository)
             throws Exception
     {
         // Generate snapshots in nested dirs
@@ -211,8 +211,8 @@ public class MavenMetadataManagementControllerTest
 
     @ExtendWith({ RepositoryManagementTestExecutionListener.class, ArtifactManagementTestExecutionListener.class })
     @Test
-    public void testRebuildReleaseMetadataAndDeleteAVersion(@TestRepository(repositoryId = REPOSITORY_RELEASES, layout = MavenArtifactCoordinates.LAYOUT_NAME, policy = RepositoryPolicyEnum.RELEASE) Repository repository,
-                                                            @TestArtifact(repositoryId = REPOSITORY_RELEASES, id = "org.carlspring.strongbox.metadata:strongbox-metadata", versions = { "3.1","3.2" }, generator = MavenArtifactGenerator.class) List<Path> repositoryArtifacts)
+    public void testRebuildReleaseMetadataAndDeleteAVersion(@MavenRepository(repositoryId = REPOSITORY_RELEASES, layout = MavenArtifactCoordinates.LAYOUT_NAME, policy = RepositoryPolicyEnum.RELEASE) Repository repository,
+                                                            @MavenTestArtifact(repositoryId = REPOSITORY_RELEASES, id = "org.carlspring.strongbox.metadata:strongbox-metadata", versions = { "3.1","3.2" }) List<Path> repositoryArtifacts)
             throws Exception
     {
         String metadataPath = "/storages/" + STORAGE0 + "/" + REPOSITORY_RELEASES +
