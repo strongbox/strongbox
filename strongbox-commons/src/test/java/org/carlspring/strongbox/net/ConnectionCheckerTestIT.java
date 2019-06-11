@@ -4,6 +4,9 @@ import java.io.IOException;
 import java.net.ServerSocket;
 
 import org.junit.jupiter.api.Test;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.util.SocketUtils;
 import static org.junit.jupiter.api.Assertions.*;
 
 /**
@@ -12,12 +15,20 @@ import static org.junit.jupiter.api.Assertions.*;
 public class ConnectionCheckerTestIT
 {
 
+    protected final Logger logger = LoggerFactory.getLogger(getClass().getName());
+
     @Test
     public void testConnectToInvalidService()
             throws IOException
     {
-        // We're assuming there's nothing running on port 65534.
-        final boolean availability = ConnectionChecker.checkServiceAvailability("localhost", 65534, 3000);
+        logger.debug("Searching for an unused port...");
+
+        // Find an unused TCP port.
+        final int port = SocketUtils.findAvailableTcpPort();
+
+        logger.debug("Unused port found: {}", port);
+
+        final boolean availability = ConnectionChecker.checkServiceAvailability("localhost", port, 3000);
 
         assertFalse(availability);
     }
