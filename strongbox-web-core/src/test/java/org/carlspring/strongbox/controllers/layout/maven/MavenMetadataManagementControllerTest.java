@@ -54,7 +54,7 @@ public class MavenMetadataManagementControllerTest
 
     @ExtendWith({ RepositoryManagementTestExecutionListener.class})
     @Test
-    public void testRebuildSnapshotMetadata(@MavenRepository(repositoryId = REPOSITORY_SNAPSHOTS, layout = MavenArtifactCoordinates.LAYOUT_NAME, policy = RepositoryPolicyEnum.SNAPSHOT) Repository repository)
+    public void testRebuildSnapshotMetadata(@MavenRepository(repositoryId = REPOSITORY_SNAPSHOTS, policy = RepositoryPolicyEnum.SNAPSHOT) Repository repository)
             throws Exception
     {
         String repositoryId = repository.getId();
@@ -113,7 +113,7 @@ public class MavenMetadataManagementControllerTest
 
     @ExtendWith({ RepositoryManagementTestExecutionListener.class})
     @Test
-    public void testRebuildSnapshotMetadataWithBasePath(@MavenRepository(repositoryId = REPOSITORY_SNAPSHOTS, layout = MavenArtifactCoordinates.LAYOUT_NAME, policy = RepositoryPolicyEnum.SNAPSHOT) Repository repository)
+    public void testRebuildSnapshotMetadataWithBasePath(@MavenRepository(repositoryId = REPOSITORY_SNAPSHOTS, policy = RepositoryPolicyEnum.SNAPSHOT) Repository repository)
             throws Exception
     {
         // Generate snapshots in nested dirs
@@ -211,7 +211,7 @@ public class MavenMetadataManagementControllerTest
 
     @ExtendWith({ RepositoryManagementTestExecutionListener.class, ArtifactManagementTestExecutionListener.class })
     @Test
-    public void testRebuildReleaseMetadataAndDeleteAVersion(@MavenRepository(repositoryId = REPOSITORY_RELEASES, layout = MavenArtifactCoordinates.LAYOUT_NAME, policy = RepositoryPolicyEnum.RELEASE) Repository repository,
+    public void testRebuildReleaseMetadataAndDeleteAVersion(@MavenRepository(repositoryId = REPOSITORY_RELEASES, policy = RepositoryPolicyEnum.RELEASE) Repository repository,
                                                             @MavenTestArtifact(repositoryId = REPOSITORY_RELEASES, id = "org.carlspring.strongbox.metadata:strongbox-metadata", versions = { "3.1","3.2" }) List<Path> repositoryArtifacts)
             throws Exception
     {
