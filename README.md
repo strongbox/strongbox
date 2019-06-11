@@ -48,7 +48,7 @@ You can find our documentation [here][docs].
 # Requirements
 
 * Java 1.8.x
-* Maven 3.3.9 (or higher)
+* Maven 3.5.4 (or higher)
 
 # Building
 
