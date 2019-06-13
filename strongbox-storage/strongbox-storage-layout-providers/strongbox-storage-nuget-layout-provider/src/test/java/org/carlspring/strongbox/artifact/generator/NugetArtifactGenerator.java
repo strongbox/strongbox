@@ -60,12 +60,12 @@ public class NugetArtifactGenerator
 
     public NugetArtifactGenerator(String basedir)
     {
-        this.basedir = Paths.get(basedir);
+        this.basedir = Paths.get(basedir).normalize().toAbsolutePath();
     }
 
     public NugetArtifactGenerator(Path basedir)
     {
-        this.basedir = basedir;
+        this.basedir = basedir.normalize().toAbsolutePath();
     }
 
     @Override
@@ -89,8 +89,8 @@ public class NugetArtifactGenerator
         return generateArtifact(nac.getId(), nac.getVersion());
     }
 
-    private Path generateArtifact(String id,
-                                  String version)
+    public Path generateArtifact(String id,
+                                 String version)
             throws IOException
     {
         try
@@ -109,8 +109,7 @@ public class NugetArtifactGenerator
             throws IOException, NoSuchAlgorithmException, JAXBException, NugetFormatException
     {
         NugetArtifactCoordinates nac = new NugetArtifactCoordinates(id, version, "nupkg");
-        Path basePath = Paths.get(getBasedir()).normalize().toAbsolutePath();
-        Path nupkgPath = basePath.resolve(nac.toPath()).normalize().toAbsolutePath();
+        Path nupkgPath = basedir.resolve(nac.toPath()).normalize().toAbsolutePath();
         Files.createDirectories(nupkgPath.getParent());
 
         SemanticVersion semanticVersion = SemanticVersion.parse(version);
@@ -346,7 +345,7 @@ public class NugetArtifactGenerator
 
     public String getBasedir()
     {
-        return basedir.toAbsolutePath().toString();
+        return basedir.normalize().toAbsolutePath().toString();
     }
 
 }

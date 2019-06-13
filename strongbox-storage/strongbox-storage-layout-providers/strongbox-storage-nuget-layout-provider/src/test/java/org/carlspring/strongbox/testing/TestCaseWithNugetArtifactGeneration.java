@@ -104,8 +104,8 @@ public class TestCaseWithNugetArtifactGeneration
                    NugetFormatException,
                    JAXBException
     {
-        ArtifactGenerator generator = new NugetArtifactGenerator(repositoryDir);
-        generator.generateArtifact(id, version, 0);
+        NugetArtifactGenerator generator = new NugetArtifactGenerator(repositoryDir);
+        generator.generateArtifact(id, version);
     }
 
     public void generateAlphaNugetArtifact(String repositoryDir,
@@ -116,9 +116,9 @@ public class TestCaseWithNugetArtifactGeneration
                    NugetFormatException,
                    JAXBException
     {
-        ArtifactGenerator generator = new NugetArtifactGenerator(repositoryDir);
+        NugetArtifactGenerator generator = new NugetArtifactGenerator(repositoryDir);
 
-        generator.generateArtifact(id, getNugetSnapshotVersion(version), 0);
+        generator.generateArtifact(id, getNugetSnapshotVersion(version));
     }
 
     private String getNugetSnapshotVersion(String version)
