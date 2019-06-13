@@ -21,7 +21,6 @@ import org.apache.commons.lang3.StringUtils;
 import org.assertj.core.util.Lists;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
-import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.http.HttpStatus;
 import static io.restassured.module.mockmvc.RestAssuredMockMvc.given;
 import static org.junit.jupiter.api.Assertions.*;
@@ -37,11 +36,11 @@ public class AssetsManifestTest
 
     private static final String FILE_RESOURCE = "assets-manifest.json";
     private static final String ROOT_PATH = "/";
-    private static final String STYLES_REGEX = "/static/assets/styles.([a-zAZ0-9]+).css";
-    private static final String RUNTIME_REGEX = "/static/assets/runtime.([a-zAZ0-9]+).js";
-    private static final String POLYFILLS_REGEX = "/static/assets/polyfills.([a-zAZ0-9]+).js";
-    private static final String MAIN_REGEX = "/static/assets/main.([a-zAZ0-9]+).js";
-    private static List<String> indexResources;
+    private static final Pattern STYLES_REGEX = Pattern.compile("\\/static\\/assets\\/styles(.+).css");
+    private static final Pattern RUNTIME_REGEX = Pattern.compile("\\/static\\/assets\\/runtime(.+).js");
+    private static final Pattern POLYFILLS_REGEX = Pattern.compile("\\/static\\/assets\\/polyfills(.+).js");
+    private static final Pattern MAIN_REGEX = Pattern.compile("\\/static\\/assets\\/main(.+).js");
+    private static List<Pattern> indexResourcePatterns;
 
     @Inject
     private ObjectMapper mapper;
@@ -49,11 +48,11 @@ public class AssetsManifestTest
     @BeforeAll
     static void init()
     {
-        indexResources = Lists.newArrayList();
-        indexResources.add(STYLES_REGEX);
-        indexResources.add(RUNTIME_REGEX);
-        indexResources.add(POLYFILLS_REGEX);
-        indexResources.add(MAIN_REGEX);
+        indexResourcePatterns = Lists.newArrayList();
+        indexResourcePatterns.add(STYLES_REGEX);
+        indexResourcePatterns.add(RUNTIME_REGEX);
+        indexResourcePatterns.add(POLYFILLS_REGEX);
+        indexResourcePatterns.add(MAIN_REGEX);
     }
 
     @Test
@@ -129,13 +128,12 @@ public class AssetsManifestTest
 
     private void checkIndexHtmlResources(String indexHtml)
     {
-        for (String indexResource : indexResources)
+        for (Pattern pattern : indexResourcePatterns)
         {
-            Pattern pattern = Pattern.compile(indexResource);
             Matcher matcher = pattern.matcher(indexHtml);
 
             // Check that the resources exists in index.html.
-            assertTrue(matcher.find());
+            assertTrue(matcher.find(), String.format("The resource \"%s\" is not found in index.html.", pattern.toString()));
         }
     }
 }
