@@ -15,7 +15,7 @@
     <if condition="${console:-true}">
     <then>
         <appender name="CONSOLE" class="ch.qos.logback.core.ConsoleAppender">
-            <filter class="org.carlspring.strongbox.log.CronTaskContextFilter"/>
+            <filter class="org.carlspring.strongbox.log.CronTaskContextDeclineFilter"/>
     
             <encoder>
                 <pattern>%d{HH:mm:ss.SSS dd-MM-yyyy} | %-5.5p | %-20.20t | %-50.50logger{50} | %m%n</pattern>
@@ -28,21 +28,40 @@
     </if>
     
     <if condition="${file:-true}">
-    <then>    
-        <appender name="FILE" class="ch.qos.logback.classic.sift.SiftingAppender">
+    <then>
+        <appender name="FILE"
+            class="ch.qos.logback.core.rolling.RollingFileAppender">
+            <filter class="org.carlspring.strongbox.log.CronTaskContextDeclineFilter"/>
+            
+            <file>${loggingPath}/logs/strongbox.log</file>
+            <rollingPolicy class="ch.qos.logback.core.rolling.SizeAndTimeBasedRollingPolicy">
+                <fileNamePattern>${loggingPath}/logs/strongbox-%d{yyyy-MM-dd}.%i.log.gz</fileNamePattern>
+                <maxFileSize>128MB</maxFileSize>
+                <maxHistory>31</maxHistory>
+                <totalSizeCap>1GB</totalSizeCap>
+            </rollingPolicy>
+
+            <encoder>
+                <charset>UTF-8</charset>
+                <pattern>%d{HH:mm:ss.SSS dd-MM-yyyy} | %-5.5p | %-20.20t | %-50.50logger{50} | %m%n</pattern>
+            </encoder>
+        </appender>
+
+        <appender name="CRON-JOB-FILE" class="ch.qos.logback.classic.sift.SiftingAppender">
     
             <discriminator
                 class="ch.qos.logback.classic.sift.MDCBasedDiscriminator">
                 <key>strongbox-cron-context-name</key>
-                <defaultValue>strongbox</defaultValue>
+                <defaultValue>strongbox-empty-cron-job</defaultValue>
             </discriminator>
             <sift>
                 <appender name="CRON-JOB-CONTEXT-SIFT-FILE-APPENDER"
                     class="ch.qos.logback.core.rolling.RollingFileAppender">
-    
-                    <file>${loggingPath}/logs/${strongbox-cron-context-name}.log</file>
+                    <filter class="org.carlspring.strongbox.log.CronTaskContextAcceptFilter"/>
+                    
+                    <file>${loggingPath}/logs/${strongbox-cron-context-name}/${strongbox-cron-context-name}.log</file>
                     <rollingPolicy class="ch.qos.logback.core.rolling.SizeAndTimeBasedRollingPolicy">
-                        <fileNamePattern>${loggingPath}/logs/${strongbox-cron-context-name}-%d{yyyy-MM-dd}.%i.log.gz</fileNamePattern>
+                        <fileNamePattern>${loggingPath}/logs/${strongbox-cron-context-name}/${strongbox-cron-context-name}-%d{yyyy-MM-dd}.%i.log.gz</fileNamePattern>
                         <maxFileSize>128MB</maxFileSize>
                         <maxHistory>31</maxHistory>
                         <totalSizeCap>1GB</totalSizeCap>
@@ -57,6 +76,7 @@
         </appender>
         <root>
             <appender-ref ref="FILE"/>
+            <appender-ref ref="CRON-JOB-FILE"/>
         </root>
     </then>
     </if>
