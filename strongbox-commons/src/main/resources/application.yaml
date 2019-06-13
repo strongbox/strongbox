@@ -34,7 +34,7 @@ strongbox:
     database:
       path: ${strongbox.vault}/db
 logging:
-  debug: true
+  debug: false
   console: true
   file: true
   dir: ${strongbox.vault}/logs
