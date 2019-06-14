@@ -13,7 +13,3 @@ authorizationConfiguration:
       description: Deployment role
       privileges:
         - Deploy
-  privileges:
-    - name: EXAMPLE_PRIVILEGE
-      description: This is an example of how you could add some custom privilege. Feel
-        free to use it by name at the REST API side to access restriction purposes.
