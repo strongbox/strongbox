@@ -106,7 +106,5 @@ public class LdapAuthenticationProviderTest
 
             return new PropertiesPropertySource(STRONGBOX_AUTHENTICATION_PROVIDERS, properties);
         }
-
     }
-
 }

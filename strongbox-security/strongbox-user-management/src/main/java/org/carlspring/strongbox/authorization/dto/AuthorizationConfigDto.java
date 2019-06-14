@@ -21,8 +21,6 @@ public class AuthorizationConfigDto
 
     private Set<RoleDto> roles = new LinkedHashSet<>();
 
-    private Set<PrivilegeDto> privileges = new LinkedHashSet<>();
-
     public Set<RoleDto> getRoles()
     {
         return roles;
@@ -31,16 +29,6 @@ public class AuthorizationConfigDto
     public void setRoles(Set<RoleDto> roles)
     {
         this.roles = roles;
-    }
-
-    public Set<PrivilegeDto> getPrivileges()
-    {
-        return privileges;
-    }
-
-    public void setPrivileges(final Set<PrivilegeDto> privileges)
-    {
-        this.privileges = privileges;
     }
 
     @Override
@@ -52,14 +40,7 @@ public class AuthorizationConfigDto
             return false;
         }
         final AuthorizationConfigDto config = (AuthorizationConfigDto) o;
-        return java.util.Objects.equals(roles, config.roles) &&
-               java.util.Objects.equals(privileges, config.privileges);
-    }
-
-    @Override
-    public int hashCode()
-    {
-        return java.util.Objects.hash(roles, privileges);
+        return java.util.Objects.equals(roles, config.roles);
     }
 
     @Override
@@ -67,9 +48,7 @@ public class AuthorizationConfigDto
     {
         final StringBuilder sb = new StringBuilder("AuthorizationConfig{");
         sb.append("roles=").append(roles);
-        sb.append(", privileges=").append(privileges);
         sb.append('}');
         return sb.toString();
     }
-
 }
