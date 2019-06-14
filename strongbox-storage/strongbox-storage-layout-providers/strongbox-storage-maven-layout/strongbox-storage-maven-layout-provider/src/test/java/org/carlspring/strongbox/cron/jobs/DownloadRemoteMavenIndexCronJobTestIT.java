@@ -184,7 +184,8 @@ public class DownloadRemoteMavenIndexCronJobTestIT
         await().atMost(EVENT_TIMEOUT_SECONDS, TimeUnit.SECONDS).untilTrue(receivedExpectedEvent());
     }
     
-    public static class DownloadRemoteMavenIndexCronJobTestSubj extends DownloadRemoteMavenIndexCronJob {
+    public static class DownloadRemoteMavenIndexCronJobTestSubj extends DownloadRemoteMavenIndexCronJob 
+    {
 
         @Override
         public boolean enabled(CronTaskConfigurationDto configuration,

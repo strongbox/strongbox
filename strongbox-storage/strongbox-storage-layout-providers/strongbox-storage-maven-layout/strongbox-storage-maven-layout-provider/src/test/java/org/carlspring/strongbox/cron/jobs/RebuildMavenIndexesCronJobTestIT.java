@@ -68,10 +68,11 @@ public class RebuildMavenIndexesCronJobTestIT
     }
 
     @PostConstruct
-    public void setup() {
+    public void setup() 
+    {
         repositoryReleasesDasedir1 = new File(propertiesBooter.getVaultDirectory() +
-                                                 "/storages/" + STORAGE0 + "/" +
-                                                 REPOSITORY_RELEASES_1);
+                                              "/storages/" + STORAGE0 + "/" +
+                                              REPOSITORY_RELEASES_1);
     }
     
     @Override
