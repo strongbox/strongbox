@@ -35,8 +35,14 @@ strongbox:
       path: ${strongbox.vault}/db
 logging:
   debug: false
-  console: true
-  file: true
+  console:
+    enabled: true
+  file: 
+    enabled: true
+    size:
+      single: 128MB
+      total: 1GB
+    history: 31
   dir: ${strongbox.vault}/logs
 java:
   io:

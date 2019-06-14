@@ -300,8 +300,11 @@
                                     <systemProperty>strongbox.storage.booter.basedir=%STRONGBOX_VAULT%/storages</systemProperty>
                                     <systemProperty>logging.config=%STRONGBOX_HOME%/etc/logback-spring.xml</systemProperty>
                                     <systemProperty>logging.debug=%STRONGBOX_DEBUG%</systemProperty>
-                                    <systemProperty>logging.file=%STRONGBOX_LOG_FILE%</systemProperty>
-                                    <systemProperty>logging.console=%STRONGBOX_LOG_CONSOLE%</systemProperty>
+                                    <systemProperty>logging.file.enabled=%STRONGBOX_LOG_FILE_ENABLED%</systemProperty>
+                                    <systemProperty>logging.file.size.single=%STRONGBOX_LOG_FILE_SIZE_SINGLE%</systemProperty>
+                                    <systemProperty>logging.file.size.total=%STRONGBOX_LOG_FILE_SIZE_TOTAL%</systemProperty>
+                                    <systemProperty>logging.file.history=%STRONGBOX_LOG_FILE_HISTORY%</systemProperty>
+                                    <systemProperty>logging.console.enabled=%STRONGBOX_LOG_CONSOLE_ENABLED%</systemProperty>
                                     <systemProperty>logging.dir=%STRONGBOX_VAULT%/logs</systemProperty>
                                     <systemProperty>jetty.logs=%STRONGBOX_HOME%/logs</systemProperty>
                                     <systemProperty>java.io.tmpdir=%STRONGBOX_HOME%/tmp</systemProperty>

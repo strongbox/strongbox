@@ -9,8 +9,13 @@
 
     <springProperty scope="context" name="loggingPath" source="strongbox.vault" defaultValue="."/>
     <springProperty scope="context" name="debug" source="logging.debug" defaultValue="false"/>
-    <springProperty scope="context" name="console" source="logging.console" defaultValue="true"/>
-    <springProperty scope="context" name="file" source="logging.file" defaultValue="true"/>
+    
+    <springProperty scope="context" name="console" source="logging.console.enabled" defaultValue="true"/>
+    
+    <springProperty scope="context" name="file" source="logging.file.enabled" defaultValue="true"/>
+    <springProperty scope="context" name="fileSizeSingle" source="logging.file.size.single" defaultValue="128MB"/>
+    <springProperty scope="context" name="fileSizeTotal" source="logging.file.size.total" defaultValue="1GB"/>
+    <springProperty scope="context" name="fileHisotry" source="logging.file.history" defaultValue="31"/>
 
     <if condition="${console:-true}">
     <then>
@@ -36,9 +41,9 @@
             <file>${loggingPath}/logs/strongbox.log</file>
             <rollingPolicy class="ch.qos.logback.core.rolling.SizeAndTimeBasedRollingPolicy">
                 <fileNamePattern>${loggingPath}/logs/strongbox-%d{yyyy-MM-dd}.%i.log.gz</fileNamePattern>
-                <maxFileSize>128MB</maxFileSize>
-                <maxHistory>31</maxHistory>
-                <totalSizeCap>1GB</totalSizeCap>
+                <maxFileSize>${fileSizeSingle}</maxFileSize>
+                <maxHistory>${fileHistory}</maxHistory>
+                <totalSizeCap>${fileSizeTotal}</totalSizeCap>
             </rollingPolicy>
 
             <encoder>
@@ -62,9 +67,9 @@
                     <file>${loggingPath}/logs/${strongbox-cron-context-name}/${strongbox-cron-context-name}.log</file>
                     <rollingPolicy class="ch.qos.logback.core.rolling.SizeAndTimeBasedRollingPolicy">
                         <fileNamePattern>${loggingPath}/logs/${strongbox-cron-context-name}/${strongbox-cron-context-name}-%d{yyyy-MM-dd}.%i.log.gz</fileNamePattern>
-                        <maxFileSize>128MB</maxFileSize>
-                        <maxHistory>31</maxHistory>
-                        <totalSizeCap>1GB</totalSizeCap>
+                        <maxFileSize>${fileSizeSingle}</maxFileSize>
+                        <maxHistory>${fileHistory}</maxHistory>
+                        <totalSizeCap>${fileSizeTotal}</totalSizeCap>
                     </rollingPolicy>
     
                     <encoder>
