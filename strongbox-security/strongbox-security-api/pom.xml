@@ -9,10 +9,11 @@
         <groupId>org.carlspring.strongbox</groupId>
         <artifactId>strongbox-parent</artifactId>
         <version>1.0-SNAPSHOT</version>
-        <relativePath/>
+        <relativePath>../../strongbox-parent</relativePath>
     </parent>
 
     <artifactId>strongbox-security-api</artifactId>
+    <version>1.0-SNAPSHOT</version>
 
     <name>Strongbox: Security API</name>
 
