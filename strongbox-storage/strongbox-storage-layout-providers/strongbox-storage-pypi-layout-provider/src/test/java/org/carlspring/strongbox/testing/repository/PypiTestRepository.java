@@ -1,6 +1,6 @@
 package org.carlspring.strongbox.testing.repository;
 
-import org.carlspring.strongbox.artifact.coordinates.PypiWheelArtifactCoordinates;
+import org.carlspring.strongbox.artifact.coordinates.PypiArtifactCoordinates;
 import org.carlspring.strongbox.providers.layout.PypiLayoutProvider;
 import org.carlspring.strongbox.storage.repository.RepositoryPolicyEnum;
 import org.carlspring.strongbox.testing.storage.repository.RepositorySetup;
@@ -21,7 +21,7 @@ import static java.lang.annotation.RetentionPolicy.RUNTIME;
 @Documented
 @Retention(RUNTIME)
 @Target({ PARAMETER, ANNOTATION_TYPE})
-@TestRepository(layout = PypiWheelArtifactCoordinates.LAYOUT_NAME)
+@TestRepository(layout = PypiArtifactCoordinates.LAYOUT_NAME)
 public @interface PypiTestRepository
 {
     @AliasFor(annotation = TestRepository.class)

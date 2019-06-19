@@ -1,6 +1,7 @@
 package org.carlspring.strongbox.testing.artifact;
 
-import org.carlspring.strongbox.artifact.generator.PythonWheelArtifactGenerator;
+import org.carlspring.strongbox.artifact.coordinates.PypiArtifactCoordinates;
+import org.carlspring.strongbox.artifact.generator.PypiArtifactGenerator;
 import org.carlspring.strongbox.storage.Storage;
 
 import java.lang.annotation.Documented;
@@ -20,8 +21,8 @@ import static java.lang.annotation.RetentionPolicy.RUNTIME;
 @Documented
 @Retention(RUNTIME)
 @Target({ PARAMETER, ANNOTATION_TYPE})
-@TestArtifact(generator = PythonWheelArtifactGenerator.class, strategy = PythonWheelArtifactGeneratorStrategy.class)
-public @interface PythonWheelTestArtifact
+@TestArtifact(generator = PypiArtifactGenerator.class, strategy = PypiArtifactGeneratorStrategy.class)
+public @interface PypiTestArtifact
 {
     /**
      * {@link Storage} ID.
@@ -48,8 +49,14 @@ public @interface PythonWheelTestArtifact
     String id() default "";
 
     /**
-     * The {@link org.carlspring.strongbox.artifact.coordinates.PypiWheelArtifactCoordinates} versions.
+     * The {@link PypiArtifactCoordinates} versions.
      */
     @AliasFor(annotation = TestArtifact.class)
     String[] versions() default {};
+
+    /**
+     * Pypi artifact packaging.
+     * Supported packages: tar.gz, whl
+     */
+    String packaging() default "whl";
 }

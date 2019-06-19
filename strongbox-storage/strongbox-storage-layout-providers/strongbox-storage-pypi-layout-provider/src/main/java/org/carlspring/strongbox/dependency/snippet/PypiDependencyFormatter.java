@@ -1,7 +1,7 @@
 package org.carlspring.strongbox.dependency.snippet;
 
 import org.carlspring.strongbox.artifact.coordinates.ArtifactCoordinates;
-import org.carlspring.strongbox.artifact.coordinates.PypiWheelArtifactCoordinates;
+import org.carlspring.strongbox.artifact.coordinates.PypiArtifactCoordinates;
 import org.carlspring.strongbox.providers.layout.AbstractLayoutProvider;
 import org.carlspring.strongbox.providers.layout.PypiLayoutProvider;
 
@@ -18,7 +18,7 @@ import org.springframework.stereotype.Component;
 * @author whalenda
 **/
 @Component
-public class PypiWheelDependencyFormatter
+public class PypiDependencyFormatter
     implements DependencySynonymFormatter
 {
     private static final Logger logger = LoggerFactory.getLogger(AbstractLayoutProvider.class);
@@ -47,13 +47,13 @@ public class PypiWheelDependencyFormatter
 
     /**
     * This method takes in a set of Pypi Artifact Coordinates and returns the properly formatted dependency snippet
-    * @param a PyPiWheelArtifactCoordinates object
+    * @param inputCoordinates PyPiArtifactCoordinates object
     * @return a string representing a properly formatted dependency snippet
     **/
     @Override
     public String getDependencySnippet(ArtifactCoordinates inputCoordinates)
     {
-        PypiWheelArtifactCoordinates coordinates = (PypiWheelArtifactCoordinates) inputCoordinates;
+        PypiArtifactCoordinates coordinates = (PypiArtifactCoordinates) inputCoordinates;
         String sb = coordinates.getId(); 
 
         if (!"version".equals(coordinates.getVersion()))
