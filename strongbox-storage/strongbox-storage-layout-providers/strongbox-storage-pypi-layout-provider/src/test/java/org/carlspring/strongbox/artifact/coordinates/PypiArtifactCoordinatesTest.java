@@ -263,7 +263,12 @@ public class PypiArtifactCoordinatesTest
 
             List<String> parsedCoordinates = parsedPackages.get(i);
 
-            assertEquals(String.format("%s/%s/%s", parsedCoordinates.get(0), parsedCoordinates.get(1), packageExamples.get(i)), coordsParsed.toString());
+            String expectedPackagePath = String.format("%s/%s/%s",
+                                                       parsedCoordinates.get(0),
+                                                       parsedCoordinates.get(1),
+                                                       packageExamples.get(i));
+
+            assertEquals(expectedPackagePath, coordsParsed.toString());
         }
     }
 }

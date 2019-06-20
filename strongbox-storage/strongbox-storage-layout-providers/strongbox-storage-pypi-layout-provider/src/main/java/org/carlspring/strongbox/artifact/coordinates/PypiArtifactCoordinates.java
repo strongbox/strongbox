@@ -266,34 +266,50 @@ public class PypiArtifactCoordinates
         String fileName = SOURCE_EXTENSION.equals(getPackaging()) ? buildSourcePackageFileName()
                                                                   : buildWheelPackageFileName();
 
-        return String.format("%s/%s/%s", getId(), getVersion(), fileName);
+        return String.format("%s/%s/%s",
+                             getId(),
+                             getVersion(),
+                             fileName);
     }
 
     private String buildSourcePackageFileName()
     {
-        return String.format("%s-%s.%s", getId(), getVersion(), getPackaging());
+        return String.format("%s-%s.%s",
+                             getId(),
+                             getVersion(),
+                             getPackaging());
     }
 
-    private String buildWheelPackageFileName() {
+    private String buildWheelPackageFileName()
+    {
         String path;
 
         if (StringUtils.isBlank(getBuild()))
         {
-            path = String.format("%s-%s-%s-%s-%s.%s", getId(), getVersion(), getLanguageImplementationVersion(),
+            path = String.format("%s-%s-%s-%s-%s.%s",
+                                 getId(),
+                                 getVersion(),
+                                 getLanguageImplementationVersion(),
                                  getAbi(),
                                  getPlatform(), getPackaging());
         }
         else
         {
-            path = String.format("%s-%s-%s-%s-%s-%s.%s", getId(), getVersion(), getBuild(),
+            path = String.format("%s-%s-%s-%s-%s-%s.%s",
+                                 getId(),
+                                 getVersion(),
+                                 getBuild(),
                                  getLanguageImplementationVersion(),
-                                 getAbi(), getPlatform(), getPackaging());
+                                 getAbi(),
+                                 getPlatform(),
+                                 getPackaging());
         }
 
         return path;
     }
 
-    public boolean isSourcePackage() {
+    public boolean isSourcePackage()
+    {
         return SOURCE_EXTENSION.equals(getPackaging());
     }
 
