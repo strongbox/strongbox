@@ -110,7 +110,8 @@ public class PypiArtifactGenerator
 
         Path fullPath = basedir.resolve(packagePath);
 
-        try(ZipOutputStream zos = new ZipOutputStream(Files.newOutputStream(fullPath))) {
+        try(ZipOutputStream zos = new ZipOutputStream(Files.newOutputStream(fullPath)))
+        {
             if (coordinates.isSourcePackage())
             {
                 createSourcePackageFiles(zos, coordinates.getId(), coordinates.getVersion());

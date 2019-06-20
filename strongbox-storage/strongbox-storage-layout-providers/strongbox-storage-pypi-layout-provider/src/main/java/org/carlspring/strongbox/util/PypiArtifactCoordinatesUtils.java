@@ -86,7 +86,11 @@ public class PypiArtifactCoordinatesUtils
             platform = splitArray[5].substring(0, splitArray[5].indexOf(".whl"));
         }
 
-        return new PypiArtifactCoordinates(distribution, version, build, languageImplementationVersion, abi,
+        return new PypiArtifactCoordinates(distribution,
+                                           version,
+                                           build,
+                                           languageImplementationVersion,
+                                           abi,
                                            platform, WHEEL_EXTENSION);
     }
 }
