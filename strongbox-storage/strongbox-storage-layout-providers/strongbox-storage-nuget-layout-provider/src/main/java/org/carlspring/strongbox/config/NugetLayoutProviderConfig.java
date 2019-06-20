@@ -15,12 +15,14 @@ import javax.inject.Inject;
 import java.nio.file.FileSystem;
 import java.nio.file.spi.FileSystemProvider;
 
+import org.springframework.boot.autoconfigure.condition.ConditionalOnClass;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.ComponentScan;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Scope;
 
 @Configuration
+@ConditionalOnClass(NugetLayoutProvider.class)
 @ComponentScan({ "org.carlspring.strongbox.configuration",
                  "org.carlspring.strongbox.repository",
                  "org.carlspring.strongbox.providers",
