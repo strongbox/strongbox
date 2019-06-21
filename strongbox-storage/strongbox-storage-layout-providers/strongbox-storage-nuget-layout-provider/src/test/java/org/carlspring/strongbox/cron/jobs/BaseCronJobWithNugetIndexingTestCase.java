@@ -4,7 +4,7 @@ import org.carlspring.strongbox.cron.domain.CronTaskConfigurationDto;
 import org.carlspring.strongbox.cron.services.CronTaskConfigurationService;
 import org.carlspring.strongbox.event.cron.CronTaskEvent;
 import org.carlspring.strongbox.event.cron.CronTaskEventTypeEnum;
-import org.carlspring.strongbox.testing.TestCaseWithNugetPackageGeneration;
+import org.carlspring.strongbox.testing.TestCaseWithNugetArtifactGeneration;
 
 import javax.inject.Inject;
 import java.lang.reflect.Method;
@@ -26,7 +26,7 @@ import org.springframework.context.ConfigurableApplicationContext;
  * @author carlspring
  */
 public class BaseCronJobWithNugetIndexingTestCase
-        extends TestCaseWithNugetPackageGeneration
+        extends TestCaseWithNugetArtifactGeneration
         implements ApplicationListener<CronTaskEvent>, ApplicationContextAware
 {
 
