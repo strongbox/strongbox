@@ -1,6 +1,6 @@
 package org.carlspring.strongbox.artifact.coordinates;
 
-import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.RepeatedTest;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import java.util.*; 
@@ -95,7 +95,7 @@ public class PypiArtifactCoordinatesTest
      * Tests the constructor of PypiArtifactCoordinates with real Python package names.
      * Simply add more pre-parsed filenames to parsedPackages array to test additional filenames.
      */
-    @Test
+    @RepeatedTest(10)
     public void testManualCreateArtifact()
     {
         for (ArrayList<String> coords : parsedPackages)
@@ -114,7 +114,7 @@ public class PypiArtifactCoordinatesTest
     /**
      * Tests the constructor of PypiArtifactCoordinates with illegal argument values
      */
-    @Test
+    @RepeatedTest(10)
     public void testCreateArtifactExceptions()
     {
         //incorrect extension
@@ -165,7 +165,7 @@ public class PypiArtifactCoordinatesTest
      * Tests the functionality of the PypiArtifactCoordinates parse function which relies on
      * the PypiArtifactCoordinatesUtils parse function
      */
-    @Test
+    @RepeatedTest(10)
     public void testParseCreateArtifact()
     {
         // compare the parsed packages to the known oracles that we manually parsed
@@ -184,7 +184,7 @@ public class PypiArtifactCoordinatesTest
     /**
      * Test that the parser handles the case that too many arguments included in the filename
      */
-    @Test
+    @RepeatedTest(10)
     public void testTooManyArgumentsException()
     {
         // too many arguments (7), error is at end
@@ -206,7 +206,7 @@ public class PypiArtifactCoordinatesTest
     /**
      * Test that the parser handles the case that too few arguments included in the filename
      */
-    @Test
+    @RepeatedTest(10)
     public void testTooFewArgumentsException()
     {
         // too few arguments (1)
@@ -239,7 +239,7 @@ public class PypiArtifactCoordinatesTest
      * Test that the parser handles the case that build tag is specified but empty and if the build tag is 
      * specified but does not start with a number
      */
-    @Test
+    @RepeatedTest(10)
     public void buildTagException()
     {
         assertThrows(IllegalArgumentException.class, () -> {
@@ -254,7 +254,7 @@ public class PypiArtifactCoordinatesTest
     /**
      * Test that the PypiArtifactCoordinate method toString returns the correct original filename
      */
-    @Test
+    @RepeatedTest(10)
     public void testToString()
     {
         for (int i = 0; i < packageExamples.size(); ++i)
