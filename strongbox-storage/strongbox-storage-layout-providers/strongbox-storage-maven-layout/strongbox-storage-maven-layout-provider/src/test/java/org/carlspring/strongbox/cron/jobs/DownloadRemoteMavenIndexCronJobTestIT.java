@@ -1,6 +1,7 @@
 package org.carlspring.strongbox.cron.jobs;
 
 import org.carlspring.strongbox.config.Maven2LayoutProviderCronTasksTestConfig;
+import org.carlspring.strongbox.cron.domain.CronTaskConfigurationDto;
 import org.carlspring.strongbox.data.CacheManagerTestExecutionListener;
 import org.carlspring.strongbox.providers.layout.Maven2LayoutProvider;
 import org.carlspring.strongbox.providers.search.MavenIndexerSearchProvider;
@@ -23,6 +24,7 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.TestInfo;
 import org.junit.jupiter.api.parallel.Execution;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.core.env.Environment;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.TestExecutionListeners;
@@ -176,10 +178,22 @@ public class DownloadRemoteMavenIndexCronJobTestIT
             }
         });
 
-        addCronJobConfig(jobKey, jobName, DownloadRemoteMavenIndexCronJob.class, STORAGE0,
+        addCronJobConfig(jobKey, jobName, DownloadRemoteMavenIndexCronJobTestSubj.class, STORAGE0,
                          REPOSITORY_PROXIED_RELEASES);
 
         await().atMost(EVENT_TIMEOUT_SECONDS, TimeUnit.SECONDS).untilTrue(receivedExpectedEvent());
+    }
+    
+    public static class DownloadRemoteMavenIndexCronJobTestSubj extends DownloadRemoteMavenIndexCronJob 
+    {
+
+        @Override
+        public boolean enabled(CronTaskConfigurationDto configuration,
+                               Environment env)
+        {
+            return true;
+        }
+        
     }
 
 }

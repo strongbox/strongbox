@@ -38,9 +38,9 @@ public class CronJobSchedulerServiceImpl
         {
             jobClass = (Class<? extends Job>) Class.forName(jobClassName);
         }
-        catch (ClassNotFoundException e1)
+        catch (ClassNotFoundException e)
         {
-            logger.error(String.format("Failed to schedule cron job [%s]", jobClassName));
+            logger.error(String.format("Failed to schedule cron job [%s]", jobClassName), e);
 
             return;
         }

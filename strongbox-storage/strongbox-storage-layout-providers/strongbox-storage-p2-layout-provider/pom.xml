@@ -40,11 +40,6 @@
         <developerConnection>scm:git:git://github.com/strongbox/strongbox.git</developerConnection>
     </scm>
 
-    <properties>
-        <dir.strongbox.home>${project.build.directory}/strongbox</dir.strongbox.home>
-        <dir.strongbox.vault>${project.build.directory}/strongbox-vault</dir.strongbox.vault>
-    </properties>
-
     <build>
         <plugins>
             <plugin>
@@ -61,86 +56,12 @@
                 <artifactId>maven-surefire-plugin</artifactId>
                 <configuration>
                     <skip>true</skip>
-                    <systemPropertyVariables>
-                        <strongbox.home>${project.build.directory}/strongbox</strongbox.home>
-                        <strongbox.vault>${project.build.directory}/strongbox-vault</strongbox.vault>
-                        <strongbox.storage.booter.basedir>${project.build.directory}/strongbox-vault/storages</strongbox.storage.booter.basedir>
-                        <strongbox.config.file>${project.build.directory}/strongbox/etc/conf/strongbox.yaml</strongbox.config.file>
-                        <java.io.tmpdir>${dir.strongbox.vault}/tmp</java.io.tmpdir>
-                        <ehcache.disk.store.dir>${project.build.directory}/strongbox/cache</ehcache.disk.store.dir>
-                    </systemPropertyVariables>
                 </configuration>
             </plugin>
 
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-dependency-plugin</artifactId>
-
-                <executions>
-                    <execution>
-                        <id>unpack-resources-logging</id>
-                        <phase>process-resources</phase>
-                        <goals>
-                            <goal>unpack</goal>
-                        </goals>
-                        <configuration>
-                            <artifactItems>
-                                <artifactItem>
-                                    <groupId>${project.groupId}</groupId>
-                                    <artifactId>strongbox-common-resources</artifactId>
-                                    <version>${project.version}</version>
-                                    <type>jar</type>
-
-                                    <overWrite>true</overWrite>
-                                    <outputDirectory>${dir.strongbox.home}/etc</outputDirectory>
-                                    <includes>logback*xml</includes>
-                                </artifactItem>
-                            </artifactItems>
-                        </configuration>
-                    </execution>
-                    <execution>
-                        <id>unpack-resources-etc</id>
-                        <phase>process-resources</phase>
-                        <goals>
-                            <goal>unpack</goal>
-                        </goals>
-                        <configuration>
-                            <artifactItems>
-                                <artifactItem>
-                                    <groupId>${project.groupId}</groupId>
-                                    <artifactId>strongbox-common-resources</artifactId>
-                                    <version>${project.version}</version>
-                                    <type>jar</type>
-
-                                    <overWrite>true</overWrite>
-                                    <outputDirectory>${dir.strongbox.home}</outputDirectory>
-                                    <includes>etc/**</includes>
-                                </artifactItem>
-                            </artifactItems>
-                        </configuration>
-                    </execution>
-                    <execution>
-                        <id>unpack-storage-resources</id>
-                        <phase>process-resources</phase>
-                        <goals>
-                            <goal>unpack</goal>
-                        </goals>
-                        <configuration>
-                            <artifactItems>
-                                <artifactItem>
-                                    <groupId>${project.groupId}</groupId>
-                                    <artifactId>strongbox-common-resources</artifactId>
-                                    <version>${project.version}</version>
-                                    <type>jar</type>
-
-                                    <overWrite>true</overWrite>
-                                    <outputDirectory>${dir.strongbox.home}/etc</outputDirectory>
-                                    <includes>logback*xml</includes>
-                                </artifactItem>
-                            </artifactItems>
-                        </configuration>
-                    </execution>
-                </executions>
             </plugin>
 
             <plugin>

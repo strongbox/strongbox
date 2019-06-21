@@ -13,7 +13,8 @@
 
     <artifactId>strongbox-aql</artifactId>
     <packaging>jar</packaging>
-
+    <version>1.0-SNAPSHOT</version>
+    
     <name>Strongbox: AQL</name>
 
     <licenses>

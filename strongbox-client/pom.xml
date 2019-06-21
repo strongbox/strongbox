@@ -14,6 +14,7 @@
 
     <artifactId>strongbox-client</artifactId>
     <packaging>jar</packaging>
+    <version>1.0-SNAPSHOT</version>
 
     <name>Strongbox: Client</name>
 
@@ -39,6 +40,11 @@
         <developerConnection>scm:git:git://github.com/strongbox/strongbox.git</developerConnection>
     </scm>
 
+    <properties>
+        <dir.strongbox.home>${project.build.directory}/strongbox</dir.strongbox.home>
+        <dir.strongbox.vault>${project.build.directory}/strongbox-vault</dir.strongbox.vault>
+    </properties>
+
     <build>
         <plugins>
             <plugin>
@@ -49,10 +55,13 @@
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-source-plugin</artifactId>
             </plugin>
-
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-surefire-plugin</artifactId>
+            </plugin>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-dependency-plugin</artifactId>
             </plugin>
         </plugins>
     </build>

@@ -4,19 +4,18 @@ import ch.qos.logback.classic.spi.ILoggingEvent;
 import ch.qos.logback.core.filter.Filter;
 import ch.qos.logback.core.spi.FilterReply;
 
-public class CronTaskContextFilter extends Filter<ILoggingEvent>
+public class CronTaskContextDeclineFilter extends Filter<ILoggingEvent>
 {
-
-    public static final String STRONGBOX_CRON_CONTEXT_NAME = "strongbox-cron-context-name";
+    private Filter<ILoggingEvent> target = new CronTaskContextAcceptFilter();
 
     @Override
     public FilterReply decide(ILoggingEvent event)
     {
-        if (event.getMDCPropertyMap().containsKey(STRONGBOX_CRON_CONTEXT_NAME))
+        FilterReply filterReply = target.decide(event);
+        if (FilterReply.NEUTRAL.equals(filterReply))
         {
             return FilterReply.DENY;
         }
-        ;
         return FilterReply.NEUTRAL;
     }
 

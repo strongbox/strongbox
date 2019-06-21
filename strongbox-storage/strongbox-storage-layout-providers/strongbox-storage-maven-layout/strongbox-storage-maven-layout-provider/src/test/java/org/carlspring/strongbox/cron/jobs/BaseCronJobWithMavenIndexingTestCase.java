@@ -91,7 +91,7 @@ public class BaseCronJobWithMavenIndexingTestCase
         cronTaskConfiguration.setImmediateExecution(true);
         cronTaskConfiguration.setUuid(jobKey);
         cronTaskConfiguration.setName(jobName);
-        cronTaskConfiguration.setJobClass(className.getCanonicalName());
+        cronTaskConfiguration.setJobClass(className.getName());
 
         for (String propertyKey : properties.keySet())
         {
