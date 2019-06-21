@@ -4,7 +4,8 @@ import org.carlspring.commons.encryption.EncryptionAlgorithmsEnum;
 import org.carlspring.commons.io.MultipleDigestInputStream;
 import org.carlspring.commons.io.MultipleDigestOutputStream;
 import org.carlspring.commons.io.RandomInputStream;
-import org.carlspring.maven.commons.util.ArtifactUtils;
+import org.carlspring.strongbox.artifact.MavenArtifactUtils;
+import org.carlspring.strongbox.testing.artifact.MavenArtifactTestUtils;
 
 import java.io.*;
 import java.net.URI;
@@ -57,15 +58,15 @@ public class MavenArtifactGenerator implements ArtifactGenerator
     {
         this.basedir = basedir;
     }
-    
+
     @Override
     public Path generateArtifact(String id,
                                  String version,
                                  int size)
         throws IOException
     {
-        Artifact artifact = ArtifactUtils.getArtifactFromGAVTC(String.format("%s:%s", id, version));
-        
+        Artifact artifact = MavenArtifactTestUtils.getArtifactFromGAVTC(String.format("%s:%s", id, version));
+
         return generateArtifact(artifact);
     }
 
@@ -74,8 +75,8 @@ public class MavenArtifactGenerator implements ArtifactGenerator
                                  int size)
         throws IOException
     {
-        Artifact artifact = ArtifactUtils.convertPathToArtifact(uri.toString());
-        
+        Artifact artifact = MavenArtifactUtils.convertPathToArtifact(uri.toString());
+
         return generateArtifact(artifact);
     }
 
@@ -90,11 +91,11 @@ public class MavenArtifactGenerator implements ArtifactGenerator
         {
             throw new IOException(e);
         }
-        
-        return basedir.resolve(ArtifactUtils.convertArtifactToPath(artifact));
+
+        return basedir.resolve(MavenArtifactUtils.convertArtifactToPath(artifact));
     }
 
-    public void generate(String gavtc, String packaging, String... versions)
+    public void generate(String ga, String packaging, String... versions)
             throws IOException,
                    XmlPullParserException,
                    NoSuchAlgorithmException
@@ -106,24 +107,22 @@ public class MavenArtifactGenerator implements ArtifactGenerator
 
         for (String version : versions)
         {
-            Artifact artifact = ArtifactUtils.getArtifactFromGAVTC(gavtc);
-            artifact.setVersion(version);
-            artifact.setFile(new File(getBasedir() + "/" + ArtifactUtils.convertArtifactToPath(artifact)));
+            Artifact artifact = MavenArtifactTestUtils.getArtifactFromGAVTC(ga + ":" + version);
+            artifact.setFile(new File(getBasedir() + "/" + MavenArtifactUtils.convertArtifactToPath(artifact)));
 
             generate(artifact, packaging);
         }
     }
 
-    public void generate(String gavtc, String... versions)
+    public void generate(String ga, String... versions)
             throws IOException,
                    XmlPullParserException,
                    NoSuchAlgorithmException
     {
         for (String version : versions)
         {
-            Artifact artifact = ArtifactUtils.getArtifactFromGAVTC(gavtc);
-            artifact.setVersion(version);
-            artifact.setFile(new File(getBasedir() + "/" + ArtifactUtils.convertArtifactToPath(artifact)));
+            Artifact artifact = MavenArtifactTestUtils.getArtifactFromGAVTC(ga + ":" + version);
+            artifact.setFile(new File(getBasedir() + "/" + MavenArtifactUtils.convertArtifactToPath(artifact)));
 
             generate(artifact);
         }
@@ -151,7 +150,7 @@ public class MavenArtifactGenerator implements ArtifactGenerator
             throws NoSuchAlgorithmException,
                    IOException
     {
-        File artifactFile = basedir.resolve(ArtifactUtils.convertArtifactToPath(artifact)).toFile();
+        File artifactFile = basedir.resolve(MavenArtifactUtils.convertArtifactToPath(artifact)).toFile();
 
         // Make sure the artifact's parent directory exists before writing the model.
         //noinspection ResultOfMethodCallIgnored
@@ -162,7 +161,7 @@ public class MavenArtifactGenerator implements ArtifactGenerator
             createMavenPropertiesFile(artifact, zos);
             addMavenPomFile(artifact, zos);
             createRandomSizeFile(zos);
-            
+
             zos.flush();
         }
         generateChecksumsForArtifact(artifactFile);
@@ -182,7 +181,7 @@ public class MavenArtifactGenerator implements ArtifactGenerator
         try
         {
             metadataFile = basedir.resolve(metadataPath).toFile();
-            
+
             if (metadataFile.exists())
             {
                 metadataFile.delete();
@@ -210,8 +209,8 @@ public class MavenArtifactGenerator implements ArtifactGenerator
 
     private void addMavenPomFile(Artifact artifact, ZipOutputStream zos) throws IOException
     {
-        final Artifact pomArtifact = ArtifactUtils.getPOMArtifact(artifact);
-        File pomFile = basedir.resolve(ArtifactUtils.convertArtifactToPath(pomArtifact)).toFile();
+        final Artifact pomArtifact = MavenArtifactTestUtils.getPOMArtifact(artifact);
+        File pomFile = basedir.resolve(MavenArtifactUtils.convertArtifactToPath(pomArtifact)).toFile();
 
         ZipEntry ze = new ZipEntry("META-INF/maven/" +
                                    artifact.getGroupId() + "/" +
@@ -286,11 +285,10 @@ public class MavenArtifactGenerator implements ArtifactGenerator
 
     public void generatePom(Artifact artifact, String packaging)
             throws IOException,
-                   XmlPullParserException,
                    NoSuchAlgorithmException
     {
-        final Artifact pomArtifact = ArtifactUtils.getPOMArtifact(artifact);
-        File pomFile = basedir.resolve(ArtifactUtils.convertArtifactToPath(pomArtifact)).toFile();
+        final Artifact pomArtifact = MavenArtifactTestUtils.getPOMArtifact(artifact);
+        File pomFile = basedir.resolve(MavenArtifactUtils.convertArtifactToPath(pomArtifact)).toFile();
 
         // Make sure the artifact's parent directory exists before writing the model.
         //noinspection ResultOfMethodCallIgnored
@@ -331,7 +329,7 @@ public class MavenArtifactGenerator implements ArtifactGenerator
             String sha1 = mdis.getMessageDigestAsHexadecimalString(EncryptionAlgorithmsEnum.SHA1.getAlgorithm());
 
             Path artifactPath = artifactFile.toPath();
-            
+
             Path checksumPath = artifactPath.resolveSibling(artifactPath.getFileName() + EncryptionAlgorithmsEnum.MD5.getExtension());
             try (OutputStream os = newOutputStream(checksumPath.toFile()))
             {

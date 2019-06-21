@@ -2,24 +2,25 @@ package org.carlspring.strongbox.artifact.generator;
 
 import org.carlspring.commons.encryption.EncryptionAlgorithmsEnum;
 import org.carlspring.commons.io.MultipleDigestInputStream;
-import org.carlspring.maven.commons.util.ArtifactUtils;
+import org.carlspring.strongbox.artifact.MavenArtifactUtils;
 import org.carlspring.strongbox.client.ArtifactOperationException;
 import org.carlspring.strongbox.client.ArtifactTransportException;
 import org.carlspring.strongbox.client.IArtifactClient;
 import org.carlspring.strongbox.storage.metadata.MetadataMerger;
+import org.carlspring.strongbox.testing.artifact.MavenArtifactTestUtils;
 
 import java.io.*;
 import java.security.NoSuchAlgorithmException;
 import java.util.Map;
 
 import org.apache.maven.artifact.Artifact;
+import org.apache.maven.artifact.ArtifactUtils;
 import org.apache.maven.artifact.repository.metadata.Metadata;
 import org.apache.maven.artifact.repository.metadata.io.xpp3.MetadataXpp3Reader;
 import org.apache.maven.project.artifact.PluginArtifact;
 import org.codehaus.plexus.util.xml.pull.XmlPullParserException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import static org.carlspring.maven.commons.util.ArtifactUtils.getArtifactFileName;
 
 /**
  * @author mtodorov
@@ -68,18 +69,18 @@ public class MavenArtifactDeployer
         createArchive(artifact);
 
         deploy(artifact, storageId, repositoryId);
-        deployPOM(ArtifactUtils.getPOMArtifact(artifact), storageId, repositoryId);
+        deployPOM(MavenArtifactTestUtils.getPOMArtifact(artifact), storageId, repositoryId);
 
         if (classifiers != null)
         {
             for (String classifier : classifiers)
             {
                 // We're assuming the type of the classifier is the same as the one of the main artifact
-                Artifact artifactWithClassifier = ArtifactUtils.getArtifactFromGAVTC(artifact.getGroupId() + ":" +
-                                                                                     artifact.getArtifactId() + ":" +
-                                                                                     artifact.getVersion() + ":" +
-                                                                                     artifact.getType() + ":" +
-                                                                                     classifier);
+                Artifact artifactWithClassifier = MavenArtifactTestUtils.getArtifactFromGAVTC(artifact.getGroupId() + ":" +
+                                                                                              artifact.getArtifactId() + ":" +
+                                                                                              artifact.getVersion() + ":" +
+                                                                                              artifact.getType() + ":" +
+                                                                                              classifier);
                 generate(artifactWithClassifier);
 
                 deploy(artifactWithClassifier, storageId, repositoryId);
@@ -106,35 +107,29 @@ public class MavenArtifactDeployer
         Metadata metadata;
         if (ArtifactUtils.isSnapshot(artifact.getVersion()))
         {
-            String path = ArtifactUtils.getVersionLevelMetadataPath(artifact);
+            String path = MavenArtifactTestUtils.getVersionLevelMetadataPath(artifact);
             metadata = metadataMerger.updateMetadataAtVersionLevel(artifact,
                                                                    retrieveMetadata("storages/" + storageId + "/" +
-                                                                                    repositoryId + "/" +
-                                                                                    ArtifactUtils.getVersionLevelMetadataPath(
-                                                                                            artifact)));
+                                                                                    repositoryId + "/" + path));
 
             createMetadata(metadata, path);
             deployMetadata(metadata, path, storageId, repositoryId);
         }
 
-        String path = ArtifactUtils.getArtifactLevelMetadataPath(artifact);
+        String path = MavenArtifactTestUtils.getArtifactLevelMetadataPath(artifact);
         metadata = metadataMerger.updateMetadataAtArtifactLevel(artifact,
                                                                 retrieveMetadata("storages/" + storageId + "/" +
-                                                                                 repositoryId + "/" +
-                                                                                 ArtifactUtils.getArtifactLevelMetadataPath(
-                                                                                         artifact)));
+                                                                                 repositoryId + "/" + path));
 
         createMetadata(metadata, path);
         deployMetadata(metadata, path, storageId, repositoryId);
 
         if (artifact instanceof PluginArtifact)
         {
-            path = ArtifactUtils.getGroupLevelMetadataPath(artifact);
+            path = MavenArtifactTestUtils.getGroupLevelMetadataPath(artifact);
             metadata = metadataMerger.updateMetadataAtGroupLevel((PluginArtifact) artifact,
                                                                  retrieveMetadata("storages/" + storageId + "/" +
-                                                                                  repositoryId + "/" +
-                                                                                  ArtifactUtils.getGroupLevelMetadataPath(
-                                                                                          artifact)));
+                                                                                  repositoryId + "/" + path));
             createMetadata(metadata, path);
             deployMetadata(metadata, path, storageId, repositoryId);
         }
@@ -213,18 +208,19 @@ public class MavenArtifactDeployer
     public void deploy(Artifact artifact,
                        String storageId,
                        String repositoryId)
-            throws ArtifactOperationException, IOException, NoSuchAlgorithmException, XmlPullParserException
+            throws ArtifactOperationException, IOException, NoSuchAlgorithmException
     {
-        File artifactFile = new File(getBasedir(), ArtifactUtils.convertArtifactToPath(artifact));
+        String artifactToPath = MavenArtifactUtils.convertArtifactToPath(artifact);
+        File artifactFile = new File(getBasedir(), artifactToPath);
         try (InputStream is = new FileInputStream(artifactFile);
                 MultipleDigestInputStream ais = new MultipleDigestInputStream(is))
         {
 
-            String url = client.getContextBaseUrl() + "/storages/" + storageId + "/" + repositoryId + "/" + ArtifactUtils.convertArtifactToPath(artifact);
+            String url = client.getContextBaseUrl() + "/storages/" + storageId + "/" + repositoryId + "/" + artifactToPath;
 
             logger.debug("Deploying " + url + "...");
 
-            String fileName = ArtifactUtils.getArtifactFileName(artifact);
+            String fileName = MavenArtifactTestUtils.getArtifactFileName(artifact);
 
             client.deployFile(is, url, fileName);
 
@@ -250,10 +246,10 @@ public class MavenArtifactDeployer
 
             final String extensionForAlgorithm = EncryptionAlgorithmsEnum.fromAlgorithm(algorithm).getExtension();
 
-            String artifactToPath = ArtifactUtils.convertArtifactToPath(artifact) + extensionForAlgorithm;
+            String artifactToPath = MavenArtifactUtils.convertArtifactToPath(artifact) + extensionForAlgorithm;
             String url =
                     client.getContextBaseUrl() + "/storages/" + storageId + "/" + repositoryId + "/" + artifactToPath;
-            String artifactFileName = getArtifactFileName(artifact) + extensionForAlgorithm;
+            String artifactFileName = MavenArtifactTestUtils.getArtifactFileName(artifact) + extensionForAlgorithm;
 
             client.deployFile(bais, url, artifactFileName);
         }
@@ -266,15 +262,15 @@ public class MavenArtifactDeployer
                    IOException,
                    ArtifactOperationException
     {
-        File pomFile = new File(getBasedir(), ArtifactUtils.convertArtifactToPath(artifact));
+        String artifactToPath = MavenArtifactUtils.convertArtifactToPath(artifact);
+        File pomFile = new File(getBasedir(), artifactToPath);
 
         try (InputStream is = new FileInputStream(pomFile);
                 MultipleDigestInputStream ais = new MultipleDigestInputStream(is))
         {
-            String url = client.getContextBaseUrl() + "/storages/" + storageId + "/" + repositoryId + "/" +
-                         ArtifactUtils.convertArtifactToPath(artifact);
+            String url = client.getContextBaseUrl() + "/storages/" + storageId + "/" + repositoryId + "/" + artifactToPath;
 
-            String fileName = ArtifactUtils.getArtifactFileName(artifact);
+            String fileName = MavenArtifactTestUtils.getArtifactFileName(artifact);
 
             client.deployFile(is, url, fileName);
 

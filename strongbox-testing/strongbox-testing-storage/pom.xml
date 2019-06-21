@@ -89,11 +89,6 @@
             <artifactId>strongbox-testing-core</artifactId>
             <version>${project.version}</version>
         </dependency>
-
-        <dependency>
-            <groupId>org.carlspring.maven</groupId>
-            <artifactId>maven-commons</artifactId>
-        </dependency>
         
         <dependency>
             <groupId>javax.persistence</groupId>

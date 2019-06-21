@@ -1,7 +1,6 @@
 package org.carlspring.strongbox.providers.io;
 
 import org.carlspring.commons.encryption.EncryptionAlgorithmsEnum;
-import org.carlspring.maven.commons.util.ArtifactUtils;
 import org.carlspring.strongbox.artifact.MavenRepositoryArtifact;
 import org.carlspring.strongbox.artifact.generator.MavenArtifactGenerator;
 import org.carlspring.strongbox.client.CloseableRestResponse;
@@ -13,6 +12,7 @@ import org.carlspring.strongbox.services.ArtifactManagementService;
 import org.carlspring.strongbox.storage.metadata.MetadataMerger;
 import org.carlspring.strongbox.storage.repository.Repository;
 import org.carlspring.strongbox.testing.TestCaseWithMavenArtifactGenerationAndIndexing;
+import org.carlspring.strongbox.testing.artifact.MavenArtifactTestUtils;
 
 import javax.inject.Inject;
 import javax.ws.rs.core.Response;
@@ -28,6 +28,7 @@ import org.apache.commons.io.FilenameUtils;
 import org.apache.commons.lang3.mutable.MutableObject;
 import org.apache.maven.artifact.Artifact;
 import org.apache.maven.artifact.repository.metadata.Metadata;
+import org.apache.maven.index.artifact.Gav;
 import org.junit.jupiter.api.TestInfo;
 import org.mockito.Mockito;
 import org.slf4j.Logger;
@@ -121,18 +122,18 @@ abstract class BaseMavenMetadataExpirationTest
         final Repository repository = getConfiguration().getStorage(STORAGE0).getRepository(localRepositoryId);
         RepositoryPath repositoryPath = repositoryPathResolver.resolve(repository);
 
-        Artifact snapshotArtifact = new MavenRepositoryArtifact(groupId, getArtifactName(artifactId, testInfo),
-                                                                "1.0-20131004.115330-1");
+        Artifact snapshotArtifact = new MavenRepositoryArtifact(new Gav(groupId, getArtifactName(artifactId, testInfo),
+                                                                        "1.0-20131004.115330-1"));
         MavenArtifactGenerator mavenArtifactGenerator = new MavenArtifactGenerator(repositoryPath);
 
         versionLevelMetadata.setValue(
                 metadataMerger.updateMetadataAtVersionLevel(snapshotArtifact, versionLevelMetadata.getValue()));
-        final String versionLevelMetadataPath = ArtifactUtils.getVersionLevelMetadataPath(snapshotArtifact);
+        final String versionLevelMetadataPath = MavenArtifactTestUtils.getVersionLevelMetadataPath(snapshotArtifact);
         mavenArtifactGenerator.createMetadata(versionLevelMetadata.getValue(), versionLevelMetadataPath);
 
         artifactLevelMetadata.setValue(
                 metadataMerger.updateMetadataAtArtifactLevel(snapshotArtifact, artifactLevelMetadata.getValue()));
-        final String artifactLevelMetadataPath = ArtifactUtils.getArtifactLevelMetadataPath(snapshotArtifact);
+        final String artifactLevelMetadataPath = MavenArtifactTestUtils.getArtifactLevelMetadataPath(snapshotArtifact);
         mavenArtifactGenerator.createMetadata(artifactLevelMetadata.getValue(), artifactLevelMetadataPath);
     }
 

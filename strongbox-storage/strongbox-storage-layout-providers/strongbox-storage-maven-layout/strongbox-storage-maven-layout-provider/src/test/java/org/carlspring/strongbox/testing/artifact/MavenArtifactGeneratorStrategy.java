@@ -1,14 +1,14 @@
 package org.carlspring.strongbox.testing.artifact;
 
+import org.carlspring.strongbox.artifact.MavenArtifactUtils;
+import org.carlspring.strongbox.artifact.generator.MavenArtifactGenerator;
+
 import java.io.IOException;
 import java.nio.file.Path;
 import java.security.NoSuchAlgorithmException;
 import java.util.Map;
 
 import org.apache.maven.artifact.Artifact;
-import org.carlspring.maven.commons.util.ArtifactUtils;
-import org.carlspring.strongbox.artifact.MavenArtifactUtils;
-import org.carlspring.strongbox.artifact.generator.MavenArtifactGenerator;
 import org.codehaus.plexus.util.xml.pull.XmlPullParserException;
 
 public class MavenArtifactGeneratorStrategy implements ArtifactGeneratorStrategy<MavenArtifactGenerator>
@@ -26,7 +26,7 @@ public class MavenArtifactGeneratorStrategy implements ArtifactGeneratorStrategy
         if ("maven-plugin".equals(attributesMap.get("packaging")))
         {
             String gavtc = String.format("%s:%s:maven-plugin", id, version);
-            Artifact pluginArtifact = ArtifactUtils.getArtifactFromGAVTC(gavtc);
+            Artifact pluginArtifact = MavenArtifactTestUtils.getArtifactFromGAVTC(gavtc);
             
             try
             {
@@ -50,7 +50,7 @@ public class MavenArtifactGeneratorStrategy implements ArtifactGeneratorStrategy
             for (String classifier : (String[]) classifiers)
             {
                 String gavtc = String.format("%s:%s:jar:%s", id, version, classifier);
-                Artifact artifactWithClassifier = ArtifactUtils.getArtifactFromGAVTC(gavtc);
+                Artifact artifactWithClassifier = MavenArtifactTestUtils.getArtifactFromGAVTC(gavtc);
                 try
                 {
                     artifactGenerator.generate(artifactWithClassifier);

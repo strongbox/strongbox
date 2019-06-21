@@ -1,6 +1,5 @@
 package org.carlspring.strongbox.controllers.layout.maven;
 
-import org.carlspring.maven.commons.util.ArtifactUtils;
 import org.carlspring.strongbox.controllers.BaseController;
 import org.carlspring.strongbox.services.ArtifactMetadataService;
 import org.carlspring.strongbox.storage.ArtifactStorageException;
@@ -13,6 +12,7 @@ import java.io.IOException;
 import java.security.NoSuchAlgorithmException;
 
 import io.swagger.annotations.*;
+import org.apache.maven.artifact.ArtifactUtils;
 import org.codehaus.plexus.util.xml.pull.XmlPullParserException;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
@@ -97,7 +97,7 @@ public class MavenMetadataManagementController
 
         try
         {
-            if (ArtifactUtils.isReleaseVersion(version))
+            if (!ArtifactUtils.isSnapshot(version))
             {
                 artifactMetadataService.removeVersion(storageId,
                                                       repositoryId,

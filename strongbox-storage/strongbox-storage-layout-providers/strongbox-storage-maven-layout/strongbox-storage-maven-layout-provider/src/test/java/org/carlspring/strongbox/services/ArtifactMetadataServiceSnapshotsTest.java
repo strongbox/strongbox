@@ -1,28 +1,5 @@
 package org.carlspring.strongbox.services;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertFalse;
-import static org.junit.jupiter.api.Assertions.assertNotNull;
-import static org.junit.jupiter.api.Assertions.assertNull;
-import static org.junit.jupiter.api.Assertions.assertTrue;
-
-import java.io.IOException;
-import java.lang.annotation.Documented;
-import java.lang.annotation.ElementType;
-import java.lang.annotation.Retention;
-import java.lang.annotation.RetentionPolicy;
-import java.lang.annotation.Target;
-import java.nio.file.Path;
-import java.security.NoSuchAlgorithmException;
-import java.text.SimpleDateFormat;
-import java.util.Calendar;
-import java.util.List;
-
-import javax.inject.Inject;
-
-import org.apache.maven.artifact.repository.metadata.Metadata;
-import org.apache.maven.artifact.repository.metadata.Snapshot;
-import org.apache.maven.artifact.repository.metadata.Versioning;
 import org.carlspring.strongbox.artifact.MavenArtifact;
 import org.carlspring.strongbox.artifact.MavenArtifactUtils;
 import org.carlspring.strongbox.artifact.MavenRepositoryArtifact;
@@ -40,6 +17,20 @@ import org.carlspring.strongbox.testing.artifact.ArtifactManagementTestExecution
 import org.carlspring.strongbox.testing.artifact.MavenTestArtifact;
 import org.carlspring.strongbox.testing.storage.repository.RepositoryManagementTestExecutionListener;
 import org.carlspring.strongbox.testing.storage.repository.TestRepository;
+
+import javax.inject.Inject;
+import java.io.IOException;
+import java.lang.annotation.*;
+import java.nio.file.Path;
+import java.security.NoSuchAlgorithmException;
+import java.text.SimpleDateFormat;
+import java.util.Calendar;
+import java.util.List;
+
+import org.apache.maven.artifact.repository.metadata.Metadata;
+import org.apache.maven.artifact.repository.metadata.Snapshot;
+import org.apache.maven.artifact.repository.metadata.Versioning;
+import org.apache.maven.index.artifact.Gav;
 import org.codehaus.plexus.util.xml.pull.XmlPullParserException;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -47,6 +38,7 @@ import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.core.annotation.AliasFor;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.ContextConfiguration;
+import static org.junit.jupiter.api.Assertions.*;
 
 /**
  * @author stodorov
@@ -138,9 +130,9 @@ public class ArtifactMetadataServiceSnapshotsTest
         String timestamp = formatter.format(Calendar.getInstance().getTime());
         String version = "1.0-" + timestamp + "-" + 6;
 
-        MavenRepositoryArtifact addedArtifact = new MavenRepositoryArtifact("org.carlspring.strongbox",
-                "strongbox-added",
-                version);
+        MavenRepositoryArtifact addedArtifact = new MavenRepositoryArtifact(new Gav("org.carlspring.strongbox",
+                                                                                    "strongbox-added",
+                                                                                    version));
 
         artifactMetadataService.addTimestampedSnapshotVersion(STORAGE0,
                                                               repository.getId(),
@@ -197,9 +189,9 @@ public class ArtifactMetadataServiceSnapshotsTest
 
         final String artifactPath = "org/carlspring/strongbox/snapshots/metadata";
 
-        MavenArtifact snapshotArtifact = new MavenRepositoryArtifact("org.carlspring.strongbox.snapshots",
-                                                                     "metadata",
-                                                                     version);
+        MavenArtifact snapshotArtifact = new MavenRepositoryArtifact(new Gav("org.carlspring.strongbox.snapshots",
+                                                                             "metadata",
+                                                                             version));
 
         artifactMetadataService.rebuildMetadata(STORAGE0, repository.getId(), artifactPath);
 

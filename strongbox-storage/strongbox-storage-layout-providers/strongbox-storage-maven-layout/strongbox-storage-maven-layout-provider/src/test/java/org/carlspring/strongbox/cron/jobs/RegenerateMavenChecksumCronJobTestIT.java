@@ -78,7 +78,8 @@ public class RegenerateMavenChecksumCronJobTestIT
                                                      repository.getId(),
                                                      "org.carlspring.strongbox",
                                                      "strongbox-checksum-one",
-                                                     "2.0-20190512.202601-5");
+                                                     "2.0-20190512.202601-5",
+                                                     "jar");
 
         final UUID jobKey = expectedJobKey;
         final String jobName = expectedJobName;
@@ -165,7 +166,8 @@ public class RegenerateMavenChecksumCronJobTestIT
                                                      repository.getId(),
                                                      "org.carlspring.strongbox",
                                                      "strongbox-checksum-two",
-                                                     "2.0-20190512.202601-5");
+                                                     "2.0-20190512.202601-5",
+                                                     "jar");
 
         final UUID jobKey = expectedJobKey;
         final String jobName = expectedJobName;
@@ -216,7 +218,7 @@ public class RegenerateMavenChecksumCronJobTestIT
                     assertTrue(new File(artifactPath, "/maven-metadata.xml.sha1").length() > 0,
                                "The checksum file for metadata file is empty!");
                 }
-                catch (Exception e)
+                catch (Throwable e)
                 {
                     throw new UndeclaredThrowableException(e);
                 }
