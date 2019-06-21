@@ -1,6 +1,8 @@
 package org.carlspring.strongbox.artifact.coordinates;
 
 import org.junit.jupiter.api.RepeatedTest;
+import org.junit.jupiter.api.RepetitionInfo;
+import org.junit.jupiter.api.Test;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import java.util.*; 
@@ -95,26 +97,29 @@ public class PypiArtifactCoordinatesTest
      * Tests the constructor of PypiArtifactCoordinates with real Python package names.
      * Simply add more pre-parsed filenames to parsedPackages array to test additional filenames.
      */
-    @RepeatedTest(10)
-    public void testManualCreateArtifact()
+    @RepeatedTest(31)
+    public void testManualCreateArtifact(RepetitionInfo repetitionInfo)
     {
-        for (ArrayList<String> coords : parsedPackages)
-        {
-            PypiArtifactCoordinates testCoords = new PypiArtifactCoordinates(coords.get(0), coords.get(1), coords.get(2), coords.get(3), coords.get(4), coords.get(5), coords.get(6));
-
-            assertEquals(coords.get(0), testCoords.getId());
-            assertEquals(coords.get(1), testCoords.getVersion());
-            assertEquals(coords.get(2), testCoords.getBuild());
-            assertEquals(coords.get(3), testCoords.getLanguageImplementationVersion());
-            assertEquals(coords.get(4), testCoords.getAbi());
-            assertEquals(coords.get(5), testCoords.getPlatform());
-        }
+        List<String> coords = parsedPackages.get(repetitionInfo.getCurrentRepetition() - 1);
+        PypiArtifactCoordinates testCoords = new PypiArtifactCoordinates(coords.get(0),
+                                                                         coords.get(1),
+                                                                         coords.get(2),
+                                                                         coords.get(3),
+                                                                         coords.get(4),
+                                                                         coords.get(5),
+                                                                         coords.get(6));
+        assertEquals(coords.get(0), testCoords.getId());
+        assertEquals(coords.get(1), testCoords.getVersion());
+        assertEquals(coords.get(2), testCoords.getBuild());
+        assertEquals(coords.get(3), testCoords.getLanguageImplementationVersion());
+        assertEquals(coords.get(4), testCoords.getAbi());
+        assertEquals(coords.get(5), testCoords.getPlatform());
     }
 
     /**
      * Tests the constructor of PypiArtifactCoordinates with illegal argument values
      */
-    @RepeatedTest(10)
+    @Test
     public void testCreateArtifactExceptions()
     {
         //incorrect extension
@@ -165,26 +170,25 @@ public class PypiArtifactCoordinatesTest
      * Tests the functionality of the PypiArtifactCoordinates parse function which relies on
      * the PypiArtifactCoordinatesUtils parse function
      */
-    @RepeatedTest(10)
-    public void testParseCreateArtifact()
+    @RepeatedTest(31)
+    public void testParseCreateArtifact(RepetitionInfo repetitionInfo)
     {
         // compare the parsed packages to the known oracles that we manually parsed
-        for (int i = 0; i < packageExamples.size(); ++i)
-        {
-            PypiArtifactCoordinates coordsParsed = PypiArtifactCoordinates.parse(packageExamples.get(i));
-            assertEquals(parsedPackages.get(i).get(0), coordsParsed.getId());
-            assertEquals(parsedPackages.get(i).get(1), coordsParsed.getVersion());
-            assertEquals(parsedPackages.get(i).get(2), coordsParsed.getBuild());
-            assertEquals(parsedPackages.get(i).get(3), coordsParsed.getLanguageImplementationVersion());
-            assertEquals(parsedPackages.get(i).get(4), coordsParsed.getAbi());
-            assertEquals(parsedPackages.get(i).get(5), coordsParsed.getPlatform());
-        }
+        int currentIndex = repetitionInfo.getCurrentRepetition() - 1;
+
+        PypiArtifactCoordinates coordsParsed = PypiArtifactCoordinates.parse(packageExamples.get(currentIndex));
+        assertEquals(parsedPackages.get(currentIndex).get(0), coordsParsed.getId());
+        assertEquals(parsedPackages.get(currentIndex).get(1), coordsParsed.getVersion());
+        assertEquals(parsedPackages.get(currentIndex).get(2), coordsParsed.getBuild());
+        assertEquals(parsedPackages.get(currentIndex).get(3), coordsParsed.getLanguageImplementationVersion());
+        assertEquals(parsedPackages.get(currentIndex).get(4), coordsParsed.getAbi());
+        assertEquals(parsedPackages.get(currentIndex).get(5), coordsParsed.getPlatform());
     }
 
     /**
      * Test that the parser handles the case that too many arguments included in the filename
      */
-    @RepeatedTest(10)
+    @Test
     public void testTooManyArgumentsException()
     {
         // too many arguments (7), error is at end
@@ -206,7 +210,7 @@ public class PypiArtifactCoordinatesTest
     /**
      * Test that the parser handles the case that too few arguments included in the filename
      */
-    @RepeatedTest(10)
+    @Test
     public void testTooFewArgumentsException()
     {
         // too few arguments (1)
@@ -239,7 +243,7 @@ public class PypiArtifactCoordinatesTest
      * Test that the parser handles the case that build tag is specified but empty and if the build tag is 
      * specified but does not start with a number
      */
-    @RepeatedTest(10)
+    @Test
     public void buildTagException()
     {
         assertThrows(IllegalArgumentException.class, () -> {
@@ -254,21 +258,20 @@ public class PypiArtifactCoordinatesTest
     /**
      * Test that the PypiArtifactCoordinate method toString returns the correct original filename
      */
-    @RepeatedTest(10)
-    public void testToString()
+    @RepeatedTest(31)
+    public void testToString(RepetitionInfo repetitionInfo)
     {
-        for (int i = 0; i < packageExamples.size(); ++i)
-        {
-            PypiArtifactCoordinates coordsParsed = PypiArtifactCoordinates.parse(packageExamples.get(i));
+        int currentIndex = repetitionInfo.getCurrentRepetition() - 1;
 
-            List<String> parsedCoordinates = parsedPackages.get(i);
+        PypiArtifactCoordinates coordsParsed = PypiArtifactCoordinates.parse(packageExamples.get(currentIndex));
 
-            String expectedPackagePath = String.format("%s/%s/%s",
-                                                       parsedCoordinates.get(0),
-                                                       parsedCoordinates.get(1),
-                                                       packageExamples.get(i));
+        List<String> parsedCoordinates = parsedPackages.get(currentIndex);
 
-            assertEquals(expectedPackagePath, coordsParsed.toString());
-        }
+        String expectedPackagePath = String.format("%s/%s/%s",
+                                                   parsedCoordinates.get(0),
+                                                   parsedCoordinates.get(1),
+                                                   packageExamples.get(currentIndex));
+
+        assertEquals(expectedPackagePath, coordsParsed.toString());
     }
 }
