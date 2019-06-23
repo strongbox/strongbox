@@ -7,6 +7,7 @@ import org.carlspring.strongbox.cron.services.CronJobSchedulerService;
 
 import javax.inject.Inject;
 import java.util.Set;
+import java.util.UUID;
 
 import org.quartz.*;
 import org.quartz.impl.matchers.GroupMatcher;
@@ -16,6 +17,7 @@ import org.springframework.stereotype.Service;
 
 /**
  * @author Yougeshwar
+ * @author Pablo Tirado
  */
 @Service
 public class CronJobSchedulerServiceImpl
@@ -36,9 +38,9 @@ public class CronJobSchedulerServiceImpl
         {
             jobClass = (Class<? extends Job>) Class.forName(jobClassName);
         }
-        catch (ClassNotFoundException e1)
+        catch (ClassNotFoundException e)
         {
-            logger.error(String.format("Failed to schedule cron job [%s]", jobClassName));
+            logger.error(String.format("Failed to schedule cron job [%s]", jobClassName), e);
 
             return;
         }
@@ -49,7 +51,7 @@ public class CronJobSchedulerServiceImpl
         JobDataMap jobDataMap = new JobDataMap();
         jobDataMap.put("config", cronTaskConfiguration);
 
-        JobKey jobKey = JobKey.jobKey(cronTaskConfiguration.getUuid());
+        JobKey jobKey = JobKey.jobKey(cronTaskConfiguration.getUuid().toString());
         JobDetail jobDetail = JobBuilder.newJob(jobClass)
                                         .withIdentity(jobKey)
                                         .setJobData(jobDataMap)
@@ -92,7 +94,7 @@ public class CronJobSchedulerServiceImpl
             return;
         }
 
-        TriggerKey triggerKey = TriggerKey.triggerKey(cronTaskConfiguration.getUuid());
+        TriggerKey triggerKey = TriggerKey.triggerKey(cronTaskConfiguration.getUuid().toString());
         TriggerBuilder<Trigger> triggerBuilder = TriggerBuilder.newTrigger()
                                                                .withIdentity(triggerKey)
                                                                .forJob(jobDetail);
@@ -115,9 +117,9 @@ public class CronJobSchedulerServiceImpl
     }
 
     @Override
-    public void deleteJob(String cronTaskConfigurationUuid)
+    public void deleteJob(UUID cronTaskConfigurationUuid)
     {
-        JobKey jobKey = JobKey.jobKey(cronTaskConfigurationUuid);
+        JobKey jobKey = JobKey.jobKey(cronTaskConfigurationUuid.toString());
 
         try
         {

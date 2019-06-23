@@ -11,9 +11,10 @@ import org.carlspring.strongbox.rest.common.RestAssuredBaseTest;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.InputStream;
+import java.util.Arrays;
+import java.util.UUID;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
-import edu.emory.mathcs.backport.java.util.Arrays;
 import io.restassured.http.Headers;
 import io.restassured.module.mockmvc.response.MockMvcResponse;
 import org.apache.commons.io.IOUtils;
@@ -22,7 +23,6 @@ import org.junit.jupiter.api.Test;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
-import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.web.servlet.result.MockMvcResultMatchers;
 import static io.restassured.module.mockmvc.RestAssuredMockMvc.given;
 import static org.assertj.core.api.Assertions.assertThat;
@@ -340,8 +340,8 @@ public class CronTaskControllerTest
                                  .extract()
                                  .headers();
 
-        String cronUuid = headers.getValue(HEADER_NAME_CRON_TASK_ID);
-        assertThat(cronUuid).isNotEmpty();
+        UUID cronUuid = UUID.fromString(headers.getValue(HEADER_NAME_CRON_TASK_ID));
+        assertThat(cronUuid).isNotNull();
 
         deleteConfig(cronUuid);
     }
@@ -368,8 +368,8 @@ public class CronTaskControllerTest
                                  .extract()
                                  .headers();
 
-        String cronUuid = headers.getValue(HEADER_NAME_CRON_TASK_ID);
-        assertThat(cronUuid).isNotEmpty();
+        UUID cronUuid = UUID.fromString(headers.getValue(HEADER_NAME_CRON_TASK_ID));
+        assertThat(cronUuid).isNotNull();
 
         CronTaskConfigurationDto config = given().contentType(MediaType.APPLICATION_JSON_VALUE)
                                                  .accept(MediaType.APPLICATION_JSON_VALUE)
@@ -440,8 +440,8 @@ public class CronTaskControllerTest
                                  .extract()
                                  .headers();
 
-        String cronUuid = headers.getValue(HEADER_NAME_CRON_TASK_ID);
-        assertThat(cronUuid).isNotEmpty();
+        UUID cronUuid = UUID.fromString(headers.getValue(HEADER_NAME_CRON_TASK_ID));
+        assertThat(cronUuid).isNotNull();
 
         uploadGroovyScript(cronUuid);
 
@@ -460,7 +460,7 @@ public class CronTaskControllerTest
                .statusCode(OK);
     }
 
-    private void uploadGroovyScript(String uuid)
+    private void uploadGroovyScript(UUID uuid)
             throws Exception
     {
         String url = getContextBaseUrl() + "/cron/groovy/" + uuid;
@@ -485,7 +485,7 @@ public class CronTaskControllerTest
                .statusCode(OK);
     }
 
-    private void deleteConfig(String cronUuid)
+    private void deleteConfig(UUID cronUuid)
     {
         MockMvcResponse response = deleteCronConfig(cronUuid);
 
@@ -497,7 +497,7 @@ public class CronTaskControllerTest
         assertEquals(HttpStatus.NOT_FOUND.value(), response.getStatusCode(), "Cron task config exists!");
     }
 
-    private MockMvcResponse deleteCronConfig(String uuid)
+    private MockMvcResponse deleteCronConfig(UUID uuid)
     {
         return given().contentType(MediaType.APPLICATION_JSON_VALUE)
                       .accept(MediaType.APPLICATION_JSON_VALUE)
@@ -514,7 +514,7 @@ public class CronTaskControllerTest
                       .peek();
     }
 
-    private MockMvcResponse getCronConfig(String uuid)
+    private MockMvcResponse getCronConfig(UUID uuid)
     {
         return given().contentType(MediaType.APPLICATION_JSON_VALUE)
                       .accept(MediaType.APPLICATION_JSON_VALUE)

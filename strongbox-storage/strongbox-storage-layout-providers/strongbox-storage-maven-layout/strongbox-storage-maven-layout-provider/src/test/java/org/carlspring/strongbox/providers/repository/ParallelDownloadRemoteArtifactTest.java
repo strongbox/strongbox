@@ -1,133 +1,201 @@
 package org.carlspring.strongbox.providers.repository;
 
-import org.carlspring.strongbox.config.Maven2LayoutProviderTestConfig;
+import org.carlspring.strongbox.artifact.MavenArtifactUtils;
 import org.carlspring.strongbox.providers.io.RepositoryPath;
+import org.carlspring.strongbox.providers.io.RepositoryPathResolver;
+import org.carlspring.strongbox.storage.repository.Repository;
+import org.carlspring.strongbox.testing.artifact.MavenArtifactTestUtils;
+import org.carlspring.strongbox.testing.repository.MavenRepository;
+import org.carlspring.strongbox.testing.storage.repository.RepositoryManagementTestExecutionListener;
+import org.carlspring.strongbox.testing.storage.repository.TestRepository.Remote;
 
 import javax.inject.Inject;
 import java.io.FilterInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.nio.file.Files;
-import java.nio.file.Path;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.atomic.AtomicInteger;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 
+import org.apache.maven.artifact.Artifact;
 import org.hamcrest.CoreMatchers;
-import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-import org.junit.jupiter.api.parallel.Execution;
-import org.springframework.boot.test.context.SpringBootTest;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.springframework.core.io.Resource;
-import org.springframework.test.context.ActiveProfiles;
-import org.springframework.test.context.ContextConfiguration;
 import org.springframework.transaction.PlatformTransactionManager;
 import org.springframework.transaction.support.TransactionTemplate;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.junit.jupiter.api.Assertions.*;
-import static org.junit.jupiter.api.parallel.ExecutionMode.CONCURRENT;
 
 /**
  * @author sbespalov
  *
  */
-@ActiveProfiles({"MockedRestArtifactResolverTestConfig", "test"})
-@SpringBootTest
-@ContextConfiguration(classes = Maven2LayoutProviderTestConfig.class)
-@Execution(CONCURRENT)
 public class ParallelDownloadRemoteArtifactTest
-        extends RetryDownloadArtifactTestBase
+        extends MockedRestArtifactResolverTestBase implements ArtifactResolverContext
 {
+    
+    private static final String REPOSITORY = "pdrat-repository";
 
+    private static final String PROXY_REPOSITORY_URL = "https://repo.maven.apache.org/maven2/";
+    
+    private static AtomicInteger concurrencyWorkerInstanceHolder = new AtomicInteger();
+    private static AtomicInteger concurrentWorkerExecutionCount = new AtomicInteger();
     private RemoteArtifactInputStreamStub remoteArtifactInputStream;
-
-    public Map<InputStream, Thread> repoteRepositoryConnectionOwnerMap = new ConcurrentHashMap<>();
-
+    private Map<InputStream, Thread> remoteRepositoryConnectionOwnerMap = new ConcurrentHashMap<>();
+    private int concurrency = Runtime.getRuntime().availableProcessors();
+    
     @Inject
     private PlatformTransactionManager transactionManager;
     
-    @BeforeEach
-    public void setup()
-        throws Exception
+    @Inject
+    private RepositoryPathResolver repositoryPathResolver;
+    
+    public ParallelDownloadRemoteArtifactTest() throws IOException
     {
         remoteArtifactInputStream = new RemoteArtifactInputStreamStub(jarArtifact);
-        prepareArtifactResolverContext(remoteArtifactInputStream, true);
+    }
+
+    @Override
+    public InputStream getInputStream()
+    {
+        return remoteArtifactInputStream;
+    }
+
+    @Override
+    protected ArtifactResolverContext lookupArtifactResolverContext()
+    {
+        return this;
     }
 
     @Test
-    public void testConcurrentDownload()
+    @ExtendWith(RepositoryManagementTestExecutionListener.class)
+    public void testConcurrentDownload(@MavenRepository(repositoryId = REPOSITORY) @Remote(url = PROXY_REPOSITORY_URL) Repository proxyRepository)
         throws Exception
     {
-        int concurrency = 64;
-
-        final String storageId = "storage-common-proxies";
-        final String repositoryId = "maven-central";
-        final String path = getJarPath();
-        final Path destinationPath = getVaultDirectoryPath().resolve("storages")
-                                                            .resolve(storageId)
-                                                            .resolve(repositoryId)
+        Artifact artifact = MavenArtifactTestUtils.getArtifactFromGAVTC("org.apache.commons:commons-lang3:3.0");
+        String path = MavenArtifactUtils.convertArtifactToPath(artifact);
+        RepositoryPath artifactPath = repositoryPathResolver.resolve(proxyRepository)
                                                             .resolve(path);
 
         // given
-        assertFalse(Files.exists(destinationPath));
-        assertFalse(repoteRepositoryConnectionOwnerMap.containsKey(remoteArtifactInputStream));
+        assertFalse(Files.exists(artifactPath));
+        assertFalse(remoteRepositoryConnectionOwnerMap.containsKey(remoteArtifactInputStream));
 
         // when
         List<Throwable> result = IntStream.range(0, concurrency)
+                                          .mapToObj(i -> new WorkerThread(STORAGE0, REPOSITORY, path))
+                                          .map(t -> {
+                                              t.start();
+                                              System.err.println(String.format("Started [%s]", t.getName()));
+                                              return t;
+                                          })
+                                          //Parallel execution needed to break sequential `map` method call, to make worker threads runs in parallel 
                                           .parallel()
-                                          .mapToObj(i -> executeTask(storageId, repositoryId, path))
+                                          .map(t -> {
+                                              try
+                                              {
+                                                  t.join();
+                                              }
+                                              catch (InterruptedException e)
+                                              {
+                                                  t.setResult(e);
+                                              }
+                                              return t;
+                                          })
+                                          .map(t -> t.getResult())
                                           .collect(Collectors.toList());
 
-        Throwable[] actual = IntStream.range(0, concurrency)
-                                      .mapToObj(i -> (Throwable) null)
-                                      .toArray(n -> new Throwable[concurrency]);
-        Throwable[] expected = result.toArray(new Throwable[concurrency]);
+        Throwable[] expected = IntStream.range(0, concurrency)
+                                        .mapToObj(i -> (Throwable) null)
+                                        .toArray(n -> new Throwable[concurrency]);
+        Throwable[] actual = result.toArray(new Throwable[concurrency]);
 
         // then
-        assertTrue(Files.exists(destinationPath));
-        assertThat(Files.size(destinationPath), CoreMatchers.equalTo(Files.size(jarArtifact.getFile().toPath())));
+        assertTrue(Files.exists(artifactPath));
+        assertThat(Files.size(artifactPath), CoreMatchers.equalTo(Files.size(jarArtifact.getFile().toPath())));
         assertEquals(concurrency, result.size());
 
         assertArrayEquals(expected, actual);
         
-        RepositoryPath repositoryPath = repositoryPathResolver.resolve(storageId, repositoryId, path);
+        RepositoryPath repositoryPath = repositoryPathResolver.resolve(STORAGE0, REPOSITORY, path);
 
         assertNotNull(repositoryPath.getArtifactEntry());
         assertEquals(Integer.valueOf(concurrency), repositoryPath.getArtifactEntry().getDownloadCount());
+        
+        assertNotEquals(concurrency, concurrentWorkerExecutionCount, "Worker execution was not concurrent.");
     }
 
-    private Throwable executeTask(final String storageId,
-                                  final String repositoryId,
-                                  final String path)
+    private class WorkerThread extends Thread
     {
+        private Throwable result;
 
-        return new TransactionTemplate(transactionManager).execute(t -> {
+        final String storageId;
+        final String repositoryId;
+        final String path;
+
+        public WorkerThread(String storageId,
+                            String repositoryId,
+                            String path)
+        {
+            this.storageId = storageId;
+            this.repositoryId = repositoryId;
+            this.path = path;
+        }
+
+        public Throwable getResult()
+        {
+            return result;
+        }
+
+        public void setResult(Throwable result)
+        {
+            this.result = result;
+        }
+        
+        @Override
+        public void run()
+        {
+            initContext(ParallelDownloadRemoteArtifactTest.this);
+            concurrencyWorkerInstanceHolder.set(hashCode());
+            
             try
             {
-                assertStreamNotNull(storageId, repositoryId, path);
-            }
-            catch (AssertionError e)
+                result = new TransactionTemplate(transactionManager).execute(t -> {
+                    try
+                    {
+                        assertStreamNotNull(storageId, repositoryId, path);
+                    }
+                    catch (AssertionError e)
+                    {
+                        return e;
+                    }
+                    catch (Throwable e)
+                    {
+                        e.printStackTrace();
+                        return e;
+                    }
+
+                    return null;
+                });
+                if (hashCode() != concurrencyWorkerInstanceHolder.get())
+                {
+                    concurrentWorkerExecutionCount.incrementAndGet();
+                }
+            } 
+            finally
             {
-                return e;
+                cleanContext();
             }
-            catch (Throwable e)
-            {
-                return e;
-            }
+        }
 
-            return null;
-        });
     }
-
-    @Override
-    protected String getArtifactVersion()
-    {
-        return "3.0";
-    }
-
+    
     private class RemoteArtifactInputStreamStub
             extends FilterInputStream
     {
@@ -186,7 +254,7 @@ public class ParallelDownloadRemoteArtifactTest
             readCount++;
 
             Thread currentThread = Thread.currentThread();
-            Thread ownerThread = repoteRepositoryConnectionOwnerMap.putIfAbsent(this, currentThread);
+            Thread ownerThread = remoteRepositoryConnectionOwnerMap.putIfAbsent(this, currentThread);
 
             assertEquals(currentThread, Optional.ofNullable(ownerThread).orElse(currentThread));
         }

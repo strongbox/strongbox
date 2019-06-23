@@ -1,7 +1,11 @@
 package org.carlspring.strongbox.controllers;
 
 import org.carlspring.strongbox.controllers.support.ErrorResponseEntityBody;
+import org.carlspring.strongbox.controllers.support.ResponseEntityBody;
 import org.carlspring.strongbox.data.criteria.QueryParserException;
+import org.carlspring.strongbox.exception.RepositoryNotFoundException;
+import org.carlspring.strongbox.exception.ServiceUnavailableException;
+import org.carlspring.strongbox.exception.StorageNotFoundException;
 import org.carlspring.strongbox.validation.RequestBodyValidationError;
 import org.carlspring.strongbox.validation.RequestBodyValidationException;
 
@@ -57,6 +61,33 @@ public class DefaultExceptionHandler extends ResponseEntityExceptionHandler
         return provideValidationErrorResponse(ex, request);
     }
 
+    @ExceptionHandler(StorageNotFoundException.class)
+    protected ResponseEntity<?> handleStorageNotFoundException(final StorageNotFoundException ex,
+                                                               final WebRequest request)
+    {
+        ResponseEntityBody body = new ResponseEntityBody(ex.getMessage());
+        HttpHeaders headers = new HttpHeaders();
+        return handleExceptionInternal(ex, body, headers, HttpStatus.NOT_FOUND, request);
+    }
+
+    @ExceptionHandler(RepositoryNotFoundException.class)
+    protected ResponseEntity<?> handleRepositoryNotFoundException(final RepositoryNotFoundException ex,
+                                                                  final WebRequest request)
+    {
+        ResponseEntityBody body = new ResponseEntityBody(ex.getMessage());
+        HttpHeaders headers = new HttpHeaders();
+        return handleExceptionInternal(ex, body, headers, HttpStatus.NOT_FOUND, request);
+    }
+
+    @ExceptionHandler(ServiceUnavailableException.class)
+    protected ResponseEntity<?> handleServiceUnavailableException(final ServiceUnavailableException ex,
+                                                                  final WebRequest request)
+    {
+        ResponseEntityBody body = new ResponseEntityBody(ex.getMessage());
+        HttpHeaders headers = new HttpHeaders();
+        return handleExceptionInternal(ex, body, headers, HttpStatus.SERVICE_UNAVAILABLE, request);
+    }
+
     @ExceptionHandler(Exception.class)
     protected ResponseEntity<?> handleUnknownError(Exception ex,
                                                    WebRequest request)
@@ -66,6 +97,7 @@ public class DefaultExceptionHandler extends ResponseEntityExceptionHandler
         return provideDefaultErrorResponse(ex, request, HttpStatus.INTERNAL_SERVER_ERROR);
     }
 
+    @Override
     protected ResponseEntity<Object> handleExceptionInternal(Exception ex,
                                                              @Nullable Object body,
                                                              HttpHeaders headers,

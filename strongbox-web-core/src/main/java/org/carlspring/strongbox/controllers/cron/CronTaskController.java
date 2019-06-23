@@ -24,7 +24,7 @@ import java.util.UUID;
 import io.swagger.annotations.ApiOperation;
 import io.swagger.annotations.ApiResponse;
 import io.swagger.annotations.ApiResponses;
-import org.apache.commons.collections.CollectionUtils;
+import org.apache.commons.collections4.CollectionUtils;
 import org.springframework.core.convert.ConversionService;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
@@ -135,7 +135,7 @@ public class CronTaskController
                 consumes = MediaType.APPLICATION_JSON_VALUE,
                 produces = { MediaType.TEXT_PLAIN_VALUE,
                              MediaType.APPLICATION_JSON_VALUE })
-    public ResponseEntity updateConfiguration(@PathVariable("UUID") String uuid,
+    public ResponseEntity updateConfiguration(@PathVariable("UUID") UUID uuid,
                                               @RequestBody @Validated CronTaskConfigurationForm cronTaskConfigurationForm,
                                               BindingResult bindingResult,
                                               @RequestHeader(HttpHeaders.ACCEPT) String acceptHeader)
@@ -175,7 +175,7 @@ public class CronTaskController
     @DeleteMapping(value = "{UUID}",
             produces = { MediaType.TEXT_PLAIN_VALUE,
                          MediaType.APPLICATION_JSON_VALUE })
-    public ResponseEntity deleteConfiguration(@PathVariable("UUID") String uuid,
+    public ResponseEntity deleteConfiguration(@PathVariable("UUID") UUID uuid,
                                               @RequestHeader(HttpHeaders.ACCEPT) String acceptHeader)
     {
         final CronTaskConfigurationDto config = cronTaskConfigurationService.getTaskConfigurationDto(uuid);
@@ -225,7 +225,7 @@ public class CronTaskController
     @GetMapping(value = "/{UUID}",
                 produces = { MediaType.APPLICATION_JSON_VALUE,
                              APPLICATION_YAML_VALUE })
-    public ResponseEntity getConfiguration(@PathVariable("UUID") String uuid,
+    public ResponseEntity getConfiguration(@PathVariable("UUID") UUID uuid,
                                            @RequestHeader(HttpHeaders.ACCEPT) String acceptHeader)
     {
         CronTaskConfigurationDto config = cronTaskConfigurationService.getTaskConfigurationDto(uuid);
@@ -259,7 +259,7 @@ public class CronTaskController
     @PutMapping(value = "/cron/groovy/{UUID}",
                 produces = { MediaType.TEXT_PLAIN_VALUE,
                              MediaType.APPLICATION_JSON_VALUE })
-    public ResponseEntity uploadGroovyScript(@PathVariable("UUID") String uuid,
+    public ResponseEntity uploadGroovyScript(@PathVariable("UUID") UUID uuid,
                                              HttpServletRequest request,
                                              @RequestHeader(HttpHeaders.ACCEPT) String acceptHeader)
     {

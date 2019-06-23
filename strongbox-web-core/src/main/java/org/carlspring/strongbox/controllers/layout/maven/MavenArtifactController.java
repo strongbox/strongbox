@@ -3,13 +3,11 @@ package org.carlspring.strongbox.controllers.layout.maven;
 import org.carlspring.strongbox.artifact.coordinates.MavenArtifactCoordinates;
 import org.carlspring.strongbox.controllers.BaseArtifactController;
 import org.carlspring.strongbox.providers.io.RepositoryPath;
-import org.carlspring.strongbox.providers.io.RepositoryPathResolver;
 import org.carlspring.strongbox.storage.ArtifactStorageException;
-import org.carlspring.strongbox.storage.Storage;
 import org.carlspring.strongbox.storage.repository.Repository;
 import org.carlspring.strongbox.web.LayoutRequestMapping;
+import org.carlspring.strongbox.web.RepositoryMapping;
 
-import javax.inject.Inject;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
@@ -19,20 +17,17 @@ import io.swagger.annotations.ApiOperation;
 import io.swagger.annotations.ApiParam;
 import io.swagger.annotations.ApiResponse;
 import io.swagger.annotations.ApiResponses;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
-import static org.springframework.http.HttpStatus.INTERNAL_SERVER_ERROR;
 import static org.springframework.http.HttpStatus.NOT_FOUND;
 
 /**
  * REST API for all artifact-related processes.
  * <p>
- * Thanks to custom URL processing any path variable like '{path:.+}' will be processed as '**'.
+ * Thanks to custom URL processing any path variable like '{artifactPath:.+}' will be processed as '**'.
  *
  * @author Martin Todorov
  * @author Alex Oreshkevich
@@ -47,14 +42,6 @@ public class MavenArtifactController
         extends BaseArtifactController
 {
 
-    private static final Logger logger = LoggerFactory.getLogger(MavenArtifactController.class);
-
-    // must be the same as @RequestMapping value on the class definition
-    public final static String ROOT_CONTEXT = "/storages";
-
-    @Inject
-    private RepositoryPathResolver repositoryPathResolver;
-    
     @PreAuthorize("authenticated")
     @RequestMapping(value = "greet", method = RequestMethod.GET)
     public ResponseEntity greet()
@@ -68,50 +55,20 @@ public class MavenArtifactController
                             @ApiResponse(code = 500, message = "Server error."),
                             @ApiResponse(code = 503, message = "Repository currently not in service.")})
     @PreAuthorize("hasAuthority('ARTIFACTS_RESOLVE')")
-    @RequestMapping(value = { "/{storageId}/{repositoryId}/{path:.+}" }, method = {RequestMethod.GET, RequestMethod.HEAD})
-    public void download(@ApiParam(value = "The storageId", required = true)
-                         @PathVariable String storageId,
-                         @ApiParam(value = "The repositoryId", required = true)
-                         @PathVariable String repositoryId,
+    @RequestMapping(value = { "/{storageId}/{repositoryId}/{artifactPath:.+}" }, method = {RequestMethod.GET, RequestMethod.HEAD})
+    public void download(@RepositoryMapping Repository repository,
                          @RequestHeader HttpHeaders httpHeaders,
-                         @PathVariable String path,
+                         @PathVariable String artifactPath,
                          HttpServletRequest request,
                          HttpServletResponse response)
             throws Exception
     {
-        logger.debug("Requested /" + storageId + "/" + repositoryId + "/" + path + ".");
+        final String storageId = repository.getStorage().getId();
+        final String repositoryId = repository.getId();
+        logger.debug("Requested /{}/{}/{}.", storageId, repositoryId, artifactPath);
 
-        Storage storage = configurationManager.getConfiguration().getStorage(storageId);
-        if (storage == null)
-        {
-            logger.error("Unable to find storage by ID " + storageId);
-
-            response.sendError(INTERNAL_SERVER_ERROR.value(), "Unable to find storage by ID " + storageId);
-
-            return;
-        }
-
-        Repository repository = storage.getRepository(repositoryId);
-        if (repository == null)
-        {
-            logger.error("Unable to find repository by ID " + repositoryId + " for storage " + storageId);
-
-            response.sendError(INTERNAL_SERVER_ERROR.value(),
-                               "Unable to find repository by ID " + repositoryId + " for storage " + storageId);
-            return;
-        }
-
-        if (!repository.isInService())
-        {
-            logger.error("Repository is not in service...");
-
-            response.setStatus(HttpStatus.SERVICE_UNAVAILABLE.value());
-
-            return;
-        }
-        
-        path = correctIndexPathIfNecessary(path);
-        RepositoryPath repositoryPath = artifactResolutionService.resolvePath(storageId, repositoryId, path);
+        artifactPath = correctIndexPathIfNecessary(artifactPath);
+        RepositoryPath repositoryPath = artifactResolutionService.resolvePath(storageId, repositoryId, artifactPath);
         
         provideArtifactDownloadResponse(request, response, httpHeaders, repositoryPath);
     }
@@ -120,23 +77,17 @@ public class MavenArtifactController
     @ApiResponses(value = { @ApiResponse(code = 200, message = "The artifact was deployed successfully."),
                             @ApiResponse(code = 400, message = "An error occurred.") })
     @PreAuthorize("hasAuthority('ARTIFACTS_DEPLOY')")
-    @PutMapping(value = "{storageId}/{repositoryId}/{path:.+}")
-    public ResponseEntity upload(@ApiParam(value = "The storageId", required = true)
-                                 @PathVariable(name = "storageId") String storageId,
-                                 @ApiParam(value = "The repositoryId", required = true)
-                                 @PathVariable(name = "repositoryId") String repositoryId,
-                                 @PathVariable String path,
+    @PutMapping(value = "{storageId}/{repositoryId}/{artifactPath:.+}")
+    public ResponseEntity upload(@RepositoryMapping Repository repository,
+                                 @PathVariable String artifactPath,
                                  HttpServletRequest request)
     {
+        final String storageId = repository.getStorage().getId();
+        final String repositoryId = repository.getId();
+
         try
         {
-            RepositoryPath repositoryPath = repositoryPathResolver.resolve(storageId, repositoryId, path);
-
-            if (!repositoryPath.getRepository().isInService())
-            {
-                return ResponseEntity.status(HttpStatus.SERVICE_UNAVAILABLE).body("Repository is not in service.");
-            }
-
+            RepositoryPath repositoryPath = repositoryPathResolver.resolve(storageId, repositoryId, artifactPath);
             artifactManagementService.validateAndStore(repositoryPath, request.getInputStream());
 
             return ResponseEntity.ok("The artifact was deployed successfully.");
@@ -148,53 +99,30 @@ public class MavenArtifactController
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(e.getMessage());
         }
     }
-    
+
     @ApiOperation(value = "Copies a path from one repository to another.")
     @ApiResponses(value = { @ApiResponse(code = 200, message = "The path was copied successfully."),
                             @ApiResponse(code = 400, message = "Bad request."),
                             @ApiResponse(code = 404, message = "The source/destination storageId/repositoryId/path does not exist!") })
     @PreAuthorize("hasAuthority('ARTIFACTS_COPY')")
     @PostMapping(value = "/copy/{path:.+}")
-    public ResponseEntity copy(@ApiParam(value = "The source storageId", required = true)
-                               @RequestParam(name = "srcStorageId") String srcStorageId,
-                               @ApiParam(value = "The source repositoryId", required = true)
-                               @RequestParam(name = "srcRepositoryId") String srcRepositoryId,
-                               @ApiParam(value = "The destination storageId", required = true)
-                               @RequestParam(name = "destStorageId") String destStorageId,
-                               @ApiParam(value = "The destination repositoryId", required = true)
-                               @RequestParam(name = "destRepositoryId") String destRepositoryId,
-                               @PathVariable String path)
+    public ResponseEntity copy(
+            @RepositoryMapping(storageVariableName = "srcStorageId", repositoryVariableName = "srcRepositoryId")
+                    Repository srcRepository,
+            @RepositoryMapping(storageVariableName = "destStorageId", repositoryVariableName = "destRepositoryId")
+                    Repository destRepository,
+            @PathVariable String path)
     {
-        logger.debug("Copying " + path +
-                     " from " + srcStorageId + ":" + srcRepositoryId +
-                     " to " + destStorageId + ":" + destRepositoryId + "...");
+        final String srcStorageId = srcRepository.getStorage().getId();
+        final String srcRepositoryId = srcRepository.getId();
+        final String destStorageId = destRepository.getStorage().getId();
+        final String destRepositoryId = destRepository.getId();
+
+        logger.debug("Copying {} from {}:{} to {}:{}...", path, srcStorageId, srcRepositoryId, destStorageId,
+                     destRepositoryId);
 
         try
         {
-            final Storage srcStorage = getStorage(srcStorageId);
-            if (srcStorage == null)
-            {
-                return ResponseEntity.status(NOT_FOUND)
-                                     .body("The source storageId does not exist!");
-            }
-            final Storage destStorage = getStorage(destStorageId);
-            if (destStorage == null)
-            {
-                return ResponseEntity.status(NOT_FOUND)
-                                     .body("The destination storageId does not exist!");
-            }
-            final Repository srcRepository = srcStorage.getRepository(srcRepositoryId);
-            if (srcRepository == null)
-            {
-                return ResponseEntity.status(NOT_FOUND)
-                                     .body("The source repositoryId does not exist!");
-            }
-            final Repository destRepository = destStorage.getRepository(destRepositoryId);
-            if (destRepository == null)
-            {
-                return ResponseEntity.status(NOT_FOUND)
-                                     .body("The destination repositoryId does not exist!");
-            }
             final RepositoryPath srcRepositoryPath = repositoryPathResolver.resolve(srcRepository, path);
             if (!Files.exists(srcRepositoryPath))
             {
@@ -230,35 +158,22 @@ public class MavenArtifactController
                             @ApiResponse(code = 400, message = "Bad request."),
                             @ApiResponse(code = 404, message = "The specified storageId/repositoryId/path does not exist!") })
     @PreAuthorize("hasAuthority('ARTIFACTS_DELETE')")
-    @DeleteMapping(value = "/{storageId}/{repositoryId}/{path:.+}")
-    public ResponseEntity delete(@ApiParam(value = "The storageId", required = true)
-                                 @PathVariable String storageId,
-                                 @ApiParam(value = "The repositoryId", required = true)
-                                 @PathVariable String repositoryId,
+    @DeleteMapping(value = "/{storageId}/{repositoryId}/{artifactPath:.+}")
+    public ResponseEntity delete(@RepositoryMapping Repository repository,
                                  @ApiParam(value = "Whether to use force delete")
                                  @RequestParam(defaultValue = "false",
                                                name = "force",
                                                required = false) boolean force,
-                                 @PathVariable String path)
+                                 @PathVariable String artifactPath)
             throws IOException
     {
-        logger.info("Deleting " + storageId + ":" + repositoryId + "/" + path + "...");
+        final String storageId = repository.getStorage().getId();
+        final String repositoryId = repository.getId();
+        logger.info("Deleting {}:{}/{}...", storageId, repositoryId, artifactPath);
 
         try
         {
-            final Storage storage = getStorage(storageId);
-            if (storage == null)
-            {
-                return ResponseEntity.status(NOT_FOUND)
-                                     .body("The specified storageId does not exist!");
-            }
-            final Repository repository = storage.getRepository(repositoryId);
-            if (repository == null)
-            {
-                return ResponseEntity.status(NOT_FOUND)
-                                     .body("The specified repositoryId does not exist!");
-            }
-            final RepositoryPath repositoryPath = repositoryPathResolver.resolve(repository, path);
+            final RepositoryPath repositoryPath = repositoryPathResolver.resolve(storageId, repositoryId, artifactPath);
             if (!Files.exists(repositoryPath))
             {
                 return ResponseEntity.status(NOT_FOUND)

@@ -20,7 +20,7 @@ package org.carlspring.strongbox.storage.metadata.nuget;
 import org.carlspring.strongbox.artifact.coordinates.versioning.SemanticVersion;
 import org.carlspring.strongbox.booters.PropertiesBooter;
 import org.carlspring.strongbox.config.NugetBootersTestConfig;
-import org.carlspring.strongbox.testing.TestCaseWithNugetPackageGeneration;
+import org.carlspring.strongbox.testing.TestCaseWithNugetArtifactGeneration;
 import org.carlspring.strongbox.util.MessageDigestUtils;
 
 import javax.inject.Inject;
@@ -94,11 +94,9 @@ public class TempNupkgFileTest
         // GIVEN
         String packageId = "NUnit";
         String packageVersion = "2.5.9.10348";
-        Path packageFilePath = TestCaseWithNugetPackageGeneration.generatePackageFile(baseDirectoryPath, packageId,
-                                                                                      packageVersion,
-                                                                                      (String[]) null/*
-                                                                                                      * dependencyList
-                                                                                                      */);
+        Path packageFilePath = TestCaseWithNugetArtifactGeneration.generateArtifactFile(baseDirectoryPath,
+                                                                                        packageId,
+                                                                                        packageVersion);
 
         String checksumFileName = packageId + "." + packageVersion + ".nupkg.sha512";
         Path checksumPath = packageFilePath.resolveSibling(checksumFileName);
@@ -132,12 +130,9 @@ public class TempNupkgFileTest
         String expectedPackageId = "NUnit";
         String expectedPackageVersion = "2.5.9.10348";
 
-        Path packageFilePath = TestCaseWithNugetPackageGeneration.generatePackageFile(baseDirectoryPath,
-                                                                                      expectedPackageId,
-                                                                                      expectedPackageVersion,
-                                                                                      (String[]) null/*
-                                                                                                      * dependencyList
-                                                                                                      */);
+        Path packageFilePath = TestCaseWithNugetArtifactGeneration.generateArtifactFile(baseDirectoryPath,
+                                                                                        expectedPackageId,
+                                                                                        expectedPackageVersion);
 
         // WHEN
         try (InputStream nupkgInputStream = new BufferedInputStream(Files.newInputStream(packageFilePath));
@@ -172,12 +167,9 @@ public class TempNupkgFileTest
         String packageId = "NUnit";
         String packageVersion = "2.5.9.10348";
 
-        Path packageFilePath = TestCaseWithNugetPackageGeneration.generatePackageFile(baseDirectoryPath,
-                                                                                      packageId,
-                                                                                      packageVersion,
-                                                                                      (String[]) null/*
-                                                                                                      * dependencyList
-                                                                                                      */);
+        Path packageFilePath = TestCaseWithNugetArtifactGeneration.generateArtifactFile(baseDirectoryPath,
+                                                                                        packageId,
+                                                                                        packageVersion);
 
         // WHEN
         try (InputStream nupkgInputStream = new BufferedInputStream(Files.newInputStream(packageFilePath));

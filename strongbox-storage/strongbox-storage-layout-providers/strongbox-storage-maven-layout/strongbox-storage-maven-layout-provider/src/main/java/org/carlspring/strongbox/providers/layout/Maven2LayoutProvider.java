@@ -1,18 +1,6 @@
 package org.carlspring.strongbox.providers.layout;
 
 
-import java.io.IOException;
-import java.time.Instant;
-import java.time.temporal.ChronoUnit;
-import java.util.Collections;
-import java.util.Map;
-import java.util.Set;
-
-import javax.annotation.PostConstruct;
-import javax.inject.Inject;
-
-import org.apache.commons.lang3.BooleanUtils;
-import org.carlspring.maven.commons.util.ArtifactUtils;
 import org.carlspring.strongbox.artifact.MavenArtifact;
 import org.carlspring.strongbox.artifact.MavenArtifactUtils;
 import org.carlspring.strongbox.artifact.archive.JarArchiveListingFunction;
@@ -24,6 +12,18 @@ import org.carlspring.strongbox.providers.io.RepositoryPath;
 import org.carlspring.strongbox.repository.MavenRepositoryFeatures;
 import org.carlspring.strongbox.repository.MavenRepositoryManagementStrategy;
 import org.carlspring.strongbox.storage.metadata.MetadataHelper;
+
+import javax.annotation.PostConstruct;
+import javax.inject.Inject;
+import java.io.IOException;
+import java.time.Instant;
+import java.time.temporal.ChronoUnit;
+import java.util.Collections;
+import java.util.Map;
+import java.util.Set;
+
+import org.apache.commons.lang3.BooleanUtils;
+import org.apache.maven.index.artifact.M2ArtifactRecognizer;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Component;
@@ -85,8 +85,7 @@ public class Maven2LayoutProvider
             switch (attributeType)
             {
                 case ARTIFACT:
-                    value = BooleanUtils.isTrue((Boolean) value) && !isMavenMetadata(repositoryPath) &&
-                            !isIndex(repositoryPath);
+                    value = BooleanUtils.isTrue((Boolean) value) && MavenArtifactUtils.isGAV(repositoryPath);
 
                     result.put(attributeType, value);
 
@@ -161,7 +160,7 @@ public class Maven2LayoutProvider
             catch (IOException e)
             {
                 logger.warn(String.format("Unable to list filenames in archive path %s using %s", repositoryPath,
-                                           JarArchiveListingFunction.INSTANCE.getClass()), e);
+                                          JarArchiveListingFunction.INSTANCE.getClass()), e);
             }
         }
         return Collections.emptySet();
@@ -170,6 +169,6 @@ public class Maven2LayoutProvider
     public boolean requiresGroupAggregation(final RepositoryPath repositoryPath)
     {
         return isMavenMetadata(repositoryPath) &&
-               !ArtifactUtils.isSnapshot(repositoryPath.getParent().getFileName().toString());
+               !M2ArtifactRecognizer.isSnapshot(repositoryPath.getParent().getFileName().toString());
     }
 }

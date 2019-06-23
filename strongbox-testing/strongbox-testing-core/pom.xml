@@ -40,11 +40,6 @@
         <developerConnection>scm:git:git://github.com/strongbox/strongbox.git</developerConnection>
     </scm>
 
-    <properties>
-        <dir.strongbox.home>${project.build.directory}/strongbox</dir.strongbox.home>
-        <dir.jetty.etc>${dir.strongbox.home}/etc/jetty</dir.jetty.etc>
-    </properties>
-
     <build>
         <plugins>
             <plugin>
@@ -103,11 +98,6 @@
             <groupId>${project.groupId}</groupId>
             <artifactId>strongbox-common-resources</artifactId>
             <version>${project.version}</version>
-        </dependency>
-
-        <dependency>
-            <groupId>org.carlspring.maven</groupId>
-            <artifactId>maven-commons</artifactId>
         </dependency>
 
         <dependency>
@@ -176,50 +166,6 @@
                     <plugin>
                         <groupId>org.apache.maven.plugins</groupId>
                         <artifactId>maven-dependency-plugin</artifactId>
-
-                        <executions>
-                            <execution>
-                                <id>unpack-resources-logging</id>
-                                <phase>process-resources</phase>
-                                <goals>
-                                    <goal>unpack</goal>
-                                </goals>
-                                <configuration>
-                                    <artifactItems>
-                                        <artifactItem>
-                                            <groupId>${project.groupId}</groupId>
-                                            <artifactId>strongbox-common-resources</artifactId>
-                                            <version>${project.version}</version>
-                                            <type>jar</type>
-
-                                            <overWrite>true</overWrite>
-                                            <outputDirectory>${dir.strongbox.home}/etc</outputDirectory>
-                                        </artifactItem>
-                                    </artifactItems>
-                                </configuration>
-                            </execution>
-                        </executions>
-                    </plugin>
-
-                    <plugin>
-                        <groupId>org.codehaus.mojo</groupId>
-                        <artifactId>build-helper-maven-plugin</artifactId>
-
-                        <executions>
-                            <execution>
-                                <id>reserve-network-port</id>
-                                <goals>
-                                    <goal>reserve-network-port</goal>
-                                </goals>
-                                <phase>process-resources</phase>
-                                <configuration>
-                                    <portNames>
-                                        <portName>port.jetty.listen</portName>
-                                        <portName>port.jetty.shutdown</portName>
-                                    </portNames>
-                                </configuration>
-                            </execution>
-                        </executions>
                     </plugin>
                 </plugins>
             </build>

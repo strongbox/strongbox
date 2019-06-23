@@ -28,6 +28,7 @@ import org.springframework.util.CollectionUtils;
 
 /**
  * @author Yougeshwar
+ * @author Pablo Tirado
  */
 @Service
 public class CronTaskDataServiceImpl
@@ -103,7 +104,7 @@ public class CronTaskDataServiceImpl
     }
 
     @Override
-    public CronTaskConfigurationDto getTaskConfigurationDto(String cronTaskConfigurationUuid)
+    public CronTaskConfigurationDto getTaskConfigurationDto(UUID cronTaskConfigurationUuid)
     {
         final Lock readLock = cronTasksConfigurationLock.readLock();
         readLock.lock();
@@ -112,7 +113,8 @@ public class CronTaskDataServiceImpl
         {
             Optional<CronTaskConfigurationDto> cronTaskConfiguration = configuration.getCronTaskConfigurations()
                                                                                     .stream()
-                                                                                    .filter(conf -> cronTaskConfigurationUuid.equals(
+                                                                                    .filter(conf -> Objects.equals(
+                                                                                            cronTaskConfigurationUuid,
                                                                                             conf.getUuid()))
                                                                                     .findFirst();
             return cronTaskConfiguration.map(SerializationUtils::clone).orElse(null);
@@ -154,9 +156,9 @@ public class CronTaskDataServiceImpl
     @Override
     public UUID save(final CronTaskConfigurationDto dto)
     {
-        if (StringUtils.isBlank(dto.getUuid()))
+        if (dto.getUuid() == null || StringUtils.isBlank(dto.getUuid().toString()))
         {
-            dto.setUuid(UUID.randomUUID().toString());
+            dto.setUuid(UUID.randomUUID());
 
             if (exists(dto.getUuid()))
             {
@@ -182,7 +184,7 @@ public class CronTaskDataServiceImpl
                      {
                          configuration.getCronTaskConfigurations()
                                       .stream()
-                                      .filter(conf -> StringUtils.equals(dto.getUuid(), conf.getUuid()))
+                                      .filter(conf -> Objects.equals(dto.getUuid(), conf.getUuid()))
                                       .findFirst()
                                       .ifPresent(conf -> configuration.getCronTaskConfigurations().remove(conf));
 
@@ -190,16 +192,16 @@ public class CronTaskDataServiceImpl
                          configuration.getCronTaskConfigurations().add(dto);
                      });
 
-        return UUID.fromString(dto.getUuid());
+        return dto.getUuid();
     }
 
     @Override
-    public void delete(final String uuid)
+    public void delete(final UUID cronTaskConfigurationUuid)
     {
         modifyInLock(configuration ->
                              configuration.getCronTaskConfigurations()
                                           .stream()
-                                          .filter(conf -> uuid.equals(conf.getUuid()))
+                                          .filter(conf -> Objects.equals(cronTaskConfigurationUuid, conf.getUuid()))
                                           .findFirst()
                                           .ifPresent(conf -> configuration.getCronTaskConfigurations().remove(conf)));
     }
@@ -230,7 +232,7 @@ public class CronTaskDataServiceImpl
         }
     }
 
-    private boolean exists(String uuid)
+    private boolean exists(UUID uuid)
     {
         return this.getTaskConfigurationDto(uuid) != null;
     }

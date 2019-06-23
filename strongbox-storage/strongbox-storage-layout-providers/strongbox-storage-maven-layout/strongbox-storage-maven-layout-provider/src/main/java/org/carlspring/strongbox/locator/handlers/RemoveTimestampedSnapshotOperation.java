@@ -1,7 +1,6 @@
 package org.carlspring.strongbox.locator.handlers;
 
 import org.carlspring.strongbox.artifact.locator.handlers.AbstractArtifactLocationHandler;
-import org.carlspring.strongbox.providers.ProviderImplementationException;
 import org.carlspring.strongbox.providers.io.RepositoryPath;
 import org.carlspring.strongbox.storage.metadata.MavenSnapshotManager;
 import org.carlspring.strongbox.storage.metadata.VersionCollectionRequest;
@@ -112,9 +111,7 @@ public class RemoveTimestampedSnapshotOperation
             mavenSnapshotManager.deleteTimestampedSnapshotArtifacts(basePath, request.getVersioning(),
                                                                     numberToKeep, keepPeriod);
         }
-        catch (IOException |
-               ProviderImplementationException |
-               XmlPullParserException e)
+        catch (IOException | XmlPullParserException e)
         {
             logger.error("Failed to delete timestamped snapshot artifacts for " + basePath, e);
         }

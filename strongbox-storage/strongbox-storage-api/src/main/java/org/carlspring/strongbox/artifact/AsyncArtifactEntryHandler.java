@@ -92,7 +92,8 @@ public abstract class AsyncArtifactEntryHandler
         try
         {
             handleWithRetry(repositoryPath);
-        } finally
+        } 
+        finally
         {
             lock.unlock();
         }
@@ -156,10 +157,10 @@ public abstract class AsyncArtifactEntryHandler
                 ArtifactEntry result = handleEvent(repositoryPath);
                 if (result == null)
                 {
-                    logger.warn(String.format("No [%s] result for event [%s] and path [%s].",
-                                              ArtifactEntry.class.getSimpleName(),
-                                              AsyncArtifactEntryHandler.this.getClass().getSimpleName(),
-                                              repositoryPath));
+                    logger.debug(String.format("No [%s] result for event [%s] and path [%s].",
+                                               ArtifactEntry.class.getSimpleName(),
+                                               AsyncArtifactEntryHandler.this.getClass().getSimpleName(),
+                                               repositoryPath));
 
                     return null;
                 }

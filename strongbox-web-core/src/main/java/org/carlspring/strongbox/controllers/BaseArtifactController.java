@@ -2,8 +2,6 @@ package org.carlspring.strongbox.controllers;
 
 import org.carlspring.strongbox.providers.io.RepositoryPath;
 import org.carlspring.strongbox.services.ArtifactManagementService;
-import org.carlspring.strongbox.storage.Storage;
-import org.carlspring.strongbox.storage.repository.Repository;
 import org.carlspring.strongbox.utils.ArtifactControllerHelper;
 
 import javax.inject.Inject;
@@ -18,19 +16,9 @@ import org.springframework.web.bind.annotation.RequestMethod;
 public abstract class BaseArtifactController
         extends BaseController
 {
+
     @Inject
     protected ArtifactManagementService artifactManagementService;
-
-    protected Storage getStorage(String storageId)
-    {
-        return configurationManager.getConfiguration().getStorage(storageId);
-    }
-
-    protected Repository getRepository(String storageId,
-                                       String repositoryId)
-    {
-        return getStorage(storageId).getRepository(repositoryId);
-    }
 
     protected boolean provideArtifactDownloadResponse(HttpServletRequest request,
                                                       HttpServletResponse response,
@@ -38,8 +26,7 @@ public abstract class BaseArtifactController
                                                       RepositoryPath repositoryPath)
             throws Exception
     {
-        logger.debug("Resolved path: " + repositoryPath);
-        
+        logger.debug("Resolved path: {}", repositoryPath);
         ArtifactControllerHelper.provideArtifactHeaders(response, repositoryPath);
         if (response.getStatus() == HttpStatus.NOT_FOUND.value())
         {
@@ -50,15 +37,18 @@ public abstract class BaseArtifactController
             return true;
         }
 
-        InputStream is = artifactResolutionService.getInputStream(repositoryPath);
-        if (ArtifactControllerHelper.isRangedRequest(httpHeaders))
+        
+        try (InputStream is = artifactResolutionService.getInputStream(repositoryPath);)
         {
-            logger.debug("Detected ranged request.");
+            if (ArtifactControllerHelper.isRangedRequest(httpHeaders))
+            {
+                logger.debug("Detected ranged request.");
 
-            ArtifactControllerHelper.handlePartialDownload(is, httpHeaders, response);
+                ArtifactControllerHelper.handlePartialDownload(is, httpHeaders, response);
+            }
+            
+            copyToResponse(is, response);
         }
-
-        copyToResponse(is, response);
 
         return true;
     }

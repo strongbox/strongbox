@@ -1,7 +1,5 @@
 package org.carlspring.strongbox.storage.metadata;
 
-import org.carlspring.maven.commons.util.ArtifactUtils;
-
 import javax.xml.parsers.ParserConfigurationException;
 import javax.xml.parsers.SAXParser;
 import javax.xml.parsers.SAXParserFactory;
@@ -12,6 +10,7 @@ import java.util.zip.ZipEntry;
 import java.util.zip.ZipInputStream;
 
 import org.apache.maven.artifact.Artifact;
+import org.apache.maven.artifact.ArtifactUtils;
 import org.apache.maven.artifact.repository.metadata.*;
 import org.apache.maven.project.artifact.PluginArtifact;
 import org.slf4j.Logger;
@@ -71,9 +70,9 @@ public class MetadataMerger
             metadata.setGroupId(artifact.getGroupId());
             metadata.setArtifactId(artifact.getArtifactId());
         }
-        String newVersion = ArtifactUtils.isReleaseVersion(artifact.getVersion()) ? artifact.getVersion() :
-                            artifact.getVersion().substring(0, artifact.getVersion().indexOf("-") + 1).concat(
-                                    "SNAPSHOT");
+        String newVersion = !ArtifactUtils.isSnapshot(artifact.getVersion()) ?
+                            artifact.getVersion() :
+                            artifact.getVersion().substring(0, artifact.getVersion().indexOf("-") + 1).concat("SNAPSHOT");
         Versioning versioning = metadata.getVersioning();
         if (versioning == null)
         {
@@ -81,7 +80,7 @@ public class MetadataMerger
             metadata.setVersioning(versioning);
         }
         versioning.setLatest(newVersion);
-        if (ArtifactUtils.isReleaseVersion(artifact.getVersion()))
+        if (!ArtifactUtils.isSnapshot(artifact.getVersion()))
         {
             versioning.setRelease(newVersion);
         }

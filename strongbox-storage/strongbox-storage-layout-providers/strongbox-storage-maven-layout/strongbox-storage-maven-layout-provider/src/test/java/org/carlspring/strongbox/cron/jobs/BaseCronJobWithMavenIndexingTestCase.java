@@ -16,6 +16,7 @@ import java.util.UUID;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.function.Consumer;
 
+import org.apache.commons.lang3.StringUtils;
 import org.junit.jupiter.api.TestInfo;
 import org.springframework.context.ApplicationContext;
 import org.springframework.context.ApplicationListener;
@@ -41,6 +42,8 @@ public class BaseCronJobWithMavenIndexingTestCase
 
     private CronJobApplicationListener cronJobApplicationListener;
 
+    protected UUID expectedJobKey;
+
     protected String expectedJobName;
 
     /**
@@ -48,16 +51,18 @@ public class BaseCronJobWithMavenIndexingTestCase
      */
     protected Map<String, CronTaskConfigurationDto> cronTaskConfigurations = new LinkedHashMap<>();
 
-    protected CronTaskConfigurationDto addCronJobConfig(String jobName,
+    protected CronTaskConfigurationDto addCronJobConfig(UUID jobKey,
+                                                        String jobName,
                                                         Class<? extends JavaCronJob> className,
                                                         String storageId,
                                                         String repositoryId)
             throws Exception
     {
-        return addCronJobConfig(jobName, className, storageId, repositoryId, null);
+        return addCronJobConfig(jobKey, jobName, className, storageId, repositoryId, null);
     }
 
-    protected CronTaskConfigurationDto addCronJobConfig(String jobName,
+    protected CronTaskConfigurationDto addCronJobConfig(UUID jobKey,
+                                                        String jobName,
                                                         Class<? extends JavaCronJob> className,
                                                         String storageId,
                                                         String repositoryId,
@@ -71,10 +76,11 @@ public class BaseCronJobWithMavenIndexingTestCase
         {
             additionalProperties.accept(properties);
         }
-        return addCronJobConfig(jobName, className , properties );
+        return addCronJobConfig(jobKey, jobName, className , properties );
     }
 
-    protected CronTaskConfigurationDto addCronJobConfig(String jobName,
+    protected CronTaskConfigurationDto addCronJobConfig(UUID jobKey,
+                                                        String jobName,
                                                         Class<? extends JavaCronJob> className,
                                                         Map<String, String> properties)
             throws Exception
@@ -83,9 +89,9 @@ public class BaseCronJobWithMavenIndexingTestCase
         cronTaskConfiguration.setCronExpression("0 11 11 11 11 ? 2100");
         cronTaskConfiguration.setOneTimeExecution(true);
         cronTaskConfiguration.setImmediateExecution(true);
-        cronTaskConfiguration.setUuid(UUID.randomUUID().toString());
+        cronTaskConfiguration.setUuid(jobKey);
         cronTaskConfiguration.setName(jobName);
-        cronTaskConfiguration.setJobClass(className.getCanonicalName());
+        cronTaskConfiguration.setJobClass(className.getName());
 
         for (String propertyKey : properties.keySet())
         {
@@ -108,10 +114,12 @@ public class BaseCronJobWithMavenIndexingTestCase
     public void init(final TestInfo testInfo)
             throws Exception
     {
+        expectedJobKey = UUID.randomUUID();
+
         Optional<Method> method = testInfo.getTestMethod();
         expectedJobName = method.map(Method::getName).orElseThrow(() -> new IllegalStateException("No method name ?"));
 
-        cronJobApplicationListener = new CronJobApplicationListener(expectedJobName);
+        cronJobApplicationListener = new CronJobApplicationListener(expectedJobKey);
 
         ((ConfigurableApplicationContext) applicationContext).addApplicationListener(cronJobApplicationListener);
     }
@@ -124,11 +132,11 @@ public class BaseCronJobWithMavenIndexingTestCase
 
         private AtomicBoolean receivedExpectedEvent = new AtomicBoolean(false);
 
-        private final String expectedJobName;
+        private final UUID expectedJobKey;
 
-        public CronJobApplicationListener(final String expectedJobName)
+        public CronJobApplicationListener(final UUID expectedJobKey)
         {
-            this.expectedJobName = expectedJobName;
+            this.expectedJobKey = expectedJobKey;
         }
 
         @Override
@@ -139,7 +147,7 @@ public class BaseCronJobWithMavenIndexingTestCase
 
         public void handle(CronTaskEvent event)
         {
-            if (event.getType() == expectedEventType && expectedJobName.equals(event.getName()))
+            if (event.getType() == expectedEventType && StringUtils.equals(expectedJobKey.toString(), event.getName()))
             {
                 receivedExpectedEvent.set(true);
             }

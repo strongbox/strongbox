@@ -1,0 +1,65 @@
+server:
+  port: 48080
+spring:
+  liquibase:
+    enabled: false
+  servlet:
+    multipart:
+      enabled: false
+strongbox:
+  basedir: .
+  home: ${strongbox.basedir}/strongbox
+  vault: ${strongbox.basedir}/strongbox-vault
+  etc: ${strongbox.home}/etc
+  temp: ${strongbox.home}/tmp
+  config:
+    file: ${strongbox.home}/etc/conf/strongbox.yaml
+  storage:
+    booter:
+      basedir: ${strongbox.vault}/storages
+  host: localhost
+  port: 48080
+  nuget:
+    download:
+      feed: false
+  version: @{project.version}
+  revision: @{strongbox.revision}
+  orientdb:
+    studio:
+      enabled: false
+      ip:
+        address: 127.0.0.1
+      port: 2480
+  server:
+    database:
+      path: ${strongbox.vault}/db
+logging:
+  debug: false
+  console:
+    enabled: true
+  file: 
+    enabled: true
+    size:
+      single: 128MB
+      total: 1GB
+    history: 31
+  dir: ${strongbox.vault}/logs
+java:
+  io:
+    tmpdir: ${strongbox.vault}/tmp
+ehcache:
+  disk:
+    store:
+      dir: ${strongbox.vault}/cache
+management:
+  endpoint:
+    health:
+      show-details: always
+    shutdown:
+      enabled: true
+  endpoints:
+    web:
+      exposure:
+        include: health,info,beans,metrics,trace,scheduledtasks,threaddump
+      base-path: /api/monitoring
+

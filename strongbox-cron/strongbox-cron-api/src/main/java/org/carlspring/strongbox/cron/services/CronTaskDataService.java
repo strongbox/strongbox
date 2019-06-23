@@ -10,11 +10,12 @@ import java.util.UUID;
 
 /**
  * @author Yougeshwar
+ * @author Pablo Tirado
  */
 public interface CronTaskDataService
 {
 
-    CronTaskConfigurationDto getTaskConfigurationDto(String cronTaskConfigurationUuid);
+    CronTaskConfigurationDto getTaskConfigurationDto(UUID cronTaskConfigurationUuid);
 
     CronTasksConfigurationDto getTasksConfigurationDto();
 
@@ -22,7 +23,7 @@ public interface CronTaskDataService
 
     UUID save(CronTaskConfigurationDto configuration);
 
-    void delete(String uuid);
+    void delete(UUID cronTaskConfigurationUuid);
 
 
 }

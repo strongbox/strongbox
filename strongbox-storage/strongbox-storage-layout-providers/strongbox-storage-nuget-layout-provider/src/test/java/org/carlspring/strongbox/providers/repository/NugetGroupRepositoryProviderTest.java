@@ -11,7 +11,7 @@ import org.carlspring.strongbox.storage.repository.MutableRepository;
 import org.carlspring.strongbox.storage.repository.NugetRepositoryFactory;
 import org.carlspring.strongbox.storage.repository.Repository;
 import org.carlspring.strongbox.storage.repository.RepositoryTypeEnum;
-import org.carlspring.strongbox.testing.TestCaseWithNugetPackageGeneration;
+import org.carlspring.strongbox.testing.TestCaseWithNugetArtifactGeneration;
 import org.carlspring.strongbox.yaml.configuration.repository.MutableNugetRepositoryConfiguration;
 
 import javax.inject.Inject;
@@ -42,7 +42,7 @@ import static org.junit.jupiter.api.parallel.ExecutionMode.CONCURRENT;
 @ContextConfiguration(classes = NugetLayoutProviderTestConfig.class)
 @Execution(CONCURRENT)
 public class NugetGroupRepositoryProviderTest
-        extends TestCaseWithNugetPackageGeneration
+        extends TestCaseWithNugetArtifactGeneration
 {
 
     private static final String REPOSITORY_RELEASES_1 = "grpt-releases-1";
@@ -88,17 +88,17 @@ public class NugetGroupRepositoryProviderTest
 
         //REPOSITORY_RELEASES_1
         createRepository(STORAGE0, createRepositoryMock(STORAGE0, REPOSITORY_RELEASES_1, NugetLayoutProvider.ALIAS), NugetLayoutProvider.ALIAS);
-        generateRepositoryPackages(STORAGE0, REPOSITORY_RELEASES_1, "grpt.search.package", 9);
+        generateRepositoryArtifacts(STORAGE0, REPOSITORY_RELEASES_1, "grpt.search.package", 9);
 
         //REPOSITORY_RELEASES_2
         createRepository(STORAGE0, createRepositoryMock(STORAGE0, REPOSITORY_RELEASES_2, NugetLayoutProvider.ALIAS),
                          NugetLayoutProvider.ALIAS);
-        generateRepositoryPackages(STORAGE0, REPOSITORY_RELEASES_2, "grpt.search.package", 12);
+        generateRepositoryArtifacts(STORAGE0, REPOSITORY_RELEASES_2, "grpt.search.package", 12);
         
         //REPOSITORY_RELEASES_3
         createRepository(STORAGE0, createRepositoryMock(STORAGE0, REPOSITORY_RELEASES_3, NugetLayoutProvider.ALIAS),
                          NugetLayoutProvider.ALIAS);
-        generateRepositoryPackages(STORAGE0, REPOSITORY_RELEASES_3, "grpt.search.package", 8);
+        generateRepositoryArtifacts(STORAGE0, REPOSITORY_RELEASES_3, "grpt.search.package", 8);
 
         MutableRepository repositoryGroup = nugetRepositoryFactory.createRepository(REPOSITORY_GROUP);
         repositoryGroup.setType(RepositoryTypeEnum.GROUP.getType());

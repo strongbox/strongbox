@@ -1,7 +1,6 @@
 package org.carlspring.strongbox.cron.jobs;
 
-import org.carlspring.maven.commons.io.filters.JarFilenameFilter;
-import org.carlspring.maven.commons.util.ArtifactUtils;
+import org.carlspring.strongbox.artifact.MavenArtifactUtils;
 import org.carlspring.strongbox.config.Maven2LayoutProviderCronTasksTestConfig;
 import org.carlspring.strongbox.data.CacheManagerTestExecutionListener;
 import org.carlspring.strongbox.providers.layout.Maven2LayoutProvider;
@@ -12,10 +11,14 @@ import org.carlspring.strongbox.storage.repository.RepositoryPolicyEnum;
 import javax.inject.Inject;
 import java.io.File;
 import java.lang.reflect.UndeclaredThrowableException;
+import java.nio.file.Path;
 import java.util.LinkedHashSet;
 import java.util.Set;
+import java.util.UUID;
 import java.util.concurrent.TimeUnit;
 
+import org.apache.commons.io.FilenameUtils;
+import org.apache.commons.lang3.StringUtils;
 import org.apache.maven.artifact.Artifact;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
@@ -38,7 +41,7 @@ import static org.junit.jupiter.api.parallel.ExecutionMode.CONCURRENT;
 @SpringBootTest
 @ActiveProfiles(profiles = "test")
 @TestExecutionListeners(listeners = { CacheManagerTestExecutionListener.class },
-                        mergeMode = TestExecutionListeners.MergeMode.MERGE_WITH_DEFAULTS)
+        mergeMode = TestExecutionListeners.MergeMode.MERGE_WITH_DEFAULTS)
 @Execution(CONCURRENT)
 public class RemoveTimestampedMavenSnapshotCronJobTestIT
         extends BaseCronJobWithMavenIndexingTestCase
@@ -117,22 +120,24 @@ public class RemoveTimestampedMavenSnapshotCronJobTestIT
     public void testRemoveTimestampedSnapshot(TestInfo testInfo)
             throws Exception
     {
+        final UUID jobKey = expectedJobKey;
         final String jobName = expectedJobName;
-
-        String artifactPath = getRepositoryBasedir(STORAGE0, getRepositoryName(REPOSITORY_SNAPSHOTS, testInfo)) +
-                              "/org/carlspring/strongbox/strongbox-timestamped-first";
+        final String repositoryName = getRepositoryName(REPOSITORY_SNAPSHOTS, testInfo);
+        final File repositoryBasedir = getRepositoryBasedir(STORAGE0, repositoryName);
+        final String artifactPath = repositoryBasedir +
+                                    "/org/carlspring/strongbox/strongbox-timestamped-first";
 
         File file = new File(artifactPath, "2.0-SNAPSHOT");
 
-        jobManager.registerExecutionListener(jobName, (jobName1, statusExecuted) ->
+        jobManager.registerExecutionListener(jobKey.toString(), (jobKey1, statusExecuted) ->
         {
             try
             {
-                if (jobName.equals(jobName1) && statusExecuted)
+                if (StringUtils.equals(jobKey1, jobKey.toString()) && statusExecuted)
                 {
-                    assertEquals(1, file.listFiles(new JarFilenameFilter()).length,
+                    assertEquals(1, file.listFiles((dir, name) -> name.endsWith(".jar")).length,
                                  "Amount of timestamped snapshots doesn't equal 1.");
-                    assertTrue(getSnapshotArtifactVersion(file).endsWith("-3"));
+                    assertTrue(getSnapshotArtifactVersion(repositoryBasedir, file).endsWith("-3"));
                 }
             }
             catch (Exception e)
@@ -141,7 +146,8 @@ public class RemoveTimestampedMavenSnapshotCronJobTestIT
             }
         });
 
-        addCronJobConfig(jobName,
+        addCronJobConfig(jobKey,
+                         jobName,
                          RemoveTimestampedMavenSnapshotCronJob.class,
                          STORAGE0,
                          getRepositoryName(REPOSITORY_SNAPSHOTS,
@@ -160,22 +166,24 @@ public class RemoveTimestampedMavenSnapshotCronJobTestIT
     public void testRemoveTimestampedSnapshotInRepository(TestInfo testInfo)
             throws Exception
     {
+        final UUID jobKey = expectedJobKey;
         final String jobName = expectedJobName;
+        final String repositoryName = getRepositoryName(REPOSITORY_SNAPSHOTS, testInfo);
+        final File repositoryBasedir = getRepositoryBasedir(STORAGE0, repositoryName);
+        final String artifactPath = repositoryBasedir +
+                                    "/org/carlspring/strongbox/strongbox-timestamped-second";
 
-        String artifactPath = getRepositoryBasedir(STORAGE0, getRepositoryName(REPOSITORY_SNAPSHOTS, testInfo)) +
-                              "/org/carlspring/strongbox/strongbox-timestamped-second";
+        final File file = new File(artifactPath, "2.0-SNAPSHOT");
 
-        File file = new File(artifactPath, "2.0-SNAPSHOT");
-
-        jobManager.registerExecutionListener(jobName, (jobName1, statusExecuted) ->
+        jobManager.registerExecutionListener(jobKey.toString(), (jobKey1, statusExecuted) ->
         {
             try
             {
-                if (jobName.equals(jobName1) && statusExecuted)
+                if (StringUtils.equals(jobKey1, jobKey.toString()) && statusExecuted)
                 {
-                    assertEquals(1, file.listFiles(new JarFilenameFilter()).length,
+                    assertEquals(1, file.listFiles((dir, name) -> name.endsWith(".jar")).length,
                                  "Amount of timestamped snapshots doesn't equal 1.");
-                    assertTrue(getSnapshotArtifactVersion(file).endsWith("-2"));
+                    assertTrue(getSnapshotArtifactVersion(repositoryBasedir, file).endsWith("-2"));
                 }
             }
             catch (Exception e)
@@ -184,10 +192,11 @@ public class RemoveTimestampedMavenSnapshotCronJobTestIT
             }
         });
 
-        addCronJobConfig(jobName,
+        addCronJobConfig(jobKey,
+                         jobName,
                          RemoveTimestampedMavenSnapshotCronJob.class,
                          STORAGE0,
-                         getRepositoryName(REPOSITORY_SNAPSHOTS, testInfo),
+                         repositoryName,
                          properties ->
                          {
                              properties.put("basePath", null);
@@ -198,10 +207,15 @@ public class RemoveTimestampedMavenSnapshotCronJobTestIT
         await().atMost(EVENT_TIMEOUT_SECONDS, TimeUnit.SECONDS).untilTrue(receivedExpectedEvent());
     }
 
-    private String getSnapshotArtifactVersion(File artifactFile)
+    private String getSnapshotArtifactVersion(File repositoryBasedir,
+                                              File artifactFile)
     {
-        File[] files = artifactFile.listFiles(new JarFilenameFilter());
-        Artifact artifact = ArtifactUtils.convertPathToArtifact(files[0].getPath());
+        File[] files = artifactFile.listFiles((dir, name) -> name.endsWith(".jar"));
+        Path path = files[0].toPath();
+        Path other = repositoryBasedir.toPath();
+        Path relativize = other.relativize(path);
+        String unixBasedRelativePath = FilenameUtils.separatorsToUnix(relativize.toString());
+        Artifact artifact = MavenArtifactUtils.convertPathToArtifact(unixBasedRelativePath);
 
         return artifact.getVersion();
     }

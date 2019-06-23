@@ -93,7 +93,7 @@ public class NugetArtifactControllerTest extends NugetRestAssuredBaseTest
     {
         String packageId = "Org.Carlspring.Strongbox.Examples.Nuget.Mono.Delete";
         String packageVersion = "1.0.0";
-        Path packageFile = generatePackageFile(packageId, packageVersion);
+        Path packageFile = generateArtifactFile(packageId, packageVersion);
         byte[] packageContent = readPackageContent(packageFile);
 
         // Push
@@ -133,7 +133,7 @@ public class NugetArtifactControllerTest extends NugetRestAssuredBaseTest
         //Hosted repository
         String packageId = "Org.Carlspring.Strongbox.Examples.Nuget.Mono.Header";
         String packageVersion = "1.0.0";
-        Path packageFile = generatePackageFile(packageId, packageVersion);
+        Path packageFile = generateArtifactFile(packageId, packageVersion);
         byte[] packageContent = readPackageContent(packageFile);
 
         createPushRequest(packageContent).when()
@@ -184,7 +184,7 @@ public class NugetArtifactControllerTest extends NugetRestAssuredBaseTest
     {
         String packageId = "Org.Carlspring.Strongbox.Examples.Nuget.Mono";
         String packageVersion = "1.0.0";
-        Path packageFile = generatePackageFile(packageId, packageVersion);
+        Path packageFile = generateArtifactFile(packageId, packageVersion);
         long packageSize = Files.size(packageFile);
         byte[] packageContent = readPackageContent(packageFile);
 
@@ -268,7 +268,7 @@ public class NugetArtifactControllerTest extends NugetRestAssuredBaseTest
     {
         String packageId = "Org.Carlspring.Strongbox.Nuget.Test.Search";
         String packageVersion = "1.0.0";
-        byte[] packageContent = readPackageContent(generatePackageFile(packageId, packageVersion));
+        byte[] packageContent = readPackageContent(generateArtifactFile(packageId, packageVersion));
 
         // Push
         createPushRequest(packageContent).when()
@@ -312,7 +312,7 @@ public class NugetArtifactControllerTest extends NugetRestAssuredBaseTest
     {
         String packageId = "Org.Carlspring.Strongbox.Nuget.Test.LastVersion";
         String packageVersion = "1.0.0";
-        byte[] packageContent = readPackageContent(generatePackageFile(packageId, packageVersion));
+        byte[] packageContent = readPackageContent(generateArtifactFile(packageId, packageVersion));
 
         // Push
         createPushRequest(packageContent).when()
@@ -355,7 +355,7 @@ public class NugetArtifactControllerTest extends NugetRestAssuredBaseTest
 
         // VERSION 2.0.0
         packageVersion = "2.0.0";
-        packageContent = readPackageContent(generatePackageFile(packageId, packageVersion));
+        packageContent = readPackageContent(generateArtifactFile(packageId, packageVersion));
         createPushRequest(packageContent).when()
                                          .put(getContextBaseUrl() + "/storages/" + STORAGE_ID + "/" +
                                                  REPOSITORY_RELEASES_1 + "/")

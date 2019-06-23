@@ -10,7 +10,7 @@ import org.carlspring.strongbox.domain.ArtifactEntry;
 import org.carlspring.strongbox.providers.layout.NugetLayoutProvider;
 import org.carlspring.strongbox.services.RepositoryManagementService;
 import org.carlspring.strongbox.storage.repository.MutableRepository;
-import org.carlspring.strongbox.testing.TestCaseWithNugetPackageGeneration;
+import org.carlspring.strongbox.testing.TestCaseWithNugetArtifactGeneration;
 
 import javax.inject.Inject;
 import javax.persistence.EntityManager;
@@ -33,7 +33,7 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 @SpringBootTest
 @ActiveProfiles(profiles = "test")
 @ContextConfiguration(classes = NugetLayoutProviderTestConfig.class)
-public class NugetFilterODataParserTestCase extends TestCaseWithNugetPackageGeneration
+public class NugetFilterODataParserTestCase extends TestCaseWithNugetArtifactGeneration
 {
 
     private static final String REPOSITORY_RELEASES_1 = "nfpt-releases-1";
@@ -57,7 +57,7 @@ public class NugetFilterODataParserTestCase extends TestCaseWithNugetPackageGene
     {
         createRepository(createRepositoryMock(STORAGE0, REPOSITORY_RELEASES_1, NugetLayoutProvider.ALIAS),
                          NugetLayoutProvider.ALIAS);
-        generateRepositoryPackages(STORAGE0, REPOSITORY_RELEASES_1, "Org.Carlspring.Strongbox.Nuget.Test.Nfpt", 9);
+        generateRepositoryArtifacts(STORAGE0, REPOSITORY_RELEASES_1, "Org.Carlspring.Strongbox.Nuget.Test.Nfpt", 9);
 
     }
 

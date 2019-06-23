@@ -1,74 +1,77 @@
 package org.carlspring.strongbox.providers.repository;
 
-import org.carlspring.strongbox.config.Maven2LayoutProviderTestConfig;
+import org.carlspring.strongbox.artifact.MavenArtifactUtils;
+import org.carlspring.strongbox.providers.io.RepositoryPath;
+import org.carlspring.strongbox.storage.repository.Repository;
+import org.carlspring.strongbox.testing.artifact.MavenArtifactTestUtils;
+import org.carlspring.strongbox.testing.repository.MavenRepository;
+import org.carlspring.strongbox.testing.storage.repository.RepositoryManagementTestExecutionListener;
+import org.carlspring.strongbox.testing.storage.repository.TestRepository.Remote;
 
 import java.io.IOException;
+import java.io.InputStream;
 import java.nio.file.Files;
-import java.nio.file.Path;
 
-import org.junit.jupiter.api.BeforeEach;
+import org.apache.maven.artifact.Artifact;
 import org.junit.jupiter.api.Test;
-import org.junit.jupiter.api.parallel.Execution;
-import org.springframework.boot.test.context.SpringBootTest;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.springframework.core.io.Resource;
-import org.springframework.test.context.ActiveProfiles;
-import org.springframework.test.context.ContextConfiguration;
 import static org.junit.jupiter.api.Assertions.*;
-import static org.junit.jupiter.api.parallel.ExecutionMode.CONCURRENT;
 
 /**
  * @author Przemyslaw Fusik
  */
-@ActiveProfiles({"MockedRestArtifactResolverTestConfig","test"})
-@SpringBootTest
-@ContextConfiguration(classes = Maven2LayoutProviderTestConfig.class)
-@Execution(CONCURRENT)
 public class RetryDownloadArtifactWithPermanentFailureStartingAtSomePointTest
-        extends RetryDownloadArtifactTestBase
+        extends MockedRestArtifactResolverTestBase implements ArtifactResolverContext
 {
 
+    private static final String REPOSITORY = "rdawpfsasp-repository";
+
+    private static final String PROXY_REPOSITORY_URL = "https://repo.maven.apache.org/maven2/";
+    
     private PermanentBrokenArtifactInputStream brokenArtifactInputStream;
 
-    @BeforeEach
-    public void setup()
+    public RetryDownloadArtifactWithPermanentFailureStartingAtSomePointTest()
     {
         brokenArtifactInputStream = new PermanentBrokenArtifactInputStream(jarArtifact);
-        prepareArtifactResolverContext(brokenArtifactInputStream, true);
+    }
+
+    @Override
+    public InputStream getInputStream()
+    {
+        return brokenArtifactInputStream;
+    }
+
+    @Override
+    protected ArtifactResolverContext lookupArtifactResolverContext()
+    {
+        return this;
     }
 
     @Test
-    public void whenProxyRepositoryInputStreamFailsCompletelyArtifactDownloadShouldFail()
+    @ExtendWith(RepositoryManagementTestExecutionListener.class)
+    public void whenProxyRepositoryInputStreamFailsCompletelyArtifactDownloadShouldFail(@MavenRepository(repositoryId = REPOSITORY) @Remote(url = PROXY_REPOSITORY_URL) Repository proxyRepository)
     {
-        final String storageId = "storage-common-proxies";
-        final String repositoryId = "maven-central";
-        final String path = getJarPath();
-        final Path destinationPath = getVaultDirectoryPath()
-                                             .resolve("storages")
-                                             .resolve(storageId)
-                                             .resolve(repositoryId)
-                                             .resolve(path);
-
+        Artifact artifact = MavenArtifactTestUtils.getArtifactFromGAVTC("org.apache.commons:commons-lang3:3.1");
+        String path = MavenArtifactUtils.convertArtifactToPath(artifact);
+        RepositoryPath artifactPath = repositoryPathResolver.resolve(proxyRepository)
+                                                            .resolve(path);
+        
         // given
-        assertFalse(Files.exists(destinationPath));
+        assertFalse(Files.exists(artifactPath));
 
 
         IOException exception = assertThrows(IOException.class, () -> {
             // when
-            assertStreamNotNull(storageId, repositoryId, path);
+            assertStreamNotNull(STORAGE0, REPOSITORY, path);
         });
 
         //then
         assertEquals("Connection lost.", exception.getMessage());
     }
 
-    @Override
-    protected String getArtifactVersion()
-    {
-        return "3.1";
-    }
-
     static class PermanentBrokenArtifactInputStream
-            extends RetryDownloadArtifactTestBase.BrokenArtifactInputStream
+            extends MockedRestArtifactResolverTestBase.BrokenArtifactInputStream
     {
 
         private int currentReadSize;

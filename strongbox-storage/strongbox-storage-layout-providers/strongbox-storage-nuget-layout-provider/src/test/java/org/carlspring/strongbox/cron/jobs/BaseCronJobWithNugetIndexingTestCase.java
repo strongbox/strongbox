@@ -3,9 +3,8 @@ package org.carlspring.strongbox.cron.jobs;
 import org.carlspring.strongbox.cron.domain.CronTaskConfigurationDto;
 import org.carlspring.strongbox.cron.services.CronTaskConfigurationService;
 import org.carlspring.strongbox.event.cron.CronTaskEvent;
-import org.carlspring.strongbox.event.cron.CronTaskEventListenerRegistry;
 import org.carlspring.strongbox.event.cron.CronTaskEventTypeEnum;
-import org.carlspring.strongbox.testing.TestCaseWithNugetPackageGeneration;
+import org.carlspring.strongbox.testing.TestCaseWithNugetArtifactGeneration;
 
 import javax.inject.Inject;
 import java.lang.reflect.Method;
@@ -15,6 +14,7 @@ import java.util.Optional;
 import java.util.UUID;
 import java.util.function.Consumer;
 
+import org.apache.commons.lang.StringUtils;
 import org.junit.jupiter.api.TestInfo;
 import org.springframework.beans.BeansException;
 import org.springframework.context.ApplicationContext;
@@ -26,12 +26,11 @@ import org.springframework.context.ConfigurableApplicationContext;
  * @author carlspring
  */
 public class BaseCronJobWithNugetIndexingTestCase
-        extends TestCaseWithNugetPackageGeneration implements ApplicationListener<CronTaskEvent>, ApplicationContextAware
+        extends TestCaseWithNugetArtifactGeneration
+        implements ApplicationListener<CronTaskEvent>, ApplicationContextAware
 {
-    public static final long CRON_TASK_CHECK_INTERVAL = 500L;
 
-    @Inject
-    protected CronTaskEventListenerRegistry cronTaskEventListenerRegistry;
+    public static final long CRON_TASK_CHECK_INTERVAL = 500L;
 
     @Inject
     protected CronTaskConfigurationService cronTaskConfigurationService;
@@ -47,20 +46,24 @@ public class BaseCronJobWithNugetIndexingTestCase
 
     protected boolean receivedExpectedEvent = false;
 
+    protected UUID expectedJobKey;
+
     protected String expectedJobName;
 
     public void init(TestInfo testInfo)
             throws Exception
     {
+        expectedJobKey = UUID.randomUUID();
+
         Optional<Method> method = testInfo.getTestMethod();
         expectedJobName = method.map(Method::getName).orElse(null);
     }
-    
+
     @Override
     public void setApplicationContext(ApplicationContext applicationContext)
-        throws BeansException
+            throws BeansException
     {
-        ((ConfigurableApplicationContext) applicationContext).addApplicationListener(this);        
+        ((ConfigurableApplicationContext) applicationContext).addApplicationListener(this);
     }
 
     @Override
@@ -69,16 +72,8 @@ public class BaseCronJobWithNugetIndexingTestCase
         handle(event);
     }
 
-    protected CronTaskConfigurationDto addCronJobConfig(String jobName,
-                                                        Class<? extends JavaCronJob> className,
-                                                        String storageId,
-                                                        String repositoryId)
-            throws Exception
-    {
-        return addCronJobConfig(jobName,className,storageId, repositoryId,null);
-    }
-
-    protected CronTaskConfigurationDto addCronJobConfig(String jobName,
+    protected CronTaskConfigurationDto addCronJobConfig(UUID jobKey,
+                                                        String jobName,
                                                         Class<? extends JavaCronJob> className,
                                                         String storageId,
                                                         String repositoryId,
@@ -92,17 +87,20 @@ public class BaseCronJobWithNugetIndexingTestCase
         {
             additionalProperties.accept(properties);
         }
-        return addCronJobConfig(jobName, className, properties);
+        return addCronJobConfig(jobKey, jobName, className, properties);
     }
 
-    protected CronTaskConfigurationDto addCronJobConfig(String jobName, Class<? extends JavaCronJob> className, Map<String, String> properties)
+    protected CronTaskConfigurationDto addCronJobConfig(UUID jobKey,
+                                                        String jobName,
+                                                        Class<? extends JavaCronJob> className,
+                                                        Map<String, String> properties)
             throws Exception
     {
         CronTaskConfigurationDto cronTaskConfiguration = new CronTaskConfigurationDto();
         cronTaskConfiguration.setCronExpression("0 11 11 11 11 ? 2100");
         cronTaskConfiguration.setOneTimeExecution(true);
         cronTaskConfiguration.setImmediateExecution(true);
-        cronTaskConfiguration.setUuid(UUID.randomUUID().toString());
+        cronTaskConfiguration.setUuid(jobKey);
         cronTaskConfiguration.setName(jobName);
         cronTaskConfiguration.setJobClass(className.getCanonicalName());
 
@@ -113,14 +111,14 @@ public class BaseCronJobWithNugetIndexingTestCase
 
         cronTaskConfigurationService.saveConfiguration(cronTaskConfiguration);
 
-        addCronTaskConfiguration(jobName, cronTaskConfiguration);
+        addCronTaskConfiguration(jobKey.toString(), cronTaskConfiguration);
 
         return cronTaskConfiguration;
     }
 
     public void handle(CronTaskEvent event)
     {
-        if (event.getType() == expectedEventType && expectedJobName.equals(event.getName()))
+        if (event.getType() == expectedEventType && StringUtils.equals(expectedJobKey.toString(), event.getName()))
         {
             receivedExpectedEvent = true;
             receivedEvent = event;
@@ -136,15 +134,17 @@ public class BaseCronJobWithNugetIndexingTestCase
     /**
      * Waits for an event to occur.
      *
-     * @param maxWaitTime           The maximum wait time (in milliseconds)
-     * @param checkInterval         The interval (in milliseconds) at which to check for the occurrence of the event
+     * @param maxWaitTime   The maximum wait time (in milliseconds)
+     * @param checkInterval The interval (in milliseconds) at which to check for the occurrence of the event
      */
-    public boolean expectEvent(long maxWaitTime, long checkInterval) throws InterruptedException
+    public boolean expectEvent(long maxWaitTime,
+                               long checkInterval)
+            throws InterruptedException
     {
         int totalWait = 0;
         while (!receivedExpectedEvent &&
                (maxWaitTime > 0 && totalWait <= maxWaitTime || // If a maxWaitTime has been defined,
-                maxWaitTime == 0 ))                            // otherwise, default to forever
+                maxWaitTime == 0))                            // otherwise, default to forever
         {
             Thread.sleep(checkInterval);
             totalWait += checkInterval;

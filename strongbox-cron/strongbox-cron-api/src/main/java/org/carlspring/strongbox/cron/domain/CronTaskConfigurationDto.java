@@ -3,6 +3,7 @@ package org.carlspring.strongbox.cron.domain;
 import java.io.Serializable;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.UUID;
 
 import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonGetter;
@@ -18,7 +19,7 @@ public class CronTaskConfigurationDto
         implements Serializable
 {
 
-    private String uuid;
+    private UUID uuid;
 
     private String name;
 
@@ -37,19 +38,19 @@ public class CronTaskConfigurationDto
     }
 
     @JsonCreator
-    public CronTaskConfigurationDto(@JsonProperty(value = "uuid", required = true) String uuid,
+    public CronTaskConfigurationDto(@JsonProperty(value = "uuid", required = true) UUID uuid,
                                     @JsonProperty(value = "name", required = true) String name)
     {
         this.uuid = uuid;
         this.name = name;
     }
 
-    public String getUuid()
+    public UUID getUuid()
     {
         return uuid;
     }
 
-    public void setUuid(String uuid)
+    public void setUuid(UUID uuid)
     {
         this.uuid = uuid;
     }

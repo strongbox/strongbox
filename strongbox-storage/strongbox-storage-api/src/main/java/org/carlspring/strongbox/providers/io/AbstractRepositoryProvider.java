@@ -22,9 +22,12 @@ import org.carlspring.strongbox.domain.ArtifactEntry;
 import org.carlspring.strongbox.domain.RepositoryArtifactIdGroupEntry;
 import org.carlspring.strongbox.event.artifact.ArtifactEventListenerRegistry;
 import org.carlspring.strongbox.io.LayoutOutputStream;
+import org.carlspring.strongbox.io.RepositoryStreamCallback;
 import org.carlspring.strongbox.io.RepositoryStreamReadContext;
 import org.carlspring.strongbox.io.RepositoryStreamWriteContext;
 import org.carlspring.strongbox.io.StreamUtils;
+import org.carlspring.strongbox.providers.io.RepositoryStreamSupport.RepositoryInputStream;
+import org.carlspring.strongbox.providers.io.RepositoryStreamSupport.RepositoryOutputStream;
 import org.carlspring.strongbox.providers.layout.LayoutProviderRegistry;
 import org.carlspring.strongbox.providers.repository.RepositoryProvider;
 import org.carlspring.strongbox.providers.repository.RepositoryProviderRegistry;
@@ -40,7 +43,7 @@ import org.springframework.util.Assert;
 /**
  * @author carlspring
  */
-public abstract class AbstractRepositoryProvider extends RepositoryStreamSupport implements RepositoryProvider
+public abstract class AbstractRepositoryProvider implements RepositoryProvider, RepositoryStreamCallback
 {
 
     private static final Logger logger = LoggerFactory.getLogger(AbstractRepositoryProvider.class);
@@ -65,6 +68,9 @@ public abstract class AbstractRepositoryProvider extends RepositoryStreamSupport
 
     @Inject
     protected ApplicationEventPublisher eventPublisher;
+    
+    @Inject
+    private RepositoryPathLock repositoryPathLock;
     
     protected Configuration getConfiguration()
     {
@@ -93,12 +99,13 @@ public abstract class AbstractRepositoryProvider extends RepositoryStreamSupport
     protected RepositoryInputStream decorate(RepositoryPath repositoryPath,
                                              InputStream is) throws IOException
     {
-        if (is == null || is instanceof RepositoryInputStream)
+        if (is instanceof RepositoryInputStream)
         {
             return (RepositoryInputStream) is;
         }
 
-        return new RepositoryInputStream(repositoryPath, is);
+        return new RepositoryStreamSupport(repositoryPathLock.lock(repositoryPath), this).
+               new RepositoryInputStream(repositoryPath, is);
     }
 
     @Override
@@ -122,7 +129,8 @@ public abstract class AbstractRepositoryProvider extends RepositoryStreamSupport
             return (RepositoryOutputStream) os;
         }
 
-        return new RepositoryOutputStream(repositoryPath, os);
+        return new RepositoryStreamSupport(repositoryPathLock.lock(repositoryPath), this).
+               new RepositoryOutputStream(repositoryPath, os);
     }
 
     @Override

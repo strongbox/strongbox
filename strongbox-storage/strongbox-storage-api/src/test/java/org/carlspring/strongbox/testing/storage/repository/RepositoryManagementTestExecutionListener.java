@@ -37,9 +37,10 @@ public class RepositoryManagementTestExecutionListener extends TestRepositoryMan
         TestRepository testRepository = AnnotatedElementUtils.findMergedAnnotation(parameter, TestRepository.class);
         Remote remoteRepository = AnnotatedElementUtils.findMergedAnnotation(parameter, Remote.class);
         Group groupRepository = AnnotatedElementUtils.findMergedAnnotation(parameter, Group.class);
+        RepositoryAttributes repositoryAttributes = AnnotatedElementUtils.findMergedAnnotation(parameter, RepositoryAttributes.class);
         
         TestRepositoryManagementContext testApplicationContext = getTestRepositoryManagementContext();
-        testApplicationContext.register(testRepository, remoteRepository, groupRepository);
+        testApplicationContext.register(testRepository, remoteRepository, groupRepository, repositoryAttributes);
         testApplicationContext.refresh();
 
         return Proxy.newProxyInstance(RepositoryManagementTestExecutionListener.class.getClassLoader(),

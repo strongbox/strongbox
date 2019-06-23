@@ -2,10 +2,6 @@ package org.carlspring.strongbox.converters.users;
 
 import org.carlspring.strongbox.controllers.users.support.AccessModelOutput;
 import org.carlspring.strongbox.controllers.users.support.RepositoryAccessModelOutput;
-import org.carlspring.strongbox.users.domain.AccessModel;
-import org.carlspring.strongbox.users.domain.AccessModelPathPrivileges;
-import org.carlspring.strongbox.users.domain.AccessModelRepository;
-import org.carlspring.strongbox.users.domain.AccessModelStorage;
 import org.carlspring.strongbox.users.dto.UserAccessModelReadContract;
 import org.carlspring.strongbox.users.dto.UserPathPrivelegiesReadContract;
 import org.carlspring.strongbox.users.dto.UserRepositoryReadContract;
@@ -13,7 +9,7 @@ import org.carlspring.strongbox.users.dto.UserStorageReadContract;
 
 import java.util.stream.Collectors;
 
-import org.apache.commons.collections.CollectionUtils;
+import org.apache.commons.collections4.CollectionUtils;
 import org.springframework.core.convert.converter.Converter;
 
 /**

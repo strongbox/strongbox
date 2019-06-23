@@ -1,6 +1,5 @@
 package org.carlspring.strongbox.services.impl;
 
-import org.carlspring.maven.commons.util.ArtifactUtils;
 import org.carlspring.strongbox.artifact.MavenArtifact;
 import org.carlspring.strongbox.artifact.MavenArtifactUtils;
 import org.carlspring.strongbox.artifact.locator.ArtifactDirectoryLocator;
@@ -27,6 +26,7 @@ import java.security.NoSuchAlgorithmException;
 import java.util.Iterator;
 import java.util.List;
 
+import org.apache.maven.artifact.ArtifactUtils;
 import org.apache.maven.artifact.repository.metadata.Metadata;
 import org.apache.maven.artifact.repository.metadata.SnapshotVersion;
 import org.apache.maven.artifact.repository.metadata.Versioning;
@@ -190,17 +190,16 @@ public class ArtifactMetadataServiceImpl
                                               String version,
                                               String classifier,
                                               String extension)
-            throws IOException,
-                   NoSuchAlgorithmException
+            throws IOException
     {
         Storage storage = getConfiguration().getStorage(storageId);
         Repository repository = storage.getRepository(repositoryId);
 
-        String snapshot = ArtifactUtils.getSnapshotBaseVersion(version);
+        String snapshot = ArtifactUtils.toSnapshotVersion(version);
 
         RepositoryPath artifactBasePath = repositoryPathResolver.resolve(repository, artifactPath);
 
-        Pair<String, String> artifactGroup = MavenArtifactUtils.getArtifactGroupId(artifactBasePath);
+        Pair<String, String> artifactGroup = MavenArtifactUtils.getDirectoryGA(artifactBasePath);
         String artifactGroupId = artifactGroup.getValue0();
         String artifactId = artifactGroup.getValue1();
 
@@ -259,9 +258,9 @@ public class ArtifactMetadataServiceImpl
 
         if (ArtifactUtils.isSnapshot(version))
         {
-            RepositoryPath snapshotRepositoryPath = repositoryPath.resolve(ArtifactUtils.getSnapshotBaseVersion(version));
+            RepositoryPath snapshotRepositoryPath = repositoryPath.resolve(ArtifactUtils.toSnapshotVersion(version));
 
-            Pair<String, String> artifactGroup = MavenArtifactUtils.getArtifactGroupId(repositoryPath);
+            Pair<String, String> artifactGroup = MavenArtifactUtils.getDirectoryGA(repositoryPath);
             String artifactGroupId = artifactGroup.getValue0();
             String artifactId = artifactGroup.getValue1();
 
@@ -288,16 +287,16 @@ public class ArtifactMetadataServiceImpl
                                                  String artifactPath,
                                                  String version,
                                                  String classifier)
-            throws IOException, NoSuchAlgorithmException
+            throws IOException
     {
         Storage storage = getConfiguration().getStorage(storageId);
         Repository repository = storage.getRepository(repositoryId);
 
-        String snapshot = ArtifactUtils.getSnapshotBaseVersion(version);
+        String snapshot = ArtifactUtils.toSnapshotVersion(version);
 
         RepositoryPath artifactBasePath = repositoryPathResolver.resolve(repository, artifactPath);
 
-        Pair<String, String> artifactGroup = MavenArtifactUtils.getArtifactGroupId(artifactBasePath);
+        Pair<String, String> artifactGroup = MavenArtifactUtils.getDirectoryGA(artifactBasePath);
         String artifactGroupId = artifactGroup.getValue0();
         String artifactId = artifactGroup.getValue1();
 

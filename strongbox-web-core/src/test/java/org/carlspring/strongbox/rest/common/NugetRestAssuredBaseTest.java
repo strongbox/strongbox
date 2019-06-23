@@ -7,7 +7,7 @@ import org.carlspring.strongbox.services.RepositoryManagementService;
 import org.carlspring.strongbox.services.StorageManagementService;
 import org.carlspring.strongbox.storage.MutableStorage;
 import org.carlspring.strongbox.storage.repository.MutableRepository;
-import org.carlspring.strongbox.testing.TestCaseWithNugetPackageGeneration;
+import org.carlspring.strongbox.testing.TestCaseWithNugetArtifactGeneration;
 
 import javax.inject.Inject;
 import javax.xml.bind.JAXBException;
@@ -33,7 +33,7 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
  * @author Alex Oreshkevich
  */
 public abstract class NugetRestAssuredBaseTest
-        extends TestCaseWithNugetPackageGeneration
+        extends TestCaseWithNugetArtifactGeneration
 {
 
     public final static int DEFAULT_PORT = 48080;

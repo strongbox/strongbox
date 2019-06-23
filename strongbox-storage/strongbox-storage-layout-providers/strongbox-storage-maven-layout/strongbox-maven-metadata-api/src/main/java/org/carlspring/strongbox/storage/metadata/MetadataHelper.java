@@ -1,8 +1,5 @@
 package org.carlspring.strongbox.storage.metadata;
 
-import org.carlspring.maven.commons.DetachedArtifact;
-import org.carlspring.maven.commons.util.ArtifactUtils;
-
 import java.io.FileNotFoundException;
 import java.nio.file.Files;
 import java.nio.file.Path;
@@ -12,11 +9,12 @@ import java.util.Collections;
 import java.util.List;
 
 import org.apache.maven.artifact.Artifact;
+import org.apache.maven.artifact.DefaultArtifact;
+import org.apache.maven.artifact.handler.DefaultArtifactHandler;
 import org.apache.maven.artifact.repository.metadata.Metadata;
 import org.apache.maven.artifact.repository.metadata.Snapshot;
 import org.apache.maven.artifact.repository.metadata.SnapshotVersion;
 import org.apache.maven.artifact.repository.metadata.Versioning;
-import org.springframework.util.StringUtils;
 
 /**
  * @author mtodorov
@@ -25,6 +23,10 @@ public class MetadataHelper
 {
 
     public static final String MAVEN_METADATA_XML = "maven-metadata.xml";
+
+    public static final String MAVEN_METADATA_XML_CHECKSUM_MD5 = "maven-metadata.xml.md5";
+
+    public static final String MAVEN_METADATA_XML_CHECKSUM_SHA1 = "maven-metadata.xml.sha1";
 
     private static SimpleDateFormat LAST_UPDATED_FIELD_FORMATTER;
 
@@ -160,12 +162,14 @@ public class MetadataHelper
                                                         String classifier,
                                                         String extension)
     {
-        Artifact artifact = new DetachedArtifact(groupId, artifactId, version, null, classifier);
 
+        Artifact artifact = new DefaultArtifact(groupId, artifactId, version, null, extension, classifier,
+                                                new DefaultArtifactHandler(extension));
         return createSnapshotVersion(artifact, extension);
     }
 
-    public static SnapshotVersion createSnapshotVersion(Artifact artifact, String extension)
+    public static SnapshotVersion createSnapshotVersion(Artifact artifact,
+                                                        String extension)
     {
         SnapshotVersion snapshotVersion = new SnapshotVersion();
         snapshotVersion.setVersion(artifact.getVersion());
@@ -184,18 +188,18 @@ public class MetadataHelper
     {
         if (!snapshotVersioning.getSnapshotVersions().isEmpty())
         {
-            SnapshotVersion latestSnapshot = snapshotVersioning.getSnapshotVersions().get(snapshotVersioning.getSnapshotVersions().size() - 1);
+            SnapshotVersion latestSnapshot = snapshotVersioning.getSnapshotVersions().get(
+                    snapshotVersioning.getSnapshotVersions().size() - 1);
 
-            String timestamp = ArtifactUtils.getSnapshotTimestamp(latestSnapshot.getVersion());
-            // Potentially revisit this for timestamps with custom formats
-            int buildNumber = Integer.parseInt(ArtifactUtils.getSnapshotBuildNumber(latestSnapshot.getVersion()));
+            SnapshotVersionDecomposition snapshotVersionDecomposition = SnapshotVersionDecomposition.of(
+                    latestSnapshot.getVersion());
 
-            if (!StringUtils.isEmpty(timestamp) || !StringUtils.isEmpty(buildNumber))
+            if (!SnapshotVersionDecomposition.INVALID.equals(snapshotVersionDecomposition))
             {
                 Snapshot snapshot = new Snapshot();
 
-                snapshot.setTimestamp(timestamp);
-                snapshot.setBuildNumber(buildNumber);
+                snapshot.setTimestamp(snapshotVersionDecomposition.getTimestamp());
+                snapshot.setBuildNumber(snapshotVersionDecomposition.getBuildNumber());
 
                 snapshotVersioning.setSnapshot(snapshot);
             }

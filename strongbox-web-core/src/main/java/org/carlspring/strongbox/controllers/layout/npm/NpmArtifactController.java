@@ -1,12 +1,35 @@
 package org.carlspring.strongbox.controllers.layout.npm;
 
-import java.io.BufferedInputStream;
-import java.io.BufferedOutputStream;
-import java.io.ByteArrayInputStream;
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.OutputStream;
-import java.io.StringWriter;
+import org.carlspring.strongbox.artifact.ArtifactTag;
+import org.carlspring.strongbox.artifact.coordinates.NpmArtifactCoordinates;
+import org.carlspring.strongbox.config.NpmLayoutProviderConfig.NpmObjectMapper;
+import org.carlspring.strongbox.controllers.BaseArtifactController;
+import org.carlspring.strongbox.data.criteria.Expression.ExpOperator;
+import org.carlspring.strongbox.data.criteria.Paginator;
+import org.carlspring.strongbox.data.criteria.Predicate;
+import org.carlspring.strongbox.npm.NpmSearchRequest;
+import org.carlspring.strongbox.npm.NpmViewRequest;
+import org.carlspring.strongbox.npm.metadata.*;
+import org.carlspring.strongbox.providers.ProviderImplementationException;
+import org.carlspring.strongbox.providers.io.RepositoryPath;
+import org.carlspring.strongbox.providers.layout.NpmPackageDesc;
+import org.carlspring.strongbox.providers.layout.NpmPackageSupplier;
+import org.carlspring.strongbox.providers.layout.NpmSearchResultSupplier;
+import org.carlspring.strongbox.providers.repository.RepositoryProvider;
+import org.carlspring.strongbox.providers.repository.RepositoryProviderRegistry;
+import org.carlspring.strongbox.repository.NpmRepositoryFeatures.SearchPackagesEventListener;
+import org.carlspring.strongbox.repository.NpmRepositoryFeatures.ViewPackageEventListener;
+import org.carlspring.strongbox.storage.repository.Repository;
+import org.carlspring.strongbox.storage.validation.artifact.ArtifactCoordinatesValidationException;
+import org.carlspring.strongbox.web.LayoutRequestMapping;
+import org.carlspring.strongbox.web.RepositoryMapping;
+
+import javax.inject.Inject;
+import javax.servlet.ServletInputStream;
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
+import javax.ws.rs.core.MediaType;
+import java.io.*;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.StandardCopyOption;
@@ -17,67 +40,23 @@ import java.util.Date;
 import java.util.List;
 import java.util.Optional;
 
-import javax.inject.Inject;
-import javax.servlet.ServletInputStream;
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
-import javax.ws.rs.core.MediaType;
-
-import org.apache.commons.compress.archivers.tar.TarArchiveEntry;
-import org.apache.commons.compress.archivers.tar.TarArchiveInputStream;
-import org.apache.commons.compress.compressors.gzip.GzipCompressorInputStream;
-import org.apache.commons.io.IOUtils;
-import org.carlspring.strongbox.artifact.ArtifactTag;
-import org.carlspring.strongbox.artifact.coordinates.NpmArtifactCoordinates;
-import org.carlspring.strongbox.config.NpmLayoutProviderConfig.NpmObjectMapper;
-import org.carlspring.strongbox.controllers.BaseArtifactController;
-import org.carlspring.strongbox.data.criteria.Expression.ExpOperator;
-import org.carlspring.strongbox.data.criteria.Paginator;
-import org.carlspring.strongbox.data.criteria.Predicate;
-import org.carlspring.strongbox.npm.NpmSearchRequest;
-import org.carlspring.strongbox.npm.NpmViewRequest;
-import org.carlspring.strongbox.npm.metadata.DistTags;
-import org.carlspring.strongbox.npm.metadata.PackageFeed;
-import org.carlspring.strongbox.npm.metadata.PackageVersion;
-import org.carlspring.strongbox.npm.metadata.SearchResults;
-import org.carlspring.strongbox.npm.metadata.Time;
-import org.carlspring.strongbox.npm.metadata.Versions;
-import org.carlspring.strongbox.providers.ProviderImplementationException;
-import org.carlspring.strongbox.providers.io.RepositoryPath;
-import org.carlspring.strongbox.providers.layout.NpmPackageDesc;
-import org.carlspring.strongbox.providers.layout.NpmPackageSupplier;
-import org.carlspring.strongbox.providers.layout.NpmSearchResultSupplier;
-import org.carlspring.strongbox.providers.repository.RepositoryProvider;
-import org.carlspring.strongbox.providers.repository.RepositoryProviderRegistry;
-import org.carlspring.strongbox.repository.NpmRepositoryFeatures.SearchPackagesEventListener;
-import org.carlspring.strongbox.repository.NpmRepositoryFeatures.ViewPackageEventListener;
-import org.carlspring.strongbox.services.ArtifactManagementService;
-import org.carlspring.strongbox.storage.repository.Repository;
-import org.carlspring.strongbox.storage.validation.artifact.ArtifactCoordinatesValidationException;
-import org.carlspring.strongbox.web.LayoutRequestMapping;
-import org.javatuples.Pair;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-import org.springframework.http.HttpHeaders;
-import org.springframework.http.HttpStatus;
-import org.springframework.http.ResponseEntity;
-import org.springframework.security.access.prepost.PreAuthorize;
-import org.springframework.util.Assert;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.PutMapping;
-import org.springframework.web.bind.annotation.RequestHeader;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestMethod;
-import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.bind.annotation.RestController;
-
 import com.fasterxml.jackson.core.JsonFactory;
 import com.fasterxml.jackson.core.JsonParser;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.core.JsonToken;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import org.apache.commons.compress.archivers.tar.TarArchiveEntry;
+import org.apache.commons.compress.archivers.tar.TarArchiveInputStream;
+import org.apache.commons.compress.compressors.gzip.GzipCompressorInputStream;
+import org.apache.commons.io.IOUtils;
+import org.javatuples.Pair;
+import org.springframework.http.HttpHeaders;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
+import org.springframework.util.Assert;
+import org.springframework.web.bind.annotation.*;
 
 /**
  * This Controller used to handle npm requests.
@@ -87,7 +66,8 @@ import com.fasterxml.jackson.databind.ObjectMapper;
  */
 @RestController
 @LayoutRequestMapping(NpmArtifactCoordinates.LAYOUT_NAME)
-public class NpmArtifactController extends BaseArtifactController
+public class NpmArtifactController
+        extends BaseArtifactController
 {
 
     private static final String FIELD_NAME_LENGTH = "length";
@@ -96,12 +76,6 @@ public class NpmArtifactController extends BaseArtifactController
 
     private static final String FIELD_NAME_VERSION = "versions";
 
-    private static final Logger logger = LoggerFactory.getLogger(NpmArtifactController.class);
-
-    public final static String ROOT_CONTEXT = "/storages";
-
-    @Inject
-    private ArtifactManagementService npmArtifactManagementService;
 
     @Inject
     @NpmObjectMapper
@@ -131,20 +105,20 @@ public class NpmArtifactController extends BaseArtifactController
 
     @GetMapping(path = "{storageId}/{repositoryId}/-/v1/search")
     @PreAuthorize("hasAuthority('ARTIFACTS_VIEW')")
-    public void search(@PathVariable(name = "storageId") String storageId,
-                       @PathVariable(name = "repositoryId") String repositoryId,
+    public void search(@RepositoryMapping Repository repository,
                        @RequestParam(name = "text") String text,
                        @RequestParam(name = "size", defaultValue = "20") Integer size,
-                       HttpServletResponse response) throws JsonProcessingException, IOException
+                       HttpServletResponse response) throws IOException
     {
+        final String storageId = repository.getStorage().getId();
+        final String repositoryId = repository.getId();
+
         NpmSearchRequest npmSearchRequest = new NpmSearchRequest();
         npmSearchRequest.setText(text);
         npmSearchRequest.setSize(size);
         
         searcPackagesEventListener.setNpmSearchRequest(npmSearchRequest);
 
-        
-        Repository repository = getRepository(storageId, repositoryId);
         RepositoryProvider provider = repositoryProviderRegistry.getProvider(repository.getType());
         
         Predicate predicate = Predicate.empty();
@@ -183,14 +157,16 @@ public class NpmArtifactController extends BaseArtifactController
     
     @GetMapping(path = "{storageId}/{repositoryId}/{packageScope}/{packageName:[^-].+}/{packageVersion}")
     @PreAuthorize("hasAuthority('ARTIFACTS_VIEW')")
-    public void viewPackageWithScope(@PathVariable(name = "storageId") String storageId,
-                                     @PathVariable(name = "repositoryId") String repositoryId,
+    public void viewPackageWithScope(@RepositoryMapping Repository repository,
                                      @PathVariable(name = "packageScope") String packageScope,
                                      @PathVariable(name = "packageName") String packageName,
                                      @PathVariable(name = "packageVersion") String packageVersion,
                                      HttpServletResponse response)
         throws Exception
     {
+        final String storageId = repository.getStorage().getId();
+        final String repositoryId = repository.getId();
+
         String packageId = NpmArtifactCoordinates.calculatePackageId(packageScope, packageName);
         NpmArtifactCoordinates c = NpmArtifactCoordinates.of(packageId, packageVersion);
         
@@ -216,20 +192,20 @@ public class NpmArtifactController extends BaseArtifactController
     
     @GetMapping(path = "{storageId}/{repositoryId}/{packageScope}/{packageName}")
     @PreAuthorize("hasAuthority('ARTIFACTS_VIEW')")
-    public void viewPackageFeedWithScope(@PathVariable(name = "storageId") String storageId,
-                                         @PathVariable(name = "repositoryId") String repositoryId,
+    public void viewPackageFeedWithScope(@RepositoryMapping Repository repository,
                                          @PathVariable(name = "packageScope") String packageScope,
                                          @PathVariable(name = "packageName") String packageName,
                                          HttpServletResponse response)
         throws Exception
     {
+        final String storageId = repository.getStorage().getId();
+        final String repositoryId = repository.getId();
+
         String packageId = NpmArtifactCoordinates.calculatePackageId(packageScope, packageName);
         
         NpmViewRequest npmSearchRequest = new NpmViewRequest();
         npmSearchRequest.setPackageId(packageId);
         viewPackageEventListener.setNpmSearchRequest(npmSearchRequest);
-        
-        Repository repository = getRepository(storageId, repositoryId);
 
         PackageFeed packageFeed = new PackageFeed();
 
@@ -280,13 +256,12 @@ public class NpmArtifactController extends BaseArtifactController
 
     @GetMapping(path = "{storageId}/{repositoryId}/{packageName}")
     @PreAuthorize("hasAuthority('ARTIFACTS_VIEW')")
-    public void viewPackageFeed(@PathVariable(name = "storageId") String storageId,
-                                @PathVariable(name = "repositoryId") String repositoryId,
+    public void viewPackageFeed(@RepositoryMapping Repository repository,
                                 @PathVariable(name = "packageName") String packageName,
                                 HttpServletResponse response)
         throws Exception
     {
-        viewPackageFeedWithScope(storageId, repositoryId, null, packageName, response);
+        viewPackageFeedWithScope(repository, null, packageName, response);
     }
 
     private Predicate createSearchPredicate(String packageScope,
@@ -307,8 +282,7 @@ public class NpmArtifactController extends BaseArtifactController
     @PreAuthorize("hasAuthority('ARTIFACTS_RESOLVE')")
     @RequestMapping(path = "{storageId}/{repositoryId}/{packageScope}/{packageName}/-/{packageName}-{packageVersion}.{packageExtension}",
                     method = { RequestMethod.GET, RequestMethod.HEAD })
-    public void downloadPackageWithScope(@PathVariable(name = "storageId") String storageId,
-                                         @PathVariable(name = "repositoryId") String repositoryId,
+    public void downloadPackageWithScope(@RepositoryMapping Repository repository,
                                          @PathVariable(name = "packageScope") String packageScope,
                                          @PathVariable(name = "packageName") String packageName,
                                          @PathVariable(name = "packageVersion") String packageVersion,
@@ -318,6 +292,9 @@ public class NpmArtifactController extends BaseArtifactController
                                          HttpServletResponse response)
         throws Exception
     {
+        final String storageId = repository.getStorage().getId();
+        final String repositoryId = repository.getId();
+
         NpmArtifactCoordinates coordinates;
         try
         {
@@ -337,8 +314,7 @@ public class NpmArtifactController extends BaseArtifactController
     @PreAuthorize("hasAuthority('ARTIFACTS_RESOLVE')")
     @RequestMapping(path = "{storageId}/{repositoryId}/{packageName}/-/{packageName}-{packageVersion}.{packageExtension}",
                     method = { RequestMethod.GET, RequestMethod.HEAD })
-    public void downloadPackage(@PathVariable(name = "storageId") String storageId,
-                                @PathVariable(name = "repositoryId") String repositoryId,
+    public void downloadPackage(@RepositoryMapping Repository repository,
                                 @PathVariable(name = "packageName") String packageName,
                                 @PathVariable(name = "packageVersion") String packageVersion,
                                 @PathVariable(name = "packageExtension") String packageExtension,
@@ -347,6 +323,9 @@ public class NpmArtifactController extends BaseArtifactController
                                 HttpServletResponse response)
         throws Exception
     {
+        final String storageId = repository.getStorage().getId();
+        final String repositoryId = repository.getId();
+
         NpmArtifactCoordinates coordinates;
         try
         {
@@ -365,14 +344,15 @@ public class NpmArtifactController extends BaseArtifactController
 
     @PreAuthorize("hasAuthority('ARTIFACTS_DEPLOY')")
     @PutMapping(path = "{storageId}/{repositoryId}/{name:.+}", consumes = MediaType.APPLICATION_JSON)
-    public ResponseEntity publish(@PathVariable(name = "storageId") String storageId,
-                                  @PathVariable(name = "repositoryId") String repositoryId,
+    public ResponseEntity publish(@RepositoryMapping Repository repository,
                                   @PathVariable(name = "name") String name,
                                   HttpServletRequest request)
         throws Exception
     {
-        logger.info(String.format("npm publish request for [%s]/[%s]/[%s]", storageId,
-                                  repositoryId, name));
+        final String storageId = repository.getStorage().getId();
+        final String repositoryId = repository.getId();
+
+        logger.info("npm publish request for {}/{}/{}", storageId, repositoryId, name);
         Pair<PackageVersion, Path> packageEntry;
         try
         {
@@ -387,7 +367,6 @@ public class NpmArtifactController extends BaseArtifactController
         PackageVersion packageJson = packageEntry.getValue0();
         Path packageTgz = packageEntry.getValue1();
 
-        Repository repository = getRepository(storageId, repositoryId);
         NpmArtifactCoordinates coordinates = NpmArtifactCoordinates.of(name, packageJson.getVersion());
 
         storeNpmPackage(repository, coordinates, packageJson, packageTgz);
@@ -407,14 +386,14 @@ public class NpmArtifactController extends BaseArtifactController
         RepositoryPath repositoryPath = repositoryPathResolver.resolve(repository, coordinates);
         try (InputStream is = new BufferedInputStream(Files.newInputStream(packageTgzTmp)))
         {
-            npmArtifactManagementService.validateAndStore(repositoryPath, is);
+            artifactManagementService.validateAndStore(repositoryPath, is);
         }
 
         Path packageJsonTmp = extractPackageJson(packageTgzTmp);
         RepositoryPath packageJsonPath = repositoryPathResolver.resolve(repository, repositoryPath.resolveSibling("package.json"));
         try (InputStream is = new BufferedInputStream(Files.newInputStream(packageJsonTmp)))
         {
-            npmArtifactManagementService.validateAndStore(packageJsonPath, is);
+            artifactManagementService.validateAndStore(packageJsonPath, is);
         }
 
         String shasum = Optional.ofNullable(packageDef.getDist()).map(p -> p.getShasum()).orElse(null);
@@ -426,7 +405,7 @@ public class NpmArtifactController extends BaseArtifactController
 
         String packageFileName = repositoryPath.getFileName().toString();
         RepositoryPath checksumPath = repositoryPath.resolveSibling(packageFileName + ".sha1");
-        npmArtifactManagementService.validateAndStore(checksumPath,
+        artifactManagementService.validateAndStore(checksumPath,
                                                       new ByteArrayInputStream(shasum.getBytes("UTF-8")));
 
         Files.delete(packageTgzTmp);
