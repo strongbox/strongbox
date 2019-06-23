@@ -1,16 +1,5 @@
 package org.carlspring.strongbox.repository.group.index;
 
-import static org.junit.jupiter.api.Assertions.assertFalse;
-import static org.junit.jupiter.api.Assertions.assertTrue;
-import static org.junit.jupiter.api.parallel.ExecutionMode.CONCURRENT;
-
-import java.nio.file.Files;
-import java.util.Arrays;
-import java.util.LinkedHashSet;
-import java.util.Set;
-
-import javax.inject.Inject;
-
 import org.carlspring.strongbox.config.Maven2LayoutProviderTestConfig;
 import org.carlspring.strongbox.providers.io.RepositoryFiles;
 import org.carlspring.strongbox.providers.io.RepositoryPath;
@@ -21,17 +10,33 @@ import org.carlspring.strongbox.storage.indexing.RepositoryIndexer;
 import org.carlspring.strongbox.storage.repository.ImmutableRepository;
 import org.carlspring.strongbox.storage.repository.MavenRepositoryFactory;
 import org.carlspring.strongbox.storage.repository.MutableRepository;
-import org.carlspring.strongbox.storage.routing.MutableRoutingRuleRepository;
-import org.carlspring.strongbox.storage.routing.RoutingRuleTypeEnum;
+import org.carlspring.strongbox.storage.repository.Repository;
 import org.carlspring.strongbox.storage.search.SearchRequest;
+import org.carlspring.strongbox.testing.MavenIndexedRepositorySetup;
+import org.carlspring.strongbox.testing.artifact.ArtifactManagementTestExecutionListener;
+import org.carlspring.strongbox.testing.artifact.MavenTestArtifact;
+import org.carlspring.strongbox.testing.repository.MavenRepository;
+import org.carlspring.strongbox.testing.storage.repository.RepositoryManagementTestExecutionListener;
+import org.carlspring.strongbox.testing.storage.repository.TestRepository;
 import org.carlspring.strongbox.util.IndexContextHelper;
-import org.junit.jupiter.api.BeforeEach;
+
+import javax.inject.Inject;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.util.LinkedHashSet;
+import java.util.Set;
+
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.junit.jupiter.api.parallel.Execution;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit.jupiter.EnabledIf;
+import static org.carlspring.strongbox.storage.routing.RoutingRuleTypeEnum.DENY;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.junit.jupiter.api.parallel.ExecutionMode.CONCURRENT;
 
 /**
  * @author Przemyslaw Fusik
@@ -69,10 +74,6 @@ public class MavenIndexGroupRepositoryComponentOnDeleteTest
 
     private static final String REPOSITORY_GROUP_XH = "group-repo-xh";
 
-    @Inject
-    private MavenRepositoryFactory mavenRepositoryFactory;
-
-
     protected Set<MutableRepository> getRepositories()
     {
         Set<MutableRepository> repositories = new LinkedHashSet<>();
@@ -92,75 +93,68 @@ public class MavenIndexGroupRepositoryComponentOnDeleteTest
         return repositories;
     }
 
-    @BeforeEach
-    public void initialize()
+
+    @Inject
+    private MavenRepositoryFactory mavenRepositoryFactory;
+
+    @ExtendWith({ RepositoryManagementTestExecutionListener.class,
+                  ArtifactManagementTestExecutionListener.class })
+    @Test
+    public void artifactDeletionShouldDeleteArtifactFromParentGroupRepositoryIndex(
+            @MavenRepository(repositoryId = REPOSITORY_LEAF_XE, setup = MavenIndexedRepositorySetup.class)
+                    Repository repositoryLeafXe,
+            @MavenRepository(repositoryId = REPOSITORY_LEAF_XL, setup = MavenIndexedRepositorySetup.class)
+                    Repository repositoryLeafXl,
+            @MavenRepository(repositoryId = REPOSITORY_LEAF_XZ, setup = MavenIndexedRepositorySetup.class)
+                    Repository repositoryLeafXz,
+            @MavenRepository(repositoryId = REPOSITORY_LEAF_XD, setup = MavenIndexedRepositorySetup.class)
+                    Repository repositoryLeafXd,
+            @MavenRepository(repositoryId = REPOSITORY_LEAF_XG, setup = MavenIndexedRepositorySetup.class)
+                    Repository repositoryLeafXg,
+            @MavenRepository(repositoryId = REPOSITORY_LEAF_XK, setup = MavenIndexedRepositorySetup.class)
+                    Repository repositoryLeafXk,
+            @TestRepository.Group({ REPOSITORY_LEAF_XE,
+                                    REPOSITORY_LEAF_XZ })
+            @MavenRepository(repositoryId = REPOSITORY_GROUP_XC, setup = MavenIndexedRepositorySetup.class)
+                    Repository repositoryGroupXc,
+            @TestRepository.Group({ REPOSITORY_GROUP_XC,
+                                    REPOSITORY_LEAF_XD,
+                                    REPOSITORY_LEAF_XL })
+            @MavenRepository(repositoryId = REPOSITORY_GROUP_XB, setup = MavenIndexedRepositorySetup.class)
+                    Repository repositoryGroupXb,
+            @TestRepository.Group({ REPOSITORY_LEAF_XG,
+                                    REPOSITORY_GROUP_XB })
+            @MavenRepository(repositoryId = REPOSITORY_GROUP_XO, setup = MavenIndexedRepositorySetup.class)
+                    Repository repositoryGroupXo,
+            @TestRepository.Group({ REPOSITORY_GROUP_XC,
+                                    REPOSITORY_LEAF_XD,
+                                    REPOSITORY_LEAF_XL })
+            @MavenRepository(repositoryId = REPOSITORY_GROUP_XF, setup = MavenIndexedRepositorySetup.class)
+                    Repository repositoryGroupXf,
+            @TestRepository.Group(repositories = { REPOSITORY_GROUP_XF,
+                                                   REPOSITORY_LEAF_XK }, rules = { @TestRepository.Group.Rule(pattern = ".*(com|org)/artifacts/to/update/releases/update-group.*", repositories = REPOSITORY_LEAF_XD, type = DENY) })
+            @MavenRepository(repositoryId = REPOSITORY_GROUP_XH, setup = MavenIndexedRepositorySetup.class)
+                    Repository repositoryGroupXh,
+            @MavenTestArtifact(repositoryId = REPOSITORY_LEAF_XL, id = "com.artifacts.to.delete.releases:delete-group", versions = { "1.2.1",
+                                                                                                                                     "1.2.2" })
+                    Path artifactLeafXl,
+            @MavenTestArtifact(repositoryId = REPOSITORY_LEAF_XG, id = "com.artifacts.to.delete.releases:delete-group", versions = { "1.2.1",
+                                                                                                                                     "1.2.2" })
+                    Path artifactLeafXg,
+            @MavenTestArtifact(repositoryId = REPOSITORY_LEAF_XD, id = "com.artifacts.to.update.releases:update-group", versions = { "1.2.1",
+                                                                                                                                     "1.2.2" })
+                    Path artifactLeafXd,
+            @MavenTestArtifact(repositoryId = REPOSITORY_LEAF_XK, id = "com.artifacts.to.update.releases:update-group", versions = { "1.2.1" })
+                    Path artifactLeafXk)
             throws Exception
     {
-        createLeaf(STORAGE0, REPOSITORY_LEAF_XE);
-        createLeaf(STORAGE0, REPOSITORY_LEAF_XL);
-        createLeaf(STORAGE0, REPOSITORY_LEAF_XZ);
-        createLeaf(STORAGE0, REPOSITORY_LEAF_XD);
-        createLeaf(STORAGE0, REPOSITORY_LEAF_XG);
-        createLeaf(STORAGE0, REPOSITORY_LEAF_XK);
-
-        createGroup(REPOSITORY_GROUP_XC, STORAGE0, REPOSITORY_LEAF_XE, REPOSITORY_LEAF_XZ);
-        createGroup(REPOSITORY_GROUP_XB, STORAGE0, REPOSITORY_GROUP_XC, REPOSITORY_LEAF_XD, REPOSITORY_LEAF_XL);
-        createGroup(REPOSITORY_GROUP_XO, STORAGE0, REPOSITORY_LEAF_XG, REPOSITORY_GROUP_XB);
-        createGroup(REPOSITORY_GROUP_XF, STORAGE0, REPOSITORY_GROUP_XC, REPOSITORY_LEAF_XD, REPOSITORY_LEAF_XL);
-        createGroup(REPOSITORY_GROUP_XH, STORAGE0, REPOSITORY_GROUP_XF, REPOSITORY_LEAF_XK);
-
-        generateArtifact(getRepositoryBasedir(STORAGE0, REPOSITORY_LEAF_XL).getAbsolutePath(),
-                         "com.artifacts.to.delete.releases:delete-group",
-                         new String[]{ "1.2.1",
-                                       "1.2.2" }
-        );
-
-        generateArtifact(getRepositoryBasedir(STORAGE0, REPOSITORY_LEAF_XG).getAbsolutePath(),
-                         "com.artifacts.to.delete.releases:delete-group",
-                         new String[]{ "1.2.1",
-                                       "1.2.2" }
-        );
-
-        generateArtifact(getRepositoryBasedir(STORAGE0, REPOSITORY_LEAF_XD).getAbsolutePath(),
-                         "com.artifacts.to.update.releases:update-group",
-                         new String[]{ "1.2.1",
-                                       "1.2.2" }
-        );
-
-        generateArtifact(getRepositoryBasedir(STORAGE0, REPOSITORY_LEAF_XK).getAbsolutePath(),
-                         "com.artifacts.to.update.releases:update-group",
-                         new String[]{ "1.2.1" }
-        );
 
         generateMavenMetadata(STORAGE0, REPOSITORY_LEAF_XL);
         generateMavenMetadata(STORAGE0, REPOSITORY_LEAF_XG);
         generateMavenMetadata(STORAGE0, REPOSITORY_LEAF_XD);
         generateMavenMetadata(STORAGE0, REPOSITORY_LEAF_XK);
 
-        /**
-         <denied>
-             <rule-set group-repository="group-repo-h">
-                 <rule pattern=".*(com|org)/artifacts/to/update/releases/update-group.*">
-                     <repositories>
-                         <repository>leaf-repo-d</repository>
-                     </repositories>
-                 </rule>
-             </rule-set>
-         </denied>
-         **/
-        createAndAddRoutingRule(STORAGE0,
-                                REPOSITORY_GROUP_XH,
-                                Arrays.asList(new MutableRoutingRuleRepository(STORAGE0, REPOSITORY_LEAF_XD)),
-                                ".*(com|org)/artifacts/to/update/releases/update-group.*",
-                                RoutingRuleTypeEnum.DENY);
-
         rebuildIndexes(getRepositories());
-    }
-
-    @Test
-    public void artifactDeletionShouldDeleteArtifactFromParentGroupRepositoryIndex()
-            throws Exception
-    {
 
         String artifactPath = "com/artifacts/to/delete/releases/delete-group/1.2.1/delete-group-1.2.1.jar";
 

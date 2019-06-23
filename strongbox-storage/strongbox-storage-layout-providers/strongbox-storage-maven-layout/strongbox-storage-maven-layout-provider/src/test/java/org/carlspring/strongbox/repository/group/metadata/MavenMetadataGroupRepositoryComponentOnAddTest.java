@@ -1,33 +1,28 @@
 package org.carlspring.strongbox.repository.group.metadata;
 
-import static org.hamcrest.MatcherAssert.assertThat;
-import static org.junit.jupiter.api.parallel.ExecutionMode.CONCURRENT;
+import org.carlspring.strongbox.config.Maven2LayoutProviderTestConfig;
+import org.carlspring.strongbox.repository.group.BaseMavenGroupRepositoryComponentTest;
+import org.carlspring.strongbox.storage.repository.Repository;
+import org.carlspring.strongbox.testing.artifact.ArtifactManagementTestExecutionListener;
+import org.carlspring.strongbox.testing.artifact.MavenTestArtifact;
+import org.carlspring.strongbox.testing.repository.MavenRepository;
+import org.carlspring.strongbox.testing.storage.repository.RepositoryManagementTestExecutionListener;
+import org.carlspring.strongbox.testing.storage.repository.TestRepository;
 
-import java.io.IOException;
 import java.nio.file.Path;
-import java.util.Arrays;
-import java.util.LinkedHashSet;
-import java.util.Set;
 
-import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.FilenameUtils;
 import org.apache.maven.artifact.repository.metadata.Metadata;
-import org.carlspring.strongbox.config.Maven2LayoutProviderTestConfig;
-import org.carlspring.strongbox.providers.layout.Maven2LayoutProvider;
-import org.carlspring.strongbox.repository.group.BaseMavenGroupRepositoryComponentTest;
-import org.carlspring.strongbox.storage.Storage;
-import org.carlspring.strongbox.storage.repository.ImmutableRepository;
-import org.carlspring.strongbox.storage.repository.MutableRepository;
-import org.carlspring.strongbox.storage.repository.Repository;
-import org.carlspring.strongbox.storage.routing.MutableRoutingRuleRepository;
-import org.carlspring.strongbox.storage.routing.RoutingRuleTypeEnum;
 import org.hamcrest.CoreMatchers;
-import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.junit.jupiter.api.parallel.Execution;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.ContextConfiguration;
+import static org.carlspring.strongbox.storage.routing.RoutingRuleTypeEnum.DENY;
+import static org.hamcrest.MatcherAssert.assertThat;
+import static org.junit.jupiter.api.parallel.ExecutionMode.CONCURRENT;
 
 /**
  * @author Przemyslaw Fusik
@@ -62,88 +57,55 @@ public class MavenMetadataGroupRepositoryComponentOnAddTest
 
     private static final String REPOSITORY_GROUP_ZQ = "group-repo-zq";
 
-
-    protected Set<MutableRepository> getRepositories()
-    {
-        Set<MutableRepository> repositories = new LinkedHashSet<>();
-        repositories.add(createRepositoryMock(STORAGE0, REPOSITORY_LEAF_O, Maven2LayoutProvider.ALIAS));
-        repositories.add(createRepositoryMock(STORAGE0, REPOSITORY_LEAF_P, Maven2LayoutProvider.ALIAS));
-        repositories.add(createRepositoryMock(STORAGE0, REPOSITORY_LEAF_R, Maven2LayoutProvider.ALIAS));
-        repositories.add(createRepositoryMock(STORAGE0, REPOSITORY_LEAF_S, Maven2LayoutProvider.ALIAS));
-        repositories.add(createRepositoryMock(STORAGE0, REPOSITORY_LEAF_T, Maven2LayoutProvider.ALIAS));
-        repositories.add(createRepositoryMock(STORAGE0, REPOSITORY_LEAF_U, Maven2LayoutProvider.ALIAS));
-        repositories.add(createRepositoryMock(STORAGE0, REPOSITORY_GROUP_W, Maven2LayoutProvider.ALIAS));
-        repositories.add(createRepositoryMock(STORAGE0, REPOSITORY_GROUP_X, Maven2LayoutProvider.ALIAS));
-        repositories.add(createRepositoryMock(STORAGE0, REPOSITORY_GROUP_Y, Maven2LayoutProvider.ALIAS));
-        repositories.add(createRepositoryMock(STORAGE0, REPOSITORY_GROUP_Z, Maven2LayoutProvider.ALIAS));
-        repositories.add(createRepositoryMock(STORAGE0, REPOSITORY_GROUP_ZQ, Maven2LayoutProvider.ALIAS));
-
-        return repositories;
-    }
-
-    @BeforeEach
-    public void initialize()
+    @ExtendWith({ RepositoryManagementTestExecutionListener.class,
+                  ArtifactManagementTestExecutionListener.class })
+    @Test
+    public void generationOfMavenMetadataInLeafsShouldResultUpToDateMetadataInGroups(
+            @MavenRepository(repositoryId = REPOSITORY_LEAF_O) Repository repositoryLeafO,
+            @MavenRepository(repositoryId = REPOSITORY_LEAF_P) Repository repositoryLeafP,
+            @MavenRepository(repositoryId = REPOSITORY_LEAF_R) Repository repositoryLeafR,
+            @MavenRepository(repositoryId = REPOSITORY_LEAF_S) Repository repositoryLeafS,
+            @MavenRepository(repositoryId = REPOSITORY_LEAF_T) Repository repositoryLeafT,
+            @MavenRepository(repositoryId = REPOSITORY_LEAF_U) Repository repositoryLeafU,
+            @TestRepository.Group({ REPOSITORY_LEAF_O,
+                                    REPOSITORY_LEAF_R })
+            @MavenRepository(repositoryId = REPOSITORY_GROUP_Y) Repository repositoryGroupY,
+            @TestRepository.Group({ REPOSITORY_GROUP_Y,
+                                    REPOSITORY_LEAF_S,
+                                    REPOSITORY_LEAF_P })
+            @MavenRepository(repositoryId = REPOSITORY_GROUP_X) Repository repositoryGroupX,
+            @TestRepository.Group({ REPOSITORY_LEAF_T,
+                                    REPOSITORY_GROUP_X })
+            @MavenRepository(repositoryId = REPOSITORY_GROUP_W) Repository repositoryGroupW,
+            @TestRepository.Group({ REPOSITORY_GROUP_Y,
+                                    REPOSITORY_LEAF_S,
+                                    REPOSITORY_LEAF_P })
+            @MavenRepository(repositoryId = REPOSITORY_GROUP_Z) Repository repositoryGroupZ,
+            @TestRepository.Group(repositories = { REPOSITORY_GROUP_Z,
+                                                   REPOSITORY_LEAF_U },
+                    rules = { @TestRepository.Group.Rule(
+                            pattern = ".*(com|org)/artifacts/to/update/releases/update-group.*",
+                            repositories = REPOSITORY_LEAF_S,
+                            type = DENY)
+                    })
+            @MavenRepository(repositoryId = REPOSITORY_GROUP_ZQ) Repository repositoryGroupZQ,
+            @MavenTestArtifact(repositoryId = REPOSITORY_LEAF_P, id = "com.artifacts.to.delete.releases:delete-group", versions = { "1.2.1",
+                                                                                                                                    "1.2.2" })
+                    Path artifactLeafP,
+            @MavenTestArtifact(repositoryId = REPOSITORY_LEAF_T, id = "com.artifacts.to.delete.releases:delete-group", versions = { "1.2.1",
+                                                                                                                                    "1.2.2" })
+                    Path artifactLeafT,
+            @MavenTestArtifact(repositoryId = REPOSITORY_LEAF_S, id = "com.artifacts.to.update.releases:update-group", versions = { "1.2.1",
+                                                                                                                                    "1.2.2" })
+                    Path artifactLeafS,
+            @MavenTestArtifact(repositoryId = REPOSITORY_LEAF_U, id = "com.artifacts.to.update.releases:update-group", versions = { "1.2.1" })
+                    Path artifactLeafU)
             throws Exception
     {
-        createLeaf(STORAGE0, REPOSITORY_LEAF_O);
-        createLeaf(STORAGE0, REPOSITORY_LEAF_P);
-        createLeaf(STORAGE0, REPOSITORY_LEAF_R);
-        createLeaf(STORAGE0, REPOSITORY_LEAF_S);
-        createLeaf(STORAGE0, REPOSITORY_LEAF_T);
-        createLeaf(STORAGE0, REPOSITORY_LEAF_U);
-
-        createGroup(REPOSITORY_GROUP_Y, STORAGE0, REPOSITORY_LEAF_O, REPOSITORY_LEAF_R);
-        createGroup(REPOSITORY_GROUP_X, STORAGE0, REPOSITORY_GROUP_Y, REPOSITORY_LEAF_S, REPOSITORY_LEAF_P);
-        createGroup(REPOSITORY_GROUP_W, STORAGE0, REPOSITORY_LEAF_T, REPOSITORY_GROUP_X);
-        createGroup(REPOSITORY_GROUP_Z, STORAGE0, REPOSITORY_GROUP_Y, REPOSITORY_LEAF_S, REPOSITORY_LEAF_P);
-        createGroup(REPOSITORY_GROUP_ZQ, STORAGE0, REPOSITORY_GROUP_Z, REPOSITORY_LEAF_U);
-
-        // whenAnArtifactWasDeletedAllGroupRepositoriesContainingShouldHaveMetadataUpdatedIfPossible
-        generateArtifact(getRepositoryBasedir(STORAGE0, REPOSITORY_LEAF_P).getAbsolutePath(),
-                         "com.artifacts.to.delete.releases:delete-group",
-                         new String[]{ "1.2.1",
-                                       "1.2.2" }
-        );
-
-        // whenAnArtifactWasDeletedAllGroupRepositoriesContainingShouldHaveMetadataUpdatedIfPossible
-        generateArtifact(getRepositoryBasedir(STORAGE0, REPOSITORY_LEAF_T).getAbsolutePath(),
-                         "com.artifacts.to.delete.releases:delete-group",
-                         new String[]{ "1.2.1",
-                                       "1.2.2" }
-        );
-
-        generateArtifact(getRepositoryBasedir(STORAGE0, REPOSITORY_LEAF_S).getAbsolutePath(),
-                         "com.artifacts.to.update.releases:update-group",
-                         new String[]{ "1.2.1",
-                                       "1.2.2" }
-        );
-
-        generateArtifact(getRepositoryBasedir(STORAGE0, REPOSITORY_LEAF_U).getAbsolutePath(),
-                         "com.artifacts.to.update.releases:update-group",
-                         new String[]{ "1.2.1" }
-        );
-
         generateMavenMetadata(STORAGE0, REPOSITORY_LEAF_P);
         generateMavenMetadata(STORAGE0, REPOSITORY_LEAF_T);
         generateMavenMetadata(STORAGE0, REPOSITORY_LEAF_S);
         generateMavenMetadata(STORAGE0, REPOSITORY_LEAF_U);
-
-        /**
-         <denied>
-         <rule-set group-repository="group-repo-h">
-         <rule pattern=".*(com|org)/artifacts/to/update/releases/update-group.*">
-         <repositories>
-         <repository>leaf-repo-d</repository>
-         </repositories>
-         </rule>
-         </rule-set>
-         </denied>
-         **/
-        createAndAddRoutingRule(STORAGE0,
-                                REPOSITORY_GROUP_ZQ,
-                                Arrays.asList(new MutableRoutingRuleRepository(STORAGE0, REPOSITORY_LEAF_S)),
-                                ".*(com|org)/artifacts/to/update/releases/update-group.*",
-                                RoutingRuleTypeEnum.DENY);
 
         copyArtifactMetadata(REPOSITORY_LEAF_P, REPOSITORY_GROUP_Z, FilenameUtils.normalize(
                 "com/artifacts/to/delete/releases/delete-group/maven-metadata.xml"));
@@ -155,62 +117,32 @@ public class MavenMetadataGroupRepositoryComponentOnAddTest
                 "com/artifacts/to/delete/releases/delete-group/maven-metadata.xml"));
         copyArtifactMetadata(REPOSITORY_LEAF_U, REPOSITORY_GROUP_ZQ, FilenameUtils.normalize(
                 "com/artifacts/to/update/releases/update-group/maven-metadata.xml"));
-    }
 
-    private void copyArtifactMetadata(String sourceRepositoryId,
-                                      String destinationRepositoryId,
-                                      String path)
-            throws IOException
-    {
-        final Storage storage = getConfiguration().getStorage(STORAGE0);
-
-        Repository repository = storage.getRepository(sourceRepositoryId);
-        final Path sourcePath = repositoryPathResolver.resolve(repository, path);
-
-        repository = storage.getRepository(destinationRepositoryId);
-        final Path destinationPath = repositoryPathResolver.resolve(repository, path);
-        FileUtils.copyFile(sourcePath.toFile(), destinationPath.toFile());
-    }
-
-    @Test
-    public void generationOfMavenMetadataInLeafsShouldResultUpToDateMetadataInGroups()
-            throws Exception
-    {
-        Metadata metadata = mavenMetadataManager.readMetadata(repositoryPathResolver.resolve(new ImmutableRepository(
-                                                                                                     createRepositoryMock(STORAGE0,
-                                                                                                                          REPOSITORY_LEAF_S, Maven2LayoutProvider.ALIAS)),
-                                                                                             "com/artifacts/to/update/releases/update-group"));
+        Metadata metadata = mavenMetadataManager.readMetadata(
+                repositoryPathResolver.resolve(repositoryLeafS, "com/artifacts/to/update/releases/update-group"));
 
         assertThat(metadata.getVersioning().getVersions().size(), CoreMatchers.equalTo(2));
         assertThat(metadata.getVersioning().getVersions().get(0), CoreMatchers.equalTo("1.2.1"));
         assertThat(metadata.getVersioning().getVersions().get(1), CoreMatchers.equalTo("1.2.2"));
 
         metadata = mavenMetadataManager.readMetadata(
-                repositoryPathResolver.resolve(
-                        new ImmutableRepository(createRepositoryMock(STORAGE0, REPOSITORY_LEAF_U, Maven2LayoutProvider.ALIAS)),
-                        "com/artifacts/to/update/releases/update-group"));
+                repositoryPathResolver.resolve(repositoryLeafU, "com/artifacts/to/update/releases/update-group"));
         assertThat(metadata.getVersioning().getVersions().size(), CoreMatchers.equalTo(1));
         assertThat(metadata.getVersioning().getVersions().get(0), CoreMatchers.equalTo("1.2.1"));
 
         metadata = mavenMetadataManager.readMetadata(
-                repositoryPathResolver.resolve(
-                        new ImmutableRepository(createRepositoryMock(STORAGE0, REPOSITORY_GROUP_ZQ, Maven2LayoutProvider.ALIAS)),
-                        "com/artifacts/to/update/releases/update-group"));
+                repositoryPathResolver.resolve(repositoryGroupZQ, "com/artifacts/to/update/releases/update-group"));
         assertThat(metadata.getVersioning().getVersions().size(), CoreMatchers.equalTo(1));
         assertThat(metadata.getVersioning().getVersions().get(0), CoreMatchers.equalTo("1.2.1"));
 
         metadata = mavenMetadataManager.readMetadata(
-                repositoryPathResolver.resolve(
-                        new ImmutableRepository(createRepositoryMock(STORAGE0, REPOSITORY_GROUP_X, Maven2LayoutProvider.ALIAS)),
-                        "com/artifacts/to/update/releases/update-group"));
+                repositoryPathResolver.resolve(repositoryGroupX, "com/artifacts/to/update/releases/update-group"));
         assertThat(metadata.getVersioning().getVersions().size(), CoreMatchers.equalTo(2));
         assertThat(metadata.getVersioning().getVersions().get(0), CoreMatchers.equalTo("1.2.1"));
         assertThat(metadata.getVersioning().getVersions().get(1), CoreMatchers.equalTo("1.2.2"));
 
         metadata = mavenMetadataManager.readMetadata(
-                repositoryPathResolver.resolve(
-                        new ImmutableRepository(createRepositoryMock(STORAGE0, REPOSITORY_GROUP_W, Maven2LayoutProvider.ALIAS)),
-                        "com/artifacts/to/update/releases/update-group"));
+                repositoryPathResolver.resolve(repositoryGroupW, "com/artifacts/to/update/releases/update-group"));
         assertThat(metadata.getVersioning().getVersions().size(), CoreMatchers.equalTo(2));
         assertThat(metadata.getVersioning().getVersions().get(0), CoreMatchers.equalTo("1.2.1"));
         assertThat(metadata.getVersioning().getVersions().get(1), CoreMatchers.equalTo("1.2.2"));
