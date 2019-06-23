@@ -131,7 +131,7 @@ public class TestArtifactContext implements AutoCloseable
             throw new IllegalArgumentException(String.format("Versions should be provided for [%s]", testArtifact.id()));
         }
         
-        List<Path> paths = new ArrayList<Path>(testArtifact.versions().length);
+        List<Path> paths = new ArrayList<>(testArtifact.versions().length);
         for (String version : testArtifact.versions())
         {
             paths.add(generateArtifact(testArtifact.id(), version, testArtifact.size()));
