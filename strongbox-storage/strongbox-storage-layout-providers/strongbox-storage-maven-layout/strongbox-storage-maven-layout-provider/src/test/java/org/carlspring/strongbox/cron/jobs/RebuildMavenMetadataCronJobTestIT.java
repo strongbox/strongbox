@@ -5,8 +5,9 @@ import org.carlspring.strongbox.config.Maven2LayoutProviderCronTasksTestConfig;
 import org.carlspring.strongbox.data.CacheManagerTestExecutionListener;
 import org.carlspring.strongbox.providers.layout.Maven2LayoutProvider;
 import org.carlspring.strongbox.services.ArtifactMetadataService;
-import org.carlspring.strongbox.storage.repository.RepositoryDto;
+import org.carlspring.strongbox.storage.repository.MutableRepository;
 import org.carlspring.strongbox.storage.repository.RepositoryPolicyEnum;
+import org.carlspring.strongbox.testing.artifact.MavenTestArtifact;
 
 import javax.inject.Inject;
 import java.io.IOException;
@@ -15,6 +16,7 @@ import java.security.NoSuchAlgorithmException;
 import java.util.LinkedHashSet;
 import java.util.Set;
 import java.util.UUID;
+import java.nio.file.Path;
 import java.util.concurrent.TimeUnit;
 
 import org.apache.commons.lang3.StringUtils;
@@ -47,7 +49,11 @@ import static org.junit.jupiter.api.parallel.ExecutionMode.CONCURRENT;
 public class RebuildMavenMetadataCronJobTestIT
         extends BaseCronJobWithMavenIndexingTestCase
 {
-
+	
+	private static final String RMMCJTIT_SNAPSHOTS = "rmmcjtit-snapshots";
+	
+	private static final String TRMIR_SNAPSHOTS = "trmir-snapshots"
+	
     private static final String[] CLASSIFIERS = { "javadoc",
                                                   "sources",
                                                   "source-release" };
@@ -64,38 +70,59 @@ public class RebuildMavenMetadataCronJobTestIT
         super.init(testInfo);
     }
 
-    private Set<RepositoryDto> getRepositories(TestInfo testInfo)
-    {
-        Set<RepositoryDto> repositories = new LinkedHashSet<>();
-        repositories.add(createRepositoryMock(STORAGE0,
-                                              getRepositoryName("rmmcjtit-snapshots", testInfo),
-                                              Maven2LayoutProvider.ALIAS));
-        repositories.add(createRepositoryMock(STORAGE0,
-                                              getRepositoryName("trmir-snapshots", testInfo),
-                                              Maven2LayoutProvider.ALIAS));
+//    private Set<MutableRepository> getRepositories(TestInfo testInfo)
+//    {
+//        Set<MutableRepository> repositories = new LinkedHashSet<>();
+//        repositories.add(createRepositoryMock(STORAGE0,
+//                                              getRepositoryName("rmmcjtit-snapshots", testInfo),
+//                                              Maven2LayoutProvider.ALIAS));
+//        repositories.add(createRepositoryMock(STORAGE0,
+//                                              getRepositoryName("trmir-snapshots", testInfo),
+//                                              Maven2LayoutProvider.ALIAS));
+//
+//        return repositories;
+//    }
 
-        return repositories;
-    }
-
-    @AfterEach
-    public void removeRepositories(TestInfo testInfo)
-            throws Exception
-    {
-        removeRepositories(getRepositories(testInfo));
-    }
-
+//    @AfterEach
+//    public void removeRepositories(TestInfo testInfo)
+//            throws Exception
+//    {
+//        removeRepositories(getRepositories(testInfo));
+//    }
+    @ExtendWith({ RepositoryManagementTestExecutionListener.class, ArtifactManagementTestExecutionListener.class })
     @Test
-    public void testRebuildArtifactsMetadata(TestInfo testInfo)
+    public void testRebuildArtifactsMetadata(@TestRepository(storage = STORAGE0,
+    
+    														 repository = RMMCJTIT_SNAPSHOTS,
+    														 
+    														 layout = Maven2LayoutProvider.ALIAS)Repository repository, 
+    		
+    										 @MavenTestArtifact(repository = RMMCJTIT_SNAPSHOTS,
+    										 
+    												 	   id = "org.carlspring.strongbox:strongbox-metadata-one",
+    												 	   
+    												 	   versions = {"2.0-20190512.202015-1", 
+    												 			   	   "2.0-20190512.202015-2", 
+    												 			   	   "2.0-20190512.202015-3", 
+    												 			   	   "2.0-20190512.202015-4",
+    												 			   	   "2.0-20190512.202015-5"},
+    												 	   classifiers = {"javadoc",
+    				                                                  	  "sources",
+    				                                                  	  "source-release" }
+    												 	   )List<Path>)  // Add custom annotations
             throws Exception
     {
-        String repositoryId = getRepositoryName("rmmcjtit-snapshots", testInfo);
-
-        createRepository(STORAGE0,
-                         repositoryId,
-                         RepositoryPolicyEnum.SNAPSHOT.getPolicy(),
-                         false);
-
-        MavenArtifact artifact1 = createTestArtifact1(repositoryId);
+    	String repositoryId = repository.getId();
+    	
+    	MavenArtifact artifact = 
+//        String repositoryId = getRepositoryName("rmmcjtit-snapshots", testInfo);
+//
+//        createRepository(STORAGE0,
+//                         repositoryId,
+//                         RepositoryPolicyEnum.SNAPSHOT.getPolicy(),
+//                         false);
+//
+//        MavenArtifact artifact1 = createTestArtifact1(repositoryId);
 
         final UUID jobKey = expectedJobKey;
         final String jobName = expectedJobName;
@@ -106,7 +133,7 @@ public class RebuildMavenMetadataCronJobTestIT
                 try
                 {
                     Metadata metadata = artifactMetadataService.getMetadata(STORAGE0,
-                                                                            repositoryId,
+                                                                            repositoryId,//Might have to rename
                                                                             "org/carlspring/strongbox/strongbox-metadata-one");
 
                     assertNotNull(metadata);
@@ -137,25 +164,25 @@ public class RebuildMavenMetadataCronJobTestIT
 
         await().atMost(EVENT_TIMEOUT_SECONDS, TimeUnit.SECONDS).untilTrue(receivedExpectedEvent());
     }
-
+//Add extend with
     @Test
-    public void testRebuildMetadataInRepository()
+    public void testRebuildMetadataInRepository()  // Add custom annotations
             throws Exception
     {
-        String repositoryId = "trmir-snapshots";
-
-        createRepository(STORAGE0,
-                         repositoryId,
-                         RepositoryPolicyEnum.SNAPSHOT.getPolicy(),
-                         false);
-
-        MavenArtifact artifact1 = createTestArtifact1(repositoryId);
-        MavenArtifact artifact2 = createTestArtifact2(repositoryId);
-
-        createRepository(STORAGE0,
-                         repositoryId,
-                         RepositoryPolicyEnum.SNAPSHOT.getPolicy(),
-                         false);
+//        String repositoryId = "trmir-snapshots";
+//
+//        createRepository(STORAGE0,
+//                         repositoryId,
+//                         RepositoryPolicyEnum.SNAPSHOT.getPolicy(),
+//                         false);
+//
+//        MavenArtifact artifact1 = createTestArtifact1(repositoryId);
+//        MavenArtifact artifact2 = createTestArtifact2(repositoryId);
+//
+//        createRepository(STORAGE0,
+//                         repositoryId,
+//                         RepositoryPolicyEnum.SNAPSHOT.getPolicy(),
+//                         false);
 
         final UUID jobKey = expectedJobKey;
         final String jobName = expectedJobName;
