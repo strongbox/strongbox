@@ -15,6 +15,8 @@ import java.util.stream.Collectors;
 import javax.inject.Inject;
 
 import org.carlspring.strongbox.StorageApiTestConfig;
+import org.carlspring.strongbox.artifact.coordinates.MavenArtifactCoordinates;
+import org.carlspring.strongbox.artifact.coordinates.MockedMavenArtifactCoordinates;
 import org.carlspring.strongbox.artifact.coordinates.NullArtifactCoordinates;
 import org.carlspring.strongbox.configuration.Configuration;
 import org.carlspring.strongbox.services.ConfigurationManagementService;
@@ -65,13 +67,13 @@ public class ConfigurationManagementServiceImplTest
     @Inject
     private ConfigurationManagementService configurationManagementService;
 
+    @ExtendWith(RepositoryManagementTestExecutionListener.class)
     @Test
-    public void groupRepositoriesShouldBeSortedAsExpected()
+    public void groupRepositoriesShouldBeSortedAsExpected(@TestRepository(storageId = "storage-common-proxies",
+                                                                            repositoryId = "group-common-proxies",
+                                                                            layout = MavenArtifactCoordinates.LAYOUT_NAME)
+                                                                            Repository repository)
     {
-        Repository repository = configurationManagementService.getConfiguration().getRepository(
-                "storage-common-proxies",
-                "group-common-proxies");
-
         Iterator<String> iterator = repository.getGroupRepositories().iterator();
         assertThat(iterator.next(), CoreMatchers.equalTo("carlspring"));
         assertThat(iterator.next(), CoreMatchers.equalTo("maven-central"));
