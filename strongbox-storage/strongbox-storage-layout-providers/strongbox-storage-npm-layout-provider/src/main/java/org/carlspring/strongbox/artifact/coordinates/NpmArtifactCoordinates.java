@@ -12,6 +12,7 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 import org.springframework.util.Assert;
+import org.springframework.util.StringUtils;
 
 /**
  * This class is an {@link ArtifactCoordinates} implementation for npm
@@ -82,7 +83,7 @@ public class NpmArtifactCoordinates extends AbstractArtifactCoordinates<NpmArtif
 
     public void setScope(String scope)
     {
-        if (scope == null)
+        if (StringUtils.isEmpty(scope))
         {
             return;
         }
