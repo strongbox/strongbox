@@ -27,13 +27,13 @@ public @interface NpmTestArtifact
      * {@link Storage} ID.
      */
     @AliasFor(annotation = TestArtifact.class)
-    String storageId() default "storage0";
+    String storageId() default "storage-npm";
 
     /**
      * {@link Repository} ID.1
      */
     @AliasFor(annotation = TestArtifact.class)
-    String repositoryId() default "releases";
+    String repositoryId() default "npm-releases";
 
     /**
      * Layout specific artifact URI.
