@@ -16,7 +16,6 @@ import javax.inject.Inject;
 
 import org.carlspring.strongbox.StorageApiTestConfig;
 import org.carlspring.strongbox.artifact.coordinates.MavenArtifactCoordinates;
-import org.carlspring.strongbox.artifact.coordinates.MockedMavenArtifactCoordinates;
 import org.carlspring.strongbox.artifact.coordinates.NullArtifactCoordinates;
 import org.carlspring.strongbox.configuration.Configuration;
 import org.carlspring.strongbox.services.ConfigurationManagementService;
@@ -104,8 +103,13 @@ public class ConfigurationManagementServiceImplTest
     }
 
     @Test
-    public void multipleAdditionOfTheSameRepositoryShouldNotAffectGroup()
+    public void multipleAdditionOfTheSameRepositoryShouldNotAffectGroup(
+            @TestRepository(
+                    storageId = "storage-common-proxies",
+                    repositoryId = "group-common-proxies",
+                    layout = NullArtifactCoordinates.LAYOUT_NAME) Repository repository)
     {
+
         configurationManagementService.addRepositoryToGroup("storage-common-proxies",
                                                             "group-common-proxies",
                                                             "maven-central");
@@ -116,9 +120,6 @@ public class ConfigurationManagementServiceImplTest
                                                             "group-common-proxies",
                                                             "maven-central");
 
-        Repository repository = configurationManagementService.getConfiguration()
-                                                              .getRepository("storage-common-proxies",
-                                                                             "group-common-proxies");
 
         assertThat(repository.getGroupRepositories().size(), CoreMatchers.equalTo(4));
         Iterator<String> iterator = repository.getGroupRepositories().iterator();
