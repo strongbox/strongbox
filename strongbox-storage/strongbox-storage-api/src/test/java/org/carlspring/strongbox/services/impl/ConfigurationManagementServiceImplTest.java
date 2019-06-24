@@ -81,16 +81,19 @@ public class ConfigurationManagementServiceImplTest
         assertThat(iterator.next(), CoreMatchers.equalTo("jboss-public-releases"));
     }
 
+    @ExtendWith(RepositoryManagementTestExecutionListener.class)
     @Test
-    public void additionOfTheSameGroupRepositoryShouldNotAffectGroupRepositoriesList()
+    public void additionOfTheSameGroupRepositoryShouldNotAffectGroupRepositoriesList(
+            @TestRepository(
+                    storageId = "storage-common-proxies",
+                    repositoryId = "group-common-proxies",
+                    layout = MavenArtifactCoordinates.LAYOUT_NAME
+                    ) Repository repository)
     {
         configurationManagementService.addRepositoryToGroup("storage-common-proxies",
                                                             "group-common-proxies",
                                                             "maven-central");
 
-        Repository repository = configurationManagementService.getConfiguration()
-                                                              .getRepository("storage-common-proxies",
-                                                                             "group-common-proxies");
 
         assertThat(repository.getGroupRepositories().size(), CoreMatchers.equalTo(4));
         Iterator<String> iterator = repository.getGroupRepositories().iterator();
