@@ -1,6 +1,5 @@
 package org.carlspring.strongbox.config;
 
-import org.carlspring.strongbox.booters.ResourcesBooter;
 import org.carlspring.strongbox.booters.StorageBooter;
 import org.carlspring.strongbox.booters.TempDirBooter;
 import org.carlspring.strongbox.storage.checksum.ChecksumCacheManager;
