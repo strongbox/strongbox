@@ -52,6 +52,8 @@ public class NugetArtifactGenerator
                                                "<Relationship Type=\"http://schemas.openxmlformats.org/package/2006/relationships/metadata/core-properties\" Target=\"/package/services/metadata/core-properties/metadata.psmdcp\" Id=\"R23f62\r\ne2778b3442e\" />\r\n" +
                                                "</Relationships>";
 
+    private static final String PACKAGING_NUPKG = "nupkg";
+
     private Path basedir;
 
     public NugetArtifactGenerator()
@@ -84,9 +86,15 @@ public class NugetArtifactGenerator
             throws IOException
     {
         // Use of size is not implemented
-        NugetArtifactCoordinates nac = NugetArtifactCoordinates.parse(uri.toString());
+        NugetArtifactCoordinates coordinates = NugetArtifactCoordinates.parse(uri.toString());
 
-        return generateArtifact(nac.getId(), nac.getVersion());
+        return generateArtifact(coordinates);
+    }
+
+    public Path generateArtifact(NugetArtifactCoordinates coordinates)
+            throws IOException
+    {
+        return generateArtifact(coordinates.getId(), coordinates.getVersion(), coordinates.getType());
     }
 
     public Path generateArtifact(String id,
@@ -95,7 +103,22 @@ public class NugetArtifactGenerator
     {
         try
         {
-            return generate(id, version);
+            return generate(id, version, PACKAGING_NUPKG);
+        }
+        catch (NoSuchAlgorithmException | JAXBException | NugetFormatException e)
+        {
+            throw new IOException(e);
+        }
+    }
+
+    public Path generateArtifact(String id,
+                                 String version,
+                                 String packaging)
+            throws IOException
+    {
+        try
+        {
+            return generate(id, version, packaging);
         }
         catch (NoSuchAlgorithmException | JAXBException | NugetFormatException e)
         {
@@ -105,22 +128,23 @@ public class NugetArtifactGenerator
 
     public Path generate(String id,
                          String version,
+                         String packaging,
                          String... dependencyList)
             throws IOException, NoSuchAlgorithmException, JAXBException, NugetFormatException
     {
-        NugetArtifactCoordinates nac = new NugetArtifactCoordinates(id, version, "nupkg");
-        Path nupkgPath = basedir.resolve(nac.toPath()).normalize().toAbsolutePath();
-        Files.createDirectories(nupkgPath.getParent());
+        NugetArtifactCoordinates coordinates = new NugetArtifactCoordinates(id, version, packaging);
+        Path fullPath = basedir.resolve(coordinates.toPath()).normalize().toAbsolutePath();
+        Files.createDirectories(fullPath.getParent());
 
         SemanticVersion semanticVersion = SemanticVersion.parse(version);
-        logger.debug("Version of the nupkg package: {}", semanticVersion.toString());
+        logger.debug("Version of the {} package: {}", packaging, semanticVersion.toString());
 
-        generate(nupkgPath, id, semanticVersion, dependencyList);
+        generate(fullPath, id, semanticVersion, dependencyList);
 
-        return nupkgPath;
+        return fullPath;
     }
 
-    public void generate(Path nupkgPath,
+    public void generate(Path packagePath,
                          String id,
                          SemanticVersion version,
                          String... dependencyList)
@@ -128,7 +152,7 @@ public class NugetArtifactGenerator
     {
         Nuspec nuspec = generateNuspec(id, version, dependencyList);
 
-        createArchive(nuspec, nupkgPath);
+        createArchive(nuspec, packagePath);
 
         generateNuspecFile(nuspec);
     }
