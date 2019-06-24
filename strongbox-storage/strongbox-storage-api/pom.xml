@@ -193,7 +193,13 @@
             <groupId>com.github.ThoughtWire</groupId>
             <artifactId>hazelcast-locks</artifactId>
         </dependency>
-        
+        <dependency>
+            <groupId>org.carlspring.strongbox</groupId>
+            <artifactId>strongbox-storage-maven-layout-provider</artifactId>
+            <version>1.0-SNAPSHOT</version>
+            <scope>test</scope>
+        </dependency>
+
     </dependencies>
     
 </project>

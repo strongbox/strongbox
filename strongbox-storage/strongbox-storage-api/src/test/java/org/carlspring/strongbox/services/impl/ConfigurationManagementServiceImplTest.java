@@ -71,7 +71,7 @@ public class ConfigurationManagementServiceImplTest
     @Test
     public void groupRepositoriesShouldBeSortedAsExpected(@TestRepository(storageId = "storage-common-proxies",
                                                                             repositoryId = "group-common-proxies",
-                                                                            layout = MavenArtifactCoordinates.LAYOUT_NAME)
+                                                                            layout = NullArtifactCoordinates.LAYOUT_NAME)
                                                                             Repository repository)
     {
         Iterator<String> iterator = repository.getGroupRepositories().iterator();
