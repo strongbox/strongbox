@@ -22,7 +22,6 @@ import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Scope;
 
 @Configuration
-@ConditionalOnClass(NugetLayoutProvider.class)
 @ComponentScan({ "org.carlspring.strongbox.configuration",
                  "org.carlspring.strongbox.repository",
                  "org.carlspring.strongbox.providers",

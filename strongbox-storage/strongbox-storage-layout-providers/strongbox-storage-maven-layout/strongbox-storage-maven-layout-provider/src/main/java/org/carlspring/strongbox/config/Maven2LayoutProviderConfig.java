@@ -17,7 +17,6 @@ import org.springframework.context.annotation.*;
 import org.springframework.core.env.Environment;
 
 @Configuration
-@ConditionalOnClass(Maven2LayoutProvider.class)
 @ComponentScan({ "org.carlspring.strongbox.configuration",
                  "org.carlspring.strongbox.repository",
                  "org.carlspring.strongbox.providers",

@@ -29,7 +29,6 @@ import org.springframework.context.annotation.Scope;
 import static java.lang.annotation.RetentionPolicy.RUNTIME;
 
 @Configuration
-@ConditionalOnClass(NpmLayoutProvider.class)
 @ComponentScan({ "org.carlspring.strongbox.dependency.snippet",
                  "org.carlspring.strongbox.repository",
                  "org.carlspring.strongbox.providers",

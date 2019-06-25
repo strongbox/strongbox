@@ -21,7 +21,6 @@ import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Scope;
 
 @Configuration
-@ConditionalOnClass(RawLayoutProvider.class)
 @ComponentScan({ "org.carlspring.strongbox.repository",
                  "org.carlspring.strongbox.providers",
                  "org.carlspring.strongbox.services",
