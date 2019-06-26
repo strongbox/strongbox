@@ -113,7 +113,6 @@ public class RoutingConfigurationController
     @ApiResponses(value = { @ApiResponse(code = 200, message = SUCCESSFUL_REMOVE_ROUTING_RULE),
                             @ApiResponse(code = 404, message = FAILED_ADD_ROUTING_RULE) })
     @DeleteMapping(value = "/{uuid}",
-                   consumes = MediaType.APPLICATION_JSON_VALUE,
                    produces = { MediaType.TEXT_PLAIN_VALUE,
                                 MediaType.APPLICATION_JSON_VALUE })
     public ResponseEntity remove(@PathVariable UUID uuid,

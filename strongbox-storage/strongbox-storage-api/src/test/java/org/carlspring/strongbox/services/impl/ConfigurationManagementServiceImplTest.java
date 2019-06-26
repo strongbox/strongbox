@@ -211,7 +211,7 @@ public class ConfigurationManagementServiceImplTest
                                                   @NullRepository(repositoryId = REPOSITORY_GROUP_1) Repository releasesGroup) throws IOException
     {
         final MutableRoutingRule routingRule = createRoutingRule(RoutingRuleTypeEnum.ACCEPT);
-        String repositoryId = routingRule.getRepositoryId();
+        String groupRepositoryId = routingRule.getGroupRepositoryId();
         String storageId = routingRule.getStorageId();
 
         final boolean added = configurationManagementService.addRoutingRule(routingRule);
@@ -221,7 +221,7 @@ public class ConfigurationManagementServiceImplTest
         List<RoutingRule> routingRulesMatching = configuration.getRoutingRules()
                                                               .getRules()
                                                               .stream()
-                                                              .filter(a -> repositoryId.equals(a.getRepositoryId()) &&
+                                                              .filter(a -> groupRepositoryId.equals(a.getGroupRepositoryId()) &&
                                                                            storageId.equals(a.getStorageId()))
                                                               .collect(Collectors.toList());
 
@@ -237,7 +237,7 @@ public class ConfigurationManagementServiceImplTest
         routingRulesMatching = configuration.getRoutingRules()
                                             .getRules()
                                             .stream()
-                                            .filter(a -> repositoryId.equals(a.getRepositoryId()) &&
+                                            .filter(a -> groupRepositoryId.equals(a.getGroupRepositoryId()) &&
                                                          storageId.equals(a.getStorageId()))
                                             .collect(Collectors.toList());
 
@@ -252,7 +252,7 @@ public class ConfigurationManagementServiceImplTest
         routingRulesMatching = configuration.getRoutingRules()
                                             .getRules()
                                             .stream()
-                                            .filter(a -> repositoryId.equals(a.getRepositoryId()) &&
+                                            .filter(a -> groupRepositoryId.equals(a.getGroupRepositoryId()) &&
                                                          storageId.equals(a.getStorageId()))
                                             .collect(Collectors.toList());
 
@@ -314,7 +314,7 @@ public class ConfigurationManagementServiceImplTest
                 r -> new MutableRoutingRuleRepository(STORAGE0, r)).collect(
                 Collectors.toList()));
         routingRule.setType(type.getType());
-        routingRule.setRepositoryId(REPOSITORY_GROUP_1);
+        routingRule.setGroupRepositoryId(REPOSITORY_GROUP_1);
         routingRule.setStorageId(STORAGE0);
         return routingRule;
     }

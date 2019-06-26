@@ -372,8 +372,8 @@ configuration:
     rules:
       - uuid: 0f84a9a7-b2ce-47ed-8a01-085e235a1946
         storageId: storage-common-proxies
-        repositoryId: group-common-proxies
-        pattern: ".*(com|org)/carlspring.*"
+        groupRepositoryId: group-common-proxies
+        pattern: "(com|org)/carlspring.*"
         type: deny
         repositories:
           - storageId: storage-common-proxies

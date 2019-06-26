@@ -17,7 +17,7 @@ public class MutableRoutingRule
 
     private String storageId;
 
-    private String repositoryId;
+    private String groupRepositoryId;
 
     private String pattern;
 
@@ -45,14 +45,14 @@ public class MutableRoutingRule
         this.storageId = storageId;
     }
 
-    public String getRepositoryId()
+    public String getGroupRepositoryId()
     {
-        return repositoryId;
+        return groupRepositoryId;
     }
 
-    public void setRepositoryId(String repositoryId)
+    public void setGroupRepositoryId(String groupRepositoryId)
     {
-        this.repositoryId = repositoryId;
+        this.groupRepositoryId = groupRepositoryId;
     }
 
     public String getPattern()
@@ -94,7 +94,7 @@ public class MutableRoutingRule
         MutableRoutingRule routingRule = new MutableRoutingRule();
         routingRule.setPattern(rulePattern);
         routingRule.setStorageId(groupStorageId);
-        routingRule.setRepositoryId(groupRepositoryId);
+        routingRule.setGroupRepositoryId(groupRepositoryId);
         routingRule.setType(type.getType());
         routingRule.setRepositories(repositories);
         return routingRule;
@@ -105,7 +105,7 @@ public class MutableRoutingRule
         this.setRepositories(routingRule.getRepositories());
         this.setPattern(routingRule.getPattern());
         this.setStorageId(routingRule.getStorageId());
-        this.setRepositoryId(routingRule.getRepositoryId());
+        this.setGroupRepositoryId(routingRule.getGroupRepositoryId());
         this.setType(routingRule.getType());
         return true;
     }

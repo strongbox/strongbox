@@ -51,7 +51,7 @@ public class RoutingRuleFormTestIT
         RoutingRuleRepositoryForm routingRuleRepositoryForm = new RoutingRuleRepositoryForm();
         routingRuleRepositoryForm.setRepositoryId("releases-with-trash");
         routingRuleForm.setRepositories(Lists.newArrayList(routingRuleRepositoryForm));
-        routingRuleForm.setRepositoryId(StringUtils.EMPTY);
+        routingRuleForm.setGroupRepositoryId(StringUtils.EMPTY);
 
         // when
         Set<ConstraintViolation<RoutingRuleForm>> violations = validator.validate(routingRuleForm);
@@ -76,7 +76,7 @@ public class RoutingRuleFormTestIT
 
         // then
         assertFalse(violations.isEmpty(), "Violations are empty!");
-        assertEquals(violations.size(), 1);
+        assertEquals(1, violations.size());
         assertThat(violations).extracting("message").containsAnyOf("A pattern must be specified.");
     }
 
@@ -93,7 +93,7 @@ public class RoutingRuleFormTestIT
 
         // then
         assertFalse(violations.isEmpty(), "Violations are empty!");
-        assertEquals(violations.size(), 1);
+        assertEquals( 1, violations.size());
         assertThat(violations).extracting("message").containsAnyOf("A list of repositories must be specified.");
     }
 
@@ -112,7 +112,7 @@ public class RoutingRuleFormTestIT
 
         // then
         assertFalse(violations.isEmpty(), "Violations are empty!");
-        assertEquals(violations.size(), 1);
+        assertEquals( 1, violations.size());
         assertThat(violations).extracting("message").containsAnyOf("A type must be specified.");
     }
 }

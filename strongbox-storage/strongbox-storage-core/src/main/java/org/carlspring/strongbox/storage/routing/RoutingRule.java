@@ -21,7 +21,7 @@ public class RoutingRule
 
     private final String storageId;
 
-    private final String repositoryId;
+    private final String groupRepositoryId;
 
     private final String pattern;
 
@@ -34,7 +34,7 @@ public class RoutingRule
     public RoutingRule(final MutableRoutingRule delegate)
     {
         this.uuid = delegate.getUuid();
-        this.repositoryId = delegate.getRepositoryId();
+        this.groupRepositoryId = delegate.getGroupRepositoryId();
         this.storageId = delegate.getStorageId();
         this.pattern = delegate.getPattern();
         this.regex = Pattern.compile(pattern);
@@ -62,7 +62,12 @@ public class RoutingRule
     @Override
     public String getRepositoryId()
     {
-        return repositoryId;
+        return groupRepositoryId;
+    }
+
+    public String getGroupRepositoryId()
+    {
+        return groupRepositoryId;
     }
 
     public String getPattern()

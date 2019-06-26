@@ -19,7 +19,7 @@ public class RoutingRuleForm
 
     private String storageId;
 
-    private String repositoryId;
+    private String groupRepositoryId;
 
     @NotBlank(message = "A pattern must be specified.")
     private String pattern;
@@ -40,14 +40,14 @@ public class RoutingRuleForm
         this.storageId = storageId;
     }
 
-    public String getRepositoryId()
+    public String getGroupRepositoryId()
     {
-        return repositoryId;
+        return groupRepositoryId;
     }
 
-    public void setRepositoryId(String repositoryId)
+    public void setGroupRepositoryId(String groupRepositoryId)
     {
-        this.repositoryId = repositoryId;
+        this.groupRepositoryId = groupRepositoryId;
     }
 
     public String getPattern()

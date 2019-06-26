@@ -48,7 +48,7 @@ public class RoutingConfigurationControllerTestIT
         MutableRoutingRules routingRules = getRoutingRules();
         routingRules.getRules()
                     .stream()
-                    .filter(r -> r.getRepositoryId().contains(GROUP_RELEASES_2))
+                    .filter(r -> r.getGroupRepositoryId().contains(GROUP_RELEASES_2))
                     .forEach(r -> removeRoutingRule(MediaType.APPLICATION_JSON_VALUE, r.getUuid()));
     }
 
@@ -122,7 +122,7 @@ public class RoutingConfigurationControllerTestIT
         
         lastRule = routingRules.getRules().get(routingRules.getRules().size() - 1);
         
-        assertThat(lastRule.getRepositoryId()).isEqualTo("group-releases-2-updated");
+        assertThat(lastRule.getGroupRepositoryId()).isEqualTo("group-releases-2-updated");
         assertThat(lastRule.getPattern()).isEqualTo(".*some.test-updated");
         assertThat(lastRule.getType()).isEqualTo(RoutingRuleTypeEnum.DENY.getType());
 
@@ -139,7 +139,7 @@ public class RoutingConfigurationControllerTestIT
         RoutingRuleForm routingRuleForm = new RoutingRuleForm();
         routingRuleForm.setPattern(".*some.test");
         routingRuleForm.setType(RoutingRuleTypeEnum.ACCEPT);
-        routingRuleForm.setRepositoryId(GROUP_RELEASES_2);
+        routingRuleForm.setGroupRepositoryId(GROUP_RELEASES_2);
         RoutingRuleRepositoryForm routingRuleRepositoryForm = new RoutingRuleRepositoryForm();
         routingRuleRepositoryForm.setRepositoryId("releases-with-trash");
         RoutingRuleRepositoryForm routingRuleRepositoryForm2 = new RoutingRuleRepositoryForm();
@@ -164,7 +164,7 @@ public class RoutingConfigurationControllerTestIT
         RoutingRuleForm routingRuleForm = new RoutingRuleForm();
         routingRuleForm.setPattern(".*some.test-updated");
         routingRuleForm.setType(RoutingRuleTypeEnum.DENY);
-        routingRuleForm.setRepositoryId(GROUP_RELEASES_2 + "-updated");
+        routingRuleForm.setGroupRepositoryId(GROUP_RELEASES_2 + "-updated");
         RoutingRuleRepositoryForm routingRuleRepositoryForm = new RoutingRuleRepositoryForm();
         routingRuleRepositoryForm.setRepositoryId("releases-with-trash");
         RoutingRuleRepositoryForm routingRuleRepositoryForm2 = new RoutingRuleRepositoryForm();
