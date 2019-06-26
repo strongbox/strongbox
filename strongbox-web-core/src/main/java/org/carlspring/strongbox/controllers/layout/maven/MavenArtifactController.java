@@ -81,23 +81,9 @@ public class MavenArtifactController
     public ResponseEntity upload(@RepositoryMapping Repository repository,
                                  @PathVariable String artifactPath,
                                  HttpServletRequest request)
+            throws IOException
     {
-        final String storageId = repository.getStorage().getId();
-        final String repositoryId = repository.getId();
-
-        try
-        {
-            RepositoryPath repositoryPath = repositoryPathResolver.resolve(storageId, repositoryId, artifactPath);
-            artifactManagementService.validateAndStore(repositoryPath, request.getInputStream());
-
-            return ResponseEntity.ok("The artifact was deployed successfully.");
-        }
-        catch (Exception e)
-        {
-            logger.error(e.getMessage(), e);
-
-            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(e.getMessage());
-        }
+        return provideArtifactUploading(repository, artifactPath, request.getInputStream());
     }
 
     @ApiOperation(value = "Copies a path from one repository to another.")

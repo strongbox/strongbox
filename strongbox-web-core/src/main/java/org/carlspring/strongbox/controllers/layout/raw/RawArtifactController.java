@@ -14,10 +14,11 @@ import io.swagger.annotations.ApiOperation;
 import io.swagger.annotations.ApiResponse;
 import io.swagger.annotations.ApiResponses;
 import org.springframework.http.HttpHeaders;
-import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
+
+import java.io.IOException;
 
 /**
  * @author carlspring
@@ -36,23 +37,9 @@ public class RawArtifactController
     public ResponseEntity upload(@RepositoryMapping Repository repository,
                                  @PathVariable String path,
                                  HttpServletRequest request)
+            throws IOException
     {
-        final String storageId = repository.getStorage().getId();
-        final String repositoryId = repository.getId();
-
-        try
-        {
-            RepositoryPath repositoryPath = repositoryPathResolver.resolve(storageId, repositoryId, path);
-            artifactManagementService.validateAndStore(repositoryPath, request.getInputStream());
-
-            return ResponseEntity.ok("The artifact was deployed successfully.");
-        }
-        catch (Exception e)
-        {
-            logger.error(e.getMessage(), e);
-
-            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(e.getMessage());
-        }
+        return provideArtifactUploading(repository, path, request.getInputStream());
     }
 
     @ApiOperation(value = "Used to retrieve an artifact")
