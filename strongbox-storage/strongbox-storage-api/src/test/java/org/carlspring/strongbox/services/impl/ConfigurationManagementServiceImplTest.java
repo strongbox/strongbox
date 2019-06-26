@@ -15,6 +15,8 @@ import java.util.stream.Collectors;
 import javax.inject.Inject;
 
 import org.carlspring.strongbox.StorageApiTestConfig;
+
+import org.carlspring.strongbox.artifact.coordinates.MavenArtifactCoordinates;
 import org.carlspring.strongbox.artifact.coordinates.NullArtifactCoordinates;
 import org.carlspring.strongbox.configuration.Configuration;
 import org.carlspring.strongbox.services.ConfigurationManagementService;
@@ -66,11 +68,10 @@ public class ConfigurationManagementServiceImplTest
     @Inject
     private ConfigurationManagementService configurationManagementService;
 
+    @ExtendWith(RepositoryManagementTestExecutionListener.class)
     @Test
     public void groupRepositoriesShouldBeSortedAsExpected(
-            @TestRepository(storageId = "storage-common-proxies",
-                    repositoryId = "group-common-proxies",
-                    layout = NullArtifactCoordinates.LAYOUT_NAME) Repository repository)
+            @TestRepository(layout = MavenArtifactCoordinates.LAYOUT_NAME, storageId = "storage-common-proxies", repositoryId = "group-common-proxies") Repository repository)
     {
 
         Iterator<String> iterator = repository.getGroupRepositories().iterator();
@@ -82,10 +83,11 @@ public class ConfigurationManagementServiceImplTest
     }
 
     @Test
+    @ExtendWith(RepositoryManagementTestExecutionListener.class)
     public void additionOfTheSameGroupRepositoryShouldNotAffectGroupRepositoriesList(
             @TestRepository(storageId = "storage-common-proxies",
                     repositoryId = "group-common-proxies",
-                    layout = NullArtifactCoordinates.LAYOUT_NAME) Repository repository)
+                    layout = MavenArtifactCoordinates.LAYOUT_NAME) Repository repository)
     {
 
         configurationManagementService.addRepositoryToGroup("storage-common-proxies",
@@ -102,10 +104,11 @@ public class ConfigurationManagementServiceImplTest
     }
 
     @Test
+    @ExtendWith({ RepositoryManagementTestExecutionListener.class })
     public void multipleAdditionOfTheSameRepositoryShouldNotAffectGroup(
             @TestRepository(storageId = "storage-common-proxies",
                     repositoryId = "group-common-proxies",
-                    layout = NullArtifactCoordinates.LAYOUT_NAME) Repository repository)
+                    layout = MavenArtifactCoordinates.LAYOUT_NAME) Repository repository)
 
     {
         configurationManagementService.addRepositoryToGroup("storage-common-proxies",
@@ -144,10 +147,9 @@ public class ConfigurationManagementServiceImplTest
 
     @Test
     @ExtendWith(RepositoryManagementTestExecutionListener.class)
-    public void testGetGroupRepositoriesContainingRepository(
-            @NullRepository(repositoryId = REPOSITORY_RELEASES_1) Repository releases1,
-            @TestRepository.Group(repositories = REPOSITORY_RELEASES_1)
-            @NullRepository(repositoryId = REPOSITORY_GROUP_1) Repository releasesGroup)
+    public void testGetGroupRepositoriesContainingRepository(@NullRepository(repositoryId = REPOSITORY_RELEASES_1) Repository releases1,
+                                                             @TestRepository.Group(repositories = REPOSITORY_RELEASES_1)
+                                                             @NullRepository(repositoryId = REPOSITORY_GROUP_1) Repository releasesGroup)
     {
         List<Repository> groups = configurationManagementService.getConfiguration()
                                                                 .getGroupRepositoriesContaining(STORAGE0,
@@ -166,13 +168,13 @@ public class ConfigurationManagementServiceImplTest
     @Test
     @ExtendWith(RepositoryManagementTestExecutionListener.class)
     public void testRemoveRepositoryFromAssociatedGroups(@NullRepository(repositoryId = REPOSITORY_RELEASES_1)
-                                                                 Repository releases1,
+                                                         Repository releases1,
                                                          @TestRepository.Group(repositories = REPOSITORY_RELEASES_1)
                                                          @NullRepository(repositoryId = REPOSITORY_GROUP_1)
-                                                                 Repository releasesGroup1,
+                                                         Repository releasesGroup1,
                                                          @TestRepository.Group(repositories = REPOSITORY_RELEASES_1)
                                                          @NullRepository(repositoryId = REPOSITORY_GROUP_2)
-                                                                 Repository releasesGroup2)
+                                                         Repository releasesGroup2)
     {
         assertEquals(2,
                      configurationManagementService.getConfiguration()
@@ -192,7 +194,7 @@ public class ConfigurationManagementServiceImplTest
     @Test
     @ExtendWith(RepositoryManagementTestExecutionListener.class)
     public void testSetProxyRepositoryMaxConnections(@NullRepository(repositoryId = REPOSITORY_RELEASES_2)
-                                                             Repository releases1)
+                                                     Repository releases1)
     {
         Storage storage = configurationManagementService.getConfiguration().getStorage(STORAGE0);
 
@@ -210,10 +212,9 @@ public class ConfigurationManagementServiceImplTest
 
     @Test
     @ExtendWith(RepositoryManagementTestExecutionListener.class)
-    public void shouldAddEditAndRemoveRoutingRule(
-            @NullRepository(repositoryId = REPOSITORY_RELEASES_1) Repository releases1,
-            @TestRepository.Group(repositories = REPOSITORY_RELEASES_1)
-            @NullRepository(repositoryId = REPOSITORY_GROUP_1) Repository releasesGroup)
+    public void shouldAddEditAndRemoveRoutingRule(@NullRepository(repositoryId = REPOSITORY_RELEASES_1) Repository releases1,
+                                                  @TestRepository.Group(repositories = REPOSITORY_RELEASES_1)
+                                                  @NullRepository(repositoryId = REPOSITORY_GROUP_1) Repository releasesGroup)
     {
         final MutableRoutingRule routingRule = createRoutingRule(RoutingRuleTypeEnum.ACCEPT);
         String repositoryId = routingRule.getRepositoryId();
