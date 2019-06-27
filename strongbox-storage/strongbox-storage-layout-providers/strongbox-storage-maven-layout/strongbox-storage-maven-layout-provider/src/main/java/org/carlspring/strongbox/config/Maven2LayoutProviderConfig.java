@@ -12,6 +12,7 @@ import javax.inject.Inject;
 import java.nio.file.FileSystem;
 import java.nio.file.spi.FileSystemProvider;
 
+import org.springframework.boot.autoconfigure.condition.ConditionalOnClass;
 import org.springframework.context.annotation.*;
 import org.springframework.core.env.Environment;
 

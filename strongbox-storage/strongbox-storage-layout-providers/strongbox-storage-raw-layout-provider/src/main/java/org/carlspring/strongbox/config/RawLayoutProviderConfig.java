@@ -14,6 +14,7 @@ import org.carlspring.strongbox.storage.repository.Repository;
 import java.nio.file.FileSystem;
 import java.nio.file.spi.FileSystemProvider;
 
+import org.springframework.boot.autoconfigure.condition.ConditionalOnClass;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.ComponentScan;
 import org.springframework.context.annotation.Configuration;
