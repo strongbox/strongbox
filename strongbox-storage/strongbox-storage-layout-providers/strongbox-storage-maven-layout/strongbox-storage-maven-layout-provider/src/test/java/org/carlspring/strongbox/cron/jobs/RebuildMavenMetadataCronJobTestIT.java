@@ -76,10 +76,9 @@ public class RebuildMavenMetadataCronJobTestIT
                                                                 classifiers = {"javadoc",
                                                                                "sources",
     				                                                      	   "source-release"})
-                                                                List<Path> path)  // Add custom annotations
+                                                                List<Path> artifact)
             throws Exception
     {
-    	String repositoryId = repository.getId();
 
     	String artifactId = "strongbox-metadata-one";
 
@@ -94,7 +93,7 @@ public class RebuildMavenMetadataCronJobTestIT
                 try
                 {
                     Metadata metadata = artifactMetadataService.getMetadata(STORAGE0,
-                                                                            repositoryId,//Might have to rename
+                                                                            RMMCJTIT_SNAPSHOTS,
                                                                             "org/carlspring/strongbox/strongbox-metadata-one");
 
                     assertNotNull(metadata);
@@ -120,7 +119,7 @@ public class RebuildMavenMetadataCronJobTestIT
                          jobName,
                          RebuildMavenMetadataCronJob.class,
                          STORAGE0,
-                         repositoryId,
+                         RMMCJTIT_SNAPSHOTS,
                          properties -> properties.put("basePath", "org/carlspring/strongbox/strongbox-metadata-one"));
 
         await().atMost(EVENT_TIMEOUT_SECONDS, TimeUnit.SECONDS).untilTrue(receivedExpectedEvent());
@@ -129,23 +128,29 @@ public class RebuildMavenMetadataCronJobTestIT
     @ExtendWith({ RepositoryManagementTestExecutionListener.class, ArtifactManagementTestExecutionListener.class })
     @Test
     public void testRebuildMetadataInRepository(@MavenRepository(storageId = STORAGE0,
-                                                                 repositoryId = TRMIR_SNAPSHOTS)Repository repository)
-//                                                                ,
-//                                                @MavenTestArtifact(repositoryId = TRMIR_SNAPSHOTS,
-//                                                                   id = "org.carlspring.strongbox:strongbox-metadata-one",
-//                                                                   versions = {"2.0-20190512.202015-1",
-//                                                                               "2.0-20190512.202015-2",
-//                                                                               "2.0-20190512.202015-3",
-//                                                                               "2.0-20190512.202015-4",
-//                                                                               "2.0-20190512.202015-5"},
-//                                                                   classifiers = {"javadoc",
-//                                                                                  "sources",
-//                                                                                  "source-release"})
-//                                                                   List<Path> path)
+                                                                 repositoryId = TRMIR_SNAPSHOTS)Repository repository,
+                                                @MavenTestArtifact(repositoryId = TRMIR_SNAPSHOTS,
+                                                                   id = "org.carlspring.strongbox:strongbox-metadata-one",
+                                                                   versions = {"2.0-20190512.202015-1",
+                                                                               "2.0-20190512.202015-2",
+                                                                               "2.0-20190512.202015-3",
+                                                                               "2.0-20190512.202015-4",
+                                                                               "2.0-20190512.202015-5"},
+                                                                   classifiers = {"javadoc",
+                                                                                  "sources",
+                                                                                  "source-release"})List<Path> artifact1,
+                                                @MavenTestArtifact(repositoryId = TRMIR_SNAPSHOTS,
+                                                        id = "org.carlspring.strongbox:strongbox-metadata-second",
+                                                        versions = {"2.0-20190512.202015-1",
+                                                                "2.0-20190512.202015-2",
+                                                                "2.0-20190512.202015-3",
+                                                                "2.0-20190512.202015-4",
+                                                                "2.0-20190512.202015-5"},
+                                                        classifiers = {"javadoc",
+                                                                "sources",
+                                                                "source-release"})List<Path> artifact2)
             throws Exception
     {
-
-        String repositoryId = repository.getId();
 
         String artifactId1 = "strongbox-metadata-one";
 
@@ -162,10 +167,10 @@ public class RebuildMavenMetadataCronJobTestIT
                 try
                 {
                     Metadata metadata1 = artifactMetadataService.getMetadata(STORAGE0,
-                                                                             repositoryId,
+                                                                             TRMIR_SNAPSHOTS,
                                                                              "org/carlspring/strongbox/strongbox-metadata-one");
                     Metadata metadata2 = artifactMetadataService.getMetadata(STORAGE0,
-                                                                             repositoryId,
+                                                                             TRMIR_SNAPSHOTS,
                                                                              "org/carlspring/strongbox/strongbox-metadata-second");
 
                     assertNotNull(metadata1);
@@ -201,7 +206,7 @@ public class RebuildMavenMetadataCronJobTestIT
                          jobName,
                          RebuildMavenMetadataCronJob.class,
                          STORAGE0,
-                         repositoryId);
+                         TRMIR_SNAPSHOTS);
 
         await().atMost(EVENT_TIMEOUT_SECONDS, TimeUnit.SECONDS).untilTrue(receivedExpectedEvent());
     }
