@@ -1,20 +1,17 @@
 package org.carlspring.strongbox.cron.jobs;
 
-import org.carlspring.strongbox.artifact.MavenArtifact;
 import org.carlspring.strongbox.config.Maven2LayoutProviderCronTasksTestConfig;
 import org.carlspring.strongbox.data.CacheManagerTestExecutionListener;
-import org.carlspring.strongbox.providers.layout.Maven2LayoutProvider;
 import org.carlspring.strongbox.services.ArtifactMetadataService;
-import org.carlspring.strongbox.storage.repository.MutableRepository;
-import org.carlspring.strongbox.storage.repository.RepositoryPolicyEnum;
+import org.carlspring.strongbox.storage.repository.Repository;
+import org.carlspring.strongbox.testing.artifact.ArtifactManagementTestExecutionListener;
 import org.carlspring.strongbox.testing.artifact.MavenTestArtifact;
+import org.carlspring.strongbox.testing.repository.MavenRepository;
+import org.carlspring.strongbox.testing.storage.repository.RepositoryManagementTestExecutionListener;
 
 import javax.inject.Inject;
-import java.io.IOException;
 import java.lang.reflect.UndeclaredThrowableException;
-import java.security.NoSuchAlgorithmException;
-import java.util.LinkedHashSet;
-import java.util.Set;
+import java.util.List;
 import java.util.UUID;
 import java.nio.file.Path;
 import java.util.concurrent.TimeUnit;
@@ -22,11 +19,10 @@ import java.util.concurrent.TimeUnit;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.maven.artifact.repository.metadata.Metadata;
 import org.apache.maven.artifact.repository.metadata.Versioning;
-import org.codehaus.plexus.util.xml.pull.XmlPullParserException;
-import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.TestInfo;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.junit.jupiter.api.parallel.Execution;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.context.ActiveProfiles;
@@ -52,15 +48,10 @@ public class RebuildMavenMetadataCronJobTestIT
 	
 	private static final String RMMCJTIT_SNAPSHOTS = "rmmcjtit-snapshots";
 	
-	private static final String TRMIR_SNAPSHOTS = "trmir-snapshots"
+	private static final String TRMIR_SNAPSHOTS = "trmir-snapshots";
 	
-    private static final String[] CLASSIFIERS = { "javadoc",
-                                                  "sources",
-                                                  "source-release" };
-
     @Inject
     private ArtifactMetadataService artifactMetadataService;
-
 
     @Override
     @BeforeEach
@@ -70,59 +61,29 @@ public class RebuildMavenMetadataCronJobTestIT
         super.init(testInfo);
     }
 
-//    private Set<MutableRepository> getRepositories(TestInfo testInfo)
-//    {
-//        Set<MutableRepository> repositories = new LinkedHashSet<>();
-//        repositories.add(createRepositoryMock(STORAGE0,
-//                                              getRepositoryName("rmmcjtit-snapshots", testInfo),
-//                                              Maven2LayoutProvider.ALIAS));
-//        repositories.add(createRepositoryMock(STORAGE0,
-//                                              getRepositoryName("trmir-snapshots", testInfo),
-//                                              Maven2LayoutProvider.ALIAS));
-//
-//        return repositories;
-//    }
-
-//    @AfterEach
-//    public void removeRepositories(TestInfo testInfo)
-//            throws Exception
-//    {
-//        removeRepositories(getRepositories(testInfo));
-//    }
     @ExtendWith({ RepositoryManagementTestExecutionListener.class, ArtifactManagementTestExecutionListener.class })
     @Test
-    public void testRebuildArtifactsMetadata(@TestRepository(storage = STORAGE0,
-    
-    														 repository = RMMCJTIT_SNAPSHOTS,
-    														 
-    														 layout = Maven2LayoutProvider.ALIAS)Repository repository, 
-    		
-    										 @MavenTestArtifact(repository = RMMCJTIT_SNAPSHOTS,
-    										 
-    												 	   id = "org.carlspring.strongbox:strongbox-metadata-one",
-    												 	   
-    												 	   versions = {"2.0-20190512.202015-1", 
-    												 			   	   "2.0-20190512.202015-2", 
-    												 			   	   "2.0-20190512.202015-3", 
-    												 			   	   "2.0-20190512.202015-4",
-    												 			   	   "2.0-20190512.202015-5"},
-    												 	   classifiers = {"javadoc",
-    				                                                  	  "sources",
-    				                                                  	  "source-release" }
-    												 	   )List<Path>)  // Add custom annotations
+    public void testRebuildArtifactsMetadata(@MavenRepository(storageId = STORAGE0,
+    														  repositoryId = RMMCJTIT_SNAPSHOTS)
+                                                              Repository repository,
+                                             @MavenTestArtifact(repositoryId = RMMCJTIT_SNAPSHOTS,
+                                                                id = "org.carlspring.strongbox:strongbox-metadata-one",
+                                                                versions = {"2.0-20190512.202015-1",
+    												 			   	        "2.0-20190512.202015-2",
+    												 			   	        "2.0-20190512.202015-3",
+    												 			   	        "2.0-20190512.202015-4",
+    												 			   	        "2.0-20190512.202015-5"},
+                                                                classifiers = {"javadoc",
+                                                                               "sources",
+    				                                                      	   "source-release"})
+                                                                List<Path> path)  // Add custom annotations
             throws Exception
     {
     	String repositoryId = repository.getId();
-    	
-    	MavenArtifact artifact = 
-//        String repositoryId = getRepositoryName("rmmcjtit-snapshots", testInfo);
-//
-//        createRepository(STORAGE0,
-//                         repositoryId,
-//                         RepositoryPolicyEnum.SNAPSHOT.getPolicy(),
-//                         false);
-//
-//        MavenArtifact artifact1 = createTestArtifact1(repositoryId);
+
+    	String artifactId = "strongbox-metadata-one";
+
+    	String groupId = "org.carlspring.strongbox";
 
         final UUID jobKey = expectedJobKey;
         final String jobName = expectedJobName;
@@ -140,8 +101,8 @@ public class RebuildMavenMetadataCronJobTestIT
 
                     Versioning versioning = metadata.getVersioning();
 
-                    assertEquals(artifact1.getArtifactId(), metadata.getArtifactId(), "Incorrect artifactId!");
-                    assertEquals(artifact1.getGroupId(), metadata.getGroupId(), "Incorrect groupId!");
+                    assertEquals(artifactId, metadata.getArtifactId(), "Incorrect artifactId!");
+                    assertEquals(groupId, metadata.getGroupId(), "Incorrect groupId!");
 
                     assertNotNull(versioning.getVersions(),
                                   "No versioning information could be found in the metadata!");
@@ -164,25 +125,33 @@ public class RebuildMavenMetadataCronJobTestIT
 
         await().atMost(EVENT_TIMEOUT_SECONDS, TimeUnit.SECONDS).untilTrue(receivedExpectedEvent());
     }
-//Add extend with
+
+    @ExtendWith({ RepositoryManagementTestExecutionListener.class, ArtifactManagementTestExecutionListener.class })
     @Test
-    public void testRebuildMetadataInRepository()  // Add custom annotations
+    public void testRebuildMetadataInRepository(@MavenRepository(storageId = STORAGE0,
+                                                                 repositoryId = TRMIR_SNAPSHOTS)Repository repository)
+//                                                                ,
+//                                                @MavenTestArtifact(repositoryId = TRMIR_SNAPSHOTS,
+//                                                                   id = "org.carlspring.strongbox:strongbox-metadata-one",
+//                                                                   versions = {"2.0-20190512.202015-1",
+//                                                                               "2.0-20190512.202015-2",
+//                                                                               "2.0-20190512.202015-3",
+//                                                                               "2.0-20190512.202015-4",
+//                                                                               "2.0-20190512.202015-5"},
+//                                                                   classifiers = {"javadoc",
+//                                                                                  "sources",
+//                                                                                  "source-release"})
+//                                                                   List<Path> path)
             throws Exception
     {
-//        String repositoryId = "trmir-snapshots";
-//
-//        createRepository(STORAGE0,
-//                         repositoryId,
-//                         RepositoryPolicyEnum.SNAPSHOT.getPolicy(),
-//                         false);
-//
-//        MavenArtifact artifact1 = createTestArtifact1(repositoryId);
-//        MavenArtifact artifact2 = createTestArtifact2(repositoryId);
-//
-//        createRepository(STORAGE0,
-//                         repositoryId,
-//                         RepositoryPolicyEnum.SNAPSHOT.getPolicy(),
-//                         false);
+
+        String repositoryId = repository.getId();
+
+        String artifactId1 = "strongbox-metadata-one";
+
+        String artifactId2 = "strongbox-metadata-second";
+
+        String groupId = "org.carlspring.strongbox";
 
         final UUID jobKey = expectedJobKey;
         final String jobName = expectedJobName;
@@ -205,11 +174,11 @@ public class RebuildMavenMetadataCronJobTestIT
                     Versioning versioning1 = metadata1.getVersioning();
                     Versioning versioning2 = metadata1.getVersioning();
 
-                    assertEquals(artifact1.getArtifactId(), metadata1.getArtifactId(), "Incorrect artifactId!");
-                    assertEquals(artifact1.getGroupId(), metadata1.getGroupId(), "Incorrect groupId!");
+                    assertEquals(artifactId1, metadata1.getArtifactId(), "Incorrect artifactId!");
+                    assertEquals(groupId, metadata1.getGroupId(), "Incorrect groupId!");
 
-                    assertEquals(artifact2.getArtifactId(), metadata2.getArtifactId(), "Incorrect artifactId!");
-                    assertEquals(artifact2.getGroupId(), metadata2.getGroupId(), "Incorrect groupId!");
+                    assertEquals(artifactId2, metadata2.getArtifactId(), "Incorrect artifactId!");
+                    assertEquals(groupId, metadata2.getGroupId(), "Incorrect groupId!");
 
                     assertNotNull(versioning1.getVersions(),
                                   "No versioning information could be found in the metadata!");
@@ -236,30 +205,4 @@ public class RebuildMavenMetadataCronJobTestIT
 
         await().atMost(EVENT_TIMEOUT_SECONDS, TimeUnit.SECONDS).untilTrue(receivedExpectedEvent());
     }
-
-
-    private MavenArtifact createTestArtifact1(String repositoryId)
-            throws NoSuchAlgorithmException, XmlPullParserException, IOException
-    {
-        return createTimestampedSnapshotArtifact(getRepositoryBasedir(STORAGE0, repositoryId).getAbsolutePath(),
-                                                 "org.carlspring.strongbox",
-                                                 "strongbox-metadata-one",
-                                                 "2.0",
-                                                 "jar",
-                                                 CLASSIFIERS,
-                                                 5);
-    }
-
-    private MavenArtifact createTestArtifact2(String repositoryId)
-            throws NoSuchAlgorithmException, XmlPullParserException, IOException
-    {
-        return createTimestampedSnapshotArtifact(getRepositoryBasedir(STORAGE0, repositoryId).getAbsolutePath(),
-                                                 "org.carlspring.strongbox",
-                                                 "strongbox-metadata-second",
-                                                 "2.0",
-                                                 "jar",
-                                                 CLASSIFIERS,
-                                                 5);
-    }
-
 }
