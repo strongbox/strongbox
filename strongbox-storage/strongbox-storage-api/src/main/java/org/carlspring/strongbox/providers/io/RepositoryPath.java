@@ -21,31 +21,33 @@ import java.util.HashMap;
 import java.util.Iterator;
 import java.util.Map;
 
+import org.apache.commons.io.FilenameUtils;
+
 /**
  * This implementation decorates storage {@link Path} implementation, which can be an "Cloud Path" or common
  * "File System Path".
  *
  * @author Sergey Bespalov
- * 
+ *
  * @see RepositoryPathResolver
- * 
+ *
  */
 public class RepositoryPath
         implements Path
 {
 
     private Path target;
-    
+
     private LayoutFileSystem fileSystem;
-    
+
     protected ArtifactEntry artifactEntry;
-    
+
     protected Map<RepositoryFileAttributeType, Object> cachedAttributes = new HashMap<>();
-    
+
     protected URI uri;
-    
+
     protected String path;
-    
+
     public RepositoryPath(Path target,
                           LayoutFileSystem fileSystem)
     {
@@ -57,7 +59,7 @@ public class RepositoryPath
     {
         return target;
     }
-    
+
     public ArtifactEntry getArtifactEntry() throws IOException
     {
         return artifactEntry;
@@ -67,7 +69,7 @@ public class RepositoryPath
     {
         return fileSystem;
     }
-    
+
     public Repository getRepository()
     {
         return getFileSystem().getRepository();
@@ -91,9 +93,9 @@ public class RepositoryPath
     public RepositoryPath getParent()
     {
         RepositoryPath parent = wrap(getTarget().getParent());
-        
+
         validateParent(parent);
-        
+
         return parent;
     }
 
@@ -148,7 +150,7 @@ public class RepositoryPath
         other = unwrap(other);
 
         validatePathRelativized(other);
-        
+
         return wrap(getTarget().resolve(other));
     }
 
@@ -182,9 +184,9 @@ public class RepositoryPath
         other = other != null && Proxy.isProxyClass(other.getClass())
                 ? ((ProxyPathInvocationHandler) Proxy.getInvocationHandler(other)).getTarget()
                 : other;
-        
+
         other = other instanceof RepositoryPath ? ((RepositoryPath)other).getTarget() : other;
-        
+
         return other;
     }
 
@@ -202,13 +204,13 @@ public class RepositoryPath
     public RepositoryPath relativize(Path other)
     {
         other = unwrap(other);
-        
+
         return wrap(getTarget().relativize(other));
     }
-    
+
     /**
      * Returns Path relative to Repository root.
-     * 
+     *
      * @return
      */
     public RepositoryPath relativize()
@@ -217,13 +219,13 @@ public class RepositoryPath
         {
             return this;
         }
-        
+
         RepositoryPath result = getFileSystem().getRootDirectory().relativize(this);
         if (result.startsWith(LayoutFileSystem.TRASH) || result.startsWith(LayoutFileSystem.TEMP))
         {
             result = result.subpath(1, result.getNameCount());
         }
-        
+
         return result;
     }
 
@@ -234,43 +236,33 @@ public class RepositoryPath
             return uri;
         }
 
-        RepositoryPath thisPath = this;
-        if (!isAbsolute())
-        {
-            thisPath = thisPath.toAbsolutePath();
-        }
-
         Repository repository = getFileSystem().getRepository();
         Storage storage = repository.getStorage();
-        URI result;
         try
         {
-            result = new URI(StorageFileSystemProvider.STRONGBOX_SCHEME,
-                             null,
-                             "/" + storage.getId() + "/" + repository.getId() + "/",
-                             null);
+            uri = new URI(StorageFileSystemProvider.STRONGBOX_SCHEME,
+                          null,
+                          "/" + storage.getId() + "/" + repository.getId() + "/" +
+                          FilenameUtils.separatorsToUnix(relativize().toString()),
+                          null);
         }
         catch (URISyntaxException e)
         {
-            return null;
+            uri = null;
         }
-        
-        RootRepositoryPath root = getFileSystem().getRootDirectory();
-        URI pathToken = root.getTarget().toUri().relativize(thisPath.getTarget().toUri()); 
-        
-        return uri = result.resolve(pathToken);
+        return uri;
     }
-    
+
     public RepositoryPath toAbsolutePath()
     {
         if (!isAbsolute())
         {
             RepositoryPath result = getFileSystem().getRootDirectory().resolve(this);
             result.artifactEntry = this.artifactEntry;
-            
+
             return result;
         }
-        
+
         return this;
     }
 
@@ -315,7 +307,7 @@ public class RepositoryPath
     {
         return new RepositoryPath(path, fileSystem);
     }
-    
+
     public String toString()
     {
         return getTarget().toString();
@@ -357,7 +349,7 @@ public class RepositoryPath
             throw new RepositoryRelativePathConstructionException();
         }
     }
-    
+
     private void validateSibling(final Path result)
     {
         final Path sibling = result;
