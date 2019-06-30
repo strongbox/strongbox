@@ -64,19 +64,19 @@ public class RebuildMavenMetadataCronJobTestIT
     @ExtendWith({ RepositoryManagementTestExecutionListener.class, ArtifactManagementTestExecutionListener.class })
     @Test
     public void testRebuildArtifactsMetadata(@MavenRepository(storageId = STORAGE0,
-    														  repositoryId = RMMCJTIT_SNAPSHOTS)
-                                                              Repository repository,
+            repositoryId = RMMCJTIT_SNAPSHOTS)
+                                                     Repository repository,
                                              @MavenTestArtifact(repositoryId = RMMCJTIT_SNAPSHOTS,
-                                                                id = "org.carlspring.strongbox:strongbox-metadata-one",
-                                                                versions = {"2.0-20190512.202015-1",
-    												 			   	        "2.0-20190512.202015-2",
-    												 			   	        "2.0-20190512.202015-3",
-    												 			   	        "2.0-20190512.202015-4",
-    												 			   	        "2.0-20190512.202015-5"},
-                                                                classifiers = {"javadoc",
-                                                                               "sources",
-    				                                                      	   "source-release"})
-                                                                List<Path> artifact)
+                                                     id = "org.carlspring.strongbox:strongbox-metadata-one",
+                                                     versions = { "2.0-20190512.202015-1",
+                                                             "2.0-20190512.202015-2",
+                                                             "2.0-20190512.202015-3",
+                                                             "2.0-20190512.202015-4",
+                                                             "2.0-20190512.202015-5" },
+                                                     classifiers = { "javadoc",
+                                                             "sources",
+                                                             "source-release" })
+                                                     List<Path> artifact)
             throws Exception
     {
 
@@ -128,27 +128,30 @@ public class RebuildMavenMetadataCronJobTestIT
     @ExtendWith({ RepositoryManagementTestExecutionListener.class, ArtifactManagementTestExecutionListener.class })
     @Test
     public void testRebuildMetadataInRepository(@MavenRepository(storageId = STORAGE0,
-                                                                 repositoryId = TRMIR_SNAPSHOTS)Repository repository,
-                                                @MavenTestArtifact(repositoryId = TRMIR_SNAPSHOTS,
-                                                                   id = "org.carlspring.strongbox:strongbox-metadata-one",
-                                                                   versions = {"2.0-20190512.202015-1",
-                                                                               "2.0-20190512.202015-2",
-                                                                               "2.0-20190512.202015-3",
-                                                                               "2.0-20190512.202015-4",
-                                                                               "2.0-20190512.202015-5"},
-                                                                   classifiers = {"javadoc",
-                                                                                  "sources",
-                                                                                  "source-release"})List<Path> artifact1,
-                                                @MavenTestArtifact(repositoryId = TRMIR_SNAPSHOTS,
-                                                        id = "org.carlspring.strongbox:strongbox-metadata-second",
-                                                        versions = {"2.0-20190512.202015-1",
-                                                                "2.0-20190512.202015-2",
-                                                                "2.0-20190512.202015-3",
-                                                                "2.0-20190512.202015-4",
-                                                                "2.0-20190512.202015-5"},
-                                                        classifiers = {"javadoc",
-                                                                "sources",
-                                                                "source-release"})List<Path> artifact2)
+            repositoryId = TRMIR_SNAPSHOTS)
+                                                     Repository repository,
+                                             @MavenTestArtifact(repositoryId = TRMIR_SNAPSHOTS,
+                                                     id = "org.carlspring.strongbox:strongbox-metadata-one",
+                                                     versions = { "2.0-20190512.202015-1",
+                                                             "2.0-20190512.202015-2",
+                                                             "2.0-20190512.202015-3",
+                                                             "2.0-20190512.202015-4",
+                                                             "2.0-20190512.202015-5" },
+                                                     classifiers = { "javadoc",
+                                                             "sources",
+                                                             "source-release" })
+                                                     List<Path> artifact1,
+                                             @MavenTestArtifact(repositoryId = TRMIR_SNAPSHOTS,
+                                                     id = "org.carlspring.strongbox:strongbox-metadata-second",
+                                                     versions = { "2.0-20190512.202015-1",
+                                                             "2.0-20190512.202015-2",
+                                                             "2.0-20190512.202015-3",
+                                                             "2.0-20190512.202015-4",
+                                                             "2.0-20190512.202015-5" },
+                                                     classifiers = { "javadoc",
+                                                             "sources",
+                                                             "source-release" })
+                                                     List<Path> artifact2)
             throws Exception
     {
 
