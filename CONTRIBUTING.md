@@ -137,5 +137,6 @@ To accept, please:
 | Shubhang Sharma              |                                          | Rajasthan, India                        | 2019-06-09 |
 | Virakti Jain                 |                                          | Hyderabad, India                        | 2019-06-11 |
 | Serdyuk Sergey               |                                          | Moscow, Russian Federation              | 2019-06-20 |
+| Bartosz Dabek                |                                          | Hajnowka, Poland                        | 2019-06-30 |
 [chat]: https://chat.carlspring.org/
 [issue tracker]: https://github.com/strongbox/strongbox/issues?utf8=%E2%9C%93&q=is%3Aissue+is%3Aopen+label%3A%22help+wanted%22+label%3A%22good+first+issue%22
