@@ -29,7 +29,6 @@ import java.io.InputStream;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
-import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 import java.util.*;
 import java.util.concurrent.Callable;
@@ -66,8 +65,6 @@ public class ArtifactManagementServiceImplTest
     private static final Logger logger = LoggerFactory.getLogger(ArtifactManagementServiceImplTest.class);
 
     private static final int CONTENT_SIZE = 40000;
-
-    private DateFormat formatter = new SimpleDateFormat("yyyyMMdd.HHmmss");
 
     private static final String AMSI_RELEASES_WITHOUT_DEPLOYMENT = "amsi-releases-without-deployment";
 
@@ -428,7 +425,7 @@ public class ArtifactManagementServiceImplTest
 
         Calendar cal = Calendar.getInstance();
         cal.add(Calendar.DATE, -5);
-        String timestamp = formatter.format(cal.getTime());
+        String timestamp = new SimpleDateFormat("yyyyMMdd.HHmmss").format(cal.getTime());
 
         createTimestampedSnapshot(repositoryBasedir,
                                   "org.carlspring.strongbox",

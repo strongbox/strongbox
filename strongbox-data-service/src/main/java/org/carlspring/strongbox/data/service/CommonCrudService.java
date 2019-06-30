@@ -6,14 +6,7 @@ import org.carlspring.strongbox.data.service.support.search.PagingCriteria;
 
 import javax.annotation.PostConstruct;
 import javax.inject.Inject;
-import javax.persistence.CascadeType;
-import javax.persistence.EntityManager;
-import javax.persistence.ManyToMany;
-import javax.persistence.ManyToOne;
-import javax.persistence.OneToMany;
-import javax.persistence.OneToOne;
-import javax.persistence.PersistenceContext;
-
+import javax.persistence.*;
 import java.lang.annotation.Annotation;
 import java.util.*;
 import java.util.stream.Collectors;
@@ -49,8 +42,13 @@ public abstract class CommonCrudService<T extends GenericEntity>
 
     protected <S extends T> S cascadeEntitySave(T entity)
     {
+        return cascadeEntitySave(entity, true);
+    }
+
+    protected <S extends T> S cascadeEntitySave(T entity, boolean save)
+    {
         identifyEntity(entity);
-        
+
         ReflectionUtils.doWithFields(getEntityClass(), (field) -> {
             ReflectionUtils.makeAccessible(field);
 
@@ -82,7 +80,7 @@ public abstract class CommonCrudService<T extends GenericEntity>
                 Collection<Object> collection = (Collection<Object>) fieldValue;
                 List<Object> replaceCollection = new LinkedList<>();
                 collection.removeIf(a -> {
-                    Object b = tryToCascadeEntitySave(a);
+                    Object b = tryToCascadeEntitySave(a, false);
                     if (b != a)
                     {
                         replaceCollection.add(b);
@@ -94,7 +92,7 @@ public abstract class CommonCrudService<T extends GenericEntity>
             }
             else
             {
-                Object newFieldValue = tryToCascadeEntitySave(fieldValue);
+                Object newFieldValue = tryToCascadeEntitySave(fieldValue, true);
                 if (newFieldValue != fieldValue)
                 {
                     ReflectionUtils.setField(field, entity, newFieldValue);
@@ -103,7 +101,11 @@ public abstract class CommonCrudService<T extends GenericEntity>
 
         });
 
-        return getDelegate().save(entity);
+        if (save)
+        {
+            return getDelegate().save(entity);
+        }
+        return (S) entity;
     }
 
     private Set<CascadeType> exposeCascadeType(Annotation a)
@@ -128,7 +130,8 @@ public abstract class CommonCrudService<T extends GenericEntity>
         return result;
     }
 
-    protected Object tryToCascadeEntitySave(Object entityCandidate)
+    protected Object tryToCascadeEntitySave(Object entityCandidate,
+                                            boolean save)
     {
         if (!(entityCandidate instanceof GenericEntity))
         {
@@ -136,10 +139,11 @@ public abstract class CommonCrudService<T extends GenericEntity>
         }
 
         GenericEntity entity = (GenericEntity) entityCandidate;
-        CommonCrudService<GenericEntity> entityService = (CommonCrudService<GenericEntity>) entityServiceRegistry.getEntityService(entity.getClass());
-        return entityService.cascadeEntitySave(entity);
+        CommonCrudService<GenericEntity> entityService = entityServiceRegistry.getEntityService(
+                (Class<GenericEntity>) entity.getClass());
+        return entityService.cascadeEntitySave(entity, save);
     }
-    
+
     protected boolean identifyEntity(T entity)
     {
         if (entity.getObjectId() != null)

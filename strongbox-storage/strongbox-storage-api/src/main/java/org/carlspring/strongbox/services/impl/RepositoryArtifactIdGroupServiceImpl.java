@@ -97,10 +97,10 @@ public class RepositoryArtifactIdGroupServiceImpl
                                        lastVersionEntry.getArtifactCoordinates().getVersion()));
             entity.getTagSet().remove(lastVersionTag);
         }
-        
+
         return result;
     }
-    
+
     public RepositoryArtifactIdGroupEntry findOneOrCreate(String storageId,
                                                      String repositoryId,
                                                      String artifactId)
