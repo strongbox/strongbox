@@ -45,11 +45,11 @@ import static org.junit.jupiter.api.parallel.ExecutionMode.CONCURRENT;
 public class RebuildMavenMetadataCronJobTestIT
         extends BaseCronJobWithMavenIndexingTestCase
 {
-	
-	private static final String RMMCJTIT_SNAPSHOTS = "rmmcjtit-snapshots";
-	
-	private static final String TRMIR_SNAPSHOTS = "trmir-snapshots";
-	
+
+    private static final String RMMCJTIT_SNAPSHOTS = "rmmcjtit-snapshots";
+
+    private static final String TRMIR_SNAPSHOTS = "trmir-snapshots";
+
     @Inject
     private ArtifactMetadataService artifactMetadataService;
 
@@ -64,25 +64,25 @@ public class RebuildMavenMetadataCronJobTestIT
     @ExtendWith({ RepositoryManagementTestExecutionListener.class, ArtifactManagementTestExecutionListener.class })
     @Test
     public void testRebuildArtifactsMetadata(@MavenRepository(storageId = STORAGE0,
-            repositoryId = RMMCJTIT_SNAPSHOTS)
-                                                     Repository repository,
+                                                              repositoryId = RMMCJTIT_SNAPSHOTS)
+                                             Repository repository,
                                              @MavenTestArtifact(repositoryId = RMMCJTIT_SNAPSHOTS,
-                                                     id = "org.carlspring.strongbox:strongbox-metadata-one",
-                                                     versions = { "2.0-20190512.202015-1",
-                                                             "2.0-20190512.202015-2",
-                                                             "2.0-20190512.202015-3",
-                                                             "2.0-20190512.202015-4",
-                                                             "2.0-20190512.202015-5" },
-                                                     classifiers = { "javadoc",
-                                                             "sources",
-                                                             "source-release" })
-                                                     List<Path> artifact)
+                                                                id = "org.carlspring.strongbox:strongbox-metadata-one",
+                                                                versions = { "2.0-20190512.202015-1",
+                                                                             "2.0-20190512.202015-2",
+                                                                             "2.0-20190512.202015-3",
+                                                                             "2.0-20190512.202015-4",
+                                                                             "2.0-20190512.202015-5" },
+                                                                classifiers = { "javadoc",
+                                                                                "sources",
+                                                                                "source-release" })
+                                             List<Path> artifact)
             throws Exception
     {
 
-    	String artifactId = "strongbox-metadata-one";
+        String artifactId = "strongbox-metadata-one";
 
-    	String groupId = "org.carlspring.strongbox";
+        String groupId = "org.carlspring.strongbox";
 
         final UUID jobKey = expectedJobKey;
         final String jobName = expectedJobName;
@@ -128,30 +128,30 @@ public class RebuildMavenMetadataCronJobTestIT
     @ExtendWith({ RepositoryManagementTestExecutionListener.class, ArtifactManagementTestExecutionListener.class })
     @Test
     public void testRebuildMetadataInRepository(@MavenRepository(storageId = STORAGE0,
-            repositoryId = TRMIR_SNAPSHOTS)
-                                                     Repository repository,
-                                             @MavenTestArtifact(repositoryId = TRMIR_SNAPSHOTS,
-                                                     id = "org.carlspring.strongbox:strongbox-metadata-one",
-                                                     versions = { "2.0-20190512.202015-1",
-                                                             "2.0-20190512.202015-2",
-                                                             "2.0-20190512.202015-3",
-                                                             "2.0-20190512.202015-4",
-                                                             "2.0-20190512.202015-5" },
-                                                     classifiers = { "javadoc",
-                                                             "sources",
-                                                             "source-release" })
-                                                     List<Path> artifact1,
-                                             @MavenTestArtifact(repositoryId = TRMIR_SNAPSHOTS,
-                                                     id = "org.carlspring.strongbox:strongbox-metadata-second",
-                                                     versions = { "2.0-20190512.202015-1",
-                                                             "2.0-20190512.202015-2",
-                                                             "2.0-20190512.202015-3",
-                                                             "2.0-20190512.202015-4",
-                                                             "2.0-20190512.202015-5" },
-                                                     classifiers = { "javadoc",
-                                                             "sources",
-                                                             "source-release" })
-                                                     List<Path> artifact2)
+                                                                 repositoryId = TRMIR_SNAPSHOTS)
+                                                Repository repository,
+                                                @MavenTestArtifact(repositoryId = TRMIR_SNAPSHOTS,
+                                                                   id = "org.carlspring.strongbox:strongbox-metadata-one",
+                                                                   versions = { "2.0-20190512.202015-1",
+                                                                                "2.0-20190512.202015-2",
+                                                                                "2.0-20190512.202015-3",
+                                                                                "2.0-20190512.202015-4",
+                                                                                "2.0-20190512.202015-5" },
+                                                                   classifiers = { "javadoc",
+                                                                                   "sources",
+                                                                                   "source-release" })
+                                                List<Path> artifact1,
+                                                @MavenTestArtifact(repositoryId = TRMIR_SNAPSHOTS,
+                                                                   id = "org.carlspring.strongbox:strongbox-metadata-second",
+                                                                   versions = { "2.0-20190512.202015-1",
+                                                                                "2.0-20190512.202015-2",
+                                                                                "2.0-20190512.202015-3",
+                                                                                "2.0-20190512.202015-4",
+                                                                                "2.0-20190512.202015-5" },
+                                                                   classifiers = { "javadoc",
+                                                                                   "sources",
+                                                                                   "source-release" })
+                                                List<Path> artifact2)
             throws Exception
     {
 
