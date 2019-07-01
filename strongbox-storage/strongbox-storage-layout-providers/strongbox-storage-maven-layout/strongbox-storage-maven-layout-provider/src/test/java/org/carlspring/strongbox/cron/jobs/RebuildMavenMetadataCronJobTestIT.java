@@ -4,6 +4,7 @@ import org.carlspring.strongbox.config.Maven2LayoutProviderCronTasksTestConfig;
 import org.carlspring.strongbox.data.CacheManagerTestExecutionListener;
 import org.carlspring.strongbox.services.ArtifactMetadataService;
 import org.carlspring.strongbox.storage.repository.Repository;
+import org.carlspring.strongbox.storage.repository.RepositoryPolicyEnum;
 import org.carlspring.strongbox.testing.artifact.ArtifactManagementTestExecutionListener;
 import org.carlspring.strongbox.testing.artifact.MavenTestArtifact;
 import org.carlspring.strongbox.testing.repository.MavenRepository;
@@ -50,6 +51,10 @@ public class RebuildMavenMetadataCronJobTestIT
 
     private static final String TRMIR_SNAPSHOTS = "trmir-snapshots";
 
+    private static final String[] CLASSIFIERS = { "javadoc",
+                                                  "sources",
+                                                  "source-release" };
+
     @Inject
     private ArtifactMetadataService artifactMetadataService;
 
@@ -64,7 +69,8 @@ public class RebuildMavenMetadataCronJobTestIT
     @ExtendWith({ RepositoryManagementTestExecutionListener.class, ArtifactManagementTestExecutionListener.class })
     @Test
     public void testRebuildArtifactsMetadata(@MavenRepository(storageId = STORAGE0,
-                                                              repositoryId = RMMCJTIT_SNAPSHOTS)
+                                                              repositoryId = RMMCJTIT_SNAPSHOTS,
+                                                              policy = RepositoryPolicyEnum.SNAPSHOT)
                                              Repository repository,
                                              @MavenTestArtifact(repositoryId = RMMCJTIT_SNAPSHOTS,
                                                                 id = "org.carlspring.strongbox:strongbox-metadata-one",
@@ -73,9 +79,7 @@ public class RebuildMavenMetadataCronJobTestIT
                                                                              "2.0-20190512.202015-3",
                                                                              "2.0-20190512.202015-4",
                                                                              "2.0-20190512.202015-5" },
-                                                                classifiers = { "javadoc",
-                                                                                "sources",
-                                                                                "source-release" })
+                                                                classifiers = CLASSIFIERS)
                                              List<Path> artifact)
             throws Exception
     {
@@ -128,7 +132,8 @@ public class RebuildMavenMetadataCronJobTestIT
     @ExtendWith({ RepositoryManagementTestExecutionListener.class, ArtifactManagementTestExecutionListener.class })
     @Test
     public void testRebuildMetadataInRepository(@MavenRepository(storageId = STORAGE0,
-                                                                 repositoryId = TRMIR_SNAPSHOTS)
+                                                                 repositoryId = TRMIR_SNAPSHOTS,
+                                                                 policy = RepositoryPolicyEnum.SNAPSHOT)
                                                 Repository repository,
                                                 @MavenTestArtifact(repositoryId = TRMIR_SNAPSHOTS,
                                                                    id = "org.carlspring.strongbox:strongbox-metadata-one",
@@ -137,9 +142,7 @@ public class RebuildMavenMetadataCronJobTestIT
                                                                                 "2.0-20190512.202015-3",
                                                                                 "2.0-20190512.202015-4",
                                                                                 "2.0-20190512.202015-5" },
-                                                                   classifiers = { "javadoc",
-                                                                                   "sources",
-                                                                                   "source-release" })
+                                                                   classifiers = CLASSIFIERS)
                                                 List<Path> artifact1,
                                                 @MavenTestArtifact(repositoryId = TRMIR_SNAPSHOTS,
                                                                    id = "org.carlspring.strongbox:strongbox-metadata-second",
@@ -148,9 +151,7 @@ public class RebuildMavenMetadataCronJobTestIT
                                                                                 "2.0-20190512.202015-3",
                                                                                 "2.0-20190512.202015-4",
                                                                                 "2.0-20190512.202015-5" },
-                                                                   classifiers = { "javadoc",
-                                                                                   "sources",
-                                                                                   "source-release" })
+                                                                   classifiers = CLASSIFIERS)
                                                 List<Path> artifact2)
             throws Exception
     {
