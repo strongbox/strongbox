@@ -2,10 +2,7 @@ package org.carlspring.strongbox.storage.repository;
 
 import static org.carlspring.strongbox.util.CustomStreamCollectors.toLinkedHashMap;
 
-import java.util.Collections;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
+import java.util.*;
 import java.util.stream.Collectors;
 
 import javax.annotation.concurrent.Immutable;
@@ -31,6 +28,7 @@ import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
 
 import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
+import org.apache.commons.lang3.StringUtils;
 
 /**
  * @author Przemyslaw Fusik
@@ -302,6 +300,25 @@ public class RepositoryData
     public RepositoryConfiguration getRepositoryConfiguration()
     {
         return repositoryConfiguration;
+    }
+
+    @Override
+    @JsonIgnore
+    public String getStorageIdAndRepositoryId()
+    {
+        StringJoiner storageAndRepositoryId = new StringJoiner(":");
+
+        if (StringUtils.isNotBlank(getStorage().getId()))
+        {
+            storageAndRepositoryId.add(getStorage().getId());
+        }
+
+        if (StringUtils.isNotBlank(getId()))
+        {
+            storageAndRepositoryId.add(getId());
+        }
+
+        return storageAndRepositoryId.toString();
     }
 
     @Override

@@ -1,6 +1,9 @@
 package org.carlspring.strongbox.storage.routing;
 
 import javax.annotation.concurrent.Immutable;
+import java.util.StringJoiner;
+
+import org.apache.commons.lang3.StringUtils;
 
 /**
  * @author Przemyslaw Fusik
@@ -28,5 +31,22 @@ public class RoutingRuleRepository
     public String getRepositoryId()
     {
         return repositoryId;
+    }
+
+    public String getStorageIdAndRepositoryId()
+    {
+        StringJoiner stringJoiner = new StringJoiner(":");
+
+        if (StringUtils.isNotBlank(storageId))
+        {
+            stringJoiner.add(storageId);
+        }
+
+        if (StringUtils.isNotBlank(repositoryId))
+        {
+            stringJoiner.add(repositoryId);
+        }
+
+        return stringJoiner.toString();
     }
 }

@@ -27,7 +27,6 @@ public class RoutingRuleForm
     @NotNull(message = "A type must be specified.")
     private RoutingRuleTypeEnum type;
 
-    @NotEmpty(message = "A list of repositories must be specified.")
     private List<RoutingRuleRepositoryForm> repositories = new ArrayList<>();
 
     public String getStorageId()

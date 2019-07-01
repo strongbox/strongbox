@@ -3,11 +3,13 @@ package org.carlspring.strongbox.storage.routing;
 import javax.annotation.concurrent.Immutable;
 import java.util.Collections;
 import java.util.List;
+import java.util.StringJoiner;
 import java.util.UUID;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 
 import com.google.common.collect.ImmutableList;
+import org.apache.commons.lang3.StringUtils;
 
 /**
  * @author Przemyslaw Fusik
@@ -63,6 +65,24 @@ public class RoutingRule
     public String getRepositoryId()
     {
         return groupRepositoryId;
+    }
+
+    @Override
+    public String getStorageIdAndRepositoryId()
+    {
+        StringJoiner stringJoiner = new StringJoiner(":");
+
+        if (StringUtils.isNotBlank(storageId))
+        {
+            stringJoiner.add(storageId);
+        }
+
+        if (StringUtils.isNotBlank(groupRepositoryId))
+        {
+            stringJoiner.add(groupRepositoryId);
+        }
+
+        return stringJoiner.toString();
     }
 
     public String getGroupRepositoryId()

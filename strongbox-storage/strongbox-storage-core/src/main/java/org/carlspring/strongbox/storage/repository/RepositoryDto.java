@@ -8,15 +8,13 @@ import org.carlspring.strongbox.storage.repository.remote.MutableRemoteRepositor
 import org.carlspring.strongbox.yaml.repository.CustomRepositoryConfigurationDto;
 
 import java.io.Serializable;
-import java.util.ArrayList;
-import java.util.LinkedHashSet;
-import java.util.List;
-import java.util.Set;
+import java.util.*;
 
 import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonProperty;
+import org.apache.commons.lang3.StringUtils;
 
 /**
  * @author mtodorov
@@ -324,6 +322,25 @@ public class RepositoryDto
     public void setRepositoryConfiguration(CustomRepositoryConfigurationDto repositoryConfiguration)
     {
         this.repositoryConfiguration = repositoryConfiguration;
+    }
+
+    @Override
+    @JsonIgnore
+    public String getStorageIdAndRepositoryId()
+    {
+        StringJoiner storageAndRepositoryId = new StringJoiner(":");
+
+        if (StringUtils.isNotBlank(getStorage().getId()))
+        {
+            storageAndRepositoryId.add(getStorage().getId());
+        }
+
+        if (StringUtils.isNotBlank(getId()))
+        {
+            storageAndRepositoryId.add(getId());
+        }
+
+        return storageAndRepositoryId.toString();
     }
 
     public void setAllowsForceDeletion(boolean allowsForceDeletion)
