@@ -22,7 +22,7 @@ import static java.lang.annotation.RetentionPolicy.RUNTIME;
 @Retention(RUNTIME)
 @Target({PARAMETER, ANNOTATION_TYPE})
 @TestRepository(layout = NugetArtifactCoordinates.LAYOUT_NAME)
-public @interface NugetTestRepository
+public @interface NugetRepository
 {
 
     @AliasFor(annotation = TestRepository.class)
