@@ -5,7 +5,7 @@ import org.carlspring.strongbox.config.Maven2LayoutProviderCronTasksTestConfig;
 import org.carlspring.strongbox.data.CacheManagerTestExecutionListener;
 import org.carlspring.strongbox.providers.layout.Maven2LayoutProvider;
 import org.carlspring.strongbox.services.ArtifactMetadataService;
-import org.carlspring.strongbox.storage.repository.MutableRepository;
+import org.carlspring.strongbox.storage.repository.RepositoryDto;
 import org.carlspring.strongbox.storage.repository.RepositoryPolicyEnum;
 
 import javax.inject.Inject;
@@ -64,9 +64,9 @@ public class RebuildMavenMetadataCronJobTestIT
         super.init(testInfo);
     }
 
-    private Set<MutableRepository> getRepositories(TestInfo testInfo)
+    private Set<RepositoryDto> getRepositories(TestInfo testInfo)
     {
-        Set<MutableRepository> repositories = new LinkedHashSet<>();
+        Set<RepositoryDto> repositories = new LinkedHashSet<>();
         repositories.add(createRepositoryMock(STORAGE0,
                                               getRepositoryName("rmmcjtit-snapshots", testInfo),
                                               Maven2LayoutProvider.ALIAS));

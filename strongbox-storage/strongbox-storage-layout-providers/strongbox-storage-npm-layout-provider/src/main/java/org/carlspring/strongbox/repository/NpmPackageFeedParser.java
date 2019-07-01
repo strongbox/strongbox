@@ -30,8 +30,8 @@ import org.carlspring.strongbox.providers.io.RepositoryPathResolver;
 import org.carlspring.strongbox.services.ArtifactEntryService;
 import org.carlspring.strongbox.services.ArtifactTagService;
 import org.carlspring.strongbox.services.RepositoryArtifactIdGroupService;
-import org.carlspring.strongbox.storage.Storage;
-import org.carlspring.strongbox.storage.repository.Repository;
+import org.carlspring.strongbox.storage.StorageData;
+import org.carlspring.strongbox.storage.repository.RepositoryData;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Component;
@@ -57,7 +57,7 @@ public class NpmPackageFeedParser
     @Inject
     private RepositoryPathLock repositoryPathLock;
 
-    public void parseSearchResult(Repository repository,
+    public void parseSearchResult(RepositoryData repository,
                                   SearchResults searchResults)
         throws IOException
     {
@@ -85,7 +85,7 @@ public class NpmPackageFeedParser
         saveArtifactEntrySet(repository, artifactToSaveSet);
     }
 
-    private void saveArtifactEntrySet(Repository repository,
+    private void saveArtifactEntrySet(RepositoryData repository,
                                       Set<ArtifactEntry> artifactToSaveSet)
         throws IOException
     {
@@ -98,7 +98,7 @@ public class NpmPackageFeedParser
     }
 
     @Transactional
-    public void parseFeed(Repository repository,
+    public void parseFeed(RepositoryData repository,
                           PackageFeed packageFeed)
         throws IOException
     {
@@ -150,8 +150,8 @@ public class NpmPackageFeedParser
     {
         ArtifactEntry e = repositoryPath.getArtifactEntry();
         
-        Repository repository = repositoryPath.getRepository();
-        Storage storage = repository.getStorage();
+        RepositoryData repository = repositoryPath.getRepository();
+        StorageData storage = repository.getStorage();
         ArtifactCoordinates coordinates = RepositoryFiles.readCoordinates(repositoryPath);
 
         Lock lock = repositoryPathLock.lock(repositoryPath).writeLock();

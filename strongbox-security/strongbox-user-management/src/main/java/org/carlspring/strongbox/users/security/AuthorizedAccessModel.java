@@ -6,18 +6,18 @@ import java.util.HashSet;
 import java.util.Set;
 
 import org.carlspring.strongbox.users.domain.Privileges;
-import org.carlspring.strongbox.users.dto.UserAccessModelReadContract;
+import org.carlspring.strongbox.users.dto.AccessModelData;
 
 /**
  * @author sbespalov
  *
  */
-public class AuthorizedAccessModel implements UserAccessModelReadContract
+public class AuthorizedAccessModel implements AccessModelData
 {
     
-    private final UserAccessModelReadContract target;
+    private final AccessModelData target;
     
-    public AuthorizedAccessModel(UserAccessModelReadContract target)
+    public AuthorizedAccessModel(AccessModelData target)
     {
         this.target = target;
     }

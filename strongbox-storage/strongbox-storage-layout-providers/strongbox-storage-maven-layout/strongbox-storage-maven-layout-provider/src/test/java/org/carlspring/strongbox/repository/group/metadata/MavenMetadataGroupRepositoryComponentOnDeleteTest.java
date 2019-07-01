@@ -5,7 +5,7 @@ import org.carlspring.strongbox.providers.io.RepositoryFiles;
 import org.carlspring.strongbox.providers.io.RepositoryPath;
 import org.carlspring.strongbox.providers.layout.IndexedMaven2FileSystemProvider;
 import org.carlspring.strongbox.repository.group.BaseMavenGroupRepositoryComponentTest;
-import org.carlspring.strongbox.storage.repository.Repository;
+import org.carlspring.strongbox.storage.repository.RepositoryData;
 import org.carlspring.strongbox.testing.artifact.ArtifactManagementTestExecutionListener;
 import org.carlspring.strongbox.testing.artifact.MavenTestArtifact;
 import org.carlspring.strongbox.testing.repository.MavenRepository;
@@ -69,26 +69,26 @@ public class MavenMetadataGroupRepositoryComponentOnDeleteTest
                   ArtifactManagementTestExecutionListener.class })
     @Test
     public void whenAnArtifactWasDeletedAllGroupRepositoriesContainingShouldHaveMetadataUpdatedIfPossible(
-            @MavenRepository(repositoryId = REPOSITORY_LEAF_E) Repository repositoryLeafE,
-            @MavenRepository(repositoryId = REPOSITORY_LEAF_L) Repository repositoryLeafL,
-            @MavenRepository(repositoryId = REPOSITORY_LEAF_Z) Repository repositoryLeafZ,
-            @MavenRepository(repositoryId = REPOSITORY_LEAF_D) Repository repositoryLeafD,
-            @MavenRepository(repositoryId = REPOSITORY_LEAF_G) Repository repositoryLeafG,
-            @MavenRepository(repositoryId = REPOSITORY_LEAF_K) Repository repositoryLeafK,
+            @MavenRepository(repositoryId = REPOSITORY_LEAF_E) RepositoryData repositoryLeafE,
+            @MavenRepository(repositoryId = REPOSITORY_LEAF_L) RepositoryData repositoryLeafL,
+            @MavenRepository(repositoryId = REPOSITORY_LEAF_Z) RepositoryData repositoryLeafZ,
+            @MavenRepository(repositoryId = REPOSITORY_LEAF_D) RepositoryData repositoryLeafD,
+            @MavenRepository(repositoryId = REPOSITORY_LEAF_G) RepositoryData repositoryLeafG,
+            @MavenRepository(repositoryId = REPOSITORY_LEAF_K) RepositoryData repositoryLeafK,
             @TestRepository.Group({ REPOSITORY_LEAF_E,
                                     REPOSITORY_LEAF_Z })
-            @MavenRepository(repositoryId = REPOSITORY_GROUP_C) Repository repositoryGroupC,
+            @MavenRepository(repositoryId = REPOSITORY_GROUP_C) RepositoryData repositoryGroupC,
             @TestRepository.Group({ REPOSITORY_GROUP_C,
                                     REPOSITORY_LEAF_D,
                                     REPOSITORY_LEAF_L })
-            @MavenRepository(repositoryId = REPOSITORY_GROUP_B) Repository repositoryGroupB,
+            @MavenRepository(repositoryId = REPOSITORY_GROUP_B) RepositoryData repositoryGroupB,
             @TestRepository.Group({ REPOSITORY_LEAF_G,
                                     REPOSITORY_GROUP_B })
-            @MavenRepository(repositoryId = REPOSITORY_GROUP_A) Repository repositoryGroupA,
+            @MavenRepository(repositoryId = REPOSITORY_GROUP_A) RepositoryData repositoryGroupA,
             @TestRepository.Group({ REPOSITORY_GROUP_C,
                                     REPOSITORY_LEAF_D,
                                     REPOSITORY_LEAF_L })
-            @MavenRepository(repositoryId = REPOSITORY_GROUP_F) Repository repositoryGroupF,
+            @MavenRepository(repositoryId = REPOSITORY_GROUP_F) RepositoryData repositoryGroupF,
             @TestRepository.Group(repositories = { REPOSITORY_GROUP_F,
                                                    REPOSITORY_LEAF_K },
                     rules = { @TestRepository.Group.Rule(
@@ -96,7 +96,7 @@ public class MavenMetadataGroupRepositoryComponentOnDeleteTest
                             repositories = REPOSITORY_LEAF_D,
                             type = DENY)
                     })
-            @MavenRepository(repositoryId = REPOSITORY_GROUP_H) Repository repositoryGroupH,
+            @MavenRepository(repositoryId = REPOSITORY_GROUP_H) RepositoryData repositoryGroupH,
             @MavenTestArtifact(repositoryId = REPOSITORY_LEAF_L, id = "com.artifacts.to.delete.releases:delete-group", versions = { "1.2.1",
                                                                                                                                     "1.2.2" })
                     Path artifactLeafL,

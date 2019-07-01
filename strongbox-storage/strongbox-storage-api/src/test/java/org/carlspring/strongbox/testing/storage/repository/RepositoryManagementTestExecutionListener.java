@@ -8,7 +8,7 @@ import java.lang.reflect.Method;
 import java.lang.reflect.Parameter;
 import java.lang.reflect.Proxy;
 
-import org.carlspring.strongbox.storage.repository.Repository;
+import org.carlspring.strongbox.storage.repository.RepositoryData;
 import org.carlspring.strongbox.testing.storage.repository.TestRepository.Group;
 import org.carlspring.strongbox.testing.storage.repository.TestRepository.Remote;
 import org.junit.jupiter.api.extension.ExtensionContext;
@@ -44,7 +44,7 @@ public class RepositoryManagementTestExecutionListener extends TestRepositoryMan
         testApplicationContext.refresh();
 
         return Proxy.newProxyInstance(RepositoryManagementTestExecutionListener.class.getClassLoader(),
-                                      new Class[] { Repository.class },
+                                      new Class[] { RepositoryData.class },
                                       new TestRepositoryProxyInvocationHandler(
                                               id(testRepository)));
     }
@@ -58,7 +58,7 @@ public class RepositoryManagementTestExecutionListener extends TestRepositoryMan
     private class TestRepositoryProxyInvocationHandler implements InvocationHandler
     {
 
-        private Repository target;
+        private RepositoryData target;
         private final String id;
 
         private TestRepositoryProxyInvocationHandler(String id)

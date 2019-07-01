@@ -2,8 +2,8 @@ package org.carlspring.strongbox.storage.indexing.downloader;
 
 import org.carlspring.strongbox.configuration.Configuration;
 import org.carlspring.strongbox.configuration.ConfigurationManager;
-import org.carlspring.strongbox.storage.repository.ImmutableRepository;
 import org.carlspring.strongbox.storage.repository.Repository;
+import org.carlspring.strongbox.storage.repository.RepositoryData;
 import org.carlspring.strongbox.storage.repository.remote.RemoteRepository;
 
 import javax.inject.Inject;
@@ -61,8 +61,8 @@ public class MockedIndexResourceFetcher
     {
         logger.debug("Requesting index from " + name + "...");
 
-        Repository repository = getConfiguration().getStorage(storageId).getRepository(repositoryId);
-        RemoteRepository remoteRepository = ((ImmutableRepository)repository).getRemoteRepository();
+        RepositoryData repository = getConfiguration().getStorage(storageId).getRepository(repositoryId);
+        RemoteRepository remoteRepository = ((Repository)repository).getRemoteRepository();
 
         String remoteUrl = remoteRepository.getUrl().substring(0, remoteRepository.getUrl().length() -
                                                                   (remoteRepository.getUrl().endsWith("/") ? 1 : 0));

@@ -2,7 +2,7 @@ package org.carlspring.strongbox.testing.artifact;
 
 import org.carlspring.strongbox.artifact.coordinates.PypiArtifactCoordinates;
 import org.carlspring.strongbox.artifact.generator.PypiArtifactGenerator;
-import org.carlspring.strongbox.storage.Storage;
+import org.carlspring.strongbox.storage.StorageData;
 
 import java.lang.annotation.Documented;
 import java.lang.annotation.Retention;
@@ -25,7 +25,7 @@ import static java.lang.annotation.RetentionPolicy.RUNTIME;
 public @interface PypiTestArtifact
 {
     /**
-     * {@link Storage} ID.
+     * {@link StorageData} ID.
      */
     @AliasFor(annotation = TestArtifact.class)
     String storageId() default "storage0";

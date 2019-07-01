@@ -1,8 +1,8 @@
 package org.carlspring.strongbox.configuration;
 
 import org.carlspring.strongbox.services.ConfigurationManagementService;
-import org.carlspring.strongbox.storage.Storage;
-import org.carlspring.strongbox.storage.repository.Repository;
+import org.carlspring.strongbox.storage.StorageData;
+import org.carlspring.strongbox.storage.repository.RepositoryData;
 
 import javax.inject.Inject;
 import java.net.URI;
@@ -19,7 +19,7 @@ public class ConfigurationManager implements StoragesConfigurationManager
     @Inject
     private ConfigurationManagementService configurationService;
 
-    public Repository getRepository(String storageAndRepositoryId)
+    public RepositoryData getRepository(String storageAndRepositoryId)
     {
         String[] elements = storageAndRepositoryId.split(":");
         String storageId = elements[0];
@@ -28,13 +28,13 @@ public class ConfigurationManager implements StoragesConfigurationManager
         return getConfiguration().getStorage(storageId).getRepository(repositoryId);
     }
 
-    public Repository getRepository(String storageId,
+    public RepositoryData getRepository(String storageId,
                                     String repositoryId)
     {
         return getConfiguration().getStorage(storageId).getRepository(repositoryId);
     }
 
-    public Storage getStorage(String storageId)
+    public StorageData getStorage(String storageId)
     {
         return getConfiguration().getStorage(storageId);
     }

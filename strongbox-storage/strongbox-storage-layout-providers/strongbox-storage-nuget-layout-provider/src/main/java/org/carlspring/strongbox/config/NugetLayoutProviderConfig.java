@@ -9,7 +9,7 @@ import org.carlspring.strongbox.providers.layout.LayoutFileSystemProvider;
 import org.carlspring.strongbox.providers.layout.NugetFileSystem;
 import org.carlspring.strongbox.providers.layout.NugetFileSystemProvider;
 import org.carlspring.strongbox.providers.layout.NugetLayoutProvider;
-import org.carlspring.strongbox.storage.repository.Repository;
+import org.carlspring.strongbox.storage.repository.RepositoryData;
 
 import javax.inject.Inject;
 import java.nio.file.FileSystem;
@@ -73,7 +73,7 @@ public class NugetLayoutProviderConfig
     @Bean
     @Scope("prototype")
     public NugetFileSystem nugetRepositoryFileSystem(PropertiesBooter propertiesBooter,
-                                                     Repository repository,
+                                                     RepositoryData repository,
                                                      FileSystem storageFileSystem,
                                                      LayoutFileSystemProvider provider)
     {

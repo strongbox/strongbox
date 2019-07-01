@@ -5,8 +5,8 @@ import org.carlspring.strongbox.rest.client.RestAssuredArtifactClient;
 import org.carlspring.strongbox.services.ConfigurationManagementService;
 import org.carlspring.strongbox.services.RepositoryManagementService;
 import org.carlspring.strongbox.services.StorageManagementService;
-import org.carlspring.strongbox.storage.MutableStorage;
-import org.carlspring.strongbox.storage.repository.MutableRepository;
+import org.carlspring.strongbox.storage.StorageDto;
+import org.carlspring.strongbox.storage.repository.RepositoryDto;
 import org.carlspring.strongbox.testing.TestCaseWithNugetArtifactGeneration;
 
 import javax.inject.Inject;
@@ -101,10 +101,10 @@ public abstract class NugetRestAssuredBaseTest
     public void createStorage(String storageId)
             throws IOException, JAXBException
     {
-        createStorage(new MutableStorage(storageId));
+        createStorage(new StorageDto(storageId));
     }
 
-    public void createStorage(MutableStorage storage)
+    public void createStorage(StorageDto storage)
             throws IOException, JAXBException
     {
         configurationManagementService.saveStorage(storage);
@@ -112,7 +112,7 @@ public abstract class NugetRestAssuredBaseTest
     }
 
     public void createRepository(String storageId,
-                                 MutableRepository repository)
+                                 RepositoryDto repository)
             throws IOException, JAXBException, RepositoryManagementStrategyException
     {
         configurationManagementService.saveRepository(storageId, repository);

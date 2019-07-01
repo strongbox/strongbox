@@ -10,8 +10,8 @@ import java.nio.file.Paths;
 import java.util.Set;
 
 import org.carlspring.strongbox.booters.PropertiesBooter;
-import org.carlspring.strongbox.storage.repository.ImmutableRepository;
-import org.carlspring.strongbox.storage.repository.MutableRepository;
+import org.carlspring.strongbox.storage.repository.Repository;
+import org.carlspring.strongbox.storage.repository.RepositoryDto;
 import org.hamcrest.CoreMatchers;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -24,7 +24,7 @@ public class RepositoryPathTest
 
     private static final Path REPOSITORY_BASEDIR = Paths.get(new File("target/strongbox-vault/storages/storage0/releases").getAbsolutePath());
 
-    private MutableRepository repository;
+    private RepositoryDto repository;
 
     private LayoutFileSystem repositoryFileSystem;
 
@@ -32,11 +32,11 @@ public class RepositoryPathTest
     @BeforeEach
     public void setup()
     {
-        repository = new MutableRepository();
+        repository = new RepositoryDto();
         repository.setBasedir(REPOSITORY_BASEDIR.toAbsolutePath().toString());
 
         PropertiesBooter propertiesBooter = new PropertiesBooter();
-        repositoryFileSystem = new LayoutFileSystem(propertiesBooter, new ImmutableRepository(repository), FileSystems.getDefault(), null)
+        repositoryFileSystem = new LayoutFileSystem(propertiesBooter, new Repository(repository), FileSystems.getDefault(), null)
         {
             @Override
             public Set<String> getDigestAlgorithmSet()

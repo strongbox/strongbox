@@ -9,7 +9,7 @@ import org.carlspring.strongbox.providers.layout.LayoutFileSystemProvider;
 import org.carlspring.strongbox.providers.layout.RawFileSystem;
 import org.carlspring.strongbox.providers.layout.RawFileSystemProvider;
 import org.carlspring.strongbox.providers.layout.RawLayoutProvider;
-import org.carlspring.strongbox.storage.repository.Repository;
+import org.carlspring.strongbox.storage.repository.RepositoryData;
 
 import java.nio.file.FileSystem;
 import java.nio.file.spi.FileSystemProvider;
@@ -70,7 +70,7 @@ public class RawLayoutProviderConfig
     @Bean
     @Scope("prototype")
     public RawFileSystem rawRepositoryFileSystem(PropertiesBooter propertiesBooter,
-                                                 Repository repository,
+                                                 RepositoryData repository,
                                                  FileSystem storageFileSystem,
                                                  LayoutFileSystemProvider provider)
     {

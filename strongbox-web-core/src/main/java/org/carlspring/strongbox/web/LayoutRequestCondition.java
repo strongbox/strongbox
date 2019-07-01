@@ -1,8 +1,8 @@
 package org.carlspring.strongbox.web;
 
 import org.carlspring.strongbox.configuration.StoragesConfigurationManager;
-import org.carlspring.strongbox.storage.Storage;
-import org.carlspring.strongbox.storage.repository.Repository;
+import org.carlspring.strongbox.storage.StorageData;
+import org.carlspring.strongbox.storage.repository.RepositoryData;
 
 import javax.servlet.http.HttpServletRequest;
 import java.util.Collection;
@@ -88,12 +88,12 @@ public class LayoutRequestCondition
     private ExposableRequestCondition getStorageAndRepositoryCondition(String storageId,
                                                                        String repositoryId)
     {
-        Storage storage = configurationManager.getStorage(storageId);
+        StorageData storage = configurationManager.getStorage(storageId);
         if (storage == null)
         {
             return new StorageNotFoundRequestCondition(storageId);
         }
-        Repository repository = configurationManager.getRepository(storageId, repositoryId);
+        RepositoryData repository = configurationManager.getRepository(storageId, repositoryId);
         if (repository == null)
         {
             return new RepositoryNotFoundRequestCondition(repositoryId);

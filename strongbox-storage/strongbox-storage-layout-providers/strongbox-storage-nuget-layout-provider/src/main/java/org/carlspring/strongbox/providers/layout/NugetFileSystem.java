@@ -7,7 +7,7 @@ import javax.inject.Inject;
 
 import org.carlspring.strongbox.booters.PropertiesBooter;
 import org.carlspring.strongbox.providers.io.LayoutFileSystem;
-import org.carlspring.strongbox.storage.repository.Repository;
+import org.carlspring.strongbox.storage.repository.RepositoryData;
 
 /**
  * @author sbespalov
@@ -20,7 +20,7 @@ public class NugetFileSystem extends LayoutFileSystem
     private NugetLayoutProvider layoutProvider;
 
     public NugetFileSystem(PropertiesBooter propertiesBooter,
-                           Repository repository,
+                           RepositoryData repository,
                            FileSystem storageFileSystem,
                            LayoutFileSystemProvider provider)
     {

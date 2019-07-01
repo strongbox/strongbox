@@ -24,8 +24,8 @@ import org.carlspring.strongbox.repository.RepositoryManagementStrategyException
 import org.carlspring.strongbox.services.ConfigurationManagementService;
 import org.carlspring.strongbox.services.RepositoryManagementService;
 import org.carlspring.strongbox.storage.ArtifactStorageException;
-import org.carlspring.strongbox.storage.Storage;
-import org.carlspring.strongbox.storage.repository.Repository;
+import org.carlspring.strongbox.storage.StorageData;
+import org.carlspring.strongbox.storage.repository.RepositoryData;
 import org.carlspring.strongbox.storage.validation.resource.ArtifactOperationsValidator;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -72,7 +72,7 @@ public class RepositoryManagementServiceImpl
         }
         else
         {
-            Repository repository = getConfiguration().getStorage(storageId).getRepository(repositoryId);
+            RepositoryData repository = getConfiguration().getStorage(storageId).getRepository(repositoryId);
 
             logger.warn("Layout provider '" + repository.getLayout() + "' could not be resolved. " +
                         "Using generic implementation instead.");
@@ -117,8 +117,8 @@ public class RepositoryManagementServiceImpl
 
         try
         {
-            final Storage storage = getStorage(storageId);
-            final Repository repository = storage.getRepository(repositoryId);
+            final StorageData storage = getStorage(storageId);
+            final RepositoryData repository = storage.getRepository(repositoryId);
 
             artifactOperationsValidator.checkAllowsDeletion(repository);
 
@@ -144,12 +144,12 @@ public class RepositoryManagementServiceImpl
     {
         try
         {
-            for (Map.Entry<String, Storage> entry : getConfiguration().getStorages().entrySet())
+            for (Map.Entry<String, StorageData> entry : getConfiguration().getStorages().entrySet())
             {
-                Storage storage = entry.getValue();
+                StorageData storage = entry.getValue();
 
-                final Map<String, ? extends Repository> repositories = storage.getRepositories();
-                for (Repository repository : repositories.values())
+                final Map<String, ? extends RepositoryData> repositories = storage.getRepositories();
+                for (RepositoryData repository : repositories.values())
                 {
                     if (repository.allowsDeletion())
                     {
@@ -181,7 +181,7 @@ public class RepositoryManagementServiceImpl
     {
         artifactOperationsValidator.validate(repositoryPath);
 
-        final Repository repository = repositoryPath.getRepository();
+        final RepositoryData repository = repositoryPath.getRepository();
         
         artifactOperationsValidator.checkAllowsDeletion(repository);
 
@@ -209,8 +209,8 @@ public class RepositoryManagementServiceImpl
 
         try
         {
-            final Storage storage = getStorage(storageId);
-            final Repository repository = storage.getRepository(repositoryId);
+            final StorageData storage = getStorage(storageId);
+            final RepositoryData repository = storage.getRepository(repositoryId);
 
             if (repository.isTrashEnabled())
             {
@@ -236,12 +236,12 @@ public class RepositoryManagementServiceImpl
             throws ProviderImplementationException
     {
         
-        for (Map.Entry<String, Storage> entry : getConfiguration().getStorages().entrySet())
+        for (Map.Entry<String, StorageData> entry : getConfiguration().getStorages().entrySet())
         {
-            Storage storage = entry.getValue();
+            StorageData storage = entry.getValue();
 
-            final Map<String, ? extends Repository> repositories = storage.getRepositories();
-            for (Repository repository : repositories.values())
+            final Map<String, ? extends RepositoryData> repositories = storage.getRepositories();
+            for (RepositoryData repository : repositories.values())
             {
                 final String storageId = storage.getId();
                 final String repositoryId = repository.getId();
@@ -286,14 +286,14 @@ public class RepositoryManagementServiceImpl
     private LayoutProvider getLayoutProvider(String storageId,
                                              String repositoryId)
     {
-        Storage storage = getConfiguration().getStorage(storageId);
-        Repository repository = storage.getRepository(repositoryId);
+        StorageData storage = getConfiguration().getStorage(storageId);
+        RepositoryData repository = storage.getRepository(repositoryId);
 
         return layoutProviderRegistry.getProvider(repository.getLayout());
     }
 
     @Override
-    public Storage getStorage(String storageId)
+    public StorageData getStorage(String storageId)
     {
         return getConfiguration().getStorages().get(storageId);
     }

@@ -3,7 +3,7 @@ package org.carlspring.strongbox.storage.metadata;
 import org.carlspring.strongbox.artifact.MavenArtifactUtils;
 import org.carlspring.strongbox.providers.io.RepositoryFiles;
 import org.carlspring.strongbox.providers.io.RepositoryPath;
-import org.carlspring.strongbox.storage.repository.Repository;
+import org.carlspring.strongbox.storage.repository.RepositoryData;
 
 import javax.inject.Inject;
 import java.io.IOException;
@@ -49,7 +49,7 @@ public class MavenSnapshotManager
             throws IOException,
                    XmlPullParserException
     {
-        Repository repository = basePath.getRepository();
+        RepositoryData repository = basePath.getRepository();
         if (!RepositoryFiles.artifactExists(basePath))
         {
             logger.error("Removal of timestamped Maven snapshot artifact: " + basePath + ".");

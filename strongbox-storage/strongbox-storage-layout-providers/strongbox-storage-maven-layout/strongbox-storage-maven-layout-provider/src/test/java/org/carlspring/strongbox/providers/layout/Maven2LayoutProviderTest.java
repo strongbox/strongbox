@@ -13,7 +13,7 @@ import org.carlspring.strongbox.artifact.generator.MavenArtifactGenerator;
 import org.carlspring.strongbox.config.Maven2LayoutProviderTestConfig;
 import org.carlspring.strongbox.providers.io.RepositoryFiles;
 import org.carlspring.strongbox.providers.io.RepositoryPath;
-import org.carlspring.strongbox.storage.repository.Repository;
+import org.carlspring.strongbox.storage.repository.RepositoryData;
 import org.carlspring.strongbox.testing.TestCaseWithMavenArtifactGenerationAndIndexing;
 import org.carlspring.strongbox.testing.artifact.ArtifactManagementTestExecutionListener;
 import org.carlspring.strongbox.testing.artifact.TestArtifact;
@@ -45,7 +45,7 @@ public class Maven2LayoutProviderTest
 
     @Test
     @ExtendWith({RepositoryManagementTestExecutionListener.class, ArtifactManagementTestExecutionListener.class})
-    public void testDeleteArtifact(@TestRepository(layout = LAYOUT_NAME, repositoryId = REPOSITORY_RELEASES) Repository repository,
+    public void testDeleteArtifact(@TestRepository(layout = LAYOUT_NAME, repositoryId = REPOSITORY_RELEASES) RepositoryData repository,
                                    @TestArtifact(repositoryId = REPOSITORY_RELEASES, resource = DELETE_FOO_1_2_1, generator = MavenArtifactGenerator.class) Path artifactPath)
             throws IOException
     {
@@ -60,7 +60,7 @@ public class Maven2LayoutProviderTest
 
     @Test
     @ExtendWith({RepositoryManagementTestExecutionListener.class, ArtifactManagementTestExecutionListener.class})
-    public void testDeleteArtifactDirectory(@TestRepository(layout = LAYOUT_NAME, repositoryId = REPOSITORY_RELEASES) Repository repository,
+    public void testDeleteArtifactDirectory(@TestRepository(layout = LAYOUT_NAME, repositoryId = REPOSITORY_RELEASES) RepositoryData repository,
                                             @TestArtifact(repositoryId = REPOSITORY_RELEASES, resource = DELETE_FOO_1_2_2, generator = MavenArtifactGenerator.class) Path artifactPath)
             throws IOException
     {

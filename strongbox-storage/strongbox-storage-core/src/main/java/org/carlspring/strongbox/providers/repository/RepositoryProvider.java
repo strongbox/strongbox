@@ -2,7 +2,7 @@ package org.carlspring.strongbox.providers.repository;
 
 import org.carlspring.strongbox.data.criteria.Paginator;
 import org.carlspring.strongbox.data.criteria.Predicate;
-import org.carlspring.strongbox.storage.repository.MutableRepository;
+import org.carlspring.strongbox.storage.repository.RepositoryDto;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -15,7 +15,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 /**
  * This interface provide functionality to operate with artifact Paths.
- * Implementation depends of {@link Repository} type which can be: Hosted, Group
+ * Implementation depends of {@link RepositoryData} type which can be: Hosted, Group
  * or Proxy.
  * 
  * TODO: should be replaced with `RepositoryFileSystemProvider`
@@ -26,7 +26,7 @@ public interface RepositoryProvider
 {
 
     /**
-     * Return {@link MutableRepository} type alias.
+     * Return {@link RepositoryDto} type alias.
      * 
      * @return
      */

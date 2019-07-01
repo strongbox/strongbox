@@ -33,8 +33,8 @@ import org.carlspring.strongbox.providers.repository.RepositoryProvider;
 import org.carlspring.strongbox.providers.repository.RepositoryProviderRegistry;
 import org.carlspring.strongbox.services.ArtifactEntryService;
 import org.carlspring.strongbox.services.RepositoryArtifactIdGroupService;
-import org.carlspring.strongbox.storage.Storage;
-import org.carlspring.strongbox.storage.repository.Repository;
+import org.carlspring.strongbox.storage.StorageData;
+import org.carlspring.strongbox.storage.repository.RepositoryData;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.context.ApplicationEventPublisher;
@@ -144,7 +144,7 @@ public abstract class AbstractRepositoryProvider implements RepositoryProvider, 
             return;
         }
 
-        Repository repository = repositoryPath.getRepository();
+        RepositoryData repository = repositoryPath.getRepository();
         String storageId = repository.getStorage().getId();
         String repositoryId = repository.getId();
 
@@ -212,8 +212,8 @@ public abstract class AbstractRepositoryProvider implements RepositoryProvider, 
         RepositoryPath repositoryPath = (RepositoryPath) ctx.getPath();
         ArtifactEntry artifactEntry = repositoryPath.artifactEntry;
         
-        Repository repository = repositoryPath.getRepository();
-        Storage storage = repository.getStorage();
+        RepositoryData repository = repositoryPath.getRepository();
+        StorageData storage = repository.getStorage();
         ArtifactCoordinates coordinates = RepositoryFiles.readCoordinates(repositoryPath);
         
         repositoryPath.artifactEntry = null;

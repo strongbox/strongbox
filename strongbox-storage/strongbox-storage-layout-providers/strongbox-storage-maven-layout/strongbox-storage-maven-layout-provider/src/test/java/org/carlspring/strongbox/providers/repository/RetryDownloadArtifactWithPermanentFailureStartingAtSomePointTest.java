@@ -2,7 +2,7 @@ package org.carlspring.strongbox.providers.repository;
 
 import org.carlspring.strongbox.artifact.MavenArtifactUtils;
 import org.carlspring.strongbox.providers.io.RepositoryPath;
-import org.carlspring.strongbox.storage.repository.Repository;
+import org.carlspring.strongbox.storage.repository.RepositoryData;
 import org.carlspring.strongbox.testing.artifact.MavenArtifactTestUtils;
 import org.carlspring.strongbox.testing.repository.MavenRepository;
 import org.carlspring.strongbox.testing.storage.repository.RepositoryManagementTestExecutionListener;
@@ -50,7 +50,7 @@ public class RetryDownloadArtifactWithPermanentFailureStartingAtSomePointTest
 
     @Test
     @ExtendWith(RepositoryManagementTestExecutionListener.class)
-    public void whenProxyRepositoryInputStreamFailsCompletelyArtifactDownloadShouldFail(@MavenRepository(repositoryId = REPOSITORY) @Remote(url = PROXY_REPOSITORY_URL) Repository proxyRepository)
+    public void whenProxyRepositoryInputStreamFailsCompletelyArtifactDownloadShouldFail(@MavenRepository(repositoryId = REPOSITORY) @Remote(url = PROXY_REPOSITORY_URL) RepositoryData proxyRepository)
     {
         Artifact artifact = MavenArtifactTestUtils.getArtifactFromGAVTC("org.apache.commons:commons-lang3:3.1");
         String path = MavenArtifactUtils.convertArtifactToPath(artifact);

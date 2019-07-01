@@ -5,8 +5,8 @@ import org.carlspring.strongbox.configuration.ConfigurationManager;
 import org.carlspring.strongbox.exception.RepositoryNotFoundException;
 import org.carlspring.strongbox.exception.ServiceUnavailableException;
 import org.carlspring.strongbox.exception.StorageNotFoundException;
-import org.carlspring.strongbox.storage.Storage;
-import org.carlspring.strongbox.storage.repository.Repository;
+import org.carlspring.strongbox.storage.StorageData;
+import org.carlspring.strongbox.storage.repository.RepositoryData;
 
 import javax.inject.Inject;
 import java.util.Map;
@@ -48,7 +48,7 @@ public class RepositoryMethodArgumentResolver
             return false;
         }
         // Check parameter type.
-        return parameter.getParameterType().equals(Repository.class);
+        return parameter.getParameterType().equals(RepositoryData.class);
     }
 
     @Override
@@ -65,7 +65,7 @@ public class RepositoryMethodArgumentResolver
         final String repositoryVariableName = repositoryMapping.repositoryVariableName();
         final String repositoryId = getRequiredPathVariable(parameter, nativeWebRequest, repositoryVariableName);
 
-        Repository repository = (Repository) nativeWebRequest.getAttribute(REPOSITORY_REQUEST_ATTRIBUTE,
+        RepositoryData repository = (RepositoryData) nativeWebRequest.getAttribute(REPOSITORY_REQUEST_ATTRIBUTE,
                                                                            RequestAttributes.SCOPE_REQUEST);
 
         if (repository != null && Objects.equals(repository.getId(), repositoryId) &&
@@ -74,7 +74,7 @@ public class RepositoryMethodArgumentResolver
             return repository;
         }
 
-        final Storage storage = getStorage(storageId);
+        final StorageData storage = getStorage(storageId);
         if (storage == null)
         {
             final String message = String.format(NOT_FOUND_STORAGE_MESSAGE, storageId);
@@ -126,7 +126,7 @@ public class RepositoryMethodArgumentResolver
         throw new MissingPathVariableException(variableName, parameter);
     }
 
-    private Storage getStorage(final String storageId)
+    private StorageData getStorage(final String storageId)
     {
         final Configuration configuration = configurationManager.getConfiguration();
         if (configuration == null)
@@ -136,10 +136,10 @@ public class RepositoryMethodArgumentResolver
         return configuration.getStorage(storageId);
     }
 
-    private Repository getRepository(final String storageId,
+    private RepositoryData getRepository(final String storageId,
                                      final String repositoryId)
     {
-        final Storage storage = getStorage(storageId);
+        final StorageData storage = getStorage(storageId);
         if (storage == null)
         {
             return null;

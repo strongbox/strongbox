@@ -22,7 +22,7 @@ public class NpmRemoteRepositoryConfiguration extends CustomRemoteRepositoryConf
     {
     }
 
-    NpmRemoteRepositoryConfiguration(MutableNpmRemoteRepositoryConfiguration delegate)
+    NpmRemoteRepositoryConfiguration(NpmRemoteRepositoryConfigurationDto delegate)
     {
         this.lastChangeId = delegate.getLastChangeId();
         this.replicateUrl = delegate.getReplicateUrl();

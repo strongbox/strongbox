@@ -11,10 +11,10 @@ import org.carlspring.strongbox.providers.layout.NugetLayoutProvider;
 import org.carlspring.strongbox.repository.NugetRepositoryFeatures;
 import org.carlspring.strongbox.services.ArtifactEntryService;
 import org.carlspring.strongbox.services.RepositoryManagementService;
-import org.carlspring.strongbox.storage.Storage;
-import org.carlspring.strongbox.storage.repository.MutableRepository;
+import org.carlspring.strongbox.storage.StorageData;
+import org.carlspring.strongbox.storage.repository.RepositoryDto;
 import org.carlspring.strongbox.storage.repository.NugetRepositoryFactory;
-import org.carlspring.strongbox.storage.repository.Repository;
+import org.carlspring.strongbox.storage.repository.RepositoryData;
 import org.carlspring.strongbox.storage.repository.remote.MutableRemoteRepository;
 import org.carlspring.strongbox.testing.TestCaseWithRepository;
 
@@ -75,9 +75,9 @@ public class NugetRemoteRepositoryTest
         cleanUp(getRepositoriesToClean());
     }
 
-    public static Set<MutableRepository> getRepositoriesToClean()
+    public static Set<RepositoryDto> getRepositoriesToClean()
     {
-        Set<MutableRepository> repositories = new LinkedHashSet<>();
+        Set<RepositoryDto> repositories = new LinkedHashSet<>();
         repositories.add(createRepositoryMock(NUGET_COMMON_STORAGE, REPOSITORY_PROXY, NugetLayoutProvider.ALIAS));
 
         return repositories;
@@ -87,7 +87,7 @@ public class NugetRemoteRepositoryTest
     public void initialize()
         throws Exception
     {
-        MutableRepository repository = nugetRepositoryFactory.createRepository(REPOSITORY_PROXY);
+        RepositoryDto repository = nugetRepositoryFactory.createRepository(REPOSITORY_PROXY);
         repository.setType("proxy");
         repository.setRemoteRepository(new MutableRemoteRepository());
         repository.getRemoteRepository().setUrl("https://www.nuget.org/api/v2");
@@ -101,7 +101,7 @@ public class NugetRemoteRepositoryTest
         throws IOException,
         JAXBException
     {
-        for (MutableRepository repository : getRepositoriesToClean())
+        for (RepositoryDto repository : getRepositoriesToClean())
         {
             configurationManagementService.removeRepository(repository.getStorage().getId(), repository.getId());
         }
@@ -112,8 +112,8 @@ public class NugetRemoteRepositoryTest
         throws ArtifactTransportException,
         IOException
     {
-        Storage storage = configurationManager.getConfiguration().getStorage(NUGET_COMMON_STORAGE);
-        Repository repository = storage.getRepository(REPOSITORY_PROXY);
+        StorageData storage = configurationManager.getConfiguration().getStorage(NUGET_COMMON_STORAGE);
+        RepositoryData repository = storage.getRepository(REPOSITORY_PROXY);
 
         NugetSearchRequest nugetSearchRequest = new NugetSearchRequest();
         nugetSearchRequest.setFilter(String.format("Id eq '%s'", "NHibernate"));

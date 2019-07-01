@@ -7,7 +7,7 @@ import org.carlspring.strongbox.providers.layout.NugetLayoutProvider;
 import org.carlspring.strongbox.rest.common.NugetRestAssuredBaseTest;
 import org.carlspring.strongbox.services.ArtifactEntryService;
 import org.carlspring.strongbox.storage.metadata.nuget.rss.PackageFeed;
-import org.carlspring.strongbox.storage.repository.MutableRepository;
+import org.carlspring.strongbox.storage.repository.RepositoryDto;
 import org.carlspring.strongbox.storage.repository.NugetRepositoryFactory;
 import org.carlspring.strongbox.storage.repository.RepositoryPolicyEnum;
 
@@ -60,9 +60,9 @@ public class NugetArtifactControllerTest extends NugetRestAssuredBaseTest
         cleanUp(getRepositoriesToClean());
     }
 
-    public static Set<MutableRepository> getRepositoriesToClean()
+    public static Set<RepositoryDto> getRepositoriesToClean()
     {
-        Set<MutableRepository> repositories = new LinkedHashSet<>();
+        Set<RepositoryDto> repositories = new LinkedHashSet<>();
         repositories.add(createRepositoryMock(STORAGE_ID, REPOSITORY_RELEASES_1, NugetLayoutProvider.ALIAS));
 
         return repositories;
@@ -81,7 +81,7 @@ public class NugetArtifactControllerTest extends NugetRestAssuredBaseTest
 
         createStorage(STORAGE_ID);
 
-        MutableRepository repository1 = nugetRepositoryFactory.createRepository(REPOSITORY_RELEASES_1);
+        RepositoryDto repository1 = nugetRepositoryFactory.createRepository(REPOSITORY_RELEASES_1);
         repository1.setPolicy(RepositoryPolicyEnum.RELEASE.getPolicy());
 
         createRepository(STORAGE_ID, repository1);

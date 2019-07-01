@@ -4,30 +4,30 @@ import org.carlspring.strongbox.forms.configuration.CustomRepositoryConfiguratio
 import org.carlspring.strongbox.forms.configuration.MavenRepositoryConfigurationForm;
 import org.carlspring.strongbox.forms.configuration.NugetRepositoryConfigurationForm;
 import org.carlspring.strongbox.forms.configuration.RawRepositoryConfigurationForm;
-import org.carlspring.strongbox.yaml.configuration.repository.MutableMavenRepositoryConfiguration;
-import org.carlspring.strongbox.yaml.configuration.repository.MutableNugetRepositoryConfiguration;
-import org.carlspring.strongbox.yaml.configuration.repository.MutableRawRepositoryConfiguration;
-import org.carlspring.strongbox.yaml.repository.MutableCustomRepositoryConfiguration;
+import org.carlspring.strongbox.yaml.configuration.repository.MavenRepositoryConfigurationDto;
+import org.carlspring.strongbox.yaml.configuration.repository.NugetRepositoryConfigurationDto;
+import org.carlspring.strongbox.yaml.configuration.repository.RawRepositoryConfigurationDto;
+import org.carlspring.strongbox.yaml.repository.CustomRepositoryConfigurationDto;
 
 /**
  * @author Przemyslaw Fusik
  */
 public enum CustomRepositoryConfigurationFormConverter
-        implements CustomRepositoryConfigurationFormVisitor<MutableCustomRepositoryConfiguration>
+        implements CustomRepositoryConfigurationFormVisitor<CustomRepositoryConfigurationDto>
 {
     INSTANCE;
 
-    public MutableMavenRepositoryConfiguration visit(MavenRepositoryConfigurationForm form)
+    public MavenRepositoryConfigurationDto visit(MavenRepositoryConfigurationForm form)
     {
         return MavenRepositoryConfigurationConverter.INSTANCE.convert(form);
     }
 
-    public MutableNugetRepositoryConfiguration visit(NugetRepositoryConfigurationForm form)
+    public NugetRepositoryConfigurationDto visit(NugetRepositoryConfigurationForm form)
     {
         return NugetRepositoryConfigurationConverter.INSTANCE.convert(form);
     }
 
-    public MutableRawRepositoryConfiguration visit(RawRepositoryConfigurationForm form)
+    public RawRepositoryConfigurationDto visit(RawRepositoryConfigurationForm form)
     {
         return RawRepositoryConfigurationConverter.INSTANCE.convert(form);
     }

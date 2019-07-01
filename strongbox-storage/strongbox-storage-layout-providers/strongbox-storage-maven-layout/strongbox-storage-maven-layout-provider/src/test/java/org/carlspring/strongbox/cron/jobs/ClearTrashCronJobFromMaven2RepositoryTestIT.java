@@ -5,7 +5,7 @@ import org.carlspring.strongbox.data.CacheManagerTestExecutionListener;
 import org.carlspring.strongbox.providers.io.RepositoryFiles;
 import org.carlspring.strongbox.providers.io.RepositoryPath;
 import org.carlspring.strongbox.providers.io.RepositoryPathResolver;
-import org.carlspring.strongbox.storage.repository.Repository;
+import org.carlspring.strongbox.storage.repository.RepositoryData;
 import org.carlspring.strongbox.testing.artifact.ArtifactManagementTestExecutionListener;
 import org.carlspring.strongbox.testing.artifact.MavenTestArtifact;
 import org.carlspring.strongbox.testing.repository.MavenRepository;
@@ -64,13 +64,13 @@ public class ClearTrashCronJobFromMaven2RepositoryTestIT
     @ExtendWith({ RepositoryManagementTestExecutionListener.class, ArtifactManagementTestExecutionListener.class })
     public void testRemoveTrashInRepository(@MavenRepository(repositoryId = REPOSITORY_RELEASES_1)
                                             @RepositoryAttributes(allowsForceDeletion = true, trashEnabled = true)
-                                            Repository repository1,
+                                            RepositoryData repository1,
                                             @MavenRepository(repositoryId = REPOSITORY_RELEASES_2)
                                             @RepositoryAttributes(allowsForceDeletion = false, trashEnabled = true)
-                                            Repository repository2,
+                                            RepositoryData repository2,
                                             @MavenRepository(storageId = STORAGE1, repositoryId = REPOSITORY_RELEASES_1)
                                             @RepositoryAttributes(allowsForceDeletion = false, trashEnabled = true)
-                                            Repository repository3,
+                                            RepositoryData repository3,
                                             @MavenTestArtifact(repositoryId = REPOSITORY_RELEASES_1, 
                                                                id = "org.carlspring.strongbox.clear:strongbox-test-one", 
                                                                versions = "1.0")

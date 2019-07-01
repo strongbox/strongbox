@@ -3,7 +3,7 @@ package org.carlspring.strongbox.authorization.dto;
 import java.io.Serializable;
 
 import org.carlspring.strongbox.users.domain.Privileges;
-import org.carlspring.strongbox.users.dto.UserAccessModelDto;
+import org.carlspring.strongbox.users.dto.AccessModelDto;
 
 import com.google.common.base.Objects;
 
@@ -11,14 +11,14 @@ import com.google.common.base.Objects;
  * @author mtodorov
  */
 public class RoleDto
-        implements Serializable, RoleReadContract
+        implements Serializable, RoleData
 {
 
     private String name;
 
     private String description;
 
-    private UserAccessModelDto accessModel;
+    private AccessModelDto accessModel;
 
 
     public RoleDto()
@@ -27,7 +27,7 @@ public class RoleDto
 
     public RoleDto(String name,
                    String description,
-                   UserAccessModelDto accessModel)
+                   AccessModelDto accessModel)
     {
         this.name = name;
         this.description = description;
@@ -57,12 +57,12 @@ public class RoleDto
     }
 
     @Override
-    public UserAccessModelDto getAccessModel()
+    public AccessModelDto getAccessModel()
     {
         return accessModel;
     }
 
-    public void setAccessModel(UserAccessModelDto accessModel)
+    public void setAccessModel(AccessModelDto accessModel)
     {
         this.accessModel = accessModel;
     }

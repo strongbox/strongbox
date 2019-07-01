@@ -8,7 +8,7 @@ import org.carlspring.strongbox.event.artifact.ArtifactEventTypeEnum;
 import org.carlspring.strongbox.providers.io.RepositoryPath;
 import org.carlspring.strongbox.providers.layout.LayoutProvider;
 import org.carlspring.strongbox.providers.layout.LayoutProviderRegistry;
-import org.carlspring.strongbox.storage.repository.Repository;
+import org.carlspring.strongbox.storage.repository.RepositoryData;
 
 import javax.inject.Inject;
 import java.io.IOException;
@@ -52,7 +52,7 @@ public class ArtifactStoredEventListener extends AsyncArtifactEntryHandler
             return null;
         }
         
-        final Repository repository = repositoryPath.getRepository();
+        final RepositoryData repository = repositoryPath.getRepository();
         final LayoutProvider layoutProvider = layoutProviderRegistry.getProvider(repository.getLayout());
         final Set<String> archiveFilenames = layoutProvider.listArchiveFilenames(repositoryPath);
         if (archiveFilenames.isEmpty())

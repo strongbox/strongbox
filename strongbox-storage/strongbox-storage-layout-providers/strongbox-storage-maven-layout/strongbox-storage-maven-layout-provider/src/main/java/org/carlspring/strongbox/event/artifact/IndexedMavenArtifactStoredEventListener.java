@@ -5,7 +5,7 @@ import org.carlspring.strongbox.event.AsyncEventListener;
 import org.carlspring.strongbox.providers.io.RepositoryPath;
 import org.carlspring.strongbox.providers.layout.Maven2LayoutProvider;
 import org.carlspring.strongbox.repository.group.index.MavenIndexGroupRepositoryComponent;
-import org.carlspring.strongbox.storage.repository.Repository;
+import org.carlspring.strongbox.storage.repository.RepositoryData;
 
 import javax.inject.Inject;
 import java.io.IOException;
@@ -28,7 +28,7 @@ public class IndexedMavenArtifactStoredEventListener
     @AsyncEventListener
     public void handle(final ArtifactEvent<RepositoryPath> event)
     {
-        final Repository repository = getRepository(event);
+        final RepositoryData repository = getRepository(event);
 
         if (!Maven2LayoutProvider.ALIAS.equals(repository.getLayout()))
         {

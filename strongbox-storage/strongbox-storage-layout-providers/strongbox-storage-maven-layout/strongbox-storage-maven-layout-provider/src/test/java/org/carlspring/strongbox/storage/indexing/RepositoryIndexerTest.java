@@ -4,7 +4,7 @@ import org.carlspring.strongbox.artifact.coordinates.MavenArtifactCoordinates;
 import org.carlspring.strongbox.config.Maven2LayoutProviderTestConfig;
 import org.carlspring.strongbox.providers.layout.Maven2LayoutProvider;
 import org.carlspring.strongbox.repository.IndexedMavenRepositoryFeatures;
-import org.carlspring.strongbox.storage.repository.MutableRepository;
+import org.carlspring.strongbox.storage.repository.RepositoryDto;
 import org.carlspring.strongbox.storage.search.SearchResult;
 import org.carlspring.strongbox.testing.TestCaseWithMavenArtifactGenerationAndIndexing;
 
@@ -63,9 +63,9 @@ public class RepositoryIndexerTest
         removeRepositories(getRepositoriesToClean());
     }
 
-    public static Set<MutableRepository> getRepositoriesToClean()
+    public static Set<RepositoryDto> getRepositoriesToClean()
     {
-        Set<MutableRepository> repositories = new LinkedHashSet<>();
+        Set<RepositoryDto> repositories = new LinkedHashSet<>();
         repositories.add(createRepositoryMock(STORAGE0, REPOSITORY_RELEASES, Maven2LayoutProvider.ALIAS));
 
         return repositories;

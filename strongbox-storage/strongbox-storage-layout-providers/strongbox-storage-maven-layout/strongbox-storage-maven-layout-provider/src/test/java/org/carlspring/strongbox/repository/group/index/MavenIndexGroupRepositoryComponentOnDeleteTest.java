@@ -7,10 +7,10 @@ import org.carlspring.strongbox.providers.layout.Maven2LayoutProvider;
 import org.carlspring.strongbox.providers.search.MavenIndexerSearchProvider;
 import org.carlspring.strongbox.storage.indexing.IndexTypeEnum;
 import org.carlspring.strongbox.storage.indexing.RepositoryIndexer;
-import org.carlspring.strongbox.storage.repository.ImmutableRepository;
-import org.carlspring.strongbox.storage.repository.MavenRepositoryFactory;
-import org.carlspring.strongbox.storage.repository.MutableRepository;
 import org.carlspring.strongbox.storage.repository.Repository;
+import org.carlspring.strongbox.storage.repository.MavenRepositoryFactory;
+import org.carlspring.strongbox.storage.repository.RepositoryDto;
+import org.carlspring.strongbox.storage.repository.RepositoryData;
 import org.carlspring.strongbox.storage.search.SearchRequest;
 import org.carlspring.strongbox.testing.MavenIndexedRepositorySetup;
 import org.carlspring.strongbox.testing.artifact.ArtifactManagementTestExecutionListener;
@@ -74,9 +74,9 @@ public class MavenIndexGroupRepositoryComponentOnDeleteTest
 
     private static final String REPOSITORY_GROUP_XH = "group-repo-xh";
 
-    protected Set<MutableRepository> getRepositories()
+    protected Set<RepositoryDto> getRepositories()
     {
-        Set<MutableRepository> repositories = new LinkedHashSet<>();
+        Set<RepositoryDto> repositories = new LinkedHashSet<>();
         repositories.add(createRepositoryMock(STORAGE0, REPOSITORY_LEAF_XE, Maven2LayoutProvider.ALIAS));
         repositories.add(createRepositoryMock(STORAGE0, REPOSITORY_LEAF_XL, Maven2LayoutProvider.ALIAS));
         repositories.add(createRepositoryMock(STORAGE0, REPOSITORY_LEAF_XZ, Maven2LayoutProvider.ALIAS));
@@ -102,39 +102,39 @@ public class MavenIndexGroupRepositoryComponentOnDeleteTest
     @Test
     public void artifactDeletionShouldDeleteArtifactFromParentGroupRepositoryIndex(
             @MavenRepository(repositoryId = REPOSITORY_LEAF_XE, setup = MavenIndexedRepositorySetup.class)
-                    Repository repositoryLeafXe,
+                    RepositoryData repositoryLeafXe,
             @MavenRepository(repositoryId = REPOSITORY_LEAF_XL, setup = MavenIndexedRepositorySetup.class)
-                    Repository repositoryLeafXl,
+                    RepositoryData repositoryLeafXl,
             @MavenRepository(repositoryId = REPOSITORY_LEAF_XZ, setup = MavenIndexedRepositorySetup.class)
-                    Repository repositoryLeafXz,
+                    RepositoryData repositoryLeafXz,
             @MavenRepository(repositoryId = REPOSITORY_LEAF_XD, setup = MavenIndexedRepositorySetup.class)
-                    Repository repositoryLeafXd,
+                    RepositoryData repositoryLeafXd,
             @MavenRepository(repositoryId = REPOSITORY_LEAF_XG, setup = MavenIndexedRepositorySetup.class)
-                    Repository repositoryLeafXg,
+                    RepositoryData repositoryLeafXg,
             @MavenRepository(repositoryId = REPOSITORY_LEAF_XK, setup = MavenIndexedRepositorySetup.class)
-                    Repository repositoryLeafXk,
+                    RepositoryData repositoryLeafXk,
             @TestRepository.Group({ REPOSITORY_LEAF_XE,
                                     REPOSITORY_LEAF_XZ })
             @MavenRepository(repositoryId = REPOSITORY_GROUP_XC, setup = MavenIndexedRepositorySetup.class)
-                    Repository repositoryGroupXc,
+                    RepositoryData repositoryGroupXc,
             @TestRepository.Group({ REPOSITORY_GROUP_XC,
                                     REPOSITORY_LEAF_XD,
                                     REPOSITORY_LEAF_XL })
             @MavenRepository(repositoryId = REPOSITORY_GROUP_XB, setup = MavenIndexedRepositorySetup.class)
-                    Repository repositoryGroupXb,
+                    RepositoryData repositoryGroupXb,
             @TestRepository.Group({ REPOSITORY_LEAF_XG,
                                     REPOSITORY_GROUP_XB })
             @MavenRepository(repositoryId = REPOSITORY_GROUP_XO, setup = MavenIndexedRepositorySetup.class)
-                    Repository repositoryGroupXo,
+                    RepositoryData repositoryGroupXo,
             @TestRepository.Group({ REPOSITORY_GROUP_XC,
                                     REPOSITORY_LEAF_XD,
                                     REPOSITORY_LEAF_XL })
             @MavenRepository(repositoryId = REPOSITORY_GROUP_XF, setup = MavenIndexedRepositorySetup.class)
-                    Repository repositoryGroupXf,
+                    RepositoryData repositoryGroupXf,
             @TestRepository.Group(repositories = { REPOSITORY_GROUP_XF,
                                                    REPOSITORY_LEAF_XK }, rules = { @TestRepository.Group.Rule(pattern = ".*(com|org)/artifacts/to/update/releases/update-group.*", repositories = REPOSITORY_LEAF_XD, type = DENY) })
             @MavenRepository(repositoryId = REPOSITORY_GROUP_XH, setup = MavenIndexedRepositorySetup.class)
-                    Repository repositoryGroupXh,
+                    RepositoryData repositoryGroupXh,
             @MavenTestArtifact(repositoryId = REPOSITORY_LEAF_XL, id = "com.artifacts.to.delete.releases:delete-group", versions = { "1.2.1",
                                                                                                                                      "1.2.2" })
                     Path artifactLeafXl,
@@ -164,10 +164,10 @@ public class MavenIndexGroupRepositoryComponentOnDeleteTest
 
         RepositoryIndexer indexer = repositoryIndexManager.get().getRepositoryIndexer(contextId);
 
-        MutableRepository repository = mavenRepositoryFactory.createRepository(REPOSITORY_LEAF_XL);
+        RepositoryDto repository = mavenRepositoryFactory.createRepository(REPOSITORY_LEAF_XL);
         repository.setStorage(configurationManagementService.getMutableConfigurationClone().getStorage(STORAGE0));
 
-        RepositoryPath artifactFile = repositoryPathResolver.resolve(new ImmutableRepository(repository), artifactPath);
+        RepositoryPath artifactFile = repositoryPathResolver.resolve(new Repository(repository), artifactPath);
 
         indexer.addArtifactToIndex(artifactFile);
 

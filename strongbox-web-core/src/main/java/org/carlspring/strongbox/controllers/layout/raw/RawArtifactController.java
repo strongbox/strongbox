@@ -3,7 +3,7 @@ package org.carlspring.strongbox.controllers.layout.raw;
 import org.carlspring.strongbox.controllers.BaseArtifactController;
 import org.carlspring.strongbox.providers.io.RepositoryPath;
 import org.carlspring.strongbox.providers.layout.RawLayoutProvider;
-import org.carlspring.strongbox.storage.repository.Repository;
+import org.carlspring.strongbox.storage.repository.RepositoryData;
 import org.carlspring.strongbox.web.LayoutRequestMapping;
 import org.carlspring.strongbox.web.RepositoryMapping;
 
@@ -33,7 +33,7 @@ public class RawArtifactController
                             @ApiResponse(code = 400, message = "An error occurred.") })
     @PreAuthorize("hasAuthority('ARTIFACTS_DEPLOY')")
     @PutMapping(value = "{storageId}/{repositoryId}/{path:.+}")
-    public ResponseEntity upload(@RepositoryMapping Repository repository,
+    public ResponseEntity upload(@RepositoryMapping RepositoryData repository,
                                  @PathVariable String path,
                                  HttpServletRequest request)
     {
@@ -60,7 +60,7 @@ public class RawArtifactController
                             @ApiResponse(code = 400, message = "An error occurred.") })
     @PreAuthorize("hasAuthority('ARTIFACTS_RESOLVE')")
     @GetMapping(value = { "{storageId}/{repositoryId}/{path:.+}" })
-    public void download(@RepositoryMapping Repository repository,
+    public void download(@RepositoryMapping RepositoryData repository,
                          @RequestHeader HttpHeaders httpHeaders,
                          @PathVariable String path,
                          HttpServletRequest request,

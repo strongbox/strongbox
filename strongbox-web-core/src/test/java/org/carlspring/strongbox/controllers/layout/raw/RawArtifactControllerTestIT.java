@@ -45,9 +45,9 @@ public class RawArtifactControllerTestIT
         cleanUp(getRepositoriesToClean());
     }
 
-    public static Set<MutableRepository> getRepositoriesToClean()
+    public static Set<RepositoryDto> getRepositoriesToClean()
     {
-        Set<MutableRepository> repositories = new LinkedHashSet<>();
+        Set<RepositoryDto> repositories = new LinkedHashSet<>();
         repositories.add(createRepositoryMock(STORAGE0, REPOSITORY_RELEASES, RawLayoutProvider.ALIAS));
         repositories.add(createRepositoryMock(STORAGE0, REPOSITORY_PROXY, RawLayoutProvider.ALIAS));
 
@@ -61,7 +61,7 @@ public class RawArtifactControllerTestIT
     {
         super.init();
 
-        MutableRepository repository1 = rawRepositoryFactory.createRepository(REPOSITORY_RELEASES);
+        RepositoryDto repository1 = rawRepositoryFactory.createRepository(REPOSITORY_RELEASES);
         repository1.setPolicy(RepositoryPolicyEnum.RELEASE.getPolicy());
 
         createRepository(STORAGE0, repository1);
@@ -69,14 +69,14 @@ public class RawArtifactControllerTestIT
         //noinspection ResultOfMethodCallIgnored
         Files.createDirectories(Paths.get(TEST_RESOURCES));
 
-        createFile(new ImmutableRepository(repository1), "org/foo/bar/blah.zip");
+        createFile(new Repository(repository1), "org/foo/bar/blah.zip");
 
         createProxyRepository(STORAGE0,
                               REPOSITORY_PROXY,
                               "http://slackbuilds.org/slackbuilds/14.2/");
         // Required for http://www-eu.apache.org/dist/maven/pom/apache-19-source-release.zip
 
-        MutableRepository repository2 = rawRepositoryFactory.createRepository(REPOSITORY_GROUP);
+        RepositoryDto repository2 = rawRepositoryFactory.createRepository(REPOSITORY_GROUP);
         repository2.setType(RepositoryTypeEnum.GROUP.getType());
         repository2.setGroupRepositories(Sets.newHashSet(STORAGE0 + ":" + REPOSITORY_PROXY));
 

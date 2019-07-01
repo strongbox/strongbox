@@ -14,7 +14,7 @@ import org.carlspring.strongbox.providers.io.RepositoryPath;
 import org.carlspring.strongbox.providers.io.RepositoryPathResolver;
 import org.carlspring.strongbox.providers.layout.LayoutProvider;
 import org.carlspring.strongbox.providers.layout.LayoutProviderRegistry;
-import org.carlspring.strongbox.storage.repository.Repository;
+import org.carlspring.strongbox.storage.repository.RepositoryData;
 import org.springframework.stereotype.Component;
 
 /**
@@ -33,14 +33,14 @@ public class GroupRepositoryArtifactExistenceChecker
     @Inject
     private RepositoryPathResolver repositoryPathResolver;
 
-    public boolean artifactExistsInTheGroupRepositorySubTree(final Repository groupRepository,
+    public boolean artifactExistsInTheGroupRepositorySubTree(final RepositoryData groupRepository,
                                                              final RepositoryPath repositoryPath)
             throws IOException
     {
         return artifactExistsInTheGroupRepositorySubTree(groupRepository, repositoryPath, new HashMap<>());
     }
 
-    public boolean artifactExistsInTheGroupRepositorySubTree(final Repository groupRepository,
+    public boolean artifactExistsInTheGroupRepositorySubTree(final RepositoryData groupRepository,
                                                              final RepositoryPath repositoryPath,
                                                              final Map<String, MutableBoolean> repositoryArtifactExistence)
             throws IOException
@@ -49,7 +49,7 @@ public class GroupRepositoryArtifactExistenceChecker
         {
             final String subStorageId = getStorageId(groupRepository, maybeStorageAndRepositoryId);
             final String subRepositoryId = getRepositoryId(maybeStorageAndRepositoryId);
-            final Repository subRepository = getRepository(subStorageId, subRepositoryId);
+            final RepositoryData subRepository = getRepository(subStorageId, subRepositoryId);
 
             final String storageAndRepositoryId = subStorageId + ":" + subRepositoryId;
             repositoryArtifactExistence.putIfAbsent(storageAndRepositoryId, new MutableBoolean());
@@ -84,7 +84,7 @@ public class GroupRepositoryArtifactExistenceChecker
         return false;
     }
 
-    private Repository getRepository(final String subStorageId,
+    private RepositoryData getRepository(final String subStorageId,
                                      final String subRepositoryId)
     {
         return configurationManager.getConfiguration()
@@ -97,7 +97,7 @@ public class GroupRepositoryArtifactExistenceChecker
         return ConfigurationUtils.getRepositoryId(maybeStorageAndRepositoryId);
     }
 
-    private String getStorageId(final Repository groupRepository,
+    private String getStorageId(final RepositoryData groupRepository,
                                 final String maybeStorageAndRepositoryId)
     {
         return ConfigurationUtils.getStorageId(groupRepository.getStorage().getId(),

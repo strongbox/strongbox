@@ -26,7 +26,7 @@ public class RawRepositoryConfiguration
 
     }
 
-    public RawRepositoryConfiguration(final MutableRawRepositoryConfiguration delegate)
+    public RawRepositoryConfiguration(final RawRepositoryConfigurationDto delegate)
     {
         // maybe one day I'll have some implementation here :)
     }

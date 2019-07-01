@@ -21,9 +21,9 @@ public class RawRepositoryFactory
 
 
     @Override
-    public MutableRepository createRepository(String repositoryId)
+    public RepositoryDto createRepository(String repositoryId)
     {
-        MutableRepository repository = new MutableRepository(repositoryId);
+        RepositoryDto repository = new RepositoryDto(repositoryId);
         repository.setLayout(RawLayoutProvider.ALIAS);
         repository.setArtifactCoordinateValidators(
                 new LinkedHashSet<>(rawRepositoryFeatures.getDefaultArtifactCoordinateValidators()));

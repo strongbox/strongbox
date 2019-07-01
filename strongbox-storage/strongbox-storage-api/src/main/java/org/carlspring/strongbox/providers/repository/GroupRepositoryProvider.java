@@ -33,8 +33,8 @@ import org.carlspring.strongbox.providers.io.RepositoryPathResolver;
 import org.carlspring.strongbox.providers.repository.event.GroupRepositoryPathFetchEvent;
 import org.carlspring.strongbox.providers.repository.group.GroupRepositorySetCollector;
 import org.carlspring.strongbox.services.support.ArtifactRoutingRulesChecker;
-import org.carlspring.strongbox.storage.Storage;
-import org.carlspring.strongbox.storage.repository.Repository;
+import org.carlspring.strongbox.storage.StorageData;
+import org.carlspring.strongbox.storage.repository.RepositoryData;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Component;
@@ -94,15 +94,15 @@ public class GroupRepositoryProvider extends AbstractRepositoryProvider
     
     protected RepositoryPath resolvePathTraversal(RepositoryPath repositoryPath) throws IOException
     {
-        Repository groupRepository = repositoryPath.getRepository();
-        Storage storage = groupRepository.getStorage();
+        RepositoryData groupRepository = repositoryPath.getRepository();
+        StorageData storage = groupRepository.getStorage();
         
         for (String storageAndRepositoryId : groupRepository.getGroupRepositories())
         {
             String sId = ConfigurationUtils.getStorageId(storage.getId(), storageAndRepositoryId);
             String rId = ConfigurationUtils.getRepositoryId(storageAndRepositoryId);
 
-            Repository subRepository = getConfiguration().getStorage(sId).getRepository(rId);
+            RepositoryData subRepository = getConfiguration().getStorage(sId).getRepository(rId);
             if (!subRepository.isInService())
             {
                 continue;
@@ -139,7 +139,7 @@ public class GroupRepositoryProvider extends AbstractRepositoryProvider
     protected RepositoryPath resolvePathFromGroupMemberOrTraverse(RepositoryPath repositoryPath)
         throws IOException
     {
-        Repository repository = repositoryPath.getRepository();
+        RepositoryData repository = repositoryPath.getRepository();
         if (getAlias().equals(repository.getType()))
         {
             return resolvePathTraversal(repositoryPath);
@@ -177,9 +177,9 @@ public class GroupRepositoryProvider extends AbstractRepositoryProvider
 
         Map<ArtifactCoordinates, Path> resultMap = new LinkedHashMap<>();
 
-        Storage storage = getConfiguration().getStorage(storageId);
-        Repository groupRepository = storage.getRepository(repositoryId);
-        Set<Repository> groupRepositorySet = groupRepositorySetCollector.collect(groupRepository);
+        StorageData storage = getConfiguration().getStorage(storageId);
+        RepositoryData groupRepository = storage.getRepository(repositoryId);
+        Set<RepositoryData> groupRepositorySet = groupRepositorySetCollector.collect(groupRepository);
 
         if (groupRepositorySet.isEmpty())
         {
@@ -205,9 +205,9 @@ public class GroupRepositoryProvider extends AbstractRepositoryProvider
 
             groupLimit = 0;
 
-            for (Iterator<Repository> i = groupRepositorySet.iterator(); i.hasNext();)
+            for (Iterator<RepositoryData> i = groupRepositorySet.iterator(); i.hasNext();)
             {
-                Repository r = i.next();
+                RepositoryData r = i.next();
                 RepositoryProvider repositoryProvider = repositoryProviderRegistry.getProvider(r.getType());
 
                 List<Path> repositoryResult = repositoryProvider.search(r.getStorage().getId(), r.getId(), predicate, paginatorLocal);
@@ -267,9 +267,9 @@ public class GroupRepositoryProvider extends AbstractRepositoryProvider
     {
         logger.debug(String.format("Count in [%s]:[%s] ...", storageId, repositoryId));
         
-        Storage storage = getConfiguration().getStorage(storageId);
+        StorageData storage = getConfiguration().getStorage(storageId);
 
-        Repository groupRepository = storage.getRepository(repositoryId);
+        RepositoryData groupRepository = storage.getRepository(repositoryId);
 
         Predicate p = Predicate.empty();
         

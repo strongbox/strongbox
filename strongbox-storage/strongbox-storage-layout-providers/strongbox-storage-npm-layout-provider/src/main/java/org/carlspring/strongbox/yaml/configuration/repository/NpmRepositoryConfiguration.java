@@ -26,7 +26,7 @@ public class NpmRepositoryConfiguration
 
     }
 
-    public NpmRepositoryConfiguration(final MutableNpmRepositoryConfiguration delegate)
+    public NpmRepositoryConfiguration(final NpmRepositoryConfigurationDto delegate)
     {
     }
 

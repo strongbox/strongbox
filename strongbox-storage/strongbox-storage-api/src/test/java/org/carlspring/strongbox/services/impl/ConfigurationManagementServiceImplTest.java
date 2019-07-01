@@ -19,9 +19,9 @@ import org.carlspring.strongbox.StorageApiTestConfig;
 import org.carlspring.strongbox.artifact.coordinates.NullArtifactCoordinates;
 import org.carlspring.strongbox.configuration.Configuration;
 import org.carlspring.strongbox.services.ConfigurationManagementService;
-import org.carlspring.strongbox.storage.Storage;
+import org.carlspring.strongbox.storage.StorageData;
 import org.carlspring.strongbox.storage.repository.HttpConnectionPool;
-import org.carlspring.strongbox.storage.repository.Repository;
+import org.carlspring.strongbox.storage.repository.RepositoryData;
 import org.carlspring.strongbox.storage.routing.MutableRoutingRule;
 import org.carlspring.strongbox.storage.routing.MutableRoutingRuleRepository;
 import org.carlspring.strongbox.storage.routing.RoutingRule;
@@ -69,7 +69,7 @@ public class ConfigurationManagementServiceImplTest
     @Test
     public void groupRepositoriesShouldBeSortedAsExpected()
     {
-        Repository repository = configurationManagementService.getConfiguration().getRepository(
+        RepositoryData repository = configurationManagementService.getConfiguration().getRepository(
                 "storage-common-proxies",
                 "group-common-proxies");
 
@@ -87,7 +87,7 @@ public class ConfigurationManagementServiceImplTest
                                                             "group-common-proxies",
                                                             "maven-central");
 
-        Repository repository = configurationManagementService.getConfiguration()
+        RepositoryData repository = configurationManagementService.getConfiguration()
                                                               .getRepository("storage-common-proxies",
                                                                              "group-common-proxies");
 
@@ -112,7 +112,7 @@ public class ConfigurationManagementServiceImplTest
                                                             "group-common-proxies",
                                                             "maven-central");
 
-        Repository repository = configurationManagementService.getConfiguration()
+        RepositoryData repository = configurationManagementService.getConfiguration()
                                                               .getRepository("storage-common-proxies",
                                                                              "group-common-proxies");
 
@@ -127,13 +127,13 @@ public class ConfigurationManagementServiceImplTest
     @Test
     public void testGetGroupRepositories()
     {
-        List<Repository> groupRepositories = configurationManagementService.getConfiguration().getGroupRepositories();
+        List<RepositoryData> groupRepositories = configurationManagementService.getConfiguration().getGroupRepositories();
 
         assertFalse(groupRepositories.isEmpty());
 
         logger.debug("Group repositories:");
 
-        for (Repository repository : groupRepositories)
+        for (RepositoryData repository : groupRepositories)
         {
             logger.debug(" - " + repository.getId());
         }
@@ -141,11 +141,11 @@ public class ConfigurationManagementServiceImplTest
 
     @Test
     @ExtendWith(RepositoryManagementTestExecutionListener.class)
-    public void testGetGroupRepositoriesContainingRepository(@NullRepository(repositoryId = REPOSITORY_RELEASES_1) Repository releases1,
+    public void testGetGroupRepositoriesContainingRepository(@NullRepository(repositoryId = REPOSITORY_RELEASES_1) RepositoryData releases1,
                                                              @TestRepository.Group(repositories = REPOSITORY_RELEASES_1)
-                                                             @NullRepository(repositoryId = REPOSITORY_GROUP_1) Repository releasesGroup)
+                                                             @NullRepository(repositoryId = REPOSITORY_GROUP_1) RepositoryData releasesGroup)
     {
-        List<Repository> groups = configurationManagementService.getConfiguration()
+        List<RepositoryData> groups = configurationManagementService.getConfiguration()
                                                                 .getGroupRepositoriesContaining(STORAGE0,
                                                                                                 REPOSITORY_RELEASES_1);
 
@@ -153,7 +153,7 @@ public class ConfigurationManagementServiceImplTest
 
         logger.debug("Group repositories containing \"" + REPOSITORY_RELEASES_1 + "\" repository:");
 
-        for (Repository repository : groups)
+        for (RepositoryData repository : groups)
         {
             logger.debug(" - " + repository.getId());
         }
@@ -162,13 +162,13 @@ public class ConfigurationManagementServiceImplTest
     @Test
     @ExtendWith(RepositoryManagementTestExecutionListener.class)
     public void testRemoveRepositoryFromAssociatedGroups(@NullRepository(repositoryId = REPOSITORY_RELEASES_1) 
-                                                         Repository releases1,
+                                                         RepositoryData releases1,
                                                          @TestRepository.Group(repositories = REPOSITORY_RELEASES_1)
                                                          @NullRepository(repositoryId = REPOSITORY_GROUP_1) 
-                                                         Repository releasesGroup1,
+                                                         RepositoryData releasesGroup1,
                                                          @TestRepository.Group(repositories = REPOSITORY_RELEASES_1)
                                                          @NullRepository(repositoryId = REPOSITORY_GROUP_2) 
-                                                         Repository releasesGroup2) throws IOException
+                                                         RepositoryData releasesGroup2) throws IOException
     {
         assertEquals(2,
                      configurationManagementService.getConfiguration()
@@ -188,11 +188,11 @@ public class ConfigurationManagementServiceImplTest
     @Test
     @ExtendWith(RepositoryManagementTestExecutionListener.class)
     public void testSetProxyRepositoryMaxConnections(@NullRepository(repositoryId = REPOSITORY_RELEASES_2) 
-                                                     Repository releases1) throws IOException
+                                                     RepositoryData releases1) throws IOException
     {
-        Storage storage = configurationManagementService.getConfiguration().getStorage(STORAGE0);
+        StorageData storage = configurationManagementService.getConfiguration().getStorage(STORAGE0);
 
-        Repository repository = storage.getRepository(REPOSITORY_RELEASES_2);
+        RepositoryData repository = storage.getRepository(REPOSITORY_RELEASES_2);
 
         configurationManagementService.setProxyRepositoryMaxConnections(storage.getId(), repository.getId(), 10);
 
@@ -206,9 +206,9 @@ public class ConfigurationManagementServiceImplTest
 
     @Test
     @ExtendWith(RepositoryManagementTestExecutionListener.class)
-    public void shouldAddEditAndRemoveRoutingRule(@NullRepository(repositoryId = REPOSITORY_RELEASES_1) Repository releases1,
+    public void shouldAddEditAndRemoveRoutingRule(@NullRepository(repositoryId = REPOSITORY_RELEASES_1) RepositoryData releases1,
                                                   @TestRepository.Group(repositories = REPOSITORY_RELEASES_1)
-                                                  @NullRepository(repositoryId = REPOSITORY_GROUP_1) Repository releasesGroup) throws IOException
+                                                  @NullRepository(repositoryId = REPOSITORY_GROUP_1) RepositoryData releasesGroup) throws IOException
     {
         final MutableRoutingRule routingRule = createRoutingRule(RoutingRuleTypeEnum.ACCEPT);
         String repositoryId = routingRule.getRepositoryId();
@@ -265,17 +265,17 @@ public class ConfigurationManagementServiceImplTest
     @Test
     @ExtendWith(RepositoryManagementTestExecutionListener.class)
     public void testCanGetRepositoriesWithStorageAndLayout(@NullRepository(repositoryId = REPOSITORY_RELEASES_1) 
-                                                           Repository releases1,
+                                                           RepositoryData releases1,
                                                            @NullRepository(repositoryId = REPOSITORY_RELEASES_2) 
-                                                           Repository releases2,
+                                                           RepositoryData releases2,
                                                            @TestRepository.Group(repositories = REPOSITORY_RELEASES_1)
                                                            @NullRepository(repositoryId = REPOSITORY_GROUP_1) 
-                                                           Repository releasesGroup1,
+                                                           RepositoryData releasesGroup1,
                                                            @TestRepository.Group(repositories = REPOSITORY_RELEASES_1)
                                                            @NullRepository(repositoryId = REPOSITORY_GROUP_2) 
-                                                           Repository releasesGroup2)
+                                                           RepositoryData releasesGroup2)
     {
-        List<Repository> repositories = configurationManagementService.getConfiguration()
+        List<RepositoryData> repositories = configurationManagementService.getConfiguration()
                                                                       .getRepositoriesWithLayout(STORAGE0,
                                                                                                  NullArtifactCoordinates.LAYOUT_NAME);
 
@@ -289,17 +289,17 @@ public class ConfigurationManagementServiceImplTest
     @Test
     @ExtendWith(RepositoryManagementTestExecutionListener.class)
     public void testCanGetRepositoriesWithStorageAndLayoutNotExistedStorage(@NullRepository(repositoryId = REPOSITORY_RELEASES_1) 
-                                                                            Repository releases1,
+                                                                            RepositoryData releases1,
                                                                             @NullRepository(repositoryId = REPOSITORY_RELEASES_2) 
-                                                                            Repository releases2,
+                                                                            RepositoryData releases2,
                                                                             @TestRepository.Group(repositories = REPOSITORY_RELEASES_1)
                                                                             @NullRepository(repositoryId = REPOSITORY_GROUP_1) 
-                                                                            Repository releasesGroup1,
+                                                                            RepositoryData releasesGroup1,
                                                                             @TestRepository.Group(repositories = REPOSITORY_RELEASES_1)
                                                                             @NullRepository(repositoryId = REPOSITORY_GROUP_2) 
-                                                                            Repository releasesGroup2)
+                                                                            RepositoryData releasesGroup2)
     {
-        List<Repository> repositories = configurationManagementService.getConfiguration()
+        List<RepositoryData> repositories = configurationManagementService.getConfiguration()
                                                                       .getRepositoriesWithLayout("notExistedStorage",
                                                                                                  NullArtifactCoordinates.LAYOUT_NAME);
 

@@ -1,16 +1,16 @@
 package org.carlspring.strongbox.configuration;
 
-import org.carlspring.strongbox.storage.Storage;
-import org.carlspring.strongbox.storage.repository.Repository;
+import org.carlspring.strongbox.storage.StorageData;
+import org.carlspring.strongbox.storage.repository.RepositoryData;
 
 public interface StoragesConfigurationManager
 {
 
-    Repository getRepository(String storageAndRepositoryId);
+    RepositoryData getRepository(String storageAndRepositoryId);
 
-    Repository getRepository(String storageId,
+    RepositoryData getRepository(String storageId,
                              String repositoryId);
 
-    Storage getStorage(String storageId);
+    StorageData getStorage(String storageId);
 
 }

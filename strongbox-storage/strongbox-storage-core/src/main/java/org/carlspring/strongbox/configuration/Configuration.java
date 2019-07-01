@@ -1,11 +1,11 @@
 package org.carlspring.strongbox.configuration;
 
-import org.carlspring.strongbox.storage.ImmutableStorage;
-import org.carlspring.strongbox.storage.MutableStorage;
 import org.carlspring.strongbox.storage.Storage;
+import org.carlspring.strongbox.storage.StorageDto;
+import org.carlspring.strongbox.storage.StorageData;
 import org.carlspring.strongbox.storage.repository.HttpConnectionPool;
-import org.carlspring.strongbox.storage.repository.ImmutableRepository;
 import org.carlspring.strongbox.storage.repository.Repository;
+import org.carlspring.strongbox.storage.repository.RepositoryData;
 import org.carlspring.strongbox.storage.repository.RepositoryTypeEnum;
 import org.carlspring.strongbox.storage.routing.MutableRoutingRules;
 import org.carlspring.strongbox.storage.routing.RoutingRules;
@@ -43,7 +43,7 @@ public class Configuration
 
     private final RemoteRepositoriesConfiguration remoteRepositoriesConfiguration;
 
-    private final Map<String, Storage> storages;
+    private final Map<String, StorageData> storages;
 
     private final RoutingRules routingRules;
 
@@ -80,10 +80,10 @@ public class Configuration
         return source != null ? new SessionConfiguration(source) : null;
     }
 
-    private Map<String, Storage> immuteStorages(final Map<String, MutableStorage> source)
+    private Map<String, StorageData> immuteStorages(final Map<String, StorageDto> source)
     {
         return source != null ? ImmutableSortedMap.copyOf(source.entrySet().stream().collect(
-                toMap(Map.Entry::getKey, e -> new ImmutableStorage(e.getValue())))) : Collections.emptyMap();
+                toMap(Map.Entry::getKey, e -> new Storage(e.getValue())))) : Collections.emptyMap();
     }
 
     private RemoteRepositoriesConfiguration immuteRemoteRepositoriesConfiguration(final MutableRemoteRepositoriesConfiguration source)
@@ -151,12 +151,12 @@ public class Configuration
         return remoteRepositoriesConfiguration;
     }
 
-    public Map<String, Storage> getStorages()
+    public Map<String, StorageData> getStorages()
     {
         return storages;
     }
 
-    public Storage getStorage(final String storageId)
+    public StorageData getStorage(final String storageId)
     {
         return storages.get(storageId);
     }
@@ -166,13 +166,13 @@ public class Configuration
         return routingRules;
     }
 
-    public List<Repository> getRepositoriesWithLayout(String storageId,
+    public List<RepositoryData> getRepositoriesWithLayout(String storageId,
                                                       String layout)
     {
-        Stream<? extends Repository> repositories;
+        Stream<? extends RepositoryData> repositories;
         if (storageId != null)
         {
-            Storage storage = getStorage(storageId);
+            StorageData storage = getStorage(storageId);
             if (storage != null)
             {
                 repositories = storage.getRepositories().values().stream();
@@ -192,11 +192,11 @@ public class Configuration
                            .collect(Collectors.toList());
     }
 
-    public List<Repository> getGroupRepositories()
+    public List<RepositoryData> getGroupRepositories()
     {
-        List<Repository> groupRepositories = new ArrayList<>();
+        List<RepositoryData> groupRepositories = new ArrayList<>();
 
-        for (Storage storage : getStorages().values())
+        for (StorageData storage : getStorages().values())
         {
             groupRepositories.addAll(storage.getRepositories()
                                             .values()
@@ -209,20 +209,20 @@ public class Configuration
         return groupRepositories;
     }
 
-    public Repository getRepository(String storageId,
+    public RepositoryData getRepository(String storageId,
                                     String repositoryId)
     {
         return getStorage(storageId).getRepository(repositoryId);
     }
 
-    public List<Repository> getGroupRepositoriesContaining(String storageId,
+    public List<RepositoryData> getGroupRepositoriesContaining(String storageId,
                                                            String repositoryId)
     {
         String storageAndRepositoryId = storageId + ":" + repositoryId;
-        List<Repository> groupRepositories = getGroupRepositories();
-        for (Iterator<Repository> it = groupRepositories.iterator(); it.hasNext(); )
+        List<RepositoryData> groupRepositories = getGroupRepositories();
+        for (Iterator<RepositoryData> it = groupRepositories.iterator(); it.hasNext(); )
         {
-            Repository repository = it.next();
+            RepositoryData repository = it.next();
             Optional<String> exists = repository.getGroupRepositories()
                                                 .stream()
                                                 .filter(groupName -> (groupName.equals(storageAndRepositoryId) ||
@@ -239,8 +239,8 @@ public class Configuration
     public HttpConnectionPool getHttpConnectionPoolConfiguration(String storageId,
                                                                  String repositoryId)
     {
-        Repository repository = getStorage(storageId).getRepository(repositoryId);
-        return ((ImmutableRepository)repository).getHttpConnectionPool();
+        RepositoryData repository = getStorage(storageId).getRepository(repositoryId);
+        return ((Repository)repository).getHttpConnectionPool();
     }
 
     public CorsConfiguration getCorsConfiguration()

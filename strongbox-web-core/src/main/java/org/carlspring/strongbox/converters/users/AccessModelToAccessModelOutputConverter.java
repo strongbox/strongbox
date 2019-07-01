@@ -3,10 +3,10 @@ package org.carlspring.strongbox.converters.users;
 import org.carlspring.strongbox.controllers.users.support.AccessModelOutput;
 import org.carlspring.strongbox.controllers.users.support.RepositoryAccessModelOutput;
 import org.carlspring.strongbox.users.domain.AccessModel;
-import org.carlspring.strongbox.users.dto.UserAccessModelReadContract;
-import org.carlspring.strongbox.users.dto.UserPathPrivelegiesReadContract;
-import org.carlspring.strongbox.users.dto.UserRepositoryReadContract;
-import org.carlspring.strongbox.users.dto.UserStorageReadContract;
+import org.carlspring.strongbox.users.dto.AccessModelData;
+import org.carlspring.strongbox.users.dto.PathPrivelegiesData;
+import org.carlspring.strongbox.users.dto.RepositoryPrivilegesData;
+import org.carlspring.strongbox.users.dto.StoragePrivilegesData;
 
 import java.util.stream.Collectors;
 
@@ -30,9 +30,9 @@ public enum AccessModelToAccessModelOutputConverter
         }
 
         AccessModelOutput result = new AccessModelOutput();
-        for (UserStorageReadContract storage : source.getStorageAuthorities())
+        for (StoragePrivilegesData storage : source.getStorageAuthorities())
         {
-            for (UserRepositoryReadContract repository : storage.getRepositories())
+            for (RepositoryPrivilegesData repository : storage.getRepositories())
             {
                 if (CollectionUtils.isNotEmpty(repository.getRepositoryPrivileges()))
                 {
@@ -47,7 +47,7 @@ public enum AccessModelToAccessModelOutputConverter
                                                       .map(p -> p.name())
                                                       .collect(Collectors.toSet()));
                 }
-                for (UserPathPrivelegiesReadContract pathPrivilege : repository.getPathPrivileges())
+                for (PathPrivelegiesData pathPrivilege : repository.getPathPrivileges())
                 {
                     RepositoryAccessModelOutput repositoryAccess = getRepositoryAccessOrAddNewOne(result,
                                                                                                   storage.getStorageId(),

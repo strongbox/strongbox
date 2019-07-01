@@ -4,7 +4,7 @@ import java.util.Collection;
 import java.util.Set;
 import java.util.stream.Collectors;
 
-import org.carlspring.strongbox.authorization.dto.RoleReadContract;
+import org.carlspring.strongbox.authorization.dto.RoleData;
 import org.carlspring.strongbox.users.domain.AccessModel;
 import org.carlspring.strongbox.users.domain.Privileges;
 import org.springframework.security.core.userdetails.UserDetails;
@@ -21,7 +21,7 @@ public class SpringSecurityUser
 
     private boolean enabled;
 
-    private Set<RoleReadContract> roles;
+    private Set<RoleData> roles;
 
     private String url;
 
@@ -78,12 +78,12 @@ public class SpringSecurityUser
         this.enabled = enabled;
     }
 
-    public Set<RoleReadContract> getRoles()
+    public Set<RoleData> getRoles()
     {
         return roles;
     }
 
-    public void setRoles(Set<RoleReadContract> roles)
+    public void setRoles(Set<RoleData> roles)
     {
         this.roles = roles;
     }

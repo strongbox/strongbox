@@ -1,7 +1,7 @@
 package org.carlspring.strongbox.validation.configuration;
 
 import org.carlspring.strongbox.services.ConfigurationManagementService;
-import org.carlspring.strongbox.storage.Storage;
+import org.carlspring.strongbox.storage.StorageData;
 
 import javax.inject.Inject;
 import javax.validation.ConstraintValidator;
@@ -27,7 +27,7 @@ public class UniqueStorageValidator
     public boolean isValid(String storageId,
                            ConstraintValidatorContext context)
     {
-        final Storage storage = configurationManagementService.getConfiguration().getStorage(storageId);
+        final StorageData storage = configurationManagementService.getConfiguration().getStorage(storageId);
         return storage == null;
     }
 

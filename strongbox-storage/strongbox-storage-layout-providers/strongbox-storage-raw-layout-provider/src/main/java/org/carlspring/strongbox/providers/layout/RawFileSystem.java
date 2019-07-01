@@ -7,7 +7,7 @@ import javax.inject.Inject;
 
 import org.carlspring.strongbox.booters.PropertiesBooter;
 import org.carlspring.strongbox.providers.io.LayoutFileSystem;
-import org.carlspring.strongbox.storage.repository.Repository;
+import org.carlspring.strongbox.storage.repository.RepositoryData;
 
 /**
  * @author sbespalov
@@ -20,7 +20,7 @@ public class RawFileSystem extends LayoutFileSystem
     private RawLayoutProvider layoutProvider;
 
     public RawFileSystem(PropertiesBooter propertiesBooter,
-                         Repository repository,
+                         RepositoryData repository,
                          FileSystem storageFileSystem,
                          LayoutFileSystemProvider provider)
     {

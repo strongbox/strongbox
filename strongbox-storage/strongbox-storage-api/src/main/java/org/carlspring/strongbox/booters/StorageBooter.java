@@ -6,8 +6,8 @@ import org.carlspring.strongbox.providers.layout.LayoutProviderRegistry;
 import org.carlspring.strongbox.providers.repository.group.GroupRepositorySetCollector;
 import org.carlspring.strongbox.repository.RepositoryManagementStrategyException;
 import org.carlspring.strongbox.services.RepositoryManagementService;
-import org.carlspring.strongbox.storage.Storage;
-import org.carlspring.strongbox.storage.repository.Repository;
+import org.carlspring.strongbox.storage.StorageData;
+import org.carlspring.strongbox.storage.repository.RepositoryData;
 import org.carlspring.strongbox.storage.repository.RepositoryStatusEnum;
 
 import javax.annotation.PostConstruct;
@@ -69,14 +69,14 @@ public class StorageBooter
 
             initializeStorages(configuration.getStorages());
 
-            Collection<Repository> repositories = getRepositoriesHierarchy(configuration.getStorages());
+            Collection<RepositoryData> repositories = getRepositoriesHierarchy(configuration.getStorages());
 
             if (!repositories.isEmpty())
             {
                 logger.info(" -> Initializing repositories...");
             }
 
-            for (Repository repository : repositories)
+            for (RepositoryData repository : repositories)
             {
                 try
                 {
@@ -129,26 +129,26 @@ public class StorageBooter
         }
     }
 
-    private void initializeStorages(final Map<String, Storage> storages)
+    private void initializeStorages(final Map<String, StorageData> storages)
             throws IOException
     {
         logger.info("Running Strongbox storage booter...");
         logger.info(" -> Creating storage directory skeleton...");
 
-        for (Map.Entry<String, Storage> stringStorageEntry : storages.entrySet())
+        for (Map.Entry<String, StorageData> stringStorageEntry : storages.entrySet())
         {
             initializeStorage(stringStorageEntry.getValue());
         }
 
     }
 
-    private void initializeStorage(Storage storage)
+    private void initializeStorage(StorageData storage)
             throws IOException
     {
         logger.info("  * Initializing " + storage.getId() + "...");
     }
 
-    private void initializeRepository(Repository repository)
+    private void initializeRepository(RepositoryData repository)
             throws IOException, RepositoryManagementStrategyException
     {
         logger.info("  * Initializing " + repository.getStorage().getId() + ":" + repository.getId() + "...");
@@ -169,12 +169,12 @@ public class StorageBooter
         }
     }
 
-    private Collection<Repository> getRepositoriesHierarchy(final Map<String, Storage> storages)
+    private Collection<RepositoryData> getRepositoriesHierarchy(final Map<String, StorageData> storages)
     {
-        final Map<String, Repository> repositoriesHierarchy = new LinkedHashMap<>();
-        for (final Storage storage : storages.values())
+        final Map<String, RepositoryData> repositoriesHierarchy = new LinkedHashMap<>();
+        for (final StorageData storage : storages.values())
         {
-            for (final Repository repository : storage.getRepositories().values())
+            for (final RepositoryData repository : storage.getRepositories().values())
             {
                 addRepositoriesByChildrenFirst(repositoriesHierarchy, repository);
             }
@@ -183,8 +183,8 @@ public class StorageBooter
         return repositoriesHierarchy.values();
     }
 
-    private void addRepositoriesByChildrenFirst(final Map<String, Repository> repositoriesHierarchy,
-                                                final Repository repository)
+    private void addRepositoriesByChildrenFirst(final Map<String, RepositoryData> repositoriesHierarchy,
+                                                final RepositoryData repository)
     {
         if (!repository.isGroupRepository())
         {

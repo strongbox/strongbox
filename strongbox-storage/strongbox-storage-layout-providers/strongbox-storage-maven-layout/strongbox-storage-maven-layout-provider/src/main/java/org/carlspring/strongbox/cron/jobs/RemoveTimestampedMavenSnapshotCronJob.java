@@ -4,8 +4,8 @@ import org.carlspring.strongbox.configuration.ConfigurationManager;
 import org.carlspring.strongbox.cron.domain.CronTaskConfigurationDto;
 import org.carlspring.strongbox.cron.jobs.fields.*;
 import org.carlspring.strongbox.repository.MavenRepositoryFeatures;
-import org.carlspring.strongbox.storage.Storage;
-import org.carlspring.strongbox.storage.repository.Repository;
+import org.carlspring.strongbox.storage.StorageData;
+import org.carlspring.strongbox.storage.repository.RepositoryData;
 import org.carlspring.strongbox.storage.repository.RepositoryPolicyEnum;
 
 import javax.inject.Inject;
@@ -72,7 +72,7 @@ public class RemoveTimestampedMavenSnapshotCronJob
 
         if (storageId == null)
         {
-            Map<String, Storage> storages = getStorages();
+            Map<String, StorageData> storages = getStorages();
             for (String storage : storages.keySet())
             {
                 removeTimestampedSnapshotArtifacts(storage, numberToKeep, keepPeriod);
@@ -120,7 +120,7 @@ public class RemoveTimestampedMavenSnapshotCronJob
                    XmlPullParserException,
                    IOException
     {
-        Map<String, ? extends Repository> repositories = getRepositories(storageId);
+        Map<String, ? extends RepositoryData> repositories = getRepositories(storageId);
 
         repositories.forEach((repositoryId, repository) ->
                              {
@@ -142,12 +142,12 @@ public class RemoveTimestampedMavenSnapshotCronJob
                              });
     }
 
-    private Map<String, Storage> getStorages()
+    private Map<String, StorageData> getStorages()
     {
         return configurationManager.getConfiguration().getStorages();
     }
 
-    private Map<String, ? extends Repository> getRepositories(String storageId)
+    private Map<String, ? extends RepositoryData> getRepositories(String storageId)
     {
         return getStorages().get(storageId).getRepositories();
     }

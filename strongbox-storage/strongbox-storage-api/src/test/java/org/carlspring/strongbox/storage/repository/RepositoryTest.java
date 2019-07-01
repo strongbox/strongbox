@@ -3,12 +3,12 @@ package org.carlspring.strongbox.storage.repository;
 import org.carlspring.strongbox.StorageApiTestConfig;
 import org.carlspring.strongbox.configuration.MutableConfiguration;
 import org.carlspring.strongbox.data.CacheManagerTestExecutionListener;
-import org.carlspring.strongbox.storage.MutableStorage;
+import org.carlspring.strongbox.storage.StorageDto;
 import org.carlspring.strongbox.storage.repository.aws.MutableAwsConfiguration;
 import org.carlspring.strongbox.storage.repository.gcs.MutableGoogleCloudConfiguration;
 import org.carlspring.strongbox.yaml.YAMLMapperFactory;
-import org.carlspring.strongbox.yaml.repository.MutableCustomRepositoryConfiguration;
-import org.carlspring.strongbox.yaml.repository.remote.MutableRemoteRepositoryConfiguration;
+import org.carlspring.strongbox.yaml.repository.CustomRepositoryConfigurationDto;
+import org.carlspring.strongbox.yaml.repository.remote.RemoteRepositoryConfigurationDto;
 
 import javax.inject.Inject;
 import java.io.IOException;
@@ -45,16 +45,16 @@ public class RepositoryTest
     public void init()
     {
         yamlMapper = yamlMapperFactory.create(
-                Sets.newHashSet(MutableCustomRepositoryConfiguration.class, MutableRemoteRepositoryConfiguration.class));
+                Sets.newHashSet(CustomRepositoryConfigurationDto.class, RemoteRepositoryConfigurationDto.class));
     }
 
     @Test
     public void testAddRepositoryWithCustomConfiguration()
             throws IOException
     {
-        MutableRepository repository = createTestRepositoryWithCustomConfig();
+        RepositoryDto repository = createTestRepositoryWithCustomConfig();
 
-        MutableStorage storage = new MutableStorage("storage0");
+        StorageDto storage = new StorageDto("storage0");
         storage.addRepository(repository);
 
         MutableConfiguration configuration = new MutableConfiguration();
@@ -74,9 +74,9 @@ public class RepositoryTest
     public void testMarshallAndUnmarshallSimpleConfiguration()
             throws IOException
     {
-        MutableStorage storage = new MutableStorage("storage0");
+        StorageDto storage = new StorageDto("storage0");
 
-        MutableRepository repository = new MutableRepository("test-repository");
+        RepositoryDto repository = new RepositoryDto("test-repository");
         repository.setStorage(storage);
 
         storage.addRepository(repository);
@@ -103,9 +103,9 @@ public class RepositoryTest
     public void testMarshallAndUnmarshallSimpleConfigurationWithoutServiceLoader()
             throws IOException
     {
-        MutableStorage storage = new MutableStorage("storage0");
+        StorageDto storage = new StorageDto("storage0");
 
-        MutableRepository repository = new MutableRepository("test-repository");
+        RepositoryDto repository = new RepositoryDto("test-repository");
         repository.setStorage(storage);
 
         storage.addRepository(repository);
@@ -134,15 +134,15 @@ public class RepositoryTest
     {
         MutableConfiguration configuration = yamlMapper.readValue(
                 this.getClass().getResourceAsStream("/etc/conf/strongbox.yaml"), MutableConfiguration.class);
-        MutableStorage storage = configuration.getStorage("storage0");
+        StorageDto storage = configuration.getStorage("storage0");
 
         assertNotNull(storage);
     }
 
-    private MutableRepository createTestRepositoryWithCustomConfig()
+    private RepositoryDto createTestRepositoryWithCustomConfig()
     {
-        MutableStorage storage = new MutableStorage("storage0");
-        MutableRepository repository = new MutableRepository("test-repository");
+        StorageDto storage = new StorageDto("storage0");
+        RepositoryDto repository = new RepositoryDto("test-repository");
         repository.setStorage(storage);
 
         MutableAwsConfiguration awsConfiguration = new MutableAwsConfiguration();

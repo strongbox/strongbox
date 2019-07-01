@@ -4,7 +4,7 @@ import org.carlspring.strongbox.config.Maven2LayoutProviderTestConfig;
 import org.carlspring.strongbox.providers.io.RepositoryPath;
 import org.carlspring.strongbox.providers.layout.Maven2LayoutProvider;
 import org.carlspring.strongbox.services.ArtifactManagementService;
-import org.carlspring.strongbox.storage.repository.MutableRepository;
+import org.carlspring.strongbox.storage.repository.RepositoryDto;
 import org.carlspring.strongbox.testing.TestCaseWithMavenArtifactGenerationAndIndexing;
 import org.carlspring.strongbox.util.IndexContextHelper;
 
@@ -95,9 +95,9 @@ public class StrongboxIndexerTest
                                        REPOSITORY_RELEASES_6));
     }
 
-    public static Set<MutableRepository> getRepositoriesToClean(String... repositoryId)
+    public static Set<RepositoryDto> getRepositoriesToClean(String... repositoryId)
     {
-        Set<MutableRepository> repositories = new LinkedHashSet<>();
+        Set<RepositoryDto> repositories = new LinkedHashSet<>();
 
         Arrays.asList(repositoryId).forEach(
                 r -> repositories.add(createRepositoryMock(STORAGE0, r, Maven2LayoutProvider.ALIAS))

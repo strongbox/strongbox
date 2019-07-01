@@ -4,19 +4,19 @@ import java.util.Collection;
 import java.util.Set;
 
 import org.carlspring.strongbox.users.domain.Privileges;
-import org.carlspring.strongbox.users.dto.UserAccessModelReadContract;
-import org.carlspring.strongbox.users.dto.UserStorageReadContract;
+import org.carlspring.strongbox.users.dto.AccessModelData;
+import org.carlspring.strongbox.users.dto.StoragePrivilegesData;
 
 /**
  * @author sbespalov
  *
  */
-public class AdminAccessModel implements UserAccessModelReadContract
+public class AdminAccessModel implements AccessModelData
 {
     
-    private final UserAccessModelReadContract target;
+    private final AccessModelData target;
     
-    public AdminAccessModel(UserAccessModelReadContract target)
+    public AdminAccessModel(AccessModelData target)
     {
         this.target = target;
     }

@@ -3,8 +3,8 @@ package org.carlspring.strongbox.storage.repository.remote.heartbeat;
 import org.carlspring.strongbox.configuration.ConfigurationManager;
 import org.carlspring.strongbox.log.CronTaskContextAcceptFilter;
 import org.carlspring.strongbox.log.LoggingUtils;
-import org.carlspring.strongbox.storage.repository.ImmutableRepository;
 import org.carlspring.strongbox.storage.repository.Repository;
+import org.carlspring.strongbox.storage.repository.RepositoryData;
 import org.carlspring.strongbox.storage.repository.remote.RemoteRepository;
 import org.carlspring.strongbox.storage.repository.remote.heartbeat.monitor.RemoteRepositoryHeartbeatMonitorStrategy;
 import org.carlspring.strongbox.storage.repository.remote.heartbeat.monitor.RemoteRepositoryHeartbeatMonitorStrategyRegistry;
@@ -98,8 +98,8 @@ public class RemoteRepositoriesHeartbeatMonitorInitiator
                                    .values()
                                    .stream()
                                    .flatMap(s -> s.getRepositories().values().stream())
-                                   .filter(Repository::isProxyRepository)
-                                   .map(r -> ((ImmutableRepository)r).getRemoteRepository())
+                                   .filter(RepositoryData::isProxyRepository)
+                                   .map(r -> ((Repository)r).getRemoteRepository())
                                    .collect(Collectors.toList());
     }
 

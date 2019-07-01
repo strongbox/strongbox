@@ -7,9 +7,9 @@ import javax.inject.Inject;
 import org.carlspring.strongbox.services.ConfigurationManagementService;
 import org.carlspring.strongbox.services.RepositoryManagementService;
 import org.carlspring.strongbox.services.StorageManagementService;
-import org.carlspring.strongbox.storage.MutableStorage;
-import org.carlspring.strongbox.storage.Storage;
-import org.carlspring.strongbox.storage.repository.Repository;
+import org.carlspring.strongbox.storage.StorageDto;
+import org.carlspring.strongbox.storage.StorageData;
+import org.carlspring.strongbox.storage.repository.RepositoryData;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Component;
@@ -30,7 +30,7 @@ public class StorageManagementServiceImpl implements StorageManagementService
     private RepositoryManagementService repositoryManagementService;
 
     @Override
-    public void saveStorage(MutableStorage storage)
+    public void saveStorage(StorageDto storage)
             throws IOException
     {
         configurationManagementService.saveStorage(storage);
@@ -40,8 +40,8 @@ public class StorageManagementServiceImpl implements StorageManagementService
     public void removeStorage(String storageId)
             throws IOException
     {
-        final Storage storage = configurationManagementService.getConfiguration().getStorage(storageId);
-        for (Repository repository : storage.getRepositories().values())
+        final StorageData storage = configurationManagementService.getConfiguration().getStorage(storageId);
+        for (RepositoryData repository : storage.getRepositories().values())
         {
             repositoryManagementService.removeRepository(storageId, repository.getId());
         }

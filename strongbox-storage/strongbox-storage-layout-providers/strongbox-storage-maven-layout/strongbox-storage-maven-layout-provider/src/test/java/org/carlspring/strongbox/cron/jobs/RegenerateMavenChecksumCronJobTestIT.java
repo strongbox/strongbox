@@ -4,7 +4,7 @@ import org.carlspring.strongbox.artifact.MavenArtifact;
 import org.carlspring.strongbox.config.Maven2LayoutProviderCronTasksTestConfig;
 import org.carlspring.strongbox.data.CacheManagerTestExecutionListener;
 import org.carlspring.strongbox.services.ArtifactMetadataService;
-import org.carlspring.strongbox.storage.repository.Repository;
+import org.carlspring.strongbox.storage.repository.RepositoryData;
 import org.carlspring.strongbox.testing.artifact.ArtifactManagementTestExecutionListener;
 import org.carlspring.strongbox.testing.artifact.MavenTestArtifact;
 import org.carlspring.strongbox.testing.repository.MavenRepository;
@@ -63,7 +63,7 @@ public class RegenerateMavenChecksumCronJobTestIT
     @ExtendWith({ RepositoryManagementTestExecutionListener.class,
                   ArtifactManagementTestExecutionListener.class })
    public void testRegenerateArtifactChecksum(@MavenRepository(repositoryId = REPOSITORY_SNAPSHOTS1)
-                                              Repository repository,
+                                              RepositoryData repository,
                                               @MavenTestArtifact(repositoryId = REPOSITORY_SNAPSHOTS1,
                                                                   id = "org.carlspring.strongbox:strongbox-checksum-one",
                                                                   versions = { "2.0-20190512.202015-1",
@@ -151,7 +151,7 @@ public class RegenerateMavenChecksumCronJobTestIT
     @ExtendWith({ RepositoryManagementTestExecutionListener.class,
                   ArtifactManagementTestExecutionListener.class })
    public void testRegenerateChecksumInRepository(@MavenRepository(repositoryId = REPOSITORY_SNAPSHOTS2)
-                                                  Repository repository,
+                                                  RepositoryData repository,
                                                   @MavenTestArtifact(repositoryId = REPOSITORY_SNAPSHOTS2,
                                                                      id = "org.carlspring.strongbox:strongbox-checksum-two",
                                                                      versions = { "2.0-20190512.202015-1",

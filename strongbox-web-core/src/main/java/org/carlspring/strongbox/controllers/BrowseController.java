@@ -5,8 +5,8 @@ import org.carlspring.strongbox.providers.io.RepositoryFiles;
 import org.carlspring.strongbox.providers.io.RepositoryPath;
 import org.carlspring.strongbox.services.DirectoryListingService;
 import org.carlspring.strongbox.services.DirectoryListingServiceImpl;
-import org.carlspring.strongbox.storage.Storage;
-import org.carlspring.strongbox.storage.repository.Repository;
+import org.carlspring.strongbox.storage.StorageData;
+import org.carlspring.strongbox.storage.repository.RepositoryData;
 import org.carlspring.strongbox.web.RepositoryMapping;
 
 import javax.inject.Inject;
@@ -75,7 +75,7 @@ public class BrowseController
         
         try
         {
-            Map<String, Storage> storages = configurationManager.getConfiguration().getStorages();
+            Map<String, StorageData> storages = configurationManager.getConfiguration().getStorages();
             DirectoryListing directoryListing = getDirectoryListingService().fromStorages(storages);
 
             if (acceptHeader != null && acceptHeader.contains(MediaType.APPLICATION_JSON_VALUE))
@@ -115,7 +115,7 @@ public class BrowseController
 
         try
         {
-            Storage storage = configurationManager.getConfiguration().getStorage(storageId);
+            StorageData storage = configurationManager.getConfiguration().getStorage(storageId);
             if (storage == null)
             {
                 return getNotFoundResponseEntity("The requested storage was not found.", acceptHeader);
@@ -150,7 +150,7 @@ public class BrowseController
                 produces = { MediaType.TEXT_PLAIN_VALUE,
                              MediaType.TEXT_HTML_VALUE,
                              MediaType.APPLICATION_JSON_VALUE })
-    public Object repositoryContent(@RepositoryMapping Repository repository,
+    public Object repositoryContent(@RepositoryMapping RepositoryData repository,
                                     @PathVariable("path") String rawPath,
                                     HttpServletRequest request,
                                     ModelMap model,

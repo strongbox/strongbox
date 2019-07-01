@@ -25,16 +25,16 @@ import org.carlspring.strongbox.service.ProxyRepositoryConnectionPoolConfigurati
 import org.carlspring.strongbox.services.ArtifactEntryService;
 import org.carlspring.strongbox.services.ArtifactTagService;
 import org.carlspring.strongbox.services.RepositoryArtifactIdGroupService;
-import org.carlspring.strongbox.storage.Storage;
+import org.carlspring.strongbox.storage.StorageData;
 import org.carlspring.strongbox.storage.metadata.nuget.rss.PackageEntry;
 import org.carlspring.strongbox.storage.metadata.nuget.rss.PackageFeed;
-import org.carlspring.strongbox.storage.repository.ImmutableRepository;
 import org.carlspring.strongbox.storage.repository.Repository;
+import org.carlspring.strongbox.storage.repository.RepositoryData;
 import org.carlspring.strongbox.storage.repository.remote.RemoteRepository;
 import org.carlspring.strongbox.storage.validation.artifact.version.GenericReleaseVersionValidator;
 import org.carlspring.strongbox.storage.validation.artifact.version.GenericSnapshotVersionValidator;
 import org.carlspring.strongbox.storage.validation.deployment.RedeploymentValidator;
-import org.carlspring.strongbox.yaml.configuration.repository.NugetRepositoryConfiguration;
+import org.carlspring.strongbox.yaml.configuration.repository.NugetRepositoryConfigurationData;
 
 import javax.annotation.PostConstruct;
 import javax.inject.Inject;
@@ -128,10 +128,10 @@ public class NugetRepositoryFeatures
                                    NugetSearchRequest nugetSearchRequest)
             throws ArtifactTransportException, IOException
     {
-        Storage storage = getConfiguration().getStorage(storageId);
-        Repository repository = storage.getRepository(repositoryId);
+        StorageData storage = getConfiguration().getStorage(storageId);
+        RepositoryData repository = storage.getRepository(repositoryId);
 
-        Optional<NugetRepositoryConfiguration> repositoryConfiguration = Optional.ofNullable((NugetRepositoryConfiguration) ((ImmutableRepository)repository).getRepositoryConfiguration());
+        Optional<NugetRepositoryConfigurationData> repositoryConfiguration = Optional.ofNullable((NugetRepositoryConfigurationData) ((Repository)repository).getRepositoryConfiguration());
         Integer remoteFeedPageSize = repositoryConfiguration.map(c -> c.getRemoteFeedPageSize())
                                                             .orElse(REMOTE_FEED_PAGE_SIZE);
         for (int i = 0; true; i++)
@@ -151,10 +151,10 @@ public class NugetRepositoryFeatures
                                       int top)
         throws ArtifactTransportException, IOException
     {
-        Storage storage = getConfiguration().getStorage(storageId);
-        Repository repository = storage.getRepository(repositoryId);
+        StorageData storage = getConfiguration().getStorage(storageId);
+        RepositoryData repository = storage.getRepository(repositoryId);
 
-        RemoteRepository remoteRepository = ((ImmutableRepository)repository).getRemoteRepository();
+        RemoteRepository remoteRepository = ((Repository)repository).getRemoteRepository();
         if (remoteRepository == null)
         {
             return false;
@@ -200,7 +200,7 @@ public class NugetRepositoryFeatures
         return true;
     }
 
-    private void parseFeed(Repository repository,
+    private void parseFeed(RepositoryData repository,
                            PackageFeed packageFeed) throws IOException
     {
         String repositoryId = repository.getId();
@@ -243,7 +243,7 @@ public class NugetRepositoryFeatures
         {
             RepositoryPath repositoryPath = repositoryPathResolver.resolve(repository, (NugetArtifactCoordinates) e.getArtifactCoordinates());
 
-            Storage storage = repository.getStorage();
+            StorageData storage = repository.getStorage();
             ArtifactCoordinates coordinates = RepositoryFiles.readCoordinates(repositoryPath);
             
             Lock lock = repositoryPathLock.lock(repositoryPath).writeLock();
@@ -291,9 +291,9 @@ public class NugetRepositoryFeatures
                 return;
             }
             
-            Storage storage = getConfiguration().getStorage(event.getStorageId());
-            Repository repository = storage.getRepository(event.getRepositoryId());
-            RemoteRepository remoteRepository = ((ImmutableRepository)repository).getRemoteRepository();
+            StorageData storage = getConfiguration().getStorage(event.getStorageId());
+            RepositoryData repository = storage.getRepository(event.getRepositoryId());
+            RemoteRepository remoteRepository = ((Repository)repository).getRemoteRepository();
             if (remoteRepository == null)
             {
                 return;

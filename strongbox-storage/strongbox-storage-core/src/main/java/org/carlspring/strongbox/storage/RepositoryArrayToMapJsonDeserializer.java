@@ -1,7 +1,7 @@
 package org.carlspring.strongbox.storage;
 
-import org.carlspring.strongbox.storage.repository.ImmutableRepository;
 import org.carlspring.strongbox.storage.repository.Repository;
+import org.carlspring.strongbox.storage.repository.RepositoryData;
 
 import java.io.IOException;
 import java.util.Arrays;
@@ -19,21 +19,21 @@ import com.fasterxml.jackson.databind.ObjectMapper;
  * @author Przemyslaw Fusik
  */
 public class RepositoryArrayToMapJsonDeserializer
-        extends JsonDeserializer<Map<String, Repository>>
+        extends JsonDeserializer<Map<String, RepositoryData>>
 {
 
     @Override
-    public Map<String, Repository> deserialize(final JsonParser parser,
+    public Map<String, RepositoryData> deserialize(final JsonParser parser,
                                                final DeserializationContext ctxt)
             throws IOException
     {
-        Map<String, Repository> result = new LinkedHashMap<>();
+        Map<String, RepositoryData> result = new LinkedHashMap<>();
 
         ObjectCodec codec = parser.getCodec();
         TreeNode node = codec.readTree(parser);
         if (node.isArray() && node.size() > 0)
         {
-            Repository[] repositories = ((ObjectMapper) codec).readValue(node.toString(), ImmutableRepository[].class);
+            RepositoryData[] repositories = ((ObjectMapper) codec).readValue(node.toString(), Repository[].class);
             Arrays.stream(repositories).forEach(r -> result.put(r.getId(), r));
         }
 

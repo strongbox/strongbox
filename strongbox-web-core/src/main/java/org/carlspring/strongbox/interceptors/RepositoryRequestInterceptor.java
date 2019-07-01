@@ -1,6 +1,6 @@
 package org.carlspring.strongbox.interceptors;
 
-import org.carlspring.strongbox.storage.repository.Repository;
+import org.carlspring.strongbox.storage.repository.RepositoryData;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
@@ -37,7 +37,7 @@ public class RepositoryRequestInterceptor
             return false;
         }
 
-        final Repository repository = (Repository) request.getAttribute(REPOSITORY_REQUEST_ATTRIBUTE);
+        final RepositoryData repository = (RepositoryData) request.getAttribute(REPOSITORY_REQUEST_ATTRIBUTE);
         if (repository != null && !repository.isInService())
         {
             response.sendError(HttpStatus.SERVICE_UNAVAILABLE.value(), "Repository is not in service...");

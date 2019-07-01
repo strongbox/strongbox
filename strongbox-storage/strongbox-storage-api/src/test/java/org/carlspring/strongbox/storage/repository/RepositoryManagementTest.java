@@ -43,7 +43,7 @@ import static org.junit.jupiter.api.parallel.ExecutionMode.CONCURRENT;
 public class RepositoryManagementTest
 {
 
-    private static Set<Repository> resolvedRepositoryInstances = ConcurrentHashMap.newKeySet();
+    private static Set<RepositoryData> resolvedRepositoryInstances = ConcurrentHashMap.newKeySet();
     private static Set<byte[]> resolvedArtifactChecksums = ConcurrentHashMap.newKeySet();
 
     @Inject
@@ -63,8 +63,8 @@ public class RepositoryManagementTest
 
     @ExtendWith({ RepositoryManagementTestExecutionListener.class, ArtifactManagementTestExecutionListener.class })
     @RepeatedTest(10)
-    public void testRepositoryDirect(@TestRepository(layout = NullArtifactCoordinates.LAYOUT_NAME, repositoryId = "rmt1") Repository r1,
-                                     @TestRepository(layout = NullArtifactCoordinates.LAYOUT_NAME, repositoryId = "rmt2") Repository r2,
+    public void testRepositoryDirect(@TestRepository(layout = NullArtifactCoordinates.LAYOUT_NAME, repositoryId = "rmt1") RepositoryData r1,
+                                     @TestRepository(layout = NullArtifactCoordinates.LAYOUT_NAME, repositoryId = "rmt2") RepositoryData r2,
                                      @TestArtifact(resource = "artifact1.ext", generator = NullArtifactGenerator.class) Path standaloneArtifact,
                                      @TestArtifact(repositoryId = "rmt2", resource = "org/carlspring/test/artifact2.ext", generator = NullArtifactGenerator.class) Path repositoryArtifact,
                                      TestInfo testInfo)
@@ -77,8 +77,8 @@ public class RepositoryManagementTest
 
     @ExtendWith(RepositoryManagementTestExecutionListener.class)
     @RepeatedTest(10)
-    public void testRepositoryReverse(@TestRepository(layout = NullArtifactCoordinates.LAYOUT_NAME, repositoryId = "rmt2") Repository r2,
-                                      @TestRepository(layout = NullArtifactCoordinates.LAYOUT_NAME, repositoryId = "rmt1") Repository r1,
+    public void testRepositoryReverse(@TestRepository(layout = NullArtifactCoordinates.LAYOUT_NAME, repositoryId = "rmt2") RepositoryData r2,
+                                      @TestRepository(layout = NullArtifactCoordinates.LAYOUT_NAME, repositoryId = "rmt1") RepositoryData r1,
                                       TestInfo testInfo)
     {
         parametersShouldBeCorrectlyResolvedAndUnique(r1, r2, testInfo);
@@ -98,8 +98,8 @@ public class RepositoryManagementTest
         assertTrue(resolvedArtifactChecksums.add(Files.readAllBytes(artifactChecksum)));
     }
 
-    private void parametersShouldBeCorrectlyResolvedAndUnique(Repository r1,
-                                                              Repository r2,
+    private void parametersShouldBeCorrectlyResolvedAndUnique(RepositoryData r1,
+                                                              RepositoryData r2,
                                                               TestInfo testInfo)
     {
         // Check that other ParameterResolvers works

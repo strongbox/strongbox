@@ -1,7 +1,7 @@
 package org.carlspring.strongbox.testing.storage.repository;
 
-import org.carlspring.strongbox.storage.Storage;
-import org.carlspring.strongbox.storage.repository.Repository;
+import org.carlspring.strongbox.storage.StorageData;
+import org.carlspring.strongbox.storage.repository.RepositoryData;
 import org.carlspring.strongbox.storage.repository.RepositoryPolicyEnum;
 import org.carlspring.strongbox.storage.routing.RoutingRuleTypeEnum;
 
@@ -11,7 +11,7 @@ import java.net.URL;
 import org.springframework.core.annotation.AliasFor;
 
 /**
- * This annotation provide ability to inject {@link Repository} instance as test
+ * This annotation provide ability to inject {@link RepositoryData} instance as test
  * method parameters.<br>
  * Each repository will be bound to the test life cycle, so it will be created
  * before the test method execution and removed after test method execution.<br>
@@ -29,17 +29,17 @@ public @interface TestRepository
 {
 
     /**
-     * {@link Repository} layout.
+     * {@link RepositoryData} layout.
      */
     String layout();
 
     /**
-     * {@link Storage} ID.
+     * {@link StorageData} ID.
      */
     String storageId() default "storage0";
 
     /**
-     * {@link Repository} ID.
+     * {@link RepositoryData} ID.
      */
     String repositoryId() default "releases";
 
@@ -49,7 +49,7 @@ public @interface TestRepository
     RepositoryPolicyEnum policy() default RepositoryPolicyEnum.RELEASE;
 
     /**
-     * {@link RepositorySetup} strategies to use within {@link Repository}
+     * {@link RepositorySetup} strategies to use within {@link RepositoryData}
      * initialization.
      */
     Class<? extends RepositorySetup>[] setup() default {};

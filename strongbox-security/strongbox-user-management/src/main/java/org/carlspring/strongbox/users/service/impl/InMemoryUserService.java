@@ -25,7 +25,7 @@ import org.carlspring.strongbox.data.CacheName;
 import org.carlspring.strongbox.users.domain.User;
 import org.carlspring.strongbox.users.domain.Users;
 import org.carlspring.strongbox.users.dto.UserDto;
-import org.carlspring.strongbox.users.dto.UserReadContract;
+import org.carlspring.strongbox.users.dto.UserData;
 import org.carlspring.strongbox.users.dto.UsersDto;
 import org.carlspring.strongbox.users.security.SecurityTokenProvider;
 import org.carlspring.strongbox.users.service.UserService;
@@ -120,7 +120,7 @@ public class InMemoryUserService implements UserService
 
     @Override
     @CacheEvict(cacheNames = CacheName.User.AUTHENTICATIONS, key = "#p0.username")
-    public void save(final UserReadContract user)
+    public void save(final UserData user)
     {
         modifyInLock(users -> {
             UserDto u = Optional.ofNullable(users.get(user.getUsername())).orElseGet(() -> new UserDto());

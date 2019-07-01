@@ -8,10 +8,10 @@ import org.carlspring.strongbox.providers.io.RepositoryPath;
 import org.carlspring.strongbox.providers.layout.LayoutProvider;
 import org.carlspring.strongbox.providers.layout.Maven2LayoutProvider;
 import org.carlspring.strongbox.services.ArtifactEntryService;
-import org.carlspring.strongbox.storage.Storage;
+import org.carlspring.strongbox.storage.StorageData;
 import org.carlspring.strongbox.storage.metadata.MavenMetadataManager;
-import org.carlspring.strongbox.storage.repository.MutableRepository;
-import org.carlspring.strongbox.storage.repository.Repository;
+import org.carlspring.strongbox.storage.repository.RepositoryDto;
+import org.carlspring.strongbox.storage.repository.RepositoryData;
 import org.carlspring.strongbox.testing.TestCaseWithMavenArtifactGenerationAndIndexing;
 
 import javax.inject.Inject;
@@ -67,9 +67,9 @@ public class MavenProxyRepositoryProviderTestIT
     @Inject
     private MavenMetadataManager mavenMetadataManager;
 
-    private Set<MutableRepository> getRepositories(TestInfo testInfo)
+    private Set<RepositoryDto> getRepositories(TestInfo testInfo)
     {
-        Set<MutableRepository> repositories = new LinkedHashSet<>();
+        Set<RepositoryDto> repositories = new LinkedHashSet<>();
         repositories.add(createRepositoryMock(STORAGE_ID,
                                               getRepositoryName(REPOSITORY_ID, testInfo),
                                               Maven2LayoutProvider.ALIAS));
@@ -178,8 +178,8 @@ public class MavenProxyRepositoryProviderTestIT
         assertStreamNotNull(storageId, repositoryId,
                             "org/carlspring/properties-injector/1.1/properties-injector-1.1.jar");
 
-        Storage storage = getConfiguration().getStorage(storageId);
-        Repository repository = storage.getRepository(repositoryId);
+        StorageData storage = getConfiguration().getStorage(storageId);
+        RepositoryData repository = storage.getRepository(repositoryId);
 
         assertTrue(RepositoryFiles.artifactExists(
                 repositoryPathResolver.resolve(repository, "org/carlspring/properties-injector/maven-metadata.xml")));
@@ -190,7 +190,7 @@ public class MavenProxyRepositoryProviderTestIT
             throws Exception
     {
         String storageId = STORAGE_ID;
-        Storage storage = getConfiguration().getStorage(storageId);
+        StorageData storage = getConfiguration().getStorage(storageId);
 
         // 1. download the artifact and artifactId-level maven metadata-file from 1st repository
         String repositoryId = getRepositoryName(CENTRAL_REPOSITORY_ID, testInfo);
@@ -199,7 +199,7 @@ public class MavenProxyRepositoryProviderTestIT
                             "javax/interceptor/javax.interceptor-api/1.2.2/javax.interceptor-api-1.2.2.jar");
 
         // 2. resolve downloaded artifact base path
-        Repository repository = storage.getRepository(repositoryId);
+        RepositoryData repository = storage.getRepository(repositoryId);
         final Path mavenCentralArtifactBaseBath = repositoryPathResolver.resolve(repository,
                                                                                  "javax/interceptor/javax.interceptor-api");
 

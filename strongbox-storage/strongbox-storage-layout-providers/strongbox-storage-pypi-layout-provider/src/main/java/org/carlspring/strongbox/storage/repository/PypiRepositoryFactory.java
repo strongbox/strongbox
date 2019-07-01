@@ -21,9 +21,9 @@ public class PypiRepositoryFactory
 
 
     @Override
-    public MutableRepository createRepository(String repositoryId)
+    public RepositoryDto createRepository(String repositoryId)
     {
-        MutableRepository repository = new MutableRepository(repositoryId);
+        RepositoryDto repository = new RepositoryDto(repositoryId);
         repository.setLayout(PypiLayoutProvider.ALIAS);
         repository.setArtifactCoordinateValidators(new LinkedHashSet<>(pypiRepositoryFeatures.getDefaultArtifactCoordinateValidators()));
 

@@ -1,7 +1,7 @@
 package org.carlspring.strongbox.storage.validation.artifact.version;
 
 import org.carlspring.strongbox.artifact.coordinates.ArtifactCoordinates;
-import org.carlspring.strongbox.storage.repository.Repository;
+import org.carlspring.strongbox.storage.repository.RepositoryData;
 import org.carlspring.strongbox.storage.validation.ArtifactCoordinatesValidator;
 import org.carlspring.strongbox.storage.validation.artifact.ArtifactCoordinatesValidatorRegistry;
 
@@ -55,7 +55,7 @@ public class GenericSnapshotVersionValidator
     }
 
     @Override
-    public boolean supports(Repository repository)
+    public boolean supports(RepositoryData repository)
     {
         return repository.getArtifactCoordinateValidators().contains(ALIAS);
     }
@@ -67,7 +67,7 @@ public class GenericSnapshotVersionValidator
     }
 
     @Override
-    public void validate(Repository repository,
+    public void validate(RepositoryData repository,
                          ArtifactCoordinates coordinates)
             throws VersionValidationException
     {

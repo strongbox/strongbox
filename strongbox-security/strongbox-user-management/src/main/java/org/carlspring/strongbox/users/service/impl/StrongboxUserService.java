@@ -2,7 +2,7 @@ package org.carlspring.strongbox.users.service.impl;
 
 import org.carlspring.strongbox.users.UsersFileManager;
 import org.carlspring.strongbox.users.dto.UserDto;
-import org.carlspring.strongbox.users.dto.UserReadContract;
+import org.carlspring.strongbox.users.dto.UserData;
 import org.carlspring.strongbox.users.dto.UsersDto;
 import org.carlspring.strongbox.users.service.impl.StrongboxUserService.StrongboxUserServiceQualifier;
 
@@ -48,7 +48,7 @@ public class StrongboxUserService
     }
 
     @Override
-    public void save(UserReadContract user)
+    public void save(UserData user)
     {
         encryptPassword((UserDto) user, user.getPassword());
         

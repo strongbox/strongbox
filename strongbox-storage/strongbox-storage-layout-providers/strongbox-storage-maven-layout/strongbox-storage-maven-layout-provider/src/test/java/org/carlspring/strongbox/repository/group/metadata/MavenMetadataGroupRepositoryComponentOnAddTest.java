@@ -2,7 +2,7 @@ package org.carlspring.strongbox.repository.group.metadata;
 
 import org.carlspring.strongbox.config.Maven2LayoutProviderTestConfig;
 import org.carlspring.strongbox.repository.group.BaseMavenGroupRepositoryComponentTest;
-import org.carlspring.strongbox.storage.repository.Repository;
+import org.carlspring.strongbox.storage.repository.RepositoryData;
 import org.carlspring.strongbox.testing.artifact.ArtifactManagementTestExecutionListener;
 import org.carlspring.strongbox.testing.artifact.MavenTestArtifact;
 import org.carlspring.strongbox.testing.repository.MavenRepository;
@@ -61,26 +61,26 @@ public class MavenMetadataGroupRepositoryComponentOnAddTest
                   ArtifactManagementTestExecutionListener.class })
     @Test
     public void generationOfMavenMetadataInLeafsShouldResultUpToDateMetadataInGroups(
-            @MavenRepository(repositoryId = REPOSITORY_LEAF_O) Repository repositoryLeafO,
-            @MavenRepository(repositoryId = REPOSITORY_LEAF_P) Repository repositoryLeafP,
-            @MavenRepository(repositoryId = REPOSITORY_LEAF_R) Repository repositoryLeafR,
-            @MavenRepository(repositoryId = REPOSITORY_LEAF_S) Repository repositoryLeafS,
-            @MavenRepository(repositoryId = REPOSITORY_LEAF_T) Repository repositoryLeafT,
-            @MavenRepository(repositoryId = REPOSITORY_LEAF_U) Repository repositoryLeafU,
+            @MavenRepository(repositoryId = REPOSITORY_LEAF_O) RepositoryData repositoryLeafO,
+            @MavenRepository(repositoryId = REPOSITORY_LEAF_P) RepositoryData repositoryLeafP,
+            @MavenRepository(repositoryId = REPOSITORY_LEAF_R) RepositoryData repositoryLeafR,
+            @MavenRepository(repositoryId = REPOSITORY_LEAF_S) RepositoryData repositoryLeafS,
+            @MavenRepository(repositoryId = REPOSITORY_LEAF_T) RepositoryData repositoryLeafT,
+            @MavenRepository(repositoryId = REPOSITORY_LEAF_U) RepositoryData repositoryLeafU,
             @TestRepository.Group({ REPOSITORY_LEAF_O,
                                     REPOSITORY_LEAF_R })
-            @MavenRepository(repositoryId = REPOSITORY_GROUP_Y) Repository repositoryGroupY,
+            @MavenRepository(repositoryId = REPOSITORY_GROUP_Y) RepositoryData repositoryGroupY,
             @TestRepository.Group({ REPOSITORY_GROUP_Y,
                                     REPOSITORY_LEAF_S,
                                     REPOSITORY_LEAF_P })
-            @MavenRepository(repositoryId = REPOSITORY_GROUP_X) Repository repositoryGroupX,
+            @MavenRepository(repositoryId = REPOSITORY_GROUP_X) RepositoryData repositoryGroupX,
             @TestRepository.Group({ REPOSITORY_LEAF_T,
                                     REPOSITORY_GROUP_X })
-            @MavenRepository(repositoryId = REPOSITORY_GROUP_W) Repository repositoryGroupW,
+            @MavenRepository(repositoryId = REPOSITORY_GROUP_W) RepositoryData repositoryGroupW,
             @TestRepository.Group({ REPOSITORY_GROUP_Y,
                                     REPOSITORY_LEAF_S,
                                     REPOSITORY_LEAF_P })
-            @MavenRepository(repositoryId = REPOSITORY_GROUP_Z) Repository repositoryGroupZ,
+            @MavenRepository(repositoryId = REPOSITORY_GROUP_Z) RepositoryData repositoryGroupZ,
             @TestRepository.Group(repositories = { REPOSITORY_GROUP_Z,
                                                    REPOSITORY_LEAF_U },
                     rules = { @TestRepository.Group.Rule(
@@ -88,7 +88,7 @@ public class MavenMetadataGroupRepositoryComponentOnAddTest
                             repositories = REPOSITORY_LEAF_S,
                             type = DENY)
                     })
-            @MavenRepository(repositoryId = REPOSITORY_GROUP_ZQ) Repository repositoryGroupZQ,
+            @MavenRepository(repositoryId = REPOSITORY_GROUP_ZQ) RepositoryData repositoryGroupZQ,
             @MavenTestArtifact(repositoryId = REPOSITORY_LEAF_P, id = "com.artifacts.to.delete.releases:delete-group", versions = { "1.2.1",
                                                                                                                                     "1.2.2" })
                     Path artifactLeafP,

@@ -2,21 +2,21 @@ package org.carlspring.strongbox.users.security;
 
 import java.util.function.Function;
 
-import org.carlspring.strongbox.authorization.dto.RoleReadContract;
-import org.carlspring.strongbox.users.dto.UserAccessModelReadContract;
+import org.carlspring.strongbox.authorization.dto.RoleData;
+import org.carlspring.strongbox.users.dto.AccessModelData;
 
 /**
  * @author sbespalov
  *
  */
-public class RuntimeRole implements RoleReadContract
+public class RuntimeRole implements RoleData
 {
 
-    private final RoleReadContract target;
-    private final Function<UserAccessModelReadContract, UserAccessModelReadContract> accessModelCustomizer;
+    private final RoleData target;
+    private final Function<AccessModelData, AccessModelData> accessModelCustomizer;
 
-    public RuntimeRole(RoleReadContract target,
-                       Function<UserAccessModelReadContract, UserAccessModelReadContract> accessModelCustomizer)
+    public RuntimeRole(RoleData target,
+                       Function<AccessModelData, AccessModelData> accessModelCustomizer)
     {
         this.target = target;
         this.accessModelCustomizer = accessModelCustomizer;
@@ -32,7 +32,7 @@ public class RuntimeRole implements RoleReadContract
         return target.getDescription();
     }
 
-    public UserAccessModelReadContract getAccessModel()
+    public AccessModelData getAccessModel()
     {
         return accessModelCustomizer.apply(target.getAccessModel());
     }

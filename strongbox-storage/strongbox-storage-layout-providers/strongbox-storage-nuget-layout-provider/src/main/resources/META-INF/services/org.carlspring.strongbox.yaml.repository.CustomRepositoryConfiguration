@@ -1,1 +1,1 @@
-org.carlspring.strongbox.yaml.configuration.repository.ImmutableNugetRepositoryConfiguration
+org.carlspring.strongbox.yaml.configuration.repository.NugetRepositoryConfiguration

@@ -6,20 +6,20 @@ import java.util.HashSet;
 import java.util.Set;
 
 import org.carlspring.strongbox.users.domain.Privileges;
-import org.carlspring.strongbox.users.dto.UserAccessModelReadContract;
-import org.carlspring.strongbox.users.dto.UserStorageReadContract;
+import org.carlspring.strongbox.users.dto.AccessModelData;
+import org.carlspring.strongbox.users.dto.StoragePrivilegesData;
 
 
 /**
  * @author sbespalov
  *
  */
-public class AnonymousAccessModel implements UserAccessModelReadContract
+public class AnonymousAccessModel implements AccessModelData
 {
     
-    private final UserAccessModelReadContract target;
+    private final AccessModelData target;
     
-    public AnonymousAccessModel(UserAccessModelReadContract target)
+    public AnonymousAccessModel(AccessModelData target)
     {
         this.target = target;
     }

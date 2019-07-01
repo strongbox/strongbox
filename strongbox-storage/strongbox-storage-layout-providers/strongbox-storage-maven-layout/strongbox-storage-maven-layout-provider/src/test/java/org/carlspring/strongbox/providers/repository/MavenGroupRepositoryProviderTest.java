@@ -24,8 +24,8 @@ import org.carlspring.strongbox.providers.layout.Maven2LayoutProvider;
 import org.carlspring.strongbox.services.ArtifactMetadataService;
 import org.carlspring.strongbox.services.ConfigurationManagementService;
 import org.carlspring.strongbox.storage.repository.MavenRepositoryFactory;
-import org.carlspring.strongbox.storage.repository.MutableRepository;
-import org.carlspring.strongbox.storage.repository.Repository;
+import org.carlspring.strongbox.storage.repository.RepositoryDto;
+import org.carlspring.strongbox.storage.repository.RepositoryData;
 import org.carlspring.strongbox.storage.repository.RepositoryTypeEnum;
 import org.carlspring.strongbox.storage.routing.MutableRoutingRuleRepository;
 import org.carlspring.strongbox.storage.routing.RoutingRuleTypeEnum;
@@ -36,7 +36,7 @@ import org.carlspring.strongbox.testing.repository.MavenRepository;
 import org.carlspring.strongbox.testing.storage.repository.RepositoryManagementTestExecutionListener;
 import org.carlspring.strongbox.testing.storage.repository.TestRepository;
 import org.carlspring.strongbox.testing.storage.repository.TestRepository.Group.Rule;
-import org.carlspring.strongbox.yaml.configuration.repository.MutableMavenRepositoryConfiguration;
+import org.carlspring.strongbox.yaml.configuration.repository.MavenRepositoryConfigurationDto;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.TestInfo;
@@ -80,9 +80,9 @@ public class MavenGroupRepositoryProviderTest
         removeRepositories(getRepositories(testInfo));
     }
 
-    private Set<MutableRepository> getRepositories(TestInfo testInfo)
+    private Set<RepositoryDto> getRepositories(TestInfo testInfo)
     {
-        Set<MutableRepository> repositories = new LinkedHashSet<>();
+        Set<RepositoryDto> repositories = new LinkedHashSet<>();
         repositories.add(createRepositoryMock(STORAGE0,
                                               getRepositoryName("grpt-releases-tgiwr-1", testInfo),
                                               Maven2LayoutProvider.ALIAS));
@@ -137,10 +137,10 @@ public class MavenGroupRepositoryProviderTest
 
     @Test
     @ExtendWith({RepositoryManagementTestExecutionListener.class, ArtifactManagementTestExecutionListener.class})
-    public void testGroupIncludes(@MavenRepository(repositoryId = "grpt-releases-tgi-1") Repository releases1,
-                                  @MavenRepository(repositoryId = "grpt-releases-tgi-2") Repository releases2,
+    public void testGroupIncludes(@MavenRepository(repositoryId = "grpt-releases-tgi-1") RepositoryData releases1,
+                                  @MavenRepository(repositoryId = "grpt-releases-tgi-2") RepositoryData releases2,
                                   @TestRepository.Group({ "grpt-releases-tgi-1",
-                                                          "grpt-releases-tgi-2" }) @MavenRepository(repositoryId = "grpt-releases-tgi-group") Repository releasesGroup,
+                                                          "grpt-releases-tgi-2" }) @MavenRepository(repositoryId = "grpt-releases-tgi-group") RepositoryData releasesGroup,
                                   @MavenTestArtifact(repositoryId = "grpt-releases-tgi-1", id = "com.artifacts.in.releases.one:foo", versions = "1.2.3") Path a1,
                                   @MavenTestArtifact(repositoryId = "grpt-releases-tgi-1", id = "com.artifacts.in.releases.under:group", versions = "1.2.3") Path a2,
                                   @MavenTestArtifact(repositoryId = "grpt-releases-tgi-2", id = "com.artifacts.in.releases.four:foo", versions = "1.2.4") Path a3,
@@ -150,7 +150,7 @@ public class MavenGroupRepositoryProviderTest
         System.out.println("# Testing group includes...");
 
         // Test data initialized.
-        Repository repository = releasesGroup;
+        RepositoryData repository = releasesGroup;
         RepositoryProvider repositoryProvider = repositoryProviderRegistry.getProvider(repository.getType());
 
         RepositoryPath resolvedPath1 = (RepositoryPath) a1.normalize();
@@ -172,11 +172,11 @@ public class MavenGroupRepositoryProviderTest
 
     @Test
     @ExtendWith({RepositoryManagementTestExecutionListener.class, ArtifactManagementTestExecutionListener.class})
-    public void mavenMetadataFileShouldBeFetchedFromGroupPathRepository(@MavenRepository(repositoryId = "grpt-releases-mmfsbffgpr-1") Repository releases1,
-                                                                        @MavenRepository(repositoryId = "grpt-releases-mmfsbffgpr-2") Repository releases2,
+    public void mavenMetadataFileShouldBeFetchedFromGroupPathRepository(@MavenRepository(repositoryId = "grpt-releases-mmfsbffgpr-1") RepositoryData releases1,
+                                                                        @MavenRepository(repositoryId = "grpt-releases-mmfsbffgpr-2") RepositoryData releases2,
                                                                         @TestRepository.Group({ "grpt-releases-mmfsbffgpr-1",
                                                                                                 "grpt-releases-mmfsbffgpr-2" }) @MavenRepository(
-                                                                                repositoryId = "grpt-releases-mmfsbffgpr-group") Repository releasesGroup,
+                                                                                repositoryId = "grpt-releases-mmfsbffgpr-group") RepositoryData releasesGroup,
                                                                         @MavenTestArtifact(repositoryId = "grpt-releases-mmfsbffgpr-1", id = "com.artifacts.in.releases.one:foo", versions = "1.2.3") Path a1,
                                                                         @MavenTestArtifact(repositoryId = "grpt-releases-mmfsbffgpr-1", id = "com.artifacts.in.releases.under123:group", versions = "1.2.3") Path a2,
                                                                         @MavenTestArtifact(repositoryId = "grpt-releases-mmfsbffgpr-2", id = "com.artifacts.in.releases.under123:group", versions = "1.2.4") Path a3)
@@ -203,8 +203,8 @@ public class MavenGroupRepositoryProviderTest
 
     @Test
     @ExtendWith({RepositoryManagementTestExecutionListener.class, ArtifactManagementTestExecutionListener.class})
-    public void testGroupIncludesWithOutOfServiceRepository(@MavenRepository(repositoryId = "grpt-releases-tgiwoosr-1") Repository releases1,
-                                                            @MavenRepository(repositoryId = "grpt-releases-tgiwoosr-2") Repository releases2,
+    public void testGroupIncludesWithOutOfServiceRepository(@MavenRepository(repositoryId = "grpt-releases-tgiwoosr-1") RepositoryData releases1,
+                                                            @MavenRepository(repositoryId = "grpt-releases-tgiwoosr-2") RepositoryData releases2,
                                                             @TestRepository.Group(repositories = { "grpt-releases-tgiwoosr-1",
                                                                                                    "grpt-releases-tgiwoosr-2" }, 
                                                                                   rules = { @Rule(repositories = { "grpt-releases-tgiwoosr-1",
@@ -213,7 +213,7 @@ public class MavenGroupRepositoryProviderTest
                                                                                             @Rule(repositories = { "grpt-releases-tgiwoosr-1" },
                                                                                                   pattern = ".*(com|org)/artifacts.in.*",
                                                                                                   type = RoutingRuleTypeEnum.DENY)})
-                                                            @MavenRepository(repositoryId = "grpt-releases-tgiwoosr-group") Repository releasesGroup,
+                                                            @MavenRepository(repositoryId = "grpt-releases-tgiwoosr-group") RepositoryData releasesGroup,
                                                             @MavenTestArtifact(repositoryId = "grpt-releases-tgiwoosr-1", id = "com.artifacts.in.releases.one:foo", versions = "1.2.3") Path a1,
                                                             @MavenTestArtifact(repositoryId = "grpt-releases-tgiwoosr-2", id = "com.artifacts.in.releases.two:foo", versions = "1.2.4") Path a2)
             throws Exception
@@ -271,10 +271,10 @@ public class MavenGroupRepositoryProviderTest
                          "com.artifacts.in.releases.under2:group",
                          new String[]{ "1.2.4" });
 
-        MutableMavenRepositoryConfiguration mavenRepositoryConfiguration = new MutableMavenRepositoryConfiguration();
+        MavenRepositoryConfigurationDto mavenRepositoryConfiguration = new MavenRepositoryConfigurationDto();
         mavenRepositoryConfiguration.setIndexingEnabled(false);
 
-        MutableRepository repositoryGroup = mavenRepositoryFactory.createRepository(repositoryGroupName);
+        RepositoryDto repositoryGroup = mavenRepositoryFactory.createRepository(repositoryGroupName);
         repositoryGroup.setType(RepositoryTypeEnum.GROUP.getType());
         repositoryGroup.setAllowsRedeployment(false);
         repositoryGroup.setAllowsDelete(false);
@@ -286,7 +286,7 @@ public class MavenGroupRepositoryProviderTest
         createRepository(STORAGE0, repositoryGroup);
         // Test data initialized.
 
-        Repository repository = configurationManager.getRepository(STORAGE0 + ":" + repositoryGroupName);
+        RepositoryData repository = configurationManager.getRepository(STORAGE0 + ":" + repositoryGroupName);
         RepositoryProvider repositoryProvider = repositoryProviderRegistry.getProvider(repository.getType());
 
         RepositoryPath resolvedPath = repositoryPathResolver.resolve(STORAGE0,
@@ -337,10 +337,10 @@ public class MavenGroupRepositoryProviderTest
                          "com.artifacts.in.releases.under3:group",
                          new String[]{ "1.2.4" });
 
-        MutableMavenRepositoryConfiguration mavenRepositoryConfiguration = new MutableMavenRepositoryConfiguration();
+        MavenRepositoryConfigurationDto mavenRepositoryConfiguration = new MavenRepositoryConfigurationDto();
         mavenRepositoryConfiguration.setIndexingEnabled(false);
 
-        MutableRepository repositoryGroup = mavenRepositoryFactory.createRepository(repositoryGroupName);
+        RepositoryDto repositoryGroup = mavenRepositoryFactory.createRepository(repositoryGroupName);
         repositoryGroup.setType(RepositoryTypeEnum.GROUP.getType());
         repositoryGroup.setAllowsRedeployment(false);
         repositoryGroup.setAllowsDelete(false);
@@ -351,7 +351,7 @@ public class MavenGroupRepositoryProviderTest
 
         createRepository(STORAGE0, repositoryGroup);
 
-        MutableRepository repositoryWithNestedGroupLevel1 = mavenRepositoryFactory.createRepository(
+        RepositoryDto repositoryWithNestedGroupLevel1 = mavenRepositoryFactory.createRepository(
                 repositoryGroupWithNestedGroup1);
         repositoryWithNestedGroupLevel1.setType(RepositoryTypeEnum.GROUP.getType());
         repositoryWithNestedGroupLevel1.setAllowsRedeployment(false);
@@ -363,7 +363,7 @@ public class MavenGroupRepositoryProviderTest
         createRepository(STORAGE0, repositoryWithNestedGroupLevel1);
         // Test data initialized.
 
-        Repository repository = configurationManager.getRepository(STORAGE0 + ":" + repositoryGroupWithNestedGroup1);
+        RepositoryData repository = configurationManager.getRepository(STORAGE0 + ":" + repositoryGroupWithNestedGroup1);
         RepositoryProvider repositoryProvider = repositoryProviderRegistry.getProvider(repository.getType());
 
         RepositoryPath resolvedPath = repositoryPathResolver.resolve(STORAGE0,
@@ -391,10 +391,10 @@ public class MavenGroupRepositoryProviderTest
         generateArtifact(getRepositoryBasedir(STORAGE0, repositoryReleases1Name).getAbsolutePath(),
                          "org.carlspring.metadata.by.juan:juancho:1.2.64");
 
-        MutableMavenRepositoryConfiguration mavenRepositoryConfiguration = new MutableMavenRepositoryConfiguration();
+        MavenRepositoryConfigurationDto mavenRepositoryConfiguration = new MavenRepositoryConfigurationDto();
         mavenRepositoryConfiguration.setIndexingEnabled(false);
 
-        MutableRepository repositoryGroup = mavenRepositoryFactory.createRepository(repositoryGroupName);
+        RepositoryDto repositoryGroup = mavenRepositoryFactory.createRepository(repositoryGroupName);
         repositoryGroup.setType(RepositoryTypeEnum.GROUP.getType());
         repositoryGroup.setAllowsRedeployment(false);
         repositoryGroup.setAllowsDelete(false);
@@ -406,7 +406,7 @@ public class MavenGroupRepositoryProviderTest
 
         System.out.println("# Testing group includes with wildcard against nested repositories...");
 
-        Repository repository = configurationManager.getRepository(STORAGE0 + ":" + repositoryGroupName);
+        RepositoryData repository = configurationManager.getRepository(STORAGE0 + ":" + repositoryGroupName);
         RepositoryProvider repositoryProvider = repositoryProviderRegistry.getProvider(repository.getType());
 
         RepositoryPath resolvedPath = repositoryPathResolver.resolve(STORAGE0,
@@ -422,14 +422,14 @@ public class MavenGroupRepositoryProviderTest
 
     @Test
     @ExtendWith({RepositoryManagementTestExecutionListener.class, ArtifactManagementTestExecutionListener.class})
-    public void testGroupExcludes(@MavenRepository(repositoryId = "grpt-releases-tge-1") Repository releases1,
-                                  @MavenRepository(repositoryId = "grpt-releases-tge-2") Repository releases2,
+    public void testGroupExcludes(@MavenRepository(repositoryId = "grpt-releases-tge-1") RepositoryData releases1,
+                                  @MavenRepository(repositoryId = "grpt-releases-tge-2") RepositoryData releases2,
                                   @TestRepository.Group(repositories = { "grpt-releases-tge-1",
                                                                          "grpt-releases-tge-2" }, 
                                                         rules = { @Rule(repositories = { "grpt-releases-tge-1" },
                                                                         pattern = ".*(com|org)/artifacts.denied.*",
                                                                         type = RoutingRuleTypeEnum.DENY)})
-                                  @MavenRepository(repositoryId = "grpt-releases-tge-group") Repository releasesGroup,
+                                  @MavenRepository(repositoryId = "grpt-releases-tge-group") RepositoryData releasesGroup,
                                   @MavenTestArtifact(repositoryId = "grpt-releases-tge-1", id = "com.artifacts.accepted:foo", versions = "1.2.6") Path a1,
                                   @MavenTestArtifact(repositoryId = "grpt-releases-tge-1", id = "com.artifacts.denied.by.wildcard:foo", versions = "1.2.6") Path a2,
                                   @MavenTestArtifact(repositoryId = "grpt-releases-tge-2", id = "com.artifacts.denied.by.wildcard:foo", versions = "1.2.7") Path a3)
@@ -627,10 +627,10 @@ public class MavenGroupRepositoryProviderTest
         generateArtifact(getRepositoryBasedir(STORAGE0, repositoryReleases2Name).getAbsolutePath(),
                          "org.carlspring.metadata.will.not.be:retrieved:1.2.64");
 
-        MutableMavenRepositoryConfiguration mavenRepositoryConfiguration = new MutableMavenRepositoryConfiguration();
+        MavenRepositoryConfigurationDto mavenRepositoryConfiguration = new MavenRepositoryConfigurationDto();
         mavenRepositoryConfiguration.setIndexingEnabled(false);
 
-        MutableRepository repositoryGroup = mavenRepositoryFactory.createRepository(repositoryGroupName);
+        RepositoryDto repositoryGroup = mavenRepositoryFactory.createRepository(repositoryGroupName);
         repositoryGroup.setType(RepositoryTypeEnum.GROUP.getType());
         repositoryGroup.setAllowsRedeployment(false);
         repositoryGroup.setAllowsDelete(false);
@@ -654,7 +654,7 @@ public class MavenGroupRepositoryProviderTest
 
         System.out.println("# Testing group excludes...");
 
-        Repository repository = configurationManager.getRepository(STORAGE0 + ":" + repositoryGroupName);
+        RepositoryData repository = configurationManager.getRepository(STORAGE0 + ":" + repositoryGroupName);
         RepositoryProvider repositoryProvider = repositoryProviderRegistry.getProvider(repository.getType());
 
         RepositoryPath resolvedPath = repositoryPathResolver.resolve(STORAGE0,

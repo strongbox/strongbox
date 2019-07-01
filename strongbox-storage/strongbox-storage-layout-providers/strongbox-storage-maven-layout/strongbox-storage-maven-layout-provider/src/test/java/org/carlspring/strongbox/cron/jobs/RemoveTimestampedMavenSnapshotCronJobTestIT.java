@@ -5,7 +5,7 @@ import org.carlspring.strongbox.config.Maven2LayoutProviderCronTasksTestConfig;
 import org.carlspring.strongbox.data.CacheManagerTestExecutionListener;
 import org.carlspring.strongbox.providers.layout.Maven2LayoutProvider;
 import org.carlspring.strongbox.services.ArtifactMetadataService;
-import org.carlspring.strongbox.storage.repository.MutableRepository;
+import org.carlspring.strongbox.storage.repository.RepositoryDto;
 import org.carlspring.strongbox.storage.repository.RepositoryPolicyEnum;
 
 import javax.inject.Inject;
@@ -54,9 +54,9 @@ public class RemoveTimestampedMavenSnapshotCronJobTestIT
     @Inject
     private ArtifactMetadataService artifactMetadataService;
 
-    private Set<MutableRepository> getRepositoriesToClean(TestInfo testInfo)
+    private Set<RepositoryDto> getRepositoriesToClean(TestInfo testInfo)
     {
-        Set<MutableRepository> repositories = new LinkedHashSet<>();
+        Set<RepositoryDto> repositories = new LinkedHashSet<>();
         repositories.add(createRepositoryMock(STORAGE0,
                                               getRepositoryName(REPOSITORY_SNAPSHOTS, testInfo),
                                               Maven2LayoutProvider.ALIAS));

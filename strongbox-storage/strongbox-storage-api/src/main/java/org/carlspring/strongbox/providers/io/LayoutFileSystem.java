@@ -12,16 +12,16 @@ import org.carlspring.strongbox.booters.PropertiesBooter;
 import org.carlspring.strongbox.io.StorageFileSystem;
 import org.carlspring.strongbox.providers.layout.LayoutFileSystemProvider;
 import org.carlspring.strongbox.providers.layout.LayoutProvider;
-import org.carlspring.strongbox.storage.repository.Repository;
+import org.carlspring.strongbox.storage.repository.RepositoryData;
 
 /**
  * This class decorates {@link StorageFileSystem} with common layout specific
  * logic. <br>
- * Root folder is the {@link Repository} base directory.
+ * Root folder is the {@link RepositoryData} base directory.
  *
  * @author Sergey Bespalov
  * 
- * @see Repository
+ * @see RepositoryData
  * @see LayoutProvider
  */
 public abstract class LayoutFileSystem
@@ -32,11 +32,11 @@ public abstract class LayoutFileSystem
     public static final String TEMP = ".temp";
     public static final String INDEX = ".index";
 
-    private final Repository repository;
+    private final RepositoryData repository;
     private final StorageFileSystemProvider provider;
     
     public LayoutFileSystem(PropertiesBooter propertiesBooter,
-                            Repository repository,
+                            RepositoryData repository,
                             FileSystem storageFileSystem,
                             LayoutFileSystemProvider provider)
     {
@@ -45,7 +45,7 @@ public abstract class LayoutFileSystem
         this.provider = provider;
     }
 
-    public Repository getRepository()
+    public RepositoryData getRepository()
     {
         return repository;
     }

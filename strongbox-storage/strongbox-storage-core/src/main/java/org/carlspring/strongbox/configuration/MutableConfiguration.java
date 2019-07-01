@@ -1,6 +1,6 @@
 package org.carlspring.strongbox.configuration;
 
-import org.carlspring.strongbox.storage.MutableStorage;
+import org.carlspring.strongbox.storage.StorageDto;
 import org.carlspring.strongbox.storage.routing.MutableRoutingRules;
 
 import java.io.Serializable;
@@ -46,7 +46,7 @@ public class MutableConfiguration
      * K: storageId
      * V: storage
      */
-    private Map<String, MutableStorage> storages = new LinkedHashMap<>();
+    private Map<String, StorageDto> storages = new LinkedHashMap<>();
 
     private MutableRoutingRules routingRules = new MutableRoutingRules();
 
@@ -134,17 +134,17 @@ public class MutableConfiguration
         this.sessionConfiguration = sessionConfiguration;
     }
 
-    public Map<String, MutableStorage> getStorages()
+    public Map<String, StorageDto> getStorages()
     {
         return storages;
     }
 
-    public void setStorages(Map<String, MutableStorage> storages)
+    public void setStorages(Map<String, StorageDto> storages)
     {
         this.storages = storages;
     }
 
-    public void addStorage(MutableStorage storage)
+    public void addStorage(StorageDto storage)
     {
         String key = storage.getId();
         if (key == null || key.isEmpty())
@@ -155,7 +155,7 @@ public class MutableConfiguration
         storages.put(key, storage);
     }
     
-    public void addStorageIfNotExist(MutableStorage storage)
+    public void addStorageIfNotExist(StorageDto storage)
     {
         String key = storage.getId();
         if (key == null || key.isEmpty())
@@ -167,12 +167,12 @@ public class MutableConfiguration
     }
 
 
-    public MutableStorage getStorage(String storageId)
+    public StorageDto getStorage(String storageId)
     {
         return storages.get(storageId);
     }
 
-    public void removeStorage(MutableStorage storage)
+    public void removeStorage(StorageDto storage)
     {
         storages.remove(storage.getId());
     }

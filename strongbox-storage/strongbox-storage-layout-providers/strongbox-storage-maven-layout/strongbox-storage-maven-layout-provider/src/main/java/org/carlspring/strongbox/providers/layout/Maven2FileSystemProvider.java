@@ -6,11 +6,11 @@ import org.carlspring.strongbox.providers.io.*;
 import org.carlspring.strongbox.providers.search.MavenIndexerSearchProvider;
 import org.carlspring.strongbox.providers.search.SearchException;
 import org.carlspring.strongbox.services.ArtifactSearchService;
-import org.carlspring.strongbox.storage.Storage;
+import org.carlspring.strongbox.storage.StorageData;
 import org.carlspring.strongbox.storage.metadata.MavenMetadataManager;
 import org.carlspring.strongbox.storage.metadata.MetadataHelper;
 import org.carlspring.strongbox.storage.metadata.MetadataType;
-import org.carlspring.strongbox.storage.repository.Repository;
+import org.carlspring.strongbox.storage.repository.RepositoryData;
 import org.carlspring.strongbox.storage.search.SearchRequest;
 import org.carlspring.strongbox.storage.search.SearchResult;
 import org.carlspring.strongbox.storage.search.SearchResults;
@@ -86,8 +86,8 @@ public class Maven2FileSystemProvider extends LayoutFileSystemProvider
                                   boolean force)
         throws IOException
     {
-        Repository repository = repositoryPathRelative.getRepository();
-        Storage storage = repository.getStorage();
+        RepositoryData repository = repositoryPathRelative.getRepository();
+        StorageData storage = repository.getStorage();
         
         List<String> artifactCoordinateElements = StreamSupport.stream(repositoryPathRelative.spliterator(), false)
                                                                .map(p -> p.toString())

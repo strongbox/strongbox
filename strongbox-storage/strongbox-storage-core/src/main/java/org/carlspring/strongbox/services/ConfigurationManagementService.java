@@ -5,8 +5,8 @@ import org.carlspring.strongbox.configuration.Configuration;
 import org.carlspring.strongbox.configuration.MutableConfiguration;
 import org.carlspring.strongbox.configuration.MutableProxyConfiguration;
 import org.carlspring.strongbox.configuration.MutableSmtpConfiguration;
-import org.carlspring.strongbox.storage.MutableStorage;
-import org.carlspring.strongbox.storage.repository.MutableRepository;
+import org.carlspring.strongbox.storage.StorageDto;
+import org.carlspring.strongbox.storage.repository.RepositoryDto;
 import org.carlspring.strongbox.storage.routing.MutableRoutingRule;
 
 import java.io.IOException;
@@ -35,14 +35,14 @@ public interface ConfigurationManagementService
                                String repositoryId,
                                MutableProxyConfiguration proxyConfiguration) throws IOException;
 
-    void saveStorage(MutableStorage storage) throws IOException;
+    void saveStorage(StorageDto storage) throws IOException;
     
-    void addStorageIfNotExists(MutableStorage storage) throws IOException;
+    void addStorageIfNotExists(StorageDto storage) throws IOException;
 
     void removeStorage(String storageId) throws IOException;
 
     void saveRepository(String storageId,
-                        MutableRepository repository) throws IOException;
+                        RepositoryDto repository) throws IOException;
 
     void removeRepositoryFromAssociatedGroups(String storageId,
                                               String repositoryId) throws IOException;

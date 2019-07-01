@@ -8,8 +8,8 @@ import org.carlspring.strongbox.providers.io.RepositoryPath;
 import org.carlspring.strongbox.providers.io.RepositoryPathResolver;
 import org.carlspring.strongbox.repository.RepositoryManagementStrategyException;
 import org.carlspring.strongbox.services.*;
-import org.carlspring.strongbox.storage.MutableStorage;
-import org.carlspring.strongbox.storage.repository.MutableRepository;
+import org.carlspring.strongbox.storage.StorageDto;
+import org.carlspring.strongbox.storage.repository.RepositoryDto;
 import org.carlspring.strongbox.testing.TestCaseWithRepository;
 
 import javax.inject.Inject;
@@ -76,9 +76,9 @@ public class RawLayoutProviderTest
         cleanUp(getRepositoriesToClean());
     }
 
-    public static Set<MutableRepository> getRepositoriesToClean()
+    public static Set<RepositoryDto> getRepositoriesToClean()
     {
-        Set<MutableRepository> repositories = new LinkedHashSet<>();
+        Set<RepositoryDto> repositories = new LinkedHashSet<>();
         repositories.add(createRepositoryMock(STORAGE, REPOSITORY, RawLayoutProvider.ALIAS));
 
         return repositories;
@@ -170,7 +170,7 @@ public class RawLayoutProviderTest
     private void createRepository(String storageId, String repositoryId)
             throws IOException, RepositoryManagementStrategyException
     {
-        MutableRepository repository = new MutableRepository(repositoryId);
+        RepositoryDto repository = new RepositoryDto(repositoryId);
         repository.setAllowsRedeployment(true);
         repository.setLayout(RawLayoutProvider.ALIAS);
         repository.setArtifactCoordinateValidators(Collections.emptySet());
@@ -184,7 +184,7 @@ public class RawLayoutProviderTest
     private void createStorage(String storageId)
             throws IOException
     {
-        MutableStorage storage = new MutableStorage(storageId);
+        StorageDto storage = new StorageDto(storageId);
 
         configurationManagementService.saveStorage(storage);
         storageManagementService.saveStorage(storage);

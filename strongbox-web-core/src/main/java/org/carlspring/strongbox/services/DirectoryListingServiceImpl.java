@@ -19,8 +19,8 @@ import org.carlspring.strongbox.domain.DirectoryListing;
 import org.carlspring.strongbox.domain.FileContent;
 import org.carlspring.strongbox.providers.io.RepositoryFileAttributeType;
 import org.carlspring.strongbox.providers.io.RepositoryPath;
-import org.carlspring.strongbox.storage.Storage;
-import org.carlspring.strongbox.storage.repository.Repository;
+import org.carlspring.strongbox.storage.StorageData;
+import org.carlspring.strongbox.storage.repository.RepositoryData;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -38,12 +38,12 @@ public class DirectoryListingServiceImpl implements DirectoryListingService
     }
 
     @Override
-    public DirectoryListing fromStorages(Map<String, ? extends Storage> storages)
+    public DirectoryListing fromStorages(Map<String, ? extends StorageData> storages)
         throws IOException
     {
         DirectoryListing directoryListing = new DirectoryListing();
 
-        for (Storage storage : storages.values())
+        for (StorageData storage : storages.values())
         {
             FileContent fileContent = new FileContent(storage.getId());
             directoryListing.getDirectories().add(fileContent);
@@ -56,12 +56,12 @@ public class DirectoryListingServiceImpl implements DirectoryListingService
     }
 
     @Override
-    public DirectoryListing fromRepositories(Map<String, ? extends Repository> repositories)
+    public DirectoryListing fromRepositories(Map<String, ? extends RepositoryData> repositories)
         throws IOException
     {
         DirectoryListing directoryListing = new DirectoryListing();
 
-        for (Repository repository : repositories.values())
+        for (RepositoryData repository : repositories.values())
         {
             FileContent fileContent = new FileContent(repository.getId());
             directoryListing.getDirectories().add(fileContent);

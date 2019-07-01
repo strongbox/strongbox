@@ -2,13 +2,13 @@ package org.carlspring.strongbox.repository.group;
 
 import org.carlspring.strongbox.providers.layout.Maven2LayoutProvider;
 import org.carlspring.strongbox.repository.RepositoryManagementStrategyException;
-import org.carlspring.strongbox.storage.Storage;
-import org.carlspring.strongbox.storage.repository.MutableRepository;
-import org.carlspring.strongbox.storage.repository.Repository;
+import org.carlspring.strongbox.storage.StorageData;
+import org.carlspring.strongbox.storage.repository.RepositoryDto;
+import org.carlspring.strongbox.storage.repository.RepositoryData;
 import org.carlspring.strongbox.storage.repository.RepositoryPolicyEnum;
 import org.carlspring.strongbox.storage.repository.RepositoryTypeEnum;
 import org.carlspring.strongbox.testing.TestCaseWithMavenArtifactGenerationAndIndexing;
-import org.carlspring.strongbox.yaml.configuration.repository.MutableMavenRepositoryConfiguration;
+import org.carlspring.strongbox.yaml.configuration.repository.MavenRepositoryConfigurationDto;
 
 import javax.xml.bind.JAXBException;
 import java.io.IOException;
@@ -29,17 +29,17 @@ public abstract class BaseMavenGroupRepositoryComponentTest
         extends TestCaseWithMavenArtifactGenerationAndIndexing
 {
 
-    protected Set<MutableRepository> getRepositories()
+    protected Set<RepositoryDto> getRepositories()
     {
         return Collections.emptySet();
     }
 
     @Override
     public void createRepository(final String storageId,
-                                 final MutableRepository repository)
+                                 final RepositoryDto repository)
             throws RepositoryManagementStrategyException, JAXBException, IOException
     {
-        MutableMavenRepositoryConfiguration configuration = new MutableMavenRepositoryConfiguration();
+        MavenRepositoryConfigurationDto configuration = new MavenRepositoryConfigurationDto();
         configuration.setIndexingEnabled(true);
 
         repository.setLayout(Maven2LayoutProvider.ALIAS);
@@ -54,7 +54,7 @@ public abstract class BaseMavenGroupRepositoryComponentTest
                               String repositoryId)
             throws Exception
     {
-        MutableRepository repository = new MutableRepository(repositoryId);
+        RepositoryDto repository = new RepositoryDto(repositoryId);
         repository.setLayout(Maven2LayoutProvider.ALIAS);
         repository.setType(new Random().nextInt(2) % 2 == 0 ?
                            RepositoryTypeEnum.HOSTED.getType() :
@@ -63,12 +63,12 @@ public abstract class BaseMavenGroupRepositoryComponentTest
         createRepository(storageId, repository);
     }
 
-    protected MutableRepository createGroup(String repositoryId,
+    protected RepositoryDto createGroup(String repositoryId,
                                             String storageId,
                                             String... leafs)
             throws Exception
     {
-        MutableRepository repository = new MutableRepository(repositoryId);
+        RepositoryDto repository = new RepositoryDto(repositoryId);
         repository.setLayout(Maven2LayoutProvider.ALIAS);
         repository.setType(RepositoryTypeEnum.GROUP.getType());
         repository.setGroupRepositories(Sets.newLinkedHashSet(Arrays.asList(leafs)));
@@ -90,9 +90,9 @@ public abstract class BaseMavenGroupRepositoryComponentTest
                                         String path)
             throws IOException
     {
-        final Storage storage = getConfiguration().getStorage(STORAGE0);
+        final StorageData storage = getConfiguration().getStorage(STORAGE0);
 
-        Repository repository = storage.getRepository(sourceRepositoryId);
+        RepositoryData repository = storage.getRepository(sourceRepositoryId);
         final Path sourcePath = repositoryPathResolver.resolve(repository, path);
 
         repository = storage.getRepository(destinationRepositoryId);

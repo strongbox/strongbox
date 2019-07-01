@@ -5,23 +5,23 @@ import java.util.Objects;
 import javax.annotation.concurrent.Immutable;
 
 import org.carlspring.strongbox.authorization.dto.RoleDto;
-import org.carlspring.strongbox.authorization.dto.RoleReadContract;
+import org.carlspring.strongbox.authorization.dto.RoleData;
 import org.carlspring.strongbox.users.domain.AccessModel;
-import org.carlspring.strongbox.users.dto.UserAccessModelDto;
-import org.carlspring.strongbox.users.dto.UserAccessModelReadContract;
+import org.carlspring.strongbox.users.dto.AccessModelDto;
+import org.carlspring.strongbox.users.dto.AccessModelData;
 
 /**
  * @author Przemyslaw Fusik
  */
 @Immutable
-public class Role implements RoleReadContract
+public class Role implements RoleData
 {
 
     private final String name;
 
     private final String description;
 
-    private final UserAccessModelReadContract accessModel;
+    private final AccessModelData accessModel;
 
     public Role(final RoleDto source)
     {
@@ -30,7 +30,7 @@ public class Role implements RoleReadContract
         this.accessModel = immuteAccessModel(source.getAccessModel());
     }
 
-    private UserAccessModelReadContract immuteAccessModel(UserAccessModelDto source)
+    private AccessModelData immuteAccessModel(AccessModelDto source)
     {
         return source != null ? new AccessModel(source) : null;
     }
@@ -45,7 +45,7 @@ public class Role implements RoleReadContract
         return description;
     }
 
-    public UserAccessModelReadContract getAccessModel()
+    public AccessModelData getAccessModel()
     {
         return accessModel;
     }

@@ -9,7 +9,7 @@ import org.carlspring.strongbox.providers.layout.LayoutProvider;
 import org.carlspring.strongbox.providers.layout.LayoutProviderRegistry;
 import org.carlspring.strongbox.service.ProxyRepositoryConnectionPoolConfigurationService;
 import org.carlspring.strongbox.services.ConfigurationManagementService;
-import org.carlspring.strongbox.storage.MutableStorage;
+import org.carlspring.strongbox.storage.StorageDto;
 import org.carlspring.strongbox.storage.repository.*;
 import org.carlspring.strongbox.storage.routing.MutableRoutingRule;
 
@@ -184,13 +184,13 @@ public class ConfigurationManagementServiceImpl
     }
 
     @Override
-    public void saveStorage(MutableStorage storage) throws IOException
+    public void saveStorage(StorageDto storage) throws IOException
     {
         modifyInLock(configuration -> configuration.addStorage(storage));
     }
     
     @Override
-    public void addStorageIfNotExists(MutableStorage storage) throws IOException
+    public void addStorageIfNotExists(StorageDto storage) throws IOException
     {
         modifyInLock(configuration -> configuration.addStorageIfNotExist(storage));
     }
@@ -203,11 +203,11 @@ public class ConfigurationManagementServiceImpl
 
     @Override
     public void saveRepository(String storageId,
-                               MutableRepository repository) throws IOException
+                               RepositoryDto repository) throws IOException
     {
         modifyInLock(configuration ->
                      {
-                         final MutableStorage storage = configuration.getStorage(storageId);
+                         final StorageDto storage = configuration.getStorage(storageId);
                          repository.setStorage(storage);
                          storage.addRepository(repository);
 
@@ -226,12 +226,12 @@ public class ConfigurationManagementServiceImpl
     {
         modifyInLock(configuration ->
                      {
-                         List<Repository> includedInGroupRepositories = getConfiguration().getGroupRepositoriesContaining(
+                         List<RepositoryData> includedInGroupRepositories = getConfiguration().getGroupRepositoriesContaining(
                                  storageId, repositoryId);
 
                          if (!includedInGroupRepositories.isEmpty())
                          {
-                             for (Repository repository : includedInGroupRepositories)
+                             for (RepositoryData repository : includedInGroupRepositories)
                              {
                                  configuration.getStorage(repository.getStorage().getId())
                                               .getRepository(repository.getId())
@@ -265,7 +265,7 @@ public class ConfigurationManagementServiceImpl
     {
         modifyInLock(configuration ->
                      {
-                         MutableRepository repository = configuration.getStorage(storageId).getRepository(repositoryId);
+                         RepositoryDto repository = configuration.getStorage(storageId).getRepository(repositoryId);
                          if (repository.getHttpConnectionPool() == null)
                          {
                              repository.setHttpConnectionPool(new MutableHttpConnectionPool());
@@ -333,7 +333,7 @@ public class ConfigurationManagementServiceImpl
     {
         modifyInLock(configuration ->
                      {
-                         final MutableRepository repository = configuration.getStorage(storageId)
+                         final RepositoryDto repository = configuration.getStorage(storageId)
                                                                            .getRepository(repositoryId);
                          repository.addRepositoryToGroup(repositoryGroupMemberId);
                      });
@@ -343,17 +343,17 @@ public class ConfigurationManagementServiceImpl
     {
         modifyInLock(configuration ->
                      {
-                         final Map<String, MutableStorage> storages = configuration.getStorages();
+                         final Map<String, StorageDto> storages = configuration.getStorages();
 
                          if (storages != null && !storages.isEmpty())
                          {
-                             for (MutableStorage storage : storages.values())
+                             for (StorageDto storage : storages.values())
                              {
                                  if (storage.getRepositories() != null && !storage.getRepositories().isEmpty())
                                  {
-                                     for (Repository repository : storage.getRepositories().values())
+                                     for (RepositoryData repository : storage.getRepositories().values())
                                      {
-                                        MutableRepository mutableRepository = (MutableRepository)repository;
+                                        RepositoryDto mutableRepository = (RepositoryDto)repository;
                                         if (repository.getType().equals(RepositoryTypeEnum.GROUP.getType()))
                                          {
                                              mutableRepository.setAllowsDelete(false);
@@ -381,17 +381,17 @@ public class ConfigurationManagementServiceImpl
     {
         modifyInLock(configuration ->
                      {
-                         final Map<String, MutableStorage> storages = configuration.getStorages();
+                         final Map<String, StorageDto> storages = configuration.getStorages();
 
                          if (storages != null && !storages.isEmpty())
                          {
-                             for (MutableStorage storage : storages.values())
+                             for (StorageDto storage : storages.values())
                              {
                                  if (storage.getRepositories() != null && !storage.getRepositories().isEmpty())
                                  {
-                                     for (Repository repository : storage.getRepositories().values())
+                                     for (RepositoryData repository : storage.getRepositories().values())
                                      {
-                                         ((MutableRepository)repository).setStorage(storage);
+                                         ((RepositoryDto)repository).setStorage(storage);
                                      }
                                  }
                              }
@@ -404,15 +404,15 @@ public class ConfigurationManagementServiceImpl
     {
         modifyInLock(configuration ->
                      {
-                         final Map<String, MutableStorage> storages = configuration.getStorages();
+                         final Map<String, StorageDto> storages = configuration.getStorages();
 
                          if (storages != null && !storages.isEmpty())
                          {
-                             for (MutableStorage storage : storages.values())
+                             for (StorageDto storage : storages.values())
                              {
                                  if (storage.getRepositories() != null && !storage.getRepositories().isEmpty())
                                  {
-                                     for (Repository repository : storage.getRepositories().values())
+                                     for (RepositoryData repository : storage.getRepositories().values())
                                      {
                                          LayoutProvider layoutProvider = layoutProviderRegistry.getProvider(
                                                  repository.getLayout());
@@ -431,7 +431,7 @@ public class ConfigurationManagementServiceImpl
                                                    repository.getArtifactCoordinateValidators().isEmpty())) &&
                                                  defaultArtifactCoordinateValidators != null)
                                              {
-                                                 ((MutableRepository)repository).setArtifactCoordinateValidators(defaultArtifactCoordinateValidators);
+                                                 ((RepositoryDto)repository).setArtifactCoordinateValidators(defaultArtifactCoordinateValidators);
                                              }
                                          }
                                      }
@@ -558,8 +558,8 @@ public class ConfigurationManagementServiceImpl
                          configuration.getStorages().values().stream()
                                       .filter(storage -> MapUtils.isNotEmpty(storage.getRepositories()))
                                       .flatMap(storage -> storage.getRepositories().values().stream())
-                                      .map(r -> (MutableRepository) r)
-                                      .filter(MutableRepository::isEligibleForCustomConnectionPool)
+                                      .map(r -> (RepositoryDto) r)
+                                      .filter(RepositoryDto::isEligibleForCustomConnectionPool)
                                       .forEach(repository -> proxyRepositoryConnectionPoolConfigurationService.setMaxPerRepository(repository.getRemoteRepository()
                                                                                                                                              .getUrl(),
                                                                                                                                    repository.getHttpConnectionPool()

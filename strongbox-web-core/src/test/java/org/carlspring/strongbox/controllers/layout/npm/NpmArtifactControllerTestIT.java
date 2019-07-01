@@ -7,7 +7,7 @@ import org.carlspring.strongbox.domain.RemoteArtifactEntry;
 import org.carlspring.strongbox.providers.layout.NpmLayoutProvider;
 import org.carlspring.strongbox.rest.common.NpmRestAssuredBaseTest;
 import org.carlspring.strongbox.services.ArtifactEntryService;
-import org.carlspring.strongbox.storage.repository.MutableRepository;
+import org.carlspring.strongbox.storage.repository.RepositoryDto;
 import org.carlspring.strongbox.storage.repository.NpmRepositoryFactory;
 import org.carlspring.strongbox.storage.repository.RepositoryPolicyEnum;
 import org.carlspring.strongbox.storage.repository.RepositoryTypeEnum;
@@ -59,9 +59,9 @@ public class NpmArtifactControllerTestIT
         cleanUp(getRepositoriesToClean());
     }
 
-    public static Set<MutableRepository> getRepositoriesToClean()
+    public static Set<RepositoryDto> getRepositoriesToClean()
     {
-        Set<MutableRepository> repositories = new LinkedHashSet<>();
+        Set<RepositoryDto> repositories = new LinkedHashSet<>();
         repositories.add(createRepositoryMock(STORAGE0, REPOSITORY_RELEASES, NpmLayoutProvider.ALIAS));
         repositories.add(createRepositoryMock(STORAGE0, REPOSITORY_PROXY, NpmLayoutProvider.ALIAS));
         repositories.add(createRepositoryMock(STORAGE0, REPOSITORY_GROUP, NpmLayoutProvider.ALIAS));
@@ -76,7 +76,7 @@ public class NpmArtifactControllerTestIT
     {
         super.init();
 
-        MutableRepository repository1 = npmRepositoryFactory.createRepository(REPOSITORY_RELEASES);
+        RepositoryDto repository1 = npmRepositoryFactory.createRepository(REPOSITORY_RELEASES);
         repository1.setPolicy(RepositoryPolicyEnum.RELEASE.getPolicy());
 
         createRepository(STORAGE0, repository1);
@@ -90,7 +90,7 @@ public class NpmArtifactControllerTestIT
                               REPOSITORY_PROXY,
                               "https://registry.npmjs.org/");
 
-        MutableRepository repository2 = npmRepositoryFactory.createRepository(REPOSITORY_GROUP);
+        RepositoryDto repository2 = npmRepositoryFactory.createRepository(REPOSITORY_GROUP);
         repository2.setType(RepositoryTypeEnum.GROUP.getType());
         repository2.setGroupRepositories(Sets.newHashSet(STORAGE0 + ":" + REPOSITORY_PROXY));
 

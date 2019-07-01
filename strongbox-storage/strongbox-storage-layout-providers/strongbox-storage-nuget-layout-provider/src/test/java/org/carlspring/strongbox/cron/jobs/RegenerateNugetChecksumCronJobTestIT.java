@@ -7,8 +7,8 @@ import org.carlspring.strongbox.repository.RepositoryManagementStrategyException
 import org.carlspring.strongbox.services.ConfigurationManagementService;
 import org.carlspring.strongbox.services.RepositoryManagementService;
 import org.carlspring.strongbox.services.StorageManagementService;
-import org.carlspring.strongbox.storage.MutableStorage;
-import org.carlspring.strongbox.storage.repository.MutableRepository;
+import org.carlspring.strongbox.storage.StorageDto;
+import org.carlspring.strongbox.storage.repository.RepositoryDto;
 import org.carlspring.strongbox.storage.repository.NugetRepositoryFactory;
 import org.carlspring.strongbox.storage.repository.RepositoryPolicyEnum;
 
@@ -66,21 +66,21 @@ public class RegenerateNugetChecksumCronJobTestIT
         cleanUp(getRepositoriesToClean());
     }
 
-    public static Set<MutableRepository> getRepositoriesToClean()
+    public static Set<RepositoryDto> getRepositoriesToClean()
     {
-        Set<MutableRepository> repositories = new LinkedHashSet<>();
+        Set<RepositoryDto> repositories = new LinkedHashSet<>();
         repositories.add(createRepositoryMock(STORAGE1, REPOSITORY_RELEASES));
         repositories.add(createRepositoryMock(STORAGE1, REPOSITORY_ALPHA));
         repositories.add(createRepositoryMock(STORAGE2, REPOSITORY_RELEASES));
         return repositories;
     }
 
-    public static void cleanUp(Set<MutableRepository> repositoriesToClean)
+    public static void cleanUp(Set<RepositoryDto> repositoriesToClean)
             throws Exception
     {
         if (repositoriesToClean != null)
         {
-            for (MutableRepository repository : repositoriesToClean)
+            for (RepositoryDto repository : repositoriesToClean)
             {
                 removeRepositoryDirectory(repository.getStorage().getId(), repository.getId());
             }
@@ -99,14 +99,14 @@ public class RegenerateNugetChecksumCronJobTestIT
         }
     }
 
-    public static MutableRepository createRepositoryMock(String storageId,
+    public static RepositoryDto createRepositoryMock(String storageId,
                                                          String repositoryId)
     {
         // This is no the real storage, but has a matching ID.
         // We're mocking it, as the configurationManager is not available at the the static methods are invoked.
-        MutableStorage storage = new MutableStorage(storageId);
+        StorageDto storage = new StorageDto(storageId);
 
-        MutableRepository repository = new MutableRepository(repositoryId);
+        RepositoryDto repository = new RepositoryDto(repositoryId);
         repository.setStorage(storage);
 
         return repository;
@@ -336,14 +336,14 @@ public class RegenerateNugetChecksumCronJobTestIT
             throws IOException,
                    RepositoryManagementStrategyException
     {
-        MutableRepository repository = nugetRepositoryFactory.createRepository(repositoryId);
+        RepositoryDto repository = nugetRepositoryFactory.createRepository(repositoryId);
         repository.setPolicy(policy);
 
         createRepository(storageId, repository);
     }
 
     private void createRepository(String storageId,
-                                  MutableRepository repository)
+                                  RepositoryDto repository)
             throws IOException,
                    RepositoryManagementStrategyException
     {
@@ -356,19 +356,19 @@ public class RegenerateNugetChecksumCronJobTestIT
     private void createStorage(String storageId)
             throws IOException
     {
-        createStorage(new MutableStorage(storageId));
+        createStorage(new StorageDto(storageId));
     }
 
-    private void createStorage(MutableStorage storage)
+    private void createStorage(StorageDto storage)
             throws IOException
     {
         configurationManagementService.saveStorage(storage);
         storageManagementService.saveStorage(storage);
     }
 
-    public void removeRepositories(Set<MutableRepository> repositoriesToClean) throws IOException
+    public void removeRepositories(Set<RepositoryDto> repositoriesToClean) throws IOException
     {
-        for (MutableRepository repository : repositoriesToClean)
+        for (RepositoryDto repository : repositoriesToClean)
         {
             configurationManagementService.removeRepository(repository.getStorage()
                                                                       .getId(), repository.getId());

@@ -1,6 +1,6 @@
 package org.carlspring.strongbox.testing.storage.repository;
 
-import org.carlspring.strongbox.storage.repository.MutableRepository;
+import org.carlspring.strongbox.storage.repository.RepositoryDto;
 
 /**
  * @author sbespalov
@@ -9,6 +9,6 @@ import org.carlspring.strongbox.storage.repository.MutableRepository;
 public interface RepositorySetup
 {
 
-    void setup(MutableRepository repository);
+    void setup(RepositoryDto repository);
     
 }

@@ -3,7 +3,7 @@ package org.carlspring.strongbox.rest.common;
 import org.carlspring.commons.io.MultipleDigestOutputStream;
 import org.carlspring.strongbox.repository.RepositoryManagementStrategyException;
 import org.carlspring.strongbox.rest.client.RestAssuredArtifactClient;
-import org.carlspring.strongbox.storage.repository.MutableRepository;
+import org.carlspring.strongbox.storage.repository.RepositoryDto;
 import org.carlspring.strongbox.storage.repository.NpmRepositoryFactory;
 import org.carlspring.strongbox.storage.repository.RepositoryTypeEnum;
 import org.carlspring.strongbox.storage.repository.remote.MutableRemoteRepository;
@@ -105,7 +105,7 @@ public abstract class NpmRestAssuredBaseTest
         MutableRemoteRepository remoteRepository = new MutableRemoteRepository();
         remoteRepository.setUrl(remoteRepositoryUrl);
 
-        MutableRepository repository = npmRepositoryFactory.createRepository(repositoryId);
+        RepositoryDto repository = npmRepositoryFactory.createRepository(repositoryId);
         repository.setType(RepositoryTypeEnum.PROXY.getType());
         repository.setRemoteRepository(remoteRepository);
 

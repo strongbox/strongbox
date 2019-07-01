@@ -1,7 +1,7 @@
 package org.carlspring.strongbox.controllers.configuration;
 
 import org.carlspring.strongbox.controllers.BaseController;
-import org.carlspring.strongbox.storage.repository.Repository;
+import org.carlspring.strongbox.storage.repository.RepositoryData;
 import org.carlspring.strongbox.storage.validation.ArtifactCoordinatesValidator;
 import org.carlspring.strongbox.storage.validation.artifact.ArtifactCoordinatesValidatorRegistry;
 import org.carlspring.strongbox.web.RepositoryMapping;
@@ -59,7 +59,7 @@ public class ArtifactCoordinateValidatorsManagementController
                             @ApiResponse(code = 404, message = NOT_FOUND_REPOSITORY_MESSAGE) })
     @GetMapping(value = "/{storageId}/{repositoryId}",
                 produces = MediaType.APPLICATION_JSON_VALUE)
-    public ResponseEntity listArtifactCoordinatesForRepository(@RepositoryMapping Repository repository)
+    public ResponseEntity listArtifactCoordinatesForRepository(@RepositoryMapping RepositoryData repository)
     {
         Set<String> versionValidators = repository.getArtifactCoordinateValidators()
                                                   .stream()
@@ -75,7 +75,7 @@ public class ArtifactCoordinateValidatorsManagementController
     @PutMapping(value = "/{storageId}/{repositoryId}/{alias}",
                 produces = { MediaType.TEXT_PLAIN_VALUE,
                              MediaType.APPLICATION_JSON_VALUE })
-    public ResponseEntity add(@RepositoryMapping Repository repository,
+    public ResponseEntity add(@RepositoryMapping RepositoryData repository,
                               @PathVariable String alias,
                               @RequestHeader(HttpHeaders.ACCEPT) String acceptHeader) throws IOException
     {
@@ -92,7 +92,7 @@ public class ArtifactCoordinateValidatorsManagementController
     @DeleteMapping(value = "/{storageId}/{repositoryId}/{alias}",
                    produces = { MediaType.TEXT_PLAIN_VALUE,
                                 MediaType.APPLICATION_JSON_VALUE })
-    public ResponseEntity delete(@RepositoryMapping Repository repository,
+    public ResponseEntity delete(@RepositoryMapping RepositoryData repository,
                                  @PathVariable String alias,
                                  @RequestHeader(HttpHeaders.ACCEPT) String acceptHeader) throws IOException
     {

@@ -4,7 +4,7 @@ import org.carlspring.strongbox.artifact.MavenArtifact;
 import org.carlspring.strongbox.artifact.MavenArtifactUtils;
 import org.carlspring.strongbox.providers.io.RepositoryPath;
 import org.carlspring.strongbox.providers.io.RepositoryPathResolver;
-import org.carlspring.strongbox.storage.repository.Repository;
+import org.carlspring.strongbox.storage.repository.RepositoryData;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
@@ -34,7 +34,7 @@ public class MavenArtifactRequestInterceptor
     }
 
     @Override
-    protected boolean preHandle(Repository repository,
+    protected boolean preHandle(RepositoryData repository,
                                 String artifactPath,
                                 HttpServletRequest request,
                                 HttpServletResponse response)

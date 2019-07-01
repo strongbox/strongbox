@@ -12,11 +12,11 @@ import org.carlspring.strongbox.providers.io.RepositoryPath;
 import org.carlspring.strongbox.providers.io.RepositoryPathResolver;
 import org.carlspring.strongbox.providers.layout.Maven2LayoutProvider;
 import org.carlspring.strongbox.services.ArtifactMetadataService;
-import org.carlspring.strongbox.storage.Storage;
+import org.carlspring.strongbox.storage.StorageData;
 import org.carlspring.strongbox.storage.metadata.MavenMetadataManager;
 import org.carlspring.strongbox.storage.metadata.MetadataHelper;
 import org.carlspring.strongbox.storage.metadata.MetadataType;
-import org.carlspring.strongbox.storage.repository.Repository;
+import org.carlspring.strongbox.storage.repository.RepositoryData;
 
 import javax.inject.Inject;
 import java.io.IOException;
@@ -70,8 +70,8 @@ public class ArtifactMetadataServiceImpl
             throws IOException,
                    XmlPullParserException
     {
-        Storage storage = getConfiguration().getStorage(storageId);
-        Repository repository = storage.getRepository(repositoryId);
+        StorageData storage = getConfiguration().getStorage(storageId);
+        RepositoryData repository = storage.getRepository(repositoryId);
 
         RepositoryPath artifactBasePath = repositoryPathResolver.resolve(repository, artifactPath);
 
@@ -90,9 +90,9 @@ public class ArtifactMetadataServiceImpl
                                 String basePath)
             throws IOException
     {
-        Storage storage = getConfiguration().getStorage(storageId);
+        StorageData storage = getConfiguration().getStorage(storageId);
 
-        for (Repository repository : storage.getRepositories().values())
+        for (RepositoryData repository : storage.getRepositories().values())
         {
             rebuildMetadata(storageId, repository.getId(), basePath);
         }
@@ -104,8 +104,8 @@ public class ArtifactMetadataServiceImpl
                                 String basePath)
             throws IOException
     {
-        Storage storage = getConfiguration().getStorage(storageId);
-        Repository repository = storage.getRepository(repositoryId);
+        StorageData storage = getConfiguration().getStorage(storageId);
+        RepositoryData repository = storage.getRepository(repositoryId);
 
         if (!Maven2LayoutProvider.ALIAS.equals(repository.getLayout()))
         {
@@ -148,8 +148,8 @@ public class ArtifactMetadataServiceImpl
             throws IOException,
                    XmlPullParserException
     {
-        Storage storage = getConfiguration().getStorage(storageId);
-        Repository repository = storage.getRepository(repositoryId);
+        StorageData storage = getConfiguration().getStorage(storageId);
+        RepositoryData repository = storage.getRepository(repositoryId);
 
         RepositoryPath artifactBasePath = repositoryPathResolver.resolve(repository, artifactPath);
 
@@ -192,8 +192,8 @@ public class ArtifactMetadataServiceImpl
                                               String extension)
             throws IOException
     {
-        Storage storage = getConfiguration().getStorage(storageId);
-        Repository repository = storage.getRepository(repositoryId);
+        StorageData storage = getConfiguration().getStorage(storageId);
+        RepositoryData repository = storage.getRepository(repositoryId);
 
         String snapshot = ArtifactUtils.toSnapshotVersion(version);
 
@@ -247,8 +247,8 @@ public class ArtifactMetadataServiceImpl
                               MetadataType metadataType)
             throws IOException, XmlPullParserException, NoSuchAlgorithmException
     {
-        Storage storage = getConfiguration().getStorage(storageId);
-        Repository repository = storage.getRepository(repositoryId);
+        StorageData storage = getConfiguration().getStorage(storageId);
+        RepositoryData repository = storage.getRepository(repositoryId);
 
         RepositoryPath repositoryPath = repositoryPathResolver.resolve(repository, artifactPath);
 
@@ -289,8 +289,8 @@ public class ArtifactMetadataServiceImpl
                                                  String classifier)
             throws IOException
     {
-        Storage storage = getConfiguration().getStorage(storageId);
-        Repository repository = storage.getRepository(repositoryId);
+        StorageData storage = getConfiguration().getStorage(storageId);
+        RepositoryData repository = storage.getRepository(repositoryId);
 
         String snapshot = ArtifactUtils.toSnapshotVersion(version);
 
@@ -339,8 +339,8 @@ public class ArtifactMetadataServiceImpl
                                String repositoryId,
                                String metadataPath)
     {
-        Storage storage = getConfiguration().getStorage(storageId);
-        Repository repository = storage.getRepository(repositoryId);
+        StorageData storage = getConfiguration().getStorage(storageId);
+        RepositoryData repository = storage.getRepository(repositoryId);
 
         RepositoryPath repositoryPath = repositoryPathResolver.resolve(repository);
         if (!Files.isDirectory(repositoryPath))

@@ -7,10 +7,10 @@ import org.apache.commons.lang3.StringUtils;
 import org.carlspring.strongbox.forms.users.AccessModelForm;
 import org.carlspring.strongbox.forms.users.RepositoryAccessModelForm;
 import org.carlspring.strongbox.users.domain.Privileges;
-import org.carlspring.strongbox.users.dto.UserAccessModelDto;
-import org.carlspring.strongbox.users.dto.UserPathPrivilegesDto;
-import org.carlspring.strongbox.users.dto.UserRepositoryDto;
-import org.carlspring.strongbox.users.dto.UserStorageDto;
+import org.carlspring.strongbox.users.dto.AccessModelDto;
+import org.carlspring.strongbox.users.dto.PathPrivilegesDto;
+import org.carlspring.strongbox.users.dto.RepositoryPrivilegesDto;
+import org.carlspring.strongbox.users.dto.StoragePrivilegesDto;
 import org.springframework.core.convert.converter.Converter;
 
 /**
@@ -18,20 +18,20 @@ import org.springframework.core.convert.converter.Converter;
  * @author Przemyslaw Fusik
  */
 public enum AccessModelFormToUserAccessModelDtoConverter
-        implements Converter<AccessModelForm, UserAccessModelDto>
+        implements Converter<AccessModelForm, AccessModelDto>
 {
 
     INSTANCE;
 
     @Override
-    public UserAccessModelDto convert(AccessModelForm accessModelForm)
+    public AccessModelDto convert(AccessModelForm accessModelForm)
     {
         if (accessModelForm == null)
         {
             return null;
         }
         
-        UserAccessModelDto userAccessModelDto = new UserAccessModelDto();
+        AccessModelDto userAccessModelDto = new AccessModelDto();
         accessModelForm.getApiAcess()
                        .stream()
                        .map(p -> Privileges.valueOf(p))
@@ -39,22 +39,22 @@ public enum AccessModelFormToUserAccessModelDtoConverter
         
         for (RepositoryAccessModelForm repositoryAccess : accessModelForm.getRepositoriesAccess())
         {
-            UserStorageDto storage = userAccessModelDto.getStorage(repositoryAccess.getStorageId())
+            StoragePrivilegesDto storage = userAccessModelDto.getStorage(repositoryAccess.getStorageId())
                                                        .orElseGet(
                                                                () ->
                                                                {
-                                                                   UserStorageDto userStorageDto = new UserStorageDto();
+                                                                   StoragePrivilegesDto userStorageDto = new StoragePrivilegesDto();
                                                                    userStorageDto.setStorageId(
                                                                            repositoryAccess.getStorageId());
                                                                    userAccessModelDto.getStorageAuthorities().add(userStorageDto);
                                                                    return userStorageDto;
                                                                });
 
-            UserRepositoryDto repository = storage.getRepository(repositoryAccess.getRepositoryId())
+            RepositoryPrivilegesDto repository = storage.getRepository(repositoryAccess.getRepositoryId())
                                                   .orElseGet(
                                                           () ->
                                                           {
-                                                              UserRepositoryDto userRepositoryDto = new UserRepositoryDto();
+                                                              RepositoryPrivilegesDto userRepositoryDto = new RepositoryPrivilegesDto();
                                                               userRepositoryDto.setRepositoryId(
                                                                       repositoryAccess.getRepositoryId());
                                                               storage.getRepositories().add(userRepositoryDto);
@@ -67,12 +67,12 @@ public enum AccessModelFormToUserAccessModelDtoConverter
                 continue;
             }
 
-            UserPathPrivilegesDto pathPrivileges = repository.getPathPrivilege(repositoryAccess.getPath(),
+            PathPrivilegesDto pathPrivileges = repository.getPathPrivilege(repositoryAccess.getPath(),
                                                                                repositoryAccess.isWildcard())
                                                              .orElseGet(
                                                                      () ->
                                                                      {
-                                                                         UserPathPrivilegesDto pathPrivilegesDto = new UserPathPrivilegesDto();
+                                                                         PathPrivilegesDto pathPrivilegesDto = new PathPrivilegesDto();
                                                                          pathPrivilegesDto.setPath(
                                                                                  repositoryAccess.getPath());
                                                                          pathPrivilegesDto.setWildcard(

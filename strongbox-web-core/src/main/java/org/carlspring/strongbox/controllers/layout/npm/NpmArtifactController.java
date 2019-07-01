@@ -19,7 +19,7 @@ import org.carlspring.strongbox.providers.repository.RepositoryProvider;
 import org.carlspring.strongbox.providers.repository.RepositoryProviderRegistry;
 import org.carlspring.strongbox.repository.NpmRepositoryFeatures.SearchPackagesEventListener;
 import org.carlspring.strongbox.repository.NpmRepositoryFeatures.ViewPackageEventListener;
-import org.carlspring.strongbox.storage.repository.Repository;
+import org.carlspring.strongbox.storage.repository.RepositoryData;
 import org.carlspring.strongbox.storage.validation.artifact.ArtifactCoordinatesValidationException;
 import org.carlspring.strongbox.web.LayoutRequestMapping;
 import org.carlspring.strongbox.web.RepositoryMapping;
@@ -105,7 +105,7 @@ public class NpmArtifactController
 
     @GetMapping(path = "{storageId}/{repositoryId}/-/v1/search")
     @PreAuthorize("hasAuthority('ARTIFACTS_VIEW')")
-    public void search(@RepositoryMapping Repository repository,
+    public void search(@RepositoryMapping RepositoryData repository,
                        @RequestParam(name = "text") String text,
                        @RequestParam(name = "size", defaultValue = "20") Integer size,
                        HttpServletResponse response) throws IOException
@@ -157,7 +157,7 @@ public class NpmArtifactController
     
     @GetMapping(path = "{storageId}/{repositoryId}/{packageScope}/{packageName:[^-].+}/{packageVersion}")
     @PreAuthorize("hasAuthority('ARTIFACTS_VIEW')")
-    public void viewPackageWithScope(@RepositoryMapping Repository repository,
+    public void viewPackageWithScope(@RepositoryMapping RepositoryData repository,
                                      @PathVariable(name = "packageScope") String packageScope,
                                      @PathVariable(name = "packageName") String packageName,
                                      @PathVariable(name = "packageVersion") String packageVersion,
@@ -192,7 +192,7 @@ public class NpmArtifactController
     
     @GetMapping(path = "{storageId}/{repositoryId}/{packageScope}/{packageName}")
     @PreAuthorize("hasAuthority('ARTIFACTS_VIEW')")
-    public void viewPackageFeedWithScope(@RepositoryMapping Repository repository,
+    public void viewPackageFeedWithScope(@RepositoryMapping RepositoryData repository,
                                          @PathVariable(name = "packageScope") String packageScope,
                                          @PathVariable(name = "packageName") String packageName,
                                          HttpServletResponse response)
@@ -256,7 +256,7 @@ public class NpmArtifactController
 
     @GetMapping(path = "{storageId}/{repositoryId}/{packageName}")
     @PreAuthorize("hasAuthority('ARTIFACTS_VIEW')")
-    public void viewPackageFeed(@RepositoryMapping Repository repository,
+    public void viewPackageFeed(@RepositoryMapping RepositoryData repository,
                                 @PathVariable(name = "packageName") String packageName,
                                 HttpServletResponse response)
         throws Exception
@@ -282,7 +282,7 @@ public class NpmArtifactController
     @PreAuthorize("hasAuthority('ARTIFACTS_RESOLVE')")
     @RequestMapping(path = "{storageId}/{repositoryId}/{packageScope}/{packageName}/-/{packageName}-{packageVersion}.{packageExtension}",
                     method = { RequestMethod.GET, RequestMethod.HEAD })
-    public void downloadPackageWithScope(@RepositoryMapping Repository repository,
+    public void downloadPackageWithScope(@RepositoryMapping RepositoryData repository,
                                          @PathVariable(name = "packageScope") String packageScope,
                                          @PathVariable(name = "packageName") String packageName,
                                          @PathVariable(name = "packageVersion") String packageVersion,
@@ -314,7 +314,7 @@ public class NpmArtifactController
     @PreAuthorize("hasAuthority('ARTIFACTS_RESOLVE')")
     @RequestMapping(path = "{storageId}/{repositoryId}/{packageName}/-/{packageName}-{packageVersion}.{packageExtension}",
                     method = { RequestMethod.GET, RequestMethod.HEAD })
-    public void downloadPackage(@RepositoryMapping Repository repository,
+    public void downloadPackage(@RepositoryMapping RepositoryData repository,
                                 @PathVariable(name = "packageName") String packageName,
                                 @PathVariable(name = "packageVersion") String packageVersion,
                                 @PathVariable(name = "packageExtension") String packageExtension,
@@ -344,7 +344,7 @@ public class NpmArtifactController
 
     @PreAuthorize("hasAuthority('ARTIFACTS_DEPLOY')")
     @PutMapping(path = "{storageId}/{repositoryId}/{name:.+}", consumes = MediaType.APPLICATION_JSON)
-    public ResponseEntity publish(@RepositoryMapping Repository repository,
+    public ResponseEntity publish(@RepositoryMapping RepositoryData repository,
                                   @PathVariable(name = "name") String name,
                                   HttpServletRequest request)
         throws Exception
@@ -374,7 +374,7 @@ public class NpmArtifactController
         return ResponseEntity.ok("");
     }
 
-    private void storeNpmPackage(Repository repository,
+    private void storeNpmPackage(RepositoryData repository,
                                  NpmArtifactCoordinates coordinates,
                                  PackageVersion packageDef,
                                  Path packageTgzTmp)

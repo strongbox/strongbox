@@ -10,7 +10,7 @@ import java.net.URI;
 import java.nio.file.Path;
 
 import org.carlspring.strongbox.config.Maven2LayoutProviderTestConfig;
-import org.carlspring.strongbox.storage.repository.Repository;
+import org.carlspring.strongbox.storage.repository.RepositoryData;
 import org.carlspring.strongbox.testing.TestCaseWithMavenArtifactGenerationAndIndexing;
 import org.carlspring.strongbox.testing.artifact.ArtifactManagementTestExecutionListener;
 import org.carlspring.strongbox.testing.artifact.MavenTestArtifact;
@@ -39,7 +39,7 @@ public class MavenArtifactTest
     @Test
     @ExtendWith({ RepositoryManagementTestExecutionListener.class,
                   ArtifactManagementTestExecutionListener.class })
-    public void artifactWithUnderscoreShouldWork(@MavenRepository(repositoryId = REPOSITORY_RELEASES) Repository repository,
+    public void artifactWithUnderscoreShouldWork(@MavenRepository(repositoryId = REPOSITORY_RELEASES) RepositoryData repository,
                                                  @MavenTestArtifact(repositoryId = REPOSITORY_RELEASES, id = "org.bitbucket.b_c:jose4j", versions = "0.6.3") Path path)
         throws IOException
     {

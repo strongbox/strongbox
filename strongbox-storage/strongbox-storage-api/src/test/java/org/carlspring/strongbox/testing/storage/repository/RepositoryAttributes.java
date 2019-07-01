@@ -7,16 +7,16 @@ import java.lang.annotation.Documented;
 import java.lang.annotation.Retention;
 import java.lang.annotation.Target;
 
-import org.carlspring.strongbox.storage.repository.Repository;
+import org.carlspring.strongbox.storage.repository.RepositoryData;
 import org.carlspring.strongbox.storage.repository.RepositoryStatusEnum;
 
 /**
- * This annotation provice the common {@link Repository} attributes
+ * This annotation provice the common {@link RepositoryData} attributes
  * configuration support.
  * 
  * @author sbespalov
  * 
- * @see Repository
+ * @see RepositoryData
  */
 @Documented
 @Retention(RUNTIME)

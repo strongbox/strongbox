@@ -9,13 +9,13 @@ import org.apache.commons.codec.digest.MessageDigestAlgorithms;
 import org.carlspring.strongbox.booters.PropertiesBooter;
 import org.carlspring.strongbox.providers.io.LayoutFileSystem;
 import org.carlspring.strongbox.providers.layout.LayoutFileSystemProvider;
-import org.carlspring.strongbox.storage.repository.Repository;
+import org.carlspring.strongbox.storage.repository.RepositoryData;
 
 public class NullFileSystem extends LayoutFileSystem
 {
 
     public NullFileSystem(PropertiesBooter propertiesBooter,
-                          Repository repository,
+                          RepositoryData repository,
                           FileSystem storageFileSystem,
                           LayoutFileSystemProvider provider)
     {

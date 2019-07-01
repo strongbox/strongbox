@@ -6,7 +6,7 @@ import org.carlspring.strongbox.config.Maven2LayoutProviderTestConfig;
 import org.carlspring.strongbox.providers.search.MavenIndexerSearchProvider;
 import org.carlspring.strongbox.repository.IndexedMavenRepositoryFeatures;
 import org.carlspring.strongbox.storage.indexing.IndexTypeEnum;
-import org.carlspring.strongbox.storage.repository.Repository;
+import org.carlspring.strongbox.storage.repository.RepositoryData;
 import org.carlspring.strongbox.storage.repository.RepositoryPolicyEnum;
 import org.carlspring.strongbox.storage.search.SearchRequest;
 import org.carlspring.strongbox.testing.MavenIndexedRepositorySetup;
@@ -55,7 +55,7 @@ public class MavenRepositoryManagementServiceImplTest
     public void testCreateRepository(@TestRepository(repositoryId = REPOSITORY_RELEASES_1,
                                                      layout = MavenArtifactCoordinates.LAYOUT_NAME,
                                                      setup = MavenIndexedRepositorySetup.class)
-                                     Repository repository)
+                                     RepositoryData repository)
             throws Exception
     {
         File repositoryBaseDir = getRepositoryBasedir(STORAGE0, REPOSITORY_RELEASES_1).getAbsoluteFile();
@@ -72,7 +72,7 @@ public class MavenRepositoryManagementServiceImplTest
                                                     policy = RepositoryPolicyEnum.RELEASE,
                                                     setup = MavenIndexedRepositorySetup.class,
                                                     cleanup = false)
-                                    Repository repository)
+                                    RepositoryData repository)
             throws Exception
     {
         File repositoryDir = getRepositoryBasedir(STORAGE0,  REPOSITORY_RELEASES_1).getAbsoluteFile();
@@ -93,11 +93,11 @@ public class MavenRepositoryManagementServiceImplTest
     public void testMerge(@TestRepository(repositoryId = REPOSITORY_RELEASES_MERGE_1,
                                           layout = MavenArtifactCoordinates.LAYOUT_NAME,
                                           setup = MavenIndexedRepositorySetup.class)
-                          Repository r1,
+                          RepositoryData r1,
                           @TestRepository(repositoryId = REPOSITORY_RELEASES_MERGE_2,
                                           layout = MavenArtifactCoordinates.LAYOUT_NAME,
                                           setup = MavenIndexedRepositorySetup.class)
-                          Repository r2,
+                          RepositoryData r2,
                           @TestArtifact(repositoryId = REPOSITORY_RELEASES_MERGE_1,
                                         id = "org.carlspring.strongbox:strongbox-utils",
                                         versions = { "6.2.2" },

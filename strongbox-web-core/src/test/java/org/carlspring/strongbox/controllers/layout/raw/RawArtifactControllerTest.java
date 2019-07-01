@@ -3,7 +3,7 @@ package org.carlspring.strongbox.controllers.layout.raw;
 import org.carlspring.strongbox.config.IntegrationTest;
 import org.carlspring.strongbox.providers.layout.RawLayoutProvider;
 import org.carlspring.strongbox.rest.common.RawRestAssuredBaseTest;
-import org.carlspring.strongbox.storage.repository.MutableRepository;
+import org.carlspring.strongbox.storage.repository.RepositoryDto;
 import org.carlspring.strongbox.storage.repository.RawRepositoryFactory;
 import org.carlspring.strongbox.storage.repository.RepositoryPolicyEnum;
 
@@ -49,9 +49,9 @@ public class RawArtifactControllerTest
         cleanUp(getRepositoriesToClean());
     }
 
-    public static Set<MutableRepository> getRepositoriesToClean()
+    public static Set<RepositoryDto> getRepositoriesToClean()
     {
-        Set<MutableRepository> repositories = new LinkedHashSet<>();
+        Set<RepositoryDto> repositories = new LinkedHashSet<>();
         repositories.add(createRepositoryMock(STORAGE0, REPOSITORY_RELEASES, RawLayoutProvider.ALIAS));
 
         return repositories;
@@ -64,7 +64,7 @@ public class RawArtifactControllerTest
     {
         super.init();
 
-        MutableRepository repository = rawRepositoryFactory.createRepository(REPOSITORY_RELEASES);
+        RepositoryDto repository = rawRepositoryFactory.createRepository(REPOSITORY_RELEASES);
         repository.setPolicy(RepositoryPolicyEnum.RELEASE.getPolicy());
 
         createRepositoryWithFile(repository, STORAGE0, "org/foo/bar/blah.zip");

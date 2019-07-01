@@ -13,7 +13,7 @@ import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
  * @author mtodorov
  */
 public class UserDto
-        implements Serializable, UserReadContract
+        implements Serializable, UserData
 {
 
     private String username;

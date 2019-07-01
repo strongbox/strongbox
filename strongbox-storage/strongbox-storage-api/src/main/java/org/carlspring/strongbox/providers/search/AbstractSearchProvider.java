@@ -15,8 +15,8 @@ import org.carlspring.strongbox.providers.io.RepositoryFiles;
 import org.carlspring.strongbox.providers.io.RepositoryPath;
 import org.carlspring.strongbox.providers.io.RepositoryPathResolver;
 import org.carlspring.strongbox.services.ArtifactEntryService;
-import org.carlspring.strongbox.storage.Storage;
-import org.carlspring.strongbox.storage.repository.Repository;
+import org.carlspring.strongbox.storage.StorageData;
+import org.carlspring.strongbox.storage.repository.RepositoryData;
 import org.carlspring.strongbox.storage.search.SearchRequest;
 import org.carlspring.strongbox.storage.search.SearchResult;
 import org.slf4j.Logger;
@@ -58,8 +58,8 @@ public abstract class AbstractSearchProvider
         
         SearchResult searchResult = createSearchResult(artifactEntry);
 
-        Storage storage = getConfiguration().getStorage(artifactEntry.getStorageId());
-        Repository repository = storage.getRepository(searchRequest.getRepositoryId());
+        StorageData storage = getConfiguration().getStorage(artifactEntry.getStorageId());
+        RepositoryData repository = storage.getRepository(searchRequest.getRepositoryId());
 
         List<CodeSnippet> snippets = snippetGenerator.generateSnippets(repository.getLayout(),
                                                                          artifactEntry.getArtifactCoordinates());

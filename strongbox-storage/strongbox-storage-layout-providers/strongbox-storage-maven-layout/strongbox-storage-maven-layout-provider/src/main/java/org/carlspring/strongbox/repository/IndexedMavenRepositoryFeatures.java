@@ -5,16 +5,16 @@ import org.carlspring.strongbox.config.MavenIndexerEnabledCondition;
 import org.carlspring.strongbox.providers.io.RepositoryPath;
 import org.carlspring.strongbox.providers.io.RepositoryPathResolver;
 import org.carlspring.strongbox.storage.ArtifactStorageException;
-import org.carlspring.strongbox.storage.Storage;
+import org.carlspring.strongbox.storage.StorageData;
 import org.carlspring.strongbox.storage.indexing.IndexTypeEnum;
 import org.carlspring.strongbox.storage.indexing.ReindexArtifactScanningListener;
 import org.carlspring.strongbox.storage.indexing.RepositoryIndexManager;
 import org.carlspring.strongbox.storage.indexing.RepositoryIndexer;
 import org.carlspring.strongbox.storage.indexing.downloader.IndexDownloadRequest;
 import org.carlspring.strongbox.storage.indexing.downloader.IndexDownloader;
-import org.carlspring.strongbox.storage.repository.ImmutableRepository;
 import org.carlspring.strongbox.storage.repository.Repository;
-import org.carlspring.strongbox.yaml.configuration.repository.MavenRepositoryConfiguration;
+import org.carlspring.strongbox.storage.repository.RepositoryData;
+import org.carlspring.strongbox.yaml.configuration.repository.MavenRepositoryConfigurationData;
 
 import javax.inject.Inject;
 import java.io.IOException;
@@ -66,8 +66,8 @@ public class IndexedMavenRepositoryFeatures
             throws ArtifactTransportException,
                    IOException
     {
-        Storage storage = getConfiguration().getStorage(storageId);
-        Repository repository = storage.getRepository(repositoryId);
+        StorageData storage = getConfiguration().getStorage(storageId);
+        RepositoryData repository = storage.getRepository(repositoryId);
 
         RepositoryPath repositoryBasedir = repositoryPathResolver.resolve(repository);
         RepositoryPath remoteIndexDirectory = repositoryBasedir.resolve(".index").resolve(
@@ -198,9 +198,9 @@ public class IndexedMavenRepositoryFeatures
                result.resolve(path);
     }
 
-    public boolean isIndexingEnabled(Repository repository)
+    public boolean isIndexingEnabled(RepositoryData repository)
     {
-        MavenRepositoryConfiguration repositoryConfiguration = (MavenRepositoryConfiguration) repository.getRepositoryConfiguration();
+        MavenRepositoryConfigurationData repositoryConfiguration = (MavenRepositoryConfigurationData) repository.getRepositoryConfiguration();
 
         return repositoryConfiguration != null && repositoryConfiguration.isIndexingEnabled();
     }

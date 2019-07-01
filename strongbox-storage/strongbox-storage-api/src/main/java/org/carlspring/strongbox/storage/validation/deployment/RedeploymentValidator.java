@@ -5,7 +5,7 @@ import org.carlspring.strongbox.providers.io.RepositoryPath;
 import org.carlspring.strongbox.providers.io.RepositoryPathResolver;
 import org.carlspring.strongbox.providers.layout.LayoutProvider;
 import org.carlspring.strongbox.providers.layout.LayoutProviderRegistry;
-import org.carlspring.strongbox.storage.repository.Repository;
+import org.carlspring.strongbox.storage.repository.RepositoryData;
 import org.carlspring.strongbox.storage.validation.artifact.ArtifactCoordinatesValidatorRegistry;
 import org.carlspring.strongbox.storage.validation.artifact.version.VersionValidationException;
 
@@ -64,7 +64,7 @@ public class RedeploymentValidator
     }
 
     @Override
-    public void validate(Repository repository,
+    public void validate(RepositoryData repository,
                          ArtifactCoordinates coordinates)
             throws VersionValidationException,
                    IOException

@@ -4,7 +4,7 @@ import org.carlspring.strongbox.config.Maven2LayoutProviderTestConfig;
 import org.carlspring.strongbox.providers.io.RepositoryFiles;
 import org.carlspring.strongbox.providers.io.RepositoryPath;
 import org.carlspring.strongbox.repository.group.BaseMavenGroupRepositoryComponentTest;
-import org.carlspring.strongbox.storage.repository.Repository;
+import org.carlspring.strongbox.storage.repository.RepositoryData;
 import org.carlspring.strongbox.testing.artifact.ArtifactManagementTestExecutionListener;
 import org.carlspring.strongbox.testing.artifact.MavenTestArtifact;
 import org.carlspring.strongbox.testing.repository.MavenRepository;
@@ -69,26 +69,26 @@ public class MavenMetadataGroupRepositoryComponentOnUploadTest
                   ArtifactManagementTestExecutionListener.class })
     @Test
     public void whenMetadataWasUploadedInRepositoryAllGroupRepositoriesContainingShouldHaveMetadataUpdatedIfPossible(
-            @MavenRepository(repositoryId = REPOSITORY_LEAF_AE) Repository repositoryLeafAe,
-            @MavenRepository(repositoryId = REPOSITORY_LEAF_AL) Repository repositoryLeafAl,
-            @MavenRepository(repositoryId = REPOSITORY_LEAF_AZ) Repository repositoryLeafAz,
-            @MavenRepository(repositoryId = REPOSITORY_LEAF_AD) Repository repositoryLeafAd,
-            @MavenRepository(repositoryId = REPOSITORY_LEAF_AG) Repository repositoryLeafAg,
-            @MavenRepository(repositoryId = REPOSITORY_LEAF_AK) Repository repositoryLeafAk,
+            @MavenRepository(repositoryId = REPOSITORY_LEAF_AE) RepositoryData repositoryLeafAe,
+            @MavenRepository(repositoryId = REPOSITORY_LEAF_AL) RepositoryData repositoryLeafAl,
+            @MavenRepository(repositoryId = REPOSITORY_LEAF_AZ) RepositoryData repositoryLeafAz,
+            @MavenRepository(repositoryId = REPOSITORY_LEAF_AD) RepositoryData repositoryLeafAd,
+            @MavenRepository(repositoryId = REPOSITORY_LEAF_AG) RepositoryData repositoryLeafAg,
+            @MavenRepository(repositoryId = REPOSITORY_LEAF_AK) RepositoryData repositoryLeafAk,
             @TestRepository.Group({ REPOSITORY_LEAF_AE,
                                     REPOSITORY_LEAF_AZ })
-            @MavenRepository(repositoryId = REPOSITORY_GROUP_AC) Repository repositoryGroupAc,
+            @MavenRepository(repositoryId = REPOSITORY_GROUP_AC) RepositoryData repositoryGroupAc,
             @TestRepository.Group({ REPOSITORY_GROUP_AC,
                                     REPOSITORY_LEAF_AD,
                                     REPOSITORY_LEAF_AL })
-            @MavenRepository(repositoryId = REPOSITORY_GROUP_AB) Repository repositoryGroupAb,
+            @MavenRepository(repositoryId = REPOSITORY_GROUP_AB) RepositoryData repositoryGroupAb,
             @TestRepository.Group({ REPOSITORY_LEAF_AG,
                                     REPOSITORY_GROUP_AB })
-            @MavenRepository(repositoryId = REPOSITORY_GROUP_AA) Repository repositoryGroupAa,
+            @MavenRepository(repositoryId = REPOSITORY_GROUP_AA) RepositoryData repositoryGroupAa,
             @TestRepository.Group({ REPOSITORY_GROUP_AC,
                                     REPOSITORY_LEAF_AD,
                                     REPOSITORY_LEAF_AL })
-            @MavenRepository(repositoryId = REPOSITORY_GROUP_AF) Repository repositoryGroupAf,
+            @MavenRepository(repositoryId = REPOSITORY_GROUP_AF) RepositoryData repositoryGroupAf,
             @TestRepository.Group(repositories = { REPOSITORY_GROUP_AF,
                                                    REPOSITORY_LEAF_AK },
                     rules = { @TestRepository.Group.Rule(
@@ -96,7 +96,7 @@ public class MavenMetadataGroupRepositoryComponentOnUploadTest
                             repositories = REPOSITORY_LEAF_AD,
                             type = DENY)
                     })
-            @MavenRepository(repositoryId = REPOSITORY_GROUP_AH) Repository repositoryGroupAh,
+            @MavenRepository(repositoryId = REPOSITORY_GROUP_AH) RepositoryData repositoryGroupAh,
             @MavenTestArtifact(repositoryId = REPOSITORY_LEAF_AL, id = "com.artifacts.to.delete.releases:delete-group", versions = { "1.2.1",
                                                                                                                                      "1.2.2" })
                     Path artifactLeafAl,

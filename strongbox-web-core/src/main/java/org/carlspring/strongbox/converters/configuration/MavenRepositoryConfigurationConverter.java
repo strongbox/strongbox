@@ -1,20 +1,20 @@
 package org.carlspring.strongbox.converters.configuration;
 
 import org.carlspring.strongbox.forms.configuration.MavenRepositoryConfigurationForm;
-import org.carlspring.strongbox.yaml.configuration.repository.MutableMavenRepositoryConfiguration;
+import org.carlspring.strongbox.yaml.configuration.repository.MavenRepositoryConfigurationDto;
 
 import org.springframework.core.convert.converter.Converter;
 
 public enum MavenRepositoryConfigurationConverter
-        implements Converter<MavenRepositoryConfigurationForm, MutableMavenRepositoryConfiguration>
+        implements Converter<MavenRepositoryConfigurationForm, MavenRepositoryConfigurationDto>
 {
 
     INSTANCE;
 
     @Override
-    public MutableMavenRepositoryConfiguration convert(MavenRepositoryConfigurationForm mavenRepositoryConfigurationForm)
+    public MavenRepositoryConfigurationDto convert(MavenRepositoryConfigurationForm mavenRepositoryConfigurationForm)
     {
-        MutableMavenRepositoryConfiguration configuration = new MutableMavenRepositoryConfiguration();
+        MavenRepositoryConfigurationDto configuration = new MavenRepositoryConfigurationDto();
         configuration.setIndexingClassNamesEnabled(mavenRepositoryConfigurationForm.isIndexingClassNamesEnabled());
         configuration.setIndexingEnabled(mavenRepositoryConfigurationForm.isIndexingEnabled());
 

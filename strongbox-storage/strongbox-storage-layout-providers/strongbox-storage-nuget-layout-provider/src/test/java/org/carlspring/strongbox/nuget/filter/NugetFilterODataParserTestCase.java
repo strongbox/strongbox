@@ -9,7 +9,7 @@ import org.carlspring.strongbox.data.criteria.Selector;
 import org.carlspring.strongbox.domain.ArtifactEntry;
 import org.carlspring.strongbox.providers.layout.NugetLayoutProvider;
 import org.carlspring.strongbox.services.RepositoryManagementService;
-import org.carlspring.strongbox.storage.repository.MutableRepository;
+import org.carlspring.strongbox.storage.repository.RepositoryDto;
 import org.carlspring.strongbox.testing.TestCaseWithNugetArtifactGeneration;
 
 import javax.inject.Inject;
@@ -61,7 +61,7 @@ public class NugetFilterODataParserTestCase extends TestCaseWithNugetArtifactGen
 
     }
 
-    private void createRepository(MutableRepository repository,
+    private void createRepository(RepositoryDto repository,
                                   String layout)
         throws Exception
     {
@@ -78,9 +78,9 @@ public class NugetFilterODataParserTestCase extends TestCaseWithNugetArtifactGen
         removeRepositories(getRepositoriesToClean());
     }
 
-    public static Set<MutableRepository> getRepositoriesToClean()
+    public static Set<RepositoryDto> getRepositoriesToClean()
     {
-        Set<MutableRepository> repositories = new LinkedHashSet<>();
+        Set<RepositoryDto> repositories = new LinkedHashSet<>();
         repositories.add(createRepositoryMock(STORAGE0, REPOSITORY_RELEASES_1, NugetLayoutProvider.ALIAS));
 
         return repositories;

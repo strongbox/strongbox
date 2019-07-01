@@ -9,9 +9,9 @@ import org.carlspring.strongbox.providers.search.SearchException;
 import org.carlspring.strongbox.services.ArtifactEntryService;
 import org.carlspring.strongbox.services.ArtifactManagementService;
 import org.carlspring.strongbox.services.support.ArtifactEntrySearchCriteria;
-import org.carlspring.strongbox.storage.Storage;
-import org.carlspring.strongbox.storage.repository.ImmutableRepository;
+import org.carlspring.strongbox.storage.StorageData;
 import org.carlspring.strongbox.storage.repository.Repository;
+import org.carlspring.strongbox.storage.repository.RepositoryData;
 import org.carlspring.strongbox.storage.repository.remote.RemoteRepository;
 import org.carlspring.strongbox.storage.repository.remote.heartbeat.RemoteRepositoryAlivenessCacheManager;
 
@@ -83,14 +83,14 @@ public class LocalStorageProxyRepositoryExpiredArtifactsCleaner
         for (final Iterator<ArtifactEntry> it = artifactEntries.iterator(); it.hasNext(); )
         {
             final ArtifactEntry artifactEntry = it.next();
-            final Storage storage = configurationManager.getConfiguration().getStorage(artifactEntry.getStorageId());
-            final Repository repository = storage.getRepository(artifactEntry.getRepositoryId());
+            final StorageData storage = configurationManager.getConfiguration().getStorage(artifactEntry.getStorageId());
+            final RepositoryData repository = storage.getRepository(artifactEntry.getRepositoryId());
             if (!repository.isProxyRepository())
             {
                 it.remove();
                 continue;
             }
-            final RemoteRepository remoteRepository = ((ImmutableRepository)repository).getRemoteRepository();
+            final RemoteRepository remoteRepository = ((Repository)repository).getRemoteRepository();
             if (remoteRepository == null)
             {
                 logger.warn("Repository {} is not associated with remote repository", repository.getId());
@@ -112,8 +112,8 @@ public class LocalStorageProxyRepositoryExpiredArtifactsCleaner
     {
         for (final ArtifactEntry artifactEntry : artifactEntries)
         {
-            final Storage storage = configurationManager.getConfiguration().getStorage(artifactEntry.getStorageId());
-            final Repository repository = storage.getRepository(artifactEntry.getRepositoryId());
+            final StorageData storage = configurationManager.getConfiguration().getStorage(artifactEntry.getStorageId());
+            final RepositoryData repository = storage.getRepository(artifactEntry.getRepositoryId());
             
             RepositoryPath repositoryPath = repositoryPathResolver.resolve(repository).resolve(artifactEntry);
 

@@ -1,7 +1,7 @@
 package org.carlspring.strongbox.controllers.environment;
 
 import org.carlspring.strongbox.controllers.BaseController;
-import org.carlspring.strongbox.storage.Storage;
+import org.carlspring.strongbox.storage.StorageData;
 import org.carlspring.strongbox.users.service.UserService;
 import org.carlspring.strongbox.users.service.impl.StrongboxUserService.StrongboxUserServiceQualifier;
 
@@ -71,7 +71,7 @@ public class EnvironmentInfoController
     {
         List<EnvironmentInfo> strongboxInfo = new ArrayList();
 
-        Map<String, Storage> storageMap = getConfiguration().getStorages();
+        Map<String, StorageData> storageMap = getConfiguration().getStorages();
         Long repositoriesCount = storageMap.values()
                                            .stream()
                                            .map(e -> e.getRepository(e.getId()))

@@ -10,7 +10,7 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
 import org.apache.commons.lang3.StringUtils;
-import org.carlspring.strongbox.storage.repository.Repository;
+import org.carlspring.strongbox.storage.repository.RepositoryData;
 import org.springframework.web.servlet.HandlerMapping;
 import org.springframework.web.servlet.handler.HandlerInterceptorAdapter;
 
@@ -40,7 +40,7 @@ public abstract class ArtifactRequestInterceptor extends HandlerInterceptorAdapt
             return true;
         }
 
-        final Repository repository = (Repository) request.getAttribute(REPOSITORY_REQUEST_ATTRIBUTE);
+        final RepositoryData repository = (RepositoryData) request.getAttribute(REPOSITORY_REQUEST_ATTRIBUTE);
         if (repository == null || !layout.equals(repository.getLayout()))
         {
             return true;
@@ -55,7 +55,7 @@ public abstract class ArtifactRequestInterceptor extends HandlerInterceptorAdapt
         return preHandle(repository, artifactPath, request, response);
     }
 
-    protected abstract boolean preHandle(Repository repository,
+    protected abstract boolean preHandle(RepositoryData repository,
                                          String artifactPath,
                                          HttpServletRequest request,
                                          HttpServletResponse response) throws IOException;

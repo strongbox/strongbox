@@ -25,7 +25,7 @@ import org.carlspring.strongbox.storage.metadata.nuget.TempNupkgFile;
 import org.carlspring.strongbox.storage.metadata.nuget.rss.EntryProperties;
 import org.carlspring.strongbox.storage.metadata.nuget.rss.PackageEntry;
 import org.carlspring.strongbox.storage.metadata.nuget.rss.PackageFeed;
-import org.carlspring.strongbox.storage.repository.Repository;
+import org.carlspring.strongbox.storage.repository.RepositoryData;
 import org.carlspring.strongbox.web.LayoutRequestMapping;
 import org.carlspring.strongbox.web.RepositoryMapping;
 
@@ -90,7 +90,7 @@ public class NugetArtifactController
     @DeleteMapping(path = { "{storageId}/{repositoryId}/{packageId}/{version}" })
     @PreAuthorize("hasAuthority('ARTIFACTS_DEPLOY')")
     public ResponseEntity deletePackage(@RequestHeader(name = "X-NuGet-ApiKey", required = false) String apiKey,
-                                        @RepositoryMapping Repository repository,
+                                        @RepositoryMapping RepositoryData repository,
                                         @PathVariable("packageId") String packageId,
                                         @PathVariable("version") String version)
     {
@@ -121,7 +121,7 @@ public class NugetArtifactController
     }
     
     @GetMapping(path = { "{storageId}/{repositoryId}/Search()/$count" }, produces = MediaType.TEXT_PLAIN)
-    public ResponseEntity<String> countPackages(@RepositoryMapping Repository repository,
+    public ResponseEntity<String> countPackages(@RepositoryMapping RepositoryData repository,
                                                 @RequestParam(name = "$filter", required = false) String filter,
                                                 @RequestParam(name = "searchTerm", required = false) String searchTerm,
                                                 @RequestParam(name = "targetFramework", required = false) String targetFramework)
@@ -147,7 +147,7 @@ public class NugetArtifactController
 
     @GetMapping(path = { "{storageId}/{repositoryId}/{searchCommandName:(?:Packages(?:\\(\\))?|Search\\(\\))}" },
                 produces = MediaType.APPLICATION_XML)
-    public ResponseEntity<?> searchPackages(@RepositoryMapping Repository repository,
+    public ResponseEntity<?> searchPackages(@RepositoryMapping RepositoryData repository,
                                             @PathVariable(name = "searchCommandName") String searchCommandName,
                                             @RequestParam(name = "$filter", required = false) String filter,
                                             @RequestParam(name = "$orderby", required = false, defaultValue = "Id") String orderBy,
@@ -265,7 +265,7 @@ public class NugetArtifactController
     }
 
     @GetMapping(path = { "{storageId}/{repositoryId}/FindPackagesById()" }, produces = MediaType.APPLICATION_XML)
-    public ResponseEntity<?> searchPackageById(@RepositoryMapping Repository repository,
+    public ResponseEntity<?> searchPackageById(@RepositoryMapping RepositoryData repository,
                                                @RequestParam(name = "id", required = true) String packageId,
                                                HttpServletResponse response)
             throws JAXBException, IOException
@@ -300,7 +300,7 @@ public class NugetArtifactController
         return new ResponseEntity<>(HttpStatus.OK);
     }
 
-    public Collection<? extends Nupkg> getPackages(Repository repository,
+    public Collection<? extends Nupkg> getPackages(RepositoryData repository,
                                                    String filter,
                                                    String orderBy,
                                                    String searchTerm,
@@ -410,7 +410,7 @@ public class NugetArtifactController
     @PreAuthorize("hasAuthority('ARTIFACTS_DEPLOY')")
     @RequestMapping(path = "{storageId}/{repositoryId}/", method = RequestMethod.PUT, consumes = MediaType.MULTIPART_FORM_DATA)
     public ResponseEntity putPackage(@RequestHeader(name = "X-NuGet-ApiKey", required = false) String apiKey,
-                                     @RepositoryMapping Repository repository,
+                                     @RepositoryMapping RepositoryData repository,
                                      HttpServletRequest request)
     {
         final String storageId = repository.getStorage().getId();
@@ -462,7 +462,7 @@ public class NugetArtifactController
     @RequestMapping(path = "{storageId}/{repositoryId}/{commandName:(?:download|package)}/{packageId}/{packageVersion}",
                     method = {RequestMethod.GET, RequestMethod.HEAD},
                     produces = MediaType.APPLICATION_OCTET_STREAM)
-    public void downloadPackage(@RepositoryMapping Repository repository,
+    public void downloadPackage(@RepositoryMapping RepositoryData repository,
                                 @ApiParam(value = "The packageId", required = true) @PathVariable(name = "packageId") String packageId,
                                 @ApiParam(value = "The packageVersion", required = true) @PathVariable(name = "packageVersion") String packageVersion,
                                 HttpServletResponse response,
@@ -482,7 +482,7 @@ public class NugetArtifactController
     @RequestMapping(path = "{storageId}/{repositoryId}/{packageId}/{packageVersion}",
                     method = {RequestMethod.GET, RequestMethod.HEAD},
                     produces = MediaType.APPLICATION_OCTET_STREAM)
-    public void getPackage(@RepositoryMapping Repository repository,
+    public void getPackage(@RepositoryMapping RepositoryData repository,
                            @ApiParam(value = "The packageId", required = true) @PathVariable(name = "packageId") String packageId,
                            @ApiParam(value = "The packageVersion", required = true) @PathVariable(name = "packageVersion") String packageVersion,
                            HttpServletResponse response,
@@ -493,7 +493,7 @@ public class NugetArtifactController
         getPackageInternal(repository, packageId, packageVersion, response, request, httpHeaders);
     }
 
-    private void getPackageInternal(Repository repository,
+    private void getPackageInternal(RepositoryData repository,
                                     String packageId,
                                     String packageVersion,
                                     HttpServletResponse response,

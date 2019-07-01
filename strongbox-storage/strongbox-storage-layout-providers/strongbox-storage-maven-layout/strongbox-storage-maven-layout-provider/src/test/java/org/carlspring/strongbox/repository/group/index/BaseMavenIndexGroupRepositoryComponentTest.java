@@ -8,8 +8,8 @@ import javax.inject.Inject;
 import org.carlspring.strongbox.providers.io.RootRepositoryPath;
 import org.carlspring.strongbox.repository.group.BaseMavenGroupRepositoryComponentTest;
 import org.carlspring.strongbox.services.ArtifactIndexesService;
-import org.carlspring.strongbox.storage.repository.ImmutableRepository;
-import org.carlspring.strongbox.storage.repository.MutableRepository;
+import org.carlspring.strongbox.storage.repository.Repository;
+import org.carlspring.strongbox.storage.repository.RepositoryDto;
 
 abstract class BaseMavenIndexGroupRepositoryComponentTest
         extends BaseMavenGroupRepositoryComponentTest
@@ -18,12 +18,12 @@ abstract class BaseMavenIndexGroupRepositoryComponentTest
     @Inject
     ArtifactIndexesService artifactIndexesService;
 
-    void rebuildIndexes(Set<MutableRepository> repositories)
+    void rebuildIndexes(Set<RepositoryDto> repositories)
             throws IOException
     {
-        for (MutableRepository repository : repositories)
+        for (RepositoryDto repository : repositories)
         {
-            RootRepositoryPath repositoryPath = repositoryPathResolver.resolve(new ImmutableRepository(repository));
+            RootRepositoryPath repositoryPath = repositoryPathResolver.resolve(new Repository(repository));
             artifactIndexesService.rebuildIndex(repositoryPath);
         }
     }

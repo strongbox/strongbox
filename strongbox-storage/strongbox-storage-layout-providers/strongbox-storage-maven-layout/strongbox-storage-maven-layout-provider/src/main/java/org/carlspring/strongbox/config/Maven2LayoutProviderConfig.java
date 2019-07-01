@@ -6,7 +6,7 @@ import org.carlspring.strongbox.providers.datastore.StorageProviderRegistry;
 import org.carlspring.strongbox.providers.io.LayoutFileSystemFactory;
 import org.carlspring.strongbox.providers.io.LayoutFileSystemProviderFactory;
 import org.carlspring.strongbox.providers.layout.*;
-import org.carlspring.strongbox.storage.repository.Repository;
+import org.carlspring.strongbox.storage.repository.RepositoryData;
 
 import javax.inject.Inject;
 import java.nio.file.FileSystem;
@@ -91,7 +91,7 @@ public class Maven2LayoutProviderConfig
     @Bean
     @Scope("prototype")
     public MavenFileSystem mavenRepositoryFileSystem(PropertiesBooter propertiesBooter,
-                                                     Repository repository,
+                                                     RepositoryData repository,
                                                      FileSystem storageFileSystem,
                                                      LayoutFileSystemProvider provider)
     {

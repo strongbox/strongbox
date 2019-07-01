@@ -1,19 +1,19 @@
 package org.carlspring.strongbox.converters.configuration;
 
 import org.carlspring.strongbox.forms.configuration.RawRepositoryConfigurationForm;
-import org.carlspring.strongbox.yaml.configuration.repository.MutableRawRepositoryConfiguration;
+import org.carlspring.strongbox.yaml.configuration.repository.RawRepositoryConfigurationDto;
 
 import org.springframework.core.convert.converter.Converter;
 
 public enum RawRepositoryConfigurationConverter
-        implements Converter<RawRepositoryConfigurationForm, MutableRawRepositoryConfiguration>
+        implements Converter<RawRepositoryConfigurationForm, RawRepositoryConfigurationDto>
 {
 
     INSTANCE;
 
     @Override
-    public MutableRawRepositoryConfiguration convert(RawRepositoryConfigurationForm form)
+    public RawRepositoryConfigurationDto convert(RawRepositoryConfigurationForm form)
     {
-        return new MutableRawRepositoryConfiguration();
+        return new RawRepositoryConfigurationDto();
     }
 }

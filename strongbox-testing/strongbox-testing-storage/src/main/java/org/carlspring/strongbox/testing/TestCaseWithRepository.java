@@ -2,8 +2,8 @@ package org.carlspring.strongbox.testing;
 
 import org.carlspring.strongbox.configuration.Configuration;
 import org.carlspring.strongbox.services.ConfigurationManagementService;
-import org.carlspring.strongbox.storage.MutableStorage;
-import org.carlspring.strongbox.storage.repository.MutableRepository;
+import org.carlspring.strongbox.storage.StorageDto;
+import org.carlspring.strongbox.storage.repository.RepositoryDto;
 
 import javax.inject.Inject;
 import javax.xml.bind.JAXBException;
@@ -30,12 +30,12 @@ public class TestCaseWithRepository
     protected ConfigurationManagementService configurationManagementService;
 
 
-    public static void cleanUp(Set<MutableRepository> repositoriesToClean)
+    public static void cleanUp(Set<RepositoryDto> repositoriesToClean)
             throws Exception
     {
         if (repositoriesToClean != null)
         {
-            for (MutableRepository repository : repositoriesToClean)
+            for (RepositoryDto repository : repositoriesToClean)
             {
                 removeRepositoryDirectory(repository.getStorage().getId(), repository.getId());
             }
@@ -55,10 +55,10 @@ public class TestCaseWithRepository
         }
     }
 
-    public void removeRepositories(Set<MutableRepository> repositoriesToClean)
+    public void removeRepositories(Set<RepositoryDto> repositoriesToClean)
             throws IOException, JAXBException
     {
-        for (MutableRepository repository : repositoriesToClean)
+        for (RepositoryDto repository : repositoriesToClean)
         {
             configurationManagementService.removeRepository(repository.getStorage().getId(), repository.getId());
             /*
@@ -70,15 +70,15 @@ public class TestCaseWithRepository
         }
     }
 
-    public static MutableRepository createRepositoryMock(String storageId,
+    public static RepositoryDto createRepositoryMock(String storageId,
                                                          String repositoryId,
                                                          String layout)
     {
         // This is not the real storage, but has a matching ID.
         // We're mocking it, as the configurationManager is not available at the the static methods are invoked.
-        MutableStorage storage = new MutableStorage(storageId);
+        StorageDto storage = new StorageDto(storageId);
 
-        MutableRepository repository = new MutableRepository(repositoryId);
+        RepositoryDto repository = new RepositoryDto(repositoryId);
         repository.setStorage(storage);
 
         if (layout != null)

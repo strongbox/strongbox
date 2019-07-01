@@ -2,7 +2,7 @@ package org.carlspring.strongbox.event.artifact;
 
 import org.carlspring.strongbox.providers.io.RepositoryPath;
 import org.carlspring.strongbox.providers.layout.Maven2LayoutProvider;
-import org.carlspring.strongbox.storage.repository.Repository;
+import org.carlspring.strongbox.storage.repository.RepositoryData;
 
 import javax.inject.Inject;
 
@@ -33,7 +33,7 @@ public class MavenArtifactMetadataStoredEventListener
     @EventListener
     public void handle(final ArtifactEvent<RepositoryPath> event)
     {
-        final Repository repository = getRepository(event);
+        final RepositoryData repository = getRepository(event);
 
         if (!Maven2LayoutProvider.ALIAS.equals(repository.getLayout()))
         {

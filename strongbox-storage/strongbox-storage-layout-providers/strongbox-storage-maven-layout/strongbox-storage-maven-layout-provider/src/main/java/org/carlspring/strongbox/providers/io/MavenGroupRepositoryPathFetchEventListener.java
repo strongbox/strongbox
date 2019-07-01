@@ -8,8 +8,8 @@ import org.carlspring.strongbox.providers.repository.RepositoryProvider;
 import org.carlspring.strongbox.providers.repository.RepositoryProviderRegistry;
 import org.carlspring.strongbox.providers.repository.event.GroupRepositoryPathFetchEvent;
 import org.carlspring.strongbox.services.support.ArtifactRoutingRulesChecker;
-import org.carlspring.strongbox.storage.Storage;
-import org.carlspring.strongbox.storage.repository.Repository;
+import org.carlspring.strongbox.storage.StorageData;
+import org.carlspring.strongbox.storage.repository.RepositoryData;
 
 import javax.inject.Inject;
 import java.io.IOException;
@@ -71,15 +71,15 @@ public class MavenGroupRepositoryPathFetchEventListener
     private void fetchInSubRepositories(final RepositoryPath repositoryPath)
             throws IOException
     {
-        Repository groupRepository = repositoryPath.getRepository();
-        Storage storage = groupRepository.getStorage();
+        RepositoryData groupRepository = repositoryPath.getRepository();
+        StorageData storage = groupRepository.getStorage();
         List<Callable<Path>> fetchActions = new ArrayList<>();
 
         for (String storageAndRepositoryId : groupRepository.getGroupRepositories())
         {
             String sId = ConfigurationUtils.getStorageId(storage.getId(), storageAndRepositoryId);
             String rId = ConfigurationUtils.getRepositoryId(storageAndRepositoryId);
-            Repository subRepository = configurationManager.getRepository(sId, rId);
+            RepositoryData subRepository = configurationManager.getRepository(sId, rId);
 
             if (!subRepository.isInService())
             {

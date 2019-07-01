@@ -11,12 +11,12 @@ import java.util.Set;
 import javax.annotation.concurrent.Immutable;
 
 import org.apache.commons.lang.StringUtils;
-import org.carlspring.strongbox.users.dto.UserAccessModelDto;
-import org.carlspring.strongbox.users.dto.UserAccessModelReadContract;
-import org.carlspring.strongbox.users.dto.UserPathPrivelegiesReadContract;
-import org.carlspring.strongbox.users.dto.UserRepositoryReadContract;
-import org.carlspring.strongbox.users.dto.UserStorageDto;
-import org.carlspring.strongbox.users.dto.UserStorageReadContract;
+import org.carlspring.strongbox.users.dto.AccessModelDto;
+import org.carlspring.strongbox.users.dto.AccessModelData;
+import org.carlspring.strongbox.users.dto.PathPrivelegiesData;
+import org.carlspring.strongbox.users.dto.RepositoryPrivilegesData;
+import org.carlspring.strongbox.users.dto.StoragePrivilegesDto;
+import org.carlspring.strongbox.users.dto.StoragePrivilegesData;
 
 import com.google.common.collect.ImmutableSet;
 
@@ -25,25 +25,25 @@ import com.google.common.collect.ImmutableSet;
  */
 @Immutable
 public class AccessModel
-        implements Serializable, UserAccessModelReadContract
+        implements Serializable, AccessModelData
 {
 
     private final Set<Privileges> apiAuthorities;
     
-    private final Set<AccessModelStorage> storageAuthorities;
+    private final Set<StoragePrivileges> storageAuthorities;
 
 
-    public AccessModel(UserAccessModelDto delegate)
+    public AccessModel(AccessModelDto delegate)
     {
         this.storageAuthorities = immuteStorages(delegate.getStorageAuthorities());
         this.apiAuthorities = ImmutableSet.copyOf(delegate.getApiAuthorities());
     }
 
-    private Set<AccessModelStorage> immuteStorages(final Set<UserStorageDto> source)
+    private Set<StoragePrivileges> immuteStorages(final Set<StoragePrivilegesDto> source)
     {
         return source != null ?
                ImmutableSet.copyOf(
-                       source.stream().map(AccessModelStorage::new).collect(toSet())) :
+                       source.stream().map(StoragePrivileges::new).collect(toSet())) :
                Collections.emptySet();
     }
 
@@ -53,7 +53,7 @@ public class AccessModel
         return apiAuthorities;
     }
 
-    public Set<AccessModelStorage> getStorageAuthorities()
+    public Set<StoragePrivileges> getStorageAuthorities()
     {
         return storageAuthorities;
     }
@@ -64,19 +64,19 @@ public class AccessModel
         return getPathPrivileges(url, getStorageAuthorities());
     }
     
-    public static Collection<Privileges> getPathPrivileges(String url, Set<? extends UserStorageReadContract> storages)
+    public static Collection<Privileges> getPathPrivileges(String url, Set<? extends StoragePrivilegesData> storages)
     {
         String normalizedUrl = StringUtils.chomp(url, "/");
 
         Collection<Privileges> privileges = new HashSet<>();
-        for (final UserStorageReadContract storage : storages)
+        for (final StoragePrivilegesData storage : storages)
         {
             String storageKey = "/storages/" + storage.getStorageId();
             if (!normalizedUrl.startsWith(storageKey))
             {
                 continue;
             }
-            for (UserRepositoryReadContract repository : storage.getRepositories())
+            for (RepositoryPrivilegesData repository : storage.getRepositories())
             {
                 String repositoryKey = storageKey + "/" + repository.getRepositoryId();
                 if (!normalizedUrl.startsWith(repositoryKey))
@@ -84,7 +84,7 @@ public class AccessModel
                     continue;
                 }
                 privileges.addAll(repository.getRepositoryPrivileges());
-                for (UserPathPrivelegiesReadContract pathPrivilege : repository.getPathPrivileges())
+                for (PathPrivelegiesData pathPrivilege : repository.getPathPrivileges())
                 {
                     String normalizedPath = StringUtils.chomp(pathPrivilege.getPath(), "/");
                     String pathKey = repositoryKey + "/" + normalizedPath;

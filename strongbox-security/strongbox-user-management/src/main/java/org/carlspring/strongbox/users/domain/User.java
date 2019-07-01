@@ -9,7 +9,7 @@ import java.util.stream.Collectors;
 import javax.annotation.concurrent.Immutable;
 
 import org.carlspring.strongbox.users.dto.UserDto;
-import org.carlspring.strongbox.users.dto.UserReadContract;
+import org.carlspring.strongbox.users.dto.UserData;
 import org.springframework.security.core.userdetails.UserDetails;
 
 import com.google.common.collect.ImmutableSet;
@@ -18,7 +18,7 @@ import com.google.common.collect.ImmutableSet;
  * @author Przemyslaw Fusik
  */
 @Immutable
-public class User implements Serializable, UserReadContract
+public class User implements Serializable, UserData
 {
 
     public static final String SECURITY_TOKEN_KEY = "security-token-key";
