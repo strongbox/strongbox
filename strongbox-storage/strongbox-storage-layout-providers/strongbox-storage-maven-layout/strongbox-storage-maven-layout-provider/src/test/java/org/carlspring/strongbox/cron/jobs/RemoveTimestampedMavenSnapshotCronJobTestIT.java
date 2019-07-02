@@ -93,7 +93,11 @@ public class RemoveTimestampedMavenSnapshotCronJobTestIT
                                                                          ARTIFACT_ID1, versions = { "2.0-20190701.202015-1",
                                                                                                     "2.0-20190701.202101-2",
                                                                                                     "2.0-20190701.202203-3" })
-                    List<Path> artifact1)
+                    List<Path> artifact1,
+            @MavenTestArtifact(repositoryId = REPOSITORY_SNAPSHOTS, id = GROUP_ID + ":" +
+                                                                         ARTIFACT_ID2, versions = { "2.0-20190701.202015-1",
+                                                                                                    "2.0-20190701.202101-2" })
+                    List<Path> artifact2)
             throws Exception
     {
         final UUID jobKey = expectedJobKey;
@@ -142,6 +146,11 @@ public class RemoveTimestampedMavenSnapshotCronJobTestIT
                   ArtifactManagementTestExecutionListener.class })
     public void testRemoveTimestampedSnapshotInRepository(
             @MavenRepository(repositoryId = REPOSITORY_SNAPSHOTS, policy = SNAPSHOT) Repository repository,
+            @MavenTestArtifact(repositoryId = REPOSITORY_SNAPSHOTS, id = GROUP_ID + ":" +
+                                                                         ARTIFACT_ID1, versions = { "2.0-20190701.202015-1",
+                                                                                                    "2.0-20190701.202101-2",
+                                                                                                    "2.0-20190701.202203-3" })
+                    List<Path> artifact1,
             @MavenTestArtifact(repositoryId = REPOSITORY_SNAPSHOTS, id = GROUP_ID + ":" +
                                                                          ARTIFACT_ID2, versions = { "2.0-20190701.202015-1",
                                                                                                     "2.0-20190701.202101-2" })
