@@ -1,28 +1,28 @@
 package org.carlspring.strongbox.cron.jobs;
 
-import org.carlspring.strongbox.booters.PropertiesBooter;
 import org.carlspring.strongbox.config.Maven2LayoutProviderCronTasksTestConfig;
 import org.carlspring.strongbox.data.CacheManagerTestExecutionListener;
-import org.carlspring.strongbox.providers.layout.Maven2LayoutProvider;
 import org.carlspring.strongbox.providers.search.MavenIndexerSearchProvider;
 import org.carlspring.strongbox.services.ArtifactSearchService;
-import org.carlspring.strongbox.storage.repository.MutableRepository;
+import org.carlspring.strongbox.storage.repository.Repository;
 import org.carlspring.strongbox.storage.search.SearchRequest;
+import org.carlspring.strongbox.testing.MavenIndexedRepositorySetup;
+import org.carlspring.strongbox.testing.artifact.ArtifactManagementTestExecutionListener;
+import org.carlspring.strongbox.testing.artifact.MavenTestArtifact;
+import org.carlspring.strongbox.testing.repository.MavenRepository;
+import org.carlspring.strongbox.testing.storage.repository.RepositoryManagementTestExecutionListener;
 
-import javax.annotation.PostConstruct;
 import javax.inject.Inject;
-import java.io.File;
 import java.lang.reflect.UndeclaredThrowableException;
-import java.util.LinkedHashSet;
-import java.util.Set;
+import java.nio.file.Path;
 import java.util.UUID;
 import java.util.concurrent.TimeUnit;
 
 import org.apache.commons.lang3.StringUtils;
-import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.TestInfo;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.junit.jupiter.api.parallel.Execution;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.context.ActiveProfiles;
@@ -35,6 +35,7 @@ import static org.junit.jupiter.api.parallel.ExecutionMode.CONCURRENT;
 
 /**
  * @author Kate Novik.
+ * @author Pablo Tirado
  */
 @ContextConfiguration(classes = Maven2LayoutProviderCronTasksTestConfig.class)
 @SpringBootTest
@@ -48,60 +49,38 @@ public class RebuildMavenIndexesCronJobTestIT
 
     private static final String REPOSITORY_RELEASES_1 = "rmicj-releases";
     private static final String ARTIFACT_BASE_PATH_STRONGBOX_INDEXES = "org/carlspring/strongbox/indexes/strongbox-test-one";
-    
-    @Inject
-    private PropertiesBooter propertiesBooter;
+
+    private static final String GROUP_ID = "org.carlspring.strongbox.indexes.download";
+
+    private static final String ARTIFACT_ID1 = "strongbox-test-one";
+
+    private static final String ARTIFACT_ID2 = "strongbox-test-two";
+
+    private static final String VERSION = "1.0";
 
     @Inject
     private ArtifactSearchService artifactSearchService;
 
-    private File repositoryReleasesDasedir1;
-
-    private Set<MutableRepository> getRepositories(TestInfo testInfo)
-    {
-        Set<MutableRepository> repositories = new LinkedHashSet<>();
-        repositories.add(createRepositoryMock(STORAGE0,
-                                              getRepositoryName(REPOSITORY_RELEASES_1, testInfo),
-                                              Maven2LayoutProvider.ALIAS));
-
-        return repositories;
-    }
-
-    @PostConstruct
-    public void setup() 
-    {
-        repositoryReleasesDasedir1 = new File(propertiesBooter.getVaultDirectory() +
-                                              "/storages/" + STORAGE0 + "/" +
-                                              REPOSITORY_RELEASES_1);
-    }
-    
     @Override
     @BeforeEach
     public void init(TestInfo testInfo)
             throws Exception
     {
         super.init(testInfo);
-
-        createRepository(STORAGE0,
-                         getRepositoryName(REPOSITORY_RELEASES_1, testInfo),
-                         true);
-
-        generateArtifact(getRepositoryBasedir(repositoryReleasesDasedir1, testInfo),
-                         "org.carlspring.strongbox.indexes:strongbox-test-one:1.0:jar");
-
-        generateArtifact(getRepositoryBasedir(repositoryReleasesDasedir1, testInfo),
-                         "org.carlspring.strongbox.indexes:strongbox-test-two:1.0:jar");
-    }
-
-    @AfterEach
-    public void removeRepositories(TestInfo testInfo)
-            throws Exception
-    {
-        removeRepositories(getRepositories(testInfo));
     }
 
     @Test
-    public void testRebuildArtifactsIndexes(TestInfo testInfo)
+    @ExtendWith({ RepositoryManagementTestExecutionListener.class,
+                  ArtifactManagementTestExecutionListener.class })
+    public void testRebuildArtifactsIndexes(
+            @MavenRepository(repositoryId = REPOSITORY_RELEASES_1, setup = MavenIndexedRepositorySetup.class)
+                    Repository repository,
+            @MavenTestArtifact(repositoryId = REPOSITORY_RELEASES_1, id = GROUP_ID + ":" +
+                                                                          ARTIFACT_ID1, versions = { VERSION })
+                    Path artifact1,
+            @MavenTestArtifact(repositoryId = REPOSITORY_RELEASES_1, id = GROUP_ID + ":" +
+                                                                          ARTIFACT_ID2, versions = { VERSION })
+                    Path artifact2)
             throws Exception
     {
         final UUID jobKey = expectedJobKey;
@@ -112,12 +91,10 @@ public class RebuildMavenIndexesCronJobTestIT
         {
             if (StringUtils.equals(jobKey1, jobKey.toString()) && statusExecuted)
             {
+                String query = String.format("+g:%s +a:%s +v:%s +p:jar", GROUP_ID, ARTIFACT_ID1, VERSION);
                 SearchRequest request = new SearchRequest(STORAGE0,
-                                                          getRepositoryName(REPOSITORY_RELEASES_1, testInfo),
-                                                          "+g:org.carlspring.strongbox.indexes " +
-                                                          "+a:strongbox-test-one " +
-                                                          "+v:1.0 " +
-                                                          "+p:jar",
+                                                          repository.getId(),
+                                                          query,
                                                           MavenIndexerSearchProvider.ALIAS);
 
                 try
@@ -135,14 +112,24 @@ public class RebuildMavenIndexesCronJobTestIT
                          jobName,
                          RebuildMavenIndexesCronJob.class,
                          STORAGE0,
-                         getRepositoryName(REPOSITORY_RELEASES_1, testInfo),
+                         repository.getId(),
                          properties -> properties.put("basePath", ARTIFACT_BASE_PATH_STRONGBOX_INDEXES));
 
         await().atMost(EVENT_TIMEOUT_SECONDS, TimeUnit.SECONDS).untilTrue(receivedExpectedEvent());
     }
 
     @Test
-    public void testRebuildIndexesInRepository(TestInfo testInfo)
+    @ExtendWith({ RepositoryManagementTestExecutionListener.class,
+                  ArtifactManagementTestExecutionListener.class })
+    public void testRebuildIndexesInRepository(
+            @MavenRepository(repositoryId = REPOSITORY_RELEASES_1, setup = MavenIndexedRepositorySetup.class)
+                    Repository repository,
+            @MavenTestArtifact(repositoryId = REPOSITORY_RELEASES_1, id = GROUP_ID + ":" +
+                                                                          ARTIFACT_ID1, versions = { VERSION })
+                    Path artifact1,
+            @MavenTestArtifact(repositoryId = REPOSITORY_RELEASES_1, id = GROUP_ID + ":" +
+                                                                          ARTIFACT_ID2, versions = { VERSION })
+                    Path artifact2)
             throws Exception
     {
         final UUID jobKey = expectedJobKey;
@@ -154,22 +141,18 @@ public class RebuildMavenIndexesCronJobTestIT
             {
                 try
                 {
+                    String query1 = String.format("+g:%s +a:%s +v:%s +p:jar", GROUP_ID, ARTIFACT_ID1, VERSION);
                     SearchRequest request1 = new SearchRequest(STORAGE0,
-                                                               getRepositoryName(REPOSITORY_RELEASES_1, testInfo),
-                                                               "+g:org.carlspring.strongbox.indexes " +
-                                                               "+a:strongbox-test-one " +
-                                                               "+v:1.0 " +
-                                                               "+p:jar",
+                                                               repository.getId(),
+                                                               query1,
                                                                MavenIndexerSearchProvider.ALIAS);
 
                     assertTrue(artifactSearchService.contains(request1));
 
+                    String query2 = String.format("+g:%s +a:%s +v:%s +p:jar", GROUP_ID, ARTIFACT_ID2, VERSION);
                     SearchRequest request2 = new SearchRequest(STORAGE0,
-                                                               getRepositoryName(REPOSITORY_RELEASES_1, testInfo),
-                                                               "+g:org.carlspring.strongbox.indexes " +
-                                                               "+a:strongbox-test-two " +
-                                                               "+v:1.0 " +
-                                                               "+p:jar",
+                                                               repository.getId(),
+                                                               query2,
                                                                MavenIndexerSearchProvider.ALIAS);
 
                     assertTrue(artifactSearchService.contains(request2));
@@ -185,7 +168,7 @@ public class RebuildMavenIndexesCronJobTestIT
                          jobName,
                          RebuildMavenIndexesCronJob.class,
                          STORAGE0,
-                         getRepositoryName(REPOSITORY_RELEASES_1, testInfo));
+                         repository.getId());
 
         await().atMost(EVENT_TIMEOUT_SECONDS, TimeUnit.SECONDS).untilTrue(receivedExpectedEvent());
     }
