@@ -55,7 +55,7 @@ public class InMemoryUserService implements UserService
         try
         {
             Set<UserDto> userSet = new HashSet<>(userMap.values());
-            
+
             return new Users(new UsersDto(userSet));
         }
         finally
@@ -63,7 +63,7 @@ public class InMemoryUserService implements UserService
             readLock.unlock();
         }
     }
-    
+
     @Override
     public User findByUserName(final String username)
     {
@@ -71,7 +71,7 @@ public class InMemoryUserService implements UserService
         {
             return null;
         }
-        
+
         final Lock readLock = usersLock.readLock();
         readLock.lock();
 
@@ -154,7 +154,8 @@ public class InMemoryUserService implements UserService
             u.setRoles(user.getRoles());
             u.setSecurityTokenKey(user.getSecurityTokenKey());
             u.setUserAccessModel(user.getUserAccessModel());
-            
+            u.setLastUpdate(new Date());
+
             users.putIfAbsent(user.getUsername(), u);
         });
     }
@@ -210,7 +211,7 @@ public class InMemoryUserService implements UserService
                         {
                             user.setPassword(userToUpdate.getPassword());
                         }
-                        
+
                         updateSecurityToken(user, userToUpdate.getSecurityTokenKey());
                     });
         });
