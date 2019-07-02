@@ -48,6 +48,7 @@ public class RebuildMavenIndexesCronJobTestIT
 {
 
     private static final String REPOSITORY_RELEASES_1 = "rmicj-releases";
+    
     private static final String ARTIFACT_BASE_PATH_STRONGBOX_INDEXES = "org/carlspring/strongbox/indexes/strongbox-test-one";
 
     private static final String GROUP_ID = "org.carlspring.strongbox.indexes.download";
@@ -60,7 +61,8 @@ public class RebuildMavenIndexesCronJobTestIT
 
     @Inject
     private ArtifactSearchService artifactSearchService;
-
+    
+    
     @Override
     @BeforeEach
     public void init(TestInfo testInfo)
@@ -72,15 +74,17 @@ public class RebuildMavenIndexesCronJobTestIT
     @Test
     @ExtendWith({ RepositoryManagementTestExecutionListener.class,
                   ArtifactManagementTestExecutionListener.class })
-    public void testRebuildArtifactsIndexes(
-            @MavenRepository(repositoryId = REPOSITORY_RELEASES_1, setup = MavenIndexedRepositorySetup.class)
-                    Repository repository,
-            @MavenTestArtifact(repositoryId = REPOSITORY_RELEASES_1, id = GROUP_ID + ":" +
-                                                                          ARTIFACT_ID1, versions = { VERSION })
-                    Path artifact1,
-            @MavenTestArtifact(repositoryId = REPOSITORY_RELEASES_1, id = GROUP_ID + ":" +
-                                                                          ARTIFACT_ID2, versions = { VERSION })
-                    Path artifact2)
+    public void testRebuildArtifactsIndexes(@MavenRepository(repositoryId = REPOSITORY_RELEASES_1,
+                                                             setup = MavenIndexedRepositorySetup.class)
+                                            Repository repository,
+                                            @MavenTestArtifact(repositoryId = REPOSITORY_RELEASES_1,
+                                                               id = GROUP_ID + ":" + ARTIFACT_ID1,
+                                                               versions = { VERSION })
+                                            Path artifact1,
+                                            @MavenTestArtifact(repositoryId = REPOSITORY_RELEASES_1,
+                                                               id = GROUP_ID + ":" + ARTIFACT_ID2,
+                                                               versions = { VERSION })
+                                            Path artifact2)
             throws Exception
     {
         final UUID jobKey = expectedJobKey;
@@ -121,15 +125,17 @@ public class RebuildMavenIndexesCronJobTestIT
     @Test
     @ExtendWith({ RepositoryManagementTestExecutionListener.class,
                   ArtifactManagementTestExecutionListener.class })
-    public void testRebuildIndexesInRepository(
-            @MavenRepository(repositoryId = REPOSITORY_RELEASES_1, setup = MavenIndexedRepositorySetup.class)
-                    Repository repository,
-            @MavenTestArtifact(repositoryId = REPOSITORY_RELEASES_1, id = GROUP_ID + ":" +
-                                                                          ARTIFACT_ID1, versions = { VERSION })
-                    Path artifact1,
-            @MavenTestArtifact(repositoryId = REPOSITORY_RELEASES_1, id = GROUP_ID + ":" +
-                                                                          ARTIFACT_ID2, versions = { VERSION })
-                    Path artifact2)
+    public void testRebuildIndexesInRepository(@MavenRepository(repositoryId = REPOSITORY_RELEASES_1,
+                                                                setup = MavenIndexedRepositorySetup.class)
+                                               Repository repository,
+                                               @MavenTestArtifact(repositoryId = REPOSITORY_RELEASES_1,
+                                                                  id = GROUP_ID + ":" + ARTIFACT_ID1,
+                                                                  versions = { VERSION })
+                                               Path artifact1,
+                                               @MavenTestArtifact(repositoryId = REPOSITORY_RELEASES_1,
+                                                                  id = GROUP_ID + ":" + ARTIFACT_ID2,
+                                                                  versions = { VERSION })
+                                               Path artifact2)
             throws Exception
     {
         final UUID jobKey = expectedJobKey;
