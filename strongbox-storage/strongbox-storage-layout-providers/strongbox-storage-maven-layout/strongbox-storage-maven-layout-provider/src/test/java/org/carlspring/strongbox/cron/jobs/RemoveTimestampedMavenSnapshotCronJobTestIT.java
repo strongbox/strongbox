@@ -3,39 +3,46 @@ package org.carlspring.strongbox.cron.jobs;
 import org.carlspring.strongbox.artifact.MavenArtifactUtils;
 import org.carlspring.strongbox.config.Maven2LayoutProviderCronTasksTestConfig;
 import org.carlspring.strongbox.data.CacheManagerTestExecutionListener;
-import org.carlspring.strongbox.providers.layout.Maven2LayoutProvider;
+import org.carlspring.strongbox.providers.io.RootRepositoryPath;
 import org.carlspring.strongbox.services.ArtifactMetadataService;
-import org.carlspring.strongbox.storage.repository.RepositoryDto;
-import org.carlspring.strongbox.storage.repository.RepositoryPolicyEnum;
+import org.carlspring.strongbox.storage.repository.Repository;
+import org.carlspring.strongbox.testing.artifact.ArtifactManagementTestExecutionListener;
+import org.carlspring.strongbox.testing.artifact.MavenTestArtifact;
+import org.carlspring.strongbox.testing.repository.MavenRepository;
+import org.carlspring.strongbox.testing.storage.repository.RepositoryManagementTestExecutionListener;
 
 import javax.inject.Inject;
-import java.io.File;
+import java.io.IOException;
 import java.lang.reflect.UndeclaredThrowableException;
+import java.nio.file.Files;
 import java.nio.file.Path;
-import java.util.LinkedHashSet;
-import java.util.Set;
+import java.util.List;
+import java.util.Optional;
 import java.util.UUID;
 import java.util.concurrent.TimeUnit;
+import java.util.stream.Stream;
 
 import org.apache.commons.io.FilenameUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.maven.artifact.Artifact;
-import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.TestInfo;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.junit.jupiter.api.parallel.Execution;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.TestExecutionListeners;
 import static org.awaitility.Awaitility.await;
+import static org.carlspring.strongbox.storage.repository.RepositoryPolicyEnum.SNAPSHOT;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.junit.jupiter.api.parallel.ExecutionMode.CONCURRENT;
 
 /**
  * @author Kate Novik.
+ * @author Pablo Tirado
  */
 @ContextConfiguration(classes = Maven2LayoutProviderCronTasksTestConfig.class)
 @SpringBootTest
@@ -49,19 +56,15 @@ public class RemoveTimestampedMavenSnapshotCronJobTestIT
 
     private static final String REPOSITORY_SNAPSHOTS = "rtmscj-snapshots";
 
-    private static final String ARTIFACT_BASE_PATH_STRONGBOX_TIMESTAMPED = "org/carlspring/strongbox/strongbox-timestamped-first";
+    private static final String ARTIFACT_BASE_PATH_STRONGBOX_TIMESTAMPED_FIRST = "org/carlspring/strongbox/strongbox-timestamped-first";
+    private static final String ARTIFACT_BASE_PATH_STRONGBOX_TIMESTAMPED_SECOND = "org/carlspring/strongbox/strongbox-timestamped-second";
+
+    private static final String GROUP_ID = "org.carlspring.strongbox";
+    private static final String ARTIFACT_ID1 = "strongbox-timestamped-first";
+    private static final String ARTIFACT_ID2 = "strongbox-timestamped-second";
 
     @Inject
     private ArtifactMetadataService artifactMetadataService;
-
-    private Set<RepositoryDto> getRepositoriesToClean(TestInfo testInfo)
-    {
-        Set<RepositoryDto> repositories = new LinkedHashSet<>();
-        repositories.add(createRepositoryMock(STORAGE0,
-                                              getRepositoryName(REPOSITORY_SNAPSHOTS, testInfo),
-                                              Maven2LayoutProvider.ALIAS));
-        return repositories;
-    }
 
     @Override
     @BeforeEach
@@ -69,65 +72,39 @@ public class RemoveTimestampedMavenSnapshotCronJobTestIT
             throws Exception
     {
         super.init(testInfo);
-
-        //Create repository rtmscj-snapshots in storage0
-        createRepository(STORAGE0,
-                         getRepositoryName(REPOSITORY_SNAPSHOTS, testInfo),
-                         RepositoryPolicyEnum.SNAPSHOT.getPolicy(),
-                         false);
-
-        File repositoryBasedir = getRepositoryBasedir(STORAGE0, getRepositoryName(REPOSITORY_SNAPSHOTS, testInfo));
-
-        createTimestampedSnapshotArtifact(repositoryBasedir.getAbsolutePath(),
-                                          "org.carlspring.strongbox",
-                                          "strongbox-timestamped-first",
-                                          "2.0",
-                                          "jar",
-                                          null,
-                                          3);
-
-        createTimestampedSnapshotArtifact(repositoryBasedir.getAbsolutePath(),
-                                          "org.carlspring.strongbox",
-                                          "strongbox-timestamped-second",
-                                          "2.0",
-                                          "jar",
-                                          null,
-                                          2);
-
-        rebuildArtifactsMetadata(testInfo);
     }
 
-    @AfterEach
-    public void removeRepositories(TestInfo testInfo)
-            throws Exception
-    {
-        removeRepositories(getRepositoriesToClean(testInfo));
-    }
-
-    private void rebuildArtifactsMetadata(TestInfo testInfo)
+    private void rebuildArtifactsMetadata(Repository repository)
             throws Exception
     {
         artifactMetadataService.rebuildMetadata(STORAGE0,
-                                                getRepositoryName(REPOSITORY_SNAPSHOTS, testInfo),
-                                                "org/carlspring/strongbox/strongbox-timestamped-first");
+                                                repository.getId(),
+                                                ARTIFACT_BASE_PATH_STRONGBOX_TIMESTAMPED_FIRST);
 
         artifactMetadataService.rebuildMetadata(STORAGE0,
-                                                getRepositoryName(REPOSITORY_SNAPSHOTS, testInfo),
-                                                "org/carlspring/strongbox/strongbox-timestamped-second");
+                                                repository.getId(),
+                                                ARTIFACT_BASE_PATH_STRONGBOX_TIMESTAMPED_SECOND);
     }
 
     @Test
-    public void testRemoveTimestampedSnapshot(TestInfo testInfo)
+    @ExtendWith({ RepositoryManagementTestExecutionListener.class,
+                  ArtifactManagementTestExecutionListener.class })
+    public void testRemoveTimestampedSnapshot(
+            @MavenRepository(repositoryId = REPOSITORY_SNAPSHOTS, policy = SNAPSHOT) Repository repository,
+            @MavenTestArtifact(repositoryId = REPOSITORY_SNAPSHOTS, id = GROUP_ID + ":" +
+                                                                         ARTIFACT_ID1, versions = { "2.0-20190701.202015-1",
+                                                                                                    "2.0-20190701.202101-2",
+                                                                                                    "2.0-20190701.202203-3" })
+                    List<Path> artifact)
             throws Exception
     {
         final UUID jobKey = expectedJobKey;
         final String jobName = expectedJobName;
-        final String repositoryName = getRepositoryName(REPOSITORY_SNAPSHOTS, testInfo);
-        final File repositoryBasedir = getRepositoryBasedir(STORAGE0, repositoryName);
-        final String artifactPath = repositoryBasedir +
-                                    "/org/carlspring/strongbox/strongbox-timestamped-first";
 
-        File file = new File(artifactPath, "2.0-SNAPSHOT");
+        rebuildArtifactsMetadata(repository);
+
+        final RootRepositoryPath repositoryPath = repositoryPathResolver.resolve(repository);
+        final Path artifactPath = artifact.get(0).getParent();
 
         jobManager.registerExecutionListener(jobKey.toString(), (jobKey1, statusExecuted) ->
         {
@@ -135,9 +112,15 @@ public class RemoveTimestampedMavenSnapshotCronJobTestIT
             {
                 if (StringUtils.equals(jobKey1, jobKey.toString()) && statusExecuted)
                 {
-                    assertEquals(1, file.listFiles((dir, name) -> name.endsWith(".jar")).length,
-                                 "Amount of timestamped snapshots doesn't equal 1.");
-                    assertTrue(getSnapshotArtifactVersion(repositoryBasedir, file).endsWith("-3"));
+                    try (Stream<Path> pathStream = Files.walk(artifactPath))
+                    {
+
+                        long timestampedSnapshots = pathStream.filter(path -> path.toString().endsWith(".jar")).count();
+                        assertEquals(1, timestampedSnapshots, "Amount of timestamped snapshots doesn't equal 1.");
+
+                    }
+
+                    assertTrue(getSnapshotArtifactVersion(repositoryPath, artifactPath).endsWith("-3"));
                 }
             }
             catch (Exception e)
@@ -150,11 +133,10 @@ public class RemoveTimestampedMavenSnapshotCronJobTestIT
                          jobName,
                          RemoveTimestampedMavenSnapshotCronJob.class,
                          STORAGE0,
-                         getRepositoryName(REPOSITORY_SNAPSHOTS,
-                                           testInfo),
+                         repository.getId(),
                          properties ->
                          {
-                             properties.put("basePath", ARTIFACT_BASE_PATH_STRONGBOX_TIMESTAMPED);
+                             properties.put("basePath", ARTIFACT_BASE_PATH_STRONGBOX_TIMESTAMPED_FIRST);
                              properties.put("numberToKeep", "1");
                              properties.put("keepPeriod", "0");
                          });
@@ -163,17 +145,23 @@ public class RemoveTimestampedMavenSnapshotCronJobTestIT
     }
 
     @Test
-    public void testRemoveTimestampedSnapshotInRepository(TestInfo testInfo)
+    @ExtendWith({ RepositoryManagementTestExecutionListener.class,
+                  ArtifactManagementTestExecutionListener.class })
+    public void testRemoveTimestampedSnapshotInRepository(
+            @MavenRepository(repositoryId = REPOSITORY_SNAPSHOTS, policy = SNAPSHOT) Repository repository,
+            @MavenTestArtifact(repositoryId = REPOSITORY_SNAPSHOTS, id = GROUP_ID + ":" +
+                                                                         ARTIFACT_ID2, versions = { "2.0-20190701.202015-1",
+                                                                                                    "2.0-20190701.202101-2" })
+                    List<Path> artifact)
             throws Exception
     {
         final UUID jobKey = expectedJobKey;
         final String jobName = expectedJobName;
-        final String repositoryName = getRepositoryName(REPOSITORY_SNAPSHOTS, testInfo);
-        final File repositoryBasedir = getRepositoryBasedir(STORAGE0, repositoryName);
-        final String artifactPath = repositoryBasedir +
-                                    "/org/carlspring/strongbox/strongbox-timestamped-second";
 
-        final File file = new File(artifactPath, "2.0-SNAPSHOT");
+        rebuildArtifactsMetadata(repository);
+
+        final RootRepositoryPath repositoryPath = repositoryPathResolver.resolve(repository);
+        final Path artifactPath = artifact.get(0).getParent();
 
         jobManager.registerExecutionListener(jobKey.toString(), (jobKey1, statusExecuted) ->
         {
@@ -181,9 +169,15 @@ public class RemoveTimestampedMavenSnapshotCronJobTestIT
             {
                 if (StringUtils.equals(jobKey1, jobKey.toString()) && statusExecuted)
                 {
-                    assertEquals(1, file.listFiles((dir, name) -> name.endsWith(".jar")).length,
-                                 "Amount of timestamped snapshots doesn't equal 1.");
-                    assertTrue(getSnapshotArtifactVersion(repositoryBasedir, file).endsWith("-2"));
+                    try (Stream<Path> pathStream = Files.walk(artifactPath))
+                    {
+
+                        long timestampedSnapshots = pathStream.filter(path -> path.toString().endsWith(".jar")).count();
+                        assertEquals(1, timestampedSnapshots, "Amount of timestamped snapshots doesn't equal 1.");
+
+                    }
+
+                    assertTrue(getSnapshotArtifactVersion(repositoryPath, artifactPath).endsWith("-2"));
                 }
             }
             catch (Exception e)
@@ -196,7 +190,7 @@ public class RemoveTimestampedMavenSnapshotCronJobTestIT
                          jobName,
                          RemoveTimestampedMavenSnapshotCronJob.class,
                          STORAGE0,
-                         repositoryName,
+                         repository.getId(),
                          properties ->
                          {
                              properties.put("basePath", null);
@@ -207,17 +201,26 @@ public class RemoveTimestampedMavenSnapshotCronJobTestIT
         await().atMost(EVENT_TIMEOUT_SECONDS, TimeUnit.SECONDS).untilTrue(receivedExpectedEvent());
     }
 
-    private String getSnapshotArtifactVersion(File repositoryBasedir,
-                                              File artifactFile)
+    private String getSnapshotArtifactVersion(RootRepositoryPath repositoryPath,
+                                              Path artifactPath)
+            throws IOException
     {
-        File[] files = artifactFile.listFiles((dir, name) -> name.endsWith(".jar"));
-        Path path = files[0].toPath();
-        Path other = repositoryBasedir.toPath();
-        Path relativize = other.relativize(path);
-        String unixBasedRelativePath = FilenameUtils.separatorsToUnix(relativize.toString());
-        Artifact artifact = MavenArtifactUtils.convertPathToArtifact(unixBasedRelativePath);
+        try (Stream<Path> pathStream = Files.walk(artifactPath))
+        {
+            Optional<Path> path = pathStream.filter(p -> p.toString().endsWith(".jar")).findFirst();
+            if (path.isPresent())
+            {
+                Path relativize = repositoryPath.relativize(path.get());
+                String unixBasedRelativePath = FilenameUtils.separatorsToUnix(relativize.toString());
+                Artifact artifact = MavenArtifactUtils.convertPathToArtifact(unixBasedRelativePath);
+                if (artifact != null)
+                {
+                    return artifact.getVersion();
+                }
+            }
+        }
 
-        return artifact.getVersion();
+        return StringUtils.EMPTY;
     }
 
 }

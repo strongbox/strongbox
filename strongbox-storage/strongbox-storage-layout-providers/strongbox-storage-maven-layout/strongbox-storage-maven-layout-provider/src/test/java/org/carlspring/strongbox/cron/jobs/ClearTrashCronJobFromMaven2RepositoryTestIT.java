@@ -27,11 +27,13 @@ import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.TestExecutionListeners;
 import static org.awaitility.Awaitility.await;
-import static org.junit.jupiter.api.Assertions.*;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.junit.jupiter.api.parallel.ExecutionMode.CONCURRENT;
 
 /**
  * @author Kate Novik.
+ * @author Pablo Tirado
  */
 @ContextConfiguration(classes = Maven2LayoutProviderCronTasksTestConfig.class)
 @SpringBootTest
@@ -66,22 +68,22 @@ public class ClearTrashCronJobFromMaven2RepositoryTestIT
                                             @RepositoryAttributes(allowsForceDeletion = true, trashEnabled = true)
                                             Repository repository1,
                                             @MavenRepository(repositoryId = REPOSITORY_RELEASES_2)
-                                            @RepositoryAttributes(allowsForceDeletion = false, trashEnabled = true)
+                                            @RepositoryAttributes(trashEnabled = true)
                                             Repository repository2,
                                             @MavenRepository(storageId = STORAGE1, repositoryId = REPOSITORY_RELEASES_1)
-                                            @RepositoryAttributes(allowsForceDeletion = false, trashEnabled = true)
+                                            @RepositoryAttributes(trashEnabled = true)
                                             Repository repository3,
-                                            @MavenTestArtifact(repositoryId = REPOSITORY_RELEASES_1, 
-                                                               id = "org.carlspring.strongbox.clear:strongbox-test-one", 
+                                            @MavenTestArtifact(repositoryId = REPOSITORY_RELEASES_1,
+                                                               id = "org.carlspring.strongbox.clear:strongbox-test-one",
                                                                versions = "1.0")
                                             Path artifact1,
-                                            @MavenTestArtifact(repositoryId = REPOSITORY_RELEASES_2, 
-                                                               id = "org.carlspring.strongbox.clear:strongbox-test-two", 
+                                            @MavenTestArtifact(repositoryId = REPOSITORY_RELEASES_2,
+                                                               id = "org.carlspring.strongbox.clear:strongbox-test-two",
                                                                versions = "1.0")
                                             Path artifact2,
-                                            @MavenTestArtifact(storageId = STORAGE1, 
-                                                               repositoryId = REPOSITORY_RELEASES_1, 
-                                                               id = "org.carlspring.strongbox.clear:strongbox-test-one", 
+                                            @MavenTestArtifact(storageId = STORAGE1,
+                                                               repositoryId = REPOSITORY_RELEASES_1,
+                                                               id = "org.carlspring.strongbox.clear:strongbox-test-one",
                                                                versions = "1.0")
                                             Path artifact3)
             throws Exception
@@ -97,7 +99,7 @@ public class ClearTrashCronJobFromMaven2RepositoryTestIT
 
         RepositoryFiles.delete(path, false);
 
-        assertNotNull(Files.exists(repositoryTrashPath), "There is no path to the repository trash!");
+        Files.exists(repositoryTrashPath);
         assertFalse(Files.exists(artifact1.normalize()), "The repository path exists!");
         assertTrue(Files.exists(RepositoryFiles.trash((RepositoryPath) artifact1.normalize())), "The repository trash is empty!");
 

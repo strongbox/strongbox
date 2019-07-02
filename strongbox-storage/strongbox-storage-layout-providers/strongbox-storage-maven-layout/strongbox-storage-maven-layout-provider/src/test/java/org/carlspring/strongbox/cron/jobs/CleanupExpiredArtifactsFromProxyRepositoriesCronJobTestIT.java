@@ -39,6 +39,7 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 
 /**
  * @author Przemyslaw Fusik
+ * @author Pablo Tirado
  */
 @ContextConfiguration(classes = Maven2LayoutProviderCronTasksTestConfig.class)
 @SpringBootTest
@@ -92,10 +93,6 @@ public class CleanupExpiredArtifactsFromProxyRepositoriesCronJobTestIT
     public void expiredArtifactsCleanupCronJobShouldCleanupDatabaseAndStorage()
             throws Exception
     {
-        final String storageId = "storage-common-proxies";
-        final String repositoryId = "maven-central";
-        final String path = "org/carlspring/properties-injector/1.5/properties-injector-1.5.jar";
-
         Optional<ArtifactEntry> artifactEntryOptional = Optional.ofNullable(artifactEntryService.findOneArtifact(storageId,
                                                                                                                  repositoryId,
                                                                                                                  path));

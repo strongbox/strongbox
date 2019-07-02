@@ -3,25 +3,30 @@ package org.carlspring.strongbox.cron.jobs;
 import org.carlspring.strongbox.config.Maven2LayoutProviderCronTasksTestConfig;
 import org.carlspring.strongbox.cron.domain.CronTaskConfigurationDto;
 import org.carlspring.strongbox.data.CacheManagerTestExecutionListener;
-import org.carlspring.strongbox.providers.layout.Maven2LayoutProvider;
 import org.carlspring.strongbox.providers.search.MavenIndexerSearchProvider;
+import org.carlspring.strongbox.repository.IndexedMavenRepositoryFeatures;
 import org.carlspring.strongbox.services.ArtifactSearchService;
 import org.carlspring.strongbox.storage.indexing.IndexTypeEnum;
-import org.carlspring.strongbox.storage.repository.RepositoryDto;
+import org.carlspring.strongbox.storage.repository.Repository;
 import org.carlspring.strongbox.storage.search.SearchRequest;
+import org.carlspring.strongbox.testing.MavenIndexedRepositorySetup;
+import org.carlspring.strongbox.testing.artifact.ArtifactManagementTestExecutionListener;
+import org.carlspring.strongbox.testing.artifact.MavenTestArtifact;
+import org.carlspring.strongbox.testing.repository.MavenRepository;
+import org.carlspring.strongbox.testing.storage.repository.RepositoryManagementTestExecutionListener;
+import org.carlspring.strongbox.testing.storage.repository.TestRepository.Remote;
 
 import javax.inject.Inject;
 import java.lang.reflect.UndeclaredThrowableException;
-import java.util.LinkedHashSet;
-import java.util.Set;
+import java.nio.file.Path;
 import java.util.UUID;
 import java.util.concurrent.TimeUnit;
 
 import org.apache.commons.lang3.StringUtils;
-import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.TestInfo;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.junit.jupiter.api.parallel.Execution;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.core.env.Environment;
@@ -35,6 +40,7 @@ import static org.junit.jupiter.api.parallel.ExecutionMode.CONCURRENT;
 
 /**
  * @author Martin Todorov
+ * @author Pablo Tirado
  */
 @ContextConfiguration(classes = Maven2LayoutProviderCronTasksTestConfig.class)
 @SpringBootTest
@@ -51,25 +57,19 @@ public class DownloadRemoteMavenIndexCronJobTestIT
 
     private static final String REPOSITORY_PROXIED_RELEASES = "drmicj-proxied-releases";
 
+    private static final String PROXY_REPOSITORY_URL = "http://localhost:48080/storages/" + STORAGE0 + "/" + REPOSITORY_RELEASES + "/";
+
+    private static final String GROUP_ID = "org.carlspring.strongbox.indexes.download";
+
+    private static final String ARTIFACT_ID1 = "strongbox-test-one";
+
+    private static final String ARTIFACT_ID2 = "strongbox-test-two";
+
+    private static final String VERSION = "1.0";
+
 
     @Inject
     private ArtifactSearchService artifactSearchService;
-
-    private Set<RepositoryDto> getRepositories()
-    {
-        Set<RepositoryDto> repositories = new LinkedHashSet<>();
-        repositories.add(createRepositoryMock(STORAGE0, REPOSITORY_RELEASES, Maven2LayoutProvider.ALIAS));
-        repositories.add(createRepositoryMock(STORAGE0, REPOSITORY_PROXIED_RELEASES, Maven2LayoutProvider.ALIAS));
-
-        return repositories;
-    }
-
-    @AfterEach
-    public void removeRepositories()
-            throws Exception
-    {
-        removeRepositories(getRepositories());
-    }
 
     @Override
     @BeforeEach
@@ -77,40 +77,42 @@ public class DownloadRemoteMavenIndexCronJobTestIT
             throws Exception
     {
         super.init(testInfo);
+    }
 
-        createRepository(STORAGE0, REPOSITORY_RELEASES, true);
+    @Test
+    @ExtendWith({ RepositoryManagementTestExecutionListener.class,
+                  ArtifactManagementTestExecutionListener.class })
+    public void testDownloadRemoteIndexAndExecuteSearch(@MavenRepository(repositoryId = REPOSITORY_RELEASES,
+                                                                         setup = MavenIndexedRepositorySetup.class)
+                                                        Repository repository,
+                                                        @Remote(url = PROXY_REPOSITORY_URL)
+                                                        @MavenRepository(repositoryId = REPOSITORY_PROXIED_RELEASES,
+                                                                         setup = MavenIndexedRepositorySetup.class)
+                                                        Repository proxyRepository,
+                                                        @MavenTestArtifact(repositoryId = REPOSITORY_RELEASES,
+                                                                           id = GROUP_ID + ":" + ARTIFACT_ID1,
+                                                                           versions = { VERSION })
+                                                        Path artifact1,
+                                                        @MavenTestArtifact(repositoryId = REPOSITORY_RELEASES,
+                                                                           id = GROUP_ID + ":" + ARTIFACT_ID2,
+                                                                           versions = { VERSION })
+                                                        Path artifact2)
+            throws Exception
+    {
+        IndexedMavenRepositoryFeatures features = (IndexedMavenRepositoryFeatures) getFeatures();
 
-        createProxyRepository(STORAGE0,
-                              REPOSITORY_PROXIED_RELEASES,
-                              "http://localhost:48080/storages/" + STORAGE0 + "/" + REPOSITORY_RELEASES);
+        features.reIndex(STORAGE0, repository.getId(), "/");
+        features.reIndex(STORAGE0, proxyRepository.getId(), "/");
 
-        generateArtifact(getRepositoryBasedir(STORAGE0, REPOSITORY_RELEASES).getAbsolutePath(),
-                         "org.carlspring.strongbox.indexes.download:strongbox-test-one:1.0:jar");
-
-        generateArtifact(getRepositoryBasedir(STORAGE0, REPOSITORY_RELEASES).getAbsolutePath(),
-                         "org.carlspring.strongbox.indexes.download:strongbox-test-two:1.0:jar");
-
-        reIndex(STORAGE0, REPOSITORY_RELEASES, "/");
-        reIndex(STORAGE0, REPOSITORY_PROXIED_RELEASES, "/");
-
-        packIndex(STORAGE0, REPOSITORY_RELEASES);
+        // Make sure the repository that is being proxied has a packed index to serve:
+        features.pack(STORAGE0, repository.getId());
 
         // Requests against the local index of the hosted repository from which we're later on proxying:
         // org.carlspring.strongbox.indexes.download:strongbox-test-one:1.0:jar
+        String query1 = String.format("+g:%s +a:%s +v:%s +p:jar", GROUP_ID, ARTIFACT_ID1, VERSION);
         SearchRequest request1 = new SearchRequest(STORAGE0,
-                                                   REPOSITORY_RELEASES,
-                                                   "+g:org.carlspring.strongbox.indexes.download " +
-                                                   "+a:strongbox-test-one " +
-                                                   "+v:1.0 " +
-                                                   "+p:jar",
-                                                   MavenIndexerSearchProvider.ALIAS);
-        // org.carlspring.strongbox.indexes.download:strongbox-test-two:1.0:jar
-        SearchRequest request2 = new SearchRequest(STORAGE0,
-                                                   REPOSITORY_RELEASES,
-                                                   "+g:org.carlspring.strongbox.indexes.download " +
-                                                   "+a:strongbox-test-two " +
-                                                   "+v:1.0 " +
-                                                   "+p:jar",
+                                                   repository.getId(),
+                                                   query1,
                                                    MavenIndexerSearchProvider.ALIAS);
 
         // Check that the artifacts exist in the hosted repository's local index
@@ -119,16 +121,18 @@ public class DownloadRemoteMavenIndexCronJobTestIT
 
         System.out.println(request1.getQuery() + " found matches!");
 
+        // org.carlspring.strongbox.indexes.download:strongbox-test-two:1.0:jar
+        String query2 = String.format("+g:%s +a:%s +v:%s +p:jar", GROUP_ID, ARTIFACT_ID2, VERSION);
+        SearchRequest request2 = new SearchRequest(STORAGE0,
+                                                   repository.getId(),
+                                                   query2,
+                                                   MavenIndexerSearchProvider.ALIAS);
+
         assertTrue(artifactSearchService.contains(request2),
                    "Failed to find any results for " + request2.getQuery() + " in the hosted repository!");
 
         System.out.println(request2.getQuery() + " found matches!");
-    }
 
-    @Test
-    public void testDownloadRemoteIndexAndExecuteSearch()
-            throws Exception
-    {
         final UUID jobKey = expectedJobKey;
         final String jobName = expectedJobName;
 
@@ -140,21 +144,15 @@ public class DownloadRemoteMavenIndexCronJobTestIT
                 // Requests against the remote index on the proxied repository:
                 // org.carlspring.strongbox.indexes.download:strongbox-test-one:1.0:jar
                 SearchRequest request3 = new SearchRequest(STORAGE0,
-                                                           REPOSITORY_PROXIED_RELEASES,
-                                                           "+g:org.carlspring.strongbox.indexes.download " +
-                                                           "+a:strongbox-test-one " +
-                                                           "+v:1.0 " +
-                                                           "+p:jar",
+                                                           proxyRepository.getId(),
+                                                           query1,
                                                            MavenIndexerSearchProvider.ALIAS);
                 request3.addOption("indexType", IndexTypeEnum.REMOTE.getType());
 
                 // org.carlspring.strongbox.indexes.download:strongbox-test-two:1.0:jar
                 SearchRequest request4 = new SearchRequest(STORAGE0,
-                                                           REPOSITORY_PROXIED_RELEASES,
-                                                           "+g:org.carlspring.strongbox.indexes.download " +
-                                                           "+a:strongbox-test-two " +
-                                                           "+v:1.0 " +
-                                                           "+p:jar",
+                                                           proxyRepository.getId(),
+                                                           query2,
                                                            MavenIndexerSearchProvider.ALIAS);
                 request4.addOption("indexType", IndexTypeEnum.REMOTE.getType());
 
@@ -178,13 +176,17 @@ public class DownloadRemoteMavenIndexCronJobTestIT
             }
         });
 
-        addCronJobConfig(jobKey, jobName, DownloadRemoteMavenIndexCronJobTestSubj.class, STORAGE0,
-                         REPOSITORY_PROXIED_RELEASES);
+        addCronJobConfig(jobKey,
+                         jobName,
+                         DownloadRemoteMavenIndexCronJobTestSubj.class,
+                         STORAGE0,
+                         proxyRepository.getId());
 
         await().atMost(EVENT_TIMEOUT_SECONDS, TimeUnit.SECONDS).untilTrue(receivedExpectedEvent());
     }
-    
-    public static class DownloadRemoteMavenIndexCronJobTestSubj extends DownloadRemoteMavenIndexCronJob 
+
+    public static class DownloadRemoteMavenIndexCronJobTestSubj
+            extends DownloadRemoteMavenIndexCronJob
     {
 
         @Override
@@ -193,7 +195,7 @@ public class DownloadRemoteMavenIndexCronJobTestIT
         {
             return true;
         }
-        
+
     }
 
 }
