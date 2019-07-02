@@ -46,7 +46,7 @@ import static org.junit.jupiter.api.parallel.ExecutionMode.CONCURRENT;
 @SpringBootTest
 @ActiveProfiles(profiles = "test")
 @TestExecutionListeners(listeners = { CacheManagerTestExecutionListener.class },
-        mergeMode = TestExecutionListeners.MergeMode.MERGE_WITH_DEFAULTS)
+                        mergeMode = TestExecutionListeners.MergeMode.MERGE_WITH_DEFAULTS)
 @EnabledIf(expression = "#{containsObject('repositoryIndexManager')}", loadContext = true)
 @Execution(CONCURRENT)
 public class DownloadRemoteMavenIndexCronJobTestIT
@@ -82,18 +82,21 @@ public class DownloadRemoteMavenIndexCronJobTestIT
     @Test
     @ExtendWith({ RepositoryManagementTestExecutionListener.class,
                   ArtifactManagementTestExecutionListener.class })
-    public void testDownloadRemoteIndexAndExecuteSearch(
-            @MavenRepository(repositoryId = REPOSITORY_RELEASES, setup = MavenIndexedRepositorySetup.class)
-                    Repository repository,
-            @Remote(url = PROXY_REPOSITORY_URL)
-            @MavenRepository(repositoryId = REPOSITORY_PROXIED_RELEASES, setup = MavenIndexedRepositorySetup.class)
-                    Repository proxyRepository,
-            @MavenTestArtifact(repositoryId = REPOSITORY_RELEASES, id = GROUP_ID + ":" +
-                                                                        ARTIFACT_ID1, versions = { VERSION })
-                    Path artifact1,
-            @MavenTestArtifact(repositoryId = REPOSITORY_RELEASES, id = GROUP_ID + ":" +
-                                                                        ARTIFACT_ID2, versions = { VERSION })
-                    Path artifact2)
+    public void testDownloadRemoteIndexAndExecuteSearch(@MavenRepository(repositoryId = REPOSITORY_RELEASES,
+                                                                         setup = MavenIndexedRepositorySetup.class)
+                                                        Repository repository,
+                                                        @Remote(url = PROXY_REPOSITORY_URL)
+                                                        @MavenRepository(repositoryId = REPOSITORY_PROXIED_RELEASES,
+                                                                         setup = MavenIndexedRepositorySetup.class)
+                                                        Repository proxyRepository,
+                                                        @MavenTestArtifact(repositoryId = REPOSITORY_RELEASES,
+                                                                           id = GROUP_ID + ":" + ARTIFACT_ID1,
+                                                                           versions = { VERSION })
+                                                        Path artifact1,
+                                                        @MavenTestArtifact(repositoryId = REPOSITORY_RELEASES,
+                                                                           id = GROUP_ID + ":" + ARTIFACT_ID2,
+                                                                           versions = { VERSION })
+                                                        Path artifact2)
             throws Exception
     {
         IndexedMavenRepositoryFeatures features = (IndexedMavenRepositoryFeatures) getFeatures();
@@ -173,7 +176,10 @@ public class DownloadRemoteMavenIndexCronJobTestIT
             }
         });
 
-        addCronJobConfig(jobKey, jobName, DownloadRemoteMavenIndexCronJobTestSubj.class, STORAGE0,
+        addCronJobConfig(jobKey,
+                         jobName,
+                         DownloadRemoteMavenIndexCronJobTestSubj.class,
+                         STORAGE0,
                          proxyRepository.getId());
 
         await().atMost(EVENT_TIMEOUT_SECONDS, TimeUnit.SECONDS).untilTrue(receivedExpectedEvent());
