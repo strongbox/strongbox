@@ -5,7 +5,7 @@ import java.util.Set;
 public interface StoragePrivilegesData
 {
 
-    Set<? extends RepositoryPrivilegesData> getRepositories();
+    Set<? extends RepositoryPrivilegesData> getRepositoryPrivileges();
 
     String getStorageId();
 

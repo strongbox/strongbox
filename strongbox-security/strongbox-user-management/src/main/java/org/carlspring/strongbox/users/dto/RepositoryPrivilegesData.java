@@ -11,6 +11,6 @@ public interface RepositoryPrivilegesData
 
     Set<Privileges> getRepositoryPrivileges();
 
-    Set<? extends PathPrivelegiesData> getPathPrivileges();
+    Set<? extends PathPrivilegesData> getPathPrivileges();
 
 }

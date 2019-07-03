@@ -122,7 +122,7 @@ public class AccessModelFormTest
 
         assertThat(userStorage.getStorageId(), CoreMatchers.equalTo("storage0"));
 
-        Set<RepositoryPrivilegesDto> userRepositories = userStorage.getRepositories();
+        Set<RepositoryPrivilegesDto> userRepositories = userStorage.getRepositoryPrivileges();
         assertThat(userRepositories, CoreMatchers.notNullValue());
         assertThat(userRepositories.size(), CoreMatchers.equalTo(2));
 

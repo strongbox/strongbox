@@ -1,16 +1,18 @@
 package org.carlspring.strongbox.users.domain;
 
-import org.carlspring.strongbox.users.dto.RepositoryPrivilegesDto;
-import org.carlspring.strongbox.users.dto.StoragePrivilegesDto;
-import org.carlspring.strongbox.users.dto.StoragePrivilegesData;
+import static java.util.stream.Collectors.toSet;
 
-import javax.annotation.concurrent.Immutable;
 import java.io.Serializable;
 import java.util.Collections;
 import java.util.Set;
 
+import javax.annotation.concurrent.Immutable;
+
+import org.carlspring.strongbox.users.dto.RepositoryPrivilegesDto;
+import org.carlspring.strongbox.users.dto.StoragePrivilegesData;
+import org.carlspring.strongbox.users.dto.StoragePrivilegesDto;
+
 import com.google.common.collect.ImmutableSet;
-import static java.util.stream.Collectors.toSet;
 
 /**
  * @author Przemyslaw Fusik
@@ -26,7 +28,7 @@ public class StoragePrivileges
 
     public StoragePrivileges(final StoragePrivilegesDto delegate)
     {
-        this.repositories = immuteRepositories(delegate.getRepositories());
+        this.repositories = immuteRepositories(delegate.getRepositoryPrivileges());
         this.storageId = delegate.getStorageId();
     }
 
@@ -37,7 +39,7 @@ public class StoragePrivileges
                Collections.emptySet();
     }
 
-    public Set<RepositoryPrivileges> getRepositories()
+    public Set<RepositoryPrivileges> getRepositoryPrivileges()
     {
         return repositories;
     }

@@ -11,7 +11,7 @@ import java.util.List;
 public class AccessModelForm
 {
 
-    private List<String> apiAcess = new ArrayList<>();
+    private List<String> apiAccess = new ArrayList<>();
     
     @Valid
     private List<RepositoryAccessModelForm> repositoriesAccess = new ArrayList<>();
@@ -35,22 +35,22 @@ public class AccessModelForm
         repositoriesAccess.add(repositoryAccess);
     }
 
-    public List<String> getApiAcess()
+    public List<String> getApiAccess()
     {
-        return apiAcess;
+        return apiAccess;
     }
 
-    public void setApiAcess(List<String> apiAcess)
+    public void setApiAccess(List<String> apiAccess)
     {
-        this.apiAcess = apiAcess;
+        this.apiAccess = apiAccess;
     }
     
-    public void addApiAccess(String privelegie) {
-        if (apiAcess == null) {
-            apiAcess = new ArrayList<>();
+    public void addApiAccess(String privilege) {
+        if (apiAccess == null) {
+            apiAccess = new ArrayList<>();
         }
         
-        apiAcess.add(privelegie);
+        apiAccess.add(privilege);
     }
     
 }

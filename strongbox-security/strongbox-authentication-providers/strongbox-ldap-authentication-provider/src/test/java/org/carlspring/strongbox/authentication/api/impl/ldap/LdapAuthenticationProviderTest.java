@@ -10,7 +10,6 @@ import javax.inject.Inject;
 
 import org.carlspring.strongbox.authentication.support.AuthenticationContextInitializer;
 import org.carlspring.strongbox.config.UsersConfig;
-import org.carlspring.strongbox.users.domain.Privileges;
 import org.carlspring.strongbox.users.domain.SystemRole;
 import org.hamcrest.CoreMatchers;
 import org.junit.jupiter.api.Test;
@@ -22,7 +21,6 @@ import org.springframework.core.env.PropertySource;
 import org.springframework.ldap.core.ContextSource;
 import org.springframework.ldap.core.DirContextAdapter;
 import org.springframework.ldap.core.LdapTemplate;
-import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.ldap.userdetails.LdapUserDetails;

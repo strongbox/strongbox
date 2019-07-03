@@ -4,7 +4,7 @@ import org.carlspring.strongbox.controllers.users.support.AccessModelOutput;
 import org.carlspring.strongbox.controllers.users.support.RepositoryAccessModelOutput;
 import org.carlspring.strongbox.users.domain.AccessModel;
 import org.carlspring.strongbox.users.dto.AccessModelData;
-import org.carlspring.strongbox.users.dto.PathPrivelegiesData;
+import org.carlspring.strongbox.users.dto.PathPrivilegesData;
 import org.carlspring.strongbox.users.dto.RepositoryPrivilegesData;
 import org.carlspring.strongbox.users.dto.StoragePrivilegesData;
 
@@ -32,7 +32,7 @@ public enum AccessModelToAccessModelOutputConverter
         AccessModelOutput result = new AccessModelOutput();
         for (StoragePrivilegesData storage : source.getStorageAuthorities())
         {
-            for (RepositoryPrivilegesData repository : storage.getRepositories())
+            for (RepositoryPrivilegesData repository : storage.getRepositoryPrivileges())
             {
                 if (CollectionUtils.isNotEmpty(repository.getRepositoryPrivileges()))
                 {
@@ -47,7 +47,7 @@ public enum AccessModelToAccessModelOutputConverter
                                                       .map(p -> p.name())
                                                       .collect(Collectors.toSet()));
                 }
-                for (PathPrivelegiesData pathPrivilege : repository.getPathPrivileges())
+                for (PathPrivilegesData pathPrivilege : repository.getPathPrivileges())
                 {
                     RepositoryAccessModelOutput repositoryAccess = getRepositoryAccessOrAddNewOne(result,
                                                                                                   storage.getStorageId(),

@@ -4,7 +4,7 @@ import java.util.Set;
 
 import org.carlspring.strongbox.users.domain.Privileges;
 
-public interface PathPrivelegiesData
+public interface PathPrivilegesData
 {
 
     String getPath();

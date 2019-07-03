@@ -16,7 +16,7 @@ public class StoragePrivilegesDto
         implements Serializable, StoragePrivilegesData
 {
 
-    private Set<RepositoryPrivilegesDto> repositories = new LinkedHashSet<>();
+    private Set<RepositoryPrivilegesDto> repositoryPrivileges = new LinkedHashSet<>();
 
     @JsonProperty(value = "storageId")
     private String storageId;
@@ -31,9 +31,9 @@ public class StoragePrivilegesDto
         this.storageId = storageId;
     }
 
-    public Set<RepositoryPrivilegesDto> getRepositories()
+    public Set<RepositoryPrivilegesDto> getRepositoryPrivileges()
     {
-        return repositories;
+        return repositoryPrivileges;
     }
 
     public String getStorageId()
@@ -46,8 +46,8 @@ public class StoragePrivilegesDto
         this.storageId = storageId;
     }
 
-    public Optional<RepositoryPrivilegesDto> getRepository(final String repositoryId)
+    public Optional<RepositoryPrivilegesDto> getRepositoryPrivileges(final String repositoryId)
     {
-        return repositories.stream().filter(r -> r.getRepositoryId().equals(repositoryId)).findFirst();
+        return repositoryPrivileges.stream().filter(r -> r.getRepositoryId().equals(repositoryId)).findFirst();
     }
 }

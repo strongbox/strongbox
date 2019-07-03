@@ -2,13 +2,15 @@ package org.carlspring.strongbox.users.security;
 
 import java.util.function.Function;
 
+import javax.annotation.concurrent.Immutable;
+
 import org.carlspring.strongbox.authorization.dto.RoleData;
 import org.carlspring.strongbox.users.dto.AccessModelData;
 
 /**
  * @author sbespalov
- *
  */
+@Immutable
 public class RuntimeRole implements RoleData
 {
 

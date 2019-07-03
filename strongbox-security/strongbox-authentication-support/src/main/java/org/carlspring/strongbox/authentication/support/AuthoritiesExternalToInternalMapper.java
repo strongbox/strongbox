@@ -34,7 +34,7 @@ public class AuthoritiesExternalToInternalMapper
                                                                            .map(GrantedAuthority::getAuthority)
                                                                            .map(a -> getRolesMapping().get(a))
                                                                            .filter(a -> a != null)
-                                                                           .map(a -> new SimpleGrantedAuthority(a))
+                                                                           .map(SimpleGrantedAuthority::new)
                                                                            .collect(Collectors.toSet());
         logger.debug(String.format("Authorities mapped [%s]", result));
         return result;

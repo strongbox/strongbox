@@ -6,7 +6,7 @@ import java.util.Set;
 
 import javax.annotation.concurrent.Immutable;
 
-import org.carlspring.strongbox.users.dto.PathPrivelegiesData;
+import org.carlspring.strongbox.users.dto.PathPrivilegesData;
 import org.carlspring.strongbox.users.dto.PathPrivilegesDto;
 
 /**
@@ -14,7 +14,7 @@ import org.carlspring.strongbox.users.dto.PathPrivilegesDto;
  */
 @Immutable
 public class PathPrivileges
-        implements Serializable, PathPrivelegiesData
+        implements Serializable, PathPrivilegesData
 {
 
     private final String path;

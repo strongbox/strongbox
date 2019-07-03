@@ -1,7 +1,6 @@
 package org.carlspring.strongbox.users.dto;
 
 
-import java.util.Collection;
 import java.util.LinkedHashSet;
 import java.util.Optional;
 import java.util.Set;
@@ -33,15 +32,15 @@ public class AccessModelDto
         return storageAuthorities;
     }
 
-    public Optional<StoragePrivilegesDto> getStorage(final String storageId)
+    public Optional<StoragePrivilegesDto> getStorageAuthorities(final String storageId)
     {
         return storageAuthorities.stream().filter(s -> s.getStorageId().equals(storageId)).findFirst();
     }
 
     @Override
-    public Collection<Privileges> getPathPrivileges(String url)
+    public Set<Privileges> getPathAuthorities(String url)
     {
-        return AccessModel.getPathPrivileges(url, storageAuthorities);
+        return AccessModel.getPathAuthorities(url, storageAuthorities);
     }
     
 }

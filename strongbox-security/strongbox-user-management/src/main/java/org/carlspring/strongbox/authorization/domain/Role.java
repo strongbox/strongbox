@@ -1,14 +1,12 @@
 package org.carlspring.strongbox.authorization.domain;
 
-import java.util.Objects;
-
 import javax.annotation.concurrent.Immutable;
 
-import org.carlspring.strongbox.authorization.dto.RoleDto;
 import org.carlspring.strongbox.authorization.dto.RoleData;
+import org.carlspring.strongbox.authorization.dto.RoleDto;
 import org.carlspring.strongbox.users.domain.AccessModel;
-import org.carlspring.strongbox.users.dto.AccessModelDto;
 import org.carlspring.strongbox.users.dto.AccessModelData;
+import org.carlspring.strongbox.users.dto.AccessModelDto;
 
 /**
  * @author Przemyslaw Fusik
@@ -50,21 +48,4 @@ public class Role implements RoleData
         return accessModel;
     }
 
-    @Override
-    public boolean equals(final Object o)
-    {
-        if (this == o) return true;
-        if (!(o instanceof Role))
-        {
-            return false;
-        }
-        final Role that = (Role) o;
-        return Objects.equals(accessModel, that.accessModel);
-    }
-
-    @Override
-    public int hashCode()
-    {
-        return Objects.hash(name);
-    }
 }

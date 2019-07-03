@@ -77,7 +77,7 @@ public class StrongboxUserService
         super.modifyInLock(operation.andThen(u -> doStoreUsers()));
     }
 
-    protected void doStoreUsers()
+    private void doStoreUsers()
     {
         try
         {

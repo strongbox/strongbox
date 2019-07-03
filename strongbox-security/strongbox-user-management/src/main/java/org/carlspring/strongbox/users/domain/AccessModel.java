@@ -3,7 +3,6 @@ package org.carlspring.strongbox.users.domain;
 import static java.util.stream.Collectors.toSet;
 
 import java.io.Serializable;
-import java.util.Collection;
 import java.util.Collections;
 import java.util.HashSet;
 import java.util.Set;
@@ -11,12 +10,12 @@ import java.util.Set;
 import javax.annotation.concurrent.Immutable;
 
 import org.apache.commons.lang.StringUtils;
-import org.carlspring.strongbox.users.dto.AccessModelDto;
 import org.carlspring.strongbox.users.dto.AccessModelData;
-import org.carlspring.strongbox.users.dto.PathPrivelegiesData;
+import org.carlspring.strongbox.users.dto.AccessModelDto;
+import org.carlspring.strongbox.users.dto.PathPrivilegesData;
 import org.carlspring.strongbox.users.dto.RepositoryPrivilegesData;
-import org.carlspring.strongbox.users.dto.StoragePrivilegesDto;
 import org.carlspring.strongbox.users.dto.StoragePrivilegesData;
+import org.carlspring.strongbox.users.dto.StoragePrivilegesDto;
 
 import com.google.common.collect.ImmutableSet;
 
@@ -59,16 +58,16 @@ public class AccessModel
     }
 
     @Override
-    public Collection<Privileges> getPathPrivileges(String url)
+    public Set<Privileges> getPathAuthorities(String url)
     {
-        return getPathPrivileges(url, getStorageAuthorities());
+        return getPathAuthorities(url, getStorageAuthorities());
     }
     
-    public static Collection<Privileges> getPathPrivileges(String url, Set<? extends StoragePrivilegesData> storages)
+    public static Set<Privileges> getPathAuthorities(String url, Set<? extends StoragePrivilegesData> storages)
     {
         String normalizedUrl = StringUtils.chomp(url, "/");
 
-        Collection<Privileges> privileges = new HashSet<>();
+        Set<Privileges> privileges = new HashSet<>();
         for (final StoragePrivilegesData storage : storages)
         {
             String storageKey = "/storages/" + storage.getStorageId();
@@ -76,7 +75,7 @@ public class AccessModel
             {
                 continue;
             }
-            for (RepositoryPrivilegesData repository : storage.getRepositories())
+            for (RepositoryPrivilegesData repository : storage.getRepositoryPrivileges())
             {
                 String repositoryKey = storageKey + "/" + repository.getRepositoryId();
                 if (!normalizedUrl.startsWith(repositoryKey))
@@ -84,7 +83,7 @@ public class AccessModel
                     continue;
                 }
                 privileges.addAll(repository.getRepositoryPrivileges());
-                for (PathPrivelegiesData pathPrivilege : repository.getPathPrivileges())
+                for (PathPrivilegesData pathPrivilege : repository.getPathPrivileges())
                 {
                     String normalizedPath = StringUtils.chomp(pathPrivilege.getPath(), "/");
                     String pathKey = repositoryKey + "/" + normalizedPath;

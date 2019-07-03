@@ -94,7 +94,7 @@ public class AuthorizationConfigControllerTestIT
         customRole.setName("TEST_ROLE");
         customRole.setDescription("Test role");
         AccessModelForm accessModel = new AccessModelForm();
-        accessModel.setApiAcess(Arrays.asList(Privileges.ADMIN_LIST_REPO.name(),
+        accessModel.setApiAccess(Arrays.asList(Privileges.ADMIN_LIST_REPO.name(),
                                               Privileges.ARTIFACTS_DEPLOY.name()));
         customRole.setAccessModel(accessModel);
 

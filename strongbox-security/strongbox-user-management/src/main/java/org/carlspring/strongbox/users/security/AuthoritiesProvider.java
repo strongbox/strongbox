@@ -43,21 +43,26 @@ public class AuthoritiesProvider
         return authorizationConfigService.get().getRoles();
     }
     
-    public RoleData getRuntimeRole(String name) {
+    public RoleData getRuntimeRole(String name)
+    {
         Role role = authorizationConfigService.get()
-                                         .getRoles()
-                                         .stream()
-                                         .filter(r -> r.getName().equals(name))
-                                         .findFirst()
-                                         .orElseThrow(() -> new IllegalArgumentException(name));
-        
-        if (SystemRole.ADMIN.name().equals(name)) {
-            RuntimeRole adminRole = new RuntimeRole(role, (a) -> new AdminAccessModel(a));
-            return new RuntimeRole(adminRole, (a) -> new AuthorizedAccessModel(a));
-        } else if (SystemRole.ANONYMOUS.name().equals(name)) {
+                                              .getRoles()
+                                              .stream()
+                                              .filter(r -> r.getName().equals(name))
+                                              .findFirst()
+                                              .orElseThrow(() -> new IllegalArgumentException(name));
+
+        if (SystemRole.ADMIN.name().equals(name))
+        {
+            RuntimeRole adminRole = new RuntimeRole(role, (a) -> new AdminAccessModel());
+            return new RuntimeRole(adminRole, (a) -> new AuthenticatedAccessModel(a));
+        }
+        else if (SystemRole.ANONYMOUS.name().equals(name))
+        {
             return new RuntimeRole(role, (a) -> new AnonymousAccessModel(a));
         }
-        return new RuntimeRole(role, (a) -> new AuthorizedAccessModel(a));
+
+        return new RuntimeRole(role, (a) -> new AuthenticatedAccessModel(a));
     }
-    
+
 }

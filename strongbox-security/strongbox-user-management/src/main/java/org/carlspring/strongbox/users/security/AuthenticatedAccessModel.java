@@ -1,6 +1,5 @@
 package org.carlspring.strongbox.users.security;
 
-import java.util.Collection;
 import java.util.Collections;
 import java.util.HashSet;
 import java.util.Set;
@@ -12,12 +11,12 @@ import org.carlspring.strongbox.users.dto.AccessModelData;
  * @author sbespalov
  *
  */
-public class AuthorizedAccessModel implements AccessModelData
+public class AuthenticatedAccessModel implements AccessModelData
 {
     
     private final AccessModelData target;
     
-    public AuthorizedAccessModel(AccessModelData target)
+    public AuthenticatedAccessModel(AccessModelData target)
     {
         this.target = target;
     }
@@ -31,9 +30,9 @@ public class AuthorizedAccessModel implements AccessModelData
     }
 
     @Override
-    public Collection<Privileges> getPathPrivileges(String url)
+    public Set<Privileges> getPathAuthorities(String url)
     {
-        return target.getPathPrivileges(url);
+        return target.getPathAuthorities(url);
     }
 
 }

@@ -94,10 +94,12 @@ public class SpringSecurityUser
         return roles.stream().flatMap(r -> r.getAccessModel().getApiAuthorities().stream()).collect(Collectors.toSet());
     }
 
-    public Collection<Privileges> getStorageAuthorities(String path) {
+    public Collection<Privileges> getStorageAuthorities(String path)
+    {
         return getRoles().stream()
-                         .flatMap(r -> r.getAccessModel().getPathPrivileges(path)
-                                                  .stream())
+                         .flatMap(r -> r.getAccessModel()
+                                        .getPathAuthorities(path)
+                                        .stream())
                          .collect(Collectors.toSet());
     }
     

@@ -5,8 +5,6 @@ import java.io.Serializable;
 import org.carlspring.strongbox.users.domain.Privileges;
 import org.carlspring.strongbox.users.dto.AccessModelDto;
 
-import com.google.common.base.Objects;
-
 /**
  * @author mtodorov
  */
@@ -70,28 +68,6 @@ public class RoleDto
     public void addPrivilege(Privileges p)
     {
         accessModel.getApiAuthorities().add(p);
-    }
-    
-    @Override
-    public boolean equals(Object o)
-    {
-        if (this == o)
-        {
-            return true;
-        }
-        if (o == null || getClass() != o.getClass())
-        {
-            return false;
-        }
-
-        RoleDto role = (RoleDto) o;
-        return Objects.equal(accessModel, role.accessModel);
-    }
-
-    @Override
-    public int hashCode()
-    {
-        return Objects.hashCode(accessModel);
     }
     
     @Override

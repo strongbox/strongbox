@@ -32,14 +32,14 @@ public enum AccessModelFormToUserAccessModelDtoConverter
         }
         
         AccessModelDto userAccessModelDto = new AccessModelDto();
-        accessModelForm.getApiAcess()
+        accessModelForm.getApiAccess()
                        .stream()
                        .map(p -> Privileges.valueOf(p))
                        .forEach(p -> userAccessModelDto.getApiAuthorities().add(p));
         
         for (RepositoryAccessModelForm repositoryAccess : accessModelForm.getRepositoriesAccess())
         {
-            StoragePrivilegesDto storage = userAccessModelDto.getStorage(repositoryAccess.getStorageId())
+            StoragePrivilegesDto storage = userAccessModelDto.getStorageAuthorities(repositoryAccess.getStorageId())
                                                        .orElseGet(
                                                                () ->
                                                                {
@@ -50,14 +50,14 @@ public enum AccessModelFormToUserAccessModelDtoConverter
                                                                    return userStorageDto;
                                                                });
 
-            RepositoryPrivilegesDto repository = storage.getRepository(repositoryAccess.getRepositoryId())
+            RepositoryPrivilegesDto repository = storage.getRepositoryPrivileges(repositoryAccess.getRepositoryId())
                                                   .orElseGet(
                                                           () ->
                                                           {
                                                               RepositoryPrivilegesDto userRepositoryDto = new RepositoryPrivilegesDto();
                                                               userRepositoryDto.setRepositoryId(
                                                                       repositoryAccess.getRepositoryId());
-                                                              storage.getRepositories().add(userRepositoryDto);
+                                                              storage.getRepositoryPrivileges().add(userRepositoryDto);
                                                               return userRepositoryDto;
                                                           });
 

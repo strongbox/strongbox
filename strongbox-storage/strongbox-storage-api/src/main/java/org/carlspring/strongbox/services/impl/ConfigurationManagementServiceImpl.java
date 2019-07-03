@@ -83,7 +83,7 @@ public class ConfigurationManagementServiceImpl
         }
         catch (IOException e)
         {
-            throw new org.springframework.cglib.proxy.UndeclaredThrowableException(e);
+            throw new UndeclaredThrowableException(e);
         }
 
         return null;
