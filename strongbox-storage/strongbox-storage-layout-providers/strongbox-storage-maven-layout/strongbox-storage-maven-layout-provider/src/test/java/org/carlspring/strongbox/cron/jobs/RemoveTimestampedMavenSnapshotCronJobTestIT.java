@@ -3,6 +3,7 @@ package org.carlspring.strongbox.cron.jobs;
 import org.carlspring.strongbox.artifact.MavenArtifactUtils;
 import org.carlspring.strongbox.config.Maven2LayoutProviderCronTasksTestConfig;
 import org.carlspring.strongbox.data.CacheManagerTestExecutionListener;
+import org.carlspring.strongbox.providers.io.RootRepositoryPath;
 import org.carlspring.strongbox.services.ArtifactMetadataService;
 import org.carlspring.strongbox.storage.repository.Repository;
 import org.carlspring.strongbox.testing.artifact.ArtifactManagementTestExecutionListener;
@@ -19,6 +20,7 @@ import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
 import java.util.concurrent.TimeUnit;
+import java.util.stream.Stream;
 
 import org.apache.commons.io.FilenameUtils;
 import org.apache.commons.lang3.StringUtils;
@@ -93,11 +95,7 @@ public class RemoveTimestampedMavenSnapshotCronJobTestIT
                                                                          ARTIFACT_ID1, versions = { "2.0-20190701.202015-1",
                                                                                                     "2.0-20190701.202101-2",
                                                                                                     "2.0-20190701.202203-3" })
-                    List<Path> artifact1,
-            @MavenTestArtifact(repositoryId = REPOSITORY_SNAPSHOTS, id = GROUP_ID + ":" +
-                                                                         ARTIFACT_ID2, versions = { "2.0-20190701.202015-1",
-                                                                                                    "2.0-20190701.202101-2" })
-                    List<Path> artifact2)
+                    List<Path> artifact)
             throws Exception
     {
         final UUID jobKey = expectedJobKey;
@@ -105,7 +103,8 @@ public class RemoveTimestampedMavenSnapshotCronJobTestIT
 
         rebuildArtifactsMetadata(repository);
 
-        final Path artifact1ParentPath = artifact1.get(0).getParent();
+        final RootRepositoryPath repositoryPath = repositoryPathResolver.resolve(repository);
+        final Path artifactPath = artifact.get(0).getParent();
 
         jobManager.registerExecutionListener(jobKey.toString(), (jobKey1, statusExecuted) ->
         {
@@ -113,11 +112,15 @@ public class RemoveTimestampedMavenSnapshotCronJobTestIT
             {
                 if (StringUtils.equals(jobKey1, jobKey.toString()) && statusExecuted)
                 {
-                    long timestampedSnapshots = Files.walk(artifact1ParentPath).filter(
-                            path -> path.toString().endsWith(".jar")).count();
+                    try (Stream<Path> pathStream = Files.walk(artifactPath))
+                    {
 
-                    assertEquals(1, timestampedSnapshots, "Amount of timestamped snapshots doesn't equal 1.");
-                    assertTrue(getSnapshotArtifactVersion(artifact1ParentPath).endsWith("-3"));
+                        long timestampedSnapshots = pathStream.filter(path -> path.toString().endsWith(".jar")).count();
+                        assertEquals(1, timestampedSnapshots, "Amount of timestamped snapshots doesn't equal 1.");
+
+                    }
+
+                    assertTrue(getSnapshotArtifactVersion(repositoryPath, artifactPath).endsWith("-3"));
                 }
             }
             catch (Exception e)
@@ -147,14 +150,9 @@ public class RemoveTimestampedMavenSnapshotCronJobTestIT
     public void testRemoveTimestampedSnapshotInRepository(
             @MavenRepository(repositoryId = REPOSITORY_SNAPSHOTS, policy = SNAPSHOT) Repository repository,
             @MavenTestArtifact(repositoryId = REPOSITORY_SNAPSHOTS, id = GROUP_ID + ":" +
-                                                                         ARTIFACT_ID1, versions = { "2.0-20190701.202015-1",
-                                                                                                    "2.0-20190701.202101-2",
-                                                                                                    "2.0-20190701.202203-3" })
-                    List<Path> artifact1,
-            @MavenTestArtifact(repositoryId = REPOSITORY_SNAPSHOTS, id = GROUP_ID + ":" +
                                                                          ARTIFACT_ID2, versions = { "2.0-20190701.202015-1",
                                                                                                     "2.0-20190701.202101-2" })
-                    List<Path> artifact2)
+                    List<Path> artifact)
             throws Exception
     {
         final UUID jobKey = expectedJobKey;
@@ -162,7 +160,8 @@ public class RemoveTimestampedMavenSnapshotCronJobTestIT
 
         rebuildArtifactsMetadata(repository);
 
-        final Path artifact2ParentPath = artifact2.get(0).getParent();
+        final RootRepositoryPath repositoryPath = repositoryPathResolver.resolve(repository);
+        final Path artifactPath = artifact.get(0).getParent();
 
         jobManager.registerExecutionListener(jobKey.toString(), (jobKey1, statusExecuted) ->
         {
@@ -170,12 +169,15 @@ public class RemoveTimestampedMavenSnapshotCronJobTestIT
             {
                 if (StringUtils.equals(jobKey1, jobKey.toString()) && statusExecuted)
                 {
-                    long timestampedSnapshots = Files.walk(artifact2ParentPath).filter(
-                            path -> path.toString().endsWith(".jar")).count();
+                    try (Stream<Path> pathStream = Files.walk(artifactPath))
+                    {
 
-                    assertEquals(1, timestampedSnapshots, "Amount of timestamped snapshots doesn't equal 1.");
+                        long timestampedSnapshots = pathStream.filter(path -> path.toString().endsWith(".jar")).count();
+                        assertEquals(1, timestampedSnapshots, "Amount of timestamped snapshots doesn't equal 1.");
 
-                    assertTrue(getSnapshotArtifactVersion(artifact2ParentPath).endsWith("-2"));
+                    }
+
+                    assertTrue(getSnapshotArtifactVersion(repositoryPath, artifactPath).endsWith("-2"));
                 }
             }
             catch (Exception e)
@@ -199,17 +201,22 @@ public class RemoveTimestampedMavenSnapshotCronJobTestIT
         await().atMost(EVENT_TIMEOUT_SECONDS, TimeUnit.SECONDS).untilTrue(receivedExpectedEvent());
     }
 
-    private String getSnapshotArtifactVersion(Path artifactPath)
+    private String getSnapshotArtifactVersion(RootRepositoryPath repositoryPath,
+                                              Path artifactPath)
             throws IOException
     {
-        Optional<Path> path = Files.walk(artifactPath).filter(p -> p.toString().endsWith(".jar")).findFirst();
-        if (path.isPresent())
+        try (Stream<Path> pathStream = Files.walk(artifactPath))
         {
-            String unixBasedRelativePath = FilenameUtils.separatorsToUnix(path.get().toString());
-            Artifact artifact = MavenArtifactUtils.convertPathToArtifact(unixBasedRelativePath);
-            if (artifact != null)
+            Optional<Path> path = pathStream.filter(p -> p.toString().endsWith(".jar")).findFirst();
+            if (path.isPresent())
             {
-                return artifact.getVersion();
+                Path relativize = repositoryPath.relativize(path.get());
+                String unixBasedRelativePath = FilenameUtils.separatorsToUnix(relativize.toString());
+                Artifact artifact = MavenArtifactUtils.convertPathToArtifact(unixBasedRelativePath);
+                if (artifact != null)
+                {
+                    return artifact.getVersion();
+                }
             }
         }
 
