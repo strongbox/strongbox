@@ -12,6 +12,7 @@ import org.carlspring.strongbox.testing.repository.MavenRepository;
 import org.carlspring.strongbox.testing.storage.repository.RepositoryManagementTestExecutionListener;
 
 import java.nio.file.Path;
+import java.util.List;
 
 import org.apache.maven.artifact.Artifact;
 import org.junit.jupiter.api.Test;
@@ -54,12 +55,9 @@ public class MavenReleaseVersionValidatorTest
     public void testReleaseValidation(@MavenRepository(repositoryId = MRVV_RELEASES) Repository repository,
                                       @MavenTestArtifact(repositoryId = MRVV_RELEASES,
                                                          id = GROUP_ID + ":" + ARTIFACT_ID,
-                                                         versions = { "1" })
-                                      Path validArtifact1Path,
-                                      @MavenTestArtifact(repositoryId = MRVV_RELEASES,
-                                                         id = GROUP_ID + ":" + ARTIFACT_ID,
-                                                         versions = { "1.0" })
-                                      Path validArtifact2Path)
+                                                         versions = { "1",
+                                                                      "1.0" })
+                                      List<Path> validArtifactPaths)
             throws VersionValidationException
     {
         /*
@@ -83,12 +81,9 @@ public class MavenReleaseVersionValidatorTest
     public void testInvalidArtifacts(@MavenRepository(repositoryId = MRVV_RELEASES) Repository repository,
                                      @MavenTestArtifact(repositoryId = MRVV_RELEASES,
                                                         id = GROUP_ID + ":" + ARTIFACT_ID,
-                                                        versions = {"1.0-SNAPSHOT"})
-                                     Path invalidArtifact1Path,
-                                     @MavenTestArtifact(repositoryId = MRVV_RELEASES,
-                                                        id = GROUP_ID + ":" + ARTIFACT_ID,
-                                                        versions = {"1.0-20131004.115330-1"})
-                                     Path invalidArtifact4Path)
+                                                        versions = { "1.0-SNAPSHOT",
+                                                                     "1.0-20131004.115330-1" })
+                                     List<Path> invalidArtifactPaths)
     {
         /*
          * Test invalid artifacts

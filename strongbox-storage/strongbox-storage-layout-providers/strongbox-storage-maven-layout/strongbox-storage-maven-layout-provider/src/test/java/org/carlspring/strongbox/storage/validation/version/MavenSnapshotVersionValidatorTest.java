@@ -12,6 +12,7 @@ import org.carlspring.strongbox.testing.repository.MavenRepository;
 import org.carlspring.strongbox.testing.storage.repository.RepositoryManagementTestExecutionListener;
 
 import java.nio.file.Path;
+import java.util.List;
 
 import org.apache.maven.artifact.Artifact;
 import org.junit.jupiter.api.Test;
@@ -57,20 +58,11 @@ public class MavenSnapshotVersionValidatorTest
                                        Repository repository,
                                        @MavenTestArtifact(repositoryId = REPOSITORY_ID,
                                                           id = GROUP_ID + ":" + ARTIFACT_ID,
-                                                          versions = { "1.0-SNAPSHOT" })
-                                       Path validArtifact1Path,
-                                       @MavenTestArtifact(repositoryId = REPOSITORY_ID,
-                                                          id = GROUP_ID + ":" + ARTIFACT_ID,
-                                                          versions = { "1.0-20131004.115330-1" })
-                                       Path validArtifact4Path,
-                                       @MavenTestArtifact(repositoryId = REPOSITORY_ID,
-                                                          id = GROUP_ID + ":" + ARTIFACT_ID,
-                                                          versions = { "1.0.8-20151025.032208-1" })
-                                       Path validArtifact5Path,
-                                       @MavenTestArtifact(repositoryId = REPOSITORY_ID,
-                                                          id = GROUP_ID + ":" + ARTIFACT_ID,
-                                                          versions = { "1.0.8-alpha-1-20151025.032208-1" })
-                                       Path validArtifact6Path)
+                                                          versions = { "1.0-SNAPSHOT",
+                                                                       "1.0-20131004.115330-1",
+                                                                       "1.0.8-20151025.032208-1",
+                                                                       "1.0.8-alpha-1-20151025.032208-1"})
+                                       List<Path> validArtifactPaths)
             throws VersionValidationException
     {
         Artifact validArtifact1 = generateArtifact("1.0-SNAPSHOT");
@@ -98,20 +90,11 @@ public class MavenSnapshotVersionValidatorTest
                                      Repository repository,
                                      @MavenTestArtifact(repositoryId = REPOSITORY_ID,
                                                         id = GROUP_ID + ":" + ARTIFACT_ID,
-                                                        versions = { "1" })
-                                     Path invalidArtifact1Path,
-                                     @MavenTestArtifact(repositoryId = REPOSITORY_ID,
-                                                        id = GROUP_ID + ":" + ARTIFACT_ID,
-                                                        versions = { "1.0" })
-                                     Path invalidArtifact2Path,
-                                     @MavenTestArtifact(repositoryId = REPOSITORY_ID,
-                                                        id = GROUP_ID + ":" + ARTIFACT_ID,
-                                                        versions = { "1.0.1" })
-                                     Path invalidArtifact3Path,
-                                     @MavenTestArtifact(repositoryId = REPOSITORY_ID,
-                                                        id = GROUP_ID + ":" + ARTIFACT_ID,
-                                                        versions = { "1.0.1-alpha" })
-                                     Path invalidArtifact4Path)
+                                                        versions = { "1",
+                                                                     "1.0",
+                                                                     "1.0.1",
+                                                                     "1.0.1-alpha" })
+                                     List<Path> invalidArtifactPaths)
     {
         Artifact invalidArtifact1 = generateArtifact("1");
         Artifact invalidArtifact2 = generateArtifact("1.0");
