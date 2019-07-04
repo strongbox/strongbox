@@ -13,9 +13,9 @@ import org.carlspring.strongbox.event.cron.CronTaskEventTypeEnum;
 import org.carlspring.strongbox.providers.layout.NpmLayoutProvider;
 import org.carlspring.strongbox.service.ProxyRepositoryConnectionPoolConfigurationService;
 import org.carlspring.strongbox.services.ConfigurationManagementService;
-import org.carlspring.strongbox.storage.repository.Repository;
-import org.carlspring.strongbox.storage.repository.RepositoryDto;
 import org.carlspring.strongbox.storage.repository.RepositoryData;
+import org.carlspring.strongbox.storage.repository.RepositoryDto;
+import org.carlspring.strongbox.storage.repository.Repository;
 import org.carlspring.strongbox.storage.repository.RepositoryTypeEnum;
 import org.carlspring.strongbox.storage.repository.remote.MutableRemoteRepository;
 import org.carlspring.strongbox.testing.NpmRepositoryTestCase;
@@ -189,8 +189,8 @@ public class FetchChangesFeedCronJobTestIT
         RemoteArtifactEntry artifactEntry = artifactEntryList.iterator().next();
         assertFalse(artifactEntry.getIsCached());
 
-        RepositoryData repository = configurationManagementService.getConfiguration().getRepository(STORAGE, REPOSITORY);
-        NpmRemoteRepositoryConfiguration customConfiguration = (NpmRemoteRepositoryConfiguration) ((Repository) repository).getRemoteRepository()
+        Repository repository = configurationManagementService.getConfiguration().getRepository(STORAGE, REPOSITORY);
+        NpmRemoteRepositoryConfiguration customConfiguration = (NpmRemoteRepositoryConfiguration) ((RepositoryData) repository).getRemoteRepository()
                                                                                                                                     .getCustomConfiguration();
         assertEquals(Long.valueOf(330), customConfiguration.getLastChangeId());
     }

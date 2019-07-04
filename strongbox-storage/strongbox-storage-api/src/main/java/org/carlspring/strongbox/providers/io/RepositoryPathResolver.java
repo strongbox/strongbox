@@ -4,8 +4,8 @@ import org.carlspring.strongbox.artifact.coordinates.ArtifactCoordinates;
 import org.carlspring.strongbox.configuration.ConfigurationManager;
 import org.carlspring.strongbox.domain.ArtifactEntry;
 import org.carlspring.strongbox.services.ArtifactEntryService;
-import org.carlspring.strongbox.storage.StorageData;
-import org.carlspring.strongbox.storage.repository.RepositoryData;
+import org.carlspring.strongbox.storage.Storage;
+import org.carlspring.strongbox.storage.repository.Repository;
 
 import javax.inject.Inject;
 import java.io.IOException;
@@ -29,7 +29,7 @@ public class RepositoryPathResolver
     @Inject
     protected RepositoryFileSystemRegistry fileSystemRegistry;
 
-    public RootRepositoryPath resolve(final RepositoryData repository)
+    public RootRepositoryPath resolve(final Repository repository)
     {
         Objects.requireNonNull(repository, "Repository should be provided");
 
@@ -42,19 +42,19 @@ public class RepositoryPathResolver
                                   String repositoryId,
                                   String path)
     {
-        StorageData storage = configurationManager.getConfiguration().getStorage(storageId);
+        Storage storage = configurationManager.getConfiguration().getStorage(storageId);
         Objects.requireNonNull(storage, String.format("Storage [%s] not found", storageId));
 
         return resolve(storage.getRepository(repositoryId), path);
     }
 
-    public RepositoryPath resolve(final RepositoryData repository,
+    public RepositoryPath resolve(final Repository repository,
                                   final ArtifactCoordinates c)
     {
         return resolve(repository, c.toPath());
     }
 
-    public RepositoryPath resolve(final RepositoryData repository,
+    public RepositoryPath resolve(final Repository repository,
                                   final RepositoryPath otherPath)
         throws IOException
     {
@@ -67,7 +67,7 @@ public class RepositoryPathResolver
         return resolve(repository, RepositoryFiles.relativizePath(otherPath));
     }
 
-    public RepositoryPath resolve(final RepositoryData repository,
+    public RepositoryPath resolve(final Repository repository,
                                   final String path)
     {
         RootRepositoryPath repositoryPath = resolve(repository);

@@ -15,7 +15,7 @@ import com.fasterxml.jackson.annotation.JsonProperty;
  * @author Pablo Tirado
  */
 public class PathPrivilegesDto
-        implements Serializable, PathPrivilegesData
+        implements Serializable, PathPrivileges
 {
 
     private String path;

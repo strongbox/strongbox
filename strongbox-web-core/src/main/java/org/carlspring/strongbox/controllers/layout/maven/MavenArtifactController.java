@@ -4,7 +4,7 @@ import org.carlspring.strongbox.artifact.coordinates.MavenArtifactCoordinates;
 import org.carlspring.strongbox.controllers.BaseArtifactController;
 import org.carlspring.strongbox.providers.io.RepositoryPath;
 import org.carlspring.strongbox.storage.ArtifactStorageException;
-import org.carlspring.strongbox.storage.repository.RepositoryData;
+import org.carlspring.strongbox.storage.repository.Repository;
 import org.carlspring.strongbox.web.LayoutRequestMapping;
 import org.carlspring.strongbox.web.RepositoryMapping;
 
@@ -56,7 +56,7 @@ public class MavenArtifactController
                             @ApiResponse(code = 503, message = "Repository currently not in service.")})
     @PreAuthorize("hasAuthority('ARTIFACTS_RESOLVE')")
     @RequestMapping(value = { "/{storageId}/{repositoryId}/{artifactPath:.+}" }, method = {RequestMethod.GET, RequestMethod.HEAD})
-    public void download(@RepositoryMapping RepositoryData repository,
+    public void download(@RepositoryMapping Repository repository,
                          @RequestHeader HttpHeaders httpHeaders,
                          @PathVariable String artifactPath,
                          HttpServletRequest request,
@@ -78,7 +78,7 @@ public class MavenArtifactController
                             @ApiResponse(code = 400, message = "An error occurred.") })
     @PreAuthorize("hasAuthority('ARTIFACTS_DEPLOY')")
     @PutMapping(value = "{storageId}/{repositoryId}/{artifactPath:.+}")
-    public ResponseEntity upload(@RepositoryMapping RepositoryData repository,
+    public ResponseEntity upload(@RepositoryMapping Repository repository,
                                  @PathVariable String artifactPath,
                                  HttpServletRequest request)
     {
@@ -108,9 +108,9 @@ public class MavenArtifactController
     @PostMapping(value = "/copy/{path:.+}")
     public ResponseEntity copy(
             @RepositoryMapping(storageVariableName = "srcStorageId", repositoryVariableName = "srcRepositoryId")
-                    RepositoryData srcRepository,
+                    Repository srcRepository,
             @RepositoryMapping(storageVariableName = "destStorageId", repositoryVariableName = "destRepositoryId")
-                    RepositoryData destRepository,
+                    Repository destRepository,
             @PathVariable String path)
     {
         final String srcStorageId = srcRepository.getStorage().getId();
@@ -159,7 +159,7 @@ public class MavenArtifactController
                             @ApiResponse(code = 404, message = "The specified storageId/repositoryId/path does not exist!") })
     @PreAuthorize("hasAuthority('ARTIFACTS_DELETE')")
     @DeleteMapping(value = "/{storageId}/{repositoryId}/{artifactPath:.+}")
-    public ResponseEntity delete(@RepositoryMapping RepositoryData repository,
+    public ResponseEntity delete(@RepositoryMapping Repository repository,
                                  @ApiParam(value = "Whether to use force delete")
                                  @RequestParam(defaultValue = "false",
                                                name = "force",

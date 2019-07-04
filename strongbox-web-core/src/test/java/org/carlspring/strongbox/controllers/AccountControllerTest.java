@@ -3,7 +3,7 @@ package org.carlspring.strongbox.controllers;
 import org.carlspring.strongbox.config.IntegrationTest;
 import org.carlspring.strongbox.forms.users.UserForm;
 import org.carlspring.strongbox.rest.common.RestAssuredBaseTest;
-import org.carlspring.strongbox.users.domain.User;
+import org.carlspring.strongbox.users.domain.UserData;
 import org.carlspring.strongbox.users.dto.UserDto;
 import org.carlspring.strongbox.users.service.UserService;
 import org.carlspring.strongbox.users.service.impl.StrongboxUserService.StrongboxUserServiceQualifier;
@@ -102,7 +102,7 @@ public class AccountControllerTest
         testUser.setPassword("password");
         userService.save(testUser);
 
-        User userEntity = userService.findByUserName(testUser.getUsername());
+        UserData userEntity = userService.findByUserName(testUser.getUsername());
 
         // Change security Token
         UserForm userForm = new UserForm();
@@ -139,7 +139,7 @@ public class AccountControllerTest
                .then()
                .statusCode(HttpStatus.OK.value());
 
-        User updatedUser = userService.findByUserName("admin");
+        UserData updatedUser = userService.findByUserName("admin");
 
         given().accept(MediaType.APPLICATION_JSON_VALUE)
                .when()
@@ -206,7 +206,7 @@ public class AccountControllerTest
         UserForm userForm = new UserForm();
         userForm.setPassword(null);
 
-        User originalUser = userService.findByUserName(username);
+        UserData originalUser = userService.findByUserName(username);
 
         given().contentType(MediaType.APPLICATION_JSON_VALUE)
                .accept(MediaType.APPLICATION_JSON_VALUE)
@@ -217,7 +217,7 @@ public class AccountControllerTest
                .then()
                .statusCode(HttpStatus.OK.value());
 
-        User updatedUser = userService.findByUserName(username);
+        UserData updatedUser = userService.findByUserName(username);
         assertEquals(username, updatedUser.getUsername());
         assertNotNull(updatedUser.getPassword());
         assertEquals(originalUser.getPassword(), updatedUser.getPassword());

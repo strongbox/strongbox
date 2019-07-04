@@ -9,7 +9,7 @@ import org.carlspring.strongbox.providers.io.RepositoryPath;
 import org.carlspring.strongbox.providers.io.RepositoryPathResolver;
 import org.carlspring.strongbox.providers.io.TempRepositoryPath;
 import org.carlspring.strongbox.providers.layout.Maven2LayoutProvider;
-import org.carlspring.strongbox.storage.repository.RepositoryData;
+import org.carlspring.strongbox.storage.repository.Repository;
 import org.carlspring.strongbox.testing.TestCaseWithMavenArtifactGenerationAndIndexing;
 import org.carlspring.strongbox.testing.artifact.ArtifactManagementTestExecutionListener;
 import org.carlspring.strongbox.testing.artifact.MavenArtifactTestUtils;
@@ -56,7 +56,7 @@ public class ArtifactOutputStreamTest
     @ExtendWith({ RepositoryManagementTestExecutionListener.class, ArtifactManagementTestExecutionListener.class })
     public void testCreateWithTemporaryLocation(@TestRepository(repositoryId = REPOSITORY_RELEASES,
                                                                 layout = Maven2LayoutProvider.ALIAS)
-                                                RepositoryData repository,
+                                                Repository repository,
                                                 @MavenTestArtifact(id = "org.carlspring.foo:temp-file-test",
                                                                    repositoryId = REPOSITORY_RELEASES,
                                                                    versions = { "1.2.3" })
@@ -84,7 +84,7 @@ public class ArtifactOutputStreamTest
     @ExtendWith({ RepositoryManagementTestExecutionListener.class})
     public void testCreateWithTemporaryLocationNoMoveOnClose(@TestRepository(repositoryId = REPOSITORY_RELEASES,
                                                                              layout = Maven2LayoutProvider.ALIAS)
-                                                             RepositoryData repository)
+                                                             Repository repository)
             throws IOException
     {
         final MavenArtifact artifact = MavenArtifactTestUtils.getArtifactFromGAVTC("org.carlspring.foo:temp-file-test:1.2.4:jar");

@@ -7,9 +7,9 @@ import javax.annotation.PostConstruct;
 import javax.inject.Inject;
 
 import org.carlspring.strongbox.authorization.AuthorizationConfigFileManager;
-import org.carlspring.strongbox.authorization.domain.Role;
+import org.carlspring.strongbox.authorization.domain.RoleData;
 import org.carlspring.strongbox.authorization.dto.AuthorizationConfigDto;
-import org.carlspring.strongbox.authorization.dto.RoleData;
+import org.carlspring.strongbox.authorization.dto.Role;
 import org.carlspring.strongbox.authorization.service.AuthorizationConfigService;
 import org.carlspring.strongbox.users.domain.SystemRole;
 import org.slf4j.Logger;
@@ -38,14 +38,14 @@ public class AuthoritiesProvider
         authorizationConfigService.setAuthorizationConfig(config);
     }
 
-    public Set<Role> getAssignableRoles()
+    public Set<RoleData> getAssignableRoles()
     {
         return authorizationConfigService.get().getRoles();
     }
     
-    public RoleData getRuntimeRole(String name)
+    public Role getRuntimeRole(String name)
     {
-        Role role = authorizationConfigService.get()
+        RoleData role = authorizationConfigService.get()
                                               .getRoles()
                                               .stream()
                                               .filter(r -> r.getName().equals(name))

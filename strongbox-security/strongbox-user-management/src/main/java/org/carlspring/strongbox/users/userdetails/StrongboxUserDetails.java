@@ -3,7 +3,7 @@ package org.carlspring.strongbox.users.userdetails;
 import java.util.Collection;
 import java.util.stream.Collectors;
 
-import org.carlspring.strongbox.users.domain.User;
+import org.carlspring.strongbox.users.domain.UserData;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
@@ -11,9 +11,9 @@ import org.springframework.security.core.userdetails.UserDetails;
 public class StrongboxUserDetails implements UserDetails
 {
 
-    private User user;
+    private UserData user;
 
-    public StrongboxUserDetails(User user)
+    public StrongboxUserDetails(UserData user)
     {
         this.user = user;
     }
@@ -60,7 +60,7 @@ public class StrongboxUserDetails implements UserDetails
         return user.isEnabled();
     }
 
-    public User getUser()
+    public UserData getUser()
     {
         return user;
     }

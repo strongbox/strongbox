@@ -2,7 +2,7 @@ package org.carlspring.strongbox.users.userdetails;
 
 import javax.inject.Inject;
 
-import org.carlspring.strongbox.users.domain.User;
+import org.carlspring.strongbox.users.domain.UserData;
 import org.carlspring.strongbox.users.dto.UserDto;
 import org.carlspring.strongbox.users.service.UserService;
 import org.carlspring.strongbox.users.service.impl.InMemoryUserService.InMemoryUserServiceQualifier;
@@ -18,10 +18,10 @@ public class StrongboxUserActualizer implements UserDetailsToStrongboxUser
     private UserService userService;
 
     @Override
-    public User apply(UserDetails springUser)
+    public UserData apply(UserDetails springUser)
     {
-        User user = springUser instanceof StrongboxUserDetails ? ((StrongboxUserDetails) springUser).getUser()
-                : new User(springUser);
+        UserData user = springUser instanceof StrongboxUserDetails ? ((StrongboxUserDetails) springUser).getUser()
+                : new UserData(springUser);
 
         UserDto userDto = new UserDto();
         userDto.setUsername(user.getUsername());

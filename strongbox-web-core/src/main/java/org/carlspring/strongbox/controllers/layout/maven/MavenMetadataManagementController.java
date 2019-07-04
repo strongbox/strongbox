@@ -4,7 +4,7 @@ import org.carlspring.strongbox.controllers.BaseController;
 import org.carlspring.strongbox.services.ArtifactMetadataService;
 import org.carlspring.strongbox.storage.ArtifactStorageException;
 import org.carlspring.strongbox.storage.metadata.MetadataType;
-import org.carlspring.strongbox.storage.repository.RepositoryData;
+import org.carlspring.strongbox.storage.repository.Repository;
 import org.carlspring.strongbox.web.RepositoryMapping;
 
 import javax.inject.Inject;
@@ -79,7 +79,7 @@ public class MavenMetadataManagementController
     @PreAuthorize("hasAuthority('MANAGEMENT_DELETE_METADATA')")
     @DeleteMapping(value = "{storageId}/{repositoryId}/{path:.+}",
                    produces = MediaType.TEXT_PLAIN_VALUE)
-    public ResponseEntity delete(@RepositoryMapping RepositoryData repository,
+    public ResponseEntity delete(@RepositoryMapping Repository repository,
                                  @ApiParam(value = "The version of the artifact.", required = true)
                                  @RequestParam(name = "version") String version,
                                  @ApiParam(value = "The classifier of the artifact.")

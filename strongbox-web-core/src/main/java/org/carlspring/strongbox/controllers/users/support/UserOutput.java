@@ -1,6 +1,6 @@
 package org.carlspring.strongbox.controllers.users.support;
 
-import org.carlspring.strongbox.users.domain.User;
+import org.carlspring.strongbox.users.domain.UserData;
 
 import java.io.Serializable;
 import java.util.Collections;
@@ -67,7 +67,7 @@ public class UserOutput
         this.securityTokenKey = securityTokenKey;
     }
 
-    public static UserOutput fromUser(User user)
+    public static UserOutput fromUser(UserData user)
     {
         final UserOutput output = new UserOutput();
         output.setEnabled(user.isEnabled());

@@ -4,13 +4,13 @@ import java.util.Set;
 
 import org.carlspring.strongbox.users.domain.Privileges;
 
-public interface RepositoryPrivilegesData
+public interface RepositoryPrivileges
 {
 
     String getRepositoryId();
 
     Set<Privileges> getRepositoryPrivileges();
 
-    Set<? extends PathPrivilegesData> getPathPrivileges();
+    Set<? extends PathPrivileges> getPathPrivileges();
 
 }

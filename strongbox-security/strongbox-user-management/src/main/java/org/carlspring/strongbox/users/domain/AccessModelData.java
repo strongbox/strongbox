@@ -10,11 +10,11 @@ import java.util.Set;
 import javax.annotation.concurrent.Immutable;
 
 import org.apache.commons.lang.StringUtils;
-import org.carlspring.strongbox.users.dto.AccessModelData;
+import org.carlspring.strongbox.users.dto.AccessModel;
 import org.carlspring.strongbox.users.dto.AccessModelDto;
-import org.carlspring.strongbox.users.dto.PathPrivilegesData;
-import org.carlspring.strongbox.users.dto.RepositoryPrivilegesData;
-import org.carlspring.strongbox.users.dto.StoragePrivilegesData;
+import org.carlspring.strongbox.users.dto.PathPrivileges;
+import org.carlspring.strongbox.users.dto.RepositoryPrivileges;
+import org.carlspring.strongbox.users.dto.StoragePrivileges;
 import org.carlspring.strongbox.users.dto.StoragePrivilegesDto;
 
 import com.google.common.collect.ImmutableSet;
@@ -23,26 +23,26 @@ import com.google.common.collect.ImmutableSet;
  * @author Przemyslaw Fusik
  */
 @Immutable
-public class AccessModel
-        implements Serializable, AccessModelData
+public class AccessModelData
+        implements Serializable, AccessModel
 {
 
     private final Set<Privileges> apiAuthorities;
     
-    private final Set<StoragePrivileges> storageAuthorities;
+    private final Set<StoragePrivilegesData> storageAuthorities;
 
 
-    public AccessModel(AccessModelDto delegate)
+    public AccessModelData(AccessModelDto delegate)
     {
         this.storageAuthorities = immuteStorages(delegate.getStorageAuthorities());
         this.apiAuthorities = ImmutableSet.copyOf(delegate.getApiAuthorities());
     }
 
-    private Set<StoragePrivileges> immuteStorages(final Set<StoragePrivilegesDto> source)
+    private Set<StoragePrivilegesData> immuteStorages(final Set<StoragePrivilegesDto> source)
     {
         return source != null ?
                ImmutableSet.copyOf(
-                       source.stream().map(StoragePrivileges::new).collect(toSet())) :
+                       source.stream().map(StoragePrivilegesData::new).collect(toSet())) :
                Collections.emptySet();
     }
 
@@ -52,7 +52,7 @@ public class AccessModel
         return apiAuthorities;
     }
 
-    public Set<StoragePrivileges> getStorageAuthorities()
+    public Set<StoragePrivilegesData> getStorageAuthorities()
     {
         return storageAuthorities;
     }
@@ -63,19 +63,19 @@ public class AccessModel
         return getPathAuthorities(url, getStorageAuthorities());
     }
     
-    public static Set<Privileges> getPathAuthorities(String url, Set<? extends StoragePrivilegesData> storages)
+    public static Set<Privileges> getPathAuthorities(String url, Set<? extends StoragePrivileges> storages)
     {
         String normalizedUrl = StringUtils.chomp(url, "/");
 
         Set<Privileges> privileges = new HashSet<>();
-        for (final StoragePrivilegesData storage : storages)
+        for (final StoragePrivileges storage : storages)
         {
             String storageKey = "/storages/" + storage.getStorageId();
             if (!normalizedUrl.startsWith(storageKey))
             {
                 continue;
             }
-            for (RepositoryPrivilegesData repository : storage.getRepositoryPrivileges())
+            for (RepositoryPrivileges repository : storage.getRepositoryPrivileges())
             {
                 String repositoryKey = storageKey + "/" + repository.getRepositoryId();
                 if (!normalizedUrl.startsWith(repositoryKey))
@@ -83,7 +83,7 @@ public class AccessModel
                     continue;
                 }
                 privileges.addAll(repository.getRepositoryPrivileges());
-                for (PathPrivilegesData pathPrivilege : repository.getPathPrivileges())
+                for (PathPrivileges pathPrivilege : repository.getPathPrivileges())
                 {
                     String normalizedPath = StringUtils.chomp(pathPrivilege.getPath(), "/");
                     String pathKey = repositoryKey + "/" + normalizedPath;

@@ -25,8 +25,8 @@ import org.carlspring.strongbox.providers.io.RepositoryFiles;
 import org.carlspring.strongbox.providers.io.RepositoryPath;
 import org.carlspring.strongbox.providers.io.RepositoryPathResolver;
 import org.carlspring.strongbox.providers.io.RootRepositoryPath;
-import org.carlspring.strongbox.storage.StorageData;
-import org.carlspring.strongbox.storage.repository.RepositoryData;
+import org.carlspring.strongbox.storage.Storage;
+import org.carlspring.strongbox.storage.repository.Repository;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -90,8 +90,8 @@ public class HostedRepositoryProvider extends AbstractRepositoryProvider
     {
         List<Path> result = new LinkedList<Path>();
 
-        StorageData storage = configurationManager.getConfiguration().getStorage(storageId);
-        RepositoryData repository = storage.getRepository(repositoryId);
+        Storage storage = configurationManager.getConfiguration().getStorage(storageId);
+        Repository repository = storage.getRepository(repositoryId);
         
         Selector<ArtifactEntry> selector = createSelector(storageId, repositoryId, predicate).with(paginator).fetch();
         

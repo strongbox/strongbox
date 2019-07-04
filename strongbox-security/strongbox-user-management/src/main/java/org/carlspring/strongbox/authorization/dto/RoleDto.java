@@ -9,7 +9,7 @@ import org.carlspring.strongbox.users.dto.AccessModelDto;
  * @author mtodorov
  */
 public class RoleDto
-        implements Serializable, RoleData
+        implements Serializable, Role
 {
 
     private String name;

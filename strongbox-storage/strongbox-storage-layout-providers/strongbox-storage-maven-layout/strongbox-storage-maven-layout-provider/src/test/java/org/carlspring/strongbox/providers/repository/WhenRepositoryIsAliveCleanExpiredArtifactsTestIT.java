@@ -5,9 +5,9 @@ import org.carlspring.strongbox.data.CacheManagerTestExecutionListener;
 import org.carlspring.strongbox.domain.ArtifactEntry;
 import org.carlspring.strongbox.providers.io.RepositoryFiles;
 import org.carlspring.strongbox.providers.layout.Maven2LayoutProvider;
-import org.carlspring.strongbox.storage.StorageData;
+import org.carlspring.strongbox.storage.Storage;
 import org.carlspring.strongbox.storage.repository.RepositoryDto;
-import org.carlspring.strongbox.storage.repository.RepositoryData;
+import org.carlspring.strongbox.storage.repository.Repository;
 
 import java.util.LinkedHashSet;
 import java.util.Optional;
@@ -65,8 +65,8 @@ public class WhenRepositoryIsAliveCleanExpiredArtifactsTestIT
                                                      getPath()));
         assertThat(artifactEntryOptional, CoreMatchers.equalTo(Optional.empty()));
 
-        final StorageData storage = getConfiguration().getStorage(artifactEntry.getStorageId());
-        final RepositoryData repository = storage.getRepository(artifactEntry.getRepositoryId());
+        final Storage storage = getConfiguration().getStorage(artifactEntry.getStorageId());
+        final Repository repository = storage.getRepository(artifactEntry.getRepositoryId());
 
         assertFalse(RepositoryFiles.artifactExists(repositoryPathResolver.resolve(repository, getPath())));
         assertTrue(RepositoryFiles.artifactExists(repositoryPathResolver.resolve(repository, StringUtils.replace(getPath(),

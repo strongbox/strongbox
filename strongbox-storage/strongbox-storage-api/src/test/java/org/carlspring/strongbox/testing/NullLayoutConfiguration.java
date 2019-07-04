@@ -12,7 +12,7 @@ import org.carlspring.strongbox.providers.datastore.StorageProviderRegistry;
 import org.carlspring.strongbox.providers.io.LayoutFileSystemFactory;
 import org.carlspring.strongbox.providers.io.LayoutFileSystemProviderFactory;
 import org.carlspring.strongbox.providers.layout.LayoutFileSystemProvider;
-import org.carlspring.strongbox.storage.repository.RepositoryData;
+import org.carlspring.strongbox.storage.repository.Repository;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Scope;
@@ -74,7 +74,7 @@ public class NullLayoutConfiguration
     @Bean
     @Scope("prototype")
     public NullFileSystem nullRepositoryFileSystem(PropertiesBooter propertiesBooter,
-                                                   RepositoryData repository,
+                                                   Repository repository,
                                                    FileSystem storageFileSystem,
                                                    LayoutFileSystemProvider provider)
     {

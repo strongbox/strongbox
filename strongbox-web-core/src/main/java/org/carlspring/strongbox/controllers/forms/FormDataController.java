@@ -10,7 +10,7 @@ import org.carlspring.strongbox.providers.layout.Maven2LayoutProvider;
 import org.carlspring.strongbox.providers.layout.NugetLayoutProvider;
 import org.carlspring.strongbox.providers.layout.RawLayoutProvider;
 import org.carlspring.strongbox.services.ConfigurationManagementService;
-import org.carlspring.strongbox.storage.StorageData;
+import org.carlspring.strongbox.storage.Storage;
 import org.carlspring.strongbox.storage.repository.RepositoryPolicyEnum;
 import org.carlspring.strongbox.storage.repository.RepositoryStatusEnum;
 import org.carlspring.strongbox.storage.repository.RepositoryTypeEnum;
@@ -123,7 +123,7 @@ public class FormDataController
                                              @RequestParam(value = FILTER_PARAM_NAME, required = false) String filter)
     {
         Set<String> repositoryNames = Collections.emptySet();
-        StorageData storage = configurationManagementService.getConfiguration().getStorage(storageId);
+        Storage storage = configurationManagementService.getConfiguration().getStorage(storageId);
         if (storage != null)
         {
             repositoryNames = storage.getRepositories().keySet();
@@ -148,7 +148,7 @@ public class FormDataController
     {
         Set<String> storageAndRepositoryIds = new LinkedHashSet<>();
         Configuration configuration = configurationManagementService.getConfiguration();
-        Map<String, StorageData> storages = configuration.getStorages();
+        Map<String, Storage> storages = configuration.getStorages();
         storages.keySet().stream().forEach(sId -> {
             configuration.getStorage(sId).getRepositories().keySet().stream().forEach(rId -> {
                 storageAndRepositoryIds.add(String.format("%s:%s", sId, rId));

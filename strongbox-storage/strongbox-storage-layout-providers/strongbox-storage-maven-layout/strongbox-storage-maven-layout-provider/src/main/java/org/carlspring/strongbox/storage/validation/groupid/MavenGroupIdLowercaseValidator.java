@@ -4,7 +4,7 @@ import org.carlspring.strongbox.artifact.coordinates.ArtifactCoordinates;
 import org.carlspring.strongbox.artifact.coordinates.MavenArtifactCoordinates;
 import org.carlspring.strongbox.providers.io.RepositoryFileAttributes;
 import org.carlspring.strongbox.providers.io.RepositoryPath;
-import org.carlspring.strongbox.storage.repository.RepositoryData;
+import org.carlspring.strongbox.storage.repository.Repository;
 import org.carlspring.strongbox.storage.validation.MavenArtifactCoordinatesValidator;
 import org.carlspring.strongbox.storage.validation.artifact.ArtifactCoordinatesValidationException;
 import org.carlspring.strongbox.storage.validation.artifact.ArtifactCoordinatesValidatorRegistry;
@@ -60,7 +60,7 @@ public class MavenGroupIdLowercaseValidator
     }
 
     @Override
-    public void validate(RepositoryData repository,
+    public void validate(Repository repository,
                          ArtifactCoordinates coordinates)
             throws ArtifactCoordinatesValidationException
     {

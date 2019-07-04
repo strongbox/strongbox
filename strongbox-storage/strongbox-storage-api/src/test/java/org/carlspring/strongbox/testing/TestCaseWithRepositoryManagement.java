@@ -9,8 +9,8 @@ import org.carlspring.strongbox.repository.RepositoryManagementStrategyException
 import org.carlspring.strongbox.services.RepositoryManagementService;
 import org.carlspring.strongbox.services.StorageManagementService;
 import org.carlspring.strongbox.storage.StorageDto;
-import org.carlspring.strongbox.storage.repository.RepositoryData;
 import org.carlspring.strongbox.storage.repository.Repository;
+import org.carlspring.strongbox.storage.repository.RepositoryData;
 import org.carlspring.strongbox.storage.repository.RepositoryDto;
 
 import javax.inject.Inject;
@@ -69,7 +69,7 @@ public abstract class TestCaseWithRepositoryManagement extends TestCaseWithRepos
             throws IOException, JAXBException, RepositoryManagementStrategyException
     {
         createRepository(storageId, repository);
-        createFile(new Repository(repository), path);
+        createFile(new RepositoryData(repository), path);
     }
     
     public abstract void createProxyRepository(String storageId,
@@ -84,12 +84,12 @@ public abstract class TestCaseWithRepositoryManagement extends TestCaseWithRepos
                            String path)
             throws IOException
     {
-        RepositoryData repository = configurationManagementService.getConfiguration().getRepository(storageId, repositoryId);
+        Repository repository = configurationManagementService.getConfiguration().getRepository(storageId, repositoryId);
 
         createFile(repository, path);
     }
 
-    public void createFile(RepositoryData repository,
+    public void createFile(Repository repository,
                            String path)
             throws IOException
     {       

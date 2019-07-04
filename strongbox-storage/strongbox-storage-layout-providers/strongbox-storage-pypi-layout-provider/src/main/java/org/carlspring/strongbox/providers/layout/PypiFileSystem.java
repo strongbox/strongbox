@@ -2,7 +2,7 @@ package org.carlspring.strongbox.providers.layout;
 
 import org.carlspring.strongbox.booters.PropertiesBooter;
 import org.carlspring.strongbox.providers.io.LayoutFileSystem;
-import org.carlspring.strongbox.storage.repository.RepositoryData;
+import org.carlspring.strongbox.storage.repository.Repository;
 
 import javax.inject.Inject;
 import java.nio.file.FileSystem;
@@ -19,7 +19,7 @@ public class PypiFileSystem
     private PypiLayoutProvider layoutProvider;
 
     public PypiFileSystem(PropertiesBooter propertiesBooter,
-                          RepositoryData repository,
+                          Repository repository,
                           FileSystem storageFileSystem,
                           LayoutFileSystemProvider provider)
     {

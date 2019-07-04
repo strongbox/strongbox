@@ -14,7 +14,7 @@ import java.util.Set;
 
 import org.carlspring.strongbox.booters.PropertiesBooter;
 import org.carlspring.strongbox.providers.datastore.StorageProvider;
-import org.carlspring.strongbox.storage.StorageData;
+import org.carlspring.strongbox.storage.Storage;
 
 /**
  * This class decoretes storage {@link FileSystem} implementation.
@@ -31,9 +31,9 @@ public abstract class StorageFileSystem
     
     private final FileSystem target;
     
-    private final StorageData storage;
+    private final Storage storage;
 
-    public StorageFileSystem(StorageData storage, PropertiesBooter propertiesBooter, FileSystem target)
+    public StorageFileSystem(Storage storage, PropertiesBooter propertiesBooter, FileSystem target)
     {
         this.target = target;
         this.storage = storage;

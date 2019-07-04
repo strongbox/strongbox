@@ -10,7 +10,7 @@ import org.carlspring.strongbox.providers.io.RepositoryPath;
 import org.carlspring.strongbox.providers.io.RepositoryPathResolver;
 import org.carlspring.strongbox.storage.metadata.MetadataHelper;
 import org.carlspring.strongbox.storage.metadata.MetadataType;
-import org.carlspring.strongbox.storage.repository.RepositoryData;
+import org.carlspring.strongbox.storage.repository.Repository;
 import org.carlspring.strongbox.storage.repository.RepositoryPolicyEnum;
 import org.carlspring.strongbox.testing.TestCaseWithMavenArtifactGenerationAndIndexing;
 import org.carlspring.strongbox.testing.artifact.ArtifactManagementTestExecutionListener;
@@ -70,7 +70,7 @@ public class ArtifactMetadataServiceReleasesTest
     public void testReleaseMetadataRebuild(@TestRepository(repositoryId = R1,
                                                            layout = MavenArtifactCoordinates.LAYOUT_NAME,
                                                            policy = RepositoryPolicyEnum.RELEASE)
-                                           RepositoryData repository,
+                                           Repository repository,
                                            @TestArtifact(repositoryId = R1,
                                                          id = "org.carlspring.strongbox.metadata.nested:foo",
                                                          versions = { "2.1" },
@@ -139,7 +139,7 @@ public class ArtifactMetadataServiceReleasesTest
     public void testAddVersionToMetadata(@TestRepository(repositoryId = R2,
                                                          layout = MavenArtifactCoordinates.LAYOUT_NAME,
                                                          policy = RepositoryPolicyEnum.RELEASE)
-                                         RepositoryData repository,
+                                         Repository repository,
                                          @TestArtifact(repositoryId = R2,
                                                        id = "org.carlspring.strongbox:added",
                                                        versions = { "1.0","1.1", "1.2", "1.3" },
@@ -174,7 +174,7 @@ public class ArtifactMetadataServiceReleasesTest
     public void testDeleteVersionFromMetadata(@TestRepository(repositoryId = R3,
                                                               layout = MavenArtifactCoordinates.LAYOUT_NAME,
                                                               policy = RepositoryPolicyEnum.RELEASE)
-                                              RepositoryData repository,
+                                              Repository repository,
                                               @TestArtifact(repositoryId = R3,
                                                             id = "org.carlspring.strongbox:deleted",
                                                             versions = { "1.0","1.1", "1.2", "1.3" },
@@ -208,7 +208,7 @@ public class ArtifactMetadataServiceReleasesTest
     public void testReleasePluginMetadataRebuild(@TestRepository(repositoryId = R4,
                                                                  layout = MavenArtifactCoordinates.LAYOUT_NAME,
                                                                  policy = RepositoryPolicyEnum.RELEASE)
-                                                 RepositoryData repository,
+                                                 Repository repository,
                                                  @MavenTestArtifact(repositoryId = R4,
                                                                     id = "org.carlspring.strongbox.metadata.maven:strongbox-metadata-plugin",
                                                                     versions = { "1.0" },
@@ -243,7 +243,7 @@ public class ArtifactMetadataServiceReleasesTest
     public void testMetadataMerge(@TestRepository(repositoryId = R5,
                                                   layout = MavenArtifactCoordinates.LAYOUT_NAME,
                                                   policy = RepositoryPolicyEnum.RELEASE)
-                                  RepositoryData repository,
+                                  Repository repository,
                                   @TestArtifact(repositoryId = R5,
                                                 id = "org.carlspring.strongbox.metadata:strongbox-metadata-merge",
                                                 versions = { "1.0" },

@@ -10,12 +10,12 @@ import org.carlspring.strongbox.services.RepositoryManagementService;
 import org.carlspring.strongbox.services.StorageManagementService;
 import org.carlspring.strongbox.services.support.ConfigurationException;
 import org.carlspring.strongbox.storage.StorageDto;
-import org.carlspring.strongbox.storage.StorageData;
+import org.carlspring.strongbox.storage.Storage;
 import org.carlspring.strongbox.storage.Views;
 import org.carlspring.strongbox.storage.indexing.RepositoryIndexManager;
-import org.carlspring.strongbox.storage.repository.Repository;
-import org.carlspring.strongbox.storage.repository.RepositoryDto;
 import org.carlspring.strongbox.storage.repository.RepositoryData;
+import org.carlspring.strongbox.storage.repository.RepositoryDto;
+import org.carlspring.strongbox.storage.repository.Repository;
 import org.carlspring.strongbox.validation.RequestBodyValidationException;
 import org.carlspring.strongbox.web.RepositoryMapping;
 
@@ -177,7 +177,7 @@ public class StoragesConfigurationController
     @GetMapping(produces = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity getStorages()
     {
-        final List<StorageData> storages = new ArrayList<>(configurationManagementService.getConfiguration()
+        final List<Storage> storages = new ArrayList<>(configurationManagementService.getConfiguration()
                                                                                      .getStorages()
                                                                                      .values());
         return ResponseEntity.ok(new StoragesOutput(storages));
@@ -192,7 +192,7 @@ public class StoragesConfigurationController
     public ResponseEntity getStorageResponseEntity(@ApiParam(value = "The storageId", required = true)
                                                    @PathVariable final String storageId)
     {
-        final StorageData storage = configurationManagementService.getConfiguration().getStorage(storageId);
+        final Storage storage = configurationManagementService.getConfiguration().getStorage(storageId);
 
         if (storage != null)
         {
@@ -280,7 +280,7 @@ public class StoragesConfigurationController
 
                 configurationManagementService.saveRepository(storageId, repository);
 
-                final RepositoryPath repositoryPath = repositoryPathResolver.resolve(new Repository(repository));
+                final RepositoryPath repositoryPath = repositoryPathResolver.resolve(new RepositoryData(repository));
                 if (!Files.exists(repositoryPath))
                 {
                     repositoryManagementService.createRepository(storageId, repository.getId());
@@ -306,7 +306,7 @@ public class StoragesConfigurationController
                                     message = "The repository ${storageId}:${repositoryId} was not found!") })
     @PreAuthorize("hasAuthority('CONFIGURATION_VIEW_REPOSITORY')")
     @GetMapping(value = "/{storageId}/{repositoryId}", produces = MediaType.APPLICATION_JSON_VALUE)
-    public ResponseEntity getRepositoryResponseEntity(@RepositoryMapping RepositoryData repository)
+    public ResponseEntity getRepositoryResponseEntity(@RepositoryMapping Repository repository)
     {
         return ResponseEntity.ok(repository);
     }
@@ -318,7 +318,7 @@ public class StoragesConfigurationController
     @PreAuthorize("hasAuthority('CONFIGURATION_DELETE_REPOSITORY')")
     @DeleteMapping(value = "/{storageId}/{repositoryId}", produces = { MediaType.TEXT_PLAIN_VALUE,
                                                                        MediaType.APPLICATION_JSON_VALUE })
-    public ResponseEntity removeRepository(@RepositoryMapping RepositoryData repository,
+    public ResponseEntity removeRepository(@RepositoryMapping Repository repository,
                                            @ApiParam(value = "Whether to force delete the repository from the file system")
                                            @RequestParam(name = "force", defaultValue = "false") final boolean force,
                                            @RequestHeader(HttpHeaders.ACCEPT) String accept)

@@ -16,7 +16,7 @@ import org.carlspring.strongbox.repository.RepositoryManagementStrategyException
 import org.carlspring.strongbox.services.ArtifactResolutionService;
 import org.carlspring.strongbox.services.ArtifactSearchService;
 import org.carlspring.strongbox.services.RepositoryManagementService;
-import org.carlspring.strongbox.storage.StorageData;
+import org.carlspring.strongbox.storage.Storage;
 import org.carlspring.strongbox.storage.indexing.IndexTypeEnum;
 import org.carlspring.strongbox.storage.indexing.RepositoryIndexManager;
 import org.carlspring.strongbox.storage.indexing.RepositoryIndexer;
@@ -237,7 +237,7 @@ public abstract class TestCaseWithMavenArtifactGenerationAndIndexing
             generateArtifact(repositoryBaseDir, ga + ":" + version + ":jar");
         }
 
-        RepositoryData repository = configurationManagementService.getConfiguration()
+        Repository repository = configurationManagementService.getConfiguration()
                                                               .getStorage(storageId)
                                                               .getRepository(repositoryId);
 
@@ -259,7 +259,7 @@ public abstract class TestCaseWithMavenArtifactGenerationAndIndexing
                         String repositoryId,
                         String path)
     {
-        RepositoryData repository = configurationManagementService.getConfiguration()
+        Repository repository = configurationManagementService.getConfiguration()
                                                               .getStorage(storageId)
                                                               .getRepository(repositoryId);
 
@@ -280,7 +280,7 @@ public abstract class TestCaseWithMavenArtifactGenerationAndIndexing
                           String repositoryId)
             throws IOException
     {
-        RepositoryData repository = configurationManagementService.getConfiguration()
+        Repository repository = configurationManagementService.getConfiguration()
                                                               .getStorage(storageId)
                                                               .getRepository(repositoryId);
 
@@ -367,8 +367,8 @@ public abstract class TestCaseWithMavenArtifactGenerationAndIndexing
                                          String repositoryId)
             throws IOException
     {
-        StorageData storage = getConfiguration().getStorage(storageId);
-        RepositoryData repository = storage.getRepository(repositoryId);
+        Storage storage = getConfiguration().getStorage(storageId);
+        Repository repository = storage.getRepository(repositoryId);
         
         RepositoryPath repositoryPath = repositoryPathResolver.resolve(repository);
 
@@ -477,7 +477,7 @@ public abstract class TestCaseWithMavenArtifactGenerationAndIndexing
     {
         for (RepositoryDto mutableRepository : repositoriesToClean)
         {
-            RootRepositoryPath repositoryPath = repositoryPathResolver.resolve(new Repository(mutableRepository));
+            RootRepositoryPath repositoryPath = repositoryPathResolver.resolve(new RepositoryData(mutableRepository));
             closeIndexersForRepository(mutableRepository.getStorage().getId(), mutableRepository.getId());
 
             Files.delete(repositoryPath);

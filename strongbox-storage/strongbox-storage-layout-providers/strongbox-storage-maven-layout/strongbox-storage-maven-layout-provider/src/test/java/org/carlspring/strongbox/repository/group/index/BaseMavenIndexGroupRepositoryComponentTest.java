@@ -8,7 +8,7 @@ import javax.inject.Inject;
 import org.carlspring.strongbox.providers.io.RootRepositoryPath;
 import org.carlspring.strongbox.repository.group.BaseMavenGroupRepositoryComponentTest;
 import org.carlspring.strongbox.services.ArtifactIndexesService;
-import org.carlspring.strongbox.storage.repository.Repository;
+import org.carlspring.strongbox.storage.repository.RepositoryData;
 import org.carlspring.strongbox.storage.repository.RepositoryDto;
 
 abstract class BaseMavenIndexGroupRepositoryComponentTest
@@ -23,7 +23,7 @@ abstract class BaseMavenIndexGroupRepositoryComponentTest
     {
         for (RepositoryDto repository : repositories)
         {
-            RootRepositoryPath repositoryPath = repositoryPathResolver.resolve(new Repository(repository));
+            RootRepositoryPath repositoryPath = repositoryPathResolver.resolve(new RepositoryData(repository));
             artifactIndexesService.rebuildIndex(repositoryPath);
         }
     }

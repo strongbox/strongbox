@@ -1,6 +1,6 @@
 package org.carlspring.strongbox.validation.users;
 
-import org.carlspring.strongbox.users.domain.User;
+import org.carlspring.strongbox.users.domain.UserData;
 import org.carlspring.strongbox.users.service.UserService;
 import org.carlspring.strongbox.users.service.impl.StrongboxUserService.StrongboxUserServiceQualifier;
 
@@ -31,7 +31,7 @@ public class UniqueUsernameValidator
     public boolean isValid(String username,
                            ConstraintValidatorContext context)
     {
-        User user = userService.findByUserName(username);
+        UserData user = userService.findByUserName(username);
         return StringUtils.isEmpty(username) || user == null;
     }
 

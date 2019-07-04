@@ -2,8 +2,8 @@ package org.carlspring.strongbox.providers.io;
 
 import org.carlspring.commons.encryption.EncryptionAlgorithmsEnum;
 import org.carlspring.strongbox.providers.repository.proxied.ProxyRepositoryArtifactResolver;
-import org.carlspring.strongbox.storage.repository.Repository;
 import org.carlspring.strongbox.storage.repository.RepositoryData;
+import org.carlspring.strongbox.storage.repository.Repository;
 
 import javax.inject.Inject;
 import java.io.IOException;
@@ -47,8 +47,8 @@ public class MavenMetadataExpiredRepositoryPathHandler
             throw new UndeclaredThrowableException(e);
         }
 
-        RepositoryData repository = repositoryPath.getRepository();
-        return ((Repository)repository).getRemoteRepository() != null;
+        Repository repository = repositoryPath.getRepository();
+        return ((RepositoryData)repository).getRemoteRepository() != null;
     }
 
     @Override

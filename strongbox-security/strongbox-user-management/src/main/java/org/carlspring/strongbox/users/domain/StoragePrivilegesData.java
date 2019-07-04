@@ -9,7 +9,7 @@ import java.util.Set;
 import javax.annotation.concurrent.Immutable;
 
 import org.carlspring.strongbox.users.dto.RepositoryPrivilegesDto;
-import org.carlspring.strongbox.users.dto.StoragePrivilegesData;
+import org.carlspring.strongbox.users.dto.StoragePrivileges;
 import org.carlspring.strongbox.users.dto.StoragePrivilegesDto;
 
 import com.google.common.collect.ImmutableSet;
@@ -18,28 +18,28 @@ import com.google.common.collect.ImmutableSet;
  * @author Przemyslaw Fusik
  */
 @Immutable
-public class StoragePrivileges
-        implements Serializable, StoragePrivilegesData
+public class StoragePrivilegesData
+        implements Serializable, StoragePrivileges
 {
 
-    private final Set<RepositoryPrivileges> repositories;
+    private final Set<RepositoryPrivilegesData> repositories;
 
     private final String storageId;
 
-    public StoragePrivileges(final StoragePrivilegesDto delegate)
+    public StoragePrivilegesData(final StoragePrivilegesDto delegate)
     {
         this.repositories = immuteRepositories(delegate.getRepositoryPrivileges());
         this.storageId = delegate.getStorageId();
     }
 
-    private Set<RepositoryPrivileges> immuteRepositories(final Set<RepositoryPrivilegesDto> source)
+    private Set<RepositoryPrivilegesData> immuteRepositories(final Set<RepositoryPrivilegesDto> source)
     {
         return source != null ?
-               ImmutableSet.copyOf(source.stream().map(RepositoryPrivileges::new).collect(toSet())) :
+               ImmutableSet.copyOf(source.stream().map(RepositoryPrivilegesData::new).collect(toSet())) :
                Collections.emptySet();
     }
 
-    public Set<RepositoryPrivileges> getRepositoryPrivileges()
+    public Set<RepositoryPrivilegesData> getRepositoryPrivileges()
     {
         return repositories;
     }

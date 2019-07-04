@@ -12,7 +12,7 @@ import com.fasterxml.jackson.annotation.JsonTypeName;
  */
 @JsonTypeName(NugetLayoutProvider.ALIAS)
 public class NugetRepositoryConfigurationDto
-        extends CustomRepositoryConfigurationDto implements NugetRepositoryConfigurationData
+        extends CustomRepositoryConfigurationDto implements NugetRepositoryConfiguration
 {
     private String feedVersion = "2.0";
 
@@ -41,6 +41,6 @@ public class NugetRepositoryConfigurationDto
     @Override
     public CustomRepositoryConfiguration getImmutable()
     {
-        return new NugetRepositoryConfiguration(this);
+        return new NugetRepositoryConfigurationData(this);
     }
 }

@@ -4,7 +4,7 @@ import org.carlspring.strongbox.providers.io.RepositoryFiles;
 import org.carlspring.strongbox.providers.io.RepositoryPath;
 import org.carlspring.strongbox.services.RepositoryManagementService;
 import org.carlspring.strongbox.storage.ArtifactStorageException;
-import org.carlspring.strongbox.storage.repository.RepositoryData;
+import org.carlspring.strongbox.storage.repository.Repository;
 import org.carlspring.strongbox.web.RepositoryMapping;
 
 import javax.inject.Inject;
@@ -48,7 +48,7 @@ public class TrashController
     @DeleteMapping(value = "{storageId}/{repositoryId}",
                    produces = { MediaType.TEXT_PLAIN_VALUE,
                                 MediaType.APPLICATION_JSON_VALUE })
-    public ResponseEntity delete(@RepositoryMapping RepositoryData repository,
+    public ResponseEntity delete(@RepositoryMapping Repository repository,
                                  @RequestHeader(HttpHeaders.ACCEPT) String accept)
             throws IOException
     {
@@ -113,7 +113,7 @@ public class TrashController
                                          message = "The specified (storageId/repositoryId/path) does not exist!") })
     @PreAuthorize("hasAuthority('MANAGEMENT_UNDELETE_TRASH')")
     @PostMapping("{storageId}/{repositoryId}/{path:.+}")
-    public ResponseEntity undelete(@RepositoryMapping RepositoryData repository,
+    public ResponseEntity undelete(@RepositoryMapping Repository repository,
                                    @PathVariable String path,
                                    @RequestHeader(HttpHeaders.ACCEPT) String accept)
             throws IOException
@@ -160,7 +160,7 @@ public class TrashController
     @PutMapping(value = "{storageId}/{repositoryId}",
                 produces = { MediaType.TEXT_PLAIN_VALUE,
                              MediaType.APPLICATION_JSON_VALUE })
-    public ResponseEntity undelete(@RepositoryMapping RepositoryData repository,
+    public ResponseEntity undelete(@RepositoryMapping Repository repository,
                                    @RequestHeader(HttpHeaders.ACCEPT) String accept)
             throws Exception
     {

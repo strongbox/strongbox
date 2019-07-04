@@ -20,7 +20,7 @@ import javax.inject.Inject;
 
 import org.carlspring.strongbox.artifact.generator.MavenArtifactGenerator;
 import org.carlspring.strongbox.config.Maven2LayoutProviderTestConfig;
-import org.carlspring.strongbox.storage.repository.RepositoryData;
+import org.carlspring.strongbox.storage.repository.Repository;
 import org.carlspring.strongbox.testing.TestCaseWithMavenArtifactGenerationAndIndexing;
 import org.carlspring.strongbox.testing.artifact.ArtifactManagementTestExecutionListener;
 import org.carlspring.strongbox.testing.artifact.TestArtifact;
@@ -63,7 +63,7 @@ public class MavenChecksumServiceTest
 
     @Test
     @ExtendWith({RepositoryManagementTestExecutionListener.class, ArtifactManagementTestExecutionListener.class})
-    public void testGenerateMavenChecksumForReleaseArtifact(@TestRepository(repositoryId = REPOSITORY_RELEASES, layout = LAYOUT_NAME) RepositoryData repository,
+    public void testGenerateMavenChecksumForReleaseArtifact(@TestRepository(repositoryId = REPOSITORY_RELEASES, layout = LAYOUT_NAME) Repository repository,
                                                             @TestArtifact(repositoryId = REPOSITORY_RELEASES, id = A1, versions = { "1.0", "2.0"}, generator = MavenArtifactGenerator.class) List<Path> artifactGroupPath)
             throws IOException,
                    XmlPullParserException,
@@ -146,7 +146,7 @@ public class MavenChecksumServiceTest
 
     @Test
     @ExtendWith({RepositoryManagementTestExecutionListener.class, ArtifactManagementTestExecutionListener.class})
-    public void testGenerateMavenChecksumForSnapshotArtifact(@TestRepository(repositoryId = REPOSITORY_SNAPSHOTS, policy = SNAPSHOT, layout = LAYOUT_NAME) RepositoryData repository,
+    public void testGenerateMavenChecksumForSnapshotArtifact(@TestRepository(repositoryId = REPOSITORY_SNAPSHOTS, policy = SNAPSHOT, layout = LAYOUT_NAME) Repository repository,
                                                              @TestArtifact(repositoryId = REPOSITORY_SNAPSHOTS, resource = S2, generator = MavenArtifactGenerator.class) Path artifact)
             throws IOException,
                    XmlPullParserException,
@@ -206,7 +206,7 @@ public class MavenChecksumServiceTest
 
     @Test
     @ExtendWith({RepositoryManagementTestExecutionListener.class, ArtifactManagementTestExecutionListener.class})
-    public void testRewriteMavenChecksum(@TestRepository(repositoryId = REPOSITORY_RELEASES, layout = LAYOUT_NAME) RepositoryData repository,
+    public void testRewriteMavenChecksum(@TestRepository(repositoryId = REPOSITORY_RELEASES, layout = LAYOUT_NAME) Repository repository,
                                          @TestArtifact(repositoryId = REPOSITORY_RELEASES, resource = A3, generator = MavenArtifactGenerator.class) Path artifact)
             throws IOException,
                    XmlPullParserException,

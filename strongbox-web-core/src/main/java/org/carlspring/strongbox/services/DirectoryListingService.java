@@ -6,15 +6,15 @@ import java.util.Map;
 
 import org.carlspring.strongbox.domain.DirectoryListing;
 import org.carlspring.strongbox.providers.io.RepositoryPath;
-import org.carlspring.strongbox.storage.StorageData;
-import org.carlspring.strongbox.storage.repository.RepositoryData;
+import org.carlspring.strongbox.storage.Storage;
+import org.carlspring.strongbox.storage.repository.Repository;
 
 public interface DirectoryListingService
 {
 
-    DirectoryListing fromStorages(Map<String, ? extends StorageData> storages) throws IOException;
+    DirectoryListing fromStorages(Map<String, ? extends Storage> storages) throws IOException;
 
-    DirectoryListing fromRepositories(Map<String, ? extends RepositoryData> repositories) throws IOException;
+    DirectoryListing fromRepositories(Map<String, ? extends Repository> repositories) throws IOException;
 
     DirectoryListing fromRepositoryPath(RepositoryPath path)
         throws IOException;

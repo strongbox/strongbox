@@ -30,8 +30,8 @@ import org.carlspring.strongbox.providers.io.RepositoryFileAttributeType;
 import org.carlspring.strongbox.providers.io.RepositoryFiles;
 import org.carlspring.strongbox.providers.io.RepositoryPath;
 import org.carlspring.strongbox.services.RepositoryArtifactIdGroupService;
-import org.carlspring.strongbox.storage.StorageData;
-import org.carlspring.strongbox.storage.repository.RepositoryData;
+import org.carlspring.strongbox.storage.Storage;
+import org.carlspring.strongbox.storage.repository.Repository;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.web.util.UriComponentsBuilder;
@@ -195,8 +195,8 @@ public abstract class AbstractLayoutProvider<T extends ArtifactCoordinates>
     {
         URI baseUri = configurationManager.getBaseUri();
 
-        RepositoryData repository = repositoryPath.getRepository();
-        StorageData storage = repository.getStorage();
+        Repository repository = repositoryPath.getRepository();
+        Storage storage = repository.getStorage();
         URI artifactResource = RepositoryFiles.resolveResource(repositoryPath);
 
         return UriComponentsBuilder.fromUri(baseUri)
@@ -234,8 +234,8 @@ public abstract class AbstractLayoutProvider<T extends ArtifactCoordinates>
             return Collections.emptySet();
         }
         
-        RepositoryData repository = path.getFileSystem().getRepository();
-        StorageData storage = repository.getStorage();
+        Repository repository = path.getFileSystem().getRepository();
+        Storage storage = repository.getStorage();
         ArtifactCoordinates c = RepositoryFiles.readCoordinates(path);
         RepositoryArtifactIdGroupEntry artifactIdGroup = repositoryArtifactIdGroupService.findOne(storage.getId(), repository.getId(), c.getId());
         

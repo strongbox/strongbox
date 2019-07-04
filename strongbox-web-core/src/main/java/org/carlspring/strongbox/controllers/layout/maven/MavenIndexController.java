@@ -6,9 +6,9 @@ import org.carlspring.strongbox.providers.io.RepositoryPath;
 import org.carlspring.strongbox.providers.layout.LayoutProviderRegistry;
 import org.carlspring.strongbox.services.ArtifactIndexesService;
 import org.carlspring.strongbox.storage.ArtifactStorageException;
-import org.carlspring.strongbox.storage.StorageData;
+import org.carlspring.strongbox.storage.Storage;
 import org.carlspring.strongbox.storage.indexing.IndexTypeEnum;
-import org.carlspring.strongbox.storage.repository.RepositoryData;
+import org.carlspring.strongbox.storage.repository.Repository;
 
 import javax.inject.Inject;
 import javax.ws.rs.QueryParam;
@@ -75,8 +75,8 @@ public class MavenIndexController
         {
             if (storageId != null && repositoryId != null)
             {
-                StorageData storage = layoutProviderRegistry.getStorage(storageId);
-                RepositoryData repository = storage.getRepository(repositoryId);
+                Storage storage = layoutProviderRegistry.getStorage(storageId);
+                Repository repository = storage.getRepository(repositoryId);
                 
                 RepositoryPath repositoryPath = repositoryPathResolver.resolve(repository, path);
                 // Rebuild the index for a path under in a repository under a specified storage

@@ -7,8 +7,8 @@ import org.carlspring.strongbox.providers.io.RepositoryPath;
 import org.carlspring.strongbox.providers.io.RepositoryPathResolver;
 import org.carlspring.strongbox.providers.layout.LayoutProviderRegistry;
 import org.carlspring.strongbox.services.ArtifactIndexesService;
-import org.carlspring.strongbox.storage.StorageData;
-import org.carlspring.strongbox.storage.repository.RepositoryData;
+import org.carlspring.strongbox.storage.Storage;
+import org.carlspring.strongbox.storage.repository.Repository;
 
 import javax.inject.Inject;
 import java.util.Set;
@@ -56,8 +56,8 @@ public class RebuildMavenIndexesCronJob
         String repositoryId = config.getRequiredProperty(PROPERTY_REPOSITORY_ID);
         String basePath = config.getProperty(PROPERTY_BASE_PATH);
 
-        StorageData storage = layoutProviderRegistry.getStorage(storageId);
-        RepositoryData repository = storage.getRepository(repositoryId);
+        Storage storage = layoutProviderRegistry.getStorage(storageId);
+        Repository repository = storage.getRepository(repositoryId);
         RepositoryPath repositoryPath = repositoryPathResolver.resolve(repository, basePath);
 
         artifactIndexesService.rebuildIndex(repositoryPath);

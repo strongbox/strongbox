@@ -3,8 +3,8 @@ package org.carlspring.strongbox.artifact.locator;
 import org.carlspring.strongbox.artifact.locator.handlers.ArtifactLocationReportOperation;
 import org.carlspring.strongbox.config.Maven2LayoutProviderTestConfig;
 import org.carlspring.strongbox.providers.io.RepositoryPath;
-import org.carlspring.strongbox.storage.StorageData;
-import org.carlspring.strongbox.storage.repository.RepositoryData;
+import org.carlspring.strongbox.storage.Storage;
+import org.carlspring.strongbox.storage.repository.Repository;
 import org.carlspring.strongbox.testing.TestCaseWithMavenArtifactGenerationAndIndexing;
 import org.carlspring.strongbox.util.TestFileUtils;
 
@@ -125,8 +125,8 @@ public class ArtifactDirectoryLocatorTest
     public void testLocateDirectories()
             throws IOException
     {
-        StorageData storage = configurationManagementService.getConfiguration().getStorage(STORAGE0);
-        RepositoryData repository = storage.getRepository("releases");
+        Storage storage = configurationManagementService.getConfiguration().getStorage(STORAGE0);
+        Repository repository = storage.getRepository("releases");
         
         RepositoryPath repositoryPath = repositoryPathResolver.resolve(repository);
         
@@ -153,8 +153,8 @@ public class ArtifactDirectoryLocatorTest
     public void testLocateDirectoriesWithBasePath()
             throws IOException
     {
-        StorageData storage = configurationManagementService.getConfiguration().getStorage(STORAGE0);
-        RepositoryData repository = storage.getRepository("releases");
+        Storage storage = configurationManagementService.getConfiguration().getStorage(STORAGE0);
+        Repository repository = storage.getRepository("releases");
         
         RepositoryPath repositoryPath = repositoryPathResolver.resolve(repository).toAbsolutePath();
         

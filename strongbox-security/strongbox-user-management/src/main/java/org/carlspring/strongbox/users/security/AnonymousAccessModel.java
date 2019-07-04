@@ -5,19 +5,19 @@ import java.util.HashSet;
 import java.util.Set;
 
 import org.carlspring.strongbox.users.domain.Privileges;
-import org.carlspring.strongbox.users.dto.AccessModelData;
+import org.carlspring.strongbox.users.dto.AccessModel;
 
 
 /**
  * @author sbespalov
  *
  */
-public class AnonymousAccessModel implements AccessModelData
+public class AnonymousAccessModel implements AccessModel
 {
     
-    private final AccessModelData target;
+    private final AccessModel target;
     
-    public AnonymousAccessModel(AccessModelData target)
+    public AnonymousAccessModel(AccessModel target)
     {
         this.target = target;
     }

@@ -4,9 +4,9 @@ import org.carlspring.strongbox.config.Maven2LayoutProviderTestConfig;
 import org.carlspring.strongbox.providers.io.RootRepositoryPath;
 import org.carlspring.strongbox.providers.layout.Maven2LayoutProvider;
 import org.carlspring.strongbox.providers.search.MavenIndexerSearchProvider;
-import org.carlspring.strongbox.storage.repository.Repository;
-import org.carlspring.strongbox.storage.repository.RepositoryDto;
 import org.carlspring.strongbox.storage.repository.RepositoryData;
+import org.carlspring.strongbox.storage.repository.RepositoryDto;
+import org.carlspring.strongbox.storage.repository.Repository;
 import org.carlspring.strongbox.storage.search.SearchRequest;
 import org.carlspring.strongbox.testing.MavenIndexedRepositorySetup;
 import org.carlspring.strongbox.testing.artifact.ArtifactManagementTestExecutionListener;
@@ -91,26 +91,26 @@ public class MavenIndexGroupRepositoryComponentOnCreateTest
                   ArtifactManagementTestExecutionListener.class })
     @Test
     public void whenCreatingNewGroupRepositoryItsIndexShouldContainChildrenArtifacts(
-            @MavenRepository(repositoryId = REPOSITORY_LEAF_XE_2, setup = MavenIndexedRepositorySetup.class) RepositoryData repositoryLeafXe2,
-            @MavenRepository(repositoryId = REPOSITORY_LEAF_XL_2, setup = MavenIndexedRepositorySetup.class) RepositoryData repositoryLeafXl2,
-            @MavenRepository(repositoryId = REPOSITORY_LEAF_XZ_2, setup = MavenIndexedRepositorySetup.class) RepositoryData repositoryLeafXz2,
-            @MavenRepository(repositoryId = REPOSITORY_LEAF_XD_2, setup = MavenIndexedRepositorySetup.class) RepositoryData repositoryLeafXd2,
-            @MavenRepository(repositoryId = REPOSITORY_LEAF_XG_2, setup = MavenIndexedRepositorySetup.class) RepositoryData repositoryLeafXg2,
-            @MavenRepository(repositoryId = REPOSITORY_LEAF_XK_2, setup = MavenIndexedRepositorySetup.class) RepositoryData repositoryLeafXk2,
+            @MavenRepository(repositoryId = REPOSITORY_LEAF_XE_2, setup = MavenIndexedRepositorySetup.class) Repository repositoryLeafXe2,
+            @MavenRepository(repositoryId = REPOSITORY_LEAF_XL_2, setup = MavenIndexedRepositorySetup.class) Repository repositoryLeafXl2,
+            @MavenRepository(repositoryId = REPOSITORY_LEAF_XZ_2, setup = MavenIndexedRepositorySetup.class) Repository repositoryLeafXz2,
+            @MavenRepository(repositoryId = REPOSITORY_LEAF_XD_2, setup = MavenIndexedRepositorySetup.class) Repository repositoryLeafXd2,
+            @MavenRepository(repositoryId = REPOSITORY_LEAF_XG_2, setup = MavenIndexedRepositorySetup.class) Repository repositoryLeafXg2,
+            @MavenRepository(repositoryId = REPOSITORY_LEAF_XK_2, setup = MavenIndexedRepositorySetup.class) Repository repositoryLeafXk2,
             @TestRepository.Group({ REPOSITORY_LEAF_XE_2,
                                     REPOSITORY_LEAF_XZ_2 })
-            @MavenRepository(repositoryId = REPOSITORY_GROUP_XC_2, setup = MavenIndexedRepositorySetup.class) RepositoryData repositoryGroupXc2,
+            @MavenRepository(repositoryId = REPOSITORY_GROUP_XC_2, setup = MavenIndexedRepositorySetup.class) Repository repositoryGroupXc2,
             @TestRepository.Group({ REPOSITORY_GROUP_XC_2,
                                     REPOSITORY_LEAF_XD_2,
                                     REPOSITORY_LEAF_XL_2 })
-            @MavenRepository(repositoryId = REPOSITORY_GROUP_XB_2, setup = MavenIndexedRepositorySetup.class) RepositoryData repositoryGroupXb2,
+            @MavenRepository(repositoryId = REPOSITORY_GROUP_XB_2, setup = MavenIndexedRepositorySetup.class) Repository repositoryGroupXb2,
             @TestRepository.Group({ REPOSITORY_LEAF_XG_2,
                                     REPOSITORY_GROUP_XB_2 })
-            @MavenRepository(repositoryId = REPOSITORY_GROUP_XO_2, setup = MavenIndexedRepositorySetup.class) RepositoryData repositoryGroupXo2,
+            @MavenRepository(repositoryId = REPOSITORY_GROUP_XO_2, setup = MavenIndexedRepositorySetup.class) Repository repositoryGroupXo2,
             @TestRepository.Group({ REPOSITORY_GROUP_XC_2,
                                     REPOSITORY_LEAF_XD_2,
                                     REPOSITORY_LEAF_XL_2 })
-            @MavenRepository(repositoryId = REPOSITORY_GROUP_XF_2, setup = MavenIndexedRepositorySetup.class) RepositoryData repositoryGroupXf2,
+            @MavenRepository(repositoryId = REPOSITORY_GROUP_XF_2, setup = MavenIndexedRepositorySetup.class) Repository repositoryGroupXf2,
             @TestRepository.Group(repositories = { REPOSITORY_GROUP_XF_2,
                                                    REPOSITORY_LEAF_XK_2 },
                     rules = { @TestRepository.Group.Rule(
@@ -118,7 +118,7 @@ public class MavenIndexGroupRepositoryComponentOnCreateTest
                             repositories = REPOSITORY_LEAF_XD_2,
                             type = DENY)
                     })
-            @MavenRepository(repositoryId = REPOSITORY_GROUP_XH_2, setup = MavenIndexedRepositorySetup.class) RepositoryData repositoryGroupXh2,
+            @MavenRepository(repositoryId = REPOSITORY_GROUP_XH_2, setup = MavenIndexedRepositorySetup.class) Repository repositoryGroupXh2,
             @MavenTestArtifact(repositoryId = REPOSITORY_LEAF_XL_2, id = "com.artifacts.to.delete.releases:delete-group", versions = { "1.2.1",
                                                                                                                                        "1.2.2" })
                     Path artifactLeafXl2,
@@ -144,7 +144,7 @@ public class MavenIndexGroupRepositoryComponentOnCreateTest
                                                    REPOSITORY_LEAF_XD_2,
                                                    REPOSITORY_LEAF_XL_2);
 
-        RootRepositoryPath repositoryPath = repositoryPathResolver.resolve(new Repository(repository));
+        RootRepositoryPath repositoryPath = repositoryPathResolver.resolve(new RepositoryData(repository));
         // recoded since we scheduled a cron job now
         artifactIndexesService.rebuildIndex(repositoryPath);
 

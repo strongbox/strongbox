@@ -4,8 +4,8 @@ import org.carlspring.strongbox.config.MavenIndexerEnabledCondition;
 import org.carlspring.strongbox.configuration.ConfigurationManager;
 import org.carlspring.strongbox.providers.io.RepositoryPath;
 import org.carlspring.strongbox.repository.RepositoryInitializationException;
-import org.carlspring.strongbox.storage.repository.Repository;
-import org.carlspring.strongbox.yaml.configuration.repository.MavenRepositoryConfigurationData;
+import org.carlspring.strongbox.storage.repository.RepositoryData;
+import org.carlspring.strongbox.yaml.configuration.repository.MavenRepositoryConfiguration;
 
 import javax.inject.Inject;
 import java.io.IOException;
@@ -99,10 +99,10 @@ public class RepositoryIndexerFactory
                                                           final String repositoryId)
     {
         List<IndexCreator> indexCreators = Lists.newArrayList(indexerConfiguration.getIndexersAsList());
-        Repository repository = (Repository) configurationManager.getConfiguration()
+        RepositoryData repository = (RepositoryData) configurationManager.getConfiguration()
                                                                                    .getStorage(storageId)
                                                                                    .getRepository(repositoryId);
-        final MavenRepositoryConfigurationData mavenRepositoryConfiguration = (MavenRepositoryConfigurationData) repository.getRepositoryConfiguration();
+        final MavenRepositoryConfiguration mavenRepositoryConfiguration = (MavenRepositoryConfiguration) repository.getRepositoryConfiguration();
         if (mavenRepositoryConfiguration != null && !mavenRepositoryConfiguration.isIndexingClassNamesEnabled())
         {
             indexCreators = indexCreators.stream()

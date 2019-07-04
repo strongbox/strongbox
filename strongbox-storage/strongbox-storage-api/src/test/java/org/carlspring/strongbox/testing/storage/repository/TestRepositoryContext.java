@@ -18,10 +18,10 @@ import org.carlspring.strongbox.services.ConfigurationManagementService;
 import org.carlspring.strongbox.services.RepositoryManagementService;
 import org.carlspring.strongbox.services.StorageManagementService;
 import org.carlspring.strongbox.storage.StorageDto;
-import org.carlspring.strongbox.storage.StorageData;
-import org.carlspring.strongbox.storage.repository.Repository;
-import org.carlspring.strongbox.storage.repository.RepositoryDto;
+import org.carlspring.strongbox.storage.Storage;
 import org.carlspring.strongbox.storage.repository.RepositoryData;
+import org.carlspring.strongbox.storage.repository.RepositoryDto;
+import org.carlspring.strongbox.storage.repository.Repository;
 import org.carlspring.strongbox.storage.repository.RepositoryTypeEnum;
 import org.carlspring.strongbox.storage.repository.remote.MutableRemoteRepository;
 import org.carlspring.strongbox.storage.routing.MutableRoutingRule;
@@ -32,7 +32,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 /**
- * This class manages the resources used within {@link RepositoryData}.
+ * This class manages the resources used within {@link Repository}.
  * 
  * @author sbespalov
  */
@@ -88,14 +88,14 @@ public class TestRepositoryContext implements AutoCloseable, Comparable<TestRepo
         return testRepository;
     }
 
-    public RepositoryData getRepository()
+    public Repository getRepository()
     {
         if (!opened)
         {
             throw new IllegalStateException(String.format("Repository [%s] not found.", id(testRepository)));
         }
 
-        RepositoryData repository = configurationManagementService.getConfiguration()
+        Repository repository = configurationManagementService.getConfiguration()
                                                               .getRepository(testRepository.storageId(),
                                                                              testRepository.repositoryId());
 
@@ -125,7 +125,7 @@ public class TestRepositoryContext implements AutoCloseable, Comparable<TestRepo
                                   Remote.class.getSimpleName()));
         }
         
-        StorageData storage = Optional.ofNullable(configurationManagementService.getConfiguration()
+        Storage storage = Optional.ofNullable(configurationManagementService.getConfiguration()
                                                                             .getStorage(testRepository.storageId()))
                                   .orElseGet(this::createStorage);
 
@@ -180,7 +180,7 @@ public class TestRepositoryContext implements AutoCloseable, Comparable<TestRepo
         configurationManagementService.saveRepository(testRepository.storageId(), repository);
         repositoryManagementService.createRepository(storage.getId(), repository.getId());
 
-        final RepositoryPath repositoryPath = repositoryPathResolver.resolve(new Repository(repository,
+        final RepositoryPath repositoryPath = repositoryPathResolver.resolve(new RepositoryData(repository,
                                                                                                      storage));
         if (!Files.exists(repositoryPath))
         {
@@ -214,7 +214,7 @@ public class TestRepositoryContext implements AutoCloseable, Comparable<TestRepo
         repositorySetup.setup(repository);
     }
 
-    private StorageData createStorage()
+    private Storage createStorage()
     {
         StorageDto newStorage = new StorageDto(testRepository.storageId());
         try

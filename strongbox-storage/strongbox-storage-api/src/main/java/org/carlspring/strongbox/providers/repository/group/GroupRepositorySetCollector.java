@@ -2,8 +2,8 @@ package org.carlspring.strongbox.providers.repository.group;
 
 import org.carlspring.strongbox.configuration.ConfigurationManager;
 import org.carlspring.strongbox.configuration.ConfigurationUtils;
-import org.carlspring.strongbox.storage.StorageData;
-import org.carlspring.strongbox.storage.repository.RepositoryData;
+import org.carlspring.strongbox.storage.Storage;
+import org.carlspring.strongbox.storage.repository.Repository;
 
 import javax.inject.Inject;
 import java.util.Iterator;
@@ -24,15 +24,15 @@ public class GroupRepositorySetCollector
     @Inject
     private ConfigurationManager configurationManager;
 
-    public Set<RepositoryData> collect(RepositoryData groupRepository)
+    public Set<Repository> collect(Repository groupRepository)
     {
         return collect(groupRepository, false);
     }
 
-    public Set<RepositoryData> collect(RepositoryData groupRepository,
+    public Set<Repository> collect(Repository groupRepository,
                                    boolean traverse)
     {
-        Set<RepositoryData> result = groupRepository.getGroupRepositories()
+        Set<Repository> result = groupRepository.getGroupRepositories()
                                                 .stream()
                                                 .map(groupRepoId -> getRepository(groupRepository.getStorage(),
                                                                                   groupRepoId))
@@ -43,10 +43,10 @@ public class GroupRepositorySetCollector
             return result;
         }
 
-        Set<RepositoryData> traverseResult = new LinkedHashSet<>();
-        for (Iterator<RepositoryData> i = result.iterator(); i.hasNext(); )
+        Set<Repository> traverseResult = new LinkedHashSet<>();
+        for (Iterator<Repository> i = result.iterator(); i.hasNext(); )
         {
-            RepositoryData r = i.next();
+            Repository r = i.next();
             if (CollectionUtils.isEmpty(r.getGroupRepositories()))
             {
                 traverseResult.add(r);
@@ -60,7 +60,7 @@ public class GroupRepositorySetCollector
         return traverseResult;
     }
 
-    private RepositoryData getRepository(StorageData storage,
+    private Repository getRepository(Storage storage,
                                      String id)
     {
         String sId = ConfigurationUtils.getStorageId(storage.getId(), id);

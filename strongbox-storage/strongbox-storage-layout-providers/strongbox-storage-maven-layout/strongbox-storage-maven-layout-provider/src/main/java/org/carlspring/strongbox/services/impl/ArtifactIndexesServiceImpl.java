@@ -12,13 +12,13 @@ import org.carlspring.strongbox.providers.io.RootRepositoryPath;
 import org.carlspring.strongbox.repository.IndexedMavenRepositoryFeatures;
 import org.carlspring.strongbox.repository.group.index.MavenIndexGroupRepositoryComponent;
 import org.carlspring.strongbox.services.ArtifactIndexesService;
-import org.carlspring.strongbox.storage.StorageData;
+import org.carlspring.strongbox.storage.Storage;
 import org.carlspring.strongbox.storage.indexing.IndexTypeEnum;
 import org.carlspring.strongbox.storage.indexing.RepositoryIndexManager;
 import org.carlspring.strongbox.storage.indexing.RepositoryIndexer;
-import org.carlspring.strongbox.storage.repository.RepositoryData;
+import org.carlspring.strongbox.storage.repository.Repository;
 import org.carlspring.strongbox.util.IndexContextHelper;
-import org.carlspring.strongbox.yaml.configuration.repository.MavenRepositoryConfigurationData;
+import org.carlspring.strongbox.yaml.configuration.repository.MavenRepositoryConfiguration;
 
 import javax.inject.Inject;
 import java.io.IOException;
@@ -60,8 +60,8 @@ public class ArtifactIndexesServiceImpl
     public void addArtifactToIndex(RepositoryPath artifactPath)
             throws IOException
     {
-        RepositoryData repository = artifactPath.getFileSystem().getRepository();
-        StorageData storage = repository.getStorage();
+        Repository repository = artifactPath.getFileSystem().getRepository();
+        Storage storage = repository.getStorage();
 
         String contextId = IndexContextHelper.getContextId(storage.getId(),
                                                            repository.getId(),
@@ -92,8 +92,8 @@ public class ArtifactIndexesServiceImpl
     public void rebuildIndex(RepositoryPath repositoryPath)
             throws IOException
     {
-        RepositoryData repository = repositoryPath.getFileSystem().getRepository();
-        StorageData storage = repository.getStorage();
+        Repository repository = repositoryPath.getFileSystem().getRepository();
+        Storage storage = repository.getStorage();
 
         if (!features.isIndexingEnabled(repository))
         {
@@ -121,14 +121,14 @@ public class ArtifactIndexesServiceImpl
     public void rebuildIndexes(String storageId)
             throws IOException
     {
-        Map<String, ? extends RepositoryData> repositories = getRepositories(storageId);
+        Map<String, ? extends Repository> repositories = getRepositories(storageId);
 
         logger.debug("Rebuilding indexes for repositories " + repositories.keySet());
 
-        for (Entry<String, ? extends RepositoryData> repositoryEntry : repositories.entrySet())
+        for (Entry<String, ? extends Repository> repositoryEntry : repositories.entrySet())
         {
-            RepositoryData repository = repositoryEntry.getValue();
-            if (!(repository.getRepositoryConfiguration() instanceof MavenRepositoryConfigurationData))
+            Repository repository = repositoryEntry.getValue();
+            if (!(repository.getRepositoryConfiguration() instanceof MavenRepositoryConfiguration))
             {
                 logger.debug("Skip rebuilding indexes for " + repositoryEntry.getKey());
                 continue;
@@ -143,7 +143,7 @@ public class ArtifactIndexesServiceImpl
     public void rebuildIndexes()
             throws IOException
     {
-        Map<String, StorageData> storages = getStorages();
+        Map<String, Storage> storages = getStorages();
         for (String storageId : storages.keySet())
         {
             rebuildIndexes(storageId);
@@ -155,17 +155,17 @@ public class ArtifactIndexesServiceImpl
         return configurationManager.getConfiguration();
     }
 
-    private Map<String, StorageData> getStorages()
+    private Map<String, Storage> getStorages()
     {
         return getConfiguration().getStorages();
     }
 
-    private Map<String, ? extends RepositoryData> getRepositories(String storageId)
+    private Map<String, ? extends Repository> getRepositories(String storageId)
     {
         return getStorages().get(storageId).getRepositories();
     }
 
-    private RepositoryData getRepository(String storageId,
+    private Repository getRepository(String storageId,
                                      String repositoryId)
     {
         return getConfiguration().getStorage(storageId).getRepository(repositoryId);

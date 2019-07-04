@@ -6,9 +6,9 @@ import static org.junit.jupiter.api.Assertions.fail;
 import org.apache.commons.lang3.exception.ExceptionUtils;
 import org.carlspring.strongbox.artifact.coordinates.ArtifactCoordinates;
 import org.carlspring.strongbox.artifact.coordinates.MockedMavenArtifactCoordinates;
-import org.carlspring.strongbox.storage.repository.Repository;
-import org.carlspring.strongbox.storage.repository.RepositoryDto;
 import org.carlspring.strongbox.storage.repository.RepositoryData;
+import org.carlspring.strongbox.storage.repository.RepositoryDto;
+import org.carlspring.strongbox.storage.repository.Repository;
 import org.carlspring.strongbox.storage.repository.RepositoryPolicyEnum;
 import org.carlspring.strongbox.storage.validation.artifact.version.GenericReleaseVersionValidator;
 import org.carlspring.strongbox.storage.validation.artifact.version.VersionValidationException;
@@ -18,7 +18,7 @@ import org.junit.jupiter.api.Test;
 public class GenericReleaseVersionValidatorTest
 {
 
-    RepositoryData repository;
+    Repository repository;
 
     GenericReleaseVersionValidator validator = new GenericReleaseVersionValidator();
 
@@ -29,7 +29,7 @@ public class GenericReleaseVersionValidatorTest
         RepositoryDto repository = new RepositoryDto("test-repository-for-nuget-release-validation");
         repository.setPolicy(RepositoryPolicyEnum.RELEASE.toString());
         repository.setBasedir("");
-        this.repository = new Repository(repository);
+        this.repository = new RepositoryData(repository);
     }
 
     @Test

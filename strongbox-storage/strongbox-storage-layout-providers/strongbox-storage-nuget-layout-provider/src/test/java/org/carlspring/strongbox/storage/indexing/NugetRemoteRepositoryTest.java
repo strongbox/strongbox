@@ -11,10 +11,10 @@ import org.carlspring.strongbox.providers.layout.NugetLayoutProvider;
 import org.carlspring.strongbox.repository.NugetRepositoryFeatures;
 import org.carlspring.strongbox.services.ArtifactEntryService;
 import org.carlspring.strongbox.services.RepositoryManagementService;
-import org.carlspring.strongbox.storage.StorageData;
+import org.carlspring.strongbox.storage.Storage;
 import org.carlspring.strongbox.storage.repository.RepositoryDto;
 import org.carlspring.strongbox.storage.repository.NugetRepositoryFactory;
-import org.carlspring.strongbox.storage.repository.RepositoryData;
+import org.carlspring.strongbox.storage.repository.Repository;
 import org.carlspring.strongbox.storage.repository.remote.MutableRemoteRepository;
 import org.carlspring.strongbox.testing.TestCaseWithRepository;
 
@@ -112,8 +112,8 @@ public class NugetRemoteRepositoryTest
         throws ArtifactTransportException,
         IOException
     {
-        StorageData storage = configurationManager.getConfiguration().getStorage(NUGET_COMMON_STORAGE);
-        RepositoryData repository = storage.getRepository(REPOSITORY_PROXY);
+        Storage storage = configurationManager.getConfiguration().getStorage(NUGET_COMMON_STORAGE);
+        Repository repository = storage.getRepository(REPOSITORY_PROXY);
 
         NugetSearchRequest nugetSearchRequest = new NugetSearchRequest();
         nugetSearchRequest.setFilter(String.format("Id eq '%s'", "NHibernate"));

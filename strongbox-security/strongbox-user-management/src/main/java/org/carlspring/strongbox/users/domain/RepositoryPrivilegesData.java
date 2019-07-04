@@ -10,7 +10,7 @@ import javax.annotation.concurrent.Immutable;
 
 import org.carlspring.strongbox.users.dto.PathPrivilegesDto;
 import org.carlspring.strongbox.users.dto.RepositoryPrivilegesDto;
-import org.carlspring.strongbox.users.dto.RepositoryPrivilegesData;
+import org.carlspring.strongbox.users.dto.RepositoryPrivileges;
 
 import com.google.common.collect.ImmutableSet;
 
@@ -18,17 +18,17 @@ import com.google.common.collect.ImmutableSet;
  * @author Przemyslaw Fusik
  */
 @Immutable
-public class RepositoryPrivileges
-        implements Serializable, RepositoryPrivilegesData
+public class RepositoryPrivilegesData
+        implements Serializable, RepositoryPrivileges
 {
 
     private final String repositoryId;
 
     private final Set<Privileges> repositoryPrivileges;
 
-    private final Set<PathPrivileges> pathPrivileges;
+    private final Set<PathPrivilegesData> pathPrivileges;
 
-    public RepositoryPrivileges(final RepositoryPrivilegesDto delegate)
+    public RepositoryPrivilegesData(final RepositoryPrivilegesDto delegate)
     {
         this.repositoryId = delegate.getRepositoryId();
         this.repositoryPrivileges = immuteRepositoryPrivileges(delegate.getRepositoryPrivileges());
@@ -41,10 +41,10 @@ public class RepositoryPrivileges
                 : Collections.emptySet();
     }
 
-    private Set<PathPrivileges> immutePathPrivileges(final Set<PathPrivilegesDto> source)
+    private Set<PathPrivilegesData> immutePathPrivileges(final Set<PathPrivilegesDto> source)
     {
         return source != null ?
-               ImmutableSet.copyOf(source.stream().map(PathPrivileges::new).collect(toSet())) :
+               ImmutableSet.copyOf(source.stream().map(PathPrivilegesData::new).collect(toSet())) :
                Collections.emptySet();
     }
 
@@ -58,7 +58,7 @@ public class RepositoryPrivileges
         return repositoryPrivileges;
     }
 
-    public Set<PathPrivileges> getPathPrivileges()
+    public Set<PathPrivilegesData> getPathPrivileges()
     {
         return pathPrivileges;
     }

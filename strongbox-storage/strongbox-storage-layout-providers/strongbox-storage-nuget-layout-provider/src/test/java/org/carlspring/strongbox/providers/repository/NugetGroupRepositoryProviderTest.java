@@ -9,7 +9,7 @@ import org.carlspring.strongbox.services.ArtifactManagementService;
 import org.carlspring.strongbox.services.RepositoryManagementService;
 import org.carlspring.strongbox.storage.repository.RepositoryDto;
 import org.carlspring.strongbox.storage.repository.NugetRepositoryFactory;
-import org.carlspring.strongbox.storage.repository.RepositoryData;
+import org.carlspring.strongbox.storage.repository.Repository;
 import org.carlspring.strongbox.storage.repository.RepositoryTypeEnum;
 import org.carlspring.strongbox.testing.TestCaseWithNugetArtifactGeneration;
 import org.carlspring.strongbox.yaml.configuration.repository.NugetRepositoryConfigurationDto;
@@ -169,7 +169,7 @@ public class NugetGroupRepositoryProviderTest
     @Test
     public void testGroupSearch()
     {
-        RepositoryData repository = configurationManager.getRepository(STORAGE0 + ":" + REPOSITORY_GROUP);
+        Repository repository = configurationManager.getRepository(STORAGE0 + ":" + REPOSITORY_GROUP);
         RepositoryProvider repositoryProvider = repositoryProviderRegistry.getProvider(repository.getType());
         
         Paginator paginator = new Paginator();

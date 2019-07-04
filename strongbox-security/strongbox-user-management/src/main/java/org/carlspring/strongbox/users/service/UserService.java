@@ -1,10 +1,10 @@
 package org.carlspring.strongbox.users.service;
 
-import org.carlspring.strongbox.users.domain.User;
+import org.carlspring.strongbox.users.domain.UserData;
 import org.carlspring.strongbox.users.domain.Users;
 import org.carlspring.strongbox.users.dto.AccessModelDto;
 import org.carlspring.strongbox.users.dto.UserDto;
-import org.carlspring.strongbox.users.dto.UserData;
+import org.carlspring.strongbox.users.dto.User;
 import org.jose4j.lang.JoseException;
 
 /**
@@ -14,7 +14,7 @@ import org.jose4j.lang.JoseException;
 public interface UserService
 {
 
-    User findByUserName(String username);
+    UserData findByUserName(String username);
 
     /**
      * Generates another one 'Security Token' for specific user.<br>
@@ -56,7 +56,7 @@ public interface UserService
 
     void revokeEveryone(String roleToRevoke);
 
-    void save(UserData user);
+    void save(User user);
 
     void delete(String username);
 

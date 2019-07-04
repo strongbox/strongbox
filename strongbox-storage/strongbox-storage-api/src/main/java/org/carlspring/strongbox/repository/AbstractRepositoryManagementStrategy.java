@@ -5,8 +5,8 @@ import org.carlspring.strongbox.providers.io.LayoutFileSystem;
 import org.carlspring.strongbox.providers.io.RepositoryPath;
 import org.carlspring.strongbox.providers.io.RepositoryPathResolver;
 import org.carlspring.strongbox.services.ConfigurationManagementService;
-import org.carlspring.strongbox.storage.StorageData;
-import org.carlspring.strongbox.storage.repository.RepositoryData;
+import org.carlspring.strongbox.storage.Storage;
+import org.carlspring.strongbox.storage.repository.Repository;
 
 import javax.inject.Inject;
 import java.io.IOException;
@@ -35,15 +35,15 @@ public abstract class AbstractRepositoryManagementStrategy
                                  String repositoryId)
             throws IOException, RepositoryManagementStrategyException
     {
-        StorageData storage = getStorage(storageId);
-        RepositoryData repository = storage.getRepository(repositoryId);
+        Storage storage = getStorage(storageId);
+        Repository repository = storage.getRepository(repositoryId);
 
         createRepositoryStructure(repository);
         createRepositoryInternal(storage, getRepository(storageId, repositoryId));
     }
 
     @Override
-    public void createRepositoryStructure(final RepositoryData repository)
+    public void createRepositoryStructure(final Repository repository)
             throws IOException
     {
         final RepositoryPath rootRepositoryPath = repositoryPathResolver.resolve(repository);
@@ -59,19 +59,19 @@ public abstract class AbstractRepositoryManagementStrategy
         }
     }
 
-    protected void createRepositoryInternal(StorageData storage,
-                                            RepositoryData repository)
+    protected void createRepositoryInternal(Storage storage,
+                                            Repository repository)
             throws IOException, RepositoryManagementStrategyException
     {
         // override if needed
     }
 
-    protected StorageData getStorage(String storageId)
+    protected Storage getStorage(String storageId)
     {
         return getConfiguration().getStorage(storageId);
     }
 
-    protected RepositoryData getRepository(String storageId,
+    protected Repository getRepository(String storageId,
                                        String repositoryId)
     {
         return getStorage(storageId).getRepository(repositoryId);
@@ -90,7 +90,7 @@ public abstract class AbstractRepositoryManagementStrategy
                                          String repositoryId)
             throws IOException
     {
-        RepositoryData repository = getRepository(storageId, repositoryId);
+        Repository repository = getRepository(storageId, repositoryId);
 
         RepositoryPath repositoryPath = repositoryPathResolver.resolve(repository);
 

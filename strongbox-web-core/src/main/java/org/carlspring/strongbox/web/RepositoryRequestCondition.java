@@ -1,6 +1,6 @@
 package org.carlspring.strongbox.web;
 
-import org.carlspring.strongbox.storage.repository.RepositoryData;
+import org.carlspring.strongbox.storage.repository.Repository;
 
 import javax.annotation.Nonnull;
 import javax.servlet.http.HttpServletRequest;
@@ -16,9 +16,9 @@ public class RepositoryRequestCondition
         extends ExposableRequestCondition
 {
 
-    private final RepositoryData repository;
+    private final Repository repository;
 
-    RepositoryRequestCondition(@Nonnull final RepositoryData repository)
+    RepositoryRequestCondition(@Nonnull final Repository repository)
     {
         this.repository = repository;
     }
@@ -36,7 +36,7 @@ public class RepositoryRequestCondition
     }
 
     @Nonnull
-    protected RepositoryData getRepository()
+    protected Repository getRepository()
     {
         return this.repository;
     }

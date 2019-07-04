@@ -13,7 +13,7 @@ import com.fasterxml.jackson.annotation.JsonProperty;
  * @author Pablo Tirado
  */
 public class StoragePrivilegesDto
-        implements Serializable, StoragePrivilegesData
+        implements Serializable, StoragePrivileges
 {
 
     private Set<RepositoryPrivilegesDto> repositoryPrivileges = new LinkedHashSet<>();

@@ -4,21 +4,21 @@ import java.util.function.Function;
 
 import javax.annotation.concurrent.Immutable;
 
-import org.carlspring.strongbox.authorization.dto.RoleData;
-import org.carlspring.strongbox.users.dto.AccessModelData;
+import org.carlspring.strongbox.authorization.dto.Role;
+import org.carlspring.strongbox.users.dto.AccessModel;
 
 /**
  * @author sbespalov
  */
 @Immutable
-public class RuntimeRole implements RoleData
+public class RuntimeRole implements Role
 {
 
-    private final RoleData target;
-    private final Function<AccessModelData, AccessModelData> accessModelCustomizer;
+    private final Role target;
+    private final Function<AccessModel, AccessModel> accessModelCustomizer;
 
-    public RuntimeRole(RoleData target,
-                       Function<AccessModelData, AccessModelData> accessModelCustomizer)
+    public RuntimeRole(Role target,
+                       Function<AccessModel, AccessModel> accessModelCustomizer)
     {
         this.target = target;
         this.accessModelCustomizer = accessModelCustomizer;
@@ -34,7 +34,7 @@ public class RuntimeRole implements RoleData
         return target.getDescription();
     }
 
-    public AccessModelData getAccessModel()
+    public AccessModel getAccessModel()
     {
         return accessModelCustomizer.apply(target.getAccessModel());
     }

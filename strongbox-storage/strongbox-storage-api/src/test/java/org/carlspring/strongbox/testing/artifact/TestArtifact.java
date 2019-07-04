@@ -10,17 +10,17 @@ import java.nio.file.Path;
 import org.carlspring.strongbox.artifact.coordinates.ArtifactCoordinates;
 import org.carlspring.strongbox.artifact.generator.ArtifactGenerator;
 import org.carlspring.strongbox.providers.io.RepositoryPath;
-import org.carlspring.strongbox.storage.StorageData;
-import org.carlspring.strongbox.storage.repository.RepositoryData;
+import org.carlspring.strongbox.storage.Storage;
+import org.carlspring.strongbox.storage.repository.Repository;
 
 /**
  * This annotation provide ability to inject Artifact {@link Path} instance as
  * test method parameters.
  * <br>
- * The Artifact will also be deployed if {@link StorageData} and {@link RepositoryData}
+ * The Artifact will also be deployed if {@link Storage} and {@link Repository}
  * provided, in this case {@link RepositoryPath} instance will be injected.
  * <br>
- * If there is no {@link StorageData} and {@link RepositoryData} provided then Artifact
+ * If there is no {@link Storage} and {@link Repository} provided then Artifact
  * will be just regular {@link Path} instance located in
  * `{vaultDirectory}/.temp/{testClassName}/{testMethodName}/{artifactURI}`.
  * 
@@ -34,12 +34,12 @@ public @interface TestArtifact
 {
 
     /**
-     * {@link StorageData} ID.
+     * {@link Storage} ID.
      */
     String storageId() default "storage0";
 
     /**
-     * {@link RepositoryData} ID.
+     * {@link Repository} ID.
      */
     String repositoryId() default "";
 

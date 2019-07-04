@@ -10,8 +10,8 @@ import org.carlspring.strongbox.providers.layout.LayoutProvider;
 import org.carlspring.strongbox.providers.layout.LayoutProviderRegistry;
 import org.carlspring.strongbox.storage.ArtifactResolutionException;
 import org.carlspring.strongbox.storage.ArtifactStorageException;
-import org.carlspring.strongbox.storage.StorageData;
-import org.carlspring.strongbox.storage.repository.RepositoryData;
+import org.carlspring.strongbox.storage.Storage;
+import org.carlspring.strongbox.storage.repository.Repository;
 import org.carlspring.strongbox.storage.repository.RepositoryTypeEnum;
 
 import javax.inject.Inject;
@@ -47,8 +47,8 @@ public class ArtifactOperationsValidator
     {
         checkArtifactPath(repositoryPath);
         
-        RepositoryData repository = repositoryPath.getRepository();
-        StorageData storage = repository.getStorage();
+        Repository repository = repositoryPath.getRepository();
+        Storage storage = repository.getStorage();
         
         checkStorageExists(storage.getId());
         checkRepositoryExists(storage.getId(), repository.getId());
@@ -93,7 +93,7 @@ public class ArtifactOperationsValidator
         }
     }
 
-    public void checkAllowsDeployment(RepositoryData repository)
+    public void checkAllowsDeployment(Repository repository)
             throws ArtifactStorageException
     {
         if (!repository.allowsDeployment() ||
@@ -115,7 +115,7 @@ public class ArtifactOperationsValidator
         }
     }
 
-    public void checkAllowsRedeployment(RepositoryData repository,
+    public void checkAllowsRedeployment(Repository repository,
                                         ArtifactCoordinates coordinates)
             throws IOException,
                    ProviderImplementationException
@@ -131,7 +131,7 @@ public class ArtifactOperationsValidator
         }
     }
 
-    public void checkAllowsDeletion(RepositoryData repository)
+    public void checkAllowsDeletion(Repository repository)
             throws ArtifactStorageException
     {
         if (!repository.allowsDeletion())
@@ -151,7 +151,7 @@ public class ArtifactOperationsValidator
             throw new ArtifactResolutionException("Uploaded file is empty.");
         }
 
-        RepositoryData repository = getConfiguration().getStorage(storageId).getRepository(repositoryId);
+        Repository repository = getConfiguration().getStorage(storageId).getRepository(repositoryId);
         long artifactMaxSize = repository.getArtifactMaxSize();
 
         if (artifactMaxSize > 0 && uploadedFile.getSize() > artifactMaxSize)

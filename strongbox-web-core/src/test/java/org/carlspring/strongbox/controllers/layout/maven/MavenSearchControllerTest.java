@@ -10,7 +10,7 @@ import org.carlspring.strongbox.config.IntegrationTest;
 import org.carlspring.strongbox.providers.search.MavenIndexerSearchProvider;
 import org.carlspring.strongbox.providers.search.OrientDbSearchProvider;
 import org.carlspring.strongbox.rest.common.MavenRestAssuredBaseTest;
-import org.carlspring.strongbox.storage.repository.RepositoryData;
+import org.carlspring.strongbox.storage.repository.Repository;
 import org.carlspring.strongbox.testing.MavenIndexedRepositorySetup;
 import org.carlspring.strongbox.testing.artifact.ArtifactManagementTestExecutionListener;
 import org.carlspring.strongbox.testing.artifact.TestArtifact;
@@ -55,7 +55,7 @@ public class MavenSearchControllerTest
     @Test
     @ExtendWith({RepositoryManagementTestExecutionListener.class, ArtifactManagementTestExecutionListener.class})
     @EnabledIf(expression = "#{containsObject('repositoryIndexManager')}", loadContext = true)
-    public void testIndexSearches(@TestRepository(layout = LAYOUT_NAME, storageId = STORAGE_SC_TEST, repositoryId = REPOSITORY_RELEASES, setup = MavenIndexedRepositorySetup.class) RepositoryData repository,
+    public void testIndexSearches(@TestRepository(layout = LAYOUT_NAME, storageId = STORAGE_SC_TEST, repositoryId = REPOSITORY_RELEASES, setup = MavenIndexedRepositorySetup.class) Repository repository,
                                   @TestArtifact(storageId = STORAGE_SC_TEST, repositoryId = REPOSITORY_RELEASES, resource = A1, generator = MavenArtifactGenerator.class) Path a1,
                                   @TestArtifact(storageId = STORAGE_SC_TEST, repositoryId = REPOSITORY_RELEASES, resource = A2, generator = MavenArtifactGenerator.class) Path a2,
                                   @TestArtifact(storageId = STORAGE_SC_TEST, repositoryId = REPOSITORY_RELEASES, resource = A3, generator = MavenArtifactGenerator.class) Path a3)
@@ -67,7 +67,7 @@ public class MavenSearchControllerTest
     
     @Test
     @ExtendWith({RepositoryManagementTestExecutionListener.class, ArtifactManagementTestExecutionListener.class})
-    public void testDbSearches(@TestRepository(layout = LAYOUT_NAME, storageId = STORAGE_SC_TEST, repositoryId = REPOSITORY_RELEASES) RepositoryData repository,
+    public void testDbSearches(@TestRepository(layout = LAYOUT_NAME, storageId = STORAGE_SC_TEST, repositoryId = REPOSITORY_RELEASES) Repository repository,
                                @TestArtifact(storageId = STORAGE_SC_TEST, repositoryId = REPOSITORY_RELEASES, resource = A1, generator = MavenArtifactGenerator.class) Path a1,
                                @TestArtifact(storageId = STORAGE_SC_TEST, repositoryId = REPOSITORY_RELEASES, resource = A2, generator = MavenArtifactGenerator.class) Path a2,
                                @TestArtifact(storageId = STORAGE_SC_TEST, repositoryId = REPOSITORY_RELEASES, resource = A3, generator = MavenArtifactGenerator.class) Path a3)
@@ -99,7 +99,7 @@ public class MavenSearchControllerTest
     @Test
     @EnabledIf(expression = "#{containsObject('repositoryIndexManager')}", loadContext = true)
     @ExtendWith({RepositoryManagementTestExecutionListener.class, ArtifactManagementTestExecutionListener.class})
-    public void testDumpIndex(@TestRepository(layout = LAYOUT_NAME, storageId = STORAGE_SC_TEST, repositoryId = REPOSITORY_RELEASES, setup = MavenIndexedRepositorySetup.class) RepositoryData repository,
+    public void testDumpIndex(@TestRepository(layout = LAYOUT_NAME, storageId = STORAGE_SC_TEST, repositoryId = REPOSITORY_RELEASES, setup = MavenIndexedRepositorySetup.class) Repository repository,
                               @TestArtifact(storageId = STORAGE_SC_TEST, repositoryId = REPOSITORY_RELEASES, resource = A1, generator = MavenArtifactGenerator.class) Path a1,
                               @TestArtifact(storageId = STORAGE_SC_TEST, repositoryId = REPOSITORY_RELEASES, resource = A2, generator = MavenArtifactGenerator.class) Path a2,
                               @TestArtifact(storageId = STORAGE_SC_TEST, repositoryId = REPOSITORY_RELEASES, resource = A3, generator = MavenArtifactGenerator.class) Path a3)

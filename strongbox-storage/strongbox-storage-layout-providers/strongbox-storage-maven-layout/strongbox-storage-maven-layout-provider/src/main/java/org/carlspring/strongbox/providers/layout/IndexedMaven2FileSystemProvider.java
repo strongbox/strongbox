@@ -11,7 +11,7 @@ import org.carlspring.strongbox.services.ArtifactIndexesService;
 import org.carlspring.strongbox.storage.indexing.IndexTypeEnum;
 import org.carlspring.strongbox.storage.indexing.RepositoryIndexManager;
 import org.carlspring.strongbox.storage.indexing.RepositoryIndexer;
-import org.carlspring.strongbox.storage.repository.RepositoryData;
+import org.carlspring.strongbox.storage.repository.Repository;
 
 import javax.inject.Inject;
 
@@ -92,7 +92,7 @@ public class IndexedMaven2FileSystemProvider extends Maven2FileSystemProvider
             return;
         }
 
-        RepositoryData repository = path.getRepository();
+        Repository repository = path.getRepository();
         if (!mavenRepositoryFeatures.isIndexingEnabled(repository))
         {
             return;
@@ -131,7 +131,7 @@ public class IndexedMaven2FileSystemProvider extends Maven2FileSystemProvider
 
     private RepositoryIndexer getRepositoryIndexer(RepositoryPath path)
     {
-        RepositoryData repository = path.getFileSystem().getRepository();
+        Repository repository = path.getFileSystem().getRepository();
 
         if (!mavenRepositoryFeatures.isIndexingEnabled(repository))
         {

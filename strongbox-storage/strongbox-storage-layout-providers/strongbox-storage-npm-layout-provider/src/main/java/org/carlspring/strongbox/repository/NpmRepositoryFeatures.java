@@ -16,10 +16,10 @@ import org.carlspring.strongbox.npm.metadata.SearchResults;
 import org.carlspring.strongbox.providers.repository.event.RemoteRepositorySearchEvent;
 import org.carlspring.strongbox.service.ProxyRepositoryConnectionPoolConfigurationService;
 import org.carlspring.strongbox.services.ConfigurationManagementService;
-import org.carlspring.strongbox.storage.StorageData;
-import org.carlspring.strongbox.storage.repository.Repository;
-import org.carlspring.strongbox.storage.repository.RepositoryDto;
+import org.carlspring.strongbox.storage.Storage;
 import org.carlspring.strongbox.storage.repository.RepositoryData;
+import org.carlspring.strongbox.storage.repository.RepositoryDto;
+import org.carlspring.strongbox.storage.repository.Repository;
 import org.carlspring.strongbox.storage.repository.remote.RemoteRepository;
 import org.carlspring.strongbox.storage.validation.artifact.version.GenericReleaseVersionValidator;
 import org.carlspring.strongbox.storage.validation.artifact.version.GenericSnapshotVersionValidator;
@@ -113,10 +113,10 @@ public class NpmRepositoryFeatures implements RepositoryFeatures
                                          Integer size)
     {
 
-        StorageData storage = getConfiguration().getStorage(storageId);
-        RepositoryData repository = storage.getRepository(repositoryId);
+        Storage storage = getConfiguration().getStorage(storageId);
+        Repository repository = storage.getRepository(repositoryId);
 
-        RemoteRepository remoteRepository = ((Repository)repository).getRemoteRepository();
+        RemoteRepository remoteRepository = ((RepositoryData)repository).getRemoteRepository();
         if (remoteRepository == null)
         {
             return;
@@ -164,10 +164,10 @@ public class NpmRepositoryFeatures implements RepositoryFeatures
         throws IOException
     {
 
-        StorageData storage = getConfiguration().getStorage(storageId);
-        RepositoryData repository = storage.getRepository(repositoryId);
+        Storage storage = getConfiguration().getStorage(storageId);
+        Repository repository = storage.getRepository(repositoryId);
 
-        RemoteRepository remoteRepository = ((Repository)repository).getRemoteRepository();
+        RemoteRepository remoteRepository = ((RepositoryData)repository).getRemoteRepository();
         if (remoteRepository == null)
         {
             return;
@@ -199,7 +199,7 @@ public class NpmRepositoryFeatures implements RepositoryFeatures
         } while (nextChangeId > lastCnahgeId);
     }
 
-    private Integer fetchRemoteChangesFeed(RepositoryData repository,
+    private Integer fetchRemoteChangesFeed(Repository repository,
                                            String replicateUrl,
                                            Long since)
         throws IOException
@@ -228,13 +228,13 @@ public class NpmRepositoryFeatures implements RepositoryFeatures
         return result;
     }
 
-    private int fetchRemoteChangesFeed(RepositoryData repository,
+    private int fetchRemoteChangesFeed(Repository repository,
                                        Invocation request)
         throws IOException
     {
         int result = 0;
 
-        RemoteRepository remoteRepository = ((Repository)repository).getRemoteRepository();
+        RemoteRepository remoteRepository = ((RepositoryData)repository).getRemoteRepository();
         NpmRemoteRepositoryConfiguration repositoryConfiguration = (NpmRemoteRepositoryConfiguration) remoteRepository.getCustomConfiguration();
 
         JsonFactory jfactory = new JsonFactory();
@@ -287,7 +287,7 @@ public class NpmRepositoryFeatures implements RepositoryFeatures
                 catch (Exception e)
                 {
                     logger.error(String.format("Failed to parse NPM feed [%s/%s]",
-                                               ((Repository)repository).getRemoteRepository().getUrl(),
+                                               ((RepositoryData)repository).getRemoteRepository().getUrl(),
                                                packageFeed.getName()),
                                  e);
 
@@ -311,10 +311,10 @@ public class NpmRepositoryFeatures implements RepositoryFeatures
                                         String packageId)
     {
 
-        StorageData storage = getConfiguration().getStorage(storageId);
-        RepositoryData repository = storage.getRepository(repositoryId);
+        Storage storage = getConfiguration().getStorage(storageId);
+        Repository repository = storage.getRepository(repositoryId);
 
-        RemoteRepository remoteRepository = ((Repository)repository).getRemoteRepository();
+        RemoteRepository remoteRepository = ((RepositoryData)repository).getRemoteRepository();
         if (remoteRepository == null)
         {
             return;
@@ -353,7 +353,7 @@ public class NpmRepositoryFeatures implements RepositoryFeatures
         catch (Exception e)
         {
             logger.error(String.format("Failed to parse NPM feed [%s/%s]",
-                                       ((Repository)repository).getRemoteRepository().getUrl(),
+                                       ((RepositoryData)repository).getRemoteRepository().getUrl(),
                                        packageFeed.getName()),
                          e);
         }
@@ -387,9 +387,9 @@ public class NpmRepositoryFeatures implements RepositoryFeatures
             String storageId = event.getStorageId();
             String repositoryId = event.getRepositoryId();
 
-            StorageData storage = getConfiguration().getStorage(storageId);
-            RepositoryData repository = storage.getRepository(repositoryId);
-            RemoteRepository remoteRepository = ((Repository)repository).getRemoteRepository();
+            Storage storage = getConfiguration().getStorage(storageId);
+            Repository repository = storage.getRepository(repositoryId);
+            RemoteRepository remoteRepository = ((RepositoryData)repository).getRemoteRepository();
             if (remoteRepository == null)
             {
                 return;
@@ -445,9 +445,9 @@ public class NpmRepositoryFeatures implements RepositoryFeatures
             String storageId = event.getStorageId();
             String repositoryId = event.getRepositoryId();
 
-            StorageData storage = getConfiguration().getStorage(storageId);
-            RepositoryData repository = storage.getRepository(repositoryId);
-            RemoteRepository remoteRepository = ((Repository)repository).getRemoteRepository();
+            Storage storage = getConfiguration().getStorage(storageId);
+            Repository repository = storage.getRepository(repositoryId);
+            RemoteRepository remoteRepository = ((RepositoryData)repository).getRemoteRepository();
             if (remoteRepository == null)
             {
                 return;

@@ -14,7 +14,7 @@ import org.carlspring.strongbox.client.ArtifactTransportException;
 import org.carlspring.strongbox.config.Maven2LayoutProviderTestConfig;
 import org.carlspring.strongbox.providers.io.RepositoryPathResolver;
 import org.carlspring.strongbox.repository.IndexedMavenRepositoryFeatures;
-import org.carlspring.strongbox.storage.repository.RepositoryData;
+import org.carlspring.strongbox.storage.repository.Repository;
 import org.carlspring.strongbox.testing.MavenIndexedRepositorySetup;
 import org.carlspring.strongbox.testing.TestCaseWithMavenArtifactGenerationAndIndexing;
 import org.carlspring.strongbox.testing.artifact.ArtifactManagementTestExecutionListener;
@@ -57,8 +57,8 @@ public class Maven2ProxyRepositoryTest
     @Test
     @EnabledIf(expression = "#{containsObject('repositoryIndexManager')}", loadContext = true)
     @ExtendWith({RepositoryManagementTestExecutionListener.class, ArtifactManagementTestExecutionListener.class})
-    public void testRepositoryIndexFetching(@TestRepository(layout = LAYOUT_NAME, repositoryId = REPOSITORY_RELEASES, setup = MavenIndexedRepositorySetup.class) RepositoryData repository,
-                                            @TestRepository(layout = LAYOUT_NAME, repositoryId = REPOSITORY_PROXY, setup = MavenIndexedRepositorySetup.class) @Remote(url = PROXY_REPOSITORY_URL ) RepositoryData proxyRepository,
+    public void testRepositoryIndexFetching(@TestRepository(layout = LAYOUT_NAME, repositoryId = REPOSITORY_RELEASES, setup = MavenIndexedRepositorySetup.class) Repository repository,
+                                            @TestRepository(layout = LAYOUT_NAME, repositoryId = REPOSITORY_PROXY, setup = MavenIndexedRepositorySetup.class) @Remote(url = PROXY_REPOSITORY_URL ) Repository proxyRepository,
                                             @TestArtifact(repositoryId = REPOSITORY_RELEASES, resource = A1, generator = MavenArtifactGenerator.class) Path a1,
                                             @TestArtifact(repositoryId = REPOSITORY_RELEASES, resource = A2, generator = MavenArtifactGenerator.class) Path a2,
                                             @TestArtifact(repositoryId = REPOSITORY_RELEASES, resource = A3, generator = MavenArtifactGenerator.class) Path a3)

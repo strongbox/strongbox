@@ -15,8 +15,8 @@ import org.carlspring.strongbox.providers.repository.RepositoryProvider;
 import org.carlspring.strongbox.providers.repository.RepositoryProviderRegistry;
 import org.carlspring.strongbox.services.ArtifactResolutionService;
 import org.carlspring.strongbox.storage.ArtifactStorageException;
-import org.carlspring.strongbox.storage.StorageData;
-import org.carlspring.strongbox.storage.repository.RepositoryData;
+import org.carlspring.strongbox.storage.Storage;
+import org.carlspring.strongbox.storage.repository.Repository;
 import org.carlspring.strongbox.storage.validation.resource.ArtifactOperationsValidator;
 import org.springframework.stereotype.Component;
 
@@ -44,7 +44,7 @@ public class ArtifactResolutionServiceImpl
     public RepositoryInputStream getInputStream(RepositoryPath path)
         throws IOException
     {
-        RepositoryData repository = path.getFileSystem().getRepository();
+        Repository repository = path.getFileSystem().getRepository();
         artifactOperationsValidator.validate(path);
         
         RepositoryProvider repositoryProvider = repositoryProviderRegistry.getProvider(repository.getType());
@@ -58,7 +58,7 @@ public class ArtifactResolutionServiceImpl
     {
         artifactOperationsValidator.validate(repositoryPath);
 
-        RepositoryData repository = repositoryPath.getRepository();
+        Repository repository = repositoryPath.getRepository();
         RepositoryProvider repositoryProvider = repositoryProviderRegistry.getProvider(repository.getType());
 
         RepositoryOutputStream os = (RepositoryOutputStream) repositoryProvider.getOutputStream(repositoryPath);
@@ -70,7 +70,7 @@ public class ArtifactResolutionServiceImpl
         return os;
     }
 
-    public StorageData getStorage(String storageId)
+    public Storage getStorage(String storageId)
     {
         return configurationManager.getConfiguration().getStorage(storageId);
     }
@@ -83,7 +83,7 @@ public class ArtifactResolutionServiceImpl
     {        
         RepositoryPath repositoryPath = repositoryPathResolver.resolve(storageId, repositoryId, artifactPath);
 
-        RepositoryData repository = repositoryPath.getRepository();
+        Repository repository = repositoryPath.getRepository();
         RepositoryProvider repositoryProvider = repositoryProviderRegistry.getProvider(repository.getType());
         
         try

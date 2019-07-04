@@ -11,7 +11,7 @@ import java.lang.annotation.Target;
 import org.apache.maven.model.Repository;
 import org.carlspring.strongbox.artifact.coordinates.MavenArtifactCoordinates;
 import org.carlspring.strongbox.artifact.generator.MavenArtifactGenerator;
-import org.carlspring.strongbox.storage.StorageData;
+import org.carlspring.strongbox.storage.Storage;
 import org.springframework.core.annotation.AliasFor;
 
 /**
@@ -26,7 +26,7 @@ public @interface MavenTestArtifact
 {
 
     /**
-     * {@link StorageData} ID.
+     * {@link Storage} ID.
      */
     @AliasFor(annotation = TestArtifact.class)
     String storageId() default "storage0";

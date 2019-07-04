@@ -6,15 +6,15 @@ import java.util.Set;
 
 import javax.annotation.concurrent.Immutable;
 
-import org.carlspring.strongbox.users.dto.PathPrivilegesData;
+import org.carlspring.strongbox.users.dto.PathPrivileges;
 import org.carlspring.strongbox.users.dto.PathPrivilegesDto;
 
 /**
  * @author Przemyslaw Fusik
  */
 @Immutable
-public class PathPrivileges
-        implements Serializable, PathPrivilegesData
+public class PathPrivilegesData
+        implements Serializable, PathPrivileges
 {
 
     private final String path;
@@ -26,7 +26,7 @@ public class PathPrivileges
 
     private final Set<Privileges> privileges;
 
-    public PathPrivileges(final PathPrivilegesDto delegate)
+    public PathPrivilegesData(final PathPrivilegesDto delegate)
     {
         this.path = delegate.getPath();
         this.wildcard = delegate.isWildcard();

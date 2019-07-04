@@ -5,7 +5,7 @@ import java.util.LinkedHashMap;
 import java.util.Map;
 
 import org.carlspring.strongbox.storage.repository.RepositoryDto;
-import org.carlspring.strongbox.storage.repository.RepositoryData;
+import org.carlspring.strongbox.storage.repository.Repository;
 import org.springframework.util.CollectionUtils;
 
 import com.fasterxml.jackson.annotation.JsonCreator;
@@ -18,7 +18,7 @@ import com.fasterxml.jackson.annotation.JsonRootName;
  */
 @JsonRootName("storage")
 public class StorageDto
-        implements Serializable, StorageData
+        implements Serializable, Storage
 {
     private String id;
     
@@ -62,7 +62,7 @@ public class StorageDto
     }
 
     @Override
-    public Map<String, ? extends RepositoryData> getRepositories()
+    public Map<String, ? extends Repository> getRepositories()
     {
         return repositories;
     }

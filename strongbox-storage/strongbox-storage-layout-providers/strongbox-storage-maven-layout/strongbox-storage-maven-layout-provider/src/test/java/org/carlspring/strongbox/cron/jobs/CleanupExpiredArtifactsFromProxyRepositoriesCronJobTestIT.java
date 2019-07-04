@@ -7,8 +7,8 @@ import org.carlspring.strongbox.providers.io.RepositoryFiles;
 import org.carlspring.strongbox.providers.io.RepositoryPathResolver;
 import org.carlspring.strongbox.providers.repository.ProxyRepositoryProvider;
 import org.carlspring.strongbox.services.ArtifactEntryService;
-import org.carlspring.strongbox.storage.StorageData;
-import org.carlspring.strongbox.storage.repository.RepositoryData;
+import org.carlspring.strongbox.storage.Storage;
+import org.carlspring.strongbox.storage.repository.Repository;
 
 import javax.inject.Inject;
 import java.io.IOException;
@@ -133,8 +133,8 @@ public class CleanupExpiredArtifactsFromProxyRepositoriesCronJobTestIT
                                                                                                                                path));
                 assertThat(optionalArtifactEntryFromDb, CoreMatchers.equalTo(Optional.empty()));
 
-                final StorageData storage = getConfiguration().getStorage(artifactEntry.getStorageId());
-                final RepositoryData repository = storage.getRepository(artifactEntry.getRepositoryId());
+                final Storage storage = getConfiguration().getStorage(artifactEntry.getStorageId());
+                final Repository repository = storage.getRepository(artifactEntry.getRepositoryId());
 
                 try
                 {

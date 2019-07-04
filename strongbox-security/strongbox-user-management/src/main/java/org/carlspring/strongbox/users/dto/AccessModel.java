@@ -5,7 +5,7 @@ import java.util.Set;
 
 import org.carlspring.strongbox.users.domain.Privileges;
 
-public interface AccessModelData extends Serializable
+public interface AccessModel extends Serializable
 {
     Set<Privileges> getApiAuthorities();
 

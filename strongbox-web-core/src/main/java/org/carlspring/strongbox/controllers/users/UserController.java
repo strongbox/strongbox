@@ -6,7 +6,7 @@ import org.carlspring.strongbox.controllers.users.support.UserOutput;
 import org.carlspring.strongbox.controllers.users.support.UserResponseEntity;
 import org.carlspring.strongbox.forms.users.UserForm;
 import org.carlspring.strongbox.users.domain.Privileges;
-import org.carlspring.strongbox.users.domain.User;
+import org.carlspring.strongbox.users.domain.UserData;
 import org.carlspring.strongbox.users.dto.UserDto;
 import org.carlspring.strongbox.users.security.AuthoritiesProvider;
 import org.carlspring.strongbox.users.service.UserService;
@@ -95,7 +95,7 @@ public class UserController
         List<UserOutput> users = userService.findAll()
                                             .getUsers()
                                             .stream()
-                                            .sorted(Comparator.comparing(User::getUsername))
+                                            .sorted(Comparator.comparing(UserData::getUsername))
                                             .map(UserOutput::fromUser)
                                             .collect(Collectors.toList());
 
@@ -117,7 +117,7 @@ public class UserController
                                                 defaultValue = "false") Boolean includeFormFields,
                                   @RequestHeader(HttpHeaders.ACCEPT) String accept)
     {
-        User user = userService.findByUserName(username);
+        UserData user = userService.findByUserName(username);
         if (user == null)
         {
             return getNotFoundResponseEntity(NOT_FOUND_USER, accept);
@@ -223,7 +223,7 @@ public class UserController
             return getFailedResponseEntity(HttpStatus.FORBIDDEN, OWN_USER_DELETE_FORBIDDEN, accept);
         }
 
-        User user = userService.findByUserName(username);
+        UserData user = userService.findByUserName(username);
         if (user == null)
         {
             return getNotFoundResponseEntity(NOT_FOUND_USER, accept);
@@ -246,7 +246,7 @@ public class UserController
                                                 @RequestHeader(HttpHeaders.ACCEPT) String accept)
             throws JoseException
     {
-        User user = userService.findByUserName(username);
+        UserData user = userService.findByUserName(username);
         if (user == null)
         {
             return getNotFoundResponseEntity(NOT_FOUND_USER, accept);

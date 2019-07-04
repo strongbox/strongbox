@@ -2,8 +2,8 @@ package org.carlspring.strongbox.providers.io;
 
 import org.carlspring.strongbox.domain.ArtifactEntry;
 import org.carlspring.strongbox.io.ProxyPathInvocationHandler;
-import org.carlspring.strongbox.storage.StorageData;
-import org.carlspring.strongbox.storage.repository.RepositoryData;
+import org.carlspring.strongbox.storage.Storage;
+import org.carlspring.strongbox.storage.repository.Repository;
 import org.carlspring.strongbox.util.PathUtils;
 
 import java.io.File;
@@ -68,7 +68,7 @@ public class RepositoryPath
         return fileSystem;
     }
     
-    public RepositoryData getRepository()
+    public Repository getRepository()
     {
         return getFileSystem().getRepository();
     }
@@ -240,8 +240,8 @@ public class RepositoryPath
             thisPath = thisPath.toAbsolutePath();
         }
 
-        RepositoryData repository = getFileSystem().getRepository();
-        StorageData storage = repository.getStorage();
+        Repository repository = getFileSystem().getRepository();
+        Storage storage = repository.getStorage();
         URI result;
         try
         {

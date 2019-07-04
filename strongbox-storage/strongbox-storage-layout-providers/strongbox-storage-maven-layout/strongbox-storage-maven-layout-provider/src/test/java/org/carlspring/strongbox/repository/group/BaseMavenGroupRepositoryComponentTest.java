@@ -2,9 +2,9 @@ package org.carlspring.strongbox.repository.group;
 
 import org.carlspring.strongbox.providers.layout.Maven2LayoutProvider;
 import org.carlspring.strongbox.repository.RepositoryManagementStrategyException;
-import org.carlspring.strongbox.storage.StorageData;
+import org.carlspring.strongbox.storage.Storage;
 import org.carlspring.strongbox.storage.repository.RepositoryDto;
-import org.carlspring.strongbox.storage.repository.RepositoryData;
+import org.carlspring.strongbox.storage.repository.Repository;
 import org.carlspring.strongbox.storage.repository.RepositoryPolicyEnum;
 import org.carlspring.strongbox.storage.repository.RepositoryTypeEnum;
 import org.carlspring.strongbox.testing.TestCaseWithMavenArtifactGenerationAndIndexing;
@@ -90,9 +90,9 @@ public abstract class BaseMavenGroupRepositoryComponentTest
                                         String path)
             throws IOException
     {
-        final StorageData storage = getConfiguration().getStorage(STORAGE0);
+        final Storage storage = getConfiguration().getStorage(STORAGE0);
 
-        RepositoryData repository = storage.getRepository(sourceRepositoryId);
+        Repository repository = storage.getRepository(sourceRepositoryId);
         final Path sourcePath = repositoryPathResolver.resolve(repository, path);
 
         repository = storage.getRepository(destinationRepositoryId);

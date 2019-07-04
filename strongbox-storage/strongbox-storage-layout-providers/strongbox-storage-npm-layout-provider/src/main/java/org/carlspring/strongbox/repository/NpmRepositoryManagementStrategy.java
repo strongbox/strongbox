@@ -3,8 +3,8 @@ package org.carlspring.strongbox.repository;
 import org.carlspring.strongbox.cron.domain.CronTaskConfigurationDto;
 import org.carlspring.strongbox.cron.jobs.FetchRemoteNpmChangesFeedCronJob;
 import org.carlspring.strongbox.cron.services.CronTaskDataService;
-import org.carlspring.strongbox.storage.StorageData;
-import org.carlspring.strongbox.storage.repository.RepositoryData;
+import org.carlspring.strongbox.storage.Storage;
+import org.carlspring.strongbox.storage.repository.Repository;
 
 import javax.inject.Inject;
 
@@ -23,8 +23,8 @@ public class NpmRepositoryManagementStrategy
     private CronTaskDataService cronTaskDataService;
 
     @Override
-    protected void createRepositoryInternal(StorageData storage,
-                                            RepositoryData repository)
+    protected void createRepositoryInternal(Storage storage,
+                                            Repository repository)
         throws RepositoryManagementStrategyException
     {
         String storageId = storage.getId();

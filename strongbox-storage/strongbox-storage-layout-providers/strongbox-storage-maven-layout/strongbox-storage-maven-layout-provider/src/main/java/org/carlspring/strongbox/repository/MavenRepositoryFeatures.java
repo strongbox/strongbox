@@ -8,9 +8,9 @@ import org.carlspring.strongbox.locator.handlers.RemoveTimestampedSnapshotOperat
 import org.carlspring.strongbox.providers.io.RepositoryPath;
 import org.carlspring.strongbox.providers.io.RepositoryPathResolver;
 import org.carlspring.strongbox.storage.ArtifactStorageException;
-import org.carlspring.strongbox.storage.StorageData;
+import org.carlspring.strongbox.storage.Storage;
 import org.carlspring.strongbox.storage.metadata.MavenSnapshotManager;
-import org.carlspring.strongbox.storage.repository.RepositoryData;
+import org.carlspring.strongbox.storage.repository.Repository;
 import org.carlspring.strongbox.storage.repository.RepositoryPolicyEnum;
 import org.carlspring.strongbox.storage.validation.deployment.RedeploymentValidator;
 import org.carlspring.strongbox.storage.validation.version.MavenReleaseVersionValidator;
@@ -75,8 +75,8 @@ public class MavenRepositoryFeatures
                                            int keepPeriod)
             throws IOException
     {
-        StorageData storage = getConfiguration().getStorage(storageId);
-        RepositoryData repository = storage.getRepository(repositoryId);
+        Storage storage = getConfiguration().getStorage(storageId);
+        Repository repository = storage.getRepository(repositoryId);
 
         if (repository.getPolicy().equals(RepositoryPolicyEnum.SNAPSHOT.getPolicy()))
         {

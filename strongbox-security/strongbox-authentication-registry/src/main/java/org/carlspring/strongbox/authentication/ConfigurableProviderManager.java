@@ -21,7 +21,7 @@ import org.carlspring.strongbox.authentication.api.CustomAuthenticationItemMappe
 import org.carlspring.strongbox.authentication.registry.AuthenticationProvidersRegistry;
 import org.carlspring.strongbox.authentication.registry.AuthenticationProvidersRegistry.MergePropertiesContext;
 import org.carlspring.strongbox.authentication.support.AuthenticationConfigurationContext;
-import org.carlspring.strongbox.users.domain.User;
+import org.carlspring.strongbox.users.domain.UserData;
 import org.carlspring.strongbox.users.service.UserService;
 import org.carlspring.strongbox.users.service.impl.InMemoryUserService;
 import org.carlspring.strongbox.users.userdetails.StrongboxUserActualizer;
@@ -104,7 +104,7 @@ public class ConfigurableProviderManager extends ProviderManager implements User
     public UserDetails loadUserByUsername(String username)
         throws UsernameNotFoundException
     {
-        User user = loadUserDetails(username);
+        UserData user = loadUserDetails(username);
 
         if (user == null)
         {
@@ -114,9 +114,9 @@ public class ConfigurableProviderManager extends ProviderManager implements User
         return springSecurityUserMapper.apply(user);
     }
 
-    private User loadUserDetails(String username)
+    private UserData loadUserDetails(String username)
     {
-        User user = userService.findByUserName(username);
+        UserData user = userService.findByUserName(username);
 
         Date userLastUpdate = Optional.ofNullable(user)
                                       .flatMap(u -> Optional.ofNullable(u.getLastUpdate()))

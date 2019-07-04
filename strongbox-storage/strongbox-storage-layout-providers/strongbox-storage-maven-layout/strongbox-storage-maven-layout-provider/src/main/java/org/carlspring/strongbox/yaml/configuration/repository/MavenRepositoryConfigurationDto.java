@@ -12,7 +12,7 @@ import com.fasterxml.jackson.annotation.JsonTypeName;
  */
 @JsonTypeName(Maven2LayoutProvider.ALIAS)
 public class MavenRepositoryConfigurationDto
-        extends CustomRepositoryConfigurationDto implements MavenRepositoryConfigurationData
+        extends CustomRepositoryConfigurationDto implements MavenRepositoryConfiguration
 {
 
     private boolean indexingEnabled = false;
@@ -44,6 +44,6 @@ public class MavenRepositoryConfigurationDto
     @Override
     public CustomRepositoryConfiguration getImmutable()
     {
-        return new MavenRepositoryConfiguration(this);
+        return new MavenRepositoryConfigurationData(this);
     }
 }

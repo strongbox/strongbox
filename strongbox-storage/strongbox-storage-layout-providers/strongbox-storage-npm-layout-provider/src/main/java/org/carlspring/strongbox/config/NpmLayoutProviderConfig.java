@@ -10,7 +10,7 @@ import org.carlspring.strongbox.providers.layout.LayoutFileSystemProvider;
 import org.carlspring.strongbox.providers.layout.NpmFileSystem;
 import org.carlspring.strongbox.providers.layout.NpmFileSystemProvider;
 import org.carlspring.strongbox.providers.layout.NpmLayoutProvider;
-import org.carlspring.strongbox.storage.repository.RepositoryData;
+import org.carlspring.strongbox.storage.repository.Repository;
 
 import javax.inject.Inject;
 import javax.inject.Qualifier;
@@ -88,7 +88,7 @@ public class NpmLayoutProviderConfig
     @Bean
     @Scope("prototype")
     public NpmFileSystem npmRepositoryFileSystem(PropertiesBooter propertiesBooter,
-                                                 RepositoryData repository,
+                                                 Repository repository,
                                                  FileSystem storageFileSystem,
                                                  LayoutFileSystemProvider provider)
     {

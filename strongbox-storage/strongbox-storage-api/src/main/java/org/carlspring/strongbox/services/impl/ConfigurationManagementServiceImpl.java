@@ -226,12 +226,12 @@ public class ConfigurationManagementServiceImpl
     {
         modifyInLock(configuration ->
                      {
-                         List<RepositoryData> includedInGroupRepositories = getConfiguration().getGroupRepositoriesContaining(
+                         List<Repository> includedInGroupRepositories = getConfiguration().getGroupRepositoriesContaining(
                                  storageId, repositoryId);
 
                          if (!includedInGroupRepositories.isEmpty())
                          {
-                             for (RepositoryData repository : includedInGroupRepositories)
+                             for (Repository repository : includedInGroupRepositories)
                              {
                                  configuration.getStorage(repository.getStorage().getId())
                                               .getRepository(repository.getId())
@@ -351,7 +351,7 @@ public class ConfigurationManagementServiceImpl
                              {
                                  if (storage.getRepositories() != null && !storage.getRepositories().isEmpty())
                                  {
-                                     for (RepositoryData repository : storage.getRepositories().values())
+                                     for (Repository repository : storage.getRepositories().values())
                                      {
                                         RepositoryDto mutableRepository = (RepositoryDto)repository;
                                         if (repository.getType().equals(RepositoryTypeEnum.GROUP.getType()))
@@ -389,7 +389,7 @@ public class ConfigurationManagementServiceImpl
                              {
                                  if (storage.getRepositories() != null && !storage.getRepositories().isEmpty())
                                  {
-                                     for (RepositoryData repository : storage.getRepositories().values())
+                                     for (Repository repository : storage.getRepositories().values())
                                      {
                                          ((RepositoryDto)repository).setStorage(storage);
                                      }
@@ -412,7 +412,7 @@ public class ConfigurationManagementServiceImpl
                              {
                                  if (storage.getRepositories() != null && !storage.getRepositories().isEmpty())
                                  {
-                                     for (RepositoryData repository : storage.getRepositories().values())
+                                     for (Repository repository : storage.getRepositories().values())
                                      {
                                          LayoutProvider layoutProvider = layoutProviderRegistry.getProvider(
                                                  repository.getLayout());

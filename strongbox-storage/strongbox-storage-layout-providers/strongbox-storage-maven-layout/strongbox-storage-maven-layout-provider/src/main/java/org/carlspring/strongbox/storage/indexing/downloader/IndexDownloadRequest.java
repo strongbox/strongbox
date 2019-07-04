@@ -1,7 +1,7 @@
 package org.carlspring.strongbox.storage.indexing.downloader;
 
-import org.carlspring.strongbox.storage.repository.Repository;
 import org.carlspring.strongbox.storage.repository.RepositoryData;
+import org.carlspring.strongbox.storage.repository.Repository;
 
 import org.apache.maven.index.Indexer;
 
@@ -14,9 +14,9 @@ public class IndexDownloadRequest
 
     private final Indexer indexer;
 
-    private final RepositoryData repository;
+    private final Repository repository;
 
-    public IndexDownloadRequest(RepositoryData repository,
+    public IndexDownloadRequest(Repository repository,
                                 Indexer indexer)
     {
         this.repository = repository;
@@ -28,7 +28,7 @@ public class IndexDownloadRequest
         return indexer;
     }
 
-    public RepositoryData getRepository()
+    public Repository getRepository()
     {
         return repository;
     }
@@ -45,6 +45,6 @@ public class IndexDownloadRequest
 
     public String getRemoteRepositoryURL()
     {
-        return ((Repository)repository).getRemoteRepository().getUrl();
+        return ((RepositoryData)repository).getRemoteRepository().getUrl();
     }
 }

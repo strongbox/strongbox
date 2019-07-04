@@ -11,7 +11,7 @@ import org.carlspring.strongbox.providers.layout.LayoutProviderRegistry;
 import org.carlspring.strongbox.storage.metadata.comparators.SnapshotVersionComparator;
 import org.carlspring.strongbox.storage.metadata.comparators.VersionComparator;
 import org.carlspring.strongbox.storage.metadata.versions.MetadataVersion;
-import org.carlspring.strongbox.storage.repository.RepositoryData;
+import org.carlspring.strongbox.storage.repository.Repository;
 import org.carlspring.strongbox.storage.repository.RepositoryPolicyEnum;
 import org.carlspring.strongbox.storage.repository.UnknownRepositoryTypeException;
 
@@ -68,7 +68,7 @@ public class MavenMetadataManager
                    ProviderImplementationException
     {
         RepositoryPath repositoryPath = artifact.getPath();
-        RepositoryData repository = repositoryPath.getRepository();
+        Repository repository = repositoryPath.getRepository();
 
         LayoutProvider layoutProvider = getLayoutProvider(repository, layoutProviderRegistry);
         if (!RepositoryFiles.artifactExists(repositoryPath))
@@ -159,7 +159,7 @@ public class MavenMetadataManager
                    ProviderImplementationException,
                    UnknownRepositoryTypeException
     {
-        RepositoryData repository = artifactGroupDirectoryPath.getRepository();
+        Repository repository = artifactGroupDirectoryPath.getRepository();
         LayoutProvider layoutProvider = getLayoutProvider(repository, layoutProviderRegistry);
         if (!RepositoryFiles.artifactExists(artifactGroupDirectoryPath))
         {
@@ -354,7 +354,7 @@ public class MavenMetadataManager
                    ProviderImplementationException
     {
         RepositoryPath repositoryPath = artifact.getPath();
-        RepositoryData repository = repositoryPath.getRepository();
+        Repository repository = repositoryPath.getRepository();
 
         LayoutProvider layoutProvider = getLayoutProvider(repository, layoutProviderRegistry);
         if (!RepositoryFiles.artifactExists(repositoryPath))

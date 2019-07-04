@@ -10,7 +10,7 @@ import org.apache.maven.artifact.handler.DefaultArtifactHandler;
 import org.carlspring.strongbox.artifact.coordinates.ArtifactCoordinates;
 import org.carlspring.strongbox.artifact.coordinates.MockedMavenArtifactCoordinates;
 import org.carlspring.strongbox.providers.layout.Maven2LayoutProvider;
-import org.carlspring.strongbox.storage.repository.Repository;
+import org.carlspring.strongbox.storage.repository.RepositoryData;
 import org.carlspring.strongbox.storage.repository.RepositoryDto;
 import org.carlspring.strongbox.storage.repository.RepositoryPolicyEnum;
 import org.carlspring.strongbox.storage.validation.artifact.version.VersionValidationException;
@@ -42,7 +42,7 @@ public class MavenSnapshotVersionValidatorTest
     @Test
     public void shouldSupportRepository()
     {
-        assertTrue(validator.supports(new Repository(repository)));
+        assertTrue(validator.supports(new RepositoryData(repository)));
     }
 
     @Test
@@ -59,10 +59,10 @@ public class MavenSnapshotVersionValidatorTest
         ArtifactCoordinates coordinates5 = new MockedMavenArtifactCoordinates(validArtifact5);
         ArtifactCoordinates coordinates6 = new MockedMavenArtifactCoordinates(validArtifact6);
 
-        validator.validate(new Repository(repository), coordinates1);
-        validator.validate(new Repository(repository), coordinates4);
-        validator.validate(new Repository(repository), coordinates5);
-        validator.validate(new Repository(repository), coordinates6);
+        validator.validate(new RepositoryData(repository), coordinates1);
+        validator.validate(new RepositoryData(repository), coordinates4);
+        validator.validate(new RepositoryData(repository), coordinates5);
+        validator.validate(new RepositoryData(repository), coordinates6);
 
         // If we've gotten here without an exception, then things are alright.
     }
@@ -82,7 +82,7 @@ public class MavenSnapshotVersionValidatorTest
 
         try
         {
-            validator.validate(new Repository(repository), coordinates1);
+            validator.validate(new RepositoryData(repository), coordinates1);
 
             fail("Incorrectly validated artifact with version 1!");
         }
@@ -92,7 +92,7 @@ public class MavenSnapshotVersionValidatorTest
 
         try
         {
-            validator.validate(new Repository(repository), coordinates2);
+            validator.validate(new RepositoryData(repository), coordinates2);
 
             fail("Incorrectly validated artifact with version 1.0!");
         }
@@ -102,7 +102,7 @@ public class MavenSnapshotVersionValidatorTest
 
         try
         {
-            validator.validate(new Repository(repository), coordinates3);
+            validator.validate(new RepositoryData(repository), coordinates3);
 
             fail("Incorrectly validated artifact with version 1.0.1!");
         }
@@ -112,7 +112,7 @@ public class MavenSnapshotVersionValidatorTest
 
         try
         {
-            validator.validate(new Repository(repository), coordinates4);
+            validator.validate(new RepositoryData(repository), coordinates4);
 
             fail("Incorrectly validated artifact with version 1.0.1!");
         }

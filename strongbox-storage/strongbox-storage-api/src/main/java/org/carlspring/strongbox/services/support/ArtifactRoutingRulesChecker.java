@@ -3,7 +3,7 @@ package org.carlspring.strongbox.services.support;
 import org.carlspring.strongbox.configuration.ConfigurationManager;
 import org.carlspring.strongbox.providers.io.RepositoryFiles;
 import org.carlspring.strongbox.providers.io.RepositoryPath;
-import org.carlspring.strongbox.storage.repository.RepositoryData;
+import org.carlspring.strongbox.storage.repository.Repository;
 import org.carlspring.strongbox.storage.routing.RepositoryIdentifiable;
 import org.carlspring.strongbox.storage.routing.RoutingRule;
 import org.carlspring.strongbox.storage.routing.RoutingRules;
@@ -26,7 +26,7 @@ public class ArtifactRoutingRulesChecker
     @Inject
     private ConfigurationManager configurationManager;
 
-    public boolean isDenied(RepositoryData groupRepository,
+    public boolean isDenied(Repository groupRepository,
                             RepositoryPath repositoryPath)
             throws IOException
     {
@@ -38,14 +38,14 @@ public class ArtifactRoutingRulesChecker
                !fitsRoutingRules(groupRepository, repositoryPath, acceptRules);
     }
 
-    private boolean fitsRoutingRules(RepositoryData groupRepository,
+    private boolean fitsRoutingRules(Repository groupRepository,
                                      RepositoryPath repositoryPath,
                                      List<RoutingRule> routingRules)
             throws IOException
     {
 
         String artifactPath = RepositoryFiles.relativizePath(repositoryPath);
-        RepositoryData subRepository = repositoryPath.getRepository();
+        Repository subRepository = repositoryPath.getRepository();
 
         return routingRules.stream()
                            .filter(routingRule -> repositoryMatchesExactly(groupRepository, routingRule)
@@ -66,7 +66,7 @@ public class ArtifactRoutingRulesChecker
     }
 
 
-    private boolean repositoryMatchesExactly(RepositoryData repository,
+    private boolean repositoryMatchesExactly(Repository repository,
                                              RepositoryIdentifiable repositoryIdentifiable)
     {
         return StringUtils.trimToEmpty(repositoryIdentifiable.getStorageId()).equals(

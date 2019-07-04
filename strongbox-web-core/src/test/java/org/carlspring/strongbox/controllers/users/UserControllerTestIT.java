@@ -36,7 +36,7 @@ import org.carlspring.strongbox.controllers.users.support.UserResponseEntity;
 import org.carlspring.strongbox.forms.users.UserForm;
 import org.carlspring.strongbox.rest.common.RestAssuredBaseTest;
 import org.carlspring.strongbox.users.domain.SystemRole;
-import org.carlspring.strongbox.users.domain.User;
+import org.carlspring.strongbox.users.domain.UserData;
 import org.carlspring.strongbox.users.dto.UserDto;
 import org.carlspring.strongbox.users.service.UserService;
 import org.carlspring.strongbox.users.service.impl.StrongboxUserService.StrongboxUserServiceQualifier;
@@ -104,7 +104,7 @@ public class UserControllerTestIT
         user.setPassword("test-password");
         user.setSecurityTokenKey("before");
 
-        UserForm userForm = buildFromUser(new User(user), u -> u.setEnabled(true));
+        UserForm userForm = buildFromUser(new UserData(user), u -> u.setEnabled(true));
 
         // create new user
         given().contentType(MediaType.APPLICATION_JSON_VALUE)
@@ -120,7 +120,7 @@ public class UserControllerTestIT
                .asString();
 
         // retrieve newly created user and store the objectId
-        User createdUser = retrieveUserByName(user.getUsername());
+        UserData createdUser = retrieveUserByName(user.getUsername());
         assertEquals(username, createdUser.getUsername());
 
         // By default assignableRoles should not present in the response.
@@ -268,7 +268,7 @@ public class UserControllerTestIT
                .asString();
 
         // retrieve newly created user and store the objectId
-        User createdUser = retrieveUserByName(test.getUsername());
+        UserData createdUser = retrieveUserByName(test.getUsername());
         assertEquals(username, createdUser.getUsername());
 
         logger.info("Users before update: ->>>>>> ");
@@ -302,7 +302,7 @@ public class UserControllerTestIT
                              MediaType.TEXT_PLAIN_VALUE })
     void updateExistingUserWithNullPassword(String acceptHeader)
     {
-        User mavenUser = retrieveUserByName("deployer");
+        UserData mavenUser = retrieveUserByName("deployer");
         UserForm input = buildFromUser(mavenUser, null);
         input.setPassword(null);
 
@@ -318,7 +318,7 @@ public class UserControllerTestIT
                .extract()
                .asString();
 
-        User updatedUser = retrieveUserByName("deployer");
+        UserData updatedUser = retrieveUserByName("deployer");
 
         assertNotNull(updatedUser.getPassword());
         assertEquals(mavenUser.getPassword(), updatedUser.getPassword());
@@ -332,7 +332,7 @@ public class UserControllerTestIT
         UserDto newUserDto = new UserDto();
         newUserDto.setUsername("new-username-with-null-password");
 
-        User newUser = new User(newUserDto);
+        UserData newUser = new UserData(newUserDto);
         UserForm input = buildFromUser(newUser, null);
         input.setPassword(null);
 
@@ -348,7 +348,7 @@ public class UserControllerTestIT
                .extract()
                .asString();
 
-        User databaseCheck = retrieveUserByName(newUserDto.getUsername());
+        UserData databaseCheck = retrieveUserByName(newUserDto.getUsername());
 
         assertNull(databaseCheck);
     }
@@ -361,7 +361,7 @@ public class UserControllerTestIT
         UserDto newUserDto = new UserDto();
         newUserDto.setUsername("new-username-with-blank-password");
 
-        User newUser = new User(newUserDto);
+        UserData newUser = new UserData(newUserDto);
         UserForm input = buildFromUser(newUser, null);
         input.setPassword("         ");
 
@@ -377,7 +377,7 @@ public class UserControllerTestIT
                .extract()
                .asString();
 
-        User databaseCheck = retrieveUserByName(newUserDto.getUsername());
+        UserData databaseCheck = retrieveUserByName(newUserDto.getUsername());
 
         assertNull(databaseCheck);
     }
@@ -404,7 +404,7 @@ public class UserControllerTestIT
                .extract()
                .asString();
 
-        User updatedUser = retrieveUserByName(user.getUsername());
+        UserData updatedUser = retrieveUserByName(user.getUsername());
 
         assertEquals(username, updatedUser.getUsername());
         assertFalse(passwordEncoder.matches(newPassword, updatedUser.getPassword()));
@@ -429,7 +429,7 @@ public class UserControllerTestIT
 
         UserForm admin = buildUser(username, newPassword);
 
-        User updatedUser = retrieveUserByName(admin.getUsername());
+        UserData updatedUser = retrieveUserByName(admin.getUsername());
 
         assertTrue(SetUtils.isEqualSet(updatedUser.getRoles(), ImmutableSet.of(SystemRole.UI_MANAGER.name())));
 
@@ -516,7 +516,7 @@ public class UserControllerTestIT
                .extract()
                .asString();
 
-        User user = retrieveUserByName(input.getUsername());
+        UserData user = retrieveUserByName(input.getUsername());
 
         UserForm updatedUser = buildFromUser(user, null);
         updatedUser.setSecurityTokenKey("seecret");
@@ -569,7 +569,7 @@ public class UserControllerTestIT
                .extract()
                .asString();
 
-        User user = retrieveUserByName(input.getUsername());
+        UserData user = retrieveUserByName(input.getUsername());
 
         given().contentType(MediaType.APPLICATION_JSON_VALUE)
                .accept(MediaType.APPLICATION_JSON_VALUE)
@@ -663,7 +663,7 @@ public class UserControllerTestIT
         user.setPassword("test-password");
         user.setSecurityTokenKey("before");
 
-        UserForm userForm = buildFromUser(new User(user), u -> u.setEnabled(true));
+        UserForm userForm = buildFromUser(new UserData(user), u -> u.setEnabled(true));
 
         // create new user
         given().contentType(MediaType.APPLICATION_JSON_VALUE)
@@ -679,7 +679,7 @@ public class UserControllerTestIT
                 .asString();
 
         // retrieve newly created user and store the objectId
-        User createdUser = retrieveUserByName(user.getUsername());
+        UserData createdUser = retrieveUserByName(user.getUsername());
         assertEquals(username, createdUser.getUsername());
 
         deleteCreatedUser(username);
@@ -717,7 +717,7 @@ public class UserControllerTestIT
     }
 
     // get user from DB/cache directly
-    private User retrieveUserByName(String name)
+    private UserData retrieveUserByName(String name)
     {
         return userService.findByUserName(name);
     }
@@ -750,7 +750,7 @@ public class UserControllerTestIT
         return test;
     }
 
-    private UserForm buildFromUser(User user,
+    private UserForm buildFromUser(UserData user,
                                    Consumer<UserForm> operation)
     {
         UserForm dto = new UserForm();

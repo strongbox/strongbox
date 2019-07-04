@@ -3,7 +3,7 @@ package org.carlspring.strongbox.storage.repository;
 import org.carlspring.strongbox.configuration.MutableProxyConfiguration;
 import org.carlspring.strongbox.providers.datastore.FileSystemStorageProvider;
 import org.carlspring.strongbox.storage.StorageDto;
-import org.carlspring.strongbox.storage.StorageData;
+import org.carlspring.strongbox.storage.Storage;
 import org.carlspring.strongbox.storage.repository.remote.MutableRemoteRepository;
 import org.carlspring.strongbox.yaml.repository.CustomRepositoryConfigurationDto;
 
@@ -24,7 +24,7 @@ import com.fasterxml.jackson.annotation.JsonProperty;
  */
 @JsonIgnoreProperties(ignoreUnknown = true)
 public class RepositoryDto
-        implements Serializable, RepositoryData
+        implements Serializable, Repository
 {
 
     private String id;
@@ -280,7 +280,7 @@ public class RepositoryDto
         return RepositoryPolicyEnum.ofPolicy(getPolicy()).acceptsReleases();
     }
 
-    public StorageData getStorage()
+    public Storage getStorage()
     {
         return storage;
     }

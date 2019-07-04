@@ -1,7 +1,7 @@
 package org.carlspring.strongbox.testing.artifact;
 
 import org.carlspring.strongbox.artifact.generator.NpmArtifactGenerator;
-import org.carlspring.strongbox.storage.StorageData;
+import org.carlspring.strongbox.storage.Storage;
 
 import java.lang.annotation.Documented;
 import java.lang.annotation.Retention;
@@ -24,7 +24,7 @@ import static java.lang.annotation.RetentionPolicy.RUNTIME;
 public @interface NpmTestArtifact
 {
     /**
-     * {@link StorageData} ID.
+     * {@link Storage} ID.
      */
     @AliasFor(annotation = TestArtifact.class)
     String storageId() default "storage-npm";

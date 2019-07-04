@@ -33,8 +33,8 @@ import org.carlspring.strongbox.providers.io.RepositoryPath;
 import org.carlspring.strongbox.providers.io.StorageFileSystemProvider;
 import org.carlspring.strongbox.services.ArtifactEntryService;
 import org.carlspring.strongbox.storage.ArtifactResolutionException;
-import org.carlspring.strongbox.storage.StorageData;
-import org.carlspring.strongbox.storage.repository.RepositoryData;
+import org.carlspring.strongbox.storage.Storage;
+import org.carlspring.strongbox.storage.repository.Repository;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -290,7 +290,7 @@ public abstract class LayoutFileSystemProvider extends StorageFileSystemProvider
 
     private ArtifactEntry fetchArtifactEntry(RepositoryPath repositoryPath)
     {
-        RepositoryData repository = repositoryPath.getRepository();
+        Repository repository = repositoryPath.getRepository();
         String path;
         try
         {
@@ -311,8 +311,8 @@ public abstract class LayoutFileSystemProvider extends StorageFileSystemProvider
     public void deleteTrash(RepositoryPath path)
             throws IOException
     {
-        RepositoryData repository = path.getRepository();
-        StorageData storage = repository.getStorage();
+        Repository repository = path.getRepository();
+        Storage storage = repository.getStorage();
 
         logger.debug("Emptying trash for " + storage.getId() + ":" + repository.getId() + "...");
 
@@ -329,8 +329,8 @@ public abstract class LayoutFileSystemProvider extends StorageFileSystemProvider
     public void undelete(RepositoryPath path)
             throws IOException
     {
-        RepositoryData repository = path.getRepository();
-        StorageData storage = repository.getStorage();
+        Repository repository = path.getRepository();
+        Storage storage = repository.getStorage();
 
         logger.debug(String.format("Attempting to restore: path-[%s]; ", path));
         

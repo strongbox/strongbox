@@ -1,7 +1,7 @@
 package org.carlspring.strongbox.storage.validation.version;
 
 import org.carlspring.strongbox.artifact.coordinates.ArtifactCoordinates;
-import org.carlspring.strongbox.storage.repository.RepositoryData;
+import org.carlspring.strongbox.storage.repository.Repository;
 import org.carlspring.strongbox.storage.repository.RepositoryPolicyEnum;
 import org.carlspring.strongbox.storage.validation.artifact.ArtifactCoordinatesValidatorRegistry;
 import org.carlspring.strongbox.storage.validation.artifact.version.VersionValidationException;
@@ -54,7 +54,7 @@ public class MavenReleaseVersionValidator
     }
 
     @Override
-    public boolean supports(RepositoryData repository)
+    public boolean supports(Repository repository)
     {
         return MavenVersionValidator.super.supports(repository) &&
                RepositoryPolicyEnum.RELEASE.getPolicy().equals(repository.getPolicy());
@@ -67,7 +67,7 @@ public class MavenReleaseVersionValidator
      * 1.0-SNAPSHOT
      */
     @Override
-    public void validate(RepositoryData repository,
+    public void validate(Repository repository,
                          ArtifactCoordinates coordinates)
             throws VersionValidationException
     {

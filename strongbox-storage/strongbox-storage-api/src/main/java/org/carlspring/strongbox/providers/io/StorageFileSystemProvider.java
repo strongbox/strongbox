@@ -34,7 +34,7 @@ import java.util.function.Consumer;
 import java.util.stream.Collectors;
 
 import org.apache.commons.io.output.ProxyOutputStream;
-import org.carlspring.strongbox.storage.repository.RepositoryData;
+import org.carlspring.strongbox.storage.repository.Repository;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.util.FileSystemUtils;
@@ -306,7 +306,7 @@ public abstract class StorageFileSystemProvider
                                 boolean force)
         throws IOException
     {
-        RepositoryData repository = repositoryPath.getFileSystem().getRepository();
+        Repository repository = repositoryPath.getFileSystem().getRepository();
         if (!repository.isTrashEnabled() || RepositoryFiles.isTrash(repositoryPath))
         {
             Files.deleteIfExists(repositoryPath.getTarget());
@@ -329,7 +329,7 @@ public abstract class StorageFileSystemProvider
     public void undelete(RepositoryPath path)
         throws IOException
     {
-        RepositoryData repository = path.getFileSystem().getRepository();
+        Repository repository = path.getFileSystem().getRepository();
         if (!repository.isTrashEnabled())
         {
             return;
@@ -383,7 +383,7 @@ public abstract class StorageFileSystemProvider
     public void deleteTrash(RepositoryPath path)
         throws IOException
     {
-        RepositoryData repository = path.getFileSystem().getRepository();
+        Repository repository = path.getFileSystem().getRepository();
         if (!repository.isTrashEnabled())
         {
             return;

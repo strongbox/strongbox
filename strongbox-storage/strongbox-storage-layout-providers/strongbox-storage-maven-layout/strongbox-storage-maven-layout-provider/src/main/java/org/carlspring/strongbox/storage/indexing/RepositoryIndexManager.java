@@ -3,8 +3,8 @@ package org.carlspring.strongbox.storage.indexing;
 import org.carlspring.strongbox.config.MavenIndexerEnabledCondition;
 import org.carlspring.strongbox.configuration.Configuration;
 import org.carlspring.strongbox.configuration.ConfigurationManager;
-import org.carlspring.strongbox.storage.StorageData;
-import org.carlspring.strongbox.storage.repository.RepositoryData;
+import org.carlspring.strongbox.storage.Storage;
+import org.carlspring.strongbox.storage.repository.Repository;
 
 import javax.annotation.PreDestroy;
 import javax.inject.Inject;
@@ -82,8 +82,8 @@ public class RepositoryIndexManager
                                            String repositoryId)
             throws IOException
     {
-        StorageData storage = getConfiguration().getStorage(storageId);
-        RepositoryData repository = storage.getRepository(repositoryId);
+        Storage storage = getConfiguration().getStorage(storageId);
+        Repository repository = storage.getRepository(repositoryId);
 
         if (repository != null && repository.isProxyRepository())
         {

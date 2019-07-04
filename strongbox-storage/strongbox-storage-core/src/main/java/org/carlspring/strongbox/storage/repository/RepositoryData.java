@@ -1,63 +1,361 @@
 package org.carlspring.strongbox.storage.repository;
 
-import java.util.Set;
+import static org.carlspring.strongbox.util.CustomStreamCollectors.toLinkedHashMap;
 
+import java.util.Collections;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
+import java.util.stream.Collectors;
+
+import javax.annotation.concurrent.Immutable;
+import javax.xml.bind.annotation.XmlAccessType;
+import javax.xml.bind.annotation.XmlAccessorType;
+
+import org.carlspring.strongbox.configuration.MutableProxyConfiguration;
+import org.carlspring.strongbox.configuration.ProxyConfiguration;
+import org.carlspring.strongbox.json.MapValuesJsonSerializer;
+import org.carlspring.strongbox.json.StringArrayToMapJsonDeserializer;
 import org.carlspring.strongbox.storage.StorageData;
+import org.carlspring.strongbox.storage.Storage;
+import org.carlspring.strongbox.storage.repository.remote.MutableRemoteRepository;
+import org.carlspring.strongbox.storage.repository.remote.RemoteRepository;
+import org.carlspring.strongbox.yaml.repository.CustomRepositoryConfiguration;
+import org.carlspring.strongbox.yaml.repository.CustomRepositoryConfigurationDto;
 import org.carlspring.strongbox.yaml.repository.RepositoryConfiguration;
 
-public interface RepositoryData
+import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
+import com.fasterxml.jackson.databind.annotation.JsonSerialize;
+import com.google.common.collect.ImmutableList;
+import com.google.common.collect.ImmutableMap;
+
+import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
+
+/**
+ * @author Przemyslaw Fusik
+ */
+@Immutable
+@XmlAccessorType(XmlAccessType.FIELD)
+@SuppressFBWarnings(value = "AJCIP_FIELD_ISNT_FINAL_IN_IMMUTABLE_CLASS")
+public class RepositoryData
+        implements Repository
 {
 
-    String getId();
+    private String id;
 
-    String getBasedir();
+    private String basedir;
 
-    String getPolicy();
+    private String policy;
 
-    String getImplementation();
+    private String implementation;
 
-    String getLayout();
+    private String layout;
 
-    String getType();
+    private String type;
 
-    boolean isSecured();
+    private boolean secured;
 
-    String getStatus();
+    private String status;
 
-    long getArtifactMaxSize();
+    private long artifactMaxSize;
 
-    boolean isTrashEnabled();
+    private boolean trashEnabled;
 
-    boolean allowsForceDeletion();
+    private boolean allowsForceDeletion;
 
-    boolean allowsDeployment();
+    private boolean allowsDeployment;
 
-    boolean allowsRedeployment();
+    private boolean allowsRedeployment;
 
-    boolean allowsDeletion();
+    private boolean allowsDelete;
 
-    boolean allowsDirectoryBrowsing();
+    private boolean allowsDirectoryBrowsing;
 
-    boolean isChecksumHeadersEnabled();
+    private boolean checksumHeadersEnabled;
 
-    Set<String> getGroupRepositories();
+    private ProxyConfiguration proxyConfiguration;
 
-    Set<String> getArtifactCoordinateValidators();
+    private RemoteRepository remoteRepository;
 
-    StorageData getStorage();
+    private HttpConnectionPool httpConnectionPool;
 
-    boolean isHostedRepository();
+    private List<CustomConfiguration> customConfigurations;
 
-    boolean isProxyRepository();
+    private CustomRepositoryConfiguration repositoryConfiguration;
 
-    boolean isGroupRepository();
+    @JsonSerialize(using = MapValuesJsonSerializer.class)
+    @JsonDeserialize(using = StringArrayToMapJsonDeserializer.class)
+    private Map<String, String> groupRepositories;
 
-    boolean isInService();
+    @JsonSerialize(using = MapValuesJsonSerializer.class)
+    @JsonDeserialize(using = StringArrayToMapJsonDeserializer.class)
+    private Map<String, String> artifactCoordinateValidators;
 
-    boolean acceptsSnapshots();
+    @JsonIgnore
+    private Storage storage;
 
-    boolean acceptsReleases();
-    
-    RepositoryConfiguration getRepositoryConfiguration();
-    
+    RepositoryData()
+    {
+
+    }
+
+    public RepositoryData(final Repository delegate)
+    {
+        this(delegate, null);
+    }
+
+    public RepositoryData(final Repository delegate,
+                               final Storage storage)
+    {
+        this.id = delegate.getId();
+        this.policy = delegate.getPolicy();
+        this.implementation = delegate.getImplementation();
+        this.layout = delegate.getLayout();
+        this.type = delegate.getType();
+        this.secured = delegate.isSecured();
+        this.status = delegate.getStatus();
+        this.artifactMaxSize = delegate.getArtifactMaxSize();
+        this.trashEnabled = delegate.isTrashEnabled();
+        this.allowsForceDeletion = delegate.allowsForceDeletion();
+        this.allowsDeployment = delegate.allowsDeployment();
+        this.allowsRedeployment = delegate.allowsRedeployment();
+        this.allowsDelete = delegate.allowsDeletion();
+        this.allowsDirectoryBrowsing = delegate.allowsDirectoryBrowsing();
+        this.checksumHeadersEnabled = delegate.isChecksumHeadersEnabled();
+        
+        RepositoryDto mutableRepository = (RepositoryDto)delegate;
+        this.proxyConfiguration = immuteProxyConfiguration(mutableRepository.getProxyConfiguration());
+        this.remoteRepository = immuteRemoteRepository(mutableRepository.getRemoteRepository());
+        this.httpConnectionPool = immuteHttpConnectionPool(mutableRepository.getHttpConnectionPool());
+        this.customConfigurations = immuteCustomConfigurations(mutableRepository.getCustomConfigurations());
+        this.repositoryConfiguration = immuteCustomRepositoryConfiguration(mutableRepository.getRepositoryConfiguration());
+        
+        this.groupRepositories = immuteGroupRepositories(delegate.getGroupRepositories());
+        this.artifactCoordinateValidators = immuteArtifactCoordinateValidators(
+                delegate.getArtifactCoordinateValidators());
+        this.storage = storage != null ? storage : immuteStorage(delegate.getStorage());
+        this.basedir = delegate.getBasedir();
+    }
+
+    private ProxyConfiguration immuteProxyConfiguration(final MutableProxyConfiguration source)
+    {
+        return source != null ? new ProxyConfiguration(source) : null;
+    }
+
+    private RemoteRepository immuteRemoteRepository(final MutableRemoteRepository source)
+    {
+        return source != null ? new RemoteRepository(source) : null;
+    }
+
+    private Map<String, String> immuteGroupRepositories(final Set<String> source)
+    {
+        return source != null ? ImmutableMap.copyOf(source.stream().collect(toLinkedHashMap(e -> e, e -> e))) :
+               Collections.emptyMap();
+    }
+
+    private Storage immuteStorage(final Storage source)
+    {
+        return source != null ? new StorageData(source) : null;
+    }
+
+    private HttpConnectionPool immuteHttpConnectionPool(final MutableHttpConnectionPool source)
+    {
+        return source != null ? new HttpConnectionPool(source) : null;
+    }
+
+    private List<CustomConfiguration> immuteCustomConfigurations(final List<MutableCustomConfiguration> source)
+    {
+        return source != null ?
+               ImmutableList.copyOf(source.stream().map(MutableCustomConfiguration::getImmutable).collect(
+                       Collectors.toList())) : Collections.emptyList();
+    }
+
+    private CustomRepositoryConfiguration immuteCustomRepositoryConfiguration(final CustomRepositoryConfigurationDto source)
+    {
+        return source != null ? source.getImmutable() : null;
+    }
+
+
+    private Map<String, String> immuteArtifactCoordinateValidators(final Set<String> source)
+    {
+        return source != null ? ImmutableMap.copyOf(source.stream().collect(toLinkedHashMap(e -> e, e -> e))) :
+               Collections.emptyMap();
+    }
+
+    @Override
+    public String getId()
+    {
+        return id;
+    }
+
+    @Override
+    public String getBasedir()
+    {
+        return basedir;
+    }
+
+    @Override
+    public String getPolicy()
+    {
+        return policy;
+    }
+
+    @Override
+    public String getImplementation()
+    {
+        return implementation;
+    }
+
+    @Override
+    public String getLayout()
+    {
+        return layout;
+    }
+
+    @Override
+    public String getType()
+    {
+        return type;
+    }
+
+    @Override
+    public boolean isSecured()
+    {
+        return secured;
+    }
+
+    @Override
+    public String getStatus()
+    {
+        return status;
+    }
+
+    @Override
+    public long getArtifactMaxSize()
+    {
+        return artifactMaxSize;
+    }
+
+    @Override
+    public boolean isTrashEnabled()
+    {
+        return trashEnabled;
+    }
+
+    @Override
+    public boolean allowsForceDeletion()
+    {
+        return allowsForceDeletion;
+    }
+
+    @Override
+    public boolean allowsDeployment()
+    {
+        return allowsDeployment;
+    }
+
+    @Override
+    public boolean allowsRedeployment()
+    {
+        return allowsRedeployment;
+    }
+
+    @Override
+    public boolean allowsDeletion()
+    {
+        return allowsDelete;
+    }
+
+    @Override
+    public boolean allowsDirectoryBrowsing()
+    {
+        return allowsDirectoryBrowsing;
+    }
+
+    @Override
+    public boolean isChecksumHeadersEnabled()
+    {
+        return checksumHeadersEnabled;
+    }
+
+    public ProxyConfiguration getProxyConfiguration()
+    {
+        return proxyConfiguration;
+    }
+
+    public RemoteRepository getRemoteRepository()
+    {
+        return remoteRepository;
+    }
+
+    public HttpConnectionPool getHttpConnectionPool()
+    {
+        return httpConnectionPool;
+    }
+
+    public List<CustomConfiguration> getCustomConfigurations()
+    {
+        return customConfigurations;
+    }
+
+    public RepositoryConfiguration getRepositoryConfiguration()
+    {
+        return repositoryConfiguration;
+    }
+
+    @Override
+    public Set<String> getGroupRepositories()
+    {
+        return groupRepositories.keySet();
+    }
+
+    @Override
+    public Set<String> getArtifactCoordinateValidators()
+    {
+        return artifactCoordinateValidators.keySet();
+    }
+
+    @Override
+    public Storage getStorage()
+    {
+        return storage;
+    }
+
+    @Override
+    public boolean isHostedRepository()
+    {
+        return RepositoryTypeEnum.HOSTED.getType().equals(type);
+    }
+
+    @Override
+    public boolean isProxyRepository()
+    {
+        return RepositoryTypeEnum.PROXY.getType().equals(type);
+    }
+
+    @Override
+    public boolean isGroupRepository()
+    {
+        return RepositoryTypeEnum.GROUP.getType().equals(type);
+    }
+
+    @Override
+    public boolean isInService()
+    {
+        return RepositoryStatusEnum.IN_SERVICE.getStatus().equalsIgnoreCase(getStatus());
+    }
+
+    @Override
+    public boolean acceptsSnapshots()
+    {
+        return RepositoryPolicyEnum.ofPolicy(getPolicy()).acceptsSnapshots();
+    }
+
+    @Override
+    public boolean acceptsReleases()
+    {
+        return RepositoryPolicyEnum.ofPolicy(getPolicy()).acceptsReleases();
+    }
+
 }

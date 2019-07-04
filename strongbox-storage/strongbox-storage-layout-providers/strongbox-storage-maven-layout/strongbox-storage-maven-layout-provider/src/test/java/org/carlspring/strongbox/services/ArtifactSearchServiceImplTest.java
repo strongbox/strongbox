@@ -4,7 +4,7 @@ import org.carlspring.strongbox.config.Maven2LayoutProviderTestConfig;
 import org.carlspring.strongbox.providers.layout.Maven2LayoutProvider;
 import org.carlspring.strongbox.providers.search.MavenIndexerSearchProvider;
 import org.carlspring.strongbox.repository.IndexedMavenRepositoryFeatures;
-import org.carlspring.strongbox.storage.repository.RepositoryData;
+import org.carlspring.strongbox.storage.repository.Repository;
 import org.carlspring.strongbox.storage.search.SearchRequest;
 import org.carlspring.strongbox.testing.MavenIndexedRepositorySetup;
 import org.carlspring.strongbox.testing.TestCaseWithMavenArtifactGenerationAndIndexing;
@@ -49,7 +49,7 @@ public class ArtifactSearchServiceImplTest
     @ExtendWith({ RepositoryManagementTestExecutionListener.class, ArtifactManagementTestExecutionListener.class })
     public void testContains(@TestRepository(repositoryId = REPOSITORYID,
                                              layout = Maven2LayoutProvider.ALIAS,
-                                             setup = MavenIndexedRepositorySetup.class) RepositoryData repository,
+                                             setup = MavenIndexedRepositorySetup.class) Repository repository,
                              @MavenTestArtifact(repositoryId = REPOSITORYID,
                                                 id = "org.carlspring.strongbox:strongbox-utils",
                                                 versions = { "1.0.1", "1.1.1", "1.2.1" }) List<Path> paths)

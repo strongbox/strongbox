@@ -1,6 +1,6 @@
 package org.carlspring.strongbox.providers.io;
 
-import org.carlspring.strongbox.storage.repository.RepositoryData;
+import org.carlspring.strongbox.storage.repository.Repository;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -42,12 +42,12 @@ public class RepositoryFileSystemRegistry
         return alias.replace(factoryClass.getSimpleName(), "").substring(1);
     }
 
-    public LayoutFileSystemFactory lookupRepositoryFileSystemFactory(RepositoryData r)
+    public LayoutFileSystemFactory lookupRepositoryFileSystemFactory(Repository r)
     {
         return fileSystemFactoryMap.get(r.getLayout());
     }
 
-    public LayoutFileSystemProviderFactory lookupRepositoryFileSystemProviderFactory(RepositoryData r)
+    public LayoutFileSystemProviderFactory lookupRepositoryFileSystemProviderFactory(Repository r)
     {
         return fileSystemProviderFactoryMap.get(r.getLayout());
     }

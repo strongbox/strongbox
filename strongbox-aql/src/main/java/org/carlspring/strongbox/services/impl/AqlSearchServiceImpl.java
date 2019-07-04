@@ -20,7 +20,7 @@ import org.carlspring.strongbox.providers.io.RepositoryFiles;
 import org.carlspring.strongbox.providers.io.RepositoryPath;
 import org.carlspring.strongbox.providers.io.RepositoryPathResolver;
 import org.carlspring.strongbox.services.AqlSearchService;
-import org.carlspring.strongbox.storage.repository.RepositoryData;
+import org.carlspring.strongbox.storage.repository.Repository;
 import org.carlspring.strongbox.storage.search.SearchResult;
 import org.carlspring.strongbox.storage.search.SearchResults;
 import org.springframework.stereotype.Component;
@@ -59,7 +59,7 @@ public class AqlSearchServiceImpl implements AqlSearchService
                                                                            artifactEntry.getRepositoryId(),
                                                                            artifactEntry.getArtifactPath());
 
-            RepositoryData repository = repositoryPath.getRepository();
+            Repository repository = repositoryPath.getRepository();
 
             URL artifactResource = RepositoryFiles.readResourceUrl(repositoryPath);
             r.setUrl(artifactResource.toString());

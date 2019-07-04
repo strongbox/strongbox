@@ -17,20 +17,20 @@ import com.google.common.collect.ImmutableSet;
 public class Users
 {
 
-    private final Set<User> users;
+    private final Set<UserData> users;
 
     public Users(final UsersDto source)
     {
         this.users = immuteUsers(source.getUsers());
     }
 
-    private Set<User> immuteUsers(final Set<UserDto> source)
+    private Set<UserData> immuteUsers(final Set<UserDto> source)
     {
-        return source != null ? ImmutableSet.copyOf(source.stream().map(User::new).collect(
+        return source != null ? ImmutableSet.copyOf(source.stream().map(UserData::new).collect(
                 Collectors.toSet())) : Collections.emptySet();
     }
 
-    public Set<User> getUsers()
+    public Set<UserData> getUsers()
     {
         return users;
     }

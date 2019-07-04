@@ -16,7 +16,7 @@ import com.fasterxml.jackson.annotation.JsonProperty;
  * @author Przemyslaw Fusik
  */
 public class RepositoryPrivilegesDto
-        implements Serializable, RepositoryPrivilegesData
+        implements Serializable, RepositoryPrivileges
 {
     @JsonProperty("repositoryId")
     private String repositoryId;

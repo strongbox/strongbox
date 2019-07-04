@@ -4,9 +4,9 @@ import org.carlspring.strongbox.configuration.MutableConfiguration;
 import org.carlspring.strongbox.configuration.MutableProxyConfiguration;
 import org.carlspring.strongbox.forms.configuration.RepositoryForm;
 import org.carlspring.strongbox.forms.configuration.StorageForm;
-import org.carlspring.strongbox.storage.Storage;
 import org.carlspring.strongbox.storage.StorageData;
-import org.carlspring.strongbox.storage.repository.Repository;
+import org.carlspring.strongbox.storage.Storage;
+import org.carlspring.strongbox.storage.repository.RepositoryData;
 import org.carlspring.strongbox.yaml.CustomYAMLMapperFactory;
 import org.carlspring.strongbox.yaml.ObjectMapperSubtypes;
 import org.carlspring.strongbox.yaml.YAMLMapperFactory;
@@ -300,7 +300,7 @@ public class RestClient
      * @return
      * @throws IOException
      */
-    public StorageData getStorage(String storageId)
+    public Storage getStorage(String storageId)
             throws JAXBException
     {
         String url = getContextBaseUrl() + "/api/configuration/strongbox/storages/" + storageId;
@@ -310,10 +310,10 @@ public class RestClient
 
         final Response response = resource.request(MediaType.APPLICATION_JSON).get();
 
-        Storage storage = null;
+        StorageData storage = null;
         if (response.getStatus() == 200)
         {
-            storage = response.readEntity(Storage.class);
+            storage = response.readEntity(StorageData.class);
         }
         else
         {
@@ -392,7 +392,7 @@ public class RestClient
      * @return
      * @throws java.io.IOException
      */
-    public Repository getRepository(String storageId,
+    public RepositoryData getRepository(String storageId,
                                              String repositoryId)
             throws JAXBException
     {
@@ -403,10 +403,10 @@ public class RestClient
 
         final Response response = resource.request(MediaType.APPLICATION_JSON).get();
 
-        Repository repository = null;
+        RepositoryData repository = null;
         if (response.getStatus() == 200)
         {
-            repository = response.readEntity(Repository.class);
+            repository = response.readEntity(RepositoryData.class);
         }
         else
         {

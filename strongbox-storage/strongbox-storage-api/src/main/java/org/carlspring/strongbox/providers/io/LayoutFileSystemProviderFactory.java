@@ -1,7 +1,7 @@
 package org.carlspring.strongbox.providers.io;
 
 import org.carlspring.strongbox.providers.layout.LayoutFileSystemProvider;
-import org.carlspring.strongbox.storage.repository.RepositoryData;
+import org.carlspring.strongbox.storage.repository.Repository;
 
 /**
  * @author sbespalov
@@ -11,6 +11,6 @@ import org.carlspring.strongbox.storage.repository.RepositoryData;
 public interface LayoutFileSystemProviderFactory
 {
 
-    LayoutFileSystemProvider create(RepositoryData repository);
+    LayoutFileSystemProvider create(Repository repository);
 
 }

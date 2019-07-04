@@ -9,7 +9,7 @@ import java.nio.file.Path;
 import org.carlspring.strongbox.artifact.generator.MavenArtifactGenerator;
 import org.carlspring.strongbox.config.IntegrationTest;
 import org.carlspring.strongbox.rest.common.MavenRestAssuredBaseTest;
-import org.carlspring.strongbox.storage.repository.RepositoryData;
+import org.carlspring.strongbox.storage.repository.Repository;
 import org.carlspring.strongbox.testing.artifact.ArtifactManagementTestExecutionListener;
 import org.carlspring.strongbox.testing.artifact.TestArtifact;
 import org.carlspring.strongbox.testing.storage.repository.RepositoryManagementTestExecutionListener;
@@ -41,7 +41,7 @@ public class AqlControllerTest extends MavenRestAssuredBaseTest
     
     @Test
     @ExtendWith({RepositoryManagementTestExecutionListener.class, ArtifactManagementTestExecutionListener.class})
-    public void testSearchExcludeVersion(@TestRepository(storageId = S1, repositoryId = R1, layout = LAYOUT_NAME) RepositoryData repository,
+    public void testSearchExcludeVersion(@TestRepository(storageId = S1, repositoryId = R1, layout = LAYOUT_NAME) Repository repository,
                                          @TestArtifact(storageId = S1, repositoryId = R1, resource = A1, generator = MavenArtifactGenerator.class) Path artifact1,
                                          @TestArtifact(storageId = S1, repositoryId = R1, resource = A2, generator = MavenArtifactGenerator.class) Path artifact2,
                                          @TestArtifact(storageId = S1, repositoryId = R1, resource = A3, generator = MavenArtifactGenerator.class) Path artifact3)
@@ -75,7 +75,7 @@ public class AqlControllerTest extends MavenRestAssuredBaseTest
 
     @Test
     @ExtendWith({RepositoryManagementTestExecutionListener.class, ArtifactManagementTestExecutionListener.class})
-    public void testSearchValidMavenCoordinates(@TestRepository(storageId = S1, repositoryId = R1, layout = LAYOUT_NAME) RepositoryData repository,
+    public void testSearchValidMavenCoordinates(@TestRepository(storageId = S1, repositoryId = R1, layout = LAYOUT_NAME) Repository repository,
                                                 @TestArtifact(storageId = S1, repositoryId = R1, resource = A1, generator = MavenArtifactGenerator.class) Path artifact1,
                                                 @TestArtifact(storageId = S1, repositoryId = R1, resource = A2, generator = MavenArtifactGenerator.class) Path artifact2,
                                                 @TestArtifact(storageId = S1, repositoryId = R1, resource = A3, generator = MavenArtifactGenerator.class) Path artifact3)

@@ -6,7 +6,7 @@ import java.util.List;
 import java.util.Set;
 import java.util.stream.Collectors;
 
-import org.carlspring.strongbox.authorization.domain.Role;
+import org.carlspring.strongbox.authorization.domain.RoleData;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
 
@@ -44,10 +44,10 @@ public class UserResponseEntity
         return assignableRoles;
     }
 
-    public void setAssignableRoles(Set<Role> assignableRoles)
+    public void setAssignableRoles(Set<RoleData> assignableRoles)
     {
         this.assignableRoles = assignableRoles.stream()
-                                              .sorted(Comparator.comparing(Role::getName))
+                                              .sorted(Comparator.comparing(RoleData::getName))
                                               .map(AssignableRoleOutput::fromRole)
                                               .collect(Collectors.toCollection(ArrayList::new));
     }

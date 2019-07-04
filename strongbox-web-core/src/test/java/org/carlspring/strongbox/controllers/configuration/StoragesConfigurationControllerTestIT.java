@@ -6,11 +6,11 @@ import org.carlspring.strongbox.forms.configuration.*;
 import org.carlspring.strongbox.providers.layout.Maven2LayoutProvider;
 import org.carlspring.strongbox.rest.common.RestAssuredBaseTest;
 import org.carlspring.strongbox.service.ProxyRepositoryConnectionPoolConfigurationService;
-import org.carlspring.strongbox.storage.Storage;
 import org.carlspring.strongbox.storage.StorageData;
-import org.carlspring.strongbox.storage.repository.Repository;
+import org.carlspring.strongbox.storage.Storage;
 import org.carlspring.strongbox.storage.repository.RepositoryData;
-import org.carlspring.strongbox.yaml.configuration.repository.MavenRepositoryConfigurationData;
+import org.carlspring.strongbox.storage.repository.Repository;
+import org.carlspring.strongbox.yaml.configuration.repository.MavenRepositoryConfiguration;
 
 import javax.inject.Inject;
 import java.nio.file.Files;
@@ -187,7 +187,7 @@ public class StoragesConfigurationControllerTestIT
                      .statusCode(OK)
                      .body(containsString(SUCCESSFUL_SAVE_STORAGE));
 
-        StorageData storage = getStorage(storageId);
+        Storage storage = getStorage(storageId);
 
         assertNotNull(storage, "Failed to get storage (" + storageId + ")!");
         assertEquals(storage.getBasedir(), storage1.getBasedir());
@@ -302,9 +302,9 @@ public class StoragesConfigurationControllerTestIT
         addRepository(repositoryForm0_1, storage0);
         addRepository(repositoryForm0_2, storage0);
 
-        StorageData storage = getStorage(storageId);
-        RepositoryData repository0 = storage.getRepositories().get(repositoryForm0_1.getId());
-        RepositoryData repository1 = storage.getRepositories().get(repositoryForm0_2.getId());
+        Storage storage = getStorage(storageId);
+        Repository repository0 = storage.getRepositories().get(repositoryForm0_1.getId());
+        Repository repository1 = storage.getRepositories().get(repositoryForm0_2.getId());
 
         Set<String> groupRepositoriesMap = repository0.getGroupRepositories();
         Set<String> groupRepositoriesMapExpected = new LinkedHashSet<>();
@@ -317,16 +317,16 @@ public class StoragesConfigurationControllerTestIT
                    "Failed to get storage (" + storageId + ")!");
         assertTrue(repository0.isSecured(),
                    "Failed to get storage (" + storageId + ")!");
-        assertNotNull(((Repository) repository0).getRepositoryConfiguration(),
+        assertNotNull(((RepositoryData) repository0).getRepositoryConfiguration(),
                       "Failed to get storage (" + storageId + ")!");
         assertTrue(
-                ((Repository) repository0).getRepositoryConfiguration() instanceof MavenRepositoryConfigurationData,
+                ((RepositoryData) repository0).getRepositoryConfiguration() instanceof MavenRepositoryConfiguration,
                 "Failed to get storage (" + storageId + ")!");
         assertTrue(
-                ((MavenRepositoryConfigurationData) ((Repository) repository0).getRepositoryConfiguration()).isIndexingEnabled(),
+                ((MavenRepositoryConfiguration) ((RepositoryData) repository0).getRepositoryConfiguration()).isIndexingEnabled(),
                 "Failed to get storage (" + storageId + ")!");
         assertFalse(
-                ((MavenRepositoryConfigurationData) ((Repository) repository0).getRepositoryConfiguration()).isIndexingClassNamesEnabled(),
+                ((MavenRepositoryConfiguration) ((RepositoryData) repository0).getRepositoryConfiguration()).isIndexingClassNamesEnabled(),
                 "Failed to get storage (" + storageId + ")!");
         assertEquals(groupRepositoriesMapExpected, groupRepositoriesMap);
 
@@ -334,10 +334,10 @@ public class StoragesConfigurationControllerTestIT
                    "Failed to get storage (" + storageId + ")!");
         assertTrue(repository1.isTrashEnabled(),
                    "Failed to get storage (" + storageId + ")!");
-        assertNotNull(((Repository) repository1).getProxyConfiguration().getHost(),
+        assertNotNull(((RepositoryData) repository1).getProxyConfiguration().getHost(),
                       "Failed to get storage (" + storageId + ")!");
         assertEquals("localhost",
-                     ((Repository) repository1).getProxyConfiguration().getHost(),
+                     ((RepositoryData) repository1).getProxyConfiguration().getHost(),
                      "Failed to get storage (" + storageId + ")!");
 
         PoolStats poolStatsRepository2 = proxyRepositoryConnectionPoolConfigurationService.getPoolStats(
@@ -408,7 +408,7 @@ public class StoragesConfigurationControllerTestIT
                      .statusCode(404);
     }
 
-    private StorageData getStorage(String storageId)
+    private Storage getStorage(String storageId)
     {
         String url = getContextBaseUrl() + "/" + storageId;
 
@@ -416,7 +416,7 @@ public class StoragesConfigurationControllerTestIT
                             .when()
                             .get(url)
                             .prettyPeek()
-                            .as(Storage.class);
+                            .as(StorageData.class);
     }
 
     private void addRepository(RepositoryForm repository,
@@ -547,7 +547,7 @@ public class StoragesConfigurationControllerTestIT
                      .then()
                      .statusCode(OK);
 
-        StorageData storage = getStorage(storageId);
+        Storage storage = getStorage(storageId);
 
         assertNotNull(storage, "Failed to get storage (" + storageId + ")!");
         assertFalse(storage.getRepositories().isEmpty(), "Failed to get storage (" + storageId + ")!");
@@ -607,7 +607,7 @@ public class StoragesConfigurationControllerTestIT
                      .statusCode(OK)
                      .body(containsString(SUCCESSFUL_SAVE_STORAGE));
 
-        StorageData storage = getStorage(storageId);
+        Storage storage = getStorage(storageId);
         assertNotNull(storage, "Failed to get storage (" + storageId + ")!");
 
         // Storage basedir will be created only when repository created.

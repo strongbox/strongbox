@@ -4,8 +4,8 @@ import java.util.Collection;
 import java.util.Set;
 import java.util.stream.Collectors;
 
-import org.carlspring.strongbox.authorization.dto.RoleData;
-import org.carlspring.strongbox.users.domain.AccessModel;
+import org.carlspring.strongbox.authorization.dto.Role;
+import org.carlspring.strongbox.users.domain.AccessModelData;
 import org.carlspring.strongbox.users.domain.Privileges;
 import org.springframework.security.core.userdetails.UserDetails;
 
@@ -21,7 +21,7 @@ public class SpringSecurityUser
 
     private boolean enabled;
 
-    private Set<RoleData> roles;
+    private Set<Role> roles;
 
     private String url;
 
@@ -78,12 +78,12 @@ public class SpringSecurityUser
         this.enabled = enabled;
     }
 
-    public Set<RoleData> getRoles()
+    public Set<Role> getRoles()
     {
         return roles;
     }
 
-    public void setRoles(Set<RoleData> roles)
+    public void setRoles(Set<Role> roles)
     {
         this.roles = roles;
     }

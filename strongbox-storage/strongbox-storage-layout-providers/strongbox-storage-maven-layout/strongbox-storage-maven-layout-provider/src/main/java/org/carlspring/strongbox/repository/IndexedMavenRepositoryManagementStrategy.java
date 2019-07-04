@@ -7,12 +7,12 @@ import org.carlspring.strongbox.cron.jobs.RebuildMavenIndexesCronJob;
 import org.carlspring.strongbox.cron.services.CronTaskDataService;
 import org.carlspring.strongbox.providers.io.RepositoryPath;
 import org.carlspring.strongbox.providers.io.RepositoryPathResolver;
-import org.carlspring.strongbox.storage.StorageData;
+import org.carlspring.strongbox.storage.Storage;
 import org.carlspring.strongbox.storage.indexing.IndexTypeEnum;
 import org.carlspring.strongbox.storage.indexing.RepositoryIndexManager;
 import org.carlspring.strongbox.storage.indexing.RepositoryIndexer;
 import org.carlspring.strongbox.storage.indexing.RepositoryIndexerFactory;
-import org.carlspring.strongbox.storage.repository.RepositoryData;
+import org.carlspring.strongbox.storage.repository.Repository;
 
 import javax.inject.Inject;
 import java.io.IOException;
@@ -46,7 +46,7 @@ public class IndexedMavenRepositoryManagementStrategy
     private RepositoryPathResolver repositoryPathResolver;
 
     @Override
-    protected void createRepositoryInternal(StorageData storage, RepositoryData repository)
+    protected void createRepositoryInternal(Storage storage, Repository repository)
             throws IOException, RepositoryManagementStrategyException
     {
         if (repositoryFeatures.isIndexingEnabled(repository))
@@ -78,8 +78,8 @@ public class IndexedMavenRepositoryManagementStrategy
                                  String repositoryId)
         throws IOException
     {
-        StorageData storage = getStorage(storageId);
-        RepositoryData repository = storage.getRepository(repositoryId);
+        Storage storage = getStorage(storageId);
+        Repository repository = storage.getRepository(repositoryId);
         if (repository.isProxyRepository())
         {
             String remoteContextId = storageId + ":" + repositoryId + ":" + IndexTypeEnum.REMOTE.getType();
@@ -165,7 +165,7 @@ public class IndexedMavenRepositoryManagementStrategy
     }
 
     @Override
-    public void createRepositoryStructure(final RepositoryData repository)
+    public void createRepositoryStructure(final Repository repository)
             throws IOException
     {
         super.createRepositoryStructure(repository);

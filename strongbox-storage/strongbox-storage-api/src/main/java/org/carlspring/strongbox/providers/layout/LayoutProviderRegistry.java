@@ -5,8 +5,8 @@ import org.carlspring.strongbox.configuration.ConfigurationManager;
 import org.carlspring.strongbox.providers.AbstractMappedProviderRegistry;
 import org.carlspring.strongbox.providers.ProviderImplementationException;
 import org.carlspring.strongbox.services.ConfigurationManagementService;
-import org.carlspring.strongbox.storage.StorageData;
-import org.carlspring.strongbox.storage.repository.RepositoryData;
+import org.carlspring.strongbox.storage.Storage;
+import org.carlspring.strongbox.storage.repository.Repository;
 
 import javax.annotation.PostConstruct;
 import javax.inject.Inject;
@@ -36,7 +36,7 @@ public class LayoutProviderRegistry
     @Inject
     private Optional<List<LayoutProvider>> layoutProviders;
 
-    public static LayoutProvider getLayoutProvider(RepositoryData repository,
+    public static LayoutProvider getLayoutProvider(Repository repository,
                                                    LayoutProviderRegistry layoutProviderRegistry)
             throws ProviderImplementationException
     {
@@ -56,7 +56,7 @@ public class LayoutProviderRegistry
         return configurationManager.getConfiguration();
     }
 
-    public StorageData getStorage(String storageId)
+    public Storage getStorage(String storageId)
     {
         return configurationManager.getConfiguration().getStorage(storageId);
     }

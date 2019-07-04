@@ -2,35 +2,35 @@ package org.carlspring.strongbox.authorization.domain;
 
 import javax.annotation.concurrent.Immutable;
 
-import org.carlspring.strongbox.authorization.dto.RoleData;
+import org.carlspring.strongbox.authorization.dto.Role;
 import org.carlspring.strongbox.authorization.dto.RoleDto;
-import org.carlspring.strongbox.users.domain.AccessModel;
-import org.carlspring.strongbox.users.dto.AccessModelData;
+import org.carlspring.strongbox.users.domain.AccessModelData;
+import org.carlspring.strongbox.users.dto.AccessModel;
 import org.carlspring.strongbox.users.dto.AccessModelDto;
 
 /**
  * @author Przemyslaw Fusik
  */
 @Immutable
-public class Role implements RoleData
+public class RoleData implements Role
 {
 
     private final String name;
 
     private final String description;
 
-    private final AccessModelData accessModel;
+    private final AccessModel accessModel;
 
-    public Role(final RoleDto source)
+    public RoleData(final RoleDto source)
     {
         this.name = source.getName();
         this.description = source.getDescription();
         this.accessModel = immuteAccessModel(source.getAccessModel());
     }
 
-    private AccessModelData immuteAccessModel(AccessModelDto source)
+    private AccessModel immuteAccessModel(AccessModelDto source)
     {
-        return source != null ? new AccessModel(source) : null;
+        return source != null ? new AccessModelData(source) : null;
     }
 
     public String getName()
@@ -43,7 +43,7 @@ public class Role implements RoleData
         return description;
     }
 
-    public AccessModelData getAccessModel()
+    public AccessModel getAccessModel()
     {
         return accessModel;
     }

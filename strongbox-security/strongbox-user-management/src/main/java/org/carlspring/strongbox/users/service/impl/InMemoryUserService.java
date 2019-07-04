@@ -22,10 +22,10 @@ import javax.inject.Qualifier;
 
 import org.apache.commons.lang3.StringUtils;
 import org.carlspring.strongbox.data.CacheName;
-import org.carlspring.strongbox.users.domain.User;
+import org.carlspring.strongbox.users.domain.UserData;
 import org.carlspring.strongbox.users.domain.Users;
 import org.carlspring.strongbox.users.dto.UserDto;
-import org.carlspring.strongbox.users.dto.UserData;
+import org.carlspring.strongbox.users.dto.User;
 import org.carlspring.strongbox.users.dto.UsersDto;
 import org.carlspring.strongbox.users.security.SecurityTokenProvider;
 import org.carlspring.strongbox.users.service.UserService;
@@ -65,7 +65,7 @@ public class InMemoryUserService implements UserService
     }
 
     @Override
-    public User findByUserName(final String username)
+    public UserData findByUserName(final String username)
     {
         if (username == null)
         {
@@ -77,7 +77,7 @@ public class InMemoryUserService implements UserService
 
         try
         {
-            return Optional.ofNullable(userMap.get(username)).map(User::new).orElse(null);
+            return Optional.ofNullable(userMap.get(username)).map(UserData::new).orElse(null);
         }
         finally
         {
@@ -89,7 +89,7 @@ public class InMemoryUserService implements UserService
     public String generateSecurityToken(final String username)
             throws JoseException
     {
-        final User user = findByUserName(username);
+        final UserData user = findByUserName(username);
 
         if (StringUtils.isEmpty(user.getSecurityTokenKey()))
         {
@@ -97,7 +97,7 @@ public class InMemoryUserService implements UserService
         }
 
         final Map<String, String> claimMap = new HashMap<>();
-        claimMap.put(User.SECURITY_TOKEN_KEY, user.getSecurityTokenKey());
+        claimMap.put(UserData.SECURITY_TOKEN_KEY, user.getSecurityTokenKey());
 
         return tokenProvider.getToken(username, claimMap, null);
     }
@@ -120,7 +120,7 @@ public class InMemoryUserService implements UserService
 
     @Override
     @CacheEvict(cacheNames = CacheName.User.AUTHENTICATIONS, key = "#p0.username")
-    public void save(final UserData user)
+    public void save(final User user)
     {
         modifyInLock(users -> {
             UserDto u = Optional.ofNullable(users.get(user.getUsername())).orElseGet(() -> new UserDto());

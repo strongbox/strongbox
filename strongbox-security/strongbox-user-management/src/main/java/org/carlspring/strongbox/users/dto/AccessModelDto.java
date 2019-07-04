@@ -5,7 +5,7 @@ import java.util.LinkedHashSet;
 import java.util.Optional;
 import java.util.Set;
 
-import org.carlspring.strongbox.users.domain.AccessModel;
+import org.carlspring.strongbox.users.domain.AccessModelData;
 import org.carlspring.strongbox.users.domain.Privileges;
 
 /**
@@ -14,7 +14,7 @@ import org.carlspring.strongbox.users.domain.Privileges;
  * @author Przemyslaw Fusik
  */
 public class AccessModelDto
-        implements AccessModelData
+        implements AccessModel
 {
 
     private Set<Privileges> apiAuthorities = new LinkedHashSet<>();    
@@ -40,7 +40,7 @@ public class AccessModelDto
     @Override
     public Set<Privileges> getPathAuthorities(String url)
     {
-        return AccessModel.getPathAuthorities(url, storageAuthorities);
+        return AccessModelData.getPathAuthorities(url, storageAuthorities);
     }
     
 }

@@ -2,7 +2,7 @@ package org.carlspring.strongbox.event.artifact;
 
 import org.carlspring.strongbox.providers.io.RepositoryPath;
 import org.carlspring.strongbox.providers.layout.Maven2LayoutProvider;
-import org.carlspring.strongbox.storage.repository.RepositoryData;
+import org.carlspring.strongbox.storage.repository.Repository;
 
 import java.io.IOException;
 import java.lang.reflect.UndeclaredThrowableException;
@@ -21,7 +21,7 @@ public class MavenArtifactDeletedEventListener
     @EventListener
     public void handle(final ArtifactEvent<RepositoryPath> event)
     {
-        final RepositoryData repository = getRepository(event);
+        final Repository repository = getRepository(event);
 
         if (!Maven2LayoutProvider.ALIAS.equals(repository.getLayout()))
         {

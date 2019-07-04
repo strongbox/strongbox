@@ -9,8 +9,8 @@ import org.carlspring.strongbox.controllers.support.ResponseEntityBody;
 import org.carlspring.strongbox.providers.io.RepositoryPathResolver;
 import org.carlspring.strongbox.services.ArtifactResolutionService;
 import org.carlspring.strongbox.services.ConfigurationManagementService;
-import org.carlspring.strongbox.storage.StorageData;
-import org.carlspring.strongbox.storage.repository.RepositoryData;
+import org.carlspring.strongbox.storage.Storage;
+import org.carlspring.strongbox.storage.repository.Repository;
 
 import javax.inject.Inject;
 import javax.servlet.http.HttpServletResponse;
@@ -61,12 +61,12 @@ public abstract class BaseController
         return configurationManagementService.getConfiguration();
     }
 
-    protected StorageData getStorage(String storageId)
+    protected Storage getStorage(String storageId)
     {
         return configurationManager.getConfiguration().getStorage(storageId);
     }
 
-    protected RepositoryData getRepository(String storageId,
+    protected Repository getRepository(String storageId,
                                        String repositoryId)
     {
         return getStorage(storageId).getRepository(repositoryId);

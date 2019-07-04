@@ -10,7 +10,7 @@ import org.carlspring.strongbox.providers.layout.LayoutFileSystemProvider;
 import org.carlspring.strongbox.providers.repository.proxied.RestArtifactResolverFactory;
 import org.carlspring.strongbox.services.ArtifactManagementService;
 import org.carlspring.strongbox.storage.metadata.MetadataMerger;
-import org.carlspring.strongbox.storage.repository.RepositoryData;
+import org.carlspring.strongbox.storage.repository.Repository;
 import org.carlspring.strongbox.testing.TestCaseWithMavenArtifactGenerationAndIndexing;
 import org.carlspring.strongbox.testing.artifact.MavenArtifactTestUtils;
 
@@ -119,7 +119,7 @@ abstract class BaseMavenMetadataExpirationTest
                                                          TestInfo testInfo)
             throws Exception
     {
-        final RepositoryData repository = getConfiguration().getStorage(STORAGE0).getRepository(localRepositoryId);
+        final Repository repository = getConfiguration().getStorage(STORAGE0).getRepository(localRepositoryId);
         RepositoryPath repositoryPath = repositoryPathResolver.resolve(repository);
 
         Artifact snapshotArtifact = new MavenRepositoryArtifact(new Gav(groupId, getArtifactName(artifactId, testInfo),
@@ -243,7 +243,7 @@ abstract class BaseMavenMetadataExpirationTest
                                          final String filename,
                                          final TestInfo testInfo)
     {
-        final RepositoryData repository = getConfiguration().getStorage(STORAGE0).getRepository(repositoryId);
+        final Repository repository = getConfiguration().getStorage(STORAGE0).getRepository(repositoryId);
         RepositoryPath repositoryPath = repositoryPathResolver.resolve(repository);
         repositoryPath = repositoryPath.resolve(groupId.replaceAll("\\.", "/"));
         repositoryPath = repositoryPath.resolve(getArtifactName(artifactId, testInfo));

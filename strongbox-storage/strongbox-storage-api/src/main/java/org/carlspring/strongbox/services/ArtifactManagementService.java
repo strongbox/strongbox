@@ -30,10 +30,10 @@ import org.carlspring.strongbox.providers.io.RepositoryStreamSupport.RepositoryO
 import org.carlspring.strongbox.providers.layout.LayoutFileSystemProvider;
 import org.carlspring.strongbox.providers.layout.LayoutProviderRegistry;
 import org.carlspring.strongbox.storage.ArtifactStorageException;
-import org.carlspring.strongbox.storage.StorageData;
+import org.carlspring.strongbox.storage.Storage;
 import org.carlspring.strongbox.storage.checksum.ArtifactChecksum;
 import org.carlspring.strongbox.storage.checksum.ChecksumCacheManager;
-import org.carlspring.strongbox.storage.repository.RepositoryData;
+import org.carlspring.strongbox.storage.repository.Repository;
 import org.carlspring.strongbox.storage.validation.ArtifactCoordinatesValidator;
 import org.carlspring.strongbox.storage.validation.artifact.ArtifactCoordinatesValidationException;
 import org.carlspring.strongbox.storage.validation.artifact.ArtifactCoordinatesValidatorRegistry;
@@ -151,7 +151,7 @@ public class ArtifactManagementService
     {
         LayoutOutputStream aos = StreamUtils.findSource(LayoutOutputStream.class, os);
 
-        RepositoryData repository = repositoryPath.getRepository();
+        Repository repository = repositoryPath.getRepository();
 
         Boolean checksumAttribute = RepositoryFiles.isChecksum(repositoryPath);
 
@@ -278,7 +278,7 @@ public class ArtifactManagementService
     {
         logger.info(String.format("Validate artifact with path [%s]", path));
 
-        RepositoryData repository = path.getFileSystem().getRepository();
+        Repository repository = path.getFileSystem().getRepository();
 
         artifactOperationsValidator.validate(path);
 
@@ -313,7 +313,7 @@ public class ArtifactManagementService
         return true;
     }
 
-    protected StorageData getStorage(String storageId)
+    protected Storage getStorage(String storageId)
     {
         return getConfiguration().getStorages().get(storageId);
     }
@@ -330,7 +330,7 @@ public class ArtifactManagementService
     {
         artifactOperationsValidator.validate(repositoryPath);
 
-        final RepositoryData repository = repositoryPath.getRepository();
+        final Repository repository = repositoryPath.getRepository();
 
         artifactOperationsValidator.checkAllowsDeletion(repository);
 

@@ -4,8 +4,8 @@ import org.carlspring.strongbox.controllers.support.NumberOfConnectionsEntityBod
 import org.carlspring.strongbox.controllers.support.PoolStatsEntityBody;
 import org.carlspring.strongbox.service.ProxyRepositoryConnectionPoolConfigurationService;
 import org.carlspring.strongbox.services.ConfigurationManagementService;
-import org.carlspring.strongbox.storage.repository.Repository;
 import org.carlspring.strongbox.storage.repository.RepositoryData;
+import org.carlspring.strongbox.storage.repository.Repository;
 import org.carlspring.strongbox.web.RepositoryMapping;
 
 import io.swagger.annotations.Api;
@@ -51,11 +51,11 @@ public class HttpConnectionPoolConfigurationManagementController
     @PutMapping(value = "{storageId}/{repositoryId}/{numberOfConnections}",
                 produces = { MediaType.TEXT_PLAIN_VALUE,
                              MediaType.APPLICATION_JSON_VALUE })
-    public ResponseEntity setNumberOfConnectionsForProxyRepository(@RepositoryMapping RepositoryData repository,
+    public ResponseEntity setNumberOfConnectionsForProxyRepository(@RepositoryMapping Repository repository,
                                                                    @PathVariable(value = "numberOfConnections") int numberOfConnections,
                                                                    @RequestHeader(HttpHeaders.ACCEPT) String accept) throws IOException
     { 
-        final Repository immutableRepository = (Repository) repository;
+        final RepositoryData immutableRepository = (RepositoryData) repository;
         final String storageId = immutableRepository.getStorage().getId();
         final String repositoryId = immutableRepository.getId();
 
@@ -85,10 +85,10 @@ public class HttpConnectionPoolConfigurationManagementController
     @GetMapping(value = "{storageId}/{repositoryId}",
                 produces = { MediaType.TEXT_PLAIN_VALUE,
                              MediaType.APPLICATION_JSON_VALUE })
-    public ResponseEntity getPoolStatsForProxyRepository(@RepositoryMapping RepositoryData repository,
+    public ResponseEntity getPoolStatsForProxyRepository(@RepositoryMapping Repository repository,
                                                          @RequestHeader(HttpHeaders.ACCEPT) String accept)
     {
-        final Repository immutableRepository = (Repository) repository;
+        final RepositoryData immutableRepository = (RepositoryData) repository;
         if (immutableRepository.getRemoteRepository() == null)
         {
             return ResponseEntity.status(HttpStatus.BAD_REQUEST)

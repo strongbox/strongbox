@@ -4,7 +4,7 @@ import org.carlspring.strongbox.config.MavenIndexerEnabledCondition;
 import org.carlspring.strongbox.providers.io.RepositoryPath;
 import org.carlspring.strongbox.providers.layout.Maven2LayoutProvider;
 import org.carlspring.strongbox.repository.group.index.MavenIndexGroupRepositoryComponent;
-import org.carlspring.strongbox.storage.repository.RepositoryData;
+import org.carlspring.strongbox.storage.repository.Repository;
 
 import javax.inject.Inject;
 import java.io.IOException;
@@ -29,7 +29,7 @@ public class IndexedMavenArtifactDeletedEventListener
     @EventListener
     public void handle(final ArtifactEvent<RepositoryPath> event)
     {
-        final RepositoryData repository = getRepository(event);
+        final Repository repository = getRepository(event);
 
         if (!Maven2LayoutProvider.ALIAS.equals(repository.getLayout()))
         {
