@@ -1,6 +1,6 @@
 package org.carlspring.strongbox.yaml.configuration.repository;
 
-import org.carlspring.strongbox.providers.layout.RawLayoutProvider;
+import org.carlspring.strongbox.providers.layout.NpmLayoutProvider;
 import org.carlspring.strongbox.yaml.repository.CustomRepositoryConfiguration;
 
 import javax.annotation.concurrent.Immutable;
@@ -16,19 +16,18 @@ import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
 @Immutable
 @XmlAccessorType(XmlAccessType.FIELD)
 @SuppressFBWarnings(value = "AJCIP_FIELD_ISNT_FINAL_IN_IMMUTABLE_CLASS")
-@JsonTypeName(RawLayoutProvider.ALIAS)
-public class RawRepositoryConfiguration
+@JsonTypeName(NpmLayoutProvider.ALIAS)
+public class NpmRepositoryConfigurationData
         extends CustomRepositoryConfiguration
 {
 
-    public RawRepositoryConfiguration()
+    public NpmRepositoryConfigurationData()
     {
 
     }
 
-    public RawRepositoryConfiguration(final RawRepositoryConfigurationDto delegate)
+    public NpmRepositoryConfigurationData(final NpmRepositoryConfigurationDto delegate)
     {
-        // maybe one day I'll have some implementation here :)
     }
 
 }

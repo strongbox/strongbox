@@ -18,6 +18,6 @@ public class RawRepositoryConfigurationDto
     @Override
     public CustomRepositoryConfiguration getImmutable()
     {
-        return new RawRepositoryConfiguration(this);
+        return new RawRepositoryConfigurationData(this);
     }
 }

@@ -18,6 +18,6 @@ public class NpmRepositoryConfigurationDto
     @Override
     public CustomRepositoryConfiguration getImmutable()
     {
-        return new NpmRepositoryConfiguration(this);
+        return new NpmRepositoryConfigurationData(this);
     }
 }
