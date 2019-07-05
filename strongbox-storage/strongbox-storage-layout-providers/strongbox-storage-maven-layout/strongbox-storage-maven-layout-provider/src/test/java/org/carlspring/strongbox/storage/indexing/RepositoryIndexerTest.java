@@ -2,22 +2,27 @@ package org.carlspring.strongbox.storage.indexing;
 
 import org.carlspring.strongbox.artifact.coordinates.MavenArtifactCoordinates;
 import org.carlspring.strongbox.config.Maven2LayoutProviderTestConfig;
-import org.carlspring.strongbox.providers.layout.Maven2LayoutProvider;
+import org.carlspring.strongbox.providers.io.RootRepositoryPath;
 import org.carlspring.strongbox.repository.IndexedMavenRepositoryFeatures;
-import org.carlspring.strongbox.storage.repository.RepositoryDto;
+import org.carlspring.strongbox.storage.repository.Repository;
 import org.carlspring.strongbox.storage.search.SearchResult;
+import org.carlspring.strongbox.testing.MavenIndexedRepositorySetup;
 import org.carlspring.strongbox.testing.TestCaseWithMavenArtifactGenerationAndIndexing;
+import org.carlspring.strongbox.testing.artifact.ArtifactManagementTestExecutionListener;
+import org.carlspring.strongbox.testing.artifact.MavenTestArtifact;
+import org.carlspring.strongbox.testing.repository.MavenRepository;
+import org.carlspring.strongbox.testing.storage.repository.RepositoryManagementTestExecutionListener;
 
-import java.io.File;
+import java.nio.file.Files;
+import java.nio.file.Path;
 import java.util.Collection;
 import java.util.LinkedHashSet;
+import java.util.List;
 import java.util.Set;
 
 import org.apache.maven.index.ArtifactInfo;
-import org.junit.jupiter.api.AfterEach;
-import org.junit.jupiter.api.BeforeAll;
-import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.junit.jupiter.api.parallel.Execution;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.context.ActiveProfiles;
@@ -37,65 +42,46 @@ public class RepositoryIndexerTest
 {
 
     private static final String REPOSITORY_RELEASES = "ri-releases";
+    private static final String GROUP_ID = "org.carlspring.strongbox";
+    private static final String ARTIFACT_ID = "strongbox-commons";
+    private static final String ARTIFACT_BASE_PATH_STRONGBOX = "org/carlspring/strongbox/strongbox-commons";
 
-    @BeforeAll
-    public static void cleanUp()
-            throws Exception
-    {
-        cleanUp(getRepositoriesToClean());
-    }
-
-    @BeforeEach
-    public void initialize()
-            throws Exception
-    {
-        createRepositoryWithArtifacts(STORAGE0,
-                                      REPOSITORY_RELEASES,
-                                      true,
-                                      "org.carlspring.strongbox:strongbox-commons",
-                                      "1.0", "1.1", "1.2");
-    }
-
-    @AfterEach
-    public void removeRepositories()
-            throws Exception
-    {
-        removeRepositories(getRepositoriesToClean());
-    }
-
-    public static Set<RepositoryDto> getRepositoriesToClean()
-    {
-        Set<RepositoryDto> repositories = new LinkedHashSet<>();
-        repositories.add(createRepositoryMock(STORAGE0, REPOSITORY_RELEASES, Maven2LayoutProvider.ALIAS));
-
-        return repositories;
-    }
-
+    @ExtendWith({ RepositoryManagementTestExecutionListener.class,
+                  ArtifactManagementTestExecutionListener.class })
     @Test
-    public void testIndex() throws Exception
+    public void testIndex(@MavenRepository(repositoryId = REPOSITORY_RELEASES,
+                                           setup = MavenIndexedRepositorySetup.class)
+                          Repository repository,
+                          @MavenTestArtifact(repositoryId = REPOSITORY_RELEASES,
+                                             id = GROUP_ID + ":" + ARTIFACT_ID,
+                                             versions = { "1.0",
+                                                          "1.1",
+                                                          "1.2" })
+                          List<Path> artifactPaths)
+            throws Exception
     {
         RepositoryIndexManager repositoryIndexManager = this.repositoryIndexManager.get();
         RepositoryIndexer repositoryIndexer = repositoryIndexManager.getRepositoryIndexer(STORAGE0 + ":" +
-                                                                                          REPOSITORY_RELEASES + ":" +
+                                                                                          repository.getId() + ":" +
                                                                                           IndexTypeEnum.LOCAL.getType());
 
         IndexedMavenRepositoryFeatures features = (IndexedMavenRepositoryFeatures) getFeatures();
 
-        int x = features.reIndex(STORAGE0, REPOSITORY_RELEASES, "org/carlspring/strongbox/strongbox-commons");
+        int numberOfFiles = features.reIndex(STORAGE0, repository.getId(), ARTIFACT_BASE_PATH_STRONGBOX);
 
-        features.pack(STORAGE0, REPOSITORY_RELEASES);
+        features.pack(STORAGE0, repository.getId());
 
-        File repositoryBasedir = getRepositoryBasedir(STORAGE0, REPOSITORY_RELEASES);
+        final RootRepositoryPath repositoryPath = repositoryPathResolver.resolve(repository);
 
-        assertTrue(new File(repositoryBasedir.getAbsolutePath(),
-                            ".index/local/nexus-maven-repository-index.gz").exists(), "Failed to pack index!");
-        assertTrue(new File(repositoryBasedir.getAbsolutePath(),
-                            ".index/local/nexus-maven-repository-index-packer.properties").exists(),
-                   "Failed to pack index!");
+        final Path indexPacked = repositoryPath.resolve(".index/local/nexus-maven-repository-index.gz");
+        assertTrue(Files.exists(indexPacked), "Failed to pack index!");
+
+        final Path indexProperties = repositoryPath.resolve(".index/local/nexus-maven-repository-index-packer.properties");
+        assertTrue(Files.exists(indexProperties), "Failed to pack index!");
 
         assertEquals(6,
 
-                     x,  // one is jar another pom, both would be added into the same Lucene document
+                     numberOfFiles,  // one is jar another pom, both would be added into the same Lucene document
                      "6 artifacts expected!");
 
         Set<SearchResult> search = repositoryIndexer.search("org.carlspring.strongbox",
