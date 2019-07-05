@@ -37,7 +37,7 @@ public class RepositoryPrivilegesData
 
     private Set<Privileges> immuteRepositoryPrivileges(final Set<Privileges> set)
     {
-        return set != null ? Collections.unmodifiableSet(set)
+        return set != null ? ImmutableSet.copyOf(set)
                 : Collections.emptySet();
     }
 

@@ -9,6 +9,8 @@ import javax.annotation.concurrent.Immutable;
 import org.carlspring.strongbox.users.dto.PathPrivileges;
 import org.carlspring.strongbox.users.dto.PathPrivilegesDto;
 
+import com.google.common.collect.ImmutableSet;
+
 /**
  * @author Przemyslaw Fusik
  */
@@ -36,9 +38,7 @@ public class PathPrivilegesData
 
     private Set<Privileges> immutePrivileges(final Set<Privileges> source)
     {
-        return source != null ?
-               Collections.unmodifiableSet(source) :
-               Collections.emptySet();
+        return source != null ? ImmutableSet.copyOf(source) : Collections.emptySet();
     }
 
     public String getPath()

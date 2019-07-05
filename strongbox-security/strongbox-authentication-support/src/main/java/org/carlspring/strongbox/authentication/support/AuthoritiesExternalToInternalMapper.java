@@ -2,6 +2,7 @@ package org.carlspring.strongbox.authentication.support;
 
 import java.util.Collection;
 import java.util.Map;
+import java.util.Objects;
 import java.util.stream.Collectors;
 
 import org.slf4j.Logger;
@@ -33,7 +34,7 @@ public class AuthoritiesExternalToInternalMapper
         Collection<? extends GrantedAuthority> result = externalAuthorities.stream()
                                                                            .map(GrantedAuthority::getAuthority)
                                                                            .map(a -> getRolesMapping().get(a))
-                                                                           .filter(a -> a != null)
+                                                                           .filter(Objects::nonNull)
                                                                            .map(SimpleGrantedAuthority::new)
                                                                            .collect(Collectors.toSet());
         logger.debug(String.format("Authorities mapped [%s]", result));

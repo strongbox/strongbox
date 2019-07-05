@@ -9,6 +9,6 @@ public interface AccessModel extends Serializable
 {
     Set<Privileges> getApiAuthorities();
 
-    Set<Privileges> getPathAuthorities(String url);
+    Set<Privileges> getPathAuthorities(String path);
 
 }

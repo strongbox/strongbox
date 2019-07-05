@@ -68,19 +68,19 @@ public enum AccessModelFormToUserAccessModelDtoConverter
             }
 
             PathPrivilegesDto pathPrivileges = repository.getPathPrivilege(repositoryAccess.getPath(),
-                                                                               repositoryAccess.isWildcard())
-                                                             .orElseGet(
-                                                                     () ->
-                                                                     {
-                                                                         PathPrivilegesDto pathPrivilegesDto = new PathPrivilegesDto();
-                                                                         pathPrivilegesDto.setPath(
-                                                                                 repositoryAccess.getPath());
-                                                                         pathPrivilegesDto.setWildcard(
-                                                                                 repositoryAccess.isWildcard());
-                                                                         repository.getPathPrivileges().add(
-                                                                                 pathPrivilegesDto);
-                                                                         return pathPrivilegesDto;
-                                                                     });
+                                                                           repositoryAccess.isWildcard())
+                                                         .orElseGet(
+                                                                    () -> {
+                                                                        PathPrivilegesDto pathPrivilegesDto = new PathPrivilegesDto();
+                                                                        pathPrivilegesDto.setPath(
+                                                                                                  repositoryAccess.getPath());
+                                                                        pathPrivilegesDto.setWildcard(
+                                                                                                      repositoryAccess.isWildcard());
+                                                                        repository.getPathPrivileges()
+                                                                                  .add(
+                                                                                       pathPrivilegesDto);
+                                                                        return pathPrivilegesDto;
+                                                                    });
             pathPrivileges.getPrivileges().addAll(pullPrivileges(repositoryAccess));
 
         }

@@ -13,6 +13,8 @@ public class RoleFormToRoleConverter
         implements Converter<RoleForm, RoleDto>
 {
 
+    public static final RoleFormToRoleConverter INSTANCE = new RoleFormToRoleConverter();
+
     @Override
     public RoleDto convert(RoleForm roleForm)
     {

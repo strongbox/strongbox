@@ -45,11 +45,13 @@ public class AccessModelForm
         this.apiAccess = apiAccess;
     }
     
-    public void addApiAccess(String privilege) {
-        if (apiAccess == null) {
+    public void addApiAccess(String privilege)
+    {
+        if (apiAccess == null)
+        {
             apiAccess = new ArrayList<>();
         }
-        
+
         apiAccess.add(privilege);
     }
     

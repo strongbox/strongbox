@@ -15,8 +15,6 @@ import org.springframework.core.convert.converter.Converter;
 public class RoleListFormToRoleListConverter
         implements Converter<RoleListForm, List<RoleDto>>
 {
-
-    private RoleFormToRoleConverter roleFormToRoleConverter = new RoleFormToRoleConverter();
     
     @Override
     public List<RoleDto> convert(RoleListForm roleListForm)
@@ -24,7 +22,7 @@ public class RoleListFormToRoleListConverter
         List<RoleDto> roleList = new ArrayList<>();
         for (RoleForm roleForm : roleListForm.getRoles())
         {
-            RoleDto role = roleFormToRoleConverter.convert(roleForm);
+            RoleDto role = RoleFormToRoleConverter.INSTANCE.convert(roleForm);
             roleList.add(role);
         }
 

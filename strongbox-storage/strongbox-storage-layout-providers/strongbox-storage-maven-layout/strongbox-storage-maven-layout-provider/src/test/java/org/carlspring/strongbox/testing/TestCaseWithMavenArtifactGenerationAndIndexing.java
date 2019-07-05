@@ -156,9 +156,9 @@ public abstract class TestCaseWithMavenArtifactGenerationAndIndexing
     }
 
     protected RepositoryDto createRepository(String storageId,
-                                                 String repositoryId,
-                                                 String policy,
-                                                 boolean indexing)
+                                             String repositoryId,
+                                             String policy,
+                                             boolean indexing)
         throws IOException,
         JAXBException,
         RepositoryManagementStrategyException
@@ -170,9 +170,9 @@ public abstract class TestCaseWithMavenArtifactGenerationAndIndexing
     }
 
     protected RepositoryDto createRepository(String storageId,
-                                                 String repositoryId,
-                                                 String policy,
-                                                 MavenRepositoryConfigurationDto repositoryConfiguration)
+                                             String repositoryId,
+                                             String policy,
+                                             MavenRepositoryConfigurationDto repositoryConfiguration)
             throws IOException,
                    JAXBException,
                    RepositoryManagementStrategyException
@@ -188,8 +188,8 @@ public abstract class TestCaseWithMavenArtifactGenerationAndIndexing
     }
 
     protected RepositoryDto createGroup(String storageId,
-                                            String repositoryId,
-                                            String... leafs)
+                                        String repositoryId,
+                                        String... leafs)
             throws Exception
     {
         RepositoryDto repository = new RepositoryDto(repositoryId);
