@@ -2,31 +2,35 @@ package org.carlspring.strongbox.dependency.snippet;
 
 import org.carlspring.strongbox.artifact.coordinates.MavenArtifactCoordinates;
 import org.carlspring.strongbox.config.Maven2LayoutProviderTestConfig;
-import org.carlspring.strongbox.domain.ArtifactEntry;
 import org.carlspring.strongbox.providers.ProviderImplementationException;
+import org.carlspring.strongbox.providers.io.RepositoryFiles;
+import org.carlspring.strongbox.providers.io.RepositoryPath;
 import org.carlspring.strongbox.providers.layout.Maven2LayoutProvider;
 import org.carlspring.strongbox.providers.search.MavenIndexerSearchProvider;
 import org.carlspring.strongbox.repository.IndexedMavenRepositoryFeatures;
-import org.carlspring.strongbox.services.ArtifactEntryService;
-import org.carlspring.strongbox.storage.repository.MutableRepository;
+import org.carlspring.strongbox.storage.repository.Repository;
 import org.carlspring.strongbox.storage.search.SearchRequest;
 import org.carlspring.strongbox.storage.search.SearchResult;
+import org.carlspring.strongbox.testing.MavenIndexedRepositorySetup;
 import org.carlspring.strongbox.testing.TestCaseWithMavenArtifactGenerationAndIndexing;
+import org.carlspring.strongbox.testing.artifact.ArtifactManagementTestExecutionListener;
+import org.carlspring.strongbox.testing.artifact.MavenTestArtifact;
+import org.carlspring.strongbox.testing.repository.MavenRepository;
+import org.carlspring.strongbox.testing.storage.repository.RepositoryManagementTestExecutionListener;
 
 import javax.inject.Inject;
-import javax.xml.bind.JAXBException;
 import java.io.IOException;
-import java.util.LinkedHashSet;
+import java.lang.annotation.*;
+import java.nio.file.Path;
 import java.util.List;
 import java.util.Optional;
-import java.util.Set;
 
-import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.Assumptions;
-import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.junit.jupiter.api.parallel.Execution;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.core.annotation.AliasFor;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.ContextConfiguration;
 import static org.junit.jupiter.api.Assertions.*;
@@ -34,6 +38,7 @@ import static org.junit.jupiter.api.parallel.ExecutionMode.SAME_THREAD;
 
 /**
  * @author carlspring
+ * @author Pablo Tirado
  */
 @SpringBootTest
 @ActiveProfiles(profiles = "test")
@@ -45,7 +50,15 @@ public class MavenDependencyFormatterTest
 
     private static final String REPOSITORY_RELEASES = "mdft-releases";
 
-    public static final String REPOSITORY_BASEDIR = "target/strongbox-vault/storages/storage0/" + REPOSITORY_RELEASES;
+    private static final String GROUP_ID = "org.carlspring.strongbox";
+
+    private static final String ARTIFACT_ID = "maven-snippet";
+
+    private static final String VERSION_1 = "1.0";
+
+    private static final String VERSION_2 = "2.0";
+
+    private static final String CLASSIFIER_SOURCES = "sources";
 
     @Inject
     private CompatibleDependencyFormatRegistry compatibleDependencyFormatRegistry;
@@ -54,83 +67,28 @@ public class MavenDependencyFormatterTest
     private Optional<MavenIndexerSearchProvider> mavenIndexerSearchProvider;
 
     @Inject
-    private ArtifactEntryService artifactEntryService;
-
-    @Inject
     private SnippetGenerator snippetGenerator;
 
-    @BeforeEach
-    public void setUp()
-            throws Exception
-    {
-        // Because there is no smarter way to cleanup... :-|
-        removeEntriesIfAnyExist();
-
-        createRepositoryWithArtifacts(STORAGE0,
-                                      REPOSITORY_RELEASES,
-                                      true,
-                                      "org.carlspring.strongbox:maven-snippet",
-                                      "1.0");
-
-        generateArtifact(REPOSITORY_BASEDIR, "org.carlspring.strongbox:maven-snippet:1.0:jar:sources");
-
-        reIndex(STORAGE0, REPOSITORY_RELEASES, "org/carlspring/strongbox");
-    }
-
-    @AfterEach
-    public void removeRepositories()
-            throws IOException, JAXBException
-    {
-        removeRepositories(getRepositories());
-    }
-
-    private void removeEntriesIfAnyExist()
-    {
-        removeEntryIfExists(new MavenArtifactCoordinates("org.carlspring.strongbox",
-                                                         "maven-snippet",
-                                                         "1.0",
-                                                         null,
-                                                         "jar"));
-        removeEntryIfExists(new MavenArtifactCoordinates("org.carlspring.strongbox",
-                                                         "maven-snippet",
-                                                         "1.0",
-                                                         "sources",
-                                                         "jar"));
-    }
-
-    private void removeEntryIfExists(MavenArtifactCoordinates coordinates1)
-    {
-        ArtifactEntry artifactEntry = artifactEntryService.findOneArtifact(STORAGE0,
-                                                                           REPOSITORY_RELEASES,
-                                                                           coordinates1.toPath());
-
-        if (artifactEntry != null)
-        {
-            artifactEntryService.delete(artifactEntry);
-        }
-    }
-
-    private Set<MutableRepository> getRepositories()
-    {
-        Set<MutableRepository> repositories = new LinkedHashSet<>();
-        repositories.add(createRepositoryMock(STORAGE0, REPOSITORY_RELEASES, Maven2LayoutProvider.ALIAS));
-
-        return repositories;
-    }
-
+    @ExtendWith({ RepositoryManagementTestExecutionListener.class,
+                  ArtifactManagementTestExecutionListener.class })
     @Test
-    public void testMavenDependencyGeneration()
-            throws ProviderImplementationException
+    public void testMavenDependencyGeneration(@MavenRepository(repositoryId = REPOSITORY_RELEASES,
+                                                               setup = MavenIndexedRepositorySetup.class)
+                                              Repository repository,
+                                              @MavenTestArtifact(repositoryId = REPOSITORY_RELEASES,
+                                                                 id = GROUP_ID + ":" + ARTIFACT_ID,
+                                                                 versions = { VERSION_1 })
+                                              Path artifactPath)
+            throws ProviderImplementationException, IOException
     {
+        reIndex(repository);
+
         DependencySynonymFormatter formatter = compatibleDependencyFormatRegistry.getProviderImplementation(Maven2LayoutProvider.ALIAS,
                                                                                                             Maven2LayoutProvider.ALIAS);
         assertNotNull(formatter, "Failed to look up dependency synonym formatter!");
 
-        MavenArtifactCoordinates coordinates = new MavenArtifactCoordinates();
-        coordinates.setGroupId("org.carlspring.strongbox");
-        coordinates.setArtifactId("maven-snippet");
-        coordinates.setVersion("1.0");
-        coordinates.setExtension("jar");
+        MavenArtifactCoordinates coordinates = (MavenArtifactCoordinates) RepositoryFiles.readCoordinates(
+                (RepositoryPath) artifactPath.normalize());
 
         String snippet = formatter.getDependencySnippet(coordinates);
 
@@ -147,19 +105,27 @@ public class MavenDependencyFormatterTest
                      "Failed to generate dependency!");
     }
 
+    @ExtendWith({ RepositoryManagementTestExecutionListener.class,
+                  ArtifactManagementTestExecutionListener.class })
     @Test
-    public void testMavenDependencyGenerationWithClassifier()
-            throws ProviderImplementationException
+    public void testMavenDependencyGenerationWithClassifier(@MavenRepository(repositoryId = REPOSITORY_RELEASES,
+                                                                             setup = MavenIndexedRepositorySetup.class)
+                                                            Repository repository,
+                                                            @MavenArtifactWithClassifiers(repositoryId = REPOSITORY_RELEASES,
+                                                                                          id = GROUP_ID + ":" + ARTIFACT_ID,
+                                                                                          versions = { VERSION_2 })
+                                                            Path artifactPath)
+            throws ProviderImplementationException, IOException
     {
+        reIndex(repository);
+
         DependencySynonymFormatter formatter = compatibleDependencyFormatRegistry.getProviderImplementation(Maven2LayoutProvider.ALIAS,
                                                                                                             Maven2LayoutProvider.ALIAS);
         assertNotNull(formatter, "Failed to look up dependency synonym formatter!");
 
-        MavenArtifactCoordinates coordinates = new MavenArtifactCoordinates();
-        coordinates.setGroupId("org.carlspring.strongbox");
-        coordinates.setArtifactId("maven-snippet");
-        coordinates.setVersion("2.0");
-        coordinates.setClassifier("sources");
+        MavenArtifactCoordinates coordinates = (MavenArtifactCoordinates) RepositoryFiles.readCoordinates(
+                (RepositoryPath) artifactPath.normalize());
+        coordinates.setClassifier(CLASSIFIER_SOURCES);
 
         String snippet = formatter.getDependencySnippet(coordinates);
 
@@ -177,25 +143,35 @@ public class MavenDependencyFormatterTest
                      "Failed to generate dependency!");
     }
 
+    @ExtendWith({ RepositoryManagementTestExecutionListener.class,
+                  ArtifactManagementTestExecutionListener.class })
     @Test
-    public void testSearchExactWithDependencySnippet()
+    public void testSearchExactWithDependencySnippet(@MavenRepository(repositoryId = REPOSITORY_RELEASES,
+                                                                      setup = MavenIndexedRepositorySetup.class)
+                                                     Repository repository,
+                                                     @MavenArtifactWithClassifiers(repositoryId = REPOSITORY_RELEASES,
+                                                                                   id = GROUP_ID + ":" + ARTIFACT_ID,
+                                                                                   versions = { VERSION_1 })
+                                                     Path artifactPath)
+            throws IOException
     {
+
         Assumptions.assumeTrue(mavenIndexerSearchProvider.isPresent());
 
+        reIndex(repository);
         IndexedMavenRepositoryFeatures features = (IndexedMavenRepositoryFeatures) getFeatures();
-        final int x = features.reIndex(STORAGE0,
-                                       REPOSITORY_RELEASES,
-                                       "org/carlspring/strongbox/maven-snippet");
+        final int numberOfFiles = features.reIndex(STORAGE0,
+                                                   repository.getId(),
+                                                   "org/carlspring/strongbox/maven-snippet");
 
-        assertTrue(x >= 3, "Incorrect number of artifacts found!");
+        assertTrue(numberOfFiles >= 3, "Incorrect number of artifacts found!");
+
+        MavenArtifactCoordinates coordinates = (MavenArtifactCoordinates) RepositoryFiles.readCoordinates(
+                (RepositoryPath) artifactPath.normalize());
 
         SearchRequest request = new SearchRequest(STORAGE0,
-                                                  REPOSITORY_RELEASES,
-                                                  new MavenArtifactCoordinates("org.carlspring.strongbox",
-                                                                               "maven-snippet",
-                                                                               "1.0",
-                                                                               null,
-                                                                               "jar"),
+                                                  repository.getId(),
+                                                  coordinates,
                                                   MavenIndexerSearchProvider.ALIAS);
 
         SearchResult searchResult = mavenIndexerSearchProvider.get().findExact(request);
@@ -211,20 +187,29 @@ public class MavenDependencyFormatterTest
         }
     }
 
+    @ExtendWith({ RepositoryManagementTestExecutionListener.class,
+                  ArtifactManagementTestExecutionListener.class })
     @Test
-    public void testRegisteredSynonyms()
+    public void testRegisteredSynonyms(@MavenRepository(repositoryId = REPOSITORY_RELEASES,
+                                                        setup = MavenIndexedRepositorySetup.class)
+                                       Repository repository,
+                                       @MavenTestArtifact(repositoryId = REPOSITORY_RELEASES,
+                                                          id = GROUP_ID + ":" + ARTIFACT_ID,
+                                                          versions = { VERSION_1 })
+                                       Path artifactPath)
+            throws IOException
     {
+        reIndex(repository);
+
+        MavenArtifactCoordinates coordinates = (MavenArtifactCoordinates) RepositoryFiles.readCoordinates(
+                (RepositoryPath) artifactPath.normalize());
+
         List<CodeSnippet> codeSnippets = snippetGenerator.generateSnippets(Maven2LayoutProvider.ALIAS,
-                                                                           new MavenArtifactCoordinates("org.carlspring.strongbox",
-                                                                                                        "maven-snippet",
-                                                                                                        "1.0",
-                                                                                                        null,
-                                                                                                        "jar"));
+                                                                           coordinates);
 
         assertNotNull(codeSnippets, "Failed to look up dependency synonym formatter!");
         assertFalse(codeSnippets.isEmpty(), "No synonyms found!");
         assertEquals(7, codeSnippets.size(), "Incorrect number of dependency synonyms!");
-
 
 
         String[] synonyms = new String[]{ "Maven 2", "Bazel", "Buildr", "Gradle", "Ivy", "Leiningen", "SBT", };
@@ -238,6 +223,31 @@ public class MavenDependencyFormatterTest
 
             i++;
         }
+    }
+
+    private void reIndex(Repository repository)
+    {
+        IndexedMavenRepositoryFeatures features = (IndexedMavenRepositoryFeatures) getFeatures();
+
+        features.reIndex(STORAGE0, repository.getId(), "org/carlspring/strongbox");
+    }
+
+    @Target({ ElementType.PARAMETER, ElementType.ANNOTATION_TYPE })
+    @Retention(RetentionPolicy.RUNTIME)
+    @Documented
+    @MavenTestArtifact(classifiers = { CLASSIFIER_SOURCES })
+    private @interface MavenArtifactWithClassifiers
+    {
+
+        @AliasFor(annotation = MavenTestArtifact.class)
+        String id() default "";
+
+        @AliasFor(annotation = MavenTestArtifact.class)
+        String[] versions() default {};
+
+        @AliasFor(annotation = MavenTestArtifact.class)
+        String repositoryId() default "";
+
     }
 
 }
