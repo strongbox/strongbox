@@ -1,52 +1,68 @@
 package org.carlspring.strongbox.storage.validation.version;
 
+import org.carlspring.strongbox.artifact.coordinates.ArtifactCoordinates;
+import org.carlspring.strongbox.artifact.coordinates.MockedMavenArtifactCoordinates;
+import org.carlspring.strongbox.config.Maven2LayoutProviderTestConfig;
+import org.carlspring.strongbox.storage.repository.Repository;
+import org.carlspring.strongbox.storage.validation.artifact.version.VersionValidationException;
+import org.carlspring.strongbox.testing.artifact.ArtifactManagementTestExecutionListener;
+import org.carlspring.strongbox.testing.artifact.MavenArtifactTestUtils;
+import org.carlspring.strongbox.testing.artifact.MavenTestArtifact;
+import org.carlspring.strongbox.testing.repository.MavenRepository;
+import org.carlspring.strongbox.testing.storage.repository.RepositoryManagementTestExecutionListener;
+
+import java.nio.file.Path;
+import java.util.List;
+
+import org.apache.maven.artifact.Artifact;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
+import org.junit.jupiter.api.parallel.Execution;
+import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.test.context.ActiveProfiles;
+import org.springframework.test.context.ContextConfiguration;
+import static org.carlspring.strongbox.storage.repository.RepositoryPolicyEnum.SNAPSHOT;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.junit.jupiter.api.Assertions.fail;
 import static org.junit.jupiter.api.parallel.ExecutionMode.CONCURRENT;
 
-import org.apache.maven.artifact.Artifact;
-import org.apache.maven.artifact.DefaultArtifact;
-import org.apache.maven.artifact.handler.DefaultArtifactHandler;
-import org.carlspring.strongbox.artifact.coordinates.ArtifactCoordinates;
-import org.carlspring.strongbox.artifact.coordinates.MockedMavenArtifactCoordinates;
-import org.carlspring.strongbox.providers.layout.Maven2LayoutProvider;
-import org.carlspring.strongbox.storage.repository.RepositoryData;
-import org.carlspring.strongbox.storage.repository.RepositoryDto;
-import org.carlspring.strongbox.storage.repository.RepositoryPolicyEnum;
-import org.carlspring.strongbox.storage.validation.artifact.version.VersionValidationException;
-import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.api.Test;
-import org.junit.jupiter.api.parallel.Execution;
-
 /**
  * @author stodorov
+ * @author Pablo Tirado
  */
+@SpringBootTest
+@ActiveProfiles(profiles = "test")
+@ContextConfiguration(classes = Maven2LayoutProviderTestConfig.class)
 @Execution(CONCURRENT)
 public class MavenSnapshotVersionValidatorTest
 {
 
-    RepositoryDto repository;
+    private static final String REPOSITORY_ID = "test-repository-for-maven-snapshot-validation";
+    private static final String GROUP_ID = "org.carlspring.maven";
+    private static final String ARTIFACT_ID = "my-maven-plugin";
 
-    MavenSnapshotVersionValidator validator = new MavenSnapshotVersionValidator();
+    private MavenSnapshotVersionValidator validator = new MavenSnapshotVersionValidator();
 
-
-    @BeforeEach
-    public void setUp()
+    @ExtendWith(RepositoryManagementTestExecutionListener.class)
+    @Test
+    public void shouldSupportRepository(@MavenRepository(repositoryId = REPOSITORY_ID, policy = SNAPSHOT)
+                                        Repository repository)
     {
-        repository = new RepositoryDto("test-repository-for-maven-snapshot-validation");
-        repository.setPolicy(RepositoryPolicyEnum.SNAPSHOT.toString());
-        repository.setLayout(Maven2LayoutProvider.ALIAS);
-        repository.setBasedir("");
+        assertTrue(validator.supports(repository));
     }
 
+    @ExtendWith({ RepositoryManagementTestExecutionListener.class,
+                  ArtifactManagementTestExecutionListener.class })
     @Test
-    public void shouldSupportRepository()
-    {
-        assertTrue(validator.supports(new RepositoryData(repository)));
-    }
-
-    @Test
-    public void testSnapshotValidation()
+    public void testSnapshotValidation(@MavenRepository(repositoryId = REPOSITORY_ID, policy = SNAPSHOT)
+                                       Repository repository,
+                                       @MavenTestArtifact(repositoryId = REPOSITORY_ID,
+                                                          id = GROUP_ID + ":" + ARTIFACT_ID,
+                                                          versions = { "1.0-SNAPSHOT",
+                                                                       "1.0-20131004.115330-1",
+                                                                       "1.0.8-20151025.032208-1",
+                                                                       "1.0.8-alpha-1-20151025.032208-1"})
+                                       List<Path> validArtifactPaths)
             throws VersionValidationException
     {
         Artifact validArtifact1 = generateArtifact("1.0-SNAPSHOT");
@@ -59,16 +75,26 @@ public class MavenSnapshotVersionValidatorTest
         ArtifactCoordinates coordinates5 = new MockedMavenArtifactCoordinates(validArtifact5);
         ArtifactCoordinates coordinates6 = new MockedMavenArtifactCoordinates(validArtifact6);
 
-        validator.validate(new RepositoryData(repository), coordinates1);
-        validator.validate(new RepositoryData(repository), coordinates4);
-        validator.validate(new RepositoryData(repository), coordinates5);
-        validator.validate(new RepositoryData(repository), coordinates6);
+        validator.validate(repository, coordinates1);
+        validator.validate(repository, coordinates4);
+        validator.validate(repository, coordinates5);
+        validator.validate(repository, coordinates6);
 
         // If we've gotten here without an exception, then things are alright.
     }
 
+    @ExtendWith({ RepositoryManagementTestExecutionListener.class,
+                  ArtifactManagementTestExecutionListener.class })
     @Test
-    public void testInvalidArtifacts()
+    public void testInvalidArtifacts(@MavenRepository(repositoryId = REPOSITORY_ID, policy = SNAPSHOT)
+                                     Repository repository,
+                                     @MavenTestArtifact(repositoryId = REPOSITORY_ID,
+                                                        id = GROUP_ID + ":" + ARTIFACT_ID,
+                                                        versions = { "1",
+                                                                     "1.0",
+                                                                     "1.0.1",
+                                                                     "1.0.1-alpha" })
+                                     List<Path> invalidArtifactPaths)
     {
         Artifact invalidArtifact1 = generateArtifact("1");
         Artifact invalidArtifact2 = generateArtifact("1.0");
@@ -82,7 +108,7 @@ public class MavenSnapshotVersionValidatorTest
 
         try
         {
-            validator.validate(new RepositoryData(repository), coordinates1);
+            validator.validate(repository, coordinates1);
 
             fail("Incorrectly validated artifact with version 1!");
         }
@@ -92,7 +118,7 @@ public class MavenSnapshotVersionValidatorTest
 
         try
         {
-            validator.validate(new RepositoryData(repository), coordinates2);
+            validator.validate(repository, coordinates2);
 
             fail("Incorrectly validated artifact with version 1.0!");
         }
@@ -102,7 +128,7 @@ public class MavenSnapshotVersionValidatorTest
 
         try
         {
-            validator.validate(new RepositoryData(repository), coordinates3);
+            validator.validate(repository, coordinates3);
 
             fail("Incorrectly validated artifact with version 1.0.1!");
         }
@@ -112,7 +138,7 @@ public class MavenSnapshotVersionValidatorTest
 
         try
         {
-            validator.validate(new RepositoryData(repository), coordinates4);
+            validator.validate(repository, coordinates4);
 
             fail("Incorrectly validated artifact with version 1.0.1!");
         }
@@ -123,13 +149,7 @@ public class MavenSnapshotVersionValidatorTest
 
     private Artifact generateArtifact(String version)
     {
-        return new DefaultArtifact("org.carlspring.maven",
-                                   "my-maven-plugin",
-                                   version,
-                                   "compile",
-                                   "jar",
-                                   null,
-                                   new DefaultArtifactHandler("jar"));
+        String gavtc = String.format("%s:%s:%s:jar", GROUP_ID, ARTIFACT_ID, version);
+        return MavenArtifactTestUtils.getArtifactFromGAVTC(gavtc);
     }
-
 }
