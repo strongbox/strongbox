@@ -2,7 +2,6 @@ package org.carlspring.strongbox.forms.users;
 
 import javax.validation.Valid;
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.List;
 
 /**
