@@ -35,6 +35,7 @@ import org.carlspring.strongbox.providers.repository.group.GroupRepositorySetCol
 import org.carlspring.strongbox.services.support.ArtifactRoutingRulesChecker;
 import org.carlspring.strongbox.storage.Storage;
 import org.carlspring.strongbox.storage.repository.Repository;
+import org.carlspring.strongbox.util.ThrowingFunction;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -282,14 +283,7 @@ public class GroupRepositoryProvider
 
     private ArtifactCoordinates getArtifactCoordinates(Path p)
     {
-        try
-        {
-            return RepositoryFiles.readCoordinates((RepositoryPath) p);
-        }
-        catch (IOException e)
-        {
-            throw new RuntimeException(String.format("Failed to resolve ArtifactCoordinates for [%s]", p), e);
-        }
+        return ThrowingFunction.unchecked(RepositoryFiles::readCoordinates).apply((RepositoryPath) p);
     }
 
     @Override

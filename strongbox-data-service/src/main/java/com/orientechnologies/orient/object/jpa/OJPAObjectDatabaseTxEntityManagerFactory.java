@@ -1,18 +1,17 @@
 package com.orientechnologies.orient.object.jpa;
 
-import javax.persistence.*;
-import javax.persistence.criteria.CriteriaBuilder;
-import javax.persistence.metamodel.Metamodel;
-import java.lang.reflect.UndeclaredThrowableException;
-import java.sql.Connection;
-import java.sql.SQLException;
-import java.util.Map;
-import java.util.logging.Logger;
-
 import com.orientechnologies.orient.core.db.ODatabaseDocumentInternal;
 import com.orientechnologies.orient.jdbc.OrientDataSource;
 import com.orientechnologies.orient.jdbc.OrientJdbcConnection;
 import com.orientechnologies.orient.object.db.OObjectDatabaseTx;
+import org.carlspring.strongbox.util.ThrowingSupplier;
+
+import javax.persistence.*;
+import javax.persistence.criteria.CriteriaBuilder;
+import javax.persistence.metamodel.Metamodel;
+import java.sql.Connection;
+import java.util.Map;
+import java.util.logging.Logger;
 
 /**
  * @author Sergey Bespalov
@@ -66,15 +65,7 @@ public class OJPAObjectDatabaseTxEntityManagerFactory
     private EntityManager createEntityManager(final OJPAProperties properties)
     {
 
-        Connection connection;
-        try
-        {
-            connection = dataSource.getConnection();
-        }
-        catch (SQLException e)
-        {
-            throw new UndeclaredThrowableException(e);
-        }
+        Connection connection = ThrowingSupplier.unchecked(dataSource::getConnection).get();
 
         OObjectDatabaseTx db = new OObjectDatabaseTx((ODatabaseDocumentInternal) ((OrientJdbcConnection) connection).getDatabase());
         Boolean automaticSchemaGeneration = Boolean.valueOf(properties.getOrDefault(

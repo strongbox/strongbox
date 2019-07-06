@@ -93,11 +93,7 @@ public class CronTaskDataServiceImpl
 
         try
         {
-            return SerializationUtils.clone(configuration);
-        }
-        catch (Exception e)
-        {
-            throw new UndeclaredThrowableException(e);
+            return ThrowingFunction.unchecked((CronTasksConfigurationDto x) -> SerializationUtils.clone(x)).apply(configuration);
         }
         finally
         {

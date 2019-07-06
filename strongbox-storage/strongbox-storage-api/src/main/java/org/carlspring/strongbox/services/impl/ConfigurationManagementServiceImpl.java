@@ -98,11 +98,7 @@ public class ConfigurationManagementServiceImpl
 
         try
         {
-            return SerializationUtils.clone(configuration);
-        }
-        catch (Exception e)
-        {
-            throw new UndeclaredThrowableException(e);
+            return ThrowingFunction.unchecked((MutableConfiguration x) -> SerializationUtils.clone(x)).apply(configuration);
         }
         finally
         {
@@ -392,7 +388,7 @@ public class ConfigurationManagementServiceImpl
     /**
      * Sets the repository <--> storage relationships explicitly, as initially, when these are deserialized from the
      * XML, they have no such relationship.
-     * @throws IOException 
+     * @throws IOException
      */
     private void setRepositoryStorageRelationships() throws IOException
     {

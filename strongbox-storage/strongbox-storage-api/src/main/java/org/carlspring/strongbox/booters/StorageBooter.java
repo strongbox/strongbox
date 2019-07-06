@@ -22,6 +22,7 @@ import java.util.LinkedHashMap;
 import java.util.Map;
 
 import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
+import org.carlspring.strongbox.util.ThrowingConsumer;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -76,17 +77,7 @@ public class StorageBooter
                 logger.info(" -> Initializing repositories...");
             }
 
-            for (Repository repository : repositories)
-            {
-                try
-                {
-                    initializeRepository(repository);
-                }
-                catch (IOException e)
-                {
-                    throw new RuntimeException("Failed to initialize the repository '" + repository + "'.", e);
-                }
-            }
+            repositories.forEach(ThrowingConsumer.unchecked(this::initializeRepository));
         }
         else
         {

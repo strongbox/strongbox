@@ -1,24 +1,5 @@
 package org.carlspring.strongbox.artifact.generator;
 
-import org.carlspring.commons.io.RandomInputStream;
-import org.carlspring.strongbox.artifact.coordinates.NpmArtifactCoordinates;
-import org.carlspring.strongbox.npm.metadata.Dist;
-import org.carlspring.strongbox.npm.metadata.PackageVersion;
-
-import java.io.BufferedOutputStream;
-import java.io.IOException;
-import java.io.OutputStream;
-import java.io.UnsupportedEncodingException;
-import java.lang.reflect.UndeclaredThrowableException;
-import java.net.URI;
-import java.nio.file.Files;
-import java.nio.file.Path;
-import java.nio.file.Paths;
-import java.nio.file.StandardOpenOption;
-import java.security.MessageDigest;
-import java.security.NoSuchAlgorithmException;
-import java.util.Base64;
-
 import com.fasterxml.jackson.core.JsonEncoding;
 import com.fasterxml.jackson.core.JsonFactory;
 import com.fasterxml.jackson.core.JsonGenerator;
@@ -26,6 +7,23 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import org.apache.commons.compress.archivers.tar.TarArchiveEntry;
 import org.apache.commons.compress.archivers.tar.TarArchiveOutputStream;
 import org.apache.commons.compress.compressors.gzip.GzipCompressorOutputStream;
+import org.carlspring.commons.io.RandomInputStream;
+import org.carlspring.strongbox.artifact.coordinates.NpmArtifactCoordinates;
+import org.carlspring.strongbox.npm.metadata.Dist;
+import org.carlspring.strongbox.npm.metadata.PackageVersion;
+import org.carlspring.strongbox.util.ThrowingFunction;
+
+import java.io.BufferedOutputStream;
+import java.io.IOException;
+import java.io.OutputStream;
+import java.io.UnsupportedEncodingException;
+import java.net.URI;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
+import java.nio.file.StandardOpenOption;
+import java.security.MessageDigest;
+import java.util.Base64;
 
 public class NpmArtifactGenerator implements ArtifactGenerator
 {
@@ -112,14 +110,7 @@ public class NpmArtifactGenerator implements ArtifactGenerator
         throws IOException
     {
         MessageDigest crypt;
-        try
-        {
-            crypt = MessageDigest.getInstance("SHA-1");
-        }
-        catch (NoSuchAlgorithmException e)
-        {
-            throw new UndeclaredThrowableException(e);
-        }
+        crypt = ThrowingFunction.unchecked((String x) -> MessageDigest.getInstance(x)).apply("SHA-1");
 
         crypt.reset();
         crypt.update(Files.readAllBytes(packagePath));

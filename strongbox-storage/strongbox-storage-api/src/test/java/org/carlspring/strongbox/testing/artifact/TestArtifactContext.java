@@ -24,6 +24,8 @@ import org.carlspring.strongbox.providers.io.RepositoryFiles;
 import org.carlspring.strongbox.providers.io.RepositoryPath;
 import org.carlspring.strongbox.providers.io.RepositoryPathResolver;
 import org.carlspring.strongbox.services.ArtifactManagementService;
+import org.carlspring.strongbox.util.ThrowingConsumer;
+import org.carlspring.strongbox.util.ThrowingFunction;
 import org.junit.jupiter.api.TestInfo;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -209,15 +211,8 @@ public class TestArtifactContext implements AutoCloseable
         {
             throw new UndeclaredThrowableException(ioe);
         }
-        
-        try
-        {
-            Files.delete(e.getValue());
-        }
-        catch (IOException ioe)
-        {
-            throw new UndeclaredThrowableException(ioe);
-        }
+
+        ThrowingConsumer.unchecked(Files::delete).accept(e.getValue());
     }
     
     private int repositoryPathChecksumComparator(RepositoryPath p1,
@@ -225,15 +220,9 @@ public class TestArtifactContext implements AutoCloseable
     {
         Boolean isChecksumP1;
         Boolean isChecksumP2;
-        try
-        {
-            isChecksumP1 = RepositoryFiles.isChecksum(p1);
-            isChecksumP2 = RepositoryFiles.isChecksum(p2);
-        }
-        catch (IOException e)
-        {
-            throw new UndeclaredThrowableException(e);
-        }
+
+        isChecksumP1 = ThrowingFunction.unchecked(RepositoryFiles::isChecksum).apply(p1);
+        isChecksumP2 = ThrowingFunction.unchecked(RepositoryFiles::isChecksum).apply(p2);
         
         if (isChecksumP1 && isChecksumP2)
         {
@@ -275,16 +264,8 @@ public class TestArtifactContext implements AutoCloseable
         Path directoryWhereGeneratedArtifactsWasPlaced = path.getParent();
         try (Stream<Path> s = Files.list(directoryWhereGeneratedArtifactsWasPlaced))
         {
-            s.filter(p -> !Files.isDirectory(p)).forEach(p -> {
-                try
-                {
-                    Files.delete(p);
-                }
-                catch (IOException e)
-                {
-                    throw new UndeclaredThrowableException(e);
-                }
-            });
+            s.filter(p -> !Files.isDirectory(p)).map(ThrowingFunction.unchecked(p -> p))
+                                                .forEach(ThrowingConsumer.unchecked(Files::delete));
         }
     }
 
