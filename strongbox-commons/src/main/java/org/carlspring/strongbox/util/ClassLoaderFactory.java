@@ -26,13 +26,9 @@ public final class ClassLoaderFactory
     {
         Assert.notNull(paths, "paths collection cannot be null");
 
-        final URL[] urls;
-        final URI[] uris = paths.stream().map(Path::toUri).toArray(URI[]::new);
-        urls = new URL[uris.length];
-        for (int i = 0; i < uris.length; i++)
-        {
-            urls[i] = ThrowingFunction.unchecked(URI::toURL).apply(uris[i]);
-        }
+        final URL[] urls = paths.stream().map(Path::toUri)
+                                         .map(ThrowingFunction.unchecked(URI::toURL))
+                                         .toArray(URL[]::new);
 
         return new URLClassLoader(urls, parent);
     }

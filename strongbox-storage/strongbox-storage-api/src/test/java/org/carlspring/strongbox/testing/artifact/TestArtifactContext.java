@@ -264,8 +264,7 @@ public class TestArtifactContext implements AutoCloseable
         Path directoryWhereGeneratedArtifactsWasPlaced = path.getParent();
         try (Stream<Path> s = Files.list(directoryWhereGeneratedArtifactsWasPlaced))
         {
-            s.filter(p -> !Files.isDirectory(p)).map(ThrowingFunction.unchecked(p -> p))
-                                                .forEach(ThrowingConsumer.unchecked(Files::delete));
+            s.filter(p -> !Files.isDirectory(p)).forEach(ThrowingConsumer.unchecked(Files::delete));
         }
     }
 

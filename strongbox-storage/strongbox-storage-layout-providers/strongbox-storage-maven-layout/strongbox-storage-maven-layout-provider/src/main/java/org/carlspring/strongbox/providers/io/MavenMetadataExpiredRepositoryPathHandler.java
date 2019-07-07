@@ -35,8 +35,8 @@ public class MavenMetadataExpiredRepositoryPathHandler
         {
             return false;
         }
-        boolean isNotMetadata = ThrowingFunction.unchecked(RepositoryFiles::isMetadata).apply(repositoryPath);
-        if (!isNotMetadata)
+        boolean isMetadata = ThrowingFunction.unchecked(RepositoryFiles::isMetadata).apply(repositoryPath);
+        if (!isMetadata)
         {
             return false;
         }
