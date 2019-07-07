@@ -322,6 +322,12 @@ public class RepositoryData
     }
 
     @Override
+    public boolean isType(String compareType)
+    {
+        return type.equalsIgnoreCase(compareType);
+    }
+
+    @Override
     public Set<String> getGroupRepositories()
     {
         return groupRepositories.keySet();

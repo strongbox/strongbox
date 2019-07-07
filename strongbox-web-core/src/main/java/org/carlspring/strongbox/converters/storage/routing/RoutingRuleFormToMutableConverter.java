@@ -25,12 +25,17 @@ public class RoutingRuleFormToMutableConverter
         rule.setStorageId(StringUtils.trimToEmpty(routingRuleForm.getStorageId()));
         rule.setType(routingRuleForm.getType().getType());
         rule.setPattern(routingRuleForm.getPattern());
-        rule.setRepositories(routingRuleForm.getRepositories().stream().map(r -> {
-            MutableRoutingRuleRepository repository = new MutableRoutingRuleRepository();
-            repository.setRepositoryId(StringUtils.trimToEmpty(routingRuleForm.getGroupRepositoryId()));
-            repository.setStorageId(StringUtils.trimToEmpty(routingRuleForm.getStorageId()));
-            return repository;
-        }).collect(Collectors.toList()));
+        rule.setRepositories(
+                routingRuleForm.getRepositories()
+                               .stream()
+                               .map(r -> {
+                                   MutableRoutingRuleRepository repository = new MutableRoutingRuleRepository();
+                                   repository.setRepositoryId(StringUtils.trimToEmpty(r.getRepositoryId()));
+                                   repository.setStorageId(StringUtils.trimToEmpty(r.getStorageId()));
+                                   return repository;
+                               })
+                               .collect(Collectors.toList())
+        );
 
         return rule;
     }

@@ -81,7 +81,7 @@ public class RoutingRuleFormTestIT
     }
 
     @Test
-    void testRuleSetFormInvalidEmptyRepositories()
+    void testRuleSetFormValidEmptyRepositories()
     {
         // given
         RoutingRuleForm routingRuleForm = new RoutingRuleForm();
@@ -92,9 +92,29 @@ public class RoutingRuleFormTestIT
         Set<ConstraintViolation<RoutingRuleForm>> violations = validator.validate(routingRuleForm);
 
         // then
+        assertTrue(violations.isEmpty(), "Violations are not empty!");
+        assertEquals(0, violations.size());
+    }
+
+    @Test
+    void testRuleSetFormInvalidRepositories()
+    {
+        // given
+        RoutingRuleForm routingRuleForm = new RoutingRuleForm();
+        routingRuleForm.setPattern("*");
+        routingRuleForm.setType(RoutingRuleTypeEnum.DENY);
+        RoutingRuleRepositoryForm routingRuleRepositoryForm = new RoutingRuleRepositoryForm();
+        routingRuleRepositoryForm.setRepositoryId("");
+        routingRuleRepositoryForm.setStorageId(null);
+        routingRuleForm.setRepositories(Lists.newArrayList(routingRuleRepositoryForm));
+
+        // when
+        Set<ConstraintViolation<RoutingRuleForm>> violations = validator.validate(routingRuleForm);
+
+        // then
         assertFalse(violations.isEmpty(), "Violations are empty!");
-        assertEquals( 1, violations.size());
-        assertThat(violations).extracting("message").containsAnyOf("A list of repositories must be specified.");
+        assertEquals(2, violations.size());
+        assertThat(violations).extracting("message").containsAnyOf("Either storageId or repositoryId must not be blank!");
     }
 
     @Test

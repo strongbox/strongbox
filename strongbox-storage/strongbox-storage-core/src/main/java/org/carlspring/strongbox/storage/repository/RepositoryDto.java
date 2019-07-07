@@ -343,6 +343,12 @@ public class RepositoryDto
         return storageAndRepositoryId.toString();
     }
 
+    @Override
+    public boolean isType(String compareType)
+    {
+        return type.equalsIgnoreCase(compareType);
+    }
+
     public void setAllowsForceDeletion(boolean allowsForceDeletion)
     {
         this.allowsForceDeletion = allowsForceDeletion;

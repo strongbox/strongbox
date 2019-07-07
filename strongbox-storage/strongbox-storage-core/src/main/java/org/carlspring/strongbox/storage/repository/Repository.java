@@ -61,5 +61,7 @@ public interface Repository
     RepositoryConfiguration getRepositoryConfiguration();
 
     String getStorageIdAndRepositoryId();
+
+    boolean isType(String type);
     
 }

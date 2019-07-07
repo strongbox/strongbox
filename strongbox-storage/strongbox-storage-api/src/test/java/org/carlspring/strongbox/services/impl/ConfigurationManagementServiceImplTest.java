@@ -1,10 +1,7 @@
 package org.carlspring.strongbox.services.impl;
 
 import static org.hamcrest.MatcherAssert.assertThat;
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertFalse;
-import static org.junit.jupiter.api.Assertions.assertNotNull;
-import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.junit.jupiter.api.Assertions.*;
 import static org.junit.jupiter.api.parallel.ExecutionMode.CONCURRENT;
 
 import java.io.IOException;
@@ -122,6 +119,21 @@ public class ConfigurationManagementServiceImplTest
         assertThat(iterator.next(), CoreMatchers.equalTo("maven-central"));
         assertThat(iterator.next(), CoreMatchers.equalTo("apache-snapshots"));
         assertThat(iterator.next(), CoreMatchers.equalTo("jboss-public-releases"));
+    }
+
+    @Test
+    public void testGetRepositories()
+    {
+        List<Repository> repositories = configurationManagementService.getConfiguration().getRepositories();
+
+        assertFalse(repositories.isEmpty());
+
+        logger.debug("Repositories:");
+
+        for (Repository repository : repositories)
+        {
+            logger.debug(" - " + repository.getId());
+        }
     }
 
     @Test
