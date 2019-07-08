@@ -62,7 +62,7 @@ public class AuthorizationConfigServiceImpl
 
         try
         {
-            return ThrowingFunction.unchecked((AuthorizationConfigDto x) -> SerializationUtils.clone(x)).apply(authorizationConfig);
+            return SerializationUtils.clone(authorizationConfig);
         }
         finally
         {

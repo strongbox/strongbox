@@ -98,7 +98,7 @@ public class ConfigurationManagementServiceImpl
 
         try
         {
-            return ThrowingFunction.unchecked((MutableConfiguration x) -> SerializationUtils.clone(x)).apply(configuration);
+            return SerializationUtils.clone(configuration);
         }
         finally
         {

@@ -24,8 +24,8 @@ import org.carlspring.strongbox.providers.io.RepositoryFiles;
 import org.carlspring.strongbox.providers.io.RepositoryPath;
 import org.carlspring.strongbox.providers.io.RepositoryPathResolver;
 import org.carlspring.strongbox.services.ArtifactManagementService;
+import org.carlspring.strongbox.util.ThrowingComparator;
 import org.carlspring.strongbox.util.ThrowingConsumer;
-import org.carlspring.strongbox.util.ThrowingFunction;
 import org.junit.jupiter.api.TestInfo;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -190,18 +190,19 @@ public class TestArtifactContext implements AutoCloseable
                                                                        testArtifact.repositoryId(),
                                                                        relativePath);
 
-        Map<RepositoryPath, Path> repositoryPathMap = new TreeMap<RepositoryPath, Path>(this::repositoryPathChecksumComparator);
+        Map<RepositoryPath, Path> repositoryPathMap = new TreeMap<RepositoryPath, Path>(ThrowingComparator.unchecked(this::repositoryPathChecksumComparator));
         try (DirectoryStream<Path> s = Files.newDirectoryStream(artifactPathLocal.getParent()))
         {
             s.forEach(p -> repositoryPathMap.put(repositoryPath.resolveSibling(p.getFileName()), p));
         }
 
-        repositoryPathMap.entrySet().forEach(this::store);
+        repositoryPathMap.entrySet().forEach(ThrowingConsumer.unchecked(this::store));
 
         return repositoryPath;
     }
 
     private void store(Map.Entry<RepositoryPath, Path> e)
+            throws IOException
     {
         try (InputStream is = Files.newInputStream(e.getValue()))
         {
@@ -212,17 +213,18 @@ public class TestArtifactContext implements AutoCloseable
             throw new UndeclaredThrowableException(ioe);
         }
 
-        ThrowingConsumer.unchecked(Files::delete).accept(e.getValue());
+        Files.delete(e.getValue());
     }
     
     private int repositoryPathChecksumComparator(RepositoryPath p1,
                                                  RepositoryPath p2)
+            throws IOException
     {
         Boolean isChecksumP1;
         Boolean isChecksumP2;
 
-        isChecksumP1 = ThrowingFunction.unchecked(RepositoryFiles::isChecksum).apply(p1);
-        isChecksumP2 = ThrowingFunction.unchecked(RepositoryFiles::isChecksum).apply(p2);
+        isChecksumP1 = RepositoryFiles.isChecksum(p1);
+        isChecksumP2 = RepositoryFiles.isChecksum(p1);
         
         if (isChecksumP1 && isChecksumP2)
         {

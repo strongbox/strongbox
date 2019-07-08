@@ -30,13 +30,14 @@ public class MavenMetadataExpiredRepositoryPathHandler
 
     @Override
     public boolean supports(final RepositoryPath repositoryPath)
+            throws IOException
     {
         if (repositoryPath == null)
         {
             return false;
         }
-        boolean isMetadata = ThrowingFunction.unchecked(RepositoryFiles::isMetadata).apply(repositoryPath);
-        if (!isMetadata)
+
+        if (!RepositoryFiles.isMetadata(repositoryPath))
         {
             return false;
         }

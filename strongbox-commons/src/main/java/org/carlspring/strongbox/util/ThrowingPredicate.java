@@ -1,23 +1,22 @@
 package org.carlspring.strongbox.util;
 
-import java.util.function.Supplier;
+import java.util.function.Predicate;
 
 /**
  * @author Dawid Antecki
  */
 @FunctionalInterface
-public interface ThrowingSupplier<T, E extends Throwable>
+public interface ThrowingPredicate<T, E extends Throwable>
 {
+    boolean test(T t) throws E;
 
-    T get() throws E;
-
-    static <T, E extends Throwable> Supplier<T> unchecked(ThrowingSupplier<T, E> supplier)
+    static<T, E extends Throwable> Predicate<T> unchecked(ThrowingPredicate<T, E> predicate)
     {
-        return () ->
+        return t ->
         {
             try
             {
-                return supplier.get();
+                return predicate.test(t);
             }
             catch (Throwable e)
             {

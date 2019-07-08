@@ -8,6 +8,7 @@ import java.io.IOException;
 import java.util.List;
 import java.util.function.Consumer;
 
+import org.carlspring.strongbox.util.ThrowingPredicate;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.context.event.EventListener;
@@ -36,7 +37,7 @@ public class MavenProxyRepositoryPathExpiredEventListener
         }
 
         expiredRepositoryPathHandlers.stream()
-                                     .filter(handler -> handler.supports(repositoryPath))
+                                     .filter(ThrowingPredicate.unchecked((handler) -> handler.supports(repositoryPath)))
                                      .forEach(handleExpiration(repositoryPath));
     }
 

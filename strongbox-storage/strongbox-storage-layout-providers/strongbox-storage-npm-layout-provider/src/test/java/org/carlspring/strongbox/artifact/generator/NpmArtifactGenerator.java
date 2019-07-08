@@ -17,12 +17,14 @@ import java.io.BufferedOutputStream;
 import java.io.IOException;
 import java.io.OutputStream;
 import java.io.UnsupportedEncodingException;
+import java.lang.reflect.UndeclaredThrowableException;
 import java.net.URI;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.nio.file.StandardOpenOption;
 import java.security.MessageDigest;
+import java.security.NoSuchAlgorithmException;
 import java.util.Base64;
 
 public class NpmArtifactGenerator implements ArtifactGenerator
@@ -110,7 +112,15 @@ public class NpmArtifactGenerator implements ArtifactGenerator
         throws IOException
     {
         MessageDigest crypt;
-        crypt = ThrowingFunction.unchecked((String x) -> MessageDigest.getInstance(x)).apply("SHA-1");
+
+        try
+        {
+            crypt = MessageDigest.getInstance("SHA-1");
+        }
+        catch (NoSuchAlgorithmException e)
+        {
+            throw new IOException(e);
+        }
 
         crypt.reset();
         crypt.update(Files.readAllBytes(packagePath));

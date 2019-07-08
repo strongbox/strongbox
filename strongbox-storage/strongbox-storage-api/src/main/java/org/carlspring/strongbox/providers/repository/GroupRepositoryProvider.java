@@ -251,8 +251,7 @@ public class GroupRepositoryProvider
 
                 // count coordinates intersection
                 groupLimit += repositoryResult.stream()
-                                              .map((p) -> resultMap.put(getArtifactCoordinates(p),
-                                                                        p))
+                                              .map(ThrowingFunction.unchecked((Path p) -> resultMap.put(getArtifactCoordinates(p), p)))
                                               .filter(p -> p != null)
                                               .collect(Collectors.toList())
                                               .size();
@@ -281,9 +280,9 @@ public class GroupRepositoryProvider
         return resultList.subList(skip, toIndex);
     }
 
-    private ArtifactCoordinates getArtifactCoordinates(Path p)
+    private ArtifactCoordinates getArtifactCoordinates(Path p) throws IOException
     {
-        return ThrowingFunction.unchecked(RepositoryFiles::readCoordinates).apply((RepositoryPath) p);
+        return RepositoryFiles.readCoordinates((RepositoryPath) p);
     }
 
     @Override

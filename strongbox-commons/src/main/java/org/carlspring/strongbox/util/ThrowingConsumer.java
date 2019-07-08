@@ -2,6 +2,9 @@ package org.carlspring.strongbox.util;
 
 import java.util.function.Consumer;
 
+/**
+ * @author Dawid Antecki
+ */
 @FunctionalInterface
 public interface ThrowingConsumer<T, E extends Throwable>
 {

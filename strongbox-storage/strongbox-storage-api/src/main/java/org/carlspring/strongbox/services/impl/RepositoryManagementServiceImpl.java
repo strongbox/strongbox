@@ -27,7 +27,6 @@ import org.carlspring.strongbox.storage.ArtifactStorageException;
 import org.carlspring.strongbox.storage.Storage;
 import org.carlspring.strongbox.storage.repository.Repository;
 import org.carlspring.strongbox.storage.validation.resource.ArtifactOperationsValidator;
-import org.carlspring.strongbox.util.ThrowingConsumer;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Component;
@@ -234,7 +233,7 @@ public class RepositoryManagementServiceImpl
 
     @Override
     public void undeleteTrash()
-            throws ProviderImplementationException
+            throws IOException
     {
         
         for (Map.Entry<String, Storage> entry : getConfiguration().getStorages().entrySet())
@@ -244,10 +243,21 @@ public class RepositoryManagementServiceImpl
             final Map<String, ? extends Repository> repositories = storage.getRepositories();
             for (Repository repository : repositories.values())
             {
-                if (repository.isTrashEnabled())
+                final String storageId = storage.getId();
+                final String repositoryId = repository.getId();
+
+                try
                 {
-                    RootRepositoryPath repositoryPath = repositoryPathResolver.resolve(repository);
-                    ThrowingConsumer.unchecked(RepositoryFiles::undelete).accept(repositoryPath);
+                    if (repository.isTrashEnabled())
+                    {
+                        RootRepositoryPath repositoryPath = repositoryPathResolver.resolve(repository);
+                        RepositoryFiles.undelete(repositoryPath);
+                    }
+                }
+                catch (IOException e)
+                {
+                    throw new ArtifactStorageException( "Unable to undelete trash for storage " + storageId + " in repository " +
+                            repositoryId, e);
                 }
             }
         }

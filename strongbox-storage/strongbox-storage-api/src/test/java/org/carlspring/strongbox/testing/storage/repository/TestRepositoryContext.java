@@ -28,7 +28,7 @@ import org.carlspring.strongbox.storage.routing.MutableRoutingRule;
 import org.carlspring.strongbox.storage.routing.MutableRoutingRuleRepository;
 import org.carlspring.strongbox.testing.storage.repository.TestRepository.Group;
 import org.carlspring.strongbox.testing.storage.repository.TestRepository.Remote;
-import org.carlspring.strongbox.util.ThrowingConsumer;
+import org.carlspring.strongbox.util.ThrowingSupplier;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -128,7 +128,7 @@ public class TestRepositoryContext implements AutoCloseable, Comparable<TestRepo
         
         Storage storage = Optional.ofNullable(configurationManagementService.getConfiguration()
                                                                             .getStorage(testRepository.storageId()))
-                                  .orElseGet(this::createStorage);
+                                  .orElseGet(ThrowingSupplier.unchecked(this::createStorage));
 
         if (configurationManagementService.getConfiguration()
                                           .getRepository(testRepository.storageId(),
@@ -216,13 +216,12 @@ public class TestRepositoryContext implements AutoCloseable, Comparable<TestRepo
     }
 
     private Storage createStorage()
+            throws IOException
     {
         StorageDto newStorage = new StorageDto(testRepository.storageId());
-        try
-        {
         configurationManagementService.addStorageIfNotExists(newStorage);
 
-        ThrowingConsumer.unchecked(storageManagementService::saveStorage).accept(newStorage);
+        storageManagementService.saveStorage(newStorage);
 
         return configurationManagementService.getConfiguration().getStorage(testRepository.storageId());
     }
