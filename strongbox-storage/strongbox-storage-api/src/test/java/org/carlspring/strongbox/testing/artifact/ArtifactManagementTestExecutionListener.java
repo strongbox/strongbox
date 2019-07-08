@@ -14,6 +14,7 @@ import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 import org.carlspring.strongbox.io.ProxyPathInvocationHandler;
 import org.carlspring.strongbox.testing.storage.repository.TestRepositoryManagementContext;
@@ -45,15 +46,17 @@ public class ArtifactManagementTestExecutionListener extends TestRepositoryManag
         TestArtifact testArtifact = AnnotatedElementUtils.findMergedAnnotation(parameterContext.getParameter(), TestArtifact.class);
         
         Map<String, Object> attributesMap = Arrays.stream(parameterContext.getParameter().getAnnotations())
-                                                  .flatMap(a -> AnnotatedElementUtils.getMetaAnnotationTypes(parameterContext.getParameter(),
-                                                                                                             a.annotationType()
-                                                                                                              .getName())
-                                                                                     .stream())
+                                                  .map(a -> a.annotationType().getName())
+                                                  .flatMap(a -> Stream.concat(Stream.of(a),
+                                                                              AnnotatedElementUtils.getMetaAnnotationTypes(parameter,
+                                                                                                                           a)
+                                                                                                   .stream()))
                                                   .flatMap(a -> AnnotatedElementUtils.getMergedAnnotationAttributes(parameterContext.getParameter(),
                                                                                                                     a)
                                                                                      .entrySet()
                                                                                      .stream())
-                                                  .collect(Collectors.toMap(e -> e.getKey(), e -> e.getValue(), (k1, k2) -> k1));
+                                                  .collect(Collectors.toMap(e -> e.getKey(), e -> e.getValue(), (k1,
+                                                                                                                 k2) -> k1));
         
         TestRepositoryManagementContext testApplicationContext = getTestRepositoryManagementContext();
         testApplicationContext.register(testArtifact, attributesMap, new TestInfo()
@@ -167,4 +170,5 @@ public class ArtifactManagementTestExecutionListener extends TestRepositoryManag
         }
 
     }
+
 }
