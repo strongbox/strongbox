@@ -28,6 +28,7 @@ import org.springframework.stereotype.Component;
 public class PypiLayoutProvider
         extends AbstractLayoutProvider<PypiArtifactCoordinates>
 {
+
     private static final Logger logger = LoggerFactory.getLogger(PypiLayoutProvider.class);
 
     public static final String ALIAS = PypiArtifactCoordinates.LAYOUT_NAME;

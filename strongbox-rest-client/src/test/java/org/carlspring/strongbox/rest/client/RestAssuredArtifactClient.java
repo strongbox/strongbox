@@ -1,7 +1,6 @@
 package org.carlspring.strongbox.rest.client;
 
 import org.carlspring.strongbox.client.ArtifactOperationException;
-import org.carlspring.strongbox.client.ArtifactTransportException;
 import org.carlspring.strongbox.client.BaseArtifactClient;
 import org.carlspring.strongbox.client.IArtifactClient;
 
@@ -13,13 +12,12 @@ import java.net.URLEncoder;
 
 import com.google.common.io.ByteStreams;
 import io.restassured.http.ContentType;
+import io.restassured.http.Header;
 import io.restassured.http.Headers;
 import io.restassured.module.mockmvc.RestAssuredMockMvc;
 import io.restassured.module.mockmvc.response.MockMvcResponse;
 import io.restassured.module.mockmvc.specification.MockMvcRequestSpecification;
 import io.restassured.response.ExtractableResponse;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.stereotype.Component;
@@ -75,7 +73,6 @@ public class RestAssuredArtifactClient
     @Override
     public InputStream getResource(String path,
                                    long offset)
-            throws ArtifactTransportException, IOException
     {
         return getResource(path, (int) offset);
     }
@@ -159,7 +156,15 @@ public class RestAssuredArtifactClient
                                    int offset,
                                    boolean validate)
     {
-        byte[] bytes = getArtifactAsByteArray(url, offset, validate);
+        return getResource(url, offset, validate, null);
+    }
+
+    public InputStream getResource(String url,
+                                   int offset,
+                                   boolean validate,
+                                   Header[] headers)
+    {
+        byte[] bytes = getArtifactAsByteArray(url, offset, validate, headers);
         if (bytes == null)
         {
             return null;
@@ -182,7 +187,8 @@ public class RestAssuredArtifactClient
      */
     public byte[] getArtifactAsByteArray(String url,
                                          int offset,
-                                         boolean validate)
+                                         boolean validate,
+                                         Header[] headers)
     {
         MockMvcRequestSpecification o = givenLocal().contentType(MediaType.TEXT_PLAIN_VALUE);
         int statusCode = OK;
@@ -190,6 +196,14 @@ public class RestAssuredArtifactClient
         {
             o = o.header("Range", "bytes=" + offset + "-");
             statusCode = PARTIAL_CONTENT;
+        }
+
+        if (headers != null && headers.length > 0)
+        {
+            for (Header header : headers)
+            {
+                o.header(header.getName(), header.getValue());
+            }
         }
 
         logger.debug("[getArtifactAsByteArray] URL " + url);
