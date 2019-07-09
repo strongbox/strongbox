@@ -13,7 +13,6 @@ import org.carlspring.strongbox.testing.TestCaseWithMavenArtifactGenerationAndIn
 import org.carlspring.strongbox.testing.artifact.ArtifactManagementTestExecutionListener;
 import org.carlspring.strongbox.testing.artifact.MavenTestArtifact;
 import org.carlspring.strongbox.testing.repository.MavenRepository;
-import org.carlspring.strongbox.testing.storage.repository.RepositoryAttributes;
 import org.carlspring.strongbox.testing.storage.repository.RepositoryManagementTestExecutionListener;
 import org.carlspring.strongbox.testing.storage.repository.TestRepository.Group;
 import org.carlspring.strongbox.testing.storage.repository.TestRepository.Group.Rule;
@@ -178,7 +177,6 @@ public class MavenGroupRepositoryProviderTest
                                               @MavenRepository(repositoryId = MGRPT_RELEASES_2) Repository releases2,
                                               @Group(repositories = { MGRPT_RELEASES_1,
                                                                       MGRPT_RELEASES_2 })
-                                              @RepositoryAttributes(allowsRedeployment = false, allowsDelete = false)
                                               @MavenRepository(repositoryId = MGRPT_RELEASES_GROUP) Repository releasesGroup,
                                               @MavenTestArtifact(repositoryId = MGRPT_RELEASES_1, id = "com.artifacts.in.releases.three:foo", versions = "1.2.3") Path a1,
                                               @MavenTestArtifact(repositoryId = MGRPT_RELEASES_1, id = "com.artifacts.in.releases.under2:group", versions = "1.2.3") Path a2,
@@ -207,10 +205,8 @@ public class MavenGroupRepositoryProviderTest
             @MavenRepository(repositoryId = MGRPT_RELEASES_2) Repository releases2,
             @Group(repositories = { MGRPT_RELEASES_1,
                                     MGRPT_RELEASES_2 })
-            @RepositoryAttributes(allowsRedeployment = false, allowsDelete = false)
             @MavenRepository(repositoryId = MGRPT_RELEASES_GROUP) Repository releasesGroup,
             @Group(repositories = { MGRPT_RELEASES_GROUP,})
-            @RepositoryAttributes(allowsRedeployment = false, allowsDelete = false)
             @MavenRepository(repositoryId = MGRPT_RELEASES_GROUP_WITH_NESTED_GROUP_LEVEL_1) Repository releasesGroupWithNestedGroup,
             @MavenTestArtifact(repositoryId = MGRPT_RELEASES_1, id = "com.artifacts.in.releases.one:foo", versions = "1.2.3") Path a1,
             @MavenTestArtifact(repositoryId = MGRPT_RELEASES_1, id = "com.artifacts.in.releases.under3:group", versions = "1.2.3") Path a2,
@@ -237,7 +233,6 @@ public class MavenGroupRepositoryProviderTest
     public void testGroupAgainstNestedRepository(
             @MavenRepository(repositoryId = MGRPT_RELEASES_1) Repository releases1,
             @Group(repositories = { MGRPT_RELEASES_1 })
-            @RepositoryAttributes(allowsRedeployment = false, allowsDelete = false)
             @MavenRepository(repositoryId = MGRPT_RELEASES_GROUP) Repository releasesGroup,
             @MavenTestArtifact(repositoryId = MGRPT_RELEASES_1, id = "org.carlspring.metadata.by.juan:juancho", versions = "1.2.64") Path a1)
             throws Exception
