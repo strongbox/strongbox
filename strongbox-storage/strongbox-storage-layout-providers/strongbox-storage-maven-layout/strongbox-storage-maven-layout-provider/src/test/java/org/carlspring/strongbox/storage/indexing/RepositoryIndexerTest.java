@@ -92,16 +92,17 @@ public class RepositoryIndexerTest
 
         assertEquals(3, search.size(), "Only three versions of the strongbox-commons artifact were expected!");
 
-        search = repositoryIndexer.search("org.carlspring.strongbox", "strongbox-commons", "1.0", "jar", null);
-        assertEquals(1, search.size(), "org.carlspring.strongbox:strongbox-commons:1.0 should not been deleted!");
+        search = repositoryIndexer.search(GROUP_ID, ARTIFACT_ID, "1.0", "jar", null);
+        assertEquals(1, search.size(), GROUP_ID + ":" + ARTIFACT_ID + ":1.0 should not been deleted!");
 
-        search = repositoryIndexer.search("+g:org.carlspring.strongbox +a:strongbox-commons +v:1.0");
-        assertEquals(2, search.size(), "org.carlspring.strongbox:strongbox-commons:1.0 should not been deleted!");
+        final String query = String.format("+g:%s +a:%s +v:1.0", GROUP_ID, ARTIFACT_ID);
+        search = repositoryIndexer.search(query);
+        assertEquals(2, search.size(), GROUP_ID + ":" + ARTIFACT_ID + ":1.0  should not been deleted!");
 
         repositoryIndexer.delete(asArtifactInfo(search));
-        search = repositoryIndexer.search("org.carlspring.strongbox", "strongbox-commons", "1.0", null, null);
+        search = repositoryIndexer.search(GROUP_ID, ARTIFACT_ID, "1.0", null, null);
 
-        assertEquals(0, search.size(), "org.carlspring.strongbox:strongbox-commons:1.0 should have been deleted!");
+        assertEquals(0, search.size(), GROUP_ID + ":" + ARTIFACT_ID + ":1.0 should have been deleted!");
     }
 
     private Collection<ArtifactInfo> asArtifactInfo(Set<SearchResult> results)

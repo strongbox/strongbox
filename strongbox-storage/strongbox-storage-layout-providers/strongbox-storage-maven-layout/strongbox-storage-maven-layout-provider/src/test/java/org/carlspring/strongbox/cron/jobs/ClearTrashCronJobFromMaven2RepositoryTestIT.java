@@ -90,8 +90,7 @@ public class ClearTrashCronJobFromMaven2RepositoryTestIT
     {
         RepositoryPath repositoryRootPath = repositoryPathResolver.resolve(repository1);
         RepositoryPath repositoryTrashPath = RepositoryFiles.trash(repositoryRootPath);
-        RepositoryPath path = repositoryPathResolver.resolve(repository1,
-                                                             "org/carlspring/strongbox/clear/strongbox-test-one/1.0");
+        RepositoryPath path = repositoryPathResolver.resolve(repository1, (RepositoryPath) artifact1.normalize());
         RepositoryPath trashPath = RepositoryFiles.trash(path);
         
         assertTrue(Files.exists(repositoryTrashPath), "There is no path to the repository trash!");
@@ -103,8 +102,11 @@ public class ClearTrashCronJobFromMaven2RepositoryTestIT
         assertFalse(Files.exists(artifact1.normalize()), "The repository path exists!");
         assertTrue(Files.exists(RepositoryFiles.trash((RepositoryPath) artifact1.normalize())), "The repository trash is empty!");
 
-        addCronJobConfig(expectedJobKey, expectedJobName, ClearRepositoryTrashCronJob.class, STORAGE0,
-                         REPOSITORY_RELEASES_1);
+        addCronJobConfig(expectedJobKey,
+                         expectedJobName,
+                         ClearRepositoryTrashCronJob.class,
+                         STORAGE0,
+                         repository1.getId());
 
         await().atMost(EVENT_TIMEOUT_SECONDS, TimeUnit.SECONDS).untilTrue(receivedExpectedEvent());
         
