@@ -1,20 +1,20 @@
 package org.carlspring.strongbox.storage.validation.version;
 
 import org.carlspring.strongbox.artifact.coordinates.ArtifactCoordinates;
-import org.carlspring.strongbox.artifact.coordinates.MockedMavenArtifactCoordinates;
 import org.carlspring.strongbox.config.Maven2LayoutProviderTestConfig;
+import org.carlspring.strongbox.providers.io.RepositoryFiles;
+import org.carlspring.strongbox.providers.io.RepositoryPath;
 import org.carlspring.strongbox.storage.repository.Repository;
 import org.carlspring.strongbox.storage.validation.artifact.version.VersionValidationException;
 import org.carlspring.strongbox.testing.artifact.ArtifactManagementTestExecutionListener;
-import org.carlspring.strongbox.testing.artifact.MavenArtifactTestUtils;
 import org.carlspring.strongbox.testing.artifact.MavenTestArtifact;
 import org.carlspring.strongbox.testing.repository.MavenRepository;
 import org.carlspring.strongbox.testing.storage.repository.RepositoryManagementTestExecutionListener;
 
+import java.io.IOException;
 import java.nio.file.Path;
 import java.util.List;
 
-import org.apache.maven.artifact.Artifact;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.junit.jupiter.api.parallel.Execution;
@@ -58,19 +58,17 @@ public class MavenReleaseVersionValidatorTest
                                                          versions = { "1",
                                                                       "1.0" })
                                       List<Path> validArtifactPaths)
-            throws VersionValidationException
+            throws VersionValidationException, IOException
     {
         /*
          * Test valid artifacts
          */
-        Artifact validArtifact1 = generateArtifact("1");
-        Artifact validArtifact2 = generateArtifact("1.0");
-
-        ArtifactCoordinates coordinates1 = new MockedMavenArtifactCoordinates(validArtifact1);
-        ArtifactCoordinates coordinates2 = new MockedMavenArtifactCoordinates(validArtifact2);
-
-        validator.validate(repository, coordinates1);
-        validator.validate(repository, coordinates2);
+        for (Path validArtifactPath : validArtifactPaths)
+        {
+            RepositoryPath repositoryPath = (RepositoryPath) validArtifactPath.normalize();
+            ArtifactCoordinates coordinates = RepositoryFiles.readCoordinates(repositoryPath);
+            validator.validate(repository, coordinates);
+        }
 
         // If we've gotten here without an exception, then things are alright.
     }
@@ -84,38 +82,25 @@ public class MavenReleaseVersionValidatorTest
                                                         versions = { "1.0-SNAPSHOT",
                                                                      "1.0-20131004.115330-1" })
                                      List<Path> invalidArtifactPaths)
+            throws IOException
     {
         /*
          * Test invalid artifacts
          */
-        Artifact invalidArtifact1 = generateArtifact("1.0-SNAPSHOT");
-        Artifact invalidArtifact4 = generateArtifact("1.0-20131004.115330-1");
+        for (Path invalidArtifactPath : invalidArtifactPaths)
+        {
+            RepositoryPath repositoryPath = (RepositoryPath) invalidArtifactPath.normalize();
+            ArtifactCoordinates coordinates = RepositoryFiles.readCoordinates(repositoryPath);
 
-        ArtifactCoordinates coordinates1 = new MockedMavenArtifactCoordinates(invalidArtifact1);
-        ArtifactCoordinates coordinates4 = new MockedMavenArtifactCoordinates(invalidArtifact4);
-
-        try
-        {
-            validator.validate(repository, coordinates1);
-            fail("Incorrectly validated artifact with version 1.0-SNAPSHOT!");
-        }
-        catch (VersionValidationException e)
-        {
-        }
-
-        try
-        {
-            validator.validate(repository, coordinates4);
-            fail("Incorrectly validated artifact with version 1.0-20131004.115330-1!");
-        }
-        catch (VersionValidationException e)
-        {
+            try
+            {
+                validator.validate(repository, coordinates);
+                fail("Incorrectly validated artifact with version " + coordinates.getVersion());
+            }
+            catch (VersionValidationException e)
+            {
+            }
         }
     }
 
-    private Artifact generateArtifact(String version)
-    {
-        String gavtc = String.format("%s:%s:%s:jar", GROUP_ID, ARTIFACT_ID, version);
-        return MavenArtifactTestUtils.getArtifactFromGAVTC(gavtc);
-    }
 }
