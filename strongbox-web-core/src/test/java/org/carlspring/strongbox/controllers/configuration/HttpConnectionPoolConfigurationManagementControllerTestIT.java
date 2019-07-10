@@ -4,7 +4,7 @@ import org.carlspring.strongbox.config.IntegrationTest;
 import org.carlspring.strongbox.configuration.Configuration;
 import org.carlspring.strongbox.configuration.ConfigurationManager;
 import org.carlspring.strongbox.rest.common.RestAssuredBaseTest;
-import org.carlspring.strongbox.storage.repository.ImmutableRepository;
+import org.carlspring.strongbox.storage.repository.RepositoryData;
 import org.carlspring.strongbox.storage.repository.Repository;
 
 import javax.inject.Inject;
@@ -116,7 +116,7 @@ public class HttpConnectionPoolConfigurationManagementControllerTestIT
                                                           .stream()
                                                           .filter(stg -> MapUtils.isNotEmpty(stg.getRepositories()))
                                                           .flatMap(stg -> stg.getRepositories().values().stream())
-                                                          .map(r -> (ImmutableRepository)r)
+                                                          .map(r -> (RepositoryData)r)
                                                           .filter(repository ->
                                                                           repository.getRemoteRepository() != null &&
                                                                           repository.getRemoteRepository().getUrl() !=

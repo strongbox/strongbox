@@ -17,10 +17,10 @@ import org.carlspring.strongbox.repository.RepositoryManagementStrategyException
 import org.carlspring.strongbox.services.ConfigurationManagementService;
 import org.carlspring.strongbox.services.RepositoryManagementService;
 import org.carlspring.strongbox.services.StorageManagementService;
-import org.carlspring.strongbox.storage.MutableStorage;
+import org.carlspring.strongbox.storage.StorageDto;
 import org.carlspring.strongbox.storage.Storage;
-import org.carlspring.strongbox.storage.repository.ImmutableRepository;
-import org.carlspring.strongbox.storage.repository.MutableRepository;
+import org.carlspring.strongbox.storage.repository.RepositoryData;
+import org.carlspring.strongbox.storage.repository.RepositoryDto;
 import org.carlspring.strongbox.storage.repository.Repository;
 import org.carlspring.strongbox.storage.repository.RepositoryTypeEnum;
 import org.carlspring.strongbox.storage.repository.remote.MutableRemoteRepository;
@@ -136,7 +136,7 @@ public class TestRepositoryContext implements AutoCloseable, Comparable<TestRepo
             throw new IOException(String.format("Repository [%s] already exists.", id(testRepository)));
         }
 
-        MutableRepository repository = new MutableRepository(testRepository.repositoryId());
+        RepositoryDto repository = new RepositoryDto(testRepository.repositoryId());
         repository.setLayout(testRepository.layout());
         repository.setPolicy(testRepository.policy().toString());
 
@@ -148,20 +148,21 @@ public class TestRepositoryContext implements AutoCloseable, Comparable<TestRepo
             repository.setRemoteRepository(remoteRepositoryConfiguration);
         });
 
-        Optional.ofNullable(groupRepository).ifPresent(g -> {
+        if (groupRepository != null)
+        {
             repository.setType(RepositoryTypeEnum.GROUP.getType());
             repository.getGroupRepositories().addAll(Arrays.asList(groupRepository.repositories()));
-            
-            Arrays.stream(groupRepository.rules()).forEach((rule) -> {
+
+            for (TestRepository.Group.Rule rule : groupRepository.rules())
+            {
                 MutableRoutingRule routingRule = MutableRoutingRule.create(testRepository.storageId(),
                                                                            testRepository.repositoryId(),
                                                                            routingRepositories(rule.repositories()),
                                                                            rule.pattern(),
                                                                            rule.type());
                 configurationManagementService.addRoutingRule(routingRule);
-            });
-            
-        });
+            }
+        }
 
         Optional.ofNullable(repositoryAttributes).ifPresent(a -> {
             repository.setAllowsDelete(repositoryAttributes.allowsDelete());
@@ -179,7 +180,7 @@ public class TestRepositoryContext implements AutoCloseable, Comparable<TestRepo
         configurationManagementService.saveRepository(testRepository.storageId(), repository);
         repositoryManagementService.createRepository(storage.getId(), repository.getId());
 
-        final RepositoryPath repositoryPath = repositoryPathResolver.resolve(new ImmutableRepository(repository,
+        final RepositoryPath repositoryPath = repositoryPathResolver.resolve(new RepositoryData(repository,
                                                                                                      storage));
         if (!Files.exists(repositoryPath))
         {
@@ -199,7 +200,7 @@ public class TestRepositoryContext implements AutoCloseable, Comparable<TestRepo
     }
 
     private void setupRepository(Class<? extends RepositorySetup> s,
-                                 MutableRepository repository)
+                                 RepositoryDto repository)
     {
         RepositorySetup repositorySetup;
         try
@@ -215,10 +216,10 @@ public class TestRepositoryContext implements AutoCloseable, Comparable<TestRepo
 
     private Storage createStorage()
     {
-        MutableStorage newStorage = new MutableStorage(testRepository.storageId());
-        configurationManagementService.addStorageIfNotExists(newStorage);
+        StorageDto newStorage = new StorageDto(testRepository.storageId());
         try
         {
+            configurationManagementService.addStorageIfNotExists(newStorage);
             storageManagementService.saveStorage(newStorage);
         }
         catch (IOException e)

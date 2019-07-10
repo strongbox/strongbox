@@ -1,4 +1,4 @@
-package org.carlspring.strongbox.artifact.coordinates;
+package org.carlspring.strongbox.dependency.snippet;
 
 import org.carlspring.strongbox.artifact.coordinates.PypiWheelArtifactCoordinates;
 import org.carlspring.strongbox.dependency.snippet.PypiWheelDependencyFormatter;

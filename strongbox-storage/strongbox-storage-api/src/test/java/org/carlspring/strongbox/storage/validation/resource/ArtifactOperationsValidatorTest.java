@@ -70,7 +70,7 @@ public class ArtifactOperationsValidatorTest
     }
 
     @AfterEach
-    public void tearDown()
+    public void tearDown() throws IOException
     {
         configurationManagementService.setArtifactMaxSize(STORAGE_ID, REPOSITORY_ID, 0L);
     }

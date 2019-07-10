@@ -3,7 +3,7 @@ package org.carlspring.strongbox.testing;
 import org.carlspring.strongbox.booters.PropertiesBooter;
 import org.carlspring.strongbox.providers.layout.NpmLayoutProvider;
 import org.carlspring.strongbox.repository.RepositoryManagementStrategyException;
-import org.carlspring.strongbox.storage.repository.MutableRepository;
+import org.carlspring.strongbox.storage.repository.RepositoryDto;
 import org.carlspring.strongbox.storage.repository.NpmRepositoryFactory;
 import org.carlspring.strongbox.storage.repository.RepositoryTypeEnum;
 import org.carlspring.strongbox.storage.repository.remote.MutableRemoteRepository;
@@ -43,7 +43,7 @@ public class NpmRepositoryTestCase
         MutableRemoteRepository remoteRepository = new MutableRemoteRepository();
         remoteRepository.setUrl(remoteRepositoryUrl);
 
-        MutableRepository repository = npmRepositoryFactory.createRepository(repositoryId);
+        RepositoryDto repository = npmRepositoryFactory.createRepository(repositoryId);
         repository.setRemoteRepository(remoteRepository);
         repository.setLayout(NpmLayoutProvider.ALIAS);
         repository.setType(RepositoryTypeEnum.PROXY.getType());

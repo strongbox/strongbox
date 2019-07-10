@@ -15,14 +15,14 @@ import org.carlspring.strongbox.rest.common.MavenRestAssuredBaseTest;
 import org.carlspring.strongbox.services.ArtifactEntryService;
 import org.carlspring.strongbox.storage.indexing.IndexTypeEnum;
 import org.carlspring.strongbox.storage.repository.MavenRepositoryFactory;
-import org.carlspring.strongbox.storage.repository.MutableRepository;
+import org.carlspring.strongbox.storage.repository.RepositoryDto;
 import org.carlspring.strongbox.storage.repository.RepositoryPolicyEnum;
 import org.carlspring.strongbox.storage.search.SearchRequest;
 import org.carlspring.strongbox.storage.search.SearchResult;
 import org.carlspring.strongbox.storage.search.SearchResults;
 import org.carlspring.strongbox.testing.artifact.MavenArtifactTestUtils;
 import org.carlspring.strongbox.util.MessageDigestUtils;
-import org.carlspring.strongbox.yaml.configuration.repository.MutableMavenRepositoryConfiguration;
+import org.carlspring.strongbox.yaml.configuration.repository.MavenRepositoryConfigurationDto;
 
 import javax.inject.Inject;
 import javax.xml.bind.JAXBException;
@@ -147,9 +147,9 @@ public class MavenArtifactControllerTest
                                        REPOSITORY_SNAPSHOTS));
     }
 
-    private static Set<MutableRepository> getRepositoriesToClean(String... repositoryId)
+    private static Set<RepositoryDto> getRepositoriesToClean(String... repositoryId)
     {
-        Set<MutableRepository> repositories = new LinkedHashSet<>();
+        Set<RepositoryDto> repositories = new LinkedHashSet<>();
 
         Arrays.asList(repositoryId).forEach(
                 r -> repositories.add(createRepositoryMock(STORAGE0, r, Maven2LayoutProvider.ALIAS))
@@ -262,10 +262,10 @@ public class MavenArtifactControllerTest
         MockitoAnnotations.initMocks(this);
         defaultMavenArtifactDeployer = buildArtifactDeployer(Paths.get(""));
 
-        MutableMavenRepositoryConfiguration mavenRepositoryConfiguration = new MutableMavenRepositoryConfiguration();
+        MavenRepositoryConfigurationDto mavenRepositoryConfiguration = new MavenRepositoryConfigurationDto();
         mavenRepositoryConfiguration.setIndexingEnabled(false);
 
-        MutableRepository repository1 = mavenRepositoryFactory.createRepository(REPOSITORY_RELEASES1);
+        RepositoryDto repository1 = mavenRepositoryFactory.createRepository(REPOSITORY_RELEASES1);
         repository1.setPolicy(RepositoryPolicyEnum.RELEASE.getPolicy());
         repository1.setRepositoryConfiguration(mavenRepositoryConfiguration);
 
@@ -334,14 +334,14 @@ public class MavenArtifactControllerTest
         );
 
 
-        MutableRepository repository2 = mavenRepositoryFactory.createRepository(REPOSITORY_RELEASES2);
+        RepositoryDto repository2 = mavenRepositoryFactory.createRepository(REPOSITORY_RELEASES2);
         repository2.setPolicy(RepositoryPolicyEnum.RELEASE.getPolicy());
         repository2.setRepositoryConfiguration(mavenRepositoryConfiguration);
         repository2.setAllowsRedeployment(true);
 
         createRepository(STORAGE0, repository2);
 
-        MutableRepository repository3 = mavenRepositoryFactory.createRepository(REPOSITORY_SNAPSHOTS);
+        RepositoryDto repository3 = mavenRepositoryFactory.createRepository(REPOSITORY_SNAPSHOTS);
         repository3.setPolicy(RepositoryPolicyEnum.SNAPSHOT.getPolicy());
 
         createRepository(STORAGE0, repository3);
@@ -349,7 +349,7 @@ public class MavenArtifactControllerTest
         //noinspection ResultOfMethodCallIgnored
         Files.createDirectories(Paths.get(TEST_RESOURCES));
 
-        MutableRepository repository4 = mavenRepositoryFactory.createRepository(REPOSITORY_RELEASES_OUT_OF_SERVICE);
+        RepositoryDto repository4 = mavenRepositoryFactory.createRepository(REPOSITORY_RELEASES_OUT_OF_SERVICE);
         repository4.setPolicy(RepositoryPolicyEnum.RELEASE.getPolicy());
         repository4.putOutOfService();
 

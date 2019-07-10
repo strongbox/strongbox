@@ -1,7 +1,5 @@
 package org.carlspring.strongbox.users.domain;
 
-import org.carlspring.strongbox.authorization.domain.Privilege;
-
 import java.util.*;
 import java.util.stream.Collectors;
 

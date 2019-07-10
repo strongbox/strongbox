@@ -5,6 +5,8 @@ import org.carlspring.strongbox.users.dto.UsersDto;
 import org.carlspring.strongbox.users.service.impl.StrongboxUserService;
 import org.carlspring.strongbox.users.service.impl.StrongboxUserService.StrongboxUserServiceQualifier;
 
+import java.io.IOException;
+
 import javax.annotation.PostConstruct;
 import javax.inject.Inject;
 
@@ -34,7 +36,7 @@ public class UsersConfig
     private UsersFileManager usersFileManager;
 
     @PostConstruct
-    void init()
+    void init() throws IOException
     {
         final UsersDto securityUsers = usersFileManager.read();
         userService.setUsers(securityUsers);

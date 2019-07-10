@@ -1,34 +1,37 @@
 package org.carlspring.strongbox.users.service.impl;
 
-import org.carlspring.strongbox.data.CacheName;
-import org.carlspring.strongbox.users.domain.User;
-import org.carlspring.strongbox.users.domain.Users;
-import org.carlspring.strongbox.users.dto.UserAccessModelDto;
-import org.carlspring.strongbox.users.dto.UserDto;
-import org.carlspring.strongbox.users.dto.UserReadContract;
-import org.carlspring.strongbox.users.dto.UsersDto;
-import org.carlspring.strongbox.users.security.AuthoritiesProvider;
-import org.carlspring.strongbox.users.security.SecurityTokenProvider;
-import org.carlspring.strongbox.users.service.UserService;
+import static java.lang.annotation.RetentionPolicy.RUNTIME;
 
-import javax.inject.Inject;
-import javax.inject.Qualifier;
 import java.lang.annotation.Documented;
 import java.lang.annotation.Retention;
-import java.util.*;
+import java.util.Collections;
+import java.util.Date;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.Map;
+import java.util.Optional;
+import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.locks.Lock;
 import java.util.concurrent.locks.ReadWriteLock;
 import java.util.concurrent.locks.ReentrantReadWriteLock;
 import java.util.function.Consumer;
-import java.util.stream.Collectors;
+
+import javax.inject.Inject;
+import javax.inject.Qualifier;
 
 import org.apache.commons.lang3.StringUtils;
+import org.carlspring.strongbox.data.CacheName;
+import org.carlspring.strongbox.users.domain.UserData;
+import org.carlspring.strongbox.users.domain.Users;
+import org.carlspring.strongbox.users.dto.UserDto;
+import org.carlspring.strongbox.users.dto.User;
+import org.carlspring.strongbox.users.dto.UsersDto;
+import org.carlspring.strongbox.users.security.SecurityTokenProvider;
+import org.carlspring.strongbox.users.service.UserService;
 import org.jose4j.lang.JoseException;
 import org.springframework.cache.annotation.CacheEvict;
-import org.springframework.security.core.GrantedAuthority;
 import org.springframework.stereotype.Component;
-import static java.lang.annotation.RetentionPolicy.RUNTIME;
 
 
 @Component
@@ -42,9 +45,6 @@ public class InMemoryUserService implements UserService
 
     @Inject
     private SecurityTokenProvider tokenProvider;
-
-    @Inject
-    private AuthoritiesProvider authoritiesProvider;
 
     @Override
     public Users findAll()
@@ -65,7 +65,7 @@ public class InMemoryUserService implements UserService
     }
 
     @Override
-    public User findByUserName(final String username)
+    public UserData findByUserName(final String username)
     {
         if (username == null)
         {
@@ -77,27 +77,7 @@ public class InMemoryUserService implements UserService
 
         try
         {
-            Optional<UserDto> optionalUserDto = Optional.ofNullable(userMap.get(username));
-
-            if (optionalUserDto.isPresent())
-            {
-                UserDto userDto = optionalUserDto.get();
-
-                Set<String> authorities = userDto.getRoles()
-                                                 .stream()
-                                                 .map(this::getGrantedAuthorities)
-                                                 .map(this::getAuthoritiesAsString)
-                                                 .flatMap(Collection::stream)
-                                                 .collect(Collectors.toCollection(HashSet::new));
-
-                if (authorities.size() > 0)
-                {
-                    userDto.setAuthorities(authorities);
-                    optionalUserDto = Optional.of(userDto);
-                }
-            }
-
-            return optionalUserDto.map(User::new).orElse(null);
+            return Optional.ofNullable(userMap.get(username)).map(UserData::new).orElse(null);
         }
         finally
         {
@@ -109,7 +89,7 @@ public class InMemoryUserService implements UserService
     public String generateSecurityToken(final String username)
             throws JoseException
     {
-        final User user = findByUserName(username);
+        final UserData user = findByUserName(username);
 
         if (StringUtils.isEmpty(user.getSecurityTokenKey()))
         {
@@ -117,7 +97,7 @@ public class InMemoryUserService implements UserService
         }
 
         final Map<String, String> claimMap = new HashMap<>();
-        claimMap.put(User.SECURITY_TOKEN_KEY, user.getSecurityTokenKey());
+        claimMap.put(UserData.SECURITY_TOKEN_KEY, user.getSecurityTokenKey());
 
         return tokenProvider.getToken(username, claimMap, null);
     }
@@ -140,7 +120,7 @@ public class InMemoryUserService implements UserService
 
     @Override
     @CacheEvict(cacheNames = CacheName.User.AUTHENTICATIONS, key = "#p0.username")
-    public void save(final UserReadContract user)
+    public void save(final User user)
     {
         modifyInLock(users -> {
             UserDto u = Optional.ofNullable(users.get(user.getUsername())).orElseGet(() -> new UserDto());
@@ -153,7 +133,6 @@ public class InMemoryUserService implements UserService
             u.setEnabled(user.isEnabled());
             u.setRoles(user.getRoles());
             u.setSecurityTokenKey(user.getSecurityTokenKey());
-            u.setUserAccessModel(user.getUserAccessModel());
             u.setLastUpdate(new Date());
 
             users.putIfAbsent(user.getUsername(), u);
@@ -165,16 +144,6 @@ public class InMemoryUserService implements UserService
     {
         modifyInLock(users -> {
             users.remove(username);
-        });
-    }
-
-    @Override
-    public void updateAccessModel(final String username,
-                                  final UserAccessModelDto accessModel)
-    {
-        modifyInLock(users -> {
-            Optional.ofNullable(users.get(username))
-                    .ifPresent(u -> u.setUserAccessModel(accessModel));
         });
     }
 
@@ -240,18 +209,6 @@ public class InMemoryUserService implements UserService
         {
             writeLock.unlock();
         }
-    }
-
-    private Set<GrantedAuthority> getGrantedAuthorities(String role)
-    {
-        return authoritiesProvider.getAuthoritiesByRoleName(role);
-    }
-
-    private Set<String> getAuthoritiesAsString(Set<GrantedAuthority> authorities)
-    {
-        return authorities.stream()
-                          .map(GrantedAuthority::getAuthority)
-                          .collect(Collectors.toCollection(HashSet::new));
     }
 
     @Documented

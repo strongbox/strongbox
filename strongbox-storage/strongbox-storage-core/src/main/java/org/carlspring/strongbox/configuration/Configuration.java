@@ -1,10 +1,10 @@
 package org.carlspring.strongbox.configuration;
 
-import org.carlspring.strongbox.storage.ImmutableStorage;
-import org.carlspring.strongbox.storage.MutableStorage;
+import org.carlspring.strongbox.storage.StorageData;
+import org.carlspring.strongbox.storage.StorageDto;
 import org.carlspring.strongbox.storage.Storage;
 import org.carlspring.strongbox.storage.repository.HttpConnectionPool;
-import org.carlspring.strongbox.storage.repository.ImmutableRepository;
+import org.carlspring.strongbox.storage.repository.RepositoryData;
 import org.carlspring.strongbox.storage.repository.Repository;
 import org.carlspring.strongbox.storage.repository.RepositoryTypeEnum;
 import org.carlspring.strongbox.storage.routing.MutableRoutingRules;
@@ -80,10 +80,10 @@ public class Configuration
         return source != null ? new SessionConfiguration(source) : null;
     }
 
-    private Map<String, Storage> immuteStorages(final Map<String, MutableStorage> source)
+    private Map<String, Storage> immuteStorages(final Map<String, StorageDto> source)
     {
         return source != null ? ImmutableSortedMap.copyOf(source.entrySet().stream().collect(
-                toMap(Map.Entry::getKey, e -> new ImmutableStorage(e.getValue())))) : Collections.emptyMap();
+                toMap(Map.Entry::getKey, e -> new StorageData(e.getValue())))) : Collections.emptyMap();
     }
 
     private RemoteRepositoriesConfiguration immuteRemoteRepositoriesConfiguration(final MutableRemoteRepositoriesConfiguration source)
@@ -240,7 +240,7 @@ public class Configuration
                                                                  String repositoryId)
     {
         Repository repository = getStorage(storageId).getRepository(repositoryId);
-        return ((ImmutableRepository)repository).getHttpConnectionPool();
+        return ((RepositoryData)repository).getHttpConnectionPool();
     }
 
     public CorsConfiguration getCorsConfiguration()

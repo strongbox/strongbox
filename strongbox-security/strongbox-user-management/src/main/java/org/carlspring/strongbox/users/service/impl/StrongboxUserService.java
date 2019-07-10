@@ -2,7 +2,7 @@ package org.carlspring.strongbox.users.service.impl;
 
 import org.carlspring.strongbox.users.UsersFileManager;
 import org.carlspring.strongbox.users.dto.UserDto;
-import org.carlspring.strongbox.users.dto.UserReadContract;
+import org.carlspring.strongbox.users.dto.User;
 import org.carlspring.strongbox.users.dto.UsersDto;
 import org.carlspring.strongbox.users.service.impl.StrongboxUserService.StrongboxUserServiceQualifier;
 
@@ -10,6 +10,7 @@ import javax.inject.Inject;
 import javax.inject.Qualifier;
 import java.lang.annotation.Documented;
 import java.lang.annotation.Retention;
+import java.lang.reflect.UndeclaredThrowableException;
 import java.util.HashSet;
 import java.util.Map;
 import java.util.function.Consumer;
@@ -18,6 +19,8 @@ import org.apache.commons.lang3.StringUtils;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import static java.lang.annotation.RetentionPolicy.RUNTIME;
+
+import java.io.IOException;
 
 /**
  * @author Alex Oreshkevich
@@ -45,7 +48,7 @@ public class StrongboxUserService
     }
 
     @Override
-    public void save(UserReadContract user)
+    public void save(User user)
     {
         encryptPassword((UserDto) user, user.getPassword());
         
@@ -71,8 +74,19 @@ public class StrongboxUserService
     @Override
     protected void modifyInLock(Consumer<Map<String, UserDto>> operation)
     {
-        super.modifyInLock(operation.andThen(u -> usersFileManager.store(new UsersDto(
-                new HashSet<>(userMap.values())))));
+        super.modifyInLock(operation.andThen(u -> doStoreUsers()));
+    }
+
+    private void doStoreUsers()
+    {
+        try
+        {
+            usersFileManager.store(new UsersDto(new HashSet<>(userMap.values())));
+        }
+        catch (IOException e)
+        {
+            throw new UndeclaredThrowableException(e);
+        }
     }
 
     public void setUsers(final UsersDto newUsers)

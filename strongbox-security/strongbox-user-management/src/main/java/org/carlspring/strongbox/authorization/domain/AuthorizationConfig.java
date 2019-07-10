@@ -17,20 +17,20 @@ import com.google.common.collect.ImmutableSet;
 public class AuthorizationConfig
 {
 
-    private final Set<Role> roles;
+    private final Set<RoleData> roles;
 
     public AuthorizationConfig(final AuthorizationConfigDto source)
     {
         this.roles = immuteRoles(source.getRoles());
     }
 
-    private Set<Role> immuteRoles(final Set<RoleDto> source)
+    private Set<RoleData> immuteRoles(final Set<RoleDto> source)
     {
-        return source != null ? ImmutableSet.copyOf(source.stream().map(Role::new).collect(
+        return source != null ? ImmutableSet.copyOf(source.stream().map(RoleData::new).collect(
                 Collectors.toSet())) : Collections.emptySet();
     }
 
-    public Set<Role> getRoles()
+    public Set<RoleData> getRoles()
     {
         return roles;
     }

@@ -20,7 +20,7 @@ public class MavenRemoteRepositoryConfiguration
     {
     }
 
-    MavenRemoteRepositoryConfiguration(MutableMavenRemoteRepositoryConfiguration delegate)
+    MavenRemoteRepositoryConfiguration(MavenRemoteRepositoryConfigurationDto delegate)
     {
     }
 

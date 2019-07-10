@@ -7,6 +7,7 @@ import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.junit.jupiter.api.parallel.ExecutionMode.CONCURRENT;
 
+import java.io.IOException;
 import java.util.Collections;
 import java.util.Iterator;
 import java.util.List;
@@ -80,7 +81,7 @@ public class ConfigurationManagementServiceImplTest
     }
 
     @Test
-    public void additionOfTheSameGroupRepositoryShouldNotAffectGroupRepositoriesList()
+    public void additionOfTheSameGroupRepositoryShouldNotAffectGroupRepositoriesList() throws IOException
     {
         configurationManagementService.addRepositoryToGroup("storage-common-proxies",
                                                             "group-common-proxies",
@@ -99,7 +100,7 @@ public class ConfigurationManagementServiceImplTest
     }
 
     @Test
-    public void multipleAdditionOfTheSameRepositoryShouldNotAffectGroup()
+    public void multipleAdditionOfTheSameRepositoryShouldNotAffectGroup() throws IOException
     {
         configurationManagementService.addRepositoryToGroup("storage-common-proxies",
                                                             "group-common-proxies",
@@ -167,7 +168,7 @@ public class ConfigurationManagementServiceImplTest
                                                          Repository releasesGroup1,
                                                          @TestRepository.Group(repositories = REPOSITORY_RELEASES_1)
                                                          @NullRepository(repositoryId = REPOSITORY_GROUP_2) 
-                                                         Repository releasesGroup2)
+                                                         Repository releasesGroup2) throws IOException
     {
         assertEquals(2,
                      configurationManagementService.getConfiguration()
@@ -187,7 +188,7 @@ public class ConfigurationManagementServiceImplTest
     @Test
     @ExtendWith(RepositoryManagementTestExecutionListener.class)
     public void testSetProxyRepositoryMaxConnections(@NullRepository(repositoryId = REPOSITORY_RELEASES_2) 
-                                                     Repository releases1)
+                                                     Repository releases1) throws IOException
     {
         Storage storage = configurationManagementService.getConfiguration().getStorage(STORAGE0);
 
@@ -207,7 +208,7 @@ public class ConfigurationManagementServiceImplTest
     @ExtendWith(RepositoryManagementTestExecutionListener.class)
     public void shouldAddEditAndRemoveRoutingRule(@NullRepository(repositoryId = REPOSITORY_RELEASES_1) Repository releases1,
                                                   @TestRepository.Group(repositories = REPOSITORY_RELEASES_1)
-                                                  @NullRepository(repositoryId = REPOSITORY_GROUP_1) Repository releasesGroup)
+                                                  @NullRepository(repositoryId = REPOSITORY_GROUP_1) Repository releasesGroup) throws IOException
     {
         final MutableRoutingRule routingRule = createRoutingRule(RoutingRuleTypeEnum.ACCEPT);
         String repositoryId = routingRule.getRepositoryId();

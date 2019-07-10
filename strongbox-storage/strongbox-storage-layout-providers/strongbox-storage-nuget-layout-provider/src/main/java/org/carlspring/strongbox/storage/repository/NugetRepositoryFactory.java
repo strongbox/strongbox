@@ -21,9 +21,9 @@ public class NugetRepositoryFactory
 
 
     @Override
-    public MutableRepository createRepository(String repositoryId)
+    public RepositoryDto createRepository(String repositoryId)
     {
-        MutableRepository repository = new MutableRepository(repositoryId);
+        RepositoryDto repository = new RepositoryDto(repositoryId);
         repository.setLayout(NugetLayoutProvider.ALIAS);
         repository.setArtifactCoordinateValidators(
                 new LinkedHashSet<>(nugetRepositoryFeatures.getDefaultArtifactCoordinateValidators()));

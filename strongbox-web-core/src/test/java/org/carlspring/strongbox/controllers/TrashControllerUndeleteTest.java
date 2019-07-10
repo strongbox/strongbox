@@ -4,8 +4,8 @@ import org.carlspring.strongbox.config.IntegrationTest;
 import org.carlspring.strongbox.providers.layout.Maven2LayoutProvider;
 import org.carlspring.strongbox.rest.common.MavenRestAssuredBaseTest;
 import org.carlspring.strongbox.storage.repository.MavenRepositoryFactory;
-import org.carlspring.strongbox.storage.repository.MutableRepository;
-import org.carlspring.strongbox.yaml.configuration.repository.MutableMavenRepositoryConfiguration;
+import org.carlspring.strongbox.storage.repository.RepositoryDto;
+import org.carlspring.strongbox.yaml.configuration.repository.MavenRepositoryConfigurationDto;
 
 import javax.inject.Inject;
 import javax.xml.bind.JAXBException;
@@ -68,10 +68,10 @@ public class TrashControllerUndeleteTest
         // - Used by testForceDeleteArtifactNotAllowed()
         // - Forced deletions are not allowed
         // - Has enabled trash
-        MutableMavenRepositoryConfiguration mavenRepositoryConfiguration = new MutableMavenRepositoryConfiguration();
+        MavenRepositoryConfigurationDto mavenRepositoryConfiguration = new MavenRepositoryConfigurationDto();
         mavenRepositoryConfiguration.setIndexingEnabled(true);
 
-        MutableRepository repositoryWithTrash = mavenRepositoryFactory.createRepository(REPOSITORY_WITH_TRASH);
+        RepositoryDto repositoryWithTrash = mavenRepositoryFactory.createRepository(REPOSITORY_WITH_TRASH);
         repositoryWithTrash.setAllowsForceDeletion(false);
         repositoryWithTrash.setTrashEnabled(true);
         repositoryWithTrash.setRepositoryConfiguration(mavenRepositoryConfiguration);
@@ -81,7 +81,7 @@ public class TrashControllerUndeleteTest
         // Notes:
         // - Used by testForceDeleteArtifactAllowed()
         // - Forced deletions are allowed
-        MutableRepository repositoryReleases = mavenRepositoryFactory.createRepository(REPOSITORY_RELEASES);
+        RepositoryDto repositoryReleases = mavenRepositoryFactory.createRepository(REPOSITORY_RELEASES);
         repositoryReleases.setAllowsForceDeletion(false);
         repositoryReleases.setRepositoryConfiguration(mavenRepositoryConfiguration);
 
@@ -140,9 +140,9 @@ public class TrashControllerUndeleteTest
         removeRepositories(getRepositoriesToClean());
     }
 
-    public static Set<MutableRepository> getRepositoriesToClean()
+    public static Set<RepositoryDto> getRepositoriesToClean()
     {
-        Set<MutableRepository> repositories = new LinkedHashSet<>();
+        Set<RepositoryDto> repositories = new LinkedHashSet<>();
         repositories.add(createRepositoryMock(STORAGE0, REPOSITORY_WITH_TRASH, Maven2LayoutProvider.ALIAS));
         repositories.add(createRepositoryMock(STORAGE0, REPOSITORY_RELEASES, Maven2LayoutProvider.ALIAS));
 

@@ -2,10 +2,11 @@ package org.carlspring.strongbox.converters.users;
 
 import org.carlspring.strongbox.controllers.users.support.AccessModelOutput;
 import org.carlspring.strongbox.controllers.users.support.RepositoryAccessModelOutput;
-import org.carlspring.strongbox.users.dto.UserAccessModelReadContract;
-import org.carlspring.strongbox.users.dto.UserPathPrivelegiesReadContract;
-import org.carlspring.strongbox.users.dto.UserRepositoryReadContract;
-import org.carlspring.strongbox.users.dto.UserStorageReadContract;
+import org.carlspring.strongbox.users.domain.AccessModelData;
+import org.carlspring.strongbox.users.dto.AccessModel;
+import org.carlspring.strongbox.users.dto.PathPrivileges;
+import org.carlspring.strongbox.users.dto.RepositoryPrivileges;
+import org.carlspring.strongbox.users.dto.StoragePrivileges;
 
 import java.util.stream.Collectors;
 
@@ -16,12 +17,12 @@ import org.springframework.core.convert.converter.Converter;
  * @author Przemyslaw Fusik
  */
 public enum AccessModelToAccessModelOutputConverter
-        implements Converter<UserAccessModelReadContract, AccessModelOutput>
+        implements Converter<AccessModelData, AccessModelOutput>
 {
     INSTANCE;
-
+    
     @Override
-    public AccessModelOutput convert(final UserAccessModelReadContract source)
+    public AccessModelOutput convert(final AccessModelData source)
     {
         if (source == null)
         {
@@ -29,9 +30,9 @@ public enum AccessModelToAccessModelOutputConverter
         }
 
         AccessModelOutput result = new AccessModelOutput();
-        for (UserStorageReadContract storage : source.getStorages())
+        for (StoragePrivileges storage : source.getStorageAuthorities())
         {
-            for (UserRepositoryReadContract repository : storage.getRepositories())
+            for (RepositoryPrivileges repository : storage.getRepositoryPrivileges())
             {
                 if (CollectionUtils.isNotEmpty(repository.getRepositoryPrivileges()))
                 {
@@ -43,10 +44,10 @@ public enum AccessModelToAccessModelOutputConverter
                     repositoryAccess.getPrivileges()
                                     .addAll(repository.getRepositoryPrivileges()
                                                       .stream()
-                                                      .map(p -> p.getName())
+                                                      .map(p -> p.name())
                                                       .collect(Collectors.toSet()));
                 }
-                for (UserPathPrivelegiesReadContract pathPrivilege : repository.getPathPrivileges())
+                for (PathPrivileges pathPrivilege : repository.getPathPrivileges())
                 {
                     RepositoryAccessModelOutput repositoryAccess = getRepositoryAccessOrAddNewOne(result,
                                                                                                   storage.getStorageId(),
@@ -56,7 +57,7 @@ public enum AccessModelToAccessModelOutputConverter
 
                     repositoryAccess.getPrivileges().addAll(pathPrivilege.getPrivileges()
                                                                          .stream()
-                                                                         .map(p -> p.getName())
+                                                                         .map(p -> p.name())
                                                                          .collect(Collectors.toSet()));
                 }
             }

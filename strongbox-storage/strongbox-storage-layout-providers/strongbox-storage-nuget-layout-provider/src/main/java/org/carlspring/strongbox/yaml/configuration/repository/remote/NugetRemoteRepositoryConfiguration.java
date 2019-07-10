@@ -20,7 +20,7 @@ public class NugetRemoteRepositoryConfiguration
     {
     }
 
-    NugetRemoteRepositoryConfiguration(MutableNugetRemoteRepositoryConfiguration delegate)
+    NugetRemoteRepositoryConfiguration(NugetRemoteRepositoryConfigurationDto delegate)
     {
     }
 

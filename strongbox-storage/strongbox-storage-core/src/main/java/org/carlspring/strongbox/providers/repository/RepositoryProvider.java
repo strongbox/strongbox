@@ -2,7 +2,7 @@ package org.carlspring.strongbox.providers.repository;
 
 import org.carlspring.strongbox.data.criteria.Paginator;
 import org.carlspring.strongbox.data.criteria.Predicate;
-import org.carlspring.strongbox.storage.repository.MutableRepository;
+import org.carlspring.strongbox.storage.repository.RepositoryDto;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -26,7 +26,7 @@ public interface RepositoryProvider
 {
 
     /**
-     * Return {@link MutableRepository} type alias.
+     * Return {@link RepositoryDto} type alias.
      * 
      * @return
      */

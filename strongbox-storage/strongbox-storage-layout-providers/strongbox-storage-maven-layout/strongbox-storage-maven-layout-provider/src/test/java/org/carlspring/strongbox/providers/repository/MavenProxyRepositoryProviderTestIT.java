@@ -10,7 +10,7 @@ import org.carlspring.strongbox.providers.layout.Maven2LayoutProvider;
 import org.carlspring.strongbox.services.ArtifactEntryService;
 import org.carlspring.strongbox.storage.Storage;
 import org.carlspring.strongbox.storage.metadata.MavenMetadataManager;
-import org.carlspring.strongbox.storage.repository.MutableRepository;
+import org.carlspring.strongbox.storage.repository.RepositoryDto;
 import org.carlspring.strongbox.storage.repository.Repository;
 import org.carlspring.strongbox.testing.TestCaseWithMavenArtifactGenerationAndIndexing;
 
@@ -67,9 +67,9 @@ public class MavenProxyRepositoryProviderTestIT
     @Inject
     private MavenMetadataManager mavenMetadataManager;
 
-    private Set<MutableRepository> getRepositories(TestInfo testInfo)
+    private Set<RepositoryDto> getRepositories(TestInfo testInfo)
     {
-        Set<MutableRepository> repositories = new LinkedHashSet<>();
+        Set<RepositoryDto> repositories = new LinkedHashSet<>();
         repositories.add(createRepositoryMock(STORAGE_ID,
                                               getRepositoryName(REPOSITORY_ID, testInfo),
                                               Maven2LayoutProvider.ALIAS));

@@ -1,6 +1,6 @@
 package org.carlspring.strongbox.users.userdetails;
 
-import org.carlspring.strongbox.users.domain.User;
+import org.carlspring.strongbox.users.domain.UserData;
 import org.carlspring.strongbox.users.service.UserService;
 import org.carlspring.strongbox.users.service.impl.StrongboxUserService.StrongboxUserServiceQualifier;
 import org.carlspring.strongbox.users.userdetails.StrongboxUserDetailService.StrongboxUserDetailServiceQualifier;
@@ -39,7 +39,7 @@ public class StrongboxUserDetailService
             throw new IllegalArgumentException("Username cannot be null.");
         }
 
-        User user = userService.findByUserName(name);
+        UserData user = userService.findByUserName(name);
         if (user == null)
         {
             logger.error("[authenticate] ERROR Cannot find user with the name {}", name);

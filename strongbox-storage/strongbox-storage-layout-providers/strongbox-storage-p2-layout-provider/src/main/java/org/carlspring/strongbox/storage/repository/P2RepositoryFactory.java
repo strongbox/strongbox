@@ -21,9 +21,9 @@ public class P2RepositoryFactory
 
 
     @Override
-    public MutableRepository createRepository(String repositoryId)
+    public RepositoryDto createRepository(String repositoryId)
     {
-        MutableRepository repository = new MutableRepository(repositoryId);
+        RepositoryDto repository = new RepositoryDto(repositoryId);
         repository.setLayout(P2LayoutProvider.ALIAS);
         repository.setArtifactCoordinateValidators(
                 new LinkedHashSet<>(p2RepositoryFeatures.getDefaultArtifactCoordinateValidators()));

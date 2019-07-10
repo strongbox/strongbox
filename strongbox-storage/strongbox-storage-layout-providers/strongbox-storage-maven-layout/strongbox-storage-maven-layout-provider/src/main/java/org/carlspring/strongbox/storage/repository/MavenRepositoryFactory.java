@@ -20,9 +20,9 @@ public class MavenRepositoryFactory
     private MavenRepositoryFeatures mavenRepositoryFeatures;
 
     @Override
-    public MutableRepository createRepository(String repositoryId)
+    public RepositoryDto createRepository(String repositoryId)
     {
-        MutableRepository repository = new MutableRepository(repositoryId);
+        RepositoryDto repository = new RepositoryDto(repositoryId);
         repository.setLayout(Maven2LayoutProvider.ALIAS);
         repository.setArtifactCoordinateValidators(
                 new LinkedHashSet<>(mavenRepositoryFeatures.getDefaultArtifactCoordinateValidators()));

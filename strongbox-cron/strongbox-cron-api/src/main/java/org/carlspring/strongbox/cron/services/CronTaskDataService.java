@@ -5,6 +5,7 @@ import org.carlspring.strongbox.cron.domain.CronTaskConfigurationDto;
 import org.carlspring.strongbox.cron.domain.CronTasksConfigurationDto;
 import org.carlspring.strongbox.cron.services.support.CronTaskConfigurationSearchCriteria;
 
+import java.io.IOException;
 import java.util.List;
 import java.util.UUID;
 
@@ -21,9 +22,9 @@ public interface CronTaskDataService
 
     List<CronTaskConfiguration> findMatching(CronTaskConfigurationSearchCriteria searchCriteria);
 
-    UUID save(CronTaskConfigurationDto configuration);
+    UUID save(CronTaskConfigurationDto configuration) throws IOException;
 
-    void delete(UUID cronTaskConfigurationUuid);
+    void delete(UUID cronTaskConfigurationUuid) throws IOException;
 
 
 }

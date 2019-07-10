@@ -10,8 +10,10 @@ import java.util.List;
 public class AccessModelForm
 {
 
+    private List<String> apiAccess = new ArrayList<>();
+    
     @Valid
-    private List<RepositoryAccessModelForm> repositoriesAccess;
+    private List<RepositoryAccessModelForm> repositoriesAccess = new ArrayList<>();
 
     public List<RepositoryAccessModelForm> getRepositoriesAccess()
     {
@@ -31,4 +33,25 @@ public class AccessModelForm
         }
         repositoriesAccess.add(repositoryAccess);
     }
+
+    public List<String> getApiAccess()
+    {
+        return apiAccess;
+    }
+
+    public void setApiAccess(List<String> apiAccess)
+    {
+        this.apiAccess = apiAccess;
+    }
+    
+    public void addApiAccess(String privilege)
+    {
+        if (apiAccess == null)
+        {
+            apiAccess = new ArrayList<>();
+        }
+
+        apiAccess.add(privilege);
+    }
+    
 }

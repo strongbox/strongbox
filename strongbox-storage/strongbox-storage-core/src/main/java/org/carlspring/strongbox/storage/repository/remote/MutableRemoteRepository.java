@@ -1,6 +1,6 @@
 package org.carlspring.strongbox.storage.repository.remote;
 
-import org.carlspring.strongbox.yaml.repository.remote.MutableRemoteRepositoryConfiguration;
+import org.carlspring.strongbox.yaml.repository.remote.RemoteRepositoryConfigurationDto;
 
 import java.io.Serializable;
 
@@ -36,7 +36,7 @@ public class MutableRemoteRepository
 
     private boolean autoImportRemoteSSLCertificate;
 
-    private MutableRemoteRepositoryConfiguration customConfiguration;
+    private RemoteRepositoryConfigurationDto customConfiguration;
 
     public String getUrl()
     {
@@ -138,12 +138,12 @@ public class MutableRemoteRepository
         return allowsDirectoryBrowsing;
     }
 
-    public MutableRemoteRepositoryConfiguration getCustomConfiguration()
+    public RemoteRepositoryConfigurationDto getCustomConfiguration()
     {
         return customConfiguration;
     }
 
-    public void setCustomConfiguration(MutableRemoteRepositoryConfiguration customConfiguration)
+    public void setCustomConfiguration(RemoteRepositoryConfigurationDto customConfiguration)
     {
         this.customConfiguration = customConfiguration;
     }

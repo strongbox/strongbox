@@ -1,6 +1,8 @@
 package org.carlspring.strongbox.yaml.configuration.repository;
 
-public interface MavenRepositoryConfiguration
+import org.carlspring.strongbox.yaml.repository.RepositoryConfiguration;
+
+public interface MavenRepositoryConfiguration extends RepositoryConfiguration
 {
 
     boolean isIndexingEnabled();

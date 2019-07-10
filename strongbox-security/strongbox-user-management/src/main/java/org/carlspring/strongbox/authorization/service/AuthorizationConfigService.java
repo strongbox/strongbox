@@ -1,10 +1,11 @@
 package org.carlspring.strongbox.authorization.service;
 
-import org.carlspring.strongbox.authorization.dto.PrivilegeDto;
 import org.carlspring.strongbox.authorization.dto.RoleDto;
+import org.carlspring.strongbox.users.domain.Privileges;
 import org.carlspring.strongbox.authorization.dto.AuthorizationConfigDto;
 import org.carlspring.strongbox.authorization.domain.AuthorizationConfig;
 
+import java.io.IOException;
 import java.util.List;
 
 /**
@@ -14,17 +15,15 @@ import java.util.List;
 public interface AuthorizationConfigService
 {
 
-    String ANONYMOUS_ROLE = "ANONYMOUS_ROLE";
-
-    void setAuthorizationConfig(AuthorizationConfigDto config);
+    void setAuthorizationConfig(AuthorizationConfigDto config) throws IOException;
 
     AuthorizationConfigDto getDto();
 
     AuthorizationConfig get();
 
-    void addRole(RoleDto role);
+    void addRole(RoleDto role) throws IOException;
 
-    boolean deleteRole(String roleName);
+    boolean deleteRole(String roleName) throws IOException;
 
-    void addPrivilegesToAnonymous(List<PrivilegeDto> privilegeList);
+    void addPrivilegesToAnonymous(List<Privileges> privilegeList) throws IOException;
 }

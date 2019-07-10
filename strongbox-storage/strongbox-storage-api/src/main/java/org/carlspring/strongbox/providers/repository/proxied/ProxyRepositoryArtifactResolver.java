@@ -6,7 +6,7 @@ import org.carlspring.strongbox.providers.io.RepositoryFileAttributes;
 import org.carlspring.strongbox.providers.io.RepositoryPath;
 import org.carlspring.strongbox.providers.io.RepositoryPathLock;
 import org.carlspring.strongbox.services.ArtifactManagementService;
-import org.carlspring.strongbox.storage.repository.ImmutableRepository;
+import org.carlspring.strongbox.storage.repository.RepositoryData;
 import org.carlspring.strongbox.storage.repository.Repository;
 import org.carlspring.strongbox.storage.repository.remote.RemoteRepository;
 import org.carlspring.strongbox.storage.repository.remote.heartbeat.RemoteRepositoryAlivenessCacheManager;
@@ -57,7 +57,7 @@ public class ProxyRepositoryArtifactResolver
         throws IOException
     {
         Repository repository = repositoryPath.getFileSystem().getRepository();
-        final RemoteRepository remoteRepository = ((ImmutableRepository)repository).getRemoteRepository();
+        final RemoteRepository remoteRepository = ((RepositoryData)repository).getRemoteRepository();
         if (!remoteRepositoryAlivenessCacheManager.isAlive(remoteRepository))
         {
             logger.debug("Remote repository '" + remoteRepository.getUrl() + "' is down.");

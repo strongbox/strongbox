@@ -12,6 +12,7 @@ import org.carlspring.strongbox.services.ConfigurationManagementService;
 import org.carlspring.strongbox.services.support.ConfigurationException;
 import org.carlspring.strongbox.validation.RequestBodyValidationException;
 
+import java.io.IOException;
 import java.util.Collection;
 import java.util.Objects;
 import java.util.stream.Stream;
@@ -66,7 +67,7 @@ public class ServerConfigurationController
                              MediaType.APPLICATION_JSON_VALUE })
     public ResponseEntity setInstanceName(@ApiParam(value = "The instance's name", required = true)
                                           @RequestBody InstanceNameEntityBody instanceNameEntityBody,
-                                          @RequestHeader(HttpHeaders.ACCEPT) String accept)
+                                          @RequestHeader(HttpHeaders.ACCEPT) String accept) throws IOException
     {
         try
         {
@@ -120,7 +121,7 @@ public class ServerConfigurationController
                              MediaType.APPLICATION_JSON_VALUE })
     public ResponseEntity setBaseUrl(@ApiParam(value = "The base URL", required = true)
                                      @RequestBody BaseUrlEntityBody baseUrlEntity,
-                                     @RequestHeader(HttpHeaders.ACCEPT) String accept)
+                                     @RequestHeader(HttpHeaders.ACCEPT) String accept) throws IOException
     {
         try
         {
@@ -173,7 +174,7 @@ public class ServerConfigurationController
                              MediaType.APPLICATION_JSON_VALUE })
     public ResponseEntity setPort(@ApiParam(value = "The port of the service", required = true)
                                   @PathVariable int port,
-                                  @RequestHeader(HttpHeaders.ACCEPT) String accept)
+                                  @RequestHeader(HttpHeaders.ACCEPT) String accept) throws IOException
     {
         try
         {
@@ -202,7 +203,7 @@ public class ServerConfigurationController
                              MediaType.APPLICATION_JSON_VALUE })
     public ResponseEntity setPort(@ApiParam(value = "The port of the service", required = true)
                                   @RequestBody PortEntityBody portEntity,
-                                  @RequestHeader(HttpHeaders.ACCEPT) String accept)
+                                  @RequestHeader(HttpHeaders.ACCEPT) String accept) throws IOException
     {
         return setPort(portEntity.getPort(), accept);
     }
@@ -229,7 +230,7 @@ public class ServerConfigurationController
                               MediaType.APPLICATION_JSON_VALUE })
     public ResponseEntity setServerSettings(@RequestBody ServerSettingsForm serverSettingsForm,
                                             BindingResult bindingResult,
-                                            @RequestHeader(HttpHeaders.ACCEPT) String acceptHeader)
+                                            @RequestHeader(HttpHeaders.ACCEPT) String acceptHeader) throws IOException
     {
         if (serverSettingsForm == null)
         {

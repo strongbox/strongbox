@@ -27,7 +27,7 @@ public class RoleListFormTestIT
 
     private final String NEW_ROLE = "NEW_ROLE";
     private final String NEW_ROLE_2 = "NEW_ROLE_2";
-    private final String EXISTING_ROLE = "USER_ROLE";
+    private final String EXISTING_ROLE = "CUSTOM_ROLE";
     @Inject
     private Validator validator;
 

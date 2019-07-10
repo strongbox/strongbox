@@ -8,6 +8,7 @@ import org.carlspring.strongbox.security.authentication.suppliers.Authentication
 import org.carlspring.strongbox.security.authentication.suppliers.AuthenticationSuppliers;
 import org.carlspring.strongbox.security.vote.MethodAccessDecisionManager;
 import org.carlspring.strongbox.services.ConfigurationManagementService;
+import org.carlspring.strongbox.users.domain.SystemRole;
 import org.carlspring.strongbox.users.security.AuthoritiesProvider;
 
 import javax.inject.Inject;
@@ -43,7 +44,6 @@ import org.springframework.security.web.firewall.DefaultHttpFirewall;
 import org.springframework.web.cors.CorsConfiguration;
 import org.springframework.web.cors.CorsConfigurationSource;
 import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
-import static org.carlspring.strongbox.authorization.service.AuthorizationConfigService.ANONYMOUS_ROLE;
 
 @ComponentScan({ "org.carlspring.strongbox.security" })
 @Import({ DataServiceConfig.class,
@@ -166,7 +166,7 @@ public class SecurityConfig
     AnonymousAuthenticationFilter anonymousAuthenticationFilter()
     {
         List<GrantedAuthority> authorities = AuthorityUtils.createAuthorityList("ROLE_ANONYMOUS");
-        authorities.addAll(authoritiesProvider.getAuthoritiesByRoleName(ANONYMOUS_ROLE));
+        authorities.addAll(authoritiesProvider.getRuntimeRole(SystemRole.ANONYMOUS.name()).getAccessModel().getApiAuthorities());
 
         return new AnonymousAuthenticationFilter("strongbox-unique-key",
                                                  "anonymousUser",

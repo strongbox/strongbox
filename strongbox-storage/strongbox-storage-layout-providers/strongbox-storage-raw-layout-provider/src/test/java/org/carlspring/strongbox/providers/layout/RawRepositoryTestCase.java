@@ -2,7 +2,7 @@ package org.carlspring.strongbox.providers.layout;
 
 import org.carlspring.strongbox.config.RawLayoutProviderTestConfig;
 import org.carlspring.strongbox.repository.RepositoryManagementStrategyException;
-import org.carlspring.strongbox.storage.repository.MutableRepository;
+import org.carlspring.strongbox.storage.repository.RepositoryDto;
 import org.carlspring.strongbox.storage.repository.RawRepositoryFactory;
 import org.carlspring.strongbox.storage.repository.RepositoryTypeEnum;
 import org.carlspring.strongbox.storage.repository.remote.MutableRemoteRepository;
@@ -41,7 +41,7 @@ public class RawRepositoryTestCase
         MutableRemoteRepository remoteRepository = new MutableRemoteRepository();
         remoteRepository.setUrl(remoteRepositoryUrl);
 
-        MutableRepository repository = rawRepositoryFactory.createRepository(repositoryId);
+        RepositoryDto repository = rawRepositoryFactory.createRepository(repositoryId);
         repository.setRemoteRepository(remoteRepository);
         repository.setLayout(RawLayoutProvider.ALIAS);
         repository.setType(RepositoryTypeEnum.PROXY.getType());

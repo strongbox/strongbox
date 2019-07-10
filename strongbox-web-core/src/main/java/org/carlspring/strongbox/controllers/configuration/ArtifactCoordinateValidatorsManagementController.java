@@ -7,6 +7,8 @@ import org.carlspring.strongbox.storage.validation.artifact.ArtifactCoordinatesV
 import org.carlspring.strongbox.web.RepositoryMapping;
 
 import javax.inject.Inject;
+
+import java.io.IOException;
 import java.util.Map;
 import java.util.Set;
 import java.util.stream.Collectors;
@@ -75,7 +77,7 @@ public class ArtifactCoordinateValidatorsManagementController
                              MediaType.APPLICATION_JSON_VALUE })
     public ResponseEntity add(@RepositoryMapping Repository repository,
                               @PathVariable String alias,
-                              @RequestHeader(HttpHeaders.ACCEPT) String acceptHeader)
+                              @RequestHeader(HttpHeaders.ACCEPT) String acceptHeader) throws IOException
     {
         final String storageId = repository.getStorage().getId();
         final String repositoryId = repository.getId();
@@ -92,7 +94,7 @@ public class ArtifactCoordinateValidatorsManagementController
                                 MediaType.APPLICATION_JSON_VALUE })
     public ResponseEntity delete(@RepositoryMapping Repository repository,
                                  @PathVariable String alias,
-                                 @RequestHeader(HttpHeaders.ACCEPT) String acceptHeader)
+                                 @RequestHeader(HttpHeaders.ACCEPT) String acceptHeader) throws IOException
     {
         final String storageId = repository.getStorage().getId();
         final String repositoryId = repository.getId();

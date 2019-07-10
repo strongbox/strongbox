@@ -1,19 +1,7 @@
 package org.carlspring.strongbox.authorization.service.impl;
 
-import org.carlspring.strongbox.authorization.AuthorizationConfigFileManager;
-import org.carlspring.strongbox.authorization.domain.AuthorizationConfig;
-import org.carlspring.strongbox.authorization.dto.AuthorizationConfigDto;
-import org.carlspring.strongbox.authorization.dto.PrivilegeDto;
-import org.carlspring.strongbox.authorization.dto.RoleDto;
-import org.carlspring.strongbox.authorization.service.AuthorizationConfigService;
-import org.carlspring.strongbox.configuration.ConfigurationException;
-import org.carlspring.strongbox.users.domain.Roles;
-
-import javax.inject.Inject;
-import javax.validation.constraints.NotNull;
+import java.io.IOException;
 import java.lang.reflect.UndeclaredThrowableException;
-import java.util.Arrays;
-import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 import java.util.concurrent.locks.Lock;
@@ -21,9 +9,17 @@ import java.util.concurrent.locks.ReadWriteLock;
 import java.util.concurrent.locks.ReentrantReadWriteLock;
 import java.util.function.Consumer;
 
-import com.google.common.collect.Sets;
+import javax.inject.Inject;
+
 import org.apache.commons.lang3.SerializationUtils;
 import org.apache.commons.lang3.mutable.MutableBoolean;
+import org.carlspring.strongbox.authorization.AuthorizationConfigFileManager;
+import org.carlspring.strongbox.authorization.domain.AuthorizationConfig;
+import org.carlspring.strongbox.authorization.dto.AuthorizationConfigDto;
+import org.carlspring.strongbox.authorization.dto.RoleDto;
+import org.carlspring.strongbox.authorization.service.AuthorizationConfigService;
+import org.carlspring.strongbox.users.domain.Privileges;
+import org.carlspring.strongbox.users.domain.SystemRole;
 import org.springframework.stereotype.Service;
 
 /**
@@ -47,28 +43,8 @@ public class AuthorizationConfigServiceImpl
      */
     private AuthorizationConfigDto authorizationConfig;
 
-    private static void throwIfNotEmpty(Sets.SetView<String> intersectionView,
-                                        String message)
-    {
-        if (!intersectionView.isEmpty())
-        {
-            throw new ConfigurationException(message + intersectionView);
-        }
-    }
-
-    private static Set<String> collect(@NotNull Iterable<?> it,
-                                       @NotNull NameFunction nameFunction)
-    {
-        Set<String> names = new HashSet<>();
-        for (Object o : it)
-        {
-            names.add(nameFunction.name(o));
-        }
-        return names;
-    }
-
     @Override
-    public void setAuthorizationConfig(final AuthorizationConfigDto newConfig)
+    public void setAuthorizationConfig(final AuthorizationConfigDto newConfig) throws IOException
     {
         modifyInLock(config ->
                      {
@@ -114,20 +90,16 @@ public class AuthorizationConfigServiceImpl
     }
 
     @Override
-    public void addRole(final RoleDto role)
+    public void addRole(final RoleDto role) throws IOException
     {
         modifyInLock(config ->
                      {
-                         AuthorizationConfigDto configClone = SerializationUtils.clone(config);
-                         configClone.getRoles().add(role);
-                         validateConfig(configClone);
-
                          config.getRoles().add(role);
                      });
     }
 
     @Override
-    public boolean deleteRole(final String roleName)
+    public boolean deleteRole(final String roleName) throws IOException
     {
         MutableBoolean result = new MutableBoolean();
         modifyInLock(config ->
@@ -143,28 +115,27 @@ public class AuthorizationConfigServiceImpl
     }
 
     @Override
-    public void addPrivilegesToAnonymous(final List<PrivilegeDto> privilegeList)
+    public void addPrivilegesToAnonymous(final List<Privileges> privilegeList) throws IOException
     {
         modifyInLock(config ->
                      {
                          Set<RoleDto> roles = config.getRoles();
                          roles.stream()
                               .filter(r -> r.getName()
-                                            .equalsIgnoreCase(ANONYMOUS_ROLE))
+                                            .equalsIgnoreCase(SystemRole.ANONYMOUS.name()))
                               .findFirst()
                               .ifPresent(r -> privilegeList.stream()
-                                                           .map(PrivilegeDto::getName)
                                                            .forEach(p -> r.addPrivilege(p)));
                      });
     }
 
-    private void modifyInLock(final Consumer<AuthorizationConfigDto> operation)
+    private void modifyInLock(final Consumer<AuthorizationConfigDto> operation) throws IOException
     {
         modifyInLock(operation, true);
     }
 
     private void modifyInLock(final Consumer<AuthorizationConfigDto> operation,
-                              final boolean storeInFile)
+                              final boolean storeInFile) throws IOException
     {
         final Lock writeLock = authorizationConfigLock.writeLock();
         writeLock.lock();
@@ -184,35 +155,4 @@ public class AuthorizationConfigServiceImpl
         }
     }
 
-    private void validateConfig(@NotNull AuthorizationConfigDto config)
-            throws ConfigurationException
-    {
-        // check that embedded roles was not overridden
-        throwIfNotEmpty(toIntersection(config.getRoles(),
-                                       Arrays.asList(Roles.values()),
-                                       o -> ((RoleDto) o).getName()
-                                                         .toUpperCase(),
-                                       o -> ((Roles) o).name()
-                                                       .toUpperCase()),
-                        "Embedded roles overriding is forbidden: ");
-    }
-
-    /**
-     * Calculates intersection of two sets that was created from two iterable sources with help of two name functions
-     * respectively.
-     */
-    private Sets.SetView<String> toIntersection(@NotNull Iterable<?> first,
-                                                @NotNull Iterable<?> second,
-                                                @NotNull NameFunction firstNameFunction,
-                                                @NotNull NameFunction secondNameFunction)
-    {
-        return Sets.intersection(collect(first, firstNameFunction), collect(second, secondNameFunction));
-    }
-
-    // used to receive String representation of any object to execute future comparisons based on that
-    private interface NameFunction
-    {
-
-        String name(Object o);
-    }
 }

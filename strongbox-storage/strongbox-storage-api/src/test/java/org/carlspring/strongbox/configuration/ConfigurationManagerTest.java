@@ -3,15 +3,15 @@ package org.carlspring.strongbox.configuration;
 import org.carlspring.strongbox.StorageApiTestConfig;
 import org.carlspring.strongbox.booters.PropertiesBooter;
 import org.carlspring.strongbox.data.CacheManagerTestExecutionListener;
-import org.carlspring.strongbox.storage.MutableStorage;
-import org.carlspring.strongbox.storage.repository.MutableRepository;
+import org.carlspring.strongbox.storage.StorageDto;
+import org.carlspring.strongbox.storage.repository.RepositoryDto;
 import org.carlspring.strongbox.storage.routing.MutableRoutingRule;
 import org.carlspring.strongbox.storage.routing.MutableRoutingRuleRepository;
 import org.carlspring.strongbox.storage.routing.MutableRoutingRules;
 import org.carlspring.strongbox.storage.routing.RoutingRuleTypeEnum;
 import org.carlspring.strongbox.yaml.YAMLMapperFactory;
-import org.carlspring.strongbox.yaml.repository.MutableCustomRepositoryConfiguration;
-import org.carlspring.strongbox.yaml.repository.remote.MutableRemoteRepositoryConfiguration;
+import org.carlspring.strongbox.yaml.repository.CustomRepositoryConfigurationDto;
+import org.carlspring.strongbox.yaml.repository.remote.RemoteRepositoryConfigurationDto;
 
 import javax.inject.Inject;
 import java.io.ByteArrayOutputStream;
@@ -74,7 +74,7 @@ public class ConfigurationManagerTest
         }
 
         yamlMapper = yamlMapperFactory.create(
-                Sets.newHashSet(MutableCustomRepositoryConfiguration.class, MutableRemoteRepositoryConfiguration.class));
+                Sets.newHashSet(CustomRepositoryConfigurationDto.class, RemoteRepositoryConfigurationDto.class));
     }
 
     @Test
@@ -131,12 +131,12 @@ public class ConfigurationManagerTest
         proxyConfigurationRepository1.addNonProxyHost("192.168.100.10");
         proxyConfigurationRepository1.addNonProxyHost("192.168.100.11");
 
-        MutableRepository repository1 = new MutableRepository("snapshots");
+        RepositoryDto repository1 = new RepositoryDto("snapshots");
         repository1.setProxyConfiguration(proxyConfigurationRepository1);
 
-        MutableRepository repository2 = new MutableRepository("releases");
+        RepositoryDto repository2 = new RepositoryDto("releases");
 
-        MutableStorage storage = new MutableStorage();
+        StorageDto storage = new StorageDto();
         storage.setId("myStorageId");
         storage.setBasedir(new File(propertiesBooter.getVaultDirectory() + "/storages" + STORAGE0)
                                    .getAbsolutePath());
@@ -157,13 +157,13 @@ public class ConfigurationManagerTest
     public void testGroupRepositories()
             throws IOException
     {
-        MutableRepository repository1 = new MutableRepository("snapshots");
-        MutableRepository repository2 = new MutableRepository("ext-snapshots");
-        MutableRepository repository3 = new MutableRepository("grp-snapshots");
+        RepositoryDto repository1 = new RepositoryDto("snapshots");
+        RepositoryDto repository2 = new RepositoryDto("ext-snapshots");
+        RepositoryDto repository3 = new RepositoryDto("grp-snapshots");
         repository3.addRepositoryToGroup(repository1.getId());
         repository3.addRepositoryToGroup(repository2.getId());
 
-        MutableStorage storage = new MutableStorage("storage0");
+        StorageDto storage = new StorageDto("storage0");
         storage.setBasedir(new File(propertiesBooter.getVaultDirectory() + "/storages" + STORAGE0).getAbsolutePath());
         storage.addRepository(repository1);
         storage.addRepository(repository2);

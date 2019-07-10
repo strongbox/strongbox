@@ -8,6 +8,8 @@ import org.carlspring.strongbox.cron.services.CronTaskDataService;
 import org.carlspring.strongbox.event.cron.CronTaskEventListenerRegistry;
 
 import javax.inject.Inject;
+
+import java.io.IOException;
 import java.util.UUID;
 
 import org.slf4j.Logger;
@@ -51,7 +53,7 @@ class CronTaskConfigurationServiceImpl
         }
     }
 
-    public UUID saveConfiguration(CronTaskConfigurationDto configuration)
+    public UUID saveConfiguration(CronTaskConfigurationDto configuration) throws IOException
     {
         logger.debug("CronTaskConfigurationService.saveConfiguration()");
 
@@ -63,7 +65,7 @@ class CronTaskConfigurationServiceImpl
         return configurationId;
     }
 
-    public void deleteConfiguration(UUID cronTaskConfigurationUuid)
+    public void deleteConfiguration(UUID cronTaskConfigurationUuid) throws IOException
     {
         logger.debug("Deleting cron task configuration {}", cronTaskConfigurationUuid);
 

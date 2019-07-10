@@ -7,9 +7,9 @@ import org.carlspring.strongbox.providers.layout.Maven2LayoutProvider;
 import org.carlspring.strongbox.providers.search.MavenIndexerSearchProvider;
 import org.carlspring.strongbox.storage.indexing.IndexTypeEnum;
 import org.carlspring.strongbox.storage.indexing.RepositoryIndexer;
-import org.carlspring.strongbox.storage.repository.ImmutableRepository;
+import org.carlspring.strongbox.storage.repository.RepositoryData;
 import org.carlspring.strongbox.storage.repository.MavenRepositoryFactory;
-import org.carlspring.strongbox.storage.repository.MutableRepository;
+import org.carlspring.strongbox.storage.repository.RepositoryDto;
 import org.carlspring.strongbox.storage.repository.Repository;
 import org.carlspring.strongbox.storage.search.SearchRequest;
 import org.carlspring.strongbox.testing.MavenIndexedRepositorySetup;
@@ -74,9 +74,9 @@ public class MavenIndexGroupRepositoryComponentOnDeleteTest
 
     private static final String REPOSITORY_GROUP_XH = "group-repo-xh";
 
-    protected Set<MutableRepository> getRepositories()
+    protected Set<RepositoryDto> getRepositories()
     {
-        Set<MutableRepository> repositories = new LinkedHashSet<>();
+        Set<RepositoryDto> repositories = new LinkedHashSet<>();
         repositories.add(createRepositoryMock(STORAGE0, REPOSITORY_LEAF_XE, Maven2LayoutProvider.ALIAS));
         repositories.add(createRepositoryMock(STORAGE0, REPOSITORY_LEAF_XL, Maven2LayoutProvider.ALIAS));
         repositories.add(createRepositoryMock(STORAGE0, REPOSITORY_LEAF_XZ, Maven2LayoutProvider.ALIAS));
@@ -164,10 +164,10 @@ public class MavenIndexGroupRepositoryComponentOnDeleteTest
 
         RepositoryIndexer indexer = repositoryIndexManager.get().getRepositoryIndexer(contextId);
 
-        MutableRepository repository = mavenRepositoryFactory.createRepository(REPOSITORY_LEAF_XL);
+        RepositoryDto repository = mavenRepositoryFactory.createRepository(REPOSITORY_LEAF_XL);
         repository.setStorage(configurationManagementService.getMutableConfigurationClone().getStorage(STORAGE0));
 
-        RepositoryPath artifactFile = repositoryPathResolver.resolve(new ImmutableRepository(repository), artifactPath);
+        RepositoryPath artifactFile = repositoryPathResolver.resolve(new RepositoryData(repository), artifactPath);
 
         indexer.addArtifactToIndex(artifactFile);
 

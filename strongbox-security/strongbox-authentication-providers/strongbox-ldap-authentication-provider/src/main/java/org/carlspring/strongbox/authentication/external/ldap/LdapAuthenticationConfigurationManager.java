@@ -11,7 +11,6 @@ import javax.inject.Inject;
 import org.carlspring.strongbox.authentication.api.AuthenticationItemConfigurationManager;
 import org.carlspring.strongbox.authentication.api.CustomAuthenticationItemMapper;
 import org.carlspring.strongbox.authentication.support.ExternalRoleMapping;
-import org.springframework.context.ApplicationContext;
 import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.ldap.userdetails.LdapUserDetailsService;

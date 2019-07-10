@@ -24,7 +24,7 @@ import org.carlspring.strongbox.providers.layout.Maven2LayoutProvider;
 import org.carlspring.strongbox.services.ArtifactMetadataService;
 import org.carlspring.strongbox.services.ConfigurationManagementService;
 import org.carlspring.strongbox.storage.repository.MavenRepositoryFactory;
-import org.carlspring.strongbox.storage.repository.MutableRepository;
+import org.carlspring.strongbox.storage.repository.RepositoryDto;
 import org.carlspring.strongbox.storage.repository.Repository;
 import org.carlspring.strongbox.storage.repository.RepositoryTypeEnum;
 import org.carlspring.strongbox.storage.routing.MutableRoutingRuleRepository;
@@ -36,7 +36,7 @@ import org.carlspring.strongbox.testing.repository.MavenRepository;
 import org.carlspring.strongbox.testing.storage.repository.RepositoryManagementTestExecutionListener;
 import org.carlspring.strongbox.testing.storage.repository.TestRepository;
 import org.carlspring.strongbox.testing.storage.repository.TestRepository.Group.Rule;
-import org.carlspring.strongbox.yaml.configuration.repository.MutableMavenRepositoryConfiguration;
+import org.carlspring.strongbox.yaml.configuration.repository.MavenRepositoryConfigurationDto;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.TestInfo;
@@ -80,9 +80,9 @@ public class MavenGroupRepositoryProviderTest
         removeRepositories(getRepositories(testInfo));
     }
 
-    private Set<MutableRepository> getRepositories(TestInfo testInfo)
+    private Set<RepositoryDto> getRepositories(TestInfo testInfo)
     {
-        Set<MutableRepository> repositories = new LinkedHashSet<>();
+        Set<RepositoryDto> repositories = new LinkedHashSet<>();
         repositories.add(createRepositoryMock(STORAGE0,
                                               getRepositoryName("grpt-releases-tgiwr-1", testInfo),
                                               Maven2LayoutProvider.ALIAS));
@@ -271,10 +271,10 @@ public class MavenGroupRepositoryProviderTest
                          "com.artifacts.in.releases.under2:group",
                          new String[]{ "1.2.4" });
 
-        MutableMavenRepositoryConfiguration mavenRepositoryConfiguration = new MutableMavenRepositoryConfiguration();
+        MavenRepositoryConfigurationDto mavenRepositoryConfiguration = new MavenRepositoryConfigurationDto();
         mavenRepositoryConfiguration.setIndexingEnabled(false);
 
-        MutableRepository repositoryGroup = mavenRepositoryFactory.createRepository(repositoryGroupName);
+        RepositoryDto repositoryGroup = mavenRepositoryFactory.createRepository(repositoryGroupName);
         repositoryGroup.setType(RepositoryTypeEnum.GROUP.getType());
         repositoryGroup.setAllowsRedeployment(false);
         repositoryGroup.setAllowsDelete(false);
@@ -337,10 +337,10 @@ public class MavenGroupRepositoryProviderTest
                          "com.artifacts.in.releases.under3:group",
                          new String[]{ "1.2.4" });
 
-        MutableMavenRepositoryConfiguration mavenRepositoryConfiguration = new MutableMavenRepositoryConfiguration();
+        MavenRepositoryConfigurationDto mavenRepositoryConfiguration = new MavenRepositoryConfigurationDto();
         mavenRepositoryConfiguration.setIndexingEnabled(false);
 
-        MutableRepository repositoryGroup = mavenRepositoryFactory.createRepository(repositoryGroupName);
+        RepositoryDto repositoryGroup = mavenRepositoryFactory.createRepository(repositoryGroupName);
         repositoryGroup.setType(RepositoryTypeEnum.GROUP.getType());
         repositoryGroup.setAllowsRedeployment(false);
         repositoryGroup.setAllowsDelete(false);
@@ -351,7 +351,7 @@ public class MavenGroupRepositoryProviderTest
 
         createRepository(STORAGE0, repositoryGroup);
 
-        MutableRepository repositoryWithNestedGroupLevel1 = mavenRepositoryFactory.createRepository(
+        RepositoryDto repositoryWithNestedGroupLevel1 = mavenRepositoryFactory.createRepository(
                 repositoryGroupWithNestedGroup1);
         repositoryWithNestedGroupLevel1.setType(RepositoryTypeEnum.GROUP.getType());
         repositoryWithNestedGroupLevel1.setAllowsRedeployment(false);
@@ -391,10 +391,10 @@ public class MavenGroupRepositoryProviderTest
         generateArtifact(getRepositoryBasedir(STORAGE0, repositoryReleases1Name).getAbsolutePath(),
                          "org.carlspring.metadata.by.juan:juancho:1.2.64");
 
-        MutableMavenRepositoryConfiguration mavenRepositoryConfiguration = new MutableMavenRepositoryConfiguration();
+        MavenRepositoryConfigurationDto mavenRepositoryConfiguration = new MavenRepositoryConfigurationDto();
         mavenRepositoryConfiguration.setIndexingEnabled(false);
 
-        MutableRepository repositoryGroup = mavenRepositoryFactory.createRepository(repositoryGroupName);
+        RepositoryDto repositoryGroup = mavenRepositoryFactory.createRepository(repositoryGroupName);
         repositoryGroup.setType(RepositoryTypeEnum.GROUP.getType());
         repositoryGroup.setAllowsRedeployment(false);
         repositoryGroup.setAllowsDelete(false);
@@ -627,10 +627,10 @@ public class MavenGroupRepositoryProviderTest
         generateArtifact(getRepositoryBasedir(STORAGE0, repositoryReleases2Name).getAbsolutePath(),
                          "org.carlspring.metadata.will.not.be:retrieved:1.2.64");
 
-        MutableMavenRepositoryConfiguration mavenRepositoryConfiguration = new MutableMavenRepositoryConfiguration();
+        MavenRepositoryConfigurationDto mavenRepositoryConfiguration = new MavenRepositoryConfigurationDto();
         mavenRepositoryConfiguration.setIndexingEnabled(false);
 
-        MutableRepository repositoryGroup = mavenRepositoryFactory.createRepository(repositoryGroupName);
+        RepositoryDto repositoryGroup = mavenRepositoryFactory.createRepository(repositoryGroupName);
         repositoryGroup.setType(RepositoryTypeEnum.GROUP.getType());
         repositoryGroup.setAllowsRedeployment(false);
         repositoryGroup.setAllowsDelete(false);

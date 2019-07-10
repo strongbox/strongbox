@@ -9,12 +9,12 @@ import org.carlspring.strongbox.services.ConfigurationManagementService;
 import org.carlspring.strongbox.services.RepositoryManagementService;
 import org.carlspring.strongbox.services.StorageManagementService;
 import org.carlspring.strongbox.services.support.ConfigurationException;
-import org.carlspring.strongbox.storage.MutableStorage;
+import org.carlspring.strongbox.storage.StorageDto;
 import org.carlspring.strongbox.storage.Storage;
 import org.carlspring.strongbox.storage.Views;
 import org.carlspring.strongbox.storage.indexing.RepositoryIndexManager;
-import org.carlspring.strongbox.storage.repository.ImmutableRepository;
-import org.carlspring.strongbox.storage.repository.MutableRepository;
+import org.carlspring.strongbox.storage.repository.RepositoryData;
+import org.carlspring.strongbox.storage.repository.RepositoryDto;
 import org.carlspring.strongbox.storage.repository.Repository;
 import org.carlspring.strongbox.validation.RequestBodyValidationException;
 import org.carlspring.strongbox.web.RepositoryMapping;
@@ -121,7 +121,7 @@ public class StoragesConfigurationController
 
         try
         {
-            MutableStorage storage = conversionService.convert(storageForm, MutableStorage.class);
+            StorageDto storage = conversionService.convert(storageForm, StorageDto.class);
             storageManagementService.saveStorage(storage);
 
             return getSuccessfulResponseEntity(SUCCESSFUL_SAVE_STORAGE, accept);
@@ -159,7 +159,7 @@ public class StoragesConfigurationController
 
         try
         {
-            MutableStorage storage = conversionService.convert(storageFormToUpdate, MutableStorage.class);
+            StorageDto storage = conversionService.convert(storageFormToUpdate, StorageDto.class);
             storageManagementService.saveStorage(storage);
 
             return getSuccessfulResponseEntity(SUCCESSFUL_UPDATE_STORAGE, accept);
@@ -274,13 +274,13 @@ public class StoragesConfigurationController
 
             try
             {
-                MutableRepository repository = conversionService.convert(repositoryForm, MutableRepository.class);
+                RepositoryDto repository = conversionService.convert(repositoryForm, RepositoryDto.class);
 
                 logger.debug("Creating repository {}:{}...", storageId, repositoryId);
 
                 configurationManagementService.saveRepository(storageId, repository);
 
-                final RepositoryPath repositoryPath = repositoryPathResolver.resolve(new ImmutableRepository(repository));
+                final RepositoryPath repositoryPath = repositoryPathResolver.resolve(new RepositoryData(repository));
                 if (!Files.exists(repositoryPath))
                 {
                     repositoryManagementService.createRepository(storageId, repository.getId());
@@ -301,7 +301,7 @@ public class StoragesConfigurationController
     @ApiOperation(value = "Returns the configuration of a repository.")
     @ApiResponses(value = { @ApiResponse(code = 200,
                                          message = "The repository was updated successfully.",
-                                         response = MutableRepository.class),
+                                         response = RepositoryDto.class),
                             @ApiResponse(code = 404,
                                     message = "The repository ${storageId}:${repositoryId} was not found!") })
     @PreAuthorize("hasAuthority('CONFIGURATION_VIEW_REPOSITORY')")

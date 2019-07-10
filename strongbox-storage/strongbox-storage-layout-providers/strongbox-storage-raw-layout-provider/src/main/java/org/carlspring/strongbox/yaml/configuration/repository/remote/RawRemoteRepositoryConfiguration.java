@@ -20,7 +20,7 @@ public class RawRemoteRepositoryConfiguration
     {
     }
 
-    RawRemoteRepositoryConfiguration(MutableRawRemoteRepositoryConfiguration delegate)
+    RawRemoteRepositoryConfiguration(RawRemoteRepositoryConfigurationDto delegate)
     {
     }
 

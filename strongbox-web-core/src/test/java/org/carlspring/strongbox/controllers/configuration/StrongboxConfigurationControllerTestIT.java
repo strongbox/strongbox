@@ -3,7 +3,7 @@ package org.carlspring.strongbox.controllers.configuration;
 import org.carlspring.strongbox.config.IntegrationTest;
 import org.carlspring.strongbox.configuration.MutableConfiguration;
 import org.carlspring.strongbox.rest.common.RestAssuredBaseTest;
-import org.carlspring.strongbox.storage.MutableStorage;
+import org.carlspring.strongbox.storage.StorageDto;
 
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.params.ParameterizedTest;
@@ -35,7 +35,7 @@ public class StrongboxConfigurationControllerTestIT
     {
         MutableConfiguration configuration = getConfigurationFromRemote();
 
-        MutableStorage storage = new MutableStorage("storage3");
+        StorageDto storage = new StorageDto("storage3");
 
         configuration.addStorage(storage);
 

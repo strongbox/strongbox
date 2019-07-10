@@ -33,8 +33,6 @@ public class UserForm
 
     private String securityTokenKey;
 
-    private AccessModelForm accessModel;
-
     public String getUsername()
     {
         return username;
@@ -83,16 +81,6 @@ public class UserForm
     public void setSecurityTokenKey(String securityTokenKey)
     {
         this.securityTokenKey = securityTokenKey;
-    }
-
-    public AccessModelForm getAccessModel()
-    {
-        return accessModel;
-    }
-
-    public void setAccessModel(AccessModelForm accessModel)
-    {
-        this.accessModel = accessModel;
     }
 
     public interface NewUser

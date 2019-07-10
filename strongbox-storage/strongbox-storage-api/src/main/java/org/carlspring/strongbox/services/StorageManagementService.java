@@ -1,6 +1,6 @@
 package org.carlspring.strongbox.services;
 
-import org.carlspring.strongbox.storage.MutableStorage;
+import org.carlspring.strongbox.storage.StorageDto;
 
 import java.io.IOException;
 
@@ -10,7 +10,7 @@ import java.io.IOException;
 public interface StorageManagementService
 {
 
-    void saveStorage(MutableStorage storage)
+    void saveStorage(StorageDto storage)
             throws IOException;
 
     void removeStorage(String storageId)

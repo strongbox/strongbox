@@ -1,7 +1,6 @@
 package org.carlspring.strongbox.controllers.users.support;
 
-import org.carlspring.strongbox.converters.users.AccessModelToAccessModelOutputConverter;
-import org.carlspring.strongbox.users.domain.User;
+import org.carlspring.strongbox.users.domain.UserData;
 
 import java.io.Serializable;
 import java.util.Collections;
@@ -26,11 +25,7 @@ public class UserOutput
 
     private Set<String> roles;
 
-    private Set<String> authorities;
-
     private String securityTokenKey;
-
-    private AccessModelOutput accessModel;
 
     public String getUsername()
     {
@@ -62,16 +57,6 @@ public class UserOutput
         this.roles = roles;
     }
 
-    public Set<String> getAuthorities()
-    {
-        return authorities;
-    }
-
-    public void setAuthorities(Set<String> authorities)
-    {
-        this.authorities = authorities;
-    }
-
     public String getSecurityTokenKey()
     {
         return securityTokenKey;
@@ -82,24 +67,12 @@ public class UserOutput
         this.securityTokenKey = securityTokenKey;
     }
 
-    public AccessModelOutput getAccessModel()
-    {
-        return accessModel;
-    }
-
-    public void setAccessModel(AccessModelOutput accessModel)
-    {
-        this.accessModel = accessModel;
-    }
-
-    public static UserOutput fromUser(User user)
+    public static UserOutput fromUser(UserData user)
     {
         final UserOutput output = new UserOutput();
         output.setEnabled(user.isEnabled());
         output.setRoles(user.getRoles());
-        output.setAuthorities(user.getAuthorities());
         output.setUsername(user.getUsername());
-        output.setAccessModel(AccessModelToAccessModelOutputConverter.INSTANCE.convert(user.getUserAccessModel()));
         output.setSecurityTokenKey(user.getSecurityTokenKey());
         return output;
     }
@@ -112,7 +85,6 @@ public class UserOutput
         sb.append(", enabled=").append(enabled);
         sb.append(", roles=").append(roles);
         sb.append(", securityTokenKey='").append(securityTokenKey).append('\'');
-        sb.append(", accessModel=").append(accessModel);
         sb.append('}');
         return sb.toString();
     }

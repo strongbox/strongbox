@@ -1,6 +1,6 @@
 package org.carlspring.strongbox.controllers.users.support;
 
-import org.carlspring.strongbox.authorization.domain.Role;
+import org.carlspring.strongbox.authorization.domain.RoleData;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
 
@@ -31,7 +31,7 @@ public class AssignableRoleOutput
         this.description = description;
     }
 
-    public static AssignableRoleOutput fromRole(Role role)
+    public static AssignableRoleOutput fromRole(RoleData role)
     {
         final AssignableRoleOutput output = new AssignableRoleOutput();
         output.setName(role.getName());

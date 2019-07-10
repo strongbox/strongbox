@@ -6,8 +6,8 @@ import static org.junit.jupiter.api.Assertions.fail;
 import org.apache.commons.lang3.exception.ExceptionUtils;
 import org.carlspring.strongbox.artifact.coordinates.ArtifactCoordinates;
 import org.carlspring.strongbox.artifact.coordinates.MockedMavenArtifactCoordinates;
-import org.carlspring.strongbox.storage.repository.ImmutableRepository;
-import org.carlspring.strongbox.storage.repository.MutableRepository;
+import org.carlspring.strongbox.storage.repository.RepositoryData;
+import org.carlspring.strongbox.storage.repository.RepositoryDto;
 import org.carlspring.strongbox.storage.repository.Repository;
 import org.carlspring.strongbox.storage.repository.RepositoryPolicyEnum;
 import org.carlspring.strongbox.storage.validation.artifact.version.GenericSnapshotVersionValidator;
@@ -26,11 +26,11 @@ public class GenericSnapshotVersionValidatorTest
     @BeforeEach
     public void setUp()
     {
-        MutableRepository repository = new MutableRepository("test-repository-for-nuget-release-validation");
+        RepositoryDto repository = new RepositoryDto("test-repository-for-nuget-release-validation");
         repository.setPolicy(RepositoryPolicyEnum.SNAPSHOT.toString());
         repository.setLayout("NuGet");
         repository.setBasedir("");
-        this.repository = new ImmutableRepository(repository);
+        this.repository = new RepositoryData(repository);
     }
 
     @Test

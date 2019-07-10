@@ -2,8 +2,8 @@ package org.carlspring.strongbox.converters.configuration;
 
 import org.carlspring.strongbox.forms.configuration.RepositoryForm;
 import org.carlspring.strongbox.forms.configuration.StorageForm;
-import org.carlspring.strongbox.storage.MutableStorage;
-import org.carlspring.strongbox.storage.repository.MutableRepository;
+import org.carlspring.strongbox.storage.StorageDto;
+import org.carlspring.strongbox.storage.repository.RepositoryDto;
 
 import java.util.LinkedHashMap;
 import java.util.List;
@@ -16,21 +16,21 @@ import org.springframework.core.convert.converter.Converter;
  * @author Przemyslaw Fusik
  */
 public enum StorageFormConverter
-        implements Converter<StorageForm, MutableStorage>
+        implements Converter<StorageForm, StorageDto>
 {
     INSTANCE;
 
     @Override
-    public MutableStorage convert(final StorageForm source)
+    public StorageDto convert(final StorageForm source)
     {
-        MutableStorage result = new MutableStorage();
+        StorageDto result = new StorageDto();
         result.setBasedir(source.getBasedir());
         result.setId(source.getId());
         
         List<RepositoryForm> repositories = source.getRepositories();
         if (repositories != null)
         {
-            Map<String, MutableRepository> internalMap = new LinkedHashMap<>();
+            Map<String, RepositoryDto> internalMap = new LinkedHashMap<>();
             result.setRepositories(internalMap);
             repositories.stream()
                         .map(RepositoryFormConverter.INSTANCE::convert)

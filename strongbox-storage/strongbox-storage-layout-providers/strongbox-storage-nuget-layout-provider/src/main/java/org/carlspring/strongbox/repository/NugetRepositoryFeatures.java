@@ -28,7 +28,7 @@ import org.carlspring.strongbox.services.RepositoryArtifactIdGroupService;
 import org.carlspring.strongbox.storage.Storage;
 import org.carlspring.strongbox.storage.metadata.nuget.rss.PackageEntry;
 import org.carlspring.strongbox.storage.metadata.nuget.rss.PackageFeed;
-import org.carlspring.strongbox.storage.repository.ImmutableRepository;
+import org.carlspring.strongbox.storage.repository.RepositoryData;
 import org.carlspring.strongbox.storage.repository.Repository;
 import org.carlspring.strongbox.storage.repository.remote.RemoteRepository;
 import org.carlspring.strongbox.storage.validation.artifact.version.GenericReleaseVersionValidator;
@@ -131,7 +131,7 @@ public class NugetRepositoryFeatures
         Storage storage = getConfiguration().getStorage(storageId);
         Repository repository = storage.getRepository(repositoryId);
 
-        Optional<NugetRepositoryConfiguration> repositoryConfiguration = Optional.ofNullable((NugetRepositoryConfiguration) ((ImmutableRepository)repository).getRepositoryConfiguration());
+        Optional<NugetRepositoryConfiguration> repositoryConfiguration = Optional.ofNullable((NugetRepositoryConfiguration) ((RepositoryData)repository).getRepositoryConfiguration());
         Integer remoteFeedPageSize = repositoryConfiguration.map(c -> c.getRemoteFeedPageSize())
                                                             .orElse(REMOTE_FEED_PAGE_SIZE);
         for (int i = 0; true; i++)
@@ -154,7 +154,7 @@ public class NugetRepositoryFeatures
         Storage storage = getConfiguration().getStorage(storageId);
         Repository repository = storage.getRepository(repositoryId);
 
-        RemoteRepository remoteRepository = ((ImmutableRepository)repository).getRemoteRepository();
+        RemoteRepository remoteRepository = ((RepositoryData)repository).getRemoteRepository();
         if (remoteRepository == null)
         {
             return false;
@@ -293,7 +293,7 @@ public class NugetRepositoryFeatures
             
             Storage storage = getConfiguration().getStorage(event.getStorageId());
             Repository repository = storage.getRepository(event.getRepositoryId());
-            RemoteRepository remoteRepository = ((ImmutableRepository)repository).getRemoteRepository();
+            RemoteRepository remoteRepository = ((RepositoryData)repository).getRemoteRepository();
             if (remoteRepository == null)
             {
                 return;

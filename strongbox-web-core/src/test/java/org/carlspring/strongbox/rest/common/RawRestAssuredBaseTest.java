@@ -3,12 +3,12 @@ package org.carlspring.strongbox.rest.common;
 import org.carlspring.commons.io.MultipleDigestOutputStream;
 import org.carlspring.strongbox.repository.RepositoryManagementStrategyException;
 import org.carlspring.strongbox.rest.client.RestAssuredArtifactClient;
-import org.carlspring.strongbox.storage.repository.MutableRepository;
+import org.carlspring.strongbox.storage.repository.RepositoryDto;
 import org.carlspring.strongbox.storage.repository.RawRepositoryFactory;
 import org.carlspring.strongbox.storage.repository.RepositoryTypeEnum;
 import org.carlspring.strongbox.storage.repository.remote.MutableRemoteRepository;
 import org.carlspring.strongbox.testing.TestCaseWithRepositoryManagement;
-import org.carlspring.strongbox.users.domain.Roles;
+import org.carlspring.strongbox.users.domain.Privileges;
 
 import javax.inject.Inject;
 import javax.xml.bind.JAXBException;
@@ -75,7 +75,7 @@ public class RawRestAssuredBaseTest
 
     protected Collection<? extends GrantedAuthority> provideAuthorities()
     {
-        return Roles.ADMIN.getPrivileges();
+        return Privileges.all();
     }
 
     protected boolean pathExists(String url)
@@ -105,7 +105,7 @@ public class RawRestAssuredBaseTest
         MutableRemoteRepository remoteRepository = new MutableRemoteRepository();
         remoteRepository.setUrl(remoteRepositoryUrl);
 
-        MutableRepository repository = rawRepositoryFactory.createRepository(repositoryId);
+        RepositoryDto repository = rawRepositoryFactory.createRepository(repositoryId);
         repository.setType(RepositoryTypeEnum.PROXY.getType());
         repository.setRemoteRepository(remoteRepository);
 

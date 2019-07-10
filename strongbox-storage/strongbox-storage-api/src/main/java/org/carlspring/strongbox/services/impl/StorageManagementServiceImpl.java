@@ -7,7 +7,7 @@ import javax.inject.Inject;
 import org.carlspring.strongbox.services.ConfigurationManagementService;
 import org.carlspring.strongbox.services.RepositoryManagementService;
 import org.carlspring.strongbox.services.StorageManagementService;
-import org.carlspring.strongbox.storage.MutableStorage;
+import org.carlspring.strongbox.storage.StorageDto;
 import org.carlspring.strongbox.storage.Storage;
 import org.carlspring.strongbox.storage.repository.Repository;
 import org.slf4j.Logger;
@@ -30,7 +30,7 @@ public class StorageManagementServiceImpl implements StorageManagementService
     private RepositoryManagementService repositoryManagementService;
 
     @Override
-    public void saveStorage(MutableStorage storage)
+    public void saveStorage(StorageDto storage)
             throws IOException
     {
         configurationManagementService.saveStorage(storage);

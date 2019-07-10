@@ -4,6 +4,7 @@ import org.carlspring.strongbox.cron.domain.CronTaskConfigurationDto;
 import org.carlspring.strongbox.cron.domain.CronTasksConfigurationDto;
 import org.carlspring.strongbox.cron.exceptions.CronTaskNotFoundException;
 
+import java.io.IOException;
 import java.util.UUID;
 
 import org.quartz.SchedulerException;
@@ -21,7 +22,7 @@ public interface CronTaskConfigurationService
     void deleteConfiguration(UUID cronTaskConfigurationUuid)
             throws SchedulerException,
                    CronTaskNotFoundException,
-                   ClassNotFoundException;
+                   ClassNotFoundException, IOException;
 
     CronTaskConfigurationDto getTaskConfigurationDto(UUID cronTaskConfigurationUuid);
 

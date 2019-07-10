@@ -12,7 +12,7 @@ import org.carlspring.strongbox.storage.indexing.RepositoryIndexManager;
 import org.carlspring.strongbox.storage.indexing.RepositoryIndexer;
 import org.carlspring.strongbox.storage.indexing.downloader.IndexDownloadRequest;
 import org.carlspring.strongbox.storage.indexing.downloader.IndexDownloader;
-import org.carlspring.strongbox.storage.repository.ImmutableRepository;
+import org.carlspring.strongbox.storage.repository.RepositoryData;
 import org.carlspring.strongbox.storage.repository.Repository;
 import org.carlspring.strongbox.yaml.configuration.repository.MavenRepositoryConfiguration;
 

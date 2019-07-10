@@ -1,7 +1,7 @@
 package org.carlspring.strongbox.storage.repository.remote;
 
 import org.carlspring.strongbox.yaml.repository.remote.CustomRemoteRepositoryConfiguration;
-import org.carlspring.strongbox.yaml.repository.remote.MutableRemoteRepositoryConfiguration;
+import org.carlspring.strongbox.yaml.repository.remote.RemoteRepositoryConfigurationDto;
 
 import javax.annotation.concurrent.Immutable;
 import javax.xml.bind.annotation.XmlAccessType;
@@ -115,7 +115,7 @@ public class RemoteRepository
         return customConfiguration;
     }
 
-    private CustomRemoteRepositoryConfiguration immuteRemoteRepositoryConfiguration(final MutableRemoteRepositoryConfiguration source)
+    private CustomRemoteRepositoryConfiguration immuteRemoteRepositoryConfiguration(final RemoteRepositoryConfigurationDto source)
     {
         return source != null ? source.getImmutable() : null;
     }

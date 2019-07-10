@@ -13,7 +13,7 @@ import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
  * @author mtodorov
  */
 public class UserDto
-        implements Serializable, UserReadContract
+        implements Serializable, User
 {
 
     private String username;
@@ -23,12 +23,6 @@ public class UserDto
     private boolean enabled = true;
 
     private Set<String> roles = new HashSet<>();
-
-    private Set<String> authorities = new HashSet<>();
-
-    @JsonProperty(value = "accessModel")
-    @JsonDeserialize(as = UserAccessModelDto.class)
-    private UserAccessModelReadContract userAccessModel;
 
     private String securityTokenKey;
 
@@ -84,28 +78,6 @@ public class UserDto
     }
 
     @Override
-    public Set<String> getAuthorities()
-    {
-        return authorities;
-    }
-
-    public void setAuthorities(Set<String> authorities)
-    {
-        this.authorities = authorities;
-    }
-
-    @Override
-    public UserAccessModelReadContract getUserAccessModel()
-    {
-        return userAccessModel;
-    }
-
-    public void setUserAccessModel(UserAccessModelReadContract userAccessModel)
-    {
-        this.userAccessModel = userAccessModel;
-    }
-
-    @Override
     public String getSecurityTokenKey()
     {
         return securityTokenKey;
@@ -148,8 +120,6 @@ public class UserDto
           .append('\'');
         sb.append(", roles=")
           .append(roles);
-        sb.append(", userAccessModel=")
-          .append(userAccessModel);
         sb.append('}');
         return sb.toString();
     }

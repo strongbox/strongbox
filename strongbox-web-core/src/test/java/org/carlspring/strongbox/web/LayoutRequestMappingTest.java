@@ -11,8 +11,8 @@ import javax.inject.Inject;
 
 import org.carlspring.strongbox.configuration.StoragesConfigurationManager;
 import org.carlspring.strongbox.interceptors.RepositoryRequestInterceptor;
-import org.carlspring.strongbox.storage.MutableStorage;
-import org.carlspring.strongbox.storage.repository.MutableRepository;
+import org.carlspring.strongbox.storage.StorageDto;
+import org.carlspring.strongbox.storage.repository.RepositoryDto;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -56,15 +56,15 @@ public class LayoutRequestMappingTest
     @BeforeEach
     public void setup()
     {
-        MutableStorage storage = new MutableStorage("storage0");
+        StorageDto storage = new StorageDto("storage0");
         Mockito.when(storagesConfigurationManager.getStorage("storage0")).thenReturn(storage);
 
-        MutableRepository testLayoutRepository = new MutableRepository("releases");
+        RepositoryDto testLayoutRepository = new RepositoryDto("releases");
         testLayoutRepository.setStorage(storage);
         testLayoutRepository.setLayout(TEST_LAYOUT_ALIAS);
         Mockito.when(storagesConfigurationManager.getRepository("storage0", "releases")).thenReturn(testLayoutRepository);
 
-        MutableRepository anotherRepository = new MutableRepository("another-releases");
+        RepositoryDto anotherRepository = new RepositoryDto("another-releases");
         anotherRepository.setStorage(storage);
         anotherRepository.setLayout(ANOTHER_LAYOUT_ALIAS);
         Mockito.when(storagesConfigurationManager.getRepository("storage0", "another-releases")).thenReturn(anotherRepository);

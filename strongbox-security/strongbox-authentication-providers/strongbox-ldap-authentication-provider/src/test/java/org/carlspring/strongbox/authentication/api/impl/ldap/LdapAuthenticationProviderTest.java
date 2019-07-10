@@ -10,7 +10,7 @@ import javax.inject.Inject;
 
 import org.carlspring.strongbox.authentication.support.AuthenticationContextInitializer;
 import org.carlspring.strongbox.config.UsersConfig;
-import org.carlspring.strongbox.users.domain.Privileges;
+import org.carlspring.strongbox.users.domain.SystemRole;
 import org.hamcrest.CoreMatchers;
 import org.junit.jupiter.api.Test;
 import org.slf4j.Logger;
@@ -21,7 +21,6 @@ import org.springframework.core.env.PropertySource;
 import org.springframework.ldap.core.ContextSource;
 import org.springframework.ldap.core.DirContextAdapter;
 import org.springframework.ldap.core.LdapTemplate;
-import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.ldap.userdetails.LdapUserDetails;
@@ -78,10 +77,8 @@ public class LdapAuthenticationProviderTest
         assertThat(ldapUserDetails.getPassword(), CoreMatchers.equalTo("password"));
         assertThat(ldapUserDetails.getUsername(), CoreMatchers.equalTo("przemyslaw.fusik"));
         assertThat(ldapUser.getAuthorities(),
-                   CoreMatchers.hasItems(CoreMatchers.equalTo((GrantedAuthority) Privileges.ADMIN_CREATE_REPO),
-                                         CoreMatchers.equalTo((GrantedAuthority) Privileges.ADMIN_DELETE_REPO),
-                                         CoreMatchers.equalTo((GrantedAuthority) Privileges.ADMIN_CREATE_REPO),
-                                         CoreMatchers.equalTo(new SimpleGrantedAuthority("VIEW_USER"))));
+                   CoreMatchers.hasItems(CoreMatchers.equalTo(new SimpleGrantedAuthority(SystemRole.REPOSITORY_MANAGER.name())),
+                                         CoreMatchers.equalTo(new SimpleGrantedAuthority("USER_ROLE"))));
     }
 
     public static class TestContextInitializer extends AuthenticationContextInitializer

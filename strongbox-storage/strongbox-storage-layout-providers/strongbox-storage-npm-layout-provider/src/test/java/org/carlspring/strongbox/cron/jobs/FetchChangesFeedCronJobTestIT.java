@@ -13,13 +13,13 @@ import org.carlspring.strongbox.event.cron.CronTaskEventTypeEnum;
 import org.carlspring.strongbox.providers.layout.NpmLayoutProvider;
 import org.carlspring.strongbox.service.ProxyRepositoryConnectionPoolConfigurationService;
 import org.carlspring.strongbox.services.ConfigurationManagementService;
-import org.carlspring.strongbox.storage.repository.ImmutableRepository;
-import org.carlspring.strongbox.storage.repository.MutableRepository;
+import org.carlspring.strongbox.storage.repository.RepositoryData;
+import org.carlspring.strongbox.storage.repository.RepositoryDto;
 import org.carlspring.strongbox.storage.repository.Repository;
 import org.carlspring.strongbox.storage.repository.RepositoryTypeEnum;
 import org.carlspring.strongbox.storage.repository.remote.MutableRemoteRepository;
 import org.carlspring.strongbox.testing.NpmRepositoryTestCase;
-import org.carlspring.strongbox.yaml.configuration.repository.remote.MutableNpmRemoteRepositoryConfiguration;
+import org.carlspring.strongbox.yaml.configuration.repository.remote.NpmRemoteRepositoryConfigurationDto;
 import org.carlspring.strongbox.yaml.configuration.repository.remote.NpmRemoteRepositoryConfiguration;
 
 import javax.inject.Inject;
@@ -131,7 +131,7 @@ public class FetchChangesFeedCronJobTestIT
 
         createStorage(STORAGE);
 
-        MutableRepository repository = createRepositoryMock(STORAGE, REPOSITORY, NpmLayoutProvider.ALIAS);
+        RepositoryDto repository = createRepositoryMock(STORAGE, REPOSITORY, NpmLayoutProvider.ALIAS);
         repository.setType(RepositoryTypeEnum.PROXY.getType());
 
         MutableRemoteRepository remoteRepository = new MutableRemoteRepository();
@@ -139,7 +139,7 @@ public class FetchChangesFeedCronJobTestIT
 
         remoteRepository.setUrl("https://registry.npmjs.org");
 
-        MutableNpmRemoteRepositoryConfiguration remoteRepositoryConfiguration = new MutableNpmRemoteRepositoryConfiguration();
+        NpmRemoteRepositoryConfigurationDto remoteRepositoryConfiguration = new NpmRemoteRepositoryConfigurationDto();
         remoteRepository.setCustomConfiguration(remoteRepositoryConfiguration);
 
         remoteRepositoryConfiguration.setReplicateUrl("https://replicate.npmjs.com");
@@ -149,9 +149,9 @@ public class FetchChangesFeedCronJobTestIT
         prepareArtifactResolverContext(this.getClass().getResourceAsStream("changesFeed.json"));
     }
 
-    public static Set<MutableRepository> getRepositoriesToClean()
+    public static Set<RepositoryDto> getRepositoriesToClean()
     {
-        Set<MutableRepository> repositories = new LinkedHashSet<>();
+        Set<RepositoryDto> repositories = new LinkedHashSet<>();
         repositories.add(createRepositoryMock(STORAGE, REPOSITORY, NpmLayoutProvider.ALIAS));
         return repositories;
     }
@@ -190,7 +190,7 @@ public class FetchChangesFeedCronJobTestIT
         assertFalse(artifactEntry.getIsCached());
 
         Repository repository = configurationManagementService.getConfiguration().getRepository(STORAGE, REPOSITORY);
-        NpmRemoteRepositoryConfiguration customConfiguration = (NpmRemoteRepositoryConfiguration) ((ImmutableRepository) repository).getRemoteRepository()
+        NpmRemoteRepositoryConfiguration customConfiguration = (NpmRemoteRepositoryConfiguration) ((RepositoryData) repository).getRemoteRepository()
                                                                                                                                     .getCustomConfiguration();
         assertEquals(Long.valueOf(330), customConfiguration.getLastChangeId());
     }

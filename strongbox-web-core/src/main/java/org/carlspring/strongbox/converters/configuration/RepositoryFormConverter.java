@@ -2,7 +2,7 @@ package org.carlspring.strongbox.converters.configuration;
 
 import org.carlspring.strongbox.forms.configuration.RepositoryForm;
 import org.carlspring.strongbox.storage.repository.MutableHttpConnectionPool;
-import org.carlspring.strongbox.storage.repository.MutableRepository;
+import org.carlspring.strongbox.storage.repository.RepositoryDto;
 
 import org.springframework.core.convert.converter.Converter;
 
@@ -10,14 +10,14 @@ import org.springframework.core.convert.converter.Converter;
  * @author Przemyslaw Fusik
  */
 public enum RepositoryFormConverter
-        implements Converter<RepositoryForm, MutableRepository>
+        implements Converter<RepositoryForm, RepositoryDto>
 {
     INSTANCE;
 
     @Override
-    public MutableRepository convert(final RepositoryForm source)
+    public RepositoryDto convert(final RepositoryForm source)
     {
-        MutableRepository result = new MutableRepository();
+        RepositoryDto result = new RepositoryDto();
         result.setId(source.getId());
         result.setPolicy(source.getPolicy());
         result.setImplementation(source.getImplementation());

@@ -24,7 +24,7 @@ public class RoleFormTestIT
 {
 
     private final String NEW_ROLE = "NEW_ROLE";
-    private final String EXISTING_ROLE = "USER_ROLE";
+    private final String EXISTING_ROLE = "CUSTOM_ROLE";
     @Inject
     private Validator validator;
 

@@ -3,7 +3,7 @@ package org.carlspring.strongbox.authentication.api.impl.xml;
 import java.util.HashMap;
 import java.util.Map;
 
-import org.carlspring.strongbox.users.domain.User;
+import org.carlspring.strongbox.users.domain.UserData;
 import org.carlspring.strongbox.users.userdetails.SpringSecurityUser;
 import org.springframework.security.core.userdetails.UserDetails;
 
@@ -17,7 +17,7 @@ public class SecurityTokenAuthenticationProvider extends JwtAuthenticationProvid
     protected Map<String, String> provideTokenClaims(UserDetails userDetails)
     {
         Map<String, String> claimMap = new HashMap<>();
-        claimMap.put(User.SECURITY_TOKEN_KEY, ((SpringSecurityUser) userDetails).getSecurityKey());
+        claimMap.put(UserData.SECURITY_TOKEN_KEY, ((SpringSecurityUser) userDetails).getSecurityKey());
         
         return claimMap;
     }

@@ -6,9 +6,9 @@ import org.carlspring.strongbox.domain.FileContent;
 import org.carlspring.strongbox.providers.layout.Maven2LayoutProvider;
 import org.carlspring.strongbox.rest.common.MavenRestAssuredBaseTest;
 import org.carlspring.strongbox.storage.repository.MavenRepositoryFactory;
-import org.carlspring.strongbox.storage.repository.MutableRepository;
+import org.carlspring.strongbox.storage.repository.RepositoryDto;
 import org.carlspring.strongbox.storage.repository.RepositoryPolicyEnum;
-import org.carlspring.strongbox.yaml.configuration.repository.MutableMavenRepositoryConfiguration;
+import org.carlspring.strongbox.yaml.configuration.repository.MavenRepositoryConfigurationDto;
 
 import javax.inject.Inject;
 import javax.xml.bind.JAXBException;
@@ -51,9 +51,9 @@ public class BrowseControllerTest
         cleanUp(getRepositoriesToClean());
     }
     
-    private static Set<MutableRepository> getRepositoriesToClean()
+    private static Set<RepositoryDto> getRepositoriesToClean()
     {
-        Set<MutableRepository> repositories = new LinkedHashSet<>();
+        Set<RepositoryDto> repositories = new LinkedHashSet<>();
         repositories.add(createRepositoryMock(STORAGE0, REPOSITORY, Maven2LayoutProvider.ALIAS));
         return repositories;        
     }
@@ -67,10 +67,10 @@ public class BrowseControllerTest
 
         setContextBaseUrl(BrowseController.ROOT_CONTEXT);
 
-        MutableMavenRepositoryConfiguration mavenRepositoryConfiguration = new MutableMavenRepositoryConfiguration();
+        MavenRepositoryConfigurationDto mavenRepositoryConfiguration = new MavenRepositoryConfigurationDto();
         mavenRepositoryConfiguration.setIndexingEnabled(false);
 
-        MutableRepository repository = mavenRepositoryFactory.createRepository(REPOSITORY);
+        RepositoryDto repository = mavenRepositoryFactory.createRepository(REPOSITORY);
         repository.setPolicy(RepositoryPolicyEnum.RELEASE.getPolicy());
         repository.setRepositoryConfiguration(mavenRepositoryConfiguration);
 

@@ -4,7 +4,7 @@ import org.carlspring.strongbox.configuration.ConfigurationManager;
 import org.carlspring.strongbox.event.repository.RepositoryEvent;
 import org.carlspring.strongbox.event.repository.RepositoryEventTypeEnum;
 import org.carlspring.strongbox.services.TrustStoreService;
-import org.carlspring.strongbox.storage.repository.ImmutableRepository;
+import org.carlspring.strongbox.storage.repository.RepositoryData;
 import org.carlspring.strongbox.storage.repository.Repository;
 import org.carlspring.strongbox.storage.repository.remote.RemoteRepository;
 
@@ -43,9 +43,9 @@ public class RepositoryCreatedEventListener
         Repository repository = configurationManager.getConfiguration().getStorage(event.getStorageId()).getRepository(
                 event.getRepositoryId());
 
-        if (((ImmutableRepository)repository).getRemoteRepository() != null)
+        if (((RepositoryData)repository).getRemoteRepository() != null)
         {
-            initializeRemoteRepository(((ImmutableRepository)repository).getRemoteRepository());
+            initializeRemoteRepository(((RepositoryData)repository).getRemoteRepository());
         }
     }
 

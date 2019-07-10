@@ -1,23 +1,32 @@
 package org.carlspring.strongbox.controllers.configuration.security.authorization;
 
+import static io.restassured.module.mockmvc.RestAssuredMockMvc.given;
+import static org.carlspring.strongbox.controllers.configuration.security.authorization.AuthorizationConfigController.FAILED_ADD_ROLE;
+import static org.carlspring.strongbox.controllers.configuration.security.authorization.AuthorizationConfigController.FAILED_ASSIGN_PRIVILEGES;
+import static org.carlspring.strongbox.controllers.configuration.security.authorization.AuthorizationConfigController.FAILED_DELETE_ROLE;
+import static org.carlspring.strongbox.controllers.configuration.security.authorization.AuthorizationConfigController.SUCCESSFUL_ADD_ROLE;
+import static org.carlspring.strongbox.controllers.configuration.security.authorization.AuthorizationConfigController.SUCCESSFUL_ASSIGN_PRIVILEGES;
+import static org.carlspring.strongbox.controllers.configuration.security.authorization.AuthorizationConfigController.SUCCESSFUL_DELETE_ROLE;
+import static org.carlspring.strongbox.net.MediaType.APPLICATION_YAML_VALUE;
+import static org.hamcrest.CoreMatchers.containsString;
+
+import java.io.IOException;
+import java.util.Arrays;
+import java.util.Collections;
+import java.util.stream.Stream;
+
+import javax.inject.Inject;
+
+import org.apache.commons.lang3.StringUtils;
 import org.carlspring.strongbox.authorization.dto.AuthorizationConfigDto;
 import org.carlspring.strongbox.authorization.dto.RoleDto;
 import org.carlspring.strongbox.authorization.service.AuthorizationConfigService;
 import org.carlspring.strongbox.config.IntegrationTest;
-import org.carlspring.strongbox.forms.PrivilegeForm;
 import org.carlspring.strongbox.forms.PrivilegeListForm;
 import org.carlspring.strongbox.forms.RoleForm;
+import org.carlspring.strongbox.forms.users.AccessModelForm;
 import org.carlspring.strongbox.rest.common.RestAssuredBaseTest;
 import org.carlspring.strongbox.users.domain.Privileges;
-
-import javax.inject.Inject;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.HashSet;
-import java.util.List;
-import java.util.stream.Stream;
-
-import org.apache.commons.lang3.StringUtils;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.params.ParameterizedTest;
@@ -26,10 +35,6 @@ import org.junit.jupiter.params.provider.MethodSource;
 import org.junit.jupiter.params.provider.ValueSource;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
-import static io.restassured.module.mockmvc.RestAssuredMockMvc.given;
-import static org.carlspring.strongbox.controllers.configuration.security.authorization.AuthorizationConfigController.*;
-import static org.carlspring.strongbox.net.MediaType.APPLICATION_YAML_VALUE;
-import static org.hamcrest.CoreMatchers.containsString;
 
 /**
  * @author Pablo Tirado
@@ -44,13 +49,13 @@ public class AuthorizationConfigControllerTestIT
 
     private AuthorizationConfigDto config;
 
-    private static final String EXISTING_ROLE = "USER_ROLE";
+    private static final String EXISTING_ROLE = "CUSTOM_ROLE";
 
     private static Stream<Arguments> privilegesProvider()
     {
         return Stream.of(
-                Arguments.of("ADMIN_LIST_REPO", MediaType.APPLICATION_JSON_VALUE),
-                Arguments.of("ARTIFACTS_DEPLOY", MediaType.TEXT_PLAIN_VALUE)
+                Arguments.of(Privileges.ADMIN_LIST_REPO, MediaType.APPLICATION_JSON_VALUE),
+                Arguments.of(Privileges.ARTIFACTS_DEPLOY, MediaType.TEXT_PLAIN_VALUE)
         );
     }
 
@@ -75,7 +80,7 @@ public class AuthorizationConfigControllerTestIT
     }
 
     @AfterEach
-    public void afterEveryTest()
+    public void afterEveryTest() throws IOException
     {
         authorizationConfigService.setAuthorizationConfig(config);
     }
@@ -88,8 +93,10 @@ public class AuthorizationConfigControllerTestIT
         final RoleForm customRole = new RoleForm();
         customRole.setName("TEST_ROLE");
         customRole.setDescription("Test role");
-        customRole.setPrivileges(new HashSet<>(Arrays.asList(Privileges.ADMIN_LIST_REPO.name(),
-                                                             Privileges.ARTIFACTS_DEPLOY.name())));
+        AccessModelForm accessModel = new AccessModelForm();
+        accessModel.setApiAccess(Arrays.asList(Privileges.ADMIN_LIST_REPO.name(),
+                                              Privileges.ARTIFACTS_DEPLOY.name()));
+        customRole.setAccessModel(accessModel);
 
         given().contentType(MediaType.APPLICATION_JSON_VALUE)
                .accept(acceptHeader)
@@ -110,16 +117,15 @@ public class AuthorizationConfigControllerTestIT
         final RoleDto customRole = new RoleDto();
         customRole.setName(roleName);
 
-        given()
-                .contentType(MediaType.APPLICATION_JSON_VALUE)
-                .accept(acceptHeader)
-                .body(customRole)
-                .when()
-                .post(getContextBaseUrl() + "/authorization/role")
-                .peek()
-                .then()
-                .statusCode(HttpStatus.BAD_REQUEST.value())
-                .body(containsString(FAILED_ADD_ROLE));
+        given().contentType(MediaType.APPLICATION_JSON_VALUE)
+               .accept(acceptHeader)
+               .body(customRole)
+               .when()
+               .post(getContextBaseUrl() + "/authorization/role")
+               .peek()
+               .then()
+               .statusCode(HttpStatus.BAD_REQUEST.value())
+               .body(containsString(FAILED_ADD_ROLE));
     }
 
     @ParameterizedTest
@@ -174,15 +180,12 @@ public class AuthorizationConfigControllerTestIT
 
     @ParameterizedTest
     @MethodSource("privilegesProvider")
-    void privilegesToAnonymousShouldBeAdded(String privilegeName,
+    void privilegesToAnonymousShouldBeAdded(Privileges privilege,
                                             String acceptHeader)
     {
         // assign privileges to anonymous user
         PrivilegeListForm privilegeListForm = new PrivilegeListForm();
-        List<PrivilegeForm> privilegeForms = new ArrayList<>();
-        PrivilegeForm privilegeForm = new PrivilegeForm(privilegeName, "");
-        privilegeForms.add(privilegeForm);
-        privilegeListForm.setPrivileges(privilegeForms);
+        privilegeListForm.setPrivileges(Collections.singletonList(privilege));
 
         given().contentType(MediaType.APPLICATION_JSON_VALUE)
                .accept(acceptHeader)
@@ -202,10 +205,7 @@ public class AuthorizationConfigControllerTestIT
     {
         // assign privileges to anonymous user
         PrivilegeListForm privilegeListForm = new PrivilegeListForm();
-        List<PrivilegeForm> privilegeForms = new ArrayList<>();
-        PrivilegeForm privilegeForm = new PrivilegeForm(StringUtils.EMPTY, "");
-        privilegeForms.add(privilegeForm);
-        privilegeListForm.setPrivileges(privilegeForms);
+        privilegeListForm.setPrivileges(Collections.emptyList());
 
         given().contentType(MediaType.APPLICATION_JSON_VALUE)
                .accept(acceptHeader)

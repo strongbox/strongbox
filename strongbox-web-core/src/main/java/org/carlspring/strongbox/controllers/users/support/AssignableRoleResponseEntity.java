@@ -1,6 +1,6 @@
 package org.carlspring.strongbox.controllers.users.support;
 
-import org.carlspring.strongbox.authorization.domain.Role;
+import org.carlspring.strongbox.authorization.domain.RoleData;
 
 import java.util.ArrayList;
 import java.util.Comparator;
@@ -27,10 +27,10 @@ public class AssignableRoleResponseEntity
     }
 
     @JsonIgnore
-    public AssignableRoleResponseEntity(Set<Role> assignableRoles)
+    public AssignableRoleResponseEntity(Set<RoleData> assignableRoles)
     {
         this.assignableRoles = assignableRoles.stream()
-                                              .sorted(Comparator.comparing(Role::getName))
+                                              .sorted(Comparator.comparing(RoleData::getName))
                                               .map(AssignableRoleOutput::fromRole)
                                               .collect(Collectors.toCollection(ArrayList::new));
     }

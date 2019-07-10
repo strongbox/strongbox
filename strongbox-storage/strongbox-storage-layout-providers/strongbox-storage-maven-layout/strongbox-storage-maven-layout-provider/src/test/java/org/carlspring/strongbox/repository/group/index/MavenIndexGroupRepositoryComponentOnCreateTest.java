@@ -4,8 +4,8 @@ import org.carlspring.strongbox.config.Maven2LayoutProviderTestConfig;
 import org.carlspring.strongbox.providers.io.RootRepositoryPath;
 import org.carlspring.strongbox.providers.layout.Maven2LayoutProvider;
 import org.carlspring.strongbox.providers.search.MavenIndexerSearchProvider;
-import org.carlspring.strongbox.storage.repository.ImmutableRepository;
-import org.carlspring.strongbox.storage.repository.MutableRepository;
+import org.carlspring.strongbox.storage.repository.RepositoryData;
+import org.carlspring.strongbox.storage.repository.RepositoryDto;
 import org.carlspring.strongbox.storage.repository.Repository;
 import org.carlspring.strongbox.storage.search.SearchRequest;
 import org.carlspring.strongbox.testing.MavenIndexedRepositorySetup;
@@ -68,9 +68,9 @@ public class MavenIndexGroupRepositoryComponentOnCreateTest
     private static final String REPOSITORY_GROUP_XH_2 = "group-repo-xh_2";
 
 
-    protected Set<MutableRepository> getRepositories()
+    protected Set<RepositoryDto> getRepositories()
     {
-        Set<MutableRepository> repositories = new LinkedHashSet<>();
+        Set<RepositoryDto> repositories = new LinkedHashSet<>();
         repositories.add(createRepositoryMock(STORAGE0, REPOSITORY_LEAF_XE_2, Maven2LayoutProvider.ALIAS));
         repositories.add(createRepositoryMock(STORAGE0, REPOSITORY_LEAF_XL_2, Maven2LayoutProvider.ALIAS));
         repositories.add(createRepositoryMock(STORAGE0, REPOSITORY_LEAF_XZ_2, Maven2LayoutProvider.ALIAS));
@@ -140,11 +140,11 @@ public class MavenIndexGroupRepositoryComponentOnCreateTest
         rebuildIndexes(getRepositories());
 
 
-        MutableRepository repository = createGroup(REPOSITORY_GROUP_XA_2, STORAGE0, REPOSITORY_GROUP_XC_2,
+        RepositoryDto repository = createGroup(REPOSITORY_GROUP_XA_2, STORAGE0, REPOSITORY_GROUP_XC_2,
                                                    REPOSITORY_LEAF_XD_2,
                                                    REPOSITORY_LEAF_XL_2);
 
-        RootRepositoryPath repositoryPath = repositoryPathResolver.resolve(new ImmutableRepository(repository));
+        RootRepositoryPath repositoryPath = repositoryPathResolver.resolve(new RepositoryData(repository));
         // recoded since we scheduled a cron job now
         artifactIndexesService.rebuildIndex(repositoryPath);
 

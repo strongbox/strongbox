@@ -3,7 +3,7 @@ package org.carlspring.strongbox.controllers;
 import org.carlspring.strongbox.controllers.users.UserController;
 import org.carlspring.strongbox.controllers.users.support.UserOutput;
 import org.carlspring.strongbox.forms.users.UserForm;
-import org.carlspring.strongbox.users.domain.User;
+import org.carlspring.strongbox.users.domain.UserData;
 import org.carlspring.strongbox.users.dto.UserDto;
 import org.carlspring.strongbox.users.service.UserService;
 import org.carlspring.strongbox.users.service.impl.StrongboxUserService.StrongboxUserServiceQualifier;
@@ -57,7 +57,7 @@ public class AccountController
             return getFailedResponseEntity(HttpStatus.BAD_REQUEST, message, MediaType.APPLICATION_JSON_VALUE);
         }
 
-        User user = userService.findByUserName(authentication.getName());
+        UserData user = userService.findByUserName(authentication.getName());
         if (user == null)
         {
             return getNotFoundResponseEntity(UserController.NOT_FOUND_USER, MediaType.APPLICATION_JSON_VALUE);

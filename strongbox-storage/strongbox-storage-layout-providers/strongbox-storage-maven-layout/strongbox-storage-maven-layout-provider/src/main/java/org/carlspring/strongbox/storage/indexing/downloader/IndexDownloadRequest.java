@@ -1,6 +1,6 @@
 package org.carlspring.strongbox.storage.indexing.downloader;
 
-import org.carlspring.strongbox.storage.repository.ImmutableRepository;
+import org.carlspring.strongbox.storage.repository.RepositoryData;
 import org.carlspring.strongbox.storage.repository.Repository;
 
 import org.apache.maven.index.Indexer;
@@ -45,6 +45,6 @@ public class IndexDownloadRequest
 
     public String getRemoteRepositoryURL()
     {
-        return ((ImmutableRepository)repository).getRemoteRepository().getUrl();
+        return ((RepositoryData)repository).getRemoteRepository().getUrl();
     }
 }

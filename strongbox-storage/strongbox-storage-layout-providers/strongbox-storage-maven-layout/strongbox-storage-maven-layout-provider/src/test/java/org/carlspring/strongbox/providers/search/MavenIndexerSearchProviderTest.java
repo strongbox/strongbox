@@ -3,10 +3,10 @@ package org.carlspring.strongbox.providers.search;
 import org.carlspring.strongbox.config.Maven2LayoutProviderTestConfig;
 import org.carlspring.strongbox.providers.layout.Maven2LayoutProvider;
 import org.carlspring.strongbox.services.ArtifactManagementService;
-import org.carlspring.strongbox.storage.repository.MutableRepository;
+import org.carlspring.strongbox.storage.repository.RepositoryDto;
 import org.carlspring.strongbox.storage.search.SearchRequest;
 import org.carlspring.strongbox.testing.TestCaseWithMavenArtifactGenerationAndIndexing;
-import org.carlspring.strongbox.yaml.configuration.repository.MutableMavenRepositoryConfiguration;
+import org.carlspring.strongbox.yaml.configuration.repository.MavenRepositoryConfigurationDto;
 import org.carlspring.strongbox.providers.io.RepositoryPath;
 import org.carlspring.strongbox.providers.io.RepositoryPathResolver;
 
@@ -83,7 +83,7 @@ public class MavenIndexerSearchProviderTest
                                       "org.carlspring:properties-injector",
                                       "1.8");
 
-        MutableMavenRepositoryConfiguration repositoryConfiguration = new MutableMavenRepositoryConfiguration();
+        MavenRepositoryConfigurationDto repositoryConfiguration = new MavenRepositoryConfigurationDto();
         repositoryConfiguration.setIndexingEnabled(true);
         repositoryConfiguration.setIndexingClassNamesEnabled(false);
 
@@ -310,9 +310,9 @@ public class MavenIndexerSearchProviderTest
         assertFalse(mavenIndexerSearchProvider.get().contains(request));
     }
 
-    private Set<MutableRepository> getRepositories(TestInfo testInfo)
+    private Set<RepositoryDto> getRepositories(TestInfo testInfo)
     {
-        Set<MutableRepository> repositories = new LinkedHashSet<>();
+        Set<RepositoryDto> repositories = new LinkedHashSet<>();
         repositories.add(createRepositoryMock(STORAGE0,
                                               getRepositoryName(REPOSITORY_RELEASES_WITH_CLASSNAMES_INDEXED, testInfo),
                                               Maven2LayoutProvider.ALIAS));

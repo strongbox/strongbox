@@ -6,9 +6,9 @@ import org.carlspring.strongbox.repository.IndexedMavenRepositoryFeatures;
 import org.carlspring.strongbox.repository.MavenRepositoryFeatures;
 import org.carlspring.strongbox.rest.common.MavenRestAssuredBaseTest;
 import org.carlspring.strongbox.storage.repository.MavenRepositoryFactory;
-import org.carlspring.strongbox.storage.repository.MutableRepository;
+import org.carlspring.strongbox.storage.repository.RepositoryDto;
 import org.carlspring.strongbox.storage.repository.RepositoryPolicyEnum;
-import org.carlspring.strongbox.yaml.configuration.repository.MutableMavenRepositoryConfiguration;
+import org.carlspring.strongbox.yaml.configuration.repository.MavenRepositoryConfigurationDto;
 
 import javax.inject.Inject;
 import java.io.IOException;
@@ -57,9 +57,9 @@ public class MavenArtifactIndexControllerTest
         cleanUp(getRepositoriesToClean());
     }
 
-    public static Set<MutableRepository> getRepositoriesToClean()
+    public static Set<RepositoryDto> getRepositoriesToClean()
     {
-        Set<MutableRepository> repositories = new LinkedHashSet<>();
+        Set<RepositoryDto> repositories = new LinkedHashSet<>();
         repositories.add(createRepositoryMock(STORAGE_ID, REPOSITORY_RELEASES_1, Maven2LayoutProvider.ALIAS));
         repositories.add(createRepositoryMock(STORAGE_ID, REPOSITORY_RELEASES_2, Maven2LayoutProvider.ALIAS));
 
@@ -81,17 +81,17 @@ public class MavenArtifactIndexControllerTest
         // - testRebuildIndexForRepository()
         // - testRebuildIndexesInStorage()
         // - testRebuildIndexesInStorage()
-        MutableMavenRepositoryConfiguration mavenRepositoryConfiguration = new MutableMavenRepositoryConfiguration();
+        MavenRepositoryConfigurationDto mavenRepositoryConfiguration = new MavenRepositoryConfigurationDto();
         mavenRepositoryConfiguration.setIndexingEnabled(true);
 
-        MutableRepository repository1 = mavenRepositoryFactory.createRepository(REPOSITORY_RELEASES_1);
+        RepositoryDto repository1 = mavenRepositoryFactory.createRepository(REPOSITORY_RELEASES_1);
         repository1.setPolicy(RepositoryPolicyEnum.RELEASE.getPolicy());
         repository1.setRepositoryConfiguration(mavenRepositoryConfiguration);
 
         createRepository(STORAGE_ID, repository1);
 
         // Used by testRebuildIndexesInStorage()
-        MutableRepository repository2 = mavenRepositoryFactory.createRepository(REPOSITORY_RELEASES_2);
+        RepositoryDto repository2 = mavenRepositoryFactory.createRepository(REPOSITORY_RELEASES_2);
         repository2.setPolicy(RepositoryPolicyEnum.RELEASE.getPolicy());
         repository2.setRepositoryConfiguration(mavenRepositoryConfiguration);
 

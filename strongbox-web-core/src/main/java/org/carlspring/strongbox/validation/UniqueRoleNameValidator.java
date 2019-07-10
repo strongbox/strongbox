@@ -1,13 +1,10 @@
 package org.carlspring.strongbox.validation;
 
-import org.carlspring.strongbox.authorization.domain.Role;
-import org.carlspring.strongbox.authorization.dto.RoleDto;
-import org.carlspring.strongbox.authorization.service.AuthorizationConfigService;
-
 import javax.inject.Inject;
 import javax.validation.ConstraintValidator;
 import javax.validation.ConstraintValidatorContext;
 
+import org.carlspring.strongbox.authorization.service.AuthorizationConfigService;
 import org.springframework.util.StringUtils;
 
 /**
@@ -30,9 +27,8 @@ public class UniqueRoleNameValidator
     public boolean isValid(String roleName,
                            ConstraintValidatorContext context)
     {
-        RoleDto role = new RoleDto(roleName, "");
-        return StringUtils.isEmpty(roleName) ||
-               !authorizationConfigService.get().getRoles().contains(new Role(role));
+        return StringUtils.isEmpty(roleName)
+                || !authorizationConfigService.get().getRoles().stream().anyMatch(r -> r.getName().equals(roleName));
     }
 
 }
