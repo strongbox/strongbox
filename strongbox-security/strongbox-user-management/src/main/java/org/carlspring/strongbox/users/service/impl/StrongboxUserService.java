@@ -4,6 +4,7 @@ import org.carlspring.strongbox.users.UsersFileManager;
 import org.carlspring.strongbox.users.dto.UserDto;
 import org.carlspring.strongbox.users.dto.User;
 import org.carlspring.strongbox.users.dto.UsersDto;
+import org.carlspring.strongbox.users.service.UserService;
 import org.carlspring.strongbox.users.service.impl.StrongboxUserService.StrongboxUserServiceQualifier;
 
 import javax.inject.Inject;
@@ -31,6 +32,9 @@ import java.io.IOException;
 public class StrongboxUserService
         extends InMemoryUserService
 {
+    @Inject
+    @InMemoryUserService.InMemoryUserServiceQualifier
+    private UserService cacheUserService;
 
     @Inject
     private UsersFileManager usersFileManager;
@@ -56,17 +60,11 @@ public class StrongboxUserService
     }
 
     @Override
-    public void updatePassword(UserDto userToUpdate)
-    {
-        encryptPassword(userToUpdate, userToUpdate.getPassword());
-        
-        super.updatePassword(userToUpdate);
-    }
-
-    @Override
     public void updateAccountDetailsByUsername(UserDto userToUpdate)
     {
         encryptPassword(userToUpdate, userToUpdate.getPassword());
+
+        cacheUserService.delete(userToUpdate.getUsername());
         
         super.updateAccountDetailsByUsername(userToUpdate);
     }
