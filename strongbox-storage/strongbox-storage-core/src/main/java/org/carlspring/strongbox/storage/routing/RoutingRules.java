@@ -45,7 +45,6 @@ public class RoutingRules
         return denied = rules.stream().filter(RoutingRule::isDeny).collect(toList());
     }
 
-
     public List<RoutingRule> getAccepted()
     {
         if (accepted != null)

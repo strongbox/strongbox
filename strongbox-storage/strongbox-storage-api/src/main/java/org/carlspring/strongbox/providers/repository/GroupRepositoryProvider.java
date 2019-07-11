@@ -35,6 +35,7 @@ import org.carlspring.strongbox.providers.repository.group.GroupRepositorySetCol
 import org.carlspring.strongbox.services.support.ArtifactRoutingRulesChecker;
 import org.carlspring.strongbox.storage.Storage;
 import org.carlspring.strongbox.storage.repository.Repository;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Component;
@@ -43,7 +44,8 @@ import org.springframework.stereotype.Component;
  * @author carlspring
  */
 @Component
-public class GroupRepositoryProvider extends AbstractRepositoryProvider
+public class GroupRepositoryProvider
+        extends AbstractRepositoryProvider
 {
 
     private static final Logger logger = LoggerFactory.getLogger(GroupRepositoryProvider.class);
@@ -58,13 +60,13 @@ public class GroupRepositoryProvider extends AbstractRepositoryProvider
 
     @Inject
     private GroupRepositorySetCollector groupRepositorySetCollector;
-    
+
     @PersistenceContext
     private EntityManager entityManager;
-    
+
     @Inject
     private RepositoryPathResolver repositoryPathResolver;
-    
+
     @Override
     public String getAlias()
     {
@@ -72,14 +74,15 @@ public class GroupRepositoryProvider extends AbstractRepositoryProvider
     }
 
     @Override
-    protected InputStream getInputStreamInternal(RepositoryPath path) throws IOException
+    protected InputStream getInputStreamInternal(RepositoryPath path)
+            throws IOException
     {
         return hostedRepositoryProvider.getInputStreamInternal(path);
     }
 
     @Override
     public RepositoryPath fetchPath(RepositoryPath repositoryPath)
-        throws IOException
+            throws IOException
     {
         eventPublisher.publishEvent(new GroupRepositoryPathFetchEvent(repositoryPath));
 
@@ -88,43 +91,69 @@ public class GroupRepositoryProvider extends AbstractRepositoryProvider
         {
             return result;
         }
-        
+
         return resolvePathTraversal(repositoryPath);
     }
-    
-    protected RepositoryPath resolvePathTraversal(RepositoryPath repositoryPath) throws IOException
+
+    protected RepositoryPath resolvePathTraversal(RepositoryPath repositoryPath)
+            throws IOException
     {
         Repository groupRepository = repositoryPath.getRepository();
         Storage storage = groupRepository.getStorage();
-        
+
+        // Iterate over the `repositories` collection.
         for (String storageAndRepositoryId : groupRepository.getGroupRepositories())
         {
             String sId = ConfigurationUtils.getStorageId(storage.getId(), storageAndRepositoryId);
             String rId = ConfigurationUtils.getRepositoryId(storageAndRepositoryId);
 
             Repository subRepository = getConfiguration().getStorage(sId).getRepository(rId);
-            if (!subRepository.isInService())
+            RepositoryPath subRepositoryPath = repositoryPathResolver.resolve(subRepository, repositoryPath);
+
+            if (!isRepositoryResolvable(groupRepository, subRepository, subRepositoryPath))
             {
                 continue;
             }
-            
-            RepositoryPath result = repositoryPathResolver.resolve(subRepository, repositoryPath);
-            if (artifactRoutingRulesChecker.isDenied(groupRepository, result))
+
+            subRepositoryPath = resolvePathFromGroupMemberOrTraverse(subRepositoryPath);
+            if (subRepositoryPath == null)
             {
                 continue;
             }
-            
-            result = resolvePathFromGroupMemberOrTraverse(result);
-            if (result == null)
-            {
-                continue;
-            }
-            
-            logger.debug(String.format("Located artifact: [%s]", result));
-            
-            return result;
+
+            logger.debug(String.format("Located artifact: [%s]", subRepositoryPath));
+
+            return subRepositoryPath;
         }
+
         return null;
+    }
+
+    private boolean isRepositoryResolvable(Repository groupRepository,
+                                           Repository subRepository,
+                                           RepositoryPath repositoryPath)
+            throws IOException
+    {
+        final boolean isInService = subRepository.isInService();
+
+        if (!isInService)
+        {
+            logger.debug("- Repository [{}] is not in service, skipping...",
+                         subRepository.getStorageIdAndRepositoryId());
+
+            // early break to avoid wasting time on looping through the routing rules.
+            return false;
+        }
+
+        final boolean isRoutable = !artifactRoutingRulesChecker.isDenied(groupRepository, repositoryPath);
+
+        if (!isRoutable)
+        {
+            logger.debug("- Repository [{}] is denied by a routing rule, skipping...",
+                         subRepository.getStorageIdAndRepositoryId());
+        }
+
+        return isInService && isRoutable;
     }
 
     private RepositoryPath resolvePathDirectlyFromGroupPathIfPossible(final RepositoryPath artifactPath)
@@ -137,14 +166,14 @@ public class GroupRepositoryProvider extends AbstractRepositoryProvider
     }
 
     protected RepositoryPath resolvePathFromGroupMemberOrTraverse(RepositoryPath repositoryPath)
-        throws IOException
+            throws IOException
     {
         Repository repository = repositoryPath.getRepository();
         if (getAlias().equals(repository.getType()))
         {
             return resolvePathTraversal(repositoryPath);
         }
-        
+
         RepositoryProvider provider = repositoryProviderRegistry.getProvider(repository.getType());
         try
         {
@@ -195,7 +224,8 @@ public class GroupRepositoryProvider extends AbstractRepositoryProvider
 
         skip = skip - groupSkip;
 
-        outer: do
+        outer:
+        do
         {
             Paginator paginatorLocal = new Paginator();
             paginatorLocal.setLimit(groupLimit);
@@ -205,12 +235,13 @@ public class GroupRepositoryProvider extends AbstractRepositoryProvider
 
             groupLimit = 0;
 
-            for (Iterator<Repository> i = groupRepositorySet.iterator(); i.hasNext();)
+            for (Iterator<Repository> i = groupRepositorySet.iterator(); i.hasNext(); )
             {
                 Repository r = i.next();
                 RepositoryProvider repositoryProvider = repositoryProviderRegistry.getProvider(r.getType());
 
-                List<Path> repositoryResult = repositoryProvider.search(r.getStorage().getId(), r.getId(), predicate, paginatorLocal);
+                List<Path> repositoryResult = repositoryProvider.search(r.getStorage().getId(), r.getId(), predicate,
+                                                                        paginatorLocal);
                 if (repositoryResult.isEmpty())
                 {
                     i.remove();
@@ -221,7 +252,7 @@ public class GroupRepositoryProvider extends AbstractRepositoryProvider
                 groupLimit += repositoryResult.stream()
                                               .map((p) -> resultMap.put(getArtifactCoordinates(p),
                                                                         p))
-                                              .filter(p ->  p != null)
+                                              .filter(p -> p != null)
                                               .collect(Collectors.toList())
                                               .size();
 
@@ -235,7 +266,8 @@ public class GroupRepositoryProvider extends AbstractRepositoryProvider
 
             // Will iterate until there is no more coordinates intersection and
             // there is more search results within group repositories
-        } while (groupLimit > 0 && !groupRepositorySet.isEmpty());
+        }
+        while (groupLimit > 0 && !groupRepositorySet.isEmpty());
 
         LinkedList<Path> resultList = new LinkedList<>();
         if (skip >= resultMap.size())
@@ -266,27 +298,25 @@ public class GroupRepositoryProvider extends AbstractRepositoryProvider
                       Predicate predicate)
     {
         logger.debug(String.format("Count in [%s]:[%s] ...", storageId, repositoryId));
-        
+
         Storage storage = getConfiguration().getStorage(storageId);
 
         Repository groupRepository = storage.getRepository(repositoryId);
 
         Predicate p = Predicate.empty();
-        
+
         p.or(createPredicate(storageId, repositoryId, predicate));
-        groupRepositorySetCollector.collect(groupRepository,
-                                            true)
+        groupRepositorySetCollector.collect(groupRepository, true)
                                    .stream()
-                                   .forEach(r -> p.or(createPredicate(r.getStorage().getId(), r.getId(), predicate)));                                                                                            
+                                   .forEach(r -> p.or(createPredicate(r.getStorage().getId(), r.getId(), predicate)));
 
         Selector<ArtifactEntry> selector = new Selector<>(ArtifactEntry.class);
         selector.select("count(distinct(artifactCoordinates))").where(p);
-        
+
         QueryTemplate<Long, ArtifactEntry> queryTemplate = new OQueryTemplate<>(entityManager);
-        
+
         return queryTemplate.select(selector);
 
     }
 
-    
 }

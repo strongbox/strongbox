@@ -1,10 +1,7 @@
 package org.carlspring.strongbox.services.impl;
 
 import static org.hamcrest.MatcherAssert.assertThat;
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertFalse;
-import static org.junit.jupiter.api.Assertions.assertNotNull;
-import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.junit.jupiter.api.Assertions.*;
 import static org.junit.jupiter.api.parallel.ExecutionMode.CONCURRENT;
 
 import java.io.IOException;
@@ -125,6 +122,21 @@ public class ConfigurationManagementServiceImplTest
     }
 
     @Test
+    public void testGetRepositories()
+    {
+        List<Repository> repositories = configurationManagementService.getConfiguration().getRepositories();
+
+        assertFalse(repositories.isEmpty());
+
+        logger.debug("Repositories:");
+
+        for (Repository repository : repositories)
+        {
+            logger.debug(" - " + repository.getId());
+        }
+    }
+
+    @Test
     public void testGetGroupRepositories()
     {
         List<Repository> groupRepositories = configurationManagementService.getConfiguration().getGroupRepositories();
@@ -211,7 +223,7 @@ public class ConfigurationManagementServiceImplTest
                                                   @NullRepository(repositoryId = REPOSITORY_GROUP_1) Repository releasesGroup) throws IOException
     {
         final MutableRoutingRule routingRule = createRoutingRule(RoutingRuleTypeEnum.ACCEPT);
-        String repositoryId = routingRule.getRepositoryId();
+        String groupRepositoryId = routingRule.getGroupRepositoryId();
         String storageId = routingRule.getStorageId();
 
         final boolean added = configurationManagementService.addRoutingRule(routingRule);
@@ -221,7 +233,7 @@ public class ConfigurationManagementServiceImplTest
         List<RoutingRule> routingRulesMatching = configuration.getRoutingRules()
                                                               .getRules()
                                                               .stream()
-                                                              .filter(a -> repositoryId.equals(a.getRepositoryId()) &&
+                                                              .filter(a -> groupRepositoryId.equals(a.getGroupRepositoryId()) &&
                                                                            storageId.equals(a.getStorageId()))
                                                               .collect(Collectors.toList());
 
@@ -237,7 +249,7 @@ public class ConfigurationManagementServiceImplTest
         routingRulesMatching = configuration.getRoutingRules()
                                             .getRules()
                                             .stream()
-                                            .filter(a -> repositoryId.equals(a.getRepositoryId()) &&
+                                            .filter(a -> groupRepositoryId.equals(a.getGroupRepositoryId()) &&
                                                          storageId.equals(a.getStorageId()))
                                             .collect(Collectors.toList());
 
@@ -252,7 +264,7 @@ public class ConfigurationManagementServiceImplTest
         routingRulesMatching = configuration.getRoutingRules()
                                             .getRules()
                                             .stream()
-                                            .filter(a -> repositoryId.equals(a.getRepositoryId()) &&
+                                            .filter(a -> groupRepositoryId.equals(a.getGroupRepositoryId()) &&
                                                          storageId.equals(a.getStorageId()))
                                             .collect(Collectors.toList());
 
@@ -314,7 +326,7 @@ public class ConfigurationManagementServiceImplTest
                 r -> new MutableRoutingRuleRepository(STORAGE0, r)).collect(
                 Collectors.toList()));
         routingRule.setType(type.getType());
-        routingRule.setRepositoryId(REPOSITORY_GROUP_1);
+        routingRule.setGroupRepositoryId(REPOSITORY_GROUP_1);
         routingRule.setStorageId(STORAGE0);
         return routingRule;
     }

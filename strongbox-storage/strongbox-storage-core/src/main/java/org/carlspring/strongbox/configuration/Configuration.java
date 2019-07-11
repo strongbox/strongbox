@@ -192,6 +192,18 @@ public class Configuration
                            .collect(Collectors.toList());
     }
 
+    public List<Repository> getRepositories()
+    {
+        List<Repository> repositories = new ArrayList<>();
+
+        for (Storage storage : getStorages().values())
+        {
+            repositories.addAll(storage.getRepositories().values());
+        }
+
+        return repositories;
+    }
+
     public List<Repository> getGroupRepositories()
     {
         List<Repository> groupRepositories = new ArrayList<>();

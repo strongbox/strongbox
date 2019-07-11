@@ -31,16 +31,15 @@ public class ArtifactRoutingRulesChecker
             throws IOException
     {
         final RoutingRules routingRules = configurationManager.getConfiguration().getRoutingRules();
-        final List<RoutingRule> denyRules = routingRules.getDenied();
-        final List<RoutingRule> acceptRules = routingRules.getAccepted();
+        final boolean hasDenyRules = hasCandidates(groupRepository, repositoryPath, routingRules.getDenied());
+        final boolean hasAcceptRules = hasCandidates(groupRepository, repositoryPath, routingRules.getAccepted());
 
-        return fitsRoutingRules(groupRepository, repositoryPath, denyRules) &&
-               !fitsRoutingRules(groupRepository, repositoryPath, acceptRules);
+        return hasDenyRules && !hasAcceptRules;
     }
 
-    private boolean fitsRoutingRules(Repository groupRepository,
-                                     RepositoryPath repositoryPath,
-                                     List<RoutingRule> routingRules)
+    private boolean hasCandidates(Repository groupRepository,
+                                  RepositoryPath repositoryPath,
+                                  List<RoutingRule> routingRules)
             throws IOException
     {
 
@@ -48,52 +47,64 @@ public class ArtifactRoutingRulesChecker
         Repository subRepository = repositoryPath.getRepository();
 
         return routingRules.stream()
-                           .filter(routingRule -> repositoryMatchesExactly(groupRepository, routingRule)
-                                                  || repositoryStorageIdMatches(groupRepository.getStorage().getId(),
-                                                                                routingRule)
-                                                  || repositoryIdMatches(groupRepository.getId(), routingRule)
-                                                  || allMatches(routingRule))
-                           .filter(routingRule -> routingRule.getRegex().matcher(artifactPath).matches())
-                           .flatMap(routingRule -> routingRule.getRepositories().stream())
-                           .filter(routingRuleRepository ->
-                                           repositoryMatchesExactly(subRepository, routingRuleRepository)
-                                           || repositoryStorageIdMatches(subRepository.getStorage().getId(),
-                                                                         routingRuleRepository)
-                                           || repositoryIdMatches(subRepository.getId(), routingRuleRepository)
-                                           || allMatches(routingRuleRepository))
-                           .findFirst()
-                           .isPresent();
+                           .anyMatch(rule -> {
+                               boolean result = false;
+
+                               if ((isMatch(rule, groupRepository))
+                                   && rule.getRegex().matcher(artifactPath).matches())
+                               {
+                                   // an empty collection means the rule is applied to **all** repositories in the group.
+                                   if (rule.getRepositories().size() == 0)
+                                   {
+                                       result = true;
+                                   }
+                                   else
+                                   {
+                                       result = rule.getRepositories()
+                                                    .stream()
+                                                    .anyMatch(r -> isMatch(r, subRepository));
+                                   }
+                               }
+
+                               return result;
+                           });
+
     }
 
-
-    private boolean repositoryMatchesExactly(Repository repository,
-                                             RepositoryIdentifiable repositoryIdentifiable)
+    private boolean isMatch(RepositoryIdentifiable rule,
+                            Repository repository)
     {
-        return StringUtils.trimToEmpty(repositoryIdentifiable.getStorageId()).equals(
-                StringUtils.trimToEmpty(repository.getStorage().getId())) &&
-               StringUtils.trimToEmpty(repositoryIdentifiable.getRepositoryId()).equals(
-                       StringUtils.trimToEmpty(repository.getId()));
+        boolean result = false;
+
+        // exact match == storageId:repositoryId
+        if (equalsIgnoreCase(rule.getStorageIdAndRepositoryId(), repository.getStorageIdAndRepositoryId()))
+        {
+            result = true;
+        }
+        // wildcard == *:*
+        else if (equalsIgnoreCase(rule.getStorageIdAndRepositoryId(), StringUtils.EMPTY))
+        {
+            result = true;
+        }
+        // wildcard == storageId:*
+        else if (equalsIgnoreCase(rule.getRepositoryId(), StringUtils.EMPTY) &&
+                 equalsIgnoreCase(rule.getStorageId(), repository.getStorage().getId()))
+        {
+            result = true;
+        }
+        // wildcard == *:repositoryId
+        else if (equalsIgnoreCase(rule.getStorageId(), StringUtils.EMPTY) &&
+                 equalsIgnoreCase(rule.getRepositoryId(), repository.getId()))
+        {
+            result = true;
+        }
+
+        return result;
     }
 
-    private boolean repositoryStorageIdMatches(String storageId,
-                                               RepositoryIdentifiable repositoryIdentifiable)
+    private boolean equalsIgnoreCase(final String a,
+                                     final String b)
     {
-        return StringUtils.trimToEmpty(repositoryIdentifiable.getStorageId()).equals(
-                StringUtils.trimToEmpty(storageId)) &&
-               StringUtils.trimToEmpty(repositoryIdentifiable.getRepositoryId()).equals(StringUtils.EMPTY);
-    }
-
-    private boolean repositoryIdMatches(String repositoryId,
-                                        RepositoryIdentifiable repositoryIdentifiable)
-    {
-        return StringUtils.trimToEmpty(repositoryIdentifiable.getStorageId()).equals(StringUtils.EMPTY) &&
-               StringUtils.trimToEmpty(repositoryIdentifiable.getRepositoryId()).equals(
-                       StringUtils.trimToEmpty(repositoryId));
-    }
-
-    private boolean allMatches(RepositoryIdentifiable repositoryIdentifiable)
-    {
-        return StringUtils.trimToEmpty(repositoryIdentifiable.getStorageId()).equals(StringUtils.EMPTY) &&
-               StringUtils.trimToEmpty(repositoryIdentifiable.getRepositoryId()).equals(StringUtils.EMPTY);
+        return StringUtils.trimToEmpty(a).equalsIgnoreCase(StringUtils.trimToEmpty(b));
     }
 }

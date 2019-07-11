@@ -3,11 +3,13 @@ package org.carlspring.strongbox.storage.routing;
 import javax.annotation.concurrent.Immutable;
 import java.util.Collections;
 import java.util.List;
+import java.util.StringJoiner;
 import java.util.UUID;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 
 import com.google.common.collect.ImmutableList;
+import org.apache.commons.lang3.StringUtils;
 
 /**
  * @author Przemyslaw Fusik
@@ -21,7 +23,7 @@ public class RoutingRule
 
     private final String storageId;
 
-    private final String repositoryId;
+    private final String groupRepositoryId;
 
     private final String pattern;
 
@@ -34,7 +36,7 @@ public class RoutingRule
     public RoutingRule(final MutableRoutingRule delegate)
     {
         this.uuid = delegate.getUuid();
-        this.repositoryId = delegate.getRepositoryId();
+        this.groupRepositoryId = delegate.getGroupRepositoryId();
         this.storageId = delegate.getStorageId();
         this.pattern = delegate.getPattern();
         this.regex = Pattern.compile(pattern);
@@ -62,7 +64,30 @@ public class RoutingRule
     @Override
     public String getRepositoryId()
     {
-        return repositoryId;
+        return groupRepositoryId;
+    }
+
+    @Override
+    public String getStorageIdAndRepositoryId()
+    {
+        StringJoiner stringJoiner = new StringJoiner(":");
+
+        if (StringUtils.isNotBlank(storageId))
+        {
+            stringJoiner.add(storageId);
+        }
+
+        if (StringUtils.isNotBlank(groupRepositoryId))
+        {
+            stringJoiner.add(groupRepositoryId);
+        }
+
+        return stringJoiner.toString();
+    }
+
+    public String getGroupRepositoryId()
+    {
+        return groupRepositoryId;
     }
 
     public String getPattern()

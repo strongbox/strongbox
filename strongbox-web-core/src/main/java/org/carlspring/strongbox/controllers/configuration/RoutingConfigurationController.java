@@ -49,9 +49,7 @@ public class RoutingConfigurationController
 
     static final String FAILED_UPDATE_ROUTING_RULE_FORM_ERROR = "Routing rule cannot be updated because the submitted form contains errors!";
 
-
     private final ConversionService conversionService;
-
 
     public RoutingConfigurationController(ConfigurationManagementService configurationManagementService,
                                           ConversionService conversionService)
@@ -60,14 +58,32 @@ public class RoutingConfigurationController
         this.conversionService = conversionService;
     }
 
+    @ApiOperation(value = "Returns routing rule for uuid.")
+    @ApiResponses(value = { @ApiResponse(code = 200, message = "Everything went ok."),
+                            @ApiResponse(code = 404, message = NOT_FOUND_REPOSITORY) })
+    @GetMapping(value = "{uuid}",
+                produces = { MediaType.TEXT_PLAIN_VALUE,
+                             MediaType.APPLICATION_JSON_VALUE })
+    public ResponseEntity getRoutingRule(@PathVariable UUID uuid,
+                                         @RequestHeader(HttpHeaders.ACCEPT) String accept)
+    {
+        MutableRoutingRule body = configurationManagementService.getRoutingRule(uuid);
+
+        if (body == null)
+        {
+            return getNotFoundResponseEntity(NOT_FOUND_REPOSITORY, accept);
+        }
+
+        return ResponseEntity.ok(body);
+    }
+
     @ApiOperation(value = "Returns routing rules.")
     @ApiResponses(value = { @ApiResponse(code = 200, message = "Everything went ok.") })
     @GetMapping(produces = { MediaType.TEXT_PLAIN_VALUE,
                              MediaType.APPLICATION_JSON_VALUE })
     public ResponseEntity getRoutingRules()
     {
-        MutableRoutingRules body = configurationManagementService.getMutableConfigurationClone()
-                                                                 .getRoutingRules();
+        MutableRoutingRules body = configurationManagementService.getRoutingRules();
         return ResponseEntity.ok(body);
     }
 
@@ -75,10 +91,9 @@ public class RoutingConfigurationController
     @ApiResponses(value = { @ApiResponse(code = 200, message = SUCCESSFUL_ADD_ROUTING_RULE),
                             @ApiResponse(code = 400, message = FAILED_ADD_ROUTING_RULE_FORM_ERRORS),
                             @ApiResponse(code = 404, message = FAILED_ADD_ROUTING_RULE) })
-    @PutMapping(value = "/add",
-            consumes = MediaType.APPLICATION_JSON_VALUE,
-            produces = { MediaType.TEXT_PLAIN_VALUE,
-                         MediaType.APPLICATION_JSON_VALUE })
+    @PutMapping(consumes = MediaType.APPLICATION_JSON_VALUE,
+                produces = { MediaType.TEXT_PLAIN_VALUE,
+                             MediaType.APPLICATION_JSON_VALUE })
     public ResponseEntity add(@RequestBody @Validated RoutingRuleForm routingRule,
                               BindingResult bindingResult,
                               @RequestHeader(HttpHeaders.ACCEPT) String acceptHeader) throws IOException
@@ -97,10 +112,9 @@ public class RoutingConfigurationController
     @ApiOperation(value = "Removes routing rule having provided uuid.")
     @ApiResponses(value = { @ApiResponse(code = 200, message = SUCCESSFUL_REMOVE_ROUTING_RULE),
                             @ApiResponse(code = 404, message = FAILED_ADD_ROUTING_RULE) })
-    @DeleteMapping(value = "/remove/{uuid}",
-            consumes = MediaType.APPLICATION_JSON_VALUE,
-            produces = { MediaType.TEXT_PLAIN_VALUE,
-                         MediaType.APPLICATION_JSON_VALUE })
+    @DeleteMapping(value = "/{uuid}",
+                   produces = { MediaType.TEXT_PLAIN_VALUE,
+                                MediaType.APPLICATION_JSON_VALUE })
     public ResponseEntity remove(@PathVariable UUID uuid,
                                  @RequestHeader(HttpHeaders.ACCEPT) String acceptHeader) throws IOException
     {
@@ -113,10 +127,10 @@ public class RoutingConfigurationController
     @ApiResponses(value = { @ApiResponse(code = 200, message = FAILED_UPDATE_ROUTING_RULE),
                             @ApiResponse(code = 400, message = FAILED_UPDATE_ROUTING_RULE_FORM_ERROR),
                             @ApiResponse(code = 404, message = NOT_FOUND_REPOSITORY) })
-    @PutMapping(value = "/update/{uuid}",
-            consumes = MediaType.APPLICATION_JSON_VALUE,
-            produces = { MediaType.TEXT_PLAIN_VALUE,
-                         MediaType.APPLICATION_JSON_VALUE })
+    @PutMapping(value = "/{uuid}",
+                consumes = MediaType.APPLICATION_JSON_VALUE,
+                produces = { MediaType.TEXT_PLAIN_VALUE,
+                             MediaType.APPLICATION_JSON_VALUE })
     public ResponseEntity update(@PathVariable UUID uuid,
                                  @RequestBody @Validated RoutingRuleForm routingRule,
                                  BindingResult bindingResult,
@@ -130,6 +144,7 @@ public class RoutingConfigurationController
         MutableRoutingRule rule = conversionService.convert(routingRule, MutableRoutingRule.class);
 
         final boolean updated = configurationManagementService.updateRoutingRule(uuid, rule);
+
         return getResponse(updated, FAILED_UPDATE_ROUTING_RULE, FAILED_UPDATE_ROUTING_RULE, acceptHeader);
     }
 

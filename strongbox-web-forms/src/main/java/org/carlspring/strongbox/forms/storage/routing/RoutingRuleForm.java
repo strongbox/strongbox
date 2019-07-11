@@ -1,8 +1,10 @@
 package org.carlspring.strongbox.forms.storage.routing;
 
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import org.carlspring.strongbox.storage.routing.RoutingRuleTypeEnum;
 
-import javax.validation.constraints.NotEmpty;
+import javax.validation.Valid;
+import javax.validation.constraints.NotBlank;
 import javax.validation.constraints.NotNull;
 import java.util.ArrayList;
 import java.util.List;
@@ -11,20 +13,21 @@ import java.util.List;
  * @author Pablo Tirado
  * @author Przemyslaw Fusik
  */
+@JsonIgnoreProperties(ignoreUnknown = true)
 public class RoutingRuleForm
 {
 
     private String storageId;
 
-    private String repositoryId;
+    private String groupRepositoryId;
 
-    @NotEmpty(message = "A pattern must be specified.")
+    @NotBlank(message = "A pattern must be specified.")
     private String pattern;
 
     @NotNull(message = "A type must be specified.")
     private RoutingRuleTypeEnum type;
 
-    @NotEmpty(message = "A list of repositories must be specified.")
+    @Valid
     private List<RoutingRuleRepositoryForm> repositories = new ArrayList<>();
 
     public String getStorageId()
@@ -37,14 +40,14 @@ public class RoutingRuleForm
         this.storageId = storageId;
     }
 
-    public String getRepositoryId()
+    public String getGroupRepositoryId()
     {
-        return repositoryId;
+        return groupRepositoryId;
     }
 
-    public void setRepositoryId(String repositoryId)
+    public void setGroupRepositoryId(String groupRepositoryId)
     {
-        this.repositoryId = repositoryId;
+        this.groupRepositoryId = groupRepositoryId;
     }
 
     public String getPattern()

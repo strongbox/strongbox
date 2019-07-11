@@ -59,5 +59,9 @@ public interface Repository
     boolean acceptsReleases();
     
     RepositoryConfiguration getRepositoryConfiguration();
+
+    String getStorageIdAndRepositoryId();
+
+    boolean isType(String type);
     
 }

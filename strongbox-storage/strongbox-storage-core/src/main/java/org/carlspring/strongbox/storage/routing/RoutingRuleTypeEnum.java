@@ -1,5 +1,7 @@
 package org.carlspring.strongbox.storage.routing;
 
+import com.fasterxml.jackson.annotation.JsonProperty;
+
 import java.util.stream.Stream;
 
 /**
@@ -8,8 +10,10 @@ import java.util.stream.Stream;
 public enum RoutingRuleTypeEnum
 {
 
+    @JsonProperty("accept")
     ACCEPT("accept"),
 
+    @JsonProperty("deny")
     DENY("deny");
 
 

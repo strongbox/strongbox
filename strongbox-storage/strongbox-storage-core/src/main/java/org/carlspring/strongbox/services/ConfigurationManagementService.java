@@ -8,6 +8,7 @@ import org.carlspring.strongbox.configuration.MutableSmtpConfiguration;
 import org.carlspring.strongbox.storage.StorageDto;
 import org.carlspring.strongbox.storage.repository.RepositoryDto;
 import org.carlspring.strongbox.storage.routing.MutableRoutingRule;
+import org.carlspring.strongbox.storage.routing.MutableRoutingRules;
 
 import java.io.IOException;
 import java.util.List;
@@ -53,6 +54,10 @@ public interface ConfigurationManagementService
     void setProxyRepositoryMaxConnections(String storageId,
                                           String repositoryId,
                                           int numberOfConnections) throws IOException;
+
+    MutableRoutingRules getRoutingRules();
+
+    MutableRoutingRule getRoutingRule(UUID uuid);
 
     boolean updateRoutingRule(UUID uuid,
                               MutableRoutingRule routingRule) throws IOException;

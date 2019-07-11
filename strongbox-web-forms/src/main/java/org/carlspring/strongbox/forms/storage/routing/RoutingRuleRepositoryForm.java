@@ -1,8 +1,14 @@
 package org.carlspring.strongbox.forms.storage.routing;
 
+import org.carlspring.strongbox.validation.configuration.routing.RoutingRuleRepositoryFormValid;
+
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
+
 /**
  * @author Przemyslaw Fusik
  */
+@JsonIgnoreProperties(ignoreUnknown = true)
+@RoutingRuleRepositoryFormValid
 public class RoutingRuleRepositoryForm
 {
     private String repositoryId;
