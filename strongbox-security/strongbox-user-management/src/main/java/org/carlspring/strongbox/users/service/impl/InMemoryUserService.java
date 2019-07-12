@@ -1,37 +1,30 @@
 package org.carlspring.strongbox.users.service.impl;
 
-import static java.lang.annotation.RetentionPolicy.RUNTIME;
+import org.carlspring.strongbox.data.CacheName;
+import org.carlspring.strongbox.users.domain.UserData;
+import org.carlspring.strongbox.users.domain.Users;
+import org.carlspring.strongbox.users.dto.User;
+import org.carlspring.strongbox.users.dto.UserDto;
+import org.carlspring.strongbox.users.dto.UsersDto;
+import org.carlspring.strongbox.users.security.SecurityTokenProvider;
+import org.carlspring.strongbox.users.service.UserService;
 
+import javax.inject.Inject;
+import javax.inject.Qualifier;
 import java.lang.annotation.Documented;
 import java.lang.annotation.Retention;
-import java.util.Collections;
-import java.util.Date;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.Map;
-import java.util.Optional;
-import java.util.Set;
+import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.locks.Lock;
 import java.util.concurrent.locks.ReadWriteLock;
 import java.util.concurrent.locks.ReentrantReadWriteLock;
 import java.util.function.Consumer;
 
-import javax.inject.Inject;
-import javax.inject.Qualifier;
-
 import org.apache.commons.lang3.StringUtils;
-import org.carlspring.strongbox.data.CacheName;
-import org.carlspring.strongbox.users.domain.UserData;
-import org.carlspring.strongbox.users.domain.Users;
-import org.carlspring.strongbox.users.dto.UserDto;
-import org.carlspring.strongbox.users.dto.User;
-import org.carlspring.strongbox.users.dto.UsersDto;
-import org.carlspring.strongbox.users.security.SecurityTokenProvider;
-import org.carlspring.strongbox.users.service.UserService;
 import org.jose4j.lang.JoseException;
 import org.springframework.cache.annotation.CacheEvict;
 import org.springframework.stereotype.Component;
+import static java.lang.annotation.RetentionPolicy.RUNTIME;
 
 
 @Component
@@ -103,14 +96,6 @@ public class InMemoryUserService implements UserService
     }
 
     @Override
-    public String generateAuthenticationToken(final String username,
-                                              final Integer expireMinutes)
-            throws JoseException
-    {
-        return tokenProvider.getToken(username, Collections.emptyMap(), expireMinutes);
-    }
-
-    @Override
     public void revokeEveryone(final String roleToRevoke)
     {
         modifyInLock(users -> {
@@ -144,29 +129,6 @@ public class InMemoryUserService implements UserService
     {
         modifyInLock(users -> {
             users.remove(username);
-        });
-    }
-
-    @Override
-    public void updatePassword(final UserDto userToUpdate)
-    {
-        if (StringUtils.isBlank(userToUpdate.getPassword()))
-        {
-            return;
-        }
-
-        modifyInLock(users -> {
-            Optional.ofNullable(users.get(userToUpdate.getUsername()))
-                    .ifPresent(user -> user.setPassword(userToUpdate.getPassword()));
-        });
-    }
-
-    @Override
-    public void updateSecurityToken(final UserDto userToUpdate)
-    {
-        modifyInLock(users -> {
-            Optional.ofNullable(users.get(userToUpdate.getUsername()))
-                    .ifPresent(user -> updateSecurityToken(user, userToUpdate.getSecurityTokenKey()));
         });
     }
 

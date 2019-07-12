@@ -2,9 +2,9 @@ package org.carlspring.strongbox.users.service;
 
 import org.carlspring.strongbox.users.domain.UserData;
 import org.carlspring.strongbox.users.domain.Users;
-import org.carlspring.strongbox.users.dto.AccessModelDto;
-import org.carlspring.strongbox.users.dto.UserDto;
 import org.carlspring.strongbox.users.dto.User;
+import org.carlspring.strongbox.users.dto.UserDto;
+
 import org.jose4j.lang.JoseException;
 
 /**
@@ -26,23 +26,6 @@ public interface UserService
      */
     String generateSecurityToken(String username)
             throws JoseException;
-
-    /**
-     * Generates 'Authentication Token' for specific user.<br>
-     * This token can be used for JWT Authentication.
-     *
-     * @param username      user ID
-     * @param expireSeconds token expiration in seconds (endless if empty)
-     * @return encrypted token
-     * @throws JoseException
-     */
-    String generateAuthenticationToken(String username,
-                                       Integer expireSeconds)
-            throws JoseException;
-
-    void updatePassword(UserDto userToUpdate);
-
-    void updateSecurityToken(UserDto userToUpdate);
 
     /**
      * This method is mainly necessary for the UI - for users to be able to update their own account data
