@@ -95,10 +95,6 @@ public class CronTaskDataServiceImpl
         {
             return SerializationUtils.clone(configuration);
         }
-        catch (Exception e)
-        {
-            throw new UndeclaredThrowableException(e);
-        }
         finally
         {
             readLock.unlock();

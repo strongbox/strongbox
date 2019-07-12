@@ -233,7 +233,7 @@ public class RepositoryManagementServiceImpl
 
     @Override
     public void undeleteTrash()
-            throws ProviderImplementationException
+            throws IOException
     {
         
         for (Map.Entry<String, Storage> entry : getConfiguration().getStorages().entrySet())
@@ -254,10 +254,10 @@ public class RepositoryManagementServiceImpl
                         RepositoryFiles.undelete(repositoryPath);
                     }
                 }
-                catch (Exception e)
+                catch (IOException e)
                 {
-                    throw new RuntimeException("Unable to undelete trash for storage " + storageId + " in repository " +
-                                               repositoryId, e);
+                    throw new ArtifactStorageException( "Unable to undelete trash for storage " + storageId + " in repository " +
+                            repositoryId, e);
                 }
             }
         }

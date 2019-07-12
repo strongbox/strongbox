@@ -1,14 +1,14 @@
 package org.carlspring.strongbox.cron.jobs;
 
+import com.google.common.collect.ImmutableSet;
+import org.carlspring.strongbox.util.ThrowingFunction;
+import org.reflections.Reflections;
+import org.springframework.stereotype.Component;
+
 import java.lang.reflect.Modifier;
-import java.lang.reflect.UndeclaredThrowableException;
 import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Collectors;
-
-import com.google.common.collect.ImmutableSet;
-import org.reflections.Reflections;
-import org.springframework.stereotype.Component;
 
 /**
  * @author Przemyslaw Fusik
@@ -26,16 +26,7 @@ public class CronJobsDefinitionsRegistry
                 c -> !Modifier.isAbstract(c.getModifiers()) && !c.isInterface()).collect(Collectors.toSet());
 
         cronJobDefinitions = cronJobs.stream()
-                                     .map(clazz -> {
-                                         try
-                                         {
-                                             return clazz.newInstance().getCronJobDefinition();
-                                         }
-                                         catch (Exception ex)
-                                         {
-                                             throw new UndeclaredThrowableException(ex);
-                                         }
-                                     })
+                                     .map(ThrowingFunction.unchecked(clazz -> clazz.newInstance().getCronJobDefinition()))
                                      .collect(ImmutableSet.toImmutableSet());
     }
 

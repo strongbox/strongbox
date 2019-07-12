@@ -22,6 +22,7 @@ import org.carlspring.strongbox.users.domain.Privileges;
 import org.carlspring.strongbox.users.domain.SystemRole;
 import org.springframework.stereotype.Service;
 
+
 /**
  * @author Alex Oreshkevich
  * @author Przemyslaw Fusik
@@ -62,10 +63,6 @@ public class AuthorizationConfigServiceImpl
         try
         {
             return SerializationUtils.clone(authorizationConfig);
-        }
-        catch (Exception e)
-        {
-            throw new UndeclaredThrowableException(e);
         }
         finally
         {

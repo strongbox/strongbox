@@ -19,6 +19,7 @@ import java.util.UUID;
 import java.util.concurrent.TimeUnit;
 
 import org.apache.commons.lang3.StringUtils;
+import org.carlspring.strongbox.util.ThrowingFunction;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -120,14 +121,7 @@ public class RebuildMavenIndexesCronJobTestIT
                                                           "+p:jar",
                                                           MavenIndexerSearchProvider.ALIAS);
 
-                try
-                {
-                    assertTrue(artifactSearchService.contains(request));
-                }
-                catch (Exception e)
-                {
-                    throw new UndeclaredThrowableException(e);
-                }
+                assertTrue(ThrowingFunction.unchecked(artifactSearchService::contains).apply(request));
             }
         });
 

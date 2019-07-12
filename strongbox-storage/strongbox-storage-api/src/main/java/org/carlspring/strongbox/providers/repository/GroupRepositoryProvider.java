@@ -35,6 +35,7 @@ import org.carlspring.strongbox.providers.repository.group.GroupRepositorySetCol
 import org.carlspring.strongbox.services.support.ArtifactRoutingRulesChecker;
 import org.carlspring.strongbox.storage.Storage;
 import org.carlspring.strongbox.storage.repository.Repository;
+import org.carlspring.strongbox.util.ThrowingFunction;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -250,8 +251,7 @@ public class GroupRepositoryProvider
 
                 // count coordinates intersection
                 groupLimit += repositoryResult.stream()
-                                              .map((p) -> resultMap.put(getArtifactCoordinates(p),
-                                                                        p))
+                                              .map(ThrowingFunction.unchecked((Path p) -> resultMap.put(getArtifactCoordinates(p), p)))
                                               .filter(p -> p != null)
                                               .collect(Collectors.toList())
                                               .size();
@@ -280,16 +280,9 @@ public class GroupRepositoryProvider
         return resultList.subList(skip, toIndex);
     }
 
-    private ArtifactCoordinates getArtifactCoordinates(Path p)
+    private ArtifactCoordinates getArtifactCoordinates(Path p) throws IOException
     {
-        try
-        {
-            return RepositoryFiles.readCoordinates((RepositoryPath) p);
-        }
-        catch (IOException e)
-        {
-            throw new RuntimeException(String.format("Failed to resolve ArtifactCoordinates for [%s]", p), e);
-        }
+        return RepositoryFiles.readCoordinates((RepositoryPath) p);
     }
 
     @Override

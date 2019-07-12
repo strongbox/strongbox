@@ -1,19 +1,18 @@
 package org.carlspring.strongbox.artifact.coordinates;
 
+import org.carlspring.strongbox.util.ThrowingFunction;
+import org.reflections.ReflectionUtils;
+
 import java.beans.BeanInfo;
-import java.beans.IntrospectionException;
 import java.beans.Introspector;
 import java.beans.PropertyDescriptor;
 import java.lang.reflect.AnnotatedElement;
 import java.lang.reflect.Field;
 import java.lang.reflect.Method;
-import java.lang.reflect.UndeclaredThrowableException;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.HashSet;
 import java.util.Set;
-
-import org.reflections.ReflectionUtils;
 
 public class ArtifactLayoutDescription
 {
@@ -72,14 +71,9 @@ public class ArtifactLayoutDescription
                                                           .get();
 
         BeanInfo beanInfo;
-        try
-        {
-            beanInfo = Introspector.getBeanInfo(artifactCoordinatesClass);
-        }
-        catch (IntrospectionException e)
-        {
-            throw new UndeclaredThrowableException(e);
-        }
+
+        beanInfo = ThrowingFunction.unchecked((Class x) -> Introspector.getBeanInfo(x)).apply(artifactCoordinatesClass);
+
 
         Arrays.stream(beanInfo.getPropertyDescriptors())
               .map(p -> parseProperty(p))

@@ -4,15 +4,15 @@ import org.carlspring.commons.encryption.EncryptionAlgorithmsEnum;
 import org.carlspring.strongbox.providers.repository.proxied.ProxyRepositoryArtifactResolver;
 import org.carlspring.strongbox.storage.repository.RepositoryData;
 import org.carlspring.strongbox.storage.repository.Repository;
-
-import javax.inject.Inject;
-import java.io.IOException;
-import java.lang.reflect.UndeclaredThrowableException;
-import java.nio.file.Files;
-
+import org.carlspring.strongbox.util.ThrowingFunction;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Component;
+
+import javax.inject.Inject;
+import java.io.IOException;
+import java.nio.file.Files;
+
 import static org.carlspring.strongbox.providers.io.MavenMetadataExpiredRepositoryPathHandler.Decision.*;
 
 /**
@@ -30,21 +30,16 @@ public class MavenMetadataExpiredRepositoryPathHandler
 
     @Override
     public boolean supports(final RepositoryPath repositoryPath)
+            throws IOException
     {
         if (repositoryPath == null)
         {
             return false;
         }
-        try
+
+        if (!RepositoryFiles.isMetadata(repositoryPath))
         {
-            if (!RepositoryFiles.isMetadata(repositoryPath))
-            {
-                return false;
-            }
-        }
-        catch (IOException e)
-        {
-            throw new UndeclaredThrowableException(e);
+            return false;
         }
 
         Repository repository = repositoryPath.getRepository();
