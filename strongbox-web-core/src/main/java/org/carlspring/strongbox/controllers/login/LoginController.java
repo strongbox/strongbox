@@ -93,7 +93,7 @@ public class LoginController
             }
             
             Integer timeout = configurationManager.getSessionTimeoutSeconds();
-            token = securityTokenProvider.getToken(subject, Collections.emptyMap(), timeout);
+            token = securityTokenProvider.getToken(subject, Collections.emptyMap(), timeout, null);
         }
         catch (JoseException e)
         {

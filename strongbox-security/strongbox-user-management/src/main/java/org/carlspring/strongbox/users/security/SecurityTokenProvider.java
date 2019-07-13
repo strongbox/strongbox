@@ -63,13 +63,20 @@ public class SecurityTokenProvider
      */
     public String getToken(String subject,
                            Map<String, String> claimMap,
-                           Integer expireSeconds)
+                           Integer expireSeconds, NumericDate issuedAt)
             throws JoseException
     {
         JwtClaims claims = new JwtClaims();
         claims.setIssuer("Strongbox");
         claims.setGeneratedJwtId();
         claims.setSubject(subject);
+        claims.setIssuedAt(issuedAt);
+
+        if (issuedAt == null)
+        {
+            claims.setIssuedAtToNow();
+        }
+
         claimMap.entrySet().stream().forEach((e) ->
                                              {
                                                  claims.setClaim(e.getKey(), e.getValue());
