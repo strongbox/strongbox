@@ -4,6 +4,7 @@ import java.util.Optional;
 
 import javax.annotation.PostConstruct;
 
+import com.fasterxml.jackson.databind.MapperFeature;
 import org.springframework.context.annotation.Primary;
 import org.springframework.stereotype.Component;
 
@@ -29,6 +30,7 @@ public class CustomObjectMapper
     public void postConstruct()
     {
         disable(SerializationFeature.FAIL_ON_EMPTY_BEANS);
+        enable(MapperFeature.ACCEPT_CASE_INSENSITIVE_ENUMS);
 
         final AnnotationIntrospector jaxbIntrospector = new JaxbAnnotationIntrospector(TypeFactory.defaultInstance());
         final AnnotationIntrospector jacksonIntrospector = new JacksonAnnotationIntrospector();
