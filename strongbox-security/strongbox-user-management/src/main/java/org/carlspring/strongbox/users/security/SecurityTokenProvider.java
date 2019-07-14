@@ -58,12 +58,14 @@ public class SecurityTokenProvider
      * @param subject       a Subject which is used as token base.
      * @param claimMap      an additional Claims which will also present in token.
      * @param expireSeconds
+     * @param issuedAt
      * @return encrypted token string.
      * @throws JoseException
      */
     public String getToken(String subject,
                            Map<String, String> claimMap,
-                           Integer expireSeconds, NumericDate issuedAt)
+                           Integer expireSeconds,
+                           NumericDate issuedAt)
             throws JoseException
     {
         JwtClaims claims = new JwtClaims();

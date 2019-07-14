@@ -149,19 +149,19 @@ public class JwtAuthenticationTest
     {
         String url = getContextBaseUrl() + "/users";
 
-        NumericDate tokenIssuedAtNumericDate = NumericDate.now();
+        NumericDate futureNumericDate = NumericDate.now();
         // add five minutes to the current time to generate a JWT issued in the future
-        tokenIssuedAtNumericDate.addSeconds(300);
+        futureNumericDate.addSeconds(300);
 
-        String token = securityTokenProvider.getToken("admin", Collections.emptyMap(), 10, tokenIssuedAtNumericDate);
+        String token = securityTokenProvider.getToken("admin", Collections.emptyMap(), 10, futureNumericDate);
 
         given().header(HttpHeaders.AUTHORIZATION, getAuthorizationHeader(token))
-                .header(HttpHeaders.ACCEPT, MediaType.APPLICATION_JSON_VALUE)
-                .when()
-                .get(url)
-                .then()
-                .statusCode(HttpStatus.UNAUTHORIZED.value())
-                .body("error", equalTo("invalid.token"));
+               .header(HttpHeaders.ACCEPT, MediaType.APPLICATION_JSON_VALUE)
+               .when()
+               .get(url)
+               .then()
+               .statusCode(HttpStatus.UNAUTHORIZED.value())
+               .body("error", equalTo("invalid.token"));
     }
 
     private String getTokenValue(String body)
