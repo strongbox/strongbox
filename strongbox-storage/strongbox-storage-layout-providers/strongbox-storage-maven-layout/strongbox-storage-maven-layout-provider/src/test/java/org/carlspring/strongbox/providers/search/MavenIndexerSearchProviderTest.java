@@ -1,24 +1,32 @@
 package org.carlspring.strongbox.providers.search;
 
 import org.carlspring.strongbox.config.Maven2LayoutProviderTestConfig;
-import org.carlspring.strongbox.providers.layout.Maven2LayoutProvider;
-import org.carlspring.strongbox.services.ArtifactManagementService;
-import org.carlspring.strongbox.storage.repository.RepositoryDto;
-import org.carlspring.strongbox.storage.search.SearchRequest;
-import org.carlspring.strongbox.testing.TestCaseWithMavenArtifactGenerationAndIndexing;
-import org.carlspring.strongbox.yaml.configuration.repository.MavenRepositoryConfigurationDto;
 import org.carlspring.strongbox.providers.io.RepositoryPath;
 import org.carlspring.strongbox.providers.io.RepositoryPathResolver;
+import org.carlspring.strongbox.services.ArtifactManagementService;
+import org.carlspring.strongbox.storage.repository.Repository;
+import org.carlspring.strongbox.storage.search.SearchRequest;
+import org.carlspring.strongbox.testing.MavenIndexedRepositorySetup;
+import org.carlspring.strongbox.testing.MavenIndexedWithoutClassNamesRepositorySetup;
+import org.carlspring.strongbox.testing.TestCaseWithMavenArtifactGenerationAndIndexing;
+import org.carlspring.strongbox.testing.artifact.ArtifactManagementTestExecutionListener;
+import org.carlspring.strongbox.testing.artifact.MavenTestArtifact;
+import org.carlspring.strongbox.testing.repository.MavenRepository;
+import org.carlspring.strongbox.testing.storage.repository.RepositoryManagementTestExecutionListener;
 
 import javax.inject.Inject;
+import java.lang.annotation.*;
 import java.nio.file.Files;
-import java.util.LinkedHashSet;
+import java.nio.file.Path;
 import java.util.Optional;
-import java.util.Set;
 
-import org.junit.jupiter.api.*;
+import org.junit.jupiter.api.Assumptions;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.junit.jupiter.api.parallel.Execution;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.core.annotation.AliasFor;
 import org.springframework.core.io.ClassPathResource;
 import org.springframework.core.io.Resource;
 import org.springframework.test.context.ActiveProfiles;
@@ -29,6 +37,7 @@ import static org.junit.jupiter.api.parallel.ExecutionMode.CONCURRENT;
 
 /**
  * @author Przemyslaw Fusik
+ * @author Pablo Tirado
  */
 @SpringBootTest
 @ActiveProfiles(profiles = "test")
@@ -63,7 +72,7 @@ public class MavenIndexerSearchProviderTest
 
     @Inject
     private Optional<MavenIndexerSearchProvider> mavenIndexerSearchProvider;
-    
+
     @Inject
     protected RepositoryPathResolver repositoryPathResolver;
 
@@ -73,262 +82,283 @@ public class MavenIndexerSearchProviderTest
         Assumptions.assumeTrue(mavenIndexerSearchProvider.isPresent());
     }
 
-    @BeforeEach
-    public void setUp(TestInfo testInfo)
-            throws Exception
-    {
-        createRepositoryWithArtifacts(STORAGE0,
-                                      getRepositoryName(REPOSITORY_RELEASES_WITH_CLASSNAMES_INDEXED, testInfo),
-                                      true,
-                                      "org.carlspring:properties-injector",
-                                      "1.8");
-
-        MavenRepositoryConfigurationDto repositoryConfiguration = new MavenRepositoryConfigurationDto();
-        repositoryConfiguration.setIndexingEnabled(true);
-        repositoryConfiguration.setIndexingClassNamesEnabled(false);
-
-        createRepositoryWithArtifacts(STORAGE0,
-                                      getRepositoryName(REPOSITORY_RELEASES_WITHOUT_CLASSNAMES_INDEXED, testInfo),
-                                      repositoryConfiguration,
-                                      "org.carlspring:properties-injector",
-                                      "1.8");
-    }
-
+    @ExtendWith({ RepositoryManagementTestExecutionListener.class,
+                  ArtifactManagementTestExecutionListener.class })
     @Test
-    public void shouldBeCapableToSearchByPartialSha1Checksum(TestInfo testInfo)
+    public void shouldBeCapableToSearchByPartialSha1Checksum(@MavenIndexedWithoutClassNamesRepository(repositoryId = REPOSITORY_RELEASES_WITHOUT_CLASSNAMES_INDEXED)
+                                                             Repository repository,
+                                                             @MavenTestArtifact(repositoryId = REPOSITORY_RELEASES_WITHOUT_CLASSNAMES_INDEXED,
+                                                                                id = "org.carlspring:properties-injector",
+                                                                                versions = { "1.8" })
+                                                             Path artifactPath)
             throws Exception
     {
-        String sha1 = Files.readAllLines(getVaultDirectoryPath()
-                                                 .resolve("storages")
-                                                 .resolve(STORAGE0)
-                                                 .resolve(getRepositoryName(
-                                                         REPOSITORY_RELEASES_WITHOUT_CLASSNAMES_INDEXED, testInfo))
-                                                 .resolve("org")
-                                                 .resolve("carlspring")
-                                                 .resolve("properties-injector")
-                                                 .resolve("1.8")
-                                                 .resolve("properties-injector-1.8.jar.sha1")
-                                                 .toAbsolutePath()).get(0);
+        RepositoryPath repositoryPath = repositoryPathResolver.resolve(STORAGE0,
+                                                                       repository.getId(),
+                                                                       "org/carlspring/properties-injector/1.8/properties-injector-1.8.jar.sha1");
+
+        String sha1 = Files.readAllLines(repositoryPath).get(0);
 
         String query = "1:" + sha1.substring(0, 8) + "*";
 
         SearchRequest request = new SearchRequest(STORAGE0,
-                                                  getRepositoryName(REPOSITORY_RELEASES_WITHOUT_CLASSNAMES_INDEXED,
-                                                                    testInfo),
+                                                  repository.getId(),
                                                   query,
                                                   MavenIndexerSearchProvider.ALIAS);
 
         assertTrue(mavenIndexerSearchProvider.get().contains(request));
     }
 
-
+    @ExtendWith({ RepositoryManagementTestExecutionListener.class,
+                  ArtifactManagementTestExecutionListener.class })
     @Test
-    public void shouldBeCapableToSearchByFullSha1Checksum(TestInfo testInfo)
+    public void shouldBeCapableToSearchByFullSha1Checksum(@MavenIndexedRepository(repositoryId = REPOSITORY_RELEASES_WITH_CLASSNAMES_INDEXED)
+                                                          Repository repository,
+                                                          @MavenTestArtifact(repositoryId = REPOSITORY_RELEASES_WITH_CLASSNAMES_INDEXED,
+                                                                             id = "org.carlspring:properties-injector",
+                                                                             versions = { "1.8" })
+                                                          Path artifactPath)
             throws Exception
     {
-        String sha1 = Files.readAllLines(getVaultDirectoryPath()
-                                                 .resolve("storages")
-                                                 .resolve(STORAGE0)
-                                                 .resolve(getRepositoryName(REPOSITORY_RELEASES_WITH_CLASSNAMES_INDEXED,
-                                                                            testInfo))
-                                                 .resolve("org")
-                                                 .resolve("carlspring")
-                                                 .resolve("properties-injector")
-                                                 .resolve("1.8")
-                                                 .resolve("properties-injector-1.8.jar.sha1")
-                                                 .toAbsolutePath()).get(0);
+        RepositoryPath repositoryPath = repositoryPathResolver.resolve(STORAGE0,
+                                                                       repository.getId(),
+                                                                       "org/carlspring/properties-injector/1.8/properties-injector-1.8.jar.sha1");
+
+        String sha1 = Files.readAllLines(repositoryPath).get(0);
 
         String query = "1:" + sha1;
 
         SearchRequest request = new SearchRequest(STORAGE0,
-                                                  getRepositoryName(REPOSITORY_RELEASES_WITH_CLASSNAMES_INDEXED,
-                                                                    testInfo),
+                                                  repository.getId(),
                                                   query,
                                                   MavenIndexerSearchProvider.ALIAS);
 
         assertTrue(mavenIndexerSearchProvider.get().contains(request));
     }
 
+    @ExtendWith({ RepositoryManagementTestExecutionListener.class,
+                  ArtifactManagementTestExecutionListener.class })
     @Test
-    public void shouldBeCapableToSearchByClassNameByDefault(TestInfo testInfo)
+    public void shouldBeCapableToSearchByClassNameByDefault(@MavenIndexedRepository(repositoryId = REPOSITORY_RELEASES_WITH_CLASSNAMES_INDEXED)
+                                                            Repository repository,
+                                                            @MavenTestArtifact(repositoryId = REPOSITORY_RELEASES_WITH_CLASSNAMES_INDEXED,
+                                                                               id = "org.carlspring:properties-injector",
+                                                                               versions = { "1.8" })
+                                                            Path artifactPath)
             throws Exception
     {
         RepositoryPath repositoryPath = repositoryPathResolver.resolve(STORAGE0,
-                                                                       getRepositoryName(REPOSITORY_RELEASES_WITH_CLASSNAMES_INDEXED,
-                                                                                         testInfo),
+                                                                       repository.getId(),
                                                                        "org/carlspring/properties-injector/1.7/properties-injector-1.7.jar");
+
         artifactManagementService.validateAndStore(repositoryPath,
                                                    jarArtifact.getInputStream());
 
         SearchRequest request = new SearchRequest(STORAGE0,
-                                                  getRepositoryName(REPOSITORY_RELEASES_WITH_CLASSNAMES_INDEXED,
-                                                                    testInfo),
+                                                  repository.getId(),
                                                   "+classnames:propertiesresources",
                                                   MavenIndexerSearchProvider.ALIAS);
 
         assertTrue(mavenIndexerSearchProvider.get().contains(request));
     }
 
+    @ExtendWith({ RepositoryManagementTestExecutionListener.class,
+                  ArtifactManagementTestExecutionListener.class })
     @Test
-    public void shouldBeCapableToSearchByFQNByDefault(TestInfo testInfo)
+    public void shouldBeCapableToSearchByFQNByDefault(@MavenIndexedRepository(repositoryId = REPOSITORY_RELEASES_WITH_CLASSNAMES_INDEXED)
+                                                      Repository repository,
+                                                      @MavenTestArtifact(repositoryId = REPOSITORY_RELEASES_WITH_CLASSNAMES_INDEXED,
+                                                                         id = "org.carlspring:properties-injector",
+                                                                         versions = { "1.8" })
+                                                      Path artifactPath)
             throws Exception
     {
         RepositoryPath repositoryPath = repositoryPathResolver.resolve(STORAGE0,
-                                                                       getRepositoryName(REPOSITORY_RELEASES_WITH_CLASSNAMES_INDEXED,
-                                                                                         testInfo),
+                                                                       repository.getId(),
                                                                        "org/carlspring/properties-injector/1.7/properties-injector-1.7.jar");
         artifactManagementService.validateAndStore(repositoryPath,
                                                    jarArtifact.getInputStream());
 
         SearchRequest request = new SearchRequest(STORAGE0,
-                                                  getRepositoryName(REPOSITORY_RELEASES_WITH_CLASSNAMES_INDEXED,
-                                                                    testInfo),
+                                                  repository.getId(),
                                                   "+classnames:org +classnames:carlspring +classnames:ioc +classnames:propertyvalueinjector",
                                                   MavenIndexerSearchProvider.ALIAS);
 
         assertTrue(mavenIndexerSearchProvider.get().contains(request));
     }
 
+    @ExtendWith({ RepositoryManagementTestExecutionListener.class,
+                  ArtifactManagementTestExecutionListener.class })
     @Test
-    public void shouldBeCapableToSearchByClassNameFromZippedArtifactByDefault(TestInfo testInfo)
+    public void shouldBeCapableToSearchByClassNameFromZippedArtifactByDefault(@MavenIndexedRepository(repositoryId = REPOSITORY_RELEASES_WITH_CLASSNAMES_INDEXED)
+                                                                              Repository repository,
+                                                                              @MavenTestArtifact(repositoryId = REPOSITORY_RELEASES_WITH_CLASSNAMES_INDEXED,
+                                                                                                 id = "org.carlspring:properties-injector",
+                                                                                                 versions = { "1.8" })
+                                                                              Path artifactPath)
             throws Exception
     {
         RepositoryPath repositoryPath = repositoryPathResolver.resolve(STORAGE0,
-                                                                       getRepositoryName(REPOSITORY_RELEASES_WITH_CLASSNAMES_INDEXED,
-                                                                                         testInfo),
+                                                                       repository.getId(),
                                                                        "org/carlspring/properties-injector/1.7/properties-injector-1.7.zip");
+
         artifactManagementService.validateAndStore(repositoryPath,
                                                    zipArtifact.getInputStream());
 
         SearchRequest request = new SearchRequest(STORAGE0,
-                                                  getRepositoryName(REPOSITORY_RELEASES_WITH_CLASSNAMES_INDEXED,
-                                                                    testInfo),
+                                                  repository.getId(),
                                                   "+classnames:propertiesresources",
                                                   MavenIndexerSearchProvider.ALIAS);
 
         assertTrue(mavenIndexerSearchProvider.get().contains(request));
     }
 
+    @ExtendWith({ RepositoryManagementTestExecutionListener.class,
+                  ArtifactManagementTestExecutionListener.class })
     @Test
-    public void shouldBeCapableToSearchByFQNFromZippedArtifactByDefault(TestInfo testInfo)
+    public void shouldBeCapableToSearchByFQNFromZippedArtifactByDefault(@MavenIndexedRepository(repositoryId = REPOSITORY_RELEASES_WITH_CLASSNAMES_INDEXED)
+                                                                        Repository repository,
+                                                                        @MavenTestArtifact(repositoryId = REPOSITORY_RELEASES_WITH_CLASSNAMES_INDEXED,
+                                                                                           id = "org.carlspring:properties-injector",
+                                                                                           versions = { "1.8" })
+                                                                        Path artifactPath)
             throws Exception
     {
         RepositoryPath repositoryPath = repositoryPathResolver.resolve(STORAGE0,
-                                                                       getRepositoryName(REPOSITORY_RELEASES_WITH_CLASSNAMES_INDEXED,
-                                                                                         testInfo),
+                                                                       repository.getId(),
                                                                        "org/carlspring/properties-injector/1.7/properties-injector-1.7.zip");
+
         artifactManagementService.validateAndStore(repositoryPath,
                                                    zipArtifact.getInputStream());
 
         SearchRequest request = new SearchRequest(STORAGE0,
-                                                  getRepositoryName(REPOSITORY_RELEASES_WITH_CLASSNAMES_INDEXED,
-                                                                    testInfo),
+                                                  repository.getId(),
                                                   "+classnames:org +classnames:carlspring +classnames:ioc +classnames:propertyvalueinjector",
                                                   MavenIndexerSearchProvider.ALIAS);
 
         assertTrue(mavenIndexerSearchProvider.get().contains(request));
     }
 
-
+    @ExtendWith({ RepositoryManagementTestExecutionListener.class,
+                  ArtifactManagementTestExecutionListener.class })
     @Test
-    public void shouldBeAllowedToDisableSearchByClassName(TestInfo testInfo)
+    public void shouldBeAllowedToDisableSearchByClassName(@MavenIndexedWithoutClassNamesRepository(repositoryId = REPOSITORY_RELEASES_WITHOUT_CLASSNAMES_INDEXED)
+                                                          Repository repository,
+                                                          @MavenTestArtifact(repositoryId = REPOSITORY_RELEASES_WITHOUT_CLASSNAMES_INDEXED,
+                                                                             id = "org.carlspring:properties-injector",
+                                                                             versions = { "1.8" })
+                                                          Path artifactPath)
             throws Exception
     {
         RepositoryPath repositoryPath = repositoryPathResolver.resolve(STORAGE0,
-                                                                       getRepositoryName(REPOSITORY_RELEASES_WITHOUT_CLASSNAMES_INDEXED,
-                                                                                         testInfo),
+                                                                       repository.getId(),
                                                                        "org/carlspring/properties-injector/1.7/properties-injector-1.7.jar");
         artifactManagementService.validateAndStore(repositoryPath,
                                                    jarArtifact.getInputStream());
 
         SearchRequest request = new SearchRequest(STORAGE0,
-                                                  getRepositoryName(REPOSITORY_RELEASES_WITHOUT_CLASSNAMES_INDEXED,
-                                                                    testInfo),
+                                                  repository.getId(),
                                                   "+classnames:propertiesresources",
                                                   MavenIndexerSearchProvider.ALIAS);
 
         assertFalse(mavenIndexerSearchProvider.get().contains(request));
     }
 
+    @ExtendWith({ RepositoryManagementTestExecutionListener.class,
+                  ArtifactManagementTestExecutionListener.class })
     @Test
-    public void shouldBeAllowedToDisableSearchByFQN(TestInfo testInfo)
+    public void shouldBeAllowedToDisableSearchByFQN(@MavenIndexedWithoutClassNamesRepository(repositoryId = REPOSITORY_RELEASES_WITHOUT_CLASSNAMES_INDEXED)
+                                                    Repository repository,
+                                                    @MavenTestArtifact(repositoryId = REPOSITORY_RELEASES_WITHOUT_CLASSNAMES_INDEXED,
+                                                                       id = "org.carlspring:properties-injector",
+                                                                       versions = { "1.8" })
+                                                    Path artifactPath)
             throws Exception
     {
         RepositoryPath repositoryPath = repositoryPathResolver.resolve(STORAGE0,
-                                                                       getRepositoryName(REPOSITORY_RELEASES_WITHOUT_CLASSNAMES_INDEXED,
-                                                                                         testInfo),
+                                                                       repository.getId(),
                                                                        "org/carlspring/properties-injector/1.7/properties-injector-1.7.jar");
         artifactManagementService.validateAndStore(repositoryPath,
                                                    jarArtifact.getInputStream());
 
         SearchRequest request = new SearchRequest(STORAGE0,
-                                                  getRepositoryName(REPOSITORY_RELEASES_WITHOUT_CLASSNAMES_INDEXED,
-                                                                    testInfo),
+                                                  repository.getId(),
                                                   "+classnames:org +classnames:carlspring +classnames:ioc +classnames:propertyvalueinjector",
                                                   MavenIndexerSearchProvider.ALIAS);
 
         assertFalse(mavenIndexerSearchProvider.get().contains(request));
     }
 
+    @ExtendWith({ RepositoryManagementTestExecutionListener.class,
+                  ArtifactManagementTestExecutionListener.class })
     @Test
-    public void shouldBeAllowedToDisableSearchByClassNameFromZippedArtifact(TestInfo testInfo)
+    public void shouldBeAllowedToDisableSearchByClassNameFromZippedArtifact(@MavenIndexedWithoutClassNamesRepository(repositoryId = REPOSITORY_RELEASES_WITHOUT_CLASSNAMES_INDEXED)
+                                                                            Repository repository,
+                                                                            @MavenTestArtifact(repositoryId = REPOSITORY_RELEASES_WITHOUT_CLASSNAMES_INDEXED,
+                                                                                               id = "org.carlspring:properties-injector",
+                                                                                               versions = { "1.8" })
+                                                                            Path artifactPath)
             throws Exception
     {
         RepositoryPath repositoryPath = repositoryPathResolver.resolve(STORAGE0,
-                                                                       getRepositoryName(REPOSITORY_RELEASES_WITHOUT_CLASSNAMES_INDEXED,
-                                                                                         testInfo),
+                                                                       repository.getId(),
                                                                        "org/carlspring/properties-injector/1.7/properties-injector-1.7.zip");
+
         artifactManagementService.validateAndStore(repositoryPath,
                                                    zipArtifact.getInputStream());
 
         SearchRequest request = new SearchRequest(STORAGE0,
-                                                  getRepositoryName(REPOSITORY_RELEASES_WITHOUT_CLASSNAMES_INDEXED,
-                                                                    testInfo),
+                                                  repository.getId(),
                                                   "+classnames:propertiesresources",
                                                   MavenIndexerSearchProvider.ALIAS);
 
         assertFalse(mavenIndexerSearchProvider.get().contains(request));
     }
 
+    @ExtendWith({ RepositoryManagementTestExecutionListener.class,
+                  ArtifactManagementTestExecutionListener.class })
     @Test
-    public void shouldBeAllowedToDisableSearchByFQNFromZippedArtifact(TestInfo testInfo)
+    public void shouldBeAllowedToDisableSearchByFQNFromZippedArtifact(@MavenIndexedWithoutClassNamesRepository(repositoryId = REPOSITORY_RELEASES_WITHOUT_CLASSNAMES_INDEXED)
+                                                                      Repository repository,
+                                                                      @MavenTestArtifact(repositoryId = REPOSITORY_RELEASES_WITHOUT_CLASSNAMES_INDEXED,
+                                                                                         id = "org.carlspring:properties-injector",
+                                                                                         versions = { "1.8" })
+                                                                      Path artifactPath)
             throws Exception
     {
         RepositoryPath repositoryPath = repositoryPathResolver.resolve(STORAGE0,
-                                                                       getRepositoryName(REPOSITORY_RELEASES_WITHOUT_CLASSNAMES_INDEXED,
-                                                                                         testInfo),
+                                                                       repository.getId(),
                                                                         "org/carlspring/properties-injector/1.7/properties-injector-1.7.zip");
+
         artifactManagementService.validateAndStore(repositoryPath,
                                                    zipArtifact.getInputStream());
 
         SearchRequest request = new SearchRequest(STORAGE0,
-                                                  getRepositoryName(REPOSITORY_RELEASES_WITHOUT_CLASSNAMES_INDEXED,
-                                                                    testInfo),
+                                                  repository.getId(),
                                                   "+classnames:org +classnames:carlspring +classnames:ioc +classnames:propertyvalueinjector",
                                                   MavenIndexerSearchProvider.ALIAS);
 
         assertFalse(mavenIndexerSearchProvider.get().contains(request));
     }
 
-    private Set<RepositoryDto> getRepositories(TestInfo testInfo)
+    @Target({ ElementType.PARAMETER, ElementType.ANNOTATION_TYPE })
+    @Retention(RetentionPolicy.RUNTIME)
+    @Documented
+    @MavenRepository(setup = MavenIndexedRepositorySetup.class)
+    private @interface MavenIndexedRepository
     {
-        Set<RepositoryDto> repositories = new LinkedHashSet<>();
-        repositories.add(createRepositoryMock(STORAGE0,
-                                              getRepositoryName(REPOSITORY_RELEASES_WITH_CLASSNAMES_INDEXED, testInfo),
-                                              Maven2LayoutProvider.ALIAS));
-        repositories.add(createRepositoryMock(STORAGE0,
-                                              getRepositoryName(REPOSITORY_RELEASES_WITHOUT_CLASSNAMES_INDEXED,
-                                                                testInfo),
-                                              Maven2LayoutProvider.ALIAS));
-
-        return repositories;
+        @AliasFor(annotation = MavenRepository.class)
+        String repositoryId() default "";
     }
 
-    @AfterEach
-    public void removeRepositories(TestInfo testInfo)
-            throws Exception
+    @Target({ ElementType.PARAMETER, ElementType.ANNOTATION_TYPE })
+    @Retention(RetentionPolicy.RUNTIME)
+    @Documented
+    @MavenRepository(setup = MavenIndexedWithoutClassNamesRepositorySetup.class)
+    private @interface MavenIndexedWithoutClassNamesRepository
     {
-        removeRepositories(getRepositories(testInfo));
+        @AliasFor(annotation = MavenRepository.class)
+        String repositoryId() default "";
     }
 
 }
