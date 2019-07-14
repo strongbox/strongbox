@@ -2,14 +2,14 @@
 name: Bug Report
 about: Create a report to help us improve
 title: ''
-labels: ''
+labels: 'bug'
 assignees: ''
 
 ---
 
 # Bug Description
 
-
+Describe the bug/issue you have.
 
 # Steps To Reproduce
 
@@ -26,18 +26,18 @@ assignees: ''
 
 # Environment
 
-* Strongbox Version: 
+* Strongbox Version: <!-- go to http://localhost:48080/api/monitoring/info and fill the `version` and `revision` -->
 * OS: 
 * Maven version (please provide the full output of `mvn --version`):
 * Browser (if related to UI): 
 
-# Additional context
+# Additional context <!-- Remove if unrelated -->
 
-# Proposed Solution
+# Proposed Solution <!-- Remove if unrelated -->
 
-# Known Workarounds
+# Known Workarounds <!-- Remove if unrelated -->
 
-# Useful Links
+# Useful Links <!-- Remove if unrelated -->
 
 * [link1]()
 * [link2]()
