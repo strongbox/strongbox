@@ -34,7 +34,7 @@ import org.springframework.test.context.ContextConfiguration;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.contains;
 import static org.junit.jupiter.api.Assertions.*;
-import static org.junit.jupiter.api.parallel.ExecutionMode.SAME_THREAD;
+import static org.junit.jupiter.api.parallel.ExecutionMode.CONCURRENT;
 
 /**
  * @author mtodorov
@@ -43,7 +43,7 @@ import static org.junit.jupiter.api.parallel.ExecutionMode.SAME_THREAD;
 @SpringBootTest
 @ActiveProfiles(profiles = "test")
 @ContextConfiguration(classes = Maven2LayoutProviderTestConfig.class)
-@Execution(SAME_THREAD)
+@Execution(CONCURRENT)
 public class MavenGroupRepositoryProviderTest
         extends TestCaseWithMavenArtifactGenerationAndIndexing
 {
