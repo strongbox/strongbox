@@ -98,7 +98,7 @@ public class ClearTrashCronJobFromMaven2RepositoryTestIT
 
         RepositoryFiles.delete(path, false);
 
-        Files.exists(repositoryTrashPath);
+        assertTrue(Files.exists(repositoryTrashPath), "There is no path to the repository trash!");
         assertFalse(Files.exists(artifact1.normalize()), "The repository path exists!");
         assertTrue(Files.exists(RepositoryFiles.trash((RepositoryPath) artifact1.normalize())), "The repository trash is empty!");
 

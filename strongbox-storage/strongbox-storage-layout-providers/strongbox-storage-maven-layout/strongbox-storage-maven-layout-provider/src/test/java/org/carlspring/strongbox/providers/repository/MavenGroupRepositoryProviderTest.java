@@ -335,6 +335,29 @@ public class MavenGroupRepositoryProviderTest
         testDeny(releases1.getId(), releases2.getId(), releasesGroup, (RepositoryPath) a2.normalize());
     }
 
+    @ExtendWith({ RepositoryManagementTestExecutionListener.class,
+                  ArtifactManagementTestExecutionListener.class })
+    @Test
+    public void deniedRoutingRuleShouldWorkIfRepositoryIsNotProvided(
+            @MavenRepository(repositoryId = REPOSITORY_RELEASES_1) Repository releases1,
+            @MavenRepository(repositoryId = REPOSITORY_RELEASES_2) Repository releases2,
+            @Group(repositories = { REPOSITORY_RELEASES_1,
+                                    REPOSITORY_RELEASES_2 })
+            @MavenRepository(repositoryId = REPOSITORY_GROUP) Repository releasesGroup,
+            @MavenTestArtifact(repositoryId = REPOSITORY_RELEASES_1, id = "com.artifacts.accepted:foo", versions = "1.2.6") Path a1,
+            @MavenTestArtifact(repositoryId = REPOSITORY_RELEASES_2, id = "org.carlspring.metadata.will.not.be:retrieved", versions = "1.2.64") Path a2)
+            throws Exception
+    {
+        // Rule cannot be created with annotation, because its 'repositories' attribute only allows not null repositories ids.
+        createAndAddRoutingRule(STORAGE0,
+                                releasesGroup.getId(),
+                                Arrays.asList(new MutableRoutingRuleRepository(STORAGE0, null)),
+                                ".*(com|org)/carlspring.metadata.*",
+                                RoutingRuleTypeEnum.DENY);
+
+        testDeny(releases1.getId(), releases2.getId(), releasesGroup, (RepositoryPath) a2.normalize());
+    }
+
 
     @ExtendWith({ RepositoryManagementTestExecutionListener.class,
                   ArtifactManagementTestExecutionListener.class })
