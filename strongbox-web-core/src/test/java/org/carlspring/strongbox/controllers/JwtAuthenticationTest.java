@@ -3,6 +3,8 @@ package org.carlspring.strongbox.controllers;
 import org.carlspring.strongbox.config.IntegrationTest;
 import org.carlspring.strongbox.rest.common.RestAssuredBaseTest;
 import org.carlspring.strongbox.users.security.SecurityTokenProvider;
+import org.jose4j.jwt.NumericDate;
+import org.jose4j.lang.JoseException;
 import org.json.JSONObject;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -120,7 +122,7 @@ public class JwtAuthenticationTest
         String url = getContextBaseUrl() + "/users";
 
         // generate token that will expire after 1 second
-        String expiredToken = securityTokenProvider.getToken("admin", Collections.emptyMap(), 3);
+        String expiredToken = securityTokenProvider.getToken("admin", Collections.emptyMap(), 3, null);
 
         given().header(HttpHeaders.AUTHORIZATION, getAuthorizationHeader(expiredToken))
                .header(HttpHeaders.ACCEPT, MediaType.APPLICATION_JSON_VALUE)
@@ -139,6 +141,27 @@ public class JwtAuthenticationTest
                .then()
                .statusCode(HttpStatus.UNAUTHORIZED.value())
                .body("error", equalTo("expired"));
+    }
+
+    @Test
+    public void testJWTIssuedAtFuture()
+            throws Exception
+    {
+        String url = getContextBaseUrl() + "/users";
+
+        NumericDate futureNumericDate = NumericDate.now();
+        // add five minutes to the current time to generate a JWT issued in the future
+        futureNumericDate.addSeconds(300);
+
+        String token = securityTokenProvider.getToken("admin", Collections.emptyMap(), 10, futureNumericDate);
+
+        given().header(HttpHeaders.AUTHORIZATION, getAuthorizationHeader(token))
+               .header(HttpHeaders.ACCEPT, MediaType.APPLICATION_JSON_VALUE)
+               .when()
+               .get(url)
+               .then()
+               .statusCode(HttpStatus.UNAUTHORIZED.value())
+               .body("error", equalTo("invalid.token"));
     }
 
     private String getTokenValue(String body)

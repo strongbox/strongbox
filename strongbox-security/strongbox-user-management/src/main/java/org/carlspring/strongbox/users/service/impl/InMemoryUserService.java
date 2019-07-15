@@ -92,7 +92,7 @@ public class InMemoryUserService implements UserService
         final Map<String, String> claimMap = new HashMap<>();
         claimMap.put(UserData.SECURITY_TOKEN_KEY, user.getSecurityTokenKey());
 
-        return tokenProvider.getToken(username, claimMap, null);
+        return tokenProvider.getToken(username, claimMap, null, null);
     }
 
     @Override
