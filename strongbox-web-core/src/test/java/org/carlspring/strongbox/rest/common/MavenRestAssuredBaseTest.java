@@ -1,30 +1,21 @@
 package org.carlspring.strongbox.rest.common;
 
-import org.carlspring.strongbox.artifact.MavenArtifact;
-import org.carlspring.strongbox.artifact.MavenArtifactUtils;
-import org.carlspring.strongbox.artifact.MavenRepositoryArtifact;
 import org.carlspring.strongbox.artifact.generator.MavenArtifactDeployer;
-import org.carlspring.strongbox.providers.io.RepositoryPath;
 import org.carlspring.strongbox.providers.io.RepositoryPathResolver;
 import org.carlspring.strongbox.rest.client.RestAssuredArtifactClient;
 import org.carlspring.strongbox.testing.MavenTestCaseWithArtifactGeneration;
 import org.carlspring.strongbox.testing.TestCaseWithMavenArtifactGenerationAndIndexing;
-import org.carlspring.strongbox.testing.artifact.MavenArtifactTestUtils;
 import org.carlspring.strongbox.users.domain.Privileges;
 
 import javax.inject.Inject;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
-import java.nio.file.Paths;
-import java.security.NoSuchAlgorithmException;
 import java.util.Collection;
 import java.util.Comparator;
 import java.util.List;
 import java.util.stream.Collectors;
 
-import org.apache.maven.index.artifact.Gav;
-import org.codehaus.plexus.util.xml.pull.XmlPullParserException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
@@ -56,7 +47,7 @@ public abstract class MavenRestAssuredBaseTest
     protected RestAssuredArtifactClient client;
 
     @Inject
-    private RepositoryPathResolver repositoryPathResolver;
+    protected RepositoryPathResolver repositoryPathResolver;
 
     @Value("${strongbox.url}")
     private String contextBaseUrl;
@@ -130,48 +121,6 @@ public abstract class MavenRestAssuredBaseTest
                                         int buildNumber)
     {
         return new MavenTestCaseWithArtifactGeneration().createSnapshotVersion(baseSnapshotVersion, buildNumber);
-    }
-
-    public MavenArtifact createTimestampedSnapshotArtifact(String repositoryBasedir,
-                                                           String groupId,
-                                                           String artifactId,
-                                                           String baseSnapshotVersion,
-                                                           String packaging,
-                                                           String[] classifiers,
-                                                           int numberOfBuilds)
-            throws NoSuchAlgorithmException, XmlPullParserException, IOException
-    {
-        MavenArtifact artifact = null;
-
-        for (int i = 0; i < numberOfBuilds; i++)
-        {
-            String version = createSnapshotVersion(baseSnapshotVersion, i + 1);
-
-            artifact = new MavenRepositoryArtifact(new Gav(groupId, artifactId, version));
-
-            Path repositoryPath = Paths.get(repositoryBasedir);
-            String repositoryId = repositoryPath.getFileName().toString();
-            String storageId = repositoryPath.getParent().getFileName().toString();
-
-            RepositoryPath artifactPath = repositoryPathResolver.resolve(storageId, repositoryId,
-                                                                         MavenArtifactUtils.convertArtifactToPath(
-                                                                                 artifact));
-            artifact.setPath(artifactPath);
-
-            generateArtifact(repositoryBasedir, artifact, packaging);
-
-            if (classifiers != null)
-            {
-                for (String classifier : classifiers)
-                {
-                    String gavtc = groupId + ":" + artifactId + ":" + version + ":jar:" + classifier;
-                    generateArtifact(repositoryBasedir, MavenArtifactTestUtils.getArtifactFromGAVTC(gavtc));
-                }
-            }
-        }
-
-        // Return the main artifact
-        return artifact;
     }
 
 }
