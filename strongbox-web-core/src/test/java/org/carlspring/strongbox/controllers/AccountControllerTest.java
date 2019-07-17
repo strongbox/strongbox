@@ -1,19 +1,27 @@
 package org.carlspring.strongbox.controllers;
 
-import org.carlspring.strongbox.config.IntegrationTest;
-import org.carlspring.strongbox.forms.users.UserForm;
-import org.carlspring.strongbox.rest.common.RestAssuredBaseTest;
-import org.carlspring.strongbox.users.domain.UserData;
-import org.carlspring.strongbox.users.dto.UserDto;
-import org.carlspring.strongbox.users.service.UserService;
-import org.carlspring.strongbox.users.service.impl.StrongboxUserService.StrongboxUserServiceQualifier;
+import static io.restassured.module.mockmvc.RestAssuredMockMvc.given;
+import static org.hamcrest.CoreMatchers.notNullValue;
+import static org.hamcrest.Matchers.equalTo;
+import static org.hamcrest.Matchers.hasSize;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotEquals;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
 
-import javax.inject.Inject;
-import javax.transaction.Transactional;
 import java.util.Arrays;
 import java.util.HashSet;
 
+import javax.inject.Inject;
+import javax.transaction.Transactional;
+
 import org.apache.http.HttpHeaders;
+import org.carlspring.strongbox.config.IntegrationTest;
+import org.carlspring.strongbox.forms.users.UserForm;
+import org.carlspring.strongbox.rest.common.RestAssuredBaseTest;
+import org.carlspring.strongbox.users.dto.User;
+import org.carlspring.strongbox.users.dto.UserDto;
+import org.carlspring.strongbox.users.service.UserService;
+import org.carlspring.strongbox.users.service.impl.OrientDbUserService.OrientDb;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.http.HttpStatus;
@@ -22,11 +30,6 @@ import org.springframework.security.test.context.support.WithAnonymousUser;
 import org.springframework.security.test.context.support.WithMockUser;
 import org.springframework.security.test.context.support.WithUserDetails;
 import org.springframework.test.context.transaction.BeforeTransaction;
-import static io.restassured.module.mockmvc.RestAssuredMockMvc.given;
-import static org.hamcrest.CoreMatchers.notNullValue;
-import static org.hamcrest.Matchers.equalTo;
-import static org.hamcrest.Matchers.hasSize;
-import static org.junit.jupiter.api.Assertions.*;
 
 /**
  * @author Steve Todorov
@@ -40,7 +43,7 @@ public class AccountControllerTest
     private static final String TEST_DISABLED_USER_ACCOUNT = "test-disabled-user-account";
 
     @Inject
-    @StrongboxUserServiceQualifier
+    @OrientDb
     private UserService userService;
     
     @Override
@@ -102,7 +105,7 @@ public class AccountControllerTest
         testUser.setPassword("password");
         userService.save(testUser);
 
-        UserData userEntity = userService.findByUserName(testUser.getUsername());
+        User userEntity = userService.findByUsername(testUser.getUsername());
 
         // Change security Token
         UserForm userForm = new UserForm();
@@ -139,7 +142,7 @@ public class AccountControllerTest
                .then()
                .statusCode(HttpStatus.OK.value());
 
-        UserData updatedUser = userService.findByUserName("admin");
+        User updatedUser = userService.findByUsername("test-account-update");
 
         given().accept(MediaType.APPLICATION_JSON_VALUE)
                .when()
@@ -200,13 +203,23 @@ public class AccountControllerTest
      * In those cases the request should pass "as normal", but the password should NOT be changed to null!
      */
     @Test
+    @WithMockUser(username = "test-account-update-empty-password", authorities = {"AUTHENTICATED_USER"})
     public void testChangingPasswordToNullShouldNotUpdate()
     {
-        final String username = "admin";
+        final String username = "test-account-update-empty-password";
+        
+        UserDto testUser = new UserDto();
+        testUser.setUsername(username);
+        testUser.setPassword("password");
+        testUser.setSourceId(null);
+        testUser.setRoles(null);
+        testUser.setEnabled(true);
+        userService.save(testUser);
+
         UserForm userForm = new UserForm();
         userForm.setPassword(null);
 
-        UserData originalUser = userService.findByUserName(username);
+        User originalUser = userService.findByUsername(username);
 
         given().contentType(MediaType.APPLICATION_JSON_VALUE)
                .accept(MediaType.APPLICATION_JSON_VALUE)
@@ -217,7 +230,7 @@ public class AccountControllerTest
                .then()
                .statusCode(HttpStatus.OK.value());
 
-        UserData updatedUser = userService.findByUserName(username);
+        User updatedUser = userService.findByUsername(username);
         assertEquals(username, updatedUser.getUsername());
         assertNotNull(updatedUser.getPassword());
         assertEquals(originalUser.getPassword(), updatedUser.getPassword());

@@ -1,13 +1,11 @@
 package org.carlspring.strongbox.validation.users;
 
-import org.carlspring.strongbox.users.domain.UserData;
-import org.carlspring.strongbox.users.service.UserService;
-import org.carlspring.strongbox.users.service.impl.StrongboxUserService.StrongboxUserServiceQualifier;
-
 import javax.inject.Inject;
 import javax.validation.ConstraintValidator;
 import javax.validation.ConstraintValidatorContext;
 
+import org.springframework.security.core.userdetails.UserDetailsService;
+import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.util.StringUtils;
 
 /**
@@ -18,8 +16,7 @@ public class UniqueUsernameValidator
 {
 
     @Inject
-    @StrongboxUserServiceQualifier
-    private UserService userService;
+    private UserDetailsService userDetailsService;
 
     @Override
     public void initialize(UniqueUsername constraint)
@@ -31,8 +28,19 @@ public class UniqueUsernameValidator
     public boolean isValid(String username,
                            ConstraintValidatorContext context)
     {
-        UserData user = userService.findByUserName(username);
-        return StringUtils.isEmpty(username) || user == null;
+        if (StringUtils.isEmpty(username))
+        {
+            return true;
+        }
+        try
+        {
+            userDetailsService.loadUserByUsername(username);
+        }
+        catch (UsernameNotFoundException e)
+        {
+            return true;
+        }
+        return false;
     }
 
 }

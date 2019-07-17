@@ -1,5 +1,21 @@
 package org.carlspring.strongbox.users.service.impl;
 
+import java.util.Date;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.Map;
+import java.util.Optional;
+import java.util.Set;
+import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.locks.Lock;
+import java.util.concurrent.locks.ReadWriteLock;
+import java.util.concurrent.locks.ReentrantReadWriteLock;
+import java.util.function.Consumer;
+import java.util.function.Function;
+
+import javax.inject.Inject;
+
+import org.apache.commons.lang3.StringUtils;
 import org.carlspring.strongbox.data.CacheName;
 import org.carlspring.strongbox.users.domain.UserData;
 import org.carlspring.strongbox.users.domain.Users;
@@ -8,27 +24,10 @@ import org.carlspring.strongbox.users.dto.UserDto;
 import org.carlspring.strongbox.users.dto.UsersDto;
 import org.carlspring.strongbox.users.security.SecurityTokenProvider;
 import org.carlspring.strongbox.users.service.UserService;
-
-import javax.inject.Inject;
-import javax.inject.Qualifier;
-import java.lang.annotation.Documented;
-import java.lang.annotation.Retention;
-import java.util.*;
-import java.util.concurrent.ConcurrentHashMap;
-import java.util.concurrent.locks.Lock;
-import java.util.concurrent.locks.ReadWriteLock;
-import java.util.concurrent.locks.ReentrantReadWriteLock;
-import java.util.function.Consumer;
-
-import org.apache.commons.lang3.StringUtils;
 import org.jose4j.lang.JoseException;
 import org.springframework.cache.annotation.CacheEvict;
-import org.springframework.stereotype.Component;
-import static java.lang.annotation.RetentionPolicy.RUNTIME;
 
 
-@Component
-@InMemoryUserService.InMemoryUserServiceQualifier
 public class InMemoryUserService implements UserService
 {
 
@@ -40,7 +39,7 @@ public class InMemoryUserService implements UserService
     private SecurityTokenProvider tokenProvider;
 
     @Override
-    public Users findAll()
+    public Users getUsers()
     {
         final Lock readLock = usersLock.readLock();
         readLock.lock();
@@ -58,7 +57,7 @@ public class InMemoryUserService implements UserService
     }
 
     @Override
-    public UserData findByUserName(final String username)
+    public User findByUsername(final String username)
     {
         if (username == null)
         {
@@ -82,7 +81,7 @@ public class InMemoryUserService implements UserService
     public String generateSecurityToken(final String username)
             throws JoseException
     {
-        final UserData user = findByUserName(username);
+        final User user = findByUsername(username);
 
         if (StringUtils.isEmpty(user.getSecurityTokenKey()))
         {
@@ -105,27 +104,29 @@ public class InMemoryUserService implements UserService
 
     @Override
     @CacheEvict(cacheNames = CacheName.User.AUTHENTICATIONS, key = "#p0.username")
-    public void save(final User user)
+    public User save(final User user)
     {
-        modifyInLock(users -> {
-            UserDto u = Optional.ofNullable(users.get(user.getUsername())).orElseGet(() -> new UserDto());
+        return modifyInLock(users -> {
+            UserDto userDto = Optional.ofNullable(users.get(user.getUsername())).orElseGet(() -> new UserDto());
 
             if (!StringUtils.isBlank(user.getPassword()))
             {
-                u.setPassword(user.getPassword());
+                userDto.setPassword(user.getPassword());
             }
-            u.setUsername(user.getUsername());
-            u.setEnabled(user.isEnabled());
-            u.setRoles(user.getRoles());
-            u.setSecurityTokenKey(user.getSecurityTokenKey());
-            u.setLastUpdate(new Date());
+            userDto.setUsername(user.getUsername());
+            userDto.setEnabled(user.isEnabled());
+            userDto.setRoles(user.getRoles());
+            userDto.setSecurityTokenKey(user.getSecurityTokenKey());
+            userDto.setLastUpdate(new Date());
 
-            users.putIfAbsent(user.getUsername(), u);
+            users.putIfAbsent(user.getUsername(), userDto);
+            
+            return userDto;
         });
     }
 
     @Override
-    public void delete(final String username)
+    public void deleteByUsername(final String username)
     {
         modifyInLock(users -> {
             users.remove(username);
@@ -133,7 +134,7 @@ public class InMemoryUserService implements UserService
     }
 
     @Override
-    public void updateAccountDetailsByUsername(UserDto userToUpdate)
+    public void updateAccountDetailsByUsername(User userToUpdate)
     {
         modifyInLock(users -> {
             Optional.ofNullable(users.get(userToUpdate.getUsername()))
@@ -165,20 +166,26 @@ public class InMemoryUserService implements UserService
         try
         {
             operation.accept(userMap);
-
         }
         finally
         {
             writeLock.unlock();
         }
     }
-
-    @Documented
-    @Retention(RUNTIME)
-    @Qualifier
-    public @interface InMemoryUserServiceQualifier
+    
+    protected <T> T modifyInLock(final Function<Map<String, UserDto>, T> operation)
     {
-        String value() default "inMemoryUserServiceQualifier";
+        final Lock writeLock = usersLock.writeLock();
+        writeLock.lock();
+
+        try
+        {
+            return operation.apply(userMap);
+        }
+        finally
+        {
+            writeLock.unlock();
+        }
     }
 
 }

@@ -10,7 +10,7 @@
 
     <context:annotation-config />
 
-    <bean id="strongboxUserDetailService" class="org.carlspring.strongbox.users.userdetails.StrongboxUserDetailService"/>
+    <bean id="yamlUserDetailService" class="org.carlspring.strongbox.users.userdetails.YamlUserDetailService"/>
 
     <bean id="authenticationProviderFirst" class="org.carlspring.strongbox.controllers.configuration.security.authentication.AuthenticatorsConfigControllerTestIT.TestAuthenticationProvider"/>
     <bean id="authenticationProviderSecond" class="org.carlspring.strongbox.controllers.configuration.security.authentication.AuthenticatorsConfigControllerTestIT.TestAuthenticationProvider"/>

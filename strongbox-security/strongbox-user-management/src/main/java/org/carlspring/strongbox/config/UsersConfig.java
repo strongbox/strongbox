@@ -2,8 +2,8 @@ package org.carlspring.strongbox.config;
 
 import org.carlspring.strongbox.users.UsersFileManager;
 import org.carlspring.strongbox.users.dto.UsersDto;
-import org.carlspring.strongbox.users.service.impl.StrongboxUserService;
-import org.carlspring.strongbox.users.service.impl.StrongboxUserService.StrongboxUserServiceQualifier;
+import org.carlspring.strongbox.users.service.impl.YamlUserService;
+import org.carlspring.strongbox.users.service.impl.YamlUserService.Yaml;
 
 import java.io.IOException;
 
@@ -29,8 +29,8 @@ public class UsersConfig
 {
 
     @Inject
-    @StrongboxUserServiceQualifier
-    private StrongboxUserService userService;
+    @Yaml
+    private YamlUserService userService;
 
     @Inject
     private UsersFileManager usersFileManager;

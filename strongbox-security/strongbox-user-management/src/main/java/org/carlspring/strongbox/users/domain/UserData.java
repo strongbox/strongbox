@@ -8,8 +8,8 @@ import java.util.stream.Collectors;
 
 import javax.annotation.concurrent.Immutable;
 
-import org.carlspring.strongbox.users.dto.UserDto;
 import org.carlspring.strongbox.users.dto.User;
+import org.carlspring.strongbox.users.dto.UserDto;
 import org.springframework.security.core.userdetails.UserDetails;
 
 import com.google.common.collect.ImmutableSet;
@@ -34,6 +34,8 @@ public class UserData implements Serializable, User
     private final String securityTokenKey;
 
     private final Date lastUpdate;
+
+    private String sourceId;
     
     public UserData(final UserDetails source) 
     {
@@ -53,6 +55,7 @@ public class UserData implements Serializable, User
         this.roles = immuteRoles(source.getRoles());
         this.securityTokenKey = source.getSecurityTokenKey();
         this.lastUpdate = immuteDate(source.getLastUpdate());
+        this.sourceId = source.getSourceId();
     }
 
     private Date immuteDate(Date date)
@@ -65,35 +68,48 @@ public class UserData implements Serializable, User
         return source != null ? ImmutableSet.copyOf(source) : Collections.emptySet();
     }
 
+    @Override
     public String getUsername()
     {
         return username;
     }
 
+    @Override
     public String getPassword()
     {
         return password;
     }
 
+    @Override
     public Set<String> getRoles()
     {
         return roles;
     }
+
+    @Override
     public String getSecurityTokenKey()
     {
         return securityTokenKey;
     }
 
+    @Override
     public boolean isEnabled()
     {
         return enabled;
     }
 
+    @Override
     public Date getLastUpdate()
     {
         return lastUpdate;
     }
 
+    @Override
+    public String getSourceId()
+    {
+        return sourceId;
+    }
+    
     @Override
     public String toString()
     {

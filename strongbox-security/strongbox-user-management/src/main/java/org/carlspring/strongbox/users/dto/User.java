@@ -17,5 +17,7 @@ public interface User
     boolean isEnabled();
 
     Date getLastUpdate();
+    
+    String getSourceId();
 
 }
