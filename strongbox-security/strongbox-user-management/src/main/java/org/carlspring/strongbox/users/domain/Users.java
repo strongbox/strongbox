@@ -1,12 +1,14 @@
 package org.carlspring.strongbox.users.domain;
 
-import org.carlspring.strongbox.users.dto.UserDto;
-import org.carlspring.strongbox.users.dto.UsersDto;
-
-import javax.annotation.concurrent.Immutable;
 import java.util.Collections;
 import java.util.Set;
 import java.util.stream.Collectors;
+
+import javax.annotation.concurrent.Immutable;
+
+import org.carlspring.strongbox.users.dto.User;
+import org.carlspring.strongbox.users.dto.UserDto;
+import org.carlspring.strongbox.users.dto.UsersDto;
 
 import com.google.common.collect.ImmutableSet;
 
@@ -17,20 +19,28 @@ import com.google.common.collect.ImmutableSet;
 public class Users
 {
 
-    private final Set<UserData> users;
+    private final Set<User> users;
+
+    public Users(Set<User> source)
+    {
+        this.users = source != null ? ImmutableSet.copyOf(source) : Collections.emptySet();
+    }
 
     public Users(final UsersDto source)
     {
         this.users = immuteUsers(source.getUsers());
     }
 
-    private Set<UserData> immuteUsers(final Set<UserDto> source)
+    private Set<User> immuteUsers(final Set<UserDto> source)
     {
-        return source != null ? ImmutableSet.copyOf(source.stream().map(UserData::new).collect(
-                Collectors.toSet())) : Collections.emptySet();
+        return source != null ? ImmutableSet.copyOf(source.stream()
+                                                          .map(UserData::new)
+                                                          .collect(
+                                                                   Collectors.toSet()))
+                : Collections.emptySet();
     }
 
-    public Set<UserData> getUsers()
+    public Set<User> getUsers()
     {
         return users;
     }

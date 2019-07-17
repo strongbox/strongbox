@@ -76,17 +76,17 @@
         <dependency>
             <groupId>${project.groupId}</groupId>
             <artifactId>strongbox-db-server</artifactId>
-            <version>${project.version}</version>
+            <version>1.0-PR-15-SNAPSHOT</version>
         </dependency>
         <dependency>
             <groupId>${project.groupId}</groupId>
             <artifactId>strongbox-db-liquibase</artifactId>
-            <version>${project.version}</version>
+            <version>1.0-PR-15-SNAPSHOT</version>
         </dependency>
         <dependency>
             <groupId>${project.groupId}</groupId>
             <artifactId>strongbox-db-import</artifactId>
-            <version>${project.version}</version>
+            <version>1.0-PR-15-SNAPSHOT</version>
             <classifier>schema</classifier>
         </dependency>
         

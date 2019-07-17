@@ -1,6 +1,6 @@
 strongbox:
   authentication:
-    strongboxUserDetailService:
+    yamlUserDetailService:
       order: 0
       enabled: true
     ldapUserDetailsService:

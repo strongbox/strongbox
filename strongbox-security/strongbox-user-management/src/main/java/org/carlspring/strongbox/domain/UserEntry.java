@@ -1,17 +1,20 @@
-package org.carlspring.strongbox.users.dto;
+package org.carlspring.strongbox.domain;
 
-import java.io.Serializable;
 import java.util.Date;
 import java.util.HashSet;
 import java.util.Set;
 
-import com.fasterxml.jackson.annotation.JsonIgnore;
+import javax.persistence.Entity;
+
+import org.carlspring.strongbox.data.domain.GenericEntity;
+import org.carlspring.strongbox.users.dto.User;
 
 /**
- * @author mtodorov
+ * @author sbespalov
+ *
  */
-public class UserDto
-        implements Serializable, User
+@Entity
+public class UserEntry extends GenericEntity implements User
 {
 
     private String username;
@@ -24,9 +27,8 @@ public class UserDto
 
     private String securityTokenKey;
 
-    @JsonIgnore
     private Date lastUpdate;
-
+    
     private String sourceId;
 
     @Override
@@ -99,7 +101,6 @@ public class UserDto
         this.enabled = enabled;
     }
 
-
     @Override
     public Date getLastUpdate()
     {
@@ -111,27 +112,15 @@ public class UserDto
         this.lastUpdate = lastUpdate;
     }
 
-    @Override
     public String getSourceId()
     {
         return sourceId;
     }
 
-    public void setSourceId(String sourceId)
+    public void setSourceId(String source)
     {
-        this.sourceId = sourceId;
+        this.sourceId = source;
     }
 
-    @Override
-    public String toString()
-    {
-        final StringBuilder sb = new StringBuilder("User{");
-        sb.append("username='")
-          .append(username)
-          .append('\'');
-        sb.append(", roles=")
-          .append(roles);
-        sb.append('}');
-        return sb.toString();
-    }
+    
 }

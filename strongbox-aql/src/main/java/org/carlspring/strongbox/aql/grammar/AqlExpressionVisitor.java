@@ -1,7 +1,6 @@
 package org.carlspring.strongbox.aql.grammar;
 
 import org.antlr.v4.runtime.tree.TerminalNode;
-import org.carlspring.strongbox.aql.grammar.AQLParser.LayoutValueContext;
 import org.carlspring.strongbox.aql.grammar.AQLParser.TokenExpContext;
 import org.carlspring.strongbox.aql.grammar.AQLParser.TokenKeyContext;
 import org.carlspring.strongbox.aql.grammar.AQLParser.TokenValueContext;

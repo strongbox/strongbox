@@ -94,7 +94,7 @@ public class AuthenticatorsConfigControllerTestIT
                .body("authenticationItemList[2].enabled",
                      equalByToString("false"))
                .body("authenticationItemList[3].name",
-                     equalByToString("strongboxUserDetailService"))
+                     equalByToString("yamlUserDetailService"))
                .body("authenticationItemList[3].order",
                      equalByToString("0"))
                .body("authenticationItemList.size()", is(4))

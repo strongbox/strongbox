@@ -37,9 +37,10 @@ import org.carlspring.strongbox.forms.users.UserForm;
 import org.carlspring.strongbox.rest.common.RestAssuredBaseTest;
 import org.carlspring.strongbox.users.domain.SystemRole;
 import org.carlspring.strongbox.users.domain.UserData;
+import org.carlspring.strongbox.users.dto.User;
 import org.carlspring.strongbox.users.dto.UserDto;
 import org.carlspring.strongbox.users.service.UserService;
-import org.carlspring.strongbox.users.service.impl.StrongboxUserService.StrongboxUserServiceQualifier;
+import org.carlspring.strongbox.users.service.impl.OrientDbUserService.OrientDb;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
@@ -67,7 +68,7 @@ public class UserControllerTestIT
 {
 
     @Inject
-    @StrongboxUserServiceQualifier
+    @OrientDb
     private UserService userService;
 
     @Inject
@@ -92,10 +93,8 @@ public class UserControllerTestIT
 
     @ParameterizedTest
     @MethodSource("usersProvider")
-    public void testGetUser(String acceptHeader)
+    public void testGetUser(String acceptHeader, String username)
     {
-        String username = "test-user-1";
-
         deleteCreatedUser(username);
 
         UserDto user = new UserDto();
@@ -120,7 +119,7 @@ public class UserControllerTestIT
                .asString();
 
         // retrieve newly created user and store the objectId
-        UserData createdUser = retrieveUserByName(user.getUsername());
+        User  createdUser = retrieveUserByName(user.getUsername());
         assertEquals(username, createdUser.getUsername());
 
         // By default assignableRoles should not present in the response.
@@ -184,8 +183,6 @@ public class UserControllerTestIT
         deleteCreatedUser(username);
         UserForm test = buildUser(username, "password");
 
-        displayAllUsers();
-
         given().contentType(MediaType.APPLICATION_JSON_VALUE)
                .accept(acceptHeader)
                .body(test)
@@ -198,7 +195,6 @@ public class UserControllerTestIT
                .extract()
                .asString();
 
-        displayAllUsers();
         deleteCreatedUser(username);
     }
 
@@ -230,7 +226,6 @@ public class UserControllerTestIT
                .statusCode(HttpStatus.BAD_REQUEST.value())
                .body(containsString(FAILED_CREATE_USER));
 
-        displayAllUsers();
         deleteCreatedUser(username);
     }
 
@@ -268,11 +263,8 @@ public class UserControllerTestIT
                .asString();
 
         // retrieve newly created user and store the objectId
-        UserData createdUser = retrieveUserByName(test.getUsername());
+        User createdUser = retrieveUserByName(test.getUsername());
         assertEquals(username, createdUser.getUsername());
-
-        logger.info("Users before update: ->>>>>> ");
-        displayAllUsers();
 
         UserForm updatedUser = buildFromUser(createdUser, u -> u.setEnabled(true));
 
@@ -287,9 +279,6 @@ public class UserControllerTestIT
                .statusCode(HttpStatus.OK.value())
                .body(containsString(SUCCESSFUL_UPDATE_USER));
 
-        logger.info("Users after update: ->>>>>> ");
-        displayAllUsers();
-
         createdUser = retrieveUserByName(username);
 
         assertTrue(createdUser.isEnabled());
@@ -302,15 +291,36 @@ public class UserControllerTestIT
                              MediaType.TEXT_PLAIN_VALUE })
     void updateExistingUserWithNullPassword(String acceptHeader)
     {
-        UserData mavenUser = retrieveUserByName("deployer");
-        UserForm input = buildFromUser(mavenUser, null);
+        final String username = "existing-user-with-null-password";
+        deleteCreatedUser(username);
+        // create new user
+        UserForm test = buildUser(username, "password-update", "my-new-security-token");
+
+        given().contentType(MediaType.APPLICATION_JSON_VALUE)
+               .accept(acceptHeader)
+               .body(test)
+               .when()
+               .put(getContextBaseUrl())
+               .peek() // Use peek() to print the output
+               .then()
+               .statusCode(HttpStatus.OK.value()) // check http status code
+               .body(containsString(SUCCESSFUL_CREATE_USER))
+               .extract()
+               .asString();
+
+        // retrieve newly created user and store the objectId
+        User createdUser = retrieveUserByName(test.getUsername());
+        assertEquals(username, createdUser.getUsername());
+        
+        User user = retrieveUserByName(username);
+        UserForm input = buildFromUser(user, null);
         input.setPassword(null);
 
         given().contentType(MediaType.APPLICATION_JSON_VALUE)
                .accept(acceptHeader)
                .body(input)
                .when()
-               .put(getContextBaseUrl() + "/" + mavenUser.getUsername())
+               .put(getContextBaseUrl() + "/" + user.getUsername())
                .peek()
                .then()
                .statusCode(HttpStatus.OK.value())
@@ -318,10 +328,12 @@ public class UserControllerTestIT
                .extract()
                .asString();
 
-        UserData updatedUser = retrieveUserByName("deployer");
+        User updatedUser = retrieveUserByName(username);
 
         assertNotNull(updatedUser.getPassword());
-        assertEquals(mavenUser.getPassword(), updatedUser.getPassword());
+        assertEquals(user.getPassword(), updatedUser.getPassword());
+        
+        deleteCreatedUser(username);
     }
 
     @ParameterizedTest
@@ -332,7 +344,7 @@ public class UserControllerTestIT
         UserDto newUserDto = new UserDto();
         newUserDto.setUsername("new-username-with-null-password");
 
-        UserData newUser = new UserData(newUserDto);
+        User newUser = new UserData(newUserDto);
         UserForm input = buildFromUser(newUser, null);
         input.setPassword(null);
 
@@ -348,7 +360,7 @@ public class UserControllerTestIT
                .extract()
                .asString();
 
-        UserData databaseCheck = retrieveUserByName(newUserDto.getUsername());
+        User databaseCheck = retrieveUserByName(newUserDto.getUsername());
 
         assertNull(databaseCheck);
     }
@@ -361,7 +373,7 @@ public class UserControllerTestIT
         UserDto newUserDto = new UserDto();
         newUserDto.setUsername("new-username-with-blank-password");
 
-        UserData newUser = new UserData(newUserDto);
+        User newUser = new UserData(newUserDto);
         UserForm input = buildFromUser(newUser, null);
         input.setPassword("         ");
 
@@ -377,7 +389,7 @@ public class UserControllerTestIT
                .extract()
                .asString();
 
-        UserData databaseCheck = retrieveUserByName(newUserDto.getUsername());
+        User databaseCheck = retrieveUserByName(newUserDto.getUsername());
 
         assertNull(databaseCheck);
     }
@@ -404,7 +416,7 @@ public class UserControllerTestIT
                .extract()
                .asString();
 
-        UserData updatedUser = retrieveUserByName(user.getUsername());
+        User updatedUser = retrieveUserByName(user.getUsername());
 
         assertEquals(username, updatedUser.getUsername());
         assertFalse(passwordEncoder.matches(newPassword, updatedUser.getPassword()));
@@ -429,7 +441,7 @@ public class UserControllerTestIT
 
         UserForm admin = buildUser(username, newPassword);
 
-        UserData updatedUser = retrieveUserByName(admin.getUsername());
+        User updatedUser = retrieveUserByName(admin.getUsername());
 
         assertTrue(SetUtils.isEqualSet(updatedUser.getRoles(), ImmutableSet.of(SystemRole.UI_MANAGER.name())));
 
@@ -516,7 +528,7 @@ public class UserControllerTestIT
                .extract()
                .asString();
 
-        UserData user = retrieveUserByName(input.getUsername());
+        User user = retrieveUserByName(input.getUsername());
 
         UserForm updatedUser = buildFromUser(user, null);
         updatedUser.setSecurityTokenKey("seecret");
@@ -537,6 +549,7 @@ public class UserControllerTestIT
         assertThat(user.getSecurityTokenKey(), equalTo("seecret"));
 
         //3. Generate token
+        try {
         given().accept(MediaType.APPLICATION_JSON_VALUE)
                .when()
                .get(getContextBaseUrl() + "/{username}/generate-security-token", username)
@@ -544,8 +557,11 @@ public class UserControllerTestIT
                .then()
                .statusCode(HttpStatus.OK.value())
                .body("token", startsWith("eyJhbGciOiJIUzI1NiJ9"));
-
-        deleteCreatedUser(username);
+        } 
+        finally 
+        {
+            deleteCreatedUser(username);
+        }
     }
 
     @Test
@@ -569,7 +585,7 @@ public class UserControllerTestIT
                .extract()
                .asString();
 
-        UserData user = retrieveUserByName(input.getUsername());
+        User user = retrieveUserByName(input.getUsername());
 
         given().contentType(MediaType.APPLICATION_JSON_VALUE)
                .accept(MediaType.APPLICATION_JSON_VALUE)
@@ -651,10 +667,8 @@ public class UserControllerTestIT
 
     @ParameterizedTest
     @MethodSource("usersProvider")
-    public void testNotValidMapsShouldNotUpdateAccessModel(String acceptHeader)
+    public void testNotValidMapsShouldNotUpdateAccessModel(String acceptHeader, String username)
     {
-        String username = "test-user";
-
         deleteCreatedUser(username);
 
         UserDto user = new UserDto();
@@ -679,26 +693,16 @@ public class UserControllerTestIT
                 .asString();
 
         // retrieve newly created user and store the objectId
-        UserData createdUser = retrieveUserByName(user.getUsername());
+        User createdUser = retrieveUserByName(user.getUsername());
         assertEquals(username, createdUser.getUsername());
 
         deleteCreatedUser(username);
     }
 
-    private void displayAllUsers()
-    {
-        // display all current users
-        logger.info("All current users:");
-        userService.findAll()
-                   .getUsers()
-                   .stream()
-                   .forEach(user -> logger.info(user.toString()));
-    }
-
     private void deleteCreatedUser(String username)
     {
         logger.info("Delete created user: " + username);
-        userService.delete(username);
+        userService.deleteByUsername(username);
     }
 
     // get user through REST API
@@ -717,9 +721,9 @@ public class UserControllerTestIT
     }
 
     // get user from DB/cache directly
-    private UserData retrieveUserByName(String name)
+    private User retrieveUserByName(String name)
     {
-        return userService.findByUserName(name);
+        return userService.findByUsername(name);
     }
 
     private UserForm buildUser(String name,
@@ -750,7 +754,7 @@ public class UserControllerTestIT
         return test;
     }
 
-    private UserForm buildFromUser(UserData user,
+    private UserForm buildFromUser(User user,
                                    Consumer<UserForm> operation)
     {
         UserForm dto = new UserForm();

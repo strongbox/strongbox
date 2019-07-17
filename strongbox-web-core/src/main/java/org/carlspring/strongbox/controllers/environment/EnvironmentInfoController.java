@@ -3,7 +3,7 @@ package org.carlspring.strongbox.controllers.environment;
 import org.carlspring.strongbox.controllers.BaseController;
 import org.carlspring.strongbox.storage.Storage;
 import org.carlspring.strongbox.users.service.UserService;
-import org.carlspring.strongbox.users.service.impl.StrongboxUserService.StrongboxUserServiceQualifier;
+import org.carlspring.strongbox.users.service.impl.YamlUserService.Yaml;
 
 import javax.inject.Inject;
 import java.lang.management.ManagementFactory;
@@ -38,7 +38,7 @@ public class EnvironmentInfoController
     private static final String SYSTEM_PROPERTIES_PREFIX = "-D";
 
     @Inject
-    @StrongboxUserServiceQualifier
+    @Yaml
     private UserService userService;
 
     @ApiOperation(value = "List all the environment variables, system properties and JVM arguments.")
@@ -85,7 +85,7 @@ public class EnvironmentInfoController
 
         strongboxInfo.add(new EnvironmentInfo("storages", String.valueOf(storagesCount)));
 
-        Long usersCount = userService.findAll()
+        Long usersCount = userService.getUsers()
                                      .getUsers()
                                      .stream()
                                      .count();

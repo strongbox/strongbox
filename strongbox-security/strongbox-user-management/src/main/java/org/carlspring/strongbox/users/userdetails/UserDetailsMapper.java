@@ -4,7 +4,7 @@ import java.util.stream.Collectors;
 
 import javax.inject.Inject;
 
-import org.carlspring.strongbox.users.domain.UserData;
+import org.carlspring.strongbox.users.dto.User;
 import org.carlspring.strongbox.users.security.AuthoritiesProvider;
 import org.springframework.stereotype.Component;
 
@@ -16,7 +16,7 @@ public class UserDetailsMapper implements StrongboxUserToUserDetails
     private AuthoritiesProvider authoritiesProvider;
 
     @Override
-    public SpringSecurityUser apply(UserData user)
+    public SpringSecurityUser apply(User user)
     {
 
         SpringSecurityUser springUser = new SpringSecurityUser();

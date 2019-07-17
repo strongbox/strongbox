@@ -1,30 +1,36 @@
 package org.carlspring.strongbox.controllers;
 
+import javax.inject.Inject;
+
 import org.carlspring.strongbox.controllers.users.UserController;
 import org.carlspring.strongbox.controllers.users.support.UserOutput;
 import org.carlspring.strongbox.forms.users.UserForm;
-import org.carlspring.strongbox.users.domain.UserData;
+import org.carlspring.strongbox.users.dto.User;
 import org.carlspring.strongbox.users.dto.UserDto;
 import org.carlspring.strongbox.users.service.UserService;
-import org.carlspring.strongbox.users.service.impl.StrongboxUserService.StrongboxUserServiceQualifier;
+import org.carlspring.strongbox.users.service.impl.EncodedPasswordUser;
+import org.carlspring.strongbox.users.service.impl.OrientDbUserService.OrientDb;
 import org.carlspring.strongbox.validation.RequestBodyValidationException;
-
-import javax.inject.Inject;
-
-import io.swagger.annotations.Api;
-import io.swagger.annotations.ApiOperation;
-import io.swagger.annotations.ApiResponse;
-import io.swagger.annotations.ApiResponses;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.userdetails.UserDetails;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Controller;
 import org.springframework.validation.BindingResult;
 import org.springframework.validation.annotation.Validated;
-import org.springframework.web.bind.annotation.*;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PutMapping;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.ResponseBody;
+
+import io.swagger.annotations.Api;
+import io.swagger.annotations.ApiOperation;
+import io.swagger.annotations.ApiResponse;
+import io.swagger.annotations.ApiResponses;
 
 /**
  * @author Steve Todorov
@@ -37,9 +43,12 @@ public class AccountController
 {
 
     @Inject
-    @StrongboxUserServiceQualifier
+    @OrientDb
     private UserService userService;
 
+    @Inject
+    private PasswordEncoder passwordEncoder;
+    
     @ApiOperation(value = "Get the account details of the currently logged user")
     @ApiResponses(value = { @ApiResponse(code = 200, message = "Returns account details"),
                             @ApiResponse(code = 403, message = "Unauthenticated access or user account has been disabled"),
@@ -57,7 +66,7 @@ public class AccountController
             return getFailedResponseEntity(HttpStatus.BAD_REQUEST, message, MediaType.APPLICATION_JSON_VALUE);
         }
 
-        UserData user = userService.findByUserName(authentication.getName());
+        User user = userService.findByUsername(authentication.getName());
         if (user == null)
         {
             return getNotFoundResponseEntity(UserController.NOT_FOUND_USER, MediaType.APPLICATION_JSON_VALUE);
@@ -100,7 +109,7 @@ public class AccountController
         user.setPassword(userToUpdate.getPassword());
         user.setSecurityTokenKey(userToUpdate.getSecurityTokenKey());
 
-        userService.updateAccountDetailsByUsername(user);
+        userService.updateAccountDetailsByUsername(new EncodedPasswordUser(user, passwordEncoder));
 
         return getSuccessfulResponseEntity("Account details have been successfully updated",
                                            MediaType.APPLICATION_JSON_VALUE);

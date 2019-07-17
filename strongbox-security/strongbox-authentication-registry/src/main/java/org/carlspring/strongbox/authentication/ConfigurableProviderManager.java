@@ -7,6 +7,7 @@ import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Map.Entry;
 import java.util.Optional;
 import java.util.function.Predicate;
 import java.util.stream.Collectors;
@@ -14,6 +15,7 @@ import java.util.stream.Stream;
 
 import javax.inject.Inject;
 
+import org.apache.commons.lang3.StringUtils;
 import org.carlspring.strongbox.authentication.api.AuthenticationItem;
 import org.carlspring.strongbox.authentication.api.AuthenticationItemConfigurationManager;
 import org.carlspring.strongbox.authentication.api.AuthenticationItems;
@@ -21,13 +23,12 @@ import org.carlspring.strongbox.authentication.api.CustomAuthenticationItemMappe
 import org.carlspring.strongbox.authentication.registry.AuthenticationProvidersRegistry;
 import org.carlspring.strongbox.authentication.registry.AuthenticationProvidersRegistry.MergePropertiesContext;
 import org.carlspring.strongbox.authentication.support.AuthenticationConfigurationContext;
-import org.carlspring.strongbox.users.domain.UserData;
-import org.carlspring.strongbox.users.service.UserService;
-import org.carlspring.strongbox.users.service.impl.InMemoryUserService;
-import org.carlspring.strongbox.users.userdetails.StrongboxUserActualizer;
+import org.carlspring.strongbox.users.dto.User;
+import org.carlspring.strongbox.users.userdetails.StrongboxUserManager;
 import org.carlspring.strongbox.users.userdetails.UserDetailsMapper;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.ApplicationContext;
 import org.springframework.context.annotation.Primary;
 import org.springframework.context.event.ContextRefreshedEvent;
@@ -49,22 +50,19 @@ import org.springframework.security.core.userdetails.UsernameNotFoundException;
 public class ConfigurableProviderManager extends ProviderManager implements UserDetailsService, AuthenticationItemConfigurationManager
 {
 
-    public static final int USER_INVALIDATE_SECONDS = 300;
-
     private static final Logger logger = LoggerFactory.getLogger(ConfigurableProviderManager.class);
 
+    @Value("${users.external.cache.seconds:300}")
+    private int externalUsersInvalidateSeconds;
+    
     @Inject
     private AuthenticationProvidersRegistry authenticationProvidersRegistry;
 
     @Inject
-    @InMemoryUserService.InMemoryUserServiceQualifier
-    private UserService userService;
+    private UserDetailsMapper userDetailsMapper;
 
     @Inject
-    private UserDetailsMapper springSecurityUserMapper;
-
-    @Inject
-    private StrongboxUserActualizer strongboxUserActualizer;
+    private StrongboxUserManager strongboxUserManager;
 
     private final Map<String, AuthenticationProvider> authenticationProviderMap = new HashMap<>();
 
@@ -104,54 +102,49 @@ public class ConfigurableProviderManager extends ProviderManager implements User
     public UserDetails loadUserByUsername(String username)
         throws UsernameNotFoundException
     {
-        UserData user = loadUserDetails(username);
+        Optional<User> user = loadUserDetails(username);
 
-        if (user == null)
+        if (!user.isPresent())
         {
             throw new UsernameNotFoundException(username);
         }
 
-        return springSecurityUserMapper.apply(user);
+        return user.map(userDetailsMapper).get();
     }
 
-    private UserData loadUserDetails(String username)
+    private Optional<User> loadUserDetails(String username)
     {
-        UserData user = userService.findByUserName(username);
+        User user = strongboxUserManager.findByUsername(username);
 
         Date userLastUpdate = Optional.ofNullable(user)
                                       .flatMap(u -> Optional.ofNullable(u.getLastUpdate()))
                                       .orElse(Date.from(Instant.EPOCH));
         Date userExpireDate = Date.from(Instant.ofEpochMilli(userLastUpdate.getTime())
-                                               .plusSeconds(USER_INVALIDATE_SECONDS));
+                                               .plusSeconds(externalUsersInvalidateSeconds));
         Date nowDate = new Date();
-        if (user != null && nowDate.before(userExpireDate))
+        if (user != null && (StringUtils.isBlank(user.getSourceId()) || nowDate.before(userExpireDate)))
         {
-            return user;
+            return Optional.of(user);
         }
-
-        UserDetails externalUserDetails = null;
-        for (UserDetailsService userDetailsService : userProviderMap.values())
+       
+        for (Entry<String, UserDetailsService> userDetailsServiceEntry : userProviderMap.entrySet())
         {
+            String sourceId = userDetailsServiceEntry.getKey();
+            UserDetailsService userDetailsService = userDetailsServiceEntry.getValue();
             try
             {
-                externalUserDetails = userDetailsService.loadUserByUsername(username);
-                
-                break;
+                return Optional.of(strongboxUserManager.updateExternalUserDetails(sourceId,
+                                                                                  userDetailsService.loadUserByUsername(username)));
             }
             catch (UsernameNotFoundException e)
             {
                 continue;
             }
         }
+        
+        strongboxUserManager.deleteByUsername(username);
 
-        if (externalUserDetails == null)
-        {
-            userService.delete(username);
-
-            return null;
-        }
-
-        return strongboxUserActualizer.apply(externalUserDetails);
+        return Optional.empty();
     }
 
     public void reorder(String first,
@@ -170,11 +163,10 @@ public class ConfigurableProviderManager extends ProviderManager implements User
         p1.put("order", orderSecond);
         p2.put("order", orderFirst);
 
-        boolean result = authenticationProvidersRegistry.mergeProperties()
-                                                        .merge(first, p1)
-                                                        .merge(second, p2)
-                                                        .apply();
-        if (!result)
+        if (!authenticationProvidersRegistry.mergeProperties()
+                                            .merge(first, p1)
+                                            .merge(second, p2)
+                                            .apply())
         {
             return;
         }

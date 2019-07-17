@@ -1,26 +1,23 @@
 package org.carlspring.strongbox.controllers.users;
 
+import java.util.Comparator;
+import java.util.List;
+import java.util.stream.Collectors;
+
+import javax.inject.Inject;
+
+import org.apache.commons.lang3.StringUtils;
 import org.carlspring.strongbox.controllers.BaseController;
 import org.carlspring.strongbox.controllers.users.support.TokenEntityBody;
 import org.carlspring.strongbox.controllers.users.support.UserOutput;
 import org.carlspring.strongbox.controllers.users.support.UserResponseEntity;
 import org.carlspring.strongbox.forms.users.UserForm;
-import org.carlspring.strongbox.users.domain.Privileges;
-import org.carlspring.strongbox.users.domain.UserData;
+import org.carlspring.strongbox.users.dto.User;
 import org.carlspring.strongbox.users.dto.UserDto;
 import org.carlspring.strongbox.users.security.AuthoritiesProvider;
 import org.carlspring.strongbox.users.service.UserService;
-import org.carlspring.strongbox.users.service.impl.StrongboxUserService.StrongboxUserServiceQualifier;
+import org.carlspring.strongbox.users.service.impl.OrientDbUserService.OrientDb;
 import org.carlspring.strongbox.validation.RequestBodyValidationException;
-
-import javax.inject.Inject;
-import java.util.Arrays;
-import java.util.Comparator;
-import java.util.List;
-import java.util.stream.Collectors;
-
-import io.swagger.annotations.*;
-import org.apache.commons.lang3.StringUtils;
 import org.jose4j.lang.JoseException;
 import org.springframework.core.convert.ConversionService;
 import org.springframework.http.HttpHeaders;
@@ -33,7 +30,21 @@ import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.stereotype.Controller;
 import org.springframework.validation.BindingResult;
 import org.springframework.validation.annotation.Validated;
-import org.springframework.web.bind.annotation.*;
+import org.springframework.web.bind.annotation.DeleteMapping;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.PutMapping;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestHeader;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.ResponseBody;
+
+import io.swagger.annotations.Api;
+import io.swagger.annotations.ApiOperation;
+import io.swagger.annotations.ApiParam;
+import io.swagger.annotations.ApiResponse;
+import io.swagger.annotations.ApiResponses;
 
 /**
  * @author Pablo Tirado
@@ -76,7 +87,7 @@ public class UserController
     public static final String USER_DELETE_FORBIDDEN = "Deleting this account is forbidden!";
 
     @Inject
-    @StrongboxUserServiceQualifier
+    @OrientDb
     private UserService userService;
 
     @Inject
@@ -92,10 +103,10 @@ public class UserController
     @ResponseBody
     public ResponseEntity getUsers()
     {
-        List<UserOutput> users = userService.findAll()
+        List<UserOutput> users = userService.getUsers()
                                             .getUsers()
                                             .stream()
-                                            .sorted(Comparator.comparing(UserData::getUsername))
+                                            .sorted(Comparator.comparing(User::getUsername))
                                             .map(UserOutput::fromUser)
                                             .collect(Collectors.toList());
 
@@ -117,7 +128,7 @@ public class UserController
                                                 defaultValue = "false") Boolean includeFormFields,
                                   @RequestHeader(HttpHeaders.ACCEPT) String accept)
     {
-        UserData user = userService.findByUserName(username);
+        User user = userService.findByUsername(username);
         if (user == null)
         {
             return getNotFoundResponseEntity(NOT_FOUND_USER, accept);
@@ -223,13 +234,13 @@ public class UserController
             return getFailedResponseEntity(HttpStatus.FORBIDDEN, OWN_USER_DELETE_FORBIDDEN, accept);
         }
 
-        UserData user = userService.findByUserName(username);
+        User user = userService.findByUsername(username);
         if (user == null)
         {
             return getNotFoundResponseEntity(NOT_FOUND_USER, accept);
         }
 
-        userService.delete(user.getUsername());
+        userService.deleteByUsername(user.getUsername());
 
         return getSuccessfulResponseEntity(SUCCESSFUL_DELETE_USER, accept);
     }
@@ -246,7 +257,7 @@ public class UserController
                                                 @RequestHeader(HttpHeaders.ACCEPT) String accept)
             throws JoseException
     {
-        UserData user = userService.findByUserName(username);
+        User user = userService.findByUsername(username);
         if (user == null)
         {
             return getNotFoundResponseEntity(NOT_FOUND_USER, accept);

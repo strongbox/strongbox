@@ -1,26 +1,30 @@
 package org.carlspring.strongbox.controllers.login;
 
+import static io.restassured.module.mockmvc.RestAssuredMockMvc.given;
+import static org.hamcrest.Matchers.greaterThan;
+import static org.hamcrest.Matchers.hasSize;
+
+import javax.inject.Inject;
+
 import org.carlspring.strongbox.config.IntegrationTest;
 import org.carlspring.strongbox.forms.users.UserForm;
 import org.carlspring.strongbox.rest.common.RestAssuredBaseTest;
 import org.carlspring.strongbox.users.dto.UserDto;
 import org.carlspring.strongbox.users.service.UserService;
-import org.carlspring.strongbox.users.service.impl.StrongboxUserService.StrongboxUserServiceQualifier;
-
-import javax.inject.Inject;
-
-import com.google.common.collect.ImmutableSet;
-import io.restassured.module.mockmvc.RestAssuredMockMvc;
+import org.carlspring.strongbox.users.service.impl.EncodedPasswordUser;
+import org.carlspring.strongbox.users.service.impl.OrientDbUserService.OrientDb;
 import org.hamcrest.CoreMatchers;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.test.context.support.WithAnonymousUser;
-import static io.restassured.module.mockmvc.RestAssuredMockMvc.given;
-import static org.hamcrest.Matchers.greaterThan;
-import static org.hamcrest.Matchers.hasSize;
+
+import com.google.common.collect.ImmutableSet;
+
+import io.restassured.module.mockmvc.RestAssuredMockMvc;
 
 /**
  * @author Przemyslaw Fusik
@@ -31,9 +35,12 @@ public class LoginControllerTest
 {
 
     @Inject
-    @StrongboxUserServiceQualifier
+    @OrientDb
     private UserService userService;
 
+    @Inject
+    private PasswordEncoder passwordEncoder;
+    
     @Override
     @BeforeEach
     public void init()
@@ -45,13 +52,6 @@ public class LoginControllerTest
     @AfterEach
     public void afterEach()
     {
-        UserDto cacheEvictionTestUser = new UserDto();
-        cacheEvictionTestUser.setUsername("admin-cache-eviction-test");
-        cacheEvictionTestUser.setPassword("password");
-        cacheEvictionTestUser.setRoles(ImmutableSet.of("ADMIN"));
-        cacheEvictionTestUser.setEnabled(true);
-        cacheEvictionTestUser.setSecurityTokenKey("admin-cache-eviction-test-secret");
-        userService.updateAccountDetailsByUsername(cacheEvictionTestUser);
     }
 
     @Test
@@ -102,7 +102,7 @@ public class LoginControllerTest
         disabledUser.setUsername("test-disabled-user-login");
         disabledUser.setPassword("1234");
         disabledUser.setEnabled(false);
-        userService.save(disabledUser);
+        userService.save(new EncodedPasswordUser(disabledUser, passwordEncoder));
 
         LoginInput loginInput = new LoginInput();
         loginInput.setUsername("test-disabled-user-login");
@@ -124,6 +124,15 @@ public class LoginControllerTest
     @WithAnonymousUser
     public void userCacheShouldBeClearedAfterPasswordChange()
     {
+        UserDto cacheEvictionTestUser = new UserDto();
+        cacheEvictionTestUser.setUsername("admin-cache-eviction-test");
+        cacheEvictionTestUser.setPassword("password");
+        cacheEvictionTestUser.setRoles(ImmutableSet.of("ADMIN"));
+        cacheEvictionTestUser.setEnabled(true);
+        cacheEvictionTestUser.setSecurityTokenKey("admin-cache-eviction-test-secret");
+        userService.save(new EncodedPasswordUser(cacheEvictionTestUser, passwordEncoder));
+
+        
         LoginInput loginInput = new LoginInput();
         loginInput.setUsername("admin-cache-eviction-test");
         loginInput.setPassword("password");
@@ -136,9 +145,9 @@ public class LoginControllerTest
                           .post("/api/login")
                           .peek()
                           .then()
+                          .statusCode(200)
                           .body("token", CoreMatchers.any(String.class))
-                          .body("authorities", hasSize(greaterThan(0)))
-                          .statusCode(200);
+                          .body("authorities", hasSize(greaterThan(0)));
 
         UserForm userForm = new UserForm();
         userForm.setUsername("admin-cache-eviction-test");
@@ -161,8 +170,8 @@ public class LoginControllerTest
                           .post("/api/login")
                           .peek()
                           .then()
-                          .body("error", CoreMatchers.equalTo("invalid.credentials"))
-                          .statusCode(HttpStatus.UNAUTHORIZED.value());
+                          .statusCode(HttpStatus.UNAUTHORIZED.value())
+                          .body("error", CoreMatchers.equalTo("invalid.credentials"));
     }
 
 }
