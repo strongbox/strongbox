@@ -36,7 +36,7 @@ Strongbox has a search engine and an [Artifact Query Language][docs-aql].
 * We have recently:
   * Upgraded to JUnit 5 and we've been busy making all of our tests parallelizable! (Please, reach out, if you'd like to help, as there is still work to be done!).
   * Migrated to Spring Boot! (We may need help improving our support).
-  * Migrated our Github wiki to [gihub.io](https://strongbox.github.io/). 
+  * Migrated our Github wiki to [github.io](https://strongbox.github.io/). 
   * Migrated our configuration files from XML to YAML format.
 * We now have an RPM distribution and need help testing it! (We need testers).
 * Our UI is under heavy development!
