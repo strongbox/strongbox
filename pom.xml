@@ -98,8 +98,8 @@
                 </plugins>
             </build>
         </profile>
-		
-		<profile>
+        
+        <profile>
             <id>checkstyle</id>
 
             <activation>
@@ -108,23 +108,23 @@
 
             <build>
                 <plugins>
-					<plugin>
-						<groupId>org.apache.maven.plugins</groupId>
-						<artifactId>maven-checkstyle-plugin</artifactId>
-						<version>3.0.0</version>
-						<dependencies>
-							<dependency>
-								<groupId>com.puppycrawl.tools</groupId>
-								<artifactId>checkstyle</artifactId>
-								<version>8.18</version>
-							</dependency>
-						</dependencies>
-						<configuration>
-							<configLocation>strongbox-checks.xml</configLocation>
-							<consoleOutput>true</consoleOutput>
-						</configuration>
-					</plugin>
-				</plugins>
+                    <plugin>
+                        <groupId>org.apache.maven.plugins</groupId>
+                        <artifactId>maven-checkstyle-plugin</artifactId>
+                        <version>3.0.0</version>
+                        <dependencies>
+                            <dependency>
+                                <groupId>com.puppycrawl.tools</groupId>
+                                <artifactId>checkstyle</artifactId>
+                                <version>8.18</version>
+                            </dependency>
+                        </dependencies>
+                        <configuration>
+                            <configLocation>strongbox-checks.xml</configLocation>
+                            <consoleOutput>true</consoleOutput>
+                        </configuration>
+                    </plugin>
+                </plugins>
             </build>
         </profile>
     </profiles>
