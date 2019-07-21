@@ -1,7 +1,6 @@
 package org.carlspring.strongbox.services;
 
 import org.carlspring.strongbox.config.Maven2LayoutProviderTestConfig;
-import org.carlspring.strongbox.providers.layout.Maven2LayoutProvider;
 import org.carlspring.strongbox.providers.search.MavenIndexerSearchProvider;
 import org.carlspring.strongbox.repository.IndexedMavenRepositoryFeatures;
 import org.carlspring.strongbox.storage.repository.Repository;
@@ -10,8 +9,8 @@ import org.carlspring.strongbox.testing.MavenIndexedRepositorySetup;
 import org.carlspring.strongbox.testing.TestCaseWithMavenArtifactGenerationAndIndexing;
 import org.carlspring.strongbox.testing.artifact.ArtifactManagementTestExecutionListener;
 import org.carlspring.strongbox.testing.artifact.MavenTestArtifact;
+import org.carlspring.strongbox.testing.repository.MavenRepository;
 import org.carlspring.strongbox.testing.storage.repository.RepositoryManagementTestExecutionListener;
-import org.carlspring.strongbox.testing.storage.repository.TestRepository;
 
 import javax.inject.Inject;
 import java.nio.file.Path;
@@ -29,6 +28,7 @@ import static org.junit.jupiter.api.parallel.ExecutionMode.CONCURRENT;
 
 /**
  * @author mtodorov
+ * @author Pablo Tirado
  */
 @SpringBootTest
 @ActiveProfiles(profiles = "test")
@@ -38,7 +38,7 @@ public class ArtifactSearchServiceImplTest
         extends TestCaseWithMavenArtifactGenerationAndIndexing
 {
 
-    public static final String REPOSITORYID = "artifact-search-service-test-releases";
+    private static final String REPOSITORY_RELEASES = "assi-releases";
 
     @Inject
     private ArtifactSearchService artifactSearchService;
@@ -46,22 +46,28 @@ public class ArtifactSearchServiceImplTest
 
     @Test
     @EnabledIf(expression = "#{containsObject('repositoryIndexManager')}", loadContext = true)
-    @ExtendWith({ RepositoryManagementTestExecutionListener.class, ArtifactManagementTestExecutionListener.class })
-    public void testContains(@TestRepository(repositoryId = REPOSITORYID,
-                                             layout = Maven2LayoutProvider.ALIAS,
-                                             setup = MavenIndexedRepositorySetup.class) Repository repository,
-                             @MavenTestArtifact(repositoryId = REPOSITORYID,
+    @ExtendWith({ RepositoryManagementTestExecutionListener.class,
+                  ArtifactManagementTestExecutionListener.class })
+    public void testContains(@MavenRepository(repositoryId = REPOSITORY_RELEASES,
+                                              setup = MavenIndexedRepositorySetup.class)
+                             Repository repository,
+                             @MavenTestArtifact(repositoryId = REPOSITORY_RELEASES,
                                                 id = "org.carlspring.strongbox:strongbox-utils",
-                                                versions = { "1.0.1", "1.1.1", "1.2.1" }) List<Path> paths)
+                                                versions = { "1.0.1",
+                                                             "1.1.1",
+                                                             "1.2.1" })
+                            List<Path> paths)
             throws Exception
     {
+        final String repositoryId = repository.getId();
+
         IndexedMavenRepositoryFeatures features = (IndexedMavenRepositoryFeatures) getFeatures();
-        final int x = features.reIndex(STORAGE0, REPOSITORYID, "org/carlspring/strongbox/strongbox-utils");
+        final int x = features.reIndex(STORAGE0, repositoryId, "org/carlspring/strongbox/strongbox-utils");
 
         assertTrue(x >= 3, "Incorrect number of artifacts found!");
 
         SearchRequest request = new SearchRequest(STORAGE0,
-                                                  REPOSITORYID,
+                                                  repositoryId,
                                                   "+g:org.carlspring.strongbox +a:strongbox-utils +v:1.0.1 +p:jar",
                                                   MavenIndexerSearchProvider.ALIAS);
 

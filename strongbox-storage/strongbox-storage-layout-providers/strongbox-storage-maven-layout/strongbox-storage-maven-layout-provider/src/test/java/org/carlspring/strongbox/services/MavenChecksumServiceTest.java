@@ -1,14 +1,14 @@
 package org.carlspring.strongbox.services;
 
-import static java.nio.file.StandardOpenOption.CREATE_NEW;
-import static java.nio.file.StandardOpenOption.TRUNCATE_EXISTING;
-import static org.carlspring.strongbox.artifact.coordinates.MavenArtifactCoordinates.LAYOUT_NAME;
-import static org.carlspring.strongbox.storage.repository.RepositoryPolicyEnum.SNAPSHOT;
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertFalse;
-import static org.junit.jupiter.api.Assertions.assertTrue;
-import static org.junit.jupiter.api.parallel.ExecutionMode.SAME_THREAD;
+import org.carlspring.strongbox.config.Maven2LayoutProviderTestConfig;
+import org.carlspring.strongbox.storage.repository.Repository;
+import org.carlspring.strongbox.testing.TestCaseWithMavenArtifactGenerationAndIndexing;
+import org.carlspring.strongbox.testing.artifact.ArtifactManagementTestExecutionListener;
+import org.carlspring.strongbox.testing.artifact.MavenTestArtifact;
+import org.carlspring.strongbox.testing.repository.MavenRepository;
+import org.carlspring.strongbox.testing.storage.repository.RepositoryManagementTestExecutionListener;
 
+import javax.inject.Inject;
 import java.io.IOException;
 import java.io.OutputStream;
 import java.nio.file.Files;
@@ -16,16 +16,6 @@ import java.nio.file.Path;
 import java.security.NoSuchAlgorithmException;
 import java.util.List;
 
-import javax.inject.Inject;
-
-import org.carlspring.strongbox.artifact.generator.MavenArtifactGenerator;
-import org.carlspring.strongbox.config.Maven2LayoutProviderTestConfig;
-import org.carlspring.strongbox.storage.repository.Repository;
-import org.carlspring.strongbox.testing.TestCaseWithMavenArtifactGenerationAndIndexing;
-import org.carlspring.strongbox.testing.artifact.ArtifactManagementTestExecutionListener;
-import org.carlspring.strongbox.testing.artifact.TestArtifact;
-import org.carlspring.strongbox.testing.storage.repository.RepositoryManagementTestExecutionListener;
-import org.carlspring.strongbox.testing.storage.repository.TestRepository;
 import org.codehaus.plexus.util.xml.pull.XmlPullParserException;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -33,9 +23,15 @@ import org.junit.jupiter.api.parallel.Execution;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.ContextConfiguration;
+import static java.nio.file.StandardOpenOption.CREATE_NEW;
+import static java.nio.file.StandardOpenOption.TRUNCATE_EXISTING;
+import static org.carlspring.strongbox.storage.repository.RepositoryPolicyEnum.SNAPSHOT;
+import static org.junit.jupiter.api.Assertions.*;
+import static org.junit.jupiter.api.parallel.ExecutionMode.SAME_THREAD;
 
 /**
  * @author Kate Novik.
+ * @author Pablo Tirado
  */
 @SpringBootTest
 @ActiveProfiles(profiles = "test")
@@ -62,13 +58,21 @@ public class MavenChecksumServiceTest
     private ChecksumService checksumService;
 
     @Test
-    @ExtendWith({RepositoryManagementTestExecutionListener.class, ArtifactManagementTestExecutionListener.class})
-    public void testGenerateMavenChecksumForReleaseArtifact(@TestRepository(repositoryId = REPOSITORY_RELEASES, layout = LAYOUT_NAME) Repository repository,
-                                                            @TestArtifact(repositoryId = REPOSITORY_RELEASES, id = A1, versions = { "1.0", "2.0"}, generator = MavenArtifactGenerator.class) List<Path> artifactGroupPath)
+    @ExtendWith({RepositoryManagementTestExecutionListener.class, 
+                 ArtifactManagementTestExecutionListener.class})
+    public void testGenerateMavenChecksumForReleaseArtifact(@MavenRepository(repositoryId = REPOSITORY_RELEASES)
+                                                            Repository repository,
+                                                            @MavenTestArtifact(repositoryId = REPOSITORY_RELEASES,
+                                                                               id = A1,
+                                                                              versions = { "1.0",
+                                                                                           "2.0" })
+                                                            List<Path> artifactGroupPath)
             throws IOException,
                    XmlPullParserException,
                    NoSuchAlgorithmException
     {
+        final String repositoryId = repository.getId();
+
         Path artifact1 = artifactGroupPath.get(0);
         Path artifact2 = artifactGroupPath.get(1);
                 
@@ -92,11 +96,12 @@ public class MavenChecksumServiceTest
         assertFalse(Files.exists(artifact1Md5), "The checksum file for artifact exist!");
         assertFalse(Files.exists(artifact1Sha1), "The checksum file for artifact exist!");
         
-        artifactMetadataService.rebuildMetadata(STORAGE0, REPOSITORY_RELEASES,
+        artifactMetadataService.rebuildMetadata(STORAGE0,
+                                                repositoryId,
                                                 "org/carlspring/strongbox/checksum/maven/strongbox-checksum");
 
         checksumService.regenerateChecksum(STORAGE0,
-                                           REPOSITORY_RELEASES,
+                                           repositoryId,
                                            "org/carlspring/strongbox/checksum/maven/strongbox-checksum",
                                            false);
 
@@ -145,13 +150,20 @@ public class MavenChecksumServiceTest
      }
 
     @Test
-    @ExtendWith({RepositoryManagementTestExecutionListener.class, ArtifactManagementTestExecutionListener.class})
-    public void testGenerateMavenChecksumForSnapshotArtifact(@TestRepository(repositoryId = REPOSITORY_SNAPSHOTS, policy = SNAPSHOT, layout = LAYOUT_NAME) Repository repository,
-                                                             @TestArtifact(repositoryId = REPOSITORY_SNAPSHOTS, resource = S2, generator = MavenArtifactGenerator.class) Path artifact)
+    @ExtendWith({RepositoryManagementTestExecutionListener.class, 
+                 ArtifactManagementTestExecutionListener.class})
+    public void testGenerateMavenChecksumForSnapshotArtifact(@MavenRepository(repositoryId = REPOSITORY_SNAPSHOTS,
+                                                                              policy = SNAPSHOT)
+                                                             Repository repository,
+                                                             @MavenTestArtifact(repositoryId = REPOSITORY_SNAPSHOTS,
+                                                                                resource = S2)
+                                                             Path artifact)
             throws IOException,
                    XmlPullParserException,
                    NoSuchAlgorithmException
     {
+        final String repositoryId = repository.getId();
+
         Path artifact1Md5 = artifact.resolveSibling(artifact.getFileName() + ".md5");
         Path artifact1Sha1 = artifact.resolveSibling(artifact.getFileName() + ".sha1");
         Path artifact1PomMd5 = artifact.resolveSibling(artifact.getFileName().toString().replace(".jar", ".pom") + ".md5");
@@ -166,7 +178,8 @@ public class MavenChecksumServiceTest
         Files.delete(artifact1PomSha1);
         
 
-        artifactMetadataService.rebuildMetadata(STORAGE0, REPOSITORY_SNAPSHOTS,
+        artifactMetadataService.rebuildMetadata(STORAGE0,
+                                                repositoryId,
                                                 "org/carlspring/strongbox/checksum");
 
         assertFalse(Files.exists(artifact1Md5),
@@ -174,7 +187,10 @@ public class MavenChecksumServiceTest
         assertFalse(Files.exists(artifact1Sha1),
                     "The checksum file for artifact exist!");
 
-        checksumService.regenerateChecksum(STORAGE0, REPOSITORY_SNAPSHOTS, "org/carlspring/strongbox/checksum", false);
+        checksumService.regenerateChecksum(STORAGE0,
+                                           repositoryId,
+                                           "org/carlspring/strongbox/checksum",
+                                           false);
        
         assertTrue(Files.exists(artifact1Sha1),
                    "The checksum file for the artifact doesn't exist!");
@@ -205,14 +221,20 @@ public class MavenChecksumServiceTest
     }
 
     @Test
-    @ExtendWith({RepositoryManagementTestExecutionListener.class, ArtifactManagementTestExecutionListener.class})
-    public void testRewriteMavenChecksum(@TestRepository(repositoryId = REPOSITORY_RELEASES, layout = LAYOUT_NAME) Repository repository,
-                                         @TestArtifact(repositoryId = REPOSITORY_RELEASES, resource = A3, generator = MavenArtifactGenerator.class) Path artifact)
+    @ExtendWith({RepositoryManagementTestExecutionListener.class,
+                 ArtifactManagementTestExecutionListener.class})
+    public void testRewriteMavenChecksum(@MavenRepository(repositoryId = REPOSITORY_RELEASES)
+                                         Repository repository,
+                                         @MavenTestArtifact(repositoryId = REPOSITORY_RELEASES,
+                                                            resource = A3)
+                                         Path artifact)
             throws IOException,
                    XmlPullParserException,
                    NoSuchAlgorithmException
     {
-        artifactMetadataService.rebuildMetadata(STORAGE0, REPOSITORY_RELEASES, "org/carlspring/strongbox/checksum");
+        final String repositoryId = repository.getId();
+
+        artifactMetadataService.rebuildMetadata(STORAGE0, repositoryId, "org/carlspring/strongbox/checksum");
 
         Path md5File = artifact.resolveSibling(artifact.getFileName() + ".md5");
         Path sha1File = artifact.resolveSibling(artifact.getFileName() + ".sha1");
@@ -262,7 +284,7 @@ public class MavenChecksumServiceTest
                      "The checksum file for metadata isn't empty!");
 
         checksumService.regenerateChecksum(STORAGE0,
-                                           REPOSITORY_RELEASES,
+                                           repositoryId,
                                            "org/carlspring/strongbox/checksum/maven/checksum-rewrite",
                                            true);
 

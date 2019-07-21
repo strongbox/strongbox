@@ -7,11 +7,9 @@ import org.carlspring.strongbox.locator.handlers.GenerateMavenMetadataOperation;
 import org.carlspring.strongbox.providers.io.RepositoryFiles;
 import org.carlspring.strongbox.providers.io.RepositoryPath;
 import org.carlspring.strongbox.providers.io.RootRepositoryPath;
-import org.carlspring.strongbox.providers.layout.LayoutProviderRegistry;
 import org.carlspring.strongbox.providers.layout.Maven2LayoutProvider;
 import org.carlspring.strongbox.providers.search.MavenIndexerSearchProvider;
 import org.carlspring.strongbox.providers.search.SearchException;
-import org.carlspring.strongbox.repository.IndexedMavenRepositoryFeatures;
 import org.carlspring.strongbox.repository.RepositoryManagementStrategyException;
 import org.carlspring.strongbox.services.ArtifactResolutionService;
 import org.carlspring.strongbox.services.ArtifactSearchService;
@@ -36,7 +34,6 @@ import java.io.InputStream;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
-import java.security.NoSuchAlgorithmException;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Optional;
@@ -55,7 +52,6 @@ import org.apache.lucene.util.Bits;
 import org.apache.maven.index.ArtifactInfo;
 import org.apache.maven.index.context.IndexUtils;
 import org.apache.maven.index.context.IndexingContext;
-import org.codehaus.plexus.util.xml.pull.XmlPullParserException;
 import org.junit.jupiter.api.Assumptions;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -83,9 +79,6 @@ public abstract class TestCaseWithMavenArtifactGenerationAndIndexing
     protected ArtifactSearchService artifactSearchService;
 
     @Inject
-    protected LayoutProviderRegistry layoutProviderRegistry;
-
-    @Inject
     protected MavenMetadataManager mavenMetadataManager;
 
     @Inject
@@ -97,63 +90,6 @@ public abstract class TestCaseWithMavenArtifactGenerationAndIndexing
     @Inject
     private MavenRepositoryFactory mavenRepositoryFactory;
 
-
-    protected void createRepositoryWithArtifacts(String storageId,
-                                                 RepositoryDto repository,
-                                                 String ga,
-                                                 String... versions)
-            throws IOException,
-                   JAXBException,
-                   NoSuchAlgorithmException,
-                   XmlPullParserException,
-                   RepositoryManagementStrategyException
-    {
-        createRepository(storageId, repository);
-        generateArtifactsReIndexAndPack(repository.getStorage().getId(), repository.getId(), ga, versions);
-    }
-
-    protected void createRepositoryWithArtifacts(String storageId,
-                                                 String repositoryId,
-                                                 boolean indexing,
-                                                 String ga,
-                                                 String... versions)
-            throws Exception
-    {
-        MavenRepositoryConfigurationDto repositoryConfiguration = new MavenRepositoryConfigurationDto();
-        repositoryConfiguration.setIndexingEnabled(indexing);
-
-        createRepositoryWithArtifacts(storageId, repositoryId, repositoryConfiguration, ga, versions);
-    }
-
-    protected void createRepositoryWithArtifacts(String storageId,
-                                                 String repositoryId,
-                                                 MavenRepositoryConfigurationDto repositoryConfiguration,
-                                                 String ga,
-                                                 String... versions)
-            throws Exception
-    {
-        createRepository(storageId, repositoryId, repositoryConfiguration);
-        generateArtifactsReIndexAndPack(storageId, repositoryId, ga, versions);
-    }
-
-    protected void createRepository(String storageId,
-                                    String repositoryId,
-                                    boolean indexing)
-            throws IOException, JAXBException, RepositoryManagementStrategyException
-    {
-        MavenRepositoryConfigurationDto repositoryConfiguration = new MavenRepositoryConfigurationDto();
-        repositoryConfiguration.setIndexingEnabled(indexing);
-
-        createRepository(storageId, repositoryId, RepositoryPolicyEnum.RELEASE.getPolicy(), repositoryConfiguration);
-    }
-
-    protected void createRepository(String storageId,
-                                    String repositoryId,
-                                    MavenRepositoryConfigurationDto repositoryConfiguration)
-            throws IOException, JAXBException, RepositoryManagementStrategyException
-    {
-        createRepository(storageId, repositoryId, RepositoryPolicyEnum.RELEASE.getPolicy(), repositoryConfiguration);
-    }
 
     protected RepositoryDto createRepository(String storageId,
                                              String repositoryId,
@@ -222,79 +158,6 @@ public abstract class TestCaseWithMavenArtifactGenerationAndIndexing
         repository.setType(RepositoryTypeEnum.PROXY.getType());
 
         createRepository(storageId, repository);
-    }
-
-    private void generateArtifactsReIndexAndPack(String storageId,
-                                                 String repositoryId,
-                                                 String ga,
-                                                 String[] versions)
-            throws IOException, XmlPullParserException, NoSuchAlgorithmException
-    {
-        for (String version : versions)
-        {
-            String repositoryBaseDir = getRepositoryBasedir(storageId, repositoryId).getAbsolutePath();
-
-            generateArtifact(repositoryBaseDir, ga + ":" + version + ":jar");
-        }
-
-        Repository repository = configurationManagementService.getConfiguration()
-                                                              .getStorage(storageId)
-                                                              .getRepository(repositoryId);
-
-        if (!(features instanceof IndexedMavenRepositoryFeatures))
-        {
-            return;
-        }
-
-        IndexedMavenRepositoryFeatures indexedFeatures = (IndexedMavenRepositoryFeatures) features;
-
-        if (indexedFeatures.isIndexingEnabled(repository))
-        {
-            indexedFeatures.reIndex(storageId, repositoryId, ga.replaceAll("\\.", "/").replaceAll("\\:", "\\/"));
-            indexedFeatures.pack(storageId, repositoryId);
-        }
-    }
-
-    public void reIndex(String storageId,
-                        String repositoryId,
-                        String path)
-    {
-        Repository repository = configurationManagementService.getConfiguration()
-                                                              .getStorage(storageId)
-                                                              .getRepository(repositoryId);
-
-        if (!(features instanceof IndexedMavenRepositoryFeatures))
-        {
-            return;
-        }
-
-        IndexedMavenRepositoryFeatures indexedFeatures = (IndexedMavenRepositoryFeatures) features;
-
-        if (indexedFeatures.isIndexingEnabled(repository))
-        {
-            indexedFeatures.reIndex(storageId, repositoryId, path != null ? path : ".");
-        }
-    }
-
-    public void packIndex(String storageId,
-                          String repositoryId)
-            throws IOException
-    {
-        Repository repository = configurationManagementService.getConfiguration()
-                                                              .getStorage(storageId)
-                                                              .getRepository(repositoryId);
-
-        if (!(features instanceof IndexedMavenRepositoryFeatures))
-        {
-            return;
-        }
-
-        IndexedMavenRepositoryFeatures indexedFeatures = (IndexedMavenRepositoryFeatures) features;
-
-        if (indexedFeatures.isIndexingEnabled(repository))
-        {
-            indexedFeatures.pack(storageId, repositoryId);
-        }
     }
 
     public void createAndAddRoutingRule(String groupStorageId,

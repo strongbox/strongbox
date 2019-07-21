@@ -4,16 +4,16 @@ import org.carlspring.strongbox.config.Maven2LayoutProviderTestConfig;
 import org.carlspring.strongbox.providers.io.RootRepositoryPath;
 import org.carlspring.strongbox.providers.layout.Maven2LayoutProvider;
 import org.carlspring.strongbox.providers.search.MavenIndexerSearchProvider;
-import org.carlspring.strongbox.storage.repository.RepositoryData;
-import org.carlspring.strongbox.storage.repository.RepositoryDto;
 import org.carlspring.strongbox.storage.repository.Repository;
+import org.carlspring.strongbox.storage.repository.RepositoryDto;
 import org.carlspring.strongbox.storage.search.SearchRequest;
 import org.carlspring.strongbox.testing.MavenIndexedRepositorySetup;
 import org.carlspring.strongbox.testing.artifact.ArtifactManagementTestExecutionListener;
 import org.carlspring.strongbox.testing.artifact.MavenTestArtifact;
 import org.carlspring.strongbox.testing.repository.MavenRepository;
 import org.carlspring.strongbox.testing.storage.repository.RepositoryManagementTestExecutionListener;
-import org.carlspring.strongbox.testing.storage.repository.TestRepository;
+import org.carlspring.strongbox.testing.storage.repository.TestRepository.Group;
+import org.carlspring.strongbox.testing.storage.repository.TestRepository.Group.Rule;
 
 import java.nio.file.Path;
 import java.util.LinkedHashSet;
@@ -33,6 +33,7 @@ import static org.junit.jupiter.api.parallel.ExecutionMode.CONCURRENT;
 
 /**
  * @author Przemyslaw Fusik
+ * @author Pablo Tirado
  */
 @SpringBootTest
 @ActiveProfiles(profiles = "test")
@@ -97,23 +98,23 @@ public class MavenIndexGroupRepositoryComponentOnCreateTest
             @MavenRepository(repositoryId = REPOSITORY_LEAF_XD_2, setup = MavenIndexedRepositorySetup.class) Repository repositoryLeafXd2,
             @MavenRepository(repositoryId = REPOSITORY_LEAF_XG_2, setup = MavenIndexedRepositorySetup.class) Repository repositoryLeafXg2,
             @MavenRepository(repositoryId = REPOSITORY_LEAF_XK_2, setup = MavenIndexedRepositorySetup.class) Repository repositoryLeafXk2,
-            @TestRepository.Group({ REPOSITORY_LEAF_XE_2,
-                                    REPOSITORY_LEAF_XZ_2 })
+            @Group({ REPOSITORY_LEAF_XE_2,
+                     REPOSITORY_LEAF_XZ_2 })
             @MavenRepository(repositoryId = REPOSITORY_GROUP_XC_2, setup = MavenIndexedRepositorySetup.class) Repository repositoryGroupXc2,
-            @TestRepository.Group({ REPOSITORY_GROUP_XC_2,
-                                    REPOSITORY_LEAF_XD_2,
-                                    REPOSITORY_LEAF_XL_2 })
+            @Group({ REPOSITORY_GROUP_XC_2,
+                     REPOSITORY_LEAF_XD_2,
+                     REPOSITORY_LEAF_XL_2 })
             @MavenRepository(repositoryId = REPOSITORY_GROUP_XB_2, setup = MavenIndexedRepositorySetup.class) Repository repositoryGroupXb2,
-            @TestRepository.Group({ REPOSITORY_LEAF_XG_2,
-                                    REPOSITORY_GROUP_XB_2 })
+            @Group({ REPOSITORY_LEAF_XG_2,
+                     REPOSITORY_GROUP_XB_2 })
             @MavenRepository(repositoryId = REPOSITORY_GROUP_XO_2, setup = MavenIndexedRepositorySetup.class) Repository repositoryGroupXo2,
-            @TestRepository.Group({ REPOSITORY_GROUP_XC_2,
-                                    REPOSITORY_LEAF_XD_2,
-                                    REPOSITORY_LEAF_XL_2 })
+            @Group({ REPOSITORY_GROUP_XC_2,
+                     REPOSITORY_LEAF_XD_2,
+                     REPOSITORY_LEAF_XL_2 })
             @MavenRepository(repositoryId = REPOSITORY_GROUP_XF_2, setup = MavenIndexedRepositorySetup.class) Repository repositoryGroupXf2,
-            @TestRepository.Group(repositories = { REPOSITORY_GROUP_XF_2,
-                                                   REPOSITORY_LEAF_XK_2 },
-                    rules = { @TestRepository.Group.Rule(
+            @Group(repositories = { REPOSITORY_GROUP_XF_2,
+                                    REPOSITORY_LEAF_XK_2 },
+                    rules = { @Rule(
                             pattern = ".*(com|org)/artifacts/to/update/releases/update-group.*",
                             repositories = REPOSITORY_LEAF_XD_2,
                             type = DENY)
@@ -132,35 +133,40 @@ public class MavenIndexGroupRepositoryComponentOnCreateTest
                     Path artifactLeafXk2)
             throws Exception
     {
-        generateMavenMetadata(STORAGE0, REPOSITORY_LEAF_XL_2);
-        generateMavenMetadata(STORAGE0, REPOSITORY_LEAF_XG_2);
-        generateMavenMetadata(STORAGE0, REPOSITORY_LEAF_XD_2);
-        generateMavenMetadata(STORAGE0, REPOSITORY_LEAF_XK_2);
+        generateMavenMetadata(STORAGE0, repositoryLeafXl2.getId());
+        generateMavenMetadata(STORAGE0, repositoryLeafXg2.getId());
+        generateMavenMetadata(STORAGE0, repositoryLeafXd2.getId());
+        generateMavenMetadata(STORAGE0, repositoryLeafXk2.getId());
 
         rebuildIndexes(getRepositories());
 
 
-        RepositoryDto repository = createGroup(REPOSITORY_GROUP_XA_2, STORAGE0, REPOSITORY_GROUP_XC_2,
-                                                   REPOSITORY_LEAF_XD_2,
-                                                   REPOSITORY_LEAF_XL_2);
+        RepositoryDto repository = createGroup(REPOSITORY_GROUP_XA_2,
+                                               STORAGE0,
+                                               repositoryGroupXc2.getId(),
+                                               repositoryLeafXd2.getId(),
+                                               repositoryLeafXl2.getId());
 
-        RootRepositoryPath repositoryPath = repositoryPathResolver.resolve(new RepositoryData(repository));
+        RootRepositoryPath repositoryPath = repositoryPathResolver.resolve(repository);
         // recoded since we scheduled a cron job now
         artifactIndexesService.rebuildIndex(repositoryPath);
 
 
-        SearchRequest request = new SearchRequest(STORAGE0, REPOSITORY_GROUP_XA_2,
+        SearchRequest request = new SearchRequest(STORAGE0,
+                                                  REPOSITORY_GROUP_XA_2,
                                                   "+g:com.artifacts.to.delete.releases +a:delete-group +v:1.2.1 +e:jar",
                                                   MavenIndexerSearchProvider.ALIAS);
         assertThat(artifactSearchService.search(request).getResults().size(), Matchers.equalTo(1));
 
-        request = new SearchRequest(STORAGE0, REPOSITORY_GROUP_XA_2,
+        request = new SearchRequest(STORAGE0,
+                                    REPOSITORY_GROUP_XA_2,
                                     "+g:com.artifacts.to.delete.releases +a:delete-group +v:1.2.1",
                                     MavenIndexerSearchProvider.ALIAS);
 
         assertThat(artifactSearchService.search(request).getResults().size(), Matchers.equalTo(2));
 
-        request = new SearchRequest(STORAGE0, REPOSITORY_GROUP_XA_2,
+        request = new SearchRequest(STORAGE0,
+                                    REPOSITORY_GROUP_XA_2,
                                     "+g:com.artifacts.to.delete.releases +a:delete-group",
                                     MavenIndexerSearchProvider.ALIAS);
 

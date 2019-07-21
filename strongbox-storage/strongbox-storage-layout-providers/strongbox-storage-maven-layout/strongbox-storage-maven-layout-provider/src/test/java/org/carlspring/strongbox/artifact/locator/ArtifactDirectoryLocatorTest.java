@@ -3,20 +3,25 @@ package org.carlspring.strongbox.artifact.locator;
 import org.carlspring.strongbox.artifact.locator.handlers.ArtifactLocationReportOperation;
 import org.carlspring.strongbox.config.Maven2LayoutProviderTestConfig;
 import org.carlspring.strongbox.providers.io.RepositoryPath;
-import org.carlspring.strongbox.storage.Storage;
 import org.carlspring.strongbox.storage.repository.Repository;
 import org.carlspring.strongbox.testing.TestCaseWithMavenArtifactGenerationAndIndexing;
-import org.carlspring.strongbox.util.TestFileUtils;
+import org.carlspring.strongbox.testing.artifact.ArtifactManagementTestExecutionListener;
+import org.carlspring.strongbox.testing.artifact.MavenTestArtifact;
+import org.carlspring.strongbox.testing.repository.MavenRepository;
+import org.carlspring.strongbox.testing.storage.repository.RepositoryManagementTestExecutionListener;
 
 import java.io.ByteArrayOutputStream;
-import java.io.File;
 import java.io.IOException;
 import java.io.PrintStream;
-import java.util.regex.Matcher;
+import java.lang.annotation.*;
+import java.nio.file.Path;
+import java.nio.file.Paths;
+import java.util.List;
 
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.junit.jupiter.api.parallel.Execution;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.context.ActiveProfiles;
@@ -27,6 +32,7 @@ import static org.junit.jupiter.api.parallel.ExecutionMode.SAME_THREAD;
 
 /**
  * @author mtodorov
+ * @author Pablo Tirado
  */
 @SpringBootTest
 @ActiveProfiles(profiles = "test")
@@ -36,100 +42,42 @@ public class ArtifactDirectoryLocatorTest
         extends TestCaseWithMavenArtifactGenerationAndIndexing
 {
 
-    private ByteArrayOutputStream os;
+    private static final String REPOSITORY_RELEASES = "adlt-releases";
 
     private static PrintStream tempSysOut;
 
+    private ByteArrayOutputStream os;
 
     @BeforeEach
     public void setUp()
-            throws IOException
     {
         os = new ByteArrayOutputStream();
-        System.setOut(new PrintStream(os));
-
-        String basedir = getRepositoryBasedir(STORAGE0, "releases").getAbsolutePath();
-
-        generateArtifact(basedir + "/org/apache/maven/location-utils/1.0.1/location-utils-1.0.1.jar");
-        generateArtifact(basedir + "/org/apache/maven/location-utils/1.0.1/location-utils-1.0.1.pom");
-        generateArtifact(basedir + "/org/apache/maven/location-utils/1.0.2/location-utils-1.0.2.jar");
-        generateArtifact(basedir + "/org/apache/maven/location-utils/1.0.2/location-utils-1.0.2.pom");
-        generateArtifact(basedir + "/org/apache/maven/location-utils/1.1/location-utils-1.1.jar");
-        generateArtifact(basedir + "/org/apache/maven/location-utils/1.1/location-utils-1.1.pom");
-        generateArtifact(basedir + "/org/apache/maven/location-utils/1.2/location-utils-1.2.jar");
-        generateArtifact(basedir + "/org/apache/maven/location-utils/1.2/location-utils-1.2.pom");
-        generateArtifact(basedir + "/org/apache/maven/location-utils/1.2.1/location-utils-1.2.1.jar");
-        generateArtifact(basedir + "/org/apache/maven/location-utils/1.2.1/location-utils-1.2.1.pom");
-
-        generateArtifact(basedir + "/com/carlspring/strongbox/foo/5.1/foo-5.1.jar");
-        generateArtifact(basedir + "/com/carlspring/strongbox/foo/5.1/foo-5.1.pom");
-        generateArtifact(basedir + "/com/carlspring/strongbox/foo/5.2/foo-5.2.jar");
-        generateArtifact(basedir + "/com/carlspring/strongbox/foo/5.2/foo-5.2.pom");
-        generateArtifact(basedir + "/com/carlspring/strongbox/foo/5.3/foo-5.3.jar");
-        generateArtifact(basedir + "/com/carlspring/strongbox/foo/5.3/foo-5.3.pom");
-
-        generateArtifact(basedir + "/org/carlspring/maven/locator-testing/2.1/locator-testing-2.1.jar");
-        generateArtifact(basedir + "/org/carlspring/maven/locator-testing/2.1/locator-testing-2.1.pom");
-        generateArtifact(basedir + "/org/carlspring/maven/locator-testing/2.2/locator-testing-2.2.jar");
-        generateArtifact(basedir + "/org/carlspring/maven/locator-testing/2.2/locator-testing-2.2.pom");
-        generateArtifact(basedir + "/org/carlspring/maven/locator-testing/2.3/locator-testing-2.3.jar");
-        generateArtifact(basedir + "/org/carlspring/maven/locator-testing/2.3/locator-testing-2.3.pom");
-        generateArtifact(basedir + "/org/carlspring/maven/locator-testing/2.4/locator-testing-2.4.jar");
-        generateArtifact(basedir + "/org/carlspring/maven/locator-testing/2.4/locator-testing-2.4.pom");
-        generateArtifact(basedir + "/org/carlspring/maven/locator-testing/2.5/locator-testing-2.5.jar");
-        generateArtifact(basedir + "/org/carlspring/maven/locator-testing/2.5/locator-testing-2.5.pom");
-        generateArtifact(basedir + "/org/carlspring/maven/locator-testing/3.0/locator-testing-3.0.jar");
-        generateArtifact(basedir + "/org/carlspring/maven/locator-testing/3.0/locator-testing-3.0.pom");
-
-        generateArtifact(basedir + "/org/carlspring/strongbox/locator/5.2.1/locator-5.2.1.jar");
-        generateArtifact(basedir + "/org/carlspring/strongbox/locator/5.2.1/locator-5.2.1.pom");
-        generateArtifact(basedir + "/org/carlspring/strongbox/locator/5.2.2/locator-5.2.2.jar");
-        generateArtifact(basedir + "/org/carlspring/strongbox/locator/5.2.2/locator-5.2.2.pom");
-
-        generateArtifact(basedir + "/org/carlspring/strongbox/locator/foo-locator/1.0/foo-locator-1.0.jar");
-        generateArtifact(basedir + "/org/carlspring/strongbox/locator/foo-locator/1.0/foo-locator-1.0.pom");
-        generateArtifact(basedir + "/org/carlspring/strongbox/locator/foo-locator/1.1/foo-locator-1.1.jar");
-        generateArtifact(basedir + "/org/carlspring/strongbox/locator/foo-locator/1.1/foo-locator-1.1.pom");
-        generateArtifact(basedir + "/org/carlspring/strongbox/locator/foo-locator/1.2/foo-locator-1.2.jar");
-        generateArtifact(basedir + "/org/carlspring/strongbox/locator/foo-locator/1.2/foo-locator-1.2.pom");
-
-        generateArtifact(basedir + "/org/carlspring/strongbox/locator/utils/2.1/utils-2.1.jar");
-        generateArtifact(basedir + "/org/carlspring/strongbox/locator/utils/2.1/utils-2.1.pom");
-        generateArtifact(basedir + "/org/carlspring/strongbox/locator/utils/2.2/utils-2.2.jar");
-        generateArtifact(basedir + "/org/carlspring/strongbox/locator/utils/2.2/utils-2.2.pom");
-        generateArtifact(basedir + "/org/carlspring/strongbox/locator/utils/2.3/utils-2.3.jar");
-        generateArtifact(basedir + "/org/carlspring/strongbox/locator/utils/2.3/utils-2.3.pom");
-
-        tempSysOut = System.out;
     }
 
     @AfterEach
     public void tearDown()
     {
-        resetOutput();
-        removeGeneratedArtifacts();
-    }
-
-    private void removeGeneratedArtifacts()
-    {
-        generatedArtifacts.stream().forEach(TestFileUtils::deleteIfExists);
-    }
-
-    private void resetOutput()
-    {
         os = null;
         System.setOut(tempSysOut);
     }
 
+    @ExtendWith({ RepositoryManagementTestExecutionListener.class,
+                  ArtifactManagementTestExecutionListener.class })
     @Test
-    public void testLocateDirectories()
+    public void testLocateDirectories(@MavenRepository(repositoryId = REPOSITORY_RELEASES) Repository repository,
+                                      @MavenArtifactsLocationUtils List<Path> artifactPaths1,
+                                      @MavenArtifactsCarlspringStrongboxFoo List<Path> artifactPaths2,
+                                      @MavenArtifactsCarlspringMavenLocatorTesting List<Path> artifactPaths3,
+                                      @MavenArtifactsCarlspringStrongboxLocator List<Path> artifactPaths4,
+                                      @MavenArtifactsCarlspringStrongboxFooLocator List<Path> artifactPaths5,
+                                      @MavenArtifactsCarlspringStrongboxLocatorUtils List<Path> artifactPaths6)
             throws IOException
     {
-        Storage storage = configurationManagementService.getConfiguration().getStorage(STORAGE0);
-        Repository repository = storage.getRepository("releases");
-        
+        System.setOut(new PrintStream(os));
+        tempSysOut = System.out;
+
         RepositoryPath repositoryPath = repositoryPathResolver.resolve(repository);
-        
+
         ArtifactDirectoryLocator locator = new ArtifactDirectoryLocator();
         locator.setBasedir(repositoryPath);
         locator.setOperation(new ArtifactLocationReportOperation());
@@ -142,22 +90,26 @@ public class ArtifactDirectoryLocatorTest
         assertTrue(output.contains(normalize("org/apache/maven/location-utils")));
         assertTrue(output.contains(normalize("org/carlspring/maven/locator-testing")));
         assertTrue(output.contains(normalize("org/carlspring/strongbox/locator/foo-locator")));
-        assertTrue(output.contains(normalize("org/apache/maven/location-utils")));
         assertTrue(output.contains(normalize("org/carlspring/strongbox/locator/utils")));
-
-        // resetOutput();
-        // System.out.println(output);
     }
 
+    @ExtendWith({ RepositoryManagementTestExecutionListener.class,
+                  ArtifactManagementTestExecutionListener.class })
     @Test
-    public void testLocateDirectoriesWithBasePath()
+    public void testLocateDirectoriesWithBasePath(@MavenRepository(repositoryId = REPOSITORY_RELEASES) Repository repository,
+                                                  @MavenArtifactsLocationUtils List<Path> artifactPaths1,
+                                                  @MavenArtifactsCarlspringStrongboxFoo List<Path> artifactPaths2,
+                                                  @MavenArtifactsCarlspringMavenLocatorTesting List<Path> artifactPaths3,
+                                                  @MavenArtifactsCarlspringStrongboxLocator List<Path> artifactPaths4,
+                                                  @MavenArtifactsCarlspringStrongboxFooLocator List<Path> artifactPaths5,
+                                                  @MavenArtifactsCarlspringStrongboxLocatorUtils List<Path> artifactPaths6)
             throws IOException
     {
-        Storage storage = configurationManagementService.getConfiguration().getStorage(STORAGE0);
-        Repository repository = storage.getRepository("releases");
-        
+        System.setOut(new PrintStream(os));
+        tempSysOut = System.out;
+
         RepositoryPath repositoryPath = repositoryPathResolver.resolve(repository).toAbsolutePath();
-        
+
         ArtifactDirectoryLocator locator = new ArtifactDirectoryLocator();
         locator.setBasedir(repositoryPath);
         locator.setOperation(new ArtifactLocationReportOperation(repositoryPath.resolve("org/carlspring").relativize()));
@@ -167,26 +119,102 @@ public class ArtifactDirectoryLocatorTest
 
         String output = new String(os.toByteArray());
 
-        System.out.println(output);
-
         assertFalse(output.contains(normalize("org/apache/maven/location-utils")));
         assertTrue(output.contains(normalize("org/carlspring/maven/locator-testing")));
         assertTrue(output.contains(normalize("org/carlspring/strongbox/locator/foo-locator")));
         assertTrue(output.contains(normalize("org/carlspring/strongbox/locator/utils")));
-
-        resetOutput();
-
-        System.out.println(output);
     }
 
     private String normalize(String path)
     {
-        if (!File.separator.equals("/"))
-        {
-            path = path.replaceAll("/", Matcher.quoteReplacement(System.getProperty("file.separator")));
-        }
-
-        return path;
+        return Paths.get(path).normalize().toString();
     }
 
+    @Target({ ElementType.PARAMETER,
+              ElementType.ANNOTATION_TYPE })
+    @Retention(RetentionPolicy.RUNTIME)
+    @Documented
+    @MavenTestArtifact(repositoryId = REPOSITORY_RELEASES,
+                       id = "org.apache.maven:location-utils",
+                       versions = { "1.0.1",
+                                    "1.0.2",
+                                    "1.1",
+                                    "1.2",
+                                    "1.2.1" })
+    private @interface MavenArtifactsLocationUtils
+    {
+
+    }
+
+    @Target({ ElementType.PARAMETER,
+              ElementType.ANNOTATION_TYPE })
+    @Retention(RetentionPolicy.RUNTIME)
+    @Documented
+    @MavenTestArtifact(repositoryId = REPOSITORY_RELEASES,
+            id = "com.carlspring.strongbox:foo",
+            versions = { "5.1",
+                         "5.2",
+                         "5.3" })
+    private @interface MavenArtifactsCarlspringStrongboxFoo
+    {
+
+    }
+
+    @Target({ ElementType.PARAMETER,
+              ElementType.ANNOTATION_TYPE })
+    @Retention(RetentionPolicy.RUNTIME)
+    @Documented
+    @MavenTestArtifact(repositoryId = REPOSITORY_RELEASES,
+                       id = "org.carlspring.maven:locator-testing",
+                       versions = { "2.1",
+                                    "2.2",
+                                    "2.3",
+                                    "2.4",
+                                    "2.5",
+                                    "3.0" })
+    private @interface MavenArtifactsCarlspringMavenLocatorTesting
+    {
+
+    }
+
+    @Target({ ElementType.PARAMETER,
+              ElementType.ANNOTATION_TYPE })
+    @Retention(RetentionPolicy.RUNTIME)
+    @Documented
+    @MavenTestArtifact(repositoryId = REPOSITORY_RELEASES,
+            id = "org.carlspring.strongbox:locator",
+            versions = { "5.2.1",
+                         "5.2.2" })
+    private @interface MavenArtifactsCarlspringStrongboxLocator
+    {
+
+    }
+
+    @Target({ ElementType.PARAMETER,
+              ElementType.ANNOTATION_TYPE })
+    @Retention(RetentionPolicy.RUNTIME)
+    @Documented
+    @MavenTestArtifact(repositoryId = REPOSITORY_RELEASES,
+            id = "org.carlspring.strongbox.locator:foo-locator",
+            versions = { "1.0",
+                         "1.1",
+                         "1.2" })
+    private @interface MavenArtifactsCarlspringStrongboxFooLocator
+    {
+
+    }
+
+    @Target({ ElementType.PARAMETER,
+              ElementType.ANNOTATION_TYPE })
+    @Retention(RetentionPolicy.RUNTIME)
+    @Documented
+    @MavenTestArtifact(repositoryId = REPOSITORY_RELEASES,
+            id = "org.carlspring.strongbox.locator:utils",
+            versions = { "2.1",
+                         "2.2",
+                         "2.3" })
+    private @interface MavenArtifactsCarlspringStrongboxLocatorUtils
+    {
+
+    }
 }
