@@ -28,7 +28,7 @@ public abstract class BaseMavenGroupRepositoryComponentTest
         extends TestCaseWithMavenArtifactGenerationAndIndexing
 {
 
-    protected Set<RepositoryDto> getRepositories()
+    protected Set<Repository> getRepositories()
     {
         return Collections.emptySet();
     }

@@ -3,12 +3,10 @@ package org.carlspring.strongbox.repository.group.index;
 import org.carlspring.strongbox.config.Maven2LayoutProviderTestConfig;
 import org.carlspring.strongbox.providers.io.RepositoryFiles;
 import org.carlspring.strongbox.providers.io.RepositoryPath;
-import org.carlspring.strongbox.providers.layout.Maven2LayoutProvider;
 import org.carlspring.strongbox.providers.search.MavenIndexerSearchProvider;
 import org.carlspring.strongbox.storage.indexing.IndexTypeEnum;
 import org.carlspring.strongbox.storage.indexing.RepositoryIndexer;
 import org.carlspring.strongbox.storage.repository.Repository;
-import org.carlspring.strongbox.storage.repository.RepositoryDto;
 import org.carlspring.strongbox.storage.search.SearchRequest;
 import org.carlspring.strongbox.testing.MavenIndexedRepositorySetup;
 import org.carlspring.strongbox.testing.artifact.ArtifactManagementTestExecutionListener;
@@ -21,8 +19,9 @@ import org.carlspring.strongbox.util.IndexContextHelper;
 
 import java.nio.file.Files;
 import java.nio.file.Path;
-import java.util.LinkedHashSet;
 import java.util.Set;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 import org.junit.jupiter.api.Assumptions;
 import org.junit.jupiter.api.Test;
@@ -74,25 +73,10 @@ public class MavenIndexGroupRepositoryComponentOnDeleteTest
 
     private static final String REPOSITORY_GROUP_XH = "group-repo-xh";
 
-    protected Set<RepositoryDto> getRepositories()
+    protected Set<Repository> getRepositories(Repository... repositories)
     {
-        Set<RepositoryDto> repositories = new LinkedHashSet<>();
-        repositories.add(createRepositoryMock(STORAGE0, REPOSITORY_LEAF_XE, Maven2LayoutProvider.ALIAS));
-        repositories.add(createRepositoryMock(STORAGE0, REPOSITORY_LEAF_XL, Maven2LayoutProvider.ALIAS));
-        repositories.add(createRepositoryMock(STORAGE0, REPOSITORY_LEAF_XZ, Maven2LayoutProvider.ALIAS));
-        repositories.add(createRepositoryMock(STORAGE0, REPOSITORY_LEAF_XD, Maven2LayoutProvider.ALIAS));
-        repositories.add(createRepositoryMock(STORAGE0, REPOSITORY_LEAF_XG, Maven2LayoutProvider.ALIAS));
-        repositories.add(createRepositoryMock(STORAGE0, REPOSITORY_LEAF_XK, Maven2LayoutProvider.ALIAS));
-        repositories.add(createRepositoryMock(STORAGE0, REPOSITORY_GROUP_XO, Maven2LayoutProvider.ALIAS));
-        repositories.add(createRepositoryMock(STORAGE0, REPOSITORY_GROUP_XB, Maven2LayoutProvider.ALIAS));
-        repositories.add(createRepositoryMock(STORAGE0, REPOSITORY_GROUP_XC, Maven2LayoutProvider.ALIAS));
-        repositories.add(createRepositoryMock(STORAGE0, REPOSITORY_GROUP_XF, Maven2LayoutProvider.ALIAS));
-        repositories.add(createRepositoryMock(STORAGE0, REPOSITORY_GROUP_XH, Maven2LayoutProvider.ALIAS));
-        repositories.add(createRepositoryMock(STORAGE0, REPOSITORY_GROUP_XA, Maven2LayoutProvider.ALIAS));
-
-        return repositories;
+        return Stream.of(repositories).collect(Collectors.toSet());
     }
-
 
     @ExtendWith({ RepositoryManagementTestExecutionListener.class,
                   ArtifactManagementTestExecutionListener.class })
@@ -156,7 +140,11 @@ public class MavenIndexGroupRepositoryComponentOnDeleteTest
         generateMavenMetadata(STORAGE0, repositoryLeafXd.getId());
         generateMavenMetadata(STORAGE0, repositoryLeafXk.getId());
 
-        rebuildIndexes(getRepositories());
+        Set<Repository> repositoriesSet = getRepositories(repositoryLeafXe, repositoryLeafXl, repositoryLeafXz,
+                                                          repositoryLeafXd, repositoryLeafXg, repositoryLeafXk,
+                                                          repositoryGroupXo, repositoryGroupXb, repositoryGroupXc,
+                                                          repositoryGroupXf, repositoryGroupXh);
+        rebuildIndexes(repositoriesSet);
 
         String artifactPath = "com/artifacts/to/delete/releases/delete-group/1.2.1/delete-group-1.2.1.jar";
 
