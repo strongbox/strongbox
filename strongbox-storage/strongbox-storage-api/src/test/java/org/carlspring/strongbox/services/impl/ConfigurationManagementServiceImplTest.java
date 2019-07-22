@@ -1,22 +1,9 @@
 package org.carlspring.strongbox.services.impl;
 
-import static org.hamcrest.MatcherAssert.assertThat;
-import static org.junit.jupiter.api.Assertions.*;
-import static org.junit.jupiter.api.parallel.ExecutionMode.CONCURRENT;
-
-import java.io.IOException;
-import java.util.Collections;
-import java.util.Iterator;
-import java.util.List;
-import java.util.stream.Collectors;
-
-import javax.inject.Inject;
-
 import org.carlspring.strongbox.StorageApiTestConfig;
 import org.carlspring.strongbox.artifact.coordinates.NullArtifactCoordinates;
 import org.carlspring.strongbox.configuration.Configuration;
 import org.carlspring.strongbox.services.ConfigurationManagementService;
-import org.carlspring.strongbox.storage.Storage;
 import org.carlspring.strongbox.storage.repository.HttpConnectionPool;
 import org.carlspring.strongbox.storage.repository.Repository;
 import org.carlspring.strongbox.storage.routing.MutableRoutingRule;
@@ -25,8 +12,15 @@ import org.carlspring.strongbox.storage.routing.RoutingRule;
 import org.carlspring.strongbox.storage.routing.RoutingRuleTypeEnum;
 import org.carlspring.strongbox.testing.repository.NullRepository;
 import org.carlspring.strongbox.testing.storage.repository.RepositoryManagementTestExecutionListener;
-import org.carlspring.strongbox.testing.storage.repository.TestRepository;
-import org.hamcrest.CoreMatchers;
+import org.carlspring.strongbox.testing.storage.repository.TestRepository.Group;
+
+import javax.inject.Inject;
+import java.io.IOException;
+import java.util.Iterator;
+import java.util.List;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
+
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.junit.jupiter.api.parallel.Execution;
@@ -35,9 +29,12 @@ import org.slf4j.LoggerFactory;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.ContextConfiguration;
+import static org.junit.jupiter.api.Assertions.*;
+import static org.junit.jupiter.api.parallel.ExecutionMode.CONCURRENT;
 
 /**
  * @author mtodorov
+ * @author Pablo Tirado
  */
 @SpringBootTest
 @ActiveProfiles(profiles = "test")
@@ -60,6 +57,10 @@ public class ConfigurationManagementServiceImplTest
 
     private static final String REPOSITORY_GROUP_2 = "csmi-group-2";
 
+    private static final String STORAGE_COMMON_PROXIES = "storage-common-proxies";
+
+    private static final String REPOSITORY_GROUP_COMMON_PROXIES = "group-common-proxies";
+
     @Inject
     private ConfigurationManagementService configurationManagementService;
 
@@ -67,58 +68,57 @@ public class ConfigurationManagementServiceImplTest
     public void groupRepositoriesShouldBeSortedAsExpected()
     {
         Repository repository = configurationManagementService.getConfiguration().getRepository(
-                "storage-common-proxies",
-                "group-common-proxies");
+                STORAGE_COMMON_PROXIES,
+                REPOSITORY_GROUP_COMMON_PROXIES);
 
         Iterator<String> iterator = repository.getGroupRepositories().iterator();
-        assertThat(iterator.next(), CoreMatchers.equalTo("carlspring"));
-        assertThat(iterator.next(), CoreMatchers.equalTo("maven-central"));
-        assertThat(iterator.next(), CoreMatchers.equalTo("apache-snapshots"));
-        assertThat(iterator.next(), CoreMatchers.equalTo("jboss-public-releases"));
+        assertEquals("carlspring", iterator.next());
+        assertEquals("maven-central", iterator.next());
+        assertEquals("apache-snapshots", iterator.next());
+        assertEquals("jboss-public-releases", iterator.next());
     }
 
     @Test
-    public void additionOfTheSameGroupRepositoryShouldNotAffectGroupRepositoriesList() throws IOException
+    public void additionOfTheSameGroupRepositoryShouldNotAffectGroupRepositoriesList()
+            throws IOException
     {
-        configurationManagementService.addRepositoryToGroup("storage-common-proxies",
-                                                            "group-common-proxies",
+        configurationManagementService.addRepositoryToGroup(STORAGE_COMMON_PROXIES,
+                                                            REPOSITORY_GROUP_COMMON_PROXIES,
                                                             "maven-central");
 
         Repository repository = configurationManagementService.getConfiguration()
-                                                              .getRepository("storage-common-proxies",
-                                                                             "group-common-proxies");
+                                                              .getRepository(STORAGE_COMMON_PROXIES,
+                                                                             REPOSITORY_GROUP_COMMON_PROXIES);
 
-        assertThat(repository.getGroupRepositories().size(), CoreMatchers.equalTo(4));
+        assertEquals(4, repository.getGroupRepositories().size());
         Iterator<String> iterator = repository.getGroupRepositories().iterator();
-        assertThat(iterator.next(), CoreMatchers.equalTo("carlspring"));
-        assertThat(iterator.next(), CoreMatchers.equalTo("maven-central"));
-        assertThat(iterator.next(), CoreMatchers.equalTo("apache-snapshots"));
-        assertThat(iterator.next(), CoreMatchers.equalTo("jboss-public-releases"));
+        assertEquals("carlspring", iterator.next());
+        assertEquals("maven-central", iterator.next());
+        assertEquals("apache-snapshots", iterator.next());
+        assertEquals("jboss-public-releases", iterator.next());
     }
 
     @Test
-    public void multipleAdditionOfTheSameRepositoryShouldNotAffectGroup() throws IOException
+    public void multipleAdditionOfTheSameRepositoryShouldNotAffectGroup()
+            throws IOException
     {
-        configurationManagementService.addRepositoryToGroup("storage-common-proxies",
-                                                            "group-common-proxies",
-                                                            "maven-central");
-        configurationManagementService.addRepositoryToGroup("storage-common-proxies",
-                                                            "group-common-proxies",
-                                                            "maven-central");
-        configurationManagementService.addRepositoryToGroup("storage-common-proxies",
-                                                            "group-common-proxies",
-                                                            "maven-central");
+        for (int i = 1; i <= 3; i++)
+        {
+            configurationManagementService.addRepositoryToGroup(STORAGE_COMMON_PROXIES,
+                                                                REPOSITORY_GROUP_COMMON_PROXIES,
+                                                                "maven-central");
+        }
 
         Repository repository = configurationManagementService.getConfiguration()
-                                                              .getRepository("storage-common-proxies",
-                                                                             "group-common-proxies");
+                                                              .getRepository(STORAGE_COMMON_PROXIES,
+                                                                             REPOSITORY_GROUP_COMMON_PROXIES);
 
-        assertThat(repository.getGroupRepositories().size(), CoreMatchers.equalTo(4));
+        assertEquals(4, repository.getGroupRepositories().size());
         Iterator<String> iterator = repository.getGroupRepositories().iterator();
-        assertThat(iterator.next(), CoreMatchers.equalTo("carlspring"));
-        assertThat(iterator.next(), CoreMatchers.equalTo("maven-central"));
-        assertThat(iterator.next(), CoreMatchers.equalTo("apache-snapshots"));
-        assertThat(iterator.next(), CoreMatchers.equalTo("jboss-public-releases"));
+        assertEquals("carlspring", iterator.next());
+        assertEquals("maven-central", iterator.next());
+        assertEquals("apache-snapshots", iterator.next());
+        assertEquals("jboss-public-releases", iterator.next());
     }
 
     @Test
@@ -132,7 +132,7 @@ public class ConfigurationManagementServiceImplTest
 
         for (Repository repository : repositories)
         {
-            logger.debug(" - " + repository.getId());
+            logger.debug(" - {}", repository.getId());
         }
     }
 
@@ -147,80 +147,89 @@ public class ConfigurationManagementServiceImplTest
 
         for (Repository repository : groupRepositories)
         {
-            logger.debug(" - " + repository.getId());
+            logger.debug(" - {}", repository.getId());
         }
     }
 
-    @Test
     @ExtendWith(RepositoryManagementTestExecutionListener.class)
-    public void testGetGroupRepositoriesContainingRepository(@NullRepository(repositoryId = REPOSITORY_RELEASES_1) Repository releases1,
-                                                             @TestRepository.Group(repositories = REPOSITORY_RELEASES_1)
-                                                             @NullRepository(repositoryId = REPOSITORY_GROUP_1) Repository releasesGroup)
+    @Test
+    public void testGetGroupRepositoriesContainingRepository(@NullRepository(repositoryId = REPOSITORY_RELEASES_1)
+                                                             Repository releases1,
+                                                             @Group(repositories = REPOSITORY_RELEASES_1)
+                                                             @NullRepository(repositoryId = REPOSITORY_GROUP_1)
+                                                             Repository releasesGroup)
     {
+        final String releases1Id = releases1.getId();
+
         List<Repository> groups = configurationManagementService.getConfiguration()
                                                                 .getGroupRepositoriesContaining(STORAGE0,
-                                                                                                REPOSITORY_RELEASES_1);
+                                                                                                releases1Id);
 
         assertFalse(groups.isEmpty());
 
-        logger.debug("Group repositories containing \"" + REPOSITORY_RELEASES_1 + "\" repository:");
+        logger.debug("Group repositories containing \"{}\" repository:", releases1Id);
 
         for (Repository repository : groups)
         {
-            logger.debug(" - " + repository.getId());
+            logger.debug(" - {}", repository.getId());
         }
     }
 
-    @Test
     @ExtendWith(RepositoryManagementTestExecutionListener.class)
+    @Test
     public void testRemoveRepositoryFromAssociatedGroups(@NullRepository(repositoryId = REPOSITORY_RELEASES_1) 
                                                          Repository releases1,
-                                                         @TestRepository.Group(repositories = REPOSITORY_RELEASES_1)
+                                                         @Group(repositories = REPOSITORY_RELEASES_1)
                                                          @NullRepository(repositoryId = REPOSITORY_GROUP_1) 
                                                          Repository releasesGroup1,
-                                                         @TestRepository.Group(repositories = REPOSITORY_RELEASES_1)
+                                                         @Group(repositories = REPOSITORY_RELEASES_1)
                                                          @NullRepository(repositoryId = REPOSITORY_GROUP_2) 
                                                          Repository releasesGroup2) throws IOException
     {
+        final String releases1Id = releases1.getId();
+
         assertEquals(2,
                      configurationManagementService.getConfiguration()
                                                    .getGroupRepositoriesContaining(STORAGE0,
-                                                                                   REPOSITORY_RELEASES_1).size(),
+                                                                                   releases1Id).size(),
                      "Failed to add repository to group!");
 
-        configurationManagementService.removeRepositoryFromAssociatedGroups(STORAGE0, REPOSITORY_RELEASES_1);
+        configurationManagementService.removeRepositoryFromAssociatedGroups(STORAGE0, releases1Id);
 
         assertEquals(0,
                      configurationManagementService.getConfiguration()
                                                    .getGroupRepositoriesContaining(STORAGE0,
-                                                                                   REPOSITORY_RELEASES_1).size(),
+                                                                                   releases1Id).size(),
                      "Failed to remove repository from all associated groups!");
     }
 
-    @Test
     @ExtendWith(RepositoryManagementTestExecutionListener.class)
-    public void testSetProxyRepositoryMaxConnections(@NullRepository(repositoryId = REPOSITORY_RELEASES_2) 
-                                                     Repository releases1) throws IOException
+    @Test
+    public void testSetProxyRepositoryMaxConnections(@NullRepository(repositoryId = REPOSITORY_RELEASES_2)
+                                                     Repository releases2) throws IOException
     {
-        Storage storage = configurationManagementService.getConfiguration().getStorage(STORAGE0);
+        final String releases2Id = releases2.getId();
 
-        Repository repository = storage.getRepository(REPOSITORY_RELEASES_2);
-
-        configurationManagementService.setProxyRepositoryMaxConnections(storage.getId(), repository.getId(), 10);
+        configurationManagementService.setProxyRepositoryMaxConnections(STORAGE0,
+                                                                        releases2Id,
+                                                                        10);
 
         HttpConnectionPool pool = configurationManagementService.getConfiguration()
-                                                                .getHttpConnectionPoolConfiguration(storage.getId(),
-                                                                                                    repository.getId());
+                                                                .getHttpConnectionPoolConfiguration(STORAGE0,
+                                                                                                    releases2Id);
 
         assertNotNull(pool);
         assertEquals(10, pool.getAllocatedConnections());
     }
 
-    @Test
     @ExtendWith(RepositoryManagementTestExecutionListener.class)
-    public void shouldAddEditAndRemoveRoutingRule(@NullRepository(repositoryId = REPOSITORY_RELEASES_1) Repository releases1,
-                                                  @TestRepository.Group(repositories = REPOSITORY_RELEASES_1)
-                                                  @NullRepository(repositoryId = REPOSITORY_GROUP_1) Repository releasesGroup) throws IOException
+    @Test
+    public void shouldAddEditAndRemoveRoutingRule(@NullRepository(repositoryId = REPOSITORY_RELEASES_1)
+                                                  Repository releases1,
+                                                  @Group(repositories = REPOSITORY_RELEASES_1)
+                                                  @NullRepository(repositoryId = REPOSITORY_GROUP_1)
+                                                  Repository releasesGroup)
+            throws IOException
     {
         final MutableRoutingRule routingRule = createRoutingRule(RoutingRuleTypeEnum.ACCEPT);
         String groupRepositoryId = routingRule.getGroupRepositoryId();
@@ -237,9 +246,9 @@ public class ConfigurationManagementServiceImplTest
                                                                            storageId.equals(a.getStorageId()))
                                                               .collect(Collectors.toList());
 
-        assertThat(routingRulesMatching.size(), CoreMatchers.equalTo(1));
+        assertEquals(1, routingRulesMatching.size());
         RoutingRule dbRoutingRule = routingRulesMatching.get(0);
-        assertThat(dbRoutingRule.getType(), CoreMatchers.equalTo(RoutingRuleTypeEnum.ACCEPT));
+        assertEquals(RoutingRuleTypeEnum.ACCEPT, dbRoutingRule.getType());
 
         routingRule.setType(RoutingRuleTypeEnum.DENY.getType());
         boolean updated = configurationManagementService.updateRoutingRule(dbRoutingRule.getUuid(), routingRule);
@@ -253,9 +262,9 @@ public class ConfigurationManagementServiceImplTest
                                                          storageId.equals(a.getStorageId()))
                                             .collect(Collectors.toList());
 
-        assertThat(routingRulesMatching.size(), CoreMatchers.equalTo(1));
+        assertEquals(1, routingRulesMatching.size());
         RoutingRule routingRule1 = routingRulesMatching.get(0);
-        assertThat(routingRule1.getType(), CoreMatchers.equalTo(RoutingRuleTypeEnum.DENY));
+        assertEquals(RoutingRuleTypeEnum.DENY, routingRule1.getType());
 
         boolean removed = configurationManagementService.removeRoutingRule(dbRoutingRule.getUuid());
         assertTrue(removed);
@@ -268,22 +277,21 @@ public class ConfigurationManagementServiceImplTest
                                                          storageId.equals(a.getStorageId()))
                                             .collect(Collectors.toList());
 
-        assertThat(routingRulesMatching.size(), CoreMatchers.equalTo(0));
+        assertTrue(routingRulesMatching.isEmpty());
 
 
     }
 
-
-    @Test
     @ExtendWith(RepositoryManagementTestExecutionListener.class)
-    public void testCanGetRepositoriesWithStorageAndLayout(@NullRepository(repositoryId = REPOSITORY_RELEASES_1) 
+    @Test
+    public void testCanGetRepositoriesWithStorageAndLayout(@NullRepository(repositoryId = REPOSITORY_RELEASES_1)
                                                            Repository releases1,
                                                            @NullRepository(repositoryId = REPOSITORY_RELEASES_2) 
                                                            Repository releases2,
-                                                           @TestRepository.Group(repositories = REPOSITORY_RELEASES_1)
+                                                           @Group(repositories = REPOSITORY_RELEASES_1)
                                                            @NullRepository(repositoryId = REPOSITORY_GROUP_1) 
                                                            Repository releasesGroup1,
-                                                           @TestRepository.Group(repositories = REPOSITORY_RELEASES_1)
+                                                           @Group(repositories = REPOSITORY_RELEASES_1)
                                                            @NullRepository(repositoryId = REPOSITORY_GROUP_2) 
                                                            Repository releasesGroup2)
     {
@@ -293,26 +301,27 @@ public class ConfigurationManagementServiceImplTest
 
         assertFalse(repositories.isEmpty());
 
-        repositories.forEach(repository -> assertTrue(repository.getLayout().equals(NullArtifactCoordinates.LAYOUT_NAME)));
-
-        repositories.forEach(repository -> assertTrue(repository.getStorage().getId().equals(STORAGE0)));
+        repositories.forEach(repository -> {
+            assertEquals(NullArtifactCoordinates.LAYOUT_NAME, repository.getLayout());
+            assertEquals(STORAGE0, repository.getStorage().getId());
+        });
     }
 
-    @Test
     @ExtendWith(RepositoryManagementTestExecutionListener.class)
-    public void testCanGetRepositoriesWithStorageAndLayoutNotExistedStorage(@NullRepository(repositoryId = REPOSITORY_RELEASES_1) 
+    @Test
+    public void testCanGetRepositoriesWithStorageAndLayoutNotExistedStorage(@NullRepository(repositoryId = REPOSITORY_RELEASES_1)
                                                                             Repository releases1,
                                                                             @NullRepository(repositoryId = REPOSITORY_RELEASES_2) 
                                                                             Repository releases2,
-                                                                            @TestRepository.Group(repositories = REPOSITORY_RELEASES_1)
+                                                                            @Group(repositories = REPOSITORY_RELEASES_1)
                                                                             @NullRepository(repositoryId = REPOSITORY_GROUP_1) 
                                                                             Repository releasesGroup1,
-                                                                            @TestRepository.Group(repositories = REPOSITORY_RELEASES_1)
+                                                                            @Group(repositories = REPOSITORY_RELEASES_1)
                                                                             @NullRepository(repositoryId = REPOSITORY_GROUP_2) 
                                                                             Repository releasesGroup2)
     {
         List<Repository> repositories = configurationManagementService.getConfiguration()
-                                                                      .getRepositoriesWithLayout("notExistedStorage",
+                                                                      .getRepositoriesWithLayout("notExistingStorage",
                                                                                                  NullArtifactCoordinates.LAYOUT_NAME);
 
         assertTrue(repositories.isEmpty());
@@ -322,7 +331,7 @@ public class ConfigurationManagementServiceImplTest
     {
         MutableRoutingRule routingRule = new MutableRoutingRule();
         routingRule.setPattern(RULE_PATTERN);
-        routingRule.setRepositories(Collections.singletonList(REPOSITORY_RELEASES_1).stream().map(
+        routingRule.setRepositories(Stream.of(REPOSITORY_RELEASES_1).map(
                 r -> new MutableRoutingRuleRepository(STORAGE0, r)).collect(
                 Collectors.toList()));
         routingRule.setType(type.getType());
