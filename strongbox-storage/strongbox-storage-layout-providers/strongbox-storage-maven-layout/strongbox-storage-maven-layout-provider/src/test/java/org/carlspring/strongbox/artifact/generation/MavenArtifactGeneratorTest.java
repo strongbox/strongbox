@@ -36,9 +36,7 @@ import static org.junit.jupiter.api.parallel.ExecutionMode.CONCURRENT;
 public class MavenArtifactGeneratorTest
         extends MavenTestCaseWithArtifactGeneration
 {
-
-
-    public static final String REPOSITORY_RELEASES = "matg-releases";
+    private static final String REPOSITORY_RELEASES = "matg-releases";
 
     @ExtendWith({ RepositoryManagementTestExecutionListener.class,
                   ArtifactManagementTestExecutionListener.class })
