@@ -37,7 +37,16 @@ public class MavenMetadataExpirationSingleGroupCaseTest
         extends BaseMavenMetadataExpirationTest
 {
 
-    private static final String REPOSITORY_GROUP = "mvn-group-repo-snapshots";
+    private static final String REPOSITORY_LOCAL_SOURCE = "mmesgc-local-source-repo-snapshots";
+
+    private static final String REPOSITORY_HOSTED = "mmesgc-hosted-repo-snapshots";
+
+    private static final String REPOSITORY_PROXY = "mmesgc-proxy-repo-snapshots";
+
+    private static final String PROXY_REPOSITORY_URL =
+            "http://localhost:48080/storages/" + STORAGE0 + "/" + REPOSITORY_HOSTED + "/";
+
+    private static final String REPOSITORY_GROUP = "mmesgc-group-repo-snapshots";
 
     @Inject
     private GroupRepositoryProvider groupRepositoryProvider;
@@ -103,8 +112,7 @@ public class MavenMetadataExpirationSingleGroupCaseTest
         mockHostedRepositoryMetadataUpdate(hostedRepository.getId(),
                                            localSourceRepository.getId(),
                                            versionLevelMetadata,
-                                           artifactLevelMetadata
-        );
+                                           artifactLevelMetadata);
 
         sha1HostedPathChecksum = readChecksum(resolveSiblingChecksum(hostedPath,
                                                                      EncryptionAlgorithmsEnum.SHA1));
@@ -124,4 +132,15 @@ public class MavenMetadataExpirationSingleGroupCaseTest
         assertEquals(sha1ProxyPathChecksum, calculatedGroupPathChecksum);
     }
 
+    @Override
+    protected String getRepositoryHostedId()
+    {
+        return REPOSITORY_HOSTED;
+    }
+
+    @Override
+    protected String getRepositoryProxyId()
+    {
+        return REPOSITORY_PROXY;
+    }
 }

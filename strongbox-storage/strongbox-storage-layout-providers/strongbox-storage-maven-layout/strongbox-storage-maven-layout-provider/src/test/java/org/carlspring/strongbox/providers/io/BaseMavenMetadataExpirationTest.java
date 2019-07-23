@@ -36,21 +36,13 @@ import static org.mockito.ArgumentMatchers.*;
 
 /**
  * @author Przemyslaw Fusik
+ * @author Pablo Tirado
  */
 abstract class BaseMavenMetadataExpirationTest
         extends TestCaseWithMavenArtifactGenerationAndIndexing
 {
 
     protected final Logger logger = LoggerFactory.getLogger(getClass().getName());
-
-    protected static final String REPOSITORY_LOCAL_SOURCE = "mvn-local-source-repo-snapshots";
-
-    protected static final String REPOSITORY_HOSTED = "mvn-hosted-repo-snapshots";
-
-    protected static final String REPOSITORY_PROXY = "mvn-proxy-repo-snapshots";
-
-    protected static final String PROXY_REPOSITORY_URL =
-            "http://localhost:48080/storages/" + STORAGE0 + "/" + REPOSITORY_HOSTED + "/";
 
     protected String groupId = "pl.fuss.maven.metadata";
 
@@ -79,39 +71,37 @@ abstract class BaseMavenMetadataExpirationTest
     {
         mockLocalRepositoryTestMetadataUpdate(localSourceRepositoryId,
                                               versionLevelMetadata,
-                                              artifactLevelMetadata
-        );
+                                              artifactLevelMetadata);
 
         storeTestDataInHostedRepository(hostedRepositoryId,
                                         localSourceRepositoryId,
                                         true,
-                                        "maven-metadata.xml"
-        );
+                                        "maven-metadata.xml");
+
         storeTestDataInHostedRepository(hostedRepositoryId,
                                         localSourceRepositoryId,
                                         true,
-                                        "maven-metadata.xml.sha1"
-        );
+                                        "maven-metadata.xml.sha1");
+
         storeTestDataInHostedRepository(hostedRepositoryId,
                                         localSourceRepositoryId,
                                         true,
-                                        "maven-metadata.xml.md5"
-        );
+                                        "maven-metadata.xml.md5");
+
         storeTestDataInHostedRepository(hostedRepositoryId,
                                         localSourceRepositoryId,
                                         false,
-                                        "maven-metadata.xml"
-        );
+                                        "maven-metadata.xml");
+
         storeTestDataInHostedRepository(hostedRepositoryId,
                                         localSourceRepositoryId,
                                         false,
-                                        "maven-metadata.xml.sha1"
-        );
+                                        "maven-metadata.xml.sha1");
+
         storeTestDataInHostedRepository(hostedRepositoryId,
                                         localSourceRepositoryId,
                                         false,
-                                        "maven-metadata.xml.md5"
-        );
+                                        "maven-metadata.xml.md5");
     }
 
     protected void mockLocalRepositoryTestMetadataUpdate(String localRepositoryId,
@@ -145,13 +135,11 @@ abstract class BaseMavenMetadataExpirationTest
     {
         final RepositoryPath hostedPath = resolvePath(hostedRepositoryId,
                                                       versionLevel,
-                                                      filename
-        );
+                                                      filename);
 
         final RepositoryPath testDataSourcePath = resolvePath(localSourceRepositoryId,
                                                               versionLevel,
-                                                              filename
-        );
+                                                              filename);
 
         try (InputStream is = Files.newInputStream(testDataSourcePath))
         {
@@ -169,29 +157,27 @@ abstract class BaseMavenMetadataExpirationTest
 
         mockResolvingProxiedRemoteArtifactToHostedRepository(artifactResolver,
                                                              true,
-                                                             "maven-metadata.xml"
-        );
+                                                             "maven-metadata.xml");
+
         mockResolvingProxiedRemoteArtifactToHostedRepository(artifactResolver,
                                                              true,
-                                                             "maven-metadata.xml.sha1"
-        );
+                                                             "maven-metadata.xml.sha1");
+
         mockResolvingProxiedRemoteArtifactToHostedRepository(artifactResolver,
                                                              true,
-                                                             "maven-metadata.xml.md5"
-        );
+                                                             "maven-metadata.xml.md5");
 
         mockResolvingProxiedRemoteArtifactToHostedRepository(artifactResolver,
                                                              false,
-                                                             "maven-metadata.xml"
-        );
+                                                             "maven-metadata.xml");
+
         mockResolvingProxiedRemoteArtifactToHostedRepository(artifactResolver,
                                                              false,
-                                                             "maven-metadata.xml.sha1"
-        );
+                                                             "maven-metadata.xml.sha1");
+
         mockResolvingProxiedRemoteArtifactToHostedRepository(artifactResolver,
                                                              false,
-                                                             "maven-metadata.xml.md5"
-        );
+                                                             "maven-metadata.xml.md5");
 
         Mockito.when(artifactResolver.getConfiguration()).thenReturn(configuration);
         Mockito.when(artifactResolver.isAlive()).thenReturn(true);
@@ -205,10 +191,9 @@ abstract class BaseMavenMetadataExpirationTest
                                                                       final boolean versionLevel,
                                                                       final String filename)
     {
-        final RepositoryPath hostedRepositoryPath = resolvePath(REPOSITORY_HOSTED,
+        final RepositoryPath hostedRepositoryPath = resolvePath(getRepositoryHostedId(),
                                                                 versionLevel,
-                                                                filename
-        );
+                                                                filename);
         final Response response = Mockito.mock(Response.class);
         Mockito.when(response.getEntity()).thenAnswer(
                 invocation -> new Object());
@@ -219,10 +204,10 @@ abstract class BaseMavenMetadataExpirationTest
         final CloseableRestResponse restResponse = Mockito.mock(CloseableRestResponse.class);
         Mockito.when(restResponse.getResponse()).thenReturn(response);
 
-        final RepositoryPath proxiedRepositoryPath = resolvePath(REPOSITORY_PROXY,
+        final RepositoryPath proxiedRepositoryPath = resolvePath(getRepositoryProxyId(),
                                                                  versionLevel,
-                                                                 filename
-        );
+                                                                 filename);
+
         final String proxiedPathRelativized = FilenameUtils.separatorsToUnix(
                 proxiedRepositoryPath.relativize().toString());
 
@@ -232,6 +217,10 @@ abstract class BaseMavenMetadataExpirationTest
         Mockito.when(artifactResolver.get(eq(proxiedPathRelativized), any(Long.class))).thenReturn(restResponse);
         Mockito.when(artifactResolver.head(eq(proxiedPathRelativized))).thenReturn(restResponse);
     }
+
+    protected abstract String getRepositoryHostedId();
+
+    protected abstract String getRepositoryProxyId();
 
 
     protected RepositoryPath resolvePath(final String repositoryId,
@@ -266,7 +255,7 @@ abstract class BaseMavenMetadataExpirationTest
     protected String readChecksum(final RepositoryPath checksumRepositoryPath)
             throws IOException
     {
-        if (!Files.exists(checksumRepositoryPath))
+        if (Files.notExists(checksumRepositoryPath))
         {
             return null;
         }

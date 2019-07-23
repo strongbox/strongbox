@@ -36,6 +36,15 @@ public class MavenMetadataExpirationProxyCaseTest
         extends BaseMavenMetadataExpirationTest
 {
 
+    private static final String REPOSITORY_LOCAL_SOURCE = "mmepc-local-source-repo-snapshots";
+
+    private static final String REPOSITORY_HOSTED = "mmepc-hosted-repo-snapshots";
+
+    private static final String REPOSITORY_PROXY = "mmepc-proxy-repo-snapshots";
+
+    private static final String PROXY_REPOSITORY_URL =
+            "http://localhost:48080/storages/" + STORAGE0 + "/" + REPOSITORY_HOSTED + "/";
+
     @Inject
     private ProxyRepositoryProvider proxyRepositoryProvider;
 
@@ -99,8 +108,7 @@ public class MavenMetadataExpirationProxyCaseTest
         mockHostedRepositoryMetadataUpdate(hostedRepository.getId(),
                                            localSourceRepository.getId(),
                                            versionLevelMetadata,
-                                           artifactLevelMetadata
-        );
+                                           artifactLevelMetadata);
 
         sha1HostedPathChecksum = readChecksum(resolveSiblingChecksum(hostedPath,
                                                                      EncryptionAlgorithmsEnum.SHA1));
@@ -118,6 +126,18 @@ public class MavenMetadataExpirationProxyCaseTest
         calculatedProxiedPathChecksum = calculateChecksum(proxiedPath,
                                                           EncryptionAlgorithmsEnum.SHA1.getAlgorithm());
         assertEquals(sha1ProxiedPathChecksum, calculatedProxiedPathChecksum);
+    }
+
+    @Override
+    protected String getRepositoryHostedId()
+    {
+        return REPOSITORY_HOSTED;
+    }
+
+    @Override
+    protected String getRepositoryProxyId()
+    {
+        return REPOSITORY_PROXY;
     }
 
 }

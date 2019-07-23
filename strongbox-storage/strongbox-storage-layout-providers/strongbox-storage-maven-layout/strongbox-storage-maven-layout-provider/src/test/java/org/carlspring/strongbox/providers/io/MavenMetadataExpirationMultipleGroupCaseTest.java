@@ -39,11 +39,20 @@ public class MavenMetadataExpirationMultipleGroupCaseTest
         extends BaseMavenMetadataExpirationTest
 {
 
-    private static final String REPOSITORY_GROUP = "mvn-group-repo-snapshots";
+    private static final String REPOSITORY_LOCAL_SOURCE = "mmemgc-local-source-repo-snapshots";
 
-    private static final String REPOSITORY_HOSTED_YAHR = "mvn-hosted-yahr-repo-snapshots";
+    private static final String REPOSITORY_HOSTED = "mmemgc-hosted-repo-snapshots";
 
-    private static final String REPOSITORY_LOCAL_YAHR_SOURCE = "mvn-local-yahr-source-repo-snapshots";
+    private static final String REPOSITORY_PROXY = "mmemgc-proxy-repo-snapshots";
+
+    private static final String PROXY_REPOSITORY_URL =
+            "http://localhost:48080/storages/" + STORAGE0 + "/" + REPOSITORY_HOSTED + "/";
+
+    private static final String REPOSITORY_GROUP = "mmemgc-group-repo-snapshots";
+
+    private static final String REPOSITORY_HOSTED_YAHR = "mmemgc-hosted-yahr-repo-snapshots";
+
+    private static final String REPOSITORY_LOCAL_YAHR_SOURCE = "mmemgc-local-yahr-source-repo-snapshots";
 
     @Inject
     private GroupRepositoryProvider groupRepositoryProvider;
@@ -71,7 +80,8 @@ public class MavenMetadataExpirationMultipleGroupCaseTest
             @MavenRepository(repositoryId = REPOSITORY_PROXY,
                              setup = MavenIndexedRepositorySetup.class)
             Repository proxyRepository,
-            @Group(repositories = REPOSITORY_PROXY)
+            @Group(repositories = { REPOSITORY_PROXY,
+                                    REPOSITORY_HOSTED_YAHR })
             @MavenRepository(repositoryId = REPOSITORY_GROUP)
             Repository groupRepository)
             throws Exception
@@ -80,6 +90,11 @@ public class MavenMetadataExpirationMultipleGroupCaseTest
                                            localSourceRepository.getId(),
                                            versionLevelMetadata,
                                            artifactLevelMetadata);
+
+        mockHostedRepositoryMetadataUpdate(hostedYahrRepository.getId(),
+                                           localYahrSourceRepository.getId(),
+                                           versionLevelMetadataYahr,
+                                           artifactLevelMetadataYahr);
 
         mockResolvingProxiedRemoteArtifactsToHostedRepository();
 
@@ -147,5 +162,17 @@ public class MavenMetadataExpirationMultipleGroupCaseTest
                                                         EncryptionAlgorithmsEnum.SHA1.getAlgorithm());
 
         assertEquals(calculatedGroupPathChecksum, sha1ProxyPathChecksum);
+    }
+
+    @Override
+    protected String getRepositoryHostedId()
+    {
+        return REPOSITORY_HOSTED;
+    }
+
+    @Override
+    protected String getRepositoryProxyId()
+    {
+        return REPOSITORY_PROXY;
     }
 }
