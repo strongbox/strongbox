@@ -24,7 +24,6 @@ import org.carlspring.strongbox.testing.storage.repository.TestRepository.Group;
 
 import javax.inject.Inject;
 import java.io.ByteArrayInputStream;
-import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
 import java.nio.charset.StandardCharsets;
@@ -338,28 +337,21 @@ public class ArtifactManagementServiceImplTest
             throws Exception
     {
 
-        String repositoryId = repository1.getId();
+        RepositoryPath artifactRepositoryPath = (RepositoryPath) artifactPath1.normalize();
 
-        String repositoryWithTrashId = repository2.getId();
+        mavenArtifactManagementService.delete(artifactRepositoryPath, true);
 
-        final String artifactPathStr1 = "org/carlspring/strongbox/strongbox-utils/7.0/strongbox-utils-7.0.jar";
-
-        RepositoryPath repositoryPath = (RepositoryPath) artifactPath1.normalize();
-
-        mavenArtifactManagementService.delete(repositoryPath, true);
-
-        assertFalse(new File(getRepositoryBasedir(STORAGE0, repositoryId), artifactPathStr1).exists(),
-                    "Failed to delete artifact during a force delete operation!");
+        assertTrue(Files.notExists(artifactPath1), "Failed to delete artifact during a force delete operation!");
 
         final String artifactPathStr2 = "org/carlspring/strongbox/strongbox-utils/7.2/strongbox-utils-7.2.jar";
 
-        repositoryPath = (RepositoryPath) artifactPath2.normalize();
+        artifactRepositoryPath = (RepositoryPath) artifactPath2.normalize();
 
-        mavenArtifactManagementService.delete(repositoryPath, true);
+        mavenArtifactManagementService.delete(artifactRepositoryPath, true);
 
-        final File repositoryDir = new File(getStorageBasedir(STORAGE0), repositoryWithTrashId + "/.trash");
+        final Path repositoryTrashPath = repositoryPathResolver.resolve(repository2).resolve(".trash");
 
-        assertTrue(new File(repositoryDir, artifactPathStr2).exists(),
+        assertTrue(Files.exists(repositoryTrashPath.resolve(artifactPathStr2)),
                    "Should have moved the artifact to the trash during a force delete operation, " +
                    "when allowsForceDeletion is not enabled!");
     }

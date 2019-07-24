@@ -7,7 +7,6 @@ import org.carlspring.strongbox.locator.handlers.GenerateMavenMetadataOperation;
 import org.carlspring.strongbox.providers.io.RepositoryFiles;
 import org.carlspring.strongbox.providers.io.RepositoryPath;
 import org.carlspring.strongbox.providers.io.RootRepositoryPath;
-import org.carlspring.strongbox.providers.layout.Maven2LayoutProvider;
 import org.carlspring.strongbox.providers.search.MavenIndexerSearchProvider;
 import org.carlspring.strongbox.providers.search.SearchException;
 import org.carlspring.strongbox.repository.RepositoryManagementStrategyException;
@@ -34,12 +33,10 @@ import java.io.InputStream;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
-import java.util.Arrays;
 import java.util.List;
 import java.util.Optional;
 import java.util.Set;
 
-import com.google.common.collect.Sets;
 import com.google.common.io.ByteStreams;
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.FilenameUtils;
@@ -60,6 +57,7 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 
 /**
  * @author carlspring
+ * @author Pablo Tirado
  */
 public abstract class TestCaseWithMavenArtifactGenerationAndIndexing
         extends MavenTestCaseWithArtifactGeneration
@@ -90,53 +88,6 @@ public abstract class TestCaseWithMavenArtifactGenerationAndIndexing
     @Inject
     private MavenRepositoryFactory mavenRepositoryFactory;
 
-
-    protected RepositoryDto createRepository(String storageId,
-                                             String repositoryId,
-                                             String policy,
-                                             boolean indexing)
-        throws IOException,
-        JAXBException,
-        RepositoryManagementStrategyException
-    {
-        MavenRepositoryConfigurationDto repositoryConfiguration = new MavenRepositoryConfigurationDto();
-        repositoryConfiguration.setIndexingEnabled(indexing);
-
-        return createRepository(storageId, repositoryId, policy, repositoryConfiguration);
-    }
-
-    protected RepositoryDto createRepository(String storageId,
-                                             String repositoryId,
-                                             String policy,
-                                             MavenRepositoryConfigurationDto repositoryConfiguration)
-            throws IOException,
-                   JAXBException,
-                   RepositoryManagementStrategyException
-    {
-        RepositoryDto repository = mavenRepositoryFactory.createRepository(repositoryId);
-        repository.setPolicy(policy);
-        repository.setRepositoryConfiguration(repositoryConfiguration);
-        repository.setBasedir(getRepositoryBasedir(storageId, repositoryId).getAbsolutePath());
-        
-        createRepository(storageId, repository);
-        
-        return repository;
-    }
-
-    protected RepositoryDto createGroup(String storageId,
-                                        String repositoryId,
-                                        String... leafs)
-            throws Exception
-    {
-        RepositoryDto repository = new RepositoryDto(repositoryId);
-        repository.setLayout(Maven2LayoutProvider.ALIAS);
-        repository.setType(RepositoryTypeEnum.GROUP.getType());
-        repository.setGroupRepositories(Sets.newLinkedHashSet(Arrays.asList(leafs)));
-
-        createRepository(storageId, repository);
-
-        return repository;
-    }
 
     @Override
     public void createProxyRepository(String storageId,

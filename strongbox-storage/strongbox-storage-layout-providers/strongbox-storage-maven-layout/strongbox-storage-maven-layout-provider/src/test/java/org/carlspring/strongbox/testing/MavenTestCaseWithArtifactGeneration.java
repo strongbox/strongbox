@@ -35,17 +35,22 @@ import java.security.NoSuchAlgorithmException;
 import java.text.SimpleDateFormat;
 import java.util.Calendar;
 import java.util.concurrent.TimeUnit;
+import java.util.stream.Stream;
 
 import org.apache.commons.io.FilenameUtils;
 import org.apache.maven.artifact.Artifact;
 import org.codehaus.plexus.util.xml.pull.XmlPullParserException;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * @author mtodorov
+ * @author Pablo Tirado
  */
 public class MavenTestCaseWithArtifactGeneration
         extends TestCaseWithRepositoryManagement
 {
+    private final Logger logger = LoggerFactory.getLogger(MavenTestCaseWithArtifactGeneration.class);
 
     @Inject
     protected MavenRepositoryFeatures features;
@@ -279,29 +284,32 @@ public class MavenTestCaseWithArtifactGeneration
     public void changeCreationDate(MavenArtifact artifact)
             throws IOException
     {
-        File directory = artifact.getPath().getParent().toFile();
+        Path directory = artifact.getPath().getParent();
 
-        //noinspection ConstantConditions
-        for (final File fileEntry : directory.listFiles())
+        try (Stream<Path> pathStream = Files.walk(directory))
         {
-            if (fileEntry.isFile())
-            {
-                BasicFileAttributeView attributes = Files.getFileAttributeView(fileEntry.toPath(),
-                                                                               BasicFileAttributeView.class);
-                FileTime time = FileTime.from(System.currentTimeMillis() + 60000L, TimeUnit.MILLISECONDS);
-                attributes.setTimes(time, time, time);
-            }
+            pathStream.filter(Files::isRegularFile).forEach(
+                    filePath -> {
+                        BasicFileAttributeView attributes = Files.getFileAttributeView(filePath,
+                                                                                       BasicFileAttributeView.class);
+                        FileTime time = FileTime.from(System.currentTimeMillis() + 60000L, TimeUnit.MILLISECONDS);
+                        try
+                        {
+                            attributes.setTimes(time, time, time);
+                        }
+                        catch (IOException e)
+                        {
+                            logger.error(
+                                    String.format("Failed to change creation date for [%s]", filePath),
+                                    e);
+                        }
+                    });
         }
-    }
-
-    public File getStorageBasedir(String storageId)
-    {
-        return new File(propertiesBooter.getVaultDirectory() + "/storages/" + storageId);
     }
 
     public File getRepositoryBasedir(String storageId, String repositoryId)
     {
-        return new File(propertiesBooter.getVaultDirectory() + "/storages/" + storageId + "/" + repositoryId);
+        return Paths.get(propertiesBooter.getVaultDirectory(), "storages", storageId, repositoryId).toFile();
     }
 
     public MavenRepositoryFeatures getFeatures()

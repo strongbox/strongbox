@@ -3,29 +3,29 @@ package org.carlspring.strongbox.providers.repository;
 import org.carlspring.strongbox.config.Maven2LayoutProviderCronTasksTestConfig;
 import org.carlspring.strongbox.data.CacheManagerTestExecutionListener;
 import org.carlspring.strongbox.domain.ArtifactEntry;
-import org.carlspring.strongbox.providers.layout.Maven2LayoutProvider;
-import org.carlspring.strongbox.storage.repository.RepositoryDto;
+import org.carlspring.strongbox.storage.repository.Repository;
+import org.carlspring.strongbox.testing.MavenIndexedRepositorySetup;
+import org.carlspring.strongbox.testing.repository.MavenRepository;
+import org.carlspring.strongbox.testing.storage.repository.RepositoryManagementTestExecutionListener;
+import org.carlspring.strongbox.testing.storage.repository.TestRepository.Remote;
 
-import java.util.LinkedHashSet;
 import java.util.Optional;
-import java.util.Set;
 
-import org.hamcrest.CoreMatchers;
-import org.junit.jupiter.api.AfterEach;
-import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.junit.jupiter.api.parallel.Execution;
 import org.mockito.Mockito;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.TestExecutionListeners;
-import static org.hamcrest.MatcherAssert.assertThat;
+import static org.junit.jupiter.api.Assertions.assertNotEquals;
 import static org.junit.jupiter.api.parallel.ExecutionMode.CONCURRENT;
 import static org.mockito.ArgumentMatchers.argThat;
 
 /**
  * @author Przemyslaw Fusik
+ * @author Pablo Tirado
  */
 @SpringBootTest
 @ActiveProfiles(profiles = "test")
@@ -41,8 +41,13 @@ public class WhenRepositoryIsNotAliveDontCleanExpiredArtifactsTestIT
 
     private static final String REMOTE_URL = "http://uk.maven.org/maven2/";
 
+    @ExtendWith(RepositoryManagementTestExecutionListener.class)
     @Test
-    public void expiredArtifactsCleanerShouldNotCleanupDatabaseAndStorageWhenRepositoryIsNotAlive()
+    public void expiredArtifactsCleanerShouldNotCleanupDatabaseAndStorageWhenRepositoryIsNotAlive(@Remote(url = REMOTE_URL)
+                                                                                                  @MavenRepository(storageId = STORAGE_ID,
+                                                                                                                   repositoryId = REPOSITORY_ID,
+                                                                                                                   setup = MavenIndexedRepositorySetup.class)
+                                                                                                  Repository proxyRepository)
             throws Exception
     {
         ArtifactEntry artifactEntry = downloadAndSaveArtifactEntry();
@@ -54,35 +59,12 @@ public class WhenRepositoryIsNotAliveDontCleanExpiredArtifactsTestIT
         localStorageProxyRepositoryExpiredArtifactsCleaner.cleanup(5, artifactEntry.getSizeInBytes() - 1);
 
         Optional<ArtifactEntry> artifactEntryOptional = Optional.ofNullable(
-                artifactEntryService.findOneArtifact(STORAGE_ID,
-                                                     REPOSITORY_ID,
+                artifactEntryService.findOneArtifact(proxyRepository.getStorage().getId(),
+                                                     proxyRepository.getId(),
                                                      getPath()));
 
         // it's still there
-        assertThat(artifactEntryOptional, CoreMatchers.not(CoreMatchers.equalTo(Optional.empty())));
-    }
-
-    private static Set<RepositoryDto> getRepositoriesToClean()
-    {
-        Set<RepositoryDto> repositories = new LinkedHashSet<>();
-        repositories.add(createRepositoryMock(STORAGE_ID, REPOSITORY_ID, Maven2LayoutProvider.ALIAS));
-        return repositories;
-    }
-
-    @BeforeEach
-    public void init()
-            throws Exception
-    {
-        createProxyRepository(STORAGE_ID,
-                              REPOSITORY_ID,
-                              REMOTE_URL);
-    }
-
-    @AfterEach
-    public void removeRepositories()
-            throws Exception
-    {
-        removeRepositories(getRepositoriesToClean());
+        assertNotEquals(Optional.empty(), artifactEntryOptional);
     }
 
     @Override
