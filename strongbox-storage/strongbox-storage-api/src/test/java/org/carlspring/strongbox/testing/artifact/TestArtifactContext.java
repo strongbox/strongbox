@@ -215,7 +215,14 @@ public class TestArtifactContext implements AutoCloseable
 
         Files.delete(e.getValue());
     }
-    
+
+    /**
+     * This comparator will sort the paths in reverse alphabetical order, with
+     * checksum files ordered after other types of files.  This is necessary because
+     * Apache Maven Indexer's MinimalArtifactInfoIndexCreator will apply the checksum
+     * from a JAR file to the POM's entry in the index if the JAR file is added to the
+     * repository before the POM.
+     */
     private int repositoryPathChecksumComparator(RepositoryPath p1,
                                                  RepositoryPath p2)
             throws IOException
@@ -224,11 +231,11 @@ public class TestArtifactContext implements AutoCloseable
         Boolean isChecksumP2;
 
         isChecksumP1 = RepositoryFiles.isChecksum(p1);
-        isChecksumP2 = RepositoryFiles.isChecksum(p1);
+        isChecksumP2 = RepositoryFiles.isChecksum(p2);
         
-        if (isChecksumP1 && isChecksumP2)
+        if (isChecksumP1 && isChecksumP2 || !isChecksumP1 && !isChecksumP2)
         {
-            return p1.compareTo(p2);
+            return -1 * p1.compareTo(p2);
         }
         
         return isChecksumP1 ? 1 : -1;
