@@ -96,7 +96,7 @@ public class MavenMetadataExpirationMultipleGroupCaseTest
                                            versionLevelMetadataYahr,
                                            artifactLevelMetadataYahr);
 
-        mockResolvingProxiedRemoteArtifactsToHostedRepository();
+        mockResolvingProxiedRemoteArtifactsToHostedRepository(REPOSITORY_HOSTED);
 
         final RepositoryPath hostedPath = resolvePath(hostedRepository.getId(),
                                                       true,

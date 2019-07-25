@@ -147,7 +147,7 @@ abstract class BaseMavenMetadataExpirationTest
         }
     }
 
-    protected void mockResolvingProxiedRemoteArtifactsToHostedRepository()
+    protected void mockResolvingProxiedRemoteArtifactsToHostedRepository(final String hostedRepositoryId)
     {
         final RemoteRepositoryRetryArtifactDownloadConfiguration configuration = configurationManager.getConfiguration()
                                                                                                      .getRemoteRepositoriesConfiguration()
@@ -183,8 +183,10 @@ abstract class BaseMavenMetadataExpirationTest
         Mockito.when(artifactResolver.isAlive()).thenReturn(true);
 
         Mockito.when(artifactResolverFactory.newInstance(argThat(
-                remoteRepository -> remoteRepository != null &&
-                                    remoteRepository.getUrl() != null))).thenReturn(artifactResolver);
+                remoteRepository ->
+                        remoteRepository != null &&
+                        remoteRepository.getUrl() != null &&
+                        remoteRepository.getUrl().contains(hostedRepositoryId)))).thenReturn(artifactResolver);
     }
 
     private void mockResolvingProxiedRemoteArtifactToHostedRepository(final RestArtifactResolver artifactResolver,
