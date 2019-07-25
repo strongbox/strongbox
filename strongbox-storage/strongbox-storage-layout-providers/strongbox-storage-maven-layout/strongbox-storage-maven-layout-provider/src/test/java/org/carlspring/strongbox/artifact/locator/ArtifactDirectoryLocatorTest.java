@@ -151,10 +151,10 @@ public class ArtifactDirectoryLocatorTest
     @Retention(RetentionPolicy.RUNTIME)
     @Documented
     @MavenTestArtifact(repositoryId = REPOSITORY_RELEASES,
-            id = "com.carlspring.strongbox:foo",
-            versions = { "5.1",
-                         "5.2",
-                         "5.3" })
+                       id = "com.carlspring.strongbox:foo",
+                       versions = { "5.1",
+                                    "5.2",
+                                    "5.3" })
     private @interface MavenArtifactsCarlspringStrongboxFoo
     {
 
@@ -182,9 +182,9 @@ public class ArtifactDirectoryLocatorTest
     @Retention(RetentionPolicy.RUNTIME)
     @Documented
     @MavenTestArtifact(repositoryId = REPOSITORY_RELEASES,
-            id = "org.carlspring.strongbox:locator",
-            versions = { "5.2.1",
-                         "5.2.2" })
+                       id = "org.carlspring.strongbox:locator",
+                       versions = { "5.2.1",
+                                    "5.2.2" })
     private @interface MavenArtifactsCarlspringStrongboxLocator
     {
 
@@ -195,10 +195,10 @@ public class ArtifactDirectoryLocatorTest
     @Retention(RetentionPolicy.RUNTIME)
     @Documented
     @MavenTestArtifact(repositoryId = REPOSITORY_RELEASES,
-            id = "org.carlspring.strongbox.locator:foo-locator",
-            versions = { "1.0",
-                         "1.1",
-                         "1.2" })
+                       id = "org.carlspring.strongbox.locator:foo-locator",
+                       versions = { "1.0",
+                                    "1.1",
+                                    "1.2" })
     private @interface MavenArtifactsCarlspringStrongboxFooLocator
     {
 
@@ -209,10 +209,10 @@ public class ArtifactDirectoryLocatorTest
     @Retention(RetentionPolicy.RUNTIME)
     @Documented
     @MavenTestArtifact(repositoryId = REPOSITORY_RELEASES,
-            id = "org.carlspring.strongbox.locator:utils",
-            versions = { "2.1",
-                         "2.2",
-                         "2.3" })
+                       id = "org.carlspring.strongbox.locator:utils",
+                       versions = { "2.1",
+                                    "2.2",
+                                    "2.3" })
     private @interface MavenArtifactsCarlspringStrongboxLocatorUtils
     {
 
