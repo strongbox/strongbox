@@ -1,6 +1,7 @@
 package org.carlspring.strongbox.services;
 
 import org.carlspring.strongbox.artifact.ArtifactTag;
+import org.carlspring.strongbox.artifact.MavenArtifact;
 import org.carlspring.strongbox.artifact.MavenArtifactUtils;
 import org.carlspring.strongbox.config.Maven2LayoutProviderTestConfig;
 import org.carlspring.strongbox.domain.ArtifactEntry;
@@ -29,6 +30,8 @@ import java.io.InputStream;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.text.DateFormat;
+import java.text.SimpleDateFormat;
 import java.util.*;
 import java.util.concurrent.Callable;
 import java.util.concurrent.CountDownLatch;
@@ -65,6 +68,8 @@ public class ArtifactManagementServiceImplTest
     private static final Logger logger = LoggerFactory.getLogger(ArtifactManagementServiceImplTest.class);
 
     private static final int CONTENT_SIZE = 40000;
+
+    private DateFormat formatter = new SimpleDateFormat("yyyyMMdd.HHmmss");
 
     private static final String AMSI_RELEASES_WITHOUT_DEPLOYMENT = "amsi-releases-without-deployment";
 
@@ -110,7 +115,7 @@ public class ArtifactManagementServiceImplTest
                   ArtifactManagementTestExecutionListener.class })
     @Test
     public void testDeploymentToRepositoryWithForbiddenDeployments(@MavenRepository(repositoryId = AMSI_RELEASES_WITHOUT_DEPLOYMENT)
-                                                                   @RepositoryAttributes(allowsDelete = false, 
+                                                                   @RepositoryAttributes(allowsDelete = false,
                                                                                          allowsRedeployment = false)
                                                                    Repository repositoryWithoutDeployment,
                                                                    @MavenTestArtifact(repositoryId = AMSI_RELEASES_WITHOUT_DEPLOYMENT,
@@ -356,25 +361,27 @@ public class ArtifactManagementServiceImplTest
                    "when allowsForceDeletion is not enabled!");
     }
 
-    @ExtendWith({ RepositoryManagementTestExecutionListener.class,
-                  ArtifactManagementTestExecutionListener.class})
+    @ExtendWith(RepositoryManagementTestExecutionListener.class)
     @Test
     public void testRemoveTimestampedSnapshots(@MavenRepository(repositoryId = TRTS_SNAPSHOTS,
                                                                 policy = RepositoryPolicyEnum.SNAPSHOT)
-                                               Repository repository,
-                                               @MavenTestArtifact(repositoryId = TRTS_SNAPSHOTS,
-                                                                  id = "org.carlspring.strongbox:timestamped",
-                                                                  versions = { "2.0-20190720.192015-1",
-                                                                               "2.0-20190720.192101-2",
-                                                                               "2.0-20190720.192203-3" })
-                                               List<Path> artifactPaths)
+                                               Repository repository)
             throws Exception
     {
         String repositoryId = repository.getId();
 
         RootRepositoryPath repositoryPath = repositoryPathResolver.resolve(repository);
 
-        Path artifactVersionBasePath = artifactPaths.get(0).getParent().normalize();
+        // Artifact can't be created with annotation because we need the current date for the timestamp.
+        MavenArtifact artifact = createTimestampedSnapshotArtifact(repositoryPath.toString(),
+                                                                   "org.carlspring.strongbox",
+                                                                   "timestamped",
+                                                                   "2.0",
+                                                                   "jar",
+                                                                   null,
+                                                                   3);
+
+        Path artifactVersionBasePath = artifact.getPath().getParent().normalize();
 
         try (Stream<Path> pathStream = Files.walk(artifactVersionBasePath))
         {
@@ -402,9 +409,12 @@ public class ArtifactManagementServiceImplTest
         }
 
         //Creating timestamped snapshot with another timestamp
-        //Five days less than first artifact.
-        String timestamp = "20190715.192015";
 
+        Calendar cal = Calendar.getInstance();
+        cal.add(Calendar.DATE, -5);
+        String timestamp = formatter.format(cal.getTime());
+
+        // Artifact can't be created with annotation because we need the current date minus 5 days for the timestamp.
         createTimestampedSnapshot(repositoryPath.toString(),
                                   "org.carlspring.strongbox",
                                   "timestamped",
