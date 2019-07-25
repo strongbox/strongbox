@@ -622,31 +622,30 @@ public class ArtifactManagementServiceImplTest
     @ExtendWith({ RepositoryManagementTestExecutionListener.class,
                   ArtifactManagementTestExecutionListener.class })
     @Test
-    public void testChecksumsStorage(@MavenRepository (repositoryId = "checksums-storage")
+    public void testChecksumsStorage(@MavenRepository(repositoryId = "checksums-storage")
                                      Repository repository,
-                                     @MavenTestArtifact(repositoryId = "checksums-storage",
-                                                        id = "org.carlspring.strongbox:strongbox-checksum-test",
-                                                        versions = { "8.4" })
-                                     Path artifactPath)
+                                     @MavenTestArtifact(resource = "org/carlspring/strongbox/strongbox-checksum-test/8.4/strongbox-checksum-test-8.4.jar")
+                                     Path artifact)
             throws Exception
     {
-        RepositoryPath path = (RepositoryPath) artifactPath.normalize();
+        String artifactPathStr = "org/carlspring/strongbox/strongbox-checksum-test/8.4/strongbox-checksum-test-8.4.jar";
+        RepositoryPath repositoryPath = repositoryPathResolver.resolve(repository).resolve(artifactPathStr);
 
-        try (InputStream is = Files.newInputStream(path))
+        try (InputStream is = Files.newInputStream(artifact))
         {
-            mavenArtifactManagementService.store(path, is);
+            mavenArtifactManagementService.store(repositoryPath, is);
         }
 
         // Obtains two expected checksums
-        String sha1Checksum = new String(Files.readAllBytes(artifactPath.resolveSibling(artifactPath.getFileName()+ ".sha1")));
-        String md5Checksum = new String(Files.readAllBytes(artifactPath.resolveSibling(artifactPath.getFileName()+ ".md5")));
+        String sha1Checksum = new String(Files.readAllBytes(artifact.resolveSibling(artifact.getFileName()+ ".sha1")));
+        String md5Checksum = new String(Files.readAllBytes(artifact.resolveSibling(artifact.getFileName()+ ".md5")));
 
         Map <String, String> expectedChecksums = new HashMap<>();
         expectedChecksums.put("SHA-1", sha1Checksum);
         expectedChecksums.put("MD5", md5Checksum);
 
-        String pathStr = RepositoryFiles.relativizePath(path);
-        ArtifactEntry artifactEntry = artifactEntryService.findOneArtifact(STORAGE0, repository.getId(), pathStr);
+        String path = RepositoryFiles.relativizePath(repositoryPath);
+        ArtifactEntry artifactEntry = artifactEntryService.findOneArtifact(STORAGE0, repository.getId(), path);
 
         assertNotNull(artifactEntry);
 
