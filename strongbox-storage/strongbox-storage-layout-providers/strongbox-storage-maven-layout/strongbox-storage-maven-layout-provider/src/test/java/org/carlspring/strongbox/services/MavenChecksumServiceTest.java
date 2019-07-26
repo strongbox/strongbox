@@ -254,25 +254,28 @@ public class MavenChecksumServiceTest
         assertTrue(Files.exists(artifactMetadataMd5),
                    "The checksum file for metadata doesn't exist!");
 
-        OutputStream os1 = Files.newOutputStream(md5File, CREATE_NEW, TRUNCATE_EXISTING);
-        OutputStream os2 = Files.newOutputStream(sha1File, CREATE_NEW, TRUNCATE_EXISTING);
-        OutputStream os3 = Files.newOutputStream(pomMd5, CREATE_NEW, TRUNCATE_EXISTING);
-        OutputStream os4 = Files.newOutputStream(pomSha1, CREATE_NEW, TRUNCATE_EXISTING);
-        OutputStream os5 = Files.newOutputStream(artifactMetadataMd5, CREATE_NEW, TRUNCATE_EXISTING);
-        OutputStream os6 = Files.newOutputStream(artifactMetadataSha1, CREATE_NEW, TRUNCATE_EXISTING);
-
-        os1.write("".getBytes());
-        os1.flush();
-        os2.write("".getBytes());
-        os2.flush();
-        os3.write("".getBytes());
-        os3.flush();
-        os4.write("".getBytes());
-        os4.flush();
-        os5.write("".getBytes());
-        os5.flush();
-        os6.write("".getBytes());
-        os6.flush();
+        try (
+                OutputStream os1 = Files.newOutputStream(md5File, CREATE_NEW, TRUNCATE_EXISTING);
+                OutputStream os2 = Files.newOutputStream(sha1File, CREATE_NEW, TRUNCATE_EXISTING);
+                OutputStream os3 = Files.newOutputStream(pomMd5, CREATE_NEW, TRUNCATE_EXISTING);
+                OutputStream os4 = Files.newOutputStream(pomSha1, CREATE_NEW, TRUNCATE_EXISTING);
+                OutputStream os5 = Files.newOutputStream(artifactMetadataMd5, CREATE_NEW, TRUNCATE_EXISTING);
+                OutputStream os6 = Files.newOutputStream(artifactMetadataSha1, CREATE_NEW, TRUNCATE_EXISTING)
+        )
+        {
+            os1.write("".getBytes());
+            os1.flush();
+            os2.write("".getBytes());
+            os2.flush();
+            os3.write("".getBytes());
+            os3.flush();
+            os4.write("".getBytes());
+            os4.flush();
+            os5.write("".getBytes());
+            os5.flush();
+            os6.write("".getBytes());
+            os6.flush();
+        }
 
         assertEquals(0, Files.size(md5File), "The checksum file for artifact isn't empty!");
         assertEquals(0, Files.size(pomSha1),
