@@ -10,7 +10,8 @@ import org.carlspring.strongbox.testing.artifact.ArtifactManagementTestExecution
 import org.carlspring.strongbox.testing.artifact.MavenTestArtifact;
 import org.carlspring.strongbox.testing.repository.MavenRepository;
 import org.carlspring.strongbox.testing.storage.repository.RepositoryManagementTestExecutionListener;
-import org.carlspring.strongbox.testing.storage.repository.TestRepository;
+import org.carlspring.strongbox.testing.storage.repository.TestRepository.Group;
+import org.carlspring.strongbox.testing.storage.repository.TestRepository.Group.Rule;
 
 import java.io.IOException;
 import java.nio.file.Files;
@@ -34,6 +35,7 @@ import static org.junit.jupiter.api.parallel.ExecutionMode.SAME_THREAD;
 
 /**
  * @author Przemyslaw Fusik
+ * @author PAblo Tirado
  */
 @SpringBootTest
 @ActiveProfiles(profiles = "test")
@@ -75,23 +77,23 @@ public class MavenMetadataGroupRepositoryComponentOnDeleteTest
             @MavenRepository(repositoryId = REPOSITORY_LEAF_D) Repository repositoryLeafD,
             @MavenRepository(repositoryId = REPOSITORY_LEAF_G) Repository repositoryLeafG,
             @MavenRepository(repositoryId = REPOSITORY_LEAF_K) Repository repositoryLeafK,
-            @TestRepository.Group({ REPOSITORY_LEAF_E,
-                                    REPOSITORY_LEAF_Z })
+            @Group({ REPOSITORY_LEAF_E,
+                     REPOSITORY_LEAF_Z })
             @MavenRepository(repositoryId = REPOSITORY_GROUP_C) Repository repositoryGroupC,
-            @TestRepository.Group({ REPOSITORY_GROUP_C,
-                                    REPOSITORY_LEAF_D,
-                                    REPOSITORY_LEAF_L })
+            @Group({ REPOSITORY_GROUP_C,
+                     REPOSITORY_LEAF_D,
+                     REPOSITORY_LEAF_L })
             @MavenRepository(repositoryId = REPOSITORY_GROUP_B) Repository repositoryGroupB,
-            @TestRepository.Group({ REPOSITORY_LEAF_G,
-                                    REPOSITORY_GROUP_B })
+            @Group({ REPOSITORY_LEAF_G,
+                     REPOSITORY_GROUP_B })
             @MavenRepository(repositoryId = REPOSITORY_GROUP_A) Repository repositoryGroupA,
-            @TestRepository.Group({ REPOSITORY_GROUP_C,
-                                    REPOSITORY_LEAF_D,
-                                    REPOSITORY_LEAF_L })
+            @Group({ REPOSITORY_GROUP_C,
+                     REPOSITORY_LEAF_D,
+                     REPOSITORY_LEAF_L })
             @MavenRepository(repositoryId = REPOSITORY_GROUP_F) Repository repositoryGroupF,
-            @TestRepository.Group(repositories = { REPOSITORY_GROUP_F,
-                                                   REPOSITORY_LEAF_K },
-                    rules = { @TestRepository.Group.Rule(
+            @Group(repositories = { REPOSITORY_GROUP_F,
+                                    REPOSITORY_LEAF_K },
+                    rules = { @Rule(
                             pattern = ".*(com|org)/artifacts/to/update/releases/update-group.*",
                             repositories = REPOSITORY_LEAF_D,
                             type = DENY)
@@ -110,20 +112,20 @@ public class MavenMetadataGroupRepositoryComponentOnDeleteTest
                     Path artifactLeafK)
             throws Exception
     {
-        generateMavenMetadata(STORAGE0, REPOSITORY_LEAF_L);
-        generateMavenMetadata(STORAGE0, REPOSITORY_LEAF_G);
-        generateMavenMetadata(STORAGE0, REPOSITORY_LEAF_D);
-        generateMavenMetadata(STORAGE0, REPOSITORY_LEAF_K);
+        generateMavenMetadata(STORAGE0, repositoryLeafL.getId());
+        generateMavenMetadata(STORAGE0, repositoryLeafG.getId());
+        generateMavenMetadata(STORAGE0, repositoryLeafD.getId());
+        generateMavenMetadata(STORAGE0, repositoryLeafK.getId());
 
-        copyArtifactMetadata(REPOSITORY_LEAF_L, REPOSITORY_GROUP_F, FilenameUtils.normalize(
+        copyArtifactMetadata(repositoryLeafL.getId(), repositoryGroupF.getId(), FilenameUtils.normalize(
                 "com/artifacts/to/delete/releases/delete-group/maven-metadata.xml"));
-        copyArtifactMetadata(REPOSITORY_LEAF_L, REPOSITORY_GROUP_B, FilenameUtils.normalize(
+        copyArtifactMetadata(repositoryLeafL.getId(), repositoryGroupB.getId(), FilenameUtils.normalize(
                 "com/artifacts/to/delete/releases/delete-group/maven-metadata.xml"));
-        copyArtifactMetadata(REPOSITORY_LEAF_L, REPOSITORY_GROUP_A, FilenameUtils.normalize(
+        copyArtifactMetadata(repositoryLeafL.getId(), repositoryGroupA.getId(), FilenameUtils.normalize(
                 "com/artifacts/to/delete/releases/delete-group/maven-metadata.xml"));
-        copyArtifactMetadata(REPOSITORY_LEAF_L, REPOSITORY_GROUP_H, FilenameUtils.normalize(
+        copyArtifactMetadata(repositoryLeafL.getId(), repositoryGroupH.getId(), FilenameUtils.normalize(
                 "com/artifacts/to/delete/releases/delete-group/maven-metadata.xml"));
-        copyArtifactMetadata(REPOSITORY_LEAF_K, REPOSITORY_GROUP_H, FilenameUtils.normalize(
+        copyArtifactMetadata(repositoryLeafK.getId(), repositoryGroupH.getId(), FilenameUtils.normalize(
                 "com/artifacts/to/update/releases/update-group/maven-metadata.xml"));
 
         String path = "com/artifacts/to/delete/releases/delete-group/1.2.1/delete-group-1.2.1.jar";

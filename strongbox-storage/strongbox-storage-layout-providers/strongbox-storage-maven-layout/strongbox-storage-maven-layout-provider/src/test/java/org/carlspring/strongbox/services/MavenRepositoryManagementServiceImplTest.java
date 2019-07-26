@@ -1,22 +1,19 @@
 package org.carlspring.strongbox.services;
 
-import org.carlspring.strongbox.artifact.coordinates.MavenArtifactCoordinates;
-import org.carlspring.strongbox.artifact.generator.MavenArtifactGenerator;
 import org.carlspring.strongbox.config.Maven2LayoutProviderTestConfig;
 import org.carlspring.strongbox.providers.search.MavenIndexerSearchProvider;
 import org.carlspring.strongbox.repository.IndexedMavenRepositoryFeatures;
 import org.carlspring.strongbox.storage.indexing.IndexTypeEnum;
 import org.carlspring.strongbox.storage.repository.Repository;
-import org.carlspring.strongbox.storage.repository.RepositoryPolicyEnum;
 import org.carlspring.strongbox.storage.search.SearchRequest;
 import org.carlspring.strongbox.testing.MavenIndexedRepositorySetup;
 import org.carlspring.strongbox.testing.TestCaseWithMavenArtifactGenerationAndIndexing;
 import org.carlspring.strongbox.testing.artifact.ArtifactManagementTestExecutionListener;
-import org.carlspring.strongbox.testing.artifact.TestArtifact;
+import org.carlspring.strongbox.testing.artifact.MavenTestArtifact;
+import org.carlspring.strongbox.testing.repository.MavenRepository;
 import org.carlspring.strongbox.testing.storage.repository.RepositoryManagementTestExecutionListener;
-import org.carlspring.strongbox.testing.storage.repository.TestRepository;
 
-import java.io.File;
+import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.List;
 
@@ -33,6 +30,7 @@ import static org.junit.jupiter.api.parallel.ExecutionMode.CONCURRENT;
 
 /**
  * @author mtodorov
+ * @author Pablo Tirado
  */
 @SpringBootTest
 @ActiveProfiles(profiles = "test")
@@ -44,77 +42,65 @@ public class MavenRepositoryManagementServiceImplTest
 
     private static final String REPOSITORY_RELEASES_1 = "rmsi-releases-1";
 
-    private static final String REPOSITORY_RELEASES_2 = "rmsi-releases-2";
-
     private static final String REPOSITORY_RELEASES_MERGE_1 = "rmsi-releases-merge-1";
 
     private static final String REPOSITORY_RELEASES_MERGE_2 = "rmsi-releases-merge-2";
 
     @ExtendWith(RepositoryManagementTestExecutionListener.class)
     @Test
-    public void testCreateRepository(@TestRepository(repositoryId = REPOSITORY_RELEASES_1,
-                                                     layout = MavenArtifactCoordinates.LAYOUT_NAME,
-                                                     setup = MavenIndexedRepositorySetup.class)
+    public void testCreateRepository(@MavenRepository(repositoryId = REPOSITORY_RELEASES_1,
+                                                      setup = MavenIndexedRepositorySetup.class)
                                      Repository repository)
-            throws Exception
     {
-        File repositoryBaseDir = getRepositoryBasedir(STORAGE0, REPOSITORY_RELEASES_1).getAbsoluteFile();
-
-        System.out.println(repositoryBaseDir.getAbsolutePath());
-
-        assertTrue(repositoryBaseDir.exists(), "Failed to create repository '" + REPOSITORY_RELEASES_1 + "'!");
+        Path repositoryPath = repositoryPathResolver.resolve(repository);
+        assertTrue(Files.exists(repositoryPath), "Failed to create repository '" + repository.getId() + "'!");
     }
 
     @ExtendWith(RepositoryManagementTestExecutionListener.class)
     @Test
-    public void testCreateAndDelete(@TestRepository(repositoryId = REPOSITORY_RELEASES_1,
-                                                    layout = MavenArtifactCoordinates.LAYOUT_NAME,
-                                                    policy = RepositoryPolicyEnum.RELEASE,
-                                                    setup = MavenIndexedRepositorySetup.class,
-                                                    cleanup = false)
+    @EnabledIf(expression = "#{containsObject('repositoryIndexManager')}", loadContext = true)
+    public void testCreateAndDelete(@MavenRepository(repositoryId = REPOSITORY_RELEASES_1,
+                                                     setup = MavenIndexedRepositorySetup.class,
+                                                     cleanup = false)
                                     Repository repository)
             throws Exception
     {
-        File repositoryDir = getRepositoryBasedir(STORAGE0,  REPOSITORY_RELEASES_1).getAbsoluteFile();
+        Path repositoryPath = repositoryPathResolver.resolve(repository);
+        assertTrue(Files.exists(repositoryPath), "Failed to create repository '" + repository.getId() + "'!");
 
-        assertTrue(repositoryDir.exists(),
-                   "Failed to create the repository \"" + repositoryDir.getAbsolutePath() + "\"!");
-
-        closeIndexer(STORAGE0 + ":" + REPOSITORY_RELEASES_1 + ":" + IndexTypeEnum.LOCAL.getType());
+        closeIndexer(STORAGE0 + ":" + repository.getId() + ":" + IndexTypeEnum.LOCAL.getType());
 
         getRepositoryManagementService().removeRepository(STORAGE0, REPOSITORY_RELEASES_1);
 
-        assertFalse(repositoryDir.exists(), "Failed to remove the repository!");
+        assertTrue(Files.notExists(repositoryPath), "Failed to remove the repository!");
     }
 
-    @ExtendWith({ RepositoryManagementTestExecutionListener.class, ArtifactManagementTestExecutionListener.class })
+    @ExtendWith({ RepositoryManagementTestExecutionListener.class,
+                  ArtifactManagementTestExecutionListener.class })
     @Test
     @EnabledIf(expression = "#{containsObject('repositoryIndexManager')}", loadContext = true)
-    public void testMerge(@TestRepository(repositoryId = REPOSITORY_RELEASES_MERGE_1,
-                                          layout = MavenArtifactCoordinates.LAYOUT_NAME,
-                                          setup = MavenIndexedRepositorySetup.class)
+    public void testMerge(@MavenRepository(repositoryId = REPOSITORY_RELEASES_MERGE_1,
+                                           setup = MavenIndexedRepositorySetup.class)
                           Repository r1,
-                          @TestRepository(repositoryId = REPOSITORY_RELEASES_MERGE_2,
-                                          layout = MavenArtifactCoordinates.LAYOUT_NAME,
-                                          setup = MavenIndexedRepositorySetup.class)
+                          @MavenRepository(repositoryId = REPOSITORY_RELEASES_MERGE_2,
+                                           setup = MavenIndexedRepositorySetup.class)
                           Repository r2,
-                          @TestArtifact(repositoryId = REPOSITORY_RELEASES_MERGE_1,
-                                        id = "org.carlspring.strongbox:strongbox-utils",
-                                        versions = { "6.2.2" },
-                                        generator = MavenArtifactGenerator.class)
+                          @MavenTestArtifact(repositoryId = REPOSITORY_RELEASES_MERGE_1,
+                                             id = "org.carlspring.strongbox:strongbox-utils",
+                                             versions = "6.2.2")
                           List<Path> repositoryArtifact1,
-                          @TestArtifact(repositoryId = REPOSITORY_RELEASES_MERGE_2,
-                                        id = "org.carlspring.strongbox:strongbox-utils",
-                                        versions = { "6.2.3" },
-                                        generator = MavenArtifactGenerator.class)
+                          @MavenTestArtifact(repositoryId = REPOSITORY_RELEASES_MERGE_2,
+                                             id = "org.carlspring.strongbox:strongbox-utils",
+                                             versions = "6.2.3")
                           List<Path> repositoryArtifact2)
             throws Exception
     {
-        // dumpIndex(STORAGE0, REPOSITORY_RELEASES_MERGE_1, IndexTypeEnum.LOCAL.getType());
+        final String repository1Id = r1.getId();
+        final String repository2Id = r2.getId();
 
         // 1) Check that an exists in the first repository
         SearchRequest request = new SearchRequest(STORAGE0,
-                                                  REPOSITORY_RELEASES_MERGE_1,
+                                                  repository1Id,
                                                   "+g:org.carlspring.strongbox +a:strongbox-utils +v:6.2.2 +p:jar",
                                                   MavenIndexerSearchProvider.ALIAS);
 
@@ -125,7 +111,7 @@ public class MavenRepositoryManagementServiceImplTest
         // 2) Check that the artifact which exists in the second repository does not exist
         //    in the index of the first repository.
         request = new SearchRequest(STORAGE0,
-                                    REPOSITORY_RELEASES_MERGE_1,
+                                    repository1Id,
                                     "+g:org.carlspring.strongbox +a:strongbox-utils +v:6.2.3 +p:jar",
                                     MavenIndexerSearchProvider.ALIAS);
 
@@ -135,13 +121,13 @@ public class MavenRepositoryManagementServiceImplTest
 
         // 3) Merge the second repository into the first one
         features.mergeIndexes(STORAGE0,
-                              REPOSITORY_RELEASES_MERGE_2,
+                              repository2Id,
                               STORAGE0,
-                              REPOSITORY_RELEASES_MERGE_1);
+                              repository1Id);
 
         // 4) Check that the merged repository now has both artifacts
         request = new SearchRequest(STORAGE0,
-                                    REPOSITORY_RELEASES_MERGE_1,
+                                    repository1Id,
                                     "+g:org.carlspring.strongbox +a:strongbox-utils +v:6.2.3 +p:jar",
                                     MavenIndexerSearchProvider.ALIAS);
 

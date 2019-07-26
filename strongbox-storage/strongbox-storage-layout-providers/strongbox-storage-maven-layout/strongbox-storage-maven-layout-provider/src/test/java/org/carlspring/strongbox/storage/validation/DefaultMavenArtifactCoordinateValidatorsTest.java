@@ -3,12 +3,16 @@ package org.carlspring.strongbox.storage.validation;
 import org.carlspring.strongbox.config.Maven2LayoutProviderTestConfig;
 import org.carlspring.strongbox.configuration.Configuration;
 import org.carlspring.strongbox.configuration.ConfigurationManager;
+import org.carlspring.strongbox.storage.repository.Repository;
 import org.carlspring.strongbox.storage.validation.deployment.RedeploymentValidator;
 import org.carlspring.strongbox.storage.validation.version.MavenReleaseVersionValidator;
 import org.carlspring.strongbox.storage.validation.version.MavenSnapshotVersionValidator;
 
 import javax.inject.Inject;
-import java.io.File;
+import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.util.Set;
 
 import org.junit.jupiter.api.BeforeEach;
@@ -22,6 +26,7 @@ import static org.junit.jupiter.api.parallel.ExecutionMode.CONCURRENT;
 
 /**
  * @author mtodorov
+ * @author Pablo Tirado
  */
 @SpringBootTest
 @ActiveProfiles(profiles = "test")
@@ -30,9 +35,16 @@ import static org.junit.jupiter.api.parallel.ExecutionMode.CONCURRENT;
 public class DefaultMavenArtifactCoordinateValidatorsTest
 {
 
-    public static final String TEST_CLASSES = "target/test-classes";
+    private static final String TEST_CLASSES = "target/test-classes";
 
-    public static final String CONFIGURATION_BASEDIR = TEST_CLASSES + "/xml";
+    private static final String CONFIGURATION_BASEDIR = TEST_CLASSES + "/xml";
+
+    private static final String STORAGE0 = "storage0";
+
+    private static final String REPOSITORY_RELEASES = "releases";
+
+    private static final String REPOSITORY_SNAPSHOTS = "snapshots";
+
 
     @Inject
     private ConfigurationManager configurationManager;
@@ -40,12 +52,12 @@ public class DefaultMavenArtifactCoordinateValidatorsTest
 
     @BeforeEach
     public void setUp()
+            throws IOException
     {
-        File xmlDir = new File(CONFIGURATION_BASEDIR);
-        if (!xmlDir.exists())
+        Path xmlPath = Paths.get(CONFIGURATION_BASEDIR);
+        if (Files.notExists(xmlPath))
         {
-            //noinspection ResultOfMethodCallIgnored
-            xmlDir.mkdirs();
+            Files.createDirectories(xmlPath);
         }
     }
 
@@ -63,27 +75,24 @@ public class DefaultMavenArtifactCoordinateValidatorsTest
             assertNotNull(storageId, "Storage ID was null!");
         }
 
-        assertTrue(configuration.getStorages().size() > 0, "Unexpected number of storages!");
+        assertFalse(configuration.getStorages().isEmpty(), "Unexpected number of storages!");
         assertNotNull(configuration.getVersion(), "Incorrect version!");
         assertEquals(48080, configuration.getPort(), "Incorrect port number!");
         assertTrue(configuration.getStorages()
-                                .get("storage0")
+                                .get(STORAGE0)
                                 .getRepositories()
-                                .get("snapshots")
+                                .get(REPOSITORY_SNAPSHOTS)
                                 .isSecured(),
                    "Repository should have required authentication!");
 
-        assertTrue(configuration.getStorages()
-                                .get("storage0")
-                                .getRepositories()
-                                .get("releases")
-                                .allowsDirectoryBrowsing());
-
-        Set<String> versionValidators = configuration.getStorages()
-                                                     .get("storage0")
+        Repository repositoryReleases = configuration.getStorages()
+                                                     .get(STORAGE0)
                                                      .getRepositories()
-                                                     .get("releases")
-                                                     .getArtifactCoordinateValidators();
+                                                     .get(REPOSITORY_RELEASES);
+
+        assertTrue(repositoryReleases.allowsDirectoryBrowsing());
+
+        Set<String> versionValidators = repositoryReleases.getArtifactCoordinateValidators();
 
         assertFalse(versionValidators.isEmpty());
         assertTrue(versionValidators.contains(RedeploymentValidator.ALIAS));
