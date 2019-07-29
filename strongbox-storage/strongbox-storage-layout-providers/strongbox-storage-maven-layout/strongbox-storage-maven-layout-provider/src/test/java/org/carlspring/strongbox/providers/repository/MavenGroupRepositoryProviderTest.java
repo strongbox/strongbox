@@ -47,14 +47,53 @@ import static org.junit.jupiter.api.parallel.ExecutionMode.CONCURRENT;
 public class MavenGroupRepositoryProviderTest
         extends TestCaseWithMavenArtifactGenerationAndIndexing
 {
+    private static final String REPOSITORY_RELEASES_TGI_1 = "mgrpt-releases-tgi-1";
 
-    private static final String REPOSITORY_RELEASES_1 = "mgrpt-releases-1";
+    private static final String REPOSITORY_RELEASES_TGI_2 = "mgrpt-releases-tgi-2";
 
-    private static final String REPOSITORY_RELEASES_2 = "mgrpt-releases-2";
+    private static final String REPOSITORY_RELEASES_TGI_GROUP = "mgrpt-releases-tgi-group";
 
-    private static final String REPOSITORY_GROUP = "mgrpt-releases-group";
+    private static final String REPOSITORY_RELEASES_MMFSBFFGPR_1 = "mgrpt-releases-mmfsbffgpr-1";
 
-    private static final String REPOSITORY_GROUP_WITH_NESTED_GROUP_1 = "mgrpt-releases-group-with-nested-group-level-1";
+    private static final String REPOSITORY_RELEASES_MMFSBFFGPR_2 = "mgrpt-releases-mmfsbffgpr-2";
+
+    private static final String REPOSITORY_RELEASES_MMFSBFFGPR_GROUP = "mgrpt-releases-mmfsbffgpr-group";
+
+    private static final String REPOSITORY_RELEASES_TGIWOOSR_1 = "mgrpt-releases-tgiwoosr-1";
+
+    private static final String REPOSITORY_RELEASES_TGIWOOSR_2 = "mgrpt-releases-tgiwoosr-2";
+
+    private static final String REPOSITORY_RELEASES_TGIWOOSR_GROUP = "mgrpt-releases-tgiwoosr-group";
+
+    private static final String REPOSITORY_RELEASES_TGIWR_1 = "mgrpt-releases-tgiwr-1";
+
+    private static final String REPOSITORY_RELEASES_TGIWR_2 = "mgrpt-releases-tgiwr-2";
+
+    private static final String REPOSITORY_RELEASES_TGIWR_GROUP = "mgrpt-releases-tgiwr-group";
+
+    private static final String REPOSITORY_RELEASES_TGIWRANR_1 = "mgrpt-releases-tgiwranr-1";
+
+    private static final String REPOSITORY_RELEASES_TGIWRANR_2 = "mgrpt-releases-tgiwranr-2";
+
+    private static final String REPOSITORY_RELEASES_TGIWRANR_GROUP = "mgrpt-releases-tgiwranr-group";
+
+    private static final String REPOSITORY_RELEASES_TGIWRANR_GROUP_WITH_NESTED_GROUP_1 = "mgrpt-releases-tgiwranr-group-with-nested-group-level-1";
+
+    private static final String REPOSITORY_RELEASES_TGANR_1 = "mgrpt-releases-tganr-1";
+
+    private static final String REPOSITORY_RELEASES_TGANR_GROUP = "mgrpt-releases-tganr-group";
+
+    private static final String REPOSITORY_RELEASES_TGE_1 = "mgrpt-releases-tge-1";
+
+    private static final String REPOSITORY_RELEASES_TGE_2 = "mgrpt-releases-tge-2";
+
+    private static final String REPOSITORY_RELEASES_TGE_GROUP = "mgrpt-releases-tge-group";
+
+    private static final String REPOSITORY_RELEASES_DRR_1 = "mgrpt-releases-drr-1";
+
+    private static final String REPOSITORY_RELEASES_DRR_2 = "mgrpt-releases-drr-2";
+
+    private static final String REPOSITORY_RELEASES_DRR_GROUP = "mgrpt-releases-drr-group";
 
     @Inject
     private RepositoryProviderRegistry repositoryProviderRegistry;
@@ -71,15 +110,15 @@ public class MavenGroupRepositoryProviderTest
     @ExtendWith({ RepositoryManagementTestExecutionListener.class,
                   ArtifactManagementTestExecutionListener.class })
     @Test
-    public void testGroupIncludes(@MavenRepository(repositoryId = REPOSITORY_RELEASES_1) Repository releases1,
-                                  @MavenRepository(repositoryId = REPOSITORY_RELEASES_2) Repository releases2,
-                                  @Group({ REPOSITORY_RELEASES_1,
-                                           REPOSITORY_RELEASES_2 })
-                                  @MavenRepository(repositoryId = REPOSITORY_GROUP) Repository releasesGroup,
-                                  @MavenTestArtifact(repositoryId = REPOSITORY_RELEASES_1, id = "com.artifacts.in.releases.one:foo", versions = "1.2.3") Path a1,
-                                  @MavenTestArtifact(repositoryId = REPOSITORY_RELEASES_1, id = "com.artifacts.in.releases.under:group", versions = "1.2.3") Path a2,
-                                  @MavenTestArtifact(repositoryId = REPOSITORY_RELEASES_2, id = "com.artifacts.in.releases.four:foo", versions = "1.2.4") Path a3,
-                                  @MavenTestArtifact(repositoryId = REPOSITORY_RELEASES_2, id = "com.artifacts.in.releases.under:group", versions = "1.2.4") Path a4)
+    public void testGroupIncludes(@MavenRepository(repositoryId = REPOSITORY_RELEASES_TGI_1) Repository releases1,
+                                  @MavenRepository(repositoryId = REPOSITORY_RELEASES_TGI_2) Repository releases2,
+                                  @Group({ REPOSITORY_RELEASES_TGI_1,
+                                           REPOSITORY_RELEASES_TGI_2 })
+                                  @MavenRepository(repositoryId = REPOSITORY_RELEASES_TGI_GROUP) Repository releasesGroup,
+                                  @MavenTestArtifact(repositoryId = REPOSITORY_RELEASES_TGI_1, id = "com.artifacts.in.releases.one:foo", versions = "1.2.3") Path a1,
+                                  @MavenTestArtifact(repositoryId = REPOSITORY_RELEASES_TGI_1, id = "com.artifacts.in.releases.under:group", versions = "1.2.3") Path a2,
+                                  @MavenTestArtifact(repositoryId = REPOSITORY_RELEASES_TGI_2, id = "com.artifacts.in.releases.four:foo", versions = "1.2.4") Path a3,
+                                  @MavenTestArtifact(repositoryId = REPOSITORY_RELEASES_TGI_2, id = "com.artifacts.in.releases.under:group", versions = "1.2.4") Path a4)
             throws Exception
     {
         System.out.println("# Testing group includes...");
@@ -107,14 +146,14 @@ public class MavenGroupRepositoryProviderTest
     @ExtendWith({ RepositoryManagementTestExecutionListener.class,
                   ArtifactManagementTestExecutionListener.class })
     @Test
-    public void mavenMetadataFileShouldBeFetchedFromGroupPathRepository(@MavenRepository(repositoryId = REPOSITORY_RELEASES_1) Repository releases1,
-                                                                        @MavenRepository(repositoryId = REPOSITORY_RELEASES_2) Repository releases2,
-                                                                        @Group({ REPOSITORY_RELEASES_1,
-                                                                                 REPOSITORY_RELEASES_2 })
-                                                                        @MavenRepository(repositoryId = REPOSITORY_GROUP) Repository releasesGroup,
-                                                                        @MavenTestArtifact(repositoryId = REPOSITORY_RELEASES_1, id = "com.artifacts.in.releases.one:foo", versions = "1.2.3") Path a1,
-                                                                        @MavenTestArtifact(repositoryId = REPOSITORY_RELEASES_1, id = "com.artifacts.in.releases.under123:group", versions = "1.2.3") Path a2,
-                                                                        @MavenTestArtifact(repositoryId = REPOSITORY_RELEASES_2, id = "com.artifacts.in.releases.under123:group", versions = "1.2.4") Path a3)
+    public void mavenMetadataFileShouldBeFetchedFromGroupPathRepository(@MavenRepository(repositoryId = REPOSITORY_RELEASES_MMFSBFFGPR_1) Repository releases1,
+                                                                        @MavenRepository(repositoryId = REPOSITORY_RELEASES_MMFSBFFGPR_2) Repository releases2,
+                                                                        @Group({ REPOSITORY_RELEASES_MMFSBFFGPR_1,
+                                                                                 REPOSITORY_RELEASES_MMFSBFFGPR_2 })
+                                                                        @MavenRepository(repositoryId = REPOSITORY_RELEASES_MMFSBFFGPR_GROUP) Repository releasesGroup,
+                                                                        @MavenTestArtifact(repositoryId = REPOSITORY_RELEASES_MMFSBFFGPR_1, id = "com.artifacts.in.releases.one:foo", versions = "1.2.3") Path a1,
+                                                                        @MavenTestArtifact(repositoryId = REPOSITORY_RELEASES_MMFSBFFGPR_1, id = "com.artifacts.in.releases.under123:group", versions = "1.2.3") Path a2,
+                                                                        @MavenTestArtifact(repositoryId = REPOSITORY_RELEASES_MMFSBFFGPR_2, id = "com.artifacts.in.releases.under123:group", versions = "1.2.4") Path a3)
             throws Exception
     {
         generateMavenMetadata(STORAGE0, releases1.getId());
@@ -139,19 +178,19 @@ public class MavenGroupRepositoryProviderTest
     @ExtendWith({ RepositoryManagementTestExecutionListener.class,
                   ArtifactManagementTestExecutionListener.class })
     @Test
-    public void testGroupIncludesWithOutOfServiceRepository(@MavenRepository(repositoryId = REPOSITORY_RELEASES_1) Repository releases1,
-                                                            @MavenRepository(repositoryId = REPOSITORY_RELEASES_2) Repository releases2,
-                                                            @Group(repositories = { REPOSITORY_RELEASES_1,
-                                                                                    REPOSITORY_RELEASES_2 },
-                                                                   rules = { @Rule(repositories = { REPOSITORY_RELEASES_1,
-                                                                                                    REPOSITORY_RELEASES_2 },
+    public void testGroupIncludesWithOutOfServiceRepository(@MavenRepository(repositoryId = REPOSITORY_RELEASES_TGIWOOSR_1) Repository releases1,
+                                                            @MavenRepository(repositoryId = REPOSITORY_RELEASES_TGIWOOSR_2) Repository releases2,
+                                                            @Group(repositories = { REPOSITORY_RELEASES_TGIWOOSR_1,
+                                                                                    REPOSITORY_RELEASES_TGIWOOSR_2 },
+                                                                   rules = { @Rule(repositories = { REPOSITORY_RELEASES_TGIWOOSR_1,
+                                                                                                    REPOSITORY_RELEASES_TGIWOOSR_2 },
                                                                                    pattern = ".*(com|org)/artifacts.in.releases.*"),
-                                                                             @Rule(repositories = { REPOSITORY_RELEASES_1 },
+                                                                             @Rule(repositories = { REPOSITORY_RELEASES_TGIWOOSR_1 },
                                                                                    pattern = ".*(com|org)/artifacts.in.*",
                                                                                    type = RoutingRuleTypeEnum.DENY)})
-                                                            @MavenRepository(repositoryId = REPOSITORY_GROUP) Repository releasesGroup,
-                                                            @MavenTestArtifact(repositoryId = REPOSITORY_RELEASES_1, id = "com.artifacts.in.releases.one:foo", versions = "1.2.3") Path a1,
-                                                            @MavenTestArtifact(repositoryId = REPOSITORY_RELEASES_2, id = "com.artifacts.in.releases.two:foo", versions = "1.2.4") Path a2)
+                                                            @MavenRepository(repositoryId = REPOSITORY_RELEASES_TGIWOOSR_GROUP) Repository releasesGroup,
+                                                            @MavenTestArtifact(repositoryId = REPOSITORY_RELEASES_TGIWOOSR_1, id = "com.artifacts.in.releases.one:foo", versions = "1.2.3") Path a1,
+                                                            @MavenTestArtifact(repositoryId = REPOSITORY_RELEASES_TGIWOOSR_2, id = "com.artifacts.in.releases.two:foo", versions = "1.2.4") Path a2)
             throws Exception
     {
 
@@ -176,15 +215,15 @@ public class MavenGroupRepositoryProviderTest
     @ExtendWith({ RepositoryManagementTestExecutionListener.class,
                   ArtifactManagementTestExecutionListener.class })
     @Test
-    public void testGroupIncludesWildcardRule(@MavenRepository(repositoryId = REPOSITORY_RELEASES_1) Repository releases1,
-                                              @MavenRepository(repositoryId = REPOSITORY_RELEASES_2) Repository releases2,
-                                              @Group(repositories = { REPOSITORY_RELEASES_1,
-                                                                      REPOSITORY_RELEASES_2 })
-                                              @MavenRepository(repositoryId = REPOSITORY_GROUP) Repository releasesGroup,
-                                              @MavenTestArtifact(repositoryId = REPOSITORY_RELEASES_1, id = "com.artifacts.in.releases.three:foo", versions = "1.2.3") Path a1,
-                                              @MavenTestArtifact(repositoryId = REPOSITORY_RELEASES_1, id = "com.artifacts.in.releases.under2:group", versions = "1.2.3") Path a2,
-                                              @MavenTestArtifact(repositoryId = REPOSITORY_RELEASES_2, id = "com.artifacts.in.releases.two:foo", versions = "1.2.4") Path a3,
-                                              @MavenTestArtifact(repositoryId = REPOSITORY_RELEASES_2, id = "com.artifacts.in.releases.under2:group", versions = "1.2.4") Path a4)
+    public void testGroupIncludesWildcardRule(@MavenRepository(repositoryId = REPOSITORY_RELEASES_TGIWR_1) Repository releases1,
+                                              @MavenRepository(repositoryId = REPOSITORY_RELEASES_TGIWR_2) Repository releases2,
+                                              @Group(repositories = { REPOSITORY_RELEASES_TGIWR_1,
+                                                                      REPOSITORY_RELEASES_TGIWR_2 })
+                                              @MavenRepository(repositoryId = REPOSITORY_RELEASES_TGIWR_GROUP) Repository releasesGroup,
+                                              @MavenTestArtifact(repositoryId = REPOSITORY_RELEASES_TGIWR_1, id = "com.artifacts.in.releases.three:foo", versions = "1.2.3") Path a1,
+                                              @MavenTestArtifact(repositoryId = REPOSITORY_RELEASES_TGIWR_1, id = "com.artifacts.in.releases.under2:group", versions = "1.2.3") Path a2,
+                                              @MavenTestArtifact(repositoryId = REPOSITORY_RELEASES_TGIWR_2, id = "com.artifacts.in.releases.two:foo", versions = "1.2.4") Path a3,
+                                              @MavenTestArtifact(repositoryId = REPOSITORY_RELEASES_TGIWR_2, id = "com.artifacts.in.releases.under2:group", versions = "1.2.4") Path a4)
             throws Exception
     {
         System.out.println("# Testing group includes with wildcard...");
@@ -204,17 +243,17 @@ public class MavenGroupRepositoryProviderTest
                   ArtifactManagementTestExecutionListener.class })
     @Test
     public void testGroupIncludesWildcardRuleAgainstNestedRepository(
-            @MavenRepository(repositoryId = REPOSITORY_RELEASES_1) Repository releases1,
-            @MavenRepository(repositoryId = REPOSITORY_RELEASES_2) Repository releases2,
-            @Group(repositories = { REPOSITORY_RELEASES_1,
-                                    REPOSITORY_RELEASES_2 })
-            @MavenRepository(repositoryId = REPOSITORY_GROUP) Repository releasesGroup,
-            @Group(repositories = { REPOSITORY_GROUP,})
-            @MavenRepository(repositoryId = REPOSITORY_GROUP_WITH_NESTED_GROUP_1) Repository releasesGroupWithNestedGroup,
-            @MavenTestArtifact(repositoryId = REPOSITORY_RELEASES_1, id = "com.artifacts.in.releases.one:foo", versions = "1.2.3") Path a1,
-            @MavenTestArtifact(repositoryId = REPOSITORY_RELEASES_1, id = "com.artifacts.in.releases.under3:group", versions = "1.2.3") Path a2,
-            @MavenTestArtifact(repositoryId = REPOSITORY_RELEASES_2, id = "com.artifacts.in.releases.two:foo", versions = "1.2.4") Path a3,
-            @MavenTestArtifact(repositoryId = REPOSITORY_RELEASES_2, id = "com.artifacts.in.releases.under3:group", versions = "1.2.4") Path a4)
+            @MavenRepository(repositoryId = REPOSITORY_RELEASES_TGIWRANR_1) Repository releases1,
+            @MavenRepository(repositoryId = REPOSITORY_RELEASES_TGIWRANR_2) Repository releases2,
+            @Group(repositories = { REPOSITORY_RELEASES_TGIWRANR_1,
+                                    REPOSITORY_RELEASES_TGIWRANR_2 })
+            @MavenRepository(repositoryId = REPOSITORY_RELEASES_TGIWRANR_GROUP) Repository releasesGroup,
+            @Group(repositories = { REPOSITORY_RELEASES_TGIWRANR_GROUP,})
+            @MavenRepository(repositoryId = REPOSITORY_RELEASES_TGIWRANR_GROUP_WITH_NESTED_GROUP_1) Repository releasesGroupWithNestedGroup,
+            @MavenTestArtifact(repositoryId = REPOSITORY_RELEASES_TGIWRANR_1, id = "com.artifacts.in.releases.one:foo", versions = "1.2.3") Path a1,
+            @MavenTestArtifact(repositoryId = REPOSITORY_RELEASES_TGIWRANR_1, id = "com.artifacts.in.releases.under3:group", versions = "1.2.3") Path a2,
+            @MavenTestArtifact(repositoryId = REPOSITORY_RELEASES_TGIWRANR_2, id = "com.artifacts.in.releases.two:foo", versions = "1.2.4") Path a3,
+            @MavenTestArtifact(repositoryId = REPOSITORY_RELEASES_TGIWRANR_2, id = "com.artifacts.in.releases.under3:group", versions = "1.2.4") Path a4)
             throws Exception
     {
         System.out.println("# Testing group includes with wildcard against nested repositories...");
@@ -234,10 +273,10 @@ public class MavenGroupRepositoryProviderTest
                   ArtifactManagementTestExecutionListener.class })
     @Test
     public void testGroupAgainstNestedRepository(
-            @MavenRepository(repositoryId = REPOSITORY_RELEASES_1) Repository releases1,
-            @Group(repositories = { REPOSITORY_RELEASES_1 })
-            @MavenRepository(repositoryId = REPOSITORY_GROUP) Repository releasesGroup,
-            @MavenTestArtifact(repositoryId = REPOSITORY_RELEASES_1, id = "com.artifacts.in.releases.one:foo", versions = "1.2.3") Path a1)
+            @MavenRepository(repositoryId = REPOSITORY_RELEASES_TGANR_1) Repository releases1,
+            @Group(repositories = { REPOSITORY_RELEASES_TGANR_1 })
+            @MavenRepository(repositoryId = REPOSITORY_RELEASES_TGANR_GROUP) Repository releasesGroup,
+            @MavenTestArtifact(repositoryId = REPOSITORY_RELEASES_TGANR_1, id = "com.artifacts.in.releases.one:foo", versions = "1.2.3") Path a1)
             throws Exception
     {
         System.out.println("# Testing group includes with wildcard against nested repositories...");
@@ -256,17 +295,17 @@ public class MavenGroupRepositoryProviderTest
     @ExtendWith({ RepositoryManagementTestExecutionListener.class,
                   ArtifactManagementTestExecutionListener.class })
     @Test
-    public void testGroupExcludes(@MavenRepository(repositoryId = REPOSITORY_RELEASES_1) Repository releases1,
-                                  @MavenRepository(repositoryId = REPOSITORY_RELEASES_2) Repository releases2,
-                                  @Group(repositories = { REPOSITORY_RELEASES_1,
-                                                          REPOSITORY_RELEASES_2 },
-                                         rules = { @Rule(repositories = { REPOSITORY_RELEASES_1 },
+    public void testGroupExcludes(@MavenRepository(repositoryId = REPOSITORY_RELEASES_TGE_1) Repository releases1,
+                                  @MavenRepository(repositoryId = REPOSITORY_RELEASES_TGE_2) Repository releases2,
+                                  @Group(repositories = { REPOSITORY_RELEASES_TGE_1,
+                                                          REPOSITORY_RELEASES_TGE_2 },
+                                         rules = { @Rule(repositories = { REPOSITORY_RELEASES_TGE_1 },
                                                          pattern = ".*(com|org)/artifacts.denied.*",
                                                          type = RoutingRuleTypeEnum.DENY)})
-                                  @MavenRepository(repositoryId = REPOSITORY_GROUP) Repository releasesGroup,
-                                  @MavenTestArtifact(repositoryId = REPOSITORY_RELEASES_1, id = "com.artifacts.accepted:foo", versions = "1.2.6") Path a1,
-                                  @MavenTestArtifact(repositoryId = REPOSITORY_RELEASES_1, id = "com.artifacts.denied.by.wildcard:foo", versions = "1.2.6") Path a2,
-                                  @MavenTestArtifact(repositoryId = REPOSITORY_RELEASES_2, id = "com.artifacts.denied.by.wildcard:foo", versions = "1.2.7") Path a3)
+                                  @MavenRepository(repositoryId = REPOSITORY_RELEASES_TGE_GROUP) Repository releasesGroup,
+                                  @MavenTestArtifact(repositoryId = REPOSITORY_RELEASES_TGE_1, id = "com.artifacts.accepted:foo", versions = "1.2.6") Path a1,
+                                  @MavenTestArtifact(repositoryId = REPOSITORY_RELEASES_TGE_1, id = "com.artifacts.denied.by.wildcard:foo", versions = "1.2.6") Path a2,
+                                  @MavenTestArtifact(repositoryId = REPOSITORY_RELEASES_TGE_2, id = "com.artifacts.denied.by.wildcard:foo", versions = "1.2.7") Path a3)
             throws Exception
     {
         System.out.println("# Testing group excludes...");
@@ -297,16 +336,16 @@ public class MavenGroupRepositoryProviderTest
     @ExtendWith({ RepositoryManagementTestExecutionListener.class,
                   ArtifactManagementTestExecutionListener.class })
     @Test
-    public void deniedRuleShouldBeValid(@MavenRepository(repositoryId = REPOSITORY_RELEASES_1) Repository releases1,
-                                        @MavenRepository(repositoryId = REPOSITORY_RELEASES_2) Repository releases2,
-                                        @Group(repositories = { REPOSITORY_RELEASES_1,
-                                                                REPOSITORY_RELEASES_2 },
-                                               rules = { @Rule(repositories = { REPOSITORY_RELEASES_2 },
-                                                               pattern = ".*(com|org)/carlspring.metadata.*",
-                                                               type = RoutingRuleTypeEnum.DENY)})
-                                        @MavenRepository(repositoryId = REPOSITORY_GROUP) Repository releasesGroup,
-                                        @MavenTestArtifact(repositoryId = REPOSITORY_RELEASES_1, id = "com.artifacts.accepted:foo", versions = "1.2.6") Path a1,
-                                        @MavenTestArtifact(repositoryId = REPOSITORY_RELEASES_2, id = "org.carlspring.metadata.will.not.be:retrieved", versions = "1.2.64") Path a2)
+    public void deniedRoutingRuleShouldBeValid(@MavenRepository(repositoryId = REPOSITORY_RELEASES_DRR_1) Repository releases1,
+                                               @MavenRepository(repositoryId = REPOSITORY_RELEASES_DRR_2) Repository releases2,
+                                               @Group(repositories = { REPOSITORY_RELEASES_DRR_1,
+                                                                       REPOSITORY_RELEASES_DRR_2 },
+                                                       rules = { @Rule(repositories = { REPOSITORY_RELEASES_DRR_2 },
+                                                                       pattern = ".*(com|org)/carlspring.metadata.*",
+                                                                       type = RoutingRuleTypeEnum.DENY)})
+                                               @MavenRepository(repositoryId = REPOSITORY_RELEASES_DRR_GROUP) Repository releasesGroup,
+                                               @MavenTestArtifact(repositoryId = REPOSITORY_RELEASES_DRR_1, id = "com.artifacts.accepted:foo", versions = "1.2.6") Path a1,
+                                               @MavenTestArtifact(repositoryId = REPOSITORY_RELEASES_DRR_2, id = "org.carlspring.metadata.will.not.be:retrieved", versions = "1.2.64") Path a2)
             throws Exception
     {
         testDeny(releases1.getId(), releases2.getId(), releasesGroup, (RepositoryPath) a2.normalize());
@@ -316,13 +355,13 @@ public class MavenGroupRepositoryProviderTest
                   ArtifactManagementTestExecutionListener.class })
     @Test
     public void deniedRoutingRuleShouldWorkIfRepositoryAndStorageIsNotProvided(
-            @MavenRepository(repositoryId = REPOSITORY_RELEASES_1) Repository releases1,
-            @MavenRepository(repositoryId = REPOSITORY_RELEASES_2) Repository releases2,
-            @Group(repositories = { REPOSITORY_RELEASES_1,
-                                    REPOSITORY_RELEASES_2 })
-            @MavenRepository(repositoryId = REPOSITORY_GROUP) Repository releasesGroup,
-            @MavenTestArtifact(repositoryId = REPOSITORY_RELEASES_1, id = "com.artifacts.accepted:foo", versions = "1.2.6") Path a1,
-            @MavenTestArtifact(repositoryId = REPOSITORY_RELEASES_2, id = "org.carlspring.metadata.will.not.be:retrieved", versions = "1.2.64") Path a2)
+            @MavenRepository(repositoryId = REPOSITORY_RELEASES_DRR_1) Repository releases1,
+            @MavenRepository(repositoryId = REPOSITORY_RELEASES_DRR_2) Repository releases2,
+            @Group(repositories = { REPOSITORY_RELEASES_DRR_1,
+                                    REPOSITORY_RELEASES_DRR_2 })
+            @MavenRepository(repositoryId = REPOSITORY_RELEASES_DRR_GROUP) Repository releasesGroup,
+            @MavenTestArtifact(repositoryId = REPOSITORY_RELEASES_DRR_1, id = "com.artifacts.accepted:foo", versions = "1.2.6") Path a1,
+            @MavenTestArtifact(repositoryId = REPOSITORY_RELEASES_DRR_2, id = "org.carlspring.metadata.will.not.be:retrieved", versions = "1.2.64") Path a2)
             throws Exception
     {
         // Rule cannot be created with annotation, because its 'repositories' attribute only allows not null repositories ids.
@@ -339,13 +378,13 @@ public class MavenGroupRepositoryProviderTest
                   ArtifactManagementTestExecutionListener.class })
     @Test
     public void deniedRoutingRuleShouldWorkIfRepositoryIsNotProvided(
-            @MavenRepository(repositoryId = REPOSITORY_RELEASES_1) Repository releases1,
-            @MavenRepository(repositoryId = REPOSITORY_RELEASES_2) Repository releases2,
-            @Group(repositories = { REPOSITORY_RELEASES_1,
-                                    REPOSITORY_RELEASES_2 })
-            @MavenRepository(repositoryId = REPOSITORY_GROUP) Repository releasesGroup,
-            @MavenTestArtifact(repositoryId = REPOSITORY_RELEASES_1, id = "com.artifacts.accepted:foo", versions = "1.2.6") Path a1,
-            @MavenTestArtifact(repositoryId = REPOSITORY_RELEASES_2, id = "org.carlspring.metadata.will.not.be:retrieved", versions = "1.2.64") Path a2)
+            @MavenRepository(repositoryId = REPOSITORY_RELEASES_DRR_1) Repository releases1,
+            @MavenRepository(repositoryId = REPOSITORY_RELEASES_DRR_2) Repository releases2,
+            @Group(repositories = { REPOSITORY_RELEASES_DRR_1,
+                                    REPOSITORY_RELEASES_DRR_2 })
+            @MavenRepository(repositoryId = REPOSITORY_RELEASES_DRR_GROUP) Repository releasesGroup,
+            @MavenTestArtifact(repositoryId = REPOSITORY_RELEASES_DRR_1, id = "com.artifacts.accepted:foo", versions = "1.2.6") Path a1,
+            @MavenTestArtifact(repositoryId = REPOSITORY_RELEASES_DRR_2, id = "org.carlspring.metadata.will.not.be:retrieved", versions = "1.2.64") Path a2)
             throws Exception
     {
         // Rule cannot be created with annotation, because its 'repositories' attribute only allows not null repositories ids.
@@ -363,16 +402,16 @@ public class MavenGroupRepositoryProviderTest
                   ArtifactManagementTestExecutionListener.class })
     @Test
     public void deniedRoutingRuleShouldWorkIfRepositoryIsEmpty(
-            @MavenRepository(repositoryId = REPOSITORY_RELEASES_1) Repository releases1,
-            @MavenRepository(repositoryId = REPOSITORY_RELEASES_2) Repository releases2,
-            @Group(repositories = { REPOSITORY_RELEASES_1,
-                                    REPOSITORY_RELEASES_2 },
+            @MavenRepository(repositoryId = REPOSITORY_RELEASES_DRR_1) Repository releases1,
+            @MavenRepository(repositoryId = REPOSITORY_RELEASES_DRR_2) Repository releases2,
+            @Group(repositories = { REPOSITORY_RELEASES_DRR_1,
+                                    REPOSITORY_RELEASES_DRR_2 },
                    rules = { @Rule(repositories = { StringUtils.EMPTY },
                                    pattern = ".*(com|org)/carlspring.metadata.*",
                                    type = RoutingRuleTypeEnum.DENY)})
-            @MavenRepository(repositoryId = REPOSITORY_GROUP) Repository releasesGroup,
-            @MavenTestArtifact(repositoryId = REPOSITORY_RELEASES_1, id = "com.artifacts.accepted:foo", versions = "1.2.6") Path a1,
-            @MavenTestArtifact(repositoryId = REPOSITORY_RELEASES_2, id = "org.carlspring.metadata.will.not.be:retrieved", versions = "1.2.64") Path a2)
+            @MavenRepository(repositoryId = REPOSITORY_RELEASES_DRR_GROUP) Repository releasesGroup,
+            @MavenTestArtifact(repositoryId = REPOSITORY_RELEASES_DRR_1, id = "com.artifacts.accepted:foo", versions = "1.2.6") Path a1,
+            @MavenTestArtifact(repositoryId = REPOSITORY_RELEASES_DRR_2, id = "org.carlspring.metadata.will.not.be:retrieved", versions = "1.2.64") Path a2)
             throws Exception
     {
         testDeny(releases1.getId(), releases2.getId(), releasesGroup, (RepositoryPath) a2.normalize());
@@ -382,13 +421,13 @@ public class MavenGroupRepositoryProviderTest
                   ArtifactManagementTestExecutionListener.class })
     @Test
     public void deniedRoutingRuleShouldWorkForAllGroupsUnderTheSameStorage(
-            @MavenRepository(repositoryId = REPOSITORY_RELEASES_1) Repository releases1,
-            @MavenRepository(repositoryId = REPOSITORY_RELEASES_2) Repository releases2,
-            @Group(repositories = { REPOSITORY_RELEASES_1,
-                                    REPOSITORY_RELEASES_2 })
-            @MavenRepository(repositoryId = REPOSITORY_GROUP) Repository releasesGroup,
-            @MavenTestArtifact(repositoryId = REPOSITORY_RELEASES_1, id = "com.artifacts.accepted:foo", versions = "1.2.6") Path a1,
-            @MavenTestArtifact(repositoryId = REPOSITORY_RELEASES_2, id = "org.carlspring.metadata.will.not.be:retrieved", versions = "1.2.64") Path a2)
+            @MavenRepository(repositoryId = REPOSITORY_RELEASES_DRR_1) Repository releases1,
+            @MavenRepository(repositoryId = REPOSITORY_RELEASES_DRR_2) Repository releases2,
+            @Group(repositories = { REPOSITORY_RELEASES_DRR_1,
+                                    REPOSITORY_RELEASES_DRR_2 })
+            @MavenRepository(repositoryId = REPOSITORY_RELEASES_DRR_GROUP) Repository releasesGroup,
+            @MavenTestArtifact(repositoryId = REPOSITORY_RELEASES_DRR_1, id = "com.artifacts.accepted:foo", versions = "1.2.6") Path a1,
+            @MavenTestArtifact(repositoryId = REPOSITORY_RELEASES_DRR_2, id = "org.carlspring.metadata.will.not.be:retrieved", versions = "1.2.64") Path a2)
             throws Exception
     {
 
@@ -406,13 +445,13 @@ public class MavenGroupRepositoryProviderTest
                   ArtifactManagementTestExecutionListener.class })
     @Test
     public void deniedRoutingRuleShouldWorkForAllGroups(
-            @MavenRepository(repositoryId = REPOSITORY_RELEASES_1) Repository releases1,
-            @MavenRepository(repositoryId = REPOSITORY_RELEASES_2) Repository releases2,
-            @Group(repositories = { REPOSITORY_RELEASES_1,
-                                    REPOSITORY_RELEASES_2 })
-            @MavenRepository(repositoryId = REPOSITORY_GROUP) Repository releasesGroup,
-            @MavenTestArtifact(repositoryId = REPOSITORY_RELEASES_1, id = "com.artifacts.accepted:foo", versions = "1.2.6") Path a1,
-            @MavenTestArtifact(repositoryId = REPOSITORY_RELEASES_2, id = "org.carlspring.metadata.will.not.be:retrieved", versions = "1.2.64") Path a2)
+            @MavenRepository(repositoryId = REPOSITORY_RELEASES_DRR_1) Repository releases1,
+            @MavenRepository(repositoryId = REPOSITORY_RELEASES_DRR_2) Repository releases2,
+            @Group(repositories = { REPOSITORY_RELEASES_DRR_1,
+                                    REPOSITORY_RELEASES_DRR_2 })
+            @MavenRepository(repositoryId = REPOSITORY_RELEASES_DRR_GROUP) Repository releasesGroup,
+            @MavenTestArtifact(repositoryId = REPOSITORY_RELEASES_DRR_1, id = "com.artifacts.accepted:foo", versions = "1.2.6") Path a1,
+            @MavenTestArtifact(repositoryId = REPOSITORY_RELEASES_DRR_2, id = "org.carlspring.metadata.will.not.be:retrieved", versions = "1.2.64") Path a2)
             throws Exception
     {
         // Rule cannot be created with annotation, because groupStorageId and groupRepositoryId cannot be passed as null.
@@ -429,13 +468,13 @@ public class MavenGroupRepositoryProviderTest
                   ArtifactManagementTestExecutionListener.class })
     @Test
     public void deniedRoutingRuleShouldWorkForAllGroupsUnderTheSameRepositoryName(
-            @MavenRepository(repositoryId = REPOSITORY_RELEASES_1) Repository releases1,
-            @MavenRepository(repositoryId = REPOSITORY_RELEASES_2) Repository releases2,
-            @Group(repositories = { REPOSITORY_RELEASES_1,
-                                    REPOSITORY_RELEASES_2 })
-            @MavenRepository(repositoryId = REPOSITORY_GROUP) Repository releasesGroup,
-            @MavenTestArtifact(repositoryId = REPOSITORY_RELEASES_1, id = "com.artifacts.accepted:foo", versions = "1.2.6") Path a1,
-            @MavenTestArtifact(repositoryId = REPOSITORY_RELEASES_2, id = "org.carlspring.metadata.will.not.be:retrieved", versions = "1.2.64") Path a2)
+            @MavenRepository(repositoryId = REPOSITORY_RELEASES_DRR_1) Repository releases1,
+            @MavenRepository(repositoryId = REPOSITORY_RELEASES_DRR_2) Repository releases2,
+            @Group(repositories = { REPOSITORY_RELEASES_DRR_1,
+                                    REPOSITORY_RELEASES_DRR_2 })
+            @MavenRepository(repositoryId = REPOSITORY_RELEASES_DRR_GROUP) Repository releasesGroup,
+            @MavenTestArtifact(repositoryId = REPOSITORY_RELEASES_DRR_1, id = "com.artifacts.accepted:foo", versions = "1.2.6") Path a1,
+            @MavenTestArtifact(repositoryId = REPOSITORY_RELEASES_DRR_2, id = "org.carlspring.metadata.will.not.be:retrieved", versions = "1.2.64") Path a2)
             throws Exception
     {
         // Rule cannot be created with annotation, because groupStorageId cannot be passed as null.
