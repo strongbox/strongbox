@@ -1,5 +1,6 @@
 package org.carlspring.strongbox.controllers.forms;
 
+import org.carlspring.strongbox.artifact.coordinates.MavenArtifactCoordinates;
 import org.carlspring.strongbox.config.IntegrationTest;
 import org.carlspring.strongbox.rest.common.RestAssuredBaseTest;
 
@@ -237,6 +238,24 @@ public class FormDataControllerTestIT
                .statusCode(HttpStatus.OK.value())
                .body("formDataValues", notNullValue())
                .body("formDataValues[0].values", hasSize(greaterThan(0)));
+    }
+
+    @Test
+    public void testGetRepositoryNamesWithStorageIdFilteredByLayout()
+    {
+        given().accept(MediaType.APPLICATION_JSON_VALUE)
+               .when()
+               .get(getContextBaseUrl() + "/repositoryNames?withStorageId=true&layout=" +
+                    MavenArtifactCoordinates.LAYOUT_NAME)
+               .peek()
+               .then()
+               .statusCode(HttpStatus.OK.value())
+               .body("formDataValues", notNullValue())
+               .body("formDataValues[0].values", hasSize(greaterThan(0)))
+               .expect(MockMvcResultMatchers.jsonPath("formDataValues[0].values").value(hasItem("storage-common-proxies:group-common-proxies")))
+               .expect(MockMvcResultMatchers.jsonPath("formDataValues[0].values").value(not(hasItem("storage-nuget:nuget.org"))))
+               .expect(MockMvcResultMatchers.jsonPath("formDataValues[0].values").value(not(hasItem("storage-pypi:pypi-releases"))))
+               .expect(MockMvcResultMatchers.jsonPath("formDataValues[0].values").value(not(hasItem("storage-npm:npm-releases"))));
     }
 
     @Test

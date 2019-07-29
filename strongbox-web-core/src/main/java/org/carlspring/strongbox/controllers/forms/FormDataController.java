@@ -67,7 +67,8 @@ public class FormDataController
 
     @ApiOperation(value = "Used to retrieve collection of storage form data")
     @ApiResponses(value = { @ApiResponse(code = 200, message = "Collection of storage form data") })
-    @PreAuthorize("hasAuthority('CONFIGURATION_ADD_UPDATE_STORAGE') or hasAuthority('CONFIGURATION_ADD_UPDATE_REPOSITORY')")
+    @PreAuthorize(
+            "hasAuthority('CONFIGURATION_ADD_UPDATE_STORAGE') or hasAuthority('CONFIGURATION_ADD_UPDATE_REPOSITORY')")
     @GetMapping(value = "/storageFields", produces = { MediaType.APPLICATION_JSON_VALUE })
     public ResponseEntity getStorageFields()
     {
@@ -123,7 +124,11 @@ public class FormDataController
                                                      boolean withStorageId,
                                              @ApiParam(value = "Filter repository names by type (i.e. hosted, group, proxy)")
                                              @RequestParam(value = "type", required = false)
-                                                     String type)
+                                                     String type,
+                                             @ApiParam(value = "Filter repository names by repository layout")
+                                             @RequestParam(value = "layout", required = false)
+                                                     String layout
+                                            )
     {
         Collection<? extends Repository> repositories = new HashSet<>();
 
@@ -146,9 +151,11 @@ public class FormDataController
         {
             boolean filterByType = StringUtils.isNotBlank(type);
             boolean filterByTerm = StringUtils.isNotBlank(filter);
+            boolean filterByLayout = StringUtils.isNotBlank(layout);
 
             repositoryNames = repositories.stream()
                                           .distinct()
+                                          .filter(r -> !filterByLayout || r.getLayout().equalsIgnoreCase(layout))
                                           .filter(r -> !filterByType || r.isType(type))
                                           .filter(r -> !filterByTerm ||
                                                        StringUtils.containsIgnoreCase(r.getId(), filter))
