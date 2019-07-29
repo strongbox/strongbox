@@ -21,7 +21,7 @@ import org.carlspring.strongbox.yaml.repository.CustomRepositoryConfiguration;
 import org.carlspring.strongbox.yaml.repository.CustomRepositoryConfigurationDto;
 import org.carlspring.strongbox.yaml.repository.RepositoryConfiguration;
 
-import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.annotation.*;
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 import com.fasterxml.jackson.databind.annotation.JsonSerialize;
 import com.google.common.collect.ImmutableList;
@@ -36,6 +36,7 @@ import org.apache.commons.lang3.StringUtils;
 @Immutable
 @XmlAccessorType(XmlAccessType.FIELD)
 @SuppressFBWarnings(value = "AJCIP_FIELD_ISNT_FINAL_IN_IMMUTABLE_CLASS")
+@JsonIgnoreProperties(value = {"storageId"}, allowGetters = true)
 public class RepositoryData
         implements Repository
 {
@@ -104,7 +105,7 @@ public class RepositoryData
     }
 
     public RepositoryData(final Repository delegate,
-                               final Storage storage)
+                          final Storage storage)
     {
         this.id = delegate.getId();
         this.policy = delegate.getPolicy();
@@ -121,14 +122,14 @@ public class RepositoryData
         this.allowsDelete = delegate.allowsDeletion();
         this.allowsDirectoryBrowsing = delegate.allowsDirectoryBrowsing();
         this.checksumHeadersEnabled = delegate.isChecksumHeadersEnabled();
-        
+
         RepositoryDto mutableRepository = (RepositoryDto)delegate;
         this.proxyConfiguration = immuteProxyConfiguration(mutableRepository.getProxyConfiguration());
         this.remoteRepository = immuteRemoteRepository(mutableRepository.getRemoteRepository());
         this.httpConnectionPool = immuteHttpConnectionPool(mutableRepository.getHttpConnectionPool());
         this.customConfigurations = immuteCustomConfigurations(mutableRepository.getCustomConfigurations());
         this.repositoryConfiguration = immuteCustomRepositoryConfiguration(mutableRepository.getRepositoryConfiguration());
-        
+
         this.groupRepositories = immuteGroupRepositories(delegate.getGroupRepositories());
         this.artifactCoordinateValidators = immuteArtifactCoordinateValidators(
                 delegate.getArtifactCoordinateValidators());
@@ -343,6 +344,15 @@ public class RepositoryData
     public Storage getStorage()
     {
         return storage;
+    }
+
+    /**
+     * This field is mainly used in the UI so don't remove it!
+     */
+    @JsonGetter("storageId")
+    public String getStorageId()
+    {
+        return this.storage != null ? this.storage.getId() : null;
     }
 
     @Override
