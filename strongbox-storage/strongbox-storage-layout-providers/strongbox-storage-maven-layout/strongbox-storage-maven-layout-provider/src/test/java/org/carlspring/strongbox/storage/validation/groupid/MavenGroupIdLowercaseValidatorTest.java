@@ -1,59 +1,64 @@
 package org.carlspring.strongbox.storage.validation.groupid;
 
-import org.carlspring.strongbox.artifact.coordinates.MavenArtifactCoordinates;
-import org.carlspring.strongbox.providers.io.RepositoryFileAttributes;
+import org.carlspring.strongbox.artifact.coordinates.ArtifactCoordinates;
+import org.carlspring.strongbox.config.Maven2LayoutProviderTestConfig;
+import org.carlspring.strongbox.providers.io.RepositoryFiles;
+import org.carlspring.strongbox.providers.io.RepositoryPath;
+import org.carlspring.strongbox.storage.repository.Repository;
 import org.carlspring.strongbox.storage.validation.artifact.LowercaseValidationException;
 
-import org.junit.jupiter.api.BeforeEach;
+import org.carlspring.strongbox.testing.artifact.ArtifactManagementTestExecutionListener;
+import org.carlspring.strongbox.testing.artifact.MavenTestArtifact;
+import org.carlspring.strongbox.testing.repository.MavenRepository;
+import org.carlspring.strongbox.testing.storage.repository.RepositoryManagementTestExecutionListener;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.junit.jupiter.api.parallel.Execution;
-import org.mockito.Mock;
-import org.mockito.Spy;
+
+import javax.inject.Inject;
+import java.nio.file.Path;
+
+import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.test.context.ActiveProfiles;
+import org.springframework.test.context.ContextConfiguration;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.parallel.ExecutionMode.CONCURRENT;
-import static org.mockito.Matchers.any;
-import static org.mockito.Mockito.doReturn;
-import static org.mockito.Mockito.when;
-import static org.mockito.MockitoAnnotations.initMocks;
-
 
 /**
  * Created by dinesh on 12/7/17.
  */
+@SpringBootTest
+@ActiveProfiles(profiles = "test")
+@ContextConfiguration(classes = Maven2LayoutProviderTestConfig.class)
 @Execution(CONCURRENT)
 public class MavenGroupIdLowercaseValidatorTest
 {
 
-    @Spy
-    MavenGroupIdLowercaseValidator groupIdCaseValidator = new MavenGroupIdLowercaseValidator();
+    private static final String REPOSITORY_RELEASES = "mailvt-releases";
 
-    MavenArtifactCoordinates mavenArtifactCoordinates;
+    private static final String GROUP_ID = "org.carlspring.maven.is.Uppercase";
 
-    @Mock
-    RepositoryFileAttributes repositoryFileAttributes;
-    
-    @BeforeEach
-    public void setUp()
-    {
-        initMocks(this);
-        mavenArtifactCoordinates = new MavenArtifactCoordinates("org.dinesh.artifact.is.Uppercase",
-                                                                "my-maven-artifact",
-                                                                "1.0",
-                                                                "classfier",
-                                                                "extension");
-    }
+    private static final String ARTIFACT_ID = "my-maven-artifact";
 
+    @Inject
+    private MavenGroupIdLowercaseValidator mavenGroupIdLowercaseValidator;
 
+    @ExtendWith({ RepositoryManagementTestExecutionListener.class,
+            ArtifactManagementTestExecutionListener.class })
     @Test
-    public void validateGroupIdCase()
+    public void validateGroupIdCase(@MavenRepository(repositoryId = REPOSITORY_RELEASES)
+                                            Repository repository,
+                                    @MavenTestArtifact(repositoryId = REPOSITORY_RELEASES,
+                                            id = GROUP_ID + ":" + ARTIFACT_ID,
+                                            versions = {"1.0"})
+                                            Path path)
             throws Exception
     {
-        doReturn(repositoryFileAttributes).when(groupIdCaseValidator).getAttributes(any());
-        when(repositoryFileAttributes.getCoordinates()).thenReturn(mavenArtifactCoordinates);
+        RepositoryPath repositoryPath = (RepositoryPath) path.normalize();
+        ArtifactCoordinates coordinates = RepositoryFiles.readCoordinates(repositoryPath);
 
-        assertThrows(LowercaseValidationException.class, () -> {
-            groupIdCaseValidator.validate(null, mavenArtifactCoordinates);
-        });
+        assertThrows(LowercaseValidationException.class,
+                () -> mavenGroupIdLowercaseValidator.validate(repository, coordinates));
     }
 
 }
