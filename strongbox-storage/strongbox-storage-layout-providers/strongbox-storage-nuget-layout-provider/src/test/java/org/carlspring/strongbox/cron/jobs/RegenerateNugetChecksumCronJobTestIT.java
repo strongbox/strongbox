@@ -1,30 +1,35 @@
 package org.carlspring.strongbox.cron.jobs;
 
-import org.carlspring.strongbox.booters.PropertiesBooter;
 import org.carlspring.strongbox.config.NugetLayoutProviderCronTasksTestConfig;
-import org.carlspring.strongbox.cron.services.JobManager;
-import org.carlspring.strongbox.repository.RepositoryManagementStrategyException;
-import org.carlspring.strongbox.services.ConfigurationManagementService;
-import org.carlspring.strongbox.services.RepositoryManagementService;
-import org.carlspring.strongbox.services.StorageManagementService;
-import org.carlspring.strongbox.storage.StorageDto;
-import org.carlspring.strongbox.storage.repository.RepositoryDto;
-import org.carlspring.strongbox.storage.repository.NugetRepositoryFactory;
+import org.carlspring.strongbox.storage.repository.Repository;
 import org.carlspring.strongbox.storage.repository.RepositoryPolicyEnum;
+import org.carlspring.strongbox.testing.artifact.ArtifactManagementTestExecutionListener;
+import org.carlspring.strongbox.testing.artifact.NugetTestArtifact;
+import org.carlspring.strongbox.testing.repository.NugetRepository;
+import org.carlspring.strongbox.testing.storage.repository.RepositoryManagementTestExecutionListener;
 
-import javax.inject.Inject;
-import java.io.File;
 import java.io.IOException;
+import java.lang.reflect.UndeclaredThrowableException;
+import java.nio.file.Files;
+import java.nio.file.Path;
 import java.nio.file.Paths;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.UUID;
+import java.util.concurrent.TimeUnit;
 
 import org.apache.commons.lang3.StringUtils;
-import org.junit.jupiter.api.*;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.TestInfo;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.ContextConfiguration;
-import static org.carlspring.strongbox.util.TestFileUtils.deleteIfExists;
-import static org.junit.jupiter.api.Assertions.*;
+import static java.nio.file.Files.deleteIfExists;
+import static org.awaitility.Awaitility.await;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 /**
  * @author Kate Novik.
@@ -36,81 +41,11 @@ import static org.junit.jupiter.api.Assertions.*;
 public class RegenerateNugetChecksumCronJobTestIT
         extends BaseCronJobWithNugetIndexingTestCase
 {
-
-    private static final String STORAGE1 = "storage-nuget";
-
     private static final String STORAGE2 = "nuget-checksum-test";
 
     private static final String REPOSITORY_RELEASES = "rnccj-releases";
 
     private static final String REPOSITORY_ALPHA = "rnccj-alpha";
-    @Inject
-    protected StorageManagementService storageManagementService;
-    @Inject
-    private PropertiesBooter propertiesBooter;
-    @Inject
-    private ConfigurationManagementService configurationManagementService;
-    @Inject
-    private RepositoryManagementService repositoryManagementService;
-    @Inject
-    private JobManager jobManager;
-
-    @Inject
-    private NugetRepositoryFactory nugetRepositoryFactory;
-
-
-    @BeforeAll
-    public static void cleanUp()
-            throws Exception
-    {
-        cleanUp(getRepositoriesToClean());
-    }
-
-    public static Set<RepositoryDto> getRepositoriesToClean()
-    {
-        Set<RepositoryDto> repositories = new LinkedHashSet<>();
-        repositories.add(createRepositoryMock(STORAGE1, REPOSITORY_RELEASES));
-        repositories.add(createRepositoryMock(STORAGE1, REPOSITORY_ALPHA));
-        repositories.add(createRepositoryMock(STORAGE2, REPOSITORY_RELEASES));
-        return repositories;
-    }
-
-    public static void cleanUp(Set<RepositoryDto> repositoriesToClean)
-            throws Exception
-    {
-        if (repositoriesToClean != null)
-        {
-            for (RepositoryDto repository : repositoriesToClean)
-            {
-                removeRepositoryDirectory(repository.getStorage().getId(), repository.getId());
-            }
-        }
-    }
-
-    private static void removeRepositoryDirectory(String storageId,
-                                                  String repositoryId)
-            throws IOException
-    {
-        File repositoryBaseDir = new File("target/strongbox-vault/storages/" + storageId + "/" + repositoryId);
-
-        if (repositoryBaseDir.exists())
-        {
-            org.apache.commons.io.FileUtils.deleteDirectory(repositoryBaseDir);
-        }
-    }
-
-    public static RepositoryDto createRepositoryMock(String storageId,
-                                                         String repositoryId)
-    {
-        // This is no the real storage, but has a matching ID.
-        // We're mocking it, as the configurationManager is not available at the the static methods are invoked.
-        StorageDto storage = new StorageDto(storageId);
-
-        RepositoryDto repository = new RepositoryDto(repositoryId);
-        repository.setStorage(storage);
-
-        return repository;
-    }
 
     @Override
     @BeforeEach
@@ -118,261 +53,265 @@ public class RegenerateNugetChecksumCronJobTestIT
             throws Exception
     {
         super.init(testInfo);
-
-        createStorage(STORAGE1);
-
-        createRepository(STORAGE1, REPOSITORY_RELEASES, RepositoryPolicyEnum.RELEASE.getPolicy());
-
-        //Create released nuget package in the repository rnccj-releases (storage1)
-        generateNugetArtifact(getRepositoryBasedir(STORAGE1, REPOSITORY_RELEASES),
-                              "org.carlspring.strongbox.checksum-second", "1.0.0");
-
-        createRepository(STORAGE1, REPOSITORY_ALPHA, RepositoryPolicyEnum.SNAPSHOT.getPolicy());
-
-        //Create pre-released nuget package in the repository rnccj-alpha
-        generateAlphaNugetArtifact(getRepositoryBasedir(STORAGE1, REPOSITORY_ALPHA),
-                                   "org.carlspring.strongbox.checksum-one",
-                                   "1.0.1");
-
-        createStorage(STORAGE2);
-
-        createRepository(STORAGE2, REPOSITORY_RELEASES, RepositoryPolicyEnum.RELEASE.getPolicy());
-
-        //Create released nuget package in the repository rnccj-releases (storage2)
-        generateNugetArtifact(getRepositoryBasedir(STORAGE2, REPOSITORY_RELEASES),
-                              "org.carlspring.strongbox.checksum-one",
-                              "1.0.0");
     }
 
-    @AfterEach
-    public void removeRepositories() throws IOException
-    {
-        removeRepositories(getRepositoriesToClean());
-    }
-
-    private String getRepositoryBasedir(String storageId,
-                                        String repositoryId)
-    {
-        return Paths.get(propertiesBooter.getVaultDirectory() +
-                         "/storages/" + storageId + "/" + repositoryId).toAbsolutePath().toString();
-    }
-
+    @ExtendWith({ RepositoryManagementTestExecutionListener.class,
+                  ArtifactManagementTestExecutionListener.class })
     @Test
-    public void testRegenerateNugetArtifactChecksum()
+    public void testRegenerateNugetArtifactChecksum(@NugetRepository(repositoryId = REPOSITORY_RELEASES)
+                                                    Repository repository,
+                                                    @NugetTestArtifact(repositoryId = REPOSITORY_RELEASES,
+                                                                       id = "org.carlspring.strongbox.checksum-second",
+                                                                       versions = "1.0.0")
+                                                    Path artifactNupkgPath,
+                                                    @NugetTestArtifact(repositoryId = REPOSITORY_RELEASES,
+                                                                       id = "org.carlspring.strongbox.checksum-second",
+                                                                       versions = "1.0.0",
+                                                                       packaging = "nuspec")
+                                                    Path artifactNuspecPath)
             throws Exception
     {
         final UUID jobKey = expectedJobKey;
         final String jobName = expectedJobName;
 
-        String artifactPath = getRepositoryBasedir(STORAGE1, REPOSITORY_RELEASES) +
-                              "/org.carlspring.strongbox.checksum-second";
+        Path nupkgSha512Path = Paths.get(artifactNupkgPath.toString() + ".sha512");
+        deleteIfExists(nupkgSha512Path);
+        assertTrue(Files.notExists(nupkgSha512Path),"The checksum file for nupkg artifact exist!");
 
-        deleteIfExists(new File(artifactPath, "/1.0.0/org.carlspring.strongbox.checksum-second.1.0.0.nupkg.sha512"));
-        deleteIfExists(new File(artifactPath, "/1.0.0/org.carlspring.strongbox.checksum-second.nuspec.sha512"));
+        Path nuspecSha512Path = Paths.get(artifactNuspecPath.toString() + ".sha512");
+        deleteIfExists(nuspecSha512Path);
+        assertTrue(Files.notExists(nuspecSha512Path),"The checksum file for nuspec artifact exist!");
 
-        assertFalse(
-                new File(artifactPath, "/1.0.0/org.carlspring.strongbox.checksum-second.1.0.0.nupkg.sha512").exists(),
-                "The checksum file for artifact exist!");
-
-        List<File> resultList = new ArrayList<>();
+        List<Path> resultList = new ArrayList<>();
         jobManager.registerExecutionListener(jobKey.toString(), (jobKey1, statusExecuted) ->
         {
             if (!StringUtils.equals(jobKey1, jobKey.toString()) || !statusExecuted)
             {
                 return;
             }
-            resultList.add(new File(artifactPath,
-                                    "/1.0.0/org.carlspring.strongbox.checksum-second.1.0.0.nupkg.sha512"));
-            resultList.add(new File(artifactPath,
-                                    "/1.0.0/org.carlspring.strongbox.checksum-second.nuspec.sha512"));
+            resultList.add(nupkgSha512Path);
+            resultList.add(nuspecSha512Path);
         });
 
-        addCronJobConfig(jobKey, jobName, RegenerateChecksumCronJob.class, STORAGE1, REPOSITORY_RELEASES,
+        addCronJobConfig(jobKey,
+                         jobName,
+                         RegenerateChecksumCronJob.class,
+                         repository.getStorage().getId(),
+                         repository.getId(),
                          properties ->
                          {
                              properties.put("basePath", "org.carlspring.strongbox.checksum-second");
                              properties.put("forceRegeneration", "false");
                          });
 
-        assertTrue(expectEvent(), "Failed to execute task!");
+        await().atMost(EVENT_TIMEOUT_SECONDS, TimeUnit.SECONDS).untilTrue(receivedExpectedEvent());
 
         assertEquals(2, resultList.size());
-        resultList.forEach(f -> {
-            assertTrue(f.exists(),
-                       "The checksum file " + f.toString() + " doesn't exist!");
-            assertTrue(f.length() > 0,
-                       "The checksum file is empty!");
+        resultList.forEach(path -> {
+            assertTrue(Files.exists(path),
+                       "The checksum file " + path.toString() + " doesn't exist!");
+            try
+            {
+                assertTrue(Files.size(path) > 0,
+                           "The checksum file is empty!");
+            }
+            catch (IOException e)
+            {
+                throw new UndeclaredThrowableException(e);
+            }
         });
     }
 
+    @ExtendWith({ RepositoryManagementTestExecutionListener.class,
+                         ArtifactManagementTestExecutionListener.class })
     @Test
-    public void testRegenerateNugetChecksumInRepository()
+    public void testRegenerateNugetChecksumInRepository(@NugetRepository(repositoryId = REPOSITORY_ALPHA,
+                                                                         policy = RepositoryPolicyEnum.SNAPSHOT)
+                                                        Repository repository,
+                                                        @NugetTestArtifact(repositoryId = REPOSITORY_ALPHA,
+                                                                           id = "org.carlspring.strongbox.checksum-one",
+                                                                           versions = "1.0.1-alpha")
+                                                        Path artifactNupkgPath,
+                                                        @NugetTestArtifact(repositoryId = REPOSITORY_ALPHA,
+                                                                           id = "org.carlspring.strongbox.checksum-one",
+                                                                           versions = "1.0.1-alpha",
+                                                                           packaging = "nuspec")
+                                                        Path artifactNuspecPath)
             throws Exception
     {
         final UUID jobKey = expectedJobKey;
         final String jobName = expectedJobName;
 
-        deleteIfExists(new File(getRepositoryBasedir(STORAGE1, REPOSITORY_ALPHA),
-                                "/org.carlspring.strongbox.checksum-one/1.0.1-alpha/org.carlspring.strongbox.checksum-one.1.0.1-alpha.nupkg.sha512"));
-        deleteIfExists(new File(getRepositoryBasedir(STORAGE1, REPOSITORY_ALPHA),
-                                "/org.carlspring.strongbox.checksum-one/1.0.1-alpha/org.carlspring.strongbox.checksum-one.nuspec.sha512"));
+        Path nupkgSha512Path = Paths.get(artifactNupkgPath.toString() + ".sha512");
+        deleteIfExists(nupkgSha512Path);
+        assertTrue(Files.notExists(nupkgSha512Path),"The checksum file for nupkg artifact exist!");
 
-        assertFalse(new File(getRepositoryBasedir(STORAGE1, REPOSITORY_ALPHA),
-                             "/org.carlspring.strongbox.checksum-one/1.0.1-alpha/org.carlspring.strongbox.checksum-one.1.0.1-alpha.nupkg.sha512").exists(),
-                    "The checksum file for artifact exist!");
+        Path nuspecSha512Path = Paths.get(artifactNuspecPath.toString() + ".sha512");
+        deleteIfExists(nuspecSha512Path);
+        assertTrue(Files.notExists(nuspecSha512Path),"The checksum file for nuspec artifact exist!");
 
-        List<File> resultList = new ArrayList<>();
+        List<Path> resultList = new ArrayList<>();
         jobManager.registerExecutionListener(jobKey.toString(), (jobKey1,
                                                                  statusExecuted) -> {
             if (!StringUtils.equals(jobKey1, jobKey.toString()) || !statusExecuted)
             {
                 return;
             }
-            resultList.add(new File(getRepositoryBasedir(STORAGE1, REPOSITORY_ALPHA),
-                                    "/org.carlspring.strongbox.checksum-one/1.0.1-alpha/org.carlspring.strongbox.checksum-one.1.0.1-alpha.nupkg.sha512"));
-            resultList.add(new File(getRepositoryBasedir(STORAGE1, REPOSITORY_ALPHA),
-                                    "/org.carlspring.strongbox.checksum-one/1.0.1-alpha/org.carlspring.strongbox.checksum-one.nuspec.sha512"));
+            resultList.add(nupkgSha512Path);
+            resultList.add(nuspecSha512Path);
         });
         addCronJobConfig(jobKey,
                          jobName,
                          RegenerateChecksumCronJob.class,
-                         STORAGE1,
-                         REPOSITORY_ALPHA,
+                         repository.getStorage().getId(),
+                         repository.getId(),
                          properties -> properties.put("forceRegeneration", "false"));
 
-        assertTrue(expectEvent(), "Failed to execute task!");
+        await().atMost(EVENT_TIMEOUT_SECONDS, TimeUnit.SECONDS).untilTrue(receivedExpectedEvent());
+
         assertEquals(2, resultList.size());
 
-        resultList.forEach(f -> {
-            assertTrue(f.exists(), "The checksum file doesn't exist!");
-            assertTrue(f.length() > 0, "The checksum file is empty!");
+        resultList.forEach(path -> {
+            assertTrue(Files.exists(path),
+                       "The checksum file " + path.toString() + " doesn't exist!");
+            try
+            {
+                assertTrue(Files.size(path) > 0,
+                           "The checksum file is empty!");
+            }
+            catch (IOException e)
+            {
+                throw new UndeclaredThrowableException(e);
+            }
         });
-
     }
 
+    @ExtendWith({ RepositoryManagementTestExecutionListener.class,
+                  ArtifactManagementTestExecutionListener.class })
     @Test
-    public void testRegenerateNugetChecksumInStorage()
+    public void testRegenerateNugetChecksumInStorage(@NugetRepository(repositoryId = REPOSITORY_RELEASES)
+                                                     Repository repository,
+                                                     @NugetTestArtifact(repositoryId = REPOSITORY_RELEASES,
+                                                                        id = "org.carlspring.strongbox.checksum-second",
+                                                                        versions = "1.0.0")
+                                                     Path artifactNupkgPath,
+                                                     @NugetTestArtifact(repositoryId = REPOSITORY_RELEASES,
+                                                                        id = "org.carlspring.strongbox.checksum-second",
+                                                                        versions = "1.0.0",
+                                                                        packaging = "nuspec")
+                                                     Path artifactNuspecPath)
             throws Exception
     {
         final UUID jobKey = expectedJobKey;
         final String jobName = expectedJobName;
 
-        String artifactPath =
-                getRepositoryBasedir(STORAGE1, REPOSITORY_RELEASES) + "/org.carlspring.strongbox.checksum-second";
+        Path nupkgSha512Path = Paths.get(artifactNupkgPath.toString() + ".sha512");
+        deleteIfExists(nupkgSha512Path);
+        assertTrue(Files.notExists(nupkgSha512Path),"The checksum file for nupkg artifact exist!");
 
-        deleteIfExists(new File(artifactPath, "/1.0.0/org.carlspring.strongbox.checksum-second.1.0.0.nupkg.sha512"));
-        deleteIfExists(new File(artifactPath, "/1.0.0/org.carlspring.strongbox.checksum-second.nuspec.sha512"));
+        Path nuspecSha512Path = Paths.get(artifactNuspecPath.toString() + ".sha512");
+        deleteIfExists(nuspecSha512Path);
+        assertTrue(Files.notExists(nuspecSha512Path),"The checksum file for nuspec artifact exist!");
 
-        assertFalse(
-                new File(artifactPath, "/1.0.0/org.carlspring.strongbox.checksum-second.1.0.0.nupkg.sha512").exists(),
-                "The checksum file for artifact exist!");
-
-        List<File> resultList = new ArrayList<>();
+        List<Path> resultList = new ArrayList<>();
         jobManager.registerExecutionListener(jobKey.toString(), (jobKey1,
                                                                  statusExecuted) -> {
             if (!StringUtils.equals(jobKey1, jobKey.toString()) || !statusExecuted)
             {
                 return;
             }
-            resultList.add(
-                    new File(artifactPath, "/1.0.0/org.carlspring.strongbox.checksum-second.1.0.0.nupkg.sha512"));
-            resultList.add(new File(artifactPath, "/1.0.0/org.carlspring.strongbox.checksum-second.nuspec.sha512"));
+            resultList.add(nupkgSha512Path);
+            resultList.add(nuspecSha512Path);
         });
 
-        addCronJobConfig(jobKey, jobName, RegenerateChecksumCronJob.class, STORAGE1, null,
+        addCronJobConfig(jobKey,
+                         jobName,
+                         RegenerateChecksumCronJob.class,
+                         repository.getStorage().getId(),
+                         null,
                          properties -> properties.put("forceRegeneration", "false"));
 
-        assertTrue(expectEvent(), "Failed to execute task!");
+        await().atMost(EVENT_TIMEOUT_SECONDS, TimeUnit.SECONDS).untilTrue(receivedExpectedEvent());
 
         assertEquals(2, resultList.size());
-        resultList.forEach(f -> {
-            assertTrue(f.exists(), "The checksum file " + f.toString() + " doesn't exist!");
-            assertTrue(f.length() > 0, "The checksum file is empty!");
+        resultList.forEach(path -> {
+            assertTrue(Files.exists(path),
+                       "The checksum file " + path.toString() + " doesn't exist!");
+            try
+            {
+                assertTrue(Files.size(path) > 0,
+                           "The checksum file is empty!");
+            }
+            catch (IOException e)
+            {
+                throw new UndeclaredThrowableException(e);
+            }
         });
     }
 
+    @ExtendWith({ RepositoryManagementTestExecutionListener.class,
+                  ArtifactManagementTestExecutionListener.class })
     @Test
-    public void testRegenerateNugetChecksumInStorages()
+    public void testRegenerateNugetChecksumInStorages(@NugetRepository(storageId = STORAGE2,
+                                                                       repositoryId = REPOSITORY_RELEASES)
+                                                      Repository repository,
+                                                      @NugetTestArtifact(storageId = STORAGE2,
+                                                                         repositoryId = REPOSITORY_RELEASES,
+                                                                         id = "org.carlspring.strongbox.checksum-one",
+                                                                         versions = "1.0.0")
+                                                      Path artifactNupkgPath,
+                                                      @NugetTestArtifact(storageId = STORAGE2,
+                                                                         repositoryId = REPOSITORY_RELEASES,
+                                                                         id = "org.carlspring.strongbox.checksum-one",
+                                                                         versions = "1.0.0",
+                                                                         packaging = "nuspec")
+                                                      Path artifactNuspecPath)
             throws Exception
     {
         final UUID jobKey = expectedJobKey;
         final String jobName = expectedJobName;
 
-        String artifactPath =
-                getRepositoryBasedir(STORAGE2, REPOSITORY_RELEASES) + "/org.carlspring.strongbox.checksum-one";
+        Path nupkgSha512Path = Paths.get(artifactNupkgPath.toString() + ".sha512");
+        deleteIfExists(nupkgSha512Path);
+        assertTrue(Files.notExists(nupkgSha512Path),"The checksum file for nupkg artifact exist!");
 
-        deleteIfExists(new File(artifactPath, "/1.0.0/org.carlspring.strongbox.checksum-one.1.0.0.nupkg.sha512"));
-        deleteIfExists(new File(artifactPath, "/1.0.0/org.carlspring.strongbox.checksum-one.nuspec.sha512"));
+        Path nuspecSha512Path = Paths.get(artifactNuspecPath.toString() + ".sha512");
+        deleteIfExists(nuspecSha512Path);
+        assertTrue(Files.notExists(nuspecSha512Path),"The checksum file for nuspec artifact exist!");
 
-        assertFalse(new File(artifactPath, "/1.0.0/org.carlspring.strongbox.checksum-one.1.0.0.nupkg.sha512").exists(),
-                    "The checksum file for artifact exist!");
-
-        List<File> resultList = new ArrayList<>();
+        List<Path> resultList = new ArrayList<>();
         jobManager.registerExecutionListener(jobKey.toString(), (jobKey1,
                                                                  statusExecuted) -> {
             if (!StringUtils.equals(jobKey1, jobKey.toString()) || !statusExecuted)
             {
                 return;
             }
-            resultList.add(new File(artifactPath, "/1.0.0/org.carlspring.strongbox.checksum-one.1.0.0.nupkg.sha512"));
-            resultList.add(new File(artifactPath, "/1.0.0/org.carlspring.strongbox.checksum-one.nuspec.sha512"));
+            resultList.add(nupkgSha512Path);
+            resultList.add(nuspecSha512Path);
         });
 
-        addCronJobConfig(jobKey, jobName, RegenerateChecksumCronJob.class, null, null,
+        addCronJobConfig(jobKey,
+                         jobName,
+                         RegenerateChecksumCronJob.class,
+                         null,
+                         null,
                          properties -> properties.put("forceRegeneration", "false"));
 
-        assertTrue(expectEvent(), "Failed to execute task!");
+        await().atMost(EVENT_TIMEOUT_SECONDS, TimeUnit.SECONDS).untilTrue(receivedExpectedEvent());
 
         assertEquals(2, resultList.size());
-        resultList.forEach(f -> {
-            assertTrue(f.exists(), "The checksum file " + f.toString() + " doesn't exist!");
-            assertTrue(f.length() > 0, "The checksum file is empty!");
+        resultList.forEach(path -> {
+            assertTrue(Files.exists(path),
+                       "The checksum file " + path.toString() + " doesn't exist!");
+            try
+            {
+                assertTrue(Files.size(path) > 0,
+                           "The checksum file is empty!");
+            }
+            catch (IOException e)
+            {
+                throw new UndeclaredThrowableException(e);
+            }
         });
     }
-
-    private void createRepository(String storageId,
-                                  String repositoryId,
-                                  String policy)
-            throws IOException,
-                   RepositoryManagementStrategyException
-    {
-        RepositoryDto repository = nugetRepositoryFactory.createRepository(repositoryId);
-        repository.setPolicy(policy);
-
-        createRepository(storageId, repository);
-    }
-
-    private void createRepository(String storageId,
-                                  RepositoryDto repository)
-            throws IOException,
-                   RepositoryManagementStrategyException
-    {
-        configurationManagementService.saveRepository(storageId, repository);
-
-        // Create the repository
-        repositoryManagementService.createRepository(storageId, repository.getId());
-    }
-
-    private void createStorage(String storageId)
-            throws IOException
-    {
-        createStorage(new StorageDto(storageId));
-    }
-
-    private void createStorage(StorageDto storage)
-            throws IOException
-    {
-        configurationManagementService.saveStorage(storage);
-        storageManagementService.saveStorage(storage);
-    }
-
-    public void removeRepositories(Set<RepositoryDto> repositoriesToClean) throws IOException
-    {
-        for (RepositoryDto repository : repositoriesToClean)
-        {
-            configurationManagementService.removeRepository(repository.getStorage()
-                                                                      .getId(), repository.getId());
-        }
-    }
-
 }
