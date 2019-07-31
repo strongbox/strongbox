@@ -211,7 +211,7 @@
                 <configuration>
                     <preWrapperConf>${project.basedir}/src/main/resources/setenv.conf</preWrapperConf>
                     
-                    <configurationDirectory>conf</configurationDirectory>
+                    <configurationDirectory>etc</configurationDirectory>
 
                     <repositoryLayout>flat</repositoryLayout>
                     <assembleDirectory>target/generated-resources/appassembler/jsw/strongbox</assembleDirectory>
@@ -219,8 +219,6 @@
                     <binFileExtensions>
                         <unix>.sh</unix>
                     </binFileExtensions>
-
-                    <configurationDirectory>etc/conf</configurationDirectory>
 
                     <!-- This otherwise causes all the direct and transitive dependencies to be copied under
                          ${dir.strongbox.standalone}/lib, completely unaware of the fact that all the required
