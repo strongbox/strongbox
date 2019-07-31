@@ -1,6 +1,6 @@
 # Pull Request Description
 
-This fixes issue #.
+This pull request closes #
 
 # Acceptance Test
 
