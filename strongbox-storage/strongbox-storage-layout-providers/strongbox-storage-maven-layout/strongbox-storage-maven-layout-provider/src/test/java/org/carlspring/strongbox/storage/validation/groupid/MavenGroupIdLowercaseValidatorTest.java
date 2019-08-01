@@ -44,21 +44,22 @@ public class MavenGroupIdLowercaseValidatorTest
     private MavenGroupIdLowercaseValidator mavenGroupIdLowercaseValidator;
 
     @ExtendWith({ RepositoryManagementTestExecutionListener.class,
-            ArtifactManagementTestExecutionListener.class })
+                  ArtifactManagementTestExecutionListener.class })
     @Test
     public void validateGroupIdCase(@MavenRepository(repositoryId = REPOSITORY_RELEASES)
-                                            Repository repository,
+                                    Repository repository,
                                     @MavenTestArtifact(repositoryId = REPOSITORY_RELEASES,
-                                            id = GROUP_ID + ":" + ARTIFACT_ID,
-                                            versions = {"1.0"})
-                                            Path path)
+                                                       id = GROUP_ID + ":" + ARTIFACT_ID,
+                                                       versions = { "1.0" })
+                                    Path path)
             throws Exception
     {
         RepositoryPath repositoryPath = (RepositoryPath) path.normalize();
         ArtifactCoordinates coordinates = RepositoryFiles.readCoordinates(repositoryPath);
 
         assertThrows(LowercaseValidationException.class,
-                () -> mavenGroupIdLowercaseValidator.validate(repository, coordinates));
+                     () -> mavenGroupIdLowercaseValidator.validate(repository,
+                                                                   coordinates));
     }
 
 }

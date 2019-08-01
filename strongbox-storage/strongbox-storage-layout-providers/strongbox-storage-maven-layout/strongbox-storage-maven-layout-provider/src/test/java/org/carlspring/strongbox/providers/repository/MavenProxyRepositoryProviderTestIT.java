@@ -78,29 +78,26 @@ public class MavenProxyRepositoryProviderTestIT
         final String centralRepositoryId = getRepositoryName(CENTRAL_REPOSITORY_ID,
                                                              testInfo);
 
-        artifactEntryService.delete(
-                artifactEntryService.findArtifactList(STORAGE_ID,
-                                                      repositoryId,
-                                                      ImmutableMap.of("groupId", "org.carlspring.maven",
-                                                                      "artifactId", "derby-maven-plugin",
-                                                                      "version", "1.10"),
-                                                      true));
+        artifactEntryService.delete(artifactEntryService.findArtifactList(STORAGE_ID,
+                                                                          repositoryId,
+                                                                          ImmutableMap.of("groupId", "org.carlspring.maven",
+                                                                                          "artifactId", "derby-maven-plugin",
+                                                                                          "version", "1.10"),
+                                                                          true));
 
-        artifactEntryService.delete(
-                artifactEntryService.findArtifactList(STORAGE_ID,
-                                                      repositoryId,
-                                                      ImmutableMap.of("groupId", "org.carlspring",
-                                                                      "artifactId", "properties-injector",
-                                                                      "version", "1.1"),
-                                                      true));
+        artifactEntryService.delete(artifactEntryService.findArtifactList(STORAGE_ID,
+                                                                          repositoryId,
+                                                                          ImmutableMap.of("groupId", "org.carlspring",
+                                                                                          "artifactId", "properties-injector",
+                                                                                           "version", "1.1"),
+                                                                          true));
 
-        artifactEntryService.delete(
-                artifactEntryService.findArtifactList(STORAGE_ID,
-                                                      repositoryId,
-                                                      ImmutableMap.of("groupId", "javax.media",
-                                                                      "artifactId", "jai_core",
-                                                                      "version", "1.1.3"),
-                                                      true));
+        artifactEntryService.delete(artifactEntryService.findArtifactList(STORAGE_ID,
+                                                                          repositoryId,
+                                                                          ImmutableMap.of("groupId", "javax.media",
+                                                                                          "artifactId", "jai_core",
+                                                                                          "version", "1.1.3"),
+                                                                          true));
     }
 
     /*
@@ -160,9 +157,8 @@ public class MavenProxyRepositoryProviderTestIT
                             repositoryId,
                             "org/carlspring/properties-injector/1.1/properties-injector-1.1.jar");
 
-        assertTrue(RepositoryFiles.artifactExists(
-                repositoryPathResolver.resolve(proxyRepository,
-                                               "org/carlspring/properties-injector/maven-metadata.xml")));
+        assertTrue(RepositoryFiles.artifactExists(repositoryPathResolver.resolve(proxyRepository,
+                                                                                 "org/carlspring/properties-injector/maven-metadata.xml")));
     }
 
     @ExtendWith({ RepositoryManagementTestExecutionListener.class })
@@ -202,9 +198,8 @@ public class MavenProxyRepositoryProviderTestIT
                                 secondRepoArtifactBaseBath.toFile());
 
         // 4. confirm maven-metadata.xml lies in the 2nd repository
-        assertTrue(RepositoryFiles.artifactExists(
-                repositoryPathResolver.resolve(proxyRepository2,
-                                               "javax/interceptor/javax.interceptor-api/maven-metadata.xml")));
+        assertTrue(RepositoryFiles.artifactExists(repositoryPathResolver.resolve(proxyRepository2,
+                                                                                 "javax/interceptor/javax.interceptor-api/maven-metadata.xml")));
 
         // 5. confirm some pre-merge state
         Path artifactBasePath = repositoryPathResolver.resolve(proxyRepository2,
@@ -249,7 +244,8 @@ public class MavenProxyRepositoryProviderTestIT
         artifactEntry = Optional.ofNullable(artifactEntryService.findOneArtifact(storageId,
                                                                                  repositoryId,
                                                                                  path));
-        assertThat(artifactEntry, CoreMatchers.not(CoreMatchers.equalTo(Optional.empty())));
+        assertThat(artifactEntry,
+                   CoreMatchers.not(CoreMatchers.equalTo(Optional.empty())));
     }
 
     @ExtendWith({ RepositoryManagementTestExecutionListener.class })
