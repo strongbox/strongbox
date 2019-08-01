@@ -72,33 +72,35 @@ public class MavenProxyRepositoryProviderTestIT
             throws Exception
     {
 
-        final String repositoryId = getRepositoryName(REPOSITORY_ID, testInfo);
+        final String repositoryId = getRepositoryName(REPOSITORY_ID,
+                                                      testInfo);
 
-        final String centralRepositoryId = getRepositoryName(CENTRAL_REPOSITORY_ID, testInfo);
-
-        artifactEntryService.delete(
-                artifactEntryService.findArtifactList(STORAGE_ID,
-                        repositoryId,
-                        ImmutableMap.of("groupId", "org.carlspring.maven",
-                                "artifactId", "derby-maven-plugin",
-                                "version", "1.10"),
-                        true));
+        final String centralRepositoryId = getRepositoryName(CENTRAL_REPOSITORY_ID,
+                                                             testInfo);
 
         artifactEntryService.delete(
                 artifactEntryService.findArtifactList(STORAGE_ID,
-                        repositoryId,
-                        ImmutableMap.of("groupId", "org.carlspring",
-                                "artifactId", "properties-injector",
-                                "version", "1.1"),
-                        true));
+                                                      repositoryId,
+                                                      ImmutableMap.of("groupId", "org.carlspring.maven",
+                                                                      "artifactId", "derby-maven-plugin",
+                                                                      "version", "1.10"),
+                                                      true));
 
         artifactEntryService.delete(
                 artifactEntryService.findArtifactList(STORAGE_ID,
-                        repositoryId,
-                        ImmutableMap.of("groupId", "javax.media",
-                                "artifactId", "jai_core",
-                                "version", "1.1.3"),
-                        true));
+                                                      repositoryId,
+                                                      ImmutableMap.of("groupId", "org.carlspring",
+                                                                      "artifactId", "properties-injector",
+                                                                      "version", "1.1"),
+                                                      true));
+
+        artifactEntryService.delete(
+                artifactEntryService.findArtifactList(STORAGE_ID,
+                                                      repositoryId,
+                                                      ImmutableMap.of("groupId", "javax.media",
+                                                                      "artifactId", "jai_core",
+                                                                      "version", "1.1.3"),
+                                                      true));
     }
 
     /*
@@ -154,11 +156,13 @@ public class MavenProxyRepositoryProviderTestIT
         String storageId = proxyRepository.getStorage().getId();
         String repositoryId = proxyRepository.getId();
 
-        assertStreamNotNull(storageId, repositoryId,
-                "org/carlspring/properties-injector/1.1/properties-injector-1.1.jar");
+        assertStreamNotNull(storageId,
+                            repositoryId,
+                            "org/carlspring/properties-injector/1.1/properties-injector-1.1.jar");
 
         assertTrue(RepositoryFiles.artifactExists(
-                repositoryPathResolver.resolve(proxyRepository, "org/carlspring/properties-injector/maven-metadata.xml")));
+                repositoryPathResolver.resolve(proxyRepository,
+                                               "org/carlspring/properties-injector/maven-metadata.xml")));
     }
 
     @ExtendWith({ RepositoryManagementTestExecutionListener.class })
@@ -180,7 +184,8 @@ public class MavenProxyRepositoryProviderTestIT
         // 1. download the artifact and artifactId-level maven metadata-file from 1st repository
         String repositoryId = proxyRepository1.getId();
 
-        assertStreamNotNull(storageId, repositoryId,
+        assertStreamNotNull(storageId,
+                            repositoryId,
                             "javax/interceptor/javax.interceptor-api/1.2.2/javax.interceptor-api-1.2.2.jar");
 
         // 2. resolve downloaded artifact base path
@@ -193,7 +198,8 @@ public class MavenProxyRepositoryProviderTestIT
 
         final Path secondRepoArtifactBaseBath = repositoryPathResolver.resolve(proxyRepository2,
                                                                                "javax/interceptor/javax.interceptor-api");
-        FileUtils.copyDirectory(mavenCentralArtifactBaseBath.toFile(), secondRepoArtifactBaseBath.toFile());
+        FileUtils.copyDirectory(mavenCentralArtifactBaseBath.toFile(),
+                                secondRepoArtifactBaseBath.toFile());
 
         // 4. confirm maven-metadata.xml lies in the 2nd repository
         assertTrue(RepositoryFiles.artifactExists(
@@ -201,13 +207,15 @@ public class MavenProxyRepositoryProviderTestIT
                                                "javax/interceptor/javax.interceptor-api/maven-metadata.xml")));
 
         // 5. confirm some pre-merge state
-        Path artifactBasePath = repositoryPathResolver.resolve(proxyRepository2, "javax/interceptor/javax.interceptor-api/");
+        Path artifactBasePath = repositoryPathResolver.resolve(proxyRepository2,
+                                                               "javax/interceptor/javax.interceptor-api/");
         Metadata metadata = mavenMetadataManager.readMetadata(artifactBasePath);
         assertThat(metadata.getVersioning().getVersions().size(), CoreMatchers.equalTo(9));
         assertThat(metadata.getVersioning().getVersions().get(8), CoreMatchers.equalTo("1.2.2"));
 
         // 6. download the artifact from remote 2nd repository - it contains different maven-metadata.xml file
-        assertStreamNotNull(storageId, repositoryId,
+        assertStreamNotNull(storageId,
+                            repositoryId,
                             "javax/interceptor/javax.interceptor-api/1.2.2/javax.interceptor-api-1.2.2.jar");
 
         // 7. confirm the state of maven-metadata.xml file has changed
@@ -234,9 +242,13 @@ public class MavenProxyRepositoryProviderTestIT
                                                                                                          path));
         assertThat(artifactEntry, CoreMatchers.equalTo(Optional.empty()));
 
-        assertStreamNotNull(storageId, repositoryId, path);
+        assertStreamNotNull(storageId,
+                            repositoryId,
+                            path);
 
-        artifactEntry = Optional.ofNullable(artifactEntryService.findOneArtifact(storageId, repositoryId, path));
+        artifactEntry = Optional.ofNullable(artifactEntryService.findOneArtifact(storageId,
+                                                                                 repositoryId,
+                                                                                 path));
         assertThat(artifactEntry, CoreMatchers.not(CoreMatchers.equalTo(Optional.empty())));
     }
 
@@ -299,7 +311,8 @@ public class MavenProxyRepositoryProviderTestIT
         try (InputStream is = artifactResolutionService.getInputStream(path))
         {
 
-            assertNotNull(is, "Failed to resolve org/carlspring/commons/commons-io/1.0-SNAPSHOT/maven-metadata.xml!");
+            assertNotNull(is,
+                          "Failed to resolve org/carlspring/commons/commons-io/1.0-SNAPSHOT/maven-metadata.xml!");
             System.out.println(ByteStreams.toByteArray(is));
         }
     }
