@@ -15,6 +15,8 @@ import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.security.authentication.AuthenticationProvider;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.ContextConfiguration;
+import org.springframework.test.context.TestPropertySource;
+
 import static org.hamcrest.MatcherAssert.assertThat;
 
 /**
@@ -22,8 +24,10 @@ import static org.hamcrest.MatcherAssert.assertThat;
  */
 @SpringBootTest
 @ActiveProfiles(profiles = "test")
+@TestPropertySource(properties = { "strongbox.config.file.authentication.providers=classpath:aprt-strongbox-authentication-providers.xml",
+                                   "strongbox.authentication.providers.yaml=classpath:/etc/conf/aprt-strongbox-authentication-providers.yaml" })
 @ContextConfiguration(classes = TestConfig.class)
-public class AuthenticationConfigTest
+public class AuthenticationProvidersRegistryTest
 {
 
     @Inject

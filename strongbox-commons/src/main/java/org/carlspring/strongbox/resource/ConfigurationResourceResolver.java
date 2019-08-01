@@ -10,6 +10,7 @@ import java.nio.file.Paths;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.core.env.Environment;
 import org.springframework.core.io.DefaultResourceLoader;
 import org.springframework.core.io.FileSystemResource;
 import org.springframework.core.io.Resource;
@@ -26,6 +27,9 @@ public class ConfigurationResourceResolver
 
     @Inject
     private PropertiesBooter propertiesBooter;
+    
+    @Inject
+    private Environment environment;
 
 
     public Resource getConfigurationResource(String propertyKey,
@@ -67,10 +71,9 @@ public class ConfigurationResourceResolver
             return new FileSystemResource(file);
         });
 
-        if (System.getProperty(propertyKey) != null)
+        String filename;
+        if ((filename = getProperty(propertyKey)) != null)
         {
-            String filename = System.getProperty(propertyKey);
-
             logger.debug(String.format("Using configured resource path [%s]", filename));
 
             return resourceLoader.getResource(filename);
@@ -99,6 +102,11 @@ public class ConfigurationResourceResolver
 
             return resourceLoader.getResource(propertyDefaultValue);
         }
+    }
+
+    private String getProperty(String propertyKey)
+    {
+        return environment.getProperty(propertyKey);
     }
 
 }
