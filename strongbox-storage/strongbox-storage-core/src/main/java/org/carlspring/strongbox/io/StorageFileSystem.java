@@ -80,11 +80,15 @@ public abstract class StorageFileSystem
 
     public Path getRootDirectory() {
         Path storagesRoot = Optional.ofNullable(propertiesBooter.getStorageBooterBasedir())
+                                    .filter(p -> !p.trim().isEmpty())
                                     .map(p -> getTarget().getPath(p))
                                     .orElseGet(() -> getTarget().getPath(propertiesBooter.getVaultDirectory(),
-                                                                         "/storages")).toAbsolutePath().normalize();
+                                                                         "/storages"))
+                                    .toAbsolutePath()
+                                    .normalize();
         
         return Optional.ofNullable(storage.getBasedir())
+                       .filter(p -> !p.trim().isEmpty())
                        .map(p -> getTarget().getPath(p).toAbsolutePath().normalize())
                        .orElseGet(() -> storagesRoot.resolve(storage.getId())).toAbsolutePath().normalize();
     }

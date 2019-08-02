@@ -65,7 +65,8 @@ public class StoragesConfigurationControllerSmokeTest extends RestAssuredBaseTes
         
         StorageForm storageForm = new StorageForm();
         storageForm.setId(storageId);
-
+        storageForm.setBasedir("");
+        
         // 1. Create storage
         givenCustom().contentType(MediaType.APPLICATION_JSON_VALUE)
                      .accept(MediaType.APPLICATION_JSON_VALUE)
@@ -85,8 +86,7 @@ public class StoragesConfigurationControllerSmokeTest extends RestAssuredBaseTes
         repositoryForm.setStatus(RepositoryStatusEnum.IN_SERVICE.describe());
         repositoryForm.setType(RepositoryTypeEnum.HOSTED.describe());
         repositoryForm.setPolicy(RepositoryPolicyEnum.RELEASE.describe());
-
-        
+        repositoryForm.setBasedir("");
         
         givenCustom().contentType(MediaType.APPLICATION_JSON_VALUE)
                      .accept(MediaType.APPLICATION_JSON_VALUE)
