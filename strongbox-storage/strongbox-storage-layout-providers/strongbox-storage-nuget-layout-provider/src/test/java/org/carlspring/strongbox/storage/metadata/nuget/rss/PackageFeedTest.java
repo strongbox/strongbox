@@ -1,25 +1,22 @@
 package org.carlspring.strongbox.storage.metadata.nuget.rss;
 
-import org.carlspring.strongbox.booters.PropertiesBooter;
-import org.carlspring.strongbox.config.NugetBootersTestConfig;
+import org.carlspring.strongbox.config.NugetLayoutProviderTestConfig;
 import org.carlspring.strongbox.storage.metadata.nuget.NugetTestResourceUtil;
 import org.carlspring.strongbox.storage.metadata.nuget.TempNupkgFile;
-import org.carlspring.strongbox.testing.TestCaseWithNugetArtifactGeneration;
+import org.carlspring.strongbox.storage.repository.Repository;
+import org.carlspring.strongbox.testing.artifact.ArtifactManagementTestExecutionListener;
+import org.carlspring.strongbox.testing.artifact.NugetTestArtifact;
+import org.carlspring.strongbox.testing.repository.NugetRepository;
+import org.carlspring.strongbox.testing.storage.repository.RepositoryManagementTestExecutionListener;
 
-import javax.inject.Inject;
-import javax.xml.bind.JAXBException;
 import java.io.BufferedInputStream;
-import java.io.File;
-import java.io.IOException;
 import java.io.InputStream;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.Date;
 
-import org.apache.commons.io.FileUtils;
-import org.junit.jupiter.api.AfterEach;
-import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.ContextConfiguration;
@@ -31,48 +28,15 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
  * Test class RSS
  *
  * @author sviridov
+ * @author Pablo Tirado
  */
-@ContextConfiguration(classes = { NugetBootersTestConfig.class })
+@ContextConfiguration(classes = { NugetLayoutProviderTestConfig.class })
 @SpringBootTest
 @ActiveProfiles(profiles = "test")
 public class PackageFeedTest
 {
 
-    private String baseDirectoryPath;
-
-    @Inject
-    private PropertiesBooter propertiesBooter;
-
-    @BeforeEach
-    public void setUp()
-        throws Exception
-    {
-        baseDirectoryPath = propertiesBooter.getHomeDirectory() + "/tmp/pft";
-
-        File baseDirectory = getCleanBaseDirectory();
-        baseDirectory.mkdirs();
-    }
-
-    @AfterEach
-    public void tearDown()
-        throws IOException,
-        JAXBException
-    {
-        getCleanBaseDirectory();
-    }
-
-    private File getCleanBaseDirectory()
-        throws IOException
-    {
-        File baseDirectory = new File(baseDirectoryPath);
-
-        if (baseDirectory.exists())
-        {
-            FileUtils.deleteDirectory(baseDirectory);
-        }
-
-        return baseDirectory;
-    }
+    private static final String REPOSITORY_RELEASES = "pfr-releases";
 
     /**
      * Recognizes the date in XMl W3C format
@@ -114,19 +78,20 @@ public class PackageFeedTest
      * @throws Exception
      *             error during the test
      */
+    @ExtendWith({ RepositoryManagementTestExecutionListener.class,
+                  ArtifactManagementTestExecutionListener.class })
     @Test
-    public void testMarshallFeed()
+    public void testMarshallFeed(@NugetRepository(repositoryId = REPOSITORY_RELEASES)
+                                 Repository repository,
+                                 @NugetTestArtifact(repositoryId = REPOSITORY_RELEASES,
+                                                    id = "NUnit",
+                                                    versions = "2.5.9.10348")
+                                 Path artifactNupkgPath)
         throws Exception
     {
         // GIVEN
-        String packageId = "NUnit";
-        String packageVersion = "2.5.9.10348";
-        Path packageFilePath = TestCaseWithNugetArtifactGeneration.generateArtifactFile(baseDirectoryPath,
-                                                                                        packageId,
-                                                                                        packageVersion);
-
-        try (InputStream nupkgInputStream = new BufferedInputStream(Files.newInputStream(packageFilePath));
-                TempNupkgFile nupkgFile = new TempNupkgFile(nupkgInputStream);)
+        try (InputStream nupkgInputStream = new BufferedInputStream(Files.newInputStream(artifactNupkgPath));
+                TempNupkgFile nupkgFile = new TempNupkgFile(nupkgInputStream))
         {
             PackageFeed feed = new PackageFeed();
             PackageEntry entry = new PackageEntry(nupkgFile);

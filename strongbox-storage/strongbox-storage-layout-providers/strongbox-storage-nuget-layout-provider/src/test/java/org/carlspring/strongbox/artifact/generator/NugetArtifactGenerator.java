@@ -54,20 +54,11 @@ public class NugetArtifactGenerator
 
     private static final String PACKAGING_NUPKG = "nupkg";
 
-    private Path basedir;
+    private Path basePath;
 
-    public NugetArtifactGenerator()
+    public NugetArtifactGenerator(Path basePath)
     {
-    }
-
-    public NugetArtifactGenerator(String basedir)
-    {
-        this.basedir = Paths.get(basedir).normalize().toAbsolutePath();
-    }
-
-    public NugetArtifactGenerator(Path basedir)
-    {
-        this.basedir = basedir.normalize().toAbsolutePath();
+        this.basePath = basePath.normalize().toAbsolutePath();
     }
 
     @Override
@@ -133,7 +124,7 @@ public class NugetArtifactGenerator
             throws IOException, NoSuchAlgorithmException, JAXBException, NugetFormatException
     {
         NugetArtifactCoordinates coordinates = new NugetArtifactCoordinates(id, version, packaging);
-        Path fullPath = basedir.resolve(coordinates.toPath()).normalize().toAbsolutePath();
+        Path fullPath = basePath.resolve(coordinates.toPath());
         Files.createDirectories(fullPath.getParent());
 
         SemanticVersion semanticVersion = SemanticVersion.parse(version);
@@ -369,7 +360,7 @@ public class NugetArtifactGenerator
 
     public String getBasedir()
     {
-        return basedir.normalize().toAbsolutePath().toString();
+        return basePath.toString();
     }
 
 }

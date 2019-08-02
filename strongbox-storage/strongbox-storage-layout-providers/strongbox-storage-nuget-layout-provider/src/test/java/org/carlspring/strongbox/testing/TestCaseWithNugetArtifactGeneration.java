@@ -60,21 +60,20 @@ public class TestCaseWithNugetArtifactGeneration
                                      String packageVersion)
             throws IOException
     {
-        String basedir = propertiesBooter.getHomeDirectory() + "/tmp";
-        return generateArtifactFile(basedir, packageId, packageVersion);
+        Path basePath = Paths.get(propertiesBooter.getHomeDirectory(), "tmp");
+        return generateArtifactFile(basePath, packageId, packageVersion);
     }
 
-    public static Path generateArtifactFile(String basedir,
+    public static Path generateArtifactFile(Path basePath,
                                             String packageId,
                                             String packageVersion)
             throws IOException
     {
         String packageFileName = String.format("%s.%s.nupkg", packageId, packageVersion);
 
-        ArtifactGenerator nugetArtifactGenerator = new NugetArtifactGenerator(basedir);
+        ArtifactGenerator nugetArtifactGenerator = new NugetArtifactGenerator(basePath);
         nugetArtifactGenerator.generateArtifact(packageId, packageVersion, 0);
 
-        Path basePath = Paths.get(basedir).normalize().toAbsolutePath();
         return basePath.resolve(packageId)
                        .resolve(packageVersion)
                        .resolve(packageFileName)
