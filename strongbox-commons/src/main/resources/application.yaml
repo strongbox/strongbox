@@ -33,6 +33,7 @@ strongbox:
   server:
     database:
       path: ${strongbox.vault}/db
+# Changes to this proeprties must also be applied to [strongbox/strongbox-web-integration-tests] and possibly the pipeline. Please ping us in the main channel to confirm.
 logging:
   debug: false
   console:
