@@ -26,6 +26,9 @@ import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.ContextConfiguration;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
+/**
+ * @author Pablo Tirado
+ */
 @SpringBootTest
 @ActiveProfiles(profiles = "test")
 @ContextConfiguration(classes = NugetLayoutProviderTestConfig.class)
@@ -45,7 +48,8 @@ public class NugetFilterODataParserTestCase extends TestCaseWithNugetArtifactGen
                                       Repository repository,
                                       @NugetTestArtifact(repositoryId = REPOSITORY_RELEASES,
                                                          id = "Org.Carlspring.Strongbox.Nuget.Test.Nfpt",
-                                                         versions = { "1.0.1",
+                                                         versions = { "1.0.0",
+                                                                      "1.0.1",
                                                                       "1.0.2",
                                                                       "1.0.3",
                                                                       "1.0.4",

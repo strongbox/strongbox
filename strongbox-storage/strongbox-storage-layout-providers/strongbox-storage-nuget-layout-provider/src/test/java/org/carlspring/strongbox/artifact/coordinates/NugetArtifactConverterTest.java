@@ -12,6 +12,7 @@ import org.carlspring.strongbox.testing.storage.repository.RepositoryManagementT
 import java.nio.file.Path;
 import java.nio.file.Paths;
 
+import org.apache.commons.io.FilenameUtils;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.junit.jupiter.api.parallel.Execution;
@@ -51,7 +52,7 @@ public class NugetArtifactConverterTest
         RootRepositoryPath repositoryPath = repositoryPathResolver.resolve(repository);
 
         Path relArtifactNupkgPath = repositoryPath.relativize(artifactNupkgPath);
-        String nupkgPath = relArtifactNupkgPath.toString();
+        String nupkgPath = FilenameUtils.separatorsToUnix(relArtifactNupkgPath.toString());
         NugetArtifactCoordinates nac = NugetArtifactCoordinates.parse(nupkgPath);
         assertEquals(ARTIFACT_ID, nac.getId(),
                      "Failed to convert path to artifact coordinates!");
