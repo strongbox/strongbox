@@ -8,18 +8,15 @@ import org.carlspring.strongbox.providers.ProviderImplementationException;
 import org.carlspring.strongbox.providers.io.RepositoryPath;
 import org.carlspring.strongbox.providers.io.RepositoryPathResolver;
 import org.carlspring.strongbox.services.ArtifactManagementService;
-import org.carlspring.strongbox.storage.metadata.nuget.NugetFormatException;
 import org.carlspring.strongbox.storage.validation.artifact.ArtifactCoordinatesValidationException;
 
 import javax.inject.Inject;
-import javax.xml.bind.JAXBException;
 import java.io.BufferedInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
-import java.security.NoSuchAlgorithmException;
 
 /**
  * @author Kate Novik.
@@ -42,17 +39,12 @@ public class TestCaseWithNugetArtifactGeneration
                                             String repositoryId,
                                             String packageId,
                                             int count)
-            throws NoSuchAlgorithmException,
-                   NugetFormatException,
-                   JAXBException,
-                   IOException,
-                   ProviderImplementationException,
-                   ArtifactCoordinatesValidationException
+            throws IOException, ArtifactCoordinatesValidationException, ProviderImplementationException
     {
         for (int i = 0; i < count; i++)
         {
             String packageVersion = String.format("1.0.%s", i);
-            NugetArtifactCoordinates coordinates = new NugetArtifactCoordinates(packageId, packageVersion, "nupkg");
+            NugetArtifactCoordinates coordinates = new NugetArtifactCoordinates(packageId, packageVersion);
             Path artifactFilePath = generateArtifactFile(packageId, packageVersion);
             try (InputStream is = new BufferedInputStream(Files.newInputStream(artifactFilePath)))
             {
@@ -66,10 +58,7 @@ public class TestCaseWithNugetArtifactGeneration
 
     public Path generateArtifactFile(String packageId,
                                      String packageVersion)
-            throws NoSuchAlgorithmException,
-                   NugetFormatException,
-                   JAXBException,
-                   IOException
+            throws IOException
     {
         String basedir = propertiesBooter.getHomeDirectory() + "/tmp";
         return generateArtifactFile(basedir, packageId, packageVersion);
@@ -78,12 +67,9 @@ public class TestCaseWithNugetArtifactGeneration
     public static Path generateArtifactFile(String basedir,
                                             String packageId,
                                             String packageVersion)
-            throws NugetFormatException,
-                   JAXBException,
-                   IOException,
-                   NoSuchAlgorithmException
+            throws IOException
     {
-        String packageFileName = packageId + "." + packageVersion + ".nupkg";
+        String packageFileName = String.format("%s.%s.nupkg", packageId, packageVersion);
 
         ArtifactGenerator nugetArtifactGenerator = new NugetArtifactGenerator(basedir);
         nugetArtifactGenerator.generateArtifact(packageId, packageVersion, 0);
@@ -94,36 +80,6 @@ public class TestCaseWithNugetArtifactGeneration
                        .resolve(packageFileName)
                        .normalize()
                        .toAbsolutePath();
-    }
-
-    public void generateNugetArtifact(String repositoryDir,
-                                      String id,
-                                      String version)
-            throws IOException,
-                   NoSuchAlgorithmException,
-                   NugetFormatException,
-                   JAXBException
-    {
-        NugetArtifactGenerator generator = new NugetArtifactGenerator(repositoryDir);
-        generator.generateArtifact(id, version);
-    }
-
-    public void generateAlphaNugetArtifact(String repositoryDir,
-                                           String id,
-                                           String version)
-            throws IOException,
-                   NoSuchAlgorithmException,
-                   NugetFormatException,
-                   JAXBException
-    {
-        NugetArtifactGenerator generator = new NugetArtifactGenerator(repositoryDir);
-
-        generator.generateArtifact(id, getNugetSnapshotVersion(version));
-    }
-
-    private String getNugetSnapshotVersion(String version)
-    {
-        return version.concat("-alpha");
     }
 
 }
