@@ -89,8 +89,11 @@ public abstract class LayoutFileSystem
     private Path resolveRootPath()
     {
         Path rootPath = Optional.ofNullable(repository.getBasedir())
+                                .filter(p -> !p.trim().isEmpty())
                                 .map(p -> getTarget().getPath(p).toAbsolutePath().normalize())
-                                .orElseGet(() -> super.getRootDirectory().resolve(repository.getId())).toAbsolutePath().normalize();
+                                .orElseGet(() -> super.getRootDirectory().resolve(repository.getId()))
+                                .toAbsolutePath()
+                                .normalize();
         return rootPath;
     }
 
