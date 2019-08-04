@@ -57,14 +57,14 @@ public class PackageFeedTest
      */
     @Test
     public void testUnmarshallFeed()
-        throws Exception
+            throws Exception
     {
         // GIVEN
         InputStream inputStream = NugetTestResourceUtil.getAsStream("rss/rss_feed.xml");
-        
+
         // WHEN
         PackageFeed packageFeed = PackageFeed.parse(inputStream);
-        
+
         // THEN
         assertEquals("http://localhost:8090/nuget/nuget/Packages", packageFeed.getId(), "ID");
         assertEquals(parseXmlDate("2011-10-08T06:49:38Z"), packageFeed.getUpdated(), "Update Date");
@@ -87,19 +87,19 @@ public class PackageFeedTest
                                                     id = "NUnit",
                                                     versions = "2.5.9.10348")
                                  Path artifactNupkgPath)
-        throws Exception
+            throws Exception
     {
         // GIVEN
         try (InputStream nupkgInputStream = new BufferedInputStream(Files.newInputStream(artifactNupkgPath));
-                TempNupkgFile nupkgFile = new TempNupkgFile(nupkgInputStream))
+             TempNupkgFile nupkgFile = new TempNupkgFile(nupkgInputStream))
         {
             PackageFeed feed = new PackageFeed();
             PackageEntry entry = new PackageEntry(nupkgFile);
             feed.getEntries().add(entry);
-            
+
             // WHEN
             String resultXml = feed.getXml();
-            
+
             // THEN
             assertThat(resultXml, containsString("Packages(Id='NUnit',Version='2.5.9.10348')"));
             String author = entry.getAuthor().getName();
