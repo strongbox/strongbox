@@ -54,21 +54,32 @@ public class NugetArtifactConverterTest
         Path relArtifactNupkgPath = repositoryPath.relativize(artifactNupkgPath);
         String nupkgPath = FilenameUtils.separatorsToUnix(relArtifactNupkgPath.toString());
         NugetArtifactCoordinates nac = NugetArtifactCoordinates.parse(nupkgPath);
-        assertEquals(ARTIFACT_ID, nac.getId(),
+        assertEquals(ARTIFACT_ID,
+                     nac.getId(),
                      "Failed to convert path to artifact coordinates!");
-        assertEquals(ARTIFACT_VERSION, nac.getVersion(), "Failed to convert path to artifact coordinates!");
+        assertEquals(ARTIFACT_VERSION,
+                     nac.getVersion(),
+                     "Failed to convert path to artifact coordinates!");
 
-        String nupkgSha512Path = Paths.get(nupkgPath + ".sha512").toString();
+        Path relArtifactNupkgSha512Path = Paths.get(nupkgPath + ".sha512");
+        String nupkgSha512Path = FilenameUtils.separatorsToUnix(relArtifactNupkgSha512Path.toString());
         nac = NugetArtifactCoordinates.parse(nupkgSha512Path);
-        assertEquals(ARTIFACT_ID, nac.getId(),
+        assertEquals(ARTIFACT_ID,
+                     nac.getId(),
                      "Failed to convert path to artifact coordinates!");
-        assertEquals(ARTIFACT_VERSION, nac.getVersion(), "Failed to convert path to artifact coordinates!");
+        assertEquals(ARTIFACT_VERSION,
+                     nac.getVersion(),
+                     "Failed to convert path to artifact coordinates!");
 
-        String nuspecPath = Paths.get(nupkgPath.replace("nupkg", "nuspec")).toString();
+        Path relArtifactNuspecPath = Paths.get(nupkgPath.replace("nupkg", "nuspec"));
+        String nuspecPath = FilenameUtils.separatorsToUnix(relArtifactNuspecPath.toString());
         nac = NugetArtifactCoordinates.parse(nuspecPath);
-        assertEquals(ARTIFACT_ID, nac.getId(),
+        assertEquals(ARTIFACT_ID,
+                     nac.getId(),
                      "Failed to convert path to artifact coordinates!");
-        assertEquals(ARTIFACT_VERSION, nac.getVersion(), "Failed to convert path to artifact coordinates!");
+        assertEquals(ARTIFACT_VERSION,
+                     nac.getVersion(),
+                     "Failed to convert path to artifact coordinates!");
     }
 
 }
