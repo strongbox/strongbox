@@ -56,6 +56,11 @@ public class NugetArtifactGenerator
 
     private Path basePath;
 
+    public NugetArtifactGenerator(String baseDir)
+    {
+        this(Paths.get(baseDir));
+    }
+
     public NugetArtifactGenerator(Path basePath)
     {
         this.basePath = basePath.normalize().toAbsolutePath();
