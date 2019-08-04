@@ -1,10 +1,11 @@
 package org.carlspring.strongbox.testing;
 
 import org.carlspring.strongbox.booters.PropertiesBooter;
+import org.carlspring.strongbox.providers.io.RepositoryPathResolver;
 import org.carlspring.strongbox.providers.layout.NpmLayoutProvider;
 import org.carlspring.strongbox.repository.RepositoryManagementStrategyException;
-import org.carlspring.strongbox.storage.repository.RepositoryDto;
 import org.carlspring.strongbox.storage.repository.NpmRepositoryFactory;
+import org.carlspring.strongbox.storage.repository.RepositoryDto;
 import org.carlspring.strongbox.storage.repository.RepositoryTypeEnum;
 import org.carlspring.strongbox.storage.repository.remote.MutableRemoteRepository;
 
@@ -12,12 +13,14 @@ import javax.inject.Inject;
 import javax.xml.bind.JAXBException;
 import java.io.File;
 import java.io.IOException;
+import java.nio.file.Paths;
 
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.context.ActiveProfiles;
 
 /**
  * @author carlspring
+ * @author Pablo Tirado
  */
 @SpringBootTest
 @ActiveProfiles(profiles = "test")
@@ -26,10 +29,13 @@ public class NpmRepositoryTestCase
 {
 
     @Inject
-    NpmRepositoryFactory npmRepositoryFactory;
+    private NpmRepositoryFactory npmRepositoryFactory;
 
     @Inject
     private PropertiesBooter propertiesBooter;
+
+    @Inject
+    protected RepositoryPathResolver repositoryPathResolver;
 
 
     @Override
@@ -51,9 +57,10 @@ public class NpmRepositoryTestCase
         createRepository(storageId, repository);
     }
 
-    public File getRepositoryBasedir(String storageId, String repositoryId)
+    public File getRepositoryBasedir(String storageId,
+                                     String repositoryId)
     {
-        return new File(propertiesBooter.getVaultDirectory() + "/storages/" + storageId + "/" + repositoryId);
+        return Paths.get(propertiesBooter.getVaultDirectory(), "storages", storageId, repositoryId).toFile();
     }
 
 }
