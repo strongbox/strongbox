@@ -170,6 +170,7 @@ public class NpmArtifactGenerator
         tarOut.putArchiveEntry(entry);
 
         Files.copy(indexJsPath, tarOut);
+        Files.delete(indexJsPath);
 
         tarOut.closeArchiveEntry();
     }
@@ -219,6 +220,8 @@ public class NpmArtifactGenerator
         {
             buildPackage();
         }
+        return packagePath;
+        /* TODO @sbespalov - do we need this ? publish.json is then used as an artifact but NpmArtifactCoordinates.getArtifactFileName resolves it to package.json
         Path publishJsonPath = packagePath.resolveSibling("publish.json");
         try (OutputStream out = new BufferedOutputStream(
                 Files.newOutputStream(publishJsonPath, StandardOpenOption.CREATE)))
@@ -273,6 +276,7 @@ public class NpmArtifactGenerator
         }
 
         return publishJsonPath;
+        */
     }
 
 }
