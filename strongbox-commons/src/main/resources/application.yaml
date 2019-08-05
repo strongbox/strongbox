@@ -66,7 +66,7 @@ cacheManagerConfiguration:
   groupConfig:
     name: strongbox
     password: password
-  enableMulticastConfig: true
+  enableMulticastConfig: false
   multicast:
     multicastGroup: 224.2.2.3
     multicastPort: 54327
