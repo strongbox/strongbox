@@ -62,4 +62,31 @@ management:
       exposure:
         include: health,info,beans,metrics,trace,scheduledtasks,threaddump
       base-path: /api/monitoring
-
+cacheManagerConfiguration:
+  groupConfig:
+    name: strongbox
+    password: password
+  enableMulticastConfig: true
+  multicast:
+    multicastGroup: 224.2.2.3
+    multicastPort: 54327
+    multicastTimeoutSeconds: 2
+    multicastTimeToLive: 32
+    trustedInterfaces: en0,en1
+    loopbackModeEnabled: false
+  instanceId: strongbox
+  caches:
+    remoteRepositoryAliveness:
+      maxSizeLimit: 1000
+      maxSizePolicy: FREE_HEAP_SIZE
+      evictionPolicy: LFU
+    tags:
+      maxSizeLimit: 1000
+      maxSizePolicy: FREE_HEAP_SIZE
+      evictionPolicy: LFU
+    authentications:
+      cacheLocalEntries: true
+      evictionConfigSize: 1000
+      evictionConfigMaxSizePolicy: ENTRY_COUNT
+      invalidateOnChange: true
+      timeToLiveSeconds: 10
