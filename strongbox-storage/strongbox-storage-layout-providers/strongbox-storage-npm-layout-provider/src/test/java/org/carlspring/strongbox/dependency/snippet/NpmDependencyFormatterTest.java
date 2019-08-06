@@ -2,11 +2,9 @@ package org.carlspring.strongbox.dependency.snippet;
 
 import org.carlspring.strongbox.artifact.coordinates.NpmArtifactCoordinates;
 
-import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.parallel.Execution;
 import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.parallel.ExecutionMode.CONCURRENT;
 
 /**
@@ -16,13 +14,7 @@ import static org.junit.jupiter.api.parallel.ExecutionMode.CONCURRENT;
 @Execution(CONCURRENT)
 public class NpmDependencyFormatterTest
 {
-    private DependencySynonymFormatter formatter;
-
-    @BeforeEach
-    public void initialize() {
-        formatter = new NpmDependencyFormatter();
-        assertNotNull(formatter, "Failed to look up dependency synonym formatter!");
-    }
+    private DependencySynonymFormatter formatter = new NpmDependencyFormatter();
 
     @Test
     public void testNpmDependencyGenerationWithoutScope()
