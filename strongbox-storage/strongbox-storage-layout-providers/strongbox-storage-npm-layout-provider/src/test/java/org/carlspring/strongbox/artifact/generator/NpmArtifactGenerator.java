@@ -80,6 +80,11 @@ public class NpmArtifactGenerator
         return packagePath;
     }
 
+    public void setPackagePath(Path packagePath)
+    {
+        this.packagePath = packagePath;
+    }
+
     public Path buildPackage()
             throws IOException
     {
@@ -178,20 +183,20 @@ public class NpmArtifactGenerator
     public Path generateArtifact(NpmArtifactCoordinates coordinates)
             throws IOException
     {
-        return this.of(coordinates).buildPublishJson();
+        return this.of(coordinates).buildPackage();
     }
 
     public Path generateArtifact(URI uri)
             throws IOException
     {
-        return this.of(NpmArtifactCoordinates.parse(uri.toString())).buildPublishJson();
+        return this.of(NpmArtifactCoordinates.parse(uri.toString())).buildPackage();
     }
 
     public Path generateArtifact(String id,
                                  String version)
             throws IOException
     {
-        return this.of(NpmArtifactCoordinates.of(id, version)).buildPublishJson();
+        return this.of(NpmArtifactCoordinates.of(id, version)).buildPackage();
     }
 
     @Override
@@ -213,15 +218,14 @@ public class NpmArtifactGenerator
         return generateArtifact(id, version);
     }
 
-    private Path buildPublishJson()
+    public Path buildPublishJson()
             throws IOException
     {
         if (packagePath == null)
         {
             buildPackage();
         }
-        return packagePath;
-        /* TODO @sbespalov - do we need this ? publish.json is then used as an artifact but NpmArtifactCoordinates.getArtifactFileName resolves it to package.json
+
         Path publishJsonPath = packagePath.resolveSibling("publish.json");
         try (OutputStream out = new BufferedOutputStream(
                 Files.newOutputStream(publishJsonPath, StandardOpenOption.CREATE)))
@@ -276,7 +280,6 @@ public class NpmArtifactGenerator
         }
 
         return publishJsonPath;
-        */
     }
 
 }

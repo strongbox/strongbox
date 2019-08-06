@@ -3,11 +3,11 @@ package org.carlspring.strongbox.rest.common;
 import org.carlspring.commons.io.MultipleDigestOutputStream;
 import org.carlspring.strongbox.repository.RepositoryManagementStrategyException;
 import org.carlspring.strongbox.rest.client.RestAssuredArtifactClient;
-import org.carlspring.strongbox.storage.repository.RepositoryDto;
 import org.carlspring.strongbox.storage.repository.NpmRepositoryFactory;
+import org.carlspring.strongbox.storage.repository.RepositoryDto;
 import org.carlspring.strongbox.storage.repository.RepositoryTypeEnum;
 import org.carlspring.strongbox.storage.repository.remote.MutableRemoteRepository;
-import org.carlspring.strongbox.testing.NpmRepositoryTestCase;
+import org.carlspring.strongbox.testing.TestCaseWithRepositoryManagement;
 import org.carlspring.strongbox.users.domain.Privileges;
 
 import javax.inject.Inject;
@@ -34,7 +34,7 @@ import static org.junit.jupiter.api.Assertions.fail;
  * @author carlspring
  */
 public abstract class NpmRestAssuredBaseTest
-        extends NpmRepositoryTestCase
+        extends TestCaseWithRepositoryManagement
 {
 
     protected static final String TEST_RESOURCES = "target/test-resources";
