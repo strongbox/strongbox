@@ -13,7 +13,6 @@ import org.carlspring.strongbox.testing.storage.repository.TestRepository.Group;
 import org.carlspring.strongbox.testing.storage.repository.TestRepository.Remote;
 
 import javax.inject.Inject;
-import java.nio.file.Paths;
 
 import org.hamcrest.CoreMatchers;
 import org.hamcrest.Matchers;
@@ -63,12 +62,9 @@ public class NpmArtifactControllerTestIT
             throws Exception
     {
         // https://registry.npmjs.org/compression/-/compression-1.7.2.tgz
-        String artifactPath = Paths.get("storages",
-                                        proxyRepository.getStorage().getId(),
-                                        proxyRepository.getId(),
-                                        "compression",
-                                        "-",
-                                        "compression-1.7.2.tgz").toString();
+        String artifactPath =
+                "/storages/" + proxyRepository.getStorage().getId() + "/" + proxyRepository.getId() + "/" +
+                "compression/-/compression-1.7.2.tgz";
 
         resolveArtifact(artifactPath);
     }
@@ -91,12 +87,9 @@ public class NpmArtifactControllerTestIT
             throws Exception
     {
         // https://registry.npmjs.org/compression/-/compression-1.7.2.tgz
-        String artifactPath = Paths.get("storages",
-                                        groupRepository.getStorage().getId(),
-                                        groupRepository.getId(),
-                                        "compression",
-                                        "-",
-                                        "compression-1.7.2.tgz").toString();
+        String artifactPath =
+                "/storages/" + groupRepository.getStorage().getId() + "/" + groupRepository.getId() + "/" +
+                "compression/-/compression-1.7.2.tgz";
 
         resolveArtifact(artifactPath);
     }
