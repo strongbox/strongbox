@@ -1,6 +1,10 @@
 package org.carlspring.strongbox.cron.jobs;
 
+import org.carlspring.strongbox.artifact.coordinates.NugetArtifactCoordinates;
 import org.carlspring.strongbox.config.NugetLayoutProviderCronTasksTestConfig;
+import org.carlspring.strongbox.providers.io.RepositoryFiles;
+import org.carlspring.strongbox.providers.io.RepositoryPath;
+import org.carlspring.strongbox.providers.io.RootRepositoryPath;
 import org.carlspring.strongbox.storage.repository.Repository;
 import org.carlspring.strongbox.storage.repository.RepositoryPolicyEnum;
 import org.carlspring.strongbox.testing.artifact.ArtifactManagementTestExecutionListener;
@@ -12,7 +16,6 @@ import java.io.IOException;
 import java.lang.reflect.UndeclaredThrowableException;
 import java.nio.file.Files;
 import java.nio.file.Path;
-import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
@@ -63,22 +66,22 @@ public class RegenerateNugetChecksumCronJobTestIT
                                                     @NugetTestArtifact(repositoryId = REPOSITORY_RELEASES,
                                                                        id = "org.carlspring.strongbox.checksum-second",
                                                                        versions = "1.0.0")
-                                                    Path artifactNupkgPath,
-                                                    @NugetTestArtifact(repositoryId = REPOSITORY_RELEASES,
-                                                                       id = "org.carlspring.strongbox.checksum-second",
-                                                                       versions = "1.0.0",
-                                                                       packaging = "nuspec")
-                                                    Path artifactNuspecPath)
+                                                    Path artifactNupkgPath)
             throws Exception
     {
         final UUID jobKey = expectedJobKey;
         final String jobName = expectedJobName;
 
-        Path nupkgSha512Path = Paths.get(artifactNupkgPath.toString() + ".sha512");
+        RootRepositoryPath repositoryPath = repositoryPathResolver.resolve(repository);
+
+        Path nupkgSha512Path = artifactNupkgPath.resolveSibling(artifactNupkgPath.getFileName() + ".sha512");
         deleteIfExists(nupkgSha512Path);
         assertTrue(Files.notExists(nupkgSha512Path),"The checksum file for nupkg artifact exist!");
 
-        Path nuspecSha512Path = Paths.get(artifactNuspecPath.toString() + ".sha512");
+        NugetArtifactCoordinates coordinates = (NugetArtifactCoordinates) RepositoryFiles.readCoordinates(
+                (RepositoryPath) artifactNupkgPath.normalize());
+        coordinates.setType("nuspec");
+        Path nuspecSha512Path = repositoryPath.resolve(coordinates.toPath() + ".sha512");
         deleteIfExists(nuspecSha512Path);
         assertTrue(Files.notExists(nuspecSha512Path),"The checksum file for nuspec artifact exist!");
 
@@ -131,22 +134,22 @@ public class RegenerateNugetChecksumCronJobTestIT
                                                         @NugetTestArtifact(repositoryId = REPOSITORY_ALPHA,
                                                                            id = "org.carlspring.strongbox.checksum-one",
                                                                            versions = "1.0.1-alpha")
-                                                        Path artifactNupkgPath,
-                                                        @NugetTestArtifact(repositoryId = REPOSITORY_ALPHA,
-                                                                           id = "org.carlspring.strongbox.checksum-one",
-                                                                           versions = "1.0.1-alpha",
-                                                                           packaging = "nuspec")
-                                                        Path artifactNuspecPath)
+                                                        Path artifactNupkgPath)
             throws Exception
     {
         final UUID jobKey = expectedJobKey;
         final String jobName = expectedJobName;
 
-        Path nupkgSha512Path = Paths.get(artifactNupkgPath.toString() + ".sha512");
+        RootRepositoryPath repositoryPath = repositoryPathResolver.resolve(repository);
+
+        Path nupkgSha512Path = artifactNupkgPath.resolveSibling(artifactNupkgPath.getFileName() + ".sha512");
         deleteIfExists(nupkgSha512Path);
         assertTrue(Files.notExists(nupkgSha512Path),"The checksum file for nupkg artifact exist!");
 
-        Path nuspecSha512Path = Paths.get(artifactNuspecPath.toString() + ".sha512");
+        NugetArtifactCoordinates coordinates = (NugetArtifactCoordinates) RepositoryFiles.readCoordinates(
+                (RepositoryPath) artifactNupkgPath.normalize());
+        coordinates.setType("nuspec");
+        Path nuspecSha512Path = repositoryPath.resolve(coordinates.toPath() + ".sha512");
         deleteIfExists(nuspecSha512Path);
         assertTrue(Files.notExists(nuspecSha512Path),"The checksum file for nuspec artifact exist!");
 
@@ -194,22 +197,22 @@ public class RegenerateNugetChecksumCronJobTestIT
                                                      @NugetTestArtifact(repositoryId = REPOSITORY_RELEASES,
                                                                         id = "org.carlspring.strongbox.checksum-second",
                                                                         versions = "1.0.0")
-                                                     Path artifactNupkgPath,
-                                                     @NugetTestArtifact(repositoryId = REPOSITORY_RELEASES,
-                                                                        id = "org.carlspring.strongbox.checksum-second",
-                                                                        versions = "1.0.0",
-                                                                        packaging = "nuspec")
-                                                     Path artifactNuspecPath)
+                                                     Path artifactNupkgPath)
             throws Exception
     {
         final UUID jobKey = expectedJobKey;
         final String jobName = expectedJobName;
 
-        Path nupkgSha512Path = Paths.get(artifactNupkgPath.toString() + ".sha512");
+        RootRepositoryPath repositoryPath = repositoryPathResolver.resolve(repository);
+
+        Path nupkgSha512Path = artifactNupkgPath.resolveSibling(artifactNupkgPath.getFileName() + ".sha512");
         deleteIfExists(nupkgSha512Path);
         assertTrue(Files.notExists(nupkgSha512Path),"The checksum file for nupkg artifact exist!");
 
-        Path nuspecSha512Path = Paths.get(artifactNuspecPath.toString() + ".sha512");
+        NugetArtifactCoordinates coordinates = (NugetArtifactCoordinates) RepositoryFiles.readCoordinates(
+                (RepositoryPath) artifactNupkgPath.normalize());
+        coordinates.setType("nuspec");
+        Path nuspecSha512Path = repositoryPath.resolve(coordinates.toPath() + ".sha512");
         deleteIfExists(nuspecSha512Path);
         assertTrue(Files.notExists(nuspecSha512Path),"The checksum file for nuspec artifact exist!");
 
@@ -259,23 +262,22 @@ public class RegenerateNugetChecksumCronJobTestIT
                                                                          repositoryId = REPOSITORY_RELEASES,
                                                                          id = "org.carlspring.strongbox.checksum-one",
                                                                          versions = "1.0.0")
-                                                      Path artifactNupkgPath,
-                                                      @NugetTestArtifact(storageId = STORAGE2,
-                                                                         repositoryId = REPOSITORY_RELEASES,
-                                                                         id = "org.carlspring.strongbox.checksum-one",
-                                                                         versions = "1.0.0",
-                                                                         packaging = "nuspec")
-                                                      Path artifactNuspecPath)
+                                                      Path artifactNupkgPath)
             throws Exception
     {
         final UUID jobKey = expectedJobKey;
         final String jobName = expectedJobName;
 
-        Path nupkgSha512Path = Paths.get(artifactNupkgPath.toString() + ".sha512");
+        RootRepositoryPath repositoryPath = repositoryPathResolver.resolve(repository);
+
+        Path nupkgSha512Path = artifactNupkgPath.resolveSibling(artifactNupkgPath.getFileName() + ".sha512");
         deleteIfExists(nupkgSha512Path);
         assertTrue(Files.notExists(nupkgSha512Path),"The checksum file for nupkg artifact exist!");
 
-        Path nuspecSha512Path = Paths.get(artifactNuspecPath.toString() + ".sha512");
+        NugetArtifactCoordinates coordinates = (NugetArtifactCoordinates) RepositoryFiles.readCoordinates(
+                (RepositoryPath) artifactNupkgPath.normalize());
+        coordinates.setType("nuspec");
+        Path nuspecSha512Path = repositoryPath.resolve(coordinates.toPath() + ".sha512");
         deleteIfExists(nuspecSha512Path);
         assertTrue(Files.notExists(nuspecSha512Path),"The checksum file for nuspec artifact exist!");
 
