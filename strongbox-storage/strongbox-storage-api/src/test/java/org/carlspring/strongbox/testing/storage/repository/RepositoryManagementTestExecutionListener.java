@@ -41,7 +41,7 @@ public class RepositoryManagementTestExecutionListener extends TestRepositoryMan
         
         TestRepositoryManagementContext testApplicationContext = getTestRepositoryManagementContext();
         testApplicationContext.register(testRepository, remoteRepository, groupRepository, repositoryAttributes);
-        testApplicationContext.refresh();
+        testApplicationContext.tryToStart();
 
         return Proxy.newProxyInstance(RepositoryManagementTestExecutionListener.class.getClassLoader(),
                                       new Class[] { Repository.class },

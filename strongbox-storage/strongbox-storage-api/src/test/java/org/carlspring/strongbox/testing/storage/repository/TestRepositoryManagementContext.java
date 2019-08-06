@@ -21,7 +21,7 @@ public interface TestRepositoryManagementContext
     boolean tryToApply(Class<? extends Annotation> extensionType,
                        ParameterContext context);
 
-    public void refresh();
+    public boolean tryToStart();
 
     public void register(TestRepository testRepository,
                          Remote remoteRepository,
