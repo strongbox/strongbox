@@ -8,7 +8,7 @@ import org.carlspring.strongbox.data.criteria.QueryTemplate;
 import org.carlspring.strongbox.data.criteria.Selector;
 import org.carlspring.strongbox.domain.ArtifactEntry;
 import org.carlspring.strongbox.storage.repository.Repository;
-import org.carlspring.strongbox.testing.TestCaseWithNugetArtifactGeneration;
+import org.carlspring.strongbox.testing.TestCaseWithRepository;
 import org.carlspring.strongbox.testing.artifact.ArtifactManagementTestExecutionListener;
 import org.carlspring.strongbox.testing.artifact.NugetTestArtifact;
 import org.carlspring.strongbox.testing.repository.NugetRepository;
@@ -32,7 +32,8 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 @SpringBootTest
 @ActiveProfiles(profiles = "test")
 @ContextConfiguration(classes = NugetLayoutProviderTestConfig.class)
-public class NugetFilterODataParserTestCase extends TestCaseWithNugetArtifactGeneration
+public class NugetFilterODataParserTestCase
+        extends TestCaseWithRepository
 {
 
     private static final String REPOSITORY_RELEASES = "nfodpt-releases";

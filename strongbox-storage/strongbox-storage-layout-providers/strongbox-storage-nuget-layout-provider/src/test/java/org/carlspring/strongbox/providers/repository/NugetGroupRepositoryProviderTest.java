@@ -5,7 +5,7 @@ import org.carlspring.strongbox.data.criteria.Expression.ExpOperator;
 import org.carlspring.strongbox.data.criteria.Paginator;
 import org.carlspring.strongbox.data.criteria.Predicate;
 import org.carlspring.strongbox.storage.repository.Repository;
-import org.carlspring.strongbox.testing.TestCaseWithNugetArtifactGeneration;
+import org.carlspring.strongbox.testing.TestCaseWithRepository;
 import org.carlspring.strongbox.testing.artifact.ArtifactManagementTestExecutionListener;
 import org.carlspring.strongbox.testing.artifact.NugetTestArtifact;
 import org.carlspring.strongbox.testing.repository.NugetRepository;
@@ -35,7 +35,7 @@ import static org.junit.jupiter.api.parallel.ExecutionMode.CONCURRENT;
 @ContextConfiguration(classes = NugetLayoutProviderTestConfig.class)
 @Execution(CONCURRENT)
 public class NugetGroupRepositoryProviderTest
-        extends TestCaseWithNugetArtifactGeneration
+        extends TestCaseWithRepository
 {
 
     private static final String REPOSITORY_RELEASES_1 = "ngrpt-releases-1";

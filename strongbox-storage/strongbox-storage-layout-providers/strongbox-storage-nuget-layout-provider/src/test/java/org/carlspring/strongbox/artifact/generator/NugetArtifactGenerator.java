@@ -129,7 +129,7 @@ public class NugetArtifactGenerator
             throws IOException, NoSuchAlgorithmException, JAXBException, NugetFormatException
     {
         NugetArtifactCoordinates coordinates = new NugetArtifactCoordinates(id, version, packaging);
-        Path fullPath = basePath.resolve(coordinates.toPath());
+        Path fullPath = basePath.resolve(coordinates.toPath()).normalize().toAbsolutePath();
         Files.createDirectories(fullPath.getParent());
 
         SemanticVersion semanticVersion = SemanticVersion.parse(version);
@@ -365,7 +365,7 @@ public class NugetArtifactGenerator
 
     public String getBasedir()
     {
-        return basePath.toString();
+        return basePath.normalize().toAbsolutePath().toString();
     }
 
 }

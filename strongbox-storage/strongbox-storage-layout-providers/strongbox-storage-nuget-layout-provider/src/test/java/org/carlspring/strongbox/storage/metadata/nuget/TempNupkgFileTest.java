@@ -19,11 +19,8 @@ package org.carlspring.strongbox.storage.metadata.nuget;
 
 import org.carlspring.strongbox.artifact.coordinates.versioning.SemanticVersion;
 import org.carlspring.strongbox.config.NugetLayoutProviderTestConfig;
-import org.carlspring.strongbox.storage.repository.Repository;
 import org.carlspring.strongbox.testing.artifact.ArtifactManagementTestExecutionListener;
 import org.carlspring.strongbox.testing.artifact.NugetTestArtifact;
-import org.carlspring.strongbox.testing.repository.NugetRepository;
-import org.carlspring.strongbox.testing.storage.repository.RepositoryManagementTestExecutionListener;
 import org.carlspring.strongbox.util.MessageDigestUtils;
 
 import java.io.BufferedInputStream;
@@ -31,7 +28,6 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.nio.file.Files;
 import java.nio.file.Path;
-import java.nio.file.Paths;
 
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -51,21 +47,15 @@ import static org.junit.jupiter.api.Assertions.assertNotNull;
 public class TempNupkgFileTest
 {
 
-    private static final String REPOSITORY_RELEASES = "tnft-releases";
-
-    @ExtendWith({ RepositoryManagementTestExecutionListener.class,
-                  ArtifactManagementTestExecutionListener.class })
+    @ExtendWith(ArtifactManagementTestExecutionListener.class)
     @Test
-    public void testHashTempFile(@NugetRepository(repositoryId = REPOSITORY_RELEASES)
-                                 Repository repository,
-                                 @NugetTestArtifact(repositoryId = REPOSITORY_RELEASES,
-                                                    id = "NUnit",
+    public void testHashTempFile(@NugetTestArtifact(id = "NUnit",
                                                     versions = "2.5.9.10348")
                                  Path artifactNupkgPath)
             throws Exception
     {
         // GIVEN
-        Path checksumPath = Paths.get(artifactNupkgPath + ".sha512");
+        Path checksumPath = artifactNupkgPath.resolveSibling(artifactNupkgPath.getFileName() + ".sha512");
 
         String expectedHash = MessageDigestUtils.readChecksumFile(checksumPath.toString());
 
@@ -87,13 +77,9 @@ public class TempNupkgFileTest
      *
      * @throws Exception error during the test
      */
-    @ExtendWith({ RepositoryManagementTestExecutionListener.class,
-                  ArtifactManagementTestExecutionListener.class })
+    @ExtendWith(ArtifactManagementTestExecutionListener.class)
     @Test
-    public void testGetNuspecTmpFile(@NugetRepository(repositoryId = REPOSITORY_RELEASES)
-                                     Repository repository,
-                                     @NugetTestArtifact(repositoryId = REPOSITORY_RELEASES,
-                                                        id = "NUnit",
+    public void testGetNuspecTmpFile(@NugetTestArtifact(id = "NUnit",
                                                         versions = "2.5.9.10348")
                                      Path artifactNupkgPath)
             throws Exception
@@ -120,13 +106,9 @@ public class TempNupkgFileTest
      * @throws IOException          error read test data
      * @throws NugetFormatException invalid format exception
      */
-    @ExtendWith({ RepositoryManagementTestExecutionListener.class,
-                  ArtifactManagementTestExecutionListener.class })
+    @ExtendWith(ArtifactManagementTestExecutionListener.class)
     @Test
-    public void testReadNupkg(@NugetRepository(repositoryId = REPOSITORY_RELEASES)
-                              Repository repository,
-                              @NugetTestArtifact(repositoryId = REPOSITORY_RELEASES,
-                                                 id = "NUnit",
+    public void testReadNupkg(@NugetTestArtifact(id = "NUnit",
                                                  versions = "2.5.9.10348")
                               Path artifactNupkgPath)
             throws IOException,

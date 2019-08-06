@@ -5,7 +5,8 @@ import org.carlspring.strongbox.cron.services.CronTaskConfigurationService;
 import org.carlspring.strongbox.cron.services.JobManager;
 import org.carlspring.strongbox.event.cron.CronTaskEvent;
 import org.carlspring.strongbox.event.cron.CronTaskEventTypeEnum;
-import org.carlspring.strongbox.testing.TestCaseWithNugetArtifactGeneration;
+import org.carlspring.strongbox.providers.io.RepositoryPathResolver;
+import org.carlspring.strongbox.testing.TestCaseWithRepository;
 
 import javax.inject.Inject;
 import java.lang.reflect.Method;
@@ -24,9 +25,10 @@ import org.springframework.context.ConfigurableApplicationContext;
 
 /**
  * @author carlspring
+ * @author Pablo Tirado
  */
 public class BaseCronJobWithNugetIndexingTestCase
-        extends TestCaseWithNugetArtifactGeneration
+        extends TestCaseWithRepository
 {
 
     protected static final long EVENT_TIMEOUT_SECONDS = 10L;
@@ -39,6 +41,9 @@ public class BaseCronJobWithNugetIndexingTestCase
 
     @Inject
     private ApplicationContext applicationContext;
+
+    @Inject
+    protected RepositoryPathResolver repositoryPathResolver;
 
     private CronJobApplicationListener cronJobApplicationListener;
 

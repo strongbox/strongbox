@@ -3,11 +3,8 @@ package org.carlspring.strongbox.storage.metadata.nuget.rss;
 import org.carlspring.strongbox.config.NugetLayoutProviderTestConfig;
 import org.carlspring.strongbox.storage.metadata.nuget.NugetTestResourceUtil;
 import org.carlspring.strongbox.storage.metadata.nuget.TempNupkgFile;
-import org.carlspring.strongbox.storage.repository.Repository;
 import org.carlspring.strongbox.testing.artifact.ArtifactManagementTestExecutionListener;
 import org.carlspring.strongbox.testing.artifact.NugetTestArtifact;
-import org.carlspring.strongbox.testing.repository.NugetRepository;
-import org.carlspring.strongbox.testing.storage.repository.RepositoryManagementTestExecutionListener;
 
 import java.io.BufferedInputStream;
 import java.io.InputStream;
@@ -35,8 +32,6 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 @ActiveProfiles(profiles = "test")
 public class PackageFeedTest
 {
-
-    private static final String REPOSITORY_RELEASES = "pfr-releases";
 
     /**
      * Recognizes the date in XMl W3C format
@@ -78,13 +73,9 @@ public class PackageFeedTest
      * @throws Exception
      *             error during the test
      */
-    @ExtendWith({ RepositoryManagementTestExecutionListener.class,
-                  ArtifactManagementTestExecutionListener.class })
+    @ExtendWith(ArtifactManagementTestExecutionListener.class)
     @Test
-    public void testMarshallFeed(@NugetRepository(repositoryId = REPOSITORY_RELEASES)
-                                 Repository repository,
-                                 @NugetTestArtifact(repositoryId = REPOSITORY_RELEASES,
-                                                    id = "NUnit",
+    public void testMarshallFeed(@NugetTestArtifact(id = "NUnit",
                                                     versions = "2.5.9.10348")
                                  Path artifactNupkgPath)
             throws Exception
