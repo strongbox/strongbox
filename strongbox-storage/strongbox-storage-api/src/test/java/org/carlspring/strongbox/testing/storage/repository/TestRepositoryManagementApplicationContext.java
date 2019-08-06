@@ -13,6 +13,7 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.Map.Entry;
 import java.util.NoSuchElementException;
+import java.util.Objects;
 import java.util.Set;
 import java.util.concurrent.ConcurrentSkipListMap;
 import java.util.concurrent.TimeUnit;
@@ -51,7 +52,7 @@ public class TestRepositoryManagementApplicationContext extends AnnotationConfig
 
     private static ThreadLocal<TestRepositoryManagementContext> testApplicationContextHolder = new ThreadLocal<>();
 
-    private Map<Class<? extends Annotation>, Boolean> extensionsToApply = new HashMap<>();
+    private Map<Class<? extends Annotation>, Boolean[]> extensionsToApply = new HashMap<>();
 
     private static Map<String, ReentrantLock> idSync = new ConcurrentSkipListMap<>();
 
@@ -75,7 +76,10 @@ public class TestRepositoryManagementApplicationContext extends AnnotationConfig
             throw new IllegalStateException(String.format("Extension [%s] already registered.", extensionType));
         }
 
-        testApplicationContext.extensionsToApply.put(extensionType, false);
+        testApplicationContext.extensionsToApply.put(extensionType,
+                                                     context.getTestMethod()
+                                                            .map(m -> new Boolean[m.getParameterCount()])
+                                                            .get());
     }
 
     public static void closeExtension(Class<? extends Annotation> extensionType,
@@ -112,43 +116,66 @@ public class TestRepositoryManagementApplicationContext extends AnnotationConfig
     {
         if (!extensionsToApply.containsKey(extensionType))
         {
-            return false;
+            throw new IllegalArgumentException(String.format("Unsupported extension type [%s]. ", extensionType.getSimpleName()));
         }
 
+        boolean supports = AnnotatedElementUtils.isAnnotated(parameterContext.getParameter(), extensionType);
+        
         int index = parameterContext.getIndex();
         int count = parameterContext.getDeclaringExecutable().getParameterCount();
-        extensionsToApply.put(extensionType, index == (count - 1));
+        extensionsToApply.get(extensionType)[index] = supports;
         
-        return AnnotatedElementUtils.isAnnotated(parameterContext.getParameter(), extensionType);
+        boolean isLastTestMethodParameter = index == (count - 1);
+        if (isLastTestMethodParameter && !checkIfAnyExtensionCheckedAndSupportsTestMethodParameter(index))
+        {
+            tryToStart();
+        }
+        
+        return supports;
+    }
+
+    protected boolean checkIfAnyExtensionCheckedAndSupportsTestMethodParameter(int index)
+    {
+        return extensionsToApply.values()
+                                .stream()
+                                .map(parametersSupportedByExtension -> parametersSupportedByExtension[index])
+                                .anyMatch(Boolean.TRUE::equals);
     }
 
     @Override
-    public void refresh()
+    public boolean tryToStart()
             throws BeansException,
                    IllegalStateException
     {
         if (isActive())
         {
-            return;
+            throw new IllegalStateException("Context already active.");
         }
 
-        Boolean allApplied = extensionsToApply.values()
-                                              .stream()
-                                              .allMatch(applied -> applied);
-        if (!Boolean.TRUE.equals(allApplied))
+        if (!shouldBeRefreshed())
         {
-            return;
+            return false;
         }
 
         lock();
         try
         {
-            super.refresh();
+            refresh();
         }
         catch (Throwable e)
         {
             unlockWithExceptionPropagation(e);
         }
+        
+        return true;
+    }
+
+    protected boolean shouldBeRefreshed()
+    {
+        return extensionsToApply.values()
+                                .stream()
+                                .flatMap(parametersSupportedByExtension -> Arrays.stream(parametersSupportedByExtension))
+                                .allMatch(Objects::nonNull);
     }
 
     private void unlockWithExceptionPropagation(Throwable e)
