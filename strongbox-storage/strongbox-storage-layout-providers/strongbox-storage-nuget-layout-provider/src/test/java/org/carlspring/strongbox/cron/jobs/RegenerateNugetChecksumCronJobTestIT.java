@@ -11,9 +11,8 @@ import org.carlspring.strongbox.testing.artifact.ArtifactManagementTestExecution
 import org.carlspring.strongbox.testing.artifact.NugetTestArtifact;
 import org.carlspring.strongbox.testing.repository.NugetRepository;
 import org.carlspring.strongbox.testing.storage.repository.RepositoryManagementTestExecutionListener;
+import org.carlspring.strongbox.util.ThrowingConsumer;
 
-import java.io.IOException;
-import java.lang.reflect.UndeclaredThrowableException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.ArrayList;
@@ -110,19 +109,10 @@ public class RegenerateNugetChecksumCronJobTestIT
         await().atMost(EVENT_TIMEOUT_SECONDS, TimeUnit.SECONDS).untilTrue(receivedExpectedEvent());
 
         assertEquals(2, resultList.size());
-        resultList.forEach(path -> {
-            assertTrue(Files.exists(path),
-                       "The checksum file " + path.toString() + " doesn't exist!");
-            try
-            {
-                assertTrue(Files.size(path) > 0,
-                           "The checksum file is empty!");
-            }
-            catch (IOException e)
-            {
-                throw new UndeclaredThrowableException(e);
-            }
-        });
+        resultList.forEach(ThrowingConsumer.unchecked(path -> {
+            assertTrue(Files.exists(path), "The checksum file " + path.toString() + " doesn't exist!");
+            assertTrue(Files.size(path) > 0, "The checksum file is empty!");
+        }));
     }
 
     @ExtendWith({ RepositoryManagementTestExecutionListener.class,
@@ -174,19 +164,10 @@ public class RegenerateNugetChecksumCronJobTestIT
 
         assertEquals(2, resultList.size());
 
-        resultList.forEach(path -> {
-            assertTrue(Files.exists(path),
-                       "The checksum file " + path.toString() + " doesn't exist!");
-            try
-            {
-                assertTrue(Files.size(path) > 0,
-                           "The checksum file is empty!");
-            }
-            catch (IOException e)
-            {
-                throw new UndeclaredThrowableException(e);
-            }
-        });
+        resultList.forEach(ThrowingConsumer.unchecked(path -> {
+            assertTrue(Files.exists(path), "The checksum file " + path.toString() + " doesn't exist!");
+            assertTrue(Files.size(path) > 0, "The checksum file is empty!");
+        }));
     }
 
     @ExtendWith({ RepositoryManagementTestExecutionListener.class,
@@ -237,19 +218,10 @@ public class RegenerateNugetChecksumCronJobTestIT
         await().atMost(EVENT_TIMEOUT_SECONDS, TimeUnit.SECONDS).untilTrue(receivedExpectedEvent());
 
         assertEquals(2, resultList.size());
-        resultList.forEach(path -> {
-            assertTrue(Files.exists(path),
-                       "The checksum file " + path.toString() + " doesn't exist!");
-            try
-            {
-                assertTrue(Files.size(path) > 0,
-                           "The checksum file is empty!");
-            }
-            catch (IOException e)
-            {
-                throw new UndeclaredThrowableException(e);
-            }
-        });
+        resultList.forEach(ThrowingConsumer.unchecked(path -> {
+            assertTrue(Files.exists(path), "The checksum file " + path.toString() + " doesn't exist!");
+            assertTrue(Files.size(path) > 0, "The checksum file is empty!");
+        }));
     }
 
     @ExtendWith({ RepositoryManagementTestExecutionListener.class,
@@ -302,18 +274,9 @@ public class RegenerateNugetChecksumCronJobTestIT
         await().atMost(EVENT_TIMEOUT_SECONDS, TimeUnit.SECONDS).untilTrue(receivedExpectedEvent());
 
         assertEquals(2, resultList.size());
-        resultList.forEach(path -> {
-            assertTrue(Files.exists(path),
-                       "The checksum file " + path.toString() + " doesn't exist!");
-            try
-            {
-                assertTrue(Files.size(path) > 0,
-                           "The checksum file is empty!");
-            }
-            catch (IOException e)
-            {
-                throw new UndeclaredThrowableException(e);
-            }
-        });
+        resultList.forEach(ThrowingConsumer.unchecked(path -> {
+            assertTrue(Files.exists(path), "The checksum file " + path.toString() + " doesn't exist!");
+            assertTrue(Files.size(path) > 0, "The checksum file is empty!");
+        }));
     }
 }
