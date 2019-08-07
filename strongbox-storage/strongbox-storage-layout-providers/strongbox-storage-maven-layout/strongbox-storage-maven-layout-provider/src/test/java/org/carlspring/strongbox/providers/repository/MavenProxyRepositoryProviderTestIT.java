@@ -75,9 +75,6 @@ public class MavenProxyRepositoryProviderTestIT
         final String repositoryId = getRepositoryName(REPOSITORY_ID,
                                                       testInfo);
 
-        final String centralRepositoryId = getRepositoryName(CENTRAL_REPOSITORY_ID,
-                                                             testInfo);
-
         artifactEntryService.delete(artifactEntryService.findArtifactList(STORAGE_ID,
                                                                           repositoryId,
                                                                           ImmutableMap.of("groupId", "org.carlspring.maven",
@@ -185,7 +182,6 @@ public class MavenProxyRepositoryProviderTestIT
                             "javax/interceptor/javax.interceptor-api/1.2.2/javax.interceptor-api-1.2.2.jar");
 
         // 2. resolve downloaded artifact base path
-        //Repository repository = storage.getRepository(repositoryId);
         final Path mavenCentralArtifactBaseBath = repositoryPathResolver.resolve(proxyRepository1,
                                                                                  "javax/interceptor/javax.interceptor-api");
 
