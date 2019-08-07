@@ -1,11 +1,9 @@
 package org.carlspring.strongbox.controllers.layout.npm;
 
 import org.carlspring.strongbox.artifact.coordinates.NpmArtifactCoordinates;
-import org.carlspring.strongbox.artifact.generator.NpmArtifactGenerator;
 import org.carlspring.strongbox.config.IntegrationTest;
 import org.carlspring.strongbox.providers.io.RepositoryFiles;
 import org.carlspring.strongbox.providers.io.RepositoryPath;
-import org.carlspring.strongbox.providers.io.RootRepositoryPath;
 import org.carlspring.strongbox.rest.common.NpmRestAssuredBaseTest;
 import org.carlspring.strongbox.storage.repository.Repository;
 import org.carlspring.strongbox.testing.artifact.ArtifactManagementTestExecutionListener;
@@ -97,14 +95,9 @@ public class NpmArtifactControllerTest
         final String packageId = "@carlspring/npm-test-release";
         final String packageVersion = "1.0.0";
 
-        RootRepositoryPath repositoryPath = repositoryPathResolver.resolve(repository);
-
         NpmArtifactCoordinates coordinates = NpmArtifactCoordinates.of(packageId, packageVersion);
 
-        NpmArtifactGenerator artifactGenerator = new NpmArtifactGenerator(repositoryPath).of(coordinates);
-        artifactGenerator.setPackagePath(packagePath);
-        Path publishJsonPath = artifactGenerator.buildPublishJson();
-
+        Path publishJsonPath = packagePath.resolveSibling("publish.json");
         byte[] publishJsonContent = Files.readAllBytes(publishJsonPath);
 
         //Publish
