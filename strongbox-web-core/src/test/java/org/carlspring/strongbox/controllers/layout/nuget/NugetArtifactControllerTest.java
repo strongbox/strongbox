@@ -85,21 +85,11 @@ public class NugetArtifactControllerTest extends NugetRestAssuredBaseTest
         final String storageId = repository.getStorage().getId();
         final String repositoryId = repository.getId();
 
-        byte[] packageContent = readPackageContent(packagePath);
-
-        // Push
-        String url = getContextBaseUrl() + "/storages/{storageId}/{repositoryId}/";
-        createPushRequest(packageContent).when()
-                                         .put(url, storageId, repositoryId)
-                                         .peek()
-                                         .then()
-                                         .statusCode(HttpStatus.CREATED.value());
-
         NugetArtifactCoordinates coordinates = (NugetArtifactCoordinates) RepositoryFiles.readCoordinates(
                 (RepositoryPath) packagePath.normalize());
 
         // Delete
-        url = getContextBaseUrl() + "/storages/{storageId}/{repositoryId}/{artifactId}/{artifactVersion}";
+        String url = getContextBaseUrl() + "/storages/{storageId}/{repositoryId}/{artifactId}/{artifactVersion}";
         given().header("X-NuGet-ApiKey", API_KEY)
                .when()
                .delete(url, storageId, repositoryId, coordinates.getId(), coordinates.getVersion())
@@ -141,19 +131,10 @@ public class NugetArtifactControllerTest extends NugetRestAssuredBaseTest
         final String storageId = repository.getStorage().getId();
         final String repositoryId = repository.getId();
 
-        byte[] packageContent = readPackageContent(packagePath);
-
-        String url = getContextBaseUrl() + "/storages/{storageId}/{repositoryId}/";
-        createPushRequest(packageContent).when()
-                                         .put(url, storageId, repositoryId)
-                                         .peek()
-                                         .then()
-                                         .statusCode(HttpStatus.CREATED.value());
-
         NugetArtifactCoordinates coordinates = (NugetArtifactCoordinates) RepositoryFiles.readCoordinates(
                 (RepositoryPath) packagePath.normalize());
 
-        url = getContextBaseUrl() + "/storages/{storageId}/{repositoryId}/{artifactId}/{artifactVersion}";
+        String url = getContextBaseUrl() + "/storages/{storageId}/{repositoryId}/{artifactId}/{artifactVersion}";
         Headers headersFromGET = given().header("X-NuGet-ApiKey", API_KEY)
                                         .accept(ContentType.BINARY)
                                         .when()
@@ -191,15 +172,15 @@ public class NugetArtifactControllerTest extends NugetRestAssuredBaseTest
     public void testPackageCommonFlow(@NugetRepository(storageId = STORAGE_ID,
                                                        repositoryId = REPOSITORY_RELEASES_1)
                                       Repository repository,
-                                      @NugetTestArtifact(storageId = STORAGE_ID,
-                                                         repositoryId = REPOSITORY_RELEASES_1,
-                                                         id = "Org.Carlspring.Strongbox.Examples.Nuget.Mono",
+                                      @NugetTestArtifact(id = "Org.Carlspring.Strongbox.Examples.Nuget.Mono",
                                                          versions = "1.0.0")
                                       Path packagePath)
         throws Exception
     {
         final String storageId = repository.getStorage().getId();
         final String repositoryId = repository.getId();
+        final String packageId = "Org.Carlspring.Strongbox.Examples.Nuget.Mono";
+        final String packageVersion = "1.0.0";
 
         long packageSize = Files.size(packagePath);
         byte[] packageContent = readPackageContent(packagePath);
@@ -214,12 +195,10 @@ public class NugetArtifactControllerTest extends NugetRestAssuredBaseTest
                .statusCode(HttpStatus.CREATED.value());
 
         //Find by ID
-        NugetArtifactCoordinates coordinates = (NugetArtifactCoordinates) RepositoryFiles.readCoordinates(
-                (RepositoryPath) packagePath.normalize());
 
         url = getContextBaseUrl() + "/storages/{storageId}/{repositoryId}/FindPackagesById()?id='{artifactId}'";
         given().when()
-               .get(url, storageId, repositoryId, coordinates.getId())
+               .get(url, storageId, repositoryId, packageId)
                .then()
                .statusCode(HttpStatus.OK.value())
                .and()
@@ -227,7 +206,7 @@ public class NugetArtifactControllerTest extends NugetRestAssuredBaseTest
                .body("feed.title", equalTo("Packages"))
                .and()
                .assertThat()
-               .body("feed.entry[0].title", equalTo(coordinates.getId()));
+               .body("feed.entry[0].title", equalTo(packageId));
 
         // We need to mute `System.out` here manually because response body logging hardcoded in current version of
         // RestAssured, and we can not change it using configuration (@see `RestAssuredResponseOptionsGroovyImpl.peek(...)`).
@@ -237,7 +216,7 @@ public class NugetArtifactControllerTest extends NugetRestAssuredBaseTest
             // Get1
             url = getContextBaseUrl() + "/storages/{storageId}/{repositoryId}/download/{artifactId}/{artifactVersion}";
             given().when()
-                   .get(url, storageId, repositoryId, coordinates.getId(), coordinates.getVersion())
+                   .get(url, storageId, repositoryId, packageId, packageVersion)
                    .peek()
                    .then()
                    .statusCode(HttpStatus.OK.value())
@@ -247,7 +226,7 @@ public class NugetArtifactControllerTest extends NugetRestAssuredBaseTest
             // Get2
             url = getContextBaseUrl() + "/storages/{storageId}/{repositoryId}/{artifactId}/{artifactVersion}";
             given().when()
-                   .get(url, storageId, repositoryId, coordinates.getId(), coordinates.getVersion())
+                   .get(url, storageId, repositoryId, packageId, packageVersion)
                    .peek()
                    .then()
                    .statusCode(HttpStatus.OK.value())
@@ -294,18 +273,9 @@ public class NugetArtifactControllerTest extends NugetRestAssuredBaseTest
     {
         final String storageId = repository.getStorage().getId();
         final String repositoryId = repository.getId();
-        byte[] packageContent = readPackageContent(packagePath);
-
-        // Push
-        String url = getContextBaseUrl() + "/storages/{storageId}/{repositoryId}/";
-        createPushRequest(packageContent).when()
-                                         .put(url, storageId, repositoryId)
-                                         .peek()
-                                         .then()
-                                         .statusCode(HttpStatus.CREATED.value());
 
         // Count
-        url = getContextBaseUrl() +
+        String url = getContextBaseUrl() +
               "/storages/{storageId}/{repositoryId}/Search()/$count?searchTerm={searchTerm}&targetFramework=";
         given().when()
                .get(url, storageId, repositoryId, "Test.Search")
@@ -352,15 +322,6 @@ public class NugetArtifactControllerTest extends NugetRestAssuredBaseTest
         final String repositoryId = repository.getId();
 
         Path packagePathV1 = packagePaths.get(0);
-        byte[] packageContent = readPackageContent(packagePathV1);
-
-        // Push
-        String url = getContextBaseUrl() + "/storages/{storageId}/{repositoryId}/";
-        createPushRequest(packageContent).when()
-                                         .put(url, storageId, repositoryId)
-                                         .peek()
-                                         .then()
-                                         .statusCode(HttpStatus.CREATED.value());
 
         NugetArtifactCoordinates coordinates = (NugetArtifactCoordinates) RepositoryFiles.readCoordinates(
                 (RepositoryPath) packagePathV1.normalize());
@@ -368,7 +329,7 @@ public class NugetArtifactControllerTest extends NugetRestAssuredBaseTest
 
         // VERSION 1.0.0
         // Count
-        url = getContextBaseUrl() +
+        String url = getContextBaseUrl() +
               "/storages/{storageId}/{repositoryId}/Search()/$count?$filter={filter}&targetFramework=";
         given().when()
                .get(url, storageId, repositoryId, filter)
@@ -395,14 +356,6 @@ public class NugetArtifactControllerTest extends NugetRestAssuredBaseTest
 
         // VERSION 2.0.0
         Path packagePathV2 = packagePaths.get(1);
-        packageContent = readPackageContent(packagePathV2);
-
-        url = getContextBaseUrl() + "/storages/{storageId}/{repositoryId}/";
-        createPushRequest(packageContent).when()
-                                         .put(url, storageId, repositoryId)
-                                         .peek()
-                                         .then()
-                                         .statusCode(HttpStatus.CREATED.value());
 
         // Count
         url = getContextBaseUrl() +
