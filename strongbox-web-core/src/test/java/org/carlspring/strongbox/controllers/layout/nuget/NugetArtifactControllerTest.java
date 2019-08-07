@@ -90,7 +90,8 @@ public class NugetArtifactControllerTest extends NugetRestAssuredBaseTest
 
         // Delete
         String url = getContextBaseUrl() + "/storages/{storageId}/{repositoryId}/{artifactId}/{artifactVersion}";
-        given().header("X-NuGet-ApiKey", API_KEY)
+        given().header(HttpHeaders.USER_AGENT, "NuGet/*")
+               .header("X-NuGet-ApiKey", API_KEY)
                .when()
                .delete(url, storageId, repositoryId, coordinates.getId(), coordinates.getVersion())
                .peek()
@@ -108,7 +109,8 @@ public class NugetArtifactControllerTest extends NugetRestAssuredBaseTest
         final String repositoryId = repository.getId();
 
         String url = getContextBaseUrl() + "/storages/{storageId}/{repositoryId}/$metadata;client=127.0.0.1";
-        given().when()
+        given().header(HttpHeaders.USER_AGENT, "NuGet/*")
+               .when()
                .get(url, storageId, repositoryId)
                .then()
                .statusCode(HttpStatus.OK.value());
@@ -135,14 +137,16 @@ public class NugetArtifactControllerTest extends NugetRestAssuredBaseTest
                 (RepositoryPath) packagePath.normalize());
 
         String url = getContextBaseUrl() + "/storages/{storageId}/{repositoryId}/{artifactId}/{artifactVersion}";
-        Headers headersFromGET = given().header("X-NuGet-ApiKey", API_KEY)
+        Headers headersFromGET = given().header(HttpHeaders.USER_AGENT, "NuGet/*")
+                                        .header("X-NuGet-ApiKey", API_KEY)
                                         .accept(ContentType.BINARY)
                                         .when()
                                         .get(url, storageId, repositoryId, coordinates.getId(),
                                              coordinates.getVersion())
                                         .getHeaders();
 
-        Headers headersFromHEAD = given().header("X-NuGet-ApiKey", API_KEY)
+        Headers headersFromHEAD = given().header(HttpHeaders.USER_AGENT, "NuGet/*")
+                                         .header("X-NuGet-ApiKey", API_KEY)
                                          .accept(ContentType.BINARY)
                                          .when()
                                          .head(url, storageId, repositoryId, coordinates.getId(),
@@ -197,7 +201,8 @@ public class NugetArtifactControllerTest extends NugetRestAssuredBaseTest
         //Find by ID
 
         url = getContextBaseUrl() + "/storages/{storageId}/{repositoryId}/FindPackagesById()?id='{artifactId}'";
-        given().when()
+        given().header(HttpHeaders.USER_AGENT, "NuGet/*")
+               .when()
                .get(url, storageId, repositoryId, packageId)
                .then()
                .statusCode(HttpStatus.OK.value())
@@ -215,7 +220,8 @@ public class NugetArtifactControllerTest extends NugetRestAssuredBaseTest
         {
             // Get1
             url = getContextBaseUrl() + "/storages/{storageId}/{repositoryId}/download/{artifactId}/{artifactVersion}";
-            given().when()
+            given().header(HttpHeaders.USER_AGENT, "NuGet/*")
+                   .when()
                    .get(url, storageId, repositoryId, packageId, packageVersion)
                    .peek()
                    .then()
@@ -225,7 +231,8 @@ public class NugetArtifactControllerTest extends NugetRestAssuredBaseTest
 
             // Get2
             url = getContextBaseUrl() + "/storages/{storageId}/{repositoryId}/{artifactId}/{artifactVersion}";
-            given().when()
+            given().header(HttpHeaders.USER_AGENT, "NuGet/*")
+                   .when()
                    .get(url, storageId, repositoryId, packageId, packageVersion)
                    .peek()
                    .then()
@@ -277,7 +284,8 @@ public class NugetArtifactControllerTest extends NugetRestAssuredBaseTest
         // Count
         String url = getContextBaseUrl() +
               "/storages/{storageId}/{repositoryId}/Search()/$count?searchTerm={searchTerm}&targetFramework=";
-        given().when()
+        given().header(HttpHeaders.USER_AGENT, "NuGet/*")
+               .when()
                .get(url, storageId, repositoryId, "Test.Search")
                .then()
                .statusCode(HttpStatus.OK.value())
@@ -292,7 +300,8 @@ public class NugetArtifactControllerTest extends NugetRestAssuredBaseTest
 
         url = getContextBaseUrl() +
               "/storages/{storageId}/{repositoryId}/Search()?$skip={skip}&$top={stop}&searchTerm={searchTerm}&targetFramework=";
-        given().when()
+        given().header(HttpHeaders.USER_AGENT, "NuGet/*")
+               .when()
                .get(url, storageId, repositoryId, 0, 30, "Test.Search")
                .then()
                .statusCode(HttpStatus.OK.value())
@@ -323,15 +332,16 @@ public class NugetArtifactControllerTest extends NugetRestAssuredBaseTest
 
         Path packagePathV1 = packagePaths.get(0);
 
-        NugetArtifactCoordinates coordinates = (NugetArtifactCoordinates) RepositoryFiles.readCoordinates(
+        NugetArtifactCoordinates coordinatesV1 = (NugetArtifactCoordinates) RepositoryFiles.readCoordinates(
                 (RepositoryPath) packagePathV1.normalize());
-        String filter = String.format("tolower(Id) eq '%s' and IsLatestVersion", coordinates.getId().toLowerCase());
+        String filter = String.format("tolower(Id) eq '%s' and IsLatestVersion", coordinatesV1.getId().toLowerCase());
 
         // VERSION 1.0.0
         // Count
         String url = getContextBaseUrl() +
               "/storages/{storageId}/{repositoryId}/Search()/$count?$filter={filter}&targetFramework=";
-        given().when()
+        given().header(HttpHeaders.USER_AGENT, "NuGet/*")
+               .when()
                .get(url, storageId, repositoryId, filter)
                .then()
                .statusCode(HttpStatus.OK.value())
@@ -342,7 +352,8 @@ public class NugetArtifactControllerTest extends NugetRestAssuredBaseTest
         // Search
         url = getContextBaseUrl() +
               "/storages/{storageId}/{repositoryId}/Search()?$filter{filter}&$skip{skip}&$top={stop}&targetFramework=";
-        given().when()
+        given().header(HttpHeaders.USER_AGENT, "NuGet/*")
+               .when()
                .get(url, storageId, repositoryId, filter, 0, 30)
                .then()
                .statusCode(HttpStatus.OK.value())
@@ -351,8 +362,8 @@ public class NugetArtifactControllerTest extends NugetRestAssuredBaseTest
                .body("feed.title", equalTo("Packages"))
                .and()
                .assertThat()
-               .body("feed.entry[0].title", equalTo(coordinates.getId()))
-               .body("feed.entry[0].properties.Version", equalTo(coordinates.getVersion()));
+               .body("feed.entry[0].title", equalTo(coordinatesV1.getId()))
+               .body("feed.entry[0].properties.Version", equalTo(coordinatesV1.getVersion()));
 
         // VERSION 2.0.0
         Path packagePathV2 = packagePaths.get(1);
@@ -360,7 +371,8 @@ public class NugetArtifactControllerTest extends NugetRestAssuredBaseTest
         // Count
         url = getContextBaseUrl() +
               "/storages/{storageId}/{repositoryId}/Search()/$count?$filter={filter}&targetFramework=";
-        given().when()
+        given().header(HttpHeaders.USER_AGENT, "NuGet/*")
+               .when()
                .get(url, storageId, repositoryId, filter)
                .then()
                .statusCode(HttpStatus.OK.value())
@@ -369,12 +381,13 @@ public class NugetArtifactControllerTest extends NugetRestAssuredBaseTest
                .body(equalTo("1"));
 
         // Search
-        coordinates = (NugetArtifactCoordinates) RepositoryFiles.readCoordinates(
+        NugetArtifactCoordinates coordinatesV2 = (NugetArtifactCoordinates) RepositoryFiles.readCoordinates(
                 (RepositoryPath) packagePathV2.normalize());
 
         url = getContextBaseUrl() +
               "/storages/{storageId}/{repositoryId}/Search()?$filter={filter}&$skip={skip}&$top={stop}&targetFramework=";
-        given().when()
+        given().header(HttpHeaders.USER_AGENT, "NuGet/*")
+               .when()
                .get(url, storageId, repositoryId, filter, 0, 30)
                .then()
                .statusCode(HttpStatus.OK.value())
@@ -383,8 +396,8 @@ public class NugetArtifactControllerTest extends NugetRestAssuredBaseTest
                .body("feed.title", equalTo("Packages"))
                .and()
                .assertThat()
-               .body("feed.entry[0].title", equalTo(coordinates.getId()))
-               .body("feed.entry[0].properties.Version", equalTo(coordinates.getVersion()));
+               .body("feed.entry[0].title", equalTo(coordinatesV2.getId()))
+               .body("feed.entry[0].properties.Version", equalTo(coordinatesV2.getVersion()));
     }
 
     public MockMvcRequestSpecification createPushRequest(byte[] packageContent)
@@ -402,7 +415,8 @@ public class NugetArtifactControllerTest extends NugetRestAssuredBaseTest
         final String packageVersion =  "4.1.1.4000";
 
         String url = getContextBaseUrl() + "/storages/public/nuget-group/FindPackagesById()?id={artifactId}";
-        given().when()
+        given().header(HttpHeaders.USER_AGENT, "NuGet/*")
+               .when()
                .get(url, packageId)
                .then()
                .statusCode(HttpStatus.OK.value())
@@ -431,7 +445,8 @@ public class NugetArtifactControllerTest extends NugetRestAssuredBaseTest
         try
         {
             url = getContextBaseUrl() + "/storages/public/nuget-group/package/{artifactId}/{artifactVersion}";
-            given().when()
+            given().header(HttpHeaders.USER_AGENT, "NuGet/*")
+                   .when()
                    .get(url, packageId, packageVersion)
                    .peek()
                    .then()
@@ -452,6 +467,7 @@ public class NugetArtifactControllerTest extends NugetRestAssuredBaseTest
                      + "/storages/public/nuget-group/FindPackagesById()?id=NHibernate&$orderby=Version";
         PackageFeed feed = given().log()
                                   .all()
+                                  .header(HttpHeaders.USER_AGENT, "NuGet/*")
                                   .when()
                                   .get(url)
                                   .body()
