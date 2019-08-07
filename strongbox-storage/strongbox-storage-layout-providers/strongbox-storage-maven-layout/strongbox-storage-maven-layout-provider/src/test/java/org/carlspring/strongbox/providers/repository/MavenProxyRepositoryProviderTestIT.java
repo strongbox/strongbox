@@ -1,33 +1,33 @@
 package org.carlspring.strongbox.providers.repository;
 
+
+import org.carlspring.strongbox.testing.storage.repository.TestRepository.Remote;
 import org.carlspring.strongbox.config.Maven2LayoutProviderCronTasksTestConfig;
 import org.carlspring.strongbox.data.CacheManagerTestExecutionListener;
 import org.carlspring.strongbox.domain.ArtifactEntry;
 import org.carlspring.strongbox.providers.io.RepositoryFiles;
 import org.carlspring.strongbox.providers.io.RepositoryPath;
-import org.carlspring.strongbox.providers.layout.LayoutProvider;
-import org.carlspring.strongbox.providers.layout.Maven2LayoutProvider;
 import org.carlspring.strongbox.services.ArtifactEntryService;
-import org.carlspring.strongbox.storage.Storage;
 import org.carlspring.strongbox.storage.metadata.MavenMetadataManager;
-import org.carlspring.strongbox.storage.repository.RepositoryDto;
 import org.carlspring.strongbox.storage.repository.Repository;
+import org.carlspring.strongbox.testing.MavenIndexedRepositorySetup;
 import org.carlspring.strongbox.testing.TestCaseWithMavenArtifactGenerationAndIndexing;
 
 import javax.inject.Inject;
 import java.io.IOException;
 import java.io.InputStream;
 import java.nio.file.Path;
-import java.util.LinkedHashSet;
 import java.util.Optional;
-import java.util.Set;
 
 import com.google.common.collect.ImmutableMap;
 import com.google.common.io.ByteStreams;
 import org.apache.commons.io.FileUtils;
 import org.apache.maven.artifact.repository.metadata.Metadata;
+import org.carlspring.strongbox.testing.repository.MavenRepository;
+import org.carlspring.strongbox.testing.storage.repository.RepositoryManagementTestExecutionListener;
 import org.hamcrest.CoreMatchers;
 import org.junit.jupiter.api.*;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.junit.jupiter.api.parallel.Execution;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.context.ActiveProfiles;
@@ -45,7 +45,7 @@ import static org.junit.jupiter.api.parallel.ExecutionMode.CONCURRENT;
 @ActiveProfiles(profiles = "test")
 @ContextConfiguration(classes = Maven2LayoutProviderCronTasksTestConfig.class)
 @TestExecutionListeners(listeners = { CacheManagerTestExecutionListener.class },
-                        mergeMode = TestExecutionListeners.MergeMode.MERGE_WITH_DEFAULTS)
+        mergeMode = TestExecutionListeners.MergeMode.MERGE_WITH_DEFAULTS)
 @Execution(CONCURRENT)
 public class MavenProxyRepositoryProviderTestIT
         extends TestCaseWithMavenArtifactGenerationAndIndexing
@@ -67,65 +67,34 @@ public class MavenProxyRepositoryProviderTestIT
     @Inject
     private MavenMetadataManager mavenMetadataManager;
 
-    private Set<RepositoryDto> getRepositories(TestInfo testInfo)
-    {
-        Set<RepositoryDto> repositories = new LinkedHashSet<>();
-        repositories.add(createRepositoryMock(STORAGE_ID,
-                                              getRepositoryName(REPOSITORY_ID, testInfo),
-                                              Maven2LayoutProvider.ALIAS));
-        repositories.add(createRepositoryMock(STORAGE_ID,
-                                              getRepositoryName(CENTRAL_REPOSITORY_ID, testInfo),
-                                              Maven2LayoutProvider.ALIAS));
-        return repositories;
-    }
-
-    @AfterEach
-    public void removeRepositories(TestInfo testInfo)
-            throws Exception
-    {
-        removeRepositories(getRepositories(testInfo));
-    }
-
     @BeforeEach
     public void init(TestInfo testInfo)
             throws Exception
     {
 
-        final String repositoryId = getRepositoryName(REPOSITORY_ID, testInfo);
+        final String repositoryId = getRepositoryName(REPOSITORY_ID,
+                                                      testInfo);
 
-        createProxyRepository(STORAGE_ID,
-                              repositoryId,
-                              REMOTE_URL);
+        artifactEntryService.delete(artifactEntryService.findArtifactList(STORAGE_ID,
+                                                                          repositoryId,
+                                                                          ImmutableMap.of("groupId", "org.carlspring.maven",
+                                                                                          "artifactId", "derby-maven-plugin",
+                                                                                          "version", "1.10"),
+                                                                          true));
 
-        final String centralRepositoryId = getRepositoryName(CENTRAL_REPOSITORY_ID, testInfo);
+        artifactEntryService.delete(artifactEntryService.findArtifactList(STORAGE_ID,
+                                                                          repositoryId,
+                                                                          ImmutableMap.of("groupId", "org.carlspring",
+                                                                                          "artifactId", "properties-injector",
+                                                                                           "version", "1.1"),
+                                                                          true));
 
-        createProxyRepository(STORAGE_ID,
-                              centralRepositoryId,
-                              CENTRAL_URL);
-
-        artifactEntryService.delete(
-                artifactEntryService.findArtifactList(STORAGE_ID,
-                                                      repositoryId,
-                                                      ImmutableMap.of("groupId", "org.carlspring.maven",
-                                                                      "artifactId", "derby-maven-plugin",
-                                                                      "version", "1.10"),
-                                                      true));
-
-        artifactEntryService.delete(
-                artifactEntryService.findArtifactList(STORAGE_ID,
-                                                      repositoryId,
-                                                      ImmutableMap.of("groupId", "org.carlspring",
-                                                                      "artifactId", "properties-injector",
-                                                                      "version", "1.1"),
-                                                      true));
-
-        artifactEntryService.delete(
-                artifactEntryService.findArtifactList(STORAGE_ID,
-                                                      repositoryId,
-                                                      ImmutableMap.of("groupId", "javax.media",
-                                                                      "artifactId", "jai_core",
-                                                                      "version", "1.1.3"),
-                                                      true));
+        artifactEntryService.delete(artifactEntryService.findArtifactList(STORAGE_ID,
+                                                                          repositoryId,
+                                                                          ImmutableMap.of("groupId", "javax.media",
+                                                                                          "artifactId", "jai_core",
+                                                                                          "version", "1.1.3"),
+                                                                          true));
     }
 
     /*
@@ -168,61 +137,76 @@ public class MavenProxyRepositoryProviderTestIT
     }
     */
 
+    @ExtendWith({ RepositoryManagementTestExecutionListener.class })
     @Test
-    public void whenDownloadingArtifactMetadaFileShouldAlsoBeResolved(TestInfo testInfo)
+    public void whenDownloadingArtifactMetadaFileShouldAlsoBeResolved(@MavenRepository(storageId = STORAGE_ID,
+                                                                                       repositoryId = REPOSITORY_ID + "-whenDownloadingArtifactMetadaFileShouldAlsoBeResolved",
+                                                                                       setup = MavenIndexedRepositorySetup.class)
+                                                                      @Remote(url = REMOTE_URL)
+                                                                      Repository proxyRepository)
             throws Exception
     {
-        String storageId = STORAGE_ID;
-        String repositoryId = getRepositoryName(REPOSITORY_ID, testInfo);
 
-        assertStreamNotNull(storageId, repositoryId,
+        String storageId = proxyRepository.getStorage().getId();
+        String repositoryId = proxyRepository.getId();
+
+        assertStreamNotNull(storageId,
+                            repositoryId,
                             "org/carlspring/properties-injector/1.1/properties-injector-1.1.jar");
 
-        Storage storage = getConfiguration().getStorage(storageId);
-        Repository repository = storage.getRepository(repositoryId);
-
-        assertTrue(RepositoryFiles.artifactExists(
-                repositoryPathResolver.resolve(repository, "org/carlspring/properties-injector/maven-metadata.xml")));
+        assertTrue(RepositoryFiles.artifactExists(repositoryPathResolver.resolve(proxyRepository,
+                                                                                 "org/carlspring/properties-injector/maven-metadata.xml")));
     }
 
+    @ExtendWith({ RepositoryManagementTestExecutionListener.class })
     @Test
-    public void whenDownloadingArtifactMetadataFileShouldBeMergedWhenExist(TestInfo testInfo)
+    public void whenDownloadingArtifactMetadataFileShouldBeMergedWhenExist(@MavenRepository(storageId = STORAGE_ID,
+                                                                                            repositoryId = CENTRAL_REPOSITORY_ID + "-whenDownloadingArtifactMetadataFileShouldBeMergedWhenExist",
+                                                                                            setup = MavenIndexedRepositorySetup.class)
+                                                                           @Remote(url = CENTRAL_URL)
+                                                                           Repository proxyRepository1,
+                                                                           @MavenRepository(storageId = STORAGE_ID,
+                                                                                            repositoryId = REPOSITORY_ID + "-whenDownloadingArtifactMetadataFileShouldBeMergedWhenExist",
+                                                                                            setup = MavenIndexedRepositorySetup.class)
+                                                                           @Remote(url = REMOTE_URL)
+                                                                           Repository proxyRepository2)
             throws Exception
     {
-        String storageId = STORAGE_ID;
-        Storage storage = getConfiguration().getStorage(storageId);
+        String storageId = proxyRepository1.getStorage().getId();
 
         // 1. download the artifact and artifactId-level maven metadata-file from 1st repository
-        String repositoryId = getRepositoryName(CENTRAL_REPOSITORY_ID, testInfo);
+        String repositoryId = proxyRepository1.getId();
 
-        assertStreamNotNull(storageId, repositoryId,
+        assertStreamNotNull(storageId,
+                            repositoryId,
                             "javax/interceptor/javax.interceptor-api/1.2.2/javax.interceptor-api-1.2.2.jar");
 
         // 2. resolve downloaded artifact base path
-        Repository repository = storage.getRepository(repositoryId);
-        final Path mavenCentralArtifactBaseBath = repositoryPathResolver.resolve(repository,
+        final Path mavenCentralArtifactBaseBath = repositoryPathResolver.resolve(proxyRepository1,
                                                                                  "javax/interceptor/javax.interceptor-api");
 
         // 3. copy the content to 2nd repository
-        repositoryId = getRepositoryName(REPOSITORY_ID, testInfo);
-        repository = storage.getRepository(repositoryId);
-        final Path secondRepoArtifactBaseBath = repositoryPathResolver.resolve(repository,
+        repositoryId = proxyRepository2.getId();
+
+        final Path secondRepoArtifactBaseBath = repositoryPathResolver.resolve(proxyRepository2,
                                                                                "javax/interceptor/javax.interceptor-api");
-        FileUtils.copyDirectory(mavenCentralArtifactBaseBath.toFile(), secondRepoArtifactBaseBath.toFile());
+        FileUtils.copyDirectory(mavenCentralArtifactBaseBath.toFile(),
+                                secondRepoArtifactBaseBath.toFile());
 
         // 4. confirm maven-metadata.xml lies in the 2nd repository
-        assertTrue(RepositoryFiles.artifactExists(
-                repositoryPathResolver.resolve(repository,
-                                               "javax/interceptor/javax.interceptor-api/maven-metadata.xml")));
+        assertTrue(RepositoryFiles.artifactExists(repositoryPathResolver.resolve(proxyRepository2,
+                                                                                 "javax/interceptor/javax.interceptor-api/maven-metadata.xml")));
 
         // 5. confirm some pre-merge state
-        Path artifactBasePath = repositoryPathResolver.resolve(repository, "javax/interceptor/javax.interceptor-api/");
+        Path artifactBasePath = repositoryPathResolver.resolve(proxyRepository2,
+                                                               "javax/interceptor/javax.interceptor-api/");
         Metadata metadata = mavenMetadataManager.readMetadata(artifactBasePath);
         assertThat(metadata.getVersioning().getVersions().size(), CoreMatchers.equalTo(9));
         assertThat(metadata.getVersioning().getVersions().get(8), CoreMatchers.equalTo("1.2.2"));
 
         // 6. download the artifact from remote 2nd repository - it contains different maven-metadata.xml file
-        assertStreamNotNull(storageId, repositoryId,
+        assertStreamNotNull(storageId,
+                            repositoryId,
                             "javax/interceptor/javax.interceptor-api/1.2.2/javax.interceptor-api-1.2.2.jar");
 
         // 7. confirm the state of maven-metadata.xml file has changed
@@ -231,12 +215,17 @@ public class MavenProxyRepositoryProviderTestIT
         assertThat(metadata.getVersioning().getVersions().get(9), CoreMatchers.equalTo("3.1"));
     }
 
+    @ExtendWith({ RepositoryManagementTestExecutionListener.class })
     @Test
-    public void whenDownloadingArtifactDatabaseShouldBeAffectedByArtifactEntry(TestInfo testInfo)
+    public void whenDownloadingArtifactDatabaseShouldBeAffectedByArtifactEntry(@MavenRepository(storageId = STORAGE_ID,
+                                                                                                repositoryId = REPOSITORY_ID + "-whenDownloadingArtifactDatabaseShouldBeAffectedByArtifactEntry",
+                                                                                                setup = MavenIndexedRepositorySetup.class)
+                                                                               @Remote(url = REMOTE_URL)
+                                                                               Repository proxyRepository)
             throws Exception
     {
-        String storageId = STORAGE_ID;
-        String repositoryId = getRepositoryName(REPOSITORY_ID, testInfo);
+        String storageId = proxyRepository.getStorage().getId();
+        String repositoryId = proxyRepository.getId();
         String path = "org/carlspring/properties-injector/1.6/properties-injector-1.6.jar";
 
         Optional<ArtifactEntry> artifactEntry = Optional.ofNullable(artifactEntryService.findOneArtifact(storageId,
@@ -244,18 +233,28 @@ public class MavenProxyRepositoryProviderTestIT
                                                                                                          path));
         assertThat(artifactEntry, CoreMatchers.equalTo(Optional.empty()));
 
-        assertStreamNotNull(storageId, repositoryId, path);
+        assertStreamNotNull(storageId,
+                            repositoryId,
+                            path);
 
-        artifactEntry = Optional.ofNullable(artifactEntryService.findOneArtifact(storageId, repositoryId, path));
-        assertThat(artifactEntry, CoreMatchers.not(CoreMatchers.equalTo(Optional.empty())));
+        artifactEntry = Optional.ofNullable(artifactEntryService.findOneArtifact(storageId,
+                                                                                 repositoryId,
+                                                                                 path));
+        assertThat(artifactEntry,
+                   CoreMatchers.not(CoreMatchers.equalTo(Optional.empty())));
     }
 
+    @ExtendWith({ RepositoryManagementTestExecutionListener.class })
     @Test
-    public void testMavenCentral(TestInfo testInfo)
+    public void testMavenCentral(@MavenRepository(storageId = STORAGE_ID,
+                                                  repositoryId = REPOSITORY_ID + "-testMavenCentral",
+                                                  setup = MavenIndexedRepositorySetup.class)
+                                 @Remote(url = REMOTE_URL)
+                                 Repository proxyRepository)
             throws Exception
     {
-        String storageId = STORAGE_ID;
-        String repositoryId = getRepositoryName(REPOSITORY_ID, testInfo);
+        String storageId = proxyRepository.getStorage().getId();
+        String repositoryId = proxyRepository.getId();
 
         assertStreamNotNull(storageId,
                             repositoryId,
@@ -293,6 +292,7 @@ public class MavenProxyRepositoryProviderTestIT
     }
 
     @Disabled // Broken while Docker is being worked on, as there is no running instance of the Strongbox service.
+    @ExtendWith({ RepositoryManagementTestExecutionListener.class })
     @Test
     public void testStrongboxAtCarlspringDotOrg()
             throws IOException
@@ -303,7 +303,8 @@ public class MavenProxyRepositoryProviderTestIT
         try (InputStream is = artifactResolutionService.getInputStream(path))
         {
 
-            assertNotNull(is, "Failed to resolve org/carlspring/commons/commons-io/1.0-SNAPSHOT/maven-metadata.xml!");
+            assertNotNull(is,
+                          "Failed to resolve org/carlspring/commons/commons-io/1.0-SNAPSHOT/maven-metadata.xml!");
             System.out.println(ByteStreams.toByteArray(is));
         }
     }
