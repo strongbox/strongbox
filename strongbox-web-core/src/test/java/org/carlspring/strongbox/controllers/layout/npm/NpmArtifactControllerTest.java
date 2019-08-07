@@ -59,29 +59,11 @@ public class NpmArtifactControllerTest
         final String storageId = repository.getStorage().getId();
         final String repositoryId = repository.getId();
 
-        RootRepositoryPath repositoryPath = repositoryPathResolver.resolve(repository);
-
         RepositoryPath normPackagePath = (RepositoryPath) packagePath.normalize();
         NpmArtifactCoordinates coordinates = (NpmArtifactCoordinates) RepositoryFiles.readCoordinates(normPackagePath);
 
-        NpmArtifactGenerator artifactGenerator = new NpmArtifactGenerator(repositoryPath).of(coordinates);
-        artifactGenerator.setPackagePath(normPackagePath);
-        Path publishJsonPath = artifactGenerator.buildPublishJson();
-
-        byte[] publishJsonContent = Files.readAllBytes(publishJsonPath);
-
-        //Publish
-        String url = getContextBaseUrl() + "/storages/{storageId}/{repositoryId}/{artifactId}";
-        given().contentType(MediaType.APPLICATION_JSON_VALUE)
-               .body(publishJsonContent)
-               .when()
-               .put(url, storageId, repositoryId, coordinates.getId())
-               .peek()
-               .then()
-               .statusCode(HttpStatus.OK.value());
-
         // View OK
-        url = getContextBaseUrl() + "/storages/{storageId}/{repositoryId}/{artifactId}/{version}";
+        String url = getContextBaseUrl() + "/storages/{storageId}/{repositoryId}/{artifactId}/{version}";
         given().contentType(MediaType.APPLICATION_JSON_VALUE)
                .when()
                .get(url, storageId, repositoryId, coordinates.getId(), coordinates.getVersion())
@@ -104,9 +86,7 @@ public class NpmArtifactControllerTest
     public void testPackageCommonFlow(@NpmRepository(storageId = STORAGE0,
                                                      repositoryId = REPOSITORY_RELEASES)
                                       Repository repository,
-                                      @NpmTestArtifact(storageId = STORAGE0,
-                                                       repositoryId = REPOSITORY_RELEASES,
-                                                       id = "npm-test-release",
+                                      @NpmTestArtifact(id = "npm-test-release",
                                                        versions = "1.0.0",
                                                        scope = "@carlspring")
                                       Path packagePath)
@@ -114,14 +94,15 @@ public class NpmArtifactControllerTest
     {
         final String storageId = repository.getStorage().getId();
         final String repositoryId = repository.getId();
+        final String packageId = "@carlspring/npm-test-release";
+        final String packageVersion = "1.0.0";
 
         RootRepositoryPath repositoryPath = repositoryPathResolver.resolve(repository);
 
-        RepositoryPath normPackagePath = (RepositoryPath) packagePath.normalize();
-        NpmArtifactCoordinates coordinates = (NpmArtifactCoordinates) RepositoryFiles.readCoordinates(normPackagePath);
+        NpmArtifactCoordinates coordinates = NpmArtifactCoordinates.of(packageId, packageVersion);
 
         NpmArtifactGenerator artifactGenerator = new NpmArtifactGenerator(repositoryPath).of(coordinates);
-        artifactGenerator.setPackagePath(normPackagePath);
+        artifactGenerator.setPackagePath(packagePath);
         Path publishJsonPath = artifactGenerator.buildPublishJson();
 
         byte[] publishJsonContent = Files.readAllBytes(publishJsonPath);
