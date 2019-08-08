@@ -8,13 +8,16 @@ import org.carlspring.strongbox.storage.ArtifactResolutionException;
 
 import javax.inject.Inject;
 import java.io.File;
-import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStream;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.parallel.Execution;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.mock.web.MockMultipartFile;
 import org.springframework.test.context.ActiveProfiles;
@@ -22,6 +25,7 @@ import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.TestExecutionListeners;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.junit.jupiter.api.Assertions.fail;
+import static org.junit.jupiter.api.parallel.ExecutionMode.CONCURRENT;
 
 /**
  * @author Kate Novik.
@@ -31,6 +35,7 @@ import static org.junit.jupiter.api.Assertions.fail;
 @ContextConfiguration(classes = StorageApiTestConfig.class)
 @TestExecutionListeners(listeners = { CacheManagerTestExecutionListener.class },
                         mergeMode = TestExecutionListeners.MergeMode.MERGE_WITH_DEFAULTS)
+@Execution(CONCURRENT)
 public class ArtifactOperationsValidatorTest
 {
 
@@ -39,8 +44,6 @@ public class ArtifactOperationsValidatorTest
     private static final String REPOSITORY_ID = "releases";
 
     private static MockMultipartFile multipartFile;
-
-    private static InputStream is;
 
     @Inject
     private ArtifactOperationsValidator artifactOperationsValidator;
@@ -54,14 +57,13 @@ public class ArtifactOperationsValidatorTest
     public void setUp()
             throws Exception
     {
-        File baseDir = new File(REPOSITORY_BASEDIR + "/" + REPOSITORY_ID);
-        if (!baseDir.exists())
+        Path basePath = Paths.get(REPOSITORY_BASEDIR, REPOSITORY_ID);
+        if (Files.notExists(basePath))
         {
-            //noinspection ResultOfMethodCallIgnored
-            baseDir.mkdirs();
+            Files.createDirectories(basePath);
         }
 
-        is = new RandomInputStream(20480000);
+        InputStream is = new RandomInputStream(20480000);
 
         multipartFile = new MockMultipartFile("artifact",
                                               "strongbox-validate-8.1.jar",
@@ -116,16 +118,14 @@ public class ArtifactOperationsValidatorTest
 
         }
 
-        File file = new File(REPOSITORY_BASEDIR + "validate-test.jar");
-        //noinspection ResultOfMethodCallIgnored
-        file.getParentFile().mkdirs();
-        //noinspection ResultOfMethodCallIgnored
-        file.createNewFile();
+        Path path = Paths.get(REPOSITORY_BASEDIR, "validate-test.jar");
+        Files.createDirectories(path.getParent());
+        Files.createFile(path);
 
         MockMultipartFile emptyFile = new MockMultipartFile("artifact",
                                                             "strongbox-validate-empty.jar",
                                                             "application/octet-stream",
-                                                            new FileInputStream(file));
+                                                            Files.newInputStream(path));
 
         try
         {
