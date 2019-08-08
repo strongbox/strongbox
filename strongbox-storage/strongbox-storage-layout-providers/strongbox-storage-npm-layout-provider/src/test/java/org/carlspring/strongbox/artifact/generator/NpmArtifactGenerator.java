@@ -1,24 +1,15 @@
 package org.carlspring.strongbox.artifact.generator;
 
-import com.fasterxml.jackson.core.JsonEncoding;
-import com.fasterxml.jackson.core.JsonFactory;
-import com.fasterxml.jackson.core.JsonGenerator;
-import com.fasterxml.jackson.databind.ObjectMapper;
-import org.apache.commons.compress.archivers.tar.TarArchiveEntry;
-import org.apache.commons.compress.archivers.tar.TarArchiveOutputStream;
-import org.apache.commons.compress.compressors.gzip.GzipCompressorOutputStream;
 import org.carlspring.commons.io.RandomInputStream;
 import org.carlspring.strongbox.artifact.coordinates.NpmArtifactCoordinates;
 import org.carlspring.strongbox.npm.metadata.Dist;
 import org.carlspring.strongbox.npm.metadata.PackageVersion;
-import org.carlspring.strongbox.util.ThrowingFunction;
 
 import java.io.BufferedOutputStream;
 import java.io.IOException;
 import java.io.OutputStream;
-import java.io.UnsupportedEncodingException;
-import java.lang.reflect.UndeclaredThrowableException;
 import java.net.URI;
+import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
@@ -27,7 +18,17 @@ import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 import java.util.Base64;
 
-public class NpmArtifactGenerator implements ArtifactGenerator
+import com.fasterxml.jackson.core.JsonEncoding;
+import com.fasterxml.jackson.core.JsonFactory;
+import com.fasterxml.jackson.core.JsonGenerator;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import org.apache.commons.compress.archivers.tar.TarArchiveEntry;
+import org.apache.commons.compress.archivers.tar.TarArchiveOutputStream;
+import org.apache.commons.compress.compressors.gzip.GzipCompressorOutputStream;
+import org.springframework.http.MediaType;
+
+public class NpmArtifactGenerator
+        implements ArtifactGenerator
 {
 
     private NpmArtifactCoordinates coordinates;
@@ -38,25 +39,27 @@ public class NpmArtifactGenerator implements ArtifactGenerator
 
     private Path packagePath;
 
-    private Path publishJsonPath;
-
     private ObjectMapper mapper = new ObjectMapper();
-
 
     public NpmArtifactGenerator(String basedir)
     {
+        this(Paths.get(basedir));
+    }
+
+    public NpmArtifactGenerator(Path basePath)
+    {
         super();
-        this.basePath = Paths.get(basedir);
+        this.basePath = basePath;
 
         packageJson.setDist(new Dist());
     }
 
-    public NpmArtifactGenerator of(NpmArtifactCoordinates c)
+    public NpmArtifactGenerator of(NpmArtifactCoordinates coordinates)
     {
-        packageJson.setName(c.getId());
-        packageJson.setVersion(c.getVersion());
+        packageJson.setName(coordinates.getId());
+        packageJson.setVersion(coordinates.getVersion());
 
-        this.coordinates = c;
+        this.coordinates = coordinates;
 
         return this;
     }
@@ -77,13 +80,13 @@ public class NpmArtifactGenerator implements ArtifactGenerator
         return packagePath;
     }
 
-    public Path getPublishJsonPath()
+    public void setPackagePath(Path packagePath)
     {
-        return publishJsonPath;
+        this.packagePath = packagePath;
     }
 
     public Path buildPackage()
-        throws IOException
+            throws IOException
     {
         Files.createDirectories(basePath);
 
@@ -109,7 +112,7 @@ public class NpmArtifactGenerator implements ArtifactGenerator
     }
 
     private void calculateChecksum()
-        throws IOException
+            throws IOException
     {
         MessageDigest crypt;
 
@@ -130,10 +133,11 @@ public class NpmArtifactGenerator implements ArtifactGenerator
     }
 
     private void writePackageJson(TarArchiveOutputStream tarOut)
-        throws IOException
+            throws IOException
     {
         Path packageJsonPath = packagePath.getParent().resolve("package.json");
-        try (OutputStream out = new BufferedOutputStream(Files.newOutputStream(packageJsonPath, StandardOpenOption.CREATE)))
+        try (OutputStream out = new BufferedOutputStream(
+                Files.newOutputStream(packageJsonPath, StandardOpenOption.CREATE)))
         {
             out.write(mapper.writeValueAsBytes(packageJson));
         }
@@ -147,13 +151,12 @@ public class NpmArtifactGenerator implements ArtifactGenerator
     }
 
     private void writeContent(TarArchiveOutputStream tarOut)
-        throws IOException,
-               UnsupportedEncodingException
+            throws IOException
     {
         Path indexJsPath = packagePath.getParent().resolve("index.js");
         try (OutputStream out = new BufferedOutputStream(Files.newOutputStream(indexJsPath, StandardOpenOption.CREATE)))
         {
-            out.write("data = \"".getBytes("UTF-8"));
+            out.write("data = \"".getBytes(StandardCharsets.UTF_8));
 
             OutputStream dataOut = Base64.getEncoder().wrap(out);
             RandomInputStream ris = new RandomInputStream(true, 1000000);
@@ -165,13 +168,14 @@ public class NpmArtifactGenerator implements ArtifactGenerator
             }
             ris.close();
 
-            out.write("\";".getBytes("UTF-8"));
+            out.write("\";".getBytes(StandardCharsets.UTF_8));
         }
 
         TarArchiveEntry entry = new TarArchiveEntry(indexJsPath.toFile(), "index.js");
         tarOut.putArchiveEntry(entry);
 
         Files.copy(indexJsPath, tarOut);
+        Files.delete(indexJsPath);
 
         tarOut.closeArchiveEntry();
     }
@@ -179,20 +183,23 @@ public class NpmArtifactGenerator implements ArtifactGenerator
     public Path generateArtifact(NpmArtifactCoordinates coordinates)
             throws IOException
     {
-        return this.of(coordinates).buildPublishJson();
+        this.of(coordinates).buildPublishJson();
+        return getPackagePath();
     }
 
     public Path generateArtifact(URI uri)
             throws IOException
     {
-        return this.of(NpmArtifactCoordinates.parse(uri.toString())).buildPublishJson();
+        this.of(NpmArtifactCoordinates.parse(uri.toString())).buildPublishJson();
+        return getPackagePath();
     }
 
     public Path generateArtifact(String id,
                                  String version)
             throws IOException
     {
-        return this.of(NpmArtifactCoordinates.of(id,version)).buildPublishJson();
+        this.of(NpmArtifactCoordinates.of(id, version)).buildPublishJson();
+        return getPackagePath();
     }
 
     @Override
@@ -211,21 +218,23 @@ public class NpmArtifactGenerator implements ArtifactGenerator
             throws IOException
     {
         // Use of size is not implemented
-        return generateArtifact(id,version);
+        return generateArtifact(id, version);
     }
 
     private Path buildPublishJson()
-        throws IOException
+            throws IOException
     {
         if (packagePath == null)
         {
             buildPackage();
         }
+
         Path publishJsonPath = packagePath.resolveSibling("publish.json");
-        try (OutputStream out = new BufferedOutputStream(Files.newOutputStream(publishJsonPath, StandardOpenOption.CREATE)))
+        try (OutputStream out = new BufferedOutputStream(
+                Files.newOutputStream(publishJsonPath, StandardOpenOption.CREATE)))
         {
-            JsonFactory jfactory = new JsonFactory();
-            JsonGenerator jGenerator = jfactory.createGenerator(out, JsonEncoding.UTF8);
+            JsonFactory jFactory = new JsonFactory();
+            JsonGenerator jGenerator = jFactory.createGenerator(out, JsonEncoding.UTF8);
 
             jGenerator.writeStartObject();
             jGenerator.writeStringField("_id", packageJson.getName());
@@ -257,7 +266,7 @@ public class NpmArtifactGenerator implements ArtifactGenerator
             jGenerator.writeFieldName(coordinates.toPath());
 
             jGenerator.writeStartObject();
-            jGenerator.writeStringField("content_type", "application/octet-stream");
+            jGenerator.writeStringField("content_type", MediaType.APPLICATION_OCTET_STREAM_VALUE);
 
             jGenerator.writeFieldName("data");
             byte[] packageData = Files.readAllBytes(packagePath);

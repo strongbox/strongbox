@@ -4,70 +4,41 @@ import org.carlspring.strongbox.artifact.coordinates.NpmArtifactCoordinates;
 import org.carlspring.strongbox.config.IntegrationTest;
 import org.carlspring.strongbox.domain.ArtifactEntry;
 import org.carlspring.strongbox.domain.RemoteArtifactEntry;
-import org.carlspring.strongbox.providers.layout.NpmLayoutProvider;
 import org.carlspring.strongbox.rest.common.NpmRestAssuredBaseTest;
 import org.carlspring.strongbox.services.ArtifactEntryService;
-import org.carlspring.strongbox.storage.repository.RepositoryDto;
-import org.carlspring.strongbox.storage.repository.NpmRepositoryFactory;
-import org.carlspring.strongbox.storage.repository.RepositoryPolicyEnum;
-import org.carlspring.strongbox.storage.repository.RepositoryTypeEnum;
+import org.carlspring.strongbox.storage.repository.Repository;
+import org.carlspring.strongbox.testing.repository.NpmRepository;
+import org.carlspring.strongbox.testing.storage.repository.RepositoryManagementTestExecutionListener;
+import org.carlspring.strongbox.testing.storage.repository.TestRepository.Group;
+import org.carlspring.strongbox.testing.storage.repository.TestRepository.Remote;
 
 import javax.inject.Inject;
-import javax.xml.bind.JAXBException;
-import java.io.IOException;
-import java.nio.file.Files;
-import java.nio.file.Paths;
-import java.util.LinkedHashSet;
-import java.util.Set;
 
-import com.google.common.collect.Sets;
 import org.hamcrest.CoreMatchers;
 import org.hamcrest.Matchers;
-import org.junit.jupiter.api.AfterEach;
-import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-import org.springframework.beans.factory.annotation.Value;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.springframework.http.HttpStatus;
 import static io.restassured.module.mockmvc.RestAssuredMockMvc.given;
 import static org.junit.jupiter.api.Assertions.*;
 
+/**
+ * @author Pablo Tirado
+ */
 @IntegrationTest
 public class NpmArtifactControllerTestIT
         extends NpmRestAssuredBaseTest
 {
 
-    private static final String REPOSITORY_RELEASES = "nactit-releases";
-
     private static final String REPOSITORY_PROXY = "nactit-npm-proxy";
 
     private static final String REPOSITORY_GROUP = "nactit-npm-group";
 
-    @Inject
-    private NpmRepositoryFactory npmRepositoryFactory;
-
-    @Value("${strongbox.url}")
-    private String contextBaseUrl;
+    private static final String REMOTE_URL = "https://registry.npmjs.org/";
 
     @Inject
     private ArtifactEntryService artifactEntryService;
-
-    @BeforeAll
-    public static void cleanUp()
-        throws Exception
-    {
-        cleanUp(getRepositoriesToClean());
-    }
-
-    public static Set<RepositoryDto> getRepositoriesToClean()
-    {
-        Set<RepositoryDto> repositories = new LinkedHashSet<>();
-        repositories.add(createRepositoryMock(STORAGE0, REPOSITORY_RELEASES, NpmLayoutProvider.ALIAS));
-        repositories.add(createRepositoryMock(STORAGE0, REPOSITORY_PROXY, NpmLayoutProvider.ALIAS));
-        repositories.add(createRepositoryMock(STORAGE0, REPOSITORY_GROUP, NpmLayoutProvider.ALIAS));
-
-        return repositories;
-    }
 
     @Override
     @BeforeEach
@@ -75,33 +46,6 @@ public class NpmArtifactControllerTestIT
         throws Exception
     {
         super.init();
-
-        RepositoryDto repository1 = npmRepositoryFactory.createRepository(REPOSITORY_RELEASES);
-        repository1.setPolicy(RepositoryPolicyEnum.RELEASE.getPolicy());
-
-        createRepository(STORAGE0, repository1);
-
-        //noinspection ResultOfMethodCallIgnored
-        Files.createDirectories(Paths.get(TEST_RESOURCES));
-
-        // createFile(repository1, "org/foo/bar/blah.gz");
-
-        createProxyRepository(STORAGE0,
-                              REPOSITORY_PROXY,
-                              "https://registry.npmjs.org/");
-
-        RepositoryDto repository2 = npmRepositoryFactory.createRepository(REPOSITORY_GROUP);
-        repository2.setType(RepositoryTypeEnum.GROUP.getType());
-        repository2.setGroupRepositories(Sets.newHashSet(STORAGE0 + ":" + REPOSITORY_PROXY));
-
-        createRepository(STORAGE0, repository2);
-    }
-
-    @AfterEach
-    public void removeRepositories()
-            throws IOException, JAXBException
-    {
-        removeRepositories(getRepositoriesToClean());
     }
 
     /**
@@ -109,13 +53,18 @@ public class NpmArtifactControllerTestIT
      *
      * @throws Exception
      */
+    @ExtendWith(RepositoryManagementTestExecutionListener.class)
     @Test
-    public void testResolveArtifactViaProxy()
+    public void testResolveArtifactViaProxy(@Remote(url = REMOTE_URL)
+                                            @NpmRepository(storageId = STORAGE0,
+                                                           repositoryId = REPOSITORY_PROXY)
+                                            Repository proxyRepository)
             throws Exception
     {
         // https://registry.npmjs.org/compression/-/compression-1.7.2.tgz
-        String artifactPath = "/storages/" + STORAGE0 + "/" + REPOSITORY_PROXY + "/" +
-                              "compression/-/compression-1.7.2.tgz";
+        String artifactPath =
+                "/storages/" + proxyRepository.getStorage().getId() + "/" + proxyRepository.getId() + "/" +
+                "compression/-/compression-1.7.2.tgz";
 
         resolveArtifact(artifactPath);
     }
@@ -125,48 +74,70 @@ public class NpmArtifactControllerTestIT
      *
      * @throws Exception
      */
+    @ExtendWith(RepositoryManagementTestExecutionListener.class)
     @Test
-    public void testResolveArtifactViaGroupWithProxy()
+    public void testResolveArtifactViaGroupWithProxy(@Remote(url = REMOTE_URL)
+                                                     @NpmRepository(storageId = STORAGE0,
+                                                                    repositoryId = REPOSITORY_PROXY)
+                                                     Repository proxyRepository,
+                                                     @Group(repositories = REPOSITORY_PROXY)
+                                                     @NpmRepository(storageId = STORAGE0,
+                                                                    repositoryId = REPOSITORY_GROUP)
+                                                     Repository groupRepository)
             throws Exception
     {
         // https://registry.npmjs.org/compression/-/compression-1.7.2.tgz
-        String artifactPath = "/storages/" + STORAGE0 + "/" + REPOSITORY_GROUP + "/" +
-                              "compression/-/compression-1.7.2.tgz";
+        String artifactPath =
+                "/storages/" + groupRepository.getStorage().getId() + "/" + groupRepository.getId() + "/" +
+                "compression/-/compression-1.7.2.tgz";
 
         resolveArtifact(artifactPath);
     }
 
+    @ExtendWith(RepositoryManagementTestExecutionListener.class)
     @Test
-    public void testViewArtifactViaProxy() 
-            throws Exception
+    public void testViewArtifactViaProxy(@Remote(url = REMOTE_URL)
+                                         @NpmRepository(storageId = STORAGE0,
+                                                        repositoryId = REPOSITORY_PROXY)
+                                         Repository proxyRepository)
     {
-        NpmArtifactCoordinates c = NpmArtifactCoordinates.of("react", "16.5.0");
-        
-        given().header("User-Agent", "npm/*")
-               .when()
-               .get(contextBaseUrl + "/storages/" + STORAGE0 + "/" + REPOSITORY_PROXY + "/" +
-                       c.getId())
+        final String storageId = proxyRepository.getStorage().getId();
+        final String repositoryId = proxyRepository.getId();
+
+        NpmArtifactCoordinates coordinates = NpmArtifactCoordinates.of("react", "16.5.0");
+
+        String url = getContextBaseUrl() + "/storages/{storageId}/{repositoryId}/{artifactId}";
+        given().when()
+               .get(url, storageId, repositoryId, coordinates.getId())
                .peek()
                .then()
                .statusCode(HttpStatus.OK.value())
                .and()
                .body("name", CoreMatchers.equalTo("react"))
                .body("versions.size()", Matchers.greaterThan(0));
-        
-        ArtifactEntry artifactEntry = artifactEntryService.findOneArtifact(STORAGE0, REPOSITORY_PROXY, c.toPath());
+
+        ArtifactEntry artifactEntry = artifactEntryService.findOneArtifact(storageId,
+                                                                           repositoryId,
+                                                                           coordinates.toPath());
         assertNotNull(artifactEntry);
         assertTrue(artifactEntry instanceof RemoteArtifactEntry);
         assertFalse(((RemoteArtifactEntry)artifactEntry).getIsCached());
     }
 
+    @ExtendWith(RepositoryManagementTestExecutionListener.class)
     @Test
-    public void testSearchArtifactViaProxy() 
-            throws Exception
+    public void testSearchArtifactViaProxy(@Remote(url = REMOTE_URL)
+                                           @NpmRepository(storageId = STORAGE0,
+                                                          repositoryId = REPOSITORY_PROXY)
+                                           Repository proxyRepository)
     {
-        given().header("User-Agent", "npm/*")
-               .when()
-               .get(contextBaseUrl + "/storages/" + STORAGE0 + "/" + REPOSITORY_PROXY
-                       + "/-/v1/search?text=reston&size=10")
+        final String storageId = proxyRepository.getStorage().getId();
+        final String repositoryId = proxyRepository.getId();
+
+        String url = getContextBaseUrl() +
+                     "/storages/{storageId}/{repositoryId}/-/v1/search?text=reston&size=10";
+        given().when()
+               .get(url, storageId, repositoryId)
                .peek()
                .then()
                .statusCode(HttpStatus.OK.value())
@@ -174,7 +145,9 @@ public class NpmArtifactControllerTestIT
                .body("objects.package.name",
                      CoreMatchers.hasItem("Reston"));
         
-        ArtifactEntry artifactEntry = artifactEntryService.findOneArtifact(STORAGE0, REPOSITORY_PROXY, "Reston/Reston/0.2.0/Reston-0.2.0.tgz");
+        ArtifactEntry artifactEntry = artifactEntryService.findOneArtifact(storageId,
+                                                                           repositoryId,
+                                                                           "Reston/Reston/0.2.0/Reston-0.2.0.tgz");
         assertNotNull(artifactEntry);
         assertTrue(artifactEntry instanceof RemoteArtifactEntry);
         assertFalse(((RemoteArtifactEntry)artifactEntry).getIsCached());
