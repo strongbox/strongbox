@@ -183,20 +183,23 @@ public class NpmArtifactGenerator
     public Path generateArtifact(NpmArtifactCoordinates coordinates)
             throws IOException
     {
-        return this.of(coordinates).buildPublishJson();
+        this.of(coordinates).buildPublishJson();
+        return getPackagePath();
     }
 
     public Path generateArtifact(URI uri)
             throws IOException
     {
-        return this.of(NpmArtifactCoordinates.parse(uri.toString())).buildPublishJson();
+        this.of(NpmArtifactCoordinates.parse(uri.toString())).buildPublishJson();
+        return getPackagePath();
     }
 
     public Path generateArtifact(String id,
                                  String version)
             throws IOException
     {
-        return this.of(NpmArtifactCoordinates.of(id, version)).buildPublishJson();
+        this.of(NpmArtifactCoordinates.of(id, version)).buildPublishJson();
+        return getPackagePath();
     }
 
     @Override
@@ -279,7 +282,7 @@ public class NpmArtifactGenerator
             jGenerator.flush();
         }
 
-        return getPackagePath();
+        return publishJsonPath;
     }
 
 }
