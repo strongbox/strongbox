@@ -56,8 +56,7 @@ public class NpmArtifactControllerTestIT
     @ExtendWith(RepositoryManagementTestExecutionListener.class)
     @Test
     public void testResolveArtifactViaProxy(@Remote(url = REMOTE_URL)
-                                            @NpmRepository(storageId = STORAGE0,
-                                                           repositoryId = REPOSITORY_PROXY)
+                                            @NpmRepository(repositoryId = REPOSITORY_PROXY)
                                             Repository proxyRepository)
             throws Exception
     {
@@ -77,12 +76,10 @@ public class NpmArtifactControllerTestIT
     @ExtendWith(RepositoryManagementTestExecutionListener.class)
     @Test
     public void testResolveArtifactViaGroupWithProxy(@Remote(url = REMOTE_URL)
-                                                     @NpmRepository(storageId = STORAGE0,
-                                                                    repositoryId = REPOSITORY_PROXY)
+                                                     @NpmRepository(repositoryId = REPOSITORY_PROXY)
                                                      Repository proxyRepository,
                                                      @Group(repositories = REPOSITORY_PROXY)
-                                                     @NpmRepository(storageId = STORAGE0,
-                                                                    repositoryId = REPOSITORY_GROUP)
+                                                     @NpmRepository(repositoryId = REPOSITORY_GROUP)
                                                      Repository groupRepository)
             throws Exception
     {
@@ -97,8 +94,7 @@ public class NpmArtifactControllerTestIT
     @ExtendWith(RepositoryManagementTestExecutionListener.class)
     @Test
     public void testViewArtifactViaProxy(@Remote(url = REMOTE_URL)
-                                         @NpmRepository(storageId = STORAGE0,
-                                                        repositoryId = REPOSITORY_PROXY)
+                                         @NpmRepository(repositoryId = REPOSITORY_PROXY)
                                          Repository proxyRepository)
     {
         final String storageId = proxyRepository.getStorage().getId();
@@ -127,8 +123,7 @@ public class NpmArtifactControllerTestIT
     @ExtendWith(RepositoryManagementTestExecutionListener.class)
     @Test
     public void testSearchArtifactViaProxy(@Remote(url = REMOTE_URL)
-                                           @NpmRepository(storageId = STORAGE0,
-                                                          repositoryId = REPOSITORY_PROXY)
+                                           @NpmRepository(repositoryId = REPOSITORY_PROXY)
                                            Repository proxyRepository)
     {
         final String storageId = proxyRepository.getStorage().getId();

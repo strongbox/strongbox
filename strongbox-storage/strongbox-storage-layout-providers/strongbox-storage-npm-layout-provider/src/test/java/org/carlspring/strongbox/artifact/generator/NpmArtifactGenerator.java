@@ -183,15 +183,13 @@ public class NpmArtifactGenerator
     public Path generateArtifact(NpmArtifactCoordinates coordinates)
             throws IOException
     {
-        this.of(coordinates).buildPublishJson();
-        return getPackagePath();
+        return this.of(coordinates).buildPackage();
     }
 
     public Path generateArtifact(URI uri)
             throws IOException
     {
-        this.of(NpmArtifactCoordinates.parse(uri.toString())).buildPublishJson();
-        return getPackagePath();
+        return this.of(NpmArtifactCoordinates.parse(uri.toString())).buildPackage();
     }
 
     public Path generateArtifact(String id,
@@ -221,7 +219,7 @@ public class NpmArtifactGenerator
         return generateArtifact(id, version);
     }
 
-    private Path buildPublishJson()
+    public Path buildPublishJson()
             throws IOException
     {
         if (packagePath == null)
