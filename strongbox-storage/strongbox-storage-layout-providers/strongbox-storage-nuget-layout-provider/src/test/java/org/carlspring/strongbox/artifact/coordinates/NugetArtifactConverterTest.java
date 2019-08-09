@@ -1,7 +1,5 @@
 package org.carlspring.strongbox.artifact.coordinates;
 
-import org.carlspring.strongbox.testing.TestCaseWithRepository;
-
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.parallel.Execution;
 import static org.junit.jupiter.api.Assertions.assertEquals;
@@ -12,7 +10,6 @@ import static org.junit.jupiter.api.parallel.ExecutionMode.CONCURRENT;
  */
 @Execution(CONCURRENT)
 public class NugetArtifactConverterTest
-        extends TestCaseWithRepository
 {
 
     @Test
