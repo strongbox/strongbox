@@ -6,6 +6,7 @@ import org.carlspring.strongbox.artifact.generator.NpmArtifactGenerator;
 import java.io.IOException;
 import java.nio.file.Path;
 import java.util.Map;
+import java.util.Optional;
 
 /**
  * @author Yuri Zaytsev
@@ -26,6 +27,15 @@ public class NpmArtifactGeneratorStrategy implements ArtifactGeneratorStrategy<N
                                                                         id,
                                                                         version,
                                                                         (String) attributesMap.get("extension"));
-        return artifactGenerator.generateArtifact(coordinates);
+        Path packagePath = artifactGenerator.generateArtifact(coordinates);
+        if (!Optional.ofNullable(attributesMap.get("repositoryId"))
+                     .filter(repositoryId -> ((String) repositoryId).trim().length() > 0)
+                     .isPresent())
+        {
+            // if package won't be deployed then `publish.json` will be generated
+            artifactGenerator.buildPublishJson();
+        }
+        
+        return packagePath;
     }
 }
