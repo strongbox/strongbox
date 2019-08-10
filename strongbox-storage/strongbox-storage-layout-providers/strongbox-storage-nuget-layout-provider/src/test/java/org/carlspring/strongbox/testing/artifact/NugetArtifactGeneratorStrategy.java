@@ -19,8 +19,7 @@ public class NugetArtifactGeneratorStrategy
                                  Map<String, Object> attributesMap)
             throws IOException
     {
-        String packaging = (String) attributesMap.get("packaging");
-        NugetArtifactCoordinates coordinates = new NugetArtifactCoordinates(id, version, packaging);
+        NugetArtifactCoordinates coordinates = new NugetArtifactCoordinates(id, version);
 
         return artifactGenerator.generateArtifact(coordinates);
     }

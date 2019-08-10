@@ -1,31 +1,24 @@
 package org.carlspring.strongbox.providers.repository;
 
 import org.carlspring.strongbox.config.NugetLayoutProviderTestConfig;
-import org.carlspring.strongbox.configuration.ConfigurationManager;
+import org.carlspring.strongbox.data.criteria.Expression.ExpOperator;
 import org.carlspring.strongbox.data.criteria.Paginator;
 import org.carlspring.strongbox.data.criteria.Predicate;
-import org.carlspring.strongbox.providers.layout.NugetLayoutProvider;
-import org.carlspring.strongbox.services.ArtifactManagementService;
-import org.carlspring.strongbox.services.RepositoryManagementService;
-import org.carlspring.strongbox.storage.repository.RepositoryDto;
-import org.carlspring.strongbox.storage.repository.NugetRepositoryFactory;
 import org.carlspring.strongbox.storage.repository.Repository;
-import org.carlspring.strongbox.storage.repository.RepositoryTypeEnum;
-import org.carlspring.strongbox.testing.TestCaseWithNugetArtifactGeneration;
-import org.carlspring.strongbox.yaml.configuration.repository.NugetRepositoryConfigurationDto;
+import org.carlspring.strongbox.testing.TestCaseWithRepository;
+import org.carlspring.strongbox.testing.artifact.ArtifactManagementTestExecutionListener;
+import org.carlspring.strongbox.testing.artifact.NugetTestArtifact;
+import org.carlspring.strongbox.testing.repository.NugetRepository;
+import org.carlspring.strongbox.testing.storage.repository.RepositoryAttributes;
+import org.carlspring.strongbox.testing.storage.repository.RepositoryManagementTestExecutionListener;
+import org.carlspring.strongbox.testing.storage.repository.TestRepository.Group;
 
 import javax.inject.Inject;
-import javax.xml.bind.JAXBException;
-import java.io.IOException;
 import java.nio.file.Path;
-import java.util.LinkedHashSet;
 import java.util.List;
-import java.util.Set;
 
-import org.junit.jupiter.api.AfterEach;
-import org.junit.jupiter.api.BeforeAll;
-import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.junit.jupiter.api.parallel.Execution;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.context.ActiveProfiles;
@@ -35,174 +28,151 @@ import static org.junit.jupiter.api.parallel.ExecutionMode.CONCURRENT;
 
 /**
  * @author sbespalov
- *
+ * @author Pablo Tirado
  */
 @SpringBootTest
 @ActiveProfiles(profiles = "test")
 @ContextConfiguration(classes = NugetLayoutProviderTestConfig.class)
 @Execution(CONCURRENT)
 public class NugetGroupRepositoryProviderTest
-        extends TestCaseWithNugetArtifactGeneration
+        extends TestCaseWithRepository
 {
 
-    private static final String REPOSITORY_RELEASES_1 = "grpt-releases-1";
+    private static final String REPOSITORY_RELEASES_1 = "ngrpt-releases-1";
 
-    private static final String REPOSITORY_RELEASES_2 = "grpt-releases-2";
+    private static final String REPOSITORY_RELEASES_2 = "ngrpt-releases-2";
     
-    private static final String REPOSITORY_RELEASES_3 = "grpt-releases-3";
-    
-    private static final String REPOSITORY_GROUP_WITH_NESTED_GROUP_1 = "grpt-releases-group-with-nested-group-level-1";
+    private static final String REPOSITORY_RELEASES_3 = "ngrpt-releases-3";
 
-    private static final String REPOSITORY_GROUP_WITH_NESTED_GROUP_2 = "grpt-releases-group-with-nested-group-level-2";
+    private static final String REPOSITORY_GROUP = "ngrpt-releases-group";
 
-    private static final String REPOSITORY_GROUP = "grpt-releases-group";
+    private static final String REPOSITORY_GROUP_WITH_NESTED_GROUP_1 = "ngrpt-releases-group-with-nested-group-level-1";
+
+    private static final String REPOSITORY_GROUP_WITH_NESTED_GROUP_2 = "ngrpt-releases-group-with-nested-group-level-2";
 
     @Inject
     private RepositoryProviderRegistry repositoryProviderRegistry;
 
-    @Inject
-    private ConfigurationManager configurationManager;
-
-    @Inject
-    private RepositoryManagementService repositoryManagementService;
-    
-
-    @Inject
-    private ArtifactManagementService artifactManagementService;
-
-    @Inject
-    private NugetRepositoryFactory nugetRepositoryFactory;
-
-    @BeforeAll
-    public static void cleanUp()
-            throws Exception
-    {
-        cleanUp(getRepositoriesToClean());
-    }
-
-    @BeforeEach
-    public void setUp()
-        throws Exception
-    {
-        NugetRepositoryConfigurationDto nugetRepositoryConfiguration = new NugetRepositoryConfigurationDto();
-
-        //REPOSITORY_RELEASES_1
-        createRepository(STORAGE0, createRepositoryMock(STORAGE0, REPOSITORY_RELEASES_1, NugetLayoutProvider.ALIAS), NugetLayoutProvider.ALIAS);
-        generateRepositoryArtifacts(STORAGE0, REPOSITORY_RELEASES_1, "grpt.search.package", 9);
-
-        //REPOSITORY_RELEASES_2
-        createRepository(STORAGE0, createRepositoryMock(STORAGE0, REPOSITORY_RELEASES_2, NugetLayoutProvider.ALIAS),
-                         NugetLayoutProvider.ALIAS);
-        generateRepositoryArtifacts(STORAGE0, REPOSITORY_RELEASES_2, "grpt.search.package", 12);
-        
-        //REPOSITORY_RELEASES_3
-        createRepository(STORAGE0, createRepositoryMock(STORAGE0, REPOSITORY_RELEASES_3, NugetLayoutProvider.ALIAS),
-                         NugetLayoutProvider.ALIAS);
-        generateRepositoryArtifacts(STORAGE0, REPOSITORY_RELEASES_3, "grpt.search.package", 8);
-
-        RepositoryDto repositoryGroup = nugetRepositoryFactory.createRepository(REPOSITORY_GROUP);
-        repositoryGroup.setType(RepositoryTypeEnum.GROUP.getType());
-        repositoryGroup.setAllowsRedeployment(false);
-        repositoryGroup.setAllowsDelete(false);
-        repositoryGroup.setAllowsForceDeletion(false);
-        repositoryGroup.setRepositoryConfiguration(nugetRepositoryConfiguration);
-        repositoryGroup.addRepositoryToGroup(REPOSITORY_RELEASES_1);
-        repositoryGroup.addRepositoryToGroup(REPOSITORY_RELEASES_2);
-        repositoryGroup.addRepositoryToGroup(REPOSITORY_RELEASES_3);
-
-        createRepository(STORAGE0, repositoryGroup);
-
-        RepositoryDto repositoryWithNestedGroupLevel1 = nugetRepositoryFactory.createRepository(REPOSITORY_GROUP_WITH_NESTED_GROUP_1);
-        repositoryWithNestedGroupLevel1.setType(RepositoryTypeEnum.GROUP.getType());
-        repositoryWithNestedGroupLevel1.setAllowsRedeployment(false);
-        repositoryWithNestedGroupLevel1.setAllowsDelete(false);
-        repositoryWithNestedGroupLevel1.setAllowsForceDeletion(false);
-        repositoryWithNestedGroupLevel1.setRepositoryConfiguration(nugetRepositoryConfiguration);
-        repositoryWithNestedGroupLevel1.addRepositoryToGroup(REPOSITORY_GROUP);
-
-        createRepository(STORAGE0, repositoryWithNestedGroupLevel1);
-
-        RepositoryDto repositoryWithNestedGroupLevel2 = nugetRepositoryFactory.createRepository(REPOSITORY_GROUP_WITH_NESTED_GROUP_2);
-        repositoryWithNestedGroupLevel2.setType(RepositoryTypeEnum.GROUP.getType());
-        repositoryWithNestedGroupLevel2.setAllowsRedeployment(false);
-        repositoryWithNestedGroupLevel2.setAllowsDelete(false);
-        repositoryWithNestedGroupLevel2.setAllowsForceDeletion(false);
-        repositoryWithNestedGroupLevel2.setRepositoryConfiguration(nugetRepositoryConfiguration);
-        repositoryWithNestedGroupLevel2.addRepositoryToGroup(REPOSITORY_GROUP_WITH_NESTED_GROUP_1);
-
-        createRepository(STORAGE0, repositoryWithNestedGroupLevel2);
-    }
-
-    private void createRepository(String storageId, RepositoryDto repository)
-        throws Exception
-    {
-        createRepository(storageId, repository, repository.getLayout());
-    }
-    
-    private void createRepository(String storageId, RepositoryDto repository, String layout) throws Exception
-    {
-        repository.setLayout(layout);
-        configurationManagementService.saveRepository(storageId, repository);
-        repositoryManagementService.createRepository(storageId, repository.getId());
-    }
-
-    @AfterEach
-    public void removeRepositories()
-            throws IOException, JAXBException
-    {
-        removeRepositories(getRepositoriesToClean());
-    }
-
-    public static Set<RepositoryDto> getRepositoriesToClean()
-    {
-        Set<RepositoryDto> repositories = new LinkedHashSet<>();
-        repositories.add(createRepositoryMock(STORAGE0, REPOSITORY_RELEASES_1, NugetLayoutProvider.ALIAS));
-        repositories.add(createRepositoryMock(STORAGE0, REPOSITORY_RELEASES_2, NugetLayoutProvider.ALIAS));
-        repositories.add(createRepositoryMock(STORAGE0, REPOSITORY_RELEASES_3, NugetLayoutProvider.ALIAS));
-        repositories.add(createRepositoryMock(STORAGE0, REPOSITORY_GROUP_WITH_NESTED_GROUP_1, NugetLayoutProvider.ALIAS));
-        repositories.add(createRepositoryMock(STORAGE0, REPOSITORY_GROUP_WITH_NESTED_GROUP_2, NugetLayoutProvider.ALIAS));
-        repositories.add(createRepositoryMock(STORAGE0, REPOSITORY_GROUP, NugetLayoutProvider.ALIAS));
-
-        return repositories;
-    }
-
+    @ExtendWith({ RepositoryManagementTestExecutionListener.class,
+                  ArtifactManagementTestExecutionListener.class })
     @Test
-    public void testGroupSearch()
+    public void testGroupSearch(@NugetRepository(storageId = STORAGE0,
+                                                 repositoryId = REPOSITORY_RELEASES_1)
+                                Repository repository1,
+                                @NugetTestArtifact(storageId = STORAGE0,
+                                                   repositoryId = REPOSITORY_RELEASES_1,
+                                                   id = "ngrpt.search.package",
+                                                   versions = { "1.0.0",
+                                                                "1.0.1",
+                                                                "1.0.2",
+                                                                "1.0.3",
+                                                                "1.0.4",
+                                                                "1.0.5",
+                                                                "1.0.6",
+                                                                "1.0.7",
+                                                                "1.0.8"})
+                                Path artifactPath1,
+                                @NugetRepository(storageId = STORAGE0,
+                                                 repositoryId = REPOSITORY_RELEASES_2)
+                                Repository repository2,
+                                @NugetTestArtifact(storageId = STORAGE0,
+                                                   repositoryId = REPOSITORY_RELEASES_2,
+                                                   id = "ngrpt.search.package",
+                                                   versions = { "1.0.0",
+                                                                "1.0.1",
+                                                                "1.0.2",
+                                                                "1.0.3",
+                                                                "1.0.4",
+                                                                "1.0.5",
+                                                                "1.0.6",
+                                                                "1.0.7",
+                                                                "1.0.9",
+                                                                "1.0.10",
+                                                                "1.0.11"})
+                                Path artifactPath2,
+                                @NugetRepository(storageId = STORAGE0,
+                                                 repositoryId = REPOSITORY_RELEASES_3)
+                                Repository repository3,
+                                @NugetTestArtifact(storageId = STORAGE0,
+                                                   repositoryId = REPOSITORY_RELEASES_3,
+                                                   id = "ngrpt.search.package",
+                                                   versions = { "1.0.0",
+                                                                "1.0.1",
+                                                                "1.0.2",
+                                                                "1.0.3",
+                                                                "1.0.4",
+                                                                "1.0.5",
+                                                                "1.0.6",
+                                                                "1.0.7"})
+                                Path artifactPath3,
+                                @Group(repositories = { REPOSITORY_RELEASES_1,
+                                                        REPOSITORY_RELEASES_2,
+                                                        REPOSITORY_RELEASES_3 })
+                                @NugetRepository(storageId = STORAGE0,
+                                                 repositoryId = REPOSITORY_GROUP)
+                                @RepositoryAttributes(allowsRedeployment = false,
+                                                      allowsDelete = false)
+                                Repository repositoryGroup,
+                                @Group(repositories = REPOSITORY_GROUP)
+                                @NugetRepository(storageId = STORAGE0,
+                                                 repositoryId = REPOSITORY_GROUP_WITH_NESTED_GROUP_1)
+                                @RepositoryAttributes(allowsRedeployment = false,
+                                                      allowsDelete = false)
+                                Repository repositoryGroupWithNestedGroup1,
+                                @Group(repositories = REPOSITORY_GROUP_WITH_NESTED_GROUP_1)
+                                @NugetRepository(storageId = STORAGE0,
+                                                 repositoryId = REPOSITORY_GROUP_WITH_NESTED_GROUP_2)
+                                @RepositoryAttributes(allowsRedeployment = false,
+                                                      allowsDelete = false)
+                                Repository repositoryGroupWithNestedGroup2)
     {
-        Repository repository = configurationManager.getRepository(STORAGE0 + ":" + REPOSITORY_GROUP);
-        RepositoryProvider repositoryProvider = repositoryProviderRegistry.getProvider(repository.getType());
-        
+        RepositoryProvider repositoryProvider = repositoryProviderRegistry.getProvider(repositoryGroup.getType());
+
         Paginator paginator = new Paginator();
         paginator.setLimit(10);
         paginator.setSkip(10);
 
-        Predicate p = Predicate.empty();
-        
-        List<Path> result = repositoryProvider.search(STORAGE0, REPOSITORY_GROUP, p, paginator);
-        
+        Predicate predicate = Predicate.empty();
+        predicate.and(Predicate.of(ExpOperator.EQ.of("artifactCoordinates.coordinates.extension", "nupkg")));
+
+        List<Path> result = repositoryProvider.search(repositoryGroup.getStorage().getId(),
+                                                      repositoryGroup.getId(),
+                                                      predicate,
+                                                      paginator);
+
         assertEquals(2, result.size());
-        
+
         paginator.setLimit(-1);
-        result = repositoryProvider.search(STORAGE0, REPOSITORY_GROUP, p, paginator);
-        
+        result = repositoryProvider.search(repositoryGroup.getStorage().getId(),
+                                           repositoryGroup.getId(),
+                                           predicate,
+                                           paginator);
+
         assertEquals(2, result.size());
-        
-        repository = configurationManager.getRepository(STORAGE0 + ":" + REPOSITORY_GROUP_WITH_NESTED_GROUP_2);
-        repositoryProvider = repositoryProviderRegistry.getProvider(repository.getType());
-        
+
+        repositoryProvider = repositoryProviderRegistry.getProvider(repositoryGroupWithNestedGroup2.getType());
+
         paginator.setSkip(11);
         paginator.setLimit(10);
-        
-        result = repositoryProvider.search(STORAGE0, REPOSITORY_GROUP_WITH_NESTED_GROUP_2, p, paginator);
-        
+
+        result = repositoryProvider.search(repositoryGroupWithNestedGroup2.getStorage().getId(),
+                                           repositoryGroupWithNestedGroup2.getId(),
+                                           predicate,
+                                           paginator);
+
         assertEquals(1, result.size());
-        
+
         paginator.setLimit(-1);
-        result = repositoryProvider.search(STORAGE0, REPOSITORY_GROUP_WITH_NESTED_GROUP_2, p, paginator);
-        
+        result = repositoryProvider.search(repositoryGroupWithNestedGroup2.getStorage().getId(),
+                                           repositoryGroupWithNestedGroup2.getId(),
+                                           predicate,
+                                           paginator);
+
         assertEquals(1, result.size());
-        
-        Long count = repositoryProvider.count(STORAGE0, REPOSITORY_GROUP_WITH_NESTED_GROUP_2, p);
+
+        Long count = repositoryProvider.count(repositoryGroupWithNestedGroup2.getStorage().getId(),
+                                              repositoryGroupWithNestedGroup2.getId(),
+                                              predicate);
         assertEquals(Long.valueOf(12), count);
     }
 

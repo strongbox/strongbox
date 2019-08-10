@@ -7,89 +7,58 @@ import org.carlspring.strongbox.data.criteria.Predicate;
 import org.carlspring.strongbox.data.criteria.QueryTemplate;
 import org.carlspring.strongbox.data.criteria.Selector;
 import org.carlspring.strongbox.domain.ArtifactEntry;
-import org.carlspring.strongbox.providers.layout.NugetLayoutProvider;
-import org.carlspring.strongbox.services.RepositoryManagementService;
-import org.carlspring.strongbox.storage.repository.RepositoryDto;
-import org.carlspring.strongbox.testing.TestCaseWithNugetArtifactGeneration;
+import org.carlspring.strongbox.storage.repository.Repository;
+import org.carlspring.strongbox.testing.TestCaseWithRepository;
+import org.carlspring.strongbox.testing.artifact.ArtifactManagementTestExecutionListener;
+import org.carlspring.strongbox.testing.artifact.NugetTestArtifact;
+import org.carlspring.strongbox.testing.repository.NugetRepository;
+import org.carlspring.strongbox.testing.storage.repository.RepositoryManagementTestExecutionListener;
 
-import javax.inject.Inject;
 import javax.persistence.EntityManager;
 import javax.persistence.PersistenceContext;
 import javax.transaction.Transactional;
-import javax.xml.bind.JAXBException;
-import java.io.IOException;
-import java.util.LinkedHashSet;
-import java.util.Set;
+import java.nio.file.Path;
 
-import org.junit.jupiter.api.AfterEach;
-import org.junit.jupiter.api.BeforeAll;
-import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.ContextConfiguration;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
+/**
+ * @author Pablo Tirado
+ */
 @SpringBootTest
 @ActiveProfiles(profiles = "test")
 @ContextConfiguration(classes = NugetLayoutProviderTestConfig.class)
-public class NugetFilterODataParserTestCase extends TestCaseWithNugetArtifactGeneration
+public class NugetFilterODataParserTestCase
+        extends TestCaseWithRepository
 {
 
-    private static final String REPOSITORY_RELEASES_1 = "nfpt-releases-1";
-
-    @Inject
-    private RepositoryManagementService repositoryManagementService;
+    private static final String REPOSITORY_RELEASES = "nfodpt-releases";
 
     @PersistenceContext
     private EntityManager entityManager;
 
-    @BeforeAll
-    public static void cleanUp()
-        throws Exception
-    {
-        cleanUp(getRepositoriesToClean());
-    }
-
-    @BeforeEach
-    public void setUp()
-        throws Exception
-    {
-        createRepository(createRepositoryMock(STORAGE0, REPOSITORY_RELEASES_1, NugetLayoutProvider.ALIAS),
-                         NugetLayoutProvider.ALIAS);
-        generateRepositoryArtifacts(STORAGE0, REPOSITORY_RELEASES_1, "Org.Carlspring.Strongbox.Nuget.Test.Nfpt", 9);
-
-    }
-
-    private void createRepository(RepositoryDto repository,
-                                  String layout)
-        throws Exception
-    {
-        repository.setLayout(layout);
-        configurationManagementService.saveRepository(repository.getStorage().getId(), repository);
-        repositoryManagementService.createRepository(repository.getStorage().getId(), repository.getId());
-    }
-
-    @AfterEach
-    public void removeRepositories()
-        throws IOException,
-        JAXBException
-    {
-        removeRepositories(getRepositoriesToClean());
-    }
-
-    public static Set<RepositoryDto> getRepositoriesToClean()
-    {
-        Set<RepositoryDto> repositories = new LinkedHashSet<>();
-        repositories.add(createRepositoryMock(STORAGE0, REPOSITORY_RELEASES_1, NugetLayoutProvider.ALIAS));
-
-        return repositories;
-    }
-
+    @ExtendWith({ RepositoryManagementTestExecutionListener.class,
+                  ArtifactManagementTestExecutionListener.class })
     @Test
     @Transactional
-    public void testSearchConjunction()
-        throws Exception
+    public void testSearchConjunction(@NugetRepository(repositoryId = REPOSITORY_RELEASES)
+                                      Repository repository,
+                                      @NugetTestArtifact(repositoryId = REPOSITORY_RELEASES,
+                                                         id = "Org.Carlspring.Strongbox.Nuget.Test.Nfpt",
+                                                         versions = { "1.0.0",
+                                                                      "1.0.1",
+                                                                      "1.0.2",
+                                                                      "1.0.3",
+                                                                      "1.0.4",
+                                                                      "1.0.5",
+                                                                      "1.0.6",
+                                                                      "1.0.7",
+                                                                      "1.0.8"})
+                                      Path artifactPath)
     {
 
         Selector<ArtifactEntry> selector = new Selector<>(ArtifactEntry.class);
@@ -99,8 +68,8 @@ public class NugetFilterODataParserTestCase extends TestCaseWithNugetArtifactGen
         Predicate predicate = t.parseQuery().getPredicate();
 
         selector.where(predicate)
-                .and(Predicate.of(ExpOperator.EQ.of("storageId", STORAGE0)))
-                .and(Predicate.of(ExpOperator.EQ.of("repositoryId", REPOSITORY_RELEASES_1)));
+                .and(Predicate.of(ExpOperator.EQ.of("storageId", repository.getStorage().getId())))
+                .and(Predicate.of(ExpOperator.EQ.of("repositoryId", repository.getId())));
 
         selector.select("count(*)");
 

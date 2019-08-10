@@ -3,32 +3,23 @@ package org.carlspring.strongbox.storage.indexing;
 import org.carlspring.strongbox.artifact.coordinates.NugetArtifactCoordinates;
 import org.carlspring.strongbox.client.ArtifactTransportException;
 import org.carlspring.strongbox.config.NugetLayoutProviderTestConfig;
-import org.carlspring.strongbox.configuration.ConfigurationManager;
 import org.carlspring.strongbox.domain.ArtifactEntry;
 import org.carlspring.strongbox.domain.RemoteArtifactEntry;
 import org.carlspring.strongbox.nuget.NugetSearchRequest;
-import org.carlspring.strongbox.providers.layout.NugetLayoutProvider;
 import org.carlspring.strongbox.repository.NugetRepositoryFeatures;
 import org.carlspring.strongbox.services.ArtifactEntryService;
-import org.carlspring.strongbox.services.RepositoryManagementService;
-import org.carlspring.strongbox.storage.Storage;
-import org.carlspring.strongbox.storage.repository.RepositoryDto;
-import org.carlspring.strongbox.storage.repository.NugetRepositoryFactory;
 import org.carlspring.strongbox.storage.repository.Repository;
-import org.carlspring.strongbox.storage.repository.remote.MutableRemoteRepository;
 import org.carlspring.strongbox.testing.TestCaseWithRepository;
+import org.carlspring.strongbox.testing.repository.NugetRepository;
+import org.carlspring.strongbox.testing.storage.repository.RepositoryManagementTestExecutionListener;
+import org.carlspring.strongbox.testing.storage.repository.TestRepository.Remote;
 
 import javax.inject.Inject;
-import javax.xml.bind.JAXBException;
 import java.io.IOException;
-import java.util.LinkedHashSet;
 import java.util.Optional;
-import java.util.Set;
 
-import org.junit.jupiter.api.AfterEach;
-import org.junit.jupiter.api.BeforeAll;
-import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.junit.jupiter.api.parallel.Execution;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.context.ActiveProfiles;
@@ -39,7 +30,7 @@ import static org.junit.jupiter.api.parallel.ExecutionMode.CONCURRENT;
 
 /**
  * @author Sergey Bespalov
- *
+ * @author Pablo Tirado
  */
 @ContextConfiguration(classes = NugetLayoutProviderTestConfig.class)
 @SpringBootTest
@@ -49,15 +40,9 @@ public class NugetRemoteRepositoryTest
         extends TestCaseWithRepository
 {
 
-    private static final String NUGET_COMMON_STORAGE = "storage-nuget";
-
     private static final String REPOSITORY_PROXY = "nrrt-proxy";
 
-    @Inject
-    private ConfigurationManager configurationManager;
-
-    @Inject
-    private RepositoryManagementService repositoryManagementService;
+    private static final String REMOTE_URL = "https://www.nuget.org/api/v2";
 
     @Inject
     private ArtifactEntryService artifactEntryService;
@@ -65,70 +50,28 @@ public class NugetRemoteRepositoryTest
     @Inject
     private NugetRepositoryFeatures features;
 
-    @Inject
-    private NugetRepositoryFactory nugetRepositoryFactory;
-
-    @BeforeAll
-    public static void cleanUp()
-        throws Exception
-    {
-        cleanUp(getRepositoriesToClean());
-    }
-
-    public static Set<RepositoryDto> getRepositoriesToClean()
-    {
-        Set<RepositoryDto> repositories = new LinkedHashSet<>();
-        repositories.add(createRepositoryMock(NUGET_COMMON_STORAGE, REPOSITORY_PROXY, NugetLayoutProvider.ALIAS));
-
-        return repositories;
-    }
-
-    @BeforeEach
-    public void initialize()
-        throws Exception
-    {
-        RepositoryDto repository = nugetRepositoryFactory.createRepository(REPOSITORY_PROXY);
-        repository.setType("proxy");
-        repository.setRemoteRepository(new MutableRemoteRepository());
-        repository.getRemoteRepository().setUrl("https://www.nuget.org/api/v2");
-
-        configurationManagementService.saveRepository(NUGET_COMMON_STORAGE, repository);
-        repositoryManagementService.createRepository(NUGET_COMMON_STORAGE, repository.getId());
-    }
-
-    @AfterEach
-    public void removeRepositories()
-        throws IOException,
-        JAXBException
-    {
-        for (RepositoryDto repository : getRepositoriesToClean())
-        {
-            configurationManagementService.removeRepository(repository.getStorage().getId(), repository.getId());
-        }
-    }
-
+    @ExtendWith(RepositoryManagementTestExecutionListener.class)
     @Test
-    public void testRepositoryIndexFetching()
-        throws ArtifactTransportException,
-        IOException
+    public void testRepositoryIndexFetching(@Remote(url = REMOTE_URL)
+                                            @NugetRepository(repositoryId = REPOSITORY_PROXY)
+                                            Repository repository)
+            throws ArtifactTransportException, IOException
     {
-        Storage storage = configurationManager.getConfiguration().getStorage(NUGET_COMMON_STORAGE);
-        Repository repository = storage.getRepository(REPOSITORY_PROXY);
-
         NugetSearchRequest nugetSearchRequest = new NugetSearchRequest();
         nugetSearchRequest.setFilter(String.format("Id eq '%s'", "NHibernate"));
-        
-        features.downloadRemoteFeed(storage.getId(),
+
+        features.downloadRemoteFeed(repository.getStorage().getId(),
                                     repository.getId(),
                                     nugetSearchRequest);
 
-        NugetArtifactCoordinates c = new NugetArtifactCoordinates("NHibernate", "4.0.4.4000", "nupkg");
-        Optional<ArtifactEntry> artifactEntry = Optional.ofNullable(artifactEntryService.findOneArtifact(NUGET_COMMON_STORAGE,
-                                                                                                         REPOSITORY_PROXY,
-                                                                                                         c.toPath()));
+        NugetArtifactCoordinates coordinates = new NugetArtifactCoordinates("NHibernate", "4.0.4.4000");
+        ArtifactEntry artifactEntry = artifactEntryService.findOneArtifact(repository.getStorage().getId(),
+                                                                           repository.getId(),
+                                                                           coordinates.toPath());
+        Optional<ArtifactEntry> optionalArtifactEntry = Optional.ofNullable(artifactEntry);
 
-        assertTrue(artifactEntry.isPresent());
-        assertFalse(((RemoteArtifactEntry) artifactEntry.get()).getIsCached());
+        assertTrue(optionalArtifactEntry.isPresent());
+        assertFalse(((RemoteArtifactEntry) optionalArtifactEntry.get()).getIsCached());
     }
 
 }
