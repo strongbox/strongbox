@@ -46,9 +46,11 @@ import static org.junit.jupiter.api.parallel.ExecutionMode.CONCURRENT;
 public class RegenerateNugetChecksumCronJobTestIT
         extends BaseCronJobWithNugetIndexingTestCase
 {
-    private static final String STORAGE2 = "nuget-checksum-test";
+    private static final String STORAGE1 = "storage-nuget-rnccj";
 
-    private static final String REPOSITORY_RELEASES = "rnccj-releases";
+    private static final String REPOSITORY_RELEASES_TRNAC = "rnccj-releases-trnac";
+
+    private static final String REPOSITORY_RELEASES_TRNCIS = "rnccj-releases-trncis";
 
     private static final String REPOSITORY_ALPHA = "rnccj-alpha";
 
@@ -63,9 +65,9 @@ public class RegenerateNugetChecksumCronJobTestIT
     @ExtendWith({ RepositoryManagementTestExecutionListener.class,
                   ArtifactManagementTestExecutionListener.class })
     @Test
-    public void testRegenerateNugetArtifactChecksum(@NugetRepository(repositoryId = REPOSITORY_RELEASES)
+    public void testRegenerateNugetArtifactChecksum(@NugetRepository(repositoryId = REPOSITORY_RELEASES_TRNAC)
                                                     Repository repository,
-                                                    @NugetTestArtifact(repositoryId = REPOSITORY_RELEASES,
+                                                    @NugetTestArtifact(repositoryId = REPOSITORY_RELEASES_TRNAC,
                                                                        id = "org.carlspring.strongbox.checksum-second",
                                                                        versions = "1.0.0")
                                                     Path artifactNupkgPath)
@@ -176,9 +178,9 @@ public class RegenerateNugetChecksumCronJobTestIT
     @ExtendWith({ RepositoryManagementTestExecutionListener.class,
                   ArtifactManagementTestExecutionListener.class })
     @Test
-    public void testRegenerateNugetChecksumInStorage(@NugetRepository(repositoryId = REPOSITORY_RELEASES)
+    public void testRegenerateNugetChecksumInStorage(@NugetRepository(repositoryId = REPOSITORY_RELEASES_TRNCIS)
                                                      Repository repository,
-                                                     @NugetTestArtifact(repositoryId = REPOSITORY_RELEASES,
+                                                     @NugetTestArtifact(repositoryId = REPOSITORY_RELEASES_TRNCIS,
                                                                         id = "org.carlspring.strongbox.checksum-second",
                                                                         versions = "1.0.0")
                                                      Path artifactNupkgPath)
@@ -230,11 +232,11 @@ public class RegenerateNugetChecksumCronJobTestIT
     @ExtendWith({ RepositoryManagementTestExecutionListener.class,
                   ArtifactManagementTestExecutionListener.class })
     @Test
-    public void testRegenerateNugetChecksumInStorages(@NugetRepository(storageId = STORAGE2,
-                                                                       repositoryId = REPOSITORY_RELEASES)
+    public void testRegenerateNugetChecksumInStorages(@NugetRepository(storageId = STORAGE1,
+                                                                       repositoryId = REPOSITORY_RELEASES_TRNCIS)
                                                       Repository repository,
-                                                      @NugetTestArtifact(storageId = STORAGE2,
-                                                                         repositoryId = REPOSITORY_RELEASES,
+                                                      @NugetTestArtifact(storageId = STORAGE1,
+                                                                         repositoryId = REPOSITORY_RELEASES_TRNCIS,
                                                                          id = "org.carlspring.strongbox.checksum-one",
                                                                          versions = "1.0.0")
                                                       Path artifactNupkgPath)
