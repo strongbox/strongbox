@@ -17,21 +17,22 @@
 
 package org.carlspring.strongbox.storage.metadata.nuget;
 
-import org.carlspring.strongbox.storage.metadata.nuget.Framework;
-
 import java.util.EnumSet;
 
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.parallel.Execution;
 import static org.hamcrest.CoreMatchers.hasItems;
 import static org.hamcrest.CoreMatchers.is;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.junit.jupiter.api.Assertions.assertArrayEquals;
+import static org.junit.jupiter.api.parallel.ExecutionMode.CONCURRENT;
 
 /**
  * Test of information about the frameworks for which the package is intended
  * 
  * @author sviridov
  */
+@Execution(CONCURRENT)
 public class FrameworksTest
 {
 

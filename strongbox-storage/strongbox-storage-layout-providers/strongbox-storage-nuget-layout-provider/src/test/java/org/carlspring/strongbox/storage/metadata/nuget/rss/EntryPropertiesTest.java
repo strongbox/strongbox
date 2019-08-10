@@ -17,29 +17,30 @@
 
 package org.carlspring.strongbox.storage.metadata.nuget.rss;
 
-import java.io.InputStream;
-import java.util.ArrayList;
-import java.util.List;
-
-import javax.xml.bind.DatatypeConverter;
-import javax.xml.bind.JAXBException;
-
 import org.carlspring.strongbox.artifact.coordinates.versioning.SemanticVersion;
 import org.carlspring.strongbox.storage.metadata.nuget.Dependency;
 import org.carlspring.strongbox.storage.metadata.nuget.NugetFormatException;
 import org.carlspring.strongbox.storage.metadata.nuget.NugetTestResourceUtil;
 import org.carlspring.strongbox.storage.metadata.nuget.Nuspec;
-import org.junit.jupiter.api.Test;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertThrows;
+import javax.xml.bind.DatatypeConverter;
+import javax.xml.bind.JAXBException;
+import java.io.InputStream;
+import java.util.ArrayList;
+import java.util.List;
+
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.parallel.Execution;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.collection.IsArrayContainingInAnyOrder.arrayContainingInAnyOrder;
+import static org.junit.jupiter.api.Assertions.*;
+import static org.junit.jupiter.api.parallel.ExecutionMode.CONCURRENT;
 
 /**
  *
  * @author sviridov
  */
+@Execution(CONCURRENT)
 public class EntryPropertiesTest
 {
 
@@ -69,7 +70,7 @@ public class EntryPropertiesTest
         assertEquals("", properties.getLicenseUrl());
         assertEquals("", properties.getProjectUrl());
         assertEquals("", properties.getReportAbuseUrl());
-        assertEquals(false, properties.getRequireLicenseAcceptance());
+        assertFalse(properties.getRequireLicenseAcceptance());
         assertEquals("Unit Testing Package", properties.getDescription());
         assertEquals("", properties.getReleaseNotes());
         assertEquals("", properties.getLanguage());
@@ -134,7 +135,7 @@ public class EntryPropertiesTest
         assertEquals(Integer.valueOf(-1), result.getVersionRatingsCount());
         assertEquals(Double.valueOf(-1d), result.getRating());
         assertEquals(Double.valueOf(-1d), result.getVersionRating());
-        assertEquals(false, result.getRequireLicenseAcceptance());
+        assertFalse(result.getRequireLicenseAcceptance());
         assertEquals("Unit Testing Package", result.getDescription());
         assertEquals("", result.getReleaseNotes());
         assertEquals("", result.getLanguage());
@@ -144,13 +145,13 @@ public class EntryPropertiesTest
         assertEquals("", result.getDependencies());
         assertEquals("CoknSJBGJ7kao2P6y9E9BuL1IkhP5LLhZ+ImtsgdxzFDpjs0QtRVOV8kxysakJu3cvw5O0hImcnVloCaQ9+Nmg==",
                      result.getPackageHash());
-        assertEquals(Long.valueOf(214905l), result.getPackageSize());
+        assertEquals(Long.valueOf(214905L), result.getPackageSize());
         assertEquals("", result.getExternalPackageUri());
         assertEquals("", result.getCategories());
         assertEquals("", result.getCopyright());
         assertEquals("", result.getPackageType());
         assertThat(result.getTags().toArray(new String[0]), arrayContainingInAnyOrder("Unit", "test"));
-        assertEquals(true, result.getIsLatestVersion());
+        assertTrue(result.getIsLatestVersion());
         assertEquals("", result.getSummary());
     }
 
@@ -243,12 +244,8 @@ public class EntryPropertiesTest
         properties.setDependencies("eres");
         
         // WHEN
-        assertThrows(
-                     NugetFormatException.class,
-                     () -> {
-                         properties.getDependenciesList();
-                     });
-        ;
+        assertThrows(NugetFormatException.class,
+                     properties::getDependenciesList);
     }
 
     /**
@@ -262,13 +259,13 @@ public class EntryPropertiesTest
         throws NugetFormatException
     {
         // GIVEN
-        ArrayList<Dependency> dependencys = new ArrayList<>();
-        dependencys.add(Dependency.parseString("package1:1.2.3"));
-        dependencys.add(Dependency.parseString("package2:3.2.1"));
+        ArrayList<Dependency> dependencies = new ArrayList<>();
+        dependencies.add(Dependency.parseString("package1:1.2.3"));
+        dependencies.add(Dependency.parseString("package2:3.2.1"));
         EntryProperties properties = new EntryProperties();
         
         // WHEN
-        properties.setDependenciesList(dependencys);
+        properties.setDependenciesList(dependencies);
         
         // THEN
         assertEquals("package1:1.2.3,package2:3.2.1", properties.getDependencies());
