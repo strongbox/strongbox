@@ -31,11 +31,13 @@ import java.nio.file.Path;
 
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
+import org.junit.jupiter.api.parallel.Execution;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.ContextConfiguration;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.parallel.ExecutionMode.CONCURRENT;
 
 /**
  * @author Dmitry Sviridov
@@ -44,6 +46,7 @@ import static org.junit.jupiter.api.Assertions.assertNotNull;
 @ContextConfiguration(classes = { NugetLayoutProviderTestConfig.class })
 @SpringBootTest
 @ActiveProfiles(profiles = "test")
+@Execution(CONCURRENT)
 public class TempNupkgFileTest
 {
 

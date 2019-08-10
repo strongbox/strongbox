@@ -21,10 +21,12 @@ import java.nio.file.Path;
 
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
+import org.junit.jupiter.api.parallel.Execution;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.ContextConfiguration;
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.parallel.ExecutionMode.CONCURRENT;
 
 /**
  * @author Pablo Tirado
@@ -32,6 +34,7 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 @SpringBootTest
 @ActiveProfiles(profiles = "test")
 @ContextConfiguration(classes = NugetLayoutProviderTestConfig.class)
+@Execution(CONCURRENT)
 public class NugetFilterODataParserTestCase
         extends TestCaseWithRepository
 {

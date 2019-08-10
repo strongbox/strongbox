@@ -14,12 +14,14 @@ import java.util.Date;
 
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
+import org.junit.jupiter.api.parallel.Execution;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.ContextConfiguration;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.core.StringContains.containsString;
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.parallel.ExecutionMode.CONCURRENT;
 
 /**
  * Test class RSS
@@ -30,6 +32,7 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 @ContextConfiguration(classes = { NugetLayoutProviderTestConfig.class })
 @SpringBootTest
 @ActiveProfiles(profiles = "test")
+@Execution(CONCURRENT)
 public class PackageFeedTest
 {
 

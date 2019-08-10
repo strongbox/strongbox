@@ -17,27 +17,27 @@
 
 package org.carlspring.strongbox.storage.metadata.nuget;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
-
-import java.io.InputStream;
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
 import javax.xml.transform.Transformer;
 import javax.xml.transform.TransformerFactory;
 import javax.xml.transform.dom.DOMResult;
 import javax.xml.transform.sax.SAXSource;
+import java.io.InputStream;
 
-import org.carlspring.strongbox.storage.metadata.nuget.NugetNamespaceFilter;
-import org.carlspring.strongbox.storage.metadata.nuget.Nuspec;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.parallel.Execution;
 import org.xml.sax.InputSource;
 import org.xml.sax.XMLReader;
 import org.xml.sax.helpers.XMLReaderFactory;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.parallel.ExecutionMode.CONCURRENT;
 
 /**
  *
  * @author sviridov
  */
+@Execution(CONCURRENT)
 public class NugetNamespaceFilterTest
 {
 

@@ -17,15 +17,15 @@
 
 package org.carlspring.strongbox.storage.metadata.nuget;
 
-import org.carlspring.strongbox.storage.metadata.nuget.DependenciesGroup;
-import org.carlspring.strongbox.storage.metadata.nuget.Framework;
-
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.parallel.Execution;
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.parallel.ExecutionMode.CONCURRENT;
 
 /**
  * @author Dmitry Sviridov
  */
+@Execution(CONCURRENT)
 public class DependenciesGroupTest
 {
 

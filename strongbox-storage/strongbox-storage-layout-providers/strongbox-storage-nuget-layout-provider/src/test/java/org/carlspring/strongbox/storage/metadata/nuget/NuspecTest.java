@@ -33,13 +33,16 @@ import java.util.Iterator;
 import java.util.List;
 
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.parallel.Execution;
 import org.w3c.dom.Document;
 import org.xml.sax.SAXException;
 import static org.junit.jupiter.api.Assertions.*;
+import static org.junit.jupiter.api.parallel.ExecutionMode.CONCURRENT;
 
 /**
  * @author Dmitry Sviridov
  */
+@Execution(CONCURRENT)
 public class NuspecTest
 {
 
@@ -96,7 +99,7 @@ public class NuspecTest
         assertEquals("Implementing the ProjecWise API isolation level", result.getTitle(), "Short description");
         assertEquals("NEOLANT", result.getOwners(), "Authors");
         assertEquals("NEOLANT", result.getOwners(), "Owners");
-        assertEquals(false, result.isRequireLicenseAcceptance(), "License Verification Required");
+        assertFalse(result.isRequireLicenseAcceptance(), "License Verification Required");
         assertEquals("Implementing ProjecWise API isolation level contracts", result.getDescription(), "Description");
         assertEquals("NEOLANT", result.getCopyright(), "Rights");
     }
@@ -126,7 +129,7 @@ public class NuspecTest
         assertEquals(SemanticVersion.parse("2.5.9.10348"), result.getVersion(), "Package Version");
         assertEquals("NUnit", result.getAuthors(), "Authors");
         assertEquals("NUnit", result.getOwners(), "Owners");
-        assertEquals(false, result.isRequireLicenseAcceptance(), "License Verification Required");
+        assertFalse(result.isRequireLicenseAcceptance(), "License Verification Required");
         assertEquals("Unit Testing Package", result.getDescription(), "Description");
         assertEquals("Copyright 2011", result.getCopyright(), "Rights");
         assertEquals(tags.length, result.getTags().size(), "Number of tags");
@@ -161,7 +164,7 @@ public class NuspecTest
         assertEquals(SemanticVersion.parse("3.2.0.4000"), result.getVersion(), "Package Version");
         assertEquals("NHibernate community, Hibernate community", result.getAuthors(), "Authors");
         assertEquals("NHibernate community, Hibernate community", result.getOwners(), "Owners");
-        assertEquals(false, result.isRequireLicenseAcceptance(), "License Verification Required");
+        assertFalse(result.isRequireLicenseAcceptance(), "License Verification Required");
         assertEquals("NHibernate is a mature, open source object-relational mapper for the .NET framework. It's actively developed , fully featured and used in thousands of successful projects.",
                      result.getDescription(),
                      "Description");
@@ -250,9 +253,9 @@ public class NuspecTest
         InputStream inputStream = NugetTestResourceUtil.getAsStream("nuspec/fixed.dependency.nuspec.xml");
         // WHEN
         Nuspec nuspecFile = Nuspec.parse(inputStream);
-        List<Dependency> dependencys = nuspecFile.getDependencies();
+        List<Dependency> dependencies = nuspecFile.getDependencies();
         // THEN
-        assertEquals(dependencys.size(), 1, "Number of dependencies");
+        assertEquals(1, dependencies.size(), "Number of dependencies");
     }
 
     /**

@@ -18,15 +18,17 @@
 package org.carlspring.strongbox.storage.metadata.nuget;
 
 import org.carlspring.strongbox.artifact.coordinates.versioning.SemanticVersion;
-import org.carlspring.strongbox.storage.metadata.nuget.VersionRange;
 
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.parallel.Execution;
 import static org.junit.jupiter.api.Assertions.*;
+import static org.junit.jupiter.api.parallel.ExecutionMode.CONCURRENT;
 
 /**
  *
  * @author sviridov
  */
+@Execution(CONCURRENT)
 public class VersionRangeTest
 {
 
