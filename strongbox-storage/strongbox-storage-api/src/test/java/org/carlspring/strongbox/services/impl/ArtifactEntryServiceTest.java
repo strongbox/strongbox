@@ -72,7 +72,8 @@ public class ArtifactEntryServiceTest
     private  ArtifactCoordinatesService artifactCoordinatesService;
 
     @BeforeEach
-    public void setup(TestInfo testInfo) {
+    public void setup(TestInfo testInfo)
+    {
 
         final String groupId = getGroupId(GROUP_ID, testInfo);
 
@@ -93,7 +94,8 @@ public class ArtifactEntryServiceTest
     }
     
     @AfterEach
-    public void cleanup(TestInfo testInfo) {
+    public void cleanup(TestInfo testInfo)
+    {
         final String groupId = getGroupId(GROUP_ID, testInfo);
 
         List<ArtifactEntry> artifactEntries = findAll(groupId);
@@ -113,7 +115,8 @@ public class ArtifactEntryServiceTest
         return artifactEntryService.findArtifactList(null, null, coordinates, false);
     }
     
-    protected int count(final String groupId) {
+    protected int count(final String groupId)
+    {
         return findAll(groupId).size();
     }
     
@@ -190,7 +193,6 @@ public class ArtifactEntryServiceTest
                                                                                          REPOSITORY_ID + "abc",
                                                                                          pomCoordinates.toPath()));
         assertTrue(artifactEntryOptional.isPresent());
-
     }
 
     private ArtifactEntry save(ArtifactEntry artifactEntry)
