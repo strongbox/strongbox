@@ -17,9 +17,11 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 import java.util.UUID;
 import java.util.concurrent.TimeUnit;
 
+import com.google.common.collect.Maps;
 import org.apache.commons.lang3.StringUtils;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -52,6 +54,8 @@ public class RegenerateNugetChecksumCronJobTestIT
 
     private static final String REPOSITORY_RELEASES_TRNCIS = "rnccj-releases-trncis";
 
+    private static final String REPOSITORY_RELEASES_TRNCISS = "rnccj-releases-trnciss";
+
     private static final String REPOSITORY_ALPHA = "rnccj-alpha";
 
     @Override
@@ -65,59 +69,23 @@ public class RegenerateNugetChecksumCronJobTestIT
     @ExtendWith({ RepositoryManagementTestExecutionListener.class,
                   ArtifactManagementTestExecutionListener.class })
     @Test
-    public void testRegenerateNugetArtifactChecksum(@NugetRepository(repositoryId = REPOSITORY_RELEASES_TRNAC)
-                                                    Repository repository,
-                                                    @NugetTestArtifact(repositoryId = REPOSITORY_RELEASES_TRNAC,
+    public void testRegenerateNugetChecksum(@NugetRepository(repositoryId = REPOSITORY_RELEASES_TRNAC)
+                                            Repository repository,
+                                            @NugetTestArtifact(repositoryId = REPOSITORY_RELEASES_TRNAC,
                                                                        id = "org.carlspring.strongbox.checksum-second",
                                                                        versions = "1.0.0")
-                                                    Path artifactNupkgPath)
+                                            Path artifactNupkgPath)
             throws Exception
     {
-        final UUID jobKey = expectedJobKey;
-        final String jobName = expectedJobName;
+        Map<String, String> additionalProperties = Maps.newLinkedHashMap();
+        additionalProperties.put("basePath", "org.carlspring.strongbox.checksum-second");
+        additionalProperties.put("forceRegeneration", "false");
 
-        RootRepositoryPath repositoryPath = repositoryPathResolver.resolve(repository);
-
-        Path nupkgSha512Path = artifactNupkgPath.resolveSibling(artifactNupkgPath.getFileName() + ".sha512");
-        deleteIfExists(nupkgSha512Path);
-        assertTrue(Files.notExists(nupkgSha512Path),"The checksum file for nupkg artifact exist!");
-
-        NugetArtifactCoordinates coordinates = (NugetArtifactCoordinates) RepositoryFiles.readCoordinates(
-                (RepositoryPath) artifactNupkgPath.normalize());
-        coordinates.setType("nuspec");
-        Path nuspecSha512Path = repositoryPath.resolve(coordinates.toPath() + ".sha512");
-        deleteIfExists(nuspecSha512Path);
-        assertTrue(Files.notExists(nuspecSha512Path),"The checksum file for nuspec artifact exist!");
-
-        List<Path> resultList = new ArrayList<>();
-        jobManager.registerExecutionListener(jobKey.toString(), (jobKey1, statusExecuted) ->
-        {
-            if (!StringUtils.equals(jobKey1, jobKey.toString()) || !statusExecuted)
-            {
-                return;
-            }
-            resultList.add(nupkgSha512Path);
-            resultList.add(nuspecSha512Path);
-        });
-
-        addCronJobConfig(jobKey,
-                         jobName,
-                         RegenerateChecksumCronJob.class,
-                         repository.getStorage().getId(),
-                         repository.getId(),
-                         properties ->
-                         {
-                             properties.put("basePath", "org.carlspring.strongbox.checksum-second");
-                             properties.put("forceRegeneration", "false");
-                         });
-
-        await().atMost(EVENT_TIMEOUT_SECONDS, TimeUnit.SECONDS).untilTrue(receivedExpectedEvent());
-
-        assertEquals(2, resultList.size());
-        resultList.forEach(ThrowingConsumer.unchecked(path -> {
-            assertTrue(Files.exists(path), "The checksum file " + path.toString() + " doesn't exist!");
-            assertTrue(Files.size(path) > 0, "The checksum file is empty!");
-        }));
+        testRegenerateNugetChecksum(repository,
+                                    artifactNupkgPath,
+                                    repository.getStorage().getId(),
+                                    repository.getId(),
+                                    additionalProperties);
     }
 
     @ExtendWith({ RepositoryManagementTestExecutionListener.class,
@@ -132,47 +100,14 @@ public class RegenerateNugetChecksumCronJobTestIT
                                                         Path artifactNupkgPath)
             throws Exception
     {
-        final UUID jobKey = expectedJobKey;
-        final String jobName = expectedJobName;
+        Map<String, String> additionalProperties = Maps.newLinkedHashMap();
+        additionalProperties.put("forceRegeneration", "false");
 
-        RootRepositoryPath repositoryPath = repositoryPathResolver.resolve(repository);
-
-        Path nupkgSha512Path = artifactNupkgPath.resolveSibling(artifactNupkgPath.getFileName() + ".sha512");
-        deleteIfExists(nupkgSha512Path);
-        assertTrue(Files.notExists(nupkgSha512Path),"The checksum file for nupkg artifact exist!");
-
-        NugetArtifactCoordinates coordinates = (NugetArtifactCoordinates) RepositoryFiles.readCoordinates(
-                (RepositoryPath) artifactNupkgPath.normalize());
-        coordinates.setType("nuspec");
-        Path nuspecSha512Path = repositoryPath.resolve(coordinates.toPath() + ".sha512");
-        deleteIfExists(nuspecSha512Path);
-        assertTrue(Files.notExists(nuspecSha512Path),"The checksum file for nuspec artifact exist!");
-
-        List<Path> resultList = new ArrayList<>();
-        jobManager.registerExecutionListener(jobKey.toString(), (jobKey1,
-                                                                 statusExecuted) -> {
-            if (!StringUtils.equals(jobKey1, jobKey.toString()) || !statusExecuted)
-            {
-                return;
-            }
-            resultList.add(nupkgSha512Path);
-            resultList.add(nuspecSha512Path);
-        });
-        addCronJobConfig(jobKey,
-                         jobName,
-                         RegenerateChecksumCronJob.class,
-                         repository.getStorage().getId(),
-                         repository.getId(),
-                         properties -> properties.put("forceRegeneration", "false"));
-
-        await().atMost(EVENT_TIMEOUT_SECONDS, TimeUnit.SECONDS).untilTrue(receivedExpectedEvent());
-
-        assertEquals(2, resultList.size());
-
-        resultList.forEach(ThrowingConsumer.unchecked(path -> {
-            assertTrue(Files.exists(path), "The checksum file " + path.toString() + " doesn't exist!");
-            assertTrue(Files.size(path) > 0, "The checksum file is empty!");
-        }));
+        testRegenerateNugetChecksum(repository,
+                                    artifactNupkgPath,
+                                    repository.getStorage().getId(),
+                                    repository.getId(),
+                                    additionalProperties);
     }
 
     @ExtendWith({ RepositoryManagementTestExecutionListener.class,
@@ -186,60 +121,44 @@ public class RegenerateNugetChecksumCronJobTestIT
                                                      Path artifactNupkgPath)
             throws Exception
     {
-        final UUID jobKey = expectedJobKey;
-        final String jobName = expectedJobName;
+        Map<String, String> additionalProperties = Maps.newLinkedHashMap();
+        additionalProperties.put("forceRegeneration", "false");
 
-        RootRepositoryPath repositoryPath = repositoryPathResolver.resolve(repository);
-
-        Path nupkgSha512Path = artifactNupkgPath.resolveSibling(artifactNupkgPath.getFileName() + ".sha512");
-        deleteIfExists(nupkgSha512Path);
-        assertTrue(Files.notExists(nupkgSha512Path),"The checksum file for nupkg artifact exist!");
-
-        NugetArtifactCoordinates coordinates = (NugetArtifactCoordinates) RepositoryFiles.readCoordinates(
-                (RepositoryPath) artifactNupkgPath.normalize());
-        coordinates.setType("nuspec");
-        Path nuspecSha512Path = repositoryPath.resolve(coordinates.toPath() + ".sha512");
-        deleteIfExists(nuspecSha512Path);
-        assertTrue(Files.notExists(nuspecSha512Path),"The checksum file for nuspec artifact exist!");
-
-        List<Path> resultList = new ArrayList<>();
-        jobManager.registerExecutionListener(jobKey.toString(), (jobKey1,
-                                                                 statusExecuted) -> {
-            if (!StringUtils.equals(jobKey1, jobKey.toString()) || !statusExecuted)
-            {
-                return;
-            }
-            resultList.add(nupkgSha512Path);
-            resultList.add(nuspecSha512Path);
-        });
-
-        addCronJobConfig(jobKey,
-                         jobName,
-                         RegenerateChecksumCronJob.class,
-                         repository.getStorage().getId(),
-                         null,
-                         properties -> properties.put("forceRegeneration", "false"));
-
-        await().atMost(EVENT_TIMEOUT_SECONDS, TimeUnit.SECONDS).untilTrue(receivedExpectedEvent());
-
-        assertEquals(2, resultList.size());
-        resultList.forEach(ThrowingConsumer.unchecked(path -> {
-            assertTrue(Files.exists(path), "The checksum file " + path.toString() + " doesn't exist!");
-            assertTrue(Files.size(path) > 0, "The checksum file is empty!");
-        }));
+        testRegenerateNugetChecksum(repository,
+                                    artifactNupkgPath,
+                                    repository.getStorage().getId(),
+                                    null,
+                                    additionalProperties);
     }
 
     @ExtendWith({ RepositoryManagementTestExecutionListener.class,
                   ArtifactManagementTestExecutionListener.class })
     @Test
     public void testRegenerateNugetChecksumInStorages(@NugetRepository(storageId = STORAGE1,
-                                                                       repositoryId = REPOSITORY_RELEASES_TRNCIS)
+                                                                       repositoryId = REPOSITORY_RELEASES_TRNCISS)
                                                       Repository repository,
                                                       @NugetTestArtifact(storageId = STORAGE1,
-                                                                         repositoryId = REPOSITORY_RELEASES_TRNCIS,
+                                                                         repositoryId = REPOSITORY_RELEASES_TRNCISS,
                                                                          id = "org.carlspring.strongbox.checksum-one",
                                                                          versions = "1.0.0")
                                                       Path artifactNupkgPath)
+            throws Exception
+    {
+        Map<String, String> additionalProperties = Maps.newLinkedHashMap();
+        additionalProperties.put("forceRegeneration", "false");
+
+        testRegenerateNugetChecksum(repository,
+                                    artifactNupkgPath,
+                                    null,
+                                    null,
+                                    additionalProperties);
+    }
+
+    private void testRegenerateNugetChecksum(Repository repository,
+                                             Path artifactNupkgPath,
+                                             String cronJobConfigStorageId,
+                                             String cronJobConfigRepositoryId,
+                                             Map<String, String> cronJobConfigProperties)
             throws Exception
     {
         final UUID jobKey = expectedJobKey;
@@ -259,8 +178,7 @@ public class RegenerateNugetChecksumCronJobTestIT
         assertTrue(Files.notExists(nuspecSha512Path),"The checksum file for nuspec artifact exist!");
 
         List<Path> resultList = new ArrayList<>();
-        jobManager.registerExecutionListener(jobKey.toString(), (jobKey1,
-                                                                 statusExecuted) -> {
+        jobManager.registerExecutionListener(jobKey.toString(), (jobKey1, statusExecuted) -> {
             if (!StringUtils.equals(jobKey1, jobKey.toString()) || !statusExecuted)
             {
                 return;
@@ -272,9 +190,9 @@ public class RegenerateNugetChecksumCronJobTestIT
         addCronJobConfig(jobKey,
                          jobName,
                          RegenerateChecksumCronJob.class,
-                         null,
-                         null,
-                         properties -> properties.put("forceRegeneration", "false"));
+                         cronJobConfigStorageId,
+                         cronJobConfigRepositoryId,
+                         properties -> properties.putAll(cronJobConfigProperties));
 
         await().atMost(EVENT_TIMEOUT_SECONDS, TimeUnit.SECONDS).untilTrue(receivedExpectedEvent());
 
