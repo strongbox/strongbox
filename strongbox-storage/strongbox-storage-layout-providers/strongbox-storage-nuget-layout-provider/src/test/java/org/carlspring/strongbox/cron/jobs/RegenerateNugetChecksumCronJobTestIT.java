@@ -69,12 +69,12 @@ public class RegenerateNugetChecksumCronJobTestIT
     @ExtendWith({ RepositoryManagementTestExecutionListener.class,
                   ArtifactManagementTestExecutionListener.class })
     @Test
-    public void testRegenerateNugetChecksum(@NugetRepository(repositoryId = REPOSITORY_RELEASES_TRNAC)
-                                            Repository repository,
-                                            @NugetTestArtifact(repositoryId = REPOSITORY_RELEASES_TRNAC,
+    public void testRegenerateNugetArtifactChecksum(@NugetRepository(repositoryId = REPOSITORY_RELEASES_TRNAC)
+                                                    Repository repository,
+                                                    @NugetTestArtifact(repositoryId = REPOSITORY_RELEASES_TRNAC,
                                                                        id = "org.carlspring.strongbox.checksum-second",
                                                                        versions = "1.0.0")
-                                            Path artifactNupkgPath)
+                                                    Path artifactNupkgPath)
             throws Exception
     {
         Map<String, String> additionalProperties = Maps.newLinkedHashMap();
