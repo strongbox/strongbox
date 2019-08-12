@@ -88,7 +88,7 @@ public class TestArtifactContext implements AutoCloseable
 
         generatorBasePath = Paths.get(propertiesBooter.getVaultDirectory(), ".temp",
                                       testInfo.getTestClass().get().getSimpleName(),
-                                      testInfo.getTestMethod().get().getName());
+                                      testInfo.getTestMethod().get().getName()).toAbsolutePath().normalize();
 
         try
         {
