@@ -50,13 +50,7 @@ public class RegenerateNugetChecksumCronJobTestIT
 {
     private static final String STORAGE1 = "storage-nuget-rnccj";
 
-    private static final String REPOSITORY_RELEASES_TRNAC = "rnccj-releases-trnac";
-
-    private static final String REPOSITORY_RELEASES_TRNCIS = "rnccj-releases-trncis";
-
-    private static final String REPOSITORY_RELEASES_TRNCISS = "rnccj-releases-trnciss";
-
-    private static final String REPOSITORY_ALPHA = "rnccj-alpha";
+    private static final String REPOSITORY = "repository-rnccjt";
 
     @Override
     @BeforeEach
@@ -69,9 +63,9 @@ public class RegenerateNugetChecksumCronJobTestIT
     @ExtendWith({ RepositoryManagementTestExecutionListener.class,
                   ArtifactManagementTestExecutionListener.class })
     @Test
-    public void testRegenerateNugetArtifactChecksum(@NugetRepository(repositoryId = REPOSITORY_RELEASES_TRNAC)
+    public void testRegenerateNugetArtifactChecksum(@NugetRepository(repositoryId = REPOSITORY)
                                                     Repository repository,
-                                                    @NugetTestArtifact(repositoryId = REPOSITORY_RELEASES_TRNAC,
+                                                    @NugetTestArtifact(repositoryId = REPOSITORY,
                                                                        id = "org.carlspring.strongbox.checksum-second",
                                                                        versions = "1.0.0")
                                                     Path artifactNupkgPath)
@@ -91,10 +85,10 @@ public class RegenerateNugetChecksumCronJobTestIT
     @ExtendWith({ RepositoryManagementTestExecutionListener.class,
                          ArtifactManagementTestExecutionListener.class })
     @Test
-    public void testRegenerateNugetChecksumInRepository(@NugetRepository(repositoryId = REPOSITORY_ALPHA,
+    public void testRegenerateNugetChecksumInRepository(@NugetRepository(repositoryId = REPOSITORY,
                                                                          policy = RepositoryPolicyEnum.SNAPSHOT)
                                                         Repository repository,
-                                                        @NugetTestArtifact(repositoryId = REPOSITORY_ALPHA,
+                                                        @NugetTestArtifact(repositoryId = REPOSITORY,
                                                                            id = "org.carlspring.strongbox.checksum-one",
                                                                            versions = "1.0.1-alpha")
                                                         Path artifactNupkgPath)
@@ -113,9 +107,9 @@ public class RegenerateNugetChecksumCronJobTestIT
     @ExtendWith({ RepositoryManagementTestExecutionListener.class,
                   ArtifactManagementTestExecutionListener.class })
     @Test
-    public void testRegenerateNugetChecksumInStorage(@NugetRepository(repositoryId = REPOSITORY_RELEASES_TRNCIS)
+    public void testRegenerateNugetChecksumInStorage(@NugetRepository(repositoryId = REPOSITORY)
                                                      Repository repository,
-                                                     @NugetTestArtifact(repositoryId = REPOSITORY_RELEASES_TRNCIS,
+                                                     @NugetTestArtifact(repositoryId = REPOSITORY,
                                                                         id = "org.carlspring.strongbox.checksum-second",
                                                                         versions = "1.0.0")
                                                      Path artifactNupkgPath)
@@ -135,10 +129,10 @@ public class RegenerateNugetChecksumCronJobTestIT
                   ArtifactManagementTestExecutionListener.class })
     @Test
     public void testRegenerateNugetChecksumInStorages(@NugetRepository(storageId = STORAGE1,
-                                                                       repositoryId = REPOSITORY_RELEASES_TRNCISS)
+                                                                       repositoryId = REPOSITORY)
                                                       Repository repository,
                                                       @NugetTestArtifact(storageId = STORAGE1,
-                                                                         repositoryId = REPOSITORY_RELEASES_TRNCISS,
+                                                                         repositoryId = REPOSITORY,
                                                                          id = "org.carlspring.strongbox.checksum-one",
                                                                          versions = "1.0.0")
                                                       Path artifactNupkgPath)
