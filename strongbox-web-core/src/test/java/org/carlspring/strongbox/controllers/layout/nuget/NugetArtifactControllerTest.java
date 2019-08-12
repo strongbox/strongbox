@@ -317,7 +317,6 @@ public class NugetArtifactControllerTest extends NugetRestAssuredBaseTest
     @ExtendWith({ RepositoryManagementTestExecutionListener.class,
                   ArtifactManagementTestExecutionListener.class })
     @Test
-    @Disabled // disabled temporarily due to a fail
     public void testLastVersionPackageSearch(@NugetRepository(storageId = STORAGE_ID,
                                                               repositoryId = REPOSITORY_RELEASES_1)
                                              Repository repository,
