@@ -72,13 +72,13 @@ public class RegenerateNugetChecksumCronJobTestIT
     public void testRegenerateNugetArtifactChecksum(@NugetRepository(repositoryId = REPOSITORY_RELEASES_TRNAC)
                                                     Repository repository,
                                                     @NugetTestArtifact(repositoryId = REPOSITORY_RELEASES_TRNAC,
-                                                                       id = "org.carlspring.strongbox.checksum-second",
+                                                                       id = "org.carlspring.strongbox.checksum-one",
                                                                        versions = "1.0.0")
                                                     Path artifactNupkgPath)
             throws Exception
     {
         Map<String, String> additionalProperties = Maps.newLinkedHashMap();
-        additionalProperties.put("basePath", "org.carlspring.strongbox.checksum-second");
+        additionalProperties.put("basePath", "org.carlspring.strongbox.checksum-one");
         additionalProperties.put("forceRegeneration", "false");
 
         testRegenerateNugetChecksum(repository,
@@ -95,7 +95,7 @@ public class RegenerateNugetChecksumCronJobTestIT
                                                                          policy = RepositoryPolicyEnum.SNAPSHOT)
                                                         Repository repository,
                                                         @NugetTestArtifact(repositoryId = REPOSITORY_ALPHA,
-                                                                           id = "org.carlspring.strongbox.checksum-one",
+                                                                           id = "org.carlspring.strongbox.checksum-two",
                                                                            versions = "1.0.1-alpha")
                                                         Path artifactNupkgPath)
             throws Exception
@@ -116,7 +116,7 @@ public class RegenerateNugetChecksumCronJobTestIT
     public void testRegenerateNugetChecksumInStorage(@NugetRepository(repositoryId = REPOSITORY_RELEASES_TRNCIS)
                                                      Repository repository,
                                                      @NugetTestArtifact(repositoryId = REPOSITORY_RELEASES_TRNCIS,
-                                                                        id = "org.carlspring.strongbox.checksum-second",
+                                                                        id = "org.carlspring.strongbox.checksum-three",
                                                                         versions = "1.0.0")
                                                      Path artifactNupkgPath)
             throws Exception
@@ -139,7 +139,7 @@ public class RegenerateNugetChecksumCronJobTestIT
                                                       Repository repository,
                                                       @NugetTestArtifact(storageId = STORAGE1,
                                                                          repositoryId = REPOSITORY_RELEASES_TRNCISS,
-                                                                         id = "org.carlspring.strongbox.checksum-one",
+                                                                         id = "org.carlspring.strongbox.checksum-four",
                                                                          versions = "1.0.0")
                                                       Path artifactNupkgPath)
             throws Exception
