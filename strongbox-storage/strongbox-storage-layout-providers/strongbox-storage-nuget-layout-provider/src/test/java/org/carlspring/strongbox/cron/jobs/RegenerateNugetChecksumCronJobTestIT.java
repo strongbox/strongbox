@@ -35,7 +35,7 @@ import static java.nio.file.Files.deleteIfExists;
 import static org.awaitility.Awaitility.await;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertTrue;
-import static org.junit.jupiter.api.parallel.ExecutionMode.CONCURRENT;
+import static org.junit.jupiter.api.parallel.ExecutionMode.SAME_THREAD;
 
 /**
  * @author Kate Novik.
@@ -44,7 +44,7 @@ import static org.junit.jupiter.api.parallel.ExecutionMode.CONCURRENT;
 @ContextConfiguration(classes = NugetLayoutProviderCronTasksTestConfig.class)
 @SpringBootTest
 @ActiveProfiles(profiles = "test")
-@Execution(CONCURRENT)
+@Execution(SAME_THREAD)
 public class RegenerateNugetChecksumCronJobTestIT
         extends BaseCronJobWithNugetIndexingTestCase
 {
