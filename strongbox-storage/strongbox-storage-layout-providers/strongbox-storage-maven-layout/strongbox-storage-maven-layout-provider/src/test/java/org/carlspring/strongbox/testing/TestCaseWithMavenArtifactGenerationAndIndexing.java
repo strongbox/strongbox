@@ -64,6 +64,8 @@ public abstract class TestCaseWithMavenArtifactGenerationAndIndexing
 {
     private static final Logger logger = LoggerFactory.getLogger(TestCaseWithMavenArtifactGenerationAndIndexing.class);
 
+    protected static final String STORAGE0 = "storage0";
+    
     @Inject
     protected Optional<RepositoryIndexManager> repositoryIndexManager;
 

@@ -4,7 +4,7 @@ import org.carlspring.strongbox.cron.domain.CronTaskConfigurationDto;
 import org.carlspring.strongbox.cron.services.CronTaskConfigurationService;
 import org.carlspring.strongbox.event.cron.CronTaskEvent;
 import org.carlspring.strongbox.event.cron.CronTaskEventTypeEnum;
-import org.carlspring.strongbox.testing.TestCaseWithRepository;
+import org.carlspring.strongbox.services.ConfigurationManagementService;
 
 import javax.inject.Inject;
 import java.lang.reflect.Method;
@@ -25,7 +25,6 @@ import org.springframework.context.ConfigurableApplicationContext;
  * @author Pablo Tirado
  */
 public class BaseCronJobWithNpmIndexingTestCase
-        extends TestCaseWithRepository
 {
 
     protected static final long EVENT_TIMEOUT_SECONDS = 3600L;
@@ -33,6 +32,9 @@ public class BaseCronJobWithNpmIndexingTestCase
     @Inject
     protected CronTaskConfigurationService cronTaskConfigurationService;
 
+    @Inject
+    protected ConfigurationManagementService configurationManagementService;
+    
     @Inject
     private ApplicationContext applicationContext;
 

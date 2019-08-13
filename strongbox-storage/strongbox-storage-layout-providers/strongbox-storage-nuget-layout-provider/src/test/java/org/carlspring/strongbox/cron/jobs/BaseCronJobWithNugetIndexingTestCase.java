@@ -1,14 +1,5 @@
 package org.carlspring.strongbox.cron.jobs;
 
-import org.carlspring.strongbox.cron.domain.CronTaskConfigurationDto;
-import org.carlspring.strongbox.cron.services.CronTaskConfigurationService;
-import org.carlspring.strongbox.cron.services.JobManager;
-import org.carlspring.strongbox.event.cron.CronTaskEvent;
-import org.carlspring.strongbox.event.cron.CronTaskEventTypeEnum;
-import org.carlspring.strongbox.providers.io.RepositoryPathResolver;
-import org.carlspring.strongbox.testing.TestCaseWithRepository;
-
-import javax.inject.Inject;
 import java.lang.reflect.Method;
 import java.util.LinkedHashMap;
 import java.util.Map;
@@ -17,7 +8,15 @@ import java.util.UUID;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.function.Consumer;
 
+import javax.inject.Inject;
+
 import org.apache.commons.lang.StringUtils;
+import org.carlspring.strongbox.cron.domain.CronTaskConfigurationDto;
+import org.carlspring.strongbox.cron.services.CronTaskConfigurationService;
+import org.carlspring.strongbox.cron.services.JobManager;
+import org.carlspring.strongbox.event.cron.CronTaskEvent;
+import org.carlspring.strongbox.event.cron.CronTaskEventTypeEnum;
+import org.carlspring.strongbox.providers.io.RepositoryPathResolver;
 import org.junit.jupiter.api.TestInfo;
 import org.springframework.context.ApplicationContext;
 import org.springframework.context.ApplicationListener;
@@ -28,7 +27,6 @@ import org.springframework.context.ConfigurableApplicationContext;
  * @author Pablo Tirado
  */
 public class BaseCronJobWithNugetIndexingTestCase
-        extends TestCaseWithRepository
 {
 
     protected static final long EVENT_TIMEOUT_SECONDS = 10L;

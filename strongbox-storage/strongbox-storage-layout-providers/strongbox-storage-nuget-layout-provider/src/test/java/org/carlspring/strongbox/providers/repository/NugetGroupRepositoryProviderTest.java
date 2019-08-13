@@ -1,30 +1,30 @@
 package org.carlspring.strongbox.providers.repository;
 
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.parallel.ExecutionMode.CONCURRENT;
+
+import java.nio.file.Path;
+import java.util.List;
+
+import javax.inject.Inject;
+
 import org.carlspring.strongbox.config.NugetLayoutProviderTestConfig;
 import org.carlspring.strongbox.data.criteria.Expression.ExpOperator;
 import org.carlspring.strongbox.data.criteria.Paginator;
 import org.carlspring.strongbox.data.criteria.Predicate;
 import org.carlspring.strongbox.storage.repository.Repository;
-import org.carlspring.strongbox.testing.TestCaseWithRepository;
 import org.carlspring.strongbox.testing.artifact.ArtifactManagementTestExecutionListener;
 import org.carlspring.strongbox.testing.artifact.NugetTestArtifact;
 import org.carlspring.strongbox.testing.repository.NugetRepository;
 import org.carlspring.strongbox.testing.storage.repository.RepositoryAttributes;
 import org.carlspring.strongbox.testing.storage.repository.RepositoryManagementTestExecutionListener;
 import org.carlspring.strongbox.testing.storage.repository.TestRepository.Group;
-
-import javax.inject.Inject;
-import java.nio.file.Path;
-import java.util.List;
-
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.junit.jupiter.api.parallel.Execution;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.ContextConfiguration;
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.parallel.ExecutionMode.CONCURRENT;
 
 /**
  * @author sbespalov
@@ -35,7 +35,6 @@ import static org.junit.jupiter.api.parallel.ExecutionMode.CONCURRENT;
 @ContextConfiguration(classes = NugetLayoutProviderTestConfig.class)
 @Execution(CONCURRENT)
 public class NugetGroupRepositoryProviderTest
-        extends TestCaseWithRepository
 {
 
     private static final String REPOSITORY_RELEASES_1 = "ngrpt-releases-1";
@@ -56,11 +55,9 @@ public class NugetGroupRepositoryProviderTest
     @ExtendWith({ RepositoryManagementTestExecutionListener.class,
                   ArtifactManagementTestExecutionListener.class })
     @Test
-    public void testGroupSearch(@NugetRepository(storageId = STORAGE0,
-                                                 repositoryId = REPOSITORY_RELEASES_1)
+    public void testGroupSearch(@NugetRepository(repositoryId = REPOSITORY_RELEASES_1)
                                 Repository repository1,
-                                @NugetTestArtifact(storageId = STORAGE0,
-                                                   repositoryId = REPOSITORY_RELEASES_1,
+                                @NugetTestArtifact(repositoryId = REPOSITORY_RELEASES_1,
                                                    id = "ngrpt.search.package",
                                                    versions = { "1.0.0",
                                                                 "1.0.1",
@@ -72,11 +69,9 @@ public class NugetGroupRepositoryProviderTest
                                                                 "1.0.7",
                                                                 "1.0.8"})
                                 Path artifactPath1,
-                                @NugetRepository(storageId = STORAGE0,
-                                                 repositoryId = REPOSITORY_RELEASES_2)
+                                @NugetRepository(repositoryId = REPOSITORY_RELEASES_2)
                                 Repository repository2,
-                                @NugetTestArtifact(storageId = STORAGE0,
-                                                   repositoryId = REPOSITORY_RELEASES_2,
+                                @NugetTestArtifact(repositoryId = REPOSITORY_RELEASES_2,
                                                    id = "ngrpt.search.package",
                                                    versions = { "1.0.0",
                                                                 "1.0.1",
@@ -90,11 +85,9 @@ public class NugetGroupRepositoryProviderTest
                                                                 "1.0.10",
                                                                 "1.0.11"})
                                 Path artifactPath2,
-                                @NugetRepository(storageId = STORAGE0,
-                                                 repositoryId = REPOSITORY_RELEASES_3)
+                                @NugetRepository(repositoryId = REPOSITORY_RELEASES_3)
                                 Repository repository3,
-                                @NugetTestArtifact(storageId = STORAGE0,
-                                                   repositoryId = REPOSITORY_RELEASES_3,
+                                @NugetTestArtifact(repositoryId = REPOSITORY_RELEASES_3,
                                                    id = "ngrpt.search.package",
                                                    versions = { "1.0.0",
                                                                 "1.0.1",
@@ -108,20 +101,17 @@ public class NugetGroupRepositoryProviderTest
                                 @Group(repositories = { REPOSITORY_RELEASES_1,
                                                         REPOSITORY_RELEASES_2,
                                                         REPOSITORY_RELEASES_3 })
-                                @NugetRepository(storageId = STORAGE0,
-                                                 repositoryId = REPOSITORY_GROUP)
+                                @NugetRepository(repositoryId = REPOSITORY_GROUP)
                                 @RepositoryAttributes(allowsRedeployment = false,
                                                       allowsDelete = false)
                                 Repository repositoryGroup,
                                 @Group(repositories = REPOSITORY_GROUP)
-                                @NugetRepository(storageId = STORAGE0,
-                                                 repositoryId = REPOSITORY_GROUP_WITH_NESTED_GROUP_1)
+                                @NugetRepository(repositoryId = REPOSITORY_GROUP_WITH_NESTED_GROUP_1)
                                 @RepositoryAttributes(allowsRedeployment = false,
                                                       allowsDelete = false)
                                 Repository repositoryGroupWithNestedGroup1,
                                 @Group(repositories = REPOSITORY_GROUP_WITH_NESTED_GROUP_1)
-                                @NugetRepository(storageId = STORAGE0,
-                                                 repositoryId = REPOSITORY_GROUP_WITH_NESTED_GROUP_2)
+                                @NugetRepository(repositoryId = REPOSITORY_GROUP_WITH_NESTED_GROUP_2)
                                 @RepositoryAttributes(allowsRedeployment = false,
                                                       allowsDelete = false)
                                 Repository repositoryGroupWithNestedGroup2)
