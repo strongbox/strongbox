@@ -9,7 +9,6 @@ import java.io.File;
 import javax.inject.Inject;
 
 import org.carlspring.strongbox.rest.client.RestAssuredArtifactClient;
-import org.carlspring.strongbox.testing.TestCaseWithRepository;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
@@ -28,13 +27,14 @@ import io.restassured.module.mockmvc.specification.MockMvcRequestSpecification;
  * @author Alex Oreshkevich
  */
 public abstract class RestAssuredBaseTest
-        extends TestCaseWithRepository
 {
 
     public final static int DEFAULT_PORT = 48080;
 
     public final static String DEFAULT_HOST = "localhost";
 
+    protected static final String STORAGE0 = "storage0";
+    
     /**
      * Share logger instance across all tests.
      */

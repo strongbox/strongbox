@@ -39,6 +39,8 @@ public class RawRestAssuredBaseTest
 
     protected static final String TEST_RESOURCES = "target/test-resources";
 
+    protected static final String STORAGE0 = "storage0"; 
+    
     /**
      * Share logger instance across all tests.
      */
