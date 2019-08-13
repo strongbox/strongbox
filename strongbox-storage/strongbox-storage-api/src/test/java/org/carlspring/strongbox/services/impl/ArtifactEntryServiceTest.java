@@ -217,6 +217,10 @@ public class ArtifactEntryServiceTest
                                                                   groupId))
                                                           .collect(Collectors.toList());
 
+        entries.forEach(entry -> logger.info("Found artifact after search: [{}] - {}",
+                                             entry.getArtifactCoordinates().getId(),
+                                             entry));
+
         assertThat(entries.size(), CoreMatchers.equalTo(all - 1));
     }
 
@@ -236,6 +240,10 @@ public class ArtifactEntryServiceTest
                                                           .filter(e -> e.getArtifactCoordinates().getId().startsWith(
                                                                   groupId))
                                                           .collect(Collectors.toList());
+
+        entries.forEach(entry -> logger.info("Found artifact after search: [{}] - {}",
+                                             entry.getArtifactCoordinates().getId(),
+                                             entry));
 
         assertThat(entries.size(), CoreMatchers.equalTo(all - 1));
     }
@@ -291,6 +299,10 @@ public class ArtifactEntryServiceTest
                                                           .filter(e -> e.getArtifactCoordinates().getId().startsWith(
                                                                   groupId))
                                                           .collect(Collectors.toList());
+
+        entries.forEach(entry -> logger.info("Found artifact after search: [{}] - {}",
+                                             entry.getArtifactCoordinates().getId(),
+                                             entry));
 
         assertThat(entries.size(), CoreMatchers.equalTo(all - 1));
     }
