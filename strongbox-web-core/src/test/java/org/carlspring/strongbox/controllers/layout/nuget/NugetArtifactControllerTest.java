@@ -30,7 +30,6 @@ import io.restassured.http.Headers;
 import io.restassured.module.mockmvc.config.RestAssuredMockMvcConfig;
 import io.restassured.module.mockmvc.specification.MockMvcRequestSpecification;
 import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.springframework.http.HttpHeaders;
@@ -46,6 +45,8 @@ import static org.junit.jupiter.api.Assertions.*;
 @IntegrationTest
 public class NugetArtifactControllerTest extends NugetRestAssuredBaseTest
 {
+
+    private static final String PACKAGE_ID_LAST_VERSION = "Org.Carlspring.Strongbox.Nuget.Test.LastVersion";
 
     private static final String API_KEY = "eyJhbGciOiJIUzI1NiJ9.eyJpc3MiOiJTdHJvbmdib3giLCJqdGkiOiJ0SExSbWU4eFJOSnJjN" +
                                           "XVXdTVkZDhRIiwic3ViIjoiYWRtaW4iLCJzZWN1cml0eS10b2tlbi1rZXkiOiJhZG1pbi1zZWN" +
@@ -320,9 +321,7 @@ public class NugetArtifactControllerTest extends NugetRestAssuredBaseTest
     public void testLastVersionPackageSearch(@NugetRepository(storageId = STORAGE_ID,
                                                               repositoryId = REPOSITORY_RELEASES_1)
                                              Repository repository,
-                                             @NugetTestArtifact(storageId = STORAGE_ID,
-                                                                repositoryId = REPOSITORY_RELEASES_1,
-                                                                id = "Org.Carlspring.Strongbox.Nuget.Test.LastVersion",
+                                             @NugetTestArtifact(id = PACKAGE_ID_LAST_VERSION,
                                                                 versions = { "1.0.0",
                                                                              "2.0.0" })
                                              List<Path> packagePaths)
@@ -331,15 +330,22 @@ public class NugetArtifactControllerTest extends NugetRestAssuredBaseTest
         final String storageId = repository.getStorage().getId();
         final String repositoryId = repository.getId();
 
-        Path packagePathV1 = packagePaths.get(0);
-
-        NugetArtifactCoordinates coordinatesV1 = (NugetArtifactCoordinates) RepositoryFiles.readCoordinates(
-                (RepositoryPath) packagePathV1.normalize());
-        String filter = String.format("tolower(Id) eq '%s' and IsLatestVersion", coordinatesV1.getId().toLowerCase());
+        String filter = String.format("tolower(Id) eq '%s' and IsLatestVersion", PACKAGE_ID_LAST_VERSION.toLowerCase());
 
         // VERSION 1.0.0
+        Path packagePathV1 = packagePaths.get(0);
+        byte[] packageContent = readPackageContent(packagePathV1);
+        // Push
+        String url = getContextBaseUrl() + "/storages/{storageId}/{repositoryId}/";
+        createPushRequest(packageContent)
+               .when()
+               .put(url, storageId, repositoryId)
+               .peek()
+               .then()
+               .statusCode(HttpStatus.CREATED.value());
+
         // Count
-        String url = getContextBaseUrl() +
+        url = getContextBaseUrl() +
               "/storages/{storageId}/{repositoryId}/Search()/$count?$filter={filter}&targetFramework=";
         given().header(HttpHeaders.USER_AGENT, "NuGet/*")
                .when()
@@ -363,12 +369,21 @@ public class NugetArtifactControllerTest extends NugetRestAssuredBaseTest
                .body("feed.title", equalTo("Packages"))
                .and()
                .assertThat()
-               .body("feed.entry[0].title", equalTo(coordinatesV1.getId()))
-               .body("feed.entry[0].properties.Version", equalTo(coordinatesV1.getVersion()));
+               .body("feed.entry[0].title", equalTo(PACKAGE_ID_LAST_VERSION))
+               .body("feed.entry[0].properties.Version", equalTo("1.0.0"));
 
         // VERSION 2.0.0
         Path packagePathV2 = packagePaths.get(1);
-
+        packageContent = readPackageContent(packagePathV2);
+        // Push
+        url = getContextBaseUrl() + "/storages/{storageId}/{repositoryId}/";
+        createPushRequest(packageContent)
+               .when()
+               .put(url, storageId, repositoryId)
+               .peek()
+               .then()
+               .statusCode(HttpStatus.CREATED.value());
+        
         // Count
         url = getContextBaseUrl() +
               "/storages/{storageId}/{repositoryId}/Search()/$count?$filter={filter}&targetFramework=";
@@ -382,9 +397,6 @@ public class NugetArtifactControllerTest extends NugetRestAssuredBaseTest
                .body(equalTo("1"));
 
         // Search
-        NugetArtifactCoordinates coordinatesV2 = (NugetArtifactCoordinates) RepositoryFiles.readCoordinates(
-                (RepositoryPath) packagePathV2.normalize());
-
         url = getContextBaseUrl() +
               "/storages/{storageId}/{repositoryId}/Search()?$filter={filter}&$skip={skip}&$top={stop}&targetFramework=";
         given().header(HttpHeaders.USER_AGENT, "NuGet/*")
@@ -397,8 +409,8 @@ public class NugetArtifactControllerTest extends NugetRestAssuredBaseTest
                .body("feed.title", equalTo("Packages"))
                .and()
                .assertThat()
-               .body("feed.entry[0].title", equalTo(coordinatesV2.getId()))
-               .body("feed.entry[0].properties.Version", equalTo(coordinatesV2.getVersion()));
+               .body("feed.entry[0].title", equalTo(PACKAGE_ID_LAST_VERSION))
+               .body("feed.entry[0].properties.Version", equalTo("2.0.0"));
     }
 
     public MockMvcRequestSpecification createPushRequest(byte[] packageContent)
