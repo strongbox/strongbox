@@ -188,8 +188,8 @@
                             <portSSL>${port.unboundid}</portSSL>
                             <useSSL>true</useSSL>
                             <keyStorePassword>password</keyStorePassword>
-                            <keyStorePath>${strongbox.home}/etc/ssl/keystore.jks</keyStorePath>
-                            <trustStorePath>${strongbox.home}/etc/ssl/truststore.jks</trustStorePath>
+                            <keyStorePath>${strongbox.home}/etc/ssl/keystore.p12</keyStorePath>
+                            <trustStorePath>${strongbox.home}/etc/ssl/truststore.p12</trustStorePath>
                         </configuration>
 
                         <executions>
@@ -313,8 +313,8 @@
                             <portSSL>${port.unboundid}</portSSL>
                             <useSSL>true</useSSL>
                             <keyStorePassword>password</keyStorePassword>
-                            <keyStorePath>${strongbox.home}/etc/ssl/keystore.jks</keyStorePath>
-                            <trustStorePath>${strongbox.home}/etc/ssl/truststore.jks</trustStorePath>
+                            <keyStorePath>${strongbox.home}/etc/ssl/keystore.p12</keyStorePath>
+                            <trustStorePath>${strongbox.home}/etc/ssl/truststore.p12</trustStorePath>
                         </configuration>
 
                         <executions>
@@ -378,8 +378,8 @@
                             <portSSL>${port.unboundid}</portSSL>
                             <useSSL>true</useSSL>
                             <keyStorePassword>password</keyStorePassword>
-                            <keyStorePath>${strongbox.home}/etc/ssl/keystore.jks</keyStorePath>
-                            <trustStorePath>${strongbox.home}/etc/ssl/truststore.jks</trustStorePath>
+                            <keyStorePath>${strongbox.home}/etc/ssl/keystore.p12</keyStorePath>
+                            <trustStorePath>${strongbox.home}/etc/ssl/truststore.p12</trustStorePath>
                         </configuration>
 
                         <executions>

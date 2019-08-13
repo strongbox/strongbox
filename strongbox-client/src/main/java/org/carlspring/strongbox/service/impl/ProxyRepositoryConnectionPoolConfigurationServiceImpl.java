@@ -1,23 +1,32 @@
 package org.carlspring.strongbox.service.impl;
 
-import java.net.URI;
-import java.net.URISyntaxException;
-import java.util.concurrent.TimeUnit;
+import org.carlspring.strongbox.service.ProxyRepositoryConnectionPoolConfigurationService;
 
 import javax.annotation.PostConstruct;
 import javax.annotation.PreDestroy;
+import javax.net.ssl.SSLContext;
 import javax.ws.rs.client.Client;
 import javax.ws.rs.client.ClientBuilder;
+import java.io.BufferedInputStream;
+import java.io.IOException;
+import java.io.InputStream;
+import java.net.URI;
+import java.net.URISyntaxException;
+import java.security.GeneralSecurityException;
+import java.security.KeyStore;
+import java.util.concurrent.TimeUnit;
 
 import org.apache.http.HttpHost;
+import org.apache.http.config.Registry;
+import org.apache.http.config.RegistryBuilder;
 import org.apache.http.conn.routing.HttpRoute;
+import org.apache.http.conn.socket.ConnectionSocketFactory;
+import org.apache.http.conn.ssl.SSLConnectionSocketFactory;
 import org.apache.http.impl.client.CloseableHttpClient;
 import org.apache.http.impl.client.HttpClients;
 import org.apache.http.impl.conn.PoolingHttpClientConnectionManager;
 import org.apache.http.pool.PoolStats;
-
-import org.carlspring.strongbox.service.ProxyRepositoryConnectionPoolConfigurationService;
-
+import org.apache.http.ssl.SSLContexts;
 import org.glassfish.jersey.apache.connector.ApacheClientProperties;
 import org.glassfish.jersey.apache.connector.ApacheConnectorProvider;
 import org.glassfish.jersey.client.ClientConfig;
@@ -26,6 +35,8 @@ import org.glassfish.jersey.logging.LoggingFeature.Verbosity;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.core.io.FileSystemResource;
+import org.springframework.core.io.Resource;
 import org.springframework.stereotype.Component;
 
 /**
@@ -40,19 +51,50 @@ public class ProxyRepositoryConnectionPoolConfigurationServiceImpl
             ProxyRepositoryConnectionPoolConfigurationServiceImpl.class);
 
     private PoolingHttpClientConnectionManager poolingHttpClientConnectionManager;
+
     private IdleConnectionMonitorThread idleConnectionMonitorThread;
 
     @Value("${pool.maxConnections:200}")
     private int maxTotal;
+
     @Value("${pool.defaultConnectionsPerRoute:5}")
     private int defaultMaxPerRoute;
+
     @Value("${pool.idleConnectionsTimeoutInSeconds:60}")
     private int idleConnectionsTimeoutInSeconds;
 
+    @Value("${server.ssl.enabled:false}")
+    private boolean sslEnabled;
+
+    @Value("${server.ssl.key-store-type:PKCS12}")
+    private String keyStoreType;
+
+    @Value("${server.ssl.key-store-password:password}")
+    private String keyStorePassword;
+
+    @Value("${server.ssl.key-store:keystore.p12}")
+    private FileSystemResource keyStoreResource;
+
+    @Value("${server.ssl.trust-store-password:password}")
+    private String trustStorePassword;
+
+    @Value("${server.ssl.trust-store:truststore.p12}")
+    private FileSystemResource trustStoreResource;
+
     @PostConstruct
     public void init()
+            throws IOException, GeneralSecurityException
     {
-        poolingHttpClientConnectionManager = new PoolingHttpClientConnectionManager();
+        if (sslEnabled)
+        {
+            Registry<ConnectionSocketFactory> socketFactoryRegistry = getConnectionSocketFactoryRegistry();
+            poolingHttpClientConnectionManager = new PoolingHttpClientConnectionManager(socketFactoryRegistry);
+        }
+        else
+        {
+            poolingHttpClientConnectionManager = new PoolingHttpClientConnectionManager();
+        }
+
         poolingHttpClientConnectionManager.setMaxTotal(maxTotal); //TODO value that depends on number of threads?
         poolingHttpClientConnectionManager.setDefaultMaxPerRoute(defaultMaxPerRoute);
 
@@ -62,6 +104,7 @@ public class ProxyRepositoryConnectionPoolConfigurationServiceImpl
         idleConnectionMonitorThread.setDaemon(true);
         idleConnectionMonitorThread.start();
     }
+
 
     @PreDestroy
     public void destroy()
@@ -151,6 +194,36 @@ public class ProxyRepositoryConnectionPoolConfigurationServiceImpl
     {
         idleConnectionMonitorThread.shutdown();
         poolingHttpClientConnectionManager.shutdown();
+    }
+
+    private Registry<ConnectionSocketFactory> getConnectionSocketFactoryRegistry()
+            throws IOException, GeneralSecurityException
+    {
+        SSLContext sslContext = SSLContexts
+                                        .custom()
+                                        .loadKeyMaterial(loadKeyStore(keyStoreType, keyStoreResource,
+                                                                      keyStorePassword.toCharArray()),
+                                                         keyStorePassword.toCharArray())
+                                        .loadTrustMaterial(trustStoreResource.getFile(),
+                                                           trustStorePassword.toCharArray())
+                                        .build();
+
+        SSLConnectionSocketFactory sslConnectionSocketFactory = new SSLConnectionSocketFactory(sslContext);
+        return RegistryBuilder.<ConnectionSocketFactory>create().register("https", sslConnectionSocketFactory)
+                                                                .build();
+    }
+
+    private KeyStore loadKeyStore(String keyStoreType,
+                                  Resource keyStoreResource,
+                                  char[] keyStorePassword)
+            throws IOException, GeneralSecurityException
+    {
+        KeyStore keyStore = KeyStore.getInstance(keyStoreType);
+        try (final InputStream inputStream = new BufferedInputStream(keyStoreResource.getInputStream()))
+        {
+            keyStore.load(inputStream, keyStorePassword);
+        }
+        return keyStore;
     }
 
     // code to create HttpRoute the same as in apache library
