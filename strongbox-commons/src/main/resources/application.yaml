@@ -33,7 +33,8 @@ strongbox:
   server:
     database:
       path: ${strongbox.vault}/db
-# Changes to this proeprties must also be applied to [strongbox/strongbox-web-integration-tests] and possibly the pipeline. Please ping us in the main channel to confirm.
+# Changes to these properties must also be applied to [strongbox/strongbox-web-integration-tests] and possibly the pipeline.
+# Please ping us on our chat channel (https://chat.carlspring.org/) to confirm.
 logging:
   debug: false
   console:
