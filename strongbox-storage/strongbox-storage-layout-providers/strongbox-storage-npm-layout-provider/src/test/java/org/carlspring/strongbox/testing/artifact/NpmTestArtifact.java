@@ -33,7 +33,7 @@ public @interface NpmTestArtifact
      * {@link Repository} ID.1
      */
     @AliasFor(annotation = TestArtifact.class)
-    String repositoryId() default "npm-releases";
+    String repositoryId() default "";
 
     /**
      * Layout specific artifact URI.
@@ -62,4 +62,5 @@ public @interface NpmTestArtifact
      * The {@link org.carlspring.strongbox.artifact.coordinates.NpmArtifactCoordinates} scope.
      */
     String scope() default "";
+    
 }

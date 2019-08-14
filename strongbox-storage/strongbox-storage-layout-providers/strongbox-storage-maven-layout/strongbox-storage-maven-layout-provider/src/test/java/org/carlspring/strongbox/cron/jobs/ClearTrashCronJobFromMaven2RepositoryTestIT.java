@@ -17,9 +17,7 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.concurrent.TimeUnit;
 
-import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-import org.junit.jupiter.api.TestInfo;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.junit.jupiter.api.parallel.Execution;
 import org.springframework.boot.test.context.SpringBootTest;
@@ -53,14 +51,6 @@ public class ClearTrashCronJobFromMaven2RepositoryTestIT
 
     @Inject
     private RepositoryPathResolver repositoryPathResolver;
-
-    @Override
-    @BeforeEach
-    public void init(TestInfo testInfo)
-            throws Exception
-    {
-        super.init(testInfo);
-    }
 
     @Test
     @ExtendWith({ RepositoryManagementTestExecutionListener.class, ArtifactManagementTestExecutionListener.class })

@@ -87,7 +87,7 @@ public class ArtifactManagementTestExecutionListener extends TestRepositoryManag
             }
 
         });
-        testApplicationContext.refresh();
+        testApplicationContext.tryToStart();
 
         if (List.class == parameter.getType())
         {

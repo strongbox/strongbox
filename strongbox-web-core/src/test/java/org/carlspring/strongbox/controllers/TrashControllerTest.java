@@ -127,8 +127,6 @@ public class TrashControllerTest
                    "Should have moved the artifact to the trash during a force delete operation, " +
                            "when allowsForceDeletion is not enabled!");
 
-        Assumptions.assumeTrue(repositoryIndexManager.isPresent());
-
         final Path repositoryIndexDir = Paths.get(getRepositoryBasedir(STORAGE0, REPOSITORY_WITH_TRASH) + "/.index");
 
         assertTrue(Files.exists(repositoryIndexDir), "Should not have deleted .index directory!");

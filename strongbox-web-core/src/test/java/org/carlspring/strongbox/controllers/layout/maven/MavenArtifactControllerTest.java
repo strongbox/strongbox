@@ -10,16 +10,11 @@ import org.carlspring.strongbox.config.IntegrationTest;
 import org.carlspring.strongbox.domain.ArtifactEntry;
 import org.carlspring.strongbox.domain.RemoteArtifactEntry;
 import org.carlspring.strongbox.providers.layout.Maven2LayoutProvider;
-import org.carlspring.strongbox.providers.search.MavenIndexerSearchProvider;
 import org.carlspring.strongbox.rest.common.MavenRestAssuredBaseTest;
 import org.carlspring.strongbox.services.ArtifactEntryService;
-import org.carlspring.strongbox.storage.indexing.IndexTypeEnum;
 import org.carlspring.strongbox.storage.repository.MavenRepositoryFactory;
 import org.carlspring.strongbox.storage.repository.RepositoryDto;
 import org.carlspring.strongbox.storage.repository.RepositoryPolicyEnum;
-import org.carlspring.strongbox.storage.search.SearchRequest;
-import org.carlspring.strongbox.storage.search.SearchResult;
-import org.carlspring.strongbox.storage.search.SearchResults;
 import org.carlspring.strongbox.testing.artifact.MavenArtifactTestUtils;
 import org.carlspring.strongbox.util.MessageDigestUtils;
 import org.carlspring.strongbox.yaml.configuration.repository.MavenRepositoryConfigurationDto;
@@ -263,7 +258,7 @@ public class MavenArtifactControllerTest
         defaultMavenArtifactDeployer = buildArtifactDeployer(Paths.get(""));
 
         MavenRepositoryConfigurationDto mavenRepositoryConfiguration = new MavenRepositoryConfigurationDto();
-        mavenRepositoryConfiguration.setIndexingEnabled(false);
+        mavenRepositoryConfiguration.setIndexingEnabled(true);
 
         RepositoryDto repository1 = mavenRepositoryFactory.createRepository(REPOSITORY_RELEASES1);
         repository1.setPolicy(RepositoryPolicyEnum.RELEASE.getPolicy());
@@ -362,11 +357,6 @@ public class MavenArtifactControllerTest
     {
         try
         {
-            closeIndexersForRepository(STORAGE0, REPOSITORY_RELEASES1);
-            closeIndexersForRepository(STORAGE0, REPOSITORY_RELEASES2);
-            closeIndexersForRepository(STORAGE0, REPOSITORY_RELEASES_OUT_OF_SERVICE);
-            closeIndexersForRepository(STORAGE0, REPOSITORY_SNAPSHOTS);
-
             removeRepositories();
 
             cleanUp();
@@ -745,12 +735,8 @@ public class MavenArtifactControllerTest
 
         assertEquals(invalidPath.response().getStatusCode(), HttpStatus.NOT_FOUND.value());
 
-        Assumptions.assumeTrue(repositoryIndexManager.isPresent());
-
         assertFalse(repositoryRootContent.contains(".index"),
                     ".index directory should not be visible in directory listing!");
-        assertEquals(indexDirectoryListing.response().getStatusCode(), HttpStatus.OK.value(),
-                     ".index directory should be browsable!");
     }
 
     @Test
@@ -962,8 +948,6 @@ public class MavenArtifactControllerTest
     public void testUpdateMetadataOnDeleteReleaseVersionDirectory()
             throws Exception
     {
-        Assumptions.assumeTrue(repositoryIndexManager.isPresent());
-
         // Given
         String groupId = "org.carlspring.strongbox.delete-metadata";
         String artifactId = "metadata-foo";
@@ -981,34 +965,6 @@ public class MavenArtifactControllerTest
         artifactDeployer.generateAndDeployArtifact(artifact2, STORAGE0, REPOSITORY_RELEASES2);
         artifactDeployer.generateAndDeployArtifact(artifact3, STORAGE0, REPOSITORY_RELEASES2);
 
-        // Run a search against the index and get a list of all the artifacts matching this exact GAV
-        SearchRequest request = new SearchRequest(STORAGE0,
-                                                  REPOSITORY_RELEASES2,
-                                                  "+g:" + groupId + " " +
-                                                  "+a:" + artifactId + " " +
-                                                  "+v:" + "1.2.2",
-                                                  MavenIndexerSearchProvider.ALIAS);
-
-        SearchResults results = artifactSearchService.search(request);
-
-        if (!results.getResults().isEmpty())
-        {
-            logger.debug("Found " + results.getResults()
-                                           .size() + " results in index of " +
-                         STORAGE0 + ":" + REPOSITORY_RELEASES2 + IndexTypeEnum.LOCAL.getType() + ".");
-        }
-
-        for (SearchResult result : results.getResults())
-        {
-            String artifactPath = result.getArtifactCoordinates().toPath();
-
-            logger.debug(result.getArtifactCoordinates() + "(" + artifactPath + ")");
-        }
-
-        assertEquals(3,
-                     results.getResults().size(),
-                     "Incorrect number of results yielded from search against Maven Index!");
-
         // When
         String path = "org/carlspring/strongbox/delete-metadata/metadata-foo/1.2.2";
         client.delete(STORAGE0, REPOSITORY_RELEASES2, path);
@@ -1018,11 +974,6 @@ public class MavenArtifactControllerTest
                 "storages/" + STORAGE0 + "/" + REPOSITORY_RELEASES2 + "/" +
                 MavenArtifactTestUtils.getArtifactLevelMetadataPath(artifact1));
 
-        // Re-run the search and check, if the results are now different
-        results = artifactSearchService.search(request);
-
-        assertTrue(results.getResults()
-                          .isEmpty(), "Failed to delete artifacts from Maven Index!!");
         assertFalse(metadata.getVersioning()
                             .getVersions()
                             .contains("1.2.2"));

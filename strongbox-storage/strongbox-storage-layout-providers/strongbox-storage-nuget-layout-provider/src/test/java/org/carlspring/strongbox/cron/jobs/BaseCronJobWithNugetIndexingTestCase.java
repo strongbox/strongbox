@@ -1,75 +1,67 @@
 package org.carlspring.strongbox.cron.jobs;
 
-import org.carlspring.strongbox.cron.domain.CronTaskConfigurationDto;
-import org.carlspring.strongbox.cron.services.CronTaskConfigurationService;
-import org.carlspring.strongbox.event.cron.CronTaskEvent;
-import org.carlspring.strongbox.event.cron.CronTaskEventTypeEnum;
-import org.carlspring.strongbox.testing.TestCaseWithNugetArtifactGeneration;
-
-import javax.inject.Inject;
 import java.lang.reflect.Method;
 import java.util.LinkedHashMap;
 import java.util.Map;
 import java.util.Optional;
 import java.util.UUID;
+import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.function.Consumer;
 
+import javax.inject.Inject;
+
 import org.apache.commons.lang.StringUtils;
+import org.carlspring.strongbox.cron.domain.CronTaskConfigurationDto;
+import org.carlspring.strongbox.cron.services.CronTaskConfigurationService;
+import org.carlspring.strongbox.cron.services.JobManager;
+import org.carlspring.strongbox.event.cron.CronTaskEvent;
+import org.carlspring.strongbox.event.cron.CronTaskEventTypeEnum;
+import org.carlspring.strongbox.providers.io.RepositoryPathResolver;
 import org.junit.jupiter.api.TestInfo;
-import org.springframework.beans.BeansException;
 import org.springframework.context.ApplicationContext;
-import org.springframework.context.ApplicationContextAware;
 import org.springframework.context.ApplicationListener;
 import org.springframework.context.ConfigurableApplicationContext;
 
 /**
  * @author carlspring
+ * @author Pablo Tirado
  */
 public class BaseCronJobWithNugetIndexingTestCase
-        extends TestCaseWithNugetArtifactGeneration
-        implements ApplicationListener<CronTaskEvent>, ApplicationContextAware
 {
 
-    public static final long CRON_TASK_CHECK_INTERVAL = 500L;
+    protected static final long EVENT_TIMEOUT_SECONDS = 10L;
 
     @Inject
     protected CronTaskConfigurationService cronTaskConfigurationService;
+
+    @Inject
+    protected JobManager jobManager;
+
+    @Inject
+    private ApplicationContext applicationContext;
+
+    @Inject
+    protected RepositoryPathResolver repositoryPathResolver;
+
+    private CronJobApplicationListener cronJobApplicationListener;
+
+    protected UUID expectedJobKey;
+
+    protected String expectedJobName;
 
     /**
      * A map containing the cron task configurations used by this test.
      */
     protected Map<String, CronTaskConfigurationDto> cronTaskConfigurations = new LinkedHashMap<>();
 
-    protected int expectedEventType = CronTaskEventTypeEnum.EVENT_CRON_TASK_EXECUTION_COMPLETE.getType();
-
-    protected CronTaskEvent receivedEvent;
-
-    protected boolean receivedExpectedEvent = false;
-
-    protected UUID expectedJobKey;
-
-    protected String expectedJobName;
-
-    public void init(TestInfo testInfo)
+    protected CronTaskConfigurationDto addCronJobConfig(UUID jobKey,
+                                                        String jobName,
+                                                        Class<? extends JavaCronJob> className,
+                                                        String storageId,
+                                                        String repositoryId)
             throws Exception
     {
-        expectedJobKey = UUID.randomUUID();
-
-        Optional<Method> method = testInfo.getTestMethod();
-        expectedJobName = method.map(Method::getName).orElse(null);
-    }
-
-    @Override
-    public void setApplicationContext(ApplicationContext applicationContext)
-            throws BeansException
-    {
-        ((ConfigurableApplicationContext) applicationContext).addApplicationListener(this);
-    }
-
-    @Override
-    public void onApplicationEvent(CronTaskEvent event)
-    {
-        handle(event);
+        return addCronJobConfig(jobKey, jobName, className, storageId, repositoryId, null);
     }
 
     protected CronTaskConfigurationDto addCronJobConfig(UUID jobKey,
@@ -102,7 +94,7 @@ public class BaseCronJobWithNugetIndexingTestCase
         cronTaskConfiguration.setImmediateExecution(true);
         cronTaskConfiguration.setUuid(jobKey);
         cronTaskConfiguration.setName(jobName);
-        cronTaskConfiguration.setJobClass(className.getCanonicalName());
+        cronTaskConfiguration.setJobClass(className.getName());
 
         for (String propertyKey : properties.keySet())
         {
@@ -111,51 +103,9 @@ public class BaseCronJobWithNugetIndexingTestCase
 
         cronTaskConfigurationService.saveConfiguration(cronTaskConfiguration);
 
-        addCronTaskConfiguration(jobKey.toString(), cronTaskConfiguration);
+        addCronTaskConfiguration(jobName, cronTaskConfiguration);
 
         return cronTaskConfiguration;
-    }
-
-    public void handle(CronTaskEvent event)
-    {
-        if (event.getType() == expectedEventType && StringUtils.equals(expectedJobKey.toString(), event.getName()))
-        {
-            receivedExpectedEvent = true;
-            receivedEvent = event;
-        }
-    }
-
-    public boolean expectEvent()
-            throws InterruptedException
-    {
-        return expectEvent(5000, CRON_TASK_CHECK_INTERVAL);
-    }
-
-    /**
-     * Waits for an event to occur.
-     *
-     * @param maxWaitTime   The maximum wait time (in milliseconds)
-     * @param checkInterval The interval (in milliseconds) at which to check for the occurrence of the event
-     */
-    public boolean expectEvent(long maxWaitTime,
-                               long checkInterval)
-            throws InterruptedException
-    {
-        int totalWait = 0;
-        while (!receivedExpectedEvent &&
-               (maxWaitTime > 0 && totalWait <= maxWaitTime || // If a maxWaitTime has been defined,
-                maxWaitTime == 0))                            // otherwise, default to forever
-        {
-            Thread.sleep(checkInterval);
-            totalWait += checkInterval;
-        }
-
-        return receivedExpectedEvent;
-    }
-
-    public CronTaskConfigurationDto getCronTaskConfiguration(String key)
-    {
-        return cronTaskConfigurations.get(key);
     }
 
     public CronTaskConfigurationDto addCronTaskConfiguration(String key,
@@ -164,39 +114,52 @@ public class BaseCronJobWithNugetIndexingTestCase
         return cronTaskConfigurations.put(key, value);
     }
 
-    public CronTaskConfigurationDto removeCronTaskConfiguration(String key)
+    public void init(final TestInfo testInfo)
+            throws Exception
     {
-        return cronTaskConfigurations.remove(key);
+        expectedJobKey = UUID.randomUUID();
+
+        Optional<Method> method = testInfo.getTestMethod();
+        expectedJobName = method.map(Method::getName).orElseThrow(() -> new IllegalStateException("No method name ?"));
+
+        cronJobApplicationListener = new CronJobApplicationListener(expectedJobKey);
+
+        ((ConfigurableApplicationContext) applicationContext).addApplicationListener(cronJobApplicationListener);
     }
 
-    public int getExpectedEventType()
+    private static class CronJobApplicationListener
+            implements ApplicationListener<CronTaskEvent>
     {
-        return expectedEventType;
+
+        private int expectedEventType = CronTaskEventTypeEnum.EVENT_CRON_TASK_EXECUTION_COMPLETE.getType();
+
+        private AtomicBoolean receivedExpectedEvent = new AtomicBoolean(false);
+
+        private final UUID expectedJobKey;
+
+        public CronJobApplicationListener(final UUID expectedJobKey)
+        {
+            this.expectedJobKey = expectedJobKey;
+        }
+
+        @Override
+        public void onApplicationEvent(CronTaskEvent event)
+        {
+            handle(event);
+        }
+
+        public void handle(CronTaskEvent event)
+        {
+            if (event.getType() == expectedEventType && StringUtils.equals(expectedJobKey.toString(), event.getName()))
+            {
+                receivedExpectedEvent.set(true);
+            }
+        }
     }
 
-    public void setExpectedEventType(int expectedEventType)
+    protected AtomicBoolean receivedExpectedEvent()
     {
-        this.expectedEventType = expectedEventType;
-    }
-
-    public CronTaskEvent getReceivedEvent()
-    {
-        return receivedEvent;
-    }
-
-    public void setReceivedEvent(CronTaskEvent receivedEvent)
-    {
-        this.receivedEvent = receivedEvent;
-    }
-
-    public boolean isReceivedExpectedEvent()
-    {
-        return receivedExpectedEvent;
-    }
-
-    public void setReceivedExpectedEvent(boolean receivedExpectedEvent)
-    {
-        this.receivedExpectedEvent = receivedExpectedEvent;
+        return cronJobApplicationListener.receivedExpectedEvent;
     }
 
 }

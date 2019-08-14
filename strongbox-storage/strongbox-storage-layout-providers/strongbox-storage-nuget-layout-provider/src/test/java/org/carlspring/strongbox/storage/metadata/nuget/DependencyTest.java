@@ -18,19 +18,18 @@
 package org.carlspring.strongbox.storage.metadata.nuget;
 
 import org.carlspring.strongbox.artifact.coordinates.versioning.SemanticVersion;
-import org.carlspring.strongbox.storage.metadata.nuget.Dependency;
-import org.carlspring.strongbox.storage.metadata.nuget.Framework;
-import org.carlspring.strongbox.storage.metadata.nuget.NugetFormatException;
-import org.carlspring.strongbox.storage.metadata.nuget.VersionRange;
 
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.parallel.Execution;
 import static org.junit.jupiter.api.Assertions.*;
+import static org.junit.jupiter.api.parallel.ExecutionMode.CONCURRENT;
 
 /**
  * Test class dependencies
  * 
  * @author sviridov
  */
+@Execution(CONCURRENT)
 public class DependencyTest
 {
 
@@ -69,6 +68,7 @@ public class DependencyTest
         // WHEN
         Dependency result = Dependency.parseString(dependencyString);
         // THEN
+        assertNotNull(result);
         assertEquals("PACKAGE_ID", result.getId(), "Package ID");
         assertEquals(VersionRange.parse("1.2.3"), result.versionRange, "Package Version Range");
         assertNull(result.framework);
@@ -90,6 +90,7 @@ public class DependencyTest
         // WHEN
         Dependency result = Dependency.parseString(dependencyString);
         // THEN
+        assertNotNull(result);
         assertEquals("PACKAGE_ID", result.getId(), "Package ID");
         assertEquals(VersionRange.parse("1.2.3"), result.versionRange, "Package Version Range");
         assertEquals(Framework.net20, result.framework);
@@ -110,6 +111,7 @@ public class DependencyTest
         // WHEN
         Dependency result = Dependency.parseString(dependencyString);
         // THEN
+        assertNotNull(result);
         assertEquals("PACKAGE_ID", result.getId(), "Package ID");
         assertEquals(VersionRange.parse("1.2.3"), result.versionRange, "Package Version Range");
     }
@@ -130,6 +132,7 @@ public class DependencyTest
         // WHEN
         Dependency result = Dependency.parseString(dependencyString);
         // THEN
+        assertNotNull(result);
         assertEquals("PACKAGE_ID", result.getId(), "Package ID");
         assertEquals(VersionRange.parse("[1.2.3]"), result.versionRange, "Package Version Range");
     }
@@ -149,6 +152,7 @@ public class DependencyTest
         // WHEN
         Dependency result = Dependency.parseString(dependencyString);
         // THEN
+        assertNotNull(result);
         assertEquals("PACKAGE_ID", result.getId(), "Package ID");
         assertTrue(result.versionRange.isLatestVersion(), "This is the latest version");
     }
@@ -168,6 +172,7 @@ public class DependencyTest
         // WHEN
         Dependency result = Dependency.parseString(dependencyString);
         // THEN
+        assertNotNull(result);
         assertEquals("PACKAGE.ID", result.getId(), "Package ID");
         assertTrue(result.versionRange.isFixedVersion(), "This is the fixed version");
         assertEquals(SemanticVersion.parse("3.0.0.1029-rc"), result.versionRange.getLowVersion(), "Package Version");
@@ -190,6 +195,7 @@ public class DependencyTest
         // WHEN
         Dependency result = Dependency.parseString(dependencyString);
         // THEN
+        assertNotNull(result);
         assertEquals("PACKAGE.ID", result.getId(), "Package ID");
         assertEquals(SemanticVersion.parse("2.5-a"), result.versionRange.getLowVersion(), "Lower Range");
         assertEquals(VersionRange.BorderType.INCLUDE, result.versionRange.getLowBorderType(), "Type Bottom Range");

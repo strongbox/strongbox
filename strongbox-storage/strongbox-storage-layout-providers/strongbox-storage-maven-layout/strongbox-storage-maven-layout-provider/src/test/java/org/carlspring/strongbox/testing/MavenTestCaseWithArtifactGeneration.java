@@ -18,7 +18,7 @@ import org.carlspring.strongbox.services.ConfigurationManagementService;
 import org.carlspring.strongbox.storage.repository.MavenRepositoryFactory;
 import org.carlspring.strongbox.storage.repository.RepositoryDto;
 import org.carlspring.strongbox.storage.repository.RepositoryTypeEnum;
-import org.carlspring.strongbox.storage.repository.remote.MutableRemoteRepository;
+import org.carlspring.strongbox.storage.repository.remote.RemoteRepositoryDto;
 import org.carlspring.strongbox.testing.artifact.MavenArtifactTestUtils;
 
 import javax.inject.Inject;
@@ -325,7 +325,7 @@ public class MavenTestCaseWithArtifactGeneration
                    JAXBException,
                    RepositoryManagementStrategyException
     {
-        MutableRemoteRepository remoteRepository = new MutableRemoteRepository();
+        RemoteRepositoryDto remoteRepository = new RemoteRepositoryDto();
         remoteRepository.setUrl(remoteRepositoryUrl);
 
         RepositoryDto repository = mavenRepositoryFactory.createRepository(repositoryId);

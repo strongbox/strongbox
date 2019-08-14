@@ -121,7 +121,7 @@ public class JwtAuthenticationTest
     {
         String url = getContextBaseUrl() + "/users";
 
-        // generate token that will expire after 1 second
+        // create token that will expire after 1 second
         String expiredToken = securityTokenProvider.getToken("admin", Collections.emptyMap(), 3, null);
 
         given().header(HttpHeaders.AUTHORIZATION, getAuthorizationHeader(expiredToken))
@@ -150,7 +150,7 @@ public class JwtAuthenticationTest
         String url = getContextBaseUrl() + "/users";
 
         NumericDate futureNumericDate = NumericDate.now();
-        // add five minutes to the current time to generate a JWT issued in the future
+        // add five minutes to the current time to create a JWT issued in the future
         futureNumericDate.addSeconds(300);
 
         String token = securityTokenProvider.getToken("admin", Collections.emptyMap(), 10, futureNumericDate);

@@ -17,6 +17,7 @@ import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.function.Consumer;
 
 import org.apache.commons.lang3.StringUtils;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.TestInfo;
 import org.springframework.context.ApplicationContext;
 import org.springframework.context.ApplicationListener;
@@ -111,6 +112,7 @@ public class BaseCronJobWithMavenIndexingTestCase
         return cronTaskConfigurations.put(key, value);
     }
 
+    @BeforeEach
     public void init(final TestInfo testInfo)
             throws Exception
     {

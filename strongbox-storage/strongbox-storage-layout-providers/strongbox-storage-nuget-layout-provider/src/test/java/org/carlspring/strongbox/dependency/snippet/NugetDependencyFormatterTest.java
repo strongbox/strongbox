@@ -18,6 +18,7 @@ import static org.junit.jupiter.api.parallel.ExecutionMode.CONCURRENT;
 
 /**
  * @author carlspring
+ * @author Pablo Tirado
  */
 @SpringBootTest
 @ActiveProfiles(profiles = "test")
@@ -29,18 +30,18 @@ public class NugetDependencyFormatterTest
     @Inject
     private CompatibleDependencyFormatRegistry compatibleDependencyFormatRegistry;
 
-
     @Test
     public void testGradleDependencyGeneration()
             throws ProviderImplementationException
     {
-        DependencySynonymFormatter formatter = compatibleDependencyFormatRegistry.getProviderImplementation(NugetLayoutProvider.ALIAS,
-                                                                                                            NugetDependencyFormatter.ALIAS);
+        DependencySynonymFormatter formatter = compatibleDependencyFormatRegistry.getProviderImplementation(
+                NugetLayoutProvider.ALIAS,
+                NugetDependencyFormatter.ALIAS);
+
         assertNotNull(formatter, "Failed to look up dependency synonym formatter!");
 
-        NugetArtifactCoordinates coordinates = new NugetArtifactCoordinates();
-        coordinates.setId("Org.Carlspring.Strongbox.NuGet.Snippet");
-        coordinates.setVersion("1.0");
+        NugetArtifactCoordinates coordinates = new NugetArtifactCoordinates("Org.Carlspring.Strongbox.NuGet.Snippet",
+                                                                            "1.0");
 
         String snippet = formatter.getDependencySnippet(coordinates);
 

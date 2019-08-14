@@ -27,7 +27,6 @@ import org.hamcrest.Matchers;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-import org.junit.jupiter.api.TestInfo;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.ContextConfiguration;
@@ -63,14 +62,6 @@ public class CleanupExpiredArtifactsFromProxyRepositoriesCronJobTestIT
     private String repositoryId = "maven-central";
 
     private String path = "org/carlspring/properties-injector/1.5/properties-injector-1.5.jar";
-
-    @Override
-    @BeforeEach
-    public void init(TestInfo testInfo)
-            throws Exception
-    {
-        super.init(testInfo);
-    }
 
     @BeforeEach
     @AfterEach

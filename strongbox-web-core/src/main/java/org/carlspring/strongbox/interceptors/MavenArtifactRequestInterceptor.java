@@ -13,6 +13,7 @@ import java.nio.file.Files;
 import java.util.Map;
 
 import org.apache.commons.lang3.StringUtils;
+import org.apache.maven.index.context.IndexingContext;
 import org.springframework.web.servlet.HandlerMapping;
 import static org.carlspring.strongbox.artifact.coordinates.MavenArtifactCoordinates.LAYOUT_NAME;
 import static org.carlspring.strongbox.storage.metadata.MetadataHelper.*;
@@ -63,9 +64,11 @@ public class MavenArtifactRequestInterceptor
             response.sendError(BAD_REQUEST.value(), "The specified path is a directory!");
             return false;
         }
-        if (MAVEN_METADATA_XML.equals(repositoryPath.getFileName().toString()) ||
-            MAVEN_METADATA_XML_CHECKSUM_MD5.equals(repositoryPath.getFileName().toString()) ||
-            MAVEN_METADATA_XML_CHECKSUM_SHA1.equals(repositoryPath.getFileName().toString()))
+        final String filename = repositoryPath.getFileName().toString();
+        if (MAVEN_METADATA_XML.equals(filename) ||
+            MAVEN_METADATA_XML_CHECKSUM_MD5.equals(filename) ||
+            MAVEN_METADATA_XML_CHECKSUM_SHA1.equals(filename) ||
+            filename.startsWith(IndexingContext.INDEX_FILE_PREFIX))
         {
             return true;
         }

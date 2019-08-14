@@ -17,19 +17,19 @@
 
 package org.carlspring.strongbox.storage.metadata.nuget;
 
-import org.carlspring.strongbox.storage.metadata.nuget.AssemblyTargetFrameworkAdapter;
-import org.carlspring.strongbox.storage.metadata.nuget.Framework;
-
 import java.util.EnumSet;
 
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.parallel.Execution;
 import static org.junit.jupiter.api.Assertions.assertNull;
+import static org.junit.jupiter.api.parallel.ExecutionMode.CONCURRENT;
 
 /**
  * Tests collection of assemblies included in the delivery of Frameworks
  * 
  * @author sviridov
  */
+@Execution(CONCURRENT)
 public class FrameworkAssemblyTest
 {
 

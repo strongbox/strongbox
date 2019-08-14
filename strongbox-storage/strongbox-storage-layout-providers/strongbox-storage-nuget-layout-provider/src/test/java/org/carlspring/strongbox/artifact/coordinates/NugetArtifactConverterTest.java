@@ -5,6 +5,9 @@ import org.junit.jupiter.api.parallel.Execution;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.parallel.ExecutionMode.CONCURRENT;
 
+/**
+ * @author Pablo Tirado
+ */
 @Execution(CONCURRENT)
 public class NugetArtifactConverterTest
 {

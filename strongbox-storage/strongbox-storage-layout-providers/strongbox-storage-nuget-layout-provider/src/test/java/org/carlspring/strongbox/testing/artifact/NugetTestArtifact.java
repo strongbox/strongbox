@@ -50,10 +50,5 @@ public @interface NugetTestArtifact
      */
     @AliasFor(annotation = TestArtifact.class)
     String[] versions() default {};
-    
-    /**
-     * NuGet artifact packaging.
-     */
-    String packaging() default "nupkg";
 
 }

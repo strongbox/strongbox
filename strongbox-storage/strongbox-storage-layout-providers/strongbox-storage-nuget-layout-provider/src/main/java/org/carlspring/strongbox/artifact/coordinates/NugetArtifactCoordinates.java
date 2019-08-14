@@ -36,6 +36,8 @@ public class NugetArtifactCoordinates
 
     public static final String EXTENSION = "extension";
 
+    private static final String DEFAULT_EXTENSION = "nupkg";
+
     private static final String NUGET_PACKAGE_REGEXP_PATTERN = "([a-zA-Z0-9_.-]+)/([a-zA-Z0-9_.-]+)/([a-zA-Z0-9_.-]+).(nupkg|nuspec|nupkg\\.sha512)";
 
     private static final Pattern NUGET_PACKAGE_REGEXP = Pattern.compile(NUGET_PACKAGE_REGEXP_PATTERN);
@@ -44,6 +46,12 @@ public class NugetArtifactCoordinates
     public NugetArtifactCoordinates()
     {
         resetCoordinates(ID, VERSION, EXTENSION);
+    }
+
+    public NugetArtifactCoordinates(String id,
+                                    String version)
+    {
+        this(id, version, DEFAULT_EXTENSION);
     }
 
     public NugetArtifactCoordinates(String id,
@@ -156,12 +164,7 @@ public class NugetArtifactCoordinates
         Assert.isTrue(String.format("%s.%s", packageId, version).startsWith(packageArtifactName),
                       String.format("Illegal artifact path [%s].", path));
 
-        NugetArtifactCoordinates result = new NugetArtifactCoordinates();
-        result.setId(packageId);
-        result.setVersion(version);
-        result.setType(packageArtifactType);
-        
-        return result;
+        return new NugetArtifactCoordinates(packageId, version, packageArtifactType);
     }
     
 }

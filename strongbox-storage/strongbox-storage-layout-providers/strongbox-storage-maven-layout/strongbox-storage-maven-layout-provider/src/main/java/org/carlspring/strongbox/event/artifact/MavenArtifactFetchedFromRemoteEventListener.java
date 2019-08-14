@@ -13,7 +13,6 @@ import org.carlspring.strongbox.providers.repository.proxied.ProxyRepositoryInpu
 import org.carlspring.strongbox.providers.repository.proxied.RestArtifactResolverFactory;
 import org.carlspring.strongbox.storage.metadata.MetadataHelper;
 import org.carlspring.strongbox.storage.metadata.MetadataType;
-import org.carlspring.strongbox.storage.repository.RepositoryData;
 import org.carlspring.strongbox.storage.repository.Repository;
 import org.carlspring.strongbox.storage.repository.remote.RemoteRepository;
 
@@ -107,7 +106,7 @@ public class MavenArtifactFetchedFromRemoteEventListener
             throws Exception
     {
         Repository repository = metadataPath.getRepository();
-        RemoteRepository remoteRepository = ((RepositoryData)repository).getRemoteRepository();
+        RemoteRepository remoteRepository = repository.getRemoteRepository();
         RestArtifactResolver client = restArtifactResolverFactory.newInstance(remoteRepository);
         
         Lock lock = repositoryPathLock.lock(metadataPath).writeLock();

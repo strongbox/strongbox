@@ -9,13 +9,12 @@ import org.carlspring.strongbox.services.ConfigurationManagementService;
 import org.carlspring.strongbox.services.RepositoryManagementService;
 import org.carlspring.strongbox.services.StorageManagementService;
 import org.carlspring.strongbox.services.support.ConfigurationException;
-import org.carlspring.strongbox.storage.StorageDto;
 import org.carlspring.strongbox.storage.Storage;
+import org.carlspring.strongbox.storage.StorageDto;
 import org.carlspring.strongbox.storage.Views;
-import org.carlspring.strongbox.storage.indexing.RepositoryIndexManager;
+import org.carlspring.strongbox.storage.repository.Repository;
 import org.carlspring.strongbox.storage.repository.RepositoryData;
 import org.carlspring.strongbox.storage.repository.RepositoryDto;
-import org.carlspring.strongbox.storage.repository.Repository;
 import org.carlspring.strongbox.validation.RequestBodyValidationException;
 import org.carlspring.strongbox.web.RepositoryMapping;
 
@@ -24,7 +23,6 @@ import java.io.IOException;
 import java.nio.file.Files;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Optional;
 
 import com.fasterxml.jackson.annotation.JsonView;
 import io.swagger.annotations.*;
@@ -76,29 +74,21 @@ public class StoragesConfigurationController
 
     private static final String FAILED_REPOSITORY_REMOVAL = "Failed to remove the repository !";
 
-    private static final String REPOSITORY_NOT_FOUND = "The repository was not found.";
-
-    private static final String FAILED_GET_REPOSITORY = "Failed to get the repository !";
-
     private final StorageManagementService storageManagementService;
 
     private final RepositoryManagementService repositoryManagementService;
-
-    private final Optional<RepositoryIndexManager> repositoryIndexManager;
 
     private final ConversionService conversionService;
 
     public StoragesConfigurationController(ConfigurationManagementService configurationManagementService,
                                            StorageManagementService storageManagementService,
                                            RepositoryManagementService repositoryManagementService,
-                                           ConversionService conversionService,
-                                           Optional<RepositoryIndexManager> repositoryIndexManager)
+                                           ConversionService conversionService)
     {
         super(configurationManagementService);
         this.storageManagementService = storageManagementService;
         this.repositoryManagementService = repositoryManagementService;
         this.conversionService = conversionService;
-        this.repositoryIndexManager = repositoryIndexManager;
     }
 
     @ApiOperation(value = "Adds a storage.")
@@ -221,9 +211,6 @@ public class StoragesConfigurationController
         {
             try
             {
-                repositoryIndexManager.ifPresent(
-                        repositoryIndexManager -> repositoryIndexManager.closeIndexersForStorage(storageId));
-
                 if (force)
                 {
                     storageManagementService.removeStorage(storageId);
@@ -327,11 +314,6 @@ public class StoragesConfigurationController
         final String repositoryId = repository.getId();
         try
         {
-            if (repositoryIndexManager.isPresent())
-            {
-                repositoryIndexManager.get().closeIndexer(storageId + ":" + repositoryId);
-            }
-
             final RepositoryPath repositoryPath = repositoryPathResolver.resolve(repository);
             if (Files.exists(repositoryPath) && force)
             {

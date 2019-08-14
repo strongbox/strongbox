@@ -1,5 +1,12 @@
 package org.carlspring.strongbox.testing;
 
+import java.io.IOException;
+import java.io.OutputStream;
+import java.nio.file.Files;
+
+import javax.inject.Inject;
+import javax.xml.bind.JAXBException;
+
 import org.carlspring.commons.io.RandomInputStream;
 import org.carlspring.strongbox.event.artifact.ArtifactEventListenerRegistry;
 import org.carlspring.strongbox.providers.io.RepositoryPath;
@@ -12,12 +19,6 @@ import org.carlspring.strongbox.storage.StorageDto;
 import org.carlspring.strongbox.storage.repository.Repository;
 import org.carlspring.strongbox.storage.repository.RepositoryData;
 import org.carlspring.strongbox.storage.repository.RepositoryDto;
-
-import javax.inject.Inject;
-import javax.xml.bind.JAXBException;
-import java.io.IOException;
-import java.io.OutputStream;
-import java.nio.file.Files;
 
 /**
  * @author carlspring

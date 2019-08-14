@@ -1,31 +1,38 @@
 package org.carlspring.strongbox.controllers.layout.nuget;
 
+import org.carlspring.strongbox.artifact.coordinates.NugetArtifactCoordinates;
 import org.carlspring.strongbox.config.IntegrationTest;
 import org.carlspring.strongbox.domain.ArtifactEntry;
 import org.carlspring.strongbox.domain.RemoteArtifactEntry;
-import org.carlspring.strongbox.providers.layout.NugetLayoutProvider;
+import org.carlspring.strongbox.providers.io.RepositoryFiles;
+import org.carlspring.strongbox.providers.io.RepositoryPath;
 import org.carlspring.strongbox.rest.common.NugetRestAssuredBaseTest;
 import org.carlspring.strongbox.services.ArtifactEntryService;
 import org.carlspring.strongbox.storage.metadata.nuget.rss.PackageFeed;
-import org.carlspring.strongbox.storage.repository.RepositoryDto;
-import org.carlspring.strongbox.storage.repository.NugetRepositoryFactory;
-import org.carlspring.strongbox.storage.repository.RepositoryPolicyEnum;
+import org.carlspring.strongbox.storage.repository.Repository;
+import org.carlspring.strongbox.testing.artifact.ArtifactManagementTestExecutionListener;
+import org.carlspring.strongbox.testing.artifact.NugetTestArtifact;
+import org.carlspring.strongbox.testing.repository.NugetRepository;
+import org.carlspring.strongbox.testing.storage.repository.RepositoryManagementTestExecutionListener;
 
 import javax.inject.Inject;
 import java.io.OutputStream;
 import java.io.PrintStream;
 import java.nio.file.Files;
 import java.nio.file.Path;
-import java.util.*;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 
 import io.restassured.http.ContentType;
 import io.restassured.http.Header;
 import io.restassured.http.Headers;
 import io.restassured.module.mockmvc.config.RestAssuredMockMvcConfig;
 import io.restassured.module.mockmvc.specification.MockMvcRequestSpecification;
-import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
+import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import static io.restassured.module.mockmvc.RestAssuredMockMvc.given;
 import static org.hamcrest.CoreMatchers.equalTo;
@@ -33,11 +40,13 @@ import static org.junit.jupiter.api.Assertions.*;
 
 /**
  * @author Sergey Bespalov
- *
+ * @author Pablo Tirado
  */
 @IntegrationTest
 public class NugetArtifactControllerTest extends NugetRestAssuredBaseTest
 {
+
+    private static final String PACKAGE_ID_LAST_VERSION = "Org.Carlspring.Strongbox.Nuget.Test.LastVersion";
 
     private static final String API_KEY = "eyJhbGciOiJIUzI1NiJ9.eyJpc3MiOiJTdHJvbmdib3giLCJqdGkiOiJ0SExSbWU4eFJOSnJjN" +
                                           "XVXdTVkZDhRIiwic3ViIjoiYWRtaW4iLCJzZWN1cml0eS10b2tlbi1rZXkiOiJhZG1pbi1zZWN" +
@@ -48,25 +57,7 @@ public class NugetArtifactControllerTest extends NugetRestAssuredBaseTest
     private static final String REPOSITORY_RELEASES_1 = "nuget-test-releases";
 
     @Inject
-    private NugetRepositoryFactory nugetRepositoryFactory;
-
-    @Inject
     private ArtifactEntryService artifactEntryService;
-
-    @BeforeAll
-    public static void cleanUp()
-        throws Exception
-    {
-        cleanUp(getRepositoriesToClean());
-    }
-
-    public static Set<RepositoryDto> getRepositoriesToClean()
-    {
-        Set<RepositoryDto> repositories = new LinkedHashSet<>();
-        repositories.add(createRepositoryMock(STORAGE_ID, REPOSITORY_RELEASES_1, NugetLayoutProvider.ALIAS));
-
-        return repositories;
-    }
 
     @Override
     @BeforeEach
@@ -78,87 +69,90 @@ public class NugetArtifactControllerTest extends NugetRestAssuredBaseTest
         RestAssuredMockMvcConfig config = RestAssuredMockMvcConfig.config();
         config.getLogConfig().enableLoggingOfRequestAndResponseIfValidationFails();
         given().config(config);
-
-        createStorage(STORAGE_ID);
-
-        RepositoryDto repository1 = nugetRepositoryFactory.createRepository(REPOSITORY_RELEASES_1);
-        repository1.setPolicy(RepositoryPolicyEnum.RELEASE.getPolicy());
-
-        createRepository(STORAGE_ID, repository1);
     }
 
+    @ExtendWith({ RepositoryManagementTestExecutionListener.class,
+                  ArtifactManagementTestExecutionListener.class })
     @Test
-    public void testPackageDelete()
+    public void testPackageDelete(@NugetRepository(storageId = STORAGE_ID,
+                                                   repositoryId = REPOSITORY_RELEASES_1)
+                                  Repository repository,
+                                  @NugetTestArtifact(storageId = STORAGE_ID,
+                                                     repositoryId = REPOSITORY_RELEASES_1,
+                                                     id = "Org.Carlspring.Strongbox.Examples.Nuget.Mono.Delete",
+                                                     versions = "1.0.0")
+                                  Path packagePath)
         throws Exception
     {
-        String packageId = "Org.Carlspring.Strongbox.Examples.Nuget.Mono.Delete";
-        String packageVersion = "1.0.0";
-        Path packageFile = generateArtifactFile(packageId, packageVersion);
-        byte[] packageContent = readPackageContent(packageFile);
+        final String storageId = repository.getStorage().getId();
+        final String repositoryId = repository.getId();
 
-        // Push
-        createPushRequest(packageContent).when()
-                                         .put(getContextBaseUrl() + "/storages/" + STORAGE_ID + "/" +
-                                              REPOSITORY_RELEASES_1 + "/")
-                                         .peek()
-                                         .then()
-                                         .statusCode(HttpStatus.CREATED.value());
+        NugetArtifactCoordinates coordinates = (NugetArtifactCoordinates) RepositoryFiles.readCoordinates(
+                (RepositoryPath) packagePath.normalize());
 
         // Delete
-        given().header("User-Agent", "NuGet/*")
+        String url = getContextBaseUrl() + "/storages/{storageId}/{repositoryId}/{artifactId}/{artifactVersion}";
+        given().header(HttpHeaders.USER_AGENT, "NuGet/*")
                .header("X-NuGet-ApiKey", API_KEY)
                .when()
-               .delete(getContextBaseUrl() + "/storages/" + STORAGE_ID + "/" + REPOSITORY_RELEASES_1 + "/" +
-                       packageId + "/" + packageVersion)
+               .delete(url, storageId, repositoryId, coordinates.getId(), coordinates.getVersion())
                .peek()
                .then()
                .statusCode(HttpStatus.OK.value());
     }
 
+    @ExtendWith(RepositoryManagementTestExecutionListener.class)
     @Test
-    public void testGetMetadata()
+    public void testGetMetadata(@NugetRepository(storageId = STORAGE_ID,
+                                                 repositoryId = REPOSITORY_RELEASES_1)
+                                Repository repository)
     {
-        given().header("User-Agent", "NuGet/*")
+        final String storageId = repository.getStorage().getId();
+        final String repositoryId = repository.getId();
+
+        String url = getContextBaseUrl() + "/storages/{storageId}/{repositoryId}/$metadata;client=127.0.0.1";
+        given().header(HttpHeaders.USER_AGENT, "NuGet/*")
                .when()
-               .get(getContextBaseUrl() + "/storages/" + STORAGE_ID + "/" + REPOSITORY_RELEASES_1 +
-                    "/$metadata;client=127.0.0.1")
+               .get(url, storageId, repositoryId)
                .then()
                .statusCode(HttpStatus.OK.value());
     }
 
+    @ExtendWith({ RepositoryManagementTestExecutionListener.class,
+                  ArtifactManagementTestExecutionListener.class })
     @Test
-    public void testHeaderFetch()
+    public void testHeaderFetch(@NugetRepository(storageId = STORAGE_ID,
+                                                 repositoryId = REPOSITORY_RELEASES_1)
+                                Repository repository,
+                                @NugetTestArtifact(storageId = STORAGE_ID,
+                                                   repositoryId = REPOSITORY_RELEASES_1,
+                                                   id = "Org.Carlspring.Strongbox.Examples.Nuget.Mono.Header",
+                                                   versions = "1.0.0")
+                                Path packagePath)
             throws Exception
     {
         //Hosted repository
-        String packageId = "Org.Carlspring.Strongbox.Examples.Nuget.Mono.Header";
-        String packageVersion = "1.0.0";
-        Path packageFile = generateArtifactFile(packageId, packageVersion);
-        byte[] packageContent = readPackageContent(packageFile);
+        final String storageId = repository.getStorage().getId();
+        final String repositoryId = repository.getId();
 
-        createPushRequest(packageContent).when()
-                                         .put(getContextBaseUrl() + "/storages/" + STORAGE_ID + "/" +
-                                                 REPOSITORY_RELEASES_1 + "/")
-                                         .peek()
-                                         .then()
-                                         .statusCode(HttpStatus.CREATED.value());
+        NugetArtifactCoordinates coordinates = (NugetArtifactCoordinates) RepositoryFiles.readCoordinates(
+                (RepositoryPath) packagePath.normalize());
 
-
-
-        Headers headersFromGET = given().header("User-Agent", "NuGet/*")
+        String url = getContextBaseUrl() + "/storages/{storageId}/{repositoryId}/{artifactId}/{artifactVersion}";
+        Headers headersFromGET = given().header(HttpHeaders.USER_AGENT, "NuGet/*")
                                         .header("X-NuGet-ApiKey", API_KEY)
                                         .accept(ContentType.BINARY)
                                         .when()
-                                        .get(getContextBaseUrl() + "/storages/" + STORAGE_ID + "/" + REPOSITORY_RELEASES_1 + "/" +
-                                                packageId + "/" + packageVersion)
+                                        .get(url, storageId, repositoryId, coordinates.getId(),
+                                             coordinates.getVersion())
                                         .getHeaders();
 
-        Headers headersFromHEAD = given().header("User-Agent", "NuGet/*")
+        Headers headersFromHEAD = given().header(HttpHeaders.USER_AGENT, "NuGet/*")
                                          .header("X-NuGet-ApiKey", API_KEY)
                                          .accept(ContentType.BINARY)
                                          .when()
-                                         .head(getContextBaseUrl() + "/storages/" + STORAGE_ID + "/" + REPOSITORY_RELEASES_1 + "/" +
-                                                  packageId + "/" + packageVersion)
+                                         .head(url, storageId, repositoryId, coordinates.getId(),
+                                               coordinates.getVersion())
                                          .getHeaders();
 
         assertHeadersEquals(headersFromGET, headersFromHEAD);
@@ -169,38 +163,49 @@ public class NugetArtifactControllerTest extends NugetRestAssuredBaseTest
         assertNotNull(h1);
         assertNotNull(h2);
 
-        for(Header header : h1)
+        for (Header header : h1)
         {
-            if(h2.hasHeaderWithName(header.getName()))
+            if (h2.hasHeaderWithName(header.getName()))
             {
-                assertEquals(header.getValue(),h2.getValue(header.getName()));
+                assertEquals(header.getValue(), h2.getValue(header.getName()));
             }
         }
     }
 
+    @ExtendWith({ RepositoryManagementTestExecutionListener.class,
+                  ArtifactManagementTestExecutionListener.class })
     @Test
-    public void testPackageCommonFlow()
+    public void testPackageCommonFlow(@NugetRepository(storageId = STORAGE_ID,
+                                                       repositoryId = REPOSITORY_RELEASES_1)
+                                      Repository repository,
+                                      @NugetTestArtifact(id = "Org.Carlspring.Strongbox.Examples.Nuget.Mono",
+                                                         versions = "1.0.0")
+                                      Path packagePath)
         throws Exception
     {
-        String packageId = "Org.Carlspring.Strongbox.Examples.Nuget.Mono";
-        String packageVersion = "1.0.0";
-        Path packageFile = generateArtifactFile(packageId, packageVersion);
-        long packageSize = Files.size(packageFile);
-        byte[] packageContent = readPackageContent(packageFile);
+        final String storageId = repository.getStorage().getId();
+        final String repositoryId = repository.getId();
+        final String packageId = "Org.Carlspring.Strongbox.Examples.Nuget.Mono";
+        final String packageVersion = "1.0.0";
+
+        long packageSize = Files.size(packagePath);
+        byte[] packageContent = readPackageContent(packagePath);
 
         // Push
+        String url = getContextBaseUrl() + "/storages/{storageId}/{repositoryId}/";
         createPushRequest(packageContent)
                .when()
-               .put(getContextBaseUrl() + "/storages/" + STORAGE_ID + "/" + REPOSITORY_RELEASES_1 + "/")
+               .put(url, storageId, repositoryId)
                .peek()
                .then()
                .statusCode(HttpStatus.CREATED.value());
 
         //Find by ID
-        given().header("User-Agent", "NuGet/*")
+
+        url = getContextBaseUrl() + "/storages/{storageId}/{repositoryId}/FindPackagesById()?id='{artifactId}'";
+        given().header(HttpHeaders.USER_AGENT, "NuGet/*")
                .when()
-               .get(getContextBaseUrl() + "/storages/" + STORAGE_ID + "/" + REPOSITORY_RELEASES_1 +
-                       "/FindPackagesById()?id='Org.Carlspring.Strongbox.Examples.Nuget.Mono'")
+               .get(url, storageId, repositoryId, packageId)
                .then()
                .statusCode(HttpStatus.OK.value())
                .and()
@@ -208,7 +213,7 @@ public class NugetArtifactControllerTest extends NugetRestAssuredBaseTest
                .body("feed.title", equalTo("Packages"))
                .and()
                .assertThat()
-               .body("feed.entry[0].title", equalTo("Org.Carlspring.Strongbox.Examples.Nuget.Mono"));
+               .body("feed.entry[0].title", equalTo(packageId));
 
         // We need to mute `System.out` here manually because response body logging hardcoded in current version of
         // RestAssured, and we can not change it using configuration (@see `RestAssuredResponseOptionsGroovyImpl.peek(...)`).
@@ -216,26 +221,26 @@ public class NugetArtifactControllerTest extends NugetRestAssuredBaseTest
         try
         {
             // Get1
-            given().header("User-Agent", "NuGet/*")
+            url = getContextBaseUrl() + "/storages/{storageId}/{repositoryId}/download/{artifactId}/{artifactVersion}";
+            given().header(HttpHeaders.USER_AGENT, "NuGet/*")
                    .when()
-                   .get(getContextBaseUrl() + "/storages/" + STORAGE_ID + "/" + REPOSITORY_RELEASES_1 + "/download/" +
-                        packageId + "/" + packageVersion)
+                   .get(url, storageId, repositoryId, packageId, packageVersion)
                    .peek()
                    .then()
                    .statusCode(HttpStatus.OK.value())
                    .assertThat()
-                   .header("Content-Length", equalTo(String.valueOf(packageSize)));
+                   .header(HttpHeaders.CONTENT_LENGTH, equalTo(String.valueOf(packageSize)));
 
             // Get2
-            given().header("User-Agent", "NuGet/*")
+            url = getContextBaseUrl() + "/storages/{storageId}/{repositoryId}/{artifactId}/{artifactVersion}";
+            given().header(HttpHeaders.USER_AGENT, "NuGet/*")
                    .when()
-                   .get(getContextBaseUrl() + "/storages/" + STORAGE_ID + "/" + REPOSITORY_RELEASES_1 + "/" +
-                        packageId + "/" + packageVersion)
+                   .get(url, storageId, repositoryId, packageId, packageVersion)
                    .peek()
                    .then()
                    .statusCode(HttpStatus.OK.value())
                    .assertThat()
-                   .header("Content-Length", equalTo(String.valueOf(packageSize)));
+                   .header(HttpHeaders.CONTENT_LENGTH, equalTo(String.valueOf(packageSize)));
         }
         finally
         {
@@ -262,27 +267,28 @@ public class NugetArtifactControllerTest extends NugetRestAssuredBaseTest
         return original;
     }
 
+    @ExtendWith({ RepositoryManagementTestExecutionListener.class,
+                  ArtifactManagementTestExecutionListener.class })
     @Test
-    public void testPackageSearch()
+    public void testPackageSearch(@NugetRepository(storageId = STORAGE_ID,
+                                                   repositoryId = REPOSITORY_RELEASES_1)
+                                  Repository repository,
+                                  @NugetTestArtifact(storageId = STORAGE_ID,
+                                                     repositoryId = REPOSITORY_RELEASES_1,
+                                                     id = "Org.Carlspring.Strongbox.Nuget.Test.Search",
+                                                     versions = "1.0.0")
+                                  Path packagePath)
         throws Exception
     {
-        String packageId = "Org.Carlspring.Strongbox.Nuget.Test.Search";
-        String packageVersion = "1.0.0";
-        byte[] packageContent = readPackageContent(generateArtifactFile(packageId, packageVersion));
-
-        // Push
-        createPushRequest(packageContent).when()
-                                         .put(getContextBaseUrl() + "/storages/" + STORAGE_ID + "/" +
-                                              REPOSITORY_RELEASES_1 + "/")
-                                         .peek()
-                                         .then()
-                                         .statusCode(HttpStatus.CREATED.value());
+        final String storageId = repository.getStorage().getId();
+        final String repositoryId = repository.getId();
 
         // Count
-        given().header("User-Agent", "NuGet/*")
+        String url = getContextBaseUrl() +
+              "/storages/{storageId}/{repositoryId}/Search()/$count?searchTerm={searchTerm}&targetFramework=";
+        given().header(HttpHeaders.USER_AGENT, "NuGet/*")
                .when()
-               .get(getContextBaseUrl() + "/storages/" + STORAGE_ID + "/" + REPOSITORY_RELEASES_1 +
-                    String.format("/Search()/$count?searchTerm=%s&targetFramework=", "Test.Search"))
+               .get(url, storageId, repositoryId, "Test.Search")
                .then()
                .statusCode(HttpStatus.OK.value())
                .and()
@@ -291,11 +297,14 @@ public class NugetArtifactControllerTest extends NugetRestAssuredBaseTest
                .body(equalTo("1"));
 
         // Search
-        given().header("User-Agent", "NuGet/*")
+        NugetArtifactCoordinates coordinates = (NugetArtifactCoordinates) RepositoryFiles.readCoordinates(
+                (RepositoryPath) packagePath.normalize());
+
+        url = getContextBaseUrl() +
+              "/storages/{storageId}/{repositoryId}/Search()?$skip={skip}&$top={stop}&searchTerm={searchTerm}&targetFramework=";
+        given().header(HttpHeaders.USER_AGENT, "NuGet/*")
                .when()
-               .get(getContextBaseUrl() + "/storages/" + STORAGE_ID + "/" + REPOSITORY_RELEASES_1 +
-                    String.format("/Search()?$skip=%s&$top=%s&searchTerm=%s&targetFramework=",
-                                  0, 30, "Test.Search"))
+               .get(url, storageId, repositoryId, 0, 30, "Test.Search")
                .then()
                .statusCode(HttpStatus.OK.value())
                .and()
@@ -303,34 +312,44 @@ public class NugetArtifactControllerTest extends NugetRestAssuredBaseTest
                .body("feed.title", equalTo("Packages"))
                .and()
                .assertThat()
-               .body("feed.entry[0].title", equalTo("Org.Carlspring.Strongbox.Nuget.Test.Search"));
+               .body("feed.entry[0].title", equalTo(coordinates.getId()));
     }
 
+    @ExtendWith({ RepositoryManagementTestExecutionListener.class,
+                  ArtifactManagementTestExecutionListener.class })
     @Test
-    public void testLastVersionPackageSearch()
+    public void testLastVersionPackageSearch(@NugetRepository(storageId = STORAGE_ID,
+                                                              repositoryId = REPOSITORY_RELEASES_1)
+                                             Repository repository,
+                                             @NugetTestArtifact(id = PACKAGE_ID_LAST_VERSION,
+                                                                versions = { "1.0.0",
+                                                                             "2.0.0" })
+                                             List<Path> packagePaths)
         throws Exception
     {
-        String packageId = "Org.Carlspring.Strongbox.Nuget.Test.LastVersion";
-        String packageVersion = "1.0.0";
-        byte[] packageContent = readPackageContent(generateArtifactFile(packageId, packageVersion));
+        final String storageId = repository.getStorage().getId();
+        final String repositoryId = repository.getId();
 
-        // Push
-        createPushRequest(packageContent).when()
-                                         .put(getContextBaseUrl() + "/storages/" + STORAGE_ID + "/" +
-                                                 REPOSITORY_RELEASES_1 + "/")
-                                         .peek()
-                                         .then()
-                                         .statusCode(HttpStatus.CREATED.value());
-
-        String filter = String.format("tolower(Id) eq '%s' and IsLatestVersion", packageId.toLowerCase());
+        String filter = String.format("tolower(Id) eq '%s' and IsLatestVersion", PACKAGE_ID_LAST_VERSION.toLowerCase());
 
         // VERSION 1.0.0
-        // Count
-        given().header("User-Agent", "NuGet/*")
+        Path packagePathV1 = packagePaths.get(0);
+        byte[] packageContent = readPackageContent(packagePathV1);
+        // Push
+        String url = getContextBaseUrl() + "/storages/{storageId}/{repositoryId}/";
+        createPushRequest(packageContent)
                .when()
-               .get(getContextBaseUrl() + "/storages/" + STORAGE_ID + "/" + REPOSITORY_RELEASES_1 +
-                       String.format("/Search()/$count?$filter=%s&targetFramework=",
-                                     filter))
+               .put(url, storageId, repositoryId)
+               .peek()
+               .then()
+               .statusCode(HttpStatus.CREATED.value());
+
+        // Count
+        url = getContextBaseUrl() +
+              "/storages/{storageId}/{repositoryId}/Search()/$count?$filter={filter}&targetFramework=";
+        given().header(HttpHeaders.USER_AGENT, "NuGet/*")
+               .when()
+               .get(url, storageId, repositoryId, filter)
                .then()
                .statusCode(HttpStatus.OK.value())
                .and()
@@ -338,11 +357,11 @@ public class NugetArtifactControllerTest extends NugetRestAssuredBaseTest
                .body(equalTo("1"));
 
         // Search
-        given().header("User-Agent", "NuGet/*")
+        url = getContextBaseUrl() +
+              "/storages/{storageId}/{repositoryId}/Search()?$filter{filter}&$skip{skip}&$top={stop}&targetFramework=";
+        given().header(HttpHeaders.USER_AGENT, "NuGet/*")
                .when()
-               .get(getContextBaseUrl() + "/storages/" + STORAGE_ID + "/" + REPOSITORY_RELEASES_1 +
-                       String.format("/Search()?$filter=%s&$skip=%s&$top=%s&targetFramework=",
-                                     filter, 0, 30))
+               .get(url, storageId, repositoryId, filter, 0, 30)
                .then()
                .statusCode(HttpStatus.OK.value())
                .and()
@@ -350,25 +369,27 @@ public class NugetArtifactControllerTest extends NugetRestAssuredBaseTest
                .body("feed.title", equalTo("Packages"))
                .and()
                .assertThat()
-               .body("feed.entry[0].title", equalTo(packageId))
-               .body("feed.entry[0].properties.Version", equalTo(packageVersion));
+               .body("feed.entry[0].title", equalTo(PACKAGE_ID_LAST_VERSION))
+               .body("feed.entry[0].properties.Version", equalTo("1.0.0"));
 
         // VERSION 2.0.0
-        packageVersion = "2.0.0";
-        packageContent = readPackageContent(generateArtifactFile(packageId, packageVersion));
-        createPushRequest(packageContent).when()
-                                         .put(getContextBaseUrl() + "/storages/" + STORAGE_ID + "/" +
-                                                 REPOSITORY_RELEASES_1 + "/")
-                                         .peek()
-                                         .then()
-                                         .statusCode(HttpStatus.CREATED.value());
-
-        // Count
-        given().header("User-Agent", "NuGet/*")
+        Path packagePathV2 = packagePaths.get(1);
+        packageContent = readPackageContent(packagePathV2);
+        // Push
+        url = getContextBaseUrl() + "/storages/{storageId}/{repositoryId}/";
+        createPushRequest(packageContent)
                .when()
-               .get(getContextBaseUrl() + "/storages/" + STORAGE_ID + "/" + REPOSITORY_RELEASES_1 +
-                       String.format("/Search()/$count?$filter=%s&targetFramework=",
-                                     filter))
+               .put(url, storageId, repositoryId)
+               .peek()
+               .then()
+               .statusCode(HttpStatus.CREATED.value());
+        
+        // Count
+        url = getContextBaseUrl() +
+              "/storages/{storageId}/{repositoryId}/Search()/$count?$filter={filter}&targetFramework=";
+        given().header(HttpHeaders.USER_AGENT, "NuGet/*")
+               .when()
+               .get(url, storageId, repositoryId, filter)
                .then()
                .statusCode(HttpStatus.OK.value())
                .and()
@@ -376,11 +397,11 @@ public class NugetArtifactControllerTest extends NugetRestAssuredBaseTest
                .body(equalTo("1"));
 
         // Search
-        given().header("User-Agent", "NuGet/*")
+        url = getContextBaseUrl() +
+              "/storages/{storageId}/{repositoryId}/Search()?$filter={filter}&$skip={skip}&$top={stop}&targetFramework=";
+        given().header(HttpHeaders.USER_AGENT, "NuGet/*")
                .when()
-               .get(getContextBaseUrl() + "/storages/" + STORAGE_ID + "/" + REPOSITORY_RELEASES_1 +
-                       String.format("/Search()?$filter=%s&$skip=%s&$top=%s&targetFramework=",
-                                     filter.toString(), 0, 30))
+               .get(url, storageId, repositoryId, filter, 0, 30)
                .then()
                .statusCode(HttpStatus.OK.value())
                .and()
@@ -388,24 +409,28 @@ public class NugetArtifactControllerTest extends NugetRestAssuredBaseTest
                .body("feed.title", equalTo("Packages"))
                .and()
                .assertThat()
-               .body("feed.entry[0].title", equalTo(packageId))
-               .body("feed.entry[0].properties.Version", equalTo(packageVersion));
+               .body("feed.entry[0].title", equalTo(PACKAGE_ID_LAST_VERSION))
+               .body("feed.entry[0].properties.Version", equalTo("2.0.0"));
     }
 
     public MockMvcRequestSpecification createPushRequest(byte[] packageContent)
     {
-        return given().header("User-Agent", "NuGet/*")
+        return given().header(HttpHeaders.USER_AGENT, "NuGet/*")
                       .header("X-NuGet-ApiKey", API_KEY)
-                      .header("Content-Type", "multipart/form-data; boundary=---------------------------123qwe")
+                      .contentType("multipart/form-data; boundary=---------------------------123qwe")
                       .body(packageContent);
     }
 
     @Test
     public void testRemoteProxyGroup()
     {
-        given().header("User-Agent", "NuGet/*")
+        final String packageId = "NHibernate";
+        final String packageVersion =  "4.1.1.4000";
+
+        String url = getContextBaseUrl() + "/storages/public/nuget-group/FindPackagesById()?id={artifactId}";
+        given().header(HttpHeaders.USER_AGENT, "NuGet/*")
                .when()
-               .get(getContextBaseUrl() + "/storages/public/nuget-group/FindPackagesById()?id=NHibernate")
+               .get(url, packageId)
                .then()
                .statusCode(HttpStatus.OK.value())
                .and()
@@ -413,14 +438,17 @@ public class NugetArtifactControllerTest extends NugetRestAssuredBaseTest
                .body("feed.title", equalTo("Packages"))
                .and()
                .assertThat()
-               .body("feed.entry[0].title", equalTo("NHibernate"));
+               .body("feed.entry[0].title", equalTo(packageId));
 
-        Map<String, String> coordinates = new HashMap<>();
-        coordinates.put("id", "NHibernate");
-        coordinates.put("version", "4.1.1.4000");
+        Map<String, String> coordinatesMap = new HashMap<>();
+        coordinatesMap.put("id", packageId);
+        coordinatesMap.put("version", packageVersion);
 
-        List<ArtifactEntry> artifactEntryList = artifactEntryService.findArtifactList("storage-common-proxies", "nuget.org", coordinates, true);
-        assertTrue(artifactEntryList.size() > 0);
+        List<ArtifactEntry> artifactEntryList = artifactEntryService.findArtifactList("storage-common-proxies",
+                                                                                      "nuget.org",
+                                                                                      coordinatesMap,
+                                                                                      true);
+        assertFalse(artifactEntryList.isEmpty());
 
         ArtifactEntry artifactEntry = artifactEntryList.iterator().next();
         assertTrue(artifactEntry instanceof RemoteArtifactEntry);
@@ -429,14 +457,15 @@ public class NugetArtifactControllerTest extends NugetRestAssuredBaseTest
         PrintStream originalSysOut = muteSystemOutput();
         try
         {
-            given().header("User-Agent", "NuGet/*")
+            url = getContextBaseUrl() + "/storages/public/nuget-group/package/{artifactId}/{artifactVersion}";
+            given().header(HttpHeaders.USER_AGENT, "NuGet/*")
                    .when()
-                   .get(getContextBaseUrl() + "/storages/public/nuget-group/package/NHibernate/4.1.1.4000")
+                   .get(url, packageId, packageVersion)
                    .peek()
                    .then()
                    .statusCode(HttpStatus.OK.value())
                    .assertThat()
-                   .header("Content-Length", equalTo(String.valueOf(1499857)));
+                   .header(HttpHeaders.CONTENT_LENGTH, equalTo(String.valueOf(1499857)));
         }
         finally
         {
@@ -447,12 +476,13 @@ public class NugetArtifactControllerTest extends NugetRestAssuredBaseTest
     @Test
     public void testRemoteLastVersion()
     {
+        String url = getContextBaseUrl()
+                     + "/storages/public/nuget-group/FindPackagesById()?id=NHibernate&$orderby=Version";
         PackageFeed feed = given().log()
                                   .all()
-                                  .header("User-Agent", "NuGet/*")
+                                  .header(HttpHeaders.USER_AGENT, "NuGet/*")
                                   .when()
-                                  .get(getContextBaseUrl()
-                                          + "/storages/public/nuget-group/FindPackagesById()?id=NHibernate&$orderby=Version")
+                                  .get(url)
                                   .body()
                                   .as(PackageFeed.class);
 

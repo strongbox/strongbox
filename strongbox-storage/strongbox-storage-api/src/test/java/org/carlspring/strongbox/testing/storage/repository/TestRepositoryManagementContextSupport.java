@@ -55,13 +55,7 @@ public abstract class TestRepositoryManagementContextSupport<T extends Annotatio
             return false;
         }
 
-        boolean applying = testRepositoryManagementContext.tryToApply(type, parameterContext);
-        if (!applying)
-        {
-            testRepositoryManagementContext.refresh();
-        }
-
-        return applying;
+        return testRepositoryManagementContext.tryToApply(type, parameterContext);
     }
 
 }

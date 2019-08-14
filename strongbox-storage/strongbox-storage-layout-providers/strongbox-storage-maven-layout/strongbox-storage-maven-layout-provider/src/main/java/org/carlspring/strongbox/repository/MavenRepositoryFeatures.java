@@ -1,7 +1,6 @@
 package org.carlspring.strongbox.repository;
 
 import org.carlspring.strongbox.artifact.locator.ArtifactDirectoryLocator;
-import org.carlspring.strongbox.config.MavenIndexerDisabledCondition;
 import org.carlspring.strongbox.configuration.Configuration;
 import org.carlspring.strongbox.configuration.ConfigurationManager;
 import org.carlspring.strongbox.locator.handlers.RemoveTimestampedSnapshotOperation;
@@ -15,6 +14,7 @@ import org.carlspring.strongbox.storage.repository.RepositoryPolicyEnum;
 import org.carlspring.strongbox.storage.validation.deployment.RedeploymentValidator;
 import org.carlspring.strongbox.storage.validation.version.MavenReleaseVersionValidator;
 import org.carlspring.strongbox.storage.validation.version.MavenSnapshotVersionValidator;
+import org.carlspring.strongbox.yaml.configuration.repository.MavenRepositoryConfiguration;
 
 import javax.annotation.PostConstruct;
 import javax.inject.Inject;
@@ -25,14 +25,12 @@ import java.util.Set;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.context.annotation.Conditional;
 import org.springframework.stereotype.Component;
 
 /**
  * @author carlspring
  */
 @Component
-@Conditional(MavenIndexerDisabledCondition.class)
 public class MavenRepositoryFeatures
         implements RepositoryFeatures
 {
@@ -108,4 +106,9 @@ public class MavenRepositoryFeatures
         return defaultArtifactCoordinateValidators;
     }
 
+    public boolean isIndexingEnabled(Repository repository)
+    {
+        MavenRepositoryConfiguration repositoryConfiguration = (MavenRepositoryConfiguration) repository.getRepositoryConfiguration();
+        return repositoryConfiguration != null && repositoryConfiguration.isIndexingEnabled();
+    }
 }

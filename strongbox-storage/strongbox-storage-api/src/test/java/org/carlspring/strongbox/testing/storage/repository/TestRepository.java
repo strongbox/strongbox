@@ -3,6 +3,7 @@ package org.carlspring.strongbox.testing.storage.repository;
 import org.carlspring.strongbox.storage.Storage;
 import org.carlspring.strongbox.storage.repository.Repository;
 import org.carlspring.strongbox.storage.repository.RepositoryPolicyEnum;
+import org.carlspring.strongbox.storage.repository.remote.RemoteRepository;
 import org.carlspring.strongbox.storage.routing.RoutingRuleTypeEnum;
 
 import java.lang.annotation.*;
@@ -65,7 +66,7 @@ public @interface TestRepository
     boolean cleanup() default true;
 
     /**
-     * {@link org.carlspring.strongbox.storage.repository.remote.RemoteRepository}
+     * {@link RemoteRepository}
      * configuration support.
      * 
      * @author sbespalov

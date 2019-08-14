@@ -17,6 +17,13 @@
 
 package org.carlspring.strongbox.storage.metadata.nuget.rss;
 
+import org.carlspring.strongbox.artifact.coordinates.versioning.SemanticVersion;
+import org.carlspring.strongbox.storage.metadata.nuget.NugetTestResourceUtil;
+
+import javax.xml.transform.Transformer;
+import javax.xml.transform.TransformerFactory;
+import javax.xml.transform.sax.SAXSource;
+import javax.xml.transform.stream.StreamResult;
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.InputStream;
@@ -24,20 +31,14 @@ import java.io.StringWriter;
 import java.util.HashMap;
 import java.util.Map;
 
-import javax.xml.transform.Transformer;
-import javax.xml.transform.TransformerFactory;
-import javax.xml.transform.sax.SAXSource;
-import javax.xml.transform.stream.StreamResult;
-
-import org.carlspring.strongbox.artifact.coordinates.versioning.SemanticVersion;
-import org.carlspring.strongbox.storage.metadata.nuget.NugetTestResourceUtil;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.parallel.Execution;
 import org.xml.sax.InputSource;
 import org.xml.sax.XMLReader;
 import org.xml.sax.helpers.XMLReaderFactory;
-
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.junit.jupiter.api.parallel.ExecutionMode.CONCURRENT;
 
 /**
  * Filter test that carries the declaration of the specified namespace prefixes
@@ -46,6 +47,7 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
  *
  * @author sviridov
  */
+@Execution(CONCURRENT)
 public class NugetPrefixFilterTest
 {
 

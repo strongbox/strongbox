@@ -15,8 +15,8 @@ import org.carlspring.strongbox.json.MapValuesJsonSerializer;
 import org.carlspring.strongbox.json.StringArrayToMapJsonDeserializer;
 import org.carlspring.strongbox.storage.StorageData;
 import org.carlspring.strongbox.storage.Storage;
-import org.carlspring.strongbox.storage.repository.remote.MutableRemoteRepository;
-import org.carlspring.strongbox.storage.repository.remote.RemoteRepository;
+import org.carlspring.strongbox.storage.repository.remote.RemoteRepositoryDto;
+import org.carlspring.strongbox.storage.repository.remote.RemoteRepositoryData;
 import org.carlspring.strongbox.yaml.repository.CustomRepositoryConfiguration;
 import org.carlspring.strongbox.yaml.repository.CustomRepositoryConfigurationDto;
 import org.carlspring.strongbox.yaml.repository.RepositoryConfiguration;
@@ -75,7 +75,7 @@ public class RepositoryData
 
     private ProxyConfiguration proxyConfiguration;
 
-    private RemoteRepository remoteRepository;
+    private RemoteRepositoryData remoteRepository;
 
     private HttpConnectionPool httpConnectionPool;
 
@@ -142,9 +142,9 @@ public class RepositoryData
         return source != null ? new ProxyConfiguration(source) : null;
     }
 
-    private RemoteRepository immuteRemoteRepository(final MutableRemoteRepository source)
+    private RemoteRepositoryData immuteRemoteRepository(final RemoteRepositoryDto source)
     {
-        return source != null ? new RemoteRepository(source) : null;
+        return source != null ? new RemoteRepositoryData(source) : null;
     }
 
     private Map<String, String> immuteGroupRepositories(final Set<String> source)
@@ -283,7 +283,7 @@ public class RepositoryData
         return proxyConfiguration;
     }
 
-    public RemoteRepository getRemoteRepository()
+    public RemoteRepositoryData getRemoteRepository()
     {
         return remoteRepository;
     }
