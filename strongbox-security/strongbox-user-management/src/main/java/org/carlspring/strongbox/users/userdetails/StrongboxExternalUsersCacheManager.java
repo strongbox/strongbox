@@ -13,7 +13,7 @@ import org.springframework.security.core.userdetails.UserDetails;
  * cache invalidation time, so when it expires then the external user should be
  * invalidated and deleted. So the value of {@link User#getLastUpdate()} updated
  * every time
- * {@link StrongboxExternalUsersCacheManager#updateExternalUserDetails(String, UserDetails)}
+ * {@link StrongboxExternalUsersCacheManager#cacheExternalUserDetails(String, UserDetails)}
  * method called, this extends the period during which the external user remains
  * valid.
  * 
@@ -45,8 +45,8 @@ public interface StrongboxExternalUsersCacheManager
      *            {@link User}
      * @return the cached {@link User} instance
      */
-    User updateExternalUserDetails(String externalSourceId,
-                                   UserDetails user);
+    User cacheExternalUserDetails(String externalSourceId,
+                                  UserDetails user);
 
     /**
      * Deletes stored {@link User} instance from strongbox users storage. This
