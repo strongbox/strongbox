@@ -167,7 +167,8 @@ public class OrientDbUserService extends CommonCrudService<UserEntry> implements
 
     @Override
     @CacheEvict(cacheNames = CacheName.User.AUTHENTICATIONS, key = "#p1.username")
-    public User cacheExternalUserDetails(String sourceId, UserDetails springUser)
+    public User cacheExternalUserDetails(String sourceId,
+                                         UserDetails springUser)
     {
         User user = springUser instanceof StrongboxUserDetails ? ((StrongboxUserDetails) springUser).getUser()
                 : new UserData(springUser);
@@ -177,6 +178,7 @@ public class OrientDbUserService extends CommonCrudService<UserEntry> implements
                                           getDelegate().detachAll(u);
                                           return u;
                                       })
+                                      .filter(u -> u.getSourceId().equals(sourceId))
                                       .orElseGet(() -> new UserEntry());
 
         if (!StringUtils.isBlank(user.getPassword()))
@@ -189,7 +191,7 @@ public class OrientDbUserService extends CommonCrudService<UserEntry> implements
         userEntry.setSecurityTokenKey(user.getSecurityTokenKey());
         userEntry.setLastUpdate(new Date());
         userEntry.setSourceId(sourceId);
-        
+
         return super.save(userEntry);
     }
     
