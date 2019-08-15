@@ -116,14 +116,13 @@ public class ConfigurableProviderManager extends ProviderManager implements User
     {
         User user = strongboxUserManager.findByUsername(username);
         Date userLastUpdate = Optional.ofNullable(user)
-                                      .filter(u -> StringUtils.isBlank(u.getSourceId()))
                                       .flatMap(u -> Optional.ofNullable(u.getLastUpdate()))
                                       .orElse(Date.from(Instant.EPOCH));
         
         Date userExpireDate = Date.from(Instant.ofEpochMilli(userLastUpdate.getTime())
                                                .plusSeconds(externalUsersInvalidateSeconds));
         Date nowDate = new Date();
-        if (user != null && nowDate.before(userExpireDate))
+        if (user != null && (StringUtils.isBlank(user.getSourceId()) || nowDate.before(userExpireDate)))
         {
             return Optional.of(user);
         }
