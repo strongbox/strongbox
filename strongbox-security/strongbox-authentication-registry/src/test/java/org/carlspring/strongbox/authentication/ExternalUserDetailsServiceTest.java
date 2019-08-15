@@ -20,7 +20,7 @@ import org.carlspring.strongbox.users.service.UserService;
 import org.carlspring.strongbox.users.service.impl.EncodedPasswordUser;
 import org.carlspring.strongbox.users.service.impl.OrientDbUserService.OrientDb;
 import org.carlspring.strongbox.users.service.impl.YamlUserService.Yaml;
-import org.carlspring.strongbox.users.userdetails.StrongboxUserManager;
+import org.carlspring.strongbox.users.userdetails.StrongboxExternalUsersCacheManager;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.test.context.SpringBootTest;
@@ -60,7 +60,7 @@ public class ExternalUserDetailsServiceTest
     private UserService yamlUserService;
 
     @Inject
-    private StrongboxUserManager strongboxUserManager;
+    private StrongboxExternalUsersCacheManager strongboxUserManager;
 
     @Inject
     private UserDetailsService userDetailsService;
