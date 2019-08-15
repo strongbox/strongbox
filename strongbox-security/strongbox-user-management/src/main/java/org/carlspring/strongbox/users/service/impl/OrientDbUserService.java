@@ -131,7 +131,18 @@ public class OrientDbUserService extends CommonCrudService<UserEntry> implements
     @Override
     public void revokeEveryone(String roleToRevoke)
     {
-        throw new UnsupportedOperationException("Not yet implemented");
+        Map<String, String> params = new HashMap<>();
+        params.put("role", roleToRevoke);
+
+        String sQuery = String.format("select * from %s where :role in roles", UserEntry.class.getSimpleName());
+
+        OSQLSynchQuery<ODocument> oQuery = new OSQLSynchQuery<>(sQuery);
+        List<UserEntry> resultList = getDelegate().command(oQuery).execute(params);
+        
+        resultList.stream().forEach(user -> {
+            detach(user).getRoles().remove(roleToRevoke);
+            save(user);
+        });
     }
 
     @Override
