@@ -167,7 +167,7 @@ public class OrientDbUserService extends CommonCrudService<UserEntry> implements
 
     @Override
     @CacheEvict(cacheNames = CacheName.User.AUTHENTICATIONS, key = "#p1.username")
-    public User updateExternalUserDetails(String sourceId, UserDetails springUser)
+    public User cacheExternalUserDetails(String sourceId, UserDetails springUser)
     {
         User user = springUser instanceof StrongboxUserDetails ? ((StrongboxUserDetails) springUser).getUser()
                 : new UserData(springUser);

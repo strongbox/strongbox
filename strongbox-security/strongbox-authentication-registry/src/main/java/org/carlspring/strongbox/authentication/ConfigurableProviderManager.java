@@ -134,7 +134,7 @@ public class ConfigurableProviderManager extends ProviderManager implements User
             UserDetailsService userDetailsService = userDetailsServiceEntry.getValue();
             try
             {
-                return Optional.of(strongboxUserManager.updateExternalUserDetails(sourceId,
+                return Optional.of(strongboxUserManager.cacheExternalUserDetails(sourceId,
                                                                                   userDetailsService.loadUserByUsername(username)));
             }
             catch (UsernameNotFoundException e)
