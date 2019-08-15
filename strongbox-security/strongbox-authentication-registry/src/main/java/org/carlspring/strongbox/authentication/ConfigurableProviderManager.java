@@ -24,7 +24,7 @@ import org.carlspring.strongbox.authentication.registry.AuthenticationProvidersR
 import org.carlspring.strongbox.authentication.registry.AuthenticationProvidersRegistry.MergePropertiesContext;
 import org.carlspring.strongbox.authentication.support.AuthenticationConfigurationContext;
 import org.carlspring.strongbox.users.dto.User;
-import org.carlspring.strongbox.users.userdetails.StrongboxUserManager;
+import org.carlspring.strongbox.users.userdetails.StrongboxExternalUsersCacheManager;
 import org.carlspring.strongbox.users.userdetails.UserDetailsMapper;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -62,7 +62,7 @@ public class ConfigurableProviderManager extends ProviderManager implements User
     private UserDetailsMapper userDetailsMapper;
 
     @Inject
-    private StrongboxUserManager strongboxUserManager;
+    private StrongboxExternalUsersCacheManager strongboxUserManager;
 
     private final Map<String, AuthenticationProvider> authenticationProviderMap = new HashMap<>();
 
@@ -115,14 +115,15 @@ public class ConfigurableProviderManager extends ProviderManager implements User
     private Optional<User> loadUserDetails(String username)
     {
         User user = strongboxUserManager.findByUsername(username);
-
         Date userLastUpdate = Optional.ofNullable(user)
+                                      .filter(u -> StringUtils.isBlank(u.getSourceId()))
                                       .flatMap(u -> Optional.ofNullable(u.getLastUpdate()))
                                       .orElse(Date.from(Instant.EPOCH));
+        
         Date userExpireDate = Date.from(Instant.ofEpochMilli(userLastUpdate.getTime())
                                                .plusSeconds(externalUsersInvalidateSeconds));
         Date nowDate = new Date();
-        if (user != null && (StringUtils.isBlank(user.getSourceId()) || nowDate.before(userExpireDate)))
+        if (user != null && nowDate.before(userExpireDate))
         {
             return Optional.of(user);
         }
