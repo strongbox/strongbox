@@ -131,7 +131,7 @@ public class OrientDbUserService extends CommonCrudService<UserEntry> implements
     @Override
     public void revokeEveryone(String roleToRevoke)
     {
-
+        throw new UnsupportedOperationException("Not yet implemented");
     }
 
     @Override
