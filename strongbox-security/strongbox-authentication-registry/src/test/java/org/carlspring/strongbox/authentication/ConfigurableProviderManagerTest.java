@@ -37,13 +37,13 @@ import org.springframework.test.context.TestPropertySource;
 import org.springframework.transaction.annotation.Transactional;
 
 @SpringBootTest
-@ActiveProfiles({ "test", "ExternalUserDetailsServiceTestConfig" })
+@ActiveProfiles({ "test", "ConfigurableProviderManagerTestConfig" })
 @TestPropertySource(properties = { "strongbox.config.file.authentication.providers=classpath:eudst-strongbox-authentication-providers.xml",
                                    "strongbox.authentication.providers.yaml=classpath:/etc/conf/eudst-strongbox-authentication-providers.yaml",
                                    "users.external.cache.seconds=3600",
                                    "strongbox.users.config.yaml=classpath:/etc/conf/eudst-strongbox-security-users.yaml" })
 @ContextConfiguration(classes = TestConfig.class)
-public class ExternalUserDetailsServiceTest
+public class ConfigurableProviderManagerTest
 {
 
     private static final String TEST_USER = "test-user";
@@ -75,6 +75,9 @@ public class ExternalUserDetailsServiceTest
     @Transactional
     public void testExternalUserCache()
     {
+        //Check that we have proper implementation of UserDetailsService injected by Spring
+        assertTrue(userDetailsService instanceof ConfigurableProviderManager);
+
         // Check that there is no external user cached
         assertNull(strongboxUserManager.findByUsername(TEST_USER));
 
@@ -111,10 +114,10 @@ public class ExternalUserDetailsServiceTest
         assertTrue(passwordEncoder.matches(newPassword, externalUser.getPassword()));
     }
 
-    @Profile("ExternalUserDetailsServiceTestConfig")
+    @Profile("ConfigurableProviderManagerTestConfig")
     @Import(HazelcastConfiguration.class)
     @Configuration
-    public static class ExternalUserDetailsServiceTestConfig
+    public static class ConfigurableProviderManagerTestConfig
     {
 
         @Primary
