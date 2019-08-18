@@ -14,6 +14,8 @@ import org.carlspring.strongbox.storage.repository.Repository;
 
 import javax.inject.Inject;
 import javax.servlet.http.HttpServletResponse;
+
+import java.io.EOFException;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
@@ -297,8 +299,20 @@ public abstract class BaseController
             while ((readLength = is.read(bytes, 0, bytes.length)) != -1)
             {
                 // Write the artifact
-                os.write(bytes, 0, readLength);
-                os.flush();
+                try
+                {
+                    os.write(bytes, 0, readLength);
+                    os.flush();
+                }
+                catch (EOFException e)
+                {                   
+                    if (e.getCause().getMessage().equals("Connection reset by peer")) {
+                        logger.debug("Socket has been closed. Possibly, user cancelled download.");
+                        // Set response status 202 ACCEPTED just for logs
+                        response.setStatus(202);
+                        break;
+                    }
+                }
 
                 totalBytes += readLength;
             }
