@@ -4,8 +4,9 @@ import org.carlspring.strongbox.cron.config.CronTasksConfigurationFileManager;
 import org.carlspring.strongbox.cron.domain.CronTaskConfiguration;
 import org.carlspring.strongbox.cron.domain.CronTaskConfigurationDto;
 import org.carlspring.strongbox.cron.domain.CronTasksConfigurationDto;
-import org.carlspring.strongbox.cron.exceptions.CronTaskUUIDNotUniqueException;
+import org.carlspring.strongbox.cron.jobs.CronJobDuplicationCheckStrategy;
 import org.carlspring.strongbox.cron.jobs.CronJobsDefinitionsRegistry;
+import org.carlspring.strongbox.cron.jobs.CronJobDuplicationCheckStrategiesRegistry;
 import org.carlspring.strongbox.cron.services.CronTaskDataService;
 import org.carlspring.strongbox.cron.services.support.CronTaskConfigurationSearchCriteria;
 
@@ -31,6 +32,7 @@ import org.springframework.util.CollectionUtils;
 /**
  * @author Yougeshwar
  * @author Pablo Tirado
+ * @author Przemyslaw Fusik
  */
 @Service
 public class CronTaskDataServiceImpl
@@ -45,6 +47,8 @@ public class CronTaskDataServiceImpl
 
     private CronJobsDefinitionsRegistry cronJobsDefinitionsRegistry;
 
+    private CronJobDuplicationCheckStrategiesRegistry cronJobDuplicationCheckStrategiesRegistry;
+
     /**
      * Yes, this is a state object.
      * It is protected by the {@link #cronTasksConfigurationLock} here
@@ -53,11 +57,14 @@ public class CronTaskDataServiceImpl
     private final CronTasksConfigurationDto configuration;
 
     @Inject
-    public CronTaskDataServiceImpl(CronTasksConfigurationFileManager cronTasksConfigurationFileManager,
-                                   CronJobsDefinitionsRegistry cronJobsDefinitionsRegistry) throws IOException
+    CronTaskDataServiceImpl(CronTasksConfigurationFileManager cronTasksConfigurationFileManager,
+                            CronJobsDefinitionsRegistry cronJobsDefinitionsRegistry,
+                            CronJobDuplicationCheckStrategiesRegistry cronJobDuplicationCheckStrategiesRegistry)
+            throws IOException
     {
         this.cronTasksConfigurationFileManager = cronTasksConfigurationFileManager;
         this.cronJobsDefinitionsRegistry = cronJobsDefinitionsRegistry;
+        this.cronJobDuplicationCheckStrategiesRegistry = cronJobDuplicationCheckStrategiesRegistry;
 
         CronTasksConfigurationDto cronTasksConfiguration = cronTasksConfigurationFileManager.read();
         for (Iterator<CronTaskConfigurationDto> iterator = cronTasksConfiguration.getCronTaskConfigurations().iterator(); iterator.hasNext(); )
@@ -152,41 +159,19 @@ public class CronTaskDataServiceImpl
     }
 
     @Override
-    public UUID save(final CronTaskConfigurationDto dto) throws IOException
+    public UUID save(final CronTaskConfigurationDto dto)
+            throws IOException
     {
-        if (dto.getUuid() == null || StringUtils.isBlank(dto.getUuid().toString()))
-        {
-            dto.setUuid(UUID.randomUUID());
-
-            if (exists(dto.getUuid()))
-            {
-                String errorMessage = String.format("Cron task configuration UUID '%s' already exists", dto.getUuid());
-                throw new CronTaskUUIDNotUniqueException(errorMessage);
-            }
-        }
-
-        if (StringUtils.isBlank(dto.getName()))
-        {
-            cronJobsDefinitionsRegistry.getCronJobDefinitions()
-                                       .stream()
-                                       .filter(cj -> cj.getJobClass().equals(dto.getJobClass()))
-                                       .findFirst()
-                                       .map(cj -> {
-                                           dto.setName(cj.getName());
-                                           return cj;
-                                       }).orElseThrow(
-                    () -> new IllegalArgumentException(String.format("Unrecognized cron job %s", dto.getJobClass())));
-        }
+        setUuidIfNull(dto);
+        setNameIfBlank(dto);
 
         modifyInLock(configuration ->
                      {
-                         configuration.getCronTaskConfigurations()
-                                      .stream()
-                                      .filter(conf -> Objects.equals(dto.getUuid(), conf.getUuid()))
-                                      .findFirst()
-                                      .ifPresent(conf -> configuration.getCronTaskConfigurations().remove(conf));
-
-
+                         if (isDuplicate(dto, configuration))
+                         {
+                             return;
+                         }
+                         removePreviousIncarnation(dto, configuration);
                          configuration.getCronTaskConfigurations().add(dto);
                      });
 
@@ -194,7 +179,8 @@ public class CronTaskDataServiceImpl
     }
 
     @Override
-    public void delete(final UUID cronTaskConfigurationUuid) throws IOException
+    public void delete(final UUID cronTaskConfigurationUuid)
+            throws IOException
     {
         modifyInLock(configuration ->
                              configuration.getCronTaskConfigurations()
@@ -204,13 +190,15 @@ public class CronTaskDataServiceImpl
                                           .ifPresent(conf -> configuration.getCronTaskConfigurations().remove(conf)));
     }
 
-    private void modifyInLock(final Consumer<CronTasksConfigurationDto> operation) throws IOException
+    private void modifyInLock(final Consumer<CronTasksConfigurationDto> operation)
+            throws IOException
     {
         modifyInLock(operation, true);
     }
 
     private void modifyInLock(final Consumer<CronTasksConfigurationDto> operation,
-                              final boolean storeInFile) throws IOException
+                              final boolean storeInFile)
+            throws IOException
     {
         final Lock writeLock = cronTasksConfigurationLock.writeLock();
         writeLock.lock();
@@ -230,9 +218,54 @@ public class CronTaskDataServiceImpl
         }
     }
 
-    private boolean exists(UUID uuid)
+    private void removePreviousIncarnation(final CronTaskConfigurationDto dto,
+                                           final CronTasksConfigurationDto configuration)
     {
-        return this.getTaskConfigurationDto(uuid) != null;
+        if (configuration.getCronTaskConfigurations() == null)
+        {
+            return;
+        }
+        for (final Iterator<CronTaskConfigurationDto> it = configuration.getCronTaskConfigurations().iterator(); it.hasNext(); )
+        {
+            final CronTaskConfigurationDto existing = it.next();
+            if (Objects.equals(dto.getUuid(), existing.getUuid()))
+            {
+                it.remove();
+            }
+        }
+    }
+
+    private void setUuidIfNull(final CronTaskConfigurationDto dto)
+    {
+        if (dto.getUuid() == null)
+        {
+            dto.setUuid(UUID.randomUUID());
+        }
+    }
+
+    private void setNameIfBlank(final CronTaskConfigurationDto dto)
+    {
+        if (StringUtils.isBlank(dto.getName()))
+        {
+            cronJobsDefinitionsRegistry.getCronJobDefinitions()
+                                       .stream()
+                                       .filter(cj -> Objects.equals(cj.getJobClass(), dto.getJobClass()))
+                                       .findFirst()
+                                       .map(cj -> {
+                                           dto.setName(cj.getName());
+                                           return cj;
+                                       }).orElseThrow(
+                    () -> new IllegalArgumentException(String.format("Unrecognized cron job %s", dto.getJobClass())));
+        }
+    }
+
+    private boolean isDuplicate(final CronTaskConfigurationDto dto,
+                                final CronTasksConfigurationDto configuration)
+    {
+        final Set<CronJobDuplicationCheckStrategy> cronJobDuplicationStrategies = cronJobDuplicationCheckStrategiesRegistry.get(
+                dto.getJobClass());
+        return cronJobDuplicationStrategies.stream()
+                                           .anyMatch(s -> s.duplicates(dto, configuration.getCronTaskConfigurations()));
     }
 
 }

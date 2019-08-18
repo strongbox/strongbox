@@ -19,6 +19,7 @@ import org.springframework.scheduling.quartz.SpringBeanJobFactory;
 
 @Configuration
 @ComponentScan({ "org.carlspring.strongbox.cron",
+                 "org.carlspring.strongbox.event.cron",
                  "org.carlspring.strongbox.dependency.snippet" })
 @Import({ DataServiceConfig.class,
           StorageCoreConfig.class

@@ -35,9 +35,11 @@ public class ArtifactEntryArtifactContext
     private static ArtifactInfo asArtifactInfo(ArtifactEntry artifactEntry)
     {
         final MavenArtifactCoordinates coordinates = (MavenArtifactCoordinates) artifactEntry.getArtifactCoordinates();
-        ArtifactInfo artifactInfo = new ArtifactInfo(artifactEntry.getRepositoryId(), coordinates.getGroupId(),
+        ArtifactInfo artifactInfo = new ArtifactInfo(artifactEntry.getRepositoryId(),
+                                                     coordinates.getGroupId(),
                                                      coordinates.getArtifactId(),
-                                                     coordinates.getVersion(), coordinates.getClassifier(),
+                                                     coordinates.getVersion(),
+                                                     coordinates.getClassifier(),
                                                      coordinates.getExtension());
 
         produce(coordinates, artifactInfo);

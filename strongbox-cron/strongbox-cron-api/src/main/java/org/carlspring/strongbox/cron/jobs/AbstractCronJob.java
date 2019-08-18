@@ -7,8 +7,10 @@ import org.carlspring.strongbox.cron.services.JobManager;
 import org.carlspring.strongbox.event.cron.CronTaskEventListenerRegistry;
 
 import javax.inject.Inject;
+import java.util.Set;
 import java.util.UUID;
 
+import com.google.common.collect.ImmutableSet;
 import org.quartz.DisallowConcurrentExecution;
 import org.quartz.InterruptableJob;
 import org.quartz.JobExecutionContext;
@@ -116,5 +118,10 @@ public abstract class AbstractCronJob
     }
 
     public abstract CronJobDefinition getCronJobDefinition();
+
+    public Set<CronJobDuplicationCheckStrategy> getDuplicationStrategies()
+    {
+        return ImmutableSet.of(PerRepositoryDuplicationCheckStrategy.getDefault());
+    }
 
 }

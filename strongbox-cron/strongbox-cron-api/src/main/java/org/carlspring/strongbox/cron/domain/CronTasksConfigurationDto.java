@@ -15,11 +15,11 @@ public class CronTasksConfigurationDto
         implements Serializable
 {
 
-    private Set<CronTaskConfigurationDto> cronTaskConfigurations = new LinkedHashSet<>();
+    private Set<CronTaskConfigurationDto> cronTaskConfigurations;
 
     public Set<CronTaskConfigurationDto> getCronTaskConfigurations()
     {
-        return cronTaskConfigurations;
+        return cronTaskConfigurations != null ? cronTaskConfigurations : (cronTaskConfigurations = new LinkedHashSet<>());
     }
 
     public void setCronTaskConfigurations(Set<CronTaskConfigurationDto> cronTaskConfigurations)
