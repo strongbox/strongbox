@@ -7,21 +7,16 @@ import org.carlspring.strongbox.artifact.generator.MavenArtifactDeployer;
 import org.carlspring.strongbox.providers.io.RepositoryPath;
 import org.carlspring.strongbox.providers.io.RepositoryPathResolver;
 import org.carlspring.strongbox.rest.client.RestAssuredArtifactClient;
-import org.carlspring.strongbox.testing.MavenTestCaseWithArtifactGeneration;
 import org.carlspring.strongbox.testing.TestCaseWithMavenArtifactGenerationAndIndexing;
 import org.carlspring.strongbox.testing.artifact.MavenArtifactTestUtils;
 import org.carlspring.strongbox.users.domain.Privileges;
 
 import javax.inject.Inject;
 import java.io.IOException;
-import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.security.NoSuchAlgorithmException;
 import java.util.Collection;
-import java.util.Comparator;
-import java.util.List;
-import java.util.stream.Collectors;
 
 import org.apache.maven.index.artifact.Gav;
 import org.codehaus.plexus.util.xml.pull.XmlPullParserException;
@@ -56,7 +51,7 @@ public abstract class MavenRestAssuredBaseTest
     protected RestAssuredArtifactClient client;
 
     @Inject
-    private RepositoryPathResolver repositoryPathResolver;
+    protected RepositoryPathResolver repositoryPathResolver;
 
     @Value("${strongbox.url}")
     private String contextBaseUrl;
@@ -87,22 +82,6 @@ public abstract class MavenRestAssuredBaseTest
         return Privileges.all();
     }
 
-    /**
-     * Recursively removes directory or file #file and all it's content.
-     *
-     * @param path directory or file to be removed
-     */
-    public static void removeDir(Path path)
-            throws IOException
-    {
-        final List<Path> pathsToDelete = Files.walk(path).sorted(Comparator.reverseOrder()).collect(
-                Collectors.toList());
-        for (Path toDelete : pathsToDelete)
-        {
-            Files.deleteIfExists(toDelete);
-        }
-    }
-
     protected boolean pathExists(String url)
     {
         logger.trace("[pathExists] URL -> " + url);
@@ -124,12 +103,6 @@ public abstract class MavenRestAssuredBaseTest
         MavenArtifactDeployer deployer = new MavenArtifactDeployer(path.toString());
         deployer.setClient(client);
         return deployer;
-    }
-
-    public String createSnapshotVersion(String baseSnapshotVersion,
-                                        int buildNumber)
-    {
-        return new MavenTestCaseWithArtifactGeneration().createSnapshotVersion(baseSnapshotVersion, buildNumber);
     }
 
     public MavenArtifact createTimestampedSnapshotArtifact(String repositoryBasedir,

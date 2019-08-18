@@ -1,14 +1,13 @@
 package org.carlspring.strongbox.controllers.layout.maven;
 
-import org.carlspring.strongbox.artifact.generator.MavenArtifactGenerator;
 import org.carlspring.strongbox.config.IntegrationTest;
 import org.carlspring.strongbox.providers.search.OrientDbSearchProvider;
 import org.carlspring.strongbox.rest.common.MavenRestAssuredBaseTest;
 import org.carlspring.strongbox.storage.repository.Repository;
 import org.carlspring.strongbox.testing.artifact.ArtifactManagementTestExecutionListener;
-import org.carlspring.strongbox.testing.artifact.TestArtifact;
+import org.carlspring.strongbox.testing.artifact.MavenTestArtifact;
+import org.carlspring.strongbox.testing.repository.MavenRepository;
 import org.carlspring.strongbox.testing.storage.repository.RepositoryManagementTestExecutionListener;
-import org.carlspring.strongbox.testing.storage.repository.TestRepository;
 
 import java.nio.file.Path;
 
@@ -16,13 +15,13 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.springframework.http.MediaType;
-import static org.carlspring.strongbox.artifact.coordinates.MavenArtifactCoordinates.LAYOUT_NAME;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 
 /**
  * @author Alex Oreshkevich
  * @author Martin Todorov
+ * @author Pablo Tirado
  */
 @IntegrationTest
 public class MavenSearchControllerTest
@@ -47,13 +46,25 @@ public class MavenSearchControllerTest
     {
         super.init();
     }
-    
+
     @Test
-    @ExtendWith({RepositoryManagementTestExecutionListener.class, ArtifactManagementTestExecutionListener.class})
-    public void testDbSearches(@TestRepository(layout = LAYOUT_NAME, storageId = STORAGE_SC_TEST, repositoryId = REPOSITORY_RELEASES) Repository repository,
-                               @TestArtifact(storageId = STORAGE_SC_TEST, repositoryId = REPOSITORY_RELEASES, resource = A1, generator = MavenArtifactGenerator.class) Path a1,
-                               @TestArtifact(storageId = STORAGE_SC_TEST, repositoryId = REPOSITORY_RELEASES, resource = A2, generator = MavenArtifactGenerator.class) Path a2,
-                               @TestArtifact(storageId = STORAGE_SC_TEST, repositoryId = REPOSITORY_RELEASES, resource = A3, generator = MavenArtifactGenerator.class) Path a3)
+    @ExtendWith({ RepositoryManagementTestExecutionListener.class,
+                  ArtifactManagementTestExecutionListener.class })
+    public void testDbSearches(@MavenRepository(storageId = STORAGE_SC_TEST,
+                                                repositoryId = REPOSITORY_RELEASES)
+                               Repository repository,
+                               @MavenTestArtifact(storageId = STORAGE_SC_TEST,
+                                                  repositoryId = REPOSITORY_RELEASES,
+                                                  resource = A1)
+                               Path a1,
+                               @MavenTestArtifact(storageId = STORAGE_SC_TEST,
+                                                  repositoryId = REPOSITORY_RELEASES,
+                                                  resource = A2)
+                               Path a2,
+                               @MavenTestArtifact(storageId = STORAGE_SC_TEST,
+                                                  repositoryId = REPOSITORY_RELEASES,
+                                                  resource = A3)
+                               Path a3)
             throws Exception
     {
         testSearches("groupId=org.carlspring.strongbox.searches;artifactId=test-project;",

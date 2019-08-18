@@ -2,15 +2,12 @@ package org.carlspring.strongbox.controllers.layout.maven;
 
 import org.carlspring.strongbox.config.IntegrationTest;
 import org.carlspring.strongbox.providers.io.RepositoryPath;
-import org.carlspring.strongbox.providers.io.RepositoryPathResolver;
-import org.carlspring.strongbox.repository.MavenRepositoryFeatures;
 import org.carlspring.strongbox.rest.common.MavenRestAssuredBaseTest;
 import org.carlspring.strongbox.storage.indexing.IndexTypeEnum;
-import org.carlspring.strongbox.storage.indexing.RepositoryIndexDirectoryPathResolver;
-import org.carlspring.strongbox.storage.indexing.RepositoryIndexDirectoryPathResolver.RepositoryIndexDirectoryPathResolverQualifier;
 import org.carlspring.strongbox.storage.indexing.RepositoryIndexCreator;
 import org.carlspring.strongbox.storage.indexing.RepositoryIndexCreator.RepositoryIndexCreatorQualifier;
-import org.carlspring.strongbox.storage.repository.MavenRepositoryFactory;
+import org.carlspring.strongbox.storage.indexing.RepositoryIndexDirectoryPathResolver;
+import org.carlspring.strongbox.storage.indexing.RepositoryIndexDirectoryPathResolver.RepositoryIndexDirectoryPathResolverQualifier;
 import org.carlspring.strongbox.storage.repository.Repository;
 import org.carlspring.strongbox.storage.repository.RepositoryTypeEnum;
 import org.carlspring.strongbox.testing.MavenIndexedRepositorySetup;
@@ -18,7 +15,8 @@ import org.carlspring.strongbox.testing.artifact.ArtifactManagementTestExecution
 import org.carlspring.strongbox.testing.artifact.MavenTestArtifact;
 import org.carlspring.strongbox.testing.repository.MavenRepository;
 import org.carlspring.strongbox.testing.storage.repository.RepositoryManagementTestExecutionListener;
-import org.carlspring.strongbox.testing.storage.repository.TestRepository;
+import org.carlspring.strongbox.testing.storage.repository.TestRepository.Group;
+import org.carlspring.strongbox.testing.storage.repository.TestRepository.Remote;
 
 import javax.inject.Inject;
 import java.io.IOException;
@@ -94,12 +92,6 @@ public class MavenIndexControllerTest
     private static final String SLF4J_ARTIFACT_ID = "slf4j-log4j12";
 
     @Inject
-    private MavenRepositoryFeatures features;
-
-    @Inject
-    private MavenRepositoryFactory mavenRepositoryFactory;
-
-    @Inject
     @RepositoryIndexDirectoryPathResolverQualifier(IndexTypeEnum.LOCAL)
     private RepositoryIndexDirectoryPathResolver repositoryLocalIndexDirectoryPathResolver;
 
@@ -119,9 +111,6 @@ public class MavenIndexControllerTest
     @RepositoryIndexCreatorQualifier(RepositoryTypeEnum.GROUP)
     private RepositoryIndexCreator groupRepositoryIndexCreator;
 
-    @Inject
-    protected RepositoryPathResolver repositoryPathResolver;
-
     @Override
     @BeforeEach
     public void init()
@@ -137,8 +126,7 @@ public class MavenIndexControllerTest
                                                                                   setup = MavenIndexedRepositorySetup.class)
                                                                  Repository repository,
                                                                  @MavenTestArtifact(repositoryId = REPOSITORY_RELEASES_1,
-                                                                                    id = "org.carlspring.strongbox.indexes" + ":" +
-                                                                                         "strongbox-test",
+                                                                                    id = "org.carlspring.strongbox.indexes:strongbox-test",
                                                                                     versions = { "1.0",
                                                                                                  "1.1" },
                                                                                     classifiers = { "javadoc",
@@ -169,7 +157,7 @@ public class MavenIndexControllerTest
         attrs = Files.readAttributes(indexPath, BasicFileAttributes.class);
 
         FileTime after = attrs.lastModifiedTime();
-        
+
         assertThat(after).isGreaterThan(before);
     }
 
@@ -179,7 +167,7 @@ public class MavenIndexControllerTest
     public void shouldNotAllowToRebuildTheIndex(@MavenRepository(repositoryId = REPOSITORY_RELEASES_2)
                                                 Repository repository,
                                                 @MavenTestArtifact(repositoryId = REPOSITORY_RELEASES_2,
-                                                                   id = "org.carlspring.strongbox.indexes" + ":" + "strongbox-test",
+                                                                   id = "org.carlspring.strongbox.indexes:strongbox-test",
                                                                    versions = { "1.0",
                                                                                 "1.1" },
                                                                    classifiers = { "javadoc",
@@ -210,8 +198,7 @@ public class MavenIndexControllerTest
                                                                                setup = MavenIndexedRepositorySetup.class)
                                                               Repository repository,
                                                               @MavenTestArtifact(repositoryId = REPOSITORY_RELEASES_1,
-                                                                                 id = "org.carlspring.strongbox.indexes" + ":" +
-                                                                                      "strongbox-test",
+                                                                                 id = "org.carlspring.strongbox.indexes:strongbox-test",
                                                                                  versions = { "1.0",
                                                                                               "1.1" },
                                                                                  classifiers = { "javadoc",
@@ -219,7 +206,7 @@ public class MavenIndexControllerTest
                                                               List<Path> artifactPaths,
                                                               @MavenRepository(repositoryId = REPOSITORY_PROXY_1,
                                                                                setup = MavenIndexedRepositorySetup.class)
-                                                              @TestRepository.Remote(url = PROXY_1_REPOSITORY_URL)
+                                                              @Remote(url = PROXY_1_REPOSITORY_URL)
                                                               Repository proxyRepository)
             throws IOException
     {
@@ -260,7 +247,7 @@ public class MavenIndexControllerTest
                                                                                    "sources" })
                                                 List<Path> artifactPaths,
                                                 @MavenRepository(repositoryId = REPOSITORY_PROXY_3)
-                                                @TestRepository.Remote(url = PROXY_3_REPOSITORY_URL)
+                                                @Remote(url = PROXY_3_REPOSITORY_URL)
                                                 Repository proxyRepository)
     {
         RepositoryPath indexPath = repositoryRemoteIndexDirectoryPathResolver.resolve(repository)
@@ -288,15 +275,14 @@ public class MavenIndexControllerTest
                                                                     setup = MavenIndexedRepositorySetup.class)
                                                    Repository repository,
                                                    @MavenTestArtifact(repositoryId = REPOSITORY_RELEASES_4,
-                                                                      id = "org.carlspring.strongbox.indexes" + ":" +
-                                                                           "strongbox-test",
+                                                                      id = "org.carlspring.strongbox.indexes:strongbox-test",
                                                                       versions = { "1.0",
                                                                                    "1.1" },
                                                                       classifiers = { "javadoc",
                                                                                       "sources" })
                                                    List<Path> artifactPaths,
                                                    @MavenRepository(repositoryId = REPOSITORY_PROXY_4)
-                                                   @TestRepository.Remote(url = PROXY_4_REPOSITORY_URL)
+                                                   @Remote(url = PROXY_4_REPOSITORY_URL)
                                                    Repository proxyRepository)
             throws IOException
     {
@@ -322,15 +308,14 @@ public class MavenIndexControllerTest
                                                                                   setup = MavenIndexedRepositorySetup.class)
                                                                  Repository repository,
                                                                  @MavenTestArtifact(repositoryId = REPOSITORY_RELEASES_5,
-                                                                                    id = "org.carlspring.strongbox.indexes" + ":" +
-                                                                                         "strongbox-test",
+                                                                                    id = "org.carlspring.strongbox.indexes:strongbox-test",
                                                                                     versions = { "1.0",
                                                                                                  "1.1" },
                                                                                     classifiers = { "javadoc",
                                                                                                     "sources" })
                                                                  List<Path> artifactPaths,
                                                                  @MavenRepository(repositoryId = REPOSITORY_PROXY_5)
-                                                                 @TestRepository.Remote(url = PROXY_5_REPOSITORY_URL)
+                                                                 @Remote(url = PROXY_5_REPOSITORY_URL)
                                                                  Repository proxyRepository)
             throws IOException
     {
@@ -371,7 +356,7 @@ public class MavenIndexControllerTest
                                                                               classifiers = { "javadoc",
                                                                                               "sources" })
                                                            Path artifactPathSlf4j,
-                                                           @TestRepository.Group(repositories = { REPOSITORY_RELEASES_6,
+                                                           @Group(repositories = { REPOSITORY_RELEASES_6,
                                                                                                   REPOSITORY_RELEASES_6_1 })
                                                            @MavenRepository(repositoryId = REPOSITORY_RELEASES_6_GROUP,
                                                                             setup = MavenIndexedRepositorySetup.class)

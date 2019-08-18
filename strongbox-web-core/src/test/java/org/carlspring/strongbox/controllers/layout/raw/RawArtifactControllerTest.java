@@ -1,61 +1,42 @@
 package org.carlspring.strongbox.controllers.layout.raw;
 
+import org.carlspring.strongbox.artifact.generator.NullArtifactGenerator;
 import org.carlspring.strongbox.config.IntegrationTest;
+import org.carlspring.strongbox.providers.io.RepositoryPath;
 import org.carlspring.strongbox.providers.layout.RawLayoutProvider;
 import org.carlspring.strongbox.rest.common.RawRestAssuredBaseTest;
-import org.carlspring.strongbox.storage.repository.RepositoryDto;
-import org.carlspring.strongbox.storage.repository.RawRepositoryFactory;
-import org.carlspring.strongbox.storage.repository.RepositoryPolicyEnum;
+import org.carlspring.strongbox.storage.repository.Repository;
+import org.carlspring.strongbox.testing.artifact.ArtifactManagementTestExecutionListener;
+import org.carlspring.strongbox.testing.artifact.TestArtifact;
+import org.carlspring.strongbox.testing.storage.repository.RepositoryManagementTestExecutionListener;
+import org.carlspring.strongbox.testing.storage.repository.TestRepository;
 
-import javax.inject.Inject;
-import javax.xml.bind.JAXBException;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.nio.file.Files;
-import java.nio.file.Paths;
-import java.util.LinkedHashSet;
-import java.util.Set;
+import java.nio.file.Path;
 
-import org.junit.jupiter.api.AfterEach;
-import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-import org.springframework.boot.test.context.SpringBootTest;
+import org.junit.jupiter.api.extension.ExtendWith;
+import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.MediaType;
 import static io.restassured.module.mockmvc.RestAssuredMockMvc.given;
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 /**
  * @author Martin Todorov
+ * @author Pablo Tirado
  */
 @IntegrationTest
 public class RawArtifactControllerTest
         extends RawRestAssuredBaseTest
 {
 
-    private static final String TEST_RESOURCES = "target/test-resources";
-
     private static final String REPOSITORY_RELEASES = "ract-raw-releases";
-
-    @Inject
-    RawRepositoryFactory rawRepositoryFactory;
-
-
-    @BeforeAll
-    public static void cleanUp()
-            throws Exception
-    {
-        cleanUp(getRepositoriesToClean());
-    }
-
-    public static Set<RepositoryDto> getRepositoriesToClean()
-    {
-        Set<RepositoryDto> repositories = new LinkedHashSet<>();
-        repositories.add(createRepositoryMock(STORAGE0, REPOSITORY_RELEASES, RawLayoutProvider.ALIAS));
-
-        return repositories;
-    }
 
     @Override
     @BeforeEach
@@ -63,45 +44,36 @@ public class RawArtifactControllerTest
             throws Exception
     {
         super.init();
-
-        RepositoryDto repository = rawRepositoryFactory.createRepository(REPOSITORY_RELEASES);
-        repository.setPolicy(RepositoryPolicyEnum.RELEASE.getPolicy());
-
-        createRepositoryWithFile(repository, STORAGE0, "org/foo/bar/blah.zip");
-
-        //noinspection ResultOfMethodCallIgnored
-        Files.createDirectories(Paths.get(TEST_RESOURCES));
     }
 
-    @AfterEach
-    public void removeRepositories()
-            throws IOException, JAXBException
-    {
-        removeRepositories(getRepositoriesToClean());
-    }
-
+    @ExtendWith(RepositoryManagementTestExecutionListener.class)
     @Test
-    public void testDeploy()
+    public void testDeploy(@TestRepository(layout = RawLayoutProvider.ALIAS,
+                                           repositoryId = REPOSITORY_RELEASES)
+                           Repository repository)
             throws IOException
     {
+        final String storageId = repository.getStorage().getId();
+        final String repositoryId = repository.getId();
+
         String path = "org/foo/bar/blah.txt";
         byte[] content = "This is a test file\n".getBytes();
 
         // Push
-        String artfactUrl = getContextBaseUrl() + "/storages/" + STORAGE0 + "/" + REPOSITORY_RELEASES + "/" + path;
+        String url = getContextBaseUrl() + "/storages/" + storageId + "/" + repositoryId + "/" + path;
 
-        given().header("user-agent", "Raw/*")
-               .header("Content-Type", "multipart/form-data")
+        given().header(HttpHeaders.USER_AGENT, "Raw/*")
+               .contentType(MediaType.MULTIPART_FORM_DATA_VALUE)
                .body(content)
                .when()
-               .put(artfactUrl)
+               .put(url)
                .peek()
                .then()
                .statusCode(HttpStatus.OK.value());
 
-        assertPathExists(artfactUrl);
+        assertPathExists(url);
 
-        InputStream is = client.getResource(artfactUrl);
+        InputStream is = client.getResource(url);
         ByteArrayOutputStream baos = new ByteArrayOutputStream();
 
         int len;
@@ -116,16 +88,24 @@ public class RawArtifactControllerTest
 
         assertEquals(new String(content), new String(baos.toByteArray()), "Deployed content mismatch!");
 
-        System.out.println("Read '" + new String(baos.toByteArray()) + "'.");
+        logger.debug("Read '{}',", new String(baos.toByteArray()));
     }
 
+    @ExtendWith({RepositoryManagementTestExecutionListener.class,
+                 ArtifactManagementTestExecutionListener.class })
     @Test
-    public void testResolveViaHostedRepository()
-            throws Exception
+    public void testResolveViaHostedRepository(@TestRepository(layout = RawLayoutProvider.ALIAS,
+                                                               repositoryId = REPOSITORY_RELEASES)
+                                               Repository repository,
+                                               @TestArtifact(repositoryId = REPOSITORY_RELEASES,
+                                                             resource = "org/foo/bar/blah.zip",
+                                                             generator = NullArtifactGenerator.class)
+                                               Path artifactPath)
     {
-        String artifactPath = "/storages/" + STORAGE0 + "/" + REPOSITORY_RELEASES + "/org/foo/bar/blah.zip";
+        final String pathStr = "org/foo/bar/blah.zip";
 
-        resolveArtifact(artifactPath);
+        RepositoryPath artifactRepositoryPath = repositoryPathResolver.resolve(repository, pathStr);
+        assertTrue(Files.exists(artifactRepositoryPath.toAbsolutePath()), "Artifact does not exist!");
     }
 
 }

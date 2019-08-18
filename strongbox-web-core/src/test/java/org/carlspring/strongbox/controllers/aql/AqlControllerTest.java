@@ -1,57 +1,82 @@
 package org.carlspring.strongbox.controllers.aql;
 
-import static io.restassured.module.mockmvc.RestAssuredMockMvc.given;
-import static org.carlspring.strongbox.artifact.coordinates.MavenArtifactCoordinates.LAYOUT_NAME;
-import static org.junit.jupiter.api.parallel.ExecutionMode.SAME_THREAD;
-
-import java.nio.file.Path;
-
-import org.carlspring.strongbox.artifact.generator.MavenArtifactGenerator;
 import org.carlspring.strongbox.config.IntegrationTest;
 import org.carlspring.strongbox.rest.common.MavenRestAssuredBaseTest;
 import org.carlspring.strongbox.storage.repository.Repository;
 import org.carlspring.strongbox.testing.artifact.ArtifactManagementTestExecutionListener;
-import org.carlspring.strongbox.testing.artifact.TestArtifact;
+import org.carlspring.strongbox.testing.artifact.MavenTestArtifact;
+import org.carlspring.strongbox.testing.repository.MavenRepository;
 import org.carlspring.strongbox.testing.storage.repository.RepositoryManagementTestExecutionListener;
-import org.carlspring.strongbox.testing.storage.repository.TestRepository;
+
+import java.nio.file.Path;
+
 import org.hamcrest.Matchers;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
-import org.junit.jupiter.api.parallel.Execution;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
+import static io.restassured.module.mockmvc.RestAssuredMockMvc.given;
+
 /**
  * @author sbespalov
- *
+ * @author Pablo Tirado
  */
 @IntegrationTest
-@Execution(SAME_THREAD)
-public class AqlControllerTest extends MavenRestAssuredBaseTest
+public class AqlControllerTest
+        extends MavenRestAssuredBaseTest
 {
-
-    private static final String A3 = "org/carlspring/strongbox/searches/test-project/1.0.11.3.2/test-project-1.0.11.3.2.jar";
-
-    private static final String A2 = "org/carlspring/strongbox/searches/test-project/1.0.11.3.1/test-project-1.0.11.3.1.jar";
 
     private static final String A1 = "org/carlspring/strongbox/searches/test-project/1.0.11.3/test-project-1.0.11.3.jar";
 
-    private static final String S1 = "storage-sc-test";
+    private static final String A2 = "org/carlspring/strongbox/searches/test-project/1.0.11.3.1/test-project-1.0.11.3.1.jar";
 
-    private static final String R1 = "sc-releases-search";
-    
-    @Test
-    @ExtendWith({RepositoryManagementTestExecutionListener.class, ArtifactManagementTestExecutionListener.class})
-    public void testSearchExcludeVersion(@TestRepository(storageId = S1, repositoryId = R1, layout = LAYOUT_NAME) Repository repository,
-                                         @TestArtifact(storageId = S1, repositoryId = R1, resource = A1, generator = MavenArtifactGenerator.class) Path artifact1,
-                                         @TestArtifact(storageId = S1, repositoryId = R1, resource = A2, generator = MavenArtifactGenerator.class) Path artifact2,
-                                         @TestArtifact(storageId = S1, repositoryId = R1, resource = A3, generator = MavenArtifactGenerator.class) Path artifact3)
+    private static final String A3 = "org/carlspring/strongbox/searches/test-project/1.0.11.3.2/test-project-1.0.11.3.2.jar";
+
+    private static final String STORAGE_SC_TEST = "storage-sc-test";
+
+    private static final String REPOSITORY_RELEASES = "sc-releases-search";
+
+    @Override
+    @BeforeEach
+    public void init()
+            throws Exception
     {
+        super.init();
+        setContextBaseUrl("/api/aql");
+    }
+
+    @Test
+    @ExtendWith({ RepositoryManagementTestExecutionListener.class,
+                  ArtifactManagementTestExecutionListener.class })
+    public void testSearchExcludeVersion(@MavenRepository(storageId = STORAGE_SC_TEST,
+                                                          repositoryId = REPOSITORY_RELEASES)
+                                         Repository repository,
+                                         @MavenTestArtifact(storageId = STORAGE_SC_TEST,
+                                                            repositoryId = REPOSITORY_RELEASES,
+                                                            resource = A1)
+                                         Path artifact1,
+                                         @MavenTestArtifact(storageId = STORAGE_SC_TEST,
+                                                            repositoryId = REPOSITORY_RELEASES,
+                                                            resource = A2)
+                                         Path artifact2,
+                                         @MavenTestArtifact(storageId = STORAGE_SC_TEST,
+                                                            repositoryId = REPOSITORY_RELEASES,
+                                                            resource = A3)
+                                         Path artifact3)
+    {
+        final String storageId = repository.getStorage().getId();
+        final String repositoryId = repository.getId();
+
+        String url = getContextBaseUrl();
         given().accept(MediaType.APPLICATION_JSON_VALUE)
                .queryParam("query",
-                           String.format("storage:%s+repository:%s+groupId:org.carlspring.strongbox.searches+!version:1.0.11.3.1",
-                                         S1, R1))
+                           String.format(
+                                   "storage:%s+repository:%s+groupId:org.carlspring.strongbox.searches+!version:1.0.11.3.1",
+                                   storageId,
+                                   repositoryId))
                .when()
-               .get(getContextBaseUrl() + "/api/aql")
+               .get(url)
                .peek()
                .then()
                .statusCode(HttpStatus.OK.value())
@@ -62,46 +87,68 @@ public class AqlControllerTest extends MavenRestAssuredBaseTest
     @Test
     public void testBadAqlSyntaxRequest()
     {
+        String url = getContextBaseUrl();
         given().accept(MediaType.APPLICATION_JSON_VALUE)
                .queryParam("query",
-                           String.format("storage:%s+repository:%s+groupId:org.carlspring.strongbox.searches-version:1.0.11.3.1",
-                                         S1, R1))
+                           String.format(
+                                   "storage:%s+repository:%s+groupId:org.carlspring.strongbox.searches-version:1.0.11.3.1",
+                                   STORAGE_SC_TEST, REPOSITORY_RELEASES))
                .when()
-               .get(getContextBaseUrl() + "/api/aql")
+               .get(url)
                .then()
                .statusCode(HttpStatus.BAD_REQUEST.value())
                .body("error", Matchers.containsString("[1:103]"));
     }
 
     @Test
-    @ExtendWith({RepositoryManagementTestExecutionListener.class, ArtifactManagementTestExecutionListener.class})
-    public void testSearchValidMavenCoordinates(@TestRepository(storageId = S1, repositoryId = R1, layout = LAYOUT_NAME) Repository repository,
-                                                @TestArtifact(storageId = S1, repositoryId = R1, resource = A1, generator = MavenArtifactGenerator.class) Path artifact1,
-                                                @TestArtifact(storageId = S1, repositoryId = R1, resource = A2, generator = MavenArtifactGenerator.class) Path artifact2,
-                                                @TestArtifact(storageId = S1, repositoryId = R1, resource = A3, generator = MavenArtifactGenerator.class) Path artifact3)
+    @ExtendWith({ RepositoryManagementTestExecutionListener.class,
+                  ArtifactManagementTestExecutionListener.class })
+    public void testSearchValidMavenCoordinates(@MavenRepository(storageId = STORAGE_SC_TEST,
+                                                                 repositoryId = REPOSITORY_RELEASES)
+                                                Repository repository,
+                                                @MavenTestArtifact(storageId = STORAGE_SC_TEST,
+                                                                   repositoryId = REPOSITORY_RELEASES,
+                                                                   resource = A1)
+                                                Path artifact1,
+                                                @MavenTestArtifact(storageId = STORAGE_SC_TEST,
+                                                                   repositoryId = REPOSITORY_RELEASES,
+                                                                   resource = A2)
+                                                Path artifact2,
+                                                @MavenTestArtifact(storageId = STORAGE_SC_TEST,
+                                                                   repositoryId = REPOSITORY_RELEASES,
+                                                                   resource = A3)
+                                                Path artifact3)
     {
+        final String storageId = repository.getStorage().getId();
+        final String repositoryId = repository.getId();
+
+        String url = getContextBaseUrl();
         given().accept(MediaType.APPLICATION_JSON_VALUE)
-                .queryParam("query", String.format("storage:%s+repository:%s+layout:maven+groupId:org.carlspring.strongbox.*", S1, R1))
-                .when()
-                .get(getContextBaseUrl() + "/api/aql")
-                .peek()
-                .then()
-                .statusCode(HttpStatus.OK.value())
-                .body("artifact", Matchers.hasSize(6));
+               .queryParam("query",
+                           String.format("storage:%s+repository:%s+layout:maven+groupId:org.carlspring.strongbox.*",
+                                         storageId,
+                                         repositoryId))
+               .when()
+               .get(url)
+               .peek()
+               .then()
+               .statusCode(HttpStatus.OK.value())
+               .body("artifact", Matchers.hasSize(6));
     }
-    
+
     @Test
     public void testSearchInvalidMavenCoordinates()
     {
+        String url = getContextBaseUrl();
         given().accept(MediaType.APPLICATION_JSON_VALUE)
                .queryParam("query", "layout:unknown-layout+id:org.carlspring.strongbox.*")
                .when()
-               .get(getContextBaseUrl() + "/api/aql")
+               .get(url)
                .then()
                .log()
                .body()
                .statusCode(HttpStatus.BAD_REQUEST.value())
                .body("error", Matchers.equalTo("Unknown layout [unknown-layout]."));
     }
-    
+
 }

@@ -1,22 +1,10 @@
 package org.carlspring.strongbox.rest.common;
 
-import org.carlspring.commons.io.MultipleDigestOutputStream;
-import org.carlspring.strongbox.repository.RepositoryManagementStrategyException;
+import org.carlspring.strongbox.providers.io.RepositoryPathResolver;
 import org.carlspring.strongbox.rest.client.RestAssuredArtifactClient;
-import org.carlspring.strongbox.storage.repository.RepositoryDto;
-import org.carlspring.strongbox.storage.repository.RawRepositoryFactory;
-import org.carlspring.strongbox.storage.repository.RepositoryTypeEnum;
-import org.carlspring.strongbox.storage.repository.remote.RemoteRepositoryDto;
-import org.carlspring.strongbox.testing.TestCaseWithRepositoryManagement;
 import org.carlspring.strongbox.users.domain.Privileges;
 
 import javax.inject.Inject;
-import javax.xml.bind.JAXBException;
-import java.io.File;
-import java.io.FileOutputStream;
-import java.io.IOException;
-import java.io.InputStream;
-import java.security.NoSuchAlgorithmException;
 import java.util.Collection;
 
 import org.slf4j.Logger;
@@ -28,18 +16,14 @@ import org.springframework.web.context.WebApplicationContext;
 import static io.restassured.module.mockmvc.RestAssuredMockMvc.given;
 import static org.carlspring.strongbox.rest.client.RestAssuredArtifactClient.OK;
 import static org.junit.jupiter.api.Assertions.assertTrue;
-import static org.junit.jupiter.api.Assertions.fail;
 
 /**
  * @author carlspring
  */
 public class RawRestAssuredBaseTest
-        extends TestCaseWithRepositoryManagement
 {
 
-    protected static final String TEST_RESOURCES = "target/test-resources";
-
-    protected static final String STORAGE0 = "storage0"; 
+    protected static final String STORAGE0 = "storage0";
     
     /**
      * Share logger instance across all tests.
@@ -53,7 +37,7 @@ public class RawRestAssuredBaseTest
     protected RestAssuredArtifactClient client;
 
     @Inject
-    RawRepositoryFactory rawRepositoryFactory;
+    protected RepositoryPathResolver repositoryPathResolver;
 
     @Value("${strongbox.url}")
     private String contextBaseUrl;
@@ -94,64 +78,6 @@ public class RawRestAssuredBaseTest
     protected void assertPathExists(String url)
     {
         assertTrue(pathExists(url), "Path " + url + " doesn't exist.");
-    }
-
-    @Override
-    public void createProxyRepository(String storageId,
-                                      String repositoryId,
-                                      String remoteRepositoryUrl)
-            throws IOException,
-                   JAXBException,
-                   RepositoryManagementStrategyException
-    {
-        RemoteRepositoryDto remoteRepository = new RemoteRepositoryDto();
-        remoteRepository.setUrl(remoteRepositoryUrl);
-
-        RepositoryDto repository = rawRepositoryFactory.createRepository(repositoryId);
-        repository.setType(RepositoryTypeEnum.PROXY.getType());
-        repository.setRemoteRepository(remoteRepository);
-
-        createRepository(storageId, repository);
-    }
-
-    protected void resolveArtifact(String artifactPath)
-            throws NoSuchAlgorithmException, IOException
-    {
-        String url = getContextBaseUrl() + artifactPath;
-
-        logger.debug("Requesting " + url + "...");
-
-        InputStream is = client.getResource(url);
-        if (is == null)
-        {
-            fail("Failed to resolve " + artifactPath + "!");
-        }
-
-        File testResources = new File(TEST_RESOURCES, artifactPath);
-        if (!testResources.getParentFile().exists())
-        {
-            //noinspection ResultOfMethodCallIgnored
-            testResources.getParentFile().mkdirs();
-        }
-
-        FileOutputStream fos = new FileOutputStream(new File(TEST_RESOURCES, artifactPath));
-        MultipleDigestOutputStream mdos = new MultipleDigestOutputStream(fos);
-
-        int total = 0;
-        int len;
-        final int size = 1024;
-        byte[] bytes = new byte[size];
-
-        while ((len = is.read(bytes, 0, size)) != -1)
-        {
-            mdos.write(bytes, 0, len);
-            total += len;
-        }
-
-        mdos.flush();
-        mdos.close();
-
-        assertTrue(total > 0, "Resolved a zero-length artifact!");
     }
 
 }
