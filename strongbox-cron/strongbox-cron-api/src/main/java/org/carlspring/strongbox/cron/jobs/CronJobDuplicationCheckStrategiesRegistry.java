@@ -1,0 +1,34 @@
+package org.carlspring.strongbox.cron.jobs;
+
+import org.carlspring.strongbox.util.ThrowingFunction;
+
+import java.util.Map;
+import java.util.Set;
+import java.util.stream.Collectors;
+
+import org.springframework.stereotype.Component;
+
+/**
+ * @author Przemyslaw Fusik
+ */
+@Component
+public class CronJobDuplicationCheckStrategiesRegistry
+{
+
+    private final Map<String, Set<CronJobDuplicationCheckStrategy>> duplicationStrategies;
+
+    CronJobDuplicationCheckStrategiesRegistry(final CronJobsRegistry cronJobsRegistry)
+    {
+        duplicationStrategies = cronJobsRegistry.get()
+                                                .stream()
+                                                .collect(Collectors.toMap(clazz -> clazz.getName(),
+                                                                          ThrowingFunction.unchecked(
+                                                                                  clazz -> clazz.newInstance()
+                                                                                                .getDuplicationStrategies())));
+    }
+
+    public Set<CronJobDuplicationCheckStrategy> get(String jobClass)
+    {
+        return duplicationStrategies.get(jobClass);
+    }
+}

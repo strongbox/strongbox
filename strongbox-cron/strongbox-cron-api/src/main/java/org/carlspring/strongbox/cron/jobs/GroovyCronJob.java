@@ -51,7 +51,6 @@ public class GroovyCronJob
         return CronJobDefinition.newBuilder()
                                 .jobClass(GroovyCronJob.class.getName())
                                 .name("Groovy Cron Job")
-                                .description("Groovy Cron Job")
                                 .fields(FIELDS)
                                 .build();
     }

@@ -33,7 +33,6 @@ public class ArtifactEntryMinimalArtifactInfoIndexCreator
     {
         ArtifactEntryArtifactContext ac = (ArtifactEntryArtifactContext) artifactContext;
         ArtifactEntry artifactEntry = ac.getArtifactEntry();
-        ArtifactInfo artifactInfo = ac.getArtifactInfo();
 
         MavenArtifactCoordinates coordinates = (MavenArtifactCoordinates) artifactEntry.getArtifactCoordinates();
 
@@ -100,11 +99,11 @@ public class ArtifactEntryMinimalArtifactInfoIndexCreator
         }
         */
 
-        populateArtifactInfoBySha1(artifactInfo, artifactEntry.getChecksums());
+        populateArtifactInfoBySha1(ai, artifactEntry.getChecksums());
 
-        artifactInfo.setLastModified(artifactEntry.getLastUpdated().getTime());
+        ai.setLastModified(artifactEntry.getLastUpdated().getTime());
 
-        artifactInfo.setSize(artifactEntry.getSizeInBytes());
+        ai.setSize(artifactEntry.getSizeInBytes());
 
         ai.setFileExtension(coordinates.getExtension());
     }
