@@ -19,6 +19,12 @@ public class MavenRepositoryConfigurationDto
 
     private boolean indexingClassNamesEnabled = true;
 
+    // defaults to once daily at midnight
+    private String downloadRemoteMavenIndexCronExpression = "0 0 0 * * ?";
+
+    // defaults to once daily at 2 am
+    private String rebuildMavenIndexesCronExpression = "0 0 2 * * ?";
+
     @Override
     public boolean isIndexingEnabled()
     {
@@ -39,6 +45,22 @@ public class MavenRepositoryConfigurationDto
     public void setIndexingClassNamesEnabled(final boolean indexingClassNamesEnabled)
     {
         this.indexingClassNamesEnabled = indexingClassNamesEnabled;
+    }
+
+    @Override
+    public String getDownloadRemoteMavenIndexCronExpression() { return downloadRemoteMavenIndexCronExpression; }
+
+    public void setDownloadRemoteMavenIndexCronExpression(String downloadRemoteMavenIndexCronExpression)
+    {
+        this.downloadRemoteMavenIndexCronExpression = downloadRemoteMavenIndexCronExpression;
+    }
+
+    @Override
+    public String getRebuildMavenIndexesCronExpression() { return rebuildMavenIndexesCronExpression; }
+
+    public void setRebuildMavenIndexesCronExpression(String rebuildMavenIndexesCronExpression)
+    {
+        this.rebuildMavenIndexesCronExpression = rebuildMavenIndexesCronExpression;
     }
 
     @Override

@@ -10,6 +10,7 @@ import org.carlspring.strongbox.providers.io.RepositoryPath;
 import org.carlspring.strongbox.providers.io.RepositoryPathResolver;
 import org.carlspring.strongbox.storage.Storage;
 import org.carlspring.strongbox.storage.repository.Repository;
+import org.carlspring.strongbox.yaml.configuration.repository.MavenRepositoryConfiguration;
 
 import javax.inject.Inject;
 import java.io.IOException;
@@ -46,14 +47,18 @@ public class MavenRepositoryManagementStrategy
 
         String storageId = storage.getId();
         String repositoryId = repository.getId();
+        MavenRepositoryConfiguration repositoryConfig =
+                (MavenRepositoryConfiguration) repository.getRepositoryConfiguration();
 
         if (repository.isHostedRepository())
         {
-            createRebuildMavenIndexCronJob(storageId, repositoryId);
+            createRebuildMavenIndexCronJob(storageId, repositoryId,
+                                           repositoryConfig.getRebuildMavenIndexesCronExpression());
         }
         if (repository.isProxyRepository())
         {
-            createRemoteIndexDownloaderCronTask(storageId, repositoryId);
+            createRemoteIndexDownloaderCronTask(storageId, repositoryId,
+                                                repositoryConfig.getDownloadRemoteMavenIndexCronExpression());
         }
         if (repository.isGroupRepository())
         {
@@ -62,13 +67,14 @@ public class MavenRepositoryManagementStrategy
     }
 
     private void createRemoteIndexDownloaderCronTask(String storageId,
-                                                     String repositoryId)
+                                                     String repositoryId,
+                                                     String cronExpression)
             throws RepositoryManagementStrategyException
     {
         CronTaskConfigurationDto configuration = new CronTaskConfigurationDto();
         configuration.setName("Remote index download for " + storageId + ":" + repositoryId);
         configuration.setJobClass(DownloadRemoteMavenIndexCronJob.class.getName());
-        configuration.setCronExpression("0 0 0 * * ?"); // Execute once daily at 00:00:00
+        configuration.setCronExpression(cronExpression);
         configuration.addProperty("storageId", storageId);
         configuration.addProperty("repositoryId", repositoryId);
         configuration.setImmediateExecution(true);
@@ -84,13 +90,14 @@ public class MavenRepositoryManagementStrategy
     }
 
     private void createRebuildMavenIndexCronJob(String storageId,
-                                                String repositoryId)
+                                                String repositoryId,
+                                                String cronExpression)
             throws RepositoryManagementStrategyException
     {
         CronTaskConfigurationDto configuration = new CronTaskConfigurationDto();
         configuration.setName("Rebuild Maven Index Cron Job for " + storageId + ":" + repositoryId);
         configuration.setJobClass(RebuildMavenIndexesCronJob.class.getName());
-        configuration.setCronExpression("0 0 2 * * ?");
+        configuration.setCronExpression(cronExpression);
         configuration.addProperty("storageId", storageId);
         configuration.addProperty("repositoryId", repositoryId);
         configuration.setImmediateExecution(true);
