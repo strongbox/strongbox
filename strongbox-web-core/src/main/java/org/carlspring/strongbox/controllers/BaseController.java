@@ -313,10 +313,7 @@ public abstract class BaseController
                         response.setStatus(202);
                         break;
                     }
-                    else
-                    {
-                        throw e;
-                    }
+                    throw e;
                 }
 
                 totalBytes += readLength;
