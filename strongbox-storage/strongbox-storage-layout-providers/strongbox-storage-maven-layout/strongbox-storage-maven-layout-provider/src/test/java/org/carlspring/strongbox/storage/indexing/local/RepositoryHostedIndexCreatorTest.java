@@ -100,7 +100,7 @@ public class RepositoryHostedIndexCreatorTest
         RepositoryPath indexPath = repositoryIndexCreator.apply(repository);
         FileTime firstLastModifiedTime = Files.getLastModifiedTime(indexPath);
 
-        Thread.sleep(1);
+        Thread.sleep(1000);
 
         indexPath = repositoryIndexCreator.apply(repository);
         FileTime secondLastModifiedTime = Files.getLastModifiedTime(indexPath);

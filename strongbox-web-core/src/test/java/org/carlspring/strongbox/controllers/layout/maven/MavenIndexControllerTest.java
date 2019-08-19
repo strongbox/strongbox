@@ -142,6 +142,11 @@ public class MavenIndexControllerTest
         BasicFileAttributes attrs = Files.readAttributes(indexPath, BasicFileAttributes.class);
         FileTime before = attrs.lastModifiedTime();
 
+        try
+        {
+            Thread.sleep(1000);
+        } catch (InterruptedException e ) {}
+
         String url = getContextBaseUrl() + "/api/maven/index/{storageId}/{repositoryId}";
 
         given().contentType(MediaType.APPLICATION_JSON_VALUE)
