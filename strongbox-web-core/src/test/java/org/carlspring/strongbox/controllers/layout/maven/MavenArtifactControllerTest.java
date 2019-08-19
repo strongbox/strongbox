@@ -53,6 +53,7 @@ import org.apache.maven.model.Plugin;
 import org.apache.maven.project.artifact.PluginArtifact;
 import org.codehaus.plexus.util.xml.pull.XmlPullParserException;
 import org.junit.jupiter.api.AfterAll;
+import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -132,8 +133,15 @@ public class MavenArtifactControllerTest
     @Inject
     private PropertiesBooter propertiesBooter;
 
+    @BeforeAll
+    static void setUpBeforeAll()
+            throws IOException
+    {
+        Files.createDirectories(Paths.get(TEST_RESOURCES));
+    }
+
     @AfterAll
-    public static void down()
+    static void down()
     {
         deleteTestResources();
     }
@@ -874,6 +882,8 @@ public class MavenArtifactControllerTest
         String artifact2PathStr = repositoryPath.relativize(artifactsPaths.get(1)).toString();
 
         // When
+        generateMavenMetadata(storageId, repositoryId);
+
         client.delete(storageId, repositoryId, artifact2PathStr);
 
         // Then
