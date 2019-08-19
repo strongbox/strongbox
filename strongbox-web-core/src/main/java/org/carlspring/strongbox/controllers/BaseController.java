@@ -305,12 +305,17 @@ public abstract class BaseController
                     os.flush();
                 }
                 catch (EOFException e)
-                {                   
-                    if (e.getCause().getMessage().equals("Connection reset by peer")) {
+                {
+                    if (e.getCause().getMessage().equals("Connection reset by peer"))
+                    {
                         logger.debug("Socket has been closed. Possibly, user cancelled download.");
                         // Set response status 202 ACCEPTED just for logs
                         response.setStatus(202);
                         break;
+                    }
+                    else
+                    {
+                        throw e;
                     }
                 }
 
