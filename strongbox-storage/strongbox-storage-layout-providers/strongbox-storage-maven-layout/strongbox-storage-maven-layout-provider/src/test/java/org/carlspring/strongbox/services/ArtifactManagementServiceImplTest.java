@@ -30,7 +30,6 @@ import java.io.InputStream;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
-import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 import java.util.*;
 import java.util.concurrent.Callable;
@@ -122,6 +121,9 @@ public class ArtifactManagementServiceImplTest
                                                                    Path artifactPath)
             throws Exception
     {
+        final String storageId = repositoryWithoutDeployment.getStorage().getId();
+        final String repositoryId = repositoryWithoutDeployment.getId();
+
         RepositoryPath path = (RepositoryPath) artifactPath.normalize();
         String gavtc = "org.carlspring.strongbox:strongbox-utils:8.0:jar";
 
@@ -129,8 +131,8 @@ public class ArtifactManagementServiceImplTest
         try (InputStream is = artifactResolutionService.getInputStream(path))
         {
             Artifact artifact = MavenArtifactTestUtils.getArtifactFromGAVTC(gavtc);
-            RepositoryPath repositoryPath = repositoryPathResolver.resolve(STORAGE0,
-                                                                           repositoryWithoutDeployment.getId(),
+            RepositoryPath repositoryPath = repositoryPathResolver.resolve(storageId,
+                                                                           repositoryId,
                                                                            MavenArtifactUtils.convertArtifactToPath(artifact));
             mavenArtifactManagementService.validateAndStore(repositoryPath, is);
 
@@ -155,6 +157,9 @@ public class ArtifactManagementServiceImplTest
                                                                        Path artifactPath)
             throws Exception
     {
+        final String storageId = repositoryWithoutDeployment.getStorage().getId();
+        final String repositoryId = repositoryWithoutDeployment.getId();
+
         RepositoryPath path = (RepositoryPath) artifactPath.normalize();
         String gavtc = "org.carlspring.strongbox:strongbox-utils:8.1:jar";
 
@@ -162,8 +167,8 @@ public class ArtifactManagementServiceImplTest
         try (InputStream is = artifactResolutionService.getInputStream(path))
         {
             Artifact artifact = MavenArtifactTestUtils.getArtifactFromGAVTC(gavtc);
-            RepositoryPath repositoryPath = repositoryPathResolver.resolve(STORAGE0,
-                                                                           repositoryWithoutDeployment.getId(),
+            RepositoryPath repositoryPath = repositoryPathResolver.resolve(storageId,
+                                                                           repositoryId,
                                                                            MavenArtifactUtils.convertArtifactToPath(artifact));
             mavenArtifactManagementService.validateAndStore(repositoryPath, is);
 
@@ -187,14 +192,17 @@ public class ArtifactManagementServiceImplTest
                                                                List<Path> artifactPaths)
             throws Exception
     {
+        final String storageId = repositoryWithoutDeployment.getStorage().getId();
+        final String repositoryId = repositoryWithoutDeployment.getId();
+
         String gavtc = "org.carlspring.strongbox:strongbox-utils:8.2:jar";
 
         //noinspection EmptyCatchBlock
         try
         {
             Artifact artifact = MavenArtifactTestUtils.getArtifactFromGAVTC(gavtc);
-            RepositoryPath repositoryPath = repositoryPathResolver.resolve(STORAGE0,
-                                                                           repositoryWithoutDeployment.getId(),
+            RepositoryPath repositoryPath = repositoryPathResolver.resolve(storageId,
+                                                                           repositoryId,
                                                                            MavenArtifactUtils.convertArtifactToPath(artifact));
             mavenArtifactManagementService.delete(repositoryPath, false);
 
@@ -223,7 +231,8 @@ public class ArtifactManagementServiceImplTest
                                                                             Path artifactPath)
             throws Exception
     {
-        String repositoryGroupId = repositoryGroup.getId();
+        final String storageId = repositoryGroup.getStorage().getId();
+        final String repositoryId = repositoryGroup.getId();
 
         RepositoryPath path = (RepositoryPath) artifactPath.normalize();
 
@@ -236,8 +245,8 @@ public class ArtifactManagementServiceImplTest
             //noinspection EmptyCatchBlock
             try
             {
-                RepositoryPath repositoryPath = repositoryPathResolver.resolve(STORAGE0,
-                                                                               repositoryGroupId,
+                RepositoryPath repositoryPath = repositoryPathResolver.resolve(storageId,
+                                                                               repositoryId,
                                                                                MavenArtifactUtils.convertArtifactToPath(artifact));
                 mavenArtifactManagementService.validateAndStore(repositoryPath, is);
 
@@ -251,8 +260,8 @@ public class ArtifactManagementServiceImplTest
             //noinspection EmptyCatchBlock
             try
             {
-                RepositoryPath repositoryPath = repositoryPathResolver.resolve(STORAGE0,
-                                                                               repositoryGroupId,
+                RepositoryPath repositoryPath = repositoryPathResolver.resolve(storageId,
+                                                                               repositoryId,
                                                                                MavenArtifactUtils.convertArtifactToPath(artifact));
                 mavenArtifactManagementService.validateAndStore(repositoryPath, is);
 
@@ -263,8 +272,8 @@ public class ArtifactManagementServiceImplTest
                 // This is the expected correct behavior
             }
 
-            RepositoryPath repositoryPath = repositoryPathResolver.resolve(STORAGE0,
-                                                                           repositoryGroupId,
+            RepositoryPath repositoryPath = repositoryPathResolver.resolve(storageId,
+                                                                           repositoryId,
                                                                            MavenArtifactUtils.convertArtifactToPath(artifact));
 
             // Delete: Case 1: No forcing
@@ -366,7 +375,8 @@ public class ArtifactManagementServiceImplTest
                                                Repository repository)
             throws Exception
     {
-        String repositoryId = repository.getId();
+        final String storageId = repository.getStorage().getId();
+        final String repositoryId = repository.getId();
 
         RootRepositoryPath repositoryPath = repositoryPathResolver.resolve(repository);
 
@@ -387,10 +397,12 @@ public class ArtifactManagementServiceImplTest
             assertEquals(3, timestampedSnapshots, "Amount of timestamped snapshots doesn't equal 3.");
         }
 
-        artifactMetadataService.rebuildMetadata(STORAGE0, repositoryId, "org/carlspring/strongbox/timestamped");
+        artifactMetadataService.rebuildMetadata(storageId,
+                                                repositoryId,
+                                                "org/carlspring/strongbox/timestamped");
 
         //To check removing timestamped snapshot with numberToKeep = 1
-        mavenRepositoryFeatures.removeTimestampedSnapshots(STORAGE0,
+        mavenRepositoryFeatures.removeTimestampedSnapshots(storageId,
                                                            repositoryId,
                                                            "org/carlspring/strongbox/timestamped",
                                                            1,
@@ -422,7 +434,9 @@ public class ArtifactManagementServiceImplTest
                                   2,
                                   timestamp);
 
-        artifactMetadataService.rebuildMetadata(STORAGE0, repositoryId, "org/carlspring/strongbox/timestamped");
+        artifactMetadataService.rebuildMetadata(storageId,
+                                                repositoryId,
+                                                "org/carlspring/strongbox/timestamped");
 
         try (Stream<Path> pathStream = Files.walk(artifactVersionBasePath))
         {
@@ -431,7 +445,7 @@ public class ArtifactManagementServiceImplTest
         }
 
         // To check removing timestamped snapshot with keepPeriod = 3 and numberToKeep = 0
-        mavenRepositoryFeatures.removeTimestampedSnapshots(STORAGE0,
+        mavenRepositoryFeatures.removeTimestampedSnapshots(storageId,
                                                            repositoryId,
                                                            "org/carlspring/strongbox/timestamped",
                                                            0,
@@ -526,7 +540,8 @@ public class ArtifactManagementServiceImplTest
                                           Repository repository)
             throws Exception
     {
-        String repositoryId = repository.getId();
+        final String storageId = repository.getStorage().getId();
+        final String repositoryId = repository.getId();
 
         // store the file without classifier
         String gavtc = "org.carlspring.strongbox:strongbox-lv-artifact:1.0:jar";
@@ -535,14 +550,16 @@ public class ArtifactManagementServiceImplTest
 
         try (InputStream is = new ByteArrayInputStream("strongbox-lv-artifact-content".getBytes(StandardCharsets.UTF_8)))
         {
-            RepositoryPath repositoryPath = repositoryPathResolver.resolve(STORAGE0,
+            RepositoryPath repositoryPath = repositoryPathResolver.resolve(storageId,
                                                                            repositoryId,
                                                                            artifactPath);
             mavenArtifactManagementService.validateAndStore(repositoryPath, is);
         }
 
         // confirm it has last-version tag
-        ArtifactEntry artifactEntry = artifactEntryService.findOneArtifact(STORAGE0, repositoryId, artifactPath);
+        ArtifactEntry artifactEntry = artifactEntryService.findOneArtifact(storageId,
+                                                                           repositoryId,
+                                                                           artifactPath);
         MatcherAssert.assertThat(artifactEntry.getTagSet(), CoreMatchers.notNullValue());
         MatcherAssert.assertThat(artifactEntry.getTagSet().size(), CoreMatchers.equalTo(1));
         MatcherAssert.assertThat(artifactEntry.getTagSet().iterator().next().getName(),
@@ -555,14 +572,14 @@ public class ArtifactManagementServiceImplTest
 
         try (InputStream is = new ByteArrayInputStream("strongbox-lv-artifact-content".getBytes(StandardCharsets.UTF_8)))
         {
-            RepositoryPath repositoryPath = repositoryPathResolver.resolve(STORAGE0,
+            RepositoryPath repositoryPath = repositoryPathResolver.resolve(storageId,
                                                                            repositoryId,
                                                                            artifactPathWithClassifier);
             mavenArtifactManagementService.validateAndStore(repositoryPath, is);
         }
 
         // confirm it has last-version tag
-        ArtifactEntry artifactEntryWithClassifier = artifactEntryService.findOneArtifact(STORAGE0,
+        ArtifactEntry artifactEntryWithClassifier = artifactEntryService.findOneArtifact(storageId,
                                                                                          repositoryId,
                                                                                          artifactPathWithClassifier);
 
@@ -573,7 +590,9 @@ public class ArtifactManagementServiceImplTest
 
         // re-fetch the artifact without classifier
         // and confirm it still has the last version tag
-        artifactEntry = artifactEntryService.findOneArtifact(STORAGE0, repositoryId, artifactPath);
+        artifactEntry = artifactEntryService.findOneArtifact(storageId,
+                                                             repositoryId,
+                                                             artifactPath);
         MatcherAssert.assertThat(artifactEntry.getTagSet(), CoreMatchers.notNullValue());
         MatcherAssert.assertThat(artifactEntry.getTagSet().size(), CoreMatchers.equalTo(1));
         MatcherAssert.assertThat(artifactEntry.getTagSet().iterator().next().getName(),
@@ -586,14 +605,14 @@ public class ArtifactManagementServiceImplTest
 
         try (InputStream is = new ByteArrayInputStream("strongbox-lv-artifact-content".getBytes(StandardCharsets.UTF_8)))
         {
-            RepositoryPath repositoryPath = repositoryPathResolver.resolve(STORAGE0,
+            RepositoryPath repositoryPath = repositoryPathResolver.resolve(storageId,
                                                                            repositoryId,
                                                                            artifactPathV2);
             mavenArtifactManagementService.validateAndStore(repositoryPath, is);
         }
 
         // confirm it has last-version tag
-        ArtifactEntry artifactEntryV2 = artifactEntryService.findOneArtifact(STORAGE0,
+        ArtifactEntry artifactEntryV2 = artifactEntryService.findOneArtifact(storageId,
                                                                              repositoryId,
                                                                              artifactPathV2);
 
@@ -604,12 +623,14 @@ public class ArtifactManagementServiceImplTest
 
         // re-fetch the artifact without classifier
         // and confirm it no longer has the last version tag
-        artifactEntry = artifactEntryService.findOneArtifact(STORAGE0, repositoryId, artifactPath);
+        artifactEntry = artifactEntryService.findOneArtifact(storageId,
+                                                             repositoryId,
+                                                             artifactPath);
         MatcherAssert.assertThat(artifactEntry.getTagSet(), CoreMatchers.notNullValue());
         MatcherAssert.assertThat(artifactEntry.getTagSet().size(), CoreMatchers.equalTo(0));
 
         // confirm it no longer has last-version tag
-        artifactEntryWithClassifier = artifactEntryService.findOneArtifact(STORAGE0,
+        artifactEntryWithClassifier = artifactEntryService.findOneArtifact(storageId,
                                                                            repositoryId,
                                                                            artifactPathWithClassifier);
 
@@ -626,6 +647,9 @@ public class ArtifactManagementServiceImplTest
                                      Path artifact)
             throws Exception
     {
+        final String storageId = repository.getStorage().getId();
+        final String repositoryId = repository.getId();
+
         String artifactPathStr = "org/carlspring/strongbox/strongbox-checksum-test/8.4/strongbox-checksum-test-8.4.jar";
         RepositoryPath repositoryPath = repositoryPathResolver.resolve(repository).resolve(artifactPathStr);
 
@@ -643,7 +667,9 @@ public class ArtifactManagementServiceImplTest
         expectedChecksums.put("MD5", md5Checksum);
 
         String path = RepositoryFiles.relativizePath(repositoryPath);
-        ArtifactEntry artifactEntry = artifactEntryService.findOneArtifact(STORAGE0, repository.getId(), path);
+        ArtifactEntry artifactEntry = artifactEntryService.findOneArtifact(storageId,
+                                                                           repositoryId,
+                                                                           path);
 
         assertNotNull(artifactEntry);
 

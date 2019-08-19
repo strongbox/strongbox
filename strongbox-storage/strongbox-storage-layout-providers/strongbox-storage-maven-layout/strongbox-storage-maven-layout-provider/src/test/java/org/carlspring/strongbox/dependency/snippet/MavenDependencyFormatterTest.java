@@ -8,7 +8,6 @@ import org.carlspring.strongbox.providers.io.RepositoryPath;
 import org.carlspring.strongbox.providers.layout.Maven2LayoutProvider;
 import org.carlspring.strongbox.storage.repository.Repository;
 import org.carlspring.strongbox.testing.MavenIndexedRepositorySetup;
-import org.carlspring.strongbox.testing.TestCaseWithMavenArtifactGenerationAndIndexing;
 import org.carlspring.strongbox.testing.artifact.ArtifactManagementTestExecutionListener;
 import org.carlspring.strongbox.testing.artifact.MavenTestArtifact;
 import org.carlspring.strongbox.testing.repository.MavenRepository;
@@ -39,7 +38,6 @@ import static org.junit.jupiter.api.parallel.ExecutionMode.SAME_THREAD;
 @ContextConfiguration(classes = Maven2LayoutProviderTestConfig.class)
 @Execution(SAME_THREAD)
 public class MavenDependencyFormatterTest
-        extends TestCaseWithMavenArtifactGenerationAndIndexing
 {
 
     private static final String REPOSITORY_RELEASES = "mdft-releases";

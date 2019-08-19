@@ -1,11 +1,12 @@
 package org.carlspring.strongbox.cron.jobs;
 
+import org.carlspring.strongbox.configuration.Configuration;
 import org.carlspring.strongbox.cron.domain.CronTaskConfigurationDto;
 import org.carlspring.strongbox.cron.services.CronTaskConfigurationService;
 import org.carlspring.strongbox.cron.services.JobManager;
 import org.carlspring.strongbox.event.cron.CronTaskEvent;
 import org.carlspring.strongbox.event.cron.CronTaskEventTypeEnum;
-import org.carlspring.strongbox.testing.TestCaseWithMavenArtifactGenerationAndIndexing;
+import org.carlspring.strongbox.services.ConfigurationManagementService;
 
 import javax.inject.Inject;
 import java.lang.reflect.Method;
@@ -27,8 +28,9 @@ import org.springframework.context.ConfigurableApplicationContext;
  * @author carlspring
  */
 public class BaseCronJobWithMavenIndexingTestCase
-        extends TestCaseWithMavenArtifactGenerationAndIndexing
 {
+
+    protected static final String STORAGE0 = "storage0";
 
     protected static final long EVENT_TIMEOUT_SECONDS = 10L;
 
@@ -37,6 +39,9 @@ public class BaseCronJobWithMavenIndexingTestCase
 
     @Inject
     protected JobManager jobManager;
+
+    @Inject
+    protected ConfigurationManagementService configurationManagementService;
 
     @Inject
     private ApplicationContext applicationContext;
@@ -106,10 +111,15 @@ public class BaseCronJobWithMavenIndexingTestCase
         return cronTaskConfiguration;
     }
 
-    public CronTaskConfigurationDto addCronTaskConfiguration(String key,
-                                                             CronTaskConfigurationDto value)
+    protected CronTaskConfigurationDto addCronTaskConfiguration(String key,
+                                                                CronTaskConfigurationDto value)
     {
         return cronTaskConfigurations.put(key, value);
+    }
+
+    protected Configuration getConfiguration()
+    {
+        return configurationManagementService.getConfiguration();
     }
 
     @BeforeEach

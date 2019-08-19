@@ -4,12 +4,11 @@ import org.carlspring.strongbox.config.Maven2LayoutProviderCronTasksTestConfig;
 import org.carlspring.strongbox.cron.domain.CronTaskConfigurationDto;
 import org.carlspring.strongbox.data.CacheManagerTestExecutionListener;
 import org.carlspring.strongbox.providers.io.RepositoryPath;
-import org.carlspring.strongbox.services.ArtifactSearchService;
 import org.carlspring.strongbox.storage.indexing.IndexTypeEnum;
-import org.carlspring.strongbox.storage.indexing.RepositoryIndexDirectoryPathResolver;
-import org.carlspring.strongbox.storage.indexing.RepositoryIndexDirectoryPathResolver.RepositoryIndexDirectoryPathResolverQualifier;
 import org.carlspring.strongbox.storage.indexing.RepositoryIndexCreator;
 import org.carlspring.strongbox.storage.indexing.RepositoryIndexCreator.RepositoryIndexCreatorQualifier;
+import org.carlspring.strongbox.storage.indexing.RepositoryIndexDirectoryPathResolver;
+import org.carlspring.strongbox.storage.indexing.RepositoryIndexDirectoryPathResolver.RepositoryIndexDirectoryPathResolverQualifier;
 import org.carlspring.strongbox.storage.repository.Repository;
 import org.carlspring.strongbox.storage.repository.RepositoryTypeEnum;
 import org.carlspring.strongbox.testing.MavenIndexedRepositorySetup;
@@ -28,7 +27,6 @@ import java.util.concurrent.TimeUnit;
 
 import org.apache.commons.lang3.StringUtils;
 import org.apache.maven.index.context.IndexingContext;
-import org.assertj.core.api.Assertions;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.junit.jupiter.api.parallel.Execution;
@@ -69,10 +67,6 @@ public class DownloadRemoteMavenIndexCronJobTestIT
 
     private static final String VERSION = "1.0";
 
-
-    @Inject
-    private ArtifactSearchService artifactSearchService;
-
     @Inject
     @RepositoryIndexCreatorQualifier(RepositoryTypeEnum.HOSTED)
     private RepositoryIndexCreator repositoryIndexCreator;
@@ -101,6 +95,9 @@ public class DownloadRemoteMavenIndexCronJobTestIT
                                                         Path artifact2)
             throws Exception
     {
+        final String storageId = proxyRepository.getStorage().getId();
+        final String repositoryId = proxyRepository.getId();
+
         repositoryIndexCreator.apply(repository);
 
         final UUID jobKey = expectedJobKey;
@@ -127,8 +124,8 @@ public class DownloadRemoteMavenIndexCronJobTestIT
         addCronJobConfig(jobKey,
                          jobName,
                          DownloadRemoteMavenIndexCronJobTestSubj.class,
-                         STORAGE0,
-                         proxyRepository.getId());
+                         storageId,
+                         repositoryId);
 
         await().atMost(EVENT_TIMEOUT_SECONDS, TimeUnit.SECONDS).untilTrue(receivedExpectedEvent());
     }

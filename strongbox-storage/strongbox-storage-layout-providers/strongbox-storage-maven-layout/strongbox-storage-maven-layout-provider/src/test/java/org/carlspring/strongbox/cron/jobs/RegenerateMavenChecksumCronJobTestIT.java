@@ -3,6 +3,7 @@ package org.carlspring.strongbox.cron.jobs;
 import org.carlspring.strongbox.config.Maven2LayoutProviderCronTasksTestConfig;
 import org.carlspring.strongbox.data.CacheManagerTestExecutionListener;
 import org.carlspring.strongbox.providers.io.RepositoryPath;
+import org.carlspring.strongbox.providers.io.RepositoryPathResolver;
 import org.carlspring.strongbox.services.ArtifactMetadataService;
 import org.carlspring.strongbox.storage.repository.Repository;
 import org.carlspring.strongbox.testing.artifact.ArtifactManagementTestExecutionListener;
@@ -52,6 +53,9 @@ public class RegenerateMavenChecksumCronJobTestIT
     @Inject
     private ArtifactMetadataService artifactMetadataService;
 
+    @Inject
+    private RepositoryPathResolver repositoryPathResolver;
+
     @Test
     @ExtendWith({ RepositoryManagementTestExecutionListener.class,
                   ArtifactManagementTestExecutionListener.class })
@@ -67,6 +71,9 @@ public class RegenerateMavenChecksumCronJobTestIT
                                               List<Path> artifactPaths)
             throws Exception
     {
+        final String storageId = repository.getStorage().getId();
+        final String repositoryId = repository.getId();
+
         final UUID jobKey = expectedJobKey;
         final String jobName = expectedJobName;
 
@@ -74,8 +81,8 @@ public class RegenerateMavenChecksumCronJobTestIT
         String artifactBaseDir = "org/carlspring/strongbox/strongbox-checksum-one";
         Path artifactBasePath = repositoryPathResolver.resolve(repository, artifactBaseDir);
 
-        artifactMetadataService.rebuildMetadata(STORAGE0,
-                                                repository.getId(),
+        artifactMetadataService.rebuildMetadata(storageId,
+                                                repositoryId,
                                                 artifactBaseDir);
 
         Path md5Path = Paths.get( artifactPath.toString() + ".md5");
@@ -144,8 +151,8 @@ public class RegenerateMavenChecksumCronJobTestIT
         addCronJobConfig(jobKey,
                          jobName,
                          RegenerateChecksumCronJob.class,
-                         STORAGE0,
-                         repository.getId(),
+                         storageId,
+                         repositoryId,
                          properties ->
                          {
                              properties.put("basePath", artifactBaseDir);
@@ -170,6 +177,8 @@ public class RegenerateMavenChecksumCronJobTestIT
                                                   List<Path> artifactPaths)
             throws Exception
     {
+        final String storageId = repository.getStorage().getId();
+        final String repositoryId = repository.getId();
 
         final UUID jobKey = expectedJobKey;
         final String jobName = expectedJobName;
@@ -178,8 +187,8 @@ public class RegenerateMavenChecksumCronJobTestIT
         String artifactBaseDir = "org/carlspring/strongbox/strongbox-checksum-two";
         Path artifactBasePath = repositoryPathResolver.resolve(repository, artifactBaseDir);
 
-        artifactMetadataService.rebuildMetadata(STORAGE0,
-                                                repository.getId(),
+        artifactMetadataService.rebuildMetadata(storageId,
+                                                repositoryId,
                                                 artifactBaseDir);
 
         Path md5Path = Paths.get( artifactPath.toString() + ".md5");
@@ -247,8 +256,8 @@ public class RegenerateMavenChecksumCronJobTestIT
         addCronJobConfig(jobKey,
                          jobName,
                          RegenerateChecksumCronJob.class,
-                         STORAGE0,
-                         repository.getId(),
+                         storageId,
+                         repositoryId,
                          properties -> properties.put("forceRegeneration", "false"));
 
         await().atMost(EVENT_TIMEOUT_SECONDS, TimeUnit.SECONDS).untilTrue(receivedExpectedEvent());

@@ -5,6 +5,7 @@ import org.carlspring.strongbox.artifact.MavenArtifactUtils;
 import org.carlspring.strongbox.config.Maven2LayoutProviderTestConfig;
 import org.carlspring.strongbox.providers.ProviderImplementationException;
 import org.carlspring.strongbox.providers.io.RepositoryPath;
+import org.carlspring.strongbox.providers.io.RepositoryPathResolver;
 import org.carlspring.strongbox.storage.metadata.MetadataHelper;
 import org.carlspring.strongbox.storage.metadata.MetadataType;
 import org.carlspring.strongbox.storage.repository.Repository;
@@ -57,6 +58,9 @@ public class ArtifactMetadataServiceReleasesTest
     @Inject
     private ArtifactMetadataService artifactMetadataService;
 
+    @Inject
+    private RepositoryPathResolver repositoryPathResolver;
+
     @ExtendWith({ RepositoryManagementTestExecutionListener.class,
                   ArtifactManagementTestExecutionListener.class })
     @Test
@@ -81,6 +85,7 @@ public class ArtifactMetadataServiceReleasesTest
                                            List<Path> repositoryArtifact3)
             throws IOException, XmlPullParserException, NoSuchAlgorithmException
     {
+        final String storageId = repository.getStorage().getId();
         final String repositoryId = repository.getId();
         final String artifactPathStr = "org/carlspring/strongbox/metadata/strongbox-metadata";
 
@@ -98,9 +103,9 @@ public class ArtifactMetadataServiceReleasesTest
         assertNotNull(artifact);
         changeCreationDate(artifact);
 
-        artifactMetadataService.rebuildMetadata(STORAGE0, repositoryId, "org/carlspring/strongbox/metadata");
+        artifactMetadataService.rebuildMetadata(storageId, repositoryId, "org/carlspring/strongbox/metadata");
 
-        Metadata metadata = artifactMetadataService.getMetadata(STORAGE0,
+        Metadata metadata = artifactMetadataService.getMetadata(storageId,
                                                                 repositoryId,
                                                                 artifactPathStr);
 
@@ -115,13 +120,13 @@ public class ArtifactMetadataServiceReleasesTest
         assertEquals("1.5", versioning.getRelease(), "Incorrect latest release version!");
         assertEquals(6, versioning.getVersions().size(), "Incorrect number of versions stored in metadata!");
 
-        Metadata nestedMetadata1 = artifactMetadataService.getMetadata(STORAGE0,
+        Metadata nestedMetadata1 = artifactMetadataService.getMetadata(storageId,
                                                                        repositoryId,
                                                                        "org/carlspring/strongbox/metadata/nested/foo");
 
         assertNotNull(nestedMetadata1);
 
-        Metadata nestedMetadata2 = artifactMetadataService.getMetadata(STORAGE0,
+        Metadata nestedMetadata2 = artifactMetadataService.getMetadata(storageId,
                                                                        repositoryId,
                                                                        "org/carlspring/strongbox/metadata/nested/bar");
 
@@ -142,23 +147,24 @@ public class ArtifactMetadataServiceReleasesTest
                                          List<Path> artifactGroupPath)
             throws IOException, XmlPullParserException, NoSuchAlgorithmException
     {
+        final String storageId = repository.getStorage().getId();
         final String repositoryId = repository.getId();
         final String artifactPath = "org/carlspring/strongbox/added";
 
-        artifactMetadataService.rebuildMetadata(STORAGE0, repositoryId, artifactPath);
+        artifactMetadataService.rebuildMetadata(storageId, repositoryId, artifactPath);
 
-        Metadata metadataBefore = artifactMetadataService.getMetadata(STORAGE0, repositoryId, artifactPath);
+        Metadata metadataBefore = artifactMetadataService.getMetadata(storageId, repositoryId, artifactPath);
 
         assertNotNull(metadataBefore);
         assertTrue(MetadataHelper.containsVersion(metadataBefore, "1.3"), "Unexpected set of versions!");
 
-        artifactMetadataService.addVersion(STORAGE0,
+        artifactMetadataService.addVersion(storageId,
                                            repositoryId,
                                            artifactPath,
                                            "1.4",
                                            MetadataType.ARTIFACT_ROOT_LEVEL);
 
-        Metadata metadataAfter = artifactMetadataService.getMetadata(STORAGE0, repositoryId, artifactPath);
+        Metadata metadataAfter = artifactMetadataService.getMetadata(storageId, repositoryId, artifactPath);
 
         assertNotNull(metadataAfter);
         assertTrue(MetadataHelper.containsVersion(metadataAfter, "1.4"), "Unexpected set of versions!");
@@ -180,23 +186,24 @@ public class ArtifactMetadataServiceReleasesTest
                                               List<Path> artifactGroupPath)
             throws IOException, XmlPullParserException, NoSuchAlgorithmException
     {
+        final String storageId = repository.getStorage().getId();
         final String repositoryId = repository.getId();
         final String artifactPath = "org/carlspring/strongbox/deleted";
 
-        artifactMetadataService.rebuildMetadata(STORAGE0, repositoryId, artifactPath);
+        artifactMetadataService.rebuildMetadata(storageId, repositoryId, artifactPath);
 
-        Metadata metadataBefore = artifactMetadataService.getMetadata(STORAGE0, repositoryId, artifactPath);
+        Metadata metadataBefore = artifactMetadataService.getMetadata(storageId, repositoryId, artifactPath);
 
         assertNotNull(metadataBefore);
         assertTrue(MetadataHelper.containsVersion(metadataBefore, "1.3"), "Unexpected set of versions!");
 
-        artifactMetadataService.removeVersion(STORAGE0,
+        artifactMetadataService.removeVersion(storageId,
                                               repositoryId,
                                               artifactPath,
                                               "1.3",
                                               MetadataType.ARTIFACT_ROOT_LEVEL);
 
-        Metadata metadataAfter = artifactMetadataService.getMetadata(STORAGE0, repositoryId, artifactPath);
+        Metadata metadataAfter = artifactMetadataService.getMetadata(storageId, repositoryId, artifactPath);
 
         assertNotNull(metadataAfter);
         assertFalse(MetadataHelper.containsVersion(metadataAfter, "1.3"), "Unexpected set of versions!");
@@ -214,17 +221,18 @@ public class ArtifactMetadataServiceReleasesTest
                                                  List<Path> artifactGroupPath)
             throws IOException, XmlPullParserException, NoSuchAlgorithmException
     {
+        final String storageId = repository.getStorage().getId();
         final String repositoryId = repository.getId();
         final String artifactPathStr = "org/carlspring/strongbox/metadata/maven/strongbox-metadata-plugin";
 
         Artifact pluginArtifact = MavenArtifactTestUtils.getArtifactFromGAVTC(
                 "org.carlspring.strongbox.metadata.maven:strongbox-metadata-plugin:1.0");
 
-        artifactMetadataService.rebuildMetadata(STORAGE0,
+        artifactMetadataService.rebuildMetadata(storageId,
                                                 repositoryId,
                                                 artifactPathStr);
 
-        Metadata metadata = artifactMetadataService.getMetadata(STORAGE0,
+        Metadata metadata = artifactMetadataService.getMetadata(storageId,
                                                                 repositoryId,
                                                                 artifactPathStr);
 
@@ -250,6 +258,7 @@ public class ArtifactMetadataServiceReleasesTest
                                   List<Path> artifactGroupPath)
             throws IOException, XmlPullParserException, NoSuchAlgorithmException, ProviderImplementationException
     {
+        final String storageId = repository.getStorage().getId();
         final String repositoryId = repository.getId();
         final String artifactPathStr = "org/carlspring/strongbox/metadata/strongbox-metadata-merge";
 
@@ -257,7 +266,7 @@ public class ArtifactMetadataServiceReleasesTest
         MavenArtifact mergeArtifact = MavenArtifactUtils.convertPathToArtifact(repositoryPath);
 
         // Generate a proper maven-metadata.xml
-        artifactMetadataService.rebuildMetadata(STORAGE0,
+        artifactMetadataService.rebuildMetadata(storageId,
                                                 repositoryId,
                                                 artifactPathStr);
 
@@ -275,7 +284,7 @@ public class ArtifactMetadataServiceReleasesTest
         // Merge
         artifactMetadataService.mergeMetadata(mergeArtifact, mergeMetadata);
 
-        Metadata metadata = artifactMetadataService.getMetadata(STORAGE0,
+        Metadata metadata = artifactMetadataService.getMetadata(storageId,
                                                                 repositoryId,
                                                                 artifactPathStr);
 

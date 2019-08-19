@@ -25,18 +25,19 @@ import static org.junit.jupiter.api.Assertions.assertThrows;
  * @author Przemyslaw Fusik
  */
 public class RetryDownloadArtifactWithUnsupportedRangeRequestTest
-        extends MockedRestArtifactResolverTestBase implements ArtifactResolverContext
+        extends MockedRestArtifactResolverTestBase
+        implements ArtifactResolverContext
 {
-    
+
     private static final String REPOSITORY = "rdawurrt-repository";
 
     private static final String PROXY_REPOSITORY_URL = "https://repo.maven.apache.org/maven2/";
-    
+
     private boolean exceptionAlreadyThrown;
-    
+
     private OneTimeBrokenArtifactInputStream brokenArtifactInputStream;
 
-    public RetryDownloadArtifactWithUnsupportedRangeRequestTest()
+    RetryDownloadArtifactWithUnsupportedRangeRequestTest()
     {
         brokenArtifactInputStream = new OneTimeBrokenArtifactInputStream(jarArtifact);
     }
@@ -46,7 +47,7 @@ public class RetryDownloadArtifactWithUnsupportedRangeRequestTest
     {
         return brokenArtifactInputStream;
     }
-    
+
     @Override
     public boolean isByteRangeRequestSupported()
     {
@@ -61,20 +62,25 @@ public class RetryDownloadArtifactWithUnsupportedRangeRequestTest
 
     @Test
     @ExtendWith(RepositoryManagementTestExecutionListener.class)
-    public void unsupportedRangeProxyRepositoryRequestShouldSkipRetryFeature(@MavenRepository(repositoryId = REPOSITORY) @Remote(url = PROXY_REPOSITORY_URL) Repository proxyRepository)
+    void unsupportedRangeProxyRepositoryRequestShouldSkipRetryFeature(
+            @MavenRepository(repositoryId = REPOSITORY)
+            @Remote(url = PROXY_REPOSITORY_URL)
+            Repository proxyRepository)
     {
         Artifact artifact = MavenArtifactTestUtils.getArtifactFromGAVTC("org.apache.commons:commons-lang3:3.2");
         String path = MavenArtifactUtils.convertArtifactToPath(artifact);
-        RepositoryPath artifactPath = repositoryPathResolver.resolve(proxyRepository)
-                                                            .resolve(path);
-        
+        RepositoryPath artifactPath = repositoryPathResolver.resolve(proxyRepository,
+                                                                     path);
+
         // given
         assertFalse(Files.exists(artifactPath));
         assertFalse(exceptionAlreadyThrown);
 
         IOException exception = assertThrows(IOException.class, () -> {
             // when
-            assertStreamNotNull(STORAGE0, REPOSITORY, path);
+            assertStreamNotNull(proxyRepository.getStorage().getId(),
+                                proxyRepository.getId(),
+                                path);
         });
 
         //then
@@ -87,7 +93,7 @@ public class RetryDownloadArtifactWithUnsupportedRangeRequestTest
 
         private int currentReadSize;
 
-        public OneTimeBrokenArtifactInputStream(final Resource jarArtifact)
+        OneTimeBrokenArtifactInputStream(final Resource jarArtifact)
         {
             super(jarArtifact);
         }

@@ -52,10 +52,10 @@ public class RebuildMavenMetadataCronJobTestIT
     @Inject
     private ArtifactMetadataService artifactMetadataService;
 
-    @ExtendWith({ RepositoryManagementTestExecutionListener.class, ArtifactManagementTestExecutionListener.class })
+    @ExtendWith({ RepositoryManagementTestExecutionListener.class,
+                  ArtifactManagementTestExecutionListener.class })
     @Test
-    public void testRebuildArtifactsMetadata(@MavenRepository(storageId = STORAGE0,
-                                                              repositoryId = RMMCJTIT_SNAPSHOTS,
+    public void testRebuildArtifactsMetadata(@MavenRepository(repositoryId = RMMCJTIT_SNAPSHOTS,
                                                               policy = RepositoryPolicyEnum.SNAPSHOT)
                                              Repository repository,
                                              @MavenTestArtifact(repositoryId = RMMCJTIT_SNAPSHOTS,
@@ -71,7 +71,8 @@ public class RebuildMavenMetadataCronJobTestIT
                                              List<Path> artifact)
             throws Exception
     {
-
+        final String storageId = repository.getStorage().getId();
+        final String repositoryId = repository.getId();
         String artifactId = "strongbox-metadata-one";
 
         String groupId = "org.carlspring.strongbox";
@@ -84,8 +85,8 @@ public class RebuildMavenMetadataCronJobTestIT
             {
                 try
                 {
-                    Metadata metadata = artifactMetadataService.getMetadata(STORAGE0,
-                                                                            RMMCJTIT_SNAPSHOTS,
+                    Metadata metadata = artifactMetadataService.getMetadata(storageId,
+                                                                            repositoryId,
                                                                             "org/carlspring/strongbox/strongbox-metadata-one");
 
                     assertNotNull(metadata);
@@ -110,17 +111,17 @@ public class RebuildMavenMetadataCronJobTestIT
         addCronJobConfig(jobKey,
                          jobName,
                          RebuildMavenMetadataCronJob.class,
-                         STORAGE0,
-                         RMMCJTIT_SNAPSHOTS,
+                         storageId,
+                         repositoryId,
                          properties -> properties.put("basePath", "org/carlspring/strongbox/strongbox-metadata-one"));
 
         await().atMost(EVENT_TIMEOUT_SECONDS, TimeUnit.SECONDS).untilTrue(receivedExpectedEvent());
     }
 
-    @ExtendWith({ RepositoryManagementTestExecutionListener.class, ArtifactManagementTestExecutionListener.class })
+    @ExtendWith({ RepositoryManagementTestExecutionListener.class,
+                  ArtifactManagementTestExecutionListener.class })
     @Test
-    public void testRebuildMetadataInRepository(@MavenRepository(storageId = STORAGE0,
-                                                                 repositoryId = TRMIR_SNAPSHOTS,
+    public void testRebuildMetadataInRepository(@MavenRepository(repositoryId = TRMIR_SNAPSHOTS,
                                                                  policy = RepositoryPolicyEnum.SNAPSHOT)
                                                 Repository repository,
                                                 @MavenTestArtifact(repositoryId = TRMIR_SNAPSHOTS,
@@ -147,6 +148,8 @@ public class RebuildMavenMetadataCronJobTestIT
                                                 List<Path> artifact2)
             throws Exception
     {
+        final String storageId = repository.getStorage().getId();
+        final String repositoryId = repository.getId();
 
         String artifactId1 = "strongbox-metadata-one";
 
@@ -162,11 +165,11 @@ public class RebuildMavenMetadataCronJobTestIT
             {
                 try
                 {
-                    Metadata metadata1 = artifactMetadataService.getMetadata(STORAGE0,
-                                                                             TRMIR_SNAPSHOTS,
+                    Metadata metadata1 = artifactMetadataService.getMetadata(storageId,
+                                                                             repositoryId,
                                                                              "org/carlspring/strongbox/strongbox-metadata-one");
-                    Metadata metadata2 = artifactMetadataService.getMetadata(STORAGE0,
-                                                                             TRMIR_SNAPSHOTS,
+                    Metadata metadata2 = artifactMetadataService.getMetadata(storageId,
+                                                                             repositoryId,
                                                                              "org/carlspring/strongbox/strongbox-metadata-second");
 
                     assertNotNull(metadata1);
@@ -201,8 +204,8 @@ public class RebuildMavenMetadataCronJobTestIT
         addCronJobConfig(jobKey,
                          jobName,
                          RebuildMavenMetadataCronJob.class,
-                         STORAGE0,
-                         TRMIR_SNAPSHOTS);
+                         storageId,
+                         repositoryId);
 
         await().atMost(EVENT_TIMEOUT_SECONDS, TimeUnit.SECONDS).untilTrue(receivedExpectedEvent());
     }

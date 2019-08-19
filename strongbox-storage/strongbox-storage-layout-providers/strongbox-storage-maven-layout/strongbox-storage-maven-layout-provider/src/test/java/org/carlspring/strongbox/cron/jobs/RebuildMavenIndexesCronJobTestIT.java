@@ -22,7 +22,6 @@ import java.util.concurrent.TimeUnit;
 
 import org.apache.commons.lang3.StringUtils;
 import org.apache.maven.index.context.IndexingContext;
-import org.assertj.core.api.Assertions;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.junit.jupiter.api.parallel.Execution;
@@ -79,6 +78,9 @@ public class RebuildMavenIndexesCronJobTestIT
                                             Path artifact2)
             throws Exception
     {
+        final String storageId = repository.getStorage().getId();
+        final String repositoryId = repository.getId();
+
         final UUID jobKey = expectedJobKey;
         final String jobName = expectedJobName;
 
@@ -97,8 +99,8 @@ public class RebuildMavenIndexesCronJobTestIT
         addCronJobConfig(jobKey,
                          jobName,
                          RebuildMavenIndexesCronJob.class,
-                         STORAGE0,
-                         repository.getId(),
+                         storageId,
+                         repositoryId,
                          properties -> properties.put("basePath", ARTIFACT_BASE_PATH_STRONGBOX_INDEXES));
 
         await().atMost(EVENT_TIMEOUT_SECONDS, TimeUnit.SECONDS).untilTrue(receivedExpectedEvent());
@@ -120,6 +122,9 @@ public class RebuildMavenIndexesCronJobTestIT
                                                Path artifact2)
             throws Exception
     {
+        final String storageId = repository.getStorage().getId();
+        final String repositoryId = repository.getId();
+
         final UUID jobKey = expectedJobKey;
         final String jobName = expectedJobName;
 
@@ -143,8 +148,8 @@ public class RebuildMavenIndexesCronJobTestIT
         addCronJobConfig(jobKey,
                          jobName,
                          RebuildMavenIndexesCronJob.class,
-                         STORAGE0,
-                         repository.getId());
+                         storageId,
+                         repositoryId);
 
         await().atMost(EVENT_TIMEOUT_SECONDS, TimeUnit.SECONDS).untilTrue(receivedExpectedEvent());
     }

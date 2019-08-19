@@ -2,37 +2,30 @@ package org.carlspring.strongbox.testing;
 
 import org.carlspring.strongbox.artifact.locator.ArtifactDirectoryLocator;
 import org.carlspring.strongbox.booters.PropertiesBooter;
+import org.carlspring.strongbox.configuration.Configuration;
 import org.carlspring.strongbox.event.artifact.ArtifactEventListenerRegistry;
 import org.carlspring.strongbox.locator.handlers.GenerateMavenMetadataOperation;
 import org.carlspring.strongbox.providers.io.RepositoryFiles;
 import org.carlspring.strongbox.providers.io.RepositoryPath;
-import org.carlspring.strongbox.providers.io.RootRepositoryPath;
-import org.carlspring.strongbox.repository.RepositoryManagementStrategyException;
 import org.carlspring.strongbox.services.ArtifactResolutionService;
-import org.carlspring.strongbox.services.ArtifactSearchService;
 import org.carlspring.strongbox.services.RepositoryManagementService;
 import org.carlspring.strongbox.storage.Storage;
 import org.carlspring.strongbox.storage.indexing.Indexer;
 import org.carlspring.strongbox.storage.indexing.RepositoryIndexCreator;
 import org.carlspring.strongbox.storage.indexing.RepositoryIndexingContextFactory;
 import org.carlspring.strongbox.storage.metadata.MavenMetadataManager;
-import org.carlspring.strongbox.storage.repository.*;
-import org.carlspring.strongbox.storage.repository.remote.RemoteRepositoryDto;
+import org.carlspring.strongbox.storage.repository.Repository;
 import org.carlspring.strongbox.storage.routing.MutableRoutingRule;
 import org.carlspring.strongbox.storage.routing.MutableRoutingRuleRepository;
 import org.carlspring.strongbox.storage.routing.RoutingRuleTypeEnum;
-import org.carlspring.strongbox.yaml.configuration.repository.MavenRepositoryConfigurationDto;
 
 import javax.inject.Inject;
-import javax.xml.bind.JAXBException;
 import java.io.Closeable;
 import java.io.IOException;
 import java.io.InputStream;
-import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.List;
-import java.util.Set;
 
 import com.google.common.io.ByteStreams;
 import org.apache.commons.io.FileUtils;
@@ -44,8 +37,6 @@ import org.apache.maven.index.FlatSearchRequest;
 import org.apache.maven.index.FlatSearchResponse;
 import org.apache.maven.index.context.IndexingContext;
 import org.assertj.core.api.Assertions;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 
 /**
@@ -55,8 +46,6 @@ import static org.junit.jupiter.api.Assertions.assertNotNull;
 public abstract class TestCaseWithMavenArtifactGenerationAndIndexing
         extends MavenTestCaseWithArtifactGeneration
 {
-    private static final Logger logger = LoggerFactory.getLogger(TestCaseWithMavenArtifactGenerationAndIndexing.class);
-
     protected static final String STORAGE0 = "storage0";
     
     @Inject
@@ -64,9 +53,6 @@ public abstract class TestCaseWithMavenArtifactGenerationAndIndexing
 
     @Inject
     protected RepositoryManagementService repositoryManagementService;
-
-    @Inject
-    protected ArtifactSearchService artifactSearchService;
 
     @Inject
     protected MavenMetadataManager mavenMetadataManager;
@@ -77,32 +63,7 @@ public abstract class TestCaseWithMavenArtifactGenerationAndIndexing
     @Inject
     protected ArtifactEventListenerRegistry artifactEventListenerRegistry;
 
-    @Inject
-    private MavenRepositoryFactory mavenRepositoryFactory;
-
     protected static final org.apache.maven.index.Indexer indexer = Indexer.INSTANCE;
-
-    @Override
-    public void createProxyRepository(String storageId,
-                                      String repositoryId,
-                                      String remoteRepositoryUrl)
-            throws IOException,
-                   JAXBException,
-                   RepositoryManagementStrategyException
-    {
-        MavenRepositoryConfigurationDto repositoryConfiguration = new MavenRepositoryConfigurationDto();
-        repositoryConfiguration.setIndexingEnabled(true);
-
-        RemoteRepositoryDto remoteRepository = new RemoteRepositoryDto();
-        remoteRepository.setUrl(remoteRepositoryUrl);
-
-        RepositoryDto repository = mavenRepositoryFactory.createRepository(repositoryId);
-        repository.setRemoteRepository(remoteRepository);
-        repository.setRepositoryConfiguration(repositoryConfiguration);
-        repository.setType(RepositoryTypeEnum.PROXY.getType());
-
-        createRepository(storageId, repository);
-    }
 
     public void createAndAddRoutingRule(String groupStorageId,
                                         String groupRepositoryId,
@@ -128,6 +89,11 @@ public abstract class TestCaseWithMavenArtifactGenerationAndIndexing
         locator.setBasedir(repositoryPath);
         locator.setOperation(new GenerateMavenMetadataOperation(mavenMetadataManager, artifactEventListenerRegistry));
         locator.locateArtifactDirectories();
+    }
+
+    protected Configuration getConfiguration()
+    {
+        return configurationManagementService.getConfiguration();
     }
 
     protected Path getVaultDirectoryPath()
@@ -177,21 +143,6 @@ public abstract class TestCaseWithMavenArtifactGenerationAndIndexing
     public RepositoryManagementService getRepositoryManagementService()
     {
         return repositoryManagementService;
-    }
-
-    @Override
-    public void removeRepositories(Set<RepositoryDto> repositoriesToClean)
-        throws IOException,
-        JAXBException
-    {
-        for (RepositoryDto mutableRepository : repositoriesToClean)
-        {
-            RootRepositoryPath repositoryPath = repositoryPathResolver.resolve(new RepositoryData(mutableRepository));
-
-            Files.delete(repositoryPath);
-        }
-        
-        super.removeRepositories(repositoriesToClean);
     }
 
     protected static class RepositoryIndexingContextAssert
