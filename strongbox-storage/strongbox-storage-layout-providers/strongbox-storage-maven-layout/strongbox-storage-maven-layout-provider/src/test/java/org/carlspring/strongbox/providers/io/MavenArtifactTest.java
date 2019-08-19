@@ -7,7 +7,6 @@ import org.carlspring.strongbox.testing.artifact.MavenTestArtifact;
 import org.carlspring.strongbox.testing.repository.MavenRepository;
 import org.carlspring.strongbox.testing.storage.repository.RepositoryManagementTestExecutionListener;
 
-import javax.inject.Inject;
 import java.net.URI;
 import java.nio.file.Path;
 
@@ -34,27 +33,22 @@ public class MavenArtifactTest
 
     private static final String REPOSITORY_RELEASES = "mrpl-releases";
 
-    @Inject
-    private RepositoryPathResolver repositoryPathResolver;
-
     @Test
     @ExtendWith({ RepositoryManagementTestExecutionListener.class,
                   ArtifactManagementTestExecutionListener.class })
-    public void artifactWithUnderscoreShouldWork(@MavenRepository(repositoryId = REPOSITORY_RELEASES)
-                                                 Repository repository,
-                                                 @MavenTestArtifact(repositoryId = REPOSITORY_RELEASES,
-                                                                    id = "org.bitbucket.b_c:jose4j",
-                                                                    versions = "0.6.3")
-                                                 Path path)
+    void artifactWithUnderscoreShouldWork(@MavenRepository(repositoryId = REPOSITORY_RELEASES)
+                                          Repository repository,
+                                          @MavenTestArtifact(repositoryId = REPOSITORY_RELEASES,
+                                                             id = "org.bitbucket.b_c:jose4j",
+                                                             versions = "0.6.3")
+                                          Path path)
     {
         final String storageId = repository.getStorage().getId();
         final String repositoryId = repository.getId();
-        final RootRepositoryPath repositoryPath = repositoryPathResolver.resolve(repository);
+        final String artifactRepositoryPathStr = "org/bitbucket/b_c/jose4j/0.6.3/jose4j-0.6.3.jar";
 
         Path artifactRepositoryPath = path.normalize();
         assertThat(artifactRepositoryPath, instanceOf(RepositoryPath.class));
-
-        final String artifactRepositoryPathStr = repositoryPath.relativize(artifactRepositoryPath).toString();
 
         String jarPath = String.format("strongbox:/%s/%s/%s", storageId, repositoryId, artifactRepositoryPathStr);
         assertEquals(URI.create(jarPath), artifactRepositoryPath.toUri());
