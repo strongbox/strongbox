@@ -139,7 +139,7 @@ public class ArtifactCoordinateValidatorsManagementControllerTest
         String url = getContextBaseUrl() + "/{storageId}/{repositoryId}/{alias}";
         String storageId = repository.getStorage().getId();
         String repositoryId = repository.getId();
-        String alias = "maven-snapshot-version-validator";
+        String alias = "test-validator";
 
         given().accept(acceptHeader)
                .when()
@@ -166,7 +166,9 @@ public class ArtifactCoordinateValidatorsManagementControllerTest
                .then()
                .statusCode(HttpStatus.OK.value())
                .body("versionValidators",
-                     containsInAnyOrder("redeployment-validator", "maven-release-version-validator"));
+                     containsInAnyOrder("maven-release-version-validator",
+                                        "maven-snapshot-version-validator",
+                                        "redeployment-validator"));
     }
 
     @ExtendWith(RepositoryManagementTestExecutionListener.class)
