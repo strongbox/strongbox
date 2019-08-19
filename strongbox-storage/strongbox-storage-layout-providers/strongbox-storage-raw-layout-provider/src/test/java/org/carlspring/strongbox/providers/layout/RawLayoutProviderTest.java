@@ -1,32 +1,34 @@
 package org.carlspring.strongbox.providers.layout;
 
 import org.carlspring.strongbox.artifact.coordinates.NullArtifactCoordinates;
-import org.carlspring.strongbox.booters.PropertiesBooter;
+import org.carlspring.strongbox.artifact.generator.NullArtifactGenerator;
 import org.carlspring.strongbox.config.RawLayoutProviderTestConfig;
-import org.carlspring.strongbox.configuration.Configuration;
 import org.carlspring.strongbox.providers.io.RepositoryPath;
 import org.carlspring.strongbox.providers.io.RepositoryPathResolver;
-import org.carlspring.strongbox.repository.RepositoryManagementStrategyException;
-import org.carlspring.strongbox.services.*;
-import org.carlspring.strongbox.storage.StorageDto;
-import org.carlspring.strongbox.storage.repository.RepositoryDto;
-import org.carlspring.strongbox.testing.TestCaseWithRepository;
+import org.carlspring.strongbox.services.ArtifactManagementService;
+import org.carlspring.strongbox.services.ArtifactResolutionService;
+import org.carlspring.strongbox.storage.repository.Repository;
+import org.carlspring.strongbox.testing.artifact.ArtifactManagementTestExecutionListener;
+import org.carlspring.strongbox.testing.artifact.TestArtifact;
+import org.carlspring.strongbox.testing.storage.repository.RepositoryManagementTestExecutionListener;
+import org.carlspring.strongbox.testing.storage.repository.TestRepository;
 
 import javax.inject.Inject;
-import javax.xml.bind.JAXBException;
-import java.io.*;
-import java.util.Collections;
-import java.util.LinkedHashSet;
-import java.util.Set;
+import java.io.ByteArrayInputStream;
+import java.io.ByteArrayOutputStream;
+import java.io.IOException;
+import java.io.InputStream;
+import java.nio.file.Files;
+import java.nio.file.Path;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipOutputStream;
 
-import org.junit.jupiter.api.AfterEach;
-import org.junit.jupiter.api.BeforeAll;
-import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.junit.jupiter.api.parallel.Execution;
 import org.junit.jupiter.api.parallel.ExecutionMode;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.ContextConfiguration;
@@ -34,30 +36,20 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 
 /**
  * @author carlspring
+ * @author Pablo Tirado
  */
 @SpringBootTest
 @ActiveProfiles(profiles = "test")
 @ContextConfiguration(classes = RawLayoutProviderTestConfig.class)
 @Execution(ExecutionMode.SAME_THREAD)
 public class RawLayoutProviderTest
-        extends TestCaseWithRepository
 {
 
-    public static final String STORAGE = "storage-raw";
+    private final Logger logger = LoggerFactory.getLogger(RawLayoutProviderTest.class);
 
-    public static final String REPOSITORY = "raw-releases";
+    private static final String STORAGE = "rlpt-storage-raw";
 
-    @Inject
-    private ConfigurationManagementService configurationManagementService;
-
-    @Inject
-    private PropertiesBooter propertiesBooter;
-
-    @Inject
-    private StorageManagementService storageManagementService;
-
-    @Inject
-    private RepositoryManagementService repositoryManagementService;
+    private static final String REPOSITORY = "rlpt-raw-releases";
 
     @Inject
     private ArtifactManagementService artifactManagementService;
@@ -68,69 +60,34 @@ public class RawLayoutProviderTest
     @Inject
     private RepositoryPathResolver repositoryPathResolver;
 
-
-    @BeforeAll
-    public static void cleanUp()
-            throws Exception
-    {
-        cleanUp(getRepositoriesToClean());
-    }
-
-    public static Set<RepositoryDto> getRepositoriesToClean()
-    {
-        Set<RepositoryDto> repositories = new LinkedHashSet<>();
-        repositories.add(createRepositoryMock(STORAGE, REPOSITORY, RawLayoutProvider.ALIAS));
-
-        return repositories;
-    }
-
-    @BeforeEach
-    public void setUp()
-            throws Exception
-    {
-        Configuration configuration = configurationManagementService.getConfiguration();
-
-        if (configuration.getStorage(STORAGE) == null)
-        {
-            createStorage(STORAGE);
-        }
-
-        if (configuration.getStorage(STORAGE).getRepository(REPOSITORY) == null)
-        {
-            createRepository(STORAGE, REPOSITORY);
-        }
-    }
-
-    @AfterEach
-    public void removeRepositories()
-            throws IOException, JAXBException
-    {
-        removeRepositories(getRepositoriesToClean());
-    }
-
     @Test
-    public void testNullArtifactCoordinates()
+    void testNullArtifactCoordinates()
     {
         NullArtifactCoordinates coordinates = new NullArtifactCoordinates("foo/bar/blah.bz2");
 
-        System.out.println("coordinates.toPath(): " + coordinates.toPath());
+        logger.info("coordinates.toPath(): {}", coordinates.toPath());
     }
 
+    @ExtendWith({RepositoryManagementTestExecutionListener.class,
+                 ArtifactManagementTestExecutionListener.class })
     @Test
-    public void testDeployAndResolveArtifact()
+    void testDeployAndResolveArtifact(@TestRepository(layout = RawLayoutProvider.ALIAS,
+                                                      storageId = STORAGE,
+                                                      repositoryId = REPOSITORY)
+                                     Repository repository,
+                                     @TestArtifact(storageId = STORAGE,
+                                                   repositoryId = REPOSITORY,
+                                                   resource = "foo/bar.zip",
+                                                   generator = NullArtifactGenerator.class)
+                                     Path artifactPath)
             throws Exception
     {
         String path = "foo/bar.zip";
 
-        RepositoryPath repositoryPath = repositoryPathResolver.resolve(STORAGE, REPOSITORY, path);
+        RepositoryPath repositoryPath = repositoryPathResolver.resolve(repository, path);
 
-        // Deploy the artifact
-        artifactManagementService.validateAndStore(repositoryPath, createZipFile());
-
-        
-        File artifactFile = new File(propertiesBooter.getVaultDirectory() + "/storages/" + STORAGE + "/" + REPOSITORY + "/" + path);
-        assertTrue(artifactFile.exists(), "Failed to deploy artifact!");
-        assertTrue(artifactFile.length() > 0, "Failed to deploy artifact!");
+        assertTrue(Files.exists(artifactPath), "Failed to deploy artifact!");
+        assertTrue(Files.size(artifactPath) > 0, "Failed to deploy artifact!");
 
         // Attempt to re-deploy the artifact
         try
@@ -142,7 +99,7 @@ public class RawLayoutProviderTest
             if (e.getMessage().contains("repository does not allow artifact re-deployment"))
             {
                 // This is expected
-                System.out.println("Successfully declined to re-deploy " + artifactFile.getPath() + "!");
+                logger.info("Successfully declined to re-deploy {}!", artifactPath);
             }
             else
             {
@@ -165,29 +122,6 @@ public class RawLayoutProviderTest
 
             assertTrue(total > 0, "Failed to resolve artifact!");
         }
-    }
-
-    private void createRepository(String storageId, String repositoryId)
-            throws IOException, RepositoryManagementStrategyException
-    {
-        RepositoryDto repository = new RepositoryDto(repositoryId);
-        repository.setAllowsRedeployment(true);
-        repository.setLayout(RawLayoutProvider.ALIAS);
-        repository.setArtifactCoordinateValidators(Collections.emptySet());
-
-        configurationManagementService.saveRepository(storageId, repository);
-
-        // Create the repository
-        repositoryManagementService.createRepository(storageId, repositoryId);
-    }
-
-    private void createStorage(String storageId)
-            throws IOException
-    {
-        StorageDto storage = new StorageDto(storageId);
-
-        configurationManagementService.saveStorage(storage);
-        storageManagementService.saveStorage(storage);
     }
 
     private InputStream createZipFile()

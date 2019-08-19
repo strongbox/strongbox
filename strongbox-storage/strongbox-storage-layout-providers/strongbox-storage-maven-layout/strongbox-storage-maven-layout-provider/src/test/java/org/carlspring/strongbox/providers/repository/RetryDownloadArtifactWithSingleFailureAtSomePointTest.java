@@ -25,7 +25,8 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
  * @author Przemyslaw Fusik
  */
 public class RetryDownloadArtifactWithSingleFailureAtSomePointTest
-        extends MockedRestArtifactResolverTestBase implements ArtifactResolverContext
+        extends MockedRestArtifactResolverTestBase
+        implements ArtifactResolverContext
 {
 
     private static final String REPOSITORY = "rdawsfaspt-repository";
@@ -60,8 +61,8 @@ public class RetryDownloadArtifactWithSingleFailureAtSomePointTest
     {
         Artifact artifact = MavenArtifactTestUtils.getArtifactFromGAVTC("org.apache.commons:commons-lang3:3.2");
         String path = MavenArtifactUtils.convertArtifactToPath(artifact);
-        RepositoryPath artifactPath = repositoryPathResolver.resolve(proxyRepository)
-                                                            .resolve(path);
+        RepositoryPath artifactPath = repositoryPathResolver.resolve(proxyRepository,
+                                                                     path);
         
         // given
         assertFalse(Files.exists(artifactPath));

@@ -1,12 +1,13 @@
 package org.carlspring.strongbox.services;
 
 import org.carlspring.strongbox.config.Maven2LayoutProviderTestConfig;
+import org.carlspring.strongbox.providers.io.RepositoryPathResolver;
 import org.carlspring.strongbox.storage.repository.Repository;
 import org.carlspring.strongbox.testing.MavenIndexedRepositorySetup;
-import org.carlspring.strongbox.testing.TestCaseWithMavenArtifactGenerationAndIndexing;
 import org.carlspring.strongbox.testing.repository.MavenRepository;
 import org.carlspring.strongbox.testing.storage.repository.RepositoryManagementTestExecutionListener;
 
+import javax.inject.Inject;
 import java.nio.file.Files;
 import java.nio.file.Path;
 
@@ -28,14 +29,15 @@ import static org.junit.jupiter.api.parallel.ExecutionMode.CONCURRENT;
 @ContextConfiguration(classes = Maven2LayoutProviderTestConfig.class)
 @Execution(CONCURRENT)
 public class MavenRepositoryManagementServiceImplTest
-        extends TestCaseWithMavenArtifactGenerationAndIndexing
 {
 
     private static final String REPOSITORY_RELEASES_1 = "rmsi-releases-1";
 
-    private static final String REPOSITORY_RELEASES_MERGE_1 = "rmsi-releases-merge-1";
+    @Inject
+    private RepositoryPathResolver repositoryPathResolver;
 
-    private static final String REPOSITORY_RELEASES_MERGE_2 = "rmsi-releases-merge-2";
+    @Inject
+    private RepositoryManagementService repositoryManagementService;
 
     @ExtendWith(RepositoryManagementTestExecutionListener.class)
     @Test
@@ -55,10 +57,13 @@ public class MavenRepositoryManagementServiceImplTest
                                     Repository repository)
             throws Exception
     {
-        Path repositoryPath = repositoryPathResolver.resolve(repository);
-        assertTrue(Files.exists(repositoryPath), "Failed to create repository '" + repository.getId() + "'!");
+        final String storageId = repository.getStorage().getId();
+        final String repositoryId = repository.getId();
 
-        getRepositoryManagementService().removeRepository(STORAGE0, REPOSITORY_RELEASES_1);
+        Path repositoryPath = repositoryPathResolver.resolve(repository);
+        assertTrue(Files.exists(repositoryPath), "Failed to create repository '" + repositoryId + "'!");
+
+        repositoryManagementService.removeRepository(storageId, repositoryId);
 
         assertTrue(Files.notExists(repositoryPath), "Failed to remove the repository!");
     }

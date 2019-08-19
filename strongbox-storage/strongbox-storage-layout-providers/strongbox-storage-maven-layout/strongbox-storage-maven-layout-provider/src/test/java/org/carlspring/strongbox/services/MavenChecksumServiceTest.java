@@ -2,7 +2,6 @@ package org.carlspring.strongbox.services;
 
 import org.carlspring.strongbox.config.Maven2LayoutProviderTestConfig;
 import org.carlspring.strongbox.storage.repository.Repository;
-import org.carlspring.strongbox.testing.TestCaseWithMavenArtifactGenerationAndIndexing;
 import org.carlspring.strongbox.testing.artifact.ArtifactManagementTestExecutionListener;
 import org.carlspring.strongbox.testing.artifact.MavenTestArtifact;
 import org.carlspring.strongbox.testing.repository.MavenRepository;
@@ -38,7 +37,6 @@ import static org.junit.jupiter.api.parallel.ExecutionMode.SAME_THREAD;
 @ContextConfiguration(classes = Maven2LayoutProviderTestConfig.class)
 @Execution(SAME_THREAD)
 public class MavenChecksumServiceTest
-        extends TestCaseWithMavenArtifactGenerationAndIndexing
 {
 
     private static final String REPOSITORY_RELEASES = "mcs-releases";
@@ -71,6 +69,7 @@ public class MavenChecksumServiceTest
                    XmlPullParserException,
                    NoSuchAlgorithmException
     {
+        final String storageId = repository.getStorage().getId();
         final String repositoryId = repository.getId();
 
         Path artifact1 = artifactGroupPath.get(0);
@@ -96,11 +95,11 @@ public class MavenChecksumServiceTest
         assertFalse(Files.exists(artifact1Md5), "The checksum file for artifact exist!");
         assertFalse(Files.exists(artifact1Sha1), "The checksum file for artifact exist!");
         
-        artifactMetadataService.rebuildMetadata(STORAGE0,
+        artifactMetadataService.rebuildMetadata(storageId,
                                                 repositoryId,
                                                 "org/carlspring/strongbox/checksum/maven/strongbox-checksum");
 
-        checksumService.regenerateChecksum(STORAGE0,
+        checksumService.regenerateChecksum(storageId,
                                            repositoryId,
                                            "org/carlspring/strongbox/checksum/maven/strongbox-checksum",
                                            false);
@@ -162,6 +161,7 @@ public class MavenChecksumServiceTest
                    XmlPullParserException,
                    NoSuchAlgorithmException
     {
+        final String storageId = repository.getStorage().getId();
         final String repositoryId = repository.getId();
 
         Path artifact1Md5 = artifact.resolveSibling(artifact.getFileName() + ".md5");
@@ -178,7 +178,7 @@ public class MavenChecksumServiceTest
         Files.delete(artifact1PomSha1);
         
 
-        artifactMetadataService.rebuildMetadata(STORAGE0,
+        artifactMetadataService.rebuildMetadata(storageId,
                                                 repositoryId,
                                                 "org/carlspring/strongbox/checksum");
 
@@ -187,7 +187,7 @@ public class MavenChecksumServiceTest
         assertFalse(Files.exists(artifact1Sha1),
                     "The checksum file for artifact exist!");
 
-        checksumService.regenerateChecksum(STORAGE0,
+        checksumService.regenerateChecksum(storageId,
                                            repositoryId,
                                            "org/carlspring/strongbox/checksum",
                                            false);
@@ -232,9 +232,12 @@ public class MavenChecksumServiceTest
                    XmlPullParserException,
                    NoSuchAlgorithmException
     {
+        final String storageId = repository.getStorage().getId();
         final String repositoryId = repository.getId();
 
-        artifactMetadataService.rebuildMetadata(STORAGE0, repositoryId, "org/carlspring/strongbox/checksum");
+        artifactMetadataService.rebuildMetadata(storageId,
+                                                repositoryId,
+                                                "org/carlspring/strongbox/checksum");
 
         Path md5File = artifact.resolveSibling(artifact.getFileName() + ".md5");
         Path sha1File = artifact.resolveSibling(artifact.getFileName() + ".sha1");
@@ -283,7 +286,7 @@ public class MavenChecksumServiceTest
         assertEquals(0, Files.size(artifactMetadataMd5),
                      "The checksum file for metadata isn't empty!");
 
-        checksumService.regenerateChecksum(STORAGE0,
+        checksumService.regenerateChecksum(storageId,
                                            repositoryId,
                                            "org/carlspring/strongbox/checksum/maven/checksum-rewrite",
                                            true);

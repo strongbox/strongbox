@@ -37,7 +37,8 @@ import static org.junit.jupiter.api.Assertions.*;
  *
  */
 public class ParallelDownloadRemoteArtifactTest
-        extends MockedRestArtifactResolverTestBase implements ArtifactResolverContext
+        extends MockedRestArtifactResolverTestBase
+        implements ArtifactResolverContext
 {
     
     private static final String REPOSITORY = "pdrat-repository";
@@ -75,13 +76,18 @@ public class ParallelDownloadRemoteArtifactTest
 
     @Test
     @ExtendWith(RepositoryManagementTestExecutionListener.class)
-    public void testConcurrentDownload(@MavenRepository(repositoryId = REPOSITORY) @Remote(url = PROXY_REPOSITORY_URL) Repository proxyRepository)
+    public void testConcurrentDownload(@MavenRepository(repositoryId = REPOSITORY)
+                                       @Remote(url = PROXY_REPOSITORY_URL)
+                                       Repository proxyRepository)
         throws Exception
     {
+        final String storageId = proxyRepository.getStorage().getId();
+        final String repositoryId = proxyRepository.getId();
+
         Artifact artifact = MavenArtifactTestUtils.getArtifactFromGAVTC("org.apache.commons:commons-lang3:3.0");
         String path = MavenArtifactUtils.convertArtifactToPath(artifact);
-        RepositoryPath artifactPath = repositoryPathResolver.resolve(proxyRepository)
-                                                            .resolve(path);
+        RepositoryPath artifactPath = repositoryPathResolver.resolve(proxyRepository,
+                                                                     path);
 
         // given
         assertFalse(Files.exists(artifactPath));
@@ -89,15 +95,14 @@ public class ParallelDownloadRemoteArtifactTest
 
         // when
         List<Throwable> result = IntStream.range(0, concurrency)
-                                          .mapToObj(i -> new WorkerThread(STORAGE0, REPOSITORY, path))
-                                          .map(t -> {
+                                          .mapToObj(i -> new WorkerThread(storageId, repositoryId, path))
+                                          .peek(t -> {
                                               t.start();
                                               System.err.println(String.format("Started [%s]", t.getName()));
-                                              return t;
                                           })
                                           //Parallel execution needed to break sequential `map` method call, to make worker threads runs in parallel 
                                           .parallel()
-                                          .map(t -> {
+                                          .peek(t -> {
                                               try
                                               {
                                                   t.join();
@@ -106,9 +111,8 @@ public class ParallelDownloadRemoteArtifactTest
                                               {
                                                   t.setResult(e);
                                               }
-                                              return t;
                                           })
-                                          .map(t -> t.getResult())
+                                          .map(WorkerThread::getResult)
                                           .collect(Collectors.toList());
 
         Throwable[] expected = IntStream.range(0, concurrency)
@@ -123,7 +127,9 @@ public class ParallelDownloadRemoteArtifactTest
 
         assertArrayEquals(expected, actual);
         
-        RepositoryPath repositoryPath = repositoryPathResolver.resolve(STORAGE0, REPOSITORY, path);
+        RepositoryPath repositoryPath = repositoryPathResolver.resolve(storageId,
+                                                                       repositoryId,
+                                                                       path);
 
         assertNotNull(repositoryPath.getArtifactEntry());
         assertEquals(Integer.valueOf(concurrency), repositoryPath.getArtifactEntry().getDownloadCount());

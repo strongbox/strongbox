@@ -1,17 +1,21 @@
 package org.carlspring.strongbox.providers.repository;
 
 
-import org.carlspring.strongbox.testing.storage.repository.TestRepository.Remote;
 import org.carlspring.strongbox.config.Maven2LayoutProviderCronTasksTestConfig;
 import org.carlspring.strongbox.data.CacheManagerTestExecutionListener;
 import org.carlspring.strongbox.domain.ArtifactEntry;
 import org.carlspring.strongbox.providers.io.RepositoryFiles;
 import org.carlspring.strongbox.providers.io.RepositoryPath;
+import org.carlspring.strongbox.providers.io.RepositoryPathResolver;
 import org.carlspring.strongbox.services.ArtifactEntryService;
+import org.carlspring.strongbox.services.ArtifactResolutionService;
 import org.carlspring.strongbox.storage.metadata.MavenMetadataManager;
 import org.carlspring.strongbox.storage.repository.Repository;
 import org.carlspring.strongbox.testing.MavenIndexedRepositorySetup;
 import org.carlspring.strongbox.testing.TestCaseWithMavenArtifactGenerationAndIndexing;
+import org.carlspring.strongbox.testing.repository.MavenRepository;
+import org.carlspring.strongbox.testing.storage.repository.RepositoryManagementTestExecutionListener;
+import org.carlspring.strongbox.testing.storage.repository.TestRepository.Remote;
 
 import javax.inject.Inject;
 import java.io.IOException;
@@ -19,14 +23,12 @@ import java.io.InputStream;
 import java.nio.file.Path;
 import java.util.Optional;
 
-import com.google.common.collect.ImmutableMap;
 import com.google.common.io.ByteStreams;
 import org.apache.commons.io.FileUtils;
 import org.apache.maven.artifact.repository.metadata.Metadata;
-import org.carlspring.strongbox.testing.repository.MavenRepository;
-import org.carlspring.strongbox.testing.storage.repository.RepositoryManagementTestExecutionListener;
 import org.hamcrest.CoreMatchers;
-import org.junit.jupiter.api.*;
+import org.junit.jupiter.api.Disabled;
+import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.junit.jupiter.api.parallel.Execution;
 import org.springframework.boot.test.context.SpringBootTest;
@@ -67,75 +69,11 @@ public class MavenProxyRepositoryProviderTestIT
     @Inject
     private MavenMetadataManager mavenMetadataManager;
 
-    @BeforeEach
-    public void init(TestInfo testInfo)
-            throws Exception
-    {
+    @Inject
+    private RepositoryPathResolver repositoryPathResolver;
 
-        final String repositoryId = getRepositoryName(REPOSITORY_ID,
-                                                      testInfo);
-
-        artifactEntryService.delete(artifactEntryService.findArtifactList(STORAGE_ID,
-                                                                          repositoryId,
-                                                                          ImmutableMap.of("groupId", "org.carlspring.maven",
-                                                                                          "artifactId", "derby-maven-plugin",
-                                                                                          "version", "1.10"),
-                                                                          true));
-
-        artifactEntryService.delete(artifactEntryService.findArtifactList(STORAGE_ID,
-                                                                          repositoryId,
-                                                                          ImmutableMap.of("groupId", "org.carlspring",
-                                                                                          "artifactId", "properties-injector",
-                                                                                           "version", "1.1"),
-                                                                          true));
-
-        artifactEntryService.delete(artifactEntryService.findArtifactList(STORAGE_ID,
-                                                                          repositoryId,
-                                                                          ImmutableMap.of("groupId", "javax.media",
-                                                                                          "artifactId", "jai_core",
-                                                                                          "version", "1.1.3"),
-                                                                          true));
-    }
-
-    /*
-    @Test
-    public void shouldBeAbleToProvideFilesFromOracleMavenRepoWithHttpsAndAuthenticationAndRedirections()
-            throws Exception
-    {
-
-        String providedTestOracleRepoUser = System.getProperty("strongbox.test.oracle.repo.user");
-        String providedTestOracleRepoPassword = System.getProperty("strongbox.test.oracle.repo.password");
-
-        if (providedTestOracleRepoUser == null || providedTestOracleRepoPassword == null)
-        {
-            logger.info(
-                    "System property strongbox.test.oracle.repo.user or strongbox.test.oracle.repo.password not found. Ignoring test.");
-            return;
-        }
-
-        ImmutableRemoteRepository mavenOracleRepository = configurationManagementService.getConfiguration()
-                                                                                        .getStorage("storage-common-proxies")
-                                                                                        .getRepository("maven-oracle")
-                                                                                        .getRemoteRepository();
-
-        String initialUsername = mavenOracleRepository.getUsername();
-        String initialPassword = mavenOracleRepository.getPassword();
-
-        mavenOracleRepository.setUsername(providedTestOracleRepoUser);
-        mavenOracleRepository.setPassword(providedTestOracleRepoPassword);
-
-        assertStreamNotNull("storage-common-proxies",
-                            "maven-oracle",
-                            "com/oracle/jdbc/ojdbc8/12.2.0.1/ojdbc8-12.2.0.1.jar");
-
-        assertStreamNotNull("storage-common-proxies",
-                            "maven-oracle",
-                            "com/oracle/jdbc/ojdbc8/12.2.0.1/ojdbc8-12.2.0.1.pom");
-
-        mavenOracleRepository.setUsername(initialUsername);
-        mavenOracleRepository.setPassword(initialPassword);
-    }
-    */
+    @Inject
+    private ArtifactResolutionService artifactResolutionService;
 
     @ExtendWith({ RepositoryManagementTestExecutionListener.class })
     @Test

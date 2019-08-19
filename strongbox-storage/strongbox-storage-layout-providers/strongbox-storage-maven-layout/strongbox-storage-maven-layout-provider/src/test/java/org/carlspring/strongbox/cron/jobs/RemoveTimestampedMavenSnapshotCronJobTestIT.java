@@ -3,6 +3,7 @@ package org.carlspring.strongbox.cron.jobs;
 import org.carlspring.strongbox.artifact.MavenArtifactUtils;
 import org.carlspring.strongbox.config.Maven2LayoutProviderCronTasksTestConfig;
 import org.carlspring.strongbox.data.CacheManagerTestExecutionListener;
+import org.carlspring.strongbox.providers.io.RepositoryPathResolver;
 import org.carlspring.strongbox.providers.io.RootRepositoryPath;
 import org.carlspring.strongbox.services.ArtifactMetadataService;
 import org.carlspring.strongbox.storage.repository.Repository;
@@ -64,15 +65,21 @@ public class RemoveTimestampedMavenSnapshotCronJobTestIT
     @Inject
     private ArtifactMetadataService artifactMetadataService;
 
+    @Inject
+    private RepositoryPathResolver repositoryPathResolver;
+
     private void rebuildArtifactsMetadata(Repository repository)
             throws Exception
     {
-        artifactMetadataService.rebuildMetadata(STORAGE0,
-                                                repository.getId(),
+        final String storageId = repository.getStorage().getId();
+        final String repositoryId = repository.getId();
+
+        artifactMetadataService.rebuildMetadata(storageId,
+                                                repositoryId,
                                                 ARTIFACT_BASE_PATH_STRONGBOX_TIMESTAMPED_FIRST);
 
-        artifactMetadataService.rebuildMetadata(STORAGE0,
-                                                repository.getId(),
+        artifactMetadataService.rebuildMetadata(storageId,
+                                                repositoryId,
                                                 ARTIFACT_BASE_PATH_STRONGBOX_TIMESTAMPED_SECOND);
     }
 
@@ -88,6 +95,9 @@ public class RemoveTimestampedMavenSnapshotCronJobTestIT
                     List<Path> artifact)
             throws Exception
     {
+        final String storageId = repository.getStorage().getId();
+        final String repositoryId = repository.getId();
+
         final UUID jobKey = expectedJobKey;
         final String jobName = expectedJobName;
 
@@ -122,8 +132,8 @@ public class RemoveTimestampedMavenSnapshotCronJobTestIT
         addCronJobConfig(jobKey,
                          jobName,
                          RemoveTimestampedMavenSnapshotCronJob.class,
-                         STORAGE0,
-                         repository.getId(),
+                         storageId,
+                         repositoryId,
                          properties ->
                          {
                              properties.put("basePath", ARTIFACT_BASE_PATH_STRONGBOX_TIMESTAMPED_FIRST);
@@ -145,6 +155,9 @@ public class RemoveTimestampedMavenSnapshotCronJobTestIT
                     List<Path> artifact)
             throws Exception
     {
+        final String storageId = repository.getStorage().getId();
+        final String repositoryId = repository.getId();
+
         final UUID jobKey = expectedJobKey;
         final String jobName = expectedJobName;
 
@@ -179,8 +192,8 @@ public class RemoveTimestampedMavenSnapshotCronJobTestIT
         addCronJobConfig(jobKey,
                          jobName,
                          RemoveTimestampedMavenSnapshotCronJob.class,
-                         STORAGE0,
-                         repository.getId(),
+                         storageId,
+                         repositoryId,
                          properties ->
                          {
                              properties.put("basePath", null);

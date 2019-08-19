@@ -3,13 +3,14 @@ package org.carlspring.strongbox.artifact.locator;
 import org.carlspring.strongbox.artifact.locator.handlers.ArtifactLocationReportOperation;
 import org.carlspring.strongbox.config.Maven2LayoutProviderTestConfig;
 import org.carlspring.strongbox.providers.io.RepositoryPath;
+import org.carlspring.strongbox.providers.io.RepositoryPathResolver;
 import org.carlspring.strongbox.storage.repository.Repository;
-import org.carlspring.strongbox.testing.TestCaseWithMavenArtifactGenerationAndIndexing;
 import org.carlspring.strongbox.testing.artifact.ArtifactManagementTestExecutionListener;
 import org.carlspring.strongbox.testing.artifact.MavenTestArtifact;
 import org.carlspring.strongbox.testing.repository.MavenRepository;
 import org.carlspring.strongbox.testing.storage.repository.RepositoryManagementTestExecutionListener;
 
+import javax.inject.Inject;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.PrintStream;
@@ -39,7 +40,6 @@ import static org.junit.jupiter.api.parallel.ExecutionMode.SAME_THREAD;
 @ContextConfiguration(classes = Maven2LayoutProviderTestConfig.class)
 @Execution(SAME_THREAD)
 public class ArtifactDirectoryLocatorTest
-        extends TestCaseWithMavenArtifactGenerationAndIndexing
 {
 
     private static final String REPOSITORY_RELEASES = "adlt-releases";
@@ -47,6 +47,9 @@ public class ArtifactDirectoryLocatorTest
     private static PrintStream tempSysOut;
 
     private ByteArrayOutputStream os;
+
+    @Inject
+    private RepositoryPathResolver repositoryPathResolver;
 
     @BeforeEach
     public void setUp()

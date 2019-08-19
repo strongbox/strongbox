@@ -22,7 +22,8 @@ import static org.junit.jupiter.api.Assertions.*;
  * @author Przemyslaw Fusik
  */
 public class RetryDownloadArtifactWithPermanentFailureStartingAtSomePointTest
-        extends MockedRestArtifactResolverTestBase implements ArtifactResolverContext
+        extends MockedRestArtifactResolverTestBase
+        implements ArtifactResolverContext
 {
 
     private static final String REPOSITORY = "rdawpfsasp-repository";
@@ -54,8 +55,8 @@ public class RetryDownloadArtifactWithPermanentFailureStartingAtSomePointTest
     {
         Artifact artifact = MavenArtifactTestUtils.getArtifactFromGAVTC("org.apache.commons:commons-lang3:3.1");
         String path = MavenArtifactUtils.convertArtifactToPath(artifact);
-        RepositoryPath artifactPath = repositoryPathResolver.resolve(proxyRepository)
-                                                            .resolve(path);
+        RepositoryPath artifactPath = repositoryPathResolver.resolve(proxyRepository,
+                                                                     path);
         
         // given
         assertFalse(Files.exists(artifactPath));

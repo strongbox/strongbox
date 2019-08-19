@@ -4,8 +4,8 @@ import org.carlspring.strongbox.config.Maven2LayoutProviderCronTasksTestConfig;
 import org.carlspring.strongbox.data.CacheManagerTestExecutionListener;
 import org.carlspring.strongbox.providers.io.RepositoryPath;
 import org.carlspring.strongbox.storage.indexing.*;
-import org.carlspring.strongbox.storage.indexing.RepositoryIndexDirectoryPathResolver.RepositoryIndexDirectoryPathResolverQualifier;
 import org.carlspring.strongbox.storage.indexing.RepositoryIndexCreator.RepositoryIndexCreatorQualifier;
+import org.carlspring.strongbox.storage.indexing.RepositoryIndexDirectoryPathResolver.RepositoryIndexDirectoryPathResolverQualifier;
 import org.carlspring.strongbox.storage.repository.Repository;
 import org.carlspring.strongbox.storage.repository.RepositoryTypeEnum;
 import org.carlspring.strongbox.testing.MavenIndexedRepositorySetup;
@@ -13,7 +13,7 @@ import org.carlspring.strongbox.testing.artifact.ArtifactManagementTestExecution
 import org.carlspring.strongbox.testing.artifact.MavenTestArtifact;
 import org.carlspring.strongbox.testing.repository.MavenRepository;
 import org.carlspring.strongbox.testing.storage.repository.RepositoryManagementTestExecutionListener;
-import org.carlspring.strongbox.testing.storage.repository.TestRepository;
+import org.carlspring.strongbox.testing.storage.repository.TestRepository.Group;
 
 import javax.inject.Inject;
 import java.lang.reflect.UndeclaredThrowableException;
@@ -107,13 +107,16 @@ class MergeMavenGroupRepositoryIndexCronJobTestIT
                                                                       classifiers = { "javadoc",
                                                                                       "sources" })
                                                    Path artifactPathSlf4j,
-                                                   @TestRepository.Group(repositories = { REPOSITORY_HOSTED_1,
+                                                   @Group(repositories = { REPOSITORY_HOSTED_1,
                                                                                           REPOSITORY_HOSTED_2 })
                                                    @MavenRepository(repositoryId = REPOSITORY_GROUP,
                                                                     setup = MavenIndexedRepositorySetup.class)
                                                    Repository groupRepository)
             throws Exception
     {
+        final String storageId = groupRepository.getStorage().getId();
+        final String repositoryId = groupRepository.getId();
+
         hostedRepositoryIndexCreator.apply(repositoryHosted1);
         hostedRepositoryIndexCreator.apply(repositoryHosted2);
 
@@ -180,8 +183,8 @@ class MergeMavenGroupRepositoryIndexCronJobTestIT
         addCronJobConfig(jobKey,
                          jobName,
                          MergeMavenGroupRepositoryIndexCronJob.class,
-                         STORAGE0,
-                         groupRepository.getId());
+                         storageId,
+                         repositoryId);
 
         await().atMost(EVENT_TIMEOUT_SECONDS, TimeUnit.SECONDS).untilTrue(receivedExpectedEvent());
     }

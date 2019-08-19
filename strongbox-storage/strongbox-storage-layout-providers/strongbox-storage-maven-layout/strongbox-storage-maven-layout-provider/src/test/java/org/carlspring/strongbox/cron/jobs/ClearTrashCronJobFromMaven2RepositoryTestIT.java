@@ -53,7 +53,8 @@ public class ClearTrashCronJobFromMaven2RepositoryTestIT
     private RepositoryPathResolver repositoryPathResolver;
 
     @Test
-    @ExtendWith({ RepositoryManagementTestExecutionListener.class, ArtifactManagementTestExecutionListener.class })
+    @ExtendWith({ RepositoryManagementTestExecutionListener.class,
+                  ArtifactManagementTestExecutionListener.class })
     public void testRemoveTrashInRepository(@MavenRepository(repositoryId = REPOSITORY_RELEASES_1)
                                             @RepositoryAttributes(allowsForceDeletion = true, trashEnabled = true)
                                             Repository repository1,
@@ -78,6 +79,9 @@ public class ClearTrashCronJobFromMaven2RepositoryTestIT
                                             Path artifact3)
             throws Exception
     {
+        final String storage1Id = repository1.getStorage().getId();
+        final String repository1Id = repository1.getId();
+
         RepositoryPath repositoryRootPath = repositoryPathResolver.resolve(repository1);
         RepositoryPath repositoryTrashPath = RepositoryFiles.trash(repositoryRootPath);
         RepositoryPath path = repositoryPathResolver.resolve(repository1, (RepositoryPath) artifact1.normalize());
@@ -95,8 +99,8 @@ public class ClearTrashCronJobFromMaven2RepositoryTestIT
         addCronJobConfig(expectedJobKey,
                          expectedJobName,
                          ClearRepositoryTrashCronJob.class,
-                         STORAGE0,
-                         repository1.getId());
+                         storage1Id,
+                         repository1Id);
 
         await().atMost(EVENT_TIMEOUT_SECONDS, TimeUnit.SECONDS).untilTrue(receivedExpectedEvent());
         

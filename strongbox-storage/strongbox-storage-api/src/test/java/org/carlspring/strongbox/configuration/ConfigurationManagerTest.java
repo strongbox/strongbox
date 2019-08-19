@@ -18,6 +18,9 @@ import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.IOException;
 import java.io.OutputStream;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.util.Arrays;
 import java.util.Collections;
 
@@ -31,7 +34,6 @@ import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.TestExecutionListeners;
-import static org.carlspring.strongbox.testing.TestCaseWithRepository.STORAGE0;
 import static org.junit.jupiter.api.Assertions.*;
 
 /**
@@ -45,11 +47,13 @@ import static org.junit.jupiter.api.Assertions.*;
 public class ConfigurationManagerTest
 {
 
-    public static final String TEST_CLASSES = "target/test-classes";
+    private static final String TEST_CLASSES = "target/test-classes";
 
-    public static final String CONFIGURATION_BASEDIR = TEST_CLASSES + "/yaml";
+    private static final String CONFIGURATION_BASEDIR = TEST_CLASSES + "/yaml";
 
-    public static final String CONFIGURATION_OUTPUT_FILE = CONFIGURATION_BASEDIR + "/strongbox-saved-cm.yaml";
+    private static final String CONFIGURATION_OUTPUT_FILE = CONFIGURATION_BASEDIR + "/strongbox-saved-cm.yaml";
+
+    private static final String STORAGE0 = "storage0";
 
     @Inject
     private YAMLMapperFactory yamlMapperFactory;
@@ -65,12 +69,12 @@ public class ConfigurationManagerTest
 
     @BeforeEach
     public void setUp()
+            throws IOException
     {
-        File yamlDir = new File(CONFIGURATION_BASEDIR);
-        if (!yamlDir.exists())
+        Path yamlDir = Paths.get(CONFIGURATION_BASEDIR);
+        if (Files.notExists(yamlDir))
         {
-            //noinspection ResultOfMethodCallIgnored
-            yamlDir.mkdirs();
+            Files.createDirectories(yamlDir);
         }
 
         yamlMapper = yamlMapperFactory.create(
@@ -98,14 +102,14 @@ public class ConfigurationManagerTest
         assertNotNull(configuration.getVersion(), "Incorrect version!");
         assertEquals(48080, configuration.getPort(), "Incorrect port number!");
         assertTrue(configuration.getStorages()
-                                .get("storage0")
+                                .get(STORAGE0)
                                 .getRepositories()
                                 .get("snapshots")
                                 .isSecured(),
                    "Repository should have required authentication!");
 
         assertTrue(configuration.getStorages()
-                                .get("storage0")
+                                .get(STORAGE0)
                                 .getRepositories()
                                 .get("releases")
                                 .allowsDirectoryBrowsing());
@@ -163,7 +167,7 @@ public class ConfigurationManagerTest
         repository3.addRepositoryToGroup(repository1.getId());
         repository3.addRepositoryToGroup(repository2.getId());
 
-        StorageDto storage = new StorageDto("storage0");
+        StorageDto storage = new StorageDto(STORAGE0);
         storage.setBasedir(new File(propertiesBooter.getVaultDirectory() + "/storages" + STORAGE0).getAbsolutePath());
         storage.addRepository(repository1);
         storage.addRepository(repository2);
@@ -181,7 +185,7 @@ public class ConfigurationManagerTest
         MutableConfiguration c = yamlMapper.readValue(outputFile.toURI().toURL(), MutableConfiguration.class);
 
         assertEquals(2,
-                     c.getStorages().get("storage0")
+                     c.getStorages().get(STORAGE0)
                       .getRepositories()
                       .get("grp-snapshots")
                       .getGroupRepositories()
