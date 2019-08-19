@@ -100,7 +100,7 @@
         </dependency>
         <dependency>
             <groupId>${project.groupId}</groupId>
-            <artifactId>strongbox-testing-storage</artifactId>
+            <artifactId>strongbox-testing-core</artifactId>
             <version>${project.version}</version>
             <scope>test</scope>
         </dependency>
