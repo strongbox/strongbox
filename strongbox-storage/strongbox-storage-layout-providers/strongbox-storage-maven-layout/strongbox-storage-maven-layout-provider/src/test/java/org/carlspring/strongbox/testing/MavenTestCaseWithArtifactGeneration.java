@@ -4,25 +4,17 @@ import org.carlspring.strongbox.artifact.MavenArtifact;
 import org.carlspring.strongbox.artifact.MavenArtifactUtils;
 import org.carlspring.strongbox.artifact.MavenRepositoryArtifact;
 import org.carlspring.strongbox.artifact.generator.MavenArtifactGenerator;
-import org.carlspring.strongbox.booters.PropertiesBooter;
 import org.carlspring.strongbox.configuration.ConfigurationManager;
 import org.carlspring.strongbox.providers.io.LayoutFileSystem;
 import org.carlspring.strongbox.providers.io.RepositoryFiles;
 import org.carlspring.strongbox.providers.io.RepositoryPath;
 import org.carlspring.strongbox.providers.io.RepositoryPathResolver;
-import org.carlspring.strongbox.providers.layout.Maven2LayoutProvider;
 import org.carlspring.strongbox.providers.repository.HostedRepositoryProvider;
 import org.carlspring.strongbox.repository.MavenRepositoryFeatures;
-import org.carlspring.strongbox.repository.RepositoryManagementStrategyException;
 import org.carlspring.strongbox.services.ConfigurationManagementService;
-import org.carlspring.strongbox.storage.repository.MavenRepositoryFactory;
-import org.carlspring.strongbox.storage.repository.RepositoryDto;
-import org.carlspring.strongbox.storage.repository.RepositoryTypeEnum;
-import org.carlspring.strongbox.storage.repository.remote.RemoteRepositoryDto;
 import org.carlspring.strongbox.testing.artifact.MavenArtifactTestUtils;
 
 import javax.inject.Inject;
-import javax.xml.bind.JAXBException;
 import java.io.File;
 import java.io.IOException;
 import java.io.OutputStream;
@@ -48,7 +40,6 @@ import org.slf4j.LoggerFactory;
  * @author Pablo Tirado
  */
 public class MavenTestCaseWithArtifactGeneration
-        extends TestCaseWithRepositoryManagement
 {
     private final Logger logger = LoggerFactory.getLogger(MavenTestCaseWithArtifactGeneration.class);
 
@@ -62,49 +53,11 @@ public class MavenTestCaseWithArtifactGeneration
     protected RepositoryPathResolver repositoryPathResolver;
 
     @Inject
-    protected MavenRepositoryFactory mavenRepositoryFactory;
-
-    @Inject
-    private PropertiesBooter propertiesBooter;
-
-    @Inject
     protected ConfigurationManagementService configurationManagementService;
 
     @Inject
     protected ConfigurationManager configurationManager;
 
-
-    public MavenArtifact generateArtifact(String basedir, String gavtc)
-            throws IOException,
-                   XmlPullParserException,
-                   NoSuchAlgorithmException
-    {
-        return generateArtifact(Paths.get(basedir), gavtc);
-    }
-
-    public MavenArtifact generateArtifact(Path basedir, String gavtc)
-            throws IOException,
-                   XmlPullParserException,
-                   NoSuchAlgorithmException
-    {
-        MavenArtifact artifact = MavenArtifactTestUtils.getArtifactFromGAVTC(gavtc);
-        artifact.setPath(resolve(basedir.toAbsolutePath().toString(), artifact));
-        generateArtifact(basedir, artifact);
-
-        return artifact;
-    }
-
-    public void generateArtifact(Path basedir, MavenArtifact artifact)
-            throws IOException,
-                   XmlPullParserException,
-                   NoSuchAlgorithmException
-    {
-        
-        artifact.setPath(resolve(basedir.toAbsolutePath().toString(), artifact));
-
-        MavenArtifactGenerator generator = createArtifactGenerator(basedir.toAbsolutePath().toString());
-        generator.generate(artifact);
-    }
 
     public void generateArtifact(String basedir, Artifact artifact)
             throws IOException,
@@ -186,23 +139,14 @@ public class MavenTestCaseWithArtifactGeneration
 
         for (int i = 0; i < numberOfBuilds; i++)
         {
-            String version = createSnapshotVersion(baseSnapshotVersion, i + 1);
-
-            artifact = new MavenRepositoryArtifact(groupId, artifactId, version, packaging);
-
-            RepositoryPath repositoryPath = resolve(repositoryBasedir, artifact);
-            artifact.setPath(repositoryPath);
-
-            generateArtifact(repositoryBasedir, artifact, packaging);
-
-            if (classifiers != null)
-            {
-                for (String classifier : classifiers)
-                {
-                    String gavtc = groupId + ":" + artifactId + ":" + version + ":jar:" + classifier;
-                    generateArtifact(repositoryBasedir,MavenArtifactTestUtils.getArtifactFromGAVTC(gavtc));
-                }
-            }
+            artifact = createTimestampedSnapshot(repositoryBasedir,
+                                                 groupId,
+                                                 artifactId,
+                                                 baseSnapshotVersion,
+                                                 packaging,
+                                                 classifiers,
+                                                 i + 1,
+                                                 null);
         }
 
         // Return the main artifact
@@ -228,17 +172,25 @@ public class MavenTestCaseWithArtifactGeneration
         return repositoryPath;
     }
 
-    public void createTimestampedSnapshot(String repositoryBasedir,
-                                          String groupId,
-                                          String artifactId,
-                                          String baseSnapshotVersion,
-                                          String packaging,
-                                          String[] classifiers,
-                                          int numberOfBuild,
-                                          String timestamp)
+    public MavenArtifact createTimestampedSnapshot(String repositoryBasedir,
+                                                   String groupId,
+                                                   String artifactId,
+                                                   String baseSnapshotVersion,
+                                                   String packaging,
+                                                   String[] classifiers,
+                                                   int numberOfBuild,
+                                                   String timestamp)
             throws NoSuchAlgorithmException, XmlPullParserException, IOException
     {
-        String version = createSnapshotVersion(baseSnapshotVersion, numberOfBuild, timestamp);
+        String version;
+        if (timestamp != null)
+        {
+            version = createSnapshotVersion(baseSnapshotVersion, numberOfBuild, timestamp);
+        }
+        else
+        {
+            version = createSnapshotVersion(baseSnapshotVersion, numberOfBuild);
+        }
 
         MavenArtifact artifact = new MavenRepositoryArtifact(groupId, artifactId, version, packaging);
         RepositoryPath repositoryPath = resolve(repositoryBasedir, artifact);
@@ -254,6 +206,8 @@ public class MavenTestCaseWithArtifactGeneration
                 generateArtifact(repositoryBasedir, MavenArtifactTestUtils.getArtifactFromGAVTC(gavtc));
             }
         }
+
+        return artifact;
     }
 
     public String createSnapshotVersion(String baseSnapshotVersion, int buildNumber)
@@ -307,33 +261,9 @@ public class MavenTestCaseWithArtifactGeneration
         }
     }
 
-    public File getRepositoryBasedir(String storageId, String repositoryId)
-    {
-        return Paths.get(propertiesBooter.getVaultDirectory(), "storages", storageId, repositoryId).toFile();
-    }
-
     public MavenRepositoryFeatures getFeatures()
     {
         return features;
-    }
-
-    @Override
-    public void createProxyRepository(String storageId,
-                                      String repositoryId,
-                                      String remoteRepositoryUrl)
-            throws IOException,
-                   JAXBException,
-                   RepositoryManagementStrategyException
-    {
-        RemoteRepositoryDto remoteRepository = new RemoteRepositoryDto();
-        remoteRepository.setUrl(remoteRepositoryUrl);
-
-        RepositoryDto repository = mavenRepositoryFactory.createRepository(repositoryId);
-        repository.setRemoteRepository(remoteRepository);
-        repository.setLayout(Maven2LayoutProvider.ALIAS);
-        repository.setType(RepositoryTypeEnum.PROXY.getType());
-
-        createRepository(storageId, repository);
     }
 
 }
