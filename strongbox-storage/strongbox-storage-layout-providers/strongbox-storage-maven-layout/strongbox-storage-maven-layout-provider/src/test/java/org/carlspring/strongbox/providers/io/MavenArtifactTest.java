@@ -10,8 +10,6 @@ import org.carlspring.strongbox.testing.storage.repository.RepositoryManagementT
 import java.net.URI;
 import java.nio.file.Path;
 
-import com.google.inject.Inject;
-import org.apache.commons.io.FilenameUtils;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.junit.jupiter.api.parallel.Execution;
@@ -35,9 +33,6 @@ public class MavenArtifactTest
 
     private static final String REPOSITORY_RELEASES = "mrpl-releases";
 
-    @Inject
-    private RepositoryPathResolver repositoryPathResolver;
-
     @Test
     @ExtendWith({ RepositoryManagementTestExecutionListener.class,
                   ArtifactManagementTestExecutionListener.class })
@@ -50,13 +45,10 @@ public class MavenArtifactTest
     {
         final String storageId = repository.getStorage().getId();
         final String repositoryId = repository.getId();
-        final RootRepositoryPath repositoryPath = repositoryPathResolver.resolve(repository);
+        final String artifactRepositoryPathStr = "org/bitbucket/b_c/jose4j/0.6.3/jose4j-0.6.3.jar";
 
         Path artifactRepositoryPath = path.normalize();
         assertThat(artifactRepositoryPath, instanceOf(RepositoryPath.class));
-
-        final String artifactRepositoryPathStr = FilenameUtils.separatorsToUnix(
-                repositoryPath.relativize(artifactRepositoryPath).toString());
 
         String jarPath = String.format("strongbox:/%s/%s/%s", storageId, repositoryId, artifactRepositoryPathStr);
         assertEquals(URI.create(jarPath), artifactRepositoryPath.toUri());
