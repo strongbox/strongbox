@@ -4,8 +4,8 @@ import org.carlspring.strongbox.config.Maven2LayoutProviderTestConfig;
 import org.carlspring.strongbox.providers.io.RepositoryPath;
 import org.carlspring.strongbox.providers.io.RepositoryPathResolver;
 import org.carlspring.strongbox.services.ArtifactMetadataService;
-import org.carlspring.strongbox.services.ConfigurationManagementService;
 import org.carlspring.strongbox.storage.repository.Repository;
+import org.carlspring.strongbox.storage.repository.RepositoryStatusEnum;
 import org.carlspring.strongbox.storage.repository.RepositoryTypeEnum;
 import org.carlspring.strongbox.storage.routing.MutableRoutingRuleRepository;
 import org.carlspring.strongbox.storage.routing.RoutingRuleTypeEnum;
@@ -13,6 +13,7 @@ import org.carlspring.strongbox.testing.TestCaseWithMavenArtifactGenerationAndIn
 import org.carlspring.strongbox.testing.artifact.ArtifactManagementTestExecutionListener;
 import org.carlspring.strongbox.testing.artifact.MavenTestArtifact;
 import org.carlspring.strongbox.testing.repository.MavenRepository;
+import org.carlspring.strongbox.testing.storage.repository.RepositoryAttributes;
 import org.carlspring.strongbox.testing.storage.repository.RepositoryManagementTestExecutionListener;
 import org.carlspring.strongbox.testing.storage.repository.TestRepository.Group;
 import org.carlspring.strongbox.testing.storage.repository.TestRepository.Group.Rule;
@@ -28,6 +29,8 @@ import org.apache.maven.artifact.repository.metadata.Metadata;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.junit.jupiter.api.parallel.Execution;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.ContextConfiguration;
@@ -47,6 +50,8 @@ import static org.junit.jupiter.api.parallel.ExecutionMode.CONCURRENT;
 public class MavenGroupRepositoryProviderTest
         extends TestCaseWithMavenArtifactGenerationAndIndexing
 {
+    private static final Logger logger = LoggerFactory.getLogger(MavenGroupRepositoryProviderTest.class);
+
     private static final String REPOSITORY_RELEASES_TGI_1 = "mgrpt-releases-tgi-1";
 
     private static final String REPOSITORY_RELEASES_TGI_2 = "mgrpt-releases-tgi-2";
@@ -135,9 +140,6 @@ public class MavenGroupRepositoryProviderTest
     private RepositoryProviderRegistry repositoryProviderRegistry;
 
     @Inject
-    private ConfigurationManagementService configurationManagementService;
-
-    @Inject
     private ArtifactMetadataService artifactMetadataService;
 
     @Inject
@@ -157,7 +159,7 @@ public class MavenGroupRepositoryProviderTest
                                   @MavenTestArtifact(repositoryId = REPOSITORY_RELEASES_TGI_2, id = "com.artifacts.in.releases.under:group", versions = "1.2.4") Path a4)
             throws Exception
     {
-        System.out.println("# Testing group includes...");
+        logger.info("# Testing group includes...");
 
         // Test data initialized.
         RepositoryProvider repositoryProvider = repositoryProviderRegistry.getProvider(releasesGroup.getType());
@@ -214,8 +216,11 @@ public class MavenGroupRepositoryProviderTest
     @ExtendWith({ RepositoryManagementTestExecutionListener.class,
                   ArtifactManagementTestExecutionListener.class })
     @Test
-    public void testGroupIncludesWithOutOfServiceRepository(@MavenRepository(repositoryId = REPOSITORY_RELEASES_TGIWOOSR_1) Repository releases1,
-                                                            @MavenRepository(repositoryId = REPOSITORY_RELEASES_TGIWOOSR_2) Repository releases2,
+    public void testGroupIncludesWithOutOfServiceRepository(@MavenRepository(repositoryId = REPOSITORY_RELEASES_TGIWOOSR_1)
+                                                            Repository releases1,
+                                                            @MavenRepository(repositoryId = REPOSITORY_RELEASES_TGIWOOSR_2)
+                                                            @RepositoryAttributes(status = RepositoryStatusEnum.OUT_OF_SERVICE)
+                                                            Repository releases2,
                                                             @Group(repositories = { REPOSITORY_RELEASES_TGIWOOSR_1,
                                                                                     REPOSITORY_RELEASES_TGIWOOSR_2 },
                                                                    rules = { @Rule(repositories = { REPOSITORY_RELEASES_TGIWOOSR_1,
@@ -224,19 +229,23 @@ public class MavenGroupRepositoryProviderTest
                                                                              @Rule(repositories = { REPOSITORY_RELEASES_TGIWOOSR_1 },
                                                                                    pattern = ".*(com|org)/artifacts.in.*",
                                                                                    type = RoutingRuleTypeEnum.DENY)})
-                                                            @MavenRepository(repositoryId = REPOSITORY_RELEASES_TGIWOOSR_GROUP) Repository releasesGroup,
-                                                            @MavenTestArtifact(repositoryId = REPOSITORY_RELEASES_TGIWOOSR_1, id = "com.artifacts.in.releases.one:foo", versions = "1.2.3") Path a1,
-                                                            @MavenTestArtifact(repositoryId = REPOSITORY_RELEASES_TGIWOOSR_2, id = "com.artifacts.in.releases.two:foo", versions = "1.2.4") Path a2)
+                                                            @MavenRepository(repositoryId = REPOSITORY_RELEASES_TGIWOOSR_GROUP)
+                                                            Repository releasesGroup,
+                                                            @MavenTestArtifact(repositoryId = REPOSITORY_RELEASES_TGIWOOSR_1,
+                                                                               id = "com.artifacts.in.releases.one:foo",
+                                                                               versions = "1.2.3")
+                                                            Path a1,
+                                                            @MavenTestArtifact(repositoryId = REPOSITORY_RELEASES_TGIWOOSR_2,
+                                                                               id = "com.artifacts.in.releases.two:foo",
+                                                                               versions = "1.2.4")
+                                                            Path a2)
             throws Exception
     {
 
 
         // Test data initialized.
 
-        System.out.println("# Testing group includes with out of service repository...");
-
-        configurationManagementService.putOutOfService(releases2.getStorage().getId(),
-                                                       releases2.getId());
+        logger.info("# Testing group includes with out of service repository...");
 
         RepositoryProvider repositoryProvider = repositoryProviderRegistry.getProvider(releasesGroup.getType());
 
@@ -263,7 +272,7 @@ public class MavenGroupRepositoryProviderTest
                                               @MavenTestArtifact(repositoryId = REPOSITORY_RELEASES_TGIWR_2, id = "com.artifacts.in.releases.under2:group", versions = "1.2.4") Path a4)
             throws Exception
     {
-        System.out.println("# Testing group includes with wildcard...");
+        logger.info("# Testing group includes with wildcard...");
 
         RepositoryProvider repositoryProvider = repositoryProviderRegistry.getProvider(releasesGroup.getType());
 
@@ -293,7 +302,7 @@ public class MavenGroupRepositoryProviderTest
             @MavenTestArtifact(repositoryId = REPOSITORY_RELEASES_TGIWRANR_2, id = "com.artifacts.in.releases.under3:group", versions = "1.2.4") Path a4)
             throws Exception
     {
-        System.out.println("# Testing group includes with wildcard against nested repositories...");
+        logger.info("# Testing group includes with wildcard against nested repositories...");
 
         RepositoryProvider repositoryProvider = repositoryProviderRegistry.getProvider(releasesGroupWithNestedGroup.getType());
 
@@ -316,7 +325,7 @@ public class MavenGroupRepositoryProviderTest
             @MavenTestArtifact(repositoryId = REPOSITORY_RELEASES_TGANR_1, id = "com.artifacts.in.releases.one:foo", versions = "1.2.3") Path a1)
             throws Exception
     {
-        System.out.println("# Testing group includes with wildcard against nested repositories...");
+        logger.info("# Testing group includes with wildcard against nested repositories...");
 
         RepositoryProvider repositoryProvider = repositoryProviderRegistry.getProvider(releasesGroup.getType());
 
@@ -345,7 +354,7 @@ public class MavenGroupRepositoryProviderTest
                                   @MavenTestArtifact(repositoryId = REPOSITORY_RELEASES_TGE_2, id = "com.artifacts.denied.by.wildcard:foo", versions = "1.2.7") Path a3)
             throws Exception
     {
-        System.out.println("# Testing group excludes...");
+        logger.info("# Testing group excludes...");
         RepositoryProvider repositoryProvider = repositoryProviderRegistry.getProvider(releasesGroup.getType());
 
         RepositoryPath resolvedPath = repositoryPathResolver.resolve(releasesGroup, (RepositoryPath) a1.normalize());
@@ -574,7 +583,7 @@ public class MavenGroupRepositoryProviderTest
         generateMavenMetadata(storage2Id, repository2Id);
         // Test data initialized.
 
-        System.out.println("# Testing group excludes...");
+        logger.info("# Testing group excludes...");
 
         RepositoryProvider repositoryProvider = repositoryProviderRegistry.getProvider(
                 repositoryReleasesGroup.getType());
