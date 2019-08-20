@@ -16,6 +16,7 @@ import java.util.Comparator;
 import java.util.List;
 import java.util.stream.Collectors;
 
+import org.apache.commons.io.FilenameUtils;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -177,7 +178,8 @@ public class BrowseControllerTest
                                      .prettyPeek()
                                      .asString();
 
-        String artifact1PathStr = repositoryPath.relativize(artifactsPaths.get(0)).toString();
+        String artifact1PathStr = FilenameUtils.separatorsToUnix(
+                repositoryPath.relativize(artifactsPaths.get(0)).toString());
         String link = "/storages/" + storageId + "/" + repositoryId + "/" + artifact1PathStr;
 
         assertTrue(htmlResponse.contains(link), "Expected to have found [ " + link + " ] in the response html");

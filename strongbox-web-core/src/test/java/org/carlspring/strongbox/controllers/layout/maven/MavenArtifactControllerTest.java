@@ -68,8 +68,7 @@ import org.springframework.security.test.context.support.WithMockUser;
 import org.w3c.dom.Document;
 import org.xml.sax.InputSource;
 import static io.restassured.module.mockmvc.RestAssuredMockMvc.given;
-import static org.carlspring.strongbox.testing.artifact.MavenArtifactTestUtils.getArtifactLevelMetadataPath;
-import static org.carlspring.strongbox.testing.artifact.MavenArtifactTestUtils.getGroupLevelMetadataPath;
+import static org.carlspring.strongbox.testing.artifact.MavenArtifactTestUtils.*;
 import static org.hamcrest.CoreMatchers.equalTo;
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.Mockito.doReturn;
@@ -697,14 +696,16 @@ public class MavenArtifactControllerTest
 
         String artifactPathStr = repositoryPath.relativize(artifactsPaths.get(0)).toString();
         Artifact snapshotArtifact = MavenArtifactUtils.convertPathToArtifact(artifactPathStr);
-        String path = MavenArtifactTestUtils.getVersionLevelMetadataPath(snapshotArtifact);
-        String url = "/storages/" + storageId + "/" + repositoryId + "/";
 
-        String metadataUrl = url + path;
+        assertNotNull(snapshotArtifact);
+        String metadataPath = String.format("storages/%s/%s/%s",
+                                            storageId,
+                                            repositoryId,
+                                            getVersionLevelMetadataPath(snapshotArtifact));
 
-        logger.info("[retrieveMetadata] Load metadata by URL {}", metadataUrl);
+        logger.info("[retrieveMetadata] Load metadata by URL {}", metadataPath);
 
-        Metadata versionLevelMetadata = defaultMavenArtifactDeployer.retrieveMetadata(metadataUrl);
+        Metadata versionLevelMetadata = defaultMavenArtifactDeployer.retrieveMetadata(metadataPath);
 
         assertNotNull(versionLevelMetadata);
         assertEquals("org.carlspring.strongbox.metadata", versionLevelMetadata.getGroupId());
@@ -887,8 +888,11 @@ public class MavenArtifactControllerTest
         client.delete(storageId, repositoryId, artifact2PathStr);
 
         // Then
-        String metadataPath =
-                "storages/" + storageId + "/" + repositoryId + "/" + getArtifactLevelMetadataPath(artifact1);
+        assertNotNull(artifact1);
+        String metadataPath = String.format("storages/%s/%s/%s",
+                                            storageId,
+                                            repositoryId,
+                                            getArtifactLevelMetadataPath(artifact1));
         Metadata metadata = defaultMavenArtifactDeployer.retrieveMetadata(metadataPath);
 
         assertNotNull(metadata);
@@ -932,8 +936,11 @@ public class MavenArtifactControllerTest
         client.delete(storageId, repositoryId, artifactParentPath1.toString());
 
         // Then
-        String metadataPath =
-                "storages/" + storageId + "/" + repositoryId + "/" + getArtifactLevelMetadataPath(artifact1);
+        assertNotNull(artifact1);
+        String metadataPath = String.format("storages/%s/%s/%s",
+                                            storageId,
+                                            repositoryId,
+                                            getArtifactLevelMetadataPath(artifact1));
         Metadata metadata = defaultMavenArtifactDeployer.retrieveMetadata(metadataPath);
 
         assertFalse(metadata.getVersioning()
