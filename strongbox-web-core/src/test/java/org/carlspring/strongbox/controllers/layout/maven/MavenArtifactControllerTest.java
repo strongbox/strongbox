@@ -46,6 +46,7 @@ import io.restassured.http.Header;
 import io.restassured.http.Headers;
 import io.restassured.module.mockmvc.response.MockMvcResponse;
 import io.restassured.response.ExtractableResponse;
+import org.apache.commons.io.FilenameUtils;
 import org.apache.maven.artifact.Artifact;
 import org.apache.maven.artifact.repository.metadata.Metadata;
 import org.apache.maven.artifact.repository.metadata.SnapshotVersion;
@@ -170,7 +171,8 @@ public class MavenArtifactControllerTest
             throws Exception
     {
         InputStream fis = Files.newInputStream(path);
-        ZipEntry zipEntry = new ZipEntry(path.toString());
+        String zipEntryName = FilenameUtils.separatorsToUnix(path.toString());
+        ZipEntry zipEntry = new ZipEntry(zipEntryName);
         zipStream.putNextEntry(zipEntry);
 
         byte[] bytes = new byte[1024];
@@ -194,7 +196,7 @@ public class MavenArtifactControllerTest
              ZipOutputStream zipOS = new ZipOutputStream(fos))
         {
             writeToZipFile(pluginXmlFilePath.resolve("plugin.xml"), zipOS);
-            System.out.println("");
+            System.out.println();
 
         }
         catch (IOException e)
@@ -594,15 +596,16 @@ public class MavenArtifactControllerTest
                                versions = "1.2.2")
             Path artifactPath)
     {
-        Path absRepositoryPath = Paths.get(repositoryPathResolver.resolve(repository).toString());
-        Path relRepositoryPath = Paths.get(propertiesBooter.getVaultDirectory()).relativize(absRepositoryPath);
+        final String storageId = repository.getStorage().getId();
+        final String repositoryId = repository.getId();
+        final RootRepositoryPath repositoryPath = repositoryPathResolver.resolve(repository);
 
-        Path absArtifactPath = Paths.get(artifactPath.toString());
-        Path relArtifactPath = absRepositoryPath.relativize(absArtifactPath);
+        Path relArtifactPath = repositoryPath.relativize(artifactPath);
+        String relArtifactPathStr = FilenameUtils.separatorsToUnix(relArtifactPath.toString());
 
-        String artifactPathStr = relRepositoryPath.resolve(relArtifactPath).toString();
+        String url = String.format("/storages/%s/%s/%s", storageId, repositoryId, relArtifactPathStr);
 
-        MockMvcResponse mockMvcResponse = client.put2(artifactPathStr,
+        MockMvcResponse mockMvcResponse = client.put2(url,
                                                       "<body/>",
                                                       MediaType.APPLICATION_XML_VALUE);
 
@@ -694,8 +697,9 @@ public class MavenArtifactControllerTest
 
         generateMavenMetadata(storageId, repositoryId);
 
-        String artifactPathStr = repositoryPath.relativize(artifactsPaths.get(0)).toString();
-        Artifact snapshotArtifact = MavenArtifactUtils.convertPathToArtifact(artifactPathStr);
+        Path relArtifactPath = repositoryPath.relativize(artifactsPaths.get(0));
+        String relArtifactPathStr = FilenameUtils.separatorsToUnix(relArtifactPath.toString());
+        Artifact snapshotArtifact = MavenArtifactUtils.convertPathToArtifact(relArtifactPathStr);
 
         assertNotNull(snapshotArtifact);
         String metadataPath = String.format("storages/%s/%s/%s",
@@ -713,8 +717,9 @@ public class MavenArtifactControllerTest
 
         for (Path artifactPath : artifactsPaths)
         {
-            artifactPathStr = repositoryPath.relativize(artifactPath).toString();
-            snapshotArtifact = MavenArtifactUtils.convertPathToArtifact(artifactPathStr);
+            relArtifactPath = repositoryPath.relativize(artifactPath);
+            relArtifactPathStr = FilenameUtils.separatorsToUnix(relArtifactPath.toString());
+            snapshotArtifact = MavenArtifactUtils.convertPathToArtifact(relArtifactPathStr);
             assertNotNull(snapshotArtifact);
 
             checkSnapshotVersionExistsInMetadata(versionLevelMetadata,
@@ -877,8 +882,9 @@ public class MavenArtifactControllerTest
         final String repositoryId = repository.getId();
         final RootRepositoryPath repositoryPath = repositoryPathResolver.resolve(repository);
 
-        String artifact1PathStr = repositoryPath.relativize(artifactsPaths.get(0)).toString();
-        Artifact artifact1 = MavenArtifactUtils.convertPathToArtifact(artifact1PathStr);
+        Path relArtifact1Path = repositoryPath.relativize(artifactsPaths.get(0));
+        String relArtifact1PathStr = FilenameUtils.separatorsToUnix(relArtifact1Path.toString());
+        Artifact artifact1 = MavenArtifactUtils.convertPathToArtifact(relArtifact1PathStr);
 
         String artifact2PathStr = repositoryPath.relativize(artifactsPaths.get(1)).toString();
 
@@ -929,8 +935,10 @@ public class MavenArtifactControllerTest
         generateMavenMetadata(storageId, repositoryId);
 
         Path artifactPath1 = repositoryPath.relativize(artifactsPaths.get(0));
+        String artifactPath1Str = FilenameUtils.separatorsToUnix(artifactPath1.toString());
+        Artifact artifact1 = MavenArtifactUtils.convertPathToArtifact(artifactPath1Str);
+
         Path artifactParentPath1 = artifactPath1.getParent();
-        Artifact artifact1 = MavenArtifactUtils.convertPathToArtifact(artifactPath1.toString());
 
         // When
         client.delete(storageId, repositoryId, artifactParentPath1.toString());
