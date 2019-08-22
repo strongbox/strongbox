@@ -1,12 +1,19 @@
 package org.carlspring.strongbox.rest.common;
 
 import org.carlspring.strongbox.artifact.generator.MavenArtifactDeployer;
+import org.carlspring.strongbox.artifact.locator.ArtifactDirectoryLocator;
+import org.carlspring.strongbox.event.artifact.ArtifactEventListenerRegistry;
+import org.carlspring.strongbox.locator.handlers.GenerateMavenMetadataOperation;
+import org.carlspring.strongbox.providers.io.RepositoryPath;
 import org.carlspring.strongbox.providers.io.RepositoryPathResolver;
 import org.carlspring.strongbox.rest.client.RestAssuredArtifactClient;
-import org.carlspring.strongbox.testing.TestCaseWithMavenArtifactGenerationAndIndexing;
+import org.carlspring.strongbox.services.ConfigurationManagementService;
+import org.carlspring.strongbox.storage.metadata.MavenMetadataManager;
+import org.carlspring.strongbox.storage.repository.Repository;
 import org.carlspring.strongbox.users.domain.Privileges;
 
 import javax.inject.Inject;
+import java.io.IOException;
 import java.nio.file.Path;
 import java.util.Collection;
 
@@ -26,13 +33,15 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
  * @author Alex Oreshkevich
  */
 public abstract class MavenRestAssuredBaseTest
-        extends TestCaseWithMavenArtifactGenerationAndIndexing
 {
+
+    protected static final String STORAGE0 = "storage0";
 
     /**
      * Share logger instance across all tests.
      */
     protected final Logger logger = LoggerFactory.getLogger(getClass().getName());
+
 
     @Inject
     protected WebApplicationContext context;
@@ -42,6 +51,15 @@ public abstract class MavenRestAssuredBaseTest
 
     @Inject
     protected RepositoryPathResolver repositoryPathResolver;
+
+    @Inject
+    protected ConfigurationManagementService configurationManagementService;
+
+    @Inject
+    protected MavenMetadataManager mavenMetadataManager;
+
+    @Inject
+    protected ArtifactEventListenerRegistry artifactEventListenerRegistry;
 
     @Value("${strongbox.url}")
     private String contextBaseUrl;
@@ -89,5 +107,16 @@ public abstract class MavenRestAssuredBaseTest
         MavenArtifactDeployer deployer = new MavenArtifactDeployer(path.toString());
         deployer.setClient(client);
         return deployer;
+    }
+
+    protected void generateMavenMetadata(Repository repository)
+            throws IOException
+    {
+        RepositoryPath repositoryPath = repositoryPathResolver.resolve(repository);
+
+        ArtifactDirectoryLocator locator = new ArtifactDirectoryLocator();
+        locator.setBasedir(repositoryPath);
+        locator.setOperation(new GenerateMavenMetadataOperation(mavenMetadataManager, artifactEventListenerRegistry));
+        locator.locateArtifactDirectories();
     }
 }

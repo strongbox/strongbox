@@ -13,6 +13,7 @@ import java.io.InputStream;
 import java.nio.file.Files;
 
 import org.apache.maven.artifact.Artifact;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.springframework.core.io.Resource;
@@ -32,11 +33,6 @@ public class RetryDownloadArtifactWithPermanentFailureStartingAtSomePointTest
     
     private PermanentBrokenArtifactInputStream brokenArtifactInputStream;
 
-    public RetryDownloadArtifactWithPermanentFailureStartingAtSomePointTest()
-    {
-        brokenArtifactInputStream = new PermanentBrokenArtifactInputStream(jarArtifact);
-    }
-
     @Override
     public InputStream getInputStream()
     {
@@ -49,9 +45,21 @@ public class RetryDownloadArtifactWithPermanentFailureStartingAtSomePointTest
         return this;
     }
 
+    @Override
+    @BeforeEach
+    public void setup()
+            throws IOException
+    {
+        super.setup();
+
+        brokenArtifactInputStream = new PermanentBrokenArtifactInputStream(jarArtifact);
+    }
+
     @Test
     @ExtendWith(RepositoryManagementTestExecutionListener.class)
-    public void whenProxyRepositoryInputStreamFailsCompletelyArtifactDownloadShouldFail(@MavenRepository(repositoryId = REPOSITORY) @Remote(url = PROXY_REPOSITORY_URL) Repository proxyRepository)
+    public void whenProxyRepositoryInputStreamFailsCompletelyArtifactDownloadShouldFail(@MavenRepository(repositoryId = REPOSITORY)
+                                                                                        @Remote(url = PROXY_REPOSITORY_URL)
+                                                                                        Repository proxyRepository)
     {
         Artifact artifact = MavenArtifactTestUtils.getArtifactFromGAVTC("org.apache.commons:commons-lang3:3.1");
         String path = MavenArtifactUtils.convertArtifactToPath(artifact);

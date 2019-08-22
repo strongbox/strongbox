@@ -14,7 +14,7 @@ import org.carlspring.strongbox.repository.MavenRepositoryFeatures;
 import org.carlspring.strongbox.storage.ArtifactStorageException;
 import org.carlspring.strongbox.storage.repository.Repository;
 import org.carlspring.strongbox.storage.repository.RepositoryPolicyEnum;
-import org.carlspring.strongbox.testing.TestCaseWithMavenArtifactGenerationAndIndexing;
+import org.carlspring.strongbox.testing.MavenTestCaseWithArtifactGeneration;
 import org.carlspring.strongbox.testing.artifact.ArtifactManagementTestExecutionListener;
 import org.carlspring.strongbox.testing.artifact.MavenArtifactTestUtils;
 import org.carlspring.strongbox.testing.artifact.MavenTestArtifact;
@@ -61,7 +61,7 @@ import static org.junit.jupiter.api.parallel.ExecutionMode.CONCURRENT;
 @ContextConfiguration(classes = Maven2LayoutProviderTestConfig.class)
 @Execution(CONCURRENT)
 public class ArtifactManagementServiceImplTest
-        extends TestCaseWithMavenArtifactGenerationAndIndexing
+        extends MavenTestCaseWithArtifactGeneration
 {
 
     private static final Logger logger = LoggerFactory.getLogger(ArtifactManagementServiceImplTest.class);
@@ -414,6 +414,7 @@ public class ArtifactManagementServiceImplTest
             assertEquals(1, timestampedSnapshots, "Amount of timestamped snapshots doesn't equal 1.");
 
             Path snapshotArtifactPath = getSnapshotArtifactPath(artifactVersionBasePath);
+            assertNotNull(snapshotArtifactPath);
             assertTrue(snapshotArtifactPath.toString().endsWith("-3.jar"));
 
         }
@@ -457,6 +458,7 @@ public class ArtifactManagementServiceImplTest
             assertEquals(1, timestampedSnapshots, "Amount of timestamped snapshots doesn't equal 1.");
 
             Path snapshotArtifactPath = getSnapshotArtifactPath(artifactVersionBasePath);
+            assertNotNull(snapshotArtifactPath);
             assertTrue(snapshotArtifactPath.toString().endsWith("-3.jar"));
         }
     }

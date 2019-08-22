@@ -6,12 +6,13 @@ import org.carlspring.strongbox.artifact.generator.MavenArtifactGenerator;
 import org.carlspring.strongbox.client.CloseableRestResponse;
 import org.carlspring.strongbox.client.RemoteRepositoryRetryArtifactDownloadConfiguration;
 import org.carlspring.strongbox.client.RestArtifactResolver;
+import org.carlspring.strongbox.configuration.Configuration;
 import org.carlspring.strongbox.providers.layout.LayoutFileSystemProvider;
 import org.carlspring.strongbox.providers.repository.proxied.RestArtifactResolverFactory;
 import org.carlspring.strongbox.services.ArtifactManagementService;
+import org.carlspring.strongbox.services.ConfigurationManagementService;
 import org.carlspring.strongbox.storage.metadata.MetadataMerger;
 import org.carlspring.strongbox.storage.repository.Repository;
-import org.carlspring.strongbox.testing.TestCaseWithMavenArtifactGenerationAndIndexing;
 import org.carlspring.strongbox.testing.artifact.MavenArtifactTestUtils;
 
 import javax.inject.Inject;
@@ -39,20 +40,21 @@ import static org.mockito.ArgumentMatchers.*;
  * @author Pablo Tirado
  */
 abstract class BaseMavenMetadataExpirationTest
-        extends TestCaseWithMavenArtifactGenerationAndIndexing
 {
 
-    protected final Logger logger = LoggerFactory.getLogger(getClass().getName());
+    protected static final String STORAGE0 = "storage0";
+
+    protected final Logger logger = LoggerFactory.getLogger(BaseMavenMetadataExpirationTest.class);
 
     protected String groupId = "pl.fuss.maven.metadata";
 
     protected String artifactId = "maven-metadata-exp";
 
-    private MetadataMerger metadataMerger = new MetadataMerger();
-
     protected MutableObject<Metadata> versionLevelMetadata = new MutableObject<>();
 
     protected MutableObject<Metadata> artifactLevelMetadata = new MutableObject<>();
+
+    private MetadataMerger metadataMerger = new MetadataMerger();
 
     @Inject
     protected RepositoryPathResolver repositoryPathResolver;
@@ -62,6 +64,9 @@ abstract class BaseMavenMetadataExpirationTest
 
     @Inject
     protected ArtifactManagementService artifactManagementService;
+
+    @Inject
+    protected ConfigurationManagementService configurationManagementService;
 
     protected void mockHostedRepositoryMetadataUpdate(final String hostedRepositoryId,
                                                       final String localSourceRepositoryId,
@@ -149,9 +154,9 @@ abstract class BaseMavenMetadataExpirationTest
 
     protected void mockResolvingProxiedRemoteArtifactsToHostedRepository(final String hostedRepositoryId)
     {
-        final RemoteRepositoryRetryArtifactDownloadConfiguration configuration = configurationManager.getConfiguration()
-                                                                                                     .getRemoteRepositoriesConfiguration()
-                                                                                                     .getRemoteRepositoryRetryArtifactDownloadConfiguration();
+        final RemoteRepositoryRetryArtifactDownloadConfiguration configuration = getConfiguration()
+                                                                                         .getRemoteRepositoriesConfiguration()
+                                                                                         .getRemoteRepositoryRetryArtifactDownloadConfiguration();
 
         final RestArtifactResolver artifactResolver = Mockito.mock(RestArtifactResolver.class);
 
@@ -265,4 +270,8 @@ abstract class BaseMavenMetadataExpirationTest
         return Files.readAllLines(checksumRepositoryPath).stream().findFirst().orElse(null);
     }
 
+    protected Configuration getConfiguration()
+    {
+        return configurationManagementService.getConfiguration();
+    }
 }

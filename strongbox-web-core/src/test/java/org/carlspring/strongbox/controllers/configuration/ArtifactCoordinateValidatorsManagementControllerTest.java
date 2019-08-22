@@ -3,13 +3,11 @@ package org.carlspring.strongbox.controllers.configuration;
 import org.carlspring.strongbox.config.IntegrationTest;
 import org.carlspring.strongbox.providers.layout.Maven2LayoutProvider;
 import org.carlspring.strongbox.rest.common.MavenRestAssuredBaseTest;
-import org.carlspring.strongbox.services.ConfigurationManagementService;
 import org.carlspring.strongbox.storage.repository.Repository;
 import org.carlspring.strongbox.testing.MavenRedeploymentValidatorRepositorySetup;
 import org.carlspring.strongbox.testing.repository.MavenRepository;
 import org.carlspring.strongbox.testing.storage.repository.RepositoryManagementTestExecutionListener;
 
-import javax.inject.Inject;
 import java.io.IOException;
 
 import org.junit.jupiter.api.BeforeEach;
@@ -37,9 +35,6 @@ public class ArtifactCoordinateValidatorsManagementControllerTest
     private final static String REPOSITORY_RELEASES_SINGLE_VALIDATOR = "releases-with-single-validator";
 
     private final static String REPOSITORY_RELEASES_DEFAULT_VALIDATORS = "releases-with-default-validators";
-
-    @Inject
-    private ConfigurationManagementService configurationManagementService;
 
     @Override
     @BeforeEach

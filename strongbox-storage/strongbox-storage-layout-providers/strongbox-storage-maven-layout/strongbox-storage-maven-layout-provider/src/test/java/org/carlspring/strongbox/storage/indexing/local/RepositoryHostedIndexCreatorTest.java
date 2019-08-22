@@ -1,9 +1,10 @@
 package org.carlspring.strongbox.storage.indexing.local;
 
 import org.carlspring.strongbox.config.Maven2LayoutProviderTestConfig;
+import org.carlspring.strongbox.providers.io.LayoutFileSystem;
 import org.carlspring.strongbox.providers.io.RepositoryPath;
-import org.carlspring.strongbox.providers.io.RepositoryPathResolver;
 import org.carlspring.strongbox.providers.io.RootRepositoryPath;
+import org.carlspring.strongbox.storage.indexing.BaseRepositoryIndexCreatorTest;
 import org.carlspring.strongbox.storage.indexing.RepositoryIndexCreator;
 import org.carlspring.strongbox.storage.indexing.RepositoryIndexCreator.RepositoryIndexCreatorQualifier;
 import org.carlspring.strongbox.storage.repository.Repository;
@@ -38,14 +39,12 @@ import static org.junit.jupiter.api.parallel.ExecutionMode.CONCURRENT;
 @ContextConfiguration(classes = Maven2LayoutProviderTestConfig.class)
 @Execution(CONCURRENT)
 public class RepositoryHostedIndexCreatorTest
+        extends BaseRepositoryIndexCreatorTest
 {
 
     private static final String REPOSITORY_RELEASES = "ri-releases";
     private static final String GROUP_ID = "org.carlspring.strongbox";
     private static final String ARTIFACT_ID = "strongbox-commons";
-
-    @Inject
-    private RepositoryPathResolver repositoryPathResolver;
 
     @Inject
     @RepositoryIndexCreatorQualifier(RepositoryTypeEnum.HOSTED)
@@ -70,14 +69,14 @@ public class RepositoryHostedIndexCreatorTest
 
         final RootRepositoryPath repositoryPath = repositoryPathResolver.resolve(repository);
 
-        final Path expectedPath = repositoryPath.resolve(".index")
+        final Path expectedPath = repositoryPath.resolve(LayoutFileSystem.INDEX)
                                                 .resolve("local")
                                                 .resolve("nexus-maven-repository-index.gz");
                                                 
         assertThat(expectedPath).matches(Files::exists);
         assertThat(indexPath).isEqualTo(expectedPath);
         
-        final Path expectedIndexPropertiesPath = repositoryPath.resolve(".index")
+        final Path expectedIndexPropertiesPath = repositoryPath.resolve(LayoutFileSystem.INDEX)
                                                                .resolve("local")
                                                                .resolve("nexus-maven-repository-index.properties");
                                                                

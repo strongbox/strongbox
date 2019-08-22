@@ -3,16 +3,12 @@ package org.carlspring.strongbox.storage.indexing.group;
 import org.carlspring.strongbox.config.Maven2LayoutProviderTestConfig;
 import org.carlspring.strongbox.providers.io.RepositoryPath;
 import org.carlspring.strongbox.services.ArtifactManagementService;
-import org.carlspring.strongbox.storage.indexing.IndexTypeEnum;
-import org.carlspring.strongbox.storage.indexing.Indexer;
-import org.carlspring.strongbox.storage.indexing.RepositoryIndexCreator;
+import org.carlspring.strongbox.storage.indexing.*;
 import org.carlspring.strongbox.storage.indexing.RepositoryIndexCreator.RepositoryIndexCreatorQualifier;
-import org.carlspring.strongbox.storage.indexing.RepositoryIndexingContextFactory;
 import org.carlspring.strongbox.storage.indexing.RepositoryIndexingContextFactory.RepositoryIndexingContextFactoryQualifier;
 import org.carlspring.strongbox.storage.repository.Repository;
 import org.carlspring.strongbox.storage.repository.RepositoryTypeEnum;
 import org.carlspring.strongbox.testing.MavenIndexedRepositorySetup;
-import org.carlspring.strongbox.testing.TestCaseWithMavenArtifactGenerationAndIndexing;
 import org.carlspring.strongbox.testing.artifact.ArtifactManagementTestExecutionListener;
 import org.carlspring.strongbox.testing.artifact.MavenTestArtifact;
 import org.carlspring.strongbox.testing.repository.MavenRepository;
@@ -47,7 +43,7 @@ import static org.junit.jupiter.api.parallel.ExecutionMode.CONCURRENT;
 @ContextConfiguration(classes = Maven2LayoutProviderTestConfig.class)
 @Execution(CONCURRENT)
 public class RepositoryGroupIndexCreatorSearchTest
-        extends TestCaseWithMavenArtifactGenerationAndIndexing
+        extends BaseRepositoryIndexCreatorTest
 {
 
     private static final String REPOSITORY_RELEASES_0 = "injector-releases-0";

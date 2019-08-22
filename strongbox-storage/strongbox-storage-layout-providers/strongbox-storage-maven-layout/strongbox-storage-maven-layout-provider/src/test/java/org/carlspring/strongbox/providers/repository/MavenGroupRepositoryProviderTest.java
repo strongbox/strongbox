@@ -1,15 +1,16 @@
 package org.carlspring.strongbox.providers.repository;
 
+import org.carlspring.strongbox.artifact.locator.ArtifactDirectoryLocator;
 import org.carlspring.strongbox.config.Maven2LayoutProviderTestConfig;
+import org.carlspring.strongbox.locator.handlers.GenerateMavenMetadataOperation;
 import org.carlspring.strongbox.providers.io.RepositoryPath;
-import org.carlspring.strongbox.providers.io.RepositoryPathResolver;
 import org.carlspring.strongbox.services.ArtifactMetadataService;
 import org.carlspring.strongbox.storage.repository.Repository;
 import org.carlspring.strongbox.storage.repository.RepositoryStatusEnum;
 import org.carlspring.strongbox.storage.repository.RepositoryTypeEnum;
+import org.carlspring.strongbox.storage.routing.MutableRoutingRule;
 import org.carlspring.strongbox.storage.routing.MutableRoutingRuleRepository;
 import org.carlspring.strongbox.storage.routing.RoutingRuleTypeEnum;
-import org.carlspring.strongbox.testing.TestCaseWithMavenArtifactGenerationAndIndexing;
 import org.carlspring.strongbox.testing.artifact.ArtifactManagementTestExecutionListener;
 import org.carlspring.strongbox.testing.artifact.MavenTestArtifact;
 import org.carlspring.strongbox.testing.repository.MavenRepository;
@@ -23,6 +24,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.nio.file.Path;
 import java.util.Arrays;
+import java.util.List;
 
 import org.apache.commons.lang3.StringUtils;
 import org.apache.maven.artifact.repository.metadata.Metadata;
@@ -48,7 +50,7 @@ import static org.junit.jupiter.api.parallel.ExecutionMode.CONCURRENT;
 @ContextConfiguration(classes = Maven2LayoutProviderTestConfig.class)
 @Execution(CONCURRENT)
 public class MavenGroupRepositoryProviderTest
-        extends TestCaseWithMavenArtifactGenerationAndIndexing
+        extends BaseMavenRepositoryProviderTest
 {
     private static final Logger logger = LoggerFactory.getLogger(MavenGroupRepositoryProviderTest.class);
 
@@ -142,9 +144,6 @@ public class MavenGroupRepositoryProviderTest
     @Inject
     private ArtifactMetadataService artifactMetadataService;
 
-    @Inject
-    private RepositoryPathResolver repositoryPathResolver;
-
     @ExtendWith({ RepositoryManagementTestExecutionListener.class,
                   ArtifactManagementTestExecutionListener.class })
     @Test
@@ -194,8 +193,8 @@ public class MavenGroupRepositoryProviderTest
                                                                         @MavenTestArtifact(repositoryId = REPOSITORY_RELEASES_MMFSBFFGPR_2, id = "com.artifacts.in.releases.under123:group", versions = "1.2.4") Path a3)
             throws Exception
     {
-        generateMavenMetadata(releases1.getStorage().getId(), releases1.getId());
-        generateMavenMetadata(releases2.getStorage().getId(), releases2.getId());
+        generateMavenMetadata(releases1);
+        generateMavenMetadata(releases2);
         
         RepositoryProvider repositoryProvider = repositoryProviderRegistry.getProvider(RepositoryTypeEnum.GROUP.getType());
 
@@ -394,10 +393,8 @@ public class MavenGroupRepositoryProviderTest
                                                @MavenTestArtifact(repositoryId = REPOSITORY_RELEASES_DRRSBV_2, id = "org.carlspring.metadata.will.not.be:retrieved", versions = "1.2.64") Path a2)
             throws Exception
     {
-        testDeny(releases1.getStorage().getId(),
-                 releases1.getId(),
-                 releases2.getStorage().getId(),
-                 releases2.getId(),
+        testDeny(releases1,
+                 releases2,
                  releasesGroup,
                  (RepositoryPath) a2.normalize());
     }
@@ -422,10 +419,8 @@ public class MavenGroupRepositoryProviderTest
                                 ".*(com|org)/carlspring.metadata.*",
                                 RoutingRuleTypeEnum.DENY);
 
-        testDeny(releases1.getStorage().getId(),
-                 releases1.getId(),
-                 releases2.getStorage().getId(),
-                 releases2.getId(),
+        testDeny(releases1,
+                 releases2,
                  releasesGroup,
                  (RepositoryPath) a2.normalize());
     }
@@ -451,10 +446,8 @@ public class MavenGroupRepositoryProviderTest
                                 ".*(com|org)/carlspring.metadata.*",
                                 RoutingRuleTypeEnum.DENY);
 
-        testDeny(releases1.getStorage().getId(),
-                 releases1.getId(),
-                 releases2.getStorage().getId(),
-                 releases2.getId(),
+        testDeny(releases1,
+                 releases2,
                  releasesGroup,
                  (RepositoryPath) a2.normalize());
     }
@@ -476,10 +469,8 @@ public class MavenGroupRepositoryProviderTest
             @MavenTestArtifact(repositoryId = REPOSITORY_RELEASES_DRRSWIRIE_2, id = "org.carlspring.metadata.will.not.be:retrieved", versions = "1.2.64") Path a2)
             throws Exception
     {
-        testDeny(releases1.getStorage().getId(),
-                 releases1.getId(),
-                 releases2.getStorage().getId(),
-                 releases2.getId(),
+        testDeny(releases1,
+                 releases2,
                  releasesGroup,
                  (RepositoryPath) a2.normalize());
     }
@@ -505,10 +496,8 @@ public class MavenGroupRepositoryProviderTest
                                 ".*(com|org)/carlspring.metadata.*",
                                 RoutingRuleTypeEnum.DENY);
 
-        testDeny(releases1.getStorage().getId(),
-                 releases1.getId(),
-                 releases2.getStorage().getId(),
-                 releases2.getId(),
+        testDeny(releases1,
+                 releases2,
                  releasesGroup,
                  (RepositoryPath) a2.normalize());
     }
@@ -534,10 +523,8 @@ public class MavenGroupRepositoryProviderTest
                                 ".*(com|org)/carlspring.metadata.*",
                                 RoutingRuleTypeEnum.DENY);
 
-        testDeny(releases1.getStorage().getId(),
-                 releases1.getId(),
-                 releases2.getStorage().getId(),
-                 releases2.getId(),
+        testDeny(releases1,
+                 releases2,
                  releasesGroup,
                  (RepositoryPath) a2.normalize());
     }
@@ -563,24 +550,20 @@ public class MavenGroupRepositoryProviderTest
                                 ".*(com|org)/carlspring.metadata.*",
                                 RoutingRuleTypeEnum.DENY);
 
-        testDeny(releases1.getStorage().getId(),
-                 releases1.getId(),
-                 releases2.getStorage().getId(),
-                 releases2.getId(),
+        testDeny(releases1,
+                 releases2,
                  releasesGroup,
                  (RepositoryPath) a2.normalize());
     }
 
-    private void testDeny(String storage1Id,
-                          String repository1Id,
-                          String storage2Id,
-                          String repository2Id,
+    private void testDeny(Repository repository1,
+                          Repository repository2,
                           Repository repositoryReleasesGroup,
                           RepositoryPath artifactPath)
             throws IOException
     {
-        generateMavenMetadata(storage1Id, repository1Id);
-        generateMavenMetadata(storage2Id, repository2Id);
+        generateMavenMetadata(repository1);
+        generateMavenMetadata(repository2);
         // Test data initialized.
 
         logger.info("# Testing group excludes...");
@@ -595,6 +578,29 @@ public class MavenGroupRepositoryProviderTest
         {
             assertNull(is);
         }
+    }
+
+    private void createAndAddRoutingRule(String groupStorageId,
+                                         String groupRepositoryId,
+                                         List<MutableRoutingRuleRepository> repositories,
+                                         String rulePattern,
+                                         RoutingRuleTypeEnum type)
+            throws IOException
+    {
+        MutableRoutingRule routingRule = MutableRoutingRule.create(groupStorageId, groupRepositoryId,
+                                                                   repositories, rulePattern, type);
+        configurationManagementService.addRoutingRule(routingRule);
+    }
+
+    private void generateMavenMetadata(Repository repository)
+            throws IOException
+    {
+        RepositoryPath repositoryPath = repositoryPathResolver.resolve(repository);
+
+        ArtifactDirectoryLocator locator = new ArtifactDirectoryLocator();
+        locator.setBasedir(repositoryPath);
+        locator.setOperation(new GenerateMavenMetadataOperation(mavenMetadataManager, artifactEventListenerRegistry));
+        locator.locateArtifactDirectories();
     }
 
 }

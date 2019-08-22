@@ -2,7 +2,6 @@ package org.carlspring.strongbox.artifact.generation;
 
 import org.carlspring.strongbox.config.Maven2LayoutProviderTestConfig;
 import org.carlspring.strongbox.storage.repository.Repository;
-import org.carlspring.strongbox.testing.MavenTestCaseWithArtifactGeneration;
 import org.carlspring.strongbox.testing.artifact.ArtifactManagementTestExecutionListener;
 import org.carlspring.strongbox.testing.artifact.MavenTestArtifact;
 import org.carlspring.strongbox.testing.repository.MavenRepository;
@@ -12,8 +11,6 @@ import org.carlspring.strongbox.util.MessageDigestUtils;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
-import java.security.DigestInputStream;
-import java.security.MessageDigest;
 
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -21,6 +18,7 @@ import org.junit.jupiter.api.parallel.Execution;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.ContextConfiguration;
+import static org.carlspring.strongbox.util.MessageDigestUtils.calculateChecksum;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.junit.jupiter.api.parallel.ExecutionMode.CONCURRENT;
@@ -34,7 +32,6 @@ import static org.junit.jupiter.api.parallel.ExecutionMode.CONCURRENT;
 @ContextConfiguration(classes = Maven2LayoutProviderTestConfig.class)
 @Execution(CONCURRENT)
 public class MavenArtifactGeneratorTest
-        extends MavenTestCaseWithArtifactGeneration
 {
     private static final String REPOSITORY_RELEASES = "matg-releases";
 
@@ -96,21 +93,6 @@ public class MavenArtifactGeneratorTest
         System.out.println("Generated [SHA1] (pom): " + pomSHA1);
 
         assertEquals(expectedPomSHA1, pomSHA1);
-    }
-
-    private String calculateChecksum(Path path,
-                                     String type)
-            throws Exception
-    {
-        byte[] buffer = new byte[4096];
-        MessageDigest md = MessageDigest.getInstance(type);
-
-        try (DigestInputStream dis = new DigestInputStream(Files.newInputStream(path), md))
-        {
-            while (dis.read(buffer) != -1) ;
-        }
-
-        return MessageDigestUtils.convertToHexadecimalString(md);
     }
 
 }

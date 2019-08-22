@@ -14,6 +14,7 @@ import java.nio.file.Files;
 
 import org.apache.maven.artifact.Artifact;
 import org.hamcrest.CoreMatchers;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.springframework.core.io.Resource;
@@ -37,11 +38,6 @@ public class RetryDownloadArtifactWithSingleFailureAtSomePointTest
 
     private boolean exceptionAlreadyThrown;
 
-    public RetryDownloadArtifactWithSingleFailureAtSomePointTest()
-    {
-        brokenArtifactInputStream = new OneTimeBrokenArtifactInputStream(jarArtifact);
-    }
-
     @Override
     public InputStream getInputStream()
     {
@@ -54,9 +50,21 @@ public class RetryDownloadArtifactWithSingleFailureAtSomePointTest
         return this;
     }
 
+    @Override
+    @BeforeEach
+    public void setup()
+            throws IOException
+    {
+        super.setup();
+
+        brokenArtifactInputStream = new OneTimeBrokenArtifactInputStream(jarArtifact);
+    }
+
     @Test
     @ExtendWith(RepositoryManagementTestExecutionListener.class)
-    public void resurrectedInputStreamShouldBeSuccessfullyHandledByRetryFeature(@MavenRepository(repositoryId = REPOSITORY) @Remote(url = PROXY_REPOSITORY_URL) Repository proxyRepository)
+    public void resurrectedInputStreamShouldBeSuccessfullyHandledByRetryFeature(@MavenRepository(repositoryId = REPOSITORY)
+                                                                                @Remote(url = PROXY_REPOSITORY_URL)
+                                                                                Repository proxyRepository)
             throws Exception
     {
         Artifact artifact = MavenArtifactTestUtils.getArtifactFromGAVTC("org.apache.commons:commons-lang3:3.2");
