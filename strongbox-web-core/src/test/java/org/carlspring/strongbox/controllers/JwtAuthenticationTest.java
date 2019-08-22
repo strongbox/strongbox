@@ -2,7 +2,10 @@ package org.carlspring.strongbox.controllers;
 
 import org.carlspring.strongbox.config.IntegrationTest;
 import org.carlspring.strongbox.rest.common.RestAssuredBaseTest;
+import org.carlspring.strongbox.users.security.JwtAuthenticationClaimsProvider;
+import org.carlspring.strongbox.users.security.JwtClaimsProvider;
 import org.carlspring.strongbox.users.security.SecurityTokenProvider;
+import org.carlspring.strongbox.users.userdetails.SpringSecurityUser;
 
 import javax.inject.Inject;
 import java.nio.charset.Charset;
@@ -19,6 +22,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.security.core.SpringSecurityMessageSource;
 import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.test.context.TestSecurityContextHolder;
 import static io.restassured.module.mockmvc.RestAssuredMockMvc.given;
 import static java.nio.charset.StandardCharsets.ISO_8859_1;
@@ -40,6 +44,13 @@ public class JwtAuthenticationTest
 
     @Inject
     private SecurityTokenProvider securityTokenProvider;
+    
+    @Inject
+    @JwtAuthenticationClaimsProvider.JwtAuthentication
+    private JwtClaimsProvider jwtClaimsProvider;
+
+    @Inject
+    private UserDetailsService userDetailsService;
 
     @Override
     @BeforeEach
@@ -137,7 +148,8 @@ public class JwtAuthenticationTest
         String url = getContextBaseUrl() + "/users";
 
         // create token that will expire after 1 second
-        String expiredToken = securityTokenProvider.getToken("admin", Collections.emptyMap(), 3, null);
+        SpringSecurityUser userDetails = (SpringSecurityUser) userDetailsService.loadUserByUsername("admin");
+        String expiredToken = securityTokenProvider.getToken(userDetails.getUsername(), jwtClaimsProvider.getClaims(userDetails), 3, null);
 
         given().header(HttpHeaders.AUTHORIZATION, getAuthorizationHeader(expiredToken))
                .header(HttpHeaders.ACCEPT, MediaType.APPLICATION_JSON_VALUE)

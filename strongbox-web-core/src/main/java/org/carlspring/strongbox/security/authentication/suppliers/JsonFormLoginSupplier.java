@@ -1,6 +1,6 @@
 package org.carlspring.strongbox.security.authentication.suppliers;
 
-import org.carlspring.strongbox.authentication.api.impl.xml.PasswordAuthentication;
+import org.carlspring.strongbox.authentication.api.password.PasswordAuthentication;
 import org.carlspring.strongbox.controllers.login.LoginController;
 import org.carlspring.strongbox.controllers.login.LoginInput;
 

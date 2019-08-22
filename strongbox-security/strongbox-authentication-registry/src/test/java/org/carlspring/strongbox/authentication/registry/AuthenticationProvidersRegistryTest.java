@@ -1,7 +1,7 @@
 package org.carlspring.strongbox.authentication.registry;
 
 import org.carlspring.strongbox.authentication.TestConfig;
-import org.carlspring.strongbox.authentication.api.impl.xml.PasswordAuthenticationProvider;
+import org.carlspring.strongbox.authentication.api.password.PasswordAuthenticationProvider;
 import org.carlspring.strongbox.authentication.registry.AuthenticationProvidersRegistry;
 import org.carlspring.strongbox.config.hazelcast.HazelcastConfiguration;
 import org.carlspring.strongbox.config.hazelcast.HazelcastInstanceId;

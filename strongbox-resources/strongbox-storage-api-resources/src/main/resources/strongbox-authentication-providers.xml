@@ -18,14 +18,21 @@
     <import resource="classpath:/org/carlspring/strongbox/authentication/external/ldap/strongbox-authentication-providers.xml" />
 
     <bean
-        class="org.carlspring.strongbox.authentication.api.impl.xml.CacheManagerAuthenticationCache" />
+        class="org.carlspring.strongbox.authentication.api.CacheManagerAuthenticationCache" />
 
     <!-- AuthenticationProviders -->
     <bean id="passwordAuthenticationProvider"
-        class="org.carlspring.strongbox.authentication.api.impl.xml.PasswordAuthenticationProvider" />
+        class="org.carlspring.strongbox.authentication.api.password.PasswordAuthenticationProvider" />
+    
     <bean id="jwtAuthenticationProvider"
-        class="org.carlspring.strongbox.authentication.api.impl.xml.JwtAuthenticationProvider" />
+          class="org.carlspring.strongbox.authentication.api.jwt.JwtAuthenticationProvider">
+    </bean>
+        
     <bean id="securityTokenAuthenticationProvider"
-        class="org.carlspring.strongbox.authentication.api.impl.xml.SecurityTokenAuthenticationProvider" />
+          class="org.carlspring.strongbox.authentication.api.nuget.SecurityTokenAuthenticationProvider">
+          <constructor-arg>
+              <bean id="securityTokenClaimsProvider" class="org.carlspring.strongbox.authentication.api.nuget.SecurityTokenClaimsProvider"/>
+          </constructor-arg>
+    </bean>
     
 </beans>

@@ -24,7 +24,8 @@ import org.springframework.context.annotation.Import;
 @ComponentScan({ "org.carlspring.strongbox.users" })
 @Import({ DataServiceConfig.class,
           CommonConfig.class,
-          UsersAuthorizationConfig.class })
+          UsersAuthorizationConfig.class,
+          UsersSecurityConfig.class })
 public class UsersConfig
 {
 

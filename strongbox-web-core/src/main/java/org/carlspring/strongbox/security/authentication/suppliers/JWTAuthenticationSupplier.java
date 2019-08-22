@@ -7,7 +7,7 @@ import javax.annotation.Nonnull;
 import javax.inject.Inject;
 import javax.servlet.http.HttpServletRequest;
 
-import org.carlspring.strongbox.authentication.api.impl.xml.JwtAuthentication;
+import org.carlspring.strongbox.authentication.api.jwt.JwtAuthentication;
 import org.carlspring.strongbox.security.authentication.JwtTokenFetcher;
 import org.carlspring.strongbox.security.exceptions.InvalidTokenException;
 import org.carlspring.strongbox.users.security.SecurityTokenProvider;
