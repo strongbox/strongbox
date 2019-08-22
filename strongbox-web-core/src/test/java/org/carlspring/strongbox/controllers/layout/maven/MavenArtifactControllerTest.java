@@ -695,7 +695,7 @@ public class MavenArtifactControllerTest
         final String repositoryId = repository.getId();
         final RootRepositoryPath repositoryPath = repositoryPathResolver.resolve(repository);
 
-        generateMavenMetadata(storageId, repositoryId);
+        generateMavenMetadata(repository);
 
         Path relArtifactPath = repositoryPath.relativize(artifactsPaths.get(0));
         String relArtifactPathStr = FilenameUtils.separatorsToUnix(relArtifactPath.toString());
@@ -889,7 +889,7 @@ public class MavenArtifactControllerTest
         String artifact2PathStr = repositoryPath.relativize(artifactsPaths.get(1)).toString();
 
         // When
-        generateMavenMetadata(storageId, repositoryId);
+        generateMavenMetadata(repository);
 
         client.delete(storageId, repositoryId, artifact2PathStr);
 
@@ -932,7 +932,7 @@ public class MavenArtifactControllerTest
         final String repositoryId = repository.getId();
         final RootRepositoryPath repositoryPath = repositoryPathResolver.resolve(repository);
 
-        generateMavenMetadata(storageId, repositoryId);
+        generateMavenMetadata(repository);
 
         Path artifactPath1 = repositoryPath.relativize(artifactsPaths.get(0));
         String artifactPath1Str = FilenameUtils.separatorsToUnix(artifactPath1.toString());
@@ -971,38 +971,35 @@ public class MavenArtifactControllerTest
     }
 
     /**
-     * User developer01 does not have general the ARTIFACTS_RESOLVE permission, but it's defined for single 'releases'
+     * User deployer does not have general the ARTIFACTS_RESOLVE permission, but it's defined for single 'releases'
      * repository. So because of dynamic privileges assignment they will be able to get access to artifacts in that
      * repository.
      */
+    @ExtendWith({ RepositoryManagementTestExecutionListener.class,
+                  ArtifactManagementTestExecutionListener.class })
     @Test
     @WithMockUser(username = "deployer", authorities = "ARTIFACTS_RESOLVE")
-    public void testDynamicPrivilegeAssignmentForRepository()
-            throws NoSuchAlgorithmException,
-                   XmlPullParserException,
-                   IOException
+    public void testDynamicPrivilegeAssignmentForRepository(@MavenRepository(repositoryId = REPOSITORY_RELEASES1)
+                                                            Repository repository,
+                                                            @MavenTestArtifact(repositoryId = REPOSITORY_RELEASES1,
+                                                                               id = "org.carlspring.strongbox.test:dynamic-privileges",
+                                                                               versions = "1.0")
+                                                            Path artifactPath)
     {
         // Given
-        Repository repository = configurationManagementService.getConfiguration()
-                                                              .getRepository(STORAGE0,
-                                                                             REPOSITORY_RELEASES);
-
         final String storageId = repository.getStorage().getId();
         final String repositoryId = repository.getId();
         final RootRepositoryPath repositoryPath = repositoryPathResolver.resolve(repository);
 
-        generateArtifact(repositoryPath.toString(),
-                         "org.carlspring.strongbox.test:dynamic-privileges",
-                         "1.0");
-
         String url = getContextBaseUrl() + "/storages/{storageId}/{repositoryId}/{artifactPath}";
-        String artifactPath = "org/carlspring/strongbox/test/dynamic-privileges/1.0/dynamic-privileges-1.0.jar";
+        Path relArtifactPath = repositoryPath.relativize(artifactPath.normalize());
+        String relArtifactPathStr = FilenameUtils.separatorsToUnix(relArtifactPath.toString());
 
         // When
         int statusCode = given().header(HttpHeaders.USER_AGENT, "Maven/*")
                                 .contentType(MediaType.TEXT_PLAIN_VALUE)
                                 .when()
-                                .get(url, storageId, repositoryId, artifactPath)
+                                .get(url, storageId, repositoryId, relArtifactPathStr)
                                 .getStatusCode();
 
         // Then

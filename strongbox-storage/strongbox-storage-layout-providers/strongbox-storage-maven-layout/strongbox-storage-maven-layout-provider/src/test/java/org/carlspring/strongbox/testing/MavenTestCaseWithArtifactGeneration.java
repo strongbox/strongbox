@@ -18,22 +18,15 @@ import javax.inject.Inject;
 import java.io.File;
 import java.io.IOException;
 import java.io.OutputStream;
-import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
-import java.nio.file.attribute.BasicFileAttributeView;
-import java.nio.file.attribute.FileTime;
 import java.security.NoSuchAlgorithmException;
 import java.text.SimpleDateFormat;
 import java.util.Calendar;
-import java.util.concurrent.TimeUnit;
-import java.util.stream.Stream;
 
 import org.apache.commons.io.FilenameUtils;
 import org.apache.maven.artifact.Artifact;
 import org.codehaus.plexus.util.xml.pull.XmlPullParserException;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 /**
  * @author mtodorov
@@ -41,8 +34,6 @@ import org.slf4j.LoggerFactory;
  */
 public class MavenTestCaseWithArtifactGeneration
 {
-    private final Logger logger = LoggerFactory.getLogger(MavenTestCaseWithArtifactGeneration.class);
-
     @Inject
     protected MavenRepositoryFeatures features;
     
@@ -75,15 +66,6 @@ public class MavenTestCaseWithArtifactGeneration
     {
         MavenArtifactGenerator generator = createArtifactGenerator(basedir);
         generator.generate(artifact, packaging);
-    }
-
-    public void generateArtifact(String basedir, String ga, String... versions)
-            throws IOException,
-                   XmlPullParserException,
-                   NoSuchAlgorithmException
-    {
-        MavenArtifactGenerator generator = createArtifactGenerator(basedir);
-        generator.generate(ga, versions);
     }
 
     protected MavenArtifactGenerator createArtifactGenerator(String basedir)
@@ -210,7 +192,8 @@ public class MavenTestCaseWithArtifactGeneration
         return artifact;
     }
 
-    public String createSnapshotVersion(String baseSnapshotVersion, int buildNumber)
+    public String createSnapshotVersion(String baseSnapshotVersion,
+                                        int buildNumber)
     {
         SimpleDateFormat formatter = new SimpleDateFormat("yyyyMMdd.HHmmss");
         Calendar calendar = Calendar.getInstance();
@@ -233,32 +216,6 @@ public class MavenTestCaseWithArtifactGeneration
         String version = baseSnapshotVersion + "-" + timestamp + "-" + buildNumber;
 
         return version;
-    }
-
-    public void changeCreationDate(MavenArtifact artifact)
-            throws IOException
-    {
-        Path directory = artifact.getPath().getParent();
-
-        try (Stream<Path> pathStream = Files.walk(directory))
-        {
-            pathStream.filter(Files::isRegularFile).forEach(
-                    filePath -> {
-                        BasicFileAttributeView attributes = Files.getFileAttributeView(filePath,
-                                                                                       BasicFileAttributeView.class);
-                        FileTime time = FileTime.from(System.currentTimeMillis() + 60000L, TimeUnit.MILLISECONDS);
-                        try
-                        {
-                            attributes.setTimes(time, time, time);
-                        }
-                        catch (IOException e)
-                        {
-                            logger.error(
-                                    String.format("Failed to change creation date for [%s]", filePath),
-                                    e);
-                        }
-                    });
-        }
     }
 
     public MavenRepositoryFeatures getFeatures()

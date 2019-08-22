@@ -13,6 +13,7 @@ import java.io.InputStream;
 import java.nio.file.Files;
 
 import org.apache.maven.artifact.Artifact;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.springframework.core.io.Resource;
@@ -37,11 +38,6 @@ public class RetryDownloadArtifactWithUnsupportedRangeRequestTest
 
     private OneTimeBrokenArtifactInputStream brokenArtifactInputStream;
 
-    RetryDownloadArtifactWithUnsupportedRangeRequestTest()
-    {
-        brokenArtifactInputStream = new OneTimeBrokenArtifactInputStream(jarArtifact);
-    }
-
     @Override
     public InputStream getInputStream()
     {
@@ -58,6 +54,16 @@ public class RetryDownloadArtifactWithUnsupportedRangeRequestTest
     protected ArtifactResolverContext lookupArtifactResolverContext()
     {
         return this;
+    }
+
+    @Override
+    @BeforeEach
+    public void setup()
+            throws IOException
+    {
+        super.setup();
+
+        brokenArtifactInputStream = new OneTimeBrokenArtifactInputStream(jarArtifact);
     }
 
     @Test

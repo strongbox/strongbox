@@ -9,7 +9,6 @@ import org.carlspring.strongbox.providers.io.RepositoryPathResolver;
 import org.carlspring.strongbox.storage.metadata.MetadataHelper;
 import org.carlspring.strongbox.storage.metadata.MetadataType;
 import org.carlspring.strongbox.storage.repository.Repository;
-import org.carlspring.strongbox.testing.TestCaseWithMavenArtifactGenerationAndIndexing;
 import org.carlspring.strongbox.testing.artifact.ArtifactManagementTestExecutionListener;
 import org.carlspring.strongbox.testing.artifact.MavenArtifactTestUtils;
 import org.carlspring.strongbox.testing.artifact.MavenTestArtifact;
@@ -20,8 +19,12 @@ import javax.inject.Inject;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.nio.file.attribute.BasicFileAttributeView;
+import java.nio.file.attribute.FileTime;
 import java.security.NoSuchAlgorithmException;
 import java.util.List;
+import java.util.concurrent.TimeUnit;
+import java.util.stream.Stream;
 
 import org.apache.maven.artifact.Artifact;
 import org.apache.maven.artifact.repository.metadata.Metadata;
@@ -30,6 +33,8 @@ import org.codehaus.plexus.util.xml.pull.XmlPullParserException;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.junit.jupiter.api.parallel.Execution;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.ContextConfiguration;
@@ -46,8 +51,8 @@ import static org.junit.jupiter.api.parallel.ExecutionMode.CONCURRENT;
 @ContextConfiguration(classes = Maven2LayoutProviderTestConfig.class)
 @Execution(CONCURRENT)
 public class ArtifactMetadataServiceReleasesTest
-        extends TestCaseWithMavenArtifactGenerationAndIndexing
 {
+    private final Logger logger = LoggerFactory.getLogger(ArtifactMetadataServiceReleasesTest.class);
 
     private static final String R1 = "amsr-releases1";
     private static final String R2 = "amsr-releases2";
@@ -60,6 +65,7 @@ public class ArtifactMetadataServiceReleasesTest
 
     @Inject
     private RepositoryPathResolver repositoryPathResolver;
+
 
     @ExtendWith({ RepositoryManagementTestExecutionListener.class,
                   ArtifactManagementTestExecutionListener.class })
@@ -296,6 +302,32 @@ public class ArtifactMetadataServiceReleasesTest
         assertEquals(3,
                      metadata.getVersioning().getVersions().size(),
                      "Incorrect number of versions stored in metadata!");
+    }
+
+    private void changeCreationDate(MavenArtifact artifact)
+            throws IOException
+    {
+        Path directory = artifact.getPath().getParent();
+
+        try (Stream<Path> pathStream = Files.walk(directory))
+        {
+            pathStream.filter(Files::isRegularFile).forEach(
+                    filePath -> {
+                        BasicFileAttributeView attributes = Files.getFileAttributeView(filePath,
+                                                                                       BasicFileAttributeView.class);
+                        FileTime time = FileTime.from(System.currentTimeMillis() + 60000L, TimeUnit.MILLISECONDS);
+                        try
+                        {
+                            attributes.setTimes(time, time, time);
+                        }
+                        catch (IOException e)
+                        {
+                            logger.error(
+                                    String.format("Failed to change creation date for [%s]", filePath),
+                                    e);
+                        }
+                    });
+        }
     }
 
 }

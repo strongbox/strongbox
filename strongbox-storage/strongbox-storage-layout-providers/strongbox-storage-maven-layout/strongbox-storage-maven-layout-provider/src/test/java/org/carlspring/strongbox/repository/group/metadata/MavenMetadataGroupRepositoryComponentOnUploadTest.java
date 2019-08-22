@@ -113,10 +113,10 @@ public class MavenMetadataGroupRepositoryComponentOnUploadTest
             throws Exception
     {
         // BEFORE
-        generateMavenMetadata(STORAGE0, repositoryLeafAl.getId());
-        generateMavenMetadata(STORAGE0, repositoryLeafAg.getId());
-        generateMavenMetadata(STORAGE0, repositoryLeafAd.getId());
-        generateMavenMetadata(STORAGE0, repositoryLeafAk.getId());
+        generateMavenMetadata(repositoryLeafAl);
+        generateMavenMetadata(repositoryLeafAg);
+        generateMavenMetadata(repositoryLeafAd);
+        generateMavenMetadata(repositoryLeafAk);
 
         copyArtifactMetadata(repositoryLeafAl.getId(), repositoryGroupAf.getId(), FilenameUtils.normalize(
                 "com/artifacts/to/delete/releases/delete-group/maven-metadata.xml"));

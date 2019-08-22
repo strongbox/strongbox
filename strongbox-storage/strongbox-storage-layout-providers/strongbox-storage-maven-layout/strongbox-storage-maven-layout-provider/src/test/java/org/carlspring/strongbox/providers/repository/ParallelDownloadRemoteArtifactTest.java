@@ -2,7 +2,6 @@ package org.carlspring.strongbox.providers.repository;
 
 import org.carlspring.strongbox.artifact.MavenArtifactUtils;
 import org.carlspring.strongbox.providers.io.RepositoryPath;
-import org.carlspring.strongbox.providers.io.RepositoryPathResolver;
 import org.carlspring.strongbox.storage.repository.Repository;
 import org.carlspring.strongbox.testing.artifact.MavenArtifactTestUtils;
 import org.carlspring.strongbox.testing.repository.MavenRepository;
@@ -24,6 +23,7 @@ import java.util.stream.IntStream;
 
 import org.apache.maven.artifact.Artifact;
 import org.hamcrest.CoreMatchers;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.springframework.core.io.Resource;
@@ -40,11 +40,11 @@ public class ParallelDownloadRemoteArtifactTest
         extends MockedRestArtifactResolverTestBase
         implements ArtifactResolverContext
 {
-    
+
     private static final String REPOSITORY = "pdrat-repository";
 
     private static final String PROXY_REPOSITORY_URL = "https://repo.maven.apache.org/maven2/";
-    
+
     private static AtomicInteger concurrencyWorkerInstanceHolder = new AtomicInteger();
     private static AtomicInteger concurrentWorkerExecutionCount = new AtomicInteger();
     private RemoteArtifactInputStreamStub remoteArtifactInputStream;
@@ -53,14 +53,6 @@ public class ParallelDownloadRemoteArtifactTest
     
     @Inject
     private PlatformTransactionManager transactionManager;
-    
-    @Inject
-    private RepositoryPathResolver repositoryPathResolver;
-    
-    public ParallelDownloadRemoteArtifactTest() throws IOException
-    {
-        remoteArtifactInputStream = new RemoteArtifactInputStreamStub(jarArtifact);
-    }
 
     @Override
     public InputStream getInputStream()
@@ -72,6 +64,16 @@ public class ParallelDownloadRemoteArtifactTest
     protected ArtifactResolverContext lookupArtifactResolverContext()
     {
         return this;
+    }
+
+    @Override
+    @BeforeEach
+    public void setup()
+            throws IOException
+    {
+        super.setup();
+
+        remoteArtifactInputStream = new RemoteArtifactInputStreamStub(jarArtifact);
     }
 
     @Test
