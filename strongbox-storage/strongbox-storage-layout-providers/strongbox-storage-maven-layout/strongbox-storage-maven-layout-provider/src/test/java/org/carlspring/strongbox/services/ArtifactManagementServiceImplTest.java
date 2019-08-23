@@ -14,7 +14,6 @@ import org.carlspring.strongbox.repository.MavenRepositoryFeatures;
 import org.carlspring.strongbox.storage.ArtifactStorageException;
 import org.carlspring.strongbox.storage.repository.Repository;
 import org.carlspring.strongbox.storage.repository.RepositoryPolicyEnum;
-import org.carlspring.strongbox.testing.MavenTestCaseWithArtifactGeneration;
 import org.carlspring.strongbox.testing.artifact.ArtifactManagementTestExecutionListener;
 import org.carlspring.strongbox.testing.artifact.MavenArtifactTestUtils;
 import org.carlspring.strongbox.testing.artifact.MavenTestArtifact;
@@ -31,13 +30,20 @@ import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.text.SimpleDateFormat;
-import java.util.*;
+import java.util.Arrays;
+import java.util.Calendar;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.Optional;
+import java.util.Random;
 import java.util.concurrent.Callable;
 import java.util.concurrent.CountDownLatch;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 import java.util.stream.Stream;
 
+import org.apache.commons.io.FilenameUtils;
 import org.apache.maven.artifact.Artifact;
 import org.hamcrest.CoreMatchers;
 import org.hamcrest.MatcherAssert;
@@ -49,7 +55,10 @@ import org.slf4j.LoggerFactory;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.ContextConfiguration;
-import static org.junit.jupiter.api.Assertions.*;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.junit.jupiter.api.Assertions.fail;
 import static org.junit.jupiter.api.parallel.ExecutionMode.CONCURRENT;
 
 /**
@@ -61,7 +70,6 @@ import static org.junit.jupiter.api.parallel.ExecutionMode.CONCURRENT;
 @ContextConfiguration(classes = Maven2LayoutProviderTestConfig.class)
 @Execution(CONCURRENT)
 public class ArtifactManagementServiceImplTest
-        extends MavenTestCaseWithArtifactGeneration
 {
 
     private static final Logger logger = LoggerFactory.getLogger(ArtifactManagementServiceImplTest.class);
@@ -368,27 +376,35 @@ public class ArtifactManagementServiceImplTest
                    "when allowsForceDeletion is not enabled!");
     }
 
-    @ExtendWith(RepositoryManagementTestExecutionListener.class)
+    @ExtendWith({ RepositoryManagementTestExecutionListener.class,
+                  ArtifactManagementTestExecutionListener.class })
     @Test
     public void testRemoveTimestampedSnapshots(@MavenRepository(repositoryId = TRTS_SNAPSHOTS,
                                                                 policy = RepositoryPolicyEnum.SNAPSHOT)
-                                               Repository repository)
+                                               Repository repository,
+                                               @MavenTestArtifact(repositoryId = TRTS_SNAPSHOTS,
+                                                                  id = "org.carlspring.strongbox:timestamped",
+                                                                  versions = { "2.0-20190701.190020-1",
+                                                                               "2.0-20190701.190145-2",
+                                                                               "2.0-20190701.190250-3",
+                                                                               "2.1-20190626.190020-1",
+                                                                               "2.1-20190626.190145-2"})
+                                               List<Path> artifactPaths)
             throws Exception
     {
         final String storageId = repository.getStorage().getId();
         final String repositoryId = repository.getId();
 
-        RootRepositoryPath repositoryPath = repositoryPathResolver.resolve(repository);
+        List<Path> currentDateArtifactPaths = artifactPaths.subList(0, 3);
+        List<Path> previousDateArtifactPaths = artifactPaths.subList(3, artifactPaths.size());
 
-        // Artifact can't be created with annotation because we need the current date for the timestamp.
-        MavenArtifact artifact = createTimestampedSnapshotArtifact(repositoryPath.toString(),
-                                                                   "org.carlspring.strongbox",
-                                                                   "timestamped",
-                                                                   "2.0",
-                                                                   "jar",
-                                                                   null,
-                                                                   3);
+        String timestamp = getTimestamp(0);
 
+        MavenArtifact artifact = setArtifactsTimestamp(currentDateArtifactPaths,
+                                                       repository,
+                                                       timestamp);
+
+        assertNotNull(artifact);
         Path artifactVersionBasePath = artifact.getPath().getParent().normalize();
 
         try (Stream<Path> pathStream = Files.walk(artifactVersionBasePath))
@@ -419,27 +435,21 @@ public class ArtifactManagementServiceImplTest
 
         }
 
-        //Creating timestamped snapshot with another timestamp
+        //Creating timestamped snapshot with another timestamp (minus 5 days)
+        timestamp = getTimestamp(5);
 
-        Calendar cal = Calendar.getInstance();
-        cal.add(Calendar.DATE, -5);
-        String timestamp = new SimpleDateFormat("yyyyMMdd.HHmmss").format(cal.getTime());
+        artifact = setArtifactsTimestamp(previousDateArtifactPaths,
+                                         repository,
+                                         timestamp);
 
-        // Artifact can't be created with annotation because we need the current date minus 5 days for the timestamp.
-        createTimestampedSnapshot(repositoryPath.toString(),
-                                  "org.carlspring.strongbox",
-                                  "timestamped",
-                                  "2.0",
-                                  "jar",
-                                  null,
-                                  2,
-                                  timestamp);
+        assertNotNull(artifact);
+        Path allArtifactsBasePath = artifact.getPath().getParent().getParent().normalize();
 
         artifactMetadataService.rebuildMetadata(storageId,
                                                 repositoryId,
                                                 "org/carlspring/strongbox/timestamped");
 
-        try (Stream<Path> pathStream = Files.walk(artifactVersionBasePath))
+        try (Stream<Path> pathStream = Files.walk(allArtifactsBasePath))
         {
             long timestampedSnapshots = pathStream.filter(path -> path.toString().endsWith(".jar")).count();
             assertEquals(2, timestampedSnapshots, "Amount of timestamped snapshots doesn't equal 2.");
@@ -452,15 +462,62 @@ public class ArtifactManagementServiceImplTest
                                                            0,
                                                            3);
 
-        try (Stream<Path> pathStream = Files.walk(artifactVersionBasePath))
+        try (Stream<Path> pathStream = Files.walk(allArtifactsBasePath))
         {
             long timestampedSnapshots = pathStream.filter(path -> path.toString().endsWith(".jar")).count();
             assertEquals(1, timestampedSnapshots, "Amount of timestamped snapshots doesn't equal 1.");
 
-            Path snapshotArtifactPath = getSnapshotArtifactPath(artifactVersionBasePath);
+            Path snapshotArtifactPath = getSnapshotArtifactPath(allArtifactsBasePath);
             assertNotNull(snapshotArtifactPath);
             assertTrue(snapshotArtifactPath.toString().endsWith("-3.jar"));
         }
+    }
+
+    private String getTimestamp(int daysSubstracted)
+    {
+        SimpleDateFormat formatter = new SimpleDateFormat("yyyyMMdd.HHmmss");
+        Calendar calendar = Calendar.getInstance();
+
+        if (daysSubstracted > 0)
+        {
+            calendar.add(Calendar.DATE, -daysSubstracted);
+        }
+
+       return formatter.format(calendar.getTime());
+    }
+
+    private MavenArtifact setArtifactsTimestamp(List<Path> artifactPaths,
+                                                Repository repository,
+                                                String timestamp)
+    {
+        MavenArtifact artifact = null;
+        RootRepositoryPath repositoryPath = repositoryPathResolver.resolve(repository);
+
+        for (int i = 0; i < artifactPaths.size(); i++)
+        {
+            Path relArtifactPath = repositoryPath.relativize(artifactPaths.get(i));
+            String relArtifactPathStr = FilenameUtils.separatorsToUnix(relArtifactPath.toString());
+            artifact = MavenArtifactUtils.convertPathToArtifact(relArtifactPathStr);
+            assertNotNull(artifact);
+
+            // Set current date
+            String currentDateVersion = createSnapshotVersion("2.0",
+                                                              i + 1,
+                                                              timestamp);
+            artifact.setVersion(currentDateVersion);
+            RepositoryPath path = repositoryPathResolver.resolve(repository,
+                                                                 relArtifactPathStr);
+            artifact.setPath(path);
+        }
+
+        return artifact;
+    }
+
+    private String createSnapshotVersion(String baseSnapshotVersion,
+                                         int buildNumber,
+                                         String timestamp)
+    {
+        return baseSnapshotVersion + "-" + timestamp + "-" + buildNumber;
     }
 
     private Path getSnapshotArtifactPath(Path artifactPath)
