@@ -15,6 +15,7 @@ import java.nio.file.Path;
 import java.security.NoSuchAlgorithmException;
 import java.util.List;
 
+import org.apache.commons.codec.digest.MessageDigestAlgorithms;
 import org.codehaus.plexus.util.xml.pull.XmlPullParserException;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -22,10 +23,13 @@ import org.junit.jupiter.api.parallel.Execution;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.ContextConfiguration;
+import static java.nio.file.Files.deleteIfExists;
 import static java.nio.file.StandardOpenOption.CREATE_NEW;
 import static java.nio.file.StandardOpenOption.TRUNCATE_EXISTING;
 import static org.carlspring.strongbox.storage.repository.RepositoryPolicyEnum.SNAPSHOT;
-import static org.junit.jupiter.api.Assertions.*;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.junit.jupiter.api.parallel.ExecutionMode.SAME_THREAD;
 
 /**
@@ -73,28 +77,63 @@ public class MavenChecksumServiceTest
         final String repositoryId = repository.getId();
 
         Path artifact1 = artifactGroupPath.get(0);
-        Path artifact2 = artifactGroupPath.get(1);
-                
-        // Remove these for the sake of the test:
-        Path artifact1Md5 = artifact1.resolveSibling("strongbox-checksum-1.0.jar.md5");
-        Path artifact1Sha1 = artifact1.resolveSibling("strongbox-checksum-1.0.jar.sha1");
-        Path artifact1PomMd5 = artifact1.resolveSibling("strongbox-checksum-1.0.pom.md5");
-        Path artifact1PomSha1 = artifact1.resolveSibling("strongbox-checksum-1.0.pom.sha1");
-        
-        Path artifact2Md5 = artifact2.resolveSibling("strongbox-checksum-2.0.jar.md5");
-        Path artifact2Sha1 = artifact2.resolveSibling("strongbox-checksum-2.0.jar.sha1");
-        Path artifact2PomMd5 = artifact2.resolveSibling("strongbox-checksum-2.0.pom.md5");
-        Path artifact2PomSha1 = artifact2.resolveSibling("strongbox-checksum-2.0.pom.sha1");
 
-        Path artifactMetadataMd5 = artifact1.getParent().getParent().resolve("maven-metadata.xml.md5");
-        Path artifactMetadataSha1 = artifact1.getParent().getParent().resolve("maven-metadata.xml.sha1");
-        
-        Files.delete(artifact1Md5);
-        Files.delete(artifact1Sha1);
-
+        // JAR MD5 file.
+        String fileName1 = artifact1.getFileName().toString();
+        String checksumFileName1 = fileName1 + "." + MessageDigestAlgorithms.MD5.toLowerCase();
+        Path artifact1Md5 = artifact1.resolveSibling(checksumFileName1);
+        deleteIfExists(artifact1Md5);
         assertFalse(Files.exists(artifact1Md5), "The checksum file for artifact exist!");
+
+        // JAR SHA1 file.
+        checksumFileName1 = fileName1 + ".sha1";
+        Path artifact1Sha1 = artifact1.resolveSibling(checksumFileName1);
+        deleteIfExists(artifact1Sha1);
         assertFalse(Files.exists(artifact1Sha1), "The checksum file for artifact exist!");
-        
+
+        // POM MD5 file.
+        String pomFileName1 = fileName1.replace("jar", "pom");
+        checksumFileName1 = pomFileName1 + "." + MessageDigestAlgorithms.MD5.toLowerCase();
+        Path artifact1PomMd5 = artifact1.resolveSibling(checksumFileName1);
+
+        // POM SHA1 file.
+        checksumFileName1 = pomFileName1 + ".sha1";
+        Path artifact1PomSha1 = artifact1.resolveSibling(checksumFileName1);
+
+        // Metadata XML MD5 file.
+        String metadataXmlFileName = "maven-metadata.xml";
+        checksumFileName1 = metadataXmlFileName + "." + MessageDigestAlgorithms.MD5.toLowerCase();
+        Path artifactMetadataMd5 = artifact1.getParent().getParent().resolve(checksumFileName1);
+
+        // Metadata XML SHA1 file.
+        checksumFileName1 = metadataXmlFileName + ".sha1";
+        Path artifactMetadataSha1 = artifact1.getParent().getParent().resolve(checksumFileName1);
+
+
+        Path artifact2 = artifactGroupPath.get(1);
+
+        // JAR MD5 file.
+        String fileName2 = artifact2.getFileName().toString();
+        String checksumFileName2 = fileName2 + "." + MessageDigestAlgorithms.MD5.toLowerCase();
+        Path artifact2Md5 = artifact2.resolveSibling(checksumFileName2);
+        deleteIfExists(artifact2Md5);
+        assertFalse(Files.exists(artifact2Md5), "The checksum file for artifact exist!");
+
+        // JAR SHA1 file.
+        checksumFileName2 = fileName2 + ".sha1";
+        Path artifact2Sha1 = artifact2.resolveSibling(checksumFileName2);
+        deleteIfExists(artifact1Sha1);
+        assertFalse(Files.exists(artifact1Sha1), "The checksum file for artifact exist!");
+
+        // POM MD5 file.
+        String pomFileName2 = fileName2.replace("jar", "pom");
+        checksumFileName2 = pomFileName2 + "." + MessageDigestAlgorithms.MD5.toLowerCase();
+        Path artifact2PomMd5 = artifact2.resolveSibling(checksumFileName2);
+
+        // POM SHA1 file.
+        checksumFileName2 = pomFileName2 + ".sha1";
+        Path artifact2PomSha1 = artifact2.resolveSibling(checksumFileName2);
+
         artifactMetadataService.rebuildMetadata(storageId,
                                                 repositoryId,
                                                 "org/carlspring/strongbox/checksum/maven/strongbox-checksum");
@@ -164,19 +203,36 @@ public class MavenChecksumServiceTest
         final String storageId = repository.getStorage().getId();
         final String repositoryId = repository.getId();
 
-        Path artifact1Md5 = artifact.resolveSibling(artifact.getFileName() + ".md5");
-        Path artifact1Sha1 = artifact.resolveSibling(artifact.getFileName() + ".sha1");
-        Path artifact1PomMd5 = artifact.resolveSibling(artifact.getFileName().toString().replace(".jar", ".pom") + ".md5");
-        Path artifact1PomSha1 = artifact.resolveSibling(artifact.getFileName().toString().replace(".jar", ".pom") + ".sha1");
+        // JAR MD5 file.
+        String fileName1 = artifact.getFileName().toString();
+        String checksumFileName1 = fileName1 + "." + MessageDigestAlgorithms.MD5.toLowerCase();
+        Path artifact1Md5 = artifact.resolveSibling(checksumFileName1);
+        deleteIfExists(artifact1Md5);
 
-        Path artifactMetadataMd5 = artifact.getParent().getParent().resolve("maven-metadata.xml.md5");
-        Path artifactMetadataSha1 = artifact.getParent().getParent().resolve("maven-metadata.xml.sha1");
-        
-        Files.delete(artifact1Md5);
-        Files.delete(artifact1Sha1);
-        Files.delete(artifact1PomMd5);
-        Files.delete(artifact1PomSha1);
-        
+        // JAR SHA1 file.
+        checksumFileName1 = fileName1 + ".sha1";
+        Path artifact1Sha1 = artifact.resolveSibling(checksumFileName1);
+        deleteIfExists(artifact1Sha1);
+
+        // POM MD5 file.
+        String pomFileName1 = fileName1.replace("jar", "pom");
+        checksumFileName1 = pomFileName1 + "." + MessageDigestAlgorithms.MD5.toLowerCase();
+        Path artifact1PomMd5 = artifact.resolveSibling(checksumFileName1);
+        deleteIfExists(artifact1PomMd5);
+
+        // POM SHA1 file.
+        checksumFileName1 = pomFileName1 + ".sha1";
+        Path artifact1PomSha1 = artifact.resolveSibling(checksumFileName1);
+        deleteIfExists(artifact1PomSha1);
+
+        // Metadata XML MD5 file.
+        String metadataXmlFileName = "maven-metadata.xml";
+        checksumFileName1 = metadataXmlFileName + "." + MessageDigestAlgorithms.MD5.toLowerCase();
+        Path artifactMetadataMd5 = artifact.getParent().getParent().resolve(checksumFileName1);
+
+        // Metadata XML SHA1 file.
+        checksumFileName1 = metadataXmlFileName + ".sha1";
+        Path artifactMetadataSha1 = artifact.getParent().getParent().resolve(checksumFileName1);
 
         artifactMetadataService.rebuildMetadata(storageId,
                                                 repositoryId,
@@ -239,23 +295,38 @@ public class MavenChecksumServiceTest
                                                 repositoryId,
                                                 "org/carlspring/strongbox/checksum");
 
-        Path md5File = artifact.resolveSibling(artifact.getFileName() + ".md5");
-        Path sha1File = artifact.resolveSibling(artifact.getFileName() + ".sha1");
-        
-        Path pomMd5 = artifact.resolveSibling(artifact.getFileName().toString().replace(".jar", ".pom") + ".md5");
-        Path pomSha1 = artifact.resolveSibling(artifact.getFileName().toString().replace(".jar", ".pom") + ".sha1");
-        
-        Path artifactMetadataMd5 = artifact.getParent().getParent().resolve("maven-metadata.xml.md5");
-        Path artifactMetadataSha1 = artifact.getParent().getParent().resolve("maven-metadata.xml.sha1");
+        // JAR MD5 file.
+        String fileName1 = artifact.getFileName().toString();
+        String checksumFileName1 = fileName1 + "." + MessageDigestAlgorithms.MD5.toLowerCase();
+        Path md5File = artifact.resolveSibling(checksumFileName1);
+        assertTrue(Files.exists(md5File), "The checksum file for artifact doesn't exist!");
 
-        assertTrue(Files.exists(md5File),
-                   "The checksum file for artifact doesn't exist!");
-        assertTrue(Files.exists(sha1File),
-                   "The checksum file for pom file doesn't exist!");
-        assertTrue(Files.exists(artifactMetadataSha1),
-                   "The checksum file for metadata doesn't exist!");
-        assertTrue(Files.exists(artifactMetadataMd5),
-                   "The checksum file for metadata doesn't exist!");
+        // JAR SHA1 file.
+        checksumFileName1 = fileName1 + ".sha1";
+        Path sha1File = artifact.resolveSibling(checksumFileName1);
+        assertTrue(Files.exists(sha1File), "The checksum file for artifact file doesn't exist!");
+
+        // POM MD5 file.
+        String pomFileName1 = fileName1.replace("jar", "pom");
+        checksumFileName1 = pomFileName1 + "." + MessageDigestAlgorithms.MD5.toLowerCase();
+        Path pomMd5 = artifact.resolveSibling(checksumFileName1);
+        assertTrue(Files.exists(pomMd5), "The checksum file for pom file doesn't exist!");
+
+        // POM SHA1 file.
+        checksumFileName1 = pomFileName1 + ".sha1";
+        Path pomSha1 = artifact.resolveSibling(checksumFileName1);
+        assertTrue(Files.exists(pomSha1), "The checksum file for pom file doesn't exist!");
+
+        // Metadata XML MD5 file.
+        String metadataXmlFileName = "maven-metadata.xml";
+        checksumFileName1 = metadataXmlFileName + "." + MessageDigestAlgorithms.MD5.toLowerCase();
+        Path artifactMetadataMd5 = artifact.getParent().getParent().resolve(checksumFileName1);
+        assertTrue(Files.exists(artifactMetadataMd5), "The checksum file for metadata doesn't exist!");
+
+        // Metadata XML SHA1 file.
+        checksumFileName1 = metadataXmlFileName + ".sha1";
+        Path artifactMetadataSha1 = artifact.getParent().getParent().resolve(checksumFileName1);
+        assertTrue(Files.exists(artifactMetadataSha1), "The checksum file for metadata doesn't exist!");
 
         try (
                 OutputStream os1 = Files.newOutputStream(md5File, CREATE_NEW, TRUNCATE_EXISTING);

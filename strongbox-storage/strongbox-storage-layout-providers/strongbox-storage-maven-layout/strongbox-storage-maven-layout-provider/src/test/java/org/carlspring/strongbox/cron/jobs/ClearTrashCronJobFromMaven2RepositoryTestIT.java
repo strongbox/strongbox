@@ -4,7 +4,6 @@ import org.carlspring.strongbox.config.Maven2LayoutProviderCronTasksTestConfig;
 import org.carlspring.strongbox.data.CacheManagerTestExecutionListener;
 import org.carlspring.strongbox.providers.io.RepositoryFiles;
 import org.carlspring.strongbox.providers.io.RepositoryPath;
-import org.carlspring.strongbox.providers.io.RepositoryPathResolver;
 import org.carlspring.strongbox.storage.repository.Repository;
 import org.carlspring.strongbox.testing.artifact.ArtifactManagementTestExecutionListener;
 import org.carlspring.strongbox.testing.artifact.MavenTestArtifact;
@@ -12,7 +11,6 @@ import org.carlspring.strongbox.testing.repository.MavenRepository;
 import org.carlspring.strongbox.testing.storage.repository.RepositoryAttributes;
 import org.carlspring.strongbox.testing.storage.repository.RepositoryManagementTestExecutionListener;
 
-import javax.inject.Inject;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.concurrent.TimeUnit;
@@ -48,9 +46,6 @@ public class ClearTrashCronJobFromMaven2RepositoryTestIT
     private static final String REPOSITORY_RELEASES_1 = "crtcj-releases";
 
     private static final String REPOSITORY_RELEASES_2 = "crtcj-releases-test";
-
-    @Inject
-    private RepositoryPathResolver repositoryPathResolver;
 
     @Test
     @ExtendWith({ RepositoryManagementTestExecutionListener.class,

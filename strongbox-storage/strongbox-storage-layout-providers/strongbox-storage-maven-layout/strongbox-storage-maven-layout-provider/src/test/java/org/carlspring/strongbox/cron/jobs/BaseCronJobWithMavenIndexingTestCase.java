@@ -6,6 +6,8 @@ import org.carlspring.strongbox.cron.services.CronTaskConfigurationService;
 import org.carlspring.strongbox.cron.services.JobManager;
 import org.carlspring.strongbox.event.cron.CronTaskEvent;
 import org.carlspring.strongbox.event.cron.CronTaskEventTypeEnum;
+import org.carlspring.strongbox.providers.io.RepositoryPathResolver;
+import org.carlspring.strongbox.services.ArtifactMetadataService;
 import org.carlspring.strongbox.services.ConfigurationManagementService;
 
 import javax.inject.Inject;
@@ -42,6 +44,12 @@ public class BaseCronJobWithMavenIndexingTestCase
 
     @Inject
     protected ConfigurationManagementService configurationManagementService;
+
+    @Inject
+    protected RepositoryPathResolver repositoryPathResolver;
+
+    @Inject
+    protected ArtifactMetadataService artifactMetadataService;
 
     @Inject
     private ApplicationContext applicationContext;

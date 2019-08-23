@@ -1,16 +1,16 @@
 package org.carlspring.strongbox.providers.repository;
 
-import org.carlspring.strongbox.artifact.locator.ArtifactDirectoryLocator;
 import org.carlspring.strongbox.config.Maven2LayoutProviderTestConfig;
-import org.carlspring.strongbox.locator.handlers.GenerateMavenMetadataOperation;
 import org.carlspring.strongbox.providers.io.RepositoryPath;
 import org.carlspring.strongbox.services.ArtifactMetadataService;
+import org.carlspring.strongbox.services.ConfigurationManagementService;
 import org.carlspring.strongbox.storage.repository.Repository;
 import org.carlspring.strongbox.storage.repository.RepositoryStatusEnum;
 import org.carlspring.strongbox.storage.repository.RepositoryTypeEnum;
 import org.carlspring.strongbox.storage.routing.MutableRoutingRule;
 import org.carlspring.strongbox.storage.routing.MutableRoutingRuleRepository;
 import org.carlspring.strongbox.storage.routing.RoutingRuleTypeEnum;
+import org.carlspring.strongbox.testing.MavenMetadataServiceHelper;
 import org.carlspring.strongbox.testing.artifact.ArtifactManagementTestExecutionListener;
 import org.carlspring.strongbox.testing.artifact.MavenTestArtifact;
 import org.carlspring.strongbox.testing.repository.MavenRepository;
@@ -38,7 +38,9 @@ import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.ContextConfiguration;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.contains;
-import static org.junit.jupiter.api.Assertions.*;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.junit.jupiter.api.parallel.ExecutionMode.CONCURRENT;
 
 /**
@@ -50,7 +52,7 @@ import static org.junit.jupiter.api.parallel.ExecutionMode.CONCURRENT;
 @ContextConfiguration(classes = Maven2LayoutProviderTestConfig.class)
 @Execution(CONCURRENT)
 public class MavenGroupRepositoryProviderTest
-        extends BaseMavenRepositoryProviderTest
+        extends MavenMetadataServiceHelper
 {
     private static final Logger logger = LoggerFactory.getLogger(MavenGroupRepositoryProviderTest.class);
 
@@ -143,6 +145,9 @@ public class MavenGroupRepositoryProviderTest
 
     @Inject
     private ArtifactMetadataService artifactMetadataService;
+
+    @Inject
+    private ConfigurationManagementService configurationManagementService;
 
     @ExtendWith({ RepositoryManagementTestExecutionListener.class,
                   ArtifactManagementTestExecutionListener.class })
@@ -590,17 +595,6 @@ public class MavenGroupRepositoryProviderTest
         MutableRoutingRule routingRule = MutableRoutingRule.create(groupStorageId, groupRepositoryId,
                                                                    repositories, rulePattern, type);
         configurationManagementService.addRoutingRule(routingRule);
-    }
-
-    private void generateMavenMetadata(Repository repository)
-            throws IOException
-    {
-        RepositoryPath repositoryPath = repositoryPathResolver.resolve(repository);
-
-        ArtifactDirectoryLocator locator = new ArtifactDirectoryLocator();
-        locator.setBasedir(repositoryPath);
-        locator.setOperation(new GenerateMavenMetadataOperation(mavenMetadataManager, artifactEventListenerRegistry));
-        locator.locateArtifactDirectories();
     }
 
 }

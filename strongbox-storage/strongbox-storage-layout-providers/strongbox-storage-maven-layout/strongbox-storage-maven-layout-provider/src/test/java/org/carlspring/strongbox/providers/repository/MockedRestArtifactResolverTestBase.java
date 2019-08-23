@@ -8,12 +8,10 @@ import org.carlspring.strongbox.config.Maven2LayoutProviderTestConfig;
 import org.carlspring.strongbox.config.hazelcast.HazelcastConfiguration;
 import org.carlspring.strongbox.config.hazelcast.HazelcastInstanceId;
 import org.carlspring.strongbox.event.artifact.ArtifactEventListenerRegistry;
-import org.carlspring.strongbox.providers.io.RepositoryFiles;
-import org.carlspring.strongbox.providers.io.RepositoryPath;
 import org.carlspring.strongbox.providers.io.RepositoryPathResolver;
 import org.carlspring.strongbox.providers.repository.proxied.RestArtifactResolverFactory;
-import org.carlspring.strongbox.services.ArtifactResolutionService;
 import org.carlspring.strongbox.storage.repository.remote.RemoteRepository;
+import org.carlspring.strongbox.testing.artifact.ArtifactResolutionServiceHelper;
 
 import javax.inject.Inject;
 import javax.ws.rs.core.Response;
@@ -23,19 +21,21 @@ import java.lang.reflect.UndeclaredThrowableException;
 import java.nio.file.Path;
 import java.util.Objects;
 
-import com.google.common.io.ByteStreams;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.parallel.Execution;
 import org.mockito.ArgumentMatchers;
 import org.mockito.Mockito;
 import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.context.annotation.*;
+import org.springframework.context.annotation.Bean;
+import org.springframework.context.annotation.Configuration;
+import org.springframework.context.annotation.Import;
+import org.springframework.context.annotation.Primary;
+import org.springframework.context.annotation.Profile;
 import org.springframework.core.io.ClassPathResource;
 import org.springframework.core.io.Resource;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.ContextConfiguration;
-import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.parallel.ExecutionMode.CONCURRENT;
 
 /**
@@ -46,6 +46,7 @@ import static org.junit.jupiter.api.parallel.ExecutionMode.CONCURRENT;
 @ContextConfiguration(classes = Maven2LayoutProviderTestConfig.class)
 @Execution(CONCURRENT)
 public abstract class MockedRestArtifactResolverTestBase
+        extends ArtifactResolutionServiceHelper
 {
 
     static final Resource jarArtifact = new ClassPathResource("artifacts/properties-injector-1.7.jar");
@@ -59,9 +60,6 @@ public abstract class MockedRestArtifactResolverTestBase
     @Inject
     protected RepositoryPathResolver repositoryPathResolver;
 
-    @Inject
-    protected ArtifactResolutionService artifactResolutionService;
-    
     @BeforeEach
     public void setup()
             throws IOException
@@ -92,30 +90,6 @@ public abstract class MockedRestArtifactResolverTestBase
     protected static void cleanContext()
     {
         contextHolder.remove();
-    }
-
-    protected void assertStreamNotNull(final String storageId,
-                                       final String repositoryId,
-                                       final String path)
-            throws Exception
-    {
-        RepositoryPath repositoryPath = artifactResolutionService.resolvePath(storageId,
-                                                                              repositoryId,
-                                                                              path);
-
-        try (final InputStream is = artifactResolutionService.getInputStream(repositoryPath))
-        {
-            assertNotNull(is, "Failed to resolve " + path + "!");
-
-            if (RepositoryFiles.isMetadata(repositoryPath))
-            {
-                System.out.println(ByteStreams.toByteArray(is));
-            }
-            else
-            {
-                while (is.read(new byte[1024]) != -1) ;
-            }
-        }
     }
     
     private static RemoteRepositoryRetryArtifactDownloadConfiguration createRemoteRepositoryConfiguration()
