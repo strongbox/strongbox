@@ -5,38 +5,32 @@ import org.carlspring.strongbox.config.Maven2LayoutProviderCronTasksTestConfig;
 import org.carlspring.strongbox.data.CacheManagerTestExecutionListener;
 import org.carlspring.strongbox.domain.ArtifactEntry;
 import org.carlspring.strongbox.providers.io.RepositoryFiles;
-import org.carlspring.strongbox.providers.io.RepositoryPath;
+import org.carlspring.strongbox.providers.io.RepositoryPathResolver;
 import org.carlspring.strongbox.services.ArtifactEntryService;
-import org.carlspring.strongbox.services.ArtifactResolutionService;
 import org.carlspring.strongbox.storage.metadata.MavenMetadataManager;
 import org.carlspring.strongbox.storage.repository.Repository;
 import org.carlspring.strongbox.testing.MavenIndexedRepositorySetup;
+import org.carlspring.strongbox.testing.artifact.ArtifactResolutionServiceHelper;
 import org.carlspring.strongbox.testing.repository.MavenRepository;
 import org.carlspring.strongbox.testing.storage.repository.RepositoryManagementTestExecutionListener;
 import org.carlspring.strongbox.testing.storage.repository.TestRepository.Remote;
 
 import javax.inject.Inject;
-import java.io.InputStream;
 import java.nio.file.Path;
-import java.util.Arrays;
 import java.util.Optional;
 
 import org.apache.commons.io.FileUtils;
-import org.apache.commons.io.IOUtils;
 import org.apache.maven.artifact.repository.metadata.Metadata;
 import org.hamcrest.CoreMatchers;
 import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.junit.jupiter.api.parallel.Execution;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.TestExecutionListeners;
 import static org.hamcrest.MatcherAssert.assertThat;
-import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.junit.jupiter.api.parallel.ExecutionMode.CONCURRENT;
 
@@ -50,10 +44,8 @@ import static org.junit.jupiter.api.parallel.ExecutionMode.CONCURRENT;
         mergeMode = TestExecutionListeners.MergeMode.MERGE_WITH_DEFAULTS)
 @Execution(CONCURRENT)
 public class MavenProxyRepositoryProviderTestIT
-        extends BaseMavenRepositoryProviderTest
+        extends ArtifactResolutionServiceHelper
 {
-    private static final Logger logger = LoggerFactory.getLogger(MavenProxyRepositoryProviderTestIT.class);
-
     private static final String STORAGE_ID = "storage-common-proxies";
 
     private static final String REPOSITORY_ID = "spring-libs-release-it";
@@ -71,7 +63,7 @@ public class MavenProxyRepositoryProviderTestIT
     private MavenMetadataManager mavenMetadataManager;
 
     @Inject
-    private ArtifactResolutionService artifactResolutionService;
+    private RepositoryPathResolver repositoryPathResolver;
 
     @ExtendWith({ RepositoryManagementTestExecutionListener.class })
     @Test
@@ -232,29 +224,5 @@ public class MavenProxyRepositoryProviderTestIT
         assertStreamNotNull("public",
                             "maven-group",
                             "org/carlspring/commons/commons-io/1.0-SNAPSHOT/maven-metadata.xml");
-    }
-
-    private void assertStreamNotNull(final String storageId,
-                                     final String repositoryId,
-                                     final String path)
-            throws Exception
-    {
-        RepositoryPath repositoryPath = artifactResolutionService.resolvePath(storageId,
-                                                                              repositoryId,
-                                                                              path);
-
-        try (final InputStream is = artifactResolutionService.getInputStream(repositoryPath))
-        {
-            assertNotNull(is, "Failed to resolve " + path + "!");
-
-            if (RepositoryFiles.isMetadata(repositoryPath))
-            {
-                logger.info(Arrays.toString(IOUtils.toByteArray(is)));
-            }
-            else
-            {
-                while (is.read(new byte[1024]) != -1) ;
-            }
-        }
     }
 }

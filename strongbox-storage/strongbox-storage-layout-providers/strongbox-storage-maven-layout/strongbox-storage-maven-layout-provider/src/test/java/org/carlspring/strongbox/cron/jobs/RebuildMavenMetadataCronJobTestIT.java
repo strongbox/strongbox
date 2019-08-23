@@ -2,7 +2,6 @@ package org.carlspring.strongbox.cron.jobs;
 
 import org.carlspring.strongbox.config.Maven2LayoutProviderCronTasksTestConfig;
 import org.carlspring.strongbox.data.CacheManagerTestExecutionListener;
-import org.carlspring.strongbox.services.ArtifactMetadataService;
 import org.carlspring.strongbox.storage.repository.Repository;
 import org.carlspring.strongbox.storage.repository.RepositoryPolicyEnum;
 import org.carlspring.strongbox.testing.artifact.ArtifactManagementTestExecutionListener;
@@ -10,7 +9,6 @@ import org.carlspring.strongbox.testing.artifact.MavenTestArtifact;
 import org.carlspring.strongbox.testing.repository.MavenRepository;
 import org.carlspring.strongbox.testing.storage.repository.RepositoryManagementTestExecutionListener;
 
-import javax.inject.Inject;
 import java.lang.reflect.UndeclaredThrowableException;
 import java.nio.file.Path;
 import java.util.List;
@@ -48,9 +46,6 @@ public class RebuildMavenMetadataCronJobTestIT
     private static final String RMMCJTIT_SNAPSHOTS = "rmmcjtit-snapshots";
 
     private static final String TRMIR_SNAPSHOTS = "trmir-snapshots";
-
-    @Inject
-    private ArtifactMetadataService artifactMetadataService;
 
     @ExtendWith({ RepositoryManagementTestExecutionListener.class,
                   ArtifactManagementTestExecutionListener.class })

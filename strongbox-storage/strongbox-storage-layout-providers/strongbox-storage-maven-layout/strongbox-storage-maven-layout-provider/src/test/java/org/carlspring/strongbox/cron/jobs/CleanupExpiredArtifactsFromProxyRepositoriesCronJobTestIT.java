@@ -5,7 +5,6 @@ import org.carlspring.strongbox.data.CacheManagerTestExecutionListener;
 import org.carlspring.strongbox.domain.ArtifactEntry;
 import org.carlspring.strongbox.providers.io.RepositoryFiles;
 import org.carlspring.strongbox.providers.io.RepositoryPath;
-import org.carlspring.strongbox.providers.io.RepositoryPathResolver;
 import org.carlspring.strongbox.providers.repository.ProxyRepositoryProvider;
 import org.carlspring.strongbox.services.ArtifactEntryService;
 import org.carlspring.strongbox.storage.repository.Repository;
@@ -55,9 +54,6 @@ public class CleanupExpiredArtifactsFromProxyRepositoriesCronJobTestIT
     private static final String REPOSITORY_ID = "maven-central";
 
     private static final String CENTRAL_URL = "http://central.maven.org/maven2/";
-
-    @Inject
-    private RepositoryPathResolver repositoryPathResolver;
 
     @Inject
     private ProxyRepositoryProvider proxyRepositoryProvider;

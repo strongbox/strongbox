@@ -3,16 +3,13 @@ package org.carlspring.strongbox.cron.jobs;
 import org.carlspring.strongbox.artifact.MavenArtifactUtils;
 import org.carlspring.strongbox.config.Maven2LayoutProviderCronTasksTestConfig;
 import org.carlspring.strongbox.data.CacheManagerTestExecutionListener;
-import org.carlspring.strongbox.providers.io.RepositoryPathResolver;
 import org.carlspring.strongbox.providers.io.RootRepositoryPath;
-import org.carlspring.strongbox.services.ArtifactMetadataService;
 import org.carlspring.strongbox.storage.repository.Repository;
 import org.carlspring.strongbox.testing.artifact.ArtifactManagementTestExecutionListener;
 import org.carlspring.strongbox.testing.artifact.MavenTestArtifact;
 import org.carlspring.strongbox.testing.repository.MavenRepository;
 import org.carlspring.strongbox.testing.storage.repository.RepositoryManagementTestExecutionListener;
 
-import javax.inject.Inject;
 import java.io.IOException;
 import java.lang.reflect.UndeclaredThrowableException;
 import java.nio.file.Files;
@@ -61,12 +58,6 @@ public class RemoveTimestampedMavenSnapshotCronJobTestIT
     private static final String GROUP_ID = "org.carlspring.strongbox";
     private static final String ARTIFACT_ID1 = "strongbox-timestamped-first";
     private static final String ARTIFACT_ID2 = "strongbox-timestamped-second";
-
-    @Inject
-    private ArtifactMetadataService artifactMetadataService;
-
-    @Inject
-    private RepositoryPathResolver repositoryPathResolver;
 
     private void rebuildArtifactsMetadata(Repository repository)
             throws Exception
