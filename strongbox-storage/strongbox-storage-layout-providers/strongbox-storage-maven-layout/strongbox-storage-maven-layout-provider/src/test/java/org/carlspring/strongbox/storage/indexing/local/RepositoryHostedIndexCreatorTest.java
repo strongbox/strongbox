@@ -14,6 +14,7 @@ import org.carlspring.strongbox.testing.artifact.ArtifactManagementTestExecution
 import org.carlspring.strongbox.testing.artifact.MavenTestArtifact;
 import org.carlspring.strongbox.testing.repository.MavenRepository;
 import org.carlspring.strongbox.testing.storage.repository.RepositoryManagementTestExecutionListener;
+import org.carlspring.strongbox.util.MessageDigestUtils;
 
 import javax.inject.Inject;
 import java.io.IOException;
@@ -97,15 +98,13 @@ public class RepositoryHostedIndexCreatorTest
                                                List<Path> artifactPaths)
             throws Exception
     {
-        RepositoryPath indexPath = repositoryIndexCreator.apply(repository);
-        FileTime firstLastModifiedTime = Files.getLastModifiedTime(indexPath);
+        RepositoryPath indexPath = repositoryIndexCreator.apply(repository).resolve("nexus-maven-repository-index.gz");
+        String beforeChecksum = MessageDigestUtils.calculateChecksum(indexPath, "SHA-1");
 
-        Thread.sleep(1000);
+        repositoryIndexCreator.apply(repository);
+        String afterChecksum = MessageDigestUtils.calculateChecksum(indexPath, "SHA-1");
 
-        indexPath = repositoryIndexCreator.apply(repository);
-        FileTime secondLastModifiedTime = Files.getLastModifiedTime(indexPath);
-
-        assertThat(secondLastModifiedTime).matches(ft -> ft.toMillis() > firstLastModifiedTime.toMillis());
+        assertThat(beforeChecksum).isNotEqualTo(afterChecksum);
     }
 
     @ExtendWith({ RepositoryManagementTestExecutionListener.class,
