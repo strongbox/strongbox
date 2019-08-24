@@ -3,45 +3,51 @@ package org.carlspring.strongbox.controllers;
 import org.carlspring.strongbox.config.IntegrationTest;
 import org.carlspring.strongbox.rest.common.RestAssuredBaseTest;
 import org.carlspring.strongbox.users.security.SecurityTokenProvider;
-import org.jose4j.jwt.NumericDate;
-import org.jose4j.lang.JoseException;
-import org.json.JSONObject;
-import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.api.Test;
-import org.springframework.http.HttpHeaders;
-import org.springframework.http.HttpStatus;
-import org.springframework.http.MediaType;
-import org.springframework.security.core.context.SecurityContextHolder;
-import org.springframework.security.test.context.TestSecurityContextHolder;
 
 import javax.inject.Inject;
 import java.util.Collections;
+import java.util.Locale;
 
+import org.jose4j.jwt.NumericDate;
+import org.json.JSONObject;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.springframework.context.support.MessageSourceAccessor;
+import org.springframework.http.HttpHeaders;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.MediaType;
+import org.springframework.security.core.SpringSecurityMessageSource;
+import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.security.test.context.TestSecurityContextHolder;
 import static io.restassured.module.mockmvc.RestAssuredMockMvc.given;
+import static java.nio.charset.StandardCharsets.ISO_8859_1;
+import static java.nio.charset.StandardCharsets.UTF_8;
 import static org.hamcrest.Matchers.equalTo;
 import static org.hamcrest.Matchers.notNullValue;
 
 /**
- * @author: adavid9
+ * @author adavid9
+ * @author Pablo Tirado
  */
 @IntegrationTest
 public class JwtAuthenticationTest
         extends RestAssuredBaseTest
 {
 
-    private static final String UNAUTHORIZED_MESSAGE = "Full authentication is required to access this resource";
+    private static final String UNAUTHORIZED_MESSAGE_CODE = "ExceptionTranslationFilter.insufficientAuthentication";
+
+    private final MessageSourceAccessor messages = SpringSecurityMessageSource.getAccessor();
 
     @Inject
     private SecurityTokenProvider securityTokenProvider;
-    
-    
+
     @Override
     @BeforeEach
     public void init()
             throws Exception
     {
         super.init();
-        
+
         setContextBaseUrl(getContextBaseUrl() + "/api");
         TestSecurityContextHolder.clearContext();
         SecurityContextHolder.clearContext();
@@ -74,7 +80,7 @@ public class JwtAuthenticationTest
                .body(notNullValue());
         TestSecurityContextHolder.clearContext();
         SecurityContextHolder.clearContext();
-        
+
         // this token will expire after 1 hour
         String tokenValue = getTokenValue(body);
         given().header(HttpHeaders.AUTHORIZATION, getAuthorizationHeader(tokenValue))
@@ -89,6 +95,12 @@ public class JwtAuthenticationTest
     @Test
     public void testJWTAuthShouldFailWithoutToken()
     {
+        String defaultExpectedErrorMessage = messages.getMessage(UNAUTHORIZED_MESSAGE_CODE,
+                                                                 Locale.ENGLISH);
+        String expectedErrorMessage = messages.getMessage(UNAUTHORIZED_MESSAGE_CODE,
+                                                          defaultExpectedErrorMessage);
+        String utf8ExpectedErrorMessage = new String(expectedErrorMessage.getBytes(ISO_8859_1), UTF_8);
+
         String url = getContextBaseUrl() + "/users";
 
         given().header(HttpHeaders.ACCEPT, MediaType.APPLICATION_JSON_VALUE)
@@ -96,7 +108,7 @@ public class JwtAuthenticationTest
                .get(url)
                .then()
                .statusCode(HttpStatus.UNAUTHORIZED.value())
-               .body("error", equalTo(UNAUTHORIZED_MESSAGE));
+               .body("error", equalTo(utf8ExpectedErrorMessage));
     }
 
     @Test
@@ -170,7 +182,7 @@ public class JwtAuthenticationTest
         JSONObject extractToken = new JSONObject(body);
         return extractToken.getString("token");
     }
-    
+
     private String getAuthorizationHeader(String tokenValue)
     {
         return String.format("Bearer %s", tokenValue);
