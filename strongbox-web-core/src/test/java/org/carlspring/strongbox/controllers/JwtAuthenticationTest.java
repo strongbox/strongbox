@@ -5,6 +5,7 @@ import org.carlspring.strongbox.rest.common.RestAssuredBaseTest;
 import org.carlspring.strongbox.users.security.SecurityTokenProvider;
 
 import javax.inject.Inject;
+import java.nio.charset.Charset;
 import java.util.Collections;
 import java.util.Locale;
 
@@ -21,7 +22,6 @@ import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.test.context.TestSecurityContextHolder;
 import static io.restassured.module.mockmvc.RestAssuredMockMvc.given;
 import static java.nio.charset.StandardCharsets.ISO_8859_1;
-import static java.nio.charset.StandardCharsets.UTF_8;
 import static org.hamcrest.Matchers.equalTo;
 import static org.hamcrest.Matchers.notNullValue;
 
@@ -95,11 +95,14 @@ public class JwtAuthenticationTest
     @Test
     public void testJWTAuthShouldFailWithoutToken()
     {
-        String defaultExpectedErrorMessage = messages.getMessage(UNAUTHORIZED_MESSAGE_CODE,
-                                                                 Locale.ENGLISH);
-        String expectedErrorMessage = messages.getMessage(UNAUTHORIZED_MESSAGE_CODE,
-                                                          defaultExpectedErrorMessage);
-        String utf8ExpectedErrorMessage = new String(expectedErrorMessage.getBytes(ISO_8859_1), UTF_8);
+        String defaultErrorMessage = messages.getMessage(UNAUTHORIZED_MESSAGE_CODE,
+                                                         Locale.ENGLISH);
+
+        String errorMessage = messages.getMessage(UNAUTHORIZED_MESSAGE_CODE,
+                                                  defaultErrorMessage);
+
+        String decodedErrorMessage = new String(errorMessage.getBytes(ISO_8859_1),
+                                                Charset.defaultCharset());
 
         String url = getContextBaseUrl() + "/users";
 
@@ -108,7 +111,7 @@ public class JwtAuthenticationTest
                .get(url)
                .then()
                .statusCode(HttpStatus.UNAUTHORIZED.value())
-               .body("error", equalTo(utf8ExpectedErrorMessage));
+               .body("error", equalTo(decodedErrorMessage));
     }
 
     @Test
