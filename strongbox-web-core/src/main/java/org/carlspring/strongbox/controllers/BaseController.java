@@ -6,6 +6,7 @@ import org.carlspring.strongbox.configuration.MutableConfiguration;
 import org.carlspring.strongbox.controllers.support.ErrorResponseEntityBody;
 import org.carlspring.strongbox.controllers.support.ListEntityBody;
 import org.carlspring.strongbox.controllers.support.ResponseEntityBody;
+import org.carlspring.strongbox.exception.ExceptionHandlindOutputStream;
 import org.carlspring.strongbox.providers.io.RepositoryPathResolver;
 import org.carlspring.strongbox.services.ArtifactResolutionService;
 import org.carlspring.strongbox.services.ConfigurationManagementService;
@@ -15,7 +16,6 @@ import org.carlspring.strongbox.storage.repository.Repository;
 import javax.inject.Inject;
 import javax.servlet.http.HttpServletResponse;
 
-import java.io.EOFException;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
@@ -290,7 +290,7 @@ public abstract class BaseController
                                   HttpServletResponse response)
             throws IOException
     {
-        try (OutputStream os = response.getOutputStream())
+        try (OutputStream os = new ExceptionHandlindOutputStream(response.getOutputStream()))
         {
             long totalBytes = 0L;
 
@@ -299,22 +299,8 @@ public abstract class BaseController
             while ((readLength = is.read(bytes, 0, bytes.length)) != -1)
             {
                 // Write the artifact
-                try
-                {
-                    os.write(bytes, 0, readLength);
-                    os.flush();
-                }
-                catch (EOFException e)
-                {
-                    if (e.getCause().getMessage().equals("Connection reset by peer"))
-                    {
-                        logger.debug("Socket has been closed. Possibly, user cancelled download.");
-                        // Set response status 202 ACCEPTED just for logs
-                        response.setStatus(202);
-                        break;
-                    }
-                    throw e;
-                }
+                os.write(bytes, 0, readLength);
+                os.flush();
 
                 totalBytes += readLength;
             }
