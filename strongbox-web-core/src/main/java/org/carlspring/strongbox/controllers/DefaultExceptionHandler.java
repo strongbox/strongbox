@@ -3,6 +3,7 @@ package org.carlspring.strongbox.controllers;
 import org.carlspring.strongbox.controllers.support.ErrorResponseEntityBody;
 import org.carlspring.strongbox.controllers.support.ResponseEntityBody;
 import org.carlspring.strongbox.data.criteria.QueryParserException;
+import org.carlspring.strongbox.exception.Http202PropogateException;
 import org.carlspring.strongbox.exception.RepositoryNotFoundException;
 import org.carlspring.strongbox.exception.ServiceUnavailableException;
 import org.carlspring.strongbox.exception.StorageNotFoundException;
@@ -86,6 +87,11 @@ public class DefaultExceptionHandler extends ResponseEntityExceptionHandler
         ResponseEntityBody body = new ResponseEntityBody(ex.getMessage());
         HttpHeaders headers = new HttpHeaders();
         return handleExceptionInternal(ex, body, headers, HttpStatus.SERVICE_UNAVAILABLE, request);
+    }
+    
+    @ExceptionHandler(Http202PropogateException.class)
+    protected void handleHttp202PropogateException(Exception ex) {
+        logger.debug(ex.getMessage());        
     }
 
     @ExceptionHandler(Exception.class)
