@@ -1,3 +1,8 @@
 strongbox:
   basedir: ./target
   url: http://${strongbox.host:localhost}:${strongbox.port:48080}
+
+management:
+  health:
+    ldap:
+      enabled: false
