@@ -14,6 +14,10 @@ public class MavenRepositoryConfigurationForm
 
     private boolean indexingClassNamesEnabled;
 
+    private String downloadRemoteMavenIndexCronExpression;
+
+    private String rebuildMavenIndexesCronExpression;
+
     public boolean isIndexingEnabled()
     {
         return indexingEnabled;
@@ -32,6 +36,20 @@ public class MavenRepositoryConfigurationForm
     public void setIndexingClassNamesEnabled(final boolean indexingClassNamesEnabled)
     {
         this.indexingClassNamesEnabled = indexingClassNamesEnabled;
+    }
+
+    public String getDownloadRemoteMavenIndexCronExpression() { return downloadRemoteMavenIndexCronExpression; }
+
+    public void setDownloadRemoteMavenIndexCronExpression(String downloadRemoteMavenIndexCronExpression)
+    {
+        this.downloadRemoteMavenIndexCronExpression = downloadRemoteMavenIndexCronExpression;
+    }
+
+    public String getRebuildMavenIndexesCronExpression() { return rebuildMavenIndexesCronExpression; }
+
+    public void setRebuildMavenIndexesCronExpression(String rebuildMavenIndexesCronExpression)
+    {
+        this.rebuildMavenIndexesCronExpression = rebuildMavenIndexesCronExpression;
     }
 
     @Override

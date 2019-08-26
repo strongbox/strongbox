@@ -54,6 +54,8 @@ configuration:
           repositoryConfiguration:
             type: Maven 2
             indexingEnabled: true
+            downloadRemoteMavenIndexCronExpression: "0 0 2 * * ?"
+            rebuildMavenIndexesCronExpression: "0 0 2 * * ?"
         snapshots:
           id: snapshots
           policy: snapshot
@@ -65,6 +67,8 @@ configuration:
           repositoryConfiguration:
             type: Maven 2
             indexingEnabled: true
+            downloadRemoteMavenIndexCronExpression: "0 0 2 * * ?"
+            rebuildMavenIndexesCronExpression: "0 0 2 * * ?"
     storage-common-proxies:
       id: storage-common-proxies
       repositories:
@@ -82,6 +86,8 @@ configuration:
           repositoryConfiguration:
             type: Maven 2
             indexingEnabled: true
+            downloadRemoteMavenIndexCronExpression: "0 0 2 * * ?"
+            rebuildMavenIndexesCronExpression: "0 0 2 * * ?"
         carlspring:
           id: carlspring
           policy: mixed

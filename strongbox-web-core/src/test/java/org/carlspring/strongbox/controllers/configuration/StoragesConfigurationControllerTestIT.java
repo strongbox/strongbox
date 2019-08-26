@@ -265,6 +265,8 @@ public class StoragesConfigurationControllerTestIT
         MavenRepositoryConfigurationForm mavenRepositoryConfigurationForm = new MavenRepositoryConfigurationForm();
         mavenRepositoryConfigurationForm.setIndexingEnabled(true);
         mavenRepositoryConfigurationForm.setIndexingClassNamesEnabled(false);
+        mavenRepositoryConfigurationForm.setDownloadRemoteMavenIndexCronExpression("0 0 2 * * ?");
+        mavenRepositoryConfigurationForm.setRebuildMavenIndexesCronExpression("0 0 2 * * ?");
         repositoryForm0_1.setRepositoryConfiguration(mavenRepositoryConfigurationForm);
         repositoryForm0_1.setType("hosted");
         repositoryForm0_1.setPolicy("release");
@@ -328,6 +330,12 @@ public class StoragesConfigurationControllerTestIT
         assertFalse(
                 ((MavenRepositoryConfiguration) ((RepositoryData) repository0).getRepositoryConfiguration()).isIndexingClassNamesEnabled(),
                 "Failed to get storage (" + storageId + ")!");
+        assertEquals(
+                ((MavenRepositoryConfiguration) ((RepositoryData) repository0).getRepositoryConfiguration()).getDownloadRemoteMavenIndexCronExpression(),
+                "0 0 2 * * ?", "Failed to get storage(" + storageId + ")!");
+        assertEquals(
+                ((MavenRepositoryConfiguration) ((RepositoryData) repository0).getRepositoryConfiguration()).getRebuildMavenIndexesCronExpression(),
+                "0 0 2 * * ?", "Failed to get storage(" + storageId + ")!");
         assertEquals(groupRepositoriesMapExpected, groupRepositoriesMap);
 
         assertTrue(repository1.allowsForceDeletion(),
