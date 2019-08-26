@@ -57,6 +57,7 @@ import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.ContextConfiguration;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.junit.jupiter.api.Assertions.fail;
 import static org.junit.jupiter.api.parallel.ExecutionMode.CONCURRENT;
@@ -379,20 +380,15 @@ public class ArtifactManagementServiceImplTest
     @ExtendWith({ RepositoryManagementTestExecutionListener.class,
                   ArtifactManagementTestExecutionListener.class })
     @Test
-    public void testRemoveTimestampedSnapshots(@MavenRepository(repositoryId = TRTS_SNAPSHOTS,
-                                                                policy = RepositoryPolicyEnum.SNAPSHOT)
-                                               Repository repository,
-                                               @MavenTestArtifact(repositoryId = TRTS_SNAPSHOTS,
-                                                                  id = "org.carlspring.strongbox:timestamped-current",
-                                                                  versions = { "2.0-20190701.190020-1",
-                                                                               "2.0-20190701.190145-2",
-                                                                               "2.0-20190701.190250-3"})
-                                               List<Path> currentDateArtifactPaths,
-                                               @MavenTestArtifact(repositoryId = TRTS_SNAPSHOTS,
-                                                                  id = "org.carlspring.strongbox:timestamped-previous",
-                                                                  versions = { "2.0-20190626.190020-1",
-                                                                               "2.0-20190626.190145-2"})
-                                               List<Path> previousDateArtifactPaths)
+    public void testRemoveTimestampedSnapshotsWithCurrentDate(@MavenRepository(repositoryId = TRTS_SNAPSHOTS,
+                                                                               policy = RepositoryPolicyEnum.SNAPSHOT)
+                                                              Repository repository,
+                                                              @MavenTestArtifact(repositoryId = TRTS_SNAPSHOTS,
+                                                                                 id = "org.carlspring.strongbox:timestamped",
+                                                                                 versions = { "2.0-20190701.190020-1",
+                                                                                              "2.0-20190701.190145-2",
+                                                                                              "2.0-20190701.190250-3"})
+                                                              List<Path> artifactPaths)
             throws Exception
     {
         final String storageId = repository.getStorage().getId();
@@ -401,7 +397,9 @@ public class ArtifactManagementServiceImplTest
         // Generate timestamp for current date.
         String timestamp = getTimestamp(0);
 
-        MavenArtifact artifact = setArtifactsTimestampAndRedeploy(currentDateArtifactPaths,
+        // Set artifact timestamp with current date (this can't be done with @MavenTestArtifact)
+        // Redeploy artifact with new timestamp, necessary for removeTimestampedSnapshots and keepPeriod attribute.
+        MavenArtifact artifact = setArtifactsTimestampAndRedeploy(artifactPaths,
                                                                   repository,
                                                                   timestamp);
 
@@ -416,12 +414,12 @@ public class ArtifactManagementServiceImplTest
 
         artifactMetadataService.rebuildMetadata(storageId,
                                                 repositoryId,
-                                                "org/carlspring/strongbox/timestamped-current");
+                                                "org/carlspring/strongbox/timestamped");
 
         //To check removing timestamped snapshot with numberToKeep = 1
         mavenRepositoryFeatures.removeTimestampedSnapshots(storageId,
                                                            repositoryId,
-                                                           "org/carlspring/strongbox/timestamped-current",
+                                                           "org/carlspring/strongbox/timestamped",
                                                            1,
                                                            0);
 
@@ -433,33 +431,12 @@ public class ArtifactManagementServiceImplTest
             Path snapshotArtifactPath = getSnapshotArtifactPath(artifactVersionBasePath);
             assertNotNull(snapshotArtifactPath);
             assertTrue(snapshotArtifactPath.toString().endsWith("-3.jar"));
-
-        }
-
-        //Creating timestamped snapshot with another timestamp (current date minus 5 days)
-        timestamp = getTimestamp(5);
-
-        artifact = setArtifactsTimestampAndRedeploy(previousDateArtifactPaths,
-                                                    repository,
-                                                    timestamp);
-
-        assertNotNull(artifact);
-        artifactVersionBasePath = artifact.getPath().getParent().normalize();
-
-        artifactMetadataService.rebuildMetadata(storageId,
-                                                repositoryId,
-                                                "org/carlspring/strongbox/timestamped-previous");
-
-        try (Stream<Path> pathStream = Files.walk(artifactVersionBasePath))
-        {
-            long timestampedSnapshots = pathStream.filter(path -> path.toString().endsWith(".jar")).count();
-            assertEquals(2, timestampedSnapshots, "Amount of timestamped snapshots doesn't equal 2.");
         }
 
         // To check removing timestamped snapshot with keepPeriod = 3 and numberToKeep = 0
         mavenRepositoryFeatures.removeTimestampedSnapshots(storageId,
                                                            repositoryId,
-                                                           "org/carlspring/strongbox/timestamped-previous",
+                                                           "org/carlspring/strongbox/timestamped",
                                                            0,
                                                            3);
 
@@ -473,6 +450,63 @@ public class ArtifactManagementServiceImplTest
             Path snapshotArtifactPath = getSnapshotArtifactPath(repositoryPath);
             assertNotNull(snapshotArtifactPath);
             assertTrue(snapshotArtifactPath.toString().endsWith("-3.jar"));
+        }
+    }
+
+    @ExtendWith({ RepositoryManagementTestExecutionListener.class,
+                  ArtifactManagementTestExecutionListener.class })
+    @Test
+    public void testRemoveTimestampedSnapshotsWithPreviousDate(@MavenRepository(repositoryId = TRTS_SNAPSHOTS,
+                                                                                policy = RepositoryPolicyEnum.SNAPSHOT)
+                                                               Repository repository,
+                                                               @MavenTestArtifact(repositoryId = TRTS_SNAPSHOTS,
+                                                                                  id = "org.carlspring.strongbox:timestamped",
+                                                                                  versions = { "2.0-20190626.190020-1",
+                                                                                               "2.0-20190626.190145-2"})
+                                                               List<Path> artifactPaths)
+            throws Exception
+    {
+        final String storageId = repository.getStorage().getId();
+        final String repositoryId = repository.getId();
+
+        // Generate timestamp for current date minus 5 days
+        String timestamp = getTimestamp(5);
+
+        // Set artifact timestamp with current date minus 5 days (this can't be done with @MavenTestArtifact)
+        // Redeploy artifact with new timestamp, necessary for removeTimestampedSnapshots and keepPeriod attribute.
+        MavenArtifact artifact = setArtifactsTimestampAndRedeploy(artifactPaths,
+                                                                  repository,
+                                                                  timestamp);
+
+        assertNotNull(artifact);
+        RepositoryPath artifactVersionBasePath = artifact.getPath().getParent().normalize();
+
+        artifactMetadataService.rebuildMetadata(storageId,
+                                                repositoryId,
+                                                "org/carlspring/strongbox/timestamped");
+
+        try (Stream<Path> pathStream = Files.walk(artifactVersionBasePath))
+        {
+            long timestampedSnapshots = pathStream.filter(path -> path.toString().endsWith(".jar")).count();
+            assertEquals(2, timestampedSnapshots, "Amount of timestamped snapshots doesn't equal 2.");
+        }
+
+        // To check removing timestamped snapshot with keepPeriod = 3 and numberToKeep = 0
+        mavenRepositoryFeatures.removeTimestampedSnapshots(storageId,
+                                                           repositoryId,
+                                                           "org/carlspring/strongbox/timestamped",
+                                                           0,
+                                                           3);
+
+        // Check all remaining artifacts from the repository.
+        Path repositoryPath = repositoryPathResolver.resolve(repository);
+        try (Stream<Path> pathStream = Files.walk(repositoryPath))
+        {
+            long timestampedSnapshots = pathStream.filter(path -> path.toString().endsWith(".jar")).count();
+            assertEquals(0, timestampedSnapshots, "Amount of timestamped snapshots doesn't equal 0.");
+
+            Path snapshotArtifactPath = getSnapshotArtifactPath(repositoryPath);
+            assertNull(snapshotArtifactPath);
         }
     }
 

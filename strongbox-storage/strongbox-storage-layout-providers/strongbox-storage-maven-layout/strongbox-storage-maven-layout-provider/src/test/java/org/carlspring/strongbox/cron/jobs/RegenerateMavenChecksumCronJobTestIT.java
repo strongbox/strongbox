@@ -2,7 +2,6 @@ package org.carlspring.strongbox.cron.jobs;
 
 import org.carlspring.strongbox.config.Maven2LayoutProviderCronTasksTestConfig;
 import org.carlspring.strongbox.data.CacheManagerTestExecutionListener;
-import org.carlspring.strongbox.providers.io.RepositoryPath;
 import org.carlspring.strongbox.storage.repository.Repository;
 import org.carlspring.strongbox.testing.artifact.ArtifactManagementTestExecutionListener;
 import org.carlspring.strongbox.testing.artifact.MavenTestArtifact;
@@ -12,7 +11,6 @@ import org.carlspring.strongbox.testing.storage.repository.RepositoryManagementT
 import java.lang.reflect.UndeclaredThrowableException;
 import java.nio.file.Files;
 import java.nio.file.Path;
-import java.util.List;
 import java.util.Map;
 import java.util.UUID;
 import java.util.concurrent.TimeUnit;
@@ -55,13 +53,9 @@ public class RegenerateMavenChecksumCronJobTestIT
     public void testRegenerateArtifactChecksum(@MavenRepository(repositoryId = REPOSITORY_SNAPSHOTS1)
                                                        Repository repository,
                                                @MavenTestArtifact(repositoryId = REPOSITORY_SNAPSHOTS1,
-                                                       id = "org.carlspring.strongbox:strongbox-checksum-one",
-                                                       versions = { "2.0-20190512.202015-1",
-                                                                    "2.0-20190512.202101-2",
-                                                                    "2.0-20190512.202203-3",
-                                                                    "2.0-20190512.202311-4",
-                                                                    "2.0-20190512.202601-5" })
-                                                       List<Path> artifactPaths)
+                                                                  id = "org.carlspring.strongbox:strongbox-checksum-one",
+                                                                  versions = { "2.0-20190512.202015-1" })
+                                               Path artifactPath)
             throws Exception
     {
         final String artifactBaseDir = "org/carlspring/strongbox/strongbox-checksum-one";
@@ -71,7 +65,7 @@ public class RegenerateMavenChecksumCronJobTestIT
         cronJobConfigProperties.put("forceRegeneration", "false");
 
         testRegenerateChecksum(repository,
-                               artifactPaths,
+                               artifactPath,
                                artifactBaseDir,
                                cronJobConfigProperties);
     }
@@ -82,13 +76,9 @@ public class RegenerateMavenChecksumCronJobTestIT
     public void testRegenerateChecksumInRepository(@MavenRepository(repositoryId = REPOSITORY_SNAPSHOTS2)
                                                            Repository repository,
                                                    @MavenTestArtifact(repositoryId = REPOSITORY_SNAPSHOTS2,
-                                                           id = "org.carlspring.strongbox:strongbox-checksum-two",
-                                                           versions = { "2.0-20190512.202015-1",
-                                                                        "2.0-20190512.202101-2",
-                                                                        "2.0-20190512.202203-3",
-                                                                        "2.0-20190512.202311-4",
-                                                                        "2.0-20190512.202601-5" })
-                                                           List<Path> artifactPaths)
+                                                                      id = "org.carlspring.strongbox:strongbox-checksum-two",
+                                                                      versions = { "2.0-20190512.202015-1" })
+                                                   Path artifactPath)
             throws Exception
     {
         final String artifactBaseDir = "org/carlspring/strongbox/strongbox-checksum-two";
@@ -97,13 +87,13 @@ public class RegenerateMavenChecksumCronJobTestIT
         cronJobConfigProperties.put("forceRegeneration", "false");
 
         testRegenerateChecksum(repository,
-                               artifactPaths,
+                               artifactPath,
                                artifactBaseDir,
                                cronJobConfigProperties);
     }
 
     private void testRegenerateChecksum(Repository repository,
-                                        List<Path> artifactPaths,
+                                        Path artifactPath,
                                         String artifactBaseDir,
                                         Map<String, String> cronJobConfigProperties)
             throws Exception
@@ -114,8 +104,8 @@ public class RegenerateMavenChecksumCronJobTestIT
         final UUID jobKey = expectedJobKey;
         final String jobName = expectedJobName;
 
-        RepositoryPath artifactPath = (RepositoryPath) artifactPaths.get(4);
-        Path artifactBasePath = repositoryPathResolver.resolve(repository, artifactBaseDir);
+        Path artifactBasePath = repositoryPathResolver.resolve(repository,
+                                                               artifactBaseDir);
 
         artifactMetadataService.rebuildMetadata(storageId,
                                                 repositoryId,

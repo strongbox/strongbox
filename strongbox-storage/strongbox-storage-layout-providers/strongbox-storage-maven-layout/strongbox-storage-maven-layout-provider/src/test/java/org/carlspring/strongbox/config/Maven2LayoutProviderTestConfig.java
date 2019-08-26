@@ -8,17 +8,25 @@ import org.carlspring.strongbox.cron.services.CronJobSchedulerService;
 import org.carlspring.strongbox.cron.services.CronTaskConfigurationService;
 import org.carlspring.strongbox.storage.indexing.remote.MockedIndexResourceFetcher;
 import org.carlspring.strongbox.storage.indexing.remote.ResourceFetcherFactory;
+import org.carlspring.strongbox.testing.MavenMetadataServiceHelper;
+import org.carlspring.strongbox.testing.artifact.ArtifactResolutionServiceHelper;
 import org.carlspring.strongbox.yaml.YAMLMapperFactory;
+
+import java.io.IOException;
 
 import org.apache.http.impl.client.CloseableHttpClient;
 import org.apache.maven.index.updater.ResourceFetcher;
 import org.mockito.ArgumentMatchers;
 import org.mockito.Mockito;
-import org.springframework.context.annotation.*;
+import org.springframework.context.annotation.Bean;
+import org.springframework.context.annotation.Condition;
+import org.springframework.context.annotation.ConditionContext;
+import org.springframework.context.annotation.Conditional;
+import org.springframework.context.annotation.Configuration;
+import org.springframework.context.annotation.Import;
+import org.springframework.context.annotation.Primary;
 import org.springframework.core.type.AnnotatedTypeMetadata;
 import static org.mockito.Matchers.any;
-
-import java.io.IOException;
 
 /**
  * @author Przemyslaw Fusik
@@ -94,6 +102,20 @@ public class Maven2LayoutProviderTestConfig
             return !context.getRegistry().containsBeanDefinition("cronTaskConfigurationServiceImpl") &&
                    !context.getRegistry().containsBeanDefinition("cronJobSchedulerServiceImpl");
         }
+    }
+
+    @Bean
+    @Primary
+    public ArtifactResolutionServiceHelper artifactResolutionServiceHelper()
+    {
+        return new ArtifactResolutionServiceHelper();
+    }
+
+    @Bean
+    @Primary
+    public MavenMetadataServiceHelper mavenMetadataServiceHelper()
+    {
+        return new MavenMetadataServiceHelper();
     }
 
 }

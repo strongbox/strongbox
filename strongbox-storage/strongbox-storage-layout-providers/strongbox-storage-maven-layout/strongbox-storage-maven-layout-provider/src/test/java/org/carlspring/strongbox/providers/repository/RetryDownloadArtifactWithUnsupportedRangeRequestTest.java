@@ -73,6 +73,9 @@ public class RetryDownloadArtifactWithUnsupportedRangeRequestTest
             @Remote(url = PROXY_REPOSITORY_URL)
             Repository proxyRepository)
     {
+        final String storageId = proxyRepository.getStorage().getId();
+        final String repositoryId = proxyRepository.getId();
+
         Artifact artifact = MavenArtifactTestUtils.getArtifactFromGAVTC("org.apache.commons:commons-lang3:3.2");
         String path = MavenArtifactUtils.convertArtifactToPath(artifact);
         RepositoryPath artifactPath = repositoryPathResolver.resolve(proxyRepository,
@@ -84,9 +87,9 @@ public class RetryDownloadArtifactWithUnsupportedRangeRequestTest
 
         IOException exception = assertThrows(IOException.class, () -> {
             // when
-            assertStreamNotNull(proxyRepository.getStorage().getId(),
-                                proxyRepository.getId(),
-                                path);
+            artifactResolutionServiceHelper.assertStreamNotNull(storageId,
+                                                                repositoryId,
+                                                                path);
         });
 
         //then

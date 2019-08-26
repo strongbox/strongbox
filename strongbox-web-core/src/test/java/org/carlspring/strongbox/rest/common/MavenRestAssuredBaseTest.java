@@ -27,7 +27,6 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
  * @author Alex Oreshkevich
  */
 public abstract class MavenRestAssuredBaseTest
-        extends MavenMetadataServiceHelper
 {
 
     protected static final String STORAGE0 = "storage0";
@@ -48,6 +47,9 @@ public abstract class MavenRestAssuredBaseTest
 
     @Inject
     protected ConfigurationManagementService configurationManagementService;
+
+    @Inject
+    protected MavenMetadataServiceHelper mavenMetadataServiceHelper;
 
     @Value("${strongbox.url}")
     private String contextBaseUrl;

@@ -164,7 +164,7 @@ public class RepositoryGroupIndexCreatorSearchTest
                                                    Repository repository,
                                                    @MavenRepository(repositoryId = REPOSITORY_RELEASES_0_1,
                                                                     setup = MavenIndexedRepositorySetup.class)
-                                                   Repository repository11,
+                                                   Repository repository01,
                                                    @TestRepository.Group(repositories = { REPOSITORY_RELEASES_0,
                                                                                           REPOSITORY_RELEASES_0_1 })
                                                    @MavenRepository(repositoryId = REPOSITORY_RELEASES_0_1_GROUP,
@@ -172,17 +172,17 @@ public class RepositoryGroupIndexCreatorSearchTest
                                                    Repository groupRepository)
             throws Exception
     {
-        RepositoryPath repositoryPath = repositoryPathResolver.resolve(STORAGE0,
+        RepositoryPath repositoryPath = repositoryPathResolver.resolve(repository.getStorage().getId(),
                                                                        repository.getId(),
                                                                        "org/carlspring/properties-injector/1.7/properties-injector-1.7.jar");
         artifactManagementService.validateAndStore(repositoryPath, jarArtifact.getInputStream());
         hostedRepositoryIndexCreator.apply(repository);
 
-        RepositoryPath repository01Path = repositoryPathResolver.resolve(STORAGE0,
-                                                                         repository11.getId(),
+        RepositoryPath repository01Path = repositoryPathResolver.resolve(repository01.getStorage().getId(),
+                                                                         repository01.getId(),
                                                                          "org/slf4j/slf4j-log4j12/1.7.26/slf4j-log4j12-1.7.26.jar");
         artifactManagementService.validateAndStore(repository01Path, slf4jJarArtifact.getInputStream());
-        hostedRepositoryIndexCreator.apply(repository11);
+        hostedRepositoryIndexCreator.apply(repository01);
 
         try (RepositoryIndexingContextAssert repositoryIndexingContextAssert = new RepositoryIndexingContextAssert(
                 groupRepository, groupRepositoryIndexCreator, indexingContextFactory))
@@ -210,13 +210,13 @@ public class RepositoryGroupIndexCreatorSearchTest
                                                                    Repository groupRepository)
             throws Exception
     {
-        RepositoryPath repositoryPath = repositoryPathResolver.resolve(STORAGE0,
+        RepositoryPath repositoryPath = repositoryPathResolver.resolve(repository.getStorage().getId(),
                                                                        repository.getId(),
                                                                        "org/carlspring/properties-injector/1.7/properties-injector-1.7.jar");
         artifactManagementService.validateAndStore(repositoryPath, jarArtifact.getInputStream());
         hostedRepositoryIndexCreator.apply(repository);
 
-        RepositoryPath repository01Path = repositoryPathResolver.resolve(STORAGE0,
+        RepositoryPath repository01Path = repositoryPathResolver.resolve(repository11.getStorage().getId(),
                                                                          repository11.getId(),
                                                                          "org/slf4j/slf4j-log4j12/1.7.26/slf4j-log4j12-1.7.26.jar");
         artifactManagementService.validateAndStore(repository01Path, slf4jJarArtifact.getInputStream());
@@ -273,12 +273,13 @@ public class RepositoryGroupIndexCreatorSearchTest
                                              Repository groupRepository)
             throws Exception
     {
-        RepositoryPath repositoryPath = repositoryPathResolver.resolve(STORAGE0, repository.getId(),
+        RepositoryPath repositoryPath = repositoryPathResolver.resolve(repository.getStorage().getId(),
+                                                                       repository.getId(),
                                                                        "org/carlspring/properties-injector/1.7/properties-injector-1.7.jar");
         artifactManagementService.validateAndStore(repositoryPath, jarArtifact.getInputStream());
         hostedRepositoryIndexCreator.apply(repository);
 
-        RepositoryPath repository21Path = repositoryPathResolver.resolve(STORAGE0,
+        RepositoryPath repository21Path = repositoryPathResolver.resolve(repository21.getStorage().getId(),
                                                                          repository21.getId(),
                                                                          "org/slf4j/slf4j-log4j12/1.7.26/slf4j-log4j12-1.7.26.jar");
         artifactManagementService.validateAndStore(repository21Path, slf4jJarArtifact.getInputStream());
@@ -418,7 +419,7 @@ public class RepositoryGroupIndexCreatorSearchTest
                                                    zipArtifact.getInputStream());
         hostedRepositoryIndexCreator.apply(repository);
 
-        RepositoryPath repository51Path = repositoryPathResolver.resolve(STORAGE0,
+        RepositoryPath repository51Path = repositoryPathResolver.resolve(repository51.getStorage().getId(),
                                                                          repository51.getId(),
                                                                          "org/slf4j/slf4j-log4j12/1.7.26/slf4j-log4j12-1.7.26.jar");
         artifactManagementService.validateAndStore(repository51Path, slf4jJarArtifact.getInputStream());
@@ -458,7 +459,7 @@ public class RepositoryGroupIndexCreatorSearchTest
                                                    zipArtifact.getInputStream());
         hostedRepositoryIndexCreator.apply(repository);
 
-        RepositoryPath repository61Path = repositoryPathResolver.resolve(STORAGE0,
+        RepositoryPath repository61Path = repositoryPathResolver.resolve(repository61.getStorage().getId(),
                                                                          repository61.getId(),
                                                                          "org/slf4j/slf4j-log4j12/1.7.26/slf4j-log4j12-1.7.26.jar");
         artifactManagementService.validateAndStore(repository61Path, slf4jJarArtifact.getInputStream());

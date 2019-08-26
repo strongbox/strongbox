@@ -104,10 +104,10 @@ public class MavenMetadataGroupRepositoryComponentOnAddTest
                     Path artifactLeafU)
             throws Exception
     {
-        generateMavenMetadata(repositoryLeafP);
-        generateMavenMetadata(repositoryLeafT);
-        generateMavenMetadata(repositoryLeafS);
-        generateMavenMetadata(repositoryLeafU);
+        mavenMetadataServiceHelper.generateMavenMetadata(repositoryLeafP);
+        mavenMetadataServiceHelper.generateMavenMetadata(repositoryLeafT);
+        mavenMetadataServiceHelper.generateMavenMetadata(repositoryLeafS);
+        mavenMetadataServiceHelper.generateMavenMetadata(repositoryLeafU);
 
         copyArtifactMetadata(repositoryLeafP.getId(), repositoryGroupZ.getId(), FilenameUtils.normalize(
                 "com/artifacts/to/delete/releases/delete-group/maven-metadata.xml"));

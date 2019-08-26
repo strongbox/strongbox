@@ -7,17 +7,19 @@ import org.carlspring.strongbox.providers.io.RepositoryPath;
 import org.carlspring.strongbox.providers.io.RepositoryPathResolver;
 import org.carlspring.strongbox.storage.metadata.MavenMetadataManager;
 import org.carlspring.strongbox.storage.repository.Repository;
-import org.carlspring.strongbox.testing.artifact.ArtifactResolutionServiceHelper;
 
 import javax.inject.Inject;
 import java.io.IOException;
 
+import org.springframework.stereotype.Component;
+
 /**
  * @author Pablo Tirado
  */
-public abstract class MavenMetadataServiceHelper
-        extends ArtifactResolutionServiceHelper
+@Component
+public class MavenMetadataServiceHelper
 {
+
     @Inject
     protected RepositoryPathResolver repositoryPathResolver;
 
@@ -27,7 +29,7 @@ public abstract class MavenMetadataServiceHelper
     @Inject
     protected ArtifactEventListenerRegistry artifactEventListenerRegistry;
 
-    protected void generateMavenMetadata(Repository repository)
+    public void generateMavenMetadata(Repository repository)
             throws IOException
     {
         RepositoryPath repositoryPath = repositoryPathResolver.resolve(repository);

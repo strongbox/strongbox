@@ -11,12 +11,14 @@ import java.util.Arrays;
 import org.apache.commons.io.IOUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.stereotype.Component;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 
 /**
  * @author Pablo Tirado
  */
-public abstract class ArtifactResolutionServiceHelper
+@Component
+public class ArtifactResolutionServiceHelper
 {
 
     private static final Logger logger = LoggerFactory.getLogger(ArtifactResolutionServiceHelper.class);
@@ -24,9 +26,9 @@ public abstract class ArtifactResolutionServiceHelper
     @Inject
     protected ArtifactResolutionService artifactResolutionService;
 
-    protected void assertStreamNotNull(final String storageId,
-                                       final String repositoryId,
-                                       final String path)
+    public void assertStreamNotNull(final String storageId,
+                                    final String repositoryId,
+                                    final String path)
             throws Exception
     {
         RepositoryPath repositoryPath = artifactResolutionService.resolvePath(storageId,

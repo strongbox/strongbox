@@ -32,7 +32,12 @@ import javax.xml.transform.Transformer;
 import javax.xml.transform.TransformerFactory;
 import javax.xml.transform.dom.DOMSource;
 import javax.xml.transform.stream.StreamResult;
-import java.io.*;
+import java.io.ByteArrayOutputStream;
+import java.io.File;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.OutputStream;
+import java.io.StringReader;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
@@ -69,9 +74,15 @@ import org.springframework.security.test.context.support.WithMockUser;
 import org.w3c.dom.Document;
 import org.xml.sax.InputSource;
 import static io.restassured.module.mockmvc.RestAssuredMockMvc.given;
-import static org.carlspring.strongbox.testing.artifact.MavenArtifactTestUtils.*;
+import static org.carlspring.strongbox.testing.artifact.MavenArtifactTestUtils.getArtifactLevelMetadataPath;
+import static org.carlspring.strongbox.testing.artifact.MavenArtifactTestUtils.getGroupLevelMetadataPath;
+import static org.carlspring.strongbox.testing.artifact.MavenArtifactTestUtils.getVersionLevelMetadataPath;
 import static org.hamcrest.CoreMatchers.equalTo;
-import static org.junit.jupiter.api.Assertions.*;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.junit.jupiter.api.Assertions.fail;
 import static org.mockito.Mockito.doReturn;
 
 /**
@@ -695,7 +706,7 @@ public class MavenArtifactControllerTest
         final String repositoryId = repository.getId();
         final RootRepositoryPath repositoryPath = repositoryPathResolver.resolve(repository);
 
-        generateMavenMetadata(repository);
+        mavenMetadataServiceHelper.generateMavenMetadata(repository);
 
         Path relArtifactPath = repositoryPath.relativize(artifactsPaths.get(0));
         String relArtifactPathStr = FilenameUtils.separatorsToUnix(relArtifactPath.toString());
@@ -889,7 +900,7 @@ public class MavenArtifactControllerTest
         String artifact2PathStr = repositoryPath.relativize(artifactsPaths.get(1)).toString();
 
         // When
-        generateMavenMetadata(repository);
+        mavenMetadataServiceHelper.generateMavenMetadata(repository);
 
         client.delete(storageId, repositoryId, artifact2PathStr);
 
@@ -932,7 +943,7 @@ public class MavenArtifactControllerTest
         final String repositoryId = repository.getId();
         final RootRepositoryPath repositoryPath = repositoryPathResolver.resolve(repository);
 
-        generateMavenMetadata(repository);
+        mavenMetadataServiceHelper.generateMavenMetadata(repository);
 
         Path artifactPath1 = repositoryPath.relativize(artifactsPaths.get(0));
         String artifactPath1Str = FilenameUtils.separatorsToUnix(artifactPath1.toString());

@@ -67,6 +67,9 @@ public class RetryDownloadArtifactWithSingleFailureAtSomePointTest
                                                                                 Repository proxyRepository)
             throws Exception
     {
+        final String storageId = proxyRepository.getStorage().getId();
+        final String repositoryId = proxyRepository.getId();
+
         Artifact artifact = MavenArtifactTestUtils.getArtifactFromGAVTC("org.apache.commons:commons-lang3:3.2");
         String path = MavenArtifactUtils.convertArtifactToPath(artifact);
         RepositoryPath artifactPath = repositoryPathResolver.resolve(proxyRepository,
@@ -77,7 +80,9 @@ public class RetryDownloadArtifactWithSingleFailureAtSomePointTest
         assertFalse(exceptionAlreadyThrown);
 
         // when
-        assertStreamNotNull(STORAGE0, REPOSITORY, path);
+        artifactResolutionServiceHelper.assertStreamNotNull(storageId,
+                                                            repositoryId,
+                                                            path);
 
         // then
         assertTrue(Files.exists(artifactPath));

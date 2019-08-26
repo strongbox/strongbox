@@ -19,7 +19,6 @@ import org.apache.commons.io.FileUtils;
  * @author Pablo Tirado
  */
 public abstract class BaseMavenGroupRepositoryComponentTest
-        extends MavenMetadataServiceHelper
 {
 
     protected static final String STORAGE0 = "storage0";
@@ -32,6 +31,9 @@ public abstract class BaseMavenGroupRepositoryComponentTest
 
     @Inject
     protected MavenMetadataManager mavenMetadataManager;
+
+    @Inject
+    protected MavenMetadataServiceHelper mavenMetadataServiceHelper;
 
     protected void copyArtifactMetadata(String sourceRepositoryId,
                                         String destinationRepositoryId,

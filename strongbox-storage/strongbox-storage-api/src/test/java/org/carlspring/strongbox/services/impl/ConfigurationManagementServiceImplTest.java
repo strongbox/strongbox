@@ -29,7 +29,10 @@ import org.slf4j.LoggerFactory;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.ContextConfiguration;
-import static org.junit.jupiter.api.Assertions.*;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.junit.jupiter.api.parallel.ExecutionMode.CONCURRENT;
 
 /**
@@ -159,10 +162,11 @@ public class ConfigurationManagementServiceImplTest
                                                              @NullRepository(repositoryId = REPOSITORY_GROUP_1)
                                                              Repository releasesGroup)
     {
+        final String storageId = releases1.getStorage().getId();
         final String releases1Id = releases1.getId();
 
         List<Repository> groups = configurationManagementService.getConfiguration()
-                                                                .getGroupRepositoriesContaining(STORAGE0,
+                                                                .getGroupRepositoriesContaining(storageId,
                                                                                                 releases1Id);
 
         assertFalse(groups.isEmpty());
@@ -186,19 +190,21 @@ public class ConfigurationManagementServiceImplTest
                                                          @NullRepository(repositoryId = REPOSITORY_GROUP_2) 
                                                          Repository releasesGroup2) throws IOException
     {
+        final String storageId = releases1.getStorage().getId();
         final String releases1Id = releases1.getId();
 
         assertEquals(2,
                      configurationManagementService.getConfiguration()
-                                                   .getGroupRepositoriesContaining(STORAGE0,
+                                                   .getGroupRepositoriesContaining(storageId,
                                                                                    releases1Id).size(),
                      "Failed to add repository to group!");
 
-        configurationManagementService.removeRepositoryFromAssociatedGroups(STORAGE0, releases1Id);
+        configurationManagementService.removeRepositoryFromAssociatedGroups(storageId,
+                                                                            releases1Id);
 
         assertEquals(0,
                      configurationManagementService.getConfiguration()
-                                                   .getGroupRepositoriesContaining(STORAGE0,
+                                                   .getGroupRepositoriesContaining(storageId,
                                                                                    releases1Id).size(),
                      "Failed to remove repository from all associated groups!");
     }
@@ -208,14 +214,15 @@ public class ConfigurationManagementServiceImplTest
     public void testSetProxyRepositoryMaxConnections(@NullRepository(repositoryId = REPOSITORY_RELEASES_2)
                                                      Repository releases2) throws IOException
     {
+        final String storageId = releases2.getStorage().getId();
         final String releases2Id = releases2.getId();
 
-        configurationManagementService.setProxyRepositoryMaxConnections(STORAGE0,
+        configurationManagementService.setProxyRepositoryMaxConnections(storageId,
                                                                         releases2Id,
                                                                         10);
 
         HttpConnectionPool pool = configurationManagementService.getConfiguration()
-                                                                .getHttpConnectionPoolConfiguration(STORAGE0,
+                                                                .getHttpConnectionPoolConfiguration(storageId,
                                                                                                     releases2Id);
 
         assertNotNull(pool);

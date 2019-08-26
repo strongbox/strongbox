@@ -17,7 +17,9 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.springframework.core.io.Resource;
-import static org.junit.jupiter.api.Assertions.*;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 
 /**
  * @author Przemyslaw Fusik
@@ -61,6 +63,10 @@ public class RetryDownloadArtifactWithPermanentFailureStartingAtSomePointTest
                                                                                         @Remote(url = PROXY_REPOSITORY_URL)
                                                                                         Repository proxyRepository)
     {
+        final String storageId = proxyRepository.getStorage().getId();
+        final String repositoryId = proxyRepository.getId();
+
+
         Artifact artifact = MavenArtifactTestUtils.getArtifactFromGAVTC("org.apache.commons:commons-lang3:3.1");
         String path = MavenArtifactUtils.convertArtifactToPath(artifact);
         RepositoryPath artifactPath = repositoryPathResolver.resolve(proxyRepository,
@@ -72,7 +78,9 @@ public class RetryDownloadArtifactWithPermanentFailureStartingAtSomePointTest
 
         IOException exception = assertThrows(IOException.class, () -> {
             // when
-            assertStreamNotNull(STORAGE0, REPOSITORY, path);
+            artifactResolutionServiceHelper.assertStreamNotNull(storageId,
+                                                                repositoryId,
+                                                                path);
         });
 
         //then
