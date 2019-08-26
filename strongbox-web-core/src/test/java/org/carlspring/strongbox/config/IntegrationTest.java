@@ -7,6 +7,7 @@ import org.carlspring.strongbox.data.CacheManagerTestExecutionListener;
 import org.carlspring.strongbox.rest.common.RestAssuredTestExecutionListener;
 import org.carlspring.strongbox.storage.indexing.remote.MockedIndexResourceFetcher;
 import org.carlspring.strongbox.storage.indexing.remote.ResourceFetcherFactory;
+import org.carlspring.strongbox.testing.MavenMetadataServiceHelper;
 
 import java.lang.annotation.ElementType;
 import java.lang.annotation.Retention;
@@ -79,6 +80,13 @@ public @interface IntegrationTest
                    .thenReturn(resourceFetcher);
 
             return resourceFetcherFactory;
+        }
+
+        @Bean
+        @Primary
+        public MavenMetadataServiceHelper mavenMetadataServiceHelper()
+        {
+            return new MavenMetadataServiceHelper();
         }
     }
 

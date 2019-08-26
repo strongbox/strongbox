@@ -59,7 +59,6 @@ public class ParallelDownloadRemoteArtifactTest
     @Inject
     private PlatformTransactionManager transactionManager;
 
-
     @Override
     public InputStream getInputStream()
     {
@@ -183,7 +182,9 @@ public class ParallelDownloadRemoteArtifactTest
                 result = new TransactionTemplate(transactionManager).execute(t -> {
                     try
                     {
-                        assertStreamNotNull(storageId, repositoryId, path);
+                        artifactResolutionServiceHelper.assertStreamNotNull(storageId,
+                                                                            repositoryId,
+                                                                            path);
                     }
                     catch (AssertionError e)
                     {

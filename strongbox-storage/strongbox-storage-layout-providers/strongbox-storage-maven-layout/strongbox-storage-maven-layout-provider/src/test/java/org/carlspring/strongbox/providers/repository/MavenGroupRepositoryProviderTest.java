@@ -2,6 +2,7 @@ package org.carlspring.strongbox.providers.repository;
 
 import org.carlspring.strongbox.config.Maven2LayoutProviderTestConfig;
 import org.carlspring.strongbox.providers.io.RepositoryPath;
+import org.carlspring.strongbox.providers.io.RepositoryPathResolver;
 import org.carlspring.strongbox.services.ArtifactMetadataService;
 import org.carlspring.strongbox.services.ConfigurationManagementService;
 import org.carlspring.strongbox.storage.repository.Repository;
@@ -52,7 +53,6 @@ import static org.junit.jupiter.api.parallel.ExecutionMode.CONCURRENT;
 @ContextConfiguration(classes = Maven2LayoutProviderTestConfig.class)
 @Execution(CONCURRENT)
 public class MavenGroupRepositoryProviderTest
-        extends MavenMetadataServiceHelper
 {
     private static final Logger logger = LoggerFactory.getLogger(MavenGroupRepositoryProviderTest.class);
 
@@ -148,6 +148,12 @@ public class MavenGroupRepositoryProviderTest
 
     @Inject
     private ConfigurationManagementService configurationManagementService;
+    
+    @Inject
+    private RepositoryPathResolver repositoryPathResolver;
+    
+    @Inject
+    private MavenMetadataServiceHelper mavenMetadataServiceHelper;
 
     @ExtendWith({ RepositoryManagementTestExecutionListener.class,
                   ArtifactManagementTestExecutionListener.class })
@@ -198,14 +204,14 @@ public class MavenGroupRepositoryProviderTest
                                                                         @MavenTestArtifact(repositoryId = REPOSITORY_RELEASES_MMFSBFFGPR_2, id = "com.artifacts.in.releases.under123:group", versions = "1.2.4") Path a3)
             throws Exception
     {
-        generateMavenMetadata(releases1);
-        generateMavenMetadata(releases2);
-        
+        mavenMetadataServiceHelper.generateMavenMetadata(releases1);
+        mavenMetadataServiceHelper.generateMavenMetadata(releases2);
+
         RepositoryProvider repositoryProvider = repositoryProviderRegistry.getProvider(RepositoryTypeEnum.GROUP.getType());
 
         RepositoryPath resolvedPath = repositoryPathResolver.resolve(releasesGroup,
                                                                      "com/artifacts/in/releases/under123/group/maven-metadata.xml");
-        
+
         Path repositoryPath = repositoryProvider.fetchPath(resolvedPath);
         InputStream is = repositoryProvider.getInputStream(repositoryPath);
 
@@ -374,7 +380,7 @@ public class MavenGroupRepositoryProviderTest
         {
             assertNull(is);
         }
-        
+
         resolvedPath = repositoryPathResolver.resolve(releasesGroup, (RepositoryPath) a3.normalize());
         repositoryPath = repositoryProvider.fetchPath(resolvedPath);
         try (InputStream is = repositoryProvider.getInputStream(repositoryPath))
@@ -567,8 +573,8 @@ public class MavenGroupRepositoryProviderTest
                           RepositoryPath artifactPath)
             throws IOException
     {
-        generateMavenMetadata(repository1);
-        generateMavenMetadata(repository2);
+        mavenMetadataServiceHelper.generateMavenMetadata(repository1);
+        mavenMetadataServiceHelper.generateMavenMetadata(repository2);
         // Test data initialized.
 
         logger.info("# Testing group excludes...");

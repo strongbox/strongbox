@@ -44,7 +44,6 @@ import static org.junit.jupiter.api.parallel.ExecutionMode.CONCURRENT;
         mergeMode = TestExecutionListeners.MergeMode.MERGE_WITH_DEFAULTS)
 @Execution(CONCURRENT)
 public class MavenProxyRepositoryProviderTestIT
-        extends ArtifactResolutionServiceHelper
 {
     private static final String STORAGE_ID = "storage-common-proxies";
 
@@ -65,6 +64,9 @@ public class MavenProxyRepositoryProviderTestIT
     @Inject
     private RepositoryPathResolver repositoryPathResolver;
 
+    @Inject
+    private ArtifactResolutionServiceHelper artifactResolutionServiceHelper;
+
     @ExtendWith({ RepositoryManagementTestExecutionListener.class })
     @Test
     public void whenDownloadingArtifactMetadaFileShouldAlsoBeResolved(@MavenRepository(storageId = STORAGE_ID,
@@ -78,9 +80,9 @@ public class MavenProxyRepositoryProviderTestIT
         String storageId = proxyRepository.getStorage().getId();
         String repositoryId = proxyRepository.getId();
 
-        assertStreamNotNull(storageId,
-                            repositoryId,
-                            "org/carlspring/properties-injector/1.1/properties-injector-1.1.jar");
+        artifactResolutionServiceHelper.assertStreamNotNull(storageId,
+                                                            repositoryId,
+                                                            "org/carlspring/properties-injector/1.1/properties-injector-1.1.jar");
 
         assertTrue(RepositoryFiles.artifactExists(repositoryPathResolver.resolve(proxyRepository,
                                                                                  "org/carlspring/properties-injector/maven-metadata.xml")));
@@ -105,9 +107,9 @@ public class MavenProxyRepositoryProviderTestIT
         // 1. download the artifact and artifactId-level maven metadata-file from 1st repository
         String repositoryId = proxyRepository1.getId();
 
-        assertStreamNotNull(storageId,
-                            repositoryId,
-                            "javax/interceptor/javax.interceptor-api/1.2.2/javax.interceptor-api-1.2.2.jar");
+        artifactResolutionServiceHelper.assertStreamNotNull(storageId,
+                                                            repositoryId,
+                                                            "javax/interceptor/javax.interceptor-api/1.2.2/javax.interceptor-api-1.2.2.jar");
 
         // 2. resolve downloaded artifact base path
         final Path mavenCentralArtifactBaseBath = repositoryPathResolver.resolve(proxyRepository1,
@@ -133,9 +135,9 @@ public class MavenProxyRepositoryProviderTestIT
         assertThat(metadata.getVersioning().getVersions().get(8), CoreMatchers.equalTo("1.2.2"));
 
         // 6. download the artifact from remote 2nd repository - it contains different maven-metadata.xml file
-        assertStreamNotNull(storageId,
-                            repositoryId,
-                            "javax/interceptor/javax.interceptor-api/1.2.2/javax.interceptor-api-1.2.2.jar");
+        artifactResolutionServiceHelper.assertStreamNotNull(storageId,
+                                                            repositoryId,
+                                                            "javax/interceptor/javax.interceptor-api/1.2.2/javax.interceptor-api-1.2.2.jar");
 
         // 7. confirm the state of maven-metadata.xml file has changed
         metadata = mavenMetadataManager.readMetadata(artifactBasePath);
@@ -161,9 +163,9 @@ public class MavenProxyRepositoryProviderTestIT
                                                                                                          path));
         assertThat(artifactEntry, CoreMatchers.equalTo(Optional.empty()));
 
-        assertStreamNotNull(storageId,
-                            repositoryId,
-                            path);
+        artifactResolutionServiceHelper.assertStreamNotNull(storageId,
+                                                            repositoryId,
+                                                            path);
 
         artifactEntry = Optional.ofNullable(artifactEntryService.findOneArtifact(storageId,
                                                                                  repositoryId,
@@ -184,35 +186,35 @@ public class MavenProxyRepositoryProviderTestIT
         String storageId = proxyRepository.getStorage().getId();
         String repositoryId = proxyRepository.getId();
 
-        assertStreamNotNull(storageId,
-                            repositoryId,
-                            "org/carlspring/maven/derby-maven-plugin/maven-metadata.xml");
-        assertStreamNotNull(storageId,
-                            repositoryId,
-                            "org/carlspring/maven/derby-maven-plugin/maven-metadata.xml.md5");
-        assertStreamNotNull(storageId,
-                            repositoryId,
-                            "org/carlspring/maven/derby-maven-plugin/maven-metadata.xml.sha1");
+        artifactResolutionServiceHelper.assertStreamNotNull(storageId,
+                                                            repositoryId,
+                                                            "org/carlspring/maven/derby-maven-plugin/maven-metadata.xml");
+        artifactResolutionServiceHelper.assertStreamNotNull(storageId,
+                                                            repositoryId,
+                                                            "org/carlspring/maven/derby-maven-plugin/maven-metadata.xml.md5");
+        artifactResolutionServiceHelper.assertStreamNotNull(storageId,
+                                                            repositoryId,
+                                                            "org/carlspring/maven/derby-maven-plugin/maven-metadata.xml.sha1");
 
-        assertStreamNotNull(storageId,
-                            repositoryId,
-                            "org/carlspring/maven/derby-maven-plugin/1.10/derby-maven-plugin-1.10.pom");
-        assertStreamNotNull(storageId,
-                            repositoryId,
-                            "org/carlspring/maven/derby-maven-plugin/1.10/derby-maven-plugin-1.10.pom.md5");
-        assertStreamNotNull(storageId,
-                            repositoryId,
-                            "org/carlspring/maven/derby-maven-plugin/1.10/derby-maven-plugin-1.10.pom.sha1");
+        artifactResolutionServiceHelper.assertStreamNotNull(storageId,
+                                                            repositoryId,
+                                                            "org/carlspring/maven/derby-maven-plugin/1.10/derby-maven-plugin-1.10.pom");
+        artifactResolutionServiceHelper.assertStreamNotNull(storageId,
+                                                            repositoryId,
+                                                            "org/carlspring/maven/derby-maven-plugin/1.10/derby-maven-plugin-1.10.pom.md5");
+        artifactResolutionServiceHelper.assertStreamNotNull(storageId,
+                                                            repositoryId,
+                                                            "org/carlspring/maven/derby-maven-plugin/1.10/derby-maven-plugin-1.10.pom.sha1");
 
-        assertStreamNotNull(storageId,
-                            repositoryId,
-                            "org/carlspring/maven/derby-maven-plugin/1.10/derby-maven-plugin-1.10.jar");
-        assertStreamNotNull(storageId,
-                            repositoryId,
-                            "org/carlspring/maven/derby-maven-plugin/1.10/derby-maven-plugin-1.10.jar.md5");
-        assertStreamNotNull(storageId,
-                            repositoryId,
-                            "org/carlspring/maven/derby-maven-plugin/1.10/derby-maven-plugin-1.10.jar.sha1");
+        artifactResolutionServiceHelper.assertStreamNotNull(storageId,
+                                                            repositoryId,
+                                                            "org/carlspring/maven/derby-maven-plugin/1.10/derby-maven-plugin-1.10.jar");
+        artifactResolutionServiceHelper.assertStreamNotNull(storageId,
+                                                            repositoryId,
+                                                            "org/carlspring/maven/derby-maven-plugin/1.10/derby-maven-plugin-1.10.jar.md5");
+        artifactResolutionServiceHelper.assertStreamNotNull(storageId,
+                                                            repositoryId,
+                                                            "org/carlspring/maven/derby-maven-plugin/1.10/derby-maven-plugin-1.10.jar.sha1");
     }
 
     @Disabled // Broken while Docker is being worked on, as there is no running instance of the Strongbox service.
@@ -221,8 +223,8 @@ public class MavenProxyRepositoryProviderTestIT
     public void testStrongboxAtCarlspringDotOrg()
             throws Exception
     {
-        assertStreamNotNull("public",
-                            "maven-group",
-                            "org/carlspring/commons/commons-io/1.0-SNAPSHOT/maven-metadata.xml");
+        artifactResolutionServiceHelper.assertStreamNotNull("public",
+                                                            "maven-group",
+                                                            "org/carlspring/commons/commons-io/1.0-SNAPSHOT/maven-metadata.xml");
     }
 }

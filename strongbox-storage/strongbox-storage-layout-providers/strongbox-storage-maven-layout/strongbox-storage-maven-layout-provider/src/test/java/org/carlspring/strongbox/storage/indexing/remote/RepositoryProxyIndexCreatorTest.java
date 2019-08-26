@@ -138,8 +138,11 @@ public class RepositoryProxyIndexCreatorTest
                                                                    Repository proxyRepository)
             throws Exception
     {
-        RepositoryPath repositoryPath = repositoryPathResolver.resolve(STORAGE0,
-                                                                       repository.getId(),
+        final String storageId = repository.getStorage().getId();
+        final String repositoryId = repository.getId();
+
+        RepositoryPath repositoryPath = repositoryPathResolver.resolve(storageId,
+                                                                       repositoryId,
                                                                        "org/carlspring/properties-injector/1.7/properties-injector-1.7.jar");
 
         artifactManagementService.validateAndStore(repositoryPath, jarArtifact.getInputStream());

@@ -46,7 +46,6 @@ import static org.junit.jupiter.api.parallel.ExecutionMode.CONCURRENT;
 @ContextConfiguration(classes = Maven2LayoutProviderTestConfig.class)
 @Execution(CONCURRENT)
 public abstract class MockedRestArtifactResolverTestBase
-        extends ArtifactResolutionServiceHelper
 {
 
     static final Resource jarArtifact = new ClassPathResource("artifacts/properties-injector-1.7.jar");
@@ -59,6 +58,9 @@ public abstract class MockedRestArtifactResolverTestBase
 
     @Inject
     protected RepositoryPathResolver repositoryPathResolver;
+
+    @Inject
+    protected ArtifactResolutionServiceHelper artifactResolutionServiceHelper;
 
     @BeforeEach
     public void setup()
