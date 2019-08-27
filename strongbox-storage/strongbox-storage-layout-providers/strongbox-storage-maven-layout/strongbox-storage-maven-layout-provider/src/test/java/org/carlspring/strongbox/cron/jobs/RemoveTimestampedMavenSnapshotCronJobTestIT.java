@@ -3,6 +3,8 @@ package org.carlspring.strongbox.cron.jobs;
 import org.carlspring.strongbox.artifact.MavenArtifactUtils;
 import org.carlspring.strongbox.config.Maven2LayoutProviderCronTasksTestConfig;
 import org.carlspring.strongbox.data.CacheManagerTestExecutionListener;
+import org.carlspring.strongbox.providers.io.RepositoryFiles;
+import org.carlspring.strongbox.providers.io.RepositoryPath;
 import org.carlspring.strongbox.providers.io.RootRepositoryPath;
 import org.carlspring.strongbox.storage.repository.Repository;
 import org.carlspring.strongbox.testing.artifact.ArtifactManagementTestExecutionListener;
@@ -111,7 +113,7 @@ public class RemoveTimestampedMavenSnapshotCronJobTestIT
 
                     }
 
-                    assertTrue(getSnapshotArtifactVersion(repositoryPath, artifactPath).endsWith("-3"));
+                    assertTrue(getSnapshotArtifactVersion(artifactPath).endsWith("-3"));
                 }
             }
             catch (Exception e)
@@ -171,7 +173,7 @@ public class RemoveTimestampedMavenSnapshotCronJobTestIT
 
                     }
 
-                    assertTrue(getSnapshotArtifactVersion(repositoryPath, artifactPath).endsWith("-2"));
+                    assertTrue(getSnapshotArtifactVersion(artifactPath).endsWith("-2"));
                 }
             }
             catch (Exception e)
@@ -195,8 +197,7 @@ public class RemoveTimestampedMavenSnapshotCronJobTestIT
         await().atMost(EVENT_TIMEOUT_SECONDS, TimeUnit.SECONDS).untilTrue(receivedExpectedEvent());
     }
 
-    private String getSnapshotArtifactVersion(RootRepositoryPath repositoryPath,
-                                              Path artifactPath)
+    private String getSnapshotArtifactVersion(Path artifactPath)
             throws IOException
     {
         try (Stream<Path> pathStream = Files.walk(artifactPath))
@@ -204,8 +205,9 @@ public class RemoveTimestampedMavenSnapshotCronJobTestIT
             Optional<Path> path = pathStream.filter(p -> p.toString().endsWith(".jar")).findFirst();
             if (path.isPresent())
             {
-                Path relativize = repositoryPath.relativize(path.get());
-                String unixBasedRelativePath = FilenameUtils.separatorsToUnix(relativize.toString());
+                RepositoryPath artifactRepositoryPath = (RepositoryPath) path.get();
+                String artifactRelativeRepositoryPath = RepositoryFiles.relativizePath(artifactRepositoryPath);
+                String unixBasedRelativePath = FilenameUtils.separatorsToUnix(artifactRelativeRepositoryPath);
                 Artifact artifact = MavenArtifactUtils.convertPathToArtifact(unixBasedRelativePath);
                 if (artifact != null)
                 {

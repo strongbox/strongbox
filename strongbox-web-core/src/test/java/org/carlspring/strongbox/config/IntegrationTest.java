@@ -83,7 +83,6 @@ public @interface IntegrationTest
         }
 
         @Bean
-        @Primary
         public MavenMetadataServiceHelper mavenMetadataServiceHelper()
         {
             return new MavenMetadataServiceHelper();

@@ -1,6 +1,5 @@
 package org.carlspring.strongbox.storage.indexing.remote;
 
-import org.carlspring.strongbox.artifact.generator.MavenArtifactGenerator;
 import org.carlspring.strongbox.config.Maven2LayoutProviderTestConfig;
 import org.carlspring.strongbox.providers.io.RepositoryPath;
 import org.carlspring.strongbox.services.ArtifactManagementService;
@@ -14,7 +13,7 @@ import org.carlspring.strongbox.storage.repository.Repository;
 import org.carlspring.strongbox.storage.repository.RepositoryTypeEnum;
 import org.carlspring.strongbox.testing.MavenIndexedRepositorySetup;
 import org.carlspring.strongbox.testing.artifact.ArtifactManagementTestExecutionListener;
-import org.carlspring.strongbox.testing.artifact.TestArtifact;
+import org.carlspring.strongbox.testing.artifact.MavenTestArtifact;
 import org.carlspring.strongbox.testing.repository.MavenRepository;
 import org.carlspring.strongbox.testing.storage.repository.RepositoryManagementTestExecutionListener;
 import org.carlspring.strongbox.testing.storage.repository.TestRepository.Remote;
@@ -102,17 +101,14 @@ public class RepositoryProxyIndexCreatorTest
                                                              setup = MavenIndexedRepositorySetup.class)
                                             @Remote(url = PROXY_REPOSITORY_URL)
                                             Repository proxyRepository,
-                                            @TestArtifact(repositoryId = REPOSITORY_RELEASES,
-                                                          resource = A1,
-                                                          generator = MavenArtifactGenerator.class)
+                                            @MavenTestArtifact(repositoryId = REPOSITORY_RELEASES,
+                                                               resource = A1)
                                             Path a1,
-                                            @TestArtifact(repositoryId = REPOSITORY_RELEASES,
-                                                          resource = A2,
-                                                          generator = MavenArtifactGenerator.class)
+                                            @MavenTestArtifact(repositoryId = REPOSITORY_RELEASES,
+                                                               resource = A2)
                                             Path a2,
-                                            @TestArtifact(repositoryId = REPOSITORY_RELEASES,
-                                                          resource = A3,
-                                                          generator = MavenArtifactGenerator.class)
+                                            @MavenTestArtifact(repositoryId = REPOSITORY_RELEASES,
+                                                               resource = A3)
                                             Path a3)
             throws IOException
     {

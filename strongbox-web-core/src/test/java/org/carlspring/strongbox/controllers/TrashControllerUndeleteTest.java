@@ -3,7 +3,6 @@ package org.carlspring.strongbox.controllers;
 import org.carlspring.strongbox.config.IntegrationTest;
 import org.carlspring.strongbox.providers.io.RepositoryFiles;
 import org.carlspring.strongbox.providers.io.RepositoryPath;
-import org.carlspring.strongbox.providers.io.RootRepositoryPath;
 import org.carlspring.strongbox.rest.common.MavenRestAssuredBaseTest;
 import org.carlspring.strongbox.storage.repository.Repository;
 import org.carlspring.strongbox.testing.MavenIndexedRepositorySetup;
@@ -73,13 +72,12 @@ public class TrashControllerUndeleteTest
     {
         final String storageId = repository.getStorage().getId();
         final String repositoryId = repository.getId();
-        final RootRepositoryPath repositoryPath = repositoryPathResolver.resolve(repository);
 
-        final Path artifact10Path = artifactsPaths.get(0);
-        final String artifact10PathStr = repositoryPath.relativize(artifact10Path).toString();
+        final RepositoryPath artifact10Path = (RepositoryPath) artifactsPaths.get(0).normalize();
+        final String artifact10PathStr = RepositoryFiles.relativizePath(artifact10Path);
 
-        final Path artifact11Path = artifactsPaths.get(1);
-        final String artifact11PathStr = repositoryPath.relativize(artifact11Path).toString();
+        final RepositoryPath artifact11Path = (RepositoryPath) artifactsPaths.get(1).normalize();
+        final String artifact11PathStr = RepositoryFiles.relativizePath(artifact11Path);
 
         // Delete the artifact (this one should get placed under the .trash)
         client.delete(storageId,
@@ -102,7 +100,7 @@ public class TrashControllerUndeleteTest
         String message = String.format("The trash for '%s:%s' was restored successfully.", storageId, repositoryId);
         validateResponseBody(response, acceptHeader, message);
 
-        final Path artifactFileInTrash = RepositoryFiles.trash((RepositoryPath) artifact10Path);
+        final Path artifactFileInTrash = RepositoryFiles.trash(artifact10Path);
 
         assertFalse(Files.exists(artifactFileInTrash),
                     "Failed to undelete trash for repository '" + repositoryId + "'!");
@@ -137,13 +135,12 @@ public class TrashControllerUndeleteTest
         // Repository with trash enabled, and 2 artifacts.
         final String storageId = repository1.getStorage().getId();
         final String repository1Id = repository1.getId();
-        final RootRepositoryPath repositoryPath = repositoryPathResolver.resolve(repository1);
 
-        final Path artifact10Path = artifact1Paths.get(0);
-        final String artifact10PathStr = repositoryPath.relativize(artifact10Path).toString();
+        final RepositoryPath artifact10Path = (RepositoryPath) artifact1Paths.get(0).normalize();
+        final String artifact10PathStr = RepositoryFiles.relativizePath(artifact10Path);
 
-        final Path artifact11Path = artifact1Paths.get(1);
-        final String artifact11PathStr = repositoryPath.relativize(artifact11Path).toString();
+        final RepositoryPath artifact11Path = (RepositoryPath) artifact1Paths.get(1).normalize();
+        final String artifact11PathStr = RepositoryFiles.relativizePath(artifact11Path);
 
         // Delete the 2 artifacts (this ones should get placed under the .trash)
         client.delete(storageId,
@@ -156,15 +153,15 @@ public class TrashControllerUndeleteTest
 
         // Repository without trash enabled, and 1 artifact.
         final String repository2Id = repository2.getId();
-        final RootRepositoryPath repository2Path = repositoryPathResolver.resolve(repository2);
-        final String artifact2PathStr = repository2Path.relativize(artifact2Path).toString();
+        final RepositoryPath artifact2RepositoryPath = (RepositoryPath) artifact2Path.normalize();
+        final String artifact2PathStr = RepositoryFiles.relativizePath(artifact2RepositoryPath);
 
         // Delete the artifact (this one shouldn't get placed under the .trash)
         client.delete(storageId,
                       repository2Id,
                       artifact2PathStr);
 
-        final Path artifactFileInTrash = RepositoryFiles.trash((RepositoryPath) artifact10Path);
+        final Path artifactFileInTrash = RepositoryFiles.trash(artifact10Path);
 
         assertTrue(Files.exists(artifactFileInTrash.getParent()),
                    "Failed to undelete trash for repository '" + repository1Id + "'!");

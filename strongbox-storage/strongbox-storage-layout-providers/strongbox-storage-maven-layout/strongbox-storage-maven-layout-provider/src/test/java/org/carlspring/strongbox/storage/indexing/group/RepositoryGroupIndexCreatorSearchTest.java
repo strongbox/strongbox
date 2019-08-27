@@ -17,7 +17,7 @@ import org.carlspring.strongbox.testing.artifact.ArtifactManagementTestExecution
 import org.carlspring.strongbox.testing.artifact.MavenTestArtifact;
 import org.carlspring.strongbox.testing.repository.MavenRepository;
 import org.carlspring.strongbox.testing.storage.repository.RepositoryManagementTestExecutionListener;
-import org.carlspring.strongbox.testing.storage.repository.TestRepository;
+import org.carlspring.strongbox.testing.storage.repository.TestRepository.Group;
 
 import javax.inject.Inject;
 import java.nio.file.Files;
@@ -165,8 +165,8 @@ public class RepositoryGroupIndexCreatorSearchTest
                                                    @MavenRepository(repositoryId = REPOSITORY_RELEASES_0_1,
                                                                     setup = MavenIndexedRepositorySetup.class)
                                                    Repository repository01,
-                                                   @TestRepository.Group(repositories = { REPOSITORY_RELEASES_0,
-                                                                                          REPOSITORY_RELEASES_0_1 })
+                                                   @Group(repositories = { REPOSITORY_RELEASES_0,
+                                                                           REPOSITORY_RELEASES_0_1 })
                                                    @MavenRepository(repositoryId = REPOSITORY_RELEASES_0_1_GROUP,
                                                                     setup = MavenIndexedRepositorySetup.class)
                                                    Repository groupRepository)
@@ -203,8 +203,8 @@ public class RepositoryGroupIndexCreatorSearchTest
                                                                    @MavenRepository(repositoryId = REPOSITORY_RELEASES_1_1,
                                                                                     setup = MavenIndexedRepositorySetup.class)
                                                                    Repository repository11,
-                                                                   @TestRepository.Group(repositories = { REPOSITORY_RELEASES_1,
-                                                                                                          REPOSITORY_RELEASES_1_1 })
+                                                                   @Group(repositories = { REPOSITORY_RELEASES_1,
+                                                                                           REPOSITORY_RELEASES_1_1 })
                                                                    @MavenRepository(repositoryId = REPOSITORY_RELEASES_1_1_GROUP,
                                                                                     setup = MavenIndexedRepositorySetup.class)
                                                                    Repository groupRepository)
@@ -266,8 +266,8 @@ public class RepositoryGroupIndexCreatorSearchTest
                                              @MavenRepository(repositoryId = REPOSITORY_RELEASES_2_1,
                                                               setup = MavenIndexedRepositorySetup.class)
                                              Repository repository21,
-                                             @TestRepository.Group(repositories = { REPOSITORY_RELEASES_2,
-                                                                                    REPOSITORY_RELEASES_2_1 })
+                                             @Group(repositories = { REPOSITORY_RELEASES_2,
+                                                                     REPOSITORY_RELEASES_2_1 })
                                              @MavenRepository(repositoryId = REPOSITORY_RELEASES_2_1_GROUP,
                                                               setup = MavenIndexedRepositorySetup.class)
                                              Repository groupRepository)
@@ -315,8 +315,8 @@ public class RepositoryGroupIndexCreatorSearchTest
                                                                          id = SLF4J_GROUP_ID + ":" + SLF4J_ARTIFACT_ID,
                                                                          versions = { "1.9" })
                                                       Path artifactPathSlf4j,
-                                                      @TestRepository.Group(repositories = { REPOSITORY_RELEASES_3,
-                                                                                             REPOSITORY_RELEASES_3_1 })
+                                                      @Group(repositories = { REPOSITORY_RELEASES_3,
+                                                                              REPOSITORY_RELEASES_3_1 })
                                                       @MavenRepository(repositoryId = REPOSITORY_RELEASES_3_1_GROUP,
                                                                        setup = MavenIndexedRepositorySetup.class)
                                                       Repository groupRepository)
@@ -366,8 +366,8 @@ public class RepositoryGroupIndexCreatorSearchTest
                                                                                             "sources" },
                                                                             versions = { "1.9" })
                                                          Path artifactPathSlf4j,
-                                                         @TestRepository.Group(repositories = { REPOSITORY_RELEASES_4,
-                                                                                                REPOSITORY_RELEASES_4_1 })
+                                                         @Group(repositories = { REPOSITORY_RELEASES_4,
+                                                                                 REPOSITORY_RELEASES_4_1 })
                                                          @MavenRepository(repositoryId = REPOSITORY_RELEASES_4_1_GROUP,
                                                                           setup = MavenIndexedRepositorySetup.class)
                                                          Repository groupRepository)
@@ -405,8 +405,8 @@ public class RepositoryGroupIndexCreatorSearchTest
                                                                      @MavenRepository(repositoryId = REPOSITORY_RELEASES_5_1,
                                                                                       setup = MavenIndexedRepositorySetup.class)
                                                                      Repository repository51,
-                                                                     @TestRepository.Group(repositories = { REPOSITORY_RELEASES_5,
-                                                                                                            REPOSITORY_RELEASES_5_1 })
+                                                                     @Group(repositories = { REPOSITORY_RELEASES_5,
+                                                                                             REPOSITORY_RELEASES_5_1 })
                                                                      @MavenRepository(repositoryId = REPOSITORY_RELEASES_5_1_GROUP,
                                                                                       setup = MavenIndexedRepositorySetup.class)
                                                                      Repository groupRepository)
@@ -444,8 +444,8 @@ public class RepositoryGroupIndexCreatorSearchTest
                                                                @MavenRepository(repositoryId = REPOSITORY_RELEASES_6_1,
                                                                                 setup = MavenIndexedRepositorySetup.class)
                                                                Repository repository61,
-                                                               @TestRepository.Group(repositories = { REPOSITORY_RELEASES_6,
-                                                                                                      REPOSITORY_RELEASES_6_1 })
+                                                               @Group(repositories = { REPOSITORY_RELEASES_6,
+                                                                                       REPOSITORY_RELEASES_6_1 })
                                                                @MavenRepository(repositoryId = REPOSITORY_RELEASES_6_1_GROUP,
                                                                                 setup = MavenIndexedRepositorySetup.class)
                                                                Repository groupRepository)
@@ -500,8 +500,8 @@ public class RepositoryGroupIndexCreatorSearchTest
                                                                     classifiers = { "javadoc",
                                                                                     "sources" })
                                                  Path artifactPathSlf4j,
-                                                 @TestRepository.Group(repositories = { REPOSITORY_RELEASES_7,
-                                                                                        REPOSITORY_RELEASES_7_1 })
+                                                 @Group(repositories = { REPOSITORY_RELEASES_7,
+                                                                         REPOSITORY_RELEASES_7_1 })
                                                  @MavenRepository(repositoryId = REPOSITORY_RELEASES_7_1_GROUP,
                                                                   setup = MavenIndexedRepositorySetup.class)
                                                  Repository groupRepository)
@@ -570,8 +570,8 @@ public class RepositoryGroupIndexCreatorSearchTest
                                                                                  classifiers = { "javadoc",
                                                                                                  "sources" })
                                                               Path artifactPathSlf4j,
-                                                              @TestRepository.Group(repositories = { REPOSITORY_RELEASES_8,
-                                                                                                     REPOSITORY_RELEASES_8_1 })
+                                                              @Group(repositories = { REPOSITORY_RELEASES_8,
+                                                                                      REPOSITORY_RELEASES_8_1 })
                                                               @MavenRepository(repositoryId = REPOSITORY_RELEASES_8_1_GROUP,
                                                                                setup = MavenIndexedRepositorySetup.class)
                                                               Repository groupRepository)

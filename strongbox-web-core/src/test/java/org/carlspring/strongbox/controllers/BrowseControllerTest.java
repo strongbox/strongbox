@@ -3,7 +3,8 @@ package org.carlspring.strongbox.controllers;
 import org.carlspring.strongbox.config.IntegrationTest;
 import org.carlspring.strongbox.domain.DirectoryListing;
 import org.carlspring.strongbox.domain.FileContent;
-import org.carlspring.strongbox.providers.io.RootRepositoryPath;
+import org.carlspring.strongbox.providers.io.RepositoryFiles;
+import org.carlspring.strongbox.providers.io.RepositoryPath;
 import org.carlspring.strongbox.rest.common.MavenRestAssuredBaseTest;
 import org.carlspring.strongbox.storage.repository.Repository;
 import org.carlspring.strongbox.testing.artifact.ArtifactManagementTestExecutionListener;
@@ -11,6 +12,7 @@ import org.carlspring.strongbox.testing.artifact.MavenTestArtifact;
 import org.carlspring.strongbox.testing.repository.MavenRepository;
 import org.carlspring.strongbox.testing.storage.repository.RepositoryManagementTestExecutionListener;
 
+import java.io.IOException;
 import java.nio.file.Path;
 import java.util.Comparator;
 import java.util.List;
@@ -24,7 +26,10 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import static io.restassured.module.mockmvc.RestAssuredMockMvc.given;
 import static org.carlspring.strongbox.rest.client.RestAssuredArtifactClient.OK;
-import static org.junit.jupiter.api.Assertions.*;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 /**
  * @author Guido Grazioli
@@ -155,17 +160,23 @@ public class BrowseControllerTest
                                                           versions = { "1.1",
                                                                        "3.2" })
                                        List<Path> artifactsPaths)
+            throws IOException
     {
         final String storageId = repository.getStorage().getId();
         final String repositoryId = repository.getId();
-        final RootRepositoryPath repositoryPath = repositoryPathResolver.resolve(repository);
 
         String url = getContextBaseUrl() + "/{storageId}/{repositoryId}/{artifactPath}";
-        String artifactParent1PathStr = repositoryPath.relativize(artifactsPaths.get(0).getParent()).toString();
+
+        RepositoryPath artifact1Path = (RepositoryPath) artifactsPaths.get(0).normalize();
+        String artifact1PathStr = RepositoryFiles.relativizePath(artifact1Path);
+        String unixBasedRelativePath = FilenameUtils.separatorsToUnix(artifact1PathStr);
+
+        RepositoryPath artifact1ParentPath = artifact1Path.getParent();
+        String artifact1ParentPathStr = RepositoryFiles.relativizePath(artifact1ParentPath);
 
         DirectoryListing returned = given().accept(MediaType.APPLICATION_JSON_VALUE)
                                            .when()
-                                           .get(url, storageId, repositoryId, artifactParent1PathStr)
+                                           .get(url, storageId, repositoryId, artifact1ParentPathStr)
                                            .prettyPeek()
                                            .as(DirectoryListing.class);
 
@@ -174,13 +185,11 @@ public class BrowseControllerTest
 
         String htmlResponse = given().accept(MediaType.TEXT_HTML_VALUE)
                                      .when()
-                                     .get(url + "/", storageId, repositoryId, artifactParent1PathStr)
+                                     .get(url + "/", storageId, repositoryId, artifact1ParentPathStr)
                                      .prettyPeek()
                                      .asString();
 
-        String artifact1PathStr = FilenameUtils.separatorsToUnix(
-                repositoryPath.relativize(artifactsPaths.get(0)).toString());
-        String link = "/storages/" + storageId + "/" + repositoryId + "/" + artifact1PathStr;
+        String link = "/storages/" + storageId + "/" + repositoryId + "/" + unixBasedRelativePath;
 
         assertTrue(htmlResponse.contains(link), "Expected to have found [ " + link + " ] in the response html");
     }

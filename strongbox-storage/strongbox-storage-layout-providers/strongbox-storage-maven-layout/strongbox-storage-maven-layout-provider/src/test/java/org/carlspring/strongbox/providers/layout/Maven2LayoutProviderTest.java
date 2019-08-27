@@ -1,17 +1,14 @@
 package org.carlspring.strongbox.providers.layout;
 
-import org.carlspring.strongbox.artifact.generator.MavenArtifactGenerator;
 import org.carlspring.strongbox.config.Maven2LayoutProviderTestConfig;
 import org.carlspring.strongbox.providers.io.RepositoryFiles;
 import org.carlspring.strongbox.providers.io.RepositoryPath;
-import org.carlspring.strongbox.providers.io.RepositoryPathResolver;
 import org.carlspring.strongbox.storage.repository.Repository;
 import org.carlspring.strongbox.testing.artifact.ArtifactManagementTestExecutionListener;
-import org.carlspring.strongbox.testing.artifact.TestArtifact;
+import org.carlspring.strongbox.testing.artifact.MavenTestArtifact;
+import org.carlspring.strongbox.testing.repository.MavenRepository;
 import org.carlspring.strongbox.testing.storage.repository.RepositoryManagementTestExecutionListener;
-import org.carlspring.strongbox.testing.storage.repository.TestRepository;
 
-import javax.inject.Inject;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
@@ -22,13 +19,13 @@ import org.junit.jupiter.api.parallel.Execution;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.ContextConfiguration;
-import static org.carlspring.strongbox.artifact.coordinates.MavenArtifactCoordinates.LAYOUT_NAME;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.junit.jupiter.api.parallel.ExecutionMode.SAME_THREAD;
 
 /**
  * @author mtodorov
+ * @author Pablo Tirado
  */
 @SpringBootTest
 @ActiveProfiles(profiles = "test")
@@ -43,39 +40,46 @@ public class Maven2LayoutProviderTest
 
     private static final String REPOSITORY_RELEASES = "m2lp-releases";
 
-    @Inject
-    private RepositoryPathResolver repositoryPathResolver;
-
     @Test
     @ExtendWith({ RepositoryManagementTestExecutionListener.class,
                   ArtifactManagementTestExecutionListener.class })
-    public void testDeleteArtifact(@TestRepository(layout = LAYOUT_NAME, repositoryId = REPOSITORY_RELEASES) Repository repository,
-                                   @TestArtifact(repositoryId = REPOSITORY_RELEASES, resource = DELETE_FOO_1_2_1, generator = MavenArtifactGenerator.class) Path artifactPath)
+    public void testDeleteArtifact(@MavenRepository(repositoryId = REPOSITORY_RELEASES)
+                                   Repository repository,
+                                   @MavenTestArtifact(repositoryId = REPOSITORY_RELEASES,
+                                                      resource = DELETE_FOO_1_2_1)
+                                   Path artifactPath)
             throws IOException
     {
-        assertTrue(Files.exists(artifactPath), "Failed to locate artifact file " + artifactPath);
+        RepositoryPath artifactRepositoryPath = (RepositoryPath) artifactPath.normalize();
 
-        RepositoryPath repositoryPath = repositoryPathResolver.resolve(repository);
-        repositoryPath = repositoryPath.resolve(repositoryPath.relativize(artifactPath));
-        RepositoryFiles.delete(repositoryPath, false);           
+        assertTrue(Files.exists(artifactRepositoryPath),
+                   "Failed to locate artifact file " + artifactPath);
 
-        assertFalse(Files.exists(artifactPath), "Failed to delete artifact file " + artifactPath);
+        RepositoryFiles.delete(artifactRepositoryPath, false);
+
+        assertFalse(Files.exists(artifactRepositoryPath),
+                    "Failed to delete artifact file " + artifactRepositoryPath);
     }
 
     @Test
     @ExtendWith({ RepositoryManagementTestExecutionListener.class,
                   ArtifactManagementTestExecutionListener.class })
-    public void testDeleteArtifactDirectory(@TestRepository(layout = LAYOUT_NAME, repositoryId = REPOSITORY_RELEASES) Repository repository,
-                                            @TestArtifact(repositoryId = REPOSITORY_RELEASES, resource = DELETE_FOO_1_2_2, generator = MavenArtifactGenerator.class) Path artifactPath)
+    public void testDeleteArtifactDirectory(@MavenRepository(repositoryId = REPOSITORY_RELEASES)
+                                            Repository repository,
+                                            @MavenTestArtifact(repositoryId = REPOSITORY_RELEASES,
+                                                               resource = DELETE_FOO_1_2_2)
+                                            Path artifactPath)
             throws IOException
     {
+        RepositoryPath artifactRepositoryPath = (RepositoryPath) artifactPath.normalize();
 
-        assertTrue(Files.exists(artifactPath), "Failed to locate artifact file " + artifactPath);
+        assertTrue(Files.exists(artifactRepositoryPath),
+                   "Failed to locate artifact file " + artifactPath);
 
-        RepositoryPath repositoryPath = (RepositoryPath) artifactPath.getParent();
-        RepositoryFiles.delete(repositoryPath, false);
+        RepositoryFiles.delete(artifactRepositoryPath, false);
 
-        assertFalse(Files.exists(artifactPath), "Failed to delete artifact file " + artifactPath);
+        assertFalse(Files.exists(artifactRepositoryPath),
+                    "Failed to delete artifact file " + artifactPath);
     }
 
 }

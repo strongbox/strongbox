@@ -9,7 +9,6 @@ import org.carlspring.strongbox.providers.io.RepositoryFiles;
 import org.carlspring.strongbox.providers.io.RepositoryPath;
 import org.carlspring.strongbox.providers.io.RepositoryPathResolver;
 import org.carlspring.strongbox.providers.io.RepositoryStreamSupport.RepositoryInputStream;
-import org.carlspring.strongbox.providers.io.RootRepositoryPath;
 import org.carlspring.strongbox.repository.MavenRepositoryFeatures;
 import org.carlspring.strongbox.storage.ArtifactStorageException;
 import org.carlspring.strongbox.storage.repository.Repository;
@@ -380,31 +379,21 @@ public class ArtifactManagementServiceImplTest
     @ExtendWith({ RepositoryManagementTestExecutionListener.class,
                   ArtifactManagementTestExecutionListener.class })
     @Test
-    public void testRemoveTimestampedSnapshotsWithCurrentDate(@MavenRepository(repositoryId = TRTS_SNAPSHOTS,
-                                                                               policy = RepositoryPolicyEnum.SNAPSHOT)
-                                                              Repository repository,
-                                                              @MavenTestArtifact(repositoryId = TRTS_SNAPSHOTS,
-                                                                                 id = "org.carlspring.strongbox:timestamped",
-                                                                                 versions = { "2.0-20190701.190020-1",
-                                                                                              "2.0-20190701.190145-2",
-                                                                                              "2.0-20190701.190250-3"})
-                                                              List<Path> artifactPaths)
+    public void testRemoveTimestampedSnapshotsByNumberToKeep(@MavenRepository(repositoryId = TRTS_SNAPSHOTS,
+                                                                              policy = RepositoryPolicyEnum.SNAPSHOT)
+                                                             Repository repository,
+                                                             @MavenTestArtifact(repositoryId = TRTS_SNAPSHOTS,
+                                                                                id = "org.carlspring.strongbox:timestamped",
+                                                                                versions = { "2.0-20190701.190020-1",
+                                                                                             "2.0-20190701.190145-2",
+                                                                                             "2.0-20190701.190250-3"})
+                                                             List<Path> artifactPaths)
             throws Exception
     {
         final String storageId = repository.getStorage().getId();
         final String repositoryId = repository.getId();
 
-        // Generate timestamp for current date.
-        String timestamp = getTimestamp(0);
-
-        // Set artifact timestamp with current date (this can't be done with @MavenTestArtifact)
-        // Redeploy artifact with new timestamp, necessary for removeTimestampedSnapshots and keepPeriod attribute.
-        MavenArtifact artifact = setArtifactsTimestampAndRedeploy(artifactPaths,
-                                                                  repository,
-                                                                  timestamp);
-
-        assertNotNull(artifact);
-        Path artifactVersionBasePath = artifact.getPath().getParent().normalize();
+        Path artifactVersionBasePath = artifactPaths.get(0).getParent().normalize();
 
         try (Stream<Path> pathStream = Files.walk(artifactVersionBasePath))
         {
@@ -429,25 +418,6 @@ public class ArtifactManagementServiceImplTest
             assertEquals(1, timestampedSnapshots, "Amount of timestamped snapshots doesn't equal 1.");
 
             Path snapshotArtifactPath = getSnapshotArtifactPath(artifactVersionBasePath);
-            assertNotNull(snapshotArtifactPath);
-            assertTrue(snapshotArtifactPath.toString().endsWith("-3.jar"));
-        }
-
-        // To check removing timestamped snapshot with keepPeriod = 3 and numberToKeep = 0
-        mavenRepositoryFeatures.removeTimestampedSnapshots(storageId,
-                                                           repositoryId,
-                                                           "org/carlspring/strongbox/timestamped",
-                                                           0,
-                                                           3);
-
-        // Check all remaining artifacts from the repository.
-        Path repositoryPath = repositoryPathResolver.resolve(repository);
-        try (Stream<Path> pathStream = Files.walk(repositoryPath))
-        {
-            long timestampedSnapshots = pathStream.filter(path -> path.toString().endsWith(".jar")).count();
-            assertEquals(1, timestampedSnapshots, "Amount of timestamped snapshots doesn't equal 1.");
-
-            Path snapshotArtifactPath = getSnapshotArtifactPath(repositoryPath);
             assertNotNull(snapshotArtifactPath);
             assertTrue(snapshotArtifactPath.toString().endsWith("-3.jar"));
         }
@@ -510,14 +480,14 @@ public class ArtifactManagementServiceImplTest
         }
     }
 
-    private String getTimestamp(int daysSubstracted)
+    private String getTimestamp(int daysSubtracted)
     {
         SimpleDateFormat formatter = new SimpleDateFormat("yyyyMMdd.HHmmss");
         Calendar calendar = Calendar.getInstance();
 
-        if (daysSubstracted > 0)
+        if (daysSubtracted > 0)
         {
-            calendar.add(Calendar.DATE, -daysSubstracted);
+            calendar.add(Calendar.DATE, -daysSubtracted);
         }
 
        return formatter.format(calendar.getTime());
@@ -529,14 +499,13 @@ public class ArtifactManagementServiceImplTest
             throws IOException
     {
         MavenArtifact artifact = null;
-        RootRepositoryPath repositoryPath = repositoryPathResolver.resolve(repository);
 
         for (int i = 0; i < artifactPaths.size(); i++)
         {
-            RepositoryPath oldPath = (RepositoryPath) artifactPaths.get(i).normalize();
-            Path relArtifactPath = repositoryPath.relativize(oldPath);
-            String relArtifactPathStr = FilenameUtils.separatorsToUnix(relArtifactPath.toString());
-            artifact = MavenArtifactUtils.convertPathToArtifact(relArtifactPathStr);
+            RepositoryPath artifactRepositoryPath = (RepositoryPath) artifactPaths.get(i).normalize();
+            String artifactRelativeRepositoryPath = RepositoryFiles.relativizePath(artifactRepositoryPath);
+            String unixBasedRelativePath = FilenameUtils.separatorsToUnix(artifactRelativeRepositoryPath);
+            artifact = MavenArtifactUtils.convertPathToArtifact(unixBasedRelativePath);
             assertNotNull(artifact);
 
             // Set snapshot version
@@ -548,7 +517,7 @@ public class ArtifactManagementServiceImplTest
             // Redeploy artifact with new path
             RepositoryPath newPath = redeployArtifactWithNewPath(artifact,
                                                                  repository,
-                                                                 oldPath);
+                                                                 artifactRepositoryPath);
             artifact.setPath(newPath);
         }
 
