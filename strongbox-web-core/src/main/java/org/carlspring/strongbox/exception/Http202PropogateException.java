@@ -13,9 +13,10 @@ import java.io.IOException;
 public class Http202PropogateException extends IOException
 {
 
-    public Http202PropogateException(final String message)
+    public Http202PropogateException(final String message, IOException ex)
     {
         super(message);
-    }    
+        this.initCause(ex);
+    }
 
 }
