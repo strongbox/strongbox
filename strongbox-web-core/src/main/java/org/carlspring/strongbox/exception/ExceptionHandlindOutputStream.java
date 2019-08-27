@@ -5,10 +5,7 @@ package org.carlspring.strongbox.exception;
 
 import java.io.IOException;
 import java.io.OutputStream;
-
-import org.eclipse.jetty.client.HttpRequestException;
 import org.eclipse.jetty.io.EofException;
-
 import org.apache.commons.io.output.ProxyOutputStream;
 
 /**
@@ -31,7 +28,7 @@ public class ExceptionHandlindOutputStream extends ProxyOutputStream
         throws IOException
     {
         if (e.getClass().equals(EofException.class)) {
-            throw new Http202PropogateException("Socket has been closed. Possibly, user cancelled download.");            
+            throw new Http202PropogateException("Socket has been closed. Possibly, user cancelled download.", e);            
         }
         throw e;
     }
