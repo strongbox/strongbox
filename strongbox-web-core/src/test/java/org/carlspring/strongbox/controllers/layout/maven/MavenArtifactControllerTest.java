@@ -10,6 +10,9 @@ import org.carlspring.strongbox.client.ArtifactTransportException;
 import org.carlspring.strongbox.config.IntegrationTest;
 import org.carlspring.strongbox.domain.ArtifactEntry;
 import org.carlspring.strongbox.domain.RemoteArtifactEntry;
+import org.carlspring.strongbox.providers.io.LayoutFileSystem;
+import org.carlspring.strongbox.providers.io.RepositoryFiles;
+import org.carlspring.strongbox.providers.io.RepositoryPath;
 import org.carlspring.strongbox.providers.io.RootRepositoryPath;
 import org.carlspring.strongbox.rest.common.MavenRestAssuredBaseTest;
 import org.carlspring.strongbox.services.ArtifactEntryService;
@@ -391,8 +394,8 @@ public class MavenArtifactControllerTest
 
         // test that given artifact exists
         String url = getContextBaseUrl() + "/storages/" + storageId + "/" + repositoryId + "/";
-        RootRepositoryPath repositoryPath = repositoryPathResolver.resolve(repository);
-        String pathToJar = repositoryPath.relativize(artifactPath).toString();
+        RepositoryPath artifactRepositoryPath = (RepositoryPath) artifactPath.normalize();
+        String pathToJar = RepositoryFiles.relativizePath(artifactRepositoryPath);
         String artifactPathStr = url + pathToJar;
 
         assertPathExists(artifactPathStr);
@@ -494,18 +497,19 @@ public class MavenArtifactControllerTest
                                                         id = "org.carlspring.strongbox.copy:copy-foo",
                                                         versions = "1.1")
                                      Path artifactPath)
+            throws IOException
     {
-        RootRepositoryPath repositoryPath1 = repositoryPathResolver.resolve(repository1);
-        String artifactPathStr = repositoryPath1.relativize(artifactPath).toString();
+        RepositoryPath artifactRepositoryPath = (RepositoryPath) artifactPath.normalize();
+        String artifactRepositoryPathStr = RepositoryFiles.relativizePath(artifactRepositoryPath);
 
-        client.copy(artifactPathStr,
+        client.copy(artifactRepositoryPathStr,
                     repository1.getStorage().getId(),
                     repository1.getId(),
                     repository2.getStorage().getId(),
                     repository2.getId());
 
         RootRepositoryPath repositoryPath2 = repositoryPathResolver.resolve(repository2);
-        Path destArtifactPath = repositoryPath2.resolve(artifactPathStr);
+        Path destArtifactPath = repositoryPath2.resolve(artifactRepositoryPathStr);
         assertTrue(Files.exists(destArtifactPath),
                    "Failed to copy artifact to destination repository '" + destArtifactPath + "'!");
     }
@@ -523,11 +527,10 @@ public class MavenArtifactControllerTest
                                                              id = "org.carlspring.strongbox.copy:copy-foo",
                                                              versions = "1.2")
                                           Path artifactPath)
+            throws IOException
     {
-        Path artifactDirectoryPath = artifactPath.getParent();
-
-        RootRepositoryPath repositoryPath1 = repositoryPathResolver.resolve(repository1);
-        String artifactDirectoryPathStr = repositoryPath1.relativize(artifactDirectoryPath).toString();
+        RepositoryPath artifactDirectoryPath = (RepositoryPath) artifactPath.getParent().normalize();
+        String artifactDirectoryPathStr = RepositoryFiles.relativizePath(artifactDirectoryPath);
 
         client.copy(artifactDirectoryPathStr,
                     repository1.getStorage().getId(),
@@ -553,18 +556,18 @@ public class MavenArtifactControllerTest
                                        Path artifactPath)
             throws Exception
     {
-        RootRepositoryPath repositoryPath1 = repositoryPathResolver.resolve(repository);
-        String artifactPathStr = repositoryPath1.relativize(artifactPath).toString();
+        final RepositoryPath artifactRepositoryPath = (RepositoryPath) artifactPath.normalize();
+        final String artifactRepositoryPathStr = RepositoryFiles.relativizePath(artifactRepositoryPath);
 
-        assertTrue(Files.exists(artifactPath),
-                   "Failed to locate artifact file '" + artifactPath + "'!");
+        assertTrue(Files.exists(artifactRepositoryPath),
+                   "Failed to locate artifact file '" + artifactRepositoryPath + "'!");
 
         client.delete(repository.getStorage().getId(),
                       repository.getId(),
-                      artifactPathStr);
+                      artifactRepositoryPathStr);
 
-        assertTrue(Files.notExists(artifactPath),
-                   "Failed to delete artifact file '" + artifactPath + "'!");
+        assertTrue(Files.notExists(artifactRepositoryPath),
+                   "Failed to delete artifact file '" + artifactRepositoryPath + "'!");
     }
 
     @ExtendWith({ RepositoryManagementTestExecutionListener.class,
@@ -579,19 +582,17 @@ public class MavenArtifactControllerTest
                                             Path artifactPath)
             throws Exception
     {
-        Path artifactDirectoryPath = artifactPath.getParent();
+        RepositoryPath artifactDirectoryPath = (RepositoryPath) artifactPath.getParent().normalize();
+        String artifactDirectoryPathStr = RepositoryFiles.relativizePath(artifactDirectoryPath);
 
-        RootRepositoryPath repositoryPath1 = repositoryPathResolver.resolve(repository);
-        String artifactDirectoryPathStr = repositoryPath1.relativize(artifactDirectoryPath).toString();
-
-        assertTrue(Files.exists(artifactPath.getParent()),
+        assertTrue(Files.exists(artifactDirectoryPath),
                    "Failed to locate artifact directory '" + artifactDirectoryPath + "'!");
 
         client.delete(repository.getStorage().getId(),
                       repository.getId(),
                       artifactDirectoryPathStr);
 
-        assertTrue(Files.notExists(artifactPath.getParent()),
+        assertTrue(Files.notExists(artifactDirectoryPath),
                    "Failed to delete artifact file '" + artifactDirectoryPath + "'!");
     }
 
@@ -606,15 +607,16 @@ public class MavenArtifactControllerTest
                                id = "com.artifacts.to.delete.releases:delete-foo",
                                versions = "1.2.2")
             Path artifactPath)
+            throws IOException
     {
         final String storageId = repository.getStorage().getId();
         final String repositoryId = repository.getId();
-        final RootRepositoryPath repositoryPath = repositoryPathResolver.resolve(repository);
 
-        Path relArtifactPath = repositoryPath.relativize(artifactPath);
-        String relArtifactPathStr = FilenameUtils.separatorsToUnix(relArtifactPath.toString());
+        final RepositoryPath artifactRepositoryPath = (RepositoryPath) artifactPath.normalize();
+        final String artifactRepositoryPathStr = RepositoryFiles.relativizePath(artifactRepositoryPath);
+        final String unixBasedRelativePath = FilenameUtils.separatorsToUnix(artifactRepositoryPathStr);
 
-        String url = String.format("/storages/%s/%s/%s", storageId, repositoryId, relArtifactPathStr);
+        String url = String.format("/storages/%s/%s/%s", storageId, repositoryId, unixBasedRelativePath);
 
         MockMvcResponse mockMvcResponse = client.put2(url,
                                                       "<body/>",
@@ -681,7 +683,7 @@ public class MavenArtifactControllerTest
 
         assertEquals(HttpStatus.NOT_FOUND.value(), invalidPath.response().getStatusCode());
 
-        assertFalse(repositoryRootContent.contains(".index"),
+        assertFalse(repositoryRootContent.contains(LayoutFileSystem.INDEX),
                     ".index directory should not be visible in directory listing!");
     }
 
@@ -708,9 +710,10 @@ public class MavenArtifactControllerTest
 
         mavenMetadataServiceHelper.generateMavenMetadata(repository);
 
-        Path relArtifactPath = repositoryPath.relativize(artifactsPaths.get(0));
-        String relArtifactPathStr = FilenameUtils.separatorsToUnix(relArtifactPath.toString());
-        Artifact snapshotArtifact = MavenArtifactUtils.convertPathToArtifact(relArtifactPathStr);
+        RepositoryPath artifactRepositoryPath = (RepositoryPath) artifactsPaths.get(0).normalize();
+        String artifactRepositoryPathStr = RepositoryFiles.relativizePath(artifactRepositoryPath);
+        String unixBasedRelativePath = FilenameUtils.separatorsToUnix(artifactRepositoryPathStr);
+        Artifact snapshotArtifact = MavenArtifactUtils.convertPathToArtifact(unixBasedRelativePath);
 
         assertNotNull(snapshotArtifact);
         String metadataPath = String.format("storages/%s/%s/%s",
@@ -728,9 +731,10 @@ public class MavenArtifactControllerTest
 
         for (Path artifactPath : artifactsPaths)
         {
-            relArtifactPath = repositoryPath.relativize(artifactPath);
-            relArtifactPathStr = FilenameUtils.separatorsToUnix(relArtifactPath.toString());
-            snapshotArtifact = MavenArtifactUtils.convertPathToArtifact(relArtifactPathStr);
+            artifactRepositoryPath = (RepositoryPath) artifactPath.normalize();
+            artifactRepositoryPathStr = RepositoryFiles.relativizePath(artifactRepositoryPath);
+            unixBasedRelativePath = FilenameUtils.separatorsToUnix(artifactRepositoryPathStr);
+            snapshotArtifact = MavenArtifactUtils.convertPathToArtifact(unixBasedRelativePath);
             assertNotNull(snapshotArtifact);
 
             checkSnapshotVersionExistsInMetadata(versionLevelMetadata,
@@ -891,18 +895,19 @@ public class MavenArtifactControllerTest
         // Given
         final String storageId = repository.getStorage().getId();
         final String repositoryId = repository.getId();
-        final RootRepositoryPath repositoryPath = repositoryPathResolver.resolve(repository);
 
-        Path relArtifact1Path = repositoryPath.relativize(artifactsPaths.get(0));
-        String relArtifact1PathStr = FilenameUtils.separatorsToUnix(relArtifact1Path.toString());
-        Artifact artifact1 = MavenArtifactUtils.convertPathToArtifact(relArtifact1PathStr);
+        RepositoryPath artifact1RepositoryPath = (RepositoryPath) artifactsPaths.get(0).normalize();
+        String artifact1RepositoryPathStr = RepositoryFiles.relativizePath(artifact1RepositoryPath);
+        String unixBasedRelativePath = FilenameUtils.separatorsToUnix(artifact1RepositoryPathStr);
+        Artifact artifact1 = MavenArtifactUtils.convertPathToArtifact(unixBasedRelativePath);
 
-        String artifact2PathStr = repositoryPath.relativize(artifactsPaths.get(1)).toString();
+        RepositoryPath artifact2RepositoryPath = (RepositoryPath) artifactsPaths.get(1).normalize();
+        String artifact2RepositoryPathStr = RepositoryFiles.relativizePath(artifact2RepositoryPath);
 
         // When
         mavenMetadataServiceHelper.generateMavenMetadata(repository);
 
-        client.delete(storageId, repositoryId, artifact2PathStr);
+        client.delete(storageId, repositoryId, artifact2RepositoryPathStr);
 
         // Then
         assertNotNull(artifact1);
@@ -941,18 +946,19 @@ public class MavenArtifactControllerTest
         // Given
         final String storageId = repository.getStorage().getId();
         final String repositoryId = repository.getId();
-        final RootRepositoryPath repositoryPath = repositoryPathResolver.resolve(repository);
 
         mavenMetadataServiceHelper.generateMavenMetadata(repository);
 
-        Path artifactPath1 = repositoryPath.relativize(artifactsPaths.get(0));
-        String artifactPath1Str = FilenameUtils.separatorsToUnix(artifactPath1.toString());
-        Artifact artifact1 = MavenArtifactUtils.convertPathToArtifact(artifactPath1Str);
+        RepositoryPath artifact1RepositoryPath = (RepositoryPath) artifactsPaths.get(0).normalize();
+        String artifact1RepositoryPathStr = RepositoryFiles.relativizePath(artifact1RepositoryPath);
+        String unixBasedRelativePath = FilenameUtils.separatorsToUnix(artifact1RepositoryPathStr);
+        Artifact artifact1 = MavenArtifactUtils.convertPathToArtifact(unixBasedRelativePath);
 
-        Path artifactParentPath1 = artifactPath1.getParent();
+        RepositoryPath artifact1ParentPath = artifact1RepositoryPath.getParent();
+        String artifact1ParentPathStr = RepositoryFiles.relativizePath(artifact1ParentPath);
 
         // When
-        client.delete(storageId, repositoryId, artifactParentPath1.toString());
+        client.delete(storageId, repositoryId, artifact1ParentPathStr);
 
         // Then
         assertNotNull(artifact1);
@@ -996,21 +1002,22 @@ public class MavenArtifactControllerTest
                                                                                id = "org.carlspring.strongbox.test:dynamic-privileges",
                                                                                versions = "1.0")
                                                             Path artifactPath)
+            throws IOException
     {
         // Given
         final String storageId = repository.getStorage().getId();
         final String repositoryId = repository.getId();
-        final RootRepositoryPath repositoryPath = repositoryPathResolver.resolve(repository);
 
         String url = getContextBaseUrl() + "/storages/{storageId}/{repositoryId}/{artifactPath}";
-        Path relArtifactPath = repositoryPath.relativize(artifactPath.normalize());
-        String relArtifactPathStr = FilenameUtils.separatorsToUnix(relArtifactPath.toString());
+
+        RepositoryPath artifactRepositoryPath = (RepositoryPath) artifactPath.normalize();
+        String artifactRepositoryPathStr = RepositoryFiles.relativizePath(artifactRepositoryPath);
 
         // When
         int statusCode = given().header(HttpHeaders.USER_AGENT, "Maven/*")
                                 .contentType(MediaType.TEXT_PLAIN_VALUE)
                                 .when()
-                                .get(url, storageId, repositoryId, relArtifactPathStr)
+                                .get(url, storageId, repositoryId, artifactRepositoryPathStr)
                                 .getStatusCode();
 
         // Then

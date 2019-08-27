@@ -75,31 +75,32 @@ public class RawLayoutProviderTest
                                                       storageId = STORAGE,
                                                       repositoryId = REPOSITORY)
                                      Repository repository,
-                                     @TestArtifact(storageId = STORAGE,
-                                                   repositoryId = REPOSITORY,
-                                                   resource = "foo/bar.zip",
+                                     @TestArtifact(resource = "foo/bar.zip",
                                                    generator = NullArtifactGenerator.class)
                                      Path artifactPath)
             throws Exception
     {
         String path = "foo/bar.zip";
 
-        RepositoryPath repositoryPath = repositoryPathResolver.resolve(repository, path);
+        RepositoryPath artifactRepositoryPath = repositoryPathResolver.resolve(repository, path);
 
-        assertTrue(Files.exists(artifactPath), "Failed to deploy artifact!");
-        assertTrue(Files.size(artifactPath) > 0, "Failed to deploy artifact!");
+        // Deploy the artifact
+        artifactManagementService.validateAndStore(artifactRepositoryPath, createZipFile());
+
+        assertTrue(Files.exists(artifactRepositoryPath), "Failed to deploy artifact!");
+        assertTrue(Files.size(artifactRepositoryPath) > 0, "Failed to deploy artifact!");
 
         // Attempt to re-deploy the artifact
         try
         {
-            artifactManagementService.validateAndStore(repositoryPath, createZipFile());
+            artifactManagementService.validateAndStore(artifactRepositoryPath, createZipFile());
         }
         catch (Exception e)
         {
             if (e.getMessage().contains("repository does not allow artifact re-deployment"))
             {
                 // This is expected
-                logger.info("Successfully declined to re-deploy {}!", artifactPath);
+                logger.info("Successfully declined to re-deploy {}!", artifactRepositoryPath);
             }
             else
             {
@@ -108,7 +109,7 @@ public class RawLayoutProviderTest
         }
 
         // Attempt to resolve the artifact
-        try (InputStream is = artifactResolutionService.getInputStream(repositoryPath))
+        try (InputStream is = artifactResolutionService.getInputStream(artifactRepositoryPath))
         {
             int total = 0;
             int len;

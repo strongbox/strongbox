@@ -105,14 +105,12 @@ public class Maven2LayoutProviderTestConfig
     }
 
     @Bean
-    @Primary
     public ArtifactResolutionServiceHelper artifactResolutionServiceHelper()
     {
         return new ArtifactResolutionServiceHelper();
     }
 
     @Bean
-    @Primary
     public MavenMetadataServiceHelper mavenMetadataServiceHelper()
     {
         return new MavenMetadataServiceHelper();

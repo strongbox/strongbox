@@ -33,7 +33,9 @@ import org.apache.maven.index.artifact.Gav;
 import org.mockito.Mockito;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import static org.mockito.ArgumentMatchers.*;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.argThat;
+import static org.mockito.ArgumentMatchers.eq;
 
 /**
  * @author Przemyslaw Fusik
@@ -153,6 +155,7 @@ abstract class BaseMavenMetadataExpirationTest
     }
 
     protected void mockResolvingProxiedRemoteArtifactsToHostedRepository(final String hostedRepositoryId)
+            throws IOException
     {
         final RemoteRepositoryRetryArtifactDownloadConfiguration configuration = getConfiguration()
                                                                                          .getRemoteRepositoriesConfiguration()
@@ -197,6 +200,7 @@ abstract class BaseMavenMetadataExpirationTest
     private void mockResolvingProxiedRemoteArtifactToHostedRepository(final RestArtifactResolver artifactResolver,
                                                                       final boolean versionLevel,
                                                                       final String filename)
+            throws IOException
     {
         final RepositoryPath hostedRepositoryPath = resolvePath(getRepositoryHostedId(),
                                                                 versionLevel,
@@ -216,7 +220,7 @@ abstract class BaseMavenMetadataExpirationTest
                                                                  filename);
 
         final String proxiedPathRelativized = FilenameUtils.separatorsToUnix(
-                proxiedRepositoryPath.relativize().toString());
+                RepositoryFiles.relativizePath(proxiedRepositoryPath));
 
         logger.info("Mocking proxiedPathRelativized {}. Client = {}. Rest response = {}", proxiedPathRelativized,
                     artifactResolver, restResponse);

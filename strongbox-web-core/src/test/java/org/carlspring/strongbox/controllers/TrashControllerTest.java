@@ -1,6 +1,7 @@
 package org.carlspring.strongbox.controllers;
 
 import org.carlspring.strongbox.config.IntegrationTest;
+import org.carlspring.strongbox.providers.io.LayoutFileSystem;
 import org.carlspring.strongbox.providers.io.RepositoryFiles;
 import org.carlspring.strongbox.providers.io.RepositoryPath;
 import org.carlspring.strongbox.providers.io.RootRepositoryPath;
@@ -72,13 +73,12 @@ public class TrashControllerTest
     {
         final String storageId = repository.getStorage().getId();
         final String repositoryId = repository.getId();
-        final RootRepositoryPath repositoryPath = repositoryPathResolver.resolve(repository);
 
-        final String artifactPathStr = repositoryPath.relativize(artifactPath).toString();
-        final RepositoryPath artifactRepositoryPath = repositoryPathResolver.resolve(repository, artifactPathStr);
+        final RepositoryPath artifactRepositoryPath = (RepositoryPath) artifactPath.normalize();
+        final String artifactRepositoryPathStr = RepositoryFiles.relativizePath(artifactRepositoryPath);
 
         // Delete the artifact (this one should get placed under the .trash)
-        client.delete(storageId, repositoryId, artifactPathStr, false);
+        client.delete(storageId, repositoryId, artifactRepositoryPathStr, false);
 
         final Path artifactFile = RepositoryFiles.trash(artifactRepositoryPath);
 
@@ -88,7 +88,8 @@ public class TrashControllerTest
                    "Should have moved the artifact to the trash during a force delete operation, " +
                    "when allowsForceDeletion is not enabled!");
 
-        final Path repositoryIndexDir = repositoryPath.resolve(".index");
+        final RootRepositoryPath repositoryPath = repositoryPathResolver.resolve(repository);
+        final Path repositoryIndexDir = repositoryPath.resolve(LayoutFileSystem.INDEX);
 
         assertTrue(Files.exists(repositoryIndexDir), "Should not have deleted .index directory!");
     }
@@ -106,21 +107,21 @@ public class TrashControllerTest
     {
         final String storageId = repository.getStorage().getId();
         final String repositoryId = repository.getId();
-        final RootRepositoryPath repositoryPath = repositoryPathResolver.resolve(repository);
 
-        final String artifactPathStr = repositoryPath.relativize(artifactPath).toString();
-        final RepositoryPath artifactRepositoryPath = repositoryPathResolver.resolve(repository, artifactPathStr);
+        final RepositoryPath artifactRepositoryPath = (RepositoryPath) artifactPath.normalize();
+        final String artifactRepositoryPathStr = RepositoryFiles.relativizePath(artifactRepositoryPath);
 
         // Delete the artifact (this one shouldn't get placed under the .trash)
-        client.delete(storageId, repositoryId, artifactPathStr, true);
+        client.delete(storageId, repositoryId, artifactRepositoryPathStr, true);
 
         final Path artifactFileInTrash = RepositoryFiles.trash(artifactRepositoryPath);
 
+        final RootRepositoryPath repositoryPath = repositoryPathResolver.resolve(repository);
         final Path repositoryDir = repositoryPath.resolve(repositoryId).resolve(".trash");
 
         assertFalse(Files.exists(artifactFileInTrash),
                     "Failed to delete artifact during a force delete operation!");
-        assertFalse(Files.exists(repositoryDir.resolve(artifactPathStr)),
+        assertFalse(Files.exists(repositoryDir.resolve(artifactRepositoryPathStr)),
                     "Failed to delete artifact during a force delete operation!");
     }
 
@@ -137,6 +138,7 @@ public class TrashControllerTest
                                                                          id = "org.carlspring.strongbox:test-artifact-to-trash",
                                                                          versions = "1.0")
                                                       Path artifactPath)
+            throws IOException
     {
         final String storageId = repository.getStorage().getId();
         final String repositoryId = repository.getId();
@@ -153,7 +155,9 @@ public class TrashControllerTest
         String message = String.format("The trash for '%s:%s' was removed successfully.", storageId, repositoryId);
         validateResponseBody(response, acceptHeader, message);
 
-        assertFalse(Files.exists(getPathToArtifactInTrash(repository, artifactPath)),
+        final RepositoryPath artifactRepositoryPath = (RepositoryPath) artifactPath.normalize();
+        final Path artifactFileInTrash = RepositoryFiles.trash(artifactRepositoryPath);
+        assertFalse(Files.exists(artifactFileInTrash),
                     "Failed to empty trash for repository '" + repositoryId + "'!");
     }
 
@@ -176,6 +180,7 @@ public class TrashControllerTest
                                                                               id = "org.carlspring.strongbox:test-artifact-to-trash",
                                                                               versions = "1.1")
                                                            Path artifactPath2)
+            throws IOException
     {
         String url = getContextBaseUrl();
 
@@ -189,16 +194,10 @@ public class TrashControllerTest
         String message = "The trash for all repositories was successfully removed.";
         validateResponseBody(response, acceptHeader, message);
 
-        assertFalse(Files.exists(getPathToArtifactInTrash(repository1, artifactPath1)),
+        final RepositoryPath artifactRepositoryPath = (RepositoryPath) artifactPath1.normalize();
+        final Path artifactFileInTrash = RepositoryFiles.trash(artifactRepositoryPath);
+        assertFalse(Files.exists(artifactFileInTrash),
                     "Failed to empty trash for repository '" + repository1.getId() + "'!");
-    }
-
-    private Path getPathToArtifactInTrash(Repository repository,
-                                          Path artifactPath)
-    {
-        RootRepositoryPath repositoryPath = repositoryPathResolver.resolve(repository);
-        String artifactPathStr = repositoryPath.relativize(artifactPath).toString();
-        return repositoryPath.resolve(".trash").resolve(artifactPathStr);
     }
 
     private void validateResponseBody(ValidatableMockMvcResponse response,
