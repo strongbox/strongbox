@@ -27,7 +27,8 @@ public class ExceptionHandlindOutputStream extends ProxyOutputStream
     protected void handleIOException(IOException e)
         throws IOException
     {
-        if (e.getClass().equals(EofException.class)) {
+        if (e.getClass().equals(EofException.class))
+        {
             throw new Http202PropogateException("Socket has been closed. Possibly, user cancelled download.", e);            
         }
         throw e;
