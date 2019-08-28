@@ -12,13 +12,13 @@ import org.apache.commons.io.output.ProxyOutputStream;
  * @author Bogdan Sukonnov
  *
  */
-public class ExceptionHandlindOutputStream extends ProxyOutputStream
+public class ExceptionHandlingOutputStream extends ProxyOutputStream
 {
     
     /**
      * @param proxy
      */
-    public ExceptionHandlindOutputStream(OutputStream proxy)
+    public ExceptionHandlingOutputStream(OutputStream proxy)
     {
         super(proxy);
     }

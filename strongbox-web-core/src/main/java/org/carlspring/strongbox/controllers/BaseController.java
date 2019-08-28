@@ -6,7 +6,7 @@ import org.carlspring.strongbox.configuration.MutableConfiguration;
 import org.carlspring.strongbox.controllers.support.ErrorResponseEntityBody;
 import org.carlspring.strongbox.controllers.support.ListEntityBody;
 import org.carlspring.strongbox.controllers.support.ResponseEntityBody;
-import org.carlspring.strongbox.exception.ExceptionHandlindOutputStream;
+import org.carlspring.strongbox.exception.ExceptionHandlingOutputStream;
 import org.carlspring.strongbox.providers.io.RepositoryPathResolver;
 import org.carlspring.strongbox.services.ArtifactResolutionService;
 import org.carlspring.strongbox.services.ConfigurationManagementService;
@@ -290,7 +290,7 @@ public abstract class BaseController
                                   HttpServletResponse response)
             throws IOException
     {
-        try (OutputStream os = new ExceptionHandlindOutputStream(response.getOutputStream()))
+        try (OutputStream os = new ExceptionHandlingOutputStream(response.getOutputStream()))
         {
             long totalBytes = 0L;
 
