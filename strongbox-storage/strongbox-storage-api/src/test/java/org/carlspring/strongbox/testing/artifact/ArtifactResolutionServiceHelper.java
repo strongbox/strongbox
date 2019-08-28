@@ -11,13 +11,11 @@ import java.util.Arrays;
 import org.apache.commons.io.IOUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.stereotype.Component;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 
 /**
  * @author Pablo Tirado
  */
-@Component
 public class ArtifactResolutionServiceHelper
 {
 
@@ -41,7 +39,7 @@ public class ArtifactResolutionServiceHelper
 
             if (RepositoryFiles.isMetadata(repositoryPath))
             {
-                logger.info(Arrays.toString(IOUtils.toByteArray(is)));
+                logger.debug(Arrays.toString(IOUtils.toByteArray(is)));
             }
             else
             {

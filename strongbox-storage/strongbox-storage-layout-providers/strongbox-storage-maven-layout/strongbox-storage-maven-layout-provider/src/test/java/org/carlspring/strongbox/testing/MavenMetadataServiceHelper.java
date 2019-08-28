@@ -11,12 +11,9 @@ import org.carlspring.strongbox.storage.repository.Repository;
 import javax.inject.Inject;
 import java.io.IOException;
 
-import org.springframework.stereotype.Component;
-
 /**
  * @author Pablo Tirado
  */
-@Component
 public class MavenMetadataServiceHelper
 {
 
