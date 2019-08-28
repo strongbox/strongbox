@@ -1,5 +1,38 @@
 package org.carlspring.strongbox.controllers.users;
 
+import org.carlspring.strongbox.config.IntegrationTest;
+import org.carlspring.strongbox.controllers.users.support.UserOutput;
+import org.carlspring.strongbox.controllers.users.support.UserResponseEntity;
+import org.carlspring.strongbox.forms.users.UserForm;
+import org.carlspring.strongbox.rest.common.RestAssuredBaseTest;
+import org.carlspring.strongbox.users.domain.SystemRole;
+import org.carlspring.strongbox.users.domain.UserData;
+import org.carlspring.strongbox.users.dto.User;
+import org.carlspring.strongbox.users.dto.UserDto;
+import org.carlspring.strongbox.users.service.UserService;
+import org.carlspring.strongbox.users.service.impl.OrientDbUserService.OrientDb;
+
+import javax.inject.Inject;
+import java.util.Set;
+import java.util.function.Consumer;
+import java.util.stream.Stream;
+
+import com.google.common.collect.ImmutableSet;
+import org.apache.commons.collections4.SetUtils;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Disabled;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.Arguments;
+import org.junit.jupiter.params.provider.MethodSource;
+import org.junit.jupiter.params.provider.ValueSource;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.MediaType;
+import org.springframework.security.crypto.password.PasswordEncoder;
+import org.springframework.security.test.context.support.WithMockUser;
+import org.springframework.security.test.context.support.WithUserDetails;
+import org.springframework.transaction.annotation.Propagation;
+import org.springframework.transaction.annotation.Transactional;
 import static io.restassured.module.mockmvc.RestAssuredMockMvc.given;
 import static org.carlspring.strongbox.controllers.users.UserController.FAILED_CREATE_USER;
 import static org.carlspring.strongbox.controllers.users.UserController.FAILED_GENERATE_SECURITY_TOKEN;
@@ -22,41 +55,6 @@ import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.junit.jupiter.api.Assertions.assertTrue;
-
-import java.util.Set;
-import java.util.function.Consumer;
-import java.util.stream.Stream;
-
-import javax.inject.Inject;
-
-import org.apache.commons.collections4.SetUtils;
-import org.carlspring.strongbox.config.IntegrationTest;
-import org.carlspring.strongbox.controllers.users.support.UserOutput;
-import org.carlspring.strongbox.controllers.users.support.UserResponseEntity;
-import org.carlspring.strongbox.forms.users.UserForm;
-import org.carlspring.strongbox.rest.common.RestAssuredBaseTest;
-import org.carlspring.strongbox.users.domain.SystemRole;
-import org.carlspring.strongbox.users.domain.UserData;
-import org.carlspring.strongbox.users.dto.User;
-import org.carlspring.strongbox.users.dto.UserDto;
-import org.carlspring.strongbox.users.service.UserService;
-import org.carlspring.strongbox.users.service.impl.OrientDbUserService.OrientDb;
-import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.api.Disabled;
-import org.junit.jupiter.api.Test;
-import org.junit.jupiter.params.ParameterizedTest;
-import org.junit.jupiter.params.provider.Arguments;
-import org.junit.jupiter.params.provider.MethodSource;
-import org.junit.jupiter.params.provider.ValueSource;
-import org.springframework.http.HttpStatus;
-import org.springframework.http.MediaType;
-import org.springframework.security.crypto.password.PasswordEncoder;
-import org.springframework.security.test.context.support.WithMockUser;
-import org.springframework.security.test.context.support.WithUserDetails;
-import org.springframework.transaction.annotation.Propagation;
-import org.springframework.transaction.annotation.Transactional;
-
-import com.google.common.collect.ImmutableSet;
 
 /**
  * @author Pablo Tirado
@@ -701,7 +699,7 @@ public class UserControllerTestIT
 
     private void deleteCreatedUser(String username)
     {
-        logger.info("Delete created user: " + username);
+        logger.debug("Delete created user: {}", username);
         userService.deleteByUsername(username);
     }
 

@@ -407,8 +407,8 @@ public class MavenArtifactControllerTest
         String sha1Remote = MessageDigestUtils.readChecksumFile(
                 client.getResource(artifactPathStr + EncryptionAlgorithmsEnum.SHA1.getExtension(), true));
 
-        logger.info("Remote md5 checksum {}", md5Remote);
-        logger.info("Remote sha1 checksum {}", sha1Remote);
+        logger.debug("Remote md5 checksum {}", md5Remote);
+        logger.debug("Remote sha1 checksum {}", sha1Remote);
 
         // calculate local checksum for given algorithms
         InputStream is = client.getResource(artifactPathStr);
@@ -721,7 +721,7 @@ public class MavenArtifactControllerTest
                                             repositoryId,
                                             getVersionLevelMetadataPath(snapshotArtifact));
 
-        logger.info("[retrieveMetadata] Load metadata by URL {}", metadataPath);
+        logger.debug("[retrieveMetadata] Load metadata by URL {}", metadataPath);
 
         Metadata versionLevelMetadata = defaultMavenArtifactDeployer.retrieveMetadata(metadataPath);
 

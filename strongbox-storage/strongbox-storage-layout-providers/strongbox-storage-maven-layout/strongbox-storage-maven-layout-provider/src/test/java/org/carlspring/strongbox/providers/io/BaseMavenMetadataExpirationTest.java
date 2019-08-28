@@ -222,7 +222,7 @@ abstract class BaseMavenMetadataExpirationTest
         final String proxiedPathRelativized = FilenameUtils.separatorsToUnix(
                 RepositoryFiles.relativizePath(proxiedRepositoryPath));
 
-        logger.info("Mocking proxiedPathRelativized {}. Client = {}. Rest response = {}", proxiedPathRelativized,
+        logger.debug("Mocking proxiedPathRelativized {}. Client = {}. Rest response = {}", proxiedPathRelativized,
                     artifactResolver, restResponse);
         Mockito.when(artifactResolver.get(eq(proxiedPathRelativized))).thenReturn(restResponse);
         Mockito.when(artifactResolver.get(eq(proxiedPathRelativized), any(Long.class))).thenReturn(restResponse);

@@ -169,7 +169,7 @@ public class MavenGroupRepositoryProviderTest
                                   @MavenTestArtifact(repositoryId = REPOSITORY_RELEASES_TGI_2, id = "com.artifacts.in.releases.under:group", versions = "1.2.4") Path a4)
             throws Exception
     {
-        logger.info("# Testing group includes...");
+        logger.debug("# Testing group includes...");
 
         // Test data initialized.
         RepositoryProvider repositoryProvider = repositoryProviderRegistry.getProvider(releasesGroup.getType());
@@ -255,7 +255,7 @@ public class MavenGroupRepositoryProviderTest
 
         // Test data initialized.
 
-        logger.info("# Testing group includes with out of service repository...");
+        logger.debug("# Testing group includes with out of service repository...");
 
         RepositoryProvider repositoryProvider = repositoryProviderRegistry.getProvider(releasesGroup.getType());
 
@@ -282,7 +282,7 @@ public class MavenGroupRepositoryProviderTest
                                               @MavenTestArtifact(repositoryId = REPOSITORY_RELEASES_TGIWR_2, id = "com.artifacts.in.releases.under2:group", versions = "1.2.4") Path a4)
             throws Exception
     {
-        logger.info("# Testing group includes with wildcard...");
+        logger.debug("# Testing group includes with wildcard...");
 
         RepositoryProvider repositoryProvider = repositoryProviderRegistry.getProvider(releasesGroup.getType());
 
@@ -312,7 +312,7 @@ public class MavenGroupRepositoryProviderTest
             @MavenTestArtifact(repositoryId = REPOSITORY_RELEASES_TGIWRANR_2, id = "com.artifacts.in.releases.under3:group", versions = "1.2.4") Path a4)
             throws Exception
     {
-        logger.info("# Testing group includes with wildcard against nested repositories...");
+        logger.debug("# Testing group includes with wildcard against nested repositories...");
 
         RepositoryProvider repositoryProvider = repositoryProviderRegistry.getProvider(releasesGroupWithNestedGroup.getType());
 
@@ -335,7 +335,7 @@ public class MavenGroupRepositoryProviderTest
             @MavenTestArtifact(repositoryId = REPOSITORY_RELEASES_TGANR_1, id = "com.artifacts.in.releases.one:foo", versions = "1.2.3") Path a1)
             throws Exception
     {
-        logger.info("# Testing group includes with wildcard against nested repositories...");
+        logger.debug("# Testing group includes with wildcard against nested repositories...");
 
         RepositoryProvider repositoryProvider = repositoryProviderRegistry.getProvider(releasesGroup.getType());
 
@@ -364,7 +364,7 @@ public class MavenGroupRepositoryProviderTest
                                   @MavenTestArtifact(repositoryId = REPOSITORY_RELEASES_TGE_2, id = "com.artifacts.denied.by.wildcard:foo", versions = "1.2.7") Path a3)
             throws Exception
     {
-        logger.info("# Testing group excludes...");
+        logger.debug("# Testing group excludes...");
         RepositoryProvider repositoryProvider = repositoryProviderRegistry.getProvider(releasesGroup.getType());
 
         RepositoryPath resolvedPath = repositoryPathResolver.resolve(releasesGroup, (RepositoryPath) a1.normalize());
@@ -577,7 +577,7 @@ public class MavenGroupRepositoryProviderTest
         mavenMetadataServiceHelper.generateMavenMetadata(repository2);
         // Test data initialized.
 
-        logger.info("# Testing group excludes...");
+        logger.debug("# Testing group excludes...");
 
         RepositoryProvider repositoryProvider = repositoryProviderRegistry.getProvider(
                 repositoryReleasesGroup.getType());
