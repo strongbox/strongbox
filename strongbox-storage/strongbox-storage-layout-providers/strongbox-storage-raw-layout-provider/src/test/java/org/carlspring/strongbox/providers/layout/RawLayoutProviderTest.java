@@ -14,14 +14,9 @@ import org.carlspring.strongbox.testing.storage.repository.RepositoryManagementT
 import org.carlspring.strongbox.testing.storage.repository.TestRepository;
 
 import javax.inject.Inject;
-import java.io.ByteArrayInputStream;
-import java.io.ByteArrayOutputStream;
-import java.io.IOException;
 import java.io.InputStream;
 import java.nio.file.Files;
 import java.nio.file.Path;
-import java.util.zip.ZipEntry;
-import java.util.zip.ZipOutputStream;
 
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -65,7 +60,7 @@ public class RawLayoutProviderTest
     {
         NullArtifactCoordinates coordinates = new NullArtifactCoordinates("foo/bar/blah.bz2");
 
-        logger.info("coordinates.toPath(): {}", coordinates.toPath());
+        logger.debug("coordinates.toPath(): {}", coordinates.toPath());
     }
 
     @ExtendWith({RepositoryManagementTestExecutionListener.class,
@@ -85,7 +80,8 @@ public class RawLayoutProviderTest
         RepositoryPath artifactRepositoryPath = repositoryPathResolver.resolve(repository, path);
 
         // Deploy the artifact
-        artifactManagementService.validateAndStore(artifactRepositoryPath, createZipFile());
+        artifactManagementService.validateAndStore(artifactRepositoryPath,
+                                                   Files.newInputStream(artifactPath));
 
         assertTrue(Files.exists(artifactRepositoryPath), "Failed to deploy artifact!");
         assertTrue(Files.size(artifactRepositoryPath) > 0, "Failed to deploy artifact!");
@@ -93,14 +89,15 @@ public class RawLayoutProviderTest
         // Attempt to re-deploy the artifact
         try
         {
-            artifactManagementService.validateAndStore(artifactRepositoryPath, createZipFile());
+            artifactManagementService.validateAndStore(artifactRepositoryPath,
+                                                       Files.newInputStream(artifactPath));
         }
         catch (Exception e)
         {
             if (e.getMessage().contains("repository does not allow artifact re-deployment"))
             {
                 // This is expected
-                logger.info("Successfully declined to re-deploy {}!", artifactRepositoryPath);
+                logger.debug("Successfully declined to re-deploy {}!", artifactRepositoryPath);
             }
             else
             {
@@ -123,22 +120,6 @@ public class RawLayoutProviderTest
 
             assertTrue(total > 0, "Failed to resolve artifact!");
         }
-    }
-
-    private InputStream createZipFile()
-            throws IOException
-    {
-        ByteArrayOutputStream os = new ByteArrayOutputStream();
-        try (ZipOutputStream zos = new ZipOutputStream(os))
-        {
-            ZipEntry entry = new ZipEntry("dummy-file.txt");
-
-            zos.putNextEntry(entry);
-            zos.write("this is a test file".getBytes());
-            zos.closeEntry();
-        }
-
-        return new ByteArrayInputStream(os.toByteArray());
     }
 
 }

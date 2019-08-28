@@ -46,7 +46,8 @@ import org.springframework.test.context.web.WebAppConfiguration;
 @WithUserDetails("admin")
 @ActiveProfiles("test")
 @TestExecutionListeners(listeners = { RestAssuredTestExecutionListener.class,
-                                      CacheManagerTestExecutionListener.class }, mergeMode = TestExecutionListeners.MergeMode.MERGE_WITH_DEFAULTS)
+                                      CacheManagerTestExecutionListener.class },
+                        mergeMode = TestExecutionListeners.MergeMode.MERGE_WITH_DEFAULTS)
 @Execution(ExecutionMode.SAME_THREAD)
 public @interface IntegrationTest
 {
