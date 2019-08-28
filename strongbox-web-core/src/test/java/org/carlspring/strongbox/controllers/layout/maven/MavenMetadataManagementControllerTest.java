@@ -14,7 +14,11 @@ import org.carlspring.strongbox.testing.storage.repository.RepositoryManagementT
 
 import javax.inject.Inject;
 import java.io.InputStream;
-import java.lang.annotation.*;
+import java.lang.annotation.Documented;
+import java.lang.annotation.ElementType;
+import java.lang.annotation.Retention;
+import java.lang.annotation.RetentionPolicy;
+import java.lang.annotation.Target;
 import java.nio.file.Path;
 import java.util.List;
 
@@ -27,7 +31,10 @@ import org.springframework.core.annotation.AliasFor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import static io.restassured.module.mockmvc.RestAssuredMockMvc.given;
-import static org.junit.jupiter.api.Assertions.*;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 /**
  * @author Pablo Tirado
@@ -170,7 +177,7 @@ public class MavenMetadataManagementControllerTest
         String previousLatestTimestamp = metadata2SnapshotVersions.get(metadata2SnapshotVersions.size() - 3).getVersion();
         String latestTimestamp = metadata2SnapshotVersions.get(metadata2SnapshotVersions.size() - 1).getVersion();
 
-        logger.info("[testRebuildSnapshotMetadataWithBasePath] latestTimestamp " + latestTimestamp);
+        logger.debug("[testRebuildSnapshotMetadataWithBasePath] latestTimestamp {}", latestTimestamp);
 
         client.removeVersionFromMetadata(storageId,
                                          repositoryId,
@@ -187,8 +194,9 @@ public class MavenMetadataManagementControllerTest
                                                              previousLatestTimestamp.lastIndexOf('-'));
         String buildNumber = previousLatestTimestamp.substring(previousLatestTimestamp.lastIndexOf('-') + 1);
 
-        logger.info("\n\tpreviousLatestTimestamp " + previousLatestTimestamp + "\n\ttimestamp " + timestamp +
-                    "\n\tbuildNumber " + buildNumber);
+        logger.debug("\n\tpreviousLatestTimestamp {}\n\ttimestamp {}\n\tbuildNumber {}", previousLatestTimestamp,
+                                                                                        timestamp,
+                                                                                        buildNumber);
 
         assertNotNull(metadata2SnapshotAfter.getVersioning(), "Incorrect metadata!");
         assertFalse(MetadataHelper.containsVersion(metadata2SnapshotAfter, latestTimestamp),
