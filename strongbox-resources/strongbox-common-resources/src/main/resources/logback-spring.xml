@@ -132,7 +132,6 @@
         
         <logger name ="liquibase.parser.core.xml"  level="INFO" />
         <logger name ="javax.xml.bind" level="INFO" />
-        <logger name ="javax.xml.bind" level="INFO" />
         <logger name="org.springframework.web.servlet.mvc.method.annotation.RequestMappingHandlerMapping" level="DEBUG" />
         <!-- Third-party packages -->
         
@@ -150,7 +149,7 @@
         <!-- Strongbox packages -->
     
         <!-- Third-party packages -->
-        <logger name="liquibase" level="INFO"/>
+        <logger name="liquibase" level="WARN"/>
     
         <logger name="ch.qos.logback" level="ERROR"/>
     
@@ -170,9 +169,8 @@
     
         <logger name ="org.eclipse.jetty" level="INFO" />
         <logger name ="jndi"  level="INFO" />
-        
+
         <logger name ="liquibase.parser.core.xml"  level="INFO" />
-        <logger name ="javax.xml.bind" level="INFO" />
         <logger name ="javax.xml.bind" level="INFO" />
         <logger name="org.springframework.web.servlet.mvc.method.annotation.RequestMappingHandlerMapping" level="INFO" />
         <!-- Third-party packages -->
