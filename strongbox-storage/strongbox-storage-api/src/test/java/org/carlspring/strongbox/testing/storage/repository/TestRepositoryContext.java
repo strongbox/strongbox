@@ -114,7 +114,7 @@ public class TestRepositoryContext implements AutoCloseable, Comparable<TestRepo
             throws IOException,
                    RepositoryManagementStrategyException
     {
-        logger.info(String.format("Create [%s] with id [%s] ",
+        logger.debug(String.format("Create [%s] with id [%s] ",
                                   TestRepository.class.getSimpleName(),
                                   id(testRepository)));
 
@@ -190,7 +190,7 @@ public class TestRepositoryContext implements AutoCloseable, Comparable<TestRepo
 
         opened = true;
 
-        logger.info(String.format("Created [%s] with id [%s] ",
+        logger.debug(String.format("Created [%s] with id [%s] ",
                                   TestRepository.class.getSimpleName(),
                                   id(testRepository)));
     }
@@ -230,7 +230,7 @@ public class TestRepositoryContext implements AutoCloseable, Comparable<TestRepo
     public void close()
         throws IOException
     {
-        logger.info(String.format("Close [%s] with id [%s] ",
+        logger.debug(String.format("Close [%s] with id [%s] ",
                                   TestRepository.class.getSimpleName(),
                                   id(testRepository)));
 
@@ -255,7 +255,7 @@ public class TestRepositoryContext implements AutoCloseable, Comparable<TestRepo
             throw new IOException(e);
         }
 
-        logger.info(String.format("Closed [%s] with id [%s] ",
+        logger.debug(String.format("Closed [%s] with id [%s] ",
                                   TestRepository.class.getSimpleName(),
                                   id(testRepository)));
     }

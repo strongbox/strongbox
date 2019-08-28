@@ -221,7 +221,7 @@ public class TestRepositoryManagementApplicationContext extends AnnotationConfig
                 {
                     if (lock.tryLock() || lock.tryLock(100, TimeUnit.MILLISECONDS))
                     {
-                        logger.info(String.format("Test resource [%s] locked.", resourceId));
+                        logger.debug(String.format("Test resource [%s] locked.", resourceId));
                         continue outer;
                     }
                 }
@@ -261,7 +261,7 @@ public class TestRepositoryManagementApplicationContext extends AnnotationConfig
             ReentrantLock lock = entry.getValue();
             lock.unlock();
 
-            logger.info(String.format("Test resource [%s] unlocked.", id));
+            logger.debug(String.format("Test resource [%s] unlocked.", id));
         }
     }
 

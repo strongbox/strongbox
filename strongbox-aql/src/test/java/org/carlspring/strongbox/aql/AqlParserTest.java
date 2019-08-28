@@ -33,7 +33,7 @@ public class AqlParserTest
 
         AqlQueryParser aqlParser = new AqlQueryParser(query);
 
-        logger.info(String.format("Query [%s] parse tree:\n[%s]", query, aqlParser));
+        logger.debug(String.format("Query [%s] parse tree:\n[%s]", query, aqlParser));
 
         Selector<ArtifactEntry> selector = aqlParser.parseQuery();
         Predicate predicate = selector.getPredicate();
@@ -47,7 +47,7 @@ public class AqlParserTest
 
         aqlParser = new AqlQueryParser(query);
 
-        logger.info(String.format("Query [%s] parse tree:\n[%s]", query, aqlParser));
+        logger.debug(String.format("Query [%s] parse tree:\n[%s]", query, aqlParser));
 
         Map<Pair<Integer, Integer>, String> errorMap = null;
         try
@@ -59,7 +59,7 @@ public class AqlParserTest
             errorMap = aqlParser.getErrors();
         }
 
-        logger.info(String.format("Query [%s] parse tree:\n[%s]", query, aqlParser));
+        logger.debug(String.format("Query [%s] parse tree:\n[%s]", query, aqlParser));
 
         assertTrue(aqlParser.hasErrors());
         assertNotNull(errorMap);
@@ -80,7 +80,7 @@ public class AqlParserTest
 
         aqlParser.parseQuery();
 
-        logger.info(String.format("Query [%s] parse tree:\n[%s]", query, aqlParser));
+        logger.debug(String.format("Query [%s] parse tree:\n[%s]", query, aqlParser));
 
         assertFalse(aqlParser.hasErrors());
     }
@@ -94,7 +94,7 @@ public class AqlParserTest
 
         aqlParser.parseQuery();
 
-        logger.info(String.format("Query [%s] parse tree:\n[%s]", query, aqlParser));
+        logger.debug(String.format("Query [%s] parse tree:\n[%s]", query, aqlParser));
 
         assertFalse(aqlParser.hasErrors());
     }
@@ -115,7 +115,7 @@ public class AqlParserTest
             errorMap = aqlParser.getErrors();
         }
 
-        logger.info(String.format("Query [%s] parse tree:\n[%s]", query, aqlParser));
+        logger.debug(String.format("Query [%s] parse tree:\n[%s]", query, aqlParser));
 
         assertTrue(aqlParser.hasErrors());
         assertNotNull(errorMap);
@@ -135,7 +135,7 @@ public class AqlParserTest
 
         aqlParser.parseQuery();
 
-        logger.info(String.format("Query [%s] parse tree:\n[%s]", query, aqlParser));
+        logger.debug(String.format("Query [%s] parse tree:\n[%s]", query, aqlParser));
 
         assertFalse(aqlParser.hasErrors());
     }
@@ -149,7 +149,7 @@ public class AqlParserTest
 
         AqlQueryParser aqlParser = new AqlQueryParser(query);
 
-        logger.info(String.format("Query [%s] parse tree:\n[%s]", query, aqlParser));
+        logger.debug(String.format("Query [%s] parse tree:\n[%s]", query, aqlParser));
 
         Selector<ArtifactEntry> selector = aqlParser.parseQuery();
         Predicate predicate = selector.getPredicate();
@@ -162,7 +162,7 @@ public class AqlParserTest
 
         String sqlQuery = queryTemplate.calculateQueryString(selector);
 
-        logger.info(String.format("Query [%s] parse result:\n[%s]", query, sqlQuery));
+        logger.debug(String.format("Query [%s] parse result:\n[%s]", query, sqlQuery));
 
         assertEquals("SELECT * " +
                      "FROM " +
@@ -181,7 +181,7 @@ public class AqlParserTest
 
         Map<String, Object> parameterMap = queryTemplate.exposeParameterMap(predicate);
 
-        logger.info(String.format("Query [%s] parse parameters:\n[%s]", query, parameterMap));
+        logger.debug(String.format("Query [%s] parse parameters:\n[%s]", query, parameterMap));
 
         assertEquals(ImmutableMap.of("storageId_0",
                                      "storage-common-proxies",
@@ -212,7 +212,7 @@ public class AqlParserTest
             errorMap = aqlParser.getErrors();
         }
 
-        logger.info(String.format("Query [%s] parse tree:\n[%s]", query, aqlParser));
+        logger.debug(String.format("Query [%s] parse tree:\n[%s]", query, aqlParser));
 
         assertTrue(aqlParser.hasErrors());
         assertNotNull(errorMap);

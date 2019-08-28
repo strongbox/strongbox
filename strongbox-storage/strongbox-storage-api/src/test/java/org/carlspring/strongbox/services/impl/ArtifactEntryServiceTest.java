@@ -286,7 +286,7 @@ public class ArtifactEntryServiceTest
 
         artifactEntries.forEach(artifactEntry ->
                                 {
-                                    logger.info("Found artifact " + artifactEntry);
+                                    logger.debug("Found artifact " + artifactEntry);
                                     assertTrue(((NullArtifactCoordinates)artifactEntry.getArtifactCoordinates()).getPath().startsWith(groupId + "/"));
                                 });
     }
@@ -324,10 +324,10 @@ public class ArtifactEntryServiceTest
         List<ArtifactEntry> result = findAll();
         if (result == null || result.isEmpty())
         {
-            logger.info("Artifact repository is empty");
+            logger.debug("Artifact repository is empty");
         }
 
-        result.forEach(artifactEntry -> logger.info("Found artifact " + "["
+        result.forEach(artifactEntry -> logger.debug("Found artifact " + "["
                 + artifactEntry.getArtifactCoordinates().getId() + "]" + artifactEntry));
     }
 
