@@ -9,8 +9,6 @@ public interface MavenRepositoryConfiguration extends RepositoryConfiguration
 
     boolean isIndexingClassNamesEnabled();
 
-    String getDownloadRemoteMavenIndexCronExpression();
-
-    String getRebuildMavenIndexesCronExpression();
+    String getCronExpression();
 
 }

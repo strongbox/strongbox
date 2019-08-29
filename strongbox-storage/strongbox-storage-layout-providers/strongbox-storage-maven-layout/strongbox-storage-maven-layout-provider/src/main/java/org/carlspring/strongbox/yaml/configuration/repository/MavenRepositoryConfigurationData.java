@@ -25,9 +25,7 @@ public class MavenRepositoryConfigurationData
 
     private boolean indexingClassNamesEnabled;
 
-    private String downloadRemoteMavenIndexesCronExpression;
-
-    private String rebuildMavenIndexesCronExpression;
+    private String cronExpression;
 
     public MavenRepositoryConfigurationData()
     {
@@ -37,8 +35,7 @@ public class MavenRepositoryConfigurationData
     {
         this.indexingEnabled = delegate.isIndexingEnabled();
         this.indexingClassNamesEnabled = delegate.isIndexingClassNamesEnabled();
-        this.downloadRemoteMavenIndexesCronExpression = delegate.getDownloadRemoteMavenIndexCronExpression();
-        this.rebuildMavenIndexesCronExpression = delegate.getRebuildMavenIndexesCronExpression();
+        this.cronExpression = delegate.getCronExpression();
     }
 
     public boolean isIndexingEnabled()
@@ -52,15 +49,9 @@ public class MavenRepositoryConfigurationData
     }
 
     @Override
-    public String getDownloadRemoteMavenIndexCronExpression()
+    public String getCronExpression()
     {
-        return downloadRemoteMavenIndexesCronExpression;
-    }
-
-    @Override
-    public String getRebuildMavenIndexesCronExpression()
-    {
-        return rebuildMavenIndexesCronExpression;
+        return cronExpression;
     }
 
 }

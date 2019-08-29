@@ -52,17 +52,15 @@ public class MavenRepositoryManagementStrategy
 
         if (repository.isHostedRepository())
         {
-            createRebuildMavenIndexCronJob(storageId, repositoryId,
-                                           repositoryConfig.getRebuildMavenIndexesCronExpression());
+            createRebuildMavenIndexCronJob(storageId, repositoryId, repositoryConfig.getCronExpression());
         }
         if (repository.isProxyRepository())
         {
-            createRemoteIndexDownloaderCronTask(storageId, repositoryId,
-                                                repositoryConfig.getDownloadRemoteMavenIndexCronExpression());
+            createRemoteIndexDownloaderCronTask(storageId, repositoryId, repositoryConfig.getCronExpression());
         }
         if (repository.isGroupRepository())
         {
-            createMergeMavenGroupRepositoryIndexCronJob(storageId, repositoryId);
+            createMergeMavenGroupRepositoryIndexCronJob(storageId, repositoryId, repositoryConfig.getCronExpression());
         }
     }
 
@@ -113,13 +111,14 @@ public class MavenRepositoryManagementStrategy
     }
 
     private void createMergeMavenGroupRepositoryIndexCronJob(String storageId,
-                                                             String repositoryId)
+                                                             String repositoryId,
+                                                             String cronExpression)
             throws RepositoryManagementStrategyException
     {
         CronTaskConfigurationDto configuration = new CronTaskConfigurationDto();
         configuration.setName("Merge maven group repository index cron job " + storageId + ":" + repositoryId);
         configuration.setJobClass(MergeMavenGroupRepositoryIndexCronJob.class.getName());
-        configuration.setCronExpression("0 0 4 * * ?");
+        configuration.setCronExpression(cronExpression);
         configuration.addProperty("storageId", storageId);
         configuration.addProperty("repositoryId", repositoryId);
         configuration.setImmediateExecution(false);
