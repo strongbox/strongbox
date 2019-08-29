@@ -63,9 +63,11 @@ public class RegenerateNugetChecksumCronJobTestIT
     @ExtendWith({ RepositoryManagementTestExecutionListener.class,
                   ArtifactManagementTestExecutionListener.class })
     @Test
-    public void testRegenerateNugetArtifactChecksum(@NugetRepository(repositoryId = REPOSITORY)
+    public void testRegenerateNugetArtifactChecksum(@NugetRepository(storageId = STORAGE1,
+                                                                     repositoryId = REPOSITORY)
                                                     Repository repository,
-                                                    @NugetTestArtifact(repositoryId = REPOSITORY,
+                                                    @NugetTestArtifact(storageId = STORAGE1,
+                                                                       repositoryId = REPOSITORY,
                                                                        id = "org.carlspring.strongbox.checksum-second",
                                                                        versions = "1.0.0")
                                                     Path artifactNupkgPath)
@@ -85,10 +87,12 @@ public class RegenerateNugetChecksumCronJobTestIT
     @ExtendWith({ RepositoryManagementTestExecutionListener.class,
                          ArtifactManagementTestExecutionListener.class })
     @Test
-    public void testRegenerateNugetChecksumInRepository(@NugetRepository(repositoryId = REPOSITORY,
+    public void testRegenerateNugetChecksumInRepository(@NugetRepository(storageId = STORAGE1,
+                                                                         repositoryId = REPOSITORY,
                                                                          policy = RepositoryPolicyEnum.SNAPSHOT)
                                                         Repository repository,
-                                                        @NugetTestArtifact(repositoryId = REPOSITORY,
+                                                        @NugetTestArtifact(storageId = STORAGE1,
+                                                                           repositoryId = REPOSITORY,
                                                                            id = "org.carlspring.strongbox.checksum-one",
                                                                            versions = "1.0.1-alpha")
                                                         Path artifactNupkgPath)
@@ -107,9 +111,11 @@ public class RegenerateNugetChecksumCronJobTestIT
     @ExtendWith({ RepositoryManagementTestExecutionListener.class,
                   ArtifactManagementTestExecutionListener.class })
     @Test
-    public void testRegenerateNugetChecksumInStorage(@NugetRepository(repositoryId = REPOSITORY)
+    public void testRegenerateNugetChecksumInStorage(@NugetRepository(storageId = STORAGE1,
+                                                                      repositoryId = REPOSITORY)
                                                      Repository repository,
-                                                     @NugetTestArtifact(repositoryId = REPOSITORY,
+                                                     @NugetTestArtifact(storageId = STORAGE1,
+                                                                        repositoryId = REPOSITORY,
                                                                         id = "org.carlspring.strongbox.checksum-second",
                                                                         versions = "1.0.0")
                                                      Path artifactNupkgPath)
