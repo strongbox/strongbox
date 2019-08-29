@@ -17,13 +17,13 @@ import org.carlspring.strongbox.testing.repository.MavenRepository;
 import org.carlspring.strongbox.testing.storage.repository.RepositoryManagementTestExecutionListener;
 import org.carlspring.strongbox.testing.storage.repository.TestRepository.Group;
 import org.carlspring.strongbox.testing.storage.repository.TestRepository.Remote;
+import org.carlspring.strongbox.util.MessageDigestUtils;
 
 import javax.inject.Inject;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
-import java.nio.file.attribute.BasicFileAttributes;
-import java.nio.file.attribute.FileTime;
+import java.security.NoSuchAlgorithmException;
 import java.util.List;
 
 import io.restassured.http.Header;
@@ -132,15 +132,13 @@ public class MavenIndexControllerTest
                                                                                     classifiers = { "javadoc",
                                                                                                     "sources" })
                                                                  List<Path> artifactPaths)
-            throws IOException
+            throws IOException, NoSuchAlgorithmException
     {
         hostedRepositoryIndexCreator.apply(repository);
 
         RepositoryPath indexPath = repositoryLocalIndexDirectoryPathResolver.resolve(repository)
                                                                             .resolve("nexus-maven-repository-index.gz");
-
-        BasicFileAttributes attrs = Files.readAttributes(indexPath, BasicFileAttributes.class);
-        FileTime before = attrs.lastModifiedTime();
+        String beforeChecksum = MessageDigestUtils.calculateChecksum(indexPath, "SHA-1");
 
         String url = getContextBaseUrl() + "/api/maven/index/{storageId}/{repositoryId}";
 
@@ -154,11 +152,10 @@ public class MavenIndexControllerTest
 
         indexPath = repositoryLocalIndexDirectoryPathResolver.resolve(repository).resolve(
                 "nexus-maven-repository-index.gz");
-        attrs = Files.readAttributes(indexPath, BasicFileAttributes.class);
 
-        FileTime after = attrs.lastModifiedTime();
+        String afterChecksum = MessageDigestUtils.calculateChecksum(indexPath, "SHA-1");
 
-        assertThat(after).isGreaterThan(before);
+        assertThat(beforeChecksum).isNotEqualTo(afterChecksum);
     }
 
     @ExtendWith({ RepositoryManagementTestExecutionListener.class,
