@@ -1,10 +1,7 @@
 package org.carlspring.strongbox.testing.storage.repository;
 
-import org.carlspring.strongbox.configuration.ConfigurationUtils;
-import org.carlspring.strongbox.testing.artifact.TestArtifact;
-import org.carlspring.strongbox.testing.artifact.TestArtifactContext;
-import org.carlspring.strongbox.testing.storage.repository.TestRepository.Group;
-import org.carlspring.strongbox.testing.storage.repository.TestRepository.Remote;
+import static org.carlspring.strongbox.testing.artifact.TestArtifactContext.id;
+import static org.carlspring.strongbox.testing.storage.repository.TestRepositoryContext.id;
 
 import java.io.IOException;
 import java.lang.annotation.Annotation;
@@ -23,6 +20,11 @@ import java.util.concurrent.TimeUnit;
 import java.util.concurrent.locks.ReentrantLock;
 import java.util.stream.Collectors;
 
+import org.carlspring.strongbox.configuration.ConfigurationUtils;
+import org.carlspring.strongbox.testing.artifact.TestArtifact;
+import org.carlspring.strongbox.testing.artifact.TestArtifactContext;
+import org.carlspring.strongbox.testing.storage.repository.TestRepository.Group;
+import org.carlspring.strongbox.testing.storage.repository.TestRepository.Remote;
 import org.junit.jupiter.api.TestInfo;
 import org.junit.jupiter.api.extension.ExtensionContext;
 import org.junit.jupiter.api.extension.ParameterContext;
@@ -36,8 +38,6 @@ import org.springframework.context.annotation.AnnotationConfigApplicationContext
 import org.springframework.core.annotation.AnnotatedElementUtils;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
 import org.springframework.util.Assert;
-import static org.carlspring.strongbox.testing.artifact.TestArtifactContext.id;
-import static org.carlspring.strongbox.testing.storage.repository.TestRepositoryContext.id;
 
 /**
  * @author sbespalov

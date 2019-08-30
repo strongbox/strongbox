@@ -8,11 +8,9 @@ import org.carlspring.strongbox.storage.ArtifactResolutionException;
 
 import javax.inject.Inject;
 import java.io.File;
+import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStream;
-import java.nio.file.Files;
-import java.nio.file.Path;
-import java.nio.file.Paths;
 
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
@@ -42,6 +40,8 @@ public class ArtifactOperationsValidatorTest
 
     private static MockMultipartFile multipartFile;
 
+    private static InputStream is;
+
     @Inject
     private ArtifactOperationsValidator artifactOperationsValidator;
 
@@ -54,13 +54,14 @@ public class ArtifactOperationsValidatorTest
     public void setUp()
             throws Exception
     {
-        Path basePath = Paths.get(REPOSITORY_BASEDIR, REPOSITORY_ID);
-        if (Files.notExists(basePath))
+        File baseDir = new File(REPOSITORY_BASEDIR + "/" + REPOSITORY_ID);
+        if (!baseDir.exists())
         {
-            Files.createDirectories(basePath);
+            //noinspection ResultOfMethodCallIgnored
+            baseDir.mkdirs();
         }
 
-        InputStream is = new RandomInputStream(20480000);
+        is = new RandomInputStream(20480000);
 
         multipartFile = new MockMultipartFile("artifact",
                                               "strongbox-validate-8.1.jar",
@@ -115,14 +116,16 @@ public class ArtifactOperationsValidatorTest
 
         }
 
-        Path path = Paths.get(REPOSITORY_BASEDIR, "validate-test.jar");
-        Files.createDirectories(path.getParent());
-        Files.createFile(path);
+        File file = new File(REPOSITORY_BASEDIR + "validate-test.jar");
+        //noinspection ResultOfMethodCallIgnored
+        file.getParentFile().mkdirs();
+        //noinspection ResultOfMethodCallIgnored
+        file.createNewFile();
 
         MockMultipartFile emptyFile = new MockMultipartFile("artifact",
                                                             "strongbox-validate-empty.jar",
                                                             "application/octet-stream",
-                                                            Files.newInputStream(path));
+                                                            new FileInputStream(file));
 
         try
         {

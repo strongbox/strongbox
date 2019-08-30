@@ -1,13 +1,11 @@
 package org.carlspring.strongbox.services.impl;
 
+import javax.inject.Inject;
+
 import org.carlspring.strongbox.StorageApiTestConfig;
 import org.carlspring.strongbox.data.CacheManagerTestExecutionListener;
 import org.carlspring.strongbox.domain.RepositoryArtifactIdGroupEntry;
 import org.carlspring.strongbox.services.RepositoryArtifactIdGroupService;
-
-import javax.inject.Inject;
-
-import com.orientechnologies.orient.core.storage.ORecordDuplicatedException;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 import org.springframework.boot.test.context.SpringBootTest;
@@ -15,14 +13,15 @@ import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.TestExecutionListeners;
 
+import com.orientechnologies.orient.core.storage.ORecordDuplicatedException;
+
 /**
  * @author Przemyslaw Fusik
  */
 @SpringBootTest
 @ActiveProfiles(profiles = "test")
 @ContextConfiguration(classes = StorageApiTestConfig.class)
-@TestExecutionListeners(listeners = { CacheManagerTestExecutionListener.class },
-                        mergeMode = TestExecutionListeners.MergeMode.MERGE_WITH_DEFAULTS)
+@TestExecutionListeners(listeners = { CacheManagerTestExecutionListener.class }, mergeMode = TestExecutionListeners.MergeMode.MERGE_WITH_DEFAULTS)
 class RepositoryArtifactIdGroupServiceImplTest
 {
 

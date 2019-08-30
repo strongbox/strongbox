@@ -28,13 +28,13 @@ import com.fasterxml.jackson.dataformat.yaml.YAMLMapper;
 import com.google.common.collect.Sets;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.parallel.Execution;
+import org.junit.jupiter.api.parallel.ExecutionMode;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.TestExecutionListeners;
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertNotNull;
-import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.junit.jupiter.api.Assertions.*;
 
 /**
  * @author mtodorov
@@ -42,8 +42,8 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 @SpringBootTest
 @ActiveProfiles(profiles = "test")
 @ContextConfiguration(classes = StorageApiTestConfig.class)
-@TestExecutionListeners(listeners = { CacheManagerTestExecutionListener.class },
-                        mergeMode = TestExecutionListeners.MergeMode.MERGE_WITH_DEFAULTS)
+@TestExecutionListeners(listeners = { CacheManagerTestExecutionListener.class }, mergeMode = TestExecutionListeners.MergeMode.MERGE_WITH_DEFAULTS)
+@Execution(ExecutionMode.SAME_THREAD)
 public class ConfigurationManagerTest
 {
 
@@ -71,10 +71,10 @@ public class ConfigurationManagerTest
     public void setUp()
             throws IOException
     {
-        Path yamlPath = Paths.get(CONFIGURATION_BASEDIR);
-        if (Files.notExists(yamlPath))
+        Path yamlDir = Paths.get(CONFIGURATION_BASEDIR);
+        if (Files.notExists(yamlDir))
         {
-            Files.createDirectories(yamlPath);
+            Files.createDirectories(yamlDir);
         }
 
         yamlMapper = yamlMapperFactory.create(

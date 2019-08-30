@@ -1,15 +1,5 @@
 package org.carlspring.strongbox.testing.artifact;
 
-import org.carlspring.strongbox.artifact.generator.ArtifactGenerator;
-import org.carlspring.strongbox.booters.PropertiesBooter;
-import org.carlspring.strongbox.providers.io.RepositoryFiles;
-import org.carlspring.strongbox.providers.io.RepositoryPath;
-import org.carlspring.strongbox.providers.io.RepositoryPathResolver;
-import org.carlspring.strongbox.services.ArtifactManagementService;
-import org.carlspring.strongbox.util.ThrowingComparator;
-import org.carlspring.strongbox.util.ThrowingConsumer;
-
-import javax.annotation.PreDestroy;
 import java.io.IOException;
 import java.io.InputStream;
 import java.lang.reflect.UndeclaredThrowableException;
@@ -26,6 +16,16 @@ import java.util.Objects;
 import java.util.TreeMap;
 import java.util.stream.Stream;
 
+import javax.annotation.PreDestroy;
+
+import org.carlspring.strongbox.artifact.generator.ArtifactGenerator;
+import org.carlspring.strongbox.booters.PropertiesBooter;
+import org.carlspring.strongbox.providers.io.RepositoryFiles;
+import org.carlspring.strongbox.providers.io.RepositoryPath;
+import org.carlspring.strongbox.providers.io.RepositoryPathResolver;
+import org.carlspring.strongbox.services.ArtifactManagementService;
+import org.carlspring.strongbox.util.ThrowingComparator;
+import org.carlspring.strongbox.util.ThrowingConsumer;
 import org.junit.jupiter.api.TestInfo;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
