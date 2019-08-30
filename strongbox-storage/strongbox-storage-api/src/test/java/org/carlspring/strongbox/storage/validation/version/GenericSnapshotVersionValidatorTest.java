@@ -12,12 +12,9 @@ import org.carlspring.strongbox.storage.validation.artifact.version.VersionValid
 import org.apache.commons.lang3.exception.ExceptionUtils;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-import org.junit.jupiter.api.parallel.Execution;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.fail;
-import static org.junit.jupiter.api.parallel.ExecutionMode.CONCURRENT;
 
-@Execution(CONCURRENT)
 public class GenericSnapshotVersionValidatorTest
 {
 

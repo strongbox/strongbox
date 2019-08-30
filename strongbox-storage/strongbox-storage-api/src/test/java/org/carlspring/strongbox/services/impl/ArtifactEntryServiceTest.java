@@ -217,9 +217,9 @@ public class ArtifactEntryServiceTest
                                                                   groupId))
                                                           .collect(Collectors.toList());
 
-        entries.forEach(entry -> logger.info("Found artifact after search: [{}] - {}",
-                                             entry.getArtifactCoordinates().getId(),
-                                             entry));
+        entries.forEach(entry -> logger.debug("Found artifact after search: [{}] - {}",
+                                              entry.getArtifactCoordinates().getId(),
+                                              entry));
 
         assertThat(entries.size(), CoreMatchers.equalTo(all - 1));
     }
@@ -241,9 +241,9 @@ public class ArtifactEntryServiceTest
                                                                   groupId))
                                                           .collect(Collectors.toList());
 
-        entries.forEach(entry -> logger.info("Found artifact after search: [{}] - {}",
-                                             entry.getArtifactCoordinates().getId(),
-                                             entry));
+        entries.forEach(entry -> logger.debug("Found artifact after search: [{}] - {}",
+                                              entry.getArtifactCoordinates().getId(),
+                                              entry));
 
         assertThat(entries.size(), CoreMatchers.equalTo(all - 1));
     }
@@ -300,9 +300,9 @@ public class ArtifactEntryServiceTest
                                                                   groupId))
                                                           .collect(Collectors.toList());
 
-        entries.forEach(entry -> logger.info("Found artifact after search: [{}] - {}",
-                                             entry.getArtifactCoordinates().getId(),
-                                             entry));
+        entries.forEach(entry -> logger.debug("Found artifact after search: [{}] - {}",
+                                              entry.getArtifactCoordinates().getId(),
+                                              entry));
 
         assertThat(entries.size(), CoreMatchers.equalTo(all - 1));
     }
@@ -381,8 +381,8 @@ public class ArtifactEntryServiceTest
         else
         {
             result.forEach(artifactEntry -> logger.debug("Found artifact [{}] - {}",
-                                                        artifactEntry.getArtifactCoordinates().getId(),
-                                                        artifactEntry));
+                                                         artifactEntry.getArtifactCoordinates().getId(),
+                                                         artifactEntry));
         }
     }
 
