@@ -26,7 +26,8 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 @SpringBootTest
 @ActiveProfiles(profiles = "test")
 @ContextConfiguration(classes = StorageApiTestConfig.class)
-@TestExecutionListeners(listeners = { CacheManagerTestExecutionListener.class }, mergeMode = TestExecutionListeners.MergeMode.MERGE_WITH_DEFAULTS)
+@TestExecutionListeners(listeners = { CacheManagerTestExecutionListener.class },
+                        mergeMode = TestExecutionListeners.MergeMode.MERGE_WITH_DEFAULTS)
 public class TrustStoreServiceTestIT
 {
 
@@ -41,13 +42,11 @@ public class TrustStoreServiceTestIT
     @Inject
     private ConfigurationResourceResolver configurationResourceResolver;
 
-    private InetAddress inetAddress;
-
     @BeforeEach
     public void before()
             throws Exception
     {
-        inetAddress = InetAddress.getByName("repository.apache.org");
+        InetAddress inetAddress = InetAddress.getByName("repository.apache.org");
         trustStore = getTrustStoreResource();
         keyStoreManager.removeCertificates(Paths.get(trustStore.getURI()), "password".toCharArray(), inetAddress, 443);
     }
@@ -57,18 +56,18 @@ public class TrustStoreServiceTestIT
             throws Exception
     {
         assertFalse(keyStoreManager.listCertificates(Paths.get(trustStore.getURI()),
-                                                            "password".toCharArray())
+                                                     "password".toCharArray())
                                    .keySet()
                                    .stream()
-                                   .filter(name -> name.contains("*.apache.org")).findAny().isPresent());
+                                   .anyMatch(name -> name.contains("*.apache.org")));
 
         trustStoreService.addSslCertificatesToTrustStore("https://repository.apache.org/snapshots/");
 
         assertTrue(keyStoreManager.listCertificates(Paths.get(trustStore.getURI()),
-                                                           "password".toCharArray())
+                                                    "password".toCharArray())
                                   .keySet()
                                   .stream()
-                                  .filter(name -> name.contains("*.apache.org")).findAny().isPresent());
+                                  .anyMatch(name -> name.contains("*.apache.org")));
     }
 
     private Resource getTrustStoreResource()

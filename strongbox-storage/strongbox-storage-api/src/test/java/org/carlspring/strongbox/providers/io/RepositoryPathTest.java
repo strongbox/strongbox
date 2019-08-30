@@ -1,28 +1,28 @@
 package org.carlspring.strongbox.providers.io;
 
-import static org.hamcrest.MatcherAssert.assertThat;
-import static org.junit.jupiter.api.Assertions.assertThrows;
+import org.carlspring.strongbox.booters.PropertiesBooter;
+import org.carlspring.strongbox.storage.repository.RepositoryData;
+import org.carlspring.strongbox.storage.repository.RepositoryDto;
 
-import java.io.File;
 import java.nio.file.FileSystems;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.Set;
 
-import org.carlspring.strongbox.booters.PropertiesBooter;
-import org.carlspring.strongbox.storage.repository.RepositoryData;
-import org.carlspring.strongbox.storage.repository.RepositoryDto;
 import org.hamcrest.CoreMatchers;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import static org.hamcrest.MatcherAssert.assertThat;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 
 /**
  * @author Przemyslaw Fusik
+ * @author Pablo Tirado
  */
 public class RepositoryPathTest
 {
 
-    private static final Path REPOSITORY_BASEDIR = Paths.get(new File("target/strongbox-vault/storages/storage0/releases").getAbsolutePath());
+    private static final Path REPOSITORY_BASEDIR = Paths.get("target/strongbox-vault/storages/storage0/releases").toAbsolutePath();
 
     private RepositoryDto repository;
 

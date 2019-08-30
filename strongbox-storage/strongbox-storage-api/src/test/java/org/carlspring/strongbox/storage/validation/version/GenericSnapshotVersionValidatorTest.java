@@ -1,26 +1,26 @@
 package org.carlspring.strongbox.storage.validation.version;
 
-import static org.junit.jupiter.api.Assertions.assertThrows;
-import static org.junit.jupiter.api.Assertions.fail;
-
-import org.apache.commons.lang3.exception.ExceptionUtils;
 import org.carlspring.strongbox.artifact.coordinates.ArtifactCoordinates;
 import org.carlspring.strongbox.artifact.coordinates.MockedMavenArtifactCoordinates;
+import org.carlspring.strongbox.storage.repository.Repository;
 import org.carlspring.strongbox.storage.repository.RepositoryData;
 import org.carlspring.strongbox.storage.repository.RepositoryDto;
-import org.carlspring.strongbox.storage.repository.Repository;
 import org.carlspring.strongbox.storage.repository.RepositoryPolicyEnum;
 import org.carlspring.strongbox.storage.validation.artifact.version.GenericSnapshotVersionValidator;
 import org.carlspring.strongbox.storage.validation.artifact.version.VersionValidationException;
+
+import org.apache.commons.lang3.exception.ExceptionUtils;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.junit.jupiter.api.Assertions.fail;
 
 public class GenericSnapshotVersionValidatorTest
 {
 
-    Repository repository;
+    private Repository repository;
 
-    GenericSnapshotVersionValidator validator = new GenericSnapshotVersionValidator();
+    private GenericSnapshotVersionValidator validator = new GenericSnapshotVersionValidator();
 
 
     @BeforeEach
@@ -51,14 +51,11 @@ public class GenericSnapshotVersionValidatorTest
 
     @Test
     public void testInvalidArtifacts()
-            throws VersionValidationException
     {
         ArtifactCoordinates coordinates1 = new MockedMavenArtifactCoordinates();
         coordinates1.setVersion("1.0");
 
-        assertThrows(VersionValidationException.class, () -> {
-            validator.validate(repository, coordinates1);
-        });
+        assertThrows(VersionValidationException.class, () -> validator.validate(repository, coordinates1));
     }
 
 }
