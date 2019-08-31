@@ -17,10 +17,7 @@ public enum MavenRepositoryConfigurationConverter
         MavenRepositoryConfigurationDto configuration = new MavenRepositoryConfigurationDto();
         configuration.setIndexingClassNamesEnabled(mavenRepositoryConfigurationForm.isIndexingClassNamesEnabled());
         configuration.setIndexingEnabled(mavenRepositoryConfigurationForm.isIndexingEnabled());
-        configuration.setDownloadRemoteMavenIndexCronExpression(
-                mavenRepositoryConfigurationForm.getDownloadRemoteMavenIndexCronExpression());
-        configuration.setRebuildMavenIndexesCronExpression(
-                mavenRepositoryConfigurationForm.getRebuildMavenIndexesCronExpression());
+        configuration.setCronExpression(mavenRepositoryConfigurationForm.getCronExpression());
 
         return configuration;
     }
