@@ -27,7 +27,7 @@ import java.util.Comparator;
 
 import com.fasterxml.jackson.dataformat.yaml.YAMLMapper;
 import com.google.common.collect.Sets;
-import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.Assumptions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -37,6 +37,7 @@ import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.TestExecutionListeners;
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.junit.jupiter.api.Assertions.fail;
 
 /**
  * @author mtodorov
@@ -48,6 +49,8 @@ import static org.assertj.core.api.Assertions.assertThat;
                         mergeMode = TestExecutionListeners.MergeMode.MERGE_WITH_DEFAULTS)
 public class ConfigurationManagerTest
 {
+
+    private static final Path CONFIGURATION_BASEDIR = Paths.get("target", "test-classes", "yaml");
 
     private static final String STORAGE0 = "storage0";
 
@@ -63,31 +66,38 @@ public class ConfigurationManagerTest
     private YAMLMapper yamlMapper;
 
     @BeforeEach
-    void setUp(TestInfo testInfo)
+    public void setUp()
             throws IOException
     {
-        Path configurationBasePath = getConfigurationBasePath(testInfo);
-        if (Files.notExists(configurationBasePath))
+        if (Files.notExists(CONFIGURATION_BASEDIR))
         {
-            Files.createDirectories(configurationBasePath);
+            Files.createDirectories(CONFIGURATION_BASEDIR);
         }
 
         yamlMapper = yamlMapperFactory.create(
                 Sets.newHashSet(CustomRepositoryConfigurationDto.class, RemoteRepositoryConfigurationDto.class));
     }
 
-    @AfterEach
-    void tearDown(TestInfo testInfo)
-            throws IOException
+    @AfterAll
+    static void afterAll()
     {
-        Path configurationBasePath = getConfigurationBasePath(testInfo);
-
-        Files.walk(configurationBasePath)
-             .sorted(Comparator.reverseOrder())
-             .map(Path::toFile)
-             .forEach(File::delete);
+        deleteTestResources();
     }
 
+    private static void deleteTestResources()
+    {
+        try
+        {
+            Files.walk(CONFIGURATION_BASEDIR)
+                 .sorted(Comparator.reverseOrder())
+                 .map(Path::toFile)
+                 .forEach(File::delete);
+        }
+        catch (IOException e)
+        {
+            fail("Error while deleting the test resources", e);
+        }
+    }
 
     @Test
     public void testParseConfiguration()
@@ -148,7 +158,7 @@ public class ConfigurationManagerTest
         RepositoryDto repository2 = new RepositoryDto("releases");
 
         final String storageId = "myStorageId";
-        final Path storageBasePath = getStorageBasePath(storageId, testInfo);
+        final Path storageBasePath = getStorageBasePath(storageId);
 
         StorageDto storage = new StorageDto(storageId);
         storage.setBasedir(storageBasePath.toAbsolutePath().toString());
@@ -159,8 +169,10 @@ public class ConfigurationManagerTest
         configuration.addStorage(storage);
         configuration.setProxyConfiguration(proxyConfigurationGlobal);
 
-        Path outputFilePath = getConfigurationOutputFilePath(testInfo);
-        yamlMapper.writeValue(outputFilePath.toFile(), configuration);
+        final Path outputFilePath = getConfigurationOutputFilePath(testInfo);
+        File outputFile = outputFilePath.toFile();
+
+        yamlMapper.writeValue(outputFile, configuration);
 
         assertThat(Files.size(outputFilePath) > 0).as("Failed to store the produced YAML!").isTrue();
     }
@@ -176,7 +188,7 @@ public class ConfigurationManagerTest
         repository3.addRepositoryToGroup(repository2.getId());
 
         final String storageId = STORAGE0;
-        final Path storageBasePath = getStorageBasePath(storageId, testInfo);
+        final Path storageBasePath = getStorageBasePath(storageId);
 
         StorageDto storage = new StorageDto(storageId);
         storage.setBasedir(storageBasePath.toAbsolutePath().toString());
@@ -187,12 +199,14 @@ public class ConfigurationManagerTest
         MutableConfiguration configuration = new MutableConfiguration();
         configuration.addStorage(storage);
 
-        Path outputFilePath = getConfigurationOutputFilePath(testInfo);
-        yamlMapper.writeValue(outputFilePath.toFile(), configuration);
+        final Path outputFilePath = getConfigurationOutputFilePath(testInfo);
+        File outputFile = outputFilePath.toFile();
+
+        yamlMapper.writeValue(outputFile, configuration);
 
         assertThat(Files.size(outputFilePath) > 0).as("Failed to store the produced YAML!").isTrue();
 
-        MutableConfiguration c = yamlMapper.readValue(outputFilePath.toUri().toURL(), MutableConfiguration.class);
+        MutableConfiguration c = yamlMapper.readValue(outputFile.toURI().toURL(), MutableConfiguration.class);
 
         assertThat(c.getStorages().get(storageId)
                     .getRepositories()
@@ -236,12 +250,14 @@ public class ConfigurationManagerTest
         MutableConfiguration configuration = new MutableConfiguration();
         configuration.setCorsConfiguration(corsConfiguration);
 
-        Path outputFilePath = getConfigurationOutputFilePath(testInfo);
-        yamlMapper.writeValue(outputFilePath.toFile(), configuration);
+        final Path outputFilePath = getConfigurationOutputFilePath(testInfo);
+        File outputFile = outputFilePath.toFile();
+
+        yamlMapper.writeValue(outputFile, configuration);
 
         assertThat(Files.size(outputFilePath) > 0).as("Failed to store the produced YAML!").isTrue();
 
-        MutableConfiguration c = yamlMapper.readValue(outputFilePath.toFile(), MutableConfiguration.class);
+        MutableConfiguration c = yamlMapper.readValue(outputFile, MutableConfiguration.class);
 
         assertThat(c.getCorsConfiguration().getAllowedOrigins())
                 .as("Failed to read saved cors allowedOrigins!")
@@ -268,12 +284,14 @@ public class ConfigurationManagerTest
         MutableConfiguration configuration = new MutableConfiguration();
         configuration.setSmtpConfiguration(smtpConfiguration);
 
-        Path outputFilePath = getConfigurationOutputFilePath(testInfo);
-        yamlMapper.writeValue(outputFilePath.toFile(), configuration);
+        final Path outputFilePath = getConfigurationOutputFilePath(testInfo);
+        File outputFile = outputFilePath.toFile();
+
+        yamlMapper.writeValue(outputFile, configuration);
 
         assertThat(Files.size(outputFilePath) > 0).as("Failed to store the produced YAML!").isTrue();
 
-        MutableConfiguration c = yamlMapper.readValue(outputFilePath.toFile(), MutableConfiguration.class);
+        MutableConfiguration c = yamlMapper.readValue(outputFile, MutableConfiguration.class);
 
         MutableSmtpConfiguration savedSmtpConfiguration = c.getSmtpConfiguration();
 
@@ -284,30 +302,17 @@ public class ConfigurationManagerTest
         assertThat(savedSmtpConfiguration.getPassword()).as("Failed to read saved smtp password!").isEqualTo(smtpPassword);
     }
 
-    private Path getStorageBasePath(final String storageId,
-                                    TestInfo testInfo)
+    private Path getStorageBasePath(final String storageId)
     {
-        final String methodName = getMethodName(testInfo);
-        return Paths.get(propertiesBooter.getVaultDirectory(), "storages", storageId + "-" + methodName);
-    }
-
-    private Path getConfigurationBasePath(TestInfo testInfo)
-    {
-        final String methodName = getMethodName(testInfo);
-        return Paths.get(propertiesBooter.getVaultDirectory(), "etc", "conf", methodName);
+        return Paths.get(propertiesBooter.getVaultDirectory(), "storages", storageId);
     }
 
     private Path getConfigurationOutputFilePath(TestInfo testInfo)
     {
-        final String methodName = getMethodName(testInfo);
+        Assumptions.assumeTrue(testInfo.getTestMethod().isPresent());
+        final String methodName = testInfo.getTestMethod().get().getName();
         final String fileName = String.format("strongbox-saved-cm-%s.yaml", methodName);
 
-        return getConfigurationBasePath(testInfo).resolve(fileName);
-    }
-
-    private String getMethodName(TestInfo testInfo)
-    {
-        Assumptions.assumeTrue(testInfo.getTestMethod().isPresent());
-        return testInfo.getTestMethod().get().getName();
+        return CONFIGURATION_BASEDIR.resolve(fileName);
     }
 }
