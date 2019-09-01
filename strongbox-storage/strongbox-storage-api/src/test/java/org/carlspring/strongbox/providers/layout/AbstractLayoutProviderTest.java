@@ -49,12 +49,14 @@ import static org.mockito.ArgumentMatchers.any;
 class AbstractLayoutProviderTest
 {
 
+    private static final String STORAGE0 = "storage0";
+
     @Inject
     private ApplicationContext ctx;
 
     @Inject
     private PropertiesBooter propertiesBooter;
-    
+
     @SuppressWarnings({ "PMD.UnusedPrivateField",
                         "PMD.SingularField" })
     @Spy
@@ -64,26 +66,23 @@ class AbstractLayoutProviderTest
     private AbstractLayoutProvider layoutProvider = Mockito.spy(AbstractLayoutProvider.class);
 
     private AbstractArtifactCoordinates artifactCoordinates = Mockito.spy(AbstractArtifactCoordinates.class);
-    
-    private StorageFileSystemProviderTest storageFileSystemProvider = Mockito.spy(new StorageFileSystemProviderTest(FileSystems.getDefault().provider()));
 
-    private static final Path REPOSITORY_BASEDIR = Paths.get("target/strongbox-vault", "storages", "storage0", "releases");
+    private StorageFileSystemProviderTest storageFileSystemProvider = Mockito.spy(
+            new StorageFileSystemProviderTest(FileSystems.getDefault().provider()));
 
     private LayoutFileSystem repositoryFileSystem;
-
 
     @BeforeEach
     public void setUp()
             throws IOException
     {
-        StorageDto storage = new StorageDto();
-        storage.setId("storage0");
+        StorageDto storage = new StorageDto(STORAGE0);
 
-        RepositoryDto repository = new RepositoryDto();
+        RepositoryDto repository = new RepositoryDto("releases");
         repository.setStorage(storage);
-        repository.setId("releases");
 
-        repository.setBasedir(REPOSITORY_BASEDIR.toAbsolutePath().toString());
+        final Path repositoryBasePath = getRepositoryBasePath(storage.getId());
+        repository.setBasedir(repositoryBasePath.toAbsolutePath().toString());
 
         HashMap<RepositoryFileAttributeType, Object> artifactAttributes = new HashMap<>();
         artifactAttributes.put(RepositoryFileAttributeType.ARTIFACT, Boolean.TRUE);
@@ -110,7 +109,9 @@ class AbstractLayoutProviderTest
     public void shouldReturnExpectedArtifactGroups()
             throws IOException
     {
-        RepositoryPath path = new RepositoryPath(REPOSITORY_BASEDIR, repositoryFileSystem).resolve("org")
+        final String storageId = STORAGE0;
+        final Path repositoryBasePath = getRepositoryBasePath(storageId);
+        RepositoryPath path = new RepositoryPath(repositoryBasePath, repositoryFileSystem).resolve("org")
                                                                                           .resolve("carlspring")
                                                                                           .resolve("abs-lay-prov-test")
                                                                                           .resolve("1.8")
@@ -120,7 +121,7 @@ class AbstractLayoutProviderTest
         assertThat(artifactGroups).isNotNull();
         assertThat(artifactGroups).isEmpty();
 
-        RepositoryArtifactIdGroupEntry repositoryArtifactIdGroup = artifactGroupService.findOneOrCreate("storage0",
+        RepositoryArtifactIdGroupEntry repositoryArtifactIdGroup = artifactGroupService.findOneOrCreate(storageId,
                                                                                                         "releases",
                                                                                                         "abs-lay-prov-test");
 
@@ -134,7 +135,12 @@ class AbstractLayoutProviderTest
         assertThat(repositoryArtifactIdGroup.getStorageId()).isEqualTo(("storage0"));
         assertThat(repositoryArtifactIdGroup.getClass()).isEqualTo((RepositoryArtifactIdGroupEntry.class));
     }
-    
+
+    private Path getRepositoryBasePath(String storageId)
+    {
+        return Paths.get(propertiesBooter.getVaultDirectory(), "storages", storageId, "releases");
+    }
+
     private class StorageFileSystemProviderTest extends LayoutFileSystemProvider
     {
         

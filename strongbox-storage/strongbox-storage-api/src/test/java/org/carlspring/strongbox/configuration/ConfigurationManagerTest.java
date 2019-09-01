@@ -23,16 +23,21 @@ import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.Arrays;
 import java.util.Collections;
+import java.util.Comparator;
 
 import com.fasterxml.jackson.dataformat.yaml.YAMLMapper;
 import com.google.common.collect.Sets;
+import org.junit.jupiter.api.AfterAll;
+import org.junit.jupiter.api.Assumptions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.TestInfo;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.TestExecutionListeners;
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.junit.jupiter.api.Assertions.fail;
 
 /**
  * @author mtodorov
@@ -45,11 +50,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 public class ConfigurationManagerTest
 {
 
-    private static final String TEST_CLASSES = "target/test-classes";
-
-    private static final String CONFIGURATION_BASEDIR = TEST_CLASSES + "/yaml";
-
-    private static final String CONFIGURATION_OUTPUT_FILE = CONFIGURATION_BASEDIR + "/strongbox-saved-cm.yaml";
+    private static final Path CONFIGURATION_BASEDIR = Paths.get("target", "test-classes", "yaml");
 
     private static final String STORAGE0 = "storage0";
 
@@ -64,19 +65,38 @@ public class ConfigurationManagerTest
 
     private YAMLMapper yamlMapper;
 
-
     @BeforeEach
     public void setUp()
             throws IOException
     {
-        Path yamlPath = Paths.get(CONFIGURATION_BASEDIR);
-        if (Files.notExists(yamlPath))
+        if (Files.notExists(CONFIGURATION_BASEDIR))
         {
-            Files.createDirectories(yamlPath);
+            Files.createDirectories(CONFIGURATION_BASEDIR);
         }
 
         yamlMapper = yamlMapperFactory.create(
                 Sets.newHashSet(CustomRepositoryConfigurationDto.class, RemoteRepositoryConfigurationDto.class));
+    }
+
+    @AfterAll
+    static void afterAll()
+    {
+        deleteTestResources();
+    }
+
+    private static void deleteTestResources()
+    {
+        try
+        {
+            Files.walk(CONFIGURATION_BASEDIR)
+                 .sorted(Comparator.reverseOrder())
+                 .map(Path::toFile)
+                 .forEach(File::delete);
+        }
+        catch (IOException e)
+        {
+            fail("Error while deleting the test resources", e);
+        }
     }
 
     @Test
@@ -87,13 +107,10 @@ public class ConfigurationManagerTest
         assertThat(configuration).isNotNull();
         assertThat(configuration.getStorages()).isNotNull();
         assertThat(configuration.getRoutingRules()).isNotNull();
-        // assertThat(configuration.getRoutingRules().getWildcardAcceptedRules().getRoutingRules().isEmpty()).isFalse();
-        // assertThat(configuration.getRoutingRules().getWildcardDeniedRules().getRoutingRules().isEmpty()).isFalse();
 
         for (String storageId : configuration.getStorages().keySet())
         {
             assertThat(storageId).as("Storage ID was null!").isNotNull();
-            // assertThat(!configuration.getStorages().get(storageId).getRepositories().isEmpty()).as("No repositories were parsed!").isTrue();
         }
 
         assertThat(configuration.getStorages()).as("Unexpected number of storages!").isNotEmpty();
@@ -116,7 +133,7 @@ public class ConfigurationManagerTest
     }
 
     @Test
-    public void testStoreConfiguration()
+    public void testStoreConfiguration(TestInfo testInfo)
             throws IOException
     {
         MutableProxyConfiguration proxyConfigurationGlobal = new MutableProxyConfiguration();
@@ -140,10 +157,11 @@ public class ConfigurationManagerTest
 
         RepositoryDto repository2 = new RepositoryDto("releases");
 
-        StorageDto storage = new StorageDto();
-        storage.setId("myStorageId");
-        storage.setBasedir(new File(propertiesBooter.getVaultDirectory() + "/storages" + STORAGE0)
-                                   .getAbsolutePath());
+        final String storageId = "myStorageId";
+        final Path storageBasePath = getStorageBasePath(storageId);
+
+        StorageDto storage = new StorageDto(storageId);
+        storage.setBasedir(storageBasePath.toAbsolutePath().toString());
         storage.addRepository(repository1);
         storage.addRepository(repository2);
 
@@ -151,14 +169,16 @@ public class ConfigurationManagerTest
         configuration.addStorage(storage);
         configuration.setProxyConfiguration(proxyConfigurationGlobal);
 
-        File outputFile = new File(CONFIGURATION_OUTPUT_FILE);
+        final Path outputFilePath = getConfigurationOutputFilePath(testInfo);
+        File outputFile = outputFilePath.toFile();
+
         yamlMapper.writeValue(outputFile, configuration);
 
         assertThat(outputFile.length() > 0).as("Failed to store the produced YAML!").isTrue();
     }
 
     @Test
-    public void testGroupRepositories()
+    public void testGroupRepositories(TestInfo testInfo)
             throws IOException
     {
         RepositoryDto repository1 = new RepositoryDto("snapshots");
@@ -167,8 +187,11 @@ public class ConfigurationManagerTest
         repository3.addRepositoryToGroup(repository1.getId());
         repository3.addRepositoryToGroup(repository2.getId());
 
-        StorageDto storage = new StorageDto(STORAGE0);
-        storage.setBasedir(new File(propertiesBooter.getVaultDirectory() + "/storages" + STORAGE0).getAbsolutePath());
+        final String storageId = STORAGE0;
+        final Path storageBasePath = getStorageBasePath(storageId);
+
+        StorageDto storage = new StorageDto(storageId);
+        storage.setBasedir(storageBasePath.toAbsolutePath().toString());
         storage.addRepository(repository1);
         storage.addRepository(repository2);
         storage.addRepository(repository3);
@@ -176,7 +199,8 @@ public class ConfigurationManagerTest
         MutableConfiguration configuration = new MutableConfiguration();
         configuration.addStorage(storage);
 
-        File outputFile = new File(CONFIGURATION_OUTPUT_FILE);
+        final Path outputFilePath = getConfigurationOutputFilePath(testInfo);
+        File outputFile = outputFilePath.toFile();
 
         yamlMapper.writeValue(outputFile, configuration);
 
@@ -184,7 +208,7 @@ public class ConfigurationManagerTest
 
         MutableConfiguration c = yamlMapper.readValue(outputFile.toURI().toURL(), MutableConfiguration.class);
 
-        assertThat(c.getStorages().get(STORAGE0)
+        assertThat(c.getStorages().get(storageId)
                     .getRepositories()
                     .get("grp-snapshots")
                     .getGroupRepositories())
@@ -213,15 +237,10 @@ public class ConfigurationManagerTest
         {
             yamlMapper.writeValue(os, routingRules);
         }
-
-        // parser.store(routingRules, System.out);
-
-        // Assuming that if there is no error, there is no problem.
-        // Not optimal, but that's as good as it gets right now.
     }
 
     @Test
-    public void testCorsConfiguration()
+    public void testCorsConfiguration(TestInfo testInfo)
             throws IOException
     {
 
@@ -231,7 +250,8 @@ public class ConfigurationManagerTest
         MutableConfiguration configuration = new MutableConfiguration();
         configuration.setCorsConfiguration(corsConfiguration);
 
-        File outputFile = new File(CONFIGURATION_OUTPUT_FILE);
+        final Path outputFilePath = getConfigurationOutputFilePath(testInfo);
+        File outputFile = outputFilePath.toFile();
 
         yamlMapper.writeValue(outputFile, configuration);
 
@@ -245,7 +265,7 @@ public class ConfigurationManagerTest
     }
 
     @Test
-    public void testSmtpConfiguration()
+    public void testSmtpConfiguration(TestInfo testInfo)
             throws IOException
     {
 
@@ -264,7 +284,8 @@ public class ConfigurationManagerTest
         MutableConfiguration configuration = new MutableConfiguration();
         configuration.setSmtpConfiguration(smtpConfiguration);
 
-        File outputFile = new File(CONFIGURATION_OUTPUT_FILE);
+        final Path outputFilePath = getConfigurationOutputFilePath(testInfo);
+        File outputFile = outputFilePath.toFile();
 
         yamlMapper.writeValue(outputFile, configuration);
 
@@ -279,5 +300,19 @@ public class ConfigurationManagerTest
         assertThat(savedSmtpConfiguration.getConnection()).as("Failed to read saved smtp connection!").isEqualTo(smtpConnection);
         assertThat(savedSmtpConfiguration.getUsername()).as("Failed to read saved smtp username!").isEqualTo(smtpUsername);
         assertThat(savedSmtpConfiguration.getPassword()).as("Failed to read saved smtp password!").isEqualTo(smtpPassword);
+    }
+
+    private Path getStorageBasePath(final String storageId)
+    {
+        return Paths.get(propertiesBooter.getVaultDirectory(), "storages", storageId);
+    }
+
+    private Path getConfigurationOutputFilePath(TestInfo testInfo)
+    {
+        Assumptions.assumeTrue(testInfo.getTestMethod().isPresent());
+        final String methodName = testInfo.getTestMethod().get().getName();
+        final String fileName = String.format("strongbox-saved-cm-%s.yaml", methodName);
+
+        return CONFIGURATION_BASEDIR.resolve(fileName);
     }
 }

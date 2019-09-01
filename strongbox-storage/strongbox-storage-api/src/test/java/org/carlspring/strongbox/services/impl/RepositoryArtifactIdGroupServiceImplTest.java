@@ -9,6 +9,8 @@ import javax.inject.Inject;
 
 import com.orientechnologies.orient.core.storage.ORecordDuplicatedException;
 import org.junit.jupiter.api.Test;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.ContextConfiguration;
@@ -26,6 +28,8 @@ import static org.assertj.core.api.Assertions.assertThatExceptionOfType;
 class RepositoryArtifactIdGroupServiceImplTest
 {
 
+    private static final Logger logger = LoggerFactory.getLogger(RepositoryArtifactIdGroupServiceImplTest.class);
+
     @Inject
     private RepositoryArtifactIdGroupService repositoryArtifactIdGroupService;
 
@@ -36,7 +40,8 @@ class RepositoryArtifactIdGroupServiceImplTest
         g1.setName("a1");
         g1.setRepositoryId("r1");
         g1.setStorageId("s1");
-        System.out.println(repositoryArtifactIdGroupService.save(g1).getObjectId());
+        RepositoryArtifactIdGroupEntry savedG1 = repositoryArtifactIdGroupService.save(g1);
+        logger.debug(savedG1.getObjectId());
 
         assertThatExceptionOfType(ORecordDuplicatedException.class)
                 .isThrownBy(() -> {
@@ -44,7 +49,8 @@ class RepositoryArtifactIdGroupServiceImplTest
                     g2.setName("a1");
                     g2.setRepositoryId("r1");
                     g2.setStorageId("s1");
-                    System.out.println(repositoryArtifactIdGroupService.save(g2).getObjectId());
+                    RepositoryArtifactIdGroupEntry savedG2 = repositoryArtifactIdGroupService.save(g2);
+            logger.debug(savedG2.getObjectId());
         });
     }
 }

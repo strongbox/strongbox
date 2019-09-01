@@ -3,13 +3,14 @@ package org.carlspring.strongbox.storage.checksum;
 import org.carlspring.commons.encryption.EncryptionAlgorithmsEnum;
 import org.carlspring.strongbox.util.MessageDigestUtils;
 
-import java.io.IOException;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 
 import org.junit.jupiter.api.Test;
-import static org.assertj.core.api.Assertions.fail;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.fail;
 
 /**
  * @author mtodorov
@@ -17,6 +18,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 public class ChecksumCacheManagerTest
 {
 
+    private static final Logger logger = LoggerFactory.getLogger(ChecksumCacheManagerTest.class);
 
     @Test
     public void testChecksumManagement()
@@ -44,7 +46,7 @@ public class ChecksumCacheManagerTest
 
         manager.getArtifactChecksum(artifact1BasePath, "md5");
 
-        System.out.println("Slept " + checkerThread.getTimeSlept() + " ms");
+        logger.debug("Slept {} ms", checkerThread.getTimeSlept());
 
         if (checkerThread.getTimeSlept() > (checkerThread.getMaxTime() + checkerThread.getTolerance()))
         {
@@ -56,7 +58,7 @@ public class ChecksumCacheManagerTest
 
     @Test
     public void testDigests()
-            throws NoSuchAlgorithmException, IOException, CloneNotSupportedException
+            throws NoSuchAlgorithmException
     {
         String s = "This is a test.";
 
@@ -72,12 +74,14 @@ public class ChecksumCacheManagerTest
         assertThat(md5).as("Incorrect MD5 sum!").isEqualTo("120ea8a25e5d487bf68b5f7096440019");
         assertThat(sha1).as("Incorrect SHA-1 sum!").isEqualTo("afa6c8b3a2fae95785dc7d9685a57835d703ac88");
 
-        System.out.println("md5:  " + md5);
-        System.out.println("sha1: " + sha1);
+        logger.debug("md5:  {}", md5);
+        logger.debug("sha1: {}", sha1);
     }
 
-    private class CheckingThread extends Thread
+    private static class CheckingThread
+            extends Thread
     {
+
         ChecksumCacheManager manager;
 
         int sleepInterval = 100; // 100 ms
@@ -105,10 +109,11 @@ public class ChecksumCacheManagerTest
 
                     if (timeSlept > maxTime)
                     {
-                        System.out.println("The process has exceeded the defined limit of " + maxTime + " by " + (timeSlept - maxTime) + " ms...");
+                        logger.debug("The process has exceeded the defined limit of {} by {} ms...", maxTime,
+                                     (timeSlept - maxTime));
                     }
 
-                    sleep(sleepInterval);
+                    Thread.sleep(sleepInterval);
                     timeSlept += sleepInterval;
                 }
             }

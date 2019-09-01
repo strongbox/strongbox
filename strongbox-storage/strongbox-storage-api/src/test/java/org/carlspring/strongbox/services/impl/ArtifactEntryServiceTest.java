@@ -105,7 +105,7 @@ public class ArtifactEntryServiceTest
     private List<ArtifactEntry> findAll(final String groupId)
     {
         HashMap<String, String> coordinates = new HashMap<>();
-        coordinates.put("path", String.format("%s", groupId));
+        coordinates.put("path", groupId);
         return artifactEntryService.findArtifactList(null, null, coordinates, false);
     }
 

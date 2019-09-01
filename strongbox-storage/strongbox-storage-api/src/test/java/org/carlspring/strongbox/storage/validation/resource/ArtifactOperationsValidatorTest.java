@@ -1,30 +1,28 @@
 package org.carlspring.strongbox.storage.validation.resource;
 
-import java.io.File;
+import org.carlspring.commons.io.RandomInputStream;
+import org.carlspring.strongbox.StorageApiTestConfig;
+import org.carlspring.strongbox.booters.PropertiesBooter;
+import org.carlspring.strongbox.data.CacheManagerTestExecutionListener;
+import org.carlspring.strongbox.services.ConfigurationManagementService;
+import org.carlspring.strongbox.storage.ArtifactResolutionException;
+
+import javax.inject.Inject;
 import java.io.IOException;
 import java.io.InputStream;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 
-import javax.inject.Inject;
-
-import org.carlspring.commons.io.RandomInputStream;
-import org.carlspring.strongbox.StorageApiTestConfig;
-import org.carlspring.strongbox.data.CacheManagerTestExecutionListener;
-import org.carlspring.strongbox.services.ConfigurationManagementService;
-import org.carlspring.strongbox.storage.ArtifactResolutionException;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.http.MediaType;
 import org.springframework.mock.web.MockMultipartFile;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.TestExecutionListeners;
-
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.fail;
 
@@ -51,16 +49,17 @@ public class ArtifactOperationsValidatorTest
     @Inject
     private ConfigurationManagementService configurationManagementService;
 
-    private String REPOSITORY_BASEDIR = new File("target/strongbox-vault/storages/storage0/releases").getAbsolutePath();
+    @Inject
+    private PropertiesBooter propertiesBooter;
 
     @BeforeEach
     public void setUp()
             throws Exception
     {
-        Path basePath = Paths.get(REPOSITORY_BASEDIR, REPOSITORY_ID);
-        if (Files.notExists(basePath))
+        final Path repositoryBasePath = getRepositoryBasePath();
+        if (Files.notExists(repositoryBasePath))
         {
-            Files.createDirectories(basePath);
+            Files.createDirectories(repositoryBasePath);
         }
 
         InputStream is = new RandomInputStream(20480000);
@@ -91,7 +90,7 @@ public class ArtifactOperationsValidatorTest
         }
         catch (ArtifactResolutionException e)
         {
-
+            fail("Should not have thrown an ArtifactResolutionException.");
         }
 
         configurationManagementService.setArtifactMaxSize(STORAGE_ID, REPOSITORY_ID, size - 10L);
@@ -115,10 +114,11 @@ public class ArtifactOperationsValidatorTest
         }
         catch (ArtifactResolutionException e)
         {
-
+            fail("Should not have thrown an ArtifactResolutionException.");
         }
 
-        Path path = Paths.get(REPOSITORY_BASEDIR, "validate-test.jar");
+        final Path repositoryBasePath = getRepositoryBasePath();
+        Path path = repositoryBasePath.resolve("validate-test.jar");
         Files.createDirectories(path.getParent());
         Files.createFile(path);
 
@@ -140,5 +140,8 @@ public class ArtifactOperationsValidatorTest
         Files.delete(path);
     }
 
-
+    private Path getRepositoryBasePath()
+    {
+        return Paths.get(propertiesBooter.getVaultDirectory(), "storages", STORAGE_ID, REPOSITORY_ID);
+    }
 }

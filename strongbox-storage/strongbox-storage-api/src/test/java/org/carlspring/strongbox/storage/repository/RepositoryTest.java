@@ -20,6 +20,8 @@ import com.fasterxml.jackson.dataformat.yaml.YAMLMapper;
 import com.google.common.collect.Sets;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.ContextConfiguration;
@@ -33,6 +35,10 @@ import static org.assertj.core.api.Assertions.assertThat;
                         mergeMode = TestExecutionListeners.MergeMode.MERGE_WITH_DEFAULTS)
 public class RepositoryTest
 {
+
+    private static final Logger logger = LoggerFactory.getLogger(RepositoryTest.class);
+
+    private static final String STORAGE0 = "storage0";
 
     @Inject
     private YAMLMapperFactory yamlMapperFactory;
@@ -52,7 +58,7 @@ public class RepositoryTest
     {
         RepositoryDto repository = createTestRepositoryWithCustomConfig();
 
-        StorageDto storage = new StorageDto("storage0");
+        StorageDto storage = new StorageDto(STORAGE0);
         storage.addRepository(repository);
 
         MutableConfiguration configuration = new MutableConfiguration();
@@ -62,7 +68,7 @@ public class RepositoryTest
         yamlMapper.writeValue(writer, configuration);
         String serialized = writer.toString();
 
-        System.out.println(serialized);
+        logger.debug(serialized);
 
         assertThat(serialized.contains("bucket: \"test-bucket\"")).isTrue();
         assertThat(serialized.contains("key: \"test-key\"")).isTrue();
@@ -72,7 +78,7 @@ public class RepositoryTest
     public void testMarshallAndUnmarshallSimpleConfiguration()
             throws IOException
     {
-        StorageDto storage = new StorageDto("storage0");
+        StorageDto storage = new StorageDto(STORAGE0);
 
         RepositoryDto repository = new RepositoryDto("test-repository");
         repository.setStorage(storage);
@@ -86,7 +92,7 @@ public class RepositoryTest
         yamlMapper.writeValue(writer, configuration);
         String serialized = writer.toString();
 
-        System.out.println(serialized);
+        logger.debug(serialized);
 
         assertThat(serialized.contains("<aws-configuration bucket=\"test-bucket\" key=\"test-key\"/>")).isFalse();
         assertThat(serialized.contains("<google-cloud-configuration bucket=\"test-bucket\" key=\"test-key\"/>")).isFalse();
@@ -94,14 +100,14 @@ public class RepositoryTest
         MutableConfiguration unmarshalledConfiguration = yamlMapper.readValue(serialized.getBytes(),
                                                                               MutableConfiguration.class);
 
-        assertThat(unmarshalledConfiguration.getStorage("storage0")).isNotNull();
+        assertThat(unmarshalledConfiguration.getStorage(STORAGE0)).isNotNull();
     }
 
     @Test
     public void testMarshallAndUnmarshallSimpleConfigurationWithoutServiceLoader()
             throws IOException
     {
-        StorageDto storage = new StorageDto("storage0");
+        StorageDto storage = new StorageDto(STORAGE0);
 
         RepositoryDto repository = new RepositoryDto("test-repository");
         repository.setStorage(storage);
@@ -115,7 +121,7 @@ public class RepositoryTest
         yamlMapper.writeValue(writer, configuration);
         String serialized = writer.toString();
 
-        System.out.println(serialized);
+        logger.debug(serialized);
 
         assertThat(serialized.contains("<aws-configuration bucket=\"test-bucket\" key=\"test-key\"/>")).isFalse();
         assertThat(serialized.contains("<google-cloud-configuration bucket=\"test-bucket\" key=\"test-key\"/>")).isFalse();
@@ -123,7 +129,7 @@ public class RepositoryTest
         MutableConfiguration unmarshalledConfiguration = yamlMapper.readValue(serialized.getBytes(),
                                                                               MutableConfiguration.class);
 
-        assertThat(unmarshalledConfiguration.getStorage("storage0")).isNotNull();
+        assertThat(unmarshalledConfiguration.getStorage(STORAGE0)).isNotNull();
     }
 
     @Test
@@ -132,14 +138,14 @@ public class RepositoryTest
     {
         MutableConfiguration configuration = yamlMapper.readValue(
                 this.getClass().getResourceAsStream("/etc/conf/strongbox.yaml"), MutableConfiguration.class);
-        StorageDto storage = configuration.getStorage("storage0");
+        StorageDto storage = configuration.getStorage(STORAGE0);
 
         assertThat(storage).isNotNull();
     }
 
     private RepositoryDto createTestRepositoryWithCustomConfig()
     {
-        StorageDto storage = new StorageDto("storage0");
+        StorageDto storage = new StorageDto(STORAGE0);
         RepositoryDto repository = new RepositoryDto("test-repository");
         repository.setStorage(storage);
 
