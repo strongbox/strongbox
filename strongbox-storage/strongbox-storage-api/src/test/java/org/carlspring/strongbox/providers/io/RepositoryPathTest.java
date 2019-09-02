@@ -5,6 +5,7 @@ import org.carlspring.strongbox.storage.repository.RepositoryData;
 import org.carlspring.strongbox.storage.repository.RepositoryDto;
 
 import java.io.FileNotFoundException;
+import java.net.URISyntaxException;
 import java.net.URL;
 import java.nio.file.FileSystems;
 import java.nio.file.Path;
@@ -31,7 +32,8 @@ public class RepositoryPathTest
 
     @BeforeEach
     public void setup()
-            throws FileNotFoundException
+            throws FileNotFoundException,
+                   URISyntaxException
     {
         repositoryBasePath = getRepositoryBasePath();
 
@@ -151,7 +153,8 @@ public class RepositoryPathTest
     }
 
     private Path getRepositoryBasePath()
-            throws FileNotFoundException
+            throws FileNotFoundException,
+                   URISyntaxException
     {
         ClassLoader classLoader = getClass().getClassLoader();
 
@@ -159,7 +162,7 @@ public class RepositoryPathTest
         URL resource = classLoader.getResource("");
         if (resource != null)
         {
-            return Paths.get(resource.getPath());
+            return Paths.get(resource.toURI());
         }
 
         throw new FileNotFoundException("Resource 'target/test-classes' was not found");
