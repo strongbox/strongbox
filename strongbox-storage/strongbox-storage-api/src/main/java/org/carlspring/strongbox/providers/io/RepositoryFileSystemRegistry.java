@@ -17,7 +17,7 @@ public class RepositoryFileSystemRegistry
     private Map<String, LayoutFileSystemFactory> fileSystemFactoryMap = new HashMap<>();
 
     @Autowired(required = false)
-    public void setFyleSystemProviderFactories(Map<String, LayoutFileSystemProviderFactory> factories)
+    public void setFileSystemProviderFactories(Map<String, LayoutFileSystemProviderFactory> factories)
     {
         factories.entrySet()
                  .stream()
@@ -27,7 +27,7 @@ public class RepositoryFileSystemRegistry
     }
 
     @Autowired(required = false)
-    public void setFyleSystemFactories(Map<String, LayoutFileSystemFactory> factories)
+    public void setFileSystemFactories(Map<String, LayoutFileSystemFactory> factories)
     {
         factories.entrySet()
                  .stream()
