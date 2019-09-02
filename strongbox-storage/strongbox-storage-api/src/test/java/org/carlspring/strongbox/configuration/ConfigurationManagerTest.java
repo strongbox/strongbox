@@ -23,11 +23,10 @@ import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.Arrays;
 import java.util.Collections;
-import java.util.Comparator;
 
 import com.fasterxml.jackson.dataformat.yaml.YAMLMapper;
 import com.google.common.collect.Sets;
-import org.junit.jupiter.api.AfterAll;
+import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.Assumptions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -37,7 +36,6 @@ import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.TestExecutionListeners;
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.junit.jupiter.api.Assertions.fail;
 
 /**
  * @author mtodorov
@@ -49,8 +47,6 @@ import static org.junit.jupiter.api.Assertions.fail;
                         mergeMode = TestExecutionListeners.MergeMode.MERGE_WITH_DEFAULTS)
 public class ConfigurationManagerTest
 {
-
-    private static final Path CONFIGURATION_BASEDIR = Paths.get("target", "test-classes", "yaml");
 
     private static final String STORAGE0 = "storage0";
 
@@ -65,39 +61,31 @@ public class ConfigurationManagerTest
 
     private YAMLMapper yamlMapper;
 
+    private Path outputFilePath;
+
     @BeforeEach
-    public void setUp()
+    void setUp(TestInfo testInfo)
             throws IOException
     {
-        if (Files.notExists(CONFIGURATION_BASEDIR))
+        Path configurationBasePath = getConfigurationBasePath();
+        if (Files.notExists(configurationBasePath))
         {
-            Files.createDirectories(CONFIGURATION_BASEDIR);
+            Files.createDirectories(configurationBasePath);
         }
+
+        outputFilePath = getConfigurationOutputFilePath(testInfo);
 
         yamlMapper = yamlMapperFactory.create(
                 Sets.newHashSet(CustomRepositoryConfigurationDto.class, RemoteRepositoryConfigurationDto.class));
     }
 
-    @AfterAll
-    static void afterAll()
+    @AfterEach
+    void tearDown()
+            throws IOException
     {
-        deleteTestResources();
+        Files.deleteIfExists(outputFilePath);
     }
 
-    private static void deleteTestResources()
-    {
-        try
-        {
-            Files.walk(CONFIGURATION_BASEDIR)
-                 .sorted(Comparator.reverseOrder())
-                 .map(Path::toFile)
-                 .forEach(File::delete);
-        }
-        catch (IOException e)
-        {
-            fail("Error while deleting the test resources", e);
-        }
-    }
 
     @Test
     public void testParseConfiguration()
@@ -307,12 +295,17 @@ public class ConfigurationManagerTest
         return Paths.get(propertiesBooter.getVaultDirectory(), "storages", storageId);
     }
 
+    private Path getConfigurationBasePath()
+    {
+        return Paths.get(propertiesBooter.getVaultDirectory(), "etc", "conf");
+    }
+
     private Path getConfigurationOutputFilePath(TestInfo testInfo)
     {
         Assumptions.assumeTrue(testInfo.getTestMethod().isPresent());
         final String methodName = testInfo.getTestMethod().get().getName();
         final String fileName = String.format("strongbox-saved-cm-%s.yaml", methodName);
 
-        return CONFIGURATION_BASEDIR.resolve(fileName);
+        return getConfigurationBasePath().resolve(fileName);
     }
 }
