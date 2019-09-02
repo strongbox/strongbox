@@ -15,7 +15,6 @@ import org.carlspring.strongbox.yaml.repository.remote.RemoteRepositoryConfigura
 
 import javax.inject.Inject;
 import java.io.ByteArrayOutputStream;
-import java.io.File;
 import java.io.IOException;
 import java.io.OutputStream;
 import java.nio.file.Files;
@@ -23,11 +22,10 @@ import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.Arrays;
 import java.util.Collections;
-import java.util.Comparator;
 
 import com.fasterxml.jackson.dataformat.yaml.YAMLMapper;
 import com.google.common.collect.Sets;
-import org.junit.jupiter.api.AfterAll;
+import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.Assumptions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -37,7 +35,6 @@ import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.TestExecutionListeners;
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.junit.jupiter.api.Assertions.fail;
 
 /**
  * @author mtodorov
@@ -49,8 +46,6 @@ import static org.junit.jupiter.api.Assertions.fail;
                         mergeMode = TestExecutionListeners.MergeMode.MERGE_WITH_DEFAULTS)
 public class ConfigurationManagerTest
 {
-
-    private static final Path CONFIGURATION_BASEDIR = Paths.get("target", "test-classes", "yaml");
 
     private static final String STORAGE0 = "storage0";
 
@@ -65,39 +60,31 @@ public class ConfigurationManagerTest
 
     private YAMLMapper yamlMapper;
 
+    private Path outputFilePath;
+
     @BeforeEach
-    public void setUp()
+    void setUp(TestInfo testInfo)
             throws IOException
     {
-        if (Files.notExists(CONFIGURATION_BASEDIR))
+        Path configurationBasePath = getConfigurationBasePath();
+        if (Files.notExists(configurationBasePath))
         {
-            Files.createDirectories(CONFIGURATION_BASEDIR);
+            Files.createDirectories(configurationBasePath);
         }
+
+        outputFilePath = getConfigurationOutputFilePath(testInfo);
 
         yamlMapper = yamlMapperFactory.create(
                 Sets.newHashSet(CustomRepositoryConfigurationDto.class, RemoteRepositoryConfigurationDto.class));
     }
 
-    @AfterAll
-    static void afterAll()
+    @AfterEach
+    void tearDown()
+            throws IOException
     {
-        deleteTestResources();
+        Files.deleteIfExists(outputFilePath);
     }
 
-    private static void deleteTestResources()
-    {
-        try
-        {
-            Files.walk(CONFIGURATION_BASEDIR)
-                 .sorted(Comparator.reverseOrder())
-                 .map(Path::toFile)
-                 .forEach(File::delete);
-        }
-        catch (IOException e)
-        {
-            fail("Error while deleting the test resources", e);
-        }
-    }
 
     @Test
     public void testParseConfiguration()
@@ -133,7 +120,7 @@ public class ConfigurationManagerTest
     }
 
     @Test
-    public void testStoreConfiguration(TestInfo testInfo)
+    public void testStoreConfiguration()
             throws IOException
     {
         MutableProxyConfiguration proxyConfigurationGlobal = new MutableProxyConfiguration();
@@ -169,16 +156,13 @@ public class ConfigurationManagerTest
         configuration.addStorage(storage);
         configuration.setProxyConfiguration(proxyConfigurationGlobal);
 
-        final Path outputFilePath = getConfigurationOutputFilePath(testInfo);
-        File outputFile = outputFilePath.toFile();
+        yamlMapper.writeValue(outputFilePath.toFile(), configuration);
 
-        yamlMapper.writeValue(outputFile, configuration);
-
-        assertThat(outputFile.length() > 0).as("Failed to store the produced YAML!").isTrue();
+        assertThat(Files.size(outputFilePath) > 0).as("Failed to store the produced YAML!").isTrue();
     }
 
     @Test
-    public void testGroupRepositories(TestInfo testInfo)
+    public void testGroupRepositories()
             throws IOException
     {
         RepositoryDto repository1 = new RepositoryDto("snapshots");
@@ -199,14 +183,11 @@ public class ConfigurationManagerTest
         MutableConfiguration configuration = new MutableConfiguration();
         configuration.addStorage(storage);
 
-        final Path outputFilePath = getConfigurationOutputFilePath(testInfo);
-        File outputFile = outputFilePath.toFile();
+        yamlMapper.writeValue(outputFilePath.toFile(), configuration);
 
-        yamlMapper.writeValue(outputFile, configuration);
+        assertThat(Files.size(outputFilePath) > 0).as("Failed to store the produced YAML!").isTrue();
 
-        assertThat(outputFile.length() > 0).as("Failed to store the produced YAML!").isTrue();
-
-        MutableConfiguration c = yamlMapper.readValue(outputFile.toURI().toURL(), MutableConfiguration.class);
+        MutableConfiguration c = yamlMapper.readValue(outputFilePath.toUri().toURL(), MutableConfiguration.class);
 
         assertThat(c.getStorages().get(storageId)
                     .getRepositories()
@@ -240,7 +221,7 @@ public class ConfigurationManagerTest
     }
 
     @Test
-    public void testCorsConfiguration(TestInfo testInfo)
+    public void testCorsConfiguration()
             throws IOException
     {
 
@@ -250,14 +231,11 @@ public class ConfigurationManagerTest
         MutableConfiguration configuration = new MutableConfiguration();
         configuration.setCorsConfiguration(corsConfiguration);
 
-        final Path outputFilePath = getConfigurationOutputFilePath(testInfo);
-        File outputFile = outputFilePath.toFile();
+        yamlMapper.writeValue(outputFilePath.toFile(), configuration);
 
-        yamlMapper.writeValue(outputFile, configuration);
+        assertThat(Files.size(outputFilePath) > 0).as("Failed to store the produced YAML!").isTrue();
 
-        assertThat(outputFile.length() > 0).as("Failed to store the produced YAML!").isTrue();
-
-        MutableConfiguration c = yamlMapper.readValue(outputFile, MutableConfiguration.class);
+        MutableConfiguration c = yamlMapper.readValue(outputFilePath.toFile(), MutableConfiguration.class);
 
         assertThat(c.getCorsConfiguration().getAllowedOrigins())
                 .as("Failed to read saved cors allowedOrigins!")
@@ -265,7 +243,7 @@ public class ConfigurationManagerTest
     }
 
     @Test
-    public void testSmtpConfiguration(TestInfo testInfo)
+    public void testSmtpConfiguration()
             throws IOException
     {
 
@@ -284,14 +262,11 @@ public class ConfigurationManagerTest
         MutableConfiguration configuration = new MutableConfiguration();
         configuration.setSmtpConfiguration(smtpConfiguration);
 
-        final Path outputFilePath = getConfigurationOutputFilePath(testInfo);
-        File outputFile = outputFilePath.toFile();
+        yamlMapper.writeValue(outputFilePath.toFile(), configuration);
 
-        yamlMapper.writeValue(outputFile, configuration);
+        assertThat(Files.size(outputFilePath) > 0).as("Failed to store the produced YAML!").isTrue();
 
-        assertThat(outputFile.length() > 0).as("Failed to store the produced YAML!").isTrue();
-
-        MutableConfiguration c = yamlMapper.readValue(outputFile, MutableConfiguration.class);
+        MutableConfiguration c = yamlMapper.readValue(outputFilePath.toFile(), MutableConfiguration.class);
 
         MutableSmtpConfiguration savedSmtpConfiguration = c.getSmtpConfiguration();
 
@@ -307,12 +282,17 @@ public class ConfigurationManagerTest
         return Paths.get(propertiesBooter.getVaultDirectory(), "storages", storageId);
     }
 
+    private Path getConfigurationBasePath()
+    {
+        return Paths.get(propertiesBooter.getVaultDirectory(), "etc", "conf");
+    }
+
     private Path getConfigurationOutputFilePath(TestInfo testInfo)
     {
         Assumptions.assumeTrue(testInfo.getTestMethod().isPresent());
         final String methodName = testInfo.getTestMethod().get().getName();
         final String fileName = String.format("strongbox-saved-cm-%s.yaml", methodName);
 
-        return CONFIGURATION_BASEDIR.resolve(fileName);
+        return getConfigurationBasePath().resolve(fileName);
     }
 }

@@ -1,12 +1,11 @@
 package org.carlspring.strongbox.providers.io;
 
-import org.carlspring.strongbox.StorageApiTestConfig;
 import org.carlspring.strongbox.booters.PropertiesBooter;
-import org.carlspring.strongbox.data.CacheManagerTestExecutionListener;
 import org.carlspring.strongbox.storage.repository.RepositoryData;
 import org.carlspring.strongbox.storage.repository.RepositoryDto;
 
-import javax.inject.Inject;
+import java.io.FileNotFoundException;
+import java.net.URL;
 import java.nio.file.FileSystems;
 import java.nio.file.Path;
 import java.nio.file.Paths;
@@ -14,10 +13,6 @@ import java.util.Set;
 
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.test.context.ActiveProfiles;
-import org.springframework.test.context.ContextConfiguration;
-import org.springframework.test.context.TestExecutionListeners;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatExceptionOfType;
 
@@ -25,17 +20,8 @@ import static org.assertj.core.api.Assertions.assertThatExceptionOfType;
  * @author Przemyslaw Fusik
  * @author Pablo Tirado
  */
-@SpringBootTest
-@ActiveProfiles(profiles = "test")
-@ContextConfiguration(classes = StorageApiTestConfig.class)
-@TestExecutionListeners(listeners = { CacheManagerTestExecutionListener.class },
-                        mergeMode = TestExecutionListeners.MergeMode.MERGE_WITH_DEFAULTS)
 public class RepositoryPathTest
 {
-
-    private static final String STORAGE_ID = "storage0";
-
-    private static final String REPOSITORY_ID = "releases";
 
     private Path repositoryBasePath;
 
@@ -43,11 +29,9 @@ public class RepositoryPathTest
 
     private LayoutFileSystem repositoryFileSystem;
 
-    @Inject
-    private PropertiesBooter propertiesBooter;
-
     @BeforeEach
     public void setup()
+            throws FileNotFoundException
     {
         repositoryBasePath = getRepositoryBasePath();
 
@@ -167,7 +151,17 @@ public class RepositoryPathTest
     }
 
     private Path getRepositoryBasePath()
+            throws FileNotFoundException
     {
-        return Paths.get(propertiesBooter.getVaultDirectory(), "storages", STORAGE_ID, REPOSITORY_ID);
+        ClassLoader classLoader = getClass().getClassLoader();
+
+        // Directory "target/test-classes" is loaded
+        URL resource = classLoader.getResource("");
+        if (resource != null)
+        {
+            return Paths.get(resource.getPath());
+        }
+
+        throw new FileNotFoundException("Resource 'target/test-classes' was not found");
     }
 }
