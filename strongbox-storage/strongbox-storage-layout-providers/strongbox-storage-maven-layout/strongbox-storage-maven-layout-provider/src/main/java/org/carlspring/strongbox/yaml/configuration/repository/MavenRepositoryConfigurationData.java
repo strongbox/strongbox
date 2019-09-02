@@ -25,6 +25,8 @@ public class MavenRepositoryConfigurationData
 
     private boolean indexingClassNamesEnabled;
 
+    private String cronExpression;
+
     public MavenRepositoryConfigurationData()
     {
     }
@@ -33,6 +35,7 @@ public class MavenRepositoryConfigurationData
     {
         this.indexingEnabled = delegate.isIndexingEnabled();
         this.indexingClassNamesEnabled = delegate.isIndexingClassNamesEnabled();
+        this.cronExpression = delegate.getCronExpression();
     }
 
     public boolean isIndexingEnabled()
@@ -44,5 +47,12 @@ public class MavenRepositoryConfigurationData
     {
         return indexingClassNamesEnabled;
     }
+
+    @Override
+    public String getCronExpression()
+    {
+        return cronExpression;
+    }
+
 }
 

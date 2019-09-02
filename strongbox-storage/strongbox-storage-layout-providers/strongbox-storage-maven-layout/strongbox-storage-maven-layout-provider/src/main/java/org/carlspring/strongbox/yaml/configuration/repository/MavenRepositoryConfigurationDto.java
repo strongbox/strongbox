@@ -19,6 +19,9 @@ public class MavenRepositoryConfigurationDto
 
     private boolean indexingClassNamesEnabled = true;
 
+    // defaults to once daily at 2 am
+    private String cronExpression = "0 0 2 * * ?";
+
     @Override
     public boolean isIndexingEnabled()
     {
@@ -39,6 +42,17 @@ public class MavenRepositoryConfigurationDto
     public void setIndexingClassNamesEnabled(final boolean indexingClassNamesEnabled)
     {
         this.indexingClassNamesEnabled = indexingClassNamesEnabled;
+    }
+
+    @Override
+    public String getCronExpression()
+    {
+        return cronExpression;
+    }
+
+    public void setCronExpression(String cronExpression)
+    {
+        this.cronExpression = cronExpression;
     }
 
     @Override

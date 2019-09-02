@@ -54,6 +54,7 @@ configuration:
           repositoryConfiguration:
             type: Maven 2
             indexingEnabled: true
+            cronExpression: "0 0 2 * * ?"
         snapshots:
           id: snapshots
           policy: snapshot
@@ -65,6 +66,7 @@ configuration:
           repositoryConfiguration:
             type: Maven 2
             indexingEnabled: true
+            cronExpression: "0 0 2 * * ?"
     storage-common-proxies:
       id: storage-common-proxies
       repositories:
@@ -82,6 +84,7 @@ configuration:
           repositoryConfiguration:
             type: Maven 2
             indexingEnabled: true
+            cronExpression: "0 0 2 * * ?"
         carlspring:
           id: carlspring
           policy: mixed
@@ -134,6 +137,10 @@ configuration:
           layout: Maven 2
           type: group
           secured: true
+          repositoryConfiguration:
+            type: Maven 2
+            indexingEnabled: true
+            cronExpression: "0 0 2 * * ?"
           groupRepositories:
             - carlspring
             - maven-central
@@ -193,6 +200,10 @@ configuration:
           layout: Maven 2
           type: group
           secured: true
+          repositoryConfiguration:
+            type: Maven 2
+            indexingEnabled: true
+            cronExpression: "0 0 2 * * ?"
           groupRepositories:
             - springsource-snapshots
             - springsource-releases
@@ -229,6 +240,10 @@ configuration:
           layout: Maven 2
           type: group
           secured: true
+          repositoryConfiguration:
+            type: Maven 2
+            indexingEnabled: true
+            cronExpression: "0 0 2 * * ?"
           groupRepositories:
             - typesafe-releases
             - typesafe-ivy-releases
@@ -253,6 +268,10 @@ configuration:
           layout: Maven 2
           type: group
           secured: true
+          repositoryConfiguration:
+            type: Maven 2
+            indexingEnabled: true
+            cronExpression: "0 0 2 * * ?"
           groupRepositories:
             - sbt-plugin-releases
             - storage-ivy-proxies:group-ivy-proxies
@@ -341,6 +360,10 @@ configuration:
           layout: Maven 2
           type: group
           secured: true
+          repositoryConfiguration:
+            type: Maven 2
+            indexingEnabled: true
+            cronExpression: "0 0 2 * * ?"
           groupRepositories:
             - storage0:releases
             - storage0:snapshots

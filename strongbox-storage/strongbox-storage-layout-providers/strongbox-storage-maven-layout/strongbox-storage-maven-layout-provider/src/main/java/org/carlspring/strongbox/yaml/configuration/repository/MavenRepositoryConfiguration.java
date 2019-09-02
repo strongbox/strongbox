@@ -9,4 +9,6 @@ public interface MavenRepositoryConfiguration extends RepositoryConfiguration
 
     boolean isIndexingClassNamesEnabled();
 
+    String getCronExpression();
+
 }
