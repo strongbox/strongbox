@@ -23,6 +23,7 @@ import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.Arrays;
 import java.util.Collections;
+import java.util.Comparator;
 
 import com.fasterxml.jackson.dataformat.yaml.YAMLMapper;
 import com.google.common.collect.Sets;
@@ -61,29 +62,30 @@ public class ConfigurationManagerTest
 
     private YAMLMapper yamlMapper;
 
-    private Path outputFilePath;
-
     @BeforeEach
     void setUp(TestInfo testInfo)
             throws IOException
     {
-        Path configurationBasePath = getConfigurationBasePath();
+        Path configurationBasePath = getConfigurationBasePath(testInfo);
         if (Files.notExists(configurationBasePath))
         {
             Files.createDirectories(configurationBasePath);
         }
-
-        outputFilePath = getConfigurationOutputFilePath(testInfo);
 
         yamlMapper = yamlMapperFactory.create(
                 Sets.newHashSet(CustomRepositoryConfigurationDto.class, RemoteRepositoryConfigurationDto.class));
     }
 
     @AfterEach
-    void tearDown()
+    void tearDown(TestInfo testInfo)
             throws IOException
     {
-        Files.deleteIfExists(outputFilePath);
+        Path configurationBasePath = getConfigurationBasePath(testInfo);
+
+        Files.walk(configurationBasePath)
+             .sorted(Comparator.reverseOrder())
+             .map(Path::toFile)
+             .forEach(File::delete);
     }
 
 
@@ -146,7 +148,7 @@ public class ConfigurationManagerTest
         RepositoryDto repository2 = new RepositoryDto("releases");
 
         final String storageId = "myStorageId";
-        final Path storageBasePath = getStorageBasePath(storageId);
+        final Path storageBasePath = getStorageBasePath(storageId, testInfo);
 
         StorageDto storage = new StorageDto(storageId);
         storage.setBasedir(storageBasePath.toAbsolutePath().toString());
@@ -176,7 +178,7 @@ public class ConfigurationManagerTest
         repository3.addRepositoryToGroup(repository2.getId());
 
         final String storageId = STORAGE0;
-        final Path storageBasePath = getStorageBasePath(storageId);
+        final Path storageBasePath = getStorageBasePath(storageId, testInfo);
 
         StorageDto storage = new StorageDto(storageId);
         storage.setBasedir(storageBasePath.toAbsolutePath().toString());
@@ -290,22 +292,30 @@ public class ConfigurationManagerTest
         assertThat(savedSmtpConfiguration.getPassword()).as("Failed to read saved smtp password!").isEqualTo(smtpPassword);
     }
 
-    private Path getStorageBasePath(final String storageId)
+    private Path getStorageBasePath(final String storageId,
+                                    TestInfo testInfo)
     {
-        return Paths.get(propertiesBooter.getVaultDirectory(), "storages", storageId);
+        final String methodName = getMethodName(testInfo);
+        return Paths.get(propertiesBooter.getVaultDirectory(), "storages", storageId + "-" + methodName);
     }
 
-    private Path getConfigurationBasePath()
+    private Path getConfigurationBasePath(TestInfo testInfo)
     {
-        return Paths.get(propertiesBooter.getVaultDirectory(), "etc", "conf");
+        final String methodName = getMethodName(testInfo);
+        return Paths.get(propertiesBooter.getVaultDirectory(), "etc", "conf", methodName);
     }
 
     private Path getConfigurationOutputFilePath(TestInfo testInfo)
     {
-        Assumptions.assumeTrue(testInfo.getTestMethod().isPresent());
-        final String methodName = testInfo.getTestMethod().get().getName();
+        final String methodName = getMethodName(testInfo);
         final String fileName = String.format("strongbox-saved-cm-%s.yaml", methodName);
 
-        return getConfigurationBasePath().resolve(fileName);
+        return getConfigurationBasePath(testInfo).resolve(fileName);
+    }
+
+    private String getMethodName(TestInfo testInfo)
+    {
+        Assumptions.assumeTrue(testInfo.getTestMethod().isPresent());
+        return testInfo.getTestMethod().get().getName();
     }
 }
