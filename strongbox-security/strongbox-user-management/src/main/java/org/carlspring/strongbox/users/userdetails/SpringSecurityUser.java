@@ -151,8 +151,10 @@ public class SpringSecurityUser
         hashCodeTargets[i++] = username;
         hashCodeTargets[i++] = password;
         hashCodeTargets[i++] = String.valueOf(enabled);
-        hashCodeTargets[i++] = url;
-
+        hashCodeTargets[i++] = securityKey;
+        
+        Arrays.sort(hashCodeTargets);
+        
         return Arrays.hashCode(hashCodeTargets);
     }
 
