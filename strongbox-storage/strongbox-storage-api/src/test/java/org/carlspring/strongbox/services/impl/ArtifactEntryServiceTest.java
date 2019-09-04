@@ -99,6 +99,43 @@ public class ArtifactEntryServiceTest
         return testInfo.getTestMethod().get().getName();
     }
 
+    private void createArtifacts(String groupId,
+                                 String artifactId,
+                                 String storageId,
+                                 String repositoryId)
+    {
+        // create 3 artifacts, one will have coordinates that matches our query, one - not
+        ArtifactCoordinates coordinates1 = createArtifactCoordinates(groupId, artifactId + "123", "1.2.3", "jar");
+        ArtifactCoordinates coordinates2 = createArtifactCoordinates(groupId, artifactId, "1.2.3", "jar");
+        ArtifactCoordinates coordinates3 = createArtifactCoordinates(groupId + ".myId", artifactId + "321", "1.2.3",
+                                                                     "jar");
+
+        createArtifactEntry(coordinates1, storageId, repositoryId);
+        createArtifactEntry(coordinates2, storageId, repositoryId);
+        createArtifactEntry(coordinates3, storageId, repositoryId);
+    }
+
+    private ArtifactCoordinates createArtifactCoordinates(final String groupId,
+                                                          final String artifactId,
+                                                          final String version,
+                                                          final String extension)
+    {
+
+        return new RawArtifactCoordinates(String.format("%s/%s/%s/%s", groupId, artifactId, version, extension));
+    }
+
+    private void createArtifactEntry(ArtifactCoordinates coordinates,
+                                     String storageId,
+                                     String repositoryId)
+    {
+        ArtifactEntry artifactEntry = new ArtifactEntry();
+        artifactEntry.setArtifactCoordinates(coordinates);
+        artifactEntry.setStorageId(storageId);
+        artifactEntry.setRepositoryId(repositoryId);
+
+        save(artifactEntry);
+    }
+
     @AfterEach
     public void cleanup(TestInfo testInfo)
     {
@@ -124,18 +161,19 @@ public class ArtifactEntryServiceTest
         return artifactEntryService.findArtifactList(null, repositoryId, coordinates, false);
     }
 
-    private void displayAllEntries(TestInfo testInfo, String when)
+    private void displayAllEntries(TestInfo testInfo,
+                                   String when)
     {
         List<ArtifactEntry> result = findAll(testInfo);
         if (CollectionUtils.isEmpty(result))
         {
-            logger.info(when + " Artifact repository is empty");
+            logger.info("{} Artifact repository is empty", when);
         }
         else
         {
-            result.forEach(artifactEntry -> logger.info(when + " Found artifact [{}] - {}",
-                                                        artifactEntry.getArtifactCoordinates().getId(),
-                                                        artifactEntry));
+            result.forEach(artifactEntry -> logger.debug("Found artifact [{}] - {}",
+                                                         artifactEntry.getArtifactCoordinates().getId(),
+                                                         artifactEntry));
         }
     }
 
@@ -184,6 +222,7 @@ public class ArtifactEntryServiceTest
         assertThat(artifactEntryOptional).isPresent();
 
         ArtifactEntry artifactEntry = artifactEntryOptional.get();
+        assertThat(artifactEntry).isNotNull();
         assertThat(artifactEntry.getArtifactCoordinates()).isNotNull();
         assertThat(artifactEntry.getArtifactCoordinates().toPath()).isEqualTo(jarCoordinates.toPath());
 
@@ -202,8 +241,8 @@ public class ArtifactEntryServiceTest
         assertThat(artifactEntryOptional).isPresent();
 
         //Cascade field update
-        RawArtifactCoordinates nullArtifactCoordinates = (RawArtifactCoordinates) artifactEntry.getArtifactCoordinates();
-        nullArtifactCoordinates.setId(pomCoordinates.toPath());
+        RawArtifactCoordinates RawArtifactCoordinates = (RawArtifactCoordinates) artifactEntry.getArtifactCoordinates();
+        RawArtifactCoordinates.setId(pomCoordinates.toPath());
         save(artifactEntry);
 
         artifactEntryOptional = Optional.ofNullable(artifactEntryService.findOneArtifact(STORAGE_ID,
@@ -314,9 +353,7 @@ public class ArtifactEntryServiceTest
         logger.info(String.format(LOG_PATTERN, String.format("repositoryId [%s]", repositoryId)));
 
         List<ArtifactEntry> allArtifactEntries = findAll(testInfo);
-        allArtifactEntries.forEach(a -> {
-            logger.info(String.format(LOG_PATTERN, String.format("forEach allArtifactEntries [%s]", a)));
-        });
+        allArtifactEntries.forEach(a -> logger.info(String.format(LOG_PATTERN, String.format("forEach allArtifactEntries [%s]", a))));
 
         int all = allArtifactEntries.size();
         logger.info(String.format(LOG_PATTERN, String.format("allArtifactEntries.size() [%d]", all)));
@@ -375,7 +412,8 @@ public class ArtifactEntryServiceTest
                                 {
                                     logger.debug("Found artifact {}", artifactEntry);
                                     assertThat(
-                                            ((RawArtifactCoordinates) artifactEntry.getArtifactCoordinates()).getPath().startsWith(
+                                            (
+                                            (RawArtifactCoordinates) artifactEntry.getArtifactCoordinates()).getPath().startsWith(
                                                     groupId + "/")).isTrue();
                                 });
     }
@@ -407,7 +445,8 @@ public class ArtifactEntryServiceTest
                        {
                            logger.debug("Found artifact {}", artifactEntry);
                            assertThat(
-                                   ((RawArtifactCoordinates) artifactEntry.getArtifactCoordinates()).getPath().startsWith(
+                                   (
+                                   (RawArtifactCoordinates) artifactEntry.getArtifactCoordinates()).getPath().startsWith(
                                            groupId + "/" + ARTIFACT_ID)).isTrue();
                        });
 
@@ -418,49 +457,10 @@ public class ArtifactEntryServiceTest
         assertThat(c).isEqualTo(Long.valueOf(1));
     }
 
-    private void createArtifacts(String groupId,
-                                 String artifactId,
-                                 String storageId,
-                                 String repositoryId)
-    {
-        // create 3 artifacts, one will have coordinates that matches our query, one - not
-        ArtifactCoordinates coordinates1 = createArtifactCoordinates(groupId, artifactId + "123", "1.2.3", "jar");
-        ArtifactCoordinates coordinates2 = createArtifactCoordinates(groupId, artifactId, "1.2.3", "jar");
-        ArtifactCoordinates coordinates3 = createArtifactCoordinates(groupId + "myId", artifactId + "321", "1.2.3",
-                                                                     "jar");
-
-        createArtifactEntry(coordinates1, storageId, repositoryId);
-        createArtifactEntry(coordinates2, storageId, repositoryId);
-        createArtifactEntry(coordinates3, storageId, repositoryId);
-    }
-
-    private ArtifactCoordinates createArtifactCoordinates(final String groupId,
-                                                          final String artifactId,
-                                                          final String version,
-                                                          final String extension)
-    {
-
-        return new RawArtifactCoordinates(String.format("%s/%s/%s/%s", groupId, artifactId, version, extension));
-    }
-
-    private void createArtifactEntry(ArtifactCoordinates coordinates,
-                                     String storageId,
-                                     String repositoryId)
-    {
-        ArtifactEntry artifactEntry = new ArtifactEntry();
-        artifactEntry.setArtifactCoordinates(coordinates);
-        artifactEntry.setStorageId(storageId);
-        artifactEntry.setRepositoryId(repositoryId);
-
-        save(artifactEntry);
-    }
-
     private void updateArtifactAttributes(TestInfo testInfo)
     {
         List<ArtifactEntry> artifactEntries = findAll(testInfo);
-        artifactEntries.forEach(a -> {
-            logger.info(String.format(LOG_PATTERN, String.format("forEach updateArtifactAttributes [%s]", a)));
-        });
+        artifactEntries.forEach(a -> logger.info(String.format(LOG_PATTERN, String.format("forEach updateArtifactAttributes [%s]", a))));
         logger.info(String.format(LOG_PATTERN, String.format("updateArtifactAttributes.size() [%d]", artifactEntries.size())));
 
         for (int i = 0; i < artifactEntries.size(); i++)
