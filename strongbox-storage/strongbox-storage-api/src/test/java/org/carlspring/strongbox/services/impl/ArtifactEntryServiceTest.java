@@ -369,9 +369,7 @@ public class ArtifactEntryServiceTest
                                                           .filter(e -> e.getRepositoryId().equals(repositoryId))
                                                           .collect(Collectors.toList());
 
-        entries.forEach(a -> {
-            logger.info(String.format(LOG_PATTERN, String.format("forEach findMatching [%s]", a)));
-        });
+        entries.forEach(a -> logger.info(String.format(LOG_PATTERN, String.format("forEach findMatching [%s]", a))));
         logger.info(String.format(LOG_PATTERN, String.format("findMatching.size() [%d]", entries.size())));
 
         entries.forEach(entry -> logger.debug("Found artifact after search: [{}] - {}",
