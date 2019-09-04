@@ -76,7 +76,7 @@ public class ArtifactEntryServiceTest
                         STORAGE_ID,
                         repositoryId);
 
-        displayAllEntries(groupId);
+        displayAllEntries(testInfo);
     }
 
     private String getRepositoryId(TestInfo testInfo)
@@ -100,28 +100,44 @@ public class ArtifactEntryServiceTest
     @AfterEach
     public void cleanup(TestInfo testInfo)
     {
-        final String groupId = getGroupId(testInfo);
-
-        List<ArtifactEntry> artifactEntries = findAll(groupId);
+        List<ArtifactEntry> artifactEntries = findAll(testInfo);
         List<AbstractArtifactCoordinates> artifactCoordinates = artifactEntries.stream()
                                                                                .map(e -> (AbstractArtifactCoordinates) e.getArtifactCoordinates())
                                                                                .collect(Collectors.toList());
         artifactEntryService.delete(artifactEntries);
         artifactCoordinatesService.delete(artifactCoordinates);
 
-        displayAllEntries(groupId);
+        displayAllEntries(testInfo);
     }
 
-    private List<ArtifactEntry> findAll(final String groupId)
+    private List<ArtifactEntry> findAll(TestInfo testInfo)
     {
+        final String repositoryId = getRepositoryId(testInfo);
+        final String groupId = getGroupId(testInfo);
+
         HashMap<String, String> coordinates = new HashMap<>();
         coordinates.put("path", groupId);
-        return artifactEntryService.findArtifactList(null, null, coordinates, false);
+        return artifactEntryService.findArtifactList(null, repositoryId, coordinates, false);
     }
 
-    protected int count(final String groupId)
+    private void displayAllEntries(TestInfo testInfo)
     {
-        return findAll(groupId).size();
+        List<ArtifactEntry> result = findAll(testInfo);
+        if (CollectionUtils.isEmpty(result))
+        {
+            logger.debug("Artifact repository is empty");
+        }
+        else
+        {
+            result.forEach(artifactEntry -> logger.debug("Found artifact [{}] - {}",
+                                                         artifactEntry.getArtifactCoordinates().getId(),
+                                                         artifactEntry));
+        }
+    }
+
+    protected int count(TestInfo testInfo)
+    {
+        return findAll(testInfo).size();
     }
 
     @Test
@@ -211,10 +227,9 @@ public class ArtifactEntryServiceTest
     public void searchBySizeShouldWork(TestInfo testInfo)
     {
         final String repositoryId = getRepositoryId(testInfo);
-        final String groupId = getGroupId(testInfo);
 
-        int all = count(groupId);
-        updateArtifactAttributes(groupId);
+        int all = count(testInfo);
+        updateArtifactAttributes(testInfo);
 
         List<ArtifactEntry> entries = artifactEntryService.findMatching(anArtifactEntrySearchCriteria()
                                                                                 .withMinSizeInBytes(500L)
@@ -235,10 +250,9 @@ public class ArtifactEntryServiceTest
     public void searchByLastUsedShouldWork(TestInfo testInfo)
     {
         final String repositoryId = getRepositoryId(testInfo);
-        final String groupId = getGroupId(testInfo);
 
-        int all = count(groupId);
-        updateArtifactAttributes(groupId);
+        int all = count(testInfo);
+        updateArtifactAttributes(testInfo);
 
         List<ArtifactEntry> entries = artifactEntryService.findMatching(anArtifactEntrySearchCriteria()
                                                                                 .withLastAccessedTimeInDays(5)
@@ -258,34 +272,30 @@ public class ArtifactEntryServiceTest
     @Test
     public void deleteAllShouldWork(TestInfo testInfo)
     {
-        final String groupId = getGroupId(testInfo);
-
-        int all = count(groupId);
+        int all = count(testInfo);
         assertThat(all).isEqualTo(3);
 
-        List<ArtifactEntry> artifactEntries = findAll(groupId);
+        List<ArtifactEntry> artifactEntries = findAll(testInfo);
         int removed = artifactEntryService.delete(artifactEntries);
         assertThat(removed).isEqualTo(all);
 
-        int left = count(groupId);
+        int left = count(testInfo);
         assertThat(left).isZero();
-        assertThat(findAll(groupId)).isEmpty();
+        assertThat(findAll(testInfo)).isEmpty();
     }
 
     @Test
     public void deleteButNotAllShouldWork(TestInfo testInfo)
     {
-        final String groupId = getGroupId(testInfo);
-
-        int all = count(groupId);
+        int all = count(testInfo);
         assertThat(all).isEqualTo(3);
 
-        List<ArtifactEntry> artifactEntries = findAll(groupId);
+        List<ArtifactEntry> artifactEntries = findAll(testInfo);
         artifactEntries.remove(0);
         int removed = artifactEntryService.delete(artifactEntries);
         assertThat(removed).isEqualTo(all - 1);
 
-        int left = count(groupId);
+        int left = count(testInfo);
         assertThat(left).isEqualTo(1);
     }
 
@@ -293,10 +303,9 @@ public class ArtifactEntryServiceTest
     public void searchByLastUsedAndBySizeShouldWork(TestInfo testInfo)
     {
         final String repositoryId = getRepositoryId(testInfo);
-        final String groupId = getGroupId(testInfo);
 
-        int all = count(groupId);
-        updateArtifactAttributes(groupId);
+        int all = count(testInfo);
+        updateArtifactAttributes(testInfo);
 
         List<ArtifactEntry> entries = artifactEntryService.findMatching(anArtifactEntrySearchCriteria()
                                                                                 .withMinSizeInBytes(500L)
@@ -323,7 +332,7 @@ public class ArtifactEntryServiceTest
         final String repositoryId = getRepositoryId(testInfo);
         final String groupId = getGroupId(testInfo);
 
-        logger.debug("There are a total of {} artifacts.", count(groupId));
+        logger.debug("There are a total of {} artifacts.", count(testInfo));
 
         // prepare search query key (coordinates)
         RawArtifactCoordinates coordinates = new RawArtifactCoordinates(groupId + "/");
@@ -355,7 +364,7 @@ public class ArtifactEntryServiceTest
         final String repositoryId = getRepositoryId(testInfo);
         final String groupId = getGroupId(testInfo);
 
-        logger.debug("There are a total of {} artifacts.", count(groupId));
+        logger.debug("There are a total of {} artifacts.", count(testInfo));
 
         // prepare search query key (coordinates)
         RawArtifactCoordinates c1 = new RawArtifactCoordinates(groupId + "/" + ARTIFACT_ID + "/");
@@ -513,9 +522,9 @@ public class ArtifactEntryServiceTest
         save(artifactEntry);
     }
 
-    private void updateArtifactAttributes(final String groupId)
+    private void updateArtifactAttributes(TestInfo testInfo)
     {
-        List<ArtifactEntry> artifactEntries = findAll(groupId);
+        List<ArtifactEntry> artifactEntries = findAll(testInfo);
         for (int i = 0; i < artifactEntries.size(); i++)
         {
             final ArtifactEntry artifactEntry = artifactEntries.get(i);
