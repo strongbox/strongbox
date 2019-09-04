@@ -265,6 +265,10 @@ public class RestClient
             {
                 proxyConfiguration = yamlMapper.readValue(bais, MutableProxyConfiguration.class);
             }
+            catch(Exception e)
+            {
+            e.printStackTrace();
+            }
         }
         else
         {
