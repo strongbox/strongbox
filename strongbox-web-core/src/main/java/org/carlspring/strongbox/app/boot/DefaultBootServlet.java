@@ -59,10 +59,8 @@ public class DefaultBootServlet
 
     private void readResource(String requestedResource, HttpServletResponse response)
     {
-        try
+        try (InputStream inputStream = DefaultBootServlet.class.getResourceAsStream(requestedResource))
         {
-            InputStream inputStream = DefaultBootServlet.class.getResourceAsStream(requestedResource);
-
             String mime = MediaType.APPLICATION_OCTET_STREAM_VALUE;
 
             if (requestedResource.endsWith(".html"))
@@ -83,7 +81,6 @@ public class DefaultBootServlet
             response.flushBuffer();
 
             IOUtils.copy(inputStream, response.getOutputStream());
-
         }
         catch (IOException e)
         {

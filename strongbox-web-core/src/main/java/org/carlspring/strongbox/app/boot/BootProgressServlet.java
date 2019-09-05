@@ -52,22 +52,12 @@ public class BootProgressServlet
 
             final Disposable disposable = BootProgressBeanPostProcessor.getProgressObservable()
                                                                        .doOnComplete(() -> {
-                                                                           write("ready", "", asyncContext);
+                                                                           write("booted", "", asyncContext);
                                                                            asyncContext.getResponse().getWriter().flush();
                                                                            asyncContext.complete();
-
                                                                        })
                                                                        .doOnError((e) -> {
-                                                                           // IOException occurs mostly when the client
-                                                                           // closes the connection unexpectedly on
-                                                                           // their end.
-                                                                           if (!(e instanceof IOException))
-                                                                           {
-                                                                               logger.error(
-                                                                                       "An error occurred!",
-                                                                                       e);
-                                                                           }
-
+                                                                           logger.error("An error occurred!", e);
                                                                            asyncContext.complete();
                                                                        })
                                                                        .subscribe(data -> write("booting",

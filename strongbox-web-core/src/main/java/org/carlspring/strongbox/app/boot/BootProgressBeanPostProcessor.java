@@ -32,6 +32,7 @@ import org.springframework.context.event.EventListener;
 import org.springframework.context.support.AbstractApplicationContext;
 import org.springframework.core.annotation.Order;
 import org.springframework.lang.Nullable;
+import org.springframework.security.authentication.DefaultAuthenticationEventPublisher;
 import org.springframework.stereotype.Component;
 import static org.springframework.core.Ordered.HIGHEST_PRECEDENCE;
 
@@ -56,7 +57,7 @@ public class BootProgressBeanPostProcessor
             { "management.metrics-org.springframework.boot.actuate.autoconfigure.metrics.MetricsProperties", "Loading metrics..." },
             { "orientDbServer", "Waiting for database..." },
             { "liquibase", "Running update scripts..." },
-            { "org.carlspring.strongbox.config.hazelcast.HazelcastConfiguration", "Waiting for cache..." },
+            { org.carlspring.strongbox.config.hazelcast.HazelcastConfiguration.class.getName(), "Waiting for cache..." },
             { "org.springframework.boot.actuate.autoconfigure", "Waiting for actuators..." },
             // it might look like we need to use "storageBooter" here, but that actually depends on tempDirBooter which does most of the heavy lifting.
             { "tempDirBooter", "Waiting for storage booter" },
@@ -66,8 +67,8 @@ public class BootProgressBeanPostProcessor
             { "npmLayoutProvider", "Loading NPM layout provider.." },
             { "rawLayoutProvider", "Loading Raw layout provider.." },
             { "transactionManager", "Loading transaction manager..." },
-            { "org.carlspring.strongbox.config.SecurityConfig", "Loading security configuration..." },
-            { "org.carlspring.strongbox.config.SwaggerConfig", "Loading documentation..." },
+            { org.carlspring.strongbox.config.SecurityConfig.class.getName(), "Loading security configuration..." },
+            { org.carlspring.strongbox.config.SwaggerConfig.class.getName(), "Loading documentation..." },
             { "fallback", "Waiting for services to go live..."},
     }).collect(Collectors.toMap(p -> p[0], p -> p[1]));
     //@formatter:on
@@ -107,27 +108,39 @@ public class BootProgressBeanPostProcessor
     {
         logger.debug("Notifying clients Strongbox has booted.");
         progress.onComplete();
+        progress = null;
 
+        stopServer();
+        removeEventListener();
+    }
+
+    private void stopServer()
+            throws InterruptedException
+    {
         // Slightly delay stopping the server to leave enough time for existing responses to complete.
         // Fixes
         //   curl: (18) transfer closed with outstanding read data remaining
         //   err_incomplete_chunked_encoding
-        Thread.sleep(1600);
+        // NB: This needs to be in sync with the UI.
+        Thread.sleep(1000);
 
         logger.debug("Stopping server {}", webServer.toString());
         webServer.stop();
+
         webServer = null;
+    }
 
-        progress = null;
+    private void removeEventListener()
+    {
+        logger.debug("Removing registered {} event listener", BootProgressBeanPostProcessor.class);
 
-        logger.debug("Removing registered {} event listeners", BootProgressBeanPostProcessor.class);
         Collection<ApplicationListener<?>> listeners = ((AbstractApplicationContext) applicationContext).getApplicationListeners();
 
         ApplicationListener<?> applicationListener = listeners.stream()
                                                               .filter(listener -> listener instanceof ApplicationListenerMethodAdapter &&
-                                                                              ((ApplicationListenerMethodAdapter) listener)
-                                                                                      .toString()
-                                                                                      .contains(BootProgressBeanPostProcessor.class.getSimpleName()))
+                                                                                  ((ApplicationListenerMethodAdapter) listener)
+                                                                                          .toString()
+                                                                                          .contains(BootProgressBeanPostProcessor.class.getSimpleName()))
                                                               .findFirst()
                                                               .get();
 
@@ -142,7 +155,7 @@ public class BootProgressBeanPostProcessor
     {
         logger.trace("Found bean: {}", beanName);
 
-        if(displayMessages.containsKey(beanName) || beanName.contains("org.springframework.security.authentication.DefaultAuthenticationEventPublisher"))
+        if(displayMessages.containsKey(beanName) || beanName.contains(DefaultAuthenticationEventPublisher.class.getName()))
         {
             String displayMessage = displayMessages.getOrDefault(beanName, displayMessages.get("fallback"));
             progress.onNext(displayMessage);
