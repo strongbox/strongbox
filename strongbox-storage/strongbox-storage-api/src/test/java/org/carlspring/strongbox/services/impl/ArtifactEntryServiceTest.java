@@ -135,11 +135,6 @@ public class ArtifactEntryServiceTest
         }
     }
 
-    protected int count(TestInfo testInfo)
-    {
-        return findAll(testInfo).size();
-    }
-
     @Test
     public void saveEntityShouldWork(TestInfo testInfo)
     {
@@ -228,7 +223,8 @@ public class ArtifactEntryServiceTest
     {
         final String repositoryId = getRepositoryId(testInfo);
 
-        int all = count(testInfo);
+        List<ArtifactEntry> allArtifactEntries = findAll(testInfo);
+        int all = allArtifactEntries.size();
         updateArtifactAttributes(testInfo);
 
         List<ArtifactEntry> entries = artifactEntryService.findMatching(anArtifactEntrySearchCriteria()
@@ -251,7 +247,8 @@ public class ArtifactEntryServiceTest
     {
         final String repositoryId = getRepositoryId(testInfo);
 
-        int all = count(testInfo);
+        List<ArtifactEntry> allArtifactEntries = findAll(testInfo);
+        int all = allArtifactEntries.size();
         updateArtifactAttributes(testInfo);
 
         List<ArtifactEntry> entries = artifactEntryService.findMatching(anArtifactEntrySearchCriteria()
@@ -272,30 +269,30 @@ public class ArtifactEntryServiceTest
     @Test
     public void deleteAllShouldWork(TestInfo testInfo)
     {
-        int all = count(testInfo);
+        List<ArtifactEntry> artifactEntries = findAll(testInfo);
+        int all = artifactEntries.size();
         assertThat(all).isEqualTo(3);
 
-        List<ArtifactEntry> artifactEntries = findAll(testInfo);
         int removed = artifactEntryService.delete(artifactEntries);
         assertThat(removed).isEqualTo(all);
 
-        int left = count(testInfo);
-        assertThat(left).isZero();
-        assertThat(findAll(testInfo)).isEmpty();
+        List<ArtifactEntry> artifactEntriesLeft = findAll(testInfo);
+        assertThat(artifactEntriesLeft).isEmpty();
     }
 
     @Test
     public void deleteButNotAllShouldWork(TestInfo testInfo)
     {
-        int all = count(testInfo);
+        List<ArtifactEntry> artifactEntries = findAll(testInfo);
+        int all = artifactEntries.size();
         assertThat(all).isEqualTo(3);
 
-        List<ArtifactEntry> artifactEntries = findAll(testInfo);
         artifactEntries.remove(0);
         int removed = artifactEntryService.delete(artifactEntries);
         assertThat(removed).isEqualTo(all - 1);
 
-        int left = count(testInfo);
+        List<ArtifactEntry> artifactEntriesLeft = findAll(testInfo);
+        int left = artifactEntriesLeft.size();
         assertThat(left).isEqualTo(1);
     }
 
@@ -304,7 +301,8 @@ public class ArtifactEntryServiceTest
     {
         final String repositoryId = getRepositoryId(testInfo);
 
-        int all = count(testInfo);
+        List<ArtifactEntry> allArtifactEntries = findAll(testInfo);
+        int all = allArtifactEntries.size();
         updateArtifactAttributes(testInfo);
 
         List<ArtifactEntry> entries = artifactEntryService.findMatching(anArtifactEntrySearchCriteria()
@@ -332,7 +330,8 @@ public class ArtifactEntryServiceTest
         final String repositoryId = getRepositoryId(testInfo);
         final String groupId = getGroupId(testInfo);
 
-        logger.debug("There are a total of {} artifacts.", count(testInfo));
+        List<ArtifactEntry> allArtifactEntries = findAll(testInfo);
+        logger.debug("There are a total of {} artifacts.", allArtifactEntries.size());
 
         // prepare search query key (coordinates)
         RawArtifactCoordinates coordinates = new RawArtifactCoordinates(groupId + "/");
@@ -364,7 +363,8 @@ public class ArtifactEntryServiceTest
         final String repositoryId = getRepositoryId(testInfo);
         final String groupId = getGroupId(testInfo);
 
-        logger.debug("There are a total of {} artifacts.", count(testInfo));
+        List<ArtifactEntry> allArtifactEntries = findAll(testInfo);
+        logger.debug("There are a total of {} artifacts.", allArtifactEntries.size());
 
         // prepare search query key (coordinates)
         RawArtifactCoordinates c1 = new RawArtifactCoordinates(groupId + "/" + ARTIFACT_ID + "/");
