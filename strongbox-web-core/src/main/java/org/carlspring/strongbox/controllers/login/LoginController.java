@@ -8,7 +8,7 @@ import java.util.Optional;
 import javax.inject.Inject;
 
 import org.carlspring.strongbox.controllers.BaseController;
-import org.carlspring.strongbox.users.security.JwtAuthenticationClaimsProvider;
+
 import org.carlspring.strongbox.users.security.JwtClaimsProvider;
 import org.carlspring.strongbox.users.security.SecurityTokenProvider;
 import org.carlspring.strongbox.users.userdetails.SpringSecurityUser;
@@ -32,6 +32,8 @@ import io.swagger.annotations.ApiOperation;
 import io.swagger.annotations.ApiResponse;
 import io.swagger.annotations.ApiResponses;
 
+import static org.carlspring.strongbox.users.security.JwtAuthenticationClaimsProvider.JwtAuthentication;
+
 /**
  * Works in conjunction with {@link org.carlspring.strongbox.security.authentication.suppliers.JsonFormLoginSupplier}
  *
@@ -52,7 +54,7 @@ public class LoginController
     private SecurityTokenProvider securityTokenProvider;
 
     @Inject
-    @JwtAuthenticationClaimsProvider.JwtAuthentication
+    @JwtAuthentication
     private JwtClaimsProvider jwtClaimsProvider;
 
     @ApiOperation(value = "Returns the JWT authentication token for provided username and password")

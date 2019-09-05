@@ -11,8 +11,10 @@ import javax.inject.Qualifier;
 import org.carlspring.strongbox.users.userdetails.SpringSecurityUser;
 import org.springframework.stereotype.Component;
 
+import static org.carlspring.strongbox.users.security.JwtAuthenticationClaimsProvider.JwtAuthentication;
+
 @Component
-@JwtAuthenticationClaimsProvider.JwtAuthentication
+@JwtAuthentication
 public class JwtAuthenticationClaimsProvider implements JwtClaimsProvider
 {
 
@@ -24,7 +26,7 @@ public class JwtAuthenticationClaimsProvider implements JwtClaimsProvider
 
     @Qualifier
     @Retention(RUNTIME)
-    public static @interface JwtAuthentication {
+    public @interface JwtAuthentication {
         
     }
 }

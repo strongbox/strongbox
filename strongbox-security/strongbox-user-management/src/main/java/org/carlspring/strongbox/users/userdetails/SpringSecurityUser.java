@@ -142,7 +142,7 @@ public class SpringSecurityUser
     @Override
     public int hashCode()
     {
-        String[] hashCodeTargets = new String[roles.size() + 4];
+        String[] hashCodeTargets = new String[roles.size() + 5];
         int i = 0;
         for (Role role : roles)
         {
@@ -152,6 +152,7 @@ public class SpringSecurityUser
         hashCodeTargets[i++] = password;
         hashCodeTargets[i++] = String.valueOf(enabled);
         hashCodeTargets[i++] = securityKey;
+        hashCodeTargets[i++] = url;
         
         Arrays.sort(hashCodeTargets);
         

@@ -2,8 +2,8 @@ package org.carlspring.strongbox.controllers.configuration.security.ldap;
 
 import javax.inject.Inject;
 
-import org.carlspring.strongbox.authentication.external.ldap.LdapAuthenticationConfigurationManager;
-import org.carlspring.strongbox.authentication.external.ldap.LdapConfiguration;
+import org.carlspring.strongbox.authentication.api.ldap.LdapAuthenticationConfigurationManager;
+import org.carlspring.strongbox.authentication.api.ldap.LdapConfiguration;
 import org.carlspring.strongbox.controllers.BaseController;
 import org.carlspring.strongbox.forms.configuration.security.ldap.LdapConfigurationTestForm;
 import org.carlspring.strongbox.validation.RequestBodyValidationException;
