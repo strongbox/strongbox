@@ -59,6 +59,8 @@ public class ArtifactEntryServiceTest
 
     private final String ARTIFACT_ID = "coordinates-test";
 
+    private final String LOG_PATTERN = "###################### [%s] ######################";
+
     @Inject
     private ArtifactEntryService artifactEntryService;
 
@@ -301,8 +303,16 @@ public class ArtifactEntryServiceTest
     {
         final String repositoryId = getRepositoryId(testInfo);
 
+        logger.info(String.format(LOG_PATTERN, String.format("repositoryId [%s]", repositoryId)));
+
         List<ArtifactEntry> allArtifactEntries = findAll(testInfo);
+        allArtifactEntries.stream().forEach(a -> {
+            logger.info(String.format(LOG_PATTERN, String.format("forEach allArtifactEntries [%s]", a)));
+        });
+
         int all = allArtifactEntries.size();
+        logger.info(String.format(LOG_PATTERN, String.format("allArtifactEntries.size() [%d]", all)));
+
         updateArtifactAttributes(testInfo);
 
         List<ArtifactEntry> entries = artifactEntryService.findMatching(anArtifactEntrySearchCriteria()
@@ -314,10 +324,16 @@ public class ArtifactEntryServiceTest
                                                           .filter(e -> e.getRepositoryId().equals(repositoryId))
                                                           .collect(Collectors.toList());
 
+        entries.stream().forEach(a -> {
+            logger.info(String.format(LOG_PATTERN, String.format("forEach findMatching [%s]", a)));
+        });
+        logger.info(String.format(LOG_PATTERN, String.format("findMatching.size() [%d]", entries.size())));
+
         entries.forEach(entry -> logger.debug("Found artifact after search: [{}] - {}",
                                               entry.getArtifactCoordinates().getId(),
                                               entry));
 
+        logger.info(String.format(LOG_PATTERN, String.format("assertThat [%d] [%d]", entries.size(), all - 1)));
         assertThat(entries).hasSize(all - 1);
     }
 
@@ -525,6 +541,11 @@ public class ArtifactEntryServiceTest
     private void updateArtifactAttributes(TestInfo testInfo)
     {
         List<ArtifactEntry> artifactEntries = findAll(testInfo);
+        artifactEntries.stream().forEach(a -> {
+            logger.info(String.format(LOG_PATTERN, String.format("forEach updateArtifactAttributes [%s]", a)));
+        });
+        logger.info(String.format(LOG_PATTERN, String.format("updateArtifactAttributes.size() [%d]", artifactEntries.size())));
+
         for (int i = 0; i < artifactEntries.size(); i++)
         {
             final ArtifactEntry artifactEntry = artifactEntries.get(i);
