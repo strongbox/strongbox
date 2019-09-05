@@ -10,8 +10,6 @@ import org.carlspring.strongbox.domain.ArtifactEntry;
 import org.carlspring.strongbox.services.ArtifactEntryService;
 
 import javax.inject.Inject;
-import java.text.ParseException;
-import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
@@ -70,6 +68,8 @@ public class ArtifactEntryServiceTest
     @BeforeEach
     public void setup(TestInfo testInfo)
     {
+        displayAllEntries(testInfo, "setup before");
+
         final String repositoryId = getRepositoryId(testInfo);
         final String groupId = getGroupId(testInfo);
 
@@ -78,7 +78,7 @@ public class ArtifactEntryServiceTest
                         STORAGE_ID,
                         repositoryId);
 
-        displayAllEntries(testInfo);
+        displayAllEntries(testInfo, "setup after");
     }
 
     private String getRepositoryId(TestInfo testInfo)
@@ -102,6 +102,8 @@ public class ArtifactEntryServiceTest
     @AfterEach
     public void cleanup(TestInfo testInfo)
     {
+        displayAllEntries(testInfo, "cleanup before");
+
         List<ArtifactEntry> artifactEntries = findAll(testInfo);
         List<AbstractArtifactCoordinates> artifactCoordinates = artifactEntries.stream()
                                                                                .map(e -> (AbstractArtifactCoordinates) e.getArtifactCoordinates())
@@ -109,7 +111,7 @@ public class ArtifactEntryServiceTest
         artifactEntryService.delete(artifactEntries);
         artifactCoordinatesService.delete(artifactCoordinates);
 
-        displayAllEntries(testInfo);
+        displayAllEntries(testInfo, "cleanup after");
     }
 
     private List<ArtifactEntry> findAll(TestInfo testInfo)
@@ -122,18 +124,18 @@ public class ArtifactEntryServiceTest
         return artifactEntryService.findArtifactList(null, repositoryId, coordinates, false);
     }
 
-    private void displayAllEntries(TestInfo testInfo)
+    private void displayAllEntries(TestInfo testInfo, String when)
     {
         List<ArtifactEntry> result = findAll(testInfo);
         if (CollectionUtils.isEmpty(result))
         {
-            logger.debug("Artifact repository is empty");
+            logger.info(when + " Artifact repository is empty");
         }
         else
         {
-            result.forEach(artifactEntry -> logger.debug("Found artifact [{}] - {}",
-                                                         artifactEntry.getArtifactCoordinates().getId(),
-                                                         artifactEntry));
+            result.forEach(artifactEntry -> logger.info(when + " Found artifact [{}] - {}",
+                                                        artifactEntry.getArtifactCoordinates().getId(),
+                                                        artifactEntry));
         }
     }
 
@@ -271,6 +273,8 @@ public class ArtifactEntryServiceTest
     @Test
     public void deleteAllShouldWork(TestInfo testInfo)
     {
+        displayAllEntries(testInfo, "deleteAllShouldWork before");
+
         List<ArtifactEntry> artifactEntries = findAll(testInfo);
         int all = artifactEntries.size();
         assertThat(all).isEqualTo(3);
@@ -280,6 +284,8 @@ public class ArtifactEntryServiceTest
 
         List<ArtifactEntry> artifactEntriesLeft = findAll(testInfo);
         assertThat(artifactEntriesLeft).isEmpty();
+
+        displayAllEntries(testInfo, "deleteAllShouldWork after");
     }
 
     @Test
@@ -301,12 +307,14 @@ public class ArtifactEntryServiceTest
     @Test
     public void searchByLastUsedAndBySizeShouldWork(TestInfo testInfo)
     {
+        displayAllEntries(testInfo, "searchByLastUsedAndBySizeShouldWork before");
+
         final String repositoryId = getRepositoryId(testInfo);
 
         logger.info(String.format(LOG_PATTERN, String.format("repositoryId [%s]", repositoryId)));
 
         List<ArtifactEntry> allArtifactEntries = findAll(testInfo);
-        allArtifactEntries.stream().forEach(a -> {
+        allArtifactEntries.forEach(a -> {
             logger.info(String.format(LOG_PATTERN, String.format("forEach allArtifactEntries [%s]", a)));
         });
 
@@ -324,7 +332,7 @@ public class ArtifactEntryServiceTest
                                                           .filter(e -> e.getRepositoryId().equals(repositoryId))
                                                           .collect(Collectors.toList());
 
-        entries.stream().forEach(a -> {
+        entries.forEach(a -> {
             logger.info(String.format(LOG_PATTERN, String.format("forEach findMatching [%s]", a)));
         });
         logger.info(String.format(LOG_PATTERN, String.format("findMatching.size() [%d]", entries.size())));
@@ -335,6 +343,8 @@ public class ArtifactEntryServiceTest
 
         logger.info(String.format(LOG_PATTERN, String.format("assertThat [%d] [%d]", entries.size(), all - 1)));
         assertThat(entries).hasSize(all - 1);
+
+        displayAllEntries(testInfo, "searchByLastUsedAndBySizeShouldWork after");
     }
 
     /**
@@ -408,99 +418,6 @@ public class ArtifactEntryServiceTest
         assertThat(c).isEqualTo(Long.valueOf(1));
     }
 
-    @Test
-    public void saveEntityCreationDateShouldBeGeneratedAutomaticallyAndRemainUnchanged(TestInfo testInfo)
-    {
-        final String groupId = getGroupId(GROUP_ID, testInfo);
-
-        final ArtifactEntry artifactEntry = createArtifactEntry(groupId);
-
-        assertThat(artifactEntry.getCreated()).isNull();
-        assertThat(artifactEntry.getLastUpdated()).isNull();
-
-        final ArtifactEntry firstTimeSavedArtifactEntry = save(artifactEntry);
-        final String artifactEntryId = firstTimeSavedArtifactEntry.getObjectId();
-        final Date creationDate = firstTimeSavedArtifactEntry.getCreated();
-
-        final ArtifactEntry firstTimeReadFromDatabase = artifactEntryService.findOne(artifactEntryId)
-                                                                            .orElse(null);
-
-        assertThat(firstTimeReadFromDatabase).isNotNull();
-        assertThat(firstTimeReadFromDatabase.getCreated()).isEqualTo(creationDate);
-
-        artifactEntry.setDownloadCount(1);
-        save(firstTimeReadFromDatabase);
-
-        final ArtifactEntry secondTimeReadFromDatabase = artifactEntryService.findOne(artifactEntryId)
-                                                                             .orElse(null);
-
-        assertThat(secondTimeReadFromDatabase).isNotNull();
-        assertThat(secondTimeReadFromDatabase.getCreated()).isEqualTo(creationDate);
-    }
-
-    @Test
-    public void saveEntityCreatedLastUsedLastUpdatedPropertiesShouldRetainTime(TestInfo testInfo)
-            throws ParseException
-    {
-        final String groupId = getGroupId(GROUP_ID, testInfo);
-
-        final ArtifactEntry artifactEntry = createArtifactEntry(groupId);
-        final ArtifactEntry firstTimeSavedArtifactEntry = save(artifactEntry);
-        final String artifactEntryId = firstTimeSavedArtifactEntry.getObjectId();
-
-        final ArtifactEntry firstTimeReadFromDatabase = artifactEntryService.findOne(artifactEntryId)
-                                                                            .orElse(null);
-        assertThat(firstTimeReadFromDatabase).isNotNull();
-
-        final Date sampleDate = createSampleDate();
-
-        firstTimeReadFromDatabase.setCreated(sampleDate);
-        firstTimeReadFromDatabase.setLastUpdated(sampleDate);
-        firstTimeReadFromDatabase.setLastUsed(sampleDate);
-
-        save(firstTimeReadFromDatabase);
-        final ArtifactEntry secondTimeReadFromDatabase = artifactEntryService.findOne(artifactEntryId)
-                                                                             .orElse(null);
-
-        assertThat(secondTimeReadFromDatabase).isNotNull();
-
-        assertThat(secondTimeReadFromDatabase.getCreated()).isEqualTo(sampleDate);
-        assertThat(secondTimeReadFromDatabase.getLastUpdated()).isEqualTo(sampleDate);
-        assertThat(secondTimeReadFromDatabase.getLastUsed()).isEqualTo(sampleDate);
-    }
-
-    private Date createSampleDate()
-            throws ParseException
-    {
-        return new SimpleDateFormat("yyyy-MM-dd HH:mm:ss").parse("2019-10-31 13:15:50");
-    }
-
-    private ArtifactEntry createArtifactEntry(String groupId)
-    {
-        final ArtifactEntry artifactEntry = new ArtifactEntry();
-
-        artifactEntry.setStorageId(STORAGE_ID);
-        artifactEntry.setRepositoryId(REPOSITORY_ID);
-        artifactEntry.setArtifactCoordinates(createArtifactCoordinates(groupId, ARTIFACT_ID + "1234", "1.2.3", "jar"));
-
-        return artifactEntry;
-    }
-
-    private void displayAllEntries(final String groupId)
-    {
-        List<ArtifactEntry> result = findAll(groupId);
-        if (CollectionUtils.isEmpty(result))
-        {
-            logger.debug("Artifact repository is empty");
-        }
-        else
-        {
-            result.forEach(artifactEntry -> logger.debug("Found artifact [{}] - {}",
-                                                         artifactEntry.getArtifactCoordinates().getId(),
-                                                         artifactEntry));
-        }
-    }
-
     private void createArtifacts(String groupId,
                                  String artifactId,
                                  String storageId,
@@ -541,7 +458,7 @@ public class ArtifactEntryServiceTest
     private void updateArtifactAttributes(TestInfo testInfo)
     {
         List<ArtifactEntry> artifactEntries = findAll(testInfo);
-        artifactEntries.stream().forEach(a -> {
+        artifactEntries.forEach(a -> {
             logger.info(String.format(LOG_PATTERN, String.format("forEach updateArtifactAttributes [%s]", a)));
         });
         logger.info(String.format(LOG_PATTERN, String.format("updateArtifactAttributes.size() [%d]", artifactEntries.size())));
