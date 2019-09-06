@@ -52,6 +52,7 @@ import static org.hamcrest.Matchers.notNullValue;
 import static org.hamcrest.Matchers.nullValue;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertNotEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.junit.jupiter.api.Assertions.assertTrue;
@@ -119,6 +120,8 @@ public class UserControllerTestIT
         // retrieve newly created user and store the objectId
         User  createdUser = retrieveUserByName(user.getUsername());
         assertEquals(username, createdUser.getUsername());
+        assertTrue(passwordEncoder.matches(user.getPassword(), createdUser.getPassword()));
+        assertNotEquals(user.getPassword(), createdUser.getPassword());
 
         // By default assignableRoles should not present in the response.
         given().accept(MediaType.APPLICATION_JSON_VALUE)
@@ -131,7 +134,6 @@ public class UserControllerTestIT
                .body("user.roles", notNullValue())
                .body("user.roles", hasSize(0))
                .body("assignableRoles", nullValue());
-
 
         // assignableRoles should be present only if there is ?assignableRoles=true in the request.
         given().accept(MediaType.APPLICATION_JSON_VALUE)
@@ -264,7 +266,10 @@ public class UserControllerTestIT
         User createdUser = retrieveUserByName(test.getUsername());
         assertEquals(username, createdUser.getUsername());
 
-        UserForm updatedUser = buildFromUser(createdUser, u -> u.setEnabled(true));
+        UserForm updatedUser = buildFromUser(createdUser, u -> {
+            u.setEnabled(true);
+            u.setPassword("new-updated-password");
+        });
 
         // send update request
         given().contentType(MediaType.APPLICATION_JSON_VALUE)
@@ -281,6 +286,9 @@ public class UserControllerTestIT
 
         assertTrue(createdUser.isEnabled());
         assertEquals("my-new-security-token", createdUser.getSecurityTokenKey());
+        assertTrue(passwordEncoder.matches("new-updated-password", createdUser.getPassword()));
+        assertNotEquals("new-updated-password", createdUser.getPassword());
+        
         deleteCreatedUser(username);
     }
 
