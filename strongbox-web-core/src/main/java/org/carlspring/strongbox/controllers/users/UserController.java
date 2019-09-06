@@ -16,6 +16,7 @@ import org.carlspring.strongbox.users.dto.User;
 import org.carlspring.strongbox.users.dto.UserDto;
 import org.carlspring.strongbox.users.security.AuthoritiesProvider;
 import org.carlspring.strongbox.users.service.UserService;
+import org.carlspring.strongbox.users.service.impl.EncodedPasswordUser;
 import org.carlspring.strongbox.users.service.impl.OrientDbUserService.OrientDb;
 import org.carlspring.strongbox.validation.RequestBodyValidationException;
 import org.jose4j.lang.JoseException;
@@ -27,6 +28,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.userdetails.UserDetails;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Controller;
 import org.springframework.validation.BindingResult;
 import org.springframework.validation.annotation.Validated;
@@ -96,6 +98,9 @@ public class UserController
     @Inject
     private AuthoritiesProvider authoritiesProvider;
 
+    @Inject
+    private PasswordEncoder passwordEncoder;
+    
     @ApiOperation(value = "Used to retrieve all users")
     @ApiResponses(value = { @ApiResponse(code = 200, message = SUCCESSFUL_GET_USERS) })
     @PreAuthorize("hasAuthority('VIEW_USER')")
@@ -163,7 +168,7 @@ public class UserController
         }
 
         UserDto user = conversionService.convert(userForm, UserDto.class);
-        userService.save(user);
+        userService.save(new EncodedPasswordUser(user, passwordEncoder));
 
         return getSuccessfulResponseEntity(SUCCESSFUL_CREATE_USER, accept);
     }
@@ -203,7 +208,7 @@ public class UserController
         }
 
         UserDto user = conversionService.convert(userToUpdate, UserDto.class);
-        userService.save(user);
+        userService.save(new EncodedPasswordUser(user, passwordEncoder));
 
         return getSuccessfulResponseEntity(SUCCESSFUL_UPDATE_USER, accept);
     }
