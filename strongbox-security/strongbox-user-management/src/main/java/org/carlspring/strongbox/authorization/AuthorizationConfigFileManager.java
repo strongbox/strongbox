@@ -1,22 +1,23 @@
 package org.carlspring.strongbox.authorization;
 
-import com.google.common.annotations.VisibleForTesting;
 import org.carlspring.strongbox.authorization.dto.AuthorizationConfigDto;
-import org.carlspring.strongbox.authorization.dto.RoleDto;
 import org.carlspring.strongbox.resource.ConfigurationResourceResolver;
-import org.carlspring.strongbox.users.domain.SystemRole;
-import org.carlspring.strongbox.util.MessageDigestUtils;
 import org.carlspring.strongbox.yaml.YAMLMapperFactory;
 import org.carlspring.strongbox.yaml.YamlFileManager;
-import org.springframework.stereotype.Component;
 
 import javax.inject.Inject;
+
+import org.springframework.stereotype.Component;
+import org.carlspring.commons.encryption.EncryptionAlgorithmsEnum;
+import org.carlspring.commons.io.MultipleDigestOutputStream;
+import org.carlspring.strongbox.authorization.dto.RoleDto;
+import org.carlspring.strongbox.users.domain.SystemRole;
+import java.io.ByteArrayOutputStream;
 import java.io.IOException;
+import java.io.ObjectOutputStream;
 import java.security.NoSuchAlgorithmException;
-import java.util.HashSet;
+import java.util.HashMap;
 import java.util.Map;
-import java.util.Set;
-import java.util.stream.Collectors;
 
 /**
  * @author Przemyslaw Fusik
@@ -57,45 +58,53 @@ public class AuthorizationConfigFileManager
     @Override
     public synchronized void store(AuthorizationConfigDto configuration) throws IOException
     {
-        Set<SystemRole> changed = getChangedRestrictedRoles(configuration);
+        Map<SystemRole, String> changed = getChangedRestrictedRoles(configuration);
         if (changed.size() > 0)
         {
-            String changedNames = changed.stream()
-                    .map(SystemRole::toString)
-                    .collect(Collectors.joining(", "));
-            String message = String.format("System roles %s cannot be changed.", changedNames);
-            throw new IOException(message);
+            String message = String.join("; ", changed.values());
+            throw new RuntimeException(message);
         }
         super.store(configuration);
     }
 
-    @VisibleForTesting
-    public Set<SystemRole> getChangedRestrictedRoles(AuthorizationConfigDto configuration) throws IOException {
-        Set<SystemRole> changed = new HashSet<>();
+    public Map<SystemRole, String> getChangedRestrictedRoles(AuthorizationConfigDto configuration) throws IOException {
+        Map<SystemRole, String> changed = new HashMap<>();
         Map<String, SystemRole> restricted = SystemRole.getRestricted();
         for (RoleDto role : configuration.getRoles())
         {
-            if (!restricted.containsKey(role.getName()))
+            if (restricted.containsKey(role.getName()))
             {
-                continue;
+                SystemRole systemRole = restricted.get(role.getName());
+                // get MD5 hash for the role
+                String hash = "";
+                try (ByteArrayOutputStream baos = new ByteArrayOutputStream();
+                     ObjectOutputStream oos = new ObjectOutputStream(baos))
+                {
+                    oos.writeObject(role);
+                    MultipleDigestOutputStream mdos = new MultipleDigestOutputStream(baos);
+                    mdos.write(baos.toByteArray());
+                    hash = mdos.getMessageDigestAsHexadecimalString(EncryptionAlgorithmsEnum.MD5.getAlgorithm());
+                }
+                catch (NoSuchAlgorithmException e)
+                {
+                    throw new IOException(e);
+                }
+                // compare hash with the hardcoded one in SystemRole
+                if (!hash.equalsIgnoreCase(systemRole.getHash()))
+                {
+                    changed.put(systemRole, String.format("Restricted system role %s has been removed", systemRole));
+                }
+                // remove SystemRole from the map
+                restricted.remove(role.getName());
             }
-            SystemRole systemRole = restricted.get(role.getName());
-            // get MD5 hash for the role
-            String hash = null;
-            try {
-                hash = MessageDigestUtils.calculateChecksum(role);
-            } catch (NoSuchAlgorithmException e) {
-                throw new IOException(e);
-            }
-            // compare hash with the hardcoded one in SystemRole
-            if (!hash.equalsIgnoreCase(systemRole.getHash())) {
-                changed.add(systemRole);
-            }
-            // remove SystemRole from the map
-            restricted.remove(role.getName());
         }
         // deleted SystemRoles
-        changed.addAll(restricted.values());
+        for (SystemRole systemRole : restricted.values())
+        {
+            changed.put(systemRole, String.format("Restricted system role%s %s has been removed"
+                    , restricted.size() > 1 ? "s" : ""
+                    , String.join(", ", restricted.keySet())));
+        }
 
         return changed;
     }
