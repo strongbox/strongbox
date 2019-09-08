@@ -22,12 +22,13 @@ public class PingController
         extends BaseController
 {
 
+    static final String READY_STREAM_VALUE = "event:ready\ndata: \n\n";
+
     @ApiResponses(value = { @ApiResponse(code = 200, message = "Strongbox is up and working.") })
-    @GetMapping(produces = { MediaType.APPLICATION_JSON_VALUE,
-                             MediaType.TEXT_PLAIN_VALUE })
-    public ResponseEntity ping(@RequestHeader(HttpHeaders.ACCEPT) String accept)
+    @GetMapping(produces = { MediaType.TEXT_EVENT_STREAM_VALUE + ";charset=UTF-8" })
+    public ResponseEntity ping()
     {
-        return getSuccessfulResponseEntity("pong", accept);
+        return ResponseEntity.ok().header(HttpHeaders.TRANSFER_ENCODING, "chunked").body(READY_STREAM_VALUE);
     }
 
     /**

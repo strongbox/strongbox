@@ -5,6 +5,7 @@ import org.carlspring.strongbox.rest.common.MavenRestAssuredBaseTest;
 
 import io.restassured.module.mockmvc.response.ValidatableMockMvcResponse;
 import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.ValueSource;
 import org.springframework.http.HttpStatus;
@@ -32,21 +33,19 @@ public class PingControllerTest
         setContextBaseUrl("/api/ping");
     }
 
-    @ParameterizedTest
-    @ValueSource(strings = { MediaType.APPLICATION_JSON_VALUE,
-                             MediaType.TEXT_PLAIN_VALUE })
-    void shouldReturnPong(String acceptHeader)
+    @Test
+    void shouldReturnPong()
     {
-        String url = getContextBaseUrl();
+        String acceptHeader = MediaType.TEXT_EVENT_STREAM_VALUE;
+
         ValidatableMockMvcResponse response = given().accept(acceptHeader)
                                                      .when()
-                                                     .get(url)
+                                                     .get(getContextBaseUrl())
                                                      .peek()
                                                      .then()
                                                      .statusCode(HttpStatus.OK.value());
 
-        String message = "pong";
-        validateResponseBody(response, acceptHeader, message);
+        validateResponseBody(response, acceptHeader, PingController.READY_STREAM_VALUE);
     }
 
     @ParameterizedTest
@@ -92,7 +91,7 @@ public class PingControllerTest
         {
             response.body("message", equalTo(message));
         }
-        else if (acceptHeader.equals(MediaType.TEXT_PLAIN_VALUE))
+        else if (acceptHeader.equals(MediaType.TEXT_PLAIN_VALUE) || acceptHeader.equals(MediaType.TEXT_EVENT_STREAM_VALUE))
         {
             response.body(equalTo(message));
         }
