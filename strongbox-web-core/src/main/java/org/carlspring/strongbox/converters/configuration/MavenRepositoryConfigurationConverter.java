@@ -18,6 +18,7 @@ public enum MavenRepositoryConfigurationConverter
         configuration.setIndexingClassNamesEnabled(mavenRepositoryConfigurationForm.isIndexingClassNamesEnabled());
         configuration.setIndexingEnabled(mavenRepositoryConfigurationForm.isIndexingEnabled());
         configuration.setCronExpression(mavenRepositoryConfigurationForm.getCronExpression());
+        configuration.setMetadataStrategy(mavenRepositoryConfigurationForm.getMetadataStrategy());
 
         return configuration;
     }
