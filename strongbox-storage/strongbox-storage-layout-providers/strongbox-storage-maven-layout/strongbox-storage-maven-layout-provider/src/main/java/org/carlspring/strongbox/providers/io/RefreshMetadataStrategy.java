@@ -2,9 +2,11 @@ package org.carlspring.strongbox.providers.io;
 
 import java.io.IOException;
 
-public enum RefreshMetadataStrategy implements MetadataStrategy
+import org.springframework.stereotype.Component;
+
+@Component
+public class RefreshMetadataStrategy implements MetadataStrategy
 {
-    INSTANCE;
 
     @Override
     public Decision determineMetadataRefetch(RepositoryPath repositoryPath)
