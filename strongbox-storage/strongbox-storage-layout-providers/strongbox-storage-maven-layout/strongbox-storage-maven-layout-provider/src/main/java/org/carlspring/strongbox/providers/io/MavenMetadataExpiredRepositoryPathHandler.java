@@ -28,6 +28,12 @@ public class MavenMetadataExpiredRepositoryPathHandler
     @Inject
     private ProxyRepositoryArtifactResolver proxyRepositoryArtifactResolver;
 
+    @Inject
+    private ChecksumMetadataStrategy checksumMetadataStrategy;
+
+    @Inject
+    private RefreshMetadataStrategy refreshMetadataStrategy;
+
     @Override
     public boolean supports(final RepositoryPath repositoryPath)
             throws IOException
@@ -68,11 +74,11 @@ public class MavenMetadataExpiredRepositoryPathHandler
                 MetadataStrategyEnum.ofStrategy(repositoryConfiguration.getMetadataStrategy());
         if (MetadataStrategyEnum.REFRESH.equals(configuredStrategy))
         {
-            return RefreshMetadataStrategy.INSTANCE;
+            return refreshMetadataStrategy;
         }
         else
         {
-            return ChecksumMetadataStrategy.INSTANCE;
+            return checksumMetadataStrategy;
         }
     }
 

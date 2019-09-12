@@ -9,12 +9,12 @@ import java.nio.file.Files;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.stereotype.Component;
 import static org.carlspring.strongbox.providers.io.MetadataStrategy.Decision.*;
 
-public enum ChecksumMetadataStrategy implements MetadataStrategy
+@Component
+public class ChecksumMetadataStrategy implements MetadataStrategy
 {
-
-    INSTANCE;
 
     private static final Logger logger = LoggerFactory.getLogger(ChecksumMetadataStrategy.class);
 
