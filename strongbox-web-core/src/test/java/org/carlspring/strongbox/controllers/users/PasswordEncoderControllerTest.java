@@ -86,13 +86,13 @@ public class PasswordEncoderControllerTest
         final PasswordEncodeForm form = new PasswordEncodeForm("password");
 
         String defaultErrorMessage = messages.getMessage(UNAUTHORIZED_MESSAGE_CODE,
-                Locale.ENGLISH);
+                                                         Locale.ENGLISH);
 
         String errorMessage = messages.getMessage(UNAUTHORIZED_MESSAGE_CODE,
-                defaultErrorMessage);
+                                                  defaultErrorMessage);
 
         String decodedErrorMessage = new String(errorMessage.getBytes(ISO_8859_1),
-                Charset.defaultCharset());
+                                                Charset.defaultCharset());
 
         given().contentType(MediaType.APPLICATION_JSON_VALUE)
                .accept(MediaType.APPLICATION_JSON_VALUE)
