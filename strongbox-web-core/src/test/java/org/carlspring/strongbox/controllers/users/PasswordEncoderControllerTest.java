@@ -12,13 +12,20 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.ValueSource;
+import org.springframework.context.support.MessageSourceAccessor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
+import org.springframework.security.core.SpringSecurityMessageSource;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.test.context.support.WithAnonymousUser;
 import org.springframework.security.test.context.support.WithUserDetails;
 import org.springframework.transaction.annotation.Transactional;
+
+import java.nio.charset.Charset;
+import java.util.Locale;
+
 import static io.restassured.module.mockmvc.RestAssuredMockMvc.given;
+import static java.nio.charset.StandardCharsets.ISO_8859_1;
 
 /**
  * @author Przemyslaw Fusik
@@ -28,6 +35,10 @@ import static io.restassured.module.mockmvc.RestAssuredMockMvc.given;
 public class PasswordEncoderControllerTest
         extends RestAssuredBaseTest
 {
+
+    private static final String UNAUTHORIZED_MESSAGE_CODE = "ExceptionTranslationFilter.insufficientAuthentication";
+
+    private final MessageSourceAccessor messages = SpringSecurityMessageSource.getAccessor();
 
     @Inject
     PasswordEncoder passwordEncoder;
@@ -74,6 +85,15 @@ public class PasswordEncoderControllerTest
     {
         final PasswordEncodeForm form = new PasswordEncodeForm("password");
 
+        String defaultErrorMessage = messages.getMessage(UNAUTHORIZED_MESSAGE_CODE,
+                Locale.ENGLISH);
+
+        String errorMessage = messages.getMessage(UNAUTHORIZED_MESSAGE_CODE,
+                defaultErrorMessage);
+
+        String decodedErrorMessage = new String(errorMessage.getBytes(ISO_8859_1),
+                Charset.defaultCharset());
+
         given().contentType(MediaType.APPLICATION_JSON_VALUE)
                .accept(MediaType.APPLICATION_JSON_VALUE)
                .body(form)
@@ -81,7 +101,7 @@ public class PasswordEncoderControllerTest
                .post(getContextBaseUrl())
                .peek()
                .then()
-               .body("error", CoreMatchers.containsString("Full authentication is required"))
+               .body("error", CoreMatchers.containsString(decodedErrorMessage))
                .statusCode(HttpStatus.UNAUTHORIZED.value());
     }
 
