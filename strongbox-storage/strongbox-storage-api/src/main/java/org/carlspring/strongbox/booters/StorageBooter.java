@@ -1,5 +1,9 @@
 package org.carlspring.strongbox.booters;
 
+import com.hazelcast.config.Config;
+import com.hazelcast.core.HazelcastInstance;
+import com.hazelcast.core.ILock;
+import org.carlspring.strongbox.config.hazelcast.HazelcastConfiguration;
 import org.carlspring.strongbox.configuration.Configuration;
 import org.carlspring.strongbox.configuration.ConfigurationManager;
 import org.carlspring.strongbox.providers.layout.LayoutProviderRegistry;
@@ -11,17 +15,13 @@ import org.carlspring.strongbox.storage.repository.Repository;
 import org.carlspring.strongbox.storage.repository.RepositoryStatusEnum;
 
 import javax.annotation.PostConstruct;
-import javax.annotation.PreDestroy;
 import javax.inject.Inject;
 import java.io.IOException;
-import java.nio.file.Files;
 import java.nio.file.Path;
-import java.nio.file.Paths;
 import java.util.Collection;
 import java.util.LinkedHashMap;
 import java.util.Map;
 
-import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
 import org.carlspring.strongbox.util.ThrowingConsumer;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -49,8 +49,11 @@ public class StorageBooter
     @Inject
     private PropertiesBooter propertiesBooter;
 
-    private Path lockFile;
+    private ILock lock;
 
+//    TODO: Inject hazelconfiguration as dependency
+    @Inject
+    private HazelcastInstance hazelcastInstance;
 
     public StorageBooter()
     {
@@ -60,24 +63,27 @@ public class StorageBooter
     public void initialize()
             throws IOException, RepositoryManagementStrategyException
     {
-        lockFile = Paths.get(propertiesBooter.getVaultDirectory()).resolve("storage-booter.lock");
+        lock = hazelcastInstance.getLock("StorageBooterLock");
 
-        if (!lockExists())
+        if (lock.tryLock())
         {
-            createLockFile();
-            
-            final Configuration configuration = configurationManager.getConfiguration();
+            try {
+                final Configuration configuration = configurationManager.getConfiguration();
 
-            initializeStorages(configuration.getStorages());
+                initializeStorages(configuration.getStorages());
 
-            Collection<Repository> repositories = getRepositoriesHierarchy(configuration.getStorages());
+                Collection<Repository> repositories = getRepositoriesHierarchy(configuration.getStorages());
 
-            if (!repositories.isEmpty())
-            {
-                logger.info(" -> Initializing repositories...");
+                if (!repositories.isEmpty())
+                {
+                    logger.info(" -> Initializing repositories...");
+                }
+
+                repositories.forEach(ThrowingConsumer.unchecked(this::initializeRepository));
             }
-
-            repositories.forEach(ThrowingConsumer.unchecked(this::initializeRepository));
+            finally {
+                lock.unlock();
+            }
         }
         else
         {
@@ -85,40 +91,6 @@ public class StorageBooter
         }
     }
 
-    @PreDestroy
-    public void removeLock()
-            throws IOException
-    {
-        Files.deleteIfExists(lockFile);
-
-        logger.debug("Removed lock file '" + lockFile.toAbsolutePath().toString() + "'.");
-    }
-
-    @SuppressFBWarnings(value = "NP_NULL_ON_SOME_PATH_FROM_RETURN_VALUE")
-    private void createLockFile()
-            throws IOException
-    {
-        Files.createDirectories(lockFile.getParent());
-        Files.createFile(lockFile);
-
-        logger.debug(" -> Created lock file '" + lockFile.toAbsolutePath().toString() + "'...");
-    }
-
-    private boolean lockExists()
-    {
-        if (Files.exists(lockFile))
-        {
-            logger.debug(" -> Lock found: '" + propertiesBooter.getVaultDirectory() + "'!");
-
-            return true;
-        }
-        else
-        {
-            logger.debug(" -> No lock found.");
-
-            return false;
-        }
-    }
 
     private void initializeStorages(final Map<String, Storage> storages)
             throws IOException
