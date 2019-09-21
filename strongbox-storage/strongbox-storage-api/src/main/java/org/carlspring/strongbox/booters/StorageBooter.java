@@ -48,7 +48,6 @@ public class StorageBooter
 
     private ILock lock;
 
-//    TODO: Inject hazelconfiguration as dependency
     @Inject
     private HazelcastInstance hazelcastInstance;
 
@@ -64,7 +63,8 @@ public class StorageBooter
 
         if (lock.tryLock())
         {
-            try {
+            try
+            {
                 final Configuration configuration = configurationManager.getConfiguration();
 
                 initializeStorages(configuration.getStorages());
@@ -78,7 +78,8 @@ public class StorageBooter
 
                 repositories.forEach(ThrowingConsumer.unchecked(this::initializeRepository));
             }
-            finally {
+            finally
+            {
                 lock.unlock();
             }
         }
