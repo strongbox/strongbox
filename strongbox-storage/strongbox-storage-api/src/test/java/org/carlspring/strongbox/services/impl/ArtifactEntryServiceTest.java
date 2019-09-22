@@ -171,9 +171,9 @@ public class ArtifactEntryServiceTest
         }
         else
         {
-            result.forEach(artifactEntry -> logger.debug("Found artifact [{}] - {}",
-                                                         artifactEntry.getArtifactCoordinates().getId(),
-                                                         artifactEntry));
+            result.forEach(artifactEntry -> logger.info(when + " Found artifact [{}] - {}",
+                                                        artifactEntry.getArtifactCoordinates().getId(),
+                                                        artifactEntry));
         }
     }
 
