@@ -1,9 +1,10 @@
 package org.carlspring.strongbox.authentication.api.impl.ldap;
 
-import static org.hamcrest.MatcherAssert.assertThat;
+import static org.assertj.core.api.Assertions.assertThat;
 
 import java.io.InputStream;
 import java.lang.reflect.UndeclaredThrowableException;
+import java.util.List;
 import java.util.Properties;
 
 import javax.inject.Inject;
@@ -11,7 +12,7 @@ import javax.inject.Inject;
 import org.carlspring.strongbox.authentication.support.AuthenticationContextInitializer;
 import org.carlspring.strongbox.config.UsersConfig;
 import org.carlspring.strongbox.users.domain.SystemRole;
-import org.hamcrest.CoreMatchers;
+
 import org.junit.jupiter.api.Test;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -57,12 +58,11 @@ public class LdapAuthenticationProviderTest
         LdapTemplate template = new LdapTemplate(contextSource);
         Object ldapObject = template.lookup("uid=przemyslaw.fusik,ou=Users");
 
-        assertThat(ldapObject, CoreMatchers.notNullValue());
-        assertThat(ldapObject, CoreMatchers.instanceOf(DirContextAdapter.class));
+        assertThat(ldapObject).isNotNull();
+        assertThat(ldapObject).isInstanceOf(DirContextAdapter.class);
         DirContextAdapter dirContextAdapter = (DirContextAdapter) ldapObject;
-        assertThat(dirContextAdapter.getDn().toString(), CoreMatchers.equalTo("uid=przemyslaw.fusik,ou=Users"));
-        assertThat(dirContextAdapter.getNameInNamespace(),
-                   CoreMatchers.equalTo("uid=przemyslaw.fusik,ou=Users,dc=carlspring,dc=com"));
+        assertThat(dirContextAdapter.getDn().toString()).isEqualTo("uid=przemyslaw.fusik,ou=Users");
+        assertThat(dirContextAdapter.getNameInNamespace()).isEqualTo("uid=przemyslaw.fusik,ou=Users,dc=carlspring,dc=com");
     }
 
     @Test
@@ -70,15 +70,17 @@ public class LdapAuthenticationProviderTest
     {
         UserDetails ldapUser = ldapUserDetailsService.loadUserByUsername("przemyslaw.fusik");
 
-        assertThat(ldapUser, CoreMatchers.instanceOf(LdapUserDetailsImpl.class));
+        assertThat(ldapUser).isInstanceOf(LdapUserDetailsImpl.class);
         LdapUserDetails ldapUserDetails = (LdapUserDetailsImpl) ldapUser;
 
-        assertThat(ldapUserDetails.getDn(), CoreMatchers.equalTo("uid=przemyslaw.fusik,ou=Users,dc=carlspring,dc=com"));
-        assertThat(ldapUserDetails.getPassword(), CoreMatchers.equalTo("password"));
-        assertThat(ldapUserDetails.getUsername(), CoreMatchers.equalTo("przemyslaw.fusik"));
-        assertThat(ldapUser.getAuthorities(),
-                   CoreMatchers.hasItems(CoreMatchers.equalTo(new SimpleGrantedAuthority(SystemRole.REPOSITORY_MANAGER.name())),
-                                         CoreMatchers.equalTo(new SimpleGrantedAuthority("USER_ROLE"))));
+        assertThat(ldapUserDetails.getDn()).isEqualTo("uid=przemyslaw.fusik,ou=Users,dc=carlspring,dc=com");
+        assertThat(ldapUserDetails.getPassword()).isEqualTo("password");
+        assertThat(ldapUserDetails.getUsername()).isEqualTo("przemyslaw.fusik");
+        assertThat(((List<SimpleGrantedAuthority>)ldapUser.getAuthorities()))
+                .contains(
+                        new SimpleGrantedAuthority(SystemRole.REPOSITORY_MANAGER.name()),
+                        new SimpleGrantedAuthority("USER_ROLE")
+                );
     }
 
     public static class TestContextInitializer extends AuthenticationContextInitializer

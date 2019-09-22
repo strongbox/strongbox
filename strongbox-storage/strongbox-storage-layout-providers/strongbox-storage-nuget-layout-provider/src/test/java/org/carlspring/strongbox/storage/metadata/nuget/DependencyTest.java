@@ -21,7 +21,7 @@ import org.carlspring.strongbox.artifact.coordinates.versioning.SemanticVersion;
 
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.parallel.Execution;
-import static org.junit.jupiter.api.Assertions.*;
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.parallel.ExecutionMode.CONCURRENT;
 
 /**
@@ -49,7 +49,7 @@ public class DependencyTest
         dependency.setId("PACKAGE_ID");
         dependency.versionRange = VersionRange.parse("1.2.3");
         // THEN
-        assertEquals("PACKAGE_ID:1.2.3", dependency.toString(), "toString - identifier and version concatenation");
+        assertThat(dependency.toString()).as("toString - identifier and version concatenation").isEqualTo("PACKAGE_ID:1.2.3");
     }
 
     /**
@@ -68,10 +68,10 @@ public class DependencyTest
         // WHEN
         Dependency result = Dependency.parseString(dependencyString);
         // THEN
-        assertNotNull(result);
-        assertEquals("PACKAGE_ID", result.getId(), "Package ID");
-        assertEquals(VersionRange.parse("1.2.3"), result.versionRange, "Package Version Range");
-        assertNull(result.framework);
+        assertThat(result).isNotNull();
+        assertThat(result.getId()).as("Package ID").isEqualTo("PACKAGE_ID");
+        assertThat(result.versionRange).as("Package Version Range").isEqualTo(VersionRange.parse("1.2.3"));
+        assertThat(result.framework).isNull();
     }
 
     /**
@@ -90,10 +90,10 @@ public class DependencyTest
         // WHEN
         Dependency result = Dependency.parseString(dependencyString);
         // THEN
-        assertNotNull(result);
-        assertEquals("PACKAGE_ID", result.getId(), "Package ID");
-        assertEquals(VersionRange.parse("1.2.3"), result.versionRange, "Package Version Range");
-        assertEquals(Framework.net20, result.framework);
+        assertThat(result).isNotNull();
+        assertThat(result.getId()).as("Package ID").isEqualTo("PACKAGE_ID");
+        assertThat(result.versionRange).as("Package Version Range").isEqualTo(VersionRange.parse("1.2.3"));
+        assertThat(result.framework).isEqualTo(Framework.net20);
     }
 
     /**
@@ -111,9 +111,9 @@ public class DependencyTest
         // WHEN
         Dependency result = Dependency.parseString(dependencyString);
         // THEN
-        assertNotNull(result);
-        assertEquals("PACKAGE_ID", result.getId(), "Package ID");
-        assertEquals(VersionRange.parse("1.2.3"), result.versionRange, "Package Version Range");
+        assertThat(result).isNotNull();
+        assertThat(result.getId()).as("Package ID").isEqualTo("PACKAGE_ID");
+        assertThat(result.versionRange).as("Package Version Range").isEqualTo(VersionRange.parse("1.2.3"));
     }
 
     /**
@@ -132,9 +132,9 @@ public class DependencyTest
         // WHEN
         Dependency result = Dependency.parseString(dependencyString);
         // THEN
-        assertNotNull(result);
-        assertEquals("PACKAGE_ID", result.getId(), "Package ID");
-        assertEquals(VersionRange.parse("[1.2.3]"), result.versionRange, "Package Version Range");
+        assertThat(result).isNotNull();
+        assertThat(result.getId()).as("Package ID").isEqualTo("PACKAGE_ID");
+        assertThat(result.versionRange).as("Package Version Range").isEqualTo(VersionRange.parse("[1.2.3]"));
     }
 
     /**
@@ -152,9 +152,9 @@ public class DependencyTest
         // WHEN
         Dependency result = Dependency.parseString(dependencyString);
         // THEN
-        assertNotNull(result);
-        assertEquals("PACKAGE_ID", result.getId(), "Package ID");
-        assertTrue(result.versionRange.isLatestVersion(), "This is the latest version");
+        assertThat(result).isNotNull();
+        assertThat(result.getId()).as("Package ID").isEqualTo("PACKAGE_ID");
+        assertThat(result.versionRange.isLatestVersion()).as("This is the latest version").isTrue();
     }
 
     /**
@@ -172,10 +172,10 @@ public class DependencyTest
         // WHEN
         Dependency result = Dependency.parseString(dependencyString);
         // THEN
-        assertNotNull(result);
-        assertEquals("PACKAGE.ID", result.getId(), "Package ID");
-        assertTrue(result.versionRange.isFixedVersion(), "This is the fixed version");
-        assertEquals(SemanticVersion.parse("3.0.0.1029-rc"), result.versionRange.getLowVersion(), "Package Version");
+        assertThat(result).isNotNull();
+        assertThat(result.getId()).as("Package ID").isEqualTo("PACKAGE.ID");
+        assertThat(result.versionRange.isFixedVersion()).as("This is the fixed version").isTrue();
+        assertThat(result.versionRange.getLowVersion()).as("Package Version").isEqualTo(SemanticVersion.parse("3.0.0.1029-rc"));
     }
 
     /**
@@ -195,14 +195,14 @@ public class DependencyTest
         // WHEN
         Dependency result = Dependency.parseString(dependencyString);
         // THEN
-        assertNotNull(result);
-        assertEquals("PACKAGE.ID", result.getId(), "Package ID");
-        assertEquals(SemanticVersion.parse("2.5-a"), result.versionRange.getLowVersion(), "Lower Range");
-        assertEquals(VersionRange.BorderType.INCLUDE, result.versionRange.getLowBorderType(), "Type Bottom Range");
-        assertEquals(SemanticVersion.parse("3.0"), result.versionRange.getTopVersion(), "Upper Range Limit");
-        assertEquals(VersionRange.BorderType.EXCLUDE,
-                     result.versionRange.getTopBorderType(),
-                     "Type of the upper bound of the range");
+        assertThat(result).isNotNull();
+        assertThat(result.getId()).as("Package ID").isEqualTo("PACKAGE.ID");
+        assertThat(result.versionRange.getLowVersion()).as("Lower Range").isEqualTo(SemanticVersion.parse("2.5-a"));
+        assertThat(result.versionRange.getLowBorderType()).as("Type Bottom Range").isEqualTo(VersionRange.BorderType.INCLUDE);
+        assertThat(result.versionRange.getTopVersion()).as("Upper Range Limit").isEqualTo(SemanticVersion.parse("3.0"));
+        assertThat(VersionRange.BorderType.EXCLUDE)
+                .as("Type of the upper bound of the range")
+                .isEqualTo(result.versionRange.getTopBorderType());
     }
 
 }

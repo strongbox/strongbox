@@ -26,10 +26,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import static io.restassured.module.mockmvc.RestAssuredMockMvc.given;
 import static org.carlspring.strongbox.rest.client.RestAssuredArtifactClient.OK;
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertFalse;
-import static org.junit.jupiter.api.Assertions.assertNotNull;
-import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.assertj.core.api.Assertions.assertThat;
 
 /**
  * @author Guido Grazioli
@@ -64,16 +61,16 @@ public class BrowseControllerTest
                                            .prettyPeek()
                                            .as(DirectoryListing.class);
 
-        assertNotNull(returned, "Failed to get storage list!");
-        assertNotNull(returned.getDirectories(), "Failed to get storage list!");
-        assertFalse(returned.getDirectories().isEmpty(), "Returned storage size does not match");
+        assertThat(returned).as("Failed to get storage list!").isNotNull();
+        assertThat(returned.getDirectories()).as("Failed to get storage list!").isNotNull();
+        assertThat(returned.getDirectories().isEmpty()).as("Returned storage size does not match").isFalse();
 
         List<FileContent> expectedSortedList = returned.getDirectories()
                                                        .stream()
                                                        .sorted(Comparator.comparing(FileContent::getName))
                                                        .collect(Collectors.toList());
 
-        assertEquals(expectedSortedList, returned.getDirectories(), "Returned storages are not sorted!");
+        assertThat(returned.getDirectories()).as("Returned storages are not sorted!").isEqualTo(expectedSortedList);
 
         String htmlResponse = given().accept(MediaType.TEXT_HTML_VALUE)
                                      .when()
@@ -85,7 +82,7 @@ public class BrowseControllerTest
                                      .extract()
                                      .asString();
 
-        assertTrue(htmlResponse.contains(STORAGE0), "Returned HTML is incorrect");
+        assertThat(htmlResponse.contains(STORAGE0)).as("Returned HTML is incorrect").isTrue();
     }
 
     @ExtendWith(RepositoryManagementTestExecutionListener.class)
@@ -104,19 +101,21 @@ public class BrowseControllerTest
                                            .prettyPeek()
                                            .as(DirectoryListing.class);
 
-        assertNotNull(returned, "Failed to get repository list!");
-        assertNotNull(returned.getDirectories(), "Failed to get repository list!");
-        assertFalse(returned.getDirectories().isEmpty(), "Returned repositories do not match");
-        assertTrue(returned.getDirectories()
+        assertThat(returned).as("Failed to get repository list!").isNotNull();
+        assertThat(returned.getDirectories()).as("Failed to get repository list!").isNotNull();
+        assertThat(returned.getDirectories().isEmpty()).as("Returned repositories do not match").isFalse();
+        assertThat(returned.getDirectories()
                            .stream()
-                           .anyMatch(p -> p.getName().equals(repositoryId)), "Repository not found");
+                           .anyMatch(p -> p.getName().equals(repositoryId)))
+                .as("Repository not found")
+                .isTrue();
 
         List<FileContent> expectedSortedList = returned.getDirectories()
                                                        .stream()
                                                        .sorted(Comparator.comparing(FileContent::getName))
                                                        .collect(Collectors.toList());
 
-        assertEquals(expectedSortedList, returned.getDirectories(), "Returned repositories are not sorted!");
+        assertThat(returned.getDirectories()).as("Returned repositories are not sorted!").isEqualTo(expectedSortedList);
 
         String htmlResponse = given().accept(MediaType.TEXT_HTML_VALUE)
                                      .when()
@@ -128,7 +127,7 @@ public class BrowseControllerTest
                                      .extract()
                                      .asString();
 
-        assertTrue(htmlResponse.contains(repositoryId), "Returned HTML is incorrect");
+        assertThat(htmlResponse.contains(repositoryId)).as("Returned HTML is incorrect").isTrue();
     }
 
     @Test
@@ -181,8 +180,9 @@ public class BrowseControllerTest
                                            .prettyPeek()
                                            .as(DirectoryListing.class);
 
-        assertTrue(returned.getFiles().size() == 6
-                   && returned.getFiles().get(0).getName().equals("test-browsing-1.1.jar"), "Invalid files returned");
+        assertThat(returned.getFiles().size() == 6
+                   && returned.getFiles().get(0).getName().equals("test-browsing-1.1.jar"))
+                .as("Invalid files returned").isTrue();
 
         String htmlResponse = given().accept(MediaType.TEXT_HTML_VALUE)
                                      .when()
@@ -192,7 +192,7 @@ public class BrowseControllerTest
 
         String link = "/storages/" + storageId + "/" + repositoryId + "/" + unixBasedRelativePath;
 
-        assertTrue(htmlResponse.contains(link), "Expected to have found [ " + link + " ] in the response html");
+        assertThat(htmlResponse.contains(link)).as("Expected to have found [ " + link + " ] in the response html").isTrue();
     }
 
     @Test

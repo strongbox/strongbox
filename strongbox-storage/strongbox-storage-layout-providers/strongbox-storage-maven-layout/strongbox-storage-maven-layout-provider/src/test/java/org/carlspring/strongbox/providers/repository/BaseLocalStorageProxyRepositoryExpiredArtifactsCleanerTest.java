@@ -15,10 +15,7 @@ import java.io.InputStream;
 import java.util.Optional;
 
 import org.apache.commons.lang.time.DateUtils;
-import org.hamcrest.CoreMatchers;
-import org.hamcrest.Matchers;
-import static org.hamcrest.MatcherAssert.assertThat;
-import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.assertj.core.api.Assertions.assertThat;
 
 /**
  * @author Przemyslaw Fusik
@@ -69,25 +66,25 @@ abstract class BaseLocalStorageProxyRepositoryExpiredArtifactsCleanerTest
         Optional<ArtifactEntry> artifactEntryOptional = Optional.ofNullable(artifactEntryService.findOneArtifact(STORAGE_ID,
                                                                                                                  getRepositoryId(),
                                                                                                                  getPath()));
-        assertThat(artifactEntryOptional, CoreMatchers.equalTo(Optional.empty()));
+        assertThat(artifactEntryOptional).isEqualTo(Optional.empty());
 
         RepositoryPath repositoryPath = proxyRepositoryProvider.fetchPath(repositoryPathResolver.resolve(STORAGE_ID,
                                                                                                          getRepositoryId(),
                                                                                                          getPath()));
         try (final InputStream ignored = proxyRepositoryProvider.getInputStream(repositoryPath))
         {
-            assertNotNull(ignored, "Failed to resolve " + repositoryPath + "!");
+            assertThat(ignored).as("Failed to resolve " + repositoryPath + "!").isNotNull();
         }
 
         artifactEntryOptional = Optional.ofNullable(artifactEntryService.findOneArtifact(STORAGE_ID,
                                                                                          getRepositoryId(),
                                                                                          getPath()));
         ArtifactEntry artifactEntry = artifactEntryOptional.orElse(null);
-        assertThat(artifactEntry, CoreMatchers.notNullValue());
-        assertThat(artifactEntry.getLastUpdated(), CoreMatchers.notNullValue());
-        assertThat(artifactEntry.getLastUsed(), CoreMatchers.notNullValue());
-        assertThat(artifactEntry.getSizeInBytes(), CoreMatchers.notNullValue());
-        assertThat(artifactEntry.getSizeInBytes(), Matchers.greaterThan(0L));
+        assertThat(artifactEntry).isNotNull();
+        assertThat(artifactEntry.getLastUpdated()).isNotNull();
+        assertThat(artifactEntry.getLastUsed()).isNotNull();
+        assertThat(artifactEntry.getSizeInBytes()).isNotNull();
+        assertThat(artifactEntry.getSizeInBytes()).isGreaterThan(0L);
 
         artifactEntry.setLastUsed(DateUtils.addDays(artifactEntry.getLastUsed(), -10));
 

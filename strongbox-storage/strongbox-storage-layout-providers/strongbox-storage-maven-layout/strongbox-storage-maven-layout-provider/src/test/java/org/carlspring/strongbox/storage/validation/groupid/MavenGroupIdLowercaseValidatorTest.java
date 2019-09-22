@@ -21,7 +21,7 @@ import java.nio.file.Path;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.ContextConfiguration;
-import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.assertj.core.api.Assertions.assertThatExceptionOfType;
 import static org.junit.jupiter.api.parallel.ExecutionMode.CONCURRENT;
 
 /**
@@ -57,9 +57,8 @@ public class MavenGroupIdLowercaseValidatorTest
         RepositoryPath repositoryPath = (RepositoryPath) path.normalize();
         ArtifactCoordinates coordinates = RepositoryFiles.readCoordinates(repositoryPath);
 
-        assertThrows(LowercaseValidationException.class,
-                     () -> mavenGroupIdLowercaseValidator.validate(repository,
-                                                                   coordinates));
+        assertThatExceptionOfType(LowercaseValidationException.class)
+                .isThrownBy(() -> mavenGroupIdLowercaseValidator.validate(repository, coordinates));
     }
 
 }

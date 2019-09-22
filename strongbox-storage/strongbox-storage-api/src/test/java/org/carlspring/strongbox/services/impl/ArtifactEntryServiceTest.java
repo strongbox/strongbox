@@ -17,7 +17,6 @@ import java.util.Optional;
 import java.util.stream.Collectors;
 
 import org.apache.commons.lang3.time.DateUtils;
-import org.hamcrest.CoreMatchers;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.Assumptions;
 import org.junit.jupiter.api.BeforeEach;
@@ -30,12 +29,8 @@ import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.TestExecutionListeners;
 import org.springframework.util.CollectionUtils;
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.carlspring.strongbox.services.support.ArtifactEntrySearchCriteria.Builder.anArtifactEntrySearchCriteria;
-import static org.hamcrest.MatcherAssert.assertThat;
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertFalse;
-import static org.junit.jupiter.api.Assertions.assertNotNull;
-import static org.junit.jupiter.api.Assertions.assertTrue;
 
 /**
  * Functional test and usage example scenarios for {@link ArtifactEntryService}.
@@ -78,7 +73,7 @@ public class ArtifactEntryServiceTest
                         ARTIFACT_ID,
                         STORAGE_ID,
                         REPOSITORY_ID);
-        
+
         displayAllEntries(groupId);
     }
 
@@ -89,7 +84,7 @@ public class ArtifactEntryServiceTest
         String methodName = testInfo.getTestMethod().get().getName();
         return groupId + "." + methodName;
     }
-    
+
     @AfterEach
     public void cleanup(TestInfo testInfo)
     {
@@ -101,7 +96,7 @@ public class ArtifactEntryServiceTest
                                                                                .collect(Collectors.toList());
         artifactEntryService.delete(artifactEntries);
         artifactCoordinatesService.delete(artifactCoordinates);
-        
+
         displayAllEntries(groupId);
     }
 
@@ -111,12 +106,12 @@ public class ArtifactEntryServiceTest
         coordinates.put("path", String.format("%s", groupId));
         return artifactEntryService.findArtifactList(null, null, coordinates, false);
     }
-    
+
     protected int count(final String groupId)
     {
         return findAll(groupId).size();
     }
-    
+
     @Test
     public void saveEntityShouldWork(TestInfo testInfo)
     {
@@ -130,18 +125,18 @@ public class ArtifactEntryServiceTest
                                                                        "1.2.3",
                                                                        "jar"));
 
-        assertThat(artifactEntry.getCreated(), CoreMatchers.nullValue());
+        assertThat(artifactEntry.getCreated()).isNull();
 
         artifactEntry = save(artifactEntry);
 
-        assertThat(artifactEntry.getCreated(), CoreMatchers.notNullValue());
+        assertThat(artifactEntry.getCreated()).isNotNull();
 
         Date creationDate = artifactEntry.getCreated();
         //Updating artifact entry in order to ensure that creationDate is not updated
         artifactEntry.setDownloadCount(1);
         artifactEntry = save(artifactEntry);
 
-        assertEquals(artifactEntry.getCreated(), creationDate);
+        assertThat(artifactEntry.getCreated()).isEqualTo(creationDate);
     }
 
     @Test
@@ -156,11 +151,11 @@ public class ArtifactEntryServiceTest
                                                                                                                  REPOSITORY_ID,
                                                                                                                  jarCoordinates.toPath()));
 
-        assertTrue(artifactEntryOptional.isPresent());
+        assertThat(artifactEntryOptional.isPresent()).isTrue();
 
         ArtifactEntry artifactEntry = artifactEntryOptional.get();
-        assertThat(artifactEntry.getArtifactCoordinates(), CoreMatchers.notNullValue());
-        assertEquals(jarCoordinates.toPath(), artifactEntry.getArtifactCoordinates().toPath());
+        assertThat(artifactEntry.getArtifactCoordinates()).isNotNull();
+        assertThat(artifactEntry.getArtifactCoordinates().toPath()).isEqualTo(jarCoordinates.toPath());
 
         //Simple field update
         artifactEntry.setRepositoryId(REPOSITORY_ID + "abc");
@@ -169,12 +164,12 @@ public class ArtifactEntryServiceTest
         artifactEntryOptional = Optional.ofNullable(artifactEntryService.findOneArtifact(STORAGE_ID,
                                                                                          REPOSITORY_ID,
                                                                                          jarCoordinates.toPath()));
-        assertFalse(artifactEntryOptional.isPresent());
+        assertThat(artifactEntryOptional.isPresent()).isFalse();
 
         artifactEntryOptional = Optional.ofNullable(artifactEntryService.findOneArtifact(STORAGE_ID,
                                                                                          REPOSITORY_ID + "abc",
                                                                                          jarCoordinates.toPath()));
-        assertTrue(artifactEntryOptional.isPresent());
+        assertThat(artifactEntryOptional.isPresent()).isTrue();
 
         //Cascade field update
         NullArtifactCoordinates nullArtifactCoordinates = (NullArtifactCoordinates)artifactEntry.getArtifactCoordinates();
@@ -184,19 +179,19 @@ public class ArtifactEntryServiceTest
         artifactEntryOptional = Optional.ofNullable(artifactEntryService.findOneArtifact(STORAGE_ID,
                                                                                          REPOSITORY_ID + "abc",
                                                                                          jarCoordinates.toPath()));
-        assertFalse(artifactEntryOptional.isPresent());
+        assertThat(artifactEntryOptional.isPresent()).isFalse();
 
         artifactEntryOptional = Optional.ofNullable(artifactEntryService.findOneArtifact(STORAGE_ID,
                                                                                          REPOSITORY_ID + "abc",
                                                                                          pomCoordinates.toPath()));
-        assertTrue(artifactEntryOptional.isPresent());
+        assertThat(artifactEntryOptional.isPresent()).isTrue();
     }
 
     private ArtifactEntry save(ArtifactEntry artifactEntry)
     {
         return artifactEntryService.save(artifactEntry);
     }
-    
+
     @Test
     public void searchBySizeShouldWork(TestInfo testInfo)
     {
@@ -218,7 +213,7 @@ public class ArtifactEntryServiceTest
                                               entry.getArtifactCoordinates().getId(),
                                               entry));
 
-        assertThat(entries.size(), CoreMatchers.equalTo(all - 1));
+        assertThat(entries).hasSize(all - 1);
     }
 
     @Test
@@ -242,7 +237,7 @@ public class ArtifactEntryServiceTest
                                               entry.getArtifactCoordinates().getId(),
                                               entry));
 
-        assertThat(entries.size(), CoreMatchers.equalTo(all - 1));
+        assertThat(entries).hasSize(all - 1);
     }
 
     @Test
@@ -251,15 +246,15 @@ public class ArtifactEntryServiceTest
         final String groupId = getGroupId(GROUP_ID, testInfo);
 
         int all = count(groupId);
-        assertThat(all, CoreMatchers.equalTo(3));
+        assertThat(all).isEqualTo(3);
 
         List<ArtifactEntry> artifactEntries = findAll(groupId);
         int removed = artifactEntryService.delete(artifactEntries);
-        assertThat(removed, CoreMatchers.equalTo(all));
+        assertThat(removed).isEqualTo(all);
 
         int left = count(groupId);
-        assertThat(left, CoreMatchers.equalTo(0));
-        assertTrue(findAll(groupId).isEmpty());
+        assertThat(left).isZero();
+        assertThat(findAll(groupId).isEmpty()).isTrue();
     }
 
     @Test
@@ -268,15 +263,15 @@ public class ArtifactEntryServiceTest
         final String groupId = getGroupId(GROUP_ID, testInfo);
 
         int all = count(groupId);
-        assertThat(all, CoreMatchers.equalTo(3));
+        assertThat(all).isEqualTo(3);
 
         List<ArtifactEntry> artifactEntries = findAll(groupId);
         artifactEntries.remove(0);
         int removed = artifactEntryService.delete(artifactEntries);
-        assertThat(removed, CoreMatchers.equalTo(all - 1));
+        assertThat(removed).isEqualTo(all - 1);
 
         int left = count(groupId);
-        assertThat(left, CoreMatchers.equalTo(1));
+        assertThat(left).isEqualTo(1);
     }
 
     @Test
@@ -301,7 +296,7 @@ public class ArtifactEntryServiceTest
                                               entry.getArtifactCoordinates().getId(),
                                               entry));
 
-        assertThat(entries.size(), CoreMatchers.equalTo(all - 1));
+        assertThat(entries).hasSize(all - 1);
     }
 
     /**
@@ -323,15 +318,15 @@ public class ArtifactEntryServiceTest
                                                                                     coordinates.getCoordinates(),
                                                                                     false);
 
-        assertNotNull(artifactEntries);
-        assertFalse(artifactEntries.isEmpty());
-        assertEquals(2, artifactEntries.size());
+        assertThat(artifactEntries).isNotNull();
+        assertThat(artifactEntries.isEmpty()).isFalse();
+        assertThat(artifactEntries).hasSize(2);
 
         artifactEntries.forEach(artifactEntry ->
                                 {
                                     logger.debug("Found artifact {}", artifactEntry);
-                                    assertTrue(((NullArtifactCoordinates)artifactEntry.getArtifactCoordinates()).getPath().startsWith(
-                                            groupId + "/"));
+                                    assertThat(((NullArtifactCoordinates)artifactEntry.getArtifactCoordinates())
+                                                       .getPath().startsWith(groupId + "/")).isTrue();
                                 });
     }
 
@@ -352,20 +347,20 @@ public class ArtifactEntryServiceTest
                                                                            REPOSITORY_ID,
                                                                            c1.getCoordinates(),
                                                                            false);
-        assertNotNull(result);
-        assertFalse(result.isEmpty());
+        assertThat(result).isNotNull();
+        assertThat(result.isEmpty()).isFalse();
 
-        assertEquals(1, result.size());
+        assertThat(result).hasSize(1);
 
         result.forEach(artifactEntry ->
                        {
                            logger.debug("Found artifact {}", artifactEntry);
-                           assertTrue(((NullArtifactCoordinates)artifactEntry.getArtifactCoordinates()).getPath().startsWith(
-                                   groupId + "/" + ARTIFACT_ID));
+                           assertThat(((NullArtifactCoordinates)artifactEntry.getArtifactCoordinates())
+                                              .getPath().startsWith(groupId + "/" + ARTIFACT_ID)).isTrue();
                        });
 
         Long c = artifactEntryService.countArtifacts(STORAGE_ID, REPOSITORY_ID, c1.getCoordinates(), false);
-        assertEquals(Long.valueOf(1), c);
+        assertThat(c).isEqualTo(Long.valueOf(1));
     }
 
     private void displayAllEntries(final String groupId)

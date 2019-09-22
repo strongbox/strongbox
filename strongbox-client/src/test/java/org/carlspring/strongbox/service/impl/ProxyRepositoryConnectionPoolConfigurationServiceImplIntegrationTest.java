@@ -14,7 +14,7 @@ import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Import;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.ContextConfiguration;
-import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.assertj.core.api.Assertions.assertThat;
 
 /**
  * @author korest
@@ -39,14 +39,14 @@ public class ProxyRepositoryConnectionPoolConfigurationServiceImplIntegrationTes
     public void setMaxPoolSize()
     {
         proxyRepositoryConnectionPoolConfigurationService.setMaxTotal(10);
-        assertEquals(10, proxyRepositoryConnectionPoolConfigurationService.getTotalStats().getMax());
+        assertThat(proxyRepositoryConnectionPoolConfigurationService.getTotalStats().getMax()).isEqualTo(10);
     }
 
     @Test
     public void setDefaultMaxPerRepository()
     {
         proxyRepositoryConnectionPoolConfigurationService.setDefaultMaxPerRepository(8);
-        assertEquals(8, proxyRepositoryConnectionPoolConfigurationService.getDefaultMaxPerRepository());
+        assertThat(proxyRepositoryConnectionPoolConfigurationService.getDefaultMaxPerRepository()).isEqualTo(8);
     }
 
     @Test
@@ -54,7 +54,7 @@ public class ProxyRepositoryConnectionPoolConfigurationServiceImplIntegrationTes
     {
         String repositoryUrl = "http://repo.spring.io/snapshot";
         proxyRepositoryConnectionPoolConfigurationService.setMaxPerRepository(repositoryUrl, 3);
-        assertEquals(3, proxyRepositoryConnectionPoolConfigurationService.getPoolStats(repositoryUrl).getMax());
+        assertThat(proxyRepositoryConnectionPoolConfigurationService.getPoolStats(repositoryUrl).getMax()).isEqualTo(3);
     }
 
     // integration test, external call to repo
@@ -71,7 +71,7 @@ public class ProxyRepositoryConnectionPoolConfigurationServiceImplIntegrationTes
         }
 
         // all connections should be released
-        assertEquals(0, proxyRepositoryConnectionPoolConfigurationService.getTotalStats().getLeased());
+        assertThat(proxyRepositoryConnectionPoolConfigurationService.getTotalStats().getLeased()).isEqualTo(0);
     }
 
     // integration test, external call to repo
@@ -86,6 +86,6 @@ public class ProxyRepositoryConnectionPoolConfigurationServiceImplIntegrationTes
         }
 
         // all connections should be leaked
-        assertEquals(3, proxyRepositoryConnectionPoolConfigurationService.getTotalStats().getLeased());
+        assertThat(proxyRepositoryConnectionPoolConfigurationService.getTotalStats().getLeased()).isEqualTo(3);
     }
 }

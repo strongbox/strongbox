@@ -24,9 +24,6 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.Set;
 
-import org.hamcrest.CoreMatchers;
-import org.hamcrest.MatcherAssert;
-import org.hamcrest.Matchers;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.InjectMocks;
@@ -38,6 +35,7 @@ import org.springframework.context.ApplicationContext;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.TestExecutionListeners;
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.ArgumentMatchers.any;
 
 /**
@@ -119,22 +117,22 @@ class AbstractLayoutProviderTest
                                                                                           .resolve("abs-lay-prov-test-1.8.jar");
 
         Set<ArtifactGroupEntry> artifactGroups = layoutProvider.getArtifactGroups(path);
-        MatcherAssert.assertThat(artifactGroups, Matchers.notNullValue());
-        MatcherAssert.assertThat(artifactGroups.size(), CoreMatchers.equalTo(0));
+        assertThat(artifactGroups).isNotNull();
+        assertThat(artifactGroups.size()).isEqualTo(0);
 
         RepositoryArtifactIdGroupEntry repositoryArtifactIdGroup = artifactGroupService.findOneOrCreate("storage0",
                                                                                                         "releases",
                                                                                                         "abs-lay-prov-test");
 
         artifactGroups = layoutProvider.getArtifactGroups(path);
-        MatcherAssert.assertThat(artifactGroups, Matchers.notNullValue());
-        MatcherAssert.assertThat(artifactGroups.size(), CoreMatchers.equalTo(1));
-        MatcherAssert.assertThat(artifactGroups.iterator().next(), Matchers.equalTo(repositoryArtifactIdGroup));
-        MatcherAssert.assertThat(repositoryArtifactIdGroup, CoreMatchers.instanceOf(RepositoryArtifactIdGroupEntry.class));
-        MatcherAssert.assertThat(repositoryArtifactIdGroup.getArtifactId(), CoreMatchers.equalTo("abs-lay-prov-test"));
-        MatcherAssert.assertThat(repositoryArtifactIdGroup.getRepositoryId(), CoreMatchers.equalTo("releases"));
-        MatcherAssert.assertThat(repositoryArtifactIdGroup.getStorageId(), CoreMatchers.equalTo("storage0"));
-        MatcherAssert.assertThat(repositoryArtifactIdGroup.getClass(), CoreMatchers.equalTo(RepositoryArtifactIdGroupEntry.class));
+        assertThat(artifactGroups).isNotNull();
+        assertThat(artifactGroups.size()).isEqualTo((1));
+        assertThat(artifactGroups.iterator().next()).isEqualTo(repositoryArtifactIdGroup);
+        assertThat(repositoryArtifactIdGroup).isInstanceOf(RepositoryArtifactIdGroupEntry.class);
+        assertThat(repositoryArtifactIdGroup.getArtifactId()).isEqualTo(("abs-lay-prov-test"));
+        assertThat(repositoryArtifactIdGroup.getRepositoryId()).isEqualTo(("releases"));
+        assertThat(repositoryArtifactIdGroup.getStorageId()).isEqualTo(("storage0"));
+        assertThat(repositoryArtifactIdGroup.getClass()).isEqualTo((RepositoryArtifactIdGroupEntry.class));
     }
     
     private class StorageFileSystemProviderTest extends LayoutFileSystemProvider

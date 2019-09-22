@@ -22,20 +22,13 @@ import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 
 import org.apache.maven.artifact.Artifact;
-import org.hamcrest.CoreMatchers;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.springframework.core.io.Resource;
 import org.springframework.transaction.PlatformTransactionManager;
 import org.springframework.transaction.support.TransactionTemplate;
-import static org.hamcrest.MatcherAssert.assertThat;
-import static org.junit.jupiter.api.Assertions.assertArrayEquals;
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertFalse;
-import static org.junit.jupiter.api.Assertions.assertNotEquals;
-import static org.junit.jupiter.api.Assertions.assertNotNull;
-import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.assertj.core.api.Assertions.assertThat;
 
 /**
  * @author sbespalov
@@ -97,8 +90,8 @@ public class ParallelDownloadRemoteArtifactTest
                                                                      path);
 
         // given
-        assertFalse(Files.exists(artifactPath));
-        assertFalse(remoteRepositoryConnectionOwnerMap.containsKey(remoteArtifactInputStream));
+        assertThat(Files.exists(artifactPath)).isFalse();
+        assertThat(remoteRepositoryConnectionOwnerMap.containsKey(remoteArtifactInputStream)).isFalse();
 
         // when
         List<Throwable> result = IntStream.range(0, concurrency)
@@ -128,20 +121,20 @@ public class ParallelDownloadRemoteArtifactTest
         Throwable[] actual = result.toArray(new Throwable[concurrency]);
 
         // then
-        assertTrue(Files.exists(artifactPath));
-        assertThat(Files.size(artifactPath), CoreMatchers.equalTo(Files.size(jarArtifact.getFile().toPath())));
-        assertEquals(concurrency, result.size());
+        assertThat(Files.exists(artifactPath)).isTrue();
+        assertThat(Files.size(artifactPath)).isEqualTo(Files.size(jarArtifact.getFile().toPath()));
+        assertThat(result).hasSize(concurrency);
 
-        assertArrayEquals(expected, actual);
+        assertThat(actual).isEqualTo(expected);
         
         RepositoryPath repositoryPath = repositoryPathResolver.resolve(storageId,
                                                                        repositoryId,
                                                                        path);
 
-        assertNotNull(repositoryPath.getArtifactEntry());
-        assertEquals(Integer.valueOf(concurrency), repositoryPath.getArtifactEntry().getDownloadCount());
+        assertThat(repositoryPath.getArtifactEntry()).isNotNull();
+        assertThat(repositoryPath.getArtifactEntry().getDownloadCount()).isEqualTo(Integer.valueOf(concurrency));
         
-        assertNotEquals(concurrency, concurrentWorkerExecutionCount, "Worker execution was not concurrent.");
+        assertThat(concurrentWorkerExecutionCount).as("Worker execution was not concurrent.").isNotEqualTo(concurrency);
     }
 
     private class WorkerThread extends Thread
@@ -271,7 +264,7 @@ public class ParallelDownloadRemoteArtifactTest
             Thread currentThread = Thread.currentThread();
             Thread ownerThread = remoteRepositoryConnectionOwnerMap.putIfAbsent(this, currentThread);
 
-            assertEquals(currentThread, Optional.ofNullable(ownerThread).orElse(currentThread));
+            assertThat(Optional.ofNullable(ownerThread).orElse(currentThread)).isEqualTo(currentThread);
         }
     }
 

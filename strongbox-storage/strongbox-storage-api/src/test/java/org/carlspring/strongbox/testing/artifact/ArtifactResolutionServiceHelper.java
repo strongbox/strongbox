@@ -11,7 +11,7 @@ import java.util.Arrays;
 import org.apache.commons.io.IOUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.assertj.core.api.Assertions.assertThat;
 
 /**
  * @author Pablo Tirado
@@ -35,7 +35,7 @@ public class ArtifactResolutionServiceHelper
 
         try (final InputStream is = artifactResolutionService.getInputStream(repositoryPath))
         {
-            assertNotNull(is, "Failed to resolve " + path + "!");
+            assertThat(is).as("Failed to resolve " + path + "!").isNotNull();
 
             if (RepositoryFiles.isMetadata(repositoryPath))
             {

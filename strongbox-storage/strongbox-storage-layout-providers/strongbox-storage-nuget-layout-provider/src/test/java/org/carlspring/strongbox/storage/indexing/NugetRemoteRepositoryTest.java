@@ -1,7 +1,6 @@
 package org.carlspring.strongbox.storage.indexing;
 
-import static org.junit.jupiter.api.Assertions.assertFalse;
-import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.parallel.ExecutionMode.CONCURRENT;
 
 import java.io.IOException;
@@ -69,8 +68,8 @@ public class NugetRemoteRepositoryTest
                                                                            coordinates.toPath());
         Optional<ArtifactEntry> optionalArtifactEntry = Optional.ofNullable(artifactEntry);
 
-        assertTrue(optionalArtifactEntry.isPresent());
-        assertFalse(((RemoteArtifactEntry) optionalArtifactEntry.get()).getIsCached());
+        assertThat(optionalArtifactEntry.isPresent()).isTrue();
+        assertThat(((RemoteArtifactEntry) optionalArtifactEntry.get()).getIsCached()).isFalse();
     }
 
 }

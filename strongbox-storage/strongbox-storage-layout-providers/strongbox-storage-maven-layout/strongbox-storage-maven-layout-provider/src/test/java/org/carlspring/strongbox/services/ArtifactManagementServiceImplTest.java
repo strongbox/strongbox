@@ -1,5 +1,7 @@
 package org.carlspring.strongbox.services;
 
+import static org.assertj.core.api.Assertions.assertThat;
+
 import org.carlspring.strongbox.artifact.ArtifactTag;
 import org.carlspring.strongbox.artifact.MavenArtifact;
 import org.carlspring.strongbox.artifact.MavenArtifactUtils;
@@ -41,8 +43,6 @@ import java.util.stream.Stream;
 
 import org.apache.commons.io.FilenameUtils;
 import org.apache.maven.artifact.Artifact;
-import org.hamcrest.CoreMatchers;
-import org.hamcrest.MatcherAssert;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.junit.jupiter.api.parallel.Execution;
@@ -51,11 +51,7 @@ import org.slf4j.LoggerFactory;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.ContextConfiguration;
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertNotNull;
-import static org.junit.jupiter.api.Assertions.assertNull;
-import static org.junit.jupiter.api.Assertions.assertTrue;
-import static org.junit.jupiter.api.Assertions.fail;
+import static org.assertj.core.api.Assertions.fail;
 import static org.junit.jupiter.api.parallel.ExecutionMode.CONCURRENT;
 
 /**
@@ -330,8 +326,8 @@ public class ArtifactManagementServiceImplTest
 
         try (InputStream is = artifactResolutionService.getInputStream(path))
         {
-            assertNotNull(is, "Failed to resolve artifact from group repository!");
-            assertTrue(is.available() > 0, "Failed to resolve artifact from group repository!");
+            assertThat(is).as("Failed to resolve artifact from group repository!").isNotNull();
+            assertThat(is.available() > 0).as("Failed to resolve artifact from group repository!").isTrue();
         }
     }
 
@@ -358,7 +354,7 @@ public class ArtifactManagementServiceImplTest
 
         mavenArtifactManagementService.delete(artifactRepositoryPath, true);
 
-        assertTrue(Files.notExists(artifactPath1), "Failed to delete artifact during a force delete operation!");
+        assertThat(Files.notExists(artifactPath1)).as("Failed to delete artifact during a force delete operation!").isTrue();
 
         final String artifactPathStr2 = "org/carlspring/strongbox/strongbox-utils/7.2/strongbox-utils-7.2.jar";
 
@@ -368,9 +364,10 @@ public class ArtifactManagementServiceImplTest
 
         final Path repositoryTrashPath = repositoryPathResolver.resolve(repository2).resolve(".trash");
 
-        assertTrue(Files.exists(repositoryTrashPath.resolve(artifactPathStr2)),
-                   "Should have moved the artifact to the trash during a force delete operation, " +
-                   "when allowsForceDeletion is not enabled!");
+        assertThat(Files.exists(repositoryTrashPath.resolve(artifactPathStr2)))
+                .as("Should have moved the artifact to the trash during a force delete operation, " +
+                        "when allowsForceDeletion is not enabled!")
+                .isTrue();
     }
 
     @ExtendWith({ RepositoryManagementTestExecutionListener.class,
@@ -395,7 +392,7 @@ public class ArtifactManagementServiceImplTest
         try (Stream<Path> pathStream = Files.walk(artifactVersionBasePath))
         {
             long timestampedSnapshots = pathStream.filter(path -> path.toString().endsWith(".jar")).count();
-            assertEquals(3, timestampedSnapshots, "Amount of timestamped snapshots doesn't equal 3.");
+            assertThat(timestampedSnapshots).as("Amount of timestamped snapshots doesn't equal 3.").isEqualTo(3);
         }
 
         artifactMetadataService.rebuildMetadata(storageId,
@@ -412,11 +409,11 @@ public class ArtifactManagementServiceImplTest
         try (Stream<Path> pathStream = Files.walk(artifactVersionBasePath))
         {
             long timestampedSnapshots = pathStream.filter(path -> path.toString().endsWith(".jar")).count();
-            assertEquals(1, timestampedSnapshots, "Amount of timestamped snapshots doesn't equal 1.");
+            assertThat(timestampedSnapshots).as("Amount of timestamped snapshots doesn't equal 1.").isEqualTo(1);
 
             Path snapshotArtifactPath = getSnapshotArtifactPath(artifactVersionBasePath);
-            assertNotNull(snapshotArtifactPath);
-            assertTrue(snapshotArtifactPath.toString().endsWith("-3.jar"));
+            assertThat(snapshotArtifactPath).isNotNull();
+            assertThat(snapshotArtifactPath.toString().endsWith("-3.jar")).isTrue();
         }
     }
 
@@ -445,7 +442,7 @@ public class ArtifactManagementServiceImplTest
         try (Stream<Path> pathStream = Files.walk(artifactVersionBasePath))
         {
             long timestampedSnapshots = pathStream.filter(path -> path.toString().endsWith(".jar")).count();
-            assertEquals(2, timestampedSnapshots, "Amount of timestamped snapshots doesn't equal 2.");
+            assertThat(timestampedSnapshots).as("Amount of timestamped snapshots doesn't equal 2.").isEqualTo(2);
         }
 
         SimpleDateFormat formatter = new SimpleDateFormat(MavenSnapshotManager.TIMESTAMP_FORMAT);
@@ -463,10 +460,10 @@ public class ArtifactManagementServiceImplTest
         try (Stream<Path> pathStream = Files.walk(repositoryPath))
         {
             long timestampedSnapshots = pathStream.filter(path -> path.toString().endsWith(".jar")).count();
-            assertEquals(0, timestampedSnapshots, "Amount of timestamped snapshots doesn't equal 0.");
+            assertThat(timestampedSnapshots).as("Amount of timestamped snapshots doesn't equal 0.").isZero();
 
             Path snapshotArtifactPath = getSnapshotArtifactPath(repositoryPath);
-            assertNull(snapshotArtifactPath);
+            assertThat(snapshotArtifactPath).isNull();
         }
     }
 
@@ -520,26 +517,24 @@ public class ArtifactManagementServiceImplTest
         // then
         for (int i = 0; i < resultList.size(); i++)
         {
-            assertEquals(Long.valueOf(CONTENT_SIZE),
-                         resultList.get(i),
-                         String.format("Operation [%s:%s] content size don't match.",
-                                       i % 2 == 0 ? "write" : "read",
-                                       i));
+            String message = String.format("Operation [%s:%s] content size don't match.",
+                                          i % 2 == 0 ? "write" : "read", i);
+            assertThat(Long.valueOf(CONTENT_SIZE)).as(message).isEqualTo(resultList.get(i));
         }
 
         RepositoryPath repositoryPathResult = repositoryPathResolver.resolve(repository, path);
         ArtifactEntry artifactEntry = repositoryPathResult.getArtifactEntry();
 
-        assertNotNull(artifactEntry);
-        assertEquals(Integer.valueOf(concurrency), artifactEntry.getDownloadCount());
+        assertThat(artifactEntry).isNotNull();
+        assertThat(artifactEntry.getDownloadCount()).isEqualTo(Integer.valueOf(concurrency));
 
         byte[] repositoryPathContent = Files.readAllBytes(repositoryPath);
 
-        assertTrue(Arrays.stream(loremIpsumContentArray)
+        assertThat(Arrays.stream(loremIpsumContentArray)
                          .map(c -> Arrays.equals(repositoryPathContent, c))
-                         .reduce((r1,
-                                  r2) -> r1 || r2)
-                         .get());
+                         .reduce((r1, r2) -> r1 || r2)
+                         .get())
+                .isTrue();
 
     }
 
@@ -569,10 +564,9 @@ public class ArtifactManagementServiceImplTest
         ArtifactEntry artifactEntry = artifactEntryService.findOneArtifact(storageId,
                                                                            repositoryId,
                                                                            artifactPath);
-        MatcherAssert.assertThat(artifactEntry.getTagSet(), CoreMatchers.notNullValue());
-        MatcherAssert.assertThat(artifactEntry.getTagSet().size(), CoreMatchers.equalTo(1));
-        MatcherAssert.assertThat(artifactEntry.getTagSet().iterator().next().getName(),
-                                 CoreMatchers.equalTo(ArtifactTag.LAST_VERSION));
+        assertThat(artifactEntry.getTagSet()).isNotNull();
+        assertThat(artifactEntry.getTagSet()).hasSize(1);
+        assertThat(artifactEntry.getTagSet().iterator().next().getName()).isEqualTo(ArtifactTag.LAST_VERSION);
 
         // store the file with classifier
         String gavtcWithClassifier = "org.carlspring.strongbox:strongbox-lv-artifact:1.0:jar:sources";
@@ -592,20 +586,18 @@ public class ArtifactManagementServiceImplTest
                                                                                          repositoryId,
                                                                                          artifactPathWithClassifier);
 
-        MatcherAssert.assertThat(artifactEntryWithClassifier.getTagSet(), CoreMatchers.notNullValue());
-        MatcherAssert.assertThat(artifactEntryWithClassifier.getTagSet().size(), CoreMatchers.equalTo(1));
-        MatcherAssert.assertThat(artifactEntryWithClassifier.getTagSet().iterator().next().getName(),
-                                 CoreMatchers.equalTo(ArtifactTag.LAST_VERSION));
+        assertThat(artifactEntryWithClassifier.getTagSet()).isNotNull();
+        assertThat(artifactEntryWithClassifier.getTagSet()).hasSize(1);
+        assertThat(artifactEntryWithClassifier.getTagSet().iterator().next().getName()).isEqualTo(ArtifactTag.LAST_VERSION);
 
         // re-fetch the artifact without classifier
         // and confirm it still has the last version tag
         artifactEntry = artifactEntryService.findOneArtifact(storageId,
                                                              repositoryId,
                                                              artifactPath);
-        MatcherAssert.assertThat(artifactEntry.getTagSet(), CoreMatchers.notNullValue());
-        MatcherAssert.assertThat(artifactEntry.getTagSet().size(), CoreMatchers.equalTo(1));
-        MatcherAssert.assertThat(artifactEntry.getTagSet().iterator().next().getName(),
-                                 CoreMatchers.equalTo(ArtifactTag.LAST_VERSION));
+        assertThat(artifactEntry.getTagSet()).isNotNull();
+        assertThat(artifactEntry.getTagSet()).hasSize(1);
+        assertThat(artifactEntry.getTagSet().iterator().next().getName()).isEqualTo(ArtifactTag.LAST_VERSION);
 
         // store the newest version of file without classifier
         String gavtcV2 = "org.carlspring.strongbox:strongbox-lv-artifact:2.0:jar";
@@ -625,26 +617,25 @@ public class ArtifactManagementServiceImplTest
                                                                              repositoryId,
                                                                              artifactPathV2);
 
-        MatcherAssert.assertThat(artifactEntryV2.getTagSet(), CoreMatchers.notNullValue());
-        MatcherAssert.assertThat(artifactEntryV2.getTagSet().size(), CoreMatchers.equalTo(1));
-        MatcherAssert.assertThat(artifactEntryV2.getTagSet().iterator().next().getName(),
-                                 CoreMatchers.equalTo(ArtifactTag.LAST_VERSION));
+        assertThat(artifactEntryV2.getTagSet()).isNotNull();
+        assertThat(artifactEntryV2.getTagSet()).hasSize(1);
+        assertThat(artifactEntryV2.getTagSet().iterator().next().getName()).isEqualTo(ArtifactTag.LAST_VERSION);
 
         // re-fetch the artifact without classifier
         // and confirm it no longer has the last version tag
         artifactEntry = artifactEntryService.findOneArtifact(storageId,
                                                              repositoryId,
                                                              artifactPath);
-        MatcherAssert.assertThat(artifactEntry.getTagSet(), CoreMatchers.notNullValue());
-        MatcherAssert.assertThat(artifactEntry.getTagSet().size(), CoreMatchers.equalTo(0));
+        assertThat(artifactEntry.getTagSet()).isNotNull();
+        assertThat(artifactEntry.getTagSet()).isEmpty();
 
         // confirm it no longer has last-version tag
         artifactEntryWithClassifier = artifactEntryService.findOneArtifact(storageId,
                                                                            repositoryId,
                                                                            artifactPathWithClassifier);
 
-        MatcherAssert.assertThat(artifactEntryWithClassifier.getTagSet(), CoreMatchers.notNullValue());
-        MatcherAssert.assertThat(artifactEntryWithClassifier.getTagSet().size(), CoreMatchers.equalTo(0));
+        assertThat(artifactEntryWithClassifier.getTagSet()).isNotNull();
+        assertThat(artifactEntryWithClassifier.getTagSet()).isEmpty();
     }
 
     @ExtendWith({ RepositoryManagementTestExecutionListener.class,
@@ -680,12 +671,12 @@ public class ArtifactManagementServiceImplTest
                                                                            repositoryId,
                                                                            path);
 
-        assertNotNull(artifactEntry);
+        assertThat(artifactEntry).isNotNull();
 
         Map<String, String> actualChecksums = artifactEntry.getChecksums();
 
-        assertNotNull(actualChecksums);
-        assertEquals(expectedChecksums, actualChecksums);
+        assertThat(actualChecksums).isNotNull();
+        assertThat(actualChecksums).isEqualTo(expectedChecksums);
     }
 
 

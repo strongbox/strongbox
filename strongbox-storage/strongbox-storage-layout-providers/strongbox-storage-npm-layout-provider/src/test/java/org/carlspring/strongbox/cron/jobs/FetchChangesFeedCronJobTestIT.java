@@ -42,8 +42,7 @@ import org.springframework.core.env.Environment;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.ContextConfiguration;
 import static org.awaitility.Awaitility.await;
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.parallel.ExecutionMode.CONCURRENT;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyString;
@@ -110,10 +109,10 @@ public class FetchChangesFeedCronJobTestIT
                 entityManager);
         List<RemoteArtifactEntry> artifactEntryList = queryTemplate.select(selector);
 
-        assertEquals(1, artifactEntryList.size());
+        assertThat(artifactEntryList.size()).isEqualTo(1);
 
         RemoteArtifactEntry artifactEntry = artifactEntryList.iterator().next();
-        assertFalse(artifactEntry.getIsCached());
+        assertThat(artifactEntry.getIsCached()).isFalse();
 
         RepositoryData repositoryData = (RepositoryData) configurationManagementService.getConfiguration()
                                                                                        .getRepository(
@@ -122,7 +121,7 @@ public class FetchChangesFeedCronJobTestIT
 
         NpmRemoteRepositoryConfiguration customConfiguration = (NpmRemoteRepositoryConfiguration) repositoryData.getRemoteRepository()
                                                                                                                 .getCustomConfiguration();
-        assertEquals(Long.valueOf(330), customConfiguration.getLastChangeId());
+        assertThat(customConfiguration.getLastChangeId()).isEqualTo(330L);
     }
 
     public static class TestFetchRemoteChangesFeedCronJob extends FetchRemoteNpmChangesFeedCronJob

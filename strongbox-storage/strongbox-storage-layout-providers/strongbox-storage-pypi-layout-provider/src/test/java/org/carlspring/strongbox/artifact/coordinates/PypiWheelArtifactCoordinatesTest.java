@@ -1,20 +1,20 @@
 package org.carlspring.strongbox.artifact.coordinates;
 
-import org.carlspring.strongbox.artifact.coordinates.PypiWheelArtifactCoordinates;
 import org.junit.jupiter.api.Test;
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertThrows;
-import java.util.*; 
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatExceptionOfType;
+
+import java.util.*;
 
 /**
  * Class to test the functionality of PypiWheelArtifactCoordinates and PypiWheelArtifactCoordinatesUtils
- * 
+ *
  * @author alecg956
  */
 public class PypiWheelArtifactCoordinatesTest
 {
     private ArrayList<ArrayList<String>> parsedWheels = new ArrayList<ArrayList<String>>();
-    
+
     private ArrayList<String> wheelExamples = new ArrayList<String>();
 
     public PypiWheelArtifactCoordinatesTest()
@@ -115,22 +115,22 @@ public class PypiWheelArtifactCoordinatesTest
     }
 
     /**
-     * Tests the constructor of PypiWheelArtifactCoordinates with real Python Wheel package names.  
+     * Tests the constructor of PypiWheelArtifactCoordinates with real Python Wheel package names.
      * Simply add more pre-parsed filenames to parsedWheels array to test additional filenames.
      */
     @Test
     public void testManualCreateArtifact()
-    {      
+    {
         for (ArrayList<String> wheel: parsedWheels)
         {
             PypiWheelArtifactCoordinates testCoords = new PypiWheelArtifactCoordinates(wheel.get(0), wheel.get(1), wheel.get(2), wheel.get(3), wheel.get(4),wheel.get(5));
 
-            assertEquals(wheel.get(0), testCoords.getId());
-            assertEquals(wheel.get(1), testCoords.getVersion());
-            assertEquals(wheel.get(2), testCoords.getBuild());
-            assertEquals(wheel.get(3), testCoords.getLanguageImplementationVersion());
-            assertEquals(wheel.get(4), testCoords.getAbi());
-            assertEquals(wheel.get(5), testCoords.getPlatform());
+            assertThat(testCoords.getId()).isEqualTo(wheel.get(0));
+            assertThat(testCoords.getVersion()).isEqualTo(wheel.get(1));
+            assertThat(testCoords.getBuild()).isEqualTo(wheel.get(2));
+            assertThat(testCoords.getLanguageImplementationVersion()).isEqualTo(wheel.get(3));
+            assertThat(testCoords.getAbi()).isEqualTo(wheel.get(4));
+            assertThat(testCoords.getPlatform()).isEqualTo(wheel.get(5));
         }
     }
 
@@ -139,41 +139,47 @@ public class PypiWheelArtifactCoordinatesTest
      */
     @Test
     public void testCreateArtifactExceptions()
-    {      
+    {
         // no distribution tag
-        assertThrows(IllegalArgumentException.class, () -> {
-            PypiWheelArtifactCoordinates testCoords = new PypiWheelArtifactCoordinates("", "3.1.6", "", "cp37", "cp37m", "win_amd64");
-            testCoords.toString();
+        assertThatExceptionOfType(IllegalArgumentException.class)
+                .isThrownBy(() -> {
+                    PypiWheelArtifactCoordinates testCoords = new PypiWheelArtifactCoordinates("", "3.1.6", "", "cp37", "cp37m", "win_amd64");
+                    testCoords.toString();
         });
 
         // no version tag
-        assertThrows(IllegalArgumentException.class, () -> {
-            PypiWheelArtifactCoordinates testCoords = new PypiWheelArtifactCoordinates("bcrypt", "", "", "cp37", "cp37m", "win_amd64");
-            testCoords.toString();
+        assertThatExceptionOfType(IllegalArgumentException.class)
+                .isThrownBy(() -> {
+                    PypiWheelArtifactCoordinates testCoords = new PypiWheelArtifactCoordinates("bcrypt", "", "", "cp37", "cp37m", "win_amd64");
+                    testCoords.toString();
         });
 
         // illegal build tag
-        assertThrows(IllegalArgumentException.class, () -> {
-            PypiWheelArtifactCoordinates testCoords = new PypiWheelArtifactCoordinates("bcrypt", "3.1.6", "c", "cp37", "cp37m", "");
-            testCoords.toString();
+        assertThatExceptionOfType(IllegalArgumentException.class)
+                .isThrownBy(() -> {
+                    PypiWheelArtifactCoordinates testCoords = new PypiWheelArtifactCoordinates("bcrypt", "3.1.6", "c", "cp37", "cp37m", "");
+                    testCoords.toString();
         });
 
         // no lang_impl_version tag
-        assertThrows(IllegalArgumentException.class, () -> {
-            PypiWheelArtifactCoordinates testCoords = new PypiWheelArtifactCoordinates("bcrypt", "3.1.6", "", "", "cp37m", "win_amd64");
-            testCoords.toString();
+        assertThatExceptionOfType(IllegalArgumentException.class)
+                .isThrownBy(() -> {
+                    PypiWheelArtifactCoordinates testCoords = new PypiWheelArtifactCoordinates("bcrypt", "3.1.6", "", "", "cp37m", "win_amd64");
+                    testCoords.toString();
         });
 
         // no abi tag
-        assertThrows(IllegalArgumentException.class, () -> {
-            PypiWheelArtifactCoordinates testCoords = new PypiWheelArtifactCoordinates("bcrypt", "3.1.6", "", "cp37", "", "win_amd64");
-            testCoords.toString();
+        assertThatExceptionOfType(IllegalArgumentException.class)
+                .isThrownBy(() -> {
+                    PypiWheelArtifactCoordinates testCoords = new PypiWheelArtifactCoordinates("bcrypt", "3.1.6", "", "cp37", "", "win_amd64");
+                    testCoords.toString();
         });
 
         // no platform tag
-        assertThrows(IllegalArgumentException.class, () -> {
-            PypiWheelArtifactCoordinates testCoords = new PypiWheelArtifactCoordinates("bcrypt", "3.1.6", "", "cp37", "cp37m", "");
-            testCoords.toString();
+        assertThatExceptionOfType(IllegalArgumentException.class)
+                .isThrownBy(() -> {
+                    PypiWheelArtifactCoordinates testCoords = new PypiWheelArtifactCoordinates("bcrypt", "3.1.6", "", "cp37", "cp37m", "");
+                    testCoords.toString();
         });
     }
 
@@ -189,12 +195,12 @@ public class PypiWheelArtifactCoordinatesTest
         {
             PypiWheelArtifactCoordinates coordsParsed = PypiWheelArtifactCoordinates.parse(wheelExamples.get(i));
 
-            assertEquals(parsedWheels.get(i).get(0), coordsParsed.getId());
-            assertEquals(parsedWheels.get(i).get(1), coordsParsed.getVersion());
-            assertEquals(parsedWheels.get(i).get(2), coordsParsed.getBuild());
-            assertEquals(parsedWheels.get(i).get(3), coordsParsed.getLanguageImplementationVersion());
-            assertEquals(parsedWheels.get(i).get(4), coordsParsed.getAbi());
-            assertEquals(parsedWheels.get(i).get(5), coordsParsed.getPlatform());
+            assertThat(coordsParsed.getId()).isEqualTo(parsedWheels.get(i).get(0));
+            assertThat(coordsParsed.getVersion()).isEqualTo(parsedWheels.get(i).get(1));
+            assertThat(coordsParsed.getBuild()).isEqualTo(parsedWheels.get(i).get(2));
+            assertThat(coordsParsed.getLanguageImplementationVersion()).isEqualTo(parsedWheels.get(i).get(3));
+            assertThat(coordsParsed.getAbi()).isEqualTo(parsedWheels.get(i).get(4));
+            assertThat(coordsParsed.getPlatform()).isEqualTo(parsedWheels.get(i).get(5));
         }
     }
 
@@ -205,14 +211,12 @@ public class PypiWheelArtifactCoordinatesTest
     public void testTooManyArgumentsException()
     {
         // too many arguments (7), error is at end
-        assertThrows(IllegalArgumentException.class, () -> {
-            PypiWheelArtifactCoordinates.parse("bcrypt-3.1.6-1-cp27-cp27m-macosx_10_6_intel-thiswillerror.whl");
-        });
+        assertThatExceptionOfType(IllegalArgumentException.class)
+                .isThrownBy(() -> PypiWheelArtifactCoordinates.parse("bcrypt-3.1.6-1-cp27-cp27m-macosx_10_6_intel-thiswillerror.whl"));
 
         // too many arguments (7), error in middle
-        assertThrows(IllegalArgumentException.class, () -> {
-            PypiWheelArtifactCoordinates.parse("bcrypt-3.1.6-1-thiswillerror-cp27-cp27m-macosx_10_6_intel.whl");
-        });
+        assertThatExceptionOfType(IllegalArgumentException.class)
+                .isThrownBy(() -> PypiWheelArtifactCoordinates.parse("bcrypt-3.1.6-1-thiswillerror-cp27-cp27m-macosx_10_6_intel.whl"));
     }
 
     /**
@@ -222,40 +226,34 @@ public class PypiWheelArtifactCoordinatesTest
     public void testTooFewArgumentsException()
     {
         // too few arguments (1)
-        assertThrows(IllegalArgumentException.class, () -> {
-            PypiWheelArtifactCoordinates.parse("bcrypt.whl");
-        });
+        assertThatExceptionOfType(IllegalArgumentException.class)
+                .isThrownBy(() -> PypiWheelArtifactCoordinates.parse("bcrypt.whl"));
 
         // too few arguments (2)
-        assertThrows(IllegalArgumentException.class, () -> {
-            PypiWheelArtifactCoordinates.parse("bcrypt-3.1.6.whl");
-        });
+        assertThatExceptionOfType(IllegalArgumentException.class)
+                .isThrownBy(() -> PypiWheelArtifactCoordinates.parse("bcrypt-3.1.6.whl"));
 
         // too few arguments (3)
-        assertThrows(IllegalArgumentException.class, () -> {
-            PypiWheelArtifactCoordinates.parse("bcrypt-3.1.6-cp27.whl");
-        });
+        assertThatExceptionOfType(IllegalArgumentException.class)
+                .isThrownBy(() -> PypiWheelArtifactCoordinates.parse("bcrypt-3.1.6-cp27.whl"));
 
         // too few arguments (4)
-        assertThrows(IllegalArgumentException.class, () -> {
-            PypiWheelArtifactCoordinates.parse("bcrypt-3.1.6-cp27-cp27m.whl");
-        });
+        assertThatExceptionOfType(IllegalArgumentException.class)
+                .isThrownBy(() -> PypiWheelArtifactCoordinates.parse("bcrypt-3.1.6-cp27-cp27m.whl"));
     }
 
     /**
-     * Test that the parser handles the case that build tag is specified but empty and if the build tag is 
+     * Test that the parser handles the case that build tag is specified but empty and if the build tag is
      * specified but does not start with a number
      */
     @Test
     public void buildTagException()
     {
-        assertThrows(IllegalArgumentException.class, () -> {
-            PypiWheelArtifactCoordinates.parse("bcrypt-3.1.6-1--cp27-cp27m-macosx_10_6_intel.whl");
-        });
+        assertThatExceptionOfType(IllegalArgumentException.class)
+                .isThrownBy(() -> PypiWheelArtifactCoordinates.parse("bcrypt-3.1.6-1--cp27-cp27m-macosx_10_6_intel.whl"));
 
-        assertThrows(IllegalArgumentException.class, () -> {
-            PypiWheelArtifactCoordinates.parse("bcrypt-3.1.6-1-test1-cp27-cp27m-macosx_10_6_intel.whl");
-        });
+        assertThatExceptionOfType(IllegalArgumentException.class)
+                .isThrownBy(() -> PypiWheelArtifactCoordinates.parse("bcrypt-3.1.6-1-test1-cp27-cp27m-macosx_10_6_intel.whl"));
     }
 
     /**
@@ -269,7 +267,7 @@ public class PypiWheelArtifactCoordinatesTest
             PypiWheelArtifactCoordinates coordsParsed = PypiWheelArtifactCoordinates.parse(wheelExamples.get(i));
             String filename = coordsParsed.toString();
 
-            assertEquals(wheelExamples.get(i), filename);
+            assertThat(filename).isEqualTo(wheelExamples.get(i));
         }
     }
 }

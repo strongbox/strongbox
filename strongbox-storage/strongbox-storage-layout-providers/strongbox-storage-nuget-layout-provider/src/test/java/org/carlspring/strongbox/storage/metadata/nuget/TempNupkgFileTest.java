@@ -35,8 +35,7 @@ import org.junit.jupiter.api.parallel.Execution;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.ContextConfiguration;
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.parallel.ExecutionMode.CONCURRENT;
 
 /**
@@ -67,11 +66,12 @@ public class TempNupkgFileTest
              TempNupkgFile nupkgFile = new TempNupkgFile(nupkgInputStream))
         {
             // THEN
-            assertNotNull(nupkgFile.getHash(),
-                          "Hash file created from stream");
-            assertEquals(expectedHash,
-                         nupkgFile.getHash(),
-                         "Hash file created from stream");
+            assertThat(nupkgFile.getHash())
+                    .as("Hash file created from stream")
+                    .isNotNull();
+            assertThat(nupkgFile.getHash())
+                    .as("Hash file created from stream")
+                    .isEqualTo(expectedHash);
         }
     }
 
@@ -99,9 +99,9 @@ public class TempNupkgFileTest
             Nuspec nuspecFile = nupkgFile.getNuspec();
 
             // THEN
-            assertNotNull(nuspecFile, "Package Specification");
-            assertEquals(expectedPackageId, nuspecFile.getId(), "Package ID");
-            assertEquals(SemanticVersion.parse(expectedPackageVersion), nuspecFile.getVersion(), "Package Version");
+            assertThat(nuspecFile).as("Package Specification").isNotNull();
+            assertThat(nuspecFile.getId()).as("Package ID").isEqualTo(expectedPackageId);
+            assertThat(nuspecFile.getVersion()).as("Package Version").isEqualTo(SemanticVersion.parse(expectedPackageVersion));
         }
     }
 
@@ -122,7 +122,7 @@ public class TempNupkgFileTest
              TempNupkgFile nupkgFile = new TempNupkgFile(nupkgInputStream))
         {
             // THEN
-            assertNotNull(nupkgFile.getNuspec());
+            assertThat(nupkgFile.getNuspec()).isNotNull();
         }
     }
 }

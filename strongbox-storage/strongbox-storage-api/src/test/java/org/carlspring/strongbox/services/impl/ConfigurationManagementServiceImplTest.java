@@ -28,10 +28,7 @@ import org.slf4j.LoggerFactory;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.ContextConfiguration;
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertFalse;
-import static org.junit.jupiter.api.Assertions.assertNotNull;
-import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.assertj.core.api.Assertions.assertThat;
 
 /**
  * @author mtodorov
@@ -72,10 +69,10 @@ public class ConfigurationManagementServiceImplTest
                 REPOSITORY_GROUP_COMMON_PROXIES);
 
         Iterator<String> iterator = repository.getGroupRepositories().iterator();
-        assertEquals("carlspring", iterator.next());
-        assertEquals("maven-central", iterator.next());
-        assertEquals("apache-snapshots", iterator.next());
-        assertEquals("jboss-public-releases", iterator.next());
+        assertThat(iterator.next()).isEqualTo("carlspring");
+        assertThat(iterator.next()).isEqualTo("maven-central");
+        assertThat(iterator.next()).isEqualTo("apache-snapshots");
+        assertThat(iterator.next()).isEqualTo("jboss-public-releases");
     }
 
     @Test
@@ -90,12 +87,12 @@ public class ConfigurationManagementServiceImplTest
                                                               .getRepository(STORAGE_COMMON_PROXIES,
                                                                              REPOSITORY_GROUP_COMMON_PROXIES);
 
-        assertEquals(4, repository.getGroupRepositories().size());
+        assertThat(repository.getGroupRepositories()).hasSize(4);
         Iterator<String> iterator = repository.getGroupRepositories().iterator();
-        assertEquals("carlspring", iterator.next());
-        assertEquals("maven-central", iterator.next());
-        assertEquals("apache-snapshots", iterator.next());
-        assertEquals("jboss-public-releases", iterator.next());
+        assertThat(iterator.next()).isEqualTo("carlspring");
+        assertThat(iterator.next()).isEqualTo("maven-central");
+        assertThat(iterator.next()).isEqualTo("apache-snapshots");
+        assertThat(iterator.next()).isEqualTo("jboss-public-releases");
     }
 
     @Test
@@ -113,12 +110,12 @@ public class ConfigurationManagementServiceImplTest
                                                               .getRepository(STORAGE_COMMON_PROXIES,
                                                                              REPOSITORY_GROUP_COMMON_PROXIES);
 
-        assertEquals(4, repository.getGroupRepositories().size());
+        assertThat(repository.getGroupRepositories()).hasSize(4);
         Iterator<String> iterator = repository.getGroupRepositories().iterator();
-        assertEquals("carlspring", iterator.next());
-        assertEquals("maven-central", iterator.next());
-        assertEquals("apache-snapshots", iterator.next());
-        assertEquals("jboss-public-releases", iterator.next());
+        assertThat(iterator.next()).isEqualTo("carlspring");
+        assertThat(iterator.next()).isEqualTo("maven-central");
+        assertThat(iterator.next()).isEqualTo("apache-snapshots");
+        assertThat(iterator.next()).isEqualTo("jboss-public-releases");
     }
 
     @Test
@@ -126,7 +123,7 @@ public class ConfigurationManagementServiceImplTest
     {
         List<Repository> repositories = configurationManagementService.getConfiguration().getRepositories();
 
-        assertFalse(repositories.isEmpty());
+        assertThat(repositories.isEmpty()).isFalse();
 
         logger.debug("Repositories:");
 
@@ -141,7 +138,7 @@ public class ConfigurationManagementServiceImplTest
     {
         List<Repository> groupRepositories = configurationManagementService.getConfiguration().getGroupRepositories();
 
-        assertFalse(groupRepositories.isEmpty());
+        assertThat(groupRepositories.isEmpty()).isFalse();
 
         logger.debug("Group repositories:");
 
@@ -166,7 +163,7 @@ public class ConfigurationManagementServiceImplTest
                                                                 .getGroupRepositoriesContaining(storageId,
                                                                                                 releases1Id);
 
-        assertFalse(groups.isEmpty());
+        assertThat(groups.isEmpty()).isFalse();
 
         logger.debug("Group repositories containing \"{}\" repository:", releases1Id);
 
@@ -190,20 +187,18 @@ public class ConfigurationManagementServiceImplTest
         final String storageId = releases1.getStorage().getId();
         final String releases1Id = releases1.getId();
 
-        assertEquals(2,
-                     configurationManagementService.getConfiguration()
-                                                   .getGroupRepositoriesContaining(storageId,
-                                                                                   releases1Id).size(),
-                     "Failed to add repository to group!");
+        assertThat(2)
+                .as("Failed to add repository to group!")
+                .isEqualTo(configurationManagementService.getConfiguration()
+                                                         .getGroupRepositoriesContaining(storageId, releases1Id).size());
 
         configurationManagementService.removeRepositoryFromAssociatedGroups(storageId,
                                                                             releases1Id);
 
-        assertEquals(0,
-                     configurationManagementService.getConfiguration()
-                                                   .getGroupRepositoriesContaining(storageId,
-                                                                                   releases1Id).size(),
-                     "Failed to remove repository from all associated groups!");
+        assertThat(0)
+                .as("Failed to remove repository from all associated groups!")
+                .isEqualTo(configurationManagementService.getConfiguration()
+                                                              .getGroupRepositoriesContaining(storageId, releases1Id).size());
     }
 
     @ExtendWith(RepositoryManagementTestExecutionListener.class)
@@ -222,8 +217,8 @@ public class ConfigurationManagementServiceImplTest
                                                                 .getHttpConnectionPoolConfiguration(storageId,
                                                                                                     releases2Id);
 
-        assertNotNull(pool);
-        assertEquals(10, pool.getAllocatedConnections());
+        assertThat(pool).isNotNull();
+        assertThat(pool.getAllocatedConnections()).isEqualTo(10);
     }
 
     @ExtendWith(RepositoryManagementTestExecutionListener.class)
@@ -240,7 +235,7 @@ public class ConfigurationManagementServiceImplTest
         String storageId = routingRule.getStorageId();
 
         final boolean added = configurationManagementService.addRoutingRule(routingRule);
-        assertTrue(added);
+        assertThat(added).isTrue();
 
         Configuration configuration = configurationManagementService.getConfiguration();
         List<RoutingRule> routingRulesMatching = configuration.getRoutingRules()
@@ -250,13 +245,13 @@ public class ConfigurationManagementServiceImplTest
                                                                            storageId.equals(a.getStorageId()))
                                                               .collect(Collectors.toList());
 
-        assertEquals(1, routingRulesMatching.size());
+        assertThat(routingRulesMatching).hasSize(1);
         RoutingRule dbRoutingRule = routingRulesMatching.get(0);
-        assertEquals(RoutingRuleTypeEnum.ACCEPT, dbRoutingRule.getType());
+        assertThat(dbRoutingRule.getType()).isEqualTo(RoutingRuleTypeEnum.ACCEPT);
 
         routingRule.setType(RoutingRuleTypeEnum.DENY.getType());
         boolean updated = configurationManagementService.updateRoutingRule(dbRoutingRule.getUuid(), routingRule);
-        assertTrue(updated);
+        assertThat(updated).isTrue();
 
         configuration = configurationManagementService.getConfiguration();
         routingRulesMatching = configuration.getRoutingRules()
@@ -266,12 +261,12 @@ public class ConfigurationManagementServiceImplTest
                                                          storageId.equals(a.getStorageId()))
                                             .collect(Collectors.toList());
 
-        assertEquals(1, routingRulesMatching.size());
+        assertThat(routingRulesMatching).hasSize(1);
         RoutingRule routingRule1 = routingRulesMatching.get(0);
-        assertEquals(RoutingRuleTypeEnum.DENY, routingRule1.getType());
+        assertThat(routingRule1.getType()).isEqualTo(RoutingRuleTypeEnum.DENY);
 
         boolean removed = configurationManagementService.removeRoutingRule(dbRoutingRule.getUuid());
-        assertTrue(removed);
+        assertThat(removed).isTrue();
 
         configuration = configurationManagementService.getConfiguration();
         routingRulesMatching = configuration.getRoutingRules()
@@ -281,7 +276,7 @@ public class ConfigurationManagementServiceImplTest
                                                          storageId.equals(a.getStorageId()))
                                             .collect(Collectors.toList());
 
-        assertTrue(routingRulesMatching.isEmpty());
+        assertThat(routingRulesMatching.isEmpty()).isTrue();
 
 
     }
@@ -303,11 +298,11 @@ public class ConfigurationManagementServiceImplTest
                                                                       .getRepositoriesWithLayout(STORAGE0,
                                                                                                  NullArtifactCoordinates.LAYOUT_NAME);
 
-        assertFalse(repositories.isEmpty());
+        assertThat(repositories.isEmpty()).isFalse();
 
         repositories.forEach(repository -> {
-            assertEquals(NullArtifactCoordinates.LAYOUT_NAME, repository.getLayout());
-            assertEquals(STORAGE0, repository.getStorage().getId());
+            assertThat(repository.getLayout()).isEqualTo(NullArtifactCoordinates.LAYOUT_NAME);
+            assertThat(repository.getStorage().getId()).isEqualTo(STORAGE0);
         });
     }
 
@@ -328,7 +323,7 @@ public class ConfigurationManagementServiceImplTest
                                                                       .getRepositoriesWithLayout("notExistingStorage",
                                                                                                  NullArtifactCoordinates.LAYOUT_NAME);
 
-        assertTrue(repositories.isEmpty());
+        assertThat(repositories.isEmpty()).isTrue();
     }
 
     private MutableRoutingRule createRoutingRule(RoutingRuleTypeEnum type)

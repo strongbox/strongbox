@@ -14,7 +14,6 @@ import java.nio.file.Path;
 
 import org.apache.commons.io.FilenameUtils;
 import org.apache.maven.artifact.repository.metadata.Metadata;
-import org.hamcrest.CoreMatchers;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.junit.jupiter.api.parallel.Execution;
@@ -22,7 +21,7 @@ import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.ContextConfiguration;
 import static org.carlspring.strongbox.storage.routing.RoutingRuleTypeEnum.DENY;
-import static org.hamcrest.MatcherAssert.assertThat;
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.parallel.ExecutionMode.CONCURRENT;
 
 /**
@@ -123,31 +122,31 @@ public class MavenMetadataGroupRepositoryComponentOnAddTest
         Metadata metadata = mavenMetadataManager.readMetadata(
                 repositoryPathResolver.resolve(repositoryLeafS, "com/artifacts/to/update/releases/update-group"));
 
-        assertThat(metadata.getVersioning().getVersions().size(), CoreMatchers.equalTo(2));
-        assertThat(metadata.getVersioning().getVersions().get(0), CoreMatchers.equalTo("1.2.1"));
-        assertThat(metadata.getVersioning().getVersions().get(1), CoreMatchers.equalTo("1.2.2"));
+        assertThat(metadata.getVersioning().getVersions()).hasSize(2);
+        assertThat(metadata.getVersioning().getVersions().get(0)).isEqualTo("1.2.1");
+        assertThat(metadata.getVersioning().getVersions().get(1)).isEqualTo("1.2.2");
 
         metadata = mavenMetadataManager.readMetadata(
                 repositoryPathResolver.resolve(repositoryLeafU, "com/artifacts/to/update/releases/update-group"));
-        assertThat(metadata.getVersioning().getVersions().size(), CoreMatchers.equalTo(1));
-        assertThat(metadata.getVersioning().getVersions().get(0), CoreMatchers.equalTo("1.2.1"));
+        assertThat(metadata.getVersioning().getVersions()).hasSize(1);
+        assertThat(metadata.getVersioning().getVersions().get(0)).isEqualTo("1.2.1");
 
         metadata = mavenMetadataManager.readMetadata(
                 repositoryPathResolver.resolve(repositoryGroupZQ, "com/artifacts/to/update/releases/update-group"));
-        assertThat(metadata.getVersioning().getVersions().size(), CoreMatchers.equalTo(1));
-        assertThat(metadata.getVersioning().getVersions().get(0), CoreMatchers.equalTo("1.2.1"));
+        assertThat(metadata.getVersioning().getVersions()).hasSize(1);
+        assertThat(metadata.getVersioning().getVersions().get(0)).isEqualTo("1.2.1");
 
         metadata = mavenMetadataManager.readMetadata(
                 repositoryPathResolver.resolve(repositoryGroupX, "com/artifacts/to/update/releases/update-group"));
-        assertThat(metadata.getVersioning().getVersions().size(), CoreMatchers.equalTo(2));
-        assertThat(metadata.getVersioning().getVersions().get(0), CoreMatchers.equalTo("1.2.1"));
-        assertThat(metadata.getVersioning().getVersions().get(1), CoreMatchers.equalTo("1.2.2"));
+        assertThat(metadata.getVersioning().getVersions()).hasSize(2);
+        assertThat(metadata.getVersioning().getVersions().get(0)).isEqualTo("1.2.1");
+        assertThat(metadata.getVersioning().getVersions().get(1)).isEqualTo("1.2.2");
 
         metadata = mavenMetadataManager.readMetadata(
                 repositoryPathResolver.resolve(repositoryGroupW, "com/artifacts/to/update/releases/update-group"));
-        assertThat(metadata.getVersioning().getVersions().size(), CoreMatchers.equalTo(2));
-        assertThat(metadata.getVersioning().getVersions().get(0), CoreMatchers.equalTo("1.2.1"));
-        assertThat(metadata.getVersioning().getVersions().get(1), CoreMatchers.equalTo("1.2.2"));
+        assertThat(metadata.getVersioning().getVersions()).hasSize(2);
+        assertThat(metadata.getVersioning().getVersions().get(0)).isEqualTo("1.2.1");
+        assertThat(metadata.getVersioning().getVersions().get(1)).isEqualTo("1.2.2");
     }
 
 }

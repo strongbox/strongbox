@@ -33,8 +33,7 @@ import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.ContextConfiguration;
 import static java.nio.file.Files.deleteIfExists;
 import static org.awaitility.Awaitility.await;
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.parallel.ExecutionMode.CONCURRENT;
 
 /**
@@ -168,14 +167,18 @@ public class RegenerateNugetChecksumCronJobTestIT
 
         Path nupkgSha512Path = artifactNupkgPath.resolveSibling(artifactNupkgPath.getFileName() + ".sha512");
         deleteIfExists(nupkgSha512Path);
-        assertTrue(Files.notExists(nupkgSha512Path),"The checksum file for nupkg artifact exist!");
+        assertThat(Files.notExists(nupkgSha512Path))
+                .as("The checksum file for nupkg artifact exist!")
+                .isTrue();
 
         NugetArtifactCoordinates coordinates = (NugetArtifactCoordinates) RepositoryFiles.readCoordinates(
                 (RepositoryPath) artifactNupkgPath.normalize());
         coordinates.setType("nuspec");
         Path nuspecSha512Path = repositoryPath.resolve(coordinates.toPath() + ".sha512");
         deleteIfExists(nuspecSha512Path);
-        assertTrue(Files.notExists(nuspecSha512Path),"The checksum file for nuspec artifact exist!");
+        assertThat(Files.notExists(nuspecSha512Path))
+                .as("The checksum file for nuspec artifact exist!")
+                .isTrue();
 
         List<Path> resultList = new ArrayList<>();
         jobManager.registerExecutionListener(jobKey.toString(), (jobKey1, statusExecuted) -> {
@@ -196,10 +199,14 @@ public class RegenerateNugetChecksumCronJobTestIT
 
         await().atMost(EVENT_TIMEOUT_SECONDS, TimeUnit.SECONDS).untilTrue(receivedExpectedEvent());
 
-        assertEquals(2, resultList.size());
+        assertThat(resultList.size()).isEqualTo(2);
         resultList.forEach(ThrowingConsumer.unchecked(path -> {
-            assertTrue(Files.exists(path), "The checksum file " + path.toString() + " doesn't exist!");
-            assertTrue(Files.size(path) > 0, "The checksum file is empty!");
+            assertThat(Files.exists(path))
+                    .as("The checksum file " + path.toString() + " doesn't exist!")
+                    .isTrue();
+            assertThat(Files.size(path) > 0)
+                    .as("The checksum file is empty!")
+                    .isTrue();
         }));
     }
 }

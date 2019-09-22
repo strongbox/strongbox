@@ -19,7 +19,7 @@ import org.springframework.security.core.GrantedAuthority;
 import org.springframework.web.context.WebApplicationContext;
 import static io.restassured.module.mockmvc.RestAssuredMockMvc.given;
 import static org.carlspring.strongbox.rest.client.RestAssuredArtifactClient.OK;
-import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.assertj.core.api.Assertions.assertThat;
 
 /**
  * General settings for the testing sub-system.
@@ -89,7 +89,7 @@ public abstract class MavenRestAssuredBaseTest
 
     protected void assertPathExists(String url)
     {
-        assertTrue(pathExists(url), "Path " + url + " doesn't exist.");
+        assertThat(pathExists(url)).as("Path " + url + " doesn't exist.").isTrue();
     }
 
     protected MavenArtifactDeployer buildArtifactDeployer(Path path)

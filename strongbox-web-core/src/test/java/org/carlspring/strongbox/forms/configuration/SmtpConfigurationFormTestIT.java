@@ -17,9 +17,7 @@ import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.Arguments;
 import org.junit.jupiter.params.provider.MethodSource;
 import org.junit.jupiter.params.provider.ValueSource;
-import org.springframework.boot.test.context.SpringBootTest;
-import static org.assertj.core.api.Java6Assertions.assertThat;
-import static org.junit.jupiter.api.Assertions.*;
+import static org.assertj.core.api.Assertions.assertThat;
 
 /**
  * @author Pablo Tirado
@@ -83,7 +81,7 @@ public class SmtpConfigurationFormTestIT
                                                                                         SmtpConfigurationFormChecks.class);
 
         // then
-        assertTrue(violations.isEmpty(), "Violations are not empty!");
+        assertThat(violations.isEmpty()).as("Violations are not empty!").isTrue();
     }
 
     @Test
@@ -100,8 +98,8 @@ public class SmtpConfigurationFormTestIT
                                                                                         SmtpConfigurationFormChecks.class);
 
         // then
-        assertFalse(violations.isEmpty(), "Violations are empty!");
-        assertEquals(violations.size(), 1);
+        assertThat(violations.isEmpty()).as("Violations are empty!").isFalse();
+        assertThat(violations.size()).isEqualTo(1);
         assertThat(violations).extracting("message").containsAnyOf("SMTP host must be provided.");
     }
 
@@ -121,8 +119,8 @@ public class SmtpConfigurationFormTestIT
                                                                                         SmtpConfigurationFormChecks.class);
 
         // then
-        assertFalse(violations.isEmpty(), "Violations are empty!");
-        assertEquals(violations.size(), 1);
+        assertThat(violations.isEmpty()).as("Violations are empty!").isFalse();
+        assertThat(violations.size()).isEqualTo(1);
         assertThat(violations).extracting("message").containsAnyOf(errorMessage);
     }
 
@@ -142,8 +140,8 @@ public class SmtpConfigurationFormTestIT
                                                                                         SmtpConfigurationFormChecks.class);
 
         // then
-        assertFalse(violations.isEmpty(), "Violations are empty!");
-        assertEquals(violations.size(), 1);
+        assertThat(violations.isEmpty()).as("Violations are empty!").isFalse();
+        assertThat(violations.size()).isEqualTo(1);
         assertThat(violations).extracting("message").containsAnyOf(errorMessage);
     }
 }

@@ -28,8 +28,7 @@ import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.context.annotation.ComponentScan;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.ContextConfiguration;
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.assertj.core.api.Assertions.assertThat;
 
 @SpringBootTest
 @ActiveProfiles(profiles = "test")
@@ -103,7 +102,7 @@ public class KeyStoreManagerIntegrationTestIT
                                                             InetAddress.getLocalHost(),
                                                             LDAPS_PORT);
 
-        assertEquals(1, ks.size(), "localhost should have three certificates in the chain");
+        assertThat(ks.size()).as("localhost should have three certificates in the chain").isEqualTo(1);
 
         Map<String, Certificate> certs = keyStoreManager.listCertificates(f, KEYSTORE_PASSWORD.toCharArray());
         for (final Map.Entry<String, Certificate> cert : certs.entrySet())
@@ -117,7 +116,7 @@ public class KeyStoreManagerIntegrationTestIT
         keyStoreManager.removeCertificates(f, newPassword.toCharArray(), InetAddress.getLocalHost(), LDAPS_PORT);
         certs = keyStoreManager.listCertificates(f, newPassword.toCharArray());
 
-        assertEquals(0, certs.size(), "Expected empty certs.");
+        assertThat(certs.size()).as("Expected empty certs.").isEqualTo(0);
     }
 
     @Test
@@ -143,7 +142,7 @@ public class KeyStoreManagerIntegrationTestIT
                                                                "google.com",
                                                                443);
 
-        assertEquals(1, ks.size(), "localhost should have one certificate in the chain");
+        assertThat(ks.size()).as("localhost should have one certificate in the chain").isEqualTo(1);
 
         Map<String, Certificate> certs = keyStoreManager.listCertificates(f, KEYSTORE_PASSWORD.toCharArray());
         for (final Map.Entry<String, Certificate> cert : certs.entrySet())
@@ -157,7 +156,7 @@ public class KeyStoreManagerIntegrationTestIT
         keyStoreManager.removeCertificates(f, newPassword.toCharArray(), InetAddress.getLocalHost(), LDAPS_PORT);
         certs = keyStoreManager.listCertificates(f, newPassword.toCharArray());
 
-        assertTrue(certs.isEmpty());
+        assertThat(certs.isEmpty()).isTrue();
     }
 
     @Disabled
@@ -185,7 +184,7 @@ public class KeyStoreManagerIntegrationTestIT
                                                                  "google.com",
                                                                  443);
 
-        assertEquals(3, ks.size(), "google.com should have three certificate in the chain");
+        assertThat(ks.size()).as("google.com should have three certificate in the chain").isEqualTo(3);
 
         Map<String, Certificate> certs = keyStoreManager.listCertificates(f, KEYSTORE_PASSWORD.toCharArray());
         for (final Map.Entry<String, Certificate> cert : certs.entrySet())

@@ -10,7 +10,7 @@ import org.junit.jupiter.api.Test;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.ContextConfiguration;
-import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.assertj.core.api.Assertions.assertThat;
 
 /**
  * @author mtodorov
@@ -29,7 +29,7 @@ public class ResourcesBooterTest
     {
         File file = new File(propertiesBooter.getHomeDirectory() + "/etc/conf/strongbox.yaml");
 
-        assertTrue(file.exists(), "Failed to copy configuration resource from classpath!");
+        assertThat(file.exists()).as("Failed to copy configuration resource from classpath!").isTrue();
     }
 
 }

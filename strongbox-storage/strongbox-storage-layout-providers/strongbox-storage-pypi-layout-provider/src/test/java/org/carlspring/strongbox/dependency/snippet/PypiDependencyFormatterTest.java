@@ -3,8 +3,7 @@ package org.carlspring.strongbox.dependency.snippet;
 import org.carlspring.strongbox.artifact.coordinates.PypiArtifactCoordinates;
 
 import org.junit.jupiter.api.Test;
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.assertj.core.api.Assertions.assertThat;
 import java.util.*;
 
 /**
@@ -19,7 +18,7 @@ public class PypiDependencyFormatterTest
     {
         PypiDependencyFormatter formatter = new PypiDependencyFormatter();
 
-        assertNotNull(formatter, "Failed to look up dependency synonym formatter!");
+        assertThat(formatter).as("Failed to look up dependency synonym formatter!").isNotNull();
 
         PypiArtifactCoordinates coordinates;
 
@@ -127,7 +126,7 @@ public class PypiDependencyFormatterTest
     {
         for (int i = 0; i < formattedWheels.size(); ++i)
         {
-            assertEquals(wheelArtifactcoordinates.get(i), formattedWheels.get(i));
+            assertThat(formattedWheels.get(i)).isEqualTo(wheelArtifactcoordinates.get(i));
         }
     }
 }

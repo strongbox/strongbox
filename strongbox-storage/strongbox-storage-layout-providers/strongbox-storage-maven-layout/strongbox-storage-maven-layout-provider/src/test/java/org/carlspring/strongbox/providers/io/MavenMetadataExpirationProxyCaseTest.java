@@ -20,7 +20,7 @@ import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.ContextConfiguration;
 import static org.carlspring.strongbox.storage.repository.RepositoryPolicyEnum.SNAPSHOT;
 import static org.carlspring.strongbox.util.MessageDigestUtils.calculateChecksum;
-import static org.junit.jupiter.api.Assertions.*;
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.parallel.ExecutionMode.SAME_THREAD;
 
 /**
@@ -75,35 +75,35 @@ public class MavenMetadataExpirationProxyCaseTest
                                                       "maven-metadata.xml");
         String sha1HostedPathChecksum = readChecksum(resolveSiblingChecksum(hostedPath,
                                                                             EncryptionAlgorithmsEnum.SHA1));
-        assertNotNull(sha1HostedPathChecksum);
+        assertThat(sha1HostedPathChecksum).isNotNull();
 
         final RepositoryPath proxiedPath = resolvePath(proxyRepository.getId(),
                                                        true,
                                                        "maven-metadata.xml");
         String sha1ProxiedPathChecksum = readChecksum(resolveSiblingChecksum(proxiedPath,
                                                                              EncryptionAlgorithmsEnum.SHA1));
-        assertNull(sha1ProxiedPathChecksum);
+        assertThat(sha1ProxiedPathChecksum).isNull();
 
-        assertFalse(RepositoryFiles.artifactExists(proxiedPath));
+        assertThat(RepositoryFiles.artifactExists(proxiedPath)).isFalse();
 
         proxyRepositoryProvider.fetchPath(proxiedPath);
-        assertTrue(RepositoryFiles.artifactExists(proxiedPath));
+        assertThat(RepositoryFiles.artifactExists(proxiedPath)).isTrue();
 
         sha1ProxiedPathChecksum = readChecksum(resolveSiblingChecksum(proxiedPath,
                                                                       EncryptionAlgorithmsEnum.SHA1));
-        assertNotNull(sha1ProxiedPathChecksum);
-        assertEquals(sha1ProxiedPathChecksum, sha1HostedPathChecksum);
+        assertThat(sha1ProxiedPathChecksum).isNotNull();
+        assertThat(sha1HostedPathChecksum).isEqualTo(sha1ProxiedPathChecksum);
 
         String calculatedProxiedPathChecksum = calculateChecksum(proxiedPath,
                                                                  EncryptionAlgorithmsEnum.SHA1.getAlgorithm());
-        assertEquals(sha1ProxiedPathChecksum, calculatedProxiedPathChecksum);
+        assertThat(calculatedProxiedPathChecksum).isEqualTo(sha1ProxiedPathChecksum);
 
         Files.setLastModifiedTime(proxiedPath, oneHourAgo());
 
         proxyRepositoryProvider.fetchPath(proxiedPath);
         sha1ProxiedPathChecksum = readChecksum(resolveSiblingChecksum(proxiedPath,
                                                                       EncryptionAlgorithmsEnum.SHA1));
-        assertEquals(sha1ProxiedPathChecksum, calculatedProxiedPathChecksum);
+        assertThat(calculatedProxiedPathChecksum).isEqualTo(sha1ProxiedPathChecksum);
 
         mockHostedRepositoryMetadataUpdate(hostedRepository.getId(),
                                            localSourceRepository.getId(),
@@ -114,18 +114,18 @@ public class MavenMetadataExpirationProxyCaseTest
                                                                      EncryptionAlgorithmsEnum.SHA1));
         final String calculatedHostedPathChecksum = calculateChecksum(hostedPath,
                                                                       EncryptionAlgorithmsEnum.SHA1.getAlgorithm());
-        assertEquals(sha1HostedPathChecksum, calculatedHostedPathChecksum);
-        assertNotEquals(calculatedHostedPathChecksum, sha1ProxiedPathChecksum);
+        assertThat(calculatedHostedPathChecksum).isEqualTo(sha1HostedPathChecksum);
+        assertThat(sha1ProxiedPathChecksum).isNotEqualTo(calculatedHostedPathChecksum);
 
         Files.setLastModifiedTime(proxiedPath, oneHourAgo());
 
         proxyRepositoryProvider.fetchPath(proxiedPath);
         sha1ProxiedPathChecksum = readChecksum(resolveSiblingChecksum(proxiedPath,
                                                                       EncryptionAlgorithmsEnum.SHA1));
-        assertEquals(sha1ProxiedPathChecksum, calculatedHostedPathChecksum);
+        assertThat(calculatedHostedPathChecksum).isEqualTo(sha1ProxiedPathChecksum);
         calculatedProxiedPathChecksum = calculateChecksum(proxiedPath,
                                                           EncryptionAlgorithmsEnum.SHA1.getAlgorithm());
-        assertEquals(sha1ProxiedPathChecksum, calculatedProxiedPathChecksum);
+        assertThat(calculatedProxiedPathChecksum).isEqualTo(sha1ProxiedPathChecksum);
     }
 
     @Override

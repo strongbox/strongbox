@@ -7,7 +7,8 @@ import org.junit.jupiter.api.Test;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.util.SocketUtils;
-import static org.junit.jupiter.api.Assertions.*;
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.fail;
 
 /**
  * @author mtodorov
@@ -30,7 +31,7 @@ public class ConnectionCheckerTestIT
 
         final boolean availability = ConnectionChecker.checkServiceAvailability("localhost", port, 3000);
 
-        assertFalse(availability);
+        assertThat(availability).isFalse();
     }
 
     @Test
@@ -65,7 +66,7 @@ public class ConnectionCheckerTestIT
 
         thread.interrupt();
 
-        assertTrue(availability, "Failed to connect!");
+        assertThat(availability).as("Failed to connect!").isTrue();
     }
 
 }

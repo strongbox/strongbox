@@ -26,8 +26,7 @@ import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.TestExecutionListeners;
 import static org.awaitility.Awaitility.await;
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.parallel.ExecutionMode.CONCURRENT;
 
 /**
@@ -84,17 +83,17 @@ public class RebuildMavenMetadataCronJobTestIT
                                                                             repositoryId,
                                                                             "org/carlspring/strongbox/strongbox-metadata-one");
 
-                    assertNotNull(metadata);
+                    assertThat(metadata).isNotNull();
 
                     Versioning versioning = metadata.getVersioning();
 
-                    assertEquals(artifactId, metadata.getArtifactId(), "Incorrect artifactId!");
-                    assertEquals(groupId, metadata.getGroupId(), "Incorrect groupId!");
+                    assertThat(metadata.getArtifactId()).as("Incorrect artifactId!").isEqualTo(artifactId);
+                    assertThat(metadata.getGroupId()).as("Incorrect groupId!").isEqualTo(groupId);
 
-                    assertNotNull(versioning.getVersions(),
-                                  "No versioning information could be found in the metadata!");
-                    assertEquals(1, versioning.getVersions().size(),
-                                 "Incorrect number of versions stored in metadata!");
+                    assertThat(versioning.getVersions())
+                            .as("No versioning information could be found in the metadata!").isNotNull();
+                    assertThat(versioning.getVersions().size())
+                            .as("Incorrect number of versions stored in metadata!").isEqualTo(1);
                 }
                 catch (Exception e)
                 {
@@ -167,27 +166,25 @@ public class RebuildMavenMetadataCronJobTestIT
                                                                              repositoryId,
                                                                              "org/carlspring/strongbox/strongbox-metadata-second");
 
-                    assertNotNull(metadata1);
-                    assertNotNull(metadata2);
+                    assertThat(metadata1).isNotNull();
+                    assertThat(metadata2).isNotNull();
 
                     Versioning versioning1 = metadata1.getVersioning();
                     Versioning versioning2 = metadata1.getVersioning();
 
-                    assertEquals(artifactId1, metadata1.getArtifactId(), "Incorrect artifactId!");
-                    assertEquals(groupId, metadata1.getGroupId(), "Incorrect groupId!");
+                    assertThat(metadata1.getArtifactId()).as( "Incorrect artifactId!").isEqualTo(artifactId1);
+                    assertThat(metadata1.getGroupId()).as("Incorrect groupId!").isEqualTo(groupId);
 
-                    assertEquals(artifactId2, metadata2.getArtifactId(), "Incorrect artifactId!");
-                    assertEquals(groupId, metadata2.getGroupId(), "Incorrect groupId!");
+                    assertThat(metadata2.getArtifactId()).as( "Incorrect artifactId!").isEqualTo(artifactId2);
+                    assertThat(metadata2.getGroupId()).as("Incorrect groupId!").isEqualTo(groupId);
 
-                    assertNotNull(versioning1.getVersions(),
-                                  "No versioning information could be found in the metadata!");
-                    assertEquals(1, versioning1.getVersions().size(),
-                                 "Incorrect number of versions stored in metadata!");
+                    assertThat(versioning1.getVersions())
+                            .as("No versioning information could be found in the metadata!").isNotNull();
+                    assertThat(versioning1.getVersions().size())
+                            .as("Incorrect number of versions stored in metadata!").isEqualTo(1);
 
-                    assertNotNull(versioning2.getVersions(),
-                                  "No versioning information could be found in the metadata!");
-                    assertEquals(1, versioning2.getVersions().size(),
-                                 "Incorrect number of versions stored in metadata!");
+                    assertThat(versioning2.getVersions()).as("No versioning information could be found in the metadata!").isNotNull();
+                    assertThat(versioning2.getVersions().size()).as("Incorrect number of versions stored in metadata!").isEqualTo(1);
                 }
                 catch (Exception e)
                 {

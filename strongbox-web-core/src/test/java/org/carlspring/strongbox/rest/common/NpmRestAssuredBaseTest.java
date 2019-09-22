@@ -2,8 +2,8 @@ package org.carlspring.strongbox.rest.common;
 
 import static io.restassured.module.mockmvc.RestAssuredMockMvc.given;
 import static org.carlspring.strongbox.rest.client.RestAssuredArtifactClient.OK;
-import static org.junit.jupiter.api.Assertions.assertTrue;
-import static org.junit.jupiter.api.Assertions.fail;
+import static org.assertj.core.api.Assertions.fail;
+import static org.assertj.core.api.Assertions.assertThat;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -81,7 +81,7 @@ public abstract class NpmRestAssuredBaseTest
 
     protected void assertPathExists(String url)
     {
-        assertTrue(pathExists(url), "Path " + url + " doesn't exist.");
+        assertThat(pathExists(url)).as("Path " + url + " doesn't exist.").isTrue();
     }
 
     protected void resolveArtifact(String artifactPath)
@@ -115,7 +115,7 @@ public abstract class NpmRestAssuredBaseTest
             mdos.flush();
         }
 
-        assertTrue(total > 0, "Resolved a zero-length artifact!");
+        assertThat(total > 0).as("Resolved a zero-length artifact!").isTrue();
     }
 
 }

@@ -8,12 +8,12 @@ import org.carlspring.strongbox.services.RepositoryArtifactIdGroupService;
 import javax.inject.Inject;
 
 import com.orientechnologies.orient.core.storage.ORecordDuplicatedException;
-import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.TestExecutionListeners;
+import static org.assertj.core.api.Assertions.assertThatExceptionOfType;
 
 /**
  * @author Przemyslaw Fusik
@@ -37,13 +37,14 @@ class RepositoryArtifactIdGroupServiceImplTest
         g1.setRepositoryId("r1");
         g1.setStorageId("s1");
         System.out.println(repositoryArtifactIdGroupService.save(g1).getObjectId());
-        
-        Assertions.assertThrows(ORecordDuplicatedException.class, () -> {
-            RepositoryArtifactIdGroupEntry g2 = new RepositoryArtifactIdGroupEntry();
-            g2.setName("a1");
-            g2.setRepositoryId("r1");
-            g2.setStorageId("s1");
-            System.out.println(repositoryArtifactIdGroupService.save(g2).getObjectId());
+
+        assertThatExceptionOfType(ORecordDuplicatedException.class)
+                .isThrownBy(() -> {
+                    RepositoryArtifactIdGroupEntry g2 = new RepositoryArtifactIdGroupEntry();
+                    g2.setName("a1");
+                    g2.setRepositoryId("r1");
+                    g2.setStorageId("s1");
+                    System.out.println(repositoryArtifactIdGroupService.save(g2).getObjectId());
         });
     }
 }

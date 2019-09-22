@@ -27,9 +27,7 @@ import static java.nio.file.Files.deleteIfExists;
 import static java.nio.file.StandardOpenOption.CREATE_NEW;
 import static java.nio.file.StandardOpenOption.TRUNCATE_EXISTING;
 import static org.carlspring.strongbox.storage.repository.RepositoryPolicyEnum.SNAPSHOT;
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertFalse;
-import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.parallel.ExecutionMode.SAME_THREAD;
 
 /**
@@ -83,13 +81,13 @@ public class MavenChecksumServiceTest
         String checksumFileName1 = fileName1 + "." + MessageDigestAlgorithms.MD5.toLowerCase();
         Path artifact1Md5 = artifact1.resolveSibling(checksumFileName1);
         deleteIfExists(artifact1Md5);
-        assertFalse(Files.exists(artifact1Md5), "The checksum file for artifact exist!");
+        assertThat(Files.exists(artifact1Md5)).as("The checksum file for artifact exist!").isFalse();
 
         // JAR SHA1 file.
         checksumFileName1 = fileName1 + ".sha1";
         Path artifact1Sha1 = artifact1.resolveSibling(checksumFileName1);
         deleteIfExists(artifact1Sha1);
-        assertFalse(Files.exists(artifact1Sha1), "The checksum file for artifact exist!");
+        assertThat(Files.exists(artifact1Sha1)).as("The checksum file for artifact exist!").isFalse();
 
         // POM MD5 file.
         String pomFileName1 = fileName1.replace("jar", "pom");
@@ -117,13 +115,13 @@ public class MavenChecksumServiceTest
         String checksumFileName2 = fileName2 + "." + MessageDigestAlgorithms.MD5.toLowerCase();
         Path artifact2Md5 = artifact2.resolveSibling(checksumFileName2);
         deleteIfExists(artifact2Md5);
-        assertFalse(Files.exists(artifact2Md5), "The checksum file for artifact exist!");
+        assertThat(Files.exists(artifact2Md5)).as("The checksum file for artifact exist!").isFalse();
 
         // JAR SHA1 file.
         checksumFileName2 = fileName2 + ".sha1";
         Path artifact2Sha1 = artifact2.resolveSibling(checksumFileName2);
         deleteIfExists(artifact1Sha1);
-        assertFalse(Files.exists(artifact1Sha1), "The checksum file for artifact exist!");
+        assertThat(Files.exists(artifact1Sha1)).as("The checksum file for artifact exist!").isFalse();
 
         // POM MD5 file.
         String pomFileName2 = fileName2.replace("jar", "pom");
@@ -143,48 +141,66 @@ public class MavenChecksumServiceTest
                                            "org/carlspring/strongbox/checksum/maven/strongbox-checksum",
                                            false);
 
-        assertTrue(Files.exists(artifact1Sha1),
-                   "The checksum file for artifact doesn't exist!");
-        assertTrue(Files.size(artifact1Sha1) > 0,
-                   "The checksum file for artifact is empty!");
+        assertThat(Files.exists(artifact1Sha1))
+                .as("The checksum file for artifact doesn't exist!")
+                .isTrue();
+        assertThat(Files.size(artifact1Sha1) > 0)
+                .as("The checksum file for artifact is empty!")
+                .isTrue();
 
-        assertTrue(Files.exists(artifact1Md5),
-                "The checksum file for artifact doesn't exist!");
-        assertTrue(Files.size(artifact1Md5) > 0,
-                "The checksum file for artifact is empty!");
+        assertThat(Files.exists(artifact1Md5))
+                .as("The checksum file for artifact doesn't exist!")
+                .isTrue();
+        assertThat(Files.size(artifact1Md5) > 0)
+                .as("The checksum file for artifact is empty!")
+                .isTrue();
 
-        assertTrue(Files.exists(artifact1PomMd5),
-                "The checksum file for pom file doesn't exist!");
-        assertTrue(Files.size(artifact1PomMd5) > 0,
-                "The checksum file for pom file is empty!");
-        assertTrue(Files.exists(artifact1PomSha1),
-                "The checksum file for pom file doesn't exist!");
-        assertTrue(Files.size(artifact1PomSha1) > 0,
-                "The checksum file for pom file is empty!");
+        assertThat(Files.exists(artifact1PomMd5))
+                .as("The checksum file for pom file doesn't exist!")
+                .isTrue();
+        assertThat(Files.size(artifact1PomMd5) > 0)
+                .as("The checksum file for pom file is empty!")
+                .isTrue();
+        assertThat(Files.exists(artifact1PomSha1))
+                .as("The checksum file for pom file doesn't exist!")
+                .isTrue();
+        assertThat(Files.size(artifact1PomSha1) > 0)
+                .as("The checksum file for pom file is empty!")
+                .isTrue();
         
-        assertTrue(Files.exists(artifact2Sha1),
-                   "The checksum file for artifact doesn't exist!");
-        assertTrue(Files.size(artifact2Sha1) > 0,
-                   "The checksum file for artifact is empty!");
+        assertThat(Files.exists(artifact2Sha1))
+                .as("The checksum file for artifact doesn't exist!")
+                .isTrue();
+        assertThat(Files.size(artifact2Sha1) > 0)
+                .as("The checksum file for artifact is empty!")
+                .isTrue();
 
-        assertTrue(Files.exists(artifact2Md5),
-                   "The checksum file for artifact doesn't exist!");
-        assertTrue(Files.size(artifact2Md5) > 0,
-                   "The checksum file for artifact is empty!");
+        assertThat(Files.exists(artifact2Md5))
+                .as("The checksum file for artifact doesn't exist!")
+                .isTrue();
+        assertThat(Files.size(artifact2Md5) > 0)
+                .as("The checksum file for artifact is empty!")
+                .isTrue();
 
-        assertTrue(Files.exists(artifact2PomMd5),
-                   "The checksum file for pom file doesn't exist!");
-        assertTrue(Files.size(artifact2PomSha1) > 0,
-                   "The checksum file for pom file is empty!");
+        assertThat(Files.exists(artifact2PomMd5))
+                .as("The checksum file for pom file doesn't exist!")
+                .isTrue();
+        assertThat(Files.size(artifact2PomSha1) > 0)
+                .as("The checksum file for pom file is empty!")
+                .isTrue();
      
-        assertTrue(Files.exists(artifactMetadataMd5),
-                   "The checksum file for metadata doesn't exist!");
-        assertTrue(Files.size(artifactMetadataMd5) > 0,
-                   "The checksum file for metadata is empty!");
-        assertTrue(Files.exists(artifactMetadataSha1),
-                "The checksum file for metadata doesn't exist!");
-        assertTrue(Files.size(artifactMetadataSha1) > 0,
-                   "The checksum file for metadata is empty!");
+        assertThat(Files.exists(artifactMetadataMd5))
+                .as("The checksum file for metadata doesn't exist!")
+                .isTrue();
+        assertThat(Files.size(artifactMetadataMd5) > 0)
+                .as("The checksum file for metadata is empty!")
+                .isTrue();
+        assertThat(Files.exists(artifactMetadataSha1))
+                .as("The checksum file for metadata doesn't exist!")
+                .isTrue();
+        assertThat(Files.size(artifactMetadataSha1) > 0)
+                .as("The checksum file for metadata is empty!")
+                .isTrue();
      }
 
     @Test
@@ -238,42 +254,56 @@ public class MavenChecksumServiceTest
                                                 repositoryId,
                                                 "org/carlspring/strongbox/checksum");
 
-        assertFalse(Files.exists(artifact1Md5),
-                    "The checksum file for artifact exist!");
-        assertFalse(Files.exists(artifact1Sha1),
-                    "The checksum file for artifact exist!");
+        assertThat(Files.exists(artifact1Md5))
+                .as("The checksum file for artifact exist!")
+                .isFalse();
+        assertThat(Files.exists(artifact1Sha1))
+                .as("The checksum file for artifact exist!")
+                .isFalse();
 
         checksumService.regenerateChecksum(storageId,
                                            repositoryId,
                                            "org/carlspring/strongbox/checksum",
                                            false);
        
-        assertTrue(Files.exists(artifact1Sha1),
-                   "The checksum file for the artifact doesn't exist!");
-        assertTrue(Files.size(artifact1Sha1) > 0,
-                   "The checksum file for the artifact is empty!");
-        assertTrue(Files.exists(artifact1Md5),
-                   "The checksum file for the artifact doesn't exist!");
-        assertTrue(Files.size(artifact1Md5) > 0,
-                   "The checksum file for the artifact is empty!");
+        assertThat(Files.exists(artifact1Sha1))
+                .as("The checksum file for the artifact doesn't exist!")
+                .isTrue();
+        assertThat(Files.size(artifact1Sha1) > 0)
+                .as("The checksum file for the artifact is empty!")
+                .isTrue();
+        assertThat(Files.exists(artifact1Md5))
+                .as("The checksum file for the artifact doesn't exist!")
+                .isTrue();
+        assertThat(Files.size(artifact1Md5) > 0)
+                .as("The checksum file for the artifact is empty!")
+                .isTrue();
 
-        assertTrue(Files.exists(artifact1PomSha1),
-                   "The checksum file for the pom file doesn't exist!");
-        assertTrue(Files.size(artifact1PomSha1) > 0,
-                   "The checksum file for the pom file is empty!");
-        assertTrue(Files.exists(artifact1PomMd5),
-                   "The checksum file for the pom file doesn't exist!");
-        assertTrue(Files.size(artifact1PomMd5) > 0,
-                   "The checksum file for the pom file is empty!");
+        assertThat(Files.exists(artifact1PomSha1))
+                .as("The checksum file for the pom file doesn't exist!")
+                .isTrue();
+        assertThat(Files.size(artifact1PomSha1) > 0)
+                .as("The checksum file for the pom file is empty!")
+                .isTrue();
+        assertThat(Files.exists(artifact1PomMd5))
+                .as("The checksum file for the pom file doesn't exist!")
+                .isTrue();
+        assertThat(Files.size(artifact1PomMd5) > 0)
+                .as("The checksum file for the pom file is empty!")
+                .isTrue();
         
-        assertTrue(Files.exists(artifactMetadataMd5),
-                   "The checksum file for metadata doesn't exist!");
-        assertTrue(Files.size(artifactMetadataMd5) > 0,
-                   "The checksum file for metadata is empty!");
-        assertTrue(Files.exists(artifactMetadataSha1),
-                   "The checksum file for metadata doesn't exist!");
-        assertTrue(Files.size(artifactMetadataSha1) > 0,
-                   "The checksum file for metadata is empty!");
+        assertThat(Files.exists(artifactMetadataMd5))
+                .as("The checksum file for metadata doesn't exist!")
+                .isTrue();
+        assertThat(Files.size(artifactMetadataMd5) > 0)
+                .as("The checksum file for metadata is empty!")
+                .isTrue();
+        assertThat(Files.exists(artifactMetadataSha1))
+                .as("The checksum file for metadata doesn't exist!")
+                .isTrue();
+        assertThat(Files.size(artifactMetadataSha1) > 0)
+                .as("The checksum file for metadata is empty!")
+                .isTrue();
     }
 
     @Test
@@ -299,34 +329,34 @@ public class MavenChecksumServiceTest
         String fileName1 = artifact.getFileName().toString();
         String checksumFileName1 = fileName1 + "." + MessageDigestAlgorithms.MD5.toLowerCase();
         Path md5File = artifact.resolveSibling(checksumFileName1);
-        assertTrue(Files.exists(md5File), "The checksum file for artifact doesn't exist!");
+        assertThat(Files.exists(md5File)).as("The checksum file for artifact doesn't exist!").isTrue();
 
         // JAR SHA1 file.
         checksumFileName1 = fileName1 + ".sha1";
         Path sha1File = artifact.resolveSibling(checksumFileName1);
-        assertTrue(Files.exists(sha1File), "The checksum file for artifact file doesn't exist!");
+        assertThat(Files.exists(sha1File)).as("The checksum file for artifact file doesn't exist!").isTrue();
 
         // POM MD5 file.
         String pomFileName1 = fileName1.replace("jar", "pom");
         checksumFileName1 = pomFileName1 + "." + MessageDigestAlgorithms.MD5.toLowerCase();
         Path pomMd5 = artifact.resolveSibling(checksumFileName1);
-        assertTrue(Files.exists(pomMd5), "The checksum file for pom file doesn't exist!");
+        assertThat(Files.exists(pomMd5)).as("The checksum file for pom file doesn't exist!").isTrue();
 
         // POM SHA1 file.
         checksumFileName1 = pomFileName1 + ".sha1";
         Path pomSha1 = artifact.resolveSibling(checksumFileName1);
-        assertTrue(Files.exists(pomSha1), "The checksum file for pom file doesn't exist!");
+        assertThat(Files.exists(pomSha1)).as("The checksum file for pom file doesn't exist!").isTrue();
 
         // Metadata XML MD5 file.
         String metadataXmlFileName = "maven-metadata.xml";
         checksumFileName1 = metadataXmlFileName + "." + MessageDigestAlgorithms.MD5.toLowerCase();
         Path artifactMetadataMd5 = artifact.getParent().getParent().resolve(checksumFileName1);
-        assertTrue(Files.exists(artifactMetadataMd5), "The checksum file for metadata doesn't exist!");
+        assertThat(Files.exists(artifactMetadataMd5)).as("The checksum file for metadata doesn't exist!").isTrue();
 
         // Metadata XML SHA1 file.
         checksumFileName1 = metadataXmlFileName + ".sha1";
         Path artifactMetadataSha1 = artifact.getParent().getParent().resolve(checksumFileName1);
-        assertTrue(Files.exists(artifactMetadataSha1), "The checksum file for metadata doesn't exist!");
+        assertThat(Files.exists(artifactMetadataSha1)).as("The checksum file for metadata doesn't exist!").isTrue();
 
         try (
                 OutputStream os1 = Files.newOutputStream(md5File, CREATE_NEW, TRUNCATE_EXISTING);
@@ -351,22 +381,26 @@ public class MavenChecksumServiceTest
             os6.flush();
         }
 
-        assertEquals(0, Files.size(md5File), "The checksum file for artifact isn't empty!");
-        assertEquals(0, Files.size(pomSha1),
-                     "The checksum file for pom file isn't empty!");
-        assertEquals(0, Files.size(artifactMetadataMd5),
-                     "The checksum file for metadata isn't empty!");
+        assertThat(Files.size(md5File)).as("The checksum file for artifact isn't empty!").isEqualTo(0);
+        assertThat(Files.size(pomSha1))
+                .as("The checksum file for pom file isn't empty!")
+                .isEqualTo(0);
+        assertThat(Files.size(artifactMetadataMd5))
+                .as("The checksum file for metadata isn't empty!")
+                .isEqualTo(0);
 
         checksumService.regenerateChecksum(storageId,
                                            repositoryId,
                                            "org/carlspring/strongbox/checksum/maven/checksum-rewrite",
                                            true);
 
-        assertTrue(Files.size(md5File) > 0, "The checksum file for artifact is empty!");
-        assertTrue(Files.size(pomSha1) > 0,
-                   "The checksum file for pom file is empty!");
-        assertTrue(Files.size(artifactMetadataMd5) > 0,
-                   "The checksum file for metadata is empty!");
+        assertThat(Files.size(md5File) > 0).as("The checksum file for artifact is empty!").isTrue();
+        assertThat(Files.size(pomSha1) > 0)
+                .as("The checksum file for pom file is empty!")
+                .isTrue();
+        assertThat(Files.size(artifactMetadataMd5) > 0)
+                .as("The checksum file for metadata is empty!")
+                .isTrue();
     }
 
 }

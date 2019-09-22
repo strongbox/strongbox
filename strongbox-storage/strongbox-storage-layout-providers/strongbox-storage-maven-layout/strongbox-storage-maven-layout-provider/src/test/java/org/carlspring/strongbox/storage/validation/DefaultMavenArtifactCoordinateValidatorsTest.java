@@ -21,7 +21,7 @@ import org.junit.jupiter.api.parallel.Execution;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.ContextConfiguration;
-import static org.junit.jupiter.api.Assertions.*;
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.parallel.ExecutionMode.CONCURRENT;
 
 /**
@@ -66,38 +66,39 @@ public class DefaultMavenArtifactCoordinateValidatorsTest
     {
         final Configuration configuration = configurationManager.getConfiguration();
 
-        assertNotNull(configuration);
-        assertNotNull(configuration.getStorages());
-        assertNotNull(configuration.getRoutingRules());
+        assertThat(configuration).isNotNull();
+        assertThat(configuration.getStorages()).isNotNull();
+        assertThat(configuration.getRoutingRules()).isNotNull();
 
         for (String storageId : configuration.getStorages().keySet())
         {
-            assertNotNull(storageId, "Storage ID was null!");
+            assertThat(storageId).as("Storage ID was null!").isNotNull();
         }
 
-        assertFalse(configuration.getStorages().isEmpty(), "Unexpected number of storages!");
-        assertNotNull(configuration.getVersion(), "Incorrect version!");
-        assertEquals(48080, configuration.getPort(), "Incorrect port number!");
-        assertTrue(configuration.getStorages()
+        assertThat(configuration.getStorages().isEmpty()).as("Unexpected number of storages!").isFalse();
+        assertThat(configuration.getVersion()).as("Incorrect version!").isNotNull();
+        assertThat(configuration.getPort()).as("Incorrect port number!").isEqualTo(48080);
+        assertThat(configuration.getStorages()
                                 .get(STORAGE0)
                                 .getRepositories()
                                 .get(REPOSITORY_SNAPSHOTS)
-                                .isSecured(),
-                   "Repository should have required authentication!");
+                                .isSecured())
+                .as("Repository should have required authentication!")
+                .isTrue();
 
         Repository repositoryReleases = configuration.getStorages()
                                                      .get(STORAGE0)
                                                      .getRepositories()
                                                      .get(REPOSITORY_RELEASES);
 
-        assertTrue(repositoryReleases.allowsDirectoryBrowsing());
+        assertThat(repositoryReleases.allowsDirectoryBrowsing()).isTrue();
 
         Set<String> versionValidators = repositoryReleases.getArtifactCoordinateValidators();
 
-        assertFalse(versionValidators.isEmpty());
-        assertTrue(versionValidators.contains(RedeploymentValidator.ALIAS));
-        assertTrue(versionValidators.contains(MavenSnapshotVersionValidator.ALIAS));
-        assertTrue(versionValidators.contains(MavenReleaseVersionValidator.ALIAS));
+        assertThat(versionValidators.isEmpty()).isFalse();
+        assertThat(versionValidators.contains(RedeploymentValidator.ALIAS)).isTrue();
+        assertThat(versionValidators.contains(MavenSnapshotVersionValidator.ALIAS)).isTrue();
+        assertThat(versionValidators.contains(MavenReleaseVersionValidator.ALIAS)).isTrue();
     }
 
 }

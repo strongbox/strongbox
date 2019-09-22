@@ -12,9 +12,8 @@ import org.junit.jupiter.api.parallel.Execution;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.ContextConfiguration;
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.parallel.ExecutionMode.CONCURRENT;
+import static org.assertj.core.api.Assertions.assertThat;
 
 /**
  * @author Declan-Y
@@ -37,7 +36,7 @@ public class BazelDependencyFormatterTest
         DependencySynonymFormatter formatter = compatibleDependencyFormatRegistry.getProviderImplementation(
                 Maven2LayoutProvider.ALIAS, BazelDependencyFormatter.ALIAS);
 
-        assertNotNull(formatter, "Failed to look up dependency synonym formatter!");
+        assertThat(formatter).as("Failed to look up dependency synonym formatter!").isNotNull();
 
         MavenArtifactCoordinates coordinates = new MavenArtifactCoordinates();
         coordinates.setGroupId("org.carlspring.strongbox");
@@ -49,10 +48,10 @@ public class BazelDependencyFormatterTest
 
         System.out.print(snippet);
 
-        assertEquals("maven_jar(\n    name = \"maven-snippet\","
-                     + "\n    artifact = \"org.carlspring.strongbox:maven-snippet:1.0\",\n)\n",
-                     snippet, "Failed to generate dependency!");
-
+        assertThat("maven_jar(\n    name = \"maven-snippet\","
+                     + "\n    artifact = \"org.carlspring.strongbox:maven-snippet:1.0\",\n)\n")
+                .as("Failed to generate dependency!")
+                .isEqualTo(snippet);
     }
 
     @Test
@@ -62,7 +61,7 @@ public class BazelDependencyFormatterTest
         DependencySynonymFormatter formatter = compatibleDependencyFormatRegistry.getProviderImplementation(
                 Maven2LayoutProvider.ALIAS, BazelDependencyFormatter.ALIAS);
 
-        assertNotNull(formatter, "Failed to look up dependency synonym formatter!");
+        assertThat(formatter).as("Failed to look up dependency synonym formatter!").isNotNull();
 
         MavenArtifactCoordinates coordinates = new MavenArtifactCoordinates()
         {
@@ -77,9 +76,8 @@ public class BazelDependencyFormatterTest
 
         System.out.print(snippet);
 
-        assertEquals("maven_jar(\n    name = \"maven-snippet\",\n)\n", snippet, "Failed to generate dependency!");
-
-
+        assertThat("maven_jar(\n    name = \"maven-snippet\",\n)\n")
+                .as("Failed to generate dependency!").isEqualTo(snippet);
     }
 
 

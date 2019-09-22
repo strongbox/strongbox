@@ -35,8 +35,8 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import static io.restassured.module.mockmvc.RestAssuredMockMvc.given;
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.hamcrest.CoreMatchers.equalTo;
-import static org.junit.jupiter.api.Assertions.*;
 
 /**
  * @author Sergey Bespalov
@@ -160,14 +160,14 @@ public class NugetArtifactControllerTest extends NugetRestAssuredBaseTest
 
     protected void assertHeadersEquals(Headers h1, Headers h2)
     {
-        assertNotNull(h1);
-        assertNotNull(h2);
+        assertThat(h1).isNotNull();
+        assertThat(h2).isNotNull();
 
         for (Header header : h1)
         {
             if (h2.hasHeaderWithName(header.getName()))
             {
-                assertEquals(header.getValue(), h2.getValue(header.getName()));
+                assertThat(h2.getValue(header.getName())).isEqualTo(header.getValue());
             }
         }
     }
@@ -448,11 +448,11 @@ public class NugetArtifactControllerTest extends NugetRestAssuredBaseTest
                                                                                       "nuget.org",
                                                                                       coordinatesMap,
                                                                                       true);
-        assertFalse(artifactEntryList.isEmpty());
+        assertThat(artifactEntryList.isEmpty()).isFalse();
 
         ArtifactEntry artifactEntry = artifactEntryList.iterator().next();
-        assertTrue(artifactEntry instanceof RemoteArtifactEntry);
-        assertFalse(((RemoteArtifactEntry)artifactEntry).getIsCached());
+        assertThat(artifactEntry instanceof RemoteArtifactEntry).isTrue();
+        assertThat(((RemoteArtifactEntry)artifactEntry).getIsCached()).isFalse();
 
         PrintStream originalSysOut = muteSystemOutput();
         try
@@ -486,12 +486,13 @@ public class NugetArtifactControllerTest extends NugetRestAssuredBaseTest
                                   .body()
                                   .as(PackageFeed.class);
 
-        assertTrue(feed.getEntries()
+        assertThat(feed.getEntries()
                        .stream()
                        .reduce((first,
                                 second) -> second)
                        .filter(e -> Boolean.TRUE.equals(e.getProperties().getIsLatestVersion()))
-                       .isPresent());
+                       .isPresent())
+                .isTrue();
     }
 
 }

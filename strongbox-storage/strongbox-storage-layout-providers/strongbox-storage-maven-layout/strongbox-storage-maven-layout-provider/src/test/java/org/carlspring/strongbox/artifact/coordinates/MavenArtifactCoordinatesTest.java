@@ -3,10 +3,9 @@ package org.carlspring.strongbox.artifact.coordinates;
 import org.carlspring.strongbox.artifact.MavenArtifact;
 import org.carlspring.strongbox.artifact.MavenArtifactUtils;
 
-import org.hamcrest.CoreMatchers;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.parallel.Execution;
-import static org.hamcrest.MatcherAssert.assertThat;
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.parallel.ExecutionMode.CONCURRENT;
 
 /**
@@ -22,7 +21,7 @@ public class MavenArtifactCoordinatesTest
         MavenArtifactCoordinates o = new MavenArtifactCoordinates(
                 MavenArtifactUtils.convertPathToArtifact(
                         "org/carlspring/properties-injector/1.7/properties-injector-1.7.zip"));
-        assertThat(o.getExtension(), CoreMatchers.equalTo("zip"));
+        assertThat(o.getExtension()).isEqualTo("zip");
     }
 
     @Test
@@ -30,7 +29,7 @@ public class MavenArtifactCoordinatesTest
     {
         MavenArtifactCoordinates o = new MavenArtifactCoordinates(MavenArtifactUtils.convertPathToArtifact(
                 "org/carlspring/properties-injector/1.7/properties-injector-1.7.jar"));
-        assertThat(o.getExtension(), CoreMatchers.equalTo("jar"));
+        assertThat(o.getExtension()).isEqualTo("jar");
     }
 
     @Test
@@ -38,7 +37,7 @@ public class MavenArtifactCoordinatesTest
     {
         MavenArtifactCoordinates o = new MavenArtifactCoordinates(MavenArtifactUtils.convertPathToArtifact(
                 "org/carlspring/properties-injector/1.7/properties-injector-1.7.pom"));
-        assertThat(o.getExtension(), CoreMatchers.equalTo("pom"));
+        assertThat(o.getExtension()).isEqualTo("pom");
     }
 
     @Test
@@ -46,7 +45,7 @@ public class MavenArtifactCoordinatesTest
     {
         MavenArtifactCoordinates o = new MavenArtifactCoordinates(MavenArtifactUtils.convertPathToArtifact(
                 "org/carlspring/properties-injector/1.7/properties-injector-1.7.jar.sha1"));
-        assertThat(o.getExtension(), CoreMatchers.equalTo("jar"));
+        assertThat(o.getExtension()).isEqualTo("jar");
     }
 
     @Test
@@ -54,7 +53,7 @@ public class MavenArtifactCoordinatesTest
     {
         MavenArtifactCoordinates o = new MavenArtifactCoordinates(MavenArtifactUtils.convertPathToArtifact(
                 "org/carlspring/properties-injector/1.7/properties-injector-1.7-javadoc.jar.md5"));
-        assertThat(o.getExtension(), CoreMatchers.equalTo("jar"));
+        assertThat(o.getExtension()).isEqualTo("jar");
     }
 
     @Test
@@ -62,7 +61,7 @@ public class MavenArtifactCoordinatesTest
     {
         MavenArtifact artifact = MavenArtifactUtils.convertPathToArtifact(
                 "org/carlspring/properties-injector/maven-metadata.xml");
-        assertThat(artifact, CoreMatchers.nullValue());
+        assertThat(artifact).isNull();
     }
 
 }

@@ -1,6 +1,6 @@
 package org.carlspring.strongbox.providers.repository;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.parallel.ExecutionMode.CONCURRENT;
 
 import java.nio.file.Path;
@@ -130,7 +130,7 @@ public class NugetGroupRepositoryProviderTest
                                                       predicate,
                                                       paginator);
 
-        assertEquals(2, result.size());
+        assertThat(result).hasSize(2);
 
         paginator.setLimit(-1);
         result = repositoryProvider.search(repositoryGroup.getStorage().getId(),
@@ -138,7 +138,7 @@ public class NugetGroupRepositoryProviderTest
                                            predicate,
                                            paginator);
 
-        assertEquals(2, result.size());
+        assertThat(result).hasSize(2);
 
         repositoryProvider = repositoryProviderRegistry.getProvider(repositoryGroupWithNestedGroup2.getType());
 
@@ -150,7 +150,7 @@ public class NugetGroupRepositoryProviderTest
                                            predicate,
                                            paginator);
 
-        assertEquals(1, result.size());
+        assertThat(result).hasSize(1);
 
         paginator.setLimit(-1);
         result = repositoryProvider.search(repositoryGroupWithNestedGroup2.getStorage().getId(),
@@ -158,12 +158,12 @@ public class NugetGroupRepositoryProviderTest
                                            predicate,
                                            paginator);
 
-        assertEquals(1, result.size());
+        assertThat(result).hasSize(1);
 
         Long count = repositoryProvider.count(repositoryGroupWithNestedGroup2.getStorage().getId(),
                                               repositoryGroupWithNestedGroup2.getId(),
                                               predicate);
-        assertEquals(Long.valueOf(12), count);
+        assertThat(count).isEqualTo(Long.valueOf(12));
     }
 
 }

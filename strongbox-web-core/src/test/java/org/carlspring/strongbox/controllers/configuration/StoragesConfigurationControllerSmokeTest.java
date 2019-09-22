@@ -5,9 +5,8 @@ import static org.carlspring.strongbox.controllers.configuration.StoragesConfigu
 import static org.carlspring.strongbox.controllers.configuration.StoragesConfigurationController.SUCCESSFUL_SAVE_STORAGE;
 import static org.carlspring.strongbox.controllers.configuration.StoragesConfigurationController.SUCCESSFUL_STORAGE_REMOVAL;
 import static org.carlspring.strongbox.rest.client.RestAssuredArtifactClient.OK;
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.hamcrest.Matchers.containsString;
-import static org.junit.jupiter.api.Assertions.assertFalse;
-import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
@@ -61,7 +60,7 @@ public class StoragesConfigurationControllerSmokeTest extends RestAssuredBaseTes
                                  .resolve(storageId)
                                  .resolve(repositoryId)
                                  .resolve("dummy-file.zip");
-        assertFalse(Files.exists(artifactPath));
+        assertThat(Files.exists(artifactPath)).isFalse();
         
         StorageForm storageForm = new StorageForm();
         storageForm.setId(storageId);
@@ -106,7 +105,7 @@ public class StoragesConfigurationControllerSmokeTest extends RestAssuredBaseTes
                .then()
                .statusCode(HttpStatus.OK.value());
         
-        assertTrue(Files.exists(artifactPath));
+        assertThat(Files.exists(artifactPath)).isTrue();
         
         // 4. Delete storage.
         givenCustom().contentType(MediaType.TEXT_PLAIN_VALUE)
@@ -119,7 +118,7 @@ public class StoragesConfigurationControllerSmokeTest extends RestAssuredBaseTes
                      .statusCode(OK)
                      .body(containsString(SUCCESSFUL_STORAGE_REMOVAL));
         
-        assertFalse(Files.exists(artifactPath));
+        assertThat(Files.exists(artifactPath)).isFalse();
     }
 
     private byte[] createZipFile()

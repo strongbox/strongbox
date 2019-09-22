@@ -20,9 +20,7 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.Arguments;
 import org.junit.jupiter.params.provider.MethodSource;
-import org.springframework.boot.test.context.SpringBootTest;
-import static org.assertj.core.api.Java6Assertions.assertThat;
-import static org.junit.jupiter.api.Assertions.*;
+import static org.assertj.core.api.Assertions.assertThat;
 
 /**
  * @author Pablo Tirado
@@ -97,7 +95,7 @@ public class ServerSettingsFormTestIT
                                                                                      ProxyConfigurationFormChecks.class);
 
         // then
-        assertTrue(violations.isEmpty(), "Violations are not empty!");
+        assertThat(violations.isEmpty()).as("Violations are not empty!").isTrue();
     }
 
     @Test
@@ -122,7 +120,7 @@ public class ServerSettingsFormTestIT
         Set<ConstraintViolation<ServerSettingsForm>> violations = validator.validate(serverSettingsForm, Default.class);
 
         // then
-        assertTrue(violations.isEmpty(), "Violations are not empty!");
+        assertThat(violations.isEmpty()).as("Violations are not empty!").isTrue();
     }
 
     @Test
@@ -144,8 +142,8 @@ public class ServerSettingsFormTestIT
                                                                                      ProxyConfigurationFormChecks.class);
 
         // then
-        assertFalse(violations.isEmpty(), "Violations are empty!");
-        assertEquals(violations.size(), 1);
+        assertThat(violations.isEmpty()).as("Violations are empty!").isFalse();
+        assertThat(violations.size()).isEqualTo(1);
         assertThat(violations).extracting("message").containsAnyOf("The name of this instance");
     }
 
@@ -168,8 +166,8 @@ public class ServerSettingsFormTestIT
                                                                                      ProxyConfigurationFormChecks.class);
 
         // then
-        assertFalse(violations.isEmpty(), "Violations are empty!");
-        assertEquals(violations.size(), 1);
+        assertThat(violations.isEmpty()).as("Violations are empty!").isFalse();
+        assertThat(violations.size()).isEqualTo(1);
         assertThat(violations).extracting("message").containsAnyOf("A base URL must be specified.");
     }
 
@@ -194,8 +192,8 @@ public class ServerSettingsFormTestIT
                                                                                      ProxyConfigurationFormChecks.class);
 
         // then
-        assertFalse(violations.isEmpty(), "Violations are empty!");
-        assertEquals(violations.size(), 1);
+        assertThat(violations.isEmpty()).as("Violations are empty!").isFalse();
+        assertThat(violations.size()).isEqualTo(1);
         assertThat(violations).extracting("message").containsAnyOf(errorMessage);
     }
 
@@ -219,8 +217,8 @@ public class ServerSettingsFormTestIT
                                                                                      ProxyConfigurationFormChecks.class);
 
         // then
-        assertFalse(violations.isEmpty(), "Violations are empty!");
-        assertEquals(violations.size(), 1);
+        assertThat(violations.isEmpty()).as("Violations are empty!").isFalse();
+        assertThat(violations.size()).isEqualTo(1);
         assertThat(violations).extracting("message").containsAnyOf(
                 "Port number must be an integer between 1 and 65535.");
     }
@@ -245,8 +243,8 @@ public class ServerSettingsFormTestIT
                                                                                      ProxyConfigurationFormChecks.class);
 
         // then
-        assertFalse(violations.isEmpty(), "Violations are empty!");
-        assertEquals(violations.size(), 1);
+        assertThat(violations.isEmpty()).as("Violations are empty!").isFalse();
+        assertThat(violations.size()).isEqualTo(1);
         assertThat(violations).extracting("message").containsAnyOf("A host must be specified.");
     }
 }

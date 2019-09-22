@@ -39,7 +39,7 @@ import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.core.annotation.AliasFor;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.ContextConfiguration;
-import static org.junit.jupiter.api.Assertions.*;
+import static org.assertj.core.api.Assertions.*;
 import static org.junit.jupiter.api.parallel.ExecutionMode.CONCURRENT;
 
 /**
@@ -94,15 +94,15 @@ public class ArtifactMetadataServiceSnapshotsTest
                                                                 repositoryId,
                                                                 artifactPath);
 
-        assertNotNull(metadata);
+        assertThat(metadata).isNotNull();
 
         Versioning versioning = metadata.getVersioning();
 
-        assertEquals("strongbox-metadata", metadata.getArtifactId(), "Incorrect artifactId!");
-        assertEquals("org.carlspring.strongbox", metadata.getGroupId(), "Incorrect groupId!");
+        assertThat(metadata.getArtifactId()).as("Incorrect artifactId!").isEqualTo("strongbox-metadata");
+        assertThat(metadata.getGroupId()).as("Incorrect groupId!").isEqualTo("org.carlspring.strongbox");
 
-        assertFalse(versioning.getVersions().isEmpty(), "No versioning information could be found in the metadata!");
-        assertEquals(1, versioning.getVersions().size(), "Incorrect number of versions stored in metadata!");
+        assertThat(versioning.getVersions().isEmpty()).as("No versioning information could be found in the metadata!").isFalse();
+        assertThat(versioning.getVersions()).as("Incorrect number of versions stored in metadata!").hasSize(1);
     }
 
     @Test
@@ -123,8 +123,8 @@ public class ArtifactMetadataServiceSnapshotsTest
 
         Metadata metadataBefore = artifactMetadataService.getMetadata(storageId, repositoryId, artifactPath);
 
-        assertNotNull(metadataBefore);
-        assertTrue(MetadataHelper.containsVersion(metadataBefore, "1.0-SNAPSHOT"), "Unexpected set of versions!");
+        assertThat(metadataBefore).isNotNull();
+        assertThat(MetadataHelper.containsVersion(metadataBefore, "1.0-SNAPSHOT")).as("Unexpected set of versions!").isTrue();
 
         artifactMetadataService.removeVersion(storageId,
                                               repositoryId,
@@ -134,8 +134,8 @@ public class ArtifactMetadataServiceSnapshotsTest
 
         Metadata metadataAfter = artifactMetadataService.getMetadata(storageId, repositoryId, artifactPath);
 
-        assertNotNull(metadataAfter);
-        assertFalse(MetadataHelper.containsVersion(metadataAfter, "1.0-SNAPSHOT"), "Unexpected set of versions!");
+        assertThat(metadataAfter).isNotNull();
+        assertThat(MetadataHelper.containsVersion(metadataAfter, "1.0-SNAPSHOT")).as("Unexpected set of versions!").isFalse();
     }
 
     @Test
@@ -162,7 +162,7 @@ public class ArtifactMetadataServiceSnapshotsTest
         {
             RepositoryPath normalizedPath = (RepositoryPath) snapshotArtifactPath.normalize();
             MavenArtifactCoordinates coordinates = (MavenArtifactCoordinates) RepositoryFiles.readCoordinates(normalizedPath);
-            assertTrue(MetadataHelper.containsTimestampedSnapshotVersion(metadataBefore, coordinates.getVersion()));
+            assertThat(MetadataHelper.containsTimestampedSnapshotVersion(metadataBefore, coordinates.getVersion())).isTrue();
         }
 
         SimpleDateFormat formatter = new SimpleDateFormat(TIMESTAMPED_SNAPSHOT_VERSION_FORMAT);
@@ -182,9 +182,10 @@ public class ArtifactMetadataServiceSnapshotsTest
 
         Metadata metadataAfter = artifactMetadataService.getMetadata(storageId, repositoryId, metadataPath);
 
-        assertNotNull(metadataAfter);
-        assertTrue(MetadataHelper.containsTimestampedSnapshotVersion(metadataAfter, addedArtifact.getVersion()),
-                   "Failed to add timestamped SNAPSHOT version to metadata!");
+        assertThat(metadataAfter).isNotNull();
+        assertThat(MetadataHelper.containsTimestampedSnapshotVersion(metadataAfter, addedArtifact.getVersion()))
+                .as("Failed to add timestamped SNAPSHOT version to metadata!")
+                .isTrue();
     }
 
     @Test
@@ -212,7 +213,7 @@ public class ArtifactMetadataServiceSnapshotsTest
         {
             RepositoryPath normalizedPath = (RepositoryPath) snapshotArtifactPath.normalize();
             MavenArtifactCoordinates coordinates = (MavenArtifactCoordinates) RepositoryFiles.readCoordinates(normalizedPath);
-            assertTrue(MetadataHelper.containsTimestampedSnapshotVersion(metadataBefore, coordinates.getVersion()));
+            assertThat(MetadataHelper.containsTimestampedSnapshotVersion(metadataBefore, coordinates.getVersion())).isTrue();
         }
 
         RepositoryPath normalizedPath = (RepositoryPath)snapshotArtifactPaths.iterator().next().normalize();
@@ -224,8 +225,8 @@ public class ArtifactMetadataServiceSnapshotsTest
                                                                  null);
 
         Metadata metadataAfter = artifactMetadataService.getMetadata(storageId, repositoryId, metadataPath);
-        assertNotNull(metadataAfter);
-        assertFalse(MetadataHelper.containsTimestampedSnapshotVersion(metadataAfter, coordinates.getVersion()));
+        assertThat(metadataAfter).isNotNull();
+        assertThat(MetadataHelper.containsTimestampedSnapshotVersion(metadataAfter, coordinates.getVersion())).isFalse();
     }
 
     @Test
@@ -254,24 +255,25 @@ public class ArtifactMetadataServiceSnapshotsTest
         Metadata metadata = artifactMetadataService.getMetadata(storageId, repositoryId, artifactPath);
         Metadata snapshotMetadata = artifactMetadataService.getMetadata(storageId, repositoryId, artifactPath);
 
-        assertNotNull(metadata);
+        assertThat(metadata).isNotNull();
 
         Versioning versioning = metadata.getVersioning();
         Versioning snapshotVersioning = snapshotMetadata.getVersioning();
 
-        assertEquals(artifactCoordinates.getArtifactId(), metadata.getArtifactId(), "Incorrect artifactId!");
-        assertEquals(artifactCoordinates.getGroupId(), metadata.getGroupId(), "Incorrect groupId!");
+        assertThat(metadata.getArtifactId()).as("Incorrect artifactId!").isEqualTo(artifactCoordinates.getArtifactId());
+        assertThat(metadata.getGroupId()).as("Incorrect groupId!").isEqualTo(artifactCoordinates.getGroupId());
 
-        assertNotNull(versioning.getVersions(), "No versioning information could be found in the metadata!");
-        assertEquals(1, versioning.getVersions().size(), "Incorrect number of versions stored in metadata!");
-        assertEquals(version, versioning.getLatest());
-        assertNotNull(versioning.getLastUpdated(), "Failed to set lastUpdated field!");
+        assertThat(versioning.getVersions()).as("No versioning information could be found in the metadata!").isNotNull();
+        assertThat(versioning.getVersions()).as("Incorrect number of versions stored in metadata!").hasSize(1);
+        assertThat(versioning.getLatest()).isEqualTo(version);
+        assertThat(versioning.getLastUpdated()).as("Failed to set lastUpdated field!").isNotNull();
 
-        assertNotNull(snapshotVersioning.getVersions(),
-                      "No versioning information could be found in the metadata!");
-        assertEquals(1, snapshotVersioning.getVersions().size(), "Incorrect number of versions stored in metadata!");
-        assertEquals(version, snapshotVersioning.getLatest());
-        assertNotNull(snapshotVersioning.getLastUpdated(), "Failed to set lastUpdated field!");
+        assertThat(snapshotVersioning.getVersions())
+                .as("No versioning information could be found in the metadata!")
+                .isNotNull();
+        assertThat(snapshotVersioning.getVersions()).as("Incorrect number of versions stored in metadata!").hasSize(1);
+        assertThat(snapshotVersioning.getLatest()).isEqualTo(version);
+        assertThat(snapshotVersioning.getLastUpdated()).as("Failed to set lastUpdated field!").isNotNull();
     }
 
     @Test
@@ -297,15 +299,15 @@ public class ArtifactMetadataServiceSnapshotsTest
                                                                 repositoryId,
                                                                 artifactPath);
 
-        assertNotNull(metadata);
+        assertThat(metadata).isNotNull();
 
         Versioning versioning = metadata.getVersioning();
 
-        assertEquals("strongbox-metadata-plugin", metadata.getArtifactId(), "Incorrect artifactId!");
-        assertEquals("org.carlspring.strongbox.maven", metadata.getGroupId(), "Incorrect groupId!");
-        assertNull(versioning.getRelease(), "Incorrect latest release version!");
+        assertThat(metadata.getArtifactId()).as("Incorrect artifactId!").isEqualTo("strongbox-metadata-plugin");
+        assertThat(metadata.getGroupId()).as("Incorrect groupId!").isEqualTo("org.carlspring.strongbox.maven");
+        assertThat(versioning.getRelease()).as("Incorrect latest release version!").isNull();
 
-        assertEquals(1, versioning.getVersions().size(), "Incorrect number of versions stored in metadata!");
+        assertThat(versioning.getVersions()).as("Incorrect number of versions stored in metadata!").hasSize(1);
     }
 
     @Test
@@ -355,11 +357,12 @@ public class ArtifactMetadataServiceSnapshotsTest
                                                                 repositoryId,
                                                                 artifactPath);
 
-        assertNotNull(metadata);
+        assertThat(metadata).isNotNull();
 
-        assertEquals("1.3-SNAPSHOT", metadata.getVersioning().getLatest(), "Incorrect latest release version!");
-        assertEquals(3, metadata.getVersioning().getVersions().size(),
-                     "Incorrect number of versions stored in metadata!");
+        assertThat(metadata.getVersioning().getLatest()).as("Incorrect latest release version!").isEqualTo("1.3-SNAPSHOT");
+        assertThat(metadata.getVersioning().getVersions().size())
+                .as("Incorrect number of versions stored in metadata!")
+                .isEqualTo(3);
     }
 
     @Target({ ElementType.PARAMETER, ElementType.ANNOTATION_TYPE })

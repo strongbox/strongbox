@@ -10,13 +10,15 @@ import org.carlspring.strongbox.testing.storage.repository.RepositoryManagementT
 
 import java.nio.file.Path;
 
-import org.hamcrest.Matchers;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import static io.restassured.module.mockmvc.RestAssuredMockMvc.given;
+import static org.hamcrest.Matchers.containsString;
+import static org.hamcrest.Matchers.equalTo;
+import static org.hamcrest.Matchers.hasSize;
 
 /**
  * @author sbespalov
@@ -81,7 +83,7 @@ public class AqlControllerTest
                .then()
                .statusCode(HttpStatus.OK.value())
                // we should have 4 results: 2xjar + 2xpom
-               .body("artifact", Matchers.hasSize(4));
+               .body("artifact", hasSize(4));
     }
 
     @Test
@@ -97,7 +99,7 @@ public class AqlControllerTest
                .get(url)
                .then()
                .statusCode(HttpStatus.BAD_REQUEST.value())
-               .body("error", Matchers.containsString("[1:103]"));
+               .body("error", containsString("[1:103]"));
     }
 
     @Test
@@ -133,7 +135,7 @@ public class AqlControllerTest
                .peek()
                .then()
                .statusCode(HttpStatus.OK.value())
-               .body("artifact", Matchers.hasSize(6));
+               .body("artifact", hasSize(6));
     }
 
     @Test
@@ -148,7 +150,7 @@ public class AqlControllerTest
                .log()
                .body()
                .statusCode(HttpStatus.BAD_REQUEST.value())
-               .body("error", Matchers.equalTo("Unknown layout [unknown-layout]."));
+               .body("error", equalTo("Unknown layout [unknown-layout]."));
     }
 
 }

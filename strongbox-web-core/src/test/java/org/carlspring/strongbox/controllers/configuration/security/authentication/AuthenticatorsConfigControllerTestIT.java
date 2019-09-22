@@ -29,8 +29,6 @@ import org.springframework.security.core.AuthenticationException;
 import org.springframework.test.context.ActiveProfiles;
 import static io.restassured.module.mockmvc.RestAssuredMockMvc.given;
 import static org.carlspring.strongbox.CustomMatchers.equalByToString;
-import static org.hamcrest.CoreMatchers.containsString;
-import static org.hamcrest.CoreMatchers.is;
 
 /**
  * @author Przemyslaw Fusik

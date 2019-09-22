@@ -14,14 +14,11 @@ import org.carlspring.strongbox.testing.storage.repository.TestRepository.Remote
 
 import javax.inject.Inject;
 
-import org.hamcrest.CoreMatchers;
-import org.hamcrest.Matchers;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.springframework.http.HttpStatus;
 import static io.restassured.module.mockmvc.RestAssuredMockMvc.given;
-import static org.junit.jupiter.api.Assertions.*;
 
 /**
  * @author Pablo Tirado

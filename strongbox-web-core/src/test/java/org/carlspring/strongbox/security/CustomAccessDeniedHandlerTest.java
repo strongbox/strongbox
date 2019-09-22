@@ -1,5 +1,7 @@
 package org.carlspring.strongbox.security;
 
+import static org.assertj.core.api.Assertions.assertThat;
+
 import org.carlspring.strongbox.config.IntegrationTest;
 import org.carlspring.strongbox.controllers.support.ErrorResponseEntityBody;
 import org.carlspring.strongbox.rest.common.RestAssuredBaseTest;
@@ -8,7 +10,6 @@ import javax.inject.Inject;
 import javax.servlet.http.HttpServletResponse;
 
 import io.restassured.http.ContentType;
-import org.hamcrest.CoreMatchers;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.http.HttpStatus;
@@ -18,8 +19,6 @@ import org.springframework.mock.web.MockHttpServletResponse;
 import org.springframework.security.access.AccessDeniedException;
 import org.springframework.security.test.context.support.WithMockUser;
 import static io.restassured.module.mockmvc.RestAssuredMockMvc.given;
-import static org.hamcrest.MatcherAssert.assertThat;
-import static org.junit.jupiter.api.Assertions.assertTrue;
 
 /**
  * @author Przemyslaw Fusik
@@ -52,10 +51,10 @@ public class CustomAccessDeniedHandlerTest
         ErrorResponseEntityBody responseEntityBody = objectMapper.readValue(response.getContentAsByteArray(),
                                                                             ErrorResponseEntityBody.class);
 
-        assertTrue(response.isCommitted());
-        assertThat(response.getStatus(), CoreMatchers.equalTo(HttpServletResponse.SC_FORBIDDEN));
-        assertThat(response.getContentType(), CoreMatchers.equalTo(MediaType.APPLICATION_JSON_VALUE));
-        assertThat(responseEntityBody.getError(), CoreMatchers.equalTo("forbidden"));
+        assertThat(response.isCommitted()).isTrue();
+        assertThat(response.getStatus()).isEqualTo(HttpServletResponse.SC_FORBIDDEN);
+        assertThat(response.getContentType()).isEqualTo(MediaType.APPLICATION_JSON_VALUE);
+        assertThat(responseEntityBody.getError()).isEqualTo("forbidden");
     }
 
     @Test

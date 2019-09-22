@@ -38,7 +38,7 @@ import org.slf4j.LoggerFactory;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.ContextConfiguration;
-import static org.junit.jupiter.api.Assertions.*;
+import static org.assertj.core.api.Assertions.*;
 import static org.junit.jupiter.api.parallel.ExecutionMode.CONCURRENT;
 
 /**
@@ -99,14 +99,14 @@ public class ArtifactMetadataServiceReleasesTest
         Path strongboxMetadataPath = repositoryPath.resolve(artifactPathStr);
         Path strongboxMetadataXmlPath = strongboxMetadataPath.resolve("strongbox-metadata.xml");
 
-        assertTrue(Files.notExists(strongboxMetadataXmlPath));
+        assertThat(Files.notExists(strongboxMetadataXmlPath)).isTrue();
 
         // Testing scenario where 1.0 < 1.1 < 1.2 < 1.3 < 1.5 < 1.4
         // which might occur when 1.4 has been updated recently
         RepositoryPath artifact14Path = (RepositoryPath) repositoryArtifact3.get(5).normalize();
         MavenArtifact artifact = MavenArtifactUtils.convertPathToArtifact(artifact14Path);
 
-        assertNotNull(artifact);
+        assertThat(artifact).isNotNull();
         changeCreationDate(artifact);
 
         artifactMetadataService.rebuildMetadata(storageId, repositoryId, "org/carlspring/strongbox/metadata");
@@ -115,28 +115,28 @@ public class ArtifactMetadataServiceReleasesTest
                                                                 repositoryId,
                                                                 artifactPathStr);
 
-        assertNotNull(metadata);
+        assertThat(metadata).isNotNull();
 
         Versioning versioning = metadata.getVersioning();
 
-        assertEquals(artifact.getArtifactId(), metadata.getArtifactId(), "Incorrect artifactId!");
-        assertEquals(artifact.getGroupId(), metadata.getGroupId(), "Incorrect groupId!");
+        assertThat(metadata.getArtifactId()).as("Incorrect artifactId!").isEqualTo(artifact.getArtifactId());
+        assertThat(metadata.getGroupId()).as("Incorrect groupId!").isEqualTo(artifact.getGroupId());
         // TODO: Fix this as part of SB-333:
-        //assertEquals(artifact.getVersion(), versioning.getRelease(), "Incorrect latest release version!");
-        assertEquals("1.5", versioning.getRelease(), "Incorrect latest release version!");
-        assertEquals(6, versioning.getVersions().size(), "Incorrect number of versions stored in metadata!");
+        //assertThat(versioning.getRelease()).as("Incorrect latest release version!").isEqualTo(artifact.getVersion());
+        assertThat(versioning.getRelease()).as("Incorrect latest release version!").isEqualTo("1.5");
+        assertThat(versioning.getVersions()).as("Incorrect number of versions stored in metadata!").hasSize(6);
 
         Metadata nestedMetadata1 = artifactMetadataService.getMetadata(storageId,
                                                                        repositoryId,
                                                                        "org/carlspring/strongbox/metadata/nested/foo");
 
-        assertNotNull(nestedMetadata1);
+        assertThat(nestedMetadata1).isNotNull();
 
         Metadata nestedMetadata2 = artifactMetadataService.getMetadata(storageId,
                                                                        repositoryId,
                                                                        "org/carlspring/strongbox/metadata/nested/bar");
 
-        assertNotNull(nestedMetadata2);
+        assertThat(nestedMetadata2).isNotNull();
     }
 
     @ExtendWith({ RepositoryManagementTestExecutionListener.class,
@@ -161,8 +161,8 @@ public class ArtifactMetadataServiceReleasesTest
 
         Metadata metadataBefore = artifactMetadataService.getMetadata(storageId, repositoryId, artifactPath);
 
-        assertNotNull(metadataBefore);
-        assertTrue(MetadataHelper.containsVersion(metadataBefore, "1.3"), "Unexpected set of versions!");
+        assertThat(metadataBefore).isNotNull();
+        assertThat(MetadataHelper.containsVersion(metadataBefore, "1.3")).as("Unexpected set of versions!").isTrue();
 
         artifactMetadataService.addVersion(storageId,
                                            repositoryId,
@@ -172,10 +172,10 @@ public class ArtifactMetadataServiceReleasesTest
 
         Metadata metadataAfter = artifactMetadataService.getMetadata(storageId, repositoryId, artifactPath);
 
-        assertNotNull(metadataAfter);
-        assertTrue(MetadataHelper.containsVersion(metadataAfter, "1.4"), "Unexpected set of versions!");
-        assertEquals("1.4", metadataAfter.getVersioning().getLatest(), "Unexpected set of versions!");
-        assertEquals("1.4", metadataAfter.getVersioning().getRelease(), "Unexpected set of versions!");
+        assertThat(metadataAfter).isNotNull();
+        assertThat(MetadataHelper.containsVersion(metadataAfter, "1.4")).as("Unexpected set of versions!").isTrue();
+        assertThat(metadataAfter.getVersioning().getLatest()).as("Unexpected set of versions!").isEqualTo("1.4");
+        assertThat(metadataAfter.getVersioning().getRelease()).as("Unexpected set of versions!").isEqualTo("1.4");
     }
 
     @ExtendWith({ RepositoryManagementTestExecutionListener.class,
@@ -200,8 +200,8 @@ public class ArtifactMetadataServiceReleasesTest
 
         Metadata metadataBefore = artifactMetadataService.getMetadata(storageId, repositoryId, artifactPath);
 
-        assertNotNull(metadataBefore);
-        assertTrue(MetadataHelper.containsVersion(metadataBefore, "1.3"), "Unexpected set of versions!");
+        assertThat(metadataBefore).isNotNull();
+        assertThat(MetadataHelper.containsVersion(metadataBefore, "1.3")).as("Unexpected set of versions!").isTrue();
 
         artifactMetadataService.removeVersion(storageId,
                                               repositoryId,
@@ -211,8 +211,8 @@ public class ArtifactMetadataServiceReleasesTest
 
         Metadata metadataAfter = artifactMetadataService.getMetadata(storageId, repositoryId, artifactPath);
 
-        assertNotNull(metadataAfter);
-        assertFalse(MetadataHelper.containsVersion(metadataAfter, "1.3"), "Unexpected set of versions!");
+        assertThat(metadataAfter).isNotNull();
+        assertThat(MetadataHelper.containsVersion(metadataAfter, "1.3")).as("Unexpected set of versions!").isFalse();
     }
 
     @ExtendWith({ RepositoryManagementTestExecutionListener.class,
@@ -242,15 +242,15 @@ public class ArtifactMetadataServiceReleasesTest
                                                                 repositoryId,
                                                                 artifactPathStr);
 
-        assertNotNull(metadata);
+        assertThat(metadata).isNotNull();
 
         Versioning versioning = metadata.getVersioning();
 
-        assertEquals(pluginArtifact.getArtifactId(), metadata.getArtifactId(), "Incorrect artifactId!");
-        assertEquals(pluginArtifact.getGroupId(), metadata.getGroupId(), "Incorrect groupId!");
-        assertEquals(pluginArtifact.getVersion(), versioning.getRelease(), "Incorrect latest release version!");
+        assertThat(metadata.getArtifactId()).as("Incorrect artifactId!").isEqualTo(pluginArtifact.getArtifactId());
+        assertThat(metadata.getGroupId()).as("Incorrect groupId!").isEqualTo(pluginArtifact.getGroupId());
+        assertThat(versioning.getRelease()).as("Incorrect latest release version!").isEqualTo(pluginArtifact.getVersion());
 
-        assertEquals(1, versioning.getVersions().size(), "Incorrect number of versions stored in metadata!");
+        assertThat(versioning.getVersions()).as("Incorrect number of versions stored in metadata!").hasSize(1);
     }
 
     @ExtendWith({RepositoryManagementTestExecutionListener.class,
@@ -294,14 +294,15 @@ public class ArtifactMetadataServiceReleasesTest
                                                                 repositoryId,
                                                                 artifactPathStr);
 
-        assertNotNull(metadata);
+        assertThat(metadata).isNotNull();
 
-        assertEquals(mergeMetadata.getVersioning().getRelease(),
-                     metadata.getVersioning().getRelease(),
-                     "Incorrect latest release version!");
-        assertEquals(3,
-                     metadata.getVersioning().getVersions().size(),
-                     "Incorrect number of versions stored in metadata!");
+        assertThat(mergeMetadata.getVersioning().getRelease())
+                .as("Incorrect latest release version!")
+                .isEqualTo(metadata.getVersioning().getRelease());
+
+        assertThat(3)
+                .as("Incorrect number of versions stored in metadata!")
+                .isEqualTo(metadata.getVersioning().getVersions().size());
     }
 
     private void changeCreationDate(MavenArtifact artifact)

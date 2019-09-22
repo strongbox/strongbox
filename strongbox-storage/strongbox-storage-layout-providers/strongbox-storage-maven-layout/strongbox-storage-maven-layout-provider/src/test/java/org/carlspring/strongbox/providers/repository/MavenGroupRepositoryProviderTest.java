@@ -37,11 +37,7 @@ import org.slf4j.LoggerFactory;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.ContextConfiguration;
-import static org.hamcrest.MatcherAssert.assertThat;
-import static org.hamcrest.Matchers.contains;
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertNotNull;
-import static org.junit.jupiter.api.Assertions.assertNull;
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.parallel.ExecutionMode.CONCURRENT;
 
 /**
@@ -179,7 +175,7 @@ public class MavenGroupRepositoryProviderTest
         Path repositoryPath = repositoryProvider.fetchPath(resolvedPath1);
         try (InputStream is = repositoryProvider.getInputStream(repositoryPath))
         {
-            assertNotNull(is);
+            assertThat(is).isNotNull();
         }
 
         RepositoryPath resolvedPath2 = (RepositoryPath) a3.normalize();
@@ -187,7 +183,7 @@ public class MavenGroupRepositoryProviderTest
         try (InputStream is = repositoryProvider.getInputStream(repositoryPath))
         {
 
-            assertNotNull(is);
+            assertThat(is).isNotNull();
         }
     }
 
@@ -215,12 +211,12 @@ public class MavenGroupRepositoryProviderTest
         Path repositoryPath = repositoryProvider.fetchPath(resolvedPath);
         InputStream is = repositoryProvider.getInputStream(repositoryPath);
 
-        assertNotNull(is);
+        assertThat(is).isNotNull();
 
         Metadata metadata = artifactMetadataService.getMetadata(is);
 
-        assertEquals(2, metadata.getVersioning().getVersions().size());
-        assertThat(metadata.getVersioning().getVersions(), contains("1.2.3", "1.2.4"));
+        assertThat(metadata.getVersioning().getVersions()).hasSize(2);
+        assertThat(metadata.getVersioning().getVersions()).containsExactly("1.2.3", "1.2.4");
     }
 
     @ExtendWith({ RepositoryManagementTestExecutionListener.class,
@@ -264,7 +260,7 @@ public class MavenGroupRepositoryProviderTest
         Path repositoryPath = repositoryProvider.fetchPath(resolvedPath);
         try (InputStream is = repositoryProvider.getInputStream(repositoryPath))
         {
-            assertNull(is);
+            assertThat(is).isNull();
         }
     }
 
@@ -291,7 +287,7 @@ public class MavenGroupRepositoryProviderTest
         Path repositoryPath = repositoryProvider.fetchPath(resolvedPath);
         try (InputStream is = repositoryProvider.getInputStream(repositoryPath))
         {
-            assertNotNull(is);
+            assertThat(is).isNotNull();
         }
     }
 
@@ -321,7 +317,7 @@ public class MavenGroupRepositoryProviderTest
         Path repositoryPath = repositoryProvider.fetchPath(resolvedPath);
         try (InputStream is = repositoryProvider.getInputStream(repositoryPath))
         {
-            assertNotNull(is);
+            assertThat(is).isNotNull();
         }
     }
 
@@ -344,7 +340,7 @@ public class MavenGroupRepositoryProviderTest
         Path repositoryPath = repositoryProvider.fetchPath(resolvedPath);
         try (InputStream is = repositoryProvider.getInputStream(repositoryPath))
         {
-            assertNotNull(is);
+            assertThat(is).isNotNull();
         }
     }
 
@@ -371,21 +367,21 @@ public class MavenGroupRepositoryProviderTest
         Path repositoryPath = repositoryProvider.fetchPath(resolvedPath);
         try (InputStream is = repositoryProvider.getInputStream(repositoryPath))
         {
-            assertNotNull(is);
+            assertThat(is).isNotNull();
         }
 
         resolvedPath = repositoryPathResolver.resolve(releasesGroup, (RepositoryPath) a2.normalize());
         repositoryPath = repositoryProvider.fetchPath(resolvedPath);
         try (InputStream is = repositoryProvider.getInputStream(repositoryPath))
         {
-            assertNull(is);
+            assertThat(is).isNull();
         }
 
         resolvedPath = repositoryPathResolver.resolve(releasesGroup, (RepositoryPath) a3.normalize());
         repositoryPath = repositoryProvider.fetchPath(resolvedPath);
         try (InputStream is = repositoryProvider.getInputStream(repositoryPath))
         {
-            assertNotNull(is);
+            assertThat(is).isNotNull();
         }
     }
 
@@ -587,7 +583,7 @@ public class MavenGroupRepositoryProviderTest
         Path repositoryPath = repositoryProvider.fetchPath(resolvedPath);
         try (InputStream is = repositoryProvider.getInputStream(repositoryPath))
         {
-            assertNull(is);
+            assertThat(is).isNull();
         }
     }
 

@@ -1,5 +1,7 @@
 package org.carlspring.strongbox.controllers.users;
 
+import static org.assertj.core.api.Assertions.assertThat;
+
 import org.carlspring.strongbox.config.IntegrationTest;
 import org.carlspring.strongbox.controllers.users.support.UserOutput;
 import org.carlspring.strongbox.controllers.users.support.UserResponseEntity;
@@ -44,18 +46,11 @@ import static org.carlspring.strongbox.controllers.users.UserController.SUCCESSF
 import static org.carlspring.strongbox.controllers.users.UserController.USER_DELETE_FORBIDDEN;
 import static org.hamcrest.CoreMatchers.equalTo;
 import static org.hamcrest.CoreMatchers.startsWith;
-import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.containsString;
 import static org.hamcrest.Matchers.greaterThan;
 import static org.hamcrest.Matchers.hasSize;
 import static org.hamcrest.Matchers.notNullValue;
 import static org.hamcrest.Matchers.nullValue;
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertFalse;
-import static org.junit.jupiter.api.Assertions.assertNotEquals;
-import static org.junit.jupiter.api.Assertions.assertNotNull;
-import static org.junit.jupiter.api.Assertions.assertNull;
-import static org.junit.jupiter.api.Assertions.assertTrue;
 
 /**
  * @author Pablo Tirado
@@ -119,9 +114,9 @@ public class UserControllerTestIT
 
         // retrieve newly created user and store the objectId
         User  createdUser = retrieveUserByName(user.getUsername());
-        assertEquals(username, createdUser.getUsername());
-        assertTrue(passwordEncoder.matches(user.getPassword(), createdUser.getPassword()));
-        assertNotEquals(user.getPassword(), createdUser.getPassword());
+        assertThat(createdUser.getUsername()).isEqualTo(username);
+        assertThat(passwordEncoder.matches(user.getPassword(), createdUser.getPassword())).isTrue();
+        assertThat(createdUser.getPassword()).isNotEqualTo(user.getPassword());
 
         // By default assignableRoles should not present in the response.
         given().accept(MediaType.APPLICATION_JSON_VALUE)
@@ -264,7 +259,7 @@ public class UserControllerTestIT
 
         // retrieve newly created user and store the objectId
         User createdUser = retrieveUserByName(test.getUsername());
-        assertEquals(username, createdUser.getUsername());
+        assertThat(createdUser.getUsername()).isEqualTo(username);
 
         UserForm updatedUser = buildFromUser(createdUser, u -> {
             u.setEnabled(true);
@@ -284,11 +279,11 @@ public class UserControllerTestIT
 
         createdUser = retrieveUserByName(username);
 
-        assertTrue(createdUser.isEnabled());
-        assertEquals("my-new-security-token", createdUser.getSecurityTokenKey());
-        assertTrue(passwordEncoder.matches("new-updated-password", createdUser.getPassword()));
-        assertNotEquals("new-updated-password", createdUser.getPassword());
-        
+        assertThat(createdUser.isEnabled()).isTrue();
+        assertThat(createdUser.getSecurityTokenKey()).isEqualTo("my-new-security-token");
+        assertThat(passwordEncoder.matches("new-updated-password", createdUser.getPassword())).isTrue();
+        assertThat(createdUser.getPassword()).isNotEqualTo("new-updated-password");
+
         deleteCreatedUser(username);
     }
 
@@ -316,8 +311,8 @@ public class UserControllerTestIT
 
         // retrieve newly created user and store the objectId
         User createdUser = retrieveUserByName(test.getUsername());
-        assertEquals(username, createdUser.getUsername());
-        
+        assertThat(createdUser).isEqualTo(username);
+
         User user = retrieveUserByName(username);
         UserForm input = buildFromUser(user, null);
         input.setPassword(null);
@@ -336,9 +331,9 @@ public class UserControllerTestIT
 
         User updatedUser = retrieveUserByName(username);
 
-        assertNotNull(updatedUser.getPassword());
-        assertEquals(user.getPassword(), updatedUser.getPassword());
-        
+        assertThat(updatedUser.getPassword()).isNotNull();
+        assertThat(updatedUser.getPassword()).isEqualTo(user.getPassword());
+
         deleteCreatedUser(username);
     }
 
@@ -368,7 +363,7 @@ public class UserControllerTestIT
 
         User databaseCheck = retrieveUserByName(newUserDto.getUsername());
 
-        assertNull(databaseCheck);
+        assertThat(databaseCheck).isNull();
     }
 
     @ParameterizedTest
@@ -397,7 +392,7 @@ public class UserControllerTestIT
 
         User databaseCheck = retrieveUserByName(newUserDto.getUsername());
 
-        assertNull(databaseCheck);
+        assertThat(databaseCheck).isNull();
     }
 
     @ParameterizedTest
@@ -424,8 +419,8 @@ public class UserControllerTestIT
 
         User updatedUser = retrieveUserByName(user.getUsername());
 
-        assertEquals(username, updatedUser.getUsername());
-        assertFalse(passwordEncoder.matches(newPassword, updatedUser.getPassword()));
+        assertThat(updatedUser.getUsername()).isEqualTo(username);
+        assertThat(passwordEncoder.matches(newPassword, updatedUser.getPassword())).isFalse();
     }
 
     @ParameterizedTest
@@ -449,7 +444,7 @@ public class UserControllerTestIT
 
         User updatedUser = retrieveUserByName(admin.getUsername());
 
-        assertTrue(SetUtils.isEqualSet(updatedUser.getRoles(), ImmutableSet.of(SystemRole.UI_MANAGER.name())));
+        assertThat(SetUtils.isEqualSet(updatedUser.getRoles(), ImmutableSet.of(SystemRole.UI_MANAGER.name()))).isTrue();
 
         admin.setRoles(ImmutableSet.of("ADMIN"));
         given().contentType(MediaType.APPLICATION_JSON_VALUE)
@@ -466,7 +461,7 @@ public class UserControllerTestIT
 
         updatedUser = retrieveUserByName(admin.getUsername());
 
-        assertTrue(SetUtils.isEqualSet(updatedUser.getRoles(), ImmutableSet.of("ADMIN")));
+        assertThat(SetUtils.isEqualSet(updatedUser.getRoles(), ImmutableSet.of("ADMIN"))).isTrue();
 
         // Rollback changes.
         admin.setRoles(ImmutableSet.of(SystemRole.UI_MANAGER.name()));
@@ -551,8 +546,8 @@ public class UserControllerTestIT
                .body(containsString(SUCCESSFUL_UPDATE_USER));
 
         user = retrieveUserByName(input.getUsername());
-        assertNotNull(user.getSecurityTokenKey());
-        assertThat(user.getSecurityTokenKey(), equalTo("seecret"));
+        assertThat(user.getSecurityTokenKey()).isNotNull();
+        assertThat(user.getSecurityTokenKey()).isEqualTo("seecret");
 
         //3. Generate token
         try {
@@ -602,7 +597,7 @@ public class UserControllerTestIT
                .peek();
 
         user = retrieveUserByName(input.getUsername());
-        assertNull(user.getSecurityTokenKey());
+        assertThat(user.getSecurityTokenKey()).isNull();
 
         //3. Generate token
         given().accept(MediaType.APPLICATION_JSON_VALUE)
@@ -700,7 +695,7 @@ public class UserControllerTestIT
 
         // retrieve newly created user and store the objectId
         User createdUser = retrieveUserByName(user.getUsername());
-        assertEquals(username, createdUser.getUsername());
+        assertThat(createdUser.getUsername()).isEqualTo(username);
 
         deleteCreatedUser(username);
     }

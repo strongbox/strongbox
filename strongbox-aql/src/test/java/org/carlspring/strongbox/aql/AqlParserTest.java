@@ -17,7 +17,7 @@ import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import static org.junit.jupiter.api.Assertions.*;
+import static org.assertj.core.api.Assertions.assertThat;
 
 public class AqlParserTest
 {
@@ -38,9 +38,9 @@ public class AqlParserTest
         Selector<ArtifactEntry> selector = aqlParser.parseQuery();
         Predicate predicate = selector.getPredicate();
 
-        assertNotNull(predicate);
-        assertFalse(predicate.isEmpty());
-        assertFalse(aqlParser.hasErrors());
+        assertThat(predicate).isNotNull();
+        assertThat(predicate.isEmpty()).isFalse();
+        assertThat(aqlParser.hasErrors()).isFalse();
 
         query = "storage:storage-common-proxies +repository:carlspring +invalidId:'org.carlspring'" +
                 " +artifactId:'test-artifact' asc: unknownCoordinateId";
@@ -61,14 +61,14 @@ public class AqlParserTest
 
         logger.debug(String.format("Query [%s] parse tree:\n[%s]", query, aqlParser));
 
-        assertTrue(aqlParser.hasErrors());
-        assertNotNull(errorMap);
-        assertEquals(2, errorMap.size());
+        assertThat(aqlParser.hasErrors()).isTrue();
+        assertThat(errorMap).isNotNull();
+        assertThat(errorMap).hasSize(2);
 
         List<Pair<Integer, Integer>> errorPositionList = new ArrayList<>(errorMap.keySet());
 
-        assertEquals(Pair.with(1, 55), errorPositionList.get(0));
-        assertEquals(Pair.with(1, 115), errorPositionList.get(1));
+        assertThat(Pair.with(1, 55).equals(errorPositionList.get(0))).isTrue();
+        assertThat(Pair.with(1, 155).equals(errorPositionList.get(1))).isTrue();
     }
 
     @Test
@@ -82,7 +82,7 @@ public class AqlParserTest
 
         logger.debug(String.format("Query [%s] parse tree:\n[%s]", query, aqlParser));
 
-        assertFalse(aqlParser.hasErrors());
+        assertThat(aqlParser.hasErrors()).isFalse();
     }
 
     @Test
@@ -96,7 +96,7 @@ public class AqlParserTest
 
         logger.debug(String.format("Query [%s] parse tree:\n[%s]", query, aqlParser));
 
-        assertFalse(aqlParser.hasErrors());
+        assertThat(aqlParser.hasErrors()).isFalse();
     }
 
     @Test
@@ -117,13 +117,13 @@ public class AqlParserTest
 
         logger.debug(String.format("Query [%s] parse tree:\n[%s]", query, aqlParser));
 
-        assertTrue(aqlParser.hasErrors());
-        assertNotNull(errorMap);
+        assertThat(aqlParser.hasErrors()).isTrue();
+        assertThat(errorMap).isNotNull();
 
         List<Pair<Integer, Integer>> errorPositionList = new ArrayList<>(errorMap.keySet());
 
-        assertEquals(Pair.with(1, 20), errorPositionList.get(0));
-        assertEquals(Pair.with(1, 21), errorPositionList.get(1));
+        assertThat(Pair.with(1, 20).equals(errorPositionList.get(0))).isTrue();
+        assertThat(Pair.with(1, 21).equals(errorPositionList.get(1))).isTrue();
     }
 
     @Test
@@ -137,7 +137,7 @@ public class AqlParserTest
 
         logger.debug(String.format("Query [%s] parse tree:\n[%s]", query, aqlParser));
 
-        assertFalse(aqlParser.hasErrors());
+        assertThat(aqlParser.hasErrors()).isFalse();
     }
 
     @Test
@@ -154,9 +154,9 @@ public class AqlParserTest
         Selector<ArtifactEntry> selector = aqlParser.parseQuery();
         Predicate predicate = selector.getPredicate();
 
-        assertNotNull(predicate);
-        assertFalse(predicate.isEmpty());
-        assertFalse(aqlParser.hasErrors());
+        assertThat(predicate).isNotNull();
+        assertThat(predicate.isEmpty()).isFalse();
+        assertThat(aqlParser.hasErrors()).isFalse();
 
         OQueryTemplate<Object, ArtifactEntry> queryTemplate = new OQueryTemplate<>(null);
 
@@ -164,36 +164,37 @@ public class AqlParserTest
 
         logger.debug(String.format("Query [%s] parse result:\n[%s]", query, sqlQuery));
 
-        assertEquals("SELECT * " +
-                     "FROM " +
-                     "ArtifactEntry " +
-                     "WHERE " +
-                     "artifactCoordinates IS NOT NULL  " +
-                     "AND ((storageId = :storageId_0) " +
-                     "AND repositoryId = :repositoryId_1 " +
-                     "OR (artifactCoordinates.coordinates.groupId = :groupId_1) " +
-                     "AND ( NOT ((artifactCoordinates.coordinates.artifactId = :artifactId_1)) OR " +
-                     " NOT (artifactCoordinates.version LIKE :version_2))) " +
-                     "ORDER BY lastUpdated ASC " +
-                     "SKIP 12 " +
-                     "LIMIT 25",
-                     sqlQuery);
+        assertThat(sqlQuery)
+                .isEqualTo("SELECT * " +
+                           "FROM " +
+                           "ArtifactEntry " +
+                           "WHERE " +
+                           "artifactCoordinates IS NOT NULL  " +
+                           "AND ((storageId = :storageId_0) " +
+                           "AND repositoryId = :repositoryId_1 " +
+                           "OR (artifactCoordinates.coordinates.groupId = :groupId_1) " +
+                           "AND ( NOT ((artifactCoordinates.coordinates.artifactId = :artifactId_1)) OR " +
+                           " NOT (artifactCoordinates.version LIKE :version_2))) " +
+                           "ORDER BY lastUpdated ASC " +
+                           "SKIP 12 " +
+                           "LIMIT 25");
 
         Map<String, Object> parameterMap = queryTemplate.exposeParameterMap(predicate);
 
         logger.debug(String.format("Query [%s] parse parameters:\n[%s]", query, parameterMap));
 
-        assertEquals(ImmutableMap.of("storageId_0",
-                                     "storage-common-proxies",
-                                     "repositoryId_1",
-                                     "carlspring",
-                                     "groupId_1",
-                                     "org.carlspring",
-                                     "version_2",
-                                     "0.%",
-                                     "artifactId_1",
-                                     "some strange group"),
-                     parameterMap);
+        assertThat(parameterMap)
+                .isEqualTo(ImmutableMap.of("storageId_0",
+                                           "storage-common-proxies",
+                                           "repositoryId_1",
+                                           "carlspring",
+                                           "groupId_1",
+                                           "org.carlspring",
+                                           "version_2",
+                                           "0.%",
+                                           "artifactId_1",
+                                           "some strange group")
+                );
     }
 
     @Test
@@ -214,16 +215,16 @@ public class AqlParserTest
 
         logger.debug(String.format("Query [%s] parse tree:\n[%s]", query, aqlParser));
 
-        assertTrue(aqlParser.hasErrors());
-        assertNotNull(errorMap);
-        assertEquals(4, errorMap.size());
+        assertThat(aqlParser.hasErrors()).isTrue();
+        assertThat(errorMap).isNotNull();
+        assertThat(errorMap).hasSize(4);
 
         List<Pair<Integer, Integer>> errorPositionList = new ArrayList<>(errorMap.keySet());
 
-        assertEquals(Pair.with(1, 0), errorPositionList.get(0));
-        assertEquals(Pair.with(1, 17), errorPositionList.get(1));
-        assertEquals(Pair.with(1, 20), errorPositionList.get(2));
-        assertEquals(Pair.with(1, 78), errorPositionList.get(3));
+        assertThat(Pair.with(1, 0).equals(errorPositionList.get(0))).isTrue();
+        assertThat(Pair.with(1, 17).equals(errorPositionList.get(1))).isTrue();
+        assertThat(Pair.with(1, 20).equals(errorPositionList.get(2))).isTrue();
+        assertThat(Pair.with(1, 78).equals(errorPositionList.get(3))).isTrue();
     }
 
 }
