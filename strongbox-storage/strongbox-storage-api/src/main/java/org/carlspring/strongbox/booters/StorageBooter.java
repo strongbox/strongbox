@@ -46,8 +46,6 @@ public class StorageBooter
     @Inject
     private PropertiesBooter propertiesBooter;
 
-    private ILock lock;
-
     @Inject
     private HazelcastInstance hazelcastInstance;
 
@@ -59,7 +57,7 @@ public class StorageBooter
     public void initialize()
             throws IOException, RepositoryManagementStrategyException
     {
-        lock = hazelcastInstance.getLock("StorageBooterLock");
+        ILock lock = hazelcastInstance.getLock("StorageBooterLock");
 
         if (lock.tryLock())
         {
