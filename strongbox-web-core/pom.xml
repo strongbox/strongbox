@@ -113,7 +113,6 @@
                         <strongbox.basedir>${project.build.directory}</strongbox.basedir>
                         <logging.config>${project.build.directory}/strongbox/etc/logback-spring.xml</logging.config>
                         <logging.debug>true</logging.debug>
-                        <logging.dir>${project.build.directory}/strongbox-vault/logs</logging.dir>
                     </systemPropertyVariables>
                 </configuration>
 

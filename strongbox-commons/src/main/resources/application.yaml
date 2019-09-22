@@ -50,6 +50,7 @@ logging:
       total: 1GB
     history: 31
   dir: ${strongbox.vault}/logs
+logging.file: ${logging.dir}/strongbox.log
 java:
   io:
     tmpdir: ${strongbox.vault}/tmp
@@ -66,7 +67,7 @@ management:
   endpoints:
     web:
       exposure:
-        include: health,info,beans,metrics,trace,scheduledtasks,threaddump,loggers
+        include: health,info,beans,metrics,trace,scheduledtasks,threaddump,loggers,logfile
       base-path: /api/monitoring
 cacheManagerConfiguration:
   groupConfig:
