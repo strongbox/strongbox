@@ -12,11 +12,8 @@
     <context:annotation-config />
     <cache:annotation-driven />
 
-    <bean class="org.carlspring.strongbox.authentication.api.CacheManagerAuthenticationCache"/>
+    <bean id="yamlUserDetailService" class="org.carlspring.strongbox.users.userdetails.YamlUserDetailService"/>
 
-    <bean id="passwordAuthenticationProvider" class="org.carlspring.strongbox.authentication.api.password.PasswordAuthenticationProvider" />
-    <bean id="emptyAuthenticationProvider" class="org.carlspring.strongbox.authentication.impl.example.EmptyAuthenticationProvider" />
-
-    <bean class="org.carlspring.strongbox.authentication.impl.example.EmptyAuthenticationProviderComponent"/>
+    <bean id="jwtAuthenticationProvider" class="org.carlspring.strongbox.authentication.api.jwt.JwtAuthenticationProvider" />
 
 </beans>

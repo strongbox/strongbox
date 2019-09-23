@@ -1,13 +1,15 @@
-package org.carlspring.strongbox.authentication.api.impl.xml;
+package org.carlspring.strongbox.authentication.api.jwt;
 
-import java.util.Collections;
 import java.util.Map;
 
 import javax.inject.Inject;
 
 import org.carlspring.strongbox.security.exceptions.ExpiredTokenException;
 import org.carlspring.strongbox.security.exceptions.InvalidTokenException;
+import org.carlspring.strongbox.users.security.JwtAuthenticationClaimsProvider.JwtAuthentication;
+import org.carlspring.strongbox.users.security.JwtClaimsProvider;
 import org.carlspring.strongbox.users.security.SecurityTokenProvider;
+import org.carlspring.strongbox.users.userdetails.SpringSecurityUser;
 import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.security.authentication.InternalAuthenticationServiceException;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
@@ -30,6 +32,13 @@ public class JwtAuthenticationProvider extends AbstractUserDetailsAuthentication
     @Inject
     private SecurityTokenProvider securityTokenProvider;
 
+    private JwtClaimsProvider jwtClaimsProvider;
+
+    public JwtAuthenticationProvider(@JwtAuthentication JwtClaimsProvider jwtClaimsProvider)
+    {
+        this.jwtClaimsProvider = jwtClaimsProvider;
+    }
+
     @Override
     protected void additionalAuthenticationChecks(UserDetails userDetails,
                                                   UsernamePasswordAuthenticationToken authentication)
@@ -42,10 +51,10 @@ public class JwtAuthenticationProvider extends AbstractUserDetailsAuthentication
 
         String token = authentication.getCredentials().toString();
 
-        Map<String, String> claimMap = provideTokenClaims(userDetails);
+        Map<String, String> targetClaimMap = provideUserDetailsClaims(userDetails);
         try
         {
-            securityTokenProvider.verifyToken(token, authentication.getPrincipal().toString(), claimMap);
+            securityTokenProvider.verifyToken(token, authentication.getPrincipal().toString(), targetClaimMap);
         }
         catch (ExpiredTokenException e)
         {
@@ -58,9 +67,9 @@ public class JwtAuthenticationProvider extends AbstractUserDetailsAuthentication
 
     }
 
-    protected Map<String, String> provideTokenClaims(UserDetails userDetails)
+    protected Map<String, String> provideUserDetailsClaims(UserDetails userDetails)
     {
-        return Collections.emptyMap();
+        return jwtClaimsProvider.getClaims((SpringSecurityUser) userDetails);
     }
 
     @Override
@@ -93,7 +102,7 @@ public class JwtAuthenticationProvider extends AbstractUserDetailsAuthentication
     @Override
     public boolean supports(Class<?> authentication)
     {
-        return JwtAuthentication.class.isAssignableFrom(authentication);
+        return org.carlspring.strongbox.authentication.api.jwt.JwtAuthentication.class.isAssignableFrom(authentication);
     }
 
 }

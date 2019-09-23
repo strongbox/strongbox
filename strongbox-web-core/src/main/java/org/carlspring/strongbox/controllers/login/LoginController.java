@@ -1,15 +1,17 @@
 package org.carlspring.strongbox.controllers.login;
 
-import org.carlspring.strongbox.controllers.BaseController;
-import org.carlspring.strongbox.users.security.SecurityTokenProvider;
+import static org.carlspring.strongbox.controllers.login.LoginController.REQUEST_MAPPING;
+
+import java.util.Map;
+import java.util.Optional;
 
 import javax.inject.Inject;
-import java.util.Collections;
 
-import io.swagger.annotations.Api;
-import io.swagger.annotations.ApiOperation;
-import io.swagger.annotations.ApiResponse;
-import io.swagger.annotations.ApiResponses;
+import org.carlspring.strongbox.controllers.BaseController;
+
+import org.carlspring.strongbox.users.security.JwtClaimsProvider;
+import org.carlspring.strongbox.users.security.SecurityTokenProvider;
+import org.carlspring.strongbox.users.userdetails.SpringSecurityUser;
 import org.jose4j.lang.JoseException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -20,12 +22,17 @@ import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.authentication.InsufficientAuthenticationException;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
-import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
-import static org.carlspring.strongbox.controllers.login.LoginController.REQUEST_MAPPING;
+
+import io.swagger.annotations.Api;
+import io.swagger.annotations.ApiOperation;
+import io.swagger.annotations.ApiResponse;
+import io.swagger.annotations.ApiResponses;
+
+import static org.carlspring.strongbox.users.security.JwtAuthenticationClaimsProvider.JwtAuthentication;
 
 /**
  * Works in conjunction with {@link org.carlspring.strongbox.security.authentication.suppliers.JsonFormLoginSupplier}
@@ -46,6 +53,9 @@ public class LoginController
     @Inject
     private SecurityTokenProvider securityTokenProvider;
 
+    @Inject
+    @JwtAuthentication
+    private JwtClaimsProvider jwtClaimsProvider;
 
     @ApiOperation(value = "Returns the JWT authentication token for provided username and password")
     @ApiResponses(value = { @ApiResponse(code = 200, message = "Returns generated JWT token"),
@@ -78,22 +88,20 @@ public class LoginController
             return toResponseEntityError("Unsupported authentication class " + authentication.getClass().getName());
         }
 
+        Object principal = authentication.getPrincipal();
+        if (!(principal instanceof SpringSecurityUser)) {
+            return toResponseEntityError("Unsupported authentication principal " + Optional.ofNullable(principal).orElse(null));
+        }
+        
         String token;
         try
         {
-            Object principal = authentication.getPrincipal();
-            String subject;
-            if (principal instanceof UserDetails)
-            {
-                subject = ((UserDetails) principal).getUsername();
-            }
-            else
-            {
-                subject = principal.toString();
-            }
+            SpringSecurityUser user = (SpringSecurityUser) principal;
+            String subject = user.getUsername();
             
             Integer timeout = configurationManager.getSessionTimeoutSeconds();
-            token = securityTokenProvider.getToken(subject, Collections.emptyMap(), timeout, null);
+            Map<String, String> claims = jwtClaimsProvider.getClaims(user);
+            token = securityTokenProvider.getToken(subject, claims, timeout, null);
         }
         catch (JoseException e)
         {

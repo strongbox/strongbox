@@ -1,13 +1,12 @@
 package org.carlspring.strongbox.security.authentication.suppliers;
 
-import org.carlspring.strongbox.authentication.api.impl.xml.PasswordAuthentication;
-
 import javax.annotation.CheckForNull;
 import javax.annotation.Nonnull;
 import javax.servlet.http.HttpServletRequest;
 import java.io.UnsupportedEncodingException;
 import java.util.Base64;
 
+import org.carlspring.strongbox.authentication.api.password.PasswordAuthentication;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.core.annotation.Order;

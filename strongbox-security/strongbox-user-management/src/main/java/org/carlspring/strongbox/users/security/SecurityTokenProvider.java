@@ -7,7 +7,6 @@ import javax.inject.Inject;
 import java.io.UnsupportedEncodingException;
 import java.security.Key;
 import java.util.Map;
-import java.util.Optional;
 
 import org.jose4j.jws.AlgorithmIdentifiers;
 import org.jose4j.jws.JsonWebSignature;
@@ -153,11 +152,11 @@ public class SecurityTokenProvider
     /**
      * @param token
      * @param targetSubject
-     * @param claimMap
+     * @param targetClaimMap
      */
     public void verifyToken(String token,
                             String targetSubject,
-                            Map<String, String> claimMap)
+                            Map<String, String> targetClaimMap)
     {
         JwtClaims jwtClaims = getClaims(token, true);
         String subject;
@@ -178,9 +177,9 @@ public class SecurityTokenProvider
         boolean claimMatch;
         try
         {
-            claimMatch = claimMap.entrySet()
-                                 .stream()
-                                 .allMatch((e) -> e.getValue().equals(jwtClaims.getClaimValue(e.getKey())));
+            claimMatch = targetClaimMap.entrySet()
+                                       .stream()
+                                       .allMatch((e) -> e.getValue().equals(jwtClaims.getClaimValue(e.getKey())));
         }
         catch (Exception e)
         {

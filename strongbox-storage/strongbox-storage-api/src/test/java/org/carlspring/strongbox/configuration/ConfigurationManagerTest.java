@@ -1,5 +1,21 @@
 package org.carlspring.strongbox.configuration;
 
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertTrue;
+
+import java.io.ByteArrayOutputStream;
+import java.io.File;
+import java.io.IOException;
+import java.io.OutputStream;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
+import java.util.Arrays;
+import java.util.Collections;
+
+import javax.inject.Inject;
+
 import org.carlspring.strongbox.StorageApiTestConfig;
 import org.carlspring.strongbox.booters.PropertiesBooter;
 import org.carlspring.strongbox.data.CacheManagerTestExecutionListener;
@@ -12,29 +28,15 @@ import org.carlspring.strongbox.storage.routing.RoutingRuleTypeEnum;
 import org.carlspring.strongbox.yaml.YAMLMapperFactory;
 import org.carlspring.strongbox.yaml.repository.CustomRepositoryConfigurationDto;
 import org.carlspring.strongbox.yaml.repository.remote.RemoteRepositoryConfigurationDto;
-
-import javax.inject.Inject;
-import java.io.ByteArrayOutputStream;
-import java.io.File;
-import java.io.IOException;
-import java.io.OutputStream;
-import java.nio.file.Files;
-import java.nio.file.Path;
-import java.nio.file.Paths;
-import java.util.Arrays;
-import java.util.Collections;
-
-import com.fasterxml.jackson.dataformat.yaml.YAMLMapper;
-import com.google.common.collect.Sets;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.TestExecutionListeners;
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertNotNull;
-import static org.junit.jupiter.api.Assertions.assertTrue;
+
+import com.fasterxml.jackson.dataformat.yaml.YAMLMapper;
+import com.google.common.collect.Sets;
 
 /**
  * @author mtodorov

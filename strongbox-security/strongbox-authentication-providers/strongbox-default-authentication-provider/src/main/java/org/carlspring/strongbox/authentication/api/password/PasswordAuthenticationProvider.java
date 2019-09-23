@@ -1,9 +1,10 @@
-package org.carlspring.strongbox.authentication.api.impl.xml;
+package org.carlspring.strongbox.authentication.api.password;
 
 import java.util.Optional;
 
 import javax.inject.Inject;
 
+import org.carlspring.strongbox.authentication.api.AuthenticationCache;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.security.authentication.BadCredentialsException;
