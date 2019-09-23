@@ -143,4 +143,5 @@ To accept, please:
 | Virakti Jain                 |                                              | Hyderabad, India                        | 2019-06-11 |
 | Serdyuk Sergey               |                                              | Moscow, Russian Federation              | 2019-06-20 |
 | Bartosz Dabek                |                                              | Hajnowka, Poland                        | 2019-06-30 |
-| Bogdan Sukonnov              |                                              | Saint Petersburg, Russia           | 2019-08-19 |
+| Bogdan Sukonnov              |                                              | Saint Petersburg, Russia                | 2019-08-19 |
+| Marcin Słowiak               |                                              | Sanok, Poland                           | 2019-09-23 |
