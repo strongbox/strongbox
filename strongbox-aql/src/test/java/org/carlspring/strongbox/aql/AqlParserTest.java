@@ -68,7 +68,7 @@ public class AqlParserTest
         List<Pair<Integer, Integer>> errorPositionList = new ArrayList<>(errorMap.keySet());
 
         assertThat(Pair.with(1, 55).equals(errorPositionList.get(0))).isTrue();
-        assertThat(Pair.with(1, 155).equals(errorPositionList.get(1))).isTrue();
+        assertThat(Pair.with(1, 115).equals(errorPositionList.get(1))).isTrue();
     }
 
     @Test

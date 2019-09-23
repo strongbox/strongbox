@@ -74,7 +74,7 @@ public class RetryDownloadArtifactWithPermanentFailureStartingAtSomePointTest
         // given
         assertThat(Files.exists(artifactPath)).isFalse();
 
-        assertThatExceptionOfType(IndexOutOfBoundsException.class)
+        assertThatExceptionOfType(IOException.class)
                 .isThrownBy(() -> artifactResolutionServiceHelper.assertStreamNotNull(storageId,
                                                                       repositoryId,
                                                                       path)
