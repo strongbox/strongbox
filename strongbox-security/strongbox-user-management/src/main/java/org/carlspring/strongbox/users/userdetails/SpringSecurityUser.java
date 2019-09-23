@@ -148,11 +148,11 @@ public class SpringSecurityUser
         {
             hashCodeTargets[i++] = role.getName();
         }
-        hashCodeTargets[i++] = username;
-        hashCodeTargets[i++] = password;
+        hashCodeTargets[i++] = String.valueOf(username);
+        hashCodeTargets[i++] = String.valueOf(password);
         hashCodeTargets[i++] = String.valueOf(enabled);
-        hashCodeTargets[i++] = securityKey;
-        hashCodeTargets[i++] = url;
+        hashCodeTargets[i++] = String.valueOf(securityKey);
+        hashCodeTargets[i++] = String.valueOf(url);
         
         Arrays.sort(hashCodeTargets);
         
