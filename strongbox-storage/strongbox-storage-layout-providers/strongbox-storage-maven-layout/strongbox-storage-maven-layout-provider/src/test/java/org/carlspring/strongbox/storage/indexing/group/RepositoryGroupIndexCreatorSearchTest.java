@@ -50,59 +50,59 @@ public class RepositoryGroupIndexCreatorSearchTest
         extends BaseRepositoryIndexCreatorTest
 {
 
-    private static final String REPOSITORY_RELEASES_0 = "injector-releases-0";
+    private static final String REPOSITORY_RELEASES_0 = "injector-releases-0-rgicst";
 
-    private static final String REPOSITORY_RELEASES_0_1 = "injector-releases-0-1";
+    private static final String REPOSITORY_RELEASES_0_1 = "injector-releases-0-1-rgicst";
 
-    private static final String REPOSITORY_RELEASES_0_1_GROUP = "injector-releases-0-1-group";
+    private static final String REPOSITORY_RELEASES_0_1_GROUP = "injector-releases-0-1-group-rgicst";
 
-    private static final String REPOSITORY_RELEASES_1 = "injector-releases-1";
+    private static final String REPOSITORY_RELEASES_1 = "injector-releases-1-rgicst";
 
-    private static final String REPOSITORY_RELEASES_1_1 = "injector-releases-1-1";
+    private static final String REPOSITORY_RELEASES_1_1 = "injector-releases-1-1-rgicst";
 
-    private static final String REPOSITORY_RELEASES_1_1_GROUP = "injector-releases-1-1-group";
+    private static final String REPOSITORY_RELEASES_1_1_GROUP = "injector-releases-1-1-group-rgicst";
 
-    private static final String REPOSITORY_RELEASES_2 = "injector-releases-2";
+    private static final String REPOSITORY_RELEASES_2 = "injector-releases-2-rgicst";
 
-    private static final String REPOSITORY_RELEASES_2_1 = "injector-releases-2-1";
+    private static final String REPOSITORY_RELEASES_2_1 = "injector-releases-2-1-rgicst";
 
-    private static final String REPOSITORY_RELEASES_2_1_GROUP = "injector-releases-2-1-group";
+    private static final String REPOSITORY_RELEASES_2_1_GROUP = "injector-releases-2-1-group-rgicst";
 
-    private static final String REPOSITORY_RELEASES_3 = "injector-releases-3";
+    private static final String REPOSITORY_RELEASES_3 = "injector-releases-3-rgicst";
 
-    private static final String REPOSITORY_RELEASES_3_1 = "injector-releases-3-1";
+    private static final String REPOSITORY_RELEASES_3_1 = "injector-releases-3-1-rgicst";
 
-    private static final String REPOSITORY_RELEASES_3_1_GROUP = "injector-releases-3-1-group";
+    private static final String REPOSITORY_RELEASES_3_1_GROUP = "injector-releases-3-1-group-rgicst";
 
-    private static final String REPOSITORY_RELEASES_4 = "injector-releases-4";
+    private static final String REPOSITORY_RELEASES_4 = "injector-releases-4-rgicst";
 
-    private static final String REPOSITORY_RELEASES_4_1 = "injector-releases-4-1";
+    private static final String REPOSITORY_RELEASES_4_1 = "injector-releases-4-1-rgicst";
 
-    private static final String REPOSITORY_RELEASES_4_1_GROUP = "injector-releases-4-1-group";
+    private static final String REPOSITORY_RELEASES_4_1_GROUP = "injector-releases-4-1-group-rgicst";
 
-    private static final String REPOSITORY_RELEASES_5 = "injector-releases-5";
+    private static final String REPOSITORY_RELEASES_5 = "injector-releases-5-rgicst";
 
-    private static final String REPOSITORY_RELEASES_5_1 = "injector-releases-5-1";
+    private static final String REPOSITORY_RELEASES_5_1 = "injector-releases-5-1-rgicst";
 
-    private static final String REPOSITORY_RELEASES_5_1_GROUP = "injector-releases-5-1-group";
+    private static final String REPOSITORY_RELEASES_5_1_GROUP = "injector-releases-5-1-group-rgicst";
 
-    private static final String REPOSITORY_RELEASES_6 = "injector-releases-6";
+    private static final String REPOSITORY_RELEASES_6 = "injector-releases-6-rgicst";
 
-    private static final String REPOSITORY_RELEASES_6_1 = "injector-releases-6-1";
+    private static final String REPOSITORY_RELEASES_6_1 = "injector-releases-6-1-rgicst";
 
-    private static final String REPOSITORY_RELEASES_6_1_GROUP = "injector-releases-6-1-group";
+    private static final String REPOSITORY_RELEASES_6_1_GROUP = "injector-releases-6-1-group-rgicst";
 
-    private static final String REPOSITORY_RELEASES_7 = "injector-releases-7";
+    private static final String REPOSITORY_RELEASES_7 = "injector-releases-7-rgicst";
 
-    private static final String REPOSITORY_RELEASES_7_1 = "injector-releases-7-1";
+    private static final String REPOSITORY_RELEASES_7_1 = "injector-releases-7-1-rgicst";
 
-    private static final String REPOSITORY_RELEASES_7_1_GROUP = "injector-releases-7-1-group";
+    private static final String REPOSITORY_RELEASES_7_1_GROUP = "injector-releases-7-1-group-rgicst";
 
-    private static final String REPOSITORY_RELEASES_8 = "injector-releases-8";
+    private static final String REPOSITORY_RELEASES_8 = "injector-releases-8-rgicst";
 
-    private static final String REPOSITORY_RELEASES_8_1 = "injector-releases-8-1";
+    private static final String REPOSITORY_RELEASES_8_1 = "injector-releases-8-1-rgicst";
 
-    private static final String REPOSITORY_RELEASES_8_1_GROUP = "injector-releases-8-1-group";
+    private static final String REPOSITORY_RELEASES_8_1_GROUP = "injector-releases-8-1-group-rgicst";
 
     private static final String PROPERTIES_INJECTOR_GROUP_ID = "org.carlspring";
 

@@ -43,7 +43,7 @@ public class RepositoryHostedIndexCreatorTest
         extends BaseRepositoryIndexCreatorTest
 {
 
-    private static final String REPOSITORY_RELEASES = "ri-releases";
+    private static final String REPOSITORY_RELEASES = "ri-releases-rhicst";
     private static final String GROUP_ID = "org.carlspring.strongbox";
     private static final String ARTIFACT_ID = "strongbox-commons";
 
