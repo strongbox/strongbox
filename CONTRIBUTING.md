@@ -144,3 +144,4 @@ To accept, please:
 | Serdyuk Sergey               |                                              | Moscow, Russian Federation              | 2019-06-20 |
 | Bartosz Dabek                |                                              | Hajnowka, Poland                        | 2019-06-30 |
 | Bogdan Sukonnov              |                                              | Saint Petersburg, Russia           | 2019-08-19 |
+| Daniel Jiménez               | Open University of Catalonia                 | Barcelona, Catalonia, Spain        | 2020-09-21 |
