@@ -48,21 +48,21 @@ public class RepositoryHostedIndexCreatorSearchTest
         extends BaseRepositoryIndexCreatorTest
 {
 
-    private static final String REPOSITORY_RELEASES_1 = "injector-releases-1";
+    private static final String REPOSITORY_RELEASES_1 = "injector-releases-1-rhicst";
 
-    private static final String REPOSITORY_RELEASES_2 = "injector-releases-2";
+    private static final String REPOSITORY_RELEASES_2 = "injector-releases-2-rhicst";
 
-    private static final String REPOSITORY_RELEASES_3 = "injector-releases-3";
+    private static final String REPOSITORY_RELEASES_3 = "injector-releases-3-rhicst";
 
-    private static final String REPOSITORY_RELEASES_4 = "injector-releases-4";
+    private static final String REPOSITORY_RELEASES_4 = "injector-releases-4-rhicst";
 
-    private static final String REPOSITORY_RELEASES_5 = "injector-releases-5";
+    private static final String REPOSITORY_RELEASES_5 = "injector-releases-5-rhicst";
 
-    private static final String REPOSITORY_RELEASES_6 = "injector-releases-6";
+    private static final String REPOSITORY_RELEASES_6 = "injector-releases-6-rhicst";
 
-    private static final String REPOSITORY_RELEASES_7 = "injector-releases-7";
+    private static final String REPOSITORY_RELEASES_7 = "injector-releases-7-rhicst";
 
-    private static final String REPOSITORY_RELEASES_8 = "injector-releases-8";
+    private static final String REPOSITORY_RELEASES_8 = "injector-releases-8-rhicst";
 
     private static final String GROUP_ID = "org.carlspring";
 
@@ -77,6 +77,7 @@ public class RepositoryHostedIndexCreatorSearchTest
     private Resource jarArtifact = new ClassPathResource("artifacts/properties-injector-1.7.jar");
 
     /**
+     *
      * org/carlspring/ioc/PropertyValueInjector
      * org/carlspring/ioc/InjectionException
      * org/carlspring/ioc/PropertyValue
