@@ -81,7 +81,6 @@ public class MavenRepositoryFeatures
             DateFormat formatter = new SimpleDateFormat(TIMESTAMP_FORMAT);
             Calendar calendar = Calendar.getInstance();
             calendar.add(Calendar.DAY_OF_MONTH, -keepPeriod);
-
             Date keepDate = formatter.parse(formatter.format(calendar.getTime()));
 
             removeTimestampedSnapshots(storageId, repositoryId, artificatPath, numberToKeep, keepDate);
@@ -90,8 +89,6 @@ public class MavenRepositoryFeatures
         {
             logger.error(e.getMessage(), e);
         }
-
-
     }
 
     public void removeTimestampedSnapshots(String storageId,
