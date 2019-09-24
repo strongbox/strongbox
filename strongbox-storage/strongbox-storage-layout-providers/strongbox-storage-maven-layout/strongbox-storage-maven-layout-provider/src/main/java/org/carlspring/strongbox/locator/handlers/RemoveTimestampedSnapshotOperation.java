@@ -9,6 +9,7 @@ import org.carlspring.strongbox.storage.metadata.VersionCollector;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.util.Date;
 import java.util.List;
 import java.util.stream.Stream;
 
@@ -31,6 +32,8 @@ public class RemoveTimestampedSnapshotOperation
     private int numberToKeep;
 
     private int keepPeriod;
+
+    private Date keepDate;
 
     private MavenSnapshotManager mavenSnapshotManager;
 
@@ -109,7 +112,7 @@ public class RemoveTimestampedSnapshotOperation
         try
         {
             mavenSnapshotManager.deleteTimestampedSnapshotArtifacts(basePath, request.getVersioning(),
-                                                                    numberToKeep, keepPeriod);
+                                                                    numberToKeep, keepDate);
         }
         catch (IOException | XmlPullParserException e)
         {
@@ -137,14 +140,8 @@ public class RemoveTimestampedSnapshotOperation
         this.numberToKeep = numberToKeep;
     }
 
-    public int getKeepPeriod()
-    {
-        return keepPeriod;
-    }
+    public Date getKeepDate() { return keepDate; }
 
-    public void setKeepPeriod(int keepPeriod)
-    {
-        this.keepPeriod = keepPeriod;
-    }
+    public void setKeepDate(Date keepDate) { this.keepDate = keepDate; }
 
 }

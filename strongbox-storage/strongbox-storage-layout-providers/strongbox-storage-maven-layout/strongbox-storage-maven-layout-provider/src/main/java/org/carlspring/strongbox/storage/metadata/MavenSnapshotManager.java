@@ -45,7 +45,7 @@ public class MavenSnapshotManager
     public void deleteTimestampedSnapshotArtifacts(RepositoryPath basePath,
                                                    Versioning versioning,
                                                    int numberToKeep,
-                                                   int keepPeriod)
+                                                   Date keepDate)
             throws IOException,
                    XmlPullParserException
     {
@@ -74,7 +74,7 @@ public class MavenSnapshotManager
         {
 
             RepositoryPath versionDirectoryPath = basePath.resolve(ArtifactUtils.toSnapshotVersion(version));
-            if (!removeTimestampedSnapshot(versionDirectoryPath, numberToKeep, keepPeriod))
+            if (!removeTimestampedSnapshot(versionDirectoryPath, numberToKeep, keepDate))
             {
                 continue;
             }
@@ -91,7 +91,7 @@ public class MavenSnapshotManager
 
     private boolean removeTimestampedSnapshot(RepositoryPath basePath,
                                               int numberToKeep,
-                                              int keepPeriod)
+                                              Date keepDate)
             throws IOException,
                    XmlPullParserException
     {
@@ -106,7 +106,7 @@ public class MavenSnapshotManager
          * map of snapshots for removing
          * k - number of the build, v - version of the snapshot
          */
-        Map<Integer, String> mapToRemove = getRemovableTimestampedSnapshots(metadata, numberToKeep, keepPeriod);
+        Map<Integer, String> mapToRemove = getRemovableTimestampedSnapshots(metadata, numberToKeep, keepDate);
 
         if (mapToRemove.isEmpty())
         {
@@ -160,12 +160,12 @@ public class MavenSnapshotManager
      *
      * @param metadata     type Metadata
      * @param numberToKeep type int
-     * @param keepPeriod   type int
+     * @param keepDate     type Date
      * @return type Map<Integer, String>
      */
     private Map<Integer, String> getRemovableTimestampedSnapshots(Metadata metadata,
                                                                   int numberToKeep,
-                                                                  int keepPeriod)
+                                                                  Date keepDate)
     {
         /**
          * map of the snapshots in metadata file
@@ -205,13 +205,17 @@ public class MavenSnapshotManager
                                   }
                               });
         }
-        else if (numberToKeep == 0 && keepPeriod != 0)
+        else if (numberToKeep == 0 && keepDate != null)
         {
             snapshots.forEach((k, v) ->
                               {
                                   try
                                   {
-                                      if (keepPeriod < getDifferenceDays(v.getTimestamp()))
+                                      DateFormat formatter = new SimpleDateFormat(TIMESTAMP_FORMAT);
+                                      Calendar calendar = Calendar.getInstance();
+                                      String currentDate = formatter.format(calendar.getTime());
+
+                                      if (keepDate.compareTo(formatter.parse(currentDate)) < 0)
                                       {
                                           mapToRemove.put(k, v.getVersion());
                                       }
