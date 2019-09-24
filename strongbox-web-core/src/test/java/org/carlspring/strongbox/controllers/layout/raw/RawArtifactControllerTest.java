@@ -17,14 +17,18 @@ import java.io.InputStream;
 import java.nio.file.Files;
 import java.nio.file.Path;
 
+import io.restassured.module.mockmvc.response.MockMvcResponse;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
-
+import static io.restassured.module.mockmvc.RestAssuredMockMvc.given;
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.carlspring.strongbox.utils.ArtifactControllerHelper.MULTIPART_BOUNDARY;
+import static org.hamcrest.CoreMatchers.equalTo;
+import static org.hamcrest.MatcherAssert.assertThat;
 
 /**
  * @author Martin Todorov
@@ -35,7 +39,11 @@ public class RawArtifactControllerTest
         extends RawRestAssuredBaseTest
 {
 
-    private static final String REPOSITORY_RELEASES = "ract-raw-releases";
+    private static final String REPOSITORY_RELEASES_1 = "ract-raw-releases-1";
+
+    private static final String REPOSITORY_RELEASES_2 = "ract-raw-releases-2";
+
+    private static final String REPOSITORY_RELEASES_3 = "ract-raw-releases-3";
 
     @Override
     @BeforeEach
@@ -48,7 +56,7 @@ public class RawArtifactControllerTest
     @ExtendWith(RepositoryManagementTestExecutionListener.class)
     @Test
     public void testDeploy(@TestRepository(layout = RawLayoutProvider.ALIAS,
-                                           repositoryId = REPOSITORY_RELEASES)
+                                           repositoryId = REPOSITORY_RELEASES_1)
                            Repository repository)
             throws IOException
     {
@@ -94,9 +102,9 @@ public class RawArtifactControllerTest
                  ArtifactManagementTestExecutionListener.class })
     @Test
     public void testResolveViaHostedRepository(@TestRepository(layout = RawLayoutProvider.ALIAS,
-                                                               repositoryId = REPOSITORY_RELEASES)
+                                                               repositoryId = REPOSITORY_RELEASES_1)
                                                Repository repository,
-                                               @TestArtifact(repositoryId = REPOSITORY_RELEASES,
+                                               @TestArtifact(repositoryId = REPOSITORY_RELEASES_1,
                                                              resource = "org/foo/bar/blah.zip",
                                                              generator = NullArtifactGenerator.class)
                                                Path artifactPath)
@@ -107,4 +115,73 @@ public class RawArtifactControllerTest
         assertThat(Files.exists(artifactRepositoryPath.toAbsolutePath())).as("Artifact does not exist!").isTrue();
     }
 
+    @ExtendWith({ RepositoryManagementTestExecutionListener.class,
+                  ArtifactManagementTestExecutionListener.class })
+    @Test
+    public void shouldHandlePartialDownloadWithSingleRange(@TestRepository(layout = RawLayoutProvider.ALIAS,
+                                                                           repositoryId = REPOSITORY_RELEASES_2)
+                                                           Repository repository,
+                                                           @TestArtifact(repositoryId = REPOSITORY_RELEASES_2,
+                                                                         resource = "org/carlspring/strongbox/raw/test/partial-download-single.zip",
+                                                                         generator = NullArtifactGenerator.class)
+                                                           Path artifactPath)
+    {
+        final String byteRanges = "100-199";
+        final String pathStr = "org/carlspring/strongbox/raw/test/partial-download-single.zip";
+
+        MockMvcResponse response = getMockMvcResponseForPartialDownload(byteRanges,
+                                                                        repository,
+                                                                        pathStr);
+
+        // Then
+        assertThat(response.getStatusCode(), equalTo(HttpStatus.PARTIAL_CONTENT.value()));
+        assertThat(response.getHeader(HttpHeaders.PRAGMA), equalTo("no-cache"));
+        assertThat(response.getHeader(HttpHeaders.ACCEPT_RANGES), equalTo("bytes"));
+        assertThat(response.getContentType(), equalTo(MediaType.APPLICATION_OCTET_STREAM_VALUE));
+    }
+
+    @ExtendWith({ RepositoryManagementTestExecutionListener.class,
+                  ArtifactManagementTestExecutionListener.class })
+    @Test
+    public void shouldHandlePartialDownloadWithMultipleRanges(@TestRepository(layout = RawLayoutProvider.ALIAS,
+                                                                             repositoryId = REPOSITORY_RELEASES_3)
+                                                              Repository repository,
+                                                              @TestArtifact(repositoryId = REPOSITORY_RELEASES_3,
+                                                                            resource = "org/carlspring/strongbox/raw/test/partial-download-multiple.zip",
+                                                                            generator = NullArtifactGenerator.class)
+                                                              Path artifactPath)
+    {
+        final String byteRanges = "0-29,200-249,300-309";
+        final String pathStr = "org/carlspring/strongbox/raw/test/partial-download-multiple.zip";
+
+        MockMvcResponse response = getMockMvcResponseForPartialDownload(byteRanges,
+                                                                        repository,
+                                                                        pathStr);
+
+        // Then
+        assertThat(response.getStatusCode(), equalTo(HttpStatus.PARTIAL_CONTENT.value()));
+        assertThat(response.getHeader(HttpHeaders.PRAGMA), equalTo("no-cache"));
+        assertThat(response.getHeader(HttpHeaders.ACCEPT_RANGES), equalTo("bytes"));
+        assertThat(response.getContentType(), equalTo("multipart/byteranges; boundary=" + MULTIPART_BOUNDARY));
+    }
+
+    private MockMvcResponse getMockMvcResponseForPartialDownload(String byteRanges,
+                                                                 Repository repository,
+                                                                 String pathStr)
+    {
+        // Given
+        final String storageId = repository.getStorage().getId();
+        final String repositoryId = repository.getId();
+
+        String url = getContextBaseUrl() + "/storages/{storageId}/{repositoryId}/{path}";
+
+        // When
+        return mockMvc.header(HttpHeaders.RANGE, "bytes=" + byteRanges)
+                      .contentType(MediaType.TEXT_PLAIN_VALUE)
+                      .when()
+                      .get(url, storageId, repositoryId, pathStr)
+                      .peek()
+                      .thenReturn();
+    }
 }
+

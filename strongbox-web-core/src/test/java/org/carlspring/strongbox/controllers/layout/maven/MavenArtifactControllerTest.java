@@ -76,14 +76,14 @@ import org.springframework.http.MediaType;
 import org.springframework.security.test.context.support.WithMockUser;
 import org.w3c.dom.Document;
 import org.xml.sax.InputSource;
-
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.carlspring.strongbox.testing.artifact.MavenArtifactTestUtils.getArtifactLevelMetadataPath;
 import static org.carlspring.strongbox.testing.artifact.MavenArtifactTestUtils.getGroupLevelMetadataPath;
 import static org.carlspring.strongbox.testing.artifact.MavenArtifactTestUtils.getVersionLevelMetadataPath;
-import static org.assertj.core.api.Assertions.fail;
-import static org.assertj.core.api.Assertions.assertThat;
-import static org.mockito.Mockito.doReturn;
+import static org.carlspring.strongbox.utils.ArtifactControllerHelper.MULTIPART_BOUNDARY;
 import static org.hamcrest.CoreMatchers.equalTo;
+import static org.hamcrest.MatcherAssert.assertThat;
+import static org.mockito.Mockito.doReturn;
 
 /**
  * Test cases for {@link MavenArtifactController}.
@@ -105,6 +105,10 @@ public class MavenArtifactControllerTest
     private static final String REPOSITORY_RELEASES1 = "mact-releases-1";
 
     private static final String REPOSITORY_RELEASES2 = "mact-releases-2";
+
+    private static final String REPOSITORY_RELEASES3 = "mact-releases-3";
+
+    private static final String REPOSITORY_RELEASES4 = "mact-releases-4";
 
     private static final String REPOSITORY_SNAPSHOTS = "mact-snapshots";
 
@@ -161,7 +165,7 @@ public class MavenArtifactControllerTest
         MockitoAnnotations.initMocks(this);
         defaultMavenArtifactDeployer = buildArtifactDeployer(Paths.get(""));
     }
-    
+
     @AfterAll
     static void down()
     {
@@ -1075,6 +1079,76 @@ public class MavenArtifactControllerTest
                .then()
                .statusCode(HttpStatus.BAD_REQUEST.value())
                .statusLine(equalTo("400 The specified path is invalid. Maven GAV not recognized."));
+    }
+
+    @ExtendWith({ RepositoryManagementTestExecutionListener.class,
+                  ArtifactManagementTestExecutionListener.class })
+    @Test
+    public void shouldHandlePartialDownloadWithSingleRange(@MavenRepository(repositoryId = REPOSITORY_RELEASES3)
+                                                           Repository repository,
+                                                           @MavenTestArtifact(repositoryId = REPOSITORY_RELEASES3,
+                                                                              id = "org.carlspring.strongbox.maven.test:partial-download-single",
+                                                                              versions = "1.0")
+                                                           Path artifactPath)
+            throws IOException
+    {
+        final String byteRanges = "100-199";
+        MockMvcResponse response = getMockMvcResponseForPartialDownload(byteRanges,
+                                                                        repository,
+                                                                        artifactPath);
+
+        // Then
+        assertThat(response.getStatusCode(), equalTo(HttpStatus.PARTIAL_CONTENT.value()));
+        assertThat(response.getHeader(HttpHeaders.PRAGMA), equalTo("no-cache"));
+        assertThat(response.getHeader(HttpHeaders.ACCEPT_RANGES), equalTo("bytes"));
+        assertThat(response.getContentType(), equalTo(MediaType.APPLICATION_OCTET_STREAM_VALUE));
+    }
+
+    @ExtendWith({ RepositoryManagementTestExecutionListener.class,
+                  ArtifactManagementTestExecutionListener.class })
+    @Test
+    public void shouldHandlePartialDownloadWithMultipleRanges(@MavenRepository(repositoryId = REPOSITORY_RELEASES4)
+                                                              Repository repository,
+                                                              @MavenTestArtifact(repositoryId = REPOSITORY_RELEASES4,
+                                                                                 id = "org.carlspring.strongbox.maven.test:partial-download-multiple",
+                                                                                 versions = "1.0")
+                                                              Path artifactPath)
+            throws IOException
+    {
+        final String byteRanges = "0-29,200-249,300-309";
+        MockMvcResponse response = getMockMvcResponseForPartialDownload(byteRanges,
+                                                                        repository,
+                                                                        artifactPath);
+
+        // Then
+        assertThat(response.getStatusCode(), equalTo(HttpStatus.PARTIAL_CONTENT.value()));
+        assertThat(response.getHeader(HttpHeaders.PRAGMA), equalTo("no-cache"));
+        assertThat(response.getHeader(HttpHeaders.ACCEPT_RANGES), equalTo("bytes"));
+        assertThat(response.getContentType(), equalTo("multipart/byteranges; boundary=" + MULTIPART_BOUNDARY));
+    }
+
+    private MockMvcResponse getMockMvcResponseForPartialDownload(String byteRanges,
+                                                                 Repository repository,
+                                                                 Path artifactPath)
+            throws IOException
+    {
+        // Given
+        final String storageId = repository.getStorage().getId();
+        final String repositoryId = repository.getId();
+
+        String url = getContextBaseUrl() + "/storages/{storageId}/{repositoryId}/{artifactPath}";
+
+        RepositoryPath artifactRepositoryPath = (RepositoryPath) artifactPath.resolveSibling(
+                artifactPath.getFileName().toString().replace(".jar", ".pom")).normalize();
+        String artifactRepositoryPathStr = RepositoryFiles.relativizePath(artifactRepositoryPath);
+
+        // When
+        return given().header(HttpHeaders.RANGE, "bytes=" + byteRanges)
+                      .contentType(MediaType.TEXT_PLAIN_VALUE)
+                      .when()
+                      .get(url, storageId, repositoryId, artifactRepositoryPathStr)
+                      .peek()
+                      .thenReturn();
     }
 
     @Test

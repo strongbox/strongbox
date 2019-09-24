@@ -1,20 +1,5 @@
 package org.carlspring.strongbox.controllers.layout.nuget;
 
-import java.io.OutputStream;
-import java.io.PrintStream;
-import java.nio.file.Files;
-import java.nio.file.Path;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-
-import javax.inject.Inject;
-
-import io.restassured.http.ContentType;
-import io.restassured.http.Header;
-import io.restassured.http.Headers;
-import io.restassured.module.mockmvc.config.RestAssuredMockMvcConfig;
-import io.restassured.module.mockmvc.specification.MockMvcRequestSpecification;
 import org.carlspring.strongbox.artifact.coordinates.NugetArtifactCoordinates;
 import org.carlspring.strongbox.config.IntegrationTest;
 import org.carlspring.strongbox.domain.ArtifactEntry;
@@ -29,16 +14,32 @@ import org.carlspring.strongbox.testing.artifact.ArtifactManagementTestExecution
 import org.carlspring.strongbox.testing.artifact.NugetTestArtifact;
 import org.carlspring.strongbox.testing.repository.NugetRepository;
 import org.carlspring.strongbox.testing.storage.repository.RepositoryManagementTestExecutionListener;
+
+import javax.inject.Inject;
+import java.io.OutputStream;
+import java.io.PrintStream;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+
+import io.restassured.http.ContentType;
+import io.restassured.http.Header;
+import io.restassured.http.Headers;
+import io.restassured.module.mockmvc.config.RestAssuredMockMvcConfig;
+import io.restassured.module.mockmvc.response.MockMvcResponse;
+import io.restassured.module.mockmvc.specification.MockMvcRequestSpecification;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
-
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
-
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.carlspring.strongbox.utils.ArtifactControllerHelper.MULTIPART_BOUNDARY;
 import static org.hamcrest.CoreMatchers.equalTo;
+import static org.hamcrest.MatcherAssert.assertThat;
 
 /**
  * @author Sergey Bespalov
@@ -56,7 +57,11 @@ public class NugetArtifactControllerTest extends NugetRestAssuredBaseTest
 
     private final static String STORAGE_ID = "storage-nuget-test";
 
-    private static final String REPOSITORY_RELEASES_1 = "nuget-test-releases";
+    private static final String REPOSITORY_RELEASES_1 = "nuget-test-releases-nact-1";
+
+    private static final String REPOSITORY_RELEASES_2 = "nuget-test-releases-nact-2";
+
+    private static final String REPOSITORY_RELEASES_3 = "nuget-test-releases-nact-3";
 
     @Inject
     private ArtifactEntryService artifactEntryService;
@@ -495,6 +500,78 @@ public class NugetArtifactControllerTest extends NugetRestAssuredBaseTest
                        .filter(e -> Boolean.TRUE.equals(e.getProperties().getIsLatestVersion()))
                        .isPresent())
                 .isTrue();
+    }
+
+    @ExtendWith({ RepositoryManagementTestExecutionListener.class,
+                  ArtifactManagementTestExecutionListener.class })
+    @Test
+    public void shouldHandlePartialDownloadWithSingleRange(@NugetRepository(repositoryId = REPOSITORY_RELEASES_2)
+                                                           Repository repository,
+                                                           @NugetTestArtifact(repositoryId = REPOSITORY_RELEASES_2,
+                                                                              id = "Org.Carlspring.Strongbox.Nuget.Test.PartialDownloadSingle",
+                                                                              versions = "1.0.0")
+                                                           Path artifactPath)
+    {
+        final String byteRanges = "100-199";
+        final String packageId = "Org.Carlspring.Strongbox.Nuget.Test.PartialDownloadSingle";
+        final String packageVersion = "1.0.0";
+
+        MockMvcResponse response = getMockMvcResponseForPartialDownload(byteRanges,
+                                                                        repository,
+                                                                        packageId,
+                                                                        packageVersion);
+
+        // Then
+        assertThat(response.getStatusCode(), equalTo(HttpStatus.PARTIAL_CONTENT.value()));
+        assertThat(response.getHeader(HttpHeaders.PRAGMA), equalTo("no-cache"));
+        assertThat(response.getHeader(HttpHeaders.ACCEPT_RANGES), equalTo("bytes"));
+        assertThat(response.getContentType(), equalTo(MediaType.APPLICATION_OCTET_STREAM_VALUE));
+    }
+
+    @ExtendWith({ RepositoryManagementTestExecutionListener.class,
+                  ArtifactManagementTestExecutionListener.class })
+    @Test
+    public void shouldHandlePartialDownloadWithMultipleRanges(@NugetRepository(repositoryId = REPOSITORY_RELEASES_3)
+                                                              Repository repository,
+                                                              @NugetTestArtifact(repositoryId = REPOSITORY_RELEASES_3,
+                                                                                 id = "Org.Carlspring.Strongbox.Nuget.Test.PartialDownloadMultiple",
+                                                                                 versions = "1.0.0")
+                                                              Path artifactPath)
+    {
+        final String byteRanges = "0-29,200-249,300-309";
+        final String packageId = "Org.Carlspring.Strongbox.Nuget.Test.PartialDownloadMultiple";
+        final String packageVersion = "1.0.0";
+
+        MockMvcResponse response = getMockMvcResponseForPartialDownload(byteRanges,
+                                                                        repository,
+                                                                        packageId,
+                                                                        packageVersion);
+
+        // Then
+        assertThat(response.getStatusCode(), equalTo(HttpStatus.PARTIAL_CONTENT.value()));
+        assertThat(response.getHeader(HttpHeaders.PRAGMA), equalTo("no-cache"));
+        assertThat(response.getHeader(HttpHeaders.ACCEPT_RANGES), equalTo("bytes"));
+        assertThat(response.getContentType(), equalTo("multipart/byteranges; boundary=" + MULTIPART_BOUNDARY));
+    }
+
+    private MockMvcResponse getMockMvcResponseForPartialDownload(String byteRanges,
+                                                                 Repository repository,
+                                                                 String packageId,
+                                                                 String packageVersion)
+    {
+        // Given
+        final String storageId = repository.getStorage().getId();
+        final String repositoryId = repository.getId();
+
+        String url = getContextBaseUrl() + "/storages/{storageId}/{repositoryId}/download/{packageId}/{packageVersion}";
+
+        // When
+        return mockMvc.header(HttpHeaders.RANGE, "bytes=" + byteRanges)
+                      .contentType(MediaType.TEXT_PLAIN_VALUE)
+                      .when()
+                      .get(url, storageId, repositoryId, packageId, packageVersion)
+                      .peek()
+                      .thenReturn();
     }
 
 }
