@@ -43,7 +43,7 @@ import static org.carlspring.strongbox.services.support.ArtifactEntrySearchCrite
 @ActiveProfiles(profiles = "test")
 @ContextConfiguration(classes = StorageApiTestConfig.class)
 @TestExecutionListeners(listeners = { CacheManagerTestExecutionListener.class },
-                        mergeMode = TestExecutionListeners.MergeMode.MERGE_WITH_DEFAULTS)
+        mergeMode = TestExecutionListeners.MergeMode.MERGE_WITH_DEFAULTS)
 public class ArtifactEntryServiceTest
 {
 
@@ -145,8 +145,12 @@ public class ArtifactEntryServiceTest
         List<AbstractArtifactCoordinates> artifactCoordinates = artifactEntries.stream()
                                                                                .map(e -> (AbstractArtifactCoordinates) e.getArtifactCoordinates())
                                                                                .collect(Collectors.toList());
+        logger.info(" Deleting artifactEntries {}", artifactEntries);
         artifactEntryService.delete(artifactEntries);
+        logger.info(" Deleted artifactEntries {}", artifactEntries);
+        logger.info(" Deleting artifactCoordinates {}", artifactCoordinates);
         artifactCoordinatesService.delete(artifactCoordinates);
+        logger.info(" Deleted artifactCoordinates {}", artifactCoordinates);
 
         displayAllEntries(testInfo, "cleanup after");
     }
@@ -258,7 +262,10 @@ public class ArtifactEntryServiceTest
 
     private ArtifactEntry save(ArtifactEntry artifactEntry)
     {
-        return artifactEntryService.save(artifactEntry);
+        logger.info(" Saving {}", artifactEntry);
+        artifactEntry = artifactEntryService.save(artifactEntry);
+        logger.info(" Saved {}", artifactEntry);
+        return artifactEntry;
     }
 
     @Test
