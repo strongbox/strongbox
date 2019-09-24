@@ -43,9 +43,15 @@ class ArtifactControllerHelperTest
 
     private static final String REPOSITORY_RELEASES_1 = "acht-releases-1";
 
-    private static final String REPOSITORY_RELEASES_2 = "acht-releases-222";
+    private static final String REPOSITORY_RELEASES_2 = "acht-releases-2";
 
     private static final String REPOSITORY_RELEASES_3 = "acht-releases-3";
+
+    private static final String REPOSITORY_RELEASES_4 = "acht-releases-4";
+
+    private static final String REPOSITORY_RELEASES_5 = "acht-releases-5";
+
+    private static final String REPOSITORY_RELEASES_6 = "acht-releases-6";
 
     @Inject
     private ArtifactResolutionService artifactResolutionService;
@@ -95,9 +101,9 @@ class ArtifactControllerHelperTest
                   ArtifactManagementTestExecutionListener.class })
     @Test
     void shouldNotHandlePartialDownloadWithSingleRangeWhenRequestedRangeNotSatisfiable(
-            @MavenRepository(repositoryId = REPOSITORY_RELEASES_1)
+            @MavenRepository(repositoryId = REPOSITORY_RELEASES_2)
             Repository repository,
-            @MavenTestArtifact(repositoryId = REPOSITORY_RELEASES_1,
+            @MavenTestArtifact(repositoryId = REPOSITORY_RELEASES_2,
                                id = "org.carlspring.strongbox:partial-single-not-satisfiable",
                                versions = "1.0")
             Path artifactPath)
@@ -122,9 +128,9 @@ class ArtifactControllerHelperTest
     @ExtendWith({ RepositoryManagementTestExecutionListener.class,
                   ArtifactManagementTestExecutionListener.class })
     @Test
-    void handlePartialDownloadWithMultipleRanges(@MavenRepository(repositoryId = REPOSITORY_RELEASES_2)
+    void handlePartialDownloadWithMultipleRanges(@MavenRepository(repositoryId = REPOSITORY_RELEASES_3)
                                                  Repository repository,
-                                                 @MavenTestArtifact(repositoryId = REPOSITORY_RELEASES_2,
+                                                 @MavenTestArtifact(repositoryId = REPOSITORY_RELEASES_3,
                                                                     id = "org.carlspring.strongbox:partial-multiple",
                                                                     versions = "1.0")
                                                  Path artifactPath)
@@ -150,9 +156,9 @@ class ArtifactControllerHelperTest
                   ArtifactManagementTestExecutionListener.class })
     @Test
     void shouldNotHandlePartialDownloadWithMultipleRangesWhenRequestedRangeNotSatisfiable(
-            @MavenRepository(repositoryId = REPOSITORY_RELEASES_2)
+            @MavenRepository(repositoryId = REPOSITORY_RELEASES_4)
             Repository repository,
-            @MavenTestArtifact(repositoryId = REPOSITORY_RELEASES_2,
+            @MavenTestArtifact(repositoryId = REPOSITORY_RELEASES_4,
                                id = "org.carlspring.strongbox:partial-multiple-not-satisfiable",
                                versions = "1.0")
             Path artifactPath)
@@ -194,7 +200,7 @@ class ArtifactControllerHelperTest
     @ValueSource(strings = { "test/test.jar",
                              "" })
     void provideArtifactHeadersNotFound(String pathStr,
-                                        @MavenRepository(repositoryId = REPOSITORY_RELEASES_3)
+                                        @MavenRepository(repositoryId = REPOSITORY_RELEASES_5)
                                         Repository repository)
             throws IOException
     {
@@ -212,9 +218,9 @@ class ArtifactControllerHelperTest
     @ExtendWith({ RepositoryManagementTestExecutionListener.class,
                   ArtifactManagementTestExecutionListener.class })
     @Test
-    void provideArtifactHeaders(@MavenRepository(repositoryId = REPOSITORY_RELEASES_3)
+    void provideArtifactHeaders(@MavenRepository(repositoryId = REPOSITORY_RELEASES_6)
                                 Repository repository,
-                                @MavenTestArtifact(repositoryId = REPOSITORY_RELEASES_3,
+                                @MavenTestArtifact(repositoryId = REPOSITORY_RELEASES_6,
                                                    id = "org.carlspring.strongbox:provide-artifact-headers",
                                                    versions = "1.0")
                                 Path artifactPath)
