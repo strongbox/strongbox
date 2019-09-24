@@ -71,7 +71,7 @@ public class MavenRepositoryFeatures
 
     public void removeTimestampedSnapshots(String storageId,
                                            String repositoryId,
-                                           String artificatPath,
+                                           String artifactPath,
                                            int numberToKeep,
                                            int keepPeriod)
             throws IOException
@@ -83,7 +83,7 @@ public class MavenRepositoryFeatures
             calendar.add(Calendar.DAY_OF_MONTH, -keepPeriod);
             Date keepDate = formatter.parse(formatter.format(calendar.getTime()));
 
-            removeTimestampedSnapshots(storageId, repositoryId, artificatPath, numberToKeep, keepDate);
+            removeTimestampedSnapshots(storageId, repositoryId, artifactPath, numberToKeep, keepDate);
         }
         catch (ParseException e)
         {
