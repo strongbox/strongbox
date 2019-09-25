@@ -14,7 +14,6 @@ import java.io.BufferedInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
-import java.nio.charset.Charset;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.time.ZoneId;
@@ -47,6 +46,8 @@ public class ArtifactControllerHelper
     private static final String FULL_FILE_RANGE_REGEX = "^bytes=(0\\/\\*|0-|0)$";
 
     private static final int DEFAULT_BUFFER_SIZE = 4096;
+
+    private static final String CRLF = "\r\n";
 
     private ArtifactControllerHelper()
     {
@@ -85,13 +86,7 @@ public class ArtifactControllerHelper
 
         if (byteRange.getOffset() < inputLength)
         {
-            long partialLength = calculatePartialRangeLength(byteRange, inputLength);
-
-            logger.debug("Calculated partial range length: {}", partialLength);
-
             StreamUtils.setCurrentByteRange(bris, byteRange);
-
-            response.setHeader(HttpHeaders.CONTENT_LENGTH, String.valueOf(partialLength));
 
             prepareResponseBuilderForPartialRequestWithSingleRange(byteRange, inputLength, response);
 
@@ -130,35 +125,11 @@ public class ArtifactControllerHelper
 
     private static void setRangeNotSatisfiable(HttpServletResponse response,
                                                long length)
+            throws IOException
     {
         response.setHeader(HttpHeaders.CONTENT_RANGE, "bytes */" + length);
         response.setStatus(REQUESTED_RANGE_NOT_SATISFIABLE.value());
-    }
-
-    private static long calculatePartialRangeLength(ByteRange byteRange,
-                                                    long inputSize)
-    {
-        long start = byteRange.getOffset();
-        long end = byteRange.getLimit();
-        long rangeLength = end - start + 1;
-
-        if (end > 0L && start > 0L)
-        {
-            logger.debug("Partial content byteRange.getOffset: {}", start);
-            logger.debug("Partial content byteRange.getLimit: {}", end);
-            logger.debug("Partial content length: {}", rangeLength);
-
-            return rangeLength;
-        }
-        else if (inputSize > 0L && start > 0L && end == 0L)
-        {
-            logger.debug("Partial content length: {}", inputSize - start);
-            return inputSize - start;
-        }
-        else
-        {
-            return -1L;
-        }
+        response.flushBuffer();
     }
 
     private static void prepareResponseBuilderForPartialRequestWithSingleRange(ByteRange byteRange,
@@ -172,16 +143,12 @@ public class ArtifactControllerHelper
 
         response.setHeader(HttpHeaders.CONTENT_RANGE, contentRangeHeaderValue);
 
-        response.setHeader(HttpHeaders.PRAGMA, "no-cache");
-
         response.setStatus(PARTIAL_CONTENT.value());
     }
 
     private static void prepareResponseBuilderForPartialRequestWithMultipleRanges(HttpServletResponse response)
     {
         response.setContentType("multipart/byteranges; boundary=" + MULTIPART_BOUNDARY);
-
-        response.setHeader(HttpHeaders.PRAGMA, "no-cache");
 
         response.setStatus(PARTIAL_CONTENT.value());
     }
@@ -347,7 +314,7 @@ public class ArtifactControllerHelper
 
     private static byte[] toByteArray(String string)
     {
-        return (string.concat(System.lineSeparator())).getBytes(Charset.defaultCharset());
+        return (string.concat(CRLF)).getBytes(StandardCharsets.UTF_8);
     }
 
 }

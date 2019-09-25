@@ -94,7 +94,6 @@ class ArtifactControllerHelperTest
 
         // Then
         assertThat(response.getStatus(), equalTo(HttpStatus.PARTIAL_CONTENT.value()));
-        assertThat(response.getHeader(HttpHeaders.PRAGMA), equalTo("no-cache"));
     }
 
     @ExtendWith({ RepositoryManagementTestExecutionListener.class,
@@ -148,7 +147,6 @@ class ArtifactControllerHelperTest
 
         // Then
         assertThat(response.getStatus(), equalTo(HttpStatus.PARTIAL_CONTENT.value()));
-        assertThat(response.getHeader(HttpHeaders.PRAGMA), equalTo("no-cache"));
         assertThat(response.getContentType(), equalTo("multipart/byteranges; boundary=" + MULTIPART_BOUNDARY));
     }
 

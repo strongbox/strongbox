@@ -1099,7 +1099,6 @@ public class MavenArtifactControllerTest
 
         // Then
         assertThat(response.getStatusCode(), equalTo(HttpStatus.PARTIAL_CONTENT.value()));
-        assertThat(response.getHeader(HttpHeaders.PRAGMA), equalTo("no-cache"));
         assertThat(response.getHeader(HttpHeaders.ACCEPT_RANGES), equalTo("bytes"));
         assertThat(response.getContentType(), equalTo(MediaType.APPLICATION_OCTET_STREAM_VALUE));
     }
@@ -1122,7 +1121,6 @@ public class MavenArtifactControllerTest
 
         // Then
         assertThat(response.getStatusCode(), equalTo(HttpStatus.PARTIAL_CONTENT.value()));
-        assertThat(response.getHeader(HttpHeaders.PRAGMA), equalTo("no-cache"));
         assertThat(response.getHeader(HttpHeaders.ACCEPT_RANGES), equalTo("bytes"));
         assertThat(response.getContentType(), equalTo("multipart/byteranges; boundary=" + MULTIPART_BOUNDARY));
     }
