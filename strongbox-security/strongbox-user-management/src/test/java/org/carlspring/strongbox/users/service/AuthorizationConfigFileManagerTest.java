@@ -3,54 +3,32 @@ package org.carlspring.strongbox.users.service;
 import org.carlspring.strongbox.authorization.AuthorizationConfigFileManager;
 import org.carlspring.strongbox.authorization.dto.AuthorizationConfigDto;
 import org.carlspring.strongbox.authorization.dto.RoleDto;
-import org.carlspring.strongbox.config.DataServiceConfig;
-import org.carlspring.strongbox.config.UsersConfig;
 import org.carlspring.strongbox.users.domain.SystemRole;
-import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.test.context.ActiveProfiles;
-import org.springframework.test.context.ContextConfiguration;
 
-import javax.inject.Inject;
 import java.io.IOException;
 import java.util.HashSet;
-import java.util.Map;
 import java.util.Set;
-import java.util.stream.Collectors;
 
-import static org.junit.jupiter.api.Assertions.*;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 /**
  * test for {@link AuthorizationConfigFileManager}
  *
  * @author Bogdan Sukonnov
  */
-@SpringBootTest
-@ActiveProfiles(profiles = "test")
-@ContextConfiguration(classes = { DataServiceConfig.class,
-        UsersConfig.class })
 public class AuthorizationConfigFileManagerTest
 {
-
-    @Inject
-    private AuthorizationConfigFileManager authorizationConfigFileManager;
-
-    private AuthorizationConfigDto config;
-
-    @BeforeEach
-    void setup()
-            throws IOException
-    {
-        assertNotNull(authorizationConfigFileManager);
-        config = authorizationConfigFileManager.read();
-    }
+    private AuthorizationConfigFileManager authorizationConfigFileManager =
+            new AuthorizationConfigFileManager(contextClasses -> null);
 
     @Test
     public void testCurrentConfiguration()
             throws IOException
     {
-        Map<SystemRole, String> changed = authorizationConfigFileManager.getChangedRestrictedRoles(config);
+        AuthorizationConfigDto config = getConfig("ADMIN", "Super User role with all possible privileges");
+        Set<SystemRole> changed = authorizationConfigFileManager.getChangedRestrictedRoles(config);
         assertEquals(0, changed.size());
     }
 
@@ -58,26 +36,35 @@ public class AuthorizationConfigFileManagerTest
     public void testDeleted()
             throws IOException
     {
-        config.setRoles(config.getRoles().stream()
-                .filter(r -> !r.getName().equals("ADMIN"))
-                .collect(Collectors.toSet()));
-
-        Map<SystemRole, String> changed = authorizationConfigFileManager.getChangedRestrictedRoles(config);
-        assertTrue(changed.containsKey(SystemRole.ADMIN));
+        AuthorizationConfigDto config = getConfig("NotRestrictedRole", "not restricted");
+        Set<SystemRole> changed = authorizationConfigFileManager.getChangedRestrictedRoles(config);
+        assertTrue(changed.contains(SystemRole.ADMIN));
     }
 
     @Test
     public void testChanged()
             throws IOException
     {
+        AuthorizationConfigDto config = getConfig("ADMIN", "changed description");
+        Set<SystemRole> changed = authorizationConfigFileManager.getChangedRestrictedRoles(config);
+        assertTrue(changed.contains(SystemRole.ADMIN));
+    }
+
+    private AuthorizationConfigDto getConfig(String roleName, String roleDescription)
+    {
+        // set up role
         RoleDto role = new RoleDto();
-        role.setName("ADMIN");
-        role.setDescription("changed description");
+        role.setName(roleName);
+        role.setDescription(roleDescription);
+        // add role to Set
         Set<RoleDto> roles = new HashSet<>();
         roles.add(role);
+        // set up config
+        AuthorizationConfigDto config = new AuthorizationConfigDto();
         config.setRoles(roles);
-        Map<SystemRole, String> changed = authorizationConfigFileManager.getChangedRestrictedRoles(config);
-        assertTrue(changed.containsKey(SystemRole.ADMIN));
+
+        return config;
     }
+
 
 }
