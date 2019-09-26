@@ -58,8 +58,6 @@ public class MavenRepositoryFeatures
 
     private Set<String> defaultArtifactCoordinateValidators;
 
-    private static final String TIMESTAMP_FORMAT = "yyyyMMdd.HHmmss";
-
 
     @PostConstruct
     public void init()
@@ -78,7 +76,7 @@ public class MavenRepositoryFeatures
     {
         try
         {
-            DateFormat formatter = new SimpleDateFormat(TIMESTAMP_FORMAT);
+            DateFormat formatter = new SimpleDateFormat(MavenSnapshotManager.TIMESTAMP_FORMAT);
             Calendar calendar = Calendar.getInstance();
             calendar.add(Calendar.DAY_OF_MONTH, -keepPeriod);
             Date keepDate = formatter.parse(formatter.format(calendar.getTime()));
@@ -87,7 +85,7 @@ public class MavenRepositoryFeatures
         }
         catch (ParseException e)
         {
-            logger.error(e.getMessage(), e);
+            throw new IOException(e);
         }
     }
 

@@ -31,8 +31,6 @@ public class RemoveTimestampedSnapshotOperation
 
     private int numberToKeep;
 
-    private int keepPeriod;
-
     private Date keepDate;
 
     private MavenSnapshotManager mavenSnapshotManager;

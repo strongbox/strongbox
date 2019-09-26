@@ -31,7 +31,7 @@ import org.springframework.stereotype.Component;
 public class MavenSnapshotManager
 {
 
-    private static final String TIMESTAMP_FORMAT = "yyyyMMdd.HHmmss";
+    public static final String TIMESTAMP_FORMAT = "yyyyMMdd.HHmmss";
 
     private static final Logger logger = LoggerFactory.getLogger(MavenSnapshotManager.class);
 
@@ -212,10 +212,9 @@ public class MavenSnapshotManager
                                   try
                                   {
                                       DateFormat formatter = new SimpleDateFormat(TIMESTAMP_FORMAT);
-                                      Calendar calendar = Calendar.getInstance();
-                                      String currentDate = formatter.format(calendar.getTime());
+                                      Date snapshotVersionDate = formatter.parse(v.getTimestamp());
 
-                                      if (keepDate.compareTo(formatter.parse(currentDate)) < 0)
+                                      if (keepDate.after(snapshotVersionDate))
                                       {
                                           mapToRemove.put(k, v.getVersion());
                                       }
@@ -228,27 +227,5 @@ public class MavenSnapshotManager
         }
 
         return mapToRemove;
-    }
-
-    /**
-     * To get day's number of keeping timestamp snapshot
-     * @param buildTimestamp type String
-     * @return days type int
-     * @throws ParseException
-     */
-    private int getDifferenceDays(String buildTimestamp)
-            throws ParseException
-    {
-        DateFormat formatter = new SimpleDateFormat(TIMESTAMP_FORMAT);
-        Calendar calendar = Calendar.getInstance();
-
-        String currentDate = formatter.format(calendar.getTime());
-
-        Date d2 = formatter.parse(currentDate);
-        Date d1 = formatter.parse(buildTimestamp);
-
-        long diff = d2.getTime() - d1.getTime();
-
-        return (int) diff / (24 * 60 * 60 * 1000);
     }
 }

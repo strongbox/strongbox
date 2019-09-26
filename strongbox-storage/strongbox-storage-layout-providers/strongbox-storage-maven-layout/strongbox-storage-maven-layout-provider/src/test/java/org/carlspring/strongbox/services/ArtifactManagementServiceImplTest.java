@@ -11,6 +11,7 @@ import org.carlspring.strongbox.providers.io.RepositoryPathResolver;
 import org.carlspring.strongbox.providers.io.RepositoryStreamSupport.RepositoryInputStream;
 import org.carlspring.strongbox.repository.MavenRepositoryFeatures;
 import org.carlspring.strongbox.storage.ArtifactStorageException;
+import org.carlspring.strongbox.storage.metadata.MavenSnapshotManager;
 import org.carlspring.strongbox.storage.repository.Repository;
 import org.carlspring.strongbox.storage.repository.RepositoryPolicyEnum;
 import org.carlspring.strongbox.testing.artifact.ArtifactManagementTestExecutionListener;
@@ -29,6 +30,8 @@ import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.text.SimpleDateFormat;
+import java.time.LocalDate;
+import java.time.ZoneId;
 import java.util.*;
 import java.util.concurrent.Callable;
 import java.util.concurrent.CountDownLatch;
@@ -91,8 +94,6 @@ public class ArtifactManagementServiceImplTest
     private static final String TCRW_RELEASES_WITH_LOCK = "tcrw-releases-with-lock";
 
     private static final String LAST_VERSION_RELEASES = "last-version-releases";
-
-    private static final String TIMESTAMP_FORMAT = "yyyyMMdd.HHmmss";
 
     @Inject
     private ArtifactManagementService mavenArtifactManagementService;
@@ -447,8 +448,8 @@ public class ArtifactManagementServiceImplTest
             assertEquals(2, timestampedSnapshots, "Amount of timestamped snapshots doesn't equal 2.");
         }
 
-        SimpleDateFormat formatter = new SimpleDateFormat(TIMESTAMP_FORMAT);
-        Date keepDate = formatter.parse("20190625.190145");
+        SimpleDateFormat formatter = new SimpleDateFormat(MavenSnapshotManager.TIMESTAMP_FORMAT);
+        Date keepDate = Date.from(LocalDate.now().minusDays(5).atStartOfDay(ZoneId.systemDefault()).toInstant());
 
         // To check removing timestamped snapshot with keepDate and numberToKeep = 0
         mavenRepositoryFeatures.removeTimestampedSnapshots(storageId,
