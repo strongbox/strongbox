@@ -8,7 +8,7 @@ import java.util.stream.Stream;
  * Defines the restricted system roles. The purpose is to restrict changing or
  * deleting some of the configured roles.
  * Restrictions works only for the roles with set hash.
- * 
+ *
  * @author sbespalov
  */
 public enum SystemRole

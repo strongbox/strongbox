@@ -55,7 +55,8 @@ public class AuthorizationConfigFileManager
     }
 
     @Override
-    public synchronized void store(AuthorizationConfigDto configuration) throws IOException
+    public synchronized void store(AuthorizationConfigDto configuration)
+            throws IOException
     {
         Set<SystemRole> changed = getChangedRestrictedRoles(configuration);
         if (changed.size() > 0)
@@ -70,7 +71,8 @@ public class AuthorizationConfigFileManager
     }
 
     @VisibleForTesting
-    public Set<SystemRole> getChangedRestrictedRoles(AuthorizationConfigDto configuration) throws IOException
+    public Set<SystemRole> getChangedRestrictedRoles(AuthorizationConfigDto configuration)
+            throws IOException
     {
         Set<SystemRole> changed = new HashSet<>();
         Map<String, SystemRole> restricted = SystemRole.getRestricted();

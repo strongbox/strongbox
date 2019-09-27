@@ -20,7 +20,7 @@ public class MessageDigestUtils
 
     private static final Logger logger = LoggerFactory.getLogger(MessageDigestUtils.class);
 
-    private MessageDigestUtils() 
+    private MessageDigestUtils()
     {
     }
 
