@@ -43,7 +43,9 @@ public class RepositoryHostedIndexCreatorTest
         extends BaseRepositoryIndexCreatorTest
 {
 
-    private static final String REPOSITORY_RELEASES = "ri-releases-rhicst";
+    private static final String REPOSITORY_RELEASES_0 = "ri-releases-rhicst0";
+    private static final String REPOSITORY_RELEASES_1 = "ri-releases-rhicst1";
+    private static final String REPOSITORY_RELEASES_2 = "ri-releases-rhicst2";
     private static final String GROUP_ID = "org.carlspring.strongbox";
     private static final String ARTIFACT_ID = "strongbox-commons";
 
@@ -54,10 +56,10 @@ public class RepositoryHostedIndexCreatorTest
     @ExtendWith({ RepositoryManagementTestExecutionListener.class,
                   ArtifactManagementTestExecutionListener.class })
     @Test
-    public void packedIndexShouldBeGenerated(@MavenRepository(repositoryId = REPOSITORY_RELEASES,
+    public void packedIndexShouldBeGenerated(@MavenRepository(repositoryId = REPOSITORY_RELEASES_0,
                                                               setup = MavenIndexedRepositorySetup.class)
                                              Repository repository,
-                                             @MavenTestArtifact(repositoryId = REPOSITORY_RELEASES,
+                                             @MavenTestArtifact(repositoryId = REPOSITORY_RELEASES_0,
                                                                 id = GROUP_ID + ":" + ARTIFACT_ID,
                                                                 versions = { "1.0",
                                                                              "1.1",
@@ -87,10 +89,10 @@ public class RepositoryHostedIndexCreatorTest
     @ExtendWith({ RepositoryManagementTestExecutionListener.class,
                   ArtifactManagementTestExecutionListener.class })
     @Test
-    public void packedIndexShouldBeOverridable(@MavenRepository(repositoryId = REPOSITORY_RELEASES,
+    public void packedIndexShouldBeOverridable(@MavenRepository(repositoryId = REPOSITORY_RELEASES_1,
                                                                 setup = MavenIndexedRepositorySetup.class)
                                                Repository repository,
-                                               @MavenTestArtifact(repositoryId = REPOSITORY_RELEASES,
+                                               @MavenTestArtifact(repositoryId = REPOSITORY_RELEASES_1,
                                                                   id = GROUP_ID + ":" + ARTIFACT_ID,
                                                                   versions = { "1.0",
                                                                                "1.1",
@@ -110,10 +112,10 @@ public class RepositoryHostedIndexCreatorTest
     @ExtendWith({ RepositoryManagementTestExecutionListener.class,
                   ArtifactManagementTestExecutionListener.class })
     @Test
-    public void packedRepositoryIndexGeneratorShouldBeThreadSafe(@MavenRepository(repositoryId = REPOSITORY_RELEASES,
+    public void packedRepositoryIndexGeneratorShouldBeThreadSafe(@MavenRepository(repositoryId = REPOSITORY_RELEASES_2,
                                                                                   setup = MavenIndexedRepositorySetup.class)
                                                                  Repository repository,
-                                                                 @MavenTestArtifact(repositoryId = REPOSITORY_RELEASES,
+                                                                 @MavenTestArtifact(repositoryId = REPOSITORY_RELEASES_2,
                                                                                     id = GROUP_ID + ":" + ARTIFACT_ID,
                                                                                     versions = { "1.0",
                                                                                                  "1.1",

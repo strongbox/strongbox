@@ -37,7 +37,9 @@ import static org.junit.jupiter.api.parallel.ExecutionMode.CONCURRENT;
 public class MavenSnapshotVersionValidatorTest
 {
 
-    private static final String REPOSITORY_ID = "test-repository-for-maven-snapshot-validation";
+    private static final String REPOSITORY_ID_1 = "test-repository-for-maven-snapshot-validation-1";
+    private static final String REPOSITORY_ID_2 = "test-repository-for-maven-snapshot-validation-2";
+    private static final String REPOSITORY_ID_3 = "test-repository-for-maven-snapshot-validation-3";
     private static final String GROUP_ID = "org.carlspring.maven";
     private static final String ARTIFACT_ID = "my-maven-plugin";
 
@@ -45,7 +47,7 @@ public class MavenSnapshotVersionValidatorTest
 
     @ExtendWith(RepositoryManagementTestExecutionListener.class)
     @Test
-    public void shouldSupportRepository(@MavenRepository(repositoryId = REPOSITORY_ID, policy = SNAPSHOT)
+    public void shouldSupportRepository(@MavenRepository(repositoryId = REPOSITORY_ID_1, policy = SNAPSHOT)
                                         Repository repository)
     {
         assertTrue(validator.supports(repository));
@@ -54,9 +56,9 @@ public class MavenSnapshotVersionValidatorTest
     @ExtendWith({ RepositoryManagementTestExecutionListener.class,
                   ArtifactManagementTestExecutionListener.class })
     @Test
-    public void testSnapshotValidation(@MavenRepository(repositoryId = REPOSITORY_ID, policy = SNAPSHOT)
+    public void testSnapshotValidation(@MavenRepository(repositoryId = REPOSITORY_ID_2, policy = SNAPSHOT)
                                        Repository repository,
-                                       @MavenTestArtifact(repositoryId = REPOSITORY_ID,
+                                       @MavenTestArtifact(repositoryId = REPOSITORY_ID_2,
                                                           id = GROUP_ID + ":" + ARTIFACT_ID,
                                                           versions = { "1.0-SNAPSHOT",
                                                                        "1.0-20131004.115330-1",
@@ -78,9 +80,9 @@ public class MavenSnapshotVersionValidatorTest
     @ExtendWith({ RepositoryManagementTestExecutionListener.class,
                   ArtifactManagementTestExecutionListener.class })
     @Test
-    public void testInvalidArtifacts(@MavenRepository(repositoryId = REPOSITORY_ID, policy = SNAPSHOT)
+    public void testInvalidArtifacts(@MavenRepository(repositoryId = REPOSITORY_ID_3, policy = SNAPSHOT)
                                      Repository repository,
-                                     @MavenTestArtifact(repositoryId = REPOSITORY_ID,
+                                     @MavenTestArtifact(repositoryId = REPOSITORY_ID_3,
                                                         id = GROUP_ID + ":" + ARTIFACT_ID,
                                                         versions = { "1",
                                                                      "1.0",

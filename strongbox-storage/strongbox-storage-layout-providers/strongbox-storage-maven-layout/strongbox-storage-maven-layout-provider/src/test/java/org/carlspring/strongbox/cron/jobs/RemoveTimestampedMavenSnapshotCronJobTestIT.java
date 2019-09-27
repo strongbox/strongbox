@@ -52,7 +52,8 @@ public class RemoveTimestampedMavenSnapshotCronJobTestIT
         extends BaseCronJobWithMavenIndexingTestCase
 {
 
-    private static final String REPOSITORY_SNAPSHOTS = "rtmscj-snapshots";
+    private static final String REPOSITORY_SNAPSHOTS_1 = "rtmscj-snapshots-1";
+    private static final String REPOSITORY_SNAPSHOTS_2 = "rtmscj-snapshots-2";
 
     private static final String ARTIFACT_BASE_PATH_STRONGBOX_TIMESTAMPED_FIRST = "org/carlspring/strongbox/strongbox-timestamped-first";
     private static final String ARTIFACT_BASE_PATH_STRONGBOX_TIMESTAMPED_SECOND = "org/carlspring/strongbox/strongbox-timestamped-second";
@@ -80,8 +81,8 @@ public class RemoveTimestampedMavenSnapshotCronJobTestIT
     @ExtendWith({ RepositoryManagementTestExecutionListener.class,
                   ArtifactManagementTestExecutionListener.class })
     public void testRemoveTimestampedSnapshot(
-            @MavenRepository(repositoryId = REPOSITORY_SNAPSHOTS, policy = SNAPSHOT) Repository repository,
-            @MavenTestArtifact(repositoryId = REPOSITORY_SNAPSHOTS, id = GROUP_ID + ":" +
+            @MavenRepository(repositoryId = REPOSITORY_SNAPSHOTS_1, policy = SNAPSHOT) Repository repository,
+            @MavenTestArtifact(repositoryId = REPOSITORY_SNAPSHOTS_1, id = GROUP_ID + ":" +
                                                                          ARTIFACT_ID1, versions = { "2.0-20190701.202015-1",
                                                                                                     "2.0-20190701.202101-2",
                                                                                                     "2.0-20190701.202203-3" })
@@ -141,8 +142,8 @@ public class RemoveTimestampedMavenSnapshotCronJobTestIT
     @ExtendWith({ RepositoryManagementTestExecutionListener.class,
                   ArtifactManagementTestExecutionListener.class })
     public void testRemoveTimestampedSnapshotInRepository(
-            @MavenRepository(repositoryId = REPOSITORY_SNAPSHOTS, policy = SNAPSHOT) Repository repository,
-            @MavenTestArtifact(repositoryId = REPOSITORY_SNAPSHOTS, id = GROUP_ID + ":" +
+            @MavenRepository(repositoryId = REPOSITORY_SNAPSHOTS_2, policy = SNAPSHOT) Repository repository,
+            @MavenTestArtifact(repositoryId = REPOSITORY_SNAPSHOTS_2, id = GROUP_ID + ":" +
                                                                          ARTIFACT_ID2, versions = { "2.0-20190701.202015-1",
                                                                                                     "2.0-20190701.202101-2" })
                     List<Path> artifact)

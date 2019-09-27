@@ -40,7 +40,8 @@ public class BrowseControllerTest
         extends MavenRestAssuredBaseTest
 {
 
-    private static final String REPOSITORY = "browsing-test-repository";
+    private static final String REPOSITORY_1 = "browsing-test-repository-1";
+    private static final String REPOSITORY_2 = "browsing-test-repository-2";
 
     @Override
     @BeforeEach
@@ -89,7 +90,7 @@ public class BrowseControllerTest
 
     @ExtendWith(RepositoryManagementTestExecutionListener.class)
     @Test
-    public void testGetRepositories(@MavenRepository(repositoryId = REPOSITORY)
+    public void testGetRepositories(@MavenRepository(repositoryId = REPOSITORY_1)
                                     Repository repository)
     {
         final String storageId = repository.getStorage().getId();
@@ -153,9 +154,9 @@ public class BrowseControllerTest
     @ExtendWith({ RepositoryManagementTestExecutionListener.class,
                   ArtifactManagementTestExecutionListener.class })
     @Test
-    public void testRepositoryContents(@MavenRepository(repositoryId = REPOSITORY)
+    public void testRepositoryContents(@MavenRepository(repositoryId = REPOSITORY_2)
                                        Repository repository,
-                                       @MavenTestArtifact(repositoryId = REPOSITORY,
+                                       @MavenTestArtifact(repositoryId = REPOSITORY_2,
                                                           id = "org.carlspring.strongbox.browsing:test-browsing",
                                                           versions = { "1.1",
                                                                        "3.2" })
