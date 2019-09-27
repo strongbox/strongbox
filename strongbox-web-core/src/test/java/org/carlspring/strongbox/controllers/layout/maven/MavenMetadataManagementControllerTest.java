@@ -30,7 +30,7 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.springframework.core.annotation.AliasFor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
-import static io.restassured.module.mockmvc.RestAssuredMockMvc.given;
+
 import static org.assertj.core.api.Assertions.assertThat;
 
 /**
@@ -90,7 +90,7 @@ public class MavenMetadataManagementControllerTest
         client.rebuildMetadata(storageId, repositoryId, null);
 
         String url = getContextBaseUrl() + metadataPath;
-        given().contentType(MediaType.TEXT_PLAIN_VALUE)
+        mockMvc.contentType(MediaType.TEXT_PLAIN_VALUE)
                .when()
                .get(url)
                .peek()

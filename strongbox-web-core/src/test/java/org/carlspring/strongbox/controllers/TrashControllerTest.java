@@ -25,7 +25,7 @@ import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.ValueSource;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
-import static io.restassured.module.mockmvc.RestAssuredMockMvc.given;
+
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.hamcrest.CoreMatchers.equalTo;
 
@@ -147,7 +147,7 @@ public class TrashControllerTest
 
         String url = getContextBaseUrl() + "/{storageId}/{repositoryId}";
 
-        ValidatableMockMvcResponse response = given().accept(acceptHeader)
+        ValidatableMockMvcResponse response = mockMvc.accept(acceptHeader)
                                                      .when()
                                                      .delete(url, storageId, repositoryId)
                                                      .peek()
@@ -187,7 +187,7 @@ public class TrashControllerTest
     {
         String url = getContextBaseUrl();
 
-        ValidatableMockMvcResponse response = given().accept(acceptHeader)
+        ValidatableMockMvcResponse response = mockMvc.accept(acceptHeader)
                                                      .when()
                                                      .delete(url)
                                                      .peek()

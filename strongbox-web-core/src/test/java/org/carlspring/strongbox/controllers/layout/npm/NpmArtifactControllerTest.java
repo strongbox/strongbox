@@ -20,7 +20,7 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
-import static io.restassured.module.mockmvc.RestAssuredMockMvc.given;
+
 import static org.hamcrest.CoreMatchers.equalTo;
 
 /**
@@ -60,7 +60,7 @@ public class NpmArtifactControllerTest
 
         // View OK
         String url = getContextBaseUrl() + "/storages/{storageId}/{repositoryId}/{artifactId}/{version}";
-        given().contentType(MediaType.APPLICATION_JSON_VALUE)
+        mockMvc.contentType(MediaType.APPLICATION_JSON_VALUE)
                .when()
                .get(url, storageId, repositoryId, coordinates.getId(), coordinates.getVersion())
                .peek()
@@ -68,7 +68,7 @@ public class NpmArtifactControllerTest
                .statusCode(HttpStatus.OK.value());
 
         // View 404
-        given().contentType(MediaType.APPLICATION_JSON_VALUE)
+        mockMvc.contentType(MediaType.APPLICATION_JSON_VALUE)
                .when()
                .get(url, storageId, repositoryId, coordinates.getId(), "1.0.1")
                .peek()
@@ -99,7 +99,7 @@ public class NpmArtifactControllerTest
 
         //Publish
         String url = getContextBaseUrl() + "/storages/{storageId}/{repositoryId}/{artifactId}";
-        given().contentType(MediaType.APPLICATION_JSON_VALUE)
+        mockMvc.contentType(MediaType.APPLICATION_JSON_VALUE)
                .body(publishJsonContent)
                .when()
                .put(url, storageId, repositoryId, coordinates.getId())
@@ -108,7 +108,7 @@ public class NpmArtifactControllerTest
                .statusCode(HttpStatus.OK.value());
 
         //View
-        given().contentType(MediaType.APPLICATION_JSON_VALUE)
+        mockMvc.contentType(MediaType.APPLICATION_JSON_VALUE)
                .when()
                .get(url, storageId, repositoryId, coordinates.getId())
                .peek()
@@ -116,7 +116,7 @@ public class NpmArtifactControllerTest
                .statusCode(HttpStatus.OK.value());
 
         //Download
-        given().contentType(MediaType.APPLICATION_JSON_VALUE)
+        mockMvc.contentType(MediaType.APPLICATION_JSON_VALUE)
                .when()
                .get(url, storageId, repositoryId, coordinates.toResource())
                .then()

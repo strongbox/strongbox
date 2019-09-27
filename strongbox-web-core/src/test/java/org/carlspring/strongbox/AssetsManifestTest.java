@@ -17,12 +17,14 @@ import java.util.regex.Pattern;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import io.restassured.module.mockmvc.response.MockMvcResponse;
+import io.restassured.module.mockmvc.specification.MockMvcRequestSpecification;
+
 import org.apache.commons.lang3.StringUtils;
 import org.assertj.core.util.Lists;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 import org.springframework.http.HttpStatus;
-import static io.restassured.module.mockmvc.RestAssuredMockMvc.given;
+
 import static org.assertj.core.api.Assertions.assertThat;
 
 /**
@@ -45,6 +47,9 @@ public class AssetsManifestTest
     @Inject
     private ObjectMapper mapper;
 
+    @Inject
+    private MockMvcRequestSpecification mockMvc;
+    
     @BeforeAll
     static void init()
     {
@@ -115,7 +120,7 @@ public class AssetsManifestTest
             assetPath += assetFileName;
         }
 
-        MockMvcResponse response = given().get(assetPath);
+        MockMvcResponse response = mockMvc.get(assetPath);
         String errorMessage = String.format("The resource \"%s\" is not accessible.", assetPath);
         assertThat(HttpStatus.OK.value()).as(errorMessage).isEqualTo(response.getStatusCode());
 

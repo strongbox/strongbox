@@ -24,7 +24,7 @@ import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.test.web.servlet.result.MockMvcResultMatchers;
-import static io.restassured.module.mockmvc.RestAssuredMockMvc.given;
+
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.carlspring.strongbox.controllers.cron.CronTaskController.CRON_CONFIG_FILE_NAME_KEY;
 import static org.carlspring.strongbox.controllers.cron.CronTaskController.HEADER_NAME_CRON_TASK_ID;
@@ -70,7 +70,7 @@ public class CronTaskControllerTest
         CronTaskConfigurationForm cronTaskConfigurationForm = new CronTaskConfigurationForm();
         cronTaskConfigurationForm.setJobClass("mummy");
 
-        given().contentType(MediaType.APPLICATION_JSON_VALUE)
+        mockMvc.contentType(MediaType.APPLICATION_JSON_VALUE)
                .accept(MediaType.APPLICATION_JSON_VALUE)
                .body(cronTaskConfigurationForm)
                .when()
@@ -90,7 +90,7 @@ public class CronTaskControllerTest
                 CleanupExpiredArtifactsFromProxyRepositoriesCronJob.class.getName());
         cronTaskConfigurationForm.setCronExpression("0 11 11 11 11 ? 2100");
 
-        given().contentType(MediaType.APPLICATION_JSON_VALUE)
+        mockMvc.contentType(MediaType.APPLICATION_JSON_VALUE)
                .accept(MediaType.APPLICATION_JSON_VALUE)
                .body(cronTaskConfigurationForm)
                .when()
@@ -117,7 +117,7 @@ public class CronTaskControllerTest
                                                               "repositoryId").value(
                                                               "releases").build() }));
 
-        given().contentType(MediaType.APPLICATION_JSON_VALUE)
+        mockMvc.contentType(MediaType.APPLICATION_JSON_VALUE)
                .accept(MediaType.APPLICATION_JSON_VALUE)
                .body(cronTaskConfigurationForm)
                .when()
@@ -145,7 +145,7 @@ public class CronTaskControllerTest
                                                               "repositoryId").value(
                                                               "releases").build() }));
 
-        given().contentType(MediaType.APPLICATION_JSON_VALUE)
+        mockMvc.contentType(MediaType.APPLICATION_JSON_VALUE)
                .accept(MediaType.APPLICATION_JSON_VALUE)
                .body(cronTaskConfigurationForm)
                .when()
@@ -176,7 +176,7 @@ public class CronTaskControllerTest
         cronTaskConfigurationForm.setImmediateExecution(true);
         cronTaskConfigurationForm.setOneTimeExecution(true);
 
-        given().contentType(MediaType.APPLICATION_JSON_VALUE)
+        mockMvc.contentType(MediaType.APPLICATION_JSON_VALUE)
                .accept(MediaType.APPLICATION_JSON_VALUE)
                .body(cronTaskConfigurationForm)
                .when()
@@ -204,7 +204,7 @@ public class CronTaskControllerTest
                                                               "repositoryId").value(
                                                               "").build() }));
 
-        given().contentType(MediaType.APPLICATION_JSON_VALUE)
+        mockMvc.contentType(MediaType.APPLICATION_JSON_VALUE)
                .accept(MediaType.APPLICATION_JSON_VALUE)
                .body(cronTaskConfigurationForm)
                .when()
@@ -228,7 +228,7 @@ public class CronTaskControllerTest
                 Arrays.asList(new CronTaskConfigurationFormField[]{ CronTaskConfigurationFormField.newBuilder().name(
                         "repositoryId").value("mummy").build() }));
 
-        given().contentType(MediaType.APPLICATION_JSON_VALUE)
+        mockMvc.contentType(MediaType.APPLICATION_JSON_VALUE)
                .accept(MediaType.APPLICATION_JSON_VALUE)
                .body(cronTaskConfigurationForm)
                .when()
@@ -255,7 +255,7 @@ public class CronTaskControllerTest
 
         System.out.println(objectMapper.writeValueAsString(cronTaskConfigurationForm));
 
-        given().contentType(MediaType.APPLICATION_JSON_VALUE)
+        mockMvc.contentType(MediaType.APPLICATION_JSON_VALUE)
                .accept(MediaType.APPLICATION_JSON_VALUE)
                .body(cronTaskConfigurationForm)
                .when()
@@ -280,7 +280,7 @@ public class CronTaskControllerTest
                 Arrays.asList(new CronTaskConfigurationFormField[]{ CronTaskConfigurationFormField.newBuilder().name(
                         "lastAccessedTimeInDays").value("piecdziesiat").build() }));
 
-        given().contentType(MediaType.APPLICATION_JSON_VALUE)
+        mockMvc.contentType(MediaType.APPLICATION_JSON_VALUE)
                .accept(MediaType.APPLICATION_JSON_VALUE)
                .body(cronTaskConfigurationForm)
                .when()
@@ -304,7 +304,7 @@ public class CronTaskControllerTest
                 Arrays.asList(new CronTaskConfigurationFormField[]{ CronTaskConfigurationFormField.newBuilder().name(
                         "forceRegeneration").value("prawda").build() }));
 
-        given().contentType(MediaType.APPLICATION_JSON_VALUE)
+        mockMvc.contentType(MediaType.APPLICATION_JSON_VALUE)
                .accept(MediaType.APPLICATION_JSON_VALUE)
                .body(cronTaskConfigurationForm)
                .when()
@@ -328,7 +328,7 @@ public class CronTaskControllerTest
                 Arrays.asList(new CronTaskConfigurationFormField[]{ CronTaskConfigurationFormField.newBuilder().name(
                         "forceRegeneration").value("false").build() }));
 
-        Headers headers = given().contentType(MediaType.APPLICATION_JSON_VALUE)
+        Headers headers = mockMvc.contentType(MediaType.APPLICATION_JSON_VALUE)
                                  .accept(MediaType.APPLICATION_JSON_VALUE)
                                  .body(cronTaskConfigurationForm)
                                  .when()
@@ -356,7 +356,7 @@ public class CronTaskControllerTest
                 Arrays.asList(new CronTaskConfigurationFormField[]{ CronTaskConfigurationFormField.newBuilder().name(
                         "forceRegeneration").value("false").build() }));
 
-        Headers headers = given().contentType(MediaType.APPLICATION_JSON_VALUE)
+        Headers headers = mockMvc.contentType(MediaType.APPLICATION_JSON_VALUE)
                                  .accept(MediaType.APPLICATION_JSON_VALUE)
                                  .body(cronTaskConfigurationForm)
                                  .when()
@@ -371,7 +371,7 @@ public class CronTaskControllerTest
         UUID cronUuid = UUID.fromString(headers.getValue(HEADER_NAME_CRON_TASK_ID));
         assertThat(cronUuid).isNotNull();
 
-        CronTaskConfigurationDto config = given().contentType(MediaType.APPLICATION_JSON_VALUE)
+        CronTaskConfigurationDto config = mockMvc.contentType(MediaType.APPLICATION_JSON_VALUE)
                                                  .accept(MediaType.APPLICATION_JSON_VALUE)
                                                  .when()
                                                  .get(getContextBaseUrl() + "/" + cronUuid)
@@ -391,7 +391,7 @@ public class CronTaskControllerTest
                 Arrays.asList(new CronTaskConfigurationFormField[]{ CronTaskConfigurationFormField.newBuilder().name(
                         "forceRegeneration").value("true").build() }));
 
-        given().contentType(MediaType.APPLICATION_JSON_VALUE)
+        mockMvc.contentType(MediaType.APPLICATION_JSON_VALUE)
                .accept(MediaType.APPLICATION_JSON_VALUE)
                .body(cronTaskConfigurationForm)
                .when()
@@ -402,7 +402,7 @@ public class CronTaskControllerTest
                .and()
                .extract();
 
-        config = given().contentType(MediaType.APPLICATION_JSON_VALUE)
+        config = mockMvc.contentType(MediaType.APPLICATION_JSON_VALUE)
                         .accept(MediaType.APPLICATION_JSON_VALUE)
                         .when()
                         .get(getContextBaseUrl() + "/" + cronUuid)
@@ -428,7 +428,7 @@ public class CronTaskControllerTest
         cronTaskConfigurationForm.setJobClass(GroovyCronJob.class.getName());
         cronTaskConfigurationForm.setCronExpression("0 11 11 11 11 ? 2100");
 
-        Headers headers = given().contentType(MediaType.APPLICATION_JSON_VALUE)
+        Headers headers = mockMvc.contentType(MediaType.APPLICATION_JSON_VALUE)
                                  .accept(MediaType.APPLICATION_JSON_VALUE)
                                  .body(cronTaskConfigurationForm)
                                  .when()
@@ -451,7 +451,7 @@ public class CronTaskControllerTest
     @Test
     public void testListCronJobs()
     {
-        given().contentType(MediaType.APPLICATION_JSON_VALUE)
+        mockMvc.contentType(MediaType.APPLICATION_JSON_VALUE)
                .accept(MediaType.APPLICATION_JSON_VALUE)
                .when()
                .get(getContextBaseUrl() + "/types/list")
@@ -473,7 +473,7 @@ public class CronTaskControllerTest
             bytes = IOUtils.toByteArray(is);
         }
 
-        given().contentType(MediaType.APPLICATION_JSON_VALUE)
+        mockMvc.contentType(MediaType.APPLICATION_JSON_VALUE)
                .accept(MediaType.APPLICATION_JSON_VALUE)
                .header(HttpHeaders.CONTENT_DISPOSITION, contentDisposition)
                .header(CRON_CONFIG_FILE_NAME_KEY, GROOVY_TASK_FILE.getName())
@@ -499,7 +499,7 @@ public class CronTaskControllerTest
 
     private MockMvcResponse deleteCronConfig(UUID uuid)
     {
-        return given().contentType(MediaType.APPLICATION_JSON_VALUE)
+        return mockMvc.contentType(MediaType.APPLICATION_JSON_VALUE)
                       .accept(MediaType.APPLICATION_JSON_VALUE)
                       .when()
                       .delete(getContextBaseUrl() + "/" + uuid)
@@ -508,7 +508,7 @@ public class CronTaskControllerTest
 
     private MockMvcResponse getCronConfigurations()
     {
-        return given().accept(MediaType.APPLICATION_JSON_VALUE)
+        return mockMvc.accept(MediaType.APPLICATION_JSON_VALUE)
                       .when()
                       .get(getContextBaseUrl())
                       .peek();
@@ -516,7 +516,7 @@ public class CronTaskControllerTest
 
     private MockMvcResponse getCronConfig(UUID uuid)
     {
-        return given().contentType(MediaType.APPLICATION_JSON_VALUE)
+        return mockMvc.contentType(MediaType.APPLICATION_JSON_VALUE)
                       .accept(MediaType.APPLICATION_JSON_VALUE)
                       .when()
                       .get(getContextBaseUrl() + "/" + uuid)

@@ -11,7 +11,7 @@ import org.junit.jupiter.params.provider.ValueSource;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.security.test.context.support.WithAnonymousUser;
-import static io.restassured.module.mockmvc.RestAssuredMockMvc.given;
+
 import static org.hamcrest.CoreMatchers.equalTo;
 import static org.hamcrest.CoreMatchers.notNullValue;
 
@@ -37,7 +37,7 @@ public class PingControllerTest
     {
         String acceptHeader = MediaType.TEXT_EVENT_STREAM_VALUE;
 
-        ValidatableMockMvcResponse response = given().accept(acceptHeader)
+        ValidatableMockMvcResponse response = mockMvc.accept(acceptHeader)
                                                      .when()
                                                      .get(getContextBaseUrl())
                                                      .peek()
@@ -53,7 +53,7 @@ public class PingControllerTest
     void shouldReturnPongForAuthenticatedUsers(String acceptHeader)
     {
         String url = getContextBaseUrl() + "/token";
-        ValidatableMockMvcResponse response = given().accept(acceptHeader)
+        ValidatableMockMvcResponse response = mockMvc.accept(acceptHeader)
                                                      .when()
                                                      .get(url)
                                                      .peek()
@@ -71,7 +71,7 @@ public class PingControllerTest
     void anonymousUsersShouldNotBeAbleToAccess(String acceptHeader)
     {
         String url = getContextBaseUrl() + "/token";
-        given().accept(acceptHeader)
+        mockMvc.accept(acceptHeader)
                .when()
                .get(url)
                .peek()

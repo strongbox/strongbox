@@ -34,7 +34,7 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import static com.google.common.base.Predicates.not;
-import static io.restassured.module.mockmvc.RestAssuredMockMvc.given;
+
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.hamcrest.CoreMatchers.equalTo;
 
@@ -142,7 +142,7 @@ public class MavenIndexControllerTest
 
         String url = getContextBaseUrl() + "/api/maven/index/{storageId}/{repositoryId}";
 
-        given().contentType(MediaType.APPLICATION_JSON_VALUE)
+        mockMvc.contentType(MediaType.APPLICATION_JSON_VALUE)
                .accept(MediaType.APPLICATION_JSON_VALUE)
                .when()
                .post(url, repository.getStorage().getId(), repository.getId())
@@ -178,7 +178,7 @@ public class MavenIndexControllerTest
 
         String url = getContextBaseUrl() + "/api/maven/index/{storageId}/{repositoryId}";
 
-        given().contentType(MediaType.APPLICATION_JSON_VALUE)
+        mockMvc.contentType(MediaType.APPLICATION_JSON_VALUE)
                .accept(MediaType.APPLICATION_JSON_VALUE)
                .when()
                .post(url, repository.getStorage().getId(), repository.getId())
@@ -216,7 +216,7 @@ public class MavenIndexControllerTest
 
         String url = getContextBaseUrl() + "/api/maven/index/{storageId}/{repositoryId}";
 
-        given().contentType(MediaType.APPLICATION_JSON_VALUE)
+        mockMvc.contentType(MediaType.APPLICATION_JSON_VALUE)
                .accept(MediaType.APPLICATION_JSON_VALUE)
                .when()
                .post(url, proxyRepository.getStorage().getId(), proxyRepository.getId())
@@ -254,7 +254,7 @@ public class MavenIndexControllerTest
 
         String url = getContextBaseUrl() + "/api/maven/index/{storageId}/{repositoryId}";
 
-        given().contentType(MediaType.APPLICATION_JSON_VALUE)
+        mockMvc.contentType(MediaType.APPLICATION_JSON_VALUE)
                .accept(MediaType.APPLICATION_JSON_VALUE)
                .when()
                .post(url, proxyRepository.getStorage().getId(), proxyRepository.getId())
@@ -289,7 +289,7 @@ public class MavenIndexControllerTest
         String url = getContextBaseUrl() + "/storages/" + STORAGE0 + "/" + REPOSITORY_PROXY_4 +
                      "/.index/nexus-maven-repository-index.gz";
 
-        given().header(new Header("User-Agent", "Maven/*"))
+        mockMvc.header(new Header("User-Agent", "Maven/*"))
                .get(url)
                .peek()
                .then()
@@ -322,7 +322,7 @@ public class MavenIndexControllerTest
         String url = getContextBaseUrl() + "/storages/" + STORAGE0 + "/" + REPOSITORY_PROXY_5 +
                      "/.index/nexus-maven-repository-index.properties";
 
-        given().header(new Header("User-Agent", "Maven/*"))
+        mockMvc.header(new Header("User-Agent", "Maven/*"))
                .get(url)
                .peek()
                .then()
@@ -370,7 +370,7 @@ public class MavenIndexControllerTest
 
         String url = getContextBaseUrl() + "/api/maven/index/{storageId}/{repositoryId}";
 
-        given().contentType(MediaType.APPLICATION_JSON_VALUE)
+        mockMvc.contentType(MediaType.APPLICATION_JSON_VALUE)
                .accept(MediaType.APPLICATION_JSON_VALUE)
                .when()
                .post(url, groupRepository.getStorage().getId(), groupRepository.getId())

@@ -14,20 +14,18 @@ import java.net.URLEncoder;
 import com.google.common.io.ByteStreams;
 import io.restassured.http.ContentType;
 import io.restassured.http.Headers;
-import io.restassured.module.mockmvc.RestAssuredMockMvc;
 import io.restassured.module.mockmvc.response.MockMvcResponse;
 import io.restassured.module.mockmvc.specification.MockMvcRequestSpecification;
 import io.restassured.response.ExtractableResponse;
+
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
-import org.springframework.stereotype.Component;
 
 /**
  * Implementation of {@link IArtifactClient} for rest-assured tests.
  *
  * @author Alex Oreshkevich
  */
-@Component
 public class RestAssuredArtifactClient
         extends BaseArtifactClient
 {
@@ -45,6 +43,12 @@ public class RestAssuredArtifactClient
 
     private String userAgent;
 
+    private final MockMvcRequestSpecification mockMvc;
+    
+    public RestAssuredArtifactClient(MockMvcRequestSpecification mockMvc)
+    {
+        this.mockMvc = mockMvc;
+    }
 
     @Override
     public String getContextBaseUrl()
@@ -127,12 +131,12 @@ public class RestAssuredArtifactClient
 
     private MockMvcRequestSpecification givenLocal()
     {
-        MockMvcRequestSpecification spec = RestAssuredMockMvc.given();
         if (userAgent != null)
         {
-            spec.header("User-Agent", userAgent);
+            return mockMvc.header("User-Agent", userAgent);
         }
-        return spec;
+        
+        return mockMvc;
     }
 
     public MockMvcResponse put2(String relativeUrl,

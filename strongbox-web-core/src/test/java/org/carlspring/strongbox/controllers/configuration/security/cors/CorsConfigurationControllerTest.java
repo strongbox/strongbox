@@ -19,7 +19,7 @@ import org.springframework.http.MediaType;
 import org.springframework.web.cors.CorsConfiguration;
 import org.springframework.web.cors.CorsConfigurationSource;
 import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
-import static io.restassured.module.mockmvc.RestAssuredMockMvc.given;
+
 import static org.hamcrest.CoreMatchers.equalTo;
 import static org.hamcrest.Matchers.*;
 
@@ -58,7 +58,7 @@ public class CorsConfigurationControllerTest
     @Test
     public void testUpdateWithEmptyCollectionAndJsonResponse()
     {
-        given().accept(MediaType.APPLICATION_JSON_VALUE)
+        mockMvc.accept(MediaType.APPLICATION_JSON_VALUE)
                .contentType(MediaType.APPLICATION_JSON_VALUE)
                .body(new CorsConfigurationForm(Collections.emptyList()))
                .when()
@@ -69,7 +69,7 @@ public class CorsConfigurationControllerTest
                .body("message", containsString(CorsConfigurationController.SUCCESSFUL_UPDATE));
 
         // follow-up check to ensure records has been properly saved.
-        given().accept(MediaType.APPLICATION_JSON_VALUE)
+        mockMvc.accept(MediaType.APPLICATION_JSON_VALUE)
                .when()
                .get(url)
                .peek()
@@ -82,7 +82,7 @@ public class CorsConfigurationControllerTest
     @Test
     public void testUpdateWithEmptyCollectionAndTextResponse()
     {
-        given().accept(MediaType.TEXT_PLAIN_VALUE)
+        mockMvc.accept(MediaType.TEXT_PLAIN_VALUE)
                .contentType(MediaType.APPLICATION_JSON_VALUE)
                .body(new CorsConfigurationForm(Collections.emptyList()))
                .when()
@@ -93,7 +93,7 @@ public class CorsConfigurationControllerTest
                .body(containsString(CorsConfigurationController.SUCCESSFUL_UPDATE));
 
         // follow-up check to ensure records has been properly saved.
-        given().accept(MediaType.APPLICATION_JSON_VALUE)
+        mockMvc.accept(MediaType.APPLICATION_JSON_VALUE)
                .when()
                .get(url)
                .peek()
@@ -105,7 +105,7 @@ public class CorsConfigurationControllerTest
     @Test
     public void testAllowOneOrigin()
     {
-        given().header(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_JSON_VALUE)
+        mockMvc.header(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_JSON_VALUE)
                .header(HttpHeaders.ACCEPT, MediaType.APPLICATION_JSON_VALUE)
                .body(new CorsConfigurationForm(Collections.singletonList("http://example.com")))
                .when()
@@ -116,7 +116,7 @@ public class CorsConfigurationControllerTest
                .body("message", containsString(CorsConfigurationController.SUCCESSFUL_UPDATE));
 
         // follow-up check to ensure records has been properly saved.
-        given().header(HttpHeaders.ACCEPT, MediaType.APPLICATION_JSON_VALUE)
+        mockMvc.header(HttpHeaders.ACCEPT, MediaType.APPLICATION_JSON_VALUE)
                .when()
                .get(url)
                .peek()
@@ -128,7 +128,7 @@ public class CorsConfigurationControllerTest
     @Test
     public void testAllowAllOrigins()
     {
-        given().log().all().accept(MediaType.APPLICATION_JSON_VALUE)
+        mockMvc.log().all().accept(MediaType.APPLICATION_JSON_VALUE)
                .contentType(MediaType.APPLICATION_JSON_VALUE)
                .body(new CorsConfigurationForm(Collections.singletonList("*")))
                .when()
@@ -139,7 +139,7 @@ public class CorsConfigurationControllerTest
                .body("message", containsString(CorsConfigurationController.SUCCESSFUL_UPDATE));
 
         // follow-up check to ensure records has been properly saved.
-        given().accept(MediaType.APPLICATION_JSON_VALUE)
+        mockMvc.accept(MediaType.APPLICATION_JSON_VALUE)
                .when()
                .get(url)
                .peek()
@@ -152,7 +152,7 @@ public class CorsConfigurationControllerTest
     @Test
     public void testAllowMultipleOrigins()
     {
-        given().header(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_JSON_VALUE)
+        mockMvc.header(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_JSON_VALUE)
                .header(HttpHeaders.ACCEPT, MediaType.APPLICATION_JSON_VALUE)
                .body(new CorsConfigurationForm(Arrays.asList("http://example.com", "https://github.com/strongbox", "http://carlspring.org")))
                .when()
@@ -163,7 +163,7 @@ public class CorsConfigurationControllerTest
                .body("message", containsString(CorsConfigurationController.SUCCESSFUL_UPDATE));
 
         // follow-up check to ensure records has been properly saved.
-        given().header(HttpHeaders.ACCEPT, MediaType.APPLICATION_JSON_VALUE)
+        mockMvc.header(HttpHeaders.ACCEPT, MediaType.APPLICATION_JSON_VALUE)
                .when()
                .get(url)
                .peek()

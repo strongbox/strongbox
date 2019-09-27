@@ -1,6 +1,6 @@
 package org.carlspring.strongbox.controllers.configuration.security.authorization;
 
-import static io.restassured.module.mockmvc.RestAssuredMockMvc.given;
+
 import static org.carlspring.strongbox.controllers.configuration.security.authorization.AuthorizationConfigController.FAILED_ADD_ROLE;
 import static org.carlspring.strongbox.controllers.configuration.security.authorization.AuthorizationConfigController.FAILED_ASSIGN_PRIVILEGES;
 import static org.carlspring.strongbox.controllers.configuration.security.authorization.AuthorizationConfigController.FAILED_DELETE_ROLE;
@@ -98,7 +98,7 @@ public class AuthorizationConfigControllerTestIT
                                               Privileges.ARTIFACTS_DEPLOY.name()));
         customRole.setAccessModel(accessModel);
 
-        given().contentType(MediaType.APPLICATION_JSON_VALUE)
+        mockMvc.contentType(MediaType.APPLICATION_JSON_VALUE)
                .accept(acceptHeader)
                .body(customRole)
                .when()
@@ -117,7 +117,7 @@ public class AuthorizationConfigControllerTestIT
         final RoleDto customRole = new RoleDto();
         customRole.setName(roleName);
 
-        given().contentType(MediaType.APPLICATION_JSON_VALUE)
+        mockMvc.contentType(MediaType.APPLICATION_JSON_VALUE)
                .accept(acceptHeader)
                .body(customRole)
                .when()
@@ -133,7 +133,7 @@ public class AuthorizationConfigControllerTestIT
                              APPLICATION_YAML_VALUE })
     void configFileCouldBeDownloaded(String acceptHeader)
     {
-        given().contentType(MediaType.APPLICATION_JSON_VALUE)
+        mockMvc.contentType(MediaType.APPLICATION_JSON_VALUE)
                .accept(acceptHeader)
                .when()
                .get(getContextBaseUrl() + "/authorization")
@@ -150,7 +150,7 @@ public class AuthorizationConfigControllerTestIT
         // get role name
         String roleName = config.getRoles().iterator().next().getName();
         // delete role
-        given().contentType(MediaType.APPLICATION_JSON_VALUE)
+        mockMvc.contentType(MediaType.APPLICATION_JSON_VALUE)
                .accept(acceptHeader)
                .when()
                .delete(getContextBaseUrl() + "/authorization/role/" + roleName)
@@ -168,7 +168,7 @@ public class AuthorizationConfigControllerTestIT
         // init not existing role name
         String roleName = "TEST_ROLE";
         // delete role
-        given().contentType(MediaType.APPLICATION_JSON_VALUE)
+        mockMvc.contentType(MediaType.APPLICATION_JSON_VALUE)
                .accept(acceptHeader)
                .when()
                .delete(getContextBaseUrl() + "/authorization/role/" + roleName)
@@ -187,7 +187,7 @@ public class AuthorizationConfigControllerTestIT
         PrivilegeListForm privilegeListForm = new PrivilegeListForm();
         privilegeListForm.setPrivileges(Collections.singletonList(privilege));
 
-        given().contentType(MediaType.APPLICATION_JSON_VALUE)
+        mockMvc.contentType(MediaType.APPLICATION_JSON_VALUE)
                .accept(acceptHeader)
                .body(privilegeListForm)
                .when()
@@ -207,7 +207,7 @@ public class AuthorizationConfigControllerTestIT
         PrivilegeListForm privilegeListForm = new PrivilegeListForm();
         privilegeListForm.setPrivileges(Collections.emptyList());
 
-        given().contentType(MediaType.APPLICATION_JSON_VALUE)
+        mockMvc.contentType(MediaType.APPLICATION_JSON_VALUE)
                .accept(acceptHeader)
                .body(privilegeListForm)
                .when()

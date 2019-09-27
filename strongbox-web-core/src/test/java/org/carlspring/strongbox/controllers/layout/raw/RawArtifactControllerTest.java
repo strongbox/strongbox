@@ -23,7 +23,7 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
-import static io.restassured.module.mockmvc.RestAssuredMockMvc.given;
+
 import static org.assertj.core.api.Assertions.assertThat;
 
 /**
@@ -61,7 +61,7 @@ public class RawArtifactControllerTest
         // Push
         String url = getContextBaseUrl() + "/storages/" + storageId + "/" + repositoryId + "/" + path;
 
-        given().header(HttpHeaders.USER_AGENT, "Raw/*")
+        mockMvc.header(HttpHeaders.USER_AGENT, "Raw/*")
                .contentType(MediaType.MULTIPART_FORM_DATA_VALUE)
                .body(content)
                .when()

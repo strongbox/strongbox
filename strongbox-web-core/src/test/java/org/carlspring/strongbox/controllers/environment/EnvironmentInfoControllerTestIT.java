@@ -16,7 +16,7 @@ import com.fasterxml.jackson.databind.ObjectReader;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.http.MediaType;
-import static io.restassured.module.mockmvc.RestAssuredMockMvc.given;
+
 import static org.assertj.core.api.Assertions.assertThat;
 
 /**
@@ -44,7 +44,7 @@ public class EnvironmentInfoControllerTestIT
     {
         String path = "/api/configuration/environment/info";
 
-        String envInfo = given().contentType(MediaType.APPLICATION_JSON_VALUE)
+        String envInfo = mockMvc.contentType(MediaType.APPLICATION_JSON_VALUE)
                                 .when()
                                 .get(path)
                                 .prettyPeek()
@@ -84,7 +84,7 @@ public class EnvironmentInfoControllerTestIT
     {
         String path = "/api/configuration/environment/info";
 
-        String envInfo = given().contentType(MediaType.APPLICATION_JSON_VALUE)
+        String envInfo = mockMvc.contentType(MediaType.APPLICATION_JSON_VALUE)
                                 .when()
                                 .get(path)
                                 .asString();

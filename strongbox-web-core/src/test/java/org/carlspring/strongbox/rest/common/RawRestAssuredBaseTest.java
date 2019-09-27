@@ -19,7 +19,9 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.MediaType;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.web.context.WebApplicationContext;
-import static io.restassured.module.mockmvc.RestAssuredMockMvc.given;
+
+import io.restassured.module.mockmvc.specification.MockMvcRequestSpecification;
+
 import static org.carlspring.strongbox.rest.client.RestAssuredArtifactClient.OK;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.fail;
@@ -51,6 +53,9 @@ public class RawRestAssuredBaseTest
     @Value("${strongbox.url}")
     private String contextBaseUrl;
 
+    @Inject
+    protected MockMvcRequestSpecification mockMvc;
+    
     public void init()
             throws Exception
     {
@@ -77,7 +82,7 @@ public class RawRestAssuredBaseTest
     {
         logger.trace("[pathExists] URL -> " + url);
 
-        return given().header("user-agent", "Raw/*")
+        return mockMvc.header("user-agent", "Raw/*")
                       .contentType(MediaType.TEXT_PLAIN_VALUE)
                       .when()
                       .get(url)

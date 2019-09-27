@@ -76,7 +76,7 @@ import org.springframework.http.MediaType;
 import org.springframework.security.test.context.support.WithMockUser;
 import org.w3c.dom.Document;
 import org.xml.sax.InputSource;
-import static io.restassured.module.mockmvc.RestAssuredMockMvc.given;
+
 import static org.carlspring.strongbox.testing.artifact.MavenArtifactTestUtils.getArtifactLevelMetadataPath;
 import static org.carlspring.strongbox.testing.artifact.MavenArtifactTestUtils.getGroupLevelMetadataPath;
 import static org.carlspring.strongbox.testing.artifact.MavenArtifactTestUtils.getVersionLevelMetadataPath;
@@ -151,6 +151,17 @@ public class MavenArtifactControllerTest
         Files.createDirectories(Paths.get(TEST_RESOURCES));
     }
 
+    @Override
+    @BeforeEach
+    public void init()
+            throws Exception
+    {
+        super.init();
+
+        MockitoAnnotations.initMocks(this);
+        defaultMavenArtifactDeployer = buildArtifactDeployer(Paths.get(""));
+    }
+    
     @AfterAll
     static void down()
     {
@@ -249,17 +260,6 @@ public class MavenArtifactControllerTest
         transformer.transform(source, result);
     }
 
-    @Override
-    @BeforeEach
-    public void init()
-            throws Exception
-    {
-        super.init();
-
-        MockitoAnnotations.initMocks(this);
-        defaultMavenArtifactDeployer = buildArtifactDeployer(Paths.get(""));
-    }
-
     /**
      * Note: This test requires access to the Internet.
      *
@@ -269,7 +269,7 @@ public class MavenArtifactControllerTest
     public void testResolveViaProxyToMavenCentral()
             throws Exception
     {
-        String artifactPath = "storages/storage-common-proxies/maven-central/" +
+        String artifactPath = "/storages/storage-common-proxies/maven-central/" +
                               "org/carlspring/maven/derby-maven-plugin/1.9/derby-maven-plugin-1.9.jar";
 
         resolveArtifact(artifactPath, "1.9");
@@ -284,7 +284,7 @@ public class MavenArtifactControllerTest
     public void testResolveViaProxyToMavenCentralInGroup()
             throws Exception
     {
-        String artifactPath = "storages/storage-common-proxies/group-common-proxies/" +
+        String artifactPath = "/storages/storage-common-proxies/group-common-proxies/" +
                               "org/carlspring/maven/derby-maven-plugin/1.10/derby-maven-plugin-1.10.jar";
 
         resolveArtifact(artifactPath, "1.10");
@@ -723,7 +723,7 @@ public class MavenArtifactControllerTest
         Artifact snapshotArtifact = MavenArtifactUtils.convertPathToArtifact(unixBasedRelativePath);
 
         assertThat(snapshotArtifact).isNotNull();
-        String metadataPath = String.format("storages/%s/%s/%s",
+        String metadataPath = String.format("/storages/%s/%s/%s",
                                             storageId,
                                             repositoryId,
                                             getVersionLevelMetadataPath(snapshotArtifact));
@@ -844,14 +844,14 @@ public class MavenArtifactControllerTest
 
         // Then
         // Group level metadata
-        String metadataPath = "storages/" + storageId + "/" + repositoryId + "/" + getGroupLevelMetadataPath(artifact1);
+        String metadataPath = "/storages/" + storageId + "/" + repositoryId + "/" + getGroupLevelMetadataPath(artifact1);
         Metadata groupLevelMetadata = defaultMavenArtifactDeployer.retrieveMetadata(metadataPath);
 
         assertThat(groupLevelMetadata).isNotNull();
         assertThat(groupLevelMetadata.getPlugins()).hasSize(2);
 
         // Artifact Level metadata
-        metadataPath = "storages/" + storageId + "/" + repositoryId + "/" + getArtifactLevelMetadataPath(artifact1);
+        metadataPath = "/storages/" + storageId + "/" + repositoryId + "/" + getArtifactLevelMetadataPath(artifact1);
         Metadata artifactLevelMetadata = defaultMavenArtifactDeployer.retrieveMetadata(metadataPath);
 
         assertThat(artifactLevelMetadata).isNotNull();
@@ -862,7 +862,7 @@ public class MavenArtifactControllerTest
         assertThat(artifactLevelMetadata.getVersioning().getVersions()).hasSize(2);
         assertThat(artifactLevelMetadata.getVersioning().getLastUpdated()).isNotNull();
 
-        metadataPath = "storages/" + storageId + "/" + repositoryId + "/" + getArtifactLevelMetadataPath(artifact2);
+        metadataPath = "/storages/" + storageId + "/" + repositoryId + "/" + getArtifactLevelMetadataPath(artifact2);
         artifactLevelMetadata = defaultMavenArtifactDeployer.retrieveMetadata(metadataPath);
 
         assertThat(artifactLevelMetadata).isNotNull();
@@ -873,7 +873,7 @@ public class MavenArtifactControllerTest
         assertThat(artifactLevelMetadata.getVersioning().getVersions()).hasSize(2);
         assertThat(artifactLevelMetadata.getVersioning().getLastUpdated()).isNotNull();
 
-        metadataPath = "storages/" + storageId + "/" + repositoryId + "/" + getArtifactLevelMetadataPath(artifact5);
+        metadataPath = "/storages/" + storageId + "/" + repositoryId + "/" + getArtifactLevelMetadataPath(artifact5);
         artifactLevelMetadata = defaultMavenArtifactDeployer.retrieveMetadata(metadataPath);
 
         assertThat(artifactLevelMetadata).isNotNull();
@@ -918,7 +918,7 @@ public class MavenArtifactControllerTest
 
         // Then
         assertThat(artifact1).isNotNull();
-        String metadataPath = String.format("storages/%s/%s/%s",
+        String metadataPath = String.format("/storages/%s/%s/%s",
                                             storageId,
                                             repositoryId,
                                             getArtifactLevelMetadataPath(artifact1));
@@ -967,7 +967,7 @@ public class MavenArtifactControllerTest
 
         // Then
         assertThat(artifact1).isNotNull();
-        String metadataPath = String.format("storages/%s/%s/%s",
+        String metadataPath = String.format("/storages/%s/%s/%s",
                                             storageId,
                                             repositoryId,
                                             getArtifactLevelMetadataPath(artifact1));
@@ -1017,7 +1017,7 @@ public class MavenArtifactControllerTest
         String artifactRepositoryPathStr = RepositoryFiles.relativizePath(artifactRepositoryPath);
 
         // When
-        int statusCode = given().header(HttpHeaders.USER_AGENT, "Maven/*")
+        int statusCode = mockMvc.header(HttpHeaders.USER_AGENT, "Maven/*")
                                 .contentType(MediaType.TEXT_PLAIN_VALUE)
                                 .when()
                                 .get(url, storageId, repositoryId, artifactRepositoryPathStr)
@@ -1045,7 +1045,7 @@ public class MavenArtifactControllerTest
         String artifactPath = String.format("org/carlspring/commons/commons-http/%s/commons-http-%s.jar",
                                             commonsHttpSnapshot.version, commonsHttpSnapshot.timestampedVersion);
 
-        given().header(HttpHeaders.USER_AGENT, "Maven/*")
+        mockMvc.header(HttpHeaders.USER_AGENT, "Maven/*")
                .contentType(MediaType.TEXT_PLAIN_VALUE)
                .when()
                .get(url, "public", "maven-group", artifactPath)
@@ -1057,7 +1057,7 @@ public class MavenArtifactControllerTest
     public void shouldNotAllowRequestingPathsWithSlashAtTheEnd()
     {
         String url = getContextBaseUrl() + "/storages/{storageId}/{repositoryId}/{artifactPath}";
-        given().when()
+        mockMvc.when()
                .get(url, "public", "maven-group", "org/carlspring/commons/commons-io/")
                .peek()
                .then()
@@ -1069,7 +1069,7 @@ public class MavenArtifactControllerTest
     public void shouldRequireArtifactVersion()
     {
         String url = getContextBaseUrl() + "/storages/{storageId}/{repositoryId}/{artifactPath}";
-        given().when()
+        mockMvc.when()
                .get(url, "public", "maven-group", "org/carlspring/logging/logback-configuration")
                .peek()
                .then()
@@ -1101,7 +1101,7 @@ public class MavenArtifactControllerTest
 
         String url = getContextBaseUrl() + "/storages/{storageId}/{repositoryId}/{artifactPath}";
 
-        given().when()
+        mockMvc.when()
                .get(url, repository.getStorage().getId(), repository.getId(), artifactParentPathStr)
                .peek()
                .then()
@@ -1128,7 +1128,7 @@ public class MavenArtifactControllerTest
         String artifactPath = String.format("org/carlspring/commons/commons-http/%s/commons-http-%s.jar",
                                             commonsHttpSnapshot.version, commonsHttpSnapshot.timestampedVersion);
 
-        given().header(HttpHeaders.USER_AGENT, "Maven/*")
+        mockMvc.header(HttpHeaders.USER_AGENT, "Maven/*")
                .contentType(MediaType.TEXT_PLAIN_VALUE)
                .when()
                .get(url, "storage-common-proxies", "carlspring", artifactPath)

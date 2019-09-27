@@ -1,6 +1,6 @@
 package org.carlspring.strongbox.controllers;
 
-import static io.restassured.module.mockmvc.RestAssuredMockMvc.given;
+
 import static java.nio.charset.StandardCharsets.ISO_8859_1;
 import static org.hamcrest.Matchers.equalTo;
 import static org.hamcrest.Matchers.notNullValue;
@@ -73,7 +73,7 @@ public class JwtAuthenticationTest
 
         String basicAuth = "Basic YWRtaW46cGFzc3dvcmQ=";
 
-        String body = given().header(HttpHeaders.AUTHORIZATION, basicAuth)
+        String body = mockMvc.header(HttpHeaders.AUTHORIZATION, basicAuth)
                              .header(HttpHeaders.ACCEPT, MediaType.APPLICATION_JSON_VALUE)
                              .when()
                              .get(getContextBaseUrl() + "/login")
@@ -84,7 +84,7 @@ public class JwtAuthenticationTest
         TestSecurityContextHolder.clearContext();
         SecurityContextHolder.clearContext();
 
-        given().header(HttpHeaders.ACCEPT, MediaType.APPLICATION_JSON_VALUE)
+        mockMvc.header(HttpHeaders.ACCEPT, MediaType.APPLICATION_JSON_VALUE)
                .when()
                .get(url)
                .then()
@@ -95,7 +95,7 @@ public class JwtAuthenticationTest
 
         // this token will expire after 1 hour
         String tokenValue = getTokenValue(body);
-        given().header(HttpHeaders.AUTHORIZATION, getAuthorizationHeader(tokenValue))
+        mockMvc.header(HttpHeaders.AUTHORIZATION, getAuthorizationHeader(tokenValue))
                .header(HttpHeaders.ACCEPT, MediaType.APPLICATION_JSON_VALUE)
                .when()
                .get(url)
@@ -118,7 +118,7 @@ public class JwtAuthenticationTest
 
         String url = getContextBaseUrl() + "/users";
 
-        given().header(HttpHeaders.ACCEPT, MediaType.APPLICATION_JSON_VALUE)
+        mockMvc.header(HttpHeaders.ACCEPT, MediaType.APPLICATION_JSON_VALUE)
                .when()
                .get(url)
                .then()
@@ -133,7 +133,7 @@ public class JwtAuthenticationTest
 
         String invalid_token = "ABCD";
 
-        given().header(HttpHeaders.AUTHORIZATION, getAuthorizationHeader(invalid_token))
+        mockMvc.header(HttpHeaders.AUTHORIZATION, getAuthorizationHeader(invalid_token))
                .header(HttpHeaders.ACCEPT, MediaType.APPLICATION_JSON_VALUE)
                .when()
                .get(url)
@@ -153,7 +153,7 @@ public class JwtAuthenticationTest
         String expiredToken = securityTokenProvider.getToken(userDetails.getUsername(),
                                                              jwtClaimsProvider.getClaims(userDetails), 3, null);
 
-        given().header(HttpHeaders.AUTHORIZATION, getAuthorizationHeader(expiredToken))
+        mockMvc.header(HttpHeaders.AUTHORIZATION, getAuthorizationHeader(expiredToken))
                .header(HttpHeaders.ACCEPT, MediaType.APPLICATION_JSON_VALUE)
                .when()
                .get(url)
@@ -163,7 +163,7 @@ public class JwtAuthenticationTest
 
         Thread.sleep(3000);
 
-        given().header(HttpHeaders.AUTHORIZATION, getAuthorizationHeader(expiredToken))
+        mockMvc.header(HttpHeaders.AUTHORIZATION, getAuthorizationHeader(expiredToken))
                .header(HttpHeaders.ACCEPT, MediaType.APPLICATION_JSON_VALUE)
                .when()
                .get(url)
@@ -185,7 +185,7 @@ public class JwtAuthenticationTest
 
         String token = securityTokenProvider.getToken("admin", Collections.emptyMap(), 10, futureNumericDate);
 
-        given().header(HttpHeaders.AUTHORIZATION, getAuthorizationHeader(token))
+        mockMvc.header(HttpHeaders.AUTHORIZATION, getAuthorizationHeader(token))
                .header(HttpHeaders.ACCEPT, MediaType.APPLICATION_JSON_VALUE)
                .when()
                .get(url)

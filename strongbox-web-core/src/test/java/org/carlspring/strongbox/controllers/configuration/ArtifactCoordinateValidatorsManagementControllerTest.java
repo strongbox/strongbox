@@ -17,7 +17,7 @@ import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.ValueSource;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
-import static io.restassured.module.mockmvc.RestAssuredMockMvc.given;
+
 import static org.carlspring.strongbox.controllers.configuration.ArtifactCoordinateValidatorsManagementController.*;
 import static org.carlspring.strongbox.web.RepositoryMethodArgumentResolver.NOT_FOUND_REPOSITORY_MESSAGE;
 import static org.carlspring.strongbox.web.RepositoryMethodArgumentResolver.NOT_FOUND_STORAGE_MESSAGE;
@@ -53,7 +53,7 @@ public class ArtifactCoordinateValidatorsManagementControllerTest
     {
         String url = getContextBaseUrl() + "/{storageId}/{repositoryId}";
 
-        given().accept(MediaType.APPLICATION_JSON_VALUE)
+        mockMvc.accept(MediaType.APPLICATION_JSON_VALUE)
                .when()
                .get(url, repository.getStorage().getId(), repository.getId())
                .peek()
@@ -73,7 +73,7 @@ public class ArtifactCoordinateValidatorsManagementControllerTest
 
         String url = getContextBaseUrl() + "/{storageId}/{repositoryId}";
 
-        given().accept(MediaType.APPLICATION_JSON_VALUE)
+        mockMvc.accept(MediaType.APPLICATION_JSON_VALUE)
                .when()
                .get(url, repository.getStorage().getId(), repository.getId())
                .peek()
@@ -93,7 +93,7 @@ public class ArtifactCoordinateValidatorsManagementControllerTest
         String repositoryId = REPOSITORY_RELEASES_SINGLE_VALIDATOR;
         String message = String.format(NOT_FOUND_STORAGE_MESSAGE, storageId);
 
-        given().accept(MediaType.APPLICATION_JSON_VALUE)
+        mockMvc.accept(MediaType.APPLICATION_JSON_VALUE)
                .when()
                .get(url, storageId, repositoryId)
                .peek()
@@ -110,7 +110,7 @@ public class ArtifactCoordinateValidatorsManagementControllerTest
         String repositoryId = "releases-not-found";
         String message = String.format(NOT_FOUND_REPOSITORY_MESSAGE, storageId, repositoryId);
 
-        given().accept(MediaType.APPLICATION_JSON_VALUE)
+        mockMvc.accept(MediaType.APPLICATION_JSON_VALUE)
                .when()
                .get(url, storageId, repositoryId)
                .peek()
@@ -136,7 +136,7 @@ public class ArtifactCoordinateValidatorsManagementControllerTest
         String repositoryId = repository.getId();
         String alias = "test-validator";
 
-        given().accept(acceptHeader)
+        mockMvc.accept(acceptHeader)
                .when()
                .put(url, storageId, repositoryId, alias)
                .peek()
@@ -144,7 +144,7 @@ public class ArtifactCoordinateValidatorsManagementControllerTest
                .statusCode(HttpStatus.OK.value())
                .body(containsString(SUCCESSFUL_ADD));
 
-        given().accept(acceptHeader)
+        mockMvc.accept(acceptHeader)
                .when()
                .delete(url, storageId, repositoryId, alias)
                .peek()
@@ -154,7 +154,7 @@ public class ArtifactCoordinateValidatorsManagementControllerTest
 
         url = getContextBaseUrl() + "/{storageId}/{repositoryId}";
 
-        given().accept(MediaType.APPLICATION_JSON_VALUE)
+        mockMvc.accept(MediaType.APPLICATION_JSON_VALUE)
                .when()
                .get(url, storageId, repositoryId)
                .peek()
@@ -182,7 +182,7 @@ public class ArtifactCoordinateValidatorsManagementControllerTest
         String repositoryId = repository.getId();
         String alias = "alias-not-found";
 
-        given().accept(acceptHeader)
+        mockMvc.accept(acceptHeader)
                .when()
                .delete(url, storageId, repositoryId, alias)
                .peek()
@@ -196,7 +196,7 @@ public class ArtifactCoordinateValidatorsManagementControllerTest
     {
         String url = getContextBaseUrl() + "/validators";
 
-        given().accept(MediaType.APPLICATION_JSON_VALUE)
+        mockMvc.accept(MediaType.APPLICATION_JSON_VALUE)
                .when()
                .get(url)
                .peek()
@@ -211,7 +211,7 @@ public class ArtifactCoordinateValidatorsManagementControllerTest
         String url = getContextBaseUrl() + "/validators";
         String layoutProvider = Maven2LayoutProvider.ALIAS;
 
-        given().accept(MediaType.APPLICATION_JSON_VALUE)
+        mockMvc.accept(MediaType.APPLICATION_JSON_VALUE)
                .when()
                .get(url, layoutProvider)
                .peek()
@@ -235,7 +235,7 @@ public class ArtifactCoordinateValidatorsManagementControllerTest
         String repositoryId = repository.getId();
         String alias = "maven-snapshot-version-validator";
 
-        given().accept(MediaType.APPLICATION_JSON_VALUE)
+        mockMvc.accept(MediaType.APPLICATION_JSON_VALUE)
                .when()
                .get(urlList, storageId, repositoryId)
                .peek()
@@ -243,7 +243,7 @@ public class ArtifactCoordinateValidatorsManagementControllerTest
                .statusCode(HttpStatus.OK.value())
                .body("versionValidators", containsInAnyOrder("redeployment-validator"));
 
-        given().accept(acceptHeader)
+        mockMvc.accept(acceptHeader)
                .when()
                .put(urlAdd, storageId, repositoryId, alias)
                .peek()
@@ -251,7 +251,7 @@ public class ArtifactCoordinateValidatorsManagementControllerTest
                .statusCode(HttpStatus.OK.value())
                .body(containsString(SUCCESSFUL_ADD));
 
-        given().accept(MediaType.APPLICATION_JSON_VALUE)
+        mockMvc.accept(MediaType.APPLICATION_JSON_VALUE)
                .when()
                .get(urlList, storageId, repositoryId)
                .peek()
@@ -260,7 +260,7 @@ public class ArtifactCoordinateValidatorsManagementControllerTest
                .body("versionValidators",
                      containsInAnyOrder("redeployment-validator", "maven-snapshot-version-validator"));
 
-        given().accept(acceptHeader)
+        mockMvc.accept(acceptHeader)
                .when()
                .put(urlAdd, storageId, repositoryId, alias)
                .peek()
@@ -268,7 +268,7 @@ public class ArtifactCoordinateValidatorsManagementControllerTest
                .statusCode(HttpStatus.OK.value())
                .body(containsString(SUCCESSFUL_ADD));
 
-        given().accept(MediaType.APPLICATION_JSON_VALUE)
+        mockMvc.accept(MediaType.APPLICATION_JSON_VALUE)
                .when()
                .get(urlList, storageId, repositoryId)
                .peek()

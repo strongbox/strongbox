@@ -1,6 +1,6 @@
 package org.carlspring.strongbox.controllers.configuration;
 
-import static io.restassured.module.mockmvc.RestAssuredMockMvc.given;
+
 import static org.carlspring.strongbox.controllers.configuration.StoragesConfigurationController.SUCCESSFUL_REPOSITORY_SAVE;
 import static org.carlspring.strongbox.controllers.configuration.StoragesConfigurationController.SUCCESSFUL_SAVE_STORAGE;
 import static org.carlspring.strongbox.controllers.configuration.StoragesConfigurationController.SUCCESSFUL_STORAGE_REMOVAL;
@@ -98,7 +98,7 @@ public class StoragesConfigurationControllerSmokeTest extends RestAssuredBaseTes
                      .body(containsString(SUCCESSFUL_REPOSITORY_SAVE));
 
         // 3. Deploy artifact
-        given().header("user-agent", "Raw/*")
+        mockMvc.header("user-agent", "Raw/*")
                .body(createZipFile())
                .when()
                .put(String.format("/storages/%s/%s/dummy-file.zip", storageForm.getId(), repositoryForm.getId()))
