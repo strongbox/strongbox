@@ -59,14 +59,17 @@ public class AuthorizationConfigFileManager
             throws IOException
     {
         Set<SystemRole> changed = getChangedRestrictedRoles(configuration);
+
         if (changed.size() > 0)
         {
             String changedNames = changed.stream()
                     .map(SystemRole::toString)
                     .collect(Collectors.joining(", "));
+
             String message = String.format("System roles %s cannot be changed.", changedNames);
             throw new IOException(message);
         }
+
         super.store(configuration);
     }
 
@@ -76,28 +79,37 @@ public class AuthorizationConfigFileManager
     {
         Set<SystemRole> changed = new HashSet<>();
         Map<String, SystemRole> restricted = SystemRole.getRestricted();
+
         for (RoleDto role : configuration.getRoles())
         {
             if (!restricted.containsKey(role.getName()))
             {
                 continue;
             }
+
             SystemRole systemRole = restricted.get(role.getName());
+
             // get MD5 hash for the role
             String hash = null;
-            try {
+            try
+            {
                 hash = MessageDigestUtils.calculateChecksum(role);
-            } catch (NoSuchAlgorithmException e) {
+            }
+            catch (NoSuchAlgorithmException e)
+            {
                 throw new IOException(e);
             }
+
             // compare hash with the hardcoded one in SystemRole
             if (!hash.equalsIgnoreCase(systemRole.getHash()))
             {
                 changed.add(systemRole);
             }
+
             // remove SystemRole from the map
             restricted.remove(role.getName());
         }
+
         // deleted SystemRoles
         changed.addAll(restricted.values());
 

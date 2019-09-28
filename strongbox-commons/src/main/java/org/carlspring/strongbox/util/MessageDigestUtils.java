@@ -101,6 +101,7 @@ public class MessageDigestUtils
             throws IOException, NoSuchAlgorithmException
     {
         String checksum = "";
+
         try (ByteArrayOutputStream baos = new ByteArrayOutputStream();
              ObjectOutputStream oos = new ObjectOutputStream(baos))
         {
@@ -109,6 +110,7 @@ public class MessageDigestUtils
             mdos.write(baos.toByteArray());
             checksum = mdos.getMessageDigestAsHexadecimalString(EncryptionAlgorithmsEnum.MD5.getAlgorithm());
         }
+
         return checksum;
     }
 }

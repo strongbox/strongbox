@@ -56,15 +56,16 @@ public class AuthorizationConfigFileManagerTest
         RoleDto role = new RoleDto();
         role.setName(roleName);
         role.setDescription(roleDescription);
+
         // add role to Set
         Set<RoleDto> roles = new HashSet<>();
         roles.add(role);
+
         // set up config
         AuthorizationConfigDto config = new AuthorizationConfigDto();
         config.setRoles(roles);
 
         return config;
     }
-
 
 }
