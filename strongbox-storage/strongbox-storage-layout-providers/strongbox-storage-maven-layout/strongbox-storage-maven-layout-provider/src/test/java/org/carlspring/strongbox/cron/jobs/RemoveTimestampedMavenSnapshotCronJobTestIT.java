@@ -46,7 +46,7 @@ import static org.junit.jupiter.api.parallel.ExecutionMode.CONCURRENT;
 @SpringBootTest
 @ActiveProfiles(profiles = "test")
 @TestExecutionListeners(listeners = { CacheManagerTestExecutionListener.class },
-        mergeMode = TestExecutionListeners.MergeMode.MERGE_WITH_DEFAULTS)
+                        mergeMode = TestExecutionListeners.MergeMode.MERGE_WITH_DEFAULTS)
 @Execution(CONCURRENT)
 public class RemoveTimestampedMavenSnapshotCronJobTestIT
         extends BaseCronJobWithMavenIndexingTestCase
@@ -80,13 +80,15 @@ public class RemoveTimestampedMavenSnapshotCronJobTestIT
     @Test
     @ExtendWith({ RepositoryManagementTestExecutionListener.class,
                   ArtifactManagementTestExecutionListener.class })
-    public void testRemoveTimestampedSnapshot(
-            @MavenRepository(repositoryId = REPOSITORY_SNAPSHOTS_1, policy = SNAPSHOT) Repository repository,
-            @MavenTestArtifact(repositoryId = REPOSITORY_SNAPSHOTS_1, id = GROUP_ID + ":" +
-                                                                         ARTIFACT_ID1, versions = { "2.0-20190701.202015-1",
-                                                                                                    "2.0-20190701.202101-2",
-                                                                                                    "2.0-20190701.202203-3" })
-                    List<Path> artifact)
+    public void testRemoveTimestampedSnapshot(@MavenRepository(repositoryId = REPOSITORY_SNAPSHOTS_1,
+                                                               policy = SNAPSHOT)
+                                              Repository repository,
+                                              @MavenTestArtifact(repositoryId = REPOSITORY_SNAPSHOTS_1,
+                                                                 id = GROUP_ID + ":" + ARTIFACT_ID1,
+                                                                 versions = { "2.0-20190701.202015-1",
+                                                                              "2.0-20190701.202101-2",
+                                                                              "2.0-20190701.202203-3" })
+                                              List<Path> artifact)
             throws Exception
     {
         final String storageId = repository.getStorage().getId();
@@ -141,12 +143,14 @@ public class RemoveTimestampedMavenSnapshotCronJobTestIT
     @Test
     @ExtendWith({ RepositoryManagementTestExecutionListener.class,
                   ArtifactManagementTestExecutionListener.class })
-    public void testRemoveTimestampedSnapshotInRepository(
-            @MavenRepository(repositoryId = REPOSITORY_SNAPSHOTS_2, policy = SNAPSHOT) Repository repository,
-            @MavenTestArtifact(repositoryId = REPOSITORY_SNAPSHOTS_2, id = GROUP_ID + ":" +
-                                                                         ARTIFACT_ID2, versions = { "2.0-20190701.202015-1",
-                                                                                                    "2.0-20190701.202101-2" })
-                    List<Path> artifact)
+    public void testRemoveTimestampedSnapshotInRepository(@MavenRepository(repositoryId = REPOSITORY_SNAPSHOTS_2,
+                                                                           policy = SNAPSHOT)
+                                                          Repository repository,
+                                                          @MavenTestArtifact(repositoryId = REPOSITORY_SNAPSHOTS_2,
+                                                                             id = GROUP_ID + ":" + ARTIFACT_ID2,
+                                                                             versions = { "2.0-20190701.202015-1",
+                                                                                          "2.0-20190701.202101-2" })
+                                                          List<Path> artifact)
             throws Exception
     {
         final String storageId = repository.getStorage().getId();
@@ -168,10 +172,9 @@ public class RemoveTimestampedMavenSnapshotCronJobTestIT
                 {
                     try (Stream<Path> pathStream = Files.walk(artifactPath))
                     {
-
                         long timestampedSnapshots = pathStream.filter(path -> path.toString().endsWith(".jar")).count();
+                        
                         assertEquals(1, timestampedSnapshots, "Amount of timestamped snapshots doesn't equal 1.");
-
                     }
 
                     assertTrue(getSnapshotArtifactVersion(artifactPath).endsWith("-2"));
