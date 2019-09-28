@@ -63,8 +63,8 @@ public class AuthorizationConfigFileManager
         if (changed.size() > 0)
         {
             String changedNames = changed.stream()
-                    .map(SystemRole::toString)
-                    .collect(Collectors.joining(", "));
+                                         .map(SystemRole::toString)
+                                         .collect(Collectors.joining(", "));
 
             String message = String.format("System roles %s cannot be changed.", changedNames);
             throw new IOException(message);
