@@ -35,8 +35,8 @@ public enum SystemRole
     public static Map<String, SystemRole> getRestricted()
     {
         return Stream.of(SystemRole.values())
-                .filter(v -> v.getHash() != null)
-                .collect(Collectors.toMap(SystemRole::toString, v -> v));
+                     .filter(v -> v.getHash() != null)
+                     .collect(Collectors.toMap(SystemRole::toString, v -> v));
     }
 
     public String getHash()
