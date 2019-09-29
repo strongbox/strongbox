@@ -56,7 +56,9 @@ public class CronTaskControllerTest
     {
         MockMvcResponse response = getCronConfigurations();
 
-        assertThat("Failed to get list of cron tasks: " + response.getStatusLine()).isEqualTo(OK, response.getStatusCode());
+        assertThat(response.getStatusCode())
+                .as("Failed to get list of cron tasks: " + response.getStatusLine())
+                .isEqualTo(OK);
 
         CronTasksConfigurationDto cronTasks = response.as(CronTasksConfigurationDto.class);
         assertThat(cronTasks.getCronTaskConfigurations().isEmpty()).as("List of cron tasks is empty!").isFalse();

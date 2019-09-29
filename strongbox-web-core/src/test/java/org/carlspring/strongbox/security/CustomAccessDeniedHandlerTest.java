@@ -19,6 +19,7 @@ import org.springframework.mock.web.MockHttpServletResponse;
 import org.springframework.security.access.AccessDeniedException;
 import org.springframework.security.test.context.support.WithMockUser;
 import static io.restassured.module.mockmvc.RestAssuredMockMvc.given;
+import static org.hamcrest.Matchers.equalTo;
 
 /**
  * @author Przemyslaw Fusik
@@ -69,7 +70,7 @@ public class CustomAccessDeniedHandlerTest
                .then()
                .statusCode(HttpStatus.FORBIDDEN.value())
                .contentType("application/json")
-               .body("error", CoreMatchers.equalTo("forbidden"));
+               .body("error", equalTo("forbidden"));
     }
 
 }

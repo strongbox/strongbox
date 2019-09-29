@@ -19,6 +19,10 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.springframework.http.HttpStatus;
 import static io.restassured.module.mockmvc.RestAssuredMockMvc.given;
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.hamcrest.Matchers.equalTo;
+import static org.hamcrest.Matchers.greaterThan;
+import static org.hamcrest.Matchers.hasItem;
 
 /**
  * @author Pablo Tirado
@@ -106,15 +110,15 @@ public class NpmArtifactControllerTestIT
                .then()
                .statusCode(HttpStatus.OK.value())
                .and()
-               .body("name", CoreMatchers.equalTo("react"))
-               .body("versions.size()", Matchers.greaterThan(0));
+               .body("name", equalTo("react"))
+               .body("versions.size()", greaterThan(0));
 
         ArtifactEntry artifactEntry = artifactEntryService.findOneArtifact(storageId,
                                                                            repositoryId,
                                                                            coordinates.toPath());
-        assertNotNull(artifactEntry);
-        assertTrue(artifactEntry instanceof RemoteArtifactEntry);
-        assertFalse(((RemoteArtifactEntry)artifactEntry).getIsCached());
+        assertThat(artifactEntry).isNotNull();
+        assertThat(artifactEntry).isInstanceOf(RemoteArtifactEntry.class);
+        assertThat(((RemoteArtifactEntry)artifactEntry).getIsCached()).isFalse();
     }
 
     @ExtendWith(RepositoryManagementTestExecutionListener.class)
@@ -134,14 +138,13 @@ public class NpmArtifactControllerTestIT
                .then()
                .statusCode(HttpStatus.OK.value())
                .and()
-               .body("objects.package.name",
-                     CoreMatchers.hasItem("Reston"));
+               .body("objects.package.name", hasItem("Reston"));
         
         ArtifactEntry artifactEntry = artifactEntryService.findOneArtifact(storageId,
                                                                            repositoryId,
                                                                            "Reston/Reston/0.2.0/Reston-0.2.0.tgz");
-        assertNotNull(artifactEntry);
-        assertTrue(artifactEntry instanceof RemoteArtifactEntry);
-        assertFalse(((RemoteArtifactEntry)artifactEntry).getIsCached());
+        assertThat(artifactEntry).isNotNull();
+        assertThat(artifactEntry).isInstanceOf(RemoteArtifactEntry.class);
+        assertThat(((RemoteArtifactEntry)artifactEntry).getIsCached()).isFalse();
     }
 }

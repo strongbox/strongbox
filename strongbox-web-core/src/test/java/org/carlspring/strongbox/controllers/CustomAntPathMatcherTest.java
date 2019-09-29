@@ -72,7 +72,9 @@ public class CustomAntPathMatcherTest
         antPathMatcher.doMatch(pattern, path, true, uriTemplateVariables);
 
         String pathVariable = uriTemplateVariables.get("path");
-        assertThat(pathVariable).isEqualTo("Unable to find path variable. uriTemplateVariables " + uriTemplateVariables).isNotNull();
+        assertThat(pathVariable)
+                .as("Unable to find path variable. uriTemplateVariables " + uriTemplateVariables)
+                .isNotNull();
 
         assertThat(pathVariable).isEqualTo(artifactPath);
     }

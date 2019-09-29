@@ -18,6 +18,8 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.security.test.context.support.WithMockUser;
 import static io.restassured.module.mockmvc.RestAssuredMockMvc.given;
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.fail;
 import static org.hamcrest.CoreMatchers.equalTo;
 
 /**
@@ -349,7 +351,7 @@ public class LoggingManagementControllerTestIT
         
         try
         {
-            assertTrue(shouldContainLogFilesInHtmlTableElement, "The log files should be in the HTML response body!");
+            assertThat(shouldContainLogFilesInHtmlTableElement).isEqualTo("The log files should be in the HTML response body!");
         }
         finally
         {
@@ -398,7 +400,7 @@ public class LoggingManagementControllerTestIT
         try
         {
             //Assertion Test
-            assertTrue(shouldContainLogFilesInHtmlTableElement, "The log files should be in the HTML response body!");
+            assertThat(shouldContainLogFilesInHtmlTableElement).isEqualTo("The log files should be in the HTML response body!");
         }
         finally
         {

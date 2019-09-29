@@ -311,7 +311,7 @@ public class UserControllerTestIT
 
         // retrieve newly created user and store the objectId
         User createdUser = retrieveUserByName(test.getUsername());
-        assertThat(createdUser).isEqualTo(username);
+        assertThat(createdUser.getUsername()).isEqualTo(username);
 
         User user = retrieveUserByName(username);
         UserForm input = buildFromUser(user, null);

@@ -8,6 +8,7 @@ import static org.carlspring.strongbox.controllers.configuration.security.author
 import static org.carlspring.strongbox.controllers.configuration.security.authorization.AuthorizationConfigController.SUCCESSFUL_ASSIGN_PRIVILEGES;
 import static org.carlspring.strongbox.controllers.configuration.security.authorization.AuthorizationConfigController.SUCCESSFUL_DELETE_ROLE;
 import static org.carlspring.strongbox.net.MediaType.APPLICATION_YAML_VALUE;
+import static org.hamcrest.CoreMatchers.containsString;
 
 import java.io.IOException;
 import java.util.Arrays;
