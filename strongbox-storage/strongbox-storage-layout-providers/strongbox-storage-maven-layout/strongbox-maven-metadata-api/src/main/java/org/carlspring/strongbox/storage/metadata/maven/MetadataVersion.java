@@ -1,4 +1,4 @@
-package org.carlspring.strongbox.storage.metadata.versions;
+package org.carlspring.strongbox.storage.metadata.maven;
 
 import java.nio.file.attribute.FileTime;
 import java.util.ArrayList;

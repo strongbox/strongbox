@@ -1,4 +1,4 @@
-package org.carlspring.strongbox.storage.metadata.comparators;
+package org.carlspring.strongbox.storage.metadata.maven;
 
 import java.util.Comparator;
 

@@ -1,6 +1,6 @@
 package org.carlspring.strongbox.storage.metadata;
 
-import org.carlspring.strongbox.storage.metadata.versions.MetadataVersion;
+import org.carlspring.strongbox.storage.metadata.maven.MetadataVersion;
 
 import java.nio.file.Path;
 import java.util.ArrayList;

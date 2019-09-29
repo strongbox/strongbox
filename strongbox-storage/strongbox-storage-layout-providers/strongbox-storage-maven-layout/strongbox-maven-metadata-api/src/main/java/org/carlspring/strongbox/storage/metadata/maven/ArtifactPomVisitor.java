@@ -1,4 +1,4 @@
-package org.carlspring.strongbox.storage.metadata.visitors;
+package org.carlspring.strongbox.storage.metadata.maven;
 
 import java.io.IOException;
 import java.nio.file.*;
