@@ -138,8 +138,14 @@ public class RemoveTimestampedSnapshotOperation
         this.numberToKeep = numberToKeep;
     }
 
-    public Date getKeepDate() { return keepDate; }
+    public Date getKeepDate()
+    {
+        return keepDate;
+    }
 
-    public void setKeepDate(Date keepDate) { this.keepDate = keepDate; }
+    public void setKeepDate(Date keepDate)
+    {
+        this.keepDate = keepDate;
+    }
 
 }
