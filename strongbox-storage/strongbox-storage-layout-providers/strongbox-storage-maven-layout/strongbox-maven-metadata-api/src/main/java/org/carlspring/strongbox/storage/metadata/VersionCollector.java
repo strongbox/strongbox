@@ -1,6 +1,6 @@
 package org.carlspring.strongbox.storage.metadata;
 
-import org.carlspring.strongbox.storage.metadata.maven.filters.ArtifactVersionDirectoryFilter;
+import org.carlspring.strongbox.storage.metadata.maven.io.filters.ArtifactVersionDirectoryFilter;
 import org.carlspring.strongbox.storage.metadata.maven.comparators.MetadataVersionComparator;
 import org.carlspring.strongbox.storage.metadata.maven.comparators.SnapshotVersionComparator;
 import org.carlspring.strongbox.storage.metadata.maven.versions.MetadataVersion;
