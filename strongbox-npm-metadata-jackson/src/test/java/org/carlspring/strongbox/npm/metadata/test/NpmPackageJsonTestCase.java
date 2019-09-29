@@ -1,13 +1,12 @@
 package org.carlspring.strongbox.npm.metadata.test;
 
-import static org.junit.Assert.assertEquals;
-
 import org.carlspring.strongbox.npm.metadata.PackageFeed;
 import org.carlspring.strongbox.npm.metadata.PackageVersion;
 import org.carlspring.strongbox.npm.metadata.jackson.NpmJacksonMapperFactory;
 import org.junit.Test;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import static org.assertj.core.api.Assertions.assertThat;
 
 public class NpmPackageJsonTestCase
 {
@@ -21,7 +20,7 @@ public class NpmPackageJsonTestCase
         PackageVersion packageDef = mapper.readValue(getClass().getResourceAsStream("/json/types/node/package.json"),
                                                      PackageVersion.class);
 
-        assertEquals("definitely-typed", packageDef.getName());
+        assertThat(packageDef.getName()).isEqualTo("definitely-typed");
     }
 
     @Test
@@ -33,6 +32,6 @@ public class NpmPackageJsonTestCase
         PackageFeed feedDef = mapper.readValue(getClass().getResourceAsStream("/json/antlr4-autosuggest/feed.json"),
                                                PackageFeed.class);
 
-        assertEquals("antlr4-autosuggest", feedDef.getName());
+        assertThat(feedDef.getName()).isEqualTo("antlr4-autosuggest");
     }
 }
