@@ -9,7 +9,6 @@ import java.nio.file.Paths;
 import java.util.List;
 
 import com.google.common.collect.Lists;
-import org.carlspring.strongbox.storage.metadata.maven.ArtifactVersionDirectoryFilter;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import static org.assertj.core.api.Assertions.assertThat;

@@ -1,4 +1,4 @@
-package org.carlspring.strongbox.storage.metadata.maven;
+package org.carlspring.strongbox.io.filters;
 
 import java.io.IOException;
 import java.nio.file.DirectoryStream;

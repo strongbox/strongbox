@@ -1,17 +1,18 @@
-package org.carlspring.strongbox.storage.metadata.maven;
+package org.carlspring.strongbox.storage.metadata.comparators;
 
 import java.util.Comparator;
 
+import org.apache.maven.artifact.repository.metadata.SnapshotVersion;
 import org.apache.maven.artifact.versioning.ComparableVersion;
 
 /**
  * @author Steve Todorov <s.todorov@itnews-bg.com>
  */
-public class MetadataVersionComparator
-        implements Comparator<MetadataVersion>
+public class SnapshotVersionComparator
+        implements Comparator<SnapshotVersion>
 {
 
-    public int compare(MetadataVersion v1, MetadataVersion v2)
+    public int compare(SnapshotVersion v1, SnapshotVersion v2)
     {
         if (v1 == null || v2 == null)
         {
