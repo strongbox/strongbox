@@ -360,9 +360,9 @@ public class ArtifactMetadataServiceSnapshotsTest
         assertThat(metadata).isNotNull();
 
         assertThat(metadata.getVersioning().getLatest()).as("Incorrect latest release version!").isEqualTo("1.3-SNAPSHOT");
-        assertThat(metadata.getVersioning().getVersions().size())
+        assertThat(metadata.getVersioning().getVersions())
                 .as("Incorrect number of versions stored in metadata!")
-                .isEqualTo(3);
+                .hasSize(3);
     }
 
     @Target({ ElementType.PARAMETER, ElementType.ANNOTATION_TYPE })

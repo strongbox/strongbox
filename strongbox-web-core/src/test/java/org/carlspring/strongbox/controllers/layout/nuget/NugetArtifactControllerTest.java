@@ -451,7 +451,7 @@ public class NugetArtifactControllerTest extends NugetRestAssuredBaseTest
         assertThat(artifactEntryList.isEmpty()).isFalse();
 
         ArtifactEntry artifactEntry = artifactEntryList.iterator().next();
-        assertThat(artifactEntry instanceof RemoteArtifactEntry).isTrue();
+        assertThat(artifactEntry).isInstanceOf(RemoteArtifactEntry.class);
         assertThat(((RemoteArtifactEntry)artifactEntry).getIsCached()).isFalse();
 
         PrintStream originalSysOut = muteSystemOutput();

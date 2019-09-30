@@ -96,7 +96,7 @@ public class ConfigurationManagerTest
             // assertThat(!configuration.getStorages().get(storageId).getRepositories().isEmpty()).as("No repositories were parsed!").isTrue();
         }
 
-        assertThat(configuration.getStorages().size() > 0).as("Unexpected number of storages!").isTrue();
+        assertThat(configuration.getStorages()).as("Unexpected number of storages!").isNotEmpty();
         assertThat(configuration.getVersion()).as("Incorrect version!").isNotNull();
         assertThat(configuration.getPort()).as("Incorrect port number!").isEqualTo(48080);
         assertThat(configuration.getStorages()
@@ -184,13 +184,12 @@ public class ConfigurationManagerTest
 
         MutableConfiguration c = yamlMapper.readValue(outputFile.toURI().toURL(), MutableConfiguration.class);
 
-        assertThat(2)
+        assertThat(c.getStorages().get(STORAGE0)
+                    .getRepositories()
+                    .get("grp-snapshots")
+                    .getGroupRepositories())
                 .as("Failed to read repository groups!")
-                .isEqualTo(c.getStorages().get(STORAGE0)
-                            .getRepositories()
-                            .get("grp-snapshots")
-                            .getGroupRepositories()
-                            .size());
+                .hasSize(2);
     }
 
     @Test
@@ -240,9 +239,9 @@ public class ConfigurationManagerTest
 
         MutableConfiguration c = yamlMapper.readValue(outputFile, MutableConfiguration.class);
 
-        assertThat(c.getCorsConfiguration().getAllowedOrigins().size())
+        assertThat(c.getCorsConfiguration().getAllowedOrigins())
                 .as("Failed to read saved cors allowedOrigins!")
-                .isEqualTo(3);
+                .hasSize(3);
     }
 
     @Test

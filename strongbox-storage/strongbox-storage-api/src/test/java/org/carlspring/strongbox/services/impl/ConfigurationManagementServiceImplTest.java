@@ -187,18 +187,18 @@ public class ConfigurationManagementServiceImplTest
         final String storageId = releases1.getStorage().getId();
         final String releases1Id = releases1.getId();
 
-        assertThat(2)
+        assertThat(configurationManagementService.getConfiguration()
+                                                 .getGroupRepositoriesContaining(storageId, releases1Id))
                 .as("Failed to add repository to group!")
-                .isEqualTo(configurationManagementService.getConfiguration()
-                                                         .getGroupRepositoriesContaining(storageId, releases1Id).size());
+                .hasSize(2);
 
         configurationManagementService.removeRepositoryFromAssociatedGroups(storageId,
                                                                             releases1Id);
 
-        assertThat(0)
+        assertThat(configurationManagementService.getConfiguration()
+                                                 .getGroupRepositoriesContaining(storageId, releases1Id))
                 .as("Failed to remove repository from all associated groups!")
-                .isEqualTo(configurationManagementService.getConfiguration()
-                                                              .getGroupRepositoriesContaining(storageId, releases1Id).size());
+                .isEmpty();
     }
 
     @ExtendWith(RepositoryManagementTestExecutionListener.class)

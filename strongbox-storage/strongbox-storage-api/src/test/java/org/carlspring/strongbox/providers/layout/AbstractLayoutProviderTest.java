@@ -118,7 +118,7 @@ class AbstractLayoutProviderTest
 
         Set<ArtifactGroupEntry> artifactGroups = layoutProvider.getArtifactGroups(path);
         assertThat(artifactGroups).isNotNull();
-        assertThat(artifactGroups.size()).isEqualTo(0);
+        assertThat(artifactGroups).isEmpty();
 
         RepositoryArtifactIdGroupEntry repositoryArtifactIdGroup = artifactGroupService.findOneOrCreate("storage0",
                                                                                                         "releases",
@@ -126,7 +126,7 @@ class AbstractLayoutProviderTest
 
         artifactGroups = layoutProvider.getArtifactGroups(path);
         assertThat(artifactGroups).isNotNull();
-        assertThat(artifactGroups.size()).isEqualTo((1));
+        assertThat(artifactGroups).hasSize((1));
         assertThat(artifactGroups.iterator().next()).isEqualTo(repositoryArtifactIdGroup);
         assertThat(repositoryArtifactIdGroup).isInstanceOf(RepositoryArtifactIdGroupEntry.class);
         assertThat(repositoryArtifactIdGroup.getArtifactId()).isEqualTo(("abs-lay-prov-test"));

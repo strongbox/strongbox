@@ -73,7 +73,7 @@ public class ConfigurableProviderManagerTest
     public void testExternalUserCache()
     {
         //Check that we have proper implementation of UserDetailsService injected by Spring
-        assertThat(userDetailsService instanceof ConfigurableProviderManager).isTrue();
+        assertThat(userDetailsService).isInstanceOf(ConfigurableProviderManager.class);
 
         // Check that there is no external user cached
         assertThat(strongboxUserManager.findByUsername(TEST_USER)).isNull();

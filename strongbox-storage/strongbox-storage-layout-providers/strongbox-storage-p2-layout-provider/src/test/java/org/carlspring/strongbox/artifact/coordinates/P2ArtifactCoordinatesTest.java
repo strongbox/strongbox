@@ -21,8 +21,8 @@ public class P2ArtifactCoordinatesTest
         P2ArtifactCoordinates ar2 = new P2ArtifactCoordinates(ID, VERSION, CLASSIFIER);
         P2ArtifactCoordinates ar3 = new P2ArtifactCoordinates("anotherID", "1.0.0", "feature.group");
 
-        assertThat(ar1.equals(ar2)).isTrue();
-        assertThat(ar1.equals(ar3)).isFalse();
+        assertThat(ar1).isEqualTo(ar2);
+        assertThat(ar1).isNotEqualTo(ar3);
     }
 
     @Test

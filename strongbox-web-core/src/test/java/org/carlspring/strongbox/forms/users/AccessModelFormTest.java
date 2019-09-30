@@ -106,7 +106,7 @@ public class AccessModelFormTest
 
         Set<StoragePrivilegesDto> userStorages = userAccessModel.getStorageAuthorities();
         assertThat(userStorages).isNotNull();
-        assertThat(userStorages.size()).isEqualTo(1);
+        assertThat(userStorages).hasSize(1);
 
         StoragePrivilegesDto userStorage = userStorages.iterator().next();
         assertThat(userStorage).isNotNull();
@@ -115,7 +115,7 @@ public class AccessModelFormTest
 
         Set<RepositoryPrivilegesDto> userRepositories = userStorage.getRepositoryPrivileges();
         assertThat(userRepositories).isNotNull();
-        assertThat(userRepositories.size()).isEqualTo(2);
+        assertThat(userRepositories).hasSize(2);
 
         for (RepositoryPrivilegesDto userRepository : userRepositories)
         {
@@ -127,7 +127,7 @@ public class AccessModelFormTest
             if ("releases".equals(userRepository.getRepositoryId()))
             {
                 assertThat(pathPrivileges).isNotNull();
-                assertThat(pathPrivileges.size()).isEqualTo(4);
+                assertThat(pathPrivileges).hasSize(4);
 
                 for (PathPrivilegesDto pathPrivilege : pathPrivileges)
                 {
@@ -138,11 +138,11 @@ public class AccessModelFormTest
                                   "org/carlspring/foo");
                     if (pathPrivilege.getPath().startsWith("org"))
                     {
-                        assertThat(pathPrivilege.getPrivileges().size()).isEqualTo(5);
+                        assertThat(pathPrivilege.getPrivileges()).hasSize(5);
                     }
                     else
                     {
-                        assertThat(pathPrivilege.getPrivileges().size()).isEqualTo(2);
+                        assertThat(pathPrivilege.getPrivileges()).hasSize(2);
                     }
 
                     if (pathPrivilege.getPath().contains("carlspring"))
@@ -155,13 +155,13 @@ public class AccessModelFormTest
                     }
                 }
 
-                assertThat(repositoryPrivileges.size()).isEqualTo(2);
+                assertThat(repositoryPrivileges).hasSize(2);
                 assertThat(repositoryPrivileges).contains(Privileges.ARTIFACTS_RESOLVE, Privileges.ARTIFACTS_DEPLOY);
             }
             if ("snapshots".equals(userRepository.getRepositoryId()))
             {
                 assertThat(pathPrivileges).isEmpty();
-                assertThat(repositoryPrivileges.size()).isEqualTo(1);
+                assertThat(repositoryPrivileges).hasSize(1);
                 assertThat(repositoryPrivileges).contains(Privileges.ARTIFACTS_DEPLOY);
             }
         }
@@ -200,7 +200,7 @@ public class AccessModelFormTest
 
         // then
         assertThat(violations.isEmpty()).as("Violations are empty!").isFalse();
-        assertThat(1).isEqualTo(violations.size());
+        assertThat(violations).hasSize(1);
         assertThat(violations).extracting("message").containsAnyOf("A storage id must be specified.");
     }
 

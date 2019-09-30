@@ -300,9 +300,9 @@ public class ArtifactMetadataServiceReleasesTest
                 .as("Incorrect latest release version!")
                 .isEqualTo(metadata.getVersioning().getRelease());
 
-        assertThat(3)
+        assertThat(metadata.getVersioning().getVersions())
                 .as("Incorrect number of versions stored in metadata!")
-                .isEqualTo(metadata.getVersioning().getVersions().size());
+                .hasSize(3);
     }
 
     private void changeCreationDate(MavenArtifact artifact)

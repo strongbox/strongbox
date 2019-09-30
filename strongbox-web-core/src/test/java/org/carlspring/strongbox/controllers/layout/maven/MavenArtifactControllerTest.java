@@ -1141,7 +1141,7 @@ public class MavenArtifactControllerTest
         assertThat(artifactEntry).isNotNull();
         assertThat(artifactEntry.getArtifactCoordinates()).isNotNull();
 
-        assertThat(artifactEntry instanceof RemoteArtifactEntry).isTrue();
+        assertThat(artifactEntry).isInstanceOf(RemoteArtifactEntry.class);
         assertThat(((RemoteArtifactEntry) artifactEntry).getIsCached()).isTrue();
     }
 

@@ -133,9 +133,9 @@ public class NuspecTest
         assertThat(result.isRequireLicenseAcceptance()).as("License Verification Required").isFalse();
         assertThat(result.getDescription()).as("Description").isEqualTo("Unit Testing Package");
         assertThat(result.getCopyright()).as("Rights").isEqualTo("Copyright 2011");
-        assertThat(result.getTags().size()).as("Number of tags").isEqualTo(tags.length);
+        assertThat(result.getTags()).as("Number of tags").hasSize(tags.length);
         assertThat(result.getTags().toArray()).as("Tags").isEqualTo(tags);
-        assertThat(result.getReferences().size()).as("Number of links").isEqualTo(references.length);
+        assertThat(result.getReferences()).as("Number of links").hasSize(references.length);
         assertThat(result.getReferences().toArray()).as("Links").isEqualTo(references);
     }
 
@@ -172,9 +172,9 @@ public class NuspecTest
         assertThat("NHibernate is a mature, open source object-relational mapper for the .NET framework. It's actively developed , fully featured and used in thousands of successful projects.")
                 .as("Short Description")
                 .isEqualTo(result.getSummary());
-        assertThat(result.getTags().size()).as("Number of tags").isEqualTo(tags.length);
+        assertThat(result.getTags()).as("Number of tags").hasSize(tags.length);
         assertThat(result.getTags().toArray()).as("Tags").isEqualTo(tags);
-        assertThat(result.getDependencies().size()).as("Number of dependencies").isEqualTo(dependencies.length);
+        assertThat(result.getDependencies()).as("Number of dependencies").hasSize(dependencies.length);
         assertThat(result.getDependencies().toArray()).as("Dependencies").isEqualTo(dependencies);
     }
 
