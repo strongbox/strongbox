@@ -68,7 +68,7 @@ public class NugetRemoteRepositoryTest
                                                                            coordinates.toPath());
         Optional<ArtifactEntry> optionalArtifactEntry = Optional.ofNullable(artifactEntry);
 
-        assertThat(optionalArtifactEntry.isPresent()).isTrue();
+        assertThat(optionalArtifactEntry).isPresent();
         assertThat(((RemoteArtifactEntry) optionalArtifactEntry.get()).getIsCached()).isFalse();
     }
 

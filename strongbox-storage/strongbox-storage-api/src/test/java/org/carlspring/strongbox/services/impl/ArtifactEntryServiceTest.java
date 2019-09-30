@@ -151,7 +151,7 @@ public class ArtifactEntryServiceTest
                                                                                                                  REPOSITORY_ID,
                                                                                                                  jarCoordinates.toPath()));
 
-        assertThat(artifactEntryOptional.isPresent()).isTrue();
+        assertThat(artifactEntryOptional).isPresent();
 
         ArtifactEntry artifactEntry = artifactEntryOptional.get();
         assertThat(artifactEntry.getArtifactCoordinates()).isNotNull();
@@ -164,12 +164,12 @@ public class ArtifactEntryServiceTest
         artifactEntryOptional = Optional.ofNullable(artifactEntryService.findOneArtifact(STORAGE_ID,
                                                                                          REPOSITORY_ID,
                                                                                          jarCoordinates.toPath()));
-        assertThat(artifactEntryOptional.isPresent()).isFalse();
+        assertThat(artifactEntryOptional).isNotPresent();
 
         artifactEntryOptional = Optional.ofNullable(artifactEntryService.findOneArtifact(STORAGE_ID,
                                                                                          REPOSITORY_ID + "abc",
                                                                                          jarCoordinates.toPath()));
-        assertThat(artifactEntryOptional.isPresent()).isTrue();
+        assertThat(artifactEntryOptional).isPresent();
 
         //Cascade field update
         NullArtifactCoordinates nullArtifactCoordinates = (NullArtifactCoordinates)artifactEntry.getArtifactCoordinates();
@@ -179,12 +179,12 @@ public class ArtifactEntryServiceTest
         artifactEntryOptional = Optional.ofNullable(artifactEntryService.findOneArtifact(STORAGE_ID,
                                                                                          REPOSITORY_ID + "abc",
                                                                                          jarCoordinates.toPath()));
-        assertThat(artifactEntryOptional.isPresent()).isFalse();
+        assertThat(artifactEntryOptional).isNotPresent();
 
         artifactEntryOptional = Optional.ofNullable(artifactEntryService.findOneArtifact(STORAGE_ID,
                                                                                          REPOSITORY_ID + "abc",
                                                                                          pomCoordinates.toPath()));
-        assertThat(artifactEntryOptional.isPresent()).isTrue();
+        assertThat(artifactEntryOptional).isPresent();
     }
 
     private ArtifactEntry save(ArtifactEntry artifactEntry)
