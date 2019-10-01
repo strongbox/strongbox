@@ -95,7 +95,7 @@ public class ServerSettingsFormTestIT
                                                                                      ProxyConfigurationFormChecks.class);
 
         // then
-        assertThat(violations.isEmpty()).as("Violations are not empty!").isTrue();
+        assertThat(violations).as("Violations are not empty!").isEmpty();
     }
 
     @Test
@@ -120,7 +120,7 @@ public class ServerSettingsFormTestIT
         Set<ConstraintViolation<ServerSettingsForm>> violations = validator.validate(serverSettingsForm, Default.class);
 
         // then
-        assertThat(violations.isEmpty()).as("Violations are not empty!").isTrue();
+        assertThat(violations).as("Violations are not empty!").isEmpty();
     }
 
     @Test

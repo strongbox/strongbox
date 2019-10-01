@@ -37,7 +37,7 @@ public class RoutingRuleFormTestIT
         Set<ConstraintViolation<RoutingRuleForm>> violations = validator.validate(routingRuleForm);
 
         // then
-        assertThat(violations.isEmpty()).as("Violations are not empty!").isTrue();
+        assertThat(violations).as("Violations are not empty!").isEmpty();
     }
 
     @Test
@@ -56,7 +56,7 @@ public class RoutingRuleFormTestIT
         Set<ConstraintViolation<RoutingRuleForm>> violations = validator.validate(routingRuleForm);
 
         // then
-        assertThat(violations.isEmpty()).as("Violations are not empty!").isTrue();
+        assertThat(violations).as("Violations are not empty!").isEmpty();
     }
 
     @Test

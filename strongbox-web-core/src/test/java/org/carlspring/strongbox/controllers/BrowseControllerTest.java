@@ -63,7 +63,7 @@ public class BrowseControllerTest
 
         assertThat(returned).as("Failed to get storage list!").isNotNull();
         assertThat(returned.getDirectories()).as("Failed to get storage list!").isNotNull();
-        assertThat(returned.getDirectories().isEmpty()).as("Returned storage size does not match").isFalse();
+        assertThat(returned.getDirectories()).as("Returned storage size does not match").isNotEmpty();
 
         List<FileContent> expectedSortedList = returned.getDirectories()
                                                        .stream()
@@ -103,7 +103,7 @@ public class BrowseControllerTest
 
         assertThat(returned).as("Failed to get repository list!").isNotNull();
         assertThat(returned.getDirectories()).as("Failed to get repository list!").isNotNull();
-        assertThat(returned.getDirectories().isEmpty()).as("Returned repositories do not match").isFalse();
+        assertThat(returned.getDirectories()).as("Returned repositories do not match").isNotEmpty();
         assertThat(returned.getDirectories()
                            .stream()
                            .anyMatch(p -> p.getName().equals(repositoryId)))

@@ -47,17 +47,17 @@ public class PypiMetadataParserTest
         PypiMetadataParser pypiMetadataParser = new PypiMetadataParser();
         PypiPackageInfo testDao = pypiMetadataParser.parseMetadataFile(new FileInputStream("src/test/resources/org.carlspring.strongbox.util/metadata_empty_values.xml"));
 
-        assertThat(testDao.getName().isEmpty()).isTrue();
-        assertThat(testDao.getMetadataVersion().isEmpty()).isTrue();
-        assertThat(testDao.getVersion().isEmpty()).isTrue();
-        assertThat(testDao.getSummary().isEmpty()).isTrue();
-        assertThat(testDao.getHomePage().isEmpty()).isTrue();
-        assertThat(testDao.getAuthor().isEmpty()).isTrue();
-        assertThat(testDao.getAuthorEmail().isEmpty()).isTrue();
-        assertThat(testDao.getLicense().isEmpty()).isTrue();
-        assertThat(testDao.getDescriptionContentType().isEmpty()).isTrue();
-        assertThat(testDao.getDescription().isEmpty()).isTrue();
-        assertThat(testDao.getPlatform().isEmpty()).isTrue();
+        assertThat(testDao.getName()).isEmpty();
+        assertThat(testDao.getMetadataVersion()).isEmpty();
+        assertThat(testDao.getVersion()).isEmpty();
+        assertThat(testDao.getSummary()).isEmpty();
+        assertThat(testDao.getHomePage()).isEmpty();
+        assertThat(testDao.getAuthor()).isEmpty();
+        assertThat(testDao.getAuthorEmail()).isEmpty();
+        assertThat(testDao.getLicense()).isEmpty();
+        assertThat(testDao.getDescriptionContentType()).isEmpty();
+        assertThat(testDao.getDescription()).isEmpty();
+        assertThat(testDao.getPlatform()).isEmpty();
     }
 
 }

@@ -254,7 +254,7 @@ public class ArtifactEntryServiceTest
 
         int left = count(groupId);
         assertThat(left).isZero();
-        assertThat(findAll(groupId).isEmpty()).isTrue();
+        assertThat(findAll(groupId)).isEmpty();
     }
 
     @Test
@@ -319,7 +319,7 @@ public class ArtifactEntryServiceTest
                                                                                     false);
 
         assertThat(artifactEntries).isNotNull();
-        assertThat(artifactEntries.isEmpty()).isFalse();
+        assertThat(artifactEntries).isNotEmpty();
         assertThat(artifactEntries).hasSize(2);
 
         artifactEntries.forEach(artifactEntry ->
@@ -348,8 +348,7 @@ public class ArtifactEntryServiceTest
                                                                            c1.getCoordinates(),
                                                                            false);
         assertThat(result).isNotNull();
-        assertThat(result.isEmpty()).isFalse();
-
+        assertThat(result).isNotEmpty();
         assertThat(result).hasSize(1);
 
         result.forEach(artifactEntry ->

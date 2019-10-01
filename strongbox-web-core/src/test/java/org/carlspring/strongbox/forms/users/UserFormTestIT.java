@@ -70,7 +70,7 @@ public class UserFormTestIT
         Set<ConstraintViolation<UserForm>> violations = validator.validate(userForm, constraintGroup);
 
         // then
-        assertThat(violations.isEmpty()).as("Violations are not empty!").isTrue();
+        assertThat(violations).as("Violations are not empty!").isEmpty();
     }
 
     @Test
@@ -136,7 +136,7 @@ public class UserFormTestIT
         Set<ConstraintViolation<UserForm>> violations = validator.validate(userForm, UserForm.ExistingUser.class);
 
         // then
-        assertThat(violations.isEmpty()).as("Violations are not empty!").isTrue();
+        assertThat(violations).as("Violations are not empty!").isEmpty();
     }
 
     @Test

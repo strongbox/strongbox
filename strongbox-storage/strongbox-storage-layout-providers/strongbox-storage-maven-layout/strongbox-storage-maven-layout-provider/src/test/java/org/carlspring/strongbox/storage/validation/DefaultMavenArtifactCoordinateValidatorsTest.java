@@ -75,7 +75,7 @@ public class DefaultMavenArtifactCoordinateValidatorsTest
             assertThat(storageId).as("Storage ID was null!").isNotNull();
         }
 
-        assertThat(configuration.getStorages().isEmpty()).as("Unexpected number of storages!").isFalse();
+        assertThat(configuration.getStorages()).as("Unexpected number of storages!").isNotEmpty();
         assertThat(configuration.getVersion()).as("Incorrect version!").isNotNull();
         assertThat(configuration.getPort()).as("Incorrect port number!").isEqualTo(48080);
         assertThat(configuration.getStorages()
@@ -95,7 +95,7 @@ public class DefaultMavenArtifactCoordinateValidatorsTest
 
         Set<String> versionValidators = repositoryReleases.getArtifactCoordinateValidators();
 
-        assertThat(versionValidators.isEmpty()).isFalse();
+        assertThat(versionValidators).isNotEmpty();
         assertThat(versionValidators.contains(RedeploymentValidator.ALIAS)).isTrue();
         assertThat(versionValidators.contains(MavenSnapshotVersionValidator.ALIAS)).isTrue();
         assertThat(versionValidators.contains(MavenReleaseVersionValidator.ALIAS)).isTrue();

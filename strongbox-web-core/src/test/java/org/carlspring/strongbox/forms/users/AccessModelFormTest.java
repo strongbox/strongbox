@@ -183,7 +183,7 @@ public class AccessModelFormTest
         Set<ConstraintViolation<RepositoryAccessModelForm>> violations = validator.validate(repositoryAccessModelForm);
 
         // then
-        assertThat(violations.isEmpty()).as("Violations are not empty!").isTrue();
+        assertThat(violations).as("Violations are not empty!").isEmpty();
     }
 
     @Test
@@ -199,7 +199,7 @@ public class AccessModelFormTest
         Set<ConstraintViolation<RepositoryAccessModelForm>> violations = validator.validate(repositoryAccessModelForm);
 
         // then
-        assertThat(violations.isEmpty()).as("Violations are empty!").isFalse();
+        assertThat(violations).as("Violations are empty!").isNotEmpty();
         assertThat(violations).hasSize(1);
         assertThat(violations).extracting("message").containsAnyOf("A storage id must be specified.");
     }

@@ -123,7 +123,7 @@ public class ConfigurationManagementServiceImplTest
     {
         List<Repository> repositories = configurationManagementService.getConfiguration().getRepositories();
 
-        assertThat(repositories.isEmpty()).isFalse();
+        assertThat(repositories).isNotEmpty();
 
         logger.debug("Repositories:");
 
@@ -138,7 +138,7 @@ public class ConfigurationManagementServiceImplTest
     {
         List<Repository> groupRepositories = configurationManagementService.getConfiguration().getGroupRepositories();
 
-        assertThat(groupRepositories.isEmpty()).isFalse();
+        assertThat(groupRepositories).isNotEmpty();
 
         logger.debug("Group repositories:");
 
@@ -163,7 +163,7 @@ public class ConfigurationManagementServiceImplTest
                                                                 .getGroupRepositoriesContaining(storageId,
                                                                                                 releases1Id);
 
-        assertThat(groups.isEmpty()).isFalse();
+        assertThat(groups).isNotEmpty();
 
         logger.debug("Group repositories containing \"{}\" repository:", releases1Id);
 
@@ -276,9 +276,7 @@ public class ConfigurationManagementServiceImplTest
                                                          storageId.equals(a.getStorageId()))
                                             .collect(Collectors.toList());
 
-        assertThat(routingRulesMatching.isEmpty()).isTrue();
-
-
+        assertThat(routingRulesMatching).isEmpty();
     }
 
     @ExtendWith(RepositoryManagementTestExecutionListener.class)
@@ -298,7 +296,7 @@ public class ConfigurationManagementServiceImplTest
                                                                       .getRepositoriesWithLayout(STORAGE0,
                                                                                                  NullArtifactCoordinates.LAYOUT_NAME);
 
-        assertThat(repositories.isEmpty()).isFalse();
+        assertThat(repositories).isNotEmpty();
 
         repositories.forEach(repository -> {
             assertThat(repository.getLayout()).isEqualTo(NullArtifactCoordinates.LAYOUT_NAME);
@@ -323,7 +321,7 @@ public class ConfigurationManagementServiceImplTest
                                                                       .getRepositoriesWithLayout("notExistingStorage",
                                                                                                  NullArtifactCoordinates.LAYOUT_NAME);
 
-        assertThat(repositories.isEmpty()).isTrue();
+        assertThat(repositories).isEmpty();
     }
 
     private MutableRoutingRule createRoutingRule(RoutingRuleTypeEnum type)

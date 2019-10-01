@@ -61,7 +61,7 @@ public class CronTaskControllerTest
                 .isEqualTo(OK);
 
         CronTasksConfigurationDto cronTasks = response.as(CronTasksConfigurationDto.class);
-        assertThat(cronTasks.getCronTaskConfigurations().isEmpty()).as("List of cron tasks is empty!").isFalse();
+        assertThat(cronTasks.getCronTaskConfigurations()).as("List of cron tasks is empty!").isNotEmpty();
     }
 
     @Test

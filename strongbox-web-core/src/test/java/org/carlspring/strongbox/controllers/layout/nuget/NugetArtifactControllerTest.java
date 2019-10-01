@@ -448,7 +448,7 @@ public class NugetArtifactControllerTest extends NugetRestAssuredBaseTest
                                                                                       "nuget.org",
                                                                                       coordinatesMap,
                                                                                       true);
-        assertThat(artifactEntryList.isEmpty()).isFalse();
+        assertThat(artifactEntryList).isNotEmpty();
 
         ArtifactEntry artifactEntry = artifactEntryList.iterator().next();
         assertThat(artifactEntry).isInstanceOf(RemoteArtifactEntry.class);

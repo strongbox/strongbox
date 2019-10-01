@@ -57,9 +57,9 @@ public class RoleListFormTestIT
         Set<ConstraintViolation<RoleListForm>> violations = validator.validate(roleListForm);
 
         // then
-        assertThat(violations.isEmpty())
+        assertThat(violations)
                 .as("Violations are not empty!")
-                .isTrue();
+                .isEmpty();
     }
 
     @Test

@@ -60,22 +60,22 @@ public class EnvironmentInfoControllerTestIT
         List<?> environmentVariables = returnedMap.get("environment");
 
         assertThat(environmentVariables).as("Failed to get environment variables list!").isNotNull();
-        assertThat(environmentVariables.isEmpty()).as("Returned environment variables are empty").isFalse();
+        assertThat(environmentVariables).as("Returned environment variables are empty").isNotEmpty();
 
         List<?> systemProperties = returnedMap.get("system");
 
         assertThat(systemProperties).as("Failed to get system properties list!").isNotNull();
-        assertThat(systemProperties.isEmpty()).as("Returned system properties are empty").isFalse();
+        assertThat(systemProperties).as("Returned system properties are empty").isNotEmpty();
 
         List<?> jvmArguments = returnedMap.get("jvm");
 
         assertThat(jvmArguments).as("Failed to get JVM arguments list!").isNotNull();
-        assertThat(jvmArguments.isEmpty()).as("Returned JVM arguments are not empty").isTrue();
+        assertThat(jvmArguments).as("Returned JVM arguments are not empty").isEmpty();
 
         List<?> strongboxInfo = returnedMap.get("strongbox");
 
         assertThat(strongboxInfo).as("Failed to get strongbox info list!").isNotNull();
-        assertThat(strongboxInfo.isEmpty()).as("Returned strongbox info are empty").isFalse();
+        assertThat(strongboxInfo).as("Returned strongbox info are empty").isNotEmpty();
     }
 
     @Test

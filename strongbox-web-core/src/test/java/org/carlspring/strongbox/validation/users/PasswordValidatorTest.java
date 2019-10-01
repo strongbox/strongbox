@@ -39,7 +39,7 @@ public class PasswordValidatorTest
 
         violations.forEach(v -> logger.debug("Violation: {}", v.getMessage()));
 
-        assertThat(violations.isEmpty()).isTrue();
+        assertThat(violations).isEmpty();
     }
 
     @Test
@@ -52,7 +52,7 @@ public class PasswordValidatorTest
 
         violations.forEach(v -> logger.debug("Violation: {}", v.getMessage()));
 
-        assertThat(violations.isEmpty()).isFalse();
+        assertThat(violations).isNotEmpty();
     }
 
     @Test
@@ -65,7 +65,7 @@ public class PasswordValidatorTest
 
         violations.forEach(v -> logger.debug("Violation: {}", v.getMessage()));
 
-        assertThat(violations.isEmpty()).isFalse();
+        assertThat(violations).isNotEmpty();
     }
 
     @Test
@@ -79,7 +79,7 @@ public class PasswordValidatorTest
 
         violations.forEach(v -> logger.debug("Violation: {}", v.getMessage()));
 
-        assertThat(violations.isEmpty()).isFalse();
+        assertThat(violations).isNotEmpty();
     }
 
     @Test
@@ -93,7 +93,7 @@ public class PasswordValidatorTest
 
         violations.forEach(v -> logger.debug("Violation: {}", v.getMessage()));
 
-        assertThat(violations.isEmpty()).isFalse();
+        assertThat(violations).isNotEmpty();
     }
 
     @Test
@@ -105,7 +105,7 @@ public class PasswordValidatorTest
 
         violations.forEach(v -> logger.debug("Violation: {}", v.getMessage()));
 
-        assertThat(violations.isEmpty()).isTrue();
+        assertThat(violations).isEmpty();
     }
 
 
@@ -119,7 +119,7 @@ public class PasswordValidatorTest
 
         violations.forEach(v -> logger.debug("Violation: {}", v.getMessage()));
 
-        assertThat(violations.isEmpty()).isFalse();
+        assertThat(violations).isNotEmpty();
     }
 
     @Test
@@ -132,6 +132,6 @@ public class PasswordValidatorTest
 
         violations.forEach(v -> logger.debug("Violation: {}", v.getMessage()));
 
-        assertThat(violations.isEmpty()).isFalse();
+        assertThat(violations).isNotEmpty();
     }
 }
