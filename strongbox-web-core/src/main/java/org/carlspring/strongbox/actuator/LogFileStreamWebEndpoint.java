@@ -26,23 +26,23 @@ public class LogFileStreamWebEndpoint
 
     private static final String SSE_TIMEOUT_PROPERTY_NAME = "strongbox.sse.timeoutMillis";
 
-    private static final Long TIMEOUT_MILLIS = Long.valueOf(3600000l);
+    private static final long TIMEOUT_MILLIS = 600000L;
 
     private final Logger logger = LoggerFactory.getLogger(getClass());
 
     private final Environment environment;
 
-    private File externalFile;
+    private final File externalFile;
 
-    public LogFileStreamWebEndpoint(Environment environment,
-                                    File externalFile)
+    LogFileStreamWebEndpoint(Environment environment,
+                             File externalFile)
     {
         this.environment = environment;
         this.externalFile = externalFile;
     }
 
     @ReadOperation(produces = "text/plain; charset=UTF-8")
-    public SseEmitter logFileStream()
+    SseEmitter logFileStream()
             throws IOException
     {
         final SseEmitter sseEmitter = new SseEmitter(

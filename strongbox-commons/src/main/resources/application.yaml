@@ -38,7 +38,7 @@ strongbox:
       cache:
         seconds: 300
   sse:
-    timeoutMillis: 3600000
+    timeoutMillis: 600000
 # Changes to these properties must also be applied to [strongbox/strongbox-web-integration-tests] and possibly the pipeline.
 # Please ping us on our chat channel (https://chat.carlspring.org/) to confirm.
 logging:

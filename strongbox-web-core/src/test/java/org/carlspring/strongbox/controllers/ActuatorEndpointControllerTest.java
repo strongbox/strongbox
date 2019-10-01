@@ -4,6 +4,9 @@ import org.carlspring.strongbox.booters.PropertiesBooter;
 import org.carlspring.strongbox.config.IntegrationTest;
 import org.carlspring.strongbox.rest.common.RestAssuredBaseTest;
 
+import javax.inject.Inject;
+
+import io.restassured.module.mockmvc.specification.MockMvcRequestSpecification;
 import org.hamcrest.CoreMatchers;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -12,12 +15,6 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.security.test.context.support.WithAnonymousUser;
 import org.springframework.security.test.context.support.WithUserDetails;
-
-import io.restassured.module.mockmvc.specification.MockMvcRequestSpecification;
-
-import javax.inject.Inject;
-
-
 import static org.hamcrest.Matchers.equalTo;
 import static org.hamcrest.Matchers.notNullValue;
 
@@ -28,7 +25,6 @@ import static org.hamcrest.Matchers.notNullValue;
 public class ActuatorEndpointControllerTest
         extends RestAssuredBaseTest
 {
-    private final String UNAUTHORIZED_MESSAGE = "Full authentication is required to access this resource";
 
     private static final String LOGGER_PACKAGE = "org.carlspring.strongbox";
 
@@ -87,7 +83,7 @@ public class ActuatorEndpointControllerTest
     @Test
     public void testMonitoringEndpointWithAuthorizedUser()
     {
-        given().accept(MediaType.APPLICATION_JSON_VALUE)
+        mockMvc.accept(MediaType.APPLICATION_JSON_VALUE)
                .when()
                .get(getContextBaseUrl())
                .peek()
@@ -100,13 +96,13 @@ public class ActuatorEndpointControllerTest
     @WithAnonymousUser
     public void testMonitoringEndpointWithUnauthorizedUser()
     {
-        given().accept(MediaType.APPLICATION_JSON_VALUE)
+        mockMvc.accept(MediaType.APPLICATION_JSON_VALUE)
                .when()
                .get(getContextBaseUrl())
                .peek()
                .then()
                .statusCode(HttpStatus.UNAUTHORIZED.value())
-               .body("error", CoreMatchers.equalTo(UNAUTHORIZED_MESSAGE));
+               .body("error", CoreMatchers.equalTo(getI18nInsufficientAuthenticationErrorMessage()));
     }
 
     @Test
@@ -114,7 +110,7 @@ public class ActuatorEndpointControllerTest
     {
         String url = getContextBaseUrl() + "/health";
 
-        given().accept(MediaType.APPLICATION_JSON_VALUE)
+        mockMvc.accept(MediaType.APPLICATION_JSON_VALUE)
                .when()
                .get(url)
                .peek()
@@ -129,13 +125,13 @@ public class ActuatorEndpointControllerTest
     {
         String url = getContextBaseUrl() + "/health";
 
-        given().accept(MediaType.APPLICATION_JSON_VALUE)
+        mockMvc.accept(MediaType.APPLICATION_JSON_VALUE)
                .when()
                .get(url)
                .peek()
                .then()
                .statusCode(HttpStatus.UNAUTHORIZED.value())
-               .body("error", CoreMatchers.equalTo(UNAUTHORIZED_MESSAGE));
+               .body("error", CoreMatchers.equalTo(getI18nInsufficientAuthenticationErrorMessage()));
     }
 
     @Test
@@ -143,7 +139,7 @@ public class ActuatorEndpointControllerTest
     {
         String url = getContextBaseUrl() + "/health/db";
 
-        given().accept(MediaType.APPLICATION_JSON_VALUE)
+        mockMvc.accept(MediaType.APPLICATION_JSON_VALUE)
                .when()
                .get(url)
                .peek()
@@ -158,13 +154,13 @@ public class ActuatorEndpointControllerTest
     {
         String url = getContextBaseUrl() + "/health/db";
 
-        given().accept(MediaType.APPLICATION_JSON_VALUE)
+        mockMvc.accept(MediaType.APPLICATION_JSON_VALUE)
                .when()
                .get(url)
                .peek()
                .then()
                .statusCode(HttpStatus.UNAUTHORIZED.value())
-               .body("error", CoreMatchers.equalTo(UNAUTHORIZED_MESSAGE));
+               .body("error", CoreMatchers.equalTo(getI18nInsufficientAuthenticationErrorMessage()));
     }
 
     @Test
@@ -172,7 +168,7 @@ public class ActuatorEndpointControllerTest
     {
         String url = getContextBaseUrl() + "/health/not_existing_component";
 
-        given().accept(MediaType.APPLICATION_JSON_VALUE)
+        mockMvc.accept(MediaType.APPLICATION_JSON_VALUE)
                .when()
                .get(url)
                .peek()
@@ -185,7 +181,7 @@ public class ActuatorEndpointControllerTest
     {
         String url = getContextBaseUrl() + "/info";
 
-        given().accept(MediaType.APPLICATION_JSON_VALUE)
+        mockMvc.accept(MediaType.APPLICATION_JSON_VALUE)
                .when()
                .get(url)
                .peek()
@@ -200,13 +196,13 @@ public class ActuatorEndpointControllerTest
     {
         String url = getContextBaseUrl() + "/info";
 
-        given().accept(MediaType.APPLICATION_JSON_VALUE)
+        mockMvc.accept(MediaType.APPLICATION_JSON_VALUE)
                .when()
                .get(url)
                .peek()
                .then()
                .statusCode(HttpStatus.UNAUTHORIZED.value())
-               .body("error", CoreMatchers.equalTo(UNAUTHORIZED_MESSAGE));
+               .body("error", CoreMatchers.equalTo(getI18nInsufficientAuthenticationErrorMessage()));
     }
 
     @Test
@@ -214,7 +210,7 @@ public class ActuatorEndpointControllerTest
     {
         String url = getContextBaseUrl() + "/beans";
 
-        given().accept(MediaType.APPLICATION_JSON_VALUE)
+        mockMvc.accept(MediaType.APPLICATION_JSON_VALUE)
                .when()
                .get(url)
                .peek()
@@ -229,13 +225,13 @@ public class ActuatorEndpointControllerTest
     {
         String url = getContextBaseUrl() + "/beans";
 
-        given().accept(MediaType.APPLICATION_JSON_VALUE)
+        mockMvc.accept(MediaType.APPLICATION_JSON_VALUE)
                .when()
                .get(url)
                .peek()
                .then()
                .statusCode(HttpStatus.UNAUTHORIZED.value())
-               .body("error", CoreMatchers.equalTo(UNAUTHORIZED_MESSAGE));
+               .body("error", CoreMatchers.equalTo(getI18nInsufficientAuthenticationErrorMessage()));
     }
 
     @Test
@@ -244,7 +240,7 @@ public class ActuatorEndpointControllerTest
 
         String url = getContextBaseUrl() + "/metrics";
 
-        given().accept(MediaType.APPLICATION_JSON_VALUE)
+        mockMvc.accept(MediaType.APPLICATION_JSON_VALUE)
                .when()
                .get(url)
                .peek()
@@ -259,13 +255,13 @@ public class ActuatorEndpointControllerTest
     {
         String url = getContextBaseUrl() + "/metrics";
 
-        given().accept(MediaType.APPLICATION_JSON_VALUE)
+        mockMvc.accept(MediaType.APPLICATION_JSON_VALUE)
                .when()
                .get(url)
                .peek()
                .then()
                .statusCode(HttpStatus.UNAUTHORIZED.value())
-               .body("error", CoreMatchers.equalTo(UNAUTHORIZED_MESSAGE));
+               .body("error", CoreMatchers.equalTo(getI18nInsufficientAuthenticationErrorMessage()));
     }
 
     @Test
@@ -273,7 +269,7 @@ public class ActuatorEndpointControllerTest
     {
         String url = getContextBaseUrl() + "/metrics/" + METRIC_NAME;
 
-        given().accept(MediaType.APPLICATION_JSON_VALUE)
+        mockMvc.accept(MediaType.APPLICATION_JSON_VALUE)
                .when()
                .get(url)
                .peek()
@@ -288,13 +284,13 @@ public class ActuatorEndpointControllerTest
     {
         String url = getContextBaseUrl() + "/metrics/" + METRIC_NAME;
 
-        given().accept(MediaType.APPLICATION_JSON_VALUE)
+        mockMvc.accept(MediaType.APPLICATION_JSON_VALUE)
                .when()
                .get(url)
                .peek()
                .then()
                .statusCode(HttpStatus.UNAUTHORIZED.value())
-               .body("error", CoreMatchers.equalTo(UNAUTHORIZED_MESSAGE));
+               .body("error", CoreMatchers.equalTo(getI18nInsufficientAuthenticationErrorMessage()));
     }
 
     @Test
@@ -302,7 +298,7 @@ public class ActuatorEndpointControllerTest
     {
         String url = getContextBaseUrl() + "/metrics/" + NOT_EXISTING_METRIC_NAME;
 
-        given().accept(MediaType.APPLICATION_JSON_VALUE)
+        mockMvc.accept(MediaType.APPLICATION_JSON_VALUE)
                .when()
                .get(url)
                .peek()
@@ -315,7 +311,7 @@ public class ActuatorEndpointControllerTest
     {
         String url = getContextBaseUrl() + "/loggers";
 
-        given().accept(MediaType.APPLICATION_JSON_VALUE)
+        mockMvc.accept(MediaType.APPLICATION_JSON_VALUE)
                .when()
                .get(url)
                .then()
@@ -329,12 +325,12 @@ public class ActuatorEndpointControllerTest
     {
         String url = getContextBaseUrl() + "/loggers";
 
-        given().accept(MediaType.APPLICATION_JSON_VALUE)
+        mockMvc.accept(MediaType.APPLICATION_JSON_VALUE)
                .when()
                .get(url)
                .then()
                .statusCode(HttpStatus.UNAUTHORIZED.value())
-               .body("error", CoreMatchers.equalTo(UNAUTHORIZED_MESSAGE));
+               .body("error", CoreMatchers.equalTo(getI18nInsufficientAuthenticationErrorMessage()));
     }
 
     @Test
@@ -342,7 +338,7 @@ public class ActuatorEndpointControllerTest
     {
         String url = getContextBaseUrl() + "/loggers/" + LOGGER_PACKAGE;
 
-        given().accept(MediaType.APPLICATION_JSON_VALUE)
+        mockMvc.accept(MediaType.APPLICATION_JSON_VALUE)
                .when()
                .get(url)
                .then()
@@ -356,11 +352,11 @@ public class ActuatorEndpointControllerTest
     {
         String url = getContextBaseUrl() + "/loggers/" + LOGGER_PACKAGE;
 
-        given().accept(MediaType.APPLICATION_JSON_VALUE)
+        mockMvc.accept(MediaType.APPLICATION_JSON_VALUE)
                .when()
                .get(url)
                .then()
                .statusCode(HttpStatus.UNAUTHORIZED.value())
-               .body("error", CoreMatchers.equalTo(UNAUTHORIZED_MESSAGE));
+               .body("error", CoreMatchers.equalTo(getI18nInsufficientAuthenticationErrorMessage()));
     }
 }

@@ -18,6 +18,8 @@ public class SseEmitterAwareTailerListenerAdapter
         extends TailerListenerAdapter
 {
 
+    private static final String FILE_NOT_FOUND_MESSAGE = "File not found";
+
     private final Logger logger = LoggerFactory.getLogger(getClass());
 
     private SseEmitter sseEmitter;
@@ -39,23 +41,45 @@ public class SseEmitterAwareTailerListenerAdapter
     @Override
     public void fileNotFound()
     {
-        sseEmitter.completeWithError(new IllegalStateException("File not found"));
-        stopListeningAndCleanupResources();
-        logger.error("File not found");
+        handleError(FILE_NOT_FOUND_MESSAGE);
     }
 
     @Override
     public void fileRotated()
     {
         logger.info("File rotated");
+        send("rotate", null);
     }
 
     @Override
     public void handle(final String line)
     {
+        send("stream", line);
+    }
+
+    @Override
+    public void handle(final Exception ex)
+    {
+        handleError(String.format("Exception occurred [%s]", ExceptionUtils.getStackTrace(ex)));
+    }
+
+    private void handleError(final String errorMsg)
+    {
+        send("error", errorMsg);
+        if (sseEmitter != null)
+        {
+            sseEmitter.completeWithError(new IllegalStateException(errorMsg));
+            stopListeningAndCleanupResources();
+        }
+        logger.error(errorMsg);
+    }
+
+    private void send(final String eventName,
+                      final String eventData)
+    {
         try
         {
-            sseEmitter.send(line);
+            sseEmitter.send(SseEmitter.event().name(eventName).data(eventData).build());
         }
         catch (IllegalStateException isEx)
         {
@@ -70,27 +94,24 @@ public class SseEmitterAwareTailerListenerAdapter
         }
         catch (IOException ioEx)
         {
-            logger.error(String.format("Unable to send message [%s]", line), ioEx);
+            logger.error(String.format("Unable to send message [%s]", eventData), ioEx);
         }
-    }
-
-    @Override
-    public void handle(final Exception ex)
-    {
-        sseEmitter.completeWithError(
-                new IllegalStateException(String.format("Exception occurred [%s]", ExceptionUtils.getStackTrace(ex))));
-        stopListeningAndCleanupResources();
-        logger.error("Exception occurred.", ex);
     }
 
     private void stopListeningAndCleanupResources()
     {
-        tailer.stop();
-        tailer = null;
+        if (tailer != null)
+        {
+            tailer.stop();
+            tailer = null;
+        }
 
         try
         {
-            sseEmitter.complete();
+            if (sseEmitter != null)
+            {
+                sseEmitter.complete();
+            }
         }
         catch (Exception ex)
         {
