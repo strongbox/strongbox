@@ -97,8 +97,7 @@ public class RepositoryFormTestIT
                                                                                  ProxyConfigurationFormChecks.class);
 
         // then
-        assertThat(violations.isEmpty()).as("Violations are empty!").isFalse();
-        assertThat(violations.size()).isEqualTo(numErrors);
+        assertThat(violations).as("Violations are empty!").isEqualTo(numErrors);
         assertThat(violations).extracting("message").containsAnyOf(errorMessage);
     }
 

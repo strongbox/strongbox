@@ -199,7 +199,7 @@ public class RegenerateNugetChecksumCronJobTestIT
 
         await().atMost(EVENT_TIMEOUT_SECONDS, TimeUnit.SECONDS).untilTrue(receivedExpectedEvent());
 
-        assertThat(resultList.size()).isEqualTo(2);
+        assertThat(resultList).hasSize(2);
         resultList.forEach(ThrowingConsumer.unchecked(path -> {
             assertThat(Files.exists(path))
                     .as("The checksum file " + path.toString() + " doesn't exist!")

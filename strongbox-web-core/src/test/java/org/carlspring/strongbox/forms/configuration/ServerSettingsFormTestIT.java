@@ -142,8 +142,7 @@ public class ServerSettingsFormTestIT
                                                                                      ProxyConfigurationFormChecks.class);
 
         // then
-        assertThat(violations.isEmpty()).as("Violations are empty!").isFalse();
-        assertThat(violations.size()).isEqualTo(1);
+        assertThat(violations).as("Violations are empty!").isEqualTo(1);
         assertThat(violations).extracting("message").containsAnyOf("The name of this instance");
     }
 
@@ -166,8 +165,7 @@ public class ServerSettingsFormTestIT
                                                                                      ProxyConfigurationFormChecks.class);
 
         // then
-        assertThat(violations.isEmpty()).as("Violations are empty!").isFalse();
-        assertThat(violations.size()).isEqualTo(1);
+        assertThat(violations).as("Violations are empty!").isEqualTo(1);
         assertThat(violations).extracting("message").containsAnyOf("A base URL must be specified.");
     }
 
@@ -192,8 +190,7 @@ public class ServerSettingsFormTestIT
                                                                                      ProxyConfigurationFormChecks.class);
 
         // then
-        assertThat(violations.isEmpty()).as("Violations are empty!").isFalse();
-        assertThat(violations.size()).isEqualTo(1);
+        assertThat(violations).as("Violations are empty!").isEqualTo(1);
         assertThat(violations).extracting("message").containsAnyOf(errorMessage);
     }
 
@@ -217,8 +214,7 @@ public class ServerSettingsFormTestIT
                                                                                      ProxyConfigurationFormChecks.class);
 
         // then
-        assertThat(violations.isEmpty()).as("Violations are empty!").isFalse();
-        assertThat(violations.size()).isEqualTo(1);
+        assertThat(violations).as("Violations are empty!").isEqualTo(1);
         assertThat(violations).extracting("message").containsAnyOf(
                 "Port number must be an integer between 1 and 65535.");
     }
@@ -243,8 +239,7 @@ public class ServerSettingsFormTestIT
                                                                                      ProxyConfigurationFormChecks.class);
 
         // then
-        assertThat(violations.isEmpty()).as("Violations are empty!").isFalse();
-        assertThat(violations.size()).isEqualTo(1);
+        assertThat(violations).as("Violations are empty!").isEqualTo(1);
         assertThat(violations).extracting("message").containsAnyOf("A host must be specified.");
     }
 }

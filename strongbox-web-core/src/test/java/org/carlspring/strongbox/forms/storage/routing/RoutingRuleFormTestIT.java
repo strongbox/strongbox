@@ -74,8 +74,7 @@ public class RoutingRuleFormTestIT
         Set<ConstraintViolation<RoutingRuleForm>> violations = validator.validate(routingRuleForm);
 
         // then
-        assertThat(violations.isEmpty()).as("Violations are empty!").isFalse();
-        assertThat(violations.size()).isEqualTo(1);
+        assertThat(violations).hasSize(1);
         assertThat(violations).extracting("message").containsAnyOf("A pattern must be specified.");
     }
 
@@ -91,8 +90,7 @@ public class RoutingRuleFormTestIT
         Set<ConstraintViolation<RoutingRuleForm>> violations = validator.validate(routingRuleForm);
 
         // then
-        assertThat(violations.isEmpty()).as("Violations are not empty!").isTrue();
-        assertThat(violations.size()).isEqualTo(0);
+        assertThat(violations).as("Violations are not empty!").isEmpty();
     }
 
     @Test
@@ -111,8 +109,7 @@ public class RoutingRuleFormTestIT
         Set<ConstraintViolation<RoutingRuleForm>> violations = validator.validate(routingRuleForm);
 
         // then
-        assertThat(violations.isEmpty()).as("Violations are empty!").isFalse();
-        assertThat(violations.size()).isEqualTo(2);
+        assertThat(violations).as("Violations are empty!").hasSize(2);
         assertThat(violations).extracting("message").containsAnyOf("Either storageId or repositoryId must not be blank!");
     }
 
@@ -130,8 +127,7 @@ public class RoutingRuleFormTestIT
         Set<ConstraintViolation<RoutingRuleForm>> violations = validator.validate(routingRuleForm);
 
         // then
-        assertThat(violations.isEmpty()).as("Violations are empty!").isFalse();
-        assertThat(violations.size()).isEqualTo(1);
+        assertThat(violations).as("Violations are empty!").isEqualTo(1);
         assertThat(violations).extracting("message").containsAnyOf("A type must be specified.");
     }
 }

@@ -65,8 +65,7 @@ public class PrivilegeListFormTestIT
         Set<ConstraintViolation<PrivilegeListForm>> violations = validator.validate(privilegeListForm);
 
         // then
-        assertThat(violations.isEmpty()).as("Violations are empty!").isFalse();
-        assertThat(violations.size()).isEqualTo(1);
+        assertThat(violations).as("Violations are empty!").isEqualTo(1);
         assertThat(violations).extracting("messageTemplate").containsAnyOf("{javax.validation.constraints.NotNull.message}");
     }
 }

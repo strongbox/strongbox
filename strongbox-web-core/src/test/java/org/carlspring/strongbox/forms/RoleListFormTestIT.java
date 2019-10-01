@@ -82,8 +82,7 @@ public class RoleListFormTestIT
         Set<ConstraintViolation<RoleListForm>> violations = validator.validate(roleListForm);
 
         // then
-        assertThat(violations.isEmpty()).as("Violations are empty!").isFalse();
-        assertThat(violations.size()).isEqualTo(1);
+        assertThat(violations).as("Violations are empty!").isEqualTo(1);
         assertThat(violations).extracting("message").containsAnyOf("A name must be specified.");
     }
 
@@ -107,8 +106,7 @@ public class RoleListFormTestIT
         Set<ConstraintViolation<RoleListForm>> violations = validator.validate(roleListForm);
 
         // then
-        assertThat(violations.isEmpty()).as("Violations are empty!").isFalse();
-        assertThat(violations.size()).isEqualTo(1);
+        assertThat(violations).as("Violations are empty!").isEqualTo(1);
         assertThat(violations).extracting("message").containsAnyOf("Role is already registered.");
     }
 }

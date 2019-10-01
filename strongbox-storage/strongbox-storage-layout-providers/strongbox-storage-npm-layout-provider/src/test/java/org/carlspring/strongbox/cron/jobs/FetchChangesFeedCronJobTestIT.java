@@ -109,7 +109,7 @@ public class FetchChangesFeedCronJobTestIT
                 entityManager);
         List<RemoteArtifactEntry> artifactEntryList = queryTemplate.select(selector);
 
-        assertThat(artifactEntryList.size()).isEqualTo(1);
+        assertThat(artifactEntryList).hasSize(1);
 
         RemoteArtifactEntry artifactEntry = artifactEntryList.iterator().next();
         assertThat(artifactEntry.getIsCached()).isFalse();

@@ -98,8 +98,7 @@ public class SmtpConfigurationFormTestIT
                                                                                         SmtpConfigurationFormChecks.class);
 
         // then
-        assertThat(violations.isEmpty()).as("Violations are empty!").isFalse();
-        assertThat(violations.size()).isEqualTo(1);
+        assertThat(violations).as("Violations are empty!").isEqualTo(1);
         assertThat(violations).extracting("message").containsAnyOf("SMTP host must be provided.");
     }
 
@@ -119,8 +118,7 @@ public class SmtpConfigurationFormTestIT
                                                                                         SmtpConfigurationFormChecks.class);
 
         // then
-        assertThat(violations.isEmpty()).as("Violations are empty!").isFalse();
-        assertThat(violations.size()).isEqualTo(1);
+        assertThat(violations).as("Violations are empty!").isEqualTo(1);
         assertThat(violations).extracting("message").containsAnyOf(errorMessage);
     }
 
@@ -140,8 +138,7 @@ public class SmtpConfigurationFormTestIT
                                                                                         SmtpConfigurationFormChecks.class);
 
         // then
-        assertThat(violations.isEmpty()).as("Violations are empty!").isFalse();
-        assertThat(violations.size()).isEqualTo(1);
+        assertThat(violations).as("Violations are empty!").isEqualTo(1);
         assertThat(violations).extracting("message").containsAnyOf(errorMessage);
     }
 }
