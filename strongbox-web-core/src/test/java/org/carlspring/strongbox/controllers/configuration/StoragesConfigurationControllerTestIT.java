@@ -339,9 +339,9 @@ public class StoragesConfigurationControllerTestIT
         assertThat(repository0.getRepositoryConfiguration())
                 .as("Failed to get storage (" + storageId + ")!")
                 .isNotNull();
-        assertThat(repository0.getRepositoryConfiguration() instanceof MavenRepositoryConfiguration)
+        assertThat(repository0.getRepositoryConfiguration())
                 .as("Failed to get storage (" + storageId + ")!")
-                .isTrue();
+                .isInstanceOf(MavenRepositoryConfiguration.class);
         assertThat(((MavenRepositoryConfiguration) repository0.getRepositoryConfiguration()).isIndexingEnabled())
                 .as("Failed to get storage (" + storageId + ")!")
                 .isTrue();
