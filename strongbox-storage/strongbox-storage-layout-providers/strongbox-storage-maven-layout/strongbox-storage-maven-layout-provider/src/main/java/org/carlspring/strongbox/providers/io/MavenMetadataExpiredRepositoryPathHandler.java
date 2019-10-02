@@ -70,6 +70,11 @@ public class MavenMetadataExpiredRepositoryPathHandler
     {
         MavenRepositoryConfiguration repositoryConfiguration =
                 (MavenRepositoryConfiguration) repositoryPath.getRepository().getRepositoryConfiguration();
+        if (repositoryConfiguration == null)
+        {
+            return checksumMetadataStrategy;
+        }
+
         MetadataStrategyEnum configuredStrategy =
                 MetadataStrategyEnum.ofStrategy(repositoryConfiguration.getMetadataStrategy());
         if (MetadataStrategyEnum.REFRESH.equals(configuredStrategy))
