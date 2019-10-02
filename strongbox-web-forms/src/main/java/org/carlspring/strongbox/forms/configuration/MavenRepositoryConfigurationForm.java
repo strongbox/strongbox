@@ -22,7 +22,6 @@ public class MavenRepositoryConfigurationForm
 
     private String cronExpression;
 
-    @NotEmpty(message = "A metadata strategy must be specified.")
     @DescribableEnumValue(message = "An metadata strategy is invalid.", type = MetadataStrategyEnum.class)
     private String metadataStrategy;
 
