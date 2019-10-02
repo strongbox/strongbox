@@ -6,13 +6,14 @@ import java.nio.file.Path;
 import java.nio.file.Paths;
 
 import javax.annotation.PostConstruct;
-import javax.annotation.PreDestroy;
 import javax.inject.Inject;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
+import com.hazelcast.core.HazelcastInstance;
+import com.hazelcast.core.ILock;
+
 
 /**
  * 
@@ -26,22 +27,37 @@ public class TempDirBooter
     @Inject
     private PropertiesBooter propertiesBooter;
 
-    private Path lockFile;
-    
+    @Inject
+    private HazelcastInstance hazelcastInstance;
+
+
     @PostConstruct
     public void initialize()
             throws IOException
     {
-        lockFile = Paths.get(propertiesBooter.getVaultDirectory()).resolve("temp-dir-booter.lock");
-
-        if (!lockExists())
+        ILock lock = hazelcastInstance.getLock("TempDirBooterLock");
+        if (lock.tryLock())
         {
-            createLockFile();
-            createTempDir();
+            logger.debug(" -> No lock found.");
+
+            try
+            {
+                createTempDir();
+            }
+            finally
+            {
+                lock.unlock();
+
+                logger.debug("Removed lock '" + lock.getName());
+            }
+        }
+        else
+        {
+            logger.debug(" -> Lock found: '" + lock.getName() + "'!");
         }
     }
     
-    public void createTempDir()
+    private void createTempDir()
             throws IOException
     {
         String tempDirLocation = System.getProperty("java.io.tmpdir",
@@ -67,40 +83,4 @@ public class TempDirBooter
             logger.debug("The java.io.tmpdir is already set to " + System.getProperty("java.io.tmpdir") + ".");
         }
     }
-    
-    @SuppressFBWarnings(value = "NP_NULL_ON_SOME_PATH_FROM_RETURN_VALUE")
-    private void createLockFile()
-            throws IOException
-    {
-        Files.createDirectories(lockFile.getParent());
-        Files.createFile(lockFile);
-
-        logger.debug(" -> Created lock file '" + lockFile.toAbsolutePath().toString() + "'...");
-    }
-    
-    private boolean lockExists()
-    {
-        if (Files.exists(lockFile))
-        {
-            logger.debug(" -> Lock found: '" + propertiesBooter.getVaultDirectory() + "'!");
-
-            return true;
-        }
-        else
-        {
-            logger.debug(" -> No lock found.");
-
-            return false;
-        }
-    }
-    
-    @PreDestroy
-    public void removeLock()
-            throws IOException
-    {
-        Files.deleteIfExists(lockFile);
-
-        logger.debug("Removed lock file '" + lockFile.toAbsolutePath().toString() + "'.");
-    }
-
 }
