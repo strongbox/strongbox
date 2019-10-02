@@ -22,7 +22,7 @@ public class SseEmitterAwareTailerListenerAdapter
 
     private final Logger logger = LoggerFactory.getLogger(getClass());
 
-    private SseEmitter sseEmitter;
+    protected SseEmitter sseEmitter;
 
     private Tailer tailer;
 
@@ -79,7 +79,11 @@ public class SseEmitterAwareTailerListenerAdapter
     {
         try
         {
-            sseEmitter.send(SseEmitter.event().name(eventName).data(eventData).build());
+            if (sseEmitter != null)
+            {
+                sseEmitter.send(SseEmitter.event().name(eventName).data(eventData).build());
+            }
+
         }
         catch (IllegalStateException isEx)
         {

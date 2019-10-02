@@ -2,27 +2,46 @@ package org.carlspring.strongbox.actuator;
 
 import java.io.File;
 import java.io.IOException;
+import java.nio.charset.Charset;
 import java.nio.file.Files;
 import java.nio.file.Paths;
 
+import org.apache.commons.io.FileUtils;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.TestInfo;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.config.ConfigurableBeanFactory;
+import org.springframework.boot.actuate.autoconfigure.endpoint.EndpointAutoConfiguration;
+import org.springframework.boot.actuate.autoconfigure.endpoint.web.WebEndpointAutoConfiguration;
 import org.springframework.boot.actuate.autoconfigure.logging.LogFileWebEndpointAutoConfiguration;
+import org.springframework.boot.actuate.autoconfigure.web.server.ManagementContextAutoConfiguration;
+import org.springframework.boot.actuate.autoconfigure.web.servlet.ServletManagementContextAutoConfiguration;
 import org.springframework.boot.actuate.logging.LogFileWebEndpoint;
 import org.springframework.boot.autoconfigure.AutoConfigurations;
+import org.springframework.boot.autoconfigure.http.HttpMessageConvertersAutoConfiguration;
+import org.springframework.boot.autoconfigure.jackson.JacksonAutoConfiguration;
+import org.springframework.boot.autoconfigure.web.servlet.DispatcherServletAutoConfiguration;
 import org.springframework.boot.autoconfigure.web.servlet.WebMvcAutoConfiguration;
 import org.springframework.boot.test.context.runner.ContextConsumer;
 import org.springframework.boot.test.context.runner.WebApplicationContextRunner;
+import org.springframework.context.annotation.Bean;
+import org.springframework.context.annotation.Configuration;
+import org.springframework.context.annotation.Scope;
 import org.springframework.core.io.Resource;
+import org.springframework.test.util.JsonPathExpectationsHelper;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.MvcResult;
 import org.springframework.test.web.servlet.result.MockMvcResultHandlers;
 import org.springframework.test.web.servlet.setup.MockMvcBuilders;
 import org.springframework.util.FileCopyUtils;
 import org.springframework.web.context.WebApplicationContext;
+import org.springframework.web.servlet.mvc.method.annotation.SseEmitter;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.contentOf;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.asyncDispatch;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
-import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
 
 /**
  * @author Przemyslaw Fusik
@@ -30,12 +49,21 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 class LogFileStreamWebEndpointTest
 {
 
-    private WebApplicationContextRunner contextRunner = new WebApplicationContextRunner()
-                                                                .withConfiguration(
-                                                                        AutoConfigurations.of(
-                                                                                LogFileWebEndpointAutoConfiguration.class,
-                                                                                LogFileStreamWebEndpointAutoConfiguration.class,
-                                                                                WebMvcAutoConfiguration.class));
+    private final WebApplicationContextRunner contextRunner = new WebApplicationContextRunner()
+                                                                      .withUserConfiguration(
+                                                                              LogFileStreamWebEndpointTestConfiguration.class)
+                                                                      .withConfiguration(AutoConfigurations.of(
+                                                                              JacksonAutoConfiguration.class,
+                                                                              HttpMessageConvertersAutoConfiguration.class,
+                                                                              DispatcherServletAutoConfiguration.class,
+                                                                              WebMvcAutoConfiguration.class,
+                                                                              EndpointAutoConfiguration.class,
+                                                                              WebEndpointAutoConfiguration.class,
+                                                                              ManagementContextAutoConfiguration.class,
+                                                                              ServletManagementContextAutoConfiguration.class,
+                                                                              LogFileWebEndpointAutoConfiguration.class,
+                                                                              LogFileStreamWebEndpointAutoConfiguration.class
+                                                                      ));
 
     @Test
     void logFileWebEndpointUsesConfiguredExternalFile()
@@ -58,24 +86,40 @@ class LogFileStreamWebEndpointTest
     }
 
     @Test
-    void logFileWebEndpointUsesConfiguredExternalFileAndEmitsAsync()
+    void logFileWebEndpointUsesConfiguredExternalFileAndEmitsAsync(TestInfo testInfo)
             throws IOException
     {
-        Files.createDirectories(Paths.get(System.getProperty("java.io.tmpdir")));
-        File file = Files.createTempFile(null, "logfile").toFile();
-        FileCopyUtils.copy("--TEST--".getBytes(), file);
+        String methodName = testInfo.getTestMethod().get().getName();
 
-        WebApplicationContextRunner run = this.contextRunner.withPropertyValues(
+        Files.createDirectories(Paths.get(System.getProperty("java.io.tmpdir")));
+        File file = Files.createTempFile(methodName, "logfile").toFile();
+        FileUtils.writeStringToFile(file, methodName, Charset.forName("UTF-8"), true);
+
+        this.contextRunner.withPropertyValues(
                 "management.endpoints.web.base-path=/api/monitoring",
                 "management.endpoints.web.exposure.include=logfile,logfilestream",
-                "management.endpoint.logfile.external-file:" +
-                file.getAbsolutePath()).run(withMockMvc((mockMvc) -> {
-            MvcResult mvcResult = mockMvc.perform(get("/api/monitoring/logfile"))
-                                         .andExpect(status().isOk())
-                                         //.andExpect(request().asyncStarted())
-                                         .andDo(MockMvcResultHandlers.log())
-                                         .andReturn();
-        }));
+                "management.endpoint.logfile.external-file:" + file.getAbsolutePath())
+                          .run(withMockMvc((mockMvc) -> {
+
+                              MvcResult mvcResult = mockMvc.perform(get("/api/monitoring/logfilestream"))
+                                                           .andExpect(request().asyncStarted())
+                                                           .andDo(MockMvcResultHandlers.log())
+                                                           .andReturn();
+
+                              FileUtils.writeStringToFile(file, methodName + "\n", Charset.forName("UTF-8"), true);
+
+                              mockMvc.perform(asyncDispatch(mvcResult))
+                                     .andDo(MockMvcResultHandlers.log())
+                                     .andExpect(status().isOk())
+                                     .andExpect(content().contentType("text/event-stream;charset=UTF-8"));
+
+                              String event = mvcResult.getResponse().getContentAsString();
+                              event = event.replaceAll("data:", "");
+                              event = event.replaceAll("\\n", "");
+
+                              new JsonPathExpectationsHelper("$[1].data").assertValue(event, methodName);
+
+                          }));
     }
 
     private ContextConsumer<WebApplicationContext> withMockMvc(MockMvcConsumer mockMvc)
@@ -90,5 +134,38 @@ class LogFileStreamWebEndpointTest
         void accept(MockMvc mockMvc)
                 throws Exception;
 
+    }
+
+    @Configuration
+    static class LogFileStreamWebEndpointTestConfiguration
+    {
+
+        @Bean
+        @Scope(ConfigurableBeanFactory.SCOPE_PROTOTYPE)
+        public SseEmitterAwareTailerListenerAdapter tailerListener(SseEmitter sseEmitter)
+        {
+            return new TestSseEmitterAwareTailerListenerAdapter(sseEmitter);
+        }
+
+    }
+
+    static class TestSseEmitterAwareTailerListenerAdapter
+            extends SseEmitterAwareTailerListenerAdapter
+    {
+
+        public TestSseEmitterAwareTailerListenerAdapter(final SseEmitter sseEmitter)
+        {
+            super(sseEmitter);
+        }
+
+        @Override
+        public void handle(final String line)
+        {
+            super.handle(line);
+            if (sseEmitter != null)
+            {
+                sseEmitter.complete();
+            }
+        }
     }
 }

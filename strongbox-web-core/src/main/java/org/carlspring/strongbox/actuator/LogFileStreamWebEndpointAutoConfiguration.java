@@ -16,6 +16,7 @@
 
 package org.carlspring.strongbox.actuator;
 
+import org.springframework.beans.factory.config.ConfigurableBeanFactory;
 import org.springframework.boot.actuate.autoconfigure.endpoint.condition.ConditionalOnEnabledEndpoint;
 import org.springframework.boot.actuate.autoconfigure.logging.LogFileWebEndpointProperties;
 import org.springframework.boot.autoconfigure.EnableAutoConfiguration;
@@ -24,13 +25,12 @@ import org.springframework.boot.autoconfigure.condition.ConditionOutcome;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean;
 import org.springframework.boot.autoconfigure.condition.SpringBootCondition;
 import org.springframework.boot.context.properties.EnableConfigurationProperties;
-import org.springframework.context.annotation.Bean;
-import org.springframework.context.annotation.ConditionContext;
-import org.springframework.context.annotation.Conditional;
-import org.springframework.context.annotation.Configuration;
+import org.springframework.context.ApplicationContext;
+import org.springframework.context.annotation.*;
 import org.springframework.core.env.Environment;
 import org.springframework.core.type.AnnotatedTypeMetadata;
 import org.springframework.util.StringUtils;
+import org.springframework.web.servlet.mvc.method.annotation.SseEmitter;
 
 /**
  * {@link EnableAutoConfiguration Auto-configuration} for {@link LogFileStreamWebEndpoint}.
@@ -53,10 +53,18 @@ public class LogFileStreamWebEndpointAutoConfiguration
 
     @Bean
     @ConditionalOnMissingBean
-    @Conditional(LogFileCondition.class)
-    public LogFileStreamWebEndpoint logFileStreamWebEndpoint(Environment environment)
+    @Scope(ConfigurableBeanFactory.SCOPE_PROTOTYPE)
+    public SseEmitterAwareTailerListenerAdapter tailerListener(SseEmitter sseEmitter)
     {
-        return new LogFileStreamWebEndpoint(environment, this.properties.getExternalFile());
+        return new SseEmitterAwareTailerListenerAdapter(sseEmitter);
+    }
+
+    @Bean
+    @ConditionalOnMissingBean
+    @Conditional(LogFileCondition.class)
+    public LogFileStreamWebEndpoint logFileStreamWebEndpoint(ApplicationContext applicationContext)
+    {
+        return new LogFileStreamWebEndpoint(applicationContext, this.properties.getExternalFile());
     }
 
     private static class LogFileCondition

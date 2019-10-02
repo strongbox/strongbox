@@ -11,6 +11,7 @@ import org.springframework.boot.actuate.endpoint.annotation.ReadOperation;
 import org.springframework.boot.actuate.endpoint.web.annotation.WebEndpoint;
 import org.springframework.boot.actuate.logging.LogFileWebEndpoint;
 import org.springframework.boot.logging.LogFile;
+import org.springframework.context.ApplicationContext;
 import org.springframework.core.env.Environment;
 import org.springframework.core.io.FileSystemResource;
 import org.springframework.core.io.Resource;
@@ -30,14 +31,17 @@ public class LogFileStreamWebEndpoint
 
     private final Logger logger = LoggerFactory.getLogger(getClass());
 
+    private final ApplicationContext applicationContext;
+
     private final Environment environment;
 
     private final File externalFile;
 
-    LogFileStreamWebEndpoint(Environment environment,
+    LogFileStreamWebEndpoint(ApplicationContext applicationContext,
                              File externalFile)
     {
-        this.environment = environment;
+        this.applicationContext = applicationContext;
+        this.environment = applicationContext.getEnvironment();
         this.externalFile = externalFile;
     }
 
@@ -58,7 +62,7 @@ public class LogFileStreamWebEndpoint
         ForkJoinPool forkJoinPool = ForkJoinPool.commonPool();
         forkJoinPool.execute(
                 Tailer.create(logFileResource.getFile(),
-                              new SseEmitterAwareTailerListenerAdapter(sseEmitter),
+                              applicationContext.getBean(SseEmitterAwareTailerListenerAdapter.class, sseEmitter),
                               1000,
                               true));
 
