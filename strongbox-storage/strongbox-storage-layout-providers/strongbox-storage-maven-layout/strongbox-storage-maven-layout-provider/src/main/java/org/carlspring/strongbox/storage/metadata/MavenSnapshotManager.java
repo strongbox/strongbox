@@ -31,7 +31,7 @@ import org.springframework.stereotype.Component;
 public class MavenSnapshotManager
 {
 
-    private static final String TIMESTAMP_FORMAT = "yyyyMMdd.HHmmss";
+    public static final String TIMESTAMP_FORMAT = "yyyyMMdd.HHmmss";
 
     private static final Logger logger = LoggerFactory.getLogger(MavenSnapshotManager.class);
 
@@ -45,7 +45,7 @@ public class MavenSnapshotManager
     public void deleteTimestampedSnapshotArtifacts(RepositoryPath basePath,
                                                    Versioning versioning,
                                                    int numberToKeep,
-                                                   int keepPeriod)
+                                                   Date keepDate)
             throws IOException,
                    XmlPullParserException
     {
@@ -74,7 +74,7 @@ public class MavenSnapshotManager
         {
 
             RepositoryPath versionDirectoryPath = basePath.resolve(ArtifactUtils.toSnapshotVersion(version));
-            if (!removeTimestampedSnapshot(versionDirectoryPath, numberToKeep, keepPeriod))
+            if (!removeTimestampedSnapshot(versionDirectoryPath, numberToKeep, keepDate))
             {
                 continue;
             }
@@ -91,7 +91,7 @@ public class MavenSnapshotManager
 
     private boolean removeTimestampedSnapshot(RepositoryPath basePath,
                                               int numberToKeep,
-                                              int keepPeriod)
+                                              Date keepDate)
             throws IOException,
                    XmlPullParserException
     {
@@ -106,7 +106,7 @@ public class MavenSnapshotManager
          * map of snapshots for removing
          * k - number of the build, v - version of the snapshot
          */
-        Map<Integer, String> mapToRemove = getRemovableTimestampedSnapshots(metadata, numberToKeep, keepPeriod);
+        Map<Integer, String> mapToRemove = getRemovableTimestampedSnapshots(metadata, numberToKeep, keepDate);
 
         if (mapToRemove.isEmpty())
         {
@@ -160,12 +160,12 @@ public class MavenSnapshotManager
      *
      * @param metadata     type Metadata
      * @param numberToKeep type int
-     * @param keepPeriod   type int
+     * @param keepDate     type Date
      * @return type Map<Integer, String>
      */
     private Map<Integer, String> getRemovableTimestampedSnapshots(Metadata metadata,
                                                                   int numberToKeep,
-                                                                  int keepPeriod)
+                                                                  Date keepDate)
     {
         /**
          * map of the snapshots in metadata file
@@ -205,13 +205,16 @@ public class MavenSnapshotManager
                                   }
                               });
         }
-        else if (numberToKeep == 0 && keepPeriod != 0)
+        else if (numberToKeep == 0 && keepDate != null)
         {
             snapshots.forEach((k, v) ->
                               {
                                   try
                                   {
-                                      if (keepPeriod < getDifferenceDays(v.getTimestamp()))
+                                      DateFormat formatter = new SimpleDateFormat(TIMESTAMP_FORMAT);
+                                      Date snapshotVersionDate = formatter.parse(v.getTimestamp());
+
+                                      if (keepDate.after(snapshotVersionDate))
                                       {
                                           mapToRemove.put(k, v.getVersion());
                                       }
@@ -224,27 +227,5 @@ public class MavenSnapshotManager
         }
 
         return mapToRemove;
-    }
-
-    /**
-     * To get day's number of keeping timestamp snapshot
-     * @param buildTimestamp type String
-     * @return days type int
-     * @throws ParseException
-     */
-    private int getDifferenceDays(String buildTimestamp)
-            throws ParseException
-    {
-        DateFormat formatter = new SimpleDateFormat(TIMESTAMP_FORMAT);
-        Calendar calendar = Calendar.getInstance();
-
-        String currentDate = formatter.format(calendar.getTime());
-
-        Date d2 = formatter.parse(currentDate);
-        Date d1 = formatter.parse(buildTimestamp);
-
-        long diff = d2.getTime() - d1.getTime();
-
-        return (int) diff / (24 * 60 * 60 * 1000);
     }
 }
