@@ -71,10 +71,6 @@ public class PropertiesBooter
             System.setProperty("logging.config.file", getHomeDirectory() + "/etc/logback-spring.xml");
         }
 
-        if (System.getProperty("java.io.tmpdir") == null)
-        {
-            System.setProperty("java.io.tmpdir", getVaultDirectory() + "/tmp");
-        }
 
         if (System.getProperty("ehcache.disk.store.dir") == null)
         {
