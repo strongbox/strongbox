@@ -92,9 +92,19 @@ NOT
     'not'
 ;
 
+fragment ENDVALUE
+:
+	[a-zA-Z0-9]
+;
+
+fragment MIDDLEVALUE
+:
+    [a-zA-Z_0-9.\-]
+;
+
 VALUE
 :
-    [a-zA-Z_0-9.\-]+
+	(ENDVALUE|ENDVALUE MIDDLEVALUE* ENDVALUE)
 ;
 
 WHITESPACE
