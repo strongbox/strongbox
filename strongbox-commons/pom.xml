@@ -113,11 +113,13 @@
 
         <dependency>
             <groupId>org.carlspring.commons</groupId>
-            <artifactId>commons-io</artifactId>
+            <artifactId>commons-http</artifactId>
+            <version>1.2.1</version>
         </dependency>
+
         <dependency>
             <groupId>org.carlspring.commons</groupId>
-            <artifactId>commons-http</artifactId>
+            <artifactId>commons-io</artifactId>
         </dependency>
 
         <dependency>

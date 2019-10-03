@@ -2,6 +2,7 @@ package org.carlspring.strongbox.utils;
 
 import org.carlspring.commons.http.range.ByteRange;
 import org.carlspring.commons.http.range.ByteRangeHeaderParser;
+import org.carlspring.commons.http.range.validation.ByteRangeValidationException;
 import org.carlspring.strongbox.exception.ExceptionHandlingOutputStream;
 import org.carlspring.strongbox.io.ByteRangeInputStream;
 import org.carlspring.strongbox.io.StreamUtils;
@@ -60,19 +61,31 @@ public class ArtifactControllerHelper
     {
         String contentRange = headers.getFirst(HttpHeaders.RANGE);
         ByteRangeHeaderParser parser = new ByteRangeHeaderParser(contentRange);
-        List<ByteRange> ranges = parser.getRanges();
-        if (!CollectionUtils.isEmpty(ranges))
+
+        try
         {
-            if (ranges.size() == 1)
+            List<ByteRange> ranges = parser.getRanges();
+            if (!CollectionUtils.isEmpty(ranges))
             {
-                logger.debug("Received request for a partial download with a single range.");
-                handlePartialDownloadWithSingleRange(is, ranges.get(0), response);
+                if (ranges.size() == 1)
+                {
+                    logger.debug("Received request for a partial download with a single range.");
+                    handlePartialDownloadWithSingleRange(is, ranges.get(0), response);
+                }
+                else
+                {
+                    logger.debug("Received request for a partial download with multiple ranges.");
+                    handlePartialDownloadWithMultipleRanges(is, ranges, response);
+                }
             }
-            else
-            {
-                logger.debug("Received request for a partial download with multiple ranges.");
-                handlePartialDownloadWithMultipleRanges(is, ranges, response);
-            }
+        }
+        catch (ByteRangeValidationException e)
+        {
+            logger.error(e.getMessage(), e);
+
+            ByteRangeInputStream bris = StreamUtils.findSource(ByteRangeInputStream.class, is);
+            long length = bris != null ? StreamUtils.getLength(bris) : 0;
+            setRangeNotSatisfiable(response, length);
         }
     }
 
@@ -82,7 +95,7 @@ public class ArtifactControllerHelper
             throws IOException
     {
         ByteRangeInputStream bris = StreamUtils.findSource(ByteRangeInputStream.class, is);
-        long inputLength = StreamUtils.getLength(bris);
+        long inputLength = bris != null ? StreamUtils.getLength(bris) : 0;
 
         if (byteRange.getOffset() < inputLength)
         {
@@ -104,7 +117,7 @@ public class ArtifactControllerHelper
             throws IOException
     {
         ByteRangeInputStream bris = StreamUtils.findSource(ByteRangeInputStream.class, is);
-        long length = StreamUtils.getLength(bris);
+        long length = bris != null ? StreamUtils.getLength(bris) : 0;
 
         boolean anyByteRangeNotSatisfiable = byteRanges.stream()
                                                        .anyMatch(byteRange -> byteRange.getOffset() >= length);

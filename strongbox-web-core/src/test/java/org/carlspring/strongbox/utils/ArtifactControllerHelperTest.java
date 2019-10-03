@@ -30,6 +30,7 @@ import org.springframework.http.MediaType;
 import org.springframework.mock.web.MockHttpServletResponse;
 import static org.carlspring.strongbox.utils.ArtifactControllerHelper.MULTIPART_BOUNDARY;
 import static org.hamcrest.CoreMatchers.equalTo;
+import static org.hamcrest.CoreMatchers.startsWith;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.isEmptyString;
 import static org.hamcrest.core.IsNot.not;
@@ -53,6 +54,10 @@ class ArtifactControllerHelperTest
 
     private static final String REPOSITORY_RELEASES_6 = "acht-releases-6";
 
+    private static final String REPOSITORY_RELEASES_7 = "acht-releases-7";
+
+    private static final String REPOSITORY_RELEASES_8 = "acht-releases-8";
+
     @Inject
     private ArtifactResolutionService artifactResolutionService;
 
@@ -68,7 +73,8 @@ class ArtifactControllerHelperTest
                 Arguments.of("0-100, 200-300", false),
                 Arguments.of("0/*", false),
                 Arguments.of("0-", false),
-                Arguments.of("0", false)
+                Arguments.of("0", false),
+                Arguments.of("", false)
         );
     }
 
@@ -85,15 +91,18 @@ class ArtifactControllerHelperTest
     {
         // Given
         RepositoryPath artifactRepositoryPath = (RepositoryPath) artifactPath.normalize();
-        InputStream is = artifactResolutionService.getInputStream(artifactRepositoryPath);
-        HttpHeaders httpHeaders = getHttpHeaders("100-199");
-        HttpServletResponse response = new MockHttpServletResponse();
+        try(InputStream is = artifactResolutionService.getInputStream(artifactRepositoryPath))
+        {
+            HttpHeaders httpHeaders = getHttpHeaders("100-199");
+            HttpServletResponse response = new MockHttpServletResponse();
 
-        // When
-        ArtifactControllerHelper.handlePartialDownload(is, httpHeaders, response);
+            // When
+            ArtifactControllerHelper.handlePartialDownload(is, httpHeaders, response);
 
-        // Then
-        assertThat(response.getStatus(), equalTo(HttpStatus.PARTIAL_CONTENT.value()));
+
+            // Then
+            assertThat(response.getStatus(), equalTo(HttpStatus.PARTIAL_CONTENT.value()));
+        }
     }
 
     @ExtendWith({ RepositoryManagementTestExecutionListener.class,
@@ -110,26 +119,57 @@ class ArtifactControllerHelperTest
     {
         // Given
         RepositoryPath artifactRepositoryPath = (RepositoryPath) artifactPath.normalize();
-        InputStream is = artifactResolutionService.getInputStream(artifactRepositoryPath);
-        long expectedLength = Files.size(artifactRepositoryPath);
-        String byteRanges = String.format("%s-%s", expectedLength, expectedLength + 1);
-        HttpHeaders httpHeaders = getHttpHeaders(byteRanges);
-        HttpServletResponse response = new MockHttpServletResponse();
+        try(InputStream is = artifactResolutionService.getInputStream(artifactRepositoryPath))
+        {
+            long expectedLength = Files.size(artifactRepositoryPath);
+            String byteRanges = String.format("%s-%s", expectedLength, expectedLength + 1);
+            HttpHeaders httpHeaders = getHttpHeaders(byteRanges);
+            HttpServletResponse response = new MockHttpServletResponse();
 
-        // When
-        ArtifactControllerHelper.handlePartialDownload(is, httpHeaders, response);
+            // When
+            ArtifactControllerHelper.handlePartialDownload(is, httpHeaders, response);
 
-        // Then
-        assertThat(response.getStatus(), equalTo(HttpStatus.REQUESTED_RANGE_NOT_SATISFIABLE.value()));
-        assertThat(response.getHeader(HttpHeaders.CONTENT_RANGE), equalTo("bytes */" + expectedLength));
+            // Then
+            assertThat(response.getStatus(), equalTo(HttpStatus.REQUESTED_RANGE_NOT_SATISFIABLE.value()));
+            assertThat(response.getHeader(HttpHeaders.CONTENT_RANGE), equalTo("bytes */" + expectedLength));
+        }
     }
 
     @ExtendWith({ RepositoryManagementTestExecutionListener.class,
                   ArtifactManagementTestExecutionListener.class })
     @Test
-    void handlePartialDownloadWithMultipleRanges(@MavenRepository(repositoryId = REPOSITORY_RELEASES_3)
+    void shouldNotHandlePartialDownloadWithSingleRangeWhenOffsetGreaterThanLimit(
+            @MavenRepository(repositoryId = REPOSITORY_RELEASES_3)
+            Repository repository,
+            @MavenTestArtifact(repositoryId = REPOSITORY_RELEASES_3,
+                               id = "org.carlspring.strongbox:partial-multiple-not-satisfiable-validation",
+                               versions = "1.0")
+            Path artifactPath)
+            throws IOException
+    {
+        // Given
+        RepositoryPath artifactRepositoryPath = (RepositoryPath) artifactPath.normalize();
+        try(InputStream is = artifactResolutionService.getInputStream(artifactRepositoryPath))
+        {
+            String byteRanges = "49-0";
+            HttpHeaders httpHeaders = getHttpHeaders(byteRanges);
+            HttpServletResponse response = new MockHttpServletResponse();
+
+            // When
+            ArtifactControllerHelper.handlePartialDownload(is, httpHeaders, response);
+
+            // Then
+            assertThat(response.getStatus(), equalTo(HttpStatus.REQUESTED_RANGE_NOT_SATISFIABLE.value()));
+            assertThat(response.getHeader(HttpHeaders.CONTENT_RANGE), startsWith("bytes */"));
+        }
+    }
+
+    @ExtendWith({ RepositoryManagementTestExecutionListener.class,
+                  ArtifactManagementTestExecutionListener.class })
+    @Test
+    void handlePartialDownloadWithMultipleRanges(@MavenRepository(repositoryId = REPOSITORY_RELEASES_4)
                                                  Repository repository,
-                                                 @MavenTestArtifact(repositoryId = REPOSITORY_RELEASES_3,
+                                                 @MavenTestArtifact(repositoryId = REPOSITORY_RELEASES_4,
                                                                     id = "org.carlspring.strongbox:partial-multiple",
                                                                     versions = "1.0")
                                                  Path artifactPath)
@@ -137,26 +177,28 @@ class ArtifactControllerHelperTest
     {
         // Given
         RepositoryPath artifactRepositoryPath = (RepositoryPath) artifactPath.normalize();
-        InputStream is = artifactResolutionService.getInputStream(artifactRepositoryPath);
-        HttpHeaders httpHeaders = getHttpHeaders("0-4500,5010-5019");
-        HttpServletResponse response = new MockHttpServletResponse();
-        response.setHeader(HttpHeaders.CONTENT_LENGTH, String.valueOf(Files.size(artifactRepositoryPath)));
+        try(InputStream is = artifactResolutionService.getInputStream(artifactRepositoryPath))
+        {
+            HttpHeaders httpHeaders = getHttpHeaders("0-4500,5010-5019");
+            HttpServletResponse response = new MockHttpServletResponse();
+            response.setHeader(HttpHeaders.CONTENT_LENGTH, String.valueOf(Files.size(artifactRepositoryPath)));
 
-        // When
-        ArtifactControllerHelper.handlePartialDownload(is, httpHeaders, response);
+            // When
+            ArtifactControllerHelper.handlePartialDownload(is, httpHeaders, response);
 
-        // Then
-        assertThat(response.getStatus(), equalTo(HttpStatus.PARTIAL_CONTENT.value()));
-        assertThat(response.getContentType(), equalTo("multipart/byteranges; boundary=" + MULTIPART_BOUNDARY));
+            // Then
+            assertThat(response.getStatus(), equalTo(HttpStatus.PARTIAL_CONTENT.value()));
+            assertThat(response.getContentType(), equalTo("multipart/byteranges; boundary=" + MULTIPART_BOUNDARY));
+        }
     }
 
     @ExtendWith({ RepositoryManagementTestExecutionListener.class,
                   ArtifactManagementTestExecutionListener.class })
     @Test
     void shouldNotHandlePartialDownloadWithMultipleRangesWhenRequestedRangeNotSatisfiable(
-            @MavenRepository(repositoryId = REPOSITORY_RELEASES_4)
+            @MavenRepository(repositoryId = REPOSITORY_RELEASES_5)
             Repository repository,
-            @MavenTestArtifact(repositoryId = REPOSITORY_RELEASES_4,
+            @MavenTestArtifact(repositoryId = REPOSITORY_RELEASES_5,
                                id = "org.carlspring.strongbox:partial-multiple-not-satisfiable",
                                versions = "1.0")
             Path artifactPath)
@@ -164,18 +206,49 @@ class ArtifactControllerHelperTest
     {
         // Given
         RepositoryPath artifactRepositoryPath = (RepositoryPath) artifactPath.normalize();
-        InputStream is = artifactResolutionService.getInputStream(artifactRepositoryPath);
-        long expectedLength = Files.size(artifactRepositoryPath);
-        String byteRanges = String.format("0-49,%s-%s", expectedLength, expectedLength + 1);
-        HttpHeaders httpHeaders = getHttpHeaders(byteRanges);
-        HttpServletResponse response = new MockHttpServletResponse();
+        try(InputStream is = artifactResolutionService.getInputStream(artifactRepositoryPath))
+        {
+            long expectedLength = Files.size(artifactRepositoryPath);
+            String byteRanges = String.format("0-49,%s-%s", expectedLength, expectedLength + 1);
+            HttpHeaders httpHeaders = getHttpHeaders(byteRanges);
+            HttpServletResponse response = new MockHttpServletResponse();
 
-        // When
-        ArtifactControllerHelper.handlePartialDownload(is, httpHeaders, response);
+            // When
+            ArtifactControllerHelper.handlePartialDownload(is, httpHeaders, response);
 
-        // Then
-        assertThat(response.getStatus(), equalTo(HttpStatus.REQUESTED_RANGE_NOT_SATISFIABLE.value()));
-        assertThat(response.getHeader(HttpHeaders.CONTENT_RANGE), equalTo("bytes */" + expectedLength));
+            // Then
+            assertThat(response.getStatus(), equalTo(HttpStatus.REQUESTED_RANGE_NOT_SATISFIABLE.value()));
+            assertThat(response.getHeader(HttpHeaders.CONTENT_RANGE), equalTo("bytes */" + expectedLength));
+        }
+    }
+
+    @ExtendWith({ RepositoryManagementTestExecutionListener.class,
+                  ArtifactManagementTestExecutionListener.class })
+    @Test
+    void shouldNotHandlePartialDownloadWithMultipleRangesWhenOffsetGreaterThanLimit(
+            @MavenRepository(repositoryId = REPOSITORY_RELEASES_6)
+            Repository repository,
+            @MavenTestArtifact(repositoryId = REPOSITORY_RELEASES_6,
+                               id = "org.carlspring.strongbox:partial-multiple-not-satisfiable-validation",
+                               versions = "1.0")
+            Path artifactPath)
+            throws IOException
+    {
+        // Given
+        RepositoryPath artifactRepositoryPath = (RepositoryPath) artifactPath.normalize();
+        try(InputStream is = artifactResolutionService.getInputStream(artifactRepositoryPath))
+        {
+            String byteRanges = "49-0,60-55";
+            HttpHeaders httpHeaders = getHttpHeaders(byteRanges);
+            HttpServletResponse response = new MockHttpServletResponse();
+
+            // When
+            ArtifactControllerHelper.handlePartialDownload(is, httpHeaders, response);
+
+            // Then
+            assertThat(response.getStatus(), equalTo(HttpStatus.REQUESTED_RANGE_NOT_SATISFIABLE.value()));
+            assertThat(response.getHeader(HttpHeaders.CONTENT_RANGE), startsWith("bytes */"));
+        }
     }
 
     @ParameterizedTest
@@ -198,7 +271,7 @@ class ArtifactControllerHelperTest
     @ValueSource(strings = { "test/test.jar",
                              "" })
     void provideArtifactHeadersNotFound(String pathStr,
-                                        @MavenRepository(repositoryId = REPOSITORY_RELEASES_5)
+                                        @MavenRepository(repositoryId = REPOSITORY_RELEASES_7)
                                         Repository repository)
             throws IOException
     {
@@ -216,9 +289,9 @@ class ArtifactControllerHelperTest
     @ExtendWith({ RepositoryManagementTestExecutionListener.class,
                   ArtifactManagementTestExecutionListener.class })
     @Test
-    void provideArtifactHeaders(@MavenRepository(repositoryId = REPOSITORY_RELEASES_6)
+    void provideArtifactHeaders(@MavenRepository(repositoryId = REPOSITORY_RELEASES_8)
                                 Repository repository,
-                                @MavenTestArtifact(repositoryId = REPOSITORY_RELEASES_6,
+                                @MavenTestArtifact(repositoryId = REPOSITORY_RELEASES_8,
                                                    id = "org.carlspring.strongbox:provide-artifact-headers",
                                                    versions = "1.0")
                                 Path artifactPath)
