@@ -100,7 +100,7 @@ public class ProxyConfigurationFormTestIT
                                                                                          ProxyConfigurationFormChecks.class);
 
         // then
-        assertThat(violations).as("Violations are empty!").isEqualTo(1);
+        assertThat(violations).as("Violations are empty!").hasSize(1);
         assertThat(violations).extracting("message").containsAnyOf("A host must be specified.");
     }
 
@@ -120,7 +120,7 @@ public class ProxyConfigurationFormTestIT
                                                                                          ProxyConfigurationFormChecks.class);
 
         // then
-        assertThat(violations).as("Violations are empty!").isEqualTo(1);
+        assertThat(violations).as("Violations are empty!").hasSize(1);
         assertThat(violations).extracting("message").containsAnyOf(errorMessage);
     }
 
@@ -141,7 +141,7 @@ public class ProxyConfigurationFormTestIT
                                                                                          ProxyConfigurationFormChecks.class);
 
         // then
-        assertThat(violations).as("Violations are empty!").isEqualTo(numErrors);
+        assertThat(violations).as("Violations are empty!").hasSize(numErrors);
         assertThat(violations).extracting("message").containsAnyOf(errorMessage);
     }
 }

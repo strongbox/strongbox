@@ -102,7 +102,7 @@ public class StorageFormTestIT
         Set<ConstraintViolation<StorageForm>> violations = validator.validate(storageForm);
 
         // then
-        assertThat(violations).as("Violations are empty!").isEqualTo(2);
+        assertThat(violations).as("Violations are empty!").hasSize(2);
         assertThat(violations).extracting("message").containsAnyOf("An id must be specified.");
     }
 
@@ -119,7 +119,7 @@ public class StorageFormTestIT
         Set<ConstraintViolation<StorageForm>> violations = validator.validate(storageForm);
 
         // then
-        assertThat(violations).as("Violations are empty!").isEqualTo(1);
+        assertThat(violations).as("Violations are empty!").hasSize(1);
         assertThat(violations).extracting("message").containsAnyOf("must match \"[a-zA-Z0-9\\-\\_\\.]+\"");
     }
 
@@ -138,7 +138,7 @@ public class StorageFormTestIT
         Set<ConstraintViolation<StorageForm>> violations = validator.validate(storageForm);
 
         // then
-        assertThat(violations).as("Violations are empty!").isEqualTo(1);
+        assertThat(violations).as("Violations are empty!").hasSize(1);
         assertThat(violations).extracting("message").containsAnyOf("A httpConnectionPool must be positive or zero.");
     }
 

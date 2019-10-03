@@ -71,7 +71,7 @@ public class RepositoryAccessModelFormTestIT
         Set<ConstraintViolation<RepositoryAccessModelForm>> violations = validator.validate(repositoryAccessModelForm);
 
         // then
-        assertThat(violations).as("Violations are empty!").isEqualTo(1);
+        assertThat(violations).as("Violations are empty!").hasSize(1);
         assertThat(violations).extracting("message").containsAnyOf("A storage id must be specified.");
     }
 
@@ -88,7 +88,7 @@ public class RepositoryAccessModelFormTestIT
         Set<ConstraintViolation<RepositoryAccessModelForm>> violations = validator.validate(repositoryAccessModelForm);
 
         // then
-        assertThat(violations).as("Violations are empty!").isEqualTo(1);
+        assertThat(violations).as("Violations are empty!").hasSize(1);
         assertThat(violations).extracting("message").containsAnyOf("A repository id must be specified.");
     }
 
@@ -105,7 +105,7 @@ public class RepositoryAccessModelFormTestIT
         Set<ConstraintViolation<RepositoryAccessModelForm>> violations = validator.validate(repositoryAccessModelForm);
 
         // then
-        assertThat(violations).as("Violations are empty!").isEqualTo(1);
+        assertThat(violations).as("Violations are empty!").hasSize(1);
         assertThat(violations).extracting("message").containsAnyOf("A collection of privileges must be specified.");
     }
 }

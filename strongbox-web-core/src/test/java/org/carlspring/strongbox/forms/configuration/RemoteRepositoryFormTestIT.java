@@ -76,7 +76,7 @@ public class RemoteRepositoryFormTestIT
         Set<ConstraintViolation<RemoteRepositoryForm>> violations = validator.validate(remoteRepositoryForm);
 
         // then
-        assertThat(violations).as("Violations are empty!").isEqualTo(1);
+        assertThat(violations).as("Violations are empty!").hasSize(1);
         assertThat(violations).extracting("message").containsAnyOf("An url must be specified.");
     }
 
@@ -94,7 +94,7 @@ public class RemoteRepositoryFormTestIT
         Set<ConstraintViolation<RemoteRepositoryForm>> violations = validator.validate(remoteRepositoryForm);
 
         // then
-        assertThat(violations).as("Violations are empty!").isEqualTo(1);
+        assertThat(violations).as("Violations are empty!").hasSize(1);
         assertThat(violations).extracting("message").containsAnyOf(errorMessage);
     }
 }

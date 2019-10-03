@@ -127,7 +127,7 @@ public class RoutingRuleFormTestIT
         Set<ConstraintViolation<RoutingRuleForm>> violations = validator.validate(routingRuleForm);
 
         // then
-        assertThat(violations).as("Violations are empty!").isEqualTo(1);
+        assertThat(violations).as("Violations are empty!").hasSize(1);
         assertThat(violations).extracting("message").containsAnyOf("A type must be specified.");
     }
 }

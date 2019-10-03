@@ -31,7 +31,7 @@ public class VersionValidatorServiceTest
     @Test
     public void testValidationService()
     {
-        assertThat(versionValidatorService.getVersionValidators()).isEmpty();
+        assertThat(versionValidatorService.getVersionValidators()).isNotEmpty();
     }
 
 }

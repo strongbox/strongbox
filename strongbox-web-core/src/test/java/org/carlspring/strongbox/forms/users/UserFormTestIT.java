@@ -85,7 +85,7 @@ public class UserFormTestIT
         Set<ConstraintViolation<UserForm>> violations = validator.validate(userForm, UserForm.NewUser.class);
 
         // then
-        assertThat(violations).as("Violations are empty!").isEqualTo(1);
+        assertThat(violations).as("Violations are empty!").hasSize(1);
         assertThat(violations).extracting("message").containsAnyOf("Username is required!");
     }
 
@@ -101,7 +101,7 @@ public class UserFormTestIT
         Set<ConstraintViolation<UserForm>> violations = validator.validate(userForm, UserForm.NewUser.class);
 
         // then
-        assertThat(violations).as("Violations are empty!").isEqualTo(1);
+        assertThat(violations).as("Violations are empty!").hasSize(1);
         assertThat(violations).extracting("message").containsAnyOf("Username is already taken.");
     }
 
@@ -120,7 +120,7 @@ public class UserFormTestIT
         Set<ConstraintViolation<UserForm>> violations = validator.validate(userForm, UserForm.NewUser.class);
 
         // then
-        assertThat(violations).as("Violations are empty!").isEqualTo(1);
+        assertThat(violations).as("Violations are empty!").hasSize(1);
         assertThat(violations).extracting("message").containsAnyOf(errorMessage);
     }
 
@@ -151,7 +151,7 @@ public class UserFormTestIT
         Set<ConstraintViolation<UserForm>> violations = validator.validate(userForm, UserForm.ExistingUser.class);
 
         // then
-        assertThat(violations).as("Violations are empty!").isEqualTo(1);
+        assertThat(violations).as("Violations are empty!").hasSize(1);
         assertThat(violations).extracting("message").containsAnyOf("Password has to be more than 8 characters!");
     }
 }
