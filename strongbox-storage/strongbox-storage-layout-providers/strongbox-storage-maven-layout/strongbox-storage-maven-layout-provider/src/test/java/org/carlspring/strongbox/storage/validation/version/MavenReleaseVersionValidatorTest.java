@@ -21,8 +21,8 @@ import org.junit.jupiter.api.parallel.Execution;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.ContextConfiguration;
-import static org.junit.jupiter.api.Assertions.assertTrue;
-import static org.junit.jupiter.api.Assertions.fail;
+import static org.assertj.core.api.Assertions.fail;
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.parallel.ExecutionMode.CONCURRENT;
 
 /**
@@ -46,7 +46,7 @@ public class MavenReleaseVersionValidatorTest
     @Test
     public void shouldSupportRepository(@MavenRepository(repositoryId = MRVV_RELEASES) Repository repository)
     {
-        assertTrue(validator.supports(repository));
+        assertThat(validator.supports(repository)).isTrue();
     }
 
     @ExtendWith({ RepositoryManagementTestExecutionListener.class,

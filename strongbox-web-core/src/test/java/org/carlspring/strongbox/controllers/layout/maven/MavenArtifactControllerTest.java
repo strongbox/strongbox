@@ -80,13 +80,10 @@ import static io.restassured.module.mockmvc.RestAssuredMockMvc.given;
 import static org.carlspring.strongbox.testing.artifact.MavenArtifactTestUtils.getArtifactLevelMetadataPath;
 import static org.carlspring.strongbox.testing.artifact.MavenArtifactTestUtils.getGroupLevelMetadataPath;
 import static org.carlspring.strongbox.testing.artifact.MavenArtifactTestUtils.getVersionLevelMetadataPath;
-import static org.hamcrest.CoreMatchers.equalTo;
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertFalse;
-import static org.junit.jupiter.api.Assertions.assertNotNull;
-import static org.junit.jupiter.api.Assertions.assertTrue;
-import static org.junit.jupiter.api.Assertions.fail;
+import static org.assertj.core.api.Assertions.fail;
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.doReturn;
+import static org.hamcrest.CoreMatchers.equalTo;
 
 /**
  * Test cases for {@link MavenArtifactController}.
@@ -333,8 +330,8 @@ public class MavenArtifactControllerTest
         logger.debug("SHA-1 [Remote]: {}", sha1Remote);
         logger.debug("SHA-1 [Local ]: {}", sha1Local);
 
-        assertEquals(md5Local, md5Remote, "MD5 checksums did not match!");
-        assertEquals(sha1Local, sha1Remote, "SHA-1 checksums did not match!");
+        assertThat(md5Remote).as("MD5 checksums did not match!").isEqualTo(md5Local);
+        assertThat(sha1Remote).as("SHA-1 checksums did not match!").isEqualTo(sha1Local);
     }
 
     @ExtendWith({ RepositoryManagementTestExecutionListener.class,
@@ -365,14 +362,14 @@ public class MavenArtifactControllerTest
     private void assertHeadersEquals(Headers h1,
                                      Headers h2)
     {
-        assertNotNull(h1);
-        assertNotNull(h2);
+        assertThat(h1).isNotNull();
+        assertThat(h2).isNotNull();
 
         for (Header header : h1)
         {
             if (h2.hasHeaderWithName(header.getName()))
             {
-                assertEquals(header.getValue(), h2.getValue(header.getName()));
+                assertThat(h2.getValue(header.getName())).isEqualTo(header.getValue());
             }
         }
     }
@@ -480,8 +477,8 @@ public class MavenArtifactControllerTest
         output.write(baos.toByteArray());
         output.close();
 
-        assertEquals(md5Remote, md5Local, "Glued partial fetches did not match MD5 checksum!");
-        assertEquals(sha1Remote, sha1Local, "Glued partial fetches did not match SHA-1 checksum!");
+        assertThat(md5Local).as("Glued partial fetches did not match MD5 checksum!").isEqualTo(md5Remote);
+        assertThat(sha1Local).as("Glued partial fetches did not match SHA-1 checksum!").isEqualTo(sha1Remote);
     }
 
     @ExtendWith({ RepositoryManagementTestExecutionListener.class,
@@ -510,8 +507,9 @@ public class MavenArtifactControllerTest
 
         RootRepositoryPath repositoryPath2 = repositoryPathResolver.resolve(repository2);
         Path destArtifactPath = repositoryPath2.resolve(artifactRepositoryPathStr);
-        assertTrue(Files.exists(destArtifactPath),
-                   "Failed to copy artifact to destination repository '" + destArtifactPath + "'!");
+        assertThat(Files.exists(destArtifactPath))
+                .as("Failed to copy artifact to destination repository '" + destArtifactPath + "'!")
+                .isTrue();
     }
 
     @ExtendWith({ RepositoryManagementTestExecutionListener.class,
@@ -540,8 +538,9 @@ public class MavenArtifactControllerTest
 
         RootRepositoryPath repositoryPath2 = repositoryPathResolver.resolve(repository2);
         Path destArtifactPath = repositoryPath2.resolve(artifactDirectoryPathStr);
-        assertTrue(Files.exists(destArtifactPath),
-                   "Failed to copy artifact to destination repository '" + destArtifactPath + "'!");
+        assertThat(Files.exists(destArtifactPath))
+                .as("Failed to copy artifact to destination repository '" + destArtifactPath + "'!")
+                .isTrue();
     }
 
     @ExtendWith({ RepositoryManagementTestExecutionListener.class,
@@ -559,15 +558,17 @@ public class MavenArtifactControllerTest
         final RepositoryPath artifactRepositoryPath = (RepositoryPath) artifactPath.normalize();
         final String artifactRepositoryPathStr = RepositoryFiles.relativizePath(artifactRepositoryPath);
 
-        assertTrue(Files.exists(artifactRepositoryPath),
-                   "Failed to locate artifact file '" + artifactRepositoryPath + "'!");
+        assertThat(Files.exists(artifactRepositoryPath))
+                .as("Failed to locate artifact file '" + artifactRepositoryPath + "'!")
+                .isTrue();
 
         client.delete(repository.getStorage().getId(),
                       repository.getId(),
                       artifactRepositoryPathStr);
 
-        assertTrue(Files.notExists(artifactRepositoryPath),
-                   "Failed to delete artifact file '" + artifactRepositoryPath + "'!");
+        assertThat(Files.notExists(artifactRepositoryPath))
+                .as("Failed to delete artifact file '" + artifactRepositoryPath + "'!")
+                .isTrue();
     }
 
     @ExtendWith({ RepositoryManagementTestExecutionListener.class,
@@ -585,15 +586,17 @@ public class MavenArtifactControllerTest
         RepositoryPath artifactDirectoryPath = (RepositoryPath) artifactPath.getParent().normalize();
         String artifactDirectoryPathStr = RepositoryFiles.relativizePath(artifactDirectoryPath);
 
-        assertTrue(Files.exists(artifactDirectoryPath),
-                   "Failed to locate artifact directory '" + artifactDirectoryPath + "'!");
+        assertThat(Files.exists(artifactDirectoryPath))
+                .as("Failed to locate artifact directory '" + artifactDirectoryPath + "'!")
+                .isTrue();
 
         client.delete(repository.getStorage().getId(),
                       repository.getId(),
                       artifactDirectoryPathStr);
 
-        assertTrue(Files.notExists(artifactDirectoryPath),
-                   "Failed to delete artifact file '" + artifactDirectoryPath + "'!");
+        assertThat(Files.notExists(artifactDirectoryPath))
+                .as("Failed to delete artifact file '" + artifactDirectoryPath + "'!")
+                .isTrue();
     }
 
     @ExtendWith({ RepositoryManagementTestExecutionListener.class,
@@ -622,7 +625,7 @@ public class MavenArtifactControllerTest
                                                       "<body/>",
                                                       MediaType.APPLICATION_XML_VALUE);
 
-        assertEquals(HttpStatus.SERVICE_UNAVAILABLE.value(), mockMvcResponse.statusCode());
+        assertThat(mockMvcResponse.statusCode()).isEqualTo(HttpStatus.SERVICE_UNAVAILABLE.value());
     }
 
     @Test
@@ -630,8 +633,9 @@ public class MavenArtifactControllerTest
     {
         String path = "/storages/storage-common-proxies/maven-central/john/doe/";
         ExtractableResponse response = client.getResourceWithResponse(path, "");
-        assertEquals(HttpStatus.BAD_REQUEST.value(), response.statusCode(),
-                     "The specified path should not ends with `/` character!");
+        assertThat(response.statusCode())
+                .as("The specified path should not ends with `/` character!")
+                .isEqualTo(HttpStatus.BAD_REQUEST.value());
     }
 
     @Test
@@ -639,7 +643,7 @@ public class MavenArtifactControllerTest
     {
         String path = "/storages/storage-common-proxies/maven-central/org/carlspring/maven/derby-maven-plugin/1.8/derby-maven-plugin-6.9.jar";
         ExtractableResponse response = client.getResourceWithResponse(path, "");
-        assertEquals(HttpStatus.BAD_REQUEST.value(), response.statusCode(), "Wrong response");
+        assertThat(response.statusCode()).as("Wrong response").isEqualTo(HttpStatus.BAD_REQUEST.value());
     }
 
     @ExtendWith({ RepositoryManagementTestExecutionListener.class,
@@ -653,7 +657,7 @@ public class MavenArtifactControllerTest
                                                         versions = "1.0")
                                      Path artifactPath)
     {
-        assertTrue(Files.exists(artifactPath), "Failed to locate artifact file '" + artifactPath + "'!");
+        assertThat(Files.exists(artifactPath)).as("Failed to locate artifact file '" + artifactPath + "'!").isTrue();
 
         String basePath = "/api/browse/" + repository.getStorage().getId() + "/" + repository.getId();
 
@@ -670,21 +674,24 @@ public class MavenArtifactControllerTest
         String directoryListingContent = directoryListing.asString();
         String fileListingContent = fileListing.asString();
 
-        assertFalse(repositoryRootContent.contains(".trash"),
-                    ".trash directory should not be visible in directory listing!");
-        assertEquals(HttpStatus.NOT_FOUND.value(), trashDirectoryListing.response().getStatusCode(),
-                     ".trash directory should not be browsable!");
+        assertThat(repositoryRootContent.contains(".trash"))
+                .as(".trash directory should not be visible in directory listing!")
+                .isFalse();
+        assertThat(trashDirectoryListing.response().getStatusCode())
+                .as(".trash directory should not be browsable!")
+                .isEqualTo(HttpStatus.NOT_FOUND.value());
 
         logger.debug(directoryListingContent);
 
-        assertTrue(directoryListingContent.contains("org/carlspring/strongbox/browse"));
-        assertTrue(fileListingContent.contains("foo-bar-1.0.jar"));
-        assertTrue(fileListingContent.contains("foo-bar-1.0.pom"));
+        assertThat(directoryListingContent.contains("org/carlspring/strongbox/browse")).isTrue();
+        assertThat(fileListingContent.contains("foo-bar-1.0.jar")).isTrue();
+        assertThat(fileListingContent.contains("foo-bar-1.0.pom")).isTrue();
 
-        assertEquals(HttpStatus.NOT_FOUND.value(), invalidPath.response().getStatusCode());
+        assertThat(invalidPath.response().getStatusCode()).isEqualTo(HttpStatus.NOT_FOUND.value());
 
-        assertFalse(repositoryRootContent.contains(LayoutFileSystem.INDEX),
-                    ".index directory should not be visible in directory listing!");
+        assertThat(repositoryRootContent.contains(LayoutFileSystem.INDEX))
+                .as(".index directory should not be visible in directory listing!")
+                .isFalse();
     }
 
     @ExtendWith({ RepositoryManagementTestExecutionListener.class,
@@ -715,7 +722,7 @@ public class MavenArtifactControllerTest
         String unixBasedRelativePath = FilenameUtils.separatorsToUnix(artifactRepositoryPathStr);
         Artifact snapshotArtifact = MavenArtifactUtils.convertPathToArtifact(unixBasedRelativePath);
 
-        assertNotNull(snapshotArtifact);
+        assertThat(snapshotArtifact).isNotNull();
         String metadataPath = String.format("storages/%s/%s/%s",
                                             storageId,
                                             repositoryId,
@@ -725,9 +732,9 @@ public class MavenArtifactControllerTest
 
         Metadata versionLevelMetadata = defaultMavenArtifactDeployer.retrieveMetadata(metadataPath);
 
-        assertNotNull(versionLevelMetadata);
-        assertEquals("org.carlspring.strongbox.metadata", versionLevelMetadata.getGroupId());
-        assertEquals("metadata-foo", versionLevelMetadata.getArtifactId());
+        assertThat(versionLevelMetadata).isNotNull();
+        assertThat(versionLevelMetadata.getGroupId()).isEqualTo("org.carlspring.strongbox.metadata");
+        assertThat(versionLevelMetadata.getArtifactId()).isEqualTo("metadata-foo");
 
         for (Path artifactPath : artifactsPaths)
         {
@@ -735,7 +742,7 @@ public class MavenArtifactControllerTest
             artifactRepositoryPathStr = RepositoryFiles.relativizePath(artifactRepositoryPath);
             unixBasedRelativePath = FilenameUtils.separatorsToUnix(artifactRepositoryPathStr);
             snapshotArtifact = MavenArtifactUtils.convertPathToArtifact(unixBasedRelativePath);
-            assertNotNull(snapshotArtifact);
+            assertThat(snapshotArtifact).isNotNull();
 
             checkSnapshotVersionExistsInMetadata(versionLevelMetadata,
                                                  snapshotArtifact.getVersion(),
@@ -753,7 +760,7 @@ public class MavenArtifactControllerTest
                                                  "pom");
         }
 
-        assertNotNull(versionLevelMetadata.getVersioning().getLastUpdated());
+        assertThat(versionLevelMetadata.getVersioning().getLastUpdated()).isNotNull();
     }
 
     @ExtendWith(RepositoryManagementTestExecutionListener.class)
@@ -840,42 +847,42 @@ public class MavenArtifactControllerTest
         String metadataPath = "storages/" + storageId + "/" + repositoryId + "/" + getGroupLevelMetadataPath(artifact1);
         Metadata groupLevelMetadata = defaultMavenArtifactDeployer.retrieveMetadata(metadataPath);
 
-        assertNotNull(groupLevelMetadata);
-        assertEquals(2, groupLevelMetadata.getPlugins().size());
+        assertThat(groupLevelMetadata).isNotNull();
+        assertThat(groupLevelMetadata.getPlugins()).hasSize(2);
 
         // Artifact Level metadata
         metadataPath = "storages/" + storageId + "/" + repositoryId + "/" + getArtifactLevelMetadataPath(artifact1);
         Metadata artifactLevelMetadata = defaultMavenArtifactDeployer.retrieveMetadata(metadataPath);
 
-        assertNotNull(artifactLevelMetadata);
-        assertEquals(groupId, artifactLevelMetadata.getGroupId());
-        assertEquals(artifactId1, artifactLevelMetadata.getArtifactId());
-        assertEquals(version2, artifactLevelMetadata.getVersioning().getLatest());
-        assertEquals(version2, artifactLevelMetadata.getVersioning().getRelease());
-        assertEquals(2, artifactLevelMetadata.getVersioning().getVersions().size());
-        assertNotNull(artifactLevelMetadata.getVersioning().getLastUpdated());
+        assertThat(artifactLevelMetadata).isNotNull();
+        assertThat(artifactLevelMetadata.getGroupId()).isEqualTo(groupId);
+        assertThat(artifactLevelMetadata.getArtifactId()).isEqualTo(artifactId1);
+        assertThat(artifactLevelMetadata.getVersioning().getLatest()).isEqualTo(version2);
+        assertThat(artifactLevelMetadata.getVersioning().getRelease()).isEqualTo(version2);
+        assertThat(artifactLevelMetadata.getVersioning().getVersions()).hasSize(2);
+        assertThat(artifactLevelMetadata.getVersioning().getLastUpdated()).isNotNull();
 
         metadataPath = "storages/" + storageId + "/" + repositoryId + "/" + getArtifactLevelMetadataPath(artifact2);
         artifactLevelMetadata = defaultMavenArtifactDeployer.retrieveMetadata(metadataPath);
 
-        assertNotNull(artifactLevelMetadata);
-        assertEquals(groupId, artifactLevelMetadata.getGroupId());
-        assertEquals(artifactId2, artifactLevelMetadata.getArtifactId());
-        assertEquals(version2, artifactLevelMetadata.getVersioning().getLatest());
-        assertEquals(version2, artifactLevelMetadata.getVersioning().getRelease());
-        assertEquals(2, artifactLevelMetadata.getVersioning().getVersions().size());
-        assertNotNull(artifactLevelMetadata.getVersioning().getLastUpdated());
+        assertThat(artifactLevelMetadata).isNotNull();
+        assertThat(artifactLevelMetadata.getGroupId()).isEqualTo(groupId);
+        assertThat(artifactLevelMetadata.getArtifactId()).isEqualTo(artifactId2);
+        assertThat(artifactLevelMetadata.getVersioning().getLatest()).isEqualTo(version2);
+        assertThat(artifactLevelMetadata.getVersioning().getRelease()).isEqualTo(version2);
+        assertThat(artifactLevelMetadata.getVersioning().getVersions()).hasSize(2);
+        assertThat(artifactLevelMetadata.getVersioning().getLastUpdated()).isNotNull();
 
         metadataPath = "storages/" + storageId + "/" + repositoryId + "/" + getArtifactLevelMetadataPath(artifact5);
         artifactLevelMetadata = defaultMavenArtifactDeployer.retrieveMetadata(metadataPath);
 
-        assertNotNull(artifactLevelMetadata);
-        assertEquals(groupId, artifactLevelMetadata.getGroupId());
-        assertEquals(artifactId3, artifactLevelMetadata.getArtifactId());
-        assertEquals(version2, artifactLevelMetadata.getVersioning().getLatest());
-        assertEquals(version2, artifactLevelMetadata.getVersioning().getRelease());
-        assertEquals(2, artifactLevelMetadata.getVersioning().getVersions().size());
-        assertNotNull(artifactLevelMetadata.getVersioning().getLastUpdated());
+        assertThat(artifactLevelMetadata).isNotNull();
+        assertThat(artifactLevelMetadata.getGroupId()).isEqualTo(groupId);
+        assertThat(artifactLevelMetadata.getArtifactId()).isEqualTo(artifactId3);
+        assertThat(artifactLevelMetadata.getVersioning().getLatest()).isEqualTo(version2);
+        assertThat(artifactLevelMetadata.getVersioning().getRelease()).isEqualTo(version2);
+        assertThat(artifactLevelMetadata.getVersioning().getVersions()).hasSize(2);
+        assertThat(artifactLevelMetadata.getVersioning().getLastUpdated()).isNotNull();
     }
 
     @ExtendWith({ RepositoryManagementTestExecutionListener.class,
@@ -910,19 +917,17 @@ public class MavenArtifactControllerTest
         client.delete(storageId, repositoryId, artifact2RepositoryPathStr);
 
         // Then
-        assertNotNull(artifact1);
+        assertThat(artifact1).isNotNull();
         String metadataPath = String.format("storages/%s/%s/%s",
                                             storageId,
                                             repositoryId,
                                             getArtifactLevelMetadataPath(artifact1));
         Metadata metadata = defaultMavenArtifactDeployer.retrieveMetadata(metadataPath);
 
-        assertNotNull(metadata);
-        assertNotNull(metadata.getVersioning());
-        assertNotNull(metadata.getVersioning().getVersions());
-        assertFalse(metadata.getVersioning()
-                            .getVersions()
-                            .contains("1.2.2"));
+        assertThat(metadata).isNotNull();
+        assertThat(metadata.getVersioning()).isNotNull();
+        assertThat(metadata.getVersioning().getVersions()).isNotNull();
+        assertThat(metadata.getVersioning().getVersions().contains("1.2.2")).isFalse();
     }
 
     @ExtendWith({ RepositoryManagementTestExecutionListener.class,
@@ -961,16 +966,14 @@ public class MavenArtifactControllerTest
         client.delete(storageId, repositoryId, artifact1ParentPathStr);
 
         // Then
-        assertNotNull(artifact1);
+        assertThat(artifact1).isNotNull();
         String metadataPath = String.format("storages/%s/%s/%s",
                                             storageId,
                                             repositoryId,
                                             getArtifactLevelMetadataPath(artifact1));
         Metadata metadata = defaultMavenArtifactDeployer.retrieveMetadata(metadataPath);
 
-        assertFalse(metadata.getVersioning()
-                            .getVersions()
-                            .contains("3.1-SNAPSHOT"));
+        assertThat(metadata.getVersioning().getVersions().contains("3.1-SNAPSHOT")).isFalse();
     }
 
     private boolean checkSnapshotVersionExistsInMetadata(Metadata versionLevelMetadata,
@@ -1021,8 +1024,9 @@ public class MavenArtifactControllerTest
                                 .getStatusCode();
 
         // Then
-        assertEquals(HttpStatus.OK.value(), statusCode,
-                     "Access was wrongly restricted for user with custom access model");
+        assertThat(HttpStatus.OK.value())
+                .as("Access was wrongly restricted for user with custom access model")
+                .isEqualTo(statusCode);
     }
 
     @Test
@@ -1078,7 +1082,7 @@ public class MavenArtifactControllerTest
     {
         String path = "/storages/storage-common-proxies/maven-central/john/doe/who.jar";
         ExtractableResponse response = client.getResourceWithResponse(path, "");
-        assertEquals(HttpStatus.BAD_REQUEST.value(), response.statusCode(), "Wrong response");
+        assertThat(response.statusCode()).as("Wrong response").isEqualTo(HttpStatus.BAD_REQUEST.value());
     }
 
     @Test
@@ -1134,11 +1138,11 @@ public class MavenArtifactControllerTest
         ArtifactEntry artifactEntry = artifactEntryService.findOneArtifact("storage-common-proxies",
                                                                            "carlspring",
                                                                            artifactPath);
-        assertNotNull(artifactEntry);
-        assertNotNull(artifactEntry.getArtifactCoordinates());
+        assertThat(artifactEntry).isNotNull();
+        assertThat(artifactEntry.getArtifactCoordinates()).isNotNull();
 
-        assertTrue(artifactEntry instanceof RemoteArtifactEntry);
-        assertTrue(((RemoteArtifactEntry) artifactEntry).getIsCached());
+        assertThat(artifactEntry).isInstanceOf(RemoteArtifactEntry.class);
+        assertThat(((RemoteArtifactEntry) artifactEntry).getIsCached()).isTrue();
     }
 
     private ArtifactSnapshotVersion getCommonsHttpArtifactSnapshotVersionFromCarlspringRemote()

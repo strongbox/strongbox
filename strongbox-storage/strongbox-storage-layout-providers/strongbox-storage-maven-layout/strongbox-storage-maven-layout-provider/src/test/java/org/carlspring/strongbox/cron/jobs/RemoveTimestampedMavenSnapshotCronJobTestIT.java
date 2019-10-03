@@ -32,6 +32,7 @@ import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.TestExecutionListeners;
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.awaitility.Awaitility.await;
 import static org.carlspring.strongbox.storage.repository.RepositoryPolicyEnum.SNAPSHOT;
 import static org.junit.jupiter.api.Assertions.assertEquals;
@@ -110,13 +111,12 @@ public class RemoveTimestampedMavenSnapshotCronJobTestIT
                 {
                     try (Stream<Path> pathStream = Files.walk(artifactPath))
                     {
-
                         long timestampedSnapshots = pathStream.filter(path -> path.toString().endsWith(".jar")).count();
-                        assertEquals(1, timestampedSnapshots, "Amount of timestamped snapshots doesn't equal 1.");
-
+                        assertThat(timestampedSnapshots)
+                                .as("Amount of timestamped snapshots doesn't equal 1.")
+                                .isEqualTo(1);
                     }
-
-                    assertTrue(getSnapshotArtifactVersion(artifactPath).endsWith("-3"));
+                    assertThat(getSnapshotArtifactVersion(artifactPath).endsWith("-3")).isTrue();
                 }
             }
             catch (Exception e)
@@ -173,11 +173,13 @@ public class RemoveTimestampedMavenSnapshotCronJobTestIT
                     try (Stream<Path> pathStream = Files.walk(artifactPath))
                     {
                         long timestampedSnapshots = pathStream.filter(path -> path.toString().endsWith(".jar")).count();
-                        
-                        assertEquals(1, timestampedSnapshots, "Amount of timestamped snapshots doesn't equal 1.");
-                    }
 
-                    assertTrue(getSnapshotArtifactVersion(artifactPath).endsWith("-2"));
+                        assertEquals(1, timestampedSnapshots, "Amount of timestamped snapshots doesn't equal 1.");
+                        assertThat(timestampedSnapshots)
+                                .as("Amount of timestamped snapshots doesn't equal 1.")
+                                .isEqualTo(1);
+                    }
+                    assertThat(getSnapshotArtifactVersion(artifactPath).endsWith("-2")).isTrue();
                 }
             }
             catch (Exception e)

@@ -2,26 +2,30 @@ package org.carlspring.strongbox.controllers.configuration;
 
 import org.carlspring.strongbox.booters.PropertiesBooter;
 import org.carlspring.strongbox.config.IntegrationTest;
-import org.carlspring.strongbox.forms.configuration.*;
+import org.carlspring.strongbox.forms.configuration.MavenRepositoryConfigurationForm;
+import org.carlspring.strongbox.forms.configuration.ProxyConfigurationForm;
+import org.carlspring.strongbox.forms.configuration.RemoteRepositoryForm;
+import org.carlspring.strongbox.forms.configuration.RepositoryForm;
+import org.carlspring.strongbox.forms.configuration.StorageForm;
 import org.carlspring.strongbox.providers.layout.Maven2LayoutProvider;
 import org.carlspring.strongbox.rest.common.RestAssuredBaseTest;
 import org.carlspring.strongbox.service.ProxyRepositoryConnectionPoolConfigurationService;
-import org.carlspring.strongbox.storage.StorageData;
 import org.carlspring.strongbox.storage.Storage;
-import org.carlspring.strongbox.storage.repository.RepositoryData;
+import org.carlspring.strongbox.storage.StorageData;
 import org.carlspring.strongbox.storage.repository.Repository;
+import org.carlspring.strongbox.storage.repository.RepositoryData;
 import org.carlspring.strongbox.yaml.configuration.repository.MavenRepositoryConfiguration;
 
 import javax.inject.Inject;
 import java.nio.file.Files;
 import java.nio.file.Paths;
-import java.util.*;
+import java.util.LinkedHashSet;
+import java.util.List;
+import java.util.Set;
 
 import com.google.common.collect.ImmutableSet;
 import com.google.common.collect.Lists;
 import org.apache.http.pool.PoolStats;
-import org.hamcrest.CoreMatchers;
-import org.hamcrest.MatcherAssert;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
@@ -29,10 +33,17 @@ import org.junit.jupiter.params.provider.ValueSource;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.web.client.HttpServerErrorException;
-import static org.carlspring.strongbox.controllers.configuration.StoragesConfigurationController.*;
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.carlspring.strongbox.controllers.configuration.StoragesConfigurationController.FAILED_SAVE_STORAGE_FORM_ERROR;
+import static org.carlspring.strongbox.controllers.configuration.StoragesConfigurationController.SUCCESSFUL_REPOSITORY_REMOVAL;
+import static org.carlspring.strongbox.controllers.configuration.StoragesConfigurationController.SUCCESSFUL_REPOSITORY_SAVE;
+import static org.carlspring.strongbox.controllers.configuration.StoragesConfigurationController.SUCCESSFUL_SAVE_STORAGE;
+import static org.carlspring.strongbox.controllers.configuration.StoragesConfigurationController.SUCCESSFUL_STORAGE_REMOVAL;
+import static org.carlspring.strongbox.controllers.configuration.StoragesConfigurationController.SUCCESSFUL_UPDATE_STORAGE;
 import static org.carlspring.strongbox.rest.client.RestAssuredArtifactClient.OK;
-import static org.hamcrest.Matchers.*;
-import static org.junit.jupiter.api.Assertions.*;
+import static org.hamcrest.Matchers.containsString;
+import static org.hamcrest.Matchers.equalTo;
+import static org.hamcrest.Matchers.not;
 
 /**
  * @author Pablo Tirado
@@ -189,8 +200,8 @@ public class StoragesConfigurationControllerTestIT
 
         Storage storage = getStorage(storageId);
 
-        assertNotNull(storage, "Failed to get storage (" + storageId + ")!");
-        assertEquals(storage.getBasedir(), storage1.getBasedir());
+        assertThat(storage).as("Failed to get storage (" + storageId + ")!").isNotNull();
+        assertThat(storage1.getBasedir()).isEqualTo(storage.getBasedir());
 
         // 2. Update storage.
         url = getContextBaseUrl() + "/" + storageId;
@@ -209,9 +220,10 @@ public class StoragesConfigurationControllerTestIT
 
         storage = getStorage(storageId);
 
-        assertNotNull(storage, "Failed to get storage (" + storageId + ")!");
-        assertEquals(storage.getBasedir(), storage1.getBasedir(),
-                     "Failed to update storage (" + storageId + ") basedir!");
+        assertThat(storage).as("Failed to get storage (" + storageId + ")!").isNotNull();
+        assertThat(storage1.getBasedir())
+                .as("Failed to update storage (" + storageId + ") basedir!")
+                .isEqualTo(storage.getBasedir());
     }
 
     @ParameterizedTest
@@ -312,44 +324,53 @@ public class StoragesConfigurationControllerTestIT
         groupRepositoriesMapExpected.add(groupRepository1);
         groupRepositoriesMapExpected.add(groupRepository2);
 
-        assertNotNull(storage, "Failed to get storage (" + storageId + ")!");
-        assertFalse(storage.getRepositories().isEmpty(), "Failed to get storage (" + storageId + ")!");
-        assertTrue(repository0.allowsRedeployment(),
-                   "Failed to get storage (" + storageId + ")!");
-        assertTrue(repository0.isSecured(),
-                   "Failed to get storage (" + storageId + ")!");
-        assertNotNull(((RepositoryData) repository0).getRepositoryConfiguration(),
-                      "Failed to get storage (" + storageId + ")!");
-        assertTrue(
-                ((RepositoryData) repository0).getRepositoryConfiguration() instanceof MavenRepositoryConfiguration,
-                "Failed to get storage (" + storageId + ")!");
-        assertTrue(
-                ((MavenRepositoryConfiguration) ((RepositoryData) repository0).getRepositoryConfiguration()).isIndexingEnabled(),
-                "Failed to get storage (" + storageId + ")!");
-        assertFalse(
-                ((MavenRepositoryConfiguration) ((RepositoryData) repository0).getRepositoryConfiguration()).isIndexingClassNamesEnabled(),
-                "Failed to get storage (" + storageId + ")!");
-        assertEquals(
-                ((MavenRepositoryConfiguration) ((RepositoryData) repository0).getRepositoryConfiguration()).getCronExpression(),
-                "0 0 2 * * ?", "Failed to get storage(" + storageId + ")!");
-        assertEquals(groupRepositoriesMapExpected, groupRepositoriesMap);
-
-        assertTrue(repository1.allowsForceDeletion(),
-                   "Failed to get storage (" + storageId + ")!");
-        assertTrue(repository1.isTrashEnabled(),
-                   "Failed to get storage (" + storageId + ")!");
-        assertNotNull(((RepositoryData) repository1).getProxyConfiguration().getHost(),
-                      "Failed to get storage (" + storageId + ")!");
-        assertEquals("localhost",
-                     ((RepositoryData) repository1).getProxyConfiguration().getHost(),
-                     "Failed to get storage (" + storageId + ")!");
+        assertThat(storage)
+                .as( "Failed to get storage (" + storageId + ")!")
+                .isNotNull();
+        assertThat(storage.getRepositories().isEmpty())
+                .as("Failed to get storage (" + storageId + ")!")
+                .isFalse();
+        assertThat(repository0.allowsRedeployment())
+                .as("Failed to get storage (" + storageId + ")!")
+                .isTrue();
+        assertThat(repository0.isSecured())
+                .as("Failed to get storage (" + storageId + ")!")
+                .isTrue();
+        assertThat(repository0.getRepositoryConfiguration())
+                .as("Failed to get storage (" + storageId + ")!")
+                .isNotNull();
+        assertThat(repository0.getRepositoryConfiguration())
+                .as("Failed to get storage (" + storageId + ")!")
+                .isInstanceOf(MavenRepositoryConfiguration.class);
+        assertThat(((MavenRepositoryConfiguration) repository0.getRepositoryConfiguration()).isIndexingEnabled())
+                .as("Failed to get storage (" + storageId + ")!")
+                .isTrue();
+        assertThat(((MavenRepositoryConfiguration) repository0.getRepositoryConfiguration()).isIndexingClassNamesEnabled())
+                .as("Failed to get storage (" + storageId + ")!")
+                .isFalse();
+        assertThat(((MavenRepositoryConfiguration) repository0.getRepositoryConfiguration()).getCronExpression())
+                .as("Failed to get storage(" + storageId + ")!")
+                .isEqualTo("0 0 2 * * ?");
+        assertThat(groupRepositoriesMap).isEqualTo(groupRepositoriesMapExpected);
+        assertThat(repository1.allowsForceDeletion())
+                .as("Failed to get storage (" + storageId + ")!")
+                .isTrue();
+        assertThat(repository1.isTrashEnabled())
+                .as("Failed to get storage (" + storageId + ")!")
+                .isTrue();
+        assertThat(((RepositoryData) repository1).getProxyConfiguration().getHost())
+                .as("Failed to get storage (" + storageId + ")!")
+                .isNotNull();
+        assertThat(((RepositoryData) repository1).getProxyConfiguration().getHost())
+                .as("Failed to get storage (" + storageId + ")!")
+                .isEqualTo("localhost");
 
         PoolStats poolStatsRepository2 = proxyRepositoryConnectionPoolConfigurationService.getPoolStats(
                 secondRepositoryUrl);
 
-        assertEquals(maxConnectionsRepository2.intValue(),
-                     poolStatsRepository2.getMax(),
-                     "Max connections for proxy repository not set accordingly!");
+        assertThat(poolStatsRepository2.getMax())
+                .as("Max connections for proxy repository not set accordingly!")
+                .isEqualTo(maxConnectionsRepository2);
 
         deleteRepository(storage0.getId(), repositoryForm0_1.getId());
         deleteRepository(storage0.getId(), repositoryForm0_2.getId());
@@ -480,7 +501,7 @@ public class StoragesConfigurationControllerTestIT
 
         String repoDir = getBaseDir(storageId) + "/" + repositoryId;
 
-        MatcherAssert.assertThat(Files.exists(Paths.get(repoDir)), CoreMatchers.equalTo(false));
+        assertThat(Files.exists(Paths.get(repoDir))).isFalse();
     }
 
     @ParameterizedTest
@@ -553,8 +574,8 @@ public class StoragesConfigurationControllerTestIT
 
         Storage storage = getStorage(storageId);
 
-        assertNotNull(storage, "Failed to get storage (" + storageId + ")!");
-        assertFalse(storage.getRepositories().isEmpty(), "Failed to get storage (" + storageId + ")!");
+        assertThat(storage).as("Failed to get storage (" + storageId + ")!").isNotNull();
+        assertThat(storage.getRepositories().isEmpty()).as("Failed to get storage (" + storageId + ")!").isFalse();
 
         url = getContextBaseUrl() + "/" + storageId;
 
@@ -612,14 +633,14 @@ public class StoragesConfigurationControllerTestIT
                      .body(containsString(SUCCESSFUL_SAVE_STORAGE));
 
         Storage storage = getStorage(storageId);
-        assertNotNull(storage, "Failed to get storage (" + storageId + ")!");
+        assertThat(storage).as("Failed to get storage (" + storageId + ")!").isNotNull();
 
         // Storage basedir will be created only when repository created.
         addRepository(repositoryForm0, storage4);
-        
+
         // 2. Confirm default base dir has been created
         String storageBaseDir = getBaseDir(storageId);
-        MatcherAssert.assertThat(Files.exists(Paths.get(storageBaseDir)), CoreMatchers.equalTo(true));
+        assertThat(Files.exists(Paths.get(storageBaseDir))).isTrue();
 
         url = getContextBaseUrl() + "/" + storageId;
 
@@ -643,7 +664,7 @@ public class StoragesConfigurationControllerTestIT
                      .statusCode(HttpStatus.NOT_FOUND.value());
 
         // 5. Confirm base dir has been deleted
-        MatcherAssert.assertThat(Files.exists(Paths.get(storageBaseDir)), CoreMatchers.equalTo(false));
+        assertThat(Files.exists(Paths.get(storageBaseDir))).isFalse();
     }
 
 }

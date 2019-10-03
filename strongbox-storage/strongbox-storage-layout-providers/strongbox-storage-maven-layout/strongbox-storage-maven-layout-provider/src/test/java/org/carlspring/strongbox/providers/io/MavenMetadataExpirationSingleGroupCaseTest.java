@@ -21,7 +21,7 @@ import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.ContextConfiguration;
 import static org.carlspring.strongbox.storage.repository.RepositoryPolicyEnum.SNAPSHOT;
 import static org.carlspring.strongbox.util.MessageDigestUtils.calculateChecksum;
-import static org.junit.jupiter.api.Assertions.*;
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.parallel.ExecutionMode.CONCURRENT;
 
 /**
@@ -80,7 +80,7 @@ public class MavenMetadataExpirationSingleGroupCaseTest
                                                       true,
                                                       "maven-metadata.xml");
         String sha1HostedPathChecksum = readChecksum(resolveSiblingChecksum(hostedPath, EncryptionAlgorithmsEnum.SHA1));
-        assertNotNull(sha1HostedPathChecksum);
+        assertThat(sha1HostedPathChecksum).isNotNull();
 
         final RepositoryPath proxyPath = resolvePath(proxyRepository.getId(),
                                                      true,
@@ -90,24 +90,24 @@ public class MavenMetadataExpirationSingleGroupCaseTest
                                                      true,
                                                      "maven-metadata.xml");
         String sha1ProxyPathChecksum = readChecksum(resolveSiblingChecksum(proxyPath, EncryptionAlgorithmsEnum.SHA1));
-        assertNull(sha1ProxyPathChecksum);
+        assertThat(sha1ProxyPathChecksum).isNull();
 
-        assertFalse(RepositoryFiles.artifactExists(groupPath));
+        assertThat(RepositoryFiles.artifactExists(groupPath)).isFalse();
 
         RepositoryPath resolvedGroupPath = groupRepositoryProvider.fetchPath(groupPath);
 
         sha1ProxyPathChecksum = readChecksum(resolveSiblingChecksum(proxyPath, EncryptionAlgorithmsEnum.SHA1));
-        assertNotNull(sha1ProxyPathChecksum);
-        assertEquals(sha1ProxyPathChecksum, sha1HostedPathChecksum);
+        assertThat(sha1ProxyPathChecksum).isNotNull();
+        assertThat(sha1HostedPathChecksum).isEqualTo(sha1ProxyPathChecksum);
 
         String calculatedGroupPathChecksum = calculateChecksum(resolvedGroupPath,
                                                                EncryptionAlgorithmsEnum.SHA1.getAlgorithm());
-        assertEquals(sha1ProxyPathChecksum, calculatedGroupPathChecksum);
+        assertThat(calculatedGroupPathChecksum).isEqualTo(sha1ProxyPathChecksum);
 
         Files.setLastModifiedTime(proxyPath, oneHourAgo());
 
         sha1ProxyPathChecksum = readChecksum(resolveSiblingChecksum(proxyPath, EncryptionAlgorithmsEnum.SHA1));
-        assertEquals(sha1ProxyPathChecksum, calculatedGroupPathChecksum);
+        assertThat(calculatedGroupPathChecksum).isEqualTo(sha1ProxyPathChecksum);
 
         mockHostedRepositoryMetadataUpdate(hostedRepository.getId(),
                                            localSourceRepository.getId(),
@@ -118,18 +118,18 @@ public class MavenMetadataExpirationSingleGroupCaseTest
                                                                      EncryptionAlgorithmsEnum.SHA1));
         final String calculatedHostedPathChecksum = calculateChecksum(hostedPath,
                                                                       EncryptionAlgorithmsEnum.SHA1.getAlgorithm());
-        assertEquals(sha1HostedPathChecksum, calculatedHostedPathChecksum);
-        assertNotEquals(calculatedHostedPathChecksum, sha1ProxyPathChecksum);
+        assertThat(calculatedHostedPathChecksum).isEqualTo(sha1HostedPathChecksum);
+        assertThat(sha1ProxyPathChecksum).isNotEqualTo(calculatedHostedPathChecksum);
 
         Files.setLastModifiedTime(proxyPath, oneHourAgo());
 
         resolvedGroupPath = groupRepositoryProvider.fetchPath(groupPath);
         sha1ProxyPathChecksum = readChecksum(resolveSiblingChecksum(proxyPath,
                                                                     EncryptionAlgorithmsEnum.SHA1));
-        assertEquals(sha1ProxyPathChecksum, calculatedHostedPathChecksum);
+        assertThat(calculatedHostedPathChecksum).isEqualTo(sha1ProxyPathChecksum);
         calculatedGroupPathChecksum = calculateChecksum(resolvedGroupPath,
                                                         EncryptionAlgorithmsEnum.SHA1.getAlgorithm());
-        assertEquals(sha1ProxyPathChecksum, calculatedGroupPathChecksum);
+        assertThat(calculatedGroupPathChecksum).isEqualTo(sha1ProxyPathChecksum);
     }
 
     @Override

@@ -1,20 +1,5 @@
 package org.carlspring.strongbox.forms.users;
 
-import static org.hamcrest.MatcherAssert.assertThat;
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertFalse;
-import static org.junit.jupiter.api.Assertions.assertTrue;
-
-import java.util.Collection;
-import java.util.List;
-import java.util.Set;
-
-import javax.inject.Inject;
-import javax.validation.ConstraintViolation;
-import javax.validation.Validator;
-
-import org.apache.commons.lang3.StringUtils;
-import org.assertj.core.api.Java6Assertions;
 import org.carlspring.strongbox.config.IntegrationTest;
 import org.carlspring.strongbox.converters.users.AccessModelFormToUserAccessModelDtoConverter;
 import org.carlspring.strongbox.rest.common.RestAssuredBaseTest;
@@ -23,14 +8,20 @@ import org.carlspring.strongbox.users.dto.AccessModelDto;
 import org.carlspring.strongbox.users.dto.PathPrivilegesDto;
 import org.carlspring.strongbox.users.dto.RepositoryPrivilegesDto;
 import org.carlspring.strongbox.users.dto.StoragePrivilegesDto;
-import org.hamcrest.CoreMatchers;
-import org.hamcrest.Matchers;
-import org.hamcrest.core.IsCollectionContaining;
-import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.api.Test;
+
+import javax.inject.Inject;
+import javax.validation.ConstraintViolation;
+import javax.validation.Validator;
+import java.util.Collection;
+import java.util.List;
+import java.util.Set;
 
 import com.google.common.collect.ImmutableSet;
 import com.google.common.collect.Lists;
+import org.apache.commons.lang3.StringUtils;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import static org.assertj.core.api.Assertions.assertThat;
 
 /**
  * @author Przemyslaw Fusik
@@ -111,72 +102,67 @@ public class AccessModelFormTest
 
         AccessModelDto userAccessModel = AccessModelFormToUserAccessModelDtoConverter.INSTANCE.convert(
                 developer01AccessModel);
-        assertThat(userAccessModel, CoreMatchers.notNullValue());
+        assertThat(userAccessModel).isNotNull();
 
         Set<StoragePrivilegesDto> userStorages = userAccessModel.getStorageAuthorities();
-        assertThat(userStorages, CoreMatchers.notNullValue());
-        assertThat(userStorages.size(), CoreMatchers.equalTo(1));
+        assertThat(userStorages).isNotNull();
+        assertThat(userStorages).hasSize(1);
 
         StoragePrivilegesDto userStorage = userStorages.iterator().next();
-        assertThat(userStorage, CoreMatchers.notNullValue());
+        assertThat(userStorage).isNotNull();
 
-        assertThat(userStorage.getStorageId(), CoreMatchers.equalTo("storage0"));
+        assertThat(userStorage.getStorageId()).isEqualTo("storage0");
 
         Set<RepositoryPrivilegesDto> userRepositories = userStorage.getRepositoryPrivileges();
-        assertThat(userRepositories, CoreMatchers.notNullValue());
-        assertThat(userRepositories.size(), CoreMatchers.equalTo(2));
+        assertThat(userRepositories).isNotNull();
+        assertThat(userRepositories).hasSize(2);
 
         for (RepositoryPrivilegesDto userRepository : userRepositories)
         {
-            assertThat(userRepository.getRepositoryId(),
-                       CoreMatchers.anyOf(CoreMatchers.equalTo("releases"), CoreMatchers.equalTo("snapshots")));
-
+            assertThat(userRepository.getRepositoryId()).isIn("releases", "snapshots");
 
             Set<Privileges> repositoryPrivileges = userRepository.getRepositoryPrivileges();
             Set<PathPrivilegesDto> pathPrivileges = userRepository.getPathPrivileges();
 
             if ("releases".equals(userRepository.getRepositoryId()))
             {
-                assertThat(pathPrivileges, CoreMatchers.notNullValue());
-                assertThat(pathPrivileges.size(), CoreMatchers.equalTo(4));
+                assertThat(pathPrivileges).isNotNull();
+                assertThat(pathPrivileges).hasSize(4);
 
                 for (PathPrivilegesDto pathPrivilege : pathPrivileges)
                 {
-                    assertThat(pathPrivilege.getPath(),
-                               CoreMatchers.anyOf(CoreMatchers.equalTo("com/apache/foo"),
-                                                  CoreMatchers.equalTo("org/apache/foo"),
-                                                  CoreMatchers.equalTo("com/carlspring/foo"),
-                                                  CoreMatchers.equalTo("org/carlspring/foo")));
+                    assertThat(pathPrivilege.getPath())
+                            .isIn("com/apache/foo",
+                                  "org/apache/foo",
+                                  "com/carlspring/foo",
+                                  "org/carlspring/foo");
                     if (pathPrivilege.getPath().startsWith("org"))
                     {
-                        assertThat(pathPrivilege.getPrivileges().size(), CoreMatchers.equalTo(5));
+                        assertThat(pathPrivilege.getPrivileges()).hasSize(5);
                     }
                     else
                     {
-                        assertThat(pathPrivilege.getPrivileges().size(), CoreMatchers.equalTo(2));
+                        assertThat(pathPrivilege.getPrivileges()).hasSize(2);
                     }
 
                     if (pathPrivilege.getPath().contains("carlspring"))
                     {
-                        assertThat(pathPrivilege.isWildcard(), CoreMatchers.equalTo(true));
+                        assertThat(pathPrivilege.isWildcard()).isTrue();
                     }
                     else
                     {
-                        assertThat(pathPrivilege.isWildcard(), CoreMatchers.equalTo(false));
+                        assertThat(pathPrivilege.isWildcard()).isFalse();
                     }
                 }
 
-                assertThat(repositoryPrivileges.size(), CoreMatchers.equalTo(2));
-                assertThat(repositoryPrivileges,
-                           IsCollectionContaining.hasItems(CoreMatchers.equalTo(Privileges.ARTIFACTS_RESOLVE),
-                                                           CoreMatchers.equalTo(Privileges.ARTIFACTS_DEPLOY)));
+                assertThat(repositoryPrivileges).hasSize(2);
+                assertThat(repositoryPrivileges).contains(Privileges.ARTIFACTS_RESOLVE, Privileges.ARTIFACTS_DEPLOY);
             }
             if ("snapshots".equals(userRepository.getRepositoryId()))
             {
-                assertThat(pathPrivileges, Matchers.emptyCollectionOf(PathPrivilegesDto.class));
-                assertThat(repositoryPrivileges.size(), CoreMatchers.equalTo(1));
-                assertThat(repositoryPrivileges, IsCollectionContaining.hasItems(
-                        CoreMatchers.equalTo(Privileges.ARTIFACTS_DEPLOY)));
+                assertThat(pathPrivileges).isEmpty();
+                assertThat(repositoryPrivileges).hasSize(1);
+                assertThat(repositoryPrivileges).contains(Privileges.ARTIFACTS_DEPLOY);
             }
         }
     }
@@ -197,7 +183,7 @@ public class AccessModelFormTest
         Set<ConstraintViolation<RepositoryAccessModelForm>> violations = validator.validate(repositoryAccessModelForm);
 
         // then
-        assertTrue(violations.isEmpty(), "Violations are not empty!");
+        assertThat(violations).as("Violations are not empty!").isEmpty();
     }
 
     @Test
@@ -213,9 +199,9 @@ public class AccessModelFormTest
         Set<ConstraintViolation<RepositoryAccessModelForm>> violations = validator.validate(repositoryAccessModelForm);
 
         // then
-        assertFalse(violations.isEmpty(), "Violations are empty!");
-        assertEquals(violations.size(), 1);
-        Java6Assertions.assertThat(violations).extracting("message").containsAnyOf("A storage id must be specified.");
+        assertThat(violations).as("Violations are empty!").isNotEmpty();
+        assertThat(violations).hasSize(1);
+        assertThat(violations).extracting("message").containsAnyOf("A storage id must be specified.");
     }
 
 }

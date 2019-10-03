@@ -17,7 +17,7 @@ import org.junit.jupiter.api.parallel.Execution;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.ContextConfiguration;
-import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.parallel.ExecutionMode.CONCURRENT;
 
 /**
@@ -46,7 +46,7 @@ public class MavenRepositoryManagementServiceImplTest
                                      Repository repository)
     {
         Path repositoryPath = repositoryPathResolver.resolve(repository);
-        assertTrue(Files.exists(repositoryPath), "Failed to create repository '" + repository.getId() + "'!");
+        assertThat(Files.exists(repositoryPath)).as("Failed to create repository '" + repository.getId() + "'!").isTrue();
     }
 
     @ExtendWith(RepositoryManagementTestExecutionListener.class)
@@ -61,11 +61,11 @@ public class MavenRepositoryManagementServiceImplTest
         final String repositoryId = repository.getId();
 
         Path repositoryPath = repositoryPathResolver.resolve(repository);
-        assertTrue(Files.exists(repositoryPath), "Failed to create repository '" + repositoryId + "'!");
+        assertThat(Files.exists(repositoryPath)).as("Failed to create repository '" + repositoryId + "'!").isTrue();
 
         repositoryManagementService.removeRepository(storageId, repositoryId);
 
-        assertTrue(Files.notExists(repositoryPath), "Failed to remove the repository!");
+        assertThat(Files.notExists(repositoryPath)).as("Failed to remove the repository!").isTrue();
     }
 
 }

@@ -81,18 +81,18 @@ public class RoutingConfigurationControllerTestIT
         MutableRoutingRules routingRules = getRoutingRules();
 
         assertThat(routingRules).isNotNull();
-        assertThat(routingRules.getRules().size()).isEqualTo(2);
+        assertThat(routingRules.getRules()).hasSize(2);
 
         MutableRoutingRule lastRule = routingRules.getRules().get(routingRules.getRules().size() - 1);
 
-        assertThat(lastRule.getRepositories().size()).isEqualTo(2);
+        assertThat(lastRule.getRepositories()).hasSize(2);
 
         removeRoutingRule(acceptHeader, lastRule.getUuid());
 
         routingRules = getRoutingRules();
 
         assertThat(routingRules).isNotNull();
-        assertThat(routingRules.getRules().size()).isEqualTo(1);
+        assertThat(routingRules.getRules()).hasSize(1);
     }
 
     @ParameterizedTest
@@ -105,18 +105,18 @@ public class RoutingConfigurationControllerTestIT
         MutableRoutingRules routingRules = getRoutingRules();
 
         assertThat(routingRules).isNotNull();
-        assertThat(routingRules.getRules().size()).isEqualTo(2);
+        assertThat(routingRules.getRules()).hasSize(2);
 
         MutableRoutingRule lastRule = routingRules.getRules().get(routingRules.getRules().size() - 1);
 
-        assertThat(lastRule.getRepositories().size()).isEqualTo(0);
+        assertThat(lastRule.getRepositories()).isEmpty();
 
         removeRoutingRule(acceptHeader, lastRule.getUuid());
 
         routingRules = getRoutingRules();
 
         assertThat(routingRules).isNotNull();
-        assertThat(routingRules.getRules().size()).isEqualTo(1);
+        assertThat(routingRules.getRules()).hasSize(1);
     }
 
     @ParameterizedTest
@@ -137,7 +137,7 @@ public class RoutingConfigurationControllerTestIT
         MutableRoutingRules routingRules = getRoutingRules();
 
         assertThat(routingRules).isNotNull();
-        assertThat(routingRules.getRules().size()).isEqualTo(2);
+        assertThat(routingRules.getRules()).hasSize(2);
 
         MutableRoutingRule lastRule = routingRules.getRules().get(routingRules.getRules().size() - 1);
 
@@ -146,7 +146,7 @@ public class RoutingConfigurationControllerTestIT
         routingRules = getRoutingRules();
 
         assertThat(routingRules).isNotNull();
-        assertThat(routingRules.getRules().size()).isEqualTo(2);
+        assertThat(routingRules.getRules()).hasSize(2);
 
         lastRule = routingRules.getRules().get(routingRules.getRules().size() - 1);
 
@@ -159,7 +159,7 @@ public class RoutingConfigurationControllerTestIT
         routingRules = getRoutingRules();
 
         assertThat(routingRules).isNotNull();
-        assertThat(routingRules.getRules().size()).isEqualTo(1);
+        assertThat(routingRules.getRules()).hasSize(1);
     }
 
     private void addRoutingRule(String acceptHeader,

@@ -1,12 +1,10 @@
 package org.carlspring.strongbox.controllers;
 
 import static io.restassured.module.mockmvc.RestAssuredMockMvc.given;
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.hamcrest.CoreMatchers.notNullValue;
 import static org.hamcrest.Matchers.equalTo;
 import static org.hamcrest.Matchers.hasSize;
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertNotEquals;
-import static org.junit.jupiter.api.Assertions.assertNotNull;
 
 import java.util.Arrays;
 import java.util.HashSet;
@@ -152,7 +150,7 @@ public class AccountControllerTest
                .statusCode(HttpStatus.OK.value())
                .body("securityTokenKey", equalTo("12345"));
 
-        assertNotEquals(userEntity.getPassword(), updatedUser.getPassword());
+        assertThat(updatedUser.getPassword()).isNotEqualTo(userEntity.getPassword());
     }
 
     @Test
@@ -195,7 +193,6 @@ public class AccountControllerTest
                .statusCode(HttpStatus.OK.value())
                .body("roles", hasSize(0))
                .body("enabled", equalTo(true));
-
     }
 
     /**
@@ -231,9 +228,9 @@ public class AccountControllerTest
                .statusCode(HttpStatus.OK.value());
 
         User updatedUser = userService.findByUsername(username);
-        assertEquals(username, updatedUser.getUsername());
-        assertNotNull(updatedUser.getPassword());
-        assertEquals(originalUser.getPassword(), updatedUser.getPassword());
+        assertThat(updatedUser.getUsername()).isEqualTo(username);
+        assertThat(updatedUser.getPassword()).isNotNull();
+        assertThat(updatedUser.getPassword()).isEqualTo(originalUser.getPassword());
     }
 
     @Test

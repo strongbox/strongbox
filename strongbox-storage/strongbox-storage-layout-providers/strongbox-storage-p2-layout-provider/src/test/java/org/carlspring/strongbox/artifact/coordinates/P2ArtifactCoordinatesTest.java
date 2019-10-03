@@ -1,7 +1,7 @@
 package org.carlspring.strongbox.artifact.coordinates;
 
 import org.junit.jupiter.api.Test;
-import static org.junit.jupiter.api.Assertions.*;
+import static org.assertj.core.api.Assertions.assertThat;
 
 public class P2ArtifactCoordinatesTest
 {
@@ -21,23 +21,23 @@ public class P2ArtifactCoordinatesTest
         P2ArtifactCoordinates ar2 = new P2ArtifactCoordinates(ID, VERSION, CLASSIFIER);
         P2ArtifactCoordinates ar3 = new P2ArtifactCoordinates("anotherID", "1.0.0", "feature.group");
 
-        assertTrue(ar1.equals(ar2));
-        assertFalse(ar1.equals(ar3));
+        assertThat(ar1).isEqualTo(ar2);
+        assertThat(ar1).isNotEqualTo(ar3);
     }
 
     @Test
     public void testCreateArtifact()
     {
         P2ArtifactCoordinates artifactCoordinates = P2ArtifactCoordinates.create(PATH);
-        assertEquals(ID, artifactCoordinates.getId());
-        assertEquals(VERSION, artifactCoordinates.getVersion());
-        assertEquals(CLASSIFIER, artifactCoordinates.getClassifier());
+        assertThat(artifactCoordinates.getId()).isEqualTo(ID);
+        assertThat(artifactCoordinates.getVersion()).isEqualTo(VERSION);
+        assertThat(artifactCoordinates.getClassifier()).isEqualTo(CLASSIFIER);
     }
 
     @Test
     public void testToPath()
     {
         P2ArtifactCoordinates artifactCoordinates = new P2ArtifactCoordinates(ID, VERSION, CLASSIFIER);
-        assertEquals(PATH, artifactCoordinates.toPath());
+        assertThat(artifactCoordinates.toPath()).isEqualTo(PATH);
     }
 }

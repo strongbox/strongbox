@@ -1,21 +1,5 @@
 package org.carlspring.strongbox.configuration;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertNotNull;
-import static org.junit.jupiter.api.Assertions.assertTrue;
-
-import java.io.ByteArrayOutputStream;
-import java.io.File;
-import java.io.IOException;
-import java.io.OutputStream;
-import java.nio.file.Files;
-import java.nio.file.Path;
-import java.nio.file.Paths;
-import java.util.Arrays;
-import java.util.Collections;
-
-import javax.inject.Inject;
-
 import org.carlspring.strongbox.StorageApiTestConfig;
 import org.carlspring.strongbox.booters.PropertiesBooter;
 import org.carlspring.strongbox.data.CacheManagerTestExecutionListener;
@@ -28,15 +12,27 @@ import org.carlspring.strongbox.storage.routing.RoutingRuleTypeEnum;
 import org.carlspring.strongbox.yaml.YAMLMapperFactory;
 import org.carlspring.strongbox.yaml.repository.CustomRepositoryConfigurationDto;
 import org.carlspring.strongbox.yaml.repository.remote.RemoteRepositoryConfigurationDto;
+
+import javax.inject.Inject;
+import java.io.ByteArrayOutputStream;
+import java.io.File;
+import java.io.IOException;
+import java.io.OutputStream;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
+import java.util.Arrays;
+import java.util.Collections;
+
+import com.fasterxml.jackson.dataformat.yaml.YAMLMapper;
+import com.google.common.collect.Sets;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.TestExecutionListeners;
-
-import com.fasterxml.jackson.dataformat.yaml.YAMLMapper;
-import com.google.common.collect.Sets;
+import static org.assertj.core.api.Assertions.assertThat;
 
 /**
  * @author mtodorov
@@ -88,33 +84,35 @@ public class ConfigurationManagerTest
     {
         final Configuration configuration = configurationManager.getConfiguration();
 
-        assertNotNull(configuration);
-        assertNotNull(configuration.getStorages());
-        assertNotNull(configuration.getRoutingRules());
-        // assertFalse(configuration.getRoutingRules().getWildcardAcceptedRules().getRoutingRules().isEmpty());
-        // assertFalse(configuration.getRoutingRules().getWildcardDeniedRules().getRoutingRules().isEmpty());
+        assertThat(configuration).isNotNull();
+        assertThat(configuration.getStorages()).isNotNull();
+        assertThat(configuration.getRoutingRules()).isNotNull();
+        // assertThat(configuration.getRoutingRules().getWildcardAcceptedRules().getRoutingRules().isEmpty()).isFalse();
+        // assertThat(configuration.getRoutingRules().getWildcardDeniedRules().getRoutingRules().isEmpty()).isFalse();
 
         for (String storageId : configuration.getStorages().keySet())
         {
-            assertNotNull(storageId, "Storage ID was null!");
-            // assertTrue(!configuration.getStorages().get(storageId).getRepositories().isEmpty(), "No repositories were parsed!");
+            assertThat(storageId).as("Storage ID was null!").isNotNull();
+            // assertThat(!configuration.getStorages().get(storageId).getRepositories().isEmpty()).as("No repositories were parsed!").isTrue();
         }
 
-        assertTrue(configuration.getStorages().size() > 0, "Unexpected number of storages!");
-        assertNotNull(configuration.getVersion(), "Incorrect version!");
-        assertEquals(48080, configuration.getPort(), "Incorrect port number!");
-        assertTrue(configuration.getStorages()
+        assertThat(configuration.getStorages()).as("Unexpected number of storages!").isNotEmpty();
+        assertThat(configuration.getVersion()).as("Incorrect version!").isNotNull();
+        assertThat(configuration.getPort()).as("Incorrect port number!").isEqualTo(48080);
+        assertThat(configuration.getStorages()
                                 .get(STORAGE0)
                                 .getRepositories()
                                 .get("snapshots")
-                                .isSecured(),
-                   "Repository should have required authentication!");
+                                .isSecured())
+                .as("Repository should have required authentication!")
+                .isTrue();
 
-        assertTrue(configuration.getStorages()
+        assertThat(configuration.getStorages()
                                 .get(STORAGE0)
                                 .getRepositories()
                                 .get("releases")
-                                .allowsDirectoryBrowsing());
+                                .allowsDirectoryBrowsing())
+                .isTrue();
     }
 
     @Test
@@ -156,7 +154,7 @@ public class ConfigurationManagerTest
         File outputFile = new File(CONFIGURATION_OUTPUT_FILE);
         yamlMapper.writeValue(outputFile, configuration);
 
-        assertTrue(outputFile.length() > 0, "Failed to store the produced YAML!");
+        assertThat(outputFile.length() > 0).as("Failed to store the produced YAML!").isTrue();
     }
 
     @Test
@@ -182,17 +180,16 @@ public class ConfigurationManagerTest
 
         yamlMapper.writeValue(outputFile, configuration);
 
-        assertTrue(outputFile.length() > 0, "Failed to store the produced YAML!");
+        assertThat(outputFile.length() > 0).as("Failed to store the produced YAML!").isTrue();
 
         MutableConfiguration c = yamlMapper.readValue(outputFile.toURI().toURL(), MutableConfiguration.class);
 
-        assertEquals(2,
-                     c.getStorages().get(STORAGE0)
-                      .getRepositories()
-                      .get("grp-snapshots")
-                      .getGroupRepositories()
-                      .size(),
-                     "Failed to read repository groups!");
+        assertThat(c.getStorages().get(STORAGE0)
+                    .getRepositories()
+                    .get("grp-snapshots")
+                    .getGroupRepositories())
+                .as("Failed to read repository groups!")
+                .hasSize(2);
     }
 
     @Test
@@ -238,13 +235,13 @@ public class ConfigurationManagerTest
 
         yamlMapper.writeValue(outputFile, configuration);
 
-        assertTrue(outputFile.length() > 0, "Failed to store the produced YAML!");
+        assertThat(outputFile.length() > 0).as("Failed to store the produced YAML!").isTrue();
 
         MutableConfiguration c = yamlMapper.readValue(outputFile, MutableConfiguration.class);
 
-        assertEquals(3,
-                     c.getCorsConfiguration().getAllowedOrigins().size(),
-                     "Failed to read saved cors allowedOrigins!");
+        assertThat(c.getCorsConfiguration().getAllowedOrigins())
+                .as("Failed to read saved cors allowedOrigins!")
+                .hasSize(3);
     }
 
     @Test
@@ -271,16 +268,16 @@ public class ConfigurationManagerTest
 
         yamlMapper.writeValue(outputFile, configuration);
 
-        assertTrue(outputFile.length() > 0, "Failed to store the produced YAML!");
+        assertThat(outputFile.length() > 0).as("Failed to store the produced YAML!").isTrue();
 
         MutableConfiguration c = yamlMapper.readValue(outputFile, MutableConfiguration.class);
 
         MutableSmtpConfiguration savedSmtpConfiguration = c.getSmtpConfiguration();
 
-        assertEquals(smtpHost, savedSmtpConfiguration.getHost(), "Failed to read saved smtp host!");
-        assertEquals(smtpPort, savedSmtpConfiguration.getPort(), "Failed to read saved smtp port!");
-        assertEquals(smtpConnection, savedSmtpConfiguration.getConnection(), "Failed to read saved smtp connection!");
-        assertEquals(smtpUsername, savedSmtpConfiguration.getUsername(), "Failed to read saved smtp username!");
-        assertEquals(smtpPassword, savedSmtpConfiguration.getPassword(), "Failed to read saved smtp password!");
+        assertThat(savedSmtpConfiguration.getHost()).as("Failed to read saved smtp host!").isEqualTo(smtpHost);
+        assertThat(savedSmtpConfiguration.getPort()).as("Failed to read saved smtp port!").isEqualTo(smtpPort);
+        assertThat(savedSmtpConfiguration.getConnection()).as("Failed to read saved smtp connection!").isEqualTo(smtpConnection);
+        assertThat(savedSmtpConfiguration.getUsername()).as("Failed to read saved smtp username!").isEqualTo(smtpUsername);
+        assertThat(savedSmtpConfiguration.getPassword()).as("Failed to read saved smtp password!").isEqualTo(smtpPassword);
     }
 }

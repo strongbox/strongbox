@@ -24,9 +24,8 @@ import org.junit.jupiter.params.provider.ValueSource;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import static io.restassured.module.mockmvc.RestAssuredMockMvc.given;
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.hamcrest.CoreMatchers.equalTo;
-import static org.junit.jupiter.api.Assertions.assertFalse;
-import static org.junit.jupiter.api.Assertions.assertTrue;
 
 /**
  * @author Martin Todorov
@@ -102,10 +101,12 @@ public class TrashControllerUndeleteTest
 
         final Path artifactFileInTrash = RepositoryFiles.trash(artifact10Path);
 
-        assertFalse(Files.exists(artifactFileInTrash),
-                    "Failed to undelete trash for repository '" + repositoryId + "'!");
-        assertTrue(Files.exists(artifact10Path),
-                   "Failed to undelete trash for repository '" + repositoryId + "'!");
+        assertThat(Files.exists(artifactFileInTrash))
+                .as("Failed to undelete trash for repository '" + repositoryId + "'!")
+                .isFalse();
+        assertThat(Files.exists(artifact10Path))
+                .as("Failed to undelete trash for repository '" + repositoryId + "'!")
+                .isTrue();
     }
 
     @ExtendWith({ RepositoryManagementTestExecutionListener.class,
@@ -163,8 +164,9 @@ public class TrashControllerUndeleteTest
 
         final Path artifactFileInTrash = RepositoryFiles.trash(artifact10Path);
 
-        assertTrue(Files.exists(artifactFileInTrash.getParent()),
-                   "Failed to undelete trash for repository '" + repository1Id + "'!");
+        assertThat(Files.exists(artifactFileInTrash.getParent()))
+                .as("Failed to undelete trash for repository '" + repository1Id + "'!")
+                .isTrue();
 
         String url = getContextBaseUrl();
 
@@ -178,11 +180,13 @@ public class TrashControllerUndeleteTest
         String message = "The trash for all repositories was successfully restored.";
         validateResponseBody(response, acceptHeader, message);
 
-        assertFalse(Files.exists(artifactFileInTrash),
-                    "Failed to undelete trash for repository '" + repository1Id + "'!");
-        assertTrue(Files.exists(artifact10Path),
-                   "Failed to undelete trash for repository '" + repository1Id +
-                   "' (" + artifact10Path.toAbsolutePath() + " does not exist)!");
+        assertThat(Files.exists(artifactFileInTrash))
+                .as("Failed to undelete trash for repository '" + repository1Id + "'!")
+                .isFalse();
+        assertThat(Files.exists(artifact10Path))
+                .as("Failed to undelete trash for repository '" + repository1Id +
+                   "' (" + artifact10Path.toAbsolutePath() + " does not exist)!")
+                .isTrue();
     }
 
     private void validateResponseBody(ValidatableMockMvcResponse response,

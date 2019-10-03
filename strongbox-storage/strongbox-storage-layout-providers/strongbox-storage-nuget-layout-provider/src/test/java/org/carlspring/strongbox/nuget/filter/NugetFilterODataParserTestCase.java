@@ -1,6 +1,6 @@
 package org.carlspring.strongbox.nuget.filter;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.parallel.ExecutionMode.CONCURRENT;
 
 import java.nio.file.Path;
@@ -76,7 +76,7 @@ public class NugetFilterODataParserTestCase
         selector.select("count(*)");
 
         QueryTemplate<Long, ArtifactEntry> queryTemplate = new OQueryTemplate<>(entityManager);
-        assertEquals(Long.valueOf(1), queryTemplate.select(selector));
+        assertThat(queryTemplate.select(selector)).isEqualTo(1L);
     }
 
 }

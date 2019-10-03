@@ -26,9 +26,8 @@ import org.junit.jupiter.params.provider.ValueSource;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import static io.restassured.module.mockmvc.RestAssuredMockMvc.given;
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.hamcrest.CoreMatchers.equalTo;
-import static org.junit.jupiter.api.Assertions.assertFalse;
-import static org.junit.jupiter.api.Assertions.assertTrue;
 
 /**
  * @author Martin Todorov
@@ -84,14 +83,15 @@ public class TrashControllerTest
 
         logger.debug("Artifact file: {}", artifactFile.toAbsolutePath());
 
-        assertTrue(Files.exists(artifactFile),
-                   "Should have moved the artifact to the trash during a force delete operation, " +
-                   "when allowsForceDeletion is not enabled!");
+        assertThat(Files.exists(artifactFile))
+                .as("Should have moved the artifact to the trash during a force delete operation, " +
+                   "when allowsForceDeletion is not enabled!")
+                .isTrue();
 
         final RootRepositoryPath repositoryPath = repositoryPathResolver.resolve(repository);
         final Path repositoryIndexDir = repositoryPath.resolve(LayoutFileSystem.INDEX);
 
-        assertTrue(Files.exists(repositoryIndexDir), "Should not have deleted .index directory!");
+        assertThat(Files.exists(repositoryIndexDir)).as("Should not have deleted .index directory!").isTrue();
     }
 
     @ExtendWith({ RepositoryManagementTestExecutionListener.class,
@@ -119,10 +119,12 @@ public class TrashControllerTest
         final RootRepositoryPath repositoryPath = repositoryPathResolver.resolve(repository);
         final Path repositoryDir = repositoryPath.resolve(repositoryId).resolve(".trash");
 
-        assertFalse(Files.exists(artifactFileInTrash),
-                    "Failed to delete artifact during a force delete operation!");
-        assertFalse(Files.exists(repositoryDir.resolve(artifactRepositoryPathStr)),
-                    "Failed to delete artifact during a force delete operation!");
+        assertThat(Files.exists(artifactFileInTrash))
+                .as("Failed to delete artifact during a force delete operation!")
+                .isFalse();
+        assertThat(Files.exists(repositoryDir.resolve(artifactRepositoryPathStr)))
+                .as("Failed to delete artifact during a force delete operation!")
+                .isFalse();
     }
 
     @ExtendWith({ RepositoryManagementTestExecutionListener.class,
@@ -157,8 +159,9 @@ public class TrashControllerTest
 
         final RepositoryPath artifactRepositoryPath = (RepositoryPath) artifactPath.normalize();
         final Path artifactFileInTrash = RepositoryFiles.trash(artifactRepositoryPath);
-        assertFalse(Files.exists(artifactFileInTrash),
-                    "Failed to empty trash for repository '" + repositoryId + "'!");
+        assertThat(Files.exists(artifactFileInTrash))
+                .as("Failed to empty trash for repository '" + repositoryId + "'!")
+                .isFalse();
     }
 
     @ExtendWith({ RepositoryManagementTestExecutionListener.class,
@@ -196,8 +199,9 @@ public class TrashControllerTest
 
         final RepositoryPath artifactRepositoryPath = (RepositoryPath) artifactPath1.normalize();
         final Path artifactFileInTrash = RepositoryFiles.trash(artifactRepositoryPath);
-        assertFalse(Files.exists(artifactFileInTrash),
-                    "Failed to empty trash for repository '" + repository1.getId() + "'!");
+        assertThat(Files.exists(artifactFileInTrash))
+                .as("Failed to empty trash for repository '" + repository1.getId() + "'!")
+                .isFalse();
     }
 
     private void validateResponseBody(ValidatableMockMvcResponse response,

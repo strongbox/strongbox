@@ -30,8 +30,6 @@ import static org.carlspring.strongbox.controllers.cron.CronTaskController.CRON_
 import static org.carlspring.strongbox.controllers.cron.CronTaskController.HEADER_NAME_CRON_TASK_ID;
 import static org.carlspring.strongbox.rest.client.RestAssuredArtifactClient.OK;
 import static org.hamcrest.Matchers.*;
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertFalse;
 
 /**
  * @author Alex Oreshkevich
@@ -58,10 +56,12 @@ public class CronTaskControllerTest
     {
         MockMvcResponse response = getCronConfigurations();
 
-        assertEquals(OK, response.getStatusCode(), "Failed to get list of cron tasks: " + response.getStatusLine());
+        assertThat(response.getStatusCode())
+                .as("Failed to get list of cron tasks: " + response.getStatusLine())
+                .isEqualTo(OK);
 
         CronTasksConfigurationDto cronTasks = response.as(CronTasksConfigurationDto.class);
-        assertFalse(cronTasks.getCronTaskConfigurations().isEmpty(), "List of cron tasks is empty!");
+        assertThat(cronTasks.getCronTaskConfigurations()).as("List of cron tasks is empty!").isNotEmpty();
     }
 
     @Test
@@ -489,12 +489,12 @@ public class CronTaskControllerTest
     {
         MockMvcResponse response = deleteCronConfig(cronUuid);
 
-        assertEquals(OK, response.getStatusCode(), "Failed to deleteCronConfig job: " + response.getStatusLine());
+        assertThat(response.getStatusCode()).as("Failed to deleteCronConfig job: " + response.getStatusLine()).isEqualTo(OK);
 
         // Retrieve deleted config
         response = getCronConfig(cronUuid);
 
-        assertEquals(HttpStatus.NOT_FOUND.value(), response.getStatusCode(), "Cron task config exists!");
+        assertThat(response.getStatusCode()).as("Cron task config exists!").isEqualTo(HttpStatus.NOT_FOUND.value());
     }
 
     private MockMvcResponse deleteCronConfig(UUID uuid)

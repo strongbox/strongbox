@@ -27,7 +27,7 @@ import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.TestExecutionListeners;
 import static java.nio.file.Files.deleteIfExists;
 import static org.awaitility.Awaitility.await;
-import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.parallel.ExecutionMode.CONCURRENT;
 
 /**
@@ -151,36 +151,36 @@ public class RegenerateMavenChecksumCronJobTestIT
 
                 try
                 {
-                    assertTrue(Files.exists(sha1Path),
-                               "The SHA1 checksum file for artifact doesn't exist!");
+                    assertThat(Files.exists(sha1Path))
+                            .as("The SHA1 checksum file for artifact doesn't exist!").isTrue();
 
-                    assertTrue(Files.size(sha1Path) > 0,
-                               "The SHA1 checksum file for artifact is empty!");
+                    assertThat(Files.size(sha1Path) > 0)
+                            .as("The SHA1 checksum file for artifact is empty!").isTrue();
 
-                    assertTrue(Files.exists(md5Path),
-                               "The MD5 checksum file for artifact doesn't exist!");
-                    assertTrue(Files.size(md5Path) > 0,
-                               "The MD5 checksum file for artifact is empty!");
+                    assertThat(Files.exists(md5Path))
+                            .as("The MD5 checksum file for artifact doesn't exist!").isTrue();
+                    assertThat(Files.size(md5Path) > 0)
+                            .as("The MD5 checksum file for artifact is empty!").isTrue();
 
-                    assertTrue(Files.exists(pomSha1Path),
-                               "The SHA1 checksum file for pom file doesn't exist!");
-                    assertTrue(Files.size(pomSha1Path) > 0,
-                               "The SHA1 checksum file for pom file is empty!");
+                    assertThat(Files.exists(pomSha1Path))
+                            .as("The SHA1 checksum file for pom file doesn't exist!").isTrue();
+                    assertThat(Files.size(pomSha1Path) > 0)
+                            .as("The SHA1 checksum file for pom file is empty!").isTrue();
 
-                    assertTrue(Files.exists(pomMd5Path),
-                               "The MD5 checksum file for pom file doesn't exist!");
-                    assertTrue(Files.size(pomMd5Path) > 0,
-                               "The MD5 checksum file for pom file is empty!");
+                    assertThat(Files.exists(pomMd5Path))
+                            .as("The MD5 checksum file for pom file doesn't exist!").isTrue();
+                    assertThat(Files.size(pomMd5Path) > 0)
+                            .as("The MD5 checksum file for pom file is empty!").isTrue();
 
-                    assertTrue(Files.exists(metadataMd5Path),
-                               "The MD5 checksum file for metadata file doesn't exist!");
-                    assertTrue(Files.size(metadataMd5Path) > 0,
-                               "The MD5 checksum file for metadata file is empty!");
+                    assertThat(Files.exists(metadataMd5Path))
+                            .as("The MD5 checksum file for metadata file doesn't exist!").isTrue();
+                    assertThat(Files.size(metadataMd5Path) > 0)
+                            .as("The MD5 checksum file for metadata file is empty!").isTrue();
 
-                    assertTrue(Files.exists(metadataSha1Path),
-                               "The SHA1 checksum file for metadata file doesn't exist!");
-                    assertTrue(Files.size(metadataSha1Path) > 0,
-                               "The SHA1 checksum file for metadata file is empty!");
+                    assertThat(Files.exists(metadataSha1Path))
+                            .as("The SHA1 checksum file for metadata file doesn't exist!").isTrue();
+                    assertThat(Files.size(metadataSha1Path) > 0)
+                            .as("The SHA1 checksum file for metadata file is empty!").isTrue();
                 }
                 catch (Exception e)
                 {

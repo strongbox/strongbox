@@ -34,7 +34,7 @@ import org.springframework.core.io.ClassPathResource;
 import org.springframework.core.io.Resource;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.ContextConfiguration;
-import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.parallel.ExecutionMode.CONCURRENT;
 
 /**
@@ -119,8 +119,9 @@ public class RepositoryProxyIndexCreatorTest
         Path indexPropertiesUpdaterFile = repositoryPathResolver.resolve(proxyRepository).resolve(
                 ".index/remote/nexus-maven-repository-index-updater.properties");
                 
-        assertTrue(Files.exists(indexPropertiesUpdaterFile),
-                   "Failed to retrieve nexus-maven-repository-index-updater.properties from the remote!");
+        assertThat(Files.exists(indexPropertiesUpdaterFile))
+                .as("Failed to retrieve nexus-maven-repository-index-updater.properties from the remote!")
+                .isTrue();
     }
 
     @ExtendWith(RepositoryManagementTestExecutionListener.class)

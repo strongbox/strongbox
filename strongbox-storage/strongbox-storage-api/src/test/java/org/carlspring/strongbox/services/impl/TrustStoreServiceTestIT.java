@@ -17,8 +17,7 @@ import org.springframework.core.io.Resource;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.TestExecutionListeners;
-import static org.junit.jupiter.api.Assertions.assertFalse;
-import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.assertj.core.api.Assertions.assertThat;
 
 /**
  * @author Przemyslaw Fusik
@@ -55,19 +54,21 @@ public class TrustStoreServiceTestIT
     public void shouldAddSslCertificatesToTrustStore()
             throws Exception
     {
-        assertFalse(keyStoreManager.listCertificates(Paths.get(trustStore.getURI()),
+        assertThat(keyStoreManager.listCertificates(Paths.get(trustStore.getURI()),
                                                      "password".toCharArray())
                                    .keySet()
                                    .stream()
-                                   .anyMatch(name -> name.contains("*.apache.org")));
+                                   .anyMatch(name -> name.contains("*.apache.org")))
+                .isFalse();
 
         trustStoreService.addSslCertificatesToTrustStore("https://repository.apache.org/snapshots/");
 
-        assertTrue(keyStoreManager.listCertificates(Paths.get(trustStore.getURI()),
+        assertThat(keyStoreManager.listCertificates(Paths.get(trustStore.getURI()),
                                                     "password".toCharArray())
                                   .keySet()
                                   .stream()
-                                  .anyMatch(name -> name.contains("*.apache.org")));
+                                  .anyMatch(name -> name.contains("*.apache.org")))
+                .isTrue();
     }
 
     private Resource getTrustStoreResource()

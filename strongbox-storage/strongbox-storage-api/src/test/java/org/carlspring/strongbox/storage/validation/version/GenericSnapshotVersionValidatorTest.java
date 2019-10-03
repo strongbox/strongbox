@@ -12,8 +12,8 @@ import org.carlspring.strongbox.storage.validation.artifact.version.VersionValid
 import org.apache.commons.lang3.exception.ExceptionUtils;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-import static org.junit.jupiter.api.Assertions.assertThrows;
-import static org.junit.jupiter.api.Assertions.fail;
+import static org.assertj.core.api.Assertions.assertThatExceptionOfType;
+import static org.assertj.core.api.Assertions.fail;
 
 public class GenericSnapshotVersionValidatorTest
 {
@@ -55,7 +55,8 @@ public class GenericSnapshotVersionValidatorTest
         ArtifactCoordinates coordinates1 = new MockedMavenArtifactCoordinates();
         coordinates1.setVersion("1.0");
 
-        assertThrows(VersionValidationException.class, () -> validator.validate(repository, coordinates1));
+        assertThatExceptionOfType(VersionValidationException.class)
+                .isThrownBy(() -> validator.validate(repository, coordinates1));
     }
 
 }

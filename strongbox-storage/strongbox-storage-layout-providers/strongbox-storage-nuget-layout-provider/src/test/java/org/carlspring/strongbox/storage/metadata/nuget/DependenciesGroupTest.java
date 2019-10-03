@@ -19,7 +19,7 @@ package org.carlspring.strongbox.storage.metadata.nuget;
 
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.parallel.Execution;
-import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.parallel.ExecutionMode.CONCURRENT;
 
 /**
@@ -40,7 +40,7 @@ public class DependenciesGroupTest
         // WHEN
         Framework result = adapter.unmarshal("net40");
         // THEN
-        assertEquals(Framework.net40, result);
+        assertThat(result).isEqualTo(Framework.net40);
     }
 
     /**
@@ -54,7 +54,7 @@ public class DependenciesGroupTest
         // WHEN
         Framework result = adapter.unmarshal(".NETFramework4.5");
         // THEN
-        assertEquals(Framework.net45, result);
+        assertThat(result).isEqualTo(Framework.net45);
     }
 
 }

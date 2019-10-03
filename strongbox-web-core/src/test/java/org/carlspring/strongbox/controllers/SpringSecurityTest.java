@@ -5,7 +5,6 @@ import org.carlspring.strongbox.forms.users.UserForm;
 import org.carlspring.strongbox.rest.common.RestAssuredBaseTest;
 
 
-import org.hamcrest.CoreMatchers;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.http.HttpHeaders;
@@ -15,6 +14,7 @@ import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.test.context.support.WithUserDetails;
 import static io.restassured.module.mockmvc.RestAssuredMockMvc.given;
 import static org.hamcrest.Matchers.containsString;
+import static org.hamcrest.Matchers.equalTo;
 
 /**
  * @author Alex Oreshkevich
@@ -76,7 +76,7 @@ public class SpringSecurityTest
                .put(getContextBaseUrl())
                .peek()
                .then()
-               .body("error", CoreMatchers.equalTo("forbidden"))
+               .body("error", equalTo("forbidden"))
                .statusCode(HttpStatus.FORBIDDEN.value());
     }
 }

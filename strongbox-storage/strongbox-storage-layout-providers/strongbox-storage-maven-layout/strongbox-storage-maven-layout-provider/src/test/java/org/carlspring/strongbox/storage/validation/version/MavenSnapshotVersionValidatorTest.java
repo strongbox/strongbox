@@ -22,8 +22,8 @@ import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.ContextConfiguration;
 import static org.carlspring.strongbox.storage.repository.RepositoryPolicyEnum.SNAPSHOT;
-import static org.junit.jupiter.api.Assertions.assertTrue;
-import static org.junit.jupiter.api.Assertions.fail;
+import static org.assertj.core.api.Assertions.fail;
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.parallel.ExecutionMode.CONCURRENT;
 
 /**
@@ -50,7 +50,7 @@ public class MavenSnapshotVersionValidatorTest
     public void shouldSupportRepository(@MavenRepository(repositoryId = REPOSITORY_ID_1, policy = SNAPSHOT)
                                         Repository repository)
     {
-        assertTrue(validator.supports(repository));
+        assertThat(validator.supports(repository)).isTrue();
     }
 
     @ExtendWith({ RepositoryManagementTestExecutionListener.class,

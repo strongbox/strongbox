@@ -26,7 +26,7 @@ import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.core.annotation.AliasFor;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.ContextConfiguration;
-import static org.junit.jupiter.api.Assertions.*;
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.parallel.ExecutionMode.SAME_THREAD;
 
 /**
@@ -72,7 +72,7 @@ public class MavenDependencyFormatterTest
     {
         DependencySynonymFormatter formatter = compatibleDependencyFormatRegistry.getProviderImplementation(Maven2LayoutProvider.ALIAS,
                                                                                                             Maven2LayoutProvider.ALIAS);
-        assertNotNull(formatter, "Failed to look up dependency synonym formatter!");
+        assertThat(formatter).as("Failed to look up dependency synonym formatter!").isNotNull();
 
         MavenArtifactCoordinates coordinates = (MavenArtifactCoordinates) RepositoryFiles.readCoordinates(
                 (RepositoryPath) artifactPath.normalize());
@@ -81,15 +81,15 @@ public class MavenDependencyFormatterTest
 
         System.out.println(snippet);
 
-        assertEquals("<dependency>\n" +
-                     "    <groupId>org.carlspring.strongbox</groupId>\n" +
-                     "    <artifactId>maven-snippet</artifactId>\n" +
-                     "    <version>1.0</version>\n" +
-                     "    <type>jar</type>\n" +
-                     "    <scope>compile</scope>\n" +
-                     "</dependency>\n",
-                     snippet,
-                     "Failed to generate dependency!");
+        assertThat(snippet)
+                .as("Failed to generate dependency!")
+                .isEqualTo("<dependency>\n" +
+                           "    <groupId>org.carlspring.strongbox</groupId>\n" +
+                           "    <artifactId>maven-snippet</artifactId>\n" +
+                           "    <version>1.0</version>\n" +
+                           "    <type>jar</type>\n" +
+                           "    <scope>compile</scope>\n" +
+                           "</dependency>\n");
     }
 
     @ExtendWith({ RepositoryManagementTestExecutionListener.class,
@@ -106,7 +106,7 @@ public class MavenDependencyFormatterTest
     {
         DependencySynonymFormatter formatter = compatibleDependencyFormatRegistry.getProviderImplementation(Maven2LayoutProvider.ALIAS,
                                                                                                             Maven2LayoutProvider.ALIAS);
-        assertNotNull(formatter, "Failed to look up dependency synonym formatter!");
+        assertThat(formatter).as("Failed to look up dependency synonym formatter!").isNotNull();
 
         MavenArtifactCoordinates coordinates = (MavenArtifactCoordinates) RepositoryFiles.readCoordinates(
                 (RepositoryPath) artifactPath.normalize());
@@ -116,16 +116,16 @@ public class MavenDependencyFormatterTest
 
         System.out.println(snippet);
 
-        assertEquals("<dependency>\n" +
-                     "    <groupId>org.carlspring.strongbox</groupId>\n" +
-                     "    <artifactId>maven-snippet</artifactId>\n" +
-                     "    <version>2.0</version>\n" +
-                     "    <type>jar</type>\n" +
-                     "    <classifier>sources</classifier>\n" +
-                     "    <scope>compile</scope>\n" +
-                     "</dependency>\n",
-                     snippet,
-                     "Failed to generate dependency!");
+        assertThat(snippet)
+                .as("Failed to generate dependency!")
+                .isEqualTo("<dependency>\n" +
+                           "    <groupId>org.carlspring.strongbox</groupId>\n" +
+                           "    <artifactId>maven-snippet</artifactId>\n" +
+                           "    <version>2.0</version>\n" +
+                           "    <type>jar</type>\n" +
+                           "    <classifier>sources</classifier>\n" +
+                           "    <scope>compile</scope>\n" +
+                           "</dependency>\n");
     }
 
     @ExtendWith({ RepositoryManagementTestExecutionListener.class,
@@ -146,9 +146,9 @@ public class MavenDependencyFormatterTest
         List<CodeSnippet> codeSnippets = snippetGenerator.generateSnippets(Maven2LayoutProvider.ALIAS,
                                                                            coordinates);
 
-        assertNotNull(codeSnippets, "Failed to look up dependency synonym formatter!");
-        assertFalse(codeSnippets.isEmpty(), "No synonyms found!");
-        assertEquals(7, codeSnippets.size(), "Incorrect number of dependency synonyms!");
+        assertThat(codeSnippets).as("Failed to look up dependency synonym formatter!").isNotNull();
+        assertThat(codeSnippets.isEmpty()).as("No synonyms found!").isFalse();
+        assertThat(codeSnippets).as("Incorrect number of dependency synonyms!").hasSize(7);
 
 
         String[] synonyms = new String[]{ "Maven 2", "Bazel", "Buildr", "Gradle", "Ivy", "Leiningen", "SBT", };
@@ -158,7 +158,7 @@ public class MavenDependencyFormatterTest
         {
             System.out.println(snippet.getName());
 
-            assertEquals(synonyms[i], snippet.getName(), "Failed to re-order correctly!");
+            assertThat(snippet.getName()).as("Failed to re-order correctly!").isEqualTo(synonyms[i]);
 
             i++;
         }

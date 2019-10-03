@@ -29,8 +29,7 @@ import org.junit.jupiter.api.parallel.Execution;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.ContextConfiguration;
-import static org.junit.jupiter.api.Assertions.assertFalse;
-import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.parallel.ExecutionMode.CONCURRENT;
 
 /**
@@ -70,11 +69,11 @@ public class ArtifactOutputStreamTest
         IOUtils.copy(bais, afos);
         afos.close();
 
-        assertTrue(Files.exists(artifactPathTemp), "Failed to create temporary artifact file!");
+        assertThat(Files.exists(artifactPathTemp)).as("Failed to create temporary artifact file!").isTrue();
 
         artifactPathTemp.getFileSystem().provider().moveFromTemporaryDirectory(artifactPathTemp);
 
-        assertTrue(Files.exists(artifactPath), "Failed to the move temporary artifact file to original location!");
+        assertThat(Files.exists(artifactPath)).as("Failed to the move temporary artifact file to original location!").isTrue();
     }
 
     @Test
@@ -96,12 +95,14 @@ public class ArtifactOutputStreamTest
         IOUtils.copy(bais, afos);
         afos.close();
 
-        assertTrue(Files.exists(artifactPathTemp), "Failed to create temporary gav file!");
+        assertThat(Files.exists(artifactPathTemp)).as("Failed to create temporary gav file!").isTrue();
 
-        assertFalse(Files.exists(artifactPath),
-                    "Should not have move temporary the gav file to original location!");
-        assertTrue(Files.exists(artifactPathTemp),
-                   "Should not have move temporary the gav file to original location!");
+        assertThat(Files.exists(artifactPath))
+                .as("Should not have move temporary the gav file to original location!")
+                .isFalse();
+        assertThat(Files.exists(artifactPathTemp))
+                .as("Should not have move temporary the gav file to original location!")
+                .isTrue();
     }
 
 }

@@ -1,5 +1,7 @@
 package org.carlspring.strongbox.providers.repository;
 
+import static org.assertj.core.api.Assertions.assertThat;
+
 import org.carlspring.strongbox.artifact.MavenArtifactUtils;
 import org.carlspring.strongbox.providers.io.RepositoryPath;
 import org.carlspring.strongbox.storage.repository.Repository;
@@ -17,10 +19,7 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.springframework.core.io.Resource;
-import static org.hamcrest.CoreMatchers.containsString;
-import static org.hamcrest.MatcherAssert.assertThat;
-import static org.junit.jupiter.api.Assertions.assertFalse;
-import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.assertj.core.api.Assertions.assertThatExceptionOfType;
 
 /**
  * @author Przemyslaw Fusik
@@ -82,18 +81,15 @@ public class RetryDownloadArtifactWithUnsupportedRangeRequestTest
                                                                      path);
 
         // given
-        assertFalse(Files.exists(artifactPath));
-        assertFalse(exceptionAlreadyThrown);
+        assertThat(Files.exists(artifactPath)).isFalse();
+        assertThat(exceptionAlreadyThrown).isFalse();
 
-        IOException exception = assertThrows(IOException.class, () -> {
-            // when
-            artifactResolutionServiceHelper.assertStreamNotNull(storageId,
-                                                                repositoryId,
-                                                                path);
-        });
-
-        //then
-        assertThat(exception.getMessage(), containsString("does not support range requests."));
+        assertThatExceptionOfType(IOException.class)
+                .isThrownBy(() -> artifactResolutionServiceHelper.assertStreamNotNull(storageId,
+                                                                                  repositoryId,
+                                                                                  path)
+                )
+                .withMessageContaining("does not support range requests.");
     }
 
     private class OneTimeBrokenArtifactInputStream

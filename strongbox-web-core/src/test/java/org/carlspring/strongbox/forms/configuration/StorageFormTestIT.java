@@ -18,9 +18,7 @@ import com.google.common.collect.Lists;
 import org.apache.commons.lang3.StringUtils;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-import org.springframework.boot.test.context.SpringBootTest;
-import static org.assertj.core.api.Java6Assertions.assertThat;
-import static org.junit.jupiter.api.Assertions.*;
+import static org.assertj.core.api.Assertions.assertThat;
 
 /**
  * @author Pablo Tirado
@@ -88,7 +86,7 @@ public class StorageFormTestIT
         Set<ConstraintViolation<StorageForm>> violations = validator.validate(storageForm);
 
         // then
-        assertTrue(violations.isEmpty(), "Violations are not empty!");
+        assertThat(violations).as("Violations are not empty!").isEmpty();
     }
 
     @Test
@@ -104,8 +102,7 @@ public class StorageFormTestIT
         Set<ConstraintViolation<StorageForm>> violations = validator.validate(storageForm);
 
         // then
-        assertFalse(violations.isEmpty(), "Violations are empty!");
-        assertEquals(violations.size(), 2);
+        assertThat(violations).as("Violations are empty!").hasSize(2);
         assertThat(violations).extracting("message").containsAnyOf("An id must be specified.");
     }
 
@@ -122,8 +119,7 @@ public class StorageFormTestIT
         Set<ConstraintViolation<StorageForm>> violations = validator.validate(storageForm);
 
         // then
-        assertFalse(violations.isEmpty(), "Violations are empty!");
-        assertEquals(violations.size(), 1);
+        assertThat(violations).as("Violations are empty!").hasSize(1);
         assertThat(violations).extracting("message").containsAnyOf("must match \"[a-zA-Z0-9\\-\\_\\.]+\"");
     }
 
@@ -142,8 +138,7 @@ public class StorageFormTestIT
         Set<ConstraintViolation<StorageForm>> violations = validator.validate(storageForm);
 
         // then
-        assertFalse(violations.isEmpty(), "Violations are empty!");
-        assertEquals(violations.size(), 1);
+        assertThat(violations).as("Violations are empty!").hasSize(1);
         assertThat(violations).extracting("message").containsAnyOf("A httpConnectionPool must be positive or zero.");
     }
 

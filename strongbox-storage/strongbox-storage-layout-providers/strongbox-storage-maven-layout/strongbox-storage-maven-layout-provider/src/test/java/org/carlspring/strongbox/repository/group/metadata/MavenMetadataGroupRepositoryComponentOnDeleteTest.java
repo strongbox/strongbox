@@ -17,7 +17,6 @@ import java.nio.file.Path;
 
 import org.apache.commons.io.FilenameUtils;
 import org.apache.maven.artifact.repository.metadata.Metadata;
-import org.hamcrest.CoreMatchers;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.junit.jupiter.api.parallel.Execution;
@@ -25,9 +24,7 @@ import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.ContextConfiguration;
 import static org.carlspring.strongbox.storage.routing.RoutingRuleTypeEnum.DENY;
-import static org.hamcrest.MatcherAssert.assertThat;
-import static org.junit.jupiter.api.Assertions.assertFalse;
-import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.parallel.ExecutionMode.SAME_THREAD;
 
 /**
@@ -128,44 +125,44 @@ public class MavenMetadataGroupRepositoryComponentOnDeleteTest
         String path = "com/artifacts/to/delete/releases/delete-group/1.2.1/delete-group-1.2.1.jar";
         Path artifactFile = repositoryPathResolver.resolve(repositoryLeafL, path);
 
-        assertTrue(Files.exists(artifactFile), "Failed to locate artifact file " + artifactFile);
+        assertThat(Files.exists(artifactFile)).as("Failed to locate artifact file " + artifactFile).isTrue();
 
         RepositoryPath repositoryPath = repositoryPathResolver.resolve(repositoryLeafL, path);
         RepositoryFiles.delete(repositoryPath, false);
 
-        assertFalse(Files.exists(artifactFile), "Failed to delete artifact file " + artifactFile);
+        assertThat(Files.exists(artifactFile)).as("Failed to delete artifact file " + artifactFile).isFalse();
 
 
         // author of changes
         Metadata metadata = mavenMetadataManager.readMetadata(
                 repositoryPathResolver.resolve(repositoryLeafL, "com/artifacts/to/delete/releases/delete-group"));
-        assertThat(metadata.getVersioning().getVersions().size(), CoreMatchers.equalTo(1));
-        assertThat(metadata.getVersioning().getVersions().get(0), CoreMatchers.equalTo("1.2.2"));
+        assertThat(metadata.getVersioning().getVersions()).hasSize(1);
+        assertThat(metadata.getVersioning().getVersions().get(0)).isEqualTo("1.2.2");
 
         // direct parent
         metadata = mavenMetadataManager.readMetadata(
                 repositoryPathResolver.resolve(repositoryGroupF, "com/artifacts/to/delete/releases/delete-group"));
-        assertThat(metadata.getVersioning().getVersions().size(), CoreMatchers.equalTo(1));
-        assertThat(metadata.getVersioning().getVersions().get(0), CoreMatchers.equalTo("1.2.2"));
+        assertThat(metadata.getVersioning().getVersions()).hasSize(1);
+        assertThat(metadata.getVersioning().getVersions().get(0)).isEqualTo("1.2.2");
 
         // next direct parent
         metadata = mavenMetadataManager.readMetadata(
                 repositoryPathResolver.resolve(repositoryGroupB, "com/artifacts/to/delete/releases/delete-group"));
-        assertThat(metadata.getVersioning().getVersions().size(), CoreMatchers.equalTo(1));
-        assertThat(metadata.getVersioning().getVersions().get(0), CoreMatchers.equalTo("1.2.2"));
+        assertThat(metadata.getVersioning().getVersions()).hasSize(1);
+        assertThat(metadata.getVersioning().getVersions().get(0)).isEqualTo("1.2.2");
 
         // grand parent
         metadata = mavenMetadataManager.readMetadata(
                 repositoryPathResolver.resolve(repositoryGroupH, "com/artifacts/to/delete/releases/delete-group"));
-        assertThat(metadata.getVersioning().getVersions().size(), CoreMatchers.equalTo(1));
-        assertThat(metadata.getVersioning().getVersions().get(0), CoreMatchers.equalTo("1.2.2"));
+        assertThat(metadata.getVersioning().getVersions()).hasSize(1);
+        assertThat(metadata.getVersioning().getVersions().get(0)).isEqualTo("1.2.2");
 
         // grand parent with other kids
         metadata = mavenMetadataManager.readMetadata(
                 repositoryPathResolver.resolve(repositoryGroupA, "com/artifacts/to/delete/releases/delete-group"));
-        assertThat(metadata.getVersioning().getVersions().size(), CoreMatchers.equalTo(2));
-        assertThat(metadata.getVersioning().getVersions().get(0), CoreMatchers.equalTo("1.2.1"));
-        assertThat(metadata.getVersioning().getVersions().get(1), CoreMatchers.equalTo("1.2.2"));
+        assertThat(metadata.getVersioning().getVersions()).hasSize(2);
+        assertThat(metadata.getVersioning().getVersions().get(0)).isEqualTo("1.2.1");
+        assertThat(metadata.getVersioning().getVersions().get(1)).isEqualTo("1.2.2");
     }
 
 }

@@ -1,5 +1,7 @@
 package org.carlspring.strongbox.providers.repository;
 
+import static org.assertj.core.api.Assertions.assertThat;
+
 import org.carlspring.strongbox.artifact.MavenArtifactUtils;
 import org.carlspring.strongbox.providers.io.RepositoryPath;
 import org.carlspring.strongbox.storage.repository.Repository;
@@ -13,14 +15,10 @@ import java.io.InputStream;
 import java.nio.file.Files;
 
 import org.apache.maven.artifact.Artifact;
-import org.hamcrest.CoreMatchers;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.springframework.core.io.Resource;
-import static org.hamcrest.MatcherAssert.assertThat;
-import static org.junit.jupiter.api.Assertions.assertFalse;
-import static org.junit.jupiter.api.Assertions.assertTrue;
 
 /**
  * @author Przemyslaw Fusik
@@ -76,8 +74,8 @@ public class RetryDownloadArtifactWithSingleFailureAtSomePointTest
                                                                      path);
         
         // given
-        assertFalse(Files.exists(artifactPath));
-        assertFalse(exceptionAlreadyThrown);
+        assertThat(Files.exists(artifactPath)).isFalse();
+        assertThat(exceptionAlreadyThrown).isFalse();
 
         // when
         artifactResolutionServiceHelper.assertStreamNotNull(storageId,
@@ -85,9 +83,9 @@ public class RetryDownloadArtifactWithSingleFailureAtSomePointTest
                                                             path);
 
         // then
-        assertTrue(Files.exists(artifactPath));
-        assertThat(Files.size(artifactPath), CoreMatchers.equalTo(Files.size(jarArtifact.getFile().toPath())));
-        assertTrue(exceptionAlreadyThrown);
+        assertThat(Files.exists(artifactPath)).isTrue();
+        assertThat(Files.size(artifactPath)).isEqualTo(Files.size(jarArtifact.getFile().toPath()));
+        assertThat(exceptionAlreadyThrown).isTrue();
     }
 
     private class OneTimeBrokenArtifactInputStream

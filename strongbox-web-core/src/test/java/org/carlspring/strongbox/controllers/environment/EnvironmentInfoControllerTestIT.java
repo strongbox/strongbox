@@ -15,10 +15,9 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.ObjectReader;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.http.MediaType;
 import static io.restassured.module.mockmvc.RestAssuredMockMvc.given;
-import static org.junit.jupiter.api.Assertions.*;
+import static org.assertj.core.api.Assertions.assertThat;
 
 /**
  * @author Pablo Tirado
@@ -56,27 +55,27 @@ public class EnvironmentInfoControllerTestIT
                                                             {
                                                             });
 
-        assertNotNull(returnedMap, "Failed to get all environment info list!");
+        assertThat(returnedMap).as("Failed to get all environment info list!").isNotNull();
 
         List<?> environmentVariables = returnedMap.get("environment");
 
-        assertNotNull(environmentVariables, "Failed to get environment variables list!");
-        assertFalse(environmentVariables.isEmpty(), "Returned environment variables are empty");
+        assertThat(environmentVariables).as("Failed to get environment variables list!").isNotNull();
+        assertThat(environmentVariables).as("Returned environment variables are empty").isNotEmpty();
 
         List<?> systemProperties = returnedMap.get("system");
 
-        assertNotNull(systemProperties, "Failed to get system properties list!");
-        assertFalse(systemProperties.isEmpty(), "Returned system properties are empty");
+        assertThat(systemProperties).as("Failed to get system properties list!").isNotNull();
+        assertThat(systemProperties).as("Returned system properties are empty").isNotEmpty();
 
         List<?> jvmArguments = returnedMap.get("jvm");
 
-        assertNotNull(jvmArguments, "Failed to get JVM arguments list!");
-        assertTrue(jvmArguments.isEmpty(), "Returned JVM arguments are not empty");
+        assertThat(jvmArguments).as("Failed to get JVM arguments list!").isNotNull();
+        assertThat(jvmArguments).as("Returned JVM arguments are not empty").isEmpty();
 
         List<?> strongboxInfo = returnedMap.get("strongbox");
 
-        assertNotNull(strongboxInfo, "Failed to get strongbox info list!");
-        assertFalse(strongboxInfo.isEmpty(), "Returned strongbox info are empty");
+        assertThat(strongboxInfo).as("Failed to get strongbox info list!").isNotNull();
+        assertThat(strongboxInfo).as("Returned strongbox info are empty").isNotEmpty();
     }
 
     @Test
@@ -104,8 +103,10 @@ public class EnvironmentInfoControllerTestIT
         List<EnvironmentInfo> sortedEnvironmentVariables = new ArrayList<>(environmentVariables);
         sortedEnvironmentVariables.sort(environmentInfoComparator);
 
-        assertNotNull(environmentVariables, "Failed to get environment variables list!");
-        assertEquals(environmentVariables, sortedEnvironmentVariables, "Environment variables list is not sorted!");
+        assertThat(environmentVariables).as("Failed to get environment variables list!").isNotNull();
+        assertThat(sortedEnvironmentVariables)
+                .as("Environment variables list is not sorted!")
+                .isEqualTo(environmentVariables);
 
         // System properties
         JsonNode systemNode = root.path("system");
@@ -113,8 +114,10 @@ public class EnvironmentInfoControllerTestIT
         List<EnvironmentInfo> sortedSystemProperties = new ArrayList<>(systemProperties);
         sortedSystemProperties.sort(environmentInfoComparator);
 
-        assertNotNull(systemProperties, "Failed to get system properties list!");
-        assertEquals(systemProperties, sortedSystemProperties, "System properties list is not sorted!");
+        assertThat(systemProperties).as("Failed to get system properties list!").isNotNull();
+        assertThat(sortedSystemProperties)
+                .as("System properties list is not sorted!")
+                .isEqualTo(systemProperties);
 
         // JVM arguments
         JsonNode jvmNode = root.path("jvm");
@@ -126,8 +129,10 @@ public class EnvironmentInfoControllerTestIT
         List<String> sortedJvmArguments = new ArrayList<>(jvmArguments);
         sortedJvmArguments.sort(stringComparator);
 
-        assertNotNull(jvmArguments, "Failed to get JVM arguments list!");
-        assertEquals(jvmArguments, sortedJvmArguments, "JVM arguments list is not sorted!");
+        assertThat(jvmArguments).as("Failed to get JVM arguments list!").isNotNull();
+        assertThat(sortedJvmArguments)
+                .as("JVM arguments list is not sorted!")
+                .isEqualTo(jvmArguments);
     }
 
 }

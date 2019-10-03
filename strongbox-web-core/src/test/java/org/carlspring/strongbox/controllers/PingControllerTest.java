@@ -23,7 +23,6 @@ import static org.hamcrest.CoreMatchers.notNullValue;
 public class PingControllerTest
         extends MavenRestAssuredBaseTest
 {
-
     @Override
     @BeforeEach
     public void init()

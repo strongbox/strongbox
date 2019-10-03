@@ -11,7 +11,7 @@ import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.TestExecutionListeners;
-import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.assertj.core.api.Assertions.assertThat;
 
 /**
  * @author mtodorov
@@ -31,7 +31,7 @@ public class VersionValidatorServiceTest
     @Test
     public void testValidationService()
     {
-        assertFalse(versionValidatorService.getVersionValidators().isEmpty());
+        assertThat(versionValidatorService.getVersionValidators()).isNotEmpty();
     }
 
 }

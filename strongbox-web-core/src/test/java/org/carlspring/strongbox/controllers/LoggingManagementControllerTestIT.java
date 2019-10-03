@@ -13,15 +13,14 @@ import java.util.logging.Level;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
-import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.security.test.context.support.WithMockUser;
 import static io.restassured.module.mockmvc.RestAssuredMockMvc.given;
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.fail;
 import static org.hamcrest.CoreMatchers.equalTo;
-import static org.junit.jupiter.api.Assertions.assertTrue;
-import static org.junit.jupiter.api.Assertions.fail;
 
 /**
  * @author Pablo Tirado
@@ -352,7 +351,7 @@ public class LoggingManagementControllerTestIT
         
         try
         {
-            assertTrue(shouldContainLogFilesInHtmlTableElement, "The log files should be in the HTML response body!");
+            assertThat(shouldContainLogFilesInHtmlTableElement).isEqualTo("The log files should be in the HTML response body!");
         }
         finally
         {
@@ -401,7 +400,7 @@ public class LoggingManagementControllerTestIT
         try
         {
             //Assertion Test
-            assertTrue(shouldContainLogFilesInHtmlTableElement, "The log files should be in the HTML response body!");
+            assertThat(shouldContainLogFilesInHtmlTableElement).isEqualTo("The log files should be in the HTML response body!");
         }
         finally
         {

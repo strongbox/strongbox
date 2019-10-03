@@ -17,18 +17,18 @@
 
 package org.carlspring.strongbox.storage.metadata.nuget;
 
+import static org.assertj.core.api.Assertions.assertThat;
+
 import java.util.EnumSet;
 
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.parallel.Execution;
-import static org.hamcrest.CoreMatchers.hasItems;
-import static org.hamcrest.CoreMatchers.is;
-import static org.hamcrest.MatcherAssert.assertThat;
-import static org.junit.jupiter.api.Assertions.assertArrayEquals;
 import static org.junit.jupiter.api.parallel.ExecutionMode.CONCURRENT;
 
 /**
  * Test of information about the frameworks for which the package is intended
+
+import static org.assertj.core.api.Assertions.assertThat;
  * 
  * @author sviridov
  */
@@ -47,7 +47,7 @@ public class FrameworksTest
         // WHEN
         EnumSet<Framework> result = Framework.parse(targetFramework);
         // THEN
-        assertThat(result, is(hasItems(Framework.net40, Framework.net35)));
+        assertThat(result).contains(Framework.net40, Framework.net35);
     }
 
     /**
@@ -62,7 +62,7 @@ public class FrameworksTest
         // WHEN
         EnumSet<Framework> result = Framework.parse(targetFramework);
         // THEN
-        assertThat(result, is(hasItems(Framework.values())));
+        assertThat(result).contains(Framework.values());
     }
 
     /**
@@ -76,7 +76,7 @@ public class FrameworksTest
         // WHEN
         EnumSet<Framework> result = Framework.parse(targetFramework);
         // THEN
-        assertThat(result, is(hasItems(Framework.net45, Framework.sl4, Framework.portable_net45, Framework.wp71)));
+        assertThat(result).contains(Framework.net45, Framework.sl4, Framework.portable_net45, Framework.wp71);
     }
 
     /**
@@ -91,6 +91,6 @@ public class FrameworksTest
         EnumSet<Framework> result = framework.getFullCompatibilitySet();
         // THEN
         Framework[] expected = { Framework.net20 };
-        assertArrayEquals(expected, result.toArray(new Framework[1]));
+        assertThat(result.toArray(new Framework[1])).isEqualTo(expected);
     }
 }

@@ -13,9 +13,8 @@ import org.junit.jupiter.api.parallel.Execution;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.ContextConfiguration;
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.parallel.ExecutionMode.CONCURRENT;
+import static org.assertj.core.api.Assertions.assertThat;
 
 /**
  * @author Oleksandr Gryniuk
@@ -47,7 +46,7 @@ public class BuildrDependencyFormatterTest
     {
         DependencySynonymFormatter formatter = compatibleDependencyFormatRegistry.getProviderImplementation(Maven2LayoutProvider.ALIAS,
                                                                                                             BuildrDependencyFormatter.ALIAS);
-        assertNotNull(formatter, "Failed to look up dependency synonym formatter!");
+        assertThat(formatter).as("Failed to look up dependency synonym formatter!").isNotNull();
 
         coordinates.setExtension("jar");
 
@@ -55,9 +54,9 @@ public class BuildrDependencyFormatterTest
 
         System.out.print(snippet);
 
-        assertEquals("org.carlspring.strongbox:maven-snippet:jar:1.0",
-                     snippet,
-                     "Failed to generate dependency!");
+        assertThat(snippet)
+                .as("Failed to generate dependency!")
+                .isEqualTo("org.carlspring.strongbox:maven-snippet:jar:1.0");
     }
 
     @Test
@@ -66,7 +65,7 @@ public class BuildrDependencyFormatterTest
     {
         DependencySynonymFormatter formatter = compatibleDependencyFormatRegistry.getProviderImplementation(Maven2LayoutProvider.ALIAS,
                                                                                                             BuildrDependencyFormatter.ALIAS);
-        assertNotNull(formatter, "Failed to look up dependency synonym formatter!");
+        assertThat(formatter).as("Failed to look up dependency synonym formatter!").isNotNull();
 
         coordinates.setExtension("jar");
         coordinates.setClassifier("jdk12");
@@ -75,9 +74,9 @@ public class BuildrDependencyFormatterTest
 
         System.out.print(snippet);
 
-        assertEquals("org.carlspring.strongbox:maven-snippet:jar:jdk12:1.0",
-                     snippet,
-                     "Failed to generate dependency!");
+        assertThat(snippet)
+                .as("Failed to generate dependency!")
+                .isEqualTo("org.carlspring.strongbox:maven-snippet:jar:jdk12:1.0");
     }
 
     @Test
@@ -86,7 +85,7 @@ public class BuildrDependencyFormatterTest
     {
         DependencySynonymFormatter formatter = compatibleDependencyFormatRegistry.getProviderImplementation(Maven2LayoutProvider.ALIAS,
                                                                                                             BuildrDependencyFormatter.ALIAS);
-        assertNotNull(formatter, "Failed to look up dependency synonym formatter!");
+        assertThat(formatter).as("Failed to look up dependency synonym formatter!").isNotNull();
 
         coordinates.setExtension("zip");
 
@@ -94,9 +93,9 @@ public class BuildrDependencyFormatterTest
 
         System.out.print(snippet);
 
-        assertEquals("org.carlspring.strongbox:maven-snippet:zip:1.0",
-                     snippet,
-                     "Failed to generate dependency!");
+        assertThat(snippet)
+                .as("Failed to generate dependency!")
+                .isEqualTo("org.carlspring.strongbox:maven-snippet:zip:1.0");
     }
 }
 

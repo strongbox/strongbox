@@ -13,7 +13,7 @@ import org.apache.lucene.store.SimpleFSDirectory;
 import org.apache.maven.index.FlatSearchRequest;
 import org.apache.maven.index.FlatSearchResponse;
 import org.apache.maven.index.context.IndexingContext;
-import org.assertj.core.api.Assertions;
+import static org.assertj.core.api.Assertions.assertThat;
 
 /**
  * @author Pablo Tirado
@@ -72,7 +72,7 @@ public abstract class BaseRepositoryIndexCreatorTest
             {
                 FlatSearchResponse response = indexer.searchFlat(
                         new FlatSearchRequest(query, indexingContext));
-                Assertions.assertThat(response.getTotalHitsCount()).isEqualTo(expectedHitsCount);
+                assertThat(response.getTotalHitsCount()).isEqualTo(expectedHitsCount);
             }
         }
     }

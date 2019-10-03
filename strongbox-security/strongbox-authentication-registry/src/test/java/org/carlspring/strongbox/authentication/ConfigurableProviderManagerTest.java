@@ -1,10 +1,5 @@
 package org.carlspring.strongbox.authentication;
 
-import static org.junit.jupiter.api.Assertions.assertNotNull;
-import static org.junit.jupiter.api.Assertions.assertNull;
-import static org.junit.jupiter.api.Assertions.assertThrows;
-import static org.junit.jupiter.api.Assertions.assertTrue;
-
 import java.util.UUID;
 
 import javax.inject.Inject;
@@ -35,6 +30,8 @@ import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.TestPropertySource;
 import org.springframework.transaction.annotation.Transactional;
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatExceptionOfType;
 
 @SpringBootTest
 @ActiveProfiles({ "test", "ConfigurableProviderManagerTestConfig" })
@@ -76,22 +73,23 @@ public class ConfigurableProviderManagerTest
     public void testExternalUserCache()
     {
         //Check that we have proper implementation of UserDetailsService injected by Spring
-        assertTrue(userDetailsService instanceof ConfigurableProviderManager);
+        assertThat(userDetailsService).isInstanceOf(ConfigurableProviderManager.class);
 
         // Check that there is no external user cached
-        assertNull(strongboxUserManager.findByUsername(TEST_USER));
+        assertThat(strongboxUserManager.findByUsername(TEST_USER)).isNull();
 
         // Load and cache external user
-        assertNotNull(userDetailsService.loadUserByUsername(TEST_USER));
+        assertThat(userDetailsService.loadUserByUsername(TEST_USER)).isNotNull();
 
         // Check that external user cached
         User externalUser = strongboxUserManager.findByUsername(TEST_USER);
-        assertNotNull(externalUser);
+        assertThat(externalUser).isNotNull();
 
         // Check that external user can't be modyfied
         User externalUserToSave = externalUser;
-        assertThrows(IllegalStateException.class, () -> orientDbUserService.save(externalUserToSave),
-                     () -> "Can't modify external users.");
+        assertThatExceptionOfType(IllegalStateException.class)
+                .isThrownBy(() -> orientDbUserService.save(externalUserToSave))
+                .withMessageMatching("Can't modify external users.");
 
         // Update external password
         String newPassword = UUID.randomUUID().toString();
@@ -106,12 +104,12 @@ public class ConfigurableProviderManagerTest
         entityManager.persist(externalUserEntry);
 
         // Update user cahce
-        assertNotNull(userDetailsService.loadUserByUsername(TEST_USER));
+        assertThat(userDetailsService.loadUserByUsername(TEST_USER)).isNotNull();
 
         // Cached user password should be updated
         externalUser = strongboxUserManager.findByUsername(TEST_USER);
-        assertNotNull(externalUser);
-        assertTrue(passwordEncoder.matches(newPassword, externalUser.getPassword()));
+        assertThat(externalUser).isNotNull();
+        assertThat(passwordEncoder.matches(newPassword, externalUser.getPassword())).isTrue();
     }
 
     @Profile("ConfigurableProviderManagerTestConfig")

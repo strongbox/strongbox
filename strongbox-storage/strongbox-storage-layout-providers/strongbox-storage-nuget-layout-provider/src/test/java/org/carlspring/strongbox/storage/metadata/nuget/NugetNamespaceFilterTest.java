@@ -30,7 +30,7 @@ import org.junit.jupiter.api.parallel.Execution;
 import org.xml.sax.InputSource;
 import org.xml.sax.XMLReader;
 import org.xml.sax.helpers.XMLReaderFactory;
-import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.parallel.ExecutionMode.CONCURRENT;
 
 /**
@@ -72,6 +72,6 @@ public class NugetNamespaceFilterTest
         transformer.transform(source, domResult);
         String namespace = domResult.getNode().getFirstChild().getNamespaceURI();
 
-        assertEquals(Nuspec.NUSPEC_XML_NAMESPACE_2011, namespace, "Namespace");
+        assertThat(namespace).as("Namespace").isEqualTo(Nuspec.NUSPEC_XML_NAMESPACE_2011);
     }
 }

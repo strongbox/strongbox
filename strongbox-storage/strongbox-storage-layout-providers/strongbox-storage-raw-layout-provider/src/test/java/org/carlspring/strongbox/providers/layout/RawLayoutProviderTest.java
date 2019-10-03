@@ -27,7 +27,7 @@ import org.slf4j.LoggerFactory;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.ContextConfiguration;
-import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.assertj.core.api.Assertions.assertThat;
 
 /**
  * @author carlspring
@@ -83,8 +83,8 @@ public class RawLayoutProviderTest
         artifactManagementService.validateAndStore(artifactRepositoryPath,
                                                    Files.newInputStream(artifactPath));
 
-        assertTrue(Files.exists(artifactRepositoryPath), "Failed to deploy artifact!");
-        assertTrue(Files.size(artifactRepositoryPath) > 0, "Failed to deploy artifact!");
+        assertThat(Files.exists(artifactRepositoryPath)).as("Failed to deploy artifact!").isTrue();
+        assertThat(Files.size(artifactRepositoryPath) > 0).as("Failed to deploy artifact!").isTrue();
 
         // Attempt to re-deploy the artifact
         try
@@ -118,7 +118,7 @@ public class RawLayoutProviderTest
                 total += len;
             }
 
-            assertTrue(total > 0, "Failed to resolve artifact!");
+            assertThat(total > 0).as("Failed to resolve artifact!").isTrue();
         }
     }
 

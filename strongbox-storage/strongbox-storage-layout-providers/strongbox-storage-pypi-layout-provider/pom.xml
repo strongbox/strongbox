@@ -13,6 +13,7 @@
     </parent>
 
     <artifactId>strongbox-storage-pypi-layout-provider</artifactId>
+    <version>1.0-SNAPSHOT</version>
     <packaging>jar</packaging>
 
     <name>Strongbox: Storage [PyPi Layout Provider]</name>
@@ -274,10 +275,6 @@
         <dependency>
             <groupId>org.junit.jupiter</groupId>
             <artifactId>junit-jupiter</artifactId>
-        </dependency>
-        <dependency>
-            <groupId>org.hamcrest</groupId>
-            <artifactId>hamcrest-all</artifactId>
         </dependency>
     </dependencies>
 

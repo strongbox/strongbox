@@ -23,8 +23,7 @@ import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.TestExecutionListeners;
 import static org.awaitility.Awaitility.await;
-import static org.junit.jupiter.api.Assertions.assertFalse;
-import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.parallel.ExecutionMode.CONCURRENT;
 
 /**
@@ -81,15 +80,21 @@ public class ClearTrashCronJobFromMaven2RepositoryTestIT
         RepositoryPath repositoryTrashPath = RepositoryFiles.trash(repositoryRootPath);
         RepositoryPath path = repositoryPathResolver.resolve(repository1, (RepositoryPath) artifact1.normalize());
         RepositoryPath trashPath = RepositoryFiles.trash(path);
-        
-        assertTrue(Files.exists(repositoryTrashPath), "There is no path to the repository trash!");
-        assertFalse(Files.exists(trashPath), "The repository trash isn't empty!");
+
+        assertThat(Files.exists(repositoryTrashPath))
+                .as("There is no path to the repository trash!")
+                .isTrue();
+        assertThat(Files.exists(trashPath))
+                .as("The repository trash isn't empty!")
+                .isFalse();
 
         RepositoryFiles.delete(path, false);
 
-        assertTrue(Files.exists(repositoryTrashPath), "There is no path to the repository trash!");
-        assertFalse(Files.exists(artifact1.normalize()), "The repository path exists!");
-        assertTrue(Files.exists(RepositoryFiles.trash((RepositoryPath) artifact1.normalize())), "The repository trash is empty!");
+        assertThat(Files.exists(repositoryTrashPath)).as("There is no path to the repository trash!").isTrue();
+        assertThat(Files.exists(artifact1.normalize())).as("The repository path exists!").isFalse();
+        assertThat(Files.exists(RepositoryFiles.trash((RepositoryPath) artifact1.normalize())))
+                .as("The repository trash is empty!")
+                .isTrue();
 
         addCronJobConfig(expectedJobKey,
                          expectedJobName,
@@ -98,9 +103,11 @@ public class ClearTrashCronJobFromMaven2RepositoryTestIT
                          repository1Id);
 
         await().atMost(EVENT_TIMEOUT_SECONDS, TimeUnit.SECONDS).untilTrue(receivedExpectedEvent());
-        
-        assertTrue(Files.exists(repositoryTrashPath), "There is no path to the repository trash!");
-        assertFalse(Files.exists(RepositoryFiles.trash((RepositoryPath) artifact1.normalize())), "The repository trash isn't empty!");        
+
+        assertThat(Files.exists(repositoryTrashPath)).as("There is no path to the repository trash!").isTrue();
+        assertThat(Files.exists(RepositoryFiles.trash((RepositoryPath) artifact1.normalize())))
+                .as("The repository trash isn't empty!")
+                .isFalse();
     }
 
 }

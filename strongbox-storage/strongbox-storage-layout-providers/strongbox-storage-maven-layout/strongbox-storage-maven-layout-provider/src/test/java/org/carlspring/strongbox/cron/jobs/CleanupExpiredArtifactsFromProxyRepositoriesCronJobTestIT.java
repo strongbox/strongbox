@@ -1,5 +1,7 @@
 package org.carlspring.strongbox.cron.jobs;
 
+import static org.assertj.core.api.Assertions.assertThat;
+
 import org.carlspring.strongbox.config.Maven2LayoutProviderCronTasksTestConfig;
 import org.carlspring.strongbox.data.CacheManagerTestExecutionListener;
 import org.carlspring.strongbox.domain.ArtifactEntry;
@@ -23,8 +25,6 @@ import java.util.concurrent.TimeUnit;
 
 import org.apache.commons.lang.time.DateUtils;
 import org.codehaus.plexus.util.StringUtils;
-import org.hamcrest.CoreMatchers;
-import org.hamcrest.Matchers;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.springframework.boot.test.context.SpringBootTest;
@@ -32,9 +32,6 @@ import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.TestExecutionListeners;
 import static org.awaitility.Awaitility.await;
-import static org.hamcrest.MatcherAssert.assertThat;
-import static org.junit.jupiter.api.Assertions.assertFalse;
-import static org.junit.jupiter.api.Assertions.assertTrue;
 
 /**
  * @author Przemyslaw Fusik
@@ -78,7 +75,7 @@ public class CleanupExpiredArtifactsFromProxyRepositoriesCronJobTestIT
                 artifactEntryService.findOneArtifact(storageId,
                                                      repositoryId,
                                                      artifactPathStr));
-        assertThat(artifactEntryOptional, CoreMatchers.equalTo(Optional.empty()));
+        assertThat(artifactEntryOptional).isEqualTo(Optional.empty());
 
         Path repositoryPath = proxyRepositoryProvider.fetchPath(repositoryPathResolver.resolve(storageId,
                                                                                                repositoryId,
@@ -91,11 +88,11 @@ public class CleanupExpiredArtifactsFromProxyRepositoriesCronJobTestIT
                                                                                          repositoryId,
                                                                                          artifactPathStr));
         ArtifactEntry artifactEntry = artifactEntryOptional.orElse(null);
-        assertThat(artifactEntry, CoreMatchers.notNullValue());
-        assertThat(artifactEntry.getLastUpdated(), CoreMatchers.notNullValue());
-        assertThat(artifactEntry.getLastUsed(), CoreMatchers.notNullValue());
-        assertThat(artifactEntry.getSizeInBytes(), CoreMatchers.notNullValue());
-        assertThat(artifactEntry.getSizeInBytes(), Matchers.greaterThan(0L));
+        assertThat(artifactEntry).isNotNull();
+        assertThat(artifactEntry.getLastUpdated()).isNotNull();
+        assertThat(artifactEntry.getLastUsed()).isNotNull();
+        assertThat(artifactEntry.getSizeInBytes()).isNotNull();
+        assertThat(artifactEntry.getSizeInBytes()).isGreaterThan(0L);
 
         artifactEntry.setLastUsed(
                 DateUtils.addDays(artifactEntry.getLastUsed(), -10));
@@ -113,16 +110,16 @@ public class CleanupExpiredArtifactsFromProxyRepositoriesCronJobTestIT
                         artifactEntryService.findOneArtifact(storageId,
                                                              repositoryId,
                                                              artifactPathStr));
-                assertThat(optionalArtifactEntryFromDb, CoreMatchers.equalTo(Optional.empty()));
+                assertThat(optionalArtifactEntryFromDb).isEqualTo(Optional.empty());
 
                 try
                 {
                     RepositoryPath artifactRepositoryPath = repositoryPathResolver.resolve(repository, artifactPathStr);
-                    assertFalse(RepositoryFiles.artifactExists(artifactRepositoryPath));
+                    assertThat(RepositoryFiles.artifactExists(artifactRepositoryPath)).isFalse();
 
                     RepositoryPath metadataRepositoryPath = artifactRepositoryPath.getParent().resolveSibling(
                             "maven-metadata.xml");
-                    assertTrue(RepositoryFiles.artifactExists(metadataRepositoryPath));
+                    assertThat(RepositoryFiles.artifactExists(metadataRepositoryPath)).isTrue();
                 }
                 catch (IOException e)
                 {
