@@ -1,10 +1,8 @@
 package org.carlspring.strongbox.forms.configuration;
 
-import org.carlspring.strongbox.providers.datastore.StorageProviderEnum;
-import org.carlspring.strongbox.storage.repository.MetadataStrategyEnum;
 import org.carlspring.strongbox.validation.configuration.DescribableEnumValue;
 
-import javax.validation.constraints.NotEmpty;
+import javax.validation.constraints.Pattern;
 
 import com.fasterxml.jackson.annotation.JsonTypeName;
 
@@ -22,8 +20,10 @@ public class MavenRepositoryConfigurationForm
 
     private String cronExpression;
 
-    @DescribableEnumValue(message = "An metadata strategy is invalid.", type = MetadataStrategyEnum.class)
-    private String metadataStrategy;
+    @Pattern(regexp = "checksum|refresh",
+            flags = Pattern.Flag.CASE_INSENSITIVE,
+            message = "metadataExpirationStrategy must contain one the following strings as value:  checksum, refresh")
+    private String metadataExpirationStrategy;
 
     public boolean isIndexingEnabled()
     {
@@ -52,14 +52,14 @@ public class MavenRepositoryConfigurationForm
         this.cronExpression = cronExpression;
     }
 
-    public String getMetadataStrategy()
+    public String getMetadataExpirationStrategy()
     {
-        return metadataStrategy;
+        return metadataExpirationStrategy;
     }
 
-    public void setMetadataStrategy(String metadataStrategy)
+    public void setMetadataExpirationStrategy(String metadataExpirationStrategy)
     {
-        this.metadataStrategy = metadataStrategy;
+        this.metadataExpirationStrategy = metadataExpirationStrategy;
     }
 
     @Override

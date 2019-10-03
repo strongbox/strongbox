@@ -1,17 +1,18 @@
-package org.carlspring.strongbox.storage.repository;
+package org.carlspring.strongbox.storage.metadata.maven;
 
 import org.carlspring.strongbox.api.Describable;
 
 import java.util.stream.Stream;
 
-public enum MetadataStrategyEnum implements Describable
+public enum MetadataExpirationStrategyType
+        implements Describable
 {
     CHECKSUM("checksum"),
     REFRESH("refresh");
 
     private String strategy;
 
-    MetadataStrategyEnum(String strategy)
+    MetadataExpirationStrategyType(String strategy)
     {
         this.strategy = strategy;
     }
@@ -22,10 +23,10 @@ public enum MetadataStrategyEnum implements Describable
         return strategy;
     }
 
-    public static MetadataStrategyEnum ofStrategy(String strategy)
+    public static MetadataExpirationStrategyType ofStrategy(String strategy)
     {
         return Stream.of(values())
-                     .filter(e -> e.strategy.equals(strategy))
+                     .filter(e -> e.strategy.equalsIgnoreCase(strategy))
                      .findFirst()
                      .orElse(null);
     }

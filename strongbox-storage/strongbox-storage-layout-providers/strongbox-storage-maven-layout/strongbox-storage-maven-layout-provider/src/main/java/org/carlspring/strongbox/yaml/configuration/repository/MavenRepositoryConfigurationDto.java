@@ -22,7 +22,7 @@ public class MavenRepositoryConfigurationDto
     // defaults to once daily at 2 am
     private String cronExpression = "0 0 2 * * ?";
 
-    private String metadataStrategy = "checksum";
+    private String metadataExpirationStrategy = "checksum";
 
     @Override
     public boolean isIndexingEnabled()
@@ -58,14 +58,14 @@ public class MavenRepositoryConfigurationDto
     }
 
     @Override
-    public String getMetadataStrategy()
+    public String getMetadataExpirationStrategy()
     {
-        return metadataStrategy;
+        return metadataExpirationStrategy;
     }
 
-    public void setMetadataStrategy(String metadataStrategy)
+    public void setMetadataExpirationStrategy(String metadataExpirationStrategy)
     {
-        this.metadataStrategy = metadataStrategy;
+        this.metadataExpirationStrategy = metadataExpirationStrategy;
     }
 
     @Override

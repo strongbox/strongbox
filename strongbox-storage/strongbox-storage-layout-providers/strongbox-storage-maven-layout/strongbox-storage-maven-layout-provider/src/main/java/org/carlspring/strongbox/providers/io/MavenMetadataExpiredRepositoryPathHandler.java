@@ -1,7 +1,10 @@
 package org.carlspring.strongbox.providers.io;
 
 import org.carlspring.strongbox.providers.repository.proxied.ProxyRepositoryArtifactResolver;
-import org.carlspring.strongbox.storage.repository.MetadataStrategyEnum;
+import org.carlspring.strongbox.storage.metadata.maven.ChecksumMetadataExpirationStrategy;
+import org.carlspring.strongbox.storage.metadata.maven.MetadataExpirationStrategy;
+import org.carlspring.strongbox.storage.metadata.maven.RefreshMetadataExpirationStrategy;
+import org.carlspring.strongbox.storage.metadata.maven.MetadataExpirationStrategyType;
 import org.carlspring.strongbox.storage.repository.RepositoryData;
 import org.carlspring.strongbox.storage.repository.Repository;
 import org.carlspring.strongbox.yaml.configuration.repository.MavenRepositoryConfiguration;
@@ -12,8 +15,9 @@ import org.springframework.stereotype.Component;
 
 import javax.inject.Inject;
 import java.io.IOException;
+import java.util.Optional;
 
-import static org.carlspring.strongbox.providers.io.MetadataStrategy.Decision.*;
+import static org.carlspring.strongbox.storage.metadata.maven.MetadataExpirationStrategy.Decision.*;
 
 /**
  * @author Przemyslaw Fusik
@@ -29,10 +33,10 @@ public class MavenMetadataExpiredRepositoryPathHandler
     private ProxyRepositoryArtifactResolver proxyRepositoryArtifactResolver;
 
     @Inject
-    private ChecksumMetadataStrategy checksumMetadataStrategy;
+    private ChecksumMetadataExpirationStrategy checksumMetadataExpirationStrategy;
 
     @Inject
-    private RefreshMetadataStrategy refreshMetadataStrategy;
+    private RefreshMetadataExpirationStrategy refreshMetadataStrategy;
 
     @Override
     public boolean supports(final RepositoryPath repositoryPath)
@@ -56,35 +60,31 @@ public class MavenMetadataExpiredRepositoryPathHandler
     public void handleExpiration(final RepositoryPath repositoryPath)
             throws IOException
     {
-        MetadataStrategy metadataStrategy = getMetadataStrategy(repositoryPath);
-        MetadataStrategy.Decision refetchMetadata = metadataStrategy.determineMetadataRefetch(repositoryPath);
+        MetadataExpirationStrategy metadataExpirationStrategy = getMetadataStrategy(repositoryPath);
+        MetadataExpirationStrategy.Decision refetchMetadata = metadataExpirationStrategy.decide(repositoryPath);
 
-        if (refetchMetadata == NO_LEAVE_IT)
+        if (refetchMetadata == USABLE)
         {
             return;
         }
         proxyRepositoryArtifactResolver.fetchRemoteResource(repositoryPath);
     }
 
-    private MetadataStrategy getMetadataStrategy(final RepositoryPath repositoryPath)
+    private MetadataExpirationStrategy getMetadataStrategy(final RepositoryPath repositoryPath)
     {
         MavenRepositoryConfiguration repositoryConfiguration =
                 (MavenRepositoryConfiguration) repositoryPath.getRepository().getRepositoryConfiguration();
-        if (repositoryConfiguration == null)
-        {
-            return checksumMetadataStrategy;
-        }
 
-        MetadataStrategyEnum configuredStrategy =
-                MetadataStrategyEnum.ofStrategy(repositoryConfiguration.getMetadataStrategy());
-        if (MetadataStrategyEnum.REFRESH.equals(configuredStrategy))
+        String strategy = Optional.ofNullable(repositoryConfiguration)
+                                  .map(MavenRepositoryConfiguration::getMetadataExpirationStrategy)
+                                  .orElse(null);
+
+        if (MetadataExpirationStrategyType.REFRESH == MetadataExpirationStrategyType.ofStrategy(strategy))
         {
             return refreshMetadataStrategy;
         }
-        else
-        {
-            return checksumMetadataStrategy;
-        }
+
+        return checksumMetadataExpirationStrategy;
     }
 
 }
