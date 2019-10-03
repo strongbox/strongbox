@@ -76,7 +76,7 @@ Other release could be downloaded from [here][release-all].
 
 # Installation
 
-Please check [here][docs-user-getting-started] for detailed instruction on how to install and setup up Strongbox on the 
+Please check [here][docs-user-getting-started] for detailed instruction about how to install and setup up Strongbox on the 
 supported platforms.
 
 # Contributing
