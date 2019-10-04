@@ -295,7 +295,7 @@ public class MavenIndexControllerTest
                .peek()
                .then()
                .statusCode(HttpStatus.OK.value())
-               .contentType("application/x-gzip")
+               .contentType(org.carlspring.strongbox.net.MediaType.APPLICATION_X_GZIP_VALUE)
                .body(CoreMatchers.notNullValue());
     }
 
