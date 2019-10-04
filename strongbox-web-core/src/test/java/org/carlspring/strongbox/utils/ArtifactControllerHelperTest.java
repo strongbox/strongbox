@@ -28,12 +28,8 @@ import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.mock.web.MockHttpServletResponse;
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.carlspring.strongbox.utils.ArtifactControllerHelper.MULTIPART_BOUNDARY;
-import static org.hamcrest.CoreMatchers.equalTo;
-import static org.hamcrest.CoreMatchers.startsWith;
-import static org.hamcrest.MatcherAssert.assertThat;
-import static org.hamcrest.Matchers.isEmptyString;
-import static org.hamcrest.core.IsNot.not;
 
 /**
  * @author Pablo Tirado
@@ -101,7 +97,7 @@ class ArtifactControllerHelperTest
 
 
             // Then
-            assertThat(response.getStatus(), equalTo(HttpStatus.PARTIAL_CONTENT.value()));
+            assertThat(response.getStatus()).isEqualTo(HttpStatus.PARTIAL_CONTENT.value());
         }
     }
 
@@ -130,8 +126,8 @@ class ArtifactControllerHelperTest
             ArtifactControllerHelper.handlePartialDownload(is, httpHeaders, response);
 
             // Then
-            assertThat(response.getStatus(), equalTo(HttpStatus.REQUESTED_RANGE_NOT_SATISFIABLE.value()));
-            assertThat(response.getHeader(HttpHeaders.CONTENT_RANGE), equalTo("bytes */" + expectedLength));
+            assertThat(response.getStatus()).isEqualTo(HttpStatus.REQUESTED_RANGE_NOT_SATISFIABLE.value());
+            assertThat(response.getHeader(HttpHeaders.CONTENT_RANGE)).isEqualTo("bytes */" + expectedLength);
         }
     }
 
@@ -159,8 +155,8 @@ class ArtifactControllerHelperTest
             ArtifactControllerHelper.handlePartialDownload(is, httpHeaders, response);
 
             // Then
-            assertThat(response.getStatus(), equalTo(HttpStatus.REQUESTED_RANGE_NOT_SATISFIABLE.value()));
-            assertThat(response.getHeader(HttpHeaders.CONTENT_RANGE), startsWith("bytes */"));
+            assertThat(response.getStatus()).isEqualTo(HttpStatus.REQUESTED_RANGE_NOT_SATISFIABLE.value());
+            assertThat(response.getHeader(HttpHeaders.CONTENT_RANGE)).startsWith("bytes */");
         }
     }
 
@@ -187,8 +183,8 @@ class ArtifactControllerHelperTest
             ArtifactControllerHelper.handlePartialDownload(is, httpHeaders, response);
 
             // Then
-            assertThat(response.getStatus(), equalTo(HttpStatus.PARTIAL_CONTENT.value()));
-            assertThat(response.getContentType(), equalTo("multipart/byteranges; boundary=" + MULTIPART_BOUNDARY));
+            assertThat(response.getStatus()).isEqualTo(HttpStatus.PARTIAL_CONTENT.value());
+            assertThat(response.getContentType()).isEqualTo("multipart/byteranges; boundary=" + MULTIPART_BOUNDARY);
         }
     }
 
@@ -217,8 +213,8 @@ class ArtifactControllerHelperTest
             ArtifactControllerHelper.handlePartialDownload(is, httpHeaders, response);
 
             // Then
-            assertThat(response.getStatus(), equalTo(HttpStatus.REQUESTED_RANGE_NOT_SATISFIABLE.value()));
-            assertThat(response.getHeader(HttpHeaders.CONTENT_RANGE), equalTo("bytes */" + expectedLength));
+            assertThat(response.getStatus()).isEqualTo(HttpStatus.REQUESTED_RANGE_NOT_SATISFIABLE.value());
+            assertThat(response.getHeader(HttpHeaders.CONTENT_RANGE)).isEqualTo("bytes */" + expectedLength);
         }
     }
 
@@ -246,8 +242,8 @@ class ArtifactControllerHelperTest
             ArtifactControllerHelper.handlePartialDownload(is, httpHeaders, response);
 
             // Then
-            assertThat(response.getStatus(), equalTo(HttpStatus.REQUESTED_RANGE_NOT_SATISFIABLE.value()));
-            assertThat(response.getHeader(HttpHeaders.CONTENT_RANGE), startsWith("bytes */"));
+            assertThat(response.getStatus()).isEqualTo(HttpStatus.REQUESTED_RANGE_NOT_SATISFIABLE.value());
+            assertThat(response.getHeader(HttpHeaders.CONTENT_RANGE)).startsWith("bytes */");
         }
     }
 
@@ -263,7 +259,7 @@ class ArtifactControllerHelperTest
         boolean actualResult = ArtifactControllerHelper.isRangedRequest(httpHeaders);
 
         // Then
-        assertThat(actualResult, equalTo(expectedResult));
+        assertThat(actualResult).isEqualTo(expectedResult);
     }
 
     @ExtendWith(RepositoryManagementTestExecutionListener.class)
@@ -283,7 +279,7 @@ class ArtifactControllerHelperTest
         ArtifactControllerHelper.provideArtifactHeaders(response, repositoryPath);
 
         // Then
-        assertThat(response.getStatus(), equalTo(HttpServletResponse.SC_NOT_FOUND));
+        assertThat(response.getStatus()).isEqualTo(HttpServletResponse.SC_NOT_FOUND);
     }
 
     @ExtendWith({ RepositoryManagementTestExecutionListener.class,
@@ -305,10 +301,10 @@ class ArtifactControllerHelperTest
         ArtifactControllerHelper.provideArtifactHeaders(response, artifactRepositoryPath);
 
         // Then
-        assertThat(response.getHeader(HttpHeaders.CONTENT_LENGTH), not(isEmptyString()));
-        assertThat(response.getHeader(HttpHeaders.LAST_MODIFIED), not(isEmptyString()));
-        assertThat(response.getContentType(), equalTo(MediaType.APPLICATION_OCTET_STREAM_VALUE));
-        assertThat(response.getHeader(HttpHeaders.ACCEPT_RANGES), equalTo("bytes"));
+        assertThat(response.getHeader(HttpHeaders.CONTENT_LENGTH)).isNotEmpty();
+        assertThat(response.getHeader(HttpHeaders.LAST_MODIFIED)).isNotEmpty();
+        assertThat(response.getContentType()).isEqualTo(MediaType.APPLICATION_OCTET_STREAM_VALUE);
+        assertThat(response.getHeader(HttpHeaders.ACCEPT_RANGES)).isEqualTo("bytes");
     }
 
 

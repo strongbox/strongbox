@@ -39,7 +39,6 @@ import org.springframework.http.MediaType;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.carlspring.strongbox.utils.ArtifactControllerHelper.MULTIPART_BOUNDARY;
 import static org.hamcrest.CoreMatchers.equalTo;
-import static org.hamcrest.MatcherAssert.assertThat;
 
 /**
  * @author Sergey Bespalov
@@ -522,9 +521,9 @@ public class NugetArtifactControllerTest extends NugetRestAssuredBaseTest
                                                                         packageVersion);
 
         // Then
-        assertThat(response.getStatusCode(), equalTo(HttpStatus.PARTIAL_CONTENT.value()));
-        assertThat(response.getHeader(HttpHeaders.ACCEPT_RANGES), equalTo("bytes"));
-        assertThat(response.getContentType(), equalTo(MediaType.APPLICATION_OCTET_STREAM_VALUE));
+        assertThat(response.getStatusCode()).isEqualTo(HttpStatus.PARTIAL_CONTENT.value());
+        assertThat(response.getHeader(HttpHeaders.ACCEPT_RANGES)).isEqualTo("bytes");
+        assertThat(response.getContentType()).isEqualTo(MediaType.APPLICATION_OCTET_STREAM_VALUE);
     }
 
     @ExtendWith({ RepositoryManagementTestExecutionListener.class,
@@ -547,9 +546,9 @@ public class NugetArtifactControllerTest extends NugetRestAssuredBaseTest
                                                                         packageVersion);
 
         // Then
-        assertThat(response.getStatusCode(), equalTo(HttpStatus.PARTIAL_CONTENT.value()));
-        assertThat(response.getHeader(HttpHeaders.ACCEPT_RANGES), equalTo("bytes"));
-        assertThat(response.getContentType(), equalTo("multipart/byteranges; boundary=" + MULTIPART_BOUNDARY));
+        assertThat(response.getStatusCode()).isEqualTo(HttpStatus.PARTIAL_CONTENT.value());
+        assertThat(response.getHeader(HttpHeaders.ACCEPT_RANGES)).isEqualTo("bytes");
+        assertThat(response.getContentType()).isEqualTo("multipart/byteranges; boundary=" + MULTIPART_BOUNDARY);
     }
 
     private MockMvcResponse getMockMvcResponseForPartialDownload(String byteRanges,

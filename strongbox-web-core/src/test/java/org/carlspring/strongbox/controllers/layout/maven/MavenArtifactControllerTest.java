@@ -61,7 +61,6 @@ import org.apache.maven.artifact.repository.metadata.SnapshotVersion;
 import org.apache.maven.model.Plugin;
 import org.apache.maven.project.artifact.PluginArtifact;
 import org.codehaus.plexus.util.xml.pull.XmlPullParserException;
-import org.hamcrest.CoreMatchers;
 import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.BeforeEach;
@@ -78,12 +77,12 @@ import org.springframework.security.test.context.support.WithMockUser;
 import org.w3c.dom.Document;
 import org.xml.sax.InputSource;
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.fail;
 import static org.carlspring.strongbox.testing.artifact.MavenArtifactTestUtils.getArtifactLevelMetadataPath;
 import static org.carlspring.strongbox.testing.artifact.MavenArtifactTestUtils.getGroupLevelMetadataPath;
 import static org.carlspring.strongbox.testing.artifact.MavenArtifactTestUtils.getVersionLevelMetadataPath;
 import static org.carlspring.strongbox.utils.ArtifactControllerHelper.MULTIPART_BOUNDARY;
 import static org.hamcrest.CoreMatchers.equalTo;
-import static org.hamcrest.MatcherAssert.assertThat;
 import static org.mockito.Mockito.doReturn;
 
 /**
@@ -1103,9 +1102,9 @@ public class MavenArtifactControllerTest
                                                                         artifactPath);
 
         // Then
-        assertThat(response.getStatusCode(), equalTo(HttpStatus.PARTIAL_CONTENT.value()));
-        assertThat(response.getHeader(HttpHeaders.ACCEPT_RANGES), equalTo("bytes"));
-        assertThat(response.getContentType(), equalTo(MediaType.APPLICATION_OCTET_STREAM_VALUE));
+        assertThat(response.getStatusCode()).isEqualTo(HttpStatus.PARTIAL_CONTENT.value());
+        assertThat(response.getHeader(HttpHeaders.ACCEPT_RANGES)).isEqualTo("bytes");
+        assertThat(response.getContentType()).isEqualTo(MediaType.APPLICATION_OCTET_STREAM_VALUE);
     }
 
     @ExtendWith({ RepositoryManagementTestExecutionListener.class,
@@ -1126,8 +1125,8 @@ public class MavenArtifactControllerTest
                                                                         artifactPath);
 
         // Then
-        assertThat(response.getStatusCode(), equalTo(HttpStatus.REQUESTED_RANGE_NOT_SATISFIABLE.value()));
-        assertThat(response.getHeader(HttpHeaders.CONTENT_RANGE), CoreMatchers.startsWith("bytes"));
+        assertThat(response.getStatusCode()).isEqualTo(HttpStatus.REQUESTED_RANGE_NOT_SATISFIABLE.value());
+        assertThat(response.getHeader(HttpHeaders.CONTENT_RANGE)).startsWith("bytes");
     }
 
     @ExtendWith({ RepositoryManagementTestExecutionListener.class,
@@ -1147,9 +1146,9 @@ public class MavenArtifactControllerTest
                                                                         artifactPath);
 
         // Then
-        assertThat(response.getStatusCode(), equalTo(HttpStatus.PARTIAL_CONTENT.value()));
-        assertThat(response.getHeader(HttpHeaders.ACCEPT_RANGES), equalTo("bytes"));
-        assertThat(response.getContentType(), equalTo("multipart/byteranges; boundary=" + MULTIPART_BOUNDARY));
+        assertThat(response.getStatusCode()).isEqualTo(HttpStatus.PARTIAL_CONTENT.value());
+        assertThat(response.getHeader(HttpHeaders.ACCEPT_RANGES)).isEqualTo("bytes");
+        assertThat(response.getContentType()).isEqualTo("multipart/byteranges; boundary=" + MULTIPART_BOUNDARY);
     }
 
     @ExtendWith({ RepositoryManagementTestExecutionListener.class,
@@ -1170,8 +1169,8 @@ public class MavenArtifactControllerTest
                                                                         artifactPath);
 
         // Then
-        assertThat(response.getStatusCode(), equalTo(HttpStatus.REQUESTED_RANGE_NOT_SATISFIABLE.value()));
-        assertThat(response.getHeader(HttpHeaders.CONTENT_RANGE), CoreMatchers.startsWith("bytes */"));
+        assertThat(response.getStatusCode()).isEqualTo(HttpStatus.REQUESTED_RANGE_NOT_SATISFIABLE.value());
+        assertThat(response.getHeader(HttpHeaders.CONTENT_RANGE)).startsWith("bytes */");
     }
 
     private MockMvcResponse getMockMvcResponseForPartialDownload(String byteRanges,
@@ -1190,7 +1189,7 @@ public class MavenArtifactControllerTest
         String artifactRepositoryPathStr = RepositoryFiles.relativizePath(artifactRepositoryPath);
 
         // When
-        return given().header(HttpHeaders.RANGE, "bytes=" + byteRanges)
+        return mockMvc.header(HttpHeaders.RANGE, "bytes=" + byteRanges)
                       .contentType(MediaType.TEXT_PLAIN_VALUE)
                       .when()
                       .get(url, storageId, repositoryId, artifactRepositoryPathStr)
