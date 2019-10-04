@@ -18,13 +18,14 @@ import java.util.Comparator;
 import java.util.List;
 import java.util.stream.Collectors;
 
+
 import org.apache.commons.io.FilenameUtils;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
-import static io.restassured.module.mockmvc.RestAssuredMockMvc.given;
+
 import static org.carlspring.strongbox.rest.client.RestAssuredArtifactClient.OK;
 import static org.assertj.core.api.Assertions.assertThat;
 
@@ -55,7 +56,7 @@ public class BrowseControllerTest
     {
         String url = getContextBaseUrl() + "/";
 
-        DirectoryListing returned = given().accept(MediaType.APPLICATION_JSON_VALUE)
+        DirectoryListing returned = mockMvc.accept(MediaType.APPLICATION_JSON_VALUE)
                                            .when()
                                            .get(url)
                                            .prettyPeek()
@@ -72,7 +73,7 @@ public class BrowseControllerTest
 
         assertThat(returned.getDirectories()).as("Returned storages are not sorted!").isEqualTo(expectedSortedList);
 
-        String htmlResponse = given().accept(MediaType.TEXT_HTML_VALUE)
+        String htmlResponse = mockMvc.accept(MediaType.TEXT_HTML_VALUE)
                                      .when()
                                      .get(url)
                                      .prettyPeek()
@@ -95,7 +96,7 @@ public class BrowseControllerTest
 
         String url = getContextBaseUrl() + "/{storageId}";
 
-        DirectoryListing returned = given().accept(MediaType.APPLICATION_JSON_VALUE)
+        DirectoryListing returned = mockMvc.accept(MediaType.APPLICATION_JSON_VALUE)
                                            .when()
                                            .get(url, storageId)
                                            .prettyPeek()
@@ -117,7 +118,7 @@ public class BrowseControllerTest
 
         assertThat(returned.getDirectories()).as("Returned repositories are not sorted!").isEqualTo(expectedSortedList);
 
-        String htmlResponse = given().accept(MediaType.TEXT_HTML_VALUE)
+        String htmlResponse = mockMvc.accept(MediaType.TEXT_HTML_VALUE)
                                      .when()
                                      .get(url, storageId)
                                      .prettyPeek()
@@ -135,14 +136,14 @@ public class BrowseControllerTest
     {
         String url = getContextBaseUrl() + "/storagefoo";
 
-        given().accept(MediaType.APPLICATION_JSON_VALUE)
+        mockMvc.accept(MediaType.APPLICATION_JSON_VALUE)
                .when()
                .get(url)
                .prettyPeek()
                .then()
                .statusCode(HttpStatus.NOT_FOUND.value());
 
-        given().accept(MediaType.TEXT_HTML_VALUE)
+        mockMvc.accept(MediaType.TEXT_HTML_VALUE)
                .when()
                .get(url)
                .prettyPeek()
@@ -174,7 +175,7 @@ public class BrowseControllerTest
         RepositoryPath artifact1ParentPath = artifact1Path.getParent();
         String artifact1ParentPathStr = RepositoryFiles.relativizePath(artifact1ParentPath);
 
-        DirectoryListing returned = given().accept(MediaType.APPLICATION_JSON_VALUE)
+        DirectoryListing returned = mockMvc.accept(MediaType.APPLICATION_JSON_VALUE)
                                            .when()
                                            .get(url, storageId, repositoryId, artifact1ParentPathStr)
                                            .prettyPeek()
@@ -184,7 +185,7 @@ public class BrowseControllerTest
                    && returned.getFiles().get(0).getName().equals("test-browsing-1.1.jar"))
                 .as("Invalid files returned").isTrue();
 
-        String htmlResponse = given().accept(MediaType.TEXT_HTML_VALUE)
+        String htmlResponse = mockMvc.accept(MediaType.TEXT_HTML_VALUE)
                                      .when()
                                      .get(url + "/", storageId, repositoryId, artifact1ParentPathStr)
                                      .prettyPeek()
@@ -200,14 +201,14 @@ public class BrowseControllerTest
     {
         String url = getContextBaseUrl() + "/{storageId}/{repositoryId}";
 
-        given().accept(MediaType.APPLICATION_JSON_VALUE)
+        mockMvc.accept(MediaType.APPLICATION_JSON_VALUE)
                .when()
                .get(url, STORAGE0, "repofoo")
                .prettyPeek()
                .then()
                .statusCode(HttpStatus.NOT_FOUND.value());
 
-        given().accept(MediaType.TEXT_HTML_VALUE)
+        mockMvc.accept(MediaType.TEXT_HTML_VALUE)
                .when()
                .get(url, STORAGE0, "repofoo")
                .prettyPeek()
@@ -220,14 +221,14 @@ public class BrowseControllerTest
     {
         String url = getContextBaseUrl() + "/{storageId}/{repositoryId}/{artifactPath}";
 
-        given().accept(MediaType.APPLICATION_JSON_VALUE)
+        mockMvc.accept(MediaType.APPLICATION_JSON_VALUE)
                .when()
                .get(url, STORAGE0, "releases", "foo/bar")
                .prettyPeek()
                .then()
                .statusCode(HttpStatus.NOT_FOUND.value());
 
-        given().accept(MediaType.TEXT_HTML_VALUE)
+        mockMvc.accept(MediaType.TEXT_HTML_VALUE)
                .when()
                .get(url, STORAGE0, "releases", "foo/bar")
                .prettyPeek()

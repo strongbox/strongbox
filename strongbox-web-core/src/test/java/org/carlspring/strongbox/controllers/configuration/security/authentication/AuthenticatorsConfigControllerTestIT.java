@@ -27,7 +27,7 @@ import org.springframework.security.authentication.AuthenticationProvider;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.AuthenticationException;
 import org.springframework.test.context.ActiveProfiles;
-import static io.restassured.module.mockmvc.RestAssuredMockMvc.given;
+
 import static org.carlspring.strongbox.CustomMatchers.equalByToString;
 import static org.hamcrest.Matchers.containsString;
 import static org.hamcrest.Matchers.is;
@@ -71,7 +71,7 @@ public class AuthenticatorsConfigControllerTestIT
 
     private void assertInitialAuthenticationItems()
     {
-        given().when()
+        mockMvc.when()
                .get(getContextBaseUrl() + "/authenticators/")
                .peek()
                .then()
@@ -108,7 +108,7 @@ public class AuthenticatorsConfigControllerTestIT
     {
         assertInitialAuthenticationItems();
 
-        given().accept(acceptHeader)
+        mockMvc.accept(acceptHeader)
                .when()
                .put(getContextBaseUrl()
                     + "/authenticators/reorder/authenticationProviderFirst/authenticationProviderSecond")
@@ -118,7 +118,7 @@ public class AuthenticatorsConfigControllerTestIT
                .body(containsString(AuthenticatorsConfigController.SUCCESSFUL_REORDER));
 
         // Confirm they are re-ordered
-        given().when()
+        mockMvc.when()
                .get(getContextBaseUrl() + "/authenticators/")
                .peek()
                .then()
@@ -146,7 +146,7 @@ public class AuthenticatorsConfigControllerTestIT
         AuthenticationItems authenticationItems = new AuthenticationItems();
         authenticationItems.getAuthenticationItemList().add(authenticationItem);
 
-        given().header(HttpHeaders.ACCEPT, MediaType.APPLICATION_JSON_VALUE)
+        mockMvc.header(HttpHeaders.ACCEPT, MediaType.APPLICATION_JSON_VALUE)
                .header(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_JSON_VALUE)
                .body(authenticationItems)
                .when()
@@ -156,7 +156,7 @@ public class AuthenticatorsConfigControllerTestIT
                .statusCode(HttpStatus.OK.value())
                .body(containsString(AuthenticatorsConfigController.SUCCESSFUL_UPDATE));
 
-        given().when()
+        mockMvc.when()
                .get(getContextBaseUrl() + "/authenticators/")
                .peek()
                .then()

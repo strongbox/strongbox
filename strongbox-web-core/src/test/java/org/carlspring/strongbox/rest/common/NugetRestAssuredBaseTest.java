@@ -18,6 +18,8 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.web.context.WebApplicationContext;
 
+import io.restassured.module.mockmvc.specification.MockMvcRequestSpecification;
+
 /**
  * General settings for the testing sub-system.
  *
@@ -53,6 +55,9 @@ public abstract class NugetRestAssuredBaseTest
     @Value("${strongbox.url}")
     private String contextBaseUrl;
 
+    @Inject
+    protected MockMvcRequestSpecification mockMvc;
+    
     public void init()
             throws Exception
     {

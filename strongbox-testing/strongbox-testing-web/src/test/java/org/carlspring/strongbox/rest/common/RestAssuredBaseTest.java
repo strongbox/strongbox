@@ -1,8 +1,6 @@
 package org.carlspring.strongbox.rest.common;
 
-import static io.restassured.module.mockmvc.RestAssuredMockMvc.given;
-import static org.carlspring.strongbox.rest.client.RestAssuredArtifactClient.OK;
-import static org.assertj.core.api.Assertions.assertThat;
+
 
 import java.io.File;
 
@@ -12,13 +10,10 @@ import org.carlspring.strongbox.rest.client.RestAssuredArtifactClient;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.http.MediaType;
 import org.springframework.web.context.WebApplicationContext;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 
-import io.restassured.config.ObjectMapperConfig;
-import io.restassured.module.mockmvc.config.RestAssuredMockMvcConfig;
 import io.restassured.module.mockmvc.specification.MockMvcRequestSpecification;
 
 /**
@@ -52,7 +47,8 @@ public abstract class RestAssuredBaseTest
     @Value("${strongbox.url}")
     private String contextBaseUrl;
 
-    private RestAssuredMockMvcConfig restAssuredMockMvcConfig;
+    @Inject
+    protected MockMvcRequestSpecification mockMvc;
 
     public void init()
             throws Exception
@@ -60,9 +56,6 @@ public abstract class RestAssuredBaseTest
         logger.debug("Initializing RestAssured...");
 
         client.setContextBaseUrl(contextBaseUrl);
-        
-        restAssuredMockMvcConfig = RestAssuredMockMvcConfig.config().objectMapperConfig(
-                new ObjectMapperConfig().jackson2ObjectMapperFactory((aClass, s) -> objectMapper));
     }
 
     public String getContextBaseUrl()
@@ -72,7 +65,7 @@ public abstract class RestAssuredBaseTest
 
     protected MockMvcRequestSpecification givenCustom()
     {
-        return given().config(restAssuredMockMvcConfig);
+        return mockMvc;
     }
 
     public void setContextBaseUrl(String contextBaseUrl)
@@ -111,22 +104,6 @@ public abstract class RestAssuredBaseTest
 
         //noinspection ResultOfMethodCallIgnored
         file.delete();
-    }
-
-    protected boolean pathExists(String url)
-    {
-        logger.trace("[pathExists] URL -> " + url);
-
-        return given().header("user-agent", "Maven/*")
-                      .contentType(MediaType.TEXT_PLAIN_VALUE)
-                      .when()
-                      .get(url)
-                      .getStatusCode() == OK;
-    }
-
-    protected void assertPathExists(String url)
-    {
-        assertThat(pathExists(url)).as("Path " + url + " doesn't exist.").isTrue();
     }
 
 }

@@ -18,7 +18,7 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.springframework.http.HttpStatus;
-import static io.restassured.module.mockmvc.RestAssuredMockMvc.given;
+
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.hamcrest.Matchers.equalTo;
 import static org.hamcrest.Matchers.greaterThan;
@@ -104,7 +104,7 @@ public class NpmArtifactControllerTestIT
         NpmArtifactCoordinates coordinates = NpmArtifactCoordinates.of("react", "16.5.0");
 
         String url = getContextBaseUrl() + "/storages/{storageId}/{repositoryId}/{artifactId}";
-        given().when()
+        mockMvc.when()
                .get(url, storageId, repositoryId, coordinates.getId())
                .peek()
                .then()
@@ -132,7 +132,7 @@ public class NpmArtifactControllerTestIT
 
         String url = getContextBaseUrl() +
                      "/storages/{storageId}/{repositoryId}/-/v1/search?text=reston&size=10";
-        given().when()
+        mockMvc.when()
                .get(url, storageId, repositoryId)
                .peek()
                .then()

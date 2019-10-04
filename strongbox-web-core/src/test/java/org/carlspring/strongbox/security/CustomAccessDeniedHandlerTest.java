@@ -18,7 +18,7 @@ import org.springframework.mock.web.MockHttpServletRequest;
 import org.springframework.mock.web.MockHttpServletResponse;
 import org.springframework.security.access.AccessDeniedException;
 import org.springframework.security.test.context.support.WithMockUser;
-import static io.restassured.module.mockmvc.RestAssuredMockMvc.given;
+
 import static org.hamcrest.Matchers.equalTo;
 
 /**
@@ -62,7 +62,7 @@ public class CustomAccessDeniedHandlerTest
     @WithMockUser(username = "unauthorizedUser")
     public void unauthorizedUserShouldReceiveExpectedUnauthorizedResponse()
     {
-        given().contentType("application/json")
+        mockMvc.contentType("application/json")
                .accept(ContentType.JSON)
                .when()
                .get("/api/configuration/strongbox")

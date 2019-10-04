@@ -24,7 +24,7 @@ import org.springframework.transaction.annotation.Transactional;
 import java.nio.charset.Charset;
 import java.util.Locale;
 
-import static io.restassured.module.mockmvc.RestAssuredMockMvc.given;
+
 import static java.nio.charset.StandardCharsets.ISO_8859_1;
 
 /**
@@ -60,7 +60,7 @@ public class PasswordEncoderControllerTest
     {
         final PasswordEncodeForm form = new PasswordEncodeForm("password");
 
-        ValidatableMockMvcResponse response = given().contentType(MediaType.APPLICATION_JSON_VALUE)
+        ValidatableMockMvcResponse response = mockMvc.contentType(MediaType.APPLICATION_JSON_VALUE)
                                                      .accept(acceptedHeader)
                                                      .body(form)
                                                      .post(getContextBaseUrl())
@@ -94,7 +94,7 @@ public class PasswordEncoderControllerTest
         String decodedErrorMessage = new String(errorMessage.getBytes(ISO_8859_1),
                                                 Charset.defaultCharset());
 
-        given().contentType(MediaType.APPLICATION_JSON_VALUE)
+        mockMvc.contentType(MediaType.APPLICATION_JSON_VALUE)
                .accept(MediaType.APPLICATION_JSON_VALUE)
                .body(form)
                .when()
@@ -112,7 +112,7 @@ public class PasswordEncoderControllerTest
     {
         final PasswordEncodeForm form = new PasswordEncodeForm("password");
 
-        given().contentType(MediaType.APPLICATION_JSON_VALUE)
+        mockMvc.contentType(MediaType.APPLICATION_JSON_VALUE)
                .accept(MediaType.APPLICATION_JSON_VALUE)
                .body(form)
                .when()

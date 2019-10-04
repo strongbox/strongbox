@@ -19,7 +19,7 @@ import org.junit.jupiter.params.provider.ValueSource;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.security.test.context.support.WithMockUser;
-import static io.restassured.module.mockmvc.RestAssuredMockMvc.given;
+
 import static org.carlspring.strongbox.controllers.configuration.ServerConfigurationController.FAILED_SAVE_SERVER_SETTINGS;
 import static org.carlspring.strongbox.controllers.configuration.ServerConfigurationController.SUCCESSFUL_SAVE_SERVER_SETTINGS;
 import static org.hamcrest.Matchers.containsString;
@@ -54,7 +54,7 @@ public class ServerConfigurationControllerTestIT
 
         String url = getContextBaseUrl() + "/port/" + newPort;
 
-        given().accept(MediaType.APPLICATION_JSON_VALUE)
+        mockMvc.accept(MediaType.APPLICATION_JSON_VALUE)
                .when()
                .put(url)
                .then()
@@ -63,7 +63,7 @@ public class ServerConfigurationControllerTestIT
 
         url = getContextBaseUrl() + "/port";
 
-        given().accept(MediaType.APPLICATION_JSON_VALUE)
+        mockMvc.accept(MediaType.APPLICATION_JSON_VALUE)
                .when()
                .get(url)
                .then()
@@ -81,7 +81,7 @@ public class ServerConfigurationControllerTestIT
 
         String url = getContextBaseUrl() + "/port";
 
-        given().accept(MediaType.APPLICATION_JSON_VALUE)
+        mockMvc.accept(MediaType.APPLICATION_JSON_VALUE)
                .contentType(MediaType.APPLICATION_JSON_VALUE)
                .body(portEntity)
                .when()
@@ -92,7 +92,7 @@ public class ServerConfigurationControllerTestIT
 
         url = getContextBaseUrl() + "/port";
 
-        given().accept(MediaType.APPLICATION_JSON_VALUE)
+        mockMvc.accept(MediaType.APPLICATION_JSON_VALUE)
                .when()
                .get(url)
                .then()
@@ -110,7 +110,7 @@ public class ServerConfigurationControllerTestIT
 
         String url = getContextBaseUrl() + "/instanceName";
 
-        given().accept(MediaType.APPLICATION_JSON_VALUE)
+        mockMvc.accept(MediaType.APPLICATION_JSON_VALUE)
                .contentType(MediaType.APPLICATION_JSON_VALUE)
                .body(instanceNameEntity)
                .when()
@@ -121,7 +121,7 @@ public class ServerConfigurationControllerTestIT
 
         url = getContextBaseUrl() + "/instanceName";
 
-        given().accept(MediaType.APPLICATION_JSON_VALUE)
+        mockMvc.accept(MediaType.APPLICATION_JSON_VALUE)
                .when()
                .get(url)
                .then()
@@ -139,7 +139,7 @@ public class ServerConfigurationControllerTestIT
 
         String url = getContextBaseUrl() + "/baseUrl";
 
-        given().accept(MediaType.APPLICATION_JSON_VALUE)
+        mockMvc.accept(MediaType.APPLICATION_JSON_VALUE)
                .contentType(MediaType.APPLICATION_JSON_VALUE)
                .body(baseUrlEntity)
                .when()
@@ -150,7 +150,7 @@ public class ServerConfigurationControllerTestIT
 
         url = getContextBaseUrl() + "/baseUrl";
 
-        given().accept(MediaType.APPLICATION_JSON_VALUE)
+        mockMvc.accept(MediaType.APPLICATION_JSON_VALUE)
                .when()
                .get(url)
                .then()
@@ -198,7 +198,7 @@ public class ServerConfigurationControllerTestIT
         String url = getContextBaseUrl() + "/serverSettings";
 
         // Save the form
-        given().log().all().contentType(MediaType.APPLICATION_JSON_VALUE)
+        mockMvc.log().all().contentType(MediaType.APPLICATION_JSON_VALUE)
                .accept(acceptHeader)
                .body(serverSettingsForm)
                .when()
@@ -210,7 +210,7 @@ public class ServerConfigurationControllerTestIT
 
 
         // Check if things are properly saved.
-        given().log().all().accept(MediaType.APPLICATION_JSON_VALUE)
+        mockMvc.log().all().accept(MediaType.APPLICATION_JSON_VALUE)
                .when()
                .get(url)
                .then()
@@ -249,7 +249,7 @@ public class ServerConfigurationControllerTestIT
 
         String url = getContextBaseUrl() + "/serverSettings";
 
-        given().contentType(MediaType.APPLICATION_JSON_VALUE)
+        mockMvc.contentType(MediaType.APPLICATION_JSON_VALUE)
                .accept(acceptHeader)
                .body(serverSettingsForm)
                .when()

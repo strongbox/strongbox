@@ -14,7 +14,7 @@ import org.springframework.security.test.context.support.WithMockUser;
 
 import java.util.List;
 
-import static io.restassured.module.mockmvc.RestAssuredMockMvc.given;
+
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.carlspring.strongbox.controllers.configuration.ProxyConfigurationController.*;
 import static org.hamcrest.Matchers.containsString;
@@ -80,7 +80,7 @@ public class ProxyConfigurationControllerTestIT
 
         String url = getContextBaseUrl();
 
-        given().contentType(MediaType.APPLICATION_JSON_VALUE)
+        mockMvc.contentType(MediaType.APPLICATION_JSON_VALUE)
                .accept(acceptHeader)
                .body(proxyConfiguration)
                .when()
@@ -91,7 +91,7 @@ public class ProxyConfigurationControllerTestIT
 
         logger.debug("Current proxy host: " + proxyConfiguration.getHost());
 
-        MutableProxyConfiguration pc = given().contentType(MediaType.APPLICATION_JSON_VALUE)
+        MutableProxyConfiguration pc = mockMvc.contentType(MediaType.APPLICATION_JSON_VALUE)
                                               .accept(MediaType.APPLICATION_JSON_VALUE)
                                               .when()
                                               .get(url)
@@ -117,7 +117,7 @@ public class ProxyConfigurationControllerTestIT
         String storageId = "storage-not-found";
         String repositoryId = "repo-not-found";
 
-        given().contentType(MediaType.APPLICATION_JSON_VALUE)
+        mockMvc.contentType(MediaType.APPLICATION_JSON_VALUE)
                .accept(acceptHeader)
                .body(proxyConfiguration)
                .param("storageId", storageId)
@@ -140,7 +140,7 @@ public class ProxyConfigurationControllerTestIT
 
         String url = getContextBaseUrl();
 
-        given().contentType(MediaType.APPLICATION_JSON_VALUE)
+        mockMvc.contentType(MediaType.APPLICATION_JSON_VALUE)
                .accept(acceptHeader)
                .body(proxyConfiguration)
                .when()

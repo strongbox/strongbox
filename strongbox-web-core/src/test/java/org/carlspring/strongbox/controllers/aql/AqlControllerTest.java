@@ -15,10 +15,10 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
-import static io.restassured.module.mockmvc.RestAssuredMockMvc.given;
 import static org.hamcrest.Matchers.containsString;
 import static org.hamcrest.Matchers.equalTo;
 import static org.hamcrest.Matchers.hasSize;
+
 
 /**
  * @author sbespalov
@@ -71,7 +71,7 @@ public class AqlControllerTest
         final String repositoryId = repository.getId();
 
         String url = getContextBaseUrl();
-        given().accept(MediaType.APPLICATION_JSON_VALUE)
+        mockMvc.accept(MediaType.APPLICATION_JSON_VALUE)
                .queryParam("query",
                            String.format(
                                    "storage:%s+repository:%s+groupId:org.carlspring.strongbox.searches+!version:1.0.11.3.1",
@@ -90,7 +90,7 @@ public class AqlControllerTest
     public void testBadAqlSyntaxRequest()
     {
         String url = getContextBaseUrl();
-        given().accept(MediaType.APPLICATION_JSON_VALUE)
+        mockMvc.accept(MediaType.APPLICATION_JSON_VALUE)
                .queryParam("query",
                            String.format(
                                    "storage:%s+repository:%s+groupId:org.carlspring.strongbox.searches-version:1.0.11.3.1",
@@ -125,7 +125,7 @@ public class AqlControllerTest
         final String repositoryId = repository.getId();
 
         String url = getContextBaseUrl();
-        given().accept(MediaType.APPLICATION_JSON_VALUE)
+        mockMvc.accept(MediaType.APPLICATION_JSON_VALUE)
                .queryParam("query",
                            String.format("storage:%s+repository:%s+layout:maven+groupId:org.carlspring.strongbox.*",
                                          storageId,
@@ -142,7 +142,7 @@ public class AqlControllerTest
     public void testSearchInvalidMavenCoordinates()
     {
         String url = getContextBaseUrl();
-        given().accept(MediaType.APPLICATION_JSON_VALUE)
+        mockMvc.accept(MediaType.APPLICATION_JSON_VALUE)
                .queryParam("query", "layout:unknown-layout+id:org.carlspring.strongbox.*")
                .when()
                .get(url)

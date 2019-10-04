@@ -18,7 +18,7 @@ import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.ValueSource;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
-import static io.restassured.module.mockmvc.RestAssuredMockMvc.given;
+
 import static org.hamcrest.Matchers.containsString;
 import static org.hamcrest.Matchers.equalTo;
 
@@ -52,7 +52,7 @@ public class HttpConnectionPoolConfigurationManagementControllerTestIT
 
         String url = getContextBaseUrl() + "/api/configuration/proxy/connection-pool/max/" + newMaxNumberOfConnections;
 
-        ValidatableMockMvcResponse response = given().accept(acceptHeader)
+        ValidatableMockMvcResponse response = mockMvc.accept(acceptHeader)
                                                      .when()
                                                      .put(url)
                                                      .peek()
@@ -63,7 +63,7 @@ public class HttpConnectionPoolConfigurationManagementControllerTestIT
         validateResponseBody(response, acceptHeader, message);
 
         url = getContextBaseUrl() + "/api/configuration/proxy/connection-pool";
-        response = given().accept(acceptHeader)
+        response = mockMvc.accept(acceptHeader)
                           .when()
                           .get(url)
                           .peek()
@@ -83,7 +83,7 @@ public class HttpConnectionPoolConfigurationManagementControllerTestIT
         String url =
                 getContextBaseUrl() + "/api/configuration/proxy/connection-pool/default/" + newDefaultNumberOfConnections;
 
-        ValidatableMockMvcResponse response = given().accept(acceptHeader)
+        ValidatableMockMvcResponse response = mockMvc.accept(acceptHeader)
                                                      .when()
                                                      .put(url)
                                                      .peek()
@@ -95,7 +95,7 @@ public class HttpConnectionPoolConfigurationManagementControllerTestIT
 
         url = getContextBaseUrl() + "/api/configuration/proxy/connection-pool/default-number";
 
-        response = given().accept(acceptHeader)
+        response = mockMvc.accept(acceptHeader)
                           .when()
                           .get(url)
                           .peek()
@@ -132,7 +132,7 @@ public class HttpConnectionPoolConfigurationManagementControllerTestIT
                      repository.getId() + "/" +
                      numberOfConnections;
 
-        ValidatableMockMvcResponse response = given().accept(acceptHeader)
+        ValidatableMockMvcResponse response = mockMvc.accept(acceptHeader)
                                                      .when()
                                                      .put(url)
                                                      .peek()
@@ -147,7 +147,7 @@ public class HttpConnectionPoolConfigurationManagementControllerTestIT
               repository.getId();
 
         PoolStats expectedPoolStats = new PoolStats(0, 0, 0, numberOfConnections);
-        response = given().accept(acceptHeader)
+        response = mockMvc.accept(acceptHeader)
                           .when()
                           .get(url)
                           .peek()

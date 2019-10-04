@@ -109,7 +109,7 @@ public class MavenArtifactDeployer
         {
             String path = MavenArtifactTestUtils.getVersionLevelMetadataPath(artifact);
             metadata = metadataMerger.updateMetadataAtVersionLevel(artifact,
-                                                                   retrieveMetadata("storages/" + storageId + "/" +
+                                                                   retrieveMetadata("/storages/" + storageId + "/" +
                                                                                     repositoryId + "/" + path));
 
             createMetadata(metadata, path);
@@ -118,7 +118,7 @@ public class MavenArtifactDeployer
 
         String path = MavenArtifactTestUtils.getArtifactLevelMetadataPath(artifact);
         metadata = metadataMerger.updateMetadataAtArtifactLevel(artifact,
-                                                                retrieveMetadata("storages/" + storageId + "/" +
+                                                                retrieveMetadata("/storages/" + storageId + "/" +
                                                                                  repositoryId + "/" + path));
 
         createMetadata(metadata, path);
@@ -128,7 +128,7 @@ public class MavenArtifactDeployer
         {
             path = MavenArtifactTestUtils.getGroupLevelMetadataPath(artifact);
             metadata = metadataMerger.updateMetadataAtGroupLevel((PluginArtifact) artifact,
-                                                                 retrieveMetadata("storages/" + storageId + "/" +
+                                                                 retrieveMetadata("/storages/" + storageId + "/" +
                                                                                   repositoryId + "/" + path));
             createMetadata(metadata, path);
             deployMetadata(metadata, path, storageId, repositoryId);
