@@ -52,7 +52,7 @@ public class CustomLoginSupplierTest
             throws Exception
     {
         MockHttpServletRequest request = new MockHttpServletRequest("post", "/api/login");
-        request.setContentType("application/xml");
+        request.setContentType(MediaType.APPLICATION_XML_VALUE);
 
         assertThat(customLoginSupplier.supports(request)).isFalse();
     }
