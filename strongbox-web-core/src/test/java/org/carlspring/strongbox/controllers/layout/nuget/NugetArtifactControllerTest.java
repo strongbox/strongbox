@@ -34,9 +34,9 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
-import static io.restassured.module.mockmvc.RestAssuredMockMvc.given;
+
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.hamcrest.CoreMatchers.equalTo;
-import static org.junit.jupiter.api.Assertions.*;
 
 /**
  * @author Sergey Bespalov
@@ -68,7 +68,7 @@ public class NugetArtifactControllerTest extends NugetRestAssuredBaseTest
 
         RestAssuredMockMvcConfig config = RestAssuredMockMvcConfig.config();
         config.getLogConfig().enableLoggingOfRequestAndResponseIfValidationFails();
-        given().config(config);
+        mockMvc.config(config);
     }
 
     @ExtendWith({ RepositoryManagementTestExecutionListener.class,
@@ -92,7 +92,7 @@ public class NugetArtifactControllerTest extends NugetRestAssuredBaseTest
 
         // Delete
         String url = getContextBaseUrl() + "/storages/{storageId}/{repositoryId}/{artifactId}/{artifactVersion}";
-        given().header(HttpHeaders.USER_AGENT, "NuGet/*")
+        mockMvc.header(HttpHeaders.USER_AGENT, "NuGet/*")
                .header("X-NuGet-ApiKey", API_KEY)
                .when()
                .delete(url, storageId, repositoryId, coordinates.getId(), coordinates.getVersion())
@@ -111,7 +111,7 @@ public class NugetArtifactControllerTest extends NugetRestAssuredBaseTest
         final String repositoryId = repository.getId();
 
         String url = getContextBaseUrl() + "/storages/{storageId}/{repositoryId}/$metadata;client=127.0.0.1";
-        given().header(HttpHeaders.USER_AGENT, "NuGet/*")
+        mockMvc.header(HttpHeaders.USER_AGENT, "NuGet/*")
                .when()
                .get(url, storageId, repositoryId)
                .then()
@@ -139,7 +139,7 @@ public class NugetArtifactControllerTest extends NugetRestAssuredBaseTest
                 (RepositoryPath) packagePath.normalize());
 
         String url = getContextBaseUrl() + "/storages/{storageId}/{repositoryId}/{artifactId}/{artifactVersion}";
-        Headers headersFromGET = given().header(HttpHeaders.USER_AGENT, "NuGet/*")
+        Headers headersFromGET = mockMvc.header(HttpHeaders.USER_AGENT, "NuGet/*")
                                         .header("X-NuGet-ApiKey", API_KEY)
                                         .accept(ContentType.BINARY)
                                         .when()
@@ -147,7 +147,7 @@ public class NugetArtifactControllerTest extends NugetRestAssuredBaseTest
                                              coordinates.getVersion())
                                         .getHeaders();
 
-        Headers headersFromHEAD = given().header(HttpHeaders.USER_AGENT, "NuGet/*")
+        Headers headersFromHEAD = mockMvc.header(HttpHeaders.USER_AGENT, "NuGet/*")
                                          .header("X-NuGet-ApiKey", API_KEY)
                                          .accept(ContentType.BINARY)
                                          .when()
@@ -160,14 +160,14 @@ public class NugetArtifactControllerTest extends NugetRestAssuredBaseTest
 
     protected void assertHeadersEquals(Headers h1, Headers h2)
     {
-        assertNotNull(h1);
-        assertNotNull(h2);
+        assertThat(h1).isNotNull();
+        assertThat(h2).isNotNull();
 
         for (Header header : h1)
         {
             if (h2.hasHeaderWithName(header.getName()))
             {
-                assertEquals(header.getValue(), h2.getValue(header.getName()));
+                assertThat(h2.getValue(header.getName())).isEqualTo(header.getValue());
             }
         }
     }
@@ -203,7 +203,7 @@ public class NugetArtifactControllerTest extends NugetRestAssuredBaseTest
         //Find by ID
 
         url = getContextBaseUrl() + "/storages/{storageId}/{repositoryId}/FindPackagesById()?id='{artifactId}'";
-        given().header(HttpHeaders.USER_AGENT, "NuGet/*")
+        mockMvc.header(HttpHeaders.USER_AGENT, "NuGet/*")
                .when()
                .get(url, storageId, repositoryId, packageId)
                .then()
@@ -222,7 +222,7 @@ public class NugetArtifactControllerTest extends NugetRestAssuredBaseTest
         {
             // Get1
             url = getContextBaseUrl() + "/storages/{storageId}/{repositoryId}/download/{artifactId}/{artifactVersion}";
-            given().header(HttpHeaders.USER_AGENT, "NuGet/*")
+            mockMvc.header(HttpHeaders.USER_AGENT, "NuGet/*")
                    .when()
                    .get(url, storageId, repositoryId, packageId, packageVersion)
                    .peek()
@@ -233,7 +233,7 @@ public class NugetArtifactControllerTest extends NugetRestAssuredBaseTest
 
             // Get2
             url = getContextBaseUrl() + "/storages/{storageId}/{repositoryId}/{artifactId}/{artifactVersion}";
-            given().header(HttpHeaders.USER_AGENT, "NuGet/*")
+            mockMvc.header(HttpHeaders.USER_AGENT, "NuGet/*")
                    .when()
                    .get(url, storageId, repositoryId, packageId, packageVersion)
                    .peek()
@@ -286,7 +286,7 @@ public class NugetArtifactControllerTest extends NugetRestAssuredBaseTest
         // Count
         String url = getContextBaseUrl() +
               "/storages/{storageId}/{repositoryId}/Search()/$count?searchTerm={searchTerm}&targetFramework=";
-        given().header(HttpHeaders.USER_AGENT, "NuGet/*")
+        mockMvc.header(HttpHeaders.USER_AGENT, "NuGet/*")
                .when()
                .get(url, storageId, repositoryId, "Test.Search")
                .then()
@@ -302,7 +302,7 @@ public class NugetArtifactControllerTest extends NugetRestAssuredBaseTest
 
         url = getContextBaseUrl() +
               "/storages/{storageId}/{repositoryId}/Search()?$skip={skip}&$top={stop}&searchTerm={searchTerm}&targetFramework=";
-        given().header(HttpHeaders.USER_AGENT, "NuGet/*")
+        mockMvc.header(HttpHeaders.USER_AGENT, "NuGet/*")
                .when()
                .get(url, storageId, repositoryId, 0, 30, "Test.Search")
                .then()
@@ -347,7 +347,7 @@ public class NugetArtifactControllerTest extends NugetRestAssuredBaseTest
         // Count
         url = getContextBaseUrl() +
               "/storages/{storageId}/{repositoryId}/Search()/$count?$filter={filter}&targetFramework=";
-        given().header(HttpHeaders.USER_AGENT, "NuGet/*")
+        mockMvc.header(HttpHeaders.USER_AGENT, "NuGet/*")
                .when()
                .get(url, storageId, repositoryId, filter)
                .then()
@@ -359,7 +359,7 @@ public class NugetArtifactControllerTest extends NugetRestAssuredBaseTest
         // Search
         url = getContextBaseUrl() +
               "/storages/{storageId}/{repositoryId}/Search()?$filter{filter}&$skip{skip}&$top={stop}&targetFramework=";
-        given().header(HttpHeaders.USER_AGENT, "NuGet/*")
+        mockMvc.header(HttpHeaders.USER_AGENT, "NuGet/*")
                .when()
                .get(url, storageId, repositoryId, filter, 0, 30)
                .then()
@@ -387,7 +387,7 @@ public class NugetArtifactControllerTest extends NugetRestAssuredBaseTest
         // Count
         url = getContextBaseUrl() +
               "/storages/{storageId}/{repositoryId}/Search()/$count?$filter={filter}&targetFramework=";
-        given().header(HttpHeaders.USER_AGENT, "NuGet/*")
+        mockMvc.header(HttpHeaders.USER_AGENT, "NuGet/*")
                .when()
                .get(url, storageId, repositoryId, filter)
                .then()
@@ -399,7 +399,7 @@ public class NugetArtifactControllerTest extends NugetRestAssuredBaseTest
         // Search
         url = getContextBaseUrl() +
               "/storages/{storageId}/{repositoryId}/Search()?$filter={filter}&$skip={skip}&$top={stop}&targetFramework=";
-        given().header(HttpHeaders.USER_AGENT, "NuGet/*")
+        mockMvc.header(HttpHeaders.USER_AGENT, "NuGet/*")
                .when()
                .get(url, storageId, repositoryId, filter, 0, 30)
                .then()
@@ -415,7 +415,7 @@ public class NugetArtifactControllerTest extends NugetRestAssuredBaseTest
 
     public MockMvcRequestSpecification createPushRequest(byte[] packageContent)
     {
-        return given().header(HttpHeaders.USER_AGENT, "NuGet/*")
+        return mockMvc.header(HttpHeaders.USER_AGENT, "NuGet/*")
                       .header("X-NuGet-ApiKey", API_KEY)
                       .contentType("multipart/form-data; boundary=---------------------------123qwe")
                       .body(packageContent);
@@ -428,7 +428,7 @@ public class NugetArtifactControllerTest extends NugetRestAssuredBaseTest
         final String packageVersion =  "4.1.1.4000";
 
         String url = getContextBaseUrl() + "/storages/public/nuget-group/FindPackagesById()?id={artifactId}";
-        given().header(HttpHeaders.USER_AGENT, "NuGet/*")
+        mockMvc.header(HttpHeaders.USER_AGENT, "NuGet/*")
                .when()
                .get(url, packageId)
                .then()
@@ -448,17 +448,17 @@ public class NugetArtifactControllerTest extends NugetRestAssuredBaseTest
                                                                                       "nuget.org",
                                                                                       coordinatesMap,
                                                                                       true);
-        assertFalse(artifactEntryList.isEmpty());
+        assertThat(artifactEntryList).isNotEmpty();
 
         ArtifactEntry artifactEntry = artifactEntryList.iterator().next();
-        assertTrue(artifactEntry instanceof RemoteArtifactEntry);
-        assertFalse(((RemoteArtifactEntry)artifactEntry).getIsCached());
+        assertThat(artifactEntry).isInstanceOf(RemoteArtifactEntry.class);
+        assertThat(((RemoteArtifactEntry)artifactEntry).getIsCached()).isFalse();
 
         PrintStream originalSysOut = muteSystemOutput();
         try
         {
             url = getContextBaseUrl() + "/storages/public/nuget-group/package/{artifactId}/{artifactVersion}";
-            given().header(HttpHeaders.USER_AGENT, "NuGet/*")
+            mockMvc.header(HttpHeaders.USER_AGENT, "NuGet/*")
                    .when()
                    .get(url, packageId, packageVersion)
                    .peek()
@@ -478,7 +478,7 @@ public class NugetArtifactControllerTest extends NugetRestAssuredBaseTest
     {
         String url = getContextBaseUrl()
                      + "/storages/public/nuget-group/FindPackagesById()?id=NHibernate&$orderby=Version";
-        PackageFeed feed = given().log()
+        PackageFeed feed = mockMvc.log()
                                   .all()
                                   .header(HttpHeaders.USER_AGENT, "NuGet/*")
                                   .when()
@@ -486,12 +486,13 @@ public class NugetArtifactControllerTest extends NugetRestAssuredBaseTest
                                   .body()
                                   .as(PackageFeed.class);
 
-        assertTrue(feed.getEntries()
+        assertThat(feed.getEntries()
                        .stream()
                        .reduce((first,
                                 second) -> second)
                        .filter(e -> Boolean.TRUE.equals(e.getProperties().getIsLatestVersion()))
-                       .isPresent());
+                       .isPresent())
+                .isTrue();
     }
 
 }

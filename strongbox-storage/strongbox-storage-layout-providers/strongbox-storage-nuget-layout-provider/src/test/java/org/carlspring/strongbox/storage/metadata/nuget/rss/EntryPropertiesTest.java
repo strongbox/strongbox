@@ -17,6 +17,9 @@
 
 package org.carlspring.strongbox.storage.metadata.nuget.rss;
 
+import static org.assertj.core.api.Assertions.assertThatExceptionOfType;
+import static org.assertj.core.api.Assertions.assertThat;
+
 import org.carlspring.strongbox.artifact.coordinates.versioning.SemanticVersion;
 import org.carlspring.strongbox.storage.metadata.nuget.Dependency;
 import org.carlspring.strongbox.storage.metadata.nuget.NugetFormatException;
@@ -31,9 +34,6 @@ import java.util.List;
 
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.parallel.Execution;
-import static org.hamcrest.MatcherAssert.assertThat;
-import static org.hamcrest.collection.IsArrayContainingInAnyOrder.arrayContainingInAnyOrder;
-import static org.junit.jupiter.api.Assertions.*;
 import static org.junit.jupiter.api.parallel.ExecutionMode.CONCURRENT;
 
 /**
@@ -64,28 +64,31 @@ public class EntryPropertiesTest
         properties.setNuspec(nuspecFile);
         
         // THEN
-        assertEquals(new SemanticVersion(2, 5, 9, ".", "10348"), properties.getVersion());
-        assertEquals("", properties.getTitle());
-        assertEquals("", properties.getIconUrl());
-        assertEquals("", properties.getLicenseUrl());
-        assertEquals("", properties.getProjectUrl());
-        assertEquals("", properties.getReportAbuseUrl());
-        assertFalse(properties.getRequireLicenseAcceptance());
-        assertEquals("Unit Testing Package", properties.getDescription());
-        assertEquals("", properties.getReleaseNotes());
-        assertEquals("", properties.getLanguage());
-        assertEquals(Double.valueOf(0), properties.getPrice());
-        assertEquals("", properties.getDependencies());
-        assertEquals("", properties.getExternalPackageUri());
-        assertEquals("", properties.getCategories());
-        assertEquals("Copyright 2011", properties.getCopyright());
-        assertEquals("", properties.getPackageType());
-        assertThat(properties.getTags().toArray(), arrayContainingInAnyOrder("Unit", "test"));
-        assertEquals("", properties.getSummary());
+        assertThat(new SemanticVersion(2, 5, 9, ".", "10348")).isEqualTo(properties.getVersion());
+        assertThat(properties.getTitle()).isEmpty();
+        assertThat(properties.getIconUrl()).isEmpty();
+        assertThat(properties.getLicenseUrl()).isEmpty();
+        assertThat(properties.getProjectUrl()).isEmpty();
+        assertThat(properties.getReportAbuseUrl()).isEmpty();
+        assertThat(properties.getRequireLicenseAcceptance()).isFalse();
+        assertThat(properties.getDescription()).isEqualTo("Unit Testing Package");
+        assertThat(properties.getReleaseNotes()).isEmpty();
+        assertThat(properties.getLanguage()).isEmpty();
+        assertThat(properties.getPrice()).isEqualTo(Double.valueOf(0));
+        assertThat(properties.getDependencies()).isEmpty();
+        assertThat(properties.getExternalPackageUri()).isEmpty();
+        assertThat(properties.getCategories()).isEmpty();
+        assertThat(properties.getCopyright()).isEqualTo("Copyright 2011");
+        assertThat(properties.getPackageType()).isEmpty();
+        assertThat(properties.getTags().toArray()).containsOnly("Unit", "test");
+        assertThat(properties.getSummary()).isEmpty();
     }
 
     /**
      * Checking the generation of package information with dependencies
+
+import static org.assertj.core.api.Assertions.within;
+import static org.assertj.core.api.Assertions.assertThat;
      *
      * @throws Exception
      *             error during the test
@@ -103,7 +106,7 @@ public class EntryPropertiesTest
         properties.setNuspec(nuspecFile);
         
         // THEN
-        assertEquals("NLog:2.0.0.2000", properties.getDependencies());
+        assertThat(properties.getDependencies()).isEqualTo("NLog:2.0.0.2000");
     }
 
     /**
@@ -123,36 +126,36 @@ public class EntryPropertiesTest
         EntryProperties result = EntryProperties.parse(inputStream);
         
         // THEN
-        assertEquals(new SemanticVersion(2, 5, 9, ".", "10348"), result.getVersion());
-        assertEquals("", result.getTitle());
-        assertEquals("", result.getIconUrl());
-        assertEquals("", result.getLicenseUrl());
-        assertEquals("", result.getProjectUrl());
-        assertEquals("", result.getReportAbuseUrl());
-        assertEquals(Integer.valueOf(-1), result.getDownloadCount());
-        assertEquals(Integer.valueOf(-1), result.getVersionDownloadCount());
-        assertEquals(Integer.valueOf(0), result.getRatingsCount());
-        assertEquals(Integer.valueOf(-1), result.getVersionRatingsCount());
-        assertEquals(Double.valueOf(-1d), result.getRating());
-        assertEquals(Double.valueOf(-1d), result.getVersionRating());
-        assertFalse(result.getRequireLicenseAcceptance());
-        assertEquals("Unit Testing Package", result.getDescription());
-        assertEquals("", result.getReleaseNotes());
-        assertEquals("", result.getLanguage());
-        assertEquals(DatatypeConverter.parseDateTime("2011-09-23T05:18:55.5327281Z").getTime(),
-                     result.getPublished());
-        assertEquals(Double.valueOf(0d), result.getPrice());
-        assertEquals("", result.getDependencies());
-        assertEquals("CoknSJBGJ7kao2P6y9E9BuL1IkhP5LLhZ+ImtsgdxzFDpjs0QtRVOV8kxysakJu3cvw5O0hImcnVloCaQ9+Nmg==",
-                     result.getPackageHash());
-        assertEquals(Long.valueOf(214905L), result.getPackageSize());
-        assertEquals("", result.getExternalPackageUri());
-        assertEquals("", result.getCategories());
-        assertEquals("", result.getCopyright());
-        assertEquals("", result.getPackageType());
-        assertThat(result.getTags().toArray(new String[0]), arrayContainingInAnyOrder("Unit", "test"));
-        assertTrue(result.getIsLatestVersion());
-        assertEquals("", result.getSummary());
+        assertThat(new SemanticVersion(2, 5, 9, ".", "10348")).isEqualTo(result.getVersion());
+        assertThat(result.getTitle()).isEmpty();
+        assertThat(result.getIconUrl()).isEmpty();
+        assertThat(result.getLicenseUrl()).isEmpty();
+        assertThat(result.getProjectUrl()).isEmpty();
+        assertThat(result.getReportAbuseUrl()).isEmpty();
+        assertThat(result.getDownloadCount()).isEqualTo(Integer.valueOf(-1));
+        assertThat(result.getVersionDownloadCount()).isEqualTo(Integer.valueOf(-1));
+        assertThat(result.getRatingsCount()).isEqualTo(Integer.valueOf(0));
+        assertThat(result.getVersionRatingsCount()).isEqualTo(Integer.valueOf(-1));
+        assertThat(result.getRating()).isEqualTo(Double.valueOf(-1d));
+        assertThat(result.getVersionRating()).isEqualTo(Double.valueOf(-1d));
+        assertThat(result.getRequireLicenseAcceptance()).isFalse();
+        assertThat(result.getDescription()).isEqualTo("Unit Testing Package");
+        assertThat(result.getReleaseNotes()).isEmpty();
+        assertThat(result.getLanguage()).isEmpty();
+        assertThat(DatatypeConverter.parseDateTime("2011-09-23T05:18:55.5327281Z").getTime())
+                .isEqualTo(result.getPublished());
+        assertThat(result.getPrice()).isEqualTo(Double.valueOf(0d));
+        assertThat(result.getDependencies()).isEmpty();
+        assertThat("CoknSJBGJ7kao2P6y9E9BuL1IkhP5LLhZ+ImtsgdxzFDpjs0QtRVOV8kxysakJu3cvw5O0hImcnVloCaQ9+Nmg==")
+                .isEqualTo(result.getPackageHash());
+        assertThat(result.getPackageSize()).isEqualTo(Long.valueOf(214905L));
+        assertThat(result.getExternalPackageUri()).isEmpty();
+        assertThat(result.getCategories()).isEmpty();
+        assertThat(result.getCopyright()).isEmpty();
+        assertThat(result.getPackageType()).isEmpty();
+        assertThat(result.getTags().toArray(new String[0])).containsOnly("Unit", "test");
+        assertThat(result.getIsLatestVersion()).isTrue();
+        assertThat(result.getSummary()).isEmpty();
     }
 
     /**
@@ -173,7 +176,7 @@ public class EntryPropertiesTest
         List<Dependency> result = properties.getDependenciesList();
         
         // THEN
-        assertThat(result.toArray(new Dependency[0]), arrayContainingInAnyOrder(Dependency.parseString("A:1.2.3.4")));
+        assertThat(result.toArray(new Dependency[0])).containsOnly(Dependency.parseString("A:1.2.3.4"));
     }
 
     /**
@@ -194,8 +197,8 @@ public class EntryPropertiesTest
         List<Dependency> result = properties.getDependenciesList();
         
         // THEN
-        assertThat(result.toArray(new Dependency[0]), arrayContainingInAnyOrder(Dependency.parseString("A:1.2.3.4"),
-                                                                                Dependency.parseString("B:1.2.3.4")));
+        assertThat(result.toArray(new Dependency[0])).containsOnly(Dependency.parseString("A:1.2.3.4"),
+                                                                                Dependency.parseString("B:1.2.3.4"));
     }
 
     /**
@@ -220,11 +223,11 @@ public class EntryPropertiesTest
         List<Dependency> result = properties.getDependenciesList();
         
         // THEN
-        assertThat(result.toArray(new Dependency[0]), arrayContainingInAnyOrder(
+        assertThat(result.toArray(new Dependency[0])).containsOnly(
                                                                                 Dependency.parseString("adjunct-System.DataStructures.SparsePascalSet:2.2.0"),
                                                                                 Dependency.parseString("adjunct-XUnit.Should.BooleanExtensions:2.0.0"),
                                                                                 Dependency.parseString("adjunct-XUnit.Should.ObjectExtensions:2.0.0"),
-                                                                                Dependency.parseString("xunit:1.8.0.1549")));
+                                                                                Dependency.parseString("xunit:1.8.0.1549"));
 
     }
 
@@ -244,8 +247,8 @@ public class EntryPropertiesTest
         properties.setDependencies("eres");
         
         // WHEN
-        assertThrows(NugetFormatException.class,
-                     properties::getDependenciesList);
+        assertThatExceptionOfType(NugetFormatException.class)
+                .isThrownBy(properties::getDependenciesList);
     }
 
     /**
@@ -268,6 +271,6 @@ public class EntryPropertiesTest
         properties.setDependenciesList(dependencies);
         
         // THEN
-        assertEquals("package1:1.2.3,package2:3.2.1", properties.getDependencies());
+        assertThat(properties.getDependencies()).isEqualTo("package1:1.2.3,package2:3.2.1");
     }
 }

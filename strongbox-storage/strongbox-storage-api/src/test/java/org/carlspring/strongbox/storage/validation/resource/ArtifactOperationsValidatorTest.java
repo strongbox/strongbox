@@ -22,8 +22,8 @@ import org.springframework.mock.web.MockMultipartFile;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.TestExecutionListeners;
-import static org.junit.jupiter.api.Assertions.assertTrue;
-import static org.junit.jupiter.api.Assertions.fail;
+import static org.assertj.core.api.Assertions.fail;
+import static org.assertj.core.api.Assertions.assertThat;
 
 /**
  * @author Kate Novik.
@@ -101,7 +101,7 @@ public class ArtifactOperationsValidatorTest
         }
         catch (ArtifactResolutionException e)
         {
-            assertTrue(true);
+            assertThat(true).isTrue();
         }
 
         configurationManagementService.setArtifactMaxSize(STORAGE_ID, REPOSITORY_ID, 0L);
@@ -132,7 +132,7 @@ public class ArtifactOperationsValidatorTest
         }
         catch (ArtifactResolutionException e)
         {
-            assertTrue(true);
+            assertThat(true).isTrue();
         }
     }
 

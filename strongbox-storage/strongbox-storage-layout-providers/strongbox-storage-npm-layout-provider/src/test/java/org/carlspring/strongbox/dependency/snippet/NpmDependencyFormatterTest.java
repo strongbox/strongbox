@@ -4,7 +4,7 @@ import org.carlspring.strongbox.artifact.coordinates.NpmArtifactCoordinates;
 
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.parallel.Execution;
-import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.parallel.ExecutionMode.CONCURRENT;
 
 /**
@@ -27,9 +27,9 @@ public class NpmDependencyFormatterTest
 
         System.out.print(snippet);
 
-        assertEquals("\"angular\" : \"1.6.7\"\n",
-                     snippet,
-                     "Failed to generate dependency!");
+        assertThat("\"angular\" : \"1.6.7\"\n")
+                .as("Failed to generate dependency!")
+                .isEqualTo(snippet);
     }
 
     @Test
@@ -44,9 +44,9 @@ public class NpmDependencyFormatterTest
 
         System.out.print(snippet);
 
-        assertEquals("\"@carlspring/angular\" : \"1.6.7\"\n",
-                     snippet,
-                     "Failed to generate dependency!");
+        assertThat("\"@carlspring/angular\" : \"1.6.7\"\n")
+                .as("Failed to generate dependency!")
+                .isEqualTo(snippet);
     }
 
 }

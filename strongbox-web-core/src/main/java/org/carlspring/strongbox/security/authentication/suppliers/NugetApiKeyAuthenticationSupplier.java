@@ -6,7 +6,7 @@ import javax.annotation.Nonnull;
 import javax.inject.Inject;
 import javax.servlet.http.HttpServletRequest;
 
-import org.carlspring.strongbox.authentication.api.impl.xml.SecurityTokenAuthentication;
+import org.carlspring.strongbox.authentication.api.nuget.SecurityTokenAuthentication;
 import org.carlspring.strongbox.configuration.ConfigurationManager;
 import org.carlspring.strongbox.providers.layout.NugetLayoutProvider;
 import org.carlspring.strongbox.security.exceptions.InvalidTokenException;

@@ -1,4 +1,4 @@
-package org.carlspring.strongbox.authentication.api.impl.xml;
+package org.carlspring.strongbox.authentication.api;
 
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.crypto.password.PasswordEncoder;

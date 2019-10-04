@@ -1,9 +1,8 @@
 package org.carlspring.strongbox.rest.common;
 
-import static io.restassured.module.mockmvc.RestAssuredMockMvc.given;
-import static org.carlspring.strongbox.rest.client.RestAssuredArtifactClient.OK;
-import static org.junit.jupiter.api.Assertions.assertTrue;
-import static org.junit.jupiter.api.Assertions.fail;
+
+import static org.assertj.core.api.Assertions.fail;
+import static org.assertj.core.api.Assertions.assertThat;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -20,9 +19,10 @@ import org.carlspring.strongbox.users.domain.Privileges;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.http.MediaType;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.web.context.WebApplicationContext;
+
+import io.restassured.module.mockmvc.specification.MockMvcRequestSpecification;
 
 /**
  * @author carlspring
@@ -46,6 +46,9 @@ public abstract class NpmRestAssuredBaseTest
     @Value("${strongbox.url}")
     private String contextBaseUrl;
 
+    @Inject
+    protected MockMvcRequestSpecification mockMvc;
+    
     public void init()
             throws Exception
     {
@@ -66,22 +69,6 @@ public abstract class NpmRestAssuredBaseTest
     protected Collection<? extends GrantedAuthority> provideAuthorities()
     {
         return Privileges.all();
-    }
-
-    protected boolean pathExists(String url)
-    {
-        logger.trace("[pathExists] URL -> " + url);
-
-        return given().header("user-agent", "npm/*")
-                      .contentType(MediaType.TEXT_PLAIN_VALUE)
-                      .when()
-                      .get(url)
-                      .getStatusCode() == OK;
-    }
-
-    protected void assertPathExists(String url)
-    {
-        assertTrue(pathExists(url), "Path " + url + " doesn't exist.");
     }
 
     protected void resolveArtifact(String artifactPath)
@@ -115,7 +102,7 @@ public abstract class NpmRestAssuredBaseTest
             mdos.flush();
         }
 
-        assertTrue(total > 0, "Resolved a zero-length artifact!");
+        assertThat(total > 0).as("Resolved a zero-length artifact!").isTrue();
     }
 
 }

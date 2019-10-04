@@ -14,8 +14,8 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.ValueSource;
-import static org.junit.jupiter.api.Assertions.assertThrows;
-import static org.junit.jupiter.api.Assertions.fail;
+import static org.assertj.core.api.Assertions.assertThatExceptionOfType;
+import static org.assertj.core.api.Assertions.fail;
 
 public class GenericReleaseVersionValidatorTest
 {
@@ -62,7 +62,8 @@ public class GenericReleaseVersionValidatorTest
         ArtifactCoordinates coordinates1 = new MockedMavenArtifactCoordinates();
         coordinates1.setVersion("1.0-SNAPSHOT");
 
-        assertThrows(VersionValidationException.class, () -> validator.validate(repository, coordinates1));
+        assertThatExceptionOfType(VersionValidationException.class)
+                .isThrownBy(() -> validator.validate(repository, coordinates1));
     }
 
 }

@@ -24,9 +24,7 @@ import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.TestExecutionListeners;
-import static org.junit.jupiter.api.Assertions.assertFalse;
-import static org.junit.jupiter.api.Assertions.assertNotNull;
-import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.assertj.core.api.Assertions.assertThat;
 
 @SpringBootTest
 @ActiveProfiles(profiles = "test")
@@ -66,8 +64,8 @@ public class RepositoryTest
 
         System.out.println(serialized);
 
-        assertTrue(serialized.contains("bucket: \"test-bucket\""));
-        assertTrue(serialized.contains("key: \"test-key\""));
+        assertThat(serialized.contains("bucket: \"test-bucket\"")).isTrue();
+        assertThat(serialized.contains("key: \"test-key\"")).isTrue();
     }
 
     @Test
@@ -90,13 +88,13 @@ public class RepositoryTest
 
         System.out.println(serialized);
 
-        assertFalse(serialized.contains("<aws-configuration bucket=\"test-bucket\" key=\"test-key\"/>"));
-        assertFalse(serialized.contains("<google-cloud-configuration bucket=\"test-bucket\" key=\"test-key\"/>"));
+        assertThat(serialized.contains("<aws-configuration bucket=\"test-bucket\" key=\"test-key\"/>")).isFalse();
+        assertThat(serialized.contains("<google-cloud-configuration bucket=\"test-bucket\" key=\"test-key\"/>")).isFalse();
 
         MutableConfiguration unmarshalledConfiguration = yamlMapper.readValue(serialized.getBytes(),
                                                                               MutableConfiguration.class);
 
-        assertNotNull(unmarshalledConfiguration.getStorage("storage0"));
+        assertThat(unmarshalledConfiguration.getStorage("storage0")).isNotNull();
     }
 
     @Test
@@ -119,13 +117,13 @@ public class RepositoryTest
 
         System.out.println(serialized);
 
-        assertFalse(serialized.contains("<aws-configuration bucket=\"test-bucket\" key=\"test-key\"/>"));
-        assertFalse(serialized.contains("<google-cloud-configuration bucket=\"test-bucket\" key=\"test-key\"/>"));
+        assertThat(serialized.contains("<aws-configuration bucket=\"test-bucket\" key=\"test-key\"/>")).isFalse();
+        assertThat(serialized.contains("<google-cloud-configuration bucket=\"test-bucket\" key=\"test-key\"/>")).isFalse();
 
         MutableConfiguration unmarshalledConfiguration = yamlMapper.readValue(serialized.getBytes(),
                                                                               MutableConfiguration.class);
 
-        assertNotNull(unmarshalledConfiguration.getStorage("storage0"));
+        assertThat(unmarshalledConfiguration.getStorage("storage0")).isNotNull();
     }
 
     @Test
@@ -136,7 +134,7 @@ public class RepositoryTest
                 this.getClass().getResourceAsStream("/etc/conf/strongbox.yaml"), MutableConfiguration.class);
         StorageDto storage = configuration.getStorage("storage0");
 
-        assertNotNull(storage);
+        assertThat(storage).isNotNull();
     }
 
     private RepositoryDto createTestRepositoryWithCustomConfig()

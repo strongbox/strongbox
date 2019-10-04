@@ -3,8 +3,8 @@ package org.carlspring.strongbox.controllers.configuration.security.ldap;
 import org.carlspring.strongbox.authentication.ConfigurableProviderManager;
 import org.carlspring.strongbox.authentication.api.AuthenticationItem;
 import org.carlspring.strongbox.authentication.api.AuthenticationItems;
-import org.carlspring.strongbox.authentication.external.ldap.LdapAuthenticationConfigurationManager;
-import org.carlspring.strongbox.authentication.external.ldap.LdapConfiguration;
+import org.carlspring.strongbox.authentication.api.ldap.LdapAuthenticationConfigurationManager;
+import org.carlspring.strongbox.authentication.api.ldap.LdapConfiguration;
 import org.carlspring.strongbox.authentication.support.ExternalRoleMapping;
 import org.carlspring.strongbox.config.hazelcast.HazelcastConfiguration;
 import org.carlspring.strongbox.config.hazelcast.HazelcastInstanceId;
@@ -28,7 +28,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.security.test.context.support.WithMockUser;
 import org.springframework.test.context.ActiveProfiles;
-import static io.restassured.module.mockmvc.RestAssuredMockMvc.given;
+
 import static org.hamcrest.CoreMatchers.equalTo;
 import static org.hamcrest.CoreMatchers.startsWith;
 
@@ -77,7 +77,7 @@ public class LdapAuthenticatorConfigurationControllerTest
     @Test
     public void shouldReturnProperLdapConfiguration()
     {
-        given().accept(MediaType.APPLICATION_JSON_VALUE)
+        mockMvc.accept(MediaType.APPLICATION_JSON_VALUE)
                .when()
                .get(getContextBaseUrl())
                .peek()
@@ -116,7 +116,7 @@ public class LdapAuthenticatorConfigurationControllerTest
         configuration.getUserDnPatternList().add("uid={0},ou=AllUsers");
         configuration.setUrl("ldap://127.0.0.1:33389/dc=carlspring,dc=com");
 
-        given().accept(MediaType.APPLICATION_JSON_VALUE)
+        mockMvc.accept(MediaType.APPLICATION_JSON_VALUE)
                .contentType(ContentType.JSON)
                .body(configuration)
                .when()
@@ -125,7 +125,7 @@ public class LdapAuthenticatorConfigurationControllerTest
                .then()
                .statusCode(HttpStatus.OK.value());
 
-        given().accept(MediaType.APPLICATION_JSON_VALUE)
+        mockMvc.accept(MediaType.APPLICATION_JSON_VALUE)
                .when()
                .get(getContextBaseUrl())
                .peek()
@@ -162,7 +162,7 @@ public class LdapAuthenticatorConfigurationControllerTest
         
         form.getConfiguration().setUrl(null);
 
-        given().accept(MediaType.APPLICATION_JSON_VALUE)
+        mockMvc.accept(MediaType.APPLICATION_JSON_VALUE)
                .contentType(ContentType.JSON)
                .body(form)
                .when()
@@ -184,7 +184,7 @@ public class LdapAuthenticatorConfigurationControllerTest
         
         form.getConfiguration().setUrl("http://host:port?thisIsWrongUrl=true");
 
-        given().accept(MediaType.APPLICATION_JSON_VALUE)
+        mockMvc.accept(MediaType.APPLICATION_JSON_VALUE)
                .contentType(ContentType.JSON)
                .body(form)
                .when()
@@ -212,7 +212,7 @@ public class LdapAuthenticatorConfigurationControllerTest
         subform.getGroupSearch().setGroupSearchBase("ou=Employee");
         subform.getGroupSearch().setGroupSearchFilter("(employee={0})");
 
-        given().accept(MediaType.APPLICATION_JSON_VALUE)
+        mockMvc.accept(MediaType.APPLICATION_JSON_VALUE)
                .contentType(ContentType.JSON)
                .body(form)
                .when()
@@ -235,7 +235,7 @@ public class LdapAuthenticatorConfigurationControllerTest
         form.setUsername("mtodorov");
         form.setPassword("password");
         
-        given().accept(MediaType.APPLICATION_JSON_VALUE)
+        mockMvc.accept(MediaType.APPLICATION_JSON_VALUE)
                .contentType(ContentType.JSON)
                .body(form)
                .when()
@@ -254,7 +254,7 @@ public class LdapAuthenticatorConfigurationControllerTest
         form.setUsername("daddy");
         form.setPassword("mummy");
         
-        given().accept(MediaType.APPLICATION_JSON_VALUE)
+        mockMvc.accept(MediaType.APPLICATION_JSON_VALUE)
                .contentType(ContentType.JSON)
                .body(form)
                .when()
@@ -273,7 +273,7 @@ public class LdapAuthenticatorConfigurationControllerTest
         form.setUsername("mtodorov");
         form.setPassword("password");
         
-        given().accept(MediaType.APPLICATION_JSON_VALUE)
+        mockMvc.accept(MediaType.APPLICATION_JSON_VALUE)
                .contentType(ContentType.JSON)
                .body(form)
                .when()
@@ -298,7 +298,7 @@ public class LdapAuthenticatorConfigurationControllerTest
                                           new ExternalRoleMapping("LogsManager", "LOGS_MANAGER"))
                                       .collect(Collectors.toList()));
 
-        given().accept(MediaType.APPLICATION_JSON_VALUE)
+        mockMvc.accept(MediaType.APPLICATION_JSON_VALUE)
                .contentType(ContentType.JSON)
                .body(form)
                .when()

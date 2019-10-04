@@ -13,8 +13,7 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import static org.junit.jupiter.api.Assertions.assertFalse;
-import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.assertj.core.api.Assertions.assertThat;
 
 public class PasswordValidatorTest
 {
@@ -40,7 +39,7 @@ public class PasswordValidatorTest
 
         violations.forEach(v -> logger.debug("Violation: {}", v.getMessage()));
 
-        assertTrue(violations.isEmpty());
+        assertThat(violations).isEmpty();
     }
 
     @Test
@@ -53,7 +52,7 @@ public class PasswordValidatorTest
 
         violations.forEach(v -> logger.debug("Violation: {}", v.getMessage()));
 
-        assertFalse(violations.isEmpty());
+        assertThat(violations).isNotEmpty();
     }
 
     @Test
@@ -66,7 +65,7 @@ public class PasswordValidatorTest
 
         violations.forEach(v -> logger.debug("Violation: {}", v.getMessage()));
 
-        assertFalse(violations.isEmpty());
+        assertThat(violations).isNotEmpty();
     }
 
     @Test
@@ -80,7 +79,7 @@ public class PasswordValidatorTest
 
         violations.forEach(v -> logger.debug("Violation: {}", v.getMessage()));
 
-        assertFalse(violations.isEmpty());
+        assertThat(violations).isNotEmpty();
     }
 
     @Test
@@ -94,7 +93,7 @@ public class PasswordValidatorTest
 
         violations.forEach(v -> logger.debug("Violation: {}", v.getMessage()));
 
-        assertFalse(violations.isEmpty());
+        assertThat(violations).isNotEmpty();
     }
 
     @Test
@@ -106,7 +105,7 @@ public class PasswordValidatorTest
 
         violations.forEach(v -> logger.debug("Violation: {}", v.getMessage()));
 
-        assertTrue(violations.isEmpty());
+        assertThat(violations).isEmpty();
     }
 
 
@@ -120,7 +119,7 @@ public class PasswordValidatorTest
 
         violations.forEach(v -> logger.debug("Violation: {}", v.getMessage()));
 
-        assertFalse(violations.isEmpty());
+        assertThat(violations).isNotEmpty();
     }
 
     @Test
@@ -133,6 +132,6 @@ public class PasswordValidatorTest
 
         violations.forEach(v -> logger.debug("Violation: {}", v.getMessage()));
 
-        assertFalse(violations.isEmpty());
+        assertThat(violations).isNotEmpty();
     }
 }

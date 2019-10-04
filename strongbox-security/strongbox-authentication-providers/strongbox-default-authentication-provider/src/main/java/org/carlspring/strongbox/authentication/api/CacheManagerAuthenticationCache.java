@@ -1,4 +1,4 @@
-package org.carlspring.strongbox.authentication.api.impl.xml;
+package org.carlspring.strongbox.authentication.api;
 
 import org.carlspring.strongbox.data.CacheName;
 import org.springframework.cache.annotation.Cacheable;

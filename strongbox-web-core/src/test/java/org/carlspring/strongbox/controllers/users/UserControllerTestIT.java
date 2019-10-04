@@ -1,5 +1,7 @@
 package org.carlspring.strongbox.controllers.users;
 
+import static org.assertj.core.api.Assertions.assertThat;
+
 import org.carlspring.strongbox.config.IntegrationTest;
 import org.carlspring.strongbox.controllers.users.support.UserOutput;
 import org.carlspring.strongbox.controllers.users.support.UserResponseEntity;
@@ -33,7 +35,7 @@ import org.springframework.security.test.context.support.WithMockUser;
 import org.springframework.security.test.context.support.WithUserDetails;
 import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
-import static io.restassured.module.mockmvc.RestAssuredMockMvc.given;
+
 import static org.carlspring.strongbox.controllers.users.UserController.FAILED_CREATE_USER;
 import static org.carlspring.strongbox.controllers.users.UserController.FAILED_GENERATE_SECURITY_TOKEN;
 import static org.carlspring.strongbox.controllers.users.UserController.NOT_FOUND_USER;
@@ -44,18 +46,11 @@ import static org.carlspring.strongbox.controllers.users.UserController.SUCCESSF
 import static org.carlspring.strongbox.controllers.users.UserController.USER_DELETE_FORBIDDEN;
 import static org.hamcrest.CoreMatchers.equalTo;
 import static org.hamcrest.CoreMatchers.startsWith;
-import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.containsString;
 import static org.hamcrest.Matchers.greaterThan;
 import static org.hamcrest.Matchers.hasSize;
 import static org.hamcrest.Matchers.notNullValue;
 import static org.hamcrest.Matchers.nullValue;
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertFalse;
-import static org.junit.jupiter.api.Assertions.assertNotEquals;
-import static org.junit.jupiter.api.Assertions.assertNotNull;
-import static org.junit.jupiter.api.Assertions.assertNull;
-import static org.junit.jupiter.api.Assertions.assertTrue;
 
 /**
  * @author Pablo Tirado
@@ -105,7 +100,7 @@ public class UserControllerTestIT
         UserForm userForm = buildFromUser(new UserData(user), u -> u.setEnabled(true));
 
         // create new user
-        given().contentType(MediaType.APPLICATION_JSON_VALUE)
+        mockMvc.contentType(MediaType.APPLICATION_JSON_VALUE)
                .accept(acceptHeader)
                .body(userForm)
                .when()
@@ -119,12 +114,12 @@ public class UserControllerTestIT
 
         // retrieve newly created user and store the objectId
         User  createdUser = retrieveUserByName(user.getUsername());
-        assertEquals(username, createdUser.getUsername());
-        assertTrue(passwordEncoder.matches(user.getPassword(), createdUser.getPassword()));
-        assertNotEquals(user.getPassword(), createdUser.getPassword());
+        assertThat(createdUser.getUsername()).isEqualTo(username);
+        assertThat(passwordEncoder.matches(user.getPassword(), createdUser.getPassword())).isTrue();
+        assertThat(createdUser.getPassword()).isNotEqualTo(user.getPassword());
 
         // By default assignableRoles should not present in the response.
-        given().accept(MediaType.APPLICATION_JSON_VALUE)
+        mockMvc.accept(MediaType.APPLICATION_JSON_VALUE)
                .when()
                .get(getContextBaseUrl() + "/{name}", username)
                .peek()
@@ -136,7 +131,7 @@ public class UserControllerTestIT
                .body("assignableRoles", nullValue());
 
         // assignableRoles should be present only if there is ?assignableRoles=true in the request.
-        given().accept(MediaType.APPLICATION_JSON_VALUE)
+        mockMvc.accept(MediaType.APPLICATION_JSON_VALUE)
                .when()
                .get(getContextBaseUrl() + "/{name}?formFields=true", username)
                .peek()
@@ -155,7 +150,7 @@ public class UserControllerTestIT
     {
         final String username = "userNotFound";
 
-        given().accept(acceptHeader)
+        mockMvc.accept(acceptHeader)
                .when()
                .get(getContextBaseUrl() + "/{name}", username)
                .then()
@@ -183,7 +178,7 @@ public class UserControllerTestIT
         deleteCreatedUser(username);
         UserForm test = buildUser(username, "password");
 
-        given().contentType(MediaType.APPLICATION_JSON_VALUE)
+        mockMvc.contentType(MediaType.APPLICATION_JSON_VALUE)
                .accept(acceptHeader)
                .body(test)
                .when()
@@ -206,7 +201,7 @@ public class UserControllerTestIT
         deleteCreatedUser(username);
         UserForm test = buildUser(username, "password");
 
-        given().contentType(MediaType.APPLICATION_JSON_VALUE)
+        mockMvc.contentType(MediaType.APPLICATION_JSON_VALUE)
                .accept(acceptHeader)
                .body(test)
                .when()
@@ -216,7 +211,7 @@ public class UserControllerTestIT
                .statusCode(HttpStatus.OK.value())
                .body(containsString(SUCCESSFUL_CREATE_USER));
 
-        given().contentType(MediaType.APPLICATION_JSON_VALUE)
+        mockMvc.contentType(MediaType.APPLICATION_JSON_VALUE)
                .accept(acceptHeader)
                .body(test)
                .when()
@@ -232,7 +227,7 @@ public class UserControllerTestIT
     @Test
     public void testRetrieveAllUsers()
     {
-        given().accept(MediaType.APPLICATION_JSON_VALUE)
+        mockMvc.accept(MediaType.APPLICATION_JSON_VALUE)
                .when()
                .get(getContextBaseUrl())
                .peek() // Use peek() to print the output
@@ -250,7 +245,7 @@ public class UserControllerTestIT
         // create new user
         UserForm test = buildUser(username, "password-update", "my-new-security-token");
 
-        given().contentType(MediaType.APPLICATION_JSON_VALUE)
+        mockMvc.contentType(MediaType.APPLICATION_JSON_VALUE)
                .accept(acceptHeader)
                .body(test)
                .when()
@@ -264,7 +259,7 @@ public class UserControllerTestIT
 
         // retrieve newly created user and store the objectId
         User createdUser = retrieveUserByName(test.getUsername());
-        assertEquals(username, createdUser.getUsername());
+        assertThat(createdUser.getUsername()).isEqualTo(username);
 
         UserForm updatedUser = buildFromUser(createdUser, u -> {
             u.setEnabled(true);
@@ -272,7 +267,7 @@ public class UserControllerTestIT
         });
 
         // send update request
-        given().contentType(MediaType.APPLICATION_JSON_VALUE)
+        mockMvc.contentType(MediaType.APPLICATION_JSON_VALUE)
                .accept(acceptHeader)
                .body(updatedUser)
                .when()
@@ -284,11 +279,11 @@ public class UserControllerTestIT
 
         createdUser = retrieveUserByName(username);
 
-        assertTrue(createdUser.isEnabled());
-        assertEquals("my-new-security-token", createdUser.getSecurityTokenKey());
-        assertTrue(passwordEncoder.matches("new-updated-password", createdUser.getPassword()));
-        assertNotEquals("new-updated-password", createdUser.getPassword());
-        
+        assertThat(createdUser.isEnabled()).isTrue();
+        assertThat(createdUser.getSecurityTokenKey()).isEqualTo("my-new-security-token");
+        assertThat(passwordEncoder.matches("new-updated-password", createdUser.getPassword())).isTrue();
+        assertThat(createdUser.getPassword()).isNotEqualTo("new-updated-password");
+
         deleteCreatedUser(username);
     }
 
@@ -302,7 +297,7 @@ public class UserControllerTestIT
         // create new user
         UserForm test = buildUser(username, "password-update", "my-new-security-token");
 
-        given().contentType(MediaType.APPLICATION_JSON_VALUE)
+        mockMvc.contentType(MediaType.APPLICATION_JSON_VALUE)
                .accept(acceptHeader)
                .body(test)
                .when()
@@ -316,13 +311,13 @@ public class UserControllerTestIT
 
         // retrieve newly created user and store the objectId
         User createdUser = retrieveUserByName(test.getUsername());
-        assertEquals(username, createdUser.getUsername());
-        
+        assertThat(createdUser.getUsername()).isEqualTo(username);
+
         User user = retrieveUserByName(username);
         UserForm input = buildFromUser(user, null);
         input.setPassword(null);
 
-        given().contentType(MediaType.APPLICATION_JSON_VALUE)
+        mockMvc.contentType(MediaType.APPLICATION_JSON_VALUE)
                .accept(acceptHeader)
                .body(input)
                .when()
@@ -336,9 +331,9 @@ public class UserControllerTestIT
 
         User updatedUser = retrieveUserByName(username);
 
-        assertNotNull(updatedUser.getPassword());
-        assertEquals(user.getPassword(), updatedUser.getPassword());
-        
+        assertThat(updatedUser.getPassword()).isNotNull();
+        assertThat(updatedUser.getPassword()).isEqualTo(user.getPassword());
+
         deleteCreatedUser(username);
     }
 
@@ -354,7 +349,7 @@ public class UserControllerTestIT
         UserForm input = buildFromUser(newUser, null);
         input.setPassword(null);
 
-        given().contentType(MediaType.APPLICATION_JSON_VALUE)
+        mockMvc.contentType(MediaType.APPLICATION_JSON_VALUE)
                .accept(acceptHeader)
                .body(input)
                .when()
@@ -368,7 +363,7 @@ public class UserControllerTestIT
 
         User databaseCheck = retrieveUserByName(newUserDto.getUsername());
 
-        assertNull(databaseCheck);
+        assertThat(databaseCheck).isNull();
     }
 
     @ParameterizedTest
@@ -383,7 +378,7 @@ public class UserControllerTestIT
         UserForm input = buildFromUser(newUser, null);
         input.setPassword("         ");
 
-        given().contentType(MediaType.APPLICATION_JSON_VALUE)
+        mockMvc.contentType(MediaType.APPLICATION_JSON_VALUE)
                .accept(acceptHeader)
                .body(input)
                .when()
@@ -397,7 +392,7 @@ public class UserControllerTestIT
 
         User databaseCheck = retrieveUserByName(newUserDto.getUsername());
 
-        assertNull(databaseCheck);
+        assertThat(databaseCheck).isNull();
     }
 
     @ParameterizedTest
@@ -410,7 +405,7 @@ public class UserControllerTestIT
         final String newPassword = "";
         UserForm user = buildUser(username, newPassword);
 
-        given().contentType(MediaType.APPLICATION_JSON_VALUE)
+        mockMvc.contentType(MediaType.APPLICATION_JSON_VALUE)
                .accept(acceptHeader)
                .body(user)
                .when()
@@ -424,8 +419,8 @@ public class UserControllerTestIT
 
         User updatedUser = retrieveUserByName(user.getUsername());
 
-        assertEquals(username, updatedUser.getUsername());
-        assertFalse(passwordEncoder.matches(newPassword, updatedUser.getPassword()));
+        assertThat(updatedUser.getUsername()).isEqualTo(username);
+        assertThat(passwordEncoder.matches(newPassword, updatedUser.getPassword())).isFalse();
     }
 
     @ParameterizedTest
@@ -449,10 +444,10 @@ public class UserControllerTestIT
 
         User updatedUser = retrieveUserByName(admin.getUsername());
 
-        assertTrue(SetUtils.isEqualSet(updatedUser.getRoles(), ImmutableSet.of(SystemRole.UI_MANAGER.name())));
+        assertThat(SetUtils.isEqualSet(updatedUser.getRoles(), ImmutableSet.of(SystemRole.UI_MANAGER.name()))).isTrue();
 
         admin.setRoles(ImmutableSet.of("ADMIN"));
-        given().contentType(MediaType.APPLICATION_JSON_VALUE)
+        mockMvc.contentType(MediaType.APPLICATION_JSON_VALUE)
                .accept(acceptHeader)
                .body(admin)
                .when()
@@ -466,11 +461,11 @@ public class UserControllerTestIT
 
         updatedUser = retrieveUserByName(admin.getUsername());
 
-        assertTrue(SetUtils.isEqualSet(updatedUser.getRoles(), ImmutableSet.of("ADMIN")));
+        assertThat(SetUtils.isEqualSet(updatedUser.getRoles(), ImmutableSet.of("ADMIN"))).isTrue();
 
         // Rollback changes.
         admin.setRoles(ImmutableSet.of(SystemRole.UI_MANAGER.name()));
-        given().contentType(MediaType.APPLICATION_JSON_VALUE)
+        mockMvc.contentType(MediaType.APPLICATION_JSON_VALUE)
                .accept(acceptHeader)
                .body(admin)
                .when()
@@ -483,13 +478,13 @@ public class UserControllerTestIT
     @WithUserDetails("deployer")
     public void testUserWithoutViewUserRoleShouldNotBeAbleToViewUserAccountData()
     {
-        given().accept(MediaType.APPLICATION_JSON_VALUE)
+        mockMvc.accept(MediaType.APPLICATION_JSON_VALUE)
                .when()
                .get(getContextBaseUrl() + "/admin")
                .then()
                .statusCode(HttpStatus.FORBIDDEN.value());
 
-        given().accept(MediaType.APPLICATION_JSON_VALUE)
+        mockMvc.accept(MediaType.APPLICATION_JSON_VALUE)
                .when()
                .get(getContextBaseUrl() + "/deployer")
                .then()
@@ -504,7 +499,7 @@ public class UserControllerTestIT
         final String newPassword = "newPassword";
         UserForm admin = buildUser(username, newPassword);
 
-        given().contentType(MediaType.APPLICATION_JSON_VALUE)
+        mockMvc.contentType(MediaType.APPLICATION_JSON_VALUE)
                .accept(MediaType.APPLICATION_JSON_VALUE)
                .body(admin)
                .when()
@@ -522,7 +517,7 @@ public class UserControllerTestIT
         UserForm input = buildUser(username, "password-update");
 
         //1. Create user
-        given().contentType(MediaType.APPLICATION_JSON_VALUE)
+        mockMvc.contentType(MediaType.APPLICATION_JSON_VALUE)
                .accept(MediaType.APPLICATION_JSON_VALUE)
                .body(input)
                .when()
@@ -540,7 +535,7 @@ public class UserControllerTestIT
         updatedUser.setSecurityTokenKey("seecret");
 
         //2. Provide `securityTokenKey`
-        given().contentType(MediaType.APPLICATION_JSON_VALUE)
+        mockMvc.contentType(MediaType.APPLICATION_JSON_VALUE)
                .accept(MediaType.APPLICATION_JSON_VALUE)
                .body(updatedUser)
                .when()
@@ -551,12 +546,12 @@ public class UserControllerTestIT
                .body(containsString(SUCCESSFUL_UPDATE_USER));
 
         user = retrieveUserByName(input.getUsername());
-        assertNotNull(user.getSecurityTokenKey());
-        assertThat(user.getSecurityTokenKey(), equalTo("seecret"));
+        assertThat(user.getSecurityTokenKey()).isNotNull();
+        assertThat(user.getSecurityTokenKey()).isEqualTo("seecret");
 
         //3. Generate token
         try {
-        given().accept(MediaType.APPLICATION_JSON_VALUE)
+        mockMvc.accept(MediaType.APPLICATION_JSON_VALUE)
                .when()
                .get(getContextBaseUrl() + "/{username}/generate-security-token", username)
                .peek()
@@ -579,7 +574,7 @@ public class UserControllerTestIT
         UserForm input = buildUser(username, password);
 
         //1. Create user
-        given().contentType(MediaType.APPLICATION_JSON_VALUE)
+        mockMvc.contentType(MediaType.APPLICATION_JSON_VALUE)
                .accept(MediaType.APPLICATION_JSON_VALUE)
                .body(input)
                .when()
@@ -593,7 +588,7 @@ public class UserControllerTestIT
 
         User user = retrieveUserByName(input.getUsername());
 
-        given().contentType(MediaType.APPLICATION_JSON_VALUE)
+        mockMvc.contentType(MediaType.APPLICATION_JSON_VALUE)
                .accept(MediaType.APPLICATION_JSON_VALUE)
                //2. Provide `securityTokenKey` to null
                .body(buildFromUser(user, u -> u.setSecurityTokenKey(null)))
@@ -602,10 +597,10 @@ public class UserControllerTestIT
                .peek();
 
         user = retrieveUserByName(input.getUsername());
-        assertNull(user.getSecurityTokenKey());
+        assertThat(user.getSecurityTokenKey()).isNull();
 
         //3. Generate token
-        given().accept(MediaType.APPLICATION_JSON_VALUE)
+        mockMvc.accept(MediaType.APPLICATION_JSON_VALUE)
                .when()
                .get(getContextBaseUrl() + "/{username}/generate-security-token", input.getUsername())
                .peek()
@@ -622,7 +617,7 @@ public class UserControllerTestIT
         // create new user
         UserForm userForm = buildUser("test-delete", "password-update");
 
-        given().contentType(MediaType.APPLICATION_JSON_VALUE)
+        mockMvc.contentType(MediaType.APPLICATION_JSON_VALUE)
                .accept(MediaType.APPLICATION_JSON_VALUE)
                .body(userForm)
                .when()
@@ -632,7 +627,7 @@ public class UserControllerTestIT
                .statusCode(HttpStatus.OK.value()) // check http status code
                .body(containsString(SUCCESSFUL_CREATE_USER));
 
-        given().accept(MediaType.APPLICATION_JSON_VALUE)
+        mockMvc.accept(MediaType.APPLICATION_JSON_VALUE)
                .param("The name of the user", userForm.getUsername())
                .when()
                .delete(getContextBaseUrl() + "/{name}", userForm.getUsername())
@@ -648,7 +643,7 @@ public class UserControllerTestIT
     @WithUserDetails("test-deleting-own-user")
     public void testUserShouldNotBeAbleToDeleteHimself()
     {
-        given().accept(MediaType.APPLICATION_JSON_VALUE)
+        mockMvc.accept(MediaType.APPLICATION_JSON_VALUE)
                .when()
                .delete(getContextBaseUrl() + "/{username}", "test-deleting-own-user")
                .peek()
@@ -662,7 +657,7 @@ public class UserControllerTestIT
     @WithMockUser(username = "another-admin", authorities = "DELETE_USER")
     public void testDeletingRootAdminShouldBeForbidden()
     {
-        given().accept(MediaType.APPLICATION_JSON_VALUE)
+        mockMvc.accept(MediaType.APPLICATION_JSON_VALUE)
                .when()
                .delete(getContextBaseUrl() + "/{username}", "admin")
                .peek()
@@ -686,7 +681,7 @@ public class UserControllerTestIT
         UserForm userForm = buildFromUser(new UserData(user), u -> u.setEnabled(true));
 
         // create new user
-        given().contentType(MediaType.APPLICATION_JSON_VALUE)
+        mockMvc.contentType(MediaType.APPLICATION_JSON_VALUE)
                 .accept(acceptHeader)
                 .body(userForm)
                 .when()
@@ -700,7 +695,7 @@ public class UserControllerTestIT
 
         // retrieve newly created user and store the objectId
         User createdUser = retrieveUserByName(user.getUsername());
-        assertEquals(username, createdUser.getUsername());
+        assertThat(createdUser.getUsername()).isEqualTo(username);
 
         deleteCreatedUser(username);
     }
@@ -714,7 +709,7 @@ public class UserControllerTestIT
     // get user through REST API
     private UserOutput getUser(String username)
     {
-        UserResponseEntity responseEntity = given().accept(MediaType.APPLICATION_JSON_VALUE)
+        UserResponseEntity responseEntity = mockMvc.accept(MediaType.APPLICATION_JSON_VALUE)
                                                    .param("The name of the user", username)
                                                    .when()
                                                    .get(getContextBaseUrl() + "/{username}", username)

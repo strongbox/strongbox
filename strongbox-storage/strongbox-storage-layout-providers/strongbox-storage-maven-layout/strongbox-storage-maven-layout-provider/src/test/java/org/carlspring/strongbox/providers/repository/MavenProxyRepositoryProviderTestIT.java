@@ -21,7 +21,6 @@ import java.util.Optional;
 
 import org.apache.commons.io.FileUtils;
 import org.apache.maven.artifact.repository.metadata.Metadata;
-import org.hamcrest.CoreMatchers;
 import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -30,8 +29,7 @@ import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.TestExecutionListeners;
-import static org.hamcrest.MatcherAssert.assertThat;
-import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.parallel.ExecutionMode.CONCURRENT;
 
 /**
@@ -84,8 +82,10 @@ public class MavenProxyRepositoryProviderTestIT
                                                             repositoryId,
                                                             "org/carlspring/properties-injector/1.1/properties-injector-1.1.jar");
 
-        assertTrue(RepositoryFiles.artifactExists(repositoryPathResolver.resolve(proxyRepository,
-                                                                                 "org/carlspring/properties-injector/maven-metadata.xml")));
+        assertThat(RepositoryFiles.artifactExists(
+                repositoryPathResolver.resolve(
+                        proxyRepository,"org/carlspring/properties-injector/maven-metadata.xml")))
+                .isTrue();
     }
 
     @ExtendWith({ RepositoryManagementTestExecutionListener.class })
@@ -124,15 +124,17 @@ public class MavenProxyRepositoryProviderTestIT
                                 secondRepoArtifactBaseBath.toFile());
 
         // 4. confirm maven-metadata.xml lies in the 2nd repository
-        assertTrue(RepositoryFiles.artifactExists(repositoryPathResolver.resolve(proxyRepository2,
-                                                                                 "javax/interceptor/javax.interceptor-api/maven-metadata.xml")));
+        assertThat(RepositoryFiles.artifactExists(
+                repositoryPathResolver.resolve(
+                        proxyRepository2,"javax/interceptor/javax.interceptor-api/maven-metadata.xml")))
+                .isTrue();
 
         // 5. confirm some pre-merge state
         Path artifactBasePath = repositoryPathResolver.resolve(proxyRepository2,
                                                                "javax/interceptor/javax.interceptor-api/");
         Metadata metadata = mavenMetadataManager.readMetadata(artifactBasePath);
-        assertThat(metadata.getVersioning().getVersions().size(), CoreMatchers.equalTo(9));
-        assertThat(metadata.getVersioning().getVersions().get(8), CoreMatchers.equalTo("1.2.2"));
+        assertThat(metadata.getVersioning().getVersions()).hasSize(9);
+        assertThat(metadata.getVersioning().getVersions().get(8)).isEqualTo("1.2.2");
 
         // 6. download the artifact from remote 2nd repository - it contains different maven-metadata.xml file
         artifactResolutionServiceHelper.assertStreamNotNull(storageId,
@@ -141,8 +143,8 @@ public class MavenProxyRepositoryProviderTestIT
 
         // 7. confirm the state of maven-metadata.xml file has changed
         metadata = mavenMetadataManager.readMetadata(artifactBasePath);
-        assertThat(metadata.getVersioning().getVersions().size(), CoreMatchers.equalTo(10));
-        assertThat(metadata.getVersioning().getVersions().get(9), CoreMatchers.equalTo("3.1"));
+        assertThat(metadata.getVersioning().getVersions()).hasSize(10);
+        assertThat(metadata.getVersioning().getVersions().get(9)).isEqualTo("3.1");
     }
 
     @ExtendWith({ RepositoryManagementTestExecutionListener.class })
@@ -161,7 +163,7 @@ public class MavenProxyRepositoryProviderTestIT
         Optional<ArtifactEntry> artifactEntry = Optional.ofNullable(artifactEntryService.findOneArtifact(storageId,
                                                                                                          repositoryId,
                                                                                                          path));
-        assertThat(artifactEntry, CoreMatchers.equalTo(Optional.empty()));
+        assertThat(artifactEntry).isEqualTo(Optional.empty());
 
         artifactResolutionServiceHelper.assertStreamNotNull(storageId,
                                                             repositoryId,
@@ -170,8 +172,7 @@ public class MavenProxyRepositoryProviderTestIT
         artifactEntry = Optional.ofNullable(artifactEntryService.findOneArtifact(storageId,
                                                                                  repositoryId,
                                                                                  path));
-        assertThat(artifactEntry,
-                   CoreMatchers.not(CoreMatchers.equalTo(Optional.empty())));
+        assertThat(artifactEntry).isNotEqualTo(Optional.empty());
     }
 
     @ExtendWith({ RepositoryManagementTestExecutionListener.class })

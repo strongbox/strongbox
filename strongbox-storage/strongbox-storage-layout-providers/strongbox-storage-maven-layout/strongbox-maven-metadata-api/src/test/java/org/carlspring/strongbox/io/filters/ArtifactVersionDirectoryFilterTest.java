@@ -11,8 +11,7 @@ import java.util.List;
 import com.google.common.collect.Lists;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.assertj.core.api.Assertions.assertThat;
 
 /**
  * @author mtodorov
@@ -55,8 +54,8 @@ public class ArtifactVersionDirectoryFilterTest
             paths = Lists.newArrayList(ds);
         }
 
-        assertNotNull(paths, "Expected versions to be discovered.");
-        assertEquals(3, paths.size(), "Expected three versions.");
+        assertThat(paths).as("Expected versions to be discovered.").isNotNull();
+        assertThat(paths).as("Expected three versions.").hasSize(3);
     }
 
 }

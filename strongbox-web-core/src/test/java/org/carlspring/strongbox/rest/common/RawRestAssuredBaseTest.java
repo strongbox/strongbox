@@ -19,10 +19,12 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.MediaType;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.web.context.WebApplicationContext;
-import static io.restassured.module.mockmvc.RestAssuredMockMvc.given;
+
+import io.restassured.module.mockmvc.specification.MockMvcRequestSpecification;
+
 import static org.carlspring.strongbox.rest.client.RestAssuredArtifactClient.OK;
-import static org.junit.jupiter.api.Assertions.assertTrue;
-import static org.junit.jupiter.api.Assertions.fail;
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.fail;
 
 /**
  * @author carlspring
@@ -51,6 +53,9 @@ public class RawRestAssuredBaseTest
     @Value("${strongbox.url}")
     private String contextBaseUrl;
 
+    @Inject
+    protected MockMvcRequestSpecification mockMvc;
+    
     public void init()
             throws Exception
     {
@@ -77,7 +82,7 @@ public class RawRestAssuredBaseTest
     {
         logger.trace("[pathExists] URL -> " + url);
 
-        return given().header("user-agent", "Raw/*")
+        return mockMvc.header("user-agent", "Raw/*")
                       .contentType(MediaType.TEXT_PLAIN_VALUE)
                       .when()
                       .get(url)
@@ -86,7 +91,7 @@ public class RawRestAssuredBaseTest
 
     protected void assertPathExists(String url)
     {
-        assertTrue(pathExists(url), "Path " + url + " doesn't exist.");
+        assertThat(pathExists(url)).as("Path " + url + " doesn't exist.").isTrue();
     }
 
     protected void resolveArtifact(String artifactPath)
@@ -126,6 +131,6 @@ public class RawRestAssuredBaseTest
         mdos.flush();
         mdos.close();
 
-        assertTrue(total > 0, "Resolved a zero-length artifact!");
+        assertThat(total > 0).as("Resolved a zero-length artifact!").isTrue();
     }
 }

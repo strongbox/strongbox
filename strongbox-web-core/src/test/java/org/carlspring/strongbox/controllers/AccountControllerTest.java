@@ -1,12 +1,10 @@
 package org.carlspring.strongbox.controllers;
 
-import static io.restassured.module.mockmvc.RestAssuredMockMvc.given;
+
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.hamcrest.CoreMatchers.notNullValue;
 import static org.hamcrest.Matchers.equalTo;
 import static org.hamcrest.Matchers.hasSize;
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertNotEquals;
-import static org.junit.jupiter.api.Assertions.assertNotNull;
 
 import java.util.Arrays;
 import java.util.HashSet;
@@ -31,6 +29,8 @@ import org.springframework.security.test.context.support.WithMockUser;
 import org.springframework.security.test.context.support.WithUserDetails;
 import org.springframework.test.context.transaction.BeforeTransaction;
 
+import io.restassured.module.mockmvc.specification.MockMvcRequestSpecification;
+
 /**
  * @author Steve Todorov
  * @author Pablo Tirado
@@ -45,6 +45,9 @@ public class AccountControllerTest
     @Inject
     @OrientDb
     private UserService userService;
+    
+    @Inject
+    private MockMvcRequestSpecification mockMvc;
     
     @Override
     @BeforeEach
@@ -70,7 +73,7 @@ public class AccountControllerTest
     public void testGetAccountDetails()
             throws Exception
     {
-        given().accept(MediaType.APPLICATION_JSON_VALUE)
+        mockMvc.accept(MediaType.APPLICATION_JSON_VALUE)
                .when()
                .get(getContextBaseUrl())
                .peek() // Use peek() to print the output
@@ -85,7 +88,7 @@ public class AccountControllerTest
     public void testGetAccountDetailsOnDisabledUserShouldFail()
             throws Exception
     {
-        given().accept(MediaType.APPLICATION_JSON_VALUE)
+        mockMvc.accept(MediaType.APPLICATION_JSON_VALUE)
                .when()
                .get(getContextBaseUrl())
                .peek() // Use peek() to print the output
@@ -111,7 +114,7 @@ public class AccountControllerTest
         UserForm userForm = new UserForm();
         userForm.setSecurityTokenKey("1234");
 
-        given().accept(MediaType.APPLICATION_JSON_VALUE)
+        mockMvc.accept(MediaType.APPLICATION_JSON_VALUE)
                .contentType(MediaType.APPLICATION_JSON_VALUE)
                .body(userForm)
                .when()
@@ -120,7 +123,7 @@ public class AccountControllerTest
                .then()
                .statusCode(HttpStatus.OK.value());
 
-        given().accept(MediaType.APPLICATION_JSON_VALUE)
+        mockMvc.accept(MediaType.APPLICATION_JSON_VALUE)
                .when()
                .get(getContextBaseUrl())
                .peek() // Use peek() to print the output
@@ -133,7 +136,7 @@ public class AccountControllerTest
         userForm.setSecurityTokenKey("12345");
         userForm.setPassword("abcde");
 
-        given().accept(MediaType.APPLICATION_JSON_VALUE)
+        mockMvc.accept(MediaType.APPLICATION_JSON_VALUE)
                .contentType(MediaType.APPLICATION_JSON_VALUE)
                .body(userForm)
                .when()
@@ -144,7 +147,7 @@ public class AccountControllerTest
 
         User updatedUser = userService.findByUsername("test-account-update");
 
-        given().accept(MediaType.APPLICATION_JSON_VALUE)
+        mockMvc.accept(MediaType.APPLICATION_JSON_VALUE)
                .when()
                .get(getContextBaseUrl())
                .peek() // Use peek() to print the output
@@ -152,7 +155,7 @@ public class AccountControllerTest
                .statusCode(HttpStatus.OK.value())
                .body("securityTokenKey", equalTo("12345"));
 
-        assertNotEquals(userEntity.getPassword(), updatedUser.getPassword());
+        assertThat(updatedUser.getPassword()).isNotEqualTo(userEntity.getPassword());
     }
 
     @Test
@@ -171,14 +174,14 @@ public class AccountControllerTest
         userForm.setRoles(new HashSet<>(Arrays.asList("admin", "super-admin")));
         userForm.setEnabled(false);
 
-        given().accept(MediaType.APPLICATION_JSON_VALUE)
+        mockMvc.accept(MediaType.APPLICATION_JSON_VALUE)
                .when()
                .get(getContextBaseUrl())
                .peek() // Use peek() to print the output
                .then()
                .statusCode(HttpStatus.OK.value());
 
-        given().accept(MediaType.APPLICATION_JSON_VALUE)
+        mockMvc.accept(MediaType.APPLICATION_JSON_VALUE)
                .contentType(MediaType.APPLICATION_JSON_VALUE)
                .body(userForm)
                .when()
@@ -187,7 +190,7 @@ public class AccountControllerTest
                .then()
                .statusCode(HttpStatus.OK.value());
 
-        given().accept(MediaType.APPLICATION_JSON_VALUE)
+        mockMvc.accept(MediaType.APPLICATION_JSON_VALUE)
                .when()
                .get(getContextBaseUrl())
                .peek() // Use peek() to print the output
@@ -195,7 +198,6 @@ public class AccountControllerTest
                .statusCode(HttpStatus.OK.value())
                .body("roles", hasSize(0))
                .body("enabled", equalTo(true));
-
     }
 
     /**
@@ -221,7 +223,7 @@ public class AccountControllerTest
 
         User originalUser = userService.findByUsername(username);
 
-        given().contentType(MediaType.APPLICATION_JSON_VALUE)
+        mockMvc.contentType(MediaType.APPLICATION_JSON_VALUE)
                .accept(MediaType.APPLICATION_JSON_VALUE)
                .body(userForm)
                .when()
@@ -231,16 +233,16 @@ public class AccountControllerTest
                .statusCode(HttpStatus.OK.value());
 
         User updatedUser = userService.findByUsername(username);
-        assertEquals(username, updatedUser.getUsername());
-        assertNotNull(updatedUser.getPassword());
-        assertEquals(originalUser.getPassword(), updatedUser.getPassword());
+        assertThat(updatedUser.getUsername()).isEqualTo(username);
+        assertThat(updatedUser.getPassword()).isNotNull();
+        assertThat(updatedUser.getPassword()).isEqualTo(originalUser.getPassword());
     }
 
     @Test
     @WithAnonymousUser
     public void testAnonymousUsersShouldNotBeAbleToAccess()
     {
-        given().header(HttpHeaders.ACCEPT, MediaType.APPLICATION_JSON_VALUE)
+        mockMvc.header(HttpHeaders.ACCEPT, MediaType.APPLICATION_JSON_VALUE)
                .when()
                .get(getContextBaseUrl())
                .peek()

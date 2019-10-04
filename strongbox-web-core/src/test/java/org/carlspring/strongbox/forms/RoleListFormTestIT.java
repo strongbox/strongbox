@@ -13,9 +13,7 @@ import java.util.Set;
 import org.apache.commons.lang3.StringUtils;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-import org.springframework.boot.test.context.SpringBootTest;
-import static org.assertj.core.api.Java6Assertions.assertThat;
-import static org.junit.jupiter.api.Assertions.*;
+import static org.assertj.core.api.Assertions.assertThat;
 
 /**
  * @author Pablo Tirado
@@ -59,7 +57,9 @@ public class RoleListFormTestIT
         Set<ConstraintViolation<RoleListForm>> violations = validator.validate(roleListForm);
 
         // then
-        assertTrue(violations.isEmpty(), "Violations are not empty!");
+        assertThat(violations)
+                .as("Violations are not empty!")
+                .isEmpty();
     }
 
     @Test
@@ -82,8 +82,7 @@ public class RoleListFormTestIT
         Set<ConstraintViolation<RoleListForm>> violations = validator.validate(roleListForm);
 
         // then
-        assertFalse(violations.isEmpty(), "Violations are empty!");
-        assertEquals(violations.size(), 1);
+        assertThat(violations).as("Violations are empty!").hasSize(1);
         assertThat(violations).extracting("message").containsAnyOf("A name must be specified.");
     }
 
@@ -107,8 +106,7 @@ public class RoleListFormTestIT
         Set<ConstraintViolation<RoleListForm>> violations = validator.validate(roleListForm);
 
         // then
-        assertFalse(violations.isEmpty(), "Violations are empty!");
-        assertEquals(violations.size(), 1);
+        assertThat(violations).as("Violations are empty!").hasSize(1);
         assertThat(violations).extracting("message").containsAnyOf("Role is already registered.");
     }
 }

@@ -4,7 +4,7 @@ import javax.validation.Valid;
 import javax.validation.constraints.NotEmpty;
 import javax.validation.constraints.NotNull;
 
-import org.carlspring.strongbox.authentication.external.ldap.LdapConfiguration;
+import org.carlspring.strongbox.authentication.api.ldap.LdapConfiguration;
 
 /**
  * @author Przemyslaw Fusik

@@ -16,9 +16,7 @@ import org.junit.jupiter.api.parallel.Execution;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.ContextConfiguration;
-import static org.hamcrest.CoreMatchers.instanceOf;
-import static org.hamcrest.MatcherAssert.assertThat;
-import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.parallel.ExecutionMode.CONCURRENT;
 
 /**
@@ -48,10 +46,10 @@ public class MavenArtifactTest
         final String artifactRepositoryPathStr = "org/bitbucket/b_c/jose4j/0.6.3/jose4j-0.6.3.jar";
 
         Path artifactRepositoryPath = path.normalize();
-        assertThat(artifactRepositoryPath, instanceOf(RepositoryPath.class));
+        assertThat(artifactRepositoryPath).isInstanceOf(RepositoryPath.class);
 
         String jarPath = String.format("strongbox:/%s/%s/%s", storageId, repositoryId, artifactRepositoryPathStr);
-        assertEquals(URI.create(jarPath), artifactRepositoryPath.toUri());
+        assertThat(artifactRepositoryPath.toUri()).isEqualTo(URI.create(jarPath));
     }
 
 }

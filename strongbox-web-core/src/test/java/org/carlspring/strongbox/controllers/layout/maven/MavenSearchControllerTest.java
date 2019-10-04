@@ -15,7 +15,7 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.springframework.http.MediaType;
-import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.assertj.core.api.Assertions.assertThat;
 
 
 /**
@@ -78,16 +78,18 @@ public class MavenSearchControllerTest
         // testSearchPlainText
         String response = client.search(query, MediaType.TEXT_PLAIN_VALUE, searchProvider);
 
-        assertTrue(response.contains("test-project-1.0.11.3.jar") &&
-                   response.contains("test-project-1.0.11.3.1.jar"),
-                   "Received unexpected search results! \n" + response + "\n");
+        assertThat(response.contains("test-project-1.0.11.3.jar") &&
+                   response.contains("test-project-1.0.11.3.1.jar"))
+                .as("Received unexpected search results! \n" + response + "\n")
+                .isTrue();
 
         // testSearchJSON
         response = client.search(query, MediaType.APPLICATION_JSON_VALUE, searchProvider);
 
-        assertTrue(response.contains("\"version\":\"1.0.11.3\"") &&
-                   response.contains("\"version\":\"1.0.11.3.1\""),
-                   "Received unexpected search results! \n" + response + "\n");
+        assertThat(response.contains("\"version\":\"1.0.11.3\"") &&
+                   response.contains("\"version\":\"1.0.11.3.1\""))
+                .as("Received unexpected search results! \n" + response + "\n")
+                .isTrue();
     }
 
 }

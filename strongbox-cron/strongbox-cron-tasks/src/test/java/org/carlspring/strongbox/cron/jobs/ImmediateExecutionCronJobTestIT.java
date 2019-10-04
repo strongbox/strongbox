@@ -12,8 +12,7 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.TestInfo;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.context.ActiveProfiles;
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.assertj.core.api.Assertions.assertThat;
 
 /**
  * @author carlspring
@@ -60,13 +59,13 @@ public class ImmediateExecutionCronJobTestIT
         // Checking if job was executed
         jobManager.registerExecutionListener(jobKey.toString(), (jobKey1, statusExecuted) ->
         {
-            assertEquals(jobKey1, jobKey.toString());
-            assertTrue(statusExecuted);
+            assertThat(jobKey.toString()).isEqualTo(jobKey1);
+            assertThat(statusExecuted).isTrue();
         });
 
         addImmediateExecutionCronJobConfig(jobKey, jobName);
 
-        assertTrue(expectEvent(), "Failed to execute task within a reasonable time!");
+        assertThat(expectEvent()).as("Failed to execute task within a reasonable time!").isTrue();
     }
 
 }

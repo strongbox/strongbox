@@ -14,11 +14,11 @@ import org.springframework.security.test.context.support.WithMockUser;
 
 import java.util.List;
 
-import static io.restassured.module.mockmvc.RestAssuredMockMvc.given;
+
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.carlspring.strongbox.controllers.configuration.ProxyConfigurationController.*;
-import static org.hamcrest.CoreMatchers.containsString;
+import static org.hamcrest.Matchers.containsString;
 import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertNotNull;
 
 /**
  * @author Pablo Tirado
@@ -80,7 +80,7 @@ public class ProxyConfigurationControllerTestIT
 
         String url = getContextBaseUrl();
 
-        given().contentType(MediaType.APPLICATION_JSON_VALUE)
+        mockMvc.contentType(MediaType.APPLICATION_JSON_VALUE)
                .accept(acceptHeader)
                .body(proxyConfiguration)
                .when()
@@ -91,20 +91,18 @@ public class ProxyConfigurationControllerTestIT
 
         logger.debug("Current proxy host: " + proxyConfiguration.getHost());
 
-        MutableProxyConfiguration pc = given().contentType(MediaType.APPLICATION_JSON_VALUE)
+        MutableProxyConfiguration pc = mockMvc.contentType(MediaType.APPLICATION_JSON_VALUE)
                                               .accept(MediaType.APPLICATION_JSON_VALUE)
                                               .when()
                                               .get(url)
                                               .as(MutableProxyConfiguration.class);
 
-        assertNotNull(pc, "Failed to get proxy configuration!");
-        assertEquals(proxyConfiguration.getHost(), pc.getHost(), "Failed to get proxy configuration!");
-        assertEquals(proxyConfiguration.getPort(), pc.getPort(), "Failed to get proxy configuration!");
-        assertEquals(proxyConfiguration.getUsername(), pc.getUsername(), "Failed to get proxy configuration!");
-        assertEquals(proxyConfiguration.getPassword(), pc.getPassword(), "Failed to get proxy configuration!");
-        assertEquals(proxyConfiguration.getType(), pc.getType(), "Failed to get proxy configuration!");
-        assertEquals(proxyConfiguration.getNonProxyHosts(), pc.getNonProxyHosts(),
-                     "Failed to get proxy configuration!");
+        assertThat(pc).as("Failed to get proxy configuration!").isNotNull();
+        assertThat(pc.getPort()).as("Failed to get proxy configuration!").isEqualTo(proxyConfiguration.getPort());
+        assertThat(pc.getUsername()).as("Failed to get proxy configuration!").isEqualTo(proxyConfiguration.getUsername());
+        assertThat(pc.getPassword()).as("Failed to get proxy configuration!").isEqualTo(proxyConfiguration.getPassword());
+        assertThat(pc.getType()).as("Failed to get proxy configuration!").isEqualTo(proxyConfiguration.getType());
+        assertThat(pc.getNonProxyHosts()).as("Failed to get proxy configuration!").isEqualTo(proxyConfiguration.getNonProxyHosts());
     }
 
     @WithMockUser(authorities = "CONFIGURATION_SET_GLOBAL_PROXY_CFG")
@@ -119,7 +117,7 @@ public class ProxyConfigurationControllerTestIT
         String storageId = "storage-not-found";
         String repositoryId = "repo-not-found";
 
-        given().contentType(MediaType.APPLICATION_JSON_VALUE)
+        mockMvc.contentType(MediaType.APPLICATION_JSON_VALUE)
                .accept(acceptHeader)
                .body(proxyConfiguration)
                .param("storageId", storageId)
@@ -142,7 +140,7 @@ public class ProxyConfigurationControllerTestIT
 
         String url = getContextBaseUrl();
 
-        given().contentType(MediaType.APPLICATION_JSON_VALUE)
+        mockMvc.contentType(MediaType.APPLICATION_JSON_VALUE)
                .accept(acceptHeader)
                .body(proxyConfiguration)
                .when()

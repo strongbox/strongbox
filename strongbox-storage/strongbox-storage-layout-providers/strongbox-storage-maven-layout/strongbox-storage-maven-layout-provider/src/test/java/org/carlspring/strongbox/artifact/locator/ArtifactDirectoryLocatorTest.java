@@ -27,8 +27,7 @@ import org.junit.jupiter.api.parallel.Execution;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.ContextConfiguration;
-import static org.junit.jupiter.api.Assertions.assertFalse;
-import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.parallel.ExecutionMode.SAME_THREAD;
 
 /**
@@ -90,10 +89,10 @@ public class ArtifactDirectoryLocatorTest
 
         String output = new String(os.toByteArray());
 
-        assertTrue(output.contains(normalize("org/apache/maven/location-utils")));
-        assertTrue(output.contains(normalize("org/carlspring/maven/locator-testing")));
-        assertTrue(output.contains(normalize("org/carlspring/strongbox/locator/foo-locator")));
-        assertTrue(output.contains(normalize("org/carlspring/strongbox/locator/utils")));
+        assertThat(output.contains(normalize("org/apache/maven/location-utils"))).isTrue();
+        assertThat(output.contains(normalize("org/carlspring/maven/locator-testing"))).isTrue();
+        assertThat(output.contains(normalize("org/carlspring/strongbox/locator/foo-locator"))).isTrue();
+        assertThat(output.contains(normalize("org/carlspring/strongbox/locator/utils"))).isTrue();
     }
 
     @ExtendWith({ RepositoryManagementTestExecutionListener.class,
@@ -122,10 +121,10 @@ public class ArtifactDirectoryLocatorTest
 
         String output = new String(os.toByteArray());
 
-        assertFalse(output.contains(normalize("org/apache/maven/location-utils")));
-        assertTrue(output.contains(normalize("org/carlspring/maven/locator-testing")));
-        assertTrue(output.contains(normalize("org/carlspring/strongbox/locator/foo-locator")));
-        assertTrue(output.contains(normalize("org/carlspring/strongbox/locator/utils")));
+        assertThat(output.contains(normalize("org/apache/maven/location-utils"))).isFalse();
+        assertThat(output.contains(normalize("org/carlspring/maven/locator-testing"))).isTrue();
+        assertThat(output.contains(normalize("org/carlspring/strongbox/locator/foo-locator"))).isTrue();
+        assertThat(output.contains(normalize("org/carlspring/strongbox/locator/utils"))).isTrue();
     }
 
     private String normalize(String path)

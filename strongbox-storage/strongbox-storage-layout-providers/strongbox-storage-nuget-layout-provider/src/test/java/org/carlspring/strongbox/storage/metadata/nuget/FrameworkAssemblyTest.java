@@ -21,7 +21,7 @@ import java.util.EnumSet;
 
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.parallel.Execution;
-import static org.junit.jupiter.api.Assertions.assertNull;
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.parallel.ExecutionMode.CONCURRENT;
 
 /**
@@ -48,7 +48,7 @@ public class FrameworkAssemblyTest
         // WHEN
         EnumSet<Framework> result = adapter.unmarshal("");
         // THEN
-        assertNull(result);
+        assertThat(result).isNull();
     }
 
     /**
@@ -66,6 +66,6 @@ public class FrameworkAssemblyTest
         // WHEN
         String result = adapter.marshal(null);
         // THEN
-        assertNull(result);
+        assertThat(result).isNull();
     }
 }

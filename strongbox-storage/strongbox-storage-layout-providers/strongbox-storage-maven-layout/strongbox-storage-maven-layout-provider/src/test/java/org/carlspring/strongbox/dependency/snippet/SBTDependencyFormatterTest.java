@@ -12,8 +12,7 @@ import org.junit.jupiter.api.parallel.Execution;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.ContextConfiguration;
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.parallel.ExecutionMode.CONCURRENT;
 
 /**
@@ -36,7 +35,7 @@ public class SBTDependencyFormatterTest
     {
         DependencySynonymFormatter formatter = compatibleDependencyFormatRegistry.getProviderImplementation(Maven2LayoutProvider.ALIAS,
                                                                                                             SBTDependencyFormatter.ALIAS);
-        assertNotNull(formatter, "Failed to look up dependency synonym formatter!");
+        assertThat(formatter).as("Failed to look up dependency synonym formatter!").isNotNull();
 
         MavenArtifactCoordinates coordinates = new MavenArtifactCoordinates();
         coordinates.setGroupId("org.carlspring.strongbox");
@@ -48,9 +47,9 @@ public class SBTDependencyFormatterTest
 
         System.out.println(snippet);
 
-        assertEquals("libraryDependencies += \"" + coordinates.getGroupId() + "\" % \"" + coordinates.getArtifactId() + "\" % \"" + coordinates.getVersion() + "\"\n",
-                     snippet,
-                     "Failed to generate dependency!");
+        assertThat(snippet)
+                .as("Failed to generate dependency!")
+                .isEqualTo("libraryDependencies += \"" + coordinates.getGroupId() + "\" % \"" + coordinates.getArtifactId() + "\" % \"" + coordinates.getVersion() + "\"\n");
     }
 
 }

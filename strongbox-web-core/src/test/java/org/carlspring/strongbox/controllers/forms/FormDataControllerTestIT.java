@@ -10,8 +10,14 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.test.web.servlet.result.MockMvcResultMatchers;
 import org.springframework.transaction.annotation.Transactional;
-import static io.restassured.module.mockmvc.RestAssuredMockMvc.given;
-import static org.hamcrest.Matchers.*;
+
+import static org.hamcrest.Matchers.equalTo;
+import static org.hamcrest.Matchers.greaterThan;
+import static org.hamcrest.Matchers.greaterThanOrEqualTo;
+import static org.hamcrest.Matchers.hasItem;
+import static org.hamcrest.Matchers.not;
+import static org.hamcrest.Matchers.hasSize;
+import static org.hamcrest.Matchers.notNullValue;
 
 /**
  * @author Przemyslaw Fusik
@@ -34,7 +40,7 @@ public class FormDataControllerTestIT
     @Test
     public void testGetUserFields()
     {
-        given().accept(MediaType.APPLICATION_JSON_VALUE)
+        mockMvc.accept(MediaType.APPLICATION_JSON_VALUE)
                .when()
                .get(getContextBaseUrl() + "/userFields")
                .peek()
@@ -47,7 +53,7 @@ public class FormDataControllerTestIT
     @Test
     public void testGetStorageFields()
     {
-        given().accept(MediaType.APPLICATION_JSON_VALUE)
+        mockMvc.accept(MediaType.APPLICATION_JSON_VALUE)
                .when()
                .get(getContextBaseUrl() + "/storageFields")
                .peek()
@@ -60,7 +66,7 @@ public class FormDataControllerTestIT
     @Test
     public void testGetStorageNames()
     {
-        given().accept(MediaType.APPLICATION_JSON_VALUE)
+        mockMvc.accept(MediaType.APPLICATION_JSON_VALUE)
                .when()
                .get(getContextBaseUrl() + "/storageNames")
                .peek()
@@ -73,7 +79,7 @@ public class FormDataControllerTestIT
     @Test
     public void testGetStorageNamesFilteredByTerm()
     {
-        given().accept(MediaType.APPLICATION_JSON_VALUE)
+        mockMvc.accept(MediaType.APPLICATION_JSON_VALUE)
                .when()
                .get(getContextBaseUrl() + "/storageNames?term=prox")
                .peek()
@@ -86,7 +92,7 @@ public class FormDataControllerTestIT
     @Test
     public void testGetRepositoryNamesFilteredByStorageId()
     {
-        given().accept(MediaType.APPLICATION_JSON_VALUE)
+        mockMvc.accept(MediaType.APPLICATION_JSON_VALUE)
                .when()
                .get(getContextBaseUrl() + "/repositoryNames?storageId=storage0")
                .peek()
@@ -99,7 +105,7 @@ public class FormDataControllerTestIT
     @Test
     public void testGetRepositoryNamesFilteredStorageIdAndSearchTerm()
     {
-        given().accept(MediaType.APPLICATION_JSON_VALUE)
+        mockMvc.accept(MediaType.APPLICATION_JSON_VALUE)
                .when()
                .get(getContextBaseUrl() + "/repositoryNames?storageId=storage0&term=SHOT")
                .peek()
@@ -112,7 +118,7 @@ public class FormDataControllerTestIT
     @Test
     public void testGetRepositoryNamesWithStorageId()
     {
-        given().accept(MediaType.APPLICATION_JSON_VALUE)
+        mockMvc.accept(MediaType.APPLICATION_JSON_VALUE)
                .when()
                .get(getContextBaseUrl() + "/repositoryNames?withStorageId=true")
                .peek()
@@ -126,7 +132,7 @@ public class FormDataControllerTestIT
     @Test
     public void testGetRepositoryNamesWithStorageIdFilteredByStorageId()
     {
-        given().accept(MediaType.APPLICATION_JSON_VALUE)
+        mockMvc.accept(MediaType.APPLICATION_JSON_VALUE)
                .when()
                .get(getContextBaseUrl() + "/repositoryNames?withStorageId=true&storageId=storage0")
                .peek()
@@ -140,7 +146,7 @@ public class FormDataControllerTestIT
     @Test
     public void testGetRepositoryNamesWithStorageIdFilteredByStorageIdAndTerm()
     {
-        given().accept(MediaType.APPLICATION_JSON_VALUE)
+        mockMvc.accept(MediaType.APPLICATION_JSON_VALUE)
                .when()
                .get(getContextBaseUrl() + "/repositoryNames?withStorageId=true&storageId=storage0&term=sna")
                .peek()
@@ -154,7 +160,7 @@ public class FormDataControllerTestIT
     @Test
     public void testGetRepositoryNamesWithStorageIdFilteredByByStorageIdAndTypeHosted()
     {
-        given().accept(MediaType.APPLICATION_JSON_VALUE)
+        mockMvc.accept(MediaType.APPLICATION_JSON_VALUE)
                .when()
                .get(getContextBaseUrl() + "/repositoryNames?withStorageId=true&type=hosted&storageId=storage0")
                .peek()
@@ -169,7 +175,7 @@ public class FormDataControllerTestIT
     @Test
     public void testGetRepositoryNamesWithStorageIdFilteredByStorageIdTermAndTypeHosted()
     {
-        given().accept(MediaType.APPLICATION_JSON_VALUE)
+        mockMvc.accept(MediaType.APPLICATION_JSON_VALUE)
                .when()
                .get(getContextBaseUrl() + "/repositoryNames?withStorageId=true&type=hosted&storageId=storage0&term=sn")
                .peek()
@@ -186,7 +192,7 @@ public class FormDataControllerTestIT
     @Test
     public void testGetRepositoryNamesWithStorageIdFilteredByStorageIdAndTypeGroup()
     {
-        given().accept(MediaType.APPLICATION_JSON_VALUE)
+        mockMvc.accept(MediaType.APPLICATION_JSON_VALUE)
                .when()
                .get(getContextBaseUrl() +
                     "/repositoryNames?withStorageId=true&type=group&storageId=storage-common-proxies")
@@ -201,7 +207,7 @@ public class FormDataControllerTestIT
     public void testGetRepositoryNamesWithStorageIdFilteredByStorageIdTermAndTypeGroup()
     {
 
-        given().accept(MediaType.APPLICATION_JSON_VALUE)
+        mockMvc.accept(MediaType.APPLICATION_JSON_VALUE)
                .when()
                .get(getContextBaseUrl() +
                     "/repositoryNames?withStorageId=true&type=group&storageId=storage-common-proxies&term=group-com")
@@ -220,7 +226,7 @@ public class FormDataControllerTestIT
     public void testGetRepositoryNamesWithStorageIdFilteredByStorageIdAndTypeProxy()
     {
         // storage0 has no proxies.
-        given().accept(MediaType.APPLICATION_JSON_VALUE)
+        mockMvc.accept(MediaType.APPLICATION_JSON_VALUE)
                .when()
                .get(getContextBaseUrl() + "/repositoryNames?withStorageId=true&type=proxy&storageId=storage0")
                .peek()
@@ -229,7 +235,7 @@ public class FormDataControllerTestIT
                .body("formDataValues", notNullValue())
                .body("formDataValues[0].values", hasSize(equalTo(0)));
 
-        given().accept(MediaType.APPLICATION_JSON_VALUE)
+        mockMvc.accept(MediaType.APPLICATION_JSON_VALUE)
                .when()
                .get(getContextBaseUrl() +
                     "/repositoryNames?withStorageId=true&type=proxy&storageId=storage-common-proxies")
@@ -243,7 +249,7 @@ public class FormDataControllerTestIT
     @Test
     public void testGetRepositoryNamesWithStorageIdFilteredByLayout()
     {
-        given().accept(MediaType.APPLICATION_JSON_VALUE)
+        mockMvc.accept(MediaType.APPLICATION_JSON_VALUE)
                .when()
                .get(getContextBaseUrl() + "/repositoryNames?withStorageId=true&layout=" +
                     MavenArtifactCoordinates.LAYOUT_NAME)
@@ -262,7 +268,7 @@ public class FormDataControllerTestIT
     public void testGetRepositoryNamesWithStorageIdFilteredByStorageIdTermAndTypeProxy()
     {
 
-        given().accept(MediaType.APPLICATION_JSON_VALUE)
+        mockMvc.accept(MediaType.APPLICATION_JSON_VALUE)
                .when()
                .get(getContextBaseUrl() +
                     "/repositoryNames?withStorageId=true&type=proxy&storageId=storage-common-proxies&term=maven")
@@ -281,7 +287,7 @@ public class FormDataControllerTestIT
     @Test
     public void testGetRepositoryNamesInGroup()
     {
-        given()
+        mockMvc
                 .accept(MediaType.APPLICATION_JSON_VALUE)
                 .when()
                 .get(getContextBaseUrl() + "/repositoryNamesInGroupRepositories")
@@ -297,7 +303,7 @@ public class FormDataControllerTestIT
     @Test
     public void testGetRepositoryNamesInGroupFilteredByTerm()
     {
-        given().accept(MediaType.APPLICATION_JSON_VALUE)
+        mockMvc.accept(MediaType.APPLICATION_JSON_VALUE)
                .when()
                .get(getContextBaseUrl() + "/repositoryNamesInGroupRepositories?term=car")
                .peek()
@@ -312,7 +318,7 @@ public class FormDataControllerTestIT
     @Test
     public void testGetRepositoryNamesInGroupFilteredByStorageId()
     {
-        given().accept(MediaType.APPLICATION_JSON_VALUE)
+        mockMvc.accept(MediaType.APPLICATION_JSON_VALUE)
                .when()
                .get(getContextBaseUrl() +
                     "/repositoryNamesInGroupRepositories?storageId=storage-common-proxies")
@@ -328,7 +334,7 @@ public class FormDataControllerTestIT
     @Test
     public void testGetRepositoryNamesInGroupFilteredByStorageIdAndGroupRepositoryId()
     {
-        given().accept(MediaType.APPLICATION_JSON_VALUE)
+        mockMvc.accept(MediaType.APPLICATION_JSON_VALUE)
                .when()
                .get(getContextBaseUrl() +
                     "/repositoryNamesInGroupRepositories?storageId=public&groupRepositoryId=maven-group")
@@ -346,7 +352,7 @@ public class FormDataControllerTestIT
     @Test
     public void testGetRepositoryNamesInGroupFilteredByStorageIdAndGroupRepositoryIdAndTerm()
     {
-        given().accept(MediaType.APPLICATION_JSON_VALUE)
+        mockMvc.accept(MediaType.APPLICATION_JSON_VALUE)
                .when()
                .get(getContextBaseUrl() +
                     "/repositoryNamesInGroupRepositories?storageId=storage-common-proxies&groupRepositoryId=group-common-proxies&term=car")

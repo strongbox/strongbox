@@ -17,9 +17,7 @@ import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.Arguments;
 import org.junit.jupiter.params.provider.MethodSource;
 import org.junit.jupiter.params.provider.ValueSource;
-import org.springframework.boot.test.context.SpringBootTest;
-import static org.assertj.core.api.Java6Assertions.assertThat;
-import static org.junit.jupiter.api.Assertions.*;
+import static org.assertj.core.api.Assertions.assertThat;
 
 /**
  * @author Pablo Tirado
@@ -85,7 +83,7 @@ public class ProxyConfigurationFormTestIT
                                                                                          ProxyConfigurationFormChecks.class);
 
         // then
-        assertTrue(violations.isEmpty(), "Violations are not empty!");
+        assertThat(violations).as("Violations are not empty!").isEmpty();
     }
 
     @Test
@@ -102,8 +100,7 @@ public class ProxyConfigurationFormTestIT
                                                                                          ProxyConfigurationFormChecks.class);
 
         // then
-        assertFalse(violations.isEmpty(), "Violations are empty!");
-        assertEquals(violations.size(), 1);
+        assertThat(violations).as("Violations are empty!").hasSize(1);
         assertThat(violations).extracting("message").containsAnyOf("A host must be specified.");
     }
 
@@ -123,8 +120,7 @@ public class ProxyConfigurationFormTestIT
                                                                                          ProxyConfigurationFormChecks.class);
 
         // then
-        assertFalse(violations.isEmpty(), "Violations are empty!");
-        assertEquals(violations.size(), 1);
+        assertThat(violations).as("Violations are empty!").hasSize(1);
         assertThat(violations).extracting("message").containsAnyOf(errorMessage);
     }
 
@@ -145,8 +141,7 @@ public class ProxyConfigurationFormTestIT
                                                                                          ProxyConfigurationFormChecks.class);
 
         // then
-        assertFalse(violations.isEmpty(), "Violations are empty!");
-        assertEquals(violations.size(), numErrors);
+        assertThat(violations).as("Violations are empty!").hasSize(numErrors);
         assertThat(violations).extracting("message").containsAnyOf(errorMessage);
     }
 }

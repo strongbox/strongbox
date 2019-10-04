@@ -36,7 +36,8 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.parallel.Execution;
 import org.w3c.dom.Document;
 import org.xml.sax.SAXException;
-import static org.junit.jupiter.api.Assertions.*;
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatExceptionOfType;
 import static org.junit.jupiter.api.parallel.ExecutionMode.CONCURRENT;
 
 /**
@@ -94,14 +95,14 @@ public class NuspecTest
     {
         final String fileName = "nuspec/test.nuspec.xml";
         Nuspec result = Nuspec.parse(NugetTestResourceUtil.getAsStream(fileName));
-        assertEquals("Neolant.ProjectWise.IsolationLevel.Implementation", result.getId(), "Package ID");
-        assertEquals(SemanticVersion.parse("1.4.7.550"), result.getVersion(), "Package Version");
-        assertEquals("Implementing the ProjecWise API isolation level", result.getTitle(), "Short description");
-        assertEquals("NEOLANT", result.getOwners(), "Authors");
-        assertEquals("NEOLANT", result.getOwners(), "Owners");
-        assertFalse(result.isRequireLicenseAcceptance(), "License Verification Required");
-        assertEquals("Implementing ProjecWise API isolation level contracts", result.getDescription(), "Description");
-        assertEquals("NEOLANT", result.getCopyright(), "Rights");
+        assertThat(result.getId()).as("Package ID").isEqualTo("Neolant.ProjectWise.IsolationLevel.Implementation");
+        assertThat(result.getVersion()).as("Package Version").isEqualTo(SemanticVersion.parse("1.4.7.550"));
+        assertThat(result.getTitle()).as("Short description").isEqualTo("Implementing the ProjecWise API isolation level");
+        assertThat(result.getOwners()).as("Authors").isEqualTo("NEOLANT");
+        assertThat(result.getOwners()).as("Owners").isEqualTo("NEOLANT");
+        assertThat(result.isRequireLicenseAcceptance()).as("License Verification Required").isFalse();
+        assertThat(result.getDescription()).as("Description").isEqualTo("Implementing ProjecWise API isolation level contracts");
+        assertThat(result.getCopyright()).as("Rights").isEqualTo("NEOLANT");
     }
 
     /**
@@ -125,17 +126,17 @@ public class NuspecTest
         Nuspec result = Nuspec.parse(NugetTestResourceUtil.getAsStream(fileName));
 
         // THEN
-        assertEquals("NUnit", result.getId(), "Package ID");
-        assertEquals(SemanticVersion.parse("2.5.9.10348"), result.getVersion(), "Package Version");
-        assertEquals("NUnit", result.getAuthors(), "Authors");
-        assertEquals("NUnit", result.getOwners(), "Owners");
-        assertFalse(result.isRequireLicenseAcceptance(), "License Verification Required");
-        assertEquals("Unit Testing Package", result.getDescription(), "Description");
-        assertEquals("Copyright 2011", result.getCopyright(), "Rights");
-        assertEquals(tags.length, result.getTags().size(), "Number of tags");
-        assertArrayEquals(tags, result.getTags().toArray(), "Tags");
-        assertEquals(references.length, result.getReferences().size(), "Number of links");
-        assertArrayEquals(references, result.getReferences().toArray(), "Links");
+        assertThat(result.getId()).as("Package ID").isEqualTo("NUnit");
+        assertThat(result.getVersion()).as("Package Version").isEqualTo(SemanticVersion.parse("2.5.9.10348"));
+        assertThat(result.getAuthors()).as("Authors").isEqualTo("NUnit");
+        assertThat(result.getOwners()).as("Owners").isEqualTo("NUnit");
+        assertThat(result.isRequireLicenseAcceptance()).as("License Verification Required").isFalse();
+        assertThat(result.getDescription()).as("Description").isEqualTo("Unit Testing Package");
+        assertThat(result.getCopyright()).as("Rights").isEqualTo("Copyright 2011");
+        assertThat(result.getTags()).as("Number of tags").hasSize(tags.length);
+        assertThat(result.getTags().toArray()).as("Tags").isEqualTo(tags);
+        assertThat(result.getReferences()).as("Number of links").hasSize(references.length);
+        assertThat(result.getReferences().toArray()).as("Links").isEqualTo(references);
     }
 
     /**
@@ -160,22 +161,21 @@ public class NuspecTest
         Nuspec result = Nuspec.parse(NugetTestResourceUtil.getAsStream(fileName));
 
         // THEN
-        assertEquals("NHibernate", result.getId(), "Package ID");
-        assertEquals(SemanticVersion.parse("3.2.0.4000"), result.getVersion(), "Package Version");
-        assertEquals("NHibernate community, Hibernate community", result.getAuthors(), "Authors");
-        assertEquals("NHibernate community, Hibernate community", result.getOwners(), "Owners");
-        assertFalse(result.isRequireLicenseAcceptance(), "License Verification Required");
-        assertEquals("NHibernate is a mature, open source object-relational mapper for the .NET framework. It's actively developed , fully featured and used in thousands of successful projects.",
-                     result.getDescription(),
-                     "Description");
-        assertEquals(
-                     "NHibernate is a mature, open source object-relational mapper for the .NET framework. It's actively developed , fully featured and used in thousands of successful projects.",
-                     result.getSummary(),
-                     "Short Description");
-        assertEquals(tags.length, result.getTags().size(), "Number of tags");
-        assertArrayEquals(tags, result.getTags().toArray(), "Tags");
-        assertEquals(dependencies.length, result.getDependencies().size(), "Number of dependencies");
-        assertArrayEquals(dependencies, result.getDependencies().toArray(), "Dependencies");
+        assertThat(result.getId()).as("Package ID").isEqualTo("NHibernate");
+        assertThat(result.getVersion()).as("Package Version").isEqualTo(SemanticVersion.parse("3.2.0.4000"));
+        assertThat("NHibernate community, Hibernate community").as("Authors").isEqualTo(result.getAuthors());
+        assertThat("NHibernate community, Hibernate community").as("Owners").isEqualTo(result.getOwners());
+        assertThat(result.isRequireLicenseAcceptance()).as("License Verification Required").isFalse();
+        assertThat("NHibernate is a mature, open source object-relational mapper for the .NET framework. It's actively developed , fully featured and used in thousands of successful projects.")
+                .as("Description")
+                .isEqualTo(result.getDescription());
+        assertThat("NHibernate is a mature, open source object-relational mapper for the .NET framework. It's actively developed , fully featured and used in thousands of successful projects.")
+                .as("Short Description")
+                .isEqualTo(result.getSummary());
+        assertThat(result.getTags()).as("Number of tags").hasSize(tags.length);
+        assertThat(result.getTags().toArray()).as("Tags").isEqualTo(tags);
+        assertThat(result.getDependencies()).as("Number of dependencies").hasSize(dependencies.length);
+        assertThat(result.getDependencies().toArray()).as("Dependencies").isEqualTo(dependencies);
     }
 
     /**
@@ -193,12 +193,11 @@ public class NuspecTest
         // WHEN
         Nuspec nuspecFile = Nuspec.parse(inputStream);
         // THEN
-        assertEquals(
-                     "And() extension method to "
+        assertThat("And() extension method to "
                              + "TimeSpanConversionExtensions to support 4.Hours()."
-                             + "And(30.Minutes())",
-                     nuspecFile.getReleaseNotes(),
-                     "Release Notes");
+                             + "And(30.Minutes())")
+                .as("Release Notes")
+                .isEqualTo(nuspecFile.getReleaseNotes());
     }
 
     /**
@@ -217,7 +216,7 @@ public class NuspecTest
         // WHEN
         Nuspec nuspecFile = Nuspec.parse(inputStream);
         // THEN
-        assertEquals("NLog", nuspecFile.getId(), "Package ID");
+        assertThat(nuspecFile.getId()).as("Package ID").isEqualTo("NLog");
     }
 
     /**
@@ -236,7 +235,7 @@ public class NuspecTest
         // WHEN
         Nuspec nuspecFile = Nuspec.parse(inputStream);
         // THEN
-        assertEquals("PostSharp", nuspecFile.getId(), "Package ID");
+        assertThat(nuspecFile.getId()).as("Package ID").isEqualTo("PostSharp");
     }
 
     /**
@@ -255,7 +254,7 @@ public class NuspecTest
         Nuspec nuspecFile = Nuspec.parse(inputStream);
         List<Dependency> dependencies = nuspecFile.getDependencies();
         // THEN
-        assertEquals(1, dependencies.size(), "Number of dependencies");
+        assertThat(dependencies).as("Number of dependencies").hasSize(1);
     }
 
     /**
@@ -271,11 +270,8 @@ public class NuspecTest
         // GIVEN
         InputStream inputStream = NugetTestResourceUtil.getAsStream("nuspec/incorrect.version.nuspec.xml");
         // WHEN
-        assertThrows(
-                     NugetFormatException.class,
-                     () -> {
-                         Nuspec.parse(inputStream);
-                     });
+        assertThatExceptionOfType(NugetFormatException.class)
+                .isThrownBy(() -> Nuspec.parse(inputStream));
     }
 
     /**
@@ -294,25 +290,25 @@ public class NuspecTest
         // WHEN
         Nuspec result = Nuspec.parse(inputStream);
         // THEN
-        assertEquals(5, result.getFrameworkAssembly().size());
-        assertEquals("PresentationCore", result.getFrameworkAssembly().get(0).getAssemblyName());
-        assertEquals(EnumSet.of(Framework.net35, Framework.net40),
-                     result.getFrameworkAssembly().get(0).getTargetFrameworks());
+        assertThat(result.getFrameworkAssembly()).hasSize(5);
+        assertThat(result.getFrameworkAssembly().get(0).getAssemblyName()).isEqualTo("PresentationCore");
+        assertThat(EnumSet.of(Framework.net35, Framework.net40))
+                .isEqualTo(result.getFrameworkAssembly().get(0).getTargetFrameworks());
 
-        assertEquals("PresentationFramework", result.getFrameworkAssembly().get(1).getAssemblyName());
-        assertEquals(EnumSet.of(Framework.net35, Framework.net40),
-                     result.getFrameworkAssembly().get(1).getTargetFrameworks());
+        assertThat(result.getFrameworkAssembly().get(1).getAssemblyName()).isEqualTo("PresentationFramework");
+        assertThat(EnumSet.of(Framework.net35, Framework.net40))
+                .isEqualTo(result.getFrameworkAssembly().get(1).getTargetFrameworks());
 
-        assertEquals("WindowsBase", result.getFrameworkAssembly().get(2).getAssemblyName());
-        assertEquals(EnumSet.of(Framework.net35, Framework.net40),
-                     result.getFrameworkAssembly().get(2).getTargetFrameworks());
+        assertThat(result.getFrameworkAssembly().get(2).getAssemblyName()).isEqualTo("WindowsBase");
+        assertThat(EnumSet.of(Framework.net35, Framework.net40))
+                .isEqualTo(result.getFrameworkAssembly().get(2).getTargetFrameworks());
 
-        assertEquals("System", result.getFrameworkAssembly().get(3).getAssemblyName());
-        assertEquals(EnumSet.of(Framework.net35, Framework.net40),
-                     result.getFrameworkAssembly().get(3).getTargetFrameworks());
+        assertThat(result.getFrameworkAssembly().get(3).getAssemblyName()).isEqualTo("System");
+        assertThat(EnumSet.of(Framework.net35, Framework.net40))
+                .isEqualTo(result.getFrameworkAssembly().get(3).getTargetFrameworks());
 
-        assertEquals("System.Xaml", result.getFrameworkAssembly().get(4).getAssemblyName());
-        assertEquals(EnumSet.of(Framework.net40), result.getFrameworkAssembly().get(4).getTargetFrameworks());
+        assertThat(result.getFrameworkAssembly().get(4).getAssemblyName()).isEqualTo("System.Xaml");
+        assertThat(result.getFrameworkAssembly().get(4).getTargetFrameworks()).isEqualTo(EnumSet.of(Framework.net40));
     }
 
     /**
@@ -330,13 +326,13 @@ public class NuspecTest
         // WHEN
         Nuspec result = Nuspec.parse(inputStream);
         // THEN
-        assertNotNull(result);
-        assertNotNull(result.getDependencies());
-        assertEquals(3, result.getDependencies().size());
-        assertEquals(3, result.getDependenciesGroups().size());
-        assertNull(result.getDependenciesGroups().get(0).getTargetFramework());
-        assertEquals(Framework.net40, result.getDependenciesGroups().get(1).getTargetFramework());
-        assertEquals(Framework.sl30, result.getDependenciesGroups().get(2).getTargetFramework());
+        assertThat(result).isNotNull();
+        assertThat(result.getDependencies()).isNotNull();
+        assertThat(result.getDependencies()).hasSize(3);
+        assertThat(result.getDependenciesGroups()).hasSize(3);
+        assertThat(result.getDependenciesGroups().get(0).getTargetFramework()).isNull();
+        assertThat(result.getDependenciesGroups().get(1).getTargetFramework()).isEqualTo(Framework.net40);
+        assertThat(result.getDependenciesGroups().get(2).getTargetFramework()).isEqualTo(Framework.sl30);
     }
 
     /**
@@ -354,7 +350,7 @@ public class NuspecTest
         // WHEN
         Nuspec result = Nuspec.parse(inputStream);
         // THEN
-        assertNotNull(result);
+        assertThat(result).isNotNull();
     }
 
     /**
@@ -372,7 +368,7 @@ public class NuspecTest
         // WHEN
         Nuspec result = Nuspec.parse(inputStream);
         // THEN
-        assertNotNull(result);
+        assertThat(result).isNotNull();
     }
 
     /**
@@ -394,7 +390,7 @@ public class NuspecTest
         outputStream.close();
         String result = getStringValue(outputStream.toByteArray(), "/a:package/a:metadata/a:releaseNotes/text ()");
         // THEN
-        assertEquals("Test release notes", result);
+        assertThat(result).isEqualTo("Test release notes");
     }
 
     /**
@@ -413,7 +409,7 @@ public class NuspecTest
         // WHEN
         Nuspec nuspecFile = Nuspec.parse(inputStream);
         // THEN
-        assertNotNull(nuspecFile);
+        assertThat(nuspecFile).isNotNull();
     }
 
     /**
@@ -431,7 +427,7 @@ public class NuspecTest
         // WHEN
         Nuspec nuspecFile = Nuspec.parse(inputStream);
         // THEN
-        assertNotNull(nuspecFile);
+        assertThat(nuspecFile).isNotNull();
     }
 
     /**
@@ -449,7 +445,7 @@ public class NuspecTest
         // WHEN
         Nuspec nuspecFile = Nuspec.parse(inputStream);
         // THEN
-        assertNotNull(nuspecFile);
+        assertThat(nuspecFile).isNotNull();
     }
 
     /**

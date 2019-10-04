@@ -18,9 +18,7 @@ import org.junit.jupiter.api.parallel.Execution;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.ContextConfiguration;
-import static org.hamcrest.MatcherAssert.assertThat;
-import static org.hamcrest.core.StringContains.containsString;
-import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.parallel.ExecutionMode.CONCURRENT;
 
 /**
@@ -50,6 +48,8 @@ public class PackageFeedTest
 
     /**
      * Verify correct package conversion to XML
+
+import static org.assertj.core.api.Assertions.assertThat;
      *
      * @throws Exception
      */
@@ -64,10 +64,10 @@ public class PackageFeedTest
         PackageFeed packageFeed = PackageFeed.parse(inputStream);
 
         // THEN
-        assertEquals("http://localhost:8090/nuget/nuget/Packages", packageFeed.getId(), "ID");
-        assertEquals(parseXmlDate("2011-10-08T06:49:38Z"), packageFeed.getUpdated(), "Update Date");
-        assertEquals(26, packageFeed.getEntries().size(), "Number of packages");
-        assertEquals("Packages", packageFeed.getTitle(), "RSS Header");
+        assertThat(packageFeed.getId()).as("ID").isEqualTo("http://localhost:8090/nuget/nuget/Packages");
+        assertThat(packageFeed.getUpdated()).as("Update Date").isEqualTo(parseXmlDate("2011-10-08T06:49:38Z"));
+        assertThat(packageFeed.getEntries()).as("Number of packages").hasSize(26);
+        assertThat(packageFeed.getTitle()).as("RSS Header").isEqualTo("Packages");
     }
 
     /**
@@ -95,9 +95,9 @@ public class PackageFeedTest
             String resultXml = feed.getXml();
 
             // THEN
-            assertThat(resultXml, containsString("Packages(Id='NUnit',Version='2.5.9.10348')"));
+            assertThat(resultXml).contains("Packages(Id='NUnit',Version='2.5.9.10348')");
             String author = entry.getAuthor().getName();
-            assertThat(resultXml, containsString("name>" + author + "<"));
+            assertThat(resultXml).contains("name>" + author + "<");
         }
     }
 }

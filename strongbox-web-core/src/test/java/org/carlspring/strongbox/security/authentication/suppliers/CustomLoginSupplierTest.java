@@ -6,15 +6,11 @@ import org.carlspring.strongbox.controllers.login.LoginInput;
 import javax.inject.Inject;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
-import org.hamcrest.CoreMatchers;
 import org.junit.jupiter.api.Test;
-import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.mock.web.MockHttpServletRequest;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
-import static org.hamcrest.MatcherAssert.assertThat;
-import static org.junit.jupiter.api.Assertions.assertFalse;
-import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.assertj.core.api.Assertions.assertThat;
 
 /**
  * @author Przemyslaw Fusik
@@ -36,7 +32,7 @@ public class CustomLoginSupplierTest
         MockHttpServletRequest request = new MockHttpServletRequest("post", "/api/login");
         request.setContentType("application/json");
 
-        assertTrue(customLoginSupplier.supports(request));
+        assertThat(customLoginSupplier.supports(request)).isTrue();
     }
 
     @Test
@@ -46,7 +42,7 @@ public class CustomLoginSupplierTest
         MockHttpServletRequest request = new MockHttpServletRequest("get", "/api/login");
         request.setContentType("application/json");
 
-        assertFalse(customLoginSupplier.supports(request));
+        assertThat(customLoginSupplier.supports(request)).isFalse();
     }
 
     @Test
@@ -56,7 +52,7 @@ public class CustomLoginSupplierTest
         MockHttpServletRequest request = new MockHttpServletRequest("post", "/api/login");
         request.setContentType("application/xml");
 
-        assertFalse(customLoginSupplier.supports(request));
+        assertThat(customLoginSupplier.supports(request)).isFalse();
     }
 
     @Test
@@ -73,10 +69,10 @@ public class CustomLoginSupplierTest
 
         Authentication authentication = customLoginSupplier.supply(request);
 
-        assertThat(authentication, CoreMatchers.notNullValue());
-        assertThat(authentication, CoreMatchers.instanceOf(UsernamePasswordAuthenticationToken.class));
-        assertThat(authentication.getPrincipal(), CoreMatchers.equalTo("przemyslaw"));
-        assertThat(authentication.getCredentials(), CoreMatchers.equalTo("fusik"));
+        assertThat(authentication).isNotNull();
+        assertThat(authentication).isInstanceOf(UsernamePasswordAuthenticationToken.class);
+        assertThat(authentication.getPrincipal()).isEqualTo("przemyslaw");
+        assertThat(authentication.getCredentials()).isEqualTo("fusik");
     }
 
 }

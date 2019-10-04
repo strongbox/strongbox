@@ -31,10 +31,7 @@ import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.TestExecutionListeners;
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertNotNull;
-import static org.junit.jupiter.api.Assertions.assertNull;
-import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.assertj.core.api.Assertions.assertThat;
 
 @SpringBootTest
 @ActiveProfiles(profiles = "test")
@@ -59,7 +56,7 @@ public class RepositoryManagementTest
     @AfterEach
     public void checkRepositoryContextCleanup()
     {
-        assertNull(TestRepositoryManagementApplicationContext.getInstance());
+        assertThat(TestRepositoryManagementApplicationContext.getInstance()).isNull();
     }
 
     @ExtendWith({ RepositoryManagementTestExecutionListener.class, ArtifactManagementTestExecutionListener.class })
@@ -70,7 +67,7 @@ public class RepositoryManagementTest
                                                @TestArtifact(repositoryId = "rmt2", resource = "org/carlspring/test/artifact2.ext", generator = NullArtifactGenerator.class) Path repositoryArtifact,
                                                TestInfo testInfo)
     {
-        assertNotNull(testInfo);
+        assertThat(testInfo).isNotNull();
         parametersShouldBeCorrectlyResolvedAndUnique(r1, r2);
     }
 
@@ -110,15 +107,15 @@ public class RepositoryManagementTest
     private void artifactShouldBeCorrectlyResolvedAndUnique(Path artifact)
         throws IOException
     {
-        assertTrue(Files.exists(artifact));
-        assertEquals(1024L, Files.size(artifact));
+        assertThat(Files.exists(artifact)).isTrue();
+        assertThat(Files.size(artifact)).isEqualTo(1024L);
 
         String fileName = artifact.getFileName().toString();
         String checksumFileName = fileName + "." + MessageDigestAlgorithms.MD5.toLowerCase();
         Path artifactChecksum = artifact.resolveSibling(checksumFileName);
 
-        assertTrue(Files.exists(artifactChecksum));
-        assertTrue(resolvedArtifactChecksums.add(Files.readAllBytes(artifactChecksum)));
+        assertThat(Files.exists(artifactChecksum)).isTrue();
+        assertThat(resolvedArtifactChecksums.add(Files.readAllBytes(artifactChecksum))).isTrue();
     }
 
     private void parametersShouldBeCorrectlyResolvedAndUnique(Repository...repositories)
@@ -126,15 +123,15 @@ public class RepositoryManagementTest
         for (Repository repository : repositories)
         {
             // Check that @TestRepository resolved
-            assertNotNull(repository);
+            assertThat(repository).isNotNull();
             // Check that repositories correctly resolved
-            assertNotNull(configurationManager.getRepository(repository.getStorage().getId(), repository.getId()));
+            assertThat(configurationManager.getRepository(repository.getStorage().getId(), repository.getId())).isNotNull();
 
             // Check that paths created
             RootRepositoryPath path = repositoryPathResolver.resolve(repository);
-            assertTrue(Files.exists(path));
+            assertThat(Files.exists(path)).isTrue();
 
-            assertTrue(resolvedRepositoryInstances.add(repository));
+            assertThat(resolvedRepositoryInstances.add(repository)).isTrue();
         }
     }
 

@@ -13,15 +13,14 @@ import java.util.logging.Level;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
-import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.security.test.context.support.WithMockUser;
-import static io.restassured.module.mockmvc.RestAssuredMockMvc.given;
+
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.fail;
 import static org.hamcrest.CoreMatchers.equalTo;
-import static org.junit.jupiter.api.Assertions.assertTrue;
-import static org.junit.jupiter.api.Assertions.fail;
 
 /**
  * @author Pablo Tirado
@@ -60,7 +59,7 @@ public class LoggingManagementControllerTestIT
     {
         String url = getContextBaseUrl() + "/logger";
 
-        given().header(HttpHeaders.ACCEPT, MediaType.TEXT_PLAIN_VALUE)
+        mockMvc.header(HttpHeaders.ACCEPT, MediaType.TEXT_PLAIN_VALUE)
                .param("logger", LOGGER_PACKAGE)
                .param("level", LOGGER_LEVEL)
                .param("appenderName", LOGGER_APPENDER)
@@ -78,7 +77,7 @@ public class LoggingManagementControllerTestIT
     {
         String url = getContextBaseUrl() + "/logger";
 
-        given().header(HttpHeaders.ACCEPT, MediaType.APPLICATION_JSON_VALUE)
+        mockMvc.header(HttpHeaders.ACCEPT, MediaType.APPLICATION_JSON_VALUE)
                .param("logger", LOGGER_PACKAGE)
                .param("level", LOGGER_LEVEL)
                .param("appenderName", LOGGER_APPENDER)
@@ -96,7 +95,7 @@ public class LoggingManagementControllerTestIT
     {
         String url = getContextBaseUrl() + "/logger";
 
-        given().header(HttpHeaders.ACCEPT, MediaType.TEXT_PLAIN_VALUE)
+        mockMvc.header(HttpHeaders.ACCEPT, MediaType.TEXT_PLAIN_VALUE)
                .param("logger", LOGGER_PACKAGE)
                .param("level", LOGGER_LEVEL)
                .when()
@@ -113,7 +112,7 @@ public class LoggingManagementControllerTestIT
     {
         String url = getContextBaseUrl() + "/logger";
 
-        given().header(HttpHeaders.ACCEPT, MediaType.APPLICATION_JSON_VALUE)
+        mockMvc.header(HttpHeaders.ACCEPT, MediaType.APPLICATION_JSON_VALUE)
                .param("logger", LOGGER_PACKAGE)
                .param("level", LOGGER_LEVEL)
                .when()
@@ -131,7 +130,7 @@ public class LoggingManagementControllerTestIT
         String url = getContextBaseUrl() + "/logger";
         String loggerPackage = LOGGER_PACKAGE_NON_EXISTING;
 
-        given().header(HttpHeaders.ACCEPT, MediaType.TEXT_PLAIN_VALUE)
+        mockMvc.header(HttpHeaders.ACCEPT, MediaType.TEXT_PLAIN_VALUE)
                .param("logger", loggerPackage)
                .param("level", LOGGER_LEVEL)
                .when()
@@ -149,7 +148,7 @@ public class LoggingManagementControllerTestIT
         String url = getContextBaseUrl() + "/logger";
         String loggerPackage = LOGGER_PACKAGE_NON_EXISTING;
 
-        given().header(HttpHeaders.ACCEPT, MediaType.APPLICATION_JSON_VALUE)
+        mockMvc.header(HttpHeaders.ACCEPT, MediaType.APPLICATION_JSON_VALUE)
                .param("logger", loggerPackage)
                .param("level", LOGGER_LEVEL)
                .when()
@@ -166,7 +165,7 @@ public class LoggingManagementControllerTestIT
     {
         String url = getContextBaseUrl() + "/logger";
 
-        given().header(HttpHeaders.ACCEPT, MediaType.TEXT_PLAIN_VALUE)
+        mockMvc.header(HttpHeaders.ACCEPT, MediaType.TEXT_PLAIN_VALUE)
                .param("logger", LOGGER_PACKAGE)
                .when()
                .delete(url)
@@ -182,7 +181,7 @@ public class LoggingManagementControllerTestIT
     {
         String url = getContextBaseUrl() + "/logger";
 
-        given().header(HttpHeaders.ACCEPT, MediaType.APPLICATION_JSON_VALUE)
+        mockMvc.header(HttpHeaders.ACCEPT, MediaType.APPLICATION_JSON_VALUE)
                .param("logger", LOGGER_PACKAGE)
                .when()
                .delete(url)
@@ -200,7 +199,7 @@ public class LoggingManagementControllerTestIT
         String url = getContextBaseUrl() + "/logger";
         String loggerPackage = LOGGER_PACKAGE_NON_EXISTING;
 
-        given().header(HttpHeaders.ACCEPT, MediaType.TEXT_PLAIN_VALUE)
+        mockMvc.header(HttpHeaders.ACCEPT, MediaType.TEXT_PLAIN_VALUE)
                .param("logger", loggerPackage)
                .when()
                .delete(url)
@@ -217,7 +216,7 @@ public class LoggingManagementControllerTestIT
         String url = getContextBaseUrl() + "/logger";
         String loggerPackage = LOGGER_PACKAGE_NON_EXISTING;
 
-        given().header(HttpHeaders.ACCEPT, MediaType.APPLICATION_JSON_VALUE)
+        mockMvc.header(HttpHeaders.ACCEPT, MediaType.APPLICATION_JSON_VALUE)
                .param("logger", loggerPackage)
                .when()
                .delete(url)
@@ -239,7 +238,7 @@ public class LoggingManagementControllerTestIT
 
         String url = getContextBaseUrl() + "/log/" + testLogName;
 
-        given().header(HttpHeaders.ACCEPT, MediaType.TEXT_PLAIN_VALUE)
+        mockMvc.header(HttpHeaders.ACCEPT, MediaType.TEXT_PLAIN_VALUE)
                .when()
                .get(url)
                .peek() // Use peek() to print the output
@@ -253,7 +252,7 @@ public class LoggingManagementControllerTestIT
     {
         String url = getContextBaseUrl() + "/logback";
 
-        given().header(HttpHeaders.ACCEPT, MediaType.APPLICATION_XML_VALUE)
+        mockMvc.header(HttpHeaders.ACCEPT, MediaType.APPLICATION_XML_VALUE)
                .when()
                .get(url)
                .peek() // Use peek() to print the output
@@ -268,7 +267,7 @@ public class LoggingManagementControllerTestIT
         String url = getContextBaseUrl() + "/logback";
 
         // Obtain the current logback XML.
-        byte[] byteArray = given().header(HttpHeaders.ACCEPT, MediaType.APPLICATION_XML_VALUE)
+        byte[] byteArray = mockMvc.header(HttpHeaders.ACCEPT, MediaType.APPLICATION_XML_VALUE)
                                   .get(url)
                                   .peek()
                                   .then()
@@ -277,7 +276,7 @@ public class LoggingManagementControllerTestIT
                                   .asByteArray();
 
 
-        given().header(HttpHeaders.ACCEPT, MediaType.TEXT_PLAIN_VALUE)
+        mockMvc.header(HttpHeaders.ACCEPT, MediaType.TEXT_PLAIN_VALUE)
                .contentType(MediaType.APPLICATION_XML_VALUE)
                .body(byteArray)
                .when()
@@ -295,7 +294,7 @@ public class LoggingManagementControllerTestIT
         String url = getContextBaseUrl() + "/logback";
 
         // Obtain the current logback XML.
-        byte[] byteArray = given().header(HttpHeaders.ACCEPT, MediaType.APPLICATION_XML_VALUE)
+        byte[] byteArray = mockMvc.header(HttpHeaders.ACCEPT, MediaType.APPLICATION_XML_VALUE)
                                   .get(url)
                                   .peek()
                                   .then()
@@ -303,7 +302,7 @@ public class LoggingManagementControllerTestIT
                                   .extract()
                                   .asByteArray();
 
-        given().header(HttpHeaders.ACCEPT, MediaType.APPLICATION_JSON_VALUE)
+        mockMvc.header(HttpHeaders.ACCEPT, MediaType.APPLICATION_JSON_VALUE)
                .contentType(MediaType.APPLICATION_XML_VALUE)
                .body(byteArray)
                .when()
@@ -333,7 +332,7 @@ public class LoggingManagementControllerTestIT
         
         //When
         //Getting the table elements
-        String tableElementsAsString = given().contentType(MediaType.TEXT_PLAIN_VALUE)
+        String tableElementsAsString = mockMvc.contentType(MediaType.TEXT_PLAIN_VALUE)
                                               .when()
                                               .get(logDirectoryHomeUrl)
                                               .body()
@@ -352,7 +351,7 @@ public class LoggingManagementControllerTestIT
         
         try
         {
-            assertTrue(shouldContainLogFilesInHtmlTableElement, "The log files should be in the HTML response body!");
+            assertThat(shouldContainLogFilesInHtmlTableElement).isEqualTo("The log files should be in the HTML response body!");
         }
         finally
         {
@@ -380,7 +379,7 @@ public class LoggingManagementControllerTestIT
         
         //When
         //Getting the table elements
-        String tableElementsAsString = given().contentType(MediaType.TEXT_PLAIN_VALUE)
+        String tableElementsAsString = mockMvc.contentType(MediaType.TEXT_PLAIN_VALUE)
                                               .when()
                                               .get(logSubDirectoryUrl)
                                               .body()
@@ -401,7 +400,7 @@ public class LoggingManagementControllerTestIT
         try
         {
             //Assertion Test
-            assertTrue(shouldContainLogFilesInHtmlTableElement, "The log files should be in the HTML response body!");
+            assertThat(shouldContainLogFilesInHtmlTableElement).isEqualTo("The log files should be in the HTML response body!");
         }
         finally
         {

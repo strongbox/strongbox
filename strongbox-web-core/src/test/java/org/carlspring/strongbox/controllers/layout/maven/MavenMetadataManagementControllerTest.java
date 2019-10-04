@@ -30,11 +30,8 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.springframework.core.annotation.AliasFor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
-import static io.restassured.module.mockmvc.RestAssuredMockMvc.given;
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertFalse;
-import static org.junit.jupiter.api.Assertions.assertNotNull;
-import static org.junit.jupiter.api.Assertions.assertTrue;
+
+import static org.assertj.core.api.Assertions.assertThat;
 
 /**
  * @author Pablo Tirado
@@ -89,11 +86,11 @@ public class MavenMetadataManagementControllerTest
         String metadataPath = "/storages/" + storageId + "/" + repositoryId +
                               "/org/carlspring/strongbox/metadata/strongbox-metadata/maven-metadata.xml";
 
-        assertFalse(client.pathExists(metadataPath), "Metadata already exists!");
+        assertThat(client.pathExists(metadataPath)).as("Metadata already exists!").isFalse();
         client.rebuildMetadata(storageId, repositoryId, null);
 
         String url = getContextBaseUrl() + metadataPath;
-        given().contentType(MediaType.TEXT_PLAIN_VALUE)
+        mockMvc.contentType(MediaType.TEXT_PLAIN_VALUE)
                .when()
                .get(url)
                .peek()
@@ -103,8 +100,8 @@ public class MavenMetadataManagementControllerTest
         InputStream is = client.getResource(metadataPath);
         Metadata metadata = artifactMetadataService.getMetadata(is);
 
-        assertNotNull(metadata.getVersioning(), "Incorrect metadata!");
-        assertNotNull(metadata.getVersioning().getLatest(), "Incorrect metadata!");
+        assertThat(metadata.getVersioning()).as("Incorrect metadata!").isNotNull();
+        assertThat(metadata.getVersioning().getLatest()).as("Incorrect metadata!").isNotNull();
     }
 
     @ExtendWith({ RepositoryManagementTestExecutionListener.class,
@@ -146,27 +143,27 @@ public class MavenMetadataManagementControllerTest
         String metadataPath2Snapshot = metadataUrl + "/foo/bar/strongbox-metadata-foo/2.1-SNAPSHOT/maven-metadata.xml";
         String metadataPath3 = metadataUrl + "/foo/bar/strongbox-metadata-foo-bar/maven-metadata.xml";
 
-        assertFalse(client.pathExists(metadataPath1), "Metadata already exists!");
-        assertFalse(client.pathExists(metadataPath2), "Metadata already exists!");
-        assertFalse(client.pathExists(metadataPath3), "Metadata already exists!");
+        assertThat(client.pathExists(metadataPath1)).as("Metadata already exists!").isFalse();
+        assertThat(client.pathExists(metadataPath2)).as("Metadata already exists!").isFalse();
+        assertThat(client.pathExists(metadataPath3)).as("Metadata already exists!").isFalse();
 
         client.rebuildMetadata(storageId, repositoryId, "org/carlspring/strongbox/metadata/foo/bar");
 
-        assertFalse(client.pathExists(metadataPath1), "Failed to rebuild snapshot metadata!");
-        assertTrue(client.pathExists(metadataPath2), "Failed to rebuild snapshot metadata!");
-        assertTrue(client.pathExists(metadataPath3), "Failed to rebuild snapshot metadata!");
+        assertThat(client.pathExists(metadataPath1)).as("Failed to rebuild snapshot metadata!").isFalse();
+        assertThat(client.pathExists(metadataPath2)).as("Failed to rebuild snapshot metadata!").isTrue();
+        assertThat(client.pathExists(metadataPath3)).as("Failed to rebuild snapshot metadata!").isTrue();
 
         InputStream is = client.getResource(metadataPath2);
         Metadata metadata2 = artifactMetadataService.getMetadata(is);
 
-        assertNotNull(metadata2.getVersioning(), "Incorrect metadata!");
-        assertNotNull(metadata2.getVersioning().getLatest(), "Incorrect metadata!");
+        assertThat(metadata2.getVersioning()).as("Incorrect metadata!").isNotNull();
+        assertThat(metadata2.getVersioning().getLatest()).as("Incorrect metadata!").isNotNull();
 
         is = client.getResource(metadataPath3);
         Metadata metadata3 = artifactMetadataService.getMetadata(is);
 
-        assertNotNull(metadata3.getVersioning(), "Incorrect metadata!");
-        assertNotNull(metadata3.getVersioning().getLatest(), "Incorrect metadata!");
+        assertThat(metadata3.getVersioning()).as("Incorrect metadata!").isNotNull();
+        assertThat(metadata3.getVersioning().getLatest()).as("Incorrect metadata!").isNotNull();
 
         // Test the deletion of a timestamped SNAPSHOT artifact
         is = client.getResource(metadataPath2Snapshot);
@@ -198,15 +195,19 @@ public class MavenMetadataManagementControllerTest
                                                                                         timestamp,
                                                                                         buildNumber);
 
-        assertNotNull(metadata2SnapshotAfter.getVersioning(), "Incorrect metadata!");
-        assertFalse(MetadataHelper.containsVersion(metadata2SnapshotAfter, latestTimestamp),
-                    "Failed to remove timestamped SNAPSHOT version!");
-        assertEquals(timestamp, metadata2SnapshotAfter.getVersioning().getSnapshot().getTimestamp(),
-                     "Incorrect metadata!");
-        assertEquals(Integer.parseInt(buildNumber), metadata2SnapshotAfter.getVersioning().getSnapshot().getBuildNumber(),
-                     "Incorrect metadata!");
-        assertEquals(previousLatestTimestamp, metadata2AfterSnapshotVersions.get(metadata2AfterSnapshotVersions.size() - 1).getVersion(),
-                     "Incorrect metadata!");
+        assertThat(metadata2SnapshotAfter.getVersioning()).as("Incorrect metadata!").isNotNull();
+        assertThat(MetadataHelper.containsVersion(metadata2SnapshotAfter, latestTimestamp))
+                .as("Failed to remove timestamped SNAPSHOT version!")
+                .isFalse();
+        assertThat(metadata2SnapshotAfter.getVersioning().getSnapshot().getTimestamp())
+                .as("Incorrect metadata!")
+                .isEqualTo(timestamp);
+        assertThat(metadata2SnapshotAfter.getVersioning().getSnapshot().getBuildNumber())
+                .as("Incorrect metadata!")
+                .isEqualTo(Integer.parseInt(buildNumber));
+        assertThat(metadata2AfterSnapshotVersions.get(metadata2AfterSnapshotVersions.size() - 1).getVersion())
+                .as("Incorrect metadata!")
+                .isEqualTo(previousLatestTimestamp);
     }
 
 
@@ -230,19 +231,19 @@ public class MavenMetadataManagementControllerTest
                               "/org/carlspring/strongbox/metadata/strongbox-metadata/maven-metadata.xml";
         String artifactPath = "org/carlspring/strongbox/metadata/strongbox-metadata";
 
-        assertFalse(client.pathExists(metadataPath), "Metadata already exists!");
+        assertThat(client.pathExists(metadataPath)).as("Metadata already exists!").isFalse();
 
         // create new metadata
         client.rebuildMetadata(storageId, repositoryId, null);
 
-        assertTrue(client.pathExists(metadataPath), "Failed to rebuild release metadata!");
+        assertThat(client.pathExists(metadataPath)).as("Failed to rebuild release metadata!").isTrue();
 
         InputStream is = client.getResource(metadataPath);
         Metadata metadataBefore = artifactMetadataService.getMetadata(is);
 
-        assertNotNull(metadataBefore.getVersioning(), "Incorrect metadata!");
-        assertNotNull(metadataBefore.getVersioning().getLatest(), "Incorrect metadata!");
-        assertEquals("3.2", metadataBefore.getVersioning().getLatest(), "Incorrect metadata!");
+        assertThat(metadataBefore.getVersioning()).as("Incorrect metadata!").isNotNull();
+        assertThat(metadataBefore.getVersioning().getLatest()).as("Incorrect metadata!").isNotNull();
+        assertThat(metadataBefore.getVersioning().getLatest()).as("Incorrect metadata!").isEqualTo("3.2");
 
         client.removeVersionFromMetadata(storageId,
                                          repositoryId,
@@ -254,10 +255,10 @@ public class MavenMetadataManagementControllerTest
         is = client.getResource(metadataPath);
         Metadata metadataAfter = artifactMetadataService.getMetadata(is);
 
-        assertNotNull(metadataAfter.getVersioning(), "Incorrect metadata!");
-        assertFalse(MetadataHelper.containsVersion(metadataAfter, "3.2"), "Unexpected set of versions!");
-        assertNotNull(metadataAfter.getVersioning().getLatest(), "Incorrect metadata!");
-        assertEquals("3.1", metadataAfter.getVersioning().getLatest(), "Incorrect metadata!");
+        assertThat(metadataAfter.getVersioning()).as("Incorrect metadata!").isNotNull();
+        assertThat(MetadataHelper.containsVersion(metadataAfter, "3.2")).as("Unexpected set of versions!").isFalse();
+        assertThat(metadataAfter.getVersioning().getLatest()).as("Incorrect metadata!").isNotNull();
+        assertThat(metadataAfter.getVersioning().getLatest()).as("Incorrect metadata!").isEqualTo("3.1");
     }
 
     @Target({ ElementType.PARAMETER, ElementType.ANNOTATION_TYPE })

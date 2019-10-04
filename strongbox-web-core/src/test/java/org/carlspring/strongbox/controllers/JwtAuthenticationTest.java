@@ -1,14 +1,22 @@
 package org.carlspring.strongbox.controllers;
 
-import org.carlspring.strongbox.config.IntegrationTest;
-import org.carlspring.strongbox.rest.common.RestAssuredBaseTest;
-import org.carlspring.strongbox.users.security.SecurityTokenProvider;
 
-import javax.inject.Inject;
+import static java.nio.charset.StandardCharsets.ISO_8859_1;
+import static org.hamcrest.Matchers.equalTo;
+import static org.hamcrest.Matchers.notNullValue;
+
 import java.nio.charset.Charset;
 import java.util.Collections;
 import java.util.Locale;
 
+import javax.inject.Inject;
+
+import org.carlspring.strongbox.config.IntegrationTest;
+import org.carlspring.strongbox.rest.common.RestAssuredBaseTest;
+import org.carlspring.strongbox.users.security.JwtAuthenticationClaimsProvider.JwtAuthentication;
+import org.carlspring.strongbox.users.security.JwtClaimsProvider;
+import org.carlspring.strongbox.users.security.SecurityTokenProvider;
+import org.carlspring.strongbox.users.userdetails.SpringSecurityUser;
 import org.jose4j.jwt.NumericDate;
 import org.json.JSONObject;
 import org.junit.jupiter.api.BeforeEach;
@@ -19,11 +27,8 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.security.core.SpringSecurityMessageSource;
 import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.test.context.TestSecurityContextHolder;
-import static io.restassured.module.mockmvc.RestAssuredMockMvc.given;
-import static java.nio.charset.StandardCharsets.ISO_8859_1;
-import static org.hamcrest.Matchers.equalTo;
-import static org.hamcrest.Matchers.notNullValue;
 
 /**
  * @author adavid9
@@ -41,10 +46,17 @@ public class JwtAuthenticationTest
     @Inject
     private SecurityTokenProvider securityTokenProvider;
 
+    @Inject
+    @JwtAuthentication
+    private JwtClaimsProvider jwtClaimsProvider;
+
+    @Inject
+    private UserDetailsService userDetailsService;
+
     @Override
     @BeforeEach
     public void init()
-            throws Exception
+        throws Exception
     {
         super.init();
 
@@ -55,13 +67,13 @@ public class JwtAuthenticationTest
 
     @Test
     public void testJWTAuthShouldPassWithToken()
-            throws Exception
+        throws Exception
     {
         String url = getContextBaseUrl() + "/users";
 
         String basicAuth = "Basic YWRtaW46cGFzc3dvcmQ=";
 
-        String body = given().header(HttpHeaders.AUTHORIZATION, basicAuth)
+        String body = mockMvc.header(HttpHeaders.AUTHORIZATION, basicAuth)
                              .header(HttpHeaders.ACCEPT, MediaType.APPLICATION_JSON_VALUE)
                              .when()
                              .get(getContextBaseUrl() + "/login")
@@ -72,7 +84,7 @@ public class JwtAuthenticationTest
         TestSecurityContextHolder.clearContext();
         SecurityContextHolder.clearContext();
 
-        given().header(HttpHeaders.ACCEPT, MediaType.APPLICATION_JSON_VALUE)
+        mockMvc.header(HttpHeaders.ACCEPT, MediaType.APPLICATION_JSON_VALUE)
                .when()
                .get(url)
                .then()
@@ -83,7 +95,7 @@ public class JwtAuthenticationTest
 
         // this token will expire after 1 hour
         String tokenValue = getTokenValue(body);
-        given().header(HttpHeaders.AUTHORIZATION, getAuthorizationHeader(tokenValue))
+        mockMvc.header(HttpHeaders.AUTHORIZATION, getAuthorizationHeader(tokenValue))
                .header(HttpHeaders.ACCEPT, MediaType.APPLICATION_JSON_VALUE)
                .when()
                .get(url)
@@ -102,11 +114,11 @@ public class JwtAuthenticationTest
                                                   defaultErrorMessage);
 
         String decodedErrorMessage = new String(errorMessage.getBytes(ISO_8859_1),
-                                                Charset.defaultCharset());
+                Charset.defaultCharset());
 
         String url = getContextBaseUrl() + "/users";
 
-        given().header(HttpHeaders.ACCEPT, MediaType.APPLICATION_JSON_VALUE)
+        mockMvc.header(HttpHeaders.ACCEPT, MediaType.APPLICATION_JSON_VALUE)
                .when()
                .get(url)
                .then()
@@ -121,7 +133,7 @@ public class JwtAuthenticationTest
 
         String invalid_token = "ABCD";
 
-        given().header(HttpHeaders.AUTHORIZATION, getAuthorizationHeader(invalid_token))
+        mockMvc.header(HttpHeaders.AUTHORIZATION, getAuthorizationHeader(invalid_token))
                .header(HttpHeaders.ACCEPT, MediaType.APPLICATION_JSON_VALUE)
                .when()
                .get(url)
@@ -132,14 +144,16 @@ public class JwtAuthenticationTest
 
     @Test
     public void testJWTExpirationToken()
-            throws Exception
+        throws Exception
     {
         String url = getContextBaseUrl() + "/users";
 
         // create token that will expire after 1 second
-        String expiredToken = securityTokenProvider.getToken("admin", Collections.emptyMap(), 3, null);
+        SpringSecurityUser userDetails = (SpringSecurityUser) userDetailsService.loadUserByUsername("admin");
+        String expiredToken = securityTokenProvider.getToken(userDetails.getUsername(),
+                                                             jwtClaimsProvider.getClaims(userDetails), 3, null);
 
-        given().header(HttpHeaders.AUTHORIZATION, getAuthorizationHeader(expiredToken))
+        mockMvc.header(HttpHeaders.AUTHORIZATION, getAuthorizationHeader(expiredToken))
                .header(HttpHeaders.ACCEPT, MediaType.APPLICATION_JSON_VALUE)
                .when()
                .get(url)
@@ -149,7 +163,7 @@ public class JwtAuthenticationTest
 
         Thread.sleep(3000);
 
-        given().header(HttpHeaders.AUTHORIZATION, getAuthorizationHeader(expiredToken))
+        mockMvc.header(HttpHeaders.AUTHORIZATION, getAuthorizationHeader(expiredToken))
                .header(HttpHeaders.ACCEPT, MediaType.APPLICATION_JSON_VALUE)
                .when()
                .get(url)
@@ -160,17 +174,18 @@ public class JwtAuthenticationTest
 
     @Test
     public void testJWTIssuedAtFuture()
-            throws Exception
+        throws Exception
     {
         String url = getContextBaseUrl() + "/users";
 
         NumericDate futureNumericDate = NumericDate.now();
-        // add five minutes to the current time to create a JWT issued in the future
+        // add five minutes to the current time to create a JWT issued in the
+        // future
         futureNumericDate.addSeconds(300);
 
         String token = securityTokenProvider.getToken("admin", Collections.emptyMap(), 10, futureNumericDate);
 
-        given().header(HttpHeaders.AUTHORIZATION, getAuthorizationHeader(token))
+        mockMvc.header(HttpHeaders.AUTHORIZATION, getAuthorizationHeader(token))
                .header(HttpHeaders.ACCEPT, MediaType.APPLICATION_JSON_VALUE)
                .when()
                .get(url)
@@ -180,7 +195,7 @@ public class JwtAuthenticationTest
     }
 
     private String getTokenValue(String body)
-            throws Exception
+        throws Exception
     {
         JSONObject extractToken = new JSONObject(body);
         return extractToken.getString("token");

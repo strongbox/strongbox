@@ -10,7 +10,7 @@ import org.junit.jupiter.api.Test;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.ContextConfiguration;
-import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.assertj.core.api.Assertions.assertThat;
 
 /**
  * Functional test for {@link AuthorizationConfigService}
@@ -33,6 +33,6 @@ public class AuthorizationConfigServiceTest
         // at the bean instantiation stage
         // config will be loaded from db or YAML file, going to be validated aso.
         // if optional is present, it means that everything is really ok
-        assertNotNull(authorizationConfigService.get());
+        assertThat(authorizationConfigService.get()).isNotNull();
     }
 }

@@ -10,7 +10,8 @@ import java.util.HashMap;
 import java.util.Map;
 
 import org.junit.jupiter.api.Test;
-import static org.junit.jupiter.api.Assertions.*;
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatExceptionOfType;
 
 public class P2ArtifactReaderTest
 {
@@ -26,47 +27,46 @@ public class P2ArtifactReaderTest
     {
         P2ArtifactCoordinates foundArtifact = getArtifact();
 
-        assertEquals(CLASSIFIER, foundArtifact.getClassifier());
-        assertEquals(ID, foundArtifact.getId());
-        assertEquals(VERSION, foundArtifact.getVersion());
+        assertThat(foundArtifact.getClassifier()).isEqualTo(CLASSIFIER);
+        assertThat(foundArtifact.getId()).isEqualTo(ID);
+        assertThat(foundArtifact.getVersion()).isEqualTo(VERSION);
     }
 
     @Test
     public void testNullPath()
             throws IOException
     {
-        assertThrows(FileNotFoundException.class, () -> {
-            assertNull(P2ArtifactReader.getArtifact(".", null));
-        });
+        assertThatExceptionOfType(FileNotFoundException.class)
+                .isThrownBy(() -> assertThat(P2ArtifactReader.getArtifact(".", null)).isNull());
     }
 
     @Test
     public void testNullBaseDir()
             throws IOException
     {
-        assertThrows(FileNotFoundException.class, () -> {
-            assertNull(P2ArtifactReader.getArtifact(null, ""));
-        });
+
+        assertThatExceptionOfType(FileNotFoundException.class)
+                .isThrownBy(() -> assertThat(P2ArtifactReader.getArtifact(null, "")).isNull());
     }
 
     @Test
     public void testNullParameters()
             throws IOException
     {
-        assertThrows(FileNotFoundException.class, () -> {
-            assertNull(P2ArtifactReader.getArtifact(null, null));
-        });
+        assertThatExceptionOfType(FileNotFoundException.class)
+                .isThrownBy(() -> assertThat(P2ArtifactReader.getArtifact(null, null)).isNull());
     }
 
     @Test
     public void testInvalidPath()
             throws IOException
     {
-        assertThrows(FileNotFoundException.class, () -> {
-            assertNull(P2ArtifactReader.getArtifact(".", "some/invalid@path"));
-            assertNull(P2ArtifactReader.getArtifact(".", "somePath"));
-            assertNull(P2ArtifactReader.getArtifact(".", ""));
-            assertNull(P2ArtifactReader.getArtifact(".", "osgi.bundle/missingName/1.0.1"));
+        assertThatExceptionOfType(FileNotFoundException.class)
+                .isThrownBy( () -> {
+                    assertThat(P2ArtifactReader.getArtifact(".", "some/invalid@path")).isNull();
+                    assertThat(P2ArtifactReader.getArtifact(".", "somePath")).isNull();
+                    assertThat(P2ArtifactReader.getArtifact(".", "")).isNull();
+                    assertThat(P2ArtifactReader.getArtifact(".", "osgi.bundle/missingName/1.0.1")).isNull();
         });
     }
 
@@ -74,18 +74,16 @@ public class P2ArtifactReaderTest
     public void testInvalidBaseDir()
             throws IOException
     {
-        assertThrows(FileNotFoundException.class, () -> {
-            assertNull(P2ArtifactReader.getArtifact("inavlidRoot!", "somePath"));
-        });
+        assertThatExceptionOfType(FileNotFoundException.class)
+                .isThrownBy( () -> assertThat(P2ArtifactReader.getArtifact("inavlidRoot!", "somePath")).isNull());
     }
 
     @Test
     public void testEmpryParameters()
             throws IOException
     {
-        assertThrows(FileNotFoundException.class, () -> {
-            assertNull(P2ArtifactReader.getArtifact("", ""));
-        });
+        assertThatExceptionOfType(FileNotFoundException.class)
+                .isThrownBy( () -> assertThat(P2ArtifactReader.getArtifact("", "")).isNull());
     }
 
     @Test
@@ -94,7 +92,7 @@ public class P2ArtifactReaderTest
     {
         P2ArtifactCoordinates foundArtifact = getArtifact();
         Map<String, String> properties = foundArtifact.getProperties();
-        assertNotNull(properties);
+        assertThat(properties).isNotNull();
 
         Map<String, String> expectedProperties = new HashMap<>();
         expectedProperties.put("id", ID);
@@ -104,8 +102,8 @@ public class P2ArtifactReaderTest
         expectedProperties.forEach(
                 (key, value) ->
                 {
-                    assertTrue(properties.containsKey(key), key + " not found");
-                    assertEquals(properties.get(key), value);
+                    assertThat(properties.containsKey(key)).as(key + " not found").isTrue();
+                    assertThat(value).isEqualTo(properties.get(key));
                 });
     }
 
@@ -116,7 +114,7 @@ public class P2ArtifactReaderTest
         final String repoDir = getRepoDir();
         P2ArtifactCoordinates foundArtifact = getArtifact(repoDir);
         final String expectedFilename = String.format("%s/plugins/%s_%s.jar", repoDir, ID, VERSION);
-        assertEquals(expectedFilename, foundArtifact.getFilename());
+        assertThat(foundArtifact.getFilename()).isEqualTo(expectedFilename);
     }
 
     private P2ArtifactCoordinates getArtifact()

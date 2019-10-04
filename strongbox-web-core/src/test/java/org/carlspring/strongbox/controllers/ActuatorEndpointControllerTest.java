@@ -10,9 +10,11 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.security.test.context.support.WithUserDetails;
 
+import io.restassured.module.mockmvc.specification.MockMvcRequestSpecification;
+
 import javax.inject.Inject;
 
-import static io.restassured.module.mockmvc.RestAssuredMockMvc.given;
+
 import static org.hamcrest.Matchers.equalTo;
 import static org.hamcrest.Matchers.notNullValue;
 
@@ -26,6 +28,9 @@ public class ActuatorEndpointControllerTest
 
     @Inject
     private PropertiesBooter propertiesBooter;
+
+    @Inject
+    private MockMvcRequestSpecification mockMvc;
 
     @Override
     @BeforeEach
@@ -43,7 +48,7 @@ public class ActuatorEndpointControllerTest
 
         String url = getContextBaseUrl() + "/info";
 
-        given().header(HttpHeaders.ACCEPT, MediaType.APPLICATION_JSON_VALUE)
+        mockMvc.header(HttpHeaders.ACCEPT, MediaType.APPLICATION_JSON_VALUE)
                .when()
                .get(url)
                .then()
@@ -52,7 +57,7 @@ public class ActuatorEndpointControllerTest
 
         String version = propertiesBooter.getStrongboxVersion();
 
-        given().header(HttpHeaders.ACCEPT, MediaType.APPLICATION_JSON_VALUE)
+        mockMvc.header(HttpHeaders.ACCEPT, MediaType.APPLICATION_JSON_VALUE)
                .when()
                .get(url)
                .then()
@@ -61,7 +66,7 @@ public class ActuatorEndpointControllerTest
 
         String revision = propertiesBooter.getStrongboxRevision();
 
-        given().header(HttpHeaders.ACCEPT, MediaType.APPLICATION_JSON_VALUE)
+        mockMvc.header(HttpHeaders.ACCEPT, MediaType.APPLICATION_JSON_VALUE)
                .when()
                .get(url)
                .then()

@@ -19,8 +19,7 @@ import org.junit.jupiter.api.parallel.Execution;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.ContextConfiguration;
-import static org.junit.jupiter.api.Assertions.assertFalse;
-import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.parallel.ExecutionMode.SAME_THREAD;
 
 /**
@@ -52,13 +51,15 @@ public class Maven2LayoutProviderTest
     {
         RepositoryPath artifactRepositoryPath = (RepositoryPath) artifactPath.normalize();
 
-        assertTrue(Files.exists(artifactRepositoryPath),
-                   "Failed to locate artifact file " + artifactPath);
+        assertThat(Files.exists(artifactRepositoryPath))
+                .as("Failed to locate artifact file " + artifactPath)
+                .isTrue();
 
         RepositoryFiles.delete(artifactRepositoryPath, false);
 
-        assertFalse(Files.exists(artifactRepositoryPath),
-                    "Failed to delete artifact file " + artifactRepositoryPath);
+        assertThat(Files.exists(artifactRepositoryPath))
+                .as("Failed to delete artifact file " + artifactRepositoryPath)
+                .isFalse();
     }
 
     @Test
@@ -73,13 +74,15 @@ public class Maven2LayoutProviderTest
     {
         RepositoryPath artifactRepositoryPath = (RepositoryPath) artifactPath.normalize();
 
-        assertTrue(Files.exists(artifactRepositoryPath),
-                   "Failed to locate artifact file " + artifactPath);
+        assertThat(Files.exists(artifactRepositoryPath))
+                .as("Failed to locate artifact file " + artifactPath)
+                .isTrue();
 
         RepositoryFiles.delete(artifactRepositoryPath, false);
 
-        assertFalse(Files.exists(artifactRepositoryPath),
-                    "Failed to delete artifact file " + artifactPath);
+        assertThat(Files.exists(artifactRepositoryPath))
+                .as("Failed to delete artifact file " + artifactPath)
+                .isFalse();
     }
 
 }

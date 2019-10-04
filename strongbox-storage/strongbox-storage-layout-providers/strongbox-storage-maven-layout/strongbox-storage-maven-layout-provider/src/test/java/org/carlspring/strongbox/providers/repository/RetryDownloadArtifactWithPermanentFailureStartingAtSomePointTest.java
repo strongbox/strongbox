@@ -17,9 +17,8 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.springframework.core.io.Resource;
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertFalse;
-import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatExceptionOfType;
 
 /**
  * @author Przemyslaw Fusik
@@ -32,7 +31,7 @@ public class RetryDownloadArtifactWithPermanentFailureStartingAtSomePointTest
     private static final String REPOSITORY = "rdawpfsasp-repository";
 
     private static final String PROXY_REPOSITORY_URL = "https://repo.maven.apache.org/maven2/";
-    
+
     private PermanentBrokenArtifactInputStream brokenArtifactInputStream;
 
     @Override
@@ -71,20 +70,15 @@ public class RetryDownloadArtifactWithPermanentFailureStartingAtSomePointTest
         String path = MavenArtifactUtils.convertArtifactToPath(artifact);
         RepositoryPath artifactPath = repositoryPathResolver.resolve(proxyRepository,
                                                                      path);
-        
+
         // given
-        assertFalse(Files.exists(artifactPath));
+        assertThat(Files.exists(artifactPath)).isFalse();
 
-
-        IOException exception = assertThrows(IOException.class, () -> {
-            // when
-            artifactResolutionServiceHelper.assertStreamNotNull(storageId,
-                                                                repositoryId,
-                                                                path);
-        });
-
-        //then
-        assertEquals("Connection lost.", exception.getMessage());
+        assertThatExceptionOfType(IOException.class)
+                .isThrownBy(() -> artifactResolutionServiceHelper.assertStreamNotNull(storageId,
+                                                                      repositoryId,
+                                                                      path)
+                ).withMessageMatching("Connection lost.");
     }
 
     static class PermanentBrokenArtifactInputStream

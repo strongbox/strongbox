@@ -23,9 +23,8 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
-import static io.restassured.module.mockmvc.RestAssuredMockMvc.given;
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertTrue;
+
+import static org.assertj.core.api.Assertions.assertThat;
 
 /**
  * @author Martin Todorov
@@ -62,7 +61,7 @@ public class RawArtifactControllerTest
         // Push
         String url = getContextBaseUrl() + "/storages/" + storageId + "/" + repositoryId + "/" + path;
 
-        given().header(HttpHeaders.USER_AGENT, "Raw/*")
+        mockMvc.header(HttpHeaders.USER_AGENT, "Raw/*")
                .contentType(MediaType.MULTIPART_FORM_DATA_VALUE)
                .body(content)
                .when()
@@ -86,7 +85,7 @@ public class RawArtifactControllerTest
 
         baos.flush();
 
-        assertEquals(new String(content), new String(baos.toByteArray()), "Deployed content mismatch!");
+        assertThat(new String(baos.toByteArray())).as("Deployed content mismatch!").isEqualTo(new String(content));
 
         logger.debug("Read '{}',", new String(baos.toByteArray()));
     }
@@ -105,7 +104,7 @@ public class RawArtifactControllerTest
         final String pathStr = "org/foo/bar/blah.zip";
 
         RepositoryPath artifactRepositoryPath = repositoryPathResolver.resolve(repository, pathStr);
-        assertTrue(Files.exists(artifactRepositoryPath.toAbsolutePath()), "Artifact does not exist!");
+        assertThat(Files.exists(artifactRepositoryPath.toAbsolutePath())).as("Artifact does not exist!").isTrue();
     }
 
 }

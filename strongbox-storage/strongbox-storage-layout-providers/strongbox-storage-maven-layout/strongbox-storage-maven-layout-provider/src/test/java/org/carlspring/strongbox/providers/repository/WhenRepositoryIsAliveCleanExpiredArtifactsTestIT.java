@@ -22,7 +22,7 @@ import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.TestExecutionListeners;
-import static org.junit.jupiter.api.Assertions.*;
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.parallel.ExecutionMode.CONCURRENT;
 import static org.mockito.ArgumentMatchers.argThat;
 
@@ -65,15 +65,18 @@ public class WhenRepositoryIsAliveCleanExpiredArtifactsTestIT
                 artifactEntryService.findOneArtifact(proxyRepository.getStorage().getId(),
                                                      proxyRepository.getId(),
                                                      getPath()));
-        assertEquals(Optional.empty(), artifactEntryOptional);
+        assertThat(artifactEntryOptional).isEqualTo(Optional.empty());
 
         final Storage storage = getConfiguration().getStorage(artifactEntry.getStorageId());
         final Repository repository = storage.getRepository(artifactEntry.getRepositoryId());
 
-        assertFalse(RepositoryFiles.artifactExists(repositoryPathResolver.resolve(repository, getPath())));
-        assertTrue(RepositoryFiles.artifactExists(repositoryPathResolver.resolve(repository, StringUtils.replace(getPath(),
-                                                                                                              "1.3/maven-commons-1.3.jar",
-                                                                                                              "maven-metadata.xml"))));
+        assertThat(RepositoryFiles.artifactExists(repositoryPathResolver.resolve(repository, getPath()))).isFalse();
+        assertThat(RepositoryFiles.artifactExists(
+                repositoryPathResolver.resolve(
+                        repository,
+                        StringUtils.replace(getPath(),"1.3/maven-commons-1.3.jar","maven-metadata.xml"))
+                   )
+        ).isTrue();
     }
 
     @Override

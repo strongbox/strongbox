@@ -1,4 +1,4 @@
-package org.carlspring.strongbox.authentication.external.ldap;
+package org.carlspring.strongbox.authentication.api.ldap;
 
 import com.fasterxml.jackson.annotation.JsonUnwrapped;
 

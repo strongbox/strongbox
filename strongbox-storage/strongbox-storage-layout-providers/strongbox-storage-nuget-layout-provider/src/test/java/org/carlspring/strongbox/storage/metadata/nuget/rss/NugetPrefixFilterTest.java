@@ -36,8 +36,7 @@ import org.junit.jupiter.api.parallel.Execution;
 import org.xml.sax.InputSource;
 import org.xml.sax.XMLReader;
 import org.xml.sax.helpers.XMLReaderFactory;
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.parallel.ExecutionMode.CONCURRENT;
 
 /**
@@ -83,9 +82,9 @@ public class NugetPrefixFilterTest
         String xmlString = stringWriter.toString();
 
         // THEN
-        assertTrue(xmlString.contains("<m2:l/>"));
-        assertTrue(xmlString.contains("<m2:k m3:val=\"value\">"));
-        assertTrue(xmlString.contains("</m1:root>"));
+        assertThat(xmlString.contains("<m2:l/>")).isTrue();
+        assertThat(xmlString.contains("<m2:k m3:val=\"value\">")).isTrue();
+        assertThat(xmlString.contains("</m1:root>")).isTrue();
     }
 
     /**
@@ -121,11 +120,16 @@ public class NugetPrefixFilterTest
 
         // THEN
         PackageFeed feed = PackageFeed.parse(new ByteArrayInputStream(byteArrayOutputStream.toByteArray()));
-        assertEquals(1, feed.getEntries().size(), "Number of packages");
+        assertThat(feed.getEntries()).as("Number of packages").hasSize(1);
         PackageEntry entry = feed.getEntries().get(0);
-        assertEquals("http://ws209.neolant.loc:8084/nuget/download/FluentAssertions/1.6.0", entry.getContent().getSrc(),
-                     "Content");
-        assertEquals(Integer.valueOf(-1), entry.getProperties().getDownloadCount(), "Download Count");
-        assertEquals(SemanticVersion.parse("1.6.0"), entry.getProperties().getVersion(), "Package Version");
+        assertThat(entry.getContent().getSrc())
+                .as("Content")
+                .isEqualTo("http://ws209.neolant.loc:8084/nuget/download/FluentAssertions/1.6.0");
+        assertThat(entry.getProperties().getDownloadCount())
+                .as("Download Count")
+                .isEqualTo(Integer.valueOf(-1));
+        assertThat(entry.getProperties().getVersion())
+                .as("Package Version")
+                .isEqualTo(SemanticVersion.parse("1.6.0"));
     }
 }

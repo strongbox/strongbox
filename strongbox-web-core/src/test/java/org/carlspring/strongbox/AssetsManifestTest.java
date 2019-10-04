@@ -17,13 +17,15 @@ import java.util.regex.Pattern;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import io.restassured.module.mockmvc.response.MockMvcResponse;
+import io.restassured.module.mockmvc.specification.MockMvcRequestSpecification;
+
 import org.apache.commons.lang3.StringUtils;
 import org.assertj.core.util.Lists;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 import org.springframework.http.HttpStatus;
-import static io.restassured.module.mockmvc.RestAssuredMockMvc.given;
-import static org.junit.jupiter.api.Assertions.*;
+
+import static org.assertj.core.api.Assertions.assertThat;
 
 /**
  * Test cases which check if UI assets are accessible.
@@ -45,6 +47,9 @@ public class AssetsManifestTest
     @Inject
     private ObjectMapper mapper;
 
+    @Inject
+    private MockMvcRequestSpecification mockMvc;
+    
     @BeforeAll
     static void init()
     {
@@ -88,7 +93,7 @@ public class AssetsManifestTest
         URI manifestUri = ClassLoader.getSystemResource(FILE_RESOURCE).toURI();
         Path manifestPath = Paths.get(manifestUri);
         String notExistsMessage = String.format("The file \"%s\" does not exist!", FILE_RESOURCE);
-        assertTrue(Files.exists(manifestPath), notExistsMessage);
+        assertThat(Files.exists(manifestPath)).as(notExistsMessage).isTrue();
 
         return manifestPath;
     }
@@ -99,7 +104,7 @@ public class AssetsManifestTest
         byte[] manifestContent = Files.readAllBytes(manifestPath);
         String manifestJsonStr = new String(manifestContent);
         String isEmptyMessage = String.format("The file \"%s\" is empty!", FILE_RESOURCE);
-        assertFalse(StringUtils.isEmpty(manifestJsonStr), isEmptyMessage);
+        assertThat(StringUtils.isEmpty(manifestJsonStr)).as(isEmptyMessage).isFalse();
 
         return manifestJsonStr;
     }
@@ -115,9 +120,9 @@ public class AssetsManifestTest
             assetPath += assetFileName;
         }
 
-        MockMvcResponse response = given().get(assetPath);
+        MockMvcResponse response = mockMvc.get(assetPath);
         String errorMessage = String.format("The resource \"%s\" is not accessible.", assetPath);
-        assertEquals(response.getStatusCode(), HttpStatus.OK.value(), errorMessage);
+        assertThat(HttpStatus.OK.value()).as(errorMessage).isEqualTo(response.getStatusCode());
 
         // Additional check for index.html
         if (isIndexFile)
@@ -133,7 +138,8 @@ public class AssetsManifestTest
             Matcher matcher = pattern.matcher(indexHtml);
 
             // Check that the resources exists in index.html.
-            assertTrue(matcher.find(), String.format("The resource \"%s\" is not found in index.html.", pattern.toString()));
+            assertThat(matcher.find())
+                    .as(String.format("The resource \"%s\" is not found in index.html.", pattern.toString())).isTrue();
         }
     }
 }

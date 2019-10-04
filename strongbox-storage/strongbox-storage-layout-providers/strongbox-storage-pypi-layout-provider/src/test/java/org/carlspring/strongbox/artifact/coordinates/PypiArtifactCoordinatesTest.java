@@ -3,9 +3,10 @@ package org.carlspring.strongbox.artifact.coordinates;
 import org.junit.jupiter.api.RepeatedTest;
 import org.junit.jupiter.api.RepetitionInfo;
 import org.junit.jupiter.api.Test;
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertThrows;
-import java.util.*; 
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatExceptionOfType;
+
+import java.util.*;
 
 /**
  * Class to test the functionality of PypiArtifactCoordinates and PypiArtifactCoordinatesUtils
@@ -108,12 +109,12 @@ public class PypiArtifactCoordinatesTest
                                                                          coords.get(4),
                                                                          coords.get(5),
                                                                          coords.get(6));
-        assertEquals(coords.get(0), testCoords.getId());
-        assertEquals(coords.get(1), testCoords.getVersion());
-        assertEquals(coords.get(2), testCoords.getBuild());
-        assertEquals(coords.get(3), testCoords.getLanguageImplementationVersion());
-        assertEquals(coords.get(4), testCoords.getAbi());
-        assertEquals(coords.get(5), testCoords.getPlatform());
+        assertThat(testCoords.getId()).isEqualTo(coords.get(0));
+        assertThat(testCoords.getVersion()).isEqualTo(coords.get(1));
+        assertThat(testCoords.getBuild()).isEqualTo(coords.get(2));
+        assertThat(testCoords.getLanguageImplementationVersion()).isEqualTo(coords.get(3));
+        assertThat(testCoords.getAbi()).isEqualTo(coords.get(4));
+        assertThat(testCoords.getPlatform()).isEqualTo(coords.get(5));
     }
 
     /**
@@ -123,47 +124,38 @@ public class PypiArtifactCoordinatesTest
     public void testCreateArtifactExceptions()
     {
         //incorrect extension
-        assertThrows(IllegalArgumentException.class, () -> {
-            new PypiArtifactCoordinates("", "3.1.6", "", "cp37", "cp37m", "win_amd64", "tar");
-        });
+        assertThatExceptionOfType(IllegalArgumentException.class)
+                .isThrownBy(() -> new PypiArtifactCoordinates("", "3.1.6", "", "cp37", "cp37m", "win_amd64", "tar"));
 
         // no distribution tag
-        assertThrows(IllegalArgumentException.class, () -> {
-            new PypiArtifactCoordinates("", "3.1.6", "", "cp37", "cp37m", "win_amd64", "whl");
-        });
+        assertThatExceptionOfType(IllegalArgumentException.class)
+                .isThrownBy(() -> new PypiArtifactCoordinates("", "3.1.6", "", "cp37", "cp37m", "win_amd64", "whl"));
 
-        assertThrows(IllegalArgumentException.class, () -> {
-            new PypiArtifactCoordinates("", "3.1.6", "tar.gz");
-        });
+        assertThatExceptionOfType(IllegalArgumentException.class)
+                .isThrownBy(() -> new PypiArtifactCoordinates("", "3.1.6", "tar.gz"));
 
         // no version tag
-        assertThrows(IllegalArgumentException.class, () -> {
-            new PypiArtifactCoordinates("bcrypt", "", "", "cp37", "cp37m", "win_amd64", "whl");
-        });
+        assertThatExceptionOfType(IllegalArgumentException.class)
+                .isThrownBy(() -> new PypiArtifactCoordinates("bcrypt", "", "", "cp37", "cp37m", "win_amd64", "whl"));
 
-        assertThrows(IllegalArgumentException.class, () -> {
-            new PypiArtifactCoordinates("bcrypt", null, "tar.gz");
-        });
+        assertThatExceptionOfType(IllegalArgumentException.class)
+                .isThrownBy(() -> new PypiArtifactCoordinates("bcrypt", null, "tar.gz"));
 
         // illegal build tag
-        assertThrows(IllegalArgumentException.class, () -> {
-            new PypiArtifactCoordinates("bcrypt", "3.1.6", "c", "cp37", "cp37m", "", "whl");
-        });
+        assertThatExceptionOfType(IllegalArgumentException.class)
+                .isThrownBy(() -> new PypiArtifactCoordinates("bcrypt", "3.1.6", "c", "cp37", "cp37m", "", "whl"));
 
         // no lang_impl_version tag
-        assertThrows(IllegalArgumentException.class, () -> {
-            new PypiArtifactCoordinates("bcrypt", "3.1.6", "", "", "cp37m", "win_amd64", "whl");
-        });
+        assertThatExceptionOfType(IllegalArgumentException.class)
+                .isThrownBy(() -> new PypiArtifactCoordinates("bcrypt", "3.1.6", "", "", "cp37m", "win_amd64", "whl"));
 
         // no abi tag
-        assertThrows(IllegalArgumentException.class, () -> {
-            new PypiArtifactCoordinates("bcrypt", "3.1.6", "", "cp37", "", "win_amd64", "whl");
-        });
+        assertThatExceptionOfType(IllegalArgumentException.class)
+                .isThrownBy(() -> new PypiArtifactCoordinates("bcrypt", "3.1.6", "", "cp37", "", "win_amd64", "whl"));
 
         // no platform tag
-        assertThrows(IllegalArgumentException.class, () -> {
-            new PypiArtifactCoordinates("bcrypt", "3.1.6", "", "cp37", "cp37m", "", "whl");
-        });
+        assertThatExceptionOfType(IllegalArgumentException.class)
+                .isThrownBy(() -> new PypiArtifactCoordinates("bcrypt", "3.1.6", "", "cp37", "cp37m", "", "whl"));
     }
 
     /**
@@ -177,12 +169,12 @@ public class PypiArtifactCoordinatesTest
         int currentIndex = repetitionInfo.getCurrentRepetition() - 1;
 
         PypiArtifactCoordinates coordsParsed = PypiArtifactCoordinates.parse(packageExamples.get(currentIndex));
-        assertEquals(parsedPackages.get(currentIndex).get(0), coordsParsed.getId());
-        assertEquals(parsedPackages.get(currentIndex).get(1), coordsParsed.getVersion());
-        assertEquals(parsedPackages.get(currentIndex).get(2), coordsParsed.getBuild());
-        assertEquals(parsedPackages.get(currentIndex).get(3), coordsParsed.getLanguageImplementationVersion());
-        assertEquals(parsedPackages.get(currentIndex).get(4), coordsParsed.getAbi());
-        assertEquals(parsedPackages.get(currentIndex).get(5), coordsParsed.getPlatform());
+        assertThat(coordsParsed.getId()).isEqualTo(parsedPackages.get(currentIndex).get(0));
+        assertThat(coordsParsed.getVersion()).isEqualTo(parsedPackages.get(currentIndex).get(1));
+        assertThat(coordsParsed.getBuild()).isEqualTo(parsedPackages.get(currentIndex).get(2));
+        assertThat(coordsParsed.getLanguageImplementationVersion()).isEqualTo(parsedPackages.get(currentIndex).get(3));
+        assertThat(coordsParsed.getAbi()).isEqualTo(parsedPackages.get(currentIndex).get(4));
+        assertThat(coordsParsed.getPlatform()).isEqualTo(parsedPackages.get(currentIndex).get(5));
     }
 
     /**
@@ -192,19 +184,16 @@ public class PypiArtifactCoordinatesTest
     public void testTooManyArgumentsException()
     {
         // too many arguments (7), error is at end
-        assertThrows(IllegalArgumentException.class, () -> {
-            PypiArtifactCoordinates.parse("bcrypt-3.1.6-1-cp27-cp27m-macosx_10_6_intel-thiswillerror.whl");
-        });
+        assertThatExceptionOfType(IllegalArgumentException.class)
+                .isThrownBy(() -> PypiArtifactCoordinates.parse("bcrypt-3.1.6-1-cp27-cp27m-macosx_10_6_intel-thiswillerror.whl"));
 
         // too many arguments (7), error in middle
-        assertThrows(IllegalArgumentException.class, () -> {
-            PypiArtifactCoordinates.parse("bcrypt-3.1.6-1-thiswillerror-cp27-cp27m-macosx_10_6_intel.whl");
-        });
+        assertThatExceptionOfType(IllegalArgumentException.class)
+                .isThrownBy(() -> PypiArtifactCoordinates.parse("bcrypt-3.1.6-1-thiswillerror-cp27-cp27m-macosx_10_6_intel.whl"));
 
         // too many arguments (7), error in middle
-        assertThrows(IllegalArgumentException.class, () -> {
-            PypiArtifactCoordinates.parse("bcrypt-3.1.6-1-thiswillerror-cp27-cp27m-macosx_10_6_intel.tar.gz");
-        });
+        assertThatExceptionOfType(IllegalArgumentException.class)
+                .isThrownBy(() -> PypiArtifactCoordinates.parse("bcrypt-3.1.6-1-thiswillerror-cp27-cp27m-macosx_10_6_intel.tar.gz"));
     }
 
     /**
@@ -214,29 +203,24 @@ public class PypiArtifactCoordinatesTest
     public void testTooFewArgumentsException()
     {
         // too few arguments (1)
-        assertThrows(IllegalArgumentException.class, () -> {
-            PypiArtifactCoordinates.parse("bcrypt.whl");
-        });
+        assertThatExceptionOfType(IllegalArgumentException.class)
+                .isThrownBy(() -> PypiArtifactCoordinates.parse("bcrypt.whl"));
 
         // too few arguments (1)
-        assertThrows(IllegalArgumentException.class, () -> {
-            PypiArtifactCoordinates.parse("bcrypt.tar.gz");
-        });
+        assertThatExceptionOfType(IllegalArgumentException.class)
+                .isThrownBy(() -> PypiArtifactCoordinates.parse("bcrypt.tar.gz"));
 
         // too few arguments (2)
-        assertThrows(IllegalArgumentException.class, () -> {
-            PypiArtifactCoordinates.parse("bcrypt-3.1.6.whl");
-        });
+        assertThatExceptionOfType(IllegalArgumentException.class)
+                .isThrownBy(() -> PypiArtifactCoordinates.parse("bcrypt-3.1.6.whl"));
 
         // too few arguments (3)
-        assertThrows(IllegalArgumentException.class, () -> {
-            PypiArtifactCoordinates.parse("bcrypt-3.1.6-cp27.whl");
-        });
+        assertThatExceptionOfType(IllegalArgumentException.class)
+                .isThrownBy(() -> PypiArtifactCoordinates.parse("bcrypt-3.1.6-cp27.whl"));
 
         // too few arguments (4)
-        assertThrows(IllegalArgumentException.class, () -> {
-            PypiArtifactCoordinates.parse("bcrypt-3.1.6-cp27-cp27m.whl");
-        });
+        assertThatExceptionOfType(IllegalArgumentException.class)
+                .isThrownBy(() -> PypiArtifactCoordinates.parse("bcrypt-3.1.6-cp27-cp27m.whl"));
     }
 
     /**
@@ -246,13 +230,11 @@ public class PypiArtifactCoordinatesTest
     @Test
     public void buildTagException()
     {
-        assertThrows(IllegalArgumentException.class, () -> {
-            PypiArtifactCoordinates.parse("bcrypt-3.1.6-1--cp27-cp27m-macosx_10_6_intel.whl");
-        });
+        assertThatExceptionOfType(IllegalArgumentException.class)
+                .isThrownBy(() -> PypiArtifactCoordinates.parse("bcrypt-3.1.6-1--cp27-cp27m-macosx_10_6_intel.whl"));
 
-        assertThrows(IllegalArgumentException.class, () -> {
-            PypiArtifactCoordinates.parse("bcrypt-3.1.6-1-test1-cp27-cp27m-macosx_10_6_intel.whl");
-        });
+        assertThatExceptionOfType(IllegalArgumentException.class)
+                .isThrownBy(() -> PypiArtifactCoordinates.parse("bcrypt-3.1.6-1-test1-cp27-cp27m-macosx_10_6_intel.whl"));
     }
 
     /**
@@ -272,6 +254,6 @@ public class PypiArtifactCoordinatesTest
                                                    parsedCoordinates.get(1),
                                                    packageExamples.get(currentIndex));
 
-        assertEquals(expectedPackagePath, coordsParsed.toString());
+        assertThat(coordsParsed.toString()).isEqualTo(expectedPackagePath);
     }
 }

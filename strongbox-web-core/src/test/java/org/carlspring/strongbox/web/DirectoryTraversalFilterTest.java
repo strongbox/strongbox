@@ -2,12 +2,11 @@ package org.carlspring.strongbox.web;
 
 import javax.servlet.http.HttpServletResponse;
 
-import org.hamcrest.CoreMatchers;
 import org.junit.jupiter.api.Test;
 import org.springframework.mock.web.MockFilterChain;
 import org.springframework.mock.web.MockHttpServletRequest;
 import org.springframework.mock.web.MockHttpServletResponse;
-import static org.hamcrest.MatcherAssert.assertThat;
+import static org.assertj.core.api.Assertions.assertThat;
 
 /**
  * @author Przemyslaw Fusik
@@ -27,7 +26,7 @@ public class DirectoryTraversalFilterTest
         MockFilterChain chain = new MockFilterChain();
         filter.doFilterInternal(request, response, chain);
 
-        assertThat(response.getStatus(), CoreMatchers.equalTo(HttpServletResponse.SC_BAD_REQUEST));
+        assertThat(response.getStatus()).isEqualTo(HttpServletResponse.SC_BAD_REQUEST);
     }
 
     @Test
@@ -40,7 +39,7 @@ public class DirectoryTraversalFilterTest
         MockFilterChain chain = new MockFilterChain();
         filter.doFilterInternal(request, response, chain);
 
-        assertThat(response.getStatus(), CoreMatchers.equalTo(HttpServletResponse.SC_BAD_REQUEST));
+        assertThat(response.getStatus()).isEqualTo(HttpServletResponse.SC_BAD_REQUEST);
     }
 
     @Test
@@ -53,7 +52,7 @@ public class DirectoryTraversalFilterTest
         MockFilterChain chain = new MockFilterChain();
         filter.doFilterInternal(request, response, chain);
 
-        assertThat(response.getStatus(), CoreMatchers.equalTo(HttpServletResponse.SC_BAD_REQUEST));
+        assertThat(response.getStatus()).isEqualTo(HttpServletResponse.SC_BAD_REQUEST);
     }
 
     @Test
@@ -66,7 +65,7 @@ public class DirectoryTraversalFilterTest
         MockFilterChain chain = new MockFilterChain();
         filter.doFilterInternal(request, response, chain);
 
-        assertThat(response.getStatus(), CoreMatchers.equalTo(HttpServletResponse.SC_BAD_REQUEST));
+        assertThat(response.getStatus()).isEqualTo(HttpServletResponse.SC_BAD_REQUEST);
     }
 
     @Test
@@ -79,7 +78,7 @@ public class DirectoryTraversalFilterTest
         MockFilterChain chain = new MockFilterChain();
         filter.doFilterInternal(request, response, chain);
 
-        assertThat(response.getStatus(), CoreMatchers.not(CoreMatchers.equalTo(HttpServletResponse.SC_BAD_REQUEST)));
+        assertThat(response.getStatus()).isNotEqualTo(HttpServletResponse.SC_BAD_REQUEST);
     }
 
 }

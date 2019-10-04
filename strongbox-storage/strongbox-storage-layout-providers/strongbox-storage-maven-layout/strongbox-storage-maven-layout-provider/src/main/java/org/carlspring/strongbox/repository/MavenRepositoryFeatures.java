@@ -19,9 +19,10 @@ import org.carlspring.strongbox.yaml.configuration.repository.MavenRepositoryCon
 import javax.annotation.PostConstruct;
 import javax.inject.Inject;
 import java.io.IOException;
-import java.util.Arrays;
-import java.util.LinkedHashSet;
-import java.util.Set;
+import java.text.DateFormat;
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
+import java.util.*;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -73,6 +74,28 @@ public class MavenRepositoryFeatures
                                            int keepPeriod)
             throws IOException
     {
+        try
+        {
+            DateFormat formatter = new SimpleDateFormat(MavenSnapshotManager.TIMESTAMP_FORMAT);
+            Calendar calendar = Calendar.getInstance();
+            calendar.add(Calendar.DAY_OF_MONTH, -keepPeriod);
+            Date keepDate = formatter.parse(formatter.format(calendar.getTime()));
+
+            removeTimestampedSnapshots(storageId, repositoryId, artifactPath, numberToKeep, keepDate);
+        }
+        catch (ParseException e)
+        {
+            throw new IOException(e);
+        }
+    }
+
+    public void removeTimestampedSnapshots(String storageId,
+                                           String repositoryId,
+                                           String artifactPath,
+                                           int numberToKeep,
+                                           Date keepDate)
+            throws IOException
+    {
         Storage storage = getConfiguration().getStorage(storageId);
         Repository repository = storage.getRepository(repositoryId);
 
@@ -83,7 +106,7 @@ public class MavenRepositoryFeatures
             RemoveTimestampedSnapshotOperation operation = new RemoveTimestampedSnapshotOperation(mavenSnapshotManager);
             operation.setBasePath(repositoryPath);
             operation.setNumberToKeep(numberToKeep);
-            operation.setKeepPeriod(keepPeriod);
+            operation.setKeepDate(keepDate);
 
             ArtifactDirectoryLocator locator = new ArtifactDirectoryLocator();
             locator.setOperation(operation);

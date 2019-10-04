@@ -10,7 +10,7 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.TestInfo;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.context.ActiveProfiles;
-import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.assertj.core.api.Assertions.assertThat;
 
 /**
  * @author carlspring
@@ -49,7 +49,9 @@ public class OneTimeExecutionCronJobTestIT
     {
         addOneTimeExecutionCronJobConfig(expectedCronTaskUuid, expectedCronTaskName);
 
-        assertTrue(expectEvent(60000, 500), "Failed to execute task within a reasonable time!");
+        assertThat(expectEvent(60000, 500))
+                .as("Failed to execute task within a reasonable time!")
+                .isTrue();
     }
 
 }

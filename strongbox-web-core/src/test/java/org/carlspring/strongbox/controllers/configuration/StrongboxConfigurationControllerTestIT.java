@@ -9,8 +9,8 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.ValueSource;
 import org.springframework.http.MediaType;
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.carlspring.strongbox.net.MediaType.APPLICATION_YAML_VALUE;
-import static org.junit.jupiter.api.Assertions.assertNotNull;
 
 /**
  * @author Pablo Tirado
@@ -51,7 +51,9 @@ public class StrongboxConfigurationControllerTestIT
 
         final MutableConfiguration c = getConfigurationFromRemote();
 
-        assertNotNull(c.getStorage("storage3"), "Failed to create storage3!");
+        assertThat(c.getStorage("storage3"))
+                .as("Failed to create storage3!")
+                .isNotNull();
     }
 
     public MutableConfiguration getConfigurationFromRemote()

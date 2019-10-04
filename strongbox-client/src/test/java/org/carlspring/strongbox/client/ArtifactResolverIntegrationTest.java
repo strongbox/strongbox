@@ -14,7 +14,7 @@ import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Import;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.ContextConfiguration;
-import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.assertj.core.api.Assertions.assertThat;
 
 /**
  * @author korest
@@ -65,7 +65,7 @@ public class ArtifactResolverIntegrationTest
         }
 
         // all connections should be released
-        assertEquals(0, proxyRepositoryConnectionPoolConfigurationService.getPoolStats(repositoryUrl).getLeased());
+        assertThat(proxyRepositoryConnectionPoolConfigurationService.getPoolStats(repositoryUrl).getLeased()).isEqualTo(0);
     }
 
     public static final class MultiHttpClientConnThread extends Thread
