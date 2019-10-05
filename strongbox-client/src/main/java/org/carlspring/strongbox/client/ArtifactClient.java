@@ -229,8 +229,8 @@ public class ArtifactClient
         String url = getContextBaseUrl() + "/storages/" + storageId + "/" + repositoryId + "/" + path +
                      (force ? "?force=" + force : "");
 
-        logger.info("Getting " + url + "...");
-        
+        logger.info("Getting {}...", url);
+
         WebTarget resource = getClientInstance().target(url);
         setupAuthentication(resource);
 

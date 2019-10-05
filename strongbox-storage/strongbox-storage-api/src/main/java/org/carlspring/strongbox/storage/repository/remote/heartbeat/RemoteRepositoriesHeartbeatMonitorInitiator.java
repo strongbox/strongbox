@@ -79,9 +79,8 @@ public class RemoteRepositoriesHeartbeatMonitorInitiator
                                         0,
                                         intervalSeconds, TimeUnit.SECONDS);
 
-        logger.info(
-                "Remote repository " + remoteRepository.getUrl() + " scheduled for monitoring with interval seconds " +
-                intervalSeconds);
+        logger.info("Remote repository {} scheduled for monitoring with interval seconds {}",
+            remoteRepository.getUrl(), intervalSeconds);
     }
 
     private RemoteRepositoryHeartbeatMonitorStrategy determineMonitorStrategy(final RemoteRepository remoteRepository)

@@ -42,7 +42,8 @@ public class PypiLayoutProvider
     @PostConstruct
     public void register()
     {
-        logger.info("Registered layout provider '" + getClass().getCanonicalName() + "' with alias '" + ALIAS + "'.");
+        logger.info("Registered layout provider '{}' with alias '{}'.",
+            getClass().getCanonicalName(), ALIAS);
     }
 
     protected PypiArtifactCoordinates getArtifactCoordinates(RepositoryPath path) throws IOException

@@ -455,7 +455,7 @@ public class NpmArtifactController
                                                 jp.currentToken().name()));
 
                     String packageAttachmentName = jp.nextFieldName();
-                    logger.info(String.format("Found npm package attachment [%s]", packageAttachmentName));
+                    logger.info("Found npm package attachment [{}]", packageAttachmentName);
 
                     moveToAttachment(jp, packageAttachmentName);
                     packageTgzPath = extractPackage(jp);

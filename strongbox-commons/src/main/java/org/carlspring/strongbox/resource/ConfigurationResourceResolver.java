@@ -84,8 +84,8 @@ public class ConfigurationResourceResolver
         if (configurationPath != null &&
             (!configurationPath.startsWith("classpath") && !(Files.exists(Paths.get(configurationPath)))))
         {
-            logger.info(String.format("Configuration resource [%s] does not exist, will try to resolve with configured location [%s].",
-                                      configurationPath, propertyKey));
+            logger.info("Configuration resource [{}] does not exist, will try to resolve with configured location [{}].",
+                configurationPath, propertyKey);
 
             configurationPath = null;
         }

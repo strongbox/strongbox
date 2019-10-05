@@ -1,6 +1,5 @@
 package org.carlspring.strongbox.controllers.restart;
 
-import io.swagger.annotations.Api;
 import org.carlspring.strongbox.app.StrongboxSpringBootApplication;
 import org.carlspring.strongbox.controllers.BaseController;
 import org.slf4j.Logger;

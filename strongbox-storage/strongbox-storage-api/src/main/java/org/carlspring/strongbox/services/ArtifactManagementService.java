@@ -276,7 +276,7 @@ public class ArtifactManagementService
     private boolean performRepositoryAcceptanceValidation(RepositoryPath path)
             throws IOException, ProviderImplementationException, ArtifactCoordinatesValidationException
     {
-        logger.info(String.format("Validate artifact with path [%s]", path));
+        logger.info("Validate artifact with path [{}]", path);
 
         Repository repository = path.getFileSystem().getRepository();
 
@@ -288,7 +288,7 @@ public class ArtifactManagementService
         }
         
         ArtifactCoordinates coordinates = RepositoryFiles.readCoordinates(path);
-        logger.info(String.format("Validate artifact with coordinates [%s]", coordinates));
+        logger.info("Validate artifact with coordinates [{}]", coordinates);
 
         try
         {

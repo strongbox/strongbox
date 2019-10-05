@@ -594,7 +594,7 @@ public class NugetArtifactController
             }
 
             int contentLength = multipartStream.readBodyData(packagePartOutputStream);
-            logger.info(String.format("NuGet package content length [%s]", contentLength));
+            logger.info("NuGet package content length [{}]", contentLength);
         }
     }
 

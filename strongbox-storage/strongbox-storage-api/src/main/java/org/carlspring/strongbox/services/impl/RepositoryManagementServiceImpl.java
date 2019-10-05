@@ -81,7 +81,7 @@ public class RepositoryManagementServiceImpl
 
             if (!Files.exists(repositoryPath))
             {
-                logger.info(String.format("Creating directories for [%s/%s]...", repository.getStorage().getId(), repository.getId()));
+                logger.info("Creating directories for [{}/{}]...", repository.getStorage().getId(), repository.getId());
                 repositoryPath.getFileSystem().createRootDirectory();
             }
         }

@@ -104,13 +104,13 @@ public class StorageBooter
     private void initializeStorage(Storage storage)
             throws IOException
     {
-        logger.info("  * Initializing " + storage.getId() + "...");
+        logger.info("  * Initializing {}...", storage.getId());
     }
 
     private void initializeRepository(Repository repository)
             throws IOException, RepositoryManagementStrategyException
     {
-        logger.info("  * Initializing " + repository.getStorage().getId() + ":" + repository.getId() + "...");
+        logger.info("  * Initializing {}:{}...", repository.getStorage().getId(), repository.getId());
 
         if (layoutProviderRegistry.getProvider(repository.getLayout()) == null)
         {
