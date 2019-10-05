@@ -89,7 +89,7 @@ public class ProxyConfigurationControllerTestIT
                .statusCode(HttpStatus.OK.value())
                .body(containsString(SUCCESSFUL_UPDATE));
 
-        logger.debug("Current proxy host: " + proxyConfiguration.getHost());
+        logger.debug("Current proxy host: {}", proxyConfiguration.getHost());
 
         MutableProxyConfiguration pc = mockMvc.contentType(MediaType.APPLICATION_JSON_VALUE)
                                               .accept(MediaType.APPLICATION_JSON_VALUE)

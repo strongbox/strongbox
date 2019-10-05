@@ -300,7 +300,7 @@ public class MavenArtifactGenerator implements ArtifactGenerator
         model.setVersion(artifact.getVersion());
         model.setPackaging(packaging);
 
-        logger.debug("Generating pom file for " + artifact.toString() + "...");
+        logger.debug("Generating pom file for {}...", artifact.toString());
 
         try (OutputStreamWriter pomFileWriter = new OutputStreamWriter(newOutputStream(pomFile)))
         {

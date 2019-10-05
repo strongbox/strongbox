@@ -23,7 +23,7 @@ import org.springframework.util.ReflectionUtils;
 public class CronTaskExecutor extends ThreadPoolExecutor implements DisposableBean
 {
 
-    private static final Logger LOGGER = LoggerFactory.getLogger(CronTaskExecutor.class);
+    private static final Logger logger = LoggerFactory.getLogger(CronTaskExecutor.class);
 
     public CronTaskExecutor(int corePoolSize,
                             int maximumPoolSize,
@@ -83,7 +83,7 @@ public class CronTaskExecutor extends ThreadPoolExecutor implements DisposableBe
         }
         catch (Exception e)
         {
-            LOGGER.error(String.format("Before execute failed for [%s]", r), e);
+            logger.error(String.format("Before execute failed for [%s]", r), e);
         }
     }
 
@@ -91,7 +91,7 @@ public class CronTaskExecutor extends ThreadPoolExecutor implements DisposableBe
     {
         Class<? extends Job> jobClass = jd.getJobClass();
         String jobClassName = jobClass.getSimpleName();
-        LOGGER.debug(String.format("Bootstrap Cron Job [%s]", jobClassName));
+        logger.debug("Bootstrap Cron Job [{}]", jobClassName);
         MDC.put(CronTaskContextAcceptFilter.STRONGBOX_CRON_CONTEXT_NAME, LoggingUtils.caclucateCronContextName(jobClass));
     }
 
@@ -106,7 +106,7 @@ public class CronTaskExecutor extends ThreadPoolExecutor implements DisposableBe
         }
         catch (Exception e)
         {
-            LOGGER.error(String.format("Failed to expose Cron Job details for [%s] class",
+            logger.error(String.format("Failed to expose Cron Job details for [%s] class",
                                        r.getClass().getSimpleName()),
                          e);
         }
@@ -124,7 +124,7 @@ public class CronTaskExecutor extends ThreadPoolExecutor implements DisposableBe
         }
         catch (Exception e)
         {
-            LOGGER.error(String.format("After execute failed for [%s]", r), e);
+            logger.error(String.format("After execute failed for [%s]", r), e);
         }
     }
 

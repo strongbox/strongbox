@@ -48,7 +48,7 @@ public class RepositoryPathLock
         String lockName = Optional.ofNullable(id)
                                   .map(p -> String.format("%s?%s", lock, p))
                                   .orElseGet(() -> lock.toString());
-        logger.debug(String.format("Get lock for [%s]", lock));
+        logger.debug("Get lock for [{}]", lock);
         
         return lockService.getReentrantReadWriteLock(lockName);
     }

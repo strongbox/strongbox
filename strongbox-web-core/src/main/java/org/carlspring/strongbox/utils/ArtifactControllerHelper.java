@@ -68,7 +68,7 @@ public class ArtifactControllerHelper
         {
             long partialLength = calculatePartialRangeLength(byteRange, length);
 
-            logger.debug("Calculated partial range length ->>> " + partialLength + "\n");
+            logger.debug("Calculated partial range length ->>> {}\n", partialLength);
 
             StreamUtils.setCurrentByteRange(bris, byteRange);
 
@@ -97,15 +97,15 @@ public class ArtifactControllerHelper
     {
         if (byteRange.getLimit() > 0L && byteRange.getOffset() > 0L)
         {
-            logger.debug("Partial content byteRange.getOffset: " + byteRange.getOffset());
-            logger.debug("Partial content byteRange.getLimit: " + byteRange.getLimit());
-            logger.debug("Partial content length: " + (byteRange.getLimit() - byteRange.getOffset()));
+            logger.debug("Partial content byteRange.getOffset: {}", byteRange.getOffset());
+            logger.debug("Partial content byteRange.getLimit: {}", byteRange.getLimit());
+            logger.debug("Partial content length: {}", byteRange.getLimit() - byteRange.getOffset());
 
             return byteRange.getLimit() - byteRange.getOffset();
         }
         else if (length > 0L && byteRange.getOffset() > 0L && byteRange.getLimit() == 0L)
         {
-            logger.debug("Partial content length: " + (length - byteRange.getOffset()));
+            logger.debug("Partial content length: {}", length - byteRange.getOffset());
             return length - byteRange.getOffset();
         }
         else
@@ -122,7 +122,7 @@ public class ArtifactControllerHelper
         response.setHeader("Content-Range",
                            "bytes " + br.getOffset() + "-" + (length - 1L) + "/" + length);
 
-        logger.debug("Content-Range HEADER ->>> " + response.getHeader("Content-Range"));
+        logger.debug("Content-Range HEADER ->>> {}", response.getHeader("Content-Range"));
         response.setHeader("Pragma", "no-cache");
     }
 

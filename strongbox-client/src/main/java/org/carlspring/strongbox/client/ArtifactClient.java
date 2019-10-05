@@ -165,7 +165,7 @@ public class ArtifactClient
     {
         String url = getContextBaseUrl() + (!path.startsWith("/") ? "/" : "") + path;
 
-        logger.debug("Getting " + url + "...");
+        logger.debug("Getting {}...", url);
 
         WebTarget resource = getClientInstance().target(url);
         setupAuthentication(resource);
@@ -204,7 +204,7 @@ public class ArtifactClient
     {
         String url = getContextBaseUrl() + (!path.startsWith("/") ? "/" : "") + path;
 
-        logger.debug("Getting " + url + "...");
+        logger.debug("Getting {}...", url);
 
         WebTarget resource = getClientInstance().target(url);
         setupAuthentication(resource);
@@ -320,7 +320,7 @@ public class ArtifactClient
     {
         String url = escapeUrl(path);
 
-        logger.debug("Path to artifact: " + url);
+        logger.debug("Path to artifact: {}", url);
 
         WebTarget resource = getClientInstance().target(url);
         setupAuthentication(resource);

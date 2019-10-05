@@ -72,13 +72,13 @@ public class RepositoryStreamSupport
 
         RepositoryPath path = (RepositoryPath) ctx.getPath();
         
-        logger.debug(String.format("Locking [%s].", path));
+        logger.debug("Locking [{}].", path);
         
         Lock lock = ctx instanceof RepositoryStreamWriteContext ? lockSource.writeLock() : lockSource.readLock();
         ctx.setLock(lock);
         lock.lock();
 
-        logger.debug(String.format("Locked [%s].", path));
+        logger.debug("Locked [{}].", path);
         
         ctx.setOpened(true);
     }
@@ -94,7 +94,7 @@ public class RepositoryStreamSupport
 
         ctx.getLock().unlock();
         
-        logger.debug(String.format("Unlocked [%s].", ctx.getPath()));
+        logger.debug("Unlocked [{}].", ctx.getPath());
         
         clearContext();
     }
@@ -144,15 +144,15 @@ public class RepositoryStreamSupport
         public void flush()
             throws IOException
         {
-            logger.debug(String.format("Flushing [%s]", getContext().getPath()));
+            logger.debug("Flushing [{}]", getContext().getPath());
             
             super.flush();
             
-            logger.debug(String.format("Flushed [%s]", getContext().getPath()));
+            logger.debug("Flushed [{}]", getContext().getPath());
             
             RepositoryStreamSupport.this.commit();
             
-            logger.debug(String.format("Commited [%s]", getContext().getPath()));
+            logger.debug("Commited [{}]", getContext().getPath());
         }
 
         @Override
@@ -202,7 +202,7 @@ public class RepositoryStreamSupport
                 //Check that artifact exists.
                 if (!RepositoryFiles.artifactExists((RepositoryPath) path)) 
                 {
-                    logger.debug(String.format("The path [%s] does not exist!", path));
+                    logger.debug("The path [{}] does not exist!", path);
                     
                     throw new ArtifactNotFoundException(path.toUri());
                 }

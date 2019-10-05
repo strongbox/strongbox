@@ -15,13 +15,9 @@ public class OrientDbProfile
 
     public static final String PROPERTY_PROFILE = "strongbox.orientdb.profile";
 
-    public static final String PROPERTY_STUDIO_ENABLED = "strongbox.orientdb.studio.enabled";
-    
     public static final String PROFILE_MEMORY = "orientdb_MEMORY";
 
     public static final String PROFILE_EMBEDDED = "orientdb_EMBEDDED";
-
-    public static final String PROFILE_REMOTE = "orientdb_REMOTE";
 
     private final String name;
     
@@ -65,7 +61,7 @@ public class OrientDbProfile
                               return;
                           }
 
-                          logger.debug(String.format("Using default value for OrientDB connection property [%s].", p));
+                          logger.debug("Using default value for OrientDB connection property [{}].", p);
 
                           System.setProperty((String) p, properties.getProperty((String) p));
                       });

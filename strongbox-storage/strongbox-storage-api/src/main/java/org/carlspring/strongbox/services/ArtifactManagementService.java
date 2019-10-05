@@ -114,7 +114,7 @@ public class ArtifactManagementService
         try (final RepositoryOutputStream aos = artifactResolutionService.getOutputStream(repositoryPath))
         {
             result = writeArtifact(repositoryPath, is, aos);
-            logger.debug(String.format("Stored [%s] bytes for [%s].", result, repositoryPath));
+            logger.debug("Stored [{}] bytes for [{}].", result, repositoryPath);
             aos.flush();
         }
         catch (IOException e)
@@ -214,7 +214,7 @@ public class ArtifactManagementService
     private void validateUploadedChecksumAgainstCache(byte[] checksum,
                                                       URI artifactPathId)
     {
-        logger.debug("Received checksum: " + new String(checksum, StandardCharsets.UTF_8));
+        logger.debug("Received checksum: {}", new String(checksum, StandardCharsets.UTF_8));
 
         String artifactPath = artifactPathId.toString();
         String artifactBasePath = artifactPath.substring(0, artifactPath.lastIndexOf('.'));
@@ -222,9 +222,9 @@ public class ArtifactManagementService
 
         if (!matchesChecksum(checksum, artifactBasePath, checksumExtension))
         {
-            logger.error(String.format("The checksum for %s [%s] is invalid!",
+            logger.error("The checksum for {} [{}] is invalid!",
                                        artifactPath,
-                                       new String(checksum, StandardCharsets.UTF_8)));
+                                       new String(checksum, StandardCharsets.UTF_8));
         }
 
         checksumCacheManager.removeArtifactChecksum(artifactBasePath, checksumExtension);
@@ -254,13 +254,13 @@ public class ArtifactManagementService
         Set<String> matched = matchingMap.get(Boolean.TRUE);
         Set<String> unmatched = matchingMap.get(Boolean.FALSE);
 
-        logger.debug(String.format("Artifact checksum matchings: artifact-[%s]; ext-[%s]; matched-[%s];" +
-                                   " unmatched-[%s]; checksum-[%s]",
+        logger.debug("Artifact checksum matchings: artifact-[{}]; ext-[{}]; matched-[{}];" +
+                                   " unmatched-[{}]; checksum-[{}]",
                                    artifactBasePath,
                                    checksumExtension,
                                    matched,
                                    unmatched,
-                                   checksum));
+                                   checksum);
 
         return matched != null && !matched.isEmpty();
     }

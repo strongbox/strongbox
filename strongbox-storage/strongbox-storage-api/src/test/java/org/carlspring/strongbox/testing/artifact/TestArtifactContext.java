@@ -83,7 +83,7 @@ public class TestArtifactContext implements AutoCloseable
     {
         checkArguments();
             
-        logger.debug(String.format("Create [%s] resource [%s] ", TestArtifact.class.getSimpleName(), id(testArtifact)));
+        logger.debug("Create [{}] resource [{}] ", TestArtifact.class.getSimpleName(), id(testArtifact));
         Class<? extends ArtifactGenerator> generatorClass = testArtifact.generator();
 
         generatorBasePath = Paths.get(propertiesBooter.getVaultDirectory(), ".temp",

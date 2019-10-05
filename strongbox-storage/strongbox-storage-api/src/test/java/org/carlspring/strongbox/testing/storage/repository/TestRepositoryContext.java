@@ -114,9 +114,9 @@ public class TestRepositoryContext implements AutoCloseable, Comparable<TestRepo
             throws IOException,
                    RepositoryManagementStrategyException
     {
-        logger.debug(String.format("Create [%s] with id [%s] ",
+        logger.debug("Create [{}] with id [{}] ",
                                   TestRepository.class.getSimpleName(),
-                                  id(testRepository)));
+                                  id(testRepository));
 
         if (groupRepository != null && remoteRepository != null)
         {
@@ -190,9 +190,9 @@ public class TestRepositoryContext implements AutoCloseable, Comparable<TestRepo
 
         opened = true;
 
-        logger.debug(String.format("Created [%s] with id [%s] ",
+        logger.debug("Created [{}] with id [{}] ",
                                   TestRepository.class.getSimpleName(),
-                                  id(testRepository)));
+                                  id(testRepository));
     }
 
     private List<MutableRoutingRuleRepository> routingRepositories(String[] repositories)
@@ -230,9 +230,9 @@ public class TestRepositoryContext implements AutoCloseable, Comparable<TestRepo
     public void close()
         throws IOException
     {
-        logger.debug(String.format("Close [%s] with id [%s] ",
+        logger.debug("Close [{}] with id [{}] ",
                                   TestRepository.class.getSimpleName(),
-                                  id(testRepository)));
+                                  id(testRepository));
 
         try
         {
@@ -255,9 +255,9 @@ public class TestRepositoryContext implements AutoCloseable, Comparable<TestRepo
             throw new IOException(e);
         }
 
-        logger.debug(String.format("Closed [%s] with id [%s] ",
+        logger.debug("Closed [{}] with id [{}] ",
                                   TestRepository.class.getSimpleName(),
-                                  id(testRepository)));
+                                  id(testRepository));
     }
 
     private void closeInternal()

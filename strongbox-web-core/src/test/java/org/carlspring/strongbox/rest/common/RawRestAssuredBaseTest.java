@@ -99,7 +99,7 @@ public class RawRestAssuredBaseTest
     {
         String url = getContextBaseUrl() + artifactPath;
 
-        logger.debug("Requesting " + url + "...");
+        logger.debug("Requesting {}...", url);
 
         InputStream is = client.getResource(url);
         if (is == null)

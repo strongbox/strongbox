@@ -59,7 +59,7 @@ public class IndexResourceFetcher
     {
         final String uri = MessageFormat.format(INDEX_URI_PATTERN, repositoryBaseUrl, indexName);
 
-        logger.debug("Getting " + uri + "...");
+        logger.debug("Getting {}...", uri);
 
         InputStream result = null;
 

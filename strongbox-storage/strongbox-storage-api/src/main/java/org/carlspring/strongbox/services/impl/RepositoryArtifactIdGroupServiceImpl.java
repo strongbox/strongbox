@@ -74,17 +74,17 @@ public class RepositoryArtifactIdGroupServiceImpl
                                                   .compareTo(lastVersionEntry.getArtifactCoordinates());
         if (artifactCoordinatesComparison == 0)
         {
-            logger.debug(String.format("Set [%s] last version to [%s]",
+            logger.debug("Set [{}] last version to [{}]",
                                        entity.getArtifactPath(),
-                                       coordinates.getVersion()));
+                                       coordinates.getVersion());
             entity.getTagSet().add(lastVersionTag);
         }
         else if (artifactCoordinatesComparison > 0)
         {
-            logger.debug(String.format("Update [%s] last version from [%s] to [%s]",
+            logger.debug("Update [{}] last version from [{}] to [{}]",
                                        entity.getArtifactPath(),
                                        lastVersionEntry.getArtifactCoordinates().getVersion(),
-                                       coordinates.getVersion()));
+                                       coordinates.getVersion());
             entity.getTagSet().add(lastVersionTag);
 
             lastVersionEntry.getTagSet().remove(lastVersionTag);
@@ -92,9 +92,9 @@ public class RepositoryArtifactIdGroupServiceImpl
         }
         else
         {
-            logger.debug(String.format("Keep [%s] last version [%s]",
+            logger.debug("Keep [{}] last version [{}]",
                                        entity.getArtifactPath(),
-                                       lastVersionEntry.getArtifactCoordinates().getVersion()));
+                                       lastVersionEntry.getArtifactCoordinates().getVersion());
             entity.getTagSet().remove(lastVersionTag);
         }
 
@@ -133,7 +133,7 @@ public class RepositoryArtifactIdGroupServiceImpl
         StringBuilder sb = new StringBuilder(sQuery);
         appendPagingCriteria(sb, pagingCriteria);
 
-        logger.debug("Executing SQL query> " + sb.toString());
+        logger.debug("Executing SQL query> {}", sb);
 
         OSQLSynchQuery<ArtifactEntry> oQuery = new OSQLSynchQuery<>(sb.toString());
 

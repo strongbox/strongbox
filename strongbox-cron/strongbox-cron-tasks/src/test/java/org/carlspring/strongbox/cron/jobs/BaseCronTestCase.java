@@ -84,7 +84,7 @@ abstract class BaseCronTestCase implements ApplicationListener<CronTaskEvent>, A
             receivedExpectedEvent = true;
             receivedEvent = event;
 
-            logger.debug("Received expected event: " + expectedEventType);
+            logger.debug("Received expected event: {}", expectedEventType);
         }
     }
 
@@ -104,7 +104,7 @@ abstract class BaseCronTestCase implements ApplicationListener<CronTaskEvent>, A
                                long checkInterval)
             throws InterruptedException
     {
-        logger.debug("Expecting event type " + expectedEventType + " for '" + expectedCronTaskName + "'...");
+        logger.debug("Expecting event type {} for '{}'...", expectedEventType, expectedCronTaskName);
 
         int totalWait = 0;
         while (!receivedExpectedEvent &&

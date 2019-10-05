@@ -218,7 +218,7 @@ public class StoragesConfigurationController
 
                 configurationManagementService.removeStorage(storageId);
 
-                logger.debug("Removed storage " + storageId + ".");
+                logger.debug("Removed storage {}.", storageId);
 
                 return getSuccessfulResponseEntity(SUCCESSFUL_STORAGE_REMOVAL, accept);
             }

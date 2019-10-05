@@ -126,8 +126,7 @@ public abstract class AsyncArtifactEntryHandler
             }
             catch (ONeedRetryException e)
             {
-                logger.debug(String.format("Retry event [%s] for path [%s]", this.getClass().getSimpleName(),
-                                           repositoryPath));
+                logger.debug("Retry event [{}] for path [{}]", this.getClass().getSimpleName(), repositoryPath);
                 propogateIfNeeded(i, repositoryPath, e);
             }
 
@@ -157,10 +156,10 @@ public abstract class AsyncArtifactEntryHandler
                 ArtifactEntry result = handleEvent(repositoryPath);
                 if (result == null)
                 {
-                    logger.debug(String.format("No [%s] result for event [%s] and path [%s].",
+                    logger.debug("No [{}] result for event [{}] and path [{}].",
                                                ArtifactEntry.class.getSimpleName(),
                                                AsyncArtifactEntryHandler.this.getClass().getSimpleName(),
-                                               repositoryPath));
+                                               repositoryPath);
 
                     return null;
                 }

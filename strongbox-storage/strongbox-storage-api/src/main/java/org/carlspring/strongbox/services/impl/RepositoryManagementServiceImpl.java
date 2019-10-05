@@ -153,7 +153,7 @@ public class RepositoryManagementServiceImpl
                 {
                     if (repository.allowsDeletion())
                     {
-                        logger.debug("Emptying trash for repository " + repository.getId() + "...");
+                        logger.debug("Emptying trash for repository {}...", repository.getId());
 
                         deleteTrash(repository.getStorage().getId(), repository.getId());;
                     }

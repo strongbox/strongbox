@@ -63,7 +63,7 @@ public class HostedRepositoryProvider extends AbstractRepositoryProvider
         }
         catch (ArtifactNotFoundException e) 
         {
-            logger.debug(String.format("The path [%s] does not exist!%n*\t[%s]", repositoryPath, e.getMessage()));
+            logger.debug("The path [{}] does not exist!%n*\t[{}]", repositoryPath, e.getMessage());
 
             return null;
         }

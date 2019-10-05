@@ -244,7 +244,7 @@ public abstract class LayoutFileSystemProvider extends StorageFileSystemProvider
                        boolean force)
             throws IOException
     {
-        logger.debug("Deleting in (" + path + ")...");
+        logger.debug("Deleting in ({})...", path);
 
 
         RepositoryPath repositoryPath = (RepositoryPath) path;
@@ -264,7 +264,7 @@ public abstract class LayoutFileSystemProvider extends StorageFileSystemProvider
             artifactEventListenerRegistry.dispatchArtifactPathDeletedEvent(path);
         }
 
-        logger.debug(String.format("Deleted [%s]", path));
+        logger.debug("Deleted [{}]", path);
     }
     
     @Override
@@ -314,13 +314,13 @@ public abstract class LayoutFileSystemProvider extends StorageFileSystemProvider
         Repository repository = path.getRepository();
         Storage storage = repository.getStorage();
 
-        logger.debug("Emptying trash for " + storage.getId() + ":" + repository.getId() + "...");
+        logger.debug("Emptying trash for {}:{}...", storage.getId(), repository.getId());
 
         super.deleteTrash(path);
 
         repositoryEventListenerRegistry.dispatchEmptyTrashEvent(storage.getId(), repository.getId());
 
-        logger.debug("Trash for " + storage.getId() + ":" + repository.getId() + " removed.");
+        logger.debug("Trash for {}:{} removed.", storage.getId(), repository.getId());
     }
 
     
@@ -332,13 +332,13 @@ public abstract class LayoutFileSystemProvider extends StorageFileSystemProvider
         Repository repository = path.getRepository();
         Storage storage = repository.getStorage();
 
-        logger.debug(String.format("Attempting to restore: path-[%s]; ", path));
+        logger.debug("Attempting to restore: path-[{}]; ", path);
         
         super.undelete(path);
 
         repositoryEventListenerRegistry.dispatchUndeleteTrashEvent(storage.getId(), repository.getId());
 
-        logger.debug("The trash for " + storage.getId() + ":" + repository.getId() + " has been undeleted.");
+        logger.debug("The trash for {}:{} has been undeleted.", storage.getId(), repository.getId());
     }
 
     @Override

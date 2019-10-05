@@ -242,7 +242,7 @@ public class LoggingManagementController
                                               @RequestHeader(value = HttpHeaders.ACCEPT,
                                                              required = false) String acceptHeader)
     {
-        logger.debug("Requested directory listing of logs " + ROOT_CONTEXT + "/logs/{}", rawPath.orElse(""));
+        logger.debug("Requested directory listing of logs {} /logs/{}", ROOT_CONTEXT, rawPath.orElse(""));
 
         try
         {

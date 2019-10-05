@@ -129,7 +129,7 @@ public class NpmRepositoryFeatures implements RepositoryFeatures
         Client restClient = proxyRepositoryConnectionPoolConfigurationService.getRestClient();
         try
         {
-            logger.debug(String.format("Search NPM packages for [%s].", remoteRepositoryUrl));
+            logger.debug("Search NPM packages for [{}].", remoteRepositoryUrl);
 
             WebTarget service = restClient.target(remoteRepository.getUrl());
             service = service.path("-/v1/search").queryParam("text", text).queryParam("size", size);
@@ -137,7 +137,7 @@ public class NpmRepositoryFeatures implements RepositoryFeatures
             InputStream inputStream = service.request().buildGet().invoke(InputStream.class);
             searchResults = npmJacksonMapper.readValue(inputStream, SearchResults.class);
 
-            logger.debug(String.format("Searched NPM packages for [%s].", remoteRepository.getUrl()));
+            logger.debug("Searched NPM packages for [{}].", remoteRepository.getUrl());
 
         }
         catch (Exception e)
@@ -210,7 +210,7 @@ public class NpmRepositoryFeatures implements RepositoryFeatures
         Client restClient = proxyRepositoryConnectionPoolConfigurationService.getRestClient();
         try
         {
-            logger.debug(String.format("Fetching remote cnages for [%s] since [%s].", replicateUrl, since));
+            logger.debug("Fetching remote cnages for [{}] since [{}].", replicateUrl, since);
 
             WebTarget service = restClient.target(replicateUrl);
             service = service.path("_changes");
@@ -301,9 +301,8 @@ public class NpmRepositoryFeatures implements RepositoryFeatures
 
         }
 
-        logger.debug(String.format("Fetched remote cnages for  [%s] since [%s].",
-                                   repositoryConfiguration.getReplicateUrl(),
-                                   repositoryConfiguration.getLastChangeId()));
+        logger.debug("Fetched remote cnages for  [{}] since [{}].",
+            repositoryConfiguration.getReplicateUrl(), repositoryConfiguration.getLastChangeId());
 
         return result;
     }
@@ -327,7 +326,7 @@ public class NpmRepositoryFeatures implements RepositoryFeatures
         Client restClient = proxyRepositoryConnectionPoolConfigurationService.getRestClient();
         try
         {
-            logger.debug(String.format("Downloading NPM changes feed for [%s].", remoteRepositoryUrl));
+            logger.debug("Downloading NPM changes feed for [{}].", remoteRepositoryUrl);
 
             WebTarget service = restClient.target(remoteRepository.getUrl());
             service = service.path(packageId);
@@ -335,7 +334,7 @@ public class NpmRepositoryFeatures implements RepositoryFeatures
             InputStream inputStream = service.request().buildGet().invoke(InputStream.class);
             packageFeed = npmJacksonMapper.readValue(inputStream, PackageFeed.class);
 
-            logger.debug(String.format("Downloaded NPM changes feed for [%s].", remoteRepository.getUrl()));
+            logger.debug("Downloaded NPM changes feed for [{}].", remoteRepository.getUrl());
 
         }
         catch (Exception e)
@@ -400,8 +399,8 @@ public class NpmRepositoryFeatures implements RepositoryFeatures
             Predicate predicate = event.getPredicate();
             Long packageCount = countPackages(storageId, repositoryId, predicate);
 
-            logger.debug(String.format("NPM remote repository [%s] cached package count is [%s]", repository.getId(),
-                                       packageCount));
+            logger.debug("NPM remote repository [{}] cached package count is [{}]",
+                repository.getId(), packageCount);
 
             Runnable job = () -> fetchRemoteSearchResult(storageId, repositoryId, npmSearchRequest.getText(),
                                                          npmSearchRequest.getSize());
@@ -458,8 +457,8 @@ public class NpmRepositoryFeatures implements RepositoryFeatures
             Predicate predicate = event.getPredicate();
             Long packageCount = countPackages(storageId, repositoryId, predicate);
 
-            logger.debug(String.format("NPM remote repository [%s] cached package count is [%s]", repository.getId(),
-                                       packageCount));
+            logger.debug("NPM remote repository [{}] cached package count is [{}]",
+                repository.getId(), packageCount);
 
             Runnable job = () -> fetchRemotePackageFeed(storage.getId(), repository.getId(),
                                                         npmSearchRequest.getPackageId());

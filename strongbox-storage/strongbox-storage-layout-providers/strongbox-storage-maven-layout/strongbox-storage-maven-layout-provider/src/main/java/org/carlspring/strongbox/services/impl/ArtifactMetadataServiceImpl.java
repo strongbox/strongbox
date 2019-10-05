@@ -314,11 +314,17 @@ public class ArtifactMetadataServiceImpl
             {
                 iterator.remove();
 
-                logger.debug("Removed timestamped SNAPSHOT (" + version +
-                             (classifier != null ? ":" + classifier :
-                              (snapshotVersion.getClassifier() != null && !snapshotVersion.getClassifier().equals("") ?
-                               ":" + snapshotVersion.getClassifier() + ":" : ":") +
-                              snapshotVersion.getExtension()) + ") from metadata.");
+                if (classifier != null) {
+                    logger.debug("Removed timestamped SNAPSHOT ({}:{}) from metadata.", version, classifier);
+                } else {
+                    if (snapshotVersion.getClassifier() != null && !snapshotVersion.getClassifier().equals("")) {
+                        logger.debug("Removed timestamped SNAPSHOT ({}:{}:{}) from metadata.",
+                            version, snapshotVersion.getClassifier(), snapshotVersion.getExtension());
+                    } else {
+                        logger.debug("Removed timestamped SNAPSHOT ({}:{}) from metadata.",
+                            version, snapshotVersion.getExtension());
+                    }
+                }
             }
         }
 

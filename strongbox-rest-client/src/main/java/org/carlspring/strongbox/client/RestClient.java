@@ -570,7 +570,7 @@ public class RestClient
     {
         String url = getContextBaseUrl() + arg;
 
-        logger.debug("Prepare target URL " + url);
+        logger.debug("Prepare target URL {}", url);
 
         return getClientInstance().target(url);
     }

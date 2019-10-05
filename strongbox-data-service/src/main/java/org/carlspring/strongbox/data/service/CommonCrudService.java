@@ -315,7 +315,7 @@ public abstract class CommonCrudService<T extends GenericEntity>
         // now query should looks like
         // SELECT * FROM Foo WHERE blah = :blah AND moreBlah = :moreBlah
 
-        logger.debug("Executing SQL query> " + query);
+        logger.debug("Executing SQL query> {}", query);
 
         return query;
     }
