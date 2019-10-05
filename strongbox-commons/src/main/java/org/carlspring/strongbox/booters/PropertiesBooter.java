@@ -28,9 +28,6 @@ public class PropertiesBooter
     @Value("${strongbox.etc}")
     private String etcDirectory;
 
-    @Value("${strongbox.temp}")
-    private String tempDirectory;
-
     @Value("${logging.dir}")
     private String logsDirectory;
 
@@ -111,16 +108,6 @@ public class PropertiesBooter
     public void setEtcDirectory(String etcDirectory)
     {
         this.etcDirectory = etcDirectory;
-    }
-
-    public String getTempDirectory()
-    {
-        return tempDirectory;
-    }
-
-    public void setTempDirectory(String tempDirectory)
-    {
-        this.tempDirectory = tempDirectory;
     }
 
     public String getLogsDirectory()

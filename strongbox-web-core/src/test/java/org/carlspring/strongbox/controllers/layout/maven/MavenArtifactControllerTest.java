@@ -832,7 +832,7 @@ public class MavenArtifactControllerTest
         PluginArtifact pluginArtifact3 = new PluginArtifact(p3, artifact3);
         PluginArtifact pluginArtifact4 = new PluginArtifact(p4, artifact4);
 
-        MavenArtifactDeployer artifactDeployer = buildArtifactDeployer(Paths.get(propertiesBooter.getTempDirectory()));
+        MavenArtifactDeployer artifactDeployer = buildArtifactDeployer(Paths.get(System.getProperty("java.io.tmpdir")));
 
         // When
         artifactDeployer.generateAndDeployArtifact(pluginArtifact1, storageId, repositoryId);
