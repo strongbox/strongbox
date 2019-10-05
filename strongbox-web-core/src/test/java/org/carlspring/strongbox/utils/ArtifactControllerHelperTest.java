@@ -175,7 +175,7 @@ class ArtifactControllerHelperTest
         RepositoryPath artifactRepositoryPath = (RepositoryPath) artifactPath.normalize();
         try(InputStream is = artifactResolutionService.getInputStream(artifactRepositoryPath))
         {
-            HttpHeaders httpHeaders = getHttpHeaders("0-4500,5010-5019");
+            HttpHeaders httpHeaders = getHttpHeaders("0-500,510-519");
             HttpServletResponse response = new MockHttpServletResponse();
             response.setHeader(HttpHeaders.CONTENT_LENGTH, String.valueOf(Files.size(artifactRepositoryPath)));
 
