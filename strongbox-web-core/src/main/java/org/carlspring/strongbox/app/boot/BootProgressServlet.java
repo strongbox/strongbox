@@ -14,7 +14,9 @@ import io.reactivex.disposables.Disposable;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.HttpHeaders;
 import org.springframework.http.MediaType;
+import java.nio.charset.StandardCharsets;
 
 public class BootProgressServlet
         extends HttpServlet
@@ -28,7 +30,7 @@ public class BootProgressServlet
     {
         try
         {
-            if (!MediaType.TEXT_EVENT_STREAM_VALUE.equalsIgnoreCase(request.getHeader("Accept")))
+            if (!MediaType.TEXT_EVENT_STREAM_VALUE.equalsIgnoreCase(request.getHeader(HttpHeaders.ACCEPT)))
             {
                 response.sendError(HttpStatus.NOT_ACCEPTABLE.value());
                 return;
@@ -36,17 +38,17 @@ public class BootProgressServlet
 
             response.setStatus(HttpStatus.OK.value());
             response.setContentType(MediaType.TEXT_EVENT_STREAM_VALUE);
-            response.setCharacterEncoding("UTF-8");
+            response.setCharacterEncoding(StandardCharsets.UTF_8.name());
 
-            response.setHeader("Connection", "keep-alive");
-            response.setHeader("Cache-control", "no-cache, no-store, max-age=0, must-revalidate");
-            response.setHeader("Pragma", "no-cache");
-            response.setHeader("Expires", "0");
+            response.setHeader(HttpHeaders.CONNECTION, "keep-alive");
+            response.setHeader(HttpHeaders.CACHE_CONTROL, "no-cache, no-store, max-age=0, must-revalidate");
+            response.setHeader(HttpHeaders.PRAGMA, "no-cache");
+            response.setHeader(HttpHeaders.EXPIRES, "0");
             // -- CORS - allow everybody while booting, but set max-age to force browsers re-check after boot.
-            response.setHeader("Allow", "GET, OPTIONS");
-            response.setHeader("Access-Control-Allow-Origin", "*");
-            response.setHeader("Access-Control-Allow-Headers", "*");
-            response.setHeader("Access-Control-Max-Age", "600");
+            response.setHeader(HttpHeaders.ALLOW, "GET, OPTIONS");
+            response.setHeader(HttpHeaders.	ACCESS_CONTROL_ALLOW_ORIGIN, "*");
+            response.setHeader(HttpHeaders.	ACCESS_CONTROL_ALLOW_HEADERS, "*");
+            response.setHeader(HttpHeaders.ACCESS_CONTROL_MAX_AGE, "600");
 
             final AsyncContext asyncContext = request.startAsync(request, response);
 

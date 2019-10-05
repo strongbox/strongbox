@@ -2,14 +2,16 @@ package org.carlspring.strongbox.security;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
+import io.restassured.http.ContentType;
+import javax.inject.Inject;
+import javax.servlet.http.HttpServletResponse;
+import org.assertj.core.api.Assertions.assertThat;
 import org.carlspring.strongbox.config.IntegrationTest;
 import org.carlspring.strongbox.controllers.support.ErrorResponseEntityBody;
 import org.carlspring.strongbox.rest.common.RestAssuredBaseTest;
+import org.hamcrest.Matchers.equalTo;
 
-import javax.inject.Inject;
-import javax.servlet.http.HttpServletResponse;
 
-import io.restassured.http.ContentType;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.http.HttpStatus;
@@ -20,6 +22,8 @@ import org.springframework.security.access.AccessDeniedException;
 import org.springframework.security.test.context.support.WithMockUser;
 
 import static org.hamcrest.Matchers.equalTo;
+import org.springframework.http.HttpHeaders;
+import org.springframework.http.MediaType;
 
 /**
  * @author Przemyslaw Fusik
@@ -62,14 +66,14 @@ public class CustomAccessDeniedHandlerTest
     @WithMockUser(username = "unauthorizedUser")
     public void unauthorizedUserShouldReceiveExpectedUnauthorizedResponse()
     {
-        mockMvc.contentType("application/json")
+        mockMvc.contentType(MediaType.APPLICATION_JSON_VALUE)
                .accept(ContentType.JSON)
                .when()
                .get("/api/configuration/strongbox")
                .peek()
                .then()
                .statusCode(HttpStatus.FORBIDDEN.value())
-               .contentType("application/json")
+               .contentType(MediaType.APPLICATION_JSON_VALUE)
                .body("error", equalTo("forbidden"));
     }
 

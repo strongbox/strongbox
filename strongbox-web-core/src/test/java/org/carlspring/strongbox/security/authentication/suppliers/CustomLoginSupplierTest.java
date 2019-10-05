@@ -1,16 +1,17 @@
 package org.carlspring.strongbox.security.authentication.suppliers;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
+import javax.inject.Inject;
+import org.assertj.core.api.Assertions.assertThat;
 import org.carlspring.strongbox.config.IntegrationTest;
 import org.carlspring.strongbox.controllers.login.LoginInput;
-
-import javax.inject.Inject;
-
-import com.fasterxml.jackson.databind.ObjectMapper;
 import org.junit.jupiter.api.Test;
 import org.springframework.mock.web.MockHttpServletRequest;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
 import static org.assertj.core.api.Assertions.assertThat;
+import org.springframework.http.HttpHeaders;
+import org.springframework.http.MediaType;
 
 /**
  * @author Przemyslaw Fusik
@@ -30,7 +31,7 @@ public class CustomLoginSupplierTest
             throws Exception
     {
         MockHttpServletRequest request = new MockHttpServletRequest("post", "/api/login");
-        request.setContentType("application/json");
+        request.setContentType(MediaType.APPLICATION_JSON_VALUE);
 
         assertThat(customLoginSupplier.supports(request)).isTrue();
     }
@@ -40,7 +41,7 @@ public class CustomLoginSupplierTest
             throws Exception
     {
         MockHttpServletRequest request = new MockHttpServletRequest("get", "/api/login");
-        request.setContentType("application/json");
+        request.setContentType(MediaType.APPLICATION_JSON_VALUE);
 
         assertThat(customLoginSupplier.supports(request)).isFalse();
     }
@@ -50,7 +51,7 @@ public class CustomLoginSupplierTest
             throws Exception
     {
         MockHttpServletRequest request = new MockHttpServletRequest("post", "/api/login");
-        request.setContentType("application/xml");
+        request.setContentType(MediaType.APPLICATION_XML);
 
         assertThat(customLoginSupplier.supports(request)).isFalse();
     }

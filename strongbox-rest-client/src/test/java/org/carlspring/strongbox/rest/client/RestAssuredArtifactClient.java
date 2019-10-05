@@ -20,6 +20,7 @@ import io.restassured.response.ExtractableResponse;
 
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
+import org.springframework.http.HttpHeaders;
 
 /**
  * Implementation of {@link IArtifactClient} for rest-assured tests.
@@ -349,7 +350,7 @@ public class RestAssuredArtifactClient
         return givenLocal().params("repositoryId", repositoryId,
                                    "q", query,
                                    "searchProvider", searchProvider)
-                           .header("accept", mediaType)
+                           .header(HttpHeaders.ACCEPT, mediaType)
                            .when()
                            .get(url)
                            .then()

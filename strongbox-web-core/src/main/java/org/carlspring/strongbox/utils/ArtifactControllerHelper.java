@@ -72,7 +72,7 @@ public class ArtifactControllerHelper
 
             StreamUtils.setCurrentByteRange(bris, byteRange);
 
-            response.setHeader("Content-Length", partialLength + "");
+            response.setHeader(HttpHeaders.CONTENT_LENGTH, partialLength + "");
             response.setStatus(PARTIAL_CONTENT.value());
 
             prepareResponseBuilderForPartialRequest(byteRange, length, response);
@@ -118,12 +118,12 @@ public class ArtifactControllerHelper
                                                                long length,
                                                                HttpServletResponse response)
     {
-        response.setHeader("Accept-Ranges", "bytes");
-        response.setHeader("Content-Range",
+        response.setHeader(HttpHeaders.ACCEPT_RANGES, "bytes");
+        response.setHeader(HttpHeaders.CONTENT_RANGE,
                            "bytes " + br.getOffset() + "-" + (length - 1L) + "/" + length);
 
         logger.debug("Content-Range HEADER ->>> " + response.getHeader("Content-Range"));
-        response.setHeader("Pragma", "no-cache");
+        response.setHeader(HttpHeaders.PRAGMA, "no-cache");
     }
 
     public static boolean isRangedRequest(HttpHeaders headers)
@@ -151,8 +151,8 @@ public class ArtifactControllerHelper
         }
         RepositoryFileAttributes fileAttributes = Files.readAttributes(path, RepositoryFileAttributes.class);
 
-        response.setHeader("Content-Length", String.valueOf(fileAttributes.size()));
-        response.setHeader("Last-Modified", DateTimeFormatter.RFC_1123_DATE_TIME.format(
+        response.setHeader(HttpHeaders.CONTENT_LENGTH, String.valueOf(fileAttributes.size()));
+        response.setHeader(HttpHeaders.LAST_MODIFIED, DateTimeFormatter.RFC_1123_DATE_TIME.format(
                 ZonedDateTime.ofInstant(fileAttributes.lastModifiedTime().toInstant(), ZoneId.systemDefault())));
 
         // TODO: This is far from optimal and will need to have a content type approach at some point:
@@ -173,7 +173,7 @@ public class ArtifactControllerHelper
             response.setContentType(MediaType.APPLICATION_OCTET_STREAM_VALUE);
         }
 
-        response.setHeader("Accept-Ranges", "bytes");
+        response.setHeader(HttpHeaders.ACCEPT_RANGES, "bytes");
 
         path.getFileSystem().provider().resolveChecksumPathMap(path).entrySet().stream().forEach(e -> {
             String checksumValue;
