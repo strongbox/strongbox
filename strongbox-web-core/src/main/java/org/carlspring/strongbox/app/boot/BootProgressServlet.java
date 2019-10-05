@@ -46,8 +46,8 @@ public class BootProgressServlet
             response.setHeader(HttpHeaders.EXPIRES, "0");
             // -- CORS - allow everybody while booting, but set max-age to force browsers re-check after boot.
             response.setHeader(HttpHeaders.ALLOW, "GET, OPTIONS");
-            response.setHeader(HttpHeaders.	ACCESS_CONTROL_ALLOW_ORIGIN, "*");
-            response.setHeader(HttpHeaders.	ACCESS_CONTROL_ALLOW_HEADERS, "*");
+            response.setHeader(HttpHeaders.ACCESS_CONTROL_ALLOW_ORIGIN, "*");
+            response.setHeader(HttpHeaders.ACCESS_CONTROL_ALLOW_HEADERS, "*");
             response.setHeader(HttpHeaders.ACCESS_CONTROL_MAX_AGE, "600");
 
             final AsyncContext asyncContext = request.startAsync(request, response);
