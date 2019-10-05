@@ -1,7 +1,5 @@
 package org.carlspring.strongbox.forms.configuration;
 
-import org.carlspring.strongbox.validation.configuration.DescribableEnumValue;
-
 import javax.validation.constraints.Pattern;
 
 import com.fasterxml.jackson.annotation.JsonTypeName;
