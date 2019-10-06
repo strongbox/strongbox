@@ -10,6 +10,8 @@ import org.carlspring.strongbox.domain.ArtifactEntry;
 import org.carlspring.strongbox.services.ArtifactEntryService;
 
 import javax.inject.Inject;
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
@@ -143,24 +145,36 @@ public class ArtifactEntryServiceTest
     }
 
     @Test
-    public void saveEntityCreatedPropertyShouldRetainDateAndTime(TestInfo testInfo)
-    {
+    public void saveEntityCreatedLastUsedLastUpdatedPropertiesShouldRetainTime(TestInfo testInfo) throws ParseException {
         final String groupId = getGroupId(GROUP_ID, testInfo);
 
         final ArtifactEntry artifactEntry = createArtifactEntry(groupId);
-        final Date now = new Date();
-        artifactEntry.setCreated(now);
-
         final ArtifactEntry firstTimeSavedArtifactEntry = save(artifactEntry);
         final String artifactEntryId = firstTimeSavedArtifactEntry.getObjectId();
-        final Date creationDate = firstTimeSavedArtifactEntry.getCreated();
-        assertThat(creationDate).isEqualTo(now);
 
         final ArtifactEntry firstTimeReadFromDatabase = artifactEntryService.findOne(artifactEntryId)
                 .orElse(null);
-
         assertThat(firstTimeReadFromDatabase).isNotNull();
-        assertThat(creationDate).isEqualTo(now);
+
+        final Date sampleDate = createSampleDate();
+
+        firstTimeReadFromDatabase.setCreated(sampleDate);
+        firstTimeReadFromDatabase.setLastUpdated(sampleDate);
+        firstTimeReadFromDatabase.setLastUsed(sampleDate);
+
+        save(firstTimeReadFromDatabase);
+        final ArtifactEntry secondTimeReadFromDatabase = artifactEntryService.findOne(artifactEntryId)
+                .orElse(null);
+
+        assertThat(secondTimeReadFromDatabase).isNotNull();
+
+        assertThat(secondTimeReadFromDatabase.getCreated()).isEqualTo(sampleDate);
+        assertThat(secondTimeReadFromDatabase.getLastUpdated()).isEqualTo(sampleDate);
+        assertThat(secondTimeReadFromDatabase.getLastUsed()).isEqualTo(sampleDate);
+    }
+
+    private Date createSampleDate() throws ParseException {
+        return new SimpleDateFormat("yyyy-MM-dd HH:mm:ss").parse("2019-10-31 13:15:50");
     }
 
     private ArtifactEntry createArtifactEntry(String groupId)
