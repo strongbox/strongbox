@@ -1,4 +1,8 @@
-package org.carlspring.strongbox.actuator;
+package org.carlspring.strongbox.actuator.logfile.stream;
+
+import org.carlspring.strongbox.actuator.logfile.stream.LogFileStreamWebEndpoint;
+import org.carlspring.strongbox.actuator.logfile.stream.LogFileStreamWebEndpointAutoConfiguration;
+import org.carlspring.strongbox.actuator.logfile.stream.SseEmitterAwareTailerListenerAdapter;
 
 import java.io.File;
 import java.io.IOException;
@@ -9,8 +13,6 @@ import java.nio.file.Paths;
 import org.apache.commons.io.FileUtils;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.TestInfo;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.config.ConfigurableBeanFactory;
 import org.springframework.boot.actuate.autoconfigure.endpoint.EndpointAutoConfiguration;
 import org.springframework.boot.actuate.autoconfigure.endpoint.web.WebEndpointAutoConfiguration;

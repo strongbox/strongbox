@@ -1,4 +1,4 @@
-package org.carlspring.strongbox.actuator;
+package org.carlspring.strongbox.actuator.logfile.stream;
 
 import java.io.IOException;
 import java.util.Objects;
@@ -81,7 +81,7 @@ public class SseEmitterAwareTailerListenerAdapter
         {
             if (sseEmitter != null)
             {
-                sseEmitter.send(SseEmitter.event().name(eventName).data(eventData).build());
+                sseEmitter.send(SseEmitter.event().name(eventName).data(eventData));
             }
 
         }

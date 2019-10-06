@@ -1,7 +1,5 @@
 package org.carlspring.strongbox.controllers;
 
-import org.carlspring.logging.exceptions.AppenderNotFoundException;
-import org.carlspring.logging.exceptions.LoggerNotFoundException;
 import org.carlspring.logging.exceptions.LoggingConfigurationException;
 import org.carlspring.logging.services.LoggingManagementService;
 import org.carlspring.strongbox.booters.PropertiesBooter;
@@ -11,13 +9,15 @@ import org.carlspring.strongbox.services.DirectoryListingServiceImpl;
 
 import javax.inject.Inject;
 import javax.servlet.http.HttpServletRequest;
-import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.Optional;
 
-import io.swagger.annotations.*;
+import io.swagger.annotations.Api;
+import io.swagger.annotations.ApiOperation;
+import io.swagger.annotations.ApiResponse;
+import io.swagger.annotations.ApiResponses;
 import org.apache.commons.io.FilenameUtils;
 import org.apache.commons.lang.StringUtils;
 import org.springframework.http.HttpHeaders;
@@ -27,11 +27,13 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.ModelMap;
-import org.springframework.web.bind.annotation.*;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.RequestHeader;
+import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.servlet.ModelAndView;
 import static org.carlspring.strongbox.controllers.LoggingManagementController.ROOT_CONTEXT;
 import static org.springframework.http.HttpStatus.BAD_REQUEST;
-import static org.springframework.http.MediaType.APPLICATION_XML_VALUE;
 import static org.springframework.http.MediaType.TEXT_PLAIN_VALUE;
 
 /**
@@ -40,6 +42,7 @@ import static org.springframework.http.MediaType.TEXT_PLAIN_VALUE;
  * @author Martin Todorov
  * @author Pablo Tirado
  * @author Aditya Srinivasan
+ * @author Przemyslaw Fusik
  */
 @Controller
 @Api(value = ROOT_CONTEXT)
@@ -48,7 +51,7 @@ public class LoggingManagementController
         extends BaseController
 {
 
-    public final static String ROOT_CONTEXT = "/api/logging";
+    public final static String ROOT_CONTEXT = "/api/monitoring/logs";
 
     @Inject
     private PropertiesBooter propertiesBooter;
@@ -57,7 +60,7 @@ public class LoggingManagementController
     private LoggingManagementService loggingManagementService;
 
     private DirectoryListingService directoryListingService;
-    
+
     public DirectoryListingService getDirectoryListingService()
     {
         return Optional.ofNullable(directoryListingService).orElseGet(() -> {
@@ -66,114 +69,32 @@ public class LoggingManagementController
             return directoryListingService = new DirectoryListingServiceImpl(String.format("%s/api/logging", baseUrl));
         });
     }
-    
-    @ApiOperation(value = "Used to add new logger.")
-    @ApiResponses(value = { @ApiResponse(code = 200, message = "The logger was added successfully."),
-                            @ApiResponse(code = 400, message = "Could not add a new logger.") })
-    @PreAuthorize("hasAnyAuthority('CONFIGURATION_ADD_LOGGER','CONFIGURE_LOGS')")
-    @PutMapping(value = "/logger",
-                produces = { MediaType.TEXT_PLAIN_VALUE,
-                             MediaType.APPLICATION_JSON_VALUE })
-    public ResponseEntity addLogger(@ApiParam(value = "The logger name", required = true)
-                                    @RequestParam("logger") String loggerPackage,
-                                    @ApiParam(value = "The logger level", required = true)
-                                    @RequestParam("level") String level,
-                                    @ApiParam(value = "The logger appender name", required = true)
-                                    @RequestParam("appenderName") String appenderName,
-                                    @RequestHeader(HttpHeaders.ACCEPT) String accept)
-    {
-        try
-        {
-            loggingManagementService.addLogger(loggerPackage, level, appenderName);
-
-            return getSuccessfulResponseEntity("The logger was added successfully.", accept);
-        }
-        catch (LoggingConfigurationException | AppenderNotFoundException e)
-        {
-            String message = "Could not add a new logger.";
-
-            return getExceptionResponseEntity(BAD_REQUEST, message, e, accept);
-        }
-    }
-
-    @ApiOperation(value = "Used to update existing logger.")
-    @ApiResponses(value = { @ApiResponse(code = 200, message = "The logger was updated successfully."),
-                            @ApiResponse(code = 400, message = "Could not update logger."),
-                            @ApiResponse(code = 404, message = "Logger was not found.") })
-    @PreAuthorize("hasAnyAuthority('CONFIGURATION_UPDATE_LOGGER','CONFIGURE_LOGS')")
-    @PostMapping(value = "/logger",
-                 produces = { MediaType.TEXT_PLAIN_VALUE,
-                              MediaType.APPLICATION_JSON_VALUE })
-    public ResponseEntity updateLogger(@ApiParam(value = "The logger name", required = true)
-                                       @RequestParam("logger") String loggerPackage,
-                                       @ApiParam(value = "The logger level", required = true)
-                                       @RequestParam("level") String level,
-                                       @RequestHeader(HttpHeaders.ACCEPT) String accept)
-    {
-        try
-        {
-            loggingManagementService.updateLogger(loggerPackage, level);
-
-            return getSuccessfulResponseEntity("The logger was updated successfully.", accept);
-        }
-        catch (LoggingConfigurationException e)
-        {
-            String message = "Could not update logger.";
-
-            return getExceptionResponseEntity(BAD_REQUEST, message, e, accept);
-        }
-        catch (LoggerNotFoundException e)
-        {
-            String message = "Logger '" + loggerPackage + "' not found!";
-            return getNotFoundResponseEntity(message, accept);
-        }
-    }
-
-    @ApiOperation(value = "Used to delete existing logger.")
-    @ApiResponses(value = { @ApiResponse(code = 200, message = "The logger was deleted successfully."),
-                            @ApiResponse(code = 400, message = "Could not delete the logger."),
-                            @ApiResponse(code = 404, message = "Logger was not found.") })
-    @PreAuthorize("hasAnyAuthority('CONFIGURATION_DELETE_LOGGER','CONFIGURE_LOGS')")
-    @DeleteMapping(value = "/logger",
-                   produces = { MediaType.TEXT_PLAIN_VALUE,
-                                MediaType.APPLICATION_JSON_VALUE })
-    public ResponseEntity deleteLogger(@ApiParam(value = "The logger name", required = true)
-                                       @RequestParam("logger") String loggerPackage,
-                                       @RequestHeader(HttpHeaders.ACCEPT) String accept)
-    {
-        try
-        {
-            loggingManagementService.deleteLogger(loggerPackage);
-
-            return getSuccessfulResponseEntity("The logger was deleted successfully.", accept);
-        }
-        catch (LoggingConfigurationException e)
-        {
-            String message = "Could not delete the logger.";
-
-            logger.error(message, e);
-
-            return ResponseEntity.status(BAD_REQUEST).body(getResponseEntityBody(message, accept));
-        }
-        catch (LoggerNotFoundException e)
-        {
-            String message = "Logger '" + loggerPackage + "' not found!";
-
-            return getNotFoundResponseEntity(message, accept);
-        }
-    }
 
     @ApiOperation(value = "Used to download log data.")
-    @ApiResponses(value = { @ApiResponse(code = 200, message = "The logger was retrieved successfully."),
+    @ApiResponses(value = { @ApiResponse(code = 200, message = "The log file was retrieved successfully."),
                             @ApiResponse(code = 400, message = "Could not download log data.") })
     @PreAuthorize("hasAnyAuthority('CONFIGURATION_RETRIEVE_LOG','CONFIGURE_LOGS')")
-    @GetMapping(value = "/log/{path}", produces = TEXT_PLAIN_VALUE)
-    public ResponseEntity downloadLog(@PathVariable String path,
+    @GetMapping(value = "/log/{path:.+}", produces = TEXT_PLAIN_VALUE)
+    public ResponseEntity downloadLog(@PathVariable("path") String path,
                                       @RequestHeader(HttpHeaders.ACCEPT) String accept)
     {
         try
         {
-            logger.debug("Received a request to retrieve log file {}.", path);
+            Path logsBaseDir = Paths.get(propertiesBooter.getLogsDirectory());
+            Path requestedLogPath = Paths.get(logsBaseDir.toString(), path);
+
+            logger.debug(String.format("Requested downloading log from path: [%s] resolved to [%s]",
+                                       path,
+                                       requestedLogPath));
+
+            if (!Files.exists(requestedLogPath))
+            {
+                return getNotFoundResponseEntity("Requested path does not exist!", accept);
+            }
+            if (Files.isDirectory(requestedLogPath))
+            {
+                return getBadRequestResponseEntity("Requested path is a directory!", accept);
+            }
 
             return getStreamToResponseEntity(loggingManagementService.downloadLog(path),
                                              FilenameUtils.getName(path));
@@ -186,71 +107,34 @@ public class LoggingManagementController
         }
     }
 
-    @ApiOperation(value = "Used to download logback configuration.")
-    @ApiResponses(value = { @ApiResponse(code = 200, message = "The logger configuration was retrieved successfully."),
-                            @ApiResponse(code = 400, message = "Could not download logback configuration.") })
-    @PreAuthorize("hasAnyAuthority('CONFIGURATION_RETRIEVE_LOGBACK_CFG','CONFIGURE_LOGS')")
-    @GetMapping(value = "/logback", produces = MediaType.APPLICATION_XML_VALUE)
-    public ResponseEntity downloadLogbackConfiguration(@RequestHeader(HttpHeaders.ACCEPT) String accept)
-    {
-        try
-        {
-            return getStreamToResponseEntity(loggingManagementService.downloadLogbackConfiguration(),
-                                             "strongbox-logback-configuration.xml");
-        }
-        catch (LoggingConfigurationException e)
-        {
-            String message = "Could not download logback configuration.";
-
-            return getExceptionResponseEntity(BAD_REQUEST, message, e, accept);
-        }
-    }
-
-    @ApiOperation(value = "Used to upload logback configuration.")
-    @ApiResponses(value = { @ApiResponse(code = 200, message = "The logger configuration was uploaded successfully."),
-                            @ApiResponse(code = 400, message = "An error occurred.") })
-    @PreAuthorize("hasAnyAuthority('CONFIGURATION_UPLOAD_LOGBACK_CFG','CONFIGURE_LOGS')")
-    @PostMapping(value = "/logback",
-                 consumes = APPLICATION_XML_VALUE,
-                 produces = { MediaType.TEXT_PLAIN_VALUE,
-                              MediaType.APPLICATION_JSON_VALUE })
-    public ResponseEntity uploadLogbackConfiguration(HttpServletRequest request,
-                                                     @RequestHeader(HttpHeaders.ACCEPT) String accept)
-    {
-        try
-        {
-            loggingManagementService.uploadLogbackConfiguration(request.getInputStream());
-
-            return getSuccessfulResponseEntity("Logback configuration uploaded successfully.", accept);
-        }
-        catch (IOException | LoggingConfigurationException e)
-        {
-            String message = "Could not upload logback configuration.";
-            return getExceptionResponseEntity(BAD_REQUEST, message, e, accept);
-        }
-    }
-
-    @ApiOperation(value = "Used to get log directory.")
-    @ApiResponses(value = { @ApiResponse(code = 200, message = "The log directory was retrieved successfully."),
+    @ApiOperation(value = "Used to get logs directory.")
+    @ApiResponses(value = { @ApiResponse(code = 200, message = "The logs directory was retrieved successfully."),
                             @ApiResponse(code = 500, message = "Server error.") })
     @PreAuthorize("hasAuthority('VIEW_LOGS')")
-    @GetMapping(value = { "/logs/{urlPath:.+}" },
-                produces = {MediaType.TEXT_PLAIN_VALUE, MediaType.TEXT_HTML_VALUE, MediaType.APPLICATION_JSON_VALUE})
-    public Object generateLogDirectoryListing(@PathVariable("urlPath") Optional<String> rawPath,
-                                              ModelMap model,
-                                              HttpServletRequest request,
-                                              @RequestHeader(value = HttpHeaders.ACCEPT,
-                                                             required = false) String acceptHeader)
+    @GetMapping(value = { "/browse/{path:.+}" },
+                produces = { MediaType.TEXT_PLAIN_VALUE,
+                             MediaType.TEXT_HTML_VALUE,
+                             MediaType.APPLICATION_JSON_VALUE })
+    public Object browseLogsDirectory(@PathVariable("path") Optional<String> path,
+                                      ModelMap model,
+                                      HttpServletRequest request,
+                                      @RequestHeader(value = HttpHeaders.ACCEPT,
+                                                     required = false) String acceptHeader)
     {
-        logger.debug("Requested directory listing of logs {}/logs/{}",
-                     ROOT_CONTEXT, rawPath.orElse(""));
+        logger.debug("Requested directory listing of logs {}/logs/{}", ROOT_CONTEXT, path.orElse(""));
 
         try
         {
-            Path logsBaseDir = Paths.get(propertiesBooter.getVaultDirectory(), "/logs/");
-            Path requestedLogPath = Paths.get(logsBaseDir.toString(), rawPath.orElse(""));
+            Path logsBaseDir = Paths.get(propertiesBooter.getLogsDirectory());
+            Path requestedLogPath = Paths.get(logsBaseDir.toString(), path.orElse(""));
 
-            if(Files.exists(requestedLogPath) && !Files.isDirectory(requestedLogPath))
+            logger.debug("Requested directory listing of path: [{}] resolved to [{}]", path, requestedLogPath);
+
+            if (!Files.exists(requestedLogPath))
+            {
+                return getNotFoundResponseEntity("Requested path does not exist!", acceptHeader);
+            }
+            if (!Files.isDirectory(requestedLogPath))
             {
                 return getBadRequestResponseEntity("Requested path is not a directory!", acceptHeader);
             }
@@ -263,7 +147,7 @@ public class LoggingManagementController
             }
 
             String currentUrl = StringUtils.chomp(request.getRequestURI(), "/");
-            String downloadUrl = currentUrl.replaceFirst("/logs", "/log");
+            String downloadUrl = currentUrl.replaceFirst("/browse", "/log");
 
             model.addAttribute("showBack", false);
             model.addAttribute("currentUrl", currentUrl);

@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package org.carlspring.strongbox.actuator;
+package org.carlspring.strongbox.actuator.logfile.stream;
 
 import org.springframework.beans.factory.config.ConfigurableBeanFactory;
 import org.springframework.boot.actuate.autoconfigure.endpoint.condition.ConditionalOnEnabledEndpoint;

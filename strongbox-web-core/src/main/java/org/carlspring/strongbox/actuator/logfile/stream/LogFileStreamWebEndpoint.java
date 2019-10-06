@@ -1,4 +1,6 @@
-package org.carlspring.strongbox.actuator;
+package org.carlspring.strongbox.actuator.logfile.stream;
+
+import org.carlspring.strongbox.net.MediaType;
 
 import java.io.File;
 import java.io.IOException;
@@ -45,7 +47,8 @@ public class LogFileStreamWebEndpoint
         this.externalFile = externalFile;
     }
 
-    @ReadOperation(produces = "text/plain; charset=UTF-8")
+    @ReadOperation(produces = { MediaType.TEXT_EVENT_STREAM_UTF8_VALUE,
+                                MediaType.TEXT_PLAIN_UTF8_VALUE })
     SseEmitter logFileStream()
             throws IOException
     {

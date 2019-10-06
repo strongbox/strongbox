@@ -1,5 +1,8 @@
-package org.carlspring.strongbox.actuator;
+package org.carlspring.strongbox.actuator.logfile.stream;
 
+
+import org.carlspring.strongbox.actuator.logfile.stream.LogFileStreamWebEndpoint;
+import org.carlspring.strongbox.actuator.logfile.stream.LogFileStreamWebEndpointAutoConfiguration;
 
 import org.junit.jupiter.api.Test;
 import org.springframework.boot.autoconfigure.AutoConfigurations;
