@@ -31,6 +31,7 @@ import org.springframework.test.context.TestExecutionListeners;
 import org.springframework.util.CollectionUtils;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.carlspring.strongbox.services.support.ArtifactEntrySearchCriteria.Builder.anArtifactEntrySearchCriteria;
+import static org.junit.jupiter.api.Assertions.*;
 
 /**
  * Functional test and usage example scenarios for {@link ArtifactEntryService}.
@@ -110,6 +111,68 @@ public class ArtifactEntryServiceTest
     protected int count(final String groupId)
     {
         return findAll(groupId).size();
+    }
+
+    @Test
+    public void saveEntityCreationDateShouldBeGeneratedAutomaticallyAndRemainUnchanged(TestInfo testInfo)
+    {
+        final String groupId = getGroupId(GROUP_ID, testInfo);
+
+        final ArtifactEntry artifactEntry = createArtifactEntry(groupId);
+
+        assertNull(artifactEntry.getCreated());
+        assertNull(artifactEntry.getLastUpdated());
+
+        final ArtifactEntry firstTimeSavedArtifactEntry = save(artifactEntry);
+        final String artifactEntryId = firstTimeSavedArtifactEntry.getObjectId();
+        final Date creationDate = firstTimeSavedArtifactEntry.getCreated();
+
+        final ArtifactEntry firstTimeReadFromDatabase = artifactEntryService.findOne(artifactEntryId)
+                .orElse(null);
+
+        assertNotNull(firstTimeReadFromDatabase);
+        assertEquals(firstTimeReadFromDatabase.getCreated(), creationDate);
+
+        artifactEntry.setDownloadCount(1);
+        save(firstTimeReadFromDatabase);
+
+        final ArtifactEntry secondTimeReadFromDatabase = artifactEntryService.findOne(artifactEntryId)
+                .orElse(null);
+
+        assertNotNull(secondTimeReadFromDatabase);
+        assertEquals(secondTimeReadFromDatabase.getCreated(), creationDate);
+    }
+
+    @Test
+    public void saveEntityCreatedPropertyShouldRetainDateAndTime(TestInfo testInfo)
+    {
+        final String groupId = getGroupId(GROUP_ID, testInfo);
+
+        final ArtifactEntry artifactEntry = createArtifactEntry(groupId);
+        final Date now = new Date();
+        artifactEntry.setCreated(now);
+
+        final ArtifactEntry firstTimeSavedArtifactEntry = save(artifactEntry);
+        final String artifactEntryId = firstTimeSavedArtifactEntry.getObjectId();
+        final Date creationDate = firstTimeSavedArtifactEntry.getCreated();
+        assertEquals(now, creationDate);
+
+        final ArtifactEntry firstTimeReadFromDatabase = artifactEntryService.findOne(artifactEntryId)
+                .orElse(null);
+
+        assertNotNull(firstTimeReadFromDatabase);
+        assertEquals(now, creationDate);
+    }
+
+    private ArtifactEntry createArtifactEntry(String groupId)
+    {
+        final ArtifactEntry artifactEntry = new ArtifactEntry();
+
+        artifactEntry.setStorageId(STORAGE_ID);
+        artifactEntry.setRepositoryId(REPOSITORY_ID);
+        artifactEntry.setArtifactCoordinates(createArtifactCoordinates(groupId, ARTIFACT_ID + "1234", "1.2.3", "jar"));
+
+        return artifactEntry;
     }
 
     @Test
