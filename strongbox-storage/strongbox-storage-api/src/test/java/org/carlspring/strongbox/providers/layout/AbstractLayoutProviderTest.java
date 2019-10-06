@@ -138,8 +138,8 @@ class AbstractLayoutProviderTest
         assertThat(artifactGroups.iterator().next()).isEqualTo(repositoryArtifactIdGroup);
         assertThat(repositoryArtifactIdGroup).isInstanceOf(RepositoryArtifactIdGroupEntry.class);
         assertThat(repositoryArtifactIdGroup.getArtifactId()).isEqualTo(("abs-lay-prov-test"));
-        assertThat(repositoryArtifactIdGroup.getRepositoryId()).isEqualTo(("releases"));
-        assertThat(repositoryArtifactIdGroup.getStorageId()).isEqualTo((STORAGE0));
+        assertThat(repositoryArtifactIdGroup.getRepositoryId()).isEqualTo((repositoryId));
+        assertThat(repositoryArtifactIdGroup.getStorageId()).isEqualTo((storageId));
         assertThat(repositoryArtifactIdGroup.getClass()).isEqualTo((RepositoryArtifactIdGroupEntry.class));
     }
 
