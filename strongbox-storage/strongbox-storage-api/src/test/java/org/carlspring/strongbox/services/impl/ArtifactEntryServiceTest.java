@@ -119,8 +119,8 @@ public class ArtifactEntryServiceTest
 
         final ArtifactEntry artifactEntry = createArtifactEntry(groupId);
 
-        assertThat(artifactEntry.getCreated()).isNotNull();
-        assertThat(artifactEntry.getLastUpdated()).isNotNull();
+        assertThat(artifactEntry.getCreated()).isNull();
+        assertThat(artifactEntry.getLastUpdated()).isNull();
 
         final ArtifactEntry firstTimeSavedArtifactEntry = save(artifactEntry);
         final String artifactEntryId = firstTimeSavedArtifactEntry.getObjectId();
