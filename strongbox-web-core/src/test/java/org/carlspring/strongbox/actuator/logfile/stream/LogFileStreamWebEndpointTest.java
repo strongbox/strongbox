@@ -1,8 +1,6 @@
 package org.carlspring.strongbox.actuator.logfile.stream;
 
-import org.carlspring.strongbox.actuator.logfile.stream.LogFileStreamWebEndpoint;
-import org.carlspring.strongbox.actuator.logfile.stream.LogFileStreamWebEndpointAutoConfiguration;
-import org.carlspring.strongbox.actuator.logfile.stream.SseEmitterAwareTailerListenerAdapter;
+import org.carlspring.strongbox.net.MediaType;
 
 import java.io.File;
 import java.io.IOException;
@@ -31,7 +29,6 @@ import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Scope;
 import org.springframework.core.io.Resource;
-import org.springframework.test.util.JsonPathExpectationsHelper;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.MvcResult;
 import org.springframework.test.web.servlet.result.MockMvcResultHandlers;
@@ -113,14 +110,12 @@ class LogFileStreamWebEndpointTest
                               mockMvc.perform(asyncDispatch(mvcResult))
                                      .andDo(MockMvcResultHandlers.log())
                                      .andExpect(status().isOk())
-                                     .andExpect(content().contentType("text/event-stream;charset=UTF-8"));
+                                     .andExpect(content().contentType(MediaType.TEXT_EVENT_STREAM_UTF8_VALUE));
 
-                              String event = mvcResult.getResponse().getContentAsString();
-                              event = event.replaceAll("data:", "");
-                              event = event.replaceAll("\\n", "");
+                              String response = mvcResult.getResponse().getContentAsString();
 
-                              new JsonPathExpectationsHelper("$[1].data").assertValue(event, methodName);
-
+                              assertThat(response).containsIgnoringCase("event:stream");
+                              assertThat(response).containsIgnoringCase("data:" + methodName);
                           }));
     }
 
