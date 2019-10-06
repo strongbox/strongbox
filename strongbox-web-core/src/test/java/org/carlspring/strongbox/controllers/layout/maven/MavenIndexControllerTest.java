@@ -37,6 +37,7 @@ import org.springframework.http.MediaType;
 
 import static com.google.common.base.Predicates.not;
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.carlspring.strongbox.net.MediaType.APPLICATION_X_GZIP_VALUE;
 import static org.hamcrest.CoreMatchers.equalTo;
 
 /**
@@ -295,7 +296,7 @@ public class MavenIndexControllerTest
                .peek()
                .then()
                .statusCode(HttpStatus.OK.value())
-               .contentType(org.carlspring.strongbox.net.MediaType.APPLICATION_X_GZIP_VALUE)
+               .contentType(APPLICATION_X_GZIP_VALUE)
                .body(CoreMatchers.notNullValue());
     }
 
