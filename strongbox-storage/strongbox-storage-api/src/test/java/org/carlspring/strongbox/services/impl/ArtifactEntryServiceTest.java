@@ -31,7 +31,6 @@ import org.springframework.test.context.TestExecutionListeners;
 import org.springframework.util.CollectionUtils;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.carlspring.strongbox.services.support.ArtifactEntrySearchCriteria.Builder.anArtifactEntrySearchCriteria;
-import static org.junit.jupiter.api.Assertions.*;
 
 /**
  * Functional test and usage example scenarios for {@link ArtifactEntryService}.
@@ -120,8 +119,8 @@ public class ArtifactEntryServiceTest
 
         final ArtifactEntry artifactEntry = createArtifactEntry(groupId);
 
-        assertNull(artifactEntry.getCreated());
-        assertNull(artifactEntry.getLastUpdated());
+        assertThat(artifactEntry.getCreated()).isNotNull();
+        assertThat(artifactEntry.getLastUpdated()).isNotNull();
 
         final ArtifactEntry firstTimeSavedArtifactEntry = save(artifactEntry);
         final String artifactEntryId = firstTimeSavedArtifactEntry.getObjectId();
@@ -130,8 +129,8 @@ public class ArtifactEntryServiceTest
         final ArtifactEntry firstTimeReadFromDatabase = artifactEntryService.findOne(artifactEntryId)
                 .orElse(null);
 
-        assertNotNull(firstTimeReadFromDatabase);
-        assertEquals(firstTimeReadFromDatabase.getCreated(), creationDate);
+        assertThat(firstTimeReadFromDatabase).isNotNull();
+        assertThat(firstTimeReadFromDatabase.getCreated()).isEqualTo(creationDate);
 
         artifactEntry.setDownloadCount(1);
         save(firstTimeReadFromDatabase);
@@ -139,8 +138,8 @@ public class ArtifactEntryServiceTest
         final ArtifactEntry secondTimeReadFromDatabase = artifactEntryService.findOne(artifactEntryId)
                 .orElse(null);
 
-        assertNotNull(secondTimeReadFromDatabase);
-        assertEquals(secondTimeReadFromDatabase.getCreated(), creationDate);
+        assertThat(secondTimeReadFromDatabase).isNotNull();
+        assertThat(secondTimeReadFromDatabase.getCreated()).isEqualTo(creationDate);
     }
 
     @Test
@@ -155,13 +154,13 @@ public class ArtifactEntryServiceTest
         final ArtifactEntry firstTimeSavedArtifactEntry = save(artifactEntry);
         final String artifactEntryId = firstTimeSavedArtifactEntry.getObjectId();
         final Date creationDate = firstTimeSavedArtifactEntry.getCreated();
-        assertEquals(now, creationDate);
+        assertThat(creationDate).isEqualTo(now);
 
         final ArtifactEntry firstTimeReadFromDatabase = artifactEntryService.findOne(artifactEntryId)
                 .orElse(null);
 
-        assertNotNull(firstTimeReadFromDatabase);
-        assertEquals(now, creationDate);
+        assertThat(firstTimeReadFromDatabase).isNotNull();
+        assertThat(creationDate).isEqualTo(now);
     }
 
     private ArtifactEntry createArtifactEntry(String groupId)
