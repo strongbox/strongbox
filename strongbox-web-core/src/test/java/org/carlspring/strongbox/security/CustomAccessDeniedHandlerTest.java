@@ -62,14 +62,14 @@ public class CustomAccessDeniedHandlerTest
     @WithMockUser(username = "unauthorizedUser")
     public void unauthorizedUserShouldReceiveExpectedUnauthorizedResponse()
     {
-        mockMvc.contentType("application/json")
+        mockMvc.contentType(MediaType.APPLICATION_JSON_VALUE)
                .accept(ContentType.JSON)
                .when()
                .get("/api/configuration/strongbox")
                .peek()
                .then()
                .statusCode(HttpStatus.FORBIDDEN.value())
-               .contentType("application/json")
+               .contentType(MediaType.APPLICATION_JSON_VALUE)
                .body("error", equalTo("forbidden"));
     }
 

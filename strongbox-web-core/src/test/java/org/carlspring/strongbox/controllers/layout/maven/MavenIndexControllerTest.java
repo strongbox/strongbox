@@ -1,5 +1,14 @@
 package org.carlspring.strongbox.controllers.layout.maven;
 
+import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.security.NoSuchAlgorithmException;
+import java.util.List;
+
+import javax.inject.Inject;
+
+import io.restassured.http.Header;
 import org.carlspring.strongbox.config.IntegrationTest;
 import org.carlspring.strongbox.providers.io.RepositoryPath;
 import org.carlspring.strongbox.rest.common.MavenRestAssuredBaseTest;
@@ -18,24 +27,17 @@ import org.carlspring.strongbox.testing.storage.repository.RepositoryManagementT
 import org.carlspring.strongbox.testing.storage.repository.TestRepository.Group;
 import org.carlspring.strongbox.testing.storage.repository.TestRepository.Remote;
 import org.carlspring.strongbox.util.MessageDigestUtils;
-
-import javax.inject.Inject;
-import java.io.IOException;
-import java.nio.file.Files;
-import java.nio.file.Path;
-import java.security.NoSuchAlgorithmException;
-import java.util.List;
-
-import io.restassured.http.Header;
 import org.hamcrest.CoreMatchers;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
+
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
-import static com.google.common.base.Predicates.not;
 
+import static com.google.common.base.Predicates.not;
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.carlspring.strongbox.net.MediaType.APPLICATION_X_GZIP_VALUE;
 import static org.hamcrest.CoreMatchers.equalTo;
 
 /**
@@ -294,7 +296,7 @@ public class MavenIndexControllerTest
                .peek()
                .then()
                .statusCode(HttpStatus.OK.value())
-               .contentType("application/x-gzip")
+               .contentType(APPLICATION_X_GZIP_VALUE)
                .body(CoreMatchers.notNullValue());
     }
 
@@ -327,7 +329,7 @@ public class MavenIndexControllerTest
                .peek()
                .then()
                .statusCode(HttpStatus.OK.value())
-               .contentType("text/plain")
+               .contentType(MediaType.TEXT_PLAIN_VALUE)
                .body(CoreMatchers.notNullValue());
     }
 
