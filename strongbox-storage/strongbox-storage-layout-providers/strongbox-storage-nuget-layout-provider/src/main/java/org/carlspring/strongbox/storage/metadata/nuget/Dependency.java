@@ -115,7 +115,7 @@ public class Dependency implements Serializable
 
             if (dependency.framework == null)
             {
-                logger.warn("Package:" + id + "The framework was not found" + frameWorkString);
+                logger.warn("Package: {} The framework was not found {}", id, frameWorkString);
             }
         }
 

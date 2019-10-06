@@ -252,7 +252,7 @@ public abstract class LayoutFileSystemProvider extends StorageFileSystemProvider
 
         if (!Files.exists(path))
         {
-            logger.warn(String.format("Path not found: path-[%s]", path));
+            logger.warn("Path not found: path-[{}]", path);
             
             return;
         }

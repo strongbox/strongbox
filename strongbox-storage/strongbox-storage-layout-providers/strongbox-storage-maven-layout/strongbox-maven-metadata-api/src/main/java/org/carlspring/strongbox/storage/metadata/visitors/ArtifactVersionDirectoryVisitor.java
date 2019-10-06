@@ -58,7 +58,7 @@ public class ArtifactVersionDirectoryVisitor
                 // Current action: Don't add matching file to matched paths and log a warning message
                 // Result: Generates metadata as if the directory contains only timestamped artifacts (if any)
                 //
-                logger.warn("Snapshot artifact name contains SNAPSHOT instead of timestamp: "+file.toAbsolutePath().toString());
+                logger.warn("Snapshot artifact name contains SNAPSHOT instead of timestamp: {}", file.toAbsolutePath());
             }
         }
 

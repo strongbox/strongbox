@@ -74,8 +74,8 @@ public class RepositoryManagementServiceImpl
         {
             Repository repository = getConfiguration().getStorage(storageId).getRepository(repositoryId);
 
-            logger.warn("Layout provider '" + repository.getLayout() + "' could not be resolved. " +
-                        "Using generic implementation instead.");
+            logger.warn("Layout provider '{}' could not be resolved. Using generic implementation instead.",
+                repository.getLayout());
 
             RepositoryPath repositoryPath = repositoryPathResolver.resolve(repository);
 
@@ -159,7 +159,7 @@ public class RepositoryManagementServiceImpl
                     }
                     else
                     {
-                        logger.warn("Repository " + repository.getId() + " does not support removal of trash.");
+                        logger.warn("Repository {} does not support removal of trash.", repository.getId());
                     }
                 }
             }

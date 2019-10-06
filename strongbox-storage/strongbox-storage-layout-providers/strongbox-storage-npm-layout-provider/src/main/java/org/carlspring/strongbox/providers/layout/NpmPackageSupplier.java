@@ -109,7 +109,7 @@ public class NpmPackageSupplier implements Function<Path, NpmPackageDesc>
         } 
         catch (NoSuchFileException e) 
         {
-            logger.warn(String.format("Checksum file not found [%s].", shasumPath));
+            logger.warn("Checksum file not found [{}].", shasumPath);
         }
         catch (IOException e)
         {

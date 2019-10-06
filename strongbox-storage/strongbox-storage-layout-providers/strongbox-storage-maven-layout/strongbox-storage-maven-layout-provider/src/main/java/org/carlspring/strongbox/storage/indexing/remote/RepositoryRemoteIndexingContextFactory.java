@@ -37,9 +37,8 @@ public class RepositoryRemoteIndexingContextFactory
         final RemoteRepository remoteRepository = repository.getRemoteRepository();
         if (remoteRepository == null)
         {
-            logger.warn(
-                    String.format("Repository [%s:%s] was expected to have remote repository provided but was null.",
-                                  repository.getStorage().getId(), repository.getId()));
+            logger.warn("Repository [{}:{}] was expected to have remote repository provided but was null.",
+                repository.getStorage().getId(), repository.getId());
             return null;
 
         }

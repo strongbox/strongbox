@@ -218,8 +218,8 @@ public abstract class AbstractLayoutProvider<T extends ArtifactCoordinates>
             }
             catch (IOException e)
             {
-                logger.warn(String.format("Unable to list filenames in archive path %s using %s", repositoryPath,
-                                           ARCHIVE_LISTING_FUNCTION), e);
+                logger.warn("Unable to list filenames in archive path {} using {}",
+                    repositoryPath, ARCHIVE_LISTING_FUNCTION, e);
             }
         }
         return Collections.emptySet();

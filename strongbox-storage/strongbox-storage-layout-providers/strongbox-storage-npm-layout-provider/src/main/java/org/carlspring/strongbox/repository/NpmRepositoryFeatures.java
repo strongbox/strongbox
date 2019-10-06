@@ -184,21 +184,21 @@ public class NpmRepositoryFeatures implements RepositoryFeatures
         NpmRemoteRepositoryConfiguration configuration = (NpmRemoteRepositoryConfiguration) remoteRepository.getCustomConfiguration();
         if (configuration == null)
         {
-            logger.warn(String.format("Remote npm configuration not found for [%s]/[%s]", storageId, repositoryId));
+            logger.warn("Remote npm configuration not found for [{}]/[{}]", storageId, repositoryId);
             return;
         }
-        Long lastCnahgeId = configuration.getLastChangeId();
+        Long lastChangeId = configuration.getLastChangeId();
         String replicateUrl = configuration.getReplicateUrl();
 
-        Long nextChangeId = lastCnahgeId;
+        Long nextChangeId = lastChangeId;
         do
         {
-            lastCnahgeId = nextChangeId;
+            lastChangeId = nextChangeId;
             mutableConfiguration.setLastChangeId(nextChangeId);
             configurationManagementService.saveRepository(storageId, mutableRepository);
 
-            nextChangeId = Long.valueOf(fetchRemoteChangesFeed(repository, replicateUrl, lastCnahgeId + 1));
-        } while (nextChangeId > lastCnahgeId);
+            nextChangeId = Long.valueOf(fetchRemoteChangesFeed(repository, replicateUrl, lastChangeId + 1));
+        } while (nextChangeId > lastChangeId);
     }
 
     private Integer fetchRemoteChangesFeed(Repository repository,

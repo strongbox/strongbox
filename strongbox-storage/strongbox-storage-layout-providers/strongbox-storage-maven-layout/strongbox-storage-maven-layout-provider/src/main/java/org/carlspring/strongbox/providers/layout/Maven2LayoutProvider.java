@@ -160,8 +160,8 @@ public class Maven2LayoutProvider
             }
             catch (IOException e)
             {
-                logger.warn(String.format("Unable to list filenames in archive path %s using %s", repositoryPath,
-                                          JarArchiveListingFunction.INSTANCE.getClass()), e);
+                logger.warn("Unable to list filenames in archive path {} using {}",
+                    repositoryPath, JarArchiveListingFunction.INSTANCE.getClass(), e);
             }
         }
         return Collections.emptySet();
