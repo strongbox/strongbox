@@ -399,7 +399,7 @@ public class NpmArtifactController
         String shasum = Optional.ofNullable(packageDef.getDist()).map(p -> p.getShasum()).orElse(null);
         if (shasum == null)
         {
-            logger.warn(String.format("No checksum provided for package [%s]", packageDef.getName()));
+            logger.warn("No checksum provided for package [{}]", packageDef.getName());
             return;
         }
 

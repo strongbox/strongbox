@@ -217,7 +217,7 @@ public class RestAssuredArtifactClient
         }
         else
         {
-            logger.warn("[getArtifactAsByteArray] response " + response.getStatusCode());
+            logger.warn("[getArtifactAsByteArray] response {}", response.getStatusCode());
             return null;
         }
     }
@@ -379,7 +379,7 @@ public class RestAssuredArtifactClient
         }
         else
         {
-            logger.warn("[getArtifactAsByteArray] response " + response.getStatusCode());
+            logger.warn("[getArtifactAsByteArray] response {}", response.getStatusCode());
             return null;
         }
     }
@@ -403,7 +403,7 @@ public class RestAssuredArtifactClient
         }
         else
         {
-            logger.warn("[getArtifactAsByteArray] response " + response.getStatusCode());
+            logger.warn("[getArtifactAsByteArray] response {}", response.getStatusCode());
             return null;
         }
     }

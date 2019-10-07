@@ -73,7 +73,7 @@ public class PathNupkg implements Nupkg
         RepositoryPath checkSumPath = checksumPathMap.values().iterator().next();
         if (!Files.exists(checkSumPath))
         {
-            logger.trace(String.format("Failed to resolve checksum file for [%s]", path));
+            logger.trace("Failed to resolve checksum file for [{}]", path);
             return "";
         }
         List<String> checkSumContents = Files.readAllLines(checkSumPath);
@@ -101,7 +101,7 @@ public class PathNupkg implements Nupkg
         RepositoryPath nuspecPath = path.resolveSibling(artifactCoordinates.getId() + ".nuspec");
         if (!Files.exists(nuspecPath))
         {
-            logger.trace(String.format("Failed to resolve .nuspec file for [%s]", path));
+            logger.trace("Failed to resolve .nuspec file for [{}]", path);
             Nuspec result = new Nuspec();
             Metadata metadata = result.getMetadata();
             metadata.id = artifactCoordinates.getId();

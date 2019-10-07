@@ -64,7 +64,7 @@ public abstract class YamlFileManager<T>
         //Check that target resource stored on FS and not under classpath for example
         if (!resource.isFile() || resource instanceof ClassPathResource)
         {
-            logger.warn(String.format("Skip resource store [%s]", resource));
+            logger.warn("Skip resource store [{}]", resource);
             return;
         }
 
