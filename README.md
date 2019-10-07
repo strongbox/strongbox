@@ -8,6 +8,8 @@
 [![GitHub issues by-label][good-first-issue-badge]][good-first-issue-link]
 [![GitHub issues by-label][help-wanted-badge]][help-wanted-link]
 [![GitHub issues by-label][hacktoberfest-badge]][hacktoberfest-link]
+[![GitHub issues by-label][stackoverflow-badge]][stackoverflow-link]
+
 
 Welcome to the Strongbox artifact repository manager's home.
 
@@ -116,6 +118,8 @@ started with our project:
 [hacktoberfest-link]: https://github.com/strongbox/strongbox/issues?q=is%3Aissue+is%3Aopen+label%3A%22hacktoberfest%22
 [hacktoberfest-badge]: https://img.shields.io/github/issues-raw/strongbox/strongbox/hacktoberfest.svg?label=hacktoberfest&color=orange
 
+[stackoverflow-link]: https://stackoverflow.com/tags/strongbox/
+[stackoverflow-badge]: http://img.shields.io/badge/stackoverflow-PROFILE-blue.svg
 
 [<--# Docs links -->]: #
 [docs]: https://strongbox.github.io/
