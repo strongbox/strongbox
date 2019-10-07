@@ -8,6 +8,7 @@
 [![GitHub issues by-label][good-first-issue-badge]][good-first-issue-link]
 [![GitHub issues by-label][help-wanted-badge]][help-wanted-link]
 [![GitHub issues by-label][hacktoberfest-badge]][hacktoberfest-link]
+[![Stack Exchange questions](https://img.shields.io/stackexchange/stackoverflow/t/strongbox)](https://stackoverflow.com/tags/strongbox/)
 
 Welcome to the Strongbox artifact repository manager's home.
 
