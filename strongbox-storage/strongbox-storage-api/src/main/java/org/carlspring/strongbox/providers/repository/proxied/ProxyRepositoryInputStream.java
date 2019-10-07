@@ -212,8 +212,7 @@ public class ProxyRepositoryInputStream extends FilterInputStream
         int maxAllowedNumberOfRetryAttempts = getMaxAllowedNumberOfRetryAttempts();
         if (artifactCopyContext.get().getAttempts() > maxAllowedNumberOfRetryAttempts)
         {
-            logger.error(String.format("Maximum retry attempts [%s] reached for [%s]", maxAllowedNumberOfRetryAttempts,
-                                       repositoryPath));
+            logger.error("Maximum retry attempts [{}] reached for [{}]", maxAllowedNumberOfRetryAttempts, repositoryPath);
             throw ex;
         }
     }
@@ -224,8 +223,7 @@ public class ProxyRepositoryInputStream extends FilterInputStream
         long retryTimeoutMillis = getRetryTimeoutMillis();
         if (artifactCopyContext.get().getStopWatch().getTime() > retryTimeoutMillis)
         {
-            logger.error(String.format("Timeout of [%s] occured while reading [%s]", retryTimeoutMillis,
-                                       repositoryPath));
+            logger.error("Timeout of [{}] occured while reading [{}]", retryTimeoutMillis, repositoryPath);
             throw ex;
         }
     }

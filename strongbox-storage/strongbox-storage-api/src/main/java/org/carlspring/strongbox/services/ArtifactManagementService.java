@@ -222,9 +222,8 @@ public class ArtifactManagementService
 
         if (!matchesChecksum(checksum, artifactBasePath, checksumExtension))
         {
-            logger.error("The checksum for {} [{}] is invalid!",
-                                       artifactPath,
-                                       new String(checksum, StandardCharsets.UTF_8));
+
+            logger.error("The checksum for {} [{}] is invalid!", artifactPath, new String(checksum, StandardCharsets.UTF_8));
         }
 
         checksumCacheManager.removeArtifactChecksum(artifactBasePath, checksumExtension);

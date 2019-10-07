@@ -71,9 +71,8 @@ public abstract class AsyncArtifactEntryHandler
             }
             catch (Exception e)
             {
-                logger.error(String.format("Failed to handle async event [%s]",
-                                           AsyncArtifactEntryHandler.this.getClass().getSimpleName()),
-                             e);
+                logger.error("Failed to handle async event [{}]",
+                    AsyncArtifactEntryHandler.this.getClass().getSimpleName(), e);
             }
         });
 

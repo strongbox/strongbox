@@ -142,7 +142,7 @@ public class NpmRepositoryFeatures implements RepositoryFeatures
         }
         catch (Exception e)
         {
-            logger.error(String.format("Failed to searhc NPM packages [%s]", remoteRepositoryUrl), e);
+            logger.error("Failed to searhc NPM packages [{}]", remoteRepositoryUrl, e);
             
             return;
         } 
@@ -157,7 +157,7 @@ public class NpmRepositoryFeatures implements RepositoryFeatures
         }
         catch (Exception e)
         {
-            logger.error(String.format("Failed to parse NPM packages search result for [%s]", remoteRepositoryUrl), e);
+            logger.error("Failed to parse NPM packages search result for [{}]", remoteRepositoryUrl, e);
         }
     }
 
@@ -272,11 +272,10 @@ public class NpmRepositoryFeatures implements RepositoryFeatures
                 }
                 catch (Exception e)
                 {
-                    logger.error(String.format("Failed to parse NPM cnahges feed [%s] since [%s]: %n %s",
+                    logger.error("Failed to parse NPM changes feed [{}] since [{}]: %n {}",
                                                repositoryConfiguration.getReplicateUrl(),
                                                repositoryConfiguration.getLastChangeId(),
-                                               changeValue),
-                                 e);
+                                               changeValue, e);
 
                     return result;
                 }
@@ -288,10 +287,9 @@ public class NpmRepositoryFeatures implements RepositoryFeatures
                 }
                 catch (Exception e)
                 {
-                    logger.error(String.format("Failed to parse NPM feed [%s/%s]",
+                    logger.error("Failed to parse NPM feed [{}/{}]",
                                                ((RepositoryData)repository).getRemoteRepository().getUrl(),
-                                               packageFeed.getName()),
-                                 e);
+                                               packageFeed.getName(), e);
 
                 }
 
@@ -339,7 +337,7 @@ public class NpmRepositoryFeatures implements RepositoryFeatures
         }
         catch (Exception e)
         {
-            logger.error(String.format("Failed to fetch NPM changes feed [%s]", remoteRepositoryUrl), e);
+            logger.error("Failed to fetch NPM changes feed [{}]", remoteRepositoryUrl, e);
             return;
         } 
         finally
@@ -353,10 +351,9 @@ public class NpmRepositoryFeatures implements RepositoryFeatures
         }
         catch (Exception e)
         {
-            logger.error(String.format("Failed to parse NPM feed [%s/%s]",
+            logger.error("Failed to parse NPM feed [{}/{}]",
                                        ((RepositoryData)repository).getRemoteRepository().getUrl(),
-                                       packageFeed.getName()),
-                         e);
+                                       packageFeed.getName(), e);
         }
     }
 

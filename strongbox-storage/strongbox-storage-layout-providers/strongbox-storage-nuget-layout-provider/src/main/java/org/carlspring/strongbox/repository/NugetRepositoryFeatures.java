@@ -176,7 +176,7 @@ public class NugetRepositoryFeatures
         }
         catch (Exception e)
         {
-            logger.error(String.format("Failed to fetch Nuget remote feed [%s]", remoteRepositoryUrl), e);
+            logger.error("Failed to fetch Nuget remote feed [{}]", remoteRepositoryUrl, e);
             return false;
         } finally
         {
@@ -338,7 +338,7 @@ public class NugetRepositoryFeatures
             }
             catch (Exception e)
             {
-                logger.error(String.format("Failed to fetch Nuget remote feed [%s]", remoteRepository.getUrl()), e);
+                logger.error("Failed to fetch Nuget remote feed [{}]", remoteRepository.getUrl(), e);
                 return;
             } 
             finally

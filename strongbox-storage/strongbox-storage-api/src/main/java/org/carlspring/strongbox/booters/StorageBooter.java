@@ -114,9 +114,8 @@ public class StorageBooter
 
         if (layoutProviderRegistry.getProvider(repository.getLayout()) == null)
         {
-            logger.error(String.format("Failed to resolve layout [%s] for repository [%s].",
-                                       repository.getLayout(),
-                                       repository.getId()));
+            logger.error("Failed to resolve layout [{}] for repository [{}].",
+                repository.getLayout(), repository.getId());
             return;
         }
 

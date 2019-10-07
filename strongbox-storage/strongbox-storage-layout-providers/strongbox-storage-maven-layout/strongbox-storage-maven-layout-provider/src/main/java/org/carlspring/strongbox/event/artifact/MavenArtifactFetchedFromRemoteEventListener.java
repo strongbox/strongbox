@@ -90,8 +90,8 @@ public class MavenArtifactFetchedFromRemoteEventListener
         }
         catch (Exception e)
         {
-            logger.error("Unable to resolve artifact metadata of file " + event.getPath() + " of repository " +
-                         getRepository(event).getId(), e);
+            logger.error("Unable to resolve artifact metadata of file {} of repository {}",
+                event.getPath(), getRepository(event).getId(), e);
         }
     }
 

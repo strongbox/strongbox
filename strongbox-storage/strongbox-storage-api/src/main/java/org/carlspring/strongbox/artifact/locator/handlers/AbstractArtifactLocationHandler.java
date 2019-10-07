@@ -59,7 +59,7 @@ public abstract class AbstractArtifactLocationHandler
         }
         catch (IOException e)
         {
-            logger.error(String.format("Failed to read Path attributes for [%s]", path), e);
+            logger.error("Failed to read Path attributes for [{}]", path, e);
             return false;
         }
     }

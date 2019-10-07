@@ -95,7 +95,7 @@ public class ArtifactDirectoryLocator
         }
         catch (IOException e)
         {
-            logger.error(String.format("Failed to execute operation [%s]", operation.getClass().getSimpleName()), e);
+            logger.error("Failed to execute operation [{}]", operation.getClass().getSimpleName(), e);
         }
     }
     

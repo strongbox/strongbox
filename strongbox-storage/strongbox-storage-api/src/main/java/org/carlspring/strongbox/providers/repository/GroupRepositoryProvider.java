@@ -182,7 +182,7 @@ public class GroupRepositoryProvider
         }
         catch (IOException e)
         {
-            logger.error(String.format("Failed to resolve path [%s]", repositoryPath));
+            logger.error("Failed to resolve path [{}]", repositoryPath);
             return null;
         }
     }

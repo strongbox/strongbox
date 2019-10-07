@@ -52,7 +52,7 @@ public class MavenSnapshotManager
         Repository repository = basePath.getRepository();
         if (!RepositoryFiles.artifactExists(basePath))
         {
-            logger.error("Removal of timestamped Maven snapshot artifact: " + basePath + ".");
+            logger.error("Removal of timestamped Maven snapshot artifact: {}.", basePath);
             
             return;
         }

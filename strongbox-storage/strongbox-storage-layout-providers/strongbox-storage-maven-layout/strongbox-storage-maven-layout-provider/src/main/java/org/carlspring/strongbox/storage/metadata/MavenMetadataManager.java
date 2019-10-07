@@ -163,7 +163,7 @@ public class MavenMetadataManager
         LayoutProvider layoutProvider = getLayoutProvider(repository, layoutProviderRegistry);
         if (!RepositoryFiles.artifactExists(artifactGroupDirectoryPath))
         {
-            logger.error("Artifact metadata generation failed: " + artifactGroupDirectoryPath + ").");
+            logger.error("Artifact metadata generation failed: {}).", artifactGroupDirectoryPath);
 
             return;
         }

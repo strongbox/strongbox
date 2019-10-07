@@ -87,8 +87,7 @@ public abstract class AbstractSearchProvider
         }
         catch (IOException e)
         {
-            logger.error(String.format("Failed to resolve artifact resource for [%s]",
-                                       a.getArtifactCoordinates()), e);
+            logger.error("Failed to resolve artifact resource for [{}]", a.getArtifactCoordinates(), e);
             return null;
         }
 

@@ -178,9 +178,8 @@ public class MetadataMerger
         }
         catch (IOException e)
         {
-            logger.error(
-                    "*** Error occurred while trying to extract plugin.xml from artifact " + artifact.getArtifactId() +
-                    " " + e.getMessage());
+            logger.error("*** Error occurred while trying to extract plugin.xml from artifact {}",
+                artifact.getArtifactId(), e);
         }
 
         return pluginMap;
@@ -203,7 +202,7 @@ public class MetadataMerger
         }
         catch (IOException | SAXException | ParserConfigurationException e)
         {
-            logger.error("*** Error occurred while trying to parse the plugin.xml File " + e.getMessage());
+            logger.error("*** Error occurred while trying to parse the plugin.xml File ", e);
         }
 
         return handler.getPluginMap();

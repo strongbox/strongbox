@@ -240,17 +240,15 @@ public class TestRepositoryContext implements AutoCloseable, Comparable<TestRepo
         }
         catch (IOException e)
         {
-            logger.error(String.format("Failed to close [%s] with id [%s] ",
-                                       TestRepository.class.getSimpleName(),
-                                       id(testRepository)), e);
+            logger.error("Failed to close [{}] with id [{}] ",
+                TestRepository.class.getSimpleName(), id(testRepository), e);
 
             throw e;
         }
         catch (Exception e)
         {
-            logger.error(String.format("Failed to close [%s] with id [%s] ",
-                                       TestRepository.class.getSimpleName(),
-                                       id(testRepository)), e);
+            logger.error("Failed to close [{}] with id [{}] ",
+                TestRepository.class.getSimpleName(), id(testRepository), e);
 
             throw new IOException(e);
         }

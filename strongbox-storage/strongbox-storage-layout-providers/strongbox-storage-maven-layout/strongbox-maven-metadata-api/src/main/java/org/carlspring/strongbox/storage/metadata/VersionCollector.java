@@ -120,7 +120,7 @@ public class VersionCollector
             }
             catch (XmlPullParserException | IOException e)
             {
-                logger.error("POM file '" + versionDirectoryPath.toAbsolutePath() + "' appears to be corrupt.", e);
+                logger.error("POM file '{}' appears to be corrupt.", versionDirectoryPath.toAbsolutePath(), e);
             }
         }
 

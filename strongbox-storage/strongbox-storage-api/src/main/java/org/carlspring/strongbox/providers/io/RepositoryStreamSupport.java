@@ -169,7 +169,7 @@ public class RepositoryStreamSupport
             }
             catch (Exception e) 
             {
-                logger.error(String.format("Failed to close [%s].", getContext().getPath()), e);
+                logger.error("Failed to close [{}].", getContext().getPath(), e);
                 
                 throw e;
             }

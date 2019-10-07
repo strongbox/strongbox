@@ -69,7 +69,7 @@ public class HostedRepositoryProvider extends AbstractRepositoryProvider
         }
         catch (IOException ex)
         {
-            logger.error(String.format("Failed to decorate InputStream for [%s]", repositoryPath), ex);
+            logger.error("Failed to decorate InputStream for [{}]", repositoryPath, ex);
             
             throw ex;
         }
@@ -108,8 +108,7 @@ public class HostedRepositoryProvider extends AbstractRepositoryProvider
             }
             catch (Exception e)
             {
-                logger.error(String.format("Failed to resolve Artifact [%s]", artifactEntry.getArtifactCoordinates()),
-                             e);
+                logger.error("Failed to resolve Artifact [{}]", artifactEntry.getArtifactCoordinates(), e);
                 continue;
             }
         }

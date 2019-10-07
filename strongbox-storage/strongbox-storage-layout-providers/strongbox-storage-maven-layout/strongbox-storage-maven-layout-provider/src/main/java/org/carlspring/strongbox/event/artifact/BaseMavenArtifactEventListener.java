@@ -53,7 +53,7 @@ public abstract class BaseMavenArtifactEventListener
         }
         catch (Exception e)
         {
-            logger.error("Unable to update parent group repositories metadata of file " + event.getPath(), e);
+            logger.error("Unable to update parent group repositories metadata of file {}", event.getPath(), e);
         }
     }
 

@@ -168,7 +168,7 @@ public abstract class LayoutFileSystemProvider extends StorageFileSystemProvider
                               }
                               catch (NoSuchAlgorithmException t)
                               {
-                                  logger.error(String.format("Digest algorithm not supported: alg-[%s]", e), t);
+                                  logger.error("Digest algorithm not supported: alg-[{}]", e, t);
                               }
                           });
         return result;
@@ -187,7 +187,7 @@ public abstract class LayoutFileSystemProvider extends StorageFileSystemProvider
                  }
                  catch (IOException e)
                  {
-                     logger.error(String.format("Failed to read attributes for [%s]", p), e);
+                     logger.error("Failed to read attributes for [{}]", p, e);
                  }
                  return false;
              })
@@ -198,7 +198,7 @@ public abstract class LayoutFileSystemProvider extends StorageFileSystemProvider
                  }
                  catch (IOException e)
                  {
-                     logger.error(String.format("Failed to write checksum for [%s]", p), e);
+                     logger.error("Failed to write checksum for [{}]", p, e);
                  }
              });
     }
@@ -232,8 +232,8 @@ public abstract class LayoutFileSystemProvider extends StorageFileSystemProvider
                                            }
                                            catch (IOException e)
                                            {
-                                               logger.error(String.format("Failed to write checksum for [%s]",
-                                                                          checksumPath.toString()), e);
+                                               logger.error("Failed to write checksum for [{}]",
+                                                   checksumPath.toString(), e);
                                            }
                                        });
         }
@@ -298,7 +298,7 @@ public abstract class LayoutFileSystemProvider extends StorageFileSystemProvider
         }
         catch (IOException e)
         {
-            logger.error(String.format("Failed to fetch ArtifactEntry for [%s]", repositoryPath), e);
+            logger.error("Failed to fetch ArtifactEntry for [{}]", repositoryPath, e);
             return null;
         }
 

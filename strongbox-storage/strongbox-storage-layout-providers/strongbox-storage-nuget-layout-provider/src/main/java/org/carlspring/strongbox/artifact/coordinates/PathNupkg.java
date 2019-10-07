@@ -79,7 +79,7 @@ public class PathNupkg implements Nupkg
         List<String> checkSumContents = Files.readAllLines(checkSumPath);
         if (checkSumContents.isEmpty() || checkSumContents.size() > 1)
         {
-            logger.error(String.format("Found illegal checksum contents for [%s]", path));
+            logger.error("Found illegal checksum contents for [{}]", path);
             return null;
         }
         
@@ -116,7 +116,7 @@ public class PathNupkg implements Nupkg
         }
         catch (IOException e)
         {
-            logger.error(String.format("Failed to read .nuspec file for [%s]", path), e);
+            logger.error("Failed to read .nuspec file for [{}]", path, e);
             return null;
         }
     }
@@ -169,7 +169,7 @@ public class PathNupkg implements Nupkg
         }
         catch (Exception e)
         {
-            logger.error(String.format("Failed to parse version for [%s]", path));
+            logger.error("Failed to parse version for [{}]", path);
             return null;
         }
     }

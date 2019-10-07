@@ -38,8 +38,7 @@ public class ArtifactLocationGenerateChecksumOperation
                 }
                 catch (IOException e)
                 {
-                    logger.error(String.format("Failed to read attributes for [%s]", p),
-                                 e);
+                    logger.error("Failed to read attributes for [{}]", p, e);
                 }
                 return false;
             });

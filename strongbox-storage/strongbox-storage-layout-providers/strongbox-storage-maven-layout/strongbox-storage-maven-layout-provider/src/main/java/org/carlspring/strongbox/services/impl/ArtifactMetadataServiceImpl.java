@@ -179,7 +179,7 @@ public class ArtifactMetadataServiceImpl
         {
             // No need to throw an exception here.
             // Logging the error should suffice.
-            logger.error("Version " + version + " already exists in the metadata file.");
+            logger.error("Version {} already exists in the metadata file.", version);
         }
     }
 
