@@ -118,7 +118,7 @@ started with our project:
 [hacktoberfest-badge]: https://img.shields.io/github/issues-raw/strongbox/strongbox/hacktoberfest.svg?label=hacktoberfest&color=orange
 
 [stackoverflow-link]: https://stackoverflow.com/tags/strongbox/
-[stackoverflow-badge]: http://img.shields.io/badge/stackoverflow-PROFILE-blue.svg
+[stackoverflow-badge]: https://img.shields.io/badge/stackoverflow-ask-orange.svg
 
 [<--# Docs links -->]: #
 [docs]: https://strongbox.github.io/
