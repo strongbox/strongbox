@@ -80,7 +80,7 @@ public class RawRestAssuredBaseTest
 
     protected boolean pathExists(String url)
     {
-        logger.trace("[pathExists] URL -> " + url);
+        logger.trace("[pathExists] URL -> {}", url);
 
         return mockMvc.header("user-agent", "Raw/*")
                       .contentType(MediaType.TEXT_PLAIN_VALUE)
