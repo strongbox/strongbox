@@ -160,7 +160,7 @@ public class DefaultExceptionHandler extends ResponseEntityExceptionHandler
         }
         catch (HttpMediaTypeNotAcceptableException e1)
         {
-            logger.error(String.format("Reuqested invalid content-type [%s]", request.getHeader(HttpHeaders.ACCEPT)));
+            logger.error(String.format("Requested invalid content-type [%s]", request.getHeader(HttpHeaders.ACCEPT)));
             mediaTypes.add(MediaType.APPLICATION_JSON);
         }
 

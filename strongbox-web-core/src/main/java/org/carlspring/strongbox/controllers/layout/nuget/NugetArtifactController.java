@@ -112,7 +112,7 @@ public class NugetArtifactController
         }
         catch (IOException e)
         {
-            logger.error(String.format("Failed to process Nuget delete request: path-[%s]", path), e);
+            logger.error("Failed to process Nuget delete request: path-[{}]", path, e);
 
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(e.getMessage());
         }
@@ -209,7 +209,7 @@ public class NugetArtifactController
             }
             catch (NoSuchAlgorithmException | IOException | NugetFormatException e)
             {
-                logger.error("Failed to parse package " + nupkg, e);
+                logger.error("Failed to parse package {}", nupkg, e);
             }
         }
         logger.debug("Got {} packages", new Object[] { packageEntrys.size() });
@@ -338,7 +338,7 @@ public class NugetArtifactController
                            }
                            catch (Exception e)
                            {
-                               logger.error(String.format("Failed to resolve Nuget package path [%s]", p), e);
+                               logger.error("Failed to resolve Nuget package path [{}]", p, e);
                                return null;
                            }
                        })
@@ -427,9 +427,7 @@ public class NugetArtifactController
 
             if (packagePartInputStream == null)
             {
-                logger.error(String.format("Failed to extract Nuget package from request: [%s]:[%s]",
-                                           storageId,
-                                           repositoryId));
+                logger.error("Failed to extract Nuget package from request: [{}]:[{}]", storageId, repositoryId);
 
                 return ResponseEntity.badRequest().build();
             }
@@ -438,7 +436,7 @@ public class NugetArtifactController
         }
         catch (Exception e)
         {
-            logger.error(String.format("Failed to process Nuget push request: %s:%s", storageId, repositoryId), e);
+            logger.error("Failed to process Nuget push request: {}:{}", storageId, repositoryId, e);
 
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(e.getMessage());
         }

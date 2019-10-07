@@ -66,7 +66,7 @@ public class ExternalAuthenticatorsHelper
         }
         if (!Files.isDirectory(authenticatorsDirectory))
         {
-            logger.error(authenticatorsDirectory + " is not a directory.");
+            logger.error("{} is not a directory.", authenticatorsDirectory);
             return parent;
         }
 
