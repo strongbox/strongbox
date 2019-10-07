@@ -7,7 +7,6 @@ import java.io.IOException;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 
-import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 import static org.assertj.core.api.Assertions.fail;
 import static org.assertj.core.api.Assertions.assertThat;
@@ -15,7 +14,6 @@ import static org.assertj.core.api.Assertions.assertThat;
 /**
  * @author mtodorov
  */
-@Disabled
 public class ChecksumCacheManagerTest
 {
 

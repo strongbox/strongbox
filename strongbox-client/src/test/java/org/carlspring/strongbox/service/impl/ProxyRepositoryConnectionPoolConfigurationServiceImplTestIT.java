@@ -7,7 +7,6 @@ import javax.inject.Inject;
 import javax.ws.rs.client.Client;
 import javax.ws.rs.core.Response;
 
-import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.context.annotation.Configuration;
@@ -19,11 +18,10 @@ import static org.assertj.core.api.Assertions.assertThat;
 /**
  * @author korest
  */
-@Disabled
 @SpringBootTest
 @ActiveProfiles(profiles = "test")
 @ContextConfiguration
-public class ProxyRepositoryConnectionPoolConfigurationServiceImplIntegrationTest
+public class ProxyRepositoryConnectionPoolConfigurationServiceImplTestIT
 {
 
     @Configuration
