@@ -10,7 +10,6 @@
 [![GitHub issues by-label][hacktoberfest-badge]][hacktoberfest-link]
 [![GitHub issues by-label][stackoverflow-badge]][stackoverflow-link]
 
-
 Welcome to the Strongbox artifact repository manager's home.
 
 # General
