@@ -21,7 +21,7 @@ public class PypiPackageInfo
     @NotBlank
     @Pattern(flags = Pattern.Flag.CASE_INSENSITIVE,
             regexp =
-            "^((\\d+!)?" +                      //version epochs
+                    "^((\\d+!)?" +              //version epochs
                     "(\\d+(\\.\\d+)*)" +        //final releases
                     "((a|b|c|rc)\\d+)?" +       //pre releases
                     "(\\.post\\d+)?" +          //post releases
@@ -53,8 +53,8 @@ public class PypiPackageInfo
 
     @PypiMetadataKey(name = "Platform")
     private String platform;
-    
-    
+
+
     public PypiPackageInfo()
     {
     }
@@ -123,13 +123,14 @@ public class PypiPackageInfo
 
         private String version;
 
-        public String getVersionString(){
+        public String getVersionString()
+        {
             return version;
         }
 
-        public static SupportedMetadataVersionEnum getVersionEnum(String version) throws IllegalArgumentException
+        public static SupportedMetadataVersionEnum getVersionEnum(String version)
+                throws IllegalArgumentException
         {
-
             for (SupportedMetadataVersionEnum metadataVersionEnum : SupportedMetadataVersionEnum.values())
             {
                 if (metadataVersionEnum.getVersionString().equals(version))
@@ -140,9 +141,9 @@ public class PypiPackageInfo
             throw new IllegalArgumentException("Unsupported Metadata version: " + version);
         }
 
-        SupportedMetadataVersionEnum(String version){
+        SupportedMetadataVersionEnum(String version)
+        {
             this.version = version;
         }
     }
-
 }

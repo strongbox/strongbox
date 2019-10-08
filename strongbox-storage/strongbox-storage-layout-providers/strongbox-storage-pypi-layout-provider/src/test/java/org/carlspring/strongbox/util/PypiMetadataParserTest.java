@@ -37,12 +37,13 @@ public class PypiMetadataParserTest
     public void testParseFileToPypiMetadataDto()
             throws IllegalAccessException, IOException
     {
-        PypiPackageInfo testDao = pypiMetadataParser.parseMetadataFile(new FileInputStream("src/test/resources/org.carlspring.strongbox.util/PKG-INFO"));
+        PypiPackageInfo testDao = pypiMetadataParser.parseMetadataFile(
+                new FileInputStream("src/test/resources/org.carlspring.strongbox.util/PKG-INFO"));
 
         assertThat("hello-strongbox-pip").isEqualTo(testDao.getName());
         assertThat("1.0").isEqualTo(testDao.getMetadataVersion().getVersionString());
         assertThat("1.0.0").isEqualTo(testDao.getVersion());
-        assertThat( "Hello, Strongbox [pip]!").isEqualTo(testDao.getSummary());
+        assertThat("Hello, Strongbox [pip]!").isEqualTo(testDao.getSummary());
         assertThat("https://github.com/strongbox/strongbox-examples").isEqualTo(testDao.getHomePage());
         assertThat("Martin Todorov").isEqualTo(testDao.getAuthor());
         assertThat("foo@bar.com").isEqualTo(testDao.getAuthorEmail());
@@ -56,7 +57,8 @@ public class PypiMetadataParserTest
     public void testParseFileWithEmptyValuesToPypiMetadataDto()
     {
         assertThrows(ConstraintViolationException.class, () -> {
-            pypiMetadataParser.parseMetadataFile(new FileInputStream("src/test/resources/org.carlspring.strongbox.util/PKG-INFO-empty-values"));
+            pypiMetadataParser.parseMetadataFile(
+                    new FileInputStream("src/test/resources/org.carlspring.strongbox.util/PKG-INFO-empty-values"));
         });
     }
 
@@ -64,7 +66,8 @@ public class PypiMetadataParserTest
     public void testParseFileWithInvalidMetadataVersion()
     {
         assertThrows(IllegalArgumentException.class, () -> {
-            pypiMetadataParser.parseMetadataFile(new FileInputStream("src/test/resources/org.carlspring.strongbox.util/PKG-INFO-invalid-metadata-version"));
+            pypiMetadataParser.parseMetadataFile(new FileInputStream(
+                    "src/test/resources/org.carlspring.strongbox.util/PKG-INFO-invalid-metadata-version"));
         });
     }
 
@@ -72,7 +75,8 @@ public class PypiMetadataParserTest
     public void testParseFileWithInvalidName()
     {
         assertThrows(ConstraintViolationException.class, () -> {
-            pypiMetadataParser.parseMetadataFile(new FileInputStream("src/test/resources/org.carlspring.strongbox.util/PKG-INFO-invalid-name"));
+            pypiMetadataParser.parseMetadataFile(
+                    new FileInputStream("src/test/resources/org.carlspring.strongbox.util/PKG-INFO-invalid-name"));
         });
     }
 
@@ -80,75 +84,140 @@ public class PypiMetadataParserTest
     public void testParseFileWithInvalidPackageVersion()
     {
         assertThrows(ConstraintViolationException.class, () -> {
-            pypiMetadataParser.parseMetadataFile(new FileInputStream("src/test/resources/org.carlspring.strongbox.util/PKG-INFO-invalid-version"));
+            pypiMetadataParser.parseMetadataFile(
+                    new FileInputStream("src/test/resources/org.carlspring.strongbox.util/PKG-INFO-invalid-version"));
         });
     }
 
     @ParameterizedTest
-    @ValueSource(strings = {"0.1", "0.2", "0.3", "1.0", "1.1", "11.5"})
-    public void testValidMajorMinorVersioning(String version) {
+    @ValueSource(strings = { "0.1",
+                             "0.2",
+                             "0.3",
+                             "1.0",
+                             "1.1",
+                             "11.5" })
+    public void testValidMajorMinorVersioning(String version)
+    {
         assertDoesNotThrow(() -> validate(prepareKeyValueMap(version)));
     }
 
     @ParameterizedTest
-    @ValueSource(strings = {"1.1.0", "1.1.1", "1.1.2", "1.2.0", "39.6.3"})
-    public void testValidMajorMinorMicroVersioning(String version) {
+    @ValueSource(strings = { "1.1.0",
+                             "1.1.1",
+                             "1.1.2",
+                             "1.2.0",
+                             "39.6.3" })
+    public void testValidMajorMinorMicroVersioning(String version)
+    {
         assertDoesNotThrow(() -> validate(prepareKeyValueMap(version)));
     }
 
     @ParameterizedTest
-    @ValueSource(strings = {"1.0a1", "1.0a2", "1.0b1", "1.0rc1", "1.1a1", "1.0c1", "1.0c2"})
-    public void testValidPreReleaseVersioning(String version) {
+    @ValueSource(strings = { "1.0a1",
+                             "1.0a2",
+                             "1.0b1",
+                             "1.0rc1",
+                             "1.1a1",
+                             "1.0c1",
+                             "1.0c2" })
+    public void testValidPreReleaseVersioning(String version)
+    {
         assertDoesNotThrow(() -> validate(prepareKeyValueMap(version)));
     }
 
     @ParameterizedTest
-    @ValueSource(strings = {"1.0.post1", "1.3.post2", "1.0.post12"})
-    public void testValidPostReleaseVersioning(String version) {
+    @ValueSource(strings = { "1.0.post1",
+                             "1.3.post2",
+                             "1.0.post12" })
+    public void testValidPostReleaseVersioning(String version)
+    {
         assertDoesNotThrow(() -> validate(prepareKeyValueMap(version)));
     }
 
     @ParameterizedTest
-    @ValueSource(strings = {"1.0.dev1", "1.0.dev2", "1.0.dev0", "1.0.dev4","1.4.1.dev1", "26.1.dev1"})
-    public void testValidDevReleaseVersioning(String version) {
+    @ValueSource(strings = { "1.0.dev1",
+                             "1.0.dev2",
+                             "1.0.dev0",
+                             "1.0.dev4",
+                             "1.4.1.dev1",
+                             "26.1.dev1" })
+    public void testValidDevReleaseVersioning(String version)
+    {
         assertDoesNotThrow(() -> validate(prepareKeyValueMap(version)));
     }
 
     @ParameterizedTest
-    @ValueSource(strings = {"2012.15", "2013.1", "2013.2"})
-    public void testValidDateBasedVersioning(String version) {
+    @ValueSource(strings = { "2012.15",
+                             "2013.1",
+                             "2013.2" })
+    public void testValidDateBasedVersioning(String version)
+    {
         assertDoesNotThrow(() -> validate(prepareKeyValueMap(version)));
     }
 
     @ParameterizedTest
-    @ValueSource(strings = {"1.5+1", "1.5+1.git.abc123de"})
-    public void testValidLocalVersionIdentifier(String version) {
+    @ValueSource(strings = { "1.5+1",
+                             "1.5+1.git.abc123de" })
+    public void testValidLocalVersionIdentifier(String version)
+    {
         assertDoesNotThrow(() -> validate(prepareKeyValueMap(version)));
     }
 
     @ParameterizedTest
-    @ValueSource(strings = {"1!1.0", "1!1.1", "1!2.0","2!369.89"})
-    public void testValidEpochVersion(String version) {
+    @ValueSource(strings = { "1!1.0",
+                             "1!1.1",
+                             "1!2.0",
+                             "2!369.89" })
+    public void testValidEpochVersion(String version)
+    {
         assertDoesNotThrow(() -> validate(prepareKeyValueMap(version)));
     }
 
     @ParameterizedTest
-    @ValueSource(strings = {"1.0.dev456", "1.0a1", "1.0a2.dev456", "1.0a12.dev456", "1.0a12", "1.0b1.dev456", "1.0b2",
-            "1.0b2.post345.dev456", "1.0b2.post345", "1.0rc1.dev456", "1.0rc1", "1.0", "1.0+abc.5", "1.0+abc.7", "1.0+5",
-            "1.0.post456.dev34", "1.0.post456", "1.1.dev1"})
-    public void testValidVersionCombinations(String version) {
+    @ValueSource(strings = { "1.0.dev456",
+                             "1.0a1",
+                             "1.0a2.dev456",
+                             "1.0a12.dev456",
+                             "1.0a12",
+                             "1.0b1.dev456",
+                             "1.0b2",
+                             "1.0b2.post345.dev456",
+                             "1.0b2.post345",
+                             "1.0rc1.dev456",
+                             "1.0rc1",
+                             "1.0",
+                             "1.0+abc.5",
+                             "1.0+abc.7",
+                             "1.0+5",
+                             "1.0.post456.dev34",
+                             "1.0.post456",
+                             "1.1.dev1" })
+    public void testValidVersionCombinations(String version)
+    {
         assertDoesNotThrow(() -> validate(prepareKeyValueMap(version)));
     }
 
     @ParameterizedTest
-    @ValueSource(strings = {"1.0.dev456.post123", "rc1.0a1", ".1", "C1.0a12.dev456", "v1.0a12", "1.0b1.dev456.-7", "1.0b212^",
-            "1.0+abc.5+154", "1.0rc+abc.7", "1~0.post456", "1-1-dev1", "1!1.4.rc"})
-    public void testInvalidVersionCombinations(String version) {
+    @ValueSource(strings = { "1.0.dev456.post123",
+                             "rc1.0a1",
+                             ".1",
+                             "C1.0a12.dev456",
+                             "v1.0a12",
+                             "1.0b1.dev456.-7",
+                             "1.0b212^",
+                             "1.0+abc.5+154",
+                             "1.0rc+abc.7",
+                             "1~0.post456",
+                             "1-1-dev1",
+                             "1!1.4.rc" })
+    public void testInvalidVersionCombinations(String version)
+    {
         assertThrows(ConstraintViolationException.class, () -> validate(prepareKeyValueMap(version)));
     }
 
 
-    private Map<String, String> prepareKeyValueMap(String version) {
+    private Map<String, String> prepareKeyValueMap(String version)
+    {
         Map<String, String> keyValueMap = new HashMap<>();
 
         // prepare test data to test version field validation
@@ -167,7 +236,9 @@ public class PypiMetadataParserTest
         return keyValueMap;
     }
 
-    private void validate(Map<String, String> keyValueMap) throws IllegalAccessException, ConstraintViolationException {
+    private void validate(Map<String, String> keyValueMap)
+            throws IllegalAccessException, ConstraintViolationException
+    {
 
         PypiPackageInfo packageInfo = pypiMetadataParser.populateAnnotatedFields(new PypiPackageInfo(), keyValueMap);
         pypiPackageInfoValidator.validate(packageInfo);

@@ -33,11 +33,12 @@ public class PypiMetadataParser
         return packageInfo;
     }
 
-    public PypiPackageInfo populateAnnotatedFields(PypiPackageInfo object, Map<String, String> keyValueMap)
+    public PypiPackageInfo populateAnnotatedFields(PypiPackageInfo object,
+                                                   Map<String, String> keyValueMap)
             throws IllegalAccessException
     {
         Class<?> clazz = object.getClass();
-        for (Field field: clazz.getDeclaredFields())
+        for (Field field : clazz.getDeclaredFields())
         {
             field.setAccessible(true);
             try
@@ -45,9 +46,13 @@ public class PypiMetadataParser
                 if (field.isAnnotationPresent(PypiMetadataKey.class))
                 {
                     PypiMetadataKey pypiMetadataKey = field.getAnnotation(PypiMetadataKey.class);
-                    if (pypiMetadataKey.name().equals("Metadata-Version")) {
-                        field.set(object, PypiPackageInfo.SupportedMetadataVersionEnum.getVersionEnum(keyValueMap.get(pypiMetadataKey.name())));
-                    } else {
+                    if (pypiMetadataKey.name().equals("Metadata-Version"))
+                    {
+                        field.set(object, PypiPackageInfo.SupportedMetadataVersionEnum
+                                                  .getVersionEnum(keyValueMap.get(pypiMetadataKey.name())));
+                    }
+                    else
+                    {
                         field.set(object, keyValueMap.get(pypiMetadataKey.name()));
                     }
                 }
