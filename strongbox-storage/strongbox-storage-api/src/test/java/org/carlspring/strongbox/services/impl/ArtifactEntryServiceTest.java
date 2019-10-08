@@ -379,7 +379,7 @@ public class ArtifactEntryServiceTest
         final Date creationDate = firstTimeSavedArtifactEntry.getCreated();
 
         final ArtifactEntry firstTimeReadFromDatabase = artifactEntryService.findOne(artifactEntryId)
-                .orElse(null);
+                                                                            .orElse(null);
 
         assertThat(firstTimeReadFromDatabase).isNotNull();
         assertThat(firstTimeReadFromDatabase.getCreated()).isEqualTo(creationDate);
@@ -388,14 +388,16 @@ public class ArtifactEntryServiceTest
         save(firstTimeReadFromDatabase);
 
         final ArtifactEntry secondTimeReadFromDatabase = artifactEntryService.findOne(artifactEntryId)
-                .orElse(null);
+                                                                             .orElse(null);
 
         assertThat(secondTimeReadFromDatabase).isNotNull();
         assertThat(secondTimeReadFromDatabase.getCreated()).isEqualTo(creationDate);
     }
 
     @Test
-    public void saveEntityCreatedLastUsedLastUpdatedPropertiesShouldRetainTime(TestInfo testInfo) throws ParseException {
+    public void saveEntityCreatedLastUsedLastUpdatedPropertiesShouldRetainTime(TestInfo testInfo)
+            throws ParseException
+    {
         final String groupId = getGroupId(GROUP_ID, testInfo);
 
         final ArtifactEntry artifactEntry = createArtifactEntry(groupId);
@@ -403,7 +405,7 @@ public class ArtifactEntryServiceTest
         final String artifactEntryId = firstTimeSavedArtifactEntry.getObjectId();
 
         final ArtifactEntry firstTimeReadFromDatabase = artifactEntryService.findOne(artifactEntryId)
-                .orElse(null);
+                                                                            .orElse(null);
         assertThat(firstTimeReadFromDatabase).isNotNull();
 
         final Date sampleDate = createSampleDate();
@@ -414,7 +416,7 @@ public class ArtifactEntryServiceTest
 
         save(firstTimeReadFromDatabase);
         final ArtifactEntry secondTimeReadFromDatabase = artifactEntryService.findOne(artifactEntryId)
-                .orElse(null);
+                                                                             .orElse(null);
 
         assertThat(secondTimeReadFromDatabase).isNotNull();
 
@@ -423,7 +425,9 @@ public class ArtifactEntryServiceTest
         assertThat(secondTimeReadFromDatabase.getLastUsed()).isEqualTo(sampleDate);
     }
 
-    private Date createSampleDate() throws ParseException {
+    private Date createSampleDate()
+            throws ParseException
+    {
         return new SimpleDateFormat("yyyy-MM-dd HH:mm:ss").parse("2019-10-31 13:15:50");
     }
 
