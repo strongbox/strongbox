@@ -7,6 +7,7 @@ import org.carlspring.strongbox.domain.PypiPackageInfo;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.parallel.Execution;
 import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.NullAndEmptySource;
 import org.junit.jupiter.params.provider.ValueSource;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
@@ -208,6 +209,14 @@ public class PypiMetadataParserTest
                              "1-1-dev1",
                              "1!1.4.rc"})
     public void testInvalidVersionCombinations(String version)
+    {
+        assertThatExceptionOfType(ConstraintViolationException.class)
+                .isThrownBy(() -> validate(prepareKeyValueMap(version)));
+    }
+
+    @ParameterizedTest
+    @NullAndEmptySource
+    public void testNullAndEmptyVersion(String version)
     {
         assertThatExceptionOfType(ConstraintViolationException.class)
                 .isThrownBy(() -> validate(prepareKeyValueMap(version)));
