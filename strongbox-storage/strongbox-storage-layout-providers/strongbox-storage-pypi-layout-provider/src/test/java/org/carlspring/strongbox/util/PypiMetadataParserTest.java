@@ -3,6 +3,7 @@ package org.carlspring.strongbox.util;
 
 import org.carlspring.strongbox.config.PypiMetadataFileParserTestConfig;
 import org.carlspring.strongbox.domain.PypiPackageInfo;
+
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.parallel.Execution;
 import org.junit.jupiter.params.ParameterizedTest;
@@ -17,8 +18,7 @@ import java.io.IOException;
 import java.util.HashMap;
 import java.util.Map;
 
-import static org.junit.jupiter.api.Assertions.*;
-import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.*;
 import static org.junit.jupiter.api.parallel.ExecutionMode.CONCURRENT;
 
 @SpringBootTest
@@ -56,37 +56,34 @@ public class PypiMetadataParserTest
     @Test
     public void testParseFileWithEmptyValuesToPypiMetadataDto()
     {
-        assertThrows(ConstraintViolationException.class, () -> {
-            pypiMetadataParser.parseMetadataFile(
-                    new FileInputStream("src/test/resources/org.carlspring.strongbox.util/PKG-INFO-empty-values"));
-        });
+        assertThatExceptionOfType(ConstraintViolationException.class)
+                .isThrownBy(() -> pypiMetadataParser.parseMetadataFile(
+                        new FileInputStream("src/test/resources/org.carlspring.strongbox.util/PKG-INFO-empty-values")));
     }
 
     @Test
     public void testParseFileWithInvalidMetadataVersion()
     {
-        assertThrows(IllegalArgumentException.class, () -> {
-            pypiMetadataParser.parseMetadataFile(new FileInputStream(
-                    "src/test/resources/org.carlspring.strongbox.util/PKG-INFO-invalid-metadata-version"));
-        });
+        assertThatExceptionOfType(IllegalArgumentException.class)
+                .isThrownBy(() -> pypiMetadataParser.parseMetadataFile(new FileInputStream(
+                        "src/test/resources/org.carlspring.strongbox.util/PKG-INFO-invalid-metadata-version")));
     }
 
     @Test
     public void testParseFileWithInvalidName()
     {
-        assertThrows(ConstraintViolationException.class, () -> {
-            pypiMetadataParser.parseMetadataFile(
-                    new FileInputStream("src/test/resources/org.carlspring.strongbox.util/PKG-INFO-invalid-name"));
-        });
+        assertThatExceptionOfType(ConstraintViolationException.class)
+                .isThrownBy(() -> pypiMetadataParser.parseMetadataFile(
+                        new FileInputStream("src/test/resources/org.carlspring.strongbox.util/PKG-INFO-invalid-name")));
     }
 
     @Test
     public void testParseFileWithInvalidPackageVersion()
     {
-        assertThrows(ConstraintViolationException.class, () -> {
-            pypiMetadataParser.parseMetadataFile(
-                    new FileInputStream("src/test/resources/org.carlspring.strongbox.util/PKG-INFO-invalid-version"));
-        });
+        assertThatExceptionOfType(ConstraintViolationException.class)
+                .isThrownBy(() -> pypiMetadataParser.parseMetadataFile(
+                        new FileInputStream(
+                                "src/test/resources/org.carlspring.strongbox.util/PKG-INFO-invalid-version")));
     }
 
     @ParameterizedTest
@@ -98,7 +95,7 @@ public class PypiMetadataParserTest
                              "11.5" })
     public void testValidMajorMinorVersioning(String version)
     {
-        assertDoesNotThrow(() -> validate(prepareKeyValueMap(version)));
+        assertThatCode(() -> validate(prepareKeyValueMap(version))).doesNotThrowAnyException();
     }
 
     @ParameterizedTest
@@ -109,7 +106,7 @@ public class PypiMetadataParserTest
                              "39.6.3" })
     public void testValidMajorMinorMicroVersioning(String version)
     {
-        assertDoesNotThrow(() -> validate(prepareKeyValueMap(version)));
+        assertThatCode(() -> validate(prepareKeyValueMap(version))).doesNotThrowAnyException();
     }
 
     @ParameterizedTest
@@ -122,7 +119,7 @@ public class PypiMetadataParserTest
                              "1.0c2" })
     public void testValidPreReleaseVersioning(String version)
     {
-        assertDoesNotThrow(() -> validate(prepareKeyValueMap(version)));
+        assertThatCode(() -> validate(prepareKeyValueMap(version))).doesNotThrowAnyException();
     }
 
     @ParameterizedTest
@@ -131,7 +128,7 @@ public class PypiMetadataParserTest
                              "1.0.post12" })
     public void testValidPostReleaseVersioning(String version)
     {
-        assertDoesNotThrow(() -> validate(prepareKeyValueMap(version)));
+        assertThatCode(() -> validate(prepareKeyValueMap(version))).doesNotThrowAnyException();
     }
 
     @ParameterizedTest
@@ -143,7 +140,7 @@ public class PypiMetadataParserTest
                              "26.1.dev1" })
     public void testValidDevReleaseVersioning(String version)
     {
-        assertDoesNotThrow(() -> validate(prepareKeyValueMap(version)));
+        assertThatCode(() -> validate(prepareKeyValueMap(version))).doesNotThrowAnyException();
     }
 
     @ParameterizedTest
@@ -152,7 +149,7 @@ public class PypiMetadataParserTest
                              "2013.2" })
     public void testValidDateBasedVersioning(String version)
     {
-        assertDoesNotThrow(() -> validate(prepareKeyValueMap(version)));
+        assertThatCode(() -> validate(prepareKeyValueMap(version))).doesNotThrowAnyException();
     }
 
     @ParameterizedTest
@@ -160,7 +157,7 @@ public class PypiMetadataParserTest
                              "1.5+1.git.abc123de" })
     public void testValidLocalVersionIdentifier(String version)
     {
-        assertDoesNotThrow(() -> validate(prepareKeyValueMap(version)));
+        assertThatCode(() -> validate(prepareKeyValueMap(version))).doesNotThrowAnyException();
     }
 
     @ParameterizedTest
@@ -170,7 +167,7 @@ public class PypiMetadataParserTest
                              "2!369.89" })
     public void testValidEpochVersion(String version)
     {
-        assertDoesNotThrow(() -> validate(prepareKeyValueMap(version)));
+        assertThatCode(() -> validate(prepareKeyValueMap(version))).doesNotThrowAnyException();
     }
 
     @ParameterizedTest
@@ -194,7 +191,7 @@ public class PypiMetadataParserTest
                              "1.1.dev1" })
     public void testValidVersionCombinations(String version)
     {
-        assertDoesNotThrow(() -> validate(prepareKeyValueMap(version)));
+        assertThatCode(() -> validate(prepareKeyValueMap(version))).doesNotThrowAnyException();
     }
 
     @ParameterizedTest
@@ -209,12 +206,12 @@ public class PypiMetadataParserTest
                              "1.0rc+abc.7",
                              "1~0.post456",
                              "1-1-dev1",
-                             "1!1.4.rc" })
+                             "1!1.4.rc"})
     public void testInvalidVersionCombinations(String version)
     {
-        assertThrows(ConstraintViolationException.class, () -> validate(prepareKeyValueMap(version)));
+        assertThatExceptionOfType(ConstraintViolationException.class)
+                .isThrownBy(() -> validate(prepareKeyValueMap(version)));
     }
-
 
     private Map<String, String> prepareKeyValueMap(String version)
     {
@@ -239,7 +236,6 @@ public class PypiMetadataParserTest
     private void validate(Map<String, String> keyValueMap)
             throws IllegalAccessException, ConstraintViolationException
     {
-
         PypiPackageInfo packageInfo = pypiMetadataParser.populateAnnotatedFields(new PypiPackageInfo(), keyValueMap);
         pypiPackageInfoValidator.validate(packageInfo);
     }
