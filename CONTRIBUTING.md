@@ -145,3 +145,4 @@ To accept, please:
 | Bartosz Dabek                |                                              | Hajnowka, Poland                        | 2019-06-30 |
 | Bogdan Sukonnov              |                                              | Saint Petersburg, Russia                | 2019-08-19 |
 | Marcin Słowiak               |                                              | Sanok, Poland                           | 2019-09-23 |
+| Raksit Mantanacharu          |                                              | Bangkok, Thailand                       | 2019-10-08 |
