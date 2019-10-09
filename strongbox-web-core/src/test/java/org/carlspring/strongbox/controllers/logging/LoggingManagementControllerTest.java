@@ -1,4 +1,4 @@
-package org.carlspring.strongbox.controllers;
+package org.carlspring.strongbox.controllers.logging;
 
 import org.carlspring.strongbox.booters.PropertiesBooter;
 import org.carlspring.strongbox.config.IntegrationTest;
@@ -15,8 +15,17 @@ import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.security.test.context.support.WithMockUser;
+import org.springframework.test.web.servlet.MockMvc;
+import org.springframework.test.web.servlet.MvcResult;
+import org.springframework.test.web.servlet.result.MockMvcResultHandlers;
+import org.springframework.test.web.servlet.setup.MockMvcBuilders;
+import org.springframework.web.context.WebApplicationContext;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.fail;
+import static org.springframework.security.test.web.servlet.setup.SecurityMockMvcConfigurers.springSecurity;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.asyncDispatch;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
 
 /**
  * @author Pablo Tirado
@@ -24,12 +33,17 @@ import static org.assertj.core.api.Assertions.fail;
  * @author Przemyslaw Fusik
  */
 @IntegrationTest
-public class LoggingManagementControllerTestIT
+public class LoggingManagementControllerTest
         extends RestAssuredBaseTest
 {
 
     @Inject
     private PropertiesBooter propertiesBooter;
+
+    @Inject
+    private WebApplicationContext context;
+
+    private MockMvc pureMockMvc;
 
     @Override
     @BeforeEach
@@ -38,6 +52,11 @@ public class LoggingManagementControllerTestIT
     {
         super.init();
         setContextBaseUrl(getContextBaseUrl() + LoggingManagementController.ROOT_CONTEXT);
+
+        pureMockMvc = MockMvcBuilders
+                              .webAppContextSetup(context)
+                              .apply(springSecurity())
+                              .build();
     }
 
     @Test
@@ -153,6 +172,27 @@ public class LoggingManagementControllerTestIT
             //Delete the test sub directory even if the test fails
             deleteTestLogFilesAndDirectories(true);
         }
+    }
+
+    @Test
+    void logFileStreamAndEmitsAsyncTest()
+            throws Exception
+    {
+        MvcResult mvcResult = pureMockMvc.perform(get(LoggingManagementController.ROOT_CONTEXT + "/stream"))
+                                         .andExpect(request().asyncStarted())
+                                         .andDo(MockMvcResultHandlers.log())
+                                         .andReturn();
+
+        pureMockMvc.perform(asyncDispatch(mvcResult))
+                   .andDo(MockMvcResultHandlers.log())
+                   .andExpect(status().isOk())
+                   .andExpect(
+                           content().contentType(org.carlspring.strongbox.net.MediaType.TEXT_EVENT_STREAM_UTF8_VALUE));
+
+        String response = mvcResult.getResponse().getContentAsString();
+
+        assertThat(response).containsIgnoringCase("event:stream");
+        assertThat(response).containsIgnoringCase("Started async request");
     }
 
     //This method creates temporary log files, and if necessary for subdirectory browsing, a log subdirectory.

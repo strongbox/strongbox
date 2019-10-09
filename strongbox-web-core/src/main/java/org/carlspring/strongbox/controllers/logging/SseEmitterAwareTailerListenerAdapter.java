@@ -1,4 +1,4 @@
-package org.carlspring.strongbox.actuator.logfile.stream;
+package org.carlspring.strongbox.controllers.logging;
 
 import java.io.IOException;
 import java.util.Objects;

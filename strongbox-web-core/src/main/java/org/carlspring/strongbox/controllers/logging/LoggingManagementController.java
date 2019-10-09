@@ -1,25 +1,36 @@
-package org.carlspring.strongbox.controllers;
+package org.carlspring.strongbox.controllers.logging;
 
 import org.carlspring.logging.exceptions.LoggingConfigurationException;
 import org.carlspring.logging.services.LoggingManagementService;
 import org.carlspring.strongbox.booters.PropertiesBooter;
+import org.carlspring.strongbox.controllers.BaseController;
 import org.carlspring.strongbox.domain.DirectoryListing;
 import org.carlspring.strongbox.services.DirectoryListingService;
 import org.carlspring.strongbox.services.DirectoryListingServiceImpl;
 
 import javax.inject.Inject;
 import javax.servlet.http.HttpServletRequest;
+import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.Optional;
+import java.util.concurrent.ForkJoinPool;
 
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
 import io.swagger.annotations.ApiResponse;
 import io.swagger.annotations.ApiResponses;
 import org.apache.commons.io.FilenameUtils;
+import org.apache.commons.io.input.Tailer;
 import org.apache.commons.lang.StringUtils;
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.boot.actuate.autoconfigure.logging.LogFileWebEndpointProperties;
+import org.springframework.boot.actuate.logging.LogFileWebEndpoint;
+import org.springframework.boot.logging.LogFile;
+import org.springframework.context.ApplicationContext;
+import org.springframework.core.io.FileSystemResource;
+import org.springframework.core.io.Resource;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
@@ -32,7 +43,8 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestHeader;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.servlet.ModelAndView;
-import static org.carlspring.strongbox.controllers.LoggingManagementController.ROOT_CONTEXT;
+import org.springframework.web.servlet.mvc.method.annotation.SseEmitter;
+import static org.carlspring.strongbox.controllers.logging.LoggingManagementController.ROOT_CONTEXT;
 import static org.springframework.http.HttpStatus.BAD_REQUEST;
 import static org.springframework.http.MediaType.TEXT_PLAIN_VALUE;
 
@@ -51,13 +63,22 @@ public class LoggingManagementController
         extends BaseController
 {
 
-    public final static String ROOT_CONTEXT = "/api/monitoring/logs";
+    public final static String ROOT_CONTEXT = "/api/logging";
+
+    @Value("${strongbox.sse.timeoutMillis:600000}")
+    private Long sseTimeoutMillis;
 
     @Inject
     private PropertiesBooter propertiesBooter;
 
     @Inject
+    private ApplicationContext applicationContext;
+
+    @Inject
     private LoggingManagementService loggingManagementService;
+
+    @Inject
+    private Optional<LogFileWebEndpointProperties> logFileWebEndpointProperties;
 
     private DirectoryListingService directoryListingService;
 
@@ -162,6 +183,50 @@ public class LoggingManagementController
             String message = "Attempt to browse logs failed. Check server logs for more information.";
             return getExceptionResponseEntity(HttpStatus.INTERNAL_SERVER_ERROR, message, e, acceptHeader);
         }
+    }
+
+    @ApiOperation(value = "Used to stream logging file.")
+    @PreAuthorize("hasAuthority('VIEW_LOGS')")
+    @GetMapping(value = "/stream", produces = { org.carlspring.strongbox.net.MediaType.TEXT_EVENT_STREAM_UTF8_VALUE,
+                                                org.carlspring.strongbox.net.MediaType.TEXT_PLAIN_UTF8_VALUE })
+    public SseEmitter logFileStream()
+            throws IOException
+    {
+        final SseEmitter sseEmitter = new SseEmitter(sseTimeoutMillis);
+        Resource logFileResource = getLogFileResource();
+        if (logFileResource == null)
+        {
+            sseEmitter.completeWithError(
+                    new IllegalStateException("Missing 'logging.file' or 'logging.path' properties"));
+            return sseEmitter;
+        }
+
+        ForkJoinPool forkJoinPool = ForkJoinPool.commonPool();
+        forkJoinPool.execute(
+                Tailer.create(logFileResource.getFile(),
+                              applicationContext.getBean(SseEmitterAwareTailerListenerAdapter.class, sseEmitter),
+                              1000,
+                              true));
+
+        return sseEmitter;
+    }
+
+    /**
+     * @see LogFileWebEndpoint#getLogFileResource()
+     */
+    private Resource getLogFileResource()
+    {
+        if (logFileWebEndpointProperties.isPresent() && logFileWebEndpointProperties.get().getExternalFile() != null)
+        {
+            return new FileSystemResource(logFileWebEndpointProperties.get().getExternalFile());
+        }
+        LogFile logFile = LogFile.get(applicationContext.getEnvironment());
+        if (logFile == null)
+        {
+            logger.debug("Missing 'logging.file' or 'logging.path' properties");
+            return null;
+        }
+        return new FileSystemResource(logFile.toString());
     }
 
 }
