@@ -8,6 +8,7 @@
 [![GitHub issues by-label][good-first-issue-badge]][good-first-issue-link]
 [![GitHub issues by-label][help-wanted-badge]][help-wanted-link]
 [![GitHub issues by-label][hacktoberfest-badge]][hacktoberfest-link]
+[![GitHub issues by-label][stackoverflow-badge]][stackoverflow-link]
 
 Welcome to the Strongbox artifact repository manager's home.
 
@@ -25,7 +26,7 @@ Strongbox has a search engine and an [Artifact Query Language][docs-aql].
 
 * Web UI
 * NuGet (protocol v2) layout support finalization [#1215](https://github.com/strongbox/strongbox/issues/1215)
-* PyPi (Wheel) layout support ([#807](https://github.com/strongbox/strongbox/issues/807), ~~[#808](https://github.com/strongbox/strongbox/issues/808)~~, [#810](https://github.com/strongbox/strongbox/issues/810), [#811](https://github.com/strongbox/strongbox/issues/811), [#812](https://github.com/strongbox/strongbox/issues/812), [#813](https://github.com/strongbox/strongbox/issues/813), [#814](https://github.com/strongbox/strongbox/issues/814), [#815](https://github.com/strongbox/strongbox/issues/815), [#816](https://github.com/strongbox/strongbox/issues/816), [#1179](https://github.com/strongbox/strongbox/issues/1179), [#1180](https://github.com/strongbox/strongbox/issues/1180), [#1185](https://github.com/strongbox/strongbox/issues/1185))
+* PyPi (Wheel) layout support ([#807](https://github.com/strongbox/strongbox/issues/807), ~~[#808](https://github.com/strongbox/strongbox/issues/808)~~, [#810](https://github.com/strongbox/strongbox/issues/810), [#811](https://github.com/strongbox/strongbox/issues/811), [#812](https://github.com/strongbox/strongbox/issues/812), [#813](https://github.com/strongbox/strongbox/issues/813), [#814](https://github.com/strongbox/strongbox/issues/814), [#815](https://github.com/strongbox/strongbox/issues/815), [#816](https://github.com/strongbox/strongbox/issues/816), ~~[#1179](https://github.com/strongbox/strongbox/issues/1179)~~, [#1180](https://github.com/strongbox/strongbox/issues/1180), [#1185](https://github.com/strongbox/strongbox/issues/1185), ~~[#1284](https://github.com/strongbox/strongbox/issues/1284)~~)
 
 # Hacktoberfest 2019
 
@@ -116,6 +117,8 @@ started with our project:
 [hacktoberfest-link]: https://github.com/strongbox/strongbox/issues?q=is%3Aissue+is%3Aopen+label%3A%22hacktoberfest%22
 [hacktoberfest-badge]: https://img.shields.io/github/issues-raw/strongbox/strongbox/hacktoberfest.svg?label=hacktoberfest&color=orange
 
+[stackoverflow-link]: https://stackoverflow.com/tags/strongbox/
+[stackoverflow-badge]: https://img.shields.io/badge/stackoverflow-ask-orange.svg
 
 [<--# Docs links -->]: #
 [docs]: https://strongbox.github.io/

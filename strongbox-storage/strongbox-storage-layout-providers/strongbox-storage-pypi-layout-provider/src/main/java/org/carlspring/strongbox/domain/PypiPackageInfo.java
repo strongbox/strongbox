@@ -2,15 +2,31 @@ package org.carlspring.strongbox.domain;
 
 import org.carlspring.strongbox.util.annotations.PypiMetadataKey;
 
+import javax.validation.constraints.NotBlank;
+import javax.validation.constraints.NotNull;
+import javax.validation.constraints.Pattern;
+
 public class PypiPackageInfo
 {
 
+    @NotNull
     @PypiMetadataKey(name = "Metadata-Version")
-    private String metadataVersion;
+    private PypiPackageInfo.SupportedMetadataVersionEnum metadataVersion;
 
+    @NotBlank
+    @Pattern(regexp = "^([A-Z0-9]|[A-Z0-9][A-Z0-9._-]*[A-Z0-9])$", flags = Pattern.Flag.CASE_INSENSITIVE)
     @PypiMetadataKey(name = "Name")
     private String name;
 
+    @NotBlank
+    @Pattern(flags = Pattern.Flag.CASE_INSENSITIVE,
+            regexp =
+                    "^((\\d+!)?" +              //version epochs
+                    "(\\d+(\\.\\d+)*)" +        //final releases
+                    "((a|b|c|rc)\\d+)?" +       //pre releases
+                    "(\\.post\\d+)?" +          //post releases
+                    "(\\.dev\\d+)?" +           //developmental releases
+                    "(\\+[.A-Z0-9]+)?)$")       //local version identifiers
     @PypiMetadataKey(name = "Version")
     private String version;
 
@@ -37,13 +53,13 @@ public class PypiPackageInfo
 
     @PypiMetadataKey(name = "Platform")
     private String platform;
-    
-    
+
+
     public PypiPackageInfo()
     {
     }
 
-    public String getMetadataVersion()
+    public SupportedMetadataVersionEnum getMetadataVersion()
     {
         return metadataVersion;
     }
@@ -98,4 +114,36 @@ public class PypiPackageInfo
         return platform;
     }
 
+    public enum SupportedMetadataVersionEnum
+    {
+        VERSION_1_0("1.0"),
+        VERSION_1_1("1.1"),
+        VERSION_1_2("1.2"),
+        VERSION_2_1("2.1");
+
+        private String version;
+
+        public String getVersionString()
+        {
+            return version;
+        }
+
+        public static SupportedMetadataVersionEnum getVersionEnum(String version)
+                throws IllegalArgumentException
+        {
+            for (SupportedMetadataVersionEnum metadataVersionEnum : SupportedMetadataVersionEnum.values())
+            {
+                if (metadataVersionEnum.getVersionString().equals(version))
+                {
+                    return metadataVersionEnum;
+                }
+            }
+            throw new IllegalArgumentException("Unsupported Metadata version: " + version);
+        }
+
+        SupportedMetadataVersionEnum(String version)
+        {
+            this.version = version;
+        }
+    }
 }

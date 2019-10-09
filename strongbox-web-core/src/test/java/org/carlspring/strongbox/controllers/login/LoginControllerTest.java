@@ -1,10 +1,9 @@
 package org.carlspring.strongbox.controllers.login;
 
-import static org.hamcrest.Matchers.greaterThan;
-import static org.hamcrest.Matchers.hasSize;
-
 import javax.inject.Inject;
 
+import com.google.common.collect.ImmutableSet;
+import io.restassured.module.mockmvc.specification.MockMvcRequestSpecification;
 import org.carlspring.strongbox.config.IntegrationTest;
 import org.carlspring.strongbox.forms.users.UserForm;
 import org.carlspring.strongbox.rest.common.RestAssuredBaseTest;
@@ -16,14 +15,14 @@ import org.hamcrest.CoreMatchers;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.test.context.support.WithAnonymousUser;
 
-import com.google.common.collect.ImmutableSet;
-
-import io.restassured.module.mockmvc.specification.MockMvcRequestSpecification;
+import static org.hamcrest.Matchers.greaterThan;
+import static org.hamcrest.Matchers.hasSize;
 
 /**
  * @author Przemyslaw Fusik
@@ -63,8 +62,8 @@ public class LoginControllerTest
         loginInput.setUsername("admin");
         loginInput.setPassword("password");
 
-        mockMvc.contentType("application/json")
-               .header("Accept", "application/json")
+        mockMvc.contentType(MediaType.APPLICATION_JSON_VALUE)
+               .accept(MediaType.APPLICATION_JSON_VALUE)
                .body(loginInput)
                .when()
                .post("/api/login")
@@ -83,8 +82,8 @@ public class LoginControllerTest
         loginInput.setUsername("przemyslaw_fusik");
         loginInput.setPassword("password");
 
-        mockMvc.contentType("application/json")
-               .header("Accept", "application/json")
+        mockMvc.contentType(MediaType.APPLICATION_JSON_VALUE)
+               .accept(MediaType.APPLICATION_JSON_VALUE)
                .body(loginInput)
                .when()
                .post("/api/login")
@@ -108,8 +107,8 @@ public class LoginControllerTest
         loginInput.setUsername("test-disabled-user-login");
         loginInput.setPassword("1234");
 
-        mockMvc.contentType("application/json")
-               .header("Accept", "application/json")
+        mockMvc.contentType(MediaType.APPLICATION_JSON_VALUE)
+               .accept(MediaType.APPLICATION_JSON_VALUE)
                .body(loginInput)
                .when()
                .post("/api/login")
@@ -136,8 +135,8 @@ public class LoginControllerTest
         loginInput.setUsername("admin-cache-eviction-test");
         loginInput.setPassword("password");
 
-        mockMvc.contentType("application/json")
-               .header("Accept", "application/json")
+        mockMvc.contentType(MediaType.APPLICATION_JSON_VALUE)
+               .accept(MediaType.APPLICATION_JSON_VALUE)
                .body(loginInput)
                .when()
                .post("/api/login")
@@ -160,8 +159,8 @@ public class LoginControllerTest
                .then()
                .statusCode(HttpStatus.OK.value());
 
-        mockMvc.contentType("application/json")
-               .header("Accept", "application/json")
+        mockMvc.contentType(MediaType.APPLICATION_JSON_VALUE)
+               .accept(MediaType.APPLICATION_JSON_VALUE)
                .body(loginInput)
                .when()
                .post("/api/login")
