@@ -24,6 +24,7 @@ import org.carlspring.strongbox.authentication.registry.AuthenticationProvidersR
 import org.carlspring.strongbox.authentication.registry.AuthenticationProvidersRegistry.MergePropertiesContext;
 import org.carlspring.strongbox.authentication.support.AuthenticationConfigurationContext;
 import org.carlspring.strongbox.users.dto.User;
+import org.carlspring.strongbox.users.service.UserAlreadyExistsException;
 import org.carlspring.strongbox.users.userdetails.StrongboxExternalUsersCacheManager;
 import org.carlspring.strongbox.users.userdetails.UserDetailsMapper;
 import org.slf4j.Logger;
@@ -35,18 +36,21 @@ import org.springframework.context.event.ContextRefreshedEvent;
 import org.springframework.context.event.EventListener;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.AuthenticationProvider;
+import org.springframework.security.authentication.InternalAuthenticationServiceException;
 import org.springframework.security.authentication.ProviderManager;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.AuthenticationException;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
+import org.springframework.stereotype.Component;
 
 /**
  * @author sbespalov
  *
  */
 @Primary
+@Component
 public class ConfigurableProviderManager extends ProviderManager implements UserDetailsService, AuthenticationItemConfigurationManager
 {
 
@@ -102,49 +106,77 @@ public class ConfigurableProviderManager extends ProviderManager implements User
     public UserDetails loadUserByUsername(String username)
         throws UsernameNotFoundException
     {
-        Optional<User> user = loadUserDetails(username);
-
-        if (!user.isPresent())
-        {
-            throw new UsernameNotFoundException(username);
-        }
-
-        return user.map(userDetailsMapper).get();
+        return loadUserDetails(username).map(userDetailsMapper)
+                                        .orElseThrow(() -> new UsernameNotFoundException(username));
     }
 
     private Optional<User> loadUserDetails(String username)
     {
-        User user = strongboxUserManager.findByUsername(username);
-        Date userLastUpdate = Optional.ofNullable(user)
-                                      .flatMap(u -> Optional.ofNullable(u.getLastUpdate()))
-                                      .orElse(Date.from(Instant.EPOCH));
-        
-        Date userExpireDate = Date.from(Instant.ofEpochMilli(userLastUpdate.getTime())
-                                               .plusSeconds(externalUsersInvalidateSeconds));
-        Date nowDate = new Date();
-        if (user != null && (StringUtils.isBlank(user.getSourceId()) || nowDate.before(userExpireDate)))
-        {
-            return Optional.of(user);
+        Optional<User> optionalUser = Optional.ofNullable(strongboxUserManager.findByUsername(username)).filter(this::isInternalOrValidExternalUser);
+        if (optionalUser.isPresent()) {
+            return optionalUser;
         }
-       
+        
+        return loadExternalUserDetails(username);
+    }
+
+    protected Optional<User> loadExternalUserDetails(String username)
+    {
         for (Entry<String, UserDetailsService> userDetailsServiceEntry : userProviderMap.entrySet())
         {
             String sourceId = userDetailsServiceEntry.getKey();
             UserDetailsService userDetailsService = userDetailsServiceEntry.getValue();
+            
+            UserDetails externalUser;
             try
             {
-                return Optional.of(strongboxUserManager.cacheExternalUserDetails(sourceId,
-                                                                                  userDetailsService.loadUserByUsername(username)));
+                externalUser = userDetailsService.loadUserByUsername(username);
             }
             catch (UsernameNotFoundException e)
             {
                 continue;
             }
+        
+            try
+            {
+                return Optional.of(strongboxUserManager.cacheExternalUserDetails(sourceId, externalUser));
+            }
+            catch (UserAlreadyExistsException e)
+            {
+                logger.debug(String.format("Retry to load user [%s] from [%s] by reason [%s]",
+                                           username, sourceId, e.getMessage()));
+
+                return loadUserDetails(username);
+            }
         }
         
-        strongboxUserManager.deleteByUsername(username);
-
         return Optional.empty();
+    }
+
+    private boolean isInternalOrValidExternalUser(User user)
+    {
+        Date userLastUpdate = Optional.ofNullable(user.getLastUpdate())
+                                      .orElse(Date.from(Instant.EPOCH));
+        Date userExpireDate = Date.from(Instant.ofEpochMilli(userLastUpdate.getTime())
+                                               .plusSeconds(externalUsersInvalidateSeconds));
+        Date nowDate = new Date();
+
+        return StringUtils.isBlank(user.getSourceId()) || nowDate.before(userExpireDate);
+    }
+
+    @Override
+    public Authentication authenticate(Authentication authentication)
+        throws AuthenticationException
+    {
+        try
+        {
+            return super.authenticate(authentication);
+        }
+        catch (InternalAuthenticationServiceException e)
+        {
+            logger.error(String.format("Failed to authenticate user [%s]", authentication.getName()), e);
+            throw e;
+        }
     }
 
     public void reorder(String first,

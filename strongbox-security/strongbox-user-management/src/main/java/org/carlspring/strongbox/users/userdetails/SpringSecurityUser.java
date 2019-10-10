@@ -2,6 +2,7 @@ package org.carlspring.strongbox.users.userdetails;
 
 import java.util.Arrays;
 import java.util.Collection;
+import java.util.Collections;
 import java.util.Set;
 import java.util.stream.Collectors;
 
@@ -21,11 +22,13 @@ public class SpringSecurityUser
 
     private boolean enabled;
 
-    private Set<Role> roles;
+    private Set<Role> roles = Collections.emptySet();
 
     private String url;
 
     private String securityKey;
+    
+    private String sourceId;
 
     @Override
     public String getUsername()
@@ -123,6 +126,16 @@ public class SpringSecurityUser
         this.securityKey = securityKey;
     }
 
+    public String getSourceId()
+    {
+        return sourceId;
+    }
+
+    public void setSourceId(String sourceId)
+    {
+        this.sourceId = sourceId;
+    }
+
     @Override
     public boolean equals(Object o)
     {
@@ -136,13 +149,14 @@ public class SpringSecurityUser
                 Objects.equal(password, user.password) &&
                 Objects.equal(roles, user.roles) &&
                 Objects.equal(url, user.url) &&
-                Objects.equal(securityKey, user.securityKey);
+                Objects.equal(securityKey, user.securityKey)&&
+                Objects.equal(sourceId, user.sourceId);
     }
 
     @Override
     public int hashCode()
     {
-        String[] hashCodeTargets = new String[roles.size() + 5];
+        String[] hashCodeTargets = new String[roles.size() + 6];
         int i = 0;
         for (Role role : roles)
         {
@@ -153,6 +167,7 @@ public class SpringSecurityUser
         hashCodeTargets[i++] = String.valueOf(enabled);
         hashCodeTargets[i++] = String.valueOf(securityKey);
         hashCodeTargets[i++] = String.valueOf(url);
+        hashCodeTargets[i++] = String.valueOf(sourceId);
         
         Arrays.sort(hashCodeTargets);
         
@@ -175,6 +190,9 @@ public class SpringSecurityUser
         }
         sb.append(", url='")
           .append(url)
+          .append('\'');
+        sb.append(", sourceId='")
+          .append(sourceId)
           .append('\'');
         sb.append('}');
         return sb.toString();
