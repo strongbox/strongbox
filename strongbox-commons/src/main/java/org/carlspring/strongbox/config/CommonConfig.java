@@ -2,6 +2,7 @@ package org.carlspring.strongbox.config;
 
 import org.springframework.context.annotation.ComponentScan;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.context.annotation.Import;
 
 @Configuration
 @ComponentScan({ "org.carlspring.strongbox.booters",
@@ -15,6 +16,7 @@ import org.springframework.context.annotation.Configuration;
                  "org.carlspring.strongbox.url",
                  "org.carlspring.strongbox.util",
                  "org.carlspring.strongbox.yaml" })
+@Import(PropertiesPathResolverConfig.class)
 public class CommonConfig
 {
 }

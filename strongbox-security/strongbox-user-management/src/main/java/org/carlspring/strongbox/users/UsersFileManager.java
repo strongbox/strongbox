@@ -1,12 +1,13 @@
 package org.carlspring.strongbox.users;
 
-import org.carlspring.strongbox.resource.ConfigurationResourceResolver;
 import org.carlspring.strongbox.users.dto.UsersDto;
 import org.carlspring.strongbox.yaml.YAMLMapperFactory;
 import org.carlspring.strongbox.yaml.YamlFileManager;
 
 import javax.inject.Inject;
 
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.core.io.Resource;
 import org.springframework.stereotype.Component;
 
 /**
@@ -17,9 +18,8 @@ import org.springframework.stereotype.Component;
 public class UsersFileManager
         extends YamlFileManager<UsersDto>
 {
-
-    @Inject
-    private ConfigurationResourceResolver configurationResourceResolver;
+    @Value("#{@propertiesPathResolver.resolve('strongbox.users.config.yaml','etc/conf/strongbox-security-users.yaml')}")
+    private Resource resource;
 
     @Inject
     public UsersFileManager(YAMLMapperFactory yamlMapperFactory)
@@ -27,23 +27,9 @@ public class UsersFileManager
         super(yamlMapperFactory);
     }
 
-
     @Override
-    public String getPropertyKey()
+    protected Resource getResource()
     {
-        return "strongbox.users.config.yaml";
+        return resource;
     }
-
-    @Override
-    public String getDefaultLocation()
-    {
-        return "etc/conf/strongbox-security-users.yaml";
-    }
-
-    @Override
-    public ConfigurationResourceResolver getConfigurationResourceResolver()
-    {
-        return configurationResourceResolver;
-    }
-
 }
