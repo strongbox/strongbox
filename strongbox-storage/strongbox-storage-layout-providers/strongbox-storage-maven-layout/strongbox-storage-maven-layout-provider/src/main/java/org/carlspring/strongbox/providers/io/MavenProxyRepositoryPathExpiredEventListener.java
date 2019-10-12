@@ -51,7 +51,7 @@ public class MavenProxyRepositoryPathExpiredEventListener
             }
             catch (IOException e)
             {
-                logger.error(String.format("Expired path [%s] improperly handled.", repositoryPath), e);
+                logger.error("Expired path [{}] improperly handled.", repositoryPath, e);
             }
         };
     }

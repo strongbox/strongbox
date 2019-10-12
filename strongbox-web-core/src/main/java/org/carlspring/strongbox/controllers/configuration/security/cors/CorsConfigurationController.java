@@ -107,7 +107,7 @@ public class CorsConfigurationController
         }
         catch (Exception ex)
         {
-            logger.error(String.format("Unable to set CORS allowed origins"), ex);
+            logger.error("Unable to set CORS allowed origins", ex);
             return false;
         }
 

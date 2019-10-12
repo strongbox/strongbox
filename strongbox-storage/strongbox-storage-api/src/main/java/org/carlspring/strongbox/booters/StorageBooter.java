@@ -104,19 +104,19 @@ public class StorageBooter
     private void initializeStorage(Storage storage)
             throws IOException
     {
-        logger.info("  * Initializing " + storage.getId() + "...");
+        logger.info("  * Initializing {}...", storage.getId());
     }
 
     private void initializeRepository(Repository repository)
             throws IOException, RepositoryManagementStrategyException
     {
-        logger.info("  * Initializing " + repository.getStorage().getId() + ":" + repository.getId() + "...");
+        logger.info("  * Initializing {}:{}...", repository.getStorage().getId(), repository.getId());
 
         if (layoutProviderRegistry.getProvider(repository.getLayout()) == null)
         {
-            logger.error(String.format("Failed to resolve layout [%s] for repository [%s].",
-                                       repository.getLayout(),
-                                       repository.getId()));
+            logger.error("Failed to resolve layout [{}] for repository [{}].",
+                         repository.getLayout(),
+                         repository.getId());
             return;
         }
 

@@ -111,7 +111,7 @@ public class BrowseController
                                ModelMap model,
                                @RequestHeader(value = HttpHeaders.ACCEPT, required = false) String acceptHeader)
     {
-        logger.debug("Requested browsing for repositories in storage : " + storageId);
+        logger.debug("Requested browsing for repositories in storage : {}", storageId);
 
         try
         {

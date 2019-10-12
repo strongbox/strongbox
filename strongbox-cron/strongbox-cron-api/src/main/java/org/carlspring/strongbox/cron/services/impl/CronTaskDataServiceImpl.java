@@ -82,7 +82,7 @@ public class CronTaskDataServiceImpl
                 }
                 catch (ClassNotFoundException e)
                 {
-                    logger.warn(String.format("Skip configuration, job class not found [%s].", jobClass));
+                    logger.warn("Skip configuration, job class not found [{}].", jobClass);
                     iterator.remove();
                 }
             }

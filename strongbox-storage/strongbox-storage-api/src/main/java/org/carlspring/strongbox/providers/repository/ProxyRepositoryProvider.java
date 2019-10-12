@@ -102,7 +102,7 @@ public class ProxyRepositoryProvider
         }
         catch (IOException e)
         {
-            logger.error(String.format("Failed to resolve Path for proxied artifact [%s]", repositoryPath),
+            logger.error("Failed to resolve Path for proxied artifact [{}]", repositoryPath,
                          e);
 
             throw e;

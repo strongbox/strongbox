@@ -739,7 +739,7 @@ public class ArtifactManagementServiceImplTest
             catch (Exception ex)
             {
                 ex.printStackTrace();
-                logger.error(String.format("Failed to store artifact [%s]", repositoryPath), ex);
+                logger.error("Failed to store artifact [{}]", repositoryPath, ex);
 
                 return 0L;
             }
@@ -771,8 +771,7 @@ public class ArtifactManagementServiceImplTest
             }
             catch (InterruptedException e)
             {
-                e.printStackTrace();
-                logger.error(String.format("Failed to read artifact [%s]", path), e);
+                logger.error("Failed to read artifact [{}]", path, e);
                 
                 return 0L;
             }
@@ -797,8 +796,7 @@ public class ArtifactManagementServiceImplTest
             }
             catch (Exception ex)
             {
-                ex.printStackTrace();
-                logger.error(String.format("Failed to read artifact [%s]", repositoryPath), ex);
+                logger.error("Failed to read artifact [{}]", repositoryPath, ex);
                 
                 return 0L;
             }

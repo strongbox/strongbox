@@ -62,7 +62,7 @@ public class ChecksumCacheManager
         final boolean containsChecksum = cachedChecksums.containsKey(artifactPath);
         if (containsChecksum)
         {
-            logger.debug("Cache contains artifact path '" + artifactPath + "'.");
+            logger.debug("Cache contains artifact path '{}'.", artifactPath);
         }
 
         return containsChecksum;
@@ -80,7 +80,7 @@ public class ChecksumCacheManager
         final String checksum = artifactChecksum.getChecksum(algorithm);
         if (checksum != null)
         {
-            logger.debug("Found checksum '" + checksum + "' [" + algorithm + "]" + " for '" + artifactBasePath + "' in cache.");
+            logger.debug("Found checksum '{}' [{}] for '{}' in cache.", checksum, algorithm, artifactBasePath);
         }
 
         return checksum;
@@ -102,7 +102,7 @@ public class ChecksumCacheManager
                                                  String algorithm,
                                                  String checksum)
     {
-        logger.debug("Adding checksum '" + checksum + "' [" + algorithm + "]" + " for '" + artifactBasePath + "' in cache.");
+        logger.debug("Adding checksum '{}' [{}] for '{}' in cache.", checksum, algorithm, artifactBasePath);
 
         if (cachedChecksums.containsKey(artifactBasePath))
         {
@@ -136,8 +136,8 @@ public class ChecksumCacheManager
     public synchronized void removeArtifactChecksum(String artifactBasePath)
     {
         Optional.ofNullable(cachedChecksums.remove(artifactBasePath))
-                .ifPresent(ac -> logger.debug(String.format("Removed [%s] artifact checksum value [%s] from cache.",
-                                                            artifactBasePath, ac)));
+                .ifPresent(ac -> logger.debug("Removed [{}] artifact checksum value [{}] from cache.",
+                                              artifactBasePath, ac));
     }
 
     public synchronized void removeExpiredChecksums()

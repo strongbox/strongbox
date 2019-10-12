@@ -37,7 +37,7 @@ public class RepositoryProviderRegistry extends AbstractMappedProviderRegistry<R
         logger.debug("Listing repository providers:");
         for (String providerName : getProviders().keySet())
         {
-            logger.debug(" provider: " + providerName);
+            logger.debug(" provider: {}", providerName);
         }
     }
 

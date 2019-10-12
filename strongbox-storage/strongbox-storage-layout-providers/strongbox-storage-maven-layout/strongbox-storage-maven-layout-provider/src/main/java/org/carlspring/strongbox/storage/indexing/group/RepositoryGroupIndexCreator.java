@@ -77,7 +77,7 @@ public class RepositoryGroupIndexCreator
                 }
                 catch (IndexNotFoundException ex)
                 {
-                    logger.warn(String.format("IndexNotFound in [%s]", subRepositoryIndexDirectoryPath), ex);
+                    logger.warn("IndexNotFound in [{}]", subRepositoryIndexDirectoryPath, ex);
                 }
             }
             finally

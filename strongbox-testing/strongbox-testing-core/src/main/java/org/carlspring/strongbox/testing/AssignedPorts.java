@@ -40,7 +40,7 @@ public class AssignedPorts
                 final int port = Integer.parseInt(System.getProperty(portKey));
                 ports.put(portKey, port);
 
-                logger.debug("Discovered port '" + portKey + "' = '" + port + "'.");
+                logger.debug("Discovered port '{}' = '{}'.", portKey, port);
             }
         }
     }

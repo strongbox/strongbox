@@ -163,21 +163,21 @@ public class NugetRepositoryFeatures
         Client restClient = proxyRepositoryConnectionPoolConfigurationService.getRestClient();
         try
         {
-            logger.debug(String.format("Downloading remote feed for [%s].", remoteRepositoryUrl));
+            logger.debug("Downloading remote feed for [{}].", remoteRepositoryUrl);
 
             WebTarget service = restClient.target(remoteRepository.getUrl());
             packageFeed = queryParams(service.path("Search()"), nugetSearchRequest, paginator).request()
                                                                                               .buildGet()
                                                                                               .invoke(PackageFeed.class);
-            
-            logger.debug(String.format("Downloaded remote feed for [%s], size [%s].",
-                                       remoteRepository.getUrl(),
-                                       Optional.of(packageFeed).map(f -> f.getEntries().size()).orElse(0)));
+
+            logger.debug("Downloaded remote feed for [{}], size [{}].",
+                         remoteRepository.getUrl(),
+                         Optional.of(packageFeed).map(f -> f.getEntries().size()).orElse(0));
 
         }
         catch (Exception e)
         {
-            logger.error(String.format("Failed to fetch Nuget remote feed [%s]", remoteRepositoryUrl), e);
+            logger.error("Failed to fetch Nuget remote feed [{}]", remoteRepositoryUrl, e);
             return false;
         } finally
         {
@@ -304,8 +304,7 @@ public class NugetRepositoryFeatures
             OQueryTemplate<Long, RemoteArtifactEntry> queryTemplate = new OQueryTemplate<>(entityManager);
             Long packageCount = queryTemplate.select(selector);
 
-            logger.debug(String.format("Remote repository [%s] cached package count is [%s]", repository.getId(),
-                                       packageCount));
+            logger.debug("Remote repository [{}] cached package count is [{}]", repository.getId(), packageCount);
 
             Client restClient = proxyRepositoryConnectionPoolConfigurationService.getRestClient();
             PackageFeed feed;
@@ -317,31 +316,29 @@ public class NugetRepositoryFeatures
                                                                    nugetSearchRequest, new Paginator()).request()
                                                                                                        .buildGet()
                                                                                                        .invoke(String.class));
-                logger.debug(String.format("Remote repository [%s] remote package count is [%s]",
-                                           repository.getId(), remotePackageCount));
+                logger.debug("Remote repository [{}] remote package count is [{}]", repository.getId(), remotePackageCount);
 
                 if (Long.valueOf(remotePackageCount).compareTo(packageCount) == 0)
                 {
-                    logger.debug(String.format("No need to download remote feed, there was no changes in remote repository [%s] against local cache.",
-                                               remoteRepository.getUrl()));
+                    logger.debug("No need to download remote feed, there was no changes in remote repository [{}] against local cache.",
+                                 remoteRepository.getUrl());
                     return;
                 }
 
-                logger.debug(String.format("Downloading remote feed for [%s].",
-                                           remoteRepository.getUrl()));
+                logger.debug("Downloading remote feed for [{}].", remoteRepository.getUrl());
 
                 feed = queryParams(service.path("Search()"), nugetSearchRequest, event.getPaginator()).request()
                                                                                                       .buildGet()
                                                                                                       .invoke(PackageFeed.class);
 
-                logger.debug(String.format("Downloaded remote feed for [%s], size [%s].",
-                                           remoteRepository.getUrl(),
-                                           Optional.of(feed).map(f -> f.getEntries().size()).orElse(0)));
+                logger.debug("Downloaded remote feed for [{}], size [{}].",
+                             remoteRepository.getUrl(),
+                             Optional.of(feed).map(f -> f.getEntries().size()).orElse(0));
 
             }
             catch (Exception e)
             {
-                logger.error(String.format("Failed to fetch Nuget remote feed [%s]", remoteRepository.getUrl()), e);
+                logger.error("Failed to fetch Nuget remote feed [{}]", remoteRepository.getUrl(), e);
                 return;
             } 
             finally

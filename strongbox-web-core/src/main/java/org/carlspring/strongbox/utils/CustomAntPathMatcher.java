@@ -76,9 +76,8 @@ public class CustomAntPathMatcher
             uriTemplateVariables.put(pathVariableName, getPathVariableValue(pattern, path));
         }
 
-        logger.trace("[doMatch] pattern " + pattern + "\n\tpath " + path + "\n\tfullMatch " +
-                     fullMatch + "\n\turiTemplateVariables " +
-                     uriTemplateVariables + "\n\tdefaultMatchResult " + defaultMatchResult);
+        logger.trace("[doMatch] pattern {}\n\tpath {}\n\tfullMatch {}\n\turiTemplateVariables {}\n\tdefaultMatchResult {}",
+                     pattern, path, fullMatch, uriTemplateVariables, defaultMatchResult);
 
         return defaultMatchResult;
     }
@@ -108,15 +107,15 @@ public class CustomAntPathMatcher
     private String getPathVariableValue(String pattern,
                                         String path)
     {
-        logger.trace("pattern " + pattern);
-        logger.trace("path " + path);
+        logger.trace("pattern {}", pattern);
+        logger.trace("path {}", path);
 
         // get the rest of source path based on the path variables count and path prefix
         String[] pathDirs = path.split(pathSeparator);
         String[] patternDirs = pattern.split(pathSeparator);
 
-        logger.trace("pathDirs " + pathDirs.length + " " + Arrays.deepToString(pathDirs));
-        logger.trace("patternDirs " + patternDirs.length + " " + Arrays.deepToString(patternDirs));
+        logger.trace("pathDirs {} {}" , pathDirs.length, Arrays.deepToString(pathDirs));
+        logger.trace("patternDirs {} {}", patternDirs.length, Arrays.deepToString(patternDirs));
 
         int pathSubDirCount = pathDirs.length;
         int subPathIndex = patternDirs.length;
@@ -135,7 +134,7 @@ public class CustomAntPathMatcher
         {
             String subPath = pathDirs[i];
 
-            logger.trace("Append subPath length " + subPath.length() + " for subPath " + subPath);
+            logger.trace("Append subPath length {} for subPath {}", subPath.length(), subPath);
 
             subPathLength += subPath.length();
             subPathLength += pathSeparatorLength;
@@ -145,8 +144,8 @@ public class CustomAntPathMatcher
 
         String pathVarValue = path.substring(subPathLength);
 
-        logger.trace("subPathLength " + subPathLength);
-        logger.trace("pathVarValue " + pathVarValue);
+        logger.trace("subPathLength {}",subPathLength);
+        logger.trace("pathVarValue {}",pathVarValue);
 
         return pathVarValue;
     }

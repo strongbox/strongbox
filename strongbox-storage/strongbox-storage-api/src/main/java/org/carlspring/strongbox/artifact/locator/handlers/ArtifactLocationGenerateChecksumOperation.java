@@ -38,15 +38,15 @@ public class ArtifactLocationGenerateChecksumOperation
                 }
                 catch (IOException e)
                 {
-                    logger.error(String.format("Failed to read attributes for [%s]", p),
+                    logger.error("Failed to read attributes for [{}]", p,
                                  e);
                 }
                 return false;
             });
             if (!containsMetadata)
             {
-                logger.debug(String.format("Target path [%s] does not contains any metadata, so we don't need to execute any operations.",
-                                           path));
+                logger.debug("Target path [{}] does not contains any metadata, so we don't need to execute any operations.",
+                             path);
                 return;
             }
         }

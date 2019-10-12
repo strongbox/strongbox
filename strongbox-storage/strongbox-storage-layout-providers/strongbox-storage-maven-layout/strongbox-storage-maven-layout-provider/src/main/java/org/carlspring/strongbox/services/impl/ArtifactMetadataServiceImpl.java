@@ -179,7 +179,7 @@ public class ArtifactMetadataServiceImpl
         {
             // No need to throw an exception here.
             // Logging the error should suffice.
-            logger.error("Version " + version + " already exists in the metadata file.");
+            logger.error("Version {} already exists in the metadata file.", version);
         }
     }
 
@@ -314,11 +314,12 @@ public class ArtifactMetadataServiceImpl
             {
                 iterator.remove();
 
-                logger.debug("Removed timestamped SNAPSHOT (" + version +
+                logger.debug("Removed timestamped SNAPSHOT ({}{}) from metadata.",
+                             version,
                              (classifier != null ? ":" + classifier :
                               (snapshotVersion.getClassifier() != null && !snapshotVersion.getClassifier().equals("") ?
                                ":" + snapshotVersion.getClassifier() + ":" : ":") +
-                              snapshotVersion.getExtension()) + ") from metadata.");
+                              snapshotVersion.getExtension()));
             }
         }
 

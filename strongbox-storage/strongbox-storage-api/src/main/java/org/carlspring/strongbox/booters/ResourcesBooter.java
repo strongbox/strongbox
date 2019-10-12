@@ -78,7 +78,7 @@ public class ResourcesBooter implements ApplicationContextInitializer<Configurab
 
             if (Files.exists(destFile))
             {
-                logger.info(String.format("Resource already exists, skip [%s].", destFile));
+                logger.info("Resource already exists, skip [{}].", destFile);
                 continue;
             }
 

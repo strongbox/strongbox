@@ -63,13 +63,13 @@ public class HostedRepositoryProvider extends AbstractRepositoryProvider
         }
         catch (ArtifactNotFoundException e) 
         {
-            logger.debug(String.format("The path [%s] does not exist!%n*\t[%s]", repositoryPath, e.getMessage()));
+            logger.debug("The path [{}] does not exist!%n*\t[{}]", repositoryPath, e.getMessage());
 
             return null;
         }
         catch (IOException ex)
         {
-            logger.error(String.format("Failed to decorate InputStream for [%s]", repositoryPath), ex);
+            logger.error("Failed to decorate InputStream for [{}]", repositoryPath, ex);
             
             throw ex;
         }
@@ -108,7 +108,7 @@ public class HostedRepositoryProvider extends AbstractRepositoryProvider
             }
             catch (Exception e)
             {
-                logger.error(String.format("Failed to resolve Artifact [%s]", artifactEntry.getArtifactCoordinates()),
+                logger.error("Failed to resolve Artifact [{}]", artifactEntry.getArtifactCoordinates(),
                              e);
                 continue;
             }

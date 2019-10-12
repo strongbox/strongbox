@@ -80,7 +80,7 @@ public class AuthenticationResourceManager
     {
         if (!(resource instanceof WritableResource))
         {
-            logger.warn(String.format("Could not store read-only resource [%s].", resource));
+            logger.warn("Could not store read-only resource [{}].", resource);
 
             return;
         }

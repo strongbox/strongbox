@@ -60,11 +60,11 @@ public class EmbeddedOrientDbConfig
         String database = serverProperties.getDatabase();
         if (orientDB.exists(database))
         {
-            logger.info("Re-using existing database " + database + ".");
+            logger.info("Re-using existing database {}.", database);
             
             return orientDB;
         }
-        logger.info(String.format("Database does not exist. Copying fresh database snapshot from classpath..."));
+        logger.info("Database does not exist. Copying fresh database snapshot from classpath...");
 
         try (JarFile jar = getDbSchemaClasspathLocation())
         {

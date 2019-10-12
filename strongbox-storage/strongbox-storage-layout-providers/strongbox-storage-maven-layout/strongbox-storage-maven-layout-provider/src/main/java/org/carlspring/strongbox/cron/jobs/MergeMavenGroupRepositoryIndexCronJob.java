@@ -44,18 +44,16 @@ public class MergeMavenGroupRepositoryIndexCronJob
         String storageId = config.getProperty(PROPERTY_STORAGE_ID);
         String repositoryId = config.getProperty(PROPERTY_REPOSITORY_ID);
 
-        logger.debug(String.format(
-                "Executing MergeMavenGroupRepositoryIndexCronJob for storageId = [%s], repositoryId = [%s]", storageId,
-                repositoryId));
+        logger.debug("Executing MergeMavenGroupRepositoryIndexCronJob for storageId = [{}], repositoryId = [{}]",
+                     storageId, repositoryId);
 
         Repository repository = configurationManager.getRepository(storageId, repositoryId);
 
         if (!repository.isGroupRepository())
         {
-            logger.warn(String.format(
-                    "Repository identified by storageId = [%s], repositoryId = [%s] is not a group repository. Exiting ...",
-                    storageId,
-                    repositoryId));
+            logger.warn("Repository identified by storageId = [{}], repositoryId = [{}] is not a group repository. Exiting ...",
+                        storageId,
+                        repositoryId);
             return;
         }
 

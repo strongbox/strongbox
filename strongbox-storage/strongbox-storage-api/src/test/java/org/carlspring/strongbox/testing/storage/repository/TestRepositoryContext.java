@@ -114,9 +114,9 @@ public class TestRepositoryContext implements AutoCloseable, Comparable<TestRepo
             throws IOException,
                    RepositoryManagementStrategyException
     {
-        logger.debug(String.format("Create [%s] with id [%s] ",
-                                  TestRepository.class.getSimpleName(),
-                                  id(testRepository)));
+        logger.debug("Create [{}] with id [{}] ",
+                     TestRepository.class.getSimpleName(),
+                     id(testRepository));
 
         if (groupRepository != null && remoteRepository != null)
         {
@@ -190,9 +190,9 @@ public class TestRepositoryContext implements AutoCloseable, Comparable<TestRepo
 
         opened = true;
 
-        logger.debug(String.format("Created [%s] with id [%s] ",
-                                  TestRepository.class.getSimpleName(),
-                                  id(testRepository)));
+        logger.debug("Created [%s] with id [%s] ",
+                     TestRepository.class.getSimpleName(),
+                     id(testRepository));
     }
 
     private List<MutableRoutingRuleRepository> routingRepositories(String[] repositories)
@@ -230,9 +230,9 @@ public class TestRepositoryContext implements AutoCloseable, Comparable<TestRepo
     public void close()
         throws IOException
     {
-        logger.debug(String.format("Close [%s] with id [%s] ",
-                                  TestRepository.class.getSimpleName(),
-                                  id(testRepository)));
+        logger.debug("Close [{}] with id [{}] ",
+                     TestRepository.class.getSimpleName(),
+                     id(testRepository));
 
         try
         {
@@ -240,24 +240,24 @@ public class TestRepositoryContext implements AutoCloseable, Comparable<TestRepo
         }
         catch (IOException e)
         {
-            logger.error(String.format("Failed to close [%s] with id [%s] ",
-                                       TestRepository.class.getSimpleName(),
-                                       id(testRepository)), e);
+            logger.error("Failed to close [{}] with id [{}] ",
+                         TestRepository.class.getSimpleName(),
+                         id(testRepository), e);
 
             throw e;
         }
         catch (Exception e)
         {
-            logger.error(String.format("Failed to close [%s] with id [%s] ",
-                                       TestRepository.class.getSimpleName(),
-                                       id(testRepository)), e);
+            logger.error("Failed to close [{}] with id [{}] ",
+                         TestRepository.class.getSimpleName(),
+                         id(testRepository), e);
 
             throw new IOException(e);
         }
 
-        logger.debug(String.format("Closed [%s] with id [%s] ",
-                                  TestRepository.class.getSimpleName(),
-                                  id(testRepository)));
+        logger.debug("Closed [{}] with id [{}] ",
+                     TestRepository.class.getSimpleName(),
+                     id(testRepository));
     }
 
     private void closeInternal()

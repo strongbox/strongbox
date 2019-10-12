@@ -83,7 +83,7 @@ public class CronTaskExecutor extends ThreadPoolExecutor implements DisposableBe
         }
         catch (Exception e)
         {
-            LOGGER.error(String.format("Before execute failed for [%s]", r), e);
+            LOGGER.error("Before execute failed for [{}]", r, e);
         }
     }
 
@@ -91,7 +91,7 @@ public class CronTaskExecutor extends ThreadPoolExecutor implements DisposableBe
     {
         Class<? extends Job> jobClass = jd.getJobClass();
         String jobClassName = jobClass.getSimpleName();
-        LOGGER.debug(String.format("Bootstrap Cron Job [%s]", jobClassName));
+        LOGGER.debug("Bootstrap Cron Job [{}]", jobClassName);
         MDC.put(CronTaskContextAcceptFilter.STRONGBOX_CRON_CONTEXT_NAME, LoggingUtils.caclucateCronContextName(jobClass));
     }
 
@@ -106,9 +106,8 @@ public class CronTaskExecutor extends ThreadPoolExecutor implements DisposableBe
         }
         catch (Exception e)
         {
-            LOGGER.error(String.format("Failed to expose Cron Job details for [%s] class",
-                                       r.getClass().getSimpleName()),
-                         e);
+            LOGGER.error("Failed to expose Cron Job details for [{}] class",
+                         r.getClass().getSimpleName(), e);
         }
         return null;
     }
@@ -124,7 +123,7 @@ public class CronTaskExecutor extends ThreadPoolExecutor implements DisposableBe
         }
         catch (Exception e)
         {
-            LOGGER.error(String.format("After execute failed for [%s]", r), e);
+            LOGGER.error("After execute failed for [{}]", r, e);
         }
     }
 

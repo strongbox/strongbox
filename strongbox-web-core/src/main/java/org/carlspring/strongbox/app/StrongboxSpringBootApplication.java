@@ -36,8 +36,8 @@ public class StrongboxSpringBootApplication
     {
         if (System.getProperty(OrientDbProfile.PROPERTY_PROFILE) == null)
         {
-            logger.info(String.format("OrientDB profile not set, will use [%s] profile as default",
-                                      OrientDbProfile.PROFILE_EMBEDDED));
+            logger.info("OrientDB profile not set, will use [{}] profile as default",
+                        OrientDbProfile.PROFILE_EMBEDDED);
 
             System.setProperty(OrientDbProfile.PROPERTY_PROFILE, OrientDbProfile.PROFILE_EMBEDDED);
         }

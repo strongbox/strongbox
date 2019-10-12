@@ -141,7 +141,7 @@ class ArtifactEntryServiceImpl extends AbstractArtifactEntryService
 
         appendPagingCriteria(sb, pagingCriteria);
 
-        logger.debug("Executing SQL query> " + sb.toString());
+        logger.debug("Executing SQL query> {}", sb);
 
         OSQLSynchQuery<ArtifactEntry> oQuery = new OSQLSynchQuery<>(sb.toString());
 
@@ -296,7 +296,7 @@ class ArtifactEntryServiceImpl extends AbstractArtifactEntryService
         // now query should looks like
         // SELECT * FROM Foo WHERE blah = :blah AND moreBlah = :moreBlah
 
-        logger.debug("Executing SQL query> " + sb.toString());
+        logger.debug("Executing SQL query> {}", sb);
 
         return sb.toString();
     }

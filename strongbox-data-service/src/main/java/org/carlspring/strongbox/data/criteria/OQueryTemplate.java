@@ -50,7 +50,7 @@ public class OQueryTemplate<R, T extends GenericEntity> implements QueryTemplate
         OSQLSynchQuery<T> oQuery = new OSQLSynchQuery<>(sQuery);
         Map<String, Object> parameterMap = exposeParameterMap(s.getPredicate());
 
-        logger.debug(String.format("Executing SQL query:%n\t[%s]%nWith parameters:%n\t[%s]", sQuery, parameterMap));
+        logger.debug("Executing SQL query:%n\t[{}]%nWith parameters:%n\t[{}]", sQuery, parameterMap);
 
         Object result = getEmDelegate().command(oQuery)
                                        .execute(parameterMap);

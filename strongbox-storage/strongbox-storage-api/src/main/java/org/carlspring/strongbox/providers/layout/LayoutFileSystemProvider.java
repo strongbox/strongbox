@@ -168,7 +168,7 @@ public abstract class LayoutFileSystemProvider extends StorageFileSystemProvider
                               }
                               catch (NoSuchAlgorithmException t)
                               {
-                                  logger.error(String.format("Digest algorithm not supported: alg-[%s]", e), t);
+                                  logger.error("Digest algorithm not supported: alg-[{}]", e, t);
                               }
                           });
         return result;
@@ -187,7 +187,7 @@ public abstract class LayoutFileSystemProvider extends StorageFileSystemProvider
                  }
                  catch (IOException e)
                  {
-                     logger.error(String.format("Failed to read attributes for [%s]", p), e);
+                     logger.error("Failed to read attributes for [{}]", p, e);
                  }
                  return false;
              })
@@ -198,7 +198,7 @@ public abstract class LayoutFileSystemProvider extends StorageFileSystemProvider
                  }
                  catch (IOException e)
                  {
-                     logger.error(String.format("Failed to write checksum for [%s]", p), e);
+                     logger.error("Failed to write checksum for [{}]", p, e);
                  }
              });
     }
@@ -232,8 +232,8 @@ public abstract class LayoutFileSystemProvider extends StorageFileSystemProvider
                                            }
                                            catch (IOException e)
                                            {
-                                               logger.error(String.format("Failed to write checksum for [%s]",
-                                                                          checksumPath.toString()), e);
+                                               logger.error("Failed to write checksum for [{}]",
+                                                            checksumPath.toString(), e);
                                            }
                                        });
         }
@@ -244,7 +244,7 @@ public abstract class LayoutFileSystemProvider extends StorageFileSystemProvider
                        boolean force)
             throws IOException
     {
-        logger.debug("Deleting in (" + path + ")...");
+        logger.debug("Deleting in ({})...", path);
 
 
         RepositoryPath repositoryPath = (RepositoryPath) path;
@@ -252,7 +252,7 @@ public abstract class LayoutFileSystemProvider extends StorageFileSystemProvider
 
         if (!Files.exists(path))
         {
-            logger.warn(String.format("Path not found: path-[%s]", path));
+            logger.warn("Path not found: path-[{}]", path);
             
             return;
         }
@@ -264,9 +264,8 @@ public abstract class LayoutFileSystemProvider extends StorageFileSystemProvider
             artifactEventListenerRegistry.dispatchArtifactPathDeletedEvent(path);
         }
 
-        logger.debug(String.format("Deleted [%s]", path));
+        logger.debug("Deleted [{}]", path);
     }
-    
     @Override
     protected void doDeletePath(RepositoryPath repositoryPath,
                                 boolean force)
@@ -298,7 +297,7 @@ public abstract class LayoutFileSystemProvider extends StorageFileSystemProvider
         }
         catch (IOException e)
         {
-            logger.error(String.format("Failed to fetch ArtifactEntry for [%s]", repositoryPath), e);
+            logger.error("Failed to fetch ArtifactEntry for [{}]", repositoryPath, e);
             return null;
         }
 
@@ -314,13 +313,13 @@ public abstract class LayoutFileSystemProvider extends StorageFileSystemProvider
         Repository repository = path.getRepository();
         Storage storage = repository.getStorage();
 
-        logger.debug("Emptying trash for " + storage.getId() + ":" + repository.getId() + "...");
+        logger.debug("Emptying trash for {}:{}...", storage.getId(), repository.getId());
 
         super.deleteTrash(path);
 
         repositoryEventListenerRegistry.dispatchEmptyTrashEvent(storage.getId(), repository.getId());
 
-        logger.debug("Trash for " + storage.getId() + ":" + repository.getId() + " removed.");
+        logger.debug("Trash for {}:{} removed.", storage.getId(), repository.getId());
     }
 
     
@@ -332,13 +331,13 @@ public abstract class LayoutFileSystemProvider extends StorageFileSystemProvider
         Repository repository = path.getRepository();
         Storage storage = repository.getStorage();
 
-        logger.debug(String.format("Attempting to restore: path-[%s]; ", path));
+        logger.debug("Attempting to restore: path-[{}]; ", path);
         
         super.undelete(path);
 
         repositoryEventListenerRegistry.dispatchUndeleteTrashEvent(storage.getId(), repository.getId());
 
-        logger.debug("The trash for " + storage.getId() + ":" + repository.getId() + " has been undeleted.");
+        logger.debug("The trash for {}:{} has been undeleted.", storage.getId(), repository.getId());
     }
 
     @Override

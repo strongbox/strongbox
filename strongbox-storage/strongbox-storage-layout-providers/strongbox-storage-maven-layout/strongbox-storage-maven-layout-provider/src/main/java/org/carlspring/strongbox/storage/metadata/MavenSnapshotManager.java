@@ -52,14 +52,13 @@ public class MavenSnapshotManager
         Repository repository = basePath.getRepository();
         if (!RepositoryFiles.artifactExists(basePath))
         {
-            logger.error("Removal of timestamped Maven snapshot artifact: " + basePath + ".");
+            logger.error("Removal of timestamped Maven snapshot artifact: {}.", basePath);
             
             return;
         }
         
-        logger.debug("Removal of timestamped Maven snapshot artifact " + basePath +
-                     " in '" + repository.getStorage()
-                                         .getId() + ":" + repository.getId() + "'.");
+        logger.debug("Removal of timestamped Maven snapshot artifact {} in '{}:{}'.",
+                     basePath, repository.getStorage().getId(), repository.getId());
 
         Pair<String, String> artifactGroup = MavenArtifactUtils.getDirectoryGA(basePath);
         String artifactGroupId = artifactGroup.getValue0();
@@ -79,7 +78,7 @@ public class MavenSnapshotManager
                 continue;
             }
 
-            logger.debug("Generate snapshot versioning metadata for " + versionDirectoryPath + ".");
+            logger.debug("Generate snapshot versioning metadata for {}.", versionDirectoryPath);
 
             mavenMetadataManager.generateSnapshotVersioningMetadata(artifactGroupId,
                                                                     artifactId,
