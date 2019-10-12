@@ -17,7 +17,7 @@ public class PypiPackageInfo
                                                 "(\\.post\\d+)?" +         // post releases
                                                 "(\\.dev\\d+)?" +          // developmental releases
                                                 "(\\+[.A-Z0-9]+)?)$";      // local version identifiers
-    
+
     @NotNull
     @PypiMetadataKey(name = "Metadata-Version")
     private PypiPackageInfo.SupportedMetadataVersionEnum metadataVersion;
@@ -27,8 +27,8 @@ public class PypiPackageInfo
     @PypiMetadataKey(name = "Name")
     private String name;
 
+    //version format validation done with PypiVersionValidator
     @NotBlank
-    @Pattern(flags = Pattern.Flag.CASE_INSENSITIVE, regexp = VERSION_FORMAT)
     @PypiMetadataKey(name = "Version")
     private String version;
 
