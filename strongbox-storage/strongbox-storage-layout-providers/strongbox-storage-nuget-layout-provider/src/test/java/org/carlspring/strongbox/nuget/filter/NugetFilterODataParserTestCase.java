@@ -39,10 +39,13 @@ public class NugetFilterODataParserTestCase
 {
 
     private static final String REPOSITORY_RELEASES = "nfodpt-releases";
-
     @PersistenceContext
     private EntityManager entityManager;
 
+    
+    /**
+     * Tests that conjunction works
+     */
     @ExtendWith({ RepositoryManagementTestExecutionListener.class,
                   ArtifactManagementTestExecutionListener.class })
     @Test
@@ -64,7 +67,6 @@ public class NugetFilterODataParserTestCase
     {
 
         Selector<ArtifactEntry> selector = new Selector<>(ArtifactEntry.class);
-
         NugetODataFilterQueryParser t = new NugetODataFilterQueryParser(
                 "tolower(Id) eq 'org.carlspring.strongbox.nuget.test.nfpt' and IsLatestVersion and Version eq '1.0.8'F");
         Predicate predicate = t.parseQuery().getPredicate();
@@ -77,6 +79,105 @@ public class NugetFilterODataParserTestCase
 
         QueryTemplate<Long, ArtifactEntry> queryTemplate = new OQueryTemplate<>(entityManager);
         assertThat(queryTemplate.select(selector)).isEqualTo(1L);
+    }
+    
+    /**
+     * Tests that All Chars that should work do
+     */
+    @ExtendWith({ RepositoryManagementTestExecutionListener.class,
+    	ArtifactManagementTestExecutionListener.class })
+    @Test
+    @Transactional
+    public void testSearchChars(@NugetRepository(repositoryId = REPOSITORY_RELEASES)
+    Repository repository,
+    @NugetTestArtifact(repositoryId = REPOSITORY_RELEASES,
+    id = "Org.Carlspring.Strongbox.Nuget.Test.Nfpt_-test",
+    versions = { "1.0.0",
+    		     "1.0.1",
+    		     "1.0.2"})
+    Path artifactPath)
+    {
+
+    	Selector<ArtifactEntry> selector = new Selector<>(ArtifactEntry.class);
+
+    	NugetODataFilterQueryParser t = new NugetODataFilterQueryParser(
+    			"tolower(Id) eq 'org.carlspring.strongbox.nuget.test.nfpt_-test' and IsLatestVersion");
+    	Predicate predicate = t.parseQuery().getPredicate();
+
+    	selector.where(predicate)
+    	.and(Predicate.of(ExpOperator.EQ.of("storageId", repository.getStorage().getId())))
+    	.and(Predicate.of(ExpOperator.EQ.of("repositoryId", repository.getId())));
+
+    	selector.select("count(*)");
+
+    	QueryTemplate<Long, ArtifactEntry> queryTemplate = new OQueryTemplate<>(entityManager);
+    	assertThat(queryTemplate.select(selector)).isEqualTo(1L);
+    }
+
+    /*
+     * Tests that starting dash doesn't work
+     */
+    @ExtendWith({ RepositoryManagementTestExecutionListener.class,
+    	ArtifactManagementTestExecutionListener.class })
+    @Test
+    @Transactional
+    public void testSearchCharsStart(@NugetRepository(repositoryId = REPOSITORY_RELEASES)
+    Repository repository,
+    @NugetTestArtifact(repositoryId = REPOSITORY_RELEASES,
+    id = "-Org.Carlspring.Strongbox.Nuget.Test.Nfpt",
+    versions = { "1.0.0",
+    		     "1.0.1",
+    		     "1.0.2"})
+    Path artifactPath)
+    {
+
+    	Selector<ArtifactEntry> selector = new Selector<>(ArtifactEntry.class);
+
+    	NugetODataFilterQueryParser t = new NugetODataFilterQueryParser(
+    			"tolower(Id) eq '-org.carlspring.strongbox.nuget.test.nfpt'");
+    	Predicate predicate = t.parseQuery().getPredicate();
+
+    	selector.where(predicate)
+    	.and(Predicate.of(ExpOperator.EQ.of("storageId", repository.getStorage().getId())))
+    	.and(Predicate.of(ExpOperator.EQ.of("repositoryId", repository.getId())));
+
+    	selector.select("count(*)");
+
+    	QueryTemplate<Long, ArtifactEntry> queryTemplate = new OQueryTemplate<>(entityManager);
+    	assertThat(queryTemplate.select(selector)).isEqualTo(0L);
+    }
+
+    /*
+     * Tests that ending dash doesn't work
+     */
+    @ExtendWith({ RepositoryManagementTestExecutionListener.class,
+    	ArtifactManagementTestExecutionListener.class })
+    @Test
+    @Transactional
+    public void testSearchCharsEnd(@NugetRepository(repositoryId = REPOSITORY_RELEASES)
+    Repository repository,
+    @NugetTestArtifact(repositoryId = REPOSITORY_RELEASES,
+    id = "Org.Carlspring.Strongbox.Nuget.Test.Nfpt-",
+    versions = { "1.0.0",
+    		     "1.0.1",
+    		     "1.0.2"})
+    Path artifactPath)
+    {
+
+    	Selector<ArtifactEntry> selector = new Selector<>(ArtifactEntry.class);
+
+    	NugetODataFilterQueryParser t = new NugetODataFilterQueryParser(
+    			"tolower(Id) eq 'org.carlspring.strongbox.nuget.test.nfpt-'");
+    	Predicate predicate = t.parseQuery().getPredicate();
+
+    	selector.where(predicate)
+    	.and(Predicate.of(ExpOperator.EQ.of("storageId", repository.getStorage().getId())))
+    	.and(Predicate.of(ExpOperator.EQ.of("repositoryId", repository.getId())));
+
+    	selector.select("count(*)");
+
+    	QueryTemplate<Long, ArtifactEntry> queryTemplate = new OQueryTemplate<>(entityManager);
+    	assertThat(queryTemplate.select(selector)).isEqualTo(0L);
     }
 
 }

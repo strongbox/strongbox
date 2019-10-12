@@ -124,6 +124,8 @@ public class NugetArtifactControllerTest extends NugetRestAssuredBaseTest
                .statusCode(HttpStatus.OK.value());
     }
 
+
+
     @ExtendWith({ RepositoryManagementTestExecutionListener.class,
                   ArtifactManagementTestExecutionListener.class })
     @Test
@@ -252,6 +254,55 @@ public class NugetArtifactControllerTest extends NugetRestAssuredBaseTest
         {
             System.setOut(originalSysOut);
         }
+    }
+
+    @ExtendWith({ RepositoryManagementTestExecutionListener.class,
+            ArtifactManagementTestExecutionListener.class })
+    @Test
+    public void testChocolatey(@NugetRepository(storageId = STORAGE_ID,
+            repositoryId = REPOSITORY_RELEASES_1)
+                                              Repository repository,
+                                      @NugetTestArtifact(id = "Org.Carlspring.Strongbox.Examples.Nuget.Mono-Test",
+                                              versions = "1.0.0")
+                                              Path packagePath)
+            throws Exception
+    {
+        final String storageId = repository.getStorage().getId();
+        final String repositoryId = repository.getId();
+        final String packageId = "Org.Carlspring.Strongbox.Examples.Nuget.Mono-Test";
+        final String packageVersion = "1.0.0";
+
+        long packageSize = Files.size(packagePath);
+        byte[] packageContent = readPackageContent(packagePath);
+
+        // Push
+        String url = getContextBaseUrl() + "/storages/{storageId}/{repositoryId}/";
+        createPushRequest(packageContent)
+                .when()
+                .put(url, storageId, repositoryId)
+                .peek()
+                .then()
+                .statusCode(HttpStatus.CREATED.value());
+
+        //Find by ID
+
+        url = getContextBaseUrl() + "/storages/{storageId}/{repositoryId}/Search()?$filter=IsLatestVersion&$skip=0&$top=30&searchTerm='{artifactId}'&targetFramework=''";
+        mockMvc.header(HttpHeaders.USER_AGENT, "Chocolatey Core",
+                "DataServiceVersion", "1.0;NetFx",
+                "MaxDataServiceVersion", "2.0;NetFx",
+                "Accept", "application/atom+xml,application/xml",
+                "Accept-Charset", "UTF-8",
+                "Accept-Encoding", "gzip, deflate")
+                .when()
+                .get(url, storageId, repositoryId, packageId)
+                .then()
+                .statusCode(HttpStatus.OK.value())
+                .and()
+                .assertThat()
+                .body("feed.title", equalTo("Packages"))
+                .and()
+                .assertThat()
+                .body("feed.entry[0].title", equalTo(packageId));
     }
 
     /**
