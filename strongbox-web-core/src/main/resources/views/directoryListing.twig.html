@@ -4,6 +4,7 @@
     <title>Strongbox</title>
     <meta http-equiv="Content-Type" content="text/html; charset=UTF-8"/>
     <link href="https://fonts.googleapis.com/css?family=Open+Sans" rel="stylesheet">
+    <base href="{{currentUrl}}/">
     <style type="text/css">
         body {
             font-family: "Open Sans", "Trebuchet MS", verdana, lucida, arial, helvetica, sans-serif;
@@ -45,7 +46,7 @@
 
         {% for directory in directories %}
         <tr>
-            <td><a href="{{ currentUrl }}/{{ directory.name }}/">{{ directory.name }}</a></td>
+            <td><a href="{{ currentUrl }}/{{ directory.name }}/">{{ directory.name }}/</a></td>
             <td>{% if directory.lastModified %}{{ directory.lastModified }}{% else %}-{% endif %}</td>
             <td>{% if directory.size %}{{ directory.size }}{% else %}-{% endif %}</td>
             <td>{% if directory.description %}{{ directory.description }}{% else %}-{% endif %}</td>

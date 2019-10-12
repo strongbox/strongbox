@@ -46,7 +46,6 @@ import org.springframework.web.servlet.ModelAndView;
 import org.springframework.web.servlet.mvc.method.annotation.SseEmitter;
 import static org.carlspring.strongbox.controllers.logging.LoggingManagementController.ROOT_CONTEXT;
 import static org.springframework.http.HttpStatus.BAD_REQUEST;
-import static org.springframework.http.MediaType.TEXT_PLAIN_VALUE;
 
 /**
  * This controllers provides a simple wrapper over REST API for the LoggingManagementService.
@@ -59,6 +58,7 @@ import static org.springframework.http.MediaType.TEXT_PLAIN_VALUE;
 @Controller
 @Api(value = ROOT_CONTEXT)
 @RequestMapping(ROOT_CONTEXT)
+@PreAuthorize("hasAnyAuthority('ADMIN')")
 public class LoggingManagementController
         extends BaseController
 {
@@ -87,15 +87,18 @@ public class LoggingManagementController
         return Optional.ofNullable(directoryListingService).orElseGet(() -> {
             String baseUrl = StringUtils.chomp(configurationManager.getConfiguration().getBaseUrl(), "/");
 
-            return directoryListingService = new DirectoryListingServiceImpl(String.format("%s/api/logging", baseUrl));
+            return directoryListingService = new DirectoryListingServiceImpl(
+                    String.format("%s" + ROOT_CONTEXT, baseUrl));
         });
     }
 
     @ApiOperation(value = "Used to download log data.")
     @ApiResponses(value = { @ApiResponse(code = 200, message = "The log file was retrieved successfully."),
                             @ApiResponse(code = 400, message = "Could not download log data.") })
-    @PreAuthorize("hasAnyAuthority('CONFIGURATION_RETRIEVE_LOG','CONFIGURE_LOGS')")
-    @GetMapping(value = "/log/{path:.+}", produces = TEXT_PLAIN_VALUE)
+    @GetMapping(value = "/download/{path:.+}",
+                produces = { MediaType.APPLICATION_OCTET_STREAM_VALUE, // forces browser to actually download the file
+                             MediaType.TEXT_PLAIN_VALUE,               // plain text / json upon errors
+                             MediaType.APPLICATION_JSON_VALUE })
     public ResponseEntity downloadLog(@PathVariable("path") String path,
                                       @RequestHeader(HttpHeaders.ACCEPT) String accept)
     {
@@ -131,7 +134,6 @@ public class LoggingManagementController
     @ApiOperation(value = "Used to get logs directory.")
     @ApiResponses(value = { @ApiResponse(code = 200, message = "The logs directory was retrieved successfully."),
                             @ApiResponse(code = 500, message = "Server error.") })
-    @PreAuthorize("hasAuthority('VIEW_LOGS')")
     @GetMapping(value = { "/browse/{path:.+}" },
                 produces = { MediaType.TEXT_PLAIN_VALUE,
                              MediaType.TEXT_HTML_VALUE,
@@ -168,9 +170,10 @@ public class LoggingManagementController
             }
 
             String currentUrl = StringUtils.chomp(request.getRequestURI(), "/");
-            String downloadUrl = currentUrl.replaceFirst("/browse", "/log");
+            String downloadUrl = currentUrl.replaceFirst("/browse", "/download");
+            boolean showBack = path.isPresent() && !StringUtils.isBlank(path.get());
 
-            model.addAttribute("showBack", false);
+            model.addAttribute("showBack", showBack);
             model.addAttribute("currentUrl", currentUrl);
             model.addAttribute("downloadBaseUrl", downloadUrl);
             model.addAttribute("directories", directoryListing.getDirectories());
@@ -186,7 +189,6 @@ public class LoggingManagementController
     }
 
     @ApiOperation(value = "Used to stream logging file.")
-    @PreAuthorize("hasAuthority('VIEW_LOGS')")
     @GetMapping(value = "/stream", produces = { org.carlspring.strongbox.net.MediaType.TEXT_EVENT_STREAM_UTF8_VALUE,
                                                 org.carlspring.strongbox.net.MediaType.TEXT_PLAIN_UTF8_VALUE })
     public SseEmitter logFileStream()

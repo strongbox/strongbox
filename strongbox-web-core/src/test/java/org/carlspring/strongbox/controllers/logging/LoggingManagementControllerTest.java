@@ -60,7 +60,7 @@ public class LoggingManagementControllerTest
     }
 
     @Test
-    @WithMockUser(authorities = { "CONFIGURE_LOGS" })
+    @WithMockUser(authorities = { "ADMIN" })
     public void testDownloadLog()
             throws Exception
     {
@@ -69,9 +69,9 @@ public class LoggingManagementControllerTest
              .toFile()
              .deleteOnExit();
 
-        String url = getContextBaseUrl() + "/log/" + testLogName;
+        String url = getContextBaseUrl() + "/download/" + testLogName;
 
-        mockMvc.header(HttpHeaders.ACCEPT, MediaType.TEXT_PLAIN_VALUE)
+        mockMvc.header(HttpHeaders.ACCEPT, MediaType.APPLICATION_OCTET_STREAM_VALUE)
                .when()
                .get(url)
                .peek() // Use peek() to print the output
@@ -80,7 +80,7 @@ public class LoggingManagementControllerTest
     }
 
     @Test
-    @WithMockUser(authorities = { "VIEW_LOGS" })
+    @WithMockUser(authorities = { "ADMIN" })
     public void testLogDirectoryForListOfLogFiles()
     {
         //Given
@@ -127,7 +127,7 @@ public class LoggingManagementControllerTest
     }
 
     @Test
-    @WithMockUser(authorities = { "VIEW_LOGS" })
+    @WithMockUser(authorities = { "ADMIN" })
     public void testAbilityToNavigateToSubLogDirectories()
     {
         //Given
