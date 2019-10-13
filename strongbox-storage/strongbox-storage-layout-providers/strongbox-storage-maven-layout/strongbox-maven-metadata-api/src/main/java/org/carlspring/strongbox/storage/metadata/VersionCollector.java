@@ -1,10 +1,10 @@
 package org.carlspring.strongbox.storage.metadata;
 
-import org.carlspring.strongbox.io.filters.ArtifactVersionDirectoryFilter;
-import org.carlspring.strongbox.storage.metadata.comparators.MetadataVersionComparator;
-import org.carlspring.strongbox.storage.metadata.comparators.SnapshotVersionComparator;
-import org.carlspring.strongbox.storage.metadata.versions.MetadataVersion;
-import org.carlspring.strongbox.storage.metadata.visitors.ArtifactVersionDirectoryVisitor;
+import org.carlspring.strongbox.storage.metadata.maven.io.filters.ArtifactVersionDirectoryFilter;
+import org.carlspring.strongbox.storage.metadata.maven.comparators.MetadataVersionComparator;
+import org.carlspring.strongbox.storage.metadata.maven.comparators.SnapshotVersionComparator;
+import org.carlspring.strongbox.storage.metadata.maven.versions.MetadataVersion;
+import org.carlspring.strongbox.storage.metadata.maven.visitors.ArtifactVersionDirectoryVisitor;
 
 import java.io.FileReader;
 import java.io.IOException;
