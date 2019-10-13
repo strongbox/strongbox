@@ -17,6 +17,8 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
@@ -35,6 +37,7 @@ import org.springframework.web.servlet.mvc.method.annotation.ResponseEntityExcep
 @ControllerAdvice
 public class DefaultExceptionHandler extends ResponseEntityExceptionHandler
 {
+    private final Logger logger = LoggerFactory.getLogger(DefaultExceptionHandler.class);
 
     @Inject
     private ContentNegotiationManager contentNegotiationManager;
@@ -100,7 +103,7 @@ public class DefaultExceptionHandler extends ResponseEntityExceptionHandler
     protected ResponseEntity<?> handleUnknownError(Exception ex,
                                                    WebRequest request)
     {
-        logger.error(String.format("Request [%s] failed.", request), ex);
+        logger.error("Request [{}] failed.", request, ex);
         
         return provideDefaultErrorResponse(ex, request, HttpStatus.INTERNAL_SERVER_ERROR);
     }
@@ -160,7 +163,7 @@ public class DefaultExceptionHandler extends ResponseEntityExceptionHandler
         }
         catch (HttpMediaTypeNotAcceptableException e1)
         {
-            logger.error(String.format("Reuqested invalid content-type [%s]", request.getHeader(HttpHeaders.ACCEPT)));
+            logger.error("Reuqested invalid content-type [{}]", request.getHeader(HttpHeaders.ACCEPT));
             mediaTypes.add(MediaType.APPLICATION_JSON);
         }
 
