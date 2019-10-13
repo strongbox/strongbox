@@ -52,8 +52,7 @@ public class MergeMavenGroupRepositoryIndexCronJob
         if (!repository.isGroupRepository())
         {
             logger.warn("Repository identified by storageId = [{}], repositoryId = [{}] is not a group repository. Exiting ...",
-                        storageId,
-                        repositoryId);
+                        storageId, repositoryId);
             return;
         }
 

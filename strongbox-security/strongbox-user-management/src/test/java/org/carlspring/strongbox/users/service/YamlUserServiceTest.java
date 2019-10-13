@@ -146,7 +146,7 @@ public class YamlUserServiceTest
         User addedEntity = userService.findByUsername(testUserName);
         assertThat(addedEntity).as("Unable to locate user " + testUserName + ". Save operation failed!").isNotNull();
 
-        logger.debug("Found stored initial user\n\t{}\n",addedEntity);
+        logger.debug("Found stored initial user\n\t{}\n", addedEntity);
 
         // 2. Update the user with empty/null password
         logger.debug("Updating user with empty/null pass...");

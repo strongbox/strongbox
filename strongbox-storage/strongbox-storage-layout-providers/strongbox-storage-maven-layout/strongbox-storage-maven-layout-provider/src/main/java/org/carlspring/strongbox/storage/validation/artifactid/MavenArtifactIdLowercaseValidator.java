@@ -44,7 +44,8 @@ public class MavenArtifactIdLowercaseValidator
     {
         artifactCoordinatesValidatorRegistry.addProvider(ALIAS, this);
 
-        logger.info("Registered artifact coordinates validator '{}' with alias '{}'.", getClass().getCanonicalName(), ALIAS);
+        logger.info("Registered artifact coordinates validator '{}' with alias '{}'.",
+                    getClass().getCanonicalName(), ALIAS);
     }
 
     @Override

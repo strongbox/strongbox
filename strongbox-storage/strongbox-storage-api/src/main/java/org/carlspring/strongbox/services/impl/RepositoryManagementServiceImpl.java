@@ -75,7 +75,8 @@ public class RepositoryManagementServiceImpl
             Repository repository = getConfiguration().getStorage(storageId).getRepository(repositoryId);
 
             logger.warn("Layout provider '{}' could not be resolved. " +
-                        "Using generic implementation instead.", repository.getLayout());
+                        "Using generic implementation instead.",
+                        repository.getLayout());
 
             RepositoryPath repositoryPath = repositoryPathResolver.resolve(repository);
 

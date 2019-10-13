@@ -52,8 +52,7 @@ public class RebuildMavenIndexesCronJob
         if (!repository.isHostedRepository())
         {
             logger.warn("Repository identified by storageId = [{}], repositoryId = [{}] is not a hosted repository. Exiting ...",
-                        storageId,
-                        repositoryId);
+                        storageId, repositoryId);
             return;
         }
 

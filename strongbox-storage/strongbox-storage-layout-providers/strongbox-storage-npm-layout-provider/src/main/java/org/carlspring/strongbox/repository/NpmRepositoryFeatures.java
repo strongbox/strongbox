@@ -400,7 +400,8 @@ public class NpmRepositoryFeatures implements RepositoryFeatures
             Predicate predicate = event.getPredicate();
             Long packageCount = countPackages(storageId, repositoryId, predicate);
 
-            logger.debug("NPM remote repository [{}] cached package count is [{}]", repository.getId(), packageCount);
+            logger.debug("NPM remote repository [{}] cached package count is [{}]",
+                         repository.getId(), packageCount);
 
             Runnable job = () -> fetchRemoteSearchResult(storageId, repositoryId, npmSearchRequest.getText(),
                                                          npmSearchRequest.getSize());
@@ -457,7 +458,8 @@ public class NpmRepositoryFeatures implements RepositoryFeatures
             Predicate predicate = event.getPredicate();
             Long packageCount = countPackages(storageId, repositoryId, predicate);
 
-            logger.debug("NPM remote repository [{}] cached package count is [{}]", repository.getId(), packageCount);
+            logger.debug("NPM remote repository [{}] cached package count is [{}]",
+                         repository.getId(), packageCount);
 
             Runnable job = () -> fetchRemotePackageFeed(storage.getId(), repository.getId(),
                                                         npmSearchRequest.getPackageId());

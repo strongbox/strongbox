@@ -57,8 +57,7 @@ public class DownloadRemoteMavenIndexCronJob
         if (!repository.isProxyRepository())
         {
             logger.warn("Repository identified by storageId = [{}], repositoryId = [{}] is not a proxy repository. Exiting ...",
-                        storageId,
-                        repositoryId);
+                        storageId, repositoryId);
             return;
         }
 

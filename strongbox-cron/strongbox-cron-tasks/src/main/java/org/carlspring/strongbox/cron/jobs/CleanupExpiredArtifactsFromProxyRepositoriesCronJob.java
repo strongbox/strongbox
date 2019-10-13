@@ -44,8 +44,7 @@ public class CleanupExpiredArtifactsFromProxyRepositoriesCronJob
         catch (NumberFormatException ex)
         {
             logger.error("Invalid integer value [{}] of 'lastAccessedTimeInDays' property. Cron job won't be fired.",
-                         lastAccessedTimeInDaysText,
-                         ex);
+                         lastAccessedTimeInDaysText, ex);
             return;
         }
 

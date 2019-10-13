@@ -63,7 +63,7 @@ public class HostedRepositoryProvider extends AbstractRepositoryProvider
         }
         catch (ArtifactNotFoundException e) 
         {
-            logger.debug("The path [{}] does not exist!%n*\t[{}]", repositoryPath, e.getMessage());
+            logger.debug("The path [{}] does not exist!\n*\t[{}]", repositoryPath, e.getMessage());
 
             return null;
         }
@@ -108,8 +108,8 @@ public class HostedRepositoryProvider extends AbstractRepositoryProvider
             }
             catch (Exception e)
             {
-                logger.error("Failed to resolve Artifact [{}]", artifactEntry.getArtifactCoordinates(),
-                             e);
+                logger.error("Failed to resolve Artifact [{}]",
+                             artifactEntry.getArtifactCoordinates(), e);
                 continue;
             }
         }

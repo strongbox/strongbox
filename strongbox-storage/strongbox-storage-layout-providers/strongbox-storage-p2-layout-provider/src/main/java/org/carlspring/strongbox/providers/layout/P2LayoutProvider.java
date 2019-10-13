@@ -32,7 +32,8 @@ public class P2LayoutProvider
     @PostConstruct
     public void register()
     {
-        logger.info("Registered layout provider '{}' with alias '{}'.", getClass().getCanonicalName(), ALIAS);
+        logger.info("Registered layout provider '{}' with alias '{}'.",
+                    getClass().getCanonicalName(), ALIAS);
     }
 
     protected P2ArtifactCoordinates getArtifactCoordinates(RepositoryPath path) throws IOException

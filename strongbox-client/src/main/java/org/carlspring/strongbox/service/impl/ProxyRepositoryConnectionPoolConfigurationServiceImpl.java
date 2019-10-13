@@ -129,7 +129,7 @@ public class ProxyRepositoryConnectionPoolConfigurationServiceImpl
         }
         else
         {
-            LOGGER.warn("Not setting max repository connections to %s as it is no positive value", max);
+            LOGGER.warn("Not setting max repository connections to {} as it is no positive value", max);
         }
     }
 
@@ -175,7 +175,7 @@ public class ProxyRepositoryConnectionPoolConfigurationServiceImpl
             }
             else
             {
-                LOGGER.warn("Unknown port of uri %s", repository);
+                LOGGER.warn("Unknown port of uri {}", repository);
             }
 
             HttpHost httpHost = new HttpHost(uri.getHost(), port, uri.getScheme());

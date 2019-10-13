@@ -190,7 +190,7 @@ public class TestRepositoryContext implements AutoCloseable, Comparable<TestRepo
 
         opened = true;
 
-        logger.debug("Created [%s] with id [%s] ",
+        logger.debug("Created [{}] with id [{}] ",
                      TestRepository.class.getSimpleName(),
                      id(testRepository));
     }

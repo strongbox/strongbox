@@ -98,7 +98,7 @@ public class RepositoryProxyIndexCreator
                                          final String repositoryId)
             throws IOException
     {
-        logger.debug("Downloading remote index for %s:%s ...", storageId, repositoryId);
+        logger.debug("Downloading remote index for {}:{} ...", storageId, repositoryId);
 
         final IndexUpdateRequest updateRequest = new IndexUpdateRequest(indexingContext,
                                                                         resourceFetcherFactory.createIndexResourceFetcher(

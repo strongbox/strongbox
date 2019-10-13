@@ -114,7 +114,7 @@ public class CustomAntPathMatcher
         String[] pathDirs = path.split(pathSeparator);
         String[] patternDirs = pattern.split(pathSeparator);
 
-        logger.trace("pathDirs {} {}" , pathDirs.length, Arrays.deepToString(pathDirs));
+        logger.trace("pathDirs {} {}", pathDirs.length, Arrays.deepToString(pathDirs));
         logger.trace("patternDirs {} {}", patternDirs.length, Arrays.deepToString(patternDirs));
 
         int pathSubDirCount = pathDirs.length;
@@ -144,8 +144,8 @@ public class CustomAntPathMatcher
 
         String pathVarValue = path.substring(subPathLength);
 
-        logger.trace("subPathLength {}",subPathLength);
-        logger.trace("pathVarValue {}",pathVarValue);
+        logger.trace("subPathLength {}", subPathLength);
+        logger.trace("pathVarValue {}", pathVarValue);
 
         return pathVarValue;
     }

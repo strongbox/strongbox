@@ -362,7 +362,7 @@ public abstract class StorageFileSystemProvider
 
         if (!Files.exists(tempPath.getTarget()))
         {
-            throw new IOException(String.format("[{}] target for [{}] don't exists!", TempRepositoryPath.class.getSimpleName(), tempPath));
+            throw new IOException(String.format("[%s] target for [%s] don't exists!", TempRepositoryPath.class.getSimpleName(), tempPath));
         }
 
         if (!Files.exists(unwrap(path).getParent()))
@@ -507,7 +507,7 @@ public abstract class StorageFileSystemProvider
     {
         if (RepositoryFileAttributes.class.isAssignableFrom(type) && !RepositoryPath.class.isInstance(path))
         {
-            throw new IOException(String.format("Requested path is not [{}].", RepositoryPath.class.getSimpleName()));
+            throw new IOException(String.format("Requested path is not [%s].", RepositoryPath.class.getSimpleName()));
         }
 
         BasicFileAttributes targetAttributes = getTarget().readAttributes(unwrap(path),
