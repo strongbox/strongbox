@@ -696,8 +696,6 @@ public class ArtifactManagementServiceImplTest
         catch (Exception e)
         {
             logger.error("Unexpected Exception while getting result:", e);
-            e.printStackTrace();
-
             return 0L;
         }
     }
@@ -738,7 +736,6 @@ public class ArtifactManagementServiceImplTest
             }
             catch (Exception ex)
             {
-                ex.printStackTrace();
                 logger.error("Failed to store artifact [{}]", repositoryPath, ex);
 
                 return 0L;
