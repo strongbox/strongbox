@@ -109,7 +109,7 @@ public class CronJobSchedulerServiceImpl
         }
         catch (SchedulerException e)
         {
-            logger.error("Failed to schedule Cron Job:\n [{}]", cronTaskConfiguration, e);
+            logger.error("Failed to schedule Cron Job: [{}]", cronTaskConfiguration, e);
 
             return;
         }

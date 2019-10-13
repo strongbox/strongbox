@@ -373,7 +373,7 @@ public class ArtifactClient
     {
         if (username != null && password != null)
         {
-            logger.trace("[setupAuthentication] {}@{}", username, password);
+            logger.trace("[setupAuthentication] {}", username);
             target.register(HttpAuthenticationFeature.basic(username, password));
             return target;
         }

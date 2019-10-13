@@ -178,7 +178,7 @@ public class MetadataMerger
         }
         catch (IOException e)
         {
-            logger.error("*** Error occurred while trying to extract plugin.xml from artifact {}",
+            logger.error("Error occurred while trying to extract plugin.xml from artifact {}",
                          artifact.getArtifactId(), e);
         }
 
