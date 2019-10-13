@@ -41,39 +41,47 @@ public class RemoteRepositoryAlivenessCacheManagerTest
 
     private RemoteRepositoryAlivenessCacheManager remoteRepositoryAlivenessCacheManager;
 
-    private RemoteRepository remoteRepository;
-
     private final static String REMOTE_REPOSITORY_URL = "http://mocked-remote-repository-url";
 
     @BeforeEach
     void setUp()
     {
         remoteRepositoryAlivenessCacheManager = new RemoteRepositoryAlivenessCacheManager(cacheManager);
-
-        remoteRepository = Mockito.mock(RemoteRepository.class);
-        Mockito.when(remoteRepository.getUrl()).thenReturn(REMOTE_REPOSITORY_URL);
     }
 
     @Test
     public void isAliveShouldReturnTrueWhenRemoteRepositoryNotCached()
     {
-        assertTrue(remoteRepositoryAlivenessCacheManager.isAlive(remoteRepository));
+        RemoteRepository remoteRepository = createMockedRemoteRepository();
+
+        boolean alive = remoteRepositoryAlivenessCacheManager.isAlive(remoteRepository);
+
+        assertTrue(alive);
     }
 
     @Test
     public void isAliveShouldReturnTrueWhenRemoteRepositoryCachedValueIsTrue()
     {
+        RemoteRepository remoteRepository = createMockedRemoteRepository();
+
         initializeCache(true);
 
-        assertTrue(remoteRepositoryAlivenessCacheManager.isAlive(remoteRepository));
+        boolean alive = remoteRepositoryAlivenessCacheManager.isAlive(remoteRepository);
+
+        assertTrue(alive);
     }
 
     @Test
     public void isAliveShouldReturnFalseWhenRemoteRepositoryCachedValueIsFalse()
     {
-        initializeCache(false);
+        RemoteRepository remoteRepository = createMockedRemoteRepository();
 
-        assertFalse(remoteRepositoryAlivenessCacheManager.isAlive(remoteRepository));
+        initializeCache(false);
+        remoteRepositoryAlivenessCacheManager.put(remoteRepository, false);
+
+        boolean alive = remoteRepositoryAlivenessCacheManager.isAlive(remoteRepository);
+
+        assertFalse(alive);
     }
 
     @Test
@@ -87,12 +95,14 @@ public class RemoteRepositoryAlivenessCacheManagerTest
     public void putShouldChangeCachedValueImmediately(Boolean initialCacheValue,
                                                       boolean newCacheValue)
     {
+        RemoteRepository remoteRepository = createMockedRemoteRepository();
+
         initializeCache(initialCacheValue);
 
         remoteRepositoryAlivenessCacheManager.put(remoteRepository, newCacheValue);
-        boolean actualCacheValue = remoteRepositoryAlivenessCacheManager.isAlive(remoteRepository);
+        boolean alive = remoteRepositoryAlivenessCacheManager.isAlive(remoteRepository);
 
-        assertEquals(newCacheValue, actualCacheValue);
+        assertEquals(newCacheValue, alive);
     }
 
     private static Stream<Arguments> provideCacheValues()
@@ -103,6 +113,14 @@ public class RemoteRepositoryAlivenessCacheManagerTest
                 Arguments.of(false, false),
                 Arguments.of(true, true)
         );
+    }
+
+    private RemoteRepository createMockedRemoteRepository()
+    {
+        RemoteRepository remoteRepository = Mockito.mock(RemoteRepository.class);
+        Mockito.when(remoteRepository.getUrl()).thenReturn(REMOTE_REPOSITORY_URL);
+
+        return remoteRepository;
     }
 
     private void initializeCache(Boolean initialValue)
