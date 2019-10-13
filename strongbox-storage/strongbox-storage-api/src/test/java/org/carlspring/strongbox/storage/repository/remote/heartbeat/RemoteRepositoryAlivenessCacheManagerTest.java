@@ -26,8 +26,7 @@ import javax.inject.Inject;
 import java.util.Objects;
 import java.util.stream.Stream;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.junit.jupiter.api.Assertions.*;
 
 @SpringBootTest
 @ActiveProfiles({ "test",
@@ -74,7 +73,7 @@ public class RemoteRepositoryAlivenessCacheManagerTest
     {
         initializeCache(false);
 
-        assertTrue(remoteRepositoryAlivenessCacheManager.isAlive(remoteRepository));
+        assertFalse(remoteRepositoryAlivenessCacheManager.isAlive(remoteRepository));
     }
 
     @Test
