@@ -59,7 +59,7 @@ public class PypiMetadataParser
             }
             catch (IllegalAccessException ex)
             {
-                logger.error("Exception occurred {} ...", ExceptionUtils.getStackTrace(ex));
+                logger.error("Exception occurred ", ex);
                 throw ex;
             }
         }
@@ -86,7 +86,7 @@ public class PypiMetadataParser
         }
         catch (IOException ex)
         {
-            logger.error("Exception occurred {} ...", ExceptionUtils.getStackTrace(ex));
+            logger.error("Exception occurred ", ex);
             throw ex;
         }
         return keyValueMap;

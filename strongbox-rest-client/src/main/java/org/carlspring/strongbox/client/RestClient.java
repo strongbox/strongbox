@@ -149,7 +149,7 @@ public class RestClient
             }
             catch (Exception ex)
             {
-                logger.error("Exception occurred {} ...", ExceptionUtils.getStackTrace(ex));
+                logger.error("Exception occurred ", ex);
                 throw ex;
             }
         }
