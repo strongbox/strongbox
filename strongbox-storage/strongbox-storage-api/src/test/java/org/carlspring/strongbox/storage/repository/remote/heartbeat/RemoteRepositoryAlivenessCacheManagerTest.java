@@ -10,6 +10,7 @@ import org.carlspring.strongbox.testing.NullLayoutConfiguration;
 
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.parallel.Execution;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.Arguments;
 import org.junit.jupiter.params.provider.MethodSource;
@@ -27,12 +28,14 @@ import java.util.Objects;
 import java.util.stream.Stream;
 
 import static org.junit.jupiter.api.Assertions.*;
+import static org.junit.jupiter.api.parallel.ExecutionMode.SAME_THREAD;
 
 @SpringBootTest
 @ActiveProfiles({ "test",
                   "RemoteRepositoryAlivenessCacheManagerTestConfig" })
 @TestExecutionListeners(listeners = { CacheManagerTestExecutionListener.class },
                         mergeMode = TestExecutionListeners.MergeMode.MERGE_WITH_DEFAULTS)
+@Execution(SAME_THREAD)
 public class RemoteRepositoryAlivenessCacheManagerTest
 {
 
@@ -41,19 +44,22 @@ public class RemoteRepositoryAlivenessCacheManagerTest
 
     private RemoteRepositoryAlivenessCacheManager remoteRepositoryAlivenessCacheManager;
 
+    private RemoteRepository remoteRepository;
+
     private final static String REMOTE_REPOSITORY_URL = "http://mocked-remote-repository-url";
 
     @BeforeEach
     void setUp()
     {
         remoteRepositoryAlivenessCacheManager = new RemoteRepositoryAlivenessCacheManager(cacheManager);
+
+        remoteRepository = Mockito.mock(RemoteRepository.class);
+        Mockito.when(remoteRepository.getUrl()).thenReturn(REMOTE_REPOSITORY_URL);
     }
 
     @Test
     public void isAliveShouldReturnTrueWhenRemoteRepositoryNotCached()
     {
-        RemoteRepository remoteRepository = createMockedRemoteRepository();
-
         boolean alive = remoteRepositoryAlivenessCacheManager.isAlive(remoteRepository);
 
         assertTrue(alive);
@@ -62,8 +68,6 @@ public class RemoteRepositoryAlivenessCacheManagerTest
     @Test
     public void isAliveShouldReturnTrueWhenRemoteRepositoryCachedValueIsTrue()
     {
-        RemoteRepository remoteRepository = createMockedRemoteRepository();
-
         initializeCache(true);
 
         boolean alive = remoteRepositoryAlivenessCacheManager.isAlive(remoteRepository);
@@ -74,8 +78,6 @@ public class RemoteRepositoryAlivenessCacheManagerTest
     @Test
     public void isAliveShouldReturnFalseWhenRemoteRepositoryCachedValueIsFalse()
     {
-        RemoteRepository remoteRepository = createMockedRemoteRepository();
-
         initializeCache(false);
         remoteRepositoryAlivenessCacheManager.put(remoteRepository, false);
 
@@ -95,8 +97,6 @@ public class RemoteRepositoryAlivenessCacheManagerTest
     public void putShouldChangeCachedValueImmediately(Boolean initialCacheValue,
                                                       boolean newCacheValue)
     {
-        RemoteRepository remoteRepository = createMockedRemoteRepository();
-
         initializeCache(initialCacheValue);
 
         remoteRepositoryAlivenessCacheManager.put(remoteRepository, newCacheValue);
@@ -113,14 +113,6 @@ public class RemoteRepositoryAlivenessCacheManagerTest
                 Arguments.of(false, false),
                 Arguments.of(true, true)
         );
-    }
-
-    private RemoteRepository createMockedRemoteRepository()
-    {
-        RemoteRepository remoteRepository = Mockito.mock(RemoteRepository.class);
-        Mockito.when(remoteRepository.getUrl()).thenReturn(REMOTE_REPOSITORY_URL);
-
-        return remoteRepository;
     }
 
     private void initializeCache(Boolean initialValue)
