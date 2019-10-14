@@ -1,13 +1,16 @@
 package org.carlspring.strongbox.storage.repository.remote.heartbeat;
 
-import org.carlspring.strongbox.config.*;
 import org.carlspring.strongbox.config.hazelcast.HazelcastConfiguration;
-import org.carlspring.strongbox.config.hazelcast.HazelcastInstanceId;
 import org.carlspring.strongbox.data.CacheManagerTestExecutionListener;
 import org.carlspring.strongbox.data.CacheName;
 import org.carlspring.strongbox.storage.repository.remote.RemoteRepository;
-import org.carlspring.strongbox.testing.NullLayoutConfiguration;
 
+import javax.inject.Inject;
+import java.util.Objects;
+import java.util.stream.Stream;
+
+import com.hazelcast.core.HazelcastInstance;
+import com.hazelcast.spring.cache.HazelcastCacheManager;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.parallel.Execution;
@@ -18,15 +21,12 @@ import org.mockito.Mockito;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.cache.Cache;
 import org.springframework.cache.CacheManager;
-import org.springframework.context.annotation.*;
+import org.springframework.context.annotation.Bean;
+import org.springframework.context.annotation.Configuration;
+import org.springframework.context.annotation.Import;
+import org.springframework.context.annotation.Profile;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.TestExecutionListeners;
-
-import javax.inject.Inject;
-
-import java.util.Objects;
-import java.util.stream.Stream;
-
 import static org.junit.jupiter.api.Assertions.*;
 import static org.junit.jupiter.api.parallel.ExecutionMode.SAME_THREAD;
 
@@ -124,24 +124,15 @@ public class RemoteRepositoryAlivenessCacheManagerTest
     }
 
     @Profile("RemoteRepositoryAlivenessCacheManagerTestConfig")
-    @Import({ HazelcastConfiguration.class,
-              TestingCoreConfig.class,
-              CommonConfig.class,
-              ClientConfig.class,
-              DataServiceConfig.class,
-              EventsConfig.class,
-              StorageCoreConfig.class,
-              StorageApiConfig.class,
-              NullLayoutConfiguration.class })
+    @Import(HazelcastConfiguration.class)
     @Configuration
     public static class MockedRestArtifactResolverTestConfig
     {
 
-        @Primary
         @Bean
-        public HazelcastInstanceId hazelcastInstanceIdRracmt()
+        public CacheManager cacheManager(HazelcastInstance hazelcastInstance)
         {
-            return new HazelcastInstanceId("RemoteRepositoryAlivenessCacheManagerTest-hazelcast-instance");
+            return new HazelcastCacheManager(hazelcastInstance);
         }
 
     }
