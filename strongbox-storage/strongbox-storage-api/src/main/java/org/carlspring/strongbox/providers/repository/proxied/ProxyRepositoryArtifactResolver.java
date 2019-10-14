@@ -86,7 +86,7 @@ public class ProxyRepositoryArtifactResolver
     {
         //We need this to force initialize lazy connection to remote repository.
         int available = is.available();
-        logger.debug("Got [{}] avaliable bytes for [{}].", available, repositoryPath);
+        logger.debug("Got [{}] available bytes for [{}].", available, repositoryPath);
         
         
         RepositoryPath result = onSuccessfulProxyRepositoryResponse(is, repositoryPath);

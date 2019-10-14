@@ -142,7 +142,7 @@ public class NpmRepositoryFeatures implements RepositoryFeatures
         }
         catch (Exception e)
         {
-            logger.error("Failed to searhc NPM packages [{}]", remoteRepositoryUrl, e);
+            logger.error("Failed to search NPM packages [{}]", remoteRepositoryUrl, e);
             
             return;
         } 
@@ -210,7 +210,7 @@ public class NpmRepositoryFeatures implements RepositoryFeatures
         Client restClient = proxyRepositoryConnectionPoolConfigurationService.getRestClient();
         try
         {
-            logger.debug("Fetching remote cnages for [{}] since [{}].", replicateUrl, since);
+            logger.debug("Fetching remote changes for [{}] since [{}].", replicateUrl, since);
 
             WebTarget service = restClient.target(replicateUrl);
             service = service.path("_changes");
@@ -272,7 +272,7 @@ public class NpmRepositoryFeatures implements RepositoryFeatures
                 }
                 catch (Exception e)
                 {
-                    logger.error("Failed to parse NPM cnahges feed [{}] since [{}]: \n {}",
+                    logger.error("Failed to parse NPM changes feed [{}] since [{}]: \n {}",
                                  repositoryConfiguration.getReplicateUrl(),
                                  repositoryConfiguration.getLastChangeId(),
                                  changeValue,
@@ -301,7 +301,7 @@ public class NpmRepositoryFeatures implements RepositoryFeatures
 
         }
 
-        logger.debug("Fetched remote cnages for  [{}] since [{}].",
+        logger.debug("Fetched remote changes for  [{}] since [{}].",
                      repositoryConfiguration.getReplicateUrl(),
                      repositoryConfiguration.getLastChangeId());
 

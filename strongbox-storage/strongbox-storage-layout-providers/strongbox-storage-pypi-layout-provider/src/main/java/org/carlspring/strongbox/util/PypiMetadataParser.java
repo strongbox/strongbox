@@ -86,7 +86,7 @@ public class PypiMetadataParser
         }
         catch (IOException ex)
         {
-            logger.error("Exception occured {} ...", ExceptionUtils.getStackTrace(ex));
+            logger.error("Exception occurred {} ...", ExceptionUtils.getStackTrace(ex));
             throw ex;
         }
         return keyValueMap;

@@ -224,7 +224,7 @@ public class ProxyRepositoryInputStream extends FilterInputStream
         long retryTimeoutMillis = getRetryTimeoutMillis();
         if (artifactCopyContext.get().getStopWatch().getTime() > retryTimeoutMillis)
         {
-            logger.error("Timeout of [{}] occured while reading [{}]",
+            logger.error("Timeout of [{}] occurred while reading [{}]",
                          retryTimeoutMillis, repositoryPath);
             throw ex;
         }
