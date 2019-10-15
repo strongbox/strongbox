@@ -23,7 +23,7 @@ import org.springframework.util.ReflectionUtils;
 public class CronTaskExecutor extends ThreadPoolExecutor implements DisposableBean
 {
 
-    private static final Logger LOGGER = LoggerFactory.getLogger(CronTaskExecutor.class);
+    private static final Logger logger = LoggerFactory.getLogger(CronTaskExecutor.class);
 
     public CronTaskExecutor(int corePoolSize,
                             int maximumPoolSize,
@@ -83,7 +83,7 @@ public class CronTaskExecutor extends ThreadPoolExecutor implements DisposableBe
         }
         catch (Exception e)
         {
-            LOGGER.error("Before execute failed for [{}]", r, e);
+            logger.error("Before execute failed for [{}]", r, e);
         }
     }
 
@@ -91,7 +91,7 @@ public class CronTaskExecutor extends ThreadPoolExecutor implements DisposableBe
     {
         Class<? extends Job> jobClass = jd.getJobClass();
         String jobClassName = jobClass.getSimpleName();
-        LOGGER.debug("Bootstrap Cron Job [{}]", jobClassName);
+        logger.debug("Bootstrap Cron Job [{}]", jobClassName);
         MDC.put(CronTaskContextAcceptFilter.STRONGBOX_CRON_CONTEXT_NAME, LoggingUtils.caclucateCronContextName(jobClass));
     }
 
@@ -106,7 +106,7 @@ public class CronTaskExecutor extends ThreadPoolExecutor implements DisposableBe
         }
         catch (Exception e)
         {
-            LOGGER.error("Failed to expose Cron Job details for [{}] class",
+            logger.error("Failed to expose Cron Job details for [{}] class",
                          r.getClass().getSimpleName(), e);
         }
         return null;
@@ -123,7 +123,7 @@ public class CronTaskExecutor extends ThreadPoolExecutor implements DisposableBe
         }
         catch (Exception e)
         {
-            LOGGER.error("After execute failed for [{}]", r, e);
+            logger.error("After execute failed for [{}]", r, e);
         }
     }
 

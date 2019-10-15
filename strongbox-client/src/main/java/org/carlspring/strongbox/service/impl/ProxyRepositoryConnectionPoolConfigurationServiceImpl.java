@@ -36,7 +36,7 @@ public class ProxyRepositoryConnectionPoolConfigurationServiceImpl
         implements ProxyRepositoryConnectionPoolConfigurationService
 {
 
-    private static final Logger LOGGER = LoggerFactory.getLogger(
+    private static final Logger logger = LoggerFactory.getLogger(
             ProxyRepositoryConnectionPoolConfigurationServiceImpl.class);
 
     private PoolingHttpClientConnectionManager poolingHttpClientConnectionManager;
@@ -129,7 +129,7 @@ public class ProxyRepositoryConnectionPoolConfigurationServiceImpl
         }
         else
         {
-            LOGGER.warn("Not setting max repository connections to {} as it is no positive value", max);
+            logger.warn("Not setting max repository connections to {} as it is no positive value", max);
         }
     }
 
@@ -175,7 +175,7 @@ public class ProxyRepositoryConnectionPoolConfigurationServiceImpl
             }
             else
             {
-                LOGGER.warn("Unknown port of uri {}", repository);
+                logger.warn("Unknown port of uri {}", repository);
             }
 
             HttpHost httpHost = new HttpHost(uri.getHost(), port, uri.getScheme());
@@ -184,7 +184,7 @@ public class ProxyRepositoryConnectionPoolConfigurationServiceImpl
         }
         catch (URISyntaxException e)
         {
-            LOGGER.error(e.getMessage(), e);
+            logger.error(e.getMessage(), e);
         }
 
         // default http route creation
