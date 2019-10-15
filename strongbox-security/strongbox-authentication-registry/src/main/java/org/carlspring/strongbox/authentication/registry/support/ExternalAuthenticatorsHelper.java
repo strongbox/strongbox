@@ -74,7 +74,7 @@ public class ExternalAuthenticatorsHelper
 
         if (CollectionUtils.isEmpty(authenticatorsJarPaths))
         {
-            logger.debug("no authenticator jar files.");
+            logger.debug("{} does not contain any authenticator jar files.", authenticatorsDirectory);
             return parent;
         }
 

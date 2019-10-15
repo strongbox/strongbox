@@ -414,7 +414,7 @@ public abstract class StorageFileSystemProvider
 
         if (!Files.exists(trashPath.getParent().getTarget()))
         {
-            logger.debug("Creating: dir-[{}]", trashPath.getParent());
+            logger.debug("Creating: [{}]", trashPath.getParent());
 
             Files.createDirectories(trashPath.getParent().getTarget());
         }

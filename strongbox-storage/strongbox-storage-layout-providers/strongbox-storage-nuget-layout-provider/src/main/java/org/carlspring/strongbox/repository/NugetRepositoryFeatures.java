@@ -179,7 +179,8 @@ public class NugetRepositoryFeatures
         {
             logger.error("Failed to fetch Nuget remote feed [{}]", remoteRepositoryUrl, e);
             return false;
-        } finally
+        }
+        finally
         {
             restClient.close();
         }

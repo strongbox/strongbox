@@ -57,7 +57,7 @@ public class CleanupExpiredArtifactsFromProxyRepositoriesCronJob
             }
             catch (NumberFormatException ex)
             {
-                logger.error("Invalid Long value [{}] of 'minSizeInBytes' property. Cron job won't be fired.",
+                logger.error("Invalid long value [{}] of 'minSizeInBytes' property. Cron job won't be fired.",
                              minSizeInBytesText, ex);
                 return;
             }

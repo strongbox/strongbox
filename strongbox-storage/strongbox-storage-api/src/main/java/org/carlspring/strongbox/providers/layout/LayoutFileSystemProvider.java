@@ -331,7 +331,7 @@ public abstract class LayoutFileSystemProvider extends StorageFileSystemProvider
         Repository repository = path.getRepository();
         Storage storage = repository.getStorage();
 
-        logger.debug("Attempting to restore: path-[{}]; ", path);
+        logger.debug("Attempting to restore: [{}]; ", path);
         
         super.undelete(path);
 

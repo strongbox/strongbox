@@ -32,7 +32,7 @@ public class AuthenticationSuppliers
     {
         if (suppliers == null || suppliers.isEmpty())
         {
-            logger.debug("There was no any [{}] provided.", AuthenticationSupplier.class);
+            logger.debug("There was no [{}] provided.", AuthenticationSupplier.class);
             
             return null;
         }
