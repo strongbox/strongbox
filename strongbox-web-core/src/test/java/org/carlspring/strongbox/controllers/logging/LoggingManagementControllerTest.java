@@ -6,9 +6,13 @@ import org.carlspring.strongbox.rest.common.RestAssuredBaseTest;
 
 import javax.inject.Inject;
 import java.io.IOException;
+import java.nio.charset.StandardCharsets;
 import java.nio.file.*;
 import java.nio.file.attribute.BasicFileAttributes;
+import java.util.Arrays;
+import java.util.List;
 
+import io.restassured.response.ResponseBodyExtractionOptions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.http.HttpHeaders;
@@ -65,18 +69,32 @@ public class LoggingManagementControllerTest
             throws Exception
     {
         String testLogName = "strongbox-test.log";
-        Files.createFile(Paths.get(propertiesBooter.getLogsDirectory(), testLogName))
+        Path file = Paths.get(propertiesBooter.getLogsDirectory(), testLogName);
+
+        Files.createFile(file)
              .toFile()
              .deleteOnExit();
 
+        // write some log messages.
+        List<String> lines = Arrays.asList("Strongbox", "is", "awesome!");
+        Files.write(file, lines, StandardCharsets.UTF_8);
+
+        // Make sure the log file contains something.
+        assertThat(file.toFile().length()).isGreaterThan(0);
+
         String url = getContextBaseUrl() + "/download/" + testLogName;
 
-        mockMvc.header(HttpHeaders.ACCEPT, MediaType.APPLICATION_OCTET_STREAM_VALUE)
-               .when()
-               .get(url)
-               .peek() // Use peek() to print the output
-               .then()
-               .statusCode(HttpStatus.OK.value()); // check http status code
+        ResponseBodyExtractionOptions body = mockMvc.header(HttpHeaders.ACCEPT,
+                                                            MediaType.APPLICATION_OCTET_STREAM_VALUE)
+                                                    .when()
+                                                    .get(url)
+                                                    .peek() // Use peek() to print the output
+                                                    .then()
+                                                    .statusCode(HttpStatus.OK.value()) // check http status code
+                                                    .extract()
+                                                    .body();
+
+        assertThat(body.asByteArray().length).isEqualTo(file.toFile().length());
     }
 
     @Test

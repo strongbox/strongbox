@@ -46,7 +46,7 @@
 
         {% for directory in directories %}
         <tr>
-            <td><a href="{{ currentUrl }}/{{ directory.name }}/">{{ directory.name }}/</a></td>
+            <td><a href="{{ directory.name }}/">{{ directory.name }}/</a></td>
             <td>{% if directory.lastModified %}{{ directory.lastModified }}{% else %}-{% endif %}</td>
             <td>{% if directory.size %}{{ directory.size }}{% else %}-{% endif %}</td>
             <td>{% if directory.description %}{{ directory.description }}{% else %}-{% endif %}</td>
