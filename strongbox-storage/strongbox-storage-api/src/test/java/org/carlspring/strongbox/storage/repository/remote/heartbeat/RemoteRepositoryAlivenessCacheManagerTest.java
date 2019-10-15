@@ -27,7 +27,7 @@ import org.springframework.context.annotation.Import;
 import org.springframework.context.annotation.Profile;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.TestExecutionListeners;
-import static org.junit.jupiter.api.Assertions.*;
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.parallel.ExecutionMode.SAME_THREAD;
 
 @SpringBootTest
@@ -62,7 +62,7 @@ public class RemoteRepositoryAlivenessCacheManagerTest
     {
         boolean alive = remoteRepositoryAlivenessCacheManager.isAlive(remoteRepository);
 
-        assertTrue(alive);
+        assertThat(alive).isTrue();
     }
 
     @Test
@@ -72,7 +72,7 @@ public class RemoteRepositoryAlivenessCacheManagerTest
 
         boolean alive = remoteRepositoryAlivenessCacheManager.isAlive(remoteRepository);
 
-        assertTrue(alive);
+        assertThat(alive).isTrue();
     }
 
     @Test
@@ -83,7 +83,7 @@ public class RemoteRepositoryAlivenessCacheManagerTest
 
         boolean alive = remoteRepositoryAlivenessCacheManager.isAlive(remoteRepository);
 
-        assertFalse(alive);
+        assertThat(alive).isFalse();
     }
 
     @Test
@@ -102,7 +102,7 @@ public class RemoteRepositoryAlivenessCacheManagerTest
         remoteRepositoryAlivenessCacheManager.put(remoteRepository, newCacheValue);
         boolean alive = remoteRepositoryAlivenessCacheManager.isAlive(remoteRepository);
 
-        assertEquals(newCacheValue, alive);
+        assertThat(alive).isEqualTo(newCacheValue);
     }
 
     private static Stream<Arguments> provideCacheValues()
