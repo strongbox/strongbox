@@ -17,7 +17,7 @@ public interface ArtifactGeneratorStrategy<T extends ArtifactGenerator>
     Path generateArtifact(T artifactGenerator,
                           String id,
                           String version,
-                          int size,
+                          long size,
                           Map<String, Object> attributesMap)
         throws IOException;
 
