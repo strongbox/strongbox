@@ -60,32 +60,24 @@ public class MavenArtifactGenerator implements ArtifactGenerator
     }
 
     @Override
-    public Path generateArtifact(String id,
-                                 String version,
-                                 int size)
-        throws IOException
+    public Path generateArtifact(String id, String version, int size) throws IOException
     {
         Artifact artifact = MavenArtifactTestUtils.getArtifactFromGAVTC(String.format("%s:%s", id, version));
-
-        return generateArtifact(artifact);
+        return generateArtifact(artifact, size);
     }
 
     @Override
-    public Path generateArtifact(URI uri,
-                                 int size)
-        throws IOException
+    public Path generateArtifact(URI uri, int size) throws IOException
     {
         Artifact artifact = MavenArtifactUtils.convertPathToArtifact(uri.toString());
-
-        return generateArtifact(artifact);
+        return generateArtifact(artifact, size);
     }
 
-    private Path generateArtifact(Artifact artifact)
-        throws IOException
+    private Path generateArtifact(Artifact artifact, int size) throws IOException
     {
         try
         {
-            generate(artifact);
+            generate(artifact, size);
         }
         catch (NoSuchAlgorithmException|XmlPullParserException e)
         {
@@ -133,8 +125,7 @@ public class MavenArtifactGenerator implements ArtifactGenerator
                    XmlPullParserException,
                    NoSuchAlgorithmException
     {
-        generatePom(artifact, PACKAGING_JAR);
-        createArchive(artifact);
+        generate(artifact, 1024);
     }
 
     public void generate(Artifact artifact, String packaging)
@@ -143,10 +134,19 @@ public class MavenArtifactGenerator implements ArtifactGenerator
                    NoSuchAlgorithmException
     {
         generatePom(artifact, packaging);
-        createArchive(artifact);
+        createArchive(artifact, 1024);
     }
 
-    public void createArchive(Artifact artifact)
+    public void generate(Artifact artifact, int size)
+            throws IOException,
+            XmlPullParserException,
+            NoSuchAlgorithmException
+    {
+        generatePom(artifact, PACKAGING_JAR);
+        createArchive(artifact, size);
+    }
+
+    public void createArchive(Artifact artifact, int size)
             throws NoSuchAlgorithmException,
                    IOException
     {
@@ -160,7 +160,8 @@ public class MavenArtifactGenerator implements ArtifactGenerator
         {
             createMavenPropertiesFile(artifact, zos);
             addMavenPomFile(artifact, zos);
-            createRandomSizeFile(zos);
+            createFile(zos, size);
+//            createRandomSizeFile(zos);
 
             zos.flush();
         }
@@ -261,6 +262,24 @@ public class MavenArtifactGenerator implements ArtifactGenerator
         }
 
         bais.close();
+        zos.closeEntry();
+    }
+
+    private void createFile(ZipOutputStream zos, int size) throws IOException
+    {
+        ZipEntry ze = new ZipEntry("file-with-given-size");
+        zos.putNextEntry(ze);
+
+        RandomInputStream ris = new RandomInputStream(size);
+
+        byte[] buffer = new byte[4096];
+        int len;
+        while ((len = ris.read(buffer)) > 0)
+        {
+            zos.write(buffer, 0, len);
+        }
+
+        ris.close();
         zos.closeEntry();
     }
 

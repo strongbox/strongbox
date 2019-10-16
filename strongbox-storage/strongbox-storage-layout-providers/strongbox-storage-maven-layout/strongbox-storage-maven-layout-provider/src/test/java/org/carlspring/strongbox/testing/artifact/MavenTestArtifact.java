@@ -1,5 +1,6 @@
 package org.carlspring.strongbox.testing.artifact;
 
+import static java.lang.annotation.ElementType.LOCAL_VARIABLE;
 import static java.lang.annotation.ElementType.PARAMETER;
 import static java.lang.annotation.ElementType.ANNOTATION_TYPE;
 import static java.lang.annotation.RetentionPolicy.RUNTIME;
@@ -65,4 +66,9 @@ public @interface MavenTestArtifact
      */
     String packaging() default "jar";
 
+    /**
+     * Artifact size in bytes.
+     */
+    @AliasFor(annotation = TestArtifact.class)
+    int size() default 1024;
 }

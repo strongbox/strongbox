@@ -1,5 +1,7 @@
 package org.carlspring.strongbox.artifact.generation;
 
+import org.apache.maven.artifact.Artifact;
+import org.carlspring.strongbox.artifact.generator.MavenArtifactGenerator;
 import org.carlspring.strongbox.config.Maven2LayoutProviderTestConfig;
 import org.carlspring.strongbox.storage.repository.Repository;
 import org.carlspring.strongbox.testing.artifact.ArtifactManagementTestExecutionListener;
@@ -42,12 +44,12 @@ public class MavenArtifactGeneratorTest
                                        Repository repository,
                                        @MavenTestArtifact(repositoryId = REPOSITORY_RELEASES,
                                                           id = "org.carlspring.strongbox.testing:matg",
-                                                          versions = "1.2.3")
+                                                          versions = "1.2.3", size = 1073741824)
                                        Path artifactPath)
             throws Exception
     {
         assertThat(Files.exists(artifactPath)).as("Failed to generate JAR file!").isTrue();
-
+        assertThat(Files.size(artifactPath)).isGreaterThan(1073741824);
         // JAR MD5 file.
         String fileName = artifactPath.getFileName().toString();
         String checksumFileName = fileName + "." + MessageDigestAlgorithms.MD5.toLowerCase();
