@@ -129,7 +129,7 @@ public @interface IntegrationTest
 
         @Primary
         @Bean
-        public Function<SseEmitter, SseEmitterAwareTailerListenerAdapter> tailerListenerAdapterPrototypeFactory()
+        public Function<SseEmitter, SseEmitterAwareTailerListenerAdapter> testTailerListenerAdapterPrototypeFactory()
         {
             return sseEmitter -> testTailerListener(sseEmitter);
         }

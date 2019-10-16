@@ -4,7 +4,6 @@ import java.util.function.Function;
 
 import org.springframework.beans.factory.config.ConfigurableBeanFactory;
 import org.springframework.boot.actuate.autoconfigure.logging.LogFileWebEndpointProperties;
-import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean;
 import org.springframework.boot.context.properties.EnableConfigurationProperties;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -20,14 +19,12 @@ public class LoggingConfiguration
 {
 
     @Bean
-    @ConditionalOnMissingBean
     public Function<SseEmitter, SseEmitterAwareTailerListenerAdapter> tailerListenerAdapterPrototypeFactory()
     {
         return sseEmitter -> tailerListener(sseEmitter);
     }
 
     @Bean
-    @ConditionalOnMissingBean
     @Scope(ConfigurableBeanFactory.SCOPE_PROTOTYPE)
     public SseEmitterAwareTailerListenerAdapter tailerListener(SseEmitter sseEmitter)
     {
