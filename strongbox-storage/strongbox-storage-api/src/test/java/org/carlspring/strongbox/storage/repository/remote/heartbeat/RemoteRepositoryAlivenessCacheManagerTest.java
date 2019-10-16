@@ -60,8 +60,12 @@ public class RemoteRepositoryAlivenessCacheManagerTest
     @Test
     public void isAliveShouldReturnTrueWhenRemoteRepositoryNotCached()
     {
+        Cache cache = getCache();
+
+        Boolean cacheValue = cache.get(REMOTE_REPOSITORY_URL, Boolean.class);
         boolean alive = remoteRepositoryAlivenessCacheManager.isAlive(remoteRepository);
 
+        assertThat(cacheValue).isNull();
         assertThat(alive).isTrue();
     }
 
@@ -79,7 +83,6 @@ public class RemoteRepositoryAlivenessCacheManagerTest
     public void isAliveShouldReturnFalseWhenRemoteRepositoryCachedValueIsFalse()
     {
         initializeCache(false);
-        remoteRepositoryAlivenessCacheManager.put(remoteRepository, false);
 
         boolean alive = remoteRepositoryAlivenessCacheManager.isAlive(remoteRepository);
 
@@ -115,11 +118,17 @@ public class RemoteRepositoryAlivenessCacheManagerTest
         );
     }
 
-    private void initializeCache(Boolean initialValue)
+    private Cache getCache()
     {
         Cache cache = cacheManager.getCache(CacheName.Repository.REMOTE_REPOSITORY_ALIVENESS);
         Objects.requireNonNull(cache, "remoteRepositoryAliveness cache configuration was not provided");
 
+        return cache;
+    }
+
+    private void initializeCache(Boolean initialValue)
+    {
+        Cache cache = getCache();
         cache.put(REMOTE_REPOSITORY_URL, initialValue);
     }
 
