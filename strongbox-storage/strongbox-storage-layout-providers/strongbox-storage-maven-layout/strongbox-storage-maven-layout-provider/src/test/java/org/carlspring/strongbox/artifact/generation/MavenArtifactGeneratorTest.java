@@ -1,7 +1,5 @@
 package org.carlspring.strongbox.artifact.generation;
 
-import org.apache.maven.artifact.Artifact;
-import org.carlspring.strongbox.artifact.generator.MavenArtifactGenerator;
 import org.carlspring.strongbox.config.Maven2LayoutProviderTestConfig;
 import org.carlspring.strongbox.storage.repository.Repository;
 import org.carlspring.strongbox.testing.artifact.ArtifactManagementTestExecutionListener;
@@ -19,9 +17,9 @@ import org.junit.jupiter.api.parallel.Execution;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.ContextConfiguration;
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.carlspring.strongbox.util.MessageDigestUtils.calculateChecksum;
 import static org.carlspring.strongbox.util.MessageDigestUtils.readChecksumFile;
-import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.parallel.ExecutionMode.CONCURRENT;
 
 /**
