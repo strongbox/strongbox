@@ -1,5 +1,7 @@
 package org.carlspring.strongbox.controllers.logging;
 
+import java.util.function.Function;
+
 import org.springframework.beans.factory.config.ConfigurableBeanFactory;
 import org.springframework.boot.actuate.autoconfigure.logging.LogFileWebEndpointProperties;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean;
@@ -16,6 +18,13 @@ import org.springframework.web.servlet.mvc.method.annotation.SseEmitter;
 @EnableConfigurationProperties(LogFileWebEndpointProperties.class)
 public class LoggingConfiguration
 {
+
+    @Bean
+    @ConditionalOnMissingBean
+    public Function<SseEmitter, SseEmitterAwareTailerListenerAdapter> tailerListenerAdapterPrototypeFactory()
+    {
+        return sseEmitter -> tailerListener(sseEmitter);
+    }
 
     @Bean
     @ConditionalOnMissingBean

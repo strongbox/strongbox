@@ -1,7 +1,5 @@
 package org.carlspring.strongbox.controllers.logging;
 
-import org.carlspring.logging.exceptions.LoggingConfigurationException;
-import org.carlspring.logging.services.LoggingManagementService;
 import org.carlspring.strongbox.booters.PropertiesBooter;
 import org.carlspring.strongbox.controllers.BaseController;
 import org.carlspring.strongbox.domain.DirectoryListing;
@@ -10,12 +8,15 @@ import org.carlspring.strongbox.services.DirectoryListingServiceImpl;
 
 import javax.inject.Inject;
 import javax.servlet.http.HttpServletRequest;
+import java.io.BufferedInputStream;
 import java.io.IOException;
+import java.io.InputStream;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.Optional;
 import java.util.concurrent.ForkJoinPool;
+import java.util.function.Function;
 
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
@@ -28,7 +29,7 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.actuate.autoconfigure.logging.LogFileWebEndpointProperties;
 import org.springframework.boot.actuate.logging.LogFileWebEndpoint;
 import org.springframework.boot.logging.LogFile;
-import org.springframework.context.ApplicationContext;
+import org.springframework.core.env.Environment;
 import org.springframework.core.io.FileSystemResource;
 import org.springframework.core.io.Resource;
 import org.springframework.http.HttpHeaders;
@@ -72,13 +73,13 @@ public class LoggingManagementController
     private PropertiesBooter propertiesBooter;
 
     @Inject
-    private ApplicationContext applicationContext;
-
-    @Inject
-    private LoggingManagementService loggingManagementService;
+    private Environment environment;
 
     @Inject
     private Optional<LogFileWebEndpointProperties> logFileWebEndpointProperties;
+
+    @Inject
+    private Function<SseEmitter, SseEmitterAwareTailerListenerAdapter> tailerListenerAdapterPrototypeFactory;
 
     private DirectoryListingService directoryListingService;
 
@@ -120,10 +121,9 @@ public class LoggingManagementController
                 return getBadRequestResponseEntity("Requested path is a directory!", accept);
             }
 
-            return getStreamToResponseEntity(loggingManagementService.downloadLog(path),
-                                             FilenameUtils.getName(path));
+            return getStreamToResponseEntity(logFileInputStream(requestedLogPath), FilenameUtils.getName(path));
         }
-        catch (LoggingConfigurationException e)
+        catch (IOException e)
         {
             String message = "Could not download log data.";
 
@@ -206,7 +206,7 @@ public class LoggingManagementController
         ForkJoinPool forkJoinPool = ForkJoinPool.commonPool();
         forkJoinPool.execute(
                 Tailer.create(logFileResource.getFile(),
-                              applicationContext.getBean(SseEmitterAwareTailerListenerAdapter.class, sseEmitter),
+                              tailerListenerAdapterPrototypeFactory.apply(sseEmitter),
                               1000,
                               true));
 
@@ -222,13 +222,19 @@ public class LoggingManagementController
         {
             return new FileSystemResource(logFileWebEndpointProperties.get().getExternalFile());
         }
-        LogFile logFile = LogFile.get(applicationContext.getEnvironment());
+        LogFile logFile = LogFile.get(environment);
         if (logFile == null)
         {
             logger.debug("Missing 'logging.file' or 'logging.path' properties");
             return null;
         }
         return new FileSystemResource(logFile.toString());
+    }
+
+    private InputStream logFileInputStream(Path logFilePath)
+            throws IOException
+    {
+        return new BufferedInputStream(Files.newInputStream(logFilePath));
     }
 
 }

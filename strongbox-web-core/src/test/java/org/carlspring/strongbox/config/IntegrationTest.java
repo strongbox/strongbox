@@ -15,6 +15,7 @@ import java.lang.annotation.ElementType;
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
+import java.util.function.Function;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import io.restassured.config.ObjectMapperConfig;
@@ -124,6 +125,13 @@ public @interface IntegrationTest
         public RestAssuredArtifactClient artifactClient(MockMvcRequestSpecification mockMvc)
         {
             return new RestAssuredArtifactClient(mockMvc);
+        }
+
+        @Primary
+        @Bean
+        public Function<SseEmitter, SseEmitterAwareTailerListenerAdapter> tailerListenerAdapterPrototypeFactory()
+        {
+            return sseEmitter -> testTailerListener(sseEmitter);
         }
 
         @Primary

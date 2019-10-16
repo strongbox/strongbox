@@ -10,6 +10,8 @@ import io.restassured.module.mockmvc.specification.MockMvcRequestSpecification;
 import org.hamcrest.CoreMatchers;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.ValueSource;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
@@ -80,50 +82,20 @@ public class ActuatorEndpointControllerTest
                .body("strongbox.revision", equalTo(revision));
     }
 
-    @Test
-    public void testMonitoringEndpointWithAuthorizedUser()
-    {
-        mockMvc.accept(MediaType.APPLICATION_JSON_VALUE)
-               .when()
-               .get(getContextBaseUrl())
-               .peek()
-               .then()
-               .statusCode(HttpStatus.OK.value())
-               .body(CoreMatchers.notNullValue());
-    }
-
-    @Test
     @WithAnonymousUser
-    public void testMonitoringEndpointWithUnauthorizedUser()
+    @ParameterizedTest
+    @ValueSource(strings = { "",
+                             "/health",
+                             "/health/db",
+                             "/info",
+                             "/beans",
+                             "/metrics",
+                             "/metrics/" + METRIC_NAME,
+                             "/loggers",
+                             "/loggers/" + LOGGER_PACKAGE })
+    public void testEndpointsWithUnauthorizedUser(final String endpoint)
     {
-        mockMvc.accept(MediaType.APPLICATION_JSON_VALUE)
-               .when()
-               .get(getContextBaseUrl())
-               .peek()
-               .then()
-               .statusCode(HttpStatus.UNAUTHORIZED.value())
-               .body("error", CoreMatchers.equalTo(getI18nInsufficientAuthenticationErrorMessage()));
-    }
-
-    @Test
-    public void testHealthEndpointWithAuthorizedUser()
-    {
-        String url = getContextBaseUrl() + "/health";
-
-        mockMvc.accept(MediaType.APPLICATION_JSON_VALUE)
-               .when()
-               .get(url)
-               .peek()
-               .then()
-               .statusCode(HttpStatus.OK.value())
-               .body(CoreMatchers.notNullValue());
-    }
-
-    @Test
-    @WithAnonymousUser
-    public void testHealthEndpointWithUnauthorizedUser()
-    {
-        String url = getContextBaseUrl() + "/health";
+        String url = getContextBaseUrl() + endpoint;
 
         mockMvc.accept(MediaType.APPLICATION_JSON_VALUE)
                .when()
@@ -134,10 +106,19 @@ public class ActuatorEndpointControllerTest
                .body("error", CoreMatchers.equalTo(getI18nInsufficientAuthenticationErrorMessage()));
     }
 
-    @Test
-    public void testHealthComponentEndpointWithAuthorizedUser()
+    @ParameterizedTest
+    @ValueSource(strings = { "",
+                             "/health",
+                             "/health/db",
+                             "/info",
+                             "/beans",
+                             "/metrics",
+                             "/metrics/" + METRIC_NAME,
+                             "/loggers",
+                             "/loggers/" + LOGGER_PACKAGE })
+    public void testEndpointsWithAuthorizedUser(final String endpoint)
     {
-        String url = getContextBaseUrl() + "/health/db";
+        String url = getContextBaseUrl() + endpoint;
 
         mockMvc.accept(MediaType.APPLICATION_JSON_VALUE)
                .when()
@@ -148,25 +129,12 @@ public class ActuatorEndpointControllerTest
                .body(CoreMatchers.notNullValue());
     }
 
-    @Test
-    @WithAnonymousUser
-    public void testHealthComponentEndpointWithUnauthorizedUser()
+    @ParameterizedTest
+    @ValueSource(strings = { "/metrics/" + NOT_EXISTING_METRIC_NAME,
+                             "/health/not_existing_component" })
+    public void testNonExistingEndpoints(final String endpoint)
     {
-        String url = getContextBaseUrl() + "/health/db";
-
-        mockMvc.accept(MediaType.APPLICATION_JSON_VALUE)
-               .when()
-               .get(url)
-               .peek()
-               .then()
-               .statusCode(HttpStatus.UNAUTHORIZED.value())
-               .body("error", CoreMatchers.equalTo(getI18nInsufficientAuthenticationErrorMessage()));
-    }
-
-    @Test
-    public void testHealthNotExistingComponentEndpoint()
-    {
-        String url = getContextBaseUrl() + "/health/not_existing_component";
+        String url = getContextBaseUrl() + endpoint;
 
         mockMvc.accept(MediaType.APPLICATION_JSON_VALUE)
                .when()
@@ -174,189 +142,5 @@ public class ActuatorEndpointControllerTest
                .peek()
                .then()
                .statusCode(HttpStatus.NOT_FOUND.value());
-    }
-
-    @Test
-    public void testInfoEndpointWithAuthorizedUser()
-    {
-        String url = getContextBaseUrl() + "/info";
-
-        mockMvc.accept(MediaType.APPLICATION_JSON_VALUE)
-               .when()
-               .get(url)
-               .peek()
-               .then()
-               .statusCode(HttpStatus.OK.value())
-               .body(CoreMatchers.notNullValue());
-    }
-
-    @Test
-    @WithAnonymousUser
-    public void testInfoEndpointWithUnauthorizedUser()
-    {
-        String url = getContextBaseUrl() + "/info";
-
-        mockMvc.accept(MediaType.APPLICATION_JSON_VALUE)
-               .when()
-               .get(url)
-               .peek()
-               .then()
-               .statusCode(HttpStatus.UNAUTHORIZED.value())
-               .body("error", CoreMatchers.equalTo(getI18nInsufficientAuthenticationErrorMessage()));
-    }
-
-    @Test
-    public void testBeansEndpointWithAuthorizedUser()
-    {
-        String url = getContextBaseUrl() + "/beans";
-
-        mockMvc.accept(MediaType.APPLICATION_JSON_VALUE)
-               .when()
-               .get(url)
-               .peek()
-               .then()
-               .statusCode(HttpStatus.OK.value())
-               .body(CoreMatchers.notNullValue());
-    }
-
-    @Test
-    @WithAnonymousUser
-    public void testBeansEndpointWithUnauthorizedUser()
-    {
-        String url = getContextBaseUrl() + "/beans";
-
-        mockMvc.accept(MediaType.APPLICATION_JSON_VALUE)
-               .when()
-               .get(url)
-               .peek()
-               .then()
-               .statusCode(HttpStatus.UNAUTHORIZED.value())
-               .body("error", CoreMatchers.equalTo(getI18nInsufficientAuthenticationErrorMessage()));
-    }
-
-    @Test
-    public void testMetricsEndpointWithAuthorizedUser()
-    {
-
-        String url = getContextBaseUrl() + "/metrics";
-
-        mockMvc.accept(MediaType.APPLICATION_JSON_VALUE)
-               .when()
-               .get(url)
-               .peek()
-               .then()
-               .statusCode(HttpStatus.OK.value())
-               .body(CoreMatchers.notNullValue());
-    }
-
-    @Test
-    @WithAnonymousUser
-    public void testMetricsEndpointWithUnauthorizedUser()
-    {
-        String url = getContextBaseUrl() + "/metrics";
-
-        mockMvc.accept(MediaType.APPLICATION_JSON_VALUE)
-               .when()
-               .get(url)
-               .peek()
-               .then()
-               .statusCode(HttpStatus.UNAUTHORIZED.value())
-               .body("error", CoreMatchers.equalTo(getI18nInsufficientAuthenticationErrorMessage()));
-    }
-
-    @Test
-    public void testSingleMetricEndpointWithAuthorizedUser()
-    {
-        String url = getContextBaseUrl() + "/metrics/" + METRIC_NAME;
-
-        mockMvc.accept(MediaType.APPLICATION_JSON_VALUE)
-               .when()
-               .get(url)
-               .peek()
-               .then()
-               .statusCode(HttpStatus.OK.value())
-               .body(CoreMatchers.notNullValue());
-    }
-
-    @Test
-    @WithAnonymousUser
-    public void testSingleMetricEndpointWithUnauthorizedUser()
-    {
-        String url = getContextBaseUrl() + "/metrics/" + METRIC_NAME;
-
-        mockMvc.accept(MediaType.APPLICATION_JSON_VALUE)
-               .when()
-               .get(url)
-               .peek()
-               .then()
-               .statusCode(HttpStatus.UNAUTHORIZED.value())
-               .body("error", CoreMatchers.equalTo(getI18nInsufficientAuthenticationErrorMessage()));
-    }
-
-    @Test
-    public void testNotExistingMetricEndpoint()
-    {
-        String url = getContextBaseUrl() + "/metrics/" + NOT_EXISTING_METRIC_NAME;
-
-        mockMvc.accept(MediaType.APPLICATION_JSON_VALUE)
-               .when()
-               .get(url)
-               .peek()
-               .then()
-               .statusCode(HttpStatus.NOT_FOUND.value());
-    }
-
-    @Test
-    public void testLoggersEndpointWithAuthorizedUser()
-    {
-        String url = getContextBaseUrl() + "/loggers";
-
-        mockMvc.accept(MediaType.APPLICATION_JSON_VALUE)
-               .when()
-               .get(url)
-               .then()
-               .statusCode(HttpStatus.OK.value())
-               .body(CoreMatchers.notNullValue());
-    }
-
-    @Test
-    @WithAnonymousUser
-    public void testLoggersEndpointWithUnauthorizedUser()
-    {
-        String url = getContextBaseUrl() + "/loggers";
-
-        mockMvc.accept(MediaType.APPLICATION_JSON_VALUE)
-               .when()
-               .get(url)
-               .then()
-               .statusCode(HttpStatus.UNAUTHORIZED.value())
-               .body("error", CoreMatchers.equalTo(getI18nInsufficientAuthenticationErrorMessage()));
-    }
-
-    @Test
-    public void testLoggersSinglePackageEndpointWithAuthorizedUser()
-    {
-        String url = getContextBaseUrl() + "/loggers/" + LOGGER_PACKAGE;
-
-        mockMvc.accept(MediaType.APPLICATION_JSON_VALUE)
-               .when()
-               .get(url)
-               .then()
-               .statusCode(HttpStatus.OK.value())
-               .body(CoreMatchers.notNullValue());
-    }
-
-    @Test
-    @WithAnonymousUser
-    public void testLoggersSinglePackageEndpointWithUnauthorizedUser()
-    {
-        String url = getContextBaseUrl() + "/loggers/" + LOGGER_PACKAGE;
-
-        mockMvc.accept(MediaType.APPLICATION_JSON_VALUE)
-               .when()
-               .get(url)
-               .then()
-               .statusCode(HttpStatus.UNAUTHORIZED.value())
-               .body("error", CoreMatchers.equalTo(getI18nInsufficientAuthenticationErrorMessage()));
     }
 }

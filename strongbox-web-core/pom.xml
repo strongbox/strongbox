@@ -304,10 +304,6 @@
             <version>${project.version}</version>
             <type>zip</type>
         </dependency>
-        <dependency>
-            <groupId>org.carlspring.logging</groupId>
-            <artifactId>logback-configuration-rest</artifactId>
-        </dependency>
 
         <!-- Maven artifact management -->
         <dependency>
