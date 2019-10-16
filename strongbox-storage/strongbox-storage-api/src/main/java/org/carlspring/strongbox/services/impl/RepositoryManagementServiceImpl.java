@@ -27,6 +27,7 @@ import org.carlspring.strongbox.storage.ArtifactStorageException;
 import org.carlspring.strongbox.storage.Storage;
 import org.carlspring.strongbox.storage.repository.Repository;
 import org.carlspring.strongbox.storage.validation.resource.ArtifactOperationsValidator;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Component;
@@ -75,7 +76,7 @@ public class RepositoryManagementServiceImpl
             Repository repository = getConfiguration().getStorage(storageId).getRepository(repositoryId);
 
             logger.warn("Layout provider '{}' could not be resolved. Using generic implementation instead.",
-                repository.getLayout());
+                        repository.getLayout());
 
             RepositoryPath repositoryPath = repositoryPathResolver.resolve(repository);
 
@@ -109,7 +110,8 @@ public class RepositoryManagementServiceImpl
     }
 
     @Override
-    public void deleteTrash(String storageId, String repositoryId)
+    public void deleteTrash(String storageId,
+                            String repositoryId)
             throws IOException
     {
         artifactOperationsValidator.checkStorageExists(storageId);
@@ -122,7 +124,7 @@ public class RepositoryManagementServiceImpl
 
             artifactOperationsValidator.checkAllowsDeletion(repository);
 
-            
+
             RootRepositoryPath repositoryPath = repositoryPathResolver.resolve(repository);
             RepositoryFiles.deleteTrash(repositoryPath);
 
@@ -155,7 +157,8 @@ public class RepositoryManagementServiceImpl
                     {
                         logger.debug("Emptying trash for repository {}...", repository.getId());
 
-                        deleteTrash(repository.getStorage().getId(), repository.getId());;
+                        deleteTrash(repository.getStorage().getId(), repository.getId());
+                        ;
                     }
                     else
                     {
@@ -182,7 +185,7 @@ public class RepositoryManagementServiceImpl
         artifactOperationsValidator.validate(repositoryPath);
 
         final Repository repository = repositoryPath.getRepository();
-        
+
         artifactOperationsValidator.checkAllowsDeletion(repository);
 
         try
@@ -201,7 +204,8 @@ public class RepositoryManagementServiceImpl
     }
 
     @Override
-    public void undeleteTrash(String storageId, String repositoryId)
+    public void undeleteTrash(String storageId,
+                              String repositoryId)
             throws IOException
     {
         artifactOperationsValidator.checkStorageExists(storageId);
@@ -220,7 +224,7 @@ public class RepositoryManagementServiceImpl
                 RepositoryEvent event = new RepositoryEvent(storageId,
                                                             repositoryId,
                                                             RepositoryEventTypeEnum.EVENT_REPOSITORY_UNDELETE_TRASH
-                                                                                   .getType());
+                                                                    .getType());
 
                 repositoryEventListenerRegistry.dispatchEvent(event);
             }
@@ -235,7 +239,7 @@ public class RepositoryManagementServiceImpl
     public void undeleteTrash()
             throws IOException
     {
-        
+
         for (Map.Entry<String, Storage> entry : getConfiguration().getStorages().entrySet())
         {
             Storage storage = entry.getValue();
@@ -256,29 +260,32 @@ public class RepositoryManagementServiceImpl
                 }
                 catch (IOException e)
                 {
-                    throw new ArtifactStorageException( "Unable to undelete trash for storage " + storageId + " in repository " +
+                    throw new ArtifactStorageException(
+                            "Unable to undelete trash for storage " + storageId + " in repository " +
                             repositoryId, e);
                 }
             }
         }
-        
+
         RepositoryEvent event = new RepositoryEvent(null,
                                                     null,
                                                     RepositoryEventTypeEnum.EVENT_REPOSITORY_UNDELETE_TRASH_FOR_ALL_REPOSITORIES
-                                                                           .getType());
+                                                            .getType());
         repositoryEventListenerRegistry.dispatchEvent(event);
     }
 
     @Override
     public void putInService(String storageId,
-                             String repositoryId) throws IOException
+                             String repositoryId)
+            throws IOException
     {
         configurationManagementService.putInService(storageId, repositoryId);
     }
 
     @Override
     public void putOutOfService(String storageId,
-                                String repositoryId) throws IOException
+                                String repositoryId)
+            throws IOException
     {
         configurationManagementService.putOutOfService(storageId, repositoryId);
     }

@@ -7,9 +7,13 @@ import java.util.Collection;
 import java.util.List;
 
 import org.aopalliance.intercept.MethodInvocation;
+
 import org.carlspring.strongbox.users.domain.Privileges;
 import org.carlspring.strongbox.users.userdetails.SpringSecurityUser;
 import org.carlspring.strongbox.utils.UrlUtils;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.security.access.ConfigAttribute;
 import org.springframework.security.access.expression.method.ExpressionBasedPreInvocationAdvice;
 import org.springframework.security.access.prepost.PreInvocationAuthorizationAdviceVoter;
@@ -20,17 +24,19 @@ import org.springframework.stereotype.Component;
 
 /**
  * @author sbespalov
- *
  */
 @Component
-public class ExtendedAuthoritiesVoter extends PreInvocationAuthorizationAdviceVoter
+public class ExtendedAuthoritiesVoter
+        extends PreInvocationAuthorizationAdviceVoter
 {
+
+    private static final Logger logger = LoggerFactory.getLogger(ExtendedAuthoritiesVoter.class);
 
     public ExtendedAuthoritiesVoter()
     {
         super(new ExpressionBasedPreInvocationAdvice());
     }
-    
+
     @Override
     public int vote(Authentication authentication,
                     MethodInvocation method,
@@ -40,7 +46,8 @@ public class ExtendedAuthoritiesVoter extends PreInvocationAuthorizationAdviceVo
     }
 
     @SuppressWarnings("serial")
-    private class ExtendedAuthorityAuthentication implements Authentication
+    private class ExtendedAuthorityAuthentication
+            implements Authentication
     {
 
         private Authentication source;
@@ -60,8 +67,8 @@ public class ExtendedAuthoritiesVoter extends PreInvocationAuthorizationAdviceVo
         {
             Object principal = authentication.getPrincipal();
             Collection<? extends GrantedAuthority> apiAuthorities = authentication.getAuthorities();
-            logger.debug(String.format("Privileges for [%s] are [%s]", principal,
-                                       apiAuthorities));
+            logger.debug("Privileges for [{}] are [{}]", principal,
+                         apiAuthorities);
 
             if (!authentication.isAuthenticated() || authentication instanceof AnonymousAuthenticationToken)
             {
@@ -71,7 +78,7 @@ public class ExtendedAuthoritiesVoter extends PreInvocationAuthorizationAdviceVo
             else if (!(principal instanceof SpringSecurityUser))
             {
 
-                logger.warn(String.format("Unknown authentication principal type [%s]", principal.getClass()));
+                logger.warn("Unknown authentication principal type [{}]", principal.getClass());
 
                 return authentication.getAuthorities();
             }
@@ -99,8 +106,8 @@ public class ExtendedAuthoritiesVoter extends PreInvocationAuthorizationAdviceVo
 
             List<GrantedAuthority> extendedAuthorities = new ArrayList<>(apiAuthorities);
             extendedAuthorities.addAll(storageAuthorities);
-            logger.debug(String.format("Privileges for [%s] was extended to [%s]", userDetails.getUsername(),
-                                       extendedAuthorities));
+            logger.debug("Privileges for [{}] was extended to [{}]", userDetails.getUsername(),
+                         extendedAuthorities);
 
             return extendedAuthorities;
         }
@@ -136,7 +143,7 @@ public class ExtendedAuthoritiesVoter extends PreInvocationAuthorizationAdviceVo
         }
 
         public void setAuthenticated(boolean isAuthenticated)
-            throws IllegalArgumentException
+                throws IllegalArgumentException
         {
             getSourceAuthentication().setAuthenticated(isAuthenticated);
         }

@@ -44,7 +44,9 @@ public class ArtifactLocationGenerateChecksumOperation
             });
             if (!containsMetadata)
             {
-                logger.debug("Target path [{}] does not contains any metadata, so we don't need to execute any operations.", path);
+                logger.debug(
+                        "Target path [{}] does not contains any metadata, so we don't need to execute any operations.",
+                        path);
                 return;
             }
         }
@@ -82,7 +84,7 @@ public class ArtifactLocationGenerateChecksumOperation
 
         RepositoryPath basePath = parentPath;
         LayoutFileSystemProvider provider = (LayoutFileSystemProvider) basePath.getFileSystem()
-                                                                                                   .provider();
+                                                                               .provider();
         provider.storeChecksum(basePath, forceRegeneration);
     }
 

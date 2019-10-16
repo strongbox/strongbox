@@ -17,6 +17,8 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
@@ -33,8 +35,11 @@ import org.springframework.web.context.request.WebRequest;
 import org.springframework.web.servlet.mvc.method.annotation.ResponseEntityExceptionHandler;
 
 @ControllerAdvice
-public class DefaultExceptionHandler extends ResponseEntityExceptionHandler
+public class DefaultExceptionHandler
+        extends ResponseEntityExceptionHandler
 {
+
+    private final Logger logger = LoggerFactory.getLogger(DefaultExceptionHandler.class);
 
     @Inject
     private ContentNegotiationManager contentNegotiationManager;
@@ -88,9 +93,10 @@ public class DefaultExceptionHandler extends ResponseEntityExceptionHandler
         HttpHeaders headers = new HttpHeaders();
         return handleExceptionInternal(ex, body, headers, HttpStatus.SERVICE_UNAVAILABLE, request);
     }
-    
+
     @ExceptionHandler(Http202PropogateException.class)
-    protected void handleHttp202PropogateException(Exception ex, HttpServletResponse httpResponse)
+    protected void handleHttp202PropogateException(Exception ex,
+                                                   HttpServletResponse httpResponse)
     {
         logger.debug(ex.getMessage());
         httpResponse.setStatus(202);
@@ -101,7 +107,7 @@ public class DefaultExceptionHandler extends ResponseEntityExceptionHandler
                                                    WebRequest request)
     {
         logger.error(String.format("Request [%s] failed.", request), ex);
-        
+
         return provideDefaultErrorResponse(ex, request, HttpStatus.INTERNAL_SERVER_ERROR);
     }
 

@@ -2,6 +2,7 @@ package org.carlspring.strongbox.booters;
 
 import com.hazelcast.core.HazelcastInstance;
 import com.hazelcast.core.ILock;
+
 import org.carlspring.strongbox.configuration.Configuration;
 import org.carlspring.strongbox.configuration.ConfigurationManager;
 import org.carlspring.strongbox.providers.layout.LayoutProviderRegistry;
@@ -20,6 +21,7 @@ import java.util.LinkedHashMap;
 import java.util.Map;
 
 import org.carlspring.strongbox.util.ThrowingConsumer;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -115,7 +117,7 @@ public class StorageBooter
         if (layoutProviderRegistry.getProvider(repository.getLayout()) == null)
         {
             logger.error("Failed to resolve layout [{}] for repository [{}].",
-                repository.getLayout(), repository.getId());
+                         repository.getLayout(), repository.getId());
             return;
         }
 

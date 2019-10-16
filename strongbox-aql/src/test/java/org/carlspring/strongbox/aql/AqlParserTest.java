@@ -33,7 +33,7 @@ public class AqlParserTest
 
         AqlQueryParser aqlParser = new AqlQueryParser(query);
 
-        logQueryAndAqlParser(query, aqlParser);
+        logger.debug("Query [{}] parse tree:\n[{}]", query, aqlParser);
 
         Selector<ArtifactEntry> selector = aqlParser.parseQuery();
         Predicate predicate = selector.getPredicate();
@@ -47,7 +47,7 @@ public class AqlParserTest
 
         aqlParser = new AqlQueryParser(query);
 
-        logQueryAndAqlParser(query, aqlParser);
+        logger.debug("Query [{}] parse tree:\n[{}]", query, aqlParser);
 
         Map<Pair<Integer, Integer>, String> errorMap = null;
         try
@@ -59,7 +59,7 @@ public class AqlParserTest
             errorMap = aqlParser.getErrors();
         }
 
-        logQueryAndAqlParser(query, aqlParser);
+        logger.debug("Query [{}] parse tree:\n[{}]", query, aqlParser);
 
         assertThat(aqlParser.hasErrors()).isTrue();
         assertThat(errorMap).isNotNull();
@@ -80,7 +80,7 @@ public class AqlParserTest
 
         aqlParser.parseQuery();
 
-        logQueryAndAqlParser(query, aqlParser);
+        logger.debug("Query [{}] parse tree:\n[{}]", query, aqlParser);
 
         assertThat(aqlParser.hasErrors()).isFalse();
     }
@@ -94,7 +94,7 @@ public class AqlParserTest
 
         aqlParser.parseQuery();
 
-        logQueryAndAqlParser(query, aqlParser);
+        logger.debug("Query [{}] parse tree:\n[{}]", query, aqlParser);
 
         assertThat(aqlParser.hasErrors()).isFalse();
     }
@@ -115,7 +115,7 @@ public class AqlParserTest
             errorMap = aqlParser.getErrors();
         }
 
-        logQueryAndAqlParser(query, aqlParser);
+        logger.debug("Query [{}] parse tree:\n[{}]", query, aqlParser);
 
         assertThat(aqlParser.hasErrors()).isTrue();
         assertThat(errorMap).isNotNull();
@@ -135,7 +135,7 @@ public class AqlParserTest
 
         aqlParser.parseQuery();
 
-        logQueryAndAqlParser(query, aqlParser);
+        logger.debug("Query [{}] parse tree:\n[{}]", query, aqlParser);
 
         assertThat(aqlParser.hasErrors()).isFalse();
     }
@@ -149,7 +149,7 @@ public class AqlParserTest
 
         AqlQueryParser aqlParser = new AqlQueryParser(query);
 
-        logQueryAndAqlParser(query, aqlParser);
+        logger.debug("Query [{}] parse tree:\n[{}]", query, aqlParser);
 
         Selector<ArtifactEntry> selector = aqlParser.parseQuery();
         Predicate predicate = selector.getPredicate();
@@ -213,7 +213,7 @@ public class AqlParserTest
             errorMap = aqlParser.getErrors();
         }
 
-        logQueryAndAqlParser(query, aqlParser);
+        logger.debug("Query [{}] parse tree:\n[{}]", query, aqlParser);
 
         assertThat(aqlParser.hasErrors()).isTrue();
         assertThat(errorMap).isNotNull();
@@ -225,9 +225,5 @@ public class AqlParserTest
         assertThat(Pair.with(1, 17).equals(errorPositionList.get(1))).isTrue();
         assertThat(Pair.with(1, 20).equals(errorPositionList.get(2))).isTrue();
         assertThat(Pair.with(1, 78).equals(errorPositionList.get(3))).isTrue();
-    }
-
-    private void logQueryAndAqlParser(String query, AqlQueryParser aqlParser) {
-        logger.debug("Query [{}] parse tree:\n[{}]", query, aqlParser);
     }
 }

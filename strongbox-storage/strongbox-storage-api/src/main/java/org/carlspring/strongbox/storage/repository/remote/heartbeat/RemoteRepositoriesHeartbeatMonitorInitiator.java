@@ -72,15 +72,16 @@ public class RemoteRepositoriesHeartbeatMonitorInitiator
                       "intervalSeconds cannot be negative or zero but was " + intervalSeconds + " for " +
                       remoteRepository.getUrl());
 
-        RemoteRepositoryHeartbeatMonitor remoteRepositoryHeartBeatMonitor = new RemoteRepositoryHeartbeatMonitor(remoteRepositoryCacheManager,
-                                                                                                                 determineMonitorStrategy(remoteRepository),
-                                                                                                                 remoteRepository);
+        RemoteRepositoryHeartbeatMonitor remoteRepositoryHeartBeatMonitor = new RemoteRepositoryHeartbeatMonitor(
+                remoteRepositoryCacheManager,
+                determineMonitorStrategy(remoteRepository),
+                remoteRepository);
         executor.scheduleWithFixedDelay(new MdcContextProvider(remoteRepositoryHeartBeatMonitor),
                                         0,
                                         intervalSeconds, TimeUnit.SECONDS);
 
         logger.info("Remote repository {} scheduled for monitoring with interval seconds {}",
-            remoteRepository.getUrl(), intervalSeconds);
+                    remoteRepository.getUrl(), intervalSeconds);
     }
 
     private RemoteRepositoryHeartbeatMonitorStrategy determineMonitorStrategy(final RemoteRepository remoteRepository)
@@ -110,8 +111,9 @@ public class RemoteRepositoriesHeartbeatMonitorInitiator
     {
         return configurationManager.getConfiguration().getRemoteRepositoriesConfiguration().getHeartbeatThreadsNumber();
     }
-    
-    public static class MdcContextProvider implements Runnable
+
+    public static class MdcContextProvider
+            implements Runnable
     {
 
         private Runnable target;
@@ -125,11 +127,12 @@ public class RemoteRepositoriesHeartbeatMonitorInitiator
         @Override
         public void run()
         {
-            MDC.put(CronTaskContextAcceptFilter.STRONGBOX_CRON_CONTEXT_NAME, LoggingUtils.caclucateCronContextName(target.getClass()));
+            MDC.put(CronTaskContextAcceptFilter.STRONGBOX_CRON_CONTEXT_NAME,
+                    LoggingUtils.caclucateCronContextName(target.getClass()));
             try
             {
                 target.run();
-            } 
+            }
             finally
             {
                 MDC.remove(CronTaskContextAcceptFilter.STRONGBOX_CRON_CONTEXT_NAME);

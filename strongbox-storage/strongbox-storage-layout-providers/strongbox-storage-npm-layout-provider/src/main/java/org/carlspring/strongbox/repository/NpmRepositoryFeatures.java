@@ -55,7 +55,8 @@ import org.springframework.stereotype.Component;
 import org.springframework.util.Assert;
 
 @Component
-public class NpmRepositoryFeatures implements RepositoryFeatures
+public class NpmRepositoryFeatures
+        implements RepositoryFeatures
 {
 
     private static final int CHANGES_BATCH_SIZE = 500;
@@ -143,9 +144,9 @@ public class NpmRepositoryFeatures implements RepositoryFeatures
         catch (Exception e)
         {
             logger.error("Failed to searhc NPM packages [{}]", remoteRepositoryUrl, e);
-            
+
             return;
-        } 
+        }
         finally
         {
             restClient.close();
@@ -163,7 +164,7 @@ public class NpmRepositoryFeatures implements RepositoryFeatures
 
     public void fetchRemoteChangesFeed(String storageId,
                                        String repositoryId)
-        throws IOException
+            throws IOException
     {
 
         Storage storage = getConfiguration().getStorage(storageId);
@@ -176,10 +177,10 @@ public class NpmRepositoryFeatures implements RepositoryFeatures
         }
 
         RepositoryDto mutableRepository = configurationManagementService.getMutableConfigurationClone()
-                                                                            .getStorage(storageId)
-                                                                            .getRepository(repositoryId);
+                                                                        .getStorage(storageId)
+                                                                        .getRepository(repositoryId);
         NpmRemoteRepositoryConfigurationDto mutableConfiguration = (NpmRemoteRepositoryConfigurationDto) mutableRepository.getRemoteRepository()
-                                                                                                                                  .getCustomConfiguration();
+                                                                                                                          .getCustomConfiguration();
 
         NpmRemoteRepositoryConfiguration configuration = (NpmRemoteRepositoryConfiguration) remoteRepository.getCustomConfiguration();
         if (configuration == null)
@@ -198,13 +199,14 @@ public class NpmRepositoryFeatures implements RepositoryFeatures
             configurationManagementService.saveRepository(storageId, mutableRepository);
 
             nextChangeId = Long.valueOf(fetchRemoteChangesFeed(repository, replicateUrl, lastChangeId + 1));
-        } while (nextChangeId > lastChangeId);
+        }
+        while (nextChangeId > lastChangeId);
     }
 
     private Integer fetchRemoteChangesFeed(Repository repository,
                                            String replicateUrl,
                                            Long since)
-        throws IOException
+            throws IOException
     {
         int result = 0;
         Client restClient = proxyRepositoryConnectionPoolConfigurationService.getRestClient();
@@ -221,7 +223,7 @@ public class NpmRepositoryFeatures implements RepositoryFeatures
             Invocation request = service.request().buildGet();
 
             result = fetchRemoteChangesFeed(repository, request);
-        } 
+        }
         finally
         {
             restClient.close();
@@ -232,7 +234,7 @@ public class NpmRepositoryFeatures implements RepositoryFeatures
 
     private int fetchRemoteChangesFeed(Repository repository,
                                        Invocation request)
-        throws IOException
+            throws IOException
     {
         int result = 0;
 
@@ -273,9 +275,9 @@ public class NpmRepositoryFeatures implements RepositoryFeatures
                 catch (Exception e)
                 {
                     logger.error("Failed to parse NPM changes feed [{}] since [{}]: %n {}",
-                                               repositoryConfiguration.getReplicateUrl(),
-                                               repositoryConfiguration.getLastChangeId(),
-                                               changeValue, e);
+                                 repositoryConfiguration.getReplicateUrl(),
+                                 repositoryConfiguration.getLastChangeId(),
+                                 changeValue, e);
 
                     return result;
                 }
@@ -288,8 +290,8 @@ public class NpmRepositoryFeatures implements RepositoryFeatures
                 catch (Exception e)
                 {
                     logger.error("Failed to parse NPM feed [{}/{}]",
-                                               ((RepositoryData)repository).getRemoteRepository().getUrl(),
-                                               packageFeed.getName(), e);
+                                 ((RepositoryData) repository).getRemoteRepository().getUrl(),
+                                 packageFeed.getName(), e);
 
                 }
 
@@ -300,7 +302,7 @@ public class NpmRepositoryFeatures implements RepositoryFeatures
         }
 
         logger.debug("Fetched remote cnages for  [{}] since [{}].",
-            repositoryConfiguration.getReplicateUrl(), repositoryConfiguration.getLastChangeId());
+                     repositoryConfiguration.getReplicateUrl(), repositoryConfiguration.getLastChangeId());
 
         return result;
     }
@@ -339,7 +341,7 @@ public class NpmRepositoryFeatures implements RepositoryFeatures
         {
             logger.error("Failed to fetch NPM changes feed [{}]", remoteRepositoryUrl, e);
             return;
-        } 
+        }
         finally
         {
             restClient.close();
@@ -352,8 +354,8 @@ public class NpmRepositoryFeatures implements RepositoryFeatures
         catch (Exception e)
         {
             logger.error("Failed to parse NPM feed [{}/{}]",
-                                       ((RepositoryData)repository).getRemoteRepository().getUrl(),
-                                       packageFeed.getName(), e);
+                         ((RepositoryData) repository).getRemoteRepository().getUrl(),
+                         packageFeed.getName(), e);
         }
     }
 
@@ -397,7 +399,7 @@ public class NpmRepositoryFeatures implements RepositoryFeatures
             Long packageCount = countPackages(storageId, repositoryId, predicate);
 
             logger.debug("NPM remote repository [{}] cached package count is [{}]",
-                repository.getId(), packageCount);
+                         repository.getId(), packageCount);
 
             Runnable job = () -> fetchRemoteSearchResult(storageId, repositoryId, npmSearchRequest.getText(),
                                                          npmSearchRequest.getSize());
@@ -455,7 +457,7 @@ public class NpmRepositoryFeatures implements RepositoryFeatures
             Long packageCount = countPackages(storageId, repositoryId, predicate);
 
             logger.debug("NPM remote repository [{}] cached package count is [{}]",
-                repository.getId(), packageCount);
+                         repository.getId(), packageCount);
 
             Runnable job = () -> fetchRemotePackageFeed(storage.getId(), repository.getId(),
                                                         npmSearchRequest.getPackageId());

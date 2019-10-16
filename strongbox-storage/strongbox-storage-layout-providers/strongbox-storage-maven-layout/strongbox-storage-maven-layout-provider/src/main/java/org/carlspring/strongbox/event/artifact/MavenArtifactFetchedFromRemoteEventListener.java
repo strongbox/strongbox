@@ -41,10 +41,10 @@ public class MavenArtifactFetchedFromRemoteEventListener
 
     @Inject
     protected RepositoryPathLock repositoryPathLock;
-    
+
     @Inject
     protected RestArtifactResolverFactory restArtifactResolverFactory;
-    
+
     @AsyncEventListener
     public void handle(final ArtifactEvent<RepositoryPath> event)
     {
@@ -91,7 +91,7 @@ public class MavenArtifactFetchedFromRemoteEventListener
         catch (Exception e)
         {
             logger.error("Unable to resolve artifact metadata of file {} of repository {}",
-                event.getPath(), getRepository(event).getId(), e);
+                         event.getPath(), getRepository(event).getId(), e);
         }
     }
 
@@ -108,31 +108,31 @@ public class MavenArtifactFetchedFromRemoteEventListener
         Repository repository = metadataPath.getRepository();
         RemoteRepository remoteRepository = repository.getRemoteRepository();
         RestArtifactResolver client = restArtifactResolverFactory.newInstance(remoteRepository);
-        
+
         Lock lock = repositoryPathLock.lock(metadataPath).writeLock();
         lock.lock();
 
         try (InputStream is = new BufferedInputStream(new ProxyRepositoryInputStream(client, metadataPath)))
         {
             mergeMetadata(artifactAbsolutePath, is);
-        } 
+        }
         finally
         {
             lock.unlock();
         }
-        
+
     }
 
     private void mergeMetadata(RepositoryPath repositoryPath,
                                InputStream remoteMetadataIs)
-        throws IOException,
-        NoSuchAlgorithmException,
-        XmlPullParserException,
-        ProviderImplementationException
+            throws IOException,
+                   NoSuchAlgorithmException,
+                   XmlPullParserException,
+                   ProviderImplementationException
     {
         MavenArtifact localArtifact = MavenArtifactUtils.convertPathToArtifact(repositoryPath);
         Metadata metadata = artifactMetadataService.getMetadata(remoteMetadataIs);
-        
+
         artifactMetadataService.mergeMetadata(localArtifact, metadata);
 
     }

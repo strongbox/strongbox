@@ -11,7 +11,7 @@ import org.slf4j.LoggerFactory;
  */
 public abstract class AbstractMappedProviderRegistry<T>
 {
-    
+
     private static final Logger logger = LoggerFactory.getLogger(AbstractMappedProviderRegistry.class);
 
     /**
@@ -37,8 +37,8 @@ public abstract class AbstractMappedProviderRegistry<T>
         providers.entrySet()
                  .stream()
                  .forEach(e -> logger.info("Registered repository provider '{}' with alias '{}'.",
-                                                         e.getValue().getClass().getCanonicalName(),
-                                                         e.getKey()));
+                                           e.getValue().getClass().getCanonicalName(),
+                                           e.getKey()));
         this.providers = providers;
     }
 
@@ -47,7 +47,8 @@ public abstract class AbstractMappedProviderRegistry<T>
         return providers.get(alias);
     }
 
-    public T addProvider(String alias, T provider)
+    public T addProvider(String alias,
+                         T provider)
     {
         return providers.put(alias, provider);
     }

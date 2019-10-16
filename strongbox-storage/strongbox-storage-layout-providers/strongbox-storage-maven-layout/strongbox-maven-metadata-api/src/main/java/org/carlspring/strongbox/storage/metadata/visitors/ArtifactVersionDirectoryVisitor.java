@@ -65,7 +65,8 @@ public class ArtifactVersionDirectoryVisitor
         return FileVisitResult.CONTINUE;
     }
 
-    public List<Path> getMatchingPaths(){
+    public List<Path> getMatchingPaths()
+    {
         return matchingPaths;
     }
 

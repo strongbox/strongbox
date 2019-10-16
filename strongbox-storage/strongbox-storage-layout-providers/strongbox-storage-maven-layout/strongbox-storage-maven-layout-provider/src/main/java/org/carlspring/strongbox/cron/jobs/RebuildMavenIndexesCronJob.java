@@ -45,14 +45,15 @@ public class RebuildMavenIndexesCronJob
         String repositoryId = config.getProperty(PROPERTY_REPOSITORY_ID);
 
         logger.debug("Executing RebuildMavenIndexesCronJob for storageId = [{}], repositoryId = [{}]",
-            storageId, repositoryId);
+                     storageId, repositoryId);
 
         Repository repository = configurationManager.getRepository(storageId, repositoryId);
 
         if (!repository.isHostedRepository())
         {
-            logger.warn("Repository identified by storageId = [{}], repositoryId = [{}] is not a hosted repository. Exiting ...",
-                storageId, repositoryId);
+            logger.warn(
+                    "Repository identified by storageId = [{}], repositoryId = [{}] is not a hosted repository. Exiting ...",
+                    storageId, repositoryId);
             return;
         }
 

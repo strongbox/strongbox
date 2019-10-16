@@ -53,12 +53,12 @@ public class MavenSnapshotManager
         if (!RepositoryFiles.artifactExists(basePath))
         {
             logger.error("Removal of timestamped Maven snapshot artifact: {}.", basePath);
-            
+
             return;
         }
-        
+
         logger.debug("Removal of timestamped Maven snapshot artifact {} in '{}:{}'.",
-            basePath, repository.getStorage().getId(), repository.getId());
+                     basePath, repository.getStorage().getId(), repository.getId());
 
         Pair<String, String> artifactGroup = MavenArtifactUtils.getDirectoryGA(basePath);
         String artifactGroupId = artifactGroup.getValue0();
@@ -68,7 +68,7 @@ public class MavenSnapshotManager
         {
             return;
         }
-        
+
         for (String version : versioning.getVersions())
         {
 
@@ -100,7 +100,7 @@ public class MavenSnapshotManager
         {
             return false;
         }
-        
+
         /**
          * map of snapshots for removing
          * k - number of the build, v - version of the snapshot
@@ -126,24 +126,24 @@ public class MavenSnapshotManager
                 {
                     continue;
                 }
-                
+
                 RepositoryPath repositoryPath = (RepositoryPath) path;
                 final String filename = path.getFileName().toString();
-                
+
                 if (!removingSnapshots.contains(filename) ||
                     !RepositoryFiles.isArtifact(repositoryPath) ||
                     RepositoryFiles.isMetadata(repositoryPath))
                 {
                     continue;
                 }
-                
+
                 try
                 {
                     RepositoryFiles.delete(repositoryPath, true);
 
                     RepositoryPath pomRepositoryPath = repositoryPath.resolveSibling(filename.replace(".jar", ".pom"));
-                    
-                    RepositoryFiles.delete(pomRepositoryPath,true);
+
+                    RepositoryFiles.delete(pomRepositoryPath, true);
                 }
                 catch (IOException ex)
                 {
@@ -184,7 +184,8 @@ public class MavenSnapshotManager
                          {
                              if ("jar".equals(e.getExtension()))
                              {
-                                 SnapshotVersionDecomposition snapshotVersion = SnapshotVersionDecomposition.of(e.getVersion());
+                                 SnapshotVersionDecomposition snapshotVersion = SnapshotVersionDecomposition.of(
+                                         e.getVersion());
                                  if (SnapshotVersionDecomposition.INVALID.equals(snapshotVersion))
                                  {
                                      logger.warn("Received invalid snapshot version {}", snapshotVersion);

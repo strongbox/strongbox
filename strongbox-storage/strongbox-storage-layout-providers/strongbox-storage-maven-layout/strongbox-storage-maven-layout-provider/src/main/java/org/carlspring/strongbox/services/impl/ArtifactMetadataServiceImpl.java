@@ -120,7 +120,8 @@ public class ArtifactMetadataServiceImpl
             repositoryBasePath = repositoryBasePath.resolve(basePath);
         }
 
-        GenerateMavenMetadataOperation operation = new GenerateMavenMetadataOperation(mavenMetadataManager, artifactEventListenerRegistry);
+        GenerateMavenMetadataOperation operation = new GenerateMavenMetadataOperation(mavenMetadataManager,
+                                                                                      artifactEventListenerRegistry);
         operation.setBasePath(repositoryBasePath);
 
         ArtifactDirectoryLocator locator = new ArtifactDirectoryLocator();
@@ -252,8 +253,8 @@ public class ArtifactMetadataServiceImpl
 
         RepositoryPath repositoryPath = repositoryPathResolver.resolve(repository, artifactPath);
 
-        Metadata metadata =  mavenMetadataManager.readMetadata(repositoryPath);
-        
+        Metadata metadata = mavenMetadataManager.readMetadata(repositoryPath);
+
         Versioning versioning = metadata.getVersioning();
 
         if (ArtifactUtils.isSnapshot(version))
@@ -314,15 +315,21 @@ public class ArtifactMetadataServiceImpl
             {
                 iterator.remove();
 
-                if (classifier != null) {
+                if (classifier != null)
+                {
                     logger.debug("Removed timestamped SNAPSHOT ({}:{}) from metadata.", version, classifier);
-                } else {
-                    if (snapshotVersion.getClassifier() != null && !snapshotVersion.getClassifier().equals("")) {
+                }
+                else
+                {
+                    if (snapshotVersion.getClassifier() != null && !snapshotVersion.getClassifier().equals(""))
+                    {
                         logger.debug("Removed timestamped SNAPSHOT ({}:{}:{}) from metadata.",
-                            version, snapshotVersion.getClassifier(), snapshotVersion.getExtension());
-                    } else {
+                                     version, snapshotVersion.getClassifier(), snapshotVersion.getExtension());
+                    }
+                    else
+                    {
                         logger.debug("Removed timestamped SNAPSHOT ({}:{}) from metadata.",
-                            version, snapshotVersion.getExtension());
+                                     version, snapshotVersion.getExtension());
                     }
                 }
             }

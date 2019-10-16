@@ -9,14 +9,11 @@ import org.slf4j.LoggerFactory;
 
 /**
  * With this class you can get all avaliable Layouts from classpath.
- * 
- * 
+ *
  * @author sbespalov
- * 
- * @see ArtifactCoordinatesLayout 
+ * @see ArtifactCoordinatesLayout
  * @see ArtifactLayoutCoordinate
  * @see ArtifactCoordinates
- * 
  */
 public class ArtifactLayoutLocator
 {
@@ -44,13 +41,16 @@ public class ArtifactLayoutLocator
         Map<String, ArtifactLayoutDescription> layoutEntityMapLocal = new HashMap<>();
 
         Reflections reflections = new Reflections("org.carlspring.strongbox.artifact.coordinates");
-        for (Class<? extends ArtifactCoordinates> artifactCoordinatesClass : reflections.getSubTypesOf(ArtifactCoordinates.class))
+        for (Class<? extends ArtifactCoordinates> artifactCoordinatesClass : reflections.getSubTypesOf(
+                ArtifactCoordinates.class))
         {
-            ArtifactCoordinatesLayout artifactLayout = artifactCoordinatesClass.getAnnotation(ArtifactCoordinatesLayout.class);
+            ArtifactCoordinatesLayout artifactLayout = artifactCoordinatesClass.getAnnotation(
+                    ArtifactCoordinatesLayout.class);
             if (artifactLayout == null)
             {
                 logger.warn("[{}] should be provided for [{}] class",
-                    ArtifactCoordinatesLayout.class.getSimpleName(), artifactCoordinatesClass.getSimpleName());
+                            ArtifactCoordinatesLayout.class.getSimpleName(),
+                            artifactCoordinatesClass.getSimpleName());
                 continue;
             }
 

@@ -72,7 +72,7 @@ public class RepositoryProxyIndexCreator
         if (Objects.equals(updateResult.getTimestamp(), contextCurrentTimestamp))
         {
             logger.debug("No update required for remote index {}:{}, as the index is up to date!",
-                storageId, repositoryId);
+                         storageId, repositoryId);
             if (!IndexPacker.packageExists(repositoryIndexDirectoryPath))
             {
                 IndexPacker.pack(repositoryIndexDirectoryPath, indexingContext);
@@ -87,7 +87,7 @@ public class RepositoryProxyIndexCreator
         else
         {
             logger.debug("Performed an incremental update, with changes covering the period between {} - {}.",
-                contextCurrentTimestamp, updateResult.getTimestamp());
+                         contextCurrentTimestamp, updateResult.getTimestamp());
         }
         IndexPacker.pack(repositoryIndexDirectoryPath, indexingContext);
     }

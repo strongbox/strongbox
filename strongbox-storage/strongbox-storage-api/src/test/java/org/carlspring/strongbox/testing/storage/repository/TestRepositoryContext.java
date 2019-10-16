@@ -34,10 +34,11 @@ import org.slf4j.LoggerFactory;
 
 /**
  * This class manages the resources used within {@link Repository}.
- * 
+ *
  * @author sbespalov
  */
-public class TestRepositoryContext implements AutoCloseable, Comparable<TestRepositoryContext>
+public class TestRepositoryContext
+        implements AutoCloseable, Comparable<TestRepositoryContext>
 {
 
     private static final Logger logger = LoggerFactory.getLogger(TestRepositoryContext.class);
@@ -45,9 +46,9 @@ public class TestRepositoryContext implements AutoCloseable, Comparable<TestRepo
     private final TestRepository testRepository;
 
     private final Remote remoteRepository;
-    
+
     private final Group groupRepository;
-    
+
     private final RepositoryAttributes repositoryAttributes;
 
     private final ConfigurationManagementService configurationManagementService;
@@ -115,8 +116,8 @@ public class TestRepositoryContext implements AutoCloseable, Comparable<TestRepo
                    RepositoryManagementStrategyException
     {
         logger.debug("Create [{}] with id [{}] ",
-                                  TestRepository.class.getSimpleName(),
-                                  id(testRepository));
+                     TestRepository.class.getSimpleName(),
+                     id(testRepository));
 
         if (groupRepository != null && remoteRepository != null)
         {
@@ -125,7 +126,7 @@ public class TestRepositoryContext implements AutoCloseable, Comparable<TestRepo
                                   id(testRepository), Group.class.getSimpleName(),
                                   Remote.class.getSimpleName()));
         }
-        
+
         Storage storage = Optional.ofNullable(configurationManagementService.getConfiguration()
                                                                             .getStorage(testRepository.storageId()))
                                   .orElseGet(ThrowingSupplier.unchecked(this::createStorage));
@@ -175,14 +176,14 @@ public class TestRepositoryContext implements AutoCloseable, Comparable<TestRepo
             repository.setStatus(repositoryAttributes.status().getStatus());
             repository.setTrashEnabled(repositoryAttributes.trashEnabled());
         });
-        
+
         Arrays.stream(testRepository.setup()).forEach(s -> setupRepository(s, repository));
 
         configurationManagementService.saveRepository(testRepository.storageId(), repository);
         repositoryManagementService.createRepository(storage.getId(), repository.getId());
 
         final RepositoryPath repositoryPath = repositoryPathResolver.resolve(new RepositoryData(repository,
-                                                                                                     storage));
+                                                                                                storage));
         if (!Files.exists(repositoryPath))
         {
             throw new IOException(String.format("Failed to create repository [%s].", repositoryPath));
@@ -191,8 +192,8 @@ public class TestRepositoryContext implements AutoCloseable, Comparable<TestRepo
         opened = true;
 
         logger.debug("Created [{}] with id [{}] ",
-                                  TestRepository.class.getSimpleName(),
-                                  id(testRepository));
+                     TestRepository.class.getSimpleName(),
+                     id(testRepository));
     }
 
     private List<MutableRoutingRuleRepository> routingRepositories(String[] repositories)
@@ -228,11 +229,11 @@ public class TestRepositoryContext implements AutoCloseable, Comparable<TestRepo
 
     @PreDestroy
     public void close()
-        throws IOException
+            throws IOException
     {
         logger.debug("Close [{}] with id [{}] ",
-                                  TestRepository.class.getSimpleName(),
-                                  id(testRepository));
+                     TestRepository.class.getSimpleName(),
+                     id(testRepository));
 
         try
         {
@@ -241,25 +242,25 @@ public class TestRepositoryContext implements AutoCloseable, Comparable<TestRepo
         catch (IOException e)
         {
             logger.error("Failed to close [{}] with id [{}] ",
-                TestRepository.class.getSimpleName(), id(testRepository), e);
+                         TestRepository.class.getSimpleName(), id(testRepository), e);
 
             throw e;
         }
         catch (Exception e)
         {
             logger.error("Failed to close [{}] with id [{}] ",
-                TestRepository.class.getSimpleName(), id(testRepository), e);
+                         TestRepository.class.getSimpleName(), id(testRepository), e);
 
             throw new IOException(e);
         }
 
         logger.debug("Closed [{}] with id [{}] ",
-                                  TestRepository.class.getSimpleName(),
-                                  id(testRepository));
+                     TestRepository.class.getSimpleName(),
+                     id(testRepository));
     }
 
     private void closeInternal()
-        throws IOException
+            throws IOException
     {
         if (testRepository.cleanup())
         {

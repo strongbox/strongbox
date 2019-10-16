@@ -12,6 +12,7 @@ import org.carlspring.strongbox.providers.io.RepositoryFiles;
 import org.carlspring.strongbox.providers.io.RepositoryPath;
 import org.carlspring.strongbox.repository.RawRepositoryFeatures;
 import org.carlspring.strongbox.repository.RawRepositoryManagementStrategy;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Component;
@@ -39,10 +40,11 @@ public class RawLayoutProvider
     public void register()
     {
         logger.info("Registered layout provider '{}' with alias '{}'.",
-            getClass().getCanonicalName(), ALIAS);
+                    getClass().getCanonicalName(), ALIAS);
     }
 
-    protected NullArtifactCoordinates getArtifactCoordinates(RepositoryPath path) throws IOException
+    protected NullArtifactCoordinates getArtifactCoordinates(RepositoryPath path)
+            throws IOException
     {
         return new NullArtifactCoordinates(RepositoryFiles.relativizePath(path));
     }

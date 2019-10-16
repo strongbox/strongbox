@@ -40,9 +40,9 @@ public class ArtifactEntryJarFileContentsIndexCreator
         final MavenArtifactCoordinates coordinates = (MavenArtifactCoordinates) artifactEntry.getArtifactCoordinates();
         final String extension = coordinates.getExtension();
 
-        if ("jar" .equals(extension) ||
-            "war" .equals(extension) ||
-            "zip" .equals(extension))
+        if ("jar".equals(extension) ||
+            "war".equals(extension) ||
+            "zip".equals(extension))
         {
             updateArtifactInfo(artifactInfo, artifactEntry);
         }
@@ -57,7 +57,7 @@ public class ArtifactEntryJarFileContentsIndexCreator
         final MavenArtifactCoordinates coordinates = (MavenArtifactCoordinates) artifactEntry.getArtifactCoordinates();
 
         String strippedPrefix = null;
-        if ("war" .equals(coordinates.getExtension()))
+        if ("war".equals(coordinates.getExtension()))
         {
             strippedPrefix = "WEB-INF/classes/";
         }
@@ -114,8 +114,8 @@ public class ArtifactEntryJarFileContentsIndexCreator
         final String fieldValue = sb.toString().trim();
 
         logger.debug("Updating ArtifactInfo using artifactEntry [{}] by classNames [{}]",
-                                   artifactEntry,
-                                   fieldValue);
+                     artifactEntry,
+                     fieldValue);
 
         if (fieldValue.length() != 0)
         {

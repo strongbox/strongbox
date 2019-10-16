@@ -10,6 +10,7 @@ import javax.annotation.PostConstruct;
 import javax.inject.Inject;
 
 import org.apache.commons.codec.digest.MessageDigestAlgorithms;
+
 import org.carlspring.strongbox.artifact.coordinates.NpmArtifactCoordinates;
 import org.carlspring.strongbox.providers.io.RepositoryFileAttributeType;
 import org.carlspring.strongbox.providers.io.RepositoryFiles;
@@ -17,19 +18,19 @@ import org.carlspring.strongbox.providers.io.RepositoryPath;
 import org.carlspring.strongbox.repository.NpmRepositoryFeatures;
 import org.carlspring.strongbox.repository.NpmRepositoryManagementStrategy;
 import org.carlspring.strongbox.repository.RepositoryManagementStrategy;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Component;
 
 /**
- * 
  * @author Sergey Bespalov
- *
  */
 @Component
 public class NpmLayoutProvider
         extends AbstractLayoutProvider<NpmArtifactCoordinates>
 {
+
     private static final Logger logger = LoggerFactory.getLogger(NpmLayoutProvider.class);
 
     public static final String ALIAS = NpmArtifactCoordinates.LAYOUT_NAME;
@@ -45,10 +46,11 @@ public class NpmLayoutProvider
     public void register()
     {
         logger.info("Registered layout provider '{}' with alias '{}'.",
-            getClass().getCanonicalName(), ALIAS);
+                    getClass().getCanonicalName(), ALIAS);
     }
 
-    protected NpmArtifactCoordinates getArtifactCoordinates(RepositoryPath path) throws IOException
+    protected NpmArtifactCoordinates getArtifactCoordinates(RepositoryPath path)
+            throws IOException
     {
         return NpmArtifactCoordinates.parse(RepositoryFiles.relativizePath(path));
     }
@@ -58,14 +60,16 @@ public class NpmLayoutProvider
         return path.getFileName().toString().endsWith("package.json");
     }
 
-    public boolean isNpmMetadata(RepositoryPath path) {
-        return path.getFileName().toString().endsWith("package-lock.json") || path.getFileName().toString().endsWith("npm-shrinkwrap.json");
+    public boolean isNpmMetadata(RepositoryPath path)
+    {
+        return path.getFileName().toString().endsWith("package-lock.json") ||
+               path.getFileName().toString().endsWith("npm-shrinkwrap.json");
     }
-    
+
     @Override
     protected Map<RepositoryFileAttributeType, Object> getRepositoryFileAttributes(RepositoryPath repositoryPath,
                                                                                    RepositoryFileAttributeType... attributeTypes)
-        throws IOException
+            throws IOException
     {
         Map<RepositoryFileAttributeType, Object> result = super.getRepositoryFileAttributes(repositoryPath,
                                                                                             attributeTypes);
@@ -77,31 +81,31 @@ public class NpmLayoutProvider
             {
                 case ARTIFACT:
                     value = (Boolean) value && !isNpmMetadata(repositoryPath);
-    
+
                     if (value != null)
                     {
                         result.put(attributeType, value);
                     }
-    
+
                     break;
                 case METADATA:
                     value = (Boolean) value || isNpmMetadata(repositoryPath);
-    
+
                     if (value != null)
                     {
                         result.put(attributeType, value);
                     }
-    
+
                     break;
                 default:
-    
+
                     break;
             }
         }
 
         return result;
     }
-    
+
     @Override
     public RepositoryManagementStrategy getRepositoryManagementStrategy()
     {

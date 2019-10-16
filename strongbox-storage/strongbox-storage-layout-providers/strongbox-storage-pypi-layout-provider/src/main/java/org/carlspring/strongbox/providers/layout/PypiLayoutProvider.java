@@ -28,6 +28,7 @@ import org.springframework.stereotype.Component;
 public class PypiLayoutProvider
         extends AbstractLayoutProvider<PypiArtifactCoordinates>
 {
+
     private static final Logger logger = LoggerFactory.getLogger(PypiLayoutProvider.class);
 
     public static final String ALIAS = PypiArtifactCoordinates.LAYOUT_NAME;
@@ -43,10 +44,11 @@ public class PypiLayoutProvider
     public void register()
     {
         logger.info("Registered layout provider '{}' with alias '{}'.",
-            getClass().getCanonicalName(), ALIAS);
+                    getClass().getCanonicalName(), ALIAS);
     }
 
-    protected PypiArtifactCoordinates getArtifactCoordinates(RepositoryPath path) throws IOException
+    protected PypiArtifactCoordinates getArtifactCoordinates(RepositoryPath path)
+            throws IOException
     {
         return PypiArtifactCoordinates.parse(RepositoryFiles.relativizePath(path));
     }
@@ -62,11 +64,11 @@ public class PypiLayoutProvider
         // TODO: Fix
         return false;
     }
-    
+
     @Override
     protected Map<RepositoryFileAttributeType, Object> getRepositoryFileAttributes(RepositoryPath repositoryPath,
                                                                                    RepositoryFileAttributeType... attributeTypes)
-        throws IOException
+            throws IOException
     {
         Map<RepositoryFileAttributeType, Object> result = super.getRepositoryFileAttributes(repositoryPath,
                                                                                             attributeTypes);
@@ -78,31 +80,31 @@ public class PypiLayoutProvider
             {
                 case ARTIFACT:
                     value = (Boolean) value && !isMetadata(repositoryPath);
-    
+
                     if (value != null)
                     {
                         result.put(attributeType, value);
                     }
-    
+
                     break;
                 case METADATA:
                     value = (Boolean) value || isMetadata(repositoryPath);
-    
+
                     if (value != null)
                     {
                         result.put(attributeType, value);
                     }
-    
+
                     break;
                 default:
-    
+
                     break;
             }
         }
 
         return result;
     }
-    
+
     @Override
     public RepositoryManagementStrategy getRepositoryManagementStrategy()
     {

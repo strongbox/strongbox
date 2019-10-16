@@ -33,10 +33,11 @@ public class P2LayoutProvider
     public void register()
     {
         logger.info("Registered layout provider '{}' with alias '{}'.",
-            getClass().getCanonicalName(), ALIAS);
+                    getClass().getCanonicalName(), ALIAS);
     }
 
-    protected P2ArtifactCoordinates getArtifactCoordinates(RepositoryPath path) throws IOException
+    protected P2ArtifactCoordinates getArtifactCoordinates(RepositoryPath path)
+            throws IOException
     {
         return P2ArtifactCoordinates.create(RepositoryFiles.relativizePath(path));
     }
@@ -44,9 +45,9 @@ public class P2LayoutProvider
     public boolean isArtifactMetadata(RepositoryPath path)
     {
         String fileName = path.getFileName().toString();
-        
+
         return "content.xml".equals(fileName) || "artifacts.xml".equals(fileName) || "artifacts.jar".equals(fileName) ||
-                "content.jar".equals(fileName);
+               "content.jar".equals(fileName);
     }
 
     @Override

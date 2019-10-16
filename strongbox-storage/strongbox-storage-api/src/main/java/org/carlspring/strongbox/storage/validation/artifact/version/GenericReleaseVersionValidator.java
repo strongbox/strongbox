@@ -39,7 +39,7 @@ public class GenericReleaseVersionValidator
         artifactCoordinatesValidatorRegistry.addProvider(ALIAS, this);
 
         logger.info("Registered artifact coordinates validator '{}' with alias '{}'.",
-            getClass().getCanonicalName(), ALIAS);
+                    getClass().getCanonicalName(), ALIAS);
     }
 
     @Override

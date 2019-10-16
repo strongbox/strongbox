@@ -75,16 +75,16 @@ public class RepositoryArtifactIdGroupServiceImpl
         if (artifactCoordinatesComparison == 0)
         {
             logger.debug("Set [{}] last version to [{}]",
-                                       entity.getArtifactPath(),
-                                       coordinates.getVersion());
+                         entity.getArtifactPath(),
+                         coordinates.getVersion());
             entity.getTagSet().add(lastVersionTag);
         }
         else if (artifactCoordinatesComparison > 0)
         {
             logger.debug("Update [{}] last version from [{}] to [{}]",
-                                       entity.getArtifactPath(),
-                                       lastVersionEntry.getArtifactCoordinates().getVersion(),
-                                       coordinates.getVersion());
+                         entity.getArtifactPath(),
+                         lastVersionEntry.getArtifactCoordinates().getVersion(),
+                         coordinates.getVersion());
             entity.getTagSet().add(lastVersionTag);
 
             lastVersionEntry.getTagSet().remove(lastVersionTag);
@@ -93,8 +93,8 @@ public class RepositoryArtifactIdGroupServiceImpl
         else
         {
             logger.debug("Keep [{}] last version [{}]",
-                                       entity.getArtifactPath(),
-                                       lastVersionEntry.getArtifactCoordinates().getVersion());
+                         entity.getArtifactPath(),
+                         lastVersionEntry.getArtifactCoordinates().getVersion());
             entity.getTagSet().remove(lastVersionTag);
         }
 

@@ -49,8 +49,8 @@ public class SearchController
     @PreAuthorize("hasAuthority('SEARCH_ARTIFACTS')")
     @GetMapping(consumes = { MediaType.APPLICATION_OCTET_STREAM_VALUE,
                              MediaType.TEXT_PLAIN_VALUE },
-                produces = { MediaType.APPLICATION_JSON_VALUE,
-                             MediaType.TEXT_PLAIN_VALUE })
+            produces = { MediaType.APPLICATION_JSON_VALUE,
+                         MediaType.TEXT_PLAIN_VALUE })
     public ResponseEntity search(@ApiParam(value = "The storageId", required = false)
                                  @RequestParam(name = "storageId", required = false) final String storageId,
                                  @ApiParam(value = "The repositoryId", required = false)
@@ -64,7 +64,7 @@ public class SearchController
         String q = URLDecoder.decode(query, "UTF-8");
 
         logger.debug("[search] {}\n\taccept {}\n\tstorageId = {}\n\trepositoryId = {}",
-            q, accept, storageId, repositoryId);
+                     q, accept, storageId, repositoryId);
 
         if (accept.equalsIgnoreCase(MediaType.TEXT_PLAIN_VALUE))
         {
@@ -76,8 +76,9 @@ public class SearchController
         {
             // Apparently, the JSON root tag's name is based on the name of the object
             // which the Jersey method returns, hence this is "artifacts".
-            @SuppressWarnings("UnnecessaryLocalVariable")
-            final SearchResults artifacts = getSearchResults(storageId, repositoryId, q);
+            @SuppressWarnings("UnnecessaryLocalVariable") final SearchResults artifacts = getSearchResults(storageId,
+                                                                                                           repositoryId,
+                                                                                                           q);
 
             return ResponseEntity.ok(artifacts);
         }

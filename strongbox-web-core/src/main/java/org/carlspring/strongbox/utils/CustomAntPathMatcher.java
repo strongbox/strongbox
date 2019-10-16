@@ -76,8 +76,9 @@ public class CustomAntPathMatcher
             uriTemplateVariables.put(pathVariableName, getPathVariableValue(pattern, path));
         }
 
-        logger.trace("[doMatch] pattern {}\n\tpath {}\n\tfullMatch {}\n\turiTemplateVariables {}\n\tdefaultMatchResult {}",
-            pattern, path, fullMatch, uriTemplateVariables, defaultMatchResult);
+        logger.trace(
+                "[doMatch] pattern {}\n\tpath {}\n\tfullMatch {}\n\turiTemplateVariables {}\n\tdefaultMatchResult {}",
+                pattern, path, fullMatch, uriTemplateVariables, defaultMatchResult);
 
         return defaultMatchResult;
     }

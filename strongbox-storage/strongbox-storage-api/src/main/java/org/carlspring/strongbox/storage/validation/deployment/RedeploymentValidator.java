@@ -12,6 +12,7 @@ import org.carlspring.strongbox.storage.validation.artifact.version.VersionValid
 import javax.annotation.PostConstruct;
 import javax.inject.Inject;
 import java.io.IOException;
+
 import org.carlspring.strongbox.providers.io.RepositoryFiles;
 
 import org.slf4j.Logger;
@@ -31,7 +32,7 @@ public class RedeploymentValidator
     public static final String ALIAS = "redeployment-validator";
 
     public static final String DESCRIPTION = "Re-deployment validator";
-    
+
     @Inject
     private LayoutProviderRegistry layoutProviderRegistry;
 
@@ -48,7 +49,7 @@ public class RedeploymentValidator
         artifactCoordinatesValidatorRegistry.addProvider(ALIAS, this);
 
         logger.info("Registered artifact coordinates validator '{}' with alias '{}'.",
-            getClass().getCanonicalName(), ALIAS);
+                    getClass().getCanonicalName(), ALIAS);
     }
 
     @Override
@@ -72,7 +73,7 @@ public class RedeploymentValidator
         LayoutProvider layoutProvider = layoutProviderRegistry.getProvider(repository.getLayout());
 
         RepositoryPath repositoryPath = repositoryPathResolver.resolve(repository, coordinates);
-        
+
         if (repository.acceptsReleases() &&
             (!repository.allowsDeployment() && RepositoryFiles.artifactExists(repositoryPath)))
         {

@@ -56,7 +56,8 @@ public class MetadataMerger
 
         versioning.setLastUpdated(timestamp);
         versioning.getSnapshotVersions().clear();
-        versioning.getSnapshotVersions().addAll(createNewSnapshotVersions(artifact.getVersion(), timestamp, snapshot.getBuildNumber()));
+        versioning.getSnapshotVersions().addAll(
+                createNewSnapshotVersions(artifact.getVersion(), timestamp, snapshot.getBuildNumber()));
 
         return metadata;
     }
@@ -72,7 +73,8 @@ public class MetadataMerger
         }
         String newVersion = !ArtifactUtils.isSnapshot(artifact.getVersion()) ?
                             artifact.getVersion() :
-                            artifact.getVersion().substring(0, artifact.getVersion().indexOf("-") + 1).concat("SNAPSHOT");
+                            artifact.getVersion().substring(0, artifact.getVersion().indexOf("-") + 1).concat(
+                                    "SNAPSHOT");
         Versioning versioning = metadata.getVersioning();
         if (versioning == null)
         {
@@ -179,7 +181,7 @@ public class MetadataMerger
         catch (IOException e)
         {
             logger.error("*** Error occurred while trying to extract plugin.xml from artifact {}",
-                artifact.getArtifactId(), e);
+                         artifact.getArtifactId(), e);
         }
 
         return pluginMap;

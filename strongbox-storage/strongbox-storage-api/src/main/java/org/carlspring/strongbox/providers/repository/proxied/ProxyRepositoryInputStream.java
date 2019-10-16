@@ -6,25 +6,28 @@ import java.io.IOException;
 
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.lang3.time.StopWatch;
+
 import org.carlspring.strongbox.artifact.ArtifactNotFoundException;
 import org.carlspring.strongbox.client.RemoteRepositoryRetryArtifactDownloadConfiguration;
 import org.carlspring.strongbox.client.RestArtifactResolver;
 import org.carlspring.strongbox.providers.io.RepositoryPath;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 /**
  * @author sbespalov
- *
  */
-public class ProxyRepositoryInputStream extends FilterInputStream
+public class ProxyRepositoryInputStream
+        extends FilterInputStream
 {
 
     private static final Logger logger = LoggerFactory.getLogger(ProxyRepositoryInputStream.class);
 
     private RestArtifactResolver client;
 
-    private ThreadLocal<ArtifactCopyContext> artifactCopyContext = new ThreadLocal<>();;
+    private ThreadLocal<ArtifactCopyContext> artifactCopyContext = new ThreadLocal<>();
+    ;
 
     private ReadTemplate readTemplate = new ReadTemplate();
 
@@ -34,7 +37,7 @@ public class ProxyRepositoryInputStream extends FilterInputStream
 
     public ProxyRepositoryInputStream(RestArtifactResolver proxyTargetClient,
                                       RepositoryPath path)
-        throws IOException
+            throws IOException
     {
         super(new RemoteArtifactStreamFetcher(proxyTargetClient).getInputStream(0, path));
 
@@ -54,14 +57,14 @@ public class ProxyRepositoryInputStream extends FilterInputStream
 
     @Override
     public int read()
-        throws IOException
+            throws IOException
     {
         return (int) readTemplate.doRead(() -> super.read());
     }
 
     @Override
     public int read(byte[] b)
-        throws IOException
+            throws IOException
     {
         return (int) readTemplate.doRead(() -> super.read(b));
     }
@@ -70,21 +73,21 @@ public class ProxyRepositoryInputStream extends FilterInputStream
     public int read(byte[] b,
                     int off,
                     int len)
-        throws IOException
+            throws IOException
     {
         return (int) readTemplate.doRead(() -> super.read(b, off, len));
     }
 
     @Override
     public long skip(long n)
-        throws IOException
+            throws IOException
     {
         return readTemplate.doRead(() -> super.skip(n));
     }
 
     @Override
     public int available()
-        throws IOException
+            throws IOException
     {
         if (!checkRemoteRepositoryHeartbeat())
         {
@@ -96,12 +99,13 @@ public class ProxyRepositoryInputStream extends FilterInputStream
 
     @Override
     public void close()
-        throws IOException
+            throws IOException
     {
         try
         {
             super.close();
-        } finally
+        }
+        finally
         {
             this.artifactCopyContext.get().close();
         }
@@ -116,7 +120,7 @@ public class ProxyRepositoryInputStream extends FilterInputStream
 
     @Override
     public synchronized void reset()
-        throws IOException
+            throws IOException
     {
         throw new UnsupportedOperationException();
     }
@@ -129,8 +133,9 @@ public class ProxyRepositoryInputStream extends FilterInputStream
 
     private class ReadTemplate
     {
+
         public long doRead(InputStreamRead f)
-            throws IOException
+                throws IOException
         {
             ArtifactCopyContext ctx = artifactCopyContext.get();
 
@@ -157,14 +162,15 @@ public class ProxyRepositoryInputStream extends FilterInputStream
 
     private long retryReadIfPossible(InputStreamRead f,
                                      IOException lastException)
-        throws IOException
+            throws IOException
     {
         ArtifactCopyContext ctx = artifactCopyContext.get();
         ctx.setAttempts(ctx.getAttempts() + 1);
 
-        logger.debug("Retrying remote stream reading because of [{}]... Attempt number = [{}], Current Offset = [{}] Duration Time = [{}]",
-                     lastException, ctx.getAttempts(), ctx.getCurrentOffset(),
-                     ctx.getStopWatch());
+        logger.debug(
+                "Retrying remote stream reading because of [{}]... Attempt number = [{}], Current Offset = [{}] Duration Time = [{}]",
+                lastException, ctx.getAttempts(), ctx.getCurrentOffset(),
+                ctx.getStopWatch());
 
         finishUnsuccessfullyIfNumberOfAttemptsExceedTheLimit(lastException);
         tryToSleepRequestedAmountOfTimeBetweenAttempts(lastException);
@@ -184,7 +190,7 @@ public class ProxyRepositoryInputStream extends FilterInputStream
         {
             throw new IOException(String.format("Remote resource path [%s] does not support range requests.",
                                                 repositoryPath),
-                    lastException);
+                                  lastException);
         }
 
         this.in.close();
@@ -194,7 +200,7 @@ public class ProxyRepositoryInputStream extends FilterInputStream
     }
 
     private boolean isRangeRequestSupported()
-        throws IOException
+            throws IOException
     {
         String acceptRangesHeader = remoteArtifactStreamFetcher.getHead(repositoryPath);
 
@@ -207,18 +213,19 @@ public class ProxyRepositoryInputStream extends FilterInputStream
     }
 
     private void finishUnsuccessfullyIfNumberOfAttemptsExceedTheLimit(IOException ex)
-        throws IOException
+            throws IOException
     {
         int maxAllowedNumberOfRetryAttempts = getMaxAllowedNumberOfRetryAttempts();
         if (artifactCopyContext.get().getAttempts() > maxAllowedNumberOfRetryAttempts)
         {
-            logger.error("Maximum retry attempts [{}] reached for [{}]", maxAllowedNumberOfRetryAttempts, repositoryPath);
+            logger.error("Maximum retry attempts [{}] reached for [{}]", maxAllowedNumberOfRetryAttempts,
+                         repositoryPath);
             throw ex;
         }
     }
 
     private void finishUnsuccessfullyIfTimeoutOccurred(IOException ex)
-        throws IOException
+            throws IOException
     {
         long retryTimeoutMillis = getRetryTimeoutMillis();
         if (artifactCopyContext.get().getStopWatch().getTime() > retryTimeoutMillis)
@@ -244,7 +251,7 @@ public class ProxyRepositoryInputStream extends FilterInputStream
     }
 
     private void tryToSleepRequestedAmountOfTimeBetweenAttempts(final IOException ex)
-        throws IOException
+            throws IOException
     {
         try
         {
@@ -264,7 +271,8 @@ public class ProxyRepositoryInputStream extends FilterInputStream
         return client.getConfiguration();
     }
 
-    private class ArtifactCopyContext implements Closeable
+    private class ArtifactCopyContext
+            implements Closeable
     {
 
         private StopWatch stopWatch;
@@ -314,7 +322,7 @@ public class ProxyRepositoryInputStream extends FilterInputStream
 
         @Override
         public void close()
-            throws IOException
+                throws IOException
         {
             try
             {
@@ -326,7 +334,8 @@ public class ProxyRepositoryInputStream extends FilterInputStream
                 {
                     throw new IOException(e);
                 }
-            } finally
+            }
+            finally
             {
                 artifactCopyContext.remove();
             }
@@ -339,7 +348,7 @@ public class ProxyRepositoryInputStream extends FilterInputStream
     {
 
         long read()
-            throws IOException;
+                throws IOException;
     }
 
 }

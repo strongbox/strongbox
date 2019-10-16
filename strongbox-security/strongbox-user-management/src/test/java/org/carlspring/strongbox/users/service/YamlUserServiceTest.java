@@ -12,6 +12,7 @@ import org.carlspring.strongbox.users.dto.User;
 import org.carlspring.strongbox.users.dto.UserDto;
 import org.carlspring.strongbox.users.service.impl.EncodedPasswordUser;
 import org.carlspring.strongbox.users.service.impl.YamlUserService.Yaml;
+
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.slf4j.Logger;
@@ -37,7 +38,7 @@ public class YamlUserServiceTest
 
     @Inject
     private PasswordEncoder passwordEncoder;
-    
+
     @BeforeEach
     public void setup()
     {
@@ -73,7 +74,7 @@ public class YamlUserServiceTest
 
         assertThat(foundEntity).as("Unable to locate user " + testUserName + ". Save operation failed!").isNotNull();
 
-        logger.debug("Found stored user\n\t{}\n", foundEntity);
+        logger.debug("Found stored user: {}", foundEntity);
 
         assertThat(foundEntity.getUsername()).isEqualTo(testUserName);
         assertThat(foundEntity.getPassword())
@@ -101,7 +102,7 @@ public class YamlUserServiceTest
         User addedEntity = userService.findByUsername(testUserName);
         assertThat(addedEntity).as("Unable to locate user " + testUserName + ". Save operation failed!").isNotNull();
 
-        logger.debug("Found stored user\n\t{}\n", addedEntity);
+        logger.debug("Found stored user: {}", addedEntity);
 
         logger.debug("Updating user...");
 
@@ -114,7 +115,8 @@ public class YamlUserServiceTest
         userService.save(userUpdate);
 
         User updatedEntity = userService.findByUsername(testUserName);
-        assertThat(updatedEntity).as("Unable to locate updated user " + testUserName + ". Update operation failed!").isNotNull();
+        assertThat(updatedEntity).as(
+                "Unable to locate updated user " + testUserName + ". Update operation failed!").isNotNull();
 
         logger.debug("Found stored updated user\n\t{}\n", updatedEntity);
 
@@ -146,7 +148,7 @@ public class YamlUserServiceTest
         User addedEntity = userService.findByUsername(testUserName);
         assertThat(addedEntity).as("Unable to locate user " + testUserName + ". Save operation failed!").isNotNull();
 
-        logger.debug("Found stored initial user\n\t{}\n", addedEntity);
+        logger.debug("Found stored initial user: {}", addedEntity);
 
         // 2. Update the user with empty/null password
         logger.debug("Updating user with empty/null pass...");
@@ -158,7 +160,8 @@ public class YamlUserServiceTest
         userService.save(userNullPassUpdate);
 
         User updatedEntity = userService.findByUsername(testUserName);
-        assertThat(updatedEntity).as("Unable to locate updated user " + testUserName + ". Update operation failed!").isNotNull();
+        assertThat(updatedEntity).as(
+                "Unable to locate updated user " + testUserName + ". Update operation failed!").isNotNull();
 
         logger.debug("Found stored updated with empty pass user\n\t{}\n", updatedEntity);
 
@@ -174,9 +177,10 @@ public class YamlUserServiceTest
         userService.save(userBlankPassUpdate);
 
         updatedEntity = userService.findByUsername(testUserName);
-        assertThat(updatedEntity).as("Unable to locate updated user " + testUserName + ". Update operation failed!").isNotNull();
+        assertThat(updatedEntity).as(
+                "Unable to locate updated user " + testUserName + ". Update operation failed!").isNotNull();
 
-        logger.debug("Found stored updated with empty pass user\n\t{}\n", updatedEntity);
+        logger.debug("Found stored updated with empty pass user: {}", updatedEntity);
 
         assertThat(updatedEntity.getPassword()).as("User password has changed!").isEqualTo(addedEntity.getPassword());
     }
@@ -198,7 +202,7 @@ public class YamlUserServiceTest
         User addedEntity = userService.findByUsername(testUserName);
         assertThat(addedEntity).as("Unable to locate user " + testUserName + ". Save operation failed!").isNotNull();
 
-        logger.debug("Found stored user\n\t{}\n", addedEntity);
+        logger.debug("Found stored user: {}", addedEntity);
 
         logger.debug("Updating user...");
 
@@ -212,7 +216,8 @@ public class YamlUserServiceTest
         userService.updateAccountDetailsByUsername(userUpdate);
 
         User updatedEntity = userService.findByUsername(testUserName);
-        assertThat(updatedEntity).as("Unable to locate updated user " + testUserName + ". Update operation failed!").isNotNull();
+        assertThat(updatedEntity).as(
+                "Unable to locate updated user " + testUserName + ". Update operation failed!").isNotNull();
 
         logger.debug("Updated user found: \n\t{}\n", updatedEntity);
 
@@ -280,7 +285,7 @@ public class YamlUserServiceTest
         User addedEntity = userService.findByUsername(testUserName);
         assertThat(addedEntity).as("Unable to locate user " + testUserName + ". Delete operation failed!").isNotNull();
 
-        logger.debug("Found stored user\n\t{}\n", addedEntity);
+        logger.debug("Found stored user: {}", addedEntity);
 
         logger.debug("Deleting user...");
 

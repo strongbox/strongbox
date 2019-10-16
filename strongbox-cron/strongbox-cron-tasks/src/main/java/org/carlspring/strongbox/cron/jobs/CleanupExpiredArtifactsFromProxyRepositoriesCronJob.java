@@ -44,7 +44,7 @@ public class CleanupExpiredArtifactsFromProxyRepositoriesCronJob
         catch (NumberFormatException ex)
         {
             logger.error("Invalid integer value [{}] of 'lastAccessedTimeInDays' property. Cron job won't be fired.",
-                lastAccessedTimeInDaysText, ex);
+                         lastAccessedTimeInDaysText, ex);
             return;
         }
 
@@ -58,7 +58,7 @@ public class CleanupExpiredArtifactsFromProxyRepositoriesCronJob
             catch (NumberFormatException ex)
             {
                 logger.error("Invalid Long value [{}] of 'minSizeInBytes' property. Cron job won't be fired.",
-                    minSizeInBytesText, ex);
+                             minSizeInBytesText, ex);
                 return;
             }
         }

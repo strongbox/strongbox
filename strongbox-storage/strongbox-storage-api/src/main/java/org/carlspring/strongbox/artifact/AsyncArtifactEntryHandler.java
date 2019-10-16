@@ -47,8 +47,8 @@ public abstract class AsyncArtifactEntryHandler
 
     @AsyncEventListener
     public void handleEvent(final ArtifactEvent<RepositoryPath> event)
-        throws IOException,
-        InterruptedException
+            throws IOException,
+                   InterruptedException
     {
         if (eventType.getType() != event.getType())
         {
@@ -72,7 +72,8 @@ public abstract class AsyncArtifactEntryHandler
             catch (Exception e)
             {
                 logger.error("Failed to handle async event [{}]",
-                    AsyncArtifactEntryHandler.this.getClass().getSimpleName(), e);
+                             AsyncArtifactEntryHandler.this.getClass().getSimpleName(),
+                             e);
             }
         });
 
@@ -81,8 +82,8 @@ public abstract class AsyncArtifactEntryHandler
     }
 
     private void handleLocked(RepositoryPath repositoryPath)
-        throws IOException,
-        InterruptedException
+            throws IOException,
+                   InterruptedException
     {
         Lock lock = repositoryPathLock.lock(repositoryPath,
                                             ArtifactEntry.class.getSimpleName())
@@ -91,7 +92,7 @@ public abstract class AsyncArtifactEntryHandler
         try
         {
             handleWithRetry(repositoryPath);
-        } 
+        }
         finally
         {
             lock.unlock();
@@ -102,15 +103,14 @@ public abstract class AsyncArtifactEntryHandler
      * This retry needed if {@link ArtifactEntry} fetched between DB and
      * Hazelcast transactions commits.
      *
-     * @see ChainedTransactionManager
-     * 
      * @param repositoryPath
      * @throws InterruptedException
      * @throws IOException
+     * @see ChainedTransactionManager
      */
     private void handleWithRetry(RepositoryPath repositoryPath)
-        throws InterruptedException,
-        IOException
+            throws InterruptedException,
+                   IOException
     {
         Object sync = new Object();
 
@@ -139,7 +139,7 @@ public abstract class AsyncArtifactEntryHandler
     private void propogateIfNeeded(int i,
                                    RepositoryPath repositoryPath,
                                    ONeedRetryException e)
-        throws IOException
+            throws IOException
     {
         if (i >= MAX_RETRY)
         {
@@ -156,9 +156,9 @@ public abstract class AsyncArtifactEntryHandler
                 if (result == null)
                 {
                     logger.debug("No [{}] result for event [{}] and path [{}].",
-                                               ArtifactEntry.class.getSimpleName(),
-                                               AsyncArtifactEntryHandler.this.getClass().getSimpleName(),
-                                               repositoryPath);
+                                 ArtifactEntry.class.getSimpleName(),
+                                 AsyncArtifactEntryHandler.this.getClass().getSimpleName(),
+                                 repositoryPath);
 
                     return null;
                 }
@@ -173,6 +173,6 @@ public abstract class AsyncArtifactEntryHandler
     }
 
     protected abstract ArtifactEntry handleEvent(RepositoryPath repositoryPath)
-        throws IOException;
+            throws IOException;
 
 }

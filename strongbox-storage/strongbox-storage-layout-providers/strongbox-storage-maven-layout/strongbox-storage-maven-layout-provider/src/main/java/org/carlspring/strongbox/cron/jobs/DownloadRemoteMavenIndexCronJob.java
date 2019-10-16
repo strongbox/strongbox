@@ -50,14 +50,15 @@ public class DownloadRemoteMavenIndexCronJob
         String repositoryId = config.getProperty(PROPERTY_REPOSITORY_ID);
 
         logger.debug("Executing DownloadRemoteMavenIndexCronJob for storageId = [{}], repositoryId = [{}]",
-            storageId, repositoryId);
+                     storageId, repositoryId);
 
         Repository repository = configurationManager.getRepository(storageId, repositoryId);
 
         if (!repository.isProxyRepository())
         {
-            logger.warn("Repository identified by storageId = [{}], repositoryId = [{}] is not a proxy repository. Exiting ...",
-                storageId, repositoryId);
+            logger.warn(
+                    "Repository identified by storageId = [{}], repositoryId = [{}] is not a proxy repository. Exiting ...",
+                    storageId, repositoryId);
             return;
         }
 

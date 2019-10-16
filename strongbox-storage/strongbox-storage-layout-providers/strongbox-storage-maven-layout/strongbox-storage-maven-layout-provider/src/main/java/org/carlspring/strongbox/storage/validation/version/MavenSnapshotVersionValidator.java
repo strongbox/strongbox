@@ -38,7 +38,7 @@ public class MavenSnapshotVersionValidator
         artifactCoordinatesValidatorRegistry.addProvider(ALIAS, this);
 
         logger.info("Registered artifact coordinates validator '{}' with alias '{}'.",
-            getClass().getCanonicalName(), ALIAS);
+                    getClass().getCanonicalName(), ALIAS);
     }
 
     @Override
@@ -76,11 +76,13 @@ public class MavenSnapshotVersionValidator
         String version = coordinates.getVersion();
         if (isSnapshot(version) && !repository.acceptsSnapshots())
         {
-            throw new VersionValidationException("Cannot deploy a SNAPSHOT artifact to a repository with a release policy!");
+            throw new VersionValidationException(
+                    "Cannot deploy a SNAPSHOT artifact to a repository with a release policy!");
         }
         if (!isSnapshot(version) && repository.acceptsSnapshots() && !repository.acceptsReleases())
         {
-            throw new VersionValidationException("Cannot deploy a release artifact to a repository with a SNAPSHOT policy!");
+            throw new VersionValidationException(
+                    "Cannot deploy a release artifact to a repository with a SNAPSHOT policy!");
         }
     }
 

@@ -11,11 +11,13 @@ import javax.annotation.PostConstruct;
 import javax.inject.Inject;
 
 import org.apache.commons.codec.digest.MessageDigestAlgorithms;
+
 import org.carlspring.strongbox.artifact.coordinates.NugetArtifactCoordinates;
 import org.carlspring.strongbox.providers.io.RepositoryFiles;
 import org.carlspring.strongbox.providers.io.RepositoryPath;
 import org.carlspring.strongbox.repository.NugetRepositoryFeatures;
 import org.carlspring.strongbox.repository.NugetRepositoryManagementStrategy;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Component;
@@ -28,15 +30,14 @@ import org.springframework.stereotype.Component;
  * &emsp;├─&lt;packageID&gt;.&lt;version&gt;.nupkg<br>
  * &emsp;├─&lt;packageID&gt;.&lt;version&gt;.nupkg.sha512<br>
  * &emsp;└─&lt;packageID&gt;.nuspec<br>
- * 
- * 
- * @author Sergey Bespalov
  *
+ * @author Sergey Bespalov
  */
 @Component
 public class NugetLayoutProvider
         extends AbstractLayoutProvider<NugetArtifactCoordinates>
 {
+
     private static final Logger logger = LoggerFactory.getLogger(NugetLayoutProvider.class);
 
     public static final String ALIAS = NugetArtifactCoordinates.LAYOUT_NAME;
@@ -54,10 +55,11 @@ public class NugetLayoutProvider
     public void register()
     {
         logger.info("Registered layout provider '{}' with alias '{}'.",
-            getClass().getCanonicalName(), ALIAS);
+                    getClass().getCanonicalName(), ALIAS);
     }
 
-    protected NugetArtifactCoordinates getArtifactCoordinates(RepositoryPath path) throws IOException
+    protected NugetArtifactCoordinates getArtifactCoordinates(RepositoryPath path)
+            throws IOException
     {
         return NugetArtifactCoordinates.parse(RepositoryFiles.relativizePath(path));
     }

@@ -34,7 +34,9 @@ import org.apache.maven.artifact.repository.metadata.SnapshotVersion;
 import org.apache.maven.artifact.repository.metadata.Versioning;
 import org.apache.maven.artifact.repository.metadata.io.xpp3.MetadataXpp3Reader;
 import org.apache.maven.artifact.repository.metadata.io.xpp3.MetadataXpp3Writer;
+
 import org.carlspring.strongbox.providers.io.RepositoryFiles;
+
 import org.codehaus.plexus.util.WriterFactory;
 import org.codehaus.plexus.util.xml.pull.XmlPullParserException;
 import org.javatuples.Pair;
@@ -121,7 +123,8 @@ public class MavenMetadataManager
     public void storeMetadata(final RepositoryPath metadataBasePath,
                               final String version,
                               final Metadata metadata,
-                              final MetadataType metadataType) throws IOException
+                              final MetadataType metadataType)
+            throws IOException
     {
 
         doInLock(metadataBasePath, path ->
@@ -169,7 +172,8 @@ public class MavenMetadataManager
         }
 
         logger.debug("Artifact metadata generation triggered for {} in '{}:{}' [policy: {}].",
-            artifactGroupDirectoryPath, repository.getStorage().getId(), repository.getId(), repository.getPolicy());
+                     artifactGroupDirectoryPath, repository.getStorage().getId(), repository.getId(),
+                     repository.getPolicy());
 
         Pair<String, String> artifactGroup = MavenArtifactUtils.getDirectoryGA(artifactGroupDirectoryPath);
         String artifactGroupId = artifactGroup.getValue0();
@@ -232,7 +236,9 @@ public class MavenMetadataManager
                 for (String version : metadata.getVersioning().getVersions())
                 {
                     RepositoryPath snapshotBasePath = artifactGroupDirectoryPath.toAbsolutePath()
-                                                                                .resolve(ArtifactUtils.toSnapshotVersion(version));
+                                                                                .resolve(
+                                                                                        ArtifactUtils.toSnapshotVersion(
+                                                                                                version));
 
                     generateSnapshotVersioningMetadata(artifactGroupId, artifactId, snapshotBasePath,
                                                        version, true);
@@ -261,7 +267,11 @@ public class MavenMetadataManager
         }
     }
 
-    private void generateMavenPluginMetadata(String groupId, String aritfactId, RepositoryPath pluginMetadataPath, List<Plugin> plugins) throws IOException
+    private void generateMavenPluginMetadata(String groupId,
+                                             String aritfactId,
+                                             RepositoryPath pluginMetadataPath,
+                                             List<Plugin> plugins)
+            throws IOException
     {
         Metadata pluginMetadata = new Metadata();
         pluginMetadata.setPlugins(plugins);
@@ -308,7 +318,8 @@ public class MavenMetadataManager
     }
 
     public void mergeAndStore(final RepositoryPath metadataBasePath,
-                              final Metadata mergeMetadata) throws IOException
+                              final Metadata mergeMetadata)
+            throws IOException
     {
         doInLock(metadataBasePath, path ->
         {
@@ -324,8 +335,8 @@ public class MavenMetadataManager
                 {
                     // Exception not propagated, intentionally
                     logger.debug("Unable to merge the metadata to {} by source metadata {}. " +
-                        "Exception message was: {}. Continuing with storing new metadata ...",
-                        metadataBasePath, ReflectionToStringBuilder.toString(mergeMetadata), e.getMessage());
+                                 "Exception message was: {}. Continuing with storing new metadata ...",
+                                 metadataBasePath, ReflectionToStringBuilder.toString(mergeMetadata), e.getMessage());
                 }
             }
 
@@ -360,7 +371,7 @@ public class MavenMetadataManager
 
         RepositoryPath artifactBasePath = repositoryPath.getParent().getParent();
         logger.debug("Artifact merge metadata triggered for {} ({}). {}",
-            artifact, artifactBasePath, repository.getType());
+                     artifact, artifactBasePath, repository.getType());
 
         try
         {
@@ -377,7 +388,8 @@ public class MavenMetadataManager
 
     public void mergeAndStore(final RepositoryPath metadataBasePath,
                               final Metadata metadata,
-                              final Metadata mergeMetadata) throws IOException
+                              final Metadata mergeMetadata)
+            throws IOException
     {
         doInLock(metadataBasePath, path ->
         {
@@ -405,7 +417,8 @@ public class MavenMetadataManager
     }
 
     private void doInLock(RepositoryPath metadataBasePath,
-                          Consumer<Path> operation) throws IOException
+                          Consumer<Path> operation)
+            throws IOException
     {
         Lock lock = repositoryPathLock.lock(metadataBasePath).writeLock();
         lock.lock();

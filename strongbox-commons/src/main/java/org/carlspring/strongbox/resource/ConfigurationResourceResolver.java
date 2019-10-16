@@ -27,7 +27,7 @@ public class ConfigurationResourceResolver
 
     @Inject
     private PropertiesBooter propertiesBooter;
-    
+
     @Inject
     private Environment environment;
 
@@ -35,22 +35,20 @@ public class ConfigurationResourceResolver
     public Resource getConfigurationResource(String propertyKey,
                                              String propertyDefaultValue)
     {
-        final String configurationPath = propertyDefaultValue != null && !propertyDefaultValue.startsWith("classpath:") ?
-                                         propertiesBooter.getHomeDirectory() + "/" + propertyDefaultValue :
-                                         propertyDefaultValue;
+        final String configurationPath =
+                propertyDefaultValue != null && !propertyDefaultValue.startsWith("classpath:") ?
+                propertiesBooter.getHomeDirectory() + "/" + propertyDefaultValue :
+                propertyDefaultValue;
 
         return getConfigurationResource(configurationPath, propertyKey, propertyDefaultValue);
     }
 
     /**
-     * @param configurationPath
-     *            The configuration file's path. If null, either propertyKey,
-     *            or propertyKeyDefaultValue must be specified.
-     * @param propertyKey
-     *            The system property key to use when trying to load the
-     *            configuration.
-     * @param propertyDefaultValue
-     *            The default property key value.
+     * @param configurationPath    The configuration file's path. If null, either propertyKey,
+     *                             or propertyKeyDefaultValue must be specified.
+     * @param propertyKey          The system property key to use when trying to load the
+     *                             configuration.
+     * @param propertyDefaultValue The default property key value.
      * @return
      * @throws IOException
      */
@@ -84,8 +82,9 @@ public class ConfigurationResourceResolver
         if (configurationPath != null &&
             (!configurationPath.startsWith("classpath") && !(Files.exists(Paths.get(configurationPath)))))
         {
-            logger.info("Configuration resource [{}] does not exist, will try to resolve with configured location [{}].",
-                configurationPath, propertyKey);
+            logger.info(
+                    "Configuration resource [{}] does not exist, will try to resolve with configured location [{}].",
+                    configurationPath, propertyKey);
 
             configurationPath = null;
         }
