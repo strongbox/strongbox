@@ -1,6 +1,9 @@
 strongbox:
+  sse:
+    timeoutMillis: 5000
   basedir: ./target
   url: http://${strongbox.host:localhost}:${strongbox.port:48080}
+
 
 management:
   health:

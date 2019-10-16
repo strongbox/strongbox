@@ -11,10 +11,13 @@ import java.nio.file.*;
 import java.nio.file.attribute.BasicFileAttributes;
 import java.util.Arrays;
 import java.util.List;
+import java.util.Random;
 
 import io.restassured.response.ResponseBodyExtractionOptions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
@@ -196,10 +199,15 @@ public class LoggingManagementControllerTest
     void logFileStreamAndEmitsAsyncTest()
             throws Exception
     {
-        MvcResult mvcResult = pureMockMvc.perform(get(LoggingManagementController.ROOT_CONTEXT + "/stream"))
+        final Logger loggingManagementControllerLogger = LoggerFactory.getLogger(LoggingManagementController.class);
+
+        final MvcResult mvcResult = pureMockMvc.perform(get(LoggingManagementController.ROOT_CONTEXT + "/stream"))
                                          .andExpect(request().asyncStarted())
                                          .andDo(MockMvcResultHandlers.log())
                                          .andReturn();
+
+        loggingManagementControllerLogger.info("Wow! this is server-sent event test");
+
 
         pureMockMvc.perform(asyncDispatch(mvcResult))
                    .andDo(MockMvcResultHandlers.log())
@@ -207,10 +215,9 @@ public class LoggingManagementControllerTest
                    .andExpect(
                            content().contentType(org.carlspring.strongbox.net.MediaType.TEXT_EVENT_STREAM_UTF8_VALUE));
 
-        String response = mvcResult.getResponse().getContentAsString();
+        final String response = mvcResult.getResponse().getContentAsString();
 
-        assertThat(response).containsIgnoringCase("event:stream");
-        assertThat(response).containsIgnoringCase("Started async request");
+        assertThat(response).isNotEmpty();
     }
 
     //This method creates temporary log files, and if necessary for subdirectory browsing, a log subdirectory.
