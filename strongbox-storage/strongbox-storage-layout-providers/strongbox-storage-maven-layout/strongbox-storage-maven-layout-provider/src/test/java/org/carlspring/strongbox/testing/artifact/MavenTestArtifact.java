@@ -67,7 +67,7 @@ public @interface MavenTestArtifact
     String packaging() default "jar";
 
     /**
-     * Artifact size in bytes.
+     * Additional artifact size in bytes.
      */
     @AliasFor(annotation = TestArtifact.class)
     int size() default 1024;

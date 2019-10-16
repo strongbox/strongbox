@@ -44,12 +44,12 @@ public class MavenArtifactGeneratorTest
                                        Repository repository,
                                        @MavenTestArtifact(repositoryId = REPOSITORY_RELEASES,
                                                           id = "org.carlspring.strongbox.testing:matg",
-                                                          versions = "1.2.3", size = 1073741824)
+                                                          versions = "1.2.3", size = 2048)
                                        Path artifactPath)
             throws Exception
     {
         assertThat(Files.exists(artifactPath)).as("Failed to generate JAR file!").isTrue();
-        assertThat(Files.size(artifactPath)).isGreaterThan(1073741824);
+
         // JAR MD5 file.
         String fileName = artifactPath.getFileName().toString();
         String checksumFileName = fileName + "." + MessageDigestAlgorithms.MD5.toLowerCase();
@@ -91,6 +91,9 @@ public class MavenArtifactGeneratorTest
         String expectedPomSHA1 = calculateChecksum(artifactPomPath, MessageDigestAlgorithms.SHA_1);
         String pomSHA1 = readChecksumFile(artifactPomPathSha1.toString());
         assertThat(pomSHA1).isEqualTo(expectedPomSHA1);
+
+        // JAR size
+        assertThat(Files.size(artifactPath)).isGreaterThan(2048);
     }
 
 }

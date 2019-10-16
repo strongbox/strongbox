@@ -66,7 +66,7 @@ public class MavenArtifactDeployer
                    ArtifactOperationException, ArtifactTransportException
     {
         generatePom(artifact, packaging);
-        createArchive(artifact, 1024);
+        createArchive(artifact);
 
         deploy(artifact, storageId, repositoryId);
         deployPOM(MavenArtifactTestUtils.getPOMArtifact(artifact), storageId, repositoryId);
