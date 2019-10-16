@@ -70,20 +70,20 @@ public class MavenArtifactGenerator implements ArtifactGenerator
     }
 
     @Override
-    public Path generateArtifact(String id, String version, int size) throws IOException
+    public Path generateArtifact(String id, String version, long size) throws IOException
     {
         Artifact artifact = MavenArtifactTestUtils.getArtifactFromGAVTC(String.format("%s:%s", id, version));
         return generateArtifact(artifact, size);
     }
 
     @Override
-    public Path generateArtifact(URI uri, int size) throws IOException
+    public Path generateArtifact(URI uri, long size) throws IOException
     {
         Artifact artifact = MavenArtifactUtils.convertPathToArtifact(uri.toString());
         return generateArtifact(artifact, size);
     }
 
-    private Path generateArtifact(Artifact artifact, int size) throws IOException
+    private Path generateArtifact(Artifact artifact, long size) throws IOException
     {
         try
         {
@@ -143,7 +143,7 @@ public class MavenArtifactGenerator implements ArtifactGenerator
         createArchive(artifact);
     }
 
-    public void generate(Artifact artifact, int size)
+    public void generate(Artifact artifact, long size)
             throws IOException,
                    NoSuchAlgorithmException
     {
@@ -157,7 +157,7 @@ public class MavenArtifactGenerator implements ArtifactGenerator
         createArchive(artifact, new Random().nextInt(1024));
     }
 
-    public void createArchive(Artifact artifact, int size)
+    public void createArchive(Artifact artifact, long size)
             throws NoSuchAlgorithmException,
                    IOException
     {
@@ -275,7 +275,7 @@ public class MavenArtifactGenerator implements ArtifactGenerator
         zos.closeEntry();
     }
 
-    private void createFile(ZipOutputStream zos, int size) throws IOException
+    private void createFile(ZipOutputStream zos, long size) throws IOException
     {
         ZipEntry ze = new ZipEntry("file-with-given-size");
         zos.putNextEntry(ze);

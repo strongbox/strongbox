@@ -22,7 +22,7 @@ public interface ArtifactGenerator
      */
     Path generateArtifact(String id,
                           String version,
-                          int size)
+                          long size)
         throws IOException;
 
     /**
@@ -34,7 +34,7 @@ public interface ArtifactGenerator
      * @throws IOException in case of failure
      */
     Path generateArtifact(URI uri,
-                          int size)
+                          long size)
         throws IOException;
 
 }
