@@ -199,7 +199,6 @@ public class YamlUserServiceTest
         assertThat(addedEntity).as("Unable to locate user " + testUserName + ". Save operation failed!").isNotNull();
 
         logger.debug("Found stored user\n\t{}\n", addedEntity);
-
         logger.debug("Updating user...");
 
         UserDto userUpdate = new UserDto();
@@ -281,7 +280,6 @@ public class YamlUserServiceTest
         assertThat(addedEntity).as("Unable to locate user " + testUserName + ". Delete operation failed!").isNotNull();
 
         logger.debug("Found stored user\n\t{}\n", addedEntity);
-
         logger.debug("Deleting user...");
 
         userService.deleteByUsername(testUserName);
