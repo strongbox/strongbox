@@ -81,7 +81,7 @@ public class PypiArtifactGenerator
     @Override
     public Path generateArtifact(String id,
                                  String version,
-                                 int size)
+                                 long size)
             throws IOException
     {
         PypiArtifactCoordinates coordinates = new PypiArtifactCoordinates(id,
@@ -96,7 +96,7 @@ public class PypiArtifactGenerator
 
     @Override
     public Path generateArtifact(URI uri,
-                                 int size)
+                                 long size)
             throws IOException
     {
         PypiArtifactCoordinates coordinates = PypiArtifactCoordinates.parse(FilenameUtils.getName(uri.toString()));

@@ -15,7 +15,7 @@ public class NugetArtifactGeneratorStrategy
     public Path generateArtifact(NugetArtifactGenerator artifactGenerator,
                                  String id,
                                  String version,
-                                 int size,
+                                 long size,
                                  Map<String, Object> attributesMap)
             throws IOException
     {

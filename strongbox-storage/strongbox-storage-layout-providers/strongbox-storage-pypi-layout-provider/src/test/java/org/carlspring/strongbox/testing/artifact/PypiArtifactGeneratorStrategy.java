@@ -18,7 +18,7 @@ public class PypiArtifactGeneratorStrategy
     public Path generateArtifact(PypiArtifactGenerator artifactGenerator,
                                  String id,
                                  String version,
-                                 int size,
+                                 long size,
                                  Map<String, Object> attributesMap)
             throws IOException
     {
