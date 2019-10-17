@@ -125,4 +125,53 @@ public class NpmArtifactControllerTest
                .header(HttpHeaders.CONTENT_LENGTH, equalTo(String.valueOf(Files.size(packagePath))));
     }
 
+    @ExtendWith({ RepositoryManagementTestExecutionListener.class,
+            ArtifactManagementTestExecutionListener.class })
+    @Test
+    public void addUserTest(@NpmRepository(repositoryId = REPOSITORY_RELEASES)
+                                        Repository repository)
+    {
+        String url = getContextBaseUrl() + "/storages/{storageId}/{repositoryId}/-/user/org.couchdb.user:{username}";
+
+        final String storageId = repository.getStorage().getId();
+        final String repositoryId = repository.getId();
+
+        NpmUser strongboxUser = createNpmUser("admin","password");
+        NpmUser nonStrongboxUser = createNpmUser("notARealUser","notARealPassword");
+
+        //can login with strongbox user
+        mockMvc.contentType(MediaType.APPLICATION_JSON_VALUE)
+                .body(strongboxUser)
+                .when()
+                .put(url,storageId,repositoryId,strongboxUser.getName())
+                .peek()
+                .then()
+                .statusCode(HttpStatus.CREATED.value());
+
+        //can't login with non-strongbox user
+        mockMvc.contentType(MediaType.APPLICATION_JSON_VALUE)
+                .body(nonStrongboxUser)
+                .when()
+                .put(url,storageId,repositoryId,nonStrongboxUser.getName())
+                .peek()
+                .then()
+                .statusCode(HttpStatus.UNAUTHORIZED.value());
+
+    }
+
+    private NpmUser createNpmUser(String username, String password)
+    {
+        NpmUser npmUser = new NpmUser();
+        npmUser.setName(username);
+        npmUser.setPassword(password);
+        npmUser.setDate("");
+        npmUser.setId("");
+        npmUser.setRoles(new String[]{});
+        npmUser.setType("");
+
+        return npmUser;
+    }
+
+
+
 }
