@@ -38,7 +38,7 @@ public class IndexPacker
             request.setUseTargetProperties(true);
             IndexPacker.INSTANCE.packIndex(request);
 
-            logger.info(String.format("Index for %s was packed successfully.", indexPath));
+            logger.info("Index for {} was packed successfully.", indexPath);
         }
         finally
         {

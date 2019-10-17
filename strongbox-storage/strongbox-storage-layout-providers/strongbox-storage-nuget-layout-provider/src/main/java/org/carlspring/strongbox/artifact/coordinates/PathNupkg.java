@@ -73,13 +73,13 @@ public class PathNupkg implements Nupkg
         RepositoryPath checkSumPath = checksumPathMap.values().iterator().next();
         if (!Files.exists(checkSumPath))
         {
-            logger.trace(String.format("Failed to resolve checksum file for [%s]", path));
+            logger.trace("Failed to resolve checksum file for [{}]", path);
             return "";
         }
         List<String> checkSumContents = Files.readAllLines(checkSumPath);
         if (checkSumContents.isEmpty() || checkSumContents.size() > 1)
         {
-            logger.error(String.format("Found illegal checksum contents for [%s]", path));
+            logger.error("Found illegal checksum contents for [{}]", path);
             return null;
         }
         
@@ -101,7 +101,7 @@ public class PathNupkg implements Nupkg
         RepositoryPath nuspecPath = path.resolveSibling(artifactCoordinates.getId() + ".nuspec");
         if (!Files.exists(nuspecPath))
         {
-            logger.trace(String.format("Failed to resolve .nuspec file for [%s]", path));
+            logger.trace("Failed to resolve .nuspec file for [{}]", path);
             Nuspec result = new Nuspec();
             Metadata metadata = result.getMetadata();
             metadata.id = artifactCoordinates.getId();
@@ -116,7 +116,7 @@ public class PathNupkg implements Nupkg
         }
         catch (IOException e)
         {
-            logger.error(String.format("Failed to read .nuspec file for [%s]", path), e);
+            logger.error("Failed to read .nuspec file for [{}]", path, e);
             return null;
         }
     }
@@ -169,7 +169,7 @@ public class PathNupkg implements Nupkg
         }
         catch (Exception e)
         {
-            logger.error(String.format("Failed to parse version for [%s]", path));
+            logger.error("Failed to parse version for [{}]", path);
             return null;
         }
     }

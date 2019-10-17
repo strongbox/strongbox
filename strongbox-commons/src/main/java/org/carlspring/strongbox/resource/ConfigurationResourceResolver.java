@@ -74,31 +74,31 @@ public class ConfigurationResourceResolver
         String filename;
         if ((filename = getProperty(propertyKey)) != null)
         {
-            logger.debug(String.format("Using configured resource path [%s]", filename));
+            logger.debug("Using configured resource path [{}]", filename);
 
             return resourceLoader.getResource(filename);
         }
 
-        logger.debug(String.format("Try to fetch configuration resource path [%s]", configurationPath));
+        logger.debug("Try to fetch configuration resource path [{}]", configurationPath);
 
         if (configurationPath != null &&
             (!configurationPath.startsWith("classpath") && !(Files.exists(Paths.get(configurationPath)))))
         {
-            logger.info(String.format("Configuration resource [%s] does not exist, will try to resolve with configured location [%s].",
-                                      configurationPath, propertyKey));
+            logger.info("Configuration resource [{}] does not exist, will try to resolve with configured location [{}].",
+                        configurationPath, propertyKey);
 
             configurationPath = null;
         }
 
         if (configurationPath != null)
         {
-            logger.debug(String.format("Using provided resource path [%s]", configurationPath));
+            logger.debug("Using provided resource path [{}]", configurationPath);
 
             return resourceLoader.getResource(configurationPath);
         }
         else
         {
-            logger.debug(String.format("Using default resource path [%s]", propertyDefaultValue));
+            logger.debug("Using default resource path [{}]", propertyDefaultValue);
 
             return resourceLoader.getResource(propertyDefaultValue);
         }

@@ -40,7 +40,7 @@ public class CronJobSchedulerServiceImpl
         }
         catch (ClassNotFoundException e)
         {
-            logger.error(String.format("Failed to schedule cron job [%s]", jobClassName), e);
+            logger.error("Failed to schedule cron job [{}]", jobClassName, e);
 
             return;
         }
@@ -65,7 +65,7 @@ public class CronJobSchedulerServiceImpl
         }
         catch (SchedulerException e)
         {
-            logger.error(String.format("Failed to add Cron Job [%s] to the Scheduler", cronTaskConfiguration), e);
+            logger.error("Failed to add Cron Job [{}] to the Scheduler", cronTaskConfiguration, e);
             return;
         }
 
@@ -80,8 +80,7 @@ public class CronJobSchedulerServiceImpl
             }
             catch (SchedulerException e)
             {
-                logger.error(String.format("Failed to trigger Cron Job [%s] by the Scheduler", cronTaskConfiguration),
-                             e);
+                logger.error("Failed to trigger Cron Job [{}] by the Scheduler", cronTaskConfiguration, e);
                 return;
             }
 
@@ -110,7 +109,7 @@ public class CronJobSchedulerServiceImpl
         }
         catch (SchedulerException e)
         {
-            logger.error(String.format("Failed to schedule Cron Job:%n [%s]", cronTaskConfiguration), e);
+            logger.error("Failed to schedule Cron Job: [{}]", cronTaskConfiguration, e);
 
             return;
         }
@@ -128,7 +127,7 @@ public class CronJobSchedulerServiceImpl
         }
         catch (SchedulerException e)
         {
-            logger.error(String.format("Failed to delete cron job [%s]", jobKey));
+            logger.error("Failed to delete cron job [{}]", jobKey);
         }
     }
 

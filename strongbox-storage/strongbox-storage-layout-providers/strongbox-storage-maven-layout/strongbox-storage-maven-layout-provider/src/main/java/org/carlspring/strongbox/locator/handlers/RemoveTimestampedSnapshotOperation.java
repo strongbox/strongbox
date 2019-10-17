@@ -114,7 +114,7 @@ public class RemoveTimestampedSnapshotOperation
         }
         catch (IOException | XmlPullParserException e)
         {
-            logger.error("Failed to delete timestamped snapshot artifacts for " + basePath, e);
+            logger.error("Failed to delete timestamped snapshot artifacts for {}", basePath, e);
         }
     }
 

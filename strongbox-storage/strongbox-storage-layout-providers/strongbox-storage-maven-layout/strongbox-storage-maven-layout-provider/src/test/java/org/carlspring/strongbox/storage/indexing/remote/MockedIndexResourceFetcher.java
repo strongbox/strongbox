@@ -43,8 +43,8 @@ public class MockedIndexResourceFetcher
         this.storageId = split[0];
         this.repositoryId = split[1];
 
-        logger.debug("storageId:    " + this.storageId);
-        logger.debug("repositoryId: " + this.repositoryId);
+        logger.debug("storageId:    {}", this.storageId);
+        logger.debug("repositoryId: {}", this.repositoryId);
     }
 
     @Override
@@ -57,7 +57,7 @@ public class MockedIndexResourceFetcher
     public InputStream retrieve(String name)
             throws IOException
     {
-        logger.debug("Requesting index from " + name + "...");
+        logger.debug("Requesting index from {}...", name);
 
         Repository repository = getConfiguration().getStorage(storageId).getRepository(repositoryId);
         RemoteRepository remoteRepository = repository.getRemoteRepository();
@@ -74,7 +74,7 @@ public class MockedIndexResourceFetcher
                                      "/.index/local");
         File indexResourceFile = new File(indexBaseDir, name);
 
-        logger.debug("indexResourceFile: " + indexResourceFile.getAbsolutePath());
+        logger.debug("indexResourceFile: {}", indexResourceFile.getAbsolutePath());
 
         return new FileInputStream(indexResourceFile);
     }

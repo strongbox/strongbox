@@ -39,7 +39,7 @@ public class InMemoryOrientDbConfig
     OrientDB orientDB(OrientDbServerConfiguration serverProperties)
     {
         String database = serverProperties.getDatabase();
-        logger.info(String.format("Initialize In-Memory OrientDB server for [%s]", database));
+        logger.info("Initialize In-Memory OrientDB server for [{}]", database);
 
         OrientDB orientDB = new OrientDB(StringUtils.substringBeforeLast(serverProperties.getUrl(), "/"),
                                          serverProperties.getUsername(),
@@ -47,7 +47,7 @@ public class InMemoryOrientDbConfig
                                          getOrientDBConfig());
         if (!orientDB.exists(database))
         {
-            logger.info(String.format("Creating database [%s]...", database));
+            logger.info("Creating database [{}]...", database);
             orientDB.create(database, ODatabaseType.MEMORY);
 
             try (ODatabaseSession session = orientDB.open(database, ORIENTDB_DEFAULT_USERNAME,

@@ -70,7 +70,7 @@ public class Maven2FileSystemProvider extends LayoutFileSystemProvider
     {
         RepositoryPath repositoryPath = (RepositoryPath) path;
         
-        logger.debug("Removing " + repositoryPath + "...");
+        logger.debug("Removing {}...", repositoryPath);
 
         if (Files.isDirectory(repositoryPath))
         {

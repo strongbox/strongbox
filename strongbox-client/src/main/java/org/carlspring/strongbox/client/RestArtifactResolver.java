@@ -73,7 +73,7 @@ public class RestArtifactResolver
     {
         String url = escapeUrl(path);
 
-        logger.debug("Getting " + url + "...");
+        logger.debug("Getting {}...", url);
 
         WebTarget resource = new WebTargetBuilder(url).withAuthentication()
                                                       .customRequestConfig()
@@ -98,7 +98,7 @@ public class RestArtifactResolver
     {
         String url = escapeUrl(path);
 
-        logger.debug("Heading " + url + "...");
+        logger.debug("Heading {}...", url);
 
         WebTarget resource = new WebTargetBuilder(url)
                                      .withAuthentication()

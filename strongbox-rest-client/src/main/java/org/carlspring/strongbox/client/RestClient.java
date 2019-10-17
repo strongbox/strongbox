@@ -89,9 +89,9 @@ public class RestClient
 
     public static void displayResponseError(Response response)
     {
-        logger.error("Status code " + response.getStatus());
-        logger.error("Status info " + response.getStatusInfo().getReasonPhrase());
-        logger.error("Response message " + response.readEntity(String.class));
+        logger.error("Status code {}", response.getStatus());
+        logger.error("Status info {}", response.getStatusInfo().getReasonPhrase());
+        logger.error("Response message {}", response.readEntity(String.class));
         logger.error(response.toString());
     }
 
@@ -149,7 +149,7 @@ public class RestClient
             }
             catch (Exception ex)
             {
-                logger.error("Exception occurred {} ...", ExceptionUtils.getStackTrace(ex));
+                logger.error("Exception occurred ", ex);
                 throw ex;
             }
         }
@@ -570,7 +570,7 @@ public class RestClient
     {
         String url = getContextBaseUrl() + arg;
 
-        logger.debug("Prepare target URL " + url);
+        logger.debug("Prepare target URL {}", url);
 
         return getClientInstance().target(url);
     }

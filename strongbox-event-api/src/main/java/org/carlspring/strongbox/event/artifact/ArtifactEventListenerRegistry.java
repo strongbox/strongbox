@@ -22,7 +22,7 @@ public class ArtifactEventListenerRegistry extends AbstractEventListenerRegistry
         ArtifactEvent event = new ArtifactEvent(path,
                                                 ArtifactEventTypeEnum.EVENT_ARTIFACT_FILE_UPLOADING.getType());
 
-        logger.debug("Dispatching ArtifactEventTypeEnum.EVENT_ARTIFACT_FILE_UPLOADING event for " + path + "...");
+        logger.debug("Dispatching ArtifactEventTypeEnum.EVENT_ARTIFACT_FILE_UPLOADING event for {}...", path);
 
         dispatchEvent(event);
     }
@@ -32,8 +32,7 @@ public class ArtifactEventListenerRegistry extends AbstractEventListenerRegistry
         ArtifactEvent event = new ArtifactEvent(path,
                                                 ArtifactEventTypeEnum.EVENT_ARTIFACT_FILE_UPDATED.getType());
 
-        logger.debug("Dispatching ArtifactEventTypeEnum.EVENT_ARTIFACT_FILE_UPDATED event for " +
-                      path + "...");
+        logger.debug("Dispatching ArtifactEventTypeEnum.EVENT_ARTIFACT_FILE_UPDATED event for {}...", path);
 
         dispatchEvent(event);
     }
@@ -43,8 +42,7 @@ public class ArtifactEventListenerRegistry extends AbstractEventListenerRegistry
         ArtifactEvent event = new ArtifactEvent(path,
                                                 ArtifactEventTypeEnum.EVENT_ARTIFACT_METADATA_STORED.getType());
 
-        logger.debug("Dispatching ArtifactEventTypeEnum.EVENT_ARTIFACT_METADATA_STORED event for " +
-                      path + "...");
+        logger.debug("Dispatching ArtifactEventTypeEnum.EVENT_ARTIFACT_METADATA_STORED event for {}...", path);
 
         dispatchEvent(event);
     }
@@ -54,8 +52,7 @@ public class ArtifactEventListenerRegistry extends AbstractEventListenerRegistry
         ArtifactEvent event = new ArtifactEvent(path,
                                                 ArtifactEventTypeEnum.EVENT_ARTIFACT_FILE_DOWNLOADING.getType());
 
-        logger.debug("Dispatching ArtifactEventTypeEnum.EVENT_ARTIFACT_FILE_DOWNLOADING event for " +
-                      path + "...");
+        logger.debug("Dispatching ArtifactEventTypeEnum.EVENT_ARTIFACT_FILE_DOWNLOADING event for {}...", path);
 
         dispatchEvent(event);
     }
@@ -65,8 +62,7 @@ public class ArtifactEventListenerRegistry extends AbstractEventListenerRegistry
         ArtifactEvent event = new ArtifactEvent(path,
                                                 ArtifactEventTypeEnum.EVENT_ARTIFACT_FILE_DOWNLOADED.getType());
 
-        logger.debug("Dispatching ArtifactEventTypeEnum.EVENT_ARTIFACT_FILE_DOWNLOADED event for " +
-                      path + "...");
+        logger.debug("Dispatching ArtifactEventTypeEnum.EVENT_ARTIFACT_FILE_DOWNLOADED event for {}...", path);
 
         dispatchEvent(event);
     }
@@ -78,9 +74,7 @@ public class ArtifactEventListenerRegistry extends AbstractEventListenerRegistry
                                                 dstPath,
                                                 ArtifactEventTypeEnum.EVENT_ARTIFACT_FILE_COPYING.getType());
 
-        logger.debug("Dispatching ArtifactEventTypeEnum.EVENT_ARTIFACT_FILE_COPYING event for " +
-                     srcPath + " to " + dstPath +
-                     "...");
+        logger.debug("Dispatching ArtifactEventTypeEnum.EVENT_ARTIFACT_FILE_COPYING event for {} to {}...", srcPath, dstPath);
 
         dispatchEvent(event);
     }
@@ -92,9 +86,7 @@ public class ArtifactEventListenerRegistry extends AbstractEventListenerRegistry
                                                 dstPath,
                                                 ArtifactEventTypeEnum.EVENT_ARTIFACT_FILE_COPIED.getType());
 
-        logger.debug("Dispatching ArtifactEventTypeEnum.EVENT_ARTIFACT_FILE_COPIED event for " +
-                     srcPath + " to " + dstPath +
-                     "...");
+        logger.debug("Dispatching ArtifactEventTypeEnum.EVENT_ARTIFACT_FILE_COPIED event for {} to {}...", srcPath, dstPath);
 
         dispatchEvent(event);
     }
@@ -106,9 +98,7 @@ public class ArtifactEventListenerRegistry extends AbstractEventListenerRegistry
                                                 dstPath,
                                                 ArtifactEventTypeEnum.EVENT_ARTIFACT_FILE_MOVING.getType());
 
-        logger.debug("Dispatching ArtifactEventTypeEnum.EVENT_ARTIFACT_FILE_MOVING event for " +
-                     srcPath + " to " + dstPath +
-                     "...");
+        logger.debug("Dispatching ArtifactEventTypeEnum.EVENT_ARTIFACT_FILE_MOVING event for {} to {}...", srcPath, dstPath);
 
         dispatchEvent(event);
     }
@@ -120,9 +110,7 @@ public class ArtifactEventListenerRegistry extends AbstractEventListenerRegistry
                                                 dstPath,
                                                 ArtifactEventTypeEnum.EVENT_ARTIFACT_FILE_MOVED.getType());
 
-        logger.debug("Dispatching ArtifactEventTypeEnum.EVENT_ARTIFACT_FILE_MOVED event for " +
-                     srcPath + " to " + dstPath +
-                     "...");
+        logger.debug("Dispatching ArtifactEventTypeEnum.EVENT_ARTIFACT_FILE_MOVED event for {} to {}...", srcPath, dstPath);
 
         dispatchEvent(event);
     }
@@ -132,8 +120,7 @@ public class ArtifactEventListenerRegistry extends AbstractEventListenerRegistry
         ArtifactEvent event = new ArtifactEvent(path,
                                                 ArtifactEventTypeEnum.EVENT_ARTIFACT_PATH_DELETED.getType());
 
-        logger.debug("Dispatching ArtifactEventTypeEnum.EVENT_ARTIFACT_PATH_DELETED event for " +
-                      path + "...");
+        logger.debug("Dispatching ArtifactEventTypeEnum.EVENT_ARTIFACT_PATH_DELETED event for {}...", path);
 
         dispatchEvent(event);
     }
@@ -143,8 +130,7 @@ public class ArtifactEventListenerRegistry extends AbstractEventListenerRegistry
         ArtifactEvent event = new ArtifactEvent(path,
                                                 ArtifactEventTypeEnum.EVENT_ARTIFACT_FILE_ARCHIVING.getType());
 
-        logger.debug("Dispatching ArtifactEventTypeEnum.EVENT_ARTIFACT_FILE_MOVED event for " +
-                      path + "...");
+        logger.debug("Dispatching ArtifactEventTypeEnum.EVENT_ARTIFACT_FILE_MOVED event for {}...", path);
 
         dispatchEvent(event);
     }
@@ -154,8 +140,7 @@ public class ArtifactEventListenerRegistry extends AbstractEventListenerRegistry
         ArtifactEvent event = new ArtifactEvent(path,
                                                 ArtifactEventTypeEnum.EVENT_ARTIFACT_FILE_ARCHIVED.getType());
 
-        logger.debug("Dispatching ArtifactEventTypeEnum.EVENT_ARTIFACT_FILE_ARCHIVED event for " +
-                      path + "...");
+        logger.debug("Dispatching ArtifactEventTypeEnum.EVENT_ARTIFACT_FILE_ARCHIVED event for {}...", path);
 
         dispatchEvent(event);
     }
@@ -165,8 +150,7 @@ public class ArtifactEventListenerRegistry extends AbstractEventListenerRegistry
         ArtifactEvent event = new ArtifactEvent(path,
                                                 ArtifactEventTypeEnum.EVENT_ARTIFACT_METADATA_DOWNLOADED.getType());
 
-        logger.debug("Dispatching ArtifactEventTypeEnum.EVENT_ARTIFACT_METADATA_DOWNLOADED event for " +
-                      path + "...");
+        logger.debug("Dispatching ArtifactEventTypeEnum.EVENT_ARTIFACT_METADATA_DOWNLOADED event for {}...", path);
 
         dispatchEvent(event);
     }
@@ -176,8 +160,7 @@ public class ArtifactEventListenerRegistry extends AbstractEventListenerRegistry
         ArtifactEvent event = new ArtifactEvent(path,
                                                 ArtifactEventTypeEnum.EVENT_ARTIFACT_METADATA_DOWNLOADING.getType());
 
-        logger.debug("Dispatching ArtifactEventTypeEnum.EVENT_ARTIFACT_METADATA_DOWNLOADING event for " +
-                      path + "...");
+        logger.debug("Dispatching ArtifactEventTypeEnum.EVENT_ARTIFACT_METADATA_DOWNLOADING event for {}...", path);
 
         dispatchEvent(event);
     }
@@ -187,8 +170,7 @@ public class ArtifactEventListenerRegistry extends AbstractEventListenerRegistry
         ArtifactEvent event = new ArtifactEvent(path,
                                                 ArtifactEventTypeEnum.EVENT_ARTIFACT_CHECKSUM_DOWNLOADED.getType());
 
-        logger.debug("Dispatching ArtifactEventTypeEnum.EVENT_ARTIFACT_CHECKSUM_DOWNLOADED event for " +
-                      path + "...");
+        logger.debug("Dispatching ArtifactEventTypeEnum.EVENT_ARTIFACT_CHECKSUM_DOWNLOADED event for {}...", path);
 
         dispatchEvent(event);
     }
@@ -198,8 +180,7 @@ public class ArtifactEventListenerRegistry extends AbstractEventListenerRegistry
         ArtifactEvent event = new ArtifactEvent(path,
                                                 ArtifactEventTypeEnum.EVENT_ARTIFACT_CHECKSUM_DOWNLOADING.getType());
 
-        logger.debug("Dispatching ArtifactEventTypeEnum.EVENT_ARTIFACT_CHECKSUM_DOWNLOADING event for " +
-                      path + "...");
+        logger.debug("Dispatching ArtifactEventTypeEnum.EVENT_ARTIFACT_CHECKSUM_DOWNLOADING event for {}...", path);
 
         dispatchEvent(event);
     }
@@ -209,8 +190,7 @@ public class ArtifactEventListenerRegistry extends AbstractEventListenerRegistry
         ArtifactEvent event = new ArtifactEvent(path,
                                                 ArtifactEventTypeEnum.EVENT_ARTIFACT_FILE_FETCHED_FROM_REMOTE.getType());
 
-        logger.debug("Dispatching ArtifactEventTypeEnum.EVENT_ARTIFACT_FILE_FETCHED_FROM_REMOTE event for " +
-                      path + "...");
+        logger.debug("Dispatching ArtifactEventTypeEnum.EVENT_ARTIFACT_FILE_FETCHED_FROM_REMOTE event for {}...", path);
 
         dispatchEvent(event);
     }
@@ -220,8 +200,7 @@ public class ArtifactEventListenerRegistry extends AbstractEventListenerRegistry
         ArtifactEvent event = new ArtifactEvent(path,
                                                 ArtifactEventTypeEnum.EVENT_ARTIFACT_FILE_STORED.getType());
 
-        logger.debug("Dispatching ArtifactEventTypeEnum.EVENT_ARTIFACT_FILE_STORED event for " +
-                      path + "...");
+        logger.debug("Dispatching ArtifactEventTypeEnum.EVENT_ARTIFACT_FILE_STORED event for {}...", path);
 
         dispatchEvent(event);
     }

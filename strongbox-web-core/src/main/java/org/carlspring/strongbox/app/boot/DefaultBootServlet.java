@@ -52,7 +52,7 @@ public class DefaultBootServlet
         }
         catch (Exception e)
         {
-            e.printStackTrace();
+            logger.error(e.getMessage(), e);
             response.sendError(HttpStatus.INTERNAL_SERVER_ERROR.value());
         }
     }

@@ -8,10 +8,14 @@ import javax.validation.ConstraintValidator;
 import javax.validation.ConstraintValidatorContext;
 
 import org.apache.commons.lang3.StringUtils;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 public class RoutingRuleRepositoryFormValidator
         implements ConstraintValidator<RoutingRuleRepositoryFormValid, RoutingRuleRepositoryForm>
 {
+
+    private final Logger logger = LoggerFactory.getLogger(RoutingRuleRepositoryFormValidator.class);
 
     @Inject
     private ConfigurationManagementService configurationManagementService;
@@ -52,7 +56,7 @@ public class RoutingRuleRepositoryFormValidator
         }
         catch (Exception e)
         {
-            e.printStackTrace();
+            logger.error(e.getMessage(), e);
         }
 
         return valid;

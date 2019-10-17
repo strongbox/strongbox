@@ -122,7 +122,7 @@ public class GroupRepositoryProvider
                 continue;
             }
 
-            logger.debug(String.format("Located artifact: [%s]", subRepositoryPath));
+            logger.debug("Located artifact: [{}]", subRepositoryPath);
 
             return subRepositoryPath;
         }
@@ -182,7 +182,7 @@ public class GroupRepositoryProvider
         }
         catch (IOException e)
         {
-            logger.error(String.format("Failed to resolve path [%s]", repositoryPath));
+            logger.error("Failed to resolve path [{}]", repositoryPath);
             return null;
         }
     }
@@ -203,7 +203,7 @@ public class GroupRepositoryProvider
                              Predicate predicate,
                              Paginator paginator)
     {
-        logger.debug(String.format("Search in [%s]:[%s] ...", storageId, repositoryId));
+        logger.debug("Search in [{}]:[{}] ...", storageId, repositoryId);
 
         Map<ArtifactCoordinates, Path> resultMap = new LinkedHashMap<>();
 
@@ -290,7 +290,7 @@ public class GroupRepositoryProvider
                       String repositoryId,
                       Predicate predicate)
     {
-        logger.debug(String.format("Count in [%s]:[%s] ...", storageId, repositoryId));
+        logger.debug("Count in [{}]:[{}] ...", storageId, repositoryId);
 
         Storage storage = getConfiguration().getStorage(storageId);
 

@@ -71,8 +71,8 @@ public class RepositoryProxyIndexCreator
         final Date contextCurrentTimestamp = indexingContext.getTimestamp();
         if (Objects.equals(updateResult.getTimestamp(), contextCurrentTimestamp))
         {
-            logger.debug(String.format("No update required for remote index %s:%s, as the index is up to date!",
-                                       storageId, repositoryId));
+            logger.debug("No update required for remote index {}:{}, as the index is up to date!",
+                         storageId, repositoryId);
             if (!IndexPacker.packageExists(repositoryIndexDirectoryPath))
             {
                 IndexPacker.pack(repositoryIndexDirectoryPath, indexingContext);
@@ -81,15 +81,13 @@ public class RepositoryProxyIndexCreator
         }
         if (updateResult.isFullUpdate())
         {
-            logger.debug(String.format("Performed a full index update for %s:%s.", storageId, repositoryId));
+            logger.debug("Performed a full index update for {}:{}.", storageId, repositoryId);
 
         }
         else
         {
-            logger.debug(
-                    String.format(
-                            "Performed an incremental update, with changes covering the period between %s - %s.",
-                            contextCurrentTimestamp, updateResult.getTimestamp()));
+            logger.debug("Performed an incremental update, with changes covering the period between {} - {}.",
+                         contextCurrentTimestamp, updateResult.getTimestamp());
         }
         IndexPacker.pack(repositoryIndexDirectoryPath, indexingContext);
     }
@@ -100,7 +98,7 @@ public class RepositoryProxyIndexCreator
                                          final String repositoryId)
             throws IOException
     {
-        logger.debug(String.format("Downloading remote index for %s:%s ...", storageId, repositoryId));
+        logger.debug("Downloading remote index for {}:{} ...", storageId, repositoryId);
 
         final IndexUpdateRequest updateRequest = new IndexUpdateRequest(indexingContext,
                                                                         resourceFetcherFactory.createIndexResourceFetcher(

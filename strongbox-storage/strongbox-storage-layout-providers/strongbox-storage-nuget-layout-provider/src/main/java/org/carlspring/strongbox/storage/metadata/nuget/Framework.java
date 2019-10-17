@@ -312,7 +312,7 @@ public enum Framework
         }
         catch (IllegalArgumentException e)
         {
-            logger.warn(format("Can not find framework for string \"{0}\" used default value", value), e);
+            logger.warn("Can not find framework for string \"{}\" used default value", value, e);
             result = EnumSet.allOf(Framework.class);
         }
         return result;

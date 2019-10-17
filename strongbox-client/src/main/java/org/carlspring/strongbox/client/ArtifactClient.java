@@ -165,7 +165,7 @@ public class ArtifactClient
     {
         String url = getContextBaseUrl() + (!path.startsWith("/") ? "/" : "") + path;
 
-        logger.debug("Getting " + url + "...");
+        logger.debug("Getting {}...", url);
 
         WebTarget resource = getClientInstance().target(url);
         setupAuthentication(resource);
@@ -204,7 +204,7 @@ public class ArtifactClient
     {
         String url = getContextBaseUrl() + (!path.startsWith("/") ? "/" : "") + path;
 
-        logger.debug("Getting " + url + "...");
+        logger.debug("Getting {}...", url);
 
         WebTarget resource = getClientInstance().target(url);
         setupAuthentication(resource);
@@ -229,7 +229,7 @@ public class ArtifactClient
         String url = getContextBaseUrl() + "/storages/" + storageId + "/" + repositoryId + "/" + path +
                      (force ? "?force=" + force : "");
 
-        logger.info("Getting " + url + "...");
+        logger.info("Getting {}...", url);
         
         WebTarget resource = getClientInstance().target(url);
         setupAuthentication(resource);
@@ -320,7 +320,7 @@ public class ArtifactClient
     {
         String url = escapeUrl(path);
 
-        logger.debug("Path to artifact: " + url);
+        logger.debug("Path to artifact: {}", url);
 
         WebTarget resource = getClientInstance().target(url);
         setupAuthentication(resource);
@@ -373,7 +373,7 @@ public class ArtifactClient
     {
         if (username != null && password != null)
         {
-            logger.trace("[setupAuthentication] " + username + "@" + password);
+            logger.trace("[setupAuthentication] {}", username);
             target.register(HttpAuthenticationFeature.basic(username, password));
             return target;
         }
