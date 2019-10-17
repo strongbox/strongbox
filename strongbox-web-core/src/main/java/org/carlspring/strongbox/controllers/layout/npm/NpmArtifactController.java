@@ -33,6 +33,7 @@ import org.apache.commons.compress.archivers.tar.TarArchiveEntry;
 import org.apache.commons.compress.archivers.tar.TarArchiveInputStream;
 import org.apache.commons.compress.compressors.gzip.GzipCompressorInputStream;
 import org.apache.commons.io.IOUtils;
+
 import org.carlspring.strongbox.artifact.ArtifactTag;
 import org.carlspring.strongbox.artifact.coordinates.NpmArtifactCoordinates;
 import org.carlspring.strongbox.config.NpmLayoutProviderConfig.NpmObjectMapper;
@@ -61,6 +62,7 @@ import org.carlspring.strongbox.storage.repository.Repository;
 import org.carlspring.strongbox.storage.validation.artifact.ArtifactCoordinatesValidationException;
 import org.carlspring.strongbox.web.LayoutRequestMapping;
 import org.carlspring.strongbox.web.RepositoryMapping;
+
 import org.javatuples.Pair;
 
 import org.springframework.http.HttpHeaders;
@@ -82,9 +84,8 @@ import org.springframework.web.bind.annotation.RestController;
 
 /**
  * This Controller used to handle npm requests.
- * 
- * @author Sergey Bespalov
  *
+ * @author Sergey Bespalov
  */
 @RestController
 @LayoutRequestMapping(NpmArtifactCoordinates.LAYOUT_NAME)
@@ -110,13 +111,13 @@ public class NpmArtifactController
 
     @Inject
     private NpmSearchResultSupplier npmSearchResultSupplier;
-    
+
     @Inject
     private ViewPackageEventListener viewPackageEventListener;
-    
+
     @Inject
     private SearchPackagesEventListener searcPackagesEventListener;
-    
+
     @GetMapping(path = { "{storageId}/{repositoryId}/npm" })
     public ResponseEntity<String> greet()
     {
@@ -129,7 +130,8 @@ public class NpmArtifactController
     public void search(@RepositoryMapping Repository repository,
                        @RequestParam(name = "text") String text,
                        @RequestParam(name = "size", defaultValue = "20") Integer size,
-                       HttpServletResponse response) throws IOException
+                       HttpServletResponse response)
+            throws IOException
     {
         final String storageId = repository.getStorage().getId();
         final String repositoryId = repository.getId();
@@ -137,45 +139,47 @@ public class NpmArtifactController
         NpmSearchRequest npmSearchRequest = new NpmSearchRequest();
         npmSearchRequest.setText(text);
         npmSearchRequest.setSize(size);
-        
+
         searcPackagesEventListener.setNpmSearchRequest(npmSearchRequest);
 
         RepositoryProvider provider = repositoryProviderRegistry.getProvider(repository.getType());
-        
+
         Predicate predicate = Predicate.empty();
         predicate.and(Predicate.of(ExpOperator.EQ.of("artifactCoordinates.coordinates.extension", "tgz")));
         predicate.and(Predicate.of(ExpOperator.CONTAINS.of("tagSet.name", ArtifactTag.LAST_VERSION)));
-        
+
         Predicate lkePredicate = Predicate.empty().nested();
-        lkePredicate.or(Predicate.of(ExpOperator.LIKE.of("artifactCoordinates.coordinates.name.toLowerCase()", text + "%")));
-        lkePredicate.or(Predicate.of(ExpOperator.LIKE.of("artifactCoordinates.coordinates.scope.toLowerCase()", text + "%")));
+        lkePredicate.or(
+                Predicate.of(ExpOperator.LIKE.of("artifactCoordinates.coordinates.name.toLowerCase()", text + "%")));
+        lkePredicate.or(
+                Predicate.of(ExpOperator.LIKE.of("artifactCoordinates.coordinates.scope.toLowerCase()", text + "%")));
         predicate.or(lkePredicate);
-        
-        
+
+
         Paginator paginator = new Paginator();
         paginator.setLimit(20);
-        
+
         List<Path> searchResult = provider.search(storageId, repositoryId, predicate, paginator);
 
         SearchResults searchResults = new SearchResults();
-        
+
         searchResult.stream().map(npmSearchResultSupplier).forEach(p -> {
             searchResults.getObjects().add(p);
         });
 
         Long count = provider.count(storageId, repositoryId, predicate);
-        
+
         searchResults.setTotal(count.intValue());
 
         //Wed Oct 31 2018 05:01:19 GMT+0000 (UTC)
         SimpleDateFormat format = new SimpleDateFormat(NpmSearchResultSupplier.SEARCH_DATE_FORMAT);
         searchResults.setTime(format.format(new Date()));
-        
+
         response.setContentType(MediaType.APPLICATION_JSON_VALUE);
         response.getOutputStream().write(npmJacksonMapper.writeValueAsBytes(searchResults));
     }
 
-    
+
     @GetMapping(path = "{storageId}/{repositoryId}/{packageScope}/{packageName:[^-].+}/{packageVersion}")
     @PreAuthorize("hasAuthority('ARTIFACTS_VIEW')")
     public void viewPackageWithScope(@RepositoryMapping Repository repository,
@@ -183,47 +187,47 @@ public class NpmArtifactController
                                      @PathVariable(name = "packageName") String packageName,
                                      @PathVariable(name = "packageVersion") String packageVersion,
                                      HttpServletResponse response)
-        throws Exception
+            throws Exception
     {
         final String storageId = repository.getStorage().getId();
         final String repositoryId = repository.getId();
 
         String packageId = NpmArtifactCoordinates.calculatePackageId(packageScope, packageName);
         NpmArtifactCoordinates c = NpmArtifactCoordinates.of(packageId, packageVersion);
-        
+
         NpmViewRequest npmSearchRequest = new NpmViewRequest();
         npmSearchRequest.setPackageId(packageId);
         npmSearchRequest.setVersion(packageVersion);
         viewPackageEventListener.setNpmSearchRequest(npmSearchRequest);
-        
+
         RepositoryPath repositoryPath = artifactResolutionService.resolvePath(storageId, repositoryId, c.toPath());
         if (repositoryPath == null)
         {
             response.setStatus(HttpStatus.NOT_FOUND.value());
-            
+
             return;
         }
-        
+
         NpmPackageDesc packageDesc = npmPackageSupplier.apply(repositoryPath);
         PackageVersion npmPackage = packageDesc.getNpmPackage();
-        
+
         response.setContentType(MediaType.APPLICATION_JSON_VALUE);
         response.getOutputStream().write(npmJacksonMapper.writeValueAsBytes(npmPackage));
     }
-    
+
     @GetMapping(path = "{storageId}/{repositoryId}/{packageScope}/{packageName}")
     @PreAuthorize("hasAuthority('ARTIFACTS_VIEW')")
     public void viewPackageFeedWithScope(@RepositoryMapping Repository repository,
                                          @PathVariable(name = "packageScope") String packageScope,
                                          @PathVariable(name = "packageName") String packageName,
                                          HttpServletResponse response)
-        throws Exception
+            throws Exception
     {
         final String storageId = repository.getStorage().getId();
         final String repositoryId = repository.getId();
 
         String packageId = NpmArtifactCoordinates.calculatePackageId(packageScope, packageName);
-        
+
         NpmViewRequest npmSearchRequest = new NpmViewRequest();
         npmSearchRequest.setPackageId(packageId);
         viewPackageEventListener.setNpmSearchRequest(npmSearchRequest);
@@ -232,7 +236,7 @@ public class NpmArtifactController
 
         packageFeed.setName(packageId);
         packageFeed.setAdditionalProperty("_id", packageId);
-        
+
         Predicate predicate = createSearchPredicate(packageScope, packageName);
 
         RepositoryProvider provider = repositoryProviderRegistry.getProvider(repository.getType());
@@ -262,7 +266,7 @@ public class NpmArtifactController
 
             Date modified = npmTime.getModified();
             npmTime.setModified(modified == null || modified.before(p.getReleaseDate()) ? p.getReleaseDate()
-                    : modified);
+                                                                                        : modified);
 
             if (p.isLastVersion())
             {
@@ -280,7 +284,7 @@ public class NpmArtifactController
     public void viewPackageFeed(@RepositoryMapping Repository repository,
                                 @PathVariable(name = "packageName") String packageName,
                                 HttpServletResponse response)
-        throws Exception
+            throws Exception
     {
         viewPackageFeedWithScope(repository, null, packageName, response);
     }
@@ -302,7 +306,8 @@ public class NpmArtifactController
 
     @PreAuthorize("hasAuthority('ARTIFACTS_RESOLVE')")
     @RequestMapping(path = "{storageId}/{repositoryId}/{packageScope}/{packageName}/-/{packageName}-{packageVersion}.{packageExtension}",
-                    method = { RequestMethod.GET, RequestMethod.HEAD })
+            method = { RequestMethod.GET,
+                       RequestMethod.HEAD })
     public void downloadPackageWithScope(@RepositoryMapping Repository repository,
                                          @PathVariable(name = "packageScope") String packageScope,
                                          @PathVariable(name = "packageName") String packageName,
@@ -311,7 +316,7 @@ public class NpmArtifactController
                                          @RequestHeader HttpHeaders httpHeaders,
                                          HttpServletRequest request,
                                          HttpServletResponse response)
-        throws Exception
+            throws Exception
     {
         final String storageId = repository.getStorage().getId();
         final String repositoryId = repository.getId();
@@ -334,7 +339,8 @@ public class NpmArtifactController
 
     @PreAuthorize("hasAuthority('ARTIFACTS_RESOLVE')")
     @RequestMapping(path = "{storageId}/{repositoryId}/{packageName}/-/{packageName}-{packageVersion}.{packageExtension}",
-                    method = { RequestMethod.GET, RequestMethod.HEAD })
+            method = { RequestMethod.GET,
+                       RequestMethod.HEAD })
     public void downloadPackage(@RepositoryMapping Repository repository,
                                 @PathVariable(name = "packageName") String packageName,
                                 @PathVariable(name = "packageVersion") String packageVersion,
@@ -342,7 +348,7 @@ public class NpmArtifactController
                                 @RequestHeader HttpHeaders httpHeaders,
                                 HttpServletRequest request,
                                 HttpServletResponse response)
-        throws Exception
+            throws Exception
     {
         final String storageId = repository.getStorage().getId();
         final String repositoryId = repository.getId();
@@ -368,7 +374,7 @@ public class NpmArtifactController
     public ResponseEntity publish(@RepositoryMapping Repository repository,
                                   @PathVariable(name = "name") String name,
                                   HttpServletRequest request)
-        throws Exception
+            throws Exception
     {
         final String storageId = repository.getStorage().getId();
         final String repositoryId = repository.getId();
@@ -397,23 +403,23 @@ public class NpmArtifactController
 
     @PreAuthorize("hasAuthority('UI_LOGIN')")
     @PutMapping(path = "{storageId}/{repositoryId}/-/user/org.couchdb.user:{username}",
-                consumes = MediaType.APPLICATION_JSON_VALUE,
-                produces = MediaType.APPLICATION_JSON_VALUE)
+            consumes = MediaType.APPLICATION_JSON_VALUE,
+            produces = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity addUser(Authentication authentication)
     {
         return ResponseEntity
-                .status(HttpStatus.CREATED)
-                .body("{\"ok\":\"user '" + authentication.getName() + "' created\"}");
+                       .status(HttpStatus.CREATED)
+                       .body("{\"ok\":\"user '" + authentication.getName() + "' created\"}");
     }
 
     private void storeNpmPackage(Repository repository,
                                  NpmArtifactCoordinates coordinates,
                                  PackageVersion packageDef,
                                  Path packageTgzTmp)
-        throws IOException,
-               ProviderImplementationException,
-               NoSuchAlgorithmException,
-               ArtifactCoordinatesValidationException
+            throws IOException,
+                   ProviderImplementationException,
+                   NoSuchAlgorithmException,
+                   ArtifactCoordinatesValidationException
     {
         RepositoryPath repositoryPath = repositoryPathResolver.resolve(repository, coordinates);
         try (InputStream is = new BufferedInputStream(Files.newInputStream(packageTgzTmp)))
@@ -422,7 +428,8 @@ public class NpmArtifactController
         }
 
         Path packageJsonTmp = extractPackageJson(packageTgzTmp);
-        RepositoryPath packageJsonPath = repositoryPathResolver.resolve(repository, repositoryPath.resolveSibling("package.json"));
+        RepositoryPath packageJsonPath = repositoryPathResolver.resolve(repository,
+                                                                        repositoryPath.resolveSibling("package.json"));
         try (InputStream is = new BufferedInputStream(Files.newInputStream(packageJsonTmp)))
         {
             artifactManagementService.validateAndStore(packageJsonPath, is);
@@ -438,7 +445,7 @@ public class NpmArtifactController
         String packageFileName = repositoryPath.getFileName().toString();
         RepositoryPath checksumPath = repositoryPath.resolveSibling(packageFileName + ".sha1");
         artifactManagementService.validateAndStore(checksumPath,
-                                                      new ByteArrayInputStream(shasum.getBytes(StandardCharsets.UTF_8)));
+                                                   new ByteArrayInputStream(shasum.getBytes(StandardCharsets.UTF_8)));
 
         Files.delete(packageTgzTmp);
         Files.delete(packageJsonTmp);
@@ -446,7 +453,7 @@ public class NpmArtifactController
 
     private Pair<PackageVersion, Path> extractPackage(String packageName,
                                                       ServletInputStream in)
-        throws IOException
+            throws IOException
     {
         Path packageSourceTmp = Files.createTempFile("package", "source");
         Files.copy(in, packageSourceTmp, StandardCopyOption.REPLACE_EXISTING);
@@ -472,30 +479,31 @@ public class NpmArtifactController
                 }
                 switch (fieldName)
                 {
-                case FIELD_NAME_VERSION:
-                    jp.nextValue();
-                    JsonNode node = jp.readValueAsTree();
-                    Assert.isTrue(node.size() == 1, "npm package source should contain only one version.");
+                    case FIELD_NAME_VERSION:
+                        jp.nextValue();
+                        JsonNode node = jp.readValueAsTree();
+                        Assert.isTrue(node.size() == 1, "npm package source should contain only one version.");
 
-                    JsonNode packageJsonNode = node.iterator().next();
-                    packageVersion = extractPackageVersion(packageName, packageJsonNode.toString());
+                        JsonNode packageJsonNode = node.iterator().next();
+                        packageVersion = extractPackageVersion(packageName, packageJsonNode.toString());
 
-                    break;
-                case FIELD_NAME_ATTACHMENTS:
-                    Assert.isTrue(jp.nextToken() == JsonToken.START_OBJECT,
-                                  String.format("Failed to parse npm package source for illegal type [%s] of attachment.",
-                                                jp.currentToken().name()));
+                        break;
+                    case FIELD_NAME_ATTACHMENTS:
+                        Assert.isTrue(jp.nextToken() == JsonToken.START_OBJECT,
+                                      String.format(
+                                              "Failed to parse npm package source for illegal type [%s] of attachment.",
+                                              jp.currentToken().name()));
 
-                    String packageAttachmentName = jp.nextFieldName();
-                    logger.info("Found npm package attachment [{}]", packageAttachmentName);
+                        String packageAttachmentName = jp.nextFieldName();
+                        logger.info(String.format("Found npm package attachment [%s]", packageAttachmentName));
 
-                    moveToAttachment(jp, packageAttachmentName);
-                    packageTgzPath = extractPackage(jp);
+                        moveToAttachment(jp, packageAttachmentName);
+                        packageTgzPath = extractPackage(jp);
 
-                    jp.nextToken();
-                    jp.nextToken();
+                        jp.nextToken();
+                        jp.nextToken();
 
-                    break;
+                        break;
                 }
             }
         }
@@ -512,7 +520,7 @@ public class NpmArtifactController
     }
 
     private Path extractPackage(JsonParser jp)
-        throws IOException
+            throws IOException
     {
         Path packageTgzTmp = Files.createTempFile("package", "tgz");
         try (OutputStream packageTgzOut = new BufferedOutputStream(Files.newOutputStream(packageTgzTmp,
@@ -533,7 +541,7 @@ public class NpmArtifactController
     }
 
     private Path extractPackageJson(Path packageTgzTmp)
-        throws IOException
+            throws IOException
     {
         String packageJsonSource;
         try (InputStream packageTgzIn = new BufferedInputStream(Files.newInputStream(packageTgzTmp)))
@@ -541,18 +549,20 @@ public class NpmArtifactController
             packageJsonSource = extrectPackageJson(packageTgzIn);
         }
         Path packageJsonTmp = Files.createTempFile("package", "json");
-        Files.write(packageJsonTmp, packageJsonSource.getBytes(StandardCharsets.UTF_8), StandardOpenOption.TRUNCATE_EXISTING);
+        Files.write(packageJsonTmp, packageJsonSource.getBytes(StandardCharsets.UTF_8),
+                    StandardOpenOption.TRUNCATE_EXISTING);
 
         return packageJsonTmp;
     }
 
     private void moveToAttachment(JsonParser jp,
                                   String packageAttachmentName)
-        throws IOException
+            throws IOException
     {
         Assert.isTrue(jp.nextToken() == JsonToken.START_OBJECT,
-                      String.format("Failed to parse npm package source for [%s], illegal attachment content type [%s].",
-                                    packageAttachmentName, jp.currentToken().name()));
+                      String.format(
+                              "Failed to parse npm package source for [%s], illegal attachment content type [%s].",
+                              packageAttachmentName, jp.currentToken().name()));
 
         jp.nextToken();
         String contentType = jp.nextTextValue();
@@ -570,7 +580,7 @@ public class NpmArtifactController
 
     private PackageVersion extractPackageVersion(String packageName,
                                                  String packageJsonSource)
-        throws IOException
+            throws IOException
     {
         PackageVersion packageVersion;
         try
@@ -580,7 +590,7 @@ public class NpmArtifactController
         catch (JsonProcessingException e)
         {
             throw new IllegalArgumentException(String.format("Failed to parse package.json info for [%s]", packageName),
-                    e);
+                                               e);
         }
         Assert.isTrue(packageName.equals(packageVersion.getName()),
                       String.format("Package name [%s] don't match with [%s].", packageVersion.getName(), packageName));
@@ -589,7 +599,7 @@ public class NpmArtifactController
     }
 
     private String extrectPackageJson(InputStream in)
-        throws IOException
+            throws IOException
     {
         GzipCompressorInputStream gzipIn = new GzipCompressorInputStream(in);
         try (TarArchiveInputStream tarIn = new TarArchiveInputStream(gzipIn))
@@ -606,9 +616,9 @@ public class NpmArtifactController
                 IOUtils.copy(tarIn, writer, StandardCharsets.UTF_8);
                 return writer.toString();
             }
-            
+
             return null;
         }
     }
-    
+
 }

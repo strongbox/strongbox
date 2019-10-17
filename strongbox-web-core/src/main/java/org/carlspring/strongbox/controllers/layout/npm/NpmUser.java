@@ -24,7 +24,9 @@ public class NpmUser
     private String email;
 
     @JsonCreator
-    public NpmUser() {}
+    public NpmUser()
+    {
+    }
 
     @JsonCreator
     public NpmUser(@JsonProperty(value = "_id", required = true) String id,
@@ -44,52 +46,64 @@ public class NpmUser
         this.email = email;
     }
 
-    public String getName() {
+    public String getName()
+    {
         return name;
     }
 
-    public String getPassword() {
+    public String getPassword()
+    {
         return password;
     }
 
-    public String getType() {
+    public String getType()
+    {
         return type;
     }
 
-    public String[] getRoles() {
+    public String[] getRoles()
+    {
         return roles;
     }
 
-    public String getDate() {
+    public String getDate()
+    {
         return date;
     }
 
-    public String getId() {
+    public String getId()
+    {
         return id;
     }
 
     @JsonSetter("_id")
-    public void setId(String id) {
+    public void setId(String id)
+    {
         this.id = id;
     }
 
-    public void setName(String name) {
+    public void setName(String name)
+    {
         this.name = name;
     }
 
-    public void setPassword(String password) {
+    public void setPassword(String password)
+    {
         this.password = password;
     }
 
-    public void setType(String type) {
+    public void setType(String type)
+    {
         this.type = type;
     }
 
-    public void setRoles(String[] roles) {
+    public void setRoles(String[] roles)
+    {
         this.roles = roles;
     }
 
-    public void setDate(String date) {
+    public void setDate(String date)
+    {
         this.date = date;
     }
 }

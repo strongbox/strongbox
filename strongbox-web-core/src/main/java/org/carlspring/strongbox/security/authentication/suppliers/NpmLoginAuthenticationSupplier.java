@@ -1,9 +1,11 @@
 package org.carlspring.strongbox.security.authentication.suppliers;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+
 import org.carlspring.strongbox.authentication.api.password.PasswordAuthentication;
 import org.carlspring.strongbox.controllers.layout.npm.NpmArtifactController;
 import org.carlspring.strongbox.controllers.layout.npm.NpmUser;
+
 import org.springframework.core.annotation.Order;
 import org.springframework.http.MediaType;
 import org.springframework.security.authentication.BadCredentialsException;
@@ -18,7 +20,8 @@ import java.io.IOException;
 
 @Component
 @Order(4)
-public class NpmLoginAuthenticationSupplier implements AuthenticationSupplier
+public class NpmLoginAuthenticationSupplier
+        implements AuthenticationSupplier
 {
 
     @Inject
@@ -30,7 +33,7 @@ public class NpmLoginAuthenticationSupplier implements AuthenticationSupplier
     {
         NpmUser npmUser = deserializeNpmUser(request);
 
-        if(isValidNpmUser(npmUser))
+        if (isValidNpmUser(npmUser))
         {
             return new PasswordAuthentication(npmUser.getName(), npmUser.getPassword());
         }
@@ -45,9 +48,9 @@ public class NpmLoginAuthenticationSupplier implements AuthenticationSupplier
     public boolean supports(@Nonnull HttpServletRequest request)
     {
         return "PUT".equalsIgnoreCase(request.getMethod()) &&
-                request.getContentType()!=null &&
-                request.getContentType().contains(MediaType.APPLICATION_JSON_VALUE) &&
-                request.getRequestURI().contains("/-/user/org.couchdb.user:");
+                                      request.getContentType() != null &&
+                                      request.getContentType().contains(MediaType.APPLICATION_JSON_VALUE) &&
+                                      request.getRequestURI().contains("/-/user/org.couchdb.user:");
     }
 
     private NpmUser deserializeNpmUser(HttpServletRequest request)
@@ -58,7 +61,7 @@ public class NpmLoginAuthenticationSupplier implements AuthenticationSupplier
         {
             npmUser = objectMapper.readValue(request.getInputStream(), NpmUser.class);
         }
-        catch(IOException e)
+        catch (IOException e)
         {
             npmUser = null;
         }
@@ -69,12 +72,12 @@ public class NpmLoginAuthenticationSupplier implements AuthenticationSupplier
     private boolean isValidNpmUser(NpmUser npmUser)
     {
         return npmUser != null &&
-                npmUser.getName() != null &&
-                npmUser.getPassword() != null &&
-                npmUser.getDate() != null &&
-                npmUser.getRoles() != null &&
-                npmUser.getType() != null &&
-                npmUser.getId() != null;
+               npmUser.getName() != null &&
+               npmUser.getPassword() != null &&
+               npmUser.getDate() != null &&
+               npmUser.getRoles() != null &&
+               npmUser.getType() != null &&
+               npmUser.getId() != null;
     }
 
 }
