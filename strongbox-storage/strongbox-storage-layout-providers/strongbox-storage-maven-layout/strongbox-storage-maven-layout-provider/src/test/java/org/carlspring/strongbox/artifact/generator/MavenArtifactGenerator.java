@@ -18,7 +18,6 @@ import java.io.OutputStream;
 import java.io.OutputStreamWriter;
 import java.io.Writer;
 import java.net.URI;
-import java.nio.charset.Charset;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Path;
 import java.nio.file.Paths;
@@ -45,6 +44,7 @@ public class MavenArtifactGenerator implements ArtifactGenerator
 {
 
     private static final Logger logger = LoggerFactory.getLogger(MavenArtifactGenerator.class);
+    private static final int DEFAULT_SIZE = 1000000;
 
     public static final String PACKAGING_JAR = "jar";
 
@@ -139,7 +139,7 @@ public class MavenArtifactGenerator implements ArtifactGenerator
             throws IOException,
                    NoSuchAlgorithmException
     {
-        generate(artifact, new Random().nextInt(1024));
+        generate(artifact, new Random().nextInt(DEFAULT_SIZE));
     }
 
     public void generate(Artifact artifact, String packaging)
@@ -161,7 +161,7 @@ public class MavenArtifactGenerator implements ArtifactGenerator
     public void createArchive(Artifact artifact)
             throws IOException, NoSuchAlgorithmException
     {
-        createArchive(artifact, new Random().nextInt(1024));
+        createArchive(artifact, new Random().nextInt(DEFAULT_SIZE));
     }
 
     public void createArchive(Artifact artifact, long size)
