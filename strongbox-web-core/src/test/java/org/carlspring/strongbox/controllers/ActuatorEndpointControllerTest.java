@@ -84,7 +84,7 @@ public class ActuatorEndpointControllerTest
 
     @WithAnonymousUser
     @ParameterizedTest
-    @ValueSource(strings = { "",
+    @ValueSource(strings = { "/",
                              "/health",
                              "/health/db",
                              "/info",
@@ -100,14 +100,15 @@ public class ActuatorEndpointControllerTest
         mockMvc.accept(MediaType.APPLICATION_JSON_VALUE)
                .when()
                .get(url)
-               .peek()
                .then()
+               .log().status()
+               .log().headers()
                .statusCode(HttpStatus.UNAUTHORIZED.value())
                .body("error", CoreMatchers.equalTo(getI18nInsufficientAuthenticationErrorMessage()));
     }
 
     @ParameterizedTest
-    @ValueSource(strings = { "",
+    @ValueSource(strings = { "/",
                              "/health",
                              "/health/db",
                              "/info",
@@ -123,8 +124,9 @@ public class ActuatorEndpointControllerTest
         mockMvc.accept(MediaType.APPLICATION_JSON_VALUE)
                .when()
                .get(url)
-               .peek()
                .then()
+               .log().status()
+               .log().headers()
                .statusCode(HttpStatus.OK.value())
                .body(CoreMatchers.notNullValue());
     }

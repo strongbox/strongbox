@@ -11,7 +11,6 @@ import java.nio.file.*;
 import java.nio.file.attribute.BasicFileAttributes;
 import java.util.Arrays;
 import java.util.List;
-import java.util.Random;
 
 import io.restassured.response.ResponseBodyExtractionOptions;
 import org.junit.jupiter.api.BeforeEach;
