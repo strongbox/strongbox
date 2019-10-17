@@ -1,11 +1,6 @@
 package org.carlspring.strongbox.util;
 
-import java.io.BufferedReader;
-import java.io.FileInputStream;
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.InputStreamReader;
-import java.io.OutputStream;
+import java.io.*;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.security.DigestInputStream;
@@ -14,6 +9,8 @@ import java.security.NoSuchAlgorithmException;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.carlspring.commons.encryption.EncryptionAlgorithmsEnum;
+import org.carlspring.commons.io.MultipleDigestOutputStream;
 
 /**
  * @author mtodorov
@@ -23,7 +20,7 @@ public class MessageDigestUtils
 
     private static final Logger logger = LoggerFactory.getLogger(MessageDigestUtils.class);
 
-    private MessageDigestUtils() 
+    private MessageDigestUtils()
     {
     }
 
@@ -98,5 +95,22 @@ public class MessageDigestUtils
         }
 
         return convertToHexadecimalString(md);
+    }
+
+    public static String calculateChecksum(Object object)
+            throws IOException, NoSuchAlgorithmException
+    {
+        String checksum = "";
+
+        try (ByteArrayOutputStream baos = new ByteArrayOutputStream();
+             ObjectOutputStream oos = new ObjectOutputStream(baos))
+        {
+            oos.writeObject(object);
+            MultipleDigestOutputStream mdos = new MultipleDigestOutputStream(baos);
+            mdos.write(baos.toByteArray());
+            checksum = mdos.getMessageDigestAsHexadecimalString(EncryptionAlgorithmsEnum.MD5.getAlgorithm());
+        }
+
+        return checksum;
     }
 }
