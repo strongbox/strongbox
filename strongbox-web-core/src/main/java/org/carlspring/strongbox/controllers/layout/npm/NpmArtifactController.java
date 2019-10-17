@@ -68,6 +68,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
+import org.springframework.security.core.Authentication;
 import org.springframework.util.Assert;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -77,6 +78,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
+
 
 /**
  * This Controller used to handle npm requests.
@@ -95,7 +97,6 @@ public class NpmArtifactController
     private static final String FIELD_NAME_ATTACHMENTS = "_attachments";
 
     private static final String FIELD_NAME_VERSION = "versions";
-
 
     @Inject
     @NpmObjectMapper
@@ -392,6 +393,17 @@ public class NpmArtifactController
         storeNpmPackage(repository, coordinates, packageJson, packageTgz);
 
         return ResponseEntity.ok("");
+    }
+
+    @PreAuthorize("hasAuthority('UI_LOGIN')")
+    @PutMapping(path = "{storageId}/{repositoryId}/-/user/org.couchdb.user:{username}",
+                consumes = MediaType.APPLICATION_JSON_VALUE,
+                produces = MediaType.APPLICATION_JSON_VALUE)
+    public ResponseEntity addUser(Authentication authentication)
+    {
+        return ResponseEntity
+                .status(HttpStatus.CREATED)
+                .body("{\"ok\":\"user '" + authentication.getName() + "' created\"}");
     }
 
     private void storeNpmPackage(Repository repository,
