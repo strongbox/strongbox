@@ -43,9 +43,9 @@ public class ArtifactStoredEventListener
 
         if (artifactEntry == null)
         {
-            logger.warn(String.format("No [%s] for [%s].",
-                                      ArtifactEntry.class.getSimpleName(),
-                                      repositoryPath));
+            logger.warn("No [{}] for [{}].",
+                        ArtifactEntry.class.getSimpleName(),
+                        repositoryPath);
 
             return null;
         }

@@ -44,7 +44,7 @@ public class NpmLayoutProvider
     @PostConstruct
     public void register()
     {
-        logger.info("Registered layout provider '" + getClass().getCanonicalName() + "' with alias '" + ALIAS + "'.");
+        logger.info("Registered layout provider '{}' with alias '{}'.", getClass().getCanonicalName(), ALIAS);
     }
 
     protected NpmArtifactCoordinates getArtifactCoordinates(RepositoryPath path) throws IOException

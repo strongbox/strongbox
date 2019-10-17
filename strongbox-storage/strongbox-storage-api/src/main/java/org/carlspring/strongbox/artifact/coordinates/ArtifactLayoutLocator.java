@@ -49,9 +49,9 @@ public class ArtifactLayoutLocator
             ArtifactCoordinatesLayout artifactLayout = artifactCoordinatesClass.getAnnotation(ArtifactCoordinatesLayout.class);
             if (artifactLayout == null)
             {
-                logger.warn(String.format("[%s] should be provided for [%s] class",
-                                          ArtifactCoordinatesLayout.class.getSimpleName(),
-                                          artifactCoordinatesClass.getSimpleName()));
+                logger.warn("[{}] should be provided for [{}] class",
+                            ArtifactCoordinatesLayout.class.getSimpleName(),
+                            artifactCoordinatesClass.getSimpleName());
                 continue;
             }
 

@@ -87,7 +87,7 @@ public abstract class AbstractCronJob
         }
         catch (Throwable e)
         {
-            logger.error(String.format("Failed to execute cron job task [%s].", configuration.getName()), e);
+            logger.error("Failed to execute cron job task [{}].", configuration.getName(), e);
         }
         manager.addExecutedJob(configuration.getUuid().toString(), true);
 

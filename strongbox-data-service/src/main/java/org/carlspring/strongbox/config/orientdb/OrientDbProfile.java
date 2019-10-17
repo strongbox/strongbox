@@ -49,7 +49,7 @@ public class OrientDbProfile
     {
         String profile = System.getProperty(PROPERTY_PROFILE, PROFILE_MEMORY);
         
-        logger.info(String.format("Bootstrap OrientDB connection properties with profile [%s].", profile));
+        logger.info("Bootstrap OrientDB connection properties with profile [{}].", profile);
 
         try (InputStream is = OrientDbProfile.class.getResourceAsStream(String.format("/META-INF/properties/%s.properties",
                                                                                       profile)))
@@ -65,7 +65,7 @@ public class OrientDbProfile
                               return;
                           }
 
-                          logger.debug(String.format("Using default value for OrientDB connection property [%s].", p));
+                          logger.debug("Using default value for OrientDB connection property [{}].", p);
 
                           System.setProperty((String) p, properties.getProperty((String) p));
                       });

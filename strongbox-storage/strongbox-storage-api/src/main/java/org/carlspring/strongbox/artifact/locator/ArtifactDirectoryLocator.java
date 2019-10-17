@@ -46,8 +46,8 @@ public class ArtifactDirectoryLocator
 
         long endTime = System.currentTimeMillis();
 
-        logger.debug("Executed (cache: " + -operation.getVisitedRootPaths().size() + ")" +
-                     " visits in " + (endTime - startTime) + " ms.");
+        logger.debug("Executed (cache: {}) visits in {} ms.",
+                     -operation.getVisitedRootPaths().size(), (endTime - startTime));
 
         getOperation().getVisitedRootPaths().clear();
     }
@@ -63,7 +63,7 @@ public class ArtifactDirectoryLocator
         }
         rootPath = rootPath.normalize();
 
-        logger.debug(String.format("ArtifactDirectoryLocator started in: path-[%s]", rootPath));
+        logger.debug("ArtifactDirectoryLocator started in: path-[{}]", rootPath);
 
         return Files.isDirectory(rootPath) ? rootPath : rootPath.getParent();
     }
@@ -96,7 +96,7 @@ public class ArtifactDirectoryLocator
         }
         catch (IOException e)
         {
-            logger.error(String.format("Failed to execute operation [%s]", operation.getClass().getSimpleName()), e);
+            logger.error("Failed to execute operation [{}]", operation.getClass().getSimpleName(), e);
         }
     }
     

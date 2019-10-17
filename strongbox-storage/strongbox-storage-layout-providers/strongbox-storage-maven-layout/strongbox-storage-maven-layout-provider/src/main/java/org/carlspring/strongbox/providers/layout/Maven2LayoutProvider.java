@@ -50,7 +50,8 @@ public class Maven2LayoutProvider
     @PostConstruct
     public void register()
     {
-        logger.info("Registered layout provider '" + getClass().getCanonicalName() + "' with alias '" + ALIAS + "'.");
+        logger.info("Registered layout provider '{}' with alias '{}'.",
+                    getClass().getCanonicalName(), ALIAS);
     }
 
     protected MavenArtifactCoordinates getArtifactCoordinates(RepositoryPath repositoryPath)
@@ -159,8 +160,8 @@ public class Maven2LayoutProvider
             }
             catch (IOException e)
             {
-                logger.warn(String.format("Unable to list filenames in archive path %s using %s", repositoryPath,
-                                          JarArchiveListingFunction.INSTANCE.getClass()), e);
+                logger.warn("Unable to list filenames in archive path {} using {}",
+                            repositoryPath, JarArchiveListingFunction.INSTANCE.getClass(), e);
             }
         }
         return Collections.emptySet();

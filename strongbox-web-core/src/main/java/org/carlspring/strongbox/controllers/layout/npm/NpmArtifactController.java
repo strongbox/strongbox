@@ -419,7 +419,7 @@ public class NpmArtifactController
         String shasum = Optional.ofNullable(packageDef.getDist()).map(p -> p.getShasum()).orElse(null);
         if (shasum == null)
         {
-            logger.warn(String.format("No checksum provided for package [%s]", packageDef.getName()));
+            logger.warn("No checksum provided for package [{}]", packageDef.getName());
             return;
         }
 
@@ -475,7 +475,7 @@ public class NpmArtifactController
                                                 jp.currentToken().name()));
 
                     String packageAttachmentName = jp.nextFieldName();
-                    logger.info(String.format("Found npm package attachment [%s]", packageAttachmentName));
+                    logger.info("Found npm package attachment [{}]", packageAttachmentName);
 
                     moveToAttachment(jp, packageAttachmentName);
                     packageTgzPath = extractPackage(jp);

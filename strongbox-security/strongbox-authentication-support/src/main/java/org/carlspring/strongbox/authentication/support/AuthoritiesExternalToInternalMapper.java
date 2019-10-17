@@ -30,14 +30,14 @@ public class AuthoritiesExternalToInternalMapper
     @Override
     public Collection<? extends GrantedAuthority> mapAuthorities(Collection<? extends GrantedAuthority> externalAuthorities)
     {
-        logger.debug(String.format("Map authorities [%s]", externalAuthorities));
+        logger.debug("Map authorities [{}]", externalAuthorities);
         Collection<? extends GrantedAuthority> result = externalAuthorities.stream()
                                                                            .map(GrantedAuthority::getAuthority)
                                                                            .map(a -> getRolesMapping().get(a))
                                                                            .filter(Objects::nonNull)
                                                                            .map(SimpleGrantedAuthority::new)
                                                                            .collect(Collectors.toSet());
-        logger.debug(String.format("Authorities mapped [%s]", result));
+        logger.debug("Authorities mapped [{}]", result);
         return result;
     }
 

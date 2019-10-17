@@ -83,7 +83,7 @@ public abstract class MavenRestAssuredBaseTest
 
     protected boolean pathExists(String url)
     {
-        logger.trace("[pathExists] URL -> " + url);
+        logger.trace("[pathExists] URL -> {}", url);
 
         return mockMvc.header("user-agent", "Maven/*")
                       .contentType(MediaType.TEXT_PLAIN_VALUE)

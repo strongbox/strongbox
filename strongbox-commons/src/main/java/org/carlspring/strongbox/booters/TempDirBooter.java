@@ -54,17 +54,17 @@ public class TempDirBooter
             Files.createDirectories(tempDirPath);
         }
 
-        logger.debug("Temporary directory: " + tempDirPath.toString() + ".");
+        logger.debug("Temporary directory: {}.", tempDirPath);
 
         if (System.getProperty("java.io.tmpdir") == null)
         {
             System.setProperty("java.io.tmpdir", tempDirPath.toString());
 
-            logger.debug("Set java.io.tmpdir to " + tempDirPath.toString() + ".");
+            logger.debug("Set java.io.tmpdir to {}.", tempDirPath);
         }
         else
         {
-            logger.debug("The java.io.tmpdir is already set to " + System.getProperty("java.io.tmpdir") + ".");
+            logger.debug("The java.io.tmpdir is already set to {}.", System.getProperty("java.io.tmpdir"));
         }
     }
     
@@ -75,14 +75,14 @@ public class TempDirBooter
         Files.createDirectories(lockFile.getParent());
         Files.createFile(lockFile);
 
-        logger.debug(" -> Created lock file '" + lockFile.toAbsolutePath().toString() + "'...");
+        logger.debug(" -> Created lock file '{}'...", lockFile.toAbsolutePath());
     }
     
     private boolean lockExists()
     {
         if (Files.exists(lockFile))
         {
-            logger.debug(" -> Lock found: '" + propertiesBooter.getVaultDirectory() + "'!");
+            logger.debug(" -> Lock found: '{}'!", propertiesBooter.getVaultDirectory());
 
             return true;
         }
@@ -100,7 +100,7 @@ public class TempDirBooter
     {
         Files.deleteIfExists(lockFile);
 
-        logger.debug("Removed lock file '" + lockFile.toAbsolutePath().toString() + "'.");
+        logger.debug("Removed lock file '{}'.", lockFile.toAbsolutePath());
     }
 
 }

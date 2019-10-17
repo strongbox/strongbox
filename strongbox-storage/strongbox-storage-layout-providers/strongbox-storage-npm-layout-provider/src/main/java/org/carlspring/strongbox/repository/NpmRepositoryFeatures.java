@@ -129,7 +129,7 @@ public class NpmRepositoryFeatures implements RepositoryFeatures
         Client restClient = proxyRepositoryConnectionPoolConfigurationService.getRestClient();
         try
         {
-            logger.debug(String.format("Search NPM packages for [%s].", remoteRepositoryUrl));
+            logger.debug("Search NPM packages for [{}].", remoteRepositoryUrl);
 
             WebTarget service = restClient.target(remoteRepository.getUrl());
             service = service.path("-/v1/search").queryParam("text", text).queryParam("size", size);
@@ -137,12 +137,12 @@ public class NpmRepositoryFeatures implements RepositoryFeatures
             InputStream inputStream = service.request().buildGet().invoke(InputStream.class);
             searchResults = npmJacksonMapper.readValue(inputStream, SearchResults.class);
 
-            logger.debug(String.format("Searched NPM packages for [%s].", remoteRepository.getUrl()));
+            logger.debug("Searched NPM packages for [{}].", remoteRepository.getUrl());
 
         }
         catch (Exception e)
         {
-            logger.error(String.format("Failed to searhc NPM packages [%s]", remoteRepositoryUrl), e);
+            logger.error("Failed to search NPM packages [{}]", remoteRepositoryUrl, e);
             
             return;
         } 
@@ -157,7 +157,7 @@ public class NpmRepositoryFeatures implements RepositoryFeatures
         }
         catch (Exception e)
         {
-            logger.error(String.format("Failed to parse NPM packages search result for [%s]", remoteRepositoryUrl), e);
+            logger.error("Failed to parse NPM packages search result for [{}]", remoteRepositoryUrl, e);
         }
     }
 
@@ -184,7 +184,7 @@ public class NpmRepositoryFeatures implements RepositoryFeatures
         NpmRemoteRepositoryConfiguration configuration = (NpmRemoteRepositoryConfiguration) remoteRepository.getCustomConfiguration();
         if (configuration == null)
         {
-            logger.warn(String.format("Remote npm configuration not found for [%s]/[%s]", storageId, repositoryId));
+            logger.warn("Remote npm configuration not found for [{}]/[{}]", storageId, repositoryId);
             return;
         }
         Long lastCnahgeId = configuration.getLastChangeId();
@@ -210,7 +210,7 @@ public class NpmRepositoryFeatures implements RepositoryFeatures
         Client restClient = proxyRepositoryConnectionPoolConfigurationService.getRestClient();
         try
         {
-            logger.debug(String.format("Fetching remote cnages for [%s] since [%s].", replicateUrl, since));
+            logger.debug("Fetching remote changes for [{}] since [{}].", replicateUrl, since);
 
             WebTarget service = restClient.target(replicateUrl);
             service = service.path("_changes");
@@ -272,10 +272,10 @@ public class NpmRepositoryFeatures implements RepositoryFeatures
                 }
                 catch (Exception e)
                 {
-                    logger.error(String.format("Failed to parse NPM cnahges feed [%s] since [%s]: %n %s",
-                                               repositoryConfiguration.getReplicateUrl(),
-                                               repositoryConfiguration.getLastChangeId(),
-                                               changeValue),
+                    logger.error("Failed to parse NPM changes feed [{}] since [{}]: \n {}",
+                                 repositoryConfiguration.getReplicateUrl(),
+                                 repositoryConfiguration.getLastChangeId(),
+                                 changeValue,
                                  e);
 
                     return result;
@@ -288,9 +288,9 @@ public class NpmRepositoryFeatures implements RepositoryFeatures
                 }
                 catch (Exception e)
                 {
-                    logger.error(String.format("Failed to parse NPM feed [%s/%s]",
-                                               ((RepositoryData)repository).getRemoteRepository().getUrl(),
-                                               packageFeed.getName()),
+                    logger.error("Failed to parse NPM feed [{}/{}]",
+                                 ((RepositoryData)repository).getRemoteRepository().getUrl(),
+                                 packageFeed.getName(),
                                  e);
 
                 }
@@ -301,9 +301,9 @@ public class NpmRepositoryFeatures implements RepositoryFeatures
 
         }
 
-        logger.debug(String.format("Fetched remote cnages for  [%s] since [%s].",
-                                   repositoryConfiguration.getReplicateUrl(),
-                                   repositoryConfiguration.getLastChangeId()));
+        logger.debug("Fetched remote changes for  [{}] since [{}].",
+                     repositoryConfiguration.getReplicateUrl(),
+                     repositoryConfiguration.getLastChangeId());
 
         return result;
     }
@@ -327,7 +327,7 @@ public class NpmRepositoryFeatures implements RepositoryFeatures
         Client restClient = proxyRepositoryConnectionPoolConfigurationService.getRestClient();
         try
         {
-            logger.debug(String.format("Downloading NPM changes feed for [%s].", remoteRepositoryUrl));
+            logger.debug("Downloading NPM changes feed for [{}].", remoteRepositoryUrl);
 
             WebTarget service = restClient.target(remoteRepository.getUrl());
             service = service.path(packageId);
@@ -335,12 +335,12 @@ public class NpmRepositoryFeatures implements RepositoryFeatures
             InputStream inputStream = service.request().buildGet().invoke(InputStream.class);
             packageFeed = npmJacksonMapper.readValue(inputStream, PackageFeed.class);
 
-            logger.debug(String.format("Downloaded NPM changes feed for [%s].", remoteRepository.getUrl()));
+            logger.debug("Downloaded NPM changes feed for [{}].", remoteRepository.getUrl());
 
         }
         catch (Exception e)
         {
-            logger.error(String.format("Failed to fetch NPM changes feed [%s]", remoteRepositoryUrl), e);
+            logger.error("Failed to fetch NPM changes feed [{}]", remoteRepositoryUrl, e);
             return;
         } 
         finally
@@ -354,9 +354,9 @@ public class NpmRepositoryFeatures implements RepositoryFeatures
         }
         catch (Exception e)
         {
-            logger.error(String.format("Failed to parse NPM feed [%s/%s]",
-                                       ((RepositoryData)repository).getRemoteRepository().getUrl(),
-                                       packageFeed.getName()),
+            logger.error("Failed to parse NPM feed [{}/{}]",
+                         ((RepositoryData)repository).getRemoteRepository().getUrl(),
+                         packageFeed.getName(),
                          e);
         }
     }
@@ -400,8 +400,8 @@ public class NpmRepositoryFeatures implements RepositoryFeatures
             Predicate predicate = event.getPredicate();
             Long packageCount = countPackages(storageId, repositoryId, predicate);
 
-            logger.debug(String.format("NPM remote repository [%s] cached package count is [%s]", repository.getId(),
-                                       packageCount));
+            logger.debug("NPM remote repository [{}] cached package count is [{}]",
+                         repository.getId(), packageCount);
 
             Runnable job = () -> fetchRemoteSearchResult(storageId, repositoryId, npmSearchRequest.getText(),
                                                          npmSearchRequest.getSize());
@@ -458,8 +458,8 @@ public class NpmRepositoryFeatures implements RepositoryFeatures
             Predicate predicate = event.getPredicate();
             Long packageCount = countPackages(storageId, repositoryId, predicate);
 
-            logger.debug(String.format("NPM remote repository [%s] cached package count is [%s]", repository.getId(),
-                                       packageCount));
+            logger.debug("NPM remote repository [{}] cached package count is [{}]",
+                         repository.getId(), packageCount);
 
             Runnable job = () -> fetchRemotePackageFeed(storage.getId(), repository.getId(),
                                                         npmSearchRequest.getPackageId());

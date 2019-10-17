@@ -1,22 +1,19 @@
 package org.carlspring.strongbox.controllers;
 
 
-import static java.nio.charset.StandardCharsets.ISO_8859_1;
-import static org.hamcrest.Matchers.equalTo;
-import static org.hamcrest.Matchers.notNullValue;
-
-import java.nio.charset.Charset;
-import java.util.Collections;
-import java.util.Locale;
-
-import javax.inject.Inject;
-
 import org.carlspring.strongbox.config.IntegrationTest;
+import org.carlspring.strongbox.controllers.login.LoginOutput;
 import org.carlspring.strongbox.rest.common.RestAssuredBaseTest;
 import org.carlspring.strongbox.users.security.JwtAuthenticationClaimsProvider.JwtAuthentication;
 import org.carlspring.strongbox.users.security.JwtClaimsProvider;
 import org.carlspring.strongbox.users.security.SecurityTokenProvider;
 import org.carlspring.strongbox.users.userdetails.SpringSecurityUser;
+
+import javax.inject.Inject;
+import java.nio.charset.Charset;
+import java.util.Collections;
+import java.util.Locale;
+
 import org.jose4j.jwt.NumericDate;
 import org.json.JSONObject;
 import org.junit.jupiter.api.BeforeEach;
@@ -29,6 +26,11 @@ import org.springframework.security.core.SpringSecurityMessageSource;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.test.context.TestSecurityContextHolder;
+import static java.nio.charset.StandardCharsets.ISO_8859_1;
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.carlspring.strongbox.security.authentication.JwtTokenFetcher.AUTHORIZATION_COOKIE;
+import static org.hamcrest.Matchers.equalTo;
+import static org.hamcrest.Matchers.notNullValue;
 
 /**
  * @author adavid9
@@ -192,6 +194,36 @@ public class JwtAuthenticationTest
                .then()
                .statusCode(HttpStatus.UNAUTHORIZED.value())
                .body("error", equalTo("invalid.token"));
+    }
+
+    @Test
+    public void testJWTAuthWithCookieShouldPass()
+    {
+
+        String url = getContextBaseUrl() + "/users";
+        String basicAuth = "Basic YWRtaW46cGFzc3dvcmQ=";
+
+        LoginOutput body = mockMvc.header(HttpHeaders.AUTHORIZATION, basicAuth)
+                                  .header(HttpHeaders.ACCEPT, MediaType.APPLICATION_JSON_VALUE)
+                                  .when()
+                                  .get(getContextBaseUrl() + "/login")
+                                  .then()
+                                  .statusCode(HttpStatus.OK.value())
+                                  .extract()
+                                  .as(LoginOutput.class);
+        TestSecurityContextHolder.clearContext();
+        SecurityContextHolder.clearContext();
+
+        assertThat(body).isNotNull();
+        assertThat(body.getToken()).isNotNull();
+
+        mockMvc.cookie(AUTHORIZATION_COOKIE, body.getToken())
+               .header(HttpHeaders.ACCEPT, MediaType.APPLICATION_JSON_VALUE)
+               .when()
+               .get(url)
+               .then()
+               .statusCode(HttpStatus.OK.value())
+               .body(notNullValue());
     }
 
     private String getTokenValue(String body)

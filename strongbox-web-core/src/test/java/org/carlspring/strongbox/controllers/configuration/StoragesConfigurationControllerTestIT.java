@@ -185,7 +185,7 @@ public class StoragesConfigurationControllerTestIT
 
         String url = getContextBaseUrl();
 
-        logger.debug("Using storage class " + storage1.getClass().getName());
+        logger.debug("Using storage class {}", storage1.getClass().getName());
 
         // 1. Create storage
         givenCustom().contentType(MediaType.APPLICATION_JSON_VALUE)
