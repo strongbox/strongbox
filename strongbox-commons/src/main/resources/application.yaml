@@ -52,6 +52,7 @@ logging:
       total: 1GB
     history: 31
   dir: ${strongbox.vault}/logs
+# TODO: replace with logging.file.name after upgrading to 2.2.X (https://github.com/strongbox/strongbox/pull/1440#discussion_r335779316)
 logging.file: ${logging.dir}/strongbox.log
 java:
   io:

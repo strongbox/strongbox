@@ -4,7 +4,7 @@ strongbox:
   basedir: ./target
   url: http://${strongbox.host:localhost}:${strongbox.port:48080}
 
-
+# TODO: Remove this when spring-ldap-core is upgraded to 2.3.3 (see https://github.com/strongbox/strongbox/pull/1440#discussion_r335688816)
 management:
   health:
     ldap:
