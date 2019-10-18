@@ -1,6 +1,5 @@
 package org.carlspring.strongbox.configuration;
 
-import org.carlspring.strongbox.resource.ConfigurationResourceResolver;
 import org.carlspring.strongbox.yaml.YAMLMapperFactory;
 import org.carlspring.strongbox.yaml.YamlFileManager;
 import org.carlspring.strongbox.yaml.repository.CustomRepositoryConfigurationDto;
@@ -8,6 +7,8 @@ import org.carlspring.strongbox.yaml.repository.remote.RemoteRepositoryConfigura
 
 import javax.inject.Inject;
 
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.core.io.Resource;
 import org.springframework.stereotype.Component;
 
 /**
@@ -17,9 +18,8 @@ import org.springframework.stereotype.Component;
 public class ConfigurationFileManager
         extends YamlFileManager<MutableConfiguration>
 {
-
-    @Inject
-    private ConfigurationResourceResolver configurationResourceResolver;
+    @Value("#{@propertiesPathResolver.resolve('strongbox.config.file','etc/conf/strongbox.yaml')}")
+    private Resource resource;
 
     @Inject
     public ConfigurationFileManager(YAMLMapperFactory yamlMapperFactory)
@@ -28,21 +28,8 @@ public class ConfigurationFileManager
     }
 
     @Override
-    public String getPropertyKey()
+    protected Resource getResource()
     {
-        return "strongbox.config.file";
+        return resource;
     }
-
-    @Override
-    public String getDefaultLocation()
-    {
-        return "etc/conf/strongbox.yaml";
-    }
-
-    @Override
-    public ConfigurationResourceResolver getConfigurationResourceResolver()
-    {
-        return configurationResourceResolver;
-    }
-
 }
