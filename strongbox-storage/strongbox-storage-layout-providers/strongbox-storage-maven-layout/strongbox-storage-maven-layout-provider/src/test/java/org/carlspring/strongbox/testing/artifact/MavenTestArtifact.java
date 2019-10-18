@@ -69,5 +69,5 @@ public @interface MavenTestArtifact
      * Additional artifact size in bytes.
      */
     @AliasFor(annotation = TestArtifact.class)
-    long size() default 1024;
+    long size() default 1000000;
 }

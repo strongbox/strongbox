@@ -42,7 +42,8 @@ public class MavenArtifactGeneratorTest
                                        Repository repository,
                                        @MavenTestArtifact(repositoryId = REPOSITORY_RELEASES,
                                                           id = "org.carlspring.strongbox.testing:matg",
-                                                          versions = "1.2.3", size = 2048)
+                                                          versions = "1.2.3",
+                                                          size = 2048)
                                        Path artifactPath)
             throws Exception
     {
