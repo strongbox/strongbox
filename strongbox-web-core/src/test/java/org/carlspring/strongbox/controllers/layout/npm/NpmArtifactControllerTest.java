@@ -45,12 +45,12 @@ public class NpmArtifactControllerTest
                   ArtifactManagementTestExecutionListener.class })
     @Test
     public void testViewPackage(@NpmRepository(repositoryId = REPOSITORY_RELEASES)
-                                        Repository repository,
+                                Repository repository,
                                 @NpmTestArtifact(repositoryId = REPOSITORY_RELEASES,
-                                        id = "npm-test-view",
-                                        versions = "1.0.0",
-                                        scope = "@carlspring")
-                                        Path packagePath)
+                                                 id = "npm-test-view",
+                                                 versions = "1.0.0",
+                                                 scope = "@carlspring")
+                                Path packagePath)
             throws Exception
     {
         final String storageId = repository.getStorage().getId();
@@ -81,11 +81,11 @@ public class NpmArtifactControllerTest
                   ArtifactManagementTestExecutionListener.class })
     @Test
     public void testPackageCommonFlow(@NpmRepository(repositoryId = REPOSITORY_RELEASES)
-                                              Repository repository,
+                                      Repository repository,
                                       @NpmTestArtifact(id = "npm-test-release",
-                                              versions = "1.0.0",
-                                              scope = "@carlspring")
-                                              Path packagePath)
+                                                       versions = "1.0.0",
+                                                       scope = "@carlspring")
+                                      Path packagePath)
             throws Exception
     {
         final String storageId = repository.getStorage().getId();
@@ -130,7 +130,7 @@ public class NpmArtifactControllerTest
                   ArtifactManagementTestExecutionListener.class })
     @Test
     public void addUserTest(@NpmRepository(repositoryId = REPOSITORY_RELEASES)
-                                    Repository repository)
+                            Repository repository)
     {
         String url = getContextBaseUrl() + "/storages/{storageId}/{repositoryId}/-/user/org.couchdb.user:{username}";
 
@@ -157,7 +157,6 @@ public class NpmArtifactControllerTest
                .peek()
                .then()
                .statusCode(HttpStatus.UNAUTHORIZED.value());
-
     }
 
     private NpmUser createNpmUser(String username,
@@ -173,4 +172,5 @@ public class NpmArtifactControllerTest
 
         return npmUser;
     }
+    
 }
