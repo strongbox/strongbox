@@ -137,8 +137,8 @@ public class NpmArtifactControllerTest
         final String storageId = repository.getStorage().getId();
         final String repositoryId = repository.getId();
 
-        NpmUser strongboxUser = createNpmUser("admin", "password");
-        NpmUser nonStrongboxUser = createNpmUser("notARealUser", "notARealPassword");
+        NpmUser strongboxUser = new NpmUser("admin", "password");
+        NpmUser nonStrongboxUser = new NpmUser("notARealUser", "notARealPassword");
 
         //can login with strongbox user
         mockMvc.contentType(MediaType.APPLICATION_JSON_VALUE)
@@ -159,18 +159,4 @@ public class NpmArtifactControllerTest
                .statusCode(HttpStatus.UNAUTHORIZED.value());
     }
 
-    private NpmUser createNpmUser(String username,
-                                  String password)
-    {
-        NpmUser npmUser = new NpmUser();
-        npmUser.setName(username);
-        npmUser.setPassword(password);
-        npmUser.setDate("");
-        npmUser.setId("");
-        npmUser.setRoles(new String[]{});
-        npmUser.setType("");
-
-        return npmUser;
-    }
-    
 }

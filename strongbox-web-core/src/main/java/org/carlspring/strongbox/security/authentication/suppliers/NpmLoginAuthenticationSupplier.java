@@ -73,11 +73,7 @@ public class NpmLoginAuthenticationSupplier
     {
         return npmUser != null &&
                npmUser.getName() != null &&
-               npmUser.getPassword() != null &&
-               npmUser.getDate() != null &&
-               npmUser.getRoles() != null &&
-               npmUser.getType() != null &&
-               npmUser.getId() != null;
+               npmUser.getPassword() != null;
     }
 
 }
