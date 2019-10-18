@@ -1,18 +1,18 @@
 package org.carlspring.strongbox.testing.artifact;
 
-import static java.lang.annotation.ElementType.PARAMETER;
-import static java.lang.annotation.ElementType.ANNOTATION_TYPE;
-import static java.lang.annotation.RetentionPolicy.RUNTIME;
+import org.carlspring.strongbox.artifact.coordinates.MavenArtifactCoordinates;
+import org.carlspring.strongbox.artifact.generator.MavenArtifactGenerator;
+import org.carlspring.strongbox.storage.Storage;
 
 import java.lang.annotation.Documented;
 import java.lang.annotation.Retention;
 import java.lang.annotation.Target;
 
 import org.apache.maven.model.Repository;
-import org.carlspring.strongbox.artifact.coordinates.MavenArtifactCoordinates;
-import org.carlspring.strongbox.artifact.generator.MavenArtifactGenerator;
-import org.carlspring.strongbox.storage.Storage;
 import org.springframework.core.annotation.AliasFor;
+import static java.lang.annotation.ElementType.ANNOTATION_TYPE;
+import static java.lang.annotation.ElementType.PARAMETER;
+import static java.lang.annotation.RetentionPolicy.RUNTIME;
 
 /**
  * @author sbespalov
@@ -65,4 +65,9 @@ public @interface MavenTestArtifact
      */
     String packaging() default "jar";
 
+    /**
+     * Additional artifact size in bytes.
+     */
+    @AliasFor(annotation = TestArtifact.class)
+    long size() default 1000000;
 }

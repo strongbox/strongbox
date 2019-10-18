@@ -19,7 +19,7 @@ public class NpmArtifactGeneratorStrategy implements ArtifactGeneratorStrategy<N
     public Path generateArtifact(NpmArtifactGenerator artifactGenerator,
                                  String id,
                                  String version,
-                                 int size,
+                                 long size,
                                  Map<String, Object> attributesMap)
             throws IOException
     {

@@ -17,9 +17,9 @@ import org.junit.jupiter.api.parallel.Execution;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.ContextConfiguration;
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.carlspring.strongbox.util.MessageDigestUtils.calculateChecksum;
 import static org.carlspring.strongbox.util.MessageDigestUtils.readChecksumFile;
-import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.parallel.ExecutionMode.CONCURRENT;
 
 /**
@@ -42,7 +42,8 @@ public class MavenArtifactGeneratorTest
                                        Repository repository,
                                        @MavenTestArtifact(repositoryId = REPOSITORY_RELEASES,
                                                           id = "org.carlspring.strongbox.testing:matg",
-                                                          versions = "1.2.3")
+                                                          versions = "1.2.3",
+                                                          size = 2048)
                                        Path artifactPath)
             throws Exception
     {
@@ -89,6 +90,9 @@ public class MavenArtifactGeneratorTest
         String expectedPomSHA1 = calculateChecksum(artifactPomPath, MessageDigestAlgorithms.SHA_1);
         String pomSHA1 = readChecksumFile(artifactPomPathSha1.toString());
         assertThat(pomSHA1).isEqualTo(expectedPomSHA1);
+
+        // JAR size
+        assertThat(Files.size(artifactPath)).isGreaterThan(2048);
     }
 
 }

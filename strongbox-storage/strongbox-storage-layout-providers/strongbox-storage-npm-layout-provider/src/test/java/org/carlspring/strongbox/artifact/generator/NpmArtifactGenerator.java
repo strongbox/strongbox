@@ -202,7 +202,7 @@ public class NpmArtifactGenerator
 
     @Override
     public Path generateArtifact(URI uri,
-                                 int size)
+                                 long size)
             throws IOException
     {
         // Use of size is not implemented
@@ -212,7 +212,7 @@ public class NpmArtifactGenerator
     @Override
     public Path generateArtifact(String id,
                                  String version,
-                                 int size)
+                                 long size)
             throws IOException
     {
         // Use of size is not implemented

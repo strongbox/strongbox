@@ -153,7 +153,7 @@ public class TestArtifactContext implements AutoCloseable
 
     private Path generateArtifact(String id,
                                   String version,
-                                  int size)
+                                  long size)
         throws IOException
     {
         @SuppressWarnings("unchecked")
@@ -166,7 +166,7 @@ public class TestArtifactContext implements AutoCloseable
         return deployArtifact(artifactPathLocal);
     }
     
-    private Path generateArtifact(String resource, int size)
+    private Path generateArtifact(String resource, long size)
             throws IOException
     {
         Path artifactPathLocal = artifactGenerator.generateArtifact(URI.create(resource), size);
