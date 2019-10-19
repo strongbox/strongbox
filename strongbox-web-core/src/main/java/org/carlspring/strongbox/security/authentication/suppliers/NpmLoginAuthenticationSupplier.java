@@ -3,14 +3,13 @@ package org.carlspring.strongbox.security.authentication.suppliers;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
 import org.carlspring.strongbox.authentication.api.password.PasswordAuthentication;
-import org.carlspring.strongbox.controllers.layout.npm.NpmArtifactController;
 import org.carlspring.strongbox.controllers.layout.npm.NpmUser;
+import org.carlspring.strongbox.providers.layout.NpmLayoutProvider;
 
-import org.springframework.core.annotation.Order;
-import org.springframework.http.MediaType;
 import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.security.core.Authentication;
 import org.springframework.stereotype.Component;
+import org.springframework.web.bind.annotation.RequestMethod;
 
 import javax.annotation.CheckForNull;
 import javax.annotation.Nonnull;
@@ -19,13 +18,17 @@ import javax.servlet.http.HttpServletRequest;
 import java.io.IOException;
 
 @Component
-@Order(4)
 public class NpmLoginAuthenticationSupplier
-        implements AuthenticationSupplier
+        extends ArtifactAuthenticationSupplier
 {
 
     @Inject
     private ObjectMapper objectMapper;
+
+    public NpmLoginAuthenticationSupplier()
+    {
+        super(NpmLayoutProvider.ALIAS);
+    }
 
     @CheckForNull
     @Override
@@ -41,16 +44,14 @@ public class NpmLoginAuthenticationSupplier
         {
             throw new BadCredentialsException("invalid.credentials");
         }
-
     }
 
     @Override
     public boolean supports(@Nonnull HttpServletRequest request)
     {
-        return "PUT".equalsIgnoreCase(request.getMethod()) &&
-                                      request.getContentType() != null &&
-                                      request.getContentType().contains(MediaType.APPLICATION_JSON_VALUE) &&
-                                      request.getRequestURI().contains("/-/user/org.couchdb.user:");
+        return RequestMethod.PUT.name().equalsIgnoreCase(request.getMethod()) &&
+               request.getRequestURI().contains(NpmLayoutProvider.NPM_USER_PATH) &&
+               super.supports(request);
     }
 
     private NpmUser deserializeNpmUser(HttpServletRequest request)
