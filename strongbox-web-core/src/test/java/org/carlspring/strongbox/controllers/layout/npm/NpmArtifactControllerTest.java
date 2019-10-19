@@ -4,6 +4,7 @@ import org.carlspring.strongbox.artifact.coordinates.NpmArtifactCoordinates;
 import org.carlspring.strongbox.config.IntegrationTest;
 import org.carlspring.strongbox.providers.io.RepositoryFiles;
 import org.carlspring.strongbox.providers.io.RepositoryPath;
+import org.carlspring.strongbox.providers.layout.NpmLayoutProvider;
 import org.carlspring.strongbox.rest.common.NpmRestAssuredBaseTest;
 import org.carlspring.strongbox.storage.repository.Repository;
 import org.carlspring.strongbox.testing.artifact.ArtifactManagementTestExecutionListener;
@@ -132,7 +133,7 @@ public class NpmArtifactControllerTest
     public void addUserTest(@NpmRepository(repositoryId = REPOSITORY_RELEASES)
                             Repository repository)
     {
-        String url = getContextBaseUrl() + "/storages/{storageId}/{repositoryId}/-/user/org.couchdb.user:{username}";
+        String url = getContextBaseUrl() + "/storages/{storageId}/{repositoryId}/" + NpmLayoutProvider.NPM_USER_PATH;
 
         final String storageId = repository.getStorage().getId();
         final String repositoryId = repository.getId();

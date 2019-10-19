@@ -34,6 +34,8 @@ public class NpmLayoutProvider
 
     public static final String ALIAS = NpmArtifactCoordinates.LAYOUT_NAME;
 
+    public static final String NPM_USER_PATH = "-/user/org.couchdb.user:";
+
     @Inject
     private NpmRepositoryManagementStrategy npmRepositoryManagementStrategy;
 
