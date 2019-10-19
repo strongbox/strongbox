@@ -46,12 +46,12 @@ public class NpmArtifactControllerTest
                   ArtifactManagementTestExecutionListener.class })
     @Test
     public void testViewPackage(@NpmRepository(repositoryId = REPOSITORY_RELEASES)
-                                Repository repository,
+                                        Repository repository,
                                 @NpmTestArtifact(repositoryId = REPOSITORY_RELEASES,
-                                                 id = "npm-test-view",
-                                                 versions = "1.0.0",
-                                                 scope = "@carlspring")
-                                Path packagePath)
+                                        id = "npm-test-view",
+                                        versions = "1.0.0",
+                                        scope = "@carlspring")
+                                        Path packagePath)
             throws Exception
     {
         final String storageId = repository.getStorage().getId();
@@ -82,11 +82,11 @@ public class NpmArtifactControllerTest
                   ArtifactManagementTestExecutionListener.class })
     @Test
     public void testPackageCommonFlow(@NpmRepository(repositoryId = REPOSITORY_RELEASES)
-                                      Repository repository,
+                                              Repository repository,
                                       @NpmTestArtifact(id = "npm-test-release",
-                                                       versions = "1.0.0",
-                                                       scope = "@carlspring")
-                                      Path packagePath)
+                                              versions = "1.0.0",
+                                              scope = "@carlspring")
+                                              Path packagePath)
             throws Exception
     {
         final String storageId = repository.getStorage().getId();
@@ -131,21 +131,40 @@ public class NpmArtifactControllerTest
                   ArtifactManagementTestExecutionListener.class })
     @Test
     public void addUserTest(@NpmRepository(repositoryId = REPOSITORY_RELEASES)
-                            Repository repository)
+                                    Repository repository)
     {
         String url = getContextBaseUrl() + "/storages/{storageId}/{repositoryId}/" + NpmLayoutProvider.NPM_USER_PATH;
 
         final String storageId = repository.getStorage().getId();
         final String repositoryId = repository.getId();
 
-        NpmUser strongboxUser = new NpmUser("admin", "password");
+        NpmUser strongboxUser1 = new NpmUser("admin", "password");
+        NpmUser strongboxUser2 = new NpmUser("deployer", "password");
         NpmUser nonStrongboxUser = new NpmUser("notARealUser", "notARealPassword");
 
         //can login with strongbox user
         mockMvc.contentType(MediaType.APPLICATION_JSON_VALUE)
-               .body(strongboxUser)
+               .body(strongboxUser1)
                .when()
-               .put(url, storageId, repositoryId, strongboxUser.getName())
+               .put(url, storageId, repositoryId, strongboxUser1.getName())
+               .peek()
+               .then()
+               .statusCode(HttpStatus.CREATED.value());
+
+        //can login with another strongbox user after login
+        mockMvc.contentType(MediaType.APPLICATION_JSON_VALUE)
+               .body(strongboxUser2)
+               .when()
+               .put(url, storageId, repositoryId, strongboxUser2.getName())
+               .peek()
+               .then()
+               .statusCode(HttpStatus.CREATED.value());
+
+        //can login when the url username differs from the body
+        mockMvc.contentType(MediaType.APPLICATION_JSON_VALUE)
+               .body(strongboxUser1)
+               .when()
+               .put(url, storageId, repositoryId, nonStrongboxUser.getName())
                .peek()
                .then()
                .statusCode(HttpStatus.CREATED.value());
