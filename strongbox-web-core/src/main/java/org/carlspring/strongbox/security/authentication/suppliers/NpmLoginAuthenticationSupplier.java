@@ -36,22 +36,24 @@ public class NpmLoginAuthenticationSupplier
     {
         NpmUser npmUser = deserializeNpmUser(request);
 
-        if (isValidNpmUser(npmUser))
-        {
-            return new PasswordAuthentication(npmUser.getName(), npmUser.getPassword());
-        }
-        else
+        if (!isValidNpmUser(npmUser))
         {
             throw new BadCredentialsException("invalid.credentials");
         }
+
+        return new PasswordAuthentication(npmUser.getName(), npmUser.getPassword());
     }
 
     @Override
     public boolean supports(@Nonnull HttpServletRequest request)
     {
+        if (!super.supports(request))
+        {
+            return false;
+        }
+
         return RequestMethod.PUT.name().equalsIgnoreCase(request.getMethod()) &&
-               request.getRequestURI().contains(NpmLayoutProvider.NPM_USER_PATH) &&
-               super.supports(request);
+               request.getRequestURI().contains(NpmLayoutProvider.NPM_USER_PATH);
     }
 
     private NpmUser deserializeNpmUser(HttpServletRequest request)

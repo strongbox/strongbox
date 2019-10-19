@@ -59,6 +59,11 @@ public class NugetApiKeyAuthenticationSupplier
     @Override
     public boolean supports(@Nonnull HttpServletRequest request)
     {
+        if (!super.supports(request))
+        {
+            return false;
+        }
+
         Enumeration<String> headerNames = request.getHeaderNames();
         while (headerNames.hasMoreElements())
         {
@@ -67,8 +72,7 @@ public class NugetApiKeyAuthenticationSupplier
             {
                 continue;
             }
-
-            return super.supports(request);
+            return true;
         }
 
         return false;
