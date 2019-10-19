@@ -24,10 +24,10 @@ import org.carlspring.strongbox.users.dto.User;
 import org.carlspring.strongbox.users.security.SecurityTokenProvider;
 import org.carlspring.strongbox.users.service.UserEntryService;
 import org.carlspring.strongbox.users.service.impl.OrientDbUserService.OrientDb;
-import org.carlspring.strongbox.users.userdetails.StrongboxUserDetails;
 import org.jose4j.lang.JoseException;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.cache.annotation.CacheEvict;
-import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.stereotype.Component;
 
@@ -43,9 +43,11 @@ import com.orientechnologies.orient.core.sql.query.OSQLSynchQuery;
 public class OrientDbUserService extends CommonCrudService<UserEntry> implements UserEntryService
 {
 
+    private static final Logger logger = LoggerFactory.getLogger(OrientDbUserService.class);
+
     @Inject
     private SecurityTokenProvider tokenProvider;
-    
+
     @Override
     @CacheEvict(cacheNames = CacheName.User.AUTHENTICATIONS, key = "#p0")
     public void deleteByUsername(String username)
@@ -71,7 +73,7 @@ public class OrientDbUserService extends CommonCrudService<UserEntry> implements
         oQuery.setLimit(1);
 
         List<UserEntry> resultList = getDelegate().command(oQuery).execute(params);
-        
+
         return resultList.stream().findFirst().orElse(null);
 
     }
@@ -98,11 +100,11 @@ public class OrientDbUserService extends CommonCrudService<UserEntry> implements
     public void updateAccountDetailsByUsername(User userToUpdate)
     {
         UserEntry user = findByUsername(userToUpdate.getUsername());
-        if (user == null) 
+        if (user == null)
         {
             throw new UsernameNotFoundException(userToUpdate.getUsername());
         }
-        
+
         if (!StringUtils.isBlank(userToUpdate.getPassword()))
         {
             user.setPassword(userToUpdate.getPassword());
@@ -112,7 +114,7 @@ public class OrientDbUserService extends CommonCrudService<UserEntry> implements
         {
             user.setSecurityTokenKey(userToUpdate.getSecurityTokenKey());
         }
-        
+
         save(user);
     }
 
@@ -120,11 +122,11 @@ public class OrientDbUserService extends CommonCrudService<UserEntry> implements
     public Users getUsers()
     {
         Optional<List<UserEntry>> allUsers = findAll();
-        if (allUsers.isPresent()) 
+        if (allUsers.isPresent())
         {
             return new Users(allUsers.get().stream().map(u -> detach(u)).collect(Collectors.toSet()));
         }
-        
+
         return null;
     }
 
@@ -138,7 +140,7 @@ public class OrientDbUserService extends CommonCrudService<UserEntry> implements
 
         OSQLSynchQuery<ODocument> oQuery = new OSQLSynchQuery<>(sQuery);
         List<UserEntry> resultList = getDelegate().command(oQuery).execute(params);
-        
+
         resultList.stream().forEach(user -> {
             detach(user).getRoles().remove(roleToRevoke);
             save(user);
@@ -160,10 +162,10 @@ public class OrientDbUserService extends CommonCrudService<UserEntry> implements
         userEntry.setRoles(user.getRoles());
         userEntry.setSecurityTokenKey(user.getSecurityTokenKey());
         userEntry.setLastUpdate(new Date());
-        
+
         return save(userEntry);
     }
-    
+
     @Override
     @CacheEvict(cacheNames = CacheName.User.AUTHENTICATIONS, key = "#p0.username")
     public <S extends UserEntry> S save(S entity)
@@ -172,38 +174,19 @@ public class OrientDbUserService extends CommonCrudService<UserEntry> implements
         {
             throw new IllegalStateException("Can't modify external users.");
         }
-        
+
         return super.save(entity);
     }
 
-    @Override
-    @CacheEvict(cacheNames = CacheName.User.AUTHENTICATIONS, key = "#p1.username")
-    public User cacheExternalUserDetails(String sourceId,
-                                         UserDetails springUser)
+    public void expireUser(String username, boolean clearSourceId)
     {
-        User user = springUser instanceof StrongboxUserDetails ? ((StrongboxUserDetails) springUser).getUser()
-                : new UserData(springUser);
-
-        UserEntry userEntry = Optional.ofNullable((UserEntry) findByUsername(user.getUsername()))
-                                      .map(u -> {
-                                          getDelegate().detachAll(u);
-                                          return u;
-                                      })
-                                      .filter(u -> u.getSourceId().equals(sourceId))
-                                      .orElseGet(() -> new UserEntry());
-
-        if (!StringUtils.isBlank(user.getPassword()))
+        UserEntry externalUserEntry = (UserEntry) detach(findByUsername(username));
+        externalUserEntry.setLastUpdate(null);
+        if (clearSourceId)
         {
-            userEntry.setPassword(user.getPassword());
+            externalUserEntry.setSourceId("empty");
         }
-        userEntry.setUsername(user.getUsername());
-        userEntry.setEnabled(user.isEnabled());
-        userEntry.setRoles(user.getRoles());
-        userEntry.setSecurityTokenKey(user.getSecurityTokenKey());
-        userEntry.setLastUpdate(new Date());
-        userEntry.setSourceId(sourceId);
-
-        return super.save(userEntry);
+        entityManager.persist(externalUserEntry);
     }
     
     @Override

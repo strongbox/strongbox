@@ -15,6 +15,7 @@ import org.carlspring.strongbox.users.security.SecurityTokenProvider;
 import org.carlspring.strongbox.users.service.UserService;
 import org.carlspring.strongbox.users.service.impl.EncodedPasswordUser;
 import org.carlspring.strongbox.users.service.impl.OrientDbUserService;
+import org.carlspring.strongbox.users.service.impl.OrientDbUserService.OrientDb;
 import org.carlspring.strongbox.users.service.impl.YamlUserService.Yaml;
 import org.carlspring.strongbox.users.userdetails.SpringSecurityUser;
 import org.jose4j.lang.JoseException;
@@ -87,6 +88,8 @@ public class JwtAuthenticationProviderTest
         user.setPassword("new_password");
         userService.updateAccountDetailsByUsername(new EncodedPasswordUser(user, passwordEncoder));
         
+        orientDbUserService.expireUser(TEST_USER, false);
+        
         //Authentication should fail by token hash
         assertThrows(BadCredentialsException.class, new Authenticate(authentication)::execute);
         
@@ -97,6 +100,8 @@ public class JwtAuthenticationProviderTest
         UserEntry userEntity = orientDbUserService.findByUsername(TEST_USER);
         userEntity.getRoles().add("LOGS_MANAGER");
         userService.save(userEntity);
+        
+        orientDbUserService.expireUser(TEST_USER, false);
         
         //Authentication should fail by token hash
         assertThrows(BadCredentialsException.class, new Authenticate(authentication)::execute);
