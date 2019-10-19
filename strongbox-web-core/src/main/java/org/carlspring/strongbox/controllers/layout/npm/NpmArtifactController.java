@@ -300,20 +300,25 @@ public class NpmArtifactController
     }
 
     @PreAuthorize("hasAuthority('ARTIFACTS_RESOLVE')")
-    @RequestMapping(path = "{storageId}/{repositoryId}/{packageScope}/{packageName}/-/{packageName}-{packageVersion}.{packageExtension}",
+    @RequestMapping(path = "{storageId}/{repositoryId}/{packageScope}/{packageName}/-/{packageNameWithVersion}.{packageExtension}",
                     method = { RequestMethod.GET, RequestMethod.HEAD })
     public void downloadPackageWithScope(@RepositoryMapping Repository repository,
                                          @PathVariable(name = "packageScope") String packageScope,
                                          @PathVariable(name = "packageName") String packageName,
-                                         @PathVariable(name = "packageVersion") String packageVersion,
+                                         @PathVariable(name = "packageNameWithVersion") String packageNameWithVersion,
                                          @PathVariable(name = "packageExtension") String packageExtension,
                                          @RequestHeader HttpHeaders httpHeaders,
                                          HttpServletRequest request,
                                          HttpServletResponse response)
         throws Exception
     {
+
         final String storageId = repository.getStorage().getId();
         final String repositoryId = repository.getId();
+
+        //Example of packageNameWithVersion  core-9.0.1-next.8.tgz
+        String pattern = packageName + "-";
+        final String packageVersion = packageNameWithVersion.replaceAll(pattern, "");
 
         NpmArtifactCoordinates coordinates;
         try
