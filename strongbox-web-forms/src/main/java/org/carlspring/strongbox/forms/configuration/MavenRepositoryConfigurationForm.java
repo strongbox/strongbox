@@ -1,5 +1,8 @@
 package org.carlspring.strongbox.forms.configuration;
 
+import org.carlspring.strongbox.storage.metadata.maven.MetadataExpirationStrategyType;
+import org.carlspring.strongbox.validation.configuration.DescribableEnumValue;
+
 import javax.validation.constraints.Pattern;
 
 import com.fasterxml.jackson.annotation.JsonTypeName;
@@ -18,8 +21,7 @@ public class MavenRepositoryConfigurationForm
 
     private String cronExpression;
 
-    @Pattern(regexp = "checksum|refresh",
-            flags = Pattern.Flag.CASE_INSENSITIVE,
+    @DescribableEnumValue(type = MetadataExpirationStrategyType.class,
             message = "metadataExpirationStrategy must contain one the following strings as value:  checksum, refresh")
     private String metadataExpirationStrategy;
 
