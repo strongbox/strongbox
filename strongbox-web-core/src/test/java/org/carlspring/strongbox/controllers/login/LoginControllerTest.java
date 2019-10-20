@@ -59,7 +59,7 @@ public class LoginControllerTest
             throws Exception
     {
         super.init();
-        setContextBaseUrl("/api/login");
+        setContextBaseUrl(LoginController.REQUEST_MAPPING);
     }
 
     @AfterEach
@@ -96,14 +96,15 @@ public class LoginControllerTest
         loginInput.setPassword("password");
 
         // Check if login returns proper response.
+        String url = getContextBaseUrl();
         LoginOutput loginOutput = mockMvc.contentType(MediaType.APPLICATION_JSON_VALUE)
                                          .accept(MediaType.APPLICATION_JSON_VALUE)
                                          .body(loginInput)
                                          .when()
-                                         .post(LoginController.REQUEST_MAPPING)
+                                         .post(url)
                                          .peek()
                                          .then()
-                                         .statusCode(200)
+                                         .statusCode(HttpStatus.OK.value())
                                          .extract()
                                          .as(LoginOutput.class);
 
@@ -118,14 +119,15 @@ public class LoginControllerTest
         loginInput.setPassword("password");
 
         // Get a token
+        String url = getContextBaseUrl();
         LoginOutput loginOutput = mockMvc.contentType(MediaType.APPLICATION_JSON_VALUE)
                                          .accept(MediaType.APPLICATION_JSON_VALUE)
                                          .body(loginInput)
                                          .when()
-                                         .post(LoginController.REQUEST_MAPPING)
+                                         .post(url)
                                          .peek()
                                          .then()
-                                         .statusCode(200)
+                                         .statusCode(HttpStatus.OK.value())
                                          .extract()
                                          .as(LoginOutput.class);
 
@@ -135,10 +137,10 @@ public class LoginControllerTest
         LoginOutput refreshOutput = mockMvc.accept(MediaType.APPLICATION_JSON_VALUE)
                                            .header(HttpHeaders.AUTHORIZATION, "Bearer " + loginOutput.getToken())
                                            .when()
-                                           .get(LoginController.REQUEST_MAPPING)
+                                           .get(url)
                                            .peek()
                                            .then()
-                                           .statusCode(200)
+                                           .statusCode(HttpStatus.OK.value())
                                            .extract()
                                            .as(LoginOutput.class);
 
@@ -209,14 +211,15 @@ public class LoginControllerTest
         loginInput.setUsername("admin-cache-eviction-test");
         loginInput.setPassword("password");
 
+        String url = getContextBaseUrl();
         LoginOutput loginOutput = mockMvc.contentType(MediaType.APPLICATION_JSON_VALUE)
                                          .accept(MediaType.APPLICATION_JSON_VALUE)
                                          .body(loginInput)
                                          .when()
-                                         .post("/api/login")
+                                         .post(url)
                                          .peek()
                                          .then()
-                                         .statusCode(200)
+                                         .statusCode(HttpStatus.OK.value())
                                          .extract()
                                          .as(LoginOutput.class);
 
@@ -226,11 +229,12 @@ public class LoginControllerTest
         userForm.setUsername("admin-cache-eviction-test");
         userForm.setPassword("passwordChanged");
 
+        url = "/api/account";
         mockMvc.accept(MediaType.APPLICATION_JSON_VALUE)
                .contentType(MediaType.APPLICATION_JSON_VALUE)
                .body(userForm)
                .when()
-               .put("/api/account")
+               .put(url)
                .peek()
                .then()
                .statusCode(HttpStatus.OK.value());

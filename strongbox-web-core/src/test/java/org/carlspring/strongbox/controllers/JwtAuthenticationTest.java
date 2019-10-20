@@ -1,18 +1,8 @@
 package org.carlspring.strongbox.controllers;
 
 
-import static java.nio.charset.StandardCharsets.ISO_8859_1;
-import static org.hamcrest.Matchers.equalTo;
-import static org.hamcrest.Matchers.notNullValue;
-
-import java.nio.charset.Charset;
-import java.util.Collections;
-import java.util.Locale;
-import java.util.concurrent.TimeUnit;
-
-import javax.inject.Inject;
-
 import org.carlspring.strongbox.config.IntegrationTest;
+import org.carlspring.strongbox.controllers.login.LoginController;
 import org.carlspring.strongbox.controllers.login.LoginOutput;
 import org.carlspring.strongbox.rest.common.RestAssuredBaseTest;
 import org.carlspring.strongbox.users.security.JwtAuthenticationClaimsProvider.JwtAuthentication;
@@ -22,6 +12,7 @@ import org.carlspring.strongbox.users.userdetails.SpringSecurityUser;
 
 import javax.inject.Inject;
 import java.util.Collections;
+import java.util.concurrent.TimeUnit;
 
 import org.jose4j.jwt.NumericDate;
 import org.json.JSONException;
@@ -73,7 +64,7 @@ public class JwtAuthenticationTest
     public void testJWTAuthShouldPassWithToken()
         throws Exception
     {
-        String url = "/api/login";
+        String url = LoginController.REQUEST_MAPPING;
 
         String basicAuth = "Basic YWRtaW46cGFzc3dvcmQ=";
 
@@ -196,13 +187,13 @@ public class JwtAuthenticationTest
     public void testJWTAuthWithCookieShouldPass()
     {
 
-        String url = getContextBaseUrl() + "/users";
+        String url = LoginController.REQUEST_MAPPING;
         String basicAuth = "Basic YWRtaW46cGFzc3dvcmQ=";
 
         LoginOutput body = mockMvc.header(HttpHeaders.AUTHORIZATION, basicAuth)
                                   .header(HttpHeaders.ACCEPT, MediaType.APPLICATION_JSON_VALUE)
                                   .when()
-                                  .get(getContextBaseUrl() + "/login")
+                                  .get(url)
                                   .then()
                                   .statusCode(HttpStatus.OK.value())
                                   .extract()
@@ -213,6 +204,7 @@ public class JwtAuthenticationTest
         assertThat(body).isNotNull();
         assertThat(body.getToken()).isNotNull();
 
+        url = getContextBaseUrl();
         mockMvc.cookie(AUTHORIZATION_COOKIE, body.getToken())
                .header(HttpHeaders.ACCEPT, MediaType.APPLICATION_JSON_VALUE)
                .when()
