@@ -9,7 +9,6 @@ import java.security.NoSuchAlgorithmException;
 import java.util.Map;
 
 import org.apache.maven.artifact.Artifact;
-import org.codehaus.plexus.util.xml.pull.XmlPullParserException;
 
 public class MavenArtifactGeneratorStrategy implements ArtifactGeneratorStrategy<MavenArtifactGenerator>
 {
@@ -18,7 +17,7 @@ public class MavenArtifactGeneratorStrategy implements ArtifactGeneratorStrategy
     public Path generateArtifact(MavenArtifactGenerator artifactGenerator,
                                  String id,
                                  String version,
-                                 int size,
+                                 long size,
                                  Map<String, Object> attributesMap)
         throws IOException
     {
@@ -32,7 +31,7 @@ public class MavenArtifactGeneratorStrategy implements ArtifactGeneratorStrategy
             {
                 artifactGenerator.generate(pluginArtifact);
             }
-            catch (NoSuchAlgorithmException | XmlPullParserException e)
+            catch (NoSuchAlgorithmException e)
             {
                 throw new IOException(e);
             }
@@ -55,7 +54,7 @@ public class MavenArtifactGeneratorStrategy implements ArtifactGeneratorStrategy
                 {
                     artifactGenerator.generate(artifactWithClassifier);
                 }
-                catch (NoSuchAlgorithmException | XmlPullParserException e)
+                catch (NoSuchAlgorithmException e)
                 {
                     throw new IOException(e);
                 }

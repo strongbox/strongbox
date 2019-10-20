@@ -70,6 +70,13 @@ public abstract class GenericEntity
         this.uuid = uuid;
     }
 
+    @JsonIgnore
+    @XmlTransient
+    public Long getEntityVersion()
+    {
+        return entityVersion;
+    }
+
     @Override
     public boolean equals(Object obj)
     {

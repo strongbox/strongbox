@@ -33,7 +33,8 @@ public class FileSystemStorageProvider extends AbstractStorageProvider
     @Override
     public void register()
     {
-        logger.info("Registered storage provider '" + getClass().getCanonicalName() + "' with alias '" + ALIAS + "'.");
+        logger.info("Registered storage provider '{}' with alias '{}'.",
+                    getClass().getCanonicalName(), ALIAS);
     }
 
     @Override

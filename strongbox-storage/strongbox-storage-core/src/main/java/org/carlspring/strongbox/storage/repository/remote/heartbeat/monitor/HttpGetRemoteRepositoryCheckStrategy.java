@@ -46,7 +46,7 @@ class HttpGetRemoteRepositoryCheckStrategy
         }
         catch (IOException e)
         {
-            logger.error("Problem executing HTTP GET request to " + remoteRepositoryUrl, e);
+            logger.error("Problem executing HTTP GET request to {}", remoteRepositoryUrl, e);
         }
         finally
         {

@@ -47,7 +47,7 @@ class RemoteRepositoryHeartbeatMonitor
         }
         catch (Exception ex)
         {
-            logger.error("Problem determining remote repository [" + remoteRepository.getUrl() + "] aliveness", ex);
+            logger.error("Problem determining remote repository [{}] aliveness", remoteRepository.getUrl(), ex);
         }
 
         logger.debug("Thread name is [{}]. Remote repository [{}] is alive ? [{}]", Thread.currentThread().getName(),

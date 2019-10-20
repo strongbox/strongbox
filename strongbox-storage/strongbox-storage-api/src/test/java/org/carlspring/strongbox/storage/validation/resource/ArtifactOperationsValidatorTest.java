@@ -1,12 +1,5 @@
 package org.carlspring.strongbox.storage.validation.resource;
 
-import org.carlspring.commons.io.RandomInputStream;
-import org.carlspring.strongbox.StorageApiTestConfig;
-import org.carlspring.strongbox.data.CacheManagerTestExecutionListener;
-import org.carlspring.strongbox.services.ConfigurationManagementService;
-import org.carlspring.strongbox.storage.ArtifactResolutionException;
-
-import javax.inject.Inject;
 import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
@@ -14,16 +7,26 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 
+import javax.inject.Inject;
+
+import org.carlspring.commons.io.RandomInputStream;
+import org.carlspring.strongbox.StorageApiTestConfig;
+import org.carlspring.strongbox.data.CacheManagerTestExecutionListener;
+import org.carlspring.strongbox.services.ConfigurationManagementService;
+import org.carlspring.strongbox.storage.ArtifactResolutionException;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.http.MediaType;
 import org.springframework.mock.web.MockMultipartFile;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.TestExecutionListeners;
-import static org.assertj.core.api.Assertions.fail;
+
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.fail;
 
 /**
  * @author Kate Novik.
@@ -64,7 +67,7 @@ public class ArtifactOperationsValidatorTest
 
         multipartFile = new MockMultipartFile("artifact",
                                               "strongbox-validate-8.1.jar",
-                                              "application/octet-stream",
+                                              MediaType.APPLICATION_OCTET_STREAM_VALUE,
                                               is);
     }
 
@@ -121,7 +124,7 @@ public class ArtifactOperationsValidatorTest
 
         MockMultipartFile emptyFile = new MockMultipartFile("artifact",
                                                             "strongbox-validate-empty.jar",
-                                                            "application/octet-stream",
+                                                            MediaType.APPLICATION_OCTET_STREAM_VALUE,
                                                             Files.newInputStream(path));
 
         try

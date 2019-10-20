@@ -36,7 +36,7 @@ public class NullArtifactGenerator implements ArtifactGenerator
     @Override
     public Path generateArtifact(String id,
                                  String version,
-                                 int size)
+                                 long size)
         throws IOException
     {
         throw new UnsupportedOperationException();
@@ -44,7 +44,7 @@ public class NullArtifactGenerator implements ArtifactGenerator
 
     @Override
     public Path generateArtifact(URI uri,
-                                 int size)
+                                 long size)
         throws IOException
     {
         Path path = baseDir.resolve(uri.toString());
@@ -52,7 +52,7 @@ public class NullArtifactGenerator implements ArtifactGenerator
         return generateArtifact(size, path);
     }
 
-    private Path generateArtifact(int size,
+    private Path generateArtifact(long size,
                                   Path path)
         throws IOException
     {

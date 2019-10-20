@@ -150,7 +150,7 @@ public class MavenArtifactDeployer
 
         String url = client.getContextBaseUrl() + "/storages/" + storageId + "/" + repositoryId + "/" + metadataPath;
 
-        logger.debug("Deploying " + url + "...");
+        logger.debug("Deploying {}...", url);
 
         client.deployMetadata(is, url, metadataPath.substring(metadataPath.lastIndexOf("/")));
 
@@ -218,7 +218,7 @@ public class MavenArtifactDeployer
 
             String url = client.getContextBaseUrl() + "/storages/" + storageId + "/" + repositoryId + "/" + artifactToPath;
 
-            logger.debug("Deploying " + url + "...");
+            logger.debug("Deploying {}...", url);
 
             String fileName = MavenArtifactTestUtils.getArtifactFileName(artifact);
 

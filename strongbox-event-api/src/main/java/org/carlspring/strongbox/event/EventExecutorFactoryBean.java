@@ -30,7 +30,7 @@ public class EventExecutorFactoryBean implements FactoryBean<Executor>
                                     .flatMap(c -> Optional.ofNullable(lookupExecutor()))
                                     .orElse(new SyncTaskExecutor());
         
-        logger.info(String.format("Using [%s] executor for Async events.", executor.getClass()));
+        logger.info("Using [{}] executor for Async events.", executor.getClass());
         
         return executor;
     }

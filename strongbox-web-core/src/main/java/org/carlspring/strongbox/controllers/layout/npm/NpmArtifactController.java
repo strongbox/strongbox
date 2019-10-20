@@ -1,5 +1,38 @@
 package org.carlspring.strongbox.controllers.layout.npm;
 
+import java.io.BufferedInputStream;
+import java.io.BufferedOutputStream;
+import java.io.ByteArrayInputStream;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.OutputStream;
+import java.io.StringWriter;
+import java.nio.charset.StandardCharsets;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.StandardCopyOption;
+import java.nio.file.StandardOpenOption;
+import java.security.NoSuchAlgorithmException;
+import java.text.SimpleDateFormat;
+import java.util.Date;
+import java.util.List;
+import java.util.Optional;
+
+import javax.inject.Inject;
+import javax.servlet.ServletInputStream;
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
+
+import com.fasterxml.jackson.core.JsonFactory;
+import com.fasterxml.jackson.core.JsonParser;
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.core.JsonToken;
+import com.fasterxml.jackson.databind.JsonNode;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import org.apache.commons.compress.archivers.tar.TarArchiveEntry;
+import org.apache.commons.compress.archivers.tar.TarArchiveInputStream;
+import org.apache.commons.compress.compressors.gzip.GzipCompressorInputStream;
+import org.apache.commons.io.IOUtils;
 import org.carlspring.strongbox.artifact.ArtifactTag;
 import org.carlspring.strongbox.artifact.coordinates.NpmArtifactCoordinates;
 import org.carlspring.strongbox.config.NpmLayoutProviderConfig.NpmObjectMapper;
@@ -9,7 +42,12 @@ import org.carlspring.strongbox.data.criteria.Paginator;
 import org.carlspring.strongbox.data.criteria.Predicate;
 import org.carlspring.strongbox.npm.NpmSearchRequest;
 import org.carlspring.strongbox.npm.NpmViewRequest;
-import org.carlspring.strongbox.npm.metadata.*;
+import org.carlspring.strongbox.npm.metadata.DistTags;
+import org.carlspring.strongbox.npm.metadata.PackageFeed;
+import org.carlspring.strongbox.npm.metadata.PackageVersion;
+import org.carlspring.strongbox.npm.metadata.SearchResults;
+import org.carlspring.strongbox.npm.metadata.Time;
+import org.carlspring.strongbox.npm.metadata.Versions;
 import org.carlspring.strongbox.providers.ProviderImplementationException;
 import org.carlspring.strongbox.providers.io.RepositoryPath;
 import org.carlspring.strongbox.providers.layout.NpmPackageDesc;
@@ -23,40 +61,22 @@ import org.carlspring.strongbox.storage.repository.Repository;
 import org.carlspring.strongbox.storage.validation.artifact.ArtifactCoordinatesValidationException;
 import org.carlspring.strongbox.web.LayoutRequestMapping;
 import org.carlspring.strongbox.web.RepositoryMapping;
-
-import javax.inject.Inject;
-import javax.servlet.ServletInputStream;
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
-import javax.ws.rs.core.MediaType;
-import java.io.*;
-import java.nio.file.Files;
-import java.nio.file.Path;
-import java.nio.file.StandardCopyOption;
-import java.nio.file.StandardOpenOption;
-import java.security.NoSuchAlgorithmException;
-import java.text.SimpleDateFormat;
-import java.util.Date;
-import java.util.List;
-import java.util.Optional;
-
-import com.fasterxml.jackson.core.JsonFactory;
-import com.fasterxml.jackson.core.JsonParser;
-import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.core.JsonToken;
-import com.fasterxml.jackson.databind.JsonNode;
-import com.fasterxml.jackson.databind.ObjectMapper;
-import org.apache.commons.compress.archivers.tar.TarArchiveEntry;
-import org.apache.commons.compress.archivers.tar.TarArchiveInputStream;
-import org.apache.commons.compress.compressors.gzip.GzipCompressorInputStream;
-import org.apache.commons.io.IOUtils;
 import org.javatuples.Pair;
+
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.util.Assert;
-import org.springframework.web.bind.annotation.*;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.PutMapping;
+import org.springframework.web.bind.annotation.RequestHeader;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestMethod;
+import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.RestController;
 
 /**
  * This Controller used to handle npm requests.
@@ -150,7 +170,7 @@ public class NpmArtifactController
         SimpleDateFormat format = new SimpleDateFormat(NpmSearchResultSupplier.SEARCH_DATE_FORMAT);
         searchResults.setTime(format.format(new Date()));
         
-        response.setContentType(MediaType.APPLICATION_JSON);
+        response.setContentType(MediaType.APPLICATION_JSON_VALUE);
         response.getOutputStream().write(npmJacksonMapper.writeValueAsBytes(searchResults));
     }
 
@@ -186,7 +206,7 @@ public class NpmArtifactController
         NpmPackageDesc packageDesc = npmPackageSupplier.apply(repositoryPath);
         PackageVersion npmPackage = packageDesc.getNpmPackage();
         
-        response.setContentType(MediaType.APPLICATION_JSON);
+        response.setContentType(MediaType.APPLICATION_JSON_VALUE);
         response.getOutputStream().write(npmJacksonMapper.writeValueAsBytes(npmPackage));
     }
     
@@ -250,7 +270,7 @@ public class NpmArtifactController
 
         });
 
-        response.setContentType(MediaType.APPLICATION_JSON);
+        response.setContentType(MediaType.APPLICATION_JSON_VALUE);
         response.getOutputStream().write(npmJacksonMapper.writeValueAsBytes(packageFeed));
     }
 
@@ -343,7 +363,7 @@ public class NpmArtifactController
     }
 
     @PreAuthorize("hasAuthority('ARTIFACTS_DEPLOY')")
-    @PutMapping(path = "{storageId}/{repositoryId}/{name:.+}", consumes = MediaType.APPLICATION_JSON)
+    @PutMapping(path = "{storageId}/{repositoryId}/{name:.+}", consumes = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity publish(@RepositoryMapping Repository repository,
                                   @PathVariable(name = "name") String name,
                                   HttpServletRequest request)
@@ -399,14 +419,14 @@ public class NpmArtifactController
         String shasum = Optional.ofNullable(packageDef.getDist()).map(p -> p.getShasum()).orElse(null);
         if (shasum == null)
         {
-            logger.warn(String.format("No checksum provided for package [%s]", packageDef.getName()));
+            logger.warn("No checksum provided for package [{}]", packageDef.getName());
             return;
         }
 
         String packageFileName = repositoryPath.getFileName().toString();
         RepositoryPath checksumPath = repositoryPath.resolveSibling(packageFileName + ".sha1");
         artifactManagementService.validateAndStore(checksumPath,
-                                                      new ByteArrayInputStream(shasum.getBytes("UTF-8")));
+                                                      new ByteArrayInputStream(shasum.getBytes(StandardCharsets.UTF_8)));
 
         Files.delete(packageTgzTmp);
         Files.delete(packageJsonTmp);
@@ -455,7 +475,7 @@ public class NpmArtifactController
                                                 jp.currentToken().name()));
 
                     String packageAttachmentName = jp.nextFieldName();
-                    logger.info(String.format("Found npm package attachment [%s]", packageAttachmentName));
+                    logger.info("Found npm package attachment [{}]", packageAttachmentName);
 
                     moveToAttachment(jp, packageAttachmentName);
                     packageTgzPath = extractPackage(jp);
@@ -509,7 +529,7 @@ public class NpmArtifactController
             packageJsonSource = extrectPackageJson(packageTgzIn);
         }
         Path packageJsonTmp = Files.createTempFile("package", "json");
-        Files.write(packageJsonTmp, packageJsonSource.getBytes("UTF-8"), StandardOpenOption.TRUNCATE_EXISTING);
+        Files.write(packageJsonTmp, packageJsonSource.getBytes(StandardCharsets.UTF_8), StandardOpenOption.TRUNCATE_EXISTING);
 
         return packageJsonTmp;
     }
@@ -524,7 +544,7 @@ public class NpmArtifactController
 
         jp.nextToken();
         String contentType = jp.nextTextValue();
-        Assert.isTrue("application/octet-stream".equals(contentType),
+        Assert.isTrue(MediaType.APPLICATION_OCTET_STREAM_VALUE.equals(contentType),
                       String.format("Failed to parse npm package source for [%s], unknown content type [%s]",
                                     packageAttachmentName, contentType));
 
@@ -571,7 +591,7 @@ public class NpmArtifactController
                     continue;
                 }
                 StringWriter writer = new StringWriter();
-                IOUtils.copy(tarIn, writer, "UTF-8");
+                IOUtils.copy(tarIn, writer, StandardCharsets.UTF_8);
                 return writer.toString();
             }
             

@@ -1,6 +1,6 @@
-package org.carlspring.strongbox.storage.metadata.comparators;
+package org.carlspring.strongbox.storage.metadata.maven.comparators;
 
-import org.carlspring.strongbox.storage.metadata.versions.MetadataVersion;
+import org.carlspring.strongbox.storage.metadata.maven.versions.MetadataVersion;
 
 import java.util.Comparator;
 

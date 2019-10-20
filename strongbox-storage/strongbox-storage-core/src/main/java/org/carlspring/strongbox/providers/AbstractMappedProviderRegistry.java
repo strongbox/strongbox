@@ -36,9 +36,9 @@ public abstract class AbstractMappedProviderRegistry<T>
     {
         providers.entrySet()
                  .stream()
-                 .forEach(e -> logger.info(String.format("Registered repository provider '%s' with alias '%s'.",
-                                                         e.getValue().getClass().getCanonicalName(),
-                                                         e.getKey())));
+                 .forEach(e -> logger.info("Registered repository provider '{}' with alias '{}'.",
+                                           e.getValue().getClass().getCanonicalName(),
+                                           e.getKey()));
         this.providers = providers;
     }
 

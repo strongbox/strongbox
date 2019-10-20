@@ -323,9 +323,8 @@ public class ArtifactMetadataServiceReleasesTest
                         }
                         catch (IOException e)
                         {
-                            logger.error(
-                                    String.format("Failed to change creation date for [%s]", filePath),
-                                    e);
+                            logger.error("Failed to change creation date for [{}]",
+                                         filePath, e);
                         }
                     });
         }

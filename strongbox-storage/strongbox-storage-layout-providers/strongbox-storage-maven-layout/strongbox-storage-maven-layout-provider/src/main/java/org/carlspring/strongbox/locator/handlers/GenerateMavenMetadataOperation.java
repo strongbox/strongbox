@@ -47,7 +47,7 @@ public class GenerateMavenMetadataOperation
         }
         catch (Exception e)
         {
-            logger.error("Failed to generate metadata for " + artifactGroupDirectoryPath, e);
+            logger.error("Failed to generate metadata for {}", artifactGroupDirectoryPath, e);
         }
     }
 

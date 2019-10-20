@@ -66,7 +66,7 @@ public class RestAssuredArtifactClient
     {
         String url = escapeUrl(path);
 
-        logger.debug("Path to artifact: " + url);
+        logger.debug("Path to artifact: {}", url);
 
         return givenLocal().contentType(ContentType.TEXT)
                            .when()
@@ -116,7 +116,7 @@ public class RestAssuredArtifactClient
             throw new ArtifactOperationException("Unable to convert to byte array", e);
         }
 
-        logger.debug("Deploying " + url);
+        logger.debug("Deploying {}", url);
 
         givenLocal().contentType(mediaType)
                     .header("Content-Disposition", contentDisposition)
@@ -194,15 +194,15 @@ public class RestAssuredArtifactClient
             statusCode = PARTIAL_CONTENT;
         }
 
-        logger.debug("[getArtifactAsByteArray] URL " + url);
+        logger.debug("[getArtifactAsByteArray] URL {}", url);
 
         MockMvcResponse response = o.when().get(url);
         Headers allHeaders = response.getHeaders();
 
-        logger.debug("HTTP GET " + url);
+        logger.debug("HTTP GET {}", url);
         logger.debug("Response headers:");
 
-        allHeaders.forEach(header -> logger.debug("\t" + header.getName() + " = " + header.getValue()));
+        allHeaders.forEach(header -> logger.debug("\t{} = {}", header.getName(), header.getValue()));
 
         if (validate)
         {
@@ -212,12 +212,12 @@ public class RestAssuredArtifactClient
         if (response.getStatusCode() == OK || response.getStatusCode() == PARTIAL_CONTENT)
         {
             byte[] result = response.getMockHttpServletResponse().getContentAsByteArray();
-            logger.debug("Received " + result.length + " bytes.");
+            logger.debug("Received {} bytes.", result.length);
             return result;
         }
         else
         {
-            logger.warn("[getArtifactAsByteArray] response " + response.getStatusCode());
+            logger.warn("[getArtifactAsByteArray] response {}", response.getStatusCode());
             return null;
         }
     }
@@ -367,10 +367,10 @@ public class RestAssuredArtifactClient
         MockMvcResponse response = o.when().head(url);
         Headers allHeaders = response.getHeaders();
 
-        logger.debug("HTTP HEAD " + url);
+        logger.debug("HTTP HEAD {}", url);
         logger.debug("Response headers:");
 
-        allHeaders.forEach(header -> logger.debug("\t" + header.getName() + " = " + header.getValue()));
+        allHeaders.forEach(header -> logger.debug("\t{} = {}", header.getName(), header.getValue()));
 
         if (response.getStatusCode() == OK || response.getStatusCode() == PARTIAL_CONTENT)
         {
@@ -379,7 +379,7 @@ public class RestAssuredArtifactClient
         }
         else
         {
-            logger.warn("[getArtifactAsByteArray] response " + response.getStatusCode());
+            logger.warn("[getArtifactAsByteArray] response {}", response.getStatusCode());
             return null;
         }
     }
@@ -391,10 +391,10 @@ public class RestAssuredArtifactClient
         MockMvcResponse response = o.when().get(url);
         Headers allHeaders = response.getHeaders();
 
-        logger.debug("HTTP GET " + url);
+        logger.debug("HTTP GET {}", url);
         logger.debug("Response headers:");
 
-        allHeaders.forEach(header -> logger.debug("\t" + header.getName() + " = " + header.getValue()));
+        allHeaders.forEach(header -> logger.debug("\t{} = {}", header.getName(), header.getValue()));
 
         if (response.getStatusCode() == OK || response.getStatusCode() == PARTIAL_CONTENT)
         {
@@ -403,7 +403,7 @@ public class RestAssuredArtifactClient
         }
         else
         {
-            logger.warn("[getArtifactAsByteArray] response " + response.getStatusCode());
+            logger.warn("[getArtifactAsByteArray] response {}", response.getStatusCode());
             return null;
         }
     }

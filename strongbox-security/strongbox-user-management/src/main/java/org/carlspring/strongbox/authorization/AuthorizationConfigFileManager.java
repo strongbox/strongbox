@@ -1,12 +1,13 @@
 package org.carlspring.strongbox.authorization;
 
 import org.carlspring.strongbox.authorization.dto.AuthorizationConfigDto;
-import org.carlspring.strongbox.resource.ConfigurationResourceResolver;
 import org.carlspring.strongbox.yaml.YAMLMapperFactory;
 import org.carlspring.strongbox.yaml.YamlFileManager;
 
 import javax.inject.Inject;
 
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.core.io.Resource;
 import org.springframework.stereotype.Component;
 
 /**
@@ -17,9 +18,8 @@ import org.springframework.stereotype.Component;
 public class AuthorizationConfigFileManager
         extends YamlFileManager<AuthorizationConfigDto>
 {
-
-    @Inject
-    private ConfigurationResourceResolver configurationResourceResolver;
+    @Value("#{@propertiesPathResolver.resolve('strongbox.authorization.config.yaml','etc/conf/strongbox-authorization.yaml')}")
+    private Resource resource;
 
     @Inject
     public AuthorizationConfigFileManager(YAMLMapperFactory yamlMapperFactory)
@@ -28,21 +28,8 @@ public class AuthorizationConfigFileManager
     }
 
     @Override
-    public String getPropertyKey()
+    protected Resource getResource()
     {
-        return "strongbox.authorization.config.yaml";
+        return resource;
     }
-
-    @Override
-    public String getDefaultLocation()
-    {
-        return "etc/conf/strongbox-authorization.yaml";
-    }
-
-    @Override
-    public ConfigurationResourceResolver getConfigurationResourceResolver()
-    {
-        return configurationResourceResolver;
-    }
-
 }

@@ -66,11 +66,11 @@ public @interface TestArtifact
     /**
      * {@link ArtifactGeneratorStrategy} class to use.
      */
-    Class<? extends ArtifactGeneratorStrategy<?>> strategy() default DefaultArtrifactGeneratorStrategy.class;    
+    Class<? extends ArtifactGeneratorStrategy<?>> strategy() default DefaultArtifactGeneratorStrategy.class;
     
     /**
      * Artifact size in bytes.
      */
-    int size() default 1024;
+    long size() default 1024;
 
 }

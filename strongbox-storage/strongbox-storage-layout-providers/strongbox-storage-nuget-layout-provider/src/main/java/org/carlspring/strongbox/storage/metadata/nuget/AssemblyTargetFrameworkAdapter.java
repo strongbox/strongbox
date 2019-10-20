@@ -78,7 +78,7 @@ public class AssemblyTargetFrameworkAdapter extends XmlAdapter<String, EnumSet<F
             }
             catch (Exception e)
             {
-                logger.warn(java.text.MessageFormat.format("Can not add framework: \"{0}\"", name), e);
+                logger.warn("Can not add framework: \"{}\"", name, e);
             }
         }
 

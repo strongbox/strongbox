@@ -137,7 +137,7 @@ public abstract class AbstractRepositoryProvider implements RepositoryProvider, 
     public void onBeforeWrite(RepositoryStreamWriteContext ctx) throws IOException
     {
         RepositoryPath repositoryPath = (RepositoryPath) ctx.getPath();
-        logger.debug(String.format("Writing [%s]", repositoryPath));
+        logger.debug("Writing [{}]", repositoryPath);
         
         if (!RepositoryFiles.isArtifact(repositoryPath))
         {
@@ -172,7 +172,7 @@ public abstract class AbstractRepositoryProvider implements RepositoryProvider, 
     public void onAfterWrite(RepositoryStreamWriteContext ctx) throws IOException
     {
         RepositoryPath repositoryPath = (RepositoryPath) ctx.getPath();
-        logger.debug(String.format("Complete writing [%s]", repositoryPath));             
+        logger.debug("Complete writing [{}]", repositoryPath);
     }
 
     @Override
@@ -180,7 +180,7 @@ public abstract class AbstractRepositoryProvider implements RepositoryProvider, 
         throws IOException
     {
         RepositoryPath repositoryPath = (RepositoryPath) ctx.getPath();
-        logger.debug(String.format("Reading %s", repositoryPath));
+        logger.debug("Reading {}", repositoryPath);
 
         if (!RepositoryFiles.isArtifact(repositoryPath))
         {
@@ -201,7 +201,7 @@ public abstract class AbstractRepositoryProvider implements RepositoryProvider, 
     public void onAfterRead(RepositoryStreamReadContext ctx)
     {
         RepositoryPath repositoryPath = (RepositoryPath) ctx.getPath();
-        logger.debug(String.format("Complete reading [%s]", repositoryPath));
+        logger.debug("Complete reading [{}]", repositoryPath);
         
         artifactEventListenerRegistry.dispatchArtifactDownloadedEvent(repositoryPath);
     }

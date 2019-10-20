@@ -6,8 +6,10 @@ import org.carlspring.strongbox.domain.PypiPackageInfo;
 import org.carlspring.strongbox.util.annotations.PypiMetadataKey;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
+import javax.validation.ConstraintViolationException;
 import java.io.*;
 import java.lang.reflect.Field;
 import java.util.Map;
@@ -19,19 +21,24 @@ public class PypiMetadataParser
 
     private static final Logger logger = LoggerFactory.getLogger(PypiMetadataParser.class);
 
+    @Autowired
+    PypiPackageInfoValidator pypiPackageInfoValidator;
+
     public PypiPackageInfo parseMetadataFile(InputStream is)
-            throws IllegalAccessException, IOException
+            throws IllegalAccessException, IOException, ConstraintViolationException
     {
         Map<String, String> keyValueMap = generateKeyValueMap(is);
-        PypiPackageInfo dao = new PypiPackageInfo();
-        return populateAnnotatedFields(dao, keyValueMap);
+        PypiPackageInfo packageInfo = populateAnnotatedFields(new PypiPackageInfo(), keyValueMap);
+        pypiPackageInfoValidator.validate(packageInfo);
+        return packageInfo;
     }
 
-    private PypiPackageInfo populateAnnotatedFields(PypiPackageInfo object, Map<String, String> keyValueMap)
+    public PypiPackageInfo populateAnnotatedFields(PypiPackageInfo object,
+                                                   Map<String, String> keyValueMap)
             throws IllegalAccessException
     {
         Class<?> clazz = object.getClass();
-        for (Field field: clazz.getDeclaredFields())
+        for (Field field : clazz.getDeclaredFields())
         {
             field.setAccessible(true);
             try
@@ -39,12 +46,20 @@ public class PypiMetadataParser
                 if (field.isAnnotationPresent(PypiMetadataKey.class))
                 {
                     PypiMetadataKey pypiMetadataKey = field.getAnnotation(PypiMetadataKey.class);
-                    field.set(object, keyValueMap.get(pypiMetadataKey.name()));
+                    if (pypiMetadataKey.name().equals("Metadata-Version"))
+                    {
+                        field.set(object, PypiPackageInfo.SupportedMetadataVersionEnum
+                                                  .getVersionEnum(keyValueMap.get(pypiMetadataKey.name())));
+                    }
+                    else
+                    {
+                        field.set(object, keyValueMap.get(pypiMetadataKey.name()));
+                    }
                 }
             }
             catch (IllegalAccessException ex)
             {
-                logger.error("Exception occurred {} ...", ExceptionUtils.getStackTrace(ex));
+                logger.error("Exception occurred ", ex);
                 throw ex;
             }
         }
@@ -71,11 +86,10 @@ public class PypiMetadataParser
         }
         catch (IOException ex)
         {
-            logger.error("Exception occured {} ...", ExceptionUtils.getStackTrace(ex));
+            logger.error("Exception occurred ", ex);
             throw ex;
         }
         return keyValueMap;
     }
-
 
 }

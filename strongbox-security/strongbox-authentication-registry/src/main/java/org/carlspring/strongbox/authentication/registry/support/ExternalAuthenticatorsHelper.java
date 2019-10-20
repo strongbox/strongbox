@@ -61,12 +61,12 @@ public class ExternalAuthenticatorsHelper
         }
         if (!Files.exists(authenticatorsDirectory))
         {
-            logger.debug(authenticatorsDirectory + " does not exist.");
+            logger.debug("{} does not exist.", authenticatorsDirectory);
             return parent;
         }
         if (!Files.isDirectory(authenticatorsDirectory))
         {
-            logger.error(authenticatorsDirectory + " is not a directory.");
+            logger.error("{} is not a directory.", authenticatorsDirectory);
             return parent;
         }
 
@@ -74,7 +74,7 @@ public class ExternalAuthenticatorsHelper
 
         if (CollectionUtils.isEmpty(authenticatorsJarPaths))
         {
-            logger.debug(authenticatorsDirectory + " contains 0 authenticators jar files.");
+            logger.debug("{} does not contain any authenticator jar files.", authenticatorsDirectory);
             return parent;
         }
 

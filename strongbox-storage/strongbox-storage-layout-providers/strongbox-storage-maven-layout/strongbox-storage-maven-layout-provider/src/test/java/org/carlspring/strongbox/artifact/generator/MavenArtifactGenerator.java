@@ -7,13 +7,23 @@ import org.carlspring.commons.io.RandomInputStream;
 import org.carlspring.strongbox.artifact.MavenArtifactUtils;
 import org.carlspring.strongbox.testing.artifact.MavenArtifactTestUtils;
 
-import java.io.*;
+import java.io.ByteArrayInputStream;
+import java.io.ByteArrayOutputStream;
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileOutputStream;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.OutputStream;
+import java.io.OutputStreamWriter;
+import java.io.Writer;
 import java.net.URI;
-import java.nio.charset.Charset;
+import java.nio.charset.StandardCharsets;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.security.NoSuchAlgorithmException;
 import java.util.Properties;
+import java.util.Random;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipOutputStream;
 
@@ -24,7 +34,6 @@ import org.apache.maven.artifact.repository.metadata.io.xpp3.MetadataXpp3Writer;
 import org.apache.maven.model.Model;
 import org.apache.maven.model.io.xpp3.MavenXpp3Writer;
 import org.codehaus.plexus.util.WriterFactory;
-import org.codehaus.plexus.util.xml.pull.XmlPullParserException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -35,6 +44,7 @@ public class MavenArtifactGenerator implements ArtifactGenerator
 {
 
     private static final Logger logger = LoggerFactory.getLogger(MavenArtifactGenerator.class);
+    private static final int DEFAULT_SIZE = 1000000;
 
     public static final String PACKAGING_JAR = "jar";
 
@@ -62,32 +72,31 @@ public class MavenArtifactGenerator implements ArtifactGenerator
     @Override
     public Path generateArtifact(String id,
                                  String version,
-                                 int size)
-        throws IOException
+                                 long size)
+            throws IOException
     {
         Artifact artifact = MavenArtifactTestUtils.getArtifactFromGAVTC(String.format("%s:%s", id, version));
-
-        return generateArtifact(artifact);
+        return generateArtifact(artifact, size);
     }
 
     @Override
     public Path generateArtifact(URI uri,
-                                 int size)
-        throws IOException
+                                 long size)
+            throws IOException
     {
         Artifact artifact = MavenArtifactUtils.convertPathToArtifact(uri.toString());
-
-        return generateArtifact(artifact);
+        return generateArtifact(artifact, size);
     }
 
-    private Path generateArtifact(Artifact artifact)
-        throws IOException
+    private Path generateArtifact(Artifact artifact,
+                                  long size)
+            throws IOException
     {
         try
         {
-            generate(artifact);
+            generate(artifact, size);
         }
-        catch (NoSuchAlgorithmException|XmlPullParserException e)
+        catch (NoSuchAlgorithmException e)
         {
             throw new IOException(e);
         }
@@ -97,7 +106,6 @@ public class MavenArtifactGenerator implements ArtifactGenerator
 
     public void generate(String ga, String packaging, String... versions)
             throws IOException,
-                   XmlPullParserException,
                    NoSuchAlgorithmException
     {
         if (packaging == null)
@@ -116,7 +124,6 @@ public class MavenArtifactGenerator implements ArtifactGenerator
 
     public void generate(String ga, String... versions)
             throws IOException,
-                   XmlPullParserException,
                    NoSuchAlgorithmException
     {
         for (String version : versions)
@@ -130,23 +137,34 @@ public class MavenArtifactGenerator implements ArtifactGenerator
 
     public void generate(Artifact artifact)
             throws IOException,
-                   XmlPullParserException,
                    NoSuchAlgorithmException
     {
-        generatePom(artifact, PACKAGING_JAR);
-        createArchive(artifact);
+        generate(artifact, new Random().nextInt(DEFAULT_SIZE));
     }
 
     public void generate(Artifact artifact, String packaging)
             throws IOException,
-                   XmlPullParserException,
                    NoSuchAlgorithmException
     {
         generatePom(artifact, packaging);
         createArchive(artifact);
     }
 
+    public void generate(Artifact artifact, long size)
+            throws IOException,
+                   NoSuchAlgorithmException
+    {
+        generatePom(artifact, PACKAGING_JAR);
+        createArchive(artifact, size);
+    }
+
     public void createArchive(Artifact artifact)
+            throws IOException, NoSuchAlgorithmException
+    {
+        createArchive(artifact, new Random().nextInt(DEFAULT_SIZE));
+    }
+
+    public void createArchive(Artifact artifact, long size)
             throws NoSuchAlgorithmException,
                    IOException
     {
@@ -160,7 +178,7 @@ public class MavenArtifactGenerator implements ArtifactGenerator
         {
             createMavenPropertiesFile(artifact, zos);
             addMavenPomFile(artifact, zos);
-            createRandomSizeFile(zos);
+            createFile(zos, size);
 
             zos.flush();
         }
@@ -264,13 +282,14 @@ public class MavenArtifactGenerator implements ArtifactGenerator
         zos.closeEntry();
     }
 
-    private void createRandomSizeFile(ZipOutputStream zos)
+    private void createFile(ZipOutputStream zos,
+                            long size)
             throws IOException
     {
-        ZipEntry ze = new ZipEntry("random-size-file");
+        ZipEntry ze = new ZipEntry("file-with-given-size");
         zos.putNextEntry(ze);
 
-        RandomInputStream ris = new RandomInputStream(true, 1000000);
+        RandomInputStream ris = new RandomInputStream(size);
 
         byte[] buffer = new byte[4096];
         int len;
@@ -300,7 +319,7 @@ public class MavenArtifactGenerator implements ArtifactGenerator
         model.setVersion(artifact.getVersion());
         model.setPackaging(packaging);
 
-        logger.debug("Generating pom file for " + artifact.toString() + "...");
+        logger.debug("Generating pom file for {}...", artifact);
 
         try (OutputStreamWriter pomFileWriter = new OutputStreamWriter(newOutputStream(pomFile)))
         {
@@ -333,14 +352,14 @@ public class MavenArtifactGenerator implements ArtifactGenerator
             Path checksumPath = artifactPath.resolveSibling(artifactPath.getFileName() + EncryptionAlgorithmsEnum.MD5.getExtension());
             try (OutputStream os = newOutputStream(checksumPath.toFile()))
             {
-                IOUtils.write(md5, os, Charset.forName("UTF-8"));
+                IOUtils.write(md5, os, StandardCharsets.UTF_8);
                 os.flush();
             }
 
             checksumPath = artifactPath.resolveSibling(artifactPath.getFileName() + EncryptionAlgorithmsEnum.SHA1.getExtension());
             try (OutputStream os = newOutputStream(checksumPath.toFile()))
             {
-                IOUtils.write(sha1, os, Charset.forName("UTF-8"));
+                IOUtils.write(sha1, os, StandardCharsets.UTF_8);
                 os.flush();
             }
         }
