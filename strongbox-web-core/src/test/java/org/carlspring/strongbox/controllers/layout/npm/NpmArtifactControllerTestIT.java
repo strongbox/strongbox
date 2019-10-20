@@ -38,9 +38,16 @@ public class NpmArtifactControllerTestIT
         extends NpmRestAssuredBaseTest
 {
 
-    private static final String REPOSITORY_PROXY = "nactit-npm-proxy";
+    private static final String REPOSITORY_PROXY_RESOLVE = "nactit-npm-proxy-resolve";
 
-    private static final String REPOSITORY_GROUP = "nactit-npm-group";
+    private static final String REPOSITORY_GROUP_PROXY_RESOLVE = "nactit-npm-group-proxy-resolve";
+
+    private static final String REPOSITORY_GROUP_RESOLVE = "nactit-npm-group-resolve";
+
+    private static final String REPOSITORY_PROXY_SEARCH = "nactit-npm-proxy-search";
+
+    private static final String REPOSITORY_PROXY_VIEW = "nactit-npm-proxy-view";
+
 
     private static final String REPOSITORY_RELEASES_1 = "nactit-npm-releases-1";
 
@@ -67,7 +74,7 @@ public class NpmArtifactControllerTestIT
     @ExtendWith(RepositoryManagementTestExecutionListener.class)
     @Test
     public void testResolveArtifactViaProxy(@Remote(url = REMOTE_URL)
-                                            @NpmRepository(repositoryId = REPOSITORY_PROXY)
+                                            @NpmRepository(repositoryId = REPOSITORY_PROXY_RESOLVE)
                                             Repository proxyRepository)
             throws Exception
     {
@@ -87,10 +94,10 @@ public class NpmArtifactControllerTestIT
     @ExtendWith(RepositoryManagementTestExecutionListener.class)
     @Test
     public void testResolveArtifactViaGroupWithProxy(@Remote(url = REMOTE_URL)
-                                                     @NpmRepository(repositoryId = REPOSITORY_PROXY)
+                                                     @NpmRepository(repositoryId = REPOSITORY_GROUP_PROXY_RESOLVE)
                                                      Repository proxyRepository,
-                                                     @Group(repositories = REPOSITORY_PROXY)
-                                                     @NpmRepository(repositoryId = REPOSITORY_GROUP)
+                                                     @Group(repositories = REPOSITORY_GROUP_PROXY_RESOLVE)
+                                                     @NpmRepository(repositoryId = REPOSITORY_GROUP_RESOLVE)
                                                      Repository groupRepository)
             throws Exception
     {
@@ -105,7 +112,7 @@ public class NpmArtifactControllerTestIT
     @ExtendWith(RepositoryManagementTestExecutionListener.class)
     @Test
     public void testViewArtifactViaProxy(@Remote(url = REMOTE_URL)
-                                         @NpmRepository(repositoryId = REPOSITORY_PROXY)
+                                         @NpmRepository(repositoryId = REPOSITORY_PROXY_VIEW)
                                          Repository proxyRepository)
     {
         final String storageId = proxyRepository.getStorage().getId();
@@ -134,7 +141,7 @@ public class NpmArtifactControllerTestIT
     @ExtendWith(RepositoryManagementTestExecutionListener.class)
     @Test
     public void testSearchArtifactViaProxy(@Remote(url = REMOTE_URL)
-                                           @NpmRepository(repositoryId = REPOSITORY_PROXY)
+                                           @NpmRepository(repositoryId = REPOSITORY_PROXY_SEARCH)
                                            Repository proxyRepository)
     {
         final String storageId = proxyRepository.getStorage().getId();
