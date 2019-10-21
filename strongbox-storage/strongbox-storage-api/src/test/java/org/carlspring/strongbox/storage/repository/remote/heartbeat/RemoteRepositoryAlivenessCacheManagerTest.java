@@ -90,7 +90,7 @@ public class RemoteRepositoryAlivenessCacheManagerTest
 
     @ParameterizedTest
     @EnumSource(RepoAliveness.class)
-    void put(RepoAliveness repoAliveness)
+    void putRepository(RepoAliveness repoAliveness)
     {
         // Given
         remoteRepositoryAlivenessCacheManager = new RemoteRepositoryAlivenessCacheManager(cacheManager);
@@ -103,7 +103,7 @@ public class RemoteRepositoryAlivenessCacheManagerTest
     }
 
     @Test
-    void destroy()
+    void destroyRepositories()
             throws Exception
     {
         // Given
