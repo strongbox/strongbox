@@ -51,7 +51,7 @@ public class BrowseController
     public final static String ROOT_CONTEXT = "/api/browse";
 
     @Inject
-    @Qualifier("browseRepoDirectoryListingService")
+    @Qualifier("browseRepositoryDirectoryListingService")
     private volatile DirectoryListingService directoryListingService;
     
     @ApiOperation(value = "List configured storages.")
