@@ -80,21 +80,14 @@ class AbstractLayoutProviderTest
     public void setUp(TestInfo testInfo)
             throws IOException
     {
-        final String storageId = STORAGE0;
-        final String repositoryId = getRepositoryId(testInfo);
-
-        StorageDto storage = new StorageDto(storageId);
-        RepositoryDto repository = new RepositoryDto(repositoryId);
-        repository.setStorage(storage);
-
-        final Path repositoryBasePath = getRepositoryBasePath(storage.getId(), repositoryId);
-        repository.setBasedir(repositoryBasePath.toAbsolutePath().toString());
+        RepositoryDto repository = createRepositoryDto(testInfo);
 
         HashMap<RepositoryFileAttributeType, Object> artifactAttributes = new HashMap<>();
         artifactAttributes.put(RepositoryFileAttributeType.ARTIFACT, Boolean.TRUE);
         artifactAttributes.put(RepositoryFileAttributeType.COORDINATES, artifactCoordinates);
-        
-        repositoryFileSystem = new LayoutFileSystem(propertiesBooter, new RepositoryData(repository), FileSystems.getDefault(), storageFileSystemProvider)
+
+        repositoryFileSystem = new LayoutFileSystem(propertiesBooter, new RepositoryData(repository),
+                                                    FileSystems.getDefault(), storageFileSystemProvider)
         {
             @Override
             public Set<String> getDigestAlgorithmSet()
@@ -111,13 +104,27 @@ class AbstractLayoutProviderTest
         Mockito.doReturn(artifactAttributes).when(storageFileSystemProvider).getRepositoryFileAttributes(any(RepositoryPath.class), any());
     }
 
+    private RepositoryDto createRepositoryDto(TestInfo testInfo)
+    {
+        final String repositoryId = getRepositoryId(testInfo);
+
+        StorageDto storage = new StorageDto(STORAGE0);
+        RepositoryDto repository = new RepositoryDto(repositoryId);
+        repository.setStorage(storage);
+
+        final Path repositoryBasePath = getRepositoryBasePath(testInfo);
+        repository.setBasedir(repositoryBasePath.toAbsolutePath().toString());
+
+        return repository;
+    }
+
     @Test
     public void shouldReturnExpectedArtifactGroups(TestInfo testInfo)
             throws IOException
     {
         final String storageId = STORAGE0;
         final String repositoryId = getRepositoryId(testInfo);
-        final Path repositoryBasePath = getRepositoryBasePath(storageId, repositoryId);
+        final Path repositoryBasePath = getRepositoryBasePath(testInfo);
         RepositoryPath path = new RepositoryPath(repositoryBasePath, repositoryFileSystem).resolve("org")
                                                                                           .resolve("carlspring")
                                                                                           .resolve("abs-lay-prov-test")
@@ -143,10 +150,10 @@ class AbstractLayoutProviderTest
         assertThat(repositoryArtifactIdGroup.getClass()).isEqualTo((RepositoryArtifactIdGroupEntry.class));
     }
 
-    private Path getRepositoryBasePath(String storageId,
-                                       String repositoryId)
+    private Path getRepositoryBasePath(TestInfo testInfo)
     {
-        return Paths.get(propertiesBooter.getVaultDirectory(), "storages", storageId, repositoryId);
+        final String repositoryId = getRepositoryId(testInfo);
+        return Paths.get(propertiesBooter.getVaultDirectory(), "storages", STORAGE0, repositoryId);
     }
 
     private String getRepositoryId(TestInfo testInfo)
