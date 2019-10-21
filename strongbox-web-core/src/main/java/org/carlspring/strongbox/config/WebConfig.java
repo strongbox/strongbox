@@ -1,5 +1,7 @@
 package org.carlspring.strongbox.config;
 
+import org.apache.commons.lang.StringUtils;
+import org.carlspring.strongbox.configuration.ConfigurationManager;
 import org.carlspring.strongbox.configuration.StrongboxSecurityConfig;
 import org.carlspring.strongbox.converters.RoleFormToRoleConverter;
 import org.carlspring.strongbox.converters.RoleListFormToRoleListConverter;
@@ -15,6 +17,8 @@ import org.carlspring.strongbox.cron.config.CronTasksConfig;
 import org.carlspring.strongbox.interceptors.MavenArtifactRequestInterceptor;
 import org.carlspring.strongbox.mapper.WebObjectMapperSubtypes;
 import org.carlspring.strongbox.providers.io.RepositoryPathResolver;
+import org.carlspring.strongbox.services.DirectoryListingService;
+import org.carlspring.strongbox.services.DirectoryListingServiceImpl;
 import org.carlspring.strongbox.utils.CustomAntPathMatcher;
 import org.carlspring.strongbox.web.CustomRequestMappingHandlerMapping;
 import org.carlspring.strongbox.web.DirectoryTraversalFilter;
@@ -94,6 +98,9 @@ public class WebConfig
 
     @Inject
     private YAMLMapperFactory yamlMapperFactory;
+    
+    @Inject
+    protected ConfigurationManager configurationManager;
 
     WebConfig()
     {
@@ -186,6 +193,21 @@ public class WebConfig
     public Validator localValidatorFactoryBean()
     {
         return new LocalValidatorFactoryBean();
+    }
+    
+    @Bean("loggingMgmtDirectoryListingService")
+    public DirectoryListingService getLoggingManagementDirectoryListingService()
+    {
+    	String baseUrl = StringUtils.chomp(configurationManager.getConfiguration().getBaseUrl(), "/");
+
+        return new DirectoryListingServiceImpl(String.format("%s/api/logging", baseUrl));
+    }
+    
+    @Bean("browseRepoDirectoryListingService")
+    public DirectoryListingService getBrowseRepoDirectoryListingService()
+    {
+    	String baseUrl = StringUtils.chomp(configurationManager.getConfiguration().getBaseUrl(), "/");
+        return new DirectoryListingServiceImpl(String.format("%s/api/browse", baseUrl));
     }
 
     @Override

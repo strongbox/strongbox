@@ -20,6 +20,7 @@ import java.util.Optional;
 import io.swagger.annotations.*;
 import org.apache.commons.io.FilenameUtils;
 import org.apache.commons.lang.StringUtils;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
@@ -56,15 +57,13 @@ public class LoggingManagementController
     @Inject
     private LoggingManagementService loggingManagementService;
 
+    @Inject
+    @Qualifier("loggingMgmtDirectoryListingService")
     private DirectoryListingService directoryListingService;
     
     public DirectoryListingService getDirectoryListingService()
     {
-        return Optional.ofNullable(directoryListingService).orElseGet(() -> {
-            String baseUrl = StringUtils.chomp(configurationManager.getConfiguration().getBaseUrl(), "/");
-
-            return directoryListingService = new DirectoryListingServiceImpl(String.format("%s/api/logging", baseUrl));
-        });
+        return directoryListingService;
     }
     
     @ApiOperation(value = "Used to add new logger.")
