@@ -199,16 +199,15 @@ public class WebConfig
     @Qualifier("loggingManagementDirectoryListingService")
     public DirectoryListingService getLoggingManagementDirectoryListingService()
     {
-    	String baseUrl = StringUtils.chomp(configurationManager.getConfiguration().getBaseUrl(), "/");
-
+        String baseUrl = StringUtils.chomp(configurationManager.getConfiguration().getBaseUrl(), "/");
         return new DirectoryListingServiceImpl(String.format("%s/api/logging", baseUrl));
     }
-    
+
     @Bean
     @Qualifier("browseRepoDirectoryListingService")
     public DirectoryListingService getBrowseRepoDirectoryListingService()
     {
-    	String baseUrl = StringUtils.chomp(configurationManager.getConfiguration().getBaseUrl(), "/");
+        String baseUrl = StringUtils.chomp(configurationManager.getConfiguration().getBaseUrl(), "/");
         return new DirectoryListingServiceImpl(String.format("%s/api/browse", baseUrl));
     }
 
