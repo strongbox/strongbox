@@ -17,11 +17,7 @@ import java.util.Optional;
 import java.util.stream.Collectors;
 
 import org.apache.commons.lang3.time.DateUtils;
-import org.junit.jupiter.api.AfterEach;
-import org.junit.jupiter.api.Assumptions;
-import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.api.Test;
-import org.junit.jupiter.api.TestInfo;
+import org.junit.jupiter.api.*;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.boot.test.context.SpringBootTest;
@@ -162,7 +158,11 @@ public class ArtifactEntryServiceTest
 
         HashMap<String, String> coordinates = new HashMap<>();
         coordinates.put("path", groupId);
-        return artifactEntryService.findArtifactList(null, repositoryId, coordinates, false);
+        List<ArtifactEntry> artifactList = artifactEntryService.findArtifactList(null, repositoryId, coordinates,
+                                                                                 false);
+        logger.info("$$$$ findAll for [{}] [{}] returned [{}] with size [{}]", repositoryId, coordinates, artifactList,
+                    artifactList.size());
+        return artifactList;
     }
 
     private void displayAllEntries(TestInfo testInfo,
