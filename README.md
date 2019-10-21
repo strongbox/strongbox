@@ -95,6 +95,14 @@ started with our project:
 [![GitHub issues by-label][help-wanted-badge]][help-wanted-link]
 [![GitHub issues by-label][hacktoberfest-badge]][hacktoberfest-link]
 
+# Sponsors
+
+We'd also like to thank our sponsors for generously providing us with licenses for our opensource initiative!
+
+[![][yourkit-logo]]([yourkit-link])
+
+[YourKit][yourkit-link] supports open source projects with innovative and intelligent tools for monitoring and profiling Java and .NET applications. YourKit is the creator of [YourKit Java Profiler][yourkit-java-profiler-link], [YourKit .NET Profiler][yourkit-dotnet-profiler-link] and [YourKit YouMonitor][yourkit-monitor-link].
+
 
 [<--# Generic Links -->]: #
 [strongbox-logo]: ./strongbox.svg
@@ -137,3 +145,10 @@ started with our project:
 [release-rpm]: https://github.com/strongbox/strongbox/releases/download/1.0-SNAPSHOT/strongbox-distribution-1.0-SNAPSHOT.rpm
 [release-tar.gz]: https://github.com/strongbox/strongbox/releases/download/1.0-SNAPSHOT/strongbox-distribution-1.0-SNAPSHOT.tar.gz
 [release-zip]: https://github.com/strongbox/strongbox/releases/download/1.0-SNAPSHOT/strongbox-distribution-1.0-SNAPSHOT.zip
+
+[<--# Sponsors -->]: #
+[yourkit-logo]: https://www.yourkit.com/images/yklogo.png
+[yourkit-link]: https://www.yourkit.com
+[yourkit-java-profiler-link]: https://www.yourkit.com/java/profiler
+[yourkit-dotnet-profiler-link]: https://www.yourkit.com/.net/profiler
+[yourkit-monitor-link]: https://www.yourkit.com/youmonitor/
