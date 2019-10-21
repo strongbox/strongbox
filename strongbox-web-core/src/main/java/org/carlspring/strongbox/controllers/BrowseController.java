@@ -25,6 +25,7 @@ import io.swagger.annotations.ApiResponses;
 import org.apache.commons.lang.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
@@ -50,14 +51,13 @@ public class BrowseController
     // must be the same as @RequestMapping value on the class definition
     public final static String ROOT_CONTEXT = "/api/browse";
 
+    @Inject
+    @Qualifier("browseRepoDirectoryListingService")
     private volatile DirectoryListingService directoryListingService;
     
     public DirectoryListingService getDirectoryListingService()
     {
-        return Optional.ofNullable(directoryListingService).orElseGet(() -> {
-            String baseUrl = StringUtils.chomp(configurationManager.getConfiguration().getBaseUrl(), "/");
-            return directoryListingService = new DirectoryListingServiceImpl(String.format("%s/api/browse", baseUrl));
-        });
+        return directoryListingService;
     }
     
     @ApiOperation(value = "List configured storages.")
