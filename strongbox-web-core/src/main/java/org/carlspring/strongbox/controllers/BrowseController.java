@@ -4,7 +4,6 @@ import org.carlspring.strongbox.domain.DirectoryListing;
 import org.carlspring.strongbox.providers.io.RepositoryFiles;
 import org.carlspring.strongbox.providers.io.RepositoryPath;
 import org.carlspring.strongbox.services.DirectoryListingService;
-import org.carlspring.strongbox.services.DirectoryListingServiceImpl;
 import org.carlspring.strongbox.storage.Storage;
 import org.carlspring.strongbox.storage.repository.Repository;
 import org.carlspring.strongbox.web.RepositoryMapping;
@@ -55,11 +54,6 @@ public class BrowseController
     @Qualifier("browseRepoDirectoryListingService")
     private volatile DirectoryListingService directoryListingService;
     
-    public DirectoryListingService getDirectoryListingService()
-    {
-        return directoryListingService;
-    }
-    
     @ApiOperation(value = "List configured storages.")
     @ApiResponses(value = { @ApiResponse(code = 200, message = "The list was returned."),
                             @ApiResponse(code = 500, message = "An error occurred.") })
@@ -76,7 +70,7 @@ public class BrowseController
         try
         {
             Map<String, Storage> storages = configurationManager.getConfiguration().getStorages();
-            DirectoryListing directoryListing = getDirectoryListingService().fromStorages(storages);
+            DirectoryListing directoryListing = directoryListingService.fromStorages(storages);
 
             if (acceptHeader != null && acceptHeader.contains(MediaType.APPLICATION_JSON_VALUE))
             {
@@ -121,7 +115,7 @@ public class BrowseController
                 return getNotFoundResponseEntity("The requested storage was not found.", acceptHeader);
             }
 
-            DirectoryListing directoryListing = getDirectoryListingService().fromRepositories(storage.getRepositories());
+            DirectoryListing directoryListing = directoryListingService.fromRepositories(storage.getRepositories());
 
             if (acceptHeader != null && acceptHeader.contains(MediaType.APPLICATION_JSON_VALUE))
             {
@@ -178,7 +172,7 @@ public class BrowseController
                 return getNotFoundResponseEntity("Requested repository doesn't allow browsing.", acceptHeader);
             }
 
-            DirectoryListing directoryListing = getDirectoryListingService().fromRepositoryPath(repositoryPath);
+            DirectoryListing directoryListing = directoryListingService.fromRepositoryPath(repositoryPath);
 
             if (acceptHeader != null && acceptHeader.contains(MediaType.APPLICATION_JSON_VALUE))
             {

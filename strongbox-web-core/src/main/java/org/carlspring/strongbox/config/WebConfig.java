@@ -36,6 +36,7 @@ import org.jtwig.spring.boot.config.JtwigViewResolverConfigurer;
 import org.jtwig.web.servlet.JtwigRenderer;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.cache.annotation.EnableCaching;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.ComponentScan;
@@ -195,7 +196,8 @@ public class WebConfig
         return new LocalValidatorFactoryBean();
     }
     
-    @Bean("loggingMgmtDirectoryListingService")
+    @Bean
+    @Qualifier("loggingManagementDirectoryListingService")
     public DirectoryListingService getLoggingManagementDirectoryListingService()
     {
     	String baseUrl = StringUtils.chomp(configurationManager.getConfiguration().getBaseUrl(), "/");
@@ -203,7 +205,8 @@ public class WebConfig
         return new DirectoryListingServiceImpl(String.format("%s/api/logging", baseUrl));
     }
     
-    @Bean("browseRepoDirectoryListingService")
+    @Bean
+    @Qualifier("browseRepoDirectoryListingService")
     public DirectoryListingService getBrowseRepoDirectoryListingService()
     {
     	String baseUrl = StringUtils.chomp(configurationManager.getConfiguration().getBaseUrl(), "/");
