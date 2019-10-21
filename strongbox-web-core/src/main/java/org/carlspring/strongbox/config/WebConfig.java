@@ -205,8 +205,8 @@ public class WebConfig
     }
 
     @Bean
-    @Qualifier("browseRepoDirectoryListingService")
-    public DirectoryListingService getBrowseRepoDirectoryListingService()
+    @Qualifier("browseRepositoryDirectoryListingService")
+    public DirectoryListingService getBrowseRepositoryDirectoryListingService()
     {
         String baseUrl = StringUtils.chomp(configurationManager.getConfiguration().getBaseUrl(), "/");
         return new DirectoryListingServiceImpl(String.format("%s/api/browse", baseUrl));
