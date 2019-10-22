@@ -16,6 +16,8 @@ import javax.annotation.Nonnull;
 import javax.inject.Inject;
 import javax.servlet.http.HttpServletRequest;
 import java.io.IOException;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 @Component
 public class NpmLoginAuthenticationSupplier
@@ -36,7 +38,13 @@ public class NpmLoginAuthenticationSupplier
     {
         NpmUser npmUser = deserializeNpmUser(request);
 
-        if (!isValidNpmUser(npmUser))
+        String usernamePattern = "(?:" + NpmLayoutProvider.NPM_USER_PATH + ")(.*)";
+        Pattern pattern = Pattern.compile(usernamePattern);
+        Matcher urlUsernameMatcher = pattern.matcher(request.getRequestURI());
+
+        if (!isValidNpmUser(npmUser) ||
+            !urlUsernameMatcher.find() ||
+            !urlUsernameMatcher.group(1).equals(npmUser.getName()))
         {
             throw new BadCredentialsException("invalid.credentials");
         }

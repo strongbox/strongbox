@@ -133,7 +133,7 @@ public class NpmArtifactControllerTest
     public void addUserTest(@NpmRepository(repositoryId = REPOSITORY_RELEASES)
                                     Repository repository)
     {
-        String url = getContextBaseUrl() + "/storages/{storageId}/{repositoryId}/" + NpmLayoutProvider.NPM_USER_PATH;
+        String url = getContextBaseUrl() + "/storages/{storageId}/{repositoryId}/" + NpmLayoutProvider.NPM_USER_PATH + "{username}";
 
         final String storageId = repository.getStorage().getId();
         final String repositoryId = repository.getId();
@@ -160,14 +160,14 @@ public class NpmArtifactControllerTest
                .then()
                .statusCode(HttpStatus.CREATED.value());
 
-        //can login when the url username differs from the body
+        //can't login when the url username differs from the body
         mockMvc.contentType(MediaType.APPLICATION_JSON_VALUE)
                .body(strongboxUser1)
                .when()
                .put(url, storageId, repositoryId, nonStrongboxUser.getName())
                .peek()
                .then()
-               .statusCode(HttpStatus.CREATED.value());
+               .statusCode(HttpStatus.UNAUTHORIZED.value());
 
         //can't login with non-strongbox user
         mockMvc.contentType(MediaType.APPLICATION_JSON_VALUE)

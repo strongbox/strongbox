@@ -60,6 +60,7 @@ import org.carlspring.strongbox.repository.NpmRepositoryFeatures.SearchPackagesE
 import org.carlspring.strongbox.repository.NpmRepositoryFeatures.ViewPackageEventListener;
 import org.carlspring.strongbox.storage.repository.Repository;
 import org.carlspring.strongbox.storage.validation.artifact.ArtifactCoordinatesValidationException;
+import org.carlspring.strongbox.users.userdetails.SpringSecurityUser;
 import org.carlspring.strongbox.web.LayoutRequestMapping;
 import org.carlspring.strongbox.web.RepositoryMapping;
 
@@ -70,6 +71,8 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
+import org.springframework.security.authentication.InsufficientAuthenticationException;
+import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
 import org.springframework.util.Assert;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -405,8 +408,26 @@ public class NpmArtifactController
     @PutMapping(path = "{storageId}/{repositoryId}/-/user/org.couchdb.user:{username}",
             consumes = MediaType.APPLICATION_JSON_VALUE,
             produces = MediaType.APPLICATION_JSON_VALUE)
-    public ResponseEntity addUser(Authentication authentication)
+    public ResponseEntity addUser(Authentication authentication,
+                                  @PathVariable("username") String username)
     {
+        if (authentication == null || !authentication.isAuthenticated())
+        {
+            throw new InsufficientAuthenticationException("unauthorized");
+        }
+
+        if (!(authentication instanceof UsernamePasswordAuthenticationToken))
+        {
+            return toResponseEntityError("Unsupported authentication class " + authentication.getClass().getName());
+        }
+
+        Object principal = authentication.getPrincipal();
+        if (!(principal instanceof SpringSecurityUser))
+        {
+            return toResponseEntityError(
+                    "Unsupported authentication principal " + Optional.ofNullable(principal).orElse(null));
+        }
+
         return ResponseEntity
                        .status(HttpStatus.CREATED)
                        .body("{\"ok\":\"user '" + authentication.getName() + "' created\"}");
