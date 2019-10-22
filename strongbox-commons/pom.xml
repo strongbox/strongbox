@@ -206,14 +206,6 @@
             <groupId>org.junit.jupiter</groupId>
             <artifactId>junit-jupiter</artifactId>
         </dependency>
-
-        <dependency>
-            <groupId>com.hazelcast</groupId>
-            <artifactId>hazelcast</artifactId>
-            <version>3.11.4</version>
-            <scope>compile</scope>
-        </dependency>
-
        <dependency>
             <groupId>org.objenesis</groupId>
             <artifactId>objenesis</artifactId>
