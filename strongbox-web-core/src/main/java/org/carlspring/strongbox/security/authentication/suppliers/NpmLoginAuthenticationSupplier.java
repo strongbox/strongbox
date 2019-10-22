@@ -38,13 +38,8 @@ public class NpmLoginAuthenticationSupplier
     {
         NpmUser npmUser = deserializeNpmUser(request);
 
-        String usernamePattern = "(?:" + NpmLayoutProvider.NPM_USER_PATH + ")(.*)";
-        Pattern pattern = Pattern.compile(usernamePattern);
-        Matcher urlUsernameMatcher = pattern.matcher(request.getRequestURI());
-
         if (!isValidNpmUser(npmUser) ||
-            !urlUsernameMatcher.find() ||
-            !urlUsernameMatcher.group(1).equals(npmUser.getName()))
+            !usernamesMatch(request.getRequestURI(), npmUser.getName()))
         {
             throw new BadCredentialsException("invalid.credentials");
         }
@@ -85,6 +80,16 @@ public class NpmLoginAuthenticationSupplier
         return npmUser != null &&
                npmUser.getName() != null &&
                npmUser.getPassword() != null;
+    }
+
+    private boolean usernamesMatch(String url, String bodyUsername)
+    {
+        String usernamePattern = "(?:" + NpmLayoutProvider.NPM_USER_PATH + ")(.*)";
+        Pattern pattern = Pattern.compile(usernamePattern);
+        Matcher urlUsernameMatcher = pattern.matcher(url);
+
+        return  urlUsernameMatcher.find() &&
+                urlUsernameMatcher.group(1).equals(bodyUsername);
     }
 
 }
