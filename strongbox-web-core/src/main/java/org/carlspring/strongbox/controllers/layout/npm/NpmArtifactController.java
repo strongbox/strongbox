@@ -408,8 +408,7 @@ public class NpmArtifactController
     @PutMapping(path = "{storageId}/{repositoryId}/-/user/org.couchdb.user:{username}",
             consumes = MediaType.APPLICATION_JSON_VALUE,
             produces = MediaType.APPLICATION_JSON_VALUE)
-    public ResponseEntity addUser(Authentication authentication,
-                                  @PathVariable("username") String username)
+    public ResponseEntity addUser(Authentication authentication)
     {
         if (authentication == null || !authentication.isAuthenticated())
         {
