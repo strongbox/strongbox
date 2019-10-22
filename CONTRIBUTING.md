@@ -146,3 +146,4 @@ To accept, please:
 | Bogdan Sukonnov              |                                              | Saint Petersburg, Russia                | 2019-08-19 |
 | Marcin Słowiak               |                                              | Sanok, Poland                           | 2019-09-23 |
 | David Barda                  |                                              | Tel-Aviv, Israel                        | 2019-10-14 |
+| Bishnu Gopal Patro           |                                              | Pune, India                             | 2019-10-19 |
