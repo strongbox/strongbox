@@ -206,7 +206,7 @@
             <groupId>org.junit.jupiter</groupId>
             <artifactId>junit-jupiter</artifactId>
         </dependency>
-        <dependency>
+       <dependency>
             <groupId>org.objenesis</groupId>
             <artifactId>objenesis</artifactId>
         </dependency>

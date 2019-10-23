@@ -28,9 +28,6 @@ public class PropertiesBooter
     @Value("${strongbox.etc}")
     private String etcDirectory;
 
-    @Value("${strongbox.temp}")
-    private String tempDirectory;
-
     @Value("${logging.dir}")
     private String logsDirectory;
 
@@ -71,10 +68,6 @@ public class PropertiesBooter
             System.setProperty("logging.config.file", getHomeDirectory() + "/etc/logback-spring.xml");
         }
 
-        if (System.getProperty("java.io.tmpdir") == null)
-        {
-            System.setProperty("java.io.tmpdir", getVaultDirectory() + "/tmp");
-        }
 
         if (System.getProperty("ehcache.disk.store.dir") == null)
         {
@@ -115,16 +108,6 @@ public class PropertiesBooter
     public void setEtcDirectory(String etcDirectory)
     {
         this.etcDirectory = etcDirectory;
-    }
-
-    public String getTempDirectory()
-    {
-        return tempDirectory;
-    }
-
-    public void setTempDirectory(String tempDirectory)
-    {
-        this.tempDirectory = tempDirectory;
     }
 
     public String getLogsDirectory()

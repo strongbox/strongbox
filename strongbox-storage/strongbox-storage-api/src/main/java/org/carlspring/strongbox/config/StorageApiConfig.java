@@ -1,7 +1,6 @@
 package org.carlspring.strongbox.config;
 
 import org.carlspring.strongbox.booters.StorageBooter;
-import org.carlspring.strongbox.booters.TempDirBooter;
 import org.carlspring.strongbox.storage.checksum.ChecksumCacheManager;
 import org.carlspring.strongbox.storage.validation.ArtifactCoordinatesValidator;
 
@@ -50,14 +49,8 @@ public class StorageApiConfig
         return new LinkedHashSet<>(versionValidators);
     }
 
-    @Bean
-    TempDirBooter tempDirBooter()
-    {
-        return new TempDirBooter();
-    }
     
     @Bean
-    @DependsOn("tempDirBooter")
     StorageBooter storageBooter()
     {
         return new StorageBooter();
