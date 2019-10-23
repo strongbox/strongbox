@@ -21,7 +21,7 @@ import org.springframework.stereotype.Component;
  */
 @Component
 public class NugetApiKeyAuthenticationSupplier
-        extends ArtifactAuthenticationSupplier
+        extends LayoutAuthenticationSupplier
 {
 
     public static final String HEADER_NUGET_APIKEY = "x-nuget-apikey";

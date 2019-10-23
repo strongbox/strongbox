@@ -17,11 +17,10 @@ import javax.inject.Inject;
 import javax.servlet.http.HttpServletRequest;
 import java.io.IOException;
 import java.util.regex.Matcher;
-import java.util.regex.Pattern;
 
 @Component
 public class NpmLoginAuthenticationSupplier
-        extends ArtifactAuthenticationSupplier
+        extends LayoutAuthenticationSupplier
 {
 
     @Inject

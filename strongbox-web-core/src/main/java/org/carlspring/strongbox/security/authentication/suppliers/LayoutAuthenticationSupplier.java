@@ -12,7 +12,7 @@ import org.springframework.core.annotation.Order;
 import static org.carlspring.strongbox.web.Constants.ARTIFACT_ROOT_PATH;
 
 @Order(3)
-public abstract class ArtifactAuthenticationSupplier
+public abstract class LayoutAuthenticationSupplier
         implements AuthenticationSupplier
 {
 
@@ -21,7 +21,7 @@ public abstract class ArtifactAuthenticationSupplier
 
     private String layoutAlias;
 
-    public ArtifactAuthenticationSupplier(String layoutAlias)
+    public LayoutAuthenticationSupplier(String layoutAlias)
     {
         this.layoutAlias = layoutAlias;
     }
