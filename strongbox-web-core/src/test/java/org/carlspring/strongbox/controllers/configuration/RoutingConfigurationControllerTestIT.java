@@ -27,7 +27,7 @@ import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.ValueSource;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
-import org.springframework.test.context.ActiveProfiles;
+import org.springframework.test.context.TestPropertySource;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.carlspring.strongbox.controllers.configuration.RoutingConfigurationController.FAILED_ADD_ROUTING_RULE_FORM_ERRORS;
@@ -42,9 +42,8 @@ import static org.junit.jupiter.api.parallel.ExecutionMode.SAME_THREAD;
 /**
  * @author Pablo Tirado
  */
-@ActiveProfiles({ "test",
-                  "RoutingConfigurationControllerTestIT" })
 @IntegrationTest
+@TestPropertySource(properties = { "cacheManagerConfiguration.instanceId=RoutingConfigurationControllerTestIT" })
 @Execution(SAME_THREAD)
 public class RoutingConfigurationControllerTestIT
         extends RestAssuredBaseTest

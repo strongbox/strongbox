@@ -11,7 +11,7 @@ import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.ValueSource;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
-import org.springframework.test.context.ActiveProfiles;
+import org.springframework.test.context.TestPropertySource;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.carlspring.strongbox.net.MediaType.APPLICATION_YAML_VALUE;
 import static org.junit.jupiter.api.parallel.ExecutionMode.SAME_THREAD;
@@ -20,9 +20,8 @@ import static org.junit.jupiter.api.parallel.ExecutionMode.SAME_THREAD;
 /**
  * @author Pablo Tirado
  */
-@ActiveProfiles({ "test",
-                  "StrongboxConfigurationControllerTestIT" })
 @IntegrationTest
+@TestPropertySource(properties = { "cacheManagerConfiguration.instanceId=StrongboxConfigurationControllerTestIT" })
 @Execution(SAME_THREAD)
 public class StrongboxConfigurationControllerTestIT
         extends RestAssuredBaseTest

@@ -14,7 +14,7 @@ import org.junit.jupiter.params.provider.ValueSource;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.security.test.context.support.WithMockUser;
-import org.springframework.test.context.ActiveProfiles;
+import org.springframework.test.context.TestPropertySource;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.carlspring.strongbox.controllers.configuration.ProxyConfigurationController.FAILED_UPDATE;
@@ -28,9 +28,8 @@ import static org.junit.jupiter.api.parallel.ExecutionMode.SAME_THREAD;
 /**
  * @author Pablo Tirado
  */
-@ActiveProfiles({ "test",
-                  "ProxyConfigurationControllerTestIT" })
 @IntegrationTest
+@TestPropertySource(properties = { "cacheManagerConfiguration.instanceId=ProxyConfigurationControllerTestIT" })
 @Execution(SAME_THREAD)
 public class ProxyConfigurationControllerTestIT
         extends RestAssuredBaseTest

@@ -20,7 +20,7 @@ import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.ValueSource;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
-import org.springframework.test.context.ActiveProfiles;
+import org.springframework.test.context.TestPropertySource;
 
 import static org.hamcrest.Matchers.containsString;
 import static org.hamcrest.Matchers.equalTo;
@@ -29,9 +29,8 @@ import static org.junit.jupiter.api.parallel.ExecutionMode.SAME_THREAD;
 /**
  * @author Pablo Tirado
  */
-@ActiveProfiles({ "test",
-                  "HttpConnectionPoolConfigurationManagementControllerTestIT" })
 @IntegrationTest
+@TestPropertySource(properties = { "cacheManagerConfiguration.instanceId=HttpConnectionPoolConfigurationManagementControllerTestIT" })
 @Execution(SAME_THREAD)
 public class HttpConnectionPoolConfigurationManagementControllerTestIT
         extends RestAssuredBaseTest

@@ -34,12 +34,11 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.parallel.Execution;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
-import org.springframework.test.context.ActiveProfiles;
+import org.springframework.test.context.TestPropertySource;
 
 
-@ActiveProfiles({ "test",
-                  "StoragesConfigurationControllerSmokeTest" })
 @IntegrationTest
+@TestPropertySource(properties = { "cacheManagerConfiguration.instanceId=StoragesConfigurationControllerSmokeTest" })
 @Execution(SAME_THREAD)
 public class StoragesConfigurationControllerSmokeTest
         extends RestAssuredBaseTest

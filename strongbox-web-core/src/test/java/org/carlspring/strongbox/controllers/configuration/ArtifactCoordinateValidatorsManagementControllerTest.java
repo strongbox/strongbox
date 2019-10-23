@@ -18,7 +18,7 @@ import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.ValueSource;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
-import org.springframework.test.context.ActiveProfiles;
+import org.springframework.test.context.TestPropertySource;
 
 import static org.carlspring.strongbox.controllers.configuration.ArtifactCoordinateValidatorsManagementController.NOT_FOUND_ALIAS_MESSAGE;
 import static org.carlspring.strongbox.controllers.configuration.ArtifactCoordinateValidatorsManagementController.SUCCESSFUL_ADD;
@@ -36,9 +36,8 @@ import static org.junit.jupiter.api.parallel.ExecutionMode.SAME_THREAD;
  * @author Pablo Tirado
  * @author Aditya Srinivasan
  */
-@ActiveProfiles({ "test",
-                  "ArtifactCoordinateValidatorsManagementControllerTest" })
 @IntegrationTest
+@TestPropertySource(properties = { "cacheManagerConfiguration.instanceId=ArtifactCoordinateValidatorsManagementControllerTest" })
 @Execution(SAME_THREAD)
 public class ArtifactCoordinateValidatorsManagementControllerTest
         extends MavenRestAssuredBaseTest
