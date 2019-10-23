@@ -134,6 +134,7 @@ public class NpmArtifactControllerTest
                                     Repository repository)
     {
         String url = getContextBaseUrl() + "/storages/{storageId}/{repositoryId}/" + NpmLayoutProvider.NPM_USER_PATH + "{username}";
+        String basicAuth = "Basic YWRtaW46cGFzc3dvcmQ=";
 
         final String storageId = repository.getStorage().getId();
         final String repositoryId = repository.getId();
@@ -168,6 +169,35 @@ public class NpmArtifactControllerTest
                .peek()
                .then()
                .statusCode(HttpStatus.UNAUTHORIZED.value());
+
+        //can't login when the url username differs from the body
+        mockMvc.contentType(MediaType.APPLICATION_JSON_VALUE)
+               .body(strongboxUser1)
+               .when()
+               .put(url, storageId, repositoryId, nonStrongboxUser.getName())
+               .peek()
+               .then()
+               .statusCode(HttpStatus.UNAUTHORIZED.value());
+
+        //can't login with non strongbox user when basic auth is strongbox user
+        mockMvc.header(HttpHeaders.AUTHORIZATION, basicAuth)
+               .header(HttpHeaders.ACCEPT, MediaType.APPLICATION_JSON_VALUE)
+               .contentType(MediaType.APPLICATION_JSON_VALUE)
+               .body(nonStrongboxUser)
+               .when()
+               .put(url, storageId, repositoryId, nonStrongboxUser.getName())
+               .then()
+               .statusCode(HttpStatus.UNAUTHORIZED.value());
+
+        //can login with strongbox user when basic auth is strongbox user
+        mockMvc.header(HttpHeaders.AUTHORIZATION, basicAuth)
+               .header(HttpHeaders.ACCEPT, MediaType.APPLICATION_JSON_VALUE)
+               .contentType(MediaType.APPLICATION_JSON_VALUE)
+               .body(strongboxUser1)
+               .when()
+               .put(url, storageId, repositoryId, strongboxUser1.getName())
+               .then()
+               .statusCode(HttpStatus.CREATED.value());
 
         //can't login with non-strongbox user
         mockMvc.contentType(MediaType.APPLICATION_JSON_VALUE)
