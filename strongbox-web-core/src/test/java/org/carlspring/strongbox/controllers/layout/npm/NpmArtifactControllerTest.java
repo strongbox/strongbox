@@ -170,15 +170,6 @@ public class NpmArtifactControllerTest
                .then()
                .statusCode(HttpStatus.UNAUTHORIZED.value());
 
-        //can't login when the url username differs from the body
-        mockMvc.contentType(MediaType.APPLICATION_JSON_VALUE)
-               .body(strongboxUser1)
-               .when()
-               .put(url, storageId, repositoryId, nonStrongboxUser.getName())
-               .peek()
-               .then()
-               .statusCode(HttpStatus.UNAUTHORIZED.value());
-
         //can't login with non strongbox user when basic auth is strongbox user
         mockMvc.header(HttpHeaders.AUTHORIZATION, basicAuth)
                .header(HttpHeaders.ACCEPT, MediaType.APPLICATION_JSON_VALUE)
