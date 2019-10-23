@@ -8,11 +8,13 @@ import java.util.List;
 
 import com.google.common.collect.Lists;
 import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.parallel.Execution;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.ValueSource;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.security.test.context.support.WithMockUser;
+import org.springframework.test.context.ActiveProfiles;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.carlspring.strongbox.controllers.configuration.ProxyConfigurationController.FAILED_UPDATE;
@@ -20,12 +22,16 @@ import static org.carlspring.strongbox.controllers.configuration.ProxyConfigurat
 import static org.carlspring.strongbox.controllers.configuration.ProxyConfigurationController.SUCCESSFUL_UPDATE;
 import static org.hamcrest.Matchers.containsString;
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.parallel.ExecutionMode.SAME_THREAD;
 
 
 /**
  * @author Pablo Tirado
  */
+@ActiveProfiles({ "test",
+                  "ProxyConfigurationControllerTestIT" })
 @IntegrationTest
+@Execution(SAME_THREAD)
 public class ProxyConfigurationControllerTestIT
         extends RestAssuredBaseTest
 {

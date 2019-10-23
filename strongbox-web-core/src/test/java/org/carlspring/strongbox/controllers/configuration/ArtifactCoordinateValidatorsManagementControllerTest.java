@@ -13,10 +13,12 @@ import java.io.IOException;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
+import org.junit.jupiter.api.parallel.Execution;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.ValueSource;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
+import org.springframework.test.context.ActiveProfiles;
 
 import static org.carlspring.strongbox.controllers.configuration.ArtifactCoordinateValidatorsManagementController.NOT_FOUND_ALIAS_MESSAGE;
 import static org.carlspring.strongbox.controllers.configuration.ArtifactCoordinateValidatorsManagementController.SUCCESSFUL_ADD;
@@ -26,6 +28,7 @@ import static org.carlspring.strongbox.web.RepositoryMethodArgumentResolver.NOT_
 import static org.hamcrest.Matchers.containsInAnyOrder;
 import static org.hamcrest.Matchers.containsString;
 import static org.hamcrest.Matchers.equalTo;
+import static org.junit.jupiter.api.parallel.ExecutionMode.SAME_THREAD;
 
 
 /**
@@ -33,7 +36,10 @@ import static org.hamcrest.Matchers.equalTo;
  * @author Pablo Tirado
  * @author Aditya Srinivasan
  */
+@ActiveProfiles({ "test",
+                  "ArtifactCoordinateValidatorsManagementControllerTest" })
 @IntegrationTest
+@Execution(SAME_THREAD)
 public class ArtifactCoordinateValidatorsManagementControllerTest
         extends MavenRestAssuredBaseTest
 {

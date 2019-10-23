@@ -22,10 +22,12 @@ import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
+import org.junit.jupiter.api.parallel.Execution;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.ValueSource;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
+import org.springframework.test.context.ActiveProfiles;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.carlspring.strongbox.controllers.configuration.RoutingConfigurationController.FAILED_ADD_ROUTING_RULE_FORM_ERRORS;
@@ -35,11 +37,15 @@ import static org.carlspring.strongbox.storage.routing.RoutingRuleTypeEnum.ACCEP
 import static org.hamcrest.CoreMatchers.containsString;
 import static org.hamcrest.CoreMatchers.equalTo;
 import static org.hamcrest.collection.IsCollectionWithSize.hasSize;
+import static org.junit.jupiter.api.parallel.ExecutionMode.SAME_THREAD;
 
 /**
  * @author Pablo Tirado
  */
+@ActiveProfiles({ "test",
+                  "RoutingConfigurationControllerTestIT" })
 @IntegrationTest
+@Execution(SAME_THREAD)
 public class RoutingConfigurationControllerTestIT
         extends RestAssuredBaseTest
 {

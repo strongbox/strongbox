@@ -2,11 +2,7 @@ package org.carlspring.strongbox.controllers.configuration;
 
 import org.carlspring.strongbox.booters.PropertiesBooter;
 import org.carlspring.strongbox.config.IntegrationTest;
-import org.carlspring.strongbox.forms.configuration.MavenRepositoryConfigurationForm;
-import org.carlspring.strongbox.forms.configuration.ProxyConfigurationForm;
-import org.carlspring.strongbox.forms.configuration.RemoteRepositoryForm;
-import org.carlspring.strongbox.forms.configuration.RepositoryForm;
-import org.carlspring.strongbox.forms.configuration.StorageForm;
+import org.carlspring.strongbox.forms.configuration.*;
 import org.carlspring.strongbox.providers.layout.Maven2LayoutProvider;
 import org.carlspring.strongbox.rest.common.RestAssuredBaseTest;
 import org.carlspring.strongbox.service.ProxyRepositoryConnectionPoolConfigurationService;
@@ -31,27 +27,26 @@ import org.junit.jupiter.api.Assumptions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.TestInfo;
+import org.junit.jupiter.api.parallel.Execution;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.ValueSource;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
+import org.springframework.test.context.ActiveProfiles;
 import org.springframework.web.client.HttpServerErrorException;
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.carlspring.strongbox.controllers.configuration.StoragesConfigurationController.FAILED_SAVE_STORAGE_FORM_ERROR;
-import static org.carlspring.strongbox.controllers.configuration.StoragesConfigurationController.SUCCESSFUL_REPOSITORY_REMOVAL;
-import static org.carlspring.strongbox.controllers.configuration.StoragesConfigurationController.SUCCESSFUL_REPOSITORY_SAVE;
-import static org.carlspring.strongbox.controllers.configuration.StoragesConfigurationController.SUCCESSFUL_SAVE_STORAGE;
-import static org.carlspring.strongbox.controllers.configuration.StoragesConfigurationController.SUCCESSFUL_STORAGE_REMOVAL;
-import static org.carlspring.strongbox.controllers.configuration.StoragesConfigurationController.SUCCESSFUL_UPDATE_STORAGE;
+import static org.carlspring.strongbox.controllers.configuration.StoragesConfigurationController.*;
 import static org.carlspring.strongbox.rest.client.RestAssuredArtifactClient.OK;
-import static org.hamcrest.Matchers.containsString;
-import static org.hamcrest.Matchers.equalTo;
-import static org.hamcrest.Matchers.not;
+import static org.hamcrest.Matchers.*;
+import static org.junit.jupiter.api.parallel.ExecutionMode.SAME_THREAD;
 
 /**
  * @author Pablo Tirado
  */
+@ActiveProfiles({ "test",
+                  "StoragesConfigurationControllerTestIT" })
 @IntegrationTest
+@Execution(SAME_THREAD)
 public class StoragesConfigurationControllerTestIT
         extends RestAssuredBaseTest
 {
@@ -334,7 +329,7 @@ public class StoragesConfigurationControllerTestIT
         groupRepositoriesMapExpected.add(groupRepository2);
 
         assertThat(storage)
-                .as( "Failed to get storage (" + storageId + ")!")
+                .as("Failed to get storage (" + storageId + ")!")
                 .isNotNull();
         assertThat(storage.getRepositories().isEmpty())
                 .as("Failed to get storage (" + storageId + ")!")
@@ -354,7 +349,8 @@ public class StoragesConfigurationControllerTestIT
         assertThat(((MavenRepositoryConfiguration) repository0.getRepositoryConfiguration()).isIndexingEnabled())
                 .as("Failed to get storage (" + storageId + ")!")
                 .isTrue();
-        assertThat(((MavenRepositoryConfiguration) repository0.getRepositoryConfiguration()).isIndexingClassNamesEnabled())
+        assertThat(
+                ((MavenRepositoryConfiguration) repository0.getRepositoryConfiguration()).isIndexingClassNamesEnabled())
                 .as("Failed to get storage (" + storageId + ")!")
                 .isFalse();
         assertThat(((MavenRepositoryConfiguration) repository0.getRepositoryConfiguration()).getCronExpression())

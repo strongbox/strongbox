@@ -7,6 +7,7 @@ import static org.carlspring.strongbox.controllers.configuration.StoragesConfigu
 import static org.carlspring.strongbox.controllers.configuration.StoragesConfigurationController.SUCCESSFUL_STORAGE_REMOVAL;
 import static org.carlspring.strongbox.rest.client.RestAssuredArtifactClient.OK;
 import static org.hamcrest.Matchers.containsString;
+import static org.junit.jupiter.api.parallel.ExecutionMode.SAME_THREAD;
 
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
@@ -30,11 +31,16 @@ import org.carlspring.strongbox.storage.repository.RepositoryStatusEnum;
 import org.carlspring.strongbox.storage.repository.RepositoryTypeEnum;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.parallel.Execution;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
+import org.springframework.test.context.ActiveProfiles;
 
 
+@ActiveProfiles({ "test",
+                  "StoragesConfigurationControllerSmokeTest" })
 @IntegrationTest
+@Execution(SAME_THREAD)
 public class StoragesConfigurationControllerSmokeTest
         extends RestAssuredBaseTest
 {
