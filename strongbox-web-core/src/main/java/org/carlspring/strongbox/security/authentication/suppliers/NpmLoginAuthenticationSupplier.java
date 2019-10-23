@@ -84,9 +84,7 @@ public class NpmLoginAuthenticationSupplier
 
     private boolean usernamesMatch(String url, String bodyUsername)
     {
-        String usernamePattern = "(?:" + NpmLayoutProvider.NPM_USER_PATH + ")(.*)";
-        Pattern pattern = Pattern.compile(usernamePattern);
-        Matcher urlUsernameMatcher = pattern.matcher(url);
+        Matcher urlUsernameMatcher = NpmLayoutProvider.NPM_URL_USERNAME_PATTERN.matcher(url);
 
         return  urlUsernameMatcher.find() &&
                 urlUsernameMatcher.group(1).equals(bodyUsername);
