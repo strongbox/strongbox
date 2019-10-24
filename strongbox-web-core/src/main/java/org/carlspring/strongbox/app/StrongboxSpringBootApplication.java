@@ -1,11 +1,7 @@
 package org.carlspring.strongbox.app;
 
-import org.carlspring.strongbox.booters.PropertiesBooter;
 import org.carlspring.strongbox.config.WebConfig;
 import org.carlspring.strongbox.config.orientdb.OrientDbProfile;
-
-import javax.annotation.PostConstruct;
-import javax.inject.Inject;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -15,7 +11,6 @@ import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.boot.autoconfigure.jdbc.DataSourceAutoConfiguration;
 import org.springframework.boot.autoconfigure.orm.jpa.HibernateJpaAutoConfiguration;
 import org.springframework.context.ConfigurableApplicationContext;
-import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Import;
 
 /**
@@ -23,8 +18,7 @@ import org.springframework.context.annotation.Import;
  */
 @SpringBootApplication(exclude = { DataSourceAutoConfiguration.class,
                                    HibernateJpaAutoConfiguration.class })
-@Import({ WebConfig.class,
-          StrongboxSpringBootApplication.InitializationConfig.class })
+@Import(WebConfig.class)
 public class StrongboxSpringBootApplication
 {
 
@@ -58,19 +52,4 @@ public class StrongboxSpringBootApplication
         thread.setDaemon(false);
         thread.start();
     }
-
-    @Configuration
-    static class InitializationConfig
-    {
-
-        @Inject
-        private PropertiesBooter propertiesBooter;
-
-        @PostConstruct
-        void init()
-        {
-            System.setProperty("strongbox.storage.booter.basedir", propertiesBooter.getStorageBooterBasedir());
-        }
-    }
-
 }
