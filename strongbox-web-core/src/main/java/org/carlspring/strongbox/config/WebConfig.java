@@ -100,7 +100,7 @@ public class WebConfig
     private YAMLMapperFactory yamlMapperFactory;
     
     @Inject
-    protected ConfigurationManager configurationManager;
+    private ConfigurationManager configurationManager;
 
     WebConfig()
     {
@@ -199,16 +199,21 @@ public class WebConfig
     @Qualifier("loggingManagementDirectoryListingService")
     public DirectoryListingService getLoggingManagementDirectoryListingService()
     {
+        return createDirectoryListingServiceForTemplate("%s/api/logging");
+    }
+
+    private DirectoryListingService createDirectoryListingServiceForTemplate(String template)
+    {
         String baseUrl = StringUtils.chomp(configurationManager.getConfiguration().getBaseUrl(), "/");
-        return new DirectoryListingServiceImpl(String.format("%s/api/logging", baseUrl));
+        String finalUrl = String.format(template, baseUrl);
+        return new DirectoryListingServiceImpl(finalUrl);
     }
 
     @Bean
     @Qualifier("browseRepositoryDirectoryListingService")
     public DirectoryListingService getBrowseRepositoryDirectoryListingService()
     {
-        String baseUrl = StringUtils.chomp(configurationManager.getConfiguration().getBaseUrl(), "/");
-        return new DirectoryListingServiceImpl(String.format("%s/api/browse", baseUrl));
+        return createDirectoryListingServiceForTemplate("%s/api/browse");
     }
 
     @Override
