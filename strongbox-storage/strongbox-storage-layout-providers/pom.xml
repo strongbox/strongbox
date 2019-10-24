@@ -47,6 +47,7 @@
         <module>strongbox-storage-pypi-layout-provider</module>
         <module>strongbox-storage-raw-layout-provider</module>
         <module>strongbox-storage-maven-layout</module>
+        <module>strongbox-storage-yum-layout-provider</module>
     </modules>
 
 </project>
