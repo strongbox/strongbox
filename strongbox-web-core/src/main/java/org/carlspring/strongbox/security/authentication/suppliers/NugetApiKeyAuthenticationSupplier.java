@@ -7,27 +7,21 @@ import javax.inject.Inject;
 import javax.servlet.http.HttpServletRequest;
 
 import org.carlspring.strongbox.authentication.api.nuget.SecurityTokenAuthentication;
-import org.carlspring.strongbox.configuration.ConfigurationManager;
 import org.carlspring.strongbox.providers.layout.NugetLayoutProvider;
 import org.carlspring.strongbox.security.exceptions.InvalidTokenException;
-import org.carlspring.strongbox.storage.Storage;
-import org.carlspring.strongbox.storage.repository.Repository;
 import org.carlspring.strongbox.users.security.SecurityTokenProvider;
 
-import org.springframework.core.annotation.Order;
 import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.web.authentication.preauth.PreAuthenticatedCredentialsNotFoundException;
 import org.springframework.stereotype.Component;
-import static org.carlspring.strongbox.web.Constants.ARTIFACT_ROOT_PATH;
 
 /**
  * @author Sergey Bespalov
- *
  */
 @Component
-@Order(3)
-public class NugetApiKeyAuthenticationSupplier implements AuthenticationSupplier
+public class NugetApiKeyAuthenticationSupplier
+        extends LayoutAuthenticationSupplier
 {
 
     public static final String HEADER_NUGET_APIKEY = "x-nuget-apikey";
@@ -35,8 +29,10 @@ public class NugetApiKeyAuthenticationSupplier implements AuthenticationSupplier
     @Inject
     private SecurityTokenProvider securityTokenProvider;
 
-    @Inject
-    private ConfigurationManager configurationManager;
+    public NugetApiKeyAuthenticationSupplier()
+    {
+        super(NugetLayoutProvider.ALIAS);
+    }
 
     @Override
     public Authentication supply(@Nonnull HttpServletRequest request)
@@ -63,38 +59,7 @@ public class NugetApiKeyAuthenticationSupplier implements AuthenticationSupplier
     @Override
     public boolean supports(@Nonnull HttpServletRequest request)
     {
-        String servletPath = request.getServletPath();
-        if (!servletPath.startsWith(ARTIFACT_ROOT_PATH))
-        {
-            return false;
-        }
-
-        String[] pathParts = servletPath.split("/");
-        if (pathParts.length < 4)
-        {
-            return false;
-        }
-
-        String storageId = pathParts[2];
-        String repositoryId = pathParts[3];
-        if (storageId == null || repositoryId == null)
-        {
-            return false;
-        }
-
-        Storage storage = configurationManager.getConfiguration().getStorage(storageId);
-        if (storage == null)
-        {
-            return false;
-        }
-
-        Repository repository = storage.getRepository(repositoryId);
-        if (repository == null)
-        {
-            return false;
-        }
-
-        if (!NugetLayoutProvider.ALIAS.equals(repository.getLayout()))
+        if (!super.supports(request))
         {
             return false;
         }
@@ -107,11 +72,9 @@ public class NugetApiKeyAuthenticationSupplier implements AuthenticationSupplier
             {
                 continue;
             }
-
             return true;
         }
 
         return false;
     }
-
 }
