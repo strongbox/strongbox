@@ -26,7 +26,7 @@ public enum MetadataExpirationStrategyType
     public static MetadataExpirationStrategyType ofStrategy(String strategy)
     {
         return Stream.of(values())
-                     .filter(e -> e.strategy.equalsIgnoreCase(strategy))
+                     .filter(e -> e.strategy.equals(strategy))
                      .findFirst()
                      .orElse(null);
     }

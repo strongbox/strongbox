@@ -25,41 +25,12 @@ public class ChecksumMetadataExpirationStrategy
 
     public Decision decide(final RepositoryPath repositoryPath) throws IOException
     {
-
-        RepositoryPath checksumRepositoryPath = resolveSiblingChecksum(repositoryPath, EncryptionAlgorithmsEnum.SHA1);
-        String currentChecksum = readChecksum(checksumRepositoryPath);
-        if (currentChecksum == null)
+        Decision decision = decideUsingChecksumAlgorithm(repositoryPath, EncryptionAlgorithmsEnum.SHA1);
+        if (UNDECIDED.equals(decision))
         {
-            checksumRepositoryPath = resolveSiblingChecksum(repositoryPath, EncryptionAlgorithmsEnum.MD5);
-            currentChecksum = readChecksum(checksumRepositoryPath);
-            if (currentChecksum == null)
-            {
-                logger.debug("Unable to read local checksum for {}, will refetch metadata", repositoryPath.normalize());
-                return UNDECIDED;
-            }
+            decision = decideUsingChecksumAlgorithm(repositoryPath, EncryptionAlgorithmsEnum.MD5);
         }
-
-        proxyRepositoryArtifactResolver.fetchRemoteResource(checksumRepositoryPath);
-        final String newRemoteChecksum = readChecksum(checksumRepositoryPath);
-
-        if (newRemoteChecksum == null)
-        {
-            logger.debug("Unable to fetch remote checksum for {}, will refetch metadata", repositoryPath.normalize());
-            return UNDECIDED;
-        }
-
-        if (currentChecksum.equals(newRemoteChecksum))
-        {
-            logger.debug("Local and remote checksums match for {}, no need to refetch metadata",
-                         repositoryPath.normalize());
-            return USABLE;
-        }
-        else
-        {
-            logger.debug("Local and remote checksums differ for {}, will refetch metadata",
-                         repositoryPath.normalize());
-            return EXPIRED;
-        }
+        return decision;
     }
 
     private RepositoryPath resolveSiblingChecksum(final RepositoryPath repositoryPath,
@@ -78,6 +49,46 @@ public class ChecksumMetadataExpirationStrategy
         }
 
         return Files.readAllLines(checksumRepositoryPath).stream().findFirst().orElse(null);
+    }
+
+    private Decision decideUsingChecksumAlgorithm(final RepositoryPath repositoryPath,
+                                                  final EncryptionAlgorithmsEnum checksumAlgorithm) throws IOException
+    {
+        RepositoryPath checksumRepositoryPath = resolveSiblingChecksum(repositoryPath, checksumAlgorithm);
+        String currentChecksum = readChecksum(checksumRepositoryPath);
+        if (currentChecksum == null)
+        {
+            logger.debug("Unable to read local {} checksum for {}, returning " + UNDECIDED.name(),
+                         checksumAlgorithm,
+                         repositoryPath.normalize());
+            return UNDECIDED;
+        }
+
+        proxyRepositoryArtifactResolver.fetchRemoteResource(checksumRepositoryPath);
+        final String newRemoteChecksum = readChecksum(checksumRepositoryPath);
+
+        if (newRemoteChecksum == null)
+        {
+            logger.debug("Unable to fetch remote {} checksum for {}, returning " + UNDECIDED.name(),
+                         checksumAlgorithm,
+                         repositoryPath.normalize());
+            return UNDECIDED;
+        }
+
+        if (currentChecksum.equals(newRemoteChecksum))
+        {
+            logger.debug("Local and remote {} checksums match for {}, no need to refetch metadata",
+                         checksumAlgorithm,
+                         repositoryPath.normalize());
+            return USABLE;
+        }
+        else
+        {
+            logger.debug("Local and remote {} checksums differ for {}, will refetch metadata",
+                         checksumAlgorithm,
+                         repositoryPath.normalize());
+            return EXPIRED;
+        }
     }
 
 }
