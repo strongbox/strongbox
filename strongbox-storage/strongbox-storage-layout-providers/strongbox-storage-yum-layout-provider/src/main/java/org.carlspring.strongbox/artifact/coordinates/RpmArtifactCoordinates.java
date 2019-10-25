@@ -6,6 +6,7 @@ import org.carlspring.strongbox.domain.RpmPackageType;
 
 import javax.persistence.Entity;
 import javax.validation.constraints.NotBlank;
+import javax.validation.constraints.NotNull;
 import javax.xml.bind.annotation.XmlAccessType;
 import javax.xml.bind.annotation.XmlAccessorType;
 import javax.xml.bind.annotation.XmlRootElement;
@@ -60,8 +61,8 @@ public class RpmArtifactCoordinates
     public RpmArtifactCoordinates(@NotBlank String baseName,
                                   @NotBlank String version,
                                   @NotBlank String release,
-                                  @NotBlank RpmPackageType packageType,
-                                  RpmPackageArch arch)
+                                  @NotNull RpmPackageType packageType,
+                                  @NotNull RpmPackageArch arch)
     {
         this();
         setId(baseName);
@@ -73,6 +74,19 @@ public class RpmArtifactCoordinates
         {
             setArchitecture(arch);
         }
+        setExtension();
+    }
+
+    public RpmArtifactCoordinates(@NotBlank String baseName,
+                                  @NotBlank String version,
+                                  @NotBlank String release,
+                                  @NotNull RpmPackageType packageType)
+    {
+        this();
+        setId(baseName);
+        setVersion(version);
+        setRelease(release);
+        setPackageType(packageType);
         setExtension();
     }
 
