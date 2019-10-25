@@ -181,35 +181,35 @@ public class NpmArtifactControllerTest
         //Publish
         String url = getContextBaseUrl() + "/storages/{storageId}/{repositoryId}/{artifactId}";
         mockMvc.contentType(MediaType.APPLICATION_JSON_VALUE)
-                .body(publishJsonContent)
-                .when()
-                .put(url, storageId, repositoryId, coordinates.getId())
-                .peek()
-                .then()
-                .statusCode(HttpStatus.OK.value());
+               .body(publishJsonContent)
+               .when()
+               .put(url, storageId, repositoryId, coordinates.getId())
+               .peek()
+               .then()
+               .statusCode(HttpStatus.OK.value());
 
         //View
         mockMvc.contentType(MediaType.APPLICATION_JSON_VALUE)
-                .when()
-                .get(url, storageId, repositoryId, coordinates.getId())
-                .peek()
-                .then()
-                .assertThat()
-                .body("name", equalTo(packageId))
-                .and()
-                .assertThat()
-                .body("versions." + "'" + packageVersion + "'" +".version", equalTo(packageVersion))
-                .statusCode(HttpStatus.OK.value());
+               .when()
+               .get(url, storageId, repositoryId, coordinates.getId())
+               .peek()
+               .then()
+               .assertThat()
+               .body("name", equalTo(packageId))
+               .and()
+               .assertThat()
+               .body("versions." + "'" + packageVersion + "'" +".version", equalTo(packageVersion))
+               .statusCode(HttpStatus.OK.value());
 
         //Download
         mockMvc.contentType(MediaType.APPLICATION_JSON_VALUE)
-                .when()
-                .get(url, storageId, repositoryId, coordinates.toResource())
-                .prettyPeek()
-                .then()
-                .statusCode(HttpStatus.OK.value())
-                .assertThat()
-                .header(HttpHeaders.CONTENT_LENGTH, equalTo(String.valueOf(Files.size(artifact))));
+               .when()
+               .get(url, storageId, repositoryId, coordinates.toResource())
+               .prettyPeek()
+               .then()
+               .statusCode(HttpStatus.OK.value())
+               .assertThat()
+               .header(HttpHeaders.CONTENT_LENGTH, equalTo(String.valueOf(Files.size(artifact))));
     }
 
 }
