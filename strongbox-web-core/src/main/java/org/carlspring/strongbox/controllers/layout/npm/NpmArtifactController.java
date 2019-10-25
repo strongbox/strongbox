@@ -361,7 +361,7 @@ public class NpmArtifactController
         }
 
         //Example of packageNameWithVersion  core-9.0.1-next.8.tgz
-        final String packageVersion = packageNameWithVersion.substring(packageName.length() + 1, packageNameWithVersion.length() + 1);
+        final String packageVersion = packageNameWithVersion.substring(packageName.length() + 1, packageNameWithVersion.length());
 
         NpmArtifactCoordinates coordinates;
         try

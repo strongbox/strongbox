@@ -1,6 +1,8 @@
 package org.carlspring.strongbox.controllers.layout.npm;
 
 import org.carlspring.strongbox.artifact.coordinates.NpmArtifactCoordinates;
+import org.carlspring.strongbox.artifact.generator.NpmArtifactGenerator;
+import org.carlspring.strongbox.booters.PropertiesBooter;
 import org.carlspring.strongbox.config.IntegrationTest;
 import org.carlspring.strongbox.providers.io.RepositoryFiles;
 import org.carlspring.strongbox.providers.io.RepositoryPath;
@@ -13,13 +15,19 @@ import org.carlspring.strongbox.testing.storage.repository.RepositoryManagementT
 
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.nio.file.Paths;
 
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.TestInfo;
 import org.junit.jupiter.api.extension.ExtendWith;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.ValueSource;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
+
+import javax.inject.Inject;
 
 import static org.hamcrest.CoreMatchers.equalTo;
 
@@ -31,6 +39,11 @@ public class NpmArtifactControllerTest
         extends NpmRestAssuredBaseTest
 {
     private static final String REPOSITORY_RELEASES = "npm-releases-test";
+
+    private Path generatorBasePath;
+
+    @Inject
+    private PropertiesBooter propertiesBooter;
 
     @Override
     @BeforeEach
@@ -87,6 +100,7 @@ public class NpmArtifactControllerTest
                                       Path packagePath)
             throws Exception
     {
+
         final String storageId = repository.getStorage().getId();
         final String repositoryId = repository.getId();
         final String packageId = "@carlspring/npm-test-release";
@@ -125,43 +139,51 @@ public class NpmArtifactControllerTest
                .header(HttpHeaders.CONTENT_LENGTH, equalTo(String.valueOf(Files.size(packagePath))));
     }
 
-    @ExtendWith({ RepositoryManagementTestExecutionListener.class,
-                  ArtifactManagementTestExecutionListener.class })
-    @Test
-    public void packageNameAcceptanceTest(@NpmRepository(repositoryId = REPOSITORY_RELEASES)
+    @ExtendWith({ RepositoryManagementTestExecutionListener.class })
+    @ParameterizedTest
+    @ValueSource(strings = { "@angular/core:9.0.1-next.8",
+                             "react:0.0.0-experimental-5faf377df",
+                             "react:0.0.0-0c756fb-f7f79fd",
+                             "react:0.0.0-5faf377df",
+                             "prop-types:15.5.7-alpha.1",
+                             "commander:4.0.0-1",
+                             "aws-sdk:2.555.0",
+                             "rxjs:5.6.0-forward-compat.5",
+                             "@lifaon/observables:1.6.0" })
+    public void packageNameAcceptanceTest(String packageNameWithVersion,
+                                          @NpmRepository(repositoryId = REPOSITORY_RELEASES)
                                           Repository repository,
-                                          @NpmTestArtifact(id = "npm-test-release",
-                                                           versions = "1.0.0",
-                                                           scope = "@carlspring")
-                                          Path packagePath1,
-                                          @NpmTestArtifact(id = "core",
-                                                           versions = "9.0.1-next.8",
-                                                           scope = "@angular")
-                                          Path packagePath2,
-                                          @NpmTestArtifact(id = "some-package",
-                                                           versions = "4.0.4-alpha.3",
-                                                           scope = "@value")
-                                          Path packagePath3)
+                                          TestInfo testInfo)
             throws Exception
     {
         final String storageId = repository.getStorage().getId();
         final String repositoryId = repository.getId();
 
-        //Artifact#1
-        final String packageId1 = "@carlspring/npm-test-release";
-        final String packageVersion1 = "1.0.0";
+        //Splitting each string from paramterized test array to packageId and packageVersion
+        final String[] packageDetails = packageNameWithVersion.split(":");
+        final String packageId = packageDetails[0];
+        final String packageVersion = packageDetails[1];
 
-        NpmArtifactCoordinates coordinates1 = NpmArtifactCoordinates.of(packageId1, packageVersion1);
+        //Manually generating each artifacts
+        generatorBasePath = Paths.get(propertiesBooter.getVaultDirectory(),
+                                      ".temp",
+                                      testInfo.getTestClass().get().getSimpleName(),
+                                      testInfo.getTestMethod().get().getName()).toAbsolutePath().normalize();
 
-        Path publishJsonPath1 = packagePath1.resolveSibling("publish.json");
-        byte[] publishJsonContent1 = Files.readAllBytes(publishJsonPath1);
+        NpmArtifactGenerator artifactGenerator = new NpmArtifactGenerator(generatorBasePath);
+        Path artifact = artifactGenerator.generateArtifact(packageId, packageVersion);
+
+        NpmArtifactCoordinates coordinates = NpmArtifactCoordinates.of(packageId, packageVersion);
+
+        Path publishJsonPath = artifact.resolveSibling("publish.json");
+        byte[] publishJsonContent = Files.readAllBytes(publishJsonPath);
 
         //Publish
         String url = getContextBaseUrl() + "/storages/{storageId}/{repositoryId}/{artifactId}";
         mockMvc.contentType(MediaType.APPLICATION_JSON_VALUE)
-                .body(publishJsonContent1)
+                .body(publishJsonContent)
                 .when()
-                .put(url, storageId, repositoryId, coordinates1.getId())
+                .put(url, storageId, repositoryId, coordinates.getId())
                 .peek()
                 .then()
                 .statusCode(HttpStatus.OK.value());
@@ -169,90 +191,25 @@ public class NpmArtifactControllerTest
         //View
         mockMvc.contentType(MediaType.APPLICATION_JSON_VALUE)
                 .when()
-                .get(url, storageId, repositoryId, coordinates1.getId())
+                .get(url, storageId, repositoryId, coordinates.getId())
                 .peek()
                 .then()
+                .assertThat()
+                .body("name", equalTo(packageId))
+                .and()
+                .assertThat()
+                .body("versions." + "'" + packageVersion + "'" +".version", equalTo(packageVersion))
                 .statusCode(HttpStatus.OK.value());
 
         //Download
         mockMvc.contentType(MediaType.APPLICATION_JSON_VALUE)
                 .when()
-                .get(url, storageId, repositoryId, coordinates1.toResource())
+                .get(url, storageId, repositoryId, coordinates.toResource())
+                .prettyPeek()
                 .then()
                 .statusCode(HttpStatus.OK.value())
                 .assertThat()
-                .header(HttpHeaders.CONTENT_LENGTH, equalTo(String.valueOf(Files.size(packagePath1))));
-
-        //Artifact#2
-        final String packageId2 = "@angular/core";
-        final String packageVersion2 = "9.0.1-next.8";
-
-        NpmArtifactCoordinates coordinates2 = NpmArtifactCoordinates.of(packageId2, packageVersion2);
-
-        Path publishJsonPath2 = packagePath2.resolveSibling("publish.json");
-        byte[] publishJsonContent2 = Files.readAllBytes(publishJsonPath2);
-
-        //Publish
-        mockMvc.contentType(MediaType.APPLICATION_JSON_VALUE)
-                .body(publishJsonContent2)
-                .when()
-                .put(url, storageId, repositoryId, coordinates2.getId())
-                .peek()
-                .then()
-                .statusCode(HttpStatus.OK.value());
-
-        //View
-        mockMvc.contentType(MediaType.APPLICATION_JSON_VALUE)
-                .when()
-                .get(url, storageId, repositoryId, coordinates2.getId())
-                .peek()
-                .then()
-                .statusCode(HttpStatus.OK.value());
-
-        //Download
-        mockMvc.contentType(MediaType.APPLICATION_JSON_VALUE)
-                .when()
-                .get(url, storageId, repositoryId, coordinates2.toResource())
-                .then()
-                .statusCode(HttpStatus.OK.value())
-                .assertThat()
-                .header(HttpHeaders.CONTENT_LENGTH, equalTo(String.valueOf(Files.size(packagePath2))));
-
-        //Artifact#3
-        final String packageId3 = "@value/some-package";
-        final String packageVersion3 = "4.0.4-alpha.3";
-
-        NpmArtifactCoordinates coordinates3 = NpmArtifactCoordinates.of(packageId3, packageVersion3);
-
-        Path publishJsonPath3 = packagePath3.resolveSibling("publish.json");
-        byte[] publishJsonContent3 = Files.readAllBytes(publishJsonPath3);
-
-        //Publish
-        mockMvc.contentType(MediaType.APPLICATION_JSON_VALUE)
-                .body(publishJsonContent3)
-                .when()
-                .put(url, storageId, repositoryId, coordinates3.getId())
-                .peek()
-                .then()
-                .statusCode(HttpStatus.OK.value());
-
-        //View
-        mockMvc.contentType(MediaType.APPLICATION_JSON_VALUE)
-                .when()
-                .get(url, storageId, repositoryId, coordinates3.getId())
-                .peek()
-                .then()
-                .statusCode(HttpStatus.OK.value());
-
-        //Download
-        mockMvc.contentType(MediaType.APPLICATION_JSON_VALUE)
-                .when()
-                .get(url, storageId, repositoryId, coordinates3.toResource())
-                .then()
-                .statusCode(HttpStatus.OK.value())
-                .assertThat()
-                .header(HttpHeaders.CONTENT_LENGTH, equalTo(String.valueOf(Files.size(packagePath3))));
-
+                .header(HttpHeaders.CONTENT_LENGTH, equalTo(String.valueOf(Files.size(artifact))));
     }
 
 }
