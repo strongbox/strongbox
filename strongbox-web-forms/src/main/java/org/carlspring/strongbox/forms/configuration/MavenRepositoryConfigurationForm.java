@@ -22,7 +22,7 @@ public class MavenRepositoryConfigurationForm
     private String cronExpression;
 
     @DescribableEnumValue(type = MetadataExpirationStrategyType.class,
-            message = "metadataExpirationStrategy must contain one the following strings as value:  checksum, refresh")
+            message = "metadataExpirationStrategy must be equal to either:  checksum, refresh")
     private String metadataExpirationStrategy;
 
     public boolean isIndexingEnabled()
