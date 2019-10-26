@@ -27,13 +27,13 @@ public class NpmArtifactGeneratorStrategy implements ArtifactGeneratorStrategy<N
                                                                         id,
                                                                         version,
                                                                         (String) attributesMap.get("extension"));
-        Path packagePath = artifactGenerator.generateArtifact(coordinates);
+        Path packagePath = artifactGenerator.generateArtifact(coordinates, size);
         if (!Optional.ofNullable(attributesMap.get("repositoryId"))
                      .filter(repositoryId -> ((String) repositoryId).trim().length() > 0)
                      .isPresent())
         {
             // if package won't be deployed then `publish.json` will be generated
-            artifactGenerator.buildPublishJson();
+            artifactGenerator.buildPublishJson(size);
         }
         
         return packagePath;

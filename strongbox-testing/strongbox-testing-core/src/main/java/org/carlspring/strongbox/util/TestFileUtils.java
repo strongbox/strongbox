@@ -58,7 +58,7 @@ public class TestFileUtils
         zos.closeEntry();
     }
 
-    public static void generateFile(BufferedOutputStream bos,
+    public static void generateFile(OutputStream bos,
                                     long size)
             throws IOException
     {

@@ -1,15 +1,14 @@
 package org.carlspring.strongbox.artifact.generator;
 
-import org.carlspring.commons.io.RandomInputStream;
 import org.carlspring.strongbox.artifact.coordinates.NpmArtifactCoordinates;
 import org.carlspring.strongbox.npm.metadata.Dist;
 import org.carlspring.strongbox.npm.metadata.PackageVersion;
+import org.carlspring.strongbox.util.TestFileUtils;
 
 import java.io.BufferedOutputStream;
 import java.io.IOException;
 import java.io.OutputStream;
 import java.net.URI;
-import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
@@ -85,7 +84,7 @@ public class NpmArtifactGenerator
         this.packagePath = packagePath;
     }
 
-    public Path buildPackage()
+    public Path buildPackage(long size)
             throws IOException
     {
         Files.createDirectories(basePath);
@@ -99,7 +98,7 @@ public class NpmArtifactGenerator
             GzipCompressorOutputStream gzipOut = new GzipCompressorOutputStream(out);
             TarArchiveOutputStream tarOut = new TarArchiveOutputStream(gzipOut);
 
-            writeContent(tarOut);
+            writeContent(tarOut, size);
             writePackageJson(tarOut);
 
             tarOut.close();
@@ -150,25 +149,13 @@ public class NpmArtifactGenerator
         tarOut.closeArchiveEntry();
     }
 
-    private void writeContent(TarArchiveOutputStream tarOut)
+    private void writeContent(TarArchiveOutputStream tarOut, long size)
             throws IOException
     {
         Path indexJsPath = packagePath.getParent().resolve("index.js");
         try (OutputStream out = new BufferedOutputStream(Files.newOutputStream(indexJsPath, StandardOpenOption.CREATE)))
         {
-            out.write("data = \"".getBytes(StandardCharsets.UTF_8));
-
-            OutputStream dataOut = Base64.getEncoder().wrap(out);
-            RandomInputStream ris = new RandomInputStream(true, 1000000);
-            byte[] buffer = new byte[4096];
-            int len;
-            while ((len = ris.read(buffer)) > 0)
-            {
-                dataOut.write(buffer, 0, len);
-            }
-            ris.close();
-
-            out.write("\";".getBytes(StandardCharsets.UTF_8));
+            TestFileUtils.generateFile(out, size);
         }
 
         TarArchiveEntry entry = new TarArchiveEntry(indexJsPath.toFile(), "index.js");
@@ -180,24 +167,10 @@ public class NpmArtifactGenerator
         tarOut.closeArchiveEntry();
     }
 
-    public Path generateArtifact(NpmArtifactCoordinates coordinates)
+    public Path generateArtifact(NpmArtifactCoordinates coordinates, long size)
             throws IOException
     {
-        return this.of(coordinates).buildPackage();
-    }
-
-    public Path generateArtifact(URI uri)
-            throws IOException
-    {
-        return this.of(NpmArtifactCoordinates.parse(uri.toString())).buildPackage();
-    }
-
-    public Path generateArtifact(String id,
-                                 String version)
-            throws IOException
-    {
-        this.of(NpmArtifactCoordinates.of(id, version)).buildPublishJson();
-        return getPackagePath();
+        return this.of(coordinates).buildPackage(size);
     }
 
     @Override
@@ -205,8 +178,7 @@ public class NpmArtifactGenerator
                                  long size)
             throws IOException
     {
-        // Use of size is not implemented
-        return generateArtifact(uri);
+        return this.of(NpmArtifactCoordinates.parse(uri.toString())).buildPackage(size);
     }
 
     @Override
@@ -215,16 +187,16 @@ public class NpmArtifactGenerator
                                  long size)
             throws IOException
     {
-        // Use of size is not implemented
-        return generateArtifact(id, version);
+        this.of(NpmArtifactCoordinates.of(id, version)).buildPublishJson(size);
+        return getPackagePath();
     }
 
-    public Path buildPublishJson()
+    public Path buildPublishJson(long size)
             throws IOException
     {
         if (packagePath == null)
         {
-            buildPackage();
+            buildPackage(size);
         }
 
         Path publishJsonPath = packagePath.resolveSibling("publish.json");
