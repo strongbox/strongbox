@@ -6,6 +6,7 @@ import org.carlspring.strongbox.booters.PropertiesBooter;
 import org.carlspring.strongbox.config.IntegrationTest;
 import org.carlspring.strongbox.providers.io.RepositoryFiles;
 import org.carlspring.strongbox.providers.io.RepositoryPath;
+import org.carlspring.strongbox.providers.layout.NpmLayoutProvider;
 import org.carlspring.strongbox.rest.common.NpmRestAssuredBaseTest;
 import org.carlspring.strongbox.storage.repository.Repository;
 import org.carlspring.strongbox.testing.artifact.ArtifactManagementTestExecutionListener;
@@ -38,6 +39,7 @@ import static org.hamcrest.CoreMatchers.equalTo;
 public class NpmArtifactControllerTest
         extends NpmRestAssuredBaseTest
 {
+
     private static final String REPOSITORY_RELEASES = "npm-releases-test";
 
     @Inject
@@ -233,7 +235,7 @@ public class NpmArtifactControllerTest
         final String packageVersion = packageDetails[1];
         String packageName = "";
 
-        if(packageId.startsWith("@"))
+        if (packageId.startsWith("@"))
         {
             packageName = packageId.split("/")[1];
         }
@@ -243,7 +245,7 @@ public class NpmArtifactControllerTest
         }
 
         final String artifactFileName = String.format("%s-%s.%s", packageName, packageVersion, "tgz");
-        final String artifactId = String.format("%s/-/%s", packageId, artifactFileName );
+        final String artifactId = String.format("%s/-/%s", packageId, artifactFileName);
 
         //Download
         String url = getContextBaseUrl() + "/storages/{storageId}/{repositoryId}/{artifactId}";
@@ -253,6 +255,79 @@ public class NpmArtifactControllerTest
                .prettyPeek()
                .then()
                .statusCode(HttpStatus.BAD_REQUEST.value());
+    }
+
+    @ExtendWith({ RepositoryManagementTestExecutionListener.class,
+                  ArtifactManagementTestExecutionListener.class })
+    @Test
+    public void addUserTest(@NpmRepository(repositoryId = REPOSITORY_RELEASES)
+                            Repository repository)
+    {
+        String url = getContextBaseUrl() + "/storages/{storageId}/{repositoryId}/" + NpmLayoutProvider.NPM_USER_PATH + "{username}";
+        String basicAuth = "Basic YWRtaW46cGFzc3dvcmQ=";
+
+        final String storageId = repository.getStorage().getId();
+        final String repositoryId = repository.getId();
+
+        NpmUser strongboxUser1 = new NpmUser("admin", "password");
+        NpmUser strongboxUser2 = new NpmUser("deployer", "password");
+        NpmUser nonStrongboxUser = new NpmUser("notARealUser", "notARealPassword");
+
+        //can login with strongbox user
+        mockMvc.contentType(MediaType.APPLICATION_JSON_VALUE)
+               .body(strongboxUser1)
+               .when()
+               .put(url, storageId, repositoryId, strongboxUser1.getName())
+               .peek()
+               .then()
+               .statusCode(HttpStatus.CREATED.value());
+
+        //can login with another strongbox user after login
+        mockMvc.contentType(MediaType.APPLICATION_JSON_VALUE)
+               .body(strongboxUser2)
+               .when()
+               .put(url, storageId, repositoryId, strongboxUser2.getName())
+               .peek()
+               .then()
+               .statusCode(HttpStatus.CREATED.value());
+
+        //can't login when the url username differs from the body
+        mockMvc.contentType(MediaType.APPLICATION_JSON_VALUE)
+               .body(strongboxUser1)
+               .when()
+               .put(url, storageId, repositoryId, nonStrongboxUser.getName())
+               .peek()
+               .then()
+               .statusCode(HttpStatus.UNAUTHORIZED.value());
+
+        //can't login with non strongbox user when basic auth is strongbox user
+        mockMvc.header(HttpHeaders.AUTHORIZATION, basicAuth)
+               .header(HttpHeaders.ACCEPT, MediaType.APPLICATION_JSON_VALUE)
+               .contentType(MediaType.APPLICATION_JSON_VALUE)
+               .body(nonStrongboxUser)
+               .when()
+               .put(url, storageId, repositoryId, nonStrongboxUser.getName())
+               .then()
+               .statusCode(HttpStatus.UNAUTHORIZED.value());
+
+        //can login with strongbox user when basic auth is strongbox user
+        mockMvc.header(HttpHeaders.AUTHORIZATION, basicAuth)
+               .header(HttpHeaders.ACCEPT, MediaType.APPLICATION_JSON_VALUE)
+               .contentType(MediaType.APPLICATION_JSON_VALUE)
+               .body(strongboxUser1)
+               .when()
+               .put(url, storageId, repositoryId, strongboxUser1.getName())
+               .then()
+               .statusCode(HttpStatus.CREATED.value());
+
+        //can't login with non-strongbox user
+        mockMvc.contentType(MediaType.APPLICATION_JSON_VALUE)
+               .body(nonStrongboxUser)
+               .when()
+               .put(url, storageId, repositoryId, nonStrongboxUser.getName())
+               .peek()
+               .then()
+               .statusCode(HttpStatus.UNAUTHORIZED.value());
     }
 
 }
