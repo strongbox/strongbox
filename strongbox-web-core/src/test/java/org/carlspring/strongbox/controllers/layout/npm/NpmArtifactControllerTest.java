@@ -221,8 +221,7 @@ public class NpmArtifactControllerTest
                              "rxjs:assd5.6.0-hsds" })
     public void packageNameTestBadRequest(String packageNameWithVersion,
                                           @NpmRepository(repositoryId = REPOSITORY_RELEASES)
-                                          Repository repository,
-                                          TestInfo testInfo)
+                                          Repository repository)
             throws Exception
     {
         final String storageId = repository.getStorage().getId();
@@ -231,8 +230,8 @@ public class NpmArtifactControllerTest
         //Splitting each string from parameterized test array to packageId and packageVersion
         final String[] packageDetails = packageNameWithVersion.split(":");
         final String packageId = packageDetails[0];
-        String packageName = "";
         final String packageVersion = packageDetails[1];
+        String packageName = "";
 
         if(packageId.startsWith("@"))
         {
@@ -251,7 +250,7 @@ public class NpmArtifactControllerTest
         mockMvc.contentType(MediaType.APPLICATION_JSON_VALUE)
                .when()
                .get(url, storageId, repositoryId, artifactId)
-                .prettyPeek()
+               .prettyPeek()
                .then()
                .statusCode(HttpStatus.BAD_REQUEST.value());
     }
