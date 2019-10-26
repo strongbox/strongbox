@@ -6,6 +6,7 @@ import org.carlspring.commons.io.MultipleDigestOutputStream;
 import org.carlspring.commons.io.RandomInputStream;
 import org.carlspring.strongbox.artifact.MavenArtifactUtils;
 import org.carlspring.strongbox.testing.artifact.MavenArtifactTestUtils;
+import org.carlspring.strongbox.util.TestFileUtils;
 
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
@@ -178,8 +179,7 @@ public class MavenArtifactGenerator implements ArtifactGenerator
         {
             createMavenPropertiesFile(artifact, zos);
             addMavenPomFile(artifact, zos);
-            createFile(zos, size);
-
+            TestFileUtils.generateFile(zos, size);
             zos.flush();
         }
         generateChecksumsForArtifact(artifactFile);
@@ -282,25 +282,6 @@ public class MavenArtifactGenerator implements ArtifactGenerator
         zos.closeEntry();
     }
 
-    private void createFile(ZipOutputStream zos,
-                            long size)
-            throws IOException
-    {
-        ZipEntry ze = new ZipEntry("file-with-given-size");
-        zos.putNextEntry(ze);
-
-        RandomInputStream ris = new RandomInputStream(size);
-
-        byte[] buffer = new byte[4096];
-        int len;
-        while ((len = ris.read(buffer)) > 0)
-        {
-            zos.write(buffer, 0, len);
-        }
-
-        ris.close();
-        zos.closeEntry();
-    }
 
     public void generatePom(Artifact artifact, String packaging)
             throws IOException,
