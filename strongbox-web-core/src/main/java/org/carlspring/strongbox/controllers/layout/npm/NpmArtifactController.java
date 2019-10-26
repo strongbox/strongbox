@@ -319,10 +319,11 @@ public class NpmArtifactController
         if (!packageNameWithVersion.startsWith(packageName + "-"))
         {
             response.setStatus(HttpServletResponse.SC_BAD_REQUEST);
+            return;
         }
 
         //Example of packageNameWithVersion  core-9.0.1-next.8.tgz
-        final String packageVersion = packageNameWithVersion.substring(packageName.length() + 1, packageNameWithVersion.length());
+        final String packageVersion = getPackageVersion(packageNameWithVersion, packageName);
 
         NpmArtifactCoordinates coordinates;
         try
@@ -358,10 +359,11 @@ public class NpmArtifactController
         if (!packageNameWithVersion.startsWith(packageName + "-"))
         {
             response.setStatus(HttpServletResponse.SC_BAD_REQUEST);
+            return;
         }
 
         //Example of packageNameWithVersion core-9.0.1-next.8.tgz
-        final String packageVersion = packageNameWithVersion.substring(packageName.length() + 1, packageNameWithVersion.length());
+        final String packageVersion = getPackageVersion(packageNameWithVersion, packageName);
 
         NpmArtifactCoordinates coordinates;
         try
@@ -615,5 +617,11 @@ public class NpmArtifactController
             return null;
         }
     }
-    
+
+    private String getPackageVersion(String packageNameWithVersion, String packageName){
+
+        return packageNameWithVersion.substring(packageName.length() + 1);
+
+    }
+
 }

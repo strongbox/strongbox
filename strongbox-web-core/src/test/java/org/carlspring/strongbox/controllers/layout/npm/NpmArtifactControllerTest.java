@@ -40,8 +40,6 @@ public class NpmArtifactControllerTest
 {
     private static final String REPOSITORY_RELEASES = "npm-releases-test";
 
-    private Path generatorBasePath;
-
     @Inject
     private PropertiesBooter propertiesBooter;
 
@@ -146,7 +144,7 @@ public class NpmArtifactControllerTest
                              "react:0.0.0-0c756fb-f7f79fd",
                              "react:0.0.0-5faf377df",
                              "prop-types:15.5.7-alpha.1",
-                             "commander:4.0.0-1",
+                             "commander:4.0.0.0-1",
                              "aws-sdk:2.555.0",
                              "rxjs:5.6.0-forward-compat.5",
                              "@lifaon/observables:1.6.0" })
@@ -158,6 +156,9 @@ public class NpmArtifactControllerTest
     {
         final String storageId = repository.getStorage().getId();
         final String repositoryId = repository.getId();
+
+
+        Path generatorBasePath;
 
         //Splitting each string from paramterized test array to packageId and packageVersion
         final String[] packageDetails = packageNameWithVersion.split(":");
@@ -210,6 +211,49 @@ public class NpmArtifactControllerTest
                .statusCode(HttpStatus.OK.value())
                .assertThat()
                .header(HttpHeaders.CONTENT_LENGTH, equalTo(String.valueOf(Files.size(artifact))));
+    }
+
+    @ExtendWith({ RepositoryManagementTestExecutionListener.class })
+    @ParameterizedTest
+    @ValueSource(strings = { "@angular/core:next.8",
+                             "react:@32.1.911",
+                             "@lifaon/obser@323jj:hds:121",
+                             "rxjs:assd5.6.0-hsds" })
+    public void packageNameTestBadRequest(String packageNameWithVersion,
+                                          @NpmRepository(repositoryId = REPOSITORY_RELEASES)
+                                          Repository repository,
+                                          TestInfo testInfo)
+            throws Exception
+    {
+        final String storageId = repository.getStorage().getId();
+        final String repositoryId = repository.getId();
+
+        //Splitting each string from parameterized test array to packageId and packageVersion
+        final String[] packageDetails = packageNameWithVersion.split(":");
+        final String packageId = packageDetails[0];
+        String packageName = "";
+        final String packageVersion = packageDetails[1];
+
+        if(packageId.startsWith("@"))
+        {
+            packageName = packageId.split("/")[1];
+        }
+        else
+        {
+            packageName = packageId;
+        }
+
+        final String artifactFileName = String.format("%s-%s.%s", packageName, packageVersion, "tgz");
+        final String artifactId = String.format("%s/-/%s", packageId, artifactFileName );
+
+        //Download
+        String url = getContextBaseUrl() + "/storages/{storageId}/{repositoryId}/{artifactId}";
+        mockMvc.contentType(MediaType.APPLICATION_JSON_VALUE)
+               .when()
+               .get(url, storageId, repositoryId, artifactId)
+                .prettyPeek()
+               .then()
+               .statusCode(HttpStatus.BAD_REQUEST.value());
     }
 
 }
