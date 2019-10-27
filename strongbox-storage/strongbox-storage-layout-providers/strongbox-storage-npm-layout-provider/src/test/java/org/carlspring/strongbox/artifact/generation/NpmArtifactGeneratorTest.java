@@ -38,13 +38,13 @@ class NpmArtifactGeneratorTest
                   ArtifactManagementTestExecutionListener.class })
     @Test
     void testArtifactGeneration(@NpmRepository(repositoryId = REPOSITORY_RELEASES)
-                                        Repository repository,
+                                Repository repository,
                                 @NpmTestArtifact(repositoryId = REPOSITORY_RELEASES,
-                                        id = "npm-test-view",
-                                        versions = "1.0.0",
-                                        scope = "@carlspring",
-                                        size = 2048)
-                                        Path path)
+                                                 id = "npm-test-view",
+                                                 versions = "1.0.0",
+                                                 scope = "@carlspring",
+                                                 size = 2048)
+                                Path path)
             throws Exception
     {
         assertThat(Files.exists(path)).as("Failed to generate NPM package.").isTrue();
