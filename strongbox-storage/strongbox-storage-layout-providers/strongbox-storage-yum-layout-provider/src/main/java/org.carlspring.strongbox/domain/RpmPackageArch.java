@@ -4,6 +4,7 @@ public enum RpmPackageArch
 {
     NOARCH("noarch"),
     I386("i386"),
+    I686("i686"),
     X86_64("x86_64"),
     ALPHA("alpha"),
     SPARC("sparc"),

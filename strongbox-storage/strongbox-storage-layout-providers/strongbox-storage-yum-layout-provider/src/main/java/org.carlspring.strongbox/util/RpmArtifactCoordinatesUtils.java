@@ -7,12 +7,33 @@ import org.carlspring.strongbox.domain.RpmPackageType;
 
 import javax.validation.constraints.NotEmpty;
 
+
 import java.util.regex.Matcher;
 
 import static org.carlspring.strongbox.domain.RpmNamingPatterns.*;
 
+/**
+ * Util class for parsing generating artifact coordinates by provided RPM-packages.
+ * @author Ilya Shatalov <ilya@alov.me>
+ */
 public class RpmArtifactCoordinatesUtils
 {
+
+    /**
+     * The method parse RPM-package by provided path to file.
+     * The type of package depends on package arch thar will be parsed.
+     *
+     * For example: libglvnd-1.1.0-4.gitf92208b.fc30.i686.rpm  -  where:
+     * - libglvnd          - package base name;
+     * - 1.1.0             - package version;
+     * - 4.gitf92208b.fc30 - package release;
+     * - i686              - package architecture;
+     * - rpm               - package extension.
+     * Package has I686 arch, so package type will be stamped as BINARY.
+     *
+     * @param path to RPM package on the filesystem;
+     * @return compiled RpmArtifactCoordinates;
+     */
     public static RpmArtifactCoordinates parse(@NotEmpty String path)
     {
         String fileName = FilenameUtils.getName(path);
@@ -43,17 +64,38 @@ public class RpmArtifactCoordinatesUtils
 
     public static String parseBaseName(String fileName)
     {
-        return RPM_PACKAGE_NAME_REGEXP_PATTERN.matcher(fileName).group(1);
+        String baseName;
+        Matcher matcher = RPM_PACKAGE_NAME_REGEXP_PATTERN.matcher(fileName);
+
+        if (matcher.find())
+            baseName = matcher.group(1);
+        else
+            throw new IllegalArgumentException("Incorrect filename: package name is required");
+        return baseName;
     }
 
     public static String parseVersion(String fileName)
     {
-        return RPM_PACKAGE_VERSION_REGEXP_PATTERN.matcher(fileName).group(1);
+        String version;
+        Matcher matcher = RPM_PACKAGE_VERSION_REGEXP_PATTERN.matcher(fileName);
+
+        if (matcher.find())
+            version = matcher.group(1);
+        else
+            throw new IllegalArgumentException("Incorrect filename: package version is required");
+        return version;
     }
 
     public static String parseRelease(String fileName)
     {
-        return RPM_PACKAGE_RELEASE_REGEXP_PATTERN.matcher(fileName).group(1);
+        String release;
+        Matcher matcher =  RPM_PACKAGE_RELEASE_REGEXP_PATTERN.matcher(fileName);
+
+        if (matcher.find())
+            release = matcher.group(1);
+        else
+            throw new IllegalArgumentException("Incorrect filename: package release is required");
+        return release;
     }
 
     public static RpmPackageType parsePackageType (String fileName)
@@ -68,7 +110,13 @@ public class RpmArtifactCoordinatesUtils
 
     public static RpmPackageArch parseArch (String fileName)
     {
-        String arch = RPM_PACKAGE_ARCH_REGEXP_PATTERN.matcher(fileName).group(1);
+        String arch;
+        Matcher matcher = RPM_PACKAGE_ARCH_REGEXP_PATTERN.matcher(fileName);
+
+        if (matcher.find())
+            arch = matcher.group(1);
+        else
+            throw new IllegalArgumentException("Incorrect filename: package should have architecture or SRC suffix");
         return RpmPackageArch.valueOf(arch.toUpperCase());
     }
 }

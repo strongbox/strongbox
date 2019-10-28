@@ -4,11 +4,11 @@ import java.util.regex.Pattern;
 
 public class RpmNamingPatterns
 {
-    public static final String RPM_PACKAGE_NAME_REGEXP = "^([a-zA-Z0-9_\\-\\+]+)(?=-\\d)";
+    public static final String RPM_PACKAGE_NAME_REGEXP = "^([a-zA-Z0-9_\\-+]+?)(?=-\\d)";
 
     public static final String RPM_PACKAGE_VERSION_REGEXP = "(?<=-)([\\d\\.]+)(?=-)";
 
-    public static final String RPM_PACKAGE_RELEASE_REGEXP = ".*-([a-zA-Z0-9_.\\-\\+]*)\\.";
+    public static final String RPM_PACKAGE_RELEASE_REGEXP = ".*-([a-zA-Z0-9_.\\-\\+]*)\\..*\\.rpm";
 
     public static final String RPM_PACKAGE_TYPE_REGEXP = "(src)(?=(\\.rpm$))";
 

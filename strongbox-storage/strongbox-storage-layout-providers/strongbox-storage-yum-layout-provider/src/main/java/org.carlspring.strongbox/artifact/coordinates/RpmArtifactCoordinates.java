@@ -3,6 +3,7 @@ package org.carlspring.strongbox.artifact.coordinates;
 import org.carlspring.strongbox.artifact.coordinates.versioning.SemanticVersion;
 import org.carlspring.strongbox.domain.RpmPackageArch;
 import org.carlspring.strongbox.domain.RpmPackageType;
+import org.carlspring.strongbox.util.RpmArtifactCoordinatesUtils;
 
 import javax.persistence.Entity;
 import javax.validation.constraints.NotBlank;
@@ -22,14 +23,13 @@ import java.util.Map;
  * Be attention - SRPM packages have SRC suffix instead architecture describing.
  *
  *  The canonical named package is represented to below structure:
- * {name}-{version}-{release}.{architecture}.{classifier}.rpm
+ * {name}-{version}-{release}.{architecture}.rpm
  *
  * Examples:
  * somepackage-1.0-1.x86_64.rpm - binary distribution with Arch suffix;
  * somepackage-1.0-1.src.rpm    - SRPM package with SRC suffix;
  *
- *
- * @author Ilya Shatalov
+ * @author Ilya Shatalov <ilya@alov.me>
  */
 @Entity
 @SuppressWarnings("serial")
@@ -184,9 +184,9 @@ public class RpmArtifactCoordinates
     public String toPath()
     {
         String path;
-        if (getCoordinate(PACKAGE_TYPE).equals(RpmPackageType.SOURCE.getPostfix()))
+        if (RpmPackageType.SOURCE.getPostfix().equals(getPackageType()))
         {
-            path = String.format("%s-%s.%s.%s.%s",
+            path = String.format("%s-%s-%s.%s.%s",
                     getId(),
                     getVersion(),
                     getRelease(),
@@ -195,7 +195,7 @@ public class RpmArtifactCoordinates
         }
         else
         {
-            path = String.format("%s-%s.%s.%s.%s",
+            path = String.format("%s-%s-%s.%s.%s",
                     getId(),
                     getVersion(),
                     getRelease(),
@@ -204,5 +204,14 @@ public class RpmArtifactCoordinates
         }
 
         return path;
+    }
+
+    /**
+     * @param path The filename of the RPM-package.
+     * @return Returns a RpmArtifactCoordinates object with all included  coordinates set
+     */
+    public static RpmArtifactCoordinates parse(String path)
+    {
+        return RpmArtifactCoordinatesUtils.parse(path);
     }
 }
