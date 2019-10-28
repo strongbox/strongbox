@@ -19,7 +19,8 @@ import static org.junit.jupiter.api.parallel.ExecutionMode.CONCURRENT;
  * Test class for testing functionality of parsing, creating and validating Rpm artifact coordinates
  * @author Ilya Shatalov <ilya@alov.me>
  */
-class RpmArtifactCoordinatesTest {
+class RpmArtifactCoordinatesTest 
+{
 
     private static ArrayList<ArrayList<String>> parsedPackages = new ArrayList<>();
 
