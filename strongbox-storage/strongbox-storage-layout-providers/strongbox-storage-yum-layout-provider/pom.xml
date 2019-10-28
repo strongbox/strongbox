@@ -9,7 +9,11 @@
     </parent>
     <modelVersion>4.0.0</modelVersion>
 
-    <artifactId>strongbox-storage-yum-layout-provider</artifactId>
+
+            <groupId>org.carlspring.strongbox</groupId>
+            <artifactId>strongbox-storage-yum-layout-provider</artifactId>
+            <version>1.0-SNAPSHOT</version>
+
     <dependencies>
         <dependency>
             <groupId>org.carlspring.strongbox</groupId>
