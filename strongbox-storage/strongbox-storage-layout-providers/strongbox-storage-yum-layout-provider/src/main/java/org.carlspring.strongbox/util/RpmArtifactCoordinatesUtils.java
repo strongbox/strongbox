@@ -68,9 +68,13 @@ public class RpmArtifactCoordinatesUtils
         Matcher matcher = RPM_PACKAGE_NAME_REGEXP_PATTERN.matcher(fileName);
 
         if (matcher.find())
+        {
             baseName = matcher.group(1);
+        }
         else
+        {
             throw new IllegalArgumentException("Incorrect filename: package name is required");
+        }
         return baseName;
     }
 
@@ -80,9 +84,13 @@ public class RpmArtifactCoordinatesUtils
         Matcher matcher = RPM_PACKAGE_VERSION_REGEXP_PATTERN.matcher(fileName);
 
         if (matcher.find())
+        {
             version = matcher.group(1);
+        }
         else
+        {
             throw new IllegalArgumentException("Incorrect filename: package version is required");
+        }
         return version;
     }
 
@@ -92,9 +100,13 @@ public class RpmArtifactCoordinatesUtils
         Matcher matcher =  RPM_PACKAGE_RELEASE_REGEXP_PATTERN.matcher(fileName);
 
         if (matcher.find())
+        {
             release = matcher.group(1);
+        }
         else
+        {
             throw new IllegalArgumentException("Incorrect filename: package release is required");
+        }
         return release;
     }
 
@@ -114,9 +126,13 @@ public class RpmArtifactCoordinatesUtils
         Matcher matcher = RPM_PACKAGE_ARCH_REGEXP_PATTERN.matcher(fileName);
 
         if (matcher.find())
+        {
             arch = matcher.group(1);
+        }
         else
+        {
             throw new IllegalArgumentException("Incorrect filename: package should have architecture or SRC suffix");
+        }
         return RpmPackageArch.valueOf(arch.toUpperCase());
     }
 }
