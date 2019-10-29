@@ -29,6 +29,6 @@ public class PypiArtifactGeneratorStrategy
                                                                           "none",
                                                                           "any",
                                                                           (String) attributesMap.get("packaging"));
-        return artifactGenerator.generateArtifact(coordinates);
+        return artifactGenerator.generateArtifact(coordinates, size);
     }
 }

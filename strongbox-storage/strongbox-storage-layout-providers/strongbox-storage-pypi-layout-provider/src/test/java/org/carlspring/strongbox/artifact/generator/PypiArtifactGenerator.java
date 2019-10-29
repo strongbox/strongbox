@@ -1,8 +1,11 @@
 package org.carlspring.strongbox.artifact.generator;
 
+import org.carlspring.commons.io.RandomInputStream;
 import org.carlspring.strongbox.artifact.coordinates.PypiArtifactCoordinates;
 
+import java.io.File;
 import java.io.IOException;
+import java.io.OutputStream;
 import java.net.URI;
 import java.nio.file.Files;
 import java.nio.file.Path;
@@ -14,6 +17,8 @@ import java.util.zip.ZipOutputStream;
 
 import com.google.common.hash.Hashing;
 import org.apache.commons.io.FilenameUtils;
+
+import static java.nio.file.StandardOpenOption.*;
 
 public class PypiArtifactGenerator
         implements ArtifactGenerator
@@ -91,7 +96,7 @@ public class PypiArtifactGenerator
                                                                           "none",
                                                                           "any",
                                                                           "whl");
-        return generateArtifact(coordinates);
+        return generateArtifact(coordinates, size);
     }
 
     @Override
@@ -100,34 +105,39 @@ public class PypiArtifactGenerator
             throws IOException
     {
         PypiArtifactCoordinates coordinates = PypiArtifactCoordinates.parse(FilenameUtils.getName(uri.toString()));
-        return generateArtifact(coordinates);
+        return generateArtifact(coordinates, size);
     }
 
-    public Path generateArtifact(PypiArtifactCoordinates coordinates)
+    public Path generateArtifact(PypiArtifactCoordinates coordinates, long size)
             throws IOException
     {
         String packagePath = coordinates.toPath();
 
         Path fullPath = basedir.resolve(packagePath);
 
-        try(ZipOutputStream zos = new ZipOutputStream(Files.newOutputStream(fullPath)))
+        new File(fullPath.getParent().toString()).mkdirs();
+        Path path = Paths.get(fullPath.toString());
+        OutputStream outputStream = Files.newOutputStream(path, CREATE);
+
+
+        try(ZipOutputStream zos = new ZipOutputStream(outputStream))
         {
             if (coordinates.isSourcePackage())
             {
-                createSourcePackageFiles(zos, coordinates.getId(), coordinates.getVersion());
+                createSourcePackageFiles(zos, coordinates.getId(), coordinates.getVersion(), size);
             }
             else
             {
-                createWheelPackageFiles(zos, coordinates.getId(), coordinates.getVersion());
+                createWheelPackageFiles(zos, coordinates.getId(), coordinates.getVersion(), size);
             }
         }
-
-        return fullPath;
+        return path;
     }
 
     private void createSourcePackageFiles(ZipOutputStream zos,
                                           String name,
-                                          String version)
+                                          String version,
+                                          long size)
             throws IOException
     {
         //create PKG-INFO zip entry
@@ -179,11 +189,14 @@ public class PypiArtifactGenerator
         byte[] sourcesContent = String.format(SOURCES_CONTENT, scriptPath, eggPkgInfoPath, sourcesPath,
                                               dependencyLinksPath, topLevelPath).getBytes();
         createZipEntry(zos, sourcesPath, sourcesContent);
+
+        String randomPath = eggDirectory + "/" + "RANDOM.txt";
+        createZipEntryWithRandom(zos, randomPath, size);
     }
 
     private void createWheelPackageFiles(ZipOutputStream zos,
                                          String name,
-                                         String version)
+                                         String version, long size)
             throws IOException
     {
         //create bin zip entry
@@ -243,7 +256,31 @@ public class PypiArtifactGenerator
                                                                     topLevelContent.length))
                                               .append(recordPath)
                                               .append(",,");
+
         createZipEntry(zos, recordPath, recordContent.toString().getBytes());
+
+        String randomPath = dirPath + "/" + "RANDOM";
+        createZipEntryWithRandom(zos, randomPath, size);
+    }
+
+    private void createZipEntryWithRandom(ZipOutputStream zos,
+                                          String path,
+                                          long size)
+            throws IOException
+    {
+        ZipEntry zipEntry = new ZipEntry(path);
+
+        zos.putNextEntry(zipEntry);
+        RandomInputStream ris = new RandomInputStream(size);
+
+        byte[] buffer = new byte[4096];
+        int len;
+        while ((len = ris.read(buffer)) > 0)
+        {
+            zos.write(buffer, 0, len);
+        }
+
+        zos.closeEntry();
     }
 
     private String calculateHash(byte[] content)
