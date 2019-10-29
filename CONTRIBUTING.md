@@ -147,3 +147,4 @@ To accept, please:
 | Marcin Słowiak               |                                              | Sanok, Poland                           | 2019-09-23 |
 | David Barda                  |                                              | Tel-Aviv, Israel                        | 2019-10-14 |
 | Bishnu Gopal Patro           |                                              | Pune, India                             | 2019-10-19 |
+| Clément BEGNAUD           |                                              | Nantes, France                             | 2019-10-29 |
