@@ -21,6 +21,7 @@ import java.nio.file.Paths;
 import java.security.NoSuchAlgorithmException;
 import java.util.ArrayList;
 import java.util.Base64;
+import java.util.Random;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipOutputStream;
 
@@ -54,6 +55,8 @@ public class NugetArtifactGenerator
                                                "</Relationships>";
 
     private static final String PACKAGING_NUPKG = "nupkg";
+
+    private static final int DEFAULT_SIZE = 1000000;
 
     private Path basePath;
 
@@ -117,6 +120,15 @@ public class NugetArtifactGenerator
     public Path generate(String id,
                          String version,
                          String packaging,
+                         String... dependencyList)
+            throws IOException, NoSuchAlgorithmException, JAXBException, NugetFormatException
+    {
+        return generate(id, version, packaging, new Random().nextInt(DEFAULT_SIZE), dependencyList);
+    }
+
+    public Path generate(String id,
+                         String version,
+                         String packaging,
                          long size,
                          String... dependencyList)
             throws IOException, NoSuchAlgorithmException, JAXBException, NugetFormatException
@@ -131,6 +143,15 @@ public class NugetArtifactGenerator
         generate(fullPath, id, semanticVersion, size, dependencyList);
 
         return fullPath;
+    }
+
+    public void generate(Path packagePath,
+                         String id,
+                         SemanticVersion version,
+                         String... dependencyList)
+            throws IOException, JAXBException, NoSuchAlgorithmException, NugetFormatException
+    {
+        generate(packagePath, id, version, new Random().nextInt(DEFAULT_SIZE), dependencyList);
     }
 
     public void generate(Path packagePath,
