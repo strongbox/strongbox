@@ -51,6 +51,9 @@ public class RegenerateNugetChecksumCronJobTestIT
 
     private static final String REPOSITORY = "repository-rnccjt";
 
+    private static final long SIZE = 2048;
+    private static final long DEFAULT_SIZE = 1000000;
+
     @Override
     @BeforeEach
     public void init(TestInfo testInfo)
@@ -68,7 +71,8 @@ public class RegenerateNugetChecksumCronJobTestIT
                                                     @NugetTestArtifact(storageId = STORAGE1,
                                                                        repositoryId = REPOSITORY,
                                                                        id = "org.carlspring.strongbox.checksum-second",
-                                                                       versions = "1.0.0")
+                                                                       versions = "1.0.0",
+                                                                       size = SIZE)
                                                     Path artifactNupkgPath)
             throws Exception
     {
@@ -93,7 +97,8 @@ public class RegenerateNugetChecksumCronJobTestIT
                                                         @NugetTestArtifact(storageId = STORAGE1,
                                                                            repositoryId = REPOSITORY,
                                                                            id = "org.carlspring.strongbox.checksum-one",
-                                                                           versions = "1.0.1-alpha")
+                                                                           versions = "1.0.1-alpha",
+                                                                           size = SIZE)
                                                         Path artifactNupkgPath)
             throws Exception
     {
@@ -116,7 +121,8 @@ public class RegenerateNugetChecksumCronJobTestIT
                                                      @NugetTestArtifact(storageId = STORAGE1,
                                                                         repositoryId = REPOSITORY,
                                                                         id = "org.carlspring.strongbox.checksum-second",
-                                                                        versions = "1.0.0")
+                                                                        versions = "1.0.0",
+                                                                        size = SIZE)
                                                      Path artifactNupkgPath)
             throws Exception
     {
@@ -139,7 +145,8 @@ public class RegenerateNugetChecksumCronJobTestIT
                                                       @NugetTestArtifact(storageId = STORAGE1,
                                                                          repositoryId = REPOSITORY,
                                                                          id = "org.carlspring.strongbox.checksum-one",
-                                                                         versions = "1.0.0")
+                                                                         versions = "1.0.0",
+                                                                         size = SIZE)
                                                       Path artifactNupkgPath)
             throws Exception
     {
@@ -208,5 +215,7 @@ public class RegenerateNugetChecksumCronJobTestIT
                     .as("The checksum file is empty!")
                     .isTrue();
         }));
+
+        assertThat(Files.size(artifactNupkgPath)).isBetween(SIZE, DEFAULT_SIZE);
     }
 }
