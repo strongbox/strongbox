@@ -21,7 +21,7 @@ public class NugetArtifactGeneratorStrategy
     {
         NugetArtifactCoordinates coordinates = new NugetArtifactCoordinates(id, version);
 
-        return artifactGenerator.generateArtifact(coordinates);
+        return artifactGenerator.generateArtifact(coordinates, size);
     }
 
 }
