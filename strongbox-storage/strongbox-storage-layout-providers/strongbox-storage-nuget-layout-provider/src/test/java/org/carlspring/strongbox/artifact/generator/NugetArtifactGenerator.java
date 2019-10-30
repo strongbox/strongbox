@@ -9,6 +9,7 @@ import org.carlspring.strongbox.storage.metadata.nuget.Dependency;
 import org.carlspring.strongbox.storage.metadata.nuget.NugetFormatException;
 import org.carlspring.strongbox.storage.metadata.nuget.Nuspec;
 import org.carlspring.strongbox.util.MessageDigestUtils;
+import org.carlspring.strongbox.util.TestFileUtils;
 
 import javax.xml.bind.JAXBException;
 import java.io.*;
@@ -72,34 +73,9 @@ public class NugetArtifactGenerator
                                  long size)
             throws IOException
     {
-        // Use of size is not implemented
-        return generateArtifact(id, version);
-    }
-
-    @Override
-    public Path generateArtifact(URI uri,
-                                 long size)
-            throws IOException
-    {
-        // Use of size is not implemented
-        NugetArtifactCoordinates coordinates = NugetArtifactCoordinates.parse(uri.toString());
-
-        return generateArtifact(coordinates);
-    }
-
-    public Path generateArtifact(NugetArtifactCoordinates coordinates)
-            throws IOException
-    {
-        return generateArtifact(coordinates.getId(), coordinates.getVersion(), coordinates.getType());
-    }
-
-    public Path generateArtifact(String id,
-                                 String version)
-            throws IOException
-    {
         try
         {
-            return generate(id, version, PACKAGING_NUPKG);
+            return generate(id, version, PACKAGING_NUPKG, size);
         }
         catch (NoSuchAlgorithmException | JAXBException | NugetFormatException e)
         {
@@ -107,14 +83,30 @@ public class NugetArtifactGenerator
         }
     }
 
+    @Override
+    public Path generateArtifact(URI uri,
+                                 long size)
+            throws IOException
+    {
+        NugetArtifactCoordinates coordinates = NugetArtifactCoordinates.parse(uri.toString());
+        return generateArtifact(coordinates, size);
+    }
+
+    public Path generateArtifact(NugetArtifactCoordinates coordinates, long size)
+            throws IOException
+    {
+        return generateArtifact(coordinates.getId(), coordinates.getVersion(), coordinates.getType(), size);
+    }
+
     public Path generateArtifact(String id,
                                  String version,
-                                 String packaging)
+                                 String packaging,
+                                 long size)
             throws IOException
     {
         try
         {
-            return generate(id, version, packaging);
+            return generate(id, version, packaging, size);
         }
         catch (NoSuchAlgorithmException | JAXBException | NugetFormatException e)
         {
@@ -125,6 +117,7 @@ public class NugetArtifactGenerator
     public Path generate(String id,
                          String version,
                          String packaging,
+                         long size,
                          String... dependencyList)
             throws IOException, NoSuchAlgorithmException, JAXBException, NugetFormatException
     {
@@ -135,7 +128,7 @@ public class NugetArtifactGenerator
         SemanticVersion semanticVersion = SemanticVersion.parse(version);
         logger.debug("Version of the {} package: {}", packaging, semanticVersion.toString());
 
-        generate(fullPath, id, semanticVersion, dependencyList);
+        generate(fullPath, id, semanticVersion, size, dependencyList);
 
         return fullPath;
     }
@@ -143,18 +136,20 @@ public class NugetArtifactGenerator
     public void generate(Path packagePath,
                          String id,
                          SemanticVersion version,
+                         long size,
                          String... dependencyList)
             throws IOException, JAXBException, NoSuchAlgorithmException, NugetFormatException
     {
         Nuspec nuspec = generateNuspec(id, version, dependencyList);
 
-        createArchive(nuspec, packagePath);
+        createArchive(nuspec, packagePath, size);
 
         generateNuspecFile(nuspec);
     }
 
     public void createArchive(Nuspec nuspec,
-                              Path packagePath)
+                              Path packagePath,
+                              long size)
             throws IOException,
                    JAXBException,
                    NoSuchAlgorithmException
@@ -171,7 +166,7 @@ public class NugetArtifactGenerator
             try (ZipOutputStream zos = new ZipOutputStream(layoutOutputStream))
             {
                 addNugetNuspecFile(nuspec, zos);
-                createRandomNupkgFile(zos);
+                TestFileUtils.generateFile(zos, size, "file-with-given-size");
 
                 String id = nuspec.getId();
 
