@@ -387,7 +387,7 @@ public class NugetArtifactControllerTest extends NugetRestAssuredBaseTest
         final String storageId = repository.getStorage().getId();
         final String repositoryId = repository.getId();
 
-        String filter = String.format("tolower(id) eq '%s' and IsLatestVersion", PACKAGE_ID_LAST_VERSION.toLowerCase());
+        String filter = String.format("tolower(Id) eq '%s' and IsLatestVersion", PACKAGE_ID_LAST_VERSION.toLowerCase());
 
         // VERSION 1.0.0
         Path packagePathV1 = packagePaths.get(0);

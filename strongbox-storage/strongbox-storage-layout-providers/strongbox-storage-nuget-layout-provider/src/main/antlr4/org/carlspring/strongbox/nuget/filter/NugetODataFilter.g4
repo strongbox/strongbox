@@ -63,8 +63,8 @@ TAG
 
 ATTRIBUTE
 :
-    'id'
-    | 'version'
+    'Id'
+    | 'Version'
 ;
 
 EQ
