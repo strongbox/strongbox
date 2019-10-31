@@ -74,7 +74,7 @@ public class NugetFilterODataParserTest
         assertThat(Files.exists(artifactPath));
         Selector<ArtifactEntry> selector = new Selector<>(ArtifactEntry.class);
         NugetODataFilterQueryParser t = new NugetODataFilterQueryParser(
-                "tolower(id) eq 'org.carlspring.strongbox.nuget.test.nfpt' and IsLatestVersion and version eq '1.0.8'");
+                "tolower(Id) eq 'org.carlspring.strongbox.nuget.test.nfpt' and IsLatestVersion and Version eq '1.0.8'");
         Predicate predicate = t.parseQuery().getPredicate();
 
         selector.where(predicate)
@@ -116,7 +116,7 @@ public class NugetFilterODataParserTest
         Selector<ArtifactEntry> selector = new Selector<>(ArtifactEntry.class);
 
         NugetODataFilterQueryParser t = new NugetODataFilterQueryParser(
-                "tolower(id) eq 'org.carlspring.strongbox.nuget.test.nfpt_-test' and IsLatestVersion");
+                "tolower(Id) eq 'org.carlspring.strongbox.nuget.test.nfpt_-test' and IsLatestVersion");
         Predicate predicate = t.parseQuery().getPredicate();
 
         selector.where(predicate)
@@ -149,7 +149,7 @@ public class NugetFilterODataParserTest
         Selector<ArtifactEntry> selector = new Selector<>(ArtifactEntry.class);
 
         NugetODataFilterQueryParser t = new NugetODataFilterQueryParser(
-                "tolower(id) eq '-org.carlspring.strongbox.nuget.test.nfpt'");
+                "tolower(Id) eq '-org.carlspring.strongbox.nuget.test.nfpt'");
         assertThrows(QueryParserException.class,() -> {Predicate predicate = t.parseQuery().getPredicate();});
 
     }
@@ -174,7 +174,7 @@ public class NugetFilterODataParserTest
         Selector<ArtifactEntry> selector = new Selector<>(ArtifactEntry.class);
 
         NugetODataFilterQueryParser t = new NugetODataFilterQueryParser(
-                "tolower(id) eq 'org.carlspring.strongbox.nuget.test.nfpt-'");
+                "tolower(Id) eq 'org.carlspring.strongbox.nuget.test.nfpt-'");
         assertThrows(QueryParserException.class,() -> {Predicate predicate = t.parseQuery().getPredicate();});
 
     }

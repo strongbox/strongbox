@@ -101,7 +101,7 @@ public class NugetODataQueryVisitor extends NugetODataFilterBaseVisitor<Predicat
         {
             String attribute = ctx.ATTRIBUTE().getText();
             return Predicate.of(ExpOperator.EQ.of(String.format("artifactCoordinates.coordinates.%s",
-                                                                attribute),
+                                                                attribute.toLowerCase()),
                                                   null));
         }
         return visitTokenExpFunction(ctx.tokenExpFunction());
