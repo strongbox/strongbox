@@ -51,6 +51,7 @@ configuration:
           type: hosted
           allowsForceDeletion: true
           checksumHeadersEnabled: true
+          strictChecksumValidation: true
           repositoryConfiguration:
             type: Maven 2
             indexingEnabled: true
@@ -63,6 +64,7 @@ configuration:
           type: hosted
           secured: true
           checksumHeadersEnabled: true
+          strictChecksumValidation: true
           repositoryConfiguration:
             type: Maven 2
             indexingEnabled: true
@@ -286,6 +288,7 @@ configuration:
           type: hosted
           allowsForceDeletion: true
           checksumHeadersEnabled: true
+          strictChecksumValidation: true
         nuget-third-party:
           id: nuget-third-party
           policy: release

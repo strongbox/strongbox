@@ -184,7 +184,7 @@ public class ArtifactManagementService
             if (checksumValue != null && checksumValue.length > 0)
             {
                 // Validate checksum with artifact digest cache.
-                validateUploadedChecksumAgainstCache(checksumValue, repositoryPathId);
+                validateUploadedChecksumAgainstCache(checksumValue, repositoryPathId, repository);
             }
         }
         
@@ -212,7 +212,9 @@ public class ArtifactManagementService
     }
 
     private void validateUploadedChecksumAgainstCache(byte[] checksum,
-                                                      URI artifactPathId)
+                                                      URI artifactPathId,
+                                                      Repository repository)
+            throws ArtifactStorageException
     {
         logger.debug("Received checksum: {}", new String(checksum, StandardCharsets.UTF_8));
 
@@ -222,12 +224,19 @@ public class ArtifactManagementService
 
         if (!matchesChecksum(checksum, artifactBasePath, checksumExtension))
         {
+            String checksumStr = new String(checksum, StandardCharsets.UTF_8);
+
             logger.error("The checksum for {} [{}] is invalid!",
                          artifactPath,
-                         new String(checksum, StandardCharsets.UTF_8));
-        }
+                         checksumStr);
 
-        checksumCacheManager.removeArtifactChecksum(artifactBasePath, checksumExtension);
+            if ("Maven 2".equals(repository.getLayout()) && repository.isStrictChecksumValidation())
+            {
+                throw new ArtifactStorageException(String.format("Invalid checksum [%s] for artifact [%s]", checksumStr, artifactPath));
+            }
+
+            checksumCacheManager.removeArtifactChecksum(artifactBasePath, checksumExtension);
+        }
     }
 
     private boolean matchesChecksum(byte[] pChecksum,

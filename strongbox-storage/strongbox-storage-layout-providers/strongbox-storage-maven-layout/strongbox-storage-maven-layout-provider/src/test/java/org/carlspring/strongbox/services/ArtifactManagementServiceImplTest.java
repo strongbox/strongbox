@@ -7,6 +7,8 @@ import org.carlspring.strongbox.artifact.MavenArtifact;
 import org.carlspring.strongbox.artifact.MavenArtifactUtils;
 import org.carlspring.strongbox.config.Maven2LayoutProviderTestConfig;
 import org.carlspring.strongbox.domain.ArtifactEntry;
+import org.carlspring.strongbox.providers.ProviderImplementationException;
+import org.carlspring.strongbox.providers.io.RepositoryFileAttributeType;
 import org.carlspring.strongbox.providers.io.RepositoryFiles;
 import org.carlspring.strongbox.providers.io.RepositoryPath;
 import org.carlspring.strongbox.providers.io.RepositoryPathResolver;
@@ -16,6 +18,7 @@ import org.carlspring.strongbox.storage.ArtifactStorageException;
 import org.carlspring.strongbox.storage.metadata.MavenSnapshotManager;
 import org.carlspring.strongbox.storage.repository.Repository;
 import org.carlspring.strongbox.storage.repository.RepositoryPolicyEnum;
+import org.carlspring.strongbox.storage.validation.artifact.ArtifactCoordinatesValidationException;
 import org.carlspring.strongbox.testing.artifact.ArtifactManagementTestExecutionListener;
 import org.carlspring.strongbox.testing.artifact.MavenArtifactTestUtils;
 import org.carlspring.strongbox.testing.artifact.MavenTestArtifact;
@@ -30,7 +33,9 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
+import java.nio.file.LinkOption;
 import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.text.SimpleDateFormat;
 import java.time.LocalDate;
 import java.time.ZoneId;
@@ -51,6 +56,7 @@ import org.slf4j.LoggerFactory;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.ContextConfiguration;
+import static org.assertj.core.api.Assertions.catchThrowable;
 import static org.assertj.core.api.Assertions.fail;
 import static org.junit.jupiter.api.parallel.ExecutionMode.CONCURRENT;
 
@@ -679,6 +685,38 @@ public class ArtifactManagementServiceImplTest
         assertThat(actualChecksums).isEqualTo(expectedChecksums);
     }
 
+    @ExtendWith({ RepositoryManagementTestExecutionListener.class,
+                  ArtifactManagementTestExecutionListener.class })
+    @Test
+    public void testFailArtifactStorageWhenChecksumIsBroken(@MavenRepository(repositoryId = "broken-checksum-test")
+                                                            @RepositoryAttributes(strictChecksumValidation = true)
+                                                            Repository repository,
+                                                            @MavenTestArtifact(repositoryId = "broken-checksum-test",
+                                                                               id = "org.carlspring.strongbox:strongbox-test-artifact",
+                                                                               versions = { "1.0" })
+                                                            Path artifactPath)
+            throws IOException
+    {
+        final String storageId = repository.getStorage().getId();
+        final String repositoryId = repository.getId();
+        final String checksumFilePath = "org/carlspring/strongbox/strongbox-test-artifact/1.0/strongbox-test-artifact-1.0.jar.md5";
+
+        RepositoryPath repositoryPath = repositoryPathResolver.resolve(storageId,
+                                                                       repositoryId,
+                                                                       checksumFilePath);
+        Files.write(repositoryPath, "broken_checksum".getBytes());
+
+        try (InputStream is = Files.newInputStream(repositoryPath))
+        {
+            Throwable throwable = catchThrowable(() -> mavenArtifactManagementService.store(repositoryPath,is));
+
+            final String fullChecksumFilePath = String.format("/%s/%s/%s", storageId, repositoryId, checksumFilePath);
+            assertThat(throwable)
+                    .isExactlyInstanceOf(ArtifactStorageException.class)
+                    .hasMessage("Invalid checksum [broken_checksum] for artifact [strongbox:%s]",
+                                fullChecksumFilePath);
+        }
+    }
 
     private Long getResult(int i,
                            CountDownLatch storedSync, 

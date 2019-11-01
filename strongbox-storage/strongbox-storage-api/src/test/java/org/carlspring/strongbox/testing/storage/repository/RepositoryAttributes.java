@@ -40,4 +40,6 @@ public @interface RepositoryAttributes
 
     boolean checksumHeadersEnabled() default false;
 
+    boolean strictChecksumValidation() default false;
+
 }
