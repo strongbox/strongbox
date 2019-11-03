@@ -73,29 +73,29 @@ public class MavenArtifactGenerator implements ArtifactGenerator
     @Override
     public Path generateArtifact(String id,
                                  String version,
-                                 long size)
+                                 long bytesSize)
             throws IOException
     {
         Artifact artifact = MavenArtifactTestUtils.getArtifactFromGAVTC(String.format("%s:%s", id, version));
-        return generateArtifact(artifact, size);
+        return generateArtifact(artifact, bytesSize);
     }
 
     @Override
     public Path generateArtifact(URI uri,
-                                 long size)
+                                 long bytesSize)
             throws IOException
     {
         Artifact artifact = MavenArtifactUtils.convertPathToArtifact(uri.toString());
-        return generateArtifact(artifact, size);
+        return generateArtifact(artifact, bytesSize);
     }
 
     private Path generateArtifact(Artifact artifact,
-                                  long size)
+                                  long bytesSize)
             throws IOException
     {
         try
         {
-            generate(artifact, size);
+            generate(artifact, bytesSize);
         }
         catch (NoSuchAlgorithmException e)
         {
@@ -151,12 +151,12 @@ public class MavenArtifactGenerator implements ArtifactGenerator
         createArchive(artifact);
     }
 
-    public void generate(Artifact artifact, long size)
+    public void generate(Artifact artifact, long bytesSize)
             throws IOException,
                    NoSuchAlgorithmException
     {
         generatePom(artifact, PACKAGING_JAR);
-        createArchive(artifact, size);
+        createArchive(artifact, bytesSize);
     }
 
     public void createArchive(Artifact artifact)
@@ -165,7 +165,7 @@ public class MavenArtifactGenerator implements ArtifactGenerator
         createArchive(artifact, new Random().nextInt(DEFAULT_SIZE));
     }
 
-    public void createArchive(Artifact artifact, long size)
+    public void createArchive(Artifact artifact, long bytesSize)
             throws NoSuchAlgorithmException,
                    IOException
     {
@@ -179,7 +179,7 @@ public class MavenArtifactGenerator implements ArtifactGenerator
         {
             createMavenPropertiesFile(artifact, zos);
             addMavenPomFile(artifact, zos);
-            TestFileUtils.generateFile(zos, size);
+            TestFileUtils.generateFile(zos, bytesSize);
             zos.flush();
         }
         generateChecksumsForArtifact(artifactFile);

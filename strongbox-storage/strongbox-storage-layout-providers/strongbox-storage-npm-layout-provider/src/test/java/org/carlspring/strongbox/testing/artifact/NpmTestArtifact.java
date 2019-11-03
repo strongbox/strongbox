@@ -57,7 +57,7 @@ public @interface NpmTestArtifact
      * Additional artifact size in bytes.
      */
     @AliasFor(annotation = TestArtifact.class)
-    long size() default 1000000;
+    long bytesSize() default 1000000;
 
     /**
      * The {@link org.carlspring.strongbox.artifact.coordinates.NpmArtifactCoordinates} extension.

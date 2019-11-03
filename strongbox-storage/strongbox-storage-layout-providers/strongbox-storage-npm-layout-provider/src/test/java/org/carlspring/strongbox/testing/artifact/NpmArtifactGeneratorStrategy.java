@@ -19,7 +19,7 @@ public class NpmArtifactGeneratorStrategy implements ArtifactGeneratorStrategy<N
     public Path generateArtifact(NpmArtifactGenerator artifactGenerator,
                                  String id,
                                  String version,
-                                 long size,
+                                 long bytesSize,
                                  Map<String, Object> attributesMap)
             throws IOException
     {
@@ -27,13 +27,13 @@ public class NpmArtifactGeneratorStrategy implements ArtifactGeneratorStrategy<N
                                                                         id,
                                                                         version,
                                                                         (String) attributesMap.get("extension"));
-        Path packagePath = artifactGenerator.generateArtifact(coordinates, size);
+        Path packagePath = artifactGenerator.generateArtifact(coordinates, bytesSize);
         if (!Optional.ofNullable(attributesMap.get("repositoryId"))
                      .filter(repositoryId -> ((String) repositoryId).trim().length() > 0)
                      .isPresent())
         {
             // if package won't be deployed then `publish.json` will be generated
-            artifactGenerator.buildPublishJson(size);
+            artifactGenerator.buildPublishJson(bytesSize);
         }
         
         return packagePath;

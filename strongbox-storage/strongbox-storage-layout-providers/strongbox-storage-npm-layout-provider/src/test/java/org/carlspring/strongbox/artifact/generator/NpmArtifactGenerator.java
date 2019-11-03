@@ -84,7 +84,7 @@ public class NpmArtifactGenerator
         this.packagePath = packagePath;
     }
 
-    public Path buildPackage(long size)
+    public Path buildPackage(long bytesSize)
             throws IOException
     {
         Files.createDirectories(basePath);
@@ -98,7 +98,7 @@ public class NpmArtifactGenerator
             GzipCompressorOutputStream gzipOut = new GzipCompressorOutputStream(out);
             TarArchiveOutputStream tarOut = new TarArchiveOutputStream(gzipOut);
 
-            writeContent(tarOut, size);
+            writeContent(tarOut, bytesSize);
             writePackageJson(tarOut);
 
             tarOut.close();
@@ -149,13 +149,14 @@ public class NpmArtifactGenerator
         tarOut.closeArchiveEntry();
     }
 
-    private void writeContent(TarArchiveOutputStream tarOut, long size)
+    private void writeContent(TarArchiveOutputStream tarOut,
+                              long bytesSize)
             throws IOException
     {
         Path indexJsPath = packagePath.getParent().resolve("index.js");
         try (OutputStream out = new BufferedOutputStream(Files.newOutputStream(indexJsPath, StandardOpenOption.CREATE)))
         {
-            TestFileUtils.generateFile(out, size);
+            TestFileUtils.generateFile(out, bytesSize);
         }
 
         TarArchiveEntry entry = new TarArchiveEntry(indexJsPath.toFile(), "index.js");
@@ -167,36 +168,37 @@ public class NpmArtifactGenerator
         tarOut.closeArchiveEntry();
     }
 
-    public Path generateArtifact(NpmArtifactCoordinates coordinates, long size)
+    public Path generateArtifact(NpmArtifactCoordinates coordinates,
+                                 long bytesSize)
             throws IOException
     {
-        return this.of(coordinates).buildPackage(size);
+        return this.of(coordinates).buildPackage(bytesSize);
     }
 
     @Override
     public Path generateArtifact(URI uri,
-                                 long size)
+                                 long bytesSize)
             throws IOException
     {
-        return this.of(NpmArtifactCoordinates.parse(uri.toString())).buildPackage(size);
+        return this.of(NpmArtifactCoordinates.parse(uri.toString())).buildPackage(bytesSize);
     }
 
     @Override
     public Path generateArtifact(String id,
                                  String version,
-                                 long size)
+                                 long bytesSize)
             throws IOException
     {
-        this.of(NpmArtifactCoordinates.of(id, version)).buildPublishJson(size);
+        this.of(NpmArtifactCoordinates.of(id, version)).buildPublishJson(bytesSize);
         return getPackagePath();
     }
 
-    public Path buildPublishJson(long size)
+    public Path buildPublishJson(long bytesSize)
             throws IOException
     {
         if (packagePath == null)
         {
-            buildPackage(size);
+            buildPackage(bytesSize);
         }
 
         Path publishJsonPath = packagePath.resolveSibling("publish.json");

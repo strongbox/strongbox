@@ -43,7 +43,7 @@ class NpmArtifactGeneratorTest
                                                  id = "npm-test-view",
                                                  versions = "1.0.0",
                                                  scope = "@carlspring",
-                                                 size = 2048)
+                                                 bytesSize = 2048)
                                 Path path)
             throws Exception
     {

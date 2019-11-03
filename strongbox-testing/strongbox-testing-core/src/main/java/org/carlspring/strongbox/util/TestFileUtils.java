@@ -31,49 +31,48 @@ public class TestFileUtils
     }
 
     public static void generateFile(ZipOutputStream zos,
-                                    long size)
+                                    long bytesSize)
             throws IOException
     {
-        generateFile(zos, size, "file-with-given-size");
+        generateFile(zos, bytesSize, "file-with-given-size");
     }
 
     public static void generateFile(ZipOutputStream zos,
-                                    long size,
+                                    long bytesSize,
                                     String name)
             throws IOException
     {
         ZipEntry ze = new ZipEntry(name);
         zos.putNextEntry(ze);
 
-        RandomInputStream ris = new RandomInputStream(size);
-
-        byte[] buffer = new byte[4096];
-        int len;
-        while ((len = ris.read(buffer)) > 0)
+        try(RandomInputStream ris = new RandomInputStream(bytesSize))
         {
-            zos.write(buffer, 0, len);
+            byte[] buffer = new byte[4096];
+            int len;
+            while ((len = ris.read(buffer)) > 0)
+            {
+                zos.write(buffer, 0, len);
+            }
         }
-
-        ris.close();
         zos.closeEntry();
     }
 
     public static void generateFile(OutputStream bos,
-                                    long size)
+                                    long bytesSize)
             throws IOException
     {
         bos.write("data = \"".getBytes(StandardCharsets.UTF_8));
 
         OutputStream dataOut = Base64.getEncoder().wrap(bos);
-        RandomInputStream ris = new RandomInputStream(size);
-        byte[] buffer = new byte[4096];
-        int len;
-        while ((len = ris.read(buffer)) > 0)
+        try(RandomInputStream ris = new RandomInputStream(bytesSize))
         {
-            dataOut.write(buffer, 0, len);
+            byte[] buffer = new byte[4096];
+            int len;
+            while ((len = ris.read(buffer)) > 0)
+            {
+                dataOut.write(buffer, 0, len);
+            }
         }
-        ris.close();
-
         bos.write("\";".getBytes(StandardCharsets.UTF_8));
     }
 }
