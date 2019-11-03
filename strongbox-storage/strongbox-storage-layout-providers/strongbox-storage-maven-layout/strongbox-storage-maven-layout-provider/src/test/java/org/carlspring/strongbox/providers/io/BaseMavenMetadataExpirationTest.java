@@ -251,7 +251,7 @@ abstract class BaseMavenMetadataExpirationTest
 
     protected FileTime oneHourAgo()
     {
-        LocalDateTime dateTime = LocalDateTime.now().minusHours(1);
+        LocalDateTime dateTime = LocalDateTime.now().minusHours(1).withNano(0);
         Instant instant = dateTime.atZone(ZoneId.systemDefault()).toInstant();
         return FileTime.from(instant);
     }
@@ -272,6 +272,12 @@ abstract class BaseMavenMetadataExpirationTest
         }
 
         return Files.readAllLines(checksumRepositoryPath).stream().findFirst().orElse(null);
+    }
+
+    protected FileTime readLastModifiedTime(final RepositoryPath repositoryPath)
+            throws IOException
+    {
+        return Files.getLastModifiedTime(repositoryPath);
     }
 
     protected Configuration getConfiguration()
