@@ -101,11 +101,11 @@ public class MavenMetadataExpirationProxyCaseTest
         proxyRepositoryProvider.fetchPath(proxiedPath);
         sha1ProxiedPathChecksum = readChecksum(resolveSiblingChecksum(proxiedPath,
                                                                       EncryptionAlgorithmsEnum.SHA1));
-        FileTime updatedProxiedPathModificationTime = Files.getLastModifiedTime(proxiedPath);
 
         String secondCalculatedProxiedPathChecksum =
                 validateProxiedPathChecksums(firstCalculatedProxiedPathChecksum, proxiedPath);
 
+        FileTime updatedProxiedPathModificationTime = Files.getLastModifiedTime(proxiedPath);
         assertThat(updatedProxiedPathModificationTime).isNotEqualTo(originalProxiedPathModificationTime);
 
         mockHostedRepositoryMetadataUpdate(hostedRepository.getId(),
