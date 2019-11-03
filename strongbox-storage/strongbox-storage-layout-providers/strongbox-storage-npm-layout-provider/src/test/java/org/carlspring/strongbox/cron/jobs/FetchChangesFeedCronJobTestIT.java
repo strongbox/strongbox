@@ -1,6 +1,6 @@
 package org.carlspring.strongbox.cron.jobs;
 
-import org.carlspring.strongbox.config.NpmLayoutProviderCronTasksTestConfig;
+import org.carlspring.strongbox.config.NpmLayoutProviderTestConfig;
 import org.carlspring.strongbox.cron.domain.CronTaskConfigurationDto;
 import org.carlspring.strongbox.data.criteria.Expression.ExpOperator;
 import org.carlspring.strongbox.data.criteria.OQueryTemplate;
@@ -52,7 +52,7 @@ import static org.mockito.Mockito.when;
 /**
  * @author Pablo Tirado
  */
-@ContextConfiguration(classes = { NpmLayoutProviderCronTasksTestConfig.class })
+@ContextConfiguration(classes = { NpmLayoutProviderTestConfig.class })
 @ActiveProfiles(profiles = { "test", "FetchChangesFeedCronJobTestConfig" })
 @SpringBootTest
 @Execution(CONCURRENT)

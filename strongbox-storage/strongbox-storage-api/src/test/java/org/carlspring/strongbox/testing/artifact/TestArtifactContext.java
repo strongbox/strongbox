@@ -116,7 +116,7 @@ public class TestArtifactContext implements AutoCloseable
         
         if (!testArtifact.resource().trim().isEmpty())
         {
-            return Collections.singletonList(generateArtifact(testArtifact.resource(), testArtifact.size()));
+            return Collections.singletonList(generateArtifact(testArtifact.resource(), testArtifact.bytesSize()));
         }
 
         try
@@ -136,7 +136,7 @@ public class TestArtifactContext implements AutoCloseable
         List<Path> paths = new ArrayList<>(testArtifact.versions().length);
         for (String version : testArtifact.versions())
         {
-            paths.add(generateArtifact(testArtifact.id(), version, testArtifact.size()));
+            paths.add(generateArtifact(testArtifact.id(), version, testArtifact.bytesSize()));
         }
         
         return paths;
