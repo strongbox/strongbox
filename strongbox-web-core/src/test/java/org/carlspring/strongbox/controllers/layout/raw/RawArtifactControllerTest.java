@@ -7,6 +7,7 @@ import org.carlspring.strongbox.providers.layout.RawLayoutProvider;
 import org.carlspring.strongbox.rest.common.RawRestAssuredBaseTest;
 import org.carlspring.strongbox.storage.repository.Repository;
 import org.carlspring.strongbox.testing.artifact.ArtifactManagementTestExecutionListener;
+import org.carlspring.strongbox.testing.artifact.RawTestArtifact;
 import org.carlspring.strongbox.testing.artifact.TestArtifact;
 import org.carlspring.strongbox.testing.storage.repository.RepositoryManagementTestExecutionListener;
 import org.carlspring.strongbox.testing.storage.repository.TestRepository;
@@ -50,17 +51,24 @@ public class RawArtifactControllerTest
         super.init();
     }
 
-    @ExtendWith(RepositoryManagementTestExecutionListener.class)
+    @ExtendWith({ RepositoryManagementTestExecutionListener.class,
+                  ArtifactManagementTestExecutionListener.class })
     @Test
     public void testDeploy(@TestRepository(layout = RawLayoutProvider.ALIAS,
                                            repositoryId = REPOSITORY_RELEASES_1)
-                           Repository repository)
+                                   Repository repository,
+                           @RawTestArtifact(repositoryId = REPOSITORY_RELEASES_1,
+                                            id = "raw-test",
+                                            versions = "1.0.0",
+                                            scope = "@carlspring",
+                                            size = 2048)
+                                   Path path)
             throws IOException
     {
         final String storageId = repository.getStorage().getId();
         final String repositoryId = repository.getId();
 
-        String path = "org/foo/bar/blah.txt";
+//        String path = "org/foo/bar/blah.txt";
         byte[] content = "This is a test file\n".getBytes();
 
         // Push
