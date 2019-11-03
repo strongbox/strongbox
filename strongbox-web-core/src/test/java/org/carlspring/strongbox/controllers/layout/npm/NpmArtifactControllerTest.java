@@ -43,6 +43,12 @@ public class NpmArtifactControllerTest
 
     private static final String REPOSITORY_RELEASES_FLOW = "npm-releases-test-flow";
 
+    private static final String REPOSITORY_RELEASES_ADD_USER = "npm-releases-test-add-user";
+
+    private static final String REPOSITORY_RELEASES_PACKAGE_NAME_ACCEPTANCE = "npm-releases-test-package-name-acceptance";
+
+    private static final String REPOSITORY_RELEASES_PACKAGE_NAME_BAD_REQUEST = "npm-releases-test-package-name-bad-request";
+
     @Inject
     PropertiesBooter propertiesBooter;
 
@@ -96,9 +102,9 @@ public class NpmArtifactControllerTest
     public void testPackageCommonFlow(@NpmRepository(repositoryId = REPOSITORY_RELEASES_FLOW)
                                       Repository repository,
                                       @NpmTestArtifact(id = "npm-test-release",
-                                              versions = "1.0.0",
-                                              scope = "@carlspring")
-                                              Path packagePath)
+                                                       versions = "1.0.0",
+                                                       scope = "@carlspring")
+                                      Path packagePath)
             throws Exception
     {
         final String storageId = repository.getStorage().getId();
@@ -144,8 +150,8 @@ public class NpmArtifactControllerTest
     @ExtendWith({ RepositoryManagementTestExecutionListener.class,
                   ArtifactManagementTestExecutionListener.class })
     @Test
-    public void addUserTest(@NpmRepository(repositoryId = REPOSITORY_RELEASES_VIEW)
-                                    Repository repository)
+    public void addUserTest(@NpmRepository(repositoryId = REPOSITORY_RELEASES_ADD_USER)
+                            Repository repository)
     {
         String url = getContextBaseUrl() + "/storages/{storageId}/{repositoryId}/" + NpmLayoutProvider.NPM_USER_PATH + "{username}";
         String basicAuth = "Basic YWRtaW46cGFzc3dvcmQ=";
@@ -226,7 +232,7 @@ public class NpmArtifactControllerTest
                              "rxjs:5.6.0-forward-compat.5",
                              "@lifaon/observables:1.6.0" })
     public void packageNameAcceptanceTest(String packageNameWithVersion,
-                                          @NpmRepository(repositoryId = REPOSITORY_RELEASES_VIEW)
+                                          @NpmRepository(repositoryId = REPOSITORY_RELEASES_PACKAGE_NAME_ACCEPTANCE)
                                           Repository repository,
                                           TestInfo testInfo)
             throws Exception
@@ -276,7 +282,7 @@ public class NpmArtifactControllerTest
                .body("name", equalTo(packageId))
                .and()
                .assertThat()
-               .body("versions." + "'" + packageVersion + "'" +".version", equalTo(packageVersion))
+               .body("versions." + "'" + packageVersion + "'" + ".version", equalTo(packageVersion))
                .statusCode(HttpStatus.OK.value());
 
         //Download
@@ -298,7 +304,7 @@ public class NpmArtifactControllerTest
                              "@lifaon/obser@323jj:hds:121",
                              "rxjs:assd5.6.0-hsds" })
     public void packageNameTestBadRequest(String packageNameWithVersion,
-                                          @NpmRepository(repositoryId = REPOSITORY_RELEASES_VIEW)
+                                          @NpmRepository(repositoryId = REPOSITORY_RELEASES_PACKAGE_NAME_BAD_REQUEST)
                                           Repository repository)
             throws Exception
     {
@@ -311,7 +317,7 @@ public class NpmArtifactControllerTest
         final String packageVersion = packageDetails[1];
         String packageName;
 
-        if(packageId.startsWith("@"))
+        if (packageId.startsWith("@"))
         {
             packageName = packageId.split("/")[1];
         }
@@ -321,7 +327,7 @@ public class NpmArtifactControllerTest
         }
 
         final String artifactFileName = String.format("%s-%s.%s", packageName, packageVersion, "tgz");
-        final String artifactId = String.format("%s/-/%s", packageId, artifactFileName );
+        final String artifactId = String.format("%s/-/%s", packageId, artifactFileName);
 
         //Download
         String url = getContextBaseUrl() + "/storages/{storageId}/{repositoryId}/{artifactId}";
