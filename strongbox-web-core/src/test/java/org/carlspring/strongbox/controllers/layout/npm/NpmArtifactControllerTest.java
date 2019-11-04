@@ -29,6 +29,7 @@ import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 
+import static org.carlspring.strongbox.artifact.generator.ArtifactGenerator.DEFAULT_BYTES_SIZE;
 import static org.hamcrest.CoreMatchers.equalTo;
 
 /**
@@ -245,7 +246,7 @@ public class NpmArtifactControllerTest
                                       testInfo.getTestMethod().get().getName()).toAbsolutePath().normalize();
 
         NpmArtifactGenerator artifactGenerator = new NpmArtifactGenerator(generatorBasePath);
-        Path artifact = artifactGenerator.generateArtifact(packageId, packageVersion);
+        Path artifact = artifactGenerator.generateArtifact(packageId, packageVersion, DEFAULT_BYTES_SIZE);
 
         NpmArtifactCoordinates coordinates = NpmArtifactCoordinates.of(packageId, packageVersion);
 

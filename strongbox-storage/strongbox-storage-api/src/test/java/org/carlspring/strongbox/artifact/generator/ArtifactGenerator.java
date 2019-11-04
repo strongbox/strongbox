@@ -11,6 +11,8 @@ import java.nio.file.Path;
 public interface ArtifactGenerator
 {
 
+    int DEFAULT_BYTES_SIZE = 1000000;
+
     /**
      * Generate artifact with POM and checksums. Adds additional file with random content with given size inside JAR.
      * Whole size of artifact will be larger than given size.
