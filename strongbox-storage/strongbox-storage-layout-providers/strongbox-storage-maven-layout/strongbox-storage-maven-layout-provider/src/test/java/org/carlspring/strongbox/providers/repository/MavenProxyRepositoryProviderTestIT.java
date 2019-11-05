@@ -21,7 +21,6 @@ import java.util.Optional;
 
 import org.apache.commons.io.FileUtils;
 import org.apache.maven.artifact.repository.metadata.Metadata;
-import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.junit.jupiter.api.parallel.Execution;
@@ -218,7 +217,6 @@ public class MavenProxyRepositoryProviderTestIT
                                                             "org/carlspring/maven/derby-maven-plugin/1.10/derby-maven-plugin-1.10.jar.sha1");
     }
 
-    @Disabled // Broken while Docker is being worked on, as there is no running instance of the Strongbox service.
     @ExtendWith({ RepositoryManagementTestExecutionListener.class })
     @Test
     public void testStrongboxAtCarlspringDotOrg()

@@ -26,7 +26,7 @@ import static org.hamcrest.CoreMatchers.equalTo;
  * @author Pablo Tirado
  * @author Aditya Srinivasan
  */
-@Disabled // TODO migrate to https://docs.spring.io/spring-boot/docs/current/actuator-api/html/#loggers after https://github.com/strongbox/strongbox/issues/1000
+@Disabled // TODO migrate to https://docs.spring.io/spring-boot/docs/current/actuator-api/html/#loggers after https://github.com/strongbox/strongbox/issues/1000 and https://github.com/strongbox/strongbox/pull/1440
 @IntegrationTest
 public class LoggingManagementControllerTestIT
         extends RestAssuredBaseTest
