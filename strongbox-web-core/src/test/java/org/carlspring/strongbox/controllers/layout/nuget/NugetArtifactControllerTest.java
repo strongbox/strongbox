@@ -151,7 +151,10 @@ public class NugetArtifactControllerTest extends NugetRestAssuredBaseTest
                                         .header("X-NuGet-ApiKey", API_KEY)
                                         .accept(ContentType.BINARY)
                                         .when()
-                                        .get(url, storageId, repositoryId, coordinates.getId(),
+                                        .get(url,
+                                             storageId,
+                                             repositoryId,
+                                             coordinates.getId(),
                                              coordinates.getVersion())
                                         .getHeaders();
 
@@ -159,7 +162,10 @@ public class NugetArtifactControllerTest extends NugetRestAssuredBaseTest
                                          .header("X-NuGet-ApiKey", API_KEY)
                                          .accept(ContentType.BINARY)
                                          .when()
-                                         .head(url, storageId, repositoryId, coordinates.getId(),
+                                         .head(url,
+                                               storageId,
+                                               repositoryId,
+                                               coordinates.getId(),
                                                coordinates.getVersion())
                                          .getHeaders();
 
@@ -201,12 +207,11 @@ public class NugetArtifactControllerTest extends NugetRestAssuredBaseTest
 
         // Push
         String url = getContextBaseUrl() + "/storages/{storageId}/{repositoryId}/";
-        createPushRequest(packageContent)
-               .when()
-               .put(url, storageId, repositoryId)
-               .peek()
-               .then()
-               .statusCode(HttpStatus.CREATED.value());
+        createPushRequest(packageContent).when()
+                                         .put(url, storageId, repositoryId)
+                                         .peek()
+                                         .then()
+                                         .statusCode(HttpStatus.CREATED.value());
 
         //Find by ID
 
@@ -260,11 +265,11 @@ public class NugetArtifactControllerTest extends NugetRestAssuredBaseTest
                   ArtifactManagementTestExecutionListener.class })
     @Test
     public void testChocolatey(@NugetRepository(storageId = STORAGE_ID,
-            repositoryId = REPOSITORY_RELEASES_1)
-                                       Repository repository,
+                                                repositoryId = REPOSITORY_RELEASES_1)
+                               Repository repository,
                                @NugetTestArtifact(id = "Org.Carlspring.Strongbox.Examples.Nuget.Mono-Test",
-                                       versions = "1.0.0")
-                                       Path packagePath)
+                                                  versions = "1.0.0")
+                               Path packagePath)
             throws Exception
     {
         final String storageId = repository.getStorage().getId();
@@ -277,12 +282,11 @@ public class NugetArtifactControllerTest extends NugetRestAssuredBaseTest
 
         // Push
         String url = getContextBaseUrl() + "/storages/{storageId}/{repositoryId}/";
-        createPushRequest(packageContent)
-                .when()
-                .put(url, storageId, repositoryId)
-                .peek()
-                .then()
-                .statusCode(HttpStatus.CREATED.value());
+        createPushRequest(packageContent).when()
+                                         .put(url, storageId, repositoryId)
+                                         .peek()
+                                         .then()
+                                         .statusCode(HttpStatus.CREATED.value());
 
         //Find by ID
 
@@ -394,12 +398,11 @@ public class NugetArtifactControllerTest extends NugetRestAssuredBaseTest
         byte[] packageContent = readPackageContent(packagePathV1);
         // Push
         String url = getContextBaseUrl() + "/storages/{storageId}/{repositoryId}/";
-        createPushRequest(packageContent)
-               .when()
-               .put(url, storageId, repositoryId)
-               .peek()
-               .then()
-               .statusCode(HttpStatus.CREATED.value());
+        createPushRequest(packageContent).when()
+                                         .put(url, storageId, repositoryId)
+                                         .peek()
+                                         .then()
+                                         .statusCode(HttpStatus.CREATED.value());
 
         // Count
         url = getContextBaseUrl() +
@@ -434,12 +437,11 @@ public class NugetArtifactControllerTest extends NugetRestAssuredBaseTest
         packageContent = readPackageContent(packagePathV2);
         // Push
         url = getContextBaseUrl() + "/storages/{storageId}/{repositoryId}/";
-        createPushRequest(packageContent)
-               .when()
-               .put(url, storageId, repositoryId)
-               .peek()
-               .then()
-               .statusCode(HttpStatus.CREATED.value());
+        createPushRequest(packageContent).when()
+                                         .put(url, storageId, repositoryId)
+                                         .peek()
+                                         .then()
+                                         .statusCode(HttpStatus.CREATED.value());
         
         // Count
         url = getContextBaseUrl() +
@@ -508,6 +510,7 @@ public class NugetArtifactControllerTest extends NugetRestAssuredBaseTest
         assertThat(artifactEntryList).isNotEmpty();
 
         ArtifactEntry artifactEntry = artifactEntryList.iterator().next();
+        
         assertThat(artifactEntry).isInstanceOf(RemoteArtifactEntry.class);
         assertThat(((RemoteArtifactEntry)artifactEntry).getIsCached()).isFalse();
 
@@ -533,8 +536,7 @@ public class NugetArtifactControllerTest extends NugetRestAssuredBaseTest
     @Test
     public void testRemoteLastVersion()
     {
-        String url = getContextBaseUrl()
-                     + "/storages/public/nuget-group/FindPackagesById()?id=NHibernate&$orderby=Version";
+        String url = getContextBaseUrl() + "/storages/public/nuget-group/FindPackagesById()?id=NHibernate&$orderby=Version";
         PackageFeed feed = mockMvc.log()
                                   .all()
                                   .header(HttpHeaders.USER_AGENT, "NuGet/*")
