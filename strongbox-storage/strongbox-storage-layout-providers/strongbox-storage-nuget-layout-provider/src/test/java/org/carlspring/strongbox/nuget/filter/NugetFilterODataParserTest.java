@@ -44,7 +44,10 @@ import org.springframework.test.context.ContextConfiguration;
 public class NugetFilterODataParserTest
 {
 
-    private static final String REPOSITORY_RELEASES = "nfodpt-releases";
+    private static final String REPOSITORY_RELEASES_1 = "nfodpt-releases-1";
+    private static final String REPOSITORY_RELEASES_2 = "nfodpt-releases-2";
+    private static final String REPOSITORY_RELEASES_3 = "nfodpt-releases-3";
+    private static final String REPOSITORY_RELEASES_4 = "nfodpt-releases-4";
     @PersistenceContext
     private EntityManager entityManager;
 
@@ -56,9 +59,9 @@ public class NugetFilterODataParserTest
                   ArtifactManagementTestExecutionListener.class })
     @Test
     @Transactional
-    public void testSearchConjunction(@NugetRepository(repositoryId = REPOSITORY_RELEASES)
+    public void testSearchConjunction(@NugetRepository(repositoryId = REPOSITORY_RELEASES_1)
                                               Repository repository,
-                                      @NugetTestArtifact(repositoryId = REPOSITORY_RELEASES,
+                                      @NugetTestArtifact(repositoryId = REPOSITORY_RELEASES_1,
                                               id = "Org.Carlspring.Strongbox.Nuget.Test.Nfpt",
                                               versions = { "1.0.0",
                                                            "1.0.1",
@@ -93,7 +96,7 @@ public class NugetFilterODataParserTest
         assertThat(parameterMap.get("version_1")).isEqualTo("1.0.8");
         assertThat(parameterMap.get("name_1")).isEqualTo("last-version");
         assertThat(parameterMap.get("storageId_1")).isEqualTo("storage-nuget");
-        assertThat(parameterMap.get("repositoryId_2")).isEqualTo("nfodpt-releases");
+        assertThat(parameterMap.get("repositoryId_2")).isEqualTo("nfodpt-releases-1");
     }
 
     /**
@@ -103,9 +106,9 @@ public class NugetFilterODataParserTest
                   ArtifactManagementTestExecutionListener.class })
     @Test
     @Transactional
-    public void testSearchChars(@NugetRepository(repositoryId = REPOSITORY_RELEASES)
+    public void testSearchChars(@NugetRepository(repositoryId = REPOSITORY_RELEASES_2)
                                         Repository repository,
-                                @NugetTestArtifact(repositoryId = REPOSITORY_RELEASES,
+                                @NugetTestArtifact(repositoryId = REPOSITORY_RELEASES_2,
                                         id = "Org.Carlspring.Strongbox.Nuget.Test.Nfpt_-test",
                                         versions = { "1.0.0",
                                                      "1.0.1",
@@ -136,9 +139,9 @@ public class NugetFilterODataParserTest
                   ArtifactManagementTestExecutionListener.class })
     @Test
     @Transactional
-    public void testSearchCharsStart(@NugetRepository(repositoryId = REPOSITORY_RELEASES)
+    public void testSearchCharsStart(@NugetRepository(repositoryId = REPOSITORY_RELEASES_3)
                                              Repository repository,
-                                     @NugetTestArtifact(repositoryId = REPOSITORY_RELEASES,
+                                     @NugetTestArtifact(repositoryId = REPOSITORY_RELEASES_3,
                                              id = "-Org.Carlspring.Strongbox.Nuget.Test.Nfpt",
                                              versions = { "1.0.0",
                                                           "1.0.1",
@@ -161,9 +164,9 @@ public class NugetFilterODataParserTest
                   ArtifactManagementTestExecutionListener.class })
     @Test
     @Transactional
-    public void testSearchCharsEnd(@NugetRepository(repositoryId = REPOSITORY_RELEASES)
+    public void testSearchCharsEnd(@NugetRepository(repositoryId = REPOSITORY_RELEASES_4)
                                            Repository repository,
-                                   @NugetTestArtifact(repositoryId = REPOSITORY_RELEASES,
+                                   @NugetTestArtifact(repositoryId = REPOSITORY_RELEASES_4,
                                            id = "Org.Carlspring.Strongbox.Nuget.Test.Nfpt-",
                                            versions = { "1.0.0",
                                                         "1.0.1",
