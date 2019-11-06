@@ -45,9 +45,13 @@ public class NugetFilterODataParserTest
 {
 
     private static final String REPOSITORY_RELEASES_1 = "nfodpt-releases-1";
+    
     private static final String REPOSITORY_RELEASES_2 = "nfodpt-releases-2";
+    
     private static final String REPOSITORY_RELEASES_3 = "nfodpt-releases-3";
+    
     private static final String REPOSITORY_RELEASES_4 = "nfodpt-releases-4";
+    
     @PersistenceContext
     private EntityManager entityManager;
 
@@ -60,19 +64,19 @@ public class NugetFilterODataParserTest
     @Test
     @Transactional
     public void testSearchConjunction(@NugetRepository(repositoryId = REPOSITORY_RELEASES_1)
-                                              Repository repository,
+                                      Repository repository,
                                       @NugetTestArtifact(repositoryId = REPOSITORY_RELEASES_1,
-                                              id = "Org.Carlspring.Strongbox.Nuget.Test.Nfpt",
-                                              versions = { "1.0.0",
-                                                           "1.0.1",
-                                                           "1.0.2",
-                                                           "1.0.3",
-                                                           "1.0.4",
-                                                           "1.0.5",
-                                                           "1.0.6",
-                                                           "1.0.7",
-                                                           "1.0.8"})
-                                              Path artifactPath)
+                                                         id = "Org.Carlspring.Strongbox.Nuget.Test.Nfpt",
+                                                         versions = { "1.0.0",
+                                                                      "1.0.1",
+                                                                      "1.0.2",
+                                                                      "1.0.3",
+                                                                      "1.0.4",
+                                                                      "1.0.5",
+                                                                      "1.0.6",
+                                                                      "1.0.7",
+                                                                      "1.0.8"})
+                                      Path artifactPath)
     {
         assertThat(Files.exists(artifactPath));
         Selector<ArtifactEntry> selector = new Selector<>(ArtifactEntry.class);
@@ -87,9 +91,11 @@ public class NugetFilterODataParserTest
         selector.select("COUNT(*)");
 
         QueryTemplate<Long, ArtifactEntry> queryTemplate = new OQueryTemplate<>(entityManager);
+        
         assertThat(((OQueryTemplate<Long, ArtifactEntry>) queryTemplate).calculateQueryString(selector)).isEqualTo("SELECT COUNT(*) FROM ArtifactEntry WHERE " +
-                                                                                                                   "artifactCoordinates.coordinates.id.toLowerCase() = :id_0 AND tagSet CONTAINS (name = :name_1) AND "
-                                                                                                                   + "artifactCoordinates.coordinates.version = :version_1 AND storageId = :storageId_1 AND repositoryId = :repositoryId_2 LIMIT 1000");
+                                                                                                                   "artifactCoordinates.coordinates.id.toLowerCase() = :id_0 AND tagSet CONTAINS (name = :name_1) AND " +
+                                                                                                                   "artifactCoordinates.coordinates.version = :version_1 AND storageId = :storageId_1 AND repositoryId = :repositoryId_2 LIMIT 1000");
+        
         Map<String, Object> parameterMap = ((OQueryTemplate<Long, ArtifactEntry>) queryTemplate).exposeParameterMap(selector.getPredicate());
 
         assertThat(parameterMap.get("id_0")).isEqualTo("org.carlspring.strongbox.nuget.test.nfpt");
@@ -107,15 +113,14 @@ public class NugetFilterODataParserTest
     @Test
     @Transactional
     public void testSearchChars(@NugetRepository(repositoryId = REPOSITORY_RELEASES_2)
-                                        Repository repository,
+                                Repository repository,
                                 @NugetTestArtifact(repositoryId = REPOSITORY_RELEASES_2,
-                                        id = "Org.Carlspring.Strongbox.Nuget.Test.Nfpt_-test",
-                                        versions = { "1.0.0",
-                                                     "1.0.1",
-                                                     "1.0.2"})
-                                        Path artifactPath)
+                                                   id = "Org.Carlspring.Strongbox.Nuget.Test.Nfpt_-test",
+                                                   versions = { "1.0.0",
+                                                                "1.0.1",
+                                                                "1.0.2"})
+                                Path artifactPath)
     {
-
         Selector<ArtifactEntry> selector = new Selector<>(ArtifactEntry.class);
 
         NugetODataFilterQueryParser t = new NugetODataFilterQueryParser(
@@ -140,21 +145,20 @@ public class NugetFilterODataParserTest
     @Test
     @Transactional
     public void testSearchCharsStart(@NugetRepository(repositoryId = REPOSITORY_RELEASES_3)
-                                             Repository repository,
+                                     Repository repository,
                                      @NugetTestArtifact(repositoryId = REPOSITORY_RELEASES_3,
-                                             id = "-Org.Carlspring.Strongbox.Nuget.Test.Nfpt",
-                                             versions = { "1.0.0",
-                                                          "1.0.1",
-                                                          "1.0.2"})
-                                             Path artifactPath)
+                                                        id = "-Org.Carlspring.Strongbox.Nuget.Test.Nfpt",
+                                                        versions = { "1.0.0",
+                                                                     "1.0.1",
+                                                                     "1.0.2"})
+                                     Path artifactPath)
     {
-
         Selector<ArtifactEntry> selector = new Selector<>(ArtifactEntry.class);
 
         NugetODataFilterQueryParser t = new NugetODataFilterQueryParser(
                 "tolower(Id) eq '-org.carlspring.strongbox.nuget.test.nfpt'");
+        
         assertThrows(QueryParserException.class,() -> {Predicate predicate = t.parseQuery().getPredicate();});
-
     }
 
     /*
@@ -165,21 +169,20 @@ public class NugetFilterODataParserTest
     @Test
     @Transactional
     public void testSearchCharsEnd(@NugetRepository(repositoryId = REPOSITORY_RELEASES_4)
-                                           Repository repository,
+                                   Repository repository,
                                    @NugetTestArtifact(repositoryId = REPOSITORY_RELEASES_4,
-                                           id = "Org.Carlspring.Strongbox.Nuget.Test.Nfpt-",
-                                           versions = { "1.0.0",
-                                                        "1.0.1",
-                                                        "1.0.2"})
-                                           Path artifactPath)
+                                                      id = "Org.Carlspring.Strongbox.Nuget.Test.Nfpt-",
+                                                      versions = { "1.0.0",
+                                                                   "1.0.1",
+                                                                   "1.0.2"})
+                                   Path artifactPath)
     {
-
         Selector<ArtifactEntry> selector = new Selector<>(ArtifactEntry.class);
 
         NugetODataFilterQueryParser t = new NugetODataFilterQueryParser(
                 "tolower(Id) eq 'org.carlspring.strongbox.nuget.test.nfpt-'");
-        assertThrows(QueryParserException.class,() -> {Predicate predicate = t.parseQuery().getPredicate();});
 
+        assertThrows(QueryParserException.class,() -> {Predicate predicate = t.parseQuery().getPredicate();});
     }
 
 }
