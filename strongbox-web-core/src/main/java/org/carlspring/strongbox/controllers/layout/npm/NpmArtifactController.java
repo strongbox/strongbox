@@ -29,6 +29,7 @@ import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.core.JsonToken;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import io.swagger.annotations.ApiParam;
 import org.apache.commons.compress.archivers.tar.TarArchiveEntry;
 import org.apache.commons.compress.archivers.tar.TarArchiveInputStream;
 import org.apache.commons.compress.compressors.gzip.GzipCompressorInputStream;
@@ -75,6 +76,7 @@ import org.springframework.security.authentication.InsufficientAuthenticationExc
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
 import org.springframework.util.Assert;
+import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PutMapping;
@@ -309,8 +311,8 @@ public class NpmArtifactController
 
     @PreAuthorize("hasAuthority('ARTIFACTS_RESOLVE')")
     @RequestMapping(path = "{storageId}/{repositoryId}/{packageScope}/{packageName}/-/{packageNameWithVersion}.{packageExtension}",
-                    method = { RequestMethod.GET,
-                               RequestMethod.HEAD })
+            method = { RequestMethod.GET,
+                       RequestMethod.HEAD })
     public void downloadPackageWithScope(@RepositoryMapping Repository repository,
                                          @PathVariable(name = "packageScope") String packageScope,
                                          @PathVariable(name = "packageName") String packageName,
@@ -352,8 +354,8 @@ public class NpmArtifactController
 
     @PreAuthorize("hasAuthority('ARTIFACTS_RESOLVE')")
     @RequestMapping(path = "{storageId}/{repositoryId}/{packageName}/-/{packageNameWithVersion}.{packageExtension}",
-                    method = { RequestMethod.GET,
-                               RequestMethod.HEAD })
+            method = { RequestMethod.GET,
+                       RequestMethod.HEAD })
     public void downloadPackage(@RepositoryMapping Repository repository,
                                 @PathVariable(name = "packageName") String packageName,
                                 @PathVariable(name = "packageNameWithVersion") String packageNameWithVersion,
@@ -449,6 +451,44 @@ public class NpmArtifactController
         return ResponseEntity
                        .status(HttpStatus.CREATED)
                        .body("{\"ok\":\"user '" + authentication.getName() + "' created\"}");
+    }
+
+    @DeleteMapping(path = "{storageId}/{repositoryId}/{packageScope}/{packageName}/-/{packageNameWithVersion}.{packageExtension}")
+    @PreAuthorize("hasAuthority('ARTIFACTS_DELETE')")
+    public ResponseEntity unpublish(@RepositoryMapping Repository repository,
+                                    @PathVariable(name = "packageScope") String packageScope,
+                                    @PathVariable(name = "packageName") String packageName,
+                                    @PathVariable(name = "packageNameWithVersion") String packageNameWithVersion,
+                                    @ApiParam(value = "Whether to use force delete")
+                                    @RequestParam(defaultValue = "false",
+                                            name = "force",
+                                            required = false) boolean force)
+            throws Exception
+    {
+        final String storageId = repository.getStorage().getId();
+        final String repositoryId = repository.getId();
+
+        if (!packageNameWithVersion.startsWith(packageName + "-"))
+        {
+            return ResponseEntity.status(HttpServletResponse.SC_BAD_REQUEST).build();
+        }
+
+        //Example of packageNameWithVersion  core-9.0.1-next.8.tgz
+        final String packageVersion = getPackageVersion(packageNameWithVersion, packageName);
+
+        NpmArtifactCoordinates coordinates;
+        try
+        {
+            coordinates = NpmArtifactCoordinates.of(String.format("%s/%s", packageScope, packageName), packageVersion);
+        }
+        catch (IllegalArgumentException e)
+        {
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).build();
+        }
+        RepositoryPath path = artifactResolutionService.resolvePath(storageId, repositoryId, coordinates.toPath());
+
+        artifactManagementService.delete(path, force);
+        return ResponseEntity.status(HttpStatus.OK).build();
     }
 
     private void storeNpmPackage(Repository repository,
