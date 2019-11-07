@@ -54,6 +54,12 @@ public @interface NpmTestArtifact
     String[] versions() default {};
 
     /**
+     * Additional artifact size in bytes.
+     */
+    @AliasFor(annotation = TestArtifact.class)
+    long bytesSize() default 1000000;
+
+    /**
      * The {@link org.carlspring.strongbox.artifact.coordinates.NpmArtifactCoordinates} extension.
      */
     String extension() default "tgz";

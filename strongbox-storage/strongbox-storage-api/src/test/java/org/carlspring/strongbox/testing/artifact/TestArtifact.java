@@ -71,6 +71,6 @@ public @interface TestArtifact
     /**
      * Artifact size in bytes.
      */
-    long size() default 1024;
+    long bytesSize() default 1024;
 
 }
