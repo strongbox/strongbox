@@ -60,7 +60,6 @@
                         <strongbox.home>${basedir}/target/strongbox</strongbox.home>
                         <strongbox.vault>${basedir}/target/strongbox-vault</strongbox.vault>
                         <strongbox.storage.booter.basedir>${basedir}/target/strongbox-vault/storages</strongbox.storage.booter.basedir>
-                        <port.jetty.listen>${port.jetty.listen}</port.jetty.listen>
                     </systemPropertyVariables>
                 </configuration>
             </plugin>
@@ -169,18 +168,6 @@
                     </plugin>
                 </plugins>
             </build>
-        </profile>
-        <profile>
-            <id>set-default-ports</id>
-            <activation>
-                <activeByDefault>true</activeByDefault>
-            </activation>
-
-            <properties>
-                <!-- Default ports for local development: -->
-                <port.jetty.listen>48080</port.jetty.listen>
-                <port.jetty.shutdown>19081</port.jetty.shutdown>
-            </properties>
         </profile>
     </profiles>
 

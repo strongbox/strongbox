@@ -76,14 +76,14 @@ import org.springframework.http.MediaType;
 import org.springframework.security.test.context.support.WithMockUser;
 import org.w3c.dom.Document;
 import org.xml.sax.InputSource;
-
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.fail;
 import static org.carlspring.strongbox.testing.artifact.MavenArtifactTestUtils.getArtifactLevelMetadataPath;
 import static org.carlspring.strongbox.testing.artifact.MavenArtifactTestUtils.getGroupLevelMetadataPath;
 import static org.carlspring.strongbox.testing.artifact.MavenArtifactTestUtils.getVersionLevelMetadataPath;
-import static org.assertj.core.api.Assertions.fail;
-import static org.assertj.core.api.Assertions.assertThat;
-import static org.mockito.Mockito.doReturn;
+import static org.carlspring.strongbox.utils.ArtifactControllerHelper.MULTIPART_BOUNDARY;
 import static org.hamcrest.CoreMatchers.equalTo;
+import static org.mockito.Mockito.doReturn;
 
 /**
  * Test cases for {@link MavenArtifactController}.
@@ -102,9 +102,17 @@ public class MavenArtifactControllerTest
 
     private static final String REPOSITORY_RELEASES = "releases";
 
-    private static final String REPOSITORY_RELEASES1 = "mact-releases-1";
+    private static final String REPOSITORY_RELEASES_1 = "mact-releases-1";
 
-    private static final String REPOSITORY_RELEASES2 = "mact-releases-2";
+    private static final String REPOSITORY_RELEASES_2 = "mact-releases-2";
+
+    private static final String REPOSITORY_RELEASES_3 = "mact-releases-3";
+
+    private static final String REPOSITORY_RELEASES_4 = "mact-releases-4";
+
+    private static final String REPOSITORY_RELEASES_5 = "mact-releases-5";
+
+    private static final String REPOSITORY_RELEASES_6 = "mact-releases-6";
 
     private static final String REPOSITORY_SNAPSHOTS = "mact-snapshots";
 
@@ -161,7 +169,7 @@ public class MavenArtifactControllerTest
         MockitoAnnotations.initMocks(this);
         defaultMavenArtifactDeployer = buildArtifactDeployer(Paths.get(""));
     }
-    
+
     @AfterAll
     static void down()
     {
@@ -337,10 +345,10 @@ public class MavenArtifactControllerTest
     @ExtendWith({ RepositoryManagementTestExecutionListener.class,
                   ArtifactManagementTestExecutionListener.class })
     @Test
-    public void testHeadersFetch(@MavenRepository(repositoryId = REPOSITORY_RELEASES1,
+    public void testHeadersFetch(@MavenRepository(repositoryId = REPOSITORY_RELEASES_1,
                                                   setup = MavenIndexedRepositorySetup.class)
                                  Repository repository,
-                                 @MavenTestArtifact(repositoryId = REPOSITORY_RELEASES1,
+                                 @MavenTestArtifact(repositoryId = REPOSITORY_RELEASES_1,
                                                     id = "org.carlspring.strongbox.browse:foo-bar",
                                                     versions = "2.4")
                                  Path artifactPath)
@@ -351,7 +359,7 @@ public class MavenArtifactControllerTest
         Path artifactPomPath = artifactJarPath.resolveSibling(
                 artifactJarPath.getFileName().toString().replace(".jar", ".pom"));
 
-        String url = getContextBaseUrl() + "/storages/" + STORAGE0 + "/" + REPOSITORY_RELEASES1 + "/" +
+        String url = getContextBaseUrl() + "/storages/" + STORAGE0 + "/" + REPOSITORY_RELEASES_1 + "/" +
                      artifactPomPath.toString();
 
         Headers headersFromGET = client.getHeadersFromGET(url);
@@ -377,10 +385,10 @@ public class MavenArtifactControllerTest
     @ExtendWith({ RepositoryManagementTestExecutionListener.class,
                   ArtifactManagementTestExecutionListener.class })
     @Test
-    public void testPartialFetch(@MavenRepository(repositoryId = REPOSITORY_RELEASES1,
+    public void testPartialFetch(@MavenRepository(repositoryId = REPOSITORY_RELEASES_1,
                                                   setup = MavenIndexedRepositorySetup.class)
                                  Repository repository,
-                                 @MavenTestArtifact(repositoryId = REPOSITORY_RELEASES1,
+                                 @MavenTestArtifact(repositoryId = REPOSITORY_RELEASES_1,
                                                     id = "org.carlspring.strongbox.partial:partial-foo",
                                                     versions = "3.1")
                                  Path artifactPath)
@@ -484,13 +492,13 @@ public class MavenArtifactControllerTest
     @ExtendWith({ RepositoryManagementTestExecutionListener.class,
                   ArtifactManagementTestExecutionListener.class })
     @Test
-    public void testCopyArtifactFile(@MavenRepository(repositoryId = REPOSITORY_RELEASES1,
+    public void testCopyArtifactFile(@MavenRepository(repositoryId = REPOSITORY_RELEASES_1,
                                                       setup = MavenIndexedRepositorySetup.class)
                                      Repository repository1,
-                                     @MavenRepository(repositoryId = REPOSITORY_RELEASES2,
+                                     @MavenRepository(repositoryId = REPOSITORY_RELEASES_2,
                                                       setup = MavenIndexedRepositorySetup.class)
                                      Repository repository2,
-                                     @MavenTestArtifact(repositoryId = REPOSITORY_RELEASES1,
+                                     @MavenTestArtifact(repositoryId = REPOSITORY_RELEASES_1,
                                                         id = "org.carlspring.strongbox.copy:copy-foo",
                                                         versions = "1.1")
                                      Path artifactPath)
@@ -515,13 +523,13 @@ public class MavenArtifactControllerTest
     @ExtendWith({ RepositoryManagementTestExecutionListener.class,
                   ArtifactManagementTestExecutionListener.class })
     @Test
-    public void testCopyArtifactDirectory(@MavenRepository(repositoryId = REPOSITORY_RELEASES1,
+    public void testCopyArtifactDirectory(@MavenRepository(repositoryId = REPOSITORY_RELEASES_1,
                                                            setup = MavenIndexedRepositorySetup.class)
                                           Repository repository1,
-                                          @MavenRepository(repositoryId = REPOSITORY_RELEASES2,
+                                          @MavenRepository(repositoryId = REPOSITORY_RELEASES_2,
                                                            setup = MavenIndexedRepositorySetup.class)
                                           Repository repository2,
-                                          @MavenTestArtifact(repositoryId = REPOSITORY_RELEASES1,
+                                          @MavenTestArtifact(repositoryId = REPOSITORY_RELEASES_1,
                                                              id = "org.carlspring.strongbox.copy:copy-foo",
                                                              versions = "1.2")
                                           Path artifactPath)
@@ -546,10 +554,10 @@ public class MavenArtifactControllerTest
     @ExtendWith({ RepositoryManagementTestExecutionListener.class,
                   ArtifactManagementTestExecutionListener.class })
     @Test
-    public void testDeleteArtifactFile(@MavenRepository(repositoryId = REPOSITORY_RELEASES1,
+    public void testDeleteArtifactFile(@MavenRepository(repositoryId = REPOSITORY_RELEASES_1,
                                                         setup = MavenIndexedRepositorySetup.class)
                                        Repository repository,
-                                       @MavenTestArtifact(repositoryId = REPOSITORY_RELEASES1,
+                                       @MavenTestArtifact(repositoryId = REPOSITORY_RELEASES_1,
                                                           id = "com.artifacts.to.delete.releases:delete-foo",
                                                           versions = "1.2.1")
                                        Path artifactPath)
@@ -574,10 +582,10 @@ public class MavenArtifactControllerTest
     @ExtendWith({ RepositoryManagementTestExecutionListener.class,
                   ArtifactManagementTestExecutionListener.class })
     @Test
-    public void testDeleteArtifactDirectory(@MavenRepository(repositoryId = REPOSITORY_RELEASES1,
+    public void testDeleteArtifactDirectory(@MavenRepository(repositoryId = REPOSITORY_RELEASES_1,
                                                              setup = MavenIndexedRepositorySetup.class)
                                             Repository repository,
-                                            @MavenTestArtifact(repositoryId = REPOSITORY_RELEASES1,
+                                            @MavenTestArtifact(repositoryId = REPOSITORY_RELEASES_1,
                                                                id = "com.artifacts.to.delete.releases:delete-foo",
                                                                versions = "1.2.2")
                                             Path artifactPath)
@@ -649,10 +657,10 @@ public class MavenArtifactControllerTest
     @ExtendWith({ RepositoryManagementTestExecutionListener.class,
                   ArtifactManagementTestExecutionListener.class })
     @Test
-    public void testDirectoryListing(@MavenRepository(repositoryId = REPOSITORY_RELEASES1,
+    public void testDirectoryListing(@MavenRepository(repositoryId = REPOSITORY_RELEASES_1,
                                                       setup = MavenIndexedRepositorySetup.class)
                                      Repository repository,
-                                     @MavenTestArtifact(repositoryId = REPOSITORY_RELEASES1,
+                                     @MavenTestArtifact(repositoryId = REPOSITORY_RELEASES_1,
                                                         id = "org.carlspring.strongbox.browse:foo-bar",
                                                         versions = "1.0")
                                      Path artifactPath)
@@ -765,7 +773,7 @@ public class MavenArtifactControllerTest
 
     @ExtendWith(RepositoryManagementTestExecutionListener.class)
     @Test
-    public void testMetadataAtGroupAndArtifactIdLevel(@MavenRepository(repositoryId = REPOSITORY_RELEASES2,
+    public void testMetadataAtGroupAndArtifactIdLevel(@MavenRepository(repositoryId = REPOSITORY_RELEASES_2,
                                                                        setup = MavenIndexedRepositorySetup.class)
                                                       Repository repository)
             throws Exception
@@ -888,10 +896,10 @@ public class MavenArtifactControllerTest
     @ExtendWith({ RepositoryManagementTestExecutionListener.class,
                   ArtifactManagementTestExecutionListener.class })
     @Test
-    public void testUpdateMetadataOnDeleteReleaseVersionDirectory(@MavenRepository(repositoryId = REPOSITORY_RELEASES2,
+    public void testUpdateMetadataOnDeleteReleaseVersionDirectory(@MavenRepository(repositoryId = REPOSITORY_RELEASES_2,
                                                                                    setup = MavenIndexedRepositorySetup.class)
                                                                   Repository repository,
-                                                                  @MavenTestArtifact(repositoryId = REPOSITORY_RELEASES2,
+                                                                  @MavenTestArtifact(repositoryId = REPOSITORY_RELEASES_2,
                                                                                      id = "org.carlspring.strongbox.delete-metadata:metadata-foo",
                                                                                      versions = { "1.2.1",
                                                                                                   "1.2.2" },
@@ -999,9 +1007,9 @@ public class MavenArtifactControllerTest
                   ArtifactManagementTestExecutionListener.class })
     @Test
     @WithMockUser(username = "deployer", authorities = "ARTIFACTS_RESOLVE")
-    public void testDynamicPrivilegeAssignmentForRepository(@MavenRepository(repositoryId = REPOSITORY_RELEASES1)
+    public void testDynamicPrivilegeAssignmentForRepository(@MavenRepository(repositoryId = REPOSITORY_RELEASES_1)
                                                             Repository repository,
-                                                            @MavenTestArtifact(repositoryId = REPOSITORY_RELEASES1,
+                                                            @MavenTestArtifact(repositoryId = REPOSITORY_RELEASES_1,
                                                                                id = "org.carlspring.strongbox.test:dynamic-privileges",
                                                                                versions = "1.0")
                                                             Path artifactPath)
@@ -1075,6 +1083,118 @@ public class MavenArtifactControllerTest
                .then()
                .statusCode(HttpStatus.BAD_REQUEST.value())
                .statusLine(equalTo("400 The specified path is invalid. Maven GAV not recognized."));
+    }
+
+    @ExtendWith({ RepositoryManagementTestExecutionListener.class,
+                  ArtifactManagementTestExecutionListener.class })
+    @Test
+    public void shouldHandlePartialDownloadWithSingleRange(@MavenRepository(repositoryId = REPOSITORY_RELEASES_3)
+                                                           Repository repository,
+                                                           @MavenTestArtifact(repositoryId = REPOSITORY_RELEASES_3,
+                                                                              id = "org.carlspring.strongbox.maven.test:partial-download-single",
+                                                                              versions = "1.0")
+                                                           Path artifactPath)
+            throws IOException
+    {
+        final String byteRanges = "100-199";
+        MockMvcResponse response = getMockMvcResponseForPartialDownload(byteRanges,
+                                                                        repository,
+                                                                        artifactPath);
+
+        // Then
+        assertThat(response.getStatusCode()).isEqualTo(HttpStatus.PARTIAL_CONTENT.value());
+        assertThat(response.getHeader(HttpHeaders.ACCEPT_RANGES)).isEqualTo("bytes");
+        assertThat(response.getContentType()).isEqualTo(MediaType.APPLICATION_OCTET_STREAM_VALUE);
+    }
+
+    @ExtendWith({ RepositoryManagementTestExecutionListener.class,
+                  ArtifactManagementTestExecutionListener.class })
+    @Test
+    public void shouldNotHandlePartialDownloadWithSingleRangeWhenOffsetIsGreaterThanLimit(
+            @MavenRepository(repositoryId = REPOSITORY_RELEASES_4)
+            Repository repository,
+            @MavenTestArtifact(repositoryId = REPOSITORY_RELEASES_4,
+                               id = "org.carlspring.strongbox.maven.test:partial-download-single-fail-validation",
+                               versions = "1.0")
+            Path artifactPath)
+            throws IOException
+    {
+        final String byteRanges = "199-100";
+        MockMvcResponse response = getMockMvcResponseForPartialDownload(byteRanges,
+                                                                        repository,
+                                                                        artifactPath);
+
+        // Then
+        assertThat(response.getStatusCode()).isEqualTo(HttpStatus.REQUESTED_RANGE_NOT_SATISFIABLE.value());
+        assertThat(response.getHeader(HttpHeaders.CONTENT_RANGE)).startsWith("bytes");
+    }
+
+    @ExtendWith({ RepositoryManagementTestExecutionListener.class,
+                  ArtifactManagementTestExecutionListener.class })
+    @Test
+    public void shouldHandlePartialDownloadWithMultipleRanges(@MavenRepository(repositoryId = REPOSITORY_RELEASES_5)
+                                                              Repository repository,
+                                                              @MavenTestArtifact(repositoryId = REPOSITORY_RELEASES_5,
+                                                                                 id = "org.carlspring.strongbox.maven.test:partial-download-multiple",
+                                                                                 versions = "1.0")
+                                                              Path artifactPath)
+            throws IOException
+    {
+        final String byteRanges = "0-29,200-249,300-309";
+        MockMvcResponse response = getMockMvcResponseForPartialDownload(byteRanges,
+                                                                        repository,
+                                                                        artifactPath);
+
+        // Then
+        assertThat(response.getStatusCode()).isEqualTo(HttpStatus.PARTIAL_CONTENT.value());
+        assertThat(response.getHeader(HttpHeaders.ACCEPT_RANGES)).isEqualTo("bytes");
+        assertThat(response.getContentType()).isEqualTo("multipart/byteranges; boundary=" + MULTIPART_BOUNDARY);
+    }
+
+    @ExtendWith({ RepositoryManagementTestExecutionListener.class,
+                  ArtifactManagementTestExecutionListener.class })
+    @Test
+    public void shouldNotHandlePartialDownloadWithMultipleRangesWhenOffsetIsGreaterThanLimit(
+            @MavenRepository(repositoryId = REPOSITORY_RELEASES_6)
+            Repository repository,
+            @MavenTestArtifact(repositoryId = REPOSITORY_RELEASES_6,
+                               id = "org.carlspring.strongbox.maven.test:partial-download-multiple-fail-validation",
+                               versions = "1.0")
+            Path artifactPath)
+            throws IOException
+    {
+        final String byteRanges = "29-0,249-200,309-300";
+        MockMvcResponse response = getMockMvcResponseForPartialDownload(byteRanges,
+                                                                        repository,
+                                                                        artifactPath);
+
+        // Then
+        assertThat(response.getStatusCode()).isEqualTo(HttpStatus.REQUESTED_RANGE_NOT_SATISFIABLE.value());
+        assertThat(response.getHeader(HttpHeaders.CONTENT_RANGE)).startsWith("bytes */");
+    }
+
+    private MockMvcResponse getMockMvcResponseForPartialDownload(String byteRanges,
+                                                                 Repository repository,
+                                                                 Path artifactPath)
+            throws IOException
+    {
+        // Given
+        final String storageId = repository.getStorage().getId();
+        final String repositoryId = repository.getId();
+
+        String url = getContextBaseUrl() + "/storages/{storageId}/{repositoryId}/{artifactPath}";
+
+        RepositoryPath artifactRepositoryPath = (RepositoryPath) artifactPath.resolveSibling(
+                artifactPath.getFileName().toString().replace(".jar", ".pom")).normalize();
+        String artifactRepositoryPathStr = RepositoryFiles.relativizePath(artifactRepositoryPath);
+
+        // When
+        return mockMvc.header(HttpHeaders.RANGE, "bytes=" + byteRanges)
+                      .contentType(MediaType.TEXT_PLAIN_VALUE)
+                      .when()
+                      .get(url, storageId, repositoryId, artifactRepositoryPathStr)
+                      .peek()
+                      .thenReturn();
     }
 
     @Test
