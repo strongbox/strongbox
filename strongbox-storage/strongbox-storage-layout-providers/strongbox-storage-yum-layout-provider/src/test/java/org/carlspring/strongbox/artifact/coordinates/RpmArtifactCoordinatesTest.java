@@ -24,7 +24,7 @@ class RpmArtifactCoordinatesTest
 
     private static ArrayList<ArrayList<String>> parsedPackages = new ArrayList<>();
 
-    private static ArrayList<String> packageExamples = new ArrayList<>();
+    private static List<String> packageExamples;
 
 
     @BeforeAll
