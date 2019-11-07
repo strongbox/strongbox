@@ -22,7 +22,7 @@ import static org.junit.jupiter.api.parallel.ExecutionMode.CONCURRENT;
 class RpmArtifactCoordinatesTest 
 {
 
-    private static ArrayList<ArrayList<String>> parsedPackages = new ArrayList<>();
+    private static List<List<String>> parsedPackages = new ArrayList<>();
 
     private static List<String> packageExamples;
 
