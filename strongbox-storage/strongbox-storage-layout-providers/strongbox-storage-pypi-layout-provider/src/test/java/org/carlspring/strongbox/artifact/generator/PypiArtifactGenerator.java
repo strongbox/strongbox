@@ -116,9 +116,9 @@ public class PypiArtifactGenerator
 
         Path fullPath = basedir.resolve(packagePath);
 
-        new File(fullPath.getParent().toString()).mkdirs();
-        Path path = Paths.get(fullPath.toString());
-        OutputStream outputStream = Files.newOutputStream(path, CREATE);
+        Path fullPathParent = fullPath.getParent();
+        Files.createDirectories(fullPathParent);
+        OutputStream outputStream = Files.newOutputStream(fullPath, CREATE);
 
         try(ZipOutputStream zos = new ZipOutputStream(outputStream))
         {
@@ -131,7 +131,7 @@ public class PypiArtifactGenerator
                 createWheelPackageFiles(zos, coordinates.getId(), coordinates.getVersion(), byteSize);
             }
         }
-        return path;
+        return fullPath;
     }
 
     private void createSourcePackageFiles(ZipOutputStream zos,
@@ -274,17 +274,17 @@ public class PypiArtifactGenerator
             throws IOException
     {
         ZipEntry zipEntry = new ZipEntry(path);
-
         zos.putNextEntry(zipEntry);
-        RandomInputStream ris = new RandomInputStream(byteSize);
 
-        byte[] buffer = new byte[4096];
-        int len;
-        while ((len = ris.read(buffer)) > 0)
+        try(RandomInputStream ris = new RandomInputStream(byteSize))
         {
-            zos.write(buffer, 0, len);
+            byte[] buffer = new byte[4096];
+            int len;
+            while ((len = ris.read(buffer)) > 0)
+            {
+                zos.write(buffer, 0, len);
+            }
         }
-
         zos.closeEntry();
     }
 
