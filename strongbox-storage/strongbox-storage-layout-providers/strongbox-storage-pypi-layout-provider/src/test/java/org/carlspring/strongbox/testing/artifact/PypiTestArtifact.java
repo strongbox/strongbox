@@ -64,5 +64,5 @@ public @interface PypiTestArtifact
      * Additional artifact size in bytes.
      */
     @AliasFor(annotation = TestArtifact.class)
-    long size() default 1000000;
+    long bytesSize() default 1000000;
 }

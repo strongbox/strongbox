@@ -86,7 +86,7 @@ public class PypiArtifactGenerator
     @Override
     public Path generateArtifact(String id,
                                  String version,
-                                 long size)
+                                 long byteSize)
             throws IOException
     {
         PypiArtifactCoordinates coordinates = new PypiArtifactCoordinates(id,
@@ -96,19 +96,20 @@ public class PypiArtifactGenerator
                                                                           "none",
                                                                           "any",
                                                                           "whl");
-        return generateArtifact(coordinates, size);
+        return generateArtifact(coordinates, byteSize);
     }
 
     @Override
     public Path generateArtifact(URI uri,
-                                 long size)
+                                 long byteSize)
             throws IOException
     {
         PypiArtifactCoordinates coordinates = PypiArtifactCoordinates.parse(FilenameUtils.getName(uri.toString()));
-        return generateArtifact(coordinates, size);
+        return generateArtifact(coordinates, byteSize);
     }
 
-    public Path generateArtifact(PypiArtifactCoordinates coordinates, long size)
+    public Path generateArtifact(PypiArtifactCoordinates coordinates,
+                                 long byteSize)
             throws IOException
     {
         String packagePath = coordinates.toPath();
@@ -119,16 +120,15 @@ public class PypiArtifactGenerator
         Path path = Paths.get(fullPath.toString());
         OutputStream outputStream = Files.newOutputStream(path, CREATE);
 
-
         try(ZipOutputStream zos = new ZipOutputStream(outputStream))
         {
             if (coordinates.isSourcePackage())
             {
-                createSourcePackageFiles(zos, coordinates.getId(), coordinates.getVersion(), size);
+                createSourcePackageFiles(zos, coordinates.getId(), coordinates.getVersion(), byteSize);
             }
             else
             {
-                createWheelPackageFiles(zos, coordinates.getId(), coordinates.getVersion(), size);
+                createWheelPackageFiles(zos, coordinates.getId(), coordinates.getVersion(), byteSize);
             }
         }
         return path;
@@ -137,7 +137,7 @@ public class PypiArtifactGenerator
     private void createSourcePackageFiles(ZipOutputStream zos,
                                           String name,
                                           String version,
-                                          long size)
+                                          long byteSize)
             throws IOException
     {
         //create PKG-INFO zip entry
@@ -186,17 +186,22 @@ public class PypiArtifactGenerator
 
         //create egg SOURCES.txt zip entry
         String sourcesPath = eggDirectory + "/SOURCES.txt";
-        byte[] sourcesContent = String.format(SOURCES_CONTENT, scriptPath, eggPkgInfoPath, sourcesPath,
-                                              dependencyLinksPath, topLevelPath).getBytes();
+        byte[] sourcesContent = String.format(SOURCES_CONTENT,
+                                              scriptPath,
+                                              eggPkgInfoPath,
+                                              sourcesPath,
+                                              dependencyLinksPath,
+                                              topLevelPath).getBytes();
         createZipEntry(zos, sourcesPath, sourcesContent);
 
         String randomPath = eggDirectory + "/" + "RANDOM.txt";
-        createZipEntryWithRandom(zos, randomPath, size);
+        createZipEntryWithRandom(zos, randomPath, byteSize);
     }
 
     private void createWheelPackageFiles(ZipOutputStream zos,
                                          String name,
-                                         String version, long size)
+                                         String version,
+                                         long byteSize)
             throws IOException
     {
         //create bin zip entry
@@ -260,18 +265,18 @@ public class PypiArtifactGenerator
         createZipEntry(zos, recordPath, recordContent.toString().getBytes());
 
         String randomPath = dirPath + "/" + "RANDOM";
-        createZipEntryWithRandom(zos, randomPath, size);
+        createZipEntryWithRandom(zos, randomPath, byteSize);
     }
 
     private void createZipEntryWithRandom(ZipOutputStream zos,
                                           String path,
-                                          long size)
+                                          long byteSize)
             throws IOException
     {
         ZipEntry zipEntry = new ZipEntry(path);
 
         zos.putNextEntry(zipEntry);
-        RandomInputStream ris = new RandomInputStream(size);
+        RandomInputStream ris = new RandomInputStream(byteSize);
 
         byte[] buffer = new byte[4096];
         int len;

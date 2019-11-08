@@ -1,6 +1,6 @@
 package org.carlspring.strongbox.artifact.generation;
 
-import org.carlspring.strongbox.config.PyPiArtifactGeneratorTestConfig;
+import org.carlspring.strongbox.config.PypiMetadataFileParserTestConfig;
 import org.carlspring.strongbox.storage.repository.Repository;
 import org.carlspring.strongbox.testing.artifact.ArtifactManagementTestExecutionListener;
 import org.carlspring.strongbox.testing.artifact.PypiTestArtifact;
@@ -20,14 +20,17 @@ import static org.junit.jupiter.api.parallel.ExecutionMode.CONCURRENT;
 @SpringBootTest
 @ActiveProfiles(profiles = "test")
 @Execution(CONCURRENT)
-@ContextConfiguration(classes = PyPiArtifactGeneratorTestConfig.class)
-public class PyPiArtifactGeneratorTest {
+@ContextConfiguration(classes = PypiMetadataFileParserTestConfig.class)
+public class PyPiArtifactGeneratorTest
+{
 
     @ExtendWith({ RepositoryManagementTestExecutionListener.class,
-            ArtifactManagementTestExecutionListener.class })
+                  ArtifactManagementTestExecutionListener.class })
     @Test
     public void testArtifactGeneration(@PypiTestRepository(repositoryId = "repositoryId") Repository repository,
-                                       @PypiTestArtifact(repositoryId = "repositoryId", resource="org-carlspring-123-strongbox-testing-pypi.whl", size = 2048)
+                                       @PypiTestArtifact(repositoryId = "repositoryId",
+                                               resource="org-carlspring-123-strongbox-testing-pypi.whl",
+                                               bytesSize = 2048)
                                                Path artifactPath)
     throws Exception
     {
