@@ -62,57 +62,45 @@ public class RpmArtifactCoordinatesUtils
         return artifactCoordinates;
     }
 
-    public static String parseBaseName(String fileName)
+    private static String parseBaseName(String fileName)
     {
-        String baseName;
         Matcher matcher = RPM_PACKAGE_NAME_REGEXP_PATTERN.matcher(fileName);
 
-        if (matcher.find())
-        {
-            baseName = matcher.group(1);
-        }
-        else
+        if (!matcher.find())
         {
             throw new IllegalArgumentException("Incorrect filename: package name is required");
         }
-        return baseName;
+        return matcher.group(1);
     }
 
-    public static String parseVersion(String fileName)
+    private static String parseVersion(String fileName)
     {
-        String version;
         Matcher matcher = RPM_PACKAGE_VERSION_REGEXP_PATTERN.matcher(fileName);
 
-        if (matcher.find())
-        {
-            version = matcher.group(1);
-        }
-        else
+        if (!matcher.find())
         {
             throw new IllegalArgumentException("Incorrect filename: package version is required");
         }
-        return version;
+        return matcher.group(1);
     }
 
-    public static String parseRelease(String fileName)
+    private static String parseRelease(String fileName)
     {
         String release;
         Matcher matcher =  RPM_PACKAGE_RELEASE_REGEXP_PATTERN.matcher(fileName);
 
-        if (matcher.find())
-        {
-            release = matcher.group(1);
-        }
-        else
+        if (!matcher.find())
         {
             throw new IllegalArgumentException("Incorrect filename: package release is required");
         }
+        release = matcher.group(1);
+
         return release;
     }
 
-    public static RpmPackageType parsePackageType (String fileName)
+    private static RpmPackageType parsePackageType (String fileName)
     {
-        Boolean match = RPM_PACKAGE_TYPE_REGEXP_PATTERN.matcher(fileName).find();
+        boolean match = RPM_PACKAGE_TYPE_REGEXP_PATTERN.matcher(fileName).find();
 
         return match
                 ? RpmPackageType.SOURCE
@@ -120,19 +108,17 @@ public class RpmArtifactCoordinatesUtils
     }
 
 
-    public static RpmPackageArch parseArch (String fileName)
+    private static RpmPackageArch parseArch (String fileName)
     {
         String arch;
         Matcher matcher = RPM_PACKAGE_ARCH_REGEXP_PATTERN.matcher(fileName);
 
-        if (matcher.find())
-        {
-            arch = matcher.group(1);
-        }
-        else
+        if (!matcher.find())
         {
             throw new IllegalArgumentException("Incorrect filename: package should have architecture or SRC suffix");
         }
+        arch = matcher.group(1);
+
         return RpmPackageArch.valueOf(arch.toUpperCase());
     }
 }
