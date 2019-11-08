@@ -288,6 +288,16 @@ public class NpmArtifactControllerTest
                .statusCode(HttpStatus.OK.value())
                .assertThat()
                .header(HttpHeaders.CONTENT_LENGTH, equalTo(String.valueOf(Files.size(artifact))));
+
+        //Unpublish
+        mockMvc.contentType(MediaType.APPLICATION_JSON_VALUE)
+               .when()
+               .delete(url, storageId, repositoryId, coordinates.toResource())
+               .prettyPeek()
+               .then()
+               .statusCode(HttpStatus.OK.value())
+               .assertThat()
+               .header(HttpHeaders.CONTENT_LENGTH, equalTo(String.valueOf(Files.size(artifact))));
     }
 
     @ExtendWith({ RepositoryManagementTestExecutionListener.class })
