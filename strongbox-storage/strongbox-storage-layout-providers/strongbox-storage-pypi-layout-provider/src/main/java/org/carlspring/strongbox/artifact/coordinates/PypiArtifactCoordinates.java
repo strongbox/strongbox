@@ -115,6 +115,17 @@ public class PypiArtifactCoordinates
         setPackaging(packaging);
     }
 
+    public PypiArtifactCoordinates()
+    {
+        this(DISTRIBUTION,
+                VERSION,
+                "",
+                LANGUAGE_IMPLEMENTATION_VERSION,
+                ABI,
+                PLATFORM,
+                WHEEL_EXTENSION);
+    }
+
     /**
      * This method takes in all artifact coordinates of a PyPi Wheel filename, with build being
      * the empty string if it is not included in the filename

@@ -17,6 +17,7 @@ import java.util.zip.ZipOutputStream;
 
 import com.google.common.hash.Hashing;
 import org.apache.commons.io.FilenameUtils;
+import org.carlspring.strongbox.util.TestFileUtils;
 
 import static java.nio.file.StandardOpenOption.*;
 
@@ -195,7 +196,7 @@ public class PypiArtifactGenerator
         createZipEntry(zos, sourcesPath, sourcesContent);
 
         String randomPath = eggDirectory + "/" + "RANDOM.txt";
-        createZipEntryWithRandom(zos, randomPath, byteSize);
+        TestFileUtils.generateFile(zos, byteSize, randomPath);
     }
 
     private void createWheelPackageFiles(ZipOutputStream zos,
@@ -265,27 +266,7 @@ public class PypiArtifactGenerator
         createZipEntry(zos, recordPath, recordContent.toString().getBytes());
 
         String randomPath = dirPath + "/" + "RANDOM";
-        createZipEntryWithRandom(zos, randomPath, byteSize);
-    }
-
-    private void createZipEntryWithRandom(ZipOutputStream zos,
-                                          String path,
-                                          long byteSize)
-            throws IOException
-    {
-        ZipEntry zipEntry = new ZipEntry(path);
-        zos.putNextEntry(zipEntry);
-
-        try(RandomInputStream ris = new RandomInputStream(byteSize))
-        {
-            byte[] buffer = new byte[4096];
-            int len;
-            while ((len = ris.read(buffer)) > 0)
-            {
-                zos.write(buffer, 0, len);
-            }
-        }
-        zos.closeEntry();
+        TestFileUtils.generateFile(zos, byteSize, randomPath);
     }
 
     private String calculateHash(byte[] content)

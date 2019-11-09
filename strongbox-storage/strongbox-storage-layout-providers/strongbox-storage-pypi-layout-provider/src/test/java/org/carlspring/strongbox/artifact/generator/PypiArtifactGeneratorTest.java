@@ -13,8 +13,10 @@ import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.ContextConfiguration;
 
+import java.nio.file.Files;
 import java.nio.file.Path;
 
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.parallel.ExecutionMode.CONCURRENT;
 
 @SpringBootTest
@@ -30,10 +32,13 @@ public class PypiArtifactGeneratorTest
     public void testArtifactGeneration(@PypiTestRepository(repositoryId = "repositoryId") Repository repository,
                                        @PypiTestArtifact(repositoryId = "repositoryId",
                                                          resource = "org-carlspring-123-strongbox-testing-pypi.whl",
-                                                         bytesSize = 2048)
+                                                         bytesSize = 4096)
                                        Path artifactPath)
             throws Exception
     {
+        assertThat(Files.exists(artifactPath)).as("Failed to generate WHL file!").isTrue();
+        assertThat(Files.size(artifactPath)).isGreaterThan(4096);
+
 
     }
 
