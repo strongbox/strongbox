@@ -1,20 +1,21 @@
 package org.carlspring.strongbox.rest.common;
 
-
-
-import java.io.File;
+import org.carlspring.strongbox.rest.client.RestAssuredArtifactClient;
 
 import javax.inject.Inject;
+import java.io.File;
+import java.nio.charset.Charset;
+import java.util.Locale;
 
-import org.carlspring.strongbox.rest.client.RestAssuredArtifactClient;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import io.restassured.module.mockmvc.specification.MockMvcRequestSpecification;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.context.support.MessageSourceAccessor;
+import org.springframework.security.core.SpringSecurityMessageSource;
 import org.springframework.web.context.WebApplicationContext;
-
-import com.fasterxml.jackson.databind.ObjectMapper;
-
-import io.restassured.module.mockmvc.specification.MockMvcRequestSpecification;
+import static java.nio.charset.StandardCharsets.ISO_8859_1;
 
 /**
  * General settings for the testing sub-system.
@@ -23,6 +24,7 @@ import io.restassured.module.mockmvc.specification.MockMvcRequestSpecification;
  */
 public abstract class RestAssuredBaseTest
 {
+    protected static final String UNAUTHORIZED_MESSAGE_CODE = "ExceptionTranslationFilter.insufficientAuthentication";
 
     public final static int DEFAULT_PORT = 48080;
 
@@ -34,6 +36,8 @@ public abstract class RestAssuredBaseTest
      * Share logger instance across all tests.
      */
     protected final Logger logger = LoggerFactory.getLogger(getClass().getName());
+
+    private final MessageSourceAccessor messages = SpringSecurityMessageSource.getAccessor();
 
     @Inject
     protected WebApplicationContext context;
@@ -106,4 +110,15 @@ public abstract class RestAssuredBaseTest
         file.delete();
     }
 
+    protected String getI18nInsufficientAuthenticationErrorMessage()
+    {
+        String defaultErrorMessage = messages.getMessage(UNAUTHORIZED_MESSAGE_CODE,
+                                                         Locale.ENGLISH);
+
+        String errorMessage = messages.getMessage(UNAUTHORIZED_MESSAGE_CODE,
+                                                  defaultErrorMessage);
+
+        return new String(errorMessage.getBytes(ISO_8859_1),
+                          Charset.defaultCharset());
+    }
 }
