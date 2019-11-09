@@ -7,8 +7,14 @@ import java.nio.file.Path;
 /**
  * @author Wojciech Pater
  */
-public class RawArtifactGenerator implements ArtifactGenerator
+public class RawArtifactGenerator
+        implements ArtifactGenerator
 {
+
+    public RawArtifactGenerator(Path basePath)
+    {
+        super();
+    }
 
     @Override
     public Path generateArtifact(String id,

@@ -9,6 +9,7 @@ import org.carlspring.strongbox.storage.repository.Repository;
 import org.carlspring.strongbox.testing.artifact.ArtifactManagementTestExecutionListener;
 import org.carlspring.strongbox.testing.artifact.RawTestArtifact;
 import org.carlspring.strongbox.testing.artifact.TestArtifact;
+import org.carlspring.strongbox.testing.repository.RawRepository;
 import org.carlspring.strongbox.testing.storage.repository.RepositoryManagementTestExecutionListener;
 import org.carlspring.strongbox.testing.storage.repository.TestRepository;
 
@@ -54,14 +55,13 @@ public class RawArtifactControllerTest
     @ExtendWith({ RepositoryManagementTestExecutionListener.class,
                   ArtifactManagementTestExecutionListener.class })
     @Test
-    public void testDeploy(@TestRepository(layout = RawLayoutProvider.ALIAS,
-                                           repositoryId = REPOSITORY_RELEASES_1)
+    public void testDeploy(@RawRepository(repositoryId = REPOSITORY_RELEASES_1)
                                    Repository repository,
                            @RawTestArtifact(repositoryId = REPOSITORY_RELEASES_1,
                                             id = "raw-test",
                                             versions = "1.0.0",
                                             scope = "@carlspring",
-                                            size = 2048)
+                                            bytesSize = 2048)
                                    Path path)
             throws IOException
     {
@@ -76,7 +76,7 @@ public class RawArtifactControllerTest
 
         mockMvc.header(HttpHeaders.USER_AGENT, "Raw/*")
                .contentType(MediaType.MULTIPART_FORM_DATA_VALUE)
-               .body(content)
+               .body(Files.readAllBytes(path))
                .when()
                .put(url)
                .peek()
@@ -98,7 +98,7 @@ public class RawArtifactControllerTest
 
         baos.flush();
 
-        assertThat(new String(baos.toByteArray())).as("Deployed content mismatch!").isEqualTo(new String(content));
+        assertThat(new String(baos.toByteArray())).as("Deployed content mismatch!").isEqualTo(Files.readAllBytes(path));
 
         logger.debug("Read '{}',", new String(baos.toByteArray()));
     }
