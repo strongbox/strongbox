@@ -42,10 +42,7 @@ public class PypiLayoutProviderConfig
     {
         return (repository) -> {
             StorageProvider storageProvider = storageProviderRegistry.getProvider(repository.getImplementation());
-
-            LayoutFileSystemProvider result = pypiFileSystemProvider(storageProvider.getFileSystemProvider());
-
-            return result;
+            return pypiFileSystemProvider(storageProvider.getFileSystemProvider());
         };
 
     }
@@ -60,12 +57,14 @@ public class PypiLayoutProviderConfig
     @Bean(FILE_SYSTEM_ALIAS)
     public LayoutFileSystemFactory pypiRepositoryFileSystemFactory(PropertiesBooter propertiesBooter)
     {
-        return (repository) -> {
-            LayoutFileSystemProviderFactory providerFactory = pypiRepositoryFileSystemProviderFactory();
+        LayoutFileSystemProviderFactory providerFactory = pypiRepositoryFileSystemProviderFactory();
 
+        return (repository) -> {
             StorageProvider storageProvider = storageProviderRegistry.getProvider(repository.getImplementation());
 
-            return pypiRepositoryFileSystem(propertiesBooter, repository, storageProvider.getFileSystem(),
+            return pypiRepositoryFileSystem(propertiesBooter,
+                                            repository,
+                                            storageProvider.getFileSystem(),
                                              providerFactory.create(repository));
         };
     }

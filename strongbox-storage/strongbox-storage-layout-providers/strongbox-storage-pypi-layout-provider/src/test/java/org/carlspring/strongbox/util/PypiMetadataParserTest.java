@@ -1,7 +1,7 @@
 package org.carlspring.strongbox.util;
 
 
-import org.carlspring.strongbox.config.PypiMetadataFileParserTestConfig;
+import org.carlspring.strongbox.config.PypiLayoutProviderTestConfig;
 import org.carlspring.strongbox.domain.PypiPackageInfo;
 
 import org.junit.jupiter.api.Test;
@@ -23,7 +23,7 @@ import static org.assertj.core.api.Assertions.*;
 import static org.junit.jupiter.api.parallel.ExecutionMode.CONCURRENT;
 
 @SpringBootTest
-@ContextConfiguration(classes = { PypiMetadataFileParserTestConfig.class })
+@ContextConfiguration(classes = { PypiLayoutProviderTestConfig.class })
 @Execution(CONCURRENT)
 public class PypiMetadataParserTest
 {
