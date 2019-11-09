@@ -304,6 +304,7 @@
                                     <systemProperty>logging.file.history=%STRONGBOX_LOG_FILE_HISTORY%</systemProperty>
                                     <systemProperty>logging.console.enabled=%STRONGBOX_LOG_CONSOLE_ENABLED%</systemProperty>
                                     <systemProperty>logging.dir=%STRONGBOX_VAULT%/logs</systemProperty>
+                                    <systemProperty>logging.file=%STRONGBOX_VAULT%/logs/strongbox.log</systemProperty>
                                     <systemProperty>jetty.logs=%STRONGBOX_HOME%/logs</systemProperty>
                                     <systemProperty>java.io.tmpdir=%STRONGBOX_HOME%/tmp</systemProperty>
                                     <systemProperty>strongbox.port=%STRONGBOX_PORT%</systemProperty>
