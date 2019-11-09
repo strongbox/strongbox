@@ -60,7 +60,6 @@ public class RawArtifactControllerTest
                            @RawTestArtifact(repositoryId = REPOSITORY_RELEASES_1,
                                             id = "raw-test",
                                             versions = "1.0.0",
-                                            scope = "@carlspring",
                                             bytesSize = 2048)
                                    Path path)
             throws IOException
