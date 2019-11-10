@@ -118,12 +118,12 @@ public class PypiArtifactCoordinates
     public PypiArtifactCoordinates()
     {
         this(DISTRIBUTION,
-                VERSION,
-                "",
-                LANGUAGE_IMPLEMENTATION_VERSION,
-                ABI,
-                PLATFORM,
-                WHEEL_EXTENSION);
+             VERSION,
+             "",
+             LANGUAGE_IMPLEMENTATION_VERSION,
+             ABI,
+             PLATFORM,
+             WHEEL_EXTENSION);
     }
 
     /**

@@ -65,7 +65,7 @@ public class PypiLayoutProviderConfig
             return pypiRepositoryFileSystem(propertiesBooter,
                                             repository,
                                             storageProvider.getFileSystem(),
-                                             providerFactory.create(repository));
+                                            providerFactory.create(repository));
         };
     }
 
