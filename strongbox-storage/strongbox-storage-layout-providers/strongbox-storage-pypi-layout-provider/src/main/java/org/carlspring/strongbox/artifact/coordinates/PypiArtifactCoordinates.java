@@ -60,7 +60,7 @@ public class PypiArtifactCoordinates
                          LANGUAGE_IMPLEMENTATION_VERSION,
                          ABI,
                          PLATFORM,
-                         WHEEL_EXTENSION);
+                         PACKAGING);
     }
 
     /**
