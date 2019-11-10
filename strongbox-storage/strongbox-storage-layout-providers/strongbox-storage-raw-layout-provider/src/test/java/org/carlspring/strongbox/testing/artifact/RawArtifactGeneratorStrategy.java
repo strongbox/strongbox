@@ -16,10 +16,10 @@ public class RawArtifactGeneratorStrategy implements ArtifactGeneratorStrategy<R
     public Path generateArtifact(RawArtifactGenerator artifactGenerator,
                                  String id,
                                  String version,
-                                 long size,
+                                 long bytesSize,
                                  Map<String, Object> attributesMap)
             throws IOException
     {
-        return artifactGenerator.generateArtifact(id, version, size);
+        return artifactGenerator.generateArtifact(id, version, bytesSize);
     }
 }

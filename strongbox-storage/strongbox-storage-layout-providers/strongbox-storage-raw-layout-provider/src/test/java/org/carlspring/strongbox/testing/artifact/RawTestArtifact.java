@@ -32,7 +32,7 @@ public @interface RawTestArtifact
      * {@link Repository} ID.1
      */
     @AliasFor(annotation = TestArtifact.class)
-    String repositoryId() default "";
+    String repositoryId() default "raw-releases";
 
     /**
      * Layout specific artifact URI.

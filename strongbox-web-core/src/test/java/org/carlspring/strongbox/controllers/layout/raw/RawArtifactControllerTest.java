@@ -44,6 +44,12 @@ public class RawArtifactControllerTest
 
     private static final String REPOSITORY_RELEASES_3 = "ract-raw-releases-3";
 
+    private static final String RAW_ARTIFACT_ID = "raw-test";
+
+    private static final String RAW_ARTIFACT_VERSION = "1.0.0";
+
+    private static final int RAW_ARTIFACT_SIZE = 2048;
+
     @Override
     @BeforeEach
     public void init()
@@ -58,21 +64,16 @@ public class RawArtifactControllerTest
     public void testDeploy(@RawRepository(repositoryId = REPOSITORY_RELEASES_1)
                                    Repository repository,
                            @RawTestArtifact(repositoryId = REPOSITORY_RELEASES_1,
-                                            id = "raw-test",
-                                            versions = "1.0.0",
-                                            bytesSize = 2048)
+                                            id = RAW_ARTIFACT_ID,
+                                            versions = RAW_ARTIFACT_VERSION,
+                                            bytesSize = RAW_ARTIFACT_SIZE)
                                    Path path)
             throws IOException
     {
         final String storageId = repository.getStorage().getId();
         final String repositoryId = repository.getId();
 
-//        String path = "org/foo/bar/blah.txt";
-        byte[] content = "This is a test file\n".getBytes();
-
-        // Push
-        String url = getContextBaseUrl() + "/storages/" + storageId + "/" + repositoryId + "/" + path;
-
+        String url = String.join("/", getContextBaseUrl(), "storages", storageId, repositoryId, RAW_ARTIFACT_ID, RAW_ARTIFACT_VERSION);
         mockMvc.header(HttpHeaders.USER_AGENT, "Raw/*")
                .contentType(MediaType.MULTIPART_FORM_DATA_VALUE)
                .body(Files.readAllBytes(path))
@@ -97,9 +98,8 @@ public class RawArtifactControllerTest
 
         baos.flush();
 
-        assertThat(new String(baos.toByteArray())).as("Deployed content mismatch!").isEqualTo(Files.readAllBytes(path));
-
-        logger.debug("Read '{}',", new String(baos.toByteArray()));
+        assertThat(baos.toByteArray()).as("Deployed content mismatch!").isEqualTo(Files.readAllBytes(path));
+        assertThat(baos.size()).isGreaterThan(RAW_ARTIFACT_SIZE);
     }
 
     @ExtendWith({RepositoryManagementTestExecutionListener.class,

@@ -23,7 +23,6 @@ public class RawArtifactGenerator
 
     public RawArtifactGenerator(Path basePath)
     {
-        super();
         this.basePath = basePath;
     }
 
@@ -35,7 +34,6 @@ public class RawArtifactGenerator
     {
         Files.createDirectories(basePath);
         artifactPath = basePath.resolve(Paths.get(id, version));
-        Files.createDirectories(artifactPath.getParent());
 
         try (OutputStream out = new BufferedOutputStream(Files.newOutputStream(artifactPath, StandardOpenOption.CREATE)))
         {
