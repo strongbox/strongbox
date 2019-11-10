@@ -51,4 +51,9 @@ public @interface NugetTestArtifact
     @AliasFor(annotation = TestArtifact.class)
     String[] versions() default {};
 
+    /**
+     * Additional artifact size in bytes.
+     */
+    @AliasFor(annotation = TestArtifact.class)
+    long bytesSize() default 1000000;
 }
