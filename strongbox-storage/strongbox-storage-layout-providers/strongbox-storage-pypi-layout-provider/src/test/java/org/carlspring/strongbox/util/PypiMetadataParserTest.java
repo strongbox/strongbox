@@ -11,6 +11,7 @@ import org.junit.jupiter.params.provider.NullAndEmptySource;
 import org.junit.jupiter.params.provider.ValueSource;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.ContextConfiguration;
 
 import javax.validation.ConstraintViolationException;
@@ -23,8 +24,9 @@ import static org.assertj.core.api.Assertions.*;
 import static org.junit.jupiter.api.parallel.ExecutionMode.CONCURRENT;
 
 @SpringBootTest
-@ContextConfiguration(classes = { PypiLayoutProviderTestConfig.class })
+@ActiveProfiles(profiles = "test")
 @Execution(CONCURRENT)
+@ContextConfiguration(classes = PypiLayoutProviderTestConfig.class)
 public class PypiMetadataParserTest
 {
 
