@@ -133,6 +133,8 @@ public class NpmArtifactControllerTest
                .when()
                .get(url, storageId, repositoryId, coordinates.toResource())
                .then()
+               .log().status()
+               .log().headers()
                .statusCode(HttpStatus.OK.value())
                .assertThat()
                .header(HttpHeaders.CONTENT_LENGTH, equalTo(String.valueOf(Files.size(packagePath))));
@@ -280,8 +282,9 @@ public class NpmArtifactControllerTest
         mockMvc.contentType(MediaType.APPLICATION_JSON_VALUE)
                .when()
                .get(url, storageId, repositoryId, coordinates.toResource())
-               .prettyPeek()
                .then()
+               .log().status()
+               .log().headers()
                .statusCode(HttpStatus.OK.value())
                .assertThat()
                .header(HttpHeaders.CONTENT_LENGTH, equalTo(String.valueOf(Files.size(artifact))));
