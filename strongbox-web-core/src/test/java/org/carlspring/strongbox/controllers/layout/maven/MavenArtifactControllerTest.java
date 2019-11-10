@@ -1193,7 +1193,6 @@ public class MavenArtifactControllerTest
                       .contentType(MediaType.TEXT_PLAIN_VALUE)
                       .when()
                       .get(url, storageId, repositoryId, artifactRepositoryPathStr)
-                      .peek()
                       .thenReturn();
     }
 
