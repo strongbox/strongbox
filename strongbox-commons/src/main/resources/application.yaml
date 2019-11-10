@@ -37,8 +37,6 @@ strongbox:
     external:
       cache:
         seconds: 300
-  sse:
-    timeoutMillis: 600000
 # Changes to these properties must also be applied to [strongbox/strongbox-web-integration-tests] and possibly the pipeline.
 # Please ping us on our chat channel (https://chat.carlspring.org/) to confirm.
 logging:
@@ -52,8 +50,6 @@ logging:
       total: 1GB
     history: 31
   dir: ${strongbox.vault}/logs
-# TODO: replace with logging.file.name after upgrading to 2.2.X (https://github.com/strongbox/strongbox/pull/1440#discussion_r335779316)
-logging.file: ${logging.dir}/strongbox.log
 java:
   io:
     tmpdir: ${strongbox.vault}/tmp
@@ -70,7 +66,7 @@ management:
   endpoints:
     web:
       exposure:
-        include: health,info,beans,metrics,trace,scheduledtasks,threaddump,loggers
+        include: health,info,beans,metrics,trace,scheduledtasks,threaddump
       base-path: /api/monitoring
 cacheManagerConfiguration:
   groupConfig:

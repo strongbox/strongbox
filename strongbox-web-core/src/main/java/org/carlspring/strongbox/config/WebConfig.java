@@ -66,7 +66,8 @@ import static org.carlspring.strongbox.net.MediaType.APPLICATION_YML_VALUE;
                  "org.carlspring.strongbox.web",
                  "org.carlspring.strongbox.mapper",
                  "org.carlspring.strongbox.utils",
-                 "org.carlspring.strongbox.actuator" })
+                 "org.carlspring.strongbox.actuator",
+                 "org.carlspring.logging" })
 @Import({ CommonConfig.class,
           StrongboxSecurityConfig.class,
           StorageApiConfig.class,

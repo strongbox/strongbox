@@ -2,7 +2,6 @@ package org.carlspring.strongbox.config;
 
 import org.carlspring.strongbox.MockedRemoteRepositoriesHeartbeatConfig;
 import org.carlspring.strongbox.app.StrongboxSpringBootApplication;
-import org.carlspring.strongbox.controllers.logging.SseEmitterAwareTailerListenerAdapter;
 import org.carlspring.strongbox.cron.services.CronJobSchedulerService;
 import org.carlspring.strongbox.data.CacheManagerTestExecutionListener;
 import org.carlspring.strongbox.rest.client.MockMvcRequestSpecificationProxyTarget;
@@ -15,14 +14,7 @@ import java.lang.annotation.ElementType;
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
-import java.util.function.Function;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
-import io.restassured.config.ObjectMapperConfig;
-import io.restassured.module.mockmvc.config.RestAssuredMockMvcConfig;
-import io.restassured.module.mockmvc.internal.MockMvcFactory;
-import io.restassured.module.mockmvc.internal.MockMvcRequestSpecificationImpl;
-import io.restassured.module.mockmvc.specification.MockMvcRequestSpecification;
 import org.apache.http.impl.client.CloseableHttpClient;
 import org.apache.maven.index.updater.ResourceFetcher;
 import org.junit.jupiter.api.parallel.Execution;
@@ -32,7 +24,11 @@ import org.mockito.Mockito;
 import org.springframework.beans.factory.config.ConfigurableBeanFactory;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.context.ApplicationContext;
-import org.springframework.context.annotation.*;
+import org.springframework.context.annotation.Bean;
+import org.springframework.context.annotation.Configuration;
+import org.springframework.context.annotation.Primary;
+import org.springframework.context.annotation.Scope;
+import org.springframework.context.annotation.ScopedProxyMode;
 import org.springframework.security.test.context.support.WithUserDetails;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.TestExecutionListeners;
@@ -40,7 +36,14 @@ import org.springframework.test.context.web.WebAppConfiguration;
 import org.springframework.test.web.servlet.setup.DefaultMockMvcBuilder;
 import org.springframework.test.web.servlet.setup.MockMvcBuilders;
 import org.springframework.web.context.WebApplicationContext;
-import org.springframework.web.servlet.mvc.method.annotation.SseEmitter;
+
+import com.fasterxml.jackson.databind.ObjectMapper;
+
+import io.restassured.config.ObjectMapperConfig;
+import io.restassured.module.mockmvc.config.RestAssuredMockMvcConfig;
+import io.restassured.module.mockmvc.internal.MockMvcFactory;
+import io.restassured.module.mockmvc.internal.MockMvcRequestSpecificationImpl;
+import io.restassured.module.mockmvc.specification.MockMvcRequestSpecification;
 
 
 /**
@@ -48,7 +51,6 @@ import org.springframework.web.servlet.mvc.method.annotation.SseEmitter;
  * require web server and remote HTTP protocol.
  *
  * @author Alex Oreshkevich
- * @author Przemyslaw Fusik
  */
 @Target(ElementType.TYPE)
 @Retention(RetentionPolicy.RUNTIME)
@@ -60,7 +62,7 @@ import org.springframework.web.servlet.mvc.method.annotation.SseEmitter;
 @WithUserDetails("admin")
 @ActiveProfiles("test")
 @TestExecutionListeners(listeners = CacheManagerTestExecutionListener.class,
-        mergeMode = TestExecutionListeners.MergeMode.MERGE_WITH_DEFAULTS)
+                        mergeMode = TestExecutionListeners.MergeMode.MERGE_WITH_DEFAULTS)
 @Execution(ExecutionMode.SAME_THREAD)
 public @interface IntegrationTest
 {
@@ -90,8 +92,7 @@ public @interface IntegrationTest
             final ResourceFetcherFactory resourceFetcherFactory = Mockito.mock(ResourceFetcherFactory.class);
 
             Mockito.when(resourceFetcherFactory.createIndexResourceFetcher(ArgumentMatchers.anyString(),
-                                                                           ArgumentMatchers.any(
-                                                                                   CloseableHttpClient.class)))
+                                                                           ArgumentMatchers.any(CloseableHttpClient.class)))
                    .thenReturn(resourceFetcher);
 
             return resourceFetcherFactory;
@@ -102,14 +103,12 @@ public @interface IntegrationTest
         {
             return new MavenMetadataServiceHelper();
         }
-
+        
         @Bean
         @Scope(proxyMode = ScopedProxyMode.TARGET_CLASS, value = ConfigurableBeanFactory.SCOPE_PROTOTYPE)
-        public MockMvcRequestSpecification mockMvc(ApplicationContext applicationContext)
-        {
-
-            DefaultMockMvcBuilder builder = MockMvcBuilders.webAppContextSetup(
-                    (WebApplicationContext) applicationContext);
+        public MockMvcRequestSpecification mockMvc(ApplicationContext applicationContext) {
+            
+            DefaultMockMvcBuilder builder = MockMvcBuilders.webAppContextSetup((WebApplicationContext) applicationContext);
 
             ObjectMapper objectMapper = applicationContext.getBean(ObjectMapper.class);
             ObjectMapperConfig objectMapperFactory = new ObjectMapperConfig().jackson2ObjectMapperFactory((aClass,
@@ -118,48 +117,13 @@ public @interface IntegrationTest
 
             return new MockMvcRequestSpecificationProxyTarget(
                     new MockMvcRequestSpecificationImpl(new MockMvcFactory(builder), config, null, null,
-                                                        null, null, null, null));
+                            null, null, null, null));
         }
 
         @Bean
-        public RestAssuredArtifactClient artifactClient(MockMvcRequestSpecification mockMvc)
+        public RestAssuredArtifactClient artifactClient(MockMvcRequestSpecification mockMvc) 
         {
             return new RestAssuredArtifactClient(mockMvc);
-        }
-
-        @Primary
-        @Bean
-        public Function<SseEmitter, SseEmitterAwareTailerListenerAdapter> testTailerListenerAdapterPrototypeFactory()
-        {
-            return sseEmitter -> testTailerListener(sseEmitter);
-        }
-
-        @Primary
-        @Bean
-        @Scope(ConfigurableBeanFactory.SCOPE_PROTOTYPE)
-        public SseEmitterAwareTailerListenerAdapter testTailerListener(SseEmitter sseEmitter)
-        {
-            return new TestSseEmitterAwareTailerListenerAdapter(sseEmitter);
-        }
-
-        static class TestSseEmitterAwareTailerListenerAdapter
-                extends SseEmitterAwareTailerListenerAdapter
-        {
-
-            public TestSseEmitterAwareTailerListenerAdapter(final SseEmitter sseEmitter)
-            {
-                super(sseEmitter);
-            }
-
-            @Override
-            public void handle(final String line)
-            {
-                super.handle(line);
-                if (sseEmitter != null)
-                {
-                    sseEmitter.complete();
-                }
-            }
         }
 
     }

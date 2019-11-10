@@ -113,6 +113,7 @@
                         <strongbox.basedir>${project.build.directory}</strongbox.basedir>
                         <logging.config>${project.build.directory}/strongbox/etc/logback-spring.xml</logging.config>
                         <logging.debug>true</logging.debug>
+                        <logging.dir>${project.build.directory}/strongbox-vault/logs</logging.dir>
                     </systemPropertyVariables>
                 </configuration>
 
@@ -304,6 +305,10 @@
             <version>${project.version}</version>
             <type>zip</type>
         </dependency>
+        <dependency>
+            <groupId>org.carlspring.logging</groupId>
+            <artifactId>logback-configuration-rest</artifactId>
+        </dependency>
 
         <!-- Maven artifact management -->
         <dependency>
@@ -433,10 +438,6 @@
         <dependency>
             <groupId>org.junit.jupiter</groupId>
             <artifactId>junit-jupiter</artifactId>
-        </dependency>
-        <dependency>
-            <groupId>org.junit.jupiter</groupId>
-            <artifactId>junit-jupiter-api</artifactId>
         </dependency>
         <dependency>
             <groupId>org.mockito</groupId>
