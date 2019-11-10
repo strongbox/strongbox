@@ -135,7 +135,7 @@ public class RemoteRepositoryAlivenessCacheManagerTest
     @Profile("RemoteRepositoryAlivenessCacheManagerTestConfig")
     @Import(HazelcastConfiguration.class)
     @Configuration
-    public static class MockedRestArtifactResolverTestConfig
+    public static class RemoteRepositoryAlivenessCacheManagerTestConfig
     {
 
         @Bean
