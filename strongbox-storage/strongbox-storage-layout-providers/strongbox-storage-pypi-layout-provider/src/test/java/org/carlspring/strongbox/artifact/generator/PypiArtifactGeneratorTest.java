@@ -1,5 +1,6 @@
 package org.carlspring.strongbox.artifact.generator;
 
+import org.apache.commons.codec.digest.MessageDigestAlgorithms;
 import org.carlspring.strongbox.config.PypiLayoutProviderTestConfig;
 import org.carlspring.strongbox.storage.repository.Repository;
 import org.carlspring.strongbox.testing.artifact.ArtifactManagementTestExecutionListener;
@@ -17,6 +18,8 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.carlspring.strongbox.util.MessageDigestUtils.calculateChecksum;
+import static org.carlspring.strongbox.util.MessageDigestUtils.readChecksumFile;
 import static org.junit.jupiter.api.parallel.ExecutionMode.CONCURRENT;
 
 @SpringBootTest
@@ -44,8 +47,11 @@ public class PypiArtifactGeneratorTest
         Path pathSha256 = artifactPath.resolveSibling(checksumFileName);
         assertThat(Files.exists(pathSha256)).as("Failed to generate WHL SHA256 file.").isTrue();
 
-        assertThat(Files.size(artifactPath)).isGreaterThan(4096);
+        String expectedSha1 = calculateChecksum(artifactPath, MessageDigestAlgorithms.SHA_256);
+        String result = readChecksumFile(pathSha256.toString());
+        assertThat(result).isEqualTo(expectedSha1);
 
+        assertThat(Files.size(artifactPath)).isGreaterThan(4096);
     }
 
     @ExtendWith({ RepositoryManagementTestExecutionListener.class,
@@ -66,8 +72,11 @@ public class PypiArtifactGeneratorTest
         Path pathSha256 = artifactPath.resolveSibling(checksumFileName);
         assertThat(Files.exists(pathSha256)).as("Failed to generate TAR SHA256 file.").isTrue();
 
-        assertThat(Files.size(artifactPath)).isGreaterThan(4096);
+        String expectedSha1 = calculateChecksum(artifactPath, MessageDigestAlgorithms.SHA_256);
+        String result = readChecksumFile(pathSha256.toString());
+        assertThat(result).isEqualTo(expectedSha1);
 
+        assertThat(Files.size(artifactPath)).isGreaterThan(4096);
     }
 
 }
