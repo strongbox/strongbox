@@ -175,7 +175,6 @@ public class RawArtifactControllerTest
                       .contentType(MediaType.TEXT_PLAIN_VALUE)
                       .when()
                       .get(url, storageId, repositoryId, pathStr)
-                      .peek()
                       .thenReturn();
     }
 }

@@ -229,7 +229,6 @@ public class NpmArtifactControllerTestIT
                       .contentType(MediaType.TEXT_PLAIN_VALUE)
                       .when()
                       .get(url, storageId, repositoryId, packageName, packageName, packageVersion, packageExtension)
-                      .peek()
                       .thenReturn();
     }
 }
