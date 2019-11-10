@@ -3,6 +3,7 @@ package org.carlspring.strongbox.yaml.configuration.repository;
 import org.carlspring.strongbox.providers.layout.Maven2LayoutProvider;
 import org.carlspring.strongbox.yaml.repository.CustomRepositoryConfiguration;
 import org.carlspring.strongbox.yaml.repository.CustomRepositoryConfigurationDto;
+import org.carlspring.strongbox.storage.metadata.maven.MetadataExpirationStrategyType;
 
 import com.fasterxml.jackson.annotation.JsonTypeName;
 
@@ -21,6 +22,8 @@ public class MavenRepositoryConfigurationDto
 
     // defaults to once daily at 2 am
     private String cronExpression = "0 0 2 * * ?";
+
+    private String metadataExpirationStrategy = MetadataExpirationStrategyType.CHECKSUM.describe();
 
     @Override
     public boolean isIndexingEnabled()
@@ -53,6 +56,17 @@ public class MavenRepositoryConfigurationDto
     public void setCronExpression(String cronExpression)
     {
         this.cronExpression = cronExpression;
+    }
+
+    @Override
+    public String getMetadataExpirationStrategy()
+    {
+        return metadataExpirationStrategy;
+    }
+
+    public void setMetadataExpirationStrategy(String metadataExpirationStrategy)
+    {
+        this.metadataExpirationStrategy = metadataExpirationStrategy;
     }
 
     @Override
