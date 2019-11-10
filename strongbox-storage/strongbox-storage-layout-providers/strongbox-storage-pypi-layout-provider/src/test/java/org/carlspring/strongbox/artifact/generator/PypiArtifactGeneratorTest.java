@@ -29,16 +29,44 @@ public class PypiArtifactGeneratorTest
     @ExtendWith({ RepositoryManagementTestExecutionListener.class,
                   ArtifactManagementTestExecutionListener.class })
     @Test
-    public void testArtifactGeneration(@PypiTestRepository(repositoryId = "repositoryId") Repository repository,
-                                       @PypiTestArtifact(repositoryId = "repositoryId",
-                                                         resource = "org-carlspring-123-strongbox-testing-pypi.whl",
-                                                         bytesSize = 4096)
-                                       Path artifactPath)
+    public void testWHLFile(@PypiTestRepository(repositoryId = "repositoryId")
+                            Repository repository,
+                            @PypiTestArtifact(repositoryId = "repositoryId",
+                                              resource = "org-carlspring-123-strongbox-testing-pypi.whl",
+                                              bytesSize = 4096)
+                            Path artifactPath)
             throws Exception
     {
         assertThat(Files.exists(artifactPath)).as("Failed to generate WHL file!").isTrue();
+
+        String fileName = artifactPath.getFileName().toString();
+        String checksumFileName = fileName + ".sha256";
+        Path pathSha256 = artifactPath.resolveSibling(checksumFileName);
+        assertThat(Files.exists(pathSha256)).as("Failed to generate WHL SHA256 file.").isTrue();
+
         assertThat(Files.size(artifactPath)).isGreaterThan(4096);
 
+    }
+
+    @ExtendWith({ RepositoryManagementTestExecutionListener.class,
+                  ArtifactManagementTestExecutionListener.class })
+    @Test
+    public void testTARFile(@PypiTestRepository(repositoryId = "repositoryId")
+                            Repository repository,
+                            @PypiTestArtifact(repositoryId = "repositoryId",
+                                              resource = "strongbox-testing.tar.gz",
+                                              bytesSize = 4096)
+                            Path artifactPath)
+            throws Exception
+    {
+        assertThat(Files.exists(artifactPath)).as("Failed to generate TAR file!").isTrue();
+
+        String fileName = artifactPath.getFileName().toString();
+        String checksumFileName = fileName + ".sha256";
+        Path pathSha256 = artifactPath.resolveSibling(checksumFileName);
+        assertThat(Files.exists(pathSha256)).as("Failed to generate TAR SHA256 file.").isTrue();
+
+        assertThat(Files.size(artifactPath)).isGreaterThan(4096);
 
     }
 

@@ -1,9 +1,10 @@
 package org.carlspring.strongbox.artifact.generator;
 
-import org.carlspring.commons.io.RandomInputStream;
+import com.google.common.hash.Hashing;
+import org.apache.commons.io.FilenameUtils;
 import org.carlspring.strongbox.artifact.coordinates.PypiArtifactCoordinates;
+import org.carlspring.strongbox.util.TestFileUtils;
 
-import java.io.File;
 import java.io.IOException;
 import java.io.OutputStream;
 import java.net.URI;
@@ -11,15 +12,10 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.Base64;
-
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipOutputStream;
 
-import com.google.common.hash.Hashing;
-import org.apache.commons.io.FilenameUtils;
-import org.carlspring.strongbox.util.TestFileUtils;
-
-import static java.nio.file.StandardOpenOption.*;
+import static java.nio.file.StandardOpenOption.CREATE;
 
 public class PypiArtifactGenerator
         implements ArtifactGenerator
