@@ -18,17 +18,17 @@ import org.carlspring.strongbox.io.LayoutOutputStream;
  * @author sbespalov
  *
  */
-public class NullArtifactGenerator implements ArtifactGenerator
+public class RawArtifactGenerator implements ArtifactGenerator
 {
 
     private final Path baseDir;
 
-    public NullArtifactGenerator()
+    public RawArtifactGenerator()
     {
         this(Paths.get("."));
     }
 
-    public NullArtifactGenerator(Path baseDir)
+    public RawArtifactGenerator(Path baseDir)
     {
         this.baseDir = baseDir;
     }
