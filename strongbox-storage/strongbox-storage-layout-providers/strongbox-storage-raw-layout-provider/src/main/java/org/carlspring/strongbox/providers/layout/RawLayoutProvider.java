@@ -7,7 +7,7 @@ import java.util.Set;
 import javax.annotation.PostConstruct;
 import javax.inject.Inject;
 
-import org.carlspring.strongbox.artifact.coordinates.NullArtifactCoordinates;
+import org.carlspring.strongbox.artifact.coordinates.RawArtifactCoordinates;
 import org.carlspring.strongbox.providers.io.RepositoryFiles;
 import org.carlspring.strongbox.providers.io.RepositoryPath;
 import org.carlspring.strongbox.repository.RawRepositoryFeatures;
@@ -21,7 +21,7 @@ import org.springframework.stereotype.Component;
  */
 @Component("rawLayoutProvider")
 public class RawLayoutProvider
-        extends AbstractLayoutProvider<NullArtifactCoordinates>
+        extends AbstractLayoutProvider<RawArtifactCoordinates>
 {
 
     private static final Logger logger = LoggerFactory.getLogger(RawLayoutProvider.class);
@@ -42,9 +42,9 @@ public class RawLayoutProvider
                     getClass().getCanonicalName(), ALIAS);
     }
 
-    protected NullArtifactCoordinates getArtifactCoordinates(RepositoryPath path) throws IOException
+    protected RawArtifactCoordinates getArtifactCoordinates(RepositoryPath path) throws IOException
     {
-        return new NullArtifactCoordinates(RepositoryFiles.relativizePath(path));
+        return new RawArtifactCoordinates(RepositoryFiles.relativizePath(path));
     }
 
     public boolean isArtifactMetadata(RepositoryPath path)

@@ -1,7 +1,7 @@
 package org.carlspring.strongbox.services.impl;
 
 import org.carlspring.strongbox.StorageApiTestConfig;
-import org.carlspring.strongbox.artifact.coordinates.NullArtifactCoordinates;
+import org.carlspring.strongbox.artifact.coordinates.RawArtifactCoordinates;
 import org.carlspring.strongbox.configuration.Configuration;
 import org.carlspring.strongbox.services.ConfigurationManagementService;
 import org.carlspring.strongbox.storage.repository.HttpConnectionPool;
@@ -10,7 +10,7 @@ import org.carlspring.strongbox.storage.routing.MutableRoutingRule;
 import org.carlspring.strongbox.storage.routing.MutableRoutingRuleRepository;
 import org.carlspring.strongbox.storage.routing.RoutingRule;
 import org.carlspring.strongbox.storage.routing.RoutingRuleTypeEnum;
-import org.carlspring.strongbox.testing.repository.NullRepository;
+import org.carlspring.strongbox.testing.repository.RawRepository;
 import org.carlspring.strongbox.testing.storage.repository.RepositoryManagementTestExecutionListener;
 import org.carlspring.strongbox.testing.storage.repository.TestRepository.Group;
 
@@ -150,10 +150,10 @@ public class ConfigurationManagementServiceImplTest
 
     @ExtendWith(RepositoryManagementTestExecutionListener.class)
     @Test
-    public void testGetGroupRepositoriesContainingRepository(@NullRepository(repositoryId = REPOSITORY_RELEASES_1)
+    public void testGetGroupRepositoriesContainingRepository(@RawRepository(repositoryId = REPOSITORY_RELEASES_1)
                                                              Repository releases1,
                                                              @Group(repositories = REPOSITORY_RELEASES_1)
-                                                             @NullRepository(repositoryId = REPOSITORY_GROUP_1)
+                                                             @RawRepository(repositoryId = REPOSITORY_GROUP_1)
                                                              Repository releasesGroup)
     {
         final String storageId = releases1.getStorage().getId();
@@ -175,13 +175,13 @@ public class ConfigurationManagementServiceImplTest
 
     @ExtendWith(RepositoryManagementTestExecutionListener.class)
     @Test
-    public void testRemoveRepositoryFromAssociatedGroups(@NullRepository(repositoryId = REPOSITORY_RELEASES_1) 
+    public void testRemoveRepositoryFromAssociatedGroups(@RawRepository(repositoryId = REPOSITORY_RELEASES_1) 
                                                          Repository releases1,
                                                          @Group(repositories = REPOSITORY_RELEASES_1)
-                                                         @NullRepository(repositoryId = REPOSITORY_GROUP_1) 
+                                                         @RawRepository(repositoryId = REPOSITORY_GROUP_1) 
                                                          Repository releasesGroup1,
                                                          @Group(repositories = REPOSITORY_RELEASES_1)
-                                                         @NullRepository(repositoryId = REPOSITORY_GROUP_2) 
+                                                         @RawRepository(repositoryId = REPOSITORY_GROUP_2) 
                                                          Repository releasesGroup2) throws IOException
     {
         final String storageId = releases1.getStorage().getId();
@@ -203,7 +203,7 @@ public class ConfigurationManagementServiceImplTest
 
     @ExtendWith(RepositoryManagementTestExecutionListener.class)
     @Test
-    public void testSetProxyRepositoryMaxConnections(@NullRepository(repositoryId = REPOSITORY_RELEASES_2)
+    public void testSetProxyRepositoryMaxConnections(@RawRepository(repositoryId = REPOSITORY_RELEASES_2)
                                                      Repository releases2) throws IOException
     {
         final String storageId = releases2.getStorage().getId();
@@ -223,10 +223,10 @@ public class ConfigurationManagementServiceImplTest
 
     @ExtendWith(RepositoryManagementTestExecutionListener.class)
     @Test
-    public void shouldAddEditAndRemoveRoutingRule(@NullRepository(repositoryId = REPOSITORY_RELEASES_1)
+    public void shouldAddEditAndRemoveRoutingRule(@RawRepository(repositoryId = REPOSITORY_RELEASES_1)
                                                   Repository releases1,
                                                   @Group(repositories = REPOSITORY_RELEASES_1)
-                                                  @NullRepository(repositoryId = REPOSITORY_GROUP_1)
+                                                  @RawRepository(repositoryId = REPOSITORY_GROUP_1)
                                                   Repository releasesGroup)
             throws IOException
     {
@@ -281,45 +281,45 @@ public class ConfigurationManagementServiceImplTest
 
     @ExtendWith(RepositoryManagementTestExecutionListener.class)
     @Test
-    public void testCanGetRepositoriesWithStorageAndLayout(@NullRepository(repositoryId = REPOSITORY_RELEASES_1)
+    public void testCanGetRepositoriesWithStorageAndLayout(@RawRepository(repositoryId = REPOSITORY_RELEASES_1)
                                                            Repository releases1,
-                                                           @NullRepository(repositoryId = REPOSITORY_RELEASES_2) 
+                                                           @RawRepository(repositoryId = REPOSITORY_RELEASES_2) 
                                                            Repository releases2,
                                                            @Group(repositories = REPOSITORY_RELEASES_1)
-                                                           @NullRepository(repositoryId = REPOSITORY_GROUP_1) 
+                                                           @RawRepository(repositoryId = REPOSITORY_GROUP_1) 
                                                            Repository releasesGroup1,
                                                            @Group(repositories = REPOSITORY_RELEASES_1)
-                                                           @NullRepository(repositoryId = REPOSITORY_GROUP_2) 
+                                                           @RawRepository(repositoryId = REPOSITORY_GROUP_2) 
                                                            Repository releasesGroup2)
     {
         List<Repository> repositories = configurationManagementService.getConfiguration()
                                                                       .getRepositoriesWithLayout(STORAGE0,
-                                                                                                 NullArtifactCoordinates.LAYOUT_NAME);
+                                                                                                 RawArtifactCoordinates.LAYOUT_NAME);
 
         assertThat(repositories).isNotEmpty();
 
         repositories.forEach(repository -> {
-            assertThat(repository.getLayout()).isEqualTo(NullArtifactCoordinates.LAYOUT_NAME);
+            assertThat(repository.getLayout()).isEqualTo(RawArtifactCoordinates.LAYOUT_NAME);
             assertThat(repository.getStorage().getId()).isEqualTo(STORAGE0);
         });
     }
 
     @ExtendWith(RepositoryManagementTestExecutionListener.class)
     @Test
-    public void testCanGetRepositoriesWithStorageAndLayoutNotExistedStorage(@NullRepository(repositoryId = REPOSITORY_RELEASES_1)
+    public void testCanGetRepositoriesWithStorageAndLayoutNotExistedStorage(@RawRepository(repositoryId = REPOSITORY_RELEASES_1)
                                                                             Repository releases1,
-                                                                            @NullRepository(repositoryId = REPOSITORY_RELEASES_2) 
+                                                                            @RawRepository(repositoryId = REPOSITORY_RELEASES_2) 
                                                                             Repository releases2,
                                                                             @Group(repositories = REPOSITORY_RELEASES_1)
-                                                                            @NullRepository(repositoryId = REPOSITORY_GROUP_1) 
+                                                                            @RawRepository(repositoryId = REPOSITORY_GROUP_1) 
                                                                             Repository releasesGroup1,
                                                                             @Group(repositories = REPOSITORY_RELEASES_1)
-                                                                            @NullRepository(repositoryId = REPOSITORY_GROUP_2) 
+                                                                            @RawRepository(repositoryId = REPOSITORY_GROUP_2) 
                                                                             Repository releasesGroup2)
     {
         List<Repository> repositories = configurationManagementService.getConfiguration()
                                                                       .getRepositoriesWithLayout("notExistingStorage",
-                                                                                                 NullArtifactCoordinates.LAYOUT_NAME);
+                                                                                                 RawArtifactCoordinates.LAYOUT_NAME);
 
         assertThat(repositories).isEmpty();
     }

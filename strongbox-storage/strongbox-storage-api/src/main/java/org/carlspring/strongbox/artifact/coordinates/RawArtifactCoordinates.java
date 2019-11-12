@@ -9,19 +9,19 @@ import java.util.Optional;
  * @author carlspring
  */
 @Entity
-public class NullArtifactCoordinates
-        extends AbstractArtifactCoordinates<NullArtifactCoordinates, NullArtifactCoordinates>
+public class RawArtifactCoordinates
+        extends AbstractArtifactCoordinates<RawArtifactCoordinates, RawArtifactCoordinates>
 {
 
     public static final String LAYOUT_NAME = "Null Layout";
     private static final String PATH = "path";
 
-    public NullArtifactCoordinates()
+    public RawArtifactCoordinates()
     {
         resetCoordinates(PATH);
     }
 
-    public NullArtifactCoordinates(String path)
+    public RawArtifactCoordinates(String path)
     {
         this();
         setCoordinate(PATH, path);
@@ -55,7 +55,7 @@ public class NullArtifactCoordinates
     }
 
     @Override
-    public NullArtifactCoordinates getNativeVersion()
+    public RawArtifactCoordinates getNativeVersion()
     {
         return this;
     }

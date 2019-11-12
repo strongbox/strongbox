@@ -1,7 +1,7 @@
 package org.carlspring.strongbox.providers.layout;
 
-import org.carlspring.strongbox.artifact.coordinates.NullArtifactCoordinates;
-import org.carlspring.strongbox.artifact.generator.NullArtifactGenerator;
+import org.carlspring.strongbox.artifact.coordinates.RawArtifactCoordinates;
+import org.carlspring.strongbox.artifact.generator.RawArtifactGenerator;
 import org.carlspring.strongbox.config.RawLayoutProviderTestConfig;
 import org.carlspring.strongbox.providers.io.RepositoryPath;
 import org.carlspring.strongbox.providers.io.RepositoryPathResolver;
@@ -58,7 +58,7 @@ public class RawLayoutProviderTest
     @Test
     void testNullArtifactCoordinates()
     {
-        NullArtifactCoordinates coordinates = new NullArtifactCoordinates("foo/bar/blah.bz2");
+        RawArtifactCoordinates coordinates = new RawArtifactCoordinates("foo/bar/blah.bz2");
 
         logger.debug("coordinates.toPath(): {}", coordinates.toPath());
     }
@@ -71,7 +71,7 @@ public class RawLayoutProviderTest
                                                       repositoryId = REPOSITORY)
                                      Repository repository,
                                      @TestArtifact(resource = "foo/bar.zip",
-                                                   generator = NullArtifactGenerator.class)
+                                                   generator = RawArtifactGenerator.class)
                                      Path artifactPath)
             throws Exception
     {
