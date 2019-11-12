@@ -15,6 +15,7 @@ import org.carlspring.strongbox.converters.users.AccessModelFormToUserAccessMode
 import org.carlspring.strongbox.converters.users.UserFormToUserDtoConverter;
 import org.carlspring.strongbox.cron.config.CronTasksConfig;
 import org.carlspring.strongbox.interceptors.MavenArtifactRequestInterceptor;
+import org.carlspring.strongbox.jtwig.extensions.ByteSizeConversionExtension;
 import org.carlspring.strongbox.mapper.WebObjectMapperSubtypes;
 import org.carlspring.strongbox.providers.io.RepositoryPathResolver;
 import org.carlspring.strongbox.services.DirectoryListingService;
@@ -32,6 +33,8 @@ import java.util.Arrays;
 import java.util.List;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+
+import org.jtwig.environment.EnvironmentConfigurationBuilder;
 import org.jtwig.spring.boot.config.JtwigViewResolverConfigurer;
 import org.jtwig.web.servlet.JtwigRenderer;
 import org.slf4j.Logger;
@@ -268,16 +271,20 @@ public class WebConfig
     @Bean
     JtwigViewResolverConfigurer jtwigViewResolverConfigurer()
     {
-        return jtwigViewResolver ->
-        {
-            jtwigViewResolver.setRenderer(JtwigRenderer.defaultRenderer());
+        return jtwigViewResolver -> {
+            JtwigRenderer renderer = new JtwigRenderer(
+                    EnvironmentConfigurationBuilder.configuration()
+                                                   .extensions()
+                                                   .add(new ByteSizeConversionExtension())
+                                                   .and()
+                                                   .build());
+            jtwigViewResolver.setRenderer(renderer);
             jtwigViewResolver.setPrefix("classpath:/views/");
             jtwigViewResolver.setSuffix(".twig.html");
             jtwigViewResolver.setViewNames("directoryListing");
             jtwigViewResolver.setOrder(0);
         };
     }
-
 
     @Bean
     InternalResourceViewResolver internalResourceViewResolver()
