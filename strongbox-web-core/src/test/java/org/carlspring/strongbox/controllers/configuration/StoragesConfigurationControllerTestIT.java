@@ -1,23 +1,37 @@
 package org.carlspring.strongbox.controllers.configuration;
 
+import org.carlspring.strongbox.artifact.generator.RawArtifactGenerator;
 import org.carlspring.strongbox.booters.PropertiesBooter;
 import org.carlspring.strongbox.config.IntegrationTest;
+import org.carlspring.strongbox.forms.PathForm;
 import org.carlspring.strongbox.forms.configuration.MavenRepositoryConfigurationForm;
 import org.carlspring.strongbox.forms.configuration.ProxyConfigurationForm;
 import org.carlspring.strongbox.forms.configuration.RemoteRepositoryForm;
 import org.carlspring.strongbox.forms.configuration.RepositoryForm;
 import org.carlspring.strongbox.forms.configuration.StorageForm;
+import org.carlspring.strongbox.providers.io.RepositoryFiles;
+import org.carlspring.strongbox.providers.io.RepositoryPath;
 import org.carlspring.strongbox.providers.layout.Maven2LayoutProvider;
+import org.carlspring.strongbox.providers.layout.RawLayoutProvider;
 import org.carlspring.strongbox.rest.common.RestAssuredBaseTest;
 import org.carlspring.strongbox.service.ProxyRepositoryConnectionPoolConfigurationService;
 import org.carlspring.strongbox.storage.Storage;
 import org.carlspring.strongbox.storage.StorageData;
 import org.carlspring.strongbox.storage.repository.Repository;
 import org.carlspring.strongbox.storage.repository.RepositoryData;
+import org.carlspring.strongbox.testing.MavenIndexedRepositorySetup;
+import org.carlspring.strongbox.testing.artifact.*;
+import org.carlspring.strongbox.testing.repository.MavenRepository;
+import org.carlspring.strongbox.testing.repository.NpmRepository;
+import org.carlspring.strongbox.testing.repository.NugetRepository;
+import org.carlspring.strongbox.testing.storage.repository.RepositoryManagementTestExecutionListener;
+import org.carlspring.strongbox.testing.storage.repository.TestRepository;
 import org.carlspring.strongbox.yaml.configuration.repository.MavenRepositoryConfiguration;
 
 import javax.inject.Inject;
+import java.io.IOException;
 import java.nio.file.Files;
+import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.LinkedHashSet;
 import java.util.List;
@@ -28,6 +42,7 @@ import com.google.common.collect.Lists;
 import org.apache.http.pool.PoolStats;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.ValueSource;
 import org.springframework.http.HttpStatus;
@@ -40,6 +55,7 @@ import static org.carlspring.strongbox.controllers.configuration.StoragesConfigu
 import static org.carlspring.strongbox.controllers.configuration.StoragesConfigurationController.SUCCESSFUL_SAVE_STORAGE;
 import static org.carlspring.strongbox.controllers.configuration.StoragesConfigurationController.SUCCESSFUL_STORAGE_REMOVAL;
 import static org.carlspring.strongbox.controllers.configuration.StoragesConfigurationController.SUCCESSFUL_UPDATE_STORAGE;
+import static org.carlspring.strongbox.controllers.configuration.StoragesConfigurationController.SUCCESSFUL_REPOSITORY_PATH_REMOVAL;
 import static org.carlspring.strongbox.rest.client.RestAssuredArtifactClient.OK;
 import static org.hamcrest.Matchers.containsString;
 import static org.hamcrest.Matchers.equalTo;
@@ -56,6 +72,16 @@ public class StoragesConfigurationControllerTestIT
     private static final String VALID_STORAGE_ID = "storage1";
 
     private static final String EXISTING_STORAGE_ID = STORAGE0;
+
+    private final static String NUGET_STORAGE_ID = "storage-nuget-test";
+
+    private static final String NUGET_REPOSITORY_RELEASES = "nuget-test-releases";
+
+    private static final String MAVEN_REPOSITORY_RELEASES = "mact-releases-1";
+
+    private static final String RAW_REPOSITORY_RELEASES = "ract-raw-releases";
+
+    private static final String NPM_REPOSITORY_RELEASES = "npm-releases-test";
 
     private RepositoryForm repositoryForm0;
 
@@ -665,6 +691,113 @@ public class StoragesConfigurationControllerTestIT
 
         // 5. Confirm base dir has been deleted
         assertThat(Files.exists(Paths.get(storageBaseDir))).isFalse();
+    }
+
+    @ExtendWith({ RepositoryManagementTestExecutionListener.class,
+                  ArtifactManagementTestExecutionListener.class })
+    @Test
+    public void testDeleteMavenPathInRepository(@MavenRepository(repositoryId = MAVEN_REPOSITORY_RELEASES,
+                                                                 setup = MavenIndexedRepositorySetup.class)
+                                                Repository repository,
+                                                @MavenTestArtifact(repositoryId = MAVEN_REPOSITORY_RELEASES,
+                                                                   id = "com.artifacts.to.delete.releases:delete-foo",
+                                                                   versions = "1.2.1")
+                                                Path path)
+            throws Exception
+    {
+        deleteRepositoryPath(repository, path, true);
+        deleteRepositoryPath(repository, path, false);
+    }
+
+    @ExtendWith({ RepositoryManagementTestExecutionListener.class,
+                  ArtifactManagementTestExecutionListener.class })
+    @Test
+    public void testDeleteNugetPathInRepository(@NugetRepository(storageId = NUGET_STORAGE_ID,
+                                                                 repositoryId = NUGET_REPOSITORY_RELEASES)
+                                                Repository repository,
+                                                @NugetTestArtifact(storageId = NUGET_STORAGE_ID,
+                                                                   repositoryId = NUGET_REPOSITORY_RELEASES,
+                                                                   id = "Org.Carlspring.Strongbox.Examples.Nuget.Mono.Delete",
+                                                                   versions = "1.0.0")
+                                                Path path)
+            throws Exception
+    {
+        deleteRepositoryPath(repository, path, true);
+        deleteRepositoryPath(repository, path, false);
+    }
+
+    @ExtendWith({ RepositoryManagementTestExecutionListener.class,
+                  ArtifactManagementTestExecutionListener.class })
+    @Test
+    public void testDeleteRawPathInRepository(@TestRepository(layout = RawLayoutProvider.ALIAS,
+                                                              repositoryId = RAW_REPOSITORY_RELEASES)
+                                              Repository repository,
+                                              @TestArtifact(repositoryId = RAW_REPOSITORY_RELEASES,
+                                                            resource = "org/foo/bar/blah.zip",
+                                                            generator = RawArtifactGenerator.class)
+                                              Path path)
+            throws Exception
+    {
+        deleteRepositoryPath(repository, path, true);
+        deleteRepositoryPath(repository, path, false);
+    }
+
+    @ExtendWith({ RepositoryManagementTestExecutionListener.class,
+                  ArtifactManagementTestExecutionListener.class })
+    @Test
+    public void testDeleteNpmPathInRepository(@NpmRepository(repositoryId = NPM_REPOSITORY_RELEASES)
+                                              Repository repository,
+                                              @NpmTestArtifact(repositoryId = NPM_REPOSITORY_RELEASES,
+                                                               versions = "1.0.0",
+                                                               id = "npm-test-release",
+                                                               scope = "@carlspring")
+                                              Path path)
+            throws Exception
+    {
+        deleteRepositoryPath(repository, path, true);
+        deleteRepositoryPath(repository, path, false);
+    }
+
+    private void deleteRepositoryPath(Repository repository, Path path, boolean force)
+            throws IOException
+    {
+        String url = getContextBaseUrl() + "/delete";
+
+        assertThat(Files.exists(path))
+                .as("Failed to locate repository path '" + path + "'!")
+                .isTrue();
+
+        RepositoryPath repositoryPath = (RepositoryPath) path.toRealPath();
+        String repositoryPathStr = RepositoryFiles.relativizePath(repositoryPath);
+
+        PathForm pathForm = buildPathForm(repository.getStorage().getId(),
+                                          repository.getId(),
+                                          repositoryPathStr,
+                                          force);
+
+        givenCustom().contentType(MediaType.APPLICATION_JSON_VALUE)
+                     .accept(MediaType.APPLICATION_JSON_VALUE)
+                     .body(pathForm)
+                     .when()
+                     .delete(url)
+                     .prettyPeek()
+                     .then()
+                     .body(containsString(SUCCESSFUL_REPOSITORY_PATH_REMOVAL));
+
+        assertThat(Files.notExists(path))
+                .as("Failed to delete repository path '" + path + "'!")
+                .isTrue();
+    }
+
+    private PathForm buildPathForm(String storageId, String repositoryId, String path, boolean force)
+    {
+        PathForm form = new PathForm();
+        form.setStorageId(storageId);
+        form.setRepositoryId(repositoryId);
+        form.setPath(path);
+        form.setForce(force);
+
+        return form;
     }
 
 }
