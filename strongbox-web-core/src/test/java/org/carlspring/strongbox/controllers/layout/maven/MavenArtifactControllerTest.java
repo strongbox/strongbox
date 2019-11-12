@@ -4,16 +4,15 @@ import org.carlspring.commons.encryption.EncryptionAlgorithmsEnum;
 import org.carlspring.commons.io.MultipleDigestOutputStream;
 import org.carlspring.strongbox.artifact.MavenArtifactUtils;
 import org.carlspring.strongbox.artifact.generator.MavenArtifactDeployer;
-import org.carlspring.strongbox.booters.PropertiesBooter;
 import org.carlspring.strongbox.client.ArtifactOperationException;
 import org.carlspring.strongbox.client.ArtifactTransportException;
 import org.carlspring.strongbox.config.IntegrationTest;
 import org.carlspring.strongbox.domain.ArtifactEntry;
 import org.carlspring.strongbox.domain.RemoteArtifactEntry;
-import org.carlspring.strongbox.providers.io.LayoutFileSystem;
 import org.carlspring.strongbox.providers.io.RepositoryFiles;
 import org.carlspring.strongbox.providers.io.RepositoryPath;
 import org.carlspring.strongbox.providers.io.RootRepositoryPath;
+import org.carlspring.strongbox.repository.MavenRepositoryFeatures;
 import org.carlspring.strongbox.rest.common.MavenRestAssuredBaseTest;
 import org.carlspring.strongbox.services.ArtifactEntryService;
 import org.carlspring.strongbox.storage.repository.Repository;
@@ -148,9 +147,6 @@ public class MavenArtifactControllerTest
     private ArtifactEntryService artifactEntryService;
 
     private MavenArtifactDeployer defaultMavenArtifactDeployer;
-
-    @Inject
-    private PropertiesBooter propertiesBooter;
 
     @BeforeAll
     static void setUpBeforeAll()
@@ -697,7 +693,7 @@ public class MavenArtifactControllerTest
 
         assertThat(invalidPath.response().getStatusCode()).isEqualTo(HttpStatus.NOT_FOUND.value());
 
-        assertThat(repositoryRootContent.contains(LayoutFileSystem.INDEX))
+        assertThat(repositoryRootContent.contains(MavenRepositoryFeatures.INDEX))
                 .as(".index directory should not be visible in directory listing!")
                 .isFalse();
     }

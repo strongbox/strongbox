@@ -38,6 +38,8 @@ public class MavenRepositoryFeatures
 
     private static final Logger logger = LoggerFactory.getLogger(MavenRepositoryFeatures.class);
 
+    public static final String INDEX = ".index";
+
     @Inject
     private ConfigurationManager configurationManager;
 
@@ -57,7 +59,6 @@ public class MavenRepositoryFeatures
     private RepositoryPathResolver repositoryPathResolver;
 
     private Set<String> defaultArtifactCoordinateValidators;
-
 
     @PostConstruct
     public void init()

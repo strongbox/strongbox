@@ -1,10 +1,10 @@
 package org.carlspring.strongbox.controllers;
 
 import org.carlspring.strongbox.config.IntegrationTest;
-import org.carlspring.strongbox.providers.io.LayoutFileSystem;
 import org.carlspring.strongbox.providers.io.RepositoryFiles;
 import org.carlspring.strongbox.providers.io.RepositoryPath;
 import org.carlspring.strongbox.providers.io.RootRepositoryPath;
+import org.carlspring.strongbox.repository.MavenRepositoryFeatures;
 import org.carlspring.strongbox.rest.common.MavenRestAssuredBaseTest;
 import org.carlspring.strongbox.storage.repository.Repository;
 import org.carlspring.strongbox.testing.artifact.ArtifactManagementTestExecutionListener;
@@ -89,7 +89,7 @@ public class TrashControllerTest
                 .isTrue();
 
         final RootRepositoryPath repositoryPath = repositoryPathResolver.resolve(repository);
-        final Path repositoryIndexDir = repositoryPath.resolve(LayoutFileSystem.INDEX);
+        final Path repositoryIndexDir = repositoryPath.resolve(MavenRepositoryFeatures.INDEX);
 
         assertThat(Files.exists(repositoryIndexDir)).as("Should not have deleted .index directory!").isTrue();
     }
