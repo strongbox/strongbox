@@ -468,6 +468,26 @@ public class NpmArtifactController
         final String storageId = repository.getStorage().getId();
         final String repositoryId = repository.getId();
 
+        //todo move to layout provider
+        if (force)
+        {
+            RepositoryPath packagePath = null;
+            try
+            {
+                packagePath = artifactResolutionService.resolvePath(storageId, repositoryId,
+                                                                    NpmArtifactCoordinates.calculatePackageId(
+                                                                            packageScope,
+                                                                            packageName));
+                artifactManagementService.delete(packagePath, true);
+            }
+            catch (IOException e)
+            {
+                logger.error("Failed to process Npm delete request: path-[{}]", packagePath, e);
+                return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(e.getMessage());
+            }
+            return ResponseEntity.status(HttpStatus.OK).build();
+        }
+
         logger.info(
                 "Npm delete request: storageId-[{}]; repositoryId-[{}]; packageName-[{}]; packageNameWithVersion-[{}]; force-[{}]",
                 storageId, repositoryId, packageName, packageNameWithVersion, force);
@@ -480,11 +500,10 @@ public class NpmArtifactController
         final String packageVersion = getPackageVersion(packageNameWithVersion, packageName);
 
         NpmArtifactCoordinates coordinates;
-        NpmArtifactCoordinates coordinatesJson;
+
         try
         {
             coordinates = NpmArtifactCoordinates.of(String.format("%s/%s", packageScope, packageName), packageVersion);
-//            coordinatesJson = NpmArtifactCoordinates.parse("%s/%s/%s/", packageScope, packageName, packageVersion)
         }
         catch (IllegalArgumentException e)
         {
@@ -493,7 +512,7 @@ public class NpmArtifactController
         RepositoryPath path = artifactResolutionService.resolvePath(storageId, repositoryId, coordinates.toPath());
         try
         {
-            artifactManagementService.delete(path, force);
+            artifactManagementService.delete(path, false);
             path = artifactResolutionService.resolvePath(storageId, repositoryId, coordinates.getPath());
 
         }
