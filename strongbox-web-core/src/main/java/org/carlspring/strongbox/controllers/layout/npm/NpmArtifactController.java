@@ -468,6 +468,10 @@ public class NpmArtifactController
         final String storageId = repository.getStorage().getId();
         final String repositoryId = repository.getId();
 
+        logger.info(
+                "Npm delete request: storageId-[{}]; repositoryId-[{}]; packageName-[{}]; packageNameWithVersion-[{}]; force-[{}]",
+                storageId, repositoryId, packageName, packageNameWithVersion, force);
+
         if (!packageNameWithVersion.startsWith(packageName + "-"))
         {
             return ResponseEntity.status(HttpServletResponse.SC_BAD_REQUEST).build();
@@ -476,17 +480,28 @@ public class NpmArtifactController
         final String packageVersion = getPackageVersion(packageNameWithVersion, packageName);
 
         NpmArtifactCoordinates coordinates;
+        NpmArtifactCoordinates coordinatesJson;
         try
         {
             coordinates = NpmArtifactCoordinates.of(String.format("%s/%s", packageScope, packageName), packageVersion);
+//            coordinatesJson = NpmArtifactCoordinates.parse("%s/%s/%s/", packageScope, packageName, packageVersion)
         }
         catch (IllegalArgumentException e)
         {
             return ResponseEntity.status(HttpStatus.BAD_REQUEST).build();
         }
         RepositoryPath path = artifactResolutionService.resolvePath(storageId, repositoryId, coordinates.toPath());
+        try
+        {
+            artifactManagementService.delete(path, force);
+            path = artifactResolutionService.resolvePath(storageId, repositoryId, coordinates.getPath());
 
-        artifactManagementService.delete(path, force);
+        }
+        catch (IOException e)
+        {
+            logger.error("Failed to process Npm delete request: path-[{}]", path, e);
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(e.getMessage());
+        }
         return ResponseEntity.status(HttpStatus.OK).build();
     }
 
