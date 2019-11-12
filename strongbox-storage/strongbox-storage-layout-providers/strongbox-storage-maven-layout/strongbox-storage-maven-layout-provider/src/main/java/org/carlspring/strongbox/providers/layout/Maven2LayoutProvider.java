@@ -1,18 +1,6 @@
 package org.carlspring.strongbox.providers.layout;
 
 
-import java.io.IOException;
-import java.time.Instant;
-import java.time.temporal.ChronoUnit;
-import java.util.Collections;
-import java.util.Map;
-import java.util.Set;
-
-import javax.annotation.PostConstruct;
-import javax.inject.Inject;
-
-import org.apache.commons.lang3.BooleanUtils;
-import org.apache.maven.index.artifact.M2ArtifactRecognizer;
 import org.carlspring.strongbox.artifact.MavenArtifact;
 import org.carlspring.strongbox.artifact.MavenArtifactUtils;
 import org.carlspring.strongbox.artifact.archive.JarArchiveListingFunction;
@@ -23,6 +11,18 @@ import org.carlspring.strongbox.providers.io.RepositoryPath;
 import org.carlspring.strongbox.repository.MavenRepositoryFeatures;
 import org.carlspring.strongbox.repository.MavenRepositoryManagementStrategy;
 import org.carlspring.strongbox.storage.metadata.MetadataHelper;
+
+import javax.annotation.PostConstruct;
+import javax.inject.Inject;
+import java.io.IOException;
+import java.time.Instant;
+import java.time.temporal.ChronoUnit;
+import java.util.Collections;
+import java.util.Map;
+import java.util.Set;
+
+import org.apache.commons.lang3.BooleanUtils;
+import org.apache.maven.index.artifact.M2ArtifactRecognizer;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Component;

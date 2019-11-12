@@ -1,10 +1,5 @@
 package org.carlspring.strongbox.repository;
 
-import java.io.IOException;
-import java.nio.file.Files;
-
-import javax.inject.Inject;
-
 import org.carlspring.strongbox.cron.domain.CronTaskConfigurationDto;
 import org.carlspring.strongbox.cron.jobs.DownloadRemoteMavenIndexCronJob;
 import org.carlspring.strongbox.cron.jobs.MergeMavenGroupRepositoryIndexCronJob;
@@ -15,6 +10,11 @@ import org.carlspring.strongbox.providers.io.RepositoryPathResolver;
 import org.carlspring.strongbox.storage.Storage;
 import org.carlspring.strongbox.storage.repository.Repository;
 import org.carlspring.strongbox.yaml.configuration.repository.MavenRepositoryConfiguration;
+
+import javax.inject.Inject;
+import java.io.IOException;
+import java.nio.file.Files;
+
 import org.springframework.stereotype.Component;
 
 /**

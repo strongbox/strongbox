@@ -1,12 +1,12 @@
 package org.carlspring.strongbox.storage.indexing;
 
-import javax.inject.Inject;
-
 import org.carlspring.strongbox.providers.io.RepositoryPath;
 import org.carlspring.strongbox.providers.io.RepositoryPathResolver;
 import org.carlspring.strongbox.providers.io.RootRepositoryPath;
 import org.carlspring.strongbox.repository.MavenRepositoryFeatures;
 import org.carlspring.strongbox.storage.repository.Repository;
+
+import javax.inject.Inject;
 
 /**
  * @author Przemyslaw Fusik
