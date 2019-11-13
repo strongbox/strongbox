@@ -11,7 +11,7 @@ def notifyBranch = [recipients: [brokenTestsSuspects(), requestor()]]
 pipeline {
     agent {
         node {
-            label 'alpine:jdk8-mvn-3.5'
+            label 'alpine:jdk8-mvn3.6'
             customWorkspace workspace().getUniqueWorkspacePath()
         }
     }
