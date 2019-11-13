@@ -1,7 +1,7 @@
 version: '2'
 services:
   strongbox-from-web-core:
-    image: strongboxci/alpine:jdk8-mvn-3.5
+    image: strongboxci/alpine:jdk8-mvn3.6
     command:
       - /bin/bash
       - -c
