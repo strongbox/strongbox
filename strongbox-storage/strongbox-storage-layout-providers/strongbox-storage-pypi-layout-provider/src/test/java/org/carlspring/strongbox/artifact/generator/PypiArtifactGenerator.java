@@ -191,7 +191,7 @@ public class PypiArtifactGenerator
                                               topLevelPath).getBytes();
         createZipEntry(zos, sourcesPath, sourcesContent);
 
-        String randomPath = eggDirectory + "/" + "RANDOM.txt";
+        String randomPath = eggDirectory + "/RANDOM.txt";
         TestFileUtils.generateFile(zos, byteSize, randomPath);
     }
 
@@ -261,7 +261,7 @@ public class PypiArtifactGenerator
 
         createZipEntry(zos, recordPath, recordContent.toString().getBytes());
 
-        String randomPath = dirPath + "/" + "RANDOM";
+        String randomPath = dirPath + "/RANDOM";
         TestFileUtils.generateFile(zos, byteSize, randomPath);
     }
 

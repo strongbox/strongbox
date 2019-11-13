@@ -35,7 +35,8 @@ public class PypiLayoutProviderTestConfig
     ConfigurationFileManager configurationFileManager(YAMLMapperFactory yamlMapperFactory)
             throws IOException
     {
-        final ConfigurationFileManager configurationFileManager = Mockito.spy(new ConfigurationFileManager(yamlMapperFactory));
+        final ConfigurationFileManager configurationFileManager = Mockito.spy(
+                new ConfigurationFileManager(yamlMapperFactory));
 
         Mockito.doNothing().when(configurationFileManager).store(any(MutableConfiguration.class));
 
@@ -56,6 +57,12 @@ public class PypiLayoutProviderTestConfig
         return Mockito.mock(CronJobSchedulerService.class);
     }
 
+    @Bean
+    public ArtifactResolutionServiceHelper artifactResolutionServiceHelper()
+    {
+        return new ArtifactResolutionServiceHelper();
+    }
+
     private static class CronRelatedBeansAreMissedInContext
             implements Condition
     {
@@ -67,12 +74,6 @@ public class PypiLayoutProviderTestConfig
             return !context.getRegistry().containsBeanDefinition("cronTaskConfigurationServiceImpl") &&
                    !context.getRegistry().containsBeanDefinition("cronJobSchedulerServiceImpl");
         }
-    }
-
-    @Bean
-    public ArtifactResolutionServiceHelper artifactResolutionServiceHelper()
-    {
-        return new ArtifactResolutionServiceHelper();
     }
 
 }
