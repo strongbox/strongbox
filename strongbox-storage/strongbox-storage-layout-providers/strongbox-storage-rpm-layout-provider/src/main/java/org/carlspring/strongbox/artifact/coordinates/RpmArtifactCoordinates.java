@@ -187,20 +187,20 @@ public class RpmArtifactCoordinates
         if (RpmPackageType.SOURCE.getPostfix().equals(getPackageType()))
         {
             path = String.format("%s-%s-%s.%s.%s",
-                    getId(),
-                    getVersion(),
-                    getRelease(),
-                    getPackageType(),
-                    getExtension());
+                                 getId(),
+                                 getVersion(),
+                                 getRelease(),
+                                 getPackageType(),
+                                 getExtension());
         }
         else
         {
             path = String.format("%s-%s-%s.%s.%s",
-                    getId(),
-                    getVersion(),
-                    getRelease(),
-                    getArchitecture(),
-                    getExtension());
+                                 getId(),
+                                 getVersion(),
+                                 getRelease(),
+                                 getArchitecture(),
+                                 getExtension());
         }
 
         return path;
@@ -214,4 +214,5 @@ public class RpmArtifactCoordinates
     {
         return RpmArtifactCoordinatesUtils.parse(path);
     }
+    
 }
