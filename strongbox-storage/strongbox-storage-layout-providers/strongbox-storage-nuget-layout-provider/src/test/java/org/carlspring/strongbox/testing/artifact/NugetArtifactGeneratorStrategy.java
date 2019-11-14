@@ -15,13 +15,13 @@ public class NugetArtifactGeneratorStrategy
     public Path generateArtifact(NugetArtifactGenerator artifactGenerator,
                                  String id,
                                  String version,
-                                 long size,
+                                 long bytesSize,
                                  Map<String, Object> attributesMap)
             throws IOException
     {
         NugetArtifactCoordinates coordinates = new NugetArtifactCoordinates(id, version);
 
-        return artifactGenerator.generateArtifact(coordinates);
+        return artifactGenerator.generateArtifact(coordinates, bytesSize);
     }
 
 }

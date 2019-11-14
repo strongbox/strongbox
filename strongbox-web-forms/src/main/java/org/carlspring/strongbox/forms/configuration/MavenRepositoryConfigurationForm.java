@@ -1,5 +1,10 @@
 package org.carlspring.strongbox.forms.configuration;
 
+import org.carlspring.strongbox.storage.metadata.maven.MetadataExpirationStrategyType;
+import org.carlspring.strongbox.validation.configuration.DescribableEnumValue;
+
+import javax.validation.constraints.Pattern;
+
 import com.fasterxml.jackson.annotation.JsonTypeName;
 
 /**
@@ -15,6 +20,10 @@ public class MavenRepositoryConfigurationForm
     private boolean indexingClassNamesEnabled;
 
     private String cronExpression;
+
+    @DescribableEnumValue(type = MetadataExpirationStrategyType.class,
+            message = "metadataExpirationStrategy must be equal to either:  checksum, refresh")
+    private String metadataExpirationStrategy;
 
     public boolean isIndexingEnabled()
     {
@@ -41,6 +50,16 @@ public class MavenRepositoryConfigurationForm
     public void setCronExpression(String cronExpression)
     {
         this.cronExpression = cronExpression;
+    }
+
+    public String getMetadataExpirationStrategy()
+    {
+        return metadataExpirationStrategy;
+    }
+
+    public void setMetadataExpirationStrategy(String metadataExpirationStrategy)
+    {
+        this.metadataExpirationStrategy = metadataExpirationStrategy;
     }
 
     @Override

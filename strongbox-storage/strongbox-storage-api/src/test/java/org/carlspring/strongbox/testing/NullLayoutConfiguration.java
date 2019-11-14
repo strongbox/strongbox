@@ -5,7 +5,7 @@ import java.nio.file.spi.FileSystemProvider;
 
 import javax.inject.Inject;
 
-import org.carlspring.strongbox.artifact.coordinates.NullArtifactCoordinates;
+import org.carlspring.strongbox.artifact.coordinates.RawArtifactCoordinates;
 import org.carlspring.strongbox.booters.PropertiesBooter;
 import org.carlspring.strongbox.providers.datastore.StorageProvider;
 import org.carlspring.strongbox.providers.datastore.StorageProviderRegistry;
@@ -21,9 +21,9 @@ import org.springframework.context.annotation.Scope;
 public class NullLayoutConfiguration
 {
 
-    public static final String FILE_SYSTEM_ALIAS = "LayoutFileSystemFactory." + NullArtifactCoordinates.LAYOUT_NAME;
+    public static final String FILE_SYSTEM_ALIAS = "LayoutFileSystemFactory." + RawArtifactCoordinates.LAYOUT_NAME;
     public static final String FILE_SYSTEM_PROVIDER_ALIAS = "LayoutFileSystemProviderFactory."
-            + NullArtifactCoordinates.LAYOUT_NAME;
+            + RawArtifactCoordinates.LAYOUT_NAME;
 
     @Inject
     private StorageProviderRegistry storageProviderRegistry;

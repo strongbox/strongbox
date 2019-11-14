@@ -238,8 +238,9 @@ public class NugetArtifactControllerTest extends NugetRestAssuredBaseTest
             mockMvc.header(HttpHeaders.USER_AGENT, "NuGet/*")
                    .when()
                    .get(url, storageId, repositoryId, packageId, packageVersion)
-                   .peek()
                    .then()
+                   .log().status()
+                   .log().headers()
                    .statusCode(HttpStatus.OK.value())
                    .assertThat()
                    .header(HttpHeaders.CONTENT_LENGTH, equalTo(String.valueOf(packageSize)));
@@ -249,8 +250,9 @@ public class NugetArtifactControllerTest extends NugetRestAssuredBaseTest
             mockMvc.header(HttpHeaders.USER_AGENT, "NuGet/*")
                    .when()
                    .get(url, storageId, repositoryId, packageId, packageVersion)
-                   .peek()
                    .then()
+                   .log().status()
+                   .log().headers()
                    .statusCode(HttpStatus.OK.value())
                    .assertThat()
                    .header(HttpHeaders.CONTENT_LENGTH, equalTo(String.valueOf(packageSize)));
@@ -353,7 +355,8 @@ public class NugetArtifactControllerTest extends NugetRestAssuredBaseTest
                .then()
                .statusCode(HttpStatus.OK.value())
                .and()
-               .log().body().and()
+               .log().body()
+               .and()
                .assertThat()
                .body(equalTo("1"));
 
@@ -521,8 +524,9 @@ public class NugetArtifactControllerTest extends NugetRestAssuredBaseTest
             mockMvc.header(HttpHeaders.USER_AGENT, "NuGet/*")
                    .when()
                    .get(url, packageId, packageVersion)
-                   .peek()
                    .then()
+                   .log().status()
+                   .log().headers()
                    .statusCode(HttpStatus.OK.value())
                    .assertThat()
                    .header(HttpHeaders.CONTENT_LENGTH, equalTo(String.valueOf(1499857)));
@@ -620,7 +624,6 @@ public class NugetArtifactControllerTest extends NugetRestAssuredBaseTest
                       .contentType(MediaType.TEXT_PLAIN_VALUE)
                       .when()
                       .get(url, storageId, repositoryId, packageId, packageVersion)
-                      .peek()
                       .thenReturn();
     }
 

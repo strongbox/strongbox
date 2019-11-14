@@ -30,7 +30,6 @@ public abstract class LayoutFileSystem
 
     public static final String TRASH = ".trash";
     public static final String TEMP = ".temp";
-    public static final String INDEX = ".index";
 
     private final Repository repository;
     private final StorageFileSystemProvider provider;

@@ -5,7 +5,6 @@ import org.carlspring.strongbox.cron.jobs.DownloadRemoteMavenIndexCronJob;
 import org.carlspring.strongbox.cron.jobs.MergeMavenGroupRepositoryIndexCronJob;
 import org.carlspring.strongbox.cron.jobs.RebuildMavenIndexesCronJob;
 import org.carlspring.strongbox.cron.services.CronTaskDataService;
-import org.carlspring.strongbox.providers.io.LayoutFileSystem;
 import org.carlspring.strongbox.providers.io.RepositoryPath;
 import org.carlspring.strongbox.providers.io.RepositoryPathResolver;
 import org.carlspring.strongbox.storage.Storage;
@@ -140,7 +139,7 @@ public class MavenRepositoryManagementStrategy
         super.createRepositoryStructure(repository);
 
         final RepositoryPath rootRepositoryPath = repositoryPathResolver.resolve(repository);
-        final RepositoryPath indexRepositoryPath = rootRepositoryPath.resolve(LayoutFileSystem.INDEX);
+        final RepositoryPath indexRepositoryPath = rootRepositoryPath.resolve(MavenRepositoryFeatures.INDEX);
         if (!Files.exists(indexRepositoryPath))
         {
             Files.createDirectories(indexRepositoryPath);

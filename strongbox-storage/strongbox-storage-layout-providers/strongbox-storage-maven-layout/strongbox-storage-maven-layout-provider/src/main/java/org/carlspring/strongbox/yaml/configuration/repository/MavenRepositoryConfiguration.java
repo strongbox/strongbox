@@ -11,4 +11,6 @@ public interface MavenRepositoryConfiguration extends RepositoryConfiguration
 
     String getCronExpression();
 
+    String getMetadataExpirationStrategy();
+
 }

@@ -56,6 +56,11 @@
             <artifactId>strongbox-user-management</artifactId>
             <version>${project.version}</version>
         </dependency>
+        <dependency>
+            <groupId>${project.groupId}</groupId>
+            <artifactId>strongbox-storage-maven-layout-provider</artifactId>
+            <version>${project.version}</version>
+        </dependency>
     </dependencies>
 
 

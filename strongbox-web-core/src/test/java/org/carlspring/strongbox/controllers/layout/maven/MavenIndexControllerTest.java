@@ -293,8 +293,9 @@ public class MavenIndexControllerTest
 
         mockMvc.header(new Header("User-Agent", "Maven/*"))
                .get(url)
-               .peek()
                .then()
+               .log().status()
+               .log().headers()
                .statusCode(HttpStatus.OK.value())
                .contentType(APPLICATION_X_GZIP_VALUE)
                .body(CoreMatchers.notNullValue());
@@ -326,8 +327,9 @@ public class MavenIndexControllerTest
 
         mockMvc.header(new Header("User-Agent", "Maven/*"))
                .get(url)
-               .peek()
                .then()
+               .log().status()
+               .log().headers()
                .statusCode(HttpStatus.OK.value())
                .contentType(MediaType.TEXT_PLAIN_VALUE)
                .body(CoreMatchers.notNullValue());

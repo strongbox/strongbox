@@ -5,7 +5,6 @@ import org.carlspring.strongbox.artifact.MavenArtifact;
 import org.carlspring.strongbox.artifact.MavenArtifactUtils;
 import org.carlspring.strongbox.artifact.archive.JarArchiveListingFunction;
 import org.carlspring.strongbox.artifact.coordinates.MavenArtifactCoordinates;
-import org.carlspring.strongbox.providers.io.LayoutFileSystem;
 import org.carlspring.strongbox.providers.io.RepositoryFileAttributeType;
 import org.carlspring.strongbox.providers.io.RepositoryFiles;
 import org.carlspring.strongbox.providers.io.RepositoryPath;
@@ -122,7 +121,7 @@ public class Maven2LayoutProvider
         {
             return false;
         }
-        RepositoryPath indexRoot = path.getFileSystem().getRootDirectory().resolve(LayoutFileSystem.INDEX);
+        RepositoryPath indexRoot = path.getFileSystem().getRootDirectory().resolve(MavenRepositoryFeatures.INDEX);
         if (path.startsWith(indexRoot))
         {
             return true;

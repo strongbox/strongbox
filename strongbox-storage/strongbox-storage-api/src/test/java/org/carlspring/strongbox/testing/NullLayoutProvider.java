@@ -9,13 +9,13 @@ import java.util.stream.Stream;
 import javax.inject.Inject;
 
 import org.apache.commons.codec.digest.MessageDigestAlgorithms;
-import org.carlspring.strongbox.artifact.coordinates.NullArtifactCoordinates;
+import org.carlspring.strongbox.artifact.coordinates.RawArtifactCoordinates;
 import org.carlspring.strongbox.providers.io.RepositoryFiles;
 import org.carlspring.strongbox.providers.io.RepositoryPath;
 import org.carlspring.strongbox.providers.layout.AbstractLayoutProvider;
 import org.carlspring.strongbox.repository.RepositoryManagementStrategy;
 
-public class NullLayoutProvider extends AbstractLayoutProvider<NullArtifactCoordinates>
+public class NullLayoutProvider extends AbstractLayoutProvider<RawArtifactCoordinates>
 {
 
     @Inject
@@ -30,7 +30,7 @@ public class NullLayoutProvider extends AbstractLayoutProvider<NullArtifactCoord
     @Override
     public String getAlias()
     {
-        return NullArtifactCoordinates.LAYOUT_NAME;
+        return RawArtifactCoordinates.LAYOUT_NAME;
     }
 
     @Override
@@ -46,10 +46,10 @@ public class NullLayoutProvider extends AbstractLayoutProvider<NullArtifactCoord
     }
 
     @Override
-    protected NullArtifactCoordinates getArtifactCoordinates(RepositoryPath repositoryPath)
+    protected RawArtifactCoordinates getArtifactCoordinates(RepositoryPath repositoryPath)
         throws IOException
     {
-        return new NullArtifactCoordinates(RepositoryFiles.relativizePath(repositoryPath));
+        return new RawArtifactCoordinates(RepositoryFiles.relativizePath(repositoryPath));
     }
 
     protected Set<String> getDigestAlgorithmSet()

@@ -1,19 +1,23 @@
 package org.carlspring.strongbox.providers.io;
 
-import org.carlspring.commons.encryption.EncryptionAlgorithmsEnum;
 import org.carlspring.strongbox.providers.repository.proxied.ProxyRepositoryArtifactResolver;
+import org.carlspring.strongbox.storage.metadata.maven.ChecksumMetadataExpirationStrategy;
+import org.carlspring.strongbox.storage.metadata.maven.MetadataExpirationStrategy;
+import org.carlspring.strongbox.storage.metadata.maven.RefreshMetadataExpirationStrategy;
+import org.carlspring.strongbox.storage.metadata.maven.MetadataExpirationStrategyType;
 import org.carlspring.strongbox.storage.repository.RepositoryData;
 import org.carlspring.strongbox.storage.repository.Repository;
-import org.carlspring.strongbox.util.ThrowingFunction;
+import org.carlspring.strongbox.yaml.configuration.repository.MavenRepositoryConfiguration;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Component;
 
 import javax.inject.Inject;
 import java.io.IOException;
-import java.nio.file.Files;
+import java.util.Optional;
 
-import static org.carlspring.strongbox.providers.io.MavenMetadataExpiredRepositoryPathHandler.Decision.*;
+import static org.carlspring.strongbox.storage.metadata.maven.MetadataExpirationStrategy.Decision.*;
 
 /**
  * @author Przemyslaw Fusik
@@ -27,6 +31,12 @@ public class MavenMetadataExpiredRepositoryPathHandler
 
     @Inject
     private ProxyRepositoryArtifactResolver proxyRepositoryArtifactResolver;
+
+    @Inject
+    private ChecksumMetadataExpirationStrategy checksumMetadataExpirationStrategy;
+
+    @Inject
+    private RefreshMetadataExpirationStrategy refreshMetadataStrategy;
 
     @Override
     public boolean supports(final RepositoryPath repositoryPath)
@@ -50,74 +60,31 @@ public class MavenMetadataExpiredRepositoryPathHandler
     public void handleExpiration(final RepositoryPath repositoryPath)
             throws IOException
     {
-        Decision refetchMetadata = determineMetadataRefetch(repositoryPath,
-                                                            EncryptionAlgorithmsEnum.SHA1);
-        if (refetchMetadata == I_DONT_KNOW)
+        MetadataExpirationStrategy metadataExpirationStrategy = getMetadataStrategy(repositoryPath);
+        MetadataExpirationStrategy.Decision refetchMetadata = metadataExpirationStrategy.decide(repositoryPath);
+
+        if (refetchMetadata == USABLE)
         {
-            refetchMetadata = determineMetadataRefetch(repositoryPath,
-                                                       EncryptionAlgorithmsEnum.MD5);
-        }
-        if (refetchMetadata == NO_LEAVE_IT)
-        {
-            // checksums match - do nothing
-            logger.debug("Local and remote checksums match - no need to re-fetch maven-metadata.xml.");
             return;
-        }
-        if (refetchMetadata == I_DONT_KNOW)
-        {
-            logger.debug("maven-metadata.xml will be re-fetched. Checksum comparison process was not helpful.");
-        }
-        if (refetchMetadata == YES_FETCH)
-        {
-            logger.debug("maven-metadata.xml will be re-fetched. Checksums differ.");
         }
         proxyRepositoryArtifactResolver.fetchRemoteResource(repositoryPath);
     }
 
-    private Decision determineMetadataRefetch(final RepositoryPath repositoryPath,
-                                              final EncryptionAlgorithmsEnum checksumAlgorithm)
-            throws IOException
+    private MetadataExpirationStrategy getMetadataStrategy(final RepositoryPath repositoryPath)
     {
+        MavenRepositoryConfiguration repositoryConfiguration =
+                (MavenRepositoryConfiguration) repositoryPath.getRepository().getRepositoryConfiguration();
 
-        final RepositoryPath checksumRepositoryPath = resolveSiblingChecksum(repositoryPath, checksumAlgorithm);
-        final String currentChecksum = readChecksum(checksumRepositoryPath);
-        if (currentChecksum == null)
+        String strategy = Optional.ofNullable(repositoryConfiguration)
+                                  .map(MavenRepositoryConfiguration::getMetadataExpirationStrategy)
+                                  .orElse(null);
+
+        if (MetadataExpirationStrategyType.REFRESH == MetadataExpirationStrategyType.ofStrategy(strategy))
         {
-            return I_DONT_KNOW;
+            return refreshMetadataStrategy;
         }
 
-        proxyRepositoryArtifactResolver.fetchRemoteResource(checksumRepositoryPath);
-        final String newRemoteChecksum = readChecksum(checksumRepositoryPath);
-
-        if (newRemoteChecksum == null)
-        {
-            return I_DONT_KNOW;
-        }
-
-        return currentChecksum.equals(newRemoteChecksum) ? NO_LEAVE_IT : YES_FETCH;
-    }
-
-    enum Decision
-    {
-        I_DONT_KNOW, YES_FETCH, NO_LEAVE_IT;
-    }
-
-    private RepositoryPath resolveSiblingChecksum(final RepositoryPath repositoryPath,
-                                                  final EncryptionAlgorithmsEnum checksumAlgorithm)
-    {
-        return repositoryPath.resolveSibling(
-                repositoryPath.getFileName().toString() + checksumAlgorithm.getExtension());
-    }
-
-    private String readChecksum(final RepositoryPath checksumRepositoryPath)
-            throws IOException
-    {
-        if (!Files.exists(checksumRepositoryPath))
-        {
-            return null;
-        }
-
-        return Files.readAllLines(checksumRepositoryPath).stream().findFirst().orElse(null);
+        return checksumMetadataExpirationStrategy;
     }
 
 }
