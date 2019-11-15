@@ -1,19 +1,21 @@
 package org.carlspring.strongbox.artifact.generator;
 
+import com.google.common.hash.Hashing;
+import org.apache.commons.io.FilenameUtils;
 import org.carlspring.strongbox.artifact.coordinates.PypiArtifactCoordinates;
+import org.carlspring.strongbox.util.TestFileUtils;
 
 import java.io.IOException;
+import java.io.OutputStream;
 import java.net.URI;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.Base64;
-
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipOutputStream;
 
-import com.google.common.hash.Hashing;
-import org.apache.commons.io.FilenameUtils;
+import static java.nio.file.StandardOpenOption.CREATE;
 
 public class PypiArtifactGenerator
         implements ArtifactGenerator
@@ -81,7 +83,7 @@ public class PypiArtifactGenerator
     @Override
     public Path generateArtifact(String id,
                                  String version,
-                                 long size)
+                                 long byteSize)
             throws IOException
     {
         PypiArtifactCoordinates coordinates = new PypiArtifactCoordinates(id,
@@ -91,43 +93,48 @@ public class PypiArtifactGenerator
                                                                           "none",
                                                                           "any",
                                                                           "whl");
-        return generateArtifact(coordinates);
+        return generateArtifact(coordinates, byteSize);
     }
 
     @Override
     public Path generateArtifact(URI uri,
-                                 long size)
+                                 long byteSize)
             throws IOException
     {
         PypiArtifactCoordinates coordinates = PypiArtifactCoordinates.parse(FilenameUtils.getName(uri.toString()));
-        return generateArtifact(coordinates);
+        return generateArtifact(coordinates, byteSize);
     }
 
-    public Path generateArtifact(PypiArtifactCoordinates coordinates)
+    public Path generateArtifact(PypiArtifactCoordinates coordinates,
+                                 long byteSize)
             throws IOException
     {
         String packagePath = coordinates.toPath();
 
         Path fullPath = basedir.resolve(packagePath);
 
-        try(ZipOutputStream zos = new ZipOutputStream(Files.newOutputStream(fullPath)))
+        Path fullPathParent = fullPath.getParent();
+        Files.createDirectories(fullPathParent);
+        OutputStream outputStream = Files.newOutputStream(fullPath, CREATE);
+
+        try(ZipOutputStream zos = new ZipOutputStream(outputStream))
         {
             if (coordinates.isSourcePackage())
             {
-                createSourcePackageFiles(zos, coordinates.getId(), coordinates.getVersion());
+                createSourcePackageFiles(zos, coordinates.getId(), coordinates.getVersion(), byteSize);
             }
             else
             {
-                createWheelPackageFiles(zos, coordinates.getId(), coordinates.getVersion());
+                createWheelPackageFiles(zos, coordinates.getId(), coordinates.getVersion(), byteSize);
             }
         }
-
         return fullPath;
     }
 
     private void createSourcePackageFiles(ZipOutputStream zos,
                                           String name,
-                                          String version)
+                                          String version,
+                                          long byteSize)
             throws IOException
     {
         //create PKG-INFO zip entry
@@ -176,14 +183,22 @@ public class PypiArtifactGenerator
 
         //create egg SOURCES.txt zip entry
         String sourcesPath = eggDirectory + "/SOURCES.txt";
-        byte[] sourcesContent = String.format(SOURCES_CONTENT, scriptPath, eggPkgInfoPath, sourcesPath,
-                                              dependencyLinksPath, topLevelPath).getBytes();
+        byte[] sourcesContent = String.format(SOURCES_CONTENT,
+                                              scriptPath,
+                                              eggPkgInfoPath,
+                                              sourcesPath,
+                                              dependencyLinksPath,
+                                              topLevelPath).getBytes();
         createZipEntry(zos, sourcesPath, sourcesContent);
+
+        String randomPath = eggDirectory + "/RANDOM.txt";
+        TestFileUtils.generateFile(zos, byteSize, randomPath);
     }
 
     private void createWheelPackageFiles(ZipOutputStream zos,
                                          String name,
-                                         String version)
+                                         String version,
+                                         long byteSize)
             throws IOException
     {
         //create bin zip entry
@@ -243,7 +258,11 @@ public class PypiArtifactGenerator
                                                                     topLevelContent.length))
                                               .append(recordPath)
                                               .append(",,");
+
         createZipEntry(zos, recordPath, recordContent.toString().getBytes());
+
+        String randomPath = dirPath + "/RANDOM";
+        TestFileUtils.generateFile(zos, byteSize, randomPath);
     }
 
     private String calculateHash(byte[] content)

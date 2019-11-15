@@ -59,4 +59,10 @@ public @interface PypiTestArtifact
      * Supported packages: tar.gz, whl
      */
     String packaging() default "whl";
+
+    /**
+     * Additional artifact size in bytes.
+     */
+    @AliasFor(annotation = TestArtifact.class)
+    long bytesSize() default 1000000;
 }
