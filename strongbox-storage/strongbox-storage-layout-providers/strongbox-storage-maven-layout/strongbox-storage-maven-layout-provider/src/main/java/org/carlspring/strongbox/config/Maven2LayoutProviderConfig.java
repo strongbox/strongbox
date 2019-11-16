@@ -19,7 +19,6 @@ import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.ComponentScan;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Scope;
-import org.springframework.core.env.Environment;
 
 @Configuration
 @ComponentScan({ "org.carlspring.strongbox.configuration",
@@ -37,9 +36,6 @@ public class Maven2LayoutProviderConfig
 
     @Inject
     protected StorageProviderRegistry storageProviderRegistry;
-
-    @Inject
-    private Environment environment;
 
 
     @Bean(FILE_SYSTEM_PROVIDER_ALIAS)

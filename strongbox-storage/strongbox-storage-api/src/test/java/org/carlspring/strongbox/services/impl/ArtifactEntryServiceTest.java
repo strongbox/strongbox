@@ -3,7 +3,7 @@ package org.carlspring.strongbox.services.impl;
 import org.carlspring.strongbox.StorageApiTestConfig;
 import org.carlspring.strongbox.artifact.coordinates.AbstractArtifactCoordinates;
 import org.carlspring.strongbox.artifact.coordinates.ArtifactCoordinates;
-import org.carlspring.strongbox.artifact.coordinates.NullArtifactCoordinates;
+import org.carlspring.strongbox.artifact.coordinates.RawArtifactCoordinates;
 import org.carlspring.strongbox.data.CacheManagerTestExecutionListener;
 import org.carlspring.strongbox.data.service.support.search.PagingCriteria;
 import org.carlspring.strongbox.domain.ArtifactEntry;
@@ -174,7 +174,7 @@ public class ArtifactEntryServiceTest
         assertThat(artifactEntryOptional).isPresent();
 
         //Cascade field update
-        NullArtifactCoordinates nullArtifactCoordinates = (NullArtifactCoordinates)artifactEntry.getArtifactCoordinates();
+        RawArtifactCoordinates nullArtifactCoordinates = (RawArtifactCoordinates)artifactEntry.getArtifactCoordinates();
         nullArtifactCoordinates.setId(pomCoordinates.toPath());
         save(artifactEntry);
 
@@ -313,7 +313,7 @@ public class ArtifactEntryServiceTest
         logger.debug("There are a total of {} artifacts.", count(groupId));
 
         // prepare search query key (coordinates)
-        NullArtifactCoordinates coordinates = new NullArtifactCoordinates(groupId + "/");
+        RawArtifactCoordinates coordinates = new RawArtifactCoordinates(groupId + "/");
 
         List<ArtifactEntry> artifactEntries = artifactEntryService.findArtifactList(STORAGE_ID,
                                                                                     REPOSITORY_ID,
@@ -327,7 +327,7 @@ public class ArtifactEntryServiceTest
         artifactEntries.forEach(artifactEntry ->
                                 {
                                     logger.debug("Found artifact {}", artifactEntry);
-                                    assertThat(((NullArtifactCoordinates)artifactEntry.getArtifactCoordinates())
+                                    assertThat(((RawArtifactCoordinates)artifactEntry.getArtifactCoordinates())
                                                        .getPath().startsWith(groupId + "/")).isTrue();
                                 });
     }
@@ -343,7 +343,7 @@ public class ArtifactEntryServiceTest
         logger.debug("There are a total of {} artifacts.", count(groupId));
 
         // prepare search query key (coordinates)
-        NullArtifactCoordinates c1 = new NullArtifactCoordinates(groupId + "/" + ARTIFACT_ID + "/");
+        RawArtifactCoordinates c1 = new RawArtifactCoordinates(groupId + "/" + ARTIFACT_ID + "/");
 
         List<ArtifactEntry> result = artifactEntryService.findArtifactList(STORAGE_ID,
                                                                            REPOSITORY_ID,
@@ -356,7 +356,7 @@ public class ArtifactEntryServiceTest
         result.forEach(artifactEntry ->
                        {
                            logger.debug("Found artifact {}", artifactEntry);
-                           assertThat(((NullArtifactCoordinates)artifactEntry.getArtifactCoordinates())
+                           assertThat(((RawArtifactCoordinates)artifactEntry.getArtifactCoordinates())
                                               .getPath().startsWith(groupId + "/" + ARTIFACT_ID)).isTrue();
                        });
 
@@ -479,7 +479,7 @@ public class ArtifactEntryServiceTest
                                                           final String extension)
     {
 
-        return new NullArtifactCoordinates(String.format("%s/%s/%s/%s", groupId, artifactId, version, extension));
+        return new RawArtifactCoordinates(String.format("%s/%s/%s/%s", groupId, artifactId, version, extension));
     }
 
     private void createArtifactEntry(ArtifactCoordinates coordinates,

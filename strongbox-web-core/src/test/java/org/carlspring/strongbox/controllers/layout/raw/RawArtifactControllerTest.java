@@ -1,6 +1,6 @@
 package org.carlspring.strongbox.controllers.layout.raw;
 
-import org.carlspring.strongbox.artifact.generator.NullArtifactGenerator;
+import org.carlspring.strongbox.artifact.generator.RawArtifactGenerator;
 import org.carlspring.strongbox.config.IntegrationTest;
 import org.carlspring.strongbox.providers.io.RepositoryPath;
 import org.carlspring.strongbox.providers.layout.RawLayoutProvider;
@@ -110,7 +110,7 @@ public class RawArtifactControllerTest
                                                Repository repository,
                                                @TestArtifact(repositoryId = REPOSITORY_RELEASES_1,
                                                              resource = "org/foo/bar/blah.zip",
-                                                             generator = NullArtifactGenerator.class)
+                                                             generator = RawArtifactGenerator.class)
                                                Path artifactPath)
     {
         final String pathStr = "org/foo/bar/blah.zip";
@@ -127,7 +127,7 @@ public class RawArtifactControllerTest
                                                            Repository repository,
                                                            @TestArtifact(repositoryId = REPOSITORY_RELEASES_2,
                                                                          resource = "org/carlspring/strongbox/raw/test/partial-download-single.zip",
-                                                                         generator = NullArtifactGenerator.class)
+                                                                         generator = RawArtifactGenerator.class)
                                                            Path artifactPath)
     {
         final String byteRanges = "100-199";
@@ -151,7 +151,7 @@ public class RawArtifactControllerTest
                                                               Repository repository,
                                                               @TestArtifact(repositoryId = REPOSITORY_RELEASES_3,
                                                                             resource = "org/carlspring/strongbox/raw/test/partial-download-multiple.zip",
-                                                                            generator = NullArtifactGenerator.class)
+                                                                            generator = RawArtifactGenerator.class)
                                                               Path artifactPath)
     {
         final String byteRanges = "0-29,200-249,300-309";
@@ -182,7 +182,6 @@ public class RawArtifactControllerTest
                       .contentType(MediaType.TEXT_PLAIN_VALUE)
                       .when()
                       .get(url, storageId, repositoryId, pathStr)
-                      .peek()
                       .thenReturn();
     }
 }
