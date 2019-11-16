@@ -369,12 +369,15 @@ public class RepositoryFormTestIT
     private String getPatternLocalisedMessage(String expectedPattern)
     {
         String message;
-        try {
+        try
+        {
             final String translatedMessage = new PlatformResourceBundleLocator("org.hibernate.validator.ValidationMessages")
                     .getResourceBundle(Locale.getDefault())
                     .getString("javax.validation.constraints.Pattern.message");
             message = translatedMessage.replace("\"{regexp}\"", expectedPattern);
-        } catch (MissingResourceException e) {
+        }
+        catch (MissingResourceException e)
+        {
             message = "must match ";
         }
         return message;
