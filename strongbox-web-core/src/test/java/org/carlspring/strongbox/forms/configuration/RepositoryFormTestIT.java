@@ -371,9 +371,10 @@ public class RepositoryFormTestIT
         String message;
         try
         {
-            final String translatedMessage = new PlatformResourceBundleLocator("org.hibernate.validator.ValidationMessages")
-                    .getResourceBundle(Locale.getDefault())
-                    .getString("javax.validation.constraints.Pattern.message");
+            final String translatedMessage = new PlatformResourceBundleLocator(
+                    "org.hibernate.validator.ValidationMessages")
+                                                                 .getResourceBundle(Locale.getDefault())
+                                                                 .getString("javax.validation.constraints.Pattern.message");
             message = translatedMessage.replace("\"{regexp}\"", expectedPattern);
         }
         catch (MissingResourceException e)
