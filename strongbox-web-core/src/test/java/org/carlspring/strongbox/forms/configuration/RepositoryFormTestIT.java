@@ -371,8 +371,7 @@ public class RepositoryFormTestIT
         String message;
         try
         {
-            final String translatedMessage = new PlatformResourceBundleLocator(
-                    "org.hibernate.validator.ValidationMessages")
+            final String translatedMessage = new PlatformResourceBundleLocator("org.hibernate.validator.ValidationMessages")
                                                                  .getResourceBundle(Locale.getDefault())
                                                                  .getString("javax.validation.constraints.Pattern.message");
             message = translatedMessage.replace("\"{regexp}\"", expectedPattern);
@@ -381,6 +380,7 @@ public class RepositoryFormTestIT
         {
             message = "must match ";
         }
+        
         return message;
     }
 
