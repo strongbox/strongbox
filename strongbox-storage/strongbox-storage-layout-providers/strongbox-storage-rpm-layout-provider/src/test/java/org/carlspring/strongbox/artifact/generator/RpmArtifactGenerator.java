@@ -24,6 +24,8 @@ public class RpmArtifactGenerator
 
     private Path basePath;
 
+    private Path packagePath;
+
 
     public RpmArtifactGenerator(Path basePath)
     {
@@ -66,7 +68,12 @@ public class RpmArtifactGenerator
 
     public Path getPackagePath()
     {
-        return Paths.get(coordinates.toPath());
+        return packagePath;
+    }
+
+    public void setPackagePath(Path packagePath)
+    {
+        this.packagePath = packagePath;
     }
 
     public void generate(long byteSize)
@@ -74,19 +81,7 @@ public class RpmArtifactGenerator
     {
         try
         {
-            String packagePath = getPackagePath().toString();
-
-            File rpmFile = Paths.get(basePath.toString(), packagePath).toFile();
-
-            if (!rpmFile.getParentFile().exists())
-            {
-                //noinspection ResultOfMethodCallIgnored
-                rpmFile.getParentFile().mkdirs();
-            }
-
-            File fileWithRandomSize = new File(basePath.toString(),
-                                               "random-sized-file-for-" + packagePath.substring(0, packagePath.length() - 4));
-
+            File fileWithRandomSize = Paths.get(basePath.toString(), getPackagePath().toString()).toFile();
             TestFileUtils.generateFile(fileWithRandomSize, byteSize);
 
             Builder builder = new Builder();
@@ -96,10 +91,7 @@ public class RpmArtifactGenerator
             builder.setPlatform(NOARCH, LINUX);
             builder.setType(BINARY);
             builder.addFile("etc", fileWithRandomSize);
-            builder.build(getBasePath().toFile());
-
-            //noinspection ResultOfMethodCallIgnored
-            fileWithRandomSize.delete();
+            builder.build(basePath.toFile());
         }
         catch (NoSuchAlgorithmException e)
         {
@@ -127,9 +119,8 @@ public class RpmArtifactGenerator
                                  long bytesSize)
             throws IOException
     {
-        generate(bytesSize);
-
-        return Paths.get(basePath.toString(), getPackagePath().toString());
+//        return this.of(RpmArtifactCoordinates.of(id, version)).buildPublishJson(bytesSize);
+        return null;
     }
 
 }

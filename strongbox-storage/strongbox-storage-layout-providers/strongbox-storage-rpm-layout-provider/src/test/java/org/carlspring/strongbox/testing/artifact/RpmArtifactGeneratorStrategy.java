@@ -1,6 +1,5 @@
 package org.carlspring.strongbox.testing.artifact;
 
-import org.carlspring.strongbox.artifact.coordinates.RpmArtifactCoordinates;
 import org.carlspring.strongbox.artifact.generator.RpmArtifactGenerator;
 
 import java.io.IOException;
@@ -15,23 +14,26 @@ public class RpmArtifactGeneratorStrategy
     public Path generateArtifact(RpmArtifactGenerator artifactGenerator,
                                  String id,
                                  String version,
-                                 long byteSize,
+                                 long size,
                                  Map<String, Object> attributesMap)
         throws IOException
     {
-        String release = (String) attributesMap.get("release");
-        String packageType = (String) attributesMap.get("packageType");
-        String architecture = (String) attributesMap.get("architecture");
+//        RpmArtifactCoordinates coordinates = new RpmArtifactCoordinates((String) attributesMap.get("scope"),
+//                                                                        id,
+//                                                                        version,
+//                                                                        (String) attributesMap.get("extension"));
+//        Path packagePath = artifactGenerator.generateArtifact(coordinates, bytesSize);
+//        if (!Optional.ofNullable(attributesMap.get("repositoryId"))
+//                     .filter(repositoryId -> ((String) repositoryId).trim().length() > 0)
+//                     .isPresent())
+//        {
+//            // if package won't be deployed then `publish.json` will be generated
+//            artifactGenerator.buildPublishJson(bytesSize);
+//        }
+//
+//        return packagePath;
 
-        RpmArtifactCoordinates coordinates = new RpmArtifactCoordinates(id,
-                                                                        version,
-                                                                        release,
-                                                                        packageType,
-                                                                        architecture);
-
-        artifactGenerator.setCoordinates(coordinates);
-
-        return artifactGenerator.generateArtifact(coordinates.getId(), coordinates.getVersion(), byteSize);
+        return null;
     }
     
 }
