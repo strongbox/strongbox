@@ -62,12 +62,12 @@ public class RawArtifactControllerTest
                   ArtifactManagementTestExecutionListener.class })
     @Test
     public void testDeploy(@RawRepository(repositoryId = REPOSITORY_RELEASES_1)
-                                   Repository repository,
+                           Repository repository,
                            @RawTestArtifact(repositoryId = REPOSITORY_RELEASES_1,
                                             id = RAW_ARTIFACT_ID,
                                             versions = RAW_ARTIFACT_VERSION,
                                             bytesSize = RAW_ARTIFACT_SIZE)
-                                   Path path)
+                           Path path)
             throws IOException
     {
         final String storageId = repository.getStorage().getId();
@@ -184,5 +184,5 @@ public class RawArtifactControllerTest
                       .get(url, storageId, repositoryId, pathStr)
                       .thenReturn();
     }
+    
 }
-
