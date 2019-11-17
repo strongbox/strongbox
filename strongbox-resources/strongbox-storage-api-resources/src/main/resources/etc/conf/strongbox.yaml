@@ -350,6 +350,17 @@ configuration:
           type: hosted
           allowsForceDeletion: true
           checksumHeadersEnabled: true
+    storage-rpm:
+      id: storage-rpm
+      repositories:
+        rpm-releases:
+          id: rpm-releases
+          policy: release
+          dataStore: file-system
+          layout: RPM
+          type: hosted
+          allowsForceDeletion: true
+          checksumHeadersEnabled: true
     public:
       id: public
       repositories:

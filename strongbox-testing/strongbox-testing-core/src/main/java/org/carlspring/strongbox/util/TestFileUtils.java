@@ -2,10 +2,7 @@ package org.carlspring.strongbox.util;
 
 import org.carlspring.commons.io.RandomInputStream;
 
-import java.io.BufferedOutputStream;
-import java.io.File;
-import java.io.IOException;
-import java.io.OutputStream;
+import java.io.*;
 import java.nio.charset.StandardCharsets;
 import java.util.Base64;
 import java.util.zip.ZipEntry;
@@ -45,7 +42,7 @@ public class TestFileUtils
         ZipEntry ze = new ZipEntry(name);
         zos.putNextEntry(ze);
 
-        try(RandomInputStream ris = new RandomInputStream(bytesSize))
+        try (RandomInputStream ris = new RandomInputStream(bytesSize))
         {
             byte[] buffer = new byte[4096];
             int len;
@@ -54,6 +51,7 @@ public class TestFileUtils
                 zos.write(buffer, 0, len);
             }
         }
+
         zos.closeEntry();
     }
 
@@ -64,7 +62,7 @@ public class TestFileUtils
         bos.write("data = \"".getBytes(StandardCharsets.UTF_8));
 
         OutputStream dataOut = Base64.getEncoder().wrap(bos);
-        try(RandomInputStream ris = new RandomInputStream(bytesSize))
+        try (RandomInputStream ris = new RandomInputStream(bytesSize))
         {
             byte[] buffer = new byte[4096];
             int len;
@@ -73,6 +71,24 @@ public class TestFileUtils
                 dataOut.write(buffer, 0, len);
             }
         }
+
         bos.write("\";".getBytes(StandardCharsets.UTF_8));
     }
+
+    public static void generateFile(File file,
+                                    long bytesSize)
+            throws IOException
+    {
+        OutputStream os = new FileOutputStream(file);
+        try (RandomInputStream ris = new RandomInputStream(bytesSize))
+        {
+            byte[] buffer = new byte[4096];
+            int len;
+            while ((len = ris.read(buffer)) > 0)
+            {
+                os.write(buffer, 0, len);
+            }
+        }
+    }
+
 }
