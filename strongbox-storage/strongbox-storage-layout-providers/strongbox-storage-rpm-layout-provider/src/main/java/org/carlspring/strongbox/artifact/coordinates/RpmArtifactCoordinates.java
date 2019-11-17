@@ -33,12 +33,13 @@ import java.util.Map;
  */
 @Entity
 @SuppressWarnings("serial")
-@XmlRootElement(name = "PypiArtifactCoordinates")
+@XmlRootElement(name = "RpmArtifactCoordinates")
 @XmlAccessorType(XmlAccessType.NONE)
 @ArtifactCoordinatesLayout(name = RpmArtifactCoordinates.LAYOUT_NAME, alias = RpmArtifactCoordinates.LAYOUT_ALIAS)
 public class RpmArtifactCoordinates
         extends AbstractArtifactCoordinates<RpmArtifactCoordinates, SemanticVersion>
 {
+
     public static final String LAYOUT_NAME = "RPM";
 
     public static final String LAYOUT_ALIAS = "rpm";
@@ -74,6 +75,7 @@ public class RpmArtifactCoordinates
         {
             setArchitecture(arch);
         }
+
         setExtension();
     }
 
@@ -83,6 +85,7 @@ public class RpmArtifactCoordinates
                                   @NotNull RpmPackageType packageType)
     {
         this();
+
         setId(baseName);
         setVersion(version);
         setRelease(release);
@@ -93,6 +96,11 @@ public class RpmArtifactCoordinates
     public RpmArtifactCoordinates()
     {
         resetCoordinates(BASE_NAME, VERSION, RELEASE, ARCHITECTURE, EXTENSION);
+    }
+
+    public static RpmArtifactCoordinates of(String path)
+    {
+        return RpmArtifactCoordinatesUtils.parse(path);
     }
 
     @Override
@@ -119,6 +127,16 @@ public class RpmArtifactCoordinates
         setCoordinate(VERSION, version);
     }
 
+    public String getBaseName()
+    {
+        return getId();
+    }
+
+    public void setBaseName(String baseName)
+    {
+        setId(baseName);
+    }
+
     public String getRelease()
     {
         return getCoordinate(RELEASE);
@@ -139,6 +157,11 @@ public class RpmArtifactCoordinates
         setCoordinate(ARCHITECTURE, arch.getName());
     }
 
+    public String getPackageType()
+    {
+        return getCoordinate(PACKAGE_TYPE);
+    }
+
     public void setPackageType(RpmPackageType packageType)
     {
         setCoordinate(PACKAGE_TYPE, packageType.getPostfix());
@@ -149,26 +172,17 @@ public class RpmArtifactCoordinates
         setCoordinate(EXTENSION, DEFAULT_EXTENSION);
     }
 
-
-    public String getPackageType()
-    {
-        return getCoordinate(PACKAGE_TYPE);
-    }
-
     public String getExtension()
     {
         return getCoordinate(EXTENSION);
     }
-
 
     @Override
     public SemanticVersion getNativeVersion()
     {
         String version = getVersion();
 
-        return version == null || version.isEmpty()
-                ? null
-                : SemanticVersion.parse(version);
+        return version == null || version.isEmpty() ? null : SemanticVersion.parse(version);
     }
 
     @Override
@@ -214,5 +228,5 @@ public class RpmArtifactCoordinates
     {
         return RpmArtifactCoordinatesUtils.parse(path);
     }
-    
+
 }
