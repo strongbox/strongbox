@@ -93,23 +93,28 @@ public class ArtifactManagementTestExecutionListener extends TestRepositoryManag
         {
             return Proxy.newProxyInstance(ArtifactManagementTestExecutionListener.class.getClassLoader(),
                                           new Class[] { List.class },
-                                          new ListInvocationHandler(id(testArtifact)));
+                                          new ListInvocationHandler(id(testArtifact), testApplicationContext));
         }
-        
+
         return Proxy.newProxyInstance(ArtifactManagementTestExecutionListener.class.getClassLoader(),
                                       new Class[] { Path.class },
-                                      new TestArtifactProxyInvocationHandler(id(testArtifact)));
+                                      new TestArtifactProxyInvocationHandler(id(testArtifact), testApplicationContext));
     }
     
     private class ListInvocationHandler implements InvocationHandler
     {
 
         private List<Path> target;
+
         private final String id;
 
-        private ListInvocationHandler(String id)
+        private final TestRepositoryManagementContext context;
+
+        private ListInvocationHandler(String id,
+                                      TestRepositoryManagementContext context)
         {
             this.id = id;
+            this.context = context;
         }
 
         @Override
@@ -128,17 +133,17 @@ public class ArtifactManagementTestExecutionListener extends TestRepositoryManag
                 throw e.getTargetException();
             }
         }
-        
+
         public List<Path> getTarget()
         {
             if (target == null)
             {
-                target = getTestRepositoryManagementContext().getTestArtifactContext(id).getArtifacts();
+                target = context.getTestArtifactContext(id).getArtifacts();
             }
 
             return target;
         }
-       
+
     }
 
     /**
@@ -152,18 +157,23 @@ public class ArtifactManagementTestExecutionListener extends TestRepositoryManag
     {
 
         private Path target;
+
         private final String id;
 
-        private TestArtifactProxyInvocationHandler(String id)
+        private final TestRepositoryManagementContext context;
+
+        private TestArtifactProxyInvocationHandler(String id,
+                                                   TestRepositoryManagementContext context)
         {
             this.id = id;
+            this.context = context;
         }
 
         public Path getTarget()
         {
             if (target == null)
             {
-                target = getTestRepositoryManagementContext().getTestArtifactContext(id).getArtifacts().stream().findFirst().get();
+                target = context.getTestArtifactContext(id).getArtifacts().stream().findFirst().get();
             }
 
             return target;
