@@ -94,6 +94,12 @@ public class HazelcastConfiguration
     @Value("${cacheManagerConfiguration.groupConfig.password:password}")
     public String groupConfigPassword;
 
+    @Value("${cacheManagerConfiguration.managementCenter.enabled:false}")
+    public boolean enableManagementCenter;
+
+    @Value("${cacheManagerConfiguration.managementCenter.url:http://localhost:8080/hazelcast-mancenter}")
+    public String managementCenterUrl;
+
     @Value("${cacheManagerConfiguration.enableMulticastConfig:false}")
     public boolean enableMulticastConfig;
 
@@ -131,9 +137,12 @@ public class HazelcastConfiguration
         config.setGroupConfig(new GroupConfig(groupConfigName, groupConfigPassword));
         config.getNetworkConfig().getJoin().getMulticastConfig().setEnabled(enableMulticastConfig);
 
+        ManagementCenterConfig managementCenterConfig = new ManagementCenterConfig();
+        managementCenterConfig.setEnabled(enableManagementCenter).setUrl(managementCenterUrl);
+        config.setManagementCenterConfig(managementCenterConfig);
+
         if (enableMulticastConfig)
         {
-
             Set<String> trustedInterfaces = new HashSet<>();
             Arrays.stream(multicastTrustedInterfaces).forEach(trustedInterfaces::add);
             MulticastConfig mcConfig = config.getNetworkConfig().getJoin().getMulticastConfig();
