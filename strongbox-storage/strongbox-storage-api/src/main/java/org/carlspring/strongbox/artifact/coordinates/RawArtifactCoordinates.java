@@ -13,7 +13,7 @@ public class RawArtifactCoordinates
         extends AbstractArtifactCoordinates<RawArtifactCoordinates, RawArtifactCoordinates>
 {
 
-    public static final String LAYOUT_NAME = "Null Layout";
+    public static final String LAYOUT_NAME = "Raw Layout";
     private static final String PATH = "path";
 
     public RawArtifactCoordinates()

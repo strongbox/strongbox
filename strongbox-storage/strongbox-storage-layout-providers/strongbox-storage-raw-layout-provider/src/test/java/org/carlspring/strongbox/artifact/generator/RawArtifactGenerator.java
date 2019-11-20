@@ -19,7 +19,6 @@ public class RawArtifactGenerator
 {
 
     private Path basePath;
-    private Path artifactPath;
 
     public RawArtifactGenerator(Path basePath)
     {
@@ -33,7 +32,7 @@ public class RawArtifactGenerator
             throws IOException
     {
         Files.createDirectories(basePath);
-        artifactPath = basePath.resolve(Paths.get(id, version));
+        Path artifactPath = basePath.resolve(Paths.get(id, version));
         Files.createDirectories(artifactPath.getParent());
 
         try (OutputStream out = new BufferedOutputStream(Files.newOutputStream(artifactPath, StandardOpenOption.CREATE)))
@@ -48,14 +47,6 @@ public class RawArtifactGenerator
                                  long bytesSize)
             throws IOException
     {
-        Files.createDirectories(basePath);
-        artifactPath = basePath.resolve(Paths.get(uri));
-        Files.createDirectories(artifactPath.getParent());
-
-        try (OutputStream out = new BufferedOutputStream(Files.newOutputStream(Paths.get(uri), StandardOpenOption.CREATE)))
-        {
-            TestFileUtils.generateFile(out, bytesSize);
-        }
-        return artifactPath;
+        return generateArtifact(uri.toString(), "", bytesSize);
     }
 }

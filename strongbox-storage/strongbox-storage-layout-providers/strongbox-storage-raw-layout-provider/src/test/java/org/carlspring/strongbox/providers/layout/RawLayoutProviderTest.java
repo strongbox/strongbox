@@ -1,7 +1,6 @@
 package org.carlspring.strongbox.providers.layout;
 
 import org.carlspring.strongbox.artifact.coordinates.RawArtifactCoordinates;
-import org.carlspring.strongbox.artifact.generator.RawArtifactGenerator;
 import org.carlspring.strongbox.config.RawLayoutProviderTestConfig;
 import org.carlspring.strongbox.providers.io.RepositoryPath;
 import org.carlspring.strongbox.providers.io.RepositoryPathResolver;
@@ -9,9 +8,9 @@ import org.carlspring.strongbox.services.ArtifactManagementService;
 import org.carlspring.strongbox.services.ArtifactResolutionService;
 import org.carlspring.strongbox.storage.repository.Repository;
 import org.carlspring.strongbox.testing.artifact.ArtifactManagementTestExecutionListener;
-import org.carlspring.strongbox.testing.artifact.TestArtifact;
+import org.carlspring.strongbox.testing.artifact.RawTestArtifact;
+import org.carlspring.strongbox.testing.repository.RawRepository;
 import org.carlspring.strongbox.testing.storage.repository.RepositoryManagementTestExecutionListener;
-import org.carlspring.strongbox.testing.storage.repository.TestRepository;
 
 import javax.inject.Inject;
 import java.io.InputStream;
@@ -46,6 +45,8 @@ public class RawLayoutProviderTest
 
     private static final String REPOSITORY = "rlpt-raw-releases";
 
+    private static final String FOO_BAR_ZIP_PATH = "foo/bar.zip";
+
     @Inject
     private ArtifactManagementService artifactManagementService;
     
@@ -56,7 +57,7 @@ public class RawLayoutProviderTest
     private RepositoryPathResolver repositoryPathResolver;
 
     @Test
-    void testNullArtifactCoordinates()
+    void testRawArtifactCoordinates()
     {
         RawArtifactCoordinates coordinates = new RawArtifactCoordinates("foo/bar/blah.bz2");
 
@@ -66,18 +67,16 @@ public class RawLayoutProviderTest
     @ExtendWith({RepositoryManagementTestExecutionListener.class,
                  ArtifactManagementTestExecutionListener.class })
     @Test
-    void testDeployAndResolveArtifact(@TestRepository(layout = RawLayoutProvider.ALIAS,
-                                                      storageId = STORAGE,
-                                                      repositoryId = REPOSITORY)
-                                     Repository repository,
-                                     @TestArtifact(resource = "foo/bar.zip",
-                                                   generator = RawArtifactGenerator.class)
-                                     Path artifactPath)
+    void testDeployAndResolveArtifact(@RawRepository(repositoryId = REPOSITORY,
+                                                     storageId = STORAGE)
+                                      Repository repository,
+                                      @RawTestArtifact(repositoryId = REPOSITORY,
+                                                       storageId = STORAGE,
+                                                       resource = FOO_BAR_ZIP_PATH)
+                                      Path artifactPath)
             throws Exception
     {
-        String path = "foo/bar.zip";
-
-        RepositoryPath artifactRepositoryPath = repositoryPathResolver.resolve(repository, path);
+        RepositoryPath artifactRepositoryPath = repositoryPathResolver.resolve(repository, FOO_BAR_ZIP_PATH);
 
         // Deploy the artifact
         artifactManagementService.validateAndStore(artifactRepositoryPath,

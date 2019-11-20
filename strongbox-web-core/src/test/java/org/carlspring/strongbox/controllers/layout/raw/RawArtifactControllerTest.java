@@ -62,12 +62,12 @@ public class RawArtifactControllerTest
                   ArtifactManagementTestExecutionListener.class })
     @Test
     public void testDeploy(@RawRepository(repositoryId = REPOSITORY_RELEASES_1)
-                                   Repository repository,
+                           Repository repository,
                            @RawTestArtifact(repositoryId = REPOSITORY_RELEASES_1,
                                             id = RAW_ARTIFACT_ID,
                                             versions = RAW_ARTIFACT_VERSION,
                                             bytesSize = RAW_ARTIFACT_SIZE)
-                                   Path path)
+                           Path path)
             throws IOException
     {
         final String storageId = repository.getStorage().getId();
@@ -105,12 +105,11 @@ public class RawArtifactControllerTest
     @ExtendWith({RepositoryManagementTestExecutionListener.class,
                  ArtifactManagementTestExecutionListener.class })
     @Test
-    public void testResolveViaHostedRepository(@TestRepository(layout = RawLayoutProvider.ALIAS,
-                                                               repositoryId = REPOSITORY_RELEASES_1)
+    public void testResolveViaHostedRepository(@RawRepository(repositoryId = REPOSITORY_RELEASES_1)
                                                Repository repository,
-                                               @TestArtifact(repositoryId = REPOSITORY_RELEASES_1,
-                                                             resource = "org/foo/bar/blah.zip",
-                                                             generator = RawArtifactGenerator.class)
+                                               @RawTestArtifact(repositoryId = REPOSITORY_RELEASES_1,
+                                                                resource = "org/foo/bar/blah.zip",
+                                                                bytesSize = RAW_ARTIFACT_SIZE)
                                                Path artifactPath)
     {
         final String pathStr = "org/foo/bar/blah.zip";
@@ -122,12 +121,11 @@ public class RawArtifactControllerTest
     @ExtendWith({ RepositoryManagementTestExecutionListener.class,
                   ArtifactManagementTestExecutionListener.class })
     @Test
-    public void shouldHandlePartialDownloadWithSingleRange(@TestRepository(layout = RawLayoutProvider.ALIAS,
-                                                                           repositoryId = REPOSITORY_RELEASES_2)
+    public void shouldHandlePartialDownloadWithSingleRange(@RawRepository(repositoryId = REPOSITORY_RELEASES_2)
                                                            Repository repository,
-                                                           @TestArtifact(repositoryId = REPOSITORY_RELEASES_2,
-                                                                         resource = "org/carlspring/strongbox/raw/test/partial-download-single.zip",
-                                                                         generator = RawArtifactGenerator.class)
+                                                           @RawTestArtifact(repositoryId = REPOSITORY_RELEASES_2,
+                                                                            resource = "org/carlspring/strongbox/raw/test/partial-download-single.zip",
+                                                                            bytesSize = RAW_ARTIFACT_SIZE)
                                                            Path artifactPath)
     {
         final String byteRanges = "100-199";
@@ -146,12 +144,11 @@ public class RawArtifactControllerTest
     @ExtendWith({ RepositoryManagementTestExecutionListener.class,
                   ArtifactManagementTestExecutionListener.class })
     @Test
-    public void shouldHandlePartialDownloadWithMultipleRanges(@TestRepository(layout = RawLayoutProvider.ALIAS,
-                                                                             repositoryId = REPOSITORY_RELEASES_3)
+    public void shouldHandlePartialDownloadWithMultipleRanges(@RawRepository(repositoryId = REPOSITORY_RELEASES_3)
                                                               Repository repository,
-                                                              @TestArtifact(repositoryId = REPOSITORY_RELEASES_3,
-                                                                            resource = "org/carlspring/strongbox/raw/test/partial-download-multiple.zip",
-                                                                            generator = RawArtifactGenerator.class)
+                                                              @RawTestArtifact(repositoryId = REPOSITORY_RELEASES_3,
+                                                                               resource = "org/carlspring/strongbox/raw/test/partial-download-multiple.zip",
+                                                                               bytesSize = RAW_ARTIFACT_SIZE)
                                                               Path artifactPath)
     {
         final String byteRanges = "0-29,200-249,300-309";
