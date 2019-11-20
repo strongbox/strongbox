@@ -117,6 +117,8 @@ public class MavenArtifactControllerTest
 
     private static final String REPOSITORY_RELEASES_OUT_OF_SERVICE = "mact-releases-out-of-service";
 
+    private static final String TEST_RESOURCES_TEMP_META_INF_MAVEN = "target/test-resources/temp/%s/META-INF/maven";
+
     private static Path pluginXmlFilePath;
 
     @Spy
@@ -239,7 +241,7 @@ public class MavenArtifactControllerTest
             throws Exception
     {
         Path filePath = Paths.get("").toAbsolutePath().normalize();
-        pluginXmlFilePath = filePath.resolve("src/test/resources/temp/" + artifactId + "/META-INF/maven");
+        pluginXmlFilePath = filePath.resolve(String.format(TEST_RESOURCES_TEMP_META_INF_MAVEN, artifactId));
         Files.createDirectories(pluginXmlFilePath);
 
         String xmlSource = "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n" +
