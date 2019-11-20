@@ -140,9 +140,15 @@ public class NpmArtifactControllerTest
                .header(HttpHeaders.CONTENT_LENGTH, equalTo(String.valueOf(Files.size(packagePath))));
 
         //Unpublish
+        String unpublishURL = getContextBaseUrl() + "/storages/{storageId}/{repositoryId}/{packageScope}/{packageName}"
+                + "/-/{tarballName}/-rev/{rev}";
+        String revision = "0-0000000000";
+        String packageScope = "@carlspring";
+        String packageName = "npm-test-release";
+        String tarball = "npm-test-release-1.0.0.tgz";
         mockMvc.contentType(MediaType.APPLICATION_JSON_VALUE)
                .when()
-               .delete(url, storageId, repositoryId, coordinates.toResource())
+               .delete(unpublishURL, storageId, repositoryId, packageScope, packageName, tarball, revision)
                .prettyPeek()
                .then()
                .statusCode(HttpStatus.OK.value())
@@ -299,18 +305,6 @@ public class NpmArtifactControllerTest
                .statusCode(HttpStatus.OK.value())
                .assertThat()
                .header(HttpHeaders.CONTENT_LENGTH, equalTo(String.valueOf(Files.size(artifact))));
-
-        //Unpublish
-        mockMvc.contentType(MediaType.APPLICATION_JSON_VALUE)
-               .when()
-               .delete(url, storageId, repositoryId, coordinates.toResource())
-               .prettyPeek()
-               .then()
-               .statusCode(HttpStatus.OK.value())
-               .assertThat()
-               .statusCode(HttpStatus.OK.value());
-
-        System.out.println("Hi");
     }
 
     @ExtendWith({ RepositoryManagementTestExecutionListener.class })
