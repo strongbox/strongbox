@@ -181,5 +181,5 @@ public class RawArtifactControllerTest
                       .get(url, storageId, repositoryId, pathStr)
                       .thenReturn();
     }
+    
 }
-
