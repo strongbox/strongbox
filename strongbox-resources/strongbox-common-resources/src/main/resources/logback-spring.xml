@@ -139,6 +139,7 @@
         <logger name="org.springframework.web.servlet.mvc.method.annotation.RequestMappingHandlerMapping" level="DEBUG" />
         
         <logger name="liquibase" level="WARN"/>
+        <logger name="com.sun.xml" level="INFO"/>
         <!-- Third-party packages -->
         
         <root level="DEBUG"/>
@@ -179,6 +180,8 @@
         <logger name ="liquibase.parser.core.xml"  level="INFO" />
         <logger name ="javax.xml.bind" level="INFO" />
         <logger name="org.springframework.web.servlet.mvc.method.annotation.RequestMappingHandlerMapping" level="INFO" />
+        
+        <logger name="com.sun.xml" level="INFO"/>
         <!-- Third-party packages -->
         
         <root level="INFO"/>
