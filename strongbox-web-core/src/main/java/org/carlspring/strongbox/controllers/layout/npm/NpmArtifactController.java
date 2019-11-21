@@ -8,10 +8,8 @@ import java.io.InputStream;
 import java.io.OutputStream;
 import java.io.StringWriter;
 import java.nio.charset.StandardCharsets;
-import java.nio.file.Files;
-import java.nio.file.Path;
-import java.nio.file.StandardCopyOption;
-import java.nio.file.StandardOpenOption;
+import java.nio.file.*;
+import java.nio.file.attribute.BasicFileAttributes;
 import java.security.NoSuchAlgorithmException;
 import java.text.SimpleDateFormat;
 import java.util.Date;
@@ -33,6 +31,7 @@ import io.swagger.annotations.ApiParam;
 import org.apache.commons.compress.archivers.tar.TarArchiveEntry;
 import org.apache.commons.compress.archivers.tar.TarArchiveInputStream;
 import org.apache.commons.compress.compressors.gzip.GzipCompressorInputStream;
+import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.IOUtils;
 
 import org.carlspring.strongbox.artifact.ArtifactTag;
@@ -76,6 +75,7 @@ import org.springframework.security.authentication.InsufficientAuthenticationExc
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
 import org.springframework.util.Assert;
+import org.springframework.util.FileSystemUtils;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -285,7 +285,8 @@ public class NpmArtifactController
         response.getOutputStream().write(npmJacksonMapper.writeValueAsBytes(packageFeed));
     }
 
-    private String generateRevisionHashcode() {
+    private String generateRevisionHashcode()
+    {
         return "36-b8d6f834569d63";
     }
 
@@ -410,9 +411,10 @@ public class NpmArtifactController
 
         if (name.contains("/-rev/"))
         {
-            logger.warn("Client executed npm unpublish a package with a specified version, PUT stage should be skipped!");
+            logger.warn(
+                    "Client executed npm unpublish a package with a specified version, PUT stage should be skipped!");
             return ResponseEntity.status(HttpStatus.OK)
-                    .body("");
+                                 .body("");
         }
 
         logger.info("npm publish request for {}/{}/{}", storageId, repositoryId, name);
@@ -465,46 +467,30 @@ public class NpmArtifactController
                        .body("{\"ok\":\"user '" + authentication.getName() + "' created\"}");
     }
 
-    @DeleteMapping(path = "{storageId}/{repositoryId}/{packageScope}/{packageName}/-/{tarballName}/-rev/{rev}")
-    //@PreAuthorize("hasAuthority('ARTIFACTS_DELETE')")
+    @DeleteMapping(path = "{storageId}/{repositoryId}/{packageScope}/{packageName}/-/{tarball}/-rev/{rev}")
+    @PreAuthorize("hasAuthority('ARTIFACTS_DELETE')")
     public ResponseEntity unpublish(@RepositoryMapping Repository repository,
                                     @PathVariable(name = "packageScope") String packageScope,
                                     @PathVariable(name = "packageName") String packageName,
-                                    @PathVariable(name = "tarballName") String tarballName,
-                                    @ApiParam(value = "Whether to use force delete")
-                                    @RequestParam(defaultValue = "false",
-                                            name = "force",
-                                            required = false) boolean force)
+                                    @PathVariable(name = "tarball") String tarball,
+                                    @PathVariable(name = "rev") String rev)
             throws Exception
     {
+
+        if (!repository.allowsUnpublish()) {
+            logger.warn(String.format("User tried to 'unpublish' a package [%s], but the feature is disabled", packageName));
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST)
+                    .body("Enable 'unpublish' at first");
+        }
+
         final String storageId = repository.getStorage().getId();
         final String repositoryId = repository.getId();
-        final String version = getPackageVersion(tarballName, packageName)
-                .replace(".tgz", "");
-
-        //todo move to layout provider
-//        if (force)
-//        {
-//            RepositoryPath packagePath = null;
-//            try
-//            {
-//                packagePath = artifactResolutionService.resolvePath(storageId, repositoryId,
-//                                                                    NpmArtifactCoordinates.calculatePackageId(
-//                                                                            packageScope,
-//                                                                            packageName));
-//                artifactManagementService.delete(packagePath, true);
-//            }
-//            catch (IOException e)
-//            {
-//                logger.error("Failed to process Npm delete request: path-[{}]", packagePath, e);
-//                return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(e.getMessage());
-//            }
-//            return ResponseEntity.status(HttpStatus.OK).build();
-//        }
+        final String version = getPackageVersion(tarball, packageName)
+                                       .replace(".tgz", "");
 
         logger.info(
-                "Npm delete request: storageId-[{}]; repositoryId-[{}]; packageName-[{}]; packageNameWithVersion-[{}]; force-[{}]",
-                storageId, repositoryId, packageName, force);
+                "Npm delete request: storageId-[{}]; repositoryId-[{}]; packageName-[{}]; tarball-[{}]; revision-[{}];",
+                storageId, repositoryId, packageName, tarball, rev);
 
         NpmArtifactCoordinates coordinates;
 
@@ -514,21 +500,21 @@ public class NpmArtifactController
         }
         catch (IllegalArgumentException e)
         {
-            logger.error("Exception thrown!", e);
+            logger.error("Illegal arg passed", e);
             return ResponseEntity.status(HttpStatus.BAD_REQUEST).build();
         }
         RepositoryPath path = artifactResolutionService.resolvePath(storageId, repositoryId, coordinates.toPath());
+
         try
         {
             artifactManagementService.delete(path, false);
-            //path = artifactResolutionService.resolvePath(storageId, repositoryId, coordinates.getPath());
-
         }
         catch (IOException e)
         {
             logger.error("Failed to process Npm delete request: path-[{}]", path, e);
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(e.getMessage());
         }
+        deleteVersionDirectory(path);
         return ResponseEntity.status(HttpStatus.OK).build();
     }
 
@@ -601,7 +587,6 @@ public class NpmArtifactController
                 {
                     case FIELD_NAME_VERSION:
                         jp.nextValue();
-                        //todo children not only the same version. reproduce
                         JsonNode node = jp.readValueAsTree();
                         Assert.isTrue(node.size() == 1, "npm package source should contain only one version.");
 
@@ -639,6 +624,14 @@ public class NpmArtifactController
 
         return Pair.with(packageVersion, packageTgzPath);
     }
+
+    private void deleteVersionDirectory(Path path)
+            throws IOException
+    {
+        Path versionPath = path.getParent();
+        FileUtils.deleteDirectory(versionPath.toFile());
+    }
+
 
     private Path extractPackage(JsonParser jp)
             throws IOException

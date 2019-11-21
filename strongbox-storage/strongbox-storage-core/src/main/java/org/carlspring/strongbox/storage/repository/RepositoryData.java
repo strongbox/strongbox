@@ -65,6 +65,8 @@ public class RepositoryData
 
     private boolean allowsDeployment;
 
+    private boolean allowsUnpublish;
+
     private boolean allowsRedeployment;
 
     private boolean allowsDelete;
@@ -99,6 +101,8 @@ public class RepositoryData
 
     }
 
+
+
     public RepositoryData(final Repository delegate)
     {
         this(delegate, null);
@@ -122,6 +126,7 @@ public class RepositoryData
         this.allowsDelete = delegate.allowsDeletion();
         this.allowsDirectoryBrowsing = delegate.allowsDirectoryBrowsing();
         this.checksumHeadersEnabled = delegate.isChecksumHeadersEnabled();
+        this.allowsUnpublish = delegate.allowsUnpublish();
 
         RepositoryDto mutableRepository = (RepositoryDto)delegate;
         this.proxyConfiguration = immuteProxyConfiguration(mutableRepository.getProxyConfiguration());
@@ -258,6 +263,11 @@ public class RepositoryData
     public boolean allowsRedeployment()
     {
         return allowsRedeployment;
+    }
+    @Override
+    public boolean allowsUnpublish()
+    {
+        return allowsUnpublish;
     }
 
     @Override
