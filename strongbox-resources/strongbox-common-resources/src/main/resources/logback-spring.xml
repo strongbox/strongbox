@@ -139,7 +139,8 @@
         <logger name="org.springframework.web.servlet.mvc.method.annotation.RequestMappingHandlerMapping" level="DEBUG" />
         
         <logger name="liquibase" level="WARN"/>
-        <logger name="com.sun.xml" level="INFO"/>
+        <logger name="com.sun.xml" level="WARN"/>
+        <logger name="springfox.documentation" level="WARN"/>
         <!-- Third-party packages -->
         
         <root level="DEBUG"/>
