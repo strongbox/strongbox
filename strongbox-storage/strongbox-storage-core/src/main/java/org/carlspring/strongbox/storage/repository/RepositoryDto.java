@@ -50,6 +50,8 @@ public class RepositoryDto
 
     private boolean allowsDeployment = true;
 
+    private boolean allowsUnpublish = true;
+
     private boolean allowsRedeployment = true;
 
     private boolean allowsDelete = true;
@@ -372,6 +374,17 @@ public class RepositoryDto
     public void setAllowsDirectoryBrowsing(boolean allowsDirectoryBrowsing)
     {
         this.allowsDirectoryBrowsing = allowsDirectoryBrowsing;
+    }
+
+    @Override
+    public boolean allowsUnpublish()
+    {
+        return allowsUnpublish;
+    }
+
+    public void setAllowsUnpublish(boolean allowsUnpublish)
+    {
+        this.allowsUnpublish = allowsUnpublish;
     }
 
     public boolean isHostedRepository()
