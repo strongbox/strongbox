@@ -477,10 +477,12 @@ public class NpmArtifactController
             throws Exception
     {
 
-        if (!repository.allowsUnpublish()) {
-            logger.warn(String.format("User tried to 'unpublish' a package [%s], but the feature is disabled", packageName));
+        if (!repository.allowsUnpublish())
+        {
+            logger.warn(String.format("User tried to 'unpublish' a package [%s], but the feature is disabled",
+                                      packageName));
             return ResponseEntity.status(HttpStatus.BAD_REQUEST)
-                    .body("Enable 'unpublish' at first");
+                                 .body("Enable 'unpublish' at first");
         }
 
         final String storageId = repository.getStorage().getId();
@@ -508,13 +510,14 @@ public class NpmArtifactController
         try
         {
             artifactManagementService.delete(path, false);
+            deleteVersionDirectory(path);
         }
         catch (IOException e)
         {
             logger.error("Failed to process Npm delete request: path-[{}]", path, e);
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(e.getMessage());
         }
-        deleteVersionDirectory(path);
+        logger.info("'unpublish' operation succeeded!");
         return ResponseEntity.status(HttpStatus.OK).build();
     }
 
