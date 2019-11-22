@@ -29,5 +29,4 @@ public class RpmRepositoryFactory
         return repository;
     }
 
-
 }
