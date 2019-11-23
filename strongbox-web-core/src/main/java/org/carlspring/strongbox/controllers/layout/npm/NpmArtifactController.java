@@ -15,6 +15,7 @@ import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.List;
 import java.util.Optional;
+import java.util.Random;
 
 import javax.inject.Inject;
 import javax.servlet.ServletInputStream;
@@ -28,6 +29,7 @@ import com.fasterxml.jackson.core.JsonToken;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import io.swagger.annotations.ApiParam;
+import org.apache.commons.codec.binary.Hex;
 import org.apache.commons.compress.archivers.tar.TarArchiveEntry;
 import org.apache.commons.compress.archivers.tar.TarArchiveInputStream;
 import org.apache.commons.compress.compressors.gzip.GzipCompressorInputStream;
@@ -76,6 +78,7 @@ import org.springframework.security.authentication.UsernamePasswordAuthenticatio
 import org.springframework.security.core.Authentication;
 import org.springframework.util.Assert;
 import org.springframework.util.FileSystemUtils;
+import org.springframework.util.SerializationUtils;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -241,7 +244,6 @@ public class NpmArtifactController
 
         packageFeed.setName(packageId);
         packageFeed.setAdditionalProperty("_id", packageId);
-        packageFeed.setAdditionalProperty("_rev", generateRevisionHashcode());
 
         Predicate predicate = createSearchPredicate(packageScope, packageName);
 
@@ -260,6 +262,7 @@ public class NpmArtifactController
 
         DistTags distTags = new DistTags();
         packageFeed.setDistTags(distTags);
+        packageFeed.setAdditionalProperty("_rev", generateRevisionHashcode(packageFeed));
 
         searchResult.stream().map(npmPackageSupplier).forEach(p -> {
             PackageVersion npmPackage = p.getNpmPackage();
@@ -285,9 +288,12 @@ public class NpmArtifactController
         response.getOutputStream().write(npmJacksonMapper.writeValueAsBytes(packageFeed));
     }
 
-    private String generateRevisionHashcode()
+    private String generateRevisionHashcode(PackageFeed packageFeed)
+            throws JsonProcessingException
     {
-        return "36-b8d6f834569d63";
+        byte[] bytes = npmJacksonMapper.writeValueAsBytes(packageFeed);
+        return packageFeed.getVersions().getAdditionalProperties().size() + "-"
+               + Hex.encodeHexString(bytes).substring(0,16);
     }
 
     @GetMapping(path = "{storageId}/{repositoryId}/{packageName}")
