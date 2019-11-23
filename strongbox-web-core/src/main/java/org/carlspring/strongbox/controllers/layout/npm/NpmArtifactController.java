@@ -467,6 +467,51 @@ public class NpmArtifactController
                        .body("{\"ok\":\"user '" + authentication.getName() + "' created\"}");
     }
 
+    @DeleteMapping(path = "{storageId}/{repositoryId}/{packageScope}/{packageName}/-rev/{rev}")
+    @PreAuthorize("hasAuthority('ARTIFACTS_DELETE')")
+    public ResponseEntity unpublishPackage(@RepositoryMapping Repository repository,
+                                           @PathVariable(name = "packageScope") String packageScope,
+                                           @PathVariable(name = "packageName") String packageName,
+                                           @PathVariable(name = "rev") String rev)
+    {
+        if (!repository.allowsUnpublish())
+        {
+            logger.warn(String.format("User tried to 'unpublish' a package [%s], but the feature is disabled",
+                                      packageName));
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST)
+                                 .body("Enable 'unpublish' at first");
+        }
+
+        final String storageId = repository.getStorage().getId();
+        final String repositoryId = repository.getId();
+        Path packagePath = Paths.get(packageScope, packageName);
+        RepositoryPath path;
+        try
+        {
+            path = artifactResolutionService.resolvePath(storageId, repositoryId,
+                                                                        packagePath.toString());
+        }
+        catch (IOException e)
+        {
+            logger.error("Failed to resolve path: storageId:-[{}], repositoryId-[{}], packagePath-[{}]", storageId,
+                         repositoryId, packagePath.toString());
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(e.getMessage());
+        }
+
+        try
+        {
+            artifactManagementService.delete(path, false);
+            //deleteVersionDirectory(path);
+        }
+        catch (IOException e)
+        {
+            logger.error("Failed to process Npm unpublsh a package request: path-[{}]", path, e);
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(e.getMessage());
+        }
+        logger.info("Npm unpublish succeeded: path-[{}]", path);
+        return ResponseEntity.status(HttpStatus.OK).build();
+    }
+
     @DeleteMapping(path = "{storageId}/{repositoryId}/{packageScope}/{packageName}/-/{tarball}/-rev/{rev}")
     @PreAuthorize("hasAuthority('ARTIFACTS_DELETE')")
     public ResponseEntity unpublish(@RepositoryMapping Repository repository,
@@ -491,7 +536,7 @@ public class NpmArtifactController
                                        .replace(".tgz", "");
 
         logger.info(
-                "Npm delete request: storageId-[{}]; repositoryId-[{}]; packageName-[{}]; tarball-[{}]; revision-[{}];",
+                "Npm unpublish a single version request: storageId-[{}]; repositoryId-[{}]; packageName-[{}]; tarball-[{}]; revision-[{}];",
                 storageId, repositoryId, packageName, tarball, rev);
 
         NpmArtifactCoordinates coordinates;
@@ -514,10 +559,10 @@ public class NpmArtifactController
         }
         catch (IOException e)
         {
-            logger.error("Failed to process Npm delete request: path-[{}]", path, e);
+            logger.error("Failed to process Npm unpublsh a single version request: path-[{}]", path, e);
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(e.getMessage());
         }
-        logger.info("'unpublish' operation succeeded!");
+        logger.info("Npm unpublish succeeded: path-[{}]", path);
         return ResponseEntity.status(HttpStatus.OK).build();
     }
 
