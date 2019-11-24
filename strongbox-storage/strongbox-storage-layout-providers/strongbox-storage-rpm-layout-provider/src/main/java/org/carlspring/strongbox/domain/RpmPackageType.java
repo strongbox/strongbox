@@ -1,5 +1,7 @@
 package org.carlspring.strongbox.domain;
 
+import static org.springframework.util.StringUtils.isEmpty;
+
 public enum RpmPackageType
 {
     SOURCE("src"),
@@ -16,4 +18,10 @@ public enum RpmPackageType
     {
         this.postfix = postfix;
     }
+
+    public static RpmPackageType fromValue(String name)
+    {
+        return isEmpty(name) ? BINARY : valueOf(name.toUpperCase());
+    }
+
 }

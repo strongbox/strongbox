@@ -14,9 +14,7 @@ import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
-import java.security.NoSuchAlgorithmException;
 
-import org.apache.commons.codec.digest.MessageDigestAlgorithms;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.junit.jupiter.api.parallel.Execution;
@@ -24,8 +22,6 @@ import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.ContextConfiguration;
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.carlspring.strongbox.util.MessageDigestUtils.calculateChecksum;
-import static org.carlspring.strongbox.util.MessageDigestUtils.readChecksumFile;
 import static org.junit.jupiter.api.parallel.ExecutionMode.CONCURRENT;
 
 /**
@@ -40,34 +36,28 @@ class RpmArtifactGeneratorTest
 
     private static final String REPOSITORY_RELEASES = "rpmatg-releases";
 
-//    @ExtendWith({ RepositoryManagementTestExecutionListener.class,
-//                  ArtifactManagementTestExecutionListener.class })
-//    @Test
-//    void testArtifactGeneration(@RpmRepository(repositoryId = REPOSITORY_RELEASES)
-//                                Repository repository,
-//                                @RpmTestArtifact(repositoryId = REPOSITORY_RELEASES,
-//                                                 id = "rpm-test-view",
-//                                                 versions = "1.0.0",
-//                                                 scope = "@carlspring",
-//                                                 bytesSize = 2048)
-//                                Path path)
-//            throws Exception
-//    {
-//        assertThat(Files.exists(path)).as("Failed to generate RPM package.").isTrue();
-//
-//        // SHA1
-//        String fileName = path.getFileName().toString();
-//        String checksumFileName = fileName + ".sha1";
-//        Path pathSha1 = path.resolveSibling(checksumFileName);
-//        assertThat(Files.exists(pathSha1)).as("Failed to generate RPM SHA1 file.").isTrue();
-//
-//        String expectedSha1 = calculateChecksum(path, MessageDigestAlgorithms.SHA_1);
-//        String result = readChecksumFile(pathSha1.toString());
-//        assertThat(result).isEqualTo(expectedSha1);
-//
-//        // File size
-//        assertThat(Files.size(path)).isGreaterThan(2048);
-//    }
+
+    @ExtendWith({ RepositoryManagementTestExecutionListener.class,
+                  ArtifactManagementTestExecutionListener.class })
+    @Test
+    void testArtifactGeneration(@RpmRepository(repositoryId = REPOSITORY_RELEASES)
+                                Repository repository,
+                                @RpmTestArtifact(repositoryId = REPOSITORY_RELEASES,
+                                                 id = "libqxt-qt5",
+                                                 versions = "0.7.0",
+                                                 bytesSize = 2048)
+                                Path path)
+    {
+        assertThat(repository).isNotNull();
+
+        System.out.println(repository.getStorage().getId() + ":" + repository.getId());
+        System.out.println(path.toAbsolutePath().toString());
+
+        assertThat(repository).as("Failed to create an RPM repository!").isNotNull();
+        assertThat(path).as("Failed to generate RPM artifact!").exists();
+
+        assertThat(Files.exists(path)).as("Failed to generate RPM package.").isTrue();
+    }
 
     @Test
     public void testBasicRpmArtifactGeneration()
@@ -94,7 +84,6 @@ class RpmArtifactGeneratorTest
         RpmArtifactGenerator generator = new RpmArtifactGenerator(path);
         generator.setCoordinates(coordinates);
         generator.setBasePath(basePath);
-        generator.setPackagePath(packagePath);
         generator.generate(1024);
 
         assertThat(Paths.get(basePath.toString(), packagePath.toString())).exists();

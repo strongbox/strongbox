@@ -62,10 +62,20 @@ public class RpmArtifactCoordinates
     public RpmArtifactCoordinates(@NotBlank String baseName,
                                   @NotBlank String version,
                                   @NotBlank String release,
+                                  @NotNull String packageType,
+                                  @NotNull String arch)
+    {
+        this(baseName, version, release, RpmPackageType.fromValue(packageType), RpmPackageArch.fromValue(arch));
+    }
+
+    public RpmArtifactCoordinates(@NotBlank String baseName,
+                                  @NotBlank String version,
+                                  @NotBlank String release,
                                   @NotNull RpmPackageType packageType,
                                   @NotNull RpmPackageArch arch)
     {
         this();
+
         setId(baseName);
         setVersion(version);
         setRelease(release);

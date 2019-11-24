@@ -24,8 +24,6 @@ public class RpmArtifactGenerator
 
     private Path basePath;
 
-    private Path packagePath;
-
 
     public RpmArtifactGenerator(Path basePath)
     {
@@ -68,12 +66,7 @@ public class RpmArtifactGenerator
 
     public Path getPackagePath()
     {
-        return packagePath;
-    }
-
-    public void setPackagePath(Path packagePath)
-    {
-        this.packagePath = packagePath;
+        return Paths.get(coordinates.toPath());
     }
 
     public void generate(long byteSize)
@@ -81,7 +74,19 @@ public class RpmArtifactGenerator
     {
         try
         {
-            File fileWithRandomSize = Paths.get(basePath.toString(), getPackagePath().toString()).toFile();
+            String packagePath = getPackagePath().toString();
+
+            File rpmFile = Paths.get(basePath.toString(), packagePath).toFile();
+
+            if (!rpmFile.getParentFile().exists())
+            {
+                //noinspection ResultOfMethodCallIgnored
+                rpmFile.getParentFile().mkdirs();
+            }
+
+            File fileWithRandomSize = new File(basePath.toString(),
+                                               "random-sized-file-for-" + packagePath.substring(0, packagePath.length() - 4));
+
             TestFileUtils.generateFile(fileWithRandomSize, byteSize);
 
             Builder builder = new Builder();
@@ -91,7 +96,10 @@ public class RpmArtifactGenerator
             builder.setPlatform(NOARCH, LINUX);
             builder.setType(BINARY);
             builder.addFile("etc", fileWithRandomSize);
-            builder.build(basePath.toFile());
+            builder.build(getBasePath().toFile());
+
+            //noinspection ResultOfMethodCallIgnored
+            fileWithRandomSize.delete();
         }
         catch (NoSuchAlgorithmException e)
         {
@@ -119,8 +127,9 @@ public class RpmArtifactGenerator
                                  long bytesSize)
             throws IOException
     {
-//        return this.of(RpmArtifactCoordinates.of(id, version)).buildPublishJson(bytesSize);
-        return null;
+        generate(bytesSize);
+
+        return Paths.get(basePath.toString(), getPackagePath().toString());
     }
 
 }

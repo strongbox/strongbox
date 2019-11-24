@@ -6,14 +6,13 @@ import org.carlspring.strongbox.domain.RpmPackageArch;
 import org.carlspring.strongbox.domain.RpmPackageType;
 
 import javax.validation.constraints.NotEmpty;
-
-
 import java.util.regex.Matcher;
 
 import static org.carlspring.strongbox.domain.RpmNamingPatterns.*;
 
 /**
- * Util class for parsing generating artifact coordinates by provided RPM-packages.
+ * A utility class for parsing artifact coordinates by provided RPM-package paths.
+ *
  * @author Ilya Shatalov <ilya@alov.me>
  */
 public class RpmArtifactCoordinatesUtils
@@ -70,6 +69,7 @@ public class RpmArtifactCoordinatesUtils
         {
             throw new IllegalArgumentException("Incorrect filename: package name is required");
         }
+
         return matcher.group(1);
     }
 
@@ -81,6 +81,7 @@ public class RpmArtifactCoordinatesUtils
         {
             throw new IllegalArgumentException("Incorrect filename: package version is required");
         }
+
         return matcher.group(1);
     }
 
@@ -93,22 +94,21 @@ public class RpmArtifactCoordinatesUtils
         {
             throw new IllegalArgumentException("Incorrect filename: package release is required");
         }
+
         release = matcher.group(1);
 
         return release;
     }
 
-    private static RpmPackageType parsePackageType (String fileName)
+    private static RpmPackageType parsePackageType(String fileName)
     {
         boolean match = RPM_PACKAGE_TYPE_REGEXP_PATTERN.matcher(fileName).find();
 
-        return match
-                ? RpmPackageType.SOURCE
-                : RpmPackageType.BINARY;
+        return match ? RpmPackageType.SOURCE
+                     : RpmPackageType.BINARY;
     }
 
-
-    private static RpmPackageArch parseArch (String fileName)
+    private static RpmPackageArch parseArch(String fileName)
     {
         String arch;
         Matcher matcher = RPM_PACKAGE_ARCH_REGEXP_PATTERN.matcher(fileName);
@@ -121,4 +121,5 @@ public class RpmArtifactCoordinatesUtils
 
         return RpmPackageArch.valueOf(arch.toUpperCase());
     }
+
 }

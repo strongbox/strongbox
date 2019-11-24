@@ -50,15 +50,13 @@ public @interface RpmTestArtifact
     @AliasFor(annotation = TestArtifact.class)
     String[] versions() default {};
     
-    String baseName() default "";
-
-    String release() default "";
+    String release() default "1";
 
     String architecture() default "noarch";
 
     String packageType() default "";
 
-    String getExtension() default "";
+    String extension() default "rpm";
 
     /**
      * Additional artifact size in bytes.
