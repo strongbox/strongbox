@@ -9,13 +9,11 @@ import java.io.OutputStream;
 import java.io.StringWriter;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.*;
-import java.nio.file.attribute.BasicFileAttributes;
 import java.security.NoSuchAlgorithmException;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.List;
 import java.util.Optional;
-import java.util.Random;
 
 import javax.inject.Inject;
 import javax.servlet.ServletInputStream;
@@ -28,7 +26,6 @@ import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.core.JsonToken;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import io.swagger.annotations.ApiParam;
 import org.apache.commons.codec.binary.Hex;
 import org.apache.commons.compress.archivers.tar.TarArchiveEntry;
 import org.apache.commons.compress.archivers.tar.TarArchiveInputStream;
@@ -77,8 +74,6 @@ import org.springframework.security.authentication.InsufficientAuthenticationExc
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
 import org.springframework.util.Assert;
-import org.springframework.util.FileSystemUtils;
-import org.springframework.util.SerializationUtils;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -412,16 +407,14 @@ public class NpmArtifactController
                                   HttpServletRequest request)
             throws Exception
     {
-        final String storageId = repository.getStorage().getId();
-        final String repositoryId = repository.getId();
-
-        if (name.contains("/-rev/"))
-        {
-            logger.warn(
-                    "Client executed npm unpublish a package with a specified version, PUT stage should be skipped!");
+        if (nameContainsRevision(name)) {
             return ResponseEntity.status(HttpStatus.OK)
                                  .body("");
         }
+        final String storageId = repository.getStorage().getId();
+        final String repositoryId = repository.getId();
+
+
 
         logger.info("npm publish request for {}/{}/{}", storageId, repositoryId, name);
         Pair<PackageVersion, Path> packageEntry;
@@ -443,6 +436,27 @@ public class NpmArtifactController
         storeNpmPackage(repository, coordinates, packageJson, packageTgz);
 
         return ResponseEntity.ok("");
+    }
+
+    /**
+     * Resolves if a passed name contains '/-rev' substring.
+     * Npm 'unpublish' a single version package comprises 4 requests: GET, PUT, GET, DELETE, and
+     * PUT method has a path that Strongbox maps on
+     * {@link NpmArtifactController#publish(Repository, String, HttpServletRequest)}.
+     * Example of PUT path: http://localhost:8080/@scope/package/-rev/0-0000000000000000.
+     * As publishing doesn't play any role in 'unpublish' process, it should be skipped.
+     * @param name name from path "{storageId}/{repositoryId}/{name:.+}"
+     * @return true if contains, false if not. If true PUT stage of 'unpublish' will be skipped.
+     */
+    private boolean nameContainsRevision(String name)
+    {
+        if (name.contains("/-rev/"))
+        {
+            logger.warn(
+                    "Url comprises '/-rev/' sub path");
+            return true;
+        }
+        return false;
     }
 
     @PreAuthorize("hasAuthority('UI_LOGIN')")
