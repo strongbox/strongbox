@@ -705,8 +705,22 @@ public class StoragesConfigurationControllerTestIT
                                                 Path path)
             throws Exception
     {
-        deleteRepositoryPath(repository, path, true);
         deleteRepositoryPath(repository, path, false);
+    }
+
+    @ExtendWith({ RepositoryManagementTestExecutionListener.class,
+                  ArtifactManagementTestExecutionListener.class })
+    @Test
+    public void testForcedDeleteMavenPathInRepository(@MavenRepository(repositoryId = MAVEN_REPOSITORY_RELEASES,
+                                                                       setup = MavenIndexedRepositorySetup.class)
+                                                      Repository repository,
+                                                      @MavenTestArtifact(repositoryId = MAVEN_REPOSITORY_RELEASES,
+                                                                         id = "com.artifacts.to.delete.releases:delete-foo",
+                                                                         versions = "1.2.1")
+                                                      Path path)
+            throws Exception
+    {
+        deleteRepositoryPath(repository, path, true);
     }
 
     @ExtendWith({ RepositoryManagementTestExecutionListener.class,
@@ -722,8 +736,23 @@ public class StoragesConfigurationControllerTestIT
                                                 Path path)
             throws Exception
     {
-        deleteRepositoryPath(repository, path, true);
         deleteRepositoryPath(repository, path, false);
+    }
+
+    @ExtendWith({ RepositoryManagementTestExecutionListener.class,
+                  ArtifactManagementTestExecutionListener.class })
+    @Test
+    public void testForcedDeleteNugetPathInRepository(@NugetRepository(storageId = NUGET_STORAGE_ID,
+                                                                       repositoryId = NUGET_REPOSITORY_RELEASES)
+                                                      Repository repository,
+                                                      @NugetTestArtifact(storageId = NUGET_STORAGE_ID,
+                                                                         repositoryId = NUGET_REPOSITORY_RELEASES,
+                                                                         id = "Org.Carlspring.Strongbox.Examples.Nuget.Mono.Delete",
+                                                                         versions = "1.0.0")
+                                                      Path path)
+            throws Exception
+    {
+        deleteRepositoryPath(repository, path, true);
     }
 
     @ExtendWith({ RepositoryManagementTestExecutionListener.class,
@@ -738,8 +767,22 @@ public class StoragesConfigurationControllerTestIT
                                               Path path)
             throws Exception
     {
-        deleteRepositoryPath(repository, path, true);
         deleteRepositoryPath(repository, path, false);
+    }
+
+    @ExtendWith({ RepositoryManagementTestExecutionListener.class,
+                  ArtifactManagementTestExecutionListener.class })
+    @Test
+    public void testForcedDeleteRawPathInRepository(@TestRepository(layout = RawLayoutProvider.ALIAS,
+                                                                    repositoryId = RAW_REPOSITORY_RELEASES)
+                                                    Repository repository,
+                                                    @TestArtifact(repositoryId = RAW_REPOSITORY_RELEASES,
+                                                                  resource = "org/foo/bar/blah.zip",
+                                                                  generator = RawArtifactGenerator.class)
+                                                    Path path)
+            throws Exception
+    {
+        deleteRepositoryPath(repository, path, true);
     }
 
     @ExtendWith({ RepositoryManagementTestExecutionListener.class,
@@ -754,8 +797,22 @@ public class StoragesConfigurationControllerTestIT
                                               Path path)
             throws Exception
     {
-        deleteRepositoryPath(repository, path, true);
         deleteRepositoryPath(repository, path, false);
+    }
+
+    @ExtendWith({ RepositoryManagementTestExecutionListener.class,
+                  ArtifactManagementTestExecutionListener.class })
+    @Test
+    public void testForcedDeleteNpmPathInRepository(@NpmRepository(repositoryId = NPM_REPOSITORY_RELEASES)
+                                                    Repository repository,
+                                                    @NpmTestArtifact(repositoryId = NPM_REPOSITORY_RELEASES,
+                                                                     versions = "1.0.0",
+                                                                     id = "npm-test-release",
+                                                                     scope = "@carlspring")
+                                                    Path path)
+            throws Exception
+    {
+        deleteRepositoryPath(repository, path, true);
     }
 
     private void deleteRepositoryPath(Repository repository, Path path, boolean force)
