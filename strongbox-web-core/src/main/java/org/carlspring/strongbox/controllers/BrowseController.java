@@ -4,7 +4,6 @@ import org.carlspring.strongbox.domain.DirectoryListing;
 import org.carlspring.strongbox.providers.io.RepositoryFiles;
 import org.carlspring.strongbox.providers.io.RepositoryPath;
 import org.carlspring.strongbox.services.DirectoryListingService;
-import org.carlspring.strongbox.services.DirectoryListingServiceImpl;
 import org.carlspring.strongbox.storage.Storage;
 import org.carlspring.strongbox.storage.repository.Repository;
 import org.carlspring.strongbox.web.RepositoryMapping;
@@ -25,6 +24,7 @@ import io.swagger.annotations.ApiResponses;
 import org.apache.commons.lang.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
@@ -50,15 +50,9 @@ public class BrowseController
     // must be the same as @RequestMapping value on the class definition
     public final static String ROOT_CONTEXT = "/api/browse";
 
+    @Inject
+    @Qualifier("browseRepositoryDirectoryListingService")
     private volatile DirectoryListingService directoryListingService;
-    
-    public DirectoryListingService getDirectoryListingService()
-    {
-        return Optional.ofNullable(directoryListingService).orElseGet(() -> {
-            String baseUrl = StringUtils.chomp(configurationManager.getConfiguration().getBaseUrl(), "/");
-            return directoryListingService = new DirectoryListingServiceImpl(String.format("%s/api/browse", baseUrl));
-        });
-    }
     
     @ApiOperation(value = "List configured storages.")
     @ApiResponses(value = { @ApiResponse(code = 200, message = "The list was returned."),
@@ -76,7 +70,7 @@ public class BrowseController
         try
         {
             Map<String, Storage> storages = configurationManager.getConfiguration().getStorages();
-            DirectoryListing directoryListing = getDirectoryListingService().fromStorages(storages);
+            DirectoryListing directoryListing = directoryListingService.fromStorages(storages);
 
             if (acceptHeader != null && acceptHeader.contains(MediaType.APPLICATION_JSON_VALUE))
             {
@@ -121,7 +115,7 @@ public class BrowseController
                 return getNotFoundResponseEntity("The requested storage was not found.", acceptHeader);
             }
 
-            DirectoryListing directoryListing = getDirectoryListingService().fromRepositories(storage.getRepositories());
+            DirectoryListing directoryListing = directoryListingService.fromRepositories(storage.getRepositories());
 
             if (acceptHeader != null && acceptHeader.contains(MediaType.APPLICATION_JSON_VALUE))
             {
@@ -178,7 +172,7 @@ public class BrowseController
                 return getNotFoundResponseEntity("Requested repository doesn't allow browsing.", acceptHeader);
             }
 
-            DirectoryListing directoryListing = getDirectoryListingService().fromRepositoryPath(repositoryPath);
+            DirectoryListing directoryListing = directoryListingService.fromRepositoryPath(repositoryPath);
 
             if (acceptHeader != null && acceptHeader.contains(MediaType.APPLICATION_JSON_VALUE))
             {

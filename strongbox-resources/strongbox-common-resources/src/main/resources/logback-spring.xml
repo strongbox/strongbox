@@ -22,6 +22,7 @@
     <then>
         <appender name="CONSOLE" class="ch.qos.logback.core.ConsoleAppender">
             <filter class="org.carlspring.strongbox.log.CronTaskContextDeclineFilter"/>
+            <filter class="org.carlspring.strongbox.log.JaninoClassLoaderLogDeclineFilter"/>
     
             <encoder>
                 <pattern>%d{HH:mm:ss.SSS dd-MM-yyyy} | %-5.5p | %-20.20t | %-50.50logger{50} | %m%n</pattern>
@@ -38,6 +39,7 @@
         <appender name="FILE"
             class="ch.qos.logback.core.rolling.RollingFileAppender">
             <filter class="org.carlspring.strongbox.log.CronTaskContextDeclineFilter"/>
+            <filter class="org.carlspring.strongbox.log.JaninoClassLoaderLogDeclineFilter"/>
             
             <file>${loggingFile}</file>
             <rollingPolicy class="ch.qos.logback.core.rolling.SizeAndTimeBasedRollingPolicy">
@@ -64,6 +66,7 @@
                 <appender name="CRON-JOB-CONTEXT-SIFT-FILE-APPENDER"
                     class="ch.qos.logback.core.rolling.RollingFileAppender">
                     <filter class="org.carlspring.strongbox.log.CronTaskContextAcceptFilter"/>
+                    <filter class="org.carlspring.strongbox.log.JaninoClassLoaderLogDeclineFilter"/>
                     
                     <file>${loggingDir}/${strongbox-cron-context-name}/${strongbox-cron-context-name}.log</file>
                     <rollingPolicy class="ch.qos.logback.core.rolling.SizeAndTimeBasedRollingPolicy">
