@@ -14,6 +14,7 @@ import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.List;
 import java.util.Optional;
+import java.util.stream.Collectors;
 
 import javax.inject.Inject;
 import javax.servlet.ServletInputStream;
@@ -27,6 +28,7 @@ import com.fasterxml.jackson.core.JsonToken;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.apache.commons.codec.binary.Hex;
+import org.apache.commons.codec.digest.DigestUtils;
 import org.apache.commons.compress.archivers.tar.TarArchiveEntry;
 import org.apache.commons.compress.archivers.tar.TarArchiveInputStream;
 import org.apache.commons.compress.compressors.gzip.GzipCompressorInputStream;
@@ -257,7 +259,6 @@ public class NpmArtifactController
 
         DistTags distTags = new DistTags();
         packageFeed.setDistTags(distTags);
-        packageFeed.setAdditionalProperty("_rev", generateRevisionHashcode(packageFeed));
 
         searchResult.stream().map(npmPackageSupplier).forEach(p -> {
             PackageVersion npmPackage = p.getNpmPackage();
@@ -278,17 +279,20 @@ public class NpmArtifactController
             }
 
         });
-
+        packageFeed.setAdditionalProperty("_rev", generateRevisionHashcode(packageFeed));
         response.setContentType(MediaType.APPLICATION_JSON_VALUE);
         response.getOutputStream().write(npmJacksonMapper.writeValueAsBytes(packageFeed));
     }
 
     private String generateRevisionHashcode(PackageFeed packageFeed)
-            throws JsonProcessingException
     {
-        byte[] bytes = npmJacksonMapper.writeValueAsBytes(packageFeed);
+        String versionsShasum = packageFeed.getVersions().getAdditionalProperties()
+                                           .values()
+                                           .stream()
+                                           .map(x -> x.getDist().getShasum())
+                                           .collect(Collectors.joining());
         return packageFeed.getVersions().getAdditionalProperties().size() + "-"
-               + Hex.encodeHexString(bytes).substring(0,16);
+               + DigestUtils.sha1Hex(versionsShasum).substring(0, 16);
     }
 
     @GetMapping(path = "{storageId}/{repositoryId}/{packageName}")
@@ -504,6 +508,10 @@ public class NpmArtifactController
 
         final String storageId = repository.getStorage().getId();
         final String repositoryId = repository.getId();
+        logger.info(
+                "Npm unpublish a package request: storageId-[{}]; repositoryId-[{}]; packageName-[{}]; revision-[{}];",
+                storageId, repositoryId, packageName, rev);
+
         Path packagePath = Paths.get(packageScope, packageName);
         RepositoryPath path;
         try
