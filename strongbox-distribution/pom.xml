@@ -377,6 +377,34 @@
                     <tarLongFileMode>gnu</tarLongFileMode>
                 </configuration>
             </plugin>
+            
+            <plugin>
+                <artifactId>jdeb</artifactId>
+                <groupId>org.vafer</groupId>
+                <executions>
+                    <execution>
+                        <phase>package</phase>
+                        <goals>
+                            <goal>jdeb</goal>
+                        </goals>
+                        <configuration>
+                            <deb>${basedir}/target/strongbox-distribution-${project.version}.deb</deb>
+                            <controlDir>${basedir}/src/main/resources/deb</controlDir>
+                            <installDir>/opt/strongbox</installDir>
+                            <skipPOMs>false</skipPOMs>
+                            <dataSet>
+                            
+                                <data>
+                                    <src>${basedir}/target/assembly</src>
+                                    <type>directory</type>
+                                </data>
+                                
+                            </dataSet>
+                        </configuration>
+                    </execution>
+                </executions>
+            </plugin>
+            
         </plugins>
     </build>
 
