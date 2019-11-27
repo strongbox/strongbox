@@ -1,0 +1,8 @@
+Package: strongbox
+Version: [[version]]
+Architecture: all
+Section: Miscellaneous
+Priority: low
+Homepage: https://github.com/strongbox/strongbox
+Description: Modern artifact repository manager
+Maintainer: Carlspring <carlspring@gmail.com>
