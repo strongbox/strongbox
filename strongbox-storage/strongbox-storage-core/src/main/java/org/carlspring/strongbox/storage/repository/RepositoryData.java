@@ -101,8 +101,6 @@ public class RepositoryData
 
     }
 
-
-
     public RepositoryData(final Repository delegate)
     {
         this(delegate, null);
@@ -264,6 +262,7 @@ public class RepositoryData
     {
         return allowsRedeployment;
     }
+
     @Override
     public boolean allowsUnpublish()
     {

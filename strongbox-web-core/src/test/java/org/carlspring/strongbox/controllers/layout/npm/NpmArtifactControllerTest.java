@@ -243,7 +243,7 @@ public class NpmArtifactControllerTest
                              "@lifaon/observables:1.6.0" })
     public void packageNameAcceptanceTest(String packageNameWithVersion,
                                           @NpmRepository(repositoryId = REPOSITORY_RELEASES)
-                                                  Repository repository,
+                                          Repository repository,
                                           TestInfo testInfo)
             throws Exception
     {
@@ -315,7 +315,7 @@ public class NpmArtifactControllerTest
                              "rxjs:assd5.6.0-hsds" })
     public void packageNameTestBadRequest(String packageNameWithVersion,
                                           @NpmRepository(repositoryId = REPOSITORY_RELEASES)
-                                                  Repository repository)
+                                          Repository repository)
             throws Exception
     {
         final String storageId = repository.getStorage().getId();
