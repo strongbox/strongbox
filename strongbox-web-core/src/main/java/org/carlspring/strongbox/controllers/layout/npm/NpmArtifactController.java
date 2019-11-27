@@ -525,7 +525,11 @@ public class NpmArtifactController
                          repositoryId, packagePath.toString());
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(e.getMessage());
         }
-
+        if (path == null) {
+            logger.info("Artifact doesn't exist [{}]", packageName);
+            return ResponseEntity.status(HttpStatus.OK)
+                                 .build();
+        }
         try
         {
             artifactManagementService.delete(path, false);
@@ -579,7 +583,11 @@ public class NpmArtifactController
             return ResponseEntity.status(HttpStatus.BAD_REQUEST).build();
         }
         RepositoryPath path = artifactResolutionService.resolvePath(storageId, repositoryId, coordinates.toPath());
-
+        if (path == null) {
+            logger.info("Artifact doesn't exist [{}]", tarball);
+            return ResponseEntity.status(HttpStatus.OK)
+                                 .build();
+        }
         try
         {
             artifactManagementService.delete(path, false);
