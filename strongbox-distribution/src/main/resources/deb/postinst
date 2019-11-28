@@ -1,6 +1,9 @@
 #!/bin/sh
-mkdir /opt/strongbox-vault
-groupadd strongbox
-useradd -d /opt/strongbox -g strongbox --system strongbox
-chown -R strongbox:strongbox /opt/strongbox
-chown -R strongbox:strongbox /opt/strongbox-vault
+set -e
+mkdir -p /opt/strongbox/tmp /opt/strongbox/logs /opt/strongbox-vault 
+
+getent group strongbox >/dev/null 2>&1 || groupadd --system strongbox
+id -u strongbox >/dev/null 2>&1 || adduser --quiet --system --ingroup strongbox --home /opt/strongbox strongbox
+
+chown -R strongbox:strongbox /opt/strongbox/tmp /opt/strongbox/logs /opt/strongbox-vault
+chmod -R 770 /opt/strongbox/tmp /opt/strongbox/logs /opt/strongbox-vault
