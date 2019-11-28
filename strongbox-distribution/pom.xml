@@ -390,15 +390,94 @@
                         <configuration>
                             <deb>${basedir}/target/strongbox-distribution-${project.version}.deb</deb>
                             <controlDir>${basedir}/src/main/resources/deb</controlDir>
-                            <installDir>/opt/strongbox</installDir>
                             <skipPOMs>false</skipPOMs>
                             <dataSet>
                             
                                 <data>
-                                    <src>${basedir}/target/assembly</src>
+                                    <src>${basedir}/target/assembly/strongbox-${project.version}/bin</src>
                                     <type>directory</type>
+				    <mapper>
+					<type>perm</type>
+                                        <prefix>/opt/strongbox/bin</prefix>
+                                        <user>strongbox</user>
+                                        <group>strongbox</group>
+					<filemode>770</filemode>
+					<dirmode>770</dirmode>
+ 				    </mapper>
+                                </data>
+
+                                <data>
+                                    <src>${basedir}/target/assembly/strongbox-${project.version}/lib</src>
+                                    <type>directory</type>
+				    <mapper>
+					<type>perm</type>
+                                        <prefix>/opt/strongbox/lib</prefix>
+                                        <user>strongbox</user>
+                                        <group>strongbox</group>
+					<filemode>770</filemode>
+					<dirmode>770</dirmode>
+ 				    </mapper>
+                                </data>
+
+                                <data>
+                                    <src>${basedir}/target/assembly/strongbox-${project.version}/logs</src>
+                                    <type>directory</type>
+				    <mapper>
+					<type>perm</type>
+                                        <prefix>/opt/strongbox/logs</prefix>
+                                        <user>strongbox</user>
+                                        <group>strongbox</group>
+					<filemode>770</filemode>
+					<dirmode>770</dirmode>
+ 				    </mapper>
+                                </data>
+
+                                <data>
+                                    <src>${basedir}/target/assembly/strongbox-${project.version}/tmp</src>
+                                    <type>directory</type>
+				    <mapper>
+					<type>perm</type>
+                                        <prefix>/opt/strongbox/tmp</prefix>
+                                        <user>strongbox</user>
+                                        <group>strongbox</group>
+					<filemode>770</filemode>
+					<dirmode>770</dirmode>
+ 				    </mapper>
+                                </data>
+
+                                <data>
+                                    <src>${basedir}/target/assembly/strongbox-${project.version}/etc</src>
+                                    <type>directory</type>
+				    <conffile>true</conffile>
+				    <mapper>
+					<type>perm</type>
+                                        <prefix>/opt/strongbox/etc</prefix>
+                                        <user>strongbox</user>
+                                        <group>strongbox</group>
+					<filemode>770</filemode>
+					<dirmode>770</dirmode>
+ 				    </mapper>
+                                </data>
+
+                                <data>
+                                    <src>${basedir}/src/main/resources/strongbox.service</src>
+                                    <type>file</type>
+				    <mapper>
+					<type>perm</type>
+                                        <prefix>/opt/strongbox</prefix>
+                                        <user>strongbox</user>
+                                        <group>strongbox</group>
+					<filemode>775</filemode>
+					<dirmode>775</dirmode>
+ 				    </mapper>
                                 </data>
                                 
+				<data>
+                                    <linkName>/etc/systemd/system/strongbox.service</linkName>
+				    <linkTarget>/opt/strongbox/strongbox.service</linkTarget>
+                                    <type>link</type>
+                                </data>
+
                             </dataSet>
                         </configuration>
                     </execution>
