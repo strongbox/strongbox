@@ -495,10 +495,10 @@ public class NpmArtifactController
 
     @DeleteMapping(path = "{storageId}/{repositoryId}/{packageScope}/{packageName}/-rev/{rev}")
     @PreAuthorize("hasAuthority('ARTIFACTS_DELETE')")
-    public ResponseEntity unpublishPackage(@RepositoryMapping Repository repository,
-                                           @PathVariable(name = "packageScope") String packageScope,
-                                           @PathVariable(name = "packageName") String packageName,
-                                           @PathVariable(name = "rev") String rev)
+    public ResponseEntity unpublishPackageWithScope(@RepositoryMapping Repository repository,
+                                                    @PathVariable(name = "packageScope") String packageScope,
+                                                    @PathVariable(name = "packageName") String packageName,
+                                                    @PathVariable(name = "rev") String rev)
     {
 
         logger.info(
@@ -507,6 +507,38 @@ public class NpmArtifactController
 
         NpmUnpublishService.Result result = npmUnpublishService.unpublishPackage(repository, packageScope, packageName);
 
+        return processUnpublishResult(result);
+    }
+
+    /**
+     * Unpublish a single version of a specified package. This mapping works for npm versions > 6.5.0.
+     *
+     * @param repository   repository
+     * @param packageScope package scope
+     * @param packageName  package name
+     * @param tarball      tarball
+     * @param rev          revision value
+     * @return result via {@link ResponseEntity} with HTTP status
+     * @throws Exception
+     */
+    @DeleteMapping(path = "{storageId}/{repositoryId}/{r1}/{r2}/{r3}/{packageScope}/{packageName}/-/{tarball}/-rev/{rev}")
+    @PreAuthorize("hasAuthority('ARTIFACTS_DELETE')")
+    public ResponseEntity unpublishVersionWithScope(@RepositoryMapping Repository repository,
+                                                    @PathVariable(name = "packageScope") String packageScope,
+                                                    @PathVariable(name = "packageName") String packageName,
+                                                    @PathVariable(name = "tarball") String tarball,
+                                                    @PathVariable(name = "rev") String rev)
+    {
+
+        final String version = getPackageVersion(tarball, packageName)
+                                       .replace(".tgz", "");
+        logger.info(
+                "Npm unpublish a single version request: storageId-[{}]; repositoryId-[{}]; packageName-[{}]; tarball-[{}]; revision-[{}];",
+                repository.getStorage().getId(), repository.getId(), packageName, tarball, rev);
+
+        NpmUnpublishService.Result result = npmUnpublishService.unpublishSingleVersion(repository, packageScope,
+                                                                                       packageName, tarball,
+                                                                                       version);
         return processUnpublishResult(result);
     }
 
@@ -523,11 +555,11 @@ public class NpmArtifactController
      */
     @DeleteMapping(path = "{storageId}/{repositoryId}/{packageScope}/{packageName}/-/{tarball}/-rev/{rev}")
     @PreAuthorize("hasAuthority('ARTIFACTS_DELETE')")
-    public ResponseEntity unpublishV5(@RepositoryMapping Repository repository,
-                                      @PathVariable(name = "packageScope") String packageScope,
-                                      @PathVariable(name = "packageName") String packageName,
-                                      @PathVariable(name = "tarball") String tarball,
-                                      @PathVariable(name = "rev") String rev)
+    public ResponseEntity unpublishVersionWithScopeV5(@RepositoryMapping Repository repository,
+                                                      @PathVariable(name = "packageScope") String packageScope,
+                                                      @PathVariable(name = "packageName") String packageName,
+                                                      @PathVariable(name = "tarball") String tarball,
+                                                      @PathVariable(name = "rev") String rev)
     {
 
         final String version = getPackageVersion(tarball, packageName)
@@ -542,36 +574,34 @@ public class NpmArtifactController
         return processUnpublishResult(result);
     }
 
-    /**
-     * Unpublish a single version of a specified package. This mapping works for npm versions >=6.11.3.
-     *
-     * @param repository   repository
-     * @param packageScope package scope
-     * @param packageName  package name
-     * @param tarball      tarball
-     * @param rev          revision value
-     * @return result via {@link ResponseEntity} with HTTP status
-     * @throws Exception
-     */
-    @DeleteMapping(path = "{storageId}/{repositoryId}/{r1}/{r2}/{r3}/{packageScope}/{packageName}/-/{tarball}/-rev/{rev}")
+    @DeleteMapping(path = "{storageId}/{repositoryId}/{packageName}/-rev/{rev}")
     @PreAuthorize("hasAuthority('ARTIFACTS_DELETE')")
-    public ResponseEntity unpublishV11(@RepositoryMapping Repository repository,
-                                       @PathVariable(name = "packageScope") String packageScope,
-                                       @PathVariable(name = "packageName") String packageName,
-                                       @PathVariable(name = "tarball") String tarball,
-                                       @PathVariable(name = "rev") String rev)
+    public ResponseEntity unpublishPackage(@RepositoryMapping Repository repository,
+                                                    @PathVariable(name = "packageName") String packageName,
+                                                    @PathVariable(name = "rev") String rev)
     {
+        return unpublishPackageWithScope(repository, null, packageName, rev);
+    }
 
-        final String version = getPackageVersion(tarball, packageName)
-                                       .replace(".tgz", "");
-        logger.info(
-                "Npm unpublish a single version request: storageId-[{}]; repositoryId-[{}]; packageName-[{}]; tarball-[{}]; revision-[{}];",
-                repository.getStorage().getId(), repository.getId(), packageName, tarball, rev);
 
-        NpmUnpublishService.Result result = npmUnpublishService.unpublishSingleVersion(repository, packageScope,
-                                                                                       packageName, tarball,
-                                                                                       version);
-        return processUnpublishResult(result);
+    @DeleteMapping(path = "{storageId}/{repositoryId}/{r1}/{r2}/{r3}/{packageName}/-/{tarball}/-rev/{rev}")
+    @PreAuthorize("hasAuthority('ARTIFACTS_DELETE')")
+    public ResponseEntity unpublishVersion(@RepositoryMapping Repository repository,
+                                           @PathVariable(name = "packageName") String packageName,
+                                           @PathVariable(name = "tarball") String tarball,
+                                           @PathVariable(name = "rev") String rev)
+    {
+        return unpublishVersionWithScope(repository, null, packageName, tarball, rev);
+    }
+
+    @DeleteMapping(path = "{storageId}/{repositoryId}/{packageName}/-/{tarball}/-rev/{rev}")
+    @PreAuthorize("hasAuthority('ARTIFACTS_DELETE')")
+    public ResponseEntity unpublishVersionV5(@RepositoryMapping Repository repository,
+                                             @PathVariable(name = "packageName") String packageName,
+                                             @PathVariable(name = "tarball") String tarball,
+                                             @PathVariable(name = "rev") String rev)
+    {
+        return unpublishVersionWithScopeV5(repository, null, packageName, tarball, rev);
     }
 
     private void storeNpmPackage(Repository repository,

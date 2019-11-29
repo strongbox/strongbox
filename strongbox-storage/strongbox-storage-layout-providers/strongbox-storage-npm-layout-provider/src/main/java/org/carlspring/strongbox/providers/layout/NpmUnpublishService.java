@@ -47,6 +47,9 @@ public class NpmUnpublishService
         }
 
         Path packagePath = Paths.get(packageScope, packageName);
+        if (packageScope == null) {
+            packagePath = Paths.get(packageName);
+        }
         String repositoryId = repository.getId(), storageId = repository.getStorage().getId();
         RepositoryPath path = null;
         try
