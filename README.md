@@ -72,6 +72,7 @@ Strongbox is available in the following formats:
 * [rpm][release-rpm]
 * [tar.gz][release-tar.gz]
 * [zip][release-zip]
+* [deb][release-deb]
 
 Other release could be downloaded from [here][release-all].
 
@@ -145,6 +146,7 @@ We'd also like to thank our sponsors for generously providing us with licenses f
 [release-rpm]: https://github.com/strongbox/strongbox/releases/download/1.0-SNAPSHOT/strongbox-distribution-1.0-SNAPSHOT.rpm
 [release-tar.gz]: https://github.com/strongbox/strongbox/releases/download/1.0-SNAPSHOT/strongbox-distribution-1.0-SNAPSHOT.tar.gz
 [release-zip]: https://github.com/strongbox/strongbox/releases/download/1.0-SNAPSHOT/strongbox-distribution-1.0-SNAPSHOT.zip
+[release-deb]: https://github.com/strongbox/strongbox/releases/download/1.0-SNAPSHOT/strongbox-distribution-1.0-SNAPSHOT.deb
 
 [<--# Sponsors -->]: #
 [yourkit-logo]: https://www.yourkit.com/images/yklogo.png
