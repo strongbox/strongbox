@@ -658,6 +658,7 @@
                                         <include>${project.artifactId}*.tar.gz</include>
                                         <include>${project.artifactId}*.zip</include>
                                         <include>${project.artifactId}*.rpm</include>
+                                        <include>${project.artifactId}*.deb</include>
                                     </includes>
                                 </fileSet>
                             </fileSets>
