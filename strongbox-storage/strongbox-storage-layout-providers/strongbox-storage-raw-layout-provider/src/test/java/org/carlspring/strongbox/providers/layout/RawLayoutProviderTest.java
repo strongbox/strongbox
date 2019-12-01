@@ -45,7 +45,7 @@ public class RawLayoutProviderTest
 
     private static final String REPOSITORY = "rlpt-raw-releases";
 
-    private static final String FOO_BAR_ZIP_PATH = "foo/bar.zip";
+    private static final String FOO_BAR_ZIP_PATH = "foo/bar.txt";
 
     @Inject
     private ArtifactManagementService artifactManagementService;
@@ -78,31 +78,8 @@ public class RawLayoutProviderTest
     {
         RepositoryPath artifactRepositoryPath = repositoryPathResolver.resolve(repository, FOO_BAR_ZIP_PATH);
 
-        // Deploy the artifact
-        artifactManagementService.validateAndStore(artifactRepositoryPath,
-                                                   Files.newInputStream(artifactPath));
-
         assertThat(Files.exists(artifactRepositoryPath)).as("Failed to deploy artifact!").isTrue();
         assertThat(Files.size(artifactRepositoryPath) > 0).as("Failed to deploy artifact!").isTrue();
-
-        // Attempt to re-deploy the artifact
-        try
-        {
-            artifactManagementService.validateAndStore(artifactRepositoryPath,
-                                                       Files.newInputStream(artifactPath));
-        }
-        catch (Exception e)
-        {
-            if (e.getMessage().contains("repository does not allow artifact re-deployment"))
-            {
-                // This is expected
-                logger.debug("Successfully declined to re-deploy {}!", artifactRepositoryPath);
-            }
-            else
-            {
-                throw e;
-            }
-        }
 
         // Attempt to resolve the artifact
         try (InputStream is = artifactResolutionService.getInputStream(artifactRepositoryPath))
@@ -120,5 +97,4 @@ public class RawLayoutProviderTest
             assertThat(total > 0).as("Failed to resolve artifact!").isTrue();
         }
     }
-
 }

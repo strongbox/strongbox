@@ -75,7 +75,7 @@ public class RawArtifactCoordinates
     @Override
     public String toString()
     {
-        final StringBuilder sb = new StringBuilder("NullArtifactCoordinates{");
+        final StringBuilder sb = new StringBuilder("RawArtifactCoordinates{");
         sb.append("objectId='").append(objectId).append('\'');
         sb.append(", uuid='").append(uuid).append('\'');
         sb.append(", entityVersion=").append(entityVersion);
