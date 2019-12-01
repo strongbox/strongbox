@@ -35,8 +35,6 @@ public interface Repository
 
     boolean allowsRedeployment();
 
-    boolean allowsUnpublish();
-
     boolean allowsDeletion();
 
     boolean allowsDirectoryBrowsing();
