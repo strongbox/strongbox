@@ -12,10 +12,13 @@ import javax.inject.Inject;
 import javax.validation.ConstraintViolation;
 import javax.validation.Validator;
 import javax.validation.groups.Default;
+import java.util.Locale;
+import java.util.MissingResourceException;
 import java.util.Set;
 import java.util.stream.Stream;
 
 import org.apache.commons.lang3.StringUtils;
+import org.hibernate.validator.resourceloading.PlatformResourceBundleLocator;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
@@ -187,7 +190,7 @@ public class RepositoryFormTestIT
         repositoryForm.setHttpConnectionPool(HTTP_CONNECTION_POOL_VALID);
         repositoryForm.setRepositoryConfiguration(repositoryConfiguration);
 
-        validateAndAssert(repositoryForm, 1, "must match \"[a-zA-Z0-9\\-\\_\\.]+\"");
+        validateAndAssert(repositoryForm, 1, getPatternLocalisedMessage("\"[a-zA-Z0-9\\-\\_\\.]+\""));
     }
 
     @ParameterizedTest
@@ -362,4 +365,23 @@ public class RepositoryFormTestIT
 
         validateAndAssert(repositoryForm, 1, "A httpConnectionPool must be positive or zero.");
     }
+
+    private String getPatternLocalisedMessage(String expectedPattern)
+    {
+        String message;
+        try
+        {
+            final String translatedMessage = new PlatformResourceBundleLocator("org.hibernate.validator.ValidationMessages")
+                                                                 .getResourceBundle(Locale.getDefault())
+                                                                 .getString("javax.validation.constraints.Pattern.message");
+            message = translatedMessage.replace("\"{regexp}\"", expectedPattern);
+        }
+        catch (MissingResourceException e)
+        {
+            message = "must match ";
+        }
+        
+        return message;
+    }
+
 }
