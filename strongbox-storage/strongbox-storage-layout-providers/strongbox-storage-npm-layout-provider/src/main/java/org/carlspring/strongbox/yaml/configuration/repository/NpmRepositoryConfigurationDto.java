@@ -15,9 +15,15 @@ public class NpmRepositoryConfigurationDto
         extends CustomRepositoryConfigurationDto
 {
 
+    private boolean allowsUnpublish = true;
+
     @Override
     public CustomRepositoryConfiguration getImmutable()
     {
         return new NpmRepositoryConfigurationData(this);
+    }
+
+    public boolean allowsUnpublish() {
+        return allowsUnpublish;
     }
 }

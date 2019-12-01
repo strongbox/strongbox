@@ -2,6 +2,7 @@ package org.carlspring.strongbox.providers.layout;
 
 import org.carlspring.strongbox.artifact.coordinates.NpmArtifactCoordinates;
 import org.carlspring.strongbox.providers.io.RepositoryPath;
+import org.carlspring.strongbox.repository.NpmRepositoryFeatures;
 import org.carlspring.strongbox.services.ArtifactManagementService;
 import org.carlspring.strongbox.services.ArtifactResolutionService;
 import org.carlspring.strongbox.storage.repository.Repository;
@@ -34,11 +35,14 @@ public class NpmUnpublishService
     @Inject
     private ArtifactManagementService artifactManagementService;
 
+    @Inject
+    private NpmRepositoryFeatures repositoryFeatures;
+
     public Result unpublishPackage(Repository repository,
                                    String packageScope,
                                    String packageName)
     {
-        if (!repository.allowsUnpublish())
+        if (!repositoryFeatures.allowsUnpublish(repository.getStorage().getId(), repository.getId()))
         {
 
             logger.warn(String.format("User tried to 'unpublish' a package [%s], but the feature is disabled",
@@ -47,7 +51,8 @@ public class NpmUnpublishService
         }
 
         Path packagePath = Paths.get(packageScope, packageName);
-        if (packageScope == null) {
+        if (packageScope == null)
+        {
             packagePath = Paths.get(packageName);
         }
         String repositoryId = repository.getId(), storageId = repository.getStorage().getId();
@@ -81,7 +86,7 @@ public class NpmUnpublishService
             throws IllegalArgumentException
     {
 
-        if (!repository.allowsUnpublish())
+        if (!repositoryFeatures.allowsUnpublish(repository.getStorage().getId(), repository.getId()))
         {
 
             logger.warn(String.format("User tried to 'unpublish' a package [%s], but the feature is disabled",

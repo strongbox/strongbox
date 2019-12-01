@@ -21,6 +21,8 @@ public class NpmRepositoryConfigurationData
         extends CustomRepositoryConfiguration
 {
 
+    private boolean allowsUnpublish;
+
     public NpmRepositoryConfigurationData()
     {
 
@@ -28,6 +30,11 @@ public class NpmRepositoryConfigurationData
 
     public NpmRepositoryConfigurationData(final NpmRepositoryConfigurationDto delegate)
     {
+        this.allowsUnpublish = delegate.allowsUnpublish();
     }
 
+    public boolean isAllowsUnpublish()
+    {
+        return allowsUnpublish;
+    }
 }
