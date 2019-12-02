@@ -93,9 +93,16 @@ public class NpmUnpublishService
                                       packageName));
             return Result.UNPUBLISH_DISABLED;
         }
-
-        NpmArtifactCoordinates coordinates = NpmArtifactCoordinates.of(
-                String.format("%s/%s", packageScope, packageName), version);
+        NpmArtifactCoordinates coordinates;
+        if (packageScope != null)
+        {
+            coordinates = NpmArtifactCoordinates.of(
+                    String.format("%s/%s", packageScope, packageName), version);
+        }
+        else
+        {
+            coordinates = NpmArtifactCoordinates.of(packageName, version);
+        }
         String repositoryId = repository.getId(), storageId = repository.getStorage().getId();
         RepositoryPath path = null;
 
