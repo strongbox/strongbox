@@ -5,6 +5,8 @@ import static org.assertj.core.api.Assertions.assertThat;
 import org.carlspring.strongbox.artifact.ArtifactTag;
 import org.carlspring.strongbox.artifact.MavenArtifact;
 import org.carlspring.strongbox.artifact.MavenArtifactUtils;
+import org.carlspring.strongbox.artifact.generator.ArtifactGenerator;
+import org.carlspring.strongbox.artifact.generator.MavenArtifactGenerator;
 import org.carlspring.strongbox.config.Maven2LayoutProviderTestConfig;
 import org.carlspring.strongbox.domain.ArtifactEntry;
 import org.carlspring.strongbox.providers.ProviderImplementationException;
@@ -15,6 +17,7 @@ import org.carlspring.strongbox.providers.io.RepositoryPathResolver;
 import org.carlspring.strongbox.providers.io.RepositoryStreamSupport.RepositoryInputStream;
 import org.carlspring.strongbox.repository.MavenRepositoryFeatures;
 import org.carlspring.strongbox.storage.ArtifactStorageException;
+import org.carlspring.strongbox.storage.checksum.ChecksumCacheManager;
 import org.carlspring.strongbox.storage.metadata.MavenSnapshotManager;
 import org.carlspring.strongbox.storage.repository.Repository;
 import org.carlspring.strongbox.storage.repository.RepositoryPolicyEnum;
@@ -31,6 +34,7 @@ import javax.inject.Inject;
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.io.InputStream;
+import java.net.URI;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.LinkOption;
@@ -48,6 +52,7 @@ import java.util.stream.Stream;
 
 import org.apache.commons.io.FilenameUtils;
 import org.apache.maven.artifact.Artifact;
+import org.checkerframework.checker.units.qual.C;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.junit.jupiter.api.parallel.Execution;
@@ -114,6 +119,9 @@ public class ArtifactManagementServiceImplTest
 
     @Inject
     private RepositoryPathResolver repositoryPathResolver;
+
+    @Inject
+    protected ChecksumCacheManager checksumCacheManager;
 
     @ExtendWith({ RepositoryManagementTestExecutionListener.class,
                   ArtifactManagementTestExecutionListener.class })
@@ -690,27 +698,24 @@ public class ArtifactManagementServiceImplTest
     @Test
     public void testFailArtifactStorageWhenChecksumIsBroken(@MavenRepository(repositoryId = "broken-checksum-test")
                                                             @RepositoryAttributes(strictChecksumValidation = true)
-                                                            Repository repository,
-                                                            @MavenTestArtifact(repositoryId = "broken-checksum-test",
-                                                                               id = "org.carlspring.strongbox:strongbox-test-artifact",
-                                                                               versions = { "1.0" })
-                                                            Path artifactPath)
+                                                                    Repository repository,
+                                                            @MavenTestArtifact(
+                                                                    id = "org.carlspring.strongbox:strongbox-test-artifact",
+                                                                    versions = { "1.0" })
+                                                                    Path artifactPath)
             throws IOException
     {
-        final String storageId = repository.getStorage().getId();
-        final String repositoryId = repository.getId();
         final String checksumFilePath = "org/carlspring/strongbox/strongbox-test-artifact/1.0/strongbox-test-artifact-1.0.jar.md5";
 
-        RepositoryPath repositoryPath = repositoryPathResolver.resolve(storageId,
-                                                                       repositoryId,
-                                                                       checksumFilePath);
-        Files.write(repositoryPath, "broken_checksum".getBytes());
+        RepositoryPath repositoryPath = repositoryPathResolver.resolve(repository).resolve(checksumFilePath);
+        String artifactBasePath = repositoryPath.toUri().toString();
+        checksumCacheManager.addArtifactChecksum(artifactBasePath, "MD5", "XYZ");
 
         try (InputStream is = Files.newInputStream(repositoryPath))
         {
             Throwable throwable = catchThrowable(() -> mavenArtifactManagementService.store(repositoryPath,is));
 
-            final String fullChecksumFilePath = String.format("/%s/%s/%s", storageId, repositoryId, checksumFilePath);
+            final String fullChecksumFilePath = "";//String.format("/%s/%s/%s", storageId, repositoryId, checksumFilePath);
             assertThat(throwable)
                     .isExactlyInstanceOf(ArtifactStorageException.class)
                     .hasMessage("Invalid checksum [broken_checksum] for artifact [strongbox:%s]",

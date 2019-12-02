@@ -117,6 +117,7 @@ public class ArtifactManagementService
             logger.debug("Stored [{}] bytes for [{}].", result, repositoryPath);
             aos.flush();
         }
+
         catch (IOException e)
         {
            throw e; 
@@ -230,7 +231,7 @@ public class ArtifactManagementService
                          artifactPath,
                          checksumStr);
 
-            if ("Maven 2".equals(repository.getLayout()) && repository.isStrictChecksumValidation())
+            if (repository.isStrictChecksumValidation())
             {
                 throw new ArtifactStorageException(String.format("Invalid checksum [%s] for artifact [%s]", checksumStr, artifactPath));
             }
