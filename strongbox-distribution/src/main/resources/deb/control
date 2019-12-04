@@ -6,4 +6,4 @@ Priority: low
 Homepage: https://github.com/strongbox/strongbox
 Description: The Strongbox artifact repository manager
 Maintainer: Martin Todorov <carlspring@gmail.com>
-Depends: java8-runtime | java8-runtime-headless
+Recommends: java8-runtime | java8-runtime-headless
