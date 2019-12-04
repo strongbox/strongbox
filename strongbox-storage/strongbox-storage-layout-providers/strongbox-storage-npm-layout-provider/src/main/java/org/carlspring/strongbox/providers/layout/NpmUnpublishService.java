@@ -47,6 +47,7 @@ public class NpmUnpublishService
 
             logger.warn(String.format("User tried to 'unpublish' a package [%s], but the feature is disabled",
                                       packageName));
+
             return Result.UNPUBLISH_DISABLED;
         }
 
@@ -64,6 +65,7 @@ public class NpmUnpublishService
             if (path == null)
             {
                 logger.info("Artifact doesn't exist [{}]", path);
+
                 return Result.ARTIFACT_NOT_EXISTS;
             }
 
@@ -72,9 +74,12 @@ public class NpmUnpublishService
         catch (IOException e)
         {
             logger.error("Failed to process Npm unpublish a package request: path-[{}]", path, e);
+
             return Result.INTERNAL_SERVER_ERROR;
         }
+
         logger.info("Npm unpublish succeeded: path-[{}]", path);
+
         return Result.UNPUBLISHED;
     }
 
@@ -91,6 +96,7 @@ public class NpmUnpublishService
 
             logger.warn(String.format("User tried to 'unpublish' a package [%s], but the feature is disabled",
                                       packageName));
+
             return Result.UNPUBLISH_DISABLED;
         }
         NpmArtifactCoordinates coordinates;
@@ -113,6 +119,7 @@ public class NpmUnpublishService
             if (path == null)
             {
                 logger.info("Artifact doesn't exist [{}]", tarball);
+
                 return Result.ARTIFACT_NOT_EXISTS;
             }
 
@@ -122,9 +129,11 @@ public class NpmUnpublishService
         catch (IOException e)
         {
             logger.error("Failed to process Npm unpublish a single version request: path-[{}]", path, e);
+
             return Result.INTERNAL_SERVER_ERROR;
         }
         logger.info("Npm unpublish succeeded: path-[{}]", path);
+
         return Result.UNPUBLISHED;
     }
 
