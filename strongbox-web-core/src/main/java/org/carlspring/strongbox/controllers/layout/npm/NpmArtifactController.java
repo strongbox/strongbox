@@ -577,8 +577,8 @@ public class NpmArtifactController
     @DeleteMapping(path = "{storageId}/{repositoryId}/{packageName}/-rev/{rev}")
     @PreAuthorize("hasAuthority('ARTIFACTS_DELETE')")
     public ResponseEntity unpublishPackage(@RepositoryMapping Repository repository,
-                                                    @PathVariable(name = "packageName") String packageName,
-                                                    @PathVariable(name = "rev") String rev)
+                                           @PathVariable(name = "packageName") String packageName,
+                                           @PathVariable(name = "rev") String rev)
     {
         return unpublishPackageWithScope(repository, null, packageName, rev);
     }

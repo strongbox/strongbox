@@ -23,7 +23,8 @@ public class NpmRepositoryConfigurationDto
         return new NpmRepositoryConfigurationData(this);
     }
 
-    public boolean allowsUnpublish() {
+    public boolean allowsUnpublish()
+    {
         return allowsUnpublish;
     }
 }

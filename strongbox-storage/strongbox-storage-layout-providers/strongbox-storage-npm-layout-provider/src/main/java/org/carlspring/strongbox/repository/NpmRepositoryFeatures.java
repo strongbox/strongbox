@@ -124,7 +124,7 @@ public class NpmRepositoryFeatures implements RepositoryFeatures
         boolean allowsUnpublish = repositoryConfiguration.map(NpmRepositoryConfigurationData::isAllowsUnpublish)
                                                          .orElse(ALLOWS_UNPUBLISH_DEFAULT);
         logger.info("allowsUnpublish is [{}] for storageId: [{}]; repositoryId: [{}]", allowsUnpublish, storageId,
-                     repositoryId);
+                    repositoryId);
         return allowsUnpublish;
     }
 
@@ -162,9 +162,9 @@ public class NpmRepositoryFeatures implements RepositoryFeatures
         catch (Exception e)
         {
             logger.error("Failed to search NPM packages [{}]", remoteRepositoryUrl, e);
-            
+
             return;
-        } 
+        }
         finally
         {
             restClient.close();
@@ -240,7 +240,7 @@ public class NpmRepositoryFeatures implements RepositoryFeatures
             Invocation request = service.request().buildGet();
 
             result = fetchRemoteChangesFeed(repository, request);
-        } 
+        }
         finally
         {
             restClient.close();
@@ -361,7 +361,7 @@ public class NpmRepositoryFeatures implements RepositoryFeatures
         {
             logger.error("Failed to fetch NPM changes feed [{}]", remoteRepositoryUrl, e);
             return;
-        } 
+        }
         finally
         {
             restClient.close();
