@@ -460,6 +460,7 @@ public class NpmArtifactController
         if (name.contains("/-rev/"))
         {
             logger.warn("Url comprises '/-rev/' sub path");
+
             return true;
         }
         return false;
@@ -501,8 +502,7 @@ public class NpmArtifactController
                                                     @PathVariable(name = "rev") String rev)
     {
 
-        logger.info(
-                "Npm unpublish a package request: storageId-[{}]; repositoryId-[{}]; packageName-[{}]; revision-[{}];",
+        logger.info("Npm unpublish a package request: storageId-[{}]; repositoryId-[{}]; packageName-[{}]; revision-[{}];",
                 repository.getStorage().getId(), repository.getId(), packageName, rev);
 
         NpmUnpublishService.Result result = npmUnpublishService.unpublishPackage(repository, packageScope, packageName);
@@ -532,8 +532,8 @@ public class NpmArtifactController
 
         final String version = getPackageVersion(tarball, packageName)
                                        .replace(".tgz", "");
-        logger.info(
-                "Npm unpublish a single version request: storageId-[{}]; repositoryId-[{}]; packageName-[{}]; tarball-[{}]; revision-[{}];",
+
+        logger.info("Npm unpublish a single version request: storageId-[{}]; repositoryId-[{}]; packageName-[{}]; tarball-[{}]; revision-[{}];",
                 repository.getStorage().getId(), repository.getId(), packageName, tarball, rev);
 
         NpmUnpublishService.Result result = npmUnpublishService.unpublishSingleVersion(repository, packageScope,
@@ -564,8 +564,8 @@ public class NpmArtifactController
 
         final String version = getPackageVersion(tarball, packageName)
                                        .replace(".tgz", "");
-        logger.info(
-                "Npm unpublish a single version request: storageId-[{}]; repositoryId-[{}]; packageName-[{}]; tarball-[{}]; revision-[{}];",
+
+        logger.info("Npm unpublish a single version request: storageId-[{}]; repositoryId-[{}]; packageName-[{}]; tarball-[{}]; revision-[{}];",
                 repository.getStorage().getId(), repository.getId(), packageName, tarball, rev);
 
         NpmUnpublishService.Result result = npmUnpublishService.unpublishSingleVersion(repository, packageScope,
