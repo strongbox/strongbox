@@ -137,6 +137,7 @@ public class ArtifactOperationsValidatorTest
         {
             assertThat(true).isTrue();
         }
+        Files.delete(path);
     }
 
 
