@@ -124,7 +124,9 @@ public class NpmRepositoryFeatures implements RepositoryFeatures
         boolean allowsUnpublish = repositoryConfiguration.map(NpmRepositoryConfigurationData::isAllowsUnpublish)
                                                          .orElse(ALLOWS_UNPUBLISH_DEFAULT);
 
-        logger.info("allowsUnpublish is [{}] for storageId: [{}]; repositoryId: [{}]", allowsUnpublish, storageId,
+        logger.info("allowsUnpublish is [{}] for storageId: [{}]; repositoryId: [{}]",
+                    allowsUnpublish,
+                    storageId,
                     repositoryId);
 
         return allowsUnpublish;

@@ -293,8 +293,8 @@ public class NpmArtifactController
                                            .stream()
                                            .map(x -> x.getDist().getShasum())
                                            .collect(Collectors.joining());
-        return packageFeed.getVersions().getAdditionalProperties().size() + "-"
-               + DigestUtils.sha1Hex(versionsShasum).substring(0, 16);
+        return packageFeed.getVersions().getAdditionalProperties().size() + "-" +
+               DigestUtils.sha1Hex(versionsShasum).substring(0, 16);
     }
 
     @GetMapping(path = "{storageId}/{repositoryId}/{packageName}")
@@ -415,8 +415,7 @@ public class NpmArtifactController
     {
         if (nameContainsRevision(name))
         {
-            return ResponseEntity.status(HttpStatus.OK)
-                                 .body("");
+            return ResponseEntity.status(HttpStatus.OK).build();
         }
         final String storageId = repository.getStorage().getId();
         final String repositoryId = repository.getId();
@@ -503,7 +502,10 @@ public class NpmArtifactController
     {
 
         logger.info("Npm unpublish a package request: storageId-[{}]; repositoryId-[{}]; packageName-[{}]; revision-[{}];",
-                repository.getStorage().getId(), repository.getId(), packageName, rev);
+                    repository.getStorage().getId(),
+                    repository.getId(),
+                    packageName,
+                    rev);
 
         NpmUnpublishService.Result result = npmUnpublishService.unpublishPackage(repository, packageScope, packageName);
 
@@ -530,14 +532,19 @@ public class NpmArtifactController
                                                     @PathVariable(name = "rev") String rev)
     {
 
-        final String version = getPackageVersion(tarball, packageName)
-                                       .replace(".tgz", "");
+        final String version = getPackageVersion(tarball, packageName).replace(".tgz", "");
 
         logger.info("Npm unpublish a single version request: storageId-[{}]; repositoryId-[{}]; packageName-[{}]; tarball-[{}]; revision-[{}];",
-                repository.getStorage().getId(), repository.getId(), packageName, tarball, rev);
+                    repository.getStorage().getId(),
+                    repository.getId(),
+                    packageName,
+                    tarball,
+                    rev);
 
-        NpmUnpublishService.Result result = npmUnpublishService.unpublishSingleVersion(repository, packageScope,
-                                                                                       packageName, tarball,
+        NpmUnpublishService.Result result = npmUnpublishService.unpublishSingleVersion(repository,
+                                                                                       packageScope,
+                                                                                       packageName,
+                                                                                       tarball,
                                                                                        version);
         return processUnpublishResult(result);
     }
@@ -562,14 +569,19 @@ public class NpmArtifactController
                                                       @PathVariable(name = "rev") String rev)
     {
 
-        final String version = getPackageVersion(tarball, packageName)
-                                       .replace(".tgz", "");
+        final String version = getPackageVersion(tarball, packageName).replace(".tgz", "");
 
         logger.info("Npm unpublish a single version request: storageId-[{}]; repositoryId-[{}]; packageName-[{}]; tarball-[{}]; revision-[{}];",
-                repository.getStorage().getId(), repository.getId(), packageName, tarball, rev);
+                    repository.getStorage().getId(),
+                    repository.getId(),
+                    packageName,
+                    tarball,
+                    rev);
 
-        NpmUnpublishService.Result result = npmUnpublishService.unpublishSingleVersion(repository, packageScope,
-                                                                                       packageName, tarball,
+        NpmUnpublishService.Result result = npmUnpublishService.unpublishSingleVersion(repository,
+                                                                                       packageScope,
+                                                                                       packageName,
+                                                                                       tarball,
                                                                                        version);
         return processUnpublishResult(result);
     }
@@ -582,7 +594,6 @@ public class NpmArtifactController
     {
         return unpublishPackageWithScope(repository, null, packageName, rev);
     }
-
 
     @DeleteMapping(path = "{storageId}/{repositoryId}/{r1}/{r2}/{r3}/{packageName}/-/{tarball}/-rev/{rev}")
     @PreAuthorize("hasAuthority('ARTIFACTS_DELETE')")
@@ -825,7 +836,7 @@ public class NpmArtifactController
         {
             case INTERNAL_SERVER_ERROR:
                 return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
-            case ARTIFACT_NOT_EXISTS:
+            case ARTIFACT_DOES_NOT_EXIST:
             case UNPUBLISHED:
                 return ResponseEntity.status(HttpStatus.OK).build();
             case UNPUBLISH_DISABLED:

@@ -25,7 +25,12 @@ public class NpmUnpublishService
 {
 
     public enum Result
-    {ARTIFACT_NOT_EXISTS, INTERNAL_SERVER_ERROR, UNPUBLISHED, UNPUBLISH_DISABLED}
+    {
+        ARTIFACT_DOES_NOT_EXIST,
+        INTERNAL_SERVER_ERROR,
+        UNPUBLISHED,
+        UNPUBLISH_DISABLED
+    }
 
     private final Logger logger = LoggerFactory.getLogger(getClass());
 
@@ -66,7 +71,7 @@ public class NpmUnpublishService
             {
                 logger.info("Artifact doesn't exist [{}]", path);
 
-                return Result.ARTIFACT_NOT_EXISTS;
+                return Result.ARTIFACT_DOES_NOT_EXIST;
             }
 
             artifactManagementService.delete(path, false);
@@ -120,7 +125,7 @@ public class NpmUnpublishService
             {
                 logger.info("Artifact doesn't exist [{}]", tarball);
 
-                return Result.ARTIFACT_NOT_EXISTS;
+                return Result.ARTIFACT_DOES_NOT_EXIST;
             }
 
             artifactManagementService.delete(path, false);
