@@ -56,6 +56,7 @@ import static org.carlspring.strongbox.controllers.configuration.StoragesConfigu
 import static org.carlspring.strongbox.controllers.configuration.StoragesConfigurationController.SUCCESSFUL_STORAGE_REMOVAL;
 import static org.carlspring.strongbox.controllers.configuration.StoragesConfigurationController.SUCCESSFUL_UPDATE_STORAGE;
 import static org.carlspring.strongbox.controllers.configuration.StoragesConfigurationController.SUCCESSFUL_REPOSITORY_PATH_REMOVAL;
+import static org.carlspring.strongbox.controllers.configuration.StoragesConfigurationController.FAILED_REPOSITORY_PATH_REMOVAL_PATH_NOT_FOUND;
 import static org.carlspring.strongbox.rest.client.RestAssuredArtifactClient.OK;
 import static org.hamcrest.Matchers.containsString;
 import static org.hamcrest.Matchers.equalTo;
@@ -844,6 +845,27 @@ public class StoragesConfigurationControllerTestIT
         assertThat(Files.notExists(path))
                 .as("Failed to delete repository path '" + path + "'!")
                 .isTrue();
+    }
+
+    @Test
+    public void  deletePathNotInRepository()
+            throws IOException
+    {
+        String url = getContextBaseUrl() + "/delete";
+
+        PathForm pathForm = buildPathForm("storage0",
+                                          "snapshots",
+                                          "mans/mans",
+                                          true);
+
+        givenCustom().contentType(MediaType.APPLICATION_JSON_VALUE)
+                     .accept(MediaType.APPLICATION_JSON_VALUE)
+                     .body(pathForm)
+                     .when()
+                     .delete(url)
+                     .prettyPeek()
+                     .then()
+                     .body(containsString(FAILED_REPOSITORY_PATH_REMOVAL_PATH_NOT_FOUND));
     }
 
     private PathForm buildPathForm(String storageId, String repositoryId, String path, boolean force)

@@ -73,6 +73,8 @@ public class StoragesConfigurationController
 
     static final String SUCCESSFUL_REPOSITORY_PATH_REMOVAL = "The repository path was removed successfully.";
 
+    static final String FAILED_REPOSITORY_PATH_REMOVAL_PATH_NOT_FOUND = "The repository path cannot be deleted because the path does not exist in storages/repository!";
+
     private static final String FAILED_STORAGE_REMOVAL = "Failed to remove the storage !";
 
     private static final String STORAGE_NOT_FOUND = "The storage was not found.";
@@ -370,6 +372,11 @@ public class StoragesConfigurationController
             final RepositoryPath repositoryPath = repositoryPathResolver.resolve(pathForm.getStorageId(),
                                                                                  pathForm.getRepositoryId(),
                                                                                  pathForm.getPath());
+
+            if (!Files.exists(repositoryPath))
+            {
+                return getFailedResponseEntity(HttpStatus.NOT_FOUND, FAILED_REPOSITORY_PATH_REMOVAL_PATH_NOT_FOUND, accept);
+            }
 
             artifactManagementService.delete(repositoryPath, pathForm.isForce());
 
