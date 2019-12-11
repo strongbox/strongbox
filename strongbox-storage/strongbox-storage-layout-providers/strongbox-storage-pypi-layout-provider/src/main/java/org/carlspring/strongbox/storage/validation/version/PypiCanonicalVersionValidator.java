@@ -7,6 +7,7 @@ import org.carlspring.strongbox.storage.validation.artifact.version.VersionValid
 
 import javax.annotation.PostConstruct;
 import javax.inject.Inject;
+import java.util.function.BiPredicate;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -26,34 +27,40 @@ public class PypiCanonicalVersionValidator
         implements PypiVersionValidator
 {
 
-    public static final String EPOCH_FORMAT = "(\\d+!)";
-    public static final String FINAL_RELEASE_FORMAT = "(\\d+(\\.\\d+)*)";
-    public static final String PRE_RELEASE_FORMAT = "((a|b|c|rc)\\d+)";
-    public static final String POST_RELEASE_FORMAT = "(\\.post\\d+)";
-    public static final String DEVELOPMENTAL_RELEASE_FORMAT = "(\\.dev\\d+)";
+    private static final String EPOCH_FORMAT = "(\\d+!)";
+    private static final String FINAL_RELEASE_FORMAT = "(\\d+(\\.\\d+)*)";
+    private static final String PRE_RELEASE_FORMAT = "((a|b|c|rc)\\d+)";
+    private static final String POST_RELEASE_FORMAT = "(\\.post\\d+)";
+    private static final String DEVELOPMENTAL_RELEASE_FORMAT = "(\\.dev\\d+)";
 
     //must start and end with ASCII character, can have periods in between
-    public static final String LOCAL_VERSION_IDENTIFIER_FORMAT = "(\\+[a-zA-Z0-9](\\.*[a-zA-Z0-9])*)";
-    public static final String CANONICAL_VERSION_FORMAT = getCanonicalVersionFormat();
+    private static final String LOCAL_VERSION_IDENTIFIER_FORMAT = "(\\+[a-zA-Z0-9](\\.*[a-zA-Z0-9])*)";
+    private static final String CANONICAL_VERSION_FORMAT = getCanonicalVersionFormat();
 
 
-    public static final Pattern PRE_RELEASE_PATTERN = Pattern.compile(PypiCanonicalVersionValidator.PRE_RELEASE_FORMAT);
-    public static final Pattern POST_RELEASE_PATTERN = Pattern.compile(
+    private static final Pattern PRE_RELEASE_PATTERN = Pattern.compile(
+            PypiCanonicalVersionValidator.PRE_RELEASE_FORMAT);
+    private static final Pattern POST_RELEASE_PATTERN = Pattern.compile(
             PypiCanonicalVersionValidator.POST_RELEASE_FORMAT);
-    public static final Pattern DEVELOPMENTAL_RELEASE_PATTERN = Pattern.compile(
+    private static final Pattern DEVELOPMENTAL_RELEASE_PATTERN = Pattern.compile(
             PypiCanonicalVersionValidator.DEVELOPMENTAL_RELEASE_FORMAT);
-    public static final Pattern LOCAL_VERSION_IDENTIFIER_PATTERN = Pattern.compile(
+    private static final Pattern LOCAL_VERSION_IDENTIFIER_PATTERN = Pattern.compile(
             PypiCanonicalVersionValidator.LOCAL_VERSION_IDENTIFIER_FORMAT);
-    public static final Pattern CANONICAL_PATTERN = Pattern.compile(
+    private static final Pattern CANONICAL_PATTERN = Pattern.compile(
             PypiCanonicalVersionValidator.CANONICAL_VERSION_FORMAT);
 
-    @Inject
-    private ArtifactCoordinatesValidatorRegistry artifactCoordinatesValidatorRegistry;
-    private static final Logger logger = LoggerFactory.getLogger(ArtifactCoordinatesValidatorRegistry.class);
+    private final ArtifactCoordinatesValidatorRegistry artifactCoordinatesValidatorRegistry;
+
+    private static final Logger logger = LoggerFactory.getLogger(PypiCanonicalVersionValidator.class);
 
     public static final String ALIAS = "pypi-canonical-version-validator";
 
     public static final String DESCRIPTION = "PyPi canonical version validator";
+
+    public PypiCanonicalVersionValidator(ArtifactCoordinatesValidatorRegistry artifactCoordinatesValidatorRegistry)
+    {
+        this.artifactCoordinatesValidatorRegistry = artifactCoordinatesValidatorRegistry;
+    }
 
     @Override
     public String getDescription()
@@ -87,28 +94,28 @@ public class PypiCanonicalVersionValidator
     {
         artifactCoordinatesValidatorRegistry.addProvider(ALIAS, this);
 
-        logger.info("Registered artifact coordinates validator '" + getClass().getCanonicalName() + "'" +
-                    " with alias '" + ALIAS + "'.");
+        logger.info("Registered artifact coordinates validator '{}' with alias '{}'.", getClass().getCanonicalName(),
+                    ALIAS);
     }
 
     public boolean isPreRelease(String version)
     {
-        return PypiCanonicalVersionValidator.PRE_RELEASE_PATTERN.matcher(version).matches();
+        return versionMatches.test(PypiCanonicalVersionValidator.PRE_RELEASE_PATTERN, version);
     }
 
     public boolean isPostRelease(String version)
     {
-        return PypiCanonicalVersionValidator.POST_RELEASE_PATTERN.matcher(version).matches();
+        return versionMatches.test(PypiCanonicalVersionValidator.POST_RELEASE_PATTERN, version);
     }
 
     public boolean isDevelopmentalRelease(String version)
     {
-        return PypiCanonicalVersionValidator.DEVELOPMENTAL_RELEASE_PATTERN.matcher(version).matches();
+        return versionMatches.test(PypiCanonicalVersionValidator.DEVELOPMENTAL_RELEASE_PATTERN, version);
     }
 
     public boolean isLocalVersionIdentifierRelease(String version)
     {
-        return PypiCanonicalVersionValidator.LOCAL_VERSION_IDENTIFIER_PATTERN.matcher(version).matches();
+        return versionMatches.test(PypiCanonicalVersionValidator.LOCAL_VERSION_IDENTIFIER_PATTERN, version);
     }
 
     public boolean isFinalRelease(String version)
@@ -122,5 +129,7 @@ public class PypiCanonicalVersionValidator
         return "^(" + EPOCH_FORMAT + "?" + FINAL_RELEASE_FORMAT + PRE_RELEASE_FORMAT + "?" + POST_RELEASE_FORMAT + "?" +
                DEVELOPMENTAL_RELEASE_FORMAT + "?" + LOCAL_VERSION_IDENTIFIER_FORMAT + "?)$";
     }
+
+    private BiPredicate<Pattern, String> versionMatches = (pattern, version) -> pattern.matcher(version).matches();
 
 }

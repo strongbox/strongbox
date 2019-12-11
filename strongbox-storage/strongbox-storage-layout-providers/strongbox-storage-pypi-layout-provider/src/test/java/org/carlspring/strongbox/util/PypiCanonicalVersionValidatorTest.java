@@ -32,7 +32,7 @@ public class PypiCanonicalVersionValidatorTest
 {
 
     @Autowired
-    PypiVersionValidator pypiCanonicalVersionValidator;
+    private PypiVersionValidator pypiCanonicalVersionValidator;
 
     private Repository repository;
 
