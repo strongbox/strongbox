@@ -51,6 +51,8 @@ public class PypiCanonicalVersionValidator
 
     private final ArtifactCoordinatesValidatorRegistry artifactCoordinatesValidatorRegistry;
 
+    private BiPredicate<Pattern, String> versionMatches = (pattern, version) -> pattern.matcher(version).matches();
+
     private static final Logger logger = LoggerFactory.getLogger(PypiCanonicalVersionValidator.class);
 
     public static final String ALIAS = "pypi-canonical-version-validator";
@@ -129,7 +131,4 @@ public class PypiCanonicalVersionValidator
         return "^(" + EPOCH_FORMAT + "?" + FINAL_RELEASE_FORMAT + PRE_RELEASE_FORMAT + "?" + POST_RELEASE_FORMAT + "?" +
                DEVELOPMENTAL_RELEASE_FORMAT + "?" + LOCAL_VERSION_IDENTIFIER_FORMAT + "?)$";
     }
-
-    private BiPredicate<Pattern, String> versionMatches = (pattern, version) -> pattern.matcher(version).matches();
-
 }
