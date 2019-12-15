@@ -22,7 +22,7 @@ Our goal is to implement a universal repository manager that can host and serve 
 
 Strongbox has a search engine and an [Artifact Query Language][docs-aql].
 
-# What's in the works (Q3/2019)
+# What's in the works (Q4/2019)
 
 * Web UI
 * NuGet (protocol v2) layout support finalization [#1215](https://github.com/strongbox/strongbox/issues/1215)
@@ -38,20 +38,12 @@ We'd like to invite you to:
 * Have a look at our pre-selected issues for [![GitHub issues by-label][hacktoberfest-badge]][hacktoberfest-link]
 * Join our [chat channel](https://chat.carlspring.org/]) to discuss things and get help started
 
-# Upcoming
-
-* Log tailing over HTTP
-* Debian/Ubuntu distribution
-
 # News
 
 * We have recently:
-  * Upgraded to JUnit 5 and we've been busy making all of our tests parallelizable! (Please, reach out, if you'd like to help, as there is still work to be done!).
-  * Migrated to Spring Boot! (We may need help improving our support).
-  * Migrated our Github wiki to [github.io](https://strongbox.github.io/). 
-  * Migrated our configuration files from XML to YAML format.
-* We now have an RPM distribution and need help testing it! (We need testers).
-* Our UI is under heavy development!
+  * Added initial support for logging in the UI.
+  * Added a Debian/Ubuntu distribution and need help testing it! (We need testers).
+  * Been busy on our UI.
 
 # Documentation
 
@@ -59,7 +51,7 @@ You can find our documentation [here][docs].
 
 # Requirements
 
-* Java 1.8.x
+* Java 1.8.x (we do not currently support higher versions)
 * Maven 3.5.4 (or higher)
 
 # Building
@@ -69,10 +61,10 @@ Instructions on how to build the code, can be found [here][docs-building-the-cod
 # Download
 
 Strongbox is available in the following formats:
+* [deb][release-deb]
 * [rpm][release-rpm]
 * [tar.gz][release-tar.gz]
 * [zip][release-zip]
-* [deb][release-deb]
 
 Other release could be downloaded from [here][release-all].
 
