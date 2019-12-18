@@ -29,9 +29,13 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.util.CollectionUtils;
 import org.springframework.util.StringUtils;
+import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
+import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.RequestPart;
 import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.multipart.MultipartFile;
 
 import com.google.common.collect.Sets;
 import io.swagger.annotations.ApiOperation;
@@ -63,17 +67,40 @@ public class PypiArtifactController extends BaseArtifactController
                             @ApiResponse(code = HttpURLConnection.HTTP_INTERNAL_ERROR, message = "An error occurred while executing request."),
                             @ApiResponse(code = HttpURLConnection.HTTP_UNAVAILABLE, message = "Service Unavailable.") })
     @PreAuthorize("hasAuthority('ARTIFACTS_DEPLOY')")
-    @RequestMapping(path = "{storageId}/{repositoryId}/", method = RequestMethod.POST, consumes = MediaType.MULTIPART_FORM_DATA)
+    @RequestMapping(path = "/{storageId}/{repositoryId}", method = RequestMethod.POST, consumes = MediaType.MULTIPART_FORM_DATA)
     public ResponseEntity<String> uploadOrRemovePackage(
-                                                        @RepositoryMapping Repository repository,
+                                                        @PathVariable(name = "storageId") String storageId,
+                                                        @PathVariable(name = "repositoryId") String repositoryId,
+                                                        @RequestPart(name = "comment", required = false) String comment,
+                                                        @RequestPart(name = "metadata_version", required = false) String metadataVersion,
+                                                        @RequestPart(name = "filetype", required = false) String filetype,
+                                                        @RequestPart(name = "protcol_version", required = false) String protcolVersion,
+                                                        @RequestPart(name = "author", required = false) String author,
+                                                        @RequestPart(name = "home_page", required = false) String homePage,
+                                                        @RequestPart(name = "download_url", required = false) String downloadUrl,
+                                                        @RequestPart(name = "platform", required = false) String platform,
+                                                        @RequestPart(name = "version", required = false) String version,
+                                                        @RequestPart(name = "description", required = false) String description,
+                                                        @RequestPart(name = "md5_digest", required = false) String md5Digest,
+                                                        @RequestPart(name = ":action", required = false) String action,
+                                                        @RequestPart(name = "name", required = false) String name,
+                                                        @RequestPart(name = "license", required = false) String license,
+                                                        @RequestPart(name = "pyversion", required = false) String pyversion,
+                                                        @RequestPart(name = "summary", required = false) String summary,
+                                                        @RequestPart(name = "author_email", required = false) String authorEmail,
+                                                        @RequestPart(name = "content", required = false) MultipartFile file,
                                                         HttpServletRequest request)
     {
 
-        final String storageId = repository.getStorage().getId();
-        final String repositoryId = repository.getId();
+//        final String storageId = repository.getStorage().getId();
+//        final String repositoryId = repository.getId();
 
         logger.info("pip upload/uninstall request for storageId -> [{}] , repositoryId -> [{}]", storageId,
                     repositoryId);
+        logger.info("{}-{}-{}-{}-{}-{}-{}-{}-{}-{}-{}-{}-{}-{}-{}-{}-{}-{}", comment, metadataVersion, filetype,
+                    protcolVersion, author, homePage,
+                    downloadUrl, platform, version, description, md5Digest, action, name, license, pyversion, summary,
+                    authorEmail, file);
 
         final String contentType = request.getHeader("content-type");
         String formDataBoundary = ArtifactControllerHelper.extractBoundaryFromContentType(contentType);
@@ -101,7 +128,7 @@ public class PypiArtifactController extends BaseArtifactController
                                              + VALID_ACTIONS);
             }
 
-            return validateAndUploadPackage(pypiArtifactMetadata, formDataBoundary, repository, request);
+            return validateAndUploadPackage(pypiArtifactMetadata, formDataBoundary, null,storageId,repositoryId, request);
         }
         catch (Exception e)
         {
@@ -116,6 +143,8 @@ public class PypiArtifactController extends BaseArtifactController
     private ResponseEntity<String> validateAndUploadPackage(PypiArtifactMetadata pypiArtifactMetadata,
                                                             String formDataBoundary,
                                                             Repository repository,
+                                                            String storageId,
+                                                            String repositoryId,
                                                             HttpServletRequest request)
         throws IOException,
         ServletException,
