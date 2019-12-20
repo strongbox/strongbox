@@ -5,10 +5,15 @@ import org.carlspring.strongbox.artifact.metadata.PypiArtifactMetadata;
 import org.carlspring.strongbox.controllers.BaseArtifactController;
 import org.carlspring.strongbox.providers.ProviderImplementationException;
 import org.carlspring.strongbox.providers.io.RepositoryPath;
+import org.carlspring.strongbox.providers.repository.RepositoryProviderRegistry;
+import org.carlspring.strongbox.storage.repository.Repository;
 import org.carlspring.strongbox.storage.validation.artifact.ArtifactCoordinatesValidationException;
 import org.carlspring.strongbox.web.LayoutRequestMapping;
+import org.carlspring.strongbox.web.RepositoryMapping;
 
+import javax.inject.Inject;
 import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
 import javax.ws.rs.core.MediaType;
 
 import java.io.IOException;
@@ -24,6 +29,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.util.StringUtils;
 import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.RequestHeader;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestPart;
@@ -51,8 +57,11 @@ public class PypiArtifactController extends BaseArtifactController
     private static final Set<String> VALID_ACTIONS = Sets.newHashSet("file_upload");
 
     private static final Set<String> VALID_FILE_TYPES = Sets.newHashSet("sdist", "bdist_wheel");
+    
+    @Inject
+    private RepositoryProviderRegistry repositoryProviderRegistry;
 
-    @ApiOperation(value = "This end point will be used to upload python package.")
+    @ApiOperation(value = "This end point will be used to upload/deploy python package.")
     @ApiResponses(value = { @ApiResponse(code = HttpURLConnection.HTTP_OK, message = "python package was deployed successfully."),
                             @ApiResponse(code = HttpURLConnection.HTTP_INTERNAL_ERROR, message = "An error occurred while executing request."),
                             @ApiResponse(code = HttpURLConnection.HTTP_UNAVAILABLE, message = "Service Unavailable.") })
@@ -124,13 +133,19 @@ public class PypiArtifactController extends BaseArtifactController
 
     }
     
+    
+    @ApiOperation(value = "This Endpoint will be used for download/install pypi package")
+    @ApiResponses(value = { @ApiResponse(code = HttpURLConnection.HTTP_OK, message = "Success"),
+                            @ApiResponse(code = HttpURLConnection.HTTP_SEE_OTHER, message = "See Other Location"),
+                            @ApiResponse(code = HttpURLConnection.HTTP_NOT_FOUND, message = "Request Url Not Found"),
+                            @ApiResponse(code = HttpURLConnection.HTTP_INTERNAL_ERROR, message = "An error occurred while executing download request."),
+                            @ApiResponse(code = HttpURLConnection.HTTP_UNAVAILABLE, message = "Service Unavailable.") })
     @PreAuthorize("hasAuthority('ARTIFACTS_RESOLVE')")
     @RequestMapping(path = "{storageId}/{repositoryId}/{packageName}/", method = RequestMethod.GET)
     public ResponseEntity<String> downloadPackage(@PathVariable(name = "storageId") String storageId,
                                                   @PathVariable(name = "repositoryId") String repositoryId,
                                                   @PathVariable(name = "packageName") String packageName,
                                                   HttpServletRequest request)
-        throws Exception
     {
 
         logger.info("install package request for storageId -> [{}] , repositoryId -> [{}], packageName -> [{}]",
@@ -154,6 +169,67 @@ public class PypiArtifactController extends BaseArtifactController
         return ResponseEntity.status(HttpStatus.SEE_OTHER)
                              .headers(headers)
                              .body(HttpStatus.SEE_OTHER.getReasonPhrase());
+    }
+    
+    
+    @ApiOperation(value = "This Endpoint will be used to retreive pypi artifact/.whl file")
+    @ApiResponses(value = { @ApiResponse(code = HttpURLConnection.HTTP_OK, message = "Success"),
+                            @ApiResponse(code = HttpURLConnection.HTTP_NOT_FOUND, message = "Request Url Not Found"),
+                            @ApiResponse(code = HttpURLConnection.HTTP_INTERNAL_ERROR, message = "An error occurred while executing download request."),
+                            @ApiResponse(code = HttpURLConnection.HTTP_UNAVAILABLE, message = "Service Unavailable.") })
+    @PreAuthorize("hasAuthority('ARTIFACTS_RESOLVE')")
+    @RequestMapping(path = "{storageId}/{repositoryId}/package/{artifactName}/", method = RequestMethod.GET)
+    public void downloadPackage(@PathVariable(name = "storageId") String storageId,
+                                @PathVariable(name = "repositoryId") String repositoryId,
+                                @PathVariable(name = "artifactName") String artifactName,
+                                HttpServletRequest request,
+                                HttpServletResponse response,
+                                @RequestHeader HttpHeaders headers)
+        throws Exception
+    {
+
+        logger.info("Download package request for storageId -> [{}] , repositoryId -> [{}], artifactName -> [{}]",
+                    storageId,
+                    repositoryId, artifactName);
+
+        String[] artifactNameTokens = artifactName.split("-");
+        if (artifactNameTokens.length < 5)
+        {
+            response.setStatus(HttpServletResponse.SC_BAD_REQUEST);
+            return;
+        }
+
+        RepositoryPath repositoryPath = artifactResolutionService.resolvePath(repositoryId, storageId,
+                                                                              String.format("%s/%s/%s",
+                                                                                            artifactNameTokens[0],
+                                                                                            artifactNameTokens[1],
+                                                                                            artifactName));
+
+        provideArtifactDownloadResponse(request, response, headers, repositoryPath);
+    }
+    
+    
+    @ApiOperation(value = "This Endpoint will be used to retreive all the versions of packages present in artifactory.")
+    @ApiResponses(value = { @ApiResponse(code = HttpURLConnection.HTTP_OK, message = "Success"),
+                            @ApiResponse(code = HttpURLConnection.HTTP_NOT_FOUND, message = "Request Url Not Found"),
+                            @ApiResponse(code = HttpURLConnection.HTTP_INTERNAL_ERROR, message = "An error occurred while executing download request."),
+                            @ApiResponse(code = HttpURLConnection.HTTP_UNAVAILABLE, message = "Service Unavailable.") })
+    @PreAuthorize("hasAuthority('ARTIFACTS_RESOLVE')")
+    @RequestMapping(path = "{storageId}/{repositoryId}/simple/{packageName}/", method = RequestMethod.GET, produces = MediaType.TEXT_HTML)
+    public ResponseEntity<String> getPackagePath(@PathVariable(name = "storageId") String storageId,
+                                                 @PathVariable(name = "repositoryId") String repositoryId,
+                                                 @PathVariable(name = "packageName") String packageName,
+                                                 HttpServletRequest request,
+                                                 HttpServletResponse response,
+                                                 @RequestHeader HttpHeaders headers)
+        throws Exception
+    {
+
+        logger.info("Get package path request for storageId -> [{}] , repositoryId -> [{}], packageName -> [{}]",
+                    storageId,
+                    repositoryId, packageName);
+
+        return ResponseEntity.status(HttpStatus.OK).body("");
     }
 
     private ResponseEntity<String> validateAndUploadPackage(PypiArtifactMetadata pypiArtifactMetadata,
