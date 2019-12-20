@@ -1,10 +1,16 @@
 package org.carlspring.strongbox.controllers.layout.pypi;
 
+import org.carlspring.strongbox.artifact.coordinates.ArtifactCoordinates;
 import org.carlspring.strongbox.artifact.coordinates.PypiArtifactCoordinates;
 import org.carlspring.strongbox.artifact.metadata.PypiArtifactMetadata;
 import org.carlspring.strongbox.controllers.BaseArtifactController;
+import org.carlspring.strongbox.data.criteria.Paginator;
+import org.carlspring.strongbox.data.criteria.Predicate;
+import org.carlspring.strongbox.data.criteria.Expression.ExpOperator;
 import org.carlspring.strongbox.providers.ProviderImplementationException;
+import org.carlspring.strongbox.providers.io.RepositoryFiles;
 import org.carlspring.strongbox.providers.io.RepositoryPath;
+import org.carlspring.strongbox.providers.repository.RepositoryProvider;
 import org.carlspring.strongbox.providers.repository.RepositoryProviderRegistry;
 import org.carlspring.strongbox.storage.repository.Repository;
 import org.carlspring.strongbox.storage.validation.artifact.ArtifactCoordinatesValidationException;
@@ -19,7 +25,9 @@ import javax.ws.rs.core.MediaType;
 import java.io.IOException;
 import java.net.HttpURLConnection;
 import java.net.URI;
+import java.nio.file.Path;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
@@ -57,7 +65,7 @@ public class PypiArtifactController extends BaseArtifactController
     private static final Set<String> VALID_ACTIONS = Sets.newHashSet("file_upload");
 
     private static final Set<String> VALID_FILE_TYPES = Sets.newHashSet("sdist", "bdist_wheel");
-    
+
     @Inject
     private RepositoryProviderRegistry repositoryProviderRegistry;
 
@@ -132,8 +140,7 @@ public class PypiArtifactController extends BaseArtifactController
         }
 
     }
-    
-    
+
     @ApiOperation(value = "This Endpoint will be used for download/install pypi package")
     @ApiResponses(value = { @ApiResponse(code = HttpURLConnection.HTTP_OK, message = "Success"),
                             @ApiResponse(code = HttpURLConnection.HTTP_SEE_OTHER, message = "See Other Location"),
@@ -142,24 +149,23 @@ public class PypiArtifactController extends BaseArtifactController
                             @ApiResponse(code = HttpURLConnection.HTTP_UNAVAILABLE, message = "Service Unavailable.") })
     @PreAuthorize("hasAuthority('ARTIFACTS_RESOLVE')")
     @RequestMapping(path = "{storageId}/{repositoryId}/{packageName}/", method = RequestMethod.GET)
-    public ResponseEntity<String> downloadPackage(@PathVariable(name = "storageId") String storageId,
-                                                  @PathVariable(name = "repositoryId") String repositoryId,
+    public ResponseEntity<String> downloadPackage(@RepositoryMapping Repository repository,
                                                   @PathVariable(name = "packageName") String packageName,
                                                   HttpServletRequest request)
     {
 
         logger.info("install package request for storageId -> [{}] , repositoryId -> [{}], packageName -> [{}]",
-                    storageId,
-                    repositoryId, packageName);
+                    repository.getStorage().getId(),
+                    repository.getId(), packageName);
 
         final Map<String, String> uriVariables = new HashMap<String, String>();
-        uriVariables.put("storageId", storageId);
-        uriVariables.put("repositoryId", repositoryId);
+        uriVariables.put("storageId", repository.getStorage().getId());
+        uriVariables.put("repositoryId", repository.getId());
         uriVariables.put("packageName", packageName);
 
         final URI location = ServletUriComponentsBuilder
                                                         .fromCurrentServletMapping()
-                                                        .path("{storageId}/{repositoryId}/simple/{packageName}/")
+                                                        .path("/storages/{storageId}/{repositoryId}/simple/{packageName}/")
                                                         .build()
                                                         .expand(uriVariables)
                                                         .toUri();
@@ -170,17 +176,15 @@ public class PypiArtifactController extends BaseArtifactController
                              .headers(headers)
                              .body(HttpStatus.SEE_OTHER.getReasonPhrase());
     }
-    
-    
+
     @ApiOperation(value = "This Endpoint will be used to retreive pypi artifact/.whl file")
     @ApiResponses(value = { @ApiResponse(code = HttpURLConnection.HTTP_OK, message = "Success"),
                             @ApiResponse(code = HttpURLConnection.HTTP_NOT_FOUND, message = "Request Url Not Found"),
                             @ApiResponse(code = HttpURLConnection.HTTP_INTERNAL_ERROR, message = "An error occurred while executing download request."),
                             @ApiResponse(code = HttpURLConnection.HTTP_UNAVAILABLE, message = "Service Unavailable.") })
     @PreAuthorize("hasAuthority('ARTIFACTS_RESOLVE')")
-    @RequestMapping(path = "{storageId}/{repositoryId}/package/{artifactName}/", method = RequestMethod.GET)
-    public void downloadPackage(@PathVariable(name = "storageId") String storageId,
-                                @PathVariable(name = "repositoryId") String repositoryId,
+    @RequestMapping(path = "{storageId}/{repositoryId}/packages/{artifactName:.+}", method = RequestMethod.GET)
+    public void downloadPackage(@RepositoryMapping Repository repository,
                                 @PathVariable(name = "artifactName") String artifactName,
                                 HttpServletRequest request,
                                 HttpServletResponse response,
@@ -189,8 +193,8 @@ public class PypiArtifactController extends BaseArtifactController
     {
 
         logger.info("Download package request for storageId -> [{}] , repositoryId -> [{}], artifactName -> [{}]",
-                    storageId,
-                    repositoryId, artifactName);
+                    repository.getStorage().getId(),
+                    repository.getId(), artifactName);
 
         String[] artifactNameTokens = artifactName.split("-");
         if (artifactNameTokens.length < 5)
@@ -199,7 +203,9 @@ public class PypiArtifactController extends BaseArtifactController
             return;
         }
 
-        RepositoryPath repositoryPath = artifactResolutionService.resolvePath(repositoryId, storageId,
+        RepositoryPath repositoryPath = artifactResolutionService.resolvePath(
+                                                                              repository.getStorage().getId(),
+                                                                              repository.getId(),
                                                                               String.format("%s/%s/%s",
                                                                                             artifactNameTokens[0],
                                                                                             artifactNameTokens[1],
@@ -207,8 +213,7 @@ public class PypiArtifactController extends BaseArtifactController
 
         provideArtifactDownloadResponse(request, response, headers, repositoryPath);
     }
-    
-    
+
     @ApiOperation(value = "This Endpoint will be used to retreive all the versions of packages present in artifactory.")
     @ApiResponses(value = { @ApiResponse(code = HttpURLConnection.HTTP_OK, message = "Success"),
                             @ApiResponse(code = HttpURLConnection.HTTP_NOT_FOUND, message = "Request Url Not Found"),
@@ -216,8 +221,7 @@ public class PypiArtifactController extends BaseArtifactController
                             @ApiResponse(code = HttpURLConnection.HTTP_UNAVAILABLE, message = "Service Unavailable.") })
     @PreAuthorize("hasAuthority('ARTIFACTS_RESOLVE')")
     @RequestMapping(path = "{storageId}/{repositoryId}/simple/{packageName}/", method = RequestMethod.GET, produces = MediaType.TEXT_HTML)
-    public ResponseEntity<String> getPackagePath(@PathVariable(name = "storageId") String storageId,
-                                                 @PathVariable(name = "repositoryId") String repositoryId,
+    public ResponseEntity<String> getPackagePath(@RepositoryMapping Repository repository,
                                                  @PathVariable(name = "packageName") String packageName,
                                                  HttpServletRequest request,
                                                  HttpServletResponse response,
@@ -226,10 +230,65 @@ public class PypiArtifactController extends BaseArtifactController
     {
 
         logger.info("Get package path request for storageId -> [{}] , repositoryId -> [{}], packageName -> [{}]",
-                    storageId,
-                    repositoryId, packageName);
+                    repository.getStorage().getId(),
+                    repository.getId(), packageName);
 
-        return ResponseEntity.status(HttpStatus.OK).body("");
+        RepositoryProvider repositoryProvider = repositoryProviderRegistry.getProvider(repository.getType());
+
+        Predicate predicate = Predicate.empty();
+        predicate.and(Predicate.of(ExpOperator.EQ.of("artifactCoordinates.coordinates.packaging",
+                                                     PypiArtifactCoordinates.WHEEL_EXTENSION)));
+        predicate.and(Predicate.of(ExpOperator.EQ.of("artifactCoordinates.coordinates.distribution",
+                                                     packageName.replace("-", "_"))));
+
+        Paginator paginator = new Paginator();
+        List<Path> searchResult = repositoryProvider.search(repository.getStorage().getId(), repository.getId(),
+                                                            predicate, paginator);
+
+        String searchPackageHtmlResponse = getHtmlResponse(searchResult, packageName, repository);
+        return ResponseEntity.status(HttpStatus.OK).body(searchPackageHtmlResponse);
+    }
+
+    private String getHtmlResponse(List<Path> filePaths,
+                                   String packageName,
+                                   Repository repository)
+    {
+        String htmlResponse = "<html>\n"
+                + "        <head>\n"
+                + "            <title>Links for " + packageName + "</title>\n"
+                + "        </head>\n"
+                + "        <body>\n"
+                + "            <h1>Links for " + packageName + "</h1>\n"
+                + "                   " + getPackageLinks(filePaths, repository)
+                + "        </body>\n"
+                + "    </html>";
+        return htmlResponse;
+    }
+
+    private String getPackageLinks(List<Path> filePaths,
+                                   Repository repository)
+    {
+
+        String packageLinks = "";
+
+        for (Path path : filePaths)
+        {
+            PypiArtifactCoordinates artifactCoordinates = null;
+            try
+            {
+                artifactCoordinates = (PypiArtifactCoordinates) RepositoryFiles.readCoordinates((RepositoryPath) path);
+            }
+            catch (Exception e)
+            {
+                logger.error("Failed to read python package path [{}]", path, e);
+                continue;
+            }
+            packageLinks += "<a href=\"" + "/storages/" + repository.getStorage().getId() + "/" + repository.getId()
+                    + "/packages/" + artifactCoordinates.buildWheelPackageFileName() + "\">"
+                    + artifactCoordinates.buildWheelPackageFileName() + "</a><br>\n";
+        }
+
+        return packageLinks;
     }
 
     private ResponseEntity<String> validateAndUploadPackage(PypiArtifactMetadata pypiArtifactMetadata,

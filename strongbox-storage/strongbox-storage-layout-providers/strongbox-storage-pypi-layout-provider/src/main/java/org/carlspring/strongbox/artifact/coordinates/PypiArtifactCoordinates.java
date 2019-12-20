@@ -293,7 +293,7 @@ public class PypiArtifactCoordinates
                              getPackaging());
     }
 
-    private String buildWheelPackageFileName()
+    public String buildWheelPackageFileName()
     {
         String path;
 
