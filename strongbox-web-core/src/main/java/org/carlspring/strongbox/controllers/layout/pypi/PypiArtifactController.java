@@ -1,12 +1,11 @@
 package org.carlspring.strongbox.controllers.layout.pypi;
 
-import org.carlspring.strongbox.artifact.coordinates.ArtifactCoordinates;
 import org.carlspring.strongbox.artifact.coordinates.PypiArtifactCoordinates;
 import org.carlspring.strongbox.artifact.metadata.PypiArtifactMetadata;
 import org.carlspring.strongbox.controllers.BaseArtifactController;
+import org.carlspring.strongbox.data.criteria.Expression.ExpOperator;
 import org.carlspring.strongbox.data.criteria.Paginator;
 import org.carlspring.strongbox.data.criteria.Predicate;
-import org.carlspring.strongbox.data.criteria.Expression.ExpOperator;
 import org.carlspring.strongbox.providers.ProviderImplementationException;
 import org.carlspring.strongbox.providers.io.RepositoryFiles;
 import org.carlspring.strongbox.providers.io.RepositoryPath;
@@ -239,7 +238,7 @@ public class PypiArtifactController extends BaseArtifactController
         predicate.and(Predicate.of(ExpOperator.EQ.of("artifactCoordinates.coordinates.packaging",
                                                      PypiArtifactCoordinates.WHEEL_EXTENSION)));
         predicate.and(Predicate.of(ExpOperator.EQ.of("artifactCoordinates.coordinates.distribution",
-                                                     packageName.replace("-", "_"))));
+                                                     packageName)));
 
         Paginator paginator = new Paginator();
         List<Path> searchResult = repositoryProvider.search(repository.getStorage().getId(), repository.getId(),
