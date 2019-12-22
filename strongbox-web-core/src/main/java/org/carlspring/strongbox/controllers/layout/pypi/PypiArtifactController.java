@@ -202,12 +202,15 @@ public class PypiArtifactController extends BaseArtifactController
             return;
         }
 
+        final String packageName = artifactNameTokens[0].replaceAll("[^A-Za-z0-9 ]", "-");
+        final String version = artifactNameTokens[1];
+
         RepositoryPath repositoryPath = artifactResolutionService.resolvePath(
                                                                               repository.getStorage().getId(),
                                                                               repository.getId(),
                                                                               String.format("%s/%s/%s",
-                                                                                            artifactNameTokens[0],
-                                                                                            artifactNameTokens[1],
+                                                                                            packageName,
+                                                                                            version,
                                                                                             artifactName));
 
         provideArtifactDownloadResponse(request, response, headers, repositoryPath);
@@ -228,9 +231,12 @@ public class PypiArtifactController extends BaseArtifactController
         throws Exception
     {
 
+        // https://www.python.org/dev/peps/pep-0427/#escaping-and-unicode
+        final String packageNameToDownload = packageName.replaceAll("[^A-Za-z0-9 ]", "_");
+
         logger.info("Get package path request for storageId -> [{}] , repositoryId -> [{}], packageName -> [{}]",
                     repository.getStorage().getId(),
-                    repository.getId(), packageName);
+                    repository.getId(), packageNameToDownload);
 
         RepositoryProvider repositoryProvider = repositoryProviderRegistry.getProvider(repository.getType());
 
@@ -238,7 +244,7 @@ public class PypiArtifactController extends BaseArtifactController
         predicate.and(Predicate.of(ExpOperator.EQ.of("artifactCoordinates.coordinates.packaging",
                                                      PypiArtifactCoordinates.WHEEL_EXTENSION)));
         predicate.and(Predicate.of(ExpOperator.EQ.of("artifactCoordinates.coordinates.distribution",
-                                                     packageName)));
+                                                     packageNameToDownload)));
 
         Paginator paginator = new Paginator();
         List<Path> searchResult = repositoryProvider.search(repository.getStorage().getId(), repository.getId(),
