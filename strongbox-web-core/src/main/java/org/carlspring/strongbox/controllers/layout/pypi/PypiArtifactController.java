@@ -195,23 +195,23 @@ public class PypiArtifactController extends BaseArtifactController
                     repository.getStorage().getId(),
                     repository.getId(), artifactName);
 
-        String[] artifactNameTokens = artifactName.split("-");
-        if (artifactNameTokens.length < 5)
-        {
-            response.setStatus(HttpServletResponse.SC_BAD_REQUEST);
-            return;
-        }
+        // String[] artifactNameTokens = artifactName.split("-");
+        // if (artifactNameTokens.length < 5)
+        // {
+        // response.setStatus(HttpServletResponse.SC_BAD_REQUEST);
+        // return;
+        // }
 
-        final String packageName = artifactNameTokens[0].replaceAll("[^A-Za-z0-9 ]", "-");
-        final String version = artifactNameTokens[1];
+        // final String packageName =
+        // artifactNameTokens[0].replaceAll("[^A-Za-z0-9 ]", "-");
+        // final String version = artifactNameTokens[1];
+
+        PypiArtifactCoordinates coordinates = PypiArtifactCoordinates.parse(artifactName);
 
         RepositoryPath repositoryPath = artifactResolutionService.resolvePath(
                                                                               repository.getStorage().getId(),
                                                                               repository.getId(),
-                                                                              String.format("%s/%s/%s",
-                                                                                            packageName,
-                                                                                            version,
-                                                                                            artifactName));
+                                                                              coordinates.toPath());
 
         provideArtifactDownloadResponse(request, response, headers, repositoryPath);
     }
@@ -310,12 +310,11 @@ public class PypiArtifactController extends BaseArtifactController
                                  .body("Invalid value for \"filetype\" parameter.Valid values are " + VALID_FILE_TYPES);
         }
 
+        PypiArtifactCoordinates coordinates = PypiArtifactCoordinates.parse(file.getOriginalFilename());
+
         RepositoryPath repositoryPath = repositoryPathResolver.resolve(storageId,
                                                                        repositoryId,
-                                                                       String.format("%s/%s/%s",
-                                                                                     pypiArtifactMetadata.getName(),
-                                                                                     pypiArtifactMetadata.getVersion(),
-                                                                                     file.getOriginalFilename()));
+                                                                       coordinates.toPath());
         artifactManagementService.validateAndStore(repositoryPath, file.getInputStream());
 
         return ResponseEntity.status(HttpStatus.OK).body("The artifact was deployed successfully.");
