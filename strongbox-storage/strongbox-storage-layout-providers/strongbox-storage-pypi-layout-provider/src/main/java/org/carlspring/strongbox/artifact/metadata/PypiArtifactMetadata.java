@@ -8,39 +8,39 @@ package org.carlspring.strongbox.artifact.metadata;
 public class PypiArtifactMetadata
 {
 
-    private String comment = null;
+    private String comment;
 
-    private String metdataVersion = null;
+    private String metdataVersion;
 
-    private String fileType = null;
+    private String fileType;
 
-    private String protcolVersion = null;
+    private String protcolVersion;
 
-    private String author = null;
+    private String author;
 
-    private String homePage = null;
+    private String homePage;
 
-    private String downloadUrl = null;
+    private String downloadUrl;
 
-    private String platform = null;
+    private String platform;
 
-    private String version = null;
+    private String version;
 
-    private String description = null;
+    private String description;
 
-    private String md5Digest = null;
+    private String md5Digest;
 
-    private String action = null;
+    private String action;
 
-    private String name = null;
+    private String name;
 
-    private String license = null;
+    private String license;
 
-    private String pyVersion = null;
+    private String pyVersion;
 
-    private String summary = null;
+    private String summary;
 
-    private String authorEmail = null;
+    private String authorEmail;
 
     public String getComment()
     {
@@ -238,7 +238,5 @@ public class PypiArtifactMetadata
                 + description + ", md5Digest=" + md5Digest + ", action=" + action + ", name=" + name + ", license="
                 + license + ", pyVersion=" + pyVersion + ", summary=" + summary + ", authorEmail=" + authorEmail + "]";
     }
-    
-    
 
 }
