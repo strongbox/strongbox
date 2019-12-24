@@ -28,6 +28,10 @@ import io.restassured.module.mockmvc.specification.MockMvcRequestSpecification;
 public abstract class PypiRestAssuredBaseTest
 {
 
+    protected static final String REPOSITORY_RELEASES = "pypi-releases-test";
+
+    protected static final String REPOSITORY_STORAGE = "storage-pypi-test";
+
     protected static final String TEST_RESOURCES = "target/test-resources";
 
     protected static final String PIP_USER_AGENT = "pip/*";
