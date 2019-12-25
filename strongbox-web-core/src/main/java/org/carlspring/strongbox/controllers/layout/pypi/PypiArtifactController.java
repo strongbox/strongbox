@@ -206,7 +206,17 @@ public class PypiArtifactController extends BaseArtifactController
         // artifactNameTokens[0].replaceAll("[^A-Za-z0-9 ]", "-");
         // final String version = artifactNameTokens[1];
 
-        PypiArtifactCoordinates coordinates = PypiArtifactCoordinates.parse(artifactName);
+        PypiArtifactCoordinates coordinates;
+        try
+        {
+            coordinates = PypiArtifactCoordinates.parse(artifactName);
+        }
+        catch (IllegalArgumentException e)
+        {
+            logger.error("Invalid package name - {}", e.getMessage());
+            response.setStatus(HttpStatus.BAD_REQUEST.value());
+            return;
+        }
 
         RepositoryPath repositoryPath = artifactResolutionService.resolvePath(
                                                                               repository.getStorage().getId(),
