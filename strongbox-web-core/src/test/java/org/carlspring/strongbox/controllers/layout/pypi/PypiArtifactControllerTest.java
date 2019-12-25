@@ -9,6 +9,8 @@ import org.carlspring.strongbox.testing.artifact.PypiTestArtifact;
 import org.carlspring.strongbox.testing.repository.PypiTestRepository;
 import org.carlspring.strongbox.testing.storage.repository.RepositoryManagementTestExecutionListener;
 
+import java.io.IOException;
+import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.List;
 
@@ -194,4 +196,77 @@ public class PypiArtifactControllerTest extends PypiRestAssuredBaseTest
 
     }
 
+    @Test
+    @ExtendWith({ RepositoryManagementTestExecutionListener.class,
+                  ArtifactManagementTestExecutionListener.class })
+    public void testDownloadPackageFlow(@PypiTestRepository(repositoryId = REPOSITORY_RELEASES, storageId = REPOSITORY_STORAGE) Repository repository,
+                                        @PypiTestArtifact(repositoryId = REPOSITORY_RELEASES, storageId = REPOSITORY_STORAGE, id = "hello_world_pypi", versions = { "1.0",
+                                                                                                                                                                    "2.0",
+                                                                                                                                                                    "3.0",
+                                                                                                                                                                    "3.1",
+                                                                                                                                                                    "3.2",
+                                                                                                                                                                    "3.4",
+                                                                                                                                                                    "5.1" }) List<Path> packagePaths)
+        throws IOException
+    {
+        final String storageId = repository.getStorage().getId();
+        final String repositoryId = repository.getId();
+
+        final String invalidPackageName = "helloworldpypi";
+        final String packageNameNotUploaded = "helloworldpypi-1.0-py3-none-any.whl";
+        final String packageNameUploaded = "hello-world-pypi";
+
+        final String url = getContextBaseUrl() + "/storages/{storageId}/{repositoryId}/packages/{packageName}";
+
+        // Download request for invalid artifact/package name.
+        mockMvc.when()
+               .get(url, storageId, repositoryId, invalidPackageName)
+               .then()
+               .log()
+               .all()
+               .statusCode(HttpStatus.BAD_REQUEST.value());
+
+        // Download request for package not uploaded.
+        mockMvc.when()
+               .get(url, storageId, repositoryId, packageNameNotUploaded)
+               .then()
+               .log()
+               .all()
+               .statusCode(HttpStatus.NOT_FOUND.value());
+
+        // Upload different version of packages generated to be used by
+        // next-case
+        packagePaths.stream().forEach(path -> {
+
+            final String uploadUrl = getContextBaseUrl() + "/storages/{storageId}/{repositoryId}";
+
+            mockMvc.contentType(MediaType.MULTIPART_FORM_DATA_VALUE)
+                   .multiPart("filetype", "sdist")
+                   .multiPart(":action", "file_upload")
+                   .multiPart("name", packageNameUploaded)
+                   .multiPart("metadata_version", "1.0")
+                   .multiPart("content", path.toFile())
+                   .when()
+                   .post(uploadUrl, storageId, repositoryId)
+                   .then()
+                   .log()
+                   .all()
+                   .statusCode(HttpStatus.OK.value())
+                   .contentType(ContentType.TEXT)
+                   .body(Matchers.containsString("The artifact was deployed successfully."));
+        });
+
+        // Download request for valid and uploaded package.
+        mockMvc.when()
+               .get(url, storageId, repositoryId, packagePaths.get(6).getFileName().toString())
+               .then()
+               .log()
+               .status()
+               .log()
+               .headers()
+               .statusCode(HttpStatus.OK.value())
+               .contentType(MediaType.APPLICATION_OCTET_STREAM_VALUE)
+               .header(HttpHeaders.CONTENT_LENGTH, Matchers.equalTo(String.valueOf(Files.size(packagePaths.get(6)))));
+
+    }
 }
