@@ -1,9 +1,7 @@
-package org.carlspring.strongbox.artifact.metadata;
+package org.carlspring.strongbox.storage.metadata.pypi;
 
 /**
- * 
  * @author ankit.tomar
- *
  */
 public class PypiArtifactMetadata
 {
@@ -47,7 +45,7 @@ public class PypiArtifactMetadata
         return comment;
     }
 
-    public PypiArtifactMetadata setComment(String comment)
+    public PypiArtifactMetadata withComment(String comment)
     {
         this.comment = comment;
         return this;
@@ -58,7 +56,7 @@ public class PypiArtifactMetadata
         return metdataVersion;
     }
 
-    public PypiArtifactMetadata setMetdataVersion(String metdataVersion)
+    public PypiArtifactMetadata withMetdataVersion(String metdataVersion)
     {
         this.metdataVersion = metdataVersion;
         return this;
@@ -69,7 +67,7 @@ public class PypiArtifactMetadata
         return fileType;
     }
 
-    public PypiArtifactMetadata setFileType(String fileType)
+    public PypiArtifactMetadata withFileType(String fileType)
     {
         this.fileType = fileType;
         return this;
@@ -80,7 +78,7 @@ public class PypiArtifactMetadata
         return protcolVersion;
     }
 
-    public PypiArtifactMetadata setProtcolVersion(String protcolVersion)
+    public PypiArtifactMetadata withProtcolVersion(String protcolVersion)
     {
         this.protcolVersion = protcolVersion;
         return this;
@@ -91,7 +89,7 @@ public class PypiArtifactMetadata
         return author;
     }
 
-    public PypiArtifactMetadata setAuthor(String author)
+    public PypiArtifactMetadata withAuthor(String author)
     {
         this.author = author;
         return this;
@@ -102,7 +100,7 @@ public class PypiArtifactMetadata
         return homePage;
     }
 
-    public PypiArtifactMetadata setHomePage(String homePage)
+    public PypiArtifactMetadata withHomePage(String homePage)
     {
         this.homePage = homePage;
         return this;
@@ -113,7 +111,7 @@ public class PypiArtifactMetadata
         return downloadUrl;
     }
 
-    public PypiArtifactMetadata setDownloadUrl(String downloadUrl)
+    public PypiArtifactMetadata withDownloadUrl(String downloadUrl)
     {
         this.downloadUrl = downloadUrl;
         return this;
@@ -124,7 +122,7 @@ public class PypiArtifactMetadata
         return platform;
     }
 
-    public PypiArtifactMetadata setPlatform(String platform)
+    public PypiArtifactMetadata withPlatform(String platform)
     {
         this.platform = platform;
         return this;
@@ -135,7 +133,7 @@ public class PypiArtifactMetadata
         return version;
     }
 
-    public PypiArtifactMetadata setVersion(String version)
+    public PypiArtifactMetadata withVersion(String version)
     {
         this.version = version;
         return this;
@@ -146,7 +144,7 @@ public class PypiArtifactMetadata
         return description;
     }
 
-    public PypiArtifactMetadata setDescription(String description)
+    public PypiArtifactMetadata withDescription(String description)
     {
         this.description = description;
         return this;
@@ -157,7 +155,7 @@ public class PypiArtifactMetadata
         return md5Digest;
     }
 
-    public PypiArtifactMetadata setMd5Digest(String md5Digest)
+    public PypiArtifactMetadata withMd5Digest(String md5Digest)
     {
         this.md5Digest = md5Digest;
         return this;
@@ -168,7 +166,7 @@ public class PypiArtifactMetadata
         return action;
     }
 
-    public PypiArtifactMetadata setAction(String action)
+    public PypiArtifactMetadata withAction(String action)
     {
         this.action = action;
         return this;
@@ -179,7 +177,7 @@ public class PypiArtifactMetadata
         return name;
     }
 
-    public PypiArtifactMetadata setName(String name)
+    public PypiArtifactMetadata withName(String name)
     {
         this.name = name;
         return this;
@@ -190,7 +188,7 @@ public class PypiArtifactMetadata
         return license;
     }
 
-    public PypiArtifactMetadata setLicense(String license)
+    public PypiArtifactMetadata withLicense(String license)
     {
         this.license = license;
         return this;
@@ -201,7 +199,7 @@ public class PypiArtifactMetadata
         return pyVersion;
     }
 
-    public PypiArtifactMetadata setPyVersion(String pyVersion)
+    public PypiArtifactMetadata withPyVersion(String pyVersion)
     {
         this.pyVersion = pyVersion;
         return this;
@@ -212,7 +210,7 @@ public class PypiArtifactMetadata
         return summary;
     }
 
-    public PypiArtifactMetadata setSummary(String summary)
+    public PypiArtifactMetadata withSummary(String summary)
     {
         this.summary = summary;
         return this;
@@ -223,7 +221,7 @@ public class PypiArtifactMetadata
         return authorEmail;
     }
 
-    public PypiArtifactMetadata setAuthorEmail(String authorEmail)
+    public PypiArtifactMetadata withAuthorEmail(String authorEmail)
     {
         this.authorEmail = authorEmail;
         return this;
