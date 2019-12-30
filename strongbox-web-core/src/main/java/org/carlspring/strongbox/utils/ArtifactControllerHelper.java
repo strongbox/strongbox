@@ -11,24 +11,17 @@ import org.carlspring.strongbox.providers.io.RepositoryFiles;
 import org.carlspring.strongbox.providers.io.RepositoryPath;
 
 import javax.servlet.http.HttpServletResponse;
-import javax.servlet.http.Part;
-
 import java.io.BufferedInputStream;
-import java.io.BufferedOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
-import java.nio.file.Path;
 import java.time.ZoneId;
 import java.time.ZonedDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.List;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
 
-import org.apache.commons.fileupload.MultipartStream;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.http.HttpHeaders;
@@ -64,7 +57,7 @@ public class ArtifactControllerHelper
     public static void handlePartialDownload(InputStream is,
                                              HttpHeaders headers,
                                              HttpServletResponse response)
-        throws IOException
+            throws IOException
     {
         String contentRange = headers.getFirst(HttpHeaders.RANGE);
         ByteRangeHeaderParser parser = new ByteRangeHeaderParser(contentRange);
@@ -99,7 +92,7 @@ public class ArtifactControllerHelper
     private static void handlePartialDownloadWithSingleRange(InputStream is,
                                                              ByteRange byteRange,
                                                              HttpServletResponse response)
-        throws IOException
+            throws IOException
     {
         ByteRangeInputStream bris = StreamUtils.findSource(ByteRangeInputStream.class, is);
         long inputLength = bris != null ? StreamUtils.getLength(bris) : 0;
@@ -121,7 +114,7 @@ public class ArtifactControllerHelper
     private static void handlePartialDownloadWithMultipleRanges(InputStream is,
                                                                 List<ByteRange> byteRanges,
                                                                 HttpServletResponse response)
-        throws IOException
+            throws IOException
     {
         ByteRangeInputStream bris = StreamUtils.findSource(ByteRangeInputStream.class, is);
         long length = bris != null ? StreamUtils.getLength(bris) : 0;
@@ -145,7 +138,7 @@ public class ArtifactControllerHelper
 
     private static void setRangeNotSatisfiable(HttpServletResponse response,
                                                long length)
-        throws IOException
+            throws IOException
     {
         response.setHeader(HttpHeaders.CONTENT_RANGE, "bytes */" + length);
         response.setStatus(REQUESTED_RANGE_NOT_SATISFIABLE.value());
@@ -183,13 +176,13 @@ public class ArtifactControllerHelper
         {
             String contentRange = headers.getFirst(HttpHeaders.RANGE);
             return contentRange != null && contentRange.matches(RANGE_REGEX) &&
-                    !contentRange.matches(FULL_FILE_RANGE_REGEX);
+                   !contentRange.matches(FULL_FILE_RANGE_REGEX);
         }
     }
 
     public static void provideArtifactHeaders(HttpServletResponse response,
                                               RepositoryPath path)
-        throws IOException
+            throws IOException
     {
         if (path == null || Files.notExists(path) || Files.isDirectory(path))
         {
@@ -200,19 +193,15 @@ public class ArtifactControllerHelper
 
         response.setHeader(HttpHeaders.CONTENT_LENGTH, String.valueOf(fileAttributes.size()));
         response.setHeader(HttpHeaders.LAST_MODIFIED, DateTimeFormatter.RFC_1123_DATE_TIME.format(
-                                                                                                  ZonedDateTime.ofInstant(fileAttributes.lastModifiedTime()
-                                                                                                                                        .toInstant(),
-                                                                                                                          ZoneId.systemDefault())));
+                ZonedDateTime.ofInstant(fileAttributes.lastModifiedTime().toInstant(), ZoneId.systemDefault())));
 
-        // TODO: This is far from optimal and will need to have a content type
-        // approach at some point:
+        // TODO: This is far from optimal and will need to have a content type approach at some point:
         String contentType = getContentType(path);
         response.setContentType(contentType);
 
         response.setHeader(HttpHeaders.ACCEPT_RANGES, "bytes");
 
-        path.getFileSystem().provider().resolveChecksumPathMap(path).forEach((key,
-                                                                              value) -> {
+        path.getFileSystem().provider().resolveChecksumPathMap(path).forEach((key, value) -> {
             String checksumValue;
             try
             {
@@ -231,7 +220,7 @@ public class ArtifactControllerHelper
     }
 
     private static String getContentType(RepositoryPath path)
-        throws IOException
+            throws IOException
     {
         if (RepositoryFiles.isChecksum(path) || (path.getFileName().toString().endsWith(".properties")))
         {
@@ -254,7 +243,7 @@ public class ArtifactControllerHelper
                                                            HttpServletResponse response,
                                                            List<ByteRange> byteRanges,
                                                            String contentType)
-        throws IOException
+            throws IOException
     {
         BufferedInputStream bis = new BufferedInputStream(is, DEFAULT_BUFFER_SIZE);
         long inputLength = Long.parseLong(response.getHeader(HttpHeaders.CONTENT_LENGTH));

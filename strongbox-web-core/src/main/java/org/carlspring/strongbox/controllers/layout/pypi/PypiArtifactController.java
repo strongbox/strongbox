@@ -1,7 +1,6 @@
 package org.carlspring.strongbox.controllers.layout.pypi;
 
 import org.carlspring.strongbox.artifact.coordinates.PypiArtifactCoordinates;
-import org.carlspring.strongbox.artifact.metadata.PypiArtifactMetadata;
 import org.carlspring.strongbox.controllers.BaseArtifactController;
 import org.carlspring.strongbox.data.criteria.Expression.ExpOperator;
 import org.carlspring.strongbox.data.criteria.Paginator;
@@ -11,6 +10,7 @@ import org.carlspring.strongbox.providers.io.RepositoryFiles;
 import org.carlspring.strongbox.providers.io.RepositoryPath;
 import org.carlspring.strongbox.providers.repository.RepositoryProvider;
 import org.carlspring.strongbox.providers.repository.RepositoryProviderRegistry;
+import org.carlspring.strongbox.storage.metadata.pypi.PypiArtifactMetadata;
 import org.carlspring.strongbox.storage.repository.Repository;
 import org.carlspring.strongbox.storage.validation.artifact.ArtifactCoordinatesValidationException;
 import org.carlspring.strongbox.web.LayoutRequestMapping;
@@ -75,8 +75,7 @@ public class PypiArtifactController extends BaseArtifactController
     @PreAuthorize("hasAuthority('ARTIFACTS_DEPLOY')")
     @RequestMapping(path = "/{storageId}/{repositoryId}", method = RequestMethod.POST, consumes = MediaType.MULTIPART_FORM_DATA)
     public ResponseEntity<String> uploadPackage(
-                                                @PathVariable(name = "storageId") String storageId,
-                                                @PathVariable(name = "repositoryId") String repositoryId,
+                                                @RepositoryMapping Repository repository,
                                                 @RequestPart(name = "comment", required = false) String comment,
                                                 @RequestPart(name = "metadata_version", required = true) String metadataVersion,
                                                 @RequestPart(name = "filetype", required = true) String filetype,
@@ -98,8 +97,9 @@ public class PypiArtifactController extends BaseArtifactController
                                                 HttpServletRequest request)
     {
 
-        logger.info("python package upload request for storageId -> [{}] , repositoryId -> [{}]", storageId,
-                    repositoryId);
+        logger.info("python package upload request for storageId -> [{}] , repositoryId -> [{}]",
+                    repository.getStorage().getId(),
+                    repository.getId());
 
         try
         {
@@ -110,30 +110,31 @@ public class PypiArtifactController extends BaseArtifactController
                                              + VALID_ACTIONS);
             }
 
-            PypiArtifactMetadata pypiArtifactMetadata = new PypiArtifactMetadata().setAction(action)
-                                                                                  .setAuthor(author)
-                                                                                  .setAuthorEmail(authorEmail)
-                                                                                  .setComment(comment)
-                                                                                  .setDescription(description)
-                                                                                  .setDownloadUrl(downloadUrl)
-                                                                                  .setFileType(filetype)
-                                                                                  .setHomePage(homePage)
-                                                                                  .setLicense(license)
-                                                                                  .setMd5Digest(md5Digest)
-                                                                                  .setMetdataVersion(metadataVersion)
-                                                                                  .setName(name)
-                                                                                  .setPlatform(platform)
-                                                                                  .setProtcolVersion(protcolVersion)
-                                                                                  .setPyVersion(pyversion)
-                                                                                  .setSummary(summary)
-                                                                                  .setVersion(version);
+            PypiArtifactMetadata pypiArtifactMetadata = new PypiArtifactMetadata().withAction(action)
+                                                                                  .withAuthor(author)
+                                                                                  .withAuthorEmail(authorEmail)
+                                                                                  .withComment(comment)
+                                                                                  .withDescription(description)
+                                                                                  .withDownloadUrl(downloadUrl)
+                                                                                  .withFileType(filetype)
+                                                                                  .withHomePage(homePage)
+                                                                                  .withLicense(license)
+                                                                                  .withMd5Digest(md5Digest)
+                                                                                  .withMetdataVersion(metadataVersion)
+                                                                                  .withName(name)
+                                                                                  .withPlatform(platform)
+                                                                                  .withProtcolVersion(protcolVersion)
+                                                                                  .withPyVersion(pyversion)
+                                                                                  .withSummary(summary)
+                                                                                  .withVersion(version);
 
-            return validateAndUploadPackage(pypiArtifactMetadata, file, storageId, repositoryId);
+            return validateAndUploadPackage(pypiArtifactMetadata, file, repository.getStorage().getId(),
+                                            repository.getId());
         }
         catch (Exception e)
         {
             logger.error("Failed to process pypi upload request for storageId -> [{}] , repositoryId -> [{}]",
-                         storageId, repositoryId, e);
+                         repository.getStorage().getId(), repository.getId(), e);
 
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(e.getMessage());
         }
@@ -147,7 +148,7 @@ public class PypiArtifactController extends BaseArtifactController
                             @ApiResponse(code = HttpURLConnection.HTTP_INTERNAL_ERROR, message = "An error occurred while executing download request."),
                             @ApiResponse(code = HttpURLConnection.HTTP_UNAVAILABLE, message = "Service Unavailable.") })
     @PreAuthorize("hasAuthority('ARTIFACTS_RESOLVE')")
-    @RequestMapping(path = "{storageId}/{repositoryId}/{packageName}/", method = RequestMethod.GET)
+    @RequestMapping(path = "/{storageId}/{repositoryId}/{packageName}", method = RequestMethod.GET)
     public ResponseEntity<String> downloadPackage(@RepositoryMapping Repository repository,
                                                   @PathVariable(name = "packageName") String packageName,
                                                   HttpServletRequest request)
@@ -182,7 +183,7 @@ public class PypiArtifactController extends BaseArtifactController
                             @ApiResponse(code = HttpURLConnection.HTTP_INTERNAL_ERROR, message = "An error occurred while executing download request."),
                             @ApiResponse(code = HttpURLConnection.HTTP_UNAVAILABLE, message = "Service Unavailable.") })
     @PreAuthorize("hasAuthority('ARTIFACTS_RESOLVE')")
-    @RequestMapping(path = "{storageId}/{repositoryId}/packages/{artifactName:.+}", method = RequestMethod.GET)
+    @RequestMapping(path = "/{storageId}/{repositoryId}/packages/{artifactName}", method = RequestMethod.GET)
     public void downloadPackage(@RepositoryMapping Repository repository,
                                 @PathVariable(name = "artifactName") String artifactName,
                                 HttpServletRequest request,
@@ -194,17 +195,6 @@ public class PypiArtifactController extends BaseArtifactController
         logger.info("Download package request for storageId -> [{}] , repositoryId -> [{}], artifactName -> [{}]",
                     repository.getStorage().getId(),
                     repository.getId(), artifactName);
-
-        // String[] artifactNameTokens = artifactName.split("-");
-        // if (artifactNameTokens.length < 5)
-        // {
-        // response.setStatus(HttpServletResponse.SC_BAD_REQUEST);
-        // return;
-        // }
-
-        // final String packageName =
-        // artifactNameTokens[0].replaceAll("[^A-Za-z0-9 ]", "-");
-        // final String version = artifactNameTokens[1];
 
         PypiArtifactCoordinates coordinates;
         try
@@ -232,7 +222,7 @@ public class PypiArtifactController extends BaseArtifactController
                             @ApiResponse(code = HttpURLConnection.HTTP_INTERNAL_ERROR, message = "An error occurred while executing download request."),
                             @ApiResponse(code = HttpURLConnection.HTTP_UNAVAILABLE, message = "Service Unavailable.") })
     @PreAuthorize("hasAuthority('ARTIFACTS_RESOLVE')")
-    @RequestMapping(path = "{storageId}/{repositoryId}/simple/{packageName}/", method = RequestMethod.GET, produces = MediaType.TEXT_HTML)
+    @RequestMapping(path = "/{storageId}/{repositoryId}/simple/{packageName}", method = RequestMethod.GET, produces = MediaType.TEXT_HTML)
     public ResponseEntity<String> getPackagePath(@RepositoryMapping Repository repository,
                                                  @PathVariable(name = "packageName") String packageName,
                                                  HttpServletRequest request,
