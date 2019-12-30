@@ -1,5 +1,6 @@
 package org.carlspring.strongbox.controllers.layout.pypi;
 
+import org.carlspring.strongbox.artifact.coordinates.PypiArtifactCoordinates;
 import org.carlspring.strongbox.config.IntegrationTest;
 import org.carlspring.strongbox.providers.io.RepositoryPath;
 import org.carlspring.strongbox.rest.common.PypiRestAssuredBaseTest;
@@ -104,11 +105,14 @@ public class PypiArtifactControllerTest extends PypiRestAssuredBaseTest
     @Test
     @ExtendWith({ RepositoryManagementTestExecutionListener.class,
                   ArtifactManagementTestExecutionListener.class })
-    public void testDownloadPackageRedirectionFlow(@PypiTestRepository(repositoryId = REPOSITORY_RELEASES, storageId = REPOSITORY_STORAGE) Repository repository)
+    public void testDownloadPackageRedirectionFlow(@PypiTestRepository(repositoryId = REPOSITORY_RELEASES, storageId = REPOSITORY_STORAGE) Repository repository,
+                                                   @PypiTestArtifact(repositoryId = REPOSITORY_RELEASES, storageId = REPOSITORY_STORAGE, id = "hello_world_pypi", versions = "1.3") Path packagePath)
     {
+        final PypiArtifactCoordinates coordinates = PypiArtifactCoordinates.parse(packagePath.getFileName().toString());
+
         final String storageId = repository.getStorage().getId();
         final String repositoryId = repository.getId();
-        final String packageName = "hello-world-pypi";
+        final String packageName = coordinates.getId();
 
         final String url = getContextBaseUrl() + "/storages/{storageId}/{repositoryId}/{packageName}/";
 
