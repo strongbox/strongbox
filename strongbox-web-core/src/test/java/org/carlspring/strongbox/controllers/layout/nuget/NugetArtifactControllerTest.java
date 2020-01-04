@@ -1,5 +1,9 @@
 package org.carlspring.strongbox.controllers.layout.nuget;
 
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.carlspring.strongbox.utils.ArtifactControllerHelper.MULTIPART_BOUNDARY;
+import static org.hamcrest.CoreMatchers.equalTo;
+
 import org.carlspring.strongbox.artifact.coordinates.NugetArtifactCoordinates;
 import org.carlspring.strongbox.config.IntegrationTest;
 import org.carlspring.strongbox.domain.ArtifactEntry;
@@ -16,6 +20,7 @@ import org.carlspring.strongbox.testing.repository.NugetRepository;
 import org.carlspring.strongbox.testing.storage.repository.RepositoryManagementTestExecutionListener;
 
 import javax.inject.Inject;
+
 import java.io.OutputStream;
 import java.io.PrintStream;
 import java.nio.file.Files;
@@ -24,21 +29,26 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import io.restassured.http.ContentType;
-import io.restassured.http.Header;
-import io.restassured.http.Headers;
-import io.restassured.module.mockmvc.config.RestAssuredMockMvcConfig;
-import io.restassured.module.mockmvc.response.MockMvcResponse;
-import io.restassured.module.mockmvc.specification.MockMvcRequestSpecification;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
-import static org.assertj.core.api.Assertions.assertThat;
-import static org.carlspring.strongbox.utils.ArtifactControllerHelper.MULTIPART_BOUNDARY;
-import static org.hamcrest.CoreMatchers.equalTo;
+import org.springframework.mock.web.MockHttpServletRequest;
+import org.springframework.security.test.web.servlet.setup.SecurityMockMvcConfigurers;
+import org.springframework.test.web.servlet.MockMvc;
+import org.springframework.test.web.servlet.request.MockMultipartHttpServletRequestBuilder;
+import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
+import org.springframework.test.web.servlet.request.RequestPostProcessor;
+import org.springframework.test.web.servlet.result.MockMvcResultMatchers;
+import org.springframework.test.web.servlet.setup.MockMvcBuilders;
+
+import io.restassured.http.ContentType;
+import io.restassured.http.Header;
+import io.restassured.http.Headers;
+import io.restassured.module.mockmvc.config.RestAssuredMockMvcConfig;
+import io.restassured.module.mockmvc.response.MockMvcResponse;
 
 /**
  * @author Sergey Bespalov
@@ -65,6 +75,8 @@ public class NugetArtifactControllerTest extends NugetRestAssuredBaseTest
     @Inject
     private ArtifactEntryService artifactEntryService;
 
+    private MockMvc mvc;
+
     @Override
     @BeforeEach
     public void init()
@@ -75,6 +87,8 @@ public class NugetArtifactControllerTest extends NugetRestAssuredBaseTest
         RestAssuredMockMvcConfig config = RestAssuredMockMvcConfig.config();
         config.getLogConfig().enableLoggingOfRequestAndResponseIfValidationFails();
         mockMvc.config(config);
+
+        mvc = MockMvcBuilders.webAppContextSetup(context).apply(SecurityMockMvcConfigurers.springSecurity()).build();
     }
 
     @ExtendWith({ RepositoryManagementTestExecutionListener.class,
@@ -203,19 +217,21 @@ public class NugetArtifactControllerTest extends NugetRestAssuredBaseTest
         final String packageVersion = "1.0.0";
 
         long packageSize = Files.size(packagePath);
-        byte[] packageContent = readPackageContent(packagePath);
+        byte[] packageContent = Files.readAllBytes(packagePath); // readPackageContent(packagePath);
 
         // Push
-        String url = getContextBaseUrl() + "/storages/{storageId}/{repositoryId}/";
-        createPushRequest(packageContent).when()
-                                         .put(url, storageId, repositoryId)
-                                         .peek()
-                                         .then()
-                                         .statusCode(HttpStatus.CREATED.value());
+        pushPackage(packageContent, storageId, repositoryId);
+        
+//        String url = getContextBaseUrl() + "/storages/{storageId}/{repositoryId}/";
+//        createPushRequest(packageContent).when()
+//                                         .put(url, storageId, repositoryId)
+//                                         .peek()
+//                                         .then()
+//                                         .statusCode(HttpStatus.CREATED.value());
 
         //Find by ID
 
-        url = getContextBaseUrl() + "/storages/{storageId}/{repositoryId}/FindPackagesById()?id='{artifactId}'";
+        String url = getContextBaseUrl() + "/storages/{storageId}/{repositoryId}/FindPackagesById()?id='{artifactId}'";
         mockMvc.header(HttpHeaders.USER_AGENT, "NuGet/*")
                .when()
                .get(url, storageId, repositoryId, packageId)
@@ -277,22 +293,24 @@ public class NugetArtifactControllerTest extends NugetRestAssuredBaseTest
         final String storageId = repository.getStorage().getId();
         final String repositoryId = repository.getId();
         final String packageId = "Org.Carlspring.Strongbox.Examples.Nuget.Mono-Test";
-        final String packageVersion = "1.0.0";
+//        final String packageVersion = "1.0.0";
 
-        long packageSize = Files.size(packagePath);
-        byte[] packageContent = readPackageContent(packagePath);
+//        long packageSize = Files.size(packagePath);
+        byte[] packageContent = Files.readAllBytes(packagePath); // readPackageContent(packagePath);
 
         // Push
-        String url = getContextBaseUrl() + "/storages/{storageId}/{repositoryId}/";
-        createPushRequest(packageContent).when()
-                                         .put(url, storageId, repositoryId)
-                                         .peek()
-                                         .then()
-                                         .statusCode(HttpStatus.CREATED.value());
+        pushPackage(packageContent, storageId, repositoryId);
+        
+//        String url = getContextBaseUrl() + "/storages/{storageId}/{repositoryId}/";
+//        createPushRequest(repositoryPath).when()
+//                                         .put(url, storageId, repositoryId)
+//                                         .peek()
+//                                         .then()
+//                                         .statusCode(HttpStatus.CREATED.value());
 
         //Find by ID
 
-        url = getContextBaseUrl() + "/storages/{storageId}/{repositoryId}/Search()?$filter=IsLatestVersion&$skip=0&$top=30&searchTerm='{artifactId}'&targetFramework=''";
+        String url = getContextBaseUrl() + "/storages/{storageId}/{repositoryId}/Search()?$filter=IsLatestVersion&$skip=0&$top=30&searchTerm='{artifactId}'&targetFramework=''";
         mockMvc.header(HttpHeaders.USER_AGENT, "Chocolatey Core",
                        "DataServiceVersion", "1.0;NetFx",
                        "MaxDataServiceVersion", "2.0;NetFx",
@@ -397,18 +415,21 @@ public class NugetArtifactControllerTest extends NugetRestAssuredBaseTest
         String filter = String.format("tolower(Id) eq '%s' and IsLatestVersion", PACKAGE_ID_LAST_VERSION.toLowerCase());
 
         // VERSION 1.0.0
-        Path packagePathV1 = packagePaths.get(0);
-        byte[] packageContent = readPackageContent(packagePathV1);
+//        Path packagePathV1 = packagePaths.get(0);
+        byte[] packageContent = Files.readAllBytes(packagePaths.get(0)); // readPackageContent(packagePathV1);
+
         // Push
-        String url = getContextBaseUrl() + "/storages/{storageId}/{repositoryId}/";
-        createPushRequest(packageContent).when()
-                                         .put(url, storageId, repositoryId)
-                                         .peek()
-                                         .then()
-                                         .statusCode(HttpStatus.CREATED.value());
+        pushPackage(packageContent, storageId, repositoryId);
+        
+//        String url = getContextBaseUrl() + "/storages/{storageId}/{repositoryId}/";
+//        createPushRequest(repositoryPath).when()
+//                                         .put(url, storageId, repositoryId)
+//                                         .peek()
+//                                         .then()
+//                                         .statusCode(HttpStatus.CREATED.value());
 
         // Count
-        url = getContextBaseUrl() +
+        String url = getContextBaseUrl() +
               "/storages/{storageId}/{repositoryId}/Search()/$count?$filter={filter}&targetFramework=";
         mockMvc.header(HttpHeaders.USER_AGENT, "NuGet/*")
                .when()
@@ -436,15 +457,18 @@ public class NugetArtifactControllerTest extends NugetRestAssuredBaseTest
                .body("feed.entry[0].properties.Version", equalTo("1.0.0"));
 
         // VERSION 2.0.0
-        Path packagePathV2 = packagePaths.get(1);
-        packageContent = readPackageContent(packagePathV2);
+//        Path packagePathV2 = packagePaths.get(1);
+        packageContent = Files.readAllBytes(packagePaths.get(1)); // readPackageContent(packagePathV2);
+
         // Push
-        url = getContextBaseUrl() + "/storages/{storageId}/{repositoryId}/";
-        createPushRequest(packageContent).when()
-                                         .put(url, storageId, repositoryId)
-                                         .peek()
-                                         .then()
-                                         .statusCode(HttpStatus.CREATED.value());
+        pushPackage(packageContent, storageId, repositoryId);
+        
+//        url = getContextBaseUrl() + "/storages/{storageId}/{repositoryId}/";
+//        createPushRequest(repositoryPath).when()
+//                                         .put(url, storageId, repositoryId)
+//                                         .peek()
+//                                         .then()
+//                                         .statusCode(HttpStatus.CREATED.value());
         
         // Count
         url = getContextBaseUrl() +
@@ -475,12 +499,30 @@ public class NugetArtifactControllerTest extends NugetRestAssuredBaseTest
                .body("feed.entry[0].properties.Version", equalTo("2.0.0"));
     }
 
-    public MockMvcRequestSpecification createPushRequest(byte[] packageContent)
+    public void pushPackage(byte[] packageContent,
+                            String storageId,
+                            String repositoryId)
+        throws Exception
     {
-        return mockMvc.header(HttpHeaders.USER_AGENT, "NuGet/*")
-                      .header("X-NuGet-ApiKey", API_KEY)
-                      .contentType(MediaType.MULTIPART_FORM_DATA_VALUE.concat("; boundary=---------------------------123qwe"))
-                      .body(packageContent);
+
+        String url = getContextBaseUrl() + "/storages/{storageId}/{repositoryId}/";
+
+        MockMultipartHttpServletRequestBuilder builder = MockMvcRequestBuilders.multipart(url, storageId, repositoryId);
+        builder.with(new RequestPostProcessor()
+        {
+
+            @Override
+            public MockHttpServletRequest postProcessRequest(MockHttpServletRequest request)
+            {
+                request.setMethod("PUT");
+                return request;
+            }
+        });
+
+        mvc.perform(builder.file("package", packageContent)
+                           .header(HttpHeaders.USER_AGENT, "NuGet/*")
+                           .header("X-NuGet-ApiKey", API_KEY))
+           .andExpect(MockMvcResultMatchers.status().isCreated());
     }
 
     @Test
