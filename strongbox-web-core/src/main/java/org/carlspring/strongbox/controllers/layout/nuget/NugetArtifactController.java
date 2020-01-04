@@ -65,6 +65,7 @@ import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.context.request.RequestContextHolder;
 import org.springframework.web.context.request.ServletRequestAttributes;
+import org.springframework.web.multipart.MultipartFile;
 
 /**
  * This Controller used to handle Nuget requests.
@@ -411,28 +412,29 @@ public class NugetArtifactController
     @RequestMapping(path = "{storageId}/{repositoryId}/", method = RequestMethod.PUT, consumes = MediaType.MULTIPART_FORM_DATA)
     public ResponseEntity putPackage(@RequestHeader(name = "X-NuGet-ApiKey", required = false) String apiKey,
                                      @RepositoryMapping Repository repository,
+                                     @RequestPart(name = "package") MultipartFile file,
                                      HttpServletRequest request)
     {
         final String storageId = repository.getStorage().getId();
         final String repositoryId = repository.getId();
 
         logger.info("Nuget push request: storageId-[{}]; repositoryId-[{}]", storageId, repositoryId);
-        String contentType = request.getHeader("content-type");
+//        String contentType = request.getHeader("content-type");
 
         URI resourceUri;
         try
         {
             ServletInputStream is = request.getInputStream();
-            InputStream packagePartInputStream = extractPackageMultipartStream(extractBoundary(contentType), is);
+            InputStream packagePartInputStream = file.getInputStream(); //extractPackageMultipartStream(extractBoundary(contentType), is);
 
-            if (packagePartInputStream == null)
-            {
-                logger.error("Failed to extract Nuget package from request: [{}]:[{}]",
-                             storageId,
-                             repositoryId);
-
-                return ResponseEntity.badRequest().build();
-            }
+//            if (packagePartInputStream == null)
+//            {
+//                logger.error("Failed to extract Nuget package from request: [{}]:[{}]",
+//                             storageId,
+//                             repositoryId);
+//
+//                return ResponseEntity.badRequest().build();
+//            }
 
             resourceUri = storePackage(storageId, repositoryId, packagePartInputStream);
         }
