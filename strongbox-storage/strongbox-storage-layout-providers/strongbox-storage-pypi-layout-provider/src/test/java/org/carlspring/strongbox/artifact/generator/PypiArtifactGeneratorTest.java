@@ -60,7 +60,7 @@ public class PypiArtifactGeneratorTest
     public void testTARFile(@PypiTestRepository(repositoryId = "repositoryId")
                             Repository repository,
                             @PypiTestArtifact(repositoryId = "repositoryId",
-                                              resource = "strongbox-testing.tar.gz",
+                                              resource = "strongbox-testing-1.0.tar.gz",
                                               bytesSize = 4096)
                             Path artifactPath)
             throws Exception

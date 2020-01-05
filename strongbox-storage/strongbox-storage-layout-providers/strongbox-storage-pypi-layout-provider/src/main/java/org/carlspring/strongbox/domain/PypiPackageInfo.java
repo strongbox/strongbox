@@ -9,24 +9,26 @@ import javax.validation.constraints.Pattern;
 public class PypiPackageInfo
 {
 
+    public static final String DISTRIBUTION_NAME_FORMAT = "^([A-Za-z0-9]|[A-Za-z0-9][A-Za-z0-9._-]*[A-Za-z0-9])$";
+
+    public static final String VERSION_FORMAT = "^((\\d+!)?" +             // version epochs
+                                                 "(\\d+(\\.\\d+)*)" +       // final releases
+                                                 "((a|b|c|rc)\\d+)?" +      // pre releases
+                                                 "(\\.post\\d+)?" +         // post releases
+                                                 "(\\.dev\\d+)?" +          // developmental releases
+                                                 "(\\+[.A-Z0-9]+)?)$";      // local version identifiers
+    
     @NotNull
     @PypiMetadataKey(name = "Metadata-Version")
     private PypiPackageInfo.SupportedMetadataVersionEnum metadataVersion;
 
     @NotBlank
-    @Pattern(regexp = "^([A-Z0-9]|[A-Z0-9][A-Z0-9._-]*[A-Z0-9])$", flags = Pattern.Flag.CASE_INSENSITIVE)
+    @Pattern(regexp = DISTRIBUTION_NAME_FORMAT, flags = Pattern.Flag.CASE_INSENSITIVE)
     @PypiMetadataKey(name = "Name")
     private String name;
 
     @NotBlank
-    @Pattern(flags = Pattern.Flag.CASE_INSENSITIVE,
-            regexp =
-                    "^((\\d+!)?" +              //version epochs
-                    "(\\d+(\\.\\d+)*)" +        //final releases
-                    "((a|b|c|rc)\\d+)?" +       //pre releases
-                    "(\\.post\\d+)?" +          //post releases
-                    "(\\.dev\\d+)?" +           //developmental releases
-                    "(\\+[.A-Z0-9]+)?)$")       //local version identifiers
+    @Pattern(flags = Pattern.Flag.CASE_INSENSITIVE, regexp = VERSION_FORMAT)
     @PypiMetadataKey(name = "Version")
     private String version;
 

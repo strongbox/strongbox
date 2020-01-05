@@ -1,6 +1,10 @@
 package org.carlspring.strongbox.util;
 
 import org.carlspring.strongbox.artifact.coordinates.PypiArtifactCoordinates;
+import org.carlspring.strongbox.domain.PypiPackageInfo;
+
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 import org.apache.commons.io.FilenameUtils;
 import static org.carlspring.strongbox.artifact.coordinates.PypiArtifactCoordinates.SOURCE_EXTENSION;
@@ -13,6 +17,14 @@ import static org.carlspring.strongbox.artifact.coordinates.PypiArtifactCoordina
  */
 public class PypiArtifactCoordinatesUtils
 {
+
+    private static Pattern PACKAGE_VERSION_PATTERN = Pattern.compile(
+                                                                     PypiPackageInfo.VERSION_FORMAT,
+                                                                     Pattern.CASE_INSENSITIVE);
+
+    private static Pattern PACKAGE_DISTRIBUTION_NAME_PATTERN = Pattern.compile(
+                                                                               PypiPackageInfo.DISTRIBUTION_NAME_FORMAT,
+                                                                               Pattern.CASE_INSENSITIVE);
 
     /**
      * If optional build parameter is not found in the wheel package filename the empty string is specified for build_tag
@@ -39,17 +51,35 @@ public class PypiArtifactCoordinatesUtils
 
     private static PypiArtifactCoordinates parseSourcePackage(String path)
     {
-        String[] splitArray = path.split("-");
-
-        if (splitArray.length != 2)
+        try
         {
-            throw new IllegalArgumentException("Invalid source package name specified");
+            String packageNameWithoutExtension = path.substring(0, path.lastIndexOf(".tar.gz"));
+            String distribution = packageNameWithoutExtension.substring(0,
+                                                                        packageNameWithoutExtension.lastIndexOf("-"));
+            String version = packageNameWithoutExtension.substring(packageNameWithoutExtension.lastIndexOf("-") + 1);
+
+            Matcher matcher = PACKAGE_VERSION_PATTERN.matcher(version);
+            if (!matcher.matches())
+            {
+                throw new IllegalArgumentException("Invalid version for source package.");
+            }
+
+            matcher = PACKAGE_DISTRIBUTION_NAME_PATTERN.matcher(distribution);
+            if (!matcher.matches())
+            {
+                throw new IllegalArgumentException("Invalid name for source package.");
+            }
+
+            return new PypiArtifactCoordinates(distribution, version, SOURCE_EXTENSION);
         }
-
-        String distribution = splitArray[0];
-        String version = splitArray[1].substring(0, splitArray[1].indexOf(".tar.gz"));
-
-        return new PypiArtifactCoordinates(distribution, version, SOURCE_EXTENSION);
+        catch (IllegalArgumentException iae)
+        {
+            throw iae;
+        }
+        catch (Exception e)
+        {
+            throw new IllegalArgumentException("Invalid source package name.");
+        }
     }
 
     private static PypiArtifactCoordinates parseWheelPackage(String path)
