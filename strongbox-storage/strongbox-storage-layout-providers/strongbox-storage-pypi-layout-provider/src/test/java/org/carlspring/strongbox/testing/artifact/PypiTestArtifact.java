@@ -34,7 +34,7 @@ public @interface PypiTestArtifact
      * {@link Repository} ID.1
      */
     @AliasFor(annotation = TestArtifact.class)
-    String repositoryId() default "releases";
+    String repositoryId() default "";
 
     /**
      * Layout specific artifact URI (ex.'path/to/strbox-1.0-none-any.whl').
