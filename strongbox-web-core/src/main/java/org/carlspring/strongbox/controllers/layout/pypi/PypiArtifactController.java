@@ -6,7 +6,6 @@ import org.carlspring.strongbox.data.criteria.Expression.ExpOperator;
 import org.carlspring.strongbox.data.criteria.Paginator;
 import org.carlspring.strongbox.data.criteria.Predicate;
 import org.carlspring.strongbox.providers.ProviderImplementationException;
-import org.carlspring.strongbox.providers.io.RepositoryFiles;
 import org.carlspring.strongbox.providers.io.RepositoryPath;
 import org.carlspring.strongbox.providers.repository.RepositoryProvider;
 import org.carlspring.strongbox.providers.repository.RepositoryProviderRegistry;
@@ -67,6 +66,9 @@ public class PypiArtifactController extends BaseArtifactController
 
     @Inject
     private RepositoryProviderRegistry repositoryProviderRegistry;
+
+    @Inject
+    private PypiBrowsePackageHtmlResponseBuilder htmlResponseBuilder;
 
     @ApiOperation(value = "This end point will be used to upload/deploy python package.")
     @ApiResponses(value = { @ApiResponse(code = HttpURLConnection.HTTP_OK, message = "python package was deployed successfully."),
@@ -223,11 +225,11 @@ public class PypiArtifactController extends BaseArtifactController
                             @ApiResponse(code = HttpURLConnection.HTTP_UNAVAILABLE, message = "Service Unavailable.") })
     @PreAuthorize("hasAuthority('ARTIFACTS_RESOLVE')")
     @RequestMapping(path = "/{storageId}/{repositoryId}/simple/{packageName}", method = RequestMethod.GET, produces = MediaType.TEXT_HTML)
-    public ResponseEntity<String> getPackagePath(@RepositoryMapping Repository repository,
-                                                 @PathVariable(name = "packageName") String packageName,
-                                                 HttpServletRequest request,
-                                                 HttpServletResponse response,
-                                                 @RequestHeader HttpHeaders headers)
+    public ResponseEntity<String> browsePackage(@RepositoryMapping Repository repository,
+                                                @PathVariable(name = "packageName") String packageName,
+                                                HttpServletRequest request,
+                                                HttpServletResponse response,
+                                                @RequestHeader HttpHeaders headers)
         throws Exception
     {
 
@@ -250,50 +252,8 @@ public class PypiArtifactController extends BaseArtifactController
         List<Path> searchResult = repositoryProvider.search(repository.getStorage().getId(), repository.getId(),
                                                             predicate, paginator);
 
-        String searchPackageHtmlResponse = getHtmlResponse(searchResult, packageName, repository);
+        String searchPackageHtmlResponse = htmlResponseBuilder.getHtmlResponse(searchResult, packageName, repository);
         return ResponseEntity.status(HttpStatus.OK).body(searchPackageHtmlResponse);
-    }
-
-    private String getHtmlResponse(List<Path> filePaths,
-                                   String packageName,
-                                   Repository repository)
-    {
-        String htmlResponse = "<html>\n"
-                + "        <head>\n"
-                + "            <title>Links for " + packageName + "</title>\n"
-                + "        </head>\n"
-                + "        <body>\n"
-                + "            <h1>Links for " + packageName + "</h1>\n"
-                + "                   " + getPackageLinks(filePaths, repository)
-                + "        </body>\n"
-                + "    </html>";
-        return htmlResponse;
-    }
-
-    private String getPackageLinks(List<Path> filePaths,
-                                   Repository repository)
-    {
-
-        String packageLinks = "";
-
-        for (Path path : filePaths)
-        {
-            PypiArtifactCoordinates artifactCoordinates = null;
-            try
-            {
-                artifactCoordinates = (PypiArtifactCoordinates) RepositoryFiles.readCoordinates((RepositoryPath) path);
-            }
-            catch (Exception e)
-            {
-                logger.error("Failed to read python package path [{}]", path, e);
-                continue;
-            }
-            packageLinks += "<a href=\"" + "/storages/" + repository.getStorage().getId() + "/" + repository.getId()
-                    + "/packages/" + artifactCoordinates.buildWheelPackageFileName() + "\">"
-                    + artifactCoordinates.buildWheelPackageFileName() + "</a><br>\n";
-        }
-
-        return packageLinks;
     }
 
     private ResponseEntity<String> validateAndUploadPackage(PypiArtifactMetadata pypiArtifactMetadata,
