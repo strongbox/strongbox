@@ -27,15 +27,15 @@ public class PypiBrowsePackageHtmlResponseBuilder
                                   String packageName,
                                   Repository repository)
     {
-        String htmlResponse = "<html>\n"
-                + "        <head>\n"
-                + "            <title>Links for " + packageName + "</title>\n"
-                + "        </head>\n"
-                + "        <body>\n"
-                + "            <h1>Links for " + packageName + "</h1>\n"
-                + "                   " + getPackageLinks(filePaths, repository)
-                + "        </body>\n"
-                + "    </html>";
+        String htmlResponse = "<html>\n"+
+                              "        <head>\n"+
+                              "            <title>Links for " + packageName + "</title>\n"+
+                              "        </head>\n"+
+                              "        <body>\n"+
+                              "            <h1>Links for " + packageName + "</h1>\n"+
+                              "                   " + getPackageLinks(filePaths, repository)+
+                              "        </body>\n"+
+                              "    </html>";
 
         return htmlResponse;
     }
@@ -58,9 +58,9 @@ public class PypiBrowsePackageHtmlResponseBuilder
                 logger.error("Failed to read python package path [{}]", path, e);
                 continue;
             }
-            packageLinks += "<a href=\"" + "/storages/" + repository.getStorage().getId() + "/" + repository.getId()
-                    + "/packages/" + artifactCoordinates.buildWheelPackageFileName() + "\">"
-                    + artifactCoordinates.buildWheelPackageFileName() + "</a><br>\n";
+            packageLinks += "<a href=\"" + "/storages/" + repository.getStorage().getId() + "/" + repository.getId() +
+                            "/packages/" + artifactCoordinates.buildWheelPackageFileName() + "\">" +
+                            artifactCoordinates.buildWheelPackageFileName() + "</a><br>\n";
         }
 
         return packageLinks;
