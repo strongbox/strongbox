@@ -37,10 +37,8 @@ public class PypiBrowsePackageHtmlResponseBuilderTest
     private PypiBrowsePackageHtmlResponseBuilder htmlResponseBuilder;
 
     @Test
-    @ExtendWith({ RepositoryManagementTestExecutionListener.class })
-    public void testNoPackageFoundFlow(@PypiTestRepository(repositoryId = REPOSITORY_RELEASES,
-                                                           storageId = STORAGE_PYPI) 
-                                       Repository repository)
+    public void testNoPackageFound()
+        throws IOException
     {
         String packageName = "hello-world";
         String expectedHtmlResponse = "<html>\n" +
@@ -53,7 +51,7 @@ public class PypiBrowsePackageHtmlResponseBuilderTest
                                       "        </body>\n" +
                                       "    </html>";
 
-        String htmlResponse = htmlResponseBuilder.getHtmlResponse(new ArrayList<>(), packageName, repository);
+        String htmlResponse = htmlResponseBuilder.getHtmlResponse(new ArrayList<>(), packageName);
 
         assertThat(htmlResponse).isNotBlank().isEqualTo(expectedHtmlResponse);
     }
@@ -90,7 +88,7 @@ public class PypiBrowsePackageHtmlResponseBuilderTest
 
         List<Path> paths = new ArrayList<>();
         paths.add(packagePath.normalize());
-        String htmlResponse = htmlResponseBuilder.getHtmlResponse(paths, packageName, repository);
+        String htmlResponse = htmlResponseBuilder.getHtmlResponse(paths, packageName);
 
         assertThat(htmlResponse).isNotBlank().isEqualTo(expectedHtmlResponse);
     }
@@ -136,7 +134,7 @@ public class PypiBrowsePackageHtmlResponseBuilderTest
                                       "        </body>\n" +
                                       "    </html>";
 
-        String htmlResponse = htmlResponseBuilder.getHtmlResponse(paths, packageName, repository);
+        String htmlResponse = htmlResponseBuilder.getHtmlResponse(paths, packageName);
 
         assertThat(htmlResponse).isNotBlank().isEqualTo(expectedHtmlResponse);
     }
