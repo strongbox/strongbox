@@ -31,25 +31,27 @@ public class PypiBrowsePackageHtmlResponseBuilderTest
 
     private static final String REPOSITORY_RELEASES = "pypi-releases-test";
 
-    private static final String REPOSITORY_STORAGE = "storage-pypi-test";
+    private static final String STORAGE_PYPI = "storage-pypi-test";
 
     @Inject
     private PypiBrowsePackageHtmlResponseBuilder htmlResponseBuilder;
 
     @Test
     @ExtendWith({ RepositoryManagementTestExecutionListener.class })
-    public void testNoPackageFoundFlow(@PypiTestRepository(repositoryId = REPOSITORY_RELEASES, storageId = REPOSITORY_STORAGE) Repository repository)
+    public void testNoPackageFoundFlow(@PypiTestRepository(repositoryId = REPOSITORY_RELEASES,
+                                                           storageId = STORAGE_PYPI) 
+                                       Repository repository)
     {
         String packageName = "hello-world";
-        String expectedHtmlResponse = "<html>\n"
-                + "        <head>\n"
-                + "            <title>Links for " + packageName + "</title>\n"
-                + "        </head>\n"
-                + "        <body>\n"
-                + "            <h1>Links for " + packageName + "</h1>\n"
-                + "                   "
-                + "        </body>\n"
-                + "    </html>";
+        String expectedHtmlResponse = "<html>\n" +
+                                      "        <head>\n" +
+                                      "            <title>Links for " + packageName + "</title>\n" +
+                                      "        </head>\n" +
+                                      "        <body>\n" +
+                                      "            <h1>Links for " + packageName + "</h1>\n" +
+                                      "                   " +
+                                      "        </body>\n" +
+                                      "    </html>";
 
         String htmlResponse = htmlResponseBuilder.getHtmlResponse(new ArrayList<>(), packageName, repository);
 
@@ -58,27 +60,33 @@ public class PypiBrowsePackageHtmlResponseBuilderTest
 
     @Test
     @ExtendWith({ RepositoryManagementTestExecutionListener.class, ArtifactManagementTestExecutionListener.class })
-    public void testOnlyOnePackageFound(@PypiTestRepository(repositoryId = REPOSITORY_RELEASES, storageId = REPOSITORY_STORAGE) Repository repository,
-                                        @PypiTestArtifact(repositoryId = REPOSITORY_RELEASES, storageId = REPOSITORY_STORAGE, id = "hello_world", versions = "1.0.0") Path packagePath)
+    public void testOnlyOnePackageFound(@PypiTestRepository(repositoryId = REPOSITORY_RELEASES,
+                                                            storageId = STORAGE_PYPI) 
+                                        Repository repository,
+                                        @PypiTestArtifact(repositoryId = REPOSITORY_RELEASES,
+                                                          storageId = STORAGE_PYPI,
+                                                          id = "hello_world",
+                                                          versions = "1.0.0") 
+                                        Path packagePath)
         throws IOException
     {
 
         PypiArtifactCoordinates artifactCoordinates = (PypiArtifactCoordinates) RepositoryFiles.readCoordinates((RepositoryPath) packagePath.normalize());
 
-        String links = "<a href=\"" + "/storages/" + repository.getStorage().getId() + "/" + repository.getId()
-                + "/packages/" + artifactCoordinates.buildWheelPackageFileName() + "\">"
-                + artifactCoordinates.buildWheelPackageFileName() + "</a><br>\n";
+        String links = "<a href=\"" + "/storages/" + repository.getStorage().getId() + "/" + repository.getId() +
+                       "/packages/" + artifactCoordinates.buildWheelPackageFileName() + "\">" +
+                       artifactCoordinates.buildWheelPackageFileName() + "</a><br>\n";
 
         String packageName = "hello-world";
-        String expectedHtmlResponse = "<html>\n"
-                + "        <head>\n"
-                + "            <title>Links for " + packageName + "</title>\n"
-                + "        </head>\n"
-                + "        <body>\n"
-                + "            <h1>Links for " + packageName + "</h1>\n"
-                + "                   " + links
-                + "        </body>\n"
-                + "    </html>";
+        String expectedHtmlResponse = "<html>\n"+
+                                      "        <head>\n"+
+                                      "            <title>Links for " + packageName + "</title>\n"+
+                                      "        </head>\n"+
+                                      "        <body>\n"+
+                                      "            <h1>Links for " + packageName + "</h1>\n"+
+                                      "                   " + links+
+                                      "        </body>\n"+
+                                      "    </html>";
 
         List<Path> paths = new ArrayList<>();
         paths.add(packagePath.normalize());
@@ -89,13 +97,18 @@ public class PypiBrowsePackageHtmlResponseBuilderTest
 
     @Test
     @ExtendWith({ RepositoryManagementTestExecutionListener.class, ArtifactManagementTestExecutionListener.class })
-    public void testMultiplePackagesFound(@PypiTestRepository(repositoryId = REPOSITORY_RELEASES, storageId = REPOSITORY_STORAGE) Repository repository,
-                                          @PypiTestArtifact(repositoryId = REPOSITORY_RELEASES, storageId = REPOSITORY_STORAGE, id = "hello_world", versions = { "1.0",
-                                                                                                                                                                 "2.0",
-                                                                                                                                                                 "3.0",
-                                                                                                                                                                 "4.0",
-                                                                                                                                                                 "5.0"
-                                          }) List<Path> packagePaths)
+    public void testMultiplePackagesFound(@PypiTestRepository(repositoryId = REPOSITORY_RELEASES,
+                                                              storageId = STORAGE_PYPI)
+                                          Repository repository,
+                                          @PypiTestArtifact(repositoryId = REPOSITORY_RELEASES,
+                                                            storageId = STORAGE_PYPI,
+                                                            id = "hello_world",
+                                                            versions = { "1.0",
+                                                                         "2.0",
+                                                                         "3.0",
+                                                                         "4.0",
+                                                                         "5.0"}) 
+                                          List<Path> packagePaths)
         throws IOException
     {
 
@@ -107,21 +120,21 @@ public class PypiBrowsePackageHtmlResponseBuilderTest
             paths.add(path.normalize());
             PypiArtifactCoordinates artifactCoordinates = (PypiArtifactCoordinates) RepositoryFiles.readCoordinates((RepositoryPath) path.normalize());
 
-            links += "<a href=\"" + "/storages/" + repository.getStorage().getId() + "/" + repository.getId()
-                    + "/packages/" + artifactCoordinates.buildWheelPackageFileName() + "\">"
-                    + artifactCoordinates.buildWheelPackageFileName() + "</a><br>\n";
+            links += "<a href=\"" + "/storages/" + repository.getStorage().getId() + "/" + repository.getId() +
+                     "/packages/" + artifactCoordinates.buildWheelPackageFileName() + "\">" +
+                     artifactCoordinates.buildWheelPackageFileName() + "</a><br>\n";
         }
 
         String packageName = "hello-world";
-        String expectedHtmlResponse = "<html>\n"
-                + "        <head>\n"
-                + "            <title>Links for " + packageName + "</title>\n"
-                + "        </head>\n"
-                + "        <body>\n"
-                + "            <h1>Links for " + packageName + "</h1>\n"
-                + "                   " + links
-                + "        </body>\n"
-                + "    </html>";
+        String expectedHtmlResponse = "<html>\n" +
+                                      "        <head>\n" +
+                                      "            <title>Links for " + packageName + "</title>\n" +
+                                      "        </head>\n" +
+                                      "        <body>\n" +
+                                      "            <h1>Links for " + packageName + "</h1>\n" +
+                                      "                   " + links +
+                                      "        </body>\n" +
+                                      "    </html>";
 
         String htmlResponse = htmlResponseBuilder.getHtmlResponse(paths, packageName, repository);
 
