@@ -12,6 +12,7 @@ import org.carlspring.strongbox.providers.repository.RepositoryProviderRegistry;
 import org.carlspring.strongbox.storage.metadata.pypi.PypiArtifactMetadata;
 import org.carlspring.strongbox.storage.repository.Repository;
 import org.carlspring.strongbox.storage.validation.artifact.ArtifactCoordinatesValidationException;
+import org.carlspring.strongbox.utils.PypiPackageNameConverter;
 import org.carlspring.strongbox.web.LayoutRequestMapping;
 import org.carlspring.strongbox.web.RepositoryMapping;
 
@@ -233,8 +234,7 @@ public class PypiArtifactController extends BaseArtifactController
         throws Exception
     {
 
-        // https://www.python.org/dev/peps/pep-0427/#escaping-and-unicode
-        final String packageNameToDownload = packageName.replaceAll("[^A-Za-z0-9 ]", "_");
+        final String packageNameToDownload = PypiPackageNameConverter.escapeSpecialCharacters(packageName);
 
         logger.info("Get package path request for storageId -> [{}] , repositoryId -> [{}], packageName -> [{}]",
                     repository.getStorage().getId(),
