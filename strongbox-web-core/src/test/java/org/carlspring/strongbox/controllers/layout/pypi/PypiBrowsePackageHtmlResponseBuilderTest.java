@@ -78,14 +78,14 @@ public class PypiBrowsePackageHtmlResponseBuilderTest
                        artifactCoordinates.buildWheelPackageFileName() + "</a><br>\n";
 
         String packageName = "hello-world";
-        String expectedHtmlResponse = "<html>\n"+
-                                      "        <head>\n"+
-                                      "            <title>Links for " + packageName + "</title>\n"+
-                                      "        </head>\n"+
-                                      "        <body>\n"+
-                                      "            <h1>Links for " + packageName + "</h1>\n"+
-                                      "                   " + links+
-                                      "        </body>\n"+
+        String expectedHtmlResponse = "<html>\n" +
+                                      "        <head>\n" +
+                                      "            <title>Links for " + packageName + "</title>\n" +
+                                      "        </head>\n" +
+                                      "        <body>\n" +
+                                      "            <h1>Links for " + packageName + "</h1>\n" +
+                                      "                   " + links +
+                                      "        </body>\n" +
                                       "    </html>";
 
         List<Path> paths = new ArrayList<>();
