@@ -5,6 +5,7 @@ import org.carlspring.strongbox.providers.io.RepositoryFiles;
 import org.carlspring.strongbox.providers.io.RepositoryPath;
 import org.carlspring.strongbox.storage.repository.Repository;
 
+import java.io.IOException;
 import java.nio.file.Path;
 import java.util.List;
 
@@ -21,43 +22,35 @@ import org.springframework.stereotype.Component;
 public class PypiBrowsePackageHtmlResponseBuilder
 {
 
-    private final Logger logger = LoggerFactory.getLogger(PypiBrowsePackageHtmlResponseBuilder.class);
-
     public String getHtmlResponse(List<Path> filePaths,
-                                  String packageName,
-                                  Repository repository)
+                                  String packageName)
+        throws IOException
     {
-        String htmlResponse = "<html>\n"+
-                              "        <head>\n"+
-                              "            <title>Links for " + packageName + "</title>\n"+
-                              "        </head>\n"+
-                              "        <body>\n"+
-                              "            <h1>Links for " + packageName + "</h1>\n"+
-                              "                   " + getPackageLinks(filePaths, repository)+
-                              "        </body>\n"+
+        String htmlResponse = "<html>\n" +
+                              "        <head>\n" +
+                              "            <title>Links for " + packageName + "</title>\n" +
+                              "        </head>\n" +
+                              "        <body>\n" +
+                              "            <h1>Links for " + packageName + "</h1>\n" +
+                              "                   " + getPackageLinks(filePaths) +
+                              "        </body>\n" +
                               "    </html>";
 
         return htmlResponse;
     }
 
-    private String getPackageLinks(List<Path> filePaths,
-                                   Repository repository)
+    private String getPackageLinks(List<Path> filePaths)
+        throws IOException
     {
 
         String packageLinks = "";
 
         for (Path path : filePaths)
         {
-            PypiArtifactCoordinates artifactCoordinates = null;
-            try
-            {
-                artifactCoordinates = (PypiArtifactCoordinates) RepositoryFiles.readCoordinates((RepositoryPath) path);
-            }
-            catch (Exception e)
-            {
-                logger.error("Failed to read python package path [{}]", path, e);
-                continue;
-            }
+            RepositoryPath repositoryPath = (RepositoryPath) path;
+            PypiArtifactCoordinates artifactCoordinates = (PypiArtifactCoordinates) RepositoryFiles.readCoordinates(repositoryPath);
+
+            Repository repository = repositoryPath.getRepository();
             packageLinks += "<a href=\"" + "/storages/" + repository.getStorage().getId() + "/" + repository.getId() +
                             "/packages/" + artifactCoordinates.buildWheelPackageFileName() + "\">" +
                             artifactCoordinates.buildWheelPackageFileName() + "</a><br>\n";
