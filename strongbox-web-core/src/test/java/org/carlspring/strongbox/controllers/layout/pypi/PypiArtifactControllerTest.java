@@ -166,8 +166,8 @@ public class PypiArtifactControllerTest extends PypiRestAssuredBaseTest
                .all()
                .statusCode(HttpStatus.OK.value())
                .contentType(ContentType.HTML)
-               .body(Matchers.containsString("<title>Links for hello_world_pypi</title>"),
-                     Matchers.containsString("<h1>Links for hello_world_pypi</h1>\n"),
+               .body(Matchers.containsString("<title>Not Found</title>"),
+                     Matchers.containsString("<h1>Not Found</h1>\n"),
                      Matchers.not(Matchers.containsString("<a href=")));
 
         // Upload different version of packages generated to be used by

@@ -252,7 +252,7 @@ public class PypiArtifactController extends BaseArtifactController
         List<Path> searchResult = repositoryProvider.search(repository.getStorage().getId(), repository.getId(),
                                                             predicate, paginator);
 
-        String searchPackageHtmlResponse = htmlResponseBuilder.getHtmlResponse(searchResult, packageName);
+        String searchPackageHtmlResponse = htmlResponseBuilder.getHtmlResponse(searchResult);
         return ResponseEntity.status(HttpStatus.OK).body(searchPackageHtmlResponse);
     }
 
