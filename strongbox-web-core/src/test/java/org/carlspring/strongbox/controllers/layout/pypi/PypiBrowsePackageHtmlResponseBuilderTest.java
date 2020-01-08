@@ -40,18 +40,16 @@ public class PypiBrowsePackageHtmlResponseBuilderTest
     public void testNoPackageFound()
         throws IOException
     {
-        String packageName = "hello-world";
         String expectedHtmlResponse = "<html>\n" +
                                       "        <head>\n" +
-                                      "            <title>Links for " + packageName + "</title>\n" +
+                                      "            <title>Not Found</title>\n" +
                                       "        </head>\n" +
                                       "        <body>\n" +
-                                      "            <h1>Links for " + packageName + "</h1>\n" +
-                                      "                   " +
+                                      "            <h1>Not Found</h1>\n" +
                                       "        </body>\n" +
-                                      "    </html>";
+                                      "</html>";
 
-        String htmlResponse = htmlResponseBuilder.getHtmlResponse(new ArrayList<>(), packageName);
+        String htmlResponse = htmlResponseBuilder.getHtmlResponse(new ArrayList<>());
 
         assertThat(htmlResponse).isNotBlank().isEqualTo(expectedHtmlResponse);
     }
@@ -75,20 +73,19 @@ public class PypiBrowsePackageHtmlResponseBuilderTest
                        "/packages/" + artifactCoordinates.buildWheelPackageFileName() + "\">" +
                        artifactCoordinates.buildWheelPackageFileName() + "</a><br>\n";
 
-        String packageName = "hello-world";
         String expectedHtmlResponse = "<html>\n" +
                                       "        <head>\n" +
-                                      "            <title>Links for " + packageName + "</title>\n" +
+                                      "            <title>Links for " + artifactCoordinates.getId() + "</title>\n" +
                                       "        </head>\n" +
                                       "        <body>\n" +
-                                      "            <h1>Links for " + packageName + "</h1>\n" +
+                                      "            <h1>Links for " + artifactCoordinates.getId() + "</h1>\n" +
                                       "                   " + links +
                                       "        </body>\n" +
-                                      "    </html>";
+                                      "</html>";
 
         List<Path> paths = new ArrayList<>();
         paths.add(packagePath.normalize());
-        String htmlResponse = htmlResponseBuilder.getHtmlResponse(paths, packageName);
+        String htmlResponse = htmlResponseBuilder.getHtmlResponse(paths);
 
         assertThat(htmlResponse).isNotBlank().isEqualTo(expectedHtmlResponse);
     }
@@ -112,18 +109,19 @@ public class PypiBrowsePackageHtmlResponseBuilderTest
 
         List<Path> paths = new ArrayList<>();
         String links = "";
+        String packageName = "";
         for (Path path : packagePaths)
         {
 
             paths.add(path.normalize());
             PypiArtifactCoordinates artifactCoordinates = (PypiArtifactCoordinates) RepositoryFiles.readCoordinates((RepositoryPath) path.normalize());
+            packageName = artifactCoordinates.getId();
 
             links += "<a href=\"" + "/storages/" + repository.getStorage().getId() + "/" + repository.getId() +
                      "/packages/" + artifactCoordinates.buildWheelPackageFileName() + "\">" +
                      artifactCoordinates.buildWheelPackageFileName() + "</a><br>\n";
         }
 
-        String packageName = "hello-world";
         String expectedHtmlResponse = "<html>\n" +
                                       "        <head>\n" +
                                       "            <title>Links for " + packageName + "</title>\n" +
@@ -132,9 +130,9 @@ public class PypiBrowsePackageHtmlResponseBuilderTest
                                       "            <h1>Links for " + packageName + "</h1>\n" +
                                       "                   " + links +
                                       "        </body>\n" +
-                                      "    </html>";
+                                      "</html>";
 
-        String htmlResponse = htmlResponseBuilder.getHtmlResponse(paths, packageName);
+        String htmlResponse = htmlResponseBuilder.getHtmlResponse(paths);
 
         assertThat(htmlResponse).isNotBlank().isEqualTo(expectedHtmlResponse);
     }
