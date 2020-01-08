@@ -18,12 +18,10 @@ import static org.carlspring.strongbox.artifact.coordinates.PypiArtifactCoordina
 public class PypiArtifactCoordinatesUtils
 {
 
-    private static Pattern PACKAGE_VERSION_PATTERN = Pattern.compile(
-                                                                     PypiPackageInfo.VERSION_FORMAT,
+    private static Pattern PACKAGE_VERSION_PATTERN = Pattern.compile(PypiPackageInfo.VERSION_FORMAT,
                                                                      Pattern.CASE_INSENSITIVE);
 
-    private static Pattern PACKAGE_DISTRIBUTION_NAME_PATTERN = Pattern.compile(
-                                                                               PypiPackageInfo.DISTRIBUTION_NAME_FORMAT,
+    private static Pattern PACKAGE_DISTRIBUTION_NAME_PATTERN = Pattern.compile(PypiPackageInfo.DISTRIBUTION_NAME_FORMAT,
                                                                                Pattern.CASE_INSENSITIVE);
 
     /**
