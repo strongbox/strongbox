@@ -12,11 +12,11 @@ public class PypiPackageInfo
     public static final String DISTRIBUTION_NAME_FORMAT = "^([A-Za-z0-9]|[A-Za-z0-9][A-Za-z0-9._-]*[A-Za-z0-9])$";
 
     public static final String VERSION_FORMAT = "^((\\d+!)?" +             // version epochs
-                                                 "(\\d+(\\.\\d+)*)" +       // final releases
-                                                 "((a|b|c|rc)\\d+)?" +      // pre releases
-                                                 "(\\.post\\d+)?" +         // post releases
-                                                 "(\\.dev\\d+)?" +          // developmental releases
-                                                 "(\\+[.A-Z0-9]+)?)$";      // local version identifiers
+                                                "(\\d+(\\.\\d+)*)" +       // final releases
+                                                "((a|b|c|rc)\\d+)?" +      // pre releases
+                                                "(\\.post\\d+)?" +         // post releases
+                                                "(\\.dev\\d+)?" +          // developmental releases
+                                                "(\\+[.A-Z0-9]+)?)$";      // local version identifiers
     
     @NotNull
     @PypiMetadataKey(name = "Metadata-Version")
