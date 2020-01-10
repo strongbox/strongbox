@@ -4,8 +4,12 @@ public class NugetSearchRequest
 {
 
     private String filter;
+
     private String searchTerm;
+
     private String targetFramework;
+
+    private boolean includePreRelease;
 
     public String getFilter()
     {
@@ -35,6 +39,16 @@ public class NugetSearchRequest
     public void setTargetFramework(String targetFramework)
     {
         this.targetFramework = targetFramework;
+    }
+
+    public boolean isIncludePreRelease()
+    {
+        return includePreRelease;
+    }
+
+    public void setIncludePreRelease(boolean includePreRelease)
+    {
+        this.includePreRelease = includePreRelease;
     }
 
 }

@@ -379,6 +379,10 @@ public class NugetRepositoryFeatures
             path = path.queryParam("$top", paginator.getLimit());
         }
 
+        //https://chocolatey.org/api/v2/$metadata 
+        // includePrerelease is required parameter to invoke Search() method
+        path = path.queryParam("includePrerelease", nugetSearchRequest.isIncludePreRelease());
+
         return path;
     }
 
