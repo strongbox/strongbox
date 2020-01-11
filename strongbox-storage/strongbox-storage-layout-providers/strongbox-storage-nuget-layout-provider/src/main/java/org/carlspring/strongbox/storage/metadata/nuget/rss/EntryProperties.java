@@ -554,17 +554,17 @@ public class EntryProperties
         }
         StringListTypeAdapter adapter = new StringListTypeAdapter();
 
-        this.version = SemanticVersion.parse(hashMap.get("Version").getTextContent());
-        this.title = hashMap.get("Title").getTextContent();
-        this.iconUrl = hashMap.get("IconUrl").getTextContent();
-        this.licenseUrl = hashMap.get("LicenseUrl").getTextContent();
-        this.projectUrl = hashMap.get("ProjectUrl").getTextContent();
+        this.version = SemanticVersion.parse(getTextContent(hashMap, "Version"));
+        this.title = getTextContent(hashMap, "Title");
+        this.iconUrl = getTextContent(hashMap, "IconUrl");
+        this.licenseUrl = getTextContent(hashMap, "LicenseUrl");
+        this.projectUrl = getTextContent(hashMap, "ProjectUrl");
         this.projectSourceUrl = getTextContent(hashMap, "ProjectSourceUrl");
         this.packageSourceUrl = getTextContent(hashMap, "PackageSourceUrl");
         this.docsUrl = getTextContent(hashMap, "DocsUrl");
         this.mailingListUrl = getTextContent(hashMap, "MailingListUrl");
         this.bugTrackerUrl = getTextContent(hashMap, "BugTrackerUrl");
-        this.reportAbuseUrl = hashMap.get("ReportAbuseUrl").getTextContent();
+        this.reportAbuseUrl = getTextContent(hashMap, "ReportAbuseUrl");
         this.downloadCount = getIntegerContent(hashMap.get("DownloadCount"));
         this.versionDownloadCount = getIntegerContent(hashMap.get("VersionDownloadCount"));
         this.ratingsCount = getIntegerContent(hashMap.get("RatingsCount"));
@@ -572,20 +572,20 @@ public class EntryProperties
         this.rating = getDoubleContent(hashMap.get("Rating"));
         this.versionRating = getDoubleContent(hashMap.get("VersionRating"));
         this.requireLicenseAcceptance = getBooleanContent(hashMap.get("RequireLicenseAcceptance"));
-        this.description = hashMap.get("Description").getTextContent();
-        this.releaseNotes = hashMap.get("ReleaseNotes").getTextContent();
-        this.language = hashMap.get("Language").getTextContent();
+        this.description = getTextContent(hashMap, "Description");
+        this.releaseNotes = getTextContent(hashMap, "ReleaseNotes");
+        this.language = getTextContent(hashMap, "Language");
         this.published = javax.xml.bind.DatatypeConverter.parseDateTime(hashMap.get("Published").getTextContent())
                                                          .getTime();
         this.price = getDoubleContent(hashMap.get("Price"));
-        this.dependencies = hashMap.get("Dependencies").getTextContent();
-        this.packageHash = hashMap.get("PackageHash").getTextContent();
+        this.dependencies = getTextContent(hashMap, "Dependencies");
+        this.packageHash = getTextContent(hashMap, "PackageHash");
         this.packageSize = getLongContent(hashMap.get("PackageSize"));
         this.externalPackageUri = getStringContent(hashMap.get("ExternalPackageUri"));
         this.categories = getStringContent(hashMap.get("Categories"));
         this.copyright = getStringContent(hashMap.get("Copyright"));
         this.packageType = getStringContent(hashMap.get("PackageType"));
-        this.tags = adapter.unmarshal(hashMap.get("Tags").getTextContent());
+        this.tags = adapter.unmarshal(getTextContent(hashMap, "Tags"));
         this.isLatestVersion = getBooleanContent(hashMap.get("IsLatestVersion"));
         this.summary = getStringContent(hashMap.get("Summary"));
     }
