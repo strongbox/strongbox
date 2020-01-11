@@ -10,7 +10,6 @@ import org.carlspring.strongbox.data.criteria.Paginator;
 import org.carlspring.strongbox.data.criteria.Predicate;
 import org.carlspring.strongbox.domain.ArtifactEntry;
 import org.carlspring.strongbox.domain.ArtifactTagEntry;
-import org.carlspring.strongbox.io.ReplacingInputStream;
 import org.carlspring.strongbox.nuget.NugetSearchRequest;
 import org.carlspring.strongbox.nuget.filter.NugetODataFilterQueryParser;
 import org.carlspring.strongbox.providers.io.RepositoryPath;
@@ -30,42 +29,51 @@ import org.carlspring.strongbox.web.LayoutRequestMapping;
 import org.carlspring.strongbox.web.RepositoryMapping;
 
 import javax.inject.Inject;
-import javax.servlet.ServletInputStream;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import javax.ws.rs.core.MediaType;
 import javax.xml.bind.JAXBException;
-import java.io.*;
+
+import java.io.BufferedInputStream;
+import java.io.BufferedOutputStream;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.OutputStream;
+import java.io.OutputStreamWriter;
+import java.io.Writer;
 import java.net.HttpURLConnection;
 import java.net.URI;
 import java.nio.file.Files;
 import java.nio.file.Path;
-import java.nio.file.StandardCopyOption;
 import java.security.NoSuchAlgorithmException;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Date;
 import java.util.List;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 
-import io.swagger.annotations.ApiOperation;
-import io.swagger.annotations.ApiParam;
-import io.swagger.annotations.ApiResponse;
-import io.swagger.annotations.ApiResponses;
-import org.apache.commons.fileupload.MultipartStream;
-import org.apache.commons.lang.StringUtils;
 import org.springframework.core.io.InputStreamResource;
 import org.springframework.core.io.Resource;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
-import org.springframework.web.bind.annotation.*;
+import org.springframework.web.bind.annotation.DeleteMapping;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.RequestHeader;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestMethod;
+import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.context.request.RequestContextHolder;
 import org.springframework.web.context.request.ServletRequestAttributes;
 import org.springframework.web.multipart.MultipartFile;
+
+import io.swagger.annotations.ApiOperation;
+import io.swagger.annotations.ApiParam;
+import io.swagger.annotations.ApiResponse;
+import io.swagger.annotations.ApiResponses;
 
 /**
  * This Controller used to handle Nuget requests.
@@ -419,23 +427,11 @@ public class NugetArtifactController
         final String repositoryId = repository.getId();
 
         logger.info("Nuget push request: storageId-[{}]; repositoryId-[{}]", storageId, repositoryId);
-//        String contentType = request.getHeader("content-type");
 
         URI resourceUri;
         try
         {
-//            ServletInputStream is = request.getInputStream();
-            InputStream packagePartInputStream = file.getInputStream(); //extractPackageMultipartStream(extractBoundary(contentType), is);
-
-//            if (packagePartInputStream == null)
-//            {
-//                logger.error("Failed to extract Nuget package from request: [{}]:[{}]",
-//                             storageId,
-//                             repositoryId);
-//
-//                return ResponseEntity.badRequest().build();
-//            }
-
+            InputStream packagePartInputStream = file.getInputStream();
             resourceUri = storePackage(storageId, repositoryId, packagePartInputStream);
         }
         catch (Exception e)
@@ -517,88 +513,6 @@ public class NugetArtifactController
         }
     }
 
-    private String extractBoundary(String contentType)
-    {
-        String boundaryString = "";
-        Pattern pattern = Pattern.compile("multipart/form-data;(\\s*)boundary=([^;]+)(.*)");
-        Matcher matcher = pattern.matcher(contentType);
-        if (matcher.matches())
-        {
-            boundaryString = matcher.group(2);
-        }
-        boundaryString = boundaryString.startsWith("\"") ? boundaryString.substring(1) : boundaryString;
-        boundaryString = boundaryString.endsWith("\"") ? boundaryString.substring(0, boundaryString.length() - 1)
-                : boundaryString;
-        return boundaryString;
-    }
-
-    private InputStream extractPackageMultipartStream(String boundaryString,
-                                                      ServletInputStream is)
-            throws IOException
-    {
-        if (StringUtils.isEmpty(boundaryString))
-        {
-            return null;
-        }
-
-        final Path packagePartFile = Files.createTempFile("nupkg", "part");
-        try (OutputStream packagePartOutputStream = new BufferedOutputStream(Files.newOutputStream(packagePartFile)))
-        {
-
-            writePackagePart(boundaryString, is, packagePartOutputStream);
-        }
-
-        return new BufferedInputStream(Files.newInputStream(packagePartFile));
-    }
-
-    private void writePackagePart(String boundaryString,
-                                  InputStream is,
-                                  OutputStream packagePartOutputStream)
-        throws IOException
-    {
-        // According to the specification, the final Boundary of MultipartStream should be prefixed with
-        // `0x0D0x0A0x2D0x2D` characters, but seems that Nuget command line tool has broken Multipart Boundary format.
-        // We need to fix missing starting byte of ending Mulipart boundary (0x0D), which is incorrectly generated by
-        // NuGet `push` implementation.
-        byte[] boundary = boundaryString.getBytes();
-        byte[] boundaryPrefixToFix = {0x00, 0x0A, 0x2D, 0x2D};
-        byte[] boundaryPrefixTarget = {0x00, 0x0D, 0x0A, 0x2D, 0x2D};
-
-        byte[] replacementPattern = new byte[boundary.length + 4];
-        byte[] replacementTarget = new byte[boundary.length + 5];
-
-        System.arraycopy(boundaryPrefixToFix, 0, replacementPattern, 0, 4);
-        System.arraycopy(boundaryPrefixTarget, 0, replacementTarget, 0, 5);
-
-        System.arraycopy(boundary, 0, replacementPattern, 4, boundary.length);
-        System.arraycopy(boundary, 0, replacementTarget, 4, boundary.length);
-
-        Path streamContentPath = Files.createTempFile("boundaryString", "nupkg");
-        ReplacingInputStream replacingIs = new ReplacingInputStream(is, boundaryPrefixToFix, boundaryPrefixTarget);
-        long len = Files.copy(replacingIs, streamContentPath,
-                   StandardCopyOption.REPLACE_EXISTING);
-        System.out.println(len);
-
-        try (InputStream streamContentIs = new BufferedInputStream(Files.newInputStream(streamContentPath)))
-        {
-            MultipartStream multipartStream = new MultipartStream(streamContentIs, boundary, 4096, null);
-            multipartStream.skipPreamble();
-            String header = multipartStream.readHeaders();
-
-            // Package Multipart Header should be like follows:
-            // Content-Disposition: form-data; name="package";
-            // filename="package"
-            // Content-Type: application/octet-stream
-            if (!header.contains("package"))
-            {
-                logger.error("Invalid package multipart format");
-                return;
-            }
-
-            int contentLength = multipartStream.readBodyData(packagePartOutputStream);
-            logger.info("NuGet package content length [{}]", contentLength);
-        }
-    }
 
     private URI storePackage(String storageId,
                              String repositoryId,

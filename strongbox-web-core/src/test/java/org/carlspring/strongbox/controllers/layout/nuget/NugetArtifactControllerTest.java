@@ -216,15 +216,7 @@ public class NugetArtifactControllerTest extends NugetRestAssuredBaseTest
         final String packageVersion = "1.0.0";
 
         long packageSize = Files.size(packagePath);
-        byte[] packageContent = Files.readAllBytes(packagePath); // readPackageContent(packagePath);
-
-        
-//        String url = getContextBaseUrl() + "/storages/{storageId}/{repositoryId}/";
-//        createPushRequest(packageContent).when()
-//                                         .put(url, storageId, repositoryId)
-//                                         .peek()
-//                                         .then()
-//                                         .statusCode(HttpStatus.CREATED.value());
+        byte[] packageContent = Files.readAllBytes(packagePath);
         
         // Push
         pushPackage(packageContent, storageId, repositoryId);
@@ -293,24 +285,13 @@ public class NugetArtifactControllerTest extends NugetRestAssuredBaseTest
         final String storageId = repository.getStorage().getId();
         final String repositoryId = repository.getId();
         final String packageId = "Org.Carlspring.Strongbox.Examples.Nuget.Mono-Test";
-//        final String packageVersion = "1.0.0";
 
-//        long packageSize = Files.size(packagePath);
-        byte[] packageContent = Files.readAllBytes(packagePath); // readPackageContent(packagePath);
-
-        
-//        String url = getContextBaseUrl() + "/storages/{storageId}/{repositoryId}/";
-//        createPushRequest(packageContent).when()
-//                                         .put(url, storageId, repositoryId)
-//                                         .peek()
-//                                         .then()
-//                                         .statusCode(HttpStatus.CREATED.value());
-        
+        byte[] packageContent = Files.readAllBytes(packagePath);
+    
         // Push
         pushPackage(packageContent, storageId, repositoryId);
 
         //Find by ID
-
         String url = getContextBaseUrl() + "/storages/{storageId}/{repositoryId}/Search()?$filter=IsLatestVersion&$skip=0&$top=30&searchTerm='{artifactId}'&targetFramework=''";
         mockMvc.header(HttpHeaders.USER_AGENT, "Chocolatey Core",
                        "DataServiceVersion", "1.0;NetFx",
@@ -416,16 +397,8 @@ public class NugetArtifactControllerTest extends NugetRestAssuredBaseTest
         String filter = String.format("tolower(Id) eq '%s' and IsLatestVersion", PACKAGE_ID_LAST_VERSION.toLowerCase());
 
         // VERSION 1.0.0
-//        Path packagePathV1 = packagePaths.get(0);
-        byte[] packageContent = Files.readAllBytes(packagePaths.get(0)); // readPackageContent(packagePathV1);
+        byte[] packageContent = Files.readAllBytes(packagePaths.get(0));
         
-//        String url = getContextBaseUrl() + "/storages/{storageId}/{repositoryId}/";
-//        createPushRequest(packageContent).when()
-//                                         .put(url, storageId, repositoryId)
-//                                         .peek()
-//                                         .then()
-//                                         .statusCode(HttpStatus.CREATED.value());
-
         // Push
         pushPackage(packageContent, storageId, repositoryId);
         
@@ -458,17 +431,11 @@ public class NugetArtifactControllerTest extends NugetRestAssuredBaseTest
                .body("feed.entry[0].properties.Version", equalTo("1.0.0"));
 
         // VERSION 2.0.0
-//        Path packagePathV2 = packagePaths.get(1);
-        packageContent = Files.readAllBytes(packagePaths.get(1)); // readPackageContent(packagePathV2);
+        packageContent = Files.readAllBytes(packagePaths.get(1));
+        
         // Push
         pushPackage(packageContent, storageId, repositoryId);
         
-//        url = getContextBaseUrl() + "/storages/{storageId}/{repositoryId}/";
-//        createPushRequest(packageContent).when()
-//                                         .put(url, storageId, repositoryId)
-//                                         .peek()
-//                                         .then()
-//                                         .statusCode(HttpStatus.CREATED.value());
         
         // Count
         url = getContextBaseUrl() +
