@@ -9,7 +9,7 @@ public class NugetSearchRequest
 
     private String targetFramework;
 
-    private boolean includePreRelease;
+    private Boolean includePreRelease;
 
     public String getFilter()
     {
@@ -41,12 +41,12 @@ public class NugetSearchRequest
         this.targetFramework = targetFramework;
     }
 
-    public boolean isIncludePreRelease()
+    public Boolean getIncludePreRelease()
     {
         return includePreRelease;
     }
 
-    public void setIncludePreRelease(boolean includePreRelease)
+    public void setIncludePreRelease(Boolean includePreRelease)
     {
         this.includePreRelease = includePreRelease;
     }
