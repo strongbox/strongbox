@@ -381,7 +381,7 @@ public class NugetRepositoryFeatures
 
         //https://chocolatey.org/api/v2/$metadata 
         // includePrerelease is required parameter to invoke Search() method
-        path = path.queryParam("includePrerelease", nugetSearchRequest.isIncludePreRelease());
+        path = path.queryParam("includePrerelease", Boolean.TRUE.equals(nugetSearchRequest.getIncludePreRelease()));
 
         return path;
     }
