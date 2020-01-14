@@ -7,7 +7,7 @@ import org.carlspring.strongbox.utils.ArtifactControllerHelper;
 import javax.inject.Inject;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
-import java.io.InputStream;
+import java.io.BufferedInputStream;
 
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
@@ -38,7 +38,7 @@ public abstract class BaseArtifactController
         }
 
         
-        try (InputStream is = artifactResolutionService.getInputStream(repositoryPath))
+        try (BufferedInputStream is = new BufferedInputStream(artifactResolutionService.getInputStream(repositoryPath)))
         {
             if (ArtifactControllerHelper.isRangedRequest(httpHeaders))
             {

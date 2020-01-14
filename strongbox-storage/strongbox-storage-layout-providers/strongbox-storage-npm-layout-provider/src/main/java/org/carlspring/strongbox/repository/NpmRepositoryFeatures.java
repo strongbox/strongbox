@@ -35,6 +35,7 @@ import javax.persistence.PersistenceContext;
 import javax.ws.rs.client.Client;
 import javax.ws.rs.client.Invocation;
 import javax.ws.rs.client.WebTarget;
+import java.io.BufferedInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.Arrays;
@@ -264,7 +265,7 @@ public class NpmRepositoryFeatures implements RepositoryFeatures
 
         JsonFactory jfactory = new JsonFactory();
 
-        try (InputStream is = request.invoke(InputStream.class))
+        try (BufferedInputStream is = request.invoke(BufferedInputStream.class))
         {
 
             JsonParser jp = jfactory.createParser(is);

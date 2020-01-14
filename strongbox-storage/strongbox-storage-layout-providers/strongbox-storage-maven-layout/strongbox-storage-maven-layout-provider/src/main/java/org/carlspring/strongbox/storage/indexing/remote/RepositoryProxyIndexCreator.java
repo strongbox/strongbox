@@ -106,7 +106,7 @@ public class RepositoryProxyIndexCreator
                                                                                 proxyRepositoryConnectionPoolConfigurationService.getHttpClient()));
 
         updateRequest.setIndexTempDir(
-                RepositoryFiles.temporary(repositoryPathResolver.resolve(repository)).toFile());
+                RepositoryFiles.temporary(repositoryPathResolver.resolve(repository)).getFileName().toFile());
 
         return indexUpdater.fetchAndUpdateIndex(updateRequest);
     }

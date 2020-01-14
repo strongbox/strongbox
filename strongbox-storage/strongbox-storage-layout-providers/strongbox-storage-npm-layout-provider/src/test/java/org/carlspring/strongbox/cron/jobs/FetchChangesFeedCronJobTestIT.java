@@ -23,8 +23,8 @@ import javax.transaction.Transactional;
 import javax.ws.rs.client.Client;
 import javax.ws.rs.client.Invocation;
 import javax.ws.rs.client.WebTarget;
+import java.io.BufferedInputStream;
 import java.io.ByteArrayInputStream;
-import java.io.InputStream;
 import java.util.List;
 import java.util.concurrent.TimeUnit;
 
@@ -79,7 +79,7 @@ public class FetchChangesFeedCronJobTestIT
             throws Exception
     {
         super.init(testInfo);
-        prepareArtifactResolverContext(this.getClass().getResourceAsStream("changesFeed.json"));
+        prepareArtifactResolverContext(new BufferedInputStream(this.getClass().getResourceAsStream("changesFeed.json")));
     }
 
     @ExtendWith(RepositoryManagementTestExecutionListener.class)
@@ -136,14 +136,14 @@ public class FetchChangesFeedCronJobTestIT
 
     }
 
-    private void prepareArtifactResolverContext(InputStream feedInputStream)
+    private void prepareArtifactResolverContext(BufferedInputStream feedInputStream)
     {
 
         Client mockedRestClient = mock(Client.class);
 
         Invocation mockedInvocation = mock(Invocation.class);
-        when(mockedInvocation.invoke(InputStream.class))
-                .thenReturn(feedInputStream, new ByteArrayInputStream(EMPTY_FEED.getBytes()));
+        when(mockedInvocation.invoke(BufferedInputStream.class))
+                .thenReturn(feedInputStream, new BufferedInputStream(new ByteArrayInputStream(EMPTY_FEED.getBytes())));
 
         Invocation.Builder mockedBuilder = mock(Invocation.Builder.class);
         when(mockedBuilder.buildGet()).thenReturn(mockedInvocation);
