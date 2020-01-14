@@ -2,7 +2,6 @@ package org.carlspring.strongbox.artifact.generator;
 
 import java.io.IOException;
 import java.io.OutputStream;
-import java.lang.reflect.UndeclaredThrowableException;
 import java.net.URI;
 import java.nio.file.Files;
 import java.nio.file.Path;
@@ -13,6 +12,8 @@ import java.security.NoSuchAlgorithmException;
 import org.apache.commons.codec.digest.MessageDigestAlgorithms;
 import org.carlspring.commons.io.RandomInputStream;
 import org.carlspring.strongbox.io.LayoutOutputStream;
+import org.carlspring.strongbox.util.MessageDigestUtils;
+import org.carlspring.strongbox.util.TestFileUtils;
 
 /**
  * @author sbespalov
@@ -44,16 +45,16 @@ public class RawArtifactGenerator implements ArtifactGenerator
 
     @Override
     public Path generateArtifact(URI uri,
-                                 long size)
+                                 long bytesSize)
         throws IOException
     {
         Path path = baseDir.resolve(uri.toString());
-        
-        return generateArtifact(size, path);
+
+        return generateArtifact(path, bytesSize);
     }
 
-    private Path generateArtifact(long size,
-                                  Path path)
+    private Path generateArtifact(Path path,
+                                  long bytesSize)
         throws IOException
     {
         Files.createDirectories(path.getParent());
@@ -61,22 +62,13 @@ public class RawArtifactGenerator implements ArtifactGenerator
                                                                    StandardOpenOption.TRUNCATE_EXISTING,
                                                                    StandardOpenOption.CREATE);
                 LayoutOutputStream layoutOutputStream = new LayoutOutputStream(fileOutputStream);
-                RandomInputStream ris = new RandomInputStream(size))
+                RandomInputStream ris = new RandomInputStream(bytesSize))
         {
             layoutOutputStream.addAlgorithm(MessageDigestAlgorithms.MD5);
 
-            byte[] buffer = new byte[1024];
-            int len;
-            while ((len = ris.read(buffer)) > 0)
-            {
-                layoutOutputStream.write(buffer, 0, len);
-            }
+            TestFileUtils.generateFile(layoutOutputStream, bytesSize);
 
-            layoutOutputStream.flush();
-            layoutOutputStream.getDigestMap()
-                              .entrySet()
-                              .stream()
-                              .forEach(e -> writeChecksum(path, e.getKey(), e.getValue()));
+            generateChecksum(path, layoutOutputStream);
 
         }
         catch (NoSuchAlgorithmException e)
@@ -87,22 +79,12 @@ public class RawArtifactGenerator implements ArtifactGenerator
         return path;
     }
 
-    private void writeChecksum(Path path,
-                               String algorithm,
-                               String value)
+    private void generateChecksum(Path artifactPath,
+                                  LayoutOutputStream layoutOutputStream)
+        throws IOException
     {
-        String fileName = path.getFileName().toString();
-        String checksumFileName = fileName + "." + algorithm.toLowerCase();
-        try
-        {
-            Files.write(path.resolveSibling(checksumFileName),
-                        value.getBytes(),
-                        StandardOpenOption.TRUNCATE_EXISTING, StandardOpenOption.CREATE);
-        }
-        catch (IOException e)
-        {
-            throw new UndeclaredThrowableException(e);
-        }
+        String md5 = layoutOutputStream.getDigestMap().get(MessageDigestAlgorithms.MD5);
+        MessageDigestUtils.writeChecksum(artifactPath, ".md5", md5);
     }
 
 }
