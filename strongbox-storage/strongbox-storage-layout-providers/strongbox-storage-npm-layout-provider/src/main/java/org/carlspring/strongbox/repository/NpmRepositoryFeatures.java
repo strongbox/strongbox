@@ -37,7 +37,6 @@ import javax.ws.rs.client.Invocation;
 import javax.ws.rs.client.WebTarget;
 import java.io.BufferedInputStream;
 import java.io.IOException;
-import java.io.InputStream;
 import java.util.Arrays;
 import java.util.LinkedHashSet;
 import java.util.Optional;
@@ -158,7 +157,7 @@ public class NpmRepositoryFeatures implements RepositoryFeatures
             WebTarget service = restClient.target(remoteRepository.getUrl());
             service = service.path("-/v1/search").queryParam("text", text).queryParam("size", size);
 
-            InputStream inputStream = service.request().buildGet().invoke(InputStream.class);
+            BufferedInputStream inputStream = service.request().buildGet().invoke(BufferedInputStream.class);
             searchResults = npmJacksonMapper.readValue(inputStream, SearchResults.class);
 
             logger.debug("Searched NPM packages for [{}].", remoteRepository.getUrl());
@@ -356,7 +355,7 @@ public class NpmRepositoryFeatures implements RepositoryFeatures
             WebTarget service = restClient.target(remoteRepository.getUrl());
             service = service.path(packageId);
 
-            InputStream inputStream = service.request().buildGet().invoke(InputStream.class);
+            BufferedInputStream inputStream = service.request().buildGet().invoke(BufferedInputStream.class);
             packageFeed = npmJacksonMapper.readValue(inputStream, PackageFeed.class);
 
             logger.debug("Downloaded NPM changes feed for [{}].", remoteRepository.getUrl());
