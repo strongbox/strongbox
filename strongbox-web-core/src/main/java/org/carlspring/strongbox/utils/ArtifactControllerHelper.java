@@ -2,6 +2,8 @@ package org.carlspring.strongbox.utils;
 
 import org.carlspring.commons.http.range.ByteRange;
 import org.carlspring.commons.http.range.ByteRangeHeaderParser;
+import org.carlspring.commons.http.range.validation.ByteRangeValidationException;
+import org.carlspring.strongbox.exception.ExceptionHandlingOutputStream;
 import org.carlspring.strongbox.io.ByteRangeInputStream;
 import org.carlspring.strongbox.io.StreamUtils;
 import org.carlspring.strongbox.providers.io.RepositoryFileAttributes;
@@ -9,9 +11,11 @@ import org.carlspring.strongbox.providers.io.RepositoryFiles;
 import org.carlspring.strongbox.providers.io.RepositoryPath;
 
 import javax.servlet.http.HttpServletResponse;
-import java.io.FilterInputStream;
+import java.io.BufferedInputStream;
 import java.io.IOException;
 import java.io.InputStream;
+import java.io.OutputStream;
+import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.time.ZoneId;
 import java.time.ZonedDateTime;
@@ -23,16 +27,28 @@ import org.slf4j.LoggerFactory;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
+import org.springframework.util.CollectionUtils;
+import static org.carlspring.strongbox.controllers.BaseController.copyToResponse;
 import static org.springframework.http.HttpStatus.PARTIAL_CONTENT;
 import static org.springframework.http.HttpStatus.REQUESTED_RANGE_NOT_SATISFIABLE;
 
+/**
+ * @author Pablo Tirado
+ */
 public class ArtifactControllerHelper
 {
 
-    public static final String HEADER_NAME_RANGE = "Range";
+    public static final String MULTIPART_BOUNDARY = "3d6b6a416f9b5";
 
     private static final Logger logger = LoggerFactory.getLogger(ArtifactControllerHelper.class);
 
+    private static final String RANGE_REGEX = "^bytes=\\d*-\\d*(,\\d*-\\d*)*$";
+
+    private static final String FULL_FILE_RANGE_REGEX = "^bytes=(0\\/\\*|0-|0)$";
+
+    private static final int DEFAULT_BUFFER_SIZE = 4096;
+
+    private static final String CRLF = "\r\n";
 
     private ArtifactControllerHelper()
     {
@@ -43,87 +59,111 @@ public class ArtifactControllerHelper
                                              HttpServletResponse response)
             throws IOException
     {
-        ByteRangeHeaderParser parser = new ByteRangeHeaderParser(headers.getFirst(HEADER_NAME_RANGE));
-        List<ByteRange> ranges = parser.getRanges();
-        if (ranges.size() == 1)
+        String contentRange = headers.getFirst(HttpHeaders.RANGE);
+        ByteRangeHeaderParser parser = new ByteRangeHeaderParser(contentRange);
+
+        try
         {
-            logger.debug("Received request for a partial download with a single range.");
-            handlePartialDownloadWithSingleRange(is, (ByteRange) ranges.get(0), response);
+            List<ByteRange> ranges = parser.getRanges();
+            if (!CollectionUtils.isEmpty(ranges))
+            {
+                if (ranges.size() == 1)
+                {
+                    logger.debug("Received request for a partial download with a single range.");
+                    handlePartialDownloadWithSingleRange(is, ranges.get(0), response);
+                }
+                else
+                {
+                    logger.debug("Received request for a partial download with multiple ranges.");
+                    handlePartialDownloadWithMultipleRanges(is, ranges, response);
+                }
+            }
         }
-        else
+        catch (ByteRangeValidationException e)
         {
-            logger.debug("Received request for a partial download with multiple ranges.");
-            handlePartialDownloadWithMultipleRanges(is, ranges, response);
+            logger.error(e.getMessage(), e);
+
+            ByteRangeInputStream bris = StreamUtils.findSource(ByteRangeInputStream.class, is);
+            long length = bris != null ? StreamUtils.getLength(bris) : 0;
+            setRangeNotSatisfiable(response, length);
         }
     }
 
-    public static void handlePartialDownloadWithSingleRange(InputStream is,
-                                                            ByteRange byteRange,
-                                                            HttpServletResponse response)
+    private static void handlePartialDownloadWithSingleRange(InputStream is,
+                                                             ByteRange byteRange,
+                                                             HttpServletResponse response)
             throws IOException
     {
-        ByteRangeInputStream bris = StreamUtils.findSource(ByteRangeInputStream.class, (FilterInputStream)is);
-        long length = StreamUtils.getLength(bris);
-        if (byteRange.getOffset() < length)
+        ByteRangeInputStream bris = StreamUtils.findSource(ByteRangeInputStream.class, is);
+        long inputLength = bris != null ? StreamUtils.getLength(bris) : 0;
+
+        if (byteRange.getOffset() < inputLength)
         {
-            long partialLength = calculatePartialRangeLength(byteRange, length);
-
-            logger.debug("Calculated partial range length ->>> {}\n", partialLength);
-
             StreamUtils.setCurrentByteRange(bris, byteRange);
 
-            response.setHeader("Content-Length", partialLength + "");
-            response.setStatus(PARTIAL_CONTENT.value());
+            prepareResponseBuilderForPartialRequestWithSingleRange(byteRange, inputLength, response);
 
-            prepareResponseBuilderForPartialRequest(byteRange, length, response);
+            copyToResponse(is, response);
         }
         else
         {
-            response.setStatus(REQUESTED_RANGE_NOT_SATISFIABLE.value());
+            setRangeNotSatisfiable(response, inputLength);
         }
     }
 
-    public static void handlePartialDownloadWithMultipleRanges(InputStream is,
-                                                               List<ByteRange> byteRanges,
-                                                               HttpServletResponse response)
+    private static void handlePartialDownloadWithMultipleRanges(InputStream is,
+                                                                List<ByteRange> byteRanges,
+                                                                HttpServletResponse response)
             throws IOException
     {
-        // XXX: this is not implemented yet
-        response.setStatus(REQUESTED_RANGE_NOT_SATISFIABLE.value());
-    }
+        ByteRangeInputStream bris = StreamUtils.findSource(ByteRangeInputStream.class, is);
+        long length = bris != null ? StreamUtils.getLength(bris) : 0;
 
-    public static long calculatePartialRangeLength(ByteRange byteRange,
-                                                   long length)
-    {
-        if (byteRange.getLimit() > 0L && byteRange.getOffset() > 0L)
-        {
-            logger.debug("Partial content byteRange.getOffset: {}", byteRange.getOffset());
-            logger.debug("Partial content byteRange.getLimit: {}", byteRange.getLimit());
-            logger.debug("Partial content length: {}", (byteRange.getLimit() - byteRange.getOffset()));
+        boolean anyByteRangeNotSatisfiable = byteRanges.stream()
+                                                       .anyMatch(byteRange -> byteRange.getOffset() >= length);
 
-            return byteRange.getLimit() - byteRange.getOffset();
-        }
-        else if (length > 0L && byteRange.getOffset() > 0L && byteRange.getLimit() == 0L)
+        if (anyByteRangeNotSatisfiable)
         {
-            logger.debug("Partial content length: {}", (length - byteRange.getOffset()));
-            return length - byteRange.getOffset();
+            setRangeNotSatisfiable(response, length);
         }
         else
         {
-            return -1L;
+            final String rangesContentType = response.getContentType();
+
+            prepareResponseBuilderForPartialRequestWithMultipleRanges(response);
+
+            copyPartialMultipleRangeToResponse(is, response, byteRanges, rangesContentType);
         }
     }
 
-    public static void prepareResponseBuilderForPartialRequest(ByteRange br,
-                                                               long length,
-                                                               HttpServletResponse response)
+    private static void setRangeNotSatisfiable(HttpServletResponse response,
+                                               long length)
+            throws IOException
     {
-        response.setHeader("Accept-Ranges", "bytes");
-        response.setHeader("Content-Range",
-                           "bytes " + br.getOffset() + "-" + (length - 1L) + "/" + length);
+        response.setHeader(HttpHeaders.CONTENT_RANGE, "bytes */" + length);
+        response.setStatus(REQUESTED_RANGE_NOT_SATISFIABLE.value());
+        response.flushBuffer();
+    }
 
-        logger.debug("Content-Range HEADER ->>> {}", response.getHeader("Content-Range"));
-        response.setHeader("Pragma", "no-cache");
+    private static void prepareResponseBuilderForPartialRequestWithSingleRange(ByteRange byteRange,
+                                                                               long inputLength,
+                                                                               HttpServletResponse response)
+    {
+        String contentRangeHeaderValue = String.format("bytes %d-%d/%d",
+                                                       byteRange.getOffset(),
+                                                       inputLength - 1L,
+                                                       inputLength);
+
+        response.setHeader(HttpHeaders.CONTENT_RANGE, contentRangeHeaderValue);
+
+        response.setStatus(PARTIAL_CONTENT.value());
+    }
+
+    private static void prepareResponseBuilderForPartialRequestWithMultipleRanges(HttpServletResponse response)
+    {
+        response.setContentType("multipart/byteranges; boundary=" + MULTIPART_BOUNDARY);
+
+        response.setStatus(PARTIAL_CONTENT.value());
     }
 
     public static boolean isRangedRequest(HttpHeaders headers)
@@ -134,63 +174,160 @@ public class ArtifactControllerHelper
         }
         else
         {
-            String contentRange = headers.getFirst(HEADER_NAME_RANGE) != null ? headers.getFirst(HEADER_NAME_RANGE) : null;
-            return contentRange != null && !"0/*".equals(contentRange) && !"0-".equals(contentRange) &&
-                   !"0".equals(contentRange);
+            String contentRange = headers.getFirst(HttpHeaders.RANGE);
+            return contentRange != null && contentRange.matches(RANGE_REGEX) &&
+                   !contentRange.matches(FULL_FILE_RANGE_REGEX);
         }
     }
 
     public static void provideArtifactHeaders(HttpServletResponse response,
                                               RepositoryPath path)
-        throws IOException
+            throws IOException
     {
-        if (path == null || !Files.exists(path) || Files.isDirectory(path))
+        if (path == null || Files.notExists(path) || Files.isDirectory(path))
         {
             response.setStatus(HttpStatus.NOT_FOUND.value());
             return;
         }
         RepositoryFileAttributes fileAttributes = Files.readAttributes(path, RepositoryFileAttributes.class);
 
-        response.setHeader("Content-Length", String.valueOf(fileAttributes.size()));
-        response.setHeader("Last-Modified", DateTimeFormatter.RFC_1123_DATE_TIME.format(
+        response.setHeader(HttpHeaders.CONTENT_LENGTH, String.valueOf(fileAttributes.size()));
+        response.setHeader(HttpHeaders.LAST_MODIFIED, DateTimeFormatter.RFC_1123_DATE_TIME.format(
                 ZonedDateTime.ofInstant(fileAttributes.lastModifiedTime().toInstant(), ZoneId.systemDefault())));
 
         // TODO: This is far from optimal and will need to have a content type approach at some point:
-        if (RepositoryFiles.isChecksum(path) || (path.getFileName().toString().endsWith(".properties")))
-        {
-            response.setContentType(MediaType.TEXT_PLAIN_VALUE);
-        }
-        else if (path.getFileName().toString().endsWith("xml"))
-        {
-            response.setContentType(MediaType.APPLICATION_XML_VALUE);
-        }
-        else if (path.getFileName().toString().endsWith(".gz"))
-        {
-            response.setContentType(com.google.common.net.MediaType.GZIP.toString());
-        }
-        else
-        {
-            response.setContentType(MediaType.APPLICATION_OCTET_STREAM_VALUE);
-        }
+        String contentType = getContentType(path);
+        response.setContentType(contentType);
 
-        response.setHeader("Accept-Ranges", "bytes");
+        response.setHeader(HttpHeaders.ACCEPT_RANGES, "bytes");
 
-        path.getFileSystem().provider().resolveChecksumPathMap(path).entrySet().stream().forEach(e -> {
+        path.getFileSystem().provider().resolveChecksumPathMap(path).forEach((key, value) -> {
             String checksumValue;
             try
             {
-                checksumValue = new String(Files.readAllBytes(e.getValue()), "UTF-8").trim();
+                checksumValue = new String(Files.readAllBytes(value), StandardCharsets.UTF_8).trim();
             }
             catch (IOException ioe)
             {
                 return;
             }
+
             String checksumName = String.format("Checksum-%s",
-                                                e.getKey().toUpperCase().replaceAll("-", ""));
-            response.setHeader(checksumName,
-                               checksumValue);
+                                                key.toUpperCase().replace("-", ""));
+
+            response.setHeader(checksumName, checksumValue);
         });
-        
+    }
+
+    private static String getContentType(RepositoryPath path)
+            throws IOException
+    {
+        if (RepositoryFiles.isChecksum(path) || (path.getFileName().toString().endsWith(".properties")))
+        {
+            return MediaType.TEXT_PLAIN_VALUE;
+        }
+        else if (path.getFileName().toString().endsWith("xml"))
+        {
+            return MediaType.APPLICATION_XML_VALUE;
+        }
+        else if (path.getFileName().toString().endsWith(".gz"))
+        {
+            return com.google.common.net.MediaType.GZIP.toString();
+        }
+
+        return MediaType.APPLICATION_OCTET_STREAM_VALUE;
+
+    }
+
+    private static void copyPartialMultipleRangeToResponse(InputStream is,
+                                                           HttpServletResponse response,
+                                                           List<ByteRange> byteRanges,
+                                                           String contentType)
+            throws IOException
+    {
+        BufferedInputStream bis = new BufferedInputStream(is, DEFAULT_BUFFER_SIZE);
+        long inputLength = Long.parseLong(response.getHeader(HttpHeaders.CONTENT_LENGTH));
+        long totalBytes = 0L;
+
+        try (OutputStream os = new ExceptionHandlingOutputStream(response.getOutputStream()))
+        {
+            for (ByteRange byteRange : byteRanges)
+            {
+                long start = byteRange.getOffset();
+                long end = byteRange.getLimit();
+                long length = end - start + 1;
+
+                os.write(toByteArray(""));
+                os.write(toByteArray("--" + MULTIPART_BOUNDARY));
+
+                final String contentTypeHeader = String.format("%s: %s",
+                                                               HttpHeaders.CONTENT_TYPE,
+                                                               contentType);
+                os.write(toByteArray(contentTypeHeader));
+
+                final String contentRangeHeader = String.format("%s: bytes %d-%d/%d",
+                                                                HttpHeaders.CONTENT_RANGE,
+                                                                start,
+                                                                end,
+                                                                inputLength);
+                os.write(toByteArray(contentRangeHeader));
+
+                os.write(toByteArray(""));
+
+                // Check if it is allowed to read the stream more than once.
+                if (bis.markSupported())
+                {
+                    int readLength;
+                    byte[] buffer = new byte[DEFAULT_BUFFER_SIZE];
+                    long toRead = length;
+
+                    long markLimit = Math.max(toRead, DEFAULT_BUFFER_SIZE) + 1L;
+                    int markLimitInt = Math.toIntExact(markLimit);
+                    // Needed for reading the stream more than once.
+                    bis.mark(markLimitInt);
+
+                    // Skip to the byte range offset.
+                    bis.skip(start);
+
+                    while ((readLength = bis.read()) != -1)
+                    {
+                        toRead -= readLength;
+
+                        // Range length is greater than the buffer length.
+                        if (toRead > 0)
+                        {
+                            os.write(buffer, 0, readLength);
+                            os.flush();
+
+                            totalBytes += readLength;
+                        }
+                        else
+                        {
+                            os.write(buffer, 0, (int) toRead + readLength);
+                            os.flush();
+
+                            totalBytes += (toRead + readLength);
+                            break;
+                        }
+                    }
+
+                    // Needed for reading the stream more than once.
+                    bis.reset();
+                }
+            }
+
+            os.write(toByteArray(""));
+            os.write(toByteArray("--" + MULTIPART_BOUNDARY + "--"));
+            os.flush();
+
+            response.setHeader(HttpHeaders.CONTENT_LENGTH, Long.toString(totalBytes));
+            response.flushBuffer();
+        }
+    }
+
+    private static byte[] toByteArray(String string)
+    {
+        return (string.concat(CRLF)).getBytes(StandardCharsets.UTF_8);
     }
 
 }

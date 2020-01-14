@@ -46,7 +46,7 @@ public class RepositoryManagementTestExecutionListener extends TestRepositoryMan
         return Proxy.newProxyInstance(RepositoryManagementTestExecutionListener.class.getClassLoader(),
                                       new Class[] { Repository.class },
                                       new TestRepositoryProxyInvocationHandler(
-                                              id(testRepository)));
+                                              id(testRepository), getTestRepositoryManagementContext()));
     }
 
     /**
@@ -59,11 +59,16 @@ public class RepositoryManagementTestExecutionListener extends TestRepositoryMan
     {
 
         private Repository target;
+
         private final String id;
 
-        private TestRepositoryProxyInvocationHandler(String id)
+        private final TestRepositoryManagementContext context;
+
+        private TestRepositoryProxyInvocationHandler(String id,
+                                                     TestRepositoryManagementContext context)
         {
             this.id = id;
+            this.context = context;
         }
 
         @Override
@@ -74,7 +79,7 @@ public class RepositoryManagementTestExecutionListener extends TestRepositoryMan
         {
             if (target == null)
             {
-                target = getTestRepositoryManagementContext().getTestRepositoryContext(id).getRepository();
+                target = context.getTestRepositoryContext(id).getRepository();
             }
 
             try

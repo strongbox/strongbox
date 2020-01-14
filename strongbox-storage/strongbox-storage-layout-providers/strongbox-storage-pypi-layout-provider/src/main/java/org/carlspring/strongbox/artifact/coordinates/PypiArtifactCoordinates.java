@@ -52,6 +52,17 @@ public class PypiArtifactCoordinates
 
     public static final String WHEEL_EXTENSION = "whl";
 
+    public PypiArtifactCoordinates()
+    {
+        resetCoordinates(DISTRIBUTION,
+                         VERSION,
+                         BUILD,
+                         LANGUAGE_IMPLEMENTATION_VERSION,
+                         ABI,
+                         PLATFORM,
+                         PACKAGING);
+    }
+
     /**
      * This method takes in all artifact coordinates of a PyPi package filename, with build being
      * the empty string if it is not included in the filename
@@ -72,6 +83,8 @@ public class PypiArtifactCoordinates
                                    String platform,
                                    String packaging)
     {
+        this();
+
         if (StringUtils.isBlank(packaging))
         {
             throw new IllegalArgumentException("The packaging field is mandatory.");
@@ -280,7 +293,7 @@ public class PypiArtifactCoordinates
                              getPackaging());
     }
 
-    private String buildWheelPackageFileName()
+    public String buildWheelPackageFileName()
     {
         String path;
 

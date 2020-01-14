@@ -8,15 +8,13 @@ import java.io.InputStream;
 import java.io.OutputStream;
 import java.io.StringWriter;
 import java.nio.charset.StandardCharsets;
-import java.nio.file.Files;
-import java.nio.file.Path;
-import java.nio.file.StandardCopyOption;
-import java.nio.file.StandardOpenOption;
+import java.nio.file.*;
 import java.security.NoSuchAlgorithmException;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.List;
 import java.util.Optional;
+import java.util.stream.Collectors;
 
 import javax.inject.Inject;
 import javax.servlet.ServletInputStream;
@@ -29,6 +27,7 @@ import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.core.JsonToken;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import org.apache.commons.codec.digest.DigestUtils;
 import org.apache.commons.compress.archivers.tar.TarArchiveEntry;
 import org.apache.commons.compress.archivers.tar.TarArchiveInputStream;
 import org.apache.commons.compress.compressors.gzip.GzipCompressorInputStream;
@@ -54,6 +53,7 @@ import org.carlspring.strongbox.providers.io.RepositoryPath;
 import org.carlspring.strongbox.providers.layout.NpmPackageDesc;
 import org.carlspring.strongbox.providers.layout.NpmPackageSupplier;
 import org.carlspring.strongbox.providers.layout.NpmSearchResultSupplier;
+import org.carlspring.strongbox.providers.layout.NpmUnpublishService;
 import org.carlspring.strongbox.providers.repository.RepositoryProvider;
 import org.carlspring.strongbox.providers.repository.RepositoryProviderRegistry;
 import org.carlspring.strongbox.repository.NpmRepositoryFeatures.SearchPackagesEventListener;
@@ -75,6 +75,7 @@ import org.springframework.security.authentication.InsufficientAuthenticationExc
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
 import org.springframework.util.Assert;
+import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PutMapping;
@@ -120,6 +121,9 @@ public class NpmArtifactController
 
     @Inject
     private SearchPackagesEventListener searcPackagesEventListener;
+
+    @Inject
+    private NpmUnpublishService npmUnpublishService;
 
     @GetMapping(path = { "{storageId}/{repositoryId}/npm" })
     public ResponseEntity<String> greet()
@@ -277,9 +281,20 @@ public class NpmArtifactController
             }
 
         });
-
+        packageFeed.setAdditionalProperty("_rev", generateRevisionHashcode(packageFeed));
         response.setContentType(MediaType.APPLICATION_JSON_VALUE);
         response.getOutputStream().write(npmJacksonMapper.writeValueAsBytes(packageFeed));
+    }
+
+    private String generateRevisionHashcode(PackageFeed packageFeed)
+    {
+        String versionsShasum = packageFeed.getVersions().getAdditionalProperties()
+                                           .values()
+                                           .stream()
+                                           .map(x -> x.getDist().getShasum())
+                                           .collect(Collectors.joining());
+        return packageFeed.getVersions().getAdditionalProperties().size() + "-" +
+               DigestUtils.sha1Hex(versionsShasum).substring(0, 16);
     }
 
     @GetMapping(path = "{storageId}/{repositoryId}/{packageName}")
@@ -308,21 +323,31 @@ public class NpmArtifactController
     }
 
     @PreAuthorize("hasAuthority('ARTIFACTS_RESOLVE')")
-    @RequestMapping(path = "{storageId}/{repositoryId}/{packageScope}/{packageName}/-/{packageName}-{packageVersion}.{packageExtension}",
+    @RequestMapping(path = "{storageId}/{repositoryId}/{packageScope}/{packageName}/-/{packageNameWithVersion}.{packageExtension}",
             method = { RequestMethod.GET,
                        RequestMethod.HEAD })
     public void downloadPackageWithScope(@RepositoryMapping Repository repository,
                                          @PathVariable(name = "packageScope") String packageScope,
                                          @PathVariable(name = "packageName") String packageName,
-                                         @PathVariable(name = "packageVersion") String packageVersion,
+                                         @PathVariable(name = "packageNameWithVersion") String packageNameWithVersion,
                                          @PathVariable(name = "packageExtension") String packageExtension,
                                          @RequestHeader HttpHeaders httpHeaders,
                                          HttpServletRequest request,
                                          HttpServletResponse response)
             throws Exception
     {
+
         final String storageId = repository.getStorage().getId();
         final String repositoryId = repository.getId();
+
+        if (!packageNameWithVersion.startsWith(packageName + "-"))
+        {
+            response.setStatus(HttpServletResponse.SC_BAD_REQUEST);
+            return;
+        }
+
+        //Example of packageNameWithVersion  core-9.0.1-next.8.tgz
+        final String packageVersion = getPackageVersion(packageNameWithVersion, packageName);
 
         NpmArtifactCoordinates coordinates;
         try
@@ -341,12 +366,12 @@ public class NpmArtifactController
     }
 
     @PreAuthorize("hasAuthority('ARTIFACTS_RESOLVE')")
-    @RequestMapping(path = "{storageId}/{repositoryId}/{packageName}/-/{packageName}-{packageVersion}.{packageExtension}",
+    @RequestMapping(path = "{storageId}/{repositoryId}/{packageName}/-/{packageNameWithVersion}.{packageExtension}",
             method = { RequestMethod.GET,
                        RequestMethod.HEAD })
     public void downloadPackage(@RepositoryMapping Repository repository,
                                 @PathVariable(name = "packageName") String packageName,
-                                @PathVariable(name = "packageVersion") String packageVersion,
+                                @PathVariable(name = "packageNameWithVersion") String packageNameWithVersion,
                                 @PathVariable(name = "packageExtension") String packageExtension,
                                 @RequestHeader HttpHeaders httpHeaders,
                                 HttpServletRequest request,
@@ -355,6 +380,15 @@ public class NpmArtifactController
     {
         final String storageId = repository.getStorage().getId();
         final String repositoryId = repository.getId();
+
+        if (!packageNameWithVersion.startsWith(packageName + "-"))
+        {
+            response.setStatus(HttpServletResponse.SC_BAD_REQUEST);
+            return;
+        }
+
+        //Example of packageNameWithVersion core-9.0.1-next.8.tgz
+        final String packageVersion = getPackageVersion(packageNameWithVersion, packageName);
 
         NpmArtifactCoordinates coordinates;
         try
@@ -379,8 +413,13 @@ public class NpmArtifactController
                                   HttpServletRequest request)
             throws Exception
     {
+        if (nameContainsRevision(name))
+        {
+            return ResponseEntity.status(HttpStatus.OK).build();
+        }
         final String storageId = repository.getStorage().getId();
         final String repositoryId = repository.getId();
+
 
         logger.info("npm publish request for {}/{}/{}", storageId, repositoryId, name);
         Pair<PackageVersion, Path> packageEntry;
@@ -402,6 +441,28 @@ public class NpmArtifactController
         storeNpmPackage(repository, coordinates, packageJson, packageTgz);
 
         return ResponseEntity.ok("");
+    }
+
+    /**
+     * Resolves if a passed name contains '/-rev' substring.
+     * Npm 'unpublish' a single version package comprises 4 requests: GET, PUT, GET, DELETE, and
+     * PUT method has a path that Strongbox maps on
+     * {@link NpmArtifactController#publish(Repository, String, HttpServletRequest)}.
+     * Example of PUT path: http://localhost:8080/@scope/package/-rev/0-0000000000000000.
+     * As publishing doesn't play any role in 'unpublish' process, it should be skipped.
+     *
+     * @param name name from path "{storageId}/{repositoryId}/{name:.+}"
+     * @return true if contains, false if not. If true PUT stage of 'unpublish' will be skipped.
+     */
+    private boolean nameContainsRevision(String name)
+    {
+        if (name.contains("/-rev/"))
+        {
+            logger.warn("Url comprises '/-rev/' sub path");
+
+            return true;
+        }
+        return false;
     }
 
     @PreAuthorize("hasAuthority('UI_LOGIN')")
@@ -430,6 +491,128 @@ public class NpmArtifactController
         return ResponseEntity
                        .status(HttpStatus.CREATED)
                        .body("{\"ok\":\"user '" + authentication.getName() + "' created\"}");
+    }
+
+    @DeleteMapping(path = "{storageId}/{repositoryId}/{packageScope}/{packageName}/-rev/{rev}")
+    @PreAuthorize("hasAuthority('ARTIFACTS_DELETE')")
+    public ResponseEntity unpublishPackageWithScope(@RepositoryMapping Repository repository,
+                                                    @PathVariable(name = "packageScope") String packageScope,
+                                                    @PathVariable(name = "packageName") String packageName,
+                                                    @PathVariable(name = "rev") String rev)
+    {
+
+        logger.info("Npm unpublish a package request: storageId-[{}]; repositoryId-[{}]; packageName-[{}]; revision-[{}];",
+                    repository.getStorage().getId(),
+                    repository.getId(),
+                    packageName,
+                    rev);
+
+        NpmUnpublishService.Result result = npmUnpublishService.unpublishPackage(repository, packageScope, packageName);
+
+        return processUnpublishResult(result);
+    }
+
+    /**
+     * Unpublish a single version of a specified package. This mapping works for npm versions > 6.5.0.
+     *
+     * @param repository   repository
+     * @param packageScope package scope
+     * @param packageName  package name
+     * @param tarball      tarball
+     * @param rev          revision value
+     * @return result via {@link ResponseEntity} with HTTP status
+     * @throws Exception
+     */
+    @DeleteMapping(path = "{storageId}/{repositoryId}/{r1}/{r2}/{r3}/{packageScope}/{packageName}/-/{tarball}/-rev/{rev}")
+    @PreAuthorize("hasAuthority('ARTIFACTS_DELETE')")
+    public ResponseEntity unpublishVersionWithScope(@RepositoryMapping Repository repository,
+                                                    @PathVariable(name = "packageScope") String packageScope,
+                                                    @PathVariable(name = "packageName") String packageName,
+                                                    @PathVariable(name = "tarball") String tarball,
+                                                    @PathVariable(name = "rev") String rev)
+    {
+
+        final String version = getPackageVersion(tarball, packageName).replace(".tgz", "");
+
+        logger.info("Npm unpublish a single version request: storageId-[{}]; repositoryId-[{}]; packageName-[{}]; tarball-[{}]; revision-[{}];",
+                    repository.getStorage().getId(),
+                    repository.getId(),
+                    packageName,
+                    tarball,
+                    rev);
+
+        NpmUnpublishService.Result result = npmUnpublishService.unpublishSingleVersion(repository,
+                                                                                       packageScope,
+                                                                                       packageName,
+                                                                                       tarball,
+                                                                                       version);
+        return processUnpublishResult(result);
+    }
+
+    /**
+     * Unpublish a single version of a specified package. This mapping works for npm versions <= 6.5.0.
+     *
+     * @param repository   repository
+     * @param packageScope package scope
+     * @param packageName  package name
+     * @param tarball      tarball
+     * @param rev          revision value
+     * @return result via {@link ResponseEntity} with HTTP status
+     * @throws Exception
+     */
+    @DeleteMapping(path = "{storageId}/{repositoryId}/{packageScope}/{packageName}/-/{tarball}/-rev/{rev}")
+    @PreAuthorize("hasAuthority('ARTIFACTS_DELETE')")
+    public ResponseEntity unpublishVersionWithScopeV5(@RepositoryMapping Repository repository,
+                                                      @PathVariable(name = "packageScope") String packageScope,
+                                                      @PathVariable(name = "packageName") String packageName,
+                                                      @PathVariable(name = "tarball") String tarball,
+                                                      @PathVariable(name = "rev") String rev)
+    {
+
+        final String version = getPackageVersion(tarball, packageName).replace(".tgz", "");
+
+        logger.info("Npm unpublish a single version request: storageId-[{}]; repositoryId-[{}]; packageName-[{}]; tarball-[{}]; revision-[{}];",
+                    repository.getStorage().getId(),
+                    repository.getId(),
+                    packageName,
+                    tarball,
+                    rev);
+
+        NpmUnpublishService.Result result = npmUnpublishService.unpublishSingleVersion(repository,
+                                                                                       packageScope,
+                                                                                       packageName,
+                                                                                       tarball,
+                                                                                       version);
+        return processUnpublishResult(result);
+    }
+
+    @DeleteMapping(path = "{storageId}/{repositoryId}/{packageName}/-rev/{rev}")
+    @PreAuthorize("hasAuthority('ARTIFACTS_DELETE')")
+    public ResponseEntity unpublishPackage(@RepositoryMapping Repository repository,
+                                           @PathVariable(name = "packageName") String packageName,
+                                           @PathVariable(name = "rev") String rev)
+    {
+        return unpublishPackageWithScope(repository, null, packageName, rev);
+    }
+
+    @DeleteMapping(path = "{storageId}/{repositoryId}/{r1}/{r2}/{r3}/{packageName}/-/{tarball}/-rev/{rev}")
+    @PreAuthorize("hasAuthority('ARTIFACTS_DELETE')")
+    public ResponseEntity unpublishVersion(@RepositoryMapping Repository repository,
+                                           @PathVariable(name = "packageName") String packageName,
+                                           @PathVariable(name = "tarball") String tarball,
+                                           @PathVariable(name = "rev") String rev)
+    {
+        return unpublishVersionWithScope(repository, null, packageName, tarball, rev);
+    }
+
+    @DeleteMapping(path = "{storageId}/{repositoryId}/{packageName}/-/{tarball}/-rev/{rev}")
+    @PreAuthorize("hasAuthority('ARTIFACTS_DELETE')")
+    public ResponseEntity unpublishVersionV5(@RepositoryMapping Repository repository,
+                                             @PathVariable(name = "packageName") String packageName,
+                                             @PathVariable(name = "tarball") String tarball,
+                                             @PathVariable(name = "rev") String rev)
+    {
+        return unpublishVersionWithScopeV5(repository, null, packageName, tarball, rev);
     }
 
     private void storeNpmPackage(Repository repository,
@@ -638,6 +821,29 @@ public class NpmArtifactController
             }
 
             return null;
+        }
+    }
+
+    private String getPackageVersion(String packageNameWithVersion,
+                                     String packageName)
+    {
+        return packageNameWithVersion.substring(packageName.length() + 1);
+    }
+
+    private ResponseEntity processUnpublishResult(NpmUnpublishService.Result result)
+    {
+        switch (result)
+        {
+            case INTERNAL_SERVER_ERROR:
+                return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
+            case ARTIFACT_DOES_NOT_EXIST:
+            case UNPUBLISHED:
+                return ResponseEntity.status(HttpStatus.OK).build();
+            case UNPUBLISH_DISABLED:
+                ResponseEntity.status(HttpStatus.BAD_REQUEST)
+                              .body("Enable 'unpublish' at first");
+            default:
+                return ResponseEntity.status(HttpStatus.BAD_REQUEST).build();
         }
     }
 

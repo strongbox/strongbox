@@ -1,0 +1,9 @@
+Package: strongbox
+Version: [[version]]
+Architecture: all
+Section: Miscellaneous
+Priority: low
+Homepage: https://github.com/strongbox/strongbox
+Description: The Strongbox artifact repository manager
+Maintainer: Martin Todorov <carlspring@gmail.com>
+Recommends: java8-runtime | java8-runtime-headless

@@ -113,7 +113,6 @@
                         <strongbox.basedir>${project.build.directory}</strongbox.basedir>
                         <logging.config>${project.build.directory}/strongbox/etc/logback-spring.xml</logging.config>
                         <logging.debug>true</logging.debug>
-                        <logging.dir>${project.build.directory}/strongbox-vault/logs</logging.dir>
                     </systemPropertyVariables>
                 </configuration>
 
@@ -226,12 +225,19 @@
         </dependency>
         <dependency>
             <groupId>${project.groupId}</groupId>
+            <artifactId>strongbox-storage-pypi-layout-provider</artifactId>
+            <version>${project.version}</version>
+            <type>test-jar</type>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>${project.groupId}</groupId>
             <artifactId>strongbox-storage-raw-layout-provider</artifactId>
             <version>${project.version}</version>
         </dependency>
         <dependency>
             <groupId>${project.groupId}</groupId>
-            <artifactId>strongbox-storage-p2-layout-provider</artifactId>
+            <artifactId>strongbox-storage-rpm-layout-provider</artifactId>
             <version>${project.version}</version>
         </dependency>
         <dependency>
@@ -304,10 +310,6 @@
             <artifactId>strongbox-web-ui</artifactId>
             <version>${project.version}</version>
             <type>zip</type>
-        </dependency>
-        <dependency>
-            <groupId>org.carlspring.logging</groupId>
-            <artifactId>logback-configuration-rest</artifactId>
         </dependency>
 
         <!-- Maven artifact management -->
@@ -414,6 +416,11 @@
         </dependency>
 
         <dependency>
+            <groupId>org.carlspring.commons</groupId>
+            <artifactId>commons-http</artifactId>
+        </dependency>
+
+        <dependency>
             <groupId>io.reactivex.rxjava2</groupId>
             <artifactId>rxjava</artifactId>
         </dependency>
@@ -433,6 +440,10 @@
         <dependency>
             <groupId>org.junit.jupiter</groupId>
             <artifactId>junit-jupiter</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.junit.jupiter</groupId>
+            <artifactId>junit-jupiter-api</artifactId>
         </dependency>
         <dependency>
             <groupId>org.mockito</groupId>

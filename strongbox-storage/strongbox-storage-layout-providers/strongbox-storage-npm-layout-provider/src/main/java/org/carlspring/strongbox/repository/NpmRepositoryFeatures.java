@@ -24,6 +24,7 @@ import org.carlspring.strongbox.storage.repository.remote.RemoteRepository;
 import org.carlspring.strongbox.storage.validation.artifact.version.GenericReleaseVersionValidator;
 import org.carlspring.strongbox.storage.validation.artifact.version.GenericSnapshotVersionValidator;
 import org.carlspring.strongbox.storage.validation.deployment.RedeploymentValidator;
+import org.carlspring.strongbox.yaml.configuration.repository.NpmRepositoryConfigurationData;
 import org.carlspring.strongbox.yaml.configuration.repository.remote.NpmRemoteRepositoryConfiguration;
 import org.carlspring.strongbox.yaml.configuration.repository.remote.NpmRemoteRepositoryConfigurationDto;
 
@@ -38,6 +39,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.util.Arrays;
 import java.util.LinkedHashSet;
+import java.util.Optional;
 import java.util.Set;
 import java.util.concurrent.Executor;
 
@@ -59,6 +61,8 @@ public class NpmRepositoryFeatures implements RepositoryFeatures
 {
 
     private static final int CHANGES_BATCH_SIZE = 500;
+
+    private static final boolean ALLOWS_UNPUBLISH_DEFAULT = true;
 
     private static final Logger logger = LoggerFactory.getLogger(NpmRepositoryFeatures.class);
 
@@ -109,6 +113,25 @@ public class NpmRepositoryFeatures implements RepositoryFeatures
         return defaultArtifactCoordinateValidators;
     }
 
+    public boolean allowsUnpublish(String storageId,
+                                   String repositoryId)
+    {
+        Storage storage = getConfiguration().getStorage(storageId);
+        Repository repository = storage.getRepository(repositoryId);
+
+        Optional<NpmRepositoryConfigurationData> repositoryConfiguration = Optional.ofNullable(
+                (NpmRepositoryConfigurationData) repository.getRepositoryConfiguration());
+        boolean allowsUnpublish = repositoryConfiguration.map(NpmRepositoryConfigurationData::isAllowsUnpublish)
+                                                         .orElse(ALLOWS_UNPUBLISH_DEFAULT);
+
+        logger.info("allowsUnpublish is [{}] for storageId: [{}]; repositoryId: [{}]",
+                    allowsUnpublish,
+                    storageId,
+                    repositoryId);
+
+        return allowsUnpublish;
+    }
+
     private void fetchRemoteSearchResult(String storageId,
                                          String repositoryId,
                                          String text,
@@ -143,9 +166,9 @@ public class NpmRepositoryFeatures implements RepositoryFeatures
         catch (Exception e)
         {
             logger.error("Failed to search NPM packages [{}]", remoteRepositoryUrl, e);
-            
+
             return;
-        } 
+        }
         finally
         {
             restClient.close();
@@ -221,7 +244,7 @@ public class NpmRepositoryFeatures implements RepositoryFeatures
             Invocation request = service.request().buildGet();
 
             result = fetchRemoteChangesFeed(repository, request);
-        } 
+        }
         finally
         {
             restClient.close();
@@ -342,7 +365,7 @@ public class NpmRepositoryFeatures implements RepositoryFeatures
         {
             logger.error("Failed to fetch NPM changes feed [{}]", remoteRepositoryUrl, e);
             return;
-        } 
+        }
         finally
         {
             restClient.close();

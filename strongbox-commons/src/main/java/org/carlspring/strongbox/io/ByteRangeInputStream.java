@@ -6,7 +6,6 @@ import org.carlspring.commons.io.reloading.ReloadableInputStreamHandler;
 
 import java.io.IOException;
 import java.io.InputStream;
-import java.security.NoSuchAlgorithmException;
 import java.util.List;
 
 public class ByteRangeInputStream
@@ -16,30 +15,26 @@ public class ByteRangeInputStream
     private long length;
 
     public ByteRangeInputStream(InputStream is)
-            throws NoSuchAlgorithmException
     {
         super(is);
     }
 
     public ByteRangeInputStream(ReloadableInputStreamHandler handler,
                                 ByteRange byteRange)
-            throws IOException,
-                   NoSuchAlgorithmException
+            throws IOException
     {
         super(handler, byteRange);
     }
 
     public ByteRangeInputStream(ReloadableInputStreamHandler handler,
                                 List<ByteRange> byteRanges)
-            throws IOException,
-                   NoSuchAlgorithmException
+            throws IOException
     {
         super(handler, byteRanges);
     }
 
     @Override
     public void reposition(long skipBytes)
-            throws IOException
     {
         //Do noting here
     }

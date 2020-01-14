@@ -1,5 +1,7 @@
 package org.carlspring.strongbox.io;
 
+import org.carlspring.commons.http.range.ByteRange;
+
 import java.io.FilterInputStream;
 import java.io.FilterOutputStream;
 import java.io.IOException;
@@ -7,7 +9,6 @@ import java.io.InputStream;
 import java.io.OutputStream;
 import java.lang.reflect.Field;
 
-import org.carlspring.commons.http.range.ByteRange;
 import org.springframework.util.ReflectionUtils;
 
 public class StreamUtils
@@ -15,21 +16,22 @@ public class StreamUtils
 
     private StreamUtils()
     {
-
     }
 
     public static long getLength(ByteRangeInputStream bris)
-        throws IOException
     {
         return bris.getLength();
     }
 
     public static void setCurrentByteRange(ByteRangeInputStream bris,
                                            ByteRange byteRange)
-        throws IOException
+            throws IOException
     {
-        bris.setCurrentByteRange(byteRange);
-        bris.skip(byteRange.getOffset());
+        if (bris != null)
+        {
+            bris.setCurrentByteRange(byteRange);
+            bris.skip(byteRange.getOffset());
+        }
     }
 
     public static <T extends InputStream> T findSource(Class<T> sourceClass,
@@ -39,24 +41,27 @@ public class StreamUtils
         {
             return (T) in;
         }
-        
-        Field inField = ReflectionUtils.findField(FilterInputStream.class, "in");
-        inField.setAccessible(true);
 
-        InputStream source = in;
-        while (source instanceof FilterInputStream)
+        Field inField = ReflectionUtils.findField(FilterInputStream.class, "in");
+        if (inField != null)
         {
-            try
+            inField.setAccessible(true);
+
+            InputStream source = in;
+            while (source instanceof FilterInputStream)
             {
-                source = (InputStream) inField.get(source);
-            }
-            catch (Exception e)
-            {
-                return null;
-            }
-            if (sourceClass.isAssignableFrom(source.getClass()))
-            {
-                return sourceClass.cast(source);
+                try
+                {
+                    source = (InputStream) inField.get(source);
+                }
+                catch (Exception e)
+                {
+                    return null;
+                }
+                if (sourceClass.isAssignableFrom(source.getClass()))
+                {
+                    return sourceClass.cast(source);
+                }
             }
         }
         return null;
@@ -69,27 +74,29 @@ public class StreamUtils
         {
             return (T) out;
         }
-        
-        Field inField = ReflectionUtils.findField(FilterOutputStream.class, "out");
-        inField.setAccessible(true);
 
-        OutputStream source = out;
-        while (source instanceof FilterOutputStream)
+        Field outField = ReflectionUtils.findField(FilterOutputStream.class, "out");
+        if (outField != null)
         {
-            try
+            outField.setAccessible(true);
+
+            OutputStream source = out;
+            while (source instanceof FilterOutputStream)
             {
-                source = (OutputStream) inField.get(source);
-            }
-            catch (Exception e)
-            {
-                return null;
-            }
-            if (sourceClass.isAssignableFrom(source.getClass()))
-            {
-                return sourceClass.cast(source);
+                try
+                {
+                    source = (OutputStream) outField.get(source);
+                }
+                catch (Exception e)
+                {
+                    return null;
+                }
+                if (sourceClass.isAssignableFrom(source.getClass()))
+                {
+                    return sourceClass.cast(source);
+                }
             }
         }
-        
         return null;
     }
 

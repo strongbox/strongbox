@@ -15,7 +15,6 @@ import org.carlspring.strongbox.storage.repository.Repository;
 
 import javax.inject.Inject;
 import javax.servlet.http.HttpServletResponse;
-
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
@@ -286,8 +285,8 @@ public abstract class BaseController
         return toResponseEntityError(message, HttpStatus.INTERNAL_SERVER_ERROR);
     }
 
-    protected void copyToResponse(InputStream is,
-                                  HttpServletResponse response)
+    public static void copyToResponse(InputStream is,
+                                      HttpServletResponse response)
             throws IOException
     {
         try (OutputStream os = new ExceptionHandlingOutputStream(response.getOutputStream()))
@@ -296,7 +295,7 @@ public abstract class BaseController
 
             int readLength;
             byte[] bytes = new byte[4096];
-            while ((readLength = is.read(bytes, 0, bytes.length)) != -1)
+            while ((readLength = is.read(bytes)) != -1)
             {
                 // Write the artifact
                 os.write(bytes, 0, readLength);

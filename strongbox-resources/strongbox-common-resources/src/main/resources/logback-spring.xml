@@ -7,12 +7,13 @@
         <resetJUL>true</resetJUL>
     </contextListener>
 
-    <springProperty scope="context" name="loggingPath" source="strongbox.vault" defaultValue="."/>
+    <springProperty scope="context" name="loggingDir" source="logging.dir" defaultValue="strongbox-vault/logs"/>
     <springProperty scope="context" name="debug" source="logging.debug" defaultValue="false"/>
     
     <springProperty scope="context" name="console" source="logging.console.enabled" defaultValue="true"/>
     
     <springProperty scope="context" name="file" source="logging.file.enabled" defaultValue="true"/>
+    <springProperty scope="context" name="loggingFile" source="logging.file" defaultValue="strongbox-vault/logs/strongbox.log"/>
     <springProperty scope="context" name="fileSizeSingle" source="logging.file.size.single" defaultValue="128MB"/>
     <springProperty scope="context" name="fileSizeTotal" source="logging.file.size.total" defaultValue="1GB"/>
     <springProperty scope="context" name="fileHisotry" source="logging.file.history" defaultValue="31"/>
@@ -21,6 +22,7 @@
     <then>
         <appender name="CONSOLE" class="ch.qos.logback.core.ConsoleAppender">
             <filter class="org.carlspring.strongbox.log.CronTaskContextDeclineFilter"/>
+            <filter class="org.carlspring.strongbox.log.JaninoClassLoaderLogDeclineFilter"/>
     
             <encoder>
                 <pattern>%d{HH:mm:ss.SSS dd-MM-yyyy} | %-5.5p | %-20.20t | %-50.50logger{50} | %m%n</pattern>
@@ -37,10 +39,11 @@
         <appender name="FILE"
             class="ch.qos.logback.core.rolling.RollingFileAppender">
             <filter class="org.carlspring.strongbox.log.CronTaskContextDeclineFilter"/>
+            <filter class="org.carlspring.strongbox.log.JaninoClassLoaderLogDeclineFilter"/>
             
-            <file>${loggingPath}/logs/strongbox.log</file>
+            <file>${loggingFile}</file>
             <rollingPolicy class="ch.qos.logback.core.rolling.SizeAndTimeBasedRollingPolicy">
-                <fileNamePattern>${loggingPath}/logs/strongbox-%d{yyyy-MM-dd}.%i.log.gz</fileNamePattern>
+                <fileNamePattern>${loggingDir}/strongbox-%d{yyyy-MM-dd}.%i.log.gz</fileNamePattern>
                 <maxFileSize>${fileSizeSingle}</maxFileSize>
                 <maxHistory>${fileHistory}</maxHistory>
                 <totalSizeCap>${fileSizeTotal}</totalSizeCap>
@@ -63,10 +66,11 @@
                 <appender name="CRON-JOB-CONTEXT-SIFT-FILE-APPENDER"
                     class="ch.qos.logback.core.rolling.RollingFileAppender">
                     <filter class="org.carlspring.strongbox.log.CronTaskContextAcceptFilter"/>
+                    <filter class="org.carlspring.strongbox.log.JaninoClassLoaderLogDeclineFilter"/>
                     
-                    <file>${loggingPath}/logs/${strongbox-cron-context-name}/${strongbox-cron-context-name}.log</file>
+                    <file>${loggingDir}/${strongbox-cron-context-name}/${strongbox-cron-context-name}.log</file>
                     <rollingPolicy class="ch.qos.logback.core.rolling.SizeAndTimeBasedRollingPolicy">
-                        <fileNamePattern>${loggingPath}/logs/${strongbox-cron-context-name}/${strongbox-cron-context-name}-%d{yyyy-MM-dd}.%i.log.gz</fileNamePattern>
+                        <fileNamePattern>${loggingDir}/${strongbox-cron-context-name}/${strongbox-cron-context-name}-%d{yyyy-MM-dd}.%i.log.gz</fileNamePattern>
                         <maxFileSize>${fileSizeSingle}</maxFileSize>
                         <maxHistory>${fileHistory}</maxHistory>
                         <totalSizeCap>${fileSizeTotal}</totalSizeCap>

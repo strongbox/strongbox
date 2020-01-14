@@ -1,9 +1,9 @@
 package org.carlspring.strongbox.storage.indexing.local;
 
 import org.carlspring.strongbox.config.Maven2LayoutProviderTestConfig;
-import org.carlspring.strongbox.providers.io.LayoutFileSystem;
 import org.carlspring.strongbox.providers.io.RepositoryPath;
 import org.carlspring.strongbox.providers.io.RootRepositoryPath;
+import org.carlspring.strongbox.repository.MavenRepositoryFeatures;
 import org.carlspring.strongbox.storage.indexing.BaseRepositoryIndexCreatorTest;
 import org.carlspring.strongbox.storage.indexing.RepositoryIndexCreator;
 import org.carlspring.strongbox.storage.indexing.RepositoryIndexCreator.RepositoryIndexCreatorQualifier;
@@ -71,14 +71,14 @@ public class RepositoryHostedIndexCreatorTest
 
         final RootRepositoryPath repositoryPath = repositoryPathResolver.resolve(repository);
 
-        final Path expectedPath = repositoryPath.resolve(LayoutFileSystem.INDEX)
+        final Path expectedPath = repositoryPath.resolve(MavenRepositoryFeatures.INDEX)
                                                 .resolve("local")
                                                 .resolve("nexus-maven-repository-index.gz");
                                                 
         assertThat(expectedPath).matches(Files::exists);
         assertThat(indexPath).isEqualTo(expectedPath);
         
-        final Path expectedIndexPropertiesPath = repositoryPath.resolve(LayoutFileSystem.INDEX)
+        final Path expectedIndexPropertiesPath = repositoryPath.resolve(MavenRepositoryFeatures.INDEX)
                                                                .resolve("local")
                                                                .resolve("nexus-maven-repository-index.properties");
                                                                

@@ -38,7 +38,7 @@ public abstract class BaseArtifactController
         }
 
         
-        try (InputStream is = artifactResolutionService.getInputStream(repositoryPath);)
+        try (InputStream is = artifactResolutionService.getInputStream(repositoryPath))
         {
             if (ArtifactControllerHelper.isRangedRequest(httpHeaders))
             {
@@ -46,8 +46,10 @@ public abstract class BaseArtifactController
 
                 ArtifactControllerHelper.handlePartialDownload(is, httpHeaders, response);
             }
-            
-            copyToResponse(is, response);
+            else
+            {
+                copyToResponse(is, response);
+            }
         }
 
         return true;

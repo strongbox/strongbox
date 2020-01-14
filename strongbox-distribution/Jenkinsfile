@@ -7,7 +7,7 @@ pipeline {
     agent {
         docker {
             args '-v /mnt/ramdisk/3:/home/jenkins --privileged=true'
-            image 'strongboxci/alpine:jdk8-mvn-3.5'
+            image 'strongboxci/alpine:jdk8-mvn3.6'
         }
     }
     options {

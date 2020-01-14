@@ -63,7 +63,6 @@
                 <configuration>
                     <systemPropertyVariables>
                         <strongbox.home>${project.build.directory}/strongbox</strongbox.home>
-                        <logging.dir>${strongbox.vault}/logs</logging.dir>
                     </systemPropertyVariables>
                 </configuration>
             </plugin>
@@ -87,10 +86,7 @@
             <groupId>org.carlspring.commons</groupId>
             <artifactId>commons-io</artifactId>
         </dependency>
-        <dependency>
-            <groupId>org.carlspring.commons</groupId>
-            <artifactId>commons-http</artifactId>
-        </dependency>
+
 
         <dependency>
             <groupId>commons-io</groupId>

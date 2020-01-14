@@ -18,7 +18,7 @@ public class PypiArtifactGeneratorStrategy
     public Path generateArtifact(PypiArtifactGenerator artifactGenerator,
                                  String id,
                                  String version,
-                                 long size,
+                                 long byteSize,
                                  Map<String, Object> attributesMap)
             throws IOException
     {
@@ -29,6 +29,6 @@ public class PypiArtifactGeneratorStrategy
                                                                           "none",
                                                                           "any",
                                                                           (String) attributesMap.get("packaging"));
-        return artifactGenerator.generateArtifact(coordinates);
+        return artifactGenerator.generateArtifact(coordinates, byteSize);
     }
 }
