@@ -502,7 +502,7 @@ public class NpmRepositoryFeatures implements RepositoryFeatures
     }
 
     public Boolean anyRemotePackageCached(String storageId,
-                                                 String repositoryId)
+                                          String repositoryId)
     {
         Selector<RepositoryArtifactIdGroupEntry> selector = new Selector<>(RepositoryArtifactIdGroupEntry.class);
         selector.where(Predicate.of(ExpOperator.EQ.of("storageId", storageId)))
