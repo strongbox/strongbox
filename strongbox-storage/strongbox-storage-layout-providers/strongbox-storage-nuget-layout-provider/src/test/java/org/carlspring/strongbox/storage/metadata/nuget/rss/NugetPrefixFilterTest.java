@@ -24,10 +24,7 @@ import javax.xml.transform.Transformer;
 import javax.xml.transform.TransformerFactory;
 import javax.xml.transform.sax.SAXSource;
 import javax.xml.transform.stream.StreamResult;
-import java.io.ByteArrayInputStream;
-import java.io.ByteArrayOutputStream;
-import java.io.InputStream;
-import java.io.StringWriter;
+import java.io.*;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -119,7 +116,7 @@ public class NugetPrefixFilterTest
         byteArrayOutputStream.flush();
 
         // THEN
-        PackageFeed feed = PackageFeed.parse(new ByteArrayInputStream(byteArrayOutputStream.toByteArray()));
+        PackageFeed feed = PackageFeed.parse(new BufferedInputStream(new ByteArrayInputStream(byteArrayOutputStream.toByteArray())));
         assertThat(feed.getEntries()).as("Number of packages").hasSize(1);
         PackageEntry entry = feed.getEntries().get(0);
         assertThat(entry.getContent().getSrc())

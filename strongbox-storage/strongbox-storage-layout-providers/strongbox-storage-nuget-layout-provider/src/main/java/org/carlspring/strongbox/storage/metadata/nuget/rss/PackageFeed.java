@@ -17,8 +17,9 @@
 
 package org.carlspring.strongbox.storage.metadata.nuget.rss;
 
+import java.io.BufferedInputStream;
+import java.io.BufferedOutputStream;
 import java.io.ByteArrayOutputStream;
-import java.io.InputStream;
 import java.io.OutputStream;
 import java.util.ArrayList;
 import java.util.Date;
@@ -52,7 +53,7 @@ public class PackageFeed implements XmlWritable
 
     public static final String ATOM_XML_NAMESPACE = "http://www.w3.org/2005/Atom";
 
-    public static PackageFeed parse(InputStream inputStream)
+    public static PackageFeed parse(BufferedInputStream inputStream)
         throws JAXBException
     {
         JAXBContext context = JAXBContext.newInstance(PackageFeed.class);
@@ -192,7 +193,7 @@ public class PackageFeed implements XmlWritable
         uriToPrefix.put("http://schemas.microsoft.com/ado/2007/08/dataservices/scheme", "ds");
         uriToPrefix.put("http://schemas.microsoft.com/ado/2007/08/dataservices", "d");
         NugetPrefixFilter filter = new NugetPrefixFilter(uriToPrefix);
-        filter.setContentHandler(new XMLSerializer(outputStream, new OutputFormat()));
+        filter.setContentHandler(new XMLSerializer(new BufferedOutputStream(outputStream), new OutputFormat()));
         marshaller.marshal(this, filter);
     }
 

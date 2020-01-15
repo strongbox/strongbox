@@ -132,14 +132,21 @@ public class NpmRepositoryFeatures implements RepositoryFeatures
         return allowsUnpublish;
     }
 
+
+    private Repository getRepository(String storageId,
+                                     String repositoryId)
+    {
+        Storage storage = getConfiguration().getStorage(storageId);
+        return storage.getRepository(repositoryId);
+    }
+
     private void fetchRemoteSearchResult(String storageId,
                                          String repositoryId,
                                          String text,
                                          Integer size)
     {
 
-        Storage storage = getConfiguration().getStorage(storageId);
-        Repository repository = storage.getRepository(repositoryId);
+        Repository repository = getRepository(storageId, repositoryId);
 
         RemoteRepository remoteRepository = repository.getRemoteRepository();
         if (remoteRepository == null)
@@ -189,8 +196,7 @@ public class NpmRepositoryFeatures implements RepositoryFeatures
         throws IOException
     {
 
-        Storage storage = getConfiguration().getStorage(storageId);
-        Repository repository = storage.getRepository(repositoryId);
+        Repository repository = getRepository(storageId, repositoryId);
 
         RemoteRepository remoteRepository = repository.getRemoteRepository();
         if (remoteRepository == null)
@@ -336,8 +342,7 @@ public class NpmRepositoryFeatures implements RepositoryFeatures
                                         String packageId)
     {
 
-        Storage storage = getConfiguration().getStorage(storageId);
-        Repository repository = storage.getRepository(repositoryId);
+        Repository repository = getRepository(storageId, repositoryId);
 
         RemoteRepository remoteRepository = repository.getRemoteRepository();
         if (remoteRepository == null)
@@ -412,8 +417,8 @@ public class NpmRepositoryFeatures implements RepositoryFeatures
             String storageId = event.getStorageId();
             String repositoryId = event.getRepositoryId();
 
-            Storage storage = getConfiguration().getStorage(storageId);
-            Repository repository = storage.getRepository(repositoryId);
+            Repository repository = getRepository(storageId, repositoryId);
+
             RemoteRepository remoteRepository = repository.getRemoteRepository();
             if (remoteRepository == null)
             {
