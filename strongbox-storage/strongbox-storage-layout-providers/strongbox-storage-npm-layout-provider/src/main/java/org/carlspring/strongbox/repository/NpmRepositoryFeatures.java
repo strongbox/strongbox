@@ -7,7 +7,9 @@ import org.carlspring.strongbox.data.criteria.Expression.ExpOperator;
 import org.carlspring.strongbox.data.criteria.OQueryTemplate;
 import org.carlspring.strongbox.data.criteria.Predicate;
 import org.carlspring.strongbox.data.criteria.Selector;
+import org.carlspring.strongbox.domain.ArtifactEntry;
 import org.carlspring.strongbox.domain.RemoteArtifactEntry;
+import org.carlspring.strongbox.domain.RepositoryArtifactIdGroupEntry;
 import org.carlspring.strongbox.npm.NpmSearchRequest;
 import org.carlspring.strongbox.npm.NpmViewRequest;
 import org.carlspring.strongbox.npm.metadata.Change;
@@ -55,6 +57,7 @@ import org.springframework.context.annotation.ScopedProxyMode;
 import org.springframework.context.event.EventListener;
 import org.springframework.stereotype.Component;
 import org.springframework.util.Assert;
+import org.springframework.util.CollectionUtils;
 
 @Component
 public class NpmRepositoryFeatures implements RepositoryFeatures
@@ -420,15 +423,14 @@ public class NpmRepositoryFeatures implements RepositoryFeatures
                 return;
             }
 
-            Predicate predicate = event.getPredicate();
-            Long packageCount = countPackages(storageId, repositoryId, predicate);
+            Boolean remotePackageCached = anyRemotePackageCached(storageId, repositoryId);
 
-            logger.debug("NPM remote repository [{}] cached package count is [{}]",
-                         repository.getId(), packageCount);
+            logger.debug("Cached packages available [{}] from NPM remote repository [{}]", remotePackageCached,
+                         repository.getId());
 
             Runnable job = () -> fetchRemoteSearchResult(storageId, repositoryId, npmSearchRequest.getText(),
                                                          npmSearchRequest.getSize());
-            if (packageCount.longValue() == 0)
+            if (!remotePackageCached)
             {
                 // Syncronously fetch remote package feed if ve have no cached
                 // packages
@@ -478,15 +480,14 @@ public class NpmRepositoryFeatures implements RepositoryFeatures
                 return;
             }
 
-            Predicate predicate = event.getPredicate();
-            Long packageCount = countPackages(storageId, repositoryId, predicate);
+            Boolean remotePackageCached = anyRemotePackageCached(storageId, repositoryId);
 
-            logger.debug("NPM remote repository [{}] cached package count is [{}]",
-                         repository.getId(), packageCount);
+            logger.debug("Cached package available [{}] from NPM remote repository [{}]", remotePackageCached,
+                         repository.getId());
 
             Runnable job = () -> fetchRemotePackageFeed(storage.getId(), repository.getId(),
                                                         npmSearchRequest.getPackageId());
-            if (packageCount.longValue() == 0)
+            if (!remotePackageCached)
             {
                 // Syncronously fetch remote package feed if ve have no cached
                 // packages
@@ -500,21 +501,23 @@ public class NpmRepositoryFeatures implements RepositoryFeatures
 
     }
 
-    private Long countPackages(String storageId,
-                               String repositoryId,
-                               Predicate predicate)
+    public Boolean anyRemotePackageCached(String storageId,
+                                                 String repositoryId)
     {
-        Selector<RemoteArtifactEntry> selector = new Selector<>(RemoteArtifactEntry.class);
-        selector.select("count(*)");
+        Selector<RepositoryArtifactIdGroupEntry> selector = new Selector<>(RepositoryArtifactIdGroupEntry.class);
         selector.where(Predicate.of(ExpOperator.EQ.of("storageId", storageId)))
                 .and(Predicate.of(ExpOperator.EQ.of("repositoryId", repositoryId)));
-        if (!predicate.isEmpty())
+
+        OQueryTemplate<RepositoryArtifactIdGroupEntry, RepositoryArtifactIdGroupEntry> queryTemplate = new OQueryTemplate<>(
+                entityManager);
+
+        RepositoryArtifactIdGroupEntry remoteArtifactIdGroupEntry = queryTemplate.select(selector);
+        if (remoteArtifactIdGroupEntry != null
+                && !CollectionUtils.isEmpty(remoteArtifactIdGroupEntry.getArtifactEntries()))
         {
-            selector.getPredicate().and(predicate);
+            return true;
         }
-        OQueryTemplate<Long, RemoteArtifactEntry> queryTemplate = new OQueryTemplate<>(entityManager);
-        Long packageCount = queryTemplate.select(selector);
-        return packageCount;
+        return false;
     }
 
     protected Configuration getConfiguration()
