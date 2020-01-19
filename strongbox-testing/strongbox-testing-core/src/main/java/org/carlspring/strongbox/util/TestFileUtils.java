@@ -2,6 +2,7 @@ package org.carlspring.strongbox.util;
 
 import org.carlspring.commons.io.RandomInputStream;
 
+import java.io.BufferedOutputStream;
 import java.io.File;
 import java.io.IOException;
 import java.io.OutputStream;

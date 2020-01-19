@@ -61,7 +61,8 @@ public class RawArtifactGenerator implements ArtifactGenerator
         try (OutputStream fileOutputStream = Files.newOutputStream(path,
                                                                    StandardOpenOption.TRUNCATE_EXISTING,
                                                                    StandardOpenOption.CREATE);
-                LayoutOutputStream layoutOutputStream = new LayoutOutputStream(fileOutputStream))
+                LayoutOutputStream layoutOutputStream = new LayoutOutputStream(fileOutputStream);
+                RandomInputStream ris = new RandomInputStream(bytesSize))
         {
             layoutOutputStream.addAlgorithm(MessageDigestAlgorithms.MD5);
 
