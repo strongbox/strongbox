@@ -107,7 +107,6 @@ public class MavenProxyRepositoryProviderTestIT
         // 1. download the artifact and artifactId-level maven metadata-file from 1st repository
         String repositoryId = proxyRepository1.getId();
 
-        System.out.println(artifactResolutionServiceHelper);
         artifactResolutionServiceHelper.assertStreamNotNull(storageId,
                                                             repositoryId,
                                                             "javax/interceptor/javax.interceptor-api/1.2.2/javax.interceptor-api-1.2.2.jar");
