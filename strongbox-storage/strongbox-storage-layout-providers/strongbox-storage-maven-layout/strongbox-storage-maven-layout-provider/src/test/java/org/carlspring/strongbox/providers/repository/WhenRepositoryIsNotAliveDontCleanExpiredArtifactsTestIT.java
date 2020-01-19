@@ -39,7 +39,7 @@ public class WhenRepositoryIsNotAliveDontCleanExpiredArtifactsTestIT
 
     private static final String REPOSITORY_ID = "maven-central-dead";
 
-    private static final String REMOTE_URL = "http://uk.maven.org/maven2/";
+    private static final String REMOTE_URL = "https://repo1.maven.org/maven2/";
 
     @ExtendWith(RepositoryManagementTestExecutionListener.class)
     @Test

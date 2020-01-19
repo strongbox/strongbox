@@ -51,7 +51,7 @@ public class MavenProxyRepositoryProviderTestIT
 
     private static final String CENTRAL_REPOSITORY_ID = "central-release-it";
 
-    private static final String CENTRAL_URL = "http://central.maven.org/maven2/";
+    private static final String CENTRAL_URL = "https://repo1.maven.org/maven2/";
 
     @Inject
     private ArtifactEntryService artifactEntryService;

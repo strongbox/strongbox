@@ -50,7 +50,7 @@ public class CleanupExpiredArtifactsFromProxyRepositoriesCronJobTestIT
 
     private static final String REPOSITORY_ID = "maven-central";
 
-    private static final String CENTRAL_URL = "http://central.maven.org/maven2/";
+    private static final String CENTRAL_URL = "https://repo1.maven.org/maven2/";
 
     @Inject
     private ProxyRepositoryProvider proxyRepositoryProvider;
