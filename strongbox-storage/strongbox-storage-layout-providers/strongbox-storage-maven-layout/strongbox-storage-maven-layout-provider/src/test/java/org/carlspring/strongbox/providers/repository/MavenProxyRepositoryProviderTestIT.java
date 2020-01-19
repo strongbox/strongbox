@@ -51,7 +51,7 @@ public class MavenProxyRepositoryProviderTestIT
 
     private static final String CENTRAL_REPOSITORY_ID = "central-release-it";
 
-    private static final String CENTRAL_URL = "http://central.maven.org/maven2/";
+    private static final String CENTRAL_URL = "https://repo1.maven.org/maven2/";
 
     @Inject
     private ArtifactEntryService artifactEntryService;
@@ -107,6 +107,7 @@ public class MavenProxyRepositoryProviderTestIT
         // 1. download the artifact and artifactId-level maven metadata-file from 1st repository
         String repositoryId = proxyRepository1.getId();
 
+        System.out.println(artifactResolutionServiceHelper);
         artifactResolutionServiceHelper.assertStreamNotNull(storageId,
                                                             repositoryId,
                                                             "javax/interceptor/javax.interceptor-api/1.2.2/javax.interceptor-api-1.2.2.jar");
