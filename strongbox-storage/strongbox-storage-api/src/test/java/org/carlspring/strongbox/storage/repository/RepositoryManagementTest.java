@@ -108,7 +108,7 @@ public class RepositoryManagementTest
         throws IOException
     {
         assertThat(Files.exists(artifact)).isTrue();
-        assertThat(Files.size(artifact)).isGreaterThan(1024L);
+        assertThat(Files.size(artifact)).isEqualTo(1024L);
 
         String fileName = artifact.getFileName().toString();
         String checksumFileName = fileName + "." + MessageDigestAlgorithms.MD5.toLowerCase();
