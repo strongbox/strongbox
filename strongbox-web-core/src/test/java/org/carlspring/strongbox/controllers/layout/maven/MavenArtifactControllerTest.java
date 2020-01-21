@@ -490,7 +490,37 @@ public class MavenArtifactControllerTest
     @ExtendWith({ RepositoryManagementTestExecutionListener.class,
                   ArtifactManagementTestExecutionListener.class })
     @Test
-    public void testCopyArtifactFile(@MavenRepository(repositoryId = REPOSITORY_RELEASES_1,
+    public void  testUploadArtifact(@MavenRepository(repositoryId = REPOSITORY_RELEASES_1,
+                                    setup = MavenIndexedRepositorySetup.class)
+                                              Repository repository,
+                                      @MavenTestArtifact(repositoryId = REPOSITORY_RELEASES_1,
+                                              id = "org.carlspring.strongbox.upload:upload-foo",
+                                              versions = "1.1")
+                                              Path artifactPath)
+            throws IOException
+    {
+        RepositoryPath artifactRepositoryPath = (RepositoryPath) artifactPath.normalize();
+        String artifactRepositoryPathStr = RepositoryFiles.relativizePath(artifactRepositoryPath);
+
+        client.upload(artifactRepositoryPathStr,
+                    repository.getStorage().getId(),
+                    repository.getId());
+
+        String storageId = repository.getStorage().getId();
+        String repositoryId = repository.getId();
+
+        String path = RepositoryFiles.relativizePath(artifactRepositoryPath);
+        ArtifactEntry artifactEntry = artifactEntryService.findOneArtifact(storageId,
+                                                                           repositoryId,
+                                                                           path);
+
+        assertThat(artifactEntry).isNotNull();
+    }
+
+    @ExtendWith({ RepositoryManagementTestExecutionListener.class,
+                  ArtifactManagementTestExecutionListener.class })
+    @Test
+    public void  testCopyArtifactFile(@MavenRepository(repositoryId = REPOSITORY_RELEASES_1,
                                                       setup = MavenIndexedRepositorySetup.class)
                                      Repository repository1,
                                      @MavenRepository(repositoryId = REPOSITORY_RELEASES_2,

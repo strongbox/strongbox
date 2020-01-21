@@ -222,6 +222,20 @@ public class RestAssuredArtifactClient
         }
     }
 
+    public void upload(String artifactPath,
+                       String storageId,
+                       String repositoryId)
+    {
+        givenLocal().contentType(MediaType.TEXT_PLAIN_VALUE)
+                    .params("storageId", storageId,
+                            "repositoryId", repositoryId,
+                            "artifactPath", artifactPath)
+                    .when()
+                    .put(getContextBaseUrl() + "/storages/" + storageId + "/" + repositoryId + "/" + artifactPath)
+                    .then()
+                    .statusCode(OK);
+    }
+
     public void copy(String path,
                      String srcStorageId,
                      String srcRepositoryId,
