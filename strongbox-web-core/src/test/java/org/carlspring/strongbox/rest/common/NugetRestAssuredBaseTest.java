@@ -57,16 +57,16 @@ public abstract class NugetRestAssuredBaseTest
 
     @Inject
     protected MockMvcRequestSpecification mockMvc;
-
+    
     public void init()
-        throws Exception
+            throws Exception
     {
         logger.debug("Initializing RestAssured...");
 
         client.setUserAgent("NuGet/*");
         client.setContextBaseUrl(contextBaseUrl);
     }
-
+    
     public String getContextBaseUrl()
     {
         return contextBaseUrl;
@@ -83,10 +83,10 @@ public abstract class NugetRestAssuredBaseTest
         ByteArrayOutputStream contentStream = new ByteArrayOutputStream();
 
         MultipartEntityBuilder.create()
-            .addBinaryBody("package", new BufferedInputStream(Files.newInputStream(packageFilePath)))
-            .setBoundary("---------------------------123qwe")
-            .build()
-            .writeTo(contentStream);
+                              .addBinaryBody("package", new BufferedInputStream(Files.newInputStream(packageFilePath)))
+                              .setBoundary("---------------------------123qwe")
+                              .build()
+                              .writeTo(contentStream);
         contentStream.flush();
 
         byte[] packageContent = contentStream.toByteArray();
