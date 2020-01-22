@@ -5,7 +5,7 @@ spring:
     enabled: false
   servlet:
     multipart:
-      enabled: false
+      enabled: true
 strongbox:
   basedir: .
   home: ${strongbox.basedir}/strongbox
