@@ -1,12 +1,18 @@
 package org.carlspring.strongbox.rest.common;
 
+import java.io.BufferedInputStream;
+import java.io.ByteArrayOutputStream;
+import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.Path;
+
+import javax.inject.Inject;
+
+import org.apache.http.entity.mime.MultipartEntityBuilder;
 import org.carlspring.strongbox.rest.client.RestAssuredArtifactClient;
 import org.carlspring.strongbox.services.ConfigurationManagementService;
 import org.carlspring.strongbox.services.RepositoryManagementService;
 import org.carlspring.strongbox.services.StorageManagementService;
-
-import javax.inject.Inject;
-
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
@@ -70,4 +76,22 @@ public abstract class NugetRestAssuredBaseTest
     {
         this.contextBaseUrl = contextBaseUrl;
     }
+
+    public byte[] readPackageContent(Path packageFilePath)
+        throws IOException
+    {
+        ByteArrayOutputStream contentStream = new ByteArrayOutputStream();
+
+        MultipartEntityBuilder.create()
+            .addBinaryBody("package", new BufferedInputStream(Files.newInputStream(packageFilePath)))
+            .setBoundary("---------------------------123qwe")
+            .build()
+            .writeTo(contentStream);
+        contentStream.flush();
+
+        byte[] packageContent = contentStream.toByteArray();
+
+        return packageContent;
+    }
+
 }
