@@ -315,10 +315,10 @@ pipeline {
                                 tools = 'mvn'
                             },
                             // Enable when ready.
-                            //pypi: {
-                            //    agent = 'alpine-jdk8-mvn3.6-pip19.3'
-                            //    tools = 'mvn python pip'
-                            //},
+                            pypi: {
+                                agent = 'alpine-jdk8-mvn3.6-pip19.3'
+                                tools = 'mvn python pip'
+                            },
                             raw: {
                                 container = 'maven'
                                 tools = 'mvn'
