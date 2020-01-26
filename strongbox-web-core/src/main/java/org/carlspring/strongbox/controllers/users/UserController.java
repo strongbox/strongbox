@@ -239,6 +239,11 @@ public class UserController
             return getFailedResponseEntity(HttpStatus.FORBIDDEN, OWN_USER_DELETE_FORBIDDEN, accept);
         }
 
+        if (StringUtils.equals("admin", username))
+        {
+            return getFailedResponseEntity(HttpStatus.FORBIDDEN, USER_DELETE_FORBIDDEN, accept);
+        }
+
         User user = userService.findByUsername(username);
         if (user == null)
         {

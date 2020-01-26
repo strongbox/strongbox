@@ -22,10 +22,10 @@ import static org.assertj.core.api.Assertions.assertThat;
 @SpringBootTest
 @ActiveProfiles(profiles = "test")
 @ContextConfiguration
-public class ArtifactResolverIntegrationTest
+public class ArtifactResolverIT
 {
 
-    private static final Logger logger = LoggerFactory.getLogger(ArtifactResolverIntegrationTest.class);
+    private static final Logger logger = LoggerFactory.getLogger(ArtifactResolverIT.class);
 
     @Configuration
     @Import({ClientConfig.class})
