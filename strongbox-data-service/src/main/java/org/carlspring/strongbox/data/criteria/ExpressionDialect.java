@@ -1,7 +1,7 @@
 package org.carlspring.strongbox.data.criteria;
 
 import org.carlspring.strongbox.data.criteria.Expression.ExpOperator;
-import org.carlspring.strongbox.data.domain.GenericEntity;
+import org.carlspring.strongbox.data.domain.DomainObject;
 
 /**
  * @author sbespalov
@@ -11,7 +11,7 @@ import org.carlspring.strongbox.data.domain.GenericEntity;
 public interface ExpressionDialect
 {
 
-    <T extends GenericEntity> String parseProperty(String attribute);
+    <T extends DomainObject> String parseProperty(String attribute);
 
     ExpOperator parseOperator(String operator);
 

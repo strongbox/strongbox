@@ -75,7 +75,7 @@ public class CollectionUtils
         return o;
     }
 
-    private static Stream<Entry<String, Object>> flatten(Map<String, Object> map)
+    public static Stream<Entry<String, Object>> flatten(Map<String, Object> map)
     {
         return map.entrySet().stream().flatMap(CollectionUtils::flatten);
     }

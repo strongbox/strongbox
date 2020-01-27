@@ -3,10 +3,12 @@ package org.carlspring.strongbox.providers.layout;
 import java.io.IOException;
 import java.lang.reflect.UndeclaredThrowableException;
 import java.nio.file.Path;
+import java.time.ZoneId;
+import java.util.Date;
 import java.util.function.Function;
 
 import org.carlspring.strongbox.artifact.coordinates.NpmArtifactCoordinates;
-import org.carlspring.strongbox.domain.ArtifactEntry;
+import org.carlspring.strongbox.domain.Artifact;
 import org.carlspring.strongbox.npm.metadata.PackageEntry;
 import org.carlspring.strongbox.npm.metadata.SearchResult;
 import org.carlspring.strongbox.providers.io.RepositoryFiles;
@@ -33,7 +35,7 @@ public class NpmSearchResultSupplier implements Function<Path, SearchResult>
         RepositoryPath repositoryPath = (RepositoryPath) path;
 
         NpmArtifactCoordinates c;
-        ArtifactEntry artifactEntry;
+        Artifact artifactEntry;
         try
         {
             c = (NpmArtifactCoordinates) RepositoryFiles.readCoordinates(repositoryPath);
@@ -49,7 +51,7 @@ public class NpmSearchResultSupplier implements Function<Path, SearchResult>
         PackageEntry packageEntry = new PackageEntry();
         searchResult.setPackage(packageEntry);
 
-        packageEntry.setDate(artifactEntry.getLastUpdated());
+        packageEntry.setDate(Date.from(artifactEntry.getLastUpdated().atZone(ZoneId.systemDefault()).toInstant()));
 
         packageEntry.setName(c.getName());
         packageEntry.setScope(c.getScope() == null ? "unscoped" : c.getScope());

@@ -8,12 +8,12 @@
     <parent>
         <artifactId>strongbox-storage-layout-providers</artifactId>
         <groupId>org.carlspring.strongbox</groupId>
-        <version>1.0-SNAPSHOT</version>
+        <version>1.0-PR-62-SNAPSHOT</version>
     </parent>
 
     <groupId>org.carlspring.strongbox</groupId>
     <artifactId>strongbox-storage-rpm-layout-provider</artifactId>
-    <version>1.0-SNAPSHOT</version>
+    <version>1.0-PR-62-SNAPSHOT</version>
 
     <dependencies>
         <dependency>

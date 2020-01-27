@@ -1,19 +1,14 @@
 package org.carlspring.strongbox.data.criteria;
 
-import java.util.Collection;
 import java.util.HashMap;
 import java.util.Map;
 
 import javax.persistence.EntityManager;
 
 import org.carlspring.strongbox.data.criteria.Expression.ExpOperator;
-import org.carlspring.strongbox.data.domain.GenericEntity;
+import org.carlspring.strongbox.data.domain.DomainObject;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
-import com.orientechnologies.orient.core.record.impl.ODocument;
-import com.orientechnologies.orient.core.sql.query.OSQLSynchQuery;
-import com.orientechnologies.orient.object.db.OObjectDatabaseTx;
 
 /**
  * {@link QueryTemplate} implementation for OrientDB engine.
@@ -21,7 +16,7 @@ import com.orientechnologies.orient.object.db.OObjectDatabaseTx;
  * @author sbespalov
  *
  */
-public class OQueryTemplate<R, T extends GenericEntity> implements QueryTemplate<R, T>
+public class OQueryTemplate<R, T extends DomainObject> implements QueryTemplate<R, T>
 {
     private static final Logger logger = LoggerFactory.getLogger(OQueryTemplate.class);
 
@@ -47,7 +42,6 @@ public class OQueryTemplate<R, T extends GenericEntity> implements QueryTemplate
     {
         String sQuery = calculateQueryString(s);
 
-        OSQLSynchQuery<T> oQuery = new OSQLSynchQuery<>(sQuery);
         Map<String, Object> parameterMap = exposeParameterMap(s.getPredicate());
 
         logger.debug("Executing SQL query:\n" +
@@ -55,25 +49,7 @@ public class OQueryTemplate<R, T extends GenericEntity> implements QueryTemplate
                      "With parameters:\n" +
                      "\t[{}]",
                      sQuery, parameterMap);
-
-        Object result = getEmDelegate().command(oQuery)
-                                       .execute(parameterMap);
-        if (result instanceof Collection && !((Collection) result).isEmpty()
-                && ((Collection) result).iterator().next() instanceof ODocument)
-        {
-            // Commonly we don't need ODocument results, so if it's a ODocument
-            // then probably we assume to get it's contents
-            return (R) ((Collection<ODocument>) result).iterator().next().fieldValues()[0];
-        }
-        else
-        {
-            return (R) result;
-        }
-    }
-
-    public OObjectDatabaseTx getEmDelegate()
-    {
-        return (OObjectDatabaseTx) entityManager.getDelegate();
+        return null;
     }
 
     public Map<String, Object> exposeParameterMap(Predicate p)

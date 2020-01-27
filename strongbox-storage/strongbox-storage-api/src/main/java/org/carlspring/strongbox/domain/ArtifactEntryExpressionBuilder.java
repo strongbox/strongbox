@@ -7,17 +7,17 @@ import org.carlspring.strongbox.data.criteria.ExpressionDialect;
  * @author sbespalov
  *
  */
-public class ArtifactEntryExpressionBuilder extends ExpressionBuilder<ArtifactEntryExpressionBuilder, ArtifactEntry>
+public class ArtifactEntryExpressionBuilder extends ExpressionBuilder<ArtifactEntryExpressionBuilder, ArtifactEntity>
 {
 
     public ArtifactEntryExpressionBuilder(ExpressionDialect dialect)
     {
-        super(ArtifactEntry.class, dialect);
+        super(ArtifactEntity.class, dialect);
     }
 
     public ArtifactEntryExpressionBuilder()
     {
-        super(ArtifactEntry.class);
+        super(ArtifactEntity.class);
     }
 
     @Override

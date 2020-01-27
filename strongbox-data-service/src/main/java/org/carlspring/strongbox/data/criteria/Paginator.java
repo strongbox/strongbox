@@ -5,18 +5,18 @@ public class Paginator
 
     public static final Integer MAX_LIMIT = 1000;
 
-    private Integer skip;
+    private Long skip;
     private Integer limit;
 
     private String property;
     private Order order = Order.ASC;
 
-    public Integer getSkip()
+    public Long getSkip()
     {
         return skip == null ? Integer.valueOf(0) : skip;
     }
 
-    public void setSkip(Integer skip)
+    public void setSkip(Long skip)
     {
         this.skip = skip;
     }

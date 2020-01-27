@@ -1,39 +1,5 @@
 package org.carlspring.strongbox.controllers.layout.nuget;
 
-import org.carlspring.strongbox.artifact.ArtifactTag;
-import org.carlspring.strongbox.artifact.coordinates.NugetArtifactCoordinates;
-import org.carlspring.strongbox.artifact.coordinates.PathNupkg;
-import org.carlspring.strongbox.artifact.coordinates.versioning.SemanticVersion;
-import org.carlspring.strongbox.controllers.BaseArtifactController;
-import org.carlspring.strongbox.data.criteria.Expression.ExpOperator;
-import org.carlspring.strongbox.data.criteria.Paginator;
-import org.carlspring.strongbox.data.criteria.Predicate;
-import org.carlspring.strongbox.domain.ArtifactEntry;
-import org.carlspring.strongbox.domain.ArtifactTagEntry;
-import org.carlspring.strongbox.nuget.NugetSearchRequest;
-import org.carlspring.strongbox.nuget.filter.NugetODataFilterQueryParser;
-import org.carlspring.strongbox.providers.io.RepositoryPath;
-import org.carlspring.strongbox.providers.repository.RepositoryProvider;
-import org.carlspring.strongbox.providers.repository.RepositoryProviderRegistry;
-import org.carlspring.strongbox.repository.NugetRepositoryFeatures.RepositorySearchEventListener;
-import org.carlspring.strongbox.services.ArtifactTagService;
-import org.carlspring.strongbox.storage.metadata.nuget.NugetFormatException;
-import org.carlspring.strongbox.storage.metadata.nuget.Nupkg;
-import org.carlspring.strongbox.storage.metadata.nuget.Nuspec;
-import org.carlspring.strongbox.storage.metadata.nuget.TempNupkgFile;
-import org.carlspring.strongbox.storage.metadata.nuget.rss.EntryProperties;
-import org.carlspring.strongbox.storage.metadata.nuget.rss.PackageEntry;
-import org.carlspring.strongbox.storage.metadata.nuget.rss.PackageFeed;
-import org.carlspring.strongbox.storage.repository.Repository;
-import org.carlspring.strongbox.web.LayoutRequestMapping;
-import org.carlspring.strongbox.web.RepositoryMapping;
-
-import javax.inject.Inject;
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
-import javax.ws.rs.core.MediaType;
-import javax.xml.bind.JAXBException;
-
 import java.io.BufferedInputStream;
 import java.io.BufferedOutputStream;
 import java.io.IOException;
@@ -48,10 +14,44 @@ import java.nio.file.Path;
 import java.security.NoSuchAlgorithmException;
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.Collections;
 import java.util.Date;
 import java.util.List;
 import java.util.stream.Collectors;
 
+import javax.inject.Inject;
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
+import javax.ws.rs.core.MediaType;
+import javax.xml.bind.JAXBException;
+
+import org.carlspring.strongbox.artifact.ArtifactTag;
+import org.carlspring.strongbox.artifact.coordinates.NugetArtifactCoordinates;
+import org.carlspring.strongbox.artifact.coordinates.PathNupkg;
+import org.carlspring.strongbox.artifact.coordinates.versioning.SemanticVersion;
+import org.carlspring.strongbox.controllers.BaseArtifactController;
+import org.carlspring.strongbox.data.criteria.Paginator;
+import org.carlspring.strongbox.data.criteria.Predicate;
+import org.carlspring.strongbox.domain.Artifact;
+import org.carlspring.strongbox.domain.ArtifactTagEntity;
+import org.carlspring.strongbox.nuget.NugetSearchRequest;
+import org.carlspring.strongbox.nuget.filter.NugetODataFilterQueryParser;
+import org.carlspring.strongbox.providers.io.RepositoryPath;
+import org.carlspring.strongbox.providers.repository.RepositoryProvider;
+import org.carlspring.strongbox.providers.repository.RepositoryProviderRegistry;
+import org.carlspring.strongbox.providers.repository.RepositorySearchRequest;
+import org.carlspring.strongbox.repository.NugetRepositoryFeatures.RepositorySearchEventListener;
+import org.carlspring.strongbox.services.ArtifactTagService;
+import org.carlspring.strongbox.storage.metadata.nuget.NugetFormatException;
+import org.carlspring.strongbox.storage.metadata.nuget.Nupkg;
+import org.carlspring.strongbox.storage.metadata.nuget.Nuspec;
+import org.carlspring.strongbox.storage.metadata.nuget.TempNupkgFile;
+import org.carlspring.strongbox.storage.metadata.nuget.rss.EntryProperties;
+import org.carlspring.strongbox.storage.metadata.nuget.rss.PackageEntry;
+import org.carlspring.strongbox.storage.metadata.nuget.rss.PackageFeed;
+import org.carlspring.strongbox.storage.repository.Repository;
+import org.carlspring.strongbox.web.LayoutRequestMapping;
+import org.carlspring.strongbox.web.RepositoryMapping;
 import org.springframework.core.io.InputStreamResource;
 import org.springframework.core.io.Resource;
 import org.springframework.http.HttpHeaders;
@@ -148,7 +148,7 @@ public class NugetArtifactController
 
         RepositoryProvider provider = repositoryProviderRegistry.getProvider(repository.getType());
         
-        Predicate predicate = createSearchPredicate(filter, normalizedSearchTerm);
+        RepositorySearchRequest predicate = createSearchPredicate(filter, normalizedSearchTerm);
         Long count = provider.count(storageId, repositoryId, predicate);
 
         return new ResponseEntity<>(String.valueOf(count), HttpStatus.OK);
@@ -160,7 +160,7 @@ public class NugetArtifactController
                                             @PathVariable(name = "searchCommandName") String searchCommandName,
                                             @RequestParam(name = "$filter", required = false) String filter,
                                             @RequestParam(name = "$orderby", required = false, defaultValue = "Id") String orderBy,
-                                            @RequestParam(name = "$skip", required = false) Integer skip,
+                                            @RequestParam(name = "$skip", required = false) Long skip,
                                             @RequestParam(name = "$top", required = false) Integer top,
                                             @RequestParam(name = "searchTerm", required = false) String searchTerm,
                                             @RequestParam(name = "targetFramework", required = false) String targetFramework,
@@ -230,7 +230,7 @@ public class NugetArtifactController
                                               EntryProperties properties) throws IOException
     {
         RepositoryPath path = nupkg.getPath();
-        ArtifactEntry artifactEntry = path.getArtifactEntry();
+        Artifact artifactEntry = path.getArtifactEntry();
 
         properties.setId(nupkg.getId());
 
@@ -245,7 +245,7 @@ public class NugetArtifactController
         properties.setRating(Double.valueOf(0));
         properties.setVersionRating(Double.valueOf(0));
 
-        ArtifactTag lastVersionTag = artifactTagService.findOneOrCreate(ArtifactTagEntry.LAST_VERSION);
+        ArtifactTag lastVersionTag = artifactTagService.findOneOrCreate(ArtifactTagEntity.LAST_VERSION);
         if (artifactEntry.getTagSet().contains(lastVersionTag))
         {
             properties.setIsLatestVersion(true);
@@ -293,7 +293,7 @@ public class NugetArtifactController
         Paginator paginator = new Paginator();
         paginator.setProperty("artifactCoordinates.coordinates.version");
 
-        Predicate predicate = Predicate.of(ExpOperator.EQ.of("artifactCoordinates.coordinates.id", normalisedPackageId));
+        RepositorySearchRequest predicate = new RepositorySearchRequest(normalisedPackageId, Collections.singleton("nupkg"));
 
         Collection<? extends Nupkg> files = searchNupkg(storageId, repositoryId, provider, paginator, predicate);
 
@@ -314,7 +314,7 @@ public class NugetArtifactController
                                                    String orderBy,
                                                    String searchTerm,
                                                    String targetFramework,
-                                                   Integer skip,
+                                                   Long skip,
                                                    Integer top)
     {
         final String storageId = repository.getStorage().getId();
@@ -326,8 +326,8 @@ public class NugetArtifactController
         paginator.setSkip(skip);
         paginator.setLimit(top);
         paginator.setProperty(orderBy);
-
-        Predicate rootPredicate = createSearchPredicate(filter, searchTerm);
+        
+        RepositorySearchRequest rootPredicate = createSearchPredicate(filter, searchTerm);
 
         return searchNupkg(storageId, repositoryId, provider, paginator, rootPredicate);
     }
@@ -336,7 +336,7 @@ public class NugetArtifactController
                                         String repositoryId,
                                         RepositoryProvider provider,
                                         Paginator paginator,
-                                        Predicate predicate)
+                                        RepositorySearchRequest predicate)
     {
         return provider.search(storageId, repositoryId, predicate, paginator)
                        .stream()
@@ -354,25 +354,22 @@ public class NugetArtifactController
                        .collect(Collectors.toList());
     }
 
-    private Predicate createSearchPredicate(String filter,
-                                            String searchTerm)
+    private RepositorySearchRequest createSearchPredicate(String filter,
+                                                          String searchTerm)
     {
-        Predicate rootPredicate = Predicate.empty();
-
-        if (filter != null && !filter.trim().isEmpty())
-        {
-           NugetODataFilterQueryParser t = new NugetODataFilterQueryParser(filter);
-           rootPredicate = t.parseQuery().getPredicate();
-        }
-
-        rootPredicate.and(Predicate.of(ExpOperator.EQ.of("artifactCoordinates.coordinates.extension", "nupkg")));
-
+        String artifactId = null;
         if (searchTerm != null && !searchTerm.trim().isEmpty())
         {
-            rootPredicate.and(Predicate.of(ExpOperator.LIKE.of("artifactCoordinates.coordinates.id",
-                                                               "%" + searchTerm + "%")));
+            artifactId = searchTerm;
+        } else if (filter != null && !filter.trim().isEmpty())
+        {
+           NugetODataFilterQueryParser t = new NugetODataFilterQueryParser(filter);
+           Predicate rootPredicate = t.parseQuery().getPredicate();
+           List<Predicate> predicates = rootPredicate.getChildPredicateList();
+           //TODO: rework NugetODataFilterQueryParser
+           throw new UnsupportedOperationException();
         }
-        return rootPredicate;
+        return new RepositorySearchRequest(artifactId, Collections.singleton("nupkg"));
     }
 
     private String getFeedUri(HttpServletRequest request, String storageId, String repositoryId)

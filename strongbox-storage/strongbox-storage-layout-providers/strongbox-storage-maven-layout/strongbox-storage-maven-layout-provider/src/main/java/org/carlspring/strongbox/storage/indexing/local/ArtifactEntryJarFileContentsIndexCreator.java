@@ -1,9 +1,5 @@
 package org.carlspring.strongbox.storage.indexing.local;
 
-import org.carlspring.strongbox.artifact.coordinates.MavenArtifactCoordinates;
-import org.carlspring.strongbox.domain.ArtifactArchiveListing;
-import org.carlspring.strongbox.domain.ArtifactEntry;
-
 import java.util.Set;
 
 import org.apache.commons.collections4.CollectionUtils;
@@ -11,6 +7,9 @@ import org.apache.commons.lang3.StringUtils;
 import org.apache.maven.index.ArtifactContext;
 import org.apache.maven.index.ArtifactInfo;
 import org.apache.maven.index.creator.JarFileContentsIndexCreator;
+import org.carlspring.strongbox.artifact.coordinates.MavenArtifactCoordinates;
+import org.carlspring.strongbox.domain.Artifact;
+import org.carlspring.strongbox.domain.ArtifactArchiveListing;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -34,7 +33,7 @@ public class ArtifactEntryJarFileContentsIndexCreator
     public void populateArtifactInfo(ArtifactContext artifactContext)
     {
         ArtifactEntryArtifactContext artifactEntryArtifactContext = (ArtifactEntryArtifactContext) artifactContext;
-        ArtifactEntry artifactEntry = artifactEntryArtifactContext.getArtifactEntry();
+        Artifact artifactEntry = artifactEntryArtifactContext.getArtifactEntry();
         ArtifactInfo artifactInfo = artifactEntryArtifactContext.getArtifactInfo();
 
         final MavenArtifactCoordinates coordinates = (MavenArtifactCoordinates) artifactEntry.getArtifactCoordinates();
@@ -52,7 +51,7 @@ public class ArtifactEntryJarFileContentsIndexCreator
      * @see JarFileContentsIndexCreator#updateArtifactInfo(org.apache.maven.index.ArtifactInfo, java.io.File)
      */
     private void updateArtifactInfo(final ArtifactInfo artifactInfo,
-                                    final ArtifactEntry artifactEntry)
+                                    final Artifact artifactEntry)
     {
         final MavenArtifactCoordinates coordinates = (MavenArtifactCoordinates) artifactEntry.getArtifactCoordinates();
 
@@ -69,7 +68,7 @@ public class ArtifactEntryJarFileContentsIndexCreator
      * @see org.apache.maven.index.creator.JarFileContentsIndexCreator#updateArtifactInfo(org.apache.maven.index.ArtifactInfo, java.io.File, java.lang.String)
      */
     private void updateArtifactInfo(final ArtifactInfo artifactInfo,
-                                    final ArtifactEntry artifactEntry,
+                                    final Artifact artifactEntry,
                                     final String strippedPrefix)
     {
         ArtifactArchiveListing artifactArchiveListing = artifactEntry.getArtifactArchiveListing();

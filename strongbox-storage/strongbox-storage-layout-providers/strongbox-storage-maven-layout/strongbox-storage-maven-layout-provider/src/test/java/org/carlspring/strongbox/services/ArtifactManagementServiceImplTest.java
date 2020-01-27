@@ -1,16 +1,42 @@
 package org.carlspring.strongbox.services;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.fail;
+import static org.junit.jupiter.api.parallel.ExecutionMode.CONCURRENT;
 
+import java.io.ByteArrayInputStream;
+import java.io.IOException;
+import java.io.InputStream;
+import java.nio.charset.StandardCharsets;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.text.SimpleDateFormat;
+import java.time.LocalDate;
+import java.time.ZoneId;
+import java.util.Arrays;
+import java.util.Date;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.Optional;
+import java.util.Random;
+import java.util.concurrent.Callable;
+import java.util.concurrent.CountDownLatch;
+import java.util.stream.Collectors;
+import java.util.stream.IntStream;
+import java.util.stream.Stream;
+
+import javax.inject.Inject;
+
+import org.apache.maven.artifact.Artifact;
 import org.carlspring.strongbox.artifact.ArtifactTag;
-import org.carlspring.strongbox.artifact.MavenArtifact;
 import org.carlspring.strongbox.artifact.MavenArtifactUtils;
 import org.carlspring.strongbox.config.Maven2LayoutProviderTestConfig;
-import org.carlspring.strongbox.domain.ArtifactEntry;
 import org.carlspring.strongbox.providers.io.RepositoryFiles;
 import org.carlspring.strongbox.providers.io.RepositoryPath;
 import org.carlspring.strongbox.providers.io.RepositoryPathResolver;
 import org.carlspring.strongbox.providers.io.RepositoryStreamSupport.RepositoryInputStream;
+import org.carlspring.strongbox.repositories.ArtifactRepository;
 import org.carlspring.strongbox.repository.MavenRepositoryFeatures;
 import org.carlspring.strongbox.storage.ArtifactStorageException;
 import org.carlspring.strongbox.storage.metadata.MavenSnapshotManager;
@@ -23,26 +49,6 @@ import org.carlspring.strongbox.testing.repository.MavenRepository;
 import org.carlspring.strongbox.testing.storage.repository.RepositoryAttributes;
 import org.carlspring.strongbox.testing.storage.repository.RepositoryManagementTestExecutionListener;
 import org.carlspring.strongbox.testing.storage.repository.TestRepository.Group;
-
-import javax.inject.Inject;
-import java.io.ByteArrayInputStream;
-import java.io.IOException;
-import java.io.InputStream;
-import java.nio.charset.StandardCharsets;
-import java.nio.file.Files;
-import java.nio.file.Path;
-import java.text.SimpleDateFormat;
-import java.time.LocalDate;
-import java.time.ZoneId;
-import java.util.*;
-import java.util.concurrent.Callable;
-import java.util.concurrent.CountDownLatch;
-import java.util.stream.Collectors;
-import java.util.stream.IntStream;
-import java.util.stream.Stream;
-
-import org.apache.commons.io.FilenameUtils;
-import org.apache.maven.artifact.Artifact;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.junit.jupiter.api.parallel.Execution;
@@ -51,8 +57,6 @@ import org.slf4j.LoggerFactory;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.ContextConfiguration;
-import static org.assertj.core.api.Assertions.fail;
-import static org.junit.jupiter.api.parallel.ExecutionMode.CONCURRENT;
 
 /**
  * @author mtodorov
@@ -95,7 +99,7 @@ public class ArtifactManagementServiceImplTest
     private ArtifactManagementService mavenArtifactManagementService;
 
     @Inject
-    private ArtifactEntryService artifactEntryService;
+    private ArtifactRepository artifactEntityRepository;
 
     @Inject
     private ArtifactResolutionService artifactResolutionService;
@@ -523,7 +527,7 @@ public class ArtifactManagementServiceImplTest
         }
 
         RepositoryPath repositoryPathResult = repositoryPathResolver.resolve(repository, path);
-        ArtifactEntry artifactEntry = repositoryPathResult.getArtifactEntry();
+        org.carlspring.strongbox.domain.Artifact artifactEntry = repositoryPathResult.getArtifactEntry();
 
         assertThat(artifactEntry).isNotNull();
         assertThat(artifactEntry.getDownloadCount()).isEqualTo(Integer.valueOf(concurrency));
@@ -561,9 +565,9 @@ public class ArtifactManagementServiceImplTest
         }
 
         // confirm it has last-version tag
-        ArtifactEntry artifactEntry = artifactEntryService.findOneArtifact(storageId,
-                                                                           repositoryId,
-                                                                           artifactPath);
+        org.carlspring.strongbox.domain.Artifact artifactEntry = artifactEntityRepository.findOneArtifact(storageId,
+                                                                                                          repositoryId,
+                                                                                                          artifactPath);
         assertThat(artifactEntry.getTagSet()).isNotNull();
         assertThat(artifactEntry.getTagSet()).hasSize(1);
         assertThat(artifactEntry.getTagSet().iterator().next().getName()).isEqualTo(ArtifactTag.LAST_VERSION);
@@ -582,9 +586,9 @@ public class ArtifactManagementServiceImplTest
         }
 
         // confirm it has last-version tag
-        ArtifactEntry artifactEntryWithClassifier = artifactEntryService.findOneArtifact(storageId,
-                                                                                         repositoryId,
-                                                                                         artifactPathWithClassifier);
+        org.carlspring.strongbox.domain.Artifact artifactEntryWithClassifier = artifactEntityRepository.findOneArtifact(storageId,
+                                                                                                                        repositoryId,
+                                                                                                                        artifactPathWithClassifier);
 
         assertThat(artifactEntryWithClassifier.getTagSet()).isNotNull();
         assertThat(artifactEntryWithClassifier.getTagSet()).hasSize(1);
@@ -592,7 +596,7 @@ public class ArtifactManagementServiceImplTest
 
         // re-fetch the artifact without classifier
         // and confirm it still has the last version tag
-        artifactEntry = artifactEntryService.findOneArtifact(storageId,
+        artifactEntry = artifactEntityRepository.findOneArtifact(storageId,
                                                              repositoryId,
                                                              artifactPath);
         assertThat(artifactEntry.getTagSet()).isNotNull();
@@ -613,9 +617,9 @@ public class ArtifactManagementServiceImplTest
         }
 
         // confirm it has last-version tag
-        ArtifactEntry artifactEntryV2 = artifactEntryService.findOneArtifact(storageId,
-                                                                             repositoryId,
-                                                                             artifactPathV2);
+        org.carlspring.strongbox.domain.Artifact artifactEntryV2 = artifactEntityRepository.findOneArtifact(storageId,
+                                                                                                            repositoryId,
+                                                                                                            artifactPathV2);
 
         assertThat(artifactEntryV2.getTagSet()).isNotNull();
         assertThat(artifactEntryV2.getTagSet()).hasSize(1);
@@ -623,14 +627,14 @@ public class ArtifactManagementServiceImplTest
 
         // re-fetch the artifact without classifier
         // and confirm it no longer has the last version tag
-        artifactEntry = artifactEntryService.findOneArtifact(storageId,
+        artifactEntry = artifactEntityRepository.findOneArtifact(storageId,
                                                              repositoryId,
                                                              artifactPath);
         assertThat(artifactEntry.getTagSet()).isNotNull();
         assertThat(artifactEntry.getTagSet()).isEmpty();
 
         // confirm it no longer has last-version tag
-        artifactEntryWithClassifier = artifactEntryService.findOneArtifact(storageId,
+        artifactEntryWithClassifier = artifactEntityRepository.findOneArtifact(storageId,
                                                                            repositoryId,
                                                                            artifactPathWithClassifier);
 
@@ -667,9 +671,9 @@ public class ArtifactManagementServiceImplTest
         expectedChecksums.put("MD5", md5Checksum);
 
         String path = RepositoryFiles.relativizePath(repositoryPath);
-        ArtifactEntry artifactEntry = artifactEntryService.findOneArtifact(storageId,
-                                                                           repositoryId,
-                                                                           path);
+        org.carlspring.strongbox.domain.Artifact artifactEntry = artifactEntityRepository.findOneArtifact(storageId,
+                                                                                                          repositoryId,
+                                                                                                          path);
 
         assertThat(artifactEntry).isNotNull();
 

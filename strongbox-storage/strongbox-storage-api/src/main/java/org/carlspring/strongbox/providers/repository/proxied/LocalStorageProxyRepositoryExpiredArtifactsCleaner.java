@@ -1,29 +1,30 @@
 package org.carlspring.strongbox.providers.repository.proxied;
 
+import java.io.IOException;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Iterator;
+import java.util.List;
+
+import javax.inject.Inject;
+
+import org.apache.commons.collections4.CollectionUtils;
 import org.carlspring.strongbox.configuration.ConfigurationManager;
-import org.carlspring.strongbox.data.service.support.search.PagingCriteria;
-import org.carlspring.strongbox.domain.ArtifactEntry;
+import org.carlspring.strongbox.domain.Artifact;
 import org.carlspring.strongbox.providers.io.RepositoryPath;
 import org.carlspring.strongbox.providers.io.RepositoryPathResolver;
-import org.carlspring.strongbox.services.ArtifactEntryService;
+import org.carlspring.strongbox.repositories.ArtifactRepository;
 import org.carlspring.strongbox.services.ArtifactManagementService;
-import org.carlspring.strongbox.services.support.ArtifactEntrySearchCriteria;
 import org.carlspring.strongbox.storage.Storage;
 import org.carlspring.strongbox.storage.repository.Repository;
 import org.carlspring.strongbox.storage.repository.remote.RemoteRepository;
 import org.carlspring.strongbox.storage.repository.remote.heartbeat.RemoteRepositoryAlivenessService;
-
-import javax.inject.Inject;
-import java.io.IOException;
-import java.util.Iterator;
-import java.util.List;
-
-import org.apache.commons.collections4.CollectionUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
-import static org.carlspring.strongbox.services.support.ArtifactEntrySearchCriteria.Builder.anArtifactEntrySearchCriteria;
 
 /**
  * @author Przemyslaw Fusik
@@ -41,7 +42,7 @@ public class LocalStorageProxyRepositoryExpiredArtifactsCleaner
     private RepositoryPathResolver repositoryPathResolver;
 
     @Inject
-    private ArtifactEntryService artifactEntryService;
+    private ArtifactRepository artifactEntityRepository;
 
     @Inject
     private RemoteRepositoryAlivenessService remoteRepositoryAlivenessCacheManager;
@@ -49,66 +50,62 @@ public class LocalStorageProxyRepositoryExpiredArtifactsCleaner
     @Inject
     private ArtifactManagementService artifactManagementService;
 
-    @Transactional(rollbackFor = Exception.class)
+    @Transactional
     public void cleanup(final Integer lastAccessedTimeInDays,
                         final Long minSizeInBytes)
             throws IOException
     {
-        final ArtifactEntrySearchCriteria searchCriteria = anArtifactEntrySearchCriteria()
-                                                                   .withLastAccessedTimeInDays(lastAccessedTimeInDays)
-                                                                   .withMinSizeInBytes(minSizeInBytes)
-                                                                   .build();
-
-        final List<ArtifactEntry> artifactEntries = artifactEntryService.findMatching(searchCriteria,
-                                                                                      PagingCriteria.ALL);
-        filterAccessibleProxiedArtifacts(artifactEntries);
-
-        if (CollectionUtils.isEmpty(artifactEntries))
+        final Page<Artifact> artifactEntries = artifactEntityRepository.findMatching(lastAccessedTimeInDays, minSizeInBytes,
+                                                                                     PageRequest.of(0, Integer.MAX_VALUE));
+        List<Artifact> artifactsToDelete = filterAccessibleProxiedArtifacts(artifactEntries.toList());
+        if (artifactsToDelete.isEmpty())
         {
             return;
         }
 
-        logger.debug("Cleaning artifacts {}", artifactEntries);
-        deleteFromStorage(artifactEntries);
+        logger.debug("Cleaning artifacts {}", artifactsToDelete);
+        deleteFromStorage(artifactsToDelete);
     }
 
-    private void filterAccessibleProxiedArtifacts(final List<ArtifactEntry> artifactEntries)
+    private List<Artifact> filterAccessibleProxiedArtifacts(final List<Artifact> artifactEntries)
     {
         if (CollectionUtils.isEmpty(artifactEntries))
         {
-            return;
+            return Collections.emptyList();
         }
-        for (final Iterator<ArtifactEntry> it = artifactEntries.iterator(); it.hasNext(); )
+        
+        List<Artifact> result = new ArrayList<>();
+        for (final Iterator<Artifact> it = artifactEntries.iterator(); it.hasNext(); )
         {
-            final ArtifactEntry artifactEntry = it.next();
+            final Artifact artifactEntry = it.next();
             final Storage storage = configurationManager.getConfiguration().getStorage(artifactEntry.getStorageId());
             final Repository repository = storage.getRepository(artifactEntry.getRepositoryId());
             if (!repository.isProxyRepository())
             {
-                it.remove();
                 continue;
             }
             final RemoteRepository remoteRepository = repository.getRemoteRepository();
             if (remoteRepository == null)
             {
                 logger.warn("Repository {} is not associated with remote repository", repository.getId());
-                it.remove();
                 continue;
             }
             if (!remoteRepositoryAlivenessCacheManager.isAlive(remoteRepository))
             {
                 logger.warn("Remote repository {} is down. Artifacts won't be cleaned up.", remoteRepository.getUrl());
-                it.remove();
                 continue;
             }
+            
+            result.add(artifactEntry);
         }
-
+        
+        return result;
     }
 
-    private void deleteFromStorage(final List<ArtifactEntry> artifactEntries)
+    private void deleteFromStorage(final List<Artifact> artifactEntries)
             throws IOException
     {
-        for (final ArtifactEntry artifactEntry : artifactEntries)
+        for (final Artifact artifactEntry : artifactEntries)
         {
             final Storage storage = configurationManager.getConfiguration().getStorage(artifactEntry.getStorageId());
             final Repository repository = storage.getRepository(artifactEntry.getRepositoryId());

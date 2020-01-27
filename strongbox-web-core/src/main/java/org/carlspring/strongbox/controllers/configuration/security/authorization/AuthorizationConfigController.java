@@ -17,7 +17,7 @@ import org.carlspring.strongbox.forms.PrivilegeListForm;
 import org.carlspring.strongbox.forms.RoleForm;
 import org.carlspring.strongbox.users.domain.Privileges;
 import org.carlspring.strongbox.users.service.UserService;
-import org.carlspring.strongbox.users.service.impl.OrientDbUserService.OrientDb;
+import org.carlspring.strongbox.users.service.impl.DatabaseUserService.Database;
 import org.carlspring.strongbox.validation.RequestBodyValidationException;
 import org.springframework.core.convert.ConversionService;
 import org.springframework.http.HttpHeaders;
@@ -72,7 +72,7 @@ public class AuthorizationConfigController
     private AuthorizationConfigService authorizationConfigService;
 
     @Inject
-    @OrientDb
+    @Database
     private UserService userService;
 
     @Inject
@@ -130,7 +130,7 @@ public class AuthorizationConfigController
         catch (RuntimeException e)
         {
             String message = e.getMessage();
-            logger.error(message);
+            logger.error(message, e);
             return getBadRequestResponseEntity(message, acceptHeader);
         }
 

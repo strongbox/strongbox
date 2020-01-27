@@ -131,7 +131,7 @@ public class NpmArtifactControllerTest
         //Download
         mockMvc.contentType(MediaType.APPLICATION_JSON_VALUE)
                .when()
-               .get(url, storageId, repositoryId, coordinates.toResource())
+               .get(url, storageId, repositoryId, coordinates.buildResource())
                .then()
                .log().status()
                .log().headers()
@@ -298,7 +298,7 @@ public class NpmArtifactControllerTest
         //Download
         mockMvc.contentType(MediaType.APPLICATION_JSON_VALUE)
                .when()
-               .get(url, storageId, repositoryId, coordinates.toResource())
+               .get(url, storageId, repositoryId, coordinates.buildResource())
                .then()
                .log().status()
                .log().headers()
