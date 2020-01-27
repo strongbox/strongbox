@@ -1,8 +1,7 @@
 package org.carlspring.strongbox.app;
 
 import org.carlspring.strongbox.config.WebConfig;
-import org.carlspring.strongbox.config.orientdb.OrientDbProfile;
-
+import org.carlspring.strongbox.config.janusgraph.JanusGraphDbProfile;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.boot.ApplicationArguments;
@@ -28,12 +27,12 @@ public class StrongboxSpringBootApplication
 
     public static void main(String[] args)
     {
-        if (System.getProperty(OrientDbProfile.PROPERTY_PROFILE) == null)
+        if (System.getProperty(JanusGraphDbProfile.PROPERTY_PROFILE) == null)
         {
-            logger.info("OrientDB profile not set, will use [{}] profile as default",
-                        OrientDbProfile.PROFILE_EMBEDDED);
+            logger.info("JanusGraphDb profile not set, will use [{}] profile as default",
+                        JanusGraphDbProfile.PROFILE_EMBEDDED);
 
-            System.setProperty(OrientDbProfile.PROPERTY_PROFILE, OrientDbProfile.PROFILE_EMBEDDED);
+            System.setProperty(JanusGraphDbProfile.PROPERTY_PROFILE, JanusGraphDbProfile.PROFILE_EMBEDDED);
         }
 
         applicationContext = SpringApplication.run(StrongboxSpringBootApplication.class, args);

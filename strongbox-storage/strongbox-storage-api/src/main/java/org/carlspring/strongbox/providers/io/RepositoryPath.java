@@ -1,11 +1,5 @@
 package org.carlspring.strongbox.providers.io;
 
-import org.carlspring.strongbox.domain.ArtifactEntry;
-import org.carlspring.strongbox.io.ProxyPathInvocationHandler;
-import org.carlspring.strongbox.storage.Storage;
-import org.carlspring.strongbox.storage.repository.Repository;
-import org.carlspring.strongbox.util.PathUtils;
-
 import java.io.File;
 import java.io.IOException;
 import java.lang.reflect.Proxy;
@@ -22,6 +16,11 @@ import java.util.Iterator;
 import java.util.Map;
 
 import org.apache.commons.io.FilenameUtils;
+import org.carlspring.strongbox.domain.Artifact;
+import org.carlspring.strongbox.io.ProxyPathInvocationHandler;
+import org.carlspring.strongbox.storage.Storage;
+import org.carlspring.strongbox.storage.repository.Repository;
+import org.carlspring.strongbox.util.PathUtils;
 
 /**
  * This implementation decorates storage {@link Path} implementation, which can be an "Cloud Path" or common
@@ -40,7 +39,7 @@ public class RepositoryPath
 
     private LayoutFileSystem fileSystem;
 
-    protected ArtifactEntry artifactEntry;
+    protected Artifact artifact;
 
     protected Map<RepositoryFileAttributeType, Object> cachedAttributes = new HashMap<>();
 
@@ -55,14 +54,24 @@ public class RepositoryPath
         this.fileSystem = fileSystem;
     }
 
+    public String getStorageId()
+    {
+        return getRepository().getStorage().getId();
+    }
+
+    public String getRepositoryId()
+    {
+        return getRepository().getId();
+    }
+    
     protected Path getTarget()
     {
         return target;
     }
 
-    public ArtifactEntry getArtifactEntry() throws IOException
+    public Artifact getArtifactEntry() throws IOException
     {
-        return artifactEntry;
+        return artifact;
     }
 
     public LayoutFileSystem getFileSystem()
@@ -258,7 +267,7 @@ public class RepositoryPath
         if (!isAbsolute())
         {
             RepositoryPath result = getFileSystem().getRootDirectory().resolve(this);
-            result.artifactEntry = this.artifactEntry;
+            result.artifact = this.artifact;
 
             return result;
         }

@@ -1,5 +1,9 @@
 package org.carlspring.strongbox.controllers.layout.maven;
 
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.carlspring.strongbox.net.MediaType.APPLICATION_X_GZIP_VALUE;
+import static org.hamcrest.CoreMatchers.equalTo;
+
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
@@ -8,7 +12,6 @@ import java.util.List;
 
 import javax.inject.Inject;
 
-import io.restassured.http.Header;
 import org.carlspring.strongbox.config.IntegrationTest;
 import org.carlspring.strongbox.providers.io.RepositoryPath;
 import org.carlspring.strongbox.rest.common.MavenRestAssuredBaseTest;
@@ -31,14 +34,10 @@ import org.hamcrest.CoreMatchers;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
-
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 
-import static com.google.common.base.Predicates.not;
-import static org.assertj.core.api.Assertions.assertThat;
-import static org.carlspring.strongbox.net.MediaType.APPLICATION_X_GZIP_VALUE;
-import static org.hamcrest.CoreMatchers.equalTo;
+import io.restassured.http.Header;
 
 /**
  * @author Kate Novik
@@ -175,8 +174,7 @@ public class MavenIndexControllerTest
     {
         RepositoryPath indexPath = repositoryLocalIndexDirectoryPathResolver.resolve(repository)
                                                                             .resolve("nexus-maven-repository-index.gz");
-
-        assertThat(indexPath).matches(not(Files::exists));
+        assertThat(indexPath).doesNotExist();
 
         String url = getContextBaseUrl() + "/api/maven/index/{storageId}/{repositoryId}";
 
@@ -187,7 +185,7 @@ public class MavenIndexControllerTest
                .peek()
                .then()
                .statusCode(HttpStatus.BAD_REQUEST.value())
-               .content(equalTo("Indexing is disabled on this repository."));
+               .body(equalTo("Indexing is disabled on this repository."));
     }
 
     @ExtendWith({ RepositoryManagementTestExecutionListener.class,
@@ -214,7 +212,7 @@ public class MavenIndexControllerTest
         RepositoryPath indexPath = repositoryRemoteIndexDirectoryPathResolver.resolve(proxyRepository)
                                                                              .resolve("nexus-maven-repository-index.gz");
 
-        assertThat(indexPath).matches(not(Files::exists));
+        assertThat(indexPath).doesNotExist();
 
         String url = getContextBaseUrl() + "/api/maven/index/{storageId}/{repositoryId}";
 
@@ -252,7 +250,7 @@ public class MavenIndexControllerTest
         RepositoryPath indexPath = repositoryRemoteIndexDirectoryPathResolver.resolve(repository)
                                                                              .resolve("nexus-maven-repository-index.gz");
 
-        assertThat(indexPath).matches(not(Files::exists));
+        assertThat(indexPath).doesNotExist();
 
         String url = getContextBaseUrl() + "/api/maven/index/{storageId}/{repositoryId}";
 
@@ -263,7 +261,7 @@ public class MavenIndexControllerTest
                .peek()
                .then()
                .statusCode(HttpStatus.BAD_REQUEST.value())
-               .content(equalTo("Indexing is disabled on this repository."));
+               .body(equalTo("Indexing is disabled on this repository."));
     }
 
 
@@ -370,7 +368,7 @@ public class MavenIndexControllerTest
         RepositoryPath indexPath = repositoryLocalIndexDirectoryPathResolver.resolve(groupRepository).resolve(
                 "nexus-maven-repository-index.gz");
 
-        assertThat(indexPath).matches(not(Files::exists));
+        assertThat(indexPath).doesNotExist();
 
         String url = getContextBaseUrl() + "/api/maven/index/{storageId}/{repositoryId}";
 

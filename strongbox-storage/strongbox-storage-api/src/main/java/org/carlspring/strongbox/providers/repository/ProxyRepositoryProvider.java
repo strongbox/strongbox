@@ -1,19 +1,6 @@
 package org.carlspring.strongbox.providers.repository;
 
 
-import org.carlspring.strongbox.data.criteria.Paginator;
-import org.carlspring.strongbox.data.criteria.Predicate;
-import org.carlspring.strongbox.domain.ArtifactEntry;
-import org.carlspring.strongbox.domain.RemoteArtifactEntry;
-import org.carlspring.strongbox.providers.io.AbstractRepositoryProvider;
-import org.carlspring.strongbox.providers.io.RepositoryFiles;
-import org.carlspring.strongbox.providers.io.RepositoryPath;
-import org.carlspring.strongbox.providers.io.RepositoryPathLock;
-import org.carlspring.strongbox.providers.repository.event.ProxyRepositoryPathExpiredEvent;
-import org.carlspring.strongbox.providers.repository.event.RemoteRepositorySearchEvent;
-import org.carlspring.strongbox.providers.repository.proxied.ProxyRepositoryArtifactResolver;
-
-import javax.inject.Inject;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
@@ -23,6 +10,20 @@ import java.util.List;
 import java.util.concurrent.locks.Lock;
 import java.util.concurrent.locks.ReadWriteLock;
 
+import javax.inject.Inject;
+
+import org.carlspring.strongbox.data.criteria.Paginator;
+import org.carlspring.strongbox.domain.Artifact;
+import org.carlspring.strongbox.domain.RemoteArtifact;
+import org.carlspring.strongbox.domain.RemoteArtifactEntity;
+import org.carlspring.strongbox.io.RepositoryStreamWriteContext;
+import org.carlspring.strongbox.providers.io.AbstractRepositoryProvider;
+import org.carlspring.strongbox.providers.io.RepositoryFiles;
+import org.carlspring.strongbox.providers.io.RepositoryPath;
+import org.carlspring.strongbox.providers.io.RepositoryPathLock;
+import org.carlspring.strongbox.providers.repository.event.ProxyRepositoryPathExpiredEvent;
+import org.carlspring.strongbox.providers.repository.event.RemoteRepositorySearchEvent;
+import org.carlspring.strongbox.providers.repository.proxied.ProxyRepositoryArtifactResolver;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Component;
@@ -67,7 +68,6 @@ public class ProxyRepositoryProvider
         throws IOException
     {
         RepositoryPath targetPath = hostedRepositoryProvider.fetchPath(repositoryPath);
-
         if (targetPath == null)
         {
             targetPath = resolvePathExclusive(repositoryPath);
@@ -87,17 +87,8 @@ public class ProxyRepositoryProvider
         ReadWriteLock lockSource = repositoryPathLock.lock(repositoryPath, "pre-remote-fetch");
         Lock lock = lockSource.writeLock();
         lock.lock();
-
         try
         {
-            // This is the second attempt, but this time inside exclusive write lock
-            // Things might have changed.
-            RepositoryPath targetPath = hostedRepositoryProvider.fetchPath(repositoryPath);
-            if (targetPath != null)
-            {
-                return targetPath;
-
-            }
             return proxyRepositoryArtifactResolver.fetchRemoteResource(repositoryPath);
         }
         catch (IOException e)
@@ -123,7 +114,7 @@ public class ProxyRepositoryProvider
     @Override
     public List<Path> search(String storageId,
                              String repositoryId,
-                             Predicate predicate,
+                             RepositorySearchRequest predicate,
                              Paginator paginator)
     {
         RemoteRepositorySearchEvent event = new RemoteRepositorySearchEvent(storageId,
@@ -138,29 +129,39 @@ public class ProxyRepositoryProvider
     @Override
     public Long count(String storageId,
                       String repositoryId,
-                      Predicate predicate)
+                      RepositorySearchRequest predicate)
     {
         return hostedRepositoryProvider.count(storageId, repositoryId, predicate);
     }
 
     @Override
-    protected ArtifactEntry provideArtifactEntry(RepositoryPath repositoryPath) throws IOException
+    protected Artifact provideArtifact(RepositoryPath repositoryPath) throws IOException
     {
-        ArtifactEntry artifactEntry = super.provideArtifactEntry(repositoryPath);
-        ArtifactEntry remoteArtifactEntry = artifactEntry.getObjectId() == null ? new RemoteArtifactEntry() : (RemoteArtifactEntry) artifactEntry;
+        Artifact artifactEntry = super.provideArtifact(repositoryPath);
+        Artifact remoteArtifactEntry = artifactEntry.getNativeId() == null
+                ? new RemoteArtifactEntity(repositoryPath.getStorageId(), repositoryPath.getRepositoryId(),
+                        RepositoryFiles.readCoordinates(repositoryPath))
+                : (RemoteArtifact) artifactEntry;
 
         return remoteArtifactEntry;
     }
 
     @Override
-    protected boolean shouldStoreArtifactEntry(ArtifactEntry artifactEntry)
+    protected boolean shouldStoreArtifact(Artifact artifactEntry)
     {
-        RemoteArtifactEntry remoteArtifactEntry = (RemoteArtifactEntry) artifactEntry;
-        boolean result = super.shouldStoreArtifactEntry(artifactEntry) || !remoteArtifactEntry.getIsCached();
-
+        RemoteArtifactEntity remoteArtifactEntry = (RemoteArtifactEntity) artifactEntry;
+        boolean result = super.shouldStoreArtifact(artifactEntry) || !remoteArtifactEntry.getIsCached();
+        
         remoteArtifactEntry.setIsCached(true);
-
+        
         return result;
     }
 
+    @Override
+    public void commit(RepositoryStreamWriteContext ctx)
+        throws IOException
+    {
+        super.commit(ctx);
+    }
+    
 }

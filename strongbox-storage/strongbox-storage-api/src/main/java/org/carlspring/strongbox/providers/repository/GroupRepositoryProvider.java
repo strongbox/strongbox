@@ -6,6 +6,7 @@ import java.io.InputStream;
 import java.io.OutputStream;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.util.Collections;
 import java.util.Iterator;
 import java.util.LinkedHashMap;
 import java.util.LinkedList;
@@ -15,28 +16,23 @@ import java.util.Set;
 import java.util.stream.Collectors;
 
 import javax.inject.Inject;
-import javax.persistence.EntityManager;
-import javax.persistence.PersistenceContext;
 
 import org.carlspring.strongbox.artifact.coordinates.ArtifactCoordinates;
 import org.carlspring.strongbox.configuration.ConfigurationUtils;
-import org.carlspring.strongbox.data.criteria.OQueryTemplate;
 import org.carlspring.strongbox.data.criteria.Paginator;
-import org.carlspring.strongbox.data.criteria.Predicate;
-import org.carlspring.strongbox.data.criteria.QueryTemplate;
-import org.carlspring.strongbox.data.criteria.Selector;
-import org.carlspring.strongbox.domain.ArtifactEntry;
+import org.carlspring.strongbox.domain.Artifact;
 import org.carlspring.strongbox.providers.io.AbstractRepositoryProvider;
 import org.carlspring.strongbox.providers.io.RepositoryFiles;
 import org.carlspring.strongbox.providers.io.RepositoryPath;
 import org.carlspring.strongbox.providers.io.RepositoryPathResolver;
+import org.carlspring.strongbox.providers.io.RootRepositoryPath;
 import org.carlspring.strongbox.providers.repository.event.GroupRepositoryPathFetchEvent;
 import org.carlspring.strongbox.providers.repository.group.GroupRepositorySetCollector;
+import org.carlspring.strongbox.repositories.ArtifactIdGroupRepository;
 import org.carlspring.strongbox.services.support.ArtifactRoutingRulesChecker;
 import org.carlspring.strongbox.storage.Storage;
 import org.carlspring.strongbox.storage.repository.Repository;
 import org.carlspring.strongbox.util.ThrowingFunction;
-
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Component;
@@ -62,8 +58,8 @@ public class GroupRepositoryProvider
     @Inject
     private GroupRepositorySetCollector groupRepositorySetCollector;
 
-    @PersistenceContext
-    private EntityManager entityManager;
+    @Inject
+    private ArtifactIdGroupRepository artifactIdGroupRepository;
 
     @Inject
     private RepositoryPathResolver repositoryPathResolver;
@@ -200,7 +196,7 @@ public class GroupRepositoryProvider
     @Override
     public List<Path> search(String storageId,
                              String repositoryId,
-                             Predicate predicate,
+                             RepositorySearchRequest predicate,
                              Paginator paginator)
     {
         logger.debug("Search in [{}]:[{}] ...", storageId, repositoryId);
@@ -216,11 +212,11 @@ public class GroupRepositoryProvider
             return new LinkedList<>();
         }
 
-        int skip = paginator.getSkip();
+        long skip = paginator.getSkip();
         int limit = paginator.getLimit();
 
         int groupSize = groupRepositorySet.size();
-        int groupSkip = (skip / (limit * groupSize)) * limit;
+        long groupSkip = (skip / (limit * groupSize)) * limit;
         int groupLimit = limit;
 
         skip = skip - groupSkip;
@@ -276,8 +272,8 @@ public class GroupRepositoryProvider
         }
         resultList.addAll(resultMap.values());
 
-        int toIndex = resultList.size() - skip > limit ? limit + skip : resultList.size();
-        return resultList.subList(skip, toIndex);
+        long toIndex = resultList.size() - skip > limit ? limit + skip : resultList.size();
+        return resultList.subList((int) skip, (int) toIndex);
     }
 
     private ArtifactCoordinates getArtifactCoordinates(Path p) throws IOException
@@ -288,28 +284,19 @@ public class GroupRepositoryProvider
     @Override
     public Long count(String storageId,
                       String repositoryId,
-                      Predicate predicate)
+                      RepositorySearchRequest predicate)
     {
         logger.debug("Count in [{}]:[{}] ...", storageId, repositoryId);
 
         Storage storage = getConfiguration().getStorage(storageId);
-
         Repository groupRepository = storage.getRepository(repositoryId);
+        Set<String> groupRepositoryIdSet = groupRepositorySetCollector.collect(groupRepository)
+                                                                      .stream()
+                                                                      .map(r -> r.getStorage().getId() + ":" + r.getId())
+                                                                      .collect(Collectors.toSet());
 
-        Predicate p = Predicate.empty();
-
-        p.or(createPredicate(storageId, repositoryId, predicate));
-        groupRepositorySetCollector.collect(groupRepository, true)
-                                   .stream()
-                                   .forEach(r -> p.or(createPredicate(r.getStorage().getId(), r.getId(), predicate)));
-
-        Selector<ArtifactEntry> selector = new Selector<>(ArtifactEntry.class);
-        selector.select("count(distinct(artifactCoordinates))").where(p);
-
-        QueryTemplate<Long, ArtifactEntry> queryTemplate = new OQueryTemplate<>(entityManager);
-
-        return queryTemplate.select(selector);
-
+        return artifactIdGroupRepository.countArtifacts(groupRepositoryIdSet, predicate.getArtifactId(),
+                                                        predicate.getCoordinateValues());
     }
 
 }

@@ -1,9 +1,5 @@
 package org.carlspring.strongbox.storage.indexing.local;
 
-import org.carlspring.strongbox.artifact.coordinates.MavenArtifactCoordinates;
-import org.carlspring.strongbox.domain.ArtifactEntry;
-import org.carlspring.strongbox.domain.MavenArtifactEntryUtils;
-
 import java.io.File;
 
 import org.apache.commons.io.FilenameUtils;
@@ -11,6 +7,9 @@ import org.apache.maven.index.ArtifactContext;
 import org.apache.maven.index.ArtifactInfo;
 import org.apache.maven.index.artifact.Gav;
 import org.apache.maven.model.Model;
+import org.carlspring.strongbox.artifact.coordinates.MavenArtifactCoordinates;
+import org.carlspring.strongbox.domain.Artifact;
+import org.carlspring.strongbox.domain.MavenArtifactEntryUtils;
 import org.codehaus.plexus.util.StringUtils;
 
 /**
@@ -20,10 +19,10 @@ public class ArtifactEntryArtifactContext
         extends ArtifactContext
 {
 
-    private final ArtifactEntry artifactEntry;
+    private final Artifact artifactEntry;
     private final ArtifactEntryArtifactContextHelper artifactEntryArtifactContextHelper;
 
-    public ArtifactEntryArtifactContext(final ArtifactEntry artifactEntry,
+    public ArtifactEntryArtifactContext(final Artifact artifactEntry,
                                         final ArtifactEntryArtifactContextHelper artifactEntryArtifactContextHelper)
             throws IllegalArgumentException
     {
@@ -32,7 +31,7 @@ public class ArtifactEntryArtifactContext
         this.artifactEntryArtifactContextHelper = artifactEntryArtifactContextHelper;
     }
 
-    private static ArtifactInfo asArtifactInfo(ArtifactEntry artifactEntry)
+    private static ArtifactInfo asArtifactInfo(Artifact artifactEntry)
     {
         final MavenArtifactCoordinates coordinates = (MavenArtifactCoordinates) artifactEntry.getArtifactCoordinates();
         ArtifactInfo artifactInfo = new ArtifactInfo(artifactEntry.getRepositoryId(),
@@ -58,16 +57,16 @@ public class ArtifactEntryArtifactContext
             artifactInfo.setPackaging(coordinates.getExtension());
         }
 
-        artifactInfo.setFileName(FilenameUtils.getName(coordinates.toPath()));
+        artifactInfo.setFileName(FilenameUtils.getName(coordinates.buildPath()));
         artifactInfo.setFileExtension(coordinates.getExtension());
     }
 
-    private static Gav asGav(ArtifactEntry artifactEntry)
+    private static Gav asGav(Artifact artifactEntry)
     {
         return MavenArtifactEntryUtils.toGav(artifactEntry);
     }
 
-    public ArtifactEntry getArtifactEntry()
+    public Artifact getArtifactEntry()
     {
         return artifactEntry;
     }

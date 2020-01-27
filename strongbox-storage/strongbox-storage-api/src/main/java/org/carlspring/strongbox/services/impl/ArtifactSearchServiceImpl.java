@@ -1,13 +1,10 @@
 package org.carlspring.strongbox.services.impl;
 
-import org.carlspring.strongbox.providers.search.OrientDbSearchProvider;
 import org.carlspring.strongbox.providers.search.SearchException;
+import org.carlspring.strongbox.providers.search.SearchProvider;
 import org.carlspring.strongbox.services.ArtifactSearchService;
 import org.carlspring.strongbox.storage.search.SearchRequest;
 import org.carlspring.strongbox.storage.search.SearchResults;
-
-import javax.inject.Inject;
-
 import org.springframework.stereotype.Component;
 
 /**
@@ -18,8 +15,7 @@ public class ArtifactSearchServiceImpl
         implements ArtifactSearchService
 {
 
-    @Inject
-    private OrientDbSearchProvider orientDbSearchProvider;
+    private SearchProvider orientDbSearchProvider;
 
 
     @Override

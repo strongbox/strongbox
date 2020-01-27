@@ -1,0 +1,760 @@
+---
+configuration:
+  instanceName: "strongbox"
+  version: "1.0-PR-60-SNAPSHOT"
+  revision: "1.0-PR-60-SNAPSHOT-dev"
+  baseUrl: "http://localhost:48080/"
+  port: 48080
+  sessionConfiguration:
+    timeoutSeconds: 3600
+  remoteRepositoriesConfiguration:
+    retryArtifactDownloadConfiguration:
+      timeoutSeconds: 60
+      maxNumberOfAttempts: 5
+      minAttemptsIntervalSeconds: 5
+    checkIntervalSeconds: 60
+    heartbeatThreadsNumber: 5
+  storages:
+    storage0:
+      id: "storage0"
+      repositories:
+        releases:
+          id: "releases"
+          policy: "release"
+          layout: "Maven 2"
+          type: "hosted"
+          secured: false
+          status: "In Service"
+          artifactMaxSize: 0
+          trashEnabled: false
+          checksumHeadersEnabled: true
+          customConfigurations: []
+          groupRepositories: []
+          artifactCoordinateValidators: []
+          virtualRepository: false
+          proxyRepository: false
+          groupRepository: false
+          hostedRepository: true
+          inService: true
+          eligibleForCustomConnectionPool: false
+          dataStore: "file-system"
+        snapshots:
+          id: "snapshots"
+          policy: "snapshot"
+          layout: "Maven 2"
+          type: "hosted"
+          secured: true
+          status: "In Service"
+          artifactMaxSize: 0
+          trashEnabled: false
+          checksumHeadersEnabled: true
+          customConfigurations: []
+          groupRepositories: []
+          artifactCoordinateValidators: []
+          virtualRepository: false
+          proxyRepository: false
+          groupRepository: false
+          hostedRepository: true
+          inService: true
+          eligibleForCustomConnectionPool: false
+          dataStore: "file-system"
+    storage-common-proxies:
+      id: "storage-common-proxies"
+      repositories:
+        maven-central:
+          id: "maven-central"
+          policy: "release"
+          layout: "Maven 2"
+          type: "proxy"
+          secured: false
+          status: "In Service"
+          artifactMaxSize: 0
+          trashEnabled: false
+          checksumHeadersEnabled: false
+          remoteRepository:
+            url: "https://repo.maven.apache.org/maven2/"
+            downloadRemoteIndexes: true
+            autoBlocking: true
+            checksumValidation: true
+            checkIntervalSeconds: 60
+            autoImportRemoteSSLCertificate: false
+          customConfigurations: []
+          groupRepositories: []
+          artifactCoordinateValidators: []
+          virtualRepository: false
+          proxyRepository: true
+          groupRepository: false
+          hostedRepository: false
+          inService: true
+          eligibleForCustomConnectionPool: false
+          dataStore: "file-system"
+        carlspring:
+          id: "carlspring"
+          policy: "mixed"
+          layout: "Maven 2"
+          type: "proxy"
+          secured: false
+          status: "In Service"
+          artifactMaxSize: 0
+          trashEnabled: false
+          checksumHeadersEnabled: false
+          remoteRepository:
+            url: "http://dev.carlspring.org/nexus/content/groups/carlspring"
+            downloadRemoteIndexes: true
+            autoBlocking: true
+            checksumValidation: true
+            checkIntervalSeconds: 60
+            autoImportRemoteSSLCertificate: false
+          customConfigurations: []
+          groupRepositories: []
+          artifactCoordinateValidators: []
+          virtualRepository: false
+          proxyRepository: true
+          groupRepository: false
+          hostedRepository: false
+          inService: true
+          eligibleForCustomConnectionPool: false
+          dataStore: "file-system"
+        apache-snapshots:
+          id: "apache-snapshots"
+          policy: "snapshot"
+          layout: "Maven 2"
+          type: "proxy"
+          secured: false
+          status: "In Service"
+          artifactMaxSize: 0
+          trashEnabled: false
+          checksumHeadersEnabled: false
+          remoteRepository:
+            url: "https://repository.apache.org/snapshots/"
+            downloadRemoteIndexes: true
+            autoBlocking: true
+            checksumValidation: true
+            checkIntervalSeconds: 60
+            autoImportRemoteSSLCertificate: false
+          customConfigurations: []
+          groupRepositories: []
+          artifactCoordinateValidators: []
+          virtualRepository: false
+          proxyRepository: true
+          groupRepository: false
+          hostedRepository: false
+          inService: true
+          eligibleForCustomConnectionPool: false
+          dataStore: "file-system"
+        jboss-public-releases:
+          id: "jboss-public-releases"
+          policy: "release"
+          layout: "Maven 2"
+          type: "proxy"
+          secured: false
+          status: "In Service"
+          artifactMaxSize: 0
+          trashEnabled: false
+          checksumHeadersEnabled: false
+          remoteRepository:
+            url: "http://repository.jboss.org/nexus/content/groups/public-jboss/"
+            downloadRemoteIndexes: true
+            autoBlocking: true
+            checksumValidation: true
+            checkIntervalSeconds: 60
+            autoImportRemoteSSLCertificate: false
+          customConfigurations: []
+          groupRepositories: []
+          artifactCoordinateValidators: []
+          virtualRepository: false
+          proxyRepository: true
+          groupRepository: false
+          hostedRepository: false
+          inService: true
+          eligibleForCustomConnectionPool: false
+          dataStore: "file-system"
+        maven-oracle:
+          id: "maven-oracle"
+          policy: "release"
+          layout: "Maven 2"
+          type: "proxy"
+          secured: false
+          status: "In Service"
+          artifactMaxSize: 0
+          trashEnabled: false
+          checksumHeadersEnabled: false
+          remoteRepository:
+            url: "https://maven.oracle.com"
+            downloadRemoteIndexes: true
+            autoBlocking: true
+            checksumValidation: true
+            checkIntervalSeconds: 60
+            autoImportRemoteSSLCertificate: false
+          customConfigurations: []
+          groupRepositories: []
+          artifactCoordinateValidators: []
+          virtualRepository: false
+          proxyRepository: true
+          groupRepository: false
+          hostedRepository: false
+          inService: true
+          eligibleForCustomConnectionPool: false
+          dataStore: "file-system"
+        group-common-proxies:
+          id: "group-common-proxies"
+          policy: "release"
+          layout: "Maven 2"
+          type: "group"
+          secured: true
+          status: "In Service"
+          artifactMaxSize: 0
+          trashEnabled: false
+          checksumHeadersEnabled: false
+          customConfigurations: []
+          groupRepositories:
+          - "carlspring"
+          - "maven-central"
+          - "apache-snapshots"
+          - "jboss-public-releases"
+          artifactCoordinateValidators: []
+          virtualRepository: false
+          proxyRepository: false
+          groupRepository: true
+          hostedRepository: false
+          inService: true
+          eligibleForCustomConnectionPool: false
+          dataStore: "file-system"
+        nuget.org:
+          id: "nuget.org"
+          policy: "release"
+          layout: "NuGet"
+          type: "proxy"
+          secured: false
+          status: "In Service"
+          artifactMaxSize: 0
+          trashEnabled: false
+          checksumHeadersEnabled: false
+          remoteRepository:
+            url: "https://www.nuget.org/api/v2"
+            downloadRemoteIndexes: false
+            autoBlocking: false
+            checksumValidation: false
+            checkIntervalSeconds: 60
+            autoImportRemoteSSLCertificate: false
+          customConfigurations: []
+          groupRepositories: []
+          artifactCoordinateValidators: []
+          virtualRepository: false
+          proxyRepository: true
+          groupRepository: false
+          hostedRepository: false
+          inService: true
+          eligibleForCustomConnectionPool: false
+          dataStore: "file-system"
+    storage-springsource-proxies:
+      id: "storage-springsource-proxies"
+      repositories:
+        springsource-snapshots:
+          id: "springsource-snapshots"
+          policy: "snapshot"
+          layout: "Maven 2"
+          type: "proxy"
+          secured: false
+          status: "In Service"
+          artifactMaxSize: 0
+          trashEnabled: false
+          checksumHeadersEnabled: false
+          remoteRepository:
+            url: "http://repo.spring.io/snapshot"
+            downloadRemoteIndexes: true
+            autoBlocking: true
+            checksumValidation: true
+            checkIntervalSeconds: 60
+            autoImportRemoteSSLCertificate: false
+          customConfigurations: []
+          groupRepositories: []
+          artifactCoordinateValidators: []
+          virtualRepository: false
+          proxyRepository: true
+          groupRepository: false
+          hostedRepository: false
+          inService: true
+          eligibleForCustomConnectionPool: false
+          dataStore: "file-system"
+        springsource-releases:
+          id: "springsource-releases"
+          policy: "release"
+          layout: "Maven 2"
+          type: "proxy"
+          secured: false
+          status: "In Service"
+          artifactMaxSize: 0
+          trashEnabled: false
+          checksumHeadersEnabled: false
+          remoteRepository:
+            url: "http://repo.spring.io/libs-release"
+            downloadRemoteIndexes: true
+            autoBlocking: true
+            checksumValidation: true
+            checkIntervalSeconds: 60
+            autoImportRemoteSSLCertificate: false
+          customConfigurations: []
+          groupRepositories: []
+          artifactCoordinateValidators: []
+          virtualRepository: false
+          proxyRepository: true
+          groupRepository: false
+          hostedRepository: false
+          inService: true
+          eligibleForCustomConnectionPool: false
+          dataStore: "file-system"
+        springsource-milestones:
+          id: "springsource-milestones"
+          policy: "release"
+          layout: "Maven 2"
+          type: "proxy"
+          secured: false
+          status: "In Service"
+          artifactMaxSize: 0
+          trashEnabled: false
+          checksumHeadersEnabled: false
+          remoteRepository:
+            url: "http://repo.spring.io/milestone"
+            downloadRemoteIndexes: true
+            autoBlocking: true
+            checksumValidation: true
+            checkIntervalSeconds: 60
+            autoImportRemoteSSLCertificate: false
+          customConfigurations: []
+          groupRepositories: []
+          artifactCoordinateValidators: []
+          virtualRepository: false
+          proxyRepository: true
+          groupRepository: false
+          hostedRepository: false
+          inService: true
+          eligibleForCustomConnectionPool: false
+          dataStore: "file-system"
+        springsource-proxies:
+          id: "springsource-proxies"
+          policy: "mixed"
+          layout: "Maven 2"
+          type: "group"
+          secured: true
+          status: "In Service"
+          artifactMaxSize: 0
+          trashEnabled: false
+          checksumHeadersEnabled: false
+          customConfigurations: []
+          groupRepositories:
+          - "springsource-snapshots"
+          - "springsource-releases"
+          - "springsource-milestones"
+          artifactCoordinateValidators: []
+          virtualRepository: false
+          proxyRepository: false
+          groupRepository: true
+          hostedRepository: false
+          inService: true
+          eligibleForCustomConnectionPool: false
+          dataStore: "file-system"
+    storage-ivy-proxies:
+      id: "storage-ivy-proxies"
+      repositories:
+        typesafe-releases:
+          id: "typesafe-releases"
+          policy: "release"
+          layout: "Maven 2"
+          type: "proxy"
+          secured: false
+          status: "In Service"
+          artifactMaxSize: 0
+          trashEnabled: false
+          checksumHeadersEnabled: false
+          remoteRepository:
+            url: "https://repo.typesafe.com/typesafe/releases"
+            downloadRemoteIndexes: true
+            autoBlocking: true
+            checksumValidation: true
+            checkIntervalSeconds: 60
+            autoImportRemoteSSLCertificate: false
+          customConfigurations: []
+          groupRepositories: []
+          artifactCoordinateValidators: []
+          virtualRepository: false
+          proxyRepository: true
+          groupRepository: false
+          hostedRepository: false
+          inService: true
+          eligibleForCustomConnectionPool: false
+          dataStore: "file-system"
+        typesafe-ivy-releases:
+          id: "typesafe-ivy-releases"
+          policy: "release"
+          layout: "Maven 2"
+          type: "proxy"
+          secured: false
+          status: "In Service"
+          artifactMaxSize: 0
+          trashEnabled: false
+          checksumHeadersEnabled: false
+          remoteRepository:
+            url: "https://repo.typesafe.com/typesafe/ivy-releases"
+            downloadRemoteIndexes: true
+            autoBlocking: true
+            checksumValidation: true
+            checkIntervalSeconds: 60
+            autoImportRemoteSSLCertificate: false
+          customConfigurations: []
+          groupRepositories: []
+          artifactCoordinateValidators: []
+          virtualRepository: false
+          proxyRepository: true
+          groupRepository: false
+          hostedRepository: false
+          inService: true
+          eligibleForCustomConnectionPool: false
+          dataStore: "file-system"
+        group-ivy-proxies:
+          id: "group-ivy-proxies"
+          policy: "release"
+          layout: "Maven 2"
+          type: "group"
+          secured: true
+          status: "In Service"
+          artifactMaxSize: 0
+          trashEnabled: false
+          checksumHeadersEnabled: false
+          customConfigurations: []
+          groupRepositories:
+          - "typesafe-releases"
+          - "typesafe-ivy-releases"
+          artifactCoordinateValidators: []
+          virtualRepository: false
+          proxyRepository: false
+          groupRepository: true
+          hostedRepository: false
+          inService: true
+          eligibleForCustomConnectionPool: false
+          dataStore: "file-system"
+    storage-sbt-proxies:
+      id: "storage-sbt-proxies"
+      repositories:
+        sbt-plugin-releases:
+          id: "sbt-plugin-releases"
+          policy: "release"
+          layout: "Maven 2"
+          type: "proxy"
+          secured: false
+          status: "In Service"
+          artifactMaxSize: 0
+          trashEnabled: false
+          checksumHeadersEnabled: false
+          remoteRepository:
+            url: "https://repo.scala-sbt.org/scalasbt/sbt-plugin-releases"
+            downloadRemoteIndexes: true
+            autoBlocking: true
+            checksumValidation: true
+            checkIntervalSeconds: 60
+            autoImportRemoteSSLCertificate: false
+          customConfigurations: []
+          groupRepositories: []
+          artifactCoordinateValidators: []
+          virtualRepository: false
+          proxyRepository: true
+          groupRepository: false
+          hostedRepository: false
+          inService: true
+          eligibleForCustomConnectionPool: false
+          dataStore: "file-system"
+        group-sbt-proxies:
+          id: "group-sbt-proxies"
+          policy: "release"
+          layout: "Maven 2"
+          type: "group"
+          secured: true
+          status: "In Service"
+          artifactMaxSize: 0
+          trashEnabled: false
+          checksumHeadersEnabled: false
+          customConfigurations: []
+          groupRepositories:
+          - "storage-common-proxies:maven-central"
+          - "sbt-plugin-releases"
+          - "storage-ivy-proxies:group-ivy-proxies"
+          artifactCoordinateValidators: []
+          virtualRepository: false
+          proxyRepository: false
+          groupRepository: true
+          hostedRepository: false
+          inService: true
+          eligibleForCustomConnectionPool: false
+          dataStore: "file-system"
+    storage-third-party:
+      id: "storage-third-party"
+      repositories:
+        third-party:
+          id: "third-party"
+          policy: "release"
+          layout: "Maven 2"
+          type: "hosted"
+          secured: false
+          status: "In Service"
+          artifactMaxSize: 0
+          trashEnabled: false
+          checksumHeadersEnabled: true
+          customConfigurations: []
+          groupRepositories: []
+          artifactCoordinateValidators: []
+          virtualRepository: false
+          proxyRepository: false
+          groupRepository: false
+          hostedRepository: true
+          inService: true
+          eligibleForCustomConnectionPool: false
+          dataStore: "file-system"
+        nuget-third-party:
+          id: "nuget-third-party"
+          policy: "release"
+          layout: "NuGet"
+          type: "hosted"
+          secured: false
+          status: "In Service"
+          artifactMaxSize: 0
+          trashEnabled: false
+          checksumHeadersEnabled: true
+          customConfigurations: []
+          groupRepositories: []
+          artifactCoordinateValidators: []
+          virtualRepository: false
+          proxyRepository: false
+          groupRepository: false
+          hostedRepository: true
+          inService: true
+          eligibleForCustomConnectionPool: false
+          dataStore: "file-system"
+    storage-npm:
+      id: "storage-npm"
+      repositories:
+        npm-releases:
+          id: "npm-releases"
+          policy: "release"
+          layout: "npm"
+          type: "hosted"
+          secured: false
+          status: "In Service"
+          artifactMaxSize: 0
+          trashEnabled: false
+          checksumHeadersEnabled: true
+          customConfigurations: []
+          groupRepositories: []
+          artifactCoordinateValidators: []
+          virtualRepository: false
+          proxyRepository: false
+          groupRepository: false
+          hostedRepository: true
+          inService: true
+          eligibleForCustomConnectionPool: false
+          dataStore: "file-system"
+        npmjs:
+          id: "npmjs"
+          policy: "release"
+          layout: "npm"
+          type: "proxy"
+          secured: false
+          status: "In Service"
+          artifactMaxSize: 0
+          trashEnabled: false
+          checksumHeadersEnabled: false
+          remoteRepository:
+            url: "https://registry.npmjs.org/"
+            downloadRemoteIndexes: false
+            autoBlocking: false
+            checksumValidation: false
+            checkIntervalSeconds: 60
+            autoImportRemoteSSLCertificate: false
+          customConfigurations: []
+          groupRepositories: []
+          artifactCoordinateValidators: []
+          virtualRepository: false
+          proxyRepository: true
+          groupRepository: false
+          hostedRepository: false
+          inService: true
+          eligibleForCustomConnectionPool: false
+          dataStore: "file-system"
+    storage-nuget:
+      id: "storage-nuget"
+      repositories:
+        nuget-releases:
+          id: "nuget-releases"
+          policy: "release"
+          layout: "NuGet"
+          type: "hosted"
+          secured: false
+          status: "In Service"
+          artifactMaxSize: 0
+          trashEnabled: false
+          checksumHeadersEnabled: true
+          customConfigurations: []
+          groupRepositories: []
+          artifactCoordinateValidators: []
+          virtualRepository: false
+          proxyRepository: false
+          groupRepository: false
+          hostedRepository: true
+          inService: true
+          eligibleForCustomConnectionPool: false
+          dataStore: "file-system"
+    storage-pypi:
+      id: "storage-pypi"
+      repositories:
+        pypi-releases:
+          id: "pypi-releases"
+          policy: "release"
+          layout: "PyPi"
+          type: "hosted"
+          secured: false
+          status: "In Service"
+          artifactMaxSize: 0
+          trashEnabled: false
+          checksumHeadersEnabled: true
+          customConfigurations: []
+          groupRepositories: []
+          artifactCoordinateValidators: []
+          virtualRepository: false
+          proxyRepository: false
+          groupRepository: false
+          hostedRepository: true
+          inService: true
+          eligibleForCustomConnectionPool: false
+          dataStore: "file-system"
+    storage-raw:
+      id: "storage-raw"
+      repositories:
+        raw-releases:
+          id: "raw-releases"
+          policy: "release"
+          layout: "Raw"
+          type: "hosted"
+          secured: false
+          status: "In Service"
+          artifactMaxSize: 0
+          trashEnabled: false
+          checksumHeadersEnabled: true
+          customConfigurations: []
+          groupRepositories: []
+          artifactCoordinateValidators: []
+          virtualRepository: false
+          proxyRepository: false
+          groupRepository: false
+          hostedRepository: true
+          inService: true
+          eligibleForCustomConnectionPool: false
+          dataStore: "file-system"
+    public:
+      id: "public"
+      repositories:
+        maven-group:
+          id: "maven-group"
+          policy: "mixed"
+          layout: "Maven 2"
+          type: "group"
+          secured: true
+          status: "In Service"
+          artifactMaxSize: 0
+          trashEnabled: false
+          checksumHeadersEnabled: false
+          customConfigurations: []
+          groupRepositories:
+          - "storage0:releases"
+          - "storage0:snapshots"
+          - "storage-common-proxies:group-common-proxies"
+          - "storage-springsource-proxies:springsource-proxies"
+          - "storage-ivy-proxies:group-ivy-proxies"
+          - "storage-sbt-proxies:group-sbt-proxies"
+          - "storage-third-party:third-party"
+          artifactCoordinateValidators: []
+          virtualRepository: false
+          proxyRepository: false
+          groupRepository: true
+          hostedRepository: false
+          inService: true
+          eligibleForCustomConnectionPool: false
+          dataStore: "file-system"
+        nuget-group:
+          id: "nuget-group"
+          policy: "mixed"
+          layout: "NuGet"
+          type: "group"
+          secured: true
+          status: "In Service"
+          artifactMaxSize: 0
+          trashEnabled: false
+          checksumHeadersEnabled: false
+          customConfigurations: []
+          groupRepositories:
+          - "storage-common-proxies:nuget.org"
+          - "storage-third-party:nuget-third-party"
+          artifactCoordinateValidators: []
+          virtualRepository: false
+          proxyRepository: false
+          groupRepository: true
+          hostedRepository: false
+          inService: true
+          eligibleForCustomConnectionPool: false
+          dataStore: "file-system"
+        npm-group:
+          id: "npm-group"
+          policy: "mixed"
+          layout: "npm"
+          type: "group"
+          secured: true
+          status: "In Service"
+          artifactMaxSize: 0
+          trashEnabled: false
+          checksumHeadersEnabled: false
+          customConfigurations: []
+          groupRepositories:
+          - "storage-npm:npmjs"
+          artifactCoordinateValidators: []
+          virtualRepository: false
+          proxyRepository: false
+          groupRepository: true
+          hostedRepository: false
+          inService: true
+          eligibleForCustomConnectionPool: false
+          dataStore: "file-system"
+  routingRules:
+    rules:
+    - uuid: "0f84a9a7-b2ce-47ed-8a01-085e235a1946"
+      storageId: "storage-common-proxies"
+      groupRepositoryId: "group-common-proxies"
+      pattern: "(com|org)/carlspring.*"
+      type: "deny"
+      repositories:
+      - storageId: "storage-common-proxies"
+        repositoryId: "jboss-public-releases"
+  corsConfiguration:
+    allowedOrigins:
+    - "*"
+    allowedMethods:
+    - "GET"
+    - "PUT"
+    - "POST"
+    - "DELETE"
+    - "OPTIONS"
+    allowedHeaders:
+    - "Accept"
+    - "Accepts"
+    - "Authorization"
+    - "Access-Control-Allow-Headers"
+    - "Access-Control-Request-Headers"
+    - "Access-Control-Request-Method"
+    - "DNT"
+    - "Keep-Alive"
+    - "User-Agent"
+    - "X-Requested-With"
+    - "If-Modified-Since"
+    - "Cache-Control"
+    - "Content-Type"
+    - "Content-Range,Range"
+    maxAge: 600
+    allowedCredentials: true
+  smtpConfiguration: {}

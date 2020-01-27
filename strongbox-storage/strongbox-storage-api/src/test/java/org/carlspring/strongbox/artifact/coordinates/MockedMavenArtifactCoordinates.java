@@ -4,7 +4,6 @@ import javax.xml.bind.annotation.XmlAccessType;
 import javax.xml.bind.annotation.XmlAccessorType;
 import javax.xml.bind.annotation.XmlAttribute;
 import javax.xml.bind.annotation.XmlRootElement;
-import java.util.Map;
 
 import org.apache.commons.lang3.StringUtils;
 import org.apache.maven.artifact.Artifact;
@@ -13,6 +12,7 @@ import org.apache.maven.artifact.handler.DefaultArtifactHandler;
 import org.apache.maven.artifact.versioning.ComparableVersion;
 import org.apache.maven.index.artifact.Gav;
 import org.apache.maven.index.artifact.M2GavCalculator;
+import org.carlspring.strongbox.domain.LayoutArtifactCoordinatesEntity;
 
 /**
  * @author carlspring
@@ -20,7 +20,7 @@ import org.apache.maven.index.artifact.M2GavCalculator;
 @XmlRootElement(name = "maven-artifact-coordinates")
 @XmlAccessorType(XmlAccessType.NONE)
 public class MockedMavenArtifactCoordinates
-        extends AbstractArtifactCoordinates<MockedMavenArtifactCoordinates, ComparableVersion>
+        extends LayoutArtifactCoordinatesEntity<MockedMavenArtifactCoordinates, ComparableVersion>
 {
 
     private static final M2GavCalculator M2_GAV_CALCULATOR = new M2GavCalculator();
@@ -75,15 +75,14 @@ public class MockedMavenArtifactCoordinates
     }
 
     @Override
-    public String toPath()
+    public String convertToPath(MockedMavenArtifactCoordinates c)
     {
         try
         {
-            return convertArtifactToPath(toArtifact());
+            return convertArtifactToPath(c.toArtifact());
         }
         catch (Exception e)
         {
-            //e.printStackTrace();
             return getCoordinates().toString();
         }
     }
@@ -129,7 +128,6 @@ public class MockedMavenArtifactCoordinates
         return artifactId;
     }
 
-    @Override
     public void setId(String id)
     {
         setArtifactId(id);
@@ -183,15 +181,6 @@ public class MockedMavenArtifactCoordinates
         }
         return new ComparableVersion(versionLocal);
     }
-
-    @Override
-    public Map<String, String> dropVersion()
-    {
-        Map<String, String> result = getCoordinates();
-        result.remove(VERSION);
-        return result;
-    }
-
 
     private static String convertArtifactToPath(Artifact artifact)
     {

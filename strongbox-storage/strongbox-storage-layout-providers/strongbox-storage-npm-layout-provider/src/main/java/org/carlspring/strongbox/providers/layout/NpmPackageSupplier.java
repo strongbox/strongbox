@@ -5,6 +5,8 @@ import java.lang.reflect.UndeclaredThrowableException;
 import java.nio.file.Files;
 import java.nio.file.NoSuchFileException;
 import java.nio.file.Path;
+import java.time.ZoneId;
+import java.util.Date;
 import java.util.Map;
 import java.util.function.Function;
 
@@ -13,7 +15,7 @@ import javax.inject.Inject;
 import org.apache.commons.codec.digest.MessageDigestAlgorithms;
 import org.carlspring.strongbox.artifact.ArtifactTag;
 import org.carlspring.strongbox.artifact.coordinates.NpmArtifactCoordinates;
-import org.carlspring.strongbox.domain.ArtifactEntry;
+import org.carlspring.strongbox.domain.Artifact;
 import org.carlspring.strongbox.npm.metadata.Dist;
 import org.carlspring.strongbox.npm.metadata.PackageVersion;
 import org.carlspring.strongbox.providers.io.RepositoryFiles;
@@ -47,7 +49,7 @@ public class NpmPackageSupplier implements Function<Path, NpmPackageDesc>
         NpmFileSystemProvider npmFileSystemProvider = (NpmFileSystemProvider) path.getFileSystem().provider();
 
         NpmArtifactCoordinates c;
-        ArtifactEntry artifactEntry;
+        Artifact artifactEntry;
         try
         {
             c = (NpmArtifactCoordinates) RepositoryFiles.readCoordinates(repositoryPath);
@@ -59,7 +61,7 @@ public class NpmPackageSupplier implements Function<Path, NpmPackageDesc>
         }
 
         NpmPackageDesc npmPackageDesc = new NpmPackageDesc();
-        npmPackageDesc.setReleaseDate(artifactEntry.getLastUpdated());
+        npmPackageDesc.setReleaseDate(Date.from(artifactEntry.getLastUpdated().atZone(ZoneId.systemDefault()).toInstant()));
 
         PackageVersion npmPackage = new PackageVersion();
         npmPackageDesc.setNpmPackage(npmPackage);

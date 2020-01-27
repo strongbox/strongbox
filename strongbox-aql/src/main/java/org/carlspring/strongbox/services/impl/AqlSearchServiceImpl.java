@@ -9,13 +9,12 @@ import javax.persistence.EntityManager;
 import javax.persistence.PersistenceContext;
 import javax.transaction.Transactional;
 
-import org.carlspring.strongbox.data.criteria.DetachQueryTemplate;
 import org.carlspring.strongbox.data.criteria.OQueryTemplate;
 import org.carlspring.strongbox.data.criteria.QueryTemplate;
 import org.carlspring.strongbox.data.criteria.Selector;
 import org.carlspring.strongbox.dependency.snippet.CodeSnippet;
 import org.carlspring.strongbox.dependency.snippet.SnippetGenerator;
-import org.carlspring.strongbox.domain.ArtifactEntry;
+import org.carlspring.strongbox.domain.ArtifactEntity;
 import org.carlspring.strongbox.providers.io.RepositoryFiles;
 import org.carlspring.strongbox.providers.io.RepositoryPath;
 import org.carlspring.strongbox.providers.io.RepositoryPathResolver;
@@ -30,7 +29,7 @@ import org.springframework.stereotype.Component;
 public class AqlSearchServiceImpl implements AqlSearchService
 {
 
-    @PersistenceContext
+    //@PersistenceContext
     private EntityManager entityManager;
 
     @Inject
@@ -39,14 +38,13 @@ public class AqlSearchServiceImpl implements AqlSearchService
     @Inject
     private SnippetGenerator snippetGenerator;
 
-    public SearchResults search(Selector<ArtifactEntry> selector)
+    public SearchResults search(Selector<ArtifactEntity> selector)
         throws IOException
     {
         SearchResults result = new SearchResults();
 
-        QueryTemplate<List<ArtifactEntry>, ArtifactEntry> queryTemplate = new DetachQueryTemplate<>(
-                new OQueryTemplate<>(entityManager));
-        for (ArtifactEntry artifactEntry : queryTemplate.select(selector))
+        QueryTemplate<List<ArtifactEntity>, ArtifactEntity> queryTemplate = new OQueryTemplate<>(entityManager);
+        for (ArtifactEntity artifactEntry : queryTemplate.select(selector))
         {
             SearchResult r = new SearchResult();
             result.getResults().add(r);

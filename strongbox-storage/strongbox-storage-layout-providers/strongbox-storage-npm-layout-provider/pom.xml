@@ -8,12 +8,12 @@
     <parent>
         <groupId>org.carlspring.strongbox</groupId>
         <artifactId>strongbox-parent</artifactId>
-        <version>1.0-SNAPSHOT</version>
+        <version>1.0-PR-62-SNAPSHOT</version>
         <relativePath/>
     </parent>
 
     <artifactId>strongbox-storage-npm-layout-provider</artifactId>
-    <version>1.0-SNAPSHOT</version>
+    <version>1.0-PR-62-SNAPSHOT</version>
     <packaging>jar</packaging>
 
     <name>Strongbox: Storage [NPM Layout Provider]</name>
@@ -113,7 +113,7 @@
         <dependency>
             <groupId>${project.groupId}</groupId>
             <artifactId>strongbox-npm-metadata-jackson</artifactId>
-            <version>${project.version}</version>
+            <version>1.0-SNAPSHOT</version>
         </dependency>
 
         <dependency>

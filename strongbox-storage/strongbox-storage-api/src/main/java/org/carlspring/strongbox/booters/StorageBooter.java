@@ -1,7 +1,17 @@
 package org.carlspring.strongbox.booters;
 
-import com.hazelcast.core.HazelcastInstance;
-import com.hazelcast.core.ILock;
+import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
+import java.util.Collection;
+import java.util.LinkedHashMap;
+import java.util.Map;
+import java.util.Optional;
+
+import javax.annotation.PostConstruct;
+import javax.inject.Inject;
+
 import org.carlspring.strongbox.configuration.Configuration;
 import org.carlspring.strongbox.configuration.ConfigurationManager;
 import org.carlspring.strongbox.providers.layout.LayoutProviderRegistry;
@@ -11,17 +21,12 @@ import org.carlspring.strongbox.services.RepositoryManagementService;
 import org.carlspring.strongbox.storage.Storage;
 import org.carlspring.strongbox.storage.repository.Repository;
 import org.carlspring.strongbox.storage.repository.RepositoryStatusEnum;
-
-import javax.annotation.PostConstruct;
-import javax.inject.Inject;
-import java.io.IOException;
-import java.util.Collection;
-import java.util.LinkedHashMap;
-import java.util.Map;
-
 import org.carlspring.strongbox.util.ThrowingConsumer;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import com.hazelcast.core.HazelcastInstance;
+import com.hazelcast.core.ILock;
 
 /**
  * @author mtodorov
@@ -63,17 +68,18 @@ public class StorageBooter
         {
             try
             {
-                final Configuration configuration = configurationManager.getConfiguration();
-
+                Optional.of(System.getProperty("java.io.tmpdir"))
+                        .map(Paths::get)
+                        .filter(Path::isAbsolute)
+                        .ifPresent(ThrowingConsumer.unchecked(Files::createDirectories));
+                
+                Configuration configuration = configurationManager.getConfiguration();
                 initializeStorages(configuration.getStorages());
-
                 Collection<Repository> repositories = getRepositoriesHierarchy(configuration.getStorages());
-
                 if (!repositories.isEmpty())
                 {
                     logger.info(" -> Initializing repositories...");
                 }
-
                 repositories.forEach(ThrowingConsumer.unchecked(this::initializeRepository));
             }
             finally

@@ -1,6 +1,6 @@
 package org.carlspring.strongbox.data.criteria;
 
-import org.carlspring.strongbox.data.domain.GenericEntity;
+import org.carlspring.strongbox.data.domain.DomainObject;
 
 /**
  * You can perform concrete queries under concrete DB implementations with
@@ -9,7 +9,7 @@ import org.carlspring.strongbox.data.domain.GenericEntity;
  * @author sbespalov
  *
  */
-public interface QueryTemplate<R, T extends GenericEntity>
+public interface QueryTemplate<R, T extends DomainObject>
 {
 
     R select(Selector<T> s);

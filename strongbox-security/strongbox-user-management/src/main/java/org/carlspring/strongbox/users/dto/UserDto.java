@@ -1,9 +1,11 @@
 package org.carlspring.strongbox.users.dto;
 
 import java.io.Serializable;
-import java.util.Date;
+import java.time.LocalDateTime;
 import java.util.HashSet;
 import java.util.Set;
+
+import org.carlspring.strongbox.domain.User;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
 
@@ -18,17 +20,23 @@ public class UserDto
 
     private String password;
 
-    private boolean enabled = true;
+    private Boolean enabled = true;
 
     private Set<String> roles = new HashSet<>();
 
     private String securityTokenKey;
 
     @JsonIgnore
-    private Date lastUpdate;
+    private LocalDateTime lastUpdate;
 
     private String sourceId;
 
+    @Override
+    public String getUuid()
+    {
+        return getUsername();
+    }
+    
     @Override
     public String getUsername()
     {
@@ -89,24 +97,24 @@ public class UserDto
     }
 
     @Override
-    public boolean isEnabled()
+    public Boolean isEnabled()
     {
         return enabled;
     }
 
-    public void setEnabled(final boolean enabled)
+    public void setEnabled(final Boolean enabled)
     {
         this.enabled = enabled;
     }
 
 
     @Override
-    public Date getLastUpdate()
+    public LocalDateTime getLastUpdated()
     {
         return lastUpdate;
     }
 
-    public void setLastUpdate(Date lastUpdate)
+    public void setLastUpdate(LocalDateTime lastUpdate)
     {
         this.lastUpdate = lastUpdate;
     }
