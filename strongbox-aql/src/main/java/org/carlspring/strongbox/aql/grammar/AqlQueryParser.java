@@ -6,13 +6,13 @@ import org.antlr.v4.runtime.CommonTokenStream;
 import org.antlr.v4.runtime.Parser;
 import org.carlspring.strongbox.aql.grammar.AQLParser.QueryContext;
 import org.carlspring.strongbox.data.criteria.QueryParser;
-import org.carlspring.strongbox.domain.ArtifactEntry;
+import org.carlspring.strongbox.domain.ArtifactEntity;
 
 /**
  * @author sbespalov
  *
  */
-public class AqlQueryParser extends QueryParser<QueryContext, ArtifactEntry, AqlStatementVisitor>
+public class AqlQueryParser extends QueryParser<QueryContext, ArtifactEntity, AqlStatementVisitor>
 {
 
     public AqlQueryParser(String query)

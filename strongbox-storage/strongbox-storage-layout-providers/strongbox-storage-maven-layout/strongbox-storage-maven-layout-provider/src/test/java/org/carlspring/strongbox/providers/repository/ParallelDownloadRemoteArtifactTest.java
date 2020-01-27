@@ -1,14 +1,7 @@
 package org.carlspring.strongbox.providers.repository;
 
-import org.carlspring.strongbox.artifact.MavenArtifactUtils;
-import org.carlspring.strongbox.providers.io.RepositoryPath;
-import org.carlspring.strongbox.storage.repository.Repository;
-import org.carlspring.strongbox.testing.artifact.MavenArtifactTestUtils;
-import org.carlspring.strongbox.testing.repository.MavenRepository;
-import org.carlspring.strongbox.testing.storage.repository.RepositoryManagementTestExecutionListener;
-import org.carlspring.strongbox.testing.storage.repository.TestRepository.Remote;
+import static org.assertj.core.api.Assertions.assertThat;
 
-import javax.inject.Inject;
 import java.io.FilterInputStream;
 import java.io.IOException;
 import java.io.InputStream;
@@ -22,13 +15,17 @@ import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 
 import org.apache.maven.artifact.Artifact;
+import org.carlspring.strongbox.artifact.MavenArtifactUtils;
+import org.carlspring.strongbox.providers.io.RepositoryPath;
+import org.carlspring.strongbox.storage.repository.Repository;
+import org.carlspring.strongbox.testing.artifact.MavenArtifactTestUtils;
+import org.carlspring.strongbox.testing.repository.MavenRepository;
+import org.carlspring.strongbox.testing.storage.repository.RepositoryManagementTestExecutionListener;
+import org.carlspring.strongbox.testing.storage.repository.TestRepository.Remote;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.springframework.core.io.Resource;
-import org.springframework.transaction.PlatformTransactionManager;
-import org.springframework.transaction.support.TransactionTemplate;
-import static org.assertj.core.api.Assertions.assertThat;
 
 /**
  * @author sbespalov
@@ -49,9 +46,6 @@ public class ParallelDownloadRemoteArtifactTest
     private Map<InputStream, Thread> remoteRepositoryConnectionOwnerMap = new ConcurrentHashMap<>();
     private int concurrency = Runtime.getRuntime().availableProcessors();
     
-    @Inject
-    private PlatformTransactionManager transactionManager;
-
     @Override
     public InputStream getInputStream()
     {
@@ -132,7 +126,7 @@ public class ParallelDownloadRemoteArtifactTest
                                                                        path);
 
         assertThat(repositoryPath.getArtifactEntry()).isNotNull();
-        assertThat(repositoryPath.getArtifactEntry().getDownloadCount()).isEqualTo(Integer.valueOf(concurrency));
+        assertThat(repositoryPath.getArtifactEntry().getDownloadCount()).isGreaterThan(0).isLessThanOrEqualTo(Integer.valueOf(concurrency));
         
         assertThat(concurrentWorkerExecutionCount).as("Worker execution was not concurrent.").isNotEqualTo(concurrency);
     }
@@ -163,39 +157,36 @@ public class ParallelDownloadRemoteArtifactTest
         {
             this.result = result;
         }
-        
+
         @Override
         public void run()
         {
             initContext(ParallelDownloadRemoteArtifactTest.this);
             concurrencyWorkerInstanceHolder.set(hashCode());
-            
+
             try
             {
-                result = new TransactionTemplate(transactionManager).execute(t -> {
-                    try
-                    {
-                        artifactResolutionServiceHelper.assertStreamNotNull(storageId,
-                                                                            repositoryId,
-                                                                            path);
-                    }
-                    catch (AssertionError e)
-                    {
-                        return e;
-                    }
-                    catch (Throwable e)
-                    {
-                        e.printStackTrace();
-                        return e;
-                    }
+                try
+                {
+                    artifactResolutionServiceHelper.assertStreamNotNull(storageId,
+                                                                        repositoryId,
+                                                                        path);
+                }
+                catch (AssertionError e)
+                {
+                    result = e;
+                }
+                catch (Throwable e)
+                {
+                    e.printStackTrace();
+                    result = e;
+                }
 
-                    return null;
-                });
                 if (hashCode() != concurrencyWorkerInstanceHolder.get())
                 {
                     concurrentWorkerExecutionCount.incrementAndGet();
                 }
-            } 
+            }
             finally
             {
                 cleanContext();
@@ -243,6 +234,14 @@ public class ParallelDownloadRemoteArtifactTest
             verifyRead();
 
             return super.read(b, off, len);
+        }
+        
+        @Override
+        public void close()
+            throws IOException
+        {
+            super.close();
+            remoteArtifactInputStream = new RemoteArtifactInputStreamStub(jarArtifact);
         }
 
         private void verifyRead()

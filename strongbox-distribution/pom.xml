@@ -8,12 +8,12 @@
     <parent>
         <groupId>org.carlspring.strongbox</groupId>
         <artifactId>strongbox-parent</artifactId>
-        <version>1.0-SNAPSHOT</version>
+        <version>1.0-PR-62-SNAPSHOT</version>
         <relativePath/>
     </parent>
 
     <artifactId>strongbox-distribution</artifactId>
-    <version>1.0-SNAPSHOT</version>
+    <version>1.0-PR-62-SNAPSHOT</version>
     <packaging>pom</packaging>
 
     <name>Strongbox: Distribution</name>
@@ -308,11 +308,8 @@
                                     <systemProperty>java.io.tmpdir=%STRONGBOX_HOME%/tmp</systemProperty>
                                     <systemProperty>strongbox.port=%STRONGBOX_PORT%</systemProperty>
                                     <systemProperty>server.port=%STRONGBOX_PORT%</systemProperty>
-                                    <systemProperty>strongbox.orientdb.port=%STRONGBOX_ORIENTDB_PORT%</systemProperty>
-                                    <systemProperty>strongbox.orientdb.profile=%STRONGBOX_ORIENTDB_PROFILE%</systemProperty>
-                                    <systemProperty>strongbox.orientdb.studio.enabled=%STRONGBOX_ORIENTDB_STUDIO_ENABLED%</systemProperty>
-                                    <systemProperty>strongbox.orientdb.studio.ip.address=%STRONGBOX_ORIENTDB_STUDIO_IP_ADDRESS%</systemProperty>
-                                    <systemProperty>strongbox.orientdb.studio.port=%STRONGBOX_ORIENTDB_STUDIO_PORT%</systemProperty>
+                                    <systemProperty>strongbox.db.profile=%STRONGBOX_DB_PROFILE%</systemProperty>
+                                    <systemProperty>strongbox.graph.gremlin.server=%STRONGBOX_GREMLIN_SERVER_ENABLED%</systemProperty>
                                     <systemProperty>strongbox.npm.remote.changes.enabled=%STRONGBOX_NPM_REMOTE_CHANGES_ENABLED%</systemProperty>
                                     <systemProperty>strongbox.nuget.download.feed=%STRONGBOX_NUGET_DOWNLOAD_FEED%</systemProperty>
                                     <systemProperty>strongbox.download.indexes=%STRONGBOX_DOWNLOAD_INDEXES%</systemProperty>

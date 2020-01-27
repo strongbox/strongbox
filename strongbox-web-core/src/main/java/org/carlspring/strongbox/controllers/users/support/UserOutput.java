@@ -4,7 +4,9 @@ import java.io.Serializable;
 import java.util.Collections;
 import java.util.Set;
 
-import org.carlspring.strongbox.users.dto.User;
+import java.util.stream.Collectors;
+import org.carlspring.strongbox.domain.User;
+import org.carlspring.strongbox.domain.SecurityRole;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.google.common.collect.ImmutableSet;
@@ -71,7 +73,10 @@ public class UserOutput
     {
         final UserOutput output = new UserOutput();
         output.setEnabled(user.isEnabled());
-        output.setRoles(user.getRoles());
+        output.setRoles(user.getRoles()
+                            .stream()
+                            .map(SecurityRole::getRoleName)
+                            .collect(Collectors.toSet()));
         output.setUsername(user.getUsername());
         output.setSecurityTokenKey(user.getSecurityTokenKey());
         return output;

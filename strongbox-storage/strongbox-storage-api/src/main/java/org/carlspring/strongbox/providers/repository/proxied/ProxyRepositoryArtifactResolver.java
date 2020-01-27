@@ -12,6 +12,7 @@ import javax.inject.Inject;
 import org.carlspring.strongbox.client.RestArtifactResolver;
 import org.carlspring.strongbox.event.artifact.ArtifactEventListenerRegistry;
 import org.carlspring.strongbox.providers.io.RepositoryFileAttributes;
+import org.carlspring.strongbox.providers.io.RepositoryFiles;
 import org.carlspring.strongbox.providers.io.RepositoryPath;
 import org.carlspring.strongbox.providers.io.RepositoryPathLock;
 import org.carlspring.strongbox.services.ArtifactManagementService;
@@ -88,12 +89,8 @@ public class ProxyRepositoryArtifactResolver
         int available = is.available();
         logger.debug("Got [{}] available bytes for [{}].", available, repositoryPath);
         
-        
         RepositoryPath result = onSuccessfulProxyRepositoryResponse(is, repositoryPath);
-        
-        RepositoryFileAttributes artifactFileAttributes = Files.readAttributes(repositoryPath,
-                                                                               RepositoryFileAttributes.class);
-        if (artifactFileAttributes.isArtifact())
+        if (RepositoryFiles.isArtifact(repositoryPath))
         {
             artifactEventListenerRegistry.dispatchArtifactFetchedFromRemoteEvent(result);
         }

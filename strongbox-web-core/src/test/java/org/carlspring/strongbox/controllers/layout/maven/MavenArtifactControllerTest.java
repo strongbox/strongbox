@@ -1,39 +1,14 @@
 package org.carlspring.strongbox.controllers.layout.maven;
 
-import org.carlspring.commons.encryption.EncryptionAlgorithmsEnum;
-import org.carlspring.commons.io.MultipleDigestOutputStream;
-import org.carlspring.strongbox.artifact.MavenArtifactUtils;
-import org.carlspring.strongbox.artifact.generator.MavenArtifactDeployer;
-import org.carlspring.strongbox.client.ArtifactOperationException;
-import org.carlspring.strongbox.client.ArtifactTransportException;
-import org.carlspring.strongbox.config.IntegrationTest;
-import org.carlspring.strongbox.domain.ArtifactEntry;
-import org.carlspring.strongbox.domain.RemoteArtifactEntry;
-import org.carlspring.strongbox.providers.io.RepositoryFiles;
-import org.carlspring.strongbox.providers.io.RepositoryPath;
-import org.carlspring.strongbox.providers.io.RootRepositoryPath;
-import org.carlspring.strongbox.repository.MavenRepositoryFeatures;
-import org.carlspring.strongbox.rest.common.MavenRestAssuredBaseTest;
-import org.carlspring.strongbox.services.ArtifactEntryService;
-import org.carlspring.strongbox.storage.repository.Repository;
-import org.carlspring.strongbox.storage.repository.RepositoryPolicyEnum;
-import org.carlspring.strongbox.storage.repository.RepositoryStatusEnum;
-import org.carlspring.strongbox.testing.MavenIndexedRepositorySetup;
-import org.carlspring.strongbox.testing.artifact.ArtifactManagementTestExecutionListener;
-import org.carlspring.strongbox.testing.artifact.MavenArtifactTestUtils;
-import org.carlspring.strongbox.testing.artifact.MavenTestArtifact;
-import org.carlspring.strongbox.testing.repository.MavenRepository;
-import org.carlspring.strongbox.testing.storage.repository.RepositoryAttributes;
-import org.carlspring.strongbox.testing.storage.repository.RepositoryManagementTestExecutionListener;
-import org.carlspring.strongbox.util.MessageDigestUtils;
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.fail;
+import static org.carlspring.strongbox.testing.artifact.MavenArtifactTestUtils.getArtifactLevelMetadataPath;
+import static org.carlspring.strongbox.testing.artifact.MavenArtifactTestUtils.getGroupLevelMetadataPath;
+import static org.carlspring.strongbox.testing.artifact.MavenArtifactTestUtils.getVersionLevelMetadataPath;
+import static org.carlspring.strongbox.utils.ArtifactControllerHelper.MULTIPART_BOUNDARY;
+import static org.hamcrest.CoreMatchers.equalTo;
+import static org.mockito.Mockito.doReturn;
 
-import javax.inject.Inject;
-import javax.xml.parsers.DocumentBuilder;
-import javax.xml.parsers.DocumentBuilderFactory;
-import javax.xml.transform.Transformer;
-import javax.xml.transform.TransformerFactory;
-import javax.xml.transform.dom.DOMSource;
-import javax.xml.transform.stream.StreamResult;
 import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.IOException;
@@ -49,16 +24,44 @@ import java.util.List;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipOutputStream;
 
-import io.restassured.http.Header;
-import io.restassured.http.Headers;
-import io.restassured.module.mockmvc.response.MockMvcResponse;
-import io.restassured.response.ExtractableResponse;
+import javax.inject.Inject;
+import javax.xml.parsers.DocumentBuilder;
+import javax.xml.parsers.DocumentBuilderFactory;
+import javax.xml.transform.Transformer;
+import javax.xml.transform.TransformerFactory;
+import javax.xml.transform.dom.DOMSource;
+import javax.xml.transform.stream.StreamResult;
+
 import org.apache.commons.io.FilenameUtils;
 import org.apache.maven.artifact.Artifact;
 import org.apache.maven.artifact.repository.metadata.Metadata;
 import org.apache.maven.artifact.repository.metadata.SnapshotVersion;
 import org.apache.maven.model.Plugin;
 import org.apache.maven.project.artifact.PluginArtifact;
+import org.carlspring.commons.encryption.EncryptionAlgorithmsEnum;
+import org.carlspring.commons.io.MultipleDigestOutputStream;
+import org.carlspring.strongbox.artifact.MavenArtifactUtils;
+import org.carlspring.strongbox.artifact.generator.MavenArtifactDeployer;
+import org.carlspring.strongbox.client.ArtifactOperationException;
+import org.carlspring.strongbox.client.ArtifactTransportException;
+import org.carlspring.strongbox.config.IntegrationTest;
+import org.carlspring.strongbox.providers.io.RepositoryFiles;
+import org.carlspring.strongbox.providers.io.RepositoryPath;
+import org.carlspring.strongbox.providers.io.RootRepositoryPath;
+import org.carlspring.strongbox.repositories.ArtifactRepository;
+import org.carlspring.strongbox.repository.MavenRepositoryFeatures;
+import org.carlspring.strongbox.rest.common.MavenRestAssuredBaseTest;
+import org.carlspring.strongbox.storage.repository.Repository;
+import org.carlspring.strongbox.storage.repository.RepositoryPolicyEnum;
+import org.carlspring.strongbox.storage.repository.RepositoryStatusEnum;
+import org.carlspring.strongbox.testing.MavenIndexedRepositorySetup;
+import org.carlspring.strongbox.testing.artifact.ArtifactManagementTestExecutionListener;
+import org.carlspring.strongbox.testing.artifact.MavenArtifactTestUtils;
+import org.carlspring.strongbox.testing.artifact.MavenTestArtifact;
+import org.carlspring.strongbox.testing.repository.MavenRepository;
+import org.carlspring.strongbox.testing.storage.repository.RepositoryAttributes;
+import org.carlspring.strongbox.testing.storage.repository.RepositoryManagementTestExecutionListener;
+import org.carlspring.strongbox.util.MessageDigestUtils;
 import org.codehaus.plexus.util.xml.pull.XmlPullParserException;
 import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.BeforeAll;
@@ -75,14 +78,11 @@ import org.springframework.http.MediaType;
 import org.springframework.security.test.context.support.WithMockUser;
 import org.w3c.dom.Document;
 import org.xml.sax.InputSource;
-import static org.assertj.core.api.Assertions.assertThat;
-import static org.assertj.core.api.Assertions.fail;
-import static org.carlspring.strongbox.testing.artifact.MavenArtifactTestUtils.getArtifactLevelMetadataPath;
-import static org.carlspring.strongbox.testing.artifact.MavenArtifactTestUtils.getGroupLevelMetadataPath;
-import static org.carlspring.strongbox.testing.artifact.MavenArtifactTestUtils.getVersionLevelMetadataPath;
-import static org.carlspring.strongbox.utils.ArtifactControllerHelper.MULTIPART_BOUNDARY;
-import static org.hamcrest.CoreMatchers.equalTo;
-import static org.mockito.Mockito.doReturn;
+
+import io.restassured.http.Header;
+import io.restassured.http.Headers;
+import io.restassured.module.mockmvc.response.MockMvcResponse;
+import io.restassured.response.ExtractableResponse;
 
 /**
  * Test cases for {@link MavenArtifactController}.
@@ -146,7 +146,7 @@ public class MavenArtifactControllerTest
                                                                              "metadata-foo" + ":" +
                                                                              "3.2");
     @Inject
-    private ArtifactEntryService artifactEntryService;
+    private ArtifactRepository artifactEntityRepository;
 
     private MavenArtifactDeployer defaultMavenArtifactDeployer;
 
@@ -1259,14 +1259,13 @@ public class MavenArtifactControllerTest
                .then()
                .statusCode(HttpStatus.OK.value());
 
-        ArtifactEntry artifactEntry = artifactEntryService.findOneArtifact("storage-common-proxies",
-                                                                           "carlspring",
-                                                                           artifactPath);
+        org.carlspring.strongbox.domain.Artifact artifactEntry = artifactEntityRepository.findOneArtifact("storage-common-proxies",
+                                                                                                          "carlspring",
+                                                                                                          artifactPath);
         assertThat(artifactEntry).isNotNull();
         assertThat(artifactEntry.getArtifactCoordinates()).isNotNull();
 
-        assertThat(artifactEntry).isInstanceOf(RemoteArtifactEntry.class);
-        assertThat(((RemoteArtifactEntry) artifactEntry).getIsCached()).isTrue();
+        assertThat(artifactEntry.getArtifactFileExists()).isTrue();
     }
 
     private ArtifactSnapshotVersion getCommonsHttpArtifactSnapshotVersionFromCarlspringRemote()

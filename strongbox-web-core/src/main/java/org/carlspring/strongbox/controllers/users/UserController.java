@@ -11,13 +11,13 @@ import org.carlspring.strongbox.controllers.BaseController;
 import org.carlspring.strongbox.controllers.users.support.TokenEntityBody;
 import org.carlspring.strongbox.controllers.users.support.UserOutput;
 import org.carlspring.strongbox.controllers.users.support.UserResponseEntity;
+import org.carlspring.strongbox.domain.User;
 import org.carlspring.strongbox.forms.users.UserForm;
-import org.carlspring.strongbox.users.dto.User;
 import org.carlspring.strongbox.users.dto.UserDto;
 import org.carlspring.strongbox.users.security.AuthoritiesProvider;
 import org.carlspring.strongbox.users.service.UserService;
 import org.carlspring.strongbox.users.service.impl.EncodedPasswordUser;
-import org.carlspring.strongbox.users.service.impl.OrientDbUserService.OrientDb;
+import org.carlspring.strongbox.users.service.impl.DatabaseUserService.Database;
 import org.carlspring.strongbox.validation.RequestBodyValidationException;
 import org.jose4j.lang.JoseException;
 import org.springframework.core.convert.ConversionService;
@@ -89,7 +89,7 @@ public class UserController
     public static final String USER_DELETE_FORBIDDEN = "Deleting this account is forbidden!";
 
     @Inject
-    @OrientDb
+    @Database
     private UserService userService;
 
     @Inject

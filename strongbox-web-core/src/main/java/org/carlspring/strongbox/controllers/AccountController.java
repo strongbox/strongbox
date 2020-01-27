@@ -4,12 +4,12 @@ import javax.inject.Inject;
 
 import org.carlspring.strongbox.controllers.users.UserController;
 import org.carlspring.strongbox.controllers.users.support.UserOutput;
+import org.carlspring.strongbox.domain.User;
 import org.carlspring.strongbox.forms.users.UserForm;
-import org.carlspring.strongbox.users.dto.User;
 import org.carlspring.strongbox.users.dto.UserDto;
 import org.carlspring.strongbox.users.service.UserService;
 import org.carlspring.strongbox.users.service.impl.EncodedPasswordUser;
-import org.carlspring.strongbox.users.service.impl.OrientDbUserService.OrientDb;
+import org.carlspring.strongbox.users.service.impl.DatabaseUserService.Database;
 import org.carlspring.strongbox.validation.RequestBodyValidationException;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
@@ -43,7 +43,7 @@ public class AccountController
 {
 
     @Inject
-    @OrientDb
+    @Database
     private UserService userService;
 
     @Inject

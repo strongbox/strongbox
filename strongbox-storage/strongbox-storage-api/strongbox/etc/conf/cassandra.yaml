@@ -1,0 +1,189 @@
+# ------------------------
+# Generic configuration
+# ------------------------
+cluster_name: Test Cluster
+snapshot_before_compaction: false
+auto_snapshot: false
+
+## ------------------------
+## Security
+## ------------------------
+authenticator: PasswordAuthenticator
+authorizer: AllowAllAuthorizer
+permissions_validity_in_ms: 2000
+
+## ------------------------
+## Network
+## ------------------------
+## start_rpc - disable thrift - it's deprecated and should not be used!
+start_rpc: false
+listen_address: 127.0.0.1
+storage_port: 7010
+ssl_storage_port: 7011
+start_native_transport: true
+native_transport_port: 49142
+native_transport_max_threads: 256
+
+## Coordinator related
+read_request_timeout_in_ms: 5000
+range_request_timeout_in_ms: 10000
+write_request_timeout_in_ms: 2000
+cas_contention_timeout_in_ms: 1000
+truncate_request_timeout_in_ms: 60000
+request_timeout_in_ms: 10000
+cross_node_timeout: false
+
+## Addresses of hosts that are deemed contact points.
+## Cassandra nodes use this list of hosts to find each other and learn
+## the topology of the ring. You must change this if you are running
+## multiple nodes!
+## - seeds is actually a comma-delimited list of addresses.
+## Ex: "seeds: <ip1>,<ip2>,<ip3>"
+seed_provider:
+    - class_name: org.apache.cassandra.locator.SimpleSeedProvider
+      parameters:
+          - seeds: "127.0.0.1"
+
+## ------------------------
+## Disk
+## ------------------------
+disk_optimization_strategy: ssd
+disk_failure_policy: stop
+## trickle_fsync is good on SSDs, probably bad on hdd
+trickle_fsync: true
+trickle_fsync_interval_in_kb: 10240
+concurrent_compactors: 2
+## compaction_throughput_mb_per_sec - 128+ for SSD, 16 for hdd
+compaction_throughput_mb_per_sec: 128
+## - Usually (16 × number_of_drives)
+concurrent_reads: 32
+## - Writes in Cassandra are rarely I/O bound, so the ideal number of
+## concurrent writes depends on the number
+## of CPU cores on the node. The recommended value is 8 ×
+## number_of_cpu_cores.
+concurrent_writes: 16
+## - Counter writes read the current values before incrementing and
+## writing them back.
+## The recommended value is (16 × number_of_drives).
+concurrent_counter_writes: 32
+## - Limit on the number of concurrent materialized view writes. Set
+## this to the lesser of concurrent reads or
+## concurrent writes, because there is a read involved in each
+## materialized view write. (Default: 32)
+concurrent_materialized_view_writes: 32
+
+## - (Default 1024KB ) Total maximum throttle for replaying hints.
+## Throttling is reduced proportionally to
+## the number of nodes in the cluster.
+## batchlog_replay_throttle_in_kb: 1024
+
+## Cache and index settings
+## - (Default: 64) Granularity of the index of rows within a partition.
+## For huge rows, decrease this setting to
+## improve seek time. If you use key cache, be careful not to make this
+## setting too large because key cache
+## will be overwhelmed. If you're unsure of the size of the rows, it's
+## best to use the default setting.
+column_index_size_in_kb: 32 ## default 64
+column_index_cache_size_in_kb: 1024
+
+## Memtable (in-memory structures where Cassandra buffers writes)
+## https://cassandra.apache.org/doc/latest/architecture/storage_engine.html#memtables
+memtable_allocation_type: offheap_objects
+## - Smaller of number of disks or number of cores with a minimum of 2
+## and a maximum of 8
+## If your data directories are backed by SSDs, increase this setting to
+## the number of cores.
+memtable_flush_writers: 2
+## - The compaction process opens SSTables before they are completely
+## written and uses them in place of
+## the prior SSTables for any range previously written. This setting
+## helps to smoothly transfer reads
+## between the SSTables by reducing page cache churn and keeps hot rows
+## hot.
+## default 50
+sstable_preemptive_open_interval_in_mb: 64
+
+## Enable / disable CDC functionality on a per-node basis. This modifies
+## the logic used for write path allocation rejection
+## (standard: never reject. cdc: reject Mutation containing a
+## CDC-enabled table if at space limit in cdc_raw_directory).
+cdc_enabled: false
+
+## The default option is “periodic” where writes may be ack'ed
+## immediately and the CommitLog is simply synced
+## every commitlog_sync_period_in_ms milliseconds. What this means, is
+## the commit is
+commitlog_sync: periodic
+## sync log every 3s.
+commitlog_sync_period_in_ms: 3000
+commitlog_total_space_in_mb: 32
+commitlog_segment_size_in_mb: 32
+max_mutation_size_in_kb: 16384
+## ideal_consistency_level: LOCAL_QUORUM
+## ## available in cassandra 4
+
+## ------------------------
+## Replication
+## ------------------------
+
+## A partitioner determines how data is distributed across the nodes in
+## the cluster (including replicas).
+## Basically, a partitioner is a function for deriving a token
+## representing a row from its partition key,
+## typically by hashing. Each row of data is then distributed across the
+## cluster by the value of the token.
+##
+## Default: Murmur3Partitioner using MurmurHash which uses 64-bit
+## hashing function and allows for possible
+## range of hash values is from -2^63 to +2^63-1.
+## WARNING: You cannot change the partitioner in existing clusters that
+## use a different partitioner.
+##
+partitioner: org.apache.cassandra.dht.Murmur3Partitioner
+
+## hinted_handoff is used to optimize cluster consistency process and
+## anti-entropy (the synchronization of
+## replica data on nodes to ensure that the data is fresh) when a
+## replica-owning node is not available to accept
+## the write operation (i.e. network issues/etc). This operation DOES
+## NOT guarantee successful write operations,
+## except when a client application uses consistency level of `ANY`.
+## WARNING: This MUST be enabled for HA setups! It's currently disabled,
+## because we're using single nodes setups.
+hinted_handoff_enabled: false
+
+## Endpoint snitch
+## This teaches Cassandra enough about your network's topology so it can
+## route requests efficiently and spread
+## replicas by grouping machines nto `data centers` and `racks`.
+## WARNING: Switching this option CAN CAUSE DATA LOSS (read manual)
+## Default: SimpleSnitch (leave it as is for now)
+endpoint_snitch: SimpleSnitch
+dynamic_snitch_update_interval_in_ms: 100
+dynamic_snitch_reset_interval_in_ms: 600000
+dynamic_snitch_badness_threshold: 0.1
+
+## Back-pressure settings # If enabled, the coordinator will apply the
+## back-pressure strategy specified below to
+## each mutation sent to replicas, with the aim of reducing pressure on
+## overloaded replicas.
+## Should be configured usually for cluster setup.
+back_pressure_enabled: false
+## back_pressure_strategy:
+##     - class_name: org.apache.cassandra.net.RateBasedBackPressure
+##       parameters:
+##         - high_ratio: 0.90
+##           factor: 5
+##           flow: FAST
+
+
+## internode_compression controls whether traffic between nodes is
+## compressed
+## all - all traffic is compressed
+## dc - traffic between nodes is compressed
+## none - no compression (suitable for single nodes)
+internode_compression: none
+
+## Wanr for GC pauses longer than 500ms (usually means heap is near limit)
+gc_warn_threshold_in_ms: 500

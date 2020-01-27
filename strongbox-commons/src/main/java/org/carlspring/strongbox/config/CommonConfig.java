@@ -9,7 +9,6 @@ import org.springframework.context.annotation.Import;
                  "org.carlspring.strongbox.configuration",
                  "org.carlspring.strongbox.io",
                  "org.carlspring.strongbox.net",
-                 "org.carlspring.strongbox.db",
                  "org.carlspring.strongbox.resource",
                  "org.carlspring.strongbox.rest",
                  "org.carlspring.strongbox.storage.repository",

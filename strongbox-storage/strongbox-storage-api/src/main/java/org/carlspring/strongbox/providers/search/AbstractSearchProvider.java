@@ -10,11 +10,11 @@ import org.carlspring.strongbox.configuration.Configuration;
 import org.carlspring.strongbox.configuration.ConfigurationManager;
 import org.carlspring.strongbox.dependency.snippet.CodeSnippet;
 import org.carlspring.strongbox.dependency.snippet.SnippetGenerator;
-import org.carlspring.strongbox.domain.ArtifactEntry;
+import org.carlspring.strongbox.domain.Artifact;
 import org.carlspring.strongbox.providers.io.RepositoryFiles;
 import org.carlspring.strongbox.providers.io.RepositoryPath;
 import org.carlspring.strongbox.providers.io.RepositoryPathResolver;
-import org.carlspring.strongbox.services.ArtifactEntryService;
+import org.carlspring.strongbox.repositories.ArtifactRepository;
 import org.carlspring.strongbox.storage.Storage;
 import org.carlspring.strongbox.storage.repository.Repository;
 import org.carlspring.strongbox.storage.search.SearchRequest;
@@ -32,7 +32,7 @@ public abstract class AbstractSearchProvider
     private static final Logger logger = LoggerFactory.getLogger(AbstractSearchProvider.class);
     
     @Inject
-    private ArtifactEntryService artifactEntryService;
+    private ArtifactRepository artifactEntityRepository;
 
     @Inject
     private ConfigurationManager configurationManager;
@@ -47,9 +47,10 @@ public abstract class AbstractSearchProvider
     @Override
     public SearchResult findExact(SearchRequest searchRequest)
     {
-        ArtifactEntry artifactEntry = artifactEntryService.findOneArtifact(searchRequest.getStorageId(),
-                                                                           searchRequest.getRepositoryId(),
-                                                                           searchRequest.getArtifactCoordinates().toPath());
+        Artifact artifactEntry = artifactEntityRepository.findOneArtifact(searchRequest.getStorageId(),
+                                                                          searchRequest.getRepositoryId(),
+                                                                          searchRequest.getArtifactCoordinates()
+                                                                                       .buildPath());
 
         if (artifactEntry == null)
         {
@@ -75,7 +76,7 @@ public abstract class AbstractSearchProvider
         return !search(searchRequest).getResults().isEmpty();
     }
 
-    protected SearchResult createSearchResult(ArtifactEntry a)
+    protected SearchResult createSearchResult(Artifact a)
     {
         String storageId = a.getStorageId();
         

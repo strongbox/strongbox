@@ -1,0 +1,7 @@
+strongbox:
+    db:
+      janusgraph:
+        config-location: file:${strongbox.home}/etc/conf/janusgraph-cassandra.properties
+      cassandra:
+        config-location: file:${strongbox.home}/etc/conf/cassandra.yaml
+        storage-root: ${strongbox.vault}/db
