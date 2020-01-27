@@ -1,0 +1,4 @@
+strongbox:
+    db:
+      janusgraph:
+        config-location: file:${strongbox.home}/etc/conf/janusgraph-inmemory.properties

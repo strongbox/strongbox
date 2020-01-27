@@ -10,11 +10,11 @@ import javax.inject.Named;
 
 import org.apache.commons.lang.time.DateUtils;
 import org.carlspring.strongbox.configuration.Configuration;
-import org.carlspring.strongbox.domain.ArtifactEntry;
+import org.carlspring.strongbox.domain.Artifact;
 import org.carlspring.strongbox.providers.io.RepositoryPath;
 import org.carlspring.strongbox.providers.io.RepositoryPathResolver;
 import org.carlspring.strongbox.providers.repository.proxied.LocalStorageProxyRepositoryExpiredArtifactsCleaner;
-import org.carlspring.strongbox.services.ArtifactEntryService;
+import org.carlspring.strongbox.repositories.ArtifactRepository;
 import org.carlspring.strongbox.services.ConfigurationManagementService;
 import org.carlspring.strongbox.storage.repository.remote.heartbeat.RemoteRepositoryAlivenessService;
 import org.springframework.aop.TargetSource;
@@ -31,7 +31,7 @@ abstract class BaseLocalStorageProxyRepositoryExpiredArtifactsCleanerTest
     protected ProxyRepositoryProvider proxyRepositoryProvider;
 
     @Inject
-    protected ArtifactEntryService artifactEntryService;
+    protected ArtifactRepository artifactEntityRepository;
 
     @Inject
     protected LocalStorageProxyRepositoryExpiredArtifactsCleaner localStorageProxyRepositoryExpiredArtifactsCleaner;
@@ -62,12 +62,13 @@ abstract class BaseLocalStorageProxyRepositoryExpiredArtifactsCleanerTest
 
     protected abstract String getVersion();
 
-    protected ArtifactEntry downloadAndSaveArtifactEntry()
+    protected Artifact downloadAndSaveArtifactEntry()
             throws Exception
     {
-        Optional<ArtifactEntry> artifactEntryOptional = Optional.ofNullable(artifactEntryService.findOneArtifact(STORAGE_ID,
-                                                                                                                 getRepositoryId(),
-                                                                                                                 getPath()));
+        Artifact artifact = artifactEntityRepository.findOneArtifact(STORAGE_ID,
+                                                                     getRepositoryId(),
+                                                                     getPath());
+        Optional<Artifact> artifactEntryOptional = Optional.ofNullable(artifact);
         assertThat(artifactEntryOptional).isEqualTo(Optional.empty());
 
         RepositoryPath repositoryPath = proxyRepositoryProvider.fetchPath(repositoryPathResolver.resolve(STORAGE_ID,
@@ -78,19 +79,19 @@ abstract class BaseLocalStorageProxyRepositoryExpiredArtifactsCleanerTest
             assertThat(ignored).as("Failed to resolve " + repositoryPath + "!").isNotNull();
         }
 
-        artifactEntryOptional = Optional.ofNullable(artifactEntryService.findOneArtifact(STORAGE_ID,
-                                                                                         getRepositoryId(),
-                                                                                         getPath()));
-        ArtifactEntry artifactEntry = artifactEntryOptional.orElse(null);
+        artifactEntryOptional = Optional.ofNullable(artifactEntityRepository.findOneArtifact(STORAGE_ID,
+                                                                                             getRepositoryId(),
+                                                                                             getPath()));
+        Artifact artifactEntry = artifactEntryOptional.orElse(null);
         assertThat(artifactEntry).isNotNull();
         assertThat(artifactEntry.getLastUpdated()).isNotNull();
         assertThat(artifactEntry.getLastUsed()).isNotNull();
         assertThat(artifactEntry.getSizeInBytes()).isNotNull();
         assertThat(artifactEntry.getSizeInBytes()).isGreaterThan(0L);
 
-        artifactEntry.setLastUsed(DateUtils.addDays(artifactEntry.getLastUsed(), -10));
+        artifactEntry.setLastUsed(artifactEntry.getLastUsed().minusDays(10));
 
-        return artifactEntryService.save(artifactEntry);
+        return artifactEntityRepository.save(artifactEntry);
     }
 
     protected Configuration getConfiguration()

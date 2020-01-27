@@ -2,7 +2,7 @@ package org.carlspring.strongbox.users.userdetails;
 
 import javax.inject.Inject;
 
-import org.carlspring.strongbox.users.dto.User;
+import org.carlspring.strongbox.domain.User;
 import org.carlspring.strongbox.users.service.UserService;
 import org.carlspring.strongbox.users.service.impl.YamlUserService.Yaml;
 import org.slf4j.Logger;

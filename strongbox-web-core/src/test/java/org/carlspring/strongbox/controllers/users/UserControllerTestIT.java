@@ -1,41 +1,6 @@
 package org.carlspring.strongbox.controllers.users;
 
 import static org.assertj.core.api.Assertions.assertThat;
-
-import org.carlspring.strongbox.config.IntegrationTest;
-import org.carlspring.strongbox.controllers.users.support.UserOutput;
-import org.carlspring.strongbox.controllers.users.support.UserResponseEntity;
-import org.carlspring.strongbox.forms.users.UserForm;
-import org.carlspring.strongbox.rest.common.RestAssuredBaseTest;
-import org.carlspring.strongbox.users.domain.SystemRole;
-import org.carlspring.strongbox.users.domain.UserData;
-import org.carlspring.strongbox.users.dto.User;
-import org.carlspring.strongbox.users.dto.UserDto;
-import org.carlspring.strongbox.users.service.UserService;
-import org.carlspring.strongbox.users.service.impl.OrientDbUserService.OrientDb;
-
-import javax.inject.Inject;
-import java.util.Set;
-import java.util.function.Consumer;
-import java.util.stream.Stream;
-
-import com.google.common.collect.ImmutableSet;
-import org.apache.commons.collections4.SetUtils;
-import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.api.Disabled;
-import org.junit.jupiter.api.Test;
-import org.junit.jupiter.params.ParameterizedTest;
-import org.junit.jupiter.params.provider.Arguments;
-import org.junit.jupiter.params.provider.MethodSource;
-import org.junit.jupiter.params.provider.ValueSource;
-import org.springframework.http.HttpStatus;
-import org.springframework.http.MediaType;
-import org.springframework.security.crypto.password.PasswordEncoder;
-import org.springframework.security.test.context.support.WithMockUser;
-import org.springframework.security.test.context.support.WithUserDetails;
-import org.springframework.transaction.annotation.Propagation;
-import org.springframework.transaction.annotation.Transactional;
-
 import static org.carlspring.strongbox.controllers.users.UserController.FAILED_CREATE_USER;
 import static org.carlspring.strongbox.controllers.users.UserController.FAILED_GENERATE_SECURITY_TOKEN;
 import static org.carlspring.strongbox.controllers.users.UserController.NOT_FOUND_USER;
@@ -52,6 +17,43 @@ import static org.hamcrest.Matchers.hasSize;
 import static org.hamcrest.Matchers.notNullValue;
 import static org.hamcrest.Matchers.nullValue;
 
+import org.carlspring.strongbox.config.IntegrationTest;
+import org.carlspring.strongbox.controllers.users.support.UserOutput;
+import org.carlspring.strongbox.controllers.users.support.UserResponseEntity;
+import org.carlspring.strongbox.domain.User;
+import org.carlspring.strongbox.domain.SecurityRole;
+import org.carlspring.strongbox.forms.users.UserForm;
+import org.carlspring.strongbox.rest.common.RestAssuredBaseTest;
+import org.carlspring.strongbox.users.domain.SystemRole;
+import org.carlspring.strongbox.users.domain.UserData;
+import org.carlspring.strongbox.users.dto.UserDto;
+import org.carlspring.strongbox.users.service.UserService;
+import org.carlspring.strongbox.users.service.impl.DatabaseUserService.Database;
+
+import javax.inject.Inject;
+
+import java.util.Set;
+import java.util.function.Consumer;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
+
+import org.apache.commons.collections4.SetUtils;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.Arguments;
+import org.junit.jupiter.params.provider.MethodSource;
+import org.junit.jupiter.params.provider.ValueSource;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.MediaType;
+import org.springframework.security.crypto.password.PasswordEncoder;
+import org.springframework.security.test.context.support.WithMockUser;
+import org.springframework.security.test.context.support.WithUserDetails;
+import org.springframework.transaction.annotation.Propagation;
+import org.springframework.transaction.annotation.Transactional;
+
+import com.google.common.collect.ImmutableSet;
+
 /**
  * @author Pablo Tirado
  */
@@ -62,7 +64,7 @@ public class UserControllerTestIT
 {
 
     @Inject
-    @OrientDb
+    @Database
     private UserService userService;
 
     @Inject
@@ -444,7 +446,11 @@ public class UserControllerTestIT
 
         User updatedUser = retrieveUserByName(admin.getUsername());
 
-        assertThat(SetUtils.isEqualSet(updatedUser.getRoles(), ImmutableSet.of(SystemRole.UI_MANAGER.name()))).isTrue();
+        assertThat(SetUtils.isEqualSet(updatedUser.getRoles()
+                                                  .stream()
+                                                  .map(SecurityRole::getRoleName)
+                                                  .collect(Collectors.toSet()),
+                                       ImmutableSet.of(SystemRole.UI_MANAGER.name()))).isTrue();
 
         admin.setRoles(ImmutableSet.of("ADMIN"));
         mockMvc.contentType(MediaType.APPLICATION_JSON_VALUE)
@@ -461,7 +467,11 @@ public class UserControllerTestIT
 
         updatedUser = retrieveUserByName(admin.getUsername());
 
-        assertThat(SetUtils.isEqualSet(updatedUser.getRoles(), ImmutableSet.of("ADMIN"))).isTrue();
+        assertThat(SetUtils.isEqualSet(updatedUser.getRoles()
+                                                  .stream()
+                                                  .map(SecurityRole::getRoleName)
+                                                  .collect(Collectors.toSet()),
+                                       ImmutableSet.of("ADMIN"))).isTrue();
 
         // Rollback changes.
         admin.setRoles(ImmutableSet.of(SystemRole.UI_MANAGER.name()));
@@ -472,6 +482,7 @@ public class UserControllerTestIT
                .put(getContextBaseUrl() + "/{username}", username)
                .then()
                .statusCode(HttpStatus.OK.value());
+
     }
 
     @Test
@@ -762,7 +773,11 @@ public class UserControllerTestIT
         dto.setPassword(user.getPassword());
         dto.setSecurityTokenKey(user.getSecurityTokenKey());
         dto.setEnabled(user.isEnabled());
-        dto.setRoles(user.getRoles());
+        Set<String> roles = user.getRoles()
+                                .stream()
+                                .map(SecurityRole::getRoleName)
+                                .collect(Collectors.toSet());
+        dto.setRoles(roles);
         dto.setSecurityTokenKey(user.getSecurityTokenKey());
 
         if (operation != null)

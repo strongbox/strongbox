@@ -110,7 +110,6 @@ public class ActuatorEndpointControllerTest
     @ParameterizedTest
     @ValueSource(strings = { "/",
                              "/health",
-                             "/health/db",
                              "/info",
                              "/beans",
                              "/metrics",

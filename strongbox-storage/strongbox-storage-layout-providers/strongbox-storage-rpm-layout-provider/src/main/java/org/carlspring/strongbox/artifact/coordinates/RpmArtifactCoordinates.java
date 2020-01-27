@@ -1,17 +1,18 @@
 package org.carlspring.strongbox.artifact.coordinates;
 
-import org.carlspring.strongbox.artifact.coordinates.versioning.SemanticVersion;
-import org.carlspring.strongbox.domain.RpmPackageArch;
-import org.carlspring.strongbox.domain.RpmPackageType;
-import org.carlspring.strongbox.util.RpmArtifactCoordinatesUtils;
-
-import javax.persistence.Entity;
 import javax.validation.constraints.NotBlank;
-import javax.validation.constraints.NotNull;
 import javax.xml.bind.annotation.XmlAccessType;
 import javax.xml.bind.annotation.XmlAccessorType;
 import javax.xml.bind.annotation.XmlRootElement;
-import java.util.Map;
+
+import org.carlspring.strongbox.artifact.coordinates.versioning.SemanticVersion;
+import org.carlspring.strongbox.db.schema.Vertices;
+import org.carlspring.strongbox.domain.LayoutArtifactCoordinatesEntity;
+import org.carlspring.strongbox.domain.RpmPackageArch;
+import org.carlspring.strongbox.domain.RpmPackageType;
+import org.carlspring.strongbox.util.RpmArtifactCoordinatesUtils;
+import org.codehaus.commons.nullanalysis.NotNull;
+import org.neo4j.ogm.annotation.NodeEntity;
 
 /**
  * This class is an {@link ArtifactCoordinates} implementation for RPM-packages.
@@ -31,13 +32,13 @@ import java.util.Map;
  *
  * @author Ilya Shatalov <ilya@alov.me>
  */
-@Entity
+@NodeEntity(Vertices.RPM_ARTIFACT_COORDINATES)
 @SuppressWarnings("serial")
 @XmlRootElement(name = "PypiArtifactCoordinates")
 @XmlAccessorType(XmlAccessType.NONE)
 @ArtifactCoordinatesLayout(name = RpmArtifactCoordinates.LAYOUT_NAME, alias = RpmArtifactCoordinates.LAYOUT_ALIAS)
 public class RpmArtifactCoordinates
-        extends AbstractArtifactCoordinates<RpmArtifactCoordinates, SemanticVersion>
+        extends LayoutArtifactCoordinatesEntity<RpmArtifactCoordinates, SemanticVersion>
 {
     public static final String LAYOUT_NAME = "RPM";
 
@@ -101,22 +102,9 @@ public class RpmArtifactCoordinates
         return getCoordinate(BASE_NAME);
     }
 
-    @Override
     public void setId(String id)
     {
         setCoordinate(BASE_NAME, id);
-    }
-
-    @Override
-    public String getVersion()
-    {
-        return getCoordinate(VERSION);
-    }
-
-    @Override
-    public void setVersion(String version)
-    {
-        setCoordinate(VERSION, version);
     }
 
     public String getRelease()
@@ -172,35 +160,26 @@ public class RpmArtifactCoordinates
     }
 
     @Override
-    public Map<String, String> dropVersion()
-    {
-        Map<String, String> result = getCoordinates();
-        result.remove(VERSION);
-
-        return result;
-    }
-
-    @Override
-    public String toPath()
+    public String convertToPath(RpmArtifactCoordinates c)
     {
         String path;
-        if (RpmPackageType.SOURCE.getPostfix().equals(getPackageType()))
+        if (RpmPackageType.SOURCE.getPostfix().equals(c.getPackageType()))
         {
             path = String.format("%s-%s-%s.%s.%s",
-                                 getId(),
-                                 getVersion(),
-                                 getRelease(),
-                                 getPackageType(),
-                                 getExtension());
+                                 c.getId(),
+                                 c.getVersion(),
+                                 c.getRelease(),
+                                 c.getPackageType(),
+                                 c.getExtension());
         }
         else
         {
             path = String.format("%s-%s-%s.%s.%s",
-                                 getId(),
-                                 getVersion(),
-                                 getRelease(),
-                                 getArchitecture(),
-                                 getExtension());
+                                 c.getId(),
+                                 c.getVersion(),
+                                 c.getRelease(),
+                                 c.getArchitecture(),
+                                 c.getExtension());
         }
 
         return path;

@@ -1,49 +1,60 @@
 package org.carlspring.strongbox.services.impl;
 
-import java.util.HashMap;
-import java.util.List;
+import java.lang.reflect.UndeclaredThrowableException;
+import java.util.Optional;
 
+import javax.inject.Inject;
+
+import org.apache.tinkerpop.gremlin.structure.Graph;
 import org.carlspring.strongbox.artifact.ArtifactTag;
 import org.carlspring.strongbox.data.CacheName;
-import org.carlspring.strongbox.data.service.CommonCrudService;
-import org.carlspring.strongbox.domain.ArtifactTagEntry;
+import org.carlspring.strongbox.domain.ArtifactTagEntity;
+import org.carlspring.strongbox.gremlin.dsl.EntityTraversalSource;
+import org.carlspring.strongbox.repositories.ArtifactTagRepository;
 import org.carlspring.strongbox.services.ArtifactTagService;
+import org.janusgraph.core.JanusGraph;
 import org.springframework.cache.annotation.Cacheable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import com.orientechnologies.orient.core.sql.query.OSQLSynchQuery;
-
 @Service
 @Transactional
-public class ArtifactTagServiceImpl extends CommonCrudService<ArtifactTagEntry> implements ArtifactTagService
+public class ArtifactTagServiceImpl implements ArtifactTagService
 {
 
+    @Inject
+    private ArtifactTagRepository artifactTagRepository;
+    @Inject
+    private JanusGraph janusGraph;
+
     @Override
-    @Cacheable(value = CacheName.Artifact.TAGS, key = "#name")
-    public synchronized ArtifactTag findOneOrCreate(String name)
+    @Cacheable(value = CacheName.Artifact.TAGS, key = "#name", sync = true)
+    public ArtifactTag findOneOrCreate(String name)
     {
-        HashMap<String, String> params = new HashMap<>();
-        params.put("name", name);
+        Optional<ArtifactTag> optionalResult = artifactTagRepository.findById(name);
 
-        String sQuery = buildQuery(params);
-
-        OSQLSynchQuery<Long> oQuery = new OSQLSynchQuery<>(sQuery);
-        oQuery.setLimit(1);
-
-        List<ArtifactTagEntry> resultList = getDelegate().command(oQuery).execute(params);
-
-        return resultList.stream().findFirst().orElseGet(() -> {
-            ArtifactTagEntry artifactTagEntry = new ArtifactTagEntry();
+        return optionalResult.orElseGet(() -> {
+            ArtifactTagEntity artifactTagEntry = new ArtifactTagEntity();
             artifactTagEntry.setName(name);
-            return getDelegate().detach(save(artifactTagEntry));
-        });
-    }
 
-    @Override
-    public Class<ArtifactTagEntry> getEntityClass()
-    {
-        return ArtifactTagEntry.class;
+            Graph g = janusGraph.tx().createThreadedTx();
+            try
+            {
+                ArtifactTagEntity result = artifactTagRepository.save(() -> g.traversal(EntityTraversalSource.class), artifactTagEntry);
+                g.tx().commit();
+
+                return result;
+            }
+            catch (Exception e)
+            {
+                g.tx().rollback();
+                throw new UndeclaredThrowableException(e);
+            }
+            finally
+            {
+                g.tx().close();
+            }
+        });
     }
 
 }

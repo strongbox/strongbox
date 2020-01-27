@@ -8,9 +8,13 @@ import java.io.InputStream;
 import java.io.OutputStream;
 import java.io.StringWriter;
 import java.nio.charset.StandardCharsets;
-import java.nio.file.*;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.StandardCopyOption;
+import java.nio.file.StandardOpenOption;
 import java.security.NoSuchAlgorithmException;
 import java.text.SimpleDateFormat;
+import java.util.Collections;
 import java.util.Date;
 import java.util.List;
 import java.util.Optional;
@@ -21,25 +25,15 @@ import javax.servlet.ServletInputStream;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
-import com.fasterxml.jackson.core.JsonFactory;
-import com.fasterxml.jackson.core.JsonParser;
-import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.core.JsonToken;
-import com.fasterxml.jackson.databind.JsonNode;
-import com.fasterxml.jackson.databind.ObjectMapper;
 import org.apache.commons.codec.digest.DigestUtils;
 import org.apache.commons.compress.archivers.tar.TarArchiveEntry;
 import org.apache.commons.compress.archivers.tar.TarArchiveInputStream;
 import org.apache.commons.compress.compressors.gzip.GzipCompressorInputStream;
 import org.apache.commons.io.IOUtils;
-
-import org.carlspring.strongbox.artifact.ArtifactTag;
 import org.carlspring.strongbox.artifact.coordinates.NpmArtifactCoordinates;
 import org.carlspring.strongbox.config.NpmLayoutProviderConfig.NpmObjectMapper;
 import org.carlspring.strongbox.controllers.BaseArtifactController;
-import org.carlspring.strongbox.data.criteria.Expression.ExpOperator;
 import org.carlspring.strongbox.data.criteria.Paginator;
-import org.carlspring.strongbox.data.criteria.Predicate;
 import org.carlspring.strongbox.npm.NpmSearchRequest;
 import org.carlspring.strongbox.npm.NpmViewRequest;
 import org.carlspring.strongbox.npm.metadata.DistTags;
@@ -56,6 +50,7 @@ import org.carlspring.strongbox.providers.layout.NpmSearchResultSupplier;
 import org.carlspring.strongbox.providers.layout.NpmUnpublishService;
 import org.carlspring.strongbox.providers.repository.RepositoryProvider;
 import org.carlspring.strongbox.providers.repository.RepositoryProviderRegistry;
+import org.carlspring.strongbox.providers.repository.RepositorySearchRequest;
 import org.carlspring.strongbox.repository.NpmRepositoryFeatures.SearchPackagesEventListener;
 import org.carlspring.strongbox.repository.NpmRepositoryFeatures.ViewPackageEventListener;
 import org.carlspring.strongbox.storage.repository.Repository;
@@ -63,9 +58,7 @@ import org.carlspring.strongbox.storage.validation.artifact.ArtifactCoordinatesV
 import org.carlspring.strongbox.users.userdetails.SpringSecurityUser;
 import org.carlspring.strongbox.web.LayoutRequestMapping;
 import org.carlspring.strongbox.web.RepositoryMapping;
-
 import org.javatuples.Pair;
-
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
@@ -84,6 +77,13 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
+
+import com.fasterxml.jackson.core.JsonFactory;
+import com.fasterxml.jackson.core.JsonParser;
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.core.JsonToken;
+import com.fasterxml.jackson.databind.JsonNode;
+import com.fasterxml.jackson.databind.ObjectMapper;
 
 
 /**
@@ -144,31 +144,18 @@ public class NpmArtifactController
 
         RepositoryProvider provider = repositoryProviderRegistry.getProvider(repository.getType());
 
-        Predicate predicate = Predicate.empty();
-        predicate.and(Predicate.of(ExpOperator.EQ.of("artifactCoordinates.coordinates.extension", "tgz")));
-        predicate.and(Predicate.of(ExpOperator.CONTAINS.of("tagSet.name", ArtifactTag.LAST_VERSION)));
-
-        Predicate lkePredicate = Predicate.empty().nested();
-        lkePredicate.or(
-                Predicate.of(ExpOperator.LIKE.of("artifactCoordinates.coordinates.name.toLowerCase()", text + "%")));
-        lkePredicate.or(
-                Predicate.of(ExpOperator.LIKE.of("artifactCoordinates.coordinates.scope.toLowerCase()", text + "%")));
-        predicate.or(lkePredicate);
-
-
+        RepositorySearchRequest predicate = new RepositorySearchRequest(text, Collections.singleton("tgz"));
+        //predicate.and(Predicate.of(ExpOperator.CONTAINS.of("tagSet.name", ArtifactTag.LAST_VERSION)));
         Paginator paginator = new Paginator();
         paginator.setLimit(20);
-
         List<Path> searchResult = provider.search(storageId, repositoryId, predicate, paginator);
 
         SearchResults searchResults = new SearchResults();
-
         searchResult.stream().map(npmSearchResultSupplier).forEach(p -> {
             searchResults.getObjects().add(p);
         });
 
         Long count = provider.count(storageId, repositoryId, predicate);
-
         searchResults.setTotal(count.intValue());
 
         //Wed Oct 31 2018 05:01:19 GMT+0000 (UTC)
@@ -200,7 +187,7 @@ public class NpmArtifactController
         npmSearchRequest.setVersion(packageVersion);
         viewPackageEventListener.setNpmSearchRequest(npmSearchRequest);
 
-        RepositoryPath repositoryPath = artifactResolutionService.resolvePath(storageId, repositoryId, c.toPath());
+        RepositoryPath repositoryPath = artifactResolutionService.resolvePath(storageId, repositoryId, c.buildPath());
         if (repositoryPath == null)
         {
             response.setStatus(HttpStatus.NOT_FOUND.value());
@@ -237,7 +224,7 @@ public class NpmArtifactController
         packageFeed.setName(packageId);
         packageFeed.setAdditionalProperty("_id", packageId);
 
-        Predicate predicate = createSearchPredicate(packageScope, packageName);
+        RepositorySearchRequest predicate = createSearchPredicate(packageScope, packageName);
 
         RepositoryProvider provider = repositoryProviderRegistry.getProvider(repository.getType());
 
@@ -300,17 +287,11 @@ public class NpmArtifactController
         viewPackageFeedWithScope(repository, null, packageName, response);
     }
 
-    private Predicate createSearchPredicate(String packageScope,
-                                            String packageName)
+    private RepositorySearchRequest createSearchPredicate(String packageScope,
+                                                          String packageName)
     {
-        Predicate rootPredicate = Predicate.empty();
-
-        rootPredicate.and(Predicate.of(ExpOperator.EQ.of("artifactCoordinates.coordinates.extension", "tgz")));
-        rootPredicate.and(Predicate.of(ExpOperator.EQ.of("artifactCoordinates.coordinates.name", packageName)));
-        if (packageScope != null)
-        {
-            rootPredicate.and(Predicate.of(ExpOperator.EQ.of("artifactCoordinates.coordinates.scope", packageScope)));
-        }
+        RepositorySearchRequest rootPredicate = new RepositorySearchRequest(
+                NpmArtifactCoordinates.calculatePackageId(packageScope, packageName), Collections.singleton("tgz"));
 
         return rootPredicate;
     }
@@ -354,7 +335,7 @@ public class NpmArtifactController
             return;
         }
 
-        RepositoryPath path = artifactResolutionService.resolvePath(storageId, repositoryId, coordinates.toPath());
+        RepositoryPath path = artifactResolutionService.resolvePath(storageId, repositoryId, coordinates.buildPath());
         provideArtifactDownloadResponse(request, response, httpHeaders, path);
     }
 
@@ -395,7 +376,7 @@ public class NpmArtifactController
             return;
         }
 
-        RepositoryPath path = artifactResolutionService.resolvePath(storageId, repositoryId, coordinates.toPath());
+        RepositoryPath path = artifactResolutionService.resolvePath(storageId, repositoryId, coordinates.buildPath());
         provideArtifactDownloadResponse(request, response, httpHeaders, path);
     }
 

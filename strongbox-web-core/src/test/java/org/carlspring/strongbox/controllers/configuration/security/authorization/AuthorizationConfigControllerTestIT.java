@@ -148,7 +148,10 @@ public class AuthorizationConfigControllerTestIT
     void roleShouldBeDeleted(String acceptHeader)
     {
         // get role name
-        String roleName = config.getRoles().iterator().next().getName();
+        String roleName = config.getRoles()
+                                .iterator()
+                                .next()
+                                .getName();
         // delete role
         mockMvc.contentType(MediaType.APPLICATION_JSON_VALUE)
                .accept(acceptHeader)

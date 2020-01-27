@@ -24,21 +24,16 @@ strongbox:
       feed: false
   version: @{project.version}
   revision: @{strongbox.revision}
-  orientdb:
-    studio:
-      enabled: false
-      ip:
-        address: 127.0.0.1
-      port: 2480
-  server:
-    database:
-      path: ${strongbox.vault}/db
   users:
     external:
       cache:
         seconds: 300
   sse:
     timeoutMillis: 600000
+  graph:
+    gremlin:
+        server:
+            enabled: false
 # Changes to these properties must also be applied to [strongbox/strongbox-web-integration-tests] and possibly the pipeline.
 # Please ping us on our chat channel (https://chat.carlspring.org/) to confirm.
 logging:
@@ -62,6 +57,9 @@ ehcache:
     store:
       dir: ${strongbox.vault}/cache
 management:
+  health:
+    neo4j:
+      enabled: false
   endpoint:
     health:
       show-details: always

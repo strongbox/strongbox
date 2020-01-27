@@ -1,7 +1,7 @@
 package org.carlspring.strongbox.users.service;
 
+import org.carlspring.strongbox.domain.User;
 import org.carlspring.strongbox.users.domain.Users;
-import org.carlspring.strongbox.users.dto.User;
 import org.jose4j.lang.JoseException;
 
 /**

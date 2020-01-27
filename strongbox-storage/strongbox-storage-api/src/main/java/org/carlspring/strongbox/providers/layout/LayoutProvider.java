@@ -5,8 +5,8 @@ import java.util.Set;
 
 import javax.annotation.Nonnull;
 
-import org.carlspring.strongbox.artifact.ArtifactGroup;
 import org.carlspring.strongbox.artifact.coordinates.ArtifactCoordinates;
+import org.carlspring.strongbox.domain.ArtifactGroup;
 import org.carlspring.strongbox.providers.io.RepositoryPath;
 import org.carlspring.strongbox.repository.RepositoryManagementStrategy;
 

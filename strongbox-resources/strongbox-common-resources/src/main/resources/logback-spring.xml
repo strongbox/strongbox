@@ -25,7 +25,7 @@
             <filter class="org.carlspring.strongbox.log.JaninoClassLoaderLogDeclineFilter"/>
     
             <encoder>
-                <pattern>%d{HH:mm:ss.SSS dd-MM-yyyy} | %-5.5p | %-20.20t | %-50.50logger{50} | %m%n</pattern>
+                <pattern>%d{HH:mm:ss.SSS} | %.-1level | %-10.10t | %-37.37logger{37} | %m%n</pattern>
             </encoder>
         </appender>
         <root>
@@ -51,7 +51,7 @@
 
             <encoder>
                 <charset>UTF-8</charset>
-                <pattern>%d{HH:mm:ss.SSS dd-MM-yyyy} | %-5.5p | %-20.20t | %-50.50logger{50} | %m%n</pattern>
+                <pattern>%d{HH:mm:ss.SSS} | %.-1level | %-10.10t | %-37.37logger{37} | %m%n</pattern>
             </encoder>
         </appender>
 
@@ -78,7 +78,7 @@
     
                     <encoder>
                         <charset>UTF-8</charset>
-                        <pattern>%d{HH:mm:ss.SSS dd-MM-yyyy} | %-5.5p | %-20.20t | %-50.50logger{50} | %m%n</pattern>
+                        <pattern>%d{HH:mm:ss.SSS} | %.-1level | %-10.10t | %-37.37logger{37} | %m%n</pattern>
                     </encoder>
                 </appender>
             </sift>
@@ -100,6 +100,10 @@
         <logger name="LOG_CHANGES" level="ERROR"/>
         <!-- ApacheDS -->
     
+        <logger name="org.neo4j.ogm" level="INFO"/>
+        <logger name="org.janusgraph" level="INFO" />
+        <logger name="springfox" level="INFO" />
+    
         <!-- Strongbox packages -->
         <logger name="org.carlspring.strongbox" level="DEBUG"/>
         <logger name="org.carlspring.strongbox.security.authentication" level="DEBUG"/>
@@ -110,10 +114,8 @@
         <logger name="org.carlspring.strongbox.data.server" level="DEBUG"/>
         <!-- Strongbox packages -->
     
-        <!-- Third-party packages -->
+        <!-- Third-party packages -->       
         <logger name="ch.qos.logback" level="ERROR"/>
-    
-        <logger name="com.orientechnologies.orient" level="ERROR"/>
     
         <logger name="org.apache.commons.beanutils" level="ERROR"/>
         <logger name="org.apache.http" level="ERROR"/>
@@ -147,7 +149,7 @@
         <logger name="org.carlspring.strongbox.security.authentication" level="INFO"/>
         <logger name="org.carlspring.strongbox.security.vote" level="INFO"/>
         <logger name="org.carlspring.strongbox.data" level="WARN"/>
-        <logger name="org.carlspring.strongbox.data.tx" level="WARN"/>
+        <logger name="org.carlspring.strongbox.data.tx" level="INFO"/>
         <logger name="org.carlspring.strongbox.data.criteria" level="INFO"/>
         <logger name="org.carlspring.strongbox.data.server" level="INFO"/>
         <!-- Strongbox packages -->
@@ -156,8 +158,6 @@
         <logger name="liquibase" level="WARN"/>
     
         <logger name="ch.qos.logback" level="ERROR"/>
-    
-        <logger name="com.orientechnologies.orient" level="ERROR"/>
     
         <logger name="org.apache.commons.beanutils" level="ERROR"/>
         <logger name="org.apache.http" level="ERROR"/>

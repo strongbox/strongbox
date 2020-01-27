@@ -79,7 +79,7 @@ public class RedeploymentValidator
             throw new VersionValidationException("The " + repository.getStorage().getId() + ":" +
                                                  repository.toString() +
                                                  " repository does not allow artifact re-deployment! (" +
-                                                 coordinates.toPath() + ")");
+                                                 coordinates.buildPath() + ")");
         }
     }
 
