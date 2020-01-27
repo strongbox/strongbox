@@ -1,17 +1,21 @@
 package com.orientechnologies.orient.object.jpa;
 
-import com.orientechnologies.orient.core.db.ODatabaseDocumentInternal;
-import com.orientechnologies.orient.jdbc.OrientDataSource;
-import com.orientechnologies.orient.jdbc.OrientJdbcConnection;
-import com.orientechnologies.orient.object.db.OObjectDatabaseTx;
-import org.carlspring.strongbox.util.ThrowingSupplier;
-
-import javax.persistence.*;
-import javax.persistence.criteria.CriteriaBuilder;
-import javax.persistence.metamodel.Metamodel;
-import java.sql.Connection;
 import java.util.Map;
 import java.util.logging.Logger;
+
+import javax.persistence.Cache;
+import javax.persistence.EntityGraph;
+import javax.persistence.EntityManager;
+import javax.persistence.EntityManagerFactory;
+import javax.persistence.PersistenceUnitUtil;
+import javax.persistence.Query;
+import javax.persistence.SynchronizationType;
+import javax.persistence.criteria.CriteriaBuilder;
+import javax.persistence.metamodel.Metamodel;
+
+import com.orientechnologies.orient.core.db.ODatabaseDocumentInternal;
+import com.orientechnologies.orient.core.db.ODatabaseRecordThreadLocal;
+import com.orientechnologies.orient.object.db.OObjectDatabaseTx;
 
 /**
  * @author Sergey Bespalov
@@ -24,15 +28,11 @@ public class OJPAObjectDatabaseTxEntityManagerFactory
     /** the log used by this class. */
     private static Logger logger = Logger.getLogger(OJPAObjectDatabaseTxEntityManagerFactory.class.getName());
 
-    private final OrientDataSource dataSource;
     private final OJPAProperties properties;
 
-
-    public OJPAObjectDatabaseTxEntityManagerFactory(final OJPAProperties properties,
-                                                    final OrientDataSource dataSource)
+    public OJPAObjectDatabaseTxEntityManagerFactory(final OJPAProperties properties)
     {
         this.properties = properties;
-        this.dataSource = dataSource;
 
         logger.fine("EntityManagerFactory created. " + toString());
     }
@@ -64,10 +64,13 @@ public class OJPAObjectDatabaseTxEntityManagerFactory
 
     private EntityManager createEntityManager(final OJPAProperties properties)
     {
-
-        Connection connection = ThrowingSupplier.unchecked(dataSource::getConnection).get();
-
-        OObjectDatabaseTx db = new OObjectDatabaseTx((ODatabaseDocumentInternal) ((OrientJdbcConnection) connection).getDatabase());
+        ODatabaseDocumentInternal tx = ODatabaseRecordThreadLocal.instance().getIfDefined();
+        if (tx == null)
+        {
+            throw new IllegalStateException("There is no thread bound transaction.");
+        }
+        OObjectDatabaseTx db = (OObjectDatabaseTx) tx.getDatabaseOwner();
+        
         Boolean automaticSchemaGeneration = Boolean.valueOf(properties.getOrDefault(
                 OJPAObjectDatabaseTxPersistenceProvider.PROPERTY_AUTOMATIC_SCHEMA_GENERATION,
                 Boolean.FALSE.toString())
@@ -79,7 +82,6 @@ public class OJPAObjectDatabaseTxEntityManagerFactory
     @Override
     public void close()
     {
-        dataSource.close();
         logger.fine("EntityManagerFactory closed. " + toString());
     }
 

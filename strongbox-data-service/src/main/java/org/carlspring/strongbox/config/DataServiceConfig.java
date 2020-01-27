@@ -7,6 +7,9 @@ import javax.inject.Inject;
 import javax.persistence.EntityManagerFactory;
 import javax.sql.DataSource;
 
+import org.carlspring.strongbox.config.gremlin.graph.GraphConfiguration;
+import org.carlspring.strongbox.config.gremlin.repositories.RepositoriesConfig;
+import org.carlspring.strongbox.config.gremlin.server.GremlinServerConfig;
 import org.carlspring.strongbox.config.hazelcast.HazelcastConfiguration;
 import org.carlspring.strongbox.data.tx.OEntityUnproxyAspect;
 import org.springframework.cache.CacheManager;
@@ -45,6 +48,9 @@ import liquibase.integration.spring.SpringLiquibase;
 @EnableAspectJAutoProxy(proxyTargetClass = true)
 @ComponentScan({ "org.carlspring.strongbox.data" })
 @Import({ OrientDbConfig.class,
+          GraphConfiguration.class,
+          GremlinServerConfig.class,
+          RepositoriesConfig.class,
           HazelcastConfiguration.class })
 @EnableCaching(order = 105)
 public class DataServiceConfig
@@ -66,14 +72,6 @@ public class DataServiceConfig
         liquibase.setResourceLoader(resourceLoader);
         liquibase.setChangeLog("classpath:/db/changelog/db.changelog-master.xml");
         return liquibase;
-    }
-
-    @Bean
-    public PlatformTransactionManager transactionManager(EntityManagerFactory emf, HazelcastInstance hazelcastInstance)
-    {
-        JpaTransactionManager jpaTransactionManager = new JpaTransactionManager(emf);
-        HazelcastTransactionManager hazelcastTransactionManager = new HazelcastTransactionManager(hazelcastInstance);
-        return new ChainedTransactionManager(hazelcastTransactionManager, jpaTransactionManager);
     }
 
     @Bean
