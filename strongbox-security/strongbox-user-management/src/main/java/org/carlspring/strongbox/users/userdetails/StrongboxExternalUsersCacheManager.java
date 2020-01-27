@@ -1,6 +1,6 @@
 package org.carlspring.strongbox.users.userdetails;
 
-import org.carlspring.strongbox.users.dto.User;
+import org.carlspring.strongbox.domain.User;
 import org.springframework.security.core.userdetails.UserDetails;
 
 /**
@@ -11,7 +11,7 @@ import org.springframework.security.core.userdetails.UserDetails;
  * pointing to external system ID where the external user come from.<br>
  * Another thing specific for external users is that they have configurable
  * cache invalidation time, so when it expires then the external user should be
- * invalidated and deleted. So the value of {@link User#getLastUpdate()} updated
+ * invalidated and deleted. So the value of {@link User#getLastUpdated()} updated
  * every time
  * {@link StrongboxExternalUsersCacheManager#cacheExternalUserDetails(String, UserDetails)}
  * method called, this extends the period during which the external user remains
@@ -36,7 +36,7 @@ public interface StrongboxExternalUsersCacheManager
     /**
      * Updates or creates external users which is chaced in strongbox users
      * storage.<br>
-     * This method call also updates the {@link User#getLastUpdate()} value.
+     * This method call also updates the {@link User#getLastUpdated()} value.
      * 
      * @param externalSourceId
      *            the identifier of external users provider

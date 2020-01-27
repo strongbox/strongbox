@@ -1,6 +1,5 @@
 package org.carlspring.strongbox.util;
 
-import org.carlspring.strongbox.artifact.coordinates.ArtifactCoordinates;
 import org.carlspring.strongbox.artifact.coordinates.MockedMavenArtifactCoordinates;
 import org.carlspring.strongbox.config.PypiLayoutProviderTestConfig;
 import org.carlspring.strongbox.storage.repository.Repository;
@@ -59,7 +58,7 @@ public class PypiCanonicalVersionValidatorTest
                              "1!1.4.rc" })
     public void testInvalidVersionCombinations(String version)
     {
-        ArtifactCoordinates coordinates = new MockedMavenArtifactCoordinates();
+        MockedMavenArtifactCoordinates coordinates = new MockedMavenArtifactCoordinates();
         coordinates.setVersion(version);
         assertThatExceptionOfType(VersionValidationException.class)
                 .isThrownBy(() -> pypiCanonicalVersionValidator.validate(repository, coordinates));
@@ -74,7 +73,7 @@ public class PypiCanonicalVersionValidatorTest
                              "11.5" })
     public void testValidMajorMinorVersioning(String version)
     {
-        ArtifactCoordinates coordinates = new MockedMavenArtifactCoordinates();
+        MockedMavenArtifactCoordinates coordinates = new MockedMavenArtifactCoordinates();
         coordinates.setVersion(version);
         assertThatCode(
                 () -> pypiCanonicalVersionValidator.validate(repository, coordinates)).doesNotThrowAnyException();
@@ -88,7 +87,7 @@ public class PypiCanonicalVersionValidatorTest
                              "39.6.3" })
     public void testValidMajorMinorMicroVersioning(String version)
     {
-        ArtifactCoordinates coordinates = new MockedMavenArtifactCoordinates();
+        MockedMavenArtifactCoordinates coordinates = new MockedMavenArtifactCoordinates();
         coordinates.setVersion(version);
         assertThatCode(
                 () -> pypiCanonicalVersionValidator.validate(repository, coordinates)).doesNotThrowAnyException();
@@ -104,7 +103,7 @@ public class PypiCanonicalVersionValidatorTest
                              "1.0c2" })
     public void testValidPreReleaseVersioning(String version)
     {
-        ArtifactCoordinates coordinates = new MockedMavenArtifactCoordinates();
+        MockedMavenArtifactCoordinates coordinates = new MockedMavenArtifactCoordinates();
         coordinates.setVersion(version);
         assertThatCode(
                 () -> pypiCanonicalVersionValidator.validate(repository, coordinates)).doesNotThrowAnyException();
@@ -116,7 +115,7 @@ public class PypiCanonicalVersionValidatorTest
                              "1.0.post12" })
     public void testValidPostReleaseVersioning(String version)
     {
-        ArtifactCoordinates coordinates = new MockedMavenArtifactCoordinates();
+        MockedMavenArtifactCoordinates coordinates = new MockedMavenArtifactCoordinates();
         coordinates.setVersion(version);
         assertThatCode(
                 () -> pypiCanonicalVersionValidator.validate(repository, coordinates)).doesNotThrowAnyException();
@@ -131,7 +130,7 @@ public class PypiCanonicalVersionValidatorTest
                              "26.1.dev1" })
     public void testValidDevReleaseVersioning(String version)
     {
-        ArtifactCoordinates coordinates = new MockedMavenArtifactCoordinates();
+        MockedMavenArtifactCoordinates coordinates = new MockedMavenArtifactCoordinates();
         coordinates.setVersion(version);
         assertThatCode(
                 () -> pypiCanonicalVersionValidator.validate(repository, coordinates)).doesNotThrowAnyException();
@@ -143,7 +142,7 @@ public class PypiCanonicalVersionValidatorTest
                              "2013.2" })
     public void testValidDateBasedVersioning(String version)
     {
-        ArtifactCoordinates coordinates = new MockedMavenArtifactCoordinates();
+        MockedMavenArtifactCoordinates coordinates = new MockedMavenArtifactCoordinates();
         coordinates.setVersion(version);
         assertThatCode(
                 () -> pypiCanonicalVersionValidator.validate(repository, coordinates)).doesNotThrowAnyException();
@@ -154,7 +153,7 @@ public class PypiCanonicalVersionValidatorTest
                              "1.5+1.git.abc123de" })
     public void testValidLocalVersionIdentifier(String version)
     {
-        ArtifactCoordinates coordinates = new MockedMavenArtifactCoordinates();
+        MockedMavenArtifactCoordinates coordinates = new MockedMavenArtifactCoordinates();
         coordinates.setVersion(version);
         assertThatCode(
                 () -> pypiCanonicalVersionValidator.validate(repository, coordinates)).doesNotThrowAnyException();
@@ -167,7 +166,7 @@ public class PypiCanonicalVersionValidatorTest
                              "2!369.89" })
     public void testValidEpochVersion(String version)
     {
-        ArtifactCoordinates coordinates = new MockedMavenArtifactCoordinates();
+        MockedMavenArtifactCoordinates coordinates = new MockedMavenArtifactCoordinates();
         coordinates.setVersion(version);
         assertThatCode(
                 () -> pypiCanonicalVersionValidator.validate(repository, coordinates)).doesNotThrowAnyException();
@@ -194,7 +193,7 @@ public class PypiCanonicalVersionValidatorTest
                              "1.1.dev1" })
     public void testValidVersionCombinations(String version)
     {
-        ArtifactCoordinates coordinates = new MockedMavenArtifactCoordinates();
+        MockedMavenArtifactCoordinates coordinates = new MockedMavenArtifactCoordinates();
         coordinates.setVersion(version);
         assertThatCode(
                 () -> pypiCanonicalVersionValidator.validate(repository, coordinates)).doesNotThrowAnyException();

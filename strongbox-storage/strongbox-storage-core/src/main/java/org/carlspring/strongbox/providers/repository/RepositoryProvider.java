@@ -65,7 +65,7 @@ public interface RepositoryProvider
     @Transactional(readOnly = true)
     List<Path> search(String storageId,
                       String repositoryId,
-                      Predicate predicate,
+                      RepositorySearchRequest predicate,
                       Paginator paginator);
     
     /**
@@ -80,7 +80,7 @@ public interface RepositoryProvider
     @Transactional(readOnly = true)
     Long count(String storageId,
                String repositoryId,
-               Predicate predicate);
+               RepositorySearchRequest predicate);
     
     /**
      * Fetch Artifact Path from target repository.

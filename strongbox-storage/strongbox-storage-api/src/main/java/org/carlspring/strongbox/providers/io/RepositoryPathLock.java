@@ -7,17 +7,15 @@ import java.util.Optional;
 import java.util.concurrent.locks.ReadWriteLock;
 
 import javax.annotation.Nonnull;
-import javax.inject.Inject;
 
 import org.carlspring.strongbox.artifact.coordinates.ArtifactCoordinates;
+import org.carlspring.strongbox.domain.ArtifactIdGroup;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Component;
 import org.springframework.util.Assert;
 
-import com.hazelcast.core.HazelcastInstance;
-
-import ca.thoughtwire.lock.DistributedLockService;
+import com.google.common.util.concurrent.Striped;
 
 /**
  * @author Przemyslaw Fusik
@@ -28,13 +26,7 @@ public class RepositoryPathLock
 
     private static final Logger logger = LoggerFactory.getLogger(RepositoryPathLock.class);
 
-    private DistributedLockService lockService;
-
-    @Inject
-    public void setHazelcastInstance(HazelcastInstance hazelcastInstance)
-    {
-        lockService = DistributedLockService.newHazelcastLockService(hazelcastInstance);
-    }
+    private Striped<ReadWriteLock> locks = Striped.lazyWeakReadWriteLock(1024);;
 
     public ReadWriteLock lock(final @Nonnull RepositoryPath repositoryPath) throws IOException
     {
@@ -50,9 +42,14 @@ public class RepositoryPathLock
                                   .orElseGet(() -> lock.toString());
         logger.debug("Get lock for [{}]", lock);
         
-        return lockService.getReentrantReadWriteLock(lockName);
+        return locks.get(lockName);
     }
 
+    public ReadWriteLock lock(String srtifactId)
+    {
+        return locks.get(srtifactId);
+    }
+    
     private URI getLock(final @Nonnull RepositoryPath repositoryPath) throws IOException
     {
         if (RepositoryFiles.isArtifact(repositoryPath))

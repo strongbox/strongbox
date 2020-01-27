@@ -1,17 +1,17 @@
 package org.carlspring.strongbox.nuget.filter;
 
 import org.carlspring.strongbox.data.criteria.Selector;
-import org.carlspring.strongbox.domain.ArtifactEntry;
+import org.carlspring.strongbox.domain.ArtifactEntity;
 import org.carlspring.strongbox.nuget.filter.NugetODataFilterParser.FilterContext;
 
 /**
  * @author sbespalov
  *
  */
-public class NugetODataFilterVisitorImpl extends NugetODataFilterBaseVisitor<Selector<ArtifactEntry>>
+public class NugetODataFilterVisitorImpl extends NugetODataFilterBaseVisitor<Selector<ArtifactEntity>>
 {
 
-    private Selector<ArtifactEntry> selector = new Selector<>(ArtifactEntry.class);
+    private Selector<ArtifactEntity> selector = new Selector<>(ArtifactEntity.class);
 
     public NugetODataFilterVisitorImpl()
     {
@@ -19,7 +19,7 @@ public class NugetODataFilterVisitorImpl extends NugetODataFilterBaseVisitor<Sel
     }
 
     @Override
-    public Selector<ArtifactEntry> visitFilter(FilterContext ctx)
+    public Selector<ArtifactEntity> visitFilter(FilterContext ctx)
     {
         NugetODataQueryVisitor nugetODataQueryVisitor = new NugetODataQueryVisitor();
         selector.where(nugetODataQueryVisitor.visitFilter(ctx));

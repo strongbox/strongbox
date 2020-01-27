@@ -1,16 +1,17 @@
 package org.carlspring.strongbox.artifact.coordinates;
 
-import org.carlspring.strongbox.artifact.coordinates.versioning.SemanticVersion;
-
-import javax.persistence.Entity;
-import javax.xml.bind.annotation.XmlAccessType;
-import javax.xml.bind.annotation.XmlAccessorType;
-import javax.xml.bind.annotation.XmlRootElement;
 import java.net.URI;
-import java.util.Map;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
+import javax.xml.bind.annotation.XmlAccessType;
+import javax.xml.bind.annotation.XmlAccessorType;
+import javax.xml.bind.annotation.XmlRootElement;
+
+import org.carlspring.strongbox.artifact.coordinates.versioning.SemanticVersion;
+import org.carlspring.strongbox.db.schema.Vertices;
+import org.carlspring.strongbox.domain.LayoutArtifactCoordinatesEntity;
+import org.neo4j.ogm.annotation.NodeEntity;
 import org.springframework.util.Assert;
 import org.springframework.util.StringUtils;
 
@@ -22,12 +23,11 @@ import org.springframework.util.StringUtils;
  * 
  * @author sbespalov
  */
-@Entity
-@SuppressWarnings("serial")
+@NodeEntity(Vertices.NPM_ARTIFACT_COORDINATES)
 @XmlRootElement(name = "npmArtifactCoordinates")
 @XmlAccessorType(XmlAccessType.NONE)
 @ArtifactCoordinatesLayout(name = NpmArtifactCoordinates.LAYOUT_NAME, alias = NpmArtifactCoordinates.LAYOUT_ALIAS)
-public class NpmArtifactCoordinates extends AbstractArtifactCoordinates<NpmArtifactCoordinates, SemanticVersion>
+public class NpmArtifactCoordinates extends LayoutArtifactCoordinatesEntity<NpmArtifactCoordinates, SemanticVersion>
 {
 
     public static final String LAYOUT_NAME = "npm";
@@ -57,7 +57,6 @@ public class NpmArtifactCoordinates extends AbstractArtifactCoordinates<NpmArtif
     private static final String VERSION = "version";
 
     private static final String EXTENSION = "extension";
-
 
     public NpmArtifactCoordinates()
     {
@@ -119,23 +118,16 @@ public class NpmArtifactCoordinates extends AbstractArtifactCoordinates<NpmArtif
         return String.format("%s/%s", getScope(), getName());
     }
 
-    @Override
     public void setId(String id)
     {
         setName(id);
     }
-
-    @Override
-    public String getVersion()
-    {
-        return getCoordinate(VERSION);
-    }
-
+    
     @Override
     public void setVersion(String version)
     {
         SemanticVersion.parse(version);
-        setCoordinate(VERSION, version);
+        super.setVersion(version);
     }
 
     public void setExtension(String extension)
@@ -153,15 +145,15 @@ public class NpmArtifactCoordinates extends AbstractArtifactCoordinates<NpmArtif
     }
     
     @Override
-    public String toPath()
+    public String convertToPath(NpmArtifactCoordinates c)
     {
-        return String.format("%s/%s/%s/%s", getGroup(), getName(), getVersion(), getArtifactFileName());
+        return String.format("%s/%s/%s/%s", c.getGroup(), c.getName(), c.getVersion(), c.getArtifactFileName());
     }
 
     @Override
-    public URI toResource()
+    public URI convertToResource(NpmArtifactCoordinates c)
     {
-        return URI.create(String.format("%s/-/%s", getId(), getArtifactFileName()));
+        return URI.create(String.format("%s/-/%s", c.getId(), c.getArtifactFileName()));
     }
 
     public String getGroup()
@@ -198,15 +190,6 @@ public class NpmArtifactCoordinates extends AbstractArtifactCoordinates<NpmArtif
         {
             return null;
         }
-    }
-
-    @Override
-    public Map<String, String> dropVersion()
-    {
-        Map<String, String> result = getCoordinates();
-        result.remove(VERSION);
-
-        return result;
     }
 
     public static NpmArtifactCoordinates parse(String path)
@@ -248,5 +231,5 @@ public class NpmArtifactCoordinates extends AbstractArtifactCoordinates<NpmArtif
     {
         return packageScope == null ? packageName : String.format("%s/%s", packageScope, packageName);
     }
-    
+
 }

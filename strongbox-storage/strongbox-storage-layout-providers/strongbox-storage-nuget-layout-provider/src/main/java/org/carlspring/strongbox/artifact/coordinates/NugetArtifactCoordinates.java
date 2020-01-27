@@ -1,29 +1,30 @@
 package org.carlspring.strongbox.artifact.coordinates;
 
-import org.carlspring.strongbox.artifact.coordinates.versioning.SemanticVersion;
+import java.net.URI;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
-import javax.persistence.Entity;
 import javax.xml.bind.annotation.XmlAccessType;
 import javax.xml.bind.annotation.XmlAccessorType;
 import javax.xml.bind.annotation.XmlAttribute;
 import javax.xml.bind.annotation.XmlRootElement;
-import java.net.URI;
-import java.util.Map;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
 
+import org.carlspring.strongbox.artifact.coordinates.versioning.SemanticVersion;
+import org.carlspring.strongbox.db.schema.Vertices;
+import org.carlspring.strongbox.domain.LayoutArtifactCoordinatesEntity;
+import org.neo4j.ogm.annotation.NodeEntity;
 import org.springframework.util.Assert;
 
 /**
  * @author Sergey Bespalov
  *
  */
-@Entity
+@NodeEntity(Vertices.NUGET_ARTIFACT_COORDINATES)
 @XmlRootElement(name = "nugetArtifactCoordinates")
 @XmlAccessorType(XmlAccessType.NONE)
 @ArtifactCoordinatesLayout(name = NugetArtifactCoordinates.LAYOUT_NAME, alias = NugetArtifactCoordinates.LAYOUT_ALIAS)
 public class NugetArtifactCoordinates
-        extends AbstractArtifactCoordinates<NugetArtifactCoordinates, SemanticVersion>
+        extends LayoutArtifactCoordinatesEntity<NugetArtifactCoordinates, SemanticVersion>
 {
 
     public static final String LAYOUT_NAME = "NuGet";
@@ -41,8 +42,7 @@ public class NugetArtifactCoordinates
     private static final String NUGET_PACKAGE_REGEXP_PATTERN = "([a-zA-Z0-9_.-]+)/([a-zA-Z0-9_.-]+)/([a-zA-Z0-9_.-]+).(nupkg|nuspec|nupkg\\.sha512)";
 
     private static final Pattern NUGET_PACKAGE_REGEXP = Pattern.compile(NUGET_PACKAGE_REGEXP_PATTERN);
-
-
+    
     public NugetArtifactCoordinates()
     {
         resetCoordinates(ID, VERSION, EXTENSION);
@@ -72,7 +72,6 @@ public class NugetArtifactCoordinates
         return getCoordinate(ID);
     }
 
-    @Override
     public void setId(String id)
     {
         setCoordinate(ID, id);
@@ -82,13 +81,7 @@ public class NugetArtifactCoordinates
     @XmlAttribute(name="version")
     public String getVersion()
     {
-        return getCoordinate(VERSION);
-    }
-
-    @Override
-    public void setVersion(String version)
-    {
-        setCoordinate(VERSION, version);
+        return super.getVersion();
     }
 
     @ArtifactLayoutCoordinate
@@ -103,11 +96,11 @@ public class NugetArtifactCoordinates
         setCoordinate(EXTENSION, type);
     }
     
-    public String toPath()
+    public String convertToPath(NugetArtifactCoordinates c)
     {
-        String idLocal = getId();
-        String versionLocal = getVersion();
-        String typeLocal = getType();
+        String idLocal = c.getId();
+        String versionLocal = c.getVersion();
+        String typeLocal = c.getType();
 
         if ("nuspec".equals(typeLocal))
         {
@@ -118,9 +111,9 @@ public class NugetArtifactCoordinates
     }
 
     @Override
-    public URI toResource()
+    public URI convertToResource(NugetArtifactCoordinates c)
     {
-        return URI.create("package/" + getId() + "/" + getVersion());
+        return URI.create("package/" + c.getId() + "/" + c.getVersion());
     }
     
     @Override
@@ -139,15 +132,6 @@ public class NugetArtifactCoordinates
         {
             return null;
         }
-    }
-
-    @Override
-    public Map<String, String> dropVersion()
-    {
-        Map<String, String> result = getCoordinates();
-        result.remove(VERSION);
-
-        return result;
     }
     
     public static NugetArtifactCoordinates parse(String path)

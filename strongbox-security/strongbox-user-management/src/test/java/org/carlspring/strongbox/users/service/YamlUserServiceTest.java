@@ -8,7 +8,7 @@ import javax.inject.Inject;
 
 import org.carlspring.strongbox.config.DataServiceConfig;
 import org.carlspring.strongbox.config.UsersConfig;
-import org.carlspring.strongbox.users.dto.User;
+import org.carlspring.strongbox.domain.User;
 import org.carlspring.strongbox.users.dto.UserDto;
 import org.carlspring.strongbox.users.service.impl.EncodedPasswordUser;
 import org.carlspring.strongbox.users.service.impl.YamlUserService.Yaml;

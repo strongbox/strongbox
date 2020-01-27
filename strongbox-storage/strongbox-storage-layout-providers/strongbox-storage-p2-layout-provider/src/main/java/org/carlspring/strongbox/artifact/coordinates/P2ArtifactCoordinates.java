@@ -6,16 +6,17 @@ import java.util.Map;
 
 import javax.persistence.Entity;
 
+import org.carlspring.strongbox.domain.LayoutArtifactCoordinatesEntity;
+
 /**
  * Represents {@link ArtifactCoordinates} for P2 repository
  * <p>
  * Proper path for this coordinates is in the format of: {id}/{version}/{classifier}
  * Example: strongbox.p2/1.0.0/osgi.bundle
  */
-@Entity
 @ArtifactCoordinatesLayout("p2")
 public class P2ArtifactCoordinates
-        extends AbstractArtifactCoordinates<P2ArtifactCoordinates, P2ArtifactCoordinates>
+        extends LayoutArtifactCoordinatesEntity<P2ArtifactCoordinates, P2ArtifactCoordinates>
 {
 
     public static final String ID = "id";
@@ -49,22 +50,9 @@ public class P2ArtifactCoordinates
         return getCoordinate(ID);
     }
 
-    @Override
     public void setId(String id)
     {
         setCoordinate(ID, id);
-    }
-
-    @Override
-    public String getVersion()
-    {
-        return getCoordinate(VERSION);
-    }
-
-    @Override
-    public void setVersion(String version)
-    {
-        setCoordinate(VERSION, version);
     }
 
     public String getClassifier()
@@ -73,9 +61,9 @@ public class P2ArtifactCoordinates
     }
 
     @Override
-    public String toPath()
+    public String convertToPath(P2ArtifactCoordinates c)
     {
-        return getId() + SEPARATOR + getVersion() + SEPARATOR + getClassifier();
+        return getId() + SEPARATOR + c.getVersion() + SEPARATOR + c.getClassifier();
     }
 
     public void setFilename(String filename)
@@ -153,14 +141,6 @@ public class P2ArtifactCoordinates
     public P2ArtifactCoordinates getNativeVersion()
     {
         return null;
-    }
-    
-    @Override
-    public Map<String, String> dropVersion()
-    {
-        Map<String, String> result = getCoordinates();
-        result.remove(VERSION);
-        return result;
     }
     
 }

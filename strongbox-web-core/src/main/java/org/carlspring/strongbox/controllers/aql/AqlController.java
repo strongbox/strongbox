@@ -3,7 +3,7 @@ package org.carlspring.strongbox.controllers.aql;
 import org.carlspring.strongbox.aql.grammar.AqlQueryParser;
 import org.carlspring.strongbox.controllers.BaseController;
 import org.carlspring.strongbox.data.criteria.Selector;
-import org.carlspring.strongbox.domain.ArtifactEntry;
+import org.carlspring.strongbox.domain.ArtifactEntity;
 import org.carlspring.strongbox.services.AqlSearchService;
 import org.carlspring.strongbox.storage.search.SearchResults;
 
@@ -40,7 +40,7 @@ public class AqlController extends BaseController
         throws IOException
     {
         AqlQueryParser parser = new AqlQueryParser(query);
-        Selector<ArtifactEntry> selector = parser.parseQuery();
+        Selector<ArtifactEntity> selector = parser.parseQuery();
 
         SearchResults result = aqlSearchService.search(selector);
 

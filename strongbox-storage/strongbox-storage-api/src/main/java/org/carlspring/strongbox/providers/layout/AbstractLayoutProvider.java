@@ -7,6 +7,7 @@ import java.nio.file.Files;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
@@ -14,7 +15,6 @@ import java.util.stream.Stream;
 import javax.inject.Inject;
 
 import org.apache.commons.codec.digest.MessageDigestAlgorithms;
-import org.carlspring.strongbox.artifact.ArtifactGroup;
 import org.carlspring.strongbox.artifact.archive.ArchiveListingFunction;
 import org.carlspring.strongbox.artifact.archive.Bzip2ArchiveListingFunction;
 import org.carlspring.strongbox.artifact.archive.CompositeArchiveListingFunction;
@@ -23,13 +23,15 @@ import org.carlspring.strongbox.artifact.archive.TarGzArchiveListingFunction;
 import org.carlspring.strongbox.artifact.archive.ZipArchiveListingFunction;
 import org.carlspring.strongbox.artifact.coordinates.ArtifactCoordinates;
 import org.carlspring.strongbox.configuration.ConfigurationManager;
-import org.carlspring.strongbox.domain.RepositoryArtifactIdGroupEntry;
+import org.carlspring.strongbox.domain.ArtifactGroup;
+import org.carlspring.strongbox.domain.ArtifactIdGroup;
+import org.carlspring.strongbox.domain.LayoutArtifactCoordinatesEntity;
 import org.carlspring.strongbox.providers.storage.StorageProviderRegistry;
 import org.carlspring.strongbox.providers.io.LayoutFileSystem;
 import org.carlspring.strongbox.providers.io.RepositoryFileAttributeType;
 import org.carlspring.strongbox.providers.io.RepositoryFiles;
 import org.carlspring.strongbox.providers.io.RepositoryPath;
-import org.carlspring.strongbox.services.RepositoryArtifactIdGroupService;
+import org.carlspring.strongbox.repositories.ArtifactIdGroupRepository;
 import org.carlspring.strongbox.storage.Storage;
 import org.carlspring.strongbox.storage.repository.Repository;
 import org.slf4j.Logger;
@@ -42,7 +44,7 @@ import com.google.common.collect.Sets;
 /**
  * @author mtodorov
  */
-public abstract class AbstractLayoutProvider<T extends ArtifactCoordinates>
+public abstract class AbstractLayoutProvider<T extends LayoutArtifactCoordinatesEntity>
         implements LayoutProvider<T>
 {
 
@@ -61,7 +63,7 @@ public abstract class AbstractLayoutProvider<T extends ArtifactCoordinates>
     private ConfigurationManager configurationManager;
 
     @Inject
-    private RepositoryArtifactIdGroupService repositoryArtifactIdGroupService;
+    private ArtifactIdGroupRepository artifactIdGroupRepository;
 
     @Inject
     protected StorageProviderRegistry storageProviderRegistry;
@@ -154,8 +156,15 @@ public abstract class AbstractLayoutProvider<T extends ArtifactCoordinates>
                                                               RepositoryFileAttributeType.ARTIFACT);
 
                 boolean isArtifact = Boolean.TRUE.equals(attributesLocal.get(RepositoryFileAttributeType.ARTIFACT));
-
-                value = isArtifact ? getArtifactCoordinates(repositoryPath) : null;
+                if (!isArtifact) {
+                    value = null;
+                    break;
+                }
+                
+                T artifactCoordinates = getArtifactCoordinates(repositoryPath);
+                artifactCoordinates.setUuid(artifactCoordinates.buildPath());
+                
+                value = artifactCoordinates;
                 break;
             case RESOURCE_URL:
                 value = resolveResource(repositoryPath);
@@ -237,8 +246,10 @@ public abstract class AbstractLayoutProvider<T extends ArtifactCoordinates>
         Repository repository = path.getFileSystem().getRepository();
         Storage storage = repository.getStorage();
         ArtifactCoordinates c = RepositoryFiles.readCoordinates(path);
-        RepositoryArtifactIdGroupEntry artifactIdGroup = repositoryArtifactIdGroupService.findOne(storage.getId(), repository.getId(), c.getId());
+        Optional<ArtifactIdGroup> artifactIdGroup = artifactIdGroupRepository.findAllArtifactsInGroup(storage.getId(),
+                                                                                                       repository.getId(),
+                                                                                                       c.getId());
         
-        return artifactIdGroup == null ? Collections.emptySet() : Sets.newHashSet(artifactIdGroup);
+        return artifactIdGroup.map(ArtifactGroup.class::cast).map(Collections::singleton).orElse(Collections.emptySet());
     }
 }

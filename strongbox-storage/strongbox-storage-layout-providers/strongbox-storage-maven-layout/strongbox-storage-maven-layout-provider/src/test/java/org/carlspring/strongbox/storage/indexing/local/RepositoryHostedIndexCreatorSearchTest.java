@@ -135,7 +135,6 @@ public class RepositoryHostedIndexCreatorSearchTest
         RepositoryPath repositoryPath = repositoryPathResolver.resolve(storageId,
                                                                        repositoryId,
                                                                        "org/carlspring/properties-injector/1.7/properties-injector-1.7.jar");
-
         artifactManagementService.validateAndStore(repositoryPath, jarArtifact.getInputStream());
         try (RepositoryIndexingContextAssert repositoryIndexingContextAssert = new RepositoryIndexingContextAssert(
                 repository, repositoryIndexCreator, indexingContextFactory))
@@ -145,6 +144,9 @@ public class RepositoryHostedIndexCreatorSearchTest
             repositoryIndexingContextAssert.onSearchQuery(q).hitTotalTimes(1);
         }
 
+        repositoryPath = repositoryPathResolver.resolve(storageId,
+                                                        repositoryId,
+                                                        "org/carlspring/properties-injector/1.7/properties-injector-1.7.jar");
         artifactManagementService.delete(repositoryPath, true);
         try (RepositoryIndexingContextAssert repositoryIndexingContextAssert = new RepositoryIndexingContextAssert(
                 repository, repositoryIndexCreator, indexingContextFactory))
@@ -154,6 +156,9 @@ public class RepositoryHostedIndexCreatorSearchTest
             repositoryIndexingContextAssert.onSearchQuery(q).hitTotalTimes(0);
         }
 
+        repositoryPath = repositoryPathResolver.resolve(storageId,
+                                                        repositoryId,
+                                                        "org/carlspring/properties-injector/1.7/properties-injector-1.7.jar");
         artifactManagementService.validateAndStore(repositoryPath, jarArtifact.getInputStream());
         try (RepositoryIndexingContextAssert repositoryIndexingContextAssert = new RepositoryIndexingContextAssert(
                 repository, repositoryIndexCreator, indexingContextFactory))

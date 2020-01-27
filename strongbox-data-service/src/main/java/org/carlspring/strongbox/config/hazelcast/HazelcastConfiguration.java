@@ -44,7 +44,7 @@ public class HazelcastConfiguration
                                                                                      .setInvalidateOnChange(authenticationsCacheInvalidateOnChange)
                                                                                      .setTimeToLiveSeconds(authenticationsCacheInvalidateInterval));
     }
-
+    
     @Value("${cacheManagerConfiguration.caches.remoteRepositoryAliveness.maxSizeLimit:1000}")
     public int remoteRepositoryAlivenessMaxSizeLimit;
 

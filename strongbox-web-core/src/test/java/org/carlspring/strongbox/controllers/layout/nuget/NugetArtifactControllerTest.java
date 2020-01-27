@@ -1,35 +1,28 @@
 package org.carlspring.strongbox.controllers.layout.nuget;
 
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.carlspring.strongbox.utils.ArtifactControllerHelper.MULTIPART_BOUNDARY;
+import static org.hamcrest.CoreMatchers.equalTo;
+
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.util.List;
+
+import javax.inject.Inject;
+
 import org.carlspring.strongbox.artifact.coordinates.NugetArtifactCoordinates;
 import org.carlspring.strongbox.config.IntegrationTest;
-import org.carlspring.strongbox.domain.ArtifactEntry;
-import org.carlspring.strongbox.domain.RemoteArtifactEntry;
+import org.carlspring.strongbox.domain.Artifact;
 import org.carlspring.strongbox.providers.io.RepositoryFiles;
 import org.carlspring.strongbox.providers.io.RepositoryPath;
+import org.carlspring.strongbox.repositories.ArtifactRepository;
 import org.carlspring.strongbox.rest.common.NugetRestAssuredBaseTest;
-import org.carlspring.strongbox.services.ArtifactEntryService;
 import org.carlspring.strongbox.storage.metadata.nuget.rss.PackageFeed;
 import org.carlspring.strongbox.storage.repository.Repository;
 import org.carlspring.strongbox.testing.artifact.ArtifactManagementTestExecutionListener;
 import org.carlspring.strongbox.testing.artifact.NugetTestArtifact;
 import org.carlspring.strongbox.testing.repository.NugetRepository;
 import org.carlspring.strongbox.testing.storage.repository.RepositoryManagementTestExecutionListener;
-
-import javax.inject.Inject;
-import java.io.OutputStream;
-import java.io.PrintStream;
-import java.nio.file.Files;
-import java.nio.file.Path;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-
-import io.restassured.http.ContentType;
-import io.restassured.http.Header;
-import io.restassured.http.Headers;
-import io.restassured.module.mockmvc.config.RestAssuredMockMvcConfig;
-import io.restassured.module.mockmvc.response.MockMvcResponse;
-import io.restassured.module.mockmvc.specification.MockMvcRequestSpecification;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
@@ -37,9 +30,13 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
-import static org.assertj.core.api.Assertions.assertThat;
-import static org.carlspring.strongbox.utils.ArtifactControllerHelper.MULTIPART_BOUNDARY;
-import static org.hamcrest.CoreMatchers.equalTo;
+
+import io.restassured.http.ContentType;
+import io.restassured.http.Header;
+import io.restassured.http.Headers;
+import io.restassured.module.mockmvc.config.RestAssuredMockMvcConfig;
+import io.restassured.module.mockmvc.response.MockMvcResponse;
+import io.restassured.module.mockmvc.specification.MockMvcRequestSpecification;
 
 /**
  * @author Sergey Bespalov
@@ -64,7 +61,7 @@ public class NugetArtifactControllerTest extends NugetRestAssuredBaseTest
     private static final String REPOSITORY_RELEASES_3 = "nuget-test-releases-nact-3";
 
     @Inject
-    private ArtifactEntryService artifactEntryService;
+    private ArtifactRepository artifactEntityRepository;
 
     @Override
     @BeforeEach
@@ -327,7 +324,8 @@ public class NugetArtifactControllerTest extends NugetRestAssuredBaseTest
               "/storages/{storageId}/{repositoryId}/Search()/$count?searchTerm={searchTerm}&targetFramework=";
         mockMvc.header(HttpHeaders.USER_AGENT, "NuGet/*")
                .when()
-               .get(url, storageId, repositoryId, "Test.Search")
+               //TODO: we should be able to search by `Test.Search` substring with `Mixed Index`
+               .get(url, storageId, repositoryId, "Org.Carlspring.Strongbox.Nuget.Test.Search")
                .then()
                .statusCode(HttpStatus.OK.value())
                .and()
@@ -344,7 +342,7 @@ public class NugetArtifactControllerTest extends NugetRestAssuredBaseTest
               "/storages/{storageId}/{repositoryId}/Search()?$skip={skip}&$top={stop}&searchTerm={searchTerm}&targetFramework=";
         mockMvc.header(HttpHeaders.USER_AGENT, "NuGet/*")
                .when()
-               .get(url, storageId, repositoryId, 0, 30, "Test.Search")
+               .get(url, storageId, repositoryId, 0, 30, "Org.Carlspring.Strongbox.Nuget.Test.Search")
                .then()
                .statusCode(HttpStatus.OK.value())
                .and()
@@ -479,20 +477,13 @@ public class NugetArtifactControllerTest extends NugetRestAssuredBaseTest
                .assertThat()
                .body("feed.entry[0].title", equalTo(packageId));
 
-        Map<String, String> coordinatesMap = new HashMap<>();
-        coordinatesMap.put("id", packageId);
-        coordinatesMap.put("version", packageVersion);
-
-        List<ArtifactEntry> artifactEntryList = artifactEntryService.findArtifactList("storage-common-proxies",
-                                                                                      "nuget.org",
-                                                                                      coordinatesMap,
-                                                                                      true);
+        List<Artifact> artifactEntryList = artifactEntityRepository.findByPathLike("storage-common-proxies",
+                                                                                   "nuget.org",
+                                                                                   String.format("%s/%s", packageId, packageVersion));
         assertThat(artifactEntryList).isNotEmpty();
 
-        ArtifactEntry artifactEntry = artifactEntryList.iterator().next();
-        
-        assertThat(artifactEntry).isInstanceOf(RemoteArtifactEntry.class);
-        assertThat(((RemoteArtifactEntry)artifactEntry).getIsCached()).isFalse();
+        Artifact artifactEntry = artifactEntryList.iterator().next();
+        assertThat(artifactEntry.getArtifactFileExists()).isFalse();
 
         url = getContextBaseUrl() + "/storages/public/nuget-group/package/{artifactId}/{artifactVersion}";
         mockMvc.header(HttpHeaders.USER_AGENT, "NuGet/*")

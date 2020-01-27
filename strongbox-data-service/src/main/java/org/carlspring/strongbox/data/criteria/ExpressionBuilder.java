@@ -1,12 +1,12 @@
 package org.carlspring.strongbox.data.criteria;
 
-import org.carlspring.strongbox.data.domain.GenericEntity;
+import org.carlspring.strongbox.data.domain.DomainObject;
 
 /**
  * @author sbespalov
  *
  */
-public abstract class ExpressionBuilder<E extends ExpressionBuilder<E, T>, T extends GenericEntity>
+public abstract class ExpressionBuilder<E extends ExpressionBuilder<E, T>, T extends DomainObject>
 {
     private Class<T> targetClass;
 

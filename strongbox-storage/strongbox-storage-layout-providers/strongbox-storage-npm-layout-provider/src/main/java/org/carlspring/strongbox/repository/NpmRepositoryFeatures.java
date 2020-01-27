@@ -1,19 +1,31 @@
 package org.carlspring.strongbox.repository;
 
+import java.io.IOException;
+import java.io.InputStream;
+import java.util.Arrays;
+import java.util.Collections;
+import java.util.LinkedHashSet;
+import java.util.Optional;
+import java.util.Set;
+import java.util.concurrent.Executor;
+
+import javax.annotation.PostConstruct;
+import javax.inject.Inject;
+import javax.ws.rs.client.Client;
+import javax.ws.rs.client.Invocation;
+import javax.ws.rs.client.WebTarget;
+
 import org.carlspring.strongbox.config.NpmLayoutProviderConfig.NpmObjectMapper;
 import org.carlspring.strongbox.configuration.Configuration;
 import org.carlspring.strongbox.configuration.ConfigurationManager;
-import org.carlspring.strongbox.data.criteria.Expression.ExpOperator;
-import org.carlspring.strongbox.data.criteria.OQueryTemplate;
-import org.carlspring.strongbox.data.criteria.Predicate;
-import org.carlspring.strongbox.data.criteria.Selector;
-import org.carlspring.strongbox.domain.RemoteArtifactEntry;
 import org.carlspring.strongbox.npm.NpmSearchRequest;
 import org.carlspring.strongbox.npm.NpmViewRequest;
 import org.carlspring.strongbox.npm.metadata.Change;
 import org.carlspring.strongbox.npm.metadata.PackageFeed;
 import org.carlspring.strongbox.npm.metadata.SearchResults;
+import org.carlspring.strongbox.providers.repository.RepositorySearchRequest;
 import org.carlspring.strongbox.providers.repository.event.RemoteRepositorySearchEvent;
+import org.carlspring.strongbox.repositories.ArtifactIdGroupRepository;
 import org.carlspring.strongbox.service.ProxyRepositoryConnectionPoolConfigurationService;
 import org.carlspring.strongbox.services.ConfigurationManagementService;
 import org.carlspring.strongbox.storage.Storage;
@@ -27,27 +39,6 @@ import org.carlspring.strongbox.storage.validation.deployment.RedeploymentValida
 import org.carlspring.strongbox.yaml.configuration.repository.NpmRepositoryConfigurationData;
 import org.carlspring.strongbox.yaml.configuration.repository.remote.NpmRemoteRepositoryConfiguration;
 import org.carlspring.strongbox.yaml.configuration.repository.remote.NpmRemoteRepositoryConfigurationDto;
-
-import javax.annotation.PostConstruct;
-import javax.inject.Inject;
-import javax.persistence.EntityManager;
-import javax.persistence.PersistenceContext;
-import javax.ws.rs.client.Client;
-import javax.ws.rs.client.Invocation;
-import javax.ws.rs.client.WebTarget;
-import java.io.IOException;
-import java.io.InputStream;
-import java.util.Arrays;
-import java.util.LinkedHashSet;
-import java.util.Optional;
-import java.util.Set;
-import java.util.concurrent.Executor;
-
-import com.fasterxml.jackson.core.JsonFactory;
-import com.fasterxml.jackson.core.JsonParser;
-import com.fasterxml.jackson.core.JsonToken;
-import com.fasterxml.jackson.databind.JsonNode;
-import com.fasterxml.jackson.databind.ObjectMapper;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.context.annotation.Scope;
@@ -55,6 +46,12 @@ import org.springframework.context.annotation.ScopedProxyMode;
 import org.springframework.context.event.EventListener;
 import org.springframework.stereotype.Component;
 import org.springframework.util.Assert;
+
+import com.fasterxml.jackson.core.JsonFactory;
+import com.fasterxml.jackson.core.JsonParser;
+import com.fasterxml.jackson.core.JsonToken;
+import com.fasterxml.jackson.databind.JsonNode;
+import com.fasterxml.jackson.databind.ObjectMapper;
 
 @Component
 public class NpmRepositoryFeatures implements RepositoryFeatures
@@ -84,8 +81,8 @@ public class NpmRepositoryFeatures implements RepositoryFeatures
     @Inject
     private ConfigurationManager configurationManager;
 
-    @PersistenceContext
-    private EntityManager entityManager;
+    @Inject
+    private ArtifactIdGroupRepository artifactIdGroupRepository;
 
     @Inject
     private Executor eventTaskExecutor;
@@ -420,15 +417,15 @@ public class NpmRepositoryFeatures implements RepositoryFeatures
                 return;
             }
 
-            Predicate predicate = event.getPredicate();
-            Long packageCount = countPackages(storageId, repositoryId, predicate);
+            RepositorySearchRequest predicate = event.getPredicate();
+            Boolean packageExists = packagesExists(storageId, repositoryId, predicate);
 
-            logger.debug("NPM remote repository [{}] cached package count is [{}]",
-                         repository.getId(), packageCount);
+            logger.debug("NPM remote repository [{}] cached package existance is [{}]",
+                         repository.getId(), packageExists);
 
             Runnable job = () -> fetchRemoteSearchResult(storageId, repositoryId, npmSearchRequest.getText(),
                                                          npmSearchRequest.getSize());
-            if (packageCount.longValue() == 0)
+            if (Boolean.FALSE.equals(packageExists))
             {
                 // Syncronously fetch remote package feed if ve have no cached
                 // packages
@@ -478,18 +475,17 @@ public class NpmRepositoryFeatures implements RepositoryFeatures
                 return;
             }
 
-            Predicate predicate = event.getPredicate();
-            Long packageCount = countPackages(storageId, repositoryId, predicate);
+            RepositorySearchRequest predicate = event.getPredicate();
+            Boolean packagesExists = packagesExists(storageId, repositoryId, predicate);
 
-            logger.debug("NPM remote repository [{}] cached package count is [{}]",
-                         repository.getId(), packageCount);
+            logger.debug("NPM remote repository [{}] cached package ixistance is [{}]",
+                         repository.getId(), packagesExists);
 
             Runnable job = () -> fetchRemotePackageFeed(storage.getId(), repository.getId(),
                                                         npmSearchRequest.getPackageId());
-            if (packageCount.longValue() == 0)
+            if (!Boolean.TRUE.equals(packagesExists))
             {
-                // Syncronously fetch remote package feed if ve have no cached
-                // packages
+                // Synchronously fetch remote package feed if there is no cached packages
                 job.run();
             }
             else
@@ -500,21 +496,13 @@ public class NpmRepositoryFeatures implements RepositoryFeatures
 
     }
 
-    private Long countPackages(String storageId,
-                               String repositoryId,
-                               Predicate predicate)
+    private Boolean packagesExists(String storageId,
+                                   String repositoryId,
+                                   RepositorySearchRequest predicate)
     {
-        Selector<RemoteArtifactEntry> selector = new Selector<>(RemoteArtifactEntry.class);
-        selector.select("count(*)");
-        selector.where(Predicate.of(ExpOperator.EQ.of("storageId", storageId)))
-                .and(Predicate.of(ExpOperator.EQ.of("repositoryId", repositoryId)));
-        if (!predicate.isEmpty())
-        {
-            selector.getPredicate().and(predicate);
-        }
-        OQueryTemplate<Long, RemoteArtifactEntry> queryTemplate = new OQueryTemplate<>(entityManager);
-        Long packageCount = queryTemplate.select(selector);
-        return packageCount;
+        return artifactIdGroupRepository.artifactsExists(Collections.singleton(storageId + ":" + repositoryId),
+                                                         predicate.getArtifactId(),
+                                                         predicate.getCoordinateValues());
     }
 
     protected Configuration getConfiguration()

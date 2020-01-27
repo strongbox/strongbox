@@ -1,17 +1,22 @@
 package org.carlspring.strongbox.services;
 
-import org.carlspring.strongbox.data.service.CrudService;
-import org.carlspring.strongbox.domain.ArtifactEntry;
-import org.carlspring.strongbox.domain.ArtifactGroupEntry;
+import java.util.Set;
+
+import org.carlspring.strongbox.artifact.coordinates.ArtifactCoordinates;
+import org.carlspring.strongbox.domain.Artifact;
+import org.carlspring.strongbox.domain.ArtifactGroup;
+import org.carlspring.strongbox.storage.repository.Repository;
 
 /**
  * @author Przemyslaw Fusik
  */
-public interface ArtifactGroupService<T extends ArtifactGroupEntry>
-        extends CrudService<T, String>
+public interface ArtifactGroupService<T extends ArtifactGroup>
 {
 
-    void addArtifactToGroup(T artifactGroup,
-                            ArtifactEntry artifactEntry);
-    
+    void saveArtifacts(Repository repository,
+                       Set<Artifact> artifactToSaveSet);
+
+    ArtifactCoordinates addArtifactToGroup(T artifactGroup,
+                                           Artifact artifactEntry);
+
 }

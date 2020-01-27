@@ -8,7 +8,7 @@ import org.carlspring.strongbox.users.dto.UserDto;
 import org.carlspring.strongbox.users.security.SecurityTokenProvider;
 import org.carlspring.strongbox.users.service.UserService;
 import org.carlspring.strongbox.users.service.impl.EncodedPasswordUser;
-import org.carlspring.strongbox.users.service.impl.OrientDbUserService.OrientDb;
+import org.carlspring.strongbox.users.service.impl.DatabaseUserService.Database;
 
 import javax.inject.Inject;
 import java.util.regex.Pattern;
@@ -38,7 +38,7 @@ public class LoginControllerTest
 {
 
     @Inject
-    @OrientDb
+    @Database
     private UserService userService;
 
     @Inject
