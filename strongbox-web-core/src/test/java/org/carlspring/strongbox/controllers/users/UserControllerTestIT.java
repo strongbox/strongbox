@@ -5,14 +5,14 @@ import static org.assertj.core.api.Assertions.assertThat;
 import org.carlspring.strongbox.config.IntegrationTest;
 import org.carlspring.strongbox.controllers.users.support.UserOutput;
 import org.carlspring.strongbox.controllers.users.support.UserResponseEntity;
+import org.carlspring.strongbox.domain.User;
 import org.carlspring.strongbox.forms.users.UserForm;
 import org.carlspring.strongbox.rest.common.RestAssuredBaseTest;
 import org.carlspring.strongbox.users.domain.SystemRole;
 import org.carlspring.strongbox.users.domain.UserData;
-import org.carlspring.strongbox.users.dto.User;
 import org.carlspring.strongbox.users.dto.UserDto;
 import org.carlspring.strongbox.users.service.UserService;
-import org.carlspring.strongbox.users.service.impl.OrientDbUserService.OrientDb;
+import org.carlspring.strongbox.users.service.impl.DatabaseUserService.Database;
 
 import javax.inject.Inject;
 import java.util.Set;
@@ -62,7 +62,7 @@ public class UserControllerTestIT
 {
 
     @Inject
-    @OrientDb
+    @Database
     private UserService userService;
 
     @Inject

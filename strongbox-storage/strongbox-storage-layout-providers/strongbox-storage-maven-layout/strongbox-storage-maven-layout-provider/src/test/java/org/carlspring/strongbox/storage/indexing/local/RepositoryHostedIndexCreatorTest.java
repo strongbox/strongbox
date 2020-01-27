@@ -17,6 +17,8 @@ import org.carlspring.strongbox.testing.storage.repository.RepositoryManagementT
 import org.carlspring.strongbox.util.MessageDigestUtils;
 
 import javax.inject.Inject;
+import javax.transaction.Transactional;
+
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
@@ -38,6 +40,7 @@ import static org.junit.jupiter.api.parallel.ExecutionMode.CONCURRENT;
 @ActiveProfiles(profiles = "test")
 @ContextConfiguration(classes = Maven2LayoutProviderTestConfig.class)
 @Execution(CONCURRENT)
+@Transactional
 public class RepositoryHostedIndexCreatorTest
         extends BaseRepositoryIndexCreatorTest
 {

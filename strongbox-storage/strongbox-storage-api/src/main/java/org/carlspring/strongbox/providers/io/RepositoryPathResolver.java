@@ -1,16 +1,16 @@
 package org.carlspring.strongbox.providers.io;
 
-import org.carlspring.strongbox.artifact.coordinates.ArtifactCoordinates;
-import org.carlspring.strongbox.configuration.ConfigurationManager;
-import org.carlspring.strongbox.domain.ArtifactEntry;
-import org.carlspring.strongbox.services.ArtifactEntryService;
-import org.carlspring.strongbox.storage.Storage;
-import org.carlspring.strongbox.storage.repository.Repository;
-
-import javax.inject.Inject;
 import java.io.IOException;
 import java.util.Objects;
 
+import javax.inject.Inject;
+
+import org.carlspring.strongbox.artifact.coordinates.ArtifactCoordinates;
+import org.carlspring.strongbox.configuration.ConfigurationManager;
+import org.carlspring.strongbox.domain.Artifact;
+import org.carlspring.strongbox.repositories.ArtifactRepository;
+import org.carlspring.strongbox.storage.Storage;
+import org.carlspring.strongbox.storage.repository.Repository;
 import org.springframework.stereotype.Component;
 
 /**
@@ -24,11 +24,20 @@ public class RepositoryPathResolver
     protected ConfigurationManager configurationManager;
 
     @Inject
-    protected ArtifactEntryService artifactEntryService;
+    protected ArtifactRepository artifactEntityRepository;
 
     @Inject
     protected RepositoryFileSystemRegistry fileSystemRegistry;
 
+    public RootRepositoryPath resolve(String storageId,
+                                      String repositoryId)
+    {
+        Storage storage = configurationManager.getConfiguration().getStorage(storageId);
+        Objects.requireNonNull(storage, String.format("Storage [%s] not found", storageId));
+
+        return resolve(storage.getRepository(repositoryId));
+    }
+    
     public RootRepositoryPath resolve(final Repository repository)
     {
         Objects.requireNonNull(repository, "Repository should be provided");
@@ -51,7 +60,7 @@ public class RepositoryPathResolver
     public RepositoryPath resolve(final Repository repository,
                                   final ArtifactCoordinates c)
     {
-        return resolve(repository, c.toPath());
+        return resolve(repository, c.buildPath());
     }
 
     public RepositoryPath resolve(final Repository repository,
@@ -89,7 +98,7 @@ public class RepositoryPathResolver
         }
 
         @Override
-        public ArtifactEntry getArtifactEntry()
+        public Artifact getArtifactEntry()
             throws IOException
         {
             if (this.getRepository().isGroupRepository() || !RepositoryFiles.isArtifact(this))
@@ -97,9 +106,9 @@ public class RepositoryPathResolver
                 return null;
             }
 
-            return artifactEntryService.findOneArtifact(getRepository().getStorage().getId(),
-                                                        getRepository().getId(),
-                                                        RepositoryFiles.relativizePath(this));
+            return artifactEntityRepository.findOneArtifact(getRepository().getStorage().getId(),
+                                                            getRepository().getId(),
+                                                            RepositoryFiles.relativizePath(this));
             // TODO: we should check this restriction 
 //            if (Files.exists(this) && !Files.isDirectory(this) && RepositoryFiles.isArtifact(this) && result == null)
 //            {

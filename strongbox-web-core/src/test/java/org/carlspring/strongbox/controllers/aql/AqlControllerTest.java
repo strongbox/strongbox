@@ -11,6 +11,7 @@ import org.carlspring.strongbox.testing.storage.repository.RepositoryManagementT
 import java.nio.file.Path;
 
 import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.springframework.http.HttpStatus;
@@ -25,6 +26,7 @@ import static org.hamcrest.Matchers.hasSize;
  * @author Pablo Tirado
  */
 @IntegrationTest
+@Disabled
 public class AqlControllerTest
         extends MavenRestAssuredBaseTest
 {

@@ -80,7 +80,7 @@ public class SearchResult
 
     public String getPath()
     {
-        return getArtifactCoordinates().toPath();
+        return getArtifactCoordinates().buildPath();
     }
 
     public String getUrl()

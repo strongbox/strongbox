@@ -14,12 +14,12 @@ import javax.transaction.Transactional;
 
 import org.apache.http.HttpHeaders;
 import org.carlspring.strongbox.config.IntegrationTest;
+import org.carlspring.strongbox.domain.User;
 import org.carlspring.strongbox.forms.users.UserForm;
 import org.carlspring.strongbox.rest.common.RestAssuredBaseTest;
-import org.carlspring.strongbox.users.dto.User;
 import org.carlspring.strongbox.users.dto.UserDto;
 import org.carlspring.strongbox.users.service.UserService;
-import org.carlspring.strongbox.users.service.impl.OrientDbUserService.OrientDb;
+import org.carlspring.strongbox.users.service.impl.DatabaseUserService.Database;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.http.HttpStatus;
@@ -43,7 +43,7 @@ public class AccountControllerTest
     private static final String TEST_DISABLED_USER_ACCOUNT = "test-disabled-user-account";
 
     @Inject
-    @OrientDb
+    @Database
     private UserService userService;
     
     @Inject

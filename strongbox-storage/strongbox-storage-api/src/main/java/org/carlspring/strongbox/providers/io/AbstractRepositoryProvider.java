@@ -5,7 +5,7 @@ import java.io.InputStream;
 import java.io.OutputStream;
 import java.net.URI;
 import java.nio.file.Path;
-import java.util.Date;
+import java.time.LocalDateTime;
 import java.util.Optional;
 
 import javax.inject.Inject;
@@ -15,11 +15,13 @@ import org.carlspring.strongbox.artifact.ArtifactNotFoundException;
 import org.carlspring.strongbox.artifact.coordinates.ArtifactCoordinates;
 import org.carlspring.strongbox.configuration.Configuration;
 import org.carlspring.strongbox.configuration.ConfigurationManager;
+import org.carlspring.strongbox.data.CacheName;
 import org.carlspring.strongbox.data.criteria.Expression.ExpOperator;
 import org.carlspring.strongbox.data.criteria.Predicate;
 import org.carlspring.strongbox.data.criteria.Selector;
-import org.carlspring.strongbox.domain.ArtifactEntry;
-import org.carlspring.strongbox.domain.RepositoryArtifactIdGroupEntry;
+import org.carlspring.strongbox.domain.Artifact;
+import org.carlspring.strongbox.domain.ArtifactEntity;
+import org.carlspring.strongbox.domain.ArtifactIdGroup;
 import org.carlspring.strongbox.event.artifact.ArtifactEventListenerRegistry;
 import org.carlspring.strongbox.io.LayoutOutputStream;
 import org.carlspring.strongbox.io.RepositoryStreamCallback;
@@ -31,13 +33,16 @@ import org.carlspring.strongbox.providers.io.RepositoryStreamSupport.RepositoryO
 import org.carlspring.strongbox.providers.layout.LayoutProviderRegistry;
 import org.carlspring.strongbox.providers.repository.RepositoryProvider;
 import org.carlspring.strongbox.providers.repository.RepositoryProviderRegistry;
-import org.carlspring.strongbox.services.ArtifactEntryService;
-import org.carlspring.strongbox.services.RepositoryArtifactIdGroupService;
+import org.carlspring.strongbox.repositories.ArtifactRepository;
+import org.carlspring.strongbox.services.ArtifactIdGroupService;
 import org.carlspring.strongbox.storage.Storage;
 import org.carlspring.strongbox.storage.repository.Repository;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.cache.CacheManager;
+import org.springframework.cache.interceptor.SimpleKey;
 import org.springframework.context.ApplicationEventPublisher;
+import org.springframework.transaction.PlatformTransactionManager;
 import org.springframework.util.Assert;
 
 /**
@@ -58,10 +63,10 @@ public abstract class AbstractRepositoryProvider implements RepositoryProvider, 
     protected ConfigurationManager configurationManager;
 
     @Inject
-    protected ArtifactEntryService artifactEntryService;
+    protected ArtifactRepository artifactEntityRepository;
     
     @Inject
-    private RepositoryArtifactIdGroupService repositoryArtifactIdGroupService;
+    private ArtifactIdGroupService repositoryArtifactIdGroupService;
     
     @Inject
     protected ArtifactEventListenerRegistry artifactEventListenerRegistry;
@@ -71,6 +76,12 @@ public abstract class AbstractRepositoryProvider implements RepositoryProvider, 
     
     @Inject
     private RepositoryPathLock repositoryPathLock;
+    
+    @Inject
+    private PlatformTransactionManager transactionManager;
+    
+    @Inject
+    private CacheManager cacheManager;
     
     protected Configuration getConfiguration()
     {
@@ -104,7 +115,7 @@ public abstract class AbstractRepositoryProvider implements RepositoryProvider, 
             return (RepositoryInputStream) is;
         }
 
-        return new RepositoryStreamSupport(repositoryPathLock.lock(repositoryPath), this).
+        return new RepositoryStreamSupport(repositoryPathLock.lock(repositoryPath), this, transactionManager).
                new RepositoryInputStream(repositoryPath, is);
     }
 
@@ -129,7 +140,7 @@ public abstract class AbstractRepositoryProvider implements RepositoryProvider, 
             return (RepositoryOutputStream) os;
         }
 
-        return new RepositoryStreamSupport(repositoryPathLock.lock(repositoryPath), this).
+        return new RepositoryStreamSupport(repositoryPathLock.lock(repositoryPath), this, transactionManager).
                new RepositoryOutputStream(repositoryPath, os);
     }
 
@@ -148,8 +159,8 @@ public abstract class AbstractRepositoryProvider implements RepositoryProvider, 
         String storageId = repository.getStorage().getId();
         String repositoryId = repository.getId();
 
-        ArtifactEntry artifactEntry = provideArtifactEntry(repositoryPath);
-        if (!shouldStoreArtifactEntry(artifactEntry))
+        Artifact artifactEntry = provideArtifact(repositoryPath);
+        if (!shouldStoreArtifact(artifactEntry))
         {
             return;
         }
@@ -160,12 +171,12 @@ public abstract class AbstractRepositoryProvider implements RepositoryProvider, 
         ArtifactCoordinates coordinates = RepositoryFiles.readCoordinates(repositoryPath);
         artifactEntry.setArtifactCoordinates(coordinates);
 
-        Date now = new Date();
+        LocalDateTime now = LocalDateTime.now();
         artifactEntry.setCreated(now);
         artifactEntry.setLastUpdated(now);
         artifactEntry.setLastUsed(now);
 
-        repositoryPath.artifactEntry = artifactEntry;
+        repositoryPath.artifact = artifactEntry;
     }
 
     @Override
@@ -173,6 +184,20 @@ public abstract class AbstractRepositoryProvider implements RepositoryProvider, 
     {
         RepositoryPath repositoryPath = (RepositoryPath) ctx.getPath();
         logger.debug("Complete writing [{}]", repositoryPath);
+        
+        if (ctx.getArtifactUpdate())
+        {
+            artifactEventListenerRegistry.dispatchArtifactUpdatedEvent(repositoryPath);
+        }
+        else
+        {
+            artifactEventListenerRegistry.dispatchArtifactStoredEvent(repositoryPath);
+        }
+
+        if (RepositoryFiles.isMetadata(repositoryPath))
+        {
+            artifactEventListenerRegistry.dispatchArtifactMetadataStoredEvent(repositoryPath);
+        }
     }
 
     @Override
@@ -210,13 +235,13 @@ public abstract class AbstractRepositoryProvider implements RepositoryProvider, 
     public void commit(RepositoryStreamWriteContext ctx) throws IOException
     {
         RepositoryPath repositoryPath = (RepositoryPath) ctx.getPath();
-        ArtifactEntry artifactEntry = repositoryPath.artifactEntry;
+        Artifact artifactEntry = repositoryPath.artifact;
         
         Repository repository = repositoryPath.getRepository();
         Storage storage = repository.getStorage();
         ArtifactCoordinates coordinates = RepositoryFiles.readCoordinates(repositoryPath);
         
-        repositoryPath.artifactEntry = null;
+        repositoryPath.artifact = null;
         if (artifactEntry == null)
         {
             return;
@@ -226,22 +251,23 @@ public abstract class AbstractRepositoryProvider implements RepositoryProvider, 
         artifactEntry.setSizeInBytes(cos.getByteCount());
 
         LayoutOutputStream los = StreamUtils.findSource(LayoutOutputStream.class, ctx.getStream());
-        artifactEntry.getChecksums().clear();
-        artifactEntry.getChecksums().putAll(los.getDigestMap());
+        artifactEntry.setChecksums(los.getDigestMap());
 
-        RepositoryArtifactIdGroupEntry artifactGroup = repositoryArtifactIdGroupService.findOneOrCreate(storage.getId(), repository.getId(), coordinates.getId());
+        ArtifactIdGroup artifactGroup = repositoryArtifactIdGroupService.findOneOrCreate(storage.getId(), repository.getId(), coordinates.getId());
         repositoryArtifactIdGroupService.addArtifactToGroup(artifactGroup, artifactEntry);
+        cacheManager.getCache(CacheName.ArtifactIdGroup.ARTIFACT_ID_GROUPS).evict(new SimpleKey(storage.getId(), repository.getId(), coordinates.getId()));
     }
 
-    protected ArtifactEntry provideArtifactEntry(RepositoryPath repositoryPath) throws IOException
+    protected Artifact provideArtifact(RepositoryPath repositoryPath) throws IOException
     {
         return Optional.ofNullable(repositoryPath.getArtifactEntry())
-                       .orElse(new ArtifactEntry());
+                       .orElse(new ArtifactEntity(repositoryPath.getStorageId(), repositoryPath.getRepositoryId(),
+                               RepositoryFiles.readCoordinates(repositoryPath)));
     }
     
-    protected boolean shouldStoreArtifactEntry(ArtifactEntry artifactEntry)
+    protected boolean shouldStoreArtifact(Artifact artifactEntry)
     {
-        return artifactEntry.getUuid() == null;
+        return artifactEntry.getNativeId() == null;
     }
     
     @Override
@@ -268,11 +294,11 @@ public abstract class AbstractRepositoryProvider implements RepositoryProvider, 
         return result.and(predicate);
     }
 
-    protected Selector<ArtifactEntry> createSelector(String storageId,
+    protected Selector<ArtifactEntity> createSelector(String storageId,
                                                      String repositoryId,
                                                      Predicate p)
     {
-        Selector<ArtifactEntry> selector = new Selector<>(ArtifactEntry.class);
+        Selector<ArtifactEntity> selector = new Selector<>(ArtifactEntity.class);
         selector.where(createPredicate(storageId, repositoryId, p));
         
         return selector;

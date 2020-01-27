@@ -4,7 +4,7 @@ import java.util.stream.Collectors;
 
 import javax.inject.Inject;
 
-import org.carlspring.strongbox.users.dto.User;
+import org.carlspring.strongbox.domain.User;
 import org.carlspring.strongbox.users.security.AuthoritiesProvider;
 import org.springframework.stereotype.Component;
 
