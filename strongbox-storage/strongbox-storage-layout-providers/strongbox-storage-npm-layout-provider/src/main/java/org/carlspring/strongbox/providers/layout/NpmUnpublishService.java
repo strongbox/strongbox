@@ -119,7 +119,7 @@ public class NpmUnpublishService
 
         try
         {
-            path = artifactResolutionService.resolvePath(storageId, repositoryId, coordinates.toPath());
+            path = artifactResolutionService.resolvePath(storageId, repositoryId, coordinates.buildPath());
 
             if (path == null)
             {

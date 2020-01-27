@@ -1,35 +1,34 @@
 package org.carlspring.strongbox.controllers.layout.pypi;
 
-import org.carlspring.strongbox.artifact.coordinates.PypiArtifactCoordinates;
-import org.carlspring.strongbox.controllers.BaseArtifactController;
-import org.carlspring.strongbox.data.criteria.Expression.ExpOperator;
-import org.carlspring.strongbox.data.criteria.Paginator;
-import org.carlspring.strongbox.data.criteria.Predicate;
-import org.carlspring.strongbox.providers.ProviderImplementationException;
-import org.carlspring.strongbox.providers.io.RepositoryPath;
-import org.carlspring.strongbox.providers.repository.RepositoryProvider;
-import org.carlspring.strongbox.providers.repository.RepositoryProviderRegistry;
-import org.carlspring.strongbox.storage.metadata.pypi.PypiArtifactMetadata;
-import org.carlspring.strongbox.storage.repository.Repository;
-import org.carlspring.strongbox.storage.validation.artifact.ArtifactCoordinatesValidationException;
-import org.carlspring.strongbox.utils.PypiPackageNameConverter;
-import org.carlspring.strongbox.web.LayoutRequestMapping;
-import org.carlspring.strongbox.web.RepositoryMapping;
+import java.io.IOException;
+import java.net.HttpURLConnection;
+import java.net.URI;
+import java.nio.file.Path;
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
 
 import javax.inject.Inject;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import javax.ws.rs.core.MediaType;
 
-import java.io.IOException;
-import java.net.HttpURLConnection;
-import java.net.URI;
-import java.nio.file.Path;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
-
+import org.carlspring.strongbox.artifact.coordinates.PypiArtifactCoordinates;
+import org.carlspring.strongbox.controllers.BaseArtifactController;
+import org.carlspring.strongbox.data.criteria.Paginator;
+import org.carlspring.strongbox.providers.ProviderImplementationException;
+import org.carlspring.strongbox.providers.io.RepositoryPath;
+import org.carlspring.strongbox.providers.repository.RepositoryProvider;
+import org.carlspring.strongbox.providers.repository.RepositoryProviderRegistry;
+import org.carlspring.strongbox.providers.repository.RepositorySearchRequest;
+import org.carlspring.strongbox.storage.metadata.pypi.PypiArtifactMetadata;
+import org.carlspring.strongbox.storage.repository.Repository;
+import org.carlspring.strongbox.storage.validation.artifact.ArtifactCoordinatesValidationException;
+import org.carlspring.strongbox.utils.PypiPackageNameConverter;
+import org.carlspring.strongbox.web.LayoutRequestMapping;
+import org.carlspring.strongbox.web.RepositoryMapping;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -45,6 +44,7 @@ import org.springframework.web.multipart.MultipartFile;
 import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
 
 import com.google.common.collect.Sets;
+
 import io.swagger.annotations.ApiOperation;
 import io.swagger.annotations.ApiResponse;
 import io.swagger.annotations.ApiResponses;
@@ -214,7 +214,7 @@ public class PypiArtifactController extends BaseArtifactController
         RepositoryPath repositoryPath = artifactResolutionService.resolvePath(
                                                                               repository.getStorage().getId(),
                                                                               repository.getId(),
-                                                                              coordinates.toPath());
+                                                                              coordinates.buildPath());
 
         provideArtifactDownloadResponse(request, response, headers, repositoryPath);
     }
@@ -242,11 +242,7 @@ public class PypiArtifactController extends BaseArtifactController
 
         RepositoryProvider repositoryProvider = repositoryProviderRegistry.getProvider(repository.getType());
 
-        Predicate predicate = Predicate.empty();
-        predicate.and(Predicate.of(ExpOperator.EQ.of("artifactCoordinates.coordinates.packaging",
-                                                     PypiArtifactCoordinates.WHEEL_EXTENSION)));
-        predicate.and(Predicate.of(ExpOperator.EQ.of("artifactCoordinates.coordinates.distribution",
-                                                     packageNameToDownload)));
+        RepositorySearchRequest predicate = new RepositorySearchRequest(packageNameToDownload, Collections.singleton(PypiArtifactCoordinates.WHEEL_EXTENSION));
 
         Paginator paginator = new Paginator();
         List<Path> searchResult = repositoryProvider.search(repository.getStorage().getId(), repository.getId(),
@@ -274,7 +270,7 @@ public class PypiArtifactController extends BaseArtifactController
 
         RepositoryPath repositoryPath = repositoryPathResolver.resolve(storageId,
                                                                        repositoryId,
-                                                                       coordinates.toPath());
+                                                                       coordinates.buildPath());
         artifactManagementService.validateAndStore(repositoryPath, file.getInputStream());
 
         return ResponseEntity.status(HttpStatus.OK).body("The artifact was deployed successfully.");

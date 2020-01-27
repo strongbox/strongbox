@@ -36,7 +36,6 @@ import static org.junit.jupiter.api.parallel.ExecutionMode.CONCURRENT;
 public class MavenReleaseVersionValidatorTest
 {
 
-    private static final String MRVV_RELEASES = "mrvv-releases";
     private static final String GROUP_ID = "org.carlspring.maven";
     private static final String ARTIFACT_ID = "my-maven-plugin";
 
@@ -44,7 +43,7 @@ public class MavenReleaseVersionValidatorTest
 
     @ExtendWith(RepositoryManagementTestExecutionListener.class)
     @Test
-    public void shouldSupportRepository(@MavenRepository(repositoryId = MRVV_RELEASES) Repository repository)
+    public void shouldSupportRepository(@MavenRepository(repositoryId = "mrvv-releases-ssr") Repository repository)
     {
         assertThat(validator.supports(repository)).isTrue();
     }
@@ -52,8 +51,8 @@ public class MavenReleaseVersionValidatorTest
     @ExtendWith({ RepositoryManagementTestExecutionListener.class,
                   ArtifactManagementTestExecutionListener.class })
     @Test
-    public void testReleaseValidation(@MavenRepository(repositoryId = MRVV_RELEASES) Repository repository,
-                                      @MavenTestArtifact(repositoryId = MRVV_RELEASES,
+    public void testReleaseValidation(@MavenRepository(repositoryId = "mrvv-releases-trv") Repository repository,
+                                      @MavenTestArtifact(repositoryId = "mrvv-releases-trv",
                                                          id = GROUP_ID + ":" + ARTIFACT_ID,
                                                          versions = { "1",
                                                                       "1.0" })
@@ -76,8 +75,8 @@ public class MavenReleaseVersionValidatorTest
     @ExtendWith({ RepositoryManagementTestExecutionListener.class,
                   ArtifactManagementTestExecutionListener.class })
     @Test
-    public void testInvalidArtifacts(@MavenRepository(repositoryId = MRVV_RELEASES) Repository repository,
-                                     @MavenTestArtifact(repositoryId = MRVV_RELEASES,
+    public void testInvalidArtifacts(@MavenRepository(repositoryId = "mrvv-releases-tia") Repository repository,
+                                     @MavenTestArtifact(repositoryId = "mrvv-releases-tia",
                                                         id = GROUP_ID + ":" + ARTIFACT_ID,
                                                         versions = { "1.0-SNAPSHOT",
                                                                      "1.0-20131004.115330-1" })

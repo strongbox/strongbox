@@ -4,7 +4,6 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.nio.file.Path;
-import java.util.Optional;
 import java.util.concurrent.locks.Lock;
 import java.util.concurrent.locks.ReadWriteLock;
 
@@ -22,6 +21,10 @@ import org.carlspring.strongbox.io.RepositoryStreamWriteContext;
 import org.carlspring.strongbox.io.StreamUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.transaction.PlatformTransactionManager;
+import org.springframework.transaction.TransactionStatus;
+import org.springframework.transaction.annotation.Propagation;
+import org.springframework.transaction.support.DefaultTransactionDefinition;
 
 /**
  * @author sbespalov
@@ -38,12 +41,16 @@ public class RepositoryStreamSupport
     
     protected final RepositoryStreamCallback callback;
     
+    private final PlatformTransactionManager transactionManager;
+    
     
     public RepositoryStreamSupport(ReadWriteLock lockSource,
-                                   RepositoryStreamCallback callback)
+                                   RepositoryStreamCallback callback,
+                                   PlatformTransactionManager transactionManager)
     {
         this.lockSource = lockSource;
         this.callback = callback;
+        this.transactionManager = transactionManager;
     }
 
     protected void initContext(RepositoryStreamContext ctx)
@@ -74,11 +81,21 @@ public class RepositoryStreamSupport
         
         logger.debug("Locking [{}].", path);
         
-        Lock lock = ctx instanceof RepositoryStreamWriteContext ? lockSource.writeLock() : lockSource.readLock();
+        //TODO: ArtifactManagementServiceImplTest.testConcurrentReadWrite
+        //Lock lock = ctx instanceof RepositoryStreamWriteContext ? lockSource.writeLock() : lockSource.readLock();
+        Lock lock = lockSource.writeLock();
         ctx.setLock(lock);
         lock.lock();
-
         logger.debug("Locked [{}].", path);
+        if (ctx instanceof RepositoryStreamWriteContext)
+        {
+            TransactionStatus transaction = transactionManager.getTransaction(new DefaultTransactionDefinition(
+                    Propagation.REQUIRED.value()));
+            ctx.setTransaction(transaction);
+        }
+        
+        RepositoryPath repositoryPath = (RepositoryPath) ctx.getPath();
+        ctx.setArtifactExists(RepositoryFiles.artifactExists(repositoryPath));
         
         ctx.setOpened(true);
     }
@@ -92,9 +109,21 @@ public class RepositoryStreamSupport
             return;
         }
 
-        ctx.getLock().unlock();
-        
-        logger.debug("Unlocked [{}].", ctx.getPath());
+        try
+        {
+            TransactionStatus transaction = ctx.getTransaction();
+            if (transaction != null && (transaction.isRollbackOnly() || !transaction.isCompleted()))
+            {
+                logger.info("Rollback [{}]", getContext().getPath());
+                transactionManager.rollback(transaction);
+                logger.info("Rollbedack [{}]", getContext().getPath());
+            }
+        }
+        finally
+        {
+            ctx.getLock().unlock();
+            logger.debug("Unlocked [{}].", ctx.getPath());
+        }
         
         clearContext();
     }
@@ -150,9 +179,18 @@ public class RepositoryStreamSupport
             
             logger.debug("Flushed [{}]", getContext().getPath());
             
-            RepositoryStreamSupport.this.commit();
-            
-            logger.debug("Commited [{}]", getContext().getPath());
+            TransactionStatus transaction = ctx.getTransaction();
+            if (transaction != null && !transaction.isRollbackOnly())
+            {
+                logger.debug("Commit [{}]", getContext().getPath());
+                RepositoryStreamSupport.this.commit();
+                transactionManager.commit(transaction);
+                logger.debug("Commited [{}]", getContext().getPath());
+            }
+            else
+            {
+                logger.debug("Skip commit [{}]", getContext().getPath());
+            }
         }
 
         @Override
@@ -200,7 +238,7 @@ public class RepositoryStreamSupport
                 open();
                 
                 //Check that artifact exists.
-                if (!RepositoryFiles.artifactExists((RepositoryPath) path)) 
+                if (!ctx.getArtifactExists()) 
                 {
                     logger.debug("The path [{}] does not exist!", path);
                     

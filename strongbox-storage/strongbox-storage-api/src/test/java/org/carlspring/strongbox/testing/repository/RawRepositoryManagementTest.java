@@ -31,7 +31,7 @@ public class RawRepositoryManagementTest
 
     @ExtendWith({ RepositoryManagementTestExecutionListener.class })
     @Test
-    public void testValidRepositoryShouldBeInjected(@RawRepository(storageId = RAW_STORAGE,
+    public void testValidRepositoryShouldBeInjected(@NullRepository(storageId = RAW_STORAGE,
                                                                    repositoryId = RAW_REPOSITORY)
                                                     Repository repository)
     {
@@ -46,7 +46,7 @@ public class RawRepositoryManagementTest
 
     @ExtendWith({ RepositoryManagementTestExecutionListener.class })
     @Test
-    public void testValidRepositoryShouldBeInjectedWithDefaultStorage(@RawRepository(repositoryId = RAW_REPOSITORY) Repository repository)
+    public void testValidRepositoryShouldBeInjectedWithDefaultStorage(@NullRepository(repositoryId = RAW_REPOSITORY) Repository repository)
     {
         assertThat(repository).isNotNull();
         assertThat(repository.getId()).isNotNull().isEqualTo(RAW_REPOSITORY);

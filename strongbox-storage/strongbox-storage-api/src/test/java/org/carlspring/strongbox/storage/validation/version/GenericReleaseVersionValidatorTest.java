@@ -43,7 +43,7 @@ public class GenericReleaseVersionValidatorTest
                              "1.0-beta-1" })
     public void testReleaseValidation(final String version)
     {
-        ArtifactCoordinates coordinates = new MockedMavenArtifactCoordinates();
+        MockedMavenArtifactCoordinates coordinates = new MockedMavenArtifactCoordinates();
         coordinates.setVersion(version);
 
         try
@@ -59,7 +59,7 @@ public class GenericReleaseVersionValidatorTest
     @Test
     public void testInvalidArtifacts()
     {
-        ArtifactCoordinates coordinates1 = new MockedMavenArtifactCoordinates();
+        MockedMavenArtifactCoordinates coordinates1 = new MockedMavenArtifactCoordinates();
         coordinates1.setVersion("1.0-SNAPSHOT");
 
         assertThatExceptionOfType(VersionValidationException.class)

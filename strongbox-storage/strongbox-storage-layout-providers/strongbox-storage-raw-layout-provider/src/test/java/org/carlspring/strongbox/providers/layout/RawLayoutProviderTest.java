@@ -60,7 +60,7 @@ public class RawLayoutProviderTest
     {
         RawArtifactCoordinates coordinates = new RawArtifactCoordinates("foo/bar/blah.bz2");
 
-        logger.debug("coordinates.toPath(): {}", coordinates.toPath());
+        logger.debug("coordinates.toPath(): {}", coordinates.buildPath());
     }
 
     @ExtendWith({RepositoryManagementTestExecutionListener.class,

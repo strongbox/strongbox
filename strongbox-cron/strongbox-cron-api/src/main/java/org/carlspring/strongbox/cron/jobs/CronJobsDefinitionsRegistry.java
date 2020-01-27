@@ -1,12 +1,11 @@
 package org.carlspring.strongbox.cron.jobs;
 
-import org.carlspring.strongbox.util.ThrowingFunction;
-
 import java.util.Optional;
 import java.util.Set;
+import java.util.stream.Collectors;
 
-import com.google.common.collect.ImmutableSet;
 import org.apache.commons.lang3.StringUtils;
+import org.carlspring.strongbox.util.ThrowingFunction;
 import org.springframework.stereotype.Component;
 
 /**
@@ -24,7 +23,7 @@ public class CronJobsDefinitionsRegistry
                                              .stream()
                                              .map(ThrowingFunction.unchecked(clazz -> clazz.newInstance()
                                                                                            .getCronJobDefinition()))
-                                             .collect(ImmutableSet.toImmutableSet());
+                                             .collect(Collectors.toSet());
     }
 
     public Set<CronJobDefinition> getCronJobDefinitions()

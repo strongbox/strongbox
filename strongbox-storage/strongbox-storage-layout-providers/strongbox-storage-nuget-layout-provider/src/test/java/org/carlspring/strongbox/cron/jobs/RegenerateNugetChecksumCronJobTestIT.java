@@ -24,6 +24,7 @@ import java.util.concurrent.TimeUnit;
 import com.google.common.collect.Maps;
 import org.apache.commons.lang3.StringUtils;
 import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.TestInfo;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -44,13 +45,10 @@ import static org.junit.jupiter.api.parallel.ExecutionMode.CONCURRENT;
 @SpringBootTest
 @ActiveProfiles(profiles = "test")
 @Execution(CONCURRENT)
+@Disabled
 public class RegenerateNugetChecksumCronJobTestIT
         extends BaseCronJobWithNugetIndexingTestCase
 {
-    private static final String STORAGE1 = "storage-nuget-rnccj";
-
-    private static final String REPOSITORY = "repository-rnccjt";
-
     private static final long BYTE_SIZE = 2048;
     private static final long DEFAULT_BYTE_SIZE = 1000000;
 
@@ -65,11 +63,11 @@ public class RegenerateNugetChecksumCronJobTestIT
     @ExtendWith({ RepositoryManagementTestExecutionListener.class,
                   ArtifactManagementTestExecutionListener.class })
     @Test
-    public void testRegenerateNugetArtifactChecksum(@NugetRepository(storageId = STORAGE1,
-                                                                     repositoryId = REPOSITORY)
+    public void testRegenerateNugetArtifactChecksum(@NugetRepository(storageId = "storage-nuget-rncc-trnac",
+                                                                     repositoryId = "repository-rnccjt-trnac")
                                                     Repository repository,
-                                                    @NugetTestArtifact(storageId = STORAGE1,
-                                                                       repositoryId = REPOSITORY,
+                                                    @NugetTestArtifact(storageId = "storage-nuget-rncc-trnac",
+                                                                       repositoryId = "repository-rnccjt-trnac",
                                                                        id = "org.carlspring.strongbox.checksum-second",
                                                                        versions = "1.0.0",
                                                                        bytesSize = BYTE_SIZE)
@@ -90,12 +88,12 @@ public class RegenerateNugetChecksumCronJobTestIT
     @ExtendWith({ RepositoryManagementTestExecutionListener.class,
                          ArtifactManagementTestExecutionListener.class })
     @Test
-    public void testRegenerateNugetChecksumInRepository(@NugetRepository(storageId = STORAGE1,
-                                                                         repositoryId = REPOSITORY,
+    public void testRegenerateNugetChecksumInRepository(@NugetRepository(storageId = "storage-nuget-rncc-trncir",
+                                                                         repositoryId = "repository-rnccjt-trncir",
                                                                          policy = RepositoryPolicyEnum.SNAPSHOT)
                                                         Repository repository,
-                                                        @NugetTestArtifact(storageId = STORAGE1,
-                                                                           repositoryId = REPOSITORY,
+                                                        @NugetTestArtifact(storageId = "storage-nuget-rncc-trncir",
+                                                                           repositoryId = "repository-rnccjt-trncir",
                                                                            id = "org.carlspring.strongbox.checksum-one",
                                                                            versions = "1.0.1-alpha",
                                                                            bytesSize = BYTE_SIZE)
@@ -115,11 +113,11 @@ public class RegenerateNugetChecksumCronJobTestIT
     @ExtendWith({ RepositoryManagementTestExecutionListener.class,
                   ArtifactManagementTestExecutionListener.class })
     @Test
-    public void testRegenerateNugetChecksumInStorage(@NugetRepository(storageId = STORAGE1,
-                                                                      repositoryId = REPOSITORY)
+    public void testRegenerateNugetChecksumInStorage(@NugetRepository(storageId = "storage-nuget-rncc-trncis",
+                                                                      repositoryId = "repository-rnccjt-trncis")
                                                      Repository repository,
-                                                     @NugetTestArtifact(storageId = STORAGE1,
-                                                                        repositoryId = REPOSITORY,
+                                                     @NugetTestArtifact(storageId = "storage-nuget-rncc-trncis",
+                                                                        repositoryId = "repository-rnccjt-trncis",
                                                                         id = "org.carlspring.strongbox.checksum-second",
                                                                         versions = "1.0.0",
                                                                         bytesSize = BYTE_SIZE)
@@ -139,11 +137,11 @@ public class RegenerateNugetChecksumCronJobTestIT
     @ExtendWith({ RepositoryManagementTestExecutionListener.class,
                   ArtifactManagementTestExecutionListener.class })
     @Test
-    public void testRegenerateNugetChecksumInStorages(@NugetRepository(storageId = STORAGE1,
-                                                                       repositoryId = REPOSITORY)
+    public void testRegenerateNugetChecksumInStorages(@NugetRepository(storageId = "storage-nuget-rncc-trncis2",
+                                                                       repositoryId = "repository-rnccjt-trncis2")
                                                       Repository repository,
-                                                      @NugetTestArtifact(storageId = STORAGE1,
-                                                                         repositoryId = REPOSITORY,
+                                                      @NugetTestArtifact(storageId = "storage-nuget-rncc-trncis2",
+                                                                         repositoryId = "repository-rnccjt-trncis2",
                                                                          id = "org.carlspring.strongbox.checksum-one",
                                                                          versions = "1.0.0",
                                                                          bytesSize = BYTE_SIZE)
@@ -181,7 +179,7 @@ public class RegenerateNugetChecksumCronJobTestIT
         NugetArtifactCoordinates coordinates = (NugetArtifactCoordinates) RepositoryFiles.readCoordinates(
                 (RepositoryPath) artifactNupkgPath.normalize());
         coordinates.setType("nuspec");
-        Path nuspecSha512Path = repositoryPath.resolve(coordinates.toPath() + ".sha512");
+        Path nuspecSha512Path = repositoryPath.resolve(coordinates.getPath() + ".sha512");
         deleteIfExists(nuspecSha512Path);
         assertThat(Files.notExists(nuspecSha512Path))
                 .as("The checksum file for nuspec artifact exist!")

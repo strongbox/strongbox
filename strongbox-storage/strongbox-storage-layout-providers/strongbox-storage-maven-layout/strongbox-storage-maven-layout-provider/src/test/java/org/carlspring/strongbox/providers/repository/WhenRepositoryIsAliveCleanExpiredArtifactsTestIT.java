@@ -1,8 +1,14 @@
 package org.carlspring.strongbox.providers.repository;
 
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.junit.jupiter.api.parallel.ExecutionMode.CONCURRENT;
+import static org.mockito.ArgumentMatchers.argThat;
+
+import java.util.Optional;
+
 import org.carlspring.strongbox.config.Maven2LayoutProviderCronTasksTestConfig;
 import org.carlspring.strongbox.data.CacheManagerTestExecutionListener;
-import org.carlspring.strongbox.domain.ArtifactEntry;
+import org.carlspring.strongbox.domain.Artifact;
 import org.carlspring.strongbox.providers.io.RepositoryFiles;
 import org.carlspring.strongbox.storage.Storage;
 import org.carlspring.strongbox.storage.repository.Repository;
@@ -10,9 +16,6 @@ import org.carlspring.strongbox.testing.MavenIndexedRepositorySetup;
 import org.carlspring.strongbox.testing.repository.MavenRepository;
 import org.carlspring.strongbox.testing.storage.repository.RepositoryManagementTestExecutionListener;
 import org.carlspring.strongbox.testing.storage.repository.TestRepository.Remote;
-
-import java.util.Optional;
-
 import org.codehaus.plexus.util.StringUtils;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -22,9 +25,6 @@ import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.TestExecutionListeners;
-import static org.assertj.core.api.Assertions.assertThat;
-import static org.junit.jupiter.api.parallel.ExecutionMode.CONCURRENT;
-import static org.mockito.ArgumentMatchers.argThat;
 
 /**
  * @author Przemyslaw Fusik
@@ -58,14 +58,14 @@ public class WhenRepositoryIsAliveCleanExpiredArtifactsTestIT
                 argThat(argument -> argument != null && REMOTE_URL.equals(argument.getUrl()))))
                .thenReturn(true);
 
-        ArtifactEntry artifactEntry = downloadAndSaveArtifactEntry();
+        Artifact artifactEntry = downloadAndSaveArtifactEntry();
 
         localStorageProxyRepositoryExpiredArtifactsCleaner.cleanup(5, artifactEntry.getSizeInBytes() - 1);
 
-        Optional<ArtifactEntry> artifactEntryOptional = Optional.ofNullable(
-                artifactEntryService.findOneArtifact(proxyRepository.getStorage().getId(),
-                                                     proxyRepository.getId(),
-                                                     getPath()));
+        Artifact artifact = artifactEntityRepository.findOneArtifact(proxyRepository.getStorage().getId(),
+                                                                     proxyRepository.getId(),
+                                                                     getPath());
+        Optional<Artifact> artifactEntryOptional = Optional.ofNullable(artifact);
         assertThat(artifactEntryOptional).isEqualTo(Optional.empty());
 
         final Storage storage = getConfiguration().getStorage(artifactEntry.getStorageId());

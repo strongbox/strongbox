@@ -36,7 +36,7 @@ public class GenericSnapshotVersionValidatorTest
     @Test
     public void testSnapshotValidation()
     {
-        ArtifactCoordinates coordinates1 = new MockedMavenArtifactCoordinates();
+        MockedMavenArtifactCoordinates coordinates1 = new MockedMavenArtifactCoordinates();
         coordinates1.setVersion("1.0-SNAPSHOT");
 
         try
@@ -52,7 +52,7 @@ public class GenericSnapshotVersionValidatorTest
     @Test
     public void testInvalidArtifacts()
     {
-        ArtifactCoordinates coordinates1 = new MockedMavenArtifactCoordinates();
+        MockedMavenArtifactCoordinates coordinates1 = new MockedMavenArtifactCoordinates();
         coordinates1.setVersion("1.0");
 
         assertThatExceptionOfType(VersionValidationException.class)

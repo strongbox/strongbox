@@ -2,8 +2,8 @@ package org.carlspring.strongbox.authentication;
 
 import java.io.IOException;
 import java.time.Instant;
+import java.time.LocalDateTime;
 import java.util.ArrayList;
-import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -14,6 +14,7 @@ import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 import javax.inject.Inject;
+import javax.transaction.Transactional;
 
 import org.apache.commons.lang3.StringUtils;
 import org.carlspring.strongbox.authentication.api.AuthenticationItem;
@@ -23,7 +24,7 @@ import org.carlspring.strongbox.authentication.api.CustomAuthenticationItemMappe
 import org.carlspring.strongbox.authentication.registry.AuthenticationProvidersRegistry;
 import org.carlspring.strongbox.authentication.registry.AuthenticationProvidersRegistry.MergePropertiesContext;
 import org.carlspring.strongbox.authentication.support.AuthenticationConfigurationContext;
-import org.carlspring.strongbox.users.dto.User;
+import org.carlspring.strongbox.domain.User;
 import org.carlspring.strongbox.users.service.UserAlreadyExistsException;
 import org.carlspring.strongbox.users.userdetails.StrongboxExternalUsersCacheManager;
 import org.carlspring.strongbox.users.userdetails.UserDetailsMapper;
@@ -103,6 +104,7 @@ public class ConfigurableProviderManager extends ProviderManager implements User
     }
 
     @Override
+    @Transactional
     public UserDetails loadUserByUsername(String username)
         throws UsernameNotFoundException
     {
@@ -155,13 +157,12 @@ public class ConfigurableProviderManager extends ProviderManager implements User
 
     private boolean isInternalOrValidExternalUser(User user)
     {
-        Date userLastUpdate = Optional.ofNullable(user.getLastUpdate())
-                                      .orElse(Date.from(Instant.EPOCH));
-        Date userExpireDate = Date.from(Instant.ofEpochMilli(userLastUpdate.getTime())
-                                               .plusSeconds(externalUsersInvalidateSeconds));
-        Date nowDate = new Date();
+        LocalDateTime userLastUpdate = Optional.ofNullable(user.getLastUpdated())
+                                               .orElse(LocalDateTime.MIN);
+        LocalDateTime userExpireDate = userLastUpdate.plusSeconds(externalUsersInvalidateSeconds);
+        LocalDateTime nowDate = LocalDateTime.now();
 
-        return StringUtils.isBlank(user.getSourceId()) || nowDate.before(userExpireDate);
+        return StringUtils.isBlank(user.getSourceId()) || nowDate.isBefore(userExpireDate);
     }
 
     @Override

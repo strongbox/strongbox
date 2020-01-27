@@ -5,7 +5,8 @@ import static org.junit.jupiter.api.Assertions.assertNotNull;
 
 import org.carlspring.strongbox.config.DataServiceConfig;
 import org.carlspring.strongbox.config.UsersConfig;
-import org.carlspring.strongbox.domain.UserEntry;
+import org.carlspring.strongbox.domain.UserEntity;
+import org.carlspring.strongbox.domain.SecurityRoleEntity;
 import org.carlspring.strongbox.users.domain.SystemRole;
 import org.carlspring.strongbox.users.userdetails.SpringSecurityUser;
 import org.carlspring.strongbox.users.userdetails.UserDetailsMapper;
@@ -35,10 +36,9 @@ public class UserDetailsMapperTest
     @Test
     public void testEncodedPasswordUserWithPasswordEncodingAlgoPrefix()
     {
-        UserEntry user = new UserEntry();
-        user.setUsername("test-user");
+        UserEntity user = new UserEntity("test-user");
         user.setPassword("{bcrypt}$2a$10$WqtVx7Iio0cndyR1lEaKW.SWhUYmF/zHHG5hkAXvH5hUmklM7QfMO");
-        user.setRoles(Sets.newHashSet(SystemRole.REPOSITORY_MANAGER.name()));
+        user.setRoles(Sets.newHashSet(new SecurityRoleEntity(SystemRole.REPOSITORY_MANAGER.name())));
         user.setEnabled(true);
         SpringSecurityUser securityUser = userDetailsMapper.apply(user);
         assertNotNull(securityUser);
@@ -51,10 +51,9 @@ public class UserDetailsMapperTest
     @Test
     public void testEncodedPasswordUserWithoutPasswordEncodingAlgoPrefix()
     {
-        UserEntry user = new UserEntry();
-        user.setUsername("test-user");
+        UserEntity user = new UserEntity("test-user");
         user.setPassword("$2a$10$WqtVx7Iio0cndyR1lEaKW.SWhUYmF/zHHG5hkAXvH5hUmklM7QfMO");
-        user.setRoles(Sets.newHashSet(SystemRole.REPOSITORY_MANAGER.name()));
+        user.setRoles(Sets.newHashSet(new SecurityRoleEntity(SystemRole.REPOSITORY_MANAGER.name())));
         user.setEnabled(true);
         SpringSecurityUser securityUser = userDetailsMapper.apply(user);
         assertNotNull(securityUser);

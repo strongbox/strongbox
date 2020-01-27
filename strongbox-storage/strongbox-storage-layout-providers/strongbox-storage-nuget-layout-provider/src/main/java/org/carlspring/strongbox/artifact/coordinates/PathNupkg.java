@@ -1,20 +1,20 @@
 package org.carlspring.strongbox.artifact.coordinates;
 
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.UnsupportedEncodingException;
+import java.nio.file.Files;
+import java.time.ZoneId;
+import java.util.Date;
+import java.util.List;
+import java.util.Map;
+
 import org.carlspring.strongbox.artifact.coordinates.versioning.SemanticVersion;
 import org.carlspring.strongbox.providers.io.RepositoryPath;
 import org.carlspring.strongbox.storage.metadata.nuget.NugetFormatException;
 import org.carlspring.strongbox.storage.metadata.nuget.Nupkg;
 import org.carlspring.strongbox.storage.metadata.nuget.Nuspec;
 import org.carlspring.strongbox.storage.metadata.nuget.Nuspec.Metadata;
-
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.UnsupportedEncodingException;
-import java.nio.file.Files;
-import java.util.*;
-
-import javax.xml.bind.DatatypeConverter;
-
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.util.Assert;
@@ -146,7 +146,7 @@ public class PathNupkg implements Nupkg
     {
         try
         {
-            return path.getArtifactEntry().getLastUpdated();
+            return Date.from(path.getArtifactEntry().getLastUpdated().atZone(ZoneId.systemDefault()).toInstant());
         }
         catch (IOException e)
         {

@@ -1,40 +1,31 @@
 package org.carlspring.strongbox.repository;
 
 import java.io.IOException;
-import java.util.Date;
+import java.time.LocalDateTime;
 import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
-import java.util.concurrent.locks.Lock;
 
 import javax.inject.Inject;
-import javax.transaction.Transactional;
 
 import org.carlspring.strongbox.artifact.ArtifactTag;
-import org.carlspring.strongbox.artifact.coordinates.ArtifactCoordinates;
 import org.carlspring.strongbox.artifact.coordinates.NpmArtifactCoordinates;
-import org.carlspring.strongbox.domain.ArtifactEntry;
-import org.carlspring.strongbox.domain.ArtifactTagEntry;
-import org.carlspring.strongbox.domain.RemoteArtifactEntry;
-import org.carlspring.strongbox.domain.RepositoryArtifactIdGroupEntry;
+import org.carlspring.strongbox.domain.Artifact;
+import org.carlspring.strongbox.domain.ArtifactEntity;
+import org.carlspring.strongbox.domain.ArtifactTagEntity;
 import org.carlspring.strongbox.npm.metadata.PackageEntry;
 import org.carlspring.strongbox.npm.metadata.PackageFeed;
 import org.carlspring.strongbox.npm.metadata.PackageVersion;
 import org.carlspring.strongbox.npm.metadata.SearchResult;
 import org.carlspring.strongbox.npm.metadata.SearchResults;
 import org.carlspring.strongbox.npm.metadata.Versions;
-import org.carlspring.strongbox.providers.io.RepositoryFiles;
-import org.carlspring.strongbox.providers.io.RepositoryPath;
-import org.carlspring.strongbox.providers.io.RepositoryPathLock;
-import org.carlspring.strongbox.providers.io.RepositoryPathResolver;
-import org.carlspring.strongbox.services.ArtifactEntryService;
+import org.carlspring.strongbox.services.ArtifactIdGroupService;
 import org.carlspring.strongbox.services.ArtifactTagService;
-import org.carlspring.strongbox.services.RepositoryArtifactIdGroupService;
-import org.carlspring.strongbox.storage.Storage;
 import org.carlspring.strongbox.storage.repository.Repository;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Component;
+import org.springframework.transaction.annotation.Transactional;
 
 @Component
 public class NpmPackageFeedParser
@@ -46,32 +37,24 @@ public class NpmPackageFeedParser
     private ArtifactTagService artifactTagService;
 
     @Inject
-    private RepositoryPathResolver repositoryPathResolver;
+    private ArtifactIdGroupService repositoryArtifactIdGroupService;
 
-    @Inject
-    private ArtifactEntryService artifactEntryService;
-    
-    @Inject
-    private RepositoryArtifactIdGroupService repositoryArtifactIdGroupService;
-
-    @Inject
-    private RepositoryPathLock repositoryPathLock;
-
+    @Transactional
     public void parseSearchResult(Repository repository,
                                   SearchResults searchResults)
         throws IOException
     {
-        ArtifactTag lastVersionTag = artifactTagService.findOneOrCreate(ArtifactTagEntry.LAST_VERSION);
+        ArtifactTag lastVersionTag = artifactTagService.findOneOrCreate(ArtifactTagEntity.LAST_VERSION);
 
         String repositoryId = repository.getId();
         String storageId = repository.getStorage().getId();
 
-        Set<ArtifactEntry> artifactToSaveSet = new HashSet<>();
+        Set<Artifact> artifactToSaveSet = new HashSet<>();
         for (SearchResult searchResult : searchResults.getObjects())
         {
             PackageEntry packageEntry = searchResult.getPackage();
 
-            RemoteArtifactEntry remoteArtifactEntry = parseVersion(storageId, repositoryId, packageEntry);
+            ArtifactEntity remoteArtifactEntry = parseVersion(storageId, repositoryId, packageEntry);
             if (remoteArtifactEntry == null)
             {
                 continue;
@@ -82,19 +65,7 @@ public class NpmPackageFeedParser
             artifactToSaveSet.add(remoteArtifactEntry);
         }
 
-        saveArtifactEntrySet(repository, artifactToSaveSet);
-    }
-
-    private void saveArtifactEntrySet(Repository repository,
-                                      Set<ArtifactEntry> artifactToSaveSet)
-        throws IOException
-    {
-        for (ArtifactEntry e : artifactToSaveSet)
-        {
-            RepositoryPath repositoryPath = repositoryPathResolver.resolve(repository).resolve(e);
-
-            saveArtifactEntry(repositoryPath);
-        }
+        repositoryArtifactIdGroupService.saveArtifacts(repository, artifactToSaveSet);
     }
 
     @Transactional
@@ -110,7 +81,7 @@ public class NpmPackageFeedParser
         String repositoryId = repository.getId();
         String storageId = repository.getStorage().getId();
 
-        ArtifactTag lastVersionTag = artifactTagService.findOneOrCreate(ArtifactTagEntry.LAST_VERSION);
+        ArtifactTag lastVersionTag = artifactTagService.findOneOrCreate(ArtifactTagEntity.LAST_VERSION);
 
         Versions versions = packageFeed.getVersions();
         if (versions == null)
@@ -124,10 +95,10 @@ public class NpmPackageFeedParser
             return;
         }
 
-        Set<ArtifactEntry> artifactToSaveSet = new HashSet<>();
+        Set<Artifact> artifactToSaveSet = new HashSet<>();
         for (PackageVersion packageVersion : versionMap.values())
         {
-            RemoteArtifactEntry remoteArtifactEntry = parseVersion(storageId, repositoryId, packageVersion);
+            ArtifactEntity remoteArtifactEntry = parseVersion(storageId, repositoryId, packageVersion);
             if (remoteArtifactEntry == null)
             {
                 continue;
@@ -141,52 +112,23 @@ public class NpmPackageFeedParser
             artifactToSaveSet.add(remoteArtifactEntry);
         }
 
-        saveArtifactEntrySet(repository, artifactToSaveSet);
-
+        repositoryArtifactIdGroupService.saveArtifacts(repository, artifactToSaveSet);
     }
 
-    private void saveArtifactEntry(RepositoryPath repositoryPath)
-        throws IOException
-    {
-        ArtifactEntry e = repositoryPath.getArtifactEntry();
-        
-        Repository repository = repositoryPath.getRepository();
-        Storage storage = repository.getStorage();
-        ArtifactCoordinates coordinates = RepositoryFiles.readCoordinates(repositoryPath);
-
-        Lock lock = repositoryPathLock.lock(repositoryPath).writeLock();
-        lock.lock();
-
-        try
-        {
-            if (artifactEntryService.artifactExists(e.getStorageId(), e.getRepositoryId(),
-                                                    e.getArtifactCoordinates().toPath()))
-            {
-                return;
-            }
-
-            RepositoryArtifactIdGroupEntry artifactGroup = repositoryArtifactIdGroupService.findOneOrCreate(storage.getId(), repository.getId(), coordinates.getId());
-            repositoryArtifactIdGroupService.addArtifactToGroup(artifactGroup, e);
-        } 
-        finally
-        {
-            lock.unlock();
-        }
-    }
-
-    private RemoteArtifactEntry parseVersion(String storageId,
-                                             String repositoryId,
-                                             PackageVersion packageVersion)
+    private ArtifactEntity parseVersion(String storageId,
+                                              String repositoryId,
+                                              PackageVersion packageVersion)
     {
         NpmArtifactCoordinates c = NpmArtifactCoordinates.of(packageVersion.getName(), packageVersion.getVersion());
 
-        RemoteArtifactEntry remoteArtifactEntry = new RemoteArtifactEntry();
+        ArtifactEntity remoteArtifactEntry = new ArtifactEntity(storageId, repositoryId, c);
         remoteArtifactEntry.setStorageId(storageId);
         remoteArtifactEntry.setRepositoryId(repositoryId);
         remoteArtifactEntry.setArtifactCoordinates(c);
-        remoteArtifactEntry.setLastUsed(new Date());
-        remoteArtifactEntry.setLastUpdated(new Date());
+        remoteArtifactEntry.setLastUsed(LocalDateTime.now());
+        remoteArtifactEntry.setLastUpdated(LocalDateTime.now());
         remoteArtifactEntry.setDownloadCount(0);
+        remoteArtifactEntry.setArtifactFileExists(Boolean.FALSE);
 
         // TODO make HEAD request for `tarball` URL ???
         // remoteArtifactEntry.setSizeInBytes(packageVersion.getProperties().getPackageSize());
@@ -194,22 +136,23 @@ public class NpmPackageFeedParser
         return remoteArtifactEntry;
     }
 
-    private RemoteArtifactEntry parseVersion(String storageId,
-                                             String repositoryId,
-                                             PackageEntry packageEntry)
+    private ArtifactEntity parseVersion(String storageId,
+                                        String repositoryId,
+                                        PackageEntry packageEntry)
     {
         String scope = packageEntry.getScope();
         String packageId = NpmArtifactCoordinates.calculatePackageId("unscoped".equals(scope) ? null : scope,
                                                                      packageEntry.getName());
         NpmArtifactCoordinates c = NpmArtifactCoordinates.of(packageId, packageEntry.getVersion());
 
-        RemoteArtifactEntry remoteArtifactEntry = new RemoteArtifactEntry();
+        ArtifactEntity remoteArtifactEntry = new ArtifactEntity(storageId, repositoryId, c);
         remoteArtifactEntry.setStorageId(storageId);
         remoteArtifactEntry.setRepositoryId(repositoryId);
         remoteArtifactEntry.setArtifactCoordinates(c);
-        remoteArtifactEntry.setLastUsed(new Date());
-        remoteArtifactEntry.setLastUpdated(new Date());
+        remoteArtifactEntry.setLastUsed(LocalDateTime.now());
+        remoteArtifactEntry.setLastUpdated(LocalDateTime.now());
         remoteArtifactEntry.setDownloadCount(0);
+        remoteArtifactEntry.setArtifactFileExists(Boolean.FALSE);
 
         return remoteArtifactEntry;
     }
