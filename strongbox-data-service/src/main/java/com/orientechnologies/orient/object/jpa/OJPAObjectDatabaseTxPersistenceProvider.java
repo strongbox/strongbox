@@ -1,15 +1,16 @@
 package com.orientechnologies.orient.object.jpa;
 
+import static com.orientechnologies.orient.core.entity.OEntityManager.getEntityManagerByDatabaseURL;
+
+import java.util.Map;
+import java.util.Properties;
+
 import javax.persistence.EntityManagerFactory;
 import javax.persistence.spi.PersistenceProvider;
 import javax.persistence.spi.PersistenceUnitInfo;
 import javax.persistence.spi.ProviderUtil;
-import java.util.Map;
-import java.util.Properties;
 
 import com.orientechnologies.orient.core.entity.OEntityManager;
-import com.orientechnologies.orient.jdbc.OrientDataSource;
-import static com.orientechnologies.orient.core.entity.OEntityManager.getEntityManagerByDatabaseURL;
 
 /**
  * @author Sergey Bespalov
@@ -54,9 +55,7 @@ public class OJPAObjectDatabaseTxPersistenceProvider
         OEntityManager entityManager = getEntityManagerByDatabaseURL(properties.getURL());
         entityManager.registerEntityClasses(info.getManagedClassNames());
 
-        OrientDataSource dataSource = (OrientDataSource) info.getNonJtaDataSource();
-
-        return new OJPAObjectDatabaseTxEntityManagerFactory(properties, dataSource);
+        return new OJPAObjectDatabaseTxEntityManagerFactory(properties);
     }
 
     @Override

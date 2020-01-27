@@ -1,15 +1,24 @@
 package com.orientechnologies.orient.object.jpa;
 
-import javax.persistence.*;
+import java.util.List;
+import java.util.Map;
+import java.util.logging.Level;
+import java.util.logging.Logger;
+
+import javax.persistence.EntityGraph;
+import javax.persistence.EntityManager;
+import javax.persistence.EntityManagerFactory;
+import javax.persistence.EntityTransaction;
+import javax.persistence.FlushModeType;
+import javax.persistence.LockModeType;
+import javax.persistence.Query;
+import javax.persistence.StoredProcedureQuery;
+import javax.persistence.TypedQuery;
 import javax.persistence.criteria.CriteriaBuilder;
 import javax.persistence.criteria.CriteriaDelete;
 import javax.persistence.criteria.CriteriaQuery;
 import javax.persistence.criteria.CriteriaUpdate;
 import javax.persistence.metamodel.Metamodel;
-import java.util.List;
-import java.util.Map;
-import java.util.logging.Level;
-import java.util.logging.Logger;
 
 import com.orientechnologies.orient.core.id.ORecordId;
 import com.orientechnologies.orient.core.metadata.schema.OClass;
@@ -110,7 +119,6 @@ public class OJPAObjectDatabaseTxEntityManager implements EntityManager
     {
         if (flushMode == FlushModeType.COMMIT)
         {
-            database.commit();
             if (logger.isLoggable(Level.FINEST))
             {
                 logger.fine("EntityManager flushed. " + toString());
@@ -152,7 +160,6 @@ public class OJPAObjectDatabaseTxEntityManager implements EntityManager
     {
         if (flushMode == FlushModeType.COMMIT)
         {
-            database.rollback();
             if (logger.isLoggable(Level.FINEST))
             {
                 logger.fine("EntityManager cleared. " + toString());
@@ -414,7 +421,6 @@ public class OJPAObjectDatabaseTxEntityManager implements EntityManager
     @Override
     public void close()
     {
-        database.close();
         if (logger.isLoggable(Level.INFO))
         {
             logger.fine("EntityManager closed. " + toString());
