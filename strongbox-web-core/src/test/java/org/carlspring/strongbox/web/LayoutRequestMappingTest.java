@@ -20,6 +20,7 @@ import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Profile;
+import org.springframework.security.test.context.support.WithMockUser;
 import org.springframework.stereotype.Controller;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.ContextConfiguration;
@@ -31,9 +32,10 @@ import org.springframework.web.servlet.mvc.method.annotation.RequestMappingHandl
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 
+
 @ContextConfiguration(classes = LayoutRequestMappingTest.LayoutRequestMappingConfiguration.class)
 @ExtendWith(SpringExtension.class)
-@WebMvcTest(controllers = { LayoutRequestMappingTest.TestLayoutController.class, LayoutRequestMappingTest.AnotherLayoutController.class }, secure = false)
+@WebMvcTest(controllers = { LayoutRequestMappingTest.TestLayoutController.class, LayoutRequestMappingTest.AnotherLayoutController.class })
 @ActiveProfiles({"test", "LayoutRequestMappingTest"})
 public class LayoutRequestMappingTest
 {
@@ -68,6 +70,7 @@ public class LayoutRequestMappingTest
     }
 
     @Test
+    @WithMockUser
     public void testLayoutRequestMapping()
         throws Exception
     {
