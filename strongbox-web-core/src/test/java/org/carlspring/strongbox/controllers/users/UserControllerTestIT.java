@@ -652,7 +652,6 @@ public class UserControllerTestIT
                .body(containsString(OWN_USER_DELETE_FORBIDDEN));
     }
 
-    @Disabled // disabled temporarily
     @Test
     @WithMockUser(username = "another-admin", authorities = "DELETE_USER")
     public void testDeletingRootAdminShouldBeForbidden()
