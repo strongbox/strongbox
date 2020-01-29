@@ -2,6 +2,7 @@ package org.carlspring.strongbox.controllers;
 
 
 import org.carlspring.strongbox.config.IntegrationTest;
+import org.carlspring.strongbox.controllers.login.LoginController;
 import org.carlspring.strongbox.controllers.login.LoginOutput;
 import org.carlspring.strongbox.rest.common.RestAssuredBaseTest;
 import org.carlspring.strongbox.users.security.JwtAuthenticationClaimsProvider.JwtAuthentication;
@@ -11,8 +12,10 @@ import org.carlspring.strongbox.users.userdetails.SpringSecurityUser;
 
 import javax.inject.Inject;
 import java.util.Collections;
+import java.util.concurrent.TimeUnit;
 
 import org.jose4j.jwt.NumericDate;
+import org.json.JSONException;
 import org.json.JSONObject;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -52,7 +55,7 @@ public class JwtAuthenticationTest
     {
         super.init();
 
-        setContextBaseUrl(getContextBaseUrl() + "/api");
+        setContextBaseUrl("/api/users");
         TestSecurityContextHolder.clearContext();
         SecurityContextHolder.clearContext();
     }
@@ -61,14 +64,14 @@ public class JwtAuthenticationTest
     public void testJWTAuthShouldPassWithToken()
         throws Exception
     {
-        String url = getContextBaseUrl() + "/users";
+        String url = LoginController.REQUEST_MAPPING;
 
         String basicAuth = "Basic YWRtaW46cGFzc3dvcmQ=";
 
         String body = mockMvc.header(HttpHeaders.AUTHORIZATION, basicAuth)
-                             .header(HttpHeaders.ACCEPT, MediaType.APPLICATION_JSON_VALUE)
+                             .accept(MediaType.APPLICATION_JSON_VALUE)
                              .when()
-                             .get(getContextBaseUrl() + "/login")
+                             .get(url)
                              .then()
                              .statusCode(HttpStatus.OK.value())
                              .extract()
@@ -76,6 +79,7 @@ public class JwtAuthenticationTest
         TestSecurityContextHolder.clearContext();
         SecurityContextHolder.clearContext();
 
+        url = getContextBaseUrl();
         mockMvc.header(HttpHeaders.ACCEPT, MediaType.APPLICATION_JSON_VALUE)
                .when()
                .get(url)
@@ -88,7 +92,7 @@ public class JwtAuthenticationTest
         // this token will expire after 1 hour
         String tokenValue = getTokenValue(body);
         mockMvc.header(HttpHeaders.AUTHORIZATION, getAuthorizationHeader(tokenValue))
-               .header(HttpHeaders.ACCEPT, MediaType.APPLICATION_JSON_VALUE)
+               .accept(MediaType.APPLICATION_JSON_VALUE)
                .when()
                .get(url)
                .then()
@@ -101,7 +105,7 @@ public class JwtAuthenticationTest
     {
         String decodedErrorMessage = getI18nInsufficientAuthenticationErrorMessage();
 
-        String url = getContextBaseUrl() + "/users";
+        String url = getContextBaseUrl();
 
         mockMvc.header(HttpHeaders.ACCEPT, MediaType.APPLICATION_JSON_VALUE)
                .when()
@@ -114,11 +118,11 @@ public class JwtAuthenticationTest
     @Test
     public void testJWTInvalidToken()
     {
-        String url = getContextBaseUrl() + "/users";
+        String url = getContextBaseUrl();
 
-        String invalid_token = "ABCD";
+        String invalidToken = "ABCD";
 
-        mockMvc.header(HttpHeaders.AUTHORIZATION, getAuthorizationHeader(invalid_token))
+        mockMvc.header(HttpHeaders.AUTHORIZATION, getAuthorizationHeader(invalidToken))
                .header(HttpHeaders.ACCEPT, MediaType.APPLICATION_JSON_VALUE)
                .when()
                .get(url)
@@ -131,7 +135,7 @@ public class JwtAuthenticationTest
     public void testJWTExpirationToken()
         throws Exception
     {
-        String url = getContextBaseUrl() + "/users";
+        String url = getContextBaseUrl();
 
         // create token that will expire after 1 second
         SpringSecurityUser userDetails = (SpringSecurityUser) userDetailsService.loadUserByUsername("admin");
@@ -139,17 +143,17 @@ public class JwtAuthenticationTest
                                                              jwtClaimsProvider.getClaims(userDetails), 3, null);
 
         mockMvc.header(HttpHeaders.AUTHORIZATION, getAuthorizationHeader(expiredToken))
-               .header(HttpHeaders.ACCEPT, MediaType.APPLICATION_JSON_VALUE)
+               .accept(MediaType.APPLICATION_JSON_VALUE)
                .when()
                .get(url)
                .then()
                .statusCode(HttpStatus.OK.value())
                .body(notNullValue());
 
-        Thread.sleep(3000);
+        TimeUnit.SECONDS.sleep(3);
 
         mockMvc.header(HttpHeaders.AUTHORIZATION, getAuthorizationHeader(expiredToken))
-               .header(HttpHeaders.ACCEPT, MediaType.APPLICATION_JSON_VALUE)
+               .accept(MediaType.APPLICATION_JSON_VALUE)
                .when()
                .get(url)
                .then()
@@ -161,7 +165,7 @@ public class JwtAuthenticationTest
     public void testJWTIssuedAtFuture()
         throws Exception
     {
-        String url = getContextBaseUrl() + "/users";
+        String url = getContextBaseUrl();
 
         NumericDate futureNumericDate = NumericDate.now();
         // add five minutes to the current time to create a JWT issued in the
@@ -171,7 +175,7 @@ public class JwtAuthenticationTest
         String token = securityTokenProvider.getToken("admin", Collections.emptyMap(), 10, futureNumericDate);
 
         mockMvc.header(HttpHeaders.AUTHORIZATION, getAuthorizationHeader(token))
-               .header(HttpHeaders.ACCEPT, MediaType.APPLICATION_JSON_VALUE)
+               .accept(MediaType.APPLICATION_JSON_VALUE)
                .when()
                .get(url)
                .then()
@@ -183,13 +187,13 @@ public class JwtAuthenticationTest
     public void testJWTAuthWithCookieShouldPass()
     {
 
-        String url = getContextBaseUrl() + "/users";
+        String url = LoginController.REQUEST_MAPPING;
         String basicAuth = "Basic YWRtaW46cGFzc3dvcmQ=";
 
         LoginOutput body = mockMvc.header(HttpHeaders.AUTHORIZATION, basicAuth)
                                   .header(HttpHeaders.ACCEPT, MediaType.APPLICATION_JSON_VALUE)
                                   .when()
-                                  .get(getContextBaseUrl() + "/login")
+                                  .get(url)
                                   .then()
                                   .statusCode(HttpStatus.OK.value())
                                   .extract()
@@ -200,6 +204,7 @@ public class JwtAuthenticationTest
         assertThat(body).isNotNull();
         assertThat(body.getToken()).isNotNull();
 
+        url = getContextBaseUrl();
         mockMvc.cookie(AUTHORIZATION_COOKIE, body.getToken())
                .header(HttpHeaders.ACCEPT, MediaType.APPLICATION_JSON_VALUE)
                .when()
@@ -210,7 +215,7 @@ public class JwtAuthenticationTest
     }
 
     private String getTokenValue(String body)
-        throws Exception
+        throws JSONException
     {
         JSONObject extractToken = new JSONObject(body);
         return extractToken.getString("token");

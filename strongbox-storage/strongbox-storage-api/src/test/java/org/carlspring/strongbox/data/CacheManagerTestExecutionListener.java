@@ -7,28 +7,25 @@ import org.springframework.test.context.support.AbstractTestExecutionListener;
 
 /**
  * @author sbespalov
- *
  */
-public class CacheManagerTestExecutionListener extends AbstractTestExecutionListener
+public class CacheManagerTestExecutionListener
+        extends AbstractTestExecutionListener
 {
 
     @Override
     public void beforeTestClass(TestContext testContext)
-        throws Exception
     {
 
     }
 
     @Override
     public void afterTestClass(TestContext testContext)
-        throws Exception
     {
         clearCache(testContext);
     }
 
     @Override
     public void afterTestMethod(TestContext testContext)
-        throws Exception
     {
         clearCache(testContext);
     }
@@ -36,10 +33,10 @@ public class CacheManagerTestExecutionListener extends AbstractTestExecutionList
     private void clearCache(TestContext testContext)
     {
         ApplicationContext applicationContext = testContext.getApplicationContext();
-        
+
         CacheManager cacheManager = applicationContext.getBean(CacheManager.class);
         cacheManager.getCacheNames().parallelStream().forEach(name -> cacheManager.getCache(name).clear());
     }
 
-    
+
 }

@@ -15,6 +15,7 @@ import org.springframework.security.test.context.support.WithAnonymousUser;
 import static org.hamcrest.CoreMatchers.equalTo;
 import static org.hamcrest.CoreMatchers.notNullValue;
 
+
 /**
  * @author Steve Todorov
  * @author Pablo Tirado

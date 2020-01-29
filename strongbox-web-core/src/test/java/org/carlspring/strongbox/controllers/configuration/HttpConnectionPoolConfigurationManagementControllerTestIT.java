@@ -4,8 +4,8 @@ import org.carlspring.strongbox.config.IntegrationTest;
 import org.carlspring.strongbox.configuration.Configuration;
 import org.carlspring.strongbox.configuration.ConfigurationManager;
 import org.carlspring.strongbox.rest.common.RestAssuredBaseTest;
-import org.carlspring.strongbox.storage.repository.RepositoryData;
 import org.carlspring.strongbox.storage.repository.Repository;
+import org.carlspring.strongbox.storage.repository.RepositoryData;
 
 import javax.inject.Inject;
 import java.util.Optional;
@@ -13,19 +13,25 @@ import java.util.Optional;
 import io.restassured.module.mockmvc.response.ValidatableMockMvcResponse;
 import org.apache.commons.collections4.MapUtils;
 import org.apache.http.pool.PoolStats;
+import org.junit.jupiter.api.Assumptions;
 import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.parallel.Execution;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.ValueSource;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
+import org.springframework.test.context.TestPropertySource;
 
 import static org.hamcrest.Matchers.containsString;
 import static org.hamcrest.Matchers.equalTo;
+import static org.junit.jupiter.api.parallel.ExecutionMode.SAME_THREAD;
 
 /**
  * @author Pablo Tirado
  */
 @IntegrationTest
+@TestPropertySource(properties = { "cacheManagerConfiguration.instanceId=HttpConnectionPoolConfigurationManagementControllerTestIT" })
+@Execution(SAME_THREAD)
 public class HttpConnectionPoolConfigurationManagementControllerTestIT
         extends RestAssuredBaseTest
 {
@@ -40,6 +46,8 @@ public class HttpConnectionPoolConfigurationManagementControllerTestIT
             throws Exception
     {
         super.init();
+
+        setContextBaseUrl("/api/configuration/proxy/connection-pool");
     }
 
     @ParameterizedTest
@@ -50,11 +58,11 @@ public class HttpConnectionPoolConfigurationManagementControllerTestIT
 
         int newMaxNumberOfConnections = 200;
 
-        String url = getContextBaseUrl() + "/api/configuration/proxy/connection-pool/max/" + newMaxNumberOfConnections;
+        String url = getContextBaseUrl() + "/max/{numberOfConnections}";
 
         ValidatableMockMvcResponse response = mockMvc.accept(acceptHeader)
                                                      .when()
-                                                     .put(url)
+                                                     .put(url, newMaxNumberOfConnections)
                                                      .peek()
                                                      .then()
                                                      .statusCode(HttpStatus.OK.value());
@@ -62,7 +70,8 @@ public class HttpConnectionPoolConfigurationManagementControllerTestIT
         String message = "Max number of connections for proxy repository was updated successfully.";
         validateResponseBody(response, acceptHeader, message);
 
-        url = getContextBaseUrl() + "/api/configuration/proxy/connection-pool";
+        url = getContextBaseUrl();
+
         response = mockMvc.accept(acceptHeader)
                           .when()
                           .get(url)
@@ -80,12 +89,11 @@ public class HttpConnectionPoolConfigurationManagementControllerTestIT
     {
         int newDefaultNumberOfConnections = 5;
 
-        String url =
-                getContextBaseUrl() + "/api/configuration/proxy/connection-pool/default/" + newDefaultNumberOfConnections;
+        String url = getContextBaseUrl() + "/default/{numberOfConnections}";
 
         ValidatableMockMvcResponse response = mockMvc.accept(acceptHeader)
                                                      .when()
-                                                     .put(url)
+                                                     .put(url, newDefaultNumberOfConnections)
                                                      .peek()
                                                      .then()
                                                      .statusCode(HttpStatus.OK.value());
@@ -93,7 +101,7 @@ public class HttpConnectionPoolConfigurationManagementControllerTestIT
         String message = "Default number of connections for proxy repository was updated successfully.";
         validateResponseBody(response, acceptHeader, message);
 
-        url = getContextBaseUrl() + "/api/configuration/proxy/connection-pool/default-number";
+        url = getContextBaseUrl() + "/default-number";
 
         response = mockMvc.accept(acceptHeader)
                           .when()
@@ -108,7 +116,7 @@ public class HttpConnectionPoolConfigurationManagementControllerTestIT
     @ParameterizedTest
     @ValueSource(strings = { MediaType.APPLICATION_JSON_VALUE,
                              MediaType.TEXT_PLAIN_VALUE })
-    void testSetAndGetNumberOfConnectionsForProxyRepositoryWithTextAcceptHeader(String acceptHeader)
+    void testSetAndGetNumberOfConnectionsForProxyRepository(String acceptHeader)
     {
         Configuration configuration = configurationManager.getConfiguration();
         Optional<Repository> repositoryOpt = configuration.getStorages()
@@ -124,17 +132,17 @@ public class HttpConnectionPoolConfigurationManagementControllerTestIT
                                                           .map(r -> (Repository) r)
                                                           .findAny();
 
+        Assumptions.assumeTrue(repositoryOpt.isPresent());
         Repository repository = repositoryOpt.get();
+        String storageId = repository.getStorage().getId();
+        String repositoryId = repository.getId();
         int numberOfConnections = 5;
 
-        String url = getContextBaseUrl() + "/api/configuration/proxy/connection-pool/" +
-                     repository.getStorage().getId() + "/" +
-                     repository.getId() + "/" +
-                     numberOfConnections;
+        String url = getContextBaseUrl() + "/{storageId}/{repositoryId}/{numberOfConnections}";
 
         ValidatableMockMvcResponse response = mockMvc.accept(acceptHeader)
                                                      .when()
-                                                     .put(url)
+                                                     .put(url, storageId, repositoryId, numberOfConnections)
                                                      .peek()
                                                      .then()
                                                      .statusCode(HttpStatus.OK.value());
@@ -142,14 +150,13 @@ public class HttpConnectionPoolConfigurationManagementControllerTestIT
         String message = "Number of pool connections for repository was updated successfully.";
         validateResponseBody(response, acceptHeader, message);
 
-        url = getContextBaseUrl() + "/api/configuration/proxy/connection-pool/" +
-              repository.getStorage().getId() + "/" +
-              repository.getId();
+        url = getContextBaseUrl() + "/{storageId}/{repositoryId}";
 
         PoolStats expectedPoolStats = new PoolStats(0, 0, 0, numberOfConnections);
+
         response = mockMvc.accept(acceptHeader)
                           .when()
-                          .get(url)
+                          .get(url, storageId, repositoryId)
                           .peek()
                           .then()
                           .statusCode(HttpStatus.OK.value());

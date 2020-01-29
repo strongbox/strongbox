@@ -1,14 +1,5 @@
 package org.carlspring.strongbox.controllers.layout.maven;
 
-import java.io.IOException;
-import java.nio.file.Files;
-import java.nio.file.Path;
-import java.security.NoSuchAlgorithmException;
-import java.util.List;
-
-import javax.inject.Inject;
-
-import io.restassured.http.Header;
 import org.carlspring.strongbox.config.IntegrationTest;
 import org.carlspring.strongbox.providers.io.RepositoryPath;
 import org.carlspring.strongbox.rest.common.MavenRestAssuredBaseTest;
@@ -27,14 +18,21 @@ import org.carlspring.strongbox.testing.storage.repository.RepositoryManagementT
 import org.carlspring.strongbox.testing.storage.repository.TestRepository.Group;
 import org.carlspring.strongbox.testing.storage.repository.TestRepository.Remote;
 import org.carlspring.strongbox.util.MessageDigestUtils;
+
+import javax.inject.Inject;
+import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.security.NoSuchAlgorithmException;
+import java.util.List;
+
 import org.hamcrest.CoreMatchers;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
-
+import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
-
 import static com.google.common.base.Predicates.not;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.carlspring.strongbox.net.MediaType.APPLICATION_X_GZIP_VALUE;
@@ -119,6 +117,8 @@ public class MavenIndexControllerTest
             throws Exception
     {
         super.init();
+
+        setContextBaseUrl("/api/maven/index");
     }
 
     @ExtendWith({ RepositoryManagementTestExecutionListener.class,
@@ -142,7 +142,7 @@ public class MavenIndexControllerTest
                                                                             .resolve("nexus-maven-repository-index.gz");
         String beforeChecksum = MessageDigestUtils.calculateChecksum(indexPath, "SHA-1");
 
-        String url = getContextBaseUrl() + "/api/maven/index/{storageId}/{repositoryId}";
+        String url = getContextBaseUrl() + "/{storageId}/{repositoryId}";
 
         mockMvc.contentType(MediaType.APPLICATION_JSON_VALUE)
                .accept(MediaType.APPLICATION_JSON_VALUE)
@@ -178,7 +178,7 @@ public class MavenIndexControllerTest
 
         assertThat(indexPath).matches(not(Files::exists));
 
-        String url = getContextBaseUrl() + "/api/maven/index/{storageId}/{repositoryId}";
+        String url = getContextBaseUrl() + "/{storageId}/{repositoryId}";
 
         mockMvc.contentType(MediaType.APPLICATION_JSON_VALUE)
                .accept(MediaType.APPLICATION_JSON_VALUE)
@@ -216,8 +216,9 @@ public class MavenIndexControllerTest
 
         assertThat(indexPath).matches(not(Files::exists));
 
-        String url = getContextBaseUrl() + "/api/maven/index/{storageId}/{repositoryId}";
+        String url = getContextBaseUrl() + "/{storageId}/{repositoryId}";
 
+        logger.info("proxyRepositoryIndexShouldBeReFetchedOnDemand: {}, {}", proxyRepository.getStorage().getId(), proxyRepository.getId());
         mockMvc.contentType(MediaType.APPLICATION_JSON_VALUE)
                .accept(MediaType.APPLICATION_JSON_VALUE)
                .when()
@@ -254,7 +255,7 @@ public class MavenIndexControllerTest
 
         assertThat(indexPath).matches(not(Files::exists));
 
-        String url = getContextBaseUrl() + "/api/maven/index/{storageId}/{repositoryId}";
+        String url = getContextBaseUrl() + "/{storageId}/{repositoryId}";
 
         mockMvc.contentType(MediaType.APPLICATION_JSON_VALUE)
                .accept(MediaType.APPLICATION_JSON_VALUE)
@@ -279,20 +280,19 @@ public class MavenIndexControllerTest
                                                                                    "1.1" },
                                                                       classifiers = { "javadoc",
                                                                                       "sources" })
-                                                   List<Path> artifactPaths,
+                                                    List<Path> artifactPaths,
                                                    @MavenRepository(repositoryId = REPOSITORY_PROXY_4)
                                                    @Remote(url = PROXY_4_REPOSITORY_URL)
-                                                   Repository proxyRepository)
+                                                    Repository proxyRepository)
             throws IOException
     {
         hostedRepositoryIndexCreator.apply(repository);
         proxyRepositoryIndexCreator.apply(proxyRepository);
 
-        String url = getContextBaseUrl() + "/storages/" + STORAGE0 + "/" + REPOSITORY_PROXY_4 +
-                     "/.index/nexus-maven-repository-index.gz";
+        String url = "/storages/{storageId}/{repositoryId}/{artifactPath}";
 
-        mockMvc.header(new Header("User-Agent", "Maven/*"))
-               .get(url)
+       mockMvc.header(HttpHeaders.USER_AGENT, "Maven/*")
+               .get(url, STORAGE0, REPOSITORY_PROXY_4, ".index/nexus-maven-repository-index.gz")
                .then()
                .log().status()
                .log().headers()
@@ -322,11 +322,10 @@ public class MavenIndexControllerTest
         hostedRepositoryIndexCreator.apply(repository);
         proxyRepositoryIndexCreator.apply(proxyRepository);
 
-        String url = getContextBaseUrl() + "/storages/" + STORAGE0 + "/" + REPOSITORY_PROXY_5 +
-                     "/.index/nexus-maven-repository-index.properties";
+        String url = "/storages/{storageId}/{repositoryId}/{artifactPath}";
 
-        mockMvc.header(new Header("User-Agent", "Maven/*"))
-               .get(url)
+        mockMvc.header(HttpHeaders.USER_AGENT, "Maven/*")
+               .get(url, STORAGE0, REPOSITORY_PROXY_5, ".index/nexus-maven-repository-index.properties")
                .then()
                .log().status()
                .log().headers()
@@ -344,21 +343,21 @@ public class MavenIndexControllerTest
                                                            @MavenTestArtifact(repositoryId = REPOSITORY_RELEASES_6,
                                                                               id = PROPERTIES_INJECTOR_GROUP_ID + ":" +
                                                                                    PROPERTIES_INJECTOR_ARTIFACT_ID,
-                                                                              versions = { "1.8" },
+                                                                              versions = "1.8",
                                                                               classifiers = { "javadoc",
                                                                                               "sources" })
                                                            Path artifactPathPropertiesInjector,
                                                            @MavenRepository(repositoryId = REPOSITORY_RELEASES_6_1,
-                                                                            setup = MavenIndexedRepositorySetup.class)
+                                                                   setup = MavenIndexedRepositorySetup.class)
                                                            Repository repository61,
                                                            @MavenTestArtifact(repositoryId = REPOSITORY_RELEASES_6_1,
                                                                               id = SLF4J_GROUP_ID + ":" + SLF4J_ARTIFACT_ID,
-                                                                              versions = { "1.9" },
+                                                                              versions = "1.9",
                                                                               classifiers = { "javadoc",
                                                                                               "sources" })
                                                            Path artifactPathSlf4j,
                                                            @Group(repositories = { REPOSITORY_RELEASES_6,
-                                                                                                  REPOSITORY_RELEASES_6_1 })
+                                                                                   REPOSITORY_RELEASES_6_1 })
                                                            @MavenRepository(repositoryId = REPOSITORY_RELEASES_6_GROUP,
                                                                             setup = MavenIndexedRepositorySetup.class)
                                                            Repository groupRepository)
@@ -372,7 +371,7 @@ public class MavenIndexControllerTest
 
         assertThat(indexPath).matches(not(Files::exists));
 
-        String url = getContextBaseUrl() + "/api/maven/index/{storageId}/{repositoryId}";
+        String url = getContextBaseUrl() + "/{storageId}/{repositoryId}";
 
         mockMvc.contentType(MediaType.APPLICATION_JSON_VALUE)
                .accept(MediaType.APPLICATION_JSON_VALUE)

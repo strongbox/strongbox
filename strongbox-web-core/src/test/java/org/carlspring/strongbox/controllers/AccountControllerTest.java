@@ -20,6 +20,12 @@ import org.carlspring.strongbox.users.dto.User;
 import org.carlspring.strongbox.users.dto.UserDto;
 import org.carlspring.strongbox.users.service.UserService;
 import org.carlspring.strongbox.users.service.impl.OrientDbUserService.OrientDb;
+
+import javax.inject.Inject;
+import javax.transaction.Transactional;
+import java.util.Arrays;
+import java.util.HashSet;
+
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.http.HttpStatus;
@@ -28,6 +34,13 @@ import org.springframework.security.test.context.support.WithAnonymousUser;
 import org.springframework.security.test.context.support.WithMockUser;
 import org.springframework.security.test.context.support.WithUserDetails;
 import org.springframework.test.context.transaction.BeforeTransaction;
+import static io.restassured.module.mockmvc.RestAssuredMockMvc.given;
+import static org.hamcrest.CoreMatchers.notNullValue;
+import static org.hamcrest.Matchers.equalTo;
+import static org.hamcrest.Matchers.hasSize;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotEquals;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
 
 import io.restassured.module.mockmvc.specification.MockMvcRequestSpecification;
 
@@ -55,7 +68,7 @@ public class AccountControllerTest
             throws Exception
     {
         super.init();
-        setContextBaseUrl(getContextBaseUrl() + "/api/account");
+        setContextBaseUrl("/api/account");
     }
 
     @BeforeTransaction
@@ -69,13 +82,12 @@ public class AccountControllerTest
     }
 
     @Test
-    @WithUserDetails("admin")
     public void testGetAccountDetails()
-            throws Exception
     {
+        String url = getContextBaseUrl();
         mockMvc.accept(MediaType.APPLICATION_JSON_VALUE)
                .when()
-               .get(getContextBaseUrl())
+               .get(url)
                .peek() // Use peek() to print the output
                .then()
                .statusCode(HttpStatus.OK.value())
@@ -86,22 +98,20 @@ public class AccountControllerTest
     @WithUserDetails(TEST_DISABLED_USER_ACCOUNT)
     @Transactional
     public void testGetAccountDetailsOnDisabledUserShouldFail()
-            throws Exception
     {
+        String url = getContextBaseUrl();
         mockMvc.accept(MediaType.APPLICATION_JSON_VALUE)
                .when()
-               .get(getContextBaseUrl())
+               .get(url)
                .peek() // Use peek() to print the output
                .then()
                .statusCode(HttpStatus.FORBIDDEN.value())
-               .body("error", notNullValue())
-        ;
+               .body("error", notNullValue());
     }
 
     @Test
     @WithMockUser(username = "test-account-update", authorities = {"AUTHENTICATED_USER"})
     public void testUpdateAccountDetails()
-            throws Exception
     {
         UserDto testUser = new UserDto();
         testUser.setUsername("test-account-update");
@@ -114,18 +124,19 @@ public class AccountControllerTest
         UserForm userForm = new UserForm();
         userForm.setSecurityTokenKey("1234");
 
+        String url = getContextBaseUrl();
         mockMvc.accept(MediaType.APPLICATION_JSON_VALUE)
                .contentType(MediaType.APPLICATION_JSON_VALUE)
                .body(userForm)
                .when()
-               .put(getContextBaseUrl())
+               .put(url)
                .peek() // Use peek() to print the output
                .then()
                .statusCode(HttpStatus.OK.value());
 
         mockMvc.accept(MediaType.APPLICATION_JSON_VALUE)
                .when()
-               .get(getContextBaseUrl())
+               .get(url)
                .peek() // Use peek() to print the output
                .then()
                .statusCode(HttpStatus.OK.value())
@@ -140,7 +151,7 @@ public class AccountControllerTest
                .contentType(MediaType.APPLICATION_JSON_VALUE)
                .body(userForm)
                .when()
-               .put(getContextBaseUrl())
+               .put(url)
                .peek() // Use peek() to print the output
                .then()
                .statusCode(HttpStatus.OK.value());
@@ -149,7 +160,7 @@ public class AccountControllerTest
 
         mockMvc.accept(MediaType.APPLICATION_JSON_VALUE)
                .when()
-               .get(getContextBaseUrl())
+               .get(url)
                .peek() // Use peek() to print the output
                .then()
                .statusCode(HttpStatus.OK.value())
@@ -167,6 +178,7 @@ public class AccountControllerTest
         testUser.setPassword("password");
         testUser.setRoles(null);
         testUser.setEnabled(true);
+
         userService.save(testUser);
 
         // Tru to change roles
@@ -174,9 +186,10 @@ public class AccountControllerTest
         userForm.setRoles(new HashSet<>(Arrays.asList("admin", "super-admin")));
         userForm.setEnabled(false);
 
+        String url = getContextBaseUrl();
         mockMvc.accept(MediaType.APPLICATION_JSON_VALUE)
                .when()
-               .get(getContextBaseUrl())
+               .get(url)
                .peek() // Use peek() to print the output
                .then()
                .statusCode(HttpStatus.OK.value());
@@ -185,14 +198,14 @@ public class AccountControllerTest
                .contentType(MediaType.APPLICATION_JSON_VALUE)
                .body(userForm)
                .when()
-               .put(getContextBaseUrl())
+               .put(url)
                .peek() // Use peek() to print the output
                .then()
                .statusCode(HttpStatus.OK.value());
 
         mockMvc.accept(MediaType.APPLICATION_JSON_VALUE)
                .when()
-               .get(getContextBaseUrl())
+               .get(url)
                .peek() // Use peek() to print the output
                .then()
                .statusCode(HttpStatus.OK.value())
@@ -209,7 +222,7 @@ public class AccountControllerTest
     public void testChangingPasswordToNullShouldNotUpdate()
     {
         final String username = "test-account-update-empty-password";
-        
+
         UserDto testUser = new UserDto();
         testUser.setUsername(username);
         testUser.setPassword("password");
@@ -223,11 +236,12 @@ public class AccountControllerTest
 
         User originalUser = userService.findByUsername(username);
 
+        String url = getContextBaseUrl();
         mockMvc.contentType(MediaType.APPLICATION_JSON_VALUE)
                .accept(MediaType.APPLICATION_JSON_VALUE)
                .body(userForm)
                .when()
-               .put(getContextBaseUrl())
+               .put(url)
                .peek()
                .then()
                .statusCode(HttpStatus.OK.value());
@@ -242,9 +256,10 @@ public class AccountControllerTest
     @WithAnonymousUser
     public void testAnonymousUsersShouldNotBeAbleToAccess()
     {
+        String url = getContextBaseUrl();        
         mockMvc.header(HttpHeaders.ACCEPT, MediaType.APPLICATION_JSON_VALUE)
                .when()
-               .get(getContextBaseUrl())
+               .get(url)
                .peek()
                .then()
                .log().all()

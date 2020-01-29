@@ -33,6 +33,7 @@ import org.springframework.http.MediaType;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
+
 /**
  * @author Pablo Tirado
  */

@@ -1,26 +1,28 @@
 package org.carlspring.strongbox.forms.configuration;
 
-import org.carlspring.strongbox.config.IntegrationTest;
-import org.carlspring.strongbox.forms.configuration.ProxyConfigurationForm.ProxyConfigurationFormChecks;
-import org.carlspring.strongbox.forms.configuration.SmtpConfigurationForm.SmtpConfigurationFormChecks;
-import org.carlspring.strongbox.rest.common.RestAssuredBaseTest;
+import static org.assertj.core.api.Assertions.assertThat;
+
+import java.util.List;
+import java.util.Set;
+import java.util.stream.Stream;
 
 import javax.inject.Inject;
 import javax.validation.ConstraintViolation;
 import javax.validation.Validator;
 import javax.validation.groups.Default;
-import java.util.List;
-import java.util.Set;
-import java.util.stream.Stream;
 
 import org.apache.commons.lang3.StringUtils;
 import org.assertj.core.util.Lists;
+import org.carlspring.strongbox.config.IntegrationTest;
+import org.carlspring.strongbox.forms.configuration.ProxyConfigurationForm.ProxyConfigurationFormChecks;
+import org.carlspring.strongbox.forms.configuration.SmtpConfigurationForm.SmtpConfigurationFormChecks;
+import org.carlspring.strongbox.rest.common.RestAssuredBaseTest;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.Arguments;
 import org.junit.jupiter.params.provider.MethodSource;
-import static org.assertj.core.api.Assertions.assertThat;
+
 
 /**
  * @author Pablo Tirado

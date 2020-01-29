@@ -14,11 +14,13 @@ import java.util.Arrays;
 
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.parallel.Execution;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.ValueSource;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.security.test.context.support.WithMockUser;
+import org.springframework.test.context.TestPropertySource;
 
 import static org.carlspring.strongbox.controllers.configuration.ServerConfigurationController.FAILED_SAVE_SERVER_SETTINGS;
 import static org.carlspring.strongbox.controllers.configuration.ServerConfigurationController.SUCCESSFUL_SAVE_SERVER_SETTINGS;
@@ -26,11 +28,14 @@ import static org.hamcrest.Matchers.containsString;
 import static org.hamcrest.Matchers.equalTo;
 import static org.hamcrest.Matchers.hasSize;
 import static org.hamcrest.Matchers.isEmptyOrNullString;
+import static org.junit.jupiter.api.parallel.ExecutionMode.SAME_THREAD;
 
 /**
  * @author Pablo Tirado
  */
 @IntegrationTest
+@TestPropertySource(properties = { "cacheManagerConfiguration.instanceId=ServerConfigurationControllerTestIT" })
+@Execution(SAME_THREAD)
 public class ServerConfigurationControllerTestIT
         extends RestAssuredBaseTest
 {
@@ -42,7 +47,7 @@ public class ServerConfigurationControllerTestIT
     {
         super.init();
 
-        setContextBaseUrl(getContextBaseUrl() + "/api/configuration/strongbox");
+        setContextBaseUrl("/api/configuration/strongbox");
     }
 
     @Test

@@ -1,8 +1,8 @@
 package org.carlspring.strongbox.rest.common;
 
 
-import static org.assertj.core.api.Assertions.fail;
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.fail;
 
 import java.io.IOException;
 import java.io.InputStream;

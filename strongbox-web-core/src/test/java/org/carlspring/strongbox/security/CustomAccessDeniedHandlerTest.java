@@ -1,6 +1,7 @@
 package org.carlspring.strongbox.security;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.hamcrest.Matchers.equalTo;
 
 import org.carlspring.strongbox.config.IntegrationTest;
 import org.carlspring.strongbox.controllers.support.ErrorResponseEntityBody;
@@ -18,8 +19,6 @@ import org.springframework.mock.web.MockHttpServletRequest;
 import org.springframework.mock.web.MockHttpServletResponse;
 import org.springframework.security.access.AccessDeniedException;
 import org.springframework.security.test.context.support.WithMockUser;
-
-import static org.hamcrest.Matchers.equalTo;
 
 /**
  * @author Przemyslaw Fusik
@@ -44,7 +43,6 @@ public class CustomAccessDeniedHandlerTest
     public void customAccessDeniedHandlerShouldRespondAsExpected()
             throws Exception
     {
-
         MockHttpServletRequest request = new MockHttpServletRequest();
         MockHttpServletResponse response = new MockHttpServletResponse();
 
@@ -62,14 +60,14 @@ public class CustomAccessDeniedHandlerTest
     @WithMockUser(username = "unauthorizedUser")
     public void unauthorizedUserShouldReceiveExpectedUnauthorizedResponse()
     {
-        mockMvc.contentType(MediaType.APPLICATION_JSON_VALUE)
+        mockMvc.contentType(ContentType.JSON)
                .accept(ContentType.JSON)
                .when()
                .get("/api/configuration/strongbox")
                .peek()
                .then()
                .statusCode(HttpStatus.FORBIDDEN.value())
-               .contentType(MediaType.APPLICATION_JSON_VALUE)
+               .contentType(ContentType.JSON)
                .body("error", equalTo("forbidden"));
     }
 

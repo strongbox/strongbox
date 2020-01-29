@@ -5,6 +5,7 @@ import javax.inject.Inject;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.carlspring.strongbox.config.IntegrationTest;
 import org.carlspring.strongbox.controllers.login.LoginInput;
+import io.restassured.http.Method;
 import org.junit.jupiter.api.Test;
 
 import org.springframework.http.MediaType;
@@ -21,6 +22,8 @@ import static org.assertj.core.api.Assertions.assertThat;
 public class CustomLoginSupplierTest
 {
 
+    private static final String REQUEST_URI = "/api/login";
+
     @Inject
     private JsonFormLoginSupplier customLoginSupplier;
 
@@ -29,9 +32,8 @@ public class CustomLoginSupplierTest
 
     @Test
     public void shouldSupportExpectedRequest()
-            throws Exception
     {
-        MockHttpServletRequest request = new MockHttpServletRequest("post", "/api/login");
+        MockHttpServletRequest request = new MockHttpServletRequest(Method.POST.name(), REQUEST_URI);
         request.setContentType(MediaType.APPLICATION_JSON_VALUE);
 
         assertThat(customLoginSupplier.supports(request)).isTrue();
@@ -39,9 +41,8 @@ public class CustomLoginSupplierTest
 
     @Test
     public void shouldNotSupportGetRequest()
-            throws Exception
     {
-        MockHttpServletRequest request = new MockHttpServletRequest("get", "/api/login");
+        MockHttpServletRequest request = new MockHttpServletRequest(Method.GET.name(), REQUEST_URI);
         request.setContentType(MediaType.APPLICATION_JSON_VALUE);
 
         assertThat(customLoginSupplier.supports(request)).isFalse();
@@ -49,9 +50,8 @@ public class CustomLoginSupplierTest
 
     @Test
     public void shouldNotSupportXmlRequest()
-            throws Exception
     {
-        MockHttpServletRequest request = new MockHttpServletRequest("post", "/api/login");
+        MockHttpServletRequest request = new MockHttpServletRequest(Method.POST.name(), REQUEST_URI);
         request.setContentType(MediaType.APPLICATION_XML_VALUE);
 
         assertThat(customLoginSupplier.supports(request)).isFalse();
@@ -61,12 +61,11 @@ public class CustomLoginSupplierTest
     public void shouldSupply()
             throws Exception
     {
-
         LoginInput loginInput = new LoginInput();
         loginInput.setUsername("przemyslaw");
         loginInput.setPassword("fusik");
 
-        MockHttpServletRequest request = new MockHttpServletRequest("post", "/api/login");
+        MockHttpServletRequest request = new MockHttpServletRequest(Method.POST.name(), REQUEST_URI);
         request.setContent(objectMapper.writeValueAsBytes(loginInput));
 
         Authentication authentication = customLoginSupplier.supply(request);

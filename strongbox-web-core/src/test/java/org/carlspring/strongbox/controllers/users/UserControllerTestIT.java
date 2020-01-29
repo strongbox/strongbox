@@ -52,6 +52,7 @@ import static org.hamcrest.Matchers.hasSize;
 import static org.hamcrest.Matchers.notNullValue;
 import static org.hamcrest.Matchers.nullValue;
 
+
 /**
  * @author Pablo Tirado
  */
@@ -146,7 +147,10 @@ public class UserControllerTestIT
         deleteCreatedUser(username);
     }
 
-    private void userNotFound(String acceptHeader)
+    @ParameterizedTest
+    @ValueSource(strings = { MediaType.APPLICATION_JSON_VALUE,
+                             MediaType.TEXT_PLAIN_VALUE })
+    void testUserNotFound(String acceptHeader)
     {
         final String username = "userNotFound";
 
@@ -156,18 +160,6 @@ public class UserControllerTestIT
                .then()
                .statusCode(HttpStatus.NOT_FOUND.value())
                .body(containsString(NOT_FOUND_USER));
-    }
-
-    @Test
-    public void testUserNotFoundWithTextAcceptHeader()
-    {
-        userNotFound(MediaType.TEXT_PLAIN_VALUE);
-    }
-
-    @Test
-    public void testUserNotFoundWithJsonAcceptHeader()
-    {
-        userNotFound(MediaType.APPLICATION_JSON_VALUE);
     }
 
     @ParameterizedTest
@@ -396,7 +388,6 @@ public class UserControllerTestIT
     }
 
     @ParameterizedTest
-    @WithUserDetails("admin")
     @ValueSource(strings = { MediaType.APPLICATION_JSON_VALUE,
                              MediaType.TEXT_PLAIN_VALUE })
     void changeOwnUser(String acceptHeader)
@@ -426,7 +417,6 @@ public class UserControllerTestIT
     @ParameterizedTest
     @ValueSource(strings = { MediaType.APPLICATION_JSON_VALUE,
                              MediaType.TEXT_PLAIN_VALUE })
-    @WithUserDetails("admin")
     void shouldBeAbleToUpdateRoles(String acceptHeader)
     {
         final String username = "test-user";
@@ -558,8 +548,8 @@ public class UserControllerTestIT
                .then()
                .statusCode(HttpStatus.OK.value())
                .body("token", startsWith("eyJhbGciOiJIUzI1NiJ9"));
-        } 
-        finally 
+        }
+        finally
         {
             deleteCreatedUser(username);
         }

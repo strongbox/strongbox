@@ -13,15 +13,23 @@ import java.io.IOException;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
+import org.junit.jupiter.api.parallel.Execution;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.ValueSource;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
+import org.springframework.test.context.TestPropertySource;
 
-import static org.carlspring.strongbox.controllers.configuration.ArtifactCoordinateValidatorsManagementController.*;
+import static org.carlspring.strongbox.controllers.configuration.ArtifactCoordinateValidatorsManagementController.NOT_FOUND_ALIAS_MESSAGE;
+import static org.carlspring.strongbox.controllers.configuration.ArtifactCoordinateValidatorsManagementController.SUCCESSFUL_ADD;
+import static org.carlspring.strongbox.controllers.configuration.ArtifactCoordinateValidatorsManagementController.SUCCESSFUL_DELETE;
 import static org.carlspring.strongbox.web.RepositoryMethodArgumentResolver.NOT_FOUND_REPOSITORY_MESSAGE;
 import static org.carlspring.strongbox.web.RepositoryMethodArgumentResolver.NOT_FOUND_STORAGE_MESSAGE;
-import static org.hamcrest.Matchers.*;
+import static org.hamcrest.Matchers.containsInAnyOrder;
+import static org.hamcrest.Matchers.containsString;
+import static org.hamcrest.Matchers.equalTo;
+import static org.junit.jupiter.api.parallel.ExecutionMode.SAME_THREAD;
+
 
 /**
  * @author Przemyslaw Fusik
@@ -29,6 +37,8 @@ import static org.hamcrest.Matchers.*;
  * @author Aditya Srinivasan
  */
 @IntegrationTest
+@TestPropertySource(properties = { "cacheManagerConfiguration.instanceId=ArtifactCoordinateValidatorsManagementControllerTest" })
+@Execution(SAME_THREAD)
 public class ArtifactCoordinateValidatorsManagementControllerTest
         extends MavenRestAssuredBaseTest
 {
