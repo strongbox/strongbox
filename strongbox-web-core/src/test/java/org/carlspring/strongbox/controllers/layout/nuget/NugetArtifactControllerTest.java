@@ -30,8 +30,6 @@ import io.restassured.http.Headers;
 import io.restassured.module.mockmvc.config.RestAssuredMockMvcConfig;
 import io.restassured.module.mockmvc.response.MockMvcResponse;
 import io.restassured.module.mockmvc.specification.MockMvcRequestSpecification;
-import io.restassured.path.xml.XmlPath;
-
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
@@ -42,8 +40,6 @@ import org.springframework.http.MediaType;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.carlspring.strongbox.utils.ArtifactControllerHelper.MULTIPART_BOUNDARY;
 import static org.hamcrest.CoreMatchers.equalTo;
-import static org.junit.jupiter.api.Assertions.assertEquals;
-
 
 /**
  * @author Sergey Bespalov
@@ -373,16 +369,17 @@ public class NugetArtifactControllerTest extends NugetRestAssuredBaseTest
 
         url = getContextBaseUrl() +
               "/storages/{storageId}/{repositoryId}/Search()?$skip={skip}&$top={stop}&searchTerm={searchTerm}&targetFramework=";
-        MockMvcResponse response = mockMvc.header(HttpHeaders.USER_AGENT, "NuGet/*")
+        mockMvc.header(HttpHeaders.USER_AGENT, "NuGet/*")
                .when()
                .get(url, storageId, repositoryId, 0, 30, "Test.Search")
                .then()
                .statusCode(HttpStatus.OK.value())
-               .extract().response();
-        
-         XmlPath doc = new XmlPath(response.body().asString());
-         assertEquals(doc.getString("atom:feed.title"), "Packages");
-         assertEquals(doc.getString("atom:feed.entry[0].title"), coordinates.getId());
+               .and()
+               .assertThat()
+               .body("feed.title", equalTo("Packages"))
+               .and()
+               .assertThat()
+               .body("feed.entry[0].title", equalTo(coordinates.getId()));
     }
 
     @ExtendWith({ RepositoryManagementTestExecutionListener.class,
@@ -497,17 +494,17 @@ public class NugetArtifactControllerTest extends NugetRestAssuredBaseTest
         final String packageVersion =  "4.1.1.4000";
 
         String url = getContextBaseUrl() + "/storages/public/nuget-group/FindPackagesById()?id={artifactId}";
-
-        MockMvcResponse response = mockMvc.header(HttpHeaders.USER_AGENT, "NuGet/*")
+        mockMvc.header(HttpHeaders.USER_AGENT, "NuGet/*")
                .when()
                .get(url, packageId)
                .then()
                .statusCode(HttpStatus.OK.value())
-               .extract().response();
-        XmlPath doc = new XmlPath(response.body().asString());
-        assertEquals(doc.getString("atom:feed.title"), "Packages");
-        assertEquals(doc.getString("atom:feed.entry[0].title"), packageId);
-
+               .and()
+               .assertThat()
+               .body("feed.title", equalTo("Packages"))
+               .and()
+               .assertThat()
+               .body("feed.entry[0].title", equalTo(packageId));
 
         Map<String, String> coordinatesMap = new HashMap<>();
         coordinatesMap.put("id", packageId);
