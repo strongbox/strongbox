@@ -182,7 +182,7 @@ public class NugetArtifactControllerTest extends NugetRestAssuredBaseTest
         {
             if (h2.hasHeaderWithName(header.getName()))
             {
-                assertThat(h2.getValue(header.getName())).isEqualTo(header.getValue());
+                assertThat(h2.getValues(header.getName())).containsExactlyInAnyOrderElementsOf(h1.getValues(header.getName()));
             }
         }
     }
