@@ -13,6 +13,7 @@ import org.carlspring.strongbox.authentication.api.CustomAuthenticationItemMappe
 import org.carlspring.strongbox.authentication.support.ExternalRoleMapping;
 import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.security.core.userdetails.UserDetails;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.ldap.userdetails.LdapUserDetailsService;
 import org.springframework.stereotype.Component;
 
@@ -39,6 +40,9 @@ public class LdapAuthenticationConfigurationManager implements CustomAuthenticat
 
     @Inject
     private AuthenticationItemConfigurationManager authenticationItemConfigurationManager;
+
+    @Inject
+    private PasswordEncoder passwordEncoder;
 
     @Override
     public String getConfigurationItemId()
@@ -67,7 +71,7 @@ public class LdapAuthenticationConfigurationManager implements CustomAuthenticat
             LdapUserDetailsService luds = (LdapUserDetailsService) c.getBean("ldapUserDetailsService");
 
             UserDetails user = luds.loadUserByUsername(username);
-            if (!password.equals(user.getPassword()))
+            if (!passwordEncoder.matches(password, user.getPassword()))
             {
                 throw new BadCredentialsException("Credentials don't match.");
             }
