@@ -26,7 +26,7 @@
         class="org.springframework.security.ldap.DefaultSpringSecurityContextSource">
         <constructor-arg
             value="${strongbox.authentication.ldap.url}" />
-        <property name="anonymousReadOnly" value="true" />
+        <property name="anonymousReadOnly" value="false" />
         <property name="userDn" value="${strongbox.authentication.ldap.managerDn}"/>
         <property name="password" value="${strongbox.authentication.ldap.managerPassword}"/>
     </bean>

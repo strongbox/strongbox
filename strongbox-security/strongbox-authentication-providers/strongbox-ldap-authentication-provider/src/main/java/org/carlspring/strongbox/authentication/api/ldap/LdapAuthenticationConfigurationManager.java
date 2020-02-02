@@ -146,7 +146,7 @@ public class LdapAuthenticationConfigurationManager implements CustomAuthenticat
 
         result.setUrl((String) source.get(URL));
         result.setManagerDn((String) source.get(MANAGER_DN));
-        result.setManagerPassword((String) source.get(MANAGER_PASSWORD));
+        result.setManagerPassword(String.valueOf(source.get(MANAGER_PASSWORD)));
 
         LdapGroupSearch groupSearch = new LdapGroupSearch();
         groupSearch.setGroupSearchBase((String) source.get(GROUP_SEARCH_BASE));

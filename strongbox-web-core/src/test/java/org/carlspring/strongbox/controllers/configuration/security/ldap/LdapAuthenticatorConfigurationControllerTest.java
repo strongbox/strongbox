@@ -225,7 +225,6 @@ public class LdapAuthenticatorConfigurationControllerTest
 
     @WithMockUser(authorities = "ADMIN")
     @Test()
-    @Disabled
     public void ldapConfigurationTestShouldFailWithWithInvalidManagerDn()
     {
         LdapConfigurationTestForm form = getLdapConfigurationTestForm();
@@ -317,6 +316,8 @@ public class LdapAuthenticatorConfigurationControllerTest
 
         LdapConfiguration configuration = ldapAuthenticationConfigurationManager.getConfiguration();
         form.setConfiguration(configuration);
+        form.getConfiguration().setManagerDn("uid=admin,ou=system");
+        form.getConfiguration().setManagerPassword("secret");
         return form;
     }
     
