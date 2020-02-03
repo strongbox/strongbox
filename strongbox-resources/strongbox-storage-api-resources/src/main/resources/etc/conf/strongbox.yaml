@@ -273,6 +273,7 @@ configuration:
             indexingEnabled: true
             cronExpression: "0 0 2 * * ?"
           groupRepositories:
+            - storage-common-proxies:maven-central
             - sbt-plugin-releases
             - storage-ivy-proxies:group-ivy-proxies
     storage-third-party:
