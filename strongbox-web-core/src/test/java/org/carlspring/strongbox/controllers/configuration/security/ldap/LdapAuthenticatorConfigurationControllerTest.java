@@ -283,6 +283,121 @@ public class LdapAuthenticatorConfigurationControllerTest
                .body("message", equalTo("LDAP configuration test passed"));
     }
 
+    
+    @WithMockUser(authorities = "ADMIN")
+    @Test
+    public void ldapConfigurationTestShouldPassWithValidUserDnUsingMD5PasswordEncoding()
+    {
+        LdapConfigurationTestForm form = getLdapConfigurationTestForm();
+        form.setUsername("stodorov");
+        form.setPassword("password");
+
+        mockMvc.accept(MediaType.APPLICATION_JSON_VALUE)
+               .contentType(ContentType.JSON)
+               .body(form)
+               .when()
+               .put(getContextBaseUrl() + "/test")
+               .peek()
+               .then()
+               .statusCode(HttpStatus.OK.value())
+               .body("message", equalTo("LDAP configuration test passed"));
+    }
+
+    @WithMockUser(authorities = "ADMIN")
+    @Test
+    public void ldapConfigurationTestShouldFailWithInValidPasswordUsingMD5PasswordEncoding()
+    {
+        LdapConfigurationTestForm form = getLdapConfigurationTestForm();
+        form.setUsername("stodorov");
+        form.setPassword("password1");
+
+        mockMvc.accept(MediaType.APPLICATION_JSON_VALUE)
+               .contentType(ContentType.JSON)
+               .body(form)
+               .when()
+               .put(getContextBaseUrl() + "/test")
+               .peek()
+               .then()
+               .statusCode(HttpStatus.OK.value())
+               .body("message", equalTo("LDAP configuration test failed"));
+    }
+
+    @WithMockUser(authorities = "ADMIN")
+    @Test
+    public void ldapConfigurationTestShouldPassWithValidUserDnUsingSHA256PasswordEncoding()
+    {
+        LdapConfigurationTestForm form = getLdapConfigurationTestForm();
+        form.setUsername("przemyslaw.fusik");
+        form.setPassword("password");
+
+        mockMvc.accept(MediaType.APPLICATION_JSON_VALUE)
+               .contentType(ContentType.JSON)
+               .body(form)
+               .when()
+               .put(getContextBaseUrl() + "/test")
+               .peek()
+               .then()
+               .statusCode(HttpStatus.OK.value())
+               .body("message", equalTo("LDAP configuration test passed"));
+    }
+
+    @WithMockUser(authorities = "ADMIN")
+    @Test
+    public void ldapConfigurationTestShouldFailWithInValidUserDnUsingSHA256PasswordEncoding()
+    {
+        LdapConfigurationTestForm form = getLdapConfigurationTestForm();
+        form.setUsername("przemyslaw.fusik");
+        form.setPassword("pAssword");
+
+        mockMvc.accept(MediaType.APPLICATION_JSON_VALUE)
+               .contentType(ContentType.JSON)
+               .body(form)
+               .when()
+               .put(getContextBaseUrl() + "/test")
+               .peek()
+               .then()
+               .statusCode(HttpStatus.OK.value())
+               .body("message", equalTo("LDAP configuration test failed"));
+    }
+
+    @WithMockUser(authorities = "ADMIN")
+    @Test
+    public void ldapConfigurationTestShouldPassWithValidUserDnUsingSHA1PasswordEncoding()
+    {
+        LdapConfigurationTestForm form = getLdapConfigurationTestForm();
+        form.setUsername("testuser1");
+        form.setPassword("password");
+
+        mockMvc.accept(MediaType.APPLICATION_JSON_VALUE)
+               .contentType(ContentType.JSON)
+               .body(form)
+               .when()
+               .put(getContextBaseUrl() + "/test")
+               .peek()
+               .then()
+               .statusCode(HttpStatus.OK.value())
+               .body("message", equalTo("LDAP configuration test passed"));
+    }
+
+    @WithMockUser(authorities = "ADMIN")
+    @Test
+    public void ldapConfigurationTestShouldFailWithValidPasswordUsingSHA1PasswordEncoding()
+    {
+        LdapConfigurationTestForm form = getLdapConfigurationTestForm();
+        form.setUsername("testuser1");
+        form.setPassword("pAsSwOrD");
+
+        mockMvc.accept(MediaType.APPLICATION_JSON_VALUE)
+               .contentType(ContentType.JSON)
+               .body(form)
+               .when()
+               .put(getContextBaseUrl() + "/test")
+               .peek()
+               .then()
+               .statusCode(HttpStatus.OK.value())
+               .body("message", equalTo("LDAP configuration test failed"));
+    }
+    
     @WithMockUser(authorities = "ADMIN")
     @Test
     public void ldapConfigurationTestShouldNotAffectInternalConfiguration()
