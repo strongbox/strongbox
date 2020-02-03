@@ -34,7 +34,7 @@ cn: Steve Todorov
 mail: stodorov@carlspring.com
 givenName: Steve
 surname: Todorov
-userPassword: {bcrypt}$2a$10$lpwlxyjvXKzN1ccCrw2PBuZx.eVesWbfmTbsrCboMU.gsNWVcZWMi
+userPassword: {MD5}$2a$10$lpwlxyjvXKzN1ccCrw2PBuZx.eVesWbfmTbsrCboMU.gsNWVcZWMi
 
 dn: uid=przemyslaw.fusik,ou=Users,dc=carlspring,dc=com
 objectClass: inetOrgPerson
@@ -46,7 +46,7 @@ cn: Przemyslaw Fusik
 mail: przemyslaw.fusik@gmail.com
 givenName: Przemyslaw
 surname: Fusik
-userPassword: {bcrypt}$2a$10$lpwlxyjvXKzN1ccCrw2PBuZx.eVesWbfmTbsrCboMU.gsNWVcZWMi
+userPassword: {SHA-256}$2a$10$lpwlxyjvXKzN1ccCrw2PBuZx.eVesWbfmTbsrCboMU.gsNWVcZWMi
 
 dn: uid=testuser1,ou=Users,dc=carlspring,dc=com
 objectClass: inetOrgPerson
@@ -57,7 +57,7 @@ uid: testuser1
 cn: Test User1
 givenName: Test
 surname: User1
-userPassword: {bcrypt}$2a$10$lpwlxyjvXKzN1ccCrw2PBuZx.eVesWbfmTbsrCboMU.gsNWVcZWMi
+userPassword: {SHA-1}$2a$10$lpwlxyjvXKzN1ccCrw2PBuZx.eVesWbfmTbsrCboMU.gsNWVcZWMi
 
 # Create groups
 dn: ou=Groups, dc=carlspring, dc=com
