@@ -343,7 +343,7 @@ public class LdapAuthenticatorConfigurationControllerTest
 
     @WithMockUser(authorities = "ADMIN")
     @Test
-    public void ldapConfigurationTestShouldFailWithInValidUserDnUsingSHA256PasswordEncoding()
+    public void ldapConfigurationTestShouldFailWithInValidPasswordUsingSHA256PasswordEncoding()
     {
         LdapConfigurationTestForm form = getLdapConfigurationTestForm();
         form.setUsername("przemyslaw.fusik");
@@ -381,7 +381,7 @@ public class LdapAuthenticatorConfigurationControllerTest
 
     @WithMockUser(authorities = "ADMIN")
     @Test
-    public void ldapConfigurationTestShouldFailWithValidPasswordUsingSHA1PasswordEncoding()
+    public void ldapConfigurationTestShouldFailWithInValidPasswordUsingSHA1PasswordEncoding()
     {
         LdapConfigurationTestForm form = getLdapConfigurationTestForm();
         form.setUsername("testuser1");
