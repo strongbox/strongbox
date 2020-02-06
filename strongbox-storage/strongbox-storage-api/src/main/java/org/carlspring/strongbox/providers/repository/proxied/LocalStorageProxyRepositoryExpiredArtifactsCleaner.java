@@ -11,7 +11,7 @@ import org.carlspring.strongbox.services.support.ArtifactEntrySearchCriteria;
 import org.carlspring.strongbox.storage.Storage;
 import org.carlspring.strongbox.storage.repository.Repository;
 import org.carlspring.strongbox.storage.repository.remote.RemoteRepository;
-import org.carlspring.strongbox.storage.repository.remote.heartbeat.RemoteRepositoryAlivenessCacheManager;
+import org.carlspring.strongbox.storage.repository.remote.heartbeat.RemoteRepositoryAlivenessService;
 
 import javax.inject.Inject;
 import java.io.IOException;
@@ -44,7 +44,7 @@ public class LocalStorageProxyRepositoryExpiredArtifactsCleaner
     private ArtifactEntryService artifactEntryService;
 
     @Inject
-    private RemoteRepositoryAlivenessCacheManager remoteRepositoryAlivenessCacheManager;
+    private RemoteRepositoryAlivenessService remoteRepositoryAlivenessCacheManager;
 
     @Inject
     private ArtifactManagementService artifactManagementService;

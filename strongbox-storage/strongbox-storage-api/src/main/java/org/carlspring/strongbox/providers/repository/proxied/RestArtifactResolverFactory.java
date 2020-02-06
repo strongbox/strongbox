@@ -1,15 +1,15 @@
 package org.carlspring.strongbox.providers.repository.proxied;
 
+import java.util.Objects;
+
+import javax.inject.Inject;
+
 import org.carlspring.strongbox.client.RemoteRepositoryRetryArtifactDownloadConfiguration;
 import org.carlspring.strongbox.client.RestArtifactResolver;
 import org.carlspring.strongbox.configuration.ConfigurationManager;
 import org.carlspring.strongbox.service.ProxyRepositoryConnectionPoolConfigurationService;
 import org.carlspring.strongbox.storage.repository.remote.RemoteRepository;
-import org.carlspring.strongbox.storage.repository.remote.heartbeat.RemoteRepositoryAlivenessCacheManager;
-
-import javax.inject.Inject;
-import java.util.Objects;
-
+import org.carlspring.strongbox.storage.repository.remote.heartbeat.RemoteRepositoryAlivenessService;
 import org.glassfish.jersey.client.authentication.HttpAuthenticationFeature;
 import org.springframework.stereotype.Component;
 
@@ -27,7 +27,7 @@ public class RestArtifactResolverFactory
     private ConfigurationManager configurationManager;
     
     @Inject
-    private RemoteRepositoryAlivenessCacheManager remoteRepositoryAlivenessCacheManager;
+    private RemoteRepositoryAlivenessService remoteRepositoryAlivenessCacheManager;
 
     public RestArtifactResolver newInstance(RemoteRepository repository)
     {

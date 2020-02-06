@@ -1,12 +1,14 @@
 package org.carlspring.strongbox.storage.repository.remote.heartbeat;
 
-import org.carlspring.strongbox.data.CacheName;
-import org.carlspring.strongbox.storage.repository.remote.RemoteRepository;
-
-import javax.inject.Inject;
 import java.util.Objects;
 
+import javax.inject.Inject;
+
 import org.apache.commons.lang3.BooleanUtils;
+import org.carlspring.strongbox.data.CacheName;
+import org.carlspring.strongbox.storage.repository.remote.RemoteRepository;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.DisposableBean;
 import org.springframework.cache.Cache;
 import org.springframework.cache.CacheManager;
@@ -17,9 +19,11 @@ import org.springframework.stereotype.Component;
  */
 @Component
 public class RemoteRepositoryAlivenessCacheManager
-        implements DisposableBean
+        implements RemoteRepositoryAlivenessService, DisposableBean
 {
 
+    private static final Logger logger = LoggerFactory.getLogger(RemoteRepositoryAlivenessCacheManager.class);
+    
     private final Cache cache;
 
     @Inject
@@ -31,12 +35,21 @@ public class RemoteRepositoryAlivenessCacheManager
 
     public boolean isAlive(RemoteRepository remoteRepository)
     {
-        return BooleanUtils.isNotFalse(cache.get(remoteRepository.getUrl(), Boolean.class));
+        Boolean aliveness = cache.get(remoteRepository.getUrl(), Boolean.class);
+        logger.trace("Remote repository [{}] aliveness cached value is [{}].",
+                     remoteRepository.getUrl(),
+                     aliveness);
+        
+        return BooleanUtils.isNotFalse(aliveness);
     }
 
     public void put(RemoteRepository remoteRepository,
                     boolean aliveness)
     {
+        logger.trace("Cache remote repository [{}] aliveness as [{}].",
+                     remoteRepository.getUrl(),
+                     aliveness);
+        
         cache.put(remoteRepository.getUrl(), Boolean.valueOf(aliveness));
     }
 
@@ -44,6 +57,8 @@ public class RemoteRepositoryAlivenessCacheManager
     public void destroy()
             throws Exception
     {
+        logger.debug("Destroy remote repository aliveness cache.");
+        
         cache.clear();
     }
 }

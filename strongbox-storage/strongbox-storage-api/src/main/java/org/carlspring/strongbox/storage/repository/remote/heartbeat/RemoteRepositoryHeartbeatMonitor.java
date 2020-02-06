@@ -1,11 +1,11 @@
 package org.carlspring.strongbox.storage.repository.remote.heartbeat;
 
-import org.carlspring.strongbox.storage.repository.remote.RemoteRepository;
-import org.carlspring.strongbox.storage.repository.remote.heartbeat.monitor.RemoteRepositoryHeartbeatMonitorStrategy;
-
-import javax.annotation.Nonnull;
 import java.util.Objects;
 
+import javax.annotation.Nonnull;
+
+import org.carlspring.strongbox.storage.repository.remote.RemoteRepository;
+import org.carlspring.strongbox.storage.repository.remote.heartbeat.monitor.RemoteRepositoryHeartbeatMonitorStrategy;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -20,11 +20,11 @@ class RemoteRepositoryHeartbeatMonitor
 
     private final RemoteRepository remoteRepository;
 
-    private final RemoteRepositoryAlivenessCacheManager remoteRepositoryCacheManager;
+    private final RemoteRepositoryAlivenessService remoteRepositoryCacheManager;
 
     private final RemoteRepositoryHeartbeatMonitorStrategy monitorStrategy;
 
-    RemoteRepositoryHeartbeatMonitor(@Nonnull RemoteRepositoryAlivenessCacheManager remoteRepositoryCacheManager,
+    RemoteRepositoryHeartbeatMonitor(@Nonnull RemoteRepositoryAlivenessService remoteRepositoryCacheManager,
                                      @Nonnull RemoteRepositoryHeartbeatMonitorStrategy monitorStrategy,
                                      @Nonnull RemoteRepository remoteRepository)
     {
