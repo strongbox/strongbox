@@ -1,5 +1,14 @@
 package org.carlspring.strongbox.providers.repository.proxied;
 
+import java.io.BufferedInputStream;
+import java.io.IOException;
+import java.io.InputStream;
+import java.nio.file.Files;
+import java.util.concurrent.locks.Lock;
+import java.util.concurrent.locks.ReadWriteLock;
+
+import javax.inject.Inject;
+
 import org.carlspring.strongbox.client.RestArtifactResolver;
 import org.carlspring.strongbox.event.artifact.ArtifactEventListenerRegistry;
 import org.carlspring.strongbox.providers.io.RepositoryFileAttributes;
@@ -8,16 +17,7 @@ import org.carlspring.strongbox.providers.io.RepositoryPathLock;
 import org.carlspring.strongbox.services.ArtifactManagementService;
 import org.carlspring.strongbox.storage.repository.Repository;
 import org.carlspring.strongbox.storage.repository.remote.RemoteRepository;
-import org.carlspring.strongbox.storage.repository.remote.heartbeat.RemoteRepositoryAlivenessCacheManager;
-
-import javax.inject.Inject;
-import java.io.BufferedInputStream;
-import java.io.IOException;
-import java.io.InputStream;
-import java.nio.file.Files;
-import java.util.concurrent.locks.Lock;
-import java.util.concurrent.locks.ReadWriteLock;
-
+import org.carlspring.strongbox.storage.repository.remote.heartbeat.RemoteRepositoryAlivenessService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Component;
@@ -31,7 +31,7 @@ public class ProxyRepositoryArtifactResolver
     private static final Logger logger = LoggerFactory.getLogger(ProxyRepositoryArtifactResolver.class);
 
     @Inject
-    private RemoteRepositoryAlivenessCacheManager remoteRepositoryAlivenessCacheManager;
+    private RemoteRepositoryAlivenessService remoteRepositoryAlivenessCacheManager;
 
     @Inject
     private ArtifactEventListenerRegistry artifactEventListenerRegistry;

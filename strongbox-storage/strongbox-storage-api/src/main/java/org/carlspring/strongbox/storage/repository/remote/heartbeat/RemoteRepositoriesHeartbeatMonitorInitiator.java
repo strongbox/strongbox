@@ -1,5 +1,14 @@
 package org.carlspring.strongbox.storage.repository.remote.heartbeat;
 
+import java.util.List;
+import java.util.concurrent.Executors;
+import java.util.concurrent.ScheduledExecutorService;
+import java.util.concurrent.TimeUnit;
+import java.util.stream.Collectors;
+
+import javax.inject.Inject;
+
+import org.apache.commons.lang3.ObjectUtils;
 import org.carlspring.strongbox.configuration.ConfigurationManager;
 import org.carlspring.strongbox.log.CronTaskContextAcceptFilter;
 import org.carlspring.strongbox.log.LoggingUtils;
@@ -7,15 +16,6 @@ import org.carlspring.strongbox.storage.repository.Repository;
 import org.carlspring.strongbox.storage.repository.remote.RemoteRepository;
 import org.carlspring.strongbox.storage.repository.remote.heartbeat.monitor.RemoteRepositoryHeartbeatMonitorStrategy;
 import org.carlspring.strongbox.storage.repository.remote.heartbeat.monitor.RemoteRepositoryHeartbeatMonitorStrategyRegistry;
-
-import javax.inject.Inject;
-import java.util.List;
-import java.util.concurrent.Executors;
-import java.util.concurrent.ScheduledExecutorService;
-import java.util.concurrent.TimeUnit;
-import java.util.stream.Collectors;
-
-import org.apache.commons.lang3.ObjectUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.slf4j.MDC;
@@ -40,7 +40,7 @@ public class RemoteRepositoriesHeartbeatMonitorInitiator
     private ConfigurationManager configurationManager;
 
     @Inject
-    private RemoteRepositoryAlivenessCacheManager remoteRepositoryCacheManager;
+    private RemoteRepositoryAlivenessService remoteRepositoryCacheManager;
 
     @Inject
     private RemoteRepositoryHeartbeatMonitorStrategyRegistry remoteRepositoryHeartbeatMonitorStrategyRegistry;
