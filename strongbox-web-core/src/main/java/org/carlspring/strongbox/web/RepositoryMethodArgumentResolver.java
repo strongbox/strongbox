@@ -32,7 +32,9 @@ public class RepositoryMethodArgumentResolver
 {
 
     public static final String NOT_FOUND_STORAGE_MESSAGE = "Could not find requested storage %s.";
+
     public static final String NOT_FOUND_REPOSITORY_MESSAGE = "Could not find requested repository %s:%s.";
+
     public static final String NOT_IN_SERVICE_REPOSITORY_MESSAGE = "Requested repository %s:%s is out of service.";
 
     @Inject
@@ -56,7 +58,7 @@ public class RepositoryMethodArgumentResolver
                                   final ModelAndViewContainer modelAndViewContainer,
                                   final NativeWebRequest nativeWebRequest,
                                   final WebDataBinderFactory webDataBinderFactory)
-            throws MissingPathVariableException
+        throws MissingPathVariableException
     {
         final RepositoryMapping repositoryMapping = parameter.getParameterAnnotation(RepositoryMapping.class);
         final String storageVariableName = repositoryMapping.storageVariableName();
@@ -69,7 +71,7 @@ public class RepositoryMethodArgumentResolver
                                                                            RequestAttributes.SCOPE_REQUEST);
 
         if (repository != null && Objects.equals(repository.getId(), repositoryId) &&
-            Objects.equals(repository.getStorage().getId(), storageId))
+                Objects.equals(repository.getStorage().getId(), storageId))
         {
             return repository;
         }
@@ -88,7 +90,7 @@ public class RepositoryMethodArgumentResolver
             throw new RepositoryNotFoundException(message);
         }
 
-        final boolean inService = repository.isInService();
+        final boolean inService = repositoryMapping.inServiceRepository();
         if (!inService)
         {
             final String message = String.format(NOT_IN_SERVICE_REPOSITORY_MESSAGE, storageId, repositoryId);
@@ -101,12 +103,12 @@ public class RepositoryMethodArgumentResolver
     private String getRequiredPathVariable(final MethodParameter parameter,
                                            final NativeWebRequest nativeWebRequest,
                                            final String variableName)
-            throws MissingPathVariableException
+        throws MissingPathVariableException
     {
         // Check @PathVariable parameter.
         @SuppressWarnings("unchecked")
-        final Map<String, String> uriTemplateVars = (Map<String, String>) nativeWebRequest.getAttribute(
-                HandlerMapping.URI_TEMPLATE_VARIABLES_ATTRIBUTE, RequestAttributes.SCOPE_REQUEST);
+        final Map<String, String> uriTemplateVars = (Map<String, String>) nativeWebRequest.getAttribute(HandlerMapping.URI_TEMPLATE_VARIABLES_ATTRIBUTE,
+                                                                                                        RequestAttributes.SCOPE_REQUEST);
         if (MapUtils.isNotEmpty(uriTemplateVars))
         {
             final String pathVariable = uriTemplateVars.get(variableName);
