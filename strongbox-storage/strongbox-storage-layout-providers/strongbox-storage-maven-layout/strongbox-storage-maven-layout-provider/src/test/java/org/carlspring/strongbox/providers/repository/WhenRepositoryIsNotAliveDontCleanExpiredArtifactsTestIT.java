@@ -52,7 +52,7 @@ public class WhenRepositoryIsNotAliveDontCleanExpiredArtifactsTestIT
     {
         ArtifactEntry artifactEntry = downloadAndSaveArtifactEntry();
 
-        Mockito.when(remoteRepositoryAlivenessCacheManager.isAlive(
+        Mockito.when(getRemoteRepositoryAlivenessMock().isAlive(
                 argThat(argument -> argument != null && REMOTE_URL.equals(argument.getUrl()))))
                .thenReturn(false);
 

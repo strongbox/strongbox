@@ -8,6 +8,7 @@ import org.carlspring.strongbox.storage.repository.remote.RemoteRepository;
 import org.carlspring.strongbox.storage.repository.remote.heartbeat.RemoteRepositoriesHeartbeatMonitorInitiator;
 import org.carlspring.strongbox.storage.repository.remote.heartbeat.RemoteRepositoryAlivenessService;
 import org.mockito.Mockito;
+import org.springframework.aop.TargetSource;
 import org.springframework.aop.framework.ProxyFactoryBean;
 import org.springframework.aop.target.ThreadLocalTargetSource;
 import org.springframework.beans.BeansException;
@@ -16,7 +17,6 @@ import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Primary;
 import org.springframework.context.event.EventListener;
-import org.springframework.test.context.TestContext;
 import org.springframework.test.context.event.AfterTestExecutionEvent;
 
 /**
@@ -85,15 +85,15 @@ public class MockedRemoteRepositoriesHeartbeatConfig
 
     private static class MockedRemoteRepositoryAlivenessTestExecutionListener {
 
-        private final ThreadLocalTargetSource targetSource;
+        private final TargetSource targetSource;
 
-        public MockedRemoteRepositoryAlivenessTestExecutionListener(ThreadLocalTargetSource targetSource)
+        public MockedRemoteRepositoryAlivenessTestExecutionListener(TargetSource targetSource)
         {
             this.targetSource = targetSource;
         }
 
         @EventListener(AfterTestExecutionEvent.class)
-        public void afterTestExecution()
+        public void afterTestExecution() throws Exception
         {
             resetMock((RemoteRepositoryAlivenessService) targetSource.getTarget());
         }
