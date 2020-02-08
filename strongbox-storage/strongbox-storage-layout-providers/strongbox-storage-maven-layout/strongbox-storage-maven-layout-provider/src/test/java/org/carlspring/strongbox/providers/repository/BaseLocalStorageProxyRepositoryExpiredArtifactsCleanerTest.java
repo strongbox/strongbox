@@ -17,6 +17,7 @@ import org.carlspring.strongbox.providers.repository.proxied.LocalStorageProxyRe
 import org.carlspring.strongbox.services.ArtifactEntryService;
 import org.carlspring.strongbox.services.ConfigurationManagementService;
 import org.carlspring.strongbox.storage.repository.remote.heartbeat.RemoteRepositoryAlivenessService;
+import org.springframework.aop.TargetSource;
 
 /**
  * @author Przemyslaw Fusik
@@ -36,8 +37,8 @@ abstract class BaseLocalStorageProxyRepositoryExpiredArtifactsCleanerTest
     protected LocalStorageProxyRepositoryExpiredArtifactsCleaner localStorageProxyRepositoryExpiredArtifactsCleaner;
 
     @Inject
-    @Named("mockedRemoteRepositoryAlivenessCacheManager")
-    protected RemoteRepositoryAlivenessService remoteRepositoryAlivenessCacheManager;
+    @Named("remoteRepositoryAlivenessCacheManagerTargetSource") 
+    private TargetSource remoteRepositoryAlivenessCacheManagerTargetSource;
 
     @Inject
     protected RepositoryPathResolver repositoryPathResolver;
@@ -95,6 +96,10 @@ abstract class BaseLocalStorageProxyRepositoryExpiredArtifactsCleanerTest
     protected Configuration getConfiguration()
     {
         return configurationManagementService.getConfiguration();
+    }
+    
+    protected RemoteRepositoryAlivenessService getRemoteRepositoryAlivenessMock() throws Exception {
+        return (RemoteRepositoryAlivenessService) remoteRepositoryAlivenessCacheManagerTargetSource.getTarget(); 
     }
 
 }
