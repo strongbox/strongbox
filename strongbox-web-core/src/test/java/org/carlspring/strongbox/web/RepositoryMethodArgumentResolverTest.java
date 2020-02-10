@@ -15,6 +15,7 @@ import org.carlspring.strongbox.storage.StorageDto;
 import org.carlspring.strongbox.storage.repository.Repository;
 import org.carlspring.strongbox.storage.repository.RepositoryData;
 import org.carlspring.strongbox.storage.repository.RepositoryDto;
+import org.carlspring.strongbox.storage.repository.RepositoryStatusEnum;
 
 import javax.inject.Inject;
 
@@ -75,9 +76,12 @@ public class RepositoryMethodArgumentResolverTest
         boolean supportsParameterTrueCase1 = repositoryMethodArgumentResolver.supportsParameter(getMethodParameter("uploadArtifactWithRepositoryMapping",
                                                                                                                    Repository.class));
         assertTrue(supportsParameterTrueCase1);
-        boolean supportsParameterTrueCase2 = repositoryMethodArgumentResolver.supportsParameter(getMethodParameter("uploadArtifactForRepositoryNotInService",
+        boolean supportsParameterTrueCase2 = repositoryMethodArgumentResolver.supportsParameter(getMethodParameter("uploadArtifactWithOutOfServiceRepositoryAllowed",
                                                                                                                    Repository.class));
         assertTrue(supportsParameterTrueCase2);
+        boolean supportsParameterTrueCase3 = repositoryMethodArgumentResolver.supportsParameter(getMethodParameter("uploadArtifactWithOutOfServiceRepositoryNotAllowed",
+                                                                                                                   Repository.class));
+        assertTrue(supportsParameterTrueCase3);
         boolean supportsParameterFalseCase1 = repositoryMethodArgumentResolver.supportsParameter(getMethodParameter("uploadArtifactWithoutRepositoryMapping",
                                                                                                                     Repository.class));
         assertFalse(supportsParameterFalseCase1);
@@ -91,27 +95,57 @@ public class RepositoryMethodArgumentResolverTest
         throws MissingPathVariableException
     {
 
-        mockStoragesAndRepositories();
-
         Map<String, String> uriTemplateVars = new HashMap<>();
         uriTemplateVars.put("storageId", "storage-pypi");
         uriTemplateVars.put("repositoryId", "pypi-releases");
         nativeWebRequest.setAttribute(HandlerMapping.URI_TEMPLATE_VARIABLES_ATTRIBUTE, uriTemplateVars,
                                       RequestAttributes.SCOPE_REQUEST);
 
-        MethodParameter uploadArtifactWithRepositoryMappingMethod = getMethodParameter("uploadArtifactWithRepositoryMapping",
-                                                                                       Repository.class);
-        Repository repository = (Repository) repositoryMethodArgumentResolver.resolveArgument(uploadArtifactWithRepositoryMappingMethod,
+        mockStoragesAndRepositories(RepositoryStatusEnum.OUT_OF_SERVICE);
+
+        MethodParameter uploadArtifactWithOutOfServiceRepositoryAllowedMethod = getMethodParameter("uploadArtifactWithOutOfServiceRepositoryAllowed",
+                                                                                                   Repository.class);
+        Repository repository = (Repository) repositoryMethodArgumentResolver.resolveArgument(uploadArtifactWithOutOfServiceRepositoryAllowedMethod,
                                                                                               modelAndViewContainer,
                                                                                               nativeWebRequest,
                                                                                               webDataBinderFactory);
         assertNotNull(repository);
 
+        mockStoragesAndRepositories(RepositoryStatusEnum.IN_SERVICE);
+        repository = (Repository) repositoryMethodArgumentResolver.resolveArgument(uploadArtifactWithOutOfServiceRepositoryAllowedMethod,
+                                                                                   modelAndViewContainer,
+                                                                                   nativeWebRequest,
+                                                                                   webDataBinderFactory);
+        assertNotNull(repository);
+
+        mockStoragesAndRepositories(RepositoryStatusEnum.IN_SERVICE);
+        MethodParameter uploadArtifactWithOutOfServiceRepositoryNotAllowedMethod = getMethodParameter("uploadArtifactWithOutOfServiceRepositoryNotAllowed",
+                                                                                                      Repository.class);
+        repository = (Repository) repositoryMethodArgumentResolver.resolveArgument(uploadArtifactWithOutOfServiceRepositoryNotAllowedMethod,
+                                                                                   modelAndViewContainer,
+                                                                                   nativeWebRequest,
+                                                                                   webDataBinderFactory);
+        assertNotNull(repository);
+
+    }
+
+    @Test
+    public void testResolveArgumentThrowingServiceUnavailableException()
+        throws MissingPathVariableException
+    {
+        Map<String, String> uriTemplateVars = new HashMap<>();
+        uriTemplateVars.put("storageId", "storage-pypi");
+        uriTemplateVars.put("repositoryId", "pypi-releases");
+        nativeWebRequest.setAttribute(HandlerMapping.URI_TEMPLATE_VARIABLES_ATTRIBUTE, uriTemplateVars,
+                                      RequestAttributes.SCOPE_REQUEST);
+
+        mockStoragesAndRepositories(RepositoryStatusEnum.OUT_OF_SERVICE);
+
         // ServiceUnavailableException Test Case
-        MethodParameter uploadArtifactForRepositoryNotInServiceMethod = getMethodParameter("uploadArtifactForRepositoryNotInService",
-                                                                                           Repository.class);
+        MethodParameter uploadArtifactWithOutOfServiceRepositoryNotAllowedMethod = getMethodParameter("uploadArtifactWithOutOfServiceRepositoryNotAllowed",
+                                                                                                      Repository.class);
         ServiceUnavailableException serviceUnavailableException = Assertions.assertThrows(ServiceUnavailableException.class,
-                                                                                          () -> repositoryMethodArgumentResolver.resolveArgument(uploadArtifactForRepositoryNotInServiceMethod,
+                                                                                          () -> repositoryMethodArgumentResolver.resolveArgument(uploadArtifactWithOutOfServiceRepositoryNotAllowedMethod,
                                                                                                                                                  modelAndViewContainer,
                                                                                                                                                  nativeWebRequest,
                                                                                                                                                  webDataBinderFactory));
@@ -119,13 +153,25 @@ public class RepositoryMethodArgumentResolverTest
                                    uriTemplateVars.get("storageId"), uriTemplateVars.get("repositoryId")),
                      serviceUnavailableException.getMessage());
 
-        // StorageNotFoundException Test Case
+    }
+
+    @Test
+    public void testResolveArgumentThrowingStorageNotFoundException()
+        throws MissingPathVariableException
+    {
+        Map<String, String> uriTemplateVars = new HashMap<>();
         uriTemplateVars.put("storageId", "storage-nuget");
         uriTemplateVars.put("repositoryId", "pypi-releases");
         nativeWebRequest.setAttribute(HandlerMapping.URI_TEMPLATE_VARIABLES_ATTRIBUTE, uriTemplateVars,
                                       RequestAttributes.SCOPE_REQUEST);
+
+        mockStoragesAndRepositories(RepositoryStatusEnum.IN_SERVICE);
+
+        // StorageNotFoundException Test Case
+        MethodParameter uploadArtifactWithOutOfServiceRepositoryNotAllowedMethod = getMethodParameter("uploadArtifactWithOutOfServiceRepositoryNotAllowed",
+                                                                                                      Repository.class);
         StorageNotFoundException storageNotFoundException = Assertions.assertThrows(StorageNotFoundException.class,
-                                                                                    () -> repositoryMethodArgumentResolver.resolveArgument(uploadArtifactWithRepositoryMappingMethod,
+                                                                                    () -> repositoryMethodArgumentResolver.resolveArgument(uploadArtifactWithOutOfServiceRepositoryNotAllowedMethod,
                                                                                                                                            modelAndViewContainer,
                                                                                                                                            nativeWebRequest,
                                                                                                                                            webDataBinderFactory));
@@ -133,13 +179,34 @@ public class RepositoryMethodArgumentResolverTest
                                    uriTemplateVars.get("storageId")),
                      storageNotFoundException.getMessage());
 
-        // RepositoryNotFoundException Test Case
+        mockStoragesAndRepositories(RepositoryStatusEnum.OUT_OF_SERVICE);
+        storageNotFoundException = Assertions.assertThrows(StorageNotFoundException.class,
+                                                           () -> repositoryMethodArgumentResolver.resolveArgument(uploadArtifactWithOutOfServiceRepositoryNotAllowedMethod,
+                                                                                                                  modelAndViewContainer,
+                                                                                                                  nativeWebRequest,
+                                                                                                                  webDataBinderFactory));
+        assertEquals(String.format(RepositoryMethodArgumentResolver.NOT_FOUND_STORAGE_MESSAGE,
+                                   uriTemplateVars.get("storageId")),
+                     storageNotFoundException.getMessage());
+    }
+
+    @Test
+    public void testResolveArgumentThrowingRepositoryNotFoundException()
+        throws MissingPathVariableException
+    {
+        Map<String, String> uriTemplateVars = new HashMap<>();
         uriTemplateVars.put("storageId", "storage-pypi");
         uriTemplateVars.put("repositoryId", "maven-releases");
         nativeWebRequest.setAttribute(HandlerMapping.URI_TEMPLATE_VARIABLES_ATTRIBUTE, uriTemplateVars,
                                       RequestAttributes.SCOPE_REQUEST);
+
+        mockStoragesAndRepositories(RepositoryStatusEnum.IN_SERVICE);
+
+        // RepositoryNotFoundException Test Case
+        MethodParameter uploadArtifactWithOutOfServiceRepositoryNotAllowedMethod = getMethodParameter("uploadArtifactWithOutOfServiceRepositoryNotAllowed",
+                                                                                                      Repository.class);
         RepositoryNotFoundException repositoryNotFoundException = Assertions.assertThrows(RepositoryNotFoundException.class,
-                                                                                          () -> repositoryMethodArgumentResolver.resolveArgument(uploadArtifactWithRepositoryMappingMethod,
+                                                                                          () -> repositoryMethodArgumentResolver.resolveArgument(uploadArtifactWithOutOfServiceRepositoryNotAllowedMethod,
                                                                                                                                                  modelAndViewContainer,
                                                                                                                                                  nativeWebRequest,
                                                                                                                                                  webDataBinderFactory));
@@ -147,15 +214,25 @@ public class RepositoryMethodArgumentResolverTest
                                    uriTemplateVars.get("storageId"), uriTemplateVars.get("repositoryId")),
                      repositoryNotFoundException.getMessage());
 
+        mockStoragesAndRepositories(RepositoryStatusEnum.OUT_OF_SERVICE);
+        repositoryNotFoundException = Assertions.assertThrows(RepositoryNotFoundException.class,
+                                                              () -> repositoryMethodArgumentResolver.resolveArgument(uploadArtifactWithOutOfServiceRepositoryNotAllowedMethod,
+                                                                                                                     modelAndViewContainer,
+                                                                                                                     nativeWebRequest,
+                                                                                                                     webDataBinderFactory));
+        assertEquals(String.format(RepositoryMethodArgumentResolver.NOT_FOUND_REPOSITORY_MESSAGE,
+                                   uriTemplateVars.get("storageId"), uriTemplateVars.get("repositoryId")),
+                     repositoryNotFoundException.getMessage());
     }
 
-    private void mockStoragesAndRepositories()
+    private void mockStoragesAndRepositories(RepositoryStatusEnum repositoryStatus)
     {
         Map<String, RepositoryDto> repositories = new HashMap<>();
         Map<String, StorageDto> storages = new HashMap<>();
 
         RepositoryDto repositoryDto = new RepositoryDto();
         repositoryDto.setId("pypi-releases");
+        repositoryDto.setStatus(repositoryStatus.getStatus());
         repositories.put(repositoryDto.getId(), repositoryDto);
 
         StorageDto storageDto = new StorageDto();
@@ -198,8 +275,13 @@ public class RepositoryMethodArgumentResolverTest
         {
         }
 
-        @PutMapping(path = "/{storageId}/{repositoryId}/uploadArtifactForRepositoryNotInService")
-        void uploadArtifactForRepositoryNotInService(@RepositoryMapping(inServiceRepository = false) Repository repository)
+        @PutMapping(path = "/{storageId}/{repositoryId}/uploadArtifactWithOutOfServiceRepositoryAllowed")
+        void uploadArtifactWithOutOfServiceRepositoryAllowed(@RepositoryMapping(allowOutOfServiceRepository = true) Repository repository)
+        {
+        }
+
+        @PutMapping(path = "/{storageId}/{repositoryId}/uploadArtifactWithOutOfServiceRepositoryNotAllowed")
+        void uploadArtifactWithOutOfServiceRepositoryNotAllowed(@RepositoryMapping(allowOutOfServiceRepository = false) Repository repository)
         {
         }
 

@@ -23,5 +23,5 @@ public @interface RepositoryMapping
 
     String repositoryVariableName() default "repositoryId";
 
-    boolean inServiceRepository() default true;
+    boolean allowOutOfServiceRepository() default false;
 }
