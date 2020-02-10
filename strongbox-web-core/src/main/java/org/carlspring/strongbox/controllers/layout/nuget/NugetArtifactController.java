@@ -406,9 +406,9 @@ public class NugetArtifactController
     @ApiOperation(value = "Used to check storage availability")
     @ApiResponses(value = { @ApiResponse(code = HttpURLConnection.HTTP_OK, message = "Storage available."),
                             @ApiResponse(code = HttpURLConnection.HTTP_UNAUTHORIZED, message = "Storage requires authorization.") })
-    @GetMapping(path = { "{storageId}/{repositoryId}", "checkRepositoryHealth" })
+    @GetMapping(path = { "{storageId}/{repositoryId}", "checkRepositoryAccess" })
     @PreAuthorize("hasAuthority('ARTIFACTS_RESOLVE')")
-    public ResponseEntity<String> checkRepositoryHealth()
+    public ResponseEntity<String> checkRepositoryAccess()
     {
         return new ResponseEntity<>("success", HttpStatus.OK);
     }
