@@ -50,8 +50,8 @@ import org.springframework.web.servlet.HandlerMapping;
 /**
  * @author ankit.tomar
  */
-@Execution(ExecutionMode.SAME_THREAD)
 @SpringBootTest
+@Execution(ExecutionMode.SAME_THREAD)
 @ContextConfiguration(classes = RepositoryMethodArgumentResolverTest.RepositoryMethodArgumentResolverConfiguration.class)
 @ActiveProfiles({ "test", "RepositoryMethodArgumentResolverTest" })
 public class RepositoryMethodArgumentResolverTest
