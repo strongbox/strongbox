@@ -25,6 +25,8 @@ import java.util.Map;
 
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.parallel.Execution;
+import org.junit.jupiter.api.parallel.ExecutionMode;
 import org.mockito.Mockito;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.context.annotation.Bean;
@@ -48,6 +50,7 @@ import org.springframework.web.servlet.HandlerMapping;
 /**
  * @author ankit.tomar
  */
+@Execution(ExecutionMode.SAME_THREAD)
 @SpringBootTest
 @ContextConfiguration(classes = RepositoryMethodArgumentResolverTest.RepositoryMethodArgumentResolverConfiguration.class)
 @ActiveProfiles({ "test", "RepositoryMethodArgumentResolverTest" })
