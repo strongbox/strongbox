@@ -88,8 +88,10 @@ public class RepositoryMethodArgumentResolver
             throw new RepositoryNotFoundException(message);
         }
 
-        final boolean inService = repository.isInService();
-        if (!inService)
+        // This annotation is used in a lot of controllers - some of which are related to the configuration management.
+        // It is necessary to allow requests to pass when the repository status is `out of service` (i.e. `/api/configuration/**`),
+        // but still return `ServiceUnavailableException` when people are accessing `/storages/**`.
+        if (!repository.isInService() && !repositoryMapping.allowOutOfServiceRepository())
         {
             final String message = String.format(NOT_IN_SERVICE_REPOSITORY_MESSAGE, storageId, repositoryId);
             throw new ServiceUnavailableException(message);

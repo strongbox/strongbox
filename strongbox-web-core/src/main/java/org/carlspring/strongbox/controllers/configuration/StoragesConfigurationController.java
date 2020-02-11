@@ -286,14 +286,11 @@ public class StoragesConfigurationController
     }
 
     @ApiOperation(value = "Returns the configuration of a repository.")
-    @ApiResponses(value = { @ApiResponse(code = 200,
-                                         message = "The repository was updated successfully.",
-                                         response = RepositoryDto.class),
-                            @ApiResponse(code = 404,
-                                    message = "The repository ${storageId}:${repositoryId} was not found!") })
+    @ApiResponses(value = { @ApiResponse(code = 200, message = "The repository was updated successfully.", response = RepositoryDto.class),
+                            @ApiResponse(code = 404, message = "The repository ${storageId}:${repositoryId} was not found!") })
     @PreAuthorize("hasAuthority('CONFIGURATION_VIEW_REPOSITORY')")
     @GetMapping(value = "/{storageId}/{repositoryId}", produces = MediaType.APPLICATION_JSON_VALUE)
-    public ResponseEntity getRepositoryResponseEntity(@RepositoryMapping Repository repository)
+    public ResponseEntity getRepositoryResponseEntity(@RepositoryMapping(allowOutOfServiceRepository = true) Repository repository)
     {
         return ResponseEntity.ok(repository);
     }
@@ -305,7 +302,7 @@ public class StoragesConfigurationController
     @PreAuthorize("hasAuthority('CONFIGURATION_DELETE_REPOSITORY')")
     @DeleteMapping(value = "/{storageId}/{repositoryId}", produces = { MediaType.TEXT_PLAIN_VALUE,
                                                                        MediaType.APPLICATION_JSON_VALUE })
-    public ResponseEntity removeRepository(@RepositoryMapping Repository repository,
+    public ResponseEntity removeRepository(@RepositoryMapping(allowOutOfServiceRepository = true) Repository repository,
                                            @ApiParam(value = "Whether to force delete the repository from the file system")
                                            @RequestParam(name = "force", defaultValue = "false") final boolean force,
                                            @RequestHeader(HttpHeaders.ACCEPT) String accept)

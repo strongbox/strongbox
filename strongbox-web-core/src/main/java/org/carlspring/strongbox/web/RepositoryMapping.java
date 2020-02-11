@@ -22,4 +22,6 @@ public @interface RepositoryMapping
     String storageVariableName() default "storageId";
 
     String repositoryVariableName() default "repositoryId";
+
+    boolean allowOutOfServiceRepository() default false;
 }
