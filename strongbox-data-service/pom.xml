@@ -5,13 +5,13 @@
     <parent>
         <artifactId>strongbox-parent</artifactId>
         <groupId>org.carlspring.strongbox</groupId>
-        <version>1.0-PR-60-SNAPSHOT</version>
+        <version>1.0-PR-62-SNAPSHOT</version>
         <relativePath/>
     </parent>
     <modelVersion>4.0.0</modelVersion>
 
     <artifactId>strongbox-data-service</artifactId>
-    <version>1.0-PR-60-SNAPSHOT</version>
+    <version>1.0-PR-62-SNAPSHOT</version>
     <packaging>jar</packaging>
 
     <name>Strongbox: Data Service</name>
@@ -85,17 +85,17 @@
         <dependency>
             <groupId>${project.groupId}</groupId>
             <artifactId>strongbox-db-server</artifactId>
-            <version>1.0-PR-18-SNAPSHOT</version>
+            <version>1.0-PR-19-SNAPSHOT</version>
         </dependency>
         <dependency>
             <groupId>${project.groupId}</groupId>
             <artifactId>strongbox-db-liquibase</artifactId>
-            <version>1.0-PR-18-SNAPSHOT</version>
+            <version>1.0-PR-19-SNAPSHOT</version>
         </dependency>
         <dependency>
             <groupId>${project.groupId}</groupId>
             <artifactId>strongbox-db-import</artifactId>
-            <version>1.0-PR-18-SNAPSHOT</version>
+            <version>1.0-PR-19-SNAPSHOT</version>
             <classifier>schema</classifier>
         </dependency>
         <dependency>
