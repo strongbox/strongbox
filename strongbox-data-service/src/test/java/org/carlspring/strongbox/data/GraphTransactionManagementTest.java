@@ -6,9 +6,9 @@ import static org.junit.jupiter.api.parallel.ExecutionMode.SAME_THREAD;
 
 import javax.inject.Inject;
 
+import org.apache.tinkerpop.gremlin.structure.Graph;
 import org.carlspring.strongbox.config.DataServiceConfig;
-import org.carlspring.strongbox.config.gremlin.graph.OrientGraphFactory;
-import org.carlspring.strongbox.test.domain.FooEntity;
+import org.carlspring.strongbox.config.gremlin.tx.TransactionContext;
 import org.carlspring.strongbox.test.service.TransactionalTestService;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.parallel.Execution;
@@ -18,8 +18,10 @@ import org.springframework.context.annotation.Configuration;
 import org.springframework.test.annotation.Commit;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.ContextConfiguration;
+import org.springframework.test.context.TestPropertySource;
 
 @SpringBootTest
+@TestPropertySource("/application.yaml")
 @ActiveProfiles(profiles = "test")
 @ContextConfiguration(classes = { DataServiceConfig.class,
                                   GraphTransactionManagementTest.GraphTransactionManagementTestConfiguration.class })
@@ -30,11 +32,14 @@ public class GraphTransactionManagementTest
 
     @Inject
     private TransactionalTestService testService;
+    @Inject
+    @TransactionContext
+    private Graph graph;
 
     @Test
     public void testElementsCrud()
     {
-        assertThatThrownBy(() -> OrientGraphFactory.getGraph()).isInstanceOf(IllegalStateException.class);
+        assertThatThrownBy(() -> graph.traversal()).isInstanceOf(IllegalStateException.class);
 
         testService.createVertexWithCommit();
         assertThat(testService.countVertices()).isEqualTo(Long.valueOf(1));
@@ -43,20 +48,6 @@ public class GraphTransactionManagementTest
         // XXX: `Neo4jTransactionManager` don't support
         // `Propagation.REQUIRES_NEW`
         assertThat(testService.countVertices()).isEqualTo(Long.valueOf(1));
-
-        FooEntity entity = testService.createObjectWithCommit();
-        assertThat(entity).matches(e -> e.getObjectId() != null);
-        assertThat(testService.countObjects()).isEqualTo(Long.valueOf(1));
-        
-        assertThatThrownBy(() -> testService.createObjectWithException()).isInstanceOf(RuntimeException.class);
-        assertThat(testService.countObjects()).isEqualTo(Long.valueOf(1));
-        
-        entity.setName("update-test");
-        entity = testService.updateWithCommit(entity);
-        assertThat(entity.getName()).isEqualTo("update-test");
-        
-        entity = testService.findById(entity.getUuid());
-        assertThat(entity.getName()).isEqualTo("update-test");
     }
 
     @Configuration

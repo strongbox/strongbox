@@ -2,10 +2,10 @@ package org.carlspring.strongbox.test.domain;
 
 import javax.persistence.Entity;
 
-import org.carlspring.strongbox.data.domain.GenericEntity;
+import org.carlspring.strongbox.data.domain.DomainEntity;
 
 @Entity
-public class FooEntity extends GenericEntity
+public class FooEntity extends DomainEntity
 {
 
     private String name;

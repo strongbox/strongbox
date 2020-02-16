@@ -23,7 +23,7 @@ import org.antlr.v4.runtime.tree.ParseTreeVisitor;
 import org.antlr.v4.runtime.tree.ParseTreeWalker;
 import org.antlr.v4.runtime.tree.TerminalNode;
 import org.antlr.v4.runtime.tree.Trees;
-import org.carlspring.strongbox.data.domain.GenericEntity;
+import org.carlspring.strongbox.data.domain.DomainObject;
 import org.javatuples.Pair;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -32,7 +32,7 @@ import org.slf4j.LoggerFactory;
  * @author sbespalov
  *
  */
-public abstract class QueryParser<T extends ParseTree, E extends GenericEntity, V extends ParseTreeVisitor<Selector<E>>>
+public abstract class QueryParser<T extends ParseTree, E extends DomainObject, V extends ParseTreeVisitor<Selector<E>>>
         extends BaseErrorListener implements ParseTreeListener
 {
 

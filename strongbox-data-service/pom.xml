@@ -89,8 +89,9 @@
         </dependency>
         <dependency>
             <groupId>${project.groupId}</groupId>
-            <artifactId>strongbox-db-liquibase</artifactId>
+            <artifactId>strongbox-db-schema</artifactId>
             <version>1.0-PR-19-SNAPSHOT</version>
+            <classifier>schema</classifier>
         </dependency>
         <dependency>
             <groupId>${project.groupId}</groupId>
@@ -102,7 +103,6 @@
             <groupId>${project.groupId}</groupId>
             <artifactId>strongbox-common-resources</artifactId>
             <version>${project.version}</version>
-            <scope>test</scope>
         </dependency>
         
         <dependency>
@@ -159,39 +159,6 @@
             <artifactId>ehcache-core</artifactId>
         </dependency>
 
-        <dependency>
-            <groupId>com.orientechnologies</groupId>
-            <artifactId>orientdb-core</artifactId>
-        </dependency>
-        <dependency>
-            <groupId>com.orientechnologies</groupId>
-            <artifactId>orientdb-client</artifactId>
-        </dependency>
-        <dependency>
-            <groupId>com.orientechnologies</groupId>
-            <artifactId>orientdb-server</artifactId>
-        </dependency>
-        <dependency>
-            <groupId>com.orientechnologies</groupId>
-            <artifactId>orientdb-tools</artifactId>
-        </dependency>
-        <dependency>
-            <groupId>com.orientechnologies</groupId>
-            <artifactId>orientdb-object</artifactId>
-        </dependency>
-        <dependency>
-            <groupId>com.orientechnologies</groupId>
-            <artifactId>orientdb-graphdb</artifactId>
-        </dependency>
-        <dependency>
-            <groupId>com.orientechnologies</groupId>
-            <artifactId>orientdb-distributed</artifactId>
-        </dependency>
-        <dependency>
-            <groupId>com.orientechnologies</groupId>
-            <artifactId>orientdb-jdbc</artifactId>
-        </dependency>
-        
         <dependency>
             <groupId>org.springframework</groupId>
             <artifactId>spring-orm</artifactId>
@@ -272,12 +239,6 @@
                     <artifactId>neo4j-ogm-bolt-driver</artifactId>                    
                 </exclusion>
             </exclusions>
-        </dependency>
-
-        <dependency>
-            <groupId>com.esotericsoftware</groupId>
-            <artifactId>kryo</artifactId>
-            <version>5.0.0-RC1</version>
         </dependency>
 
     </dependencies>

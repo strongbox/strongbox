@@ -2,10 +2,9 @@ package org.carlspring.strongbox.config.gremlin.server;
 
 import java.io.InputStream;
 
-import org.apache.tinkerpop.gremlin.orientdb.OrientGraph;
-import org.apache.tinkerpop.gremlin.orientdb.OrientGraphBaseFactory;
 import org.apache.tinkerpop.gremlin.server.GremlinServer;
 import org.apache.tinkerpop.gremlin.server.Settings;
+import org.janusgraph.core.JanusGraph;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.context.annotation.Bean;
@@ -22,7 +21,7 @@ public class GremlinServerConfig
 {
 
     @Bean(destroyMethod = "stop")
-    GremlinServer gremlinServer(OrientGraphBaseFactory graphFactory,
+    GremlinServer gremlinServer(JanusGraph janusGraph,
                                 @Value("classpath:/gremlin/gremlin-server.yaml")
                                 Resource gremlinServerConf)
             throws Exception
@@ -34,9 +33,8 @@ public class GremlinServerConfig
             server = new GremlinServer(settings);
         }
 
-        OrientGraph graph = graphFactory.getNoTx();
-        server.getServerGremlinExecutor().getGraphManager().putGraph("graph", graph);
-        server.getServerGremlinExecutor().getGremlinExecutor().getScriptEngineManager().put("g", graph.traversal());
+        server.getServerGremlinExecutor().getGraphManager().putGraph("graph", janusGraph);
+        server.getServerGremlinExecutor().getGremlinExecutor().getScriptEngineManager().put("g", janusGraph.traversal());
 
         server.start().join();
         return server;

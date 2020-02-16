@@ -24,15 +24,13 @@ strongbox:
       feed: false
   version: @{project.version}
   revision: @{strongbox.revision}
-  orientdb:
-    studio:
-      enabled: false
-      ip:
-        address: 127.0.0.1
-      port: 2480
-  server:
-    database:
-      path: ${strongbox.vault}/db
+  db:
+    janus-graph:
+      storage-username: cassandra
+      storage-password: cassandra
+      storage-host: 127.0.0.1
+      storage-port: 49142
+      storage-root: ${strongbox.vault}/db
   users:
     external:
       cache:

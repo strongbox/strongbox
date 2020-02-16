@@ -1,10 +1,14 @@
 package org.carlspring.strongbox.config.gremlin.repositories;
 
-import org.carlspring.strongbox.config.gremlin.graph.OrientGraphFactory;
+import org.apache.tinkerpop.gremlin.structure.Graph;
+import org.carlspring.strongbox.config.gremlin.tx.GraphTransaction;
+import org.carlspring.strongbox.config.gremlin.tx.TransactionContext;
+import org.janusgraph.core.JanusGraph;
 import org.neo4j.ogm.session.SessionFactory;
-import org.opencypher.gremlin.neo4j.ogm.OrientDbGraphDriver;
+import org.opencypher.gremlin.neo4j.ogm.GremlinGraphDriver;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.context.annotation.Primary;
 import org.springframework.data.neo4j.repository.config.EnableNeo4jRepositories;
 import org.springframework.data.neo4j.transaction.Neo4jTransactionManager;
 
@@ -14,9 +18,9 @@ public class RepositoriesConfig
 {
 
     @Bean
-    public SessionFactory sessionFactory(OrientGraphFactory graphFactory)
+    public SessionFactory sessionFactory(JanusGraph graph)
     {
-        return new SessionFactory(new OrientDbGraphDriver(graphFactory), "org.carlspring.strongbox.domain");
+        return new SessionFactory(new GremlinGraphDriver(graph.tx()), "org.carlspring.strongbox.domain");
     }
 
     @Bean
@@ -24,6 +28,13 @@ public class RepositoriesConfig
         throws Exception
     {
         return new Neo4jTransactionManager(sessionFactory);
+    }
+
+    @Bean
+    @TransactionContext
+    public Graph graphTransaction(SessionFactory sessionFactory)
+    {
+        return new GraphTransaction(sessionFactory);
     }
 
 }

@@ -6,7 +6,7 @@ graphs: {}
 scriptEngines:
   gremlin-groovy:
     plugins:
-      org.apache.tinkerpop.gremlin.orientdb.jsr223.OrientDBGremlinPlugin: {}
+      org.janusgraph.graphdb.tinkerpop.plugin.JanusGraphGremlinPlugin: {}
       org.apache.tinkerpop.gremlin.server.jsr223.GremlinServerGremlinPlugin: {}
       org.apache.tinkerpop.gremlin.jsr223.ImportGremlinPlugin: 
         classImports: 
@@ -21,14 +21,14 @@ serializers:
   - className: org.apache.tinkerpop.gremlin.driver.ser.GryoMessageSerializerV3d0
     config:
       ioRegistries:
-        - org.apache.tinkerpop.gremlin.orientdb.io.OrientIoRegistry
+        - org.janusgraph.graphdb.tinkerpop.JanusGraphIoRegistry
   - className: org.apache.tinkerpop.gremlin.driver.ser.GryoMessageSerializerV3d0
     config:
       serializeResultToString: true
   - className: org.apache.tinkerpop.gremlin.driver.ser.GraphSONMessageSerializerV3d0
     config:
       ioRegistries:
-        - org.apache.tinkerpop.gremlin.orientdb.io.OrientIoRegistry
+        - org.janusgraph.graphdb.tinkerpop.JanusGraphIoRegistry
 processors:
   - className: org.apache.tinkerpop.gremlin.server.op.session.SessionOpProcessor
     config:
