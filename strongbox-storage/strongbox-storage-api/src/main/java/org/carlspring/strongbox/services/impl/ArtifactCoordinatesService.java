@@ -3,7 +3,7 @@ package org.carlspring.strongbox.services.impl;
 import java.util.HashMap;
 import java.util.List;
 
-import org.carlspring.strongbox.artifact.coordinates.AbstractArtifactCoordinates;
+import org.carlspring.strongbox.artifact.coordinates.ArtifactCoordinatesEntity;
 import org.carlspring.strongbox.data.service.CommonCrudService;
 import org.springframework.stereotype.Component;
 
@@ -12,11 +12,11 @@ import com.orientechnologies.orient.core.record.impl.ODocument;
 import com.orientechnologies.orient.core.sql.query.OSQLSynchQuery;
 
 @Component
-public class ArtifactCoordinatesService extends CommonCrudService<AbstractArtifactCoordinates>
+public class ArtifactCoordinatesService extends CommonCrudService<ArtifactCoordinatesEntity>
 {
 
     @Override
-    protected boolean identifyEntity(AbstractArtifactCoordinates entity)
+    protected boolean identifyEntity(ArtifactCoordinatesEntity entity)
     {
         if (super.identifyEntity(entity))
         {
@@ -48,9 +48,9 @@ public class ArtifactCoordinatesService extends CommonCrudService<AbstractArtifa
     }
 
     @Override
-    public Class<AbstractArtifactCoordinates> getEntityClass()
+    public Class<ArtifactCoordinatesEntity> getEntityClass()
     {
-        return AbstractArtifactCoordinates.class;
+        return ArtifactCoordinatesEntity.class;
     }
 
 }

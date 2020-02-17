@@ -8,7 +8,7 @@ import javax.inject.Inject;
 
 import org.apache.tinkerpop.gremlin.structure.Graph;
 import org.carlspring.strongbox.config.DataServiceConfig;
-import org.carlspring.strongbox.config.gremlin.tx.TransactionContext;
+import org.carlspring.strongbox.gremlin.tx.TransactionContext;
 import org.carlspring.strongbox.test.service.TransactionalTestService;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.parallel.Execution;

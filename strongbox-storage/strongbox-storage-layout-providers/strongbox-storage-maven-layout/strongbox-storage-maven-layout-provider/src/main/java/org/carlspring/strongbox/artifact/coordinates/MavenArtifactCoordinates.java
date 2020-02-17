@@ -23,7 +23,7 @@ import org.apache.maven.artifact.versioning.ComparableVersion;
 @XmlAccessorType(XmlAccessType.NONE)
 @ArtifactCoordinatesLayout(name = MavenArtifactCoordinates.LAYOUT_NAME, alias = MavenArtifactCoordinates.LAYOUT_ALIAS)
 public class MavenArtifactCoordinates
-        extends AbstractArtifactCoordinates<MavenArtifactCoordinates, ComparableVersion>
+        extends ArtifactCoordinatesEntity<MavenArtifactCoordinates, ComparableVersion>
 {
 
     public static final String LAYOUT_NAME = "Maven 2";

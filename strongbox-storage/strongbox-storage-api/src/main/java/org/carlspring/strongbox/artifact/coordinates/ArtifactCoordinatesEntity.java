@@ -4,28 +4,29 @@ import java.net.URI;
 import java.util.LinkedHashMap;
 import java.util.Map;
 
-import org.carlspring.strongbox.data.domain.GenericEntity;
+import org.carlspring.strongbox.data.domain.DomainEntity;
 
 
 /**
  * @author carlspring
+ * @author sbespalov
  */
-public abstract class AbstractArtifactCoordinates<C extends AbstractArtifactCoordinates<C, V>, V extends Comparable<V>>
-        extends GenericEntity
+public class ArtifactCoordinatesEntity<C extends ArtifactCoordinatesEntity<C, V>, V extends Comparable<V>>
+        extends DomainEntity
         implements ArtifactCoordinates<C, V>
 {
 
     private Map<String, String> coordinates = new LinkedHashMap<>();
     /**
-     * This field is used as unique OrientDB index.
+     * This field is used as unique index.
      */
     private String path;
 
-    public AbstractArtifactCoordinates()
+    public ArtifactCoordinatesEntity()
     {
     }
 
-    public AbstractArtifactCoordinates(Map<String, String> coordinates)
+    public ArtifactCoordinatesEntity(Map<String, String> coordinates)
     {
         this.coordinates = coordinates;
         this.path = toPath();
@@ -156,11 +157,11 @@ public abstract class AbstractArtifactCoordinates<C extends AbstractArtifactCoor
     @Override
     public boolean equals(Object obj)
     {
-        if (obj == null || !(obj instanceof AbstractArtifactCoordinates))
+        if (obj == null || !(obj instanceof ArtifactCoordinatesEntity))
         {
             return false;
         }
-        AbstractArtifactCoordinates c = (AbstractArtifactCoordinates) obj;
+        ArtifactCoordinatesEntity c = (ArtifactCoordinatesEntity) obj;
         return c.getCoordinates() == null ? getCoordinates() != null : c.getCoordinates().equals(getCoordinates());
     }
 

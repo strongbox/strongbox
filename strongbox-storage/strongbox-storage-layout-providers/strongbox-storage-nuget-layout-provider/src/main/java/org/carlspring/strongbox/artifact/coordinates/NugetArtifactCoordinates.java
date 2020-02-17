@@ -23,7 +23,7 @@ import org.springframework.util.Assert;
 @XmlAccessorType(XmlAccessType.NONE)
 @ArtifactCoordinatesLayout(name = NugetArtifactCoordinates.LAYOUT_NAME, alias = NugetArtifactCoordinates.LAYOUT_ALIAS)
 public class NugetArtifactCoordinates
-        extends AbstractArtifactCoordinates<NugetArtifactCoordinates, SemanticVersion>
+        extends ArtifactCoordinatesEntity<NugetArtifactCoordinates, SemanticVersion>
 {
 
     public static final String LAYOUT_NAME = "NuGet";

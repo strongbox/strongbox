@@ -55,4 +55,14 @@ public class DomainEntity implements DomainObject
         return uuid.hashCode();
     }
 
+    @Override
+    public String toString()
+    {
+        final StringBuilder sb = new StringBuilder(this.getClass().getSimpleName());
+        sb.append("{");
+        sb.append(", uuid='").append(uuid).append('\'');
+        sb.append('}');
+        return sb.toString();
+    }
+
 }

@@ -1,4 +1,4 @@
-package org.carlspring.strongbox.config.gremlin.server;
+package org.carlspring.strongbox.gremlin.server;
 
 import java.io.InputStream;
 

@@ -37,7 +37,7 @@ import java.util.Map;
 @XmlAccessorType(XmlAccessType.NONE)
 @ArtifactCoordinatesLayout(name = RpmArtifactCoordinates.LAYOUT_NAME, alias = RpmArtifactCoordinates.LAYOUT_ALIAS)
 public class RpmArtifactCoordinates
-        extends AbstractArtifactCoordinates<RpmArtifactCoordinates, SemanticVersion>
+        extends ArtifactCoordinatesEntity<RpmArtifactCoordinates, SemanticVersion>
 {
     public static final String LAYOUT_NAME = "RPM";
 

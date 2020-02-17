@@ -20,7 +20,7 @@ import org.apache.maven.index.artifact.M2GavCalculator;
 @XmlRootElement(name = "maven-artifact-coordinates")
 @XmlAccessorType(XmlAccessType.NONE)
 public class MockedMavenArtifactCoordinates
-        extends AbstractArtifactCoordinates<MockedMavenArtifactCoordinates, ComparableVersion>
+        extends ArtifactCoordinatesEntity<MockedMavenArtifactCoordinates, ComparableVersion>
 {
 
     private static final M2GavCalculator M2_GAV_CALCULATOR = new M2GavCalculator();

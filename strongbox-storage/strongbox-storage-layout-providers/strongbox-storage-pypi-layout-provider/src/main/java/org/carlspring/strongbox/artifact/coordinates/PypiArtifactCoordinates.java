@@ -27,7 +27,7 @@ import org.apache.commons.lang3.StringUtils;
 @XmlAccessorType(XmlAccessType.NONE)
 @ArtifactCoordinatesLayout(name = PypiArtifactCoordinates.LAYOUT_NAME, alias = PypiArtifactCoordinates.LAYOUT_ALIAS)
 public class PypiArtifactCoordinates
-    extends AbstractArtifactCoordinates<PypiArtifactCoordinates, SemanticVersion>
+    extends ArtifactCoordinatesEntity<PypiArtifactCoordinates, SemanticVersion>
 {
 
     public static final String LAYOUT_NAME = "PyPi";

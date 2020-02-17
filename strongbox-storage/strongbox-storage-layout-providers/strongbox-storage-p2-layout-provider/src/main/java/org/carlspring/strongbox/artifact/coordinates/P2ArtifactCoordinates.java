@@ -15,7 +15,7 @@ import javax.persistence.Entity;
 @Entity
 @ArtifactCoordinatesLayout("p2")
 public class P2ArtifactCoordinates
-        extends AbstractArtifactCoordinates<P2ArtifactCoordinates, P2ArtifactCoordinates>
+        extends ArtifactCoordinatesEntity<P2ArtifactCoordinates, P2ArtifactCoordinates>
 {
 
     public static final String ID = "id";

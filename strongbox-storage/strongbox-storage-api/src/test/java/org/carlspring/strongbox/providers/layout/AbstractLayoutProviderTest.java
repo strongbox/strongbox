@@ -1,7 +1,7 @@
 package org.carlspring.strongbox.providers.layout;
 
 import org.carlspring.strongbox.StorageApiTestConfig;
-import org.carlspring.strongbox.artifact.coordinates.AbstractArtifactCoordinates;
+import org.carlspring.strongbox.artifact.coordinates.ArtifactCoordinatesEntity;
 import org.carlspring.strongbox.booters.PropertiesBooter;
 import org.carlspring.strongbox.data.CacheManagerTestExecutionListener;
 import org.carlspring.strongbox.domain.ArtifactGroupEntry;
@@ -63,7 +63,7 @@ class AbstractLayoutProviderTest
     @InjectMocks
     private AbstractLayoutProvider layoutProvider = Mockito.spy(AbstractLayoutProvider.class);
 
-    private AbstractArtifactCoordinates artifactCoordinates = Mockito.spy(AbstractArtifactCoordinates.class);
+    private ArtifactCoordinatesEntity artifactCoordinates = Mockito.spy(ArtifactCoordinatesEntity.class);
     
     private StorageFileSystemProviderTest storageFileSystemProvider = Mockito.spy(new StorageFileSystemProviderTest(FileSystems.getDefault().provider()));
 

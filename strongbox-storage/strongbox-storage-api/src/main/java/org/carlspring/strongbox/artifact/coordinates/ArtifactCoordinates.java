@@ -15,12 +15,8 @@ public interface ArtifactCoordinates<T extends ArtifactCoordinates<T, V>, V exte
 
     String getId();
 
-    void setId(String id);
-
     String getVersion();
 
-    void setVersion(String version);
-    
     V getNativeVersion();
 
     Map<String, String> getCoordinates();

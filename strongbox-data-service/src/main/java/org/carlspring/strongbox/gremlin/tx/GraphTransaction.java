@@ -1,4 +1,4 @@
-package org.carlspring.strongbox.config.gremlin.tx;
+package org.carlspring.strongbox.gremlin.tx;
 
 import java.util.Iterator;
 import java.util.Optional;

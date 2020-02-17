@@ -5,7 +5,7 @@ import javax.inject.Inject;
 import org.apache.tinkerpop.gremlin.process.traversal.dsl.graph.GraphTraversalSource;
 import org.apache.tinkerpop.gremlin.structure.Graph;
 import org.carlspring.strongbox.config.gremlin.dsl.EntityTraversalSource;
-import org.carlspring.strongbox.config.gremlin.tx.TransactionContext;
+import org.carlspring.strongbox.gremlin.tx.TransactionContext;
 import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 

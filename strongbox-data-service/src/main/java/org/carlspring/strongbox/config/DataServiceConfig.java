@@ -1,9 +1,9 @@
 package org.carlspring.strongbox.config;
 
-import org.carlspring.strongbox.config.gremlin.repositories.RepositoriesConfig;
-import org.carlspring.strongbox.config.gremlin.server.GremlinServerConfig;
 import org.carlspring.strongbox.config.hazelcast.HazelcastConfiguration;
 import org.carlspring.strongbox.config.janusgraph.EmbeddedDbServerConfiguration;
+import org.carlspring.strongbox.gremlin.repositories.RepositoriesConfig;
+import org.carlspring.strongbox.gremlin.server.GremlinServerConfig;
 import org.springframework.boot.context.properties.EnableConfigurationProperties;
 import org.springframework.cache.CacheManager;
 import org.springframework.cache.annotation.EnableCaching;

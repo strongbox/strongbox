@@ -1,8 +1,8 @@
-package org.carlspring.strongbox.config.gremlin.repositories;
+package org.carlspring.strongbox.gremlin.repositories;
 
 import org.apache.tinkerpop.gremlin.structure.Graph;
-import org.carlspring.strongbox.config.gremlin.tx.GraphTransaction;
-import org.carlspring.strongbox.config.gremlin.tx.TransactionContext;
+import org.carlspring.strongbox.gremlin.tx.GraphTransaction;
+import org.carlspring.strongbox.gremlin.tx.TransactionContext;
 import org.janusgraph.core.JanusGraph;
 import org.neo4j.ogm.session.SessionFactory;
 import org.opencypher.gremlin.neo4j.ogm.GremlinGraphDriver;

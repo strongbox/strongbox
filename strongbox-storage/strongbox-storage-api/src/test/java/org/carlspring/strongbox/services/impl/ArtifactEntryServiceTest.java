@@ -1,7 +1,7 @@
 package org.carlspring.strongbox.services.impl;
 
 import org.carlspring.strongbox.StorageApiTestConfig;
-import org.carlspring.strongbox.artifact.coordinates.AbstractArtifactCoordinates;
+import org.carlspring.strongbox.artifact.coordinates.ArtifactCoordinatesEntity;
 import org.carlspring.strongbox.artifact.coordinates.ArtifactCoordinates;
 import org.carlspring.strongbox.artifact.coordinates.RawArtifactCoordinates;
 import org.carlspring.strongbox.data.CacheManagerTestExecutionListener;
@@ -93,8 +93,8 @@ public class ArtifactEntryServiceTest
         final String groupId = getGroupId(GROUP_ID, testInfo);
 
         List<ArtifactEntry> artifactEntries = findAll(groupId);
-        List<AbstractArtifactCoordinates> artifactCoordinates = artifactEntries.stream()
-                                                                               .map(e -> (AbstractArtifactCoordinates) e.getArtifactCoordinates())
+        List<ArtifactCoordinatesEntity> artifactCoordinates = artifactEntries.stream()
+                                                                               .map(e -> (ArtifactCoordinatesEntity) e.getArtifactCoordinates())
                                                                                .collect(Collectors.toList());
         artifactEntryService.delete(artifactEntries);
         artifactCoordinatesService.delete(artifactCoordinates);

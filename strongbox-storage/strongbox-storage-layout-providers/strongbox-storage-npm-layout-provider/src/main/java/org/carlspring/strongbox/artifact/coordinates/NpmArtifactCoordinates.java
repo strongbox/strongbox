@@ -27,7 +27,7 @@ import org.springframework.util.StringUtils;
 @XmlRootElement(name = "npmArtifactCoordinates")
 @XmlAccessorType(XmlAccessType.NONE)
 @ArtifactCoordinatesLayout(name = NpmArtifactCoordinates.LAYOUT_NAME, alias = NpmArtifactCoordinates.LAYOUT_ALIAS)
-public class NpmArtifactCoordinates extends AbstractArtifactCoordinates<NpmArtifactCoordinates, SemanticVersion>
+public class NpmArtifactCoordinates extends ArtifactCoordinatesEntity<NpmArtifactCoordinates, SemanticVersion>
 {
 
     public static final String LAYOUT_NAME = "npm";

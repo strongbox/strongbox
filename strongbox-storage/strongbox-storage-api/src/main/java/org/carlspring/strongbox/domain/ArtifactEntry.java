@@ -1,7 +1,7 @@
 package org.carlspring.strongbox.domain;
 
 import org.carlspring.strongbox.artifact.ArtifactTag;
-import org.carlspring.strongbox.artifact.coordinates.AbstractArtifactCoordinates;
+import org.carlspring.strongbox.artifact.coordinates.ArtifactCoordinatesEntity;
 import org.carlspring.strongbox.artifact.coordinates.ArtifactCoordinates;
 import org.carlspring.strongbox.data.domain.GenericEntity;
 
@@ -35,7 +35,7 @@ public class ArtifactEntry
                            CascadeType.MERGE,
                            CascadeType.PERSIST,
                            CascadeType.REFRESH })
-    private AbstractArtifactCoordinates artifactCoordinates;
+    private ArtifactCoordinatesEntity artifactCoordinates;
 
     @ManyToMany(targetEntity = ArtifactTagEntry.class)
     private Set<ArtifactTag> tagSet;
@@ -86,7 +86,7 @@ public class ArtifactEntry
 
     public void setArtifactCoordinates(ArtifactCoordinates artifactCoordinates)
     {
-        this.artifactCoordinates = (AbstractArtifactCoordinates) artifactCoordinates;
+        this.artifactCoordinates = (ArtifactCoordinatesEntity) artifactCoordinates;
     }
 
     public Set<ArtifactTag> getTagSet()

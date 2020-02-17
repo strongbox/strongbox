@@ -91,60 +91,11 @@ public abstract class AsyncArtifactEntryHandler
         lock.lock();
         try
         {
-            handleWithRetry(repositoryPath);
+            handleTransactional(repositoryPath);
         } 
         finally
         {
             lock.unlock();
-        }
-    }
-
-    /**
-     * This retry needed if {@link ArtifactEntry} fetched between DB and
-     * Hazelcast transactions commits.
-     *
-     * @see ChainedTransactionManager
-     * 
-     * @param repositoryPath
-     * @throws InterruptedException
-     * @throws IOException
-     */
-    private void handleWithRetry(RepositoryPath repositoryPath)
-        throws InterruptedException,
-        IOException
-    {
-        Object sync = new Object();
-
-        for (int i = 1; i <= MAX_RETRY; i++)
-        {
-            try
-            {
-
-                handleTransactional(repositoryPath);
-
-                return;
-            }
-            catch (ONeedRetryException e)
-            {
-                logger.debug("Retry event [{}] for path [{}]", this.getClass().getSimpleName(), repositoryPath);
-                propogateIfNeeded(i, repositoryPath, e);
-            }
-
-            synchronized (sync)
-            {
-                sync.wait(10);
-            }
-        }
-    }
-
-    private void propogateIfNeeded(int i,
-                                   RepositoryPath repositoryPath,
-                                   ONeedRetryException e)
-        throws IOException
-    {
-        if (i >= MAX_RETRY)
-        {
-            throw e;
         }
     }
 

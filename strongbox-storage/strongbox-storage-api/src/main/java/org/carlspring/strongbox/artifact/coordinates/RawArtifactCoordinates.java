@@ -1,16 +1,17 @@
 package org.carlspring.strongbox.artifact.coordinates;
 
-import javax.persistence.Entity;
-
 import java.util.Map;
 import java.util.Optional;
+
+import org.carlspring.strongbox.db.schema.Vertices;
+import org.neo4j.ogm.annotation.NodeEntity;
 
 /**
  * @author carlspring
  */
-@Entity
+@NodeEntity(Vertices.RAW_ARTIFACT_COORDINATES)
 public class RawArtifactCoordinates
-        extends AbstractArtifactCoordinates<RawArtifactCoordinates, RawArtifactCoordinates>
+        extends ArtifactCoordinatesEntity<RawArtifactCoordinates, RawArtifactCoordinates>
 {
 
     public static final String LAYOUT_NAME = "Null Layout";
@@ -72,14 +73,4 @@ public class RawArtifactCoordinates
         return Optional.ofNullable(getCoordinate(PATH)).orElse("");
     }
 
-    @Override
-    public String toString()
-    {
-        final StringBuilder sb = new StringBuilder("NullArtifactCoordinates{");
-        sb.append("objectId='").append(objectId).append('\'');
-        sb.append(", uuid='").append(uuid).append('\'');
-        sb.append(", entityVersion=").append(entityVersion);
-        sb.append('}');
-        return sb.toString();
-    }
 }
