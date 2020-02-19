@@ -147,7 +147,7 @@ public class ProxyRepositoryProvider
     protected ArtifactEntity provideArtifactEntry(RepositoryPath repositoryPath) throws IOException
     {
         ArtifactEntity artifactEntry = super.provideArtifactEntry(repositoryPath);
-        ArtifactEntity remoteArtifactEntry = artifactEntry.getObjectId() == null ? new RemoteArtifactEntry() : (RemoteArtifactEntry) artifactEntry;
+        ArtifactEntity remoteArtifactEntry = artifactEntry.getUuid() == null ? new RemoteArtifactEntry() : (RemoteArtifactEntry) artifactEntry;
 
         return remoteArtifactEntry;
     }

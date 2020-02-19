@@ -13,7 +13,6 @@ import javax.persistence.EntityManager;
 import javax.persistence.PersistenceContext;
 
 import org.carlspring.strongbox.artifact.ArtifactNotFoundException;
-import org.carlspring.strongbox.data.criteria.DetachQueryTemplate;
 import org.carlspring.strongbox.data.criteria.OQueryTemplate;
 import org.carlspring.strongbox.data.criteria.Paginator;
 import org.carlspring.strongbox.data.criteria.Predicate;
@@ -27,7 +26,6 @@ import org.carlspring.strongbox.providers.io.RepositoryPathResolver;
 import org.carlspring.strongbox.providers.io.RootRepositoryPath;
 import org.carlspring.strongbox.storage.Storage;
 import org.carlspring.strongbox.storage.repository.Repository;
-
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Component;
@@ -95,7 +93,7 @@ public class HostedRepositoryProvider extends AbstractRepositoryProvider
         
         Selector<ArtifactEntity> selector = createSelector(storageId, repositoryId, predicate).with(paginator).fetch();
         
-        QueryTemplate<List<ArtifactEntity>, ArtifactEntity> queryTemplate = new DetachQueryTemplate<>(entityManager);
+        QueryTemplate<List<ArtifactEntity>, ArtifactEntity> queryTemplate = new OQueryTemplate<>(entityManager);
         
         RootRepositoryPath rootRepositoryPath = repositoryPathResolver.resolve(repository);
         List<ArtifactEntity> searchResult = queryTemplate.select(selector);
