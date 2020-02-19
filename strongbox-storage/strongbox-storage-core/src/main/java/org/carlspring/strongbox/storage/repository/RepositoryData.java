@@ -401,9 +401,13 @@ public class RepositoryData
         throws IllegalAccessException,
         InvocationTargetException
     {
-        ProxyServerConfiguration proxyServerConfiguration = new ProxyServerConfiguration();
-        BeanUtils.copyProperties(proxyServerConfiguration, proxyConfiguration);
-        return proxyServerConfiguration;
+        if (proxyConfiguration != null)
+        {
+            ProxyServerConfiguration proxyServerConfiguration = new ProxyServerConfiguration();
+            BeanUtils.copyProperties(proxyServerConfiguration, proxyConfiguration);
+            return proxyServerConfiguration;
+        }
+        return null;
     }
 
 }

@@ -431,9 +431,14 @@ public class RepositoryDto
         throws IllegalAccessException,
         InvocationTargetException
     {
-        ProxyServerConfiguration proxyServerConfiguration = new ProxyServerConfiguration();
-        BeanUtils.copyProperties(proxyServerConfiguration, getProxyConfiguration());
-        return proxyServerConfiguration;
+
+        if (getProxyConfiguration() != null)
+        {
+            ProxyServerConfiguration proxyServerConfiguration = new ProxyServerConfiguration();
+            BeanUtils.copyProperties(proxyServerConfiguration, getProxyConfiguration());
+            return proxyServerConfiguration;
+        }
+        return null;
     }
 
 }

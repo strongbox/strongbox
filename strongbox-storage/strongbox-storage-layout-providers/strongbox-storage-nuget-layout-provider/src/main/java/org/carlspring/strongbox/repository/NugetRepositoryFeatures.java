@@ -316,7 +316,7 @@ public class NugetRepositoryFeatures
 
             
             ProxyServerConfiguration proxyConfiguration = repository.getProxyServerConfiguration();
-            logger.debug("Proxy Configuration for Repository {} is {}", repository.getId(), proxyConfiguration);
+            logger.debug("Proxy Configuration for Repository [{}] is {}", repository.getId(), proxyConfiguration);
 
             Client restClient = proxyRepositoryConnectionPoolConfigurationService.getRestClient(proxyConfiguration);
             PackageFeed feed;
