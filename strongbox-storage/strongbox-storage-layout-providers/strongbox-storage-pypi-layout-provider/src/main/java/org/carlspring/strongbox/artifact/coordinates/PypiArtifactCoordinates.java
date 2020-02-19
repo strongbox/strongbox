@@ -1,6 +1,7 @@
 package org.carlspring.strongbox.artifact.coordinates;
 
 import org.carlspring.strongbox.artifact.coordinates.versioning.SemanticVersion;
+import org.carlspring.strongbox.domain.LayoutArtifactCoordinatesEntity;
 import org.carlspring.strongbox.util.PypiArtifactCoordinatesUtils;
 
 import javax.persistence.Entity;
@@ -27,7 +28,7 @@ import org.apache.commons.lang3.StringUtils;
 @XmlAccessorType(XmlAccessType.NONE)
 @ArtifactCoordinatesLayout(name = PypiArtifactCoordinates.LAYOUT_NAME, alias = PypiArtifactCoordinates.LAYOUT_ALIAS)
 public class PypiArtifactCoordinates
-    extends ArtifactCoordinatesEntity<PypiArtifactCoordinates, SemanticVersion>
+    extends LayoutArtifactCoordinatesEntity<PypiArtifactCoordinates, SemanticVersion>
 {
 
     public static final String LAYOUT_NAME = "PyPi";
@@ -162,7 +163,6 @@ public class PypiArtifactCoordinates
     /**
      * @param id DISTRIBUTION coordinate will take this value
      */
-    @Override
     public void setId(String id)
     {
         setCoordinate(DISTRIBUTION, id);

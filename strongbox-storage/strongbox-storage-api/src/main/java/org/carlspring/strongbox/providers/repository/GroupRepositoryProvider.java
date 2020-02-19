@@ -25,7 +25,7 @@ import org.carlspring.strongbox.data.criteria.Paginator;
 import org.carlspring.strongbox.data.criteria.Predicate;
 import org.carlspring.strongbox.data.criteria.QueryTemplate;
 import org.carlspring.strongbox.data.criteria.Selector;
-import org.carlspring.strongbox.domain.ArtifactEntry;
+import org.carlspring.strongbox.domain.ArtifactEntity;
 import org.carlspring.strongbox.providers.io.AbstractRepositoryProvider;
 import org.carlspring.strongbox.providers.io.RepositoryFiles;
 import org.carlspring.strongbox.providers.io.RepositoryPath;
@@ -303,10 +303,10 @@ public class GroupRepositoryProvider
                                    .stream()
                                    .forEach(r -> p.or(createPredicate(r.getStorage().getId(), r.getId(), predicate)));
 
-        Selector<ArtifactEntry> selector = new Selector<>(ArtifactEntry.class);
+        Selector<ArtifactEntity> selector = new Selector<>(ArtifactEntity.class);
         selector.select("count(distinct(artifactCoordinates))").where(p);
 
-        QueryTemplate<Long, ArtifactEntry> queryTemplate = new OQueryTemplate<>(entityManager);
+        QueryTemplate<Long, ArtifactEntity> queryTemplate = new OQueryTemplate<>(entityManager);
 
         return queryTemplate.select(selector);
 

@@ -1,43 +1,41 @@
 package org.carlspring.strongbox.domain;
 
-import org.carlspring.strongbox.artifact.ArtifactTag;
-import org.carlspring.strongbox.artifact.coordinates.ArtifactCoordinatesEntity;
-import org.carlspring.strongbox.artifact.coordinates.ArtifactCoordinates;
-import org.carlspring.strongbox.data.domain.GenericEntity;
-
-import javax.persistence.CascadeType;
-import javax.persistence.Embedded;
-import javax.persistence.Entity;
-import javax.persistence.ManyToMany;
-import javax.persistence.ManyToOne;
-import javax.persistence.Transient;
 import java.util.Date;
+import java.util.HashMap;
 import java.util.HashSet;
+import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
-import java.util.Map;
-import java.util.HashMap;
+
+import javax.persistence.Embedded;
+import javax.persistence.ManyToMany;
+import javax.persistence.Transient;
+
+import org.carlspring.strongbox.artifact.ArtifactTag;
+import org.carlspring.strongbox.artifact.coordinates.ArtifactCoordinates;
+import org.carlspring.strongbox.data.domain.DomainEntity;
+import org.carlspring.strongbox.db.schema.Edges;
+import org.carlspring.strongbox.db.schema.Vertices;
+import org.neo4j.ogm.annotation.NodeEntity;
+import org.neo4j.ogm.annotation.Relationship;
 
 /**
  * @author carlspring
+ * @author sbespalov
  */
-@Entity
-public class ArtifactEntry
-        extends GenericEntity
+@NodeEntity(Vertices.ARTIFACT)
+public class ArtifactEntity
+        extends DomainEntity
 {
 
     private String storageId;
 
     private String repositoryId;
 
-    // if you have to rename this field please update ArtifactEntryServiceImpl.findByCoordinates() implementation
-    @ManyToOne(cascade = { CascadeType.DETACH,
-                           CascadeType.MERGE,
-                           CascadeType.PERSIST,
-                           CascadeType.REFRESH })
-    private ArtifactCoordinatesEntity artifactCoordinates;
+    @Relationship(type = Edges.ARTIFACT_HAS_ARTIFACT_COORDINATES, direction = Relationship.OUTGOING)
+    private GenericArtifactCoordinatesEntity artifactCoordinates;
 
-    @ManyToMany(targetEntity = ArtifactTagEntry.class)
+    @Relationship(type = Edges.ARTIFACT_HAS_TAGS, direction = Relationship.OUTGOING)
     private Set<ArtifactTag> tagSet;
 
     private Map<String, String> checksums;
@@ -54,10 +52,6 @@ public class ArtifactEntry
     private Date created;
 
     private Integer downloadCount = Integer.valueOf(0);
-
-    public ArtifactEntry()
-    {
-    }
 
     public String getStorageId()
     {
@@ -81,12 +75,12 @@ public class ArtifactEntry
 
     public ArtifactCoordinates getArtifactCoordinates()
     {
-        return artifactCoordinates;
+        return artifactCoordinates.getLayoutArtifactCoordinates();
     }
 
     public void setArtifactCoordinates(ArtifactCoordinates artifactCoordinates)
     {
-        this.artifactCoordinates = (ArtifactCoordinatesEntity) artifactCoordinates;
+        this.artifactCoordinates = ((LayoutArtifactCoordinatesEntity)artifactCoordinates).getGenericArtifactCoordinates();
     }
 
     public Set<ArtifactTag> getTagSet()
@@ -177,26 +171,4 @@ public class ArtifactEntry
                        .orElseThrow(() -> new IllegalStateException("ArtifactCoordinates required to be set."));
     }
 
-    @Override
-    public String toString()
-    {
-        final StringBuilder sb = new StringBuilder("\nArtifactEntry{");
-        sb.append("storageId='").append(storageId).append('\'');
-        sb.append(", repositoryId='").append(repositoryId).append('\'');
-        sb.append(", artifactCoordinates=").append(artifactCoordinates).append('\n');
-        sb.append(", tagSet=").append(tagSet);
-        sb.append(", checksums=").append(checksums);
-        sb.append(", objectId='").append(objectId).append('\'');
-        sb.append(", uuid='").append(uuid).append('\'');
-        sb.append(", artifactArchiveListing=").append(artifactArchiveListing);
-        sb.append(", entityVersion=").append(entityVersion);
-        sb.append(", sizeInBytes=").append(sizeInBytes);
-        sb.append(", lastUpdated=").append(lastUpdated);
-        sb.append(", lastUsed=").append(lastUsed);
-        sb.append(", created=").append(created);
-        sb.append(", downloadCount=").append(downloadCount);
-        sb.append('}').append('\n');
-
-        return sb.toString();
-    }
 }

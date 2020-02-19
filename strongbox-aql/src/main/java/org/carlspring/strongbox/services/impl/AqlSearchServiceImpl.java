@@ -15,7 +15,7 @@ import org.carlspring.strongbox.data.criteria.QueryTemplate;
 import org.carlspring.strongbox.data.criteria.Selector;
 import org.carlspring.strongbox.dependency.snippet.CodeSnippet;
 import org.carlspring.strongbox.dependency.snippet.SnippetGenerator;
-import org.carlspring.strongbox.domain.ArtifactEntry;
+import org.carlspring.strongbox.domain.ArtifactEntity;
 import org.carlspring.strongbox.providers.io.RepositoryFiles;
 import org.carlspring.strongbox.providers.io.RepositoryPath;
 import org.carlspring.strongbox.providers.io.RepositoryPathResolver;
@@ -39,14 +39,14 @@ public class AqlSearchServiceImpl implements AqlSearchService
     @Inject
     private SnippetGenerator snippetGenerator;
 
-    public SearchResults search(Selector<ArtifactEntry> selector)
+    public SearchResults search(Selector<ArtifactEntity> selector)
         throws IOException
     {
         SearchResults result = new SearchResults();
 
-        QueryTemplate<List<ArtifactEntry>, ArtifactEntry> queryTemplate = new DetachQueryTemplate<>(
+        QueryTemplate<List<ArtifactEntity>, ArtifactEntity> queryTemplate = new DetachQueryTemplate<>(
                 new OQueryTemplate<>(entityManager));
-        for (ArtifactEntry artifactEntry : queryTemplate.select(selector))
+        for (ArtifactEntity artifactEntry : queryTemplate.select(selector))
         {
             SearchResult r = new SearchResult();
             result.getResults().add(r);

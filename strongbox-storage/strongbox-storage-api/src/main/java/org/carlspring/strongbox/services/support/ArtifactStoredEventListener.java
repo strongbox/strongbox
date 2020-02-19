@@ -2,7 +2,7 @@ package org.carlspring.strongbox.services.support;
 
 import org.carlspring.strongbox.artifact.AsyncArtifactEntryHandler;
 import org.carlspring.strongbox.domain.ArtifactArchiveListing;
-import org.carlspring.strongbox.domain.ArtifactEntry;
+import org.carlspring.strongbox.domain.ArtifactEntity;
 import org.carlspring.strongbox.event.artifact.ArtifactEventTypeEnum;
 import org.carlspring.strongbox.providers.io.RepositoryPath;
 import org.carlspring.strongbox.providers.layout.LayoutProvider;
@@ -36,15 +36,15 @@ public class ArtifactStoredEventListener
     }
 
     @Override
-    protected ArtifactEntry handleEvent(RepositoryPath repositoryPath)
+    protected ArtifactEntity handleEvent(RepositoryPath repositoryPath)
             throws IOException
     {
-        ArtifactEntry artifactEntry = repositoryPath.getArtifactEntry();
+        ArtifactEntity artifactEntry = repositoryPath.getArtifactEntry();
 
         if (artifactEntry == null)
         {
             logger.warn("No [{}] for [{}].",
-                        ArtifactEntry.class.getSimpleName(),
+                        ArtifactEntity.class.getSimpleName(),
                         repositoryPath);
 
             return null;

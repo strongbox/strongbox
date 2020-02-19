@@ -3,6 +3,7 @@ package org.carlspring.strongbox.artifact.coordinates;
 import org.carlspring.strongbox.artifact.MavenArtifact;
 import org.carlspring.strongbox.artifact.MavenArtifactUtils;
 import org.carlspring.strongbox.artifact.MavenRepositoryArtifact;
+import org.carlspring.strongbox.domain.LayoutArtifactCoordinatesEntity;
 
 import javax.persistence.Entity;
 import javax.xml.bind.annotation.XmlAccessType;
@@ -23,7 +24,7 @@ import org.apache.maven.artifact.versioning.ComparableVersion;
 @XmlAccessorType(XmlAccessType.NONE)
 @ArtifactCoordinatesLayout(name = MavenArtifactCoordinates.LAYOUT_NAME, alias = MavenArtifactCoordinates.LAYOUT_ALIAS)
 public class MavenArtifactCoordinates
-        extends ArtifactCoordinatesEntity<MavenArtifactCoordinates, ComparableVersion>
+        extends LayoutArtifactCoordinatesEntity<MavenArtifactCoordinates, ComparableVersion>
 {
 
     public static final String LAYOUT_NAME = "Maven 2";

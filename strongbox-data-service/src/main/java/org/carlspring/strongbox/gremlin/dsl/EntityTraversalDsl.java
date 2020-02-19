@@ -9,7 +9,7 @@ import org.apache.tinkerpop.gremlin.process.traversal.dsl.graph.GraphTraversal;
 import org.apache.tinkerpop.gremlin.structure.Edge;
 import org.apache.tinkerpop.gremlin.structure.Element;
 import org.apache.tinkerpop.gremlin.structure.Vertex;
-import org.carlspring.strongbox.config.gremlin.dsl.__;
+import org.carlspring.strongbox.gremlin.dsl.__;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 

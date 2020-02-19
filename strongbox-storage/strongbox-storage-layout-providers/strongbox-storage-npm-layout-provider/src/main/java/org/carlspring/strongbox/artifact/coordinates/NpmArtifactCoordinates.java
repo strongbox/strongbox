@@ -1,6 +1,7 @@
 package org.carlspring.strongbox.artifact.coordinates;
 
 import org.carlspring.strongbox.artifact.coordinates.versioning.SemanticVersion;
+import org.carlspring.strongbox.domain.LayoutArtifactCoordinatesEntity;
 
 import javax.persistence.Entity;
 import javax.xml.bind.annotation.XmlAccessType;
@@ -27,7 +28,7 @@ import org.springframework.util.StringUtils;
 @XmlRootElement(name = "npmArtifactCoordinates")
 @XmlAccessorType(XmlAccessType.NONE)
 @ArtifactCoordinatesLayout(name = NpmArtifactCoordinates.LAYOUT_NAME, alias = NpmArtifactCoordinates.LAYOUT_ALIAS)
-public class NpmArtifactCoordinates extends ArtifactCoordinatesEntity<NpmArtifactCoordinates, SemanticVersion>
+public class NpmArtifactCoordinates extends LayoutArtifactCoordinatesEntity<NpmArtifactCoordinates, SemanticVersion>
 {
 
     public static final String LAYOUT_NAME = "npm";
@@ -119,7 +120,6 @@ public class NpmArtifactCoordinates extends ArtifactCoordinatesEntity<NpmArtifac
         return String.format("%s/%s", getScope(), getName());
     }
 
-    @Override
     public void setId(String id)
     {
         setName(id);

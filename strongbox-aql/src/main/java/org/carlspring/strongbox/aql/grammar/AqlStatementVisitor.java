@@ -6,23 +6,23 @@ import org.carlspring.strongbox.data.criteria.Expression.ExpOperator;
 import org.carlspring.strongbox.data.criteria.Paginator;
 import org.carlspring.strongbox.data.criteria.Predicate;
 import org.carlspring.strongbox.data.criteria.Selector;
-import org.carlspring.strongbox.domain.ArtifactEntry;
+import org.carlspring.strongbox.domain.ArtifactEntity;
 
 /**
  * @author sbespalov
  *
  */
-public class AqlStatementVisitor extends AQLBaseVisitor<Selector<ArtifactEntry>>
+public class AqlStatementVisitor extends AQLBaseVisitor<Selector<ArtifactEntity>>
 {
 
-    private Selector<ArtifactEntry> selector = new Selector<>(ArtifactEntry.class);
+    private Selector<ArtifactEntity> selector = new Selector<>(ArtifactEntity.class);
 
     public AqlStatementVisitor()
     {
     }
 
     @Override
-    public Selector<ArtifactEntry> visitQuery(QueryContext ctx)
+    public Selector<ArtifactEntity> visitQuery(QueryContext ctx)
     {
         Predicate artifactPredicate = Predicate.of(ExpOperator.IS_NOT_NULL.of("artifactCoordinates"));
         AqlQueryVisitor queryVisitor = new AqlQueryVisitor(artifactPredicate);

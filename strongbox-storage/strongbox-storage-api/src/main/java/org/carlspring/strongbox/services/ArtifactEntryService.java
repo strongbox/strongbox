@@ -9,13 +9,13 @@ import org.carlspring.strongbox.artifact.ArtifactTag;
 import org.carlspring.strongbox.artifact.coordinates.ArtifactCoordinates;
 import org.carlspring.strongbox.data.service.CrudService;
 import org.carlspring.strongbox.data.service.support.search.PagingCriteria;
-import org.carlspring.strongbox.domain.ArtifactEntry;
+import org.carlspring.strongbox.domain.ArtifactEntity;
 import org.carlspring.strongbox.services.support.ArtifactEntrySearchCriteria;
 import org.javatuples.Pair;
 import org.springframework.transaction.annotation.Transactional;
 
 /**
- * CRUD service for managing {@link ArtifactEntry} entities.
+ * CRUD service for managing {@link ArtifactEntity} entities.
  *
  * @author Alex Oreshkevich
  * @author Sergey Bespalov
@@ -23,7 +23,7 @@ import org.springframework.transaction.annotation.Transactional;
  */
 @Transactional
 public interface ArtifactEntryService
-        extends CrudService<ArtifactEntry, String>
+        extends CrudService<ArtifactEntity, String>
 {
 
     /**
@@ -35,16 +35,16 @@ public interface ArtifactEntryService
      *            search query defined as a set of coordinates (id ,version, groupID etc.)
      * @return list of artifacts or empty list if nothing was found
      */
-    List<ArtifactEntry> findArtifactList(String storageId,
+    List<ArtifactEntity> findArtifactList(String storageId,
                                          String repositoryId,
                                          ArtifactCoordinates coordinates);
 
-    List<ArtifactEntry> findArtifactList(String storageId,
+    List<ArtifactEntity> findArtifactList(String storageId,
                                          String repositoryId,
                                          Map<String, String> coordinates,
                                          boolean strict);
 
-    List<ArtifactEntry> findArtifactList(String storageId,
+    List<ArtifactEntity> findArtifactList(String storageId,
                                          String repositoryId,
                                          Map<String, String> coordinates,
                                          Set<ArtifactTag> tagSet,
@@ -53,7 +53,7 @@ public interface ArtifactEntryService
                                          String orderBy,
                                          boolean strict);
 
-    List<ArtifactEntry> findMatching(ArtifactEntrySearchCriteria searchCriteria,
+    List<ArtifactEntity> findMatching(ArtifactEntrySearchCriteria searchCriteria,
                                      PagingCriteria pagingCriteria);
 
     Long countCoordinates(Collection<Pair<String, String>> storageRepositoryPairList,
@@ -73,7 +73,7 @@ public interface ArtifactEntryService
                            String repositoryId,
                            String path);
 
-    ArtifactEntry findOneArtifact(String storageId,
+    ArtifactEntity findOneArtifact(String storageId,
                                   String repositoryId,
                                   String path);
 

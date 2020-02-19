@@ -26,7 +26,7 @@ public class ArtifactGroupEntry extends GenericEntity implements ArtifactGroup
                            CascadeType.MERGE,
                            CascadeType.PERSIST,
                            CascadeType.REFRESH })
-    private Set<ArtifactEntry> artifactEntries = new HashSet<>();
+    private Set<ArtifactEntity> artifactEntries = new HashSet<>();
 
     public ArtifactGroupEntry()
     {
@@ -50,12 +50,12 @@ public class ArtifactGroupEntry extends GenericEntity implements ArtifactGroup
     }
 
     @Nonnull
-    public Set<ArtifactEntry> getArtifactEntries()
+    public Set<ArtifactEntity> getArtifactEntries()
     {
         return artifactEntries != null ? artifactEntries : Collections.emptySet();
     }
 
-    public ArtifactEntry putArtifactEntry(ArtifactEntry artifactEntry)
+    public ArtifactEntity putArtifactEntry(ArtifactEntity artifactEntry)
     {
         if (!artifactEntries.contains(artifactEntry))
         {

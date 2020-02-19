@@ -11,7 +11,7 @@ import org.carlspring.strongbox.data.criteria.OQueryTemplate;
 import org.carlspring.strongbox.data.criteria.Paginator;
 import org.carlspring.strongbox.data.criteria.Predicate;
 import org.carlspring.strongbox.data.criteria.Selector;
-import org.carlspring.strongbox.domain.ArtifactEntry;
+import org.carlspring.strongbox.domain.ArtifactEntity;
 import org.carlspring.strongbox.domain.ArtifactTagEntry;
 import org.carlspring.strongbox.domain.RemoteArtifactEntry;
 import org.carlspring.strongbox.domain.RepositoryArtifactIdGroupEntry;
@@ -203,7 +203,7 @@ public class NugetRepositoryFeatures
 
         ArtifactTag lastVersionTag = artifactTagService.findOneOrCreate(ArtifactTagEntry.LAST_VERSION);
 
-        Set<ArtifactEntry> artifactToSaveSet = new HashSet<>();
+        Set<ArtifactEntity> artifactToSaveSet = new HashSet<>();
         for (PackageEntry packageEntry : packageFeed.getEntries())
         {
             String packageId = packageEntry.getProperties().getId();
@@ -234,7 +234,7 @@ public class NugetRepositoryFeatures
             artifactToSaveSet.add(remoteArtifactEntry);
         }
 
-        for (ArtifactEntry e : artifactToSaveSet)
+        for (ArtifactEntity e : artifactToSaveSet)
         {
             RepositoryPath repositoryPath = repositoryPathResolver.resolve(repository, (NugetArtifactCoordinates) e.getArtifactCoordinates());
 

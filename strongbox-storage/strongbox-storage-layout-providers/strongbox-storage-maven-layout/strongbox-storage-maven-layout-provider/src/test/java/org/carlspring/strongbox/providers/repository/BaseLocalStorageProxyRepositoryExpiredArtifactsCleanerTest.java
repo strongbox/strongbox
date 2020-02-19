@@ -10,7 +10,7 @@ import javax.inject.Named;
 
 import org.apache.commons.lang.time.DateUtils;
 import org.carlspring.strongbox.configuration.Configuration;
-import org.carlspring.strongbox.domain.ArtifactEntry;
+import org.carlspring.strongbox.domain.ArtifactEntity;
 import org.carlspring.strongbox.providers.io.RepositoryPath;
 import org.carlspring.strongbox.providers.io.RepositoryPathResolver;
 import org.carlspring.strongbox.providers.repository.proxied.LocalStorageProxyRepositoryExpiredArtifactsCleaner;
@@ -62,10 +62,10 @@ abstract class BaseLocalStorageProxyRepositoryExpiredArtifactsCleanerTest
 
     protected abstract String getVersion();
 
-    protected ArtifactEntry downloadAndSaveArtifactEntry()
+    protected ArtifactEntity downloadAndSaveArtifactEntry()
             throws Exception
     {
-        Optional<ArtifactEntry> artifactEntryOptional = Optional.ofNullable(artifactEntryService.findOneArtifact(STORAGE_ID,
+        Optional<ArtifactEntity> artifactEntryOptional = Optional.ofNullable(artifactEntryService.findOneArtifact(STORAGE_ID,
                                                                                                                  getRepositoryId(),
                                                                                                                  getPath()));
         assertThat(artifactEntryOptional).isEqualTo(Optional.empty());
@@ -81,7 +81,7 @@ abstract class BaseLocalStorageProxyRepositoryExpiredArtifactsCleanerTest
         artifactEntryOptional = Optional.ofNullable(artifactEntryService.findOneArtifact(STORAGE_ID,
                                                                                          getRepositoryId(),
                                                                                          getPath()));
-        ArtifactEntry artifactEntry = artifactEntryOptional.orElse(null);
+        ArtifactEntity artifactEntry = artifactEntryOptional.orElse(null);
         assertThat(artifactEntry).isNotNull();
         assertThat(artifactEntry.getLastUpdated()).isNotNull();
         assertThat(artifactEntry.getLastUsed()).isNotNull();

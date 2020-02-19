@@ -1,7 +1,7 @@
 package org.carlspring.strongbox.providers.io;
 
 import org.carlspring.strongbox.artifact.coordinates.ArtifactCoordinates;
-import org.carlspring.strongbox.domain.ArtifactEntry;
+import org.carlspring.strongbox.domain.ArtifactEntity;
 import org.carlspring.strongbox.domain.RemoteArtifactEntry;
 
 import java.io.IOException;
@@ -187,7 +187,7 @@ public abstract class RepositoryFiles
     {
         if (RepositoryFiles.isArtifact(repositoryPath))
         {
-            ArtifactEntry e = repositoryPath.getArtifactEntry();
+            ArtifactEntity e = repositoryPath.getArtifactEntry();
             return e == null || e instanceof RemoteArtifactEntry && !((RemoteArtifactEntry) e).getIsCached();
         }
         else

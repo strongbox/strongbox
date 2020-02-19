@@ -6,7 +6,7 @@ import org.carlspring.strongbox.artifact.coordinates.ArtifactCoordinates;
 import org.carlspring.strongbox.artifact.coordinates.RawArtifactCoordinates;
 import org.carlspring.strongbox.data.CacheManagerTestExecutionListener;
 import org.carlspring.strongbox.data.service.support.search.PagingCriteria;
-import org.carlspring.strongbox.domain.ArtifactEntry;
+import org.carlspring.strongbox.domain.ArtifactEntity;
 import org.carlspring.strongbox.services.ArtifactEntryService;
 
 import javax.inject.Inject;
@@ -92,7 +92,7 @@ public class ArtifactEntryServiceTest
     {
         final String groupId = getGroupId(GROUP_ID, testInfo);
 
-        List<ArtifactEntry> artifactEntries = findAll(groupId);
+        List<ArtifactEntity> artifactEntries = findAll(groupId);
         List<ArtifactCoordinatesEntity> artifactCoordinates = artifactEntries.stream()
                                                                                .map(e -> (ArtifactCoordinatesEntity) e.getArtifactCoordinates())
                                                                                .collect(Collectors.toList());
@@ -102,7 +102,7 @@ public class ArtifactEntryServiceTest
         displayAllEntries(groupId);
     }
 
-    private List<ArtifactEntry> findAll(final String groupId)
+    private List<ArtifactEntity> findAll(final String groupId)
     {
         HashMap<String, String> coordinates = new HashMap<>();
         coordinates.put("path", String.format("%s", groupId));
@@ -119,7 +119,7 @@ public class ArtifactEntryServiceTest
     {
         final String groupId = getGroupId(GROUP_ID, testInfo);
 
-        ArtifactEntry artifactEntry = new ArtifactEntry();
+        ArtifactEntity artifactEntry = new ArtifactEntity();
         artifactEntry.setStorageId(STORAGE_ID);
         artifactEntry.setRepositoryId(REPOSITORY_ID);
         artifactEntry.setArtifactCoordinates(createArtifactCoordinates(groupId,
@@ -149,13 +149,13 @@ public class ArtifactEntryServiceTest
         ArtifactCoordinates jarCoordinates = createArtifactCoordinates(groupId, ARTIFACT_ID + "123", "1.2.3", "jar");
         ArtifactCoordinates pomCoordinates = createArtifactCoordinates(groupId, ARTIFACT_ID + "123", "1.2.3", "pom");
 
-        Optional<ArtifactEntry> artifactEntryOptional = Optional.ofNullable(artifactEntryService.findOneArtifact(STORAGE_ID,
+        Optional<ArtifactEntity> artifactEntryOptional = Optional.ofNullable(artifactEntryService.findOneArtifact(STORAGE_ID,
                                                                                                                  REPOSITORY_ID,
                                                                                                                  jarCoordinates.toPath()));
 
         assertThat(artifactEntryOptional).isPresent();
 
-        ArtifactEntry artifactEntry = artifactEntryOptional.get();
+        ArtifactEntity artifactEntry = artifactEntryOptional.get();
         assertThat(artifactEntry.getArtifactCoordinates()).isNotNull();
         assertThat(artifactEntry.getArtifactCoordinates().toPath()).isEqualTo(jarCoordinates.toPath());
 
@@ -189,7 +189,7 @@ public class ArtifactEntryServiceTest
         assertThat(artifactEntryOptional).isPresent();
     }
 
-    private ArtifactEntry save(ArtifactEntry artifactEntry)
+    private ArtifactEntity save(ArtifactEntity artifactEntry)
     {
         return artifactEntryService.save(artifactEntry);
     }
@@ -202,7 +202,7 @@ public class ArtifactEntryServiceTest
         int all = count(groupId);
         updateArtifactAttributes(groupId);
 
-        List<ArtifactEntry> entries = artifactEntryService.findMatching(anArtifactEntrySearchCriteria()
+        List<ArtifactEntity> entries = artifactEntryService.findMatching(anArtifactEntrySearchCriteria()
                                                                                 .withMinSizeInBytes(500L)
                                                                                 .build(),
                                                                         PagingCriteria.ALL)
@@ -226,7 +226,7 @@ public class ArtifactEntryServiceTest
         int all = count(groupId);
         updateArtifactAttributes(groupId);
 
-        List<ArtifactEntry> entries = artifactEntryService.findMatching(anArtifactEntrySearchCriteria()
+        List<ArtifactEntity> entries = artifactEntryService.findMatching(anArtifactEntrySearchCriteria()
                                                                                 .withLastAccessedTimeInDays(5)
                                                                                 .build(),
                                                                         PagingCriteria.ALL)
@@ -250,7 +250,7 @@ public class ArtifactEntryServiceTest
         int all = count(groupId);
         assertThat(all).isEqualTo(3);
 
-        List<ArtifactEntry> artifactEntries = findAll(groupId);
+        List<ArtifactEntity> artifactEntries = findAll(groupId);
         int removed = artifactEntryService.delete(artifactEntries);
         assertThat(removed).isEqualTo(all);
 
@@ -267,7 +267,7 @@ public class ArtifactEntryServiceTest
         int all = count(groupId);
         assertThat(all).isEqualTo(3);
 
-        List<ArtifactEntry> artifactEntries = findAll(groupId);
+        List<ArtifactEntity> artifactEntries = findAll(groupId);
         artifactEntries.remove(0);
         int removed = artifactEntryService.delete(artifactEntries);
         assertThat(removed).isEqualTo(all - 1);
@@ -284,7 +284,7 @@ public class ArtifactEntryServiceTest
         int all = count(groupId);
         updateArtifactAttributes(groupId);
 
-        List<ArtifactEntry> entries = artifactEntryService.findMatching(anArtifactEntrySearchCriteria()
+        List<ArtifactEntity> entries = artifactEntryService.findMatching(anArtifactEntrySearchCriteria()
                                                                                 .withMinSizeInBytes(500L)
                                                                                 .withLastAccessedTimeInDays(5)
                                                                                 .build(),
@@ -315,7 +315,7 @@ public class ArtifactEntryServiceTest
         // prepare search query key (coordinates)
         RawArtifactCoordinates coordinates = new RawArtifactCoordinates(groupId + "/");
 
-        List<ArtifactEntry> artifactEntries = artifactEntryService.findArtifactList(STORAGE_ID,
+        List<ArtifactEntity> artifactEntries = artifactEntryService.findArtifactList(STORAGE_ID,
                                                                                     REPOSITORY_ID,
                                                                                     coordinates.getCoordinates(),
                                                                                     false);
@@ -345,7 +345,7 @@ public class ArtifactEntryServiceTest
         // prepare search query key (coordinates)
         RawArtifactCoordinates c1 = new RawArtifactCoordinates(groupId + "/" + ARTIFACT_ID + "/");
 
-        List<ArtifactEntry> result = artifactEntryService.findArtifactList(STORAGE_ID,
+        List<ArtifactEntity> result = artifactEntryService.findArtifactList(STORAGE_ID,
                                                                            REPOSITORY_ID,
                                                                            c1.getCoordinates(),
                                                                            false);
@@ -369,16 +369,16 @@ public class ArtifactEntryServiceTest
     {
         final String groupId = getGroupId(GROUP_ID, testInfo);
 
-        final ArtifactEntry artifactEntry = createArtifactEntry(groupId);
+        final ArtifactEntity artifactEntry = createArtifactEntry(groupId);
 
         assertThat(artifactEntry.getCreated()).isNull();
         assertThat(artifactEntry.getLastUpdated()).isNull();
 
-        final ArtifactEntry firstTimeSavedArtifactEntry = save(artifactEntry);
+        final ArtifactEntity firstTimeSavedArtifactEntry = save(artifactEntry);
         final String artifactEntryId = firstTimeSavedArtifactEntry.getObjectId();
         final Date creationDate = firstTimeSavedArtifactEntry.getCreated();
 
-        final ArtifactEntry firstTimeReadFromDatabase = artifactEntryService.findOne(artifactEntryId)
+        final ArtifactEntity firstTimeReadFromDatabase = artifactEntryService.findOne(artifactEntryId)
                                                                             .orElse(null);
 
         assertThat(firstTimeReadFromDatabase).isNotNull();
@@ -387,7 +387,7 @@ public class ArtifactEntryServiceTest
         artifactEntry.setDownloadCount(1);
         save(firstTimeReadFromDatabase);
 
-        final ArtifactEntry secondTimeReadFromDatabase = artifactEntryService.findOne(artifactEntryId)
+        final ArtifactEntity secondTimeReadFromDatabase = artifactEntryService.findOne(artifactEntryId)
                                                                              .orElse(null);
 
         assertThat(secondTimeReadFromDatabase).isNotNull();
@@ -400,11 +400,11 @@ public class ArtifactEntryServiceTest
     {
         final String groupId = getGroupId(GROUP_ID, testInfo);
 
-        final ArtifactEntry artifactEntry = createArtifactEntry(groupId);
-        final ArtifactEntry firstTimeSavedArtifactEntry = save(artifactEntry);
+        final ArtifactEntity artifactEntry = createArtifactEntry(groupId);
+        final ArtifactEntity firstTimeSavedArtifactEntry = save(artifactEntry);
         final String artifactEntryId = firstTimeSavedArtifactEntry.getObjectId();
 
-        final ArtifactEntry firstTimeReadFromDatabase = artifactEntryService.findOne(artifactEntryId)
+        final ArtifactEntity firstTimeReadFromDatabase = artifactEntryService.findOne(artifactEntryId)
                                                                             .orElse(null);
         assertThat(firstTimeReadFromDatabase).isNotNull();
 
@@ -415,7 +415,7 @@ public class ArtifactEntryServiceTest
         firstTimeReadFromDatabase.setLastUsed(sampleDate);
 
         save(firstTimeReadFromDatabase);
-        final ArtifactEntry secondTimeReadFromDatabase = artifactEntryService.findOne(artifactEntryId)
+        final ArtifactEntity secondTimeReadFromDatabase = artifactEntryService.findOne(artifactEntryId)
                                                                              .orElse(null);
 
         assertThat(secondTimeReadFromDatabase).isNotNull();
@@ -431,9 +431,9 @@ public class ArtifactEntryServiceTest
         return new SimpleDateFormat("yyyy-MM-dd HH:mm:ss").parse("2019-10-31 13:15:50");
     }
 
-    private ArtifactEntry createArtifactEntry(String groupId)
+    private ArtifactEntity createArtifactEntry(String groupId)
     {
-        final ArtifactEntry artifactEntry = new ArtifactEntry();
+        final ArtifactEntity artifactEntry = new ArtifactEntity();
 
         artifactEntry.setStorageId(STORAGE_ID);
         artifactEntry.setRepositoryId(REPOSITORY_ID);
@@ -444,7 +444,7 @@ public class ArtifactEntryServiceTest
 
     private void displayAllEntries(final String groupId)
     {
-        List<ArtifactEntry> result = findAll(groupId);
+        List<ArtifactEntity> result = findAll(groupId);
         if (CollectionUtils.isEmpty(result))
         {
             logger.debug("Artifact repository is empty");
@@ -486,7 +486,7 @@ public class ArtifactEntryServiceTest
                                      String storageId,
                                      String repositoryId)
     {
-        ArtifactEntry artifactEntry = new ArtifactEntry();
+        ArtifactEntity artifactEntry = new ArtifactEntity();
         artifactEntry.setArtifactCoordinates(coordinates);
         artifactEntry.setStorageId(storageId);
         artifactEntry.setRepositoryId(repositoryId);
@@ -496,10 +496,10 @@ public class ArtifactEntryServiceTest
 
     private void updateArtifactAttributes(final String groupId)
     {
-        List<ArtifactEntry> artifactEntries = findAll(groupId);
+        List<ArtifactEntity> artifactEntries = findAll(groupId);
         for (int i = 0; i < artifactEntries.size(); i++)
         {
-            final ArtifactEntry artifactEntry = artifactEntries.get(i);
+            final ArtifactEntity artifactEntry = artifactEntries.get(i);
             if (i == 0)
             {
                 artifactEntry.setLastUsed(new Date());

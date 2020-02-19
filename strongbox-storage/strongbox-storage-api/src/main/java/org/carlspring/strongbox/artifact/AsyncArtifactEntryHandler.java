@@ -1,6 +1,6 @@
 package org.carlspring.strongbox.artifact;
 
-import org.carlspring.strongbox.domain.ArtifactEntry;
+import org.carlspring.strongbox.domain.ArtifactEntity;
 import org.carlspring.strongbox.event.AsyncEventListener;
 import org.carlspring.strongbox.event.artifact.ArtifactEvent;
 import org.carlspring.strongbox.event.artifact.ArtifactEventTypeEnum;
@@ -86,7 +86,7 @@ public abstract class AsyncArtifactEntryHandler
         InterruptedException
     {
         Lock lock = repositoryPathLock.lock(repositoryPath,
-                                            ArtifactEntry.class.getSimpleName())
+                                            ArtifactEntity.class.getSimpleName())
                                       .writeLock();
         lock.lock();
         try
@@ -104,11 +104,11 @@ public abstract class AsyncArtifactEntryHandler
         new TransactionTemplate(transactionManager).execute(t -> {
             try
             {
-                ArtifactEntry result = handleEvent(repositoryPath);
+                ArtifactEntity result = handleEvent(repositoryPath);
                 if (result == null)
                 {
                     logger.debug("No [{}] result for event [{}] and path [{}].",
-                                 ArtifactEntry.class.getSimpleName(),
+                                 ArtifactEntity.class.getSimpleName(),
                                  AsyncArtifactEntryHandler.this.getClass().getSimpleName(),
                                  repositoryPath);
 
@@ -124,7 +124,7 @@ public abstract class AsyncArtifactEntryHandler
         });
     }
 
-    protected abstract ArtifactEntry handleEvent(RepositoryPath repositoryPath)
+    protected abstract ArtifactEntity handleEvent(RepositoryPath repositoryPath)
         throws IOException;
 
 }

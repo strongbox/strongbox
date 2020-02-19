@@ -1,6 +1,6 @@
 package org.carlspring.strongbox.providers.io;
 
-import org.carlspring.strongbox.domain.ArtifactEntry;
+import org.carlspring.strongbox.domain.ArtifactEntity;
 import org.carlspring.strongbox.io.ProxyPathInvocationHandler;
 import org.carlspring.strongbox.storage.Storage;
 import org.carlspring.strongbox.storage.repository.Repository;
@@ -40,7 +40,7 @@ public class RepositoryPath
 
     private LayoutFileSystem fileSystem;
 
-    protected ArtifactEntry artifactEntry;
+    protected ArtifactEntity artifactEntry;
 
     protected Map<RepositoryFileAttributeType, Object> cachedAttributes = new HashMap<>();
 
@@ -60,7 +60,7 @@ public class RepositoryPath
         return target;
     }
 
-    public ArtifactEntry getArtifactEntry() throws IOException
+    public ArtifactEntity getArtifactEntry() throws IOException
     {
         return artifactEntry;
     }

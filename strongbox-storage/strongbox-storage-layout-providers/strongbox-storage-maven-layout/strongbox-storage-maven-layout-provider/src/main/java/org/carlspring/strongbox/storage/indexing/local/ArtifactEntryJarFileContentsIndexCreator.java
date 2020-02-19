@@ -2,7 +2,7 @@ package org.carlspring.strongbox.storage.indexing.local;
 
 import org.carlspring.strongbox.artifact.coordinates.MavenArtifactCoordinates;
 import org.carlspring.strongbox.domain.ArtifactArchiveListing;
-import org.carlspring.strongbox.domain.ArtifactEntry;
+import org.carlspring.strongbox.domain.ArtifactEntity;
 
 import java.util.Set;
 
@@ -34,7 +34,7 @@ public class ArtifactEntryJarFileContentsIndexCreator
     public void populateArtifactInfo(ArtifactContext artifactContext)
     {
         ArtifactEntryArtifactContext artifactEntryArtifactContext = (ArtifactEntryArtifactContext) artifactContext;
-        ArtifactEntry artifactEntry = artifactEntryArtifactContext.getArtifactEntry();
+        ArtifactEntity artifactEntry = artifactEntryArtifactContext.getArtifactEntry();
         ArtifactInfo artifactInfo = artifactEntryArtifactContext.getArtifactInfo();
 
         final MavenArtifactCoordinates coordinates = (MavenArtifactCoordinates) artifactEntry.getArtifactCoordinates();
@@ -52,7 +52,7 @@ public class ArtifactEntryJarFileContentsIndexCreator
      * @see JarFileContentsIndexCreator#updateArtifactInfo(org.apache.maven.index.ArtifactInfo, java.io.File)
      */
     private void updateArtifactInfo(final ArtifactInfo artifactInfo,
-                                    final ArtifactEntry artifactEntry)
+                                    final ArtifactEntity artifactEntry)
     {
         final MavenArtifactCoordinates coordinates = (MavenArtifactCoordinates) artifactEntry.getArtifactCoordinates();
 
@@ -69,7 +69,7 @@ public class ArtifactEntryJarFileContentsIndexCreator
      * @see org.apache.maven.index.creator.JarFileContentsIndexCreator#updateArtifactInfo(org.apache.maven.index.ArtifactInfo, java.io.File, java.lang.String)
      */
     private void updateArtifactInfo(final ArtifactInfo artifactInfo,
-                                    final ArtifactEntry artifactEntry,
+                                    final ArtifactEntity artifactEntry,
                                     final String strippedPrefix)
     {
         ArtifactArchiveListing artifactArchiveListing = artifactEntry.getArtifactArchiveListing();

@@ -2,7 +2,7 @@ package org.carlspring.strongbox.controllers.layout.npm;
 
 import org.carlspring.strongbox.artifact.coordinates.NpmArtifactCoordinates;
 import org.carlspring.strongbox.config.IntegrationTest;
-import org.carlspring.strongbox.domain.ArtifactEntry;
+import org.carlspring.strongbox.domain.ArtifactEntity;
 import org.carlspring.strongbox.domain.RemoteArtifactEntry;
 import org.carlspring.strongbox.rest.common.NpmRestAssuredBaseTest;
 import org.carlspring.strongbox.services.ArtifactEntryService;
@@ -123,7 +123,7 @@ public class NpmArtifactControllerTestIT
                .body("name", equalTo("react"))
                .body("versions.size()", greaterThan(0));
 
-        ArtifactEntry artifactEntry = artifactEntryService.findOneArtifact(storageId,
+        ArtifactEntity artifactEntry = artifactEntryService.findOneArtifact(storageId,
                                                                            repositoryId,
                                                                            coordinates.toPath());
         assertThat(artifactEntry).isNotNull();
@@ -150,7 +150,7 @@ public class NpmArtifactControllerTestIT
                .and()
                .body("objects.package.name", hasItem("Reston"));
         
-        ArtifactEntry artifactEntry = artifactEntryService.findOneArtifact(storageId,
+        ArtifactEntity artifactEntry = artifactEntryService.findOneArtifact(storageId,
                                                                            repositoryId,
                                                                            "Reston/Reston/0.2.0/Reston-0.2.0.tgz");
         assertThat(artifactEntry).isNotNull();

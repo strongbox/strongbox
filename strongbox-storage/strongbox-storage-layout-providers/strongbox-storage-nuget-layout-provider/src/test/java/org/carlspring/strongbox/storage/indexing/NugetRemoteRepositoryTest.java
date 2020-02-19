@@ -11,7 +11,7 @@ import javax.inject.Inject;
 import org.carlspring.strongbox.artifact.coordinates.NugetArtifactCoordinates;
 import org.carlspring.strongbox.client.ArtifactTransportException;
 import org.carlspring.strongbox.config.NugetLayoutProviderTestConfig;
-import org.carlspring.strongbox.domain.ArtifactEntry;
+import org.carlspring.strongbox.domain.ArtifactEntity;
 import org.carlspring.strongbox.domain.RemoteArtifactEntry;
 import org.carlspring.strongbox.nuget.NugetSearchRequest;
 import org.carlspring.strongbox.repository.NugetRepositoryFeatures;
@@ -63,10 +63,10 @@ public class NugetRemoteRepositoryTest
                                     nugetSearchRequest);
 
         NugetArtifactCoordinates coordinates = new NugetArtifactCoordinates("NHibernate", "4.0.4.4000");
-        ArtifactEntry artifactEntry = artifactEntryService.findOneArtifact(repository.getStorage().getId(),
+        ArtifactEntity artifactEntry = artifactEntryService.findOneArtifact(repository.getStorage().getId(),
                                                                            repository.getId(),
                                                                            coordinates.toPath());
-        Optional<ArtifactEntry> optionalArtifactEntry = Optional.ofNullable(artifactEntry);
+        Optional<ArtifactEntity> optionalArtifactEntry = Optional.ofNullable(artifactEntry);
 
         assertThat(optionalArtifactEntry).isPresent();
         assertThat(((RemoteArtifactEntry) optionalArtifactEntry.get()).getIsCached()).isFalse();

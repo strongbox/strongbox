@@ -2,7 +2,7 @@ package org.carlspring.strongbox.controllers.layout.nuget;
 
 import org.carlspring.strongbox.artifact.coordinates.NugetArtifactCoordinates;
 import org.carlspring.strongbox.config.IntegrationTest;
-import org.carlspring.strongbox.domain.ArtifactEntry;
+import org.carlspring.strongbox.domain.ArtifactEntity;
 import org.carlspring.strongbox.domain.RemoteArtifactEntry;
 import org.carlspring.strongbox.providers.io.RepositoryFiles;
 import org.carlspring.strongbox.providers.io.RepositoryPath;
@@ -510,13 +510,13 @@ public class NugetArtifactControllerTest extends NugetRestAssuredBaseTest
         coordinatesMap.put("id", packageId);
         coordinatesMap.put("version", packageVersion);
 
-        List<ArtifactEntry> artifactEntryList = artifactEntryService.findArtifactList("storage-common-proxies",
+        List<ArtifactEntity> artifactEntryList = artifactEntryService.findArtifactList("storage-common-proxies",
                                                                                       "nuget.org",
                                                                                       coordinatesMap,
                                                                                       true);
         assertThat(artifactEntryList).isNotEmpty();
 
-        ArtifactEntry artifactEntry = artifactEntryList.iterator().next();
+        ArtifactEntity artifactEntry = artifactEntryList.iterator().next();
         
         assertThat(artifactEntry).isInstanceOf(RemoteArtifactEntry.class);
         assertThat(((RemoteArtifactEntry)artifactEntry).getIsCached()).isFalse();

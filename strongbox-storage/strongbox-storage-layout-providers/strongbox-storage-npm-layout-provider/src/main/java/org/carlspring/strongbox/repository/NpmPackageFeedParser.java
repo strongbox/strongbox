@@ -13,7 +13,7 @@ import javax.transaction.Transactional;
 import org.carlspring.strongbox.artifact.ArtifactTag;
 import org.carlspring.strongbox.artifact.coordinates.ArtifactCoordinates;
 import org.carlspring.strongbox.artifact.coordinates.NpmArtifactCoordinates;
-import org.carlspring.strongbox.domain.ArtifactEntry;
+import org.carlspring.strongbox.domain.ArtifactEntity;
 import org.carlspring.strongbox.domain.ArtifactTagEntry;
 import org.carlspring.strongbox.domain.RemoteArtifactEntry;
 import org.carlspring.strongbox.domain.RepositoryArtifactIdGroupEntry;
@@ -66,7 +66,7 @@ public class NpmPackageFeedParser
         String repositoryId = repository.getId();
         String storageId = repository.getStorage().getId();
 
-        Set<ArtifactEntry> artifactToSaveSet = new HashSet<>();
+        Set<ArtifactEntity> artifactToSaveSet = new HashSet<>();
         for (SearchResult searchResult : searchResults.getObjects())
         {
             PackageEntry packageEntry = searchResult.getPackage();
@@ -86,10 +86,10 @@ public class NpmPackageFeedParser
     }
 
     private void saveArtifactEntrySet(Repository repository,
-                                      Set<ArtifactEntry> artifactToSaveSet)
+                                      Set<ArtifactEntity> artifactToSaveSet)
         throws IOException
     {
-        for (ArtifactEntry e : artifactToSaveSet)
+        for (ArtifactEntity e : artifactToSaveSet)
         {
             RepositoryPath repositoryPath = repositoryPathResolver.resolve(repository).resolve(e);
 
@@ -124,7 +124,7 @@ public class NpmPackageFeedParser
             return;
         }
 
-        Set<ArtifactEntry> artifactToSaveSet = new HashSet<>();
+        Set<ArtifactEntity> artifactToSaveSet = new HashSet<>();
         for (PackageVersion packageVersion : versionMap.values())
         {
             RemoteArtifactEntry remoteArtifactEntry = parseVersion(storageId, repositoryId, packageVersion);
@@ -148,7 +148,7 @@ public class NpmPackageFeedParser
     private void saveArtifactEntry(RepositoryPath repositoryPath)
         throws IOException
     {
-        ArtifactEntry e = repositoryPath.getArtifactEntry();
+        ArtifactEntity e = repositoryPath.getArtifactEntry();
         
         Repository repository = repositoryPath.getRepository();
         Storage storage = repository.getStorage();

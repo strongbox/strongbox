@@ -18,7 +18,7 @@ import org.apache.commons.io.IOUtils;
 import org.carlspring.strongbox.artifact.coordinates.ArtifactCoordinates;
 import org.carlspring.strongbox.configuration.Configuration;
 import org.carlspring.strongbox.configuration.ConfigurationManager;
-import org.carlspring.strongbox.domain.ArtifactEntry;
+import org.carlspring.strongbox.domain.ArtifactEntity;
 import org.carlspring.strongbox.event.artifact.ArtifactEventListenerRegistry;
 import org.carlspring.strongbox.io.LayoutOutputStream;
 import org.carlspring.strongbox.io.StreamUtils;
@@ -334,11 +334,11 @@ public class ArtifactManagementService
 
         artifactOperationsValidator.checkAllowsDeletion(repository);
 
-        Optional<ArtifactEntry> artifactEntry = Optional.ofNullable(repositoryPath.getArtifactEntry());
+        Optional<ArtifactEntity> artifactEntry = Optional.ofNullable(repositoryPath.getArtifactEntry());
         if (!Files.isDirectory(repositoryPath) && RepositoryFiles.isArtifact(repositoryPath) && !artifactEntry.isPresent())
         {
             throw new IOException(String.format("Corresponding [%s] record not found for path [%s]",
-                                                ArtifactEntry.class.getSimpleName(), repositoryPath));
+                                                ArtifactEntity.class.getSimpleName(), repositoryPath));
         }
 
         try

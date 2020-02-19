@@ -19,7 +19,7 @@ import org.carlspring.strongbox.data.criteria.Paginator;
 import org.carlspring.strongbox.data.criteria.Predicate;
 import org.carlspring.strongbox.data.criteria.QueryTemplate;
 import org.carlspring.strongbox.data.criteria.Selector;
-import org.carlspring.strongbox.domain.ArtifactEntry;
+import org.carlspring.strongbox.domain.ArtifactEntity;
 import org.carlspring.strongbox.providers.io.AbstractRepositoryProvider;
 import org.carlspring.strongbox.providers.io.RepositoryFiles;
 import org.carlspring.strongbox.providers.io.RepositoryPath;
@@ -93,13 +93,13 @@ public class HostedRepositoryProvider extends AbstractRepositoryProvider
         Storage storage = configurationManager.getConfiguration().getStorage(storageId);
         Repository repository = storage.getRepository(repositoryId);
         
-        Selector<ArtifactEntry> selector = createSelector(storageId, repositoryId, predicate).with(paginator).fetch();
+        Selector<ArtifactEntity> selector = createSelector(storageId, repositoryId, predicate).with(paginator).fetch();
         
-        QueryTemplate<List<ArtifactEntry>, ArtifactEntry> queryTemplate = new DetachQueryTemplate<>(entityManager);
+        QueryTemplate<List<ArtifactEntity>, ArtifactEntity> queryTemplate = new DetachQueryTemplate<>(entityManager);
         
         RootRepositoryPath rootRepositoryPath = repositoryPathResolver.resolve(repository);
-        List<ArtifactEntry> searchResult = queryTemplate.select(selector);
-        for (ArtifactEntry artifactEntry : searchResult)
+        List<ArtifactEntity> searchResult = queryTemplate.select(selector);
+        for (ArtifactEntity artifactEntry : searchResult)
         {
             
             try
@@ -122,9 +122,9 @@ public class HostedRepositoryProvider extends AbstractRepositoryProvider
                       String repositoryId,
                       Predicate predicate)
     {
-        Selector<ArtifactEntry> selector = createSelector(storageId, repositoryId, predicate).select("count(*)");
+        Selector<ArtifactEntity> selector = createSelector(storageId, repositoryId, predicate).select("count(*)");
 
-        QueryTemplate<Long, ArtifactEntry> queryTemplate = new OQueryTemplate<>(entityManager);
+        QueryTemplate<Long, ArtifactEntity> queryTemplate = new OQueryTemplate<>(entityManager);
 
         return queryTemplate.select(selector);
     }

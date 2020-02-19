@@ -4,6 +4,7 @@ import java.util.Map;
 import java.util.Optional;
 
 import org.carlspring.strongbox.db.schema.Vertices;
+import org.carlspring.strongbox.domain.LayoutArtifactCoordinatesEntity;
 import org.neo4j.ogm.annotation.NodeEntity;
 
 /**
@@ -11,7 +12,7 @@ import org.neo4j.ogm.annotation.NodeEntity;
  */
 @NodeEntity(Vertices.RAW_ARTIFACT_COORDINATES)
 public class RawArtifactCoordinates
-        extends ArtifactCoordinatesEntity<RawArtifactCoordinates, RawArtifactCoordinates>
+        extends LayoutArtifactCoordinatesEntity<RawArtifactCoordinates, RawArtifactCoordinates>
 {
 
     public static final String LAYOUT_NAME = "Null Layout";
@@ -34,7 +35,6 @@ public class RawArtifactCoordinates
         return getPath();
     }
 
-    @Override
     public void setId(String id)
     {
         setCoordinate(PATH, id);

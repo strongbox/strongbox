@@ -6,7 +6,7 @@ import org.carlspring.strongbox.artifact.ArtifactTag;
 import org.carlspring.strongbox.artifact.MavenArtifact;
 import org.carlspring.strongbox.artifact.MavenArtifactUtils;
 import org.carlspring.strongbox.config.Maven2LayoutProviderTestConfig;
-import org.carlspring.strongbox.domain.ArtifactEntry;
+import org.carlspring.strongbox.domain.ArtifactEntity;
 import org.carlspring.strongbox.providers.io.RepositoryFiles;
 import org.carlspring.strongbox.providers.io.RepositoryPath;
 import org.carlspring.strongbox.providers.io.RepositoryPathResolver;
@@ -523,7 +523,7 @@ public class ArtifactManagementServiceImplTest
         }
 
         RepositoryPath repositoryPathResult = repositoryPathResolver.resolve(repository, path);
-        ArtifactEntry artifactEntry = repositoryPathResult.getArtifactEntry();
+        ArtifactEntity artifactEntry = repositoryPathResult.getArtifactEntry();
 
         assertThat(artifactEntry).isNotNull();
         assertThat(artifactEntry.getDownloadCount()).isEqualTo(Integer.valueOf(concurrency));
@@ -561,7 +561,7 @@ public class ArtifactManagementServiceImplTest
         }
 
         // confirm it has last-version tag
-        ArtifactEntry artifactEntry = artifactEntryService.findOneArtifact(storageId,
+        ArtifactEntity artifactEntry = artifactEntryService.findOneArtifact(storageId,
                                                                            repositoryId,
                                                                            artifactPath);
         assertThat(artifactEntry.getTagSet()).isNotNull();
@@ -582,7 +582,7 @@ public class ArtifactManagementServiceImplTest
         }
 
         // confirm it has last-version tag
-        ArtifactEntry artifactEntryWithClassifier = artifactEntryService.findOneArtifact(storageId,
+        ArtifactEntity artifactEntryWithClassifier = artifactEntryService.findOneArtifact(storageId,
                                                                                          repositoryId,
                                                                                          artifactPathWithClassifier);
 
@@ -613,7 +613,7 @@ public class ArtifactManagementServiceImplTest
         }
 
         // confirm it has last-version tag
-        ArtifactEntry artifactEntryV2 = artifactEntryService.findOneArtifact(storageId,
+        ArtifactEntity artifactEntryV2 = artifactEntryService.findOneArtifact(storageId,
                                                                              repositoryId,
                                                                              artifactPathV2);
 
@@ -667,7 +667,7 @@ public class ArtifactManagementServiceImplTest
         expectedChecksums.put("MD5", md5Checksum);
 
         String path = RepositoryFiles.relativizePath(repositoryPath);
-        ArtifactEntry artifactEntry = artifactEntryService.findOneArtifact(storageId,
+        ArtifactEntity artifactEntry = artifactEntryService.findOneArtifact(storageId,
                                                                            repositoryId,
                                                                            path);
 

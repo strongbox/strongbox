@@ -3,7 +3,7 @@ package org.carlspring.strongbox.services.impl;
 import org.carlspring.strongbox.artifact.ArtifactTag;
 import org.carlspring.strongbox.artifact.coordinates.ArtifactCoordinates;
 import org.carlspring.strongbox.data.service.support.search.PagingCriteria;
-import org.carlspring.strongbox.domain.ArtifactEntry;
+import org.carlspring.strongbox.domain.ArtifactEntity;
 import org.carlspring.strongbox.domain.ArtifactTagEntry;
 import org.carlspring.strongbox.services.ArtifactEntryService;
 import org.carlspring.strongbox.services.support.ArtifactEntrySearchCriteria;
@@ -24,7 +24,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 /**
- * DAO implementation for {@link ArtifactEntry} entities.
+ * DAO implementation for {@link ArtifactEntity} entities.
  *
  * @author Sergey Bespalov
  */
@@ -35,13 +35,13 @@ class ArtifactEntryServiceImpl extends AbstractArtifactEntryService
 
     private static final Logger logger = LoggerFactory.getLogger(ArtifactEntryService.class);
 
-    private boolean artifactEntryIsSavedForTheFirstTime(ArtifactEntry artifactEntry)
+    private boolean artifactEntryIsSavedForTheFirstTime(ArtifactEntity artifactEntry)
     {
         return artifactEntry.getUuid() == null;
     }
 
     @Override
-    protected <S extends ArtifactEntry> S cascadeEntitySave(ArtifactEntry entity)
+    protected <S extends ArtifactEntity> S cascadeEntitySave(ArtifactEntity entity)
     {
         entity.setArtifactCoordinates(entity.getArtifactCoordinates());
         if (artifactEntryIsSavedForTheFirstTime(entity))
@@ -53,7 +53,7 @@ class ArtifactEntryServiceImpl extends AbstractArtifactEntryService
     }
 
     @Override
-    public List<ArtifactEntry> findArtifactList(String storageId,
+    public List<ArtifactEntity> findArtifactList(String storageId,
                                                 String repositoryId,
                                                 Map<String, String> coordinates,
                                                 boolean strict)
@@ -63,7 +63,7 @@ class ArtifactEntryServiceImpl extends AbstractArtifactEntryService
 
     @Override
     @Transactional
-    public List<ArtifactEntry> findArtifactList(String storageId,
+    public List<ArtifactEntity> findArtifactList(String storageId,
                                                 String repositoryId,
                                                 Map<String, String> coordinates,
                                                 Set<ArtifactTag> tagSet,
@@ -86,7 +86,7 @@ class ArtifactEntryServiceImpl extends AbstractArtifactEntryService
         String sQuery = buildCoordinatesQuery(toList(storageId, repositoryId), coordinates.keySet(), tagMap.keySet(),
                                               skip,
                                               limit, orderBy, strict);
-        OSQLSynchQuery<ArtifactEntry> oQuery = new OSQLSynchQuery<>(sQuery);
+        OSQLSynchQuery<ArtifactEntity> oQuery = new OSQLSynchQuery<>(sQuery);
 
         Map<String, Object> parameterMap = new HashMap<>(coordinates);
         if (storageId != null && !storageId.trim().isEmpty())
@@ -100,13 +100,13 @@ class ArtifactEntryServiceImpl extends AbstractArtifactEntryService
 
         tagMap.entrySet().stream().forEach(e -> parameterMap.put(e.getKey(), e.getValue().getName()));
 
-        List<ArtifactEntry> entries = getDelegate().command(oQuery).execute(parameterMap);
+        List<ArtifactEntity> entries = getDelegate().command(oQuery).execute(parameterMap);
 
         return entries;
     }
 
     @Override
-    public List<ArtifactEntry> findMatching(ArtifactEntrySearchCriteria searchCriteria,
+    public List<ArtifactEntity> findMatching(ArtifactEntrySearchCriteria searchCriteria,
                                             PagingCriteria pagingCriteria)
     {
         StringBuilder sb = new StringBuilder();
@@ -143,13 +143,13 @@ class ArtifactEntryServiceImpl extends AbstractArtifactEntryService
 
         logger.debug("Executing SQL query> {}", sb);
 
-        OSQLSynchQuery<ArtifactEntry> oQuery = new OSQLSynchQuery<>(sb.toString());
+        OSQLSynchQuery<ArtifactEntity> oQuery = new OSQLSynchQuery<>(sb.toString());
 
         return getDelegate().command(oQuery).execute(parameterMap);
     }
 
     @Override
-    public List<ArtifactEntry> findArtifactList(String storageId,
+    public List<ArtifactEntity> findArtifactList(String storageId,
                                                 String repositoryId,
                                                 ArtifactCoordinates coordinates)
     {
@@ -168,7 +168,7 @@ class ArtifactEntryServiceImpl extends AbstractArtifactEntryService
         coordinates = prepareParameterMap(coordinates, strict);
         String sQuery = buildCoordinatesQuery(storageRepositoryPairList, coordinates.keySet(), Collections.emptySet(), 0, 0, null, strict);
         sQuery = sQuery.replace("*", "count(distinct(artifactCoordinates))");
-        OSQLSynchQuery<ArtifactEntry> oQuery = new OSQLSynchQuery<>(sQuery);
+        OSQLSynchQuery<ArtifactEntity> oQuery = new OSQLSynchQuery<>(sQuery);
 
         Map<String, Object> parameterMap = new HashMap<>(coordinates);
 
@@ -200,7 +200,7 @@ class ArtifactEntryServiceImpl extends AbstractArtifactEntryService
         coordinates = prepareParameterMap(coordinates, strict);
         String sQuery = buildCoordinatesQuery(storageRepositoryPairList, coordinates.keySet(), Collections.emptySet(), 0, 0, null, strict);
         sQuery = sQuery.replace("*", "count(*)");
-        OSQLSynchQuery<ArtifactEntry> oQuery = new OSQLSynchQuery<>(sQuery);
+        OSQLSynchQuery<ArtifactEntity> oQuery = new OSQLSynchQuery<>(sQuery);
 
         Map<String, Object> parameterMap = new HashMap<>(coordinates);
 
@@ -361,13 +361,13 @@ class ArtifactEntryServiceImpl extends AbstractArtifactEntryService
     }
 
     @Override
-    public ArtifactEntry findOneArtifact(String storageId,
+    public ArtifactEntity findOneArtifact(String storageId,
                                          String repositoryId,
                                          String path)
     {
         ORID artifactEntryId = findArtifactEntryId(storageId, repositoryId, path);
         return Optional.ofNullable(artifactEntryId)
-                       .flatMap(id -> Optional.ofNullable(entityManager.find(ArtifactEntry.class, id)))
+                       .flatMap(id -> Optional.ofNullable(entityManager.find(ArtifactEntity.class, id)))
                        .map(e -> detach(e))
                        .orElse(null);
     }
@@ -379,7 +379,7 @@ class ArtifactEntryServiceImpl extends AbstractArtifactEntryService
     }
 
     @Override
-    public void delete(ArtifactEntry entity)
+    public void delete(ArtifactEntity entity)
     {
         super.delete(entity);
     }
@@ -428,15 +428,15 @@ class ArtifactEntryServiceImpl extends AbstractArtifactEntryService
     }
 
     @Override
-    public Class<ArtifactEntry> getEntityClass()
+    public Class<ArtifactEntity> getEntityClass()
     {
-        return ArtifactEntry.class;
+        return ArtifactEntity.class;
     }
 
     @Override
-    protected ArtifactEntry detach(ArtifactEntry entity)
+    protected ArtifactEntity detach(ArtifactEntity entity)
     {
-        ArtifactEntry result = super.detach(entity);
+        ArtifactEntity result = super.detach(entity);
         result.setArtifactCoordinates(getDelegate().detachAll(entity.getArtifactCoordinates(), true));
 
         return result;

@@ -13,7 +13,7 @@ import javax.inject.Inject;
 import org.apache.commons.codec.digest.MessageDigestAlgorithms;
 import org.carlspring.strongbox.artifact.ArtifactTag;
 import org.carlspring.strongbox.artifact.coordinates.NpmArtifactCoordinates;
-import org.carlspring.strongbox.domain.ArtifactEntry;
+import org.carlspring.strongbox.domain.ArtifactEntity;
 import org.carlspring.strongbox.npm.metadata.Dist;
 import org.carlspring.strongbox.npm.metadata.PackageVersion;
 import org.carlspring.strongbox.providers.io.RepositoryFiles;
@@ -47,7 +47,7 @@ public class NpmPackageSupplier implements Function<Path, NpmPackageDesc>
         NpmFileSystemProvider npmFileSystemProvider = (NpmFileSystemProvider) path.getFileSystem().provider();
 
         NpmArtifactCoordinates c;
-        ArtifactEntry artifactEntry;
+        ArtifactEntity artifactEntry;
         try
         {
             c = (NpmArtifactCoordinates) RepositoryFiles.readCoordinates(repositoryPath);

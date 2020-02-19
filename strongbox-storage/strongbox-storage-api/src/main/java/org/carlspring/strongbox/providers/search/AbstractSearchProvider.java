@@ -10,7 +10,7 @@ import org.carlspring.strongbox.configuration.Configuration;
 import org.carlspring.strongbox.configuration.ConfigurationManager;
 import org.carlspring.strongbox.dependency.snippet.CodeSnippet;
 import org.carlspring.strongbox.dependency.snippet.SnippetGenerator;
-import org.carlspring.strongbox.domain.ArtifactEntry;
+import org.carlspring.strongbox.domain.ArtifactEntity;
 import org.carlspring.strongbox.providers.io.RepositoryFiles;
 import org.carlspring.strongbox.providers.io.RepositoryPath;
 import org.carlspring.strongbox.providers.io.RepositoryPathResolver;
@@ -47,7 +47,7 @@ public abstract class AbstractSearchProvider
     @Override
     public SearchResult findExact(SearchRequest searchRequest)
     {
-        ArtifactEntry artifactEntry = artifactEntryService.findOneArtifact(searchRequest.getStorageId(),
+        ArtifactEntity artifactEntry = artifactEntryService.findOneArtifact(searchRequest.getStorageId(),
                                                                            searchRequest.getRepositoryId(),
                                                                            searchRequest.getArtifactCoordinates().toPath());
 
@@ -75,7 +75,7 @@ public abstract class AbstractSearchProvider
         return !search(searchRequest).getResults().isEmpty();
     }
 
-    protected SearchResult createSearchResult(ArtifactEntry a)
+    protected SearchResult createSearchResult(ArtifactEntity a)
     {
         String storageId = a.getStorageId();
         

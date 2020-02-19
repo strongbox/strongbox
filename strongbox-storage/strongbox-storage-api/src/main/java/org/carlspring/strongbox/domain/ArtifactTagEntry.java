@@ -1,19 +1,18 @@
 package org.carlspring.strongbox.domain;
 
-import org.carlspring.strongbox.artifact.ArtifactTag;
-import org.carlspring.strongbox.data.domain.GenericEntity;
-
-import javax.persistence.Entity;
-
 import org.apache.commons.lang3.StringUtils;
+import org.carlspring.strongbox.artifact.ArtifactTag;
+import org.carlspring.strongbox.data.domain.DomainEntity;
+import org.carlspring.strongbox.db.schema.Vertices;
+import org.neo4j.ogm.annotation.NodeEntity;
 
 /**
  * @author Sergey Bespalov
  *
  */
-@Entity
+@NodeEntity(Vertices.ARTIFACT_TAG)
 public class ArtifactTagEntry
-        extends GenericEntity
+        extends DomainEntity
         implements ArtifactTag
 {
 

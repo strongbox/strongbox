@@ -10,7 +10,7 @@ import org.apache.maven.index.artifact.Gav;
 public class MavenArtifactEntryUtils
 {
 
-    public static Gav toGav(ArtifactEntry artifactEntry)
+    public static Gav toGav(ArtifactEntity artifactEntry)
     {
         return MavenArtifactUtils.convertPathToGav(artifactEntry.getArtifactPath());
     }

@@ -4,7 +4,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 
 import org.carlspring.strongbox.config.Maven2LayoutProviderCronTasksTestConfig;
 import org.carlspring.strongbox.data.CacheManagerTestExecutionListener;
-import org.carlspring.strongbox.domain.ArtifactEntry;
+import org.carlspring.strongbox.domain.ArtifactEntity;
 import org.carlspring.strongbox.providers.io.RepositoryFiles;
 import org.carlspring.strongbox.providers.io.RepositoryPath;
 import org.carlspring.strongbox.providers.repository.ProxyRepositoryProvider;
@@ -71,7 +71,7 @@ public class CleanupExpiredArtifactsFromProxyRepositoriesCronJobTestIT
         final String repositoryId = repository.getId();
         final String artifactPathStr = "org/carlspring/properties-injector/1.5/properties-injector-1.5.jar";
 
-        Optional<ArtifactEntry> artifactEntryOptional = Optional.ofNullable(
+        Optional<ArtifactEntity> artifactEntryOptional = Optional.ofNullable(
                 artifactEntryService.findOneArtifact(storageId,
                                                      repositoryId,
                                                      artifactPathStr));
@@ -87,7 +87,7 @@ public class CleanupExpiredArtifactsFromProxyRepositoriesCronJobTestIT
         artifactEntryOptional = Optional.ofNullable(artifactEntryService.findOneArtifact(storageId,
                                                                                          repositoryId,
                                                                                          artifactPathStr));
-        ArtifactEntry artifactEntry = artifactEntryOptional.orElse(null);
+        ArtifactEntity artifactEntry = artifactEntryOptional.orElse(null);
         assertThat(artifactEntry).isNotNull();
         assertThat(artifactEntry.getLastUpdated()).isNotNull();
         assertThat(artifactEntry.getLastUsed()).isNotNull();
@@ -106,7 +106,7 @@ public class CleanupExpiredArtifactsFromProxyRepositoriesCronJobTestIT
         {
             if (StringUtils.equals(jobKey1, jobKey.toString()) && statusExecuted)
             {
-                Optional<ArtifactEntry> optionalArtifactEntryFromDb = Optional.ofNullable(
+                Optional<ArtifactEntity> optionalArtifactEntryFromDb = Optional.ofNullable(
                         artifactEntryService.findOneArtifact(storageId,
                                                              repositoryId,
                                                              artifactPathStr));

@@ -1,6 +1,7 @@
 package org.carlspring.strongbox.artifact.coordinates;
 
 import org.carlspring.strongbox.artifact.coordinates.versioning.SemanticVersion;
+import org.carlspring.strongbox.domain.LayoutArtifactCoordinatesEntity;
 
 import javax.persistence.Entity;
 import javax.xml.bind.annotation.XmlAccessType;
@@ -23,7 +24,7 @@ import org.springframework.util.Assert;
 @XmlAccessorType(XmlAccessType.NONE)
 @ArtifactCoordinatesLayout(name = NugetArtifactCoordinates.LAYOUT_NAME, alias = NugetArtifactCoordinates.LAYOUT_ALIAS)
 public class NugetArtifactCoordinates
-        extends ArtifactCoordinatesEntity<NugetArtifactCoordinates, SemanticVersion>
+        extends LayoutArtifactCoordinatesEntity<NugetArtifactCoordinates, SemanticVersion>
 {
 
     public static final String LAYOUT_NAME = "NuGet";
@@ -72,7 +73,6 @@ public class NugetArtifactCoordinates
         return getCoordinate(ID);
     }
 
-    @Override
     public void setId(String id)
     {
         setCoordinate(ID, id);

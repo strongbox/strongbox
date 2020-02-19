@@ -3,7 +3,7 @@ package org.carlspring.strongbox.services.impl;
 import org.carlspring.strongbox.artifact.ArtifactTag;
 import org.carlspring.strongbox.artifact.coordinates.ArtifactCoordinates;
 import org.carlspring.strongbox.data.service.support.search.PagingCriteria;
-import org.carlspring.strongbox.domain.ArtifactEntry;
+import org.carlspring.strongbox.domain.ArtifactEntity;
 import org.carlspring.strongbox.domain.ArtifactTagEntry;
 import org.carlspring.strongbox.domain.RepositoryArtifactIdGroupEntry;
 import org.carlspring.strongbox.services.ArtifactTagService;
@@ -42,7 +42,7 @@ public class RepositoryArtifactIdGroupServiceImpl
 
     @Override
     public void addArtifactToGroup(RepositoryArtifactIdGroupEntry artifactGroup,
-                                   ArtifactEntry artifactEntry)
+                                   ArtifactEntity artifactEntry)
     {
         ArtifactCoordinates coordinates = artifactEntry.getArtifactCoordinates();
         Assert.notNull(coordinates, "coordinates should not be null");
@@ -63,7 +63,7 @@ public class RepositoryArtifactIdGroupServiceImpl
         save(artifactGroup);
     }
 
-    private <S extends ArtifactEntry> Optional<S> checkAndUpdateLastVersionTagIfNeeded(S lastVersionEntry,
+    private <S extends ArtifactEntity> Optional<S> checkAndUpdateLastVersionTagIfNeeded(S lastVersionEntry,
                                                                                        S entity,
                                                                                        ArtifactTag lastVersionTag)
     {
@@ -135,7 +135,7 @@ public class RepositoryArtifactIdGroupServiceImpl
 
         logger.debug("Executing SQL query> {}", sb);
 
-        OSQLSynchQuery<ArtifactEntry> oQuery = new OSQLSynchQuery<>(sb.toString());
+        OSQLSynchQuery<ArtifactEntity> oQuery = new OSQLSynchQuery<>(sb.toString());
 
         return getDelegate().command(oQuery).execute(params);
     }

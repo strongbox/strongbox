@@ -5,8 +5,8 @@ import java.util.function.Supplier;
 
 import javax.inject.Inject;
 
-import org.carlspring.strongbox.config.gremlin.dsl.EntityTraversal;
-import org.carlspring.strongbox.config.gremlin.dsl.EntityTraversalSource;
+import org.carlspring.strongbox.gremlin.dsl.EntityTraversal;
+import org.carlspring.strongbox.gremlin.dsl.EntityTraversalSource;
 import org.carlspring.strongbox.data.domain.DomainObject;
 import org.carlspring.strongbox.gremlin.adapters.EntityTraversalAdapter;
 import org.janusgraph.core.JanusGraph;

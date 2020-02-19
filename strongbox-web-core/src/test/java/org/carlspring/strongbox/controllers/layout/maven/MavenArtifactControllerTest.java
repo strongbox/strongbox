@@ -7,7 +7,7 @@ import org.carlspring.strongbox.artifact.generator.MavenArtifactDeployer;
 import org.carlspring.strongbox.client.ArtifactOperationException;
 import org.carlspring.strongbox.client.ArtifactTransportException;
 import org.carlspring.strongbox.config.IntegrationTest;
-import org.carlspring.strongbox.domain.ArtifactEntry;
+import org.carlspring.strongbox.domain.ArtifactEntity;
 import org.carlspring.strongbox.domain.RemoteArtifactEntry;
 import org.carlspring.strongbox.providers.io.RepositoryFiles;
 import org.carlspring.strongbox.providers.io.RepositoryPath;
@@ -1252,7 +1252,7 @@ public class MavenArtifactControllerTest
                .then()
                .statusCode(HttpStatus.OK.value());
 
-        ArtifactEntry artifactEntry = artifactEntryService.findOneArtifact("storage-common-proxies",
+        ArtifactEntity artifactEntry = artifactEntryService.findOneArtifact("storage-common-proxies",
                                                                            "carlspring",
                                                                            artifactPath);
         assertThat(artifactEntry).isNotNull();

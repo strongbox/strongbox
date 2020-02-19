@@ -2,7 +2,7 @@ package org.carlspring.strongbox.storage.indexing.local;
 
 import org.carlspring.strongbox.artifact.coordinates.MavenArtifactCoordinates;
 import org.carlspring.strongbox.data.service.support.search.PagingCriteria;
-import org.carlspring.strongbox.domain.ArtifactEntry;
+import org.carlspring.strongbox.domain.ArtifactEntity;
 import org.carlspring.strongbox.domain.RepositoryArtifactIdGroupEntry;
 import org.carlspring.strongbox.providers.io.RepositoryPath;
 import org.carlspring.strongbox.services.RepositoryArtifactIdGroupService;
@@ -101,18 +101,18 @@ public class RepositoryHostedIndexCreator
         final List<ArtifactContext> artifactContexts = new ArrayList<>();
         for (final RepositoryArtifactIdGroupEntry repositoryArtifactIdGroupEntry : repositoryArtifactIdGroupEntries)
         {
-            final Map<String, List<ArtifactEntry>> groupedByVersion = groupArtifactEntriesByVersion(
+            final Map<String, List<ArtifactEntity>> groupedByVersion = groupArtifactEntriesByVersion(
                     repositoryArtifactIdGroupEntry);
-            for (final Map.Entry<String, List<ArtifactEntry>> sameVersionArtifactEntries : groupedByVersion.entrySet())
+            for (final Map.Entry<String, List<ArtifactEntity>> sameVersionArtifactEntries : groupedByVersion.entrySet())
             {
-                for (final ArtifactEntry artifactEntry : sameVersionArtifactEntries.getValue())
+                for (final ArtifactEntity artifactEntry : sameVersionArtifactEntries.getValue())
                 {
                     if (!isIndexable(artifactEntry))
                     {
                         continue;
                     }
 
-                    final List<ArtifactEntry> groupClone = new ArrayList<>(sameVersionArtifactEntries.getValue());
+                    final List<ArtifactEntity> groupClone = new ArrayList<>(sameVersionArtifactEntries.getValue());
                     groupClone.remove(artifactEntry);
 
                     final ArtifactEntryArtifactContextHelper artifactContextHelper = createArtifactContextHelper(
@@ -127,14 +127,14 @@ public class RepositoryHostedIndexCreator
         return artifactContexts;
     }
 
-    private Map<String, List<ArtifactEntry>> groupArtifactEntriesByVersion(final RepositoryArtifactIdGroupEntry groupEntry)
+    private Map<String, List<ArtifactEntity>> groupArtifactEntriesByVersion(final RepositoryArtifactIdGroupEntry groupEntry)
     {
-        final Map<String, List<ArtifactEntry>> groupedByVersion = new LinkedHashMap<>();
-        for (final ArtifactEntry artifactEntry : groupEntry.getArtifactEntries())
+        final Map<String, List<ArtifactEntity>> groupedByVersion = new LinkedHashMap<>();
+        for (final ArtifactEntity artifactEntry : groupEntry.getArtifactEntries())
         {
             final MavenArtifactCoordinates coordinates = (MavenArtifactCoordinates) artifactEntry.getArtifactCoordinates();
             final String version = coordinates.getVersion();
-            List<ArtifactEntry> artifactEntries = groupedByVersion.get(version);
+            List<ArtifactEntity> artifactEntries = groupedByVersion.get(version);
             if (artifactEntries == null)
             {
                 artifactEntries = new ArrayList<>();
@@ -145,8 +145,8 @@ public class RepositoryHostedIndexCreator
         return groupedByVersion;
     }
 
-    private ArtifactEntryArtifactContextHelper createArtifactContextHelper(final ArtifactEntry artifactEntry,
-                                                                           final List<ArtifactEntry> group)
+    private ArtifactEntryArtifactContextHelper createArtifactContextHelper(final ArtifactEntity artifactEntry,
+                                                                           final List<ArtifactEntity> group)
     {
         boolean pomExists = false;
         boolean sourcesExists = false;
@@ -165,7 +165,7 @@ public class RepositoryHostedIndexCreator
             return new ArtifactEntryArtifactContextHelper(pomExists, sourcesExists, javadocExists);
         }
 
-        for (final ArtifactEntry neighbour : group)
+        for (final ArtifactEntity neighbour : group)
         {
             final MavenArtifactCoordinates neighbourCoordinates = (MavenArtifactCoordinates) neighbour.getArtifactCoordinates();
             pomExists |=
@@ -183,7 +183,7 @@ public class RepositoryHostedIndexCreator
     /**
      * org.apache.maven.index.DefaultArtifactContextProducer#isIndexable(java.io.File)
      */
-    private boolean isIndexable(final ArtifactEntry artifactEntry)
+    private boolean isIndexable(final ArtifactEntity artifactEntry)
     {
         final String filename = Paths.get(artifactEntry.getArtifactPath()).getFileName().toString();
 

@@ -2,7 +2,7 @@ package org.carlspring.strongbox.providers.repository.proxied;
 
 import org.carlspring.strongbox.configuration.ConfigurationManager;
 import org.carlspring.strongbox.data.service.support.search.PagingCriteria;
-import org.carlspring.strongbox.domain.ArtifactEntry;
+import org.carlspring.strongbox.domain.ArtifactEntity;
 import org.carlspring.strongbox.providers.io.RepositoryPath;
 import org.carlspring.strongbox.providers.io.RepositoryPathResolver;
 import org.carlspring.strongbox.services.ArtifactEntryService;
@@ -59,7 +59,7 @@ public class LocalStorageProxyRepositoryExpiredArtifactsCleaner
                                                                    .withMinSizeInBytes(minSizeInBytes)
                                                                    .build();
 
-        final List<ArtifactEntry> artifactEntries = artifactEntryService.findMatching(searchCriteria,
+        final List<ArtifactEntity> artifactEntries = artifactEntryService.findMatching(searchCriteria,
                                                                                       PagingCriteria.ALL);
         filterAccessibleProxiedArtifacts(artifactEntries);
 
@@ -72,15 +72,15 @@ public class LocalStorageProxyRepositoryExpiredArtifactsCleaner
         deleteFromStorage(artifactEntries);
     }
 
-    private void filterAccessibleProxiedArtifacts(final List<ArtifactEntry> artifactEntries)
+    private void filterAccessibleProxiedArtifacts(final List<ArtifactEntity> artifactEntries)
     {
         if (CollectionUtils.isEmpty(artifactEntries))
         {
             return;
         }
-        for (final Iterator<ArtifactEntry> it = artifactEntries.iterator(); it.hasNext(); )
+        for (final Iterator<ArtifactEntity> it = artifactEntries.iterator(); it.hasNext(); )
         {
-            final ArtifactEntry artifactEntry = it.next();
+            final ArtifactEntity artifactEntry = it.next();
             final Storage storage = configurationManager.getConfiguration().getStorage(artifactEntry.getStorageId());
             final Repository repository = storage.getRepository(artifactEntry.getRepositoryId());
             if (!repository.isProxyRepository())
@@ -105,10 +105,10 @@ public class LocalStorageProxyRepositoryExpiredArtifactsCleaner
 
     }
 
-    private void deleteFromStorage(final List<ArtifactEntry> artifactEntries)
+    private void deleteFromStorage(final List<ArtifactEntity> artifactEntries)
             throws IOException
     {
-        for (final ArtifactEntry artifactEntry : artifactEntries)
+        for (final ArtifactEntity artifactEntry : artifactEntries)
         {
             final Storage storage = configurationManager.getConfiguration().getStorage(artifactEntry.getStorageId());
             final Repository repository = storage.getRepository(artifactEntry.getRepositoryId());

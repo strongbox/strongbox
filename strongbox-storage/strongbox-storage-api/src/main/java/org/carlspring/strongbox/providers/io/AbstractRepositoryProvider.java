@@ -18,7 +18,7 @@ import org.carlspring.strongbox.configuration.ConfigurationManager;
 import org.carlspring.strongbox.data.criteria.Expression.ExpOperator;
 import org.carlspring.strongbox.data.criteria.Predicate;
 import org.carlspring.strongbox.data.criteria.Selector;
-import org.carlspring.strongbox.domain.ArtifactEntry;
+import org.carlspring.strongbox.domain.ArtifactEntity;
 import org.carlspring.strongbox.domain.RepositoryArtifactIdGroupEntry;
 import org.carlspring.strongbox.event.artifact.ArtifactEventListenerRegistry;
 import org.carlspring.strongbox.io.LayoutOutputStream;
@@ -148,7 +148,7 @@ public abstract class AbstractRepositoryProvider implements RepositoryProvider, 
         String storageId = repository.getStorage().getId();
         String repositoryId = repository.getId();
 
-        ArtifactEntry artifactEntry = provideArtifactEntry(repositoryPath);
+        ArtifactEntity artifactEntry = provideArtifactEntry(repositoryPath);
         if (!shouldStoreArtifactEntry(artifactEntry))
         {
             return;
@@ -210,7 +210,7 @@ public abstract class AbstractRepositoryProvider implements RepositoryProvider, 
     public void commit(RepositoryStreamWriteContext ctx) throws IOException
     {
         RepositoryPath repositoryPath = (RepositoryPath) ctx.getPath();
-        ArtifactEntry artifactEntry = repositoryPath.artifactEntry;
+        ArtifactEntity artifactEntry = repositoryPath.artifactEntry;
         
         Repository repository = repositoryPath.getRepository();
         Storage storage = repository.getStorage();
@@ -233,13 +233,13 @@ public abstract class AbstractRepositoryProvider implements RepositoryProvider, 
         repositoryArtifactIdGroupService.addArtifactToGroup(artifactGroup, artifactEntry);
     }
 
-    protected ArtifactEntry provideArtifactEntry(RepositoryPath repositoryPath) throws IOException
+    protected ArtifactEntity provideArtifactEntry(RepositoryPath repositoryPath) throws IOException
     {
         return Optional.ofNullable(repositoryPath.getArtifactEntry())
-                       .orElse(new ArtifactEntry());
+                       .orElse(new ArtifactEntity());
     }
     
-    protected boolean shouldStoreArtifactEntry(ArtifactEntry artifactEntry)
+    protected boolean shouldStoreArtifactEntry(ArtifactEntity artifactEntry)
     {
         return artifactEntry.getUuid() == null;
     }
@@ -268,11 +268,11 @@ public abstract class AbstractRepositoryProvider implements RepositoryProvider, 
         return result.and(predicate);
     }
 
-    protected Selector<ArtifactEntry> createSelector(String storageId,
+    protected Selector<ArtifactEntity> createSelector(String storageId,
                                                      String repositoryId,
                                                      Predicate p)
     {
-        Selector<ArtifactEntry> selector = new Selector<>(ArtifactEntry.class);
+        Selector<ArtifactEntity> selector = new Selector<>(ArtifactEntity.class);
         selector.where(createPredicate(storageId, repositoryId, p));
         
         return selector;

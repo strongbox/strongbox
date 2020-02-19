@@ -1,7 +1,7 @@
 package org.carlspring.strongbox.services;
 
 import org.carlspring.strongbox.data.service.CrudService;
-import org.carlspring.strongbox.domain.ArtifactEntry;
+import org.carlspring.strongbox.domain.ArtifactEntity;
 import org.carlspring.strongbox.domain.ArtifactGroupEntry;
 
 /**
@@ -12,6 +12,6 @@ public interface ArtifactGroupService<T extends ArtifactGroupEntry>
 {
 
     void addArtifactToGroup(T artifactGroup,
-                            ArtifactEntry artifactEntry);
+                            ArtifactEntity artifactEntry);
     
 }

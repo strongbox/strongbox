@@ -8,7 +8,7 @@ import org.carlspring.strongbox.controllers.BaseArtifactController;
 import org.carlspring.strongbox.data.criteria.Expression.ExpOperator;
 import org.carlspring.strongbox.data.criteria.Paginator;
 import org.carlspring.strongbox.data.criteria.Predicate;
-import org.carlspring.strongbox.domain.ArtifactEntry;
+import org.carlspring.strongbox.domain.ArtifactEntity;
 import org.carlspring.strongbox.domain.ArtifactTagEntry;
 import org.carlspring.strongbox.nuget.NugetSearchRequest;
 import org.carlspring.strongbox.nuget.filter.NugetODataFilterQueryParser;
@@ -230,7 +230,7 @@ public class NugetArtifactController
                                               EntryProperties properties) throws IOException
     {
         RepositoryPath path = nupkg.getPath();
-        ArtifactEntry artifactEntry = path.getArtifactEntry();
+        ArtifactEntity artifactEntry = path.getArtifactEntry();
 
         properties.setId(nupkg.getId());
 

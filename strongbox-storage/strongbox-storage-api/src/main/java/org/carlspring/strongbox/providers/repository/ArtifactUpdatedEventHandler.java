@@ -5,7 +5,7 @@ import java.nio.file.Files;
 import java.util.Date;
 
 import org.carlspring.strongbox.artifact.AsyncArtifactEntryHandler;
-import org.carlspring.strongbox.domain.ArtifactEntry;
+import org.carlspring.strongbox.domain.ArtifactEntity;
 import org.carlspring.strongbox.event.artifact.ArtifactEventTypeEnum;
 import org.carlspring.strongbox.providers.io.RepositoryPath;
 import org.springframework.stereotype.Component;
@@ -20,9 +20,9 @@ public class ArtifactUpdatedEventHandler extends AsyncArtifactEntryHandler
     }
 
     @Override
-    protected ArtifactEntry handleEvent(RepositoryPath repositoryPath) throws IOException
+    protected ArtifactEntity handleEvent(RepositoryPath repositoryPath) throws IOException
     {
-        ArtifactEntry artifactEntry = repositoryPath.getArtifactEntry();
+        ArtifactEntity artifactEntry = repositoryPath.getArtifactEntry();
         artifactEntry.setLastUpdated(new Date());
         
         long size = Files.size(repositoryPath);

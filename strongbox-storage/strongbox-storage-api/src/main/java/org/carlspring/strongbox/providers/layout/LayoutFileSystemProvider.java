@@ -2,7 +2,7 @@ package org.carlspring.strongbox.providers.layout;
 
 import org.carlspring.commons.io.reloading.FSReloadableInputStreamHandler;
 import org.carlspring.strongbox.artifact.ArtifactNotFoundException;
-import org.carlspring.strongbox.domain.ArtifactEntry;
+import org.carlspring.strongbox.domain.ArtifactEntity;
 import org.carlspring.strongbox.event.artifact.ArtifactEventListenerRegistry;
 import org.carlspring.strongbox.event.repository.RepositoryEventListenerRegistry;
 import org.carlspring.strongbox.io.ByteRangeInputStream;
@@ -277,7 +277,7 @@ public abstract class LayoutFileSystemProvider extends StorageFileSystemProvider
             return;
         }
         
-        ArtifactEntry artifactEntry = Optional.ofNullable(repositoryPath.getArtifactEntry())
+        ArtifactEntity artifactEntry = Optional.ofNullable(repositoryPath.getArtifactEntry())
                                               .orElseGet(() -> fetchArtifactEntry(repositoryPath));
         if (artifactEntry != null)
         {
@@ -287,7 +287,7 @@ public abstract class LayoutFileSystemProvider extends StorageFileSystemProvider
         super.doDeletePath(repositoryPath, force);
     }
 
-    private ArtifactEntry fetchArtifactEntry(RepositoryPath repositoryPath)
+    private ArtifactEntity fetchArtifactEntry(RepositoryPath repositoryPath)
     {
         Repository repository = repositoryPath.getRepository();
         String path;
