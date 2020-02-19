@@ -21,7 +21,6 @@ import java.util.stream.Stream;
 
 import io.restassured.http.ContentType;
 import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 import org.springframework.context.annotation.*;
 import org.springframework.http.HttpStatus;
@@ -42,7 +41,7 @@ import static org.hamcrest.CoreMatchers.startsWith;
 public class LdapAuthenticatorConfigurationControllerTest
         extends RestAssuredBaseTest
 {
-    
+
     @Inject
     private ConfigurableProviderManager providerManager;
 
@@ -58,7 +57,7 @@ public class LdapAuthenticatorConfigurationControllerTest
 
         setContextBaseUrl("/api/configuration/ldap");
         providerManager.reload();
-        
+
         AuthenticationItems authenticationItems = providerManager.getAuthenticationItems();
         List<AuthenticationItem> authenticationItemList = authenticationItems.getAuthenticationItemList();
         for (AuthenticationItem authenticationItem : authenticationItemList)
@@ -67,7 +66,7 @@ public class LdapAuthenticatorConfigurationControllerTest
             {
                 continue;
             }
-            
+
             authenticationItem.setEnabled(true);
         }
         providerManager.updateAuthenticationItems(authenticationItems);
@@ -85,10 +84,12 @@ public class LdapAuthenticatorConfigurationControllerTest
                .body("url", startsWith("ldap://127.0.0.1"))
                .body("groupSearchBase", equalTo("ou=Users"))
                .body("groupSearchFilter", equalTo("(uid={0})"))
-               .body("roleMappingList[0].externalRole", equalTo("Developers"))
-               .body("roleMappingList[0].strongboxRole", equalTo("REPOSITORY_MANAGER"))
-               .body("roleMappingList[1].externalRole", equalTo("Contributors"))
-               .body("roleMappingList[1].strongboxRole", equalTo("USER_ROLE"))
+               .body("roleMappingList[0].externalRole", equalTo("Admins"))
+               .body("roleMappingList[0].strongboxRole", equalTo("ADMIN"))
+               .body("roleMappingList[1].externalRole", equalTo("Developers"))
+               .body("roleMappingList[1].strongboxRole", equalTo("REPOSITORY_MANAGER"))
+               .body("roleMappingList[2].externalRole", equalTo("Contributors"))
+               .body("roleMappingList[2].strongboxRole", equalTo("USER_ROLE"))
                .body("userDnPatternList[0]", equalTo("uid={0},ou=Users"))
                .body("authorities.groupSearchBase", equalTo("ou=Groups"))
                .body("authorities.groupSearchFilter", equalTo("(uniqueMember={0})"))
@@ -130,7 +131,7 @@ public class LdapAuthenticatorConfigurationControllerTest
                .get(getContextBaseUrl())
                .peek()
                .then()
-               .body("url", startsWith("ldap://127.0.0.1"))
+               .body("url", equalTo("ldap://127.0.0.1:33389/dc=carlspring,dc=com"))
                .body("groupSearchBase", equalTo("ou=People"))
                .body("groupSearchFilter", equalTo("(people={0})"))
                .body("authorities.groupSearchBase", equalTo("ou=Groups"))
@@ -139,14 +140,16 @@ public class LdapAuthenticatorConfigurationControllerTest
                .body("authorities.groupRoleAttribute", equalTo("cn"))
                .body("authorities.rolePrefix", equalTo(""))
                .body("authorities.convertToUpperCase", equalTo(false))
-               .body("roleMappingList[0].externalRole", equalTo("Developers"))
-               .body("roleMappingList[0].strongboxRole", equalTo("REPOSITORY_MANAGER"))
-               .body("roleMappingList[1].externalRole", equalTo("Contributors"))
-               .body("roleMappingList[1].strongboxRole", equalTo("USER_ROLE"))
-               .body("roleMappingList[2].externalRole", equalTo("ArtifactsManager"))
-               .body("roleMappingList[2].strongboxRole", equalTo("ARTIFACTS_MANAGER"))
-               .body("roleMappingList[3].externalRole", equalTo("LogsManager"))
-               .body("roleMappingList[3].strongboxRole", equalTo("LOGS_MANAGER"))
+               .body("roleMappingList[0].externalRole", equalTo("Admins"))
+               .body("roleMappingList[0].strongboxRole", equalTo("ADMIN"))
+               .body("roleMappingList[1].externalRole", equalTo("Developers"))
+               .body("roleMappingList[1].strongboxRole", equalTo("REPOSITORY_MANAGER"))
+               .body("roleMappingList[2].externalRole", equalTo("Contributors"))
+               .body("roleMappingList[2].strongboxRole", equalTo("USER_ROLE"))
+               .body("roleMappingList[3].externalRole", equalTo("ArtifactsManager"))
+               .body("roleMappingList[3].strongboxRole", equalTo("ARTIFACTS_MANAGER"))
+               .body("roleMappingList[4].externalRole", equalTo("LogsManager"))
+               .body("roleMappingList[4].strongboxRole", equalTo("LOGS_MANAGER"))
                .body("userDnPatternList[0]", equalTo("uid={0},ou=Users"))
                .body("userDnPatternList[1]", equalTo("uid={0},ou=AllUsers"))
                .statusCode(HttpStatus.OK.value());
@@ -159,7 +162,7 @@ public class LdapAuthenticatorConfigurationControllerTest
         LdapConfigurationTestForm form = getLdapConfigurationTestForm();
         form.setUsername("username");
         form.setPassword("password");
-        
+
         form.getConfiguration().setUrl(null);
 
         mockMvc.accept(MediaType.APPLICATION_JSON_VALUE)
@@ -181,7 +184,7 @@ public class LdapAuthenticatorConfigurationControllerTest
         LdapConfigurationTestForm form = getLdapConfigurationTestForm();
         form.setUsername("username");
         form.setPassword("password");
-        
+
         form.getConfiguration().setUrl("http://host:port?thisIsWrongUrl=true");
 
         mockMvc.accept(MediaType.APPLICATION_JSON_VALUE)
@@ -203,7 +206,7 @@ public class LdapAuthenticatorConfigurationControllerTest
         LdapConfigurationTestForm form = getLdapConfigurationTestForm();
         form.setUsername("mtodorov");
         form.setPassword("password");
-        
+
         List<String> userDnPatterns = new ArrayList<>();
         userDnPatterns.add("uid={0},ou=AllUsers");
 
@@ -233,7 +236,7 @@ public class LdapAuthenticatorConfigurationControllerTest
 
         form.setUsername("mtodorov");
         form.setPassword("password");
-        
+
         mockMvc.accept(MediaType.APPLICATION_JSON_VALUE)
                .contentType(ContentType.JSON)
                .body(form)
@@ -244,7 +247,7 @@ public class LdapAuthenticatorConfigurationControllerTest
                .statusCode(HttpStatus.INTERNAL_SERVER_ERROR.value())
                .body("message", equalTo("Failed to test LDAP configuration."));
     }
-    
+
     @WithMockUser(authorities = "ADMIN")
     @Test
     public void ldapConfigurationTestShouldFailWithInvalidUserDn()
@@ -252,7 +255,7 @@ public class LdapAuthenticatorConfigurationControllerTest
         LdapConfigurationTestForm form = getLdapConfigurationTestForm();
         form.setUsername("daddy");
         form.setPassword("mummy");
-        
+
         mockMvc.accept(MediaType.APPLICATION_JSON_VALUE)
                .contentType(ContentType.JSON)
                .body(form)
@@ -271,7 +274,7 @@ public class LdapAuthenticatorConfigurationControllerTest
         LdapConfigurationTestForm form = getLdapConfigurationTestForm();
         form.setUsername("mtodorov");
         form.setPassword("password");
-        
+
         mockMvc.accept(MediaType.APPLICATION_JSON_VALUE)
                .contentType(ContentType.JSON)
                .body(form)
@@ -283,7 +286,6 @@ public class LdapAuthenticatorConfigurationControllerTest
                .body("message", equalTo("LDAP configuration test passed"));
     }
 
-    
     @WithMockUser(authorities = "ADMIN")
     @Test
     public void ldapConfigurationTestShouldPassWithValidUserDnUsingMD5PasswordEncoding()
@@ -397,16 +399,16 @@ public class LdapAuthenticatorConfigurationControllerTest
                .statusCode(HttpStatus.OK.value())
                .body("message", equalTo("LDAP configuration test failed"));
     }
-    
+
     @WithMockUser(authorities = "ADMIN")
     @Test
     public void ldapConfigurationTestShouldNotAffectInternalConfiguration()
     {
         LdapConfigurationTestForm form = getLdapConfigurationTestForm();
-        
+
         form.setUsername("mtodorov");
         form.setPassword("password");
-        
+
         form.getConfiguration()
             .setRoleMappingList(Stream.of(new ExternalRoleMapping("ArtifactsManager", "ARTIFACTS_MANAGER"),
                                           new ExternalRoleMapping("LogsManager", "LOGS_MANAGER"))
@@ -435,20 +437,20 @@ public class LdapAuthenticatorConfigurationControllerTest
         form.getConfiguration().setManagerPassword("secret");
         return form;
     }
-    
+
     @Configuration
     @Profile("LdapAuthenticatorConfigurationControllerTest")
     @Import(HazelcastConfiguration.class)
     @ImportResource("classpath:/ldapServerApplicationContext.xml")
-    public static class LdapAuthenticatorConfigurationControllerTestConfiguration 
+    public static class LdapAuthenticatorConfigurationControllerTestConfiguration
     {
-        
+
         @Primary
         @Bean
         public HazelcastInstanceId hazelcastInstanceIdLacct() {
             return new HazelcastInstanceId("LdapAuthenticatorConfigurationControllerTest-hazelcast-instance");
         }
-        
+
     }
 
 }

@@ -1,0 +1,19 @@
+#
+# This is a patch for the docker image.
+# It will be loaded when `docker-compose up openldap` is executed and will replace the default OpenLDAP user DN
+# so that it matches the UnboundID manager DN. This will make it easier to do live LDAP tests through the UI.
+#
+# Default OpenLDAP  DN: cn=admin,dc=domain,dc=com
+# Default UnboundID DN: uid=admin,ou=system,dc=domain,dc=com
+#
+# Tip - to find root dn:
+#  ldapsearch -H ldapi:// -LLL -Q -Y EXTERNAL -b "cn=config" "(olcRootDN=*)" dn olcRootDN olcRootPW | tee ldif-export.ldif
+#  Returns:
+#   dn: olcDatabase={1}bdb,cn=config
+#   olcRootDN: cn=admin,dc=example,dc=com
+#   olcRootPW: {SSHA}ncCXAJ5DjfRWgxE9pz9TUCNl2qGQHQT3
+
+dn: olcDatabase={1}bdb,cn=config
+changetype: modify
+replace: olcRootDN
+olcRootDN: uid=admin,ou=system,dc=carlspring,dc=com

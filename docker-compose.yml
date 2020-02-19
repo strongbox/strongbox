@@ -24,11 +24,11 @@ services:
   openldap:
     image: osixia/openldap:1.3.0
     ports:
-      - 389:389
+      - 53389:389
     environment:
       - LDAP_BACKEND=bdb
-      # cn=admin,dc=carlspring,dc=com
-      - LDAP_ADMIN_PASSWORD=password
+      # uid=admin,ou=system,dc=carlspring,dc=com
+      - LDAP_ADMIN_PASSWORD=secret
       - LDAP_READONLY_USER=false
       - LDAP_DOMAIN=carlspring.com
       # Check http://www.openldap.org/doc/admin24/slapdconf2.html for increased level of logging
