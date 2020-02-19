@@ -1,16 +1,18 @@
 package org.carlspring.strongbox.authentication.api.ldap;
 
+import org.carlspring.strongbox.authentication.api.AuthenticationItem;
+import org.carlspring.strongbox.authentication.api.AuthenticationItemConfigurationManager;
+import org.carlspring.strongbox.authentication.api.AuthenticationItems;
+import org.carlspring.strongbox.authentication.api.CustomAuthenticationItemMapper;
+import org.carlspring.strongbox.authentication.support.ExternalRoleMapping;
+
+import javax.inject.Inject;
 import java.io.IOException;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
 
-import javax.inject.Inject;
-
-import org.carlspring.strongbox.authentication.api.AuthenticationItemConfigurationManager;
-import org.carlspring.strongbox.authentication.api.CustomAuthenticationItemMapper;
-import org.carlspring.strongbox.authentication.support.ExternalRoleMapping;
 import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.crypto.password.PasswordEncoder;
@@ -18,7 +20,8 @@ import org.springframework.security.ldap.userdetails.LdapUserDetailsService;
 import org.springframework.stereotype.Component;
 
 @Component
-public class LdapAuthenticationConfigurationManager implements CustomAuthenticationItemMapper<LdapConfiguration>
+public class LdapAuthenticationConfigurationManager
+        implements CustomAuthenticationItemMapper<LdapConfiguration>
 {
 
     private static final String MANAGER_PASSWORD = "managerPassword";
@@ -52,13 +55,46 @@ public class LdapAuthenticationConfigurationManager implements CustomAuthenticat
 
     public LdapConfiguration getConfiguration()
     {
-        return authenticationItemConfigurationManager.getCustomAuthenticationItem(this);
+        LdapConfiguration ldapConfiguration = authenticationItemConfigurationManager.getCustomAuthenticationItem(this);
+
+        // TODO: This is a temporary solution to improve the user experience when enabling LDAP as a UserDetailsService.
+        AuthenticationItems authenticationItems = authenticationItemConfigurationManager.getAuthenticationItems();
+        List<AuthenticationItem> list = authenticationItems.getAuthenticationItemList();
+        for (int i=0; i < list.size(); i++)
+        {
+            AuthenticationItem item = list.get(i);
+            if(item.getName().equalsIgnoreCase("ldapUserDetailsService")) {
+                ldapConfiguration.setEnableProvider(item.getEnabled());
+            }
+        }
+
+        return ldapConfiguration;
     }
 
     public void updateConfiguration(LdapConfiguration configuration)
         throws IOException
     {
         authenticationItemConfigurationManager.putCustomAuthenticationItem(configuration, this);
+
+        // TODO: This is a temporary solution to improve the user experience when enabling LDAP as a UserDetailsService.
+        //       We should improve how this works with a later PR.
+        AuthenticationItems authenticationItems = authenticationItemConfigurationManager.getAuthenticationItems();
+        List<AuthenticationItem> list = authenticationItems.getAuthenticationItemList();
+        for (int i = 0; i < list.size(); i++)
+        {
+            AuthenticationItem item = list.get(i);
+            if (item.getName().equalsIgnoreCase("ldapUserDetailsService"))
+            {
+                item.setOrder(configuration.getEnableProvider() ? 0 : 1);
+                item.setEnabled(configuration.getEnableProvider());
+            }
+            else if(item.getName().equalsIgnoreCase("yamlUserDetailService"))
+            {
+                item.setOrder(configuration.getEnableProvider() ? 1 : 0);
+            }
+        }
+
+        authenticationItemConfigurationManager.updateAuthenticationItems(authenticationItems);
     }
 
     public void testConfiguration(String username,

@@ -8,6 +8,7 @@ import javax.validation.constraints.NotEmpty;
 import org.carlspring.strongbox.authentication.support.ExternalRoleMapping;
 import org.carlspring.strongbox.validation.LdapUri;
 
+import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.annotation.JsonUnwrapped;
 
@@ -32,6 +33,9 @@ public class LdapConfiguration
     private List<ExternalRoleMapping> roleMappingList = new ArrayList<>();
 
     private List<String> userDnPatternList = new ArrayList<>();
+
+    @JsonInclude(JsonInclude.Include.NON_EMPTY)
+    private boolean enableProvider;
 
     public String getUrl()
     {
@@ -105,4 +109,13 @@ public class LdapConfiguration
         this.userDnPatternList = userDnPatternList;
     }
 
+    public boolean getEnableProvider()
+    {
+        return enableProvider;
+    }
+
+    public void setEnableProvider(boolean enableProvider)
+    {
+        this.enableProvider = enableProvider;
+    }
 }
