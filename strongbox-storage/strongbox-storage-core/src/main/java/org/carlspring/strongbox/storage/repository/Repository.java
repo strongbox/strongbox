@@ -1,7 +1,10 @@
 package org.carlspring.strongbox.storage.repository;
 
+import java.lang.reflect.InvocationTargetException;
 import java.util.Set;
 
+import org.carlspring.strongbox.client.ProxyServerConfiguration;
+import org.carlspring.strongbox.configuration.ProxyConfiguration;
 import org.carlspring.strongbox.storage.Storage;
 import org.carlspring.strongbox.storage.repository.remote.RemoteRepository;
 import org.carlspring.strongbox.yaml.repository.RepositoryConfiguration;
@@ -58,7 +61,7 @@ public interface Repository
     boolean acceptsSnapshots();
 
     boolean acceptsReleases();
-    
+
     RepositoryConfiguration getRepositoryConfiguration();
 
     String getStorageIdAndRepositoryId();
@@ -66,5 +69,9 @@ public interface Repository
     boolean isType(String type);
 
     RemoteRepository getRemoteRepository();
-    
+
+    ProxyServerConfiguration getProxyServerConfiguration()
+        throws IllegalAccessException,
+        InvocationTargetException;
+
 }

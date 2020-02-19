@@ -1,5 +1,6 @@
 package org.carlspring.strongbox.providers.repository.proxied;
 
+import java.net.MalformedURLException;
 import java.util.Objects;
 
 import javax.inject.Inject;
@@ -30,9 +31,10 @@ public class RestArtifactResolverFactory
     private RemoteRepositoryAlivenessService remoteRepositoryAlivenessCacheManager;
 
     public RestArtifactResolver newInstance(RemoteRepository repository)
+        throws MalformedURLException
     {
         Objects.requireNonNull(repository);
-        
+
         RemoteRepositoryRetryArtifactDownloadConfiguration configuration = configurationManager.getConfiguration()
                                                                                                .getRemoteRepositoriesConfiguration()
                                                                                                .getRemoteRepositoryRetryArtifactDownloadConfiguration();

@@ -1,7 +1,10 @@
 package org.carlspring.strongbox.service.impl;
 
+import java.net.MalformedURLException;
 import java.net.URI;
 import java.net.URISyntaxException;
+import java.net.URL;
+import java.util.Optional;
 import java.util.concurrent.TimeUnit;
 
 import javax.annotation.PostConstruct;
@@ -16,11 +19,13 @@ import org.apache.http.impl.client.HttpClients;
 import org.apache.http.impl.conn.PoolingHttpClientConnectionManager;
 import org.apache.http.pool.PoolStats;
 
+import org.carlspring.strongbox.client.ProxyServerConfiguration;
 import org.carlspring.strongbox.service.ProxyRepositoryConnectionPoolConfigurationService;
 
 import org.glassfish.jersey.apache.connector.ApacheClientProperties;
 import org.glassfish.jersey.apache.connector.ApacheConnectorProvider;
 import org.glassfish.jersey.client.ClientConfig;
+import org.glassfish.jersey.client.ClientProperties;
 import org.glassfish.jersey.logging.LoggingFeature;
 import org.glassfish.jersey.logging.LoggingFeature.Verbosity;
 import org.slf4j.Logger;
@@ -36,16 +41,18 @@ public class ProxyRepositoryConnectionPoolConfigurationServiceImpl
         implements ProxyRepositoryConnectionPoolConfigurationService
 {
 
-    private static final Logger logger = LoggerFactory.getLogger(
-            ProxyRepositoryConnectionPoolConfigurationServiceImpl.class);
+    private static final Logger logger = LoggerFactory.getLogger(ProxyRepositoryConnectionPoolConfigurationServiceImpl.class);
 
     private PoolingHttpClientConnectionManager poolingHttpClientConnectionManager;
+
     private IdleConnectionMonitorThread idleConnectionMonitorThread;
 
     @Value("${pool.maxConnections:200}")
     private int maxTotal;
+
     @Value("${pool.defaultConnectionsPerRoute:5}")
     private int defaultMaxPerRoute;
+
     @Value("${pool.idleConnectionsTimeoutInSeconds:60}")
     private int idleConnectionsTimeoutInSeconds;
 
@@ -68,15 +75,30 @@ public class ProxyRepositoryConnectionPoolConfigurationServiceImpl
     {
         shutdown();
     }
-
+    
     @Override
-    public Client getRestClient()
+    public Client getRestClient(ProxyServerConfiguration proxyConfiguration)
+        throws MalformedURLException
     {
         ClientConfig config = new ClientConfig();
         config.connectorProvider(new ApacheConnectorProvider());
         config.property(ApacheClientProperties.CONNECTION_MANAGER, poolingHttpClientConnectionManager);
         // property to prevent closing connection manager when client is closed
         config.property(ApacheClientProperties.CONNECTION_MANAGER_SHARED, true);
+
+        if (proxyConfiguration != null)
+        {
+            URL url = new URL(proxyConfiguration.getType(), proxyConfiguration.getHost(), proxyConfiguration.getPort(), "/");
+            config.property(ClientProperties.PROXY_URI, url.toExternalForm());
+            if (proxyConfiguration.getUsername() != null)
+            {
+                config.property(ClientProperties.PROXY_USERNAME, proxyConfiguration.getUsername());
+            }
+            if (proxyConfiguration.getPassword() != null)
+            {
+                config.property(ClientProperties.PROXY_PASSWORD, proxyConfiguration.getPassword());
+            }
+        }
 
         java.util.logging.Logger logger = java.util.logging.Logger.getLogger("org.carlspring.strongbox.RestClient");
 
@@ -89,6 +111,13 @@ public class ProxyRepositoryConnectionPoolConfigurationServiceImpl
                             .register(new LoggingFeature(logger, Verbosity.PAYLOAD_TEXT))
                             .withConfig(config)
                             .build();
+    }
+
+    @Override
+    public Client getRestClient()
+        throws MalformedURLException
+    {
+        return getRestClient(null);
     }
 
     @Override
@@ -241,4 +270,5 @@ public class ProxyRepositoryConnectionPoolConfigurationServiceImpl
         }
 
     }
+
 }

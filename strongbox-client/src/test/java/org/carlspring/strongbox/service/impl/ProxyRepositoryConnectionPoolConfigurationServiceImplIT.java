@@ -7,6 +7,8 @@ import javax.inject.Inject;
 import javax.ws.rs.client.Client;
 import javax.ws.rs.core.Response;
 
+import java.net.MalformedURLException;
+
 import org.junit.jupiter.api.Test;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.context.annotation.Configuration;
@@ -58,6 +60,7 @@ public class ProxyRepositoryConnectionPoolConfigurationServiceImplIT
     // integration test, external call to repo
     @Test
     public void connectionsReleasedTest()
+        throws MalformedURLException
     {
         String repositoryUrl = "http://repo.spring.io/snapshot";
         for (int i = 0; i < 3; i++)
@@ -75,6 +78,7 @@ public class ProxyRepositoryConnectionPoolConfigurationServiceImplIT
     // integration test, external call to repo
     @Test
     public void connectionsLeakedTest()
+        throws MalformedURLException
     {
         String repositoryUrl = "http://repo.spring.io/snapshot";
         proxyRepositoryConnectionPoolConfigurationService.setMaxPerRepository(repositoryUrl, 3);

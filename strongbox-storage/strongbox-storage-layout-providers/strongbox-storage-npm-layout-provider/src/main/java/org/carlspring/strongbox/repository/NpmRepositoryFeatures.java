@@ -149,9 +149,10 @@ public class NpmRepositoryFeatures implements RepositoryFeatures
         String remoteRepositoryUrl = remoteRepository.getUrl();
 
         SearchResults searchResults;
-        Client restClient = proxyRepositoryConnectionPoolConfigurationService.getRestClient();
+        Client restClient = null;
         try
         {
+            restClient = proxyRepositoryConnectionPoolConfigurationService.getRestClient();
             logger.debug("Search NPM packages for [{}].", remoteRepositoryUrl);
 
             WebTarget service = restClient.target(remoteRepository.getUrl());
@@ -171,7 +172,10 @@ public class NpmRepositoryFeatures implements RepositoryFeatures
         }
         finally
         {
-            restClient.close();
+            if (restClient != null)
+            {
+                restClient.close();
+            }
         }
 
         try
@@ -347,9 +351,10 @@ public class NpmRepositoryFeatures implements RepositoryFeatures
         String remoteRepositoryUrl = remoteRepository.getUrl();
 
         PackageFeed packageFeed;
-        Client restClient = proxyRepositoryConnectionPoolConfigurationService.getRestClient();
+        Client restClient = null;
         try
         {
+            restClient = proxyRepositoryConnectionPoolConfigurationService.getRestClient();
             logger.debug("Downloading NPM changes feed for [{}].", remoteRepositoryUrl);
 
             WebTarget service = restClient.target(remoteRepository.getUrl());
@@ -368,7 +373,10 @@ public class NpmRepositoryFeatures implements RepositoryFeatures
         }
         finally
         {
-            restClient.close();
+            if (restClient != null)
+            {
+                restClient.close();
+            }
         }
 
         try

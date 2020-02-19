@@ -2,6 +2,9 @@ package org.carlspring.strongbox.storage.repository;
 
 import static org.carlspring.strongbox.util.CustomStreamCollectors.toLinkedHashMap;
 
+import org.carlspring.strongbox.client.ProxyServerConfiguration;
+
+import java.lang.reflect.InvocationTargetException;
 import java.util.*;
 import java.util.stream.Collectors;
 
@@ -28,6 +31,8 @@ import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
 
 import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
+
+import org.apache.commons.beanutils.BeanUtils;
 import org.apache.commons.lang3.StringUtils;
 
 /**
@@ -389,6 +394,16 @@ public class RepositoryData
     public boolean acceptsReleases()
     {
         return RepositoryPolicyEnum.ofPolicy(getPolicy()).acceptsReleases();
+    }
+
+    @Override
+    public ProxyServerConfiguration getProxyServerConfiguration()
+        throws IllegalAccessException,
+        InvocationTargetException
+    {
+        ProxyServerConfiguration proxyServerConfiguration = new ProxyServerConfiguration();
+        BeanUtils.copyProperties(proxyServerConfiguration, proxyConfiguration);
+        return proxyServerConfiguration;
     }
 
 }

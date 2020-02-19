@@ -18,6 +18,7 @@ import javax.ws.rs.core.Response;
 import java.io.IOException;
 import java.io.InputStream;
 import java.lang.reflect.UndeclaredThrowableException;
+import java.net.MalformedURLException;
 import java.nio.file.Path;
 import java.util.Objects;
 
@@ -146,6 +147,7 @@ public abstract class MockedRestArtifactResolverTestBase
         @Bean
         @Primary
         RestArtifactResolverFactory mockedArtifactResolverFactory()
+            throws MalformedURLException
         {
             RestArtifactResolverFactory artifactResolverFactory = Mockito.mock(RestArtifactResolverFactory.class);
 

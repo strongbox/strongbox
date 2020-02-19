@@ -25,6 +25,7 @@ import javax.ws.rs.client.Invocation;
 import javax.ws.rs.client.WebTarget;
 import java.io.ByteArrayInputStream;
 import java.io.InputStream;
+import java.net.MalformedURLException;
 import java.util.List;
 import java.util.concurrent.TimeUnit;
 
@@ -137,6 +138,7 @@ public class FetchChangesFeedCronJobTestIT
     }
 
     private void prepareArtifactResolverContext(InputStream feedInputStream)
+        throws MalformedURLException
     {
 
         Client mockedRestClient = mock(Client.class);

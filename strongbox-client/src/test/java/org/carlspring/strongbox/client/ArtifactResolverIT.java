@@ -5,6 +5,8 @@ import org.carlspring.strongbox.service.ProxyRepositoryConnectionPoolConfigurati
 
 import javax.inject.Inject;
 
+import java.net.MalformedURLException;
+
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.slf4j.Logger;
@@ -43,6 +45,7 @@ public class ArtifactResolverIT
 
     @BeforeEach
     public void setUp()
+        throws MalformedURLException
     {
         artifactResolver = new RestArtifactResolver(proxyRepositoryConnectionPoolConfigurationService.getRestClient(),
                                                     repositoryUrl,

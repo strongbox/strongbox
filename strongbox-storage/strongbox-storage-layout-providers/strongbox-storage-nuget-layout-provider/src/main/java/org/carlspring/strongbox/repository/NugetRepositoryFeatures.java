@@ -4,8 +4,10 @@ import org.carlspring.strongbox.artifact.ArtifactTag;
 import org.carlspring.strongbox.artifact.coordinates.ArtifactCoordinates;
 import org.carlspring.strongbox.artifact.coordinates.NugetArtifactCoordinates;
 import org.carlspring.strongbox.client.ArtifactTransportException;
+import org.carlspring.strongbox.client.ProxyServerConfiguration;
 import org.carlspring.strongbox.configuration.Configuration;
 import org.carlspring.strongbox.configuration.ConfigurationManager;
+import org.carlspring.strongbox.configuration.ProxyConfiguration;
 import org.carlspring.strongbox.data.criteria.Expression.ExpOperator;
 import org.carlspring.strongbox.data.criteria.OQueryTemplate;
 import org.carlspring.strongbox.data.criteria.Paginator;
@@ -43,6 +45,7 @@ import javax.persistence.PersistenceContext;
 import javax.ws.rs.client.Client;
 import javax.ws.rs.client.WebTarget;
 import java.io.IOException;
+import java.lang.reflect.InvocationTargetException;
 import java.util.*;
 import java.util.concurrent.locks.Lock;
 
@@ -279,7 +282,10 @@ public class NugetRepositoryFeatures
         }
 
         @EventListener
-        public void handle(RemoteRepositorySearchEvent event) throws IOException
+        public void handle(RemoteRepositorySearchEvent event)
+            throws IOException,
+            IllegalAccessException,
+            InvocationTargetException
         {
             if (nugetSearchRequest == null)
             {
@@ -293,6 +299,7 @@ public class NugetRepositoryFeatures
             {
                 return;
             }
+            
 
             Selector<RemoteArtifactEntry> selector = new Selector<>(RemoteArtifactEntry.class);
             selector.select("count(*)");
@@ -307,7 +314,11 @@ public class NugetRepositoryFeatures
 
             logger.debug("Remote repository [{}] cached package count is [{}]", repository.getId(), packageCount);
 
-            Client restClient = proxyRepositoryConnectionPoolConfigurationService.getRestClient();
+            
+            ProxyServerConfiguration proxyConfiguration = repository.getProxyServerConfiguration();
+            logger.debug("Proxy Configuration for Repository {} is {}", repository.getId(), proxyConfiguration);
+
+            Client restClient = proxyRepositoryConnectionPoolConfigurationService.getRestClient(proxyConfiguration);
             PackageFeed feed;
             try
             {
