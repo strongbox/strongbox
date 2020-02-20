@@ -82,8 +82,8 @@ public class LdapAuthenticatorConfigurationControllerTest
                .peek()
                .then()
                .body("url", startsWith("ldap://127.0.0.1"))
-               .body("groupSearchBase", equalTo("ou=Users"))
-               .body("groupSearchFilter", equalTo("(uid={0})"))
+               .body("userSearchBase", equalTo("ou=Users"))
+               .body("userSearchFilter", equalTo("(uid={0})"))
                .body("roleMappingList[0].externalRole", equalTo("Admins"))
                .body("roleMappingList[0].strongboxRole", equalTo("ADMIN"))
                .body("roleMappingList[1].externalRole", equalTo("Developers"))
@@ -108,8 +108,8 @@ public class LdapAuthenticatorConfigurationControllerTest
 
         LdapConfiguration configuration = ldapAuthenticationConfigurationManager.getConfiguration();
 
-        configuration.getGroupSearch().setGroupSearchBase("ou=People");
-        configuration.getGroupSearch().setGroupSearchFilter("(people={0})");
+        configuration.getUserSearch().setUserSearchBase("ou=People");
+        configuration.getUserSearch().setUserSearchFilter("(people={0})");
 
         configuration.getRoleMappingList().add(new ExternalRoleMapping("ArtifactsManager", "ARTIFACTS_MANAGER"));
         configuration.getRoleMappingList().add(new ExternalRoleMapping("LogsManager", "LOGS_MANAGER"));
@@ -132,8 +132,8 @@ public class LdapAuthenticatorConfigurationControllerTest
                .peek()
                .then()
                .body("url", equalTo("ldap://127.0.0.1:33389/dc=carlspring,dc=com"))
-               .body("groupSearchBase", equalTo("ou=People"))
-               .body("groupSearchFilter", equalTo("(people={0})"))
+               .body("userSearchBase", equalTo("ou=People"))
+               .body("userSearchFilter", equalTo("(people={0})"))
                .body("authorities.groupSearchBase", equalTo("ou=Groups"))
                .body("authorities.groupSearchFilter", equalTo("(uniqueMember={0})"))
                .body("authorities.searchSubtree", equalTo(true))
@@ -212,8 +212,8 @@ public class LdapAuthenticatorConfigurationControllerTest
 
         LdapConfiguration subform = form.getConfiguration();
         subform.setUserDnPatternList(userDnPatterns);
-        subform.getGroupSearch().setGroupSearchBase("ou=Employee");
-        subform.getGroupSearch().setGroupSearchFilter("(employee={0})");
+        subform.getUserSearch().setUserSearchBase("ou=Employee");
+        subform.getUserSearch().setUserSearchFilter("(employee={0})");
 
         mockMvc.accept(MediaType.APPLICATION_JSON_VALUE)
                .contentType(ContentType.JSON)

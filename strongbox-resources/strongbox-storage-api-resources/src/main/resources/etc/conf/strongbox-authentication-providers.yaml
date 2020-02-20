@@ -17,7 +17,7 @@ strongbox:
       enabled: true
     ldap:
       url: ldap://127.0.0.1:53389/dc=carlspring,dc=com
-      managerDn: uid=admin,ou=system
+      managerDn: uid=admin,ou=system,dc=carlspring,dc=com
       managerPassword: secret
       rolesMapping:
         - externalRole: Admins
@@ -28,8 +28,8 @@ strongbox:
           strongboxRole: USER_ROLE
       userDnPatterns:
         - uid={0},ou=Users
-      groupSearchBase: ou=Users
-      groupSearchFilter: (uid={0})
+      userSearchBase: ou=Users
+      userSearchFilter: (uid={0})
       authorities:
         groupSearchBase: ou=Groups
         groupSearchFilter: (uniqueMember={0})

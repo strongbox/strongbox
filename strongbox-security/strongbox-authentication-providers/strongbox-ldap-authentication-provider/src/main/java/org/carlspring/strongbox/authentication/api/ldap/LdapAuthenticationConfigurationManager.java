@@ -36,8 +36,10 @@ public class LdapAuthenticationConfigurationManager
     public static final String ROLE_PREFIX = "rolePrefix";
     public static final String GROUP_ROLE_ATTRIBUTE = "groupRoleAttribute";
     public static final String GROUP_SEARCH_FILTER = "groupSearchFilter";
+    public static final String USER_SEARCH_FILTER = "userSearchFilter";
     public static final String SEARCH_SUBTREE = "searchSubtree";
     public static final String GROUP_SEARCH_BASE = "groupSearchBase";
+    public static final String USER_SEARCH_BASE = "userSearchBase";
     public static final String URL = "url";
     public static final String AUTHORITIES = "authorities";
 
@@ -142,8 +144,8 @@ public class LdapAuthenticationConfigurationManager
 
         result.put(AUTHORITIES, mapAuthorities(source.getAuthoritiesConfiguration()));
 
-        result.put(GROUP_SEARCH_BASE, source.getGroupSearch().getGroupSearchBase());
-        result.put(GROUP_SEARCH_FILTER, source.getGroupSearch().getGroupSearchFilter());
+        result.put(USER_SEARCH_BASE, source.getUserSearch().getUserSearchBase());
+        result.put(USER_SEARCH_FILTER, source.getUserSearch().getUserSearchFilter());
 
         result.put(ROLES_MAPPING,
                    source.getRoleMappingList()
@@ -188,10 +190,10 @@ public class LdapAuthenticationConfigurationManager
         result.setManagerDn((String) source.get(MANAGER_DN));
         result.setManagerPassword(String.valueOf(source.get(MANAGER_PASSWORD)));
 
-        LdapGroupSearch groupSearch = new LdapGroupSearch();
-        groupSearch.setGroupSearchBase((String) source.get(GROUP_SEARCH_BASE));
-        groupSearch.setGroupSearchFilter((String) source.get(GROUP_SEARCH_FILTER));
-        result.setGroupSearch(groupSearch);
+        LdapUserSearch userSearch = new LdapUserSearch();
+        userSearch.setUserSearchBase((String) source.get(USER_SEARCH_BASE));
+        userSearch.setUserSearchFilter((String) source.get(USER_SEARCH_FILTER));
+        result.setUserSearch(userSearch);
 
         result.setAuthoritiesConfiguration(mapAuthorities((Map<String, Object>) source.get(AUTHORITIES)));
 

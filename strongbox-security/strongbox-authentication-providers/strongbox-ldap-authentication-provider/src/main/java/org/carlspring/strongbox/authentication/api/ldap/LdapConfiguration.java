@@ -28,7 +28,7 @@ public class LdapConfiguration
 
     private LdapAuthoritiesConfiguration authoritiesConfiguration = new LdapAuthoritiesConfiguration();
 
-    private LdapGroupSearch groupSearch = new LdapGroupSearch();
+    private LdapUserSearch userSearch = new LdapUserSearch();
 
     private List<ExternalRoleMapping> roleMappingList = new ArrayList<>();
 
@@ -74,14 +74,14 @@ public class LdapConfiguration
     }
 
     @JsonUnwrapped
-    public LdapGroupSearch getGroupSearch()
+    public LdapUserSearch getUserSearch()
     {
-        return groupSearch;
+        return userSearch;
     }
 
-    public void setGroupSearch(LdapGroupSearch groupSearch)
+    public void setUserSearch(LdapUserSearch userSearch)
     {
-        this.groupSearch = groupSearch;
+        this.userSearch = userSearch;
     }
 
     public void setManagerPassword(String managerPassword)
