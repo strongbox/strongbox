@@ -7,7 +7,7 @@ import org.carlspring.strongbox.data.criteria.Expression.ExpOperator;
 import org.carlspring.strongbox.data.criteria.OQueryTemplate;
 import org.carlspring.strongbox.data.criteria.Predicate;
 import org.carlspring.strongbox.data.criteria.Selector;
-import org.carlspring.strongbox.domain.RemoteArtifactEntry;
+import org.carlspring.strongbox.domain.RemoteArtifactEntity;
 import org.carlspring.strongbox.npm.NpmSearchRequest;
 import org.carlspring.strongbox.npm.NpmViewRequest;
 import org.carlspring.strongbox.npm.metadata.Change;
@@ -504,7 +504,7 @@ public class NpmRepositoryFeatures implements RepositoryFeatures
                                String repositoryId,
                                Predicate predicate)
     {
-        Selector<RemoteArtifactEntry> selector = new Selector<>(RemoteArtifactEntry.class);
+        Selector<RemoteArtifactEntity> selector = new Selector<>(RemoteArtifactEntity.class);
         selector.select("count(*)");
         selector.where(Predicate.of(ExpOperator.EQ.of("storageId", storageId)))
                 .and(Predicate.of(ExpOperator.EQ.of("repositoryId", repositoryId)));
@@ -512,7 +512,7 @@ public class NpmRepositoryFeatures implements RepositoryFeatures
         {
             selector.getPredicate().and(predicate);
         }
-        OQueryTemplate<Long, RemoteArtifactEntry> queryTemplate = new OQueryTemplate<>(entityManager);
+        OQueryTemplate<Long, RemoteArtifactEntity> queryTemplate = new OQueryTemplate<>(entityManager);
         Long packageCount = queryTemplate.select(selector);
         return packageCount;
     }

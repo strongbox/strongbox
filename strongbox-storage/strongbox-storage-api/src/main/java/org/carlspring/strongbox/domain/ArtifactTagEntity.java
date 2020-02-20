@@ -11,7 +11,7 @@ import org.neo4j.ogm.annotation.NodeEntity;
  *
  */
 @NodeEntity(Vertices.ARTIFACT_TAG)
-public class ArtifactTagEntry
+public class ArtifactTagEntity
         extends DomainEntity
         implements ArtifactTag
 {
@@ -41,11 +41,11 @@ public class ArtifactTagEntry
     @Override
     public boolean equals(Object obj)
     {
-        if (!(obj instanceof ArtifactTagEntry))
+        if (!(obj instanceof ArtifactTagEntity))
         {
             return false;
         }
-        return StringUtils.equals(name, ((ArtifactTagEntry) obj).name);
+        return StringUtils.equals(name, ((ArtifactTagEntity) obj).name);
     }
 
 }

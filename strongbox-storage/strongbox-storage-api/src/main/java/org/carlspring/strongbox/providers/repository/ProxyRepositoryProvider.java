@@ -4,7 +4,7 @@ package org.carlspring.strongbox.providers.repository;
 import org.carlspring.strongbox.data.criteria.Paginator;
 import org.carlspring.strongbox.data.criteria.Predicate;
 import org.carlspring.strongbox.domain.ArtifactEntity;
-import org.carlspring.strongbox.domain.RemoteArtifactEntry;
+import org.carlspring.strongbox.domain.RemoteArtifactEntity;
 import org.carlspring.strongbox.providers.io.AbstractRepositoryProvider;
 import org.carlspring.strongbox.providers.io.RepositoryFiles;
 import org.carlspring.strongbox.providers.io.RepositoryPath;
@@ -147,7 +147,7 @@ public class ProxyRepositoryProvider
     protected ArtifactEntity provideArtifactEntry(RepositoryPath repositoryPath) throws IOException
     {
         ArtifactEntity artifactEntry = super.provideArtifactEntry(repositoryPath);
-        ArtifactEntity remoteArtifactEntry = artifactEntry.getUuid() == null ? new RemoteArtifactEntry() : (RemoteArtifactEntry) artifactEntry;
+        ArtifactEntity remoteArtifactEntry = artifactEntry.getUuid() == null ? new RemoteArtifactEntity() : (RemoteArtifactEntity) artifactEntry;
 
         return remoteArtifactEntry;
     }
@@ -155,7 +155,7 @@ public class ProxyRepositoryProvider
     @Override
     protected boolean shouldStoreArtifactEntry(ArtifactEntity artifactEntry)
     {
-        RemoteArtifactEntry remoteArtifactEntry = (RemoteArtifactEntry) artifactEntry;
+        RemoteArtifactEntity remoteArtifactEntry = (RemoteArtifactEntity) artifactEntry;
         boolean result = super.shouldStoreArtifactEntry(artifactEntry) || !remoteArtifactEntry.getIsCached();
 
         remoteArtifactEntry.setIsCached(true);

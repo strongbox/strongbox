@@ -14,9 +14,9 @@ import org.carlspring.strongbox.artifact.ArtifactTag;
 import org.carlspring.strongbox.artifact.coordinates.ArtifactCoordinates;
 import org.carlspring.strongbox.artifact.coordinates.NpmArtifactCoordinates;
 import org.carlspring.strongbox.domain.ArtifactEntity;
-import org.carlspring.strongbox.domain.ArtifactTagEntry;
-import org.carlspring.strongbox.domain.RemoteArtifactEntry;
-import org.carlspring.strongbox.domain.RepositoryArtifactIdGroupEntry;
+import org.carlspring.strongbox.domain.ArtifactTagEntity;
+import org.carlspring.strongbox.domain.RemoteArtifactEntity;
+import org.carlspring.strongbox.domain.RepositoryArtifactIdGroupEntity;
 import org.carlspring.strongbox.npm.metadata.PackageEntry;
 import org.carlspring.strongbox.npm.metadata.PackageFeed;
 import org.carlspring.strongbox.npm.metadata.PackageVersion;
@@ -61,7 +61,7 @@ public class NpmPackageFeedParser
                                   SearchResults searchResults)
         throws IOException
     {
-        ArtifactTag lastVersionTag = artifactTagService.findOneOrCreate(ArtifactTagEntry.LAST_VERSION);
+        ArtifactTag lastVersionTag = artifactTagService.findOneOrCreate(ArtifactTagEntity.LAST_VERSION);
 
         String repositoryId = repository.getId();
         String storageId = repository.getStorage().getId();
@@ -71,7 +71,7 @@ public class NpmPackageFeedParser
         {
             PackageEntry packageEntry = searchResult.getPackage();
 
-            RemoteArtifactEntry remoteArtifactEntry = parseVersion(storageId, repositoryId, packageEntry);
+            RemoteArtifactEntity remoteArtifactEntry = parseVersion(storageId, repositoryId, packageEntry);
             if (remoteArtifactEntry == null)
             {
                 continue;
@@ -110,7 +110,7 @@ public class NpmPackageFeedParser
         String repositoryId = repository.getId();
         String storageId = repository.getStorage().getId();
 
-        ArtifactTag lastVersionTag = artifactTagService.findOneOrCreate(ArtifactTagEntry.LAST_VERSION);
+        ArtifactTag lastVersionTag = artifactTagService.findOneOrCreate(ArtifactTagEntity.LAST_VERSION);
 
         Versions versions = packageFeed.getVersions();
         if (versions == null)
@@ -127,7 +127,7 @@ public class NpmPackageFeedParser
         Set<ArtifactEntity> artifactToSaveSet = new HashSet<>();
         for (PackageVersion packageVersion : versionMap.values())
         {
-            RemoteArtifactEntry remoteArtifactEntry = parseVersion(storageId, repositoryId, packageVersion);
+            RemoteArtifactEntity remoteArtifactEntry = parseVersion(storageId, repositoryId, packageVersion);
             if (remoteArtifactEntry == null)
             {
                 continue;
@@ -165,7 +165,7 @@ public class NpmPackageFeedParser
                 return;
             }
 
-            RepositoryArtifactIdGroupEntry artifactGroup = repositoryArtifactIdGroupService.findOneOrCreate(storage.getId(), repository.getId(), coordinates.getId());
+            RepositoryArtifactIdGroupEntity artifactGroup = repositoryArtifactIdGroupService.findOneOrCreate(storage.getId(), repository.getId(), coordinates.getId());
             repositoryArtifactIdGroupService.addArtifactToGroup(artifactGroup, e);
         } 
         finally
@@ -174,13 +174,13 @@ public class NpmPackageFeedParser
         }
     }
 
-    private RemoteArtifactEntry parseVersion(String storageId,
+    private RemoteArtifactEntity parseVersion(String storageId,
                                              String repositoryId,
                                              PackageVersion packageVersion)
     {
         NpmArtifactCoordinates c = NpmArtifactCoordinates.of(packageVersion.getName(), packageVersion.getVersion());
 
-        RemoteArtifactEntry remoteArtifactEntry = new RemoteArtifactEntry();
+        RemoteArtifactEntity remoteArtifactEntry = new RemoteArtifactEntity();
         remoteArtifactEntry.setStorageId(storageId);
         remoteArtifactEntry.setRepositoryId(repositoryId);
         remoteArtifactEntry.setArtifactCoordinates(c);
@@ -194,7 +194,7 @@ public class NpmPackageFeedParser
         return remoteArtifactEntry;
     }
 
-    private RemoteArtifactEntry parseVersion(String storageId,
+    private RemoteArtifactEntity parseVersion(String storageId,
                                              String repositoryId,
                                              PackageEntry packageEntry)
     {
@@ -203,7 +203,7 @@ public class NpmPackageFeedParser
                                                                      packageEntry.getName());
         NpmArtifactCoordinates c = NpmArtifactCoordinates.of(packageId, packageEntry.getVersion());
 
-        RemoteArtifactEntry remoteArtifactEntry = new RemoteArtifactEntry();
+        RemoteArtifactEntity remoteArtifactEntry = new RemoteArtifactEntity();
         remoteArtifactEntry.setStorageId(storageId);
         remoteArtifactEntry.setRepositoryId(repositoryId);
         remoteArtifactEntry.setArtifactCoordinates(c);

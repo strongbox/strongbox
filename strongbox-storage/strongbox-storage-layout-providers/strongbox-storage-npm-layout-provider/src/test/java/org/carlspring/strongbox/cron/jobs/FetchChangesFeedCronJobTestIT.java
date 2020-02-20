@@ -6,7 +6,7 @@ import org.carlspring.strongbox.data.criteria.Expression.ExpOperator;
 import org.carlspring.strongbox.data.criteria.OQueryTemplate;
 import org.carlspring.strongbox.data.criteria.Predicate;
 import org.carlspring.strongbox.data.criteria.Selector;
-import org.carlspring.strongbox.domain.RemoteArtifactEntry;
+import org.carlspring.strongbox.domain.RemoteArtifactEntity;
 import org.carlspring.strongbox.service.ProxyRepositoryConnectionPoolConfigurationService;
 import org.carlspring.strongbox.storage.repository.Repository;
 import org.carlspring.strongbox.storage.repository.RepositoryData;
@@ -100,18 +100,18 @@ public class FetchChangesFeedCronJobTestIT
 
         await().atMost(EVENT_TIMEOUT_SECONDS, TimeUnit.SECONDS).untilTrue(receivedExpectedEvent());
 
-        Selector<RemoteArtifactEntry> selector = new Selector<>(RemoteArtifactEntry.class);
+        Selector<RemoteArtifactEntity> selector = new Selector<>(RemoteArtifactEntity.class);
         selector.where(Predicate.of(ExpOperator.EQ.of("storageId", repository.getStorage().getId())))
                 .and(Predicate.of(ExpOperator.EQ.of("repositoryId", repository.getId())))
                 .and(Predicate.of(ExpOperator.EQ.of("artifactCoordinates.coordinates.name", "MiniMVC")));
 
-        OQueryTemplate<List<RemoteArtifactEntry>, RemoteArtifactEntry> queryTemplate = new OQueryTemplate<>(
+        OQueryTemplate<List<RemoteArtifactEntity>, RemoteArtifactEntity> queryTemplate = new OQueryTemplate<>(
                 entityManager);
-        List<RemoteArtifactEntry> artifactEntryList = queryTemplate.select(selector);
+        List<RemoteArtifactEntity> artifactEntryList = queryTemplate.select(selector);
 
         assertThat(artifactEntryList).hasSize(1);
 
-        RemoteArtifactEntry artifactEntry = artifactEntryList.iterator().next();
+        RemoteArtifactEntity artifactEntry = artifactEntryList.iterator().next();
         assertThat(artifactEntry.getIsCached()).isFalse();
 
         RepositoryData repositoryData = (RepositoryData) configurationManagementService.getConfiguration()

@@ -2,6 +2,7 @@ package org.carlspring.strongbox.providers.layout;
 
 import org.carlspring.commons.io.reloading.FSReloadableInputStreamHandler;
 import org.carlspring.strongbox.artifact.ArtifactNotFoundException;
+import org.carlspring.strongbox.domain.Artifact;
 import org.carlspring.strongbox.domain.ArtifactEntity;
 import org.carlspring.strongbox.event.artifact.ArtifactEventListenerRegistry;
 import org.carlspring.strongbox.event.repository.RepositoryEventListenerRegistry;
@@ -277,8 +278,8 @@ public abstract class LayoutFileSystemProvider extends StorageFileSystemProvider
             return;
         }
         
-        ArtifactEntity artifactEntry = Optional.ofNullable(repositoryPath.getArtifactEntry())
-                                              .orElseGet(() -> fetchArtifactEntry(repositoryPath));
+        Artifact artifactEntry = Optional.ofNullable(repositoryPath.getArtifactEntry())
+                                         .orElseGet(() -> fetchArtifactEntry(repositoryPath));
         if (artifactEntry != null)
         {
             artifactEntryService.delete(artifactEntry);

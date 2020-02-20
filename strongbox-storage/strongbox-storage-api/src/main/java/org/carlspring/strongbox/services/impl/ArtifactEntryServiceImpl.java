@@ -4,7 +4,7 @@ import org.carlspring.strongbox.artifact.ArtifactTag;
 import org.carlspring.strongbox.artifact.coordinates.ArtifactCoordinates;
 import org.carlspring.strongbox.data.service.support.search.PagingCriteria;
 import org.carlspring.strongbox.domain.ArtifactEntity;
-import org.carlspring.strongbox.domain.ArtifactTagEntry;
+import org.carlspring.strongbox.domain.ArtifactTagEntity;
 import org.carlspring.strongbox.services.ArtifactEntryService;
 import org.carlspring.strongbox.services.support.ArtifactEntrySearchCriteria;
 
@@ -79,9 +79,9 @@ class ArtifactEntryServiceImpl extends AbstractArtifactEntryService
 
         coordinates = prepareParameterMap(coordinates, strict);
 
-        Map<String, ArtifactTagEntry> tagMap = tagSet.stream()
+        Map<String, ArtifactTagEntity> tagMap = tagSet.stream()
                                                      .collect(Collectors.toMap(t -> String.format("%sTag", t.getName().replaceAll("-", "")),
-                                                                               t -> (ArtifactTagEntry) t));
+                                                                               t -> (ArtifactTagEntity) t));
 
         String sQuery = buildCoordinatesQuery(toList(storageId, repositoryId), coordinates.keySet(), tagMap.keySet(),
                                               skip,

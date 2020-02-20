@@ -3,7 +3,7 @@ package org.carlspring.strongbox.storage.indexing.local;
 import org.carlspring.strongbox.artifact.coordinates.MavenArtifactCoordinates;
 import org.carlspring.strongbox.data.service.support.search.PagingCriteria;
 import org.carlspring.strongbox.domain.ArtifactEntity;
-import org.carlspring.strongbox.domain.RepositoryArtifactIdGroupEntry;
+import org.carlspring.strongbox.domain.RepositoryArtifactIdGroupEntity;
 import org.carlspring.strongbox.providers.io.RepositoryPath;
 import org.carlspring.strongbox.services.RepositoryArtifactIdGroupService;
 import org.carlspring.strongbox.storage.indexing.*;
@@ -86,7 +86,7 @@ public class RepositoryHostedIndexCreator
         {
             final PagingCriteria pagingCriteria = new PagingCriteria(i * REPOSITORY_ARTIFACT_GROUP_FETCH_PAGE_SIZE,
                                                                      REPOSITORY_ARTIFACT_GROUP_FETCH_PAGE_SIZE);
-            final List<RepositoryArtifactIdGroupEntry> repositoryArtifactIdGroupEntries = repositoryArtifactIdGroupService.findMatching(
+            final List<RepositoryArtifactIdGroupEntity> repositoryArtifactIdGroupEntries = repositoryArtifactIdGroupService.findMatching(
                     storageId,
                     repositoryId,
                     pagingCriteria);
@@ -96,10 +96,10 @@ public class RepositoryHostedIndexCreator
         }
     }
 
-    private List<ArtifactContext> createArtifactContexts(final List<RepositoryArtifactIdGroupEntry> repositoryArtifactIdGroupEntries)
+    private List<ArtifactContext> createArtifactContexts(final List<RepositoryArtifactIdGroupEntity> repositoryArtifactIdGroupEntries)
     {
         final List<ArtifactContext> artifactContexts = new ArrayList<>();
-        for (final RepositoryArtifactIdGroupEntry repositoryArtifactIdGroupEntry : repositoryArtifactIdGroupEntries)
+        for (final RepositoryArtifactIdGroupEntity repositoryArtifactIdGroupEntry : repositoryArtifactIdGroupEntries)
         {
             final Map<String, List<ArtifactEntity>> groupedByVersion = groupArtifactEntriesByVersion(
                     repositoryArtifactIdGroupEntry);
@@ -127,10 +127,10 @@ public class RepositoryHostedIndexCreator
         return artifactContexts;
     }
 
-    private Map<String, List<ArtifactEntity>> groupArtifactEntriesByVersion(final RepositoryArtifactIdGroupEntry groupEntry)
+    private Map<String, List<ArtifactEntity>> groupArtifactEntriesByVersion(final RepositoryArtifactIdGroupEntity groupEntry)
     {
         final Map<String, List<ArtifactEntity>> groupedByVersion = new LinkedHashMap<>();
-        for (final ArtifactEntity artifactEntry : groupEntry.getArtifactEntries())
+        for (final ArtifactEntity artifactEntry : groupEntry.getArtifacts())
         {
             final MavenArtifactCoordinates coordinates = (MavenArtifactCoordinates) artifactEntry.getArtifactCoordinates();
             final String version = coordinates.getVersion();

@@ -1,5 +1,6 @@
 package org.carlspring.strongbox.providers.io;
 
+import org.carlspring.strongbox.domain.Artifact;
 import org.carlspring.strongbox.domain.ArtifactEntity;
 import org.carlspring.strongbox.io.ProxyPathInvocationHandler;
 import org.carlspring.strongbox.storage.Storage;
@@ -60,7 +61,7 @@ public class RepositoryPath
         return target;
     }
 
-    public ArtifactEntity getArtifactEntry() throws IOException
+    public Artifact getArtifactEntry() throws IOException
     {
         return artifactEntry;
     }

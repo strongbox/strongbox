@@ -1,5 +1,6 @@
 package org.carlspring.strongbox.providers.io;
 
+import org.carlspring.strongbox.domain.Artifact;
 import org.carlspring.strongbox.domain.ArtifactEntity;
 
 import java.io.IOException;
@@ -50,7 +51,7 @@ public class TempRepositoryPath extends RepositoryPath
     }
     
     @Override
-    public ArtifactEntity getArtifactEntry()
+    public Artifact getArtifactEntry()
         throws IOException
     {
         return tempTarget.getArtifactEntry();

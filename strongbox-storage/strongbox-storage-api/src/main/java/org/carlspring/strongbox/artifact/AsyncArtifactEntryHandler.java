@@ -1,5 +1,6 @@
 package org.carlspring.strongbox.artifact;
 
+import org.carlspring.strongbox.domain.Artifact;
 import org.carlspring.strongbox.domain.ArtifactEntity;
 import org.carlspring.strongbox.event.AsyncEventListener;
 import org.carlspring.strongbox.event.artifact.ArtifactEvent;
@@ -104,7 +105,7 @@ public abstract class AsyncArtifactEntryHandler
         new TransactionTemplate(transactionManager).execute(t -> {
             try
             {
-                ArtifactEntity result = handleEvent(repositoryPath);
+                Artifact result = handleEvent(repositoryPath);
                 if (result == null)
                 {
                     logger.debug("No [{}] result for event [{}] and path [{}].",
@@ -124,7 +125,7 @@ public abstract class AsyncArtifactEntryHandler
         });
     }
 
-    protected abstract ArtifactEntity handleEvent(RepositoryPath repositoryPath)
+    protected abstract Artifact handleEvent(RepositoryPath repositoryPath)
         throws IOException;
 
 }

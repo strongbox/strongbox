@@ -1,9 +1,5 @@
 package org.carlspring.strongbox.providers.io;
 
-import org.carlspring.strongbox.artifact.coordinates.ArtifactCoordinates;
-import org.carlspring.strongbox.domain.ArtifactEntity;
-import org.carlspring.strongbox.domain.RemoteArtifactEntry;
-
 import java.io.IOException;
 import java.net.URI;
 import java.net.URL;
@@ -15,6 +11,10 @@ import java.util.Collections;
 import java.util.Set;
 import java.util.StringJoiner;
 import java.util.stream.Collectors;
+
+import org.carlspring.strongbox.artifact.coordinates.ArtifactCoordinates;
+import org.carlspring.strongbox.domain.Artifact;
+import org.carlspring.strongbox.domain.RemoteArtifact;
 
 /**
  * This utility class contains common methods to work with {@link RepositoryPath}
@@ -187,8 +187,8 @@ public abstract class RepositoryFiles
     {
         if (RepositoryFiles.isArtifact(repositoryPath))
         {
-            ArtifactEntity e = repositoryPath.getArtifactEntry();
-            return e == null || e instanceof RemoteArtifactEntry && !((RemoteArtifactEntry) e).getIsCached();
+            Artifact e = repositoryPath.getArtifactEntry();
+            return e == null || e instanceof RemoteArtifact && !((RemoteArtifact) e).getIsCached();
         }
         else
         {

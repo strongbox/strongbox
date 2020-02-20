@@ -2,6 +2,7 @@ package org.carlspring.strongbox.providers.io;
 
 import org.carlspring.strongbox.artifact.coordinates.ArtifactCoordinates;
 import org.carlspring.strongbox.configuration.ConfigurationManager;
+import org.carlspring.strongbox.domain.Artifact;
 import org.carlspring.strongbox.domain.ArtifactEntity;
 import org.carlspring.strongbox.services.ArtifactEntryService;
 import org.carlspring.strongbox.storage.Storage;
@@ -89,7 +90,7 @@ public class RepositoryPathResolver
         }
 
         @Override
-        public ArtifactEntity getArtifactEntry()
+        public Artifact getArtifactEntry()
             throws IOException
         {
             if (this.getRepository().isGroupRepository() || !RepositoryFiles.isArtifact(this))

@@ -12,9 +12,9 @@ import org.carlspring.strongbox.data.criteria.Paginator;
 import org.carlspring.strongbox.data.criteria.Predicate;
 import org.carlspring.strongbox.data.criteria.Selector;
 import org.carlspring.strongbox.domain.ArtifactEntity;
-import org.carlspring.strongbox.domain.ArtifactTagEntry;
-import org.carlspring.strongbox.domain.RemoteArtifactEntry;
-import org.carlspring.strongbox.domain.RepositoryArtifactIdGroupEntry;
+import org.carlspring.strongbox.domain.ArtifactTagEntity;
+import org.carlspring.strongbox.domain.RemoteArtifactEntity;
+import org.carlspring.strongbox.domain.RepositoryArtifactIdGroupEntity;
 import org.carlspring.strongbox.nuget.NugetSearchRequest;
 import org.carlspring.strongbox.providers.io.RepositoryFiles;
 import org.carlspring.strongbox.providers.io.RepositoryPath;
@@ -201,7 +201,7 @@ public class NugetRepositoryFeatures
         String repositoryId = repository.getId();
         String storageId = repository.getStorage().getId();
 
-        ArtifactTag lastVersionTag = artifactTagService.findOneOrCreate(ArtifactTagEntry.LAST_VERSION);
+        ArtifactTag lastVersionTag = artifactTagService.findOneOrCreate(ArtifactTagEntity.LAST_VERSION);
 
         Set<ArtifactEntity> artifactToSaveSet = new HashSet<>();
         for (PackageEntry packageEntry : packageFeed.getEntries())
@@ -216,7 +216,7 @@ public class NugetRepositoryFeatures
                 continue;
             }
 
-            RemoteArtifactEntry remoteArtifactEntry = new RemoteArtifactEntry();
+            RemoteArtifactEntity remoteArtifactEntry = new RemoteArtifactEntity();
             remoteArtifactEntry.setStorageId(storageId);
             remoteArtifactEntry.setRepositoryId(repositoryId);
             remoteArtifactEntry.setArtifactCoordinates(c);
@@ -246,7 +246,7 @@ public class NugetRepositoryFeatures
             
             try
             {
-                RepositoryArtifactIdGroupEntry artifactGroup = repositoryArtifactIdGroupService.findOneOrCreate(storage.getId(), repository.getId(), coordinates.getId());
+                RepositoryArtifactIdGroupEntity artifactGroup = repositoryArtifactIdGroupService.findOneOrCreate(storage.getId(), repository.getId(), coordinates.getId());
                 repositoryArtifactIdGroupService.addArtifactToGroup(artifactGroup, e);
             }
             finally
@@ -294,7 +294,7 @@ public class NugetRepositoryFeatures
                 return;
             }
 
-            Selector<RemoteArtifactEntry> selector = new Selector<>(RemoteArtifactEntry.class);
+            Selector<RemoteArtifactEntity> selector = new Selector<>(RemoteArtifactEntity.class);
             selector.select("count(*)");
             selector.where(Predicate.of(ExpOperator.EQ.of("storageId", event.getStorageId())))
                     .and(Predicate.of(ExpOperator.EQ.of("repositoryId", event.getRepositoryId())));
@@ -302,7 +302,7 @@ public class NugetRepositoryFeatures
             {
                 selector.getPredicate().and(event.getPredicate());
             }
-            OQueryTemplate<Long, RemoteArtifactEntry> queryTemplate = new OQueryTemplate<>(entityManager);
+            OQueryTemplate<Long, RemoteArtifactEntity> queryTemplate = new OQueryTemplate<>(entityManager);
             Long packageCount = queryTemplate.select(selector);
 
             logger.debug("Remote repository [{}] cached package count is [{}]", repository.getId(), packageCount);

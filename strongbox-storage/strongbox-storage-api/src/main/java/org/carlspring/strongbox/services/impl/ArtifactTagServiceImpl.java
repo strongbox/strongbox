@@ -6,7 +6,7 @@ import java.util.List;
 import org.carlspring.strongbox.artifact.ArtifactTag;
 import org.carlspring.strongbox.data.CacheName;
 import org.carlspring.strongbox.data.service.CommonCrudService;
-import org.carlspring.strongbox.domain.ArtifactTagEntry;
+import org.carlspring.strongbox.domain.ArtifactTagEntity;
 import org.carlspring.strongbox.services.ArtifactTagService;
 import org.springframework.cache.annotation.Cacheable;
 import org.springframework.stereotype.Service;
@@ -16,7 +16,7 @@ import com.orientechnologies.orient.core.sql.query.OSQLSynchQuery;
 
 @Service
 @Transactional
-public class ArtifactTagServiceImpl extends CommonCrudService<ArtifactTagEntry> implements ArtifactTagService
+public class ArtifactTagServiceImpl extends CommonCrudService<ArtifactTagEntity> implements ArtifactTagService
 {
 
     @Override
@@ -31,19 +31,19 @@ public class ArtifactTagServiceImpl extends CommonCrudService<ArtifactTagEntry> 
         OSQLSynchQuery<Long> oQuery = new OSQLSynchQuery<>(sQuery);
         oQuery.setLimit(1);
 
-        List<ArtifactTagEntry> resultList = getDelegate().command(oQuery).execute(params);
+        List<ArtifactTagEntity> resultList = getDelegate().command(oQuery).execute(params);
 
         return resultList.stream().findFirst().orElseGet(() -> {
-            ArtifactTagEntry artifactTagEntry = new ArtifactTagEntry();
+            ArtifactTagEntity artifactTagEntry = new ArtifactTagEntity();
             artifactTagEntry.setName(name);
             return getDelegate().detach(save(artifactTagEntry));
         });
     }
 
     @Override
-    public Class<ArtifactTagEntry> getEntityClass()
+    public Class<ArtifactTagEntity> getEntityClass()
     {
-        return ArtifactTagEntry.class;
+        return ArtifactTagEntity.class;
     }
 
 }

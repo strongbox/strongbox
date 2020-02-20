@@ -18,8 +18,9 @@ import org.carlspring.strongbox.configuration.ConfigurationManager;
 import org.carlspring.strongbox.data.criteria.Expression.ExpOperator;
 import org.carlspring.strongbox.data.criteria.Predicate;
 import org.carlspring.strongbox.data.criteria.Selector;
+import org.carlspring.strongbox.domain.Artifact;
 import org.carlspring.strongbox.domain.ArtifactEntity;
-import org.carlspring.strongbox.domain.RepositoryArtifactIdGroupEntry;
+import org.carlspring.strongbox.domain.RepositoryArtifactIdGroupEntity;
 import org.carlspring.strongbox.event.artifact.ArtifactEventListenerRegistry;
 import org.carlspring.strongbox.io.LayoutOutputStream;
 import org.carlspring.strongbox.io.RepositoryStreamCallback;
@@ -229,11 +230,11 @@ public abstract class AbstractRepositoryProvider implements RepositoryProvider, 
         artifactEntry.getChecksums().clear();
         artifactEntry.getChecksums().putAll(los.getDigestMap());
 
-        RepositoryArtifactIdGroupEntry artifactGroup = repositoryArtifactIdGroupService.findOneOrCreate(storage.getId(), repository.getId(), coordinates.getId());
+        RepositoryArtifactIdGroupEntity artifactGroup = repositoryArtifactIdGroupService.findOneOrCreate(storage.getId(), repository.getId(), coordinates.getId());
         repositoryArtifactIdGroupService.addArtifactToGroup(artifactGroup, artifactEntry);
     }
 
-    protected ArtifactEntity provideArtifactEntry(RepositoryPath repositoryPath) throws IOException
+    protected Artifact provideArtifactEntry(RepositoryPath repositoryPath) throws IOException
     {
         return Optional.ofNullable(repositoryPath.getArtifactEntry())
                        .orElse(new ArtifactEntity());

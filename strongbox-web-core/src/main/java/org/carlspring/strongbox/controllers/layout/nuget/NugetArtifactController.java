@@ -9,7 +9,7 @@ import org.carlspring.strongbox.data.criteria.Expression.ExpOperator;
 import org.carlspring.strongbox.data.criteria.Paginator;
 import org.carlspring.strongbox.data.criteria.Predicate;
 import org.carlspring.strongbox.domain.ArtifactEntity;
-import org.carlspring.strongbox.domain.ArtifactTagEntry;
+import org.carlspring.strongbox.domain.ArtifactTagEntity;
 import org.carlspring.strongbox.nuget.NugetSearchRequest;
 import org.carlspring.strongbox.nuget.filter.NugetODataFilterQueryParser;
 import org.carlspring.strongbox.providers.io.RepositoryPath;
@@ -245,7 +245,7 @@ public class NugetArtifactController
         properties.setRating(Double.valueOf(0));
         properties.setVersionRating(Double.valueOf(0));
 
-        ArtifactTag lastVersionTag = artifactTagService.findOneOrCreate(ArtifactTagEntry.LAST_VERSION);
+        ArtifactTag lastVersionTag = artifactTagService.findOneOrCreate(ArtifactTagEntity.LAST_VERSION);
         if (artifactEntry.getTagSet().contains(lastVersionTag))
         {
             properties.setIsLatestVersion(true);

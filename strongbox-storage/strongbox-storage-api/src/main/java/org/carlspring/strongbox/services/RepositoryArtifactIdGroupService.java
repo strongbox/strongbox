@@ -1,7 +1,7 @@
 package org.carlspring.strongbox.services;
 
 import org.carlspring.strongbox.data.service.support.search.PagingCriteria;
-import org.carlspring.strongbox.domain.RepositoryArtifactIdGroupEntry;
+import org.carlspring.strongbox.domain.RepositoryArtifactIdGroupEntity;
 
 import java.util.List;
 
@@ -9,28 +9,28 @@ import java.util.List;
  * @author Przemyslaw Fusik
  */
 public interface RepositoryArtifactIdGroupService
-        extends ArtifactGroupService<RepositoryArtifactIdGroupEntry>
+        extends ArtifactGroupService<RepositoryArtifactIdGroupEntity>
 {
 
     long count(String storageId,
                String repositoryId);
 
-    List<RepositoryArtifactIdGroupEntry> findMatching(String storageId,
+    List<RepositoryArtifactIdGroupEntity> findMatching(String storageId,
                                                       String repositoryId,
                                                       PagingCriteria pagingCriteria);
 
-    RepositoryArtifactIdGroupEntry findOneOrCreate(String storageId,
+    RepositoryArtifactIdGroupEntity findOneOrCreate(String storageId,
                                                    String repositoryId,
                                                    String artifactId);
 
-    RepositoryArtifactIdGroupEntry findOne(String storageId,
+    RepositoryArtifactIdGroupEntity findOne(String storageId,
                                            String repositoryId,
                                            String artifactId);
 
     @Override
-    default Class<RepositoryArtifactIdGroupEntry> getEntityClass()
+    default Class<RepositoryArtifactIdGroupEntity> getEntityClass()
     {
-        return RepositoryArtifactIdGroupEntry.class;
+        return RepositoryArtifactIdGroupEntity.class;
     }
 
 }

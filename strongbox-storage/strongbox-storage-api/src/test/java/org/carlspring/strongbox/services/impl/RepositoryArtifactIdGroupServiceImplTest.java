@@ -2,7 +2,7 @@ package org.carlspring.strongbox.services.impl;
 
 import org.carlspring.strongbox.StorageApiTestConfig;
 import org.carlspring.strongbox.data.CacheManagerTestExecutionListener;
-import org.carlspring.strongbox.domain.RepositoryArtifactIdGroupEntry;
+import org.carlspring.strongbox.domain.RepositoryArtifactIdGroupEntity;
 import org.carlspring.strongbox.services.RepositoryArtifactIdGroupService;
 
 import javax.inject.Inject;
@@ -32,7 +32,7 @@ class RepositoryArtifactIdGroupServiceImplTest
     @Test
     public void repositoryArtifactIdGroupShouldBeProtectedByIndex()
     {
-        RepositoryArtifactIdGroupEntry g1 = new RepositoryArtifactIdGroupEntry();
+        RepositoryArtifactIdGroupEntity g1 = new RepositoryArtifactIdGroupEntity();
         g1.setName("a1");
         g1.setRepositoryId("r1");
         g1.setStorageId("s1");
@@ -40,7 +40,7 @@ class RepositoryArtifactIdGroupServiceImplTest
 
         assertThatExceptionOfType(ORecordDuplicatedException.class)
                 .isThrownBy(() -> {
-                    RepositoryArtifactIdGroupEntry g2 = new RepositoryArtifactIdGroupEntry();
+                    RepositoryArtifactIdGroupEntity g2 = new RepositoryArtifactIdGroupEntity();
                     g2.setName("a1");
                     g2.setRepositoryId("r1");
                     g2.setStorageId("s1");

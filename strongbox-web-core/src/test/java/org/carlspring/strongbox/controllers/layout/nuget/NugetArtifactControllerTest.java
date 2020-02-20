@@ -3,7 +3,7 @@ package org.carlspring.strongbox.controllers.layout.nuget;
 import org.carlspring.strongbox.artifact.coordinates.NugetArtifactCoordinates;
 import org.carlspring.strongbox.config.IntegrationTest;
 import org.carlspring.strongbox.domain.ArtifactEntity;
-import org.carlspring.strongbox.domain.RemoteArtifactEntry;
+import org.carlspring.strongbox.domain.RemoteArtifactEntity;
 import org.carlspring.strongbox.providers.io.RepositoryFiles;
 import org.carlspring.strongbox.providers.io.RepositoryPath;
 import org.carlspring.strongbox.rest.common.NugetRestAssuredBaseTest;
@@ -518,8 +518,8 @@ public class NugetArtifactControllerTest extends NugetRestAssuredBaseTest
 
         ArtifactEntity artifactEntry = artifactEntryList.iterator().next();
         
-        assertThat(artifactEntry).isInstanceOf(RemoteArtifactEntry.class);
-        assertThat(((RemoteArtifactEntry)artifactEntry).getIsCached()).isFalse();
+        assertThat(artifactEntry).isInstanceOf(RemoteArtifactEntity.class);
+        assertThat(((RemoteArtifactEntity)artifactEntry).getIsCached()).isFalse();
 
         PrintStream originalSysOut = muteSystemOutput();
         try

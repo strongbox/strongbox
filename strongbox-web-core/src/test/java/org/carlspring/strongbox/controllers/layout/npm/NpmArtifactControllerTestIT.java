@@ -3,7 +3,7 @@ package org.carlspring.strongbox.controllers.layout.npm;
 import org.carlspring.strongbox.artifact.coordinates.NpmArtifactCoordinates;
 import org.carlspring.strongbox.config.IntegrationTest;
 import org.carlspring.strongbox.domain.ArtifactEntity;
-import org.carlspring.strongbox.domain.RemoteArtifactEntry;
+import org.carlspring.strongbox.domain.RemoteArtifactEntity;
 import org.carlspring.strongbox.rest.common.NpmRestAssuredBaseTest;
 import org.carlspring.strongbox.services.ArtifactEntryService;
 import org.carlspring.strongbox.storage.repository.Repository;
@@ -127,8 +127,8 @@ public class NpmArtifactControllerTestIT
                                                                            repositoryId,
                                                                            coordinates.toPath());
         assertThat(artifactEntry).isNotNull();
-        assertThat(artifactEntry).isInstanceOf(RemoteArtifactEntry.class);
-        assertThat(((RemoteArtifactEntry)artifactEntry).getIsCached()).isFalse();
+        assertThat(artifactEntry).isInstanceOf(RemoteArtifactEntity.class);
+        assertThat(((RemoteArtifactEntity)artifactEntry).getIsCached()).isFalse();
     }
 
     @ExtendWith(RepositoryManagementTestExecutionListener.class)
@@ -154,8 +154,8 @@ public class NpmArtifactControllerTestIT
                                                                            repositoryId,
                                                                            "Reston/Reston/0.2.0/Reston-0.2.0.tgz");
         assertThat(artifactEntry).isNotNull();
-        assertThat(artifactEntry).isInstanceOf(RemoteArtifactEntry.class);
-        assertThat(((RemoteArtifactEntry)artifactEntry).getIsCached()).isFalse();
+        assertThat(artifactEntry).isInstanceOf(RemoteArtifactEntity.class);
+        assertThat(((RemoteArtifactEntity)artifactEntry).getIsCached()).isFalse();
     }
 
     @ExtendWith({ RepositoryManagementTestExecutionListener.class,

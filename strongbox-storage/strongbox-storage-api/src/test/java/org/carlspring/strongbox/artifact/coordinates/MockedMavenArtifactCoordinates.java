@@ -1,10 +1,11 @@
 package org.carlspring.strongbox.artifact.coordinates;
 
+import java.util.Map;
+
 import javax.xml.bind.annotation.XmlAccessType;
 import javax.xml.bind.annotation.XmlAccessorType;
 import javax.xml.bind.annotation.XmlAttribute;
 import javax.xml.bind.annotation.XmlRootElement;
-import java.util.Map;
 
 import org.apache.commons.lang3.StringUtils;
 import org.apache.maven.artifact.Artifact;
@@ -13,6 +14,7 @@ import org.apache.maven.artifact.handler.DefaultArtifactHandler;
 import org.apache.maven.artifact.versioning.ComparableVersion;
 import org.apache.maven.index.artifact.Gav;
 import org.apache.maven.index.artifact.M2GavCalculator;
+import org.carlspring.strongbox.domain.LayoutArtifactCoordinatesEntity;
 
 /**
  * @author carlspring
@@ -20,7 +22,7 @@ import org.apache.maven.index.artifact.M2GavCalculator;
 @XmlRootElement(name = "maven-artifact-coordinates")
 @XmlAccessorType(XmlAccessType.NONE)
 public class MockedMavenArtifactCoordinates
-        extends ArtifactCoordinatesEntity<MockedMavenArtifactCoordinates, ComparableVersion>
+        extends LayoutArtifactCoordinatesEntity<MockedMavenArtifactCoordinates, ComparableVersion>
 {
 
     private static final M2GavCalculator M2_GAV_CALCULATOR = new M2GavCalculator();
@@ -129,7 +131,6 @@ public class MockedMavenArtifactCoordinates
         return artifactId;
     }
 
-    @Override
     public void setId(String id)
     {
         setArtifactId(id);

@@ -1,20 +1,8 @@
 package org.carlspring.strongbox.providers.layout;
 
-import org.carlspring.strongbox.StorageApiTestConfig;
-import org.carlspring.strongbox.artifact.coordinates.ArtifactCoordinatesEntity;
-import org.carlspring.strongbox.booters.PropertiesBooter;
-import org.carlspring.strongbox.data.CacheManagerTestExecutionListener;
-import org.carlspring.strongbox.domain.ArtifactGroupEntry;
-import org.carlspring.strongbox.domain.RepositoryArtifactIdGroupEntry;
-import org.carlspring.strongbox.providers.io.LayoutFileSystem;
-import org.carlspring.strongbox.providers.io.RepositoryFileAttributeType;
-import org.carlspring.strongbox.providers.io.RepositoryPath;
-import org.carlspring.strongbox.services.RepositoryArtifactIdGroupService;
-import org.carlspring.strongbox.storage.StorageDto;
-import org.carlspring.strongbox.storage.repository.RepositoryData;
-import org.carlspring.strongbox.storage.repository.RepositoryDto;
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.mockito.ArgumentMatchers.any;
 
-import javax.inject.Inject;
 import java.io.IOException;
 import java.nio.file.FileSystems;
 import java.nio.file.Path;
@@ -24,6 +12,21 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.Set;
 
+import javax.inject.Inject;
+
+import org.carlspring.strongbox.StorageApiTestConfig;
+import org.carlspring.strongbox.artifact.coordinates.ArtifactCoordinates;
+import org.carlspring.strongbox.booters.PropertiesBooter;
+import org.carlspring.strongbox.data.CacheManagerTestExecutionListener;
+import org.carlspring.strongbox.domain.ArtifactGroupEntity;
+import org.carlspring.strongbox.domain.RepositoryArtifactIdGroupEntity;
+import org.carlspring.strongbox.providers.io.LayoutFileSystem;
+import org.carlspring.strongbox.providers.io.RepositoryFileAttributeType;
+import org.carlspring.strongbox.providers.io.RepositoryPath;
+import org.carlspring.strongbox.services.RepositoryArtifactIdGroupService;
+import org.carlspring.strongbox.storage.StorageDto;
+import org.carlspring.strongbox.storage.repository.RepositoryData;
+import org.carlspring.strongbox.storage.repository.RepositoryDto;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.InjectMocks;
@@ -35,8 +38,6 @@ import org.springframework.context.ApplicationContext;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.TestExecutionListeners;
-import static org.assertj.core.api.Assertions.assertThat;
-import static org.mockito.ArgumentMatchers.any;
 
 /**
  * @author Przemyslaw Fusik
@@ -63,7 +64,7 @@ class AbstractLayoutProviderTest
     @InjectMocks
     private AbstractLayoutProvider layoutProvider = Mockito.spy(AbstractLayoutProvider.class);
 
-    private ArtifactCoordinatesEntity artifactCoordinates = Mockito.spy(ArtifactCoordinatesEntity.class);
+    private ArtifactCoordinates artifactCoordinates = Mockito.spy(ArtifactCoordinates.class);
     
     private StorageFileSystemProviderTest storageFileSystemProvider = Mockito.spy(new StorageFileSystemProviderTest(FileSystems.getDefault().provider()));
 
@@ -116,11 +117,11 @@ class AbstractLayoutProviderTest
                                                                                           .resolve("1.8")
                                                                                           .resolve("abs-lay-prov-test-1.8.jar");
 
-        Set<ArtifactGroupEntry> artifactGroups = layoutProvider.getArtifactGroups(path);
+        Set<ArtifactGroupEntity> artifactGroups = layoutProvider.getArtifactGroups(path);
         assertThat(artifactGroups).isNotNull();
         assertThat(artifactGroups).isEmpty();
 
-        RepositoryArtifactIdGroupEntry repositoryArtifactIdGroup = artifactGroupService.findOneOrCreate("storage0",
+        RepositoryArtifactIdGroupEntity repositoryArtifactIdGroup = artifactGroupService.findOneOrCreate("storage0",
                                                                                                         "releases",
                                                                                                         "abs-lay-prov-test");
 
@@ -128,11 +129,11 @@ class AbstractLayoutProviderTest
         assertThat(artifactGroups).isNotNull();
         assertThat(artifactGroups).hasSize((1));
         assertThat(artifactGroups.iterator().next()).isEqualTo(repositoryArtifactIdGroup);
-        assertThat(repositoryArtifactIdGroup).isInstanceOf(RepositoryArtifactIdGroupEntry.class);
+        assertThat(repositoryArtifactIdGroup).isInstanceOf(RepositoryArtifactIdGroupEntity.class);
         assertThat(repositoryArtifactIdGroup.getArtifactId()).isEqualTo(("abs-lay-prov-test"));
         assertThat(repositoryArtifactIdGroup.getRepositoryId()).isEqualTo(("releases"));
         assertThat(repositoryArtifactIdGroup.getStorageId()).isEqualTo(("storage0"));
-        assertThat(repositoryArtifactIdGroup.getClass()).isEqualTo((RepositoryArtifactIdGroupEntry.class));
+        assertThat(repositoryArtifactIdGroup.getClass()).isEqualTo((RepositoryArtifactIdGroupEntity.class));
     }
     
     private class StorageFileSystemProviderTest extends LayoutFileSystemProvider
