@@ -17,17 +17,19 @@ strongbox:
       enabled: true
     ldap:
       url: ldap://127.0.0.1:53389/dc=carlspring,dc=com
-      managerDn: cn=manager,ou=users,dc=carlspring,dc=com
-      managerPassword: password
+      managerDn: uid=admin,ou=system,dc=carlspring,dc=com
+      managerPassword: secret
       rolesMapping:
-      - externalRole: Developers
-        strongboxRole: REPOSITORY_MANAGER
-      - externalRole: Contributors
-        strongboxRole: USER_ROLE
+        - externalRole: Admins
+          strongboxRole: ADMIN
+        - externalRole: Developers
+          strongboxRole: REPOSITORY_MANAGER
+        - externalRole: Contributors
+          strongboxRole: USER_ROLE
       userDnPatterns:
-      - uid={0},ou=Users
-      groupSearchBase: ou=Users
-      groupSearchFilter: (uid={0})
+        - uid={0},ou=Users
+      userSearchBase: ou=Users
+      userSearchFilter: (uid={0})
       authorities:
         groupSearchBase: ou=Groups
         groupSearchFilter: (uniqueMember={0})

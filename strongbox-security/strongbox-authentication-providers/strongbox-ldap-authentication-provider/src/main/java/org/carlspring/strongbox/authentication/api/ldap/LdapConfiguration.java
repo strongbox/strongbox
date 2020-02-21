@@ -8,6 +8,7 @@ import javax.validation.constraints.NotEmpty;
 import org.carlspring.strongbox.authentication.support.ExternalRoleMapping;
 import org.carlspring.strongbox.validation.LdapUri;
 
+import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.annotation.JsonUnwrapped;
 
@@ -27,11 +28,14 @@ public class LdapConfiguration
 
     private LdapAuthoritiesConfiguration authoritiesConfiguration = new LdapAuthoritiesConfiguration();
 
-    private LdapGroupSearch groupSearch = new LdapGroupSearch();
+    private LdapUserSearch userSearch = new LdapUserSearch();
 
     private List<ExternalRoleMapping> roleMappingList = new ArrayList<>();
 
     private List<String> userDnPatternList = new ArrayList<>();
+
+    @JsonInclude(JsonInclude.Include.NON_EMPTY)
+    private boolean enableProvider;
 
     public String getUrl()
     {
@@ -70,14 +74,14 @@ public class LdapConfiguration
     }
 
     @JsonUnwrapped
-    public LdapGroupSearch getGroupSearch()
+    public LdapUserSearch getUserSearch()
     {
-        return groupSearch;
+        return userSearch;
     }
 
-    public void setGroupSearch(LdapGroupSearch groupSearch)
+    public void setUserSearch(LdapUserSearch userSearch)
     {
-        this.groupSearch = groupSearch;
+        this.userSearch = userSearch;
     }
 
     public void setManagerPassword(String managerPassword)
@@ -105,4 +109,13 @@ public class LdapConfiguration
         this.userDnPatternList = userDnPatternList;
     }
 
+    public boolean getEnableProvider()
+    {
+        return enableProvider;
+    }
+
+    public void setEnableProvider(boolean enableProvider)
+    {
+        this.enableProvider = enableProvider;
+    }
 }

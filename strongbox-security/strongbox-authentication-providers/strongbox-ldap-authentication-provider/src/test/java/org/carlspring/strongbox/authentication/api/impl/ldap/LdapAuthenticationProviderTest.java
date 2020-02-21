@@ -74,7 +74,7 @@ public class LdapAuthenticationProviderTest
         LdapUserDetails ldapUserDetails = (LdapUserDetailsImpl) ldapUser;
 
         assertThat(ldapUserDetails.getDn()).isEqualTo("uid=przemyslaw.fusik,ou=Users,dc=carlspring,dc=com");
-        assertThat(ldapUserDetails.getPassword()).isEqualTo("password");
+        assertThat(ldapUserDetails.getPassword()).isEqualTo("{SHA-256}{mujKRdqeWWYAWhczNwVnBl6L6dHNwWO5eIGZ/G7pnBg=}bb63813f5b6f64ae306ebbbb23dcbb1c6f49eb9b989fc466b1b1a24a011bb2ce");
         assertThat(ldapUserDetails.getUsername()).isEqualTo("przemyslaw.fusik");
         assertThat(((List<SimpleGrantedAuthority>)ldapUser.getAuthorities()))
                 .contains(

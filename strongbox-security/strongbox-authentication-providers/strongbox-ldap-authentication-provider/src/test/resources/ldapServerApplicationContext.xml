@@ -11,6 +11,6 @@
                            http://www.springframework.org/schema/util http://www.springframework.org/schema/util/spring-util.xsd
                            http://www.springframework.org/schema/security http://www.springframework.org/schema/security/spring-security.xsd">
 
-    <security:ldap-server id="ldapServer" ldif="classpath:strongbox.ldif" root="dc=carlspring,dc=com" port="53389" />
+    <security:ldap-server id="ldapServer" ldif="classpath:strongbox.ldif" root="dc=carlspring,dc=com" port="53389" manager-password="secret" manager-dn="uid=admin,ou=system"/>
 
 </beans>

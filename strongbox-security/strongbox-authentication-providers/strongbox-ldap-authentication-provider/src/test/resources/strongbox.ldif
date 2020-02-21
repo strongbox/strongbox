@@ -1,9 +1,9 @@
-# Depending on the server, this may already exist. 
-# If the test fails, try commenting the lines below.
-dn: dc=carlspring,dc=com
-objectClass: top
-objectClass: domain
-dc: carlspring
+# This should already exist if the server is properly configured.
+# If it's not - you can uncomment during development/testing.
+#dn: dc=carlspring,dc=com
+#objectClass: top
+#objectClass: domain
+#dc: carlspring
 
 # Create a place where users are stored
 dn: ou=Users, dc=carlspring, dc=com
@@ -22,7 +22,7 @@ cn: Martin Todorov
 mail: mtodorov@carlspring.com
 givenName: Martin
 surname: Todorov
-userPassword: password
+userPassword: {bcrypt}$2a$10$lpwlxyjvXKzN1ccCrw2PBuZx.eVesWbfmTbsrCboMU.gsNWVcZWMi
 
 dn: uid=stodorov,ou=Users,dc=carlspring,dc=com
 objectClass: inetOrgPerson
@@ -34,7 +34,7 @@ cn: Steve Todorov
 mail: stodorov@carlspring.com
 givenName: Steve
 surname: Todorov
-userPassword: password
+userPassword: {MD5}{+0ZDjBqe9MQD0RE7FAQrvuBJu89w7XY1kOxjP5PbilQ=}d0f27c20288118f0fdde9e91e5e9ffb9
 
 dn: uid=przemyslaw.fusik,ou=Users,dc=carlspring,dc=com
 objectClass: inetOrgPerson
@@ -46,7 +46,7 @@ cn: Przemyslaw Fusik
 mail: przemyslaw.fusik@gmail.com
 givenName: Przemyslaw
 surname: Fusik
-userPassword: password
+userPassword: {SHA-256}{mujKRdqeWWYAWhczNwVnBl6L6dHNwWO5eIGZ/G7pnBg=}bb63813f5b6f64ae306ebbbb23dcbb1c6f49eb9b989fc466b1b1a24a011bb2ce
 
 dn: uid=testuser1,ou=Users,dc=carlspring,dc=com
 objectClass: inetOrgPerson
@@ -57,7 +57,7 @@ uid: testuser1
 cn: Test User1
 givenName: Test
 surname: User1
-userPassword: password
+userPassword: {SHA-1}{mDhUc/Vlf/amwY9QzEX+N7ZE5XK/6jc5+ZOUypVrB/U=}9f06588201782cb6dcc454f81468e851d09171a9
 
 # Create groups
 dn: ou=Groups, dc=carlspring, dc=com

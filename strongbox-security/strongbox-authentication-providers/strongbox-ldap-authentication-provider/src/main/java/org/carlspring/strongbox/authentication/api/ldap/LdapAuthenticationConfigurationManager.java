@@ -1,23 +1,27 @@
 package org.carlspring.strongbox.authentication.api.ldap;
 
+import org.carlspring.strongbox.authentication.api.AuthenticationItem;
+import org.carlspring.strongbox.authentication.api.AuthenticationItemConfigurationManager;
+import org.carlspring.strongbox.authentication.api.AuthenticationItems;
+import org.carlspring.strongbox.authentication.api.CustomAuthenticationItemMapper;
+import org.carlspring.strongbox.authentication.support.ExternalRoleMapping;
+
+import javax.inject.Inject;
 import java.io.IOException;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
 
-import javax.inject.Inject;
-
-import org.carlspring.strongbox.authentication.api.AuthenticationItemConfigurationManager;
-import org.carlspring.strongbox.authentication.api.CustomAuthenticationItemMapper;
-import org.carlspring.strongbox.authentication.support.ExternalRoleMapping;
 import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.security.core.userdetails.UserDetails;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.ldap.userdetails.LdapUserDetailsService;
 import org.springframework.stereotype.Component;
 
 @Component
-public class LdapAuthenticationConfigurationManager implements CustomAuthenticationItemMapper<LdapConfiguration>
+public class LdapAuthenticationConfigurationManager
+        implements CustomAuthenticationItemMapper<LdapConfiguration>
 {
 
     private static final String MANAGER_PASSWORD = "managerPassword";
@@ -32,13 +36,18 @@ public class LdapAuthenticationConfigurationManager implements CustomAuthenticat
     public static final String ROLE_PREFIX = "rolePrefix";
     public static final String GROUP_ROLE_ATTRIBUTE = "groupRoleAttribute";
     public static final String GROUP_SEARCH_FILTER = "groupSearchFilter";
+    public static final String USER_SEARCH_FILTER = "userSearchFilter";
     public static final String SEARCH_SUBTREE = "searchSubtree";
     public static final String GROUP_SEARCH_BASE = "groupSearchBase";
+    public static final String USER_SEARCH_BASE = "userSearchBase";
     public static final String URL = "url";
     public static final String AUTHORITIES = "authorities";
 
     @Inject
     private AuthenticationItemConfigurationManager authenticationItemConfigurationManager;
+
+    @Inject
+    private PasswordEncoder passwordEncoder;
 
     @Override
     public String getConfigurationItemId()
@@ -48,13 +57,46 @@ public class LdapAuthenticationConfigurationManager implements CustomAuthenticat
 
     public LdapConfiguration getConfiguration()
     {
-        return authenticationItemConfigurationManager.getCustomAuthenticationItem(this);
+        LdapConfiguration ldapConfiguration = authenticationItemConfigurationManager.getCustomAuthenticationItem(this);
+
+        // TODO: This is a temporary solution to improve the user experience when enabling LDAP as a UserDetailsService.
+        AuthenticationItems authenticationItems = authenticationItemConfigurationManager.getAuthenticationItems();
+        List<AuthenticationItem> list = authenticationItems.getAuthenticationItemList();
+        for (int i=0; i < list.size(); i++)
+        {
+            AuthenticationItem item = list.get(i);
+            if(item.getName().equalsIgnoreCase("ldapUserDetailsService")) {
+                ldapConfiguration.setEnableProvider(item.getEnabled());
+            }
+        }
+
+        return ldapConfiguration;
     }
 
     public void updateConfiguration(LdapConfiguration configuration)
         throws IOException
     {
         authenticationItemConfigurationManager.putCustomAuthenticationItem(configuration, this);
+
+        // TODO: This is a temporary solution to improve the user experience when enabling LDAP as a UserDetailsService.
+        //       We should improve how this works with a later PR.
+        AuthenticationItems authenticationItems = authenticationItemConfigurationManager.getAuthenticationItems();
+        List<AuthenticationItem> list = authenticationItems.getAuthenticationItemList();
+        for (int i = 0; i < list.size(); i++)
+        {
+            AuthenticationItem item = list.get(i);
+            if (item.getName().equalsIgnoreCase("ldapUserDetailsService"))
+            {
+                item.setOrder(configuration.getEnableProvider() ? 0 : 1);
+                item.setEnabled(configuration.getEnableProvider());
+            }
+            else if(item.getName().equalsIgnoreCase("yamlUserDetailService"))
+            {
+                item.setOrder(configuration.getEnableProvider() ? 1 : 0);
+            }
+        }
+
+        authenticationItemConfigurationManager.updateAuthenticationItems(authenticationItems);
     }
 
     public void testConfiguration(String username,
@@ -67,7 +109,7 @@ public class LdapAuthenticationConfigurationManager implements CustomAuthenticat
             LdapUserDetailsService luds = (LdapUserDetailsService) c.getBean("ldapUserDetailsService");
 
             UserDetails user = luds.loadUserByUsername(username);
-            if (!password.equals(user.getPassword()))
+            if (!passwordEncoder.matches(password, user.getPassword()))
             {
                 throw new BadCredentialsException("Credentials don't match.");
             }
@@ -102,8 +144,8 @@ public class LdapAuthenticationConfigurationManager implements CustomAuthenticat
 
         result.put(AUTHORITIES, mapAuthorities(source.getAuthoritiesConfiguration()));
 
-        result.put(GROUP_SEARCH_BASE, source.getGroupSearch().getGroupSearchBase());
-        result.put(GROUP_SEARCH_FILTER, source.getGroupSearch().getGroupSearchFilter());
+        result.put(USER_SEARCH_BASE, source.getUserSearch().getUserSearchBase());
+        result.put(USER_SEARCH_FILTER, source.getUserSearch().getUserSearchFilter());
 
         result.put(ROLES_MAPPING,
                    source.getRoleMappingList()
@@ -146,12 +188,12 @@ public class LdapAuthenticationConfigurationManager implements CustomAuthenticat
 
         result.setUrl((String) source.get(URL));
         result.setManagerDn((String) source.get(MANAGER_DN));
-        result.setManagerPassword((String) source.get(MANAGER_PASSWORD));
+        result.setManagerPassword(String.valueOf(source.get(MANAGER_PASSWORD)));
 
-        LdapGroupSearch groupSearch = new LdapGroupSearch();
-        groupSearch.setGroupSearchBase((String) source.get(GROUP_SEARCH_BASE));
-        groupSearch.setGroupSearchFilter((String) source.get(GROUP_SEARCH_FILTER));
-        result.setGroupSearch(groupSearch);
+        LdapUserSearch userSearch = new LdapUserSearch();
+        userSearch.setUserSearchBase((String) source.get(USER_SEARCH_BASE));
+        userSearch.setUserSearchFilter((String) source.get(USER_SEARCH_FILTER));
+        result.setUserSearch(userSearch);
 
         result.setAuthoritiesConfiguration(mapAuthorities((Map<String, Object>) source.get(AUTHORITIES)));
 

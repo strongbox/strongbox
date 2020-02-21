@@ -26,7 +26,7 @@
         class="org.springframework.security.ldap.DefaultSpringSecurityContextSource">
         <constructor-arg
             value="${strongbox.authentication.ldap.url}" />
-        <property name="anonymousReadOnly" value="true" />
+        <property name="anonymousReadOnly" value="false" />
         <property name="userDn" value="${strongbox.authentication.ldap.managerDn}"/>
         <property name="password" value="${strongbox.authentication.ldap.managerPassword}"/>
     </bean>
@@ -51,9 +51,9 @@
             <bean
                 class="org.springframework.security.ldap.search.FilterBasedLdapUserSearch">
                 <constructor-arg
-                    value="${strongbox.authentication.ldap.groupSearchBase}" />
+                    value="${strongbox.authentication.ldap.userSearchBase}" />
                 <constructor-arg
-                    value="${strongbox.authentication.ldap.groupSearchFilter}" />
+                    value="${strongbox.authentication.ldap.userSearchFilter}" />
                 <constructor-arg ref="contextSource" />
             </bean>
         </constructor-arg>
