@@ -181,7 +181,7 @@ public class RegenerateNugetChecksumCronJobTestIT
         NugetArtifactCoordinates coordinates = (NugetArtifactCoordinates) RepositoryFiles.readCoordinates(
                 (RepositoryPath) artifactNupkgPath.normalize());
         coordinates.setType("nuspec");
-        Path nuspecSha512Path = repositoryPath.resolve(coordinates.toPath() + ".sha512");
+        Path nuspecSha512Path = repositoryPath.resolve(coordinates.buildPath() + ".sha512");
         deleteIfExists(nuspecSha512Path);
         assertThat(Files.notExists(nuspecSha512Path))
                 .as("The checksum file for nuspec artifact exist!")

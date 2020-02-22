@@ -52,7 +52,7 @@ public class ArtifactEntity
 
     private Integer downloadCount = Integer.valueOf(0);
 
-    private final ArtifactArchiveListing artifactArchiveListing = new ArtifactArchiveListing();
+    private final ArtifactArchiveListing artifactArchiveListing = new ArtifactEntityArchiveListing();
 
     @Override
     public String getStorageId()
@@ -183,12 +183,11 @@ public class ArtifactEntity
     public String getArtifactPath()
     {
         return Optional.of(getArtifactCoordinates())
-                       .map(c -> c.toPath())
+                       .map(c -> c.buildPath())
                        .orElseThrow(() -> new IllegalStateException("ArtifactCoordinates required to be set."));
     }
     
-    public class ArtifactArchiveListing
-            implements Serializable
+    public class ArtifactEntityArchiveListing implements ArtifactArchiveListing
     {
 
         public Set<String> getFilenames()

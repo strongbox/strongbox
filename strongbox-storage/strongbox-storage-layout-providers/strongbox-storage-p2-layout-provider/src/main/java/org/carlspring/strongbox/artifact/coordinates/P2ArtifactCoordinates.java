@@ -73,7 +73,7 @@ public class P2ArtifactCoordinates
     }
 
     @Override
-    public String toPath()
+    public String buildPath()
     {
         return getId() + SEPARATOR + getVersion() + SEPARATOR + getClassifier();
     }

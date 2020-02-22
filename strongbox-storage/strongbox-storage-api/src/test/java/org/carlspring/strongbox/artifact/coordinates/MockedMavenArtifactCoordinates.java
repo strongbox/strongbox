@@ -77,7 +77,7 @@ public class MockedMavenArtifactCoordinates
     }
 
     @Override
-    public String toPath()
+    public String buildPath()
     {
         try
         {

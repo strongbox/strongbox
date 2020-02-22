@@ -170,7 +170,7 @@ public abstract class RepositoryFiles
         {
             ArtifactCoordinates c = RepositoryFiles.readCoordinates(p);
             
-            return c.toResource();
+            return c.buildResource();
         }
         
         return relativizeUri(p);

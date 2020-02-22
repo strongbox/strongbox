@@ -7,7 +7,6 @@ import java.util.Set;
 import org.carlspring.strongbox.artifact.ArtifactTag;
 import org.carlspring.strongbox.artifact.coordinates.ArtifactCoordinates;
 import org.carlspring.strongbox.data.domain.DomainObject;
-import org.carlspring.strongbox.domain.ArtifactEntity.ArtifactArchiveListing;
 
 public interface Artifact extends DomainObject
 {

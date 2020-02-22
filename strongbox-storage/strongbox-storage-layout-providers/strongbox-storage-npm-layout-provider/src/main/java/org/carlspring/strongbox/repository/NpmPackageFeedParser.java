@@ -160,7 +160,7 @@ public class NpmPackageFeedParser
         try
         {
             if (artifactEntryService.artifactExists(e.getStorageId(), e.getRepositoryId(),
-                                                    e.getArtifactCoordinates().toPath()))
+                                                    e.getArtifactCoordinates().buildPath()))
             {
                 return;
             }

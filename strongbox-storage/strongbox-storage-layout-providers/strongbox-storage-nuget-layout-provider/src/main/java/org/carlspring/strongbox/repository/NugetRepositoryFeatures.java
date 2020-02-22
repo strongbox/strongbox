@@ -211,7 +211,7 @@ public class NugetRepositoryFeatures
             String packageVersion = packageEntry.getProperties().getVersion().toString();
 
             NugetArtifactCoordinates c = new NugetArtifactCoordinates(packageId, packageVersion, "nupkg");
-            if (artifactEntryService.artifactExists(storageId, repositoryId, c.toPath()))
+            if (artifactEntryService.artifactExists(storageId, repositoryId, c.buildPath()))
             {
                 continue;
             }

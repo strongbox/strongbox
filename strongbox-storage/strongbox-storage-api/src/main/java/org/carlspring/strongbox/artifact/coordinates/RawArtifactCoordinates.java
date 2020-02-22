@@ -25,14 +25,13 @@ public class RawArtifactCoordinates
 
     public RawArtifactCoordinates(String path)
     {
-        this();
         setCoordinate(PATH, path);
     }
 
     @Override
     public String getId()
     {
-        return getPath();
+        return getCoordinate(PATH);
     }
 
     public void setId(String id)
@@ -68,9 +67,9 @@ public class RawArtifactCoordinates
     }
     
     @Override
-    public String toPath()
+    public String convertToPath(RawArtifactCoordinates artifactCoordinates)
     {
-        return Optional.ofNullable(getCoordinate(PATH)).orElse("");
+        return Optional.ofNullable(artifactCoordinates.getCoordinate(PATH)).orElse("");
     }
 
 }

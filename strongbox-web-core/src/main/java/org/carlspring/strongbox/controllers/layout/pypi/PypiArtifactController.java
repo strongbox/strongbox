@@ -214,7 +214,7 @@ public class PypiArtifactController extends BaseArtifactController
         RepositoryPath repositoryPath = artifactResolutionService.resolvePath(
                                                                               repository.getStorage().getId(),
                                                                               repository.getId(),
-                                                                              coordinates.toPath());
+                                                                              coordinates.buildPath());
 
         provideArtifactDownloadResponse(request, response, headers, repositoryPath);
     }
@@ -274,7 +274,7 @@ public class PypiArtifactController extends BaseArtifactController
 
         RepositoryPath repositoryPath = repositoryPathResolver.resolve(storageId,
                                                                        repositoryId,
-                                                                       coordinates.toPath());
+                                                                       coordinates.buildPath());
         artifactManagementService.validateAndStore(repositoryPath, file.getInputStream());
 
         return ResponseEntity.status(HttpStatus.OK).body("The artifact was deployed successfully.");

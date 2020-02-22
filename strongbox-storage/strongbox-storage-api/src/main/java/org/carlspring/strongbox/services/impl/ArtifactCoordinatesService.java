@@ -29,7 +29,7 @@ public class ArtifactCoordinatesService extends CommonCrudService<ArtifactCoordi
         oQuery.setLimit(1);
 
         HashMap<String, Object> params = new HashMap<>();
-        params.put("path", entity.toPath());
+        params.put("path", entity.buildPath());
 
         ORID objectId = ((List<ODocument>) getDelegate().command(oQuery)
                                                         .execute(params)).stream()

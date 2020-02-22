@@ -115,9 +115,9 @@ public class MavenArtifactCoordinates
         }
 
     }
-
+    
     @Override
-    public String toPath()
+    public String convertToPath(MavenArtifactCoordinates artifactCoordinates)
     {
         return MavenArtifactUtils.convertArtifactToPath(toArtifact());
     }
@@ -159,7 +159,6 @@ public class MavenArtifactCoordinates
         return String.format("%s:%s", getGroupId(), getArtifactId());
     }
 
-    @Override
     public void setId(String id)
     {
         setArtifactId(id);
@@ -229,7 +228,7 @@ public class MavenArtifactCoordinates
     {
         return "MavenArtifactCoordinates{" + "groupId='" + groupId + '\'' + ", artifactId='" + artifactId + '\'' +
                ", version='" + version + '\'' + ", classifier='" + classifier + '\'' + ", extension='" + extension +
-               '\'' + ", as path: " + toPath() + '}';
+               '\'' + ", as path: " + buildPath() + '}';
     }
 
 }

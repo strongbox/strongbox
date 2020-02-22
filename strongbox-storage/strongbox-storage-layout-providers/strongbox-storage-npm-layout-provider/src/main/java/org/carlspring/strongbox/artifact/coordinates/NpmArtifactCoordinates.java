@@ -153,13 +153,13 @@ public class NpmArtifactCoordinates extends LayoutArtifactCoordinatesEntity<NpmA
     }
     
     @Override
-    public String toPath()
+    public String buildPath()
     {
         return String.format("%s/%s/%s/%s", getGroup(), getName(), getVersion(), getArtifactFileName());
     }
 
     @Override
-    public URI toResource()
+    public URI buildResource()
     {
         return URI.create(String.format("%s/-/%s", getId(), getArtifactFileName()));
     }

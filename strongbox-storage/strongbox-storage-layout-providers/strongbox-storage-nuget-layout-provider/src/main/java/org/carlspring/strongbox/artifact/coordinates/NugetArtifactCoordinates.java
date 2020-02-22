@@ -103,7 +103,7 @@ public class NugetArtifactCoordinates
         setCoordinate(EXTENSION, type);
     }
     
-    public String toPath()
+    public String buildPath()
     {
         String idLocal = getId();
         String versionLocal = getVersion();
@@ -118,7 +118,7 @@ public class NugetArtifactCoordinates
     }
 
     @Override
-    public URI toResource()
+    public URI buildResource()
     {
         return URI.create("package/" + getId() + "/" + getVersion());
     }

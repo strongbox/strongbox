@@ -21,6 +21,11 @@ public class DomainEntity implements DomainObject
     @Override
     public void setUuid(String uuid)
     {
+        if (this.uuid != null)
+        {
+            throw new IllegalStateException("Can't change the uuid.");
+        }
+        
         this.uuid = uuid;
     }
 

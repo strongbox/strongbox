@@ -1,9 +1,12 @@
 package org.carlspring.strongbox.domain;
 
 import java.net.URI;
+import java.util.Collections;
 import java.util.Map;
 
 import org.carlspring.strongbox.artifact.coordinates.ArtifactCoordinates;
+import org.carlspring.strongbox.artifact.coordinates.ArtifactCoordinatesComparator;
+import org.carlspring.strongbox.artifact.coordinates.ArtifactCoordinatesResourceConverter;
 import org.carlspring.strongbox.data.domain.DomainEntity;
 import org.carlspring.strongbox.db.schema.Edges;
 import org.neo4j.ogm.annotation.Relationship;
@@ -11,14 +14,14 @@ import org.neo4j.ogm.annotation.Relationship;
 /**
  * @author sbespalov
  */
-public abstract class LayoutArtifactCoordinatesEntity<T extends LayoutArtifactCoordinatesEntity<T, V>, V extends Comparable<V>>
+public abstract class LayoutArtifactCoordinatesEntity<C extends LayoutArtifactCoordinatesEntity<C, V>, V extends Comparable<V>>
         extends DomainEntity
-        implements ArtifactCoordinates<T, V>
+        implements ArtifactCoordinates<C, V>, ArtifactCoordinatesResourceConverter<C, V>
 {
 
     @Relationship(type = Edges.ARTIFACT_COORDINATES_INHERIT_GENERIC_ARTIFACT_COORDINATES, direction = Relationship.OUTGOING)
     private final GenericArtifactCoordinatesEntity genericArtifactCoordinates;
-    private String path;
+    private final ArtifactCoordinatesComparator<C, V> comparator = new ArtifactCoordinatesComparator<>();
 
     public LayoutArtifactCoordinatesEntity()
     {
@@ -53,27 +56,23 @@ public abstract class LayoutArtifactCoordinatesEntity<T extends LayoutArtifactCo
 
     public Map<String, String> getCoordinates()
     {
-        return genericArtifactCoordinates.getCoordinates();
+        return Collections.unmodifiableMap(genericArtifactCoordinates.getCoordinates());
     }
 
-    protected final void resetCoordinates(String... coordinates)
+    protected void resetCoordinates(String... coordinates)
     {
         genericArtifactCoordinates.resetCoordinates(coordinates);
-        this.path = null;
     }
 
-    protected final void defineCoordinate(String coordinate)
+    protected void defineCoordinate(String coordinate)
     {
         genericArtifactCoordinates.defineCoordinate(coordinate);
-        this.path = toPath();
     }
 
-    protected final String setCoordinate(String coordinate,
-                                         String value)
+    protected String setCoordinate(String coordinate,
+                                   String value)
     {
-        String result = genericArtifactCoordinates.setCoordinate(coordinate, value);
-        this.path = toPath();
-        return result;
+        return genericArtifactCoordinates.setCoordinate(coordinate, value);
     }
 
     protected String getCoordinate(String coordinate)
@@ -81,66 +80,32 @@ public abstract class LayoutArtifactCoordinatesEntity<T extends LayoutArtifactCo
         return genericArtifactCoordinates.getCoordinate(coordinate);
     }
 
-    public String getPath()
+    @Override
+    public final String buildPath()
     {
-        return path;
+        return convertToPath((C) this);
     }
 
     @Override
-    public URI toResource()
+    public final URI buildResource()
     {
-        return URI.create(toPath());
+        return convertToResource((C) this);
     }
 
     @Override
-    public int compareTo(T that)
+    public int compareTo(C that)
     {
-        if (that == null)
-        {
-            return -1;
-        }
-
-        int result = ((result = compareId(that)) == 0 ? compareVersion(that) : result);
-
-        return result;
+        return comparator.compare((C) this, that);
     }
 
-    protected int compareVersion(T that)
+    public boolean equals(Object obj)
     {
-        V thisNativeVersion = getNativeVersion();
-        V thatNativeVersion = that.getNativeVersion();
-
-        if (thisNativeVersion == null && thatNativeVersion == null)
-        {
-            String thisVersion = getVersion();
-            String thatVersion = that.getVersion();
-
-            return compareToken(thisVersion, thatVersion);
-        }
-
-        return compareToken(thisNativeVersion, thatNativeVersion);
+        return genericArtifactCoordinates.equals(obj);
     }
 
-    protected int compareId(T that)
+    public int hashCode()
     {
-        String thisId = getId();
-        String thatId = that.getId();
-
-        return compareToken(thisId, thatId);
-    }
-
-    protected <T extends Comparable<T>> int compareToken(T thisId,
-                                                         T thatId)
-    {
-        if (thisId == thatId)
-        {
-            return 0;
-        }
-        if (thisId == null)
-        {
-            return Boolean.compare(true, thatId == null);
-        }
-        return thatId == null ? 1 : Integer.signum(thisId.compareTo(thatId));
+        return genericArtifactCoordinates.hashCode();
     }
 
 }

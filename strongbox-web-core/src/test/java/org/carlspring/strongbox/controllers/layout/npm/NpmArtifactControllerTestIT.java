@@ -125,7 +125,7 @@ public class NpmArtifactControllerTestIT
 
         ArtifactEntity artifactEntry = artifactEntryService.findOneArtifact(storageId,
                                                                            repositoryId,
-                                                                           coordinates.toPath());
+                                                                           coordinates.buildPath());
         assertThat(artifactEntry).isNotNull();
         assertThat(artifactEntry).isInstanceOf(RemoteArtifactEntity.class);
         assertThat(((RemoteArtifactEntity)artifactEntry).getIsCached()).isFalse();

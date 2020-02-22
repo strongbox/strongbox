@@ -52,7 +52,7 @@ public class RepositoryPathResolver
     public RepositoryPath resolve(final Repository repository,
                                   final ArtifactCoordinates c)
     {
-        return resolve(repository, c.toPath());
+        return resolve(repository, c.buildPath());
     }
 
     public RepositoryPath resolve(final Repository repository,

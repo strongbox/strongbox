@@ -1,6 +1,6 @@
 package org.carlspring.strongbox.domain;
 
-import java.util.Collections;
+import java.util.Arrays;
 import java.util.LinkedHashMap;
 import java.util.Map;
 
@@ -32,10 +32,7 @@ public class GenericArtifactCoordinatesEntity extends DomainEntity implements Ge
     protected void resetCoordinates(String... coordinates)
     {
         this.coordinates.clear();
-        for (String coordinate : coordinates)
-        {
-            this.coordinates.put(coordinate, null);
-        }
+        Arrays.stream(coordinates).forEach(this::defineCoordinate);
     }
 
     protected void defineCoordinate(String coordinate)
@@ -67,7 +64,7 @@ public class GenericArtifactCoordinatesEntity extends DomainEntity implements Ge
 
     public Map<String, String> getCoordinates()
     {
-        return Collections.unmodifiableMap(coordinates);
+        return coordinates;
     }
 
     @Override

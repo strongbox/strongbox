@@ -207,7 +207,7 @@ public class NpmArtifactController
         npmSearchRequest.setVersion(packageVersion);
         viewPackageEventListener.setNpmSearchRequest(npmSearchRequest);
 
-        RepositoryPath repositoryPath = artifactResolutionService.resolvePath(storageId, repositoryId, c.toPath());
+        RepositoryPath repositoryPath = artifactResolutionService.resolvePath(storageId, repositoryId, c.buildPath());
         if (repositoryPath == null)
         {
             response.setStatus(HttpStatus.NOT_FOUND.value());
@@ -361,7 +361,7 @@ public class NpmArtifactController
             return;
         }
 
-        RepositoryPath path = artifactResolutionService.resolvePath(storageId, repositoryId, coordinates.toPath());
+        RepositoryPath path = artifactResolutionService.resolvePath(storageId, repositoryId, coordinates.buildPath());
         provideArtifactDownloadResponse(request, response, httpHeaders, path);
     }
 
@@ -402,7 +402,7 @@ public class NpmArtifactController
             return;
         }
 
-        RepositoryPath path = artifactResolutionService.resolvePath(storageId, repositoryId, coordinates.toPath());
+        RepositoryPath path = artifactResolutionService.resolvePath(storageId, repositoryId, coordinates.buildPath());
         provideArtifactDownloadResponse(request, response, httpHeaders, path);
     }
 

@@ -49,7 +49,7 @@ public abstract class AbstractSearchProvider
     {
         ArtifactEntity artifactEntry = artifactEntryService.findOneArtifact(searchRequest.getStorageId(),
                                                                            searchRequest.getRepositoryId(),
-                                                                           searchRequest.getArtifactCoordinates().toPath());
+                                                                           searchRequest.getArtifactCoordinates().buildPath());
 
         if (artifactEntry == null)
         {

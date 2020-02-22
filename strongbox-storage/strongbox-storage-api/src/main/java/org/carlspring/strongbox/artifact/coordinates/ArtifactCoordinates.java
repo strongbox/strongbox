@@ -9,7 +9,7 @@ import javax.xml.bind.annotation.XmlRootElement;
  * @author carlspring
  */
 @XmlRootElement(name = "artifactCoordinates")
-public interface ArtifactCoordinates<T extends ArtifactCoordinates<T, V>, V extends Comparable<V>> extends Comparable<T>, GenericArtifactCoordinates
+public interface ArtifactCoordinates<C extends ArtifactCoordinates<C, V>, V extends Comparable<V>> extends Comparable<C>, GenericArtifactCoordinates
 {
 
     String getId();
@@ -18,8 +18,8 @@ public interface ArtifactCoordinates<T extends ArtifactCoordinates<T, V>, V exte
 
     Map<String, String> dropVersion();
     
-    String toPath();
+    String buildPath();
     
-    URI toResource();
+    URI buildResource();
 
 }

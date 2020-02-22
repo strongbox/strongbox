@@ -58,7 +58,7 @@ public class ArtifactEntryArtifactContext
             artifactInfo.setPackaging(coordinates.getExtension());
         }
 
-        artifactInfo.setFileName(FilenameUtils.getName(coordinates.toPath()));
+        artifactInfo.setFileName(FilenameUtils.getName(coordinates.buildPath()));
         artifactInfo.setFileExtension(coordinates.getExtension());
     }
 

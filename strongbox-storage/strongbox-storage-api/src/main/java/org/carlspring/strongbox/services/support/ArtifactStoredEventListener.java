@@ -1,6 +1,12 @@
 package org.carlspring.strongbox.services.support;
 
+import java.io.IOException;
+import java.util.Set;
+
+import javax.inject.Inject;
+
 import org.carlspring.strongbox.artifact.AsyncArtifactEntryHandler;
+import org.carlspring.strongbox.domain.Artifact;
 import org.carlspring.strongbox.domain.ArtifactArchiveListing;
 import org.carlspring.strongbox.domain.ArtifactEntity;
 import org.carlspring.strongbox.event.artifact.ArtifactEventTypeEnum;
@@ -8,11 +14,6 @@ import org.carlspring.strongbox.providers.io.RepositoryPath;
 import org.carlspring.strongbox.providers.layout.LayoutProvider;
 import org.carlspring.strongbox.providers.layout.LayoutProviderRegistry;
 import org.carlspring.strongbox.storage.repository.Repository;
-
-import javax.inject.Inject;
-import java.io.IOException;
-import java.util.Set;
-
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Component;
@@ -36,10 +37,10 @@ public class ArtifactStoredEventListener
     }
 
     @Override
-    protected ArtifactEntity handleEvent(RepositoryPath repositoryPath)
+    protected Artifact handleEvent(RepositoryPath repositoryPath)
             throws IOException
     {
-        ArtifactEntity artifactEntry = repositoryPath.getArtifactEntry();
+        Artifact artifactEntry = repositoryPath.getArtifactEntry();
 
         if (artifactEntry == null)
         {
@@ -59,11 +60,6 @@ public class ArtifactStoredEventListener
         }
 
         ArtifactArchiveListing artifactArchiveListing = artifactEntry.getArtifactArchiveListing();
-        if (artifactArchiveListing == null)
-        {
-            artifactArchiveListing = new ArtifactArchiveListing();
-            artifactEntry.setArtifactArchiveListing(artifactArchiveListing);
-        }
         artifactArchiveListing.setFilenames(archiveFilenames);
 
         return artifactEntry;

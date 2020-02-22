@@ -274,7 +274,7 @@ public class PypiArtifactCoordinates
      * @return Returns the reconstructed path from the stored coordinate values
      */
     @Override
-    public String toPath()
+    public String buildPath()
     {
         String fileName = SOURCE_EXTENSION.equals(getPackaging()) ? buildSourcePackageFileName()
                                                                   : buildWheelPackageFileName();

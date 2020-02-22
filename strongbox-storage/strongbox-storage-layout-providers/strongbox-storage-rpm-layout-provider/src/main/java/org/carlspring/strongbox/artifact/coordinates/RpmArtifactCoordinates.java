@@ -181,7 +181,7 @@ public class RpmArtifactCoordinates
     }
 
     @Override
-    public String toPath()
+    public String buildPath()
     {
         String path;
         if (RpmPackageType.SOURCE.getPostfix().equals(getPackageType()))
