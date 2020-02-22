@@ -9,8 +9,8 @@ import java.util.Map.Entry;
 import org.apache.tinkerpop.gremlin.process.traversal.Traverser;
 import org.apache.tinkerpop.gremlin.structure.Element;
 import org.apache.tinkerpop.gremlin.structure.Vertex;
-import org.carlspring.strongbox.artifact.coordinates.ArtifactCoordinatesEntity;
 import org.carlspring.strongbox.db.schema.Edges;
+import org.carlspring.strongbox.domain.GenericArtifactCoordinatesEntity;
 import org.carlspring.strongbox.gremlin.dsl.EntityTraversal;
 import org.carlspring.strongbox.gremlin.dsl.__;
 
@@ -19,13 +19,13 @@ import org.carlspring.strongbox.gremlin.dsl.__;
  *
  * @param <T>
  */
-public abstract class ArtifactCoordinatesEntityArapter<T extends ArtifactCoordinatesEntity<T, T>>
+public abstract class GenericArtifactCoordinatesEntityArapter<T extends GenericArtifactCoordinatesEntity>
         extends VertexEntityTraversalAdapter<T>
 {
 
     private final Class<T> artifactCoordinatesClass;
 
-    public ArtifactCoordinatesEntityArapter(Class<T> artifactCoordinatesClass)
+    public GenericArtifactCoordinatesEntityArapter(Class<T> artifactCoordinatesClass)
     {
         this.artifactCoordinatesClass = artifactCoordinatesClass;
     }
