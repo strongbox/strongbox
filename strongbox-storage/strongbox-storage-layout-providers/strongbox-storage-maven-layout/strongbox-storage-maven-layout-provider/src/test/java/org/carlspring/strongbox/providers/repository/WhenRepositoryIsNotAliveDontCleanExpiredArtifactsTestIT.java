@@ -59,7 +59,7 @@ public class WhenRepositoryIsNotAliveDontCleanExpiredArtifactsTestIT
         localStorageProxyRepositoryExpiredArtifactsCleaner.cleanup(5, artifactEntry.getSizeInBytes() - 1);
 
         Optional<ArtifactEntity> artifactEntryOptional = Optional.ofNullable(
-                artifactEntryService.findOneArtifact(proxyRepository.getStorage().getId(),
+                artifactEntityRepository.findOneArtifact(proxyRepository.getStorage().getId(),
                                                      proxyRepository.getId(),
                                                      getPath()));
 

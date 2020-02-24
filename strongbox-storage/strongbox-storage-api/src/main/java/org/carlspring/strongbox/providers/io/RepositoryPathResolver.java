@@ -1,17 +1,16 @@
 package org.carlspring.strongbox.providers.io;
 
-import org.carlspring.strongbox.artifact.coordinates.ArtifactCoordinates;
-import org.carlspring.strongbox.configuration.ConfigurationManager;
-import org.carlspring.strongbox.domain.Artifact;
-import org.carlspring.strongbox.domain.ArtifactEntity;
-import org.carlspring.strongbox.services.ArtifactEntryService;
-import org.carlspring.strongbox.storage.Storage;
-import org.carlspring.strongbox.storage.repository.Repository;
-
-import javax.inject.Inject;
 import java.io.IOException;
 import java.util.Objects;
 
+import javax.inject.Inject;
+
+import org.carlspring.strongbox.artifact.coordinates.ArtifactCoordinates;
+import org.carlspring.strongbox.configuration.ConfigurationManager;
+import org.carlspring.strongbox.domain.Artifact;
+import org.carlspring.strongbox.repositories.ArtifactEntityRepository;
+import org.carlspring.strongbox.storage.Storage;
+import org.carlspring.strongbox.storage.repository.Repository;
 import org.springframework.stereotype.Component;
 
 /**
@@ -25,7 +24,7 @@ public class RepositoryPathResolver
     protected ConfigurationManager configurationManager;
 
     @Inject
-    protected ArtifactEntryService artifactEntryService;
+    protected ArtifactEntityRepository artifactEntityRepository;
 
     @Inject
     protected RepositoryFileSystemRegistry fileSystemRegistry;
@@ -98,9 +97,9 @@ public class RepositoryPathResolver
                 return null;
             }
 
-            return artifactEntryService.findOneArtifact(getRepository().getStorage().getId(),
-                                                        getRepository().getId(),
-                                                        RepositoryFiles.relativizePath(this));
+            return artifactEntityRepository.findOneArtifact(getRepository().getStorage().getId(),
+                                                            getRepository().getId(),
+                                                            RepositoryFiles.relativizePath(this));
             // TODO: we should check this restriction 
 //            if (Files.exists(this) && !Files.isDirectory(this) && RepositoryFiles.isArtifact(this) && result == null)
 //            {

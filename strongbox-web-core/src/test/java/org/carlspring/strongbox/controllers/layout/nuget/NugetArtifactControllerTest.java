@@ -1,21 +1,9 @@
 package org.carlspring.strongbox.controllers.layout.nuget;
 
-import org.carlspring.strongbox.artifact.coordinates.NugetArtifactCoordinates;
-import org.carlspring.strongbox.config.IntegrationTest;
-import org.carlspring.strongbox.domain.ArtifactEntity;
-import org.carlspring.strongbox.domain.RemoteArtifactEntity;
-import org.carlspring.strongbox.providers.io.RepositoryFiles;
-import org.carlspring.strongbox.providers.io.RepositoryPath;
-import org.carlspring.strongbox.rest.common.NugetRestAssuredBaseTest;
-import org.carlspring.strongbox.services.ArtifactEntryService;
-import org.carlspring.strongbox.storage.metadata.nuget.rss.PackageFeed;
-import org.carlspring.strongbox.storage.repository.Repository;
-import org.carlspring.strongbox.testing.artifact.ArtifactManagementTestExecutionListener;
-import org.carlspring.strongbox.testing.artifact.NugetTestArtifact;
-import org.carlspring.strongbox.testing.repository.NugetRepository;
-import org.carlspring.strongbox.testing.storage.repository.RepositoryManagementTestExecutionListener;
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.carlspring.strongbox.utils.ArtifactControllerHelper.MULTIPART_BOUNDARY;
+import static org.hamcrest.CoreMatchers.equalTo;
 
-import javax.inject.Inject;
 import java.io.OutputStream;
 import java.io.PrintStream;
 import java.nio.file.Files;
@@ -24,12 +12,22 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import io.restassured.http.ContentType;
-import io.restassured.http.Header;
-import io.restassured.http.Headers;
-import io.restassured.module.mockmvc.config.RestAssuredMockMvcConfig;
-import io.restassured.module.mockmvc.response.MockMvcResponse;
-import io.restassured.module.mockmvc.specification.MockMvcRequestSpecification;
+import javax.inject.Inject;
+
+import org.carlspring.strongbox.artifact.coordinates.NugetArtifactCoordinates;
+import org.carlspring.strongbox.config.IntegrationTest;
+import org.carlspring.strongbox.domain.Artifact;
+import org.carlspring.strongbox.domain.RemoteArtifactEntity;
+import org.carlspring.strongbox.providers.io.RepositoryFiles;
+import org.carlspring.strongbox.providers.io.RepositoryPath;
+import org.carlspring.strongbox.repositories.ArtifactEntityRepository;
+import org.carlspring.strongbox.rest.common.NugetRestAssuredBaseTest;
+import org.carlspring.strongbox.storage.metadata.nuget.rss.PackageFeed;
+import org.carlspring.strongbox.storage.repository.Repository;
+import org.carlspring.strongbox.testing.artifact.ArtifactManagementTestExecutionListener;
+import org.carlspring.strongbox.testing.artifact.NugetTestArtifact;
+import org.carlspring.strongbox.testing.repository.NugetRepository;
+import org.carlspring.strongbox.testing.storage.repository.RepositoryManagementTestExecutionListener;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
@@ -37,9 +35,13 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
-import static org.assertj.core.api.Assertions.assertThat;
-import static org.carlspring.strongbox.utils.ArtifactControllerHelper.MULTIPART_BOUNDARY;
-import static org.hamcrest.CoreMatchers.equalTo;
+
+import io.restassured.http.ContentType;
+import io.restassured.http.Header;
+import io.restassured.http.Headers;
+import io.restassured.module.mockmvc.config.RestAssuredMockMvcConfig;
+import io.restassured.module.mockmvc.response.MockMvcResponse;
+import io.restassured.module.mockmvc.specification.MockMvcRequestSpecification;
 
 /**
  * @author Sergey Bespalov
@@ -64,7 +66,7 @@ public class NugetArtifactControllerTest extends NugetRestAssuredBaseTest
     private static final String REPOSITORY_RELEASES_3 = "nuget-test-releases-nact-3";
 
     @Inject
-    private ArtifactEntryService artifactEntryService;
+    private ArtifactEntityRepository artifactEntityRepository;
 
     @Override
     @BeforeEach
@@ -510,13 +512,13 @@ public class NugetArtifactControllerTest extends NugetRestAssuredBaseTest
         coordinatesMap.put("id", packageId);
         coordinatesMap.put("version", packageVersion);
 
-        List<ArtifactEntity> artifactEntryList = artifactEntryService.findArtifactList("storage-common-proxies",
-                                                                                      "nuget.org",
-                                                                                      coordinatesMap,
-                                                                                      true);
+        List<Artifact> artifactEntryList = artifactEntityRepository.findArtifactList("storage-common-proxies",
+                                                                                     "nuget.org",
+                                                                                     coordinatesMap,
+                                                                                     true);
         assertThat(artifactEntryList).isNotEmpty();
 
-        ArtifactEntity artifactEntry = artifactEntryList.iterator().next();
+        Artifact artifactEntry = artifactEntryList.iterator().next();
         
         assertThat(artifactEntry).isInstanceOf(RemoteArtifactEntity.class);
         assertThat(((RemoteArtifactEntity)artifactEntry).getIsCached()).isFalse();

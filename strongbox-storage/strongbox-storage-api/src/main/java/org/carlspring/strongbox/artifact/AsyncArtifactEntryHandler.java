@@ -1,5 +1,11 @@
 package org.carlspring.strongbox.artifact;
 
+import java.io.IOException;
+import java.lang.reflect.UndeclaredThrowableException;
+import java.util.concurrent.locks.Lock;
+
+import javax.inject.Inject;
+
 import org.carlspring.strongbox.domain.Artifact;
 import org.carlspring.strongbox.domain.ArtifactEntity;
 import org.carlspring.strongbox.event.AsyncEventListener;
@@ -8,29 +14,19 @@ import org.carlspring.strongbox.event.artifact.ArtifactEventTypeEnum;
 import org.carlspring.strongbox.providers.io.RepositoryFiles;
 import org.carlspring.strongbox.providers.io.RepositoryPath;
 import org.carlspring.strongbox.providers.io.RepositoryPathLock;
-import org.carlspring.strongbox.services.ArtifactEntryService;
-
-import javax.inject.Inject;
-import java.io.IOException;
-import java.lang.reflect.UndeclaredThrowableException;
-import java.util.concurrent.locks.Lock;
-
-import com.orientechnologies.common.concur.ONeedRetryException;
+import org.carlspring.strongbox.repositories.ArtifactEntityRepository;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.data.transaction.ChainedTransactionManager;
 import org.springframework.transaction.PlatformTransactionManager;
 import org.springframework.transaction.support.TransactionTemplate;
 
 public abstract class AsyncArtifactEntryHandler
 {
 
-    private static final int MAX_RETRY = 10;
-
     private static final Logger logger = LoggerFactory.getLogger(AsyncArtifactEntryHandler.class);
 
     @Inject
-    private ArtifactEntryService artifactEntryService;
+    private ArtifactEntityRepository artifactEntityRepository;
 
     @Inject
     private RepositoryPathLock repositoryPathLock;
@@ -42,7 +38,6 @@ public abstract class AsyncArtifactEntryHandler
 
     public AsyncArtifactEntryHandler(ArtifactEventTypeEnum eventType)
     {
-        super();
         this.eventType = eventType;
     }
 
@@ -93,7 +88,7 @@ public abstract class AsyncArtifactEntryHandler
         try
         {
             handleTransactional(repositoryPath);
-        } 
+        }
         finally
         {
             lock.unlock();
@@ -116,7 +111,7 @@ public abstract class AsyncArtifactEntryHandler
                     return null;
                 }
 
-                return artifactEntryService.save(result);
+                return artifactEntityRepository.save((ArtifactEntity) result);
             }
             catch (IOException e)
             {

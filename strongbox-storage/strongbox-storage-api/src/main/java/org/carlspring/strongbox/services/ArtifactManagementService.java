@@ -18,6 +18,7 @@ import org.apache.commons.io.IOUtils;
 import org.carlspring.strongbox.artifact.coordinates.ArtifactCoordinates;
 import org.carlspring.strongbox.configuration.Configuration;
 import org.carlspring.strongbox.configuration.ConfigurationManager;
+import org.carlspring.strongbox.domain.Artifact;
 import org.carlspring.strongbox.domain.ArtifactEntity;
 import org.carlspring.strongbox.event.artifact.ArtifactEventListenerRegistry;
 import org.carlspring.strongbox.io.LayoutOutputStream;
@@ -29,6 +30,7 @@ import org.carlspring.strongbox.providers.io.RepositoryPathResolver;
 import org.carlspring.strongbox.providers.io.RepositoryStreamSupport.RepositoryOutputStream;
 import org.carlspring.strongbox.providers.layout.LayoutFileSystemProvider;
 import org.carlspring.strongbox.providers.layout.LayoutProviderRegistry;
+import org.carlspring.strongbox.repositories.ArtifactEntityRepository;
 import org.carlspring.strongbox.storage.ArtifactStorageException;
 import org.carlspring.strongbox.storage.Storage;
 import org.carlspring.strongbox.storage.checksum.ArtifactChecksum;
@@ -63,7 +65,7 @@ public class ArtifactManagementService
     protected ConfigurationManager configurationManager;
 
     @Inject
-    protected ArtifactEntryService artifactEntryService;
+    protected ArtifactEntityRepository artifactEntityRepository;
 
     @Inject
     protected LayoutProviderRegistry layoutProviderRegistry;
@@ -334,7 +336,7 @@ public class ArtifactManagementService
 
         artifactOperationsValidator.checkAllowsDeletion(repository);
 
-        Optional<ArtifactEntity> artifactEntry = Optional.ofNullable(repositoryPath.getArtifactEntry());
+        Optional<Artifact> artifactEntry = Optional.ofNullable(repositoryPath.getArtifactEntry());
         if (!Files.isDirectory(repositoryPath) && RepositoryFiles.isArtifact(repositoryPath) && !artifactEntry.isPresent())
         {
             throw new IOException(String.format("Corresponding [%s] record not found for path [%s]",

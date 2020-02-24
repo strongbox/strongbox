@@ -1,20 +1,8 @@
 package org.carlspring.strongbox.cron.jobs;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.awaitility.Awaitility.await;
 
-import org.carlspring.strongbox.config.Maven2LayoutProviderCronTasksTestConfig;
-import org.carlspring.strongbox.data.CacheManagerTestExecutionListener;
-import org.carlspring.strongbox.domain.ArtifactEntity;
-import org.carlspring.strongbox.providers.io.RepositoryFiles;
-import org.carlspring.strongbox.providers.io.RepositoryPath;
-import org.carlspring.strongbox.providers.repository.ProxyRepositoryProvider;
-import org.carlspring.strongbox.services.ArtifactEntryService;
-import org.carlspring.strongbox.storage.repository.Repository;
-import org.carlspring.strongbox.testing.repository.MavenRepository;
-import org.carlspring.strongbox.testing.storage.repository.RepositoryManagementTestExecutionListener;
-import org.carlspring.strongbox.testing.storage.repository.TestRepository.Remote;
-
-import javax.inject.Inject;
 import java.io.IOException;
 import java.io.InputStream;
 import java.lang.reflect.UndeclaredThrowableException;
@@ -23,7 +11,20 @@ import java.util.Optional;
 import java.util.UUID;
 import java.util.concurrent.TimeUnit;
 
+import javax.inject.Inject;
+
 import org.apache.commons.lang.time.DateUtils;
+import org.carlspring.strongbox.config.Maven2LayoutProviderCronTasksTestConfig;
+import org.carlspring.strongbox.data.CacheManagerTestExecutionListener;
+import org.carlspring.strongbox.domain.ArtifactEntity;
+import org.carlspring.strongbox.providers.io.RepositoryFiles;
+import org.carlspring.strongbox.providers.io.RepositoryPath;
+import org.carlspring.strongbox.providers.repository.ProxyRepositoryProvider;
+import org.carlspring.strongbox.repositories.ArtifactEntityRepository;
+import org.carlspring.strongbox.storage.repository.Repository;
+import org.carlspring.strongbox.testing.repository.MavenRepository;
+import org.carlspring.strongbox.testing.storage.repository.RepositoryManagementTestExecutionListener;
+import org.carlspring.strongbox.testing.storage.repository.TestRepository.Remote;
 import org.codehaus.plexus.util.StringUtils;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -31,7 +32,6 @@ import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.TestExecutionListeners;
-import static org.awaitility.Awaitility.await;
 
 /**
  * @author Przemyslaw Fusik
@@ -56,7 +56,7 @@ public class CleanupExpiredArtifactsFromProxyRepositoriesCronJobTestIT
     private ProxyRepositoryProvider proxyRepositoryProvider;
 
     @Inject
-    private ArtifactEntryService artifactEntryService;
+    private ArtifactEntityRepository artifactEntityRepository;
 
     @ExtendWith(RepositoryManagementTestExecutionListener.class)
     @Test
@@ -71,10 +71,9 @@ public class CleanupExpiredArtifactsFromProxyRepositoriesCronJobTestIT
         final String repositoryId = repository.getId();
         final String artifactPathStr = "org/carlspring/properties-injector/1.5/properties-injector-1.5.jar";
 
-        Optional<ArtifactEntity> artifactEntryOptional = Optional.ofNullable(
-                artifactEntryService.findOneArtifact(storageId,
-                                                     repositoryId,
-                                                     artifactPathStr));
+        Optional<ArtifactEntity> artifactEntryOptional = Optional.ofNullable(artifactEntityRepository.findOneArtifact(storageId,
+                                                                                                                      repositoryId,
+                                                                                                                      artifactPathStr));
         assertThat(artifactEntryOptional).isEqualTo(Optional.empty());
 
         Path repositoryPath = proxyRepositoryProvider.fetchPath(repositoryPathResolver.resolve(storageId,
@@ -84,9 +83,9 @@ public class CleanupExpiredArtifactsFromProxyRepositoriesCronJobTestIT
         {
         }
 
-        artifactEntryOptional = Optional.ofNullable(artifactEntryService.findOneArtifact(storageId,
-                                                                                         repositoryId,
-                                                                                         artifactPathStr));
+        artifactEntryOptional = Optional.ofNullable(artifactEntityRepository.findOneArtifact(storageId,
+                                                                                             repositoryId,
+                                                                                             artifactPathStr));
         ArtifactEntity artifactEntry = artifactEntryOptional.orElse(null);
         assertThat(artifactEntry).isNotNull();
         assertThat(artifactEntry.getLastUpdated()).isNotNull();
@@ -98,7 +97,7 @@ public class CleanupExpiredArtifactsFromProxyRepositoriesCronJobTestIT
                 DateUtils.addDays(artifactEntry.getLastUsed(), -10));
         final Long sizeInBytes = artifactEntry.getSizeInBytes();
 
-        artifactEntryService.save(artifactEntry);
+        artifactEntityRepository.save(artifactEntry);
 
         final UUID jobKey = expectedJobKey;
         final String jobName = expectedJobName;
@@ -107,7 +106,7 @@ public class CleanupExpiredArtifactsFromProxyRepositoriesCronJobTestIT
             if (StringUtils.equals(jobKey1, jobKey.toString()) && statusExecuted)
             {
                 Optional<ArtifactEntity> optionalArtifactEntryFromDb = Optional.ofNullable(
-                        artifactEntryService.findOneArtifact(storageId,
+                        artifactEntityRepository.findOneArtifact(storageId,
                                                              repositoryId,
                                                              artifactPathStr));
                 assertThat(optionalArtifactEntryFromDb).isEqualTo(Optional.empty());

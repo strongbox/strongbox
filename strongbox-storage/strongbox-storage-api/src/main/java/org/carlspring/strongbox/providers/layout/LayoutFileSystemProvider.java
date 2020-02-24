@@ -1,5 +1,20 @@
 package org.carlspring.strongbox.providers.layout;
 
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.OutputStream;
+import java.nio.file.Files;
+import java.nio.file.OpenOption;
+import java.nio.file.Path;
+import java.nio.file.spi.FileSystemProvider;
+import java.security.NoSuchAlgorithmException;
+import java.util.Collections;
+import java.util.Map;
+import java.util.Optional;
+import java.util.Set;
+
+import javax.inject.Inject;
+
 import org.carlspring.commons.io.reloading.FSReloadableInputStreamHandler;
 import org.carlspring.strongbox.artifact.ArtifactNotFoundException;
 import org.carlspring.strongbox.domain.Artifact;
@@ -17,25 +32,10 @@ import org.carlspring.strongbox.providers.io.RepositoryFileAttributeType;
 import org.carlspring.strongbox.providers.io.RepositoryFiles;
 import org.carlspring.strongbox.providers.io.RepositoryPath;
 import org.carlspring.strongbox.providers.io.StorageFileSystemProvider;
-import org.carlspring.strongbox.services.ArtifactEntryService;
+import org.carlspring.strongbox.repositories.ArtifactEntityRepository;
 import org.carlspring.strongbox.storage.ArtifactResolutionException;
 import org.carlspring.strongbox.storage.Storage;
 import org.carlspring.strongbox.storage.repository.Repository;
-
-import javax.inject.Inject;
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.OutputStream;
-import java.nio.file.Files;
-import java.nio.file.OpenOption;
-import java.nio.file.Path;
-import java.nio.file.spi.FileSystemProvider;
-import java.security.NoSuchAlgorithmException;
-import java.util.Collections;
-import java.util.Map;
-import java.util.Optional;
-import java.util.Set;
-
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -59,7 +59,7 @@ public abstract class LayoutFileSystemProvider extends StorageFileSystemProvider
     private RepositoryEventListenerRegistry repositoryEventListenerRegistry;
     
     @Inject
-    private ArtifactEntryService artifactEntryService;
+    private ArtifactEntityRepository artifactEntityRepository;
 
 
     public LayoutFileSystemProvider(FileSystemProvider storageFileSystemProvider)
@@ -282,13 +282,13 @@ public abstract class LayoutFileSystemProvider extends StorageFileSystemProvider
                                          .orElseGet(() -> fetchArtifactEntry(repositoryPath));
         if (artifactEntry != null)
         {
-            artifactEntryService.delete(artifactEntry);
+            artifactEntityRepository.delete((ArtifactEntity) artifactEntry);
         }
         
         super.doDeletePath(repositoryPath, force);
     }
 
-    private ArtifactEntity fetchArtifactEntry(RepositoryPath repositoryPath)
+    private Artifact fetchArtifactEntry(RepositoryPath repositoryPath)
     {
         Repository repository = repositoryPath.getRepository();
         String path;
@@ -302,9 +302,9 @@ public abstract class LayoutFileSystemProvider extends StorageFileSystemProvider
             return null;
         }
 
-        return artifactEntryService.findOneArtifact(repository.getStorage().getId(),
-                                                    repository.getId(),
-                                                    path);
+        return artifactEntityRepository.findOneArtifact(repository.getStorage().getId(),
+                                                        repository.getId(),
+                                                        path);
     }
 
     @Override

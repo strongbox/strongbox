@@ -1,19 +1,6 @@
 package org.carlspring.strongbox.providers.repository;
 
 
-import org.carlspring.strongbox.data.criteria.Paginator;
-import org.carlspring.strongbox.data.criteria.Predicate;
-import org.carlspring.strongbox.domain.ArtifactEntity;
-import org.carlspring.strongbox.domain.RemoteArtifactEntity;
-import org.carlspring.strongbox.providers.io.AbstractRepositoryProvider;
-import org.carlspring.strongbox.providers.io.RepositoryFiles;
-import org.carlspring.strongbox.providers.io.RepositoryPath;
-import org.carlspring.strongbox.providers.io.RepositoryPathLock;
-import org.carlspring.strongbox.providers.repository.event.ProxyRepositoryPathExpiredEvent;
-import org.carlspring.strongbox.providers.repository.event.RemoteRepositorySearchEvent;
-import org.carlspring.strongbox.providers.repository.proxied.ProxyRepositoryArtifactResolver;
-
-import javax.inject.Inject;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
@@ -23,6 +10,19 @@ import java.util.List;
 import java.util.concurrent.locks.Lock;
 import java.util.concurrent.locks.ReadWriteLock;
 
+import javax.inject.Inject;
+
+import org.carlspring.strongbox.data.criteria.Paginator;
+import org.carlspring.strongbox.data.criteria.Predicate;
+import org.carlspring.strongbox.domain.Artifact;
+import org.carlspring.strongbox.domain.RemoteArtifactEntity;
+import org.carlspring.strongbox.providers.io.AbstractRepositoryProvider;
+import org.carlspring.strongbox.providers.io.RepositoryFiles;
+import org.carlspring.strongbox.providers.io.RepositoryPath;
+import org.carlspring.strongbox.providers.io.RepositoryPathLock;
+import org.carlspring.strongbox.providers.repository.event.ProxyRepositoryPathExpiredEvent;
+import org.carlspring.strongbox.providers.repository.event.RemoteRepositorySearchEvent;
+import org.carlspring.strongbox.providers.repository.proxied.ProxyRepositoryArtifactResolver;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Component;
@@ -144,19 +144,19 @@ public class ProxyRepositoryProvider
     }
 
     @Override
-    protected ArtifactEntity provideArtifactEntry(RepositoryPath repositoryPath) throws IOException
+    protected Artifact provideArtifact(RepositoryPath repositoryPath) throws IOException
     {
-        ArtifactEntity artifactEntry = super.provideArtifactEntry(repositoryPath);
-        ArtifactEntity remoteArtifactEntry = artifactEntry.getUuid() == null ? new RemoteArtifactEntity() : (RemoteArtifactEntity) artifactEntry;
+        Artifact artifactEntry = super.provideArtifact(repositoryPath);
+        Artifact remoteArtifactEntry = artifactEntry.getUuid() == null ? new RemoteArtifactEntity() : (RemoteArtifactEntity) artifactEntry;
 
         return remoteArtifactEntry;
     }
 
     @Override
-    protected boolean shouldStoreArtifactEntry(ArtifactEntity artifactEntry)
+    protected boolean shouldStoreArtifact(Artifact artifactEntry)
     {
         RemoteArtifactEntity remoteArtifactEntry = (RemoteArtifactEntity) artifactEntry;
-        boolean result = super.shouldStoreArtifactEntry(artifactEntry) || !remoteArtifactEntry.getIsCached();
+        boolean result = super.shouldStoreArtifact(artifactEntry) || !remoteArtifactEntry.getIsCached();
 
         remoteArtifactEntry.setIsCached(true);
 

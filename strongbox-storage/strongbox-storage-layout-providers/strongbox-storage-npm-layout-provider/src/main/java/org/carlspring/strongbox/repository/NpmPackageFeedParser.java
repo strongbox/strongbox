@@ -8,11 +8,11 @@ import java.util.Set;
 import java.util.concurrent.locks.Lock;
 
 import javax.inject.Inject;
-import javax.transaction.Transactional;
 
 import org.carlspring.strongbox.artifact.ArtifactTag;
 import org.carlspring.strongbox.artifact.coordinates.ArtifactCoordinates;
 import org.carlspring.strongbox.artifact.coordinates.NpmArtifactCoordinates;
+import org.carlspring.strongbox.domain.Artifact;
 import org.carlspring.strongbox.domain.ArtifactEntity;
 import org.carlspring.strongbox.domain.ArtifactTagEntity;
 import org.carlspring.strongbox.domain.RemoteArtifactEntity;
@@ -27,7 +27,7 @@ import org.carlspring.strongbox.providers.io.RepositoryFiles;
 import org.carlspring.strongbox.providers.io.RepositoryPath;
 import org.carlspring.strongbox.providers.io.RepositoryPathLock;
 import org.carlspring.strongbox.providers.io.RepositoryPathResolver;
-import org.carlspring.strongbox.services.ArtifactEntryService;
+import org.carlspring.strongbox.repositories.ArtifactEntityRepository;
 import org.carlspring.strongbox.services.ArtifactTagService;
 import org.carlspring.strongbox.services.RepositoryArtifactIdGroupService;
 import org.carlspring.strongbox.storage.Storage;
@@ -35,6 +35,7 @@ import org.carlspring.strongbox.storage.repository.Repository;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Component;
+import org.springframework.transaction.annotation.Transactional;
 
 @Component
 public class NpmPackageFeedParser
@@ -49,7 +50,7 @@ public class NpmPackageFeedParser
     private RepositoryPathResolver repositoryPathResolver;
 
     @Inject
-    private ArtifactEntryService artifactEntryService;
+    private ArtifactEntityRepository artifactEntityRepository;
     
     @Inject
     private RepositoryArtifactIdGroupService repositoryArtifactIdGroupService;
@@ -66,7 +67,7 @@ public class NpmPackageFeedParser
         String repositoryId = repository.getId();
         String storageId = repository.getStorage().getId();
 
-        Set<ArtifactEntity> artifactToSaveSet = new HashSet<>();
+        Set<Artifact> artifactToSaveSet = new HashSet<>();
         for (SearchResult searchResult : searchResults.getObjects())
         {
             PackageEntry packageEntry = searchResult.getPackage();
@@ -86,13 +87,12 @@ public class NpmPackageFeedParser
     }
 
     private void saveArtifactEntrySet(Repository repository,
-                                      Set<ArtifactEntity> artifactToSaveSet)
+                                      Set<Artifact> artifactToSaveSet)
         throws IOException
     {
-        for (ArtifactEntity e : artifactToSaveSet)
+        for (Artifact e : artifactToSaveSet)
         {
             RepositoryPath repositoryPath = repositoryPathResolver.resolve(repository).resolve(e);
-
             saveArtifactEntry(repositoryPath);
         }
     }
@@ -124,7 +124,7 @@ public class NpmPackageFeedParser
             return;
         }
 
-        Set<ArtifactEntity> artifactToSaveSet = new HashSet<>();
+        Set<Artifact> artifactToSaveSet = new HashSet<>();
         for (PackageVersion packageVersion : versionMap.values())
         {
             RemoteArtifactEntity remoteArtifactEntry = parseVersion(storageId, repositoryId, packageVersion);
@@ -148,7 +148,7 @@ public class NpmPackageFeedParser
     private void saveArtifactEntry(RepositoryPath repositoryPath)
         throws IOException
     {
-        ArtifactEntity e = repositoryPath.getArtifactEntry();
+        Artifact e = repositoryPath.getArtifactEntry();
         
         Repository repository = repositoryPath.getRepository();
         Storage storage = repository.getStorage();
@@ -159,7 +159,7 @@ public class NpmPackageFeedParser
 
         try
         {
-            if (artifactEntryService.artifactExists(e.getStorageId(), e.getRepositoryId(),
+            if (artifactEntityRepository.artifactExists(e.getStorageId(), e.getRepositoryId(),
                                                     e.getArtifactCoordinates().buildPath()))
             {
                 return;

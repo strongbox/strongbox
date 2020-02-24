@@ -32,7 +32,7 @@ import org.carlspring.strongbox.providers.io.RepositoryStreamSupport.RepositoryO
 import org.carlspring.strongbox.providers.layout.LayoutProviderRegistry;
 import org.carlspring.strongbox.providers.repository.RepositoryProvider;
 import org.carlspring.strongbox.providers.repository.RepositoryProviderRegistry;
-import org.carlspring.strongbox.services.ArtifactEntryService;
+import org.carlspring.strongbox.repositories.ArtifactEntityRepository;
 import org.carlspring.strongbox.services.RepositoryArtifactIdGroupService;
 import org.carlspring.strongbox.storage.Storage;
 import org.carlspring.strongbox.storage.repository.Repository;
@@ -59,7 +59,7 @@ public abstract class AbstractRepositoryProvider implements RepositoryProvider, 
     protected ConfigurationManager configurationManager;
 
     @Inject
-    protected ArtifactEntryService artifactEntryService;
+    protected ArtifactEntityRepository artifactEntityRepository;
     
     @Inject
     private RepositoryArtifactIdGroupService repositoryArtifactIdGroupService;
@@ -149,8 +149,8 @@ public abstract class AbstractRepositoryProvider implements RepositoryProvider, 
         String storageId = repository.getStorage().getId();
         String repositoryId = repository.getId();
 
-        ArtifactEntity artifactEntry = provideArtifactEntry(repositoryPath);
-        if (!shouldStoreArtifactEntry(artifactEntry))
+        Artifact artifactEntry = provideArtifact(repositoryPath);
+        if (!shouldStoreArtifact(artifactEntry))
         {
             return;
         }
@@ -166,7 +166,7 @@ public abstract class AbstractRepositoryProvider implements RepositoryProvider, 
         artifactEntry.setLastUpdated(now);
         artifactEntry.setLastUsed(now);
 
-        repositoryPath.artifactEntry = artifactEntry;
+        repositoryPath.artifact = artifactEntry;
     }
 
     @Override
@@ -211,13 +211,13 @@ public abstract class AbstractRepositoryProvider implements RepositoryProvider, 
     public void commit(RepositoryStreamWriteContext ctx) throws IOException
     {
         RepositoryPath repositoryPath = (RepositoryPath) ctx.getPath();
-        ArtifactEntity artifactEntry = repositoryPath.artifactEntry;
+        Artifact artifactEntry = repositoryPath.artifact;
         
         Repository repository = repositoryPath.getRepository();
         Storage storage = repository.getStorage();
         ArtifactCoordinates coordinates = RepositoryFiles.readCoordinates(repositoryPath);
         
-        repositoryPath.artifactEntry = null;
+        repositoryPath.artifact = null;
         if (artifactEntry == null)
         {
             return;
@@ -234,13 +234,13 @@ public abstract class AbstractRepositoryProvider implements RepositoryProvider, 
         repositoryArtifactIdGroupService.addArtifactToGroup(artifactGroup, artifactEntry);
     }
 
-    protected Artifact provideArtifactEntry(RepositoryPath repositoryPath) throws IOException
+    protected Artifact provideArtifact(RepositoryPath repositoryPath) throws IOException
     {
         return Optional.ofNullable(repositoryPath.getArtifactEntry())
                        .orElse(new ArtifactEntity());
     }
     
-    protected boolean shouldStoreArtifactEntry(ArtifactEntity artifactEntry)
+    protected boolean shouldStoreArtifact(Artifact artifactEntry)
     {
         return artifactEntry.getUuid() == null;
     }

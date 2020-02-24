@@ -7,7 +7,6 @@ import org.carlspring.strongbox.services.RepositoryArtifactIdGroupService;
 
 import javax.inject.Inject;
 
-import com.orientechnologies.orient.core.storage.ORecordDuplicatedException;
 import org.junit.jupiter.api.Test;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.context.ActiveProfiles;

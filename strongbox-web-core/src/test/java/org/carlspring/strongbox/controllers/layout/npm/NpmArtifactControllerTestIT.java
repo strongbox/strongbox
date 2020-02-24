@@ -1,11 +1,21 @@
 package org.carlspring.strongbox.controllers.layout.npm;
 
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.carlspring.strongbox.utils.ArtifactControllerHelper.MULTIPART_BOUNDARY;
+import static org.hamcrest.Matchers.equalTo;
+import static org.hamcrest.Matchers.greaterThan;
+import static org.hamcrest.Matchers.hasItem;
+
+import java.nio.file.Path;
+
+import javax.inject.Inject;
+
 import org.carlspring.strongbox.artifact.coordinates.NpmArtifactCoordinates;
 import org.carlspring.strongbox.config.IntegrationTest;
-import org.carlspring.strongbox.domain.ArtifactEntity;
+import org.carlspring.strongbox.domain.Artifact;
 import org.carlspring.strongbox.domain.RemoteArtifactEntity;
+import org.carlspring.strongbox.repositories.ArtifactEntityRepository;
 import org.carlspring.strongbox.rest.common.NpmRestAssuredBaseTest;
-import org.carlspring.strongbox.services.ArtifactEntryService;
 import org.carlspring.strongbox.storage.repository.Repository;
 import org.carlspring.strongbox.testing.artifact.ArtifactManagementTestExecutionListener;
 import org.carlspring.strongbox.testing.artifact.NpmTestArtifact;
@@ -13,22 +23,14 @@ import org.carlspring.strongbox.testing.repository.NpmRepository;
 import org.carlspring.strongbox.testing.storage.repository.RepositoryManagementTestExecutionListener;
 import org.carlspring.strongbox.testing.storage.repository.TestRepository.Group;
 import org.carlspring.strongbox.testing.storage.repository.TestRepository.Remote;
-
-import javax.inject.Inject;
-import java.nio.file.Path;
-
-import io.restassured.module.mockmvc.response.MockMvcResponse;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
-import static org.assertj.core.api.Assertions.assertThat;
-import static org.carlspring.strongbox.utils.ArtifactControllerHelper.MULTIPART_BOUNDARY;
-import static org.hamcrest.Matchers.equalTo;
-import static org.hamcrest.Matchers.greaterThan;
-import static org.hamcrest.Matchers.hasItem;
+
+import io.restassured.module.mockmvc.response.MockMvcResponse;
 
 /**
  * @author Pablo Tirado
@@ -49,7 +51,7 @@ public class NpmArtifactControllerTestIT
     private static final String REMOTE_URL = "https://registry.npmjs.org/";
 
     @Inject
-    private ArtifactEntryService artifactEntryService;
+    private ArtifactEntityRepository artifactEntityRepository;
 
     @Override
     @BeforeEach
@@ -123,9 +125,9 @@ public class NpmArtifactControllerTestIT
                .body("name", equalTo("react"))
                .body("versions.size()", greaterThan(0));
 
-        ArtifactEntity artifactEntry = artifactEntryService.findOneArtifact(storageId,
-                                                                           repositoryId,
-                                                                           coordinates.buildPath());
+        Artifact artifactEntry = artifactEntityRepository.findOneArtifact(storageId,
+                                                                          repositoryId,
+                                                                          coordinates.buildPath());
         assertThat(artifactEntry).isNotNull();
         assertThat(artifactEntry).isInstanceOf(RemoteArtifactEntity.class);
         assertThat(((RemoteArtifactEntity)artifactEntry).getIsCached()).isFalse();
@@ -150,9 +152,9 @@ public class NpmArtifactControllerTestIT
                .and()
                .body("objects.package.name", hasItem("Reston"));
         
-        ArtifactEntity artifactEntry = artifactEntryService.findOneArtifact(storageId,
-                                                                           repositoryId,
-                                                                           "Reston/Reston/0.2.0/Reston-0.2.0.tgz");
+        Artifact artifactEntry = artifactEntityRepository.findOneArtifact(storageId,
+                                                                          repositoryId,
+                                                                          "Reston/Reston/0.2.0/Reston-0.2.0.tgz");
         assertThat(artifactEntry).isNotNull();
         assertThat(artifactEntry).isInstanceOf(RemoteArtifactEntity.class);
         assertThat(((RemoteArtifactEntity)artifactEntry).getIsCached()).isFalse();

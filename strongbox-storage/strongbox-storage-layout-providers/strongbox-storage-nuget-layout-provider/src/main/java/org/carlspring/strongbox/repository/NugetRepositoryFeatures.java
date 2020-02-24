@@ -1,5 +1,21 @@
 package org.carlspring.strongbox.repository;
 
+import java.io.IOException;
+import java.util.Arrays;
+import java.util.Date;
+import java.util.HashSet;
+import java.util.LinkedHashSet;
+import java.util.Optional;
+import java.util.Set;
+import java.util.concurrent.locks.Lock;
+
+import javax.annotation.PostConstruct;
+import javax.inject.Inject;
+import javax.persistence.EntityManager;
+import javax.persistence.PersistenceContext;
+import javax.ws.rs.client.Client;
+import javax.ws.rs.client.WebTarget;
+
 import org.carlspring.strongbox.artifact.ArtifactTag;
 import org.carlspring.strongbox.artifact.coordinates.ArtifactCoordinates;
 import org.carlspring.strongbox.artifact.coordinates.NugetArtifactCoordinates;
@@ -11,6 +27,7 @@ import org.carlspring.strongbox.data.criteria.OQueryTemplate;
 import org.carlspring.strongbox.data.criteria.Paginator;
 import org.carlspring.strongbox.data.criteria.Predicate;
 import org.carlspring.strongbox.data.criteria.Selector;
+import org.carlspring.strongbox.domain.Artifact;
 import org.carlspring.strongbox.domain.ArtifactEntity;
 import org.carlspring.strongbox.domain.ArtifactTagEntity;
 import org.carlspring.strongbox.domain.RemoteArtifactEntity;
@@ -21,8 +38,8 @@ import org.carlspring.strongbox.providers.io.RepositoryPath;
 import org.carlspring.strongbox.providers.io.RepositoryPathLock;
 import org.carlspring.strongbox.providers.io.RepositoryPathResolver;
 import org.carlspring.strongbox.providers.repository.event.RemoteRepositorySearchEvent;
+import org.carlspring.strongbox.repositories.ArtifactEntityRepository;
 import org.carlspring.strongbox.service.ProxyRepositoryConnectionPoolConfigurationService;
-import org.carlspring.strongbox.services.ArtifactEntryService;
 import org.carlspring.strongbox.services.ArtifactTagService;
 import org.carlspring.strongbox.services.RepositoryArtifactIdGroupService;
 import org.carlspring.strongbox.storage.Storage;
@@ -35,17 +52,6 @@ import org.carlspring.strongbox.storage.validation.artifact.version.GenericRelea
 import org.carlspring.strongbox.storage.validation.artifact.version.GenericSnapshotVersionValidator;
 import org.carlspring.strongbox.storage.validation.deployment.RedeploymentValidator;
 import org.carlspring.strongbox.yaml.configuration.repository.NugetRepositoryConfiguration;
-
-import javax.annotation.PostConstruct;
-import javax.inject.Inject;
-import javax.persistence.EntityManager;
-import javax.persistence.PersistenceContext;
-import javax.ws.rs.client.Client;
-import javax.ws.rs.client.WebTarget;
-import java.io.IOException;
-import java.util.*;
-import java.util.concurrent.locks.Lock;
-
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.context.annotation.Scope;
@@ -71,7 +77,7 @@ public class NugetRepositoryFeatures
     private ConfigurationManager configurationManager;
 
     @Inject
-    private ArtifactEntryService artifactEntryService;
+    private ArtifactEntityRepository artifactEntityRepository;
 
     @Inject
     private ArtifactTagService artifactTagService;
@@ -203,7 +209,7 @@ public class NugetRepositoryFeatures
 
         ArtifactTag lastVersionTag = artifactTagService.findOneOrCreate(ArtifactTagEntity.LAST_VERSION);
 
-        Set<ArtifactEntity> artifactToSaveSet = new HashSet<>();
+        Set<Artifact> artifactToSaveSet = new HashSet<>();
         for (PackageEntry packageEntry : packageFeed.getEntries())
         {
             String packageId = packageEntry.getProperties().getId();
@@ -211,7 +217,7 @@ public class NugetRepositoryFeatures
             String packageVersion = packageEntry.getProperties().getVersion().toString();
 
             NugetArtifactCoordinates c = new NugetArtifactCoordinates(packageId, packageVersion, "nupkg");
-            if (artifactEntryService.artifactExists(storageId, repositoryId, c.buildPath()))
+            if (artifactEntityRepository.artifactExists(storageId, repositoryId, c.buildPath()))
             {
                 continue;
             }
@@ -234,7 +240,7 @@ public class NugetRepositoryFeatures
             artifactToSaveSet.add(remoteArtifactEntry);
         }
 
-        for (ArtifactEntity e : artifactToSaveSet)
+        for (Artifact e : artifactToSaveSet)
         {
             RepositoryPath repositoryPath = repositoryPathResolver.resolve(repository, (NugetArtifactCoordinates) e.getArtifactCoordinates());
 

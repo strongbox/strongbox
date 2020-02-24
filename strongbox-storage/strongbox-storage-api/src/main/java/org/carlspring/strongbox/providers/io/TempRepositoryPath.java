@@ -45,7 +45,7 @@ public class TempRepositoryPath extends RepositoryPath
 
         TempRepositoryPath result = new TempRepositoryPath(tempPath);
         result.tempTarget = path;
-        result.artifactEntry = path.artifactEntry;
+        result.artifact = path.artifact;
 
         return result;
     }

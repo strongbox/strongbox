@@ -11,11 +11,11 @@ import javax.inject.Inject;
 import org.carlspring.strongbox.artifact.coordinates.NugetArtifactCoordinates;
 import org.carlspring.strongbox.client.ArtifactTransportException;
 import org.carlspring.strongbox.config.NugetLayoutProviderTestConfig;
-import org.carlspring.strongbox.domain.ArtifactEntity;
+import org.carlspring.strongbox.domain.Artifact;
 import org.carlspring.strongbox.domain.RemoteArtifactEntity;
 import org.carlspring.strongbox.nuget.NugetSearchRequest;
+import org.carlspring.strongbox.repositories.ArtifactEntityRepository;
 import org.carlspring.strongbox.repository.NugetRepositoryFeatures;
-import org.carlspring.strongbox.services.ArtifactEntryService;
 import org.carlspring.strongbox.storage.repository.Repository;
 import org.carlspring.strongbox.testing.repository.NugetRepository;
 import org.carlspring.strongbox.testing.storage.repository.RepositoryManagementTestExecutionListener;
@@ -43,7 +43,7 @@ public class NugetRemoteRepositoryTest
     private static final String REMOTE_URL = "https://www.nuget.org/api/v2";
 
     @Inject
-    private ArtifactEntryService artifactEntryService;
+    private ArtifactEntityRepository artifactEntityRepository;
 
     @Inject
     private NugetRepositoryFeatures features;
@@ -63,10 +63,10 @@ public class NugetRemoteRepositoryTest
                                     nugetSearchRequest);
 
         NugetArtifactCoordinates coordinates = new NugetArtifactCoordinates("NHibernate", "4.0.4.4000");
-        ArtifactEntity artifactEntry = artifactEntryService.findOneArtifact(repository.getStorage().getId(),
-                                                                           repository.getId(),
-                                                                           coordinates.buildPath());
-        Optional<ArtifactEntity> optionalArtifactEntry = Optional.ofNullable(artifactEntry);
+        Artifact artifactEntry = artifactEntityRepository.findOneArtifact(repository.getStorage().getId(),
+                                                                                repository.getId(),
+                                                                                coordinates.buildPath());
+        Optional<Artifact> optionalArtifactEntry = Optional.ofNullable(artifactEntry);
 
         assertThat(optionalArtifactEntry).isPresent();
         assertThat(((RemoteArtifactEntity) optionalArtifactEntry.get()).getIsCached()).isFalse();
