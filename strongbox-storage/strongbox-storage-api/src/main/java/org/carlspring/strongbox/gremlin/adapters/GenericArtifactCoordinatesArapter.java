@@ -8,7 +8,9 @@ import java.util.Map.Entry;
 
 import org.apache.tinkerpop.gremlin.process.traversal.Traverser;
 import org.apache.tinkerpop.gremlin.structure.Element;
+import org.apache.tinkerpop.gremlin.structure.T;
 import org.apache.tinkerpop.gremlin.structure.Vertex;
+import org.carlspring.strongbox.artifact.coordinates.GenericArtifactCoordinates;
 import org.carlspring.strongbox.db.schema.Edges;
 import org.carlspring.strongbox.domain.GenericArtifactCoordinatesEntity;
 import org.carlspring.strongbox.gremlin.dsl.EntityTraversal;
@@ -19,19 +21,11 @@ import org.carlspring.strongbox.gremlin.dsl.__;
  *
  * @param <T>
  */
-public abstract class GenericArtifactCoordinatesEntityArapter<T extends GenericArtifactCoordinatesEntity>
-        extends VertexEntityTraversalAdapter<T>
+public abstract class GenericArtifactCoordinatesArapter extends VertexEntityTraversalAdapter<GenericArtifactCoordinates>
 {
 
-    private final Class<T> artifactCoordinatesClass;
-
-    public GenericArtifactCoordinatesEntityArapter(Class<T> artifactCoordinatesClass)
-    {
-        this.artifactCoordinatesClass = artifactCoordinatesClass;
-    }
-
     @Override
-    public EntityTraversal<Vertex, T> fold()
+    public EntityTraversal<Vertex, GenericArtifactCoordinates> fold()
     {
         return __.<Vertex, Object>project("uuid", "path")
                  .by(__.enrichPropertyValue("uuid"))
@@ -40,35 +34,17 @@ public abstract class GenericArtifactCoordinatesEntityArapter<T extends GenericA
                  .map(this::map);
     }
 
-    private T map(Traverser<Map<String, Object>> t)
+    private GenericArtifactCoordinates map(Traverser<Map<String, Object>> t)
     {
-        T result = createNewInstance();
+        GenericArtifactCoordinatesEntity result = new GenericArtifactCoordinatesEntity();
         result.setUuid(extractObject(String.class, t.get().get("uuid")));
         result.setVersion(extractObject(String.class, t.get().get("version")));
 
         return result;
     }
 
-    protected T createNewInstance()
-    {
-        Class<T> artifactCoordinatesClass = getArtifactCoordinatesClass();
-        try
-        {
-            return artifactCoordinatesClass.newInstance();
-        }
-        catch (InstantiationException | IllegalAccessException e)
-        {
-            throw new RuntimeException(String.format("Failed to create [%s] instance.", getArtifactCoordinatesClass()));
-        }
-    }
-
-    protected Class<T> getArtifactCoordinatesClass()
-    {
-        return artifactCoordinatesClass;
-    }
-
     @Override
-    public EntityTraversal<Vertex, Vertex> unfold(T entity)
+    public EntityTraversal<Vertex, Vertex> unfold(GenericArtifactCoordinates entity)
     {
         EntityTraversal<Vertex, Vertex> t = __.<Vertex>identity();
         for (Entry<String, String> coordinateEntry : entity.getCoordinates().entrySet())
