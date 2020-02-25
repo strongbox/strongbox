@@ -78,7 +78,7 @@ public class ArtifactIdGroupEntity extends DomainEntity implements ArtifactIdGro
         artifactGroup.setName(name);
     }
 
-    public Set<ArtifactEntity> getArtifacts()
+    public Set<Artifact> getArtifacts()
     {
         return artifactGroup.getArtifacts();
     }

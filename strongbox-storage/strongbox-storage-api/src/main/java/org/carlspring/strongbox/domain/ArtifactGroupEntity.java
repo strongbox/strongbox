@@ -14,7 +14,7 @@ import org.neo4j.ogm.annotation.Relationship;
  * @author Przemyslaw Fusik
  */
 @NodeEntity(Vertices.ARTIFACT_GROUP)
-public class ArtifactGroupEntity extends DomainEntity implements ArtifactGroup<ArtifactEntity>
+public class ArtifactGroupEntity extends DomainEntity implements ArtifactGroup
 {
 
     private String name;
@@ -32,7 +32,7 @@ public class ArtifactGroupEntity extends DomainEntity implements ArtifactGroup<A
     }
 
     @Override
-    public Set<ArtifactEntity> getArtifacts()
+    public Set<Artifact> getArtifacts()
     {
         return artifactEntries != null ? Collections.unmodifiableSet(artifactEntries) : Collections.emptySet();
     }
