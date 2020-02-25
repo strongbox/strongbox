@@ -135,20 +135,22 @@ pipeline {
                                     withMavenPlus(mavenLocalRepo: BUILD_STAGE_M2_REPO,
                                                   mavenSettingsConfig: '67aaee2b-ca74-4ae1-8eb9-c8f16eb5e534',
                                                   mavenOpts: MVN_OPTS,
-                                                  options: [artifactsPublisher(disabled: true)]) {
-                                        def buildCmd = "mvn ${MVN_ARGS}" + (SKIP_TESTS ? " -DskipTests" : "") + " -Pbuild-rpm"
+                                                  options: [
+                                                        artifactsPublisher(disabled: true),
+                                                        jacocoPublisher(disabled: true)
+                                                  ]) {
+                                        def buildCmd = "mvn ${MVN_ARGS}" + (SKIP_TESTS ? " -DskipTests" : " -Pcoverage ") + " -Pbuild-rpm"
                                         sh label: "Building the code: ${buildCmd}", script: buildCmd
                                     }
 
                                     withMavenPlus(mavenLocalRepo: BUILD_STAGE_M2_REPO, mavenSettingsConfig: '67aaee2b-ca74-4ae1-8eb9-c8f16eb5e534', publisherStrategy: 'EXPLICIT') {
-                                        withCredentials([
-                                                string(credentialsId: '5aa5789f-dd6a-48c2-a76c-10d8b16a4e53', variable: 'CODACY_API_TOKEN'),
-                                                string(credentialsId: 'b3d644ac-5a8c-4a07-bf6e-6953a46ac33f', variable: 'CODACY_PROJECT_TOKEN_STRONGBOX')
-                                        ]) {
-                                            // we can inline the command, but this looks better in the pipeline view.
-                                            sh label: "Running analysis",
-                                               script: "mvn com.gavinmogan:codacy-maven-plugin:1.2.0:coverage -Pcodacy"
+                                        def coverageArgs = "-Dsonar.pullrequest.branch=${env.BRANCH_NAME}"
+                                        if(env.CHANGE_ID != "") {
+                                            coverageARgs += " -Dsonar.pullrequest.key=${env.CHANGE_ID}"
                                         }
+
+                                        sh label: "Sending code coverage",
+                                           script: "mvn -Pcoverage sonar:sonar ${COVERAGE_ARGS}"
                                     }
                                 }
                             }
@@ -180,6 +182,9 @@ pipeline {
                                     workspace().clean()
                                 }
                             }
+                        }
+                        always {
+                            jacoco execPattern: '**/jacoco-merged/*.exec', runAlways: true
                         }
                     }
                 }
