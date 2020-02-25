@@ -1,17 +1,19 @@
 package org.carlspring.strongbox.services;
 
-import org.carlspring.strongbox.data.service.CrudService;
-import org.carlspring.strongbox.domain.ArtifactEntity;
-import org.carlspring.strongbox.domain.ArtifactGroupEntity;
+import org.carlspring.strongbox.domain.Artifact;
+import org.carlspring.strongbox.domain.ArtifactGroup;
+import org.carlspring.strongbox.domain.ArtifactIdGroup;
 
 /**
  * @author Przemyslaw Fusik
  */
-public interface ArtifactGroupService<T extends ArtifactGroupEntity>
-        extends CrudService<T, String>
+public interface ArtifactGroupService<T extends ArtifactGroup>
 {
 
     void addArtifactToGroup(T artifactGroup,
-                            ArtifactEntity artifactEntry);
-    
+                            Artifact artifactEntry);
+
+    ArtifactIdGroup findOneOrCreate(String storageId,
+                                    String repositoryId,
+                                    String artifactId);
 }

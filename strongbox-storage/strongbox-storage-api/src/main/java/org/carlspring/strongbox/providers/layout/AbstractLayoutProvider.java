@@ -23,13 +23,13 @@ import org.carlspring.strongbox.artifact.archive.ZipArchiveListingFunction;
 import org.carlspring.strongbox.artifact.coordinates.ArtifactCoordinates;
 import org.carlspring.strongbox.configuration.ConfigurationManager;
 import org.carlspring.strongbox.domain.ArtifactGroup;
-import org.carlspring.strongbox.domain.RepositoryArtifactIdGroupEntity;
+import org.carlspring.strongbox.domain.ArtifactIdGroup;
 import org.carlspring.strongbox.providers.datastore.StorageProviderRegistry;
 import org.carlspring.strongbox.providers.io.LayoutFileSystem;
 import org.carlspring.strongbox.providers.io.RepositoryFileAttributeType;
 import org.carlspring.strongbox.providers.io.RepositoryFiles;
 import org.carlspring.strongbox.providers.io.RepositoryPath;
-import org.carlspring.strongbox.services.RepositoryArtifactIdGroupService;
+import org.carlspring.strongbox.repositories.ArtifactIdGroupRepository;
 import org.carlspring.strongbox.storage.Storage;
 import org.carlspring.strongbox.storage.repository.Repository;
 import org.slf4j.Logger;
@@ -61,7 +61,7 @@ public abstract class AbstractLayoutProvider<T extends ArtifactCoordinates>
     private ConfigurationManager configurationManager;
 
     @Inject
-    private RepositoryArtifactIdGroupService repositoryArtifactIdGroupService;
+    private ArtifactIdGroupRepository artifactIdGroupRepository;
 
     @Inject
     protected StorageProviderRegistry storageProviderRegistry;
@@ -237,7 +237,7 @@ public abstract class AbstractLayoutProvider<T extends ArtifactCoordinates>
         Repository repository = path.getFileSystem().getRepository();
         Storage storage = repository.getStorage();
         ArtifactCoordinates c = RepositoryFiles.readCoordinates(path);
-        RepositoryArtifactIdGroupEntity artifactIdGroup = repositoryArtifactIdGroupService.findOne(storage.getId(), repository.getId(), c.getId());
+        ArtifactIdGroup artifactIdGroup = artifactIdGroupRepository.findOne(storage.getId(), repository.getId(), c.getId());
         
         return artifactIdGroup == null ? Collections.emptySet() : Sets.newHashSet(artifactIdGroup);
     }

@@ -28,10 +28,9 @@ import org.carlspring.strongbox.data.criteria.Paginator;
 import org.carlspring.strongbox.data.criteria.Predicate;
 import org.carlspring.strongbox.data.criteria.Selector;
 import org.carlspring.strongbox.domain.Artifact;
-import org.carlspring.strongbox.domain.ArtifactEntity;
+import org.carlspring.strongbox.domain.ArtifactIdGroup;
 import org.carlspring.strongbox.domain.ArtifactTagEntity;
 import org.carlspring.strongbox.domain.RemoteArtifactEntity;
-import org.carlspring.strongbox.domain.RepositoryArtifactIdGroupEntity;
 import org.carlspring.strongbox.nuget.NugetSearchRequest;
 import org.carlspring.strongbox.providers.io.RepositoryFiles;
 import org.carlspring.strongbox.providers.io.RepositoryPath;
@@ -40,8 +39,8 @@ import org.carlspring.strongbox.providers.io.RepositoryPathResolver;
 import org.carlspring.strongbox.providers.repository.event.RemoteRepositorySearchEvent;
 import org.carlspring.strongbox.repositories.ArtifactEntityRepository;
 import org.carlspring.strongbox.service.ProxyRepositoryConnectionPoolConfigurationService;
+import org.carlspring.strongbox.services.ArtifactIdGroupService;
 import org.carlspring.strongbox.services.ArtifactTagService;
-import org.carlspring.strongbox.services.RepositoryArtifactIdGroupService;
 import org.carlspring.strongbox.storage.Storage;
 import org.carlspring.strongbox.storage.metadata.nuget.rss.PackageEntry;
 import org.carlspring.strongbox.storage.metadata.nuget.rss.PackageFeed;
@@ -104,7 +103,7 @@ public class NugetRepositoryFeatures
     private GenericSnapshotVersionValidator genericSnapshotVersionValidator;
 
     @Inject
-    private RepositoryArtifactIdGroupService repositoryArtifactIdGroupService;
+    private ArtifactIdGroupService repositoryArtifactIdGroupService;
     
     private Set<String> defaultMavenArtifactCoordinateValidators;
 
@@ -252,7 +251,9 @@ public class NugetRepositoryFeatures
             
             try
             {
-                RepositoryArtifactIdGroupEntity artifactGroup = repositoryArtifactIdGroupService.findOneOrCreate(storage.getId(), repository.getId(), coordinates.getId());
+                ArtifactIdGroup artifactGroup = repositoryArtifactIdGroupService.findOneOrCreate(storage.getId(),
+                                                                                                 repository.getId(),
+                                                                                                 coordinates.getId());
                 repositoryArtifactIdGroupService.addArtifactToGroup(artifactGroup, e);
             }
             finally

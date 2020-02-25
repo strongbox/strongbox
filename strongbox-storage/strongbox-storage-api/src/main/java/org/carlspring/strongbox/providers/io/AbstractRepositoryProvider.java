@@ -20,7 +20,7 @@ import org.carlspring.strongbox.data.criteria.Predicate;
 import org.carlspring.strongbox.data.criteria.Selector;
 import org.carlspring.strongbox.domain.Artifact;
 import org.carlspring.strongbox.domain.ArtifactEntity;
-import org.carlspring.strongbox.domain.RepositoryArtifactIdGroupEntity;
+import org.carlspring.strongbox.domain.ArtifactIdGroup;
 import org.carlspring.strongbox.event.artifact.ArtifactEventListenerRegistry;
 import org.carlspring.strongbox.io.LayoutOutputStream;
 import org.carlspring.strongbox.io.RepositoryStreamCallback;
@@ -33,7 +33,7 @@ import org.carlspring.strongbox.providers.layout.LayoutProviderRegistry;
 import org.carlspring.strongbox.providers.repository.RepositoryProvider;
 import org.carlspring.strongbox.providers.repository.RepositoryProviderRegistry;
 import org.carlspring.strongbox.repositories.ArtifactEntityRepository;
-import org.carlspring.strongbox.services.RepositoryArtifactIdGroupService;
+import org.carlspring.strongbox.services.ArtifactIdGroupService;
 import org.carlspring.strongbox.storage.Storage;
 import org.carlspring.strongbox.storage.repository.Repository;
 import org.slf4j.Logger;
@@ -62,7 +62,7 @@ public abstract class AbstractRepositoryProvider implements RepositoryProvider, 
     protected ArtifactEntityRepository artifactEntityRepository;
     
     @Inject
-    private RepositoryArtifactIdGroupService repositoryArtifactIdGroupService;
+    private ArtifactIdGroupService repositoryArtifactIdGroupService;
     
     @Inject
     protected ArtifactEventListenerRegistry artifactEventListenerRegistry;
@@ -230,7 +230,7 @@ public abstract class AbstractRepositoryProvider implements RepositoryProvider, 
         artifactEntry.getChecksums().clear();
         artifactEntry.getChecksums().putAll(los.getDigestMap());
 
-        RepositoryArtifactIdGroupEntity artifactGroup = repositoryArtifactIdGroupService.findOneOrCreate(storage.getId(), repository.getId(), coordinates.getId());
+        ArtifactIdGroup artifactGroup = repositoryArtifactIdGroupService.findOneOrCreate(storage.getId(), repository.getId(), coordinates.getId());
         repositoryArtifactIdGroupService.addArtifactToGroup(artifactGroup, artifactEntry);
     }
 

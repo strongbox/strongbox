@@ -1,18 +1,19 @@
 package org.carlspring.strongbox.services.impl;
 
-import org.carlspring.strongbox.StorageApiTestConfig;
-import org.carlspring.strongbox.data.CacheManagerTestExecutionListener;
-import org.carlspring.strongbox.domain.RepositoryArtifactIdGroupEntity;
-import org.carlspring.strongbox.services.RepositoryArtifactIdGroupService;
+import static org.assertj.core.api.Assertions.assertThatExceptionOfType;
 
 import javax.inject.Inject;
 
+import org.carlspring.strongbox.StorageApiTestConfig;
+import org.carlspring.strongbox.data.CacheManagerTestExecutionListener;
+import org.carlspring.strongbox.domain.ArtifactIdGroupEntity;
+import org.carlspring.strongbox.repositories.ArtifactIdGroupRepository;
+import org.janusgraph.core.SchemaViolationException;
 import org.junit.jupiter.api.Test;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.TestExecutionListeners;
-import static org.assertj.core.api.Assertions.assertThatExceptionOfType;
 
 /**
  * @author Przemyslaw Fusik
@@ -26,24 +27,24 @@ class RepositoryArtifactIdGroupServiceImplTest
 {
 
     @Inject
-    private RepositoryArtifactIdGroupService repositoryArtifactIdGroupService;
+    private ArtifactIdGroupRepository artifactIdGroupRepository;
 
     @Test
     public void repositoryArtifactIdGroupShouldBeProtectedByIndex()
     {
-        RepositoryArtifactIdGroupEntity g1 = new RepositoryArtifactIdGroupEntity();
+        ArtifactIdGroupEntity g1 = new ArtifactIdGroupEntity();
         g1.setName("a1");
         g1.setRepositoryId("r1");
         g1.setStorageId("s1");
-        System.out.println(repositoryArtifactIdGroupService.save(g1).getObjectId());
+        System.out.println(artifactIdGroupRepository.save(g1).getUuid());
 
-        assertThatExceptionOfType(ORecordDuplicatedException.class)
+        assertThatExceptionOfType(SchemaViolationException.class)
                 .isThrownBy(() -> {
-                    RepositoryArtifactIdGroupEntity g2 = new RepositoryArtifactIdGroupEntity();
+                    ArtifactIdGroupEntity g2 = new ArtifactIdGroupEntity();
                     g2.setName("a1");
                     g2.setRepositoryId("r1");
                     g2.setStorageId("s1");
-                    System.out.println(repositoryArtifactIdGroupService.save(g2).getObjectId());
+                    System.out.println(artifactIdGroupRepository.save(g2).getUuid());
         });
     }
 }

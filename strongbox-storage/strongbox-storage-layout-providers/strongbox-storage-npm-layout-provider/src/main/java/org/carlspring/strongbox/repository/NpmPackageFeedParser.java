@@ -13,10 +13,9 @@ import org.carlspring.strongbox.artifact.ArtifactTag;
 import org.carlspring.strongbox.artifact.coordinates.ArtifactCoordinates;
 import org.carlspring.strongbox.artifact.coordinates.NpmArtifactCoordinates;
 import org.carlspring.strongbox.domain.Artifact;
-import org.carlspring.strongbox.domain.ArtifactEntity;
+import org.carlspring.strongbox.domain.ArtifactIdGroup;
 import org.carlspring.strongbox.domain.ArtifactTagEntity;
 import org.carlspring.strongbox.domain.RemoteArtifactEntity;
-import org.carlspring.strongbox.domain.RepositoryArtifactIdGroupEntity;
 import org.carlspring.strongbox.npm.metadata.PackageEntry;
 import org.carlspring.strongbox.npm.metadata.PackageFeed;
 import org.carlspring.strongbox.npm.metadata.PackageVersion;
@@ -28,8 +27,8 @@ import org.carlspring.strongbox.providers.io.RepositoryPath;
 import org.carlspring.strongbox.providers.io.RepositoryPathLock;
 import org.carlspring.strongbox.providers.io.RepositoryPathResolver;
 import org.carlspring.strongbox.repositories.ArtifactEntityRepository;
+import org.carlspring.strongbox.services.ArtifactIdGroupService;
 import org.carlspring.strongbox.services.ArtifactTagService;
-import org.carlspring.strongbox.services.RepositoryArtifactIdGroupService;
 import org.carlspring.strongbox.storage.Storage;
 import org.carlspring.strongbox.storage.repository.Repository;
 import org.slf4j.Logger;
@@ -53,7 +52,7 @@ public class NpmPackageFeedParser
     private ArtifactEntityRepository artifactEntityRepository;
     
     @Inject
-    private RepositoryArtifactIdGroupService repositoryArtifactIdGroupService;
+    private ArtifactIdGroupService repositoryArtifactIdGroupService;
 
     @Inject
     private RepositoryPathLock repositoryPathLock;
@@ -165,7 +164,9 @@ public class NpmPackageFeedParser
                 return;
             }
 
-            RepositoryArtifactIdGroupEntity artifactGroup = repositoryArtifactIdGroupService.findOneOrCreate(storage.getId(), repository.getId(), coordinates.getId());
+            ArtifactIdGroup artifactGroup = repositoryArtifactIdGroupService.findOneOrCreate(storage.getId(),
+                                                                                             repository.getId(),
+                                                                                             coordinates.getId());
             repositoryArtifactIdGroupService.addArtifactToGroup(artifactGroup, e);
         } 
         finally

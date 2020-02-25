@@ -6,14 +6,15 @@ import javax.persistence.Entity;
 
 import org.carlspring.strongbox.data.domain.DomainEntity;
 import org.carlspring.strongbox.db.schema.Edges;
+import org.carlspring.strongbox.db.schema.Vertices;
+import org.neo4j.ogm.annotation.NodeEntity;
 import org.neo4j.ogm.annotation.Relationship;
 
 /**
  * @author Przemyslaw Fusik
  */
-@Entity
-public class RepositoryArtifactIdGroupEntity
-        extends DomainEntity implements RepositoryArtifactIdGroup<ArtifactEntity>
+@NodeEntity(Vertices.ARTIFACT_ID_GROUP)
+public class ArtifactIdGroupEntity extends DomainEntity implements ArtifactIdGroup
 {
 
     private String storageId;
@@ -21,12 +22,12 @@ public class RepositoryArtifactIdGroupEntity
     @Relationship(type = Edges.REPOSITORY_ARTIFACT_ID_GROUP_INHERIT_ARTIFACT_GROUP, direction = Relationship.OUTGOING)
     private final ArtifactGroupEntity artifactGroup;
 
-    public RepositoryArtifactIdGroupEntity()
+    public ArtifactIdGroupEntity()
     {
         this(new ArtifactGroupEntity());
     }
 
-    public RepositoryArtifactIdGroupEntity(ArtifactGroupEntity artifactGroup)
+    public ArtifactIdGroupEntity(ArtifactGroupEntity artifactGroup)
     {
         this.artifactGroup = artifactGroup;
     }

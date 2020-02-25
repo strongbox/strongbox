@@ -3,9 +3,9 @@ package org.carlspring.strongbox.storage.indexing.local;
 import org.carlspring.strongbox.artifact.coordinates.MavenArtifactCoordinates;
 import org.carlspring.strongbox.data.service.support.search.PagingCriteria;
 import org.carlspring.strongbox.domain.ArtifactEntity;
-import org.carlspring.strongbox.domain.RepositoryArtifactIdGroupEntity;
+import org.carlspring.strongbox.domain.ArtifactIdGroupEntity;
 import org.carlspring.strongbox.providers.io.RepositoryPath;
-import org.carlspring.strongbox.services.RepositoryArtifactIdGroupService;
+import org.carlspring.strongbox.services.ArtifactIdGroupService;
 import org.carlspring.strongbox.storage.indexing.*;
 import org.carlspring.strongbox.storage.indexing.RepositoryIndexDirectoryPathResolver.RepositoryIndexDirectoryPathResolverQualifier;
 import org.carlspring.strongbox.storage.indexing.RepositoryIndexCreator.RepositoryIndexCreatorQualifier;
@@ -33,7 +33,7 @@ public class RepositoryHostedIndexCreator
     private static final int REPOSITORY_ARTIFACT_GROUP_FETCH_PAGE_SIZE = 100;
 
     @Inject
-    private RepositoryArtifactIdGroupService repositoryArtifactIdGroupService;
+    private ArtifactIdGroupService repositoryArtifactIdGroupService;
 
     @Inject
     @RepositoryIndexDirectoryPathResolverQualifier(IndexTypeEnum.LOCAL)
@@ -86,7 +86,7 @@ public class RepositoryHostedIndexCreator
         {
             final PagingCriteria pagingCriteria = new PagingCriteria(i * REPOSITORY_ARTIFACT_GROUP_FETCH_PAGE_SIZE,
                                                                      REPOSITORY_ARTIFACT_GROUP_FETCH_PAGE_SIZE);
-            final List<RepositoryArtifactIdGroupEntity> repositoryArtifactIdGroupEntries = repositoryArtifactIdGroupService.findMatching(
+            final List<ArtifactIdGroupEntity> repositoryArtifactIdGroupEntries = repositoryArtifactIdGroupService.findMatching(
                     storageId,
                     repositoryId,
                     pagingCriteria);
@@ -96,10 +96,10 @@ public class RepositoryHostedIndexCreator
         }
     }
 
-    private List<ArtifactContext> createArtifactContexts(final List<RepositoryArtifactIdGroupEntity> repositoryArtifactIdGroupEntries)
+    private List<ArtifactContext> createArtifactContexts(final List<ArtifactIdGroupEntity> repositoryArtifactIdGroupEntries)
     {
         final List<ArtifactContext> artifactContexts = new ArrayList<>();
-        for (final RepositoryArtifactIdGroupEntity repositoryArtifactIdGroupEntry : repositoryArtifactIdGroupEntries)
+        for (final ArtifactIdGroupEntity repositoryArtifactIdGroupEntry : repositoryArtifactIdGroupEntries)
         {
             final Map<String, List<ArtifactEntity>> groupedByVersion = groupArtifactEntriesByVersion(
                     repositoryArtifactIdGroupEntry);
@@ -127,7 +127,7 @@ public class RepositoryHostedIndexCreator
         return artifactContexts;
     }
 
-    private Map<String, List<ArtifactEntity>> groupArtifactEntriesByVersion(final RepositoryArtifactIdGroupEntity groupEntry)
+    private Map<String, List<ArtifactEntity>> groupArtifactEntriesByVersion(final ArtifactIdGroupEntity groupEntry)
     {
         final Map<String, List<ArtifactEntity>> groupedByVersion = new LinkedHashMap<>();
         for (final ArtifactEntity artifactEntry : groupEntry.getArtifacts())

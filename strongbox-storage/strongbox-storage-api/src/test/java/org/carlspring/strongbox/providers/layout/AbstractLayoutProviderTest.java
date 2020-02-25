@@ -19,11 +19,12 @@ import org.carlspring.strongbox.artifact.coordinates.ArtifactCoordinates;
 import org.carlspring.strongbox.booters.PropertiesBooter;
 import org.carlspring.strongbox.data.CacheManagerTestExecutionListener;
 import org.carlspring.strongbox.domain.ArtifactGroupEntity;
-import org.carlspring.strongbox.domain.RepositoryArtifactIdGroupEntity;
+import org.carlspring.strongbox.domain.ArtifactIdGroup;
+import org.carlspring.strongbox.domain.ArtifactIdGroupEntity;
 import org.carlspring.strongbox.providers.io.LayoutFileSystem;
 import org.carlspring.strongbox.providers.io.RepositoryFileAttributeType;
 import org.carlspring.strongbox.providers.io.RepositoryPath;
-import org.carlspring.strongbox.services.RepositoryArtifactIdGroupService;
+import org.carlspring.strongbox.services.ArtifactIdGroupService;
 import org.carlspring.strongbox.storage.StorageDto;
 import org.carlspring.strongbox.storage.repository.RepositoryData;
 import org.carlspring.strongbox.storage.repository.RepositoryDto;
@@ -59,7 +60,7 @@ class AbstractLayoutProviderTest
     @SuppressWarnings({ "PMD.UnusedPrivateField",
                         "PMD.SingularField" })
     @Spy
-    private RepositoryArtifactIdGroupService artifactGroupService;
+    private ArtifactIdGroupService artifactGroupService;
 
     @InjectMocks
     private AbstractLayoutProvider layoutProvider = Mockito.spy(AbstractLayoutProvider.class);
@@ -99,7 +100,7 @@ class AbstractLayoutProviderTest
             }
         };
 
-        artifactGroupService = ctx.getBean(RepositoryArtifactIdGroupService.class);
+        artifactGroupService = ctx.getBean(ArtifactIdGroupService.class);
 
         MockitoAnnotations.initMocks(this);
         Mockito.doReturn("abs-lay-prov-test").when(artifactCoordinates).getId();
@@ -121,19 +122,19 @@ class AbstractLayoutProviderTest
         assertThat(artifactGroups).isNotNull();
         assertThat(artifactGroups).isEmpty();
 
-        RepositoryArtifactIdGroupEntity repositoryArtifactIdGroup = artifactGroupService.findOneOrCreate("storage0",
-                                                                                                        "releases",
-                                                                                                        "abs-lay-prov-test");
+        ArtifactIdGroup repositoryArtifactIdGroup = artifactGroupService.findOneOrCreate("storage0",
+                                                                                         "releases",
+                                                                                         "abs-lay-prov-test");
 
         artifactGroups = layoutProvider.getArtifactGroups(path);
         assertThat(artifactGroups).isNotNull();
         assertThat(artifactGroups).hasSize((1));
         assertThat(artifactGroups.iterator().next()).isEqualTo(repositoryArtifactIdGroup);
-        assertThat(repositoryArtifactIdGroup).isInstanceOf(RepositoryArtifactIdGroupEntity.class);
+        assertThat(repositoryArtifactIdGroup).isInstanceOf(ArtifactIdGroupEntity.class);
         assertThat(repositoryArtifactIdGroup.getArtifactId()).isEqualTo(("abs-lay-prov-test"));
         assertThat(repositoryArtifactIdGroup.getRepositoryId()).isEqualTo(("releases"));
         assertThat(repositoryArtifactIdGroup.getStorageId()).isEqualTo(("storage0"));
-        assertThat(repositoryArtifactIdGroup.getClass()).isEqualTo((RepositoryArtifactIdGroupEntity.class));
+        assertThat(repositoryArtifactIdGroup.getClass()).isEqualTo((ArtifactIdGroupEntity.class));
     }
     
     private class StorageFileSystemProviderTest extends LayoutFileSystemProvider
