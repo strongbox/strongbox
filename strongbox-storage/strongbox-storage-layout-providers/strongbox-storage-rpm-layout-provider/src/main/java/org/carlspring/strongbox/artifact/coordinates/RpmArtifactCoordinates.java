@@ -1,17 +1,18 @@
 package org.carlspring.strongbox.artifact.coordinates;
 
+import java.util.Map;
+
+import javax.persistence.Entity;
+import javax.validation.constraints.NotBlank;
+import javax.xml.bind.annotation.XmlAccessType;
+import javax.xml.bind.annotation.XmlAccessorType;
+import javax.xml.bind.annotation.XmlRootElement;
+
 import org.carlspring.strongbox.artifact.coordinates.versioning.SemanticVersion;
 import org.carlspring.strongbox.domain.RpmPackageArch;
 import org.carlspring.strongbox.domain.RpmPackageType;
 import org.carlspring.strongbox.util.RpmArtifactCoordinatesUtils;
-
-import javax.persistence.Entity;
-import javax.validation.constraints.NotBlank;
-import javax.validation.constraints.NotNull;
-import javax.xml.bind.annotation.XmlAccessType;
-import javax.xml.bind.annotation.XmlAccessorType;
-import javax.xml.bind.annotation.XmlRootElement;
-import java.util.Map;
+import org.codehaus.commons.nullanalysis.NotNull;
 
 /**
  * This class is an {@link ArtifactCoordinates} implementation for RPM-packages.

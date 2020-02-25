@@ -6,7 +6,7 @@ import java.nio.file.Path;
 import java.util.function.Function;
 
 import org.carlspring.strongbox.artifact.coordinates.NpmArtifactCoordinates;
-import org.carlspring.strongbox.domain.ArtifactEntity;
+import org.carlspring.strongbox.domain.Artifact;
 import org.carlspring.strongbox.npm.metadata.PackageEntry;
 import org.carlspring.strongbox.npm.metadata.SearchResult;
 import org.carlspring.strongbox.providers.io.RepositoryFiles;
@@ -33,7 +33,7 @@ public class NpmSearchResultSupplier implements Function<Path, SearchResult>
         RepositoryPath repositoryPath = (RepositoryPath) path;
 
         NpmArtifactCoordinates c;
-        ArtifactEntity artifactEntry;
+        Artifact artifactEntry;
         try
         {
             c = (NpmArtifactCoordinates) RepositoryFiles.readCoordinates(repositoryPath);

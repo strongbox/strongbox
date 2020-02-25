@@ -1,6 +1,8 @@
 package org.carlspring.strongbox.artifact;
 
-public interface ArtifactTag
+import org.carlspring.strongbox.data.domain.DomainObject;
+
+public interface ArtifactTag extends DomainObject
 {
     
     String LAST_VERSION = "last-version";

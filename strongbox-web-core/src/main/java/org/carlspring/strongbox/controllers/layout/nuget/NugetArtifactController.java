@@ -1,39 +1,5 @@
 package org.carlspring.strongbox.controllers.layout.nuget;
 
-import org.carlspring.strongbox.artifact.ArtifactTag;
-import org.carlspring.strongbox.artifact.coordinates.NugetArtifactCoordinates;
-import org.carlspring.strongbox.artifact.coordinates.PathNupkg;
-import org.carlspring.strongbox.artifact.coordinates.versioning.SemanticVersion;
-import org.carlspring.strongbox.controllers.BaseArtifactController;
-import org.carlspring.strongbox.data.criteria.Expression.ExpOperator;
-import org.carlspring.strongbox.data.criteria.Paginator;
-import org.carlspring.strongbox.data.criteria.Predicate;
-import org.carlspring.strongbox.domain.ArtifactEntity;
-import org.carlspring.strongbox.domain.ArtifactTagEntity;
-import org.carlspring.strongbox.nuget.NugetSearchRequest;
-import org.carlspring.strongbox.nuget.filter.NugetODataFilterQueryParser;
-import org.carlspring.strongbox.providers.io.RepositoryPath;
-import org.carlspring.strongbox.providers.repository.RepositoryProvider;
-import org.carlspring.strongbox.providers.repository.RepositoryProviderRegistry;
-import org.carlspring.strongbox.repository.NugetRepositoryFeatures.RepositorySearchEventListener;
-import org.carlspring.strongbox.services.ArtifactTagService;
-import org.carlspring.strongbox.storage.metadata.nuget.NugetFormatException;
-import org.carlspring.strongbox.storage.metadata.nuget.Nupkg;
-import org.carlspring.strongbox.storage.metadata.nuget.Nuspec;
-import org.carlspring.strongbox.storage.metadata.nuget.TempNupkgFile;
-import org.carlspring.strongbox.storage.metadata.nuget.rss.EntryProperties;
-import org.carlspring.strongbox.storage.metadata.nuget.rss.PackageEntry;
-import org.carlspring.strongbox.storage.metadata.nuget.rss.PackageFeed;
-import org.carlspring.strongbox.storage.repository.Repository;
-import org.carlspring.strongbox.web.LayoutRequestMapping;
-import org.carlspring.strongbox.web.RepositoryMapping;
-
-import javax.inject.Inject;
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
-import javax.ws.rs.core.MediaType;
-import javax.xml.bind.JAXBException;
-
 import java.io.BufferedInputStream;
 import java.io.BufferedOutputStream;
 import java.io.IOException;
@@ -52,6 +18,39 @@ import java.util.Date;
 import java.util.List;
 import java.util.stream.Collectors;
 
+import javax.inject.Inject;
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
+import javax.ws.rs.core.MediaType;
+import javax.xml.bind.JAXBException;
+
+import org.carlspring.strongbox.artifact.ArtifactTag;
+import org.carlspring.strongbox.artifact.coordinates.NugetArtifactCoordinates;
+import org.carlspring.strongbox.artifact.coordinates.PathNupkg;
+import org.carlspring.strongbox.artifact.coordinates.versioning.SemanticVersion;
+import org.carlspring.strongbox.controllers.BaseArtifactController;
+import org.carlspring.strongbox.data.criteria.Expression.ExpOperator;
+import org.carlspring.strongbox.data.criteria.Paginator;
+import org.carlspring.strongbox.data.criteria.Predicate;
+import org.carlspring.strongbox.domain.Artifact;
+import org.carlspring.strongbox.domain.ArtifactTagEntity;
+import org.carlspring.strongbox.nuget.NugetSearchRequest;
+import org.carlspring.strongbox.nuget.filter.NugetODataFilterQueryParser;
+import org.carlspring.strongbox.providers.io.RepositoryPath;
+import org.carlspring.strongbox.providers.repository.RepositoryProvider;
+import org.carlspring.strongbox.providers.repository.RepositoryProviderRegistry;
+import org.carlspring.strongbox.repository.NugetRepositoryFeatures.RepositorySearchEventListener;
+import org.carlspring.strongbox.services.ArtifactTagService;
+import org.carlspring.strongbox.storage.metadata.nuget.NugetFormatException;
+import org.carlspring.strongbox.storage.metadata.nuget.Nupkg;
+import org.carlspring.strongbox.storage.metadata.nuget.Nuspec;
+import org.carlspring.strongbox.storage.metadata.nuget.TempNupkgFile;
+import org.carlspring.strongbox.storage.metadata.nuget.rss.EntryProperties;
+import org.carlspring.strongbox.storage.metadata.nuget.rss.PackageEntry;
+import org.carlspring.strongbox.storage.metadata.nuget.rss.PackageFeed;
+import org.carlspring.strongbox.storage.repository.Repository;
+import org.carlspring.strongbox.web.LayoutRequestMapping;
+import org.carlspring.strongbox.web.RepositoryMapping;
 import org.springframework.core.io.InputStreamResource;
 import org.springframework.core.io.Resource;
 import org.springframework.http.HttpHeaders;
@@ -230,7 +229,7 @@ public class NugetArtifactController
                                               EntryProperties properties) throws IOException
     {
         RepositoryPath path = nupkg.getPath();
-        ArtifactEntity artifactEntry = path.getArtifactEntry();
+        Artifact artifactEntry = path.getArtifactEntry();
 
         properties.setId(nupkg.getId());
 
