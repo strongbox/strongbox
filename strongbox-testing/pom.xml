@@ -19,11 +19,18 @@
     <name>Strongbox: Testing</name>
 
     <inceptionYear>2019</inceptionYear>
+
     <scm>
         <url>https://github.com/strongbox/strongbox/</url>
         <connection>scm:git:git://github.com/strongbox/strongbox.git</connection>
         <developerConnection>scm:git:git://github.com/strongbox/strongbox.git</developerConnection>
     </scm>
+
+    <properties>
+        <!-- we don't need coverage here. -->
+        <jacoco.skip>true</jacoco.skip>
+        <sonar.skip>true</sonar.skip>
+    </properties>
 
     <modules>
         <module>strongbox-testing-core</module>

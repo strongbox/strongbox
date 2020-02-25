@@ -40,6 +40,12 @@
         <developerConnection>scm:git:git://github.com/strongbox/strongbox.git</developerConnection>
     </scm>
 
+    <properties>
+        <!-- we don't need coverage here. -->
+        <jacoco.skip>true</jacoco.skip>
+        <sonar.skip>true</sonar.skip>
+    </properties>
+
     <build>
         <plugins>
             <plugin>

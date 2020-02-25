@@ -61,6 +61,8 @@
 
     <properties>
         <license.licenseName>apache_v2</license.licenseName>
+        <!-- we don't need coverage here. -->
+        <jacoco.skip>true</jacoco.skip>
     </properties>
 
     <modules>
