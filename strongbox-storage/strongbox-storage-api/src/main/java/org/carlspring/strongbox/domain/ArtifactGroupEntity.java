@@ -17,19 +17,8 @@ import org.neo4j.ogm.annotation.Relationship;
 public class ArtifactGroupEntity extends DomainEntity implements ArtifactGroup
 {
 
-    private String name;
     @Relationship(type = Edges.ARTIFACT_GROUP_HAS_ARTIFACTS, direction = Relationship.OUTGOING)
     private final Set<ArtifactEntity> artifactEntries = new HashSet<>();
-
-    public String getName()
-    {
-        return name;
-    }
-
-    public void setName(String name)
-    {
-        this.name = name;
-    }
 
     @Override
     public Set<Artifact> getArtifacts()

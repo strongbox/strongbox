@@ -9,5 +9,7 @@ public interface ArtifactIdGroup extends ArtifactGroup
 
     String getRepositoryId();
 
-    String getArtifactId();
+    default String getArtifactId() {
+        return getName();
+    }
 }

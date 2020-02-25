@@ -4,10 +4,18 @@ import org.carlspring.strongbox.data.domain.DomainObject;
 
 public interface ArtifactTag extends DomainObject
 {
-    
+
     String LAST_VERSION = "last-version";
     String RELEASE = "release";
 
-    String getName();
-    
+    default String getName()
+    {
+        return getUuid();
+    }
+
+    default void setName(String name)
+    {
+        setUuid(name);
+    }
+
 }

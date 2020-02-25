@@ -6,10 +6,16 @@ import org.carlspring.strongbox.data.domain.DomainObject;
 
 public interface ArtifactGroup extends DomainObject
 {
-    String getName();
+    default String getName()
+    {
+        return getUuid();
+    }
 
-    void setName(String name);
-    
+    default void setName(String name)
+    {
+        setUuid(name);
+    }
+
     Set<Artifact> getArtifacts();
 
 }

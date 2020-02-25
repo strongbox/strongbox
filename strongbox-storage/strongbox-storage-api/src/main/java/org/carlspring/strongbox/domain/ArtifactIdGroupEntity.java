@@ -2,8 +2,6 @@ package org.carlspring.strongbox.domain;
 
 import java.util.Set;
 
-import javax.persistence.Entity;
-
 import org.carlspring.strongbox.data.domain.DomainEntity;
 import org.carlspring.strongbox.db.schema.Edges;
 import org.carlspring.strongbox.db.schema.Vertices;
@@ -58,24 +56,9 @@ public class ArtifactIdGroupEntity extends DomainEntity implements ArtifactIdGro
         this.storageId = storageId;
     }
 
-    public String getArtifactId()
-    {
-        return getName();
-    }
-
     public boolean equals(Object obj)
     {
         return artifactGroup.equals(obj);
-    }
-
-    public String getName()
-    {
-        return artifactGroup.getName();
-    }
-
-    public void setName(String name)
-    {
-        artifactGroup.setName(name);
     }
 
     public Set<Artifact> getArtifacts()
