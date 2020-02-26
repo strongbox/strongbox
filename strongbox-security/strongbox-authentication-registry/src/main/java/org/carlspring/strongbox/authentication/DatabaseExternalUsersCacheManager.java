@@ -23,10 +23,10 @@ import org.springframework.stereotype.Component;
  * @author sbespalov
  */
 @Component
-public class OrientDbExternalUsersCacheManager extends DatabaseUserService implements StrongboxExternalUsersCacheManager
+public class DatabaseExternalUsersCacheManager extends DatabaseUserService implements StrongboxExternalUsersCacheManager
 {
 
-    private static final Logger logger = LoggerFactory.getLogger(OrientDbExternalUsersCacheManager.class);
+    private static final Logger logger = LoggerFactory.getLogger(DatabaseExternalUsersCacheManager.class);
     
     @Override
     @CacheEvict(cacheNames = CacheName.User.AUTHENTICATIONS, key = "#p1.username")
