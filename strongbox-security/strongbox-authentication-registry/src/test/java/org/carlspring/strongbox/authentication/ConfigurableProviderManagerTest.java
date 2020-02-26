@@ -13,13 +13,12 @@ import javax.inject.Inject;
 
 import org.carlspring.strongbox.config.hazelcast.HazelcastConfiguration;
 import org.carlspring.strongbox.config.hazelcast.HazelcastInstanceId;
-import org.carlspring.strongbox.domain.UserEntry;
 import org.carlspring.strongbox.users.dto.User;
 import org.carlspring.strongbox.users.dto.UserDto;
 import org.carlspring.strongbox.users.service.UserService;
+import org.carlspring.strongbox.users.service.impl.DatabaseUserService;
+import org.carlspring.strongbox.users.service.impl.DatabaseUserService.Database;
 import org.carlspring.strongbox.users.service.impl.EncodedPasswordUser;
-import org.carlspring.strongbox.users.service.impl.OrientDbUserService;
-import org.carlspring.strongbox.users.service.impl.OrientDbUserService.OrientDb;
 import org.carlspring.strongbox.users.service.impl.YamlUserService.Yaml;
 import org.carlspring.strongbox.users.userdetails.SpringSecurityUser;
 import org.carlspring.strongbox.users.userdetails.StrongboxExternalUsersCacheManager;
@@ -59,7 +58,7 @@ public class ConfigurableProviderManagerTest
     private int externalUsersInvalidateSeconds;
 
     @Inject
-    @OrientDb
+    @Database
     private UserService orientDbUserService;
 
     @Inject
@@ -121,7 +120,7 @@ public class ConfigurableProviderManagerTest
 
         // Check that external user cached
         User externalUser = strongboxUserManager.findByUsername(TEST_USER);
-        String externalUserId = ((UserEntry)externalUser).getObjectId();
+        String externalUserId = externalUser.getUuid();
         assertThat(externalUser).isNotNull();
         assertThat(externalUserId).isNotNull();
 
@@ -148,7 +147,7 @@ public class ConfigurableProviderManagerTest
         assertThat(externalUser).isNotNull();
         assertThat(passwordEncoder.matches(newPassword, externalUser.getPassword())).isTrue();
         // ID shouldn't be changed
-        assertThat(((UserEntry)externalUser).getObjectId()).isEqualTo(externalUserId);
+        assertThat(externalUser.getUuid()).isEqualTo(externalUserId);
     }
 
     @Test
@@ -162,13 +161,13 @@ public class ConfigurableProviderManagerTest
         assertThat(concurrentLoadUsers(TEST_CONCURRENT_USER)).allMatch(u -> TEST_CONCURRENT_USER.equals(u.getUsername()));
         
         // expired user replace
-        ((OrientDbUserService) orientDbUserService).expireUser(TEST_CONCURRENT_USER, true);
+        ((DatabaseUserService) orientDbUserService).expireUser(TEST_CONCURRENT_USER, true);
         assertThat(concurrentLoadUsers(TEST_CONCURRENT_USER)).allMatch(u -> "yamlUserDetailService".equals(u.getSourceId()));
     }
 
     private void expireUser(String username)
     {
-        ((OrientDbUserService) orientDbUserService).expireUser(username, false);
+        ((DatabaseUserService) orientDbUserService).expireUser(username, false);
     }
 
     private List<SpringSecurityUser> concurrentLoadUsers(String testConcurrentUser)

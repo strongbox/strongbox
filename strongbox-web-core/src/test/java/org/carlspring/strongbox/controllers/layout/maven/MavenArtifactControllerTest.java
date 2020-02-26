@@ -49,7 +49,7 @@ import org.carlspring.strongbox.domain.RemoteArtifactEntity;
 import org.carlspring.strongbox.providers.io.RepositoryFiles;
 import org.carlspring.strongbox.providers.io.RepositoryPath;
 import org.carlspring.strongbox.providers.io.RootRepositoryPath;
-import org.carlspring.strongbox.repositories.ArtifactEntityRepository;
+import org.carlspring.strongbox.repositories.ArtifactRepository;
 import org.carlspring.strongbox.repository.MavenRepositoryFeatures;
 import org.carlspring.strongbox.rest.common.MavenRestAssuredBaseTest;
 import org.carlspring.strongbox.storage.repository.Repository;
@@ -147,7 +147,7 @@ public class MavenArtifactControllerTest
                                                                              "metadata-foo" + ":" +
                                                                              "3.2");
     @Inject
-    private ArtifactEntityRepository artifactEntityRepository;
+    private ArtifactRepository artifactEntityRepository;
 
     private MavenArtifactDeployer defaultMavenArtifactDeployer;
 

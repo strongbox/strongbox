@@ -14,7 +14,7 @@ import org.carlspring.strongbox.artifact.coordinates.NpmArtifactCoordinates;
 import org.carlspring.strongbox.config.IntegrationTest;
 import org.carlspring.strongbox.domain.Artifact;
 import org.carlspring.strongbox.domain.RemoteArtifactEntity;
-import org.carlspring.strongbox.repositories.ArtifactEntityRepository;
+import org.carlspring.strongbox.repositories.ArtifactRepository;
 import org.carlspring.strongbox.rest.common.NpmRestAssuredBaseTest;
 import org.carlspring.strongbox.storage.repository.Repository;
 import org.carlspring.strongbox.testing.artifact.ArtifactManagementTestExecutionListener;
@@ -51,7 +51,7 @@ public class NpmArtifactControllerTestIT
     private static final String REMOTE_URL = "https://registry.npmjs.org/";
 
     @Inject
-    private ArtifactEntityRepository artifactEntityRepository;
+    private ArtifactRepository artifactEntityRepository;
 
     @Override
     @BeforeEach

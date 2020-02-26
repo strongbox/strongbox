@@ -14,7 +14,7 @@ import org.carlspring.strongbox.services.support.ArtifactEntrySearchCriteria;
 import org.springframework.stereotype.Repository;
 
 @Repository
-public class ArtifactEntityRepository extends GremlinVertexRepository<Artifact> implements ArtifactEntityQueries
+public class ArtifactRepository extends GremlinVertexRepository<Artifact> implements ArtifactEntityQueries
 {
 
     @Inject

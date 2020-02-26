@@ -30,7 +30,7 @@ import org.carlspring.strongbox.providers.io.RepositoryPathResolver;
 import org.carlspring.strongbox.providers.io.RepositoryStreamSupport.RepositoryOutputStream;
 import org.carlspring.strongbox.providers.layout.LayoutFileSystemProvider;
 import org.carlspring.strongbox.providers.layout.LayoutProviderRegistry;
-import org.carlspring.strongbox.repositories.ArtifactEntityRepository;
+import org.carlspring.strongbox.repositories.ArtifactRepository;
 import org.carlspring.strongbox.storage.ArtifactStorageException;
 import org.carlspring.strongbox.storage.Storage;
 import org.carlspring.strongbox.storage.checksum.ArtifactChecksum;
@@ -65,7 +65,7 @@ public class ArtifactManagementService
     protected ConfigurationManager configurationManager;
 
     @Inject
-    protected ArtifactEntityRepository artifactEntityRepository;
+    protected ArtifactRepository artifactEntityRepository;
 
     @Inject
     protected LayoutProviderRegistry layoutProviderRegistry;

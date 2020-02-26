@@ -16,7 +16,7 @@ import org.carlspring.strongbox.data.CacheManagerTestExecutionListener;
 import org.carlspring.strongbox.domain.Artifact;
 import org.carlspring.strongbox.providers.io.RepositoryFiles;
 import org.carlspring.strongbox.providers.io.RepositoryPathResolver;
-import org.carlspring.strongbox.repositories.ArtifactEntityRepository;
+import org.carlspring.strongbox.repositories.ArtifactRepository;
 import org.carlspring.strongbox.storage.metadata.MavenMetadataManager;
 import org.carlspring.strongbox.storage.repository.Repository;
 import org.carlspring.strongbox.testing.MavenIndexedRepositorySetup;
@@ -54,7 +54,7 @@ public class MavenProxyRepositoryProviderTestIT
     private static final String CENTRAL_URL = "https://repo1.maven.org/maven2/";
 
     @Inject
-    private ArtifactEntityRepository artifactEntityRepository;
+    private ArtifactRepository artifactEntityRepository;
 
     @Inject
     private MavenMetadataManager mavenMetadataManager;

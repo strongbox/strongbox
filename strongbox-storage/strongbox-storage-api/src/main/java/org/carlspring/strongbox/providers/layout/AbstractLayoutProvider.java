@@ -24,6 +24,7 @@ import org.carlspring.strongbox.artifact.coordinates.ArtifactCoordinates;
 import org.carlspring.strongbox.configuration.ConfigurationManager;
 import org.carlspring.strongbox.domain.ArtifactGroup;
 import org.carlspring.strongbox.domain.ArtifactIdGroup;
+import org.carlspring.strongbox.domain.LayoutArtifactCoordinatesEntity;
 import org.carlspring.strongbox.providers.datastore.StorageProviderRegistry;
 import org.carlspring.strongbox.providers.io.LayoutFileSystem;
 import org.carlspring.strongbox.providers.io.RepositoryFileAttributeType;
@@ -42,7 +43,7 @@ import com.google.common.collect.Sets;
 /**
  * @author mtodorov
  */
-public abstract class AbstractLayoutProvider<T extends ArtifactCoordinates>
+public abstract class AbstractLayoutProvider<T extends LayoutArtifactCoordinatesEntity>
         implements LayoutProvider<T>
 {
 

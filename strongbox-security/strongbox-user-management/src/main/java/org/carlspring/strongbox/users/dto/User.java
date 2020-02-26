@@ -3,8 +3,15 @@ package org.carlspring.strongbox.users.dto;
 import java.util.Date;
 import java.util.Set;
 
-public interface User
+import org.carlspring.strongbox.data.domain.DomainObject;
+
+public interface User extends DomainObject
 {
+
+    default String getUuid()
+    {
+        return getUsername();
+    }
 
     String getUsername();
 
@@ -17,7 +24,7 @@ public interface User
     boolean isEnabled();
 
     Date getLastUpdate();
-    
+
     String getSourceId();
 
 }

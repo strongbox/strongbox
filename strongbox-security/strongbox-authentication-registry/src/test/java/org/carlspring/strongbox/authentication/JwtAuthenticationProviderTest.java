@@ -7,15 +7,15 @@ import javax.inject.Inject;
 import org.carlspring.strongbox.authentication.api.jwt.JwtAuthentication;
 import org.carlspring.strongbox.config.hazelcast.HazelcastConfiguration;
 import org.carlspring.strongbox.config.hazelcast.HazelcastInstanceId;
-import org.carlspring.strongbox.domain.UserEntry;
+import org.carlspring.strongbox.domain.UserEntity;
 import org.carlspring.strongbox.users.dto.UserDto;
 import org.carlspring.strongbox.users.security.JwtAuthenticationClaimsProvider;
 import org.carlspring.strongbox.users.security.JwtClaimsProvider;
 import org.carlspring.strongbox.users.security.SecurityTokenProvider;
 import org.carlspring.strongbox.users.service.UserService;
 import org.carlspring.strongbox.users.service.impl.EncodedPasswordUser;
-import org.carlspring.strongbox.users.service.impl.OrientDbUserService;
-import org.carlspring.strongbox.users.service.impl.OrientDbUserService.OrientDb;
+import org.carlspring.strongbox.users.service.impl.DatabaseUserService;
+import org.carlspring.strongbox.users.service.impl.DatabaseUserService.Database;
 import org.carlspring.strongbox.users.service.impl.YamlUserService.Yaml;
 import org.carlspring.strongbox.users.userdetails.SpringSecurityUser;
 import org.jose4j.lang.JoseException;
@@ -66,7 +66,7 @@ public class JwtAuthenticationProviderTest
     private UserService userService;
 
     @Inject
-    private OrientDbUserService orientDbUserService;
+    private DatabaseUserService orientDbUserService;
     
     @Inject
     private PasswordEncoder passwordEncoder;
@@ -97,7 +97,7 @@ public class JwtAuthenticationProviderTest
         authenticationManager.authenticate(authentication = getAuthentication(TEST_USER));
         
         //Change roles
-        UserEntry userEntity = orientDbUserService.findByUsername(TEST_USER);
+        UserEntity userEntity = orientDbUserService.findByUsername(TEST_USER);
         userEntity.getRoles().add("LOGS_MANAGER");
         userService.save(userEntity);
         

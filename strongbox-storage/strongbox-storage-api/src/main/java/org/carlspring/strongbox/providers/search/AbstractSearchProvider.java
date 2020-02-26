@@ -14,7 +14,7 @@ import org.carlspring.strongbox.domain.Artifact;
 import org.carlspring.strongbox.providers.io.RepositoryFiles;
 import org.carlspring.strongbox.providers.io.RepositoryPath;
 import org.carlspring.strongbox.providers.io.RepositoryPathResolver;
-import org.carlspring.strongbox.repositories.ArtifactEntityRepository;
+import org.carlspring.strongbox.repositories.ArtifactRepository;
 import org.carlspring.strongbox.storage.Storage;
 import org.carlspring.strongbox.storage.repository.Repository;
 import org.carlspring.strongbox.storage.search.SearchRequest;
@@ -32,7 +32,7 @@ public abstract class AbstractSearchProvider
     private static final Logger logger = LoggerFactory.getLogger(AbstractSearchProvider.class);
     
     @Inject
-    private ArtifactEntityRepository artifactEntityRepository;
+    private ArtifactRepository artifactEntityRepository;
 
     @Inject
     private ConfigurationManager configurationManager;

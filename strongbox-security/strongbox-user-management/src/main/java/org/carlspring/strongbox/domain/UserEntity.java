@@ -4,17 +4,17 @@ import java.util.Date;
 import java.util.HashSet;
 import java.util.Set;
 
-import javax.persistence.Entity;
-
-import org.carlspring.strongbox.data.domain.GenericEntity;
+import org.carlspring.strongbox.data.domain.DomainEntity;
+import org.carlspring.strongbox.db.schema.Vertices;
 import org.carlspring.strongbox.users.dto.User;
+import org.neo4j.ogm.annotation.NodeEntity;
 
 /**
  * @author sbespalov
  *
  */
-@Entity
-public class UserEntry extends GenericEntity implements User
+@NodeEntity(Vertices.USER)
+public class UserEntity extends DomainEntity implements User
 {
 
     private String username;

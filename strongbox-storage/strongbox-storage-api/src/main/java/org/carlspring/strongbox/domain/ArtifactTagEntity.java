@@ -15,4 +15,9 @@ public class ArtifactTagEntity
         implements ArtifactTag
 {
 
+    public void setName(String name)
+    {
+        setUuid(name);
+    }
+
 }

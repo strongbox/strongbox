@@ -14,7 +14,7 @@ import org.carlspring.strongbox.config.NugetLayoutProviderTestConfig;
 import org.carlspring.strongbox.domain.Artifact;
 import org.carlspring.strongbox.domain.RemoteArtifactEntity;
 import org.carlspring.strongbox.nuget.NugetSearchRequest;
-import org.carlspring.strongbox.repositories.ArtifactEntityRepository;
+import org.carlspring.strongbox.repositories.ArtifactRepository;
 import org.carlspring.strongbox.repository.NugetRepositoryFeatures;
 import org.carlspring.strongbox.storage.repository.Repository;
 import org.carlspring.strongbox.testing.repository.NugetRepository;
@@ -43,7 +43,7 @@ public class NugetRemoteRepositoryTest
     private static final String REMOTE_URL = "https://www.nuget.org/api/v2";
 
     @Inject
-    private ArtifactEntityRepository artifactEntityRepository;
+    private ArtifactRepository artifactEntityRepository;
 
     @Inject
     private NugetRepositoryFeatures features;

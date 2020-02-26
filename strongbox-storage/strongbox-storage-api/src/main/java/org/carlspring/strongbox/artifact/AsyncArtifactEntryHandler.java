@@ -14,7 +14,7 @@ import org.carlspring.strongbox.event.artifact.ArtifactEventTypeEnum;
 import org.carlspring.strongbox.providers.io.RepositoryFiles;
 import org.carlspring.strongbox.providers.io.RepositoryPath;
 import org.carlspring.strongbox.providers.io.RepositoryPathLock;
-import org.carlspring.strongbox.repositories.ArtifactEntityRepository;
+import org.carlspring.strongbox.repositories.ArtifactRepository;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.transaction.PlatformTransactionManager;
@@ -26,7 +26,7 @@ public abstract class AsyncArtifactEntryHandler
     private static final Logger logger = LoggerFactory.getLogger(AsyncArtifactEntryHandler.class);
 
     @Inject
-    private ArtifactEntityRepository artifactEntityRepository;
+    private ArtifactRepository artifactEntityRepository;
 
     @Inject
     private RepositoryPathLock repositoryPathLock;

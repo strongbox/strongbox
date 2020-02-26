@@ -21,7 +21,7 @@ import org.carlspring.strongbox.domain.ArtifactEntity;
 import org.carlspring.strongbox.providers.io.RepositoryFiles;
 import org.carlspring.strongbox.providers.io.RepositoryPath;
 import org.carlspring.strongbox.providers.repository.ProxyRepositoryProvider;
-import org.carlspring.strongbox.repositories.ArtifactEntityRepository;
+import org.carlspring.strongbox.repositories.ArtifactRepository;
 import org.carlspring.strongbox.storage.repository.Repository;
 import org.carlspring.strongbox.testing.repository.MavenRepository;
 import org.carlspring.strongbox.testing.storage.repository.RepositoryManagementTestExecutionListener;
@@ -57,7 +57,7 @@ public class CleanupExpiredArtifactsFromProxyRepositoriesCronJobTestIT
     private ProxyRepositoryProvider proxyRepositoryProvider;
 
     @Inject
-    private ArtifactEntityRepository artifactEntityRepository;
+    private ArtifactRepository artifactEntityRepository;
 
     @ExtendWith(RepositoryManagementTestExecutionListener.class)
     @Test

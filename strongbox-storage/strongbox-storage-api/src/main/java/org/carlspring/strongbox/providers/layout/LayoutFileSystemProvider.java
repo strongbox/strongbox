@@ -32,7 +32,7 @@ import org.carlspring.strongbox.providers.io.RepositoryFileAttributeType;
 import org.carlspring.strongbox.providers.io.RepositoryFiles;
 import org.carlspring.strongbox.providers.io.RepositoryPath;
 import org.carlspring.strongbox.providers.io.StorageFileSystemProvider;
-import org.carlspring.strongbox.repositories.ArtifactEntityRepository;
+import org.carlspring.strongbox.repositories.ArtifactRepository;
 import org.carlspring.strongbox.storage.ArtifactResolutionException;
 import org.carlspring.strongbox.storage.Storage;
 import org.carlspring.strongbox.storage.repository.Repository;
@@ -59,7 +59,7 @@ public abstract class LayoutFileSystemProvider extends StorageFileSystemProvider
     private RepositoryEventListenerRegistry repositoryEventListenerRegistry;
     
     @Inject
-    private ArtifactEntityRepository artifactEntityRepository;
+    private ArtifactRepository artifactEntityRepository;
 
 
     public LayoutFileSystemProvider(FileSystemProvider storageFileSystemProvider)

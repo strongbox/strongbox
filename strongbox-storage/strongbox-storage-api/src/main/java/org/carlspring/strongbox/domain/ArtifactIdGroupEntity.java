@@ -71,4 +71,9 @@ public class ArtifactIdGroupEntity extends DomainEntity implements ArtifactIdGro
         return artifactGroup.putArtifactEntry(artifactEntry);
     }
 
+    public void setName(String artifactId)
+    {
+        setUuid(artifactId);
+    }
+
 }

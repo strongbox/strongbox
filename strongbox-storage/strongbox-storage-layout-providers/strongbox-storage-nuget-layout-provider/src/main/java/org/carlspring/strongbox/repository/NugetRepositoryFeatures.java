@@ -37,7 +37,7 @@ import org.carlspring.strongbox.providers.io.RepositoryPath;
 import org.carlspring.strongbox.providers.io.RepositoryPathLock;
 import org.carlspring.strongbox.providers.io.RepositoryPathResolver;
 import org.carlspring.strongbox.providers.repository.event.RemoteRepositorySearchEvent;
-import org.carlspring.strongbox.repositories.ArtifactEntityRepository;
+import org.carlspring.strongbox.repositories.ArtifactRepository;
 import org.carlspring.strongbox.service.ProxyRepositoryConnectionPoolConfigurationService;
 import org.carlspring.strongbox.services.ArtifactIdGroupService;
 import org.carlspring.strongbox.services.ArtifactTagService;
@@ -76,7 +76,7 @@ public class NugetRepositoryFeatures
     private ConfigurationManager configurationManager;
 
     @Inject
-    private ArtifactEntityRepository artifactEntityRepository;
+    private ArtifactRepository artifactEntityRepository;
 
     @Inject
     private ArtifactTagService artifactTagService;

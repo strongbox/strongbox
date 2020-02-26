@@ -22,7 +22,7 @@ import org.carlspring.strongbox.data.service.support.search.PagingCriteria;
 import org.carlspring.strongbox.domain.Artifact;
 import org.carlspring.strongbox.domain.ArtifactEntity;
 import org.carlspring.strongbox.repositories.ArtifactCoordinatesRepository;
-import org.carlspring.strongbox.repositories.ArtifactEntityRepository;
+import org.carlspring.strongbox.repositories.ArtifactRepository;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.Assumptions;
 import org.junit.jupiter.api.BeforeEach;
@@ -62,7 +62,7 @@ public class ArtifactEntryServiceTest
     private final String ARTIFACT_ID = "coordinates-test";
 
     @Inject
-    private ArtifactEntityRepository artifactEntityRepository;
+    private ArtifactRepository artifactEntityRepository;
 
     @Inject
     private  ArtifactCoordinatesRepository artifactCoordinatesRepository;

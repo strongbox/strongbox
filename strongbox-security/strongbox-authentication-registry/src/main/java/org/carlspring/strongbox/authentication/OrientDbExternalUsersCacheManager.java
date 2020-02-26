@@ -5,28 +5,25 @@ import java.util.Optional;
 
 import org.apache.commons.lang3.StringUtils;
 import org.carlspring.strongbox.data.CacheName;
-import org.carlspring.strongbox.domain.UserEntry;
+import org.carlspring.strongbox.domain.UserEntity;
 import org.carlspring.strongbox.users.domain.UserData;
 import org.carlspring.strongbox.users.dto.User;
 import org.carlspring.strongbox.users.service.UserAlreadyExistsException;
-import org.carlspring.strongbox.users.service.impl.OrientDbUserService;
+import org.carlspring.strongbox.users.service.impl.DatabaseUserService;
 import org.carlspring.strongbox.users.userdetails.StrongboxExternalUsersCacheManager;
 import org.carlspring.strongbox.users.userdetails.StrongboxUserDetails;
+import org.janusgraph.core.SchemaViolationException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.cache.annotation.CacheEvict;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.stereotype.Component;
 
-import com.orientechnologies.common.concur.ONeedRetryException;
-import com.orientechnologies.orient.core.exception.ORecordNotFoundException;
-import com.orientechnologies.orient.core.storage.ORecordDuplicatedException;
-
 /**
  * @author sbespalov
  */
 @Component
-public class OrientDbExternalUsersCacheManager extends OrientDbUserService implements StrongboxExternalUsersCacheManager
+public class OrientDbExternalUsersCacheManager extends DatabaseUserService implements StrongboxExternalUsersCacheManager
 {
 
     private static final Logger logger = LoggerFactory.getLogger(OrientDbExternalUsersCacheManager.class);
@@ -40,17 +37,17 @@ public class OrientDbExternalUsersCacheManager extends OrientDbUserService imple
                 : new UserData(springUser);
         String username = user.getUsername();
         
-        Optional<UserEntry> optionalUser = Optional.ofNullable(findByUsername(user.getUsername())).map(this::detach);
+        Optional<UserEntity> optionalUser = Optional.ofNullable(findByUsername(user.getUsername()));
         try
         {
             // If found user was from another source then remove before save
             if (optionalUser.map(User::getSourceId).map(sourceId::equals).filter(Boolean.FALSE::equals).isPresent())
             {
-                delete(optionalUser.get());
+                deleteByUsername(optionalUser.map(u -> user.getUuid()).get());
                 optionalUser = Optional.empty();
             }
             
-            UserEntry userEntry = optionalUser.orElseGet(() -> new UserEntry());
+            UserEntity userEntry = optionalUser.orElseGet(() -> new UserEntity());
             
             if (!StringUtils.isBlank(user.getPassword()))
             {
@@ -63,16 +60,9 @@ public class OrientDbExternalUsersCacheManager extends OrientDbUserService imple
             userEntry.setLastUpdate(new Date());
             userEntry.setSourceId(sourceId);
 
-            return cascadeEntitySave(userEntry);
+            return save(userEntry);
         }
-        catch (ONeedRetryException|ORecordNotFoundException e)
-        {
-            logger.debug(String.format("Retry to save user [%s] from [%s] by reason [%s]",
-                                       user.getUsername(), sourceId, e.getMessage()));
-
-            return cacheExternalUserDetails(sourceId, springUser);
-        }
-        catch (ORecordDuplicatedException e)
+        catch (SchemaViolationException e)
         {
             
             throw new UserAlreadyExistsException(String.format("Failed to cache external user from [%s], duplicate [%s] already exists.", sourceId,

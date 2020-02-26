@@ -14,7 +14,7 @@ import org.carlspring.strongbox.domain.Artifact;
 import org.carlspring.strongbox.providers.io.RepositoryPath;
 import org.carlspring.strongbox.providers.io.RepositoryPathResolver;
 import org.carlspring.strongbox.providers.repository.proxied.LocalStorageProxyRepositoryExpiredArtifactsCleaner;
-import org.carlspring.strongbox.repositories.ArtifactEntityRepository;
+import org.carlspring.strongbox.repositories.ArtifactRepository;
 import org.carlspring.strongbox.services.ConfigurationManagementService;
 import org.carlspring.strongbox.storage.repository.remote.heartbeat.RemoteRepositoryAlivenessService;
 import org.springframework.aop.TargetSource;
@@ -31,7 +31,7 @@ abstract class BaseLocalStorageProxyRepositoryExpiredArtifactsCleanerTest
     protected ProxyRepositoryProvider proxyRepositoryProvider;
 
     @Inject
-    protected ArtifactEntityRepository artifactEntityRepository;
+    protected ArtifactRepository artifactEntityRepository;
 
     @Inject
     protected LocalStorageProxyRepositoryExpiredArtifactsCleaner localStorageProxyRepositoryExpiredArtifactsCleaner;

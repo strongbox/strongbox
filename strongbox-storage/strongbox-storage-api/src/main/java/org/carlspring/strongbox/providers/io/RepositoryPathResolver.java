@@ -8,7 +8,7 @@ import javax.inject.Inject;
 import org.carlspring.strongbox.artifact.coordinates.ArtifactCoordinates;
 import org.carlspring.strongbox.configuration.ConfigurationManager;
 import org.carlspring.strongbox.domain.Artifact;
-import org.carlspring.strongbox.repositories.ArtifactEntityRepository;
+import org.carlspring.strongbox.repositories.ArtifactRepository;
 import org.carlspring.strongbox.storage.Storage;
 import org.carlspring.strongbox.storage.repository.Repository;
 import org.springframework.stereotype.Component;
@@ -24,7 +24,7 @@ public class RepositoryPathResolver
     protected ConfigurationManager configurationManager;
 
     @Inject
-    protected ArtifactEntityRepository artifactEntityRepository;
+    protected ArtifactRepository artifactEntityRepository;
 
     @Inject
     protected RepositoryFileSystemRegistry fileSystemRegistry;

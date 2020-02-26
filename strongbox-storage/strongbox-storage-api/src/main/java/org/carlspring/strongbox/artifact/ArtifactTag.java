@@ -13,9 +13,4 @@ public interface ArtifactTag extends DomainObject
         return getUuid();
     }
 
-    default void setName(String name)
-    {
-        setUuid(name);
-    }
-
 }

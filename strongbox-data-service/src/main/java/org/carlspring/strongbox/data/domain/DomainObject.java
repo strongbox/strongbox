@@ -9,6 +9,4 @@ public interface DomainObject
 
     String getUuid();
 
-    void setUuid(String uuid);
-
 }

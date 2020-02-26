@@ -32,7 +32,7 @@ import org.carlspring.strongbox.providers.io.RepositoryStreamSupport.RepositoryO
 import org.carlspring.strongbox.providers.layout.LayoutProviderRegistry;
 import org.carlspring.strongbox.providers.repository.RepositoryProvider;
 import org.carlspring.strongbox.providers.repository.RepositoryProviderRegistry;
-import org.carlspring.strongbox.repositories.ArtifactEntityRepository;
+import org.carlspring.strongbox.repositories.ArtifactRepository;
 import org.carlspring.strongbox.services.ArtifactIdGroupService;
 import org.carlspring.strongbox.storage.Storage;
 import org.carlspring.strongbox.storage.repository.Repository;
@@ -59,7 +59,7 @@ public abstract class AbstractRepositoryProvider implements RepositoryProvider, 
     protected ConfigurationManager configurationManager;
 
     @Inject
-    protected ArtifactEntityRepository artifactEntityRepository;
+    protected ArtifactRepository artifactEntityRepository;
     
     @Inject
     private ArtifactIdGroupService repositoryArtifactIdGroupService;

@@ -26,7 +26,7 @@ import org.carlspring.strongbox.providers.io.RepositoryFiles;
 import org.carlspring.strongbox.providers.io.RepositoryPath;
 import org.carlspring.strongbox.providers.io.RepositoryPathLock;
 import org.carlspring.strongbox.providers.io.RepositoryPathResolver;
-import org.carlspring.strongbox.repositories.ArtifactEntityRepository;
+import org.carlspring.strongbox.repositories.ArtifactRepository;
 import org.carlspring.strongbox.services.ArtifactIdGroupService;
 import org.carlspring.strongbox.services.ArtifactTagService;
 import org.carlspring.strongbox.storage.Storage;
@@ -49,7 +49,7 @@ public class NpmPackageFeedParser
     private RepositoryPathResolver repositoryPathResolver;
 
     @Inject
-    private ArtifactEntityRepository artifactEntityRepository;
+    private ArtifactRepository artifactEntityRepository;
     
     @Inject
     private ArtifactIdGroupService repositoryArtifactIdGroupService;

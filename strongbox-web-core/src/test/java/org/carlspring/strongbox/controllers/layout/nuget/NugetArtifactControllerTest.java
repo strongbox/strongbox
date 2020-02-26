@@ -20,7 +20,7 @@ import org.carlspring.strongbox.domain.Artifact;
 import org.carlspring.strongbox.domain.RemoteArtifactEntity;
 import org.carlspring.strongbox.providers.io.RepositoryFiles;
 import org.carlspring.strongbox.providers.io.RepositoryPath;
-import org.carlspring.strongbox.repositories.ArtifactEntityRepository;
+import org.carlspring.strongbox.repositories.ArtifactRepository;
 import org.carlspring.strongbox.rest.common.NugetRestAssuredBaseTest;
 import org.carlspring.strongbox.storage.metadata.nuget.rss.PackageFeed;
 import org.carlspring.strongbox.storage.repository.Repository;
@@ -66,7 +66,7 @@ public class NugetArtifactControllerTest extends NugetRestAssuredBaseTest
     private static final String REPOSITORY_RELEASES_3 = "nuget-test-releases-nact-3";
 
     @Inject
-    private ArtifactEntityRepository artifactEntityRepository;
+    private ArtifactRepository artifactEntityRepository;
 
     @Override
     @BeforeEach

@@ -14,7 +14,7 @@ import org.carlspring.strongbox.data.service.support.search.PagingCriteria;
 import org.carlspring.strongbox.domain.Artifact;
 import org.carlspring.strongbox.providers.io.RepositoryPath;
 import org.carlspring.strongbox.providers.io.RepositoryPathResolver;
-import org.carlspring.strongbox.repositories.ArtifactEntityRepository;
+import org.carlspring.strongbox.repositories.ArtifactRepository;
 import org.carlspring.strongbox.services.ArtifactManagementService;
 import org.carlspring.strongbox.services.support.ArtifactEntrySearchCriteria;
 import org.carlspring.strongbox.storage.Storage;
@@ -42,7 +42,7 @@ public class LocalStorageProxyRepositoryExpiredArtifactsCleaner
     private RepositoryPathResolver repositoryPathResolver;
 
     @Inject
-    private ArtifactEntityRepository artifactEntityRepository;
+    private ArtifactRepository artifactEntityRepository;
 
     @Inject
     private RemoteRepositoryAlivenessService remoteRepositoryAlivenessCacheManager;

@@ -10,20 +10,21 @@ import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import java.util.stream.Collectors;
+import java.util.stream.StreamSupport;
 
 import javax.inject.Inject;
 import javax.inject.Qualifier;
 
 import org.apache.commons.lang3.StringUtils;
 import org.carlspring.strongbox.data.CacheName;
-import org.carlspring.strongbox.data.service.CommonCrudService;
-import org.carlspring.strongbox.domain.UserEntry;
+import org.carlspring.strongbox.domain.UserEntity;
+import org.carlspring.strongbox.repositories.UserRepository;
 import org.carlspring.strongbox.users.domain.UserData;
 import org.carlspring.strongbox.users.domain.Users;
 import org.carlspring.strongbox.users.dto.User;
 import org.carlspring.strongbox.users.security.SecurityTokenProvider;
-import org.carlspring.strongbox.users.service.UserEntryService;
-import org.carlspring.strongbox.users.service.impl.OrientDbUserService.OrientDb;
+import org.carlspring.strongbox.users.service.UserService;
+import org.carlspring.strongbox.users.service.impl.DatabaseUserService.Database;
 import org.jose4j.lang.JoseException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -31,51 +32,33 @@ import org.springframework.cache.annotation.CacheEvict;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.stereotype.Component;
 
-import com.orientechnologies.orient.core.record.impl.ODocument;
-import com.orientechnologies.orient.core.sql.OCommandSQL;
-import com.orientechnologies.orient.core.sql.query.OSQLSynchQuery;
-
 /**
  * @author sbespalov
  */
 @Component
-@OrientDb
-public class OrientDbUserService extends CommonCrudService<UserEntry> implements UserEntryService
+@Database
+public class DatabaseUserService implements UserService
 {
 
-    private static final Logger logger = LoggerFactory.getLogger(OrientDbUserService.class);
+    private static final Logger logger = LoggerFactory.getLogger(DatabaseUserService.class);
 
     @Inject
     private SecurityTokenProvider tokenProvider;
+    
+    @Inject
+    private UserRepository userRepository;
 
     @Override
     @CacheEvict(cacheNames = CacheName.User.AUTHENTICATIONS, key = "#p0")
     public void deleteByUsername(String username)
     {
-        Map<String, String> params = new HashMap<>();
-        params.put("username", username);
-
-        String sQuery = String.format("delete from %s where username = :username", UserEntry.class.getSimpleName());
-
-        OCommandSQL oQuery = new OCommandSQL(sQuery);
-        getDelegate().command(oQuery).execute(params);
+        userRepository.deleteById(username);
     }
 
     @Override
-    public UserEntry findByUsername(String username)
+    public UserEntity findByUsername(String username)
     {
-        Map<String, String> params = new HashMap<>();
-        params.put("username", username);
-
-        String sQuery = buildQuery(params);
-
-        OSQLSynchQuery<ODocument> oQuery = new OSQLSynchQuery<>(sQuery);
-        oQuery.setLimit(1);
-
-        List<UserEntry> resultList = getDelegate().command(oQuery).execute(params);
-
-        return resultList.stream().findFirst().orElse(null);
-
+        return userRepository.findById(username).map(UserEntity.class::cast).orElse(null);
     }
 
     @Override
@@ -99,7 +82,7 @@ public class OrientDbUserService extends CommonCrudService<UserEntry> implements
     @CacheEvict(cacheNames = CacheName.User.AUTHENTICATIONS, key = "#p0.username")
     public void updateAccountDetailsByUsername(User userToUpdate)
     {
-        UserEntry user = findByUsername(userToUpdate.getUsername());
+        UserEntity user = findByUsername(userToUpdate.getUsername());
         if (user == null)
         {
             throw new UsernameNotFoundException(userToUpdate.getUsername());
@@ -121,28 +104,17 @@ public class OrientDbUserService extends CommonCrudService<UserEntry> implements
     @Override
     public Users getUsers()
     {
-        Optional<List<UserEntry>> allUsers = findAll();
-        if (allUsers.isPresent())
-        {
-            return new Users(allUsers.get().stream().map(u -> detach(u)).collect(Collectors.toSet()));
-        }
-
-        return null;
+        Iterable<User> users = userRepository.findAll();
+        return new Users(StreamSupport.stream(users.spliterator(), false).collect(Collectors.toSet()));
     }
 
     @Override
     public void revokeEveryone(String roleToRevoke)
     {
-        Map<String, String> params = new HashMap<>();
-        params.put("role", roleToRevoke);
-
-        String sQuery = String.format("select * from %s where :role in roles", UserEntry.class.getSimpleName());
-
-        OSQLSynchQuery<ODocument> oQuery = new OSQLSynchQuery<>(sQuery);
-        List<UserEntry> resultList = getDelegate().command(oQuery).execute(params);
+        List<User> resultList = userRepository.findUsersWithRole(roleToRevoke);
 
         resultList.stream().forEach(user -> {
-            detach(user).getRoles().remove(roleToRevoke);
+            user.getRoles().remove(roleToRevoke);
             save(user);
         });
     }
@@ -151,7 +123,7 @@ public class OrientDbUserService extends CommonCrudService<UserEntry> implements
     @CacheEvict(cacheNames = CacheName.User.AUTHENTICATIONS, key = "#p0.username")
     public User save(User user)
     {
-        UserEntry userEntry = Optional.ofNullable(findByUsername(user.getUsername())).orElseGet(() -> new UserEntry());
+        UserEntity userEntry = Optional.ofNullable(findByUsername(user.getUsername())).orElseGet(() -> new UserEntity());
 
         if (!StringUtils.isBlank(user.getPassword()))
         {
@@ -163,42 +135,24 @@ public class OrientDbUserService extends CommonCrudService<UserEntry> implements
         userEntry.setSecurityTokenKey(user.getSecurityTokenKey());
         userEntry.setLastUpdate(new Date());
 
-        return save(userEntry);
-    }
-
-    @Override
-    @CacheEvict(cacheNames = CacheName.User.AUTHENTICATIONS, key = "#p0.username")
-    public <S extends UserEntry> S save(S entity)
-    {
-        if (StringUtils.isNotBlank(entity.getSourceId()))
-        {
-            throw new IllegalStateException("Can't modify external users.");
-        }
-
-        return super.save(entity);
+        return userRepository.save(userEntry);
     }
 
     public void expireUser(String username, boolean clearSourceId)
     {
-        UserEntry externalUserEntry = (UserEntry) detach(findByUsername(username));
+        UserEntity externalUserEntry = findByUsername(username);
         externalUserEntry.setLastUpdate(null);
         if (clearSourceId)
         {
             externalUserEntry.setSourceId("empty");
         }
-        entityManager.persist(externalUserEntry);
-    }
-    
-    @Override
-    public Class<UserEntry> getEntityClass()
-    {
-        return UserEntry.class;
+        userRepository.save(externalUserEntry);
     }
 
     @Documented
     @Retention(RUNTIME)
     @Qualifier
-    public @interface OrientDb
+    public @interface Database
     {
     }
 

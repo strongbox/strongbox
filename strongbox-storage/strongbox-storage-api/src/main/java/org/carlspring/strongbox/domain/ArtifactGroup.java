@@ -11,11 +11,6 @@ public interface ArtifactGroup extends DomainObject
         return getUuid();
     }
 
-    default void setName(String name)
-    {
-        setUuid(name);
-    }
-
     Set<Artifact> getArtifacts();
 
 }
