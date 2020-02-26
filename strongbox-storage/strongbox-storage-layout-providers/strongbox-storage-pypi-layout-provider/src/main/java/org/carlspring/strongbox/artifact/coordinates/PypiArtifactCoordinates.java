@@ -1,16 +1,14 @@
 package org.carlspring.strongbox.artifact.coordinates;
 
-import org.carlspring.strongbox.artifact.coordinates.versioning.SemanticVersion;
-import org.carlspring.strongbox.domain.LayoutArtifactCoordinatesEntity;
-import org.carlspring.strongbox.util.PypiArtifactCoordinatesUtils;
-
 import javax.persistence.Entity;
 import javax.xml.bind.annotation.XmlAccessType;
 import javax.xml.bind.annotation.XmlAccessorType;
 import javax.xml.bind.annotation.XmlRootElement;
-import java.util.Map;
 
 import org.apache.commons.lang3.StringUtils;
+import org.carlspring.strongbox.artifact.coordinates.versioning.SemanticVersion;
+import org.carlspring.strongbox.domain.LayoutArtifactCoordinatesEntity;
+import org.carlspring.strongbox.util.PypiArtifactCoordinatesUtils;
 
 /**
  * This class is an {@link ArtifactCoordinates} implementation for pypi artifacts
@@ -23,7 +21,6 @@ import org.apache.commons.lang3.StringUtils;
  * @author alecg956
  */
 @Entity
-@SuppressWarnings("serial")
 @XmlRootElement(name = "PypiArtifactCoordinates")
 @XmlAccessorType(XmlAccessType.NONE)
 @ArtifactCoordinatesLayout(name = PypiArtifactCoordinates.LAYOUT_NAME, alias = PypiArtifactCoordinates.LAYOUT_ALIAS)
@@ -274,14 +271,14 @@ public class PypiArtifactCoordinates
      * @return Returns the reconstructed path from the stored coordinate values
      */
     @Override
-    public String buildPath()
+    public String convertToPath(PypiArtifactCoordinates c)
     {
-        String fileName = SOURCE_EXTENSION.equals(getPackaging()) ? buildSourcePackageFileName()
-                                                                  : buildWheelPackageFileName();
+        String fileName = SOURCE_EXTENSION.equals(c.getPackaging()) ? c.buildSourcePackageFileName()
+                                                                  : c.buildWheelPackageFileName();
 
         return String.format("%s/%s/%s",
-                             getId(),
-                             getVersion(),
+                             c.getId(),
+                             c.getVersion(),
                              fileName);
     }
 
@@ -348,15 +345,4 @@ public class PypiArtifactCoordinates
         }
     }
 
-    /**
-     * @return Returns a map data structure of the coordinates without the VERSION coordinate
-     */
-    @Override
-    public Map<String, String> dropVersion()
-    {
-        Map<String, String> result = getCoordinates();
-        result.remove(VERSION);
-
-        return result;
-    }
 }

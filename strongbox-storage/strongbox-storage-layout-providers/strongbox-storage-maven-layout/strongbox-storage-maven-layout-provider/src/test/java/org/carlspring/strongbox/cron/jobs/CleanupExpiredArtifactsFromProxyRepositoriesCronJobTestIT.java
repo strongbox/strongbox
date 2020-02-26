@@ -16,6 +16,7 @@ import javax.inject.Inject;
 import org.apache.commons.lang.time.DateUtils;
 import org.carlspring.strongbox.config.Maven2LayoutProviderCronTasksTestConfig;
 import org.carlspring.strongbox.data.CacheManagerTestExecutionListener;
+import org.carlspring.strongbox.domain.Artifact;
 import org.carlspring.strongbox.domain.ArtifactEntity;
 import org.carlspring.strongbox.providers.io.RepositoryFiles;
 import org.carlspring.strongbox.providers.io.RepositoryPath;
@@ -71,9 +72,9 @@ public class CleanupExpiredArtifactsFromProxyRepositoriesCronJobTestIT
         final String repositoryId = repository.getId();
         final String artifactPathStr = "org/carlspring/properties-injector/1.5/properties-injector-1.5.jar";
 
-        Optional<ArtifactEntity> artifactEntryOptional = Optional.ofNullable(artifactEntityRepository.findOneArtifact(storageId,
-                                                                                                                      repositoryId,
-                                                                                                                      artifactPathStr));
+        Optional<Artifact> artifactEntryOptional = Optional.ofNullable(artifactEntityRepository.findOneArtifact(storageId,
+                                                                                                                repositoryId,
+                                                                                                                artifactPathStr));
         assertThat(artifactEntryOptional).isEqualTo(Optional.empty());
 
         Path repositoryPath = proxyRepositoryProvider.fetchPath(repositoryPathResolver.resolve(storageId,
@@ -86,7 +87,7 @@ public class CleanupExpiredArtifactsFromProxyRepositoriesCronJobTestIT
         artifactEntryOptional = Optional.ofNullable(artifactEntityRepository.findOneArtifact(storageId,
                                                                                              repositoryId,
                                                                                              artifactPathStr));
-        ArtifactEntity artifactEntry = artifactEntryOptional.orElse(null);
+        Artifact artifactEntry = artifactEntryOptional.orElse(null);
         assertThat(artifactEntry).isNotNull();
         assertThat(artifactEntry.getLastUpdated()).isNotNull();
         assertThat(artifactEntry.getLastUsed()).isNotNull();
@@ -105,10 +106,10 @@ public class CleanupExpiredArtifactsFromProxyRepositoriesCronJobTestIT
         {
             if (StringUtils.equals(jobKey1, jobKey.toString()) && statusExecuted)
             {
-                Optional<ArtifactEntity> optionalArtifactEntryFromDb = Optional.ofNullable(
-                        artifactEntityRepository.findOneArtifact(storageId,
-                                                             repositoryId,
-                                                             artifactPathStr));
+                Artifact artifact = artifactEntityRepository.findOneArtifact(storageId,
+                                                                             repositoryId,
+                                                                             artifactPathStr);
+                Optional<Artifact> optionalArtifactEntryFromDb = Optional.ofNullable(artifact);
                 assertThat(optionalArtifactEntryFromDb).isEqualTo(Optional.empty());
 
                 try

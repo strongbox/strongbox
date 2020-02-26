@@ -1,17 +1,16 @@
 package org.carlspring.strongbox.artifact.coordinates;
 
-import org.carlspring.strongbox.artifact.coordinates.versioning.SemanticVersion;
-import org.carlspring.strongbox.domain.LayoutArtifactCoordinatesEntity;
+import java.net.URI;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 import javax.persistence.Entity;
 import javax.xml.bind.annotation.XmlAccessType;
 import javax.xml.bind.annotation.XmlAccessorType;
 import javax.xml.bind.annotation.XmlRootElement;
-import java.net.URI;
-import java.util.Map;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
 
+import org.carlspring.strongbox.artifact.coordinates.versioning.SemanticVersion;
+import org.carlspring.strongbox.domain.LayoutArtifactCoordinatesEntity;
 import org.springframework.util.Assert;
 import org.springframework.util.StringUtils;
 
@@ -24,7 +23,6 @@ import org.springframework.util.StringUtils;
  * @author sbespalov
  */
 @Entity
-@SuppressWarnings("serial")
 @XmlRootElement(name = "npmArtifactCoordinates")
 @XmlAccessorType(XmlAccessType.NONE)
 @ArtifactCoordinatesLayout(name = NpmArtifactCoordinates.LAYOUT_NAME, alias = NpmArtifactCoordinates.LAYOUT_ALIAS)
@@ -153,15 +151,15 @@ public class NpmArtifactCoordinates extends LayoutArtifactCoordinatesEntity<NpmA
     }
     
     @Override
-    public String buildPath()
+    public String convertToPath(NpmArtifactCoordinates c)
     {
-        return String.format("%s/%s/%s/%s", getGroup(), getName(), getVersion(), getArtifactFileName());
+        return String.format("%s/%s/%s/%s", c.getGroup(), c.getName(), c.getVersion(), c.getArtifactFileName());
     }
 
     @Override
-    public URI buildResource()
+    public URI convertToResource(NpmArtifactCoordinates c)
     {
-        return URI.create(String.format("%s/-/%s", getId(), getArtifactFileName()));
+        return URI.create(String.format("%s/-/%s", c.getId(), c.getArtifactFileName()));
     }
 
     public String getGroup()
@@ -198,15 +196,6 @@ public class NpmArtifactCoordinates extends LayoutArtifactCoordinatesEntity<NpmA
         {
             return null;
         }
-    }
-
-    @Override
-    public Map<String, String> dropVersion()
-    {
-        Map<String, String> result = getCoordinates();
-        result.remove(VERSION);
-
-        return result;
     }
 
     public static NpmArtifactCoordinates parse(String path)

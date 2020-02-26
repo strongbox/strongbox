@@ -32,7 +32,6 @@ import org.apache.maven.artifact.Artifact;
 import org.carlspring.strongbox.artifact.ArtifactTag;
 import org.carlspring.strongbox.artifact.MavenArtifactUtils;
 import org.carlspring.strongbox.config.Maven2LayoutProviderTestConfig;
-import org.carlspring.strongbox.domain.ArtifactEntity;
 import org.carlspring.strongbox.providers.io.RepositoryFiles;
 import org.carlspring.strongbox.providers.io.RepositoryPath;
 import org.carlspring.strongbox.providers.io.RepositoryPathResolver;
@@ -566,9 +565,9 @@ public class ArtifactManagementServiceImplTest
         }
 
         // confirm it has last-version tag
-        ArtifactEntity artifactEntry = artifactEntityRepository.findOneArtifact(storageId,
-                                                                           repositoryId,
-                                                                           artifactPath);
+        org.carlspring.strongbox.domain.Artifact artifactEntry = artifactEntityRepository.findOneArtifact(storageId,
+                                                                                                          repositoryId,
+                                                                                                          artifactPath);
         assertThat(artifactEntry.getTagSet()).isNotNull();
         assertThat(artifactEntry.getTagSet()).hasSize(1);
         assertThat(artifactEntry.getTagSet().iterator().next().getName()).isEqualTo(ArtifactTag.LAST_VERSION);
@@ -587,9 +586,9 @@ public class ArtifactManagementServiceImplTest
         }
 
         // confirm it has last-version tag
-        ArtifactEntity artifactEntryWithClassifier = artifactEntityRepository.findOneArtifact(storageId,
-                                                                                         repositoryId,
-                                                                                         artifactPathWithClassifier);
+        org.carlspring.strongbox.domain.Artifact artifactEntryWithClassifier = artifactEntityRepository.findOneArtifact(storageId,
+                                                                                                                        repositoryId,
+                                                                                                                        artifactPathWithClassifier);
 
         assertThat(artifactEntryWithClassifier.getTagSet()).isNotNull();
         assertThat(artifactEntryWithClassifier.getTagSet()).hasSize(1);
@@ -618,9 +617,9 @@ public class ArtifactManagementServiceImplTest
         }
 
         // confirm it has last-version tag
-        ArtifactEntity artifactEntryV2 = artifactEntityRepository.findOneArtifact(storageId,
-                                                                             repositoryId,
-                                                                             artifactPathV2);
+        org.carlspring.strongbox.domain.Artifact artifactEntryV2 = artifactEntityRepository.findOneArtifact(storageId,
+                                                                                                            repositoryId,
+                                                                                                            artifactPathV2);
 
         assertThat(artifactEntryV2.getTagSet()).isNotNull();
         assertThat(artifactEntryV2.getTagSet()).hasSize(1);
@@ -672,9 +671,9 @@ public class ArtifactManagementServiceImplTest
         expectedChecksums.put("MD5", md5Checksum);
 
         String path = RepositoryFiles.relativizePath(repositoryPath);
-        ArtifactEntity artifactEntry = artifactEntityRepository.findOneArtifact(storageId,
-                                                                           repositoryId,
-                                                                           path);
+        org.carlspring.strongbox.domain.Artifact artifactEntry = artifactEntityRepository.findOneArtifact(storageId,
+                                                                                                          repositoryId,
+                                                                                                          path);
 
         assertThat(artifactEntry).isNotNull();
 

@@ -1,20 +1,18 @@
 package org.carlspring.strongbox.artifact.coordinates;
 
-import org.carlspring.strongbox.artifact.MavenArtifact;
-import org.carlspring.strongbox.artifact.MavenArtifactUtils;
-import org.carlspring.strongbox.artifact.MavenRepositoryArtifact;
-import org.carlspring.strongbox.domain.LayoutArtifactCoordinatesEntity;
-
 import javax.persistence.Entity;
 import javax.xml.bind.annotation.XmlAccessType;
 import javax.xml.bind.annotation.XmlAccessorType;
 import javax.xml.bind.annotation.XmlAttribute;
 import javax.xml.bind.annotation.XmlRootElement;
-import java.util.Map;
 
 import org.apache.commons.lang3.StringUtils;
 import org.apache.maven.artifact.Artifact;
 import org.apache.maven.artifact.versioning.ComparableVersion;
+import org.carlspring.strongbox.artifact.MavenArtifact;
+import org.carlspring.strongbox.artifact.MavenArtifactUtils;
+import org.carlspring.strongbox.artifact.MavenRepositoryArtifact;
+import org.carlspring.strongbox.domain.LayoutArtifactCoordinatesEntity;
 
 /**
  * @author carlspring
@@ -117,9 +115,9 @@ public class MavenArtifactCoordinates
     }
     
     @Override
-    public String convertToPath(MavenArtifactCoordinates artifactCoordinates)
+    public String convertToPath(MavenArtifactCoordinates c)
     {
-        return MavenArtifactUtils.convertArtifactToPath(toArtifact());
+        return MavenArtifactUtils.convertArtifactToPath(c.toArtifact());
     }
 
     public MavenArtifact toArtifact()
@@ -213,14 +211,6 @@ public class MavenArtifactCoordinates
             return null;
         }
         return new ComparableVersion(versionLocal);
-    }
-
-    @Override
-    public Map<String, String> dropVersion()
-    {
-        Map<String, String> result = getCoordinates();
-        result.remove(VERSION);
-        return result;
     }
 
     @Override

@@ -1,7 +1,5 @@
 package org.carlspring.strongbox.artifact.coordinates;
 
-import java.util.Map;
-
 import javax.persistence.Entity;
 import javax.validation.constraints.NotBlank;
 import javax.xml.bind.annotation.XmlAccessType;
@@ -9,6 +7,7 @@ import javax.xml.bind.annotation.XmlAccessorType;
 import javax.xml.bind.annotation.XmlRootElement;
 
 import org.carlspring.strongbox.artifact.coordinates.versioning.SemanticVersion;
+import org.carlspring.strongbox.domain.LayoutArtifactCoordinatesEntity;
 import org.carlspring.strongbox.domain.RpmPackageArch;
 import org.carlspring.strongbox.domain.RpmPackageType;
 import org.carlspring.strongbox.util.RpmArtifactCoordinatesUtils;
@@ -38,7 +37,7 @@ import org.codehaus.commons.nullanalysis.NotNull;
 @XmlAccessorType(XmlAccessType.NONE)
 @ArtifactCoordinatesLayout(name = RpmArtifactCoordinates.LAYOUT_NAME, alias = RpmArtifactCoordinates.LAYOUT_ALIAS)
 public class RpmArtifactCoordinates
-        extends ArtifactCoordinatesEntity<RpmArtifactCoordinates, SemanticVersion>
+        extends LayoutArtifactCoordinatesEntity<RpmArtifactCoordinates, SemanticVersion>
 {
     public static final String LAYOUT_NAME = "RPM";
 
@@ -102,7 +101,6 @@ public class RpmArtifactCoordinates
         return getCoordinate(BASE_NAME);
     }
 
-    @Override
     public void setId(String id)
     {
         setCoordinate(BASE_NAME, id);
@@ -173,35 +171,26 @@ public class RpmArtifactCoordinates
     }
 
     @Override
-    public Map<String, String> dropVersion()
-    {
-        Map<String, String> result = getCoordinates();
-        result.remove(VERSION);
-
-        return result;
-    }
-
-    @Override
-    public String buildPath()
+    public String convertToPath(RpmArtifactCoordinates c)
     {
         String path;
-        if (RpmPackageType.SOURCE.getPostfix().equals(getPackageType()))
+        if (RpmPackageType.SOURCE.getPostfix().equals(c.getPackageType()))
         {
             path = String.format("%s-%s-%s.%s.%s",
-                                 getId(),
-                                 getVersion(),
-                                 getRelease(),
-                                 getPackageType(),
-                                 getExtension());
+                                 c.getId(),
+                                 c.getVersion(),
+                                 c.getRelease(),
+                                 c.getPackageType(),
+                                 c.getExtension());
         }
         else
         {
             path = String.format("%s-%s-%s.%s.%s",
-                                 getId(),
-                                 getVersion(),
-                                 getRelease(),
-                                 getArchitecture(),
-                                 getExtension());
+                                 c.getId(),
+                                 c.getVersion(),
+                                 c.getRelease(),
+                                 c.getArchitecture(),
+                                 c.getExtension());
         }
 
         return path;

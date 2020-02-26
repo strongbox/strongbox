@@ -1,15 +1,8 @@
 package org.carlspring.strongbox.services.impl;
 
-import org.carlspring.strongbox.StorageApiTestConfig;
-import org.carlspring.strongbox.artifact.coordinates.ArtifactCoordinates;
-import org.carlspring.strongbox.artifact.coordinates.RawArtifactCoordinates;
-import org.carlspring.strongbox.data.CacheManagerTestExecutionListener;
-import org.carlspring.strongbox.data.service.support.search.PagingCriteria;
-import org.carlspring.strongbox.domain.Artifact;
-import org.carlspring.strongbox.domain.ArtifactEntity;
-import org.carlspring.strongbox.repositories.ArtifactEntityRepository;
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.carlspring.strongbox.services.support.ArtifactEntrySearchCriteria.Builder.anArtifactEntrySearchCriteria;
 
-import javax.inject.Inject;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.Date;
@@ -18,7 +11,18 @@ import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
 
+import javax.inject.Inject;
+
 import org.apache.commons.lang3.time.DateUtils;
+import org.carlspring.strongbox.StorageApiTestConfig;
+import org.carlspring.strongbox.artifact.coordinates.ArtifactCoordinates;
+import org.carlspring.strongbox.artifact.coordinates.RawArtifactCoordinates;
+import org.carlspring.strongbox.data.CacheManagerTestExecutionListener;
+import org.carlspring.strongbox.data.service.support.search.PagingCriteria;
+import org.carlspring.strongbox.domain.Artifact;
+import org.carlspring.strongbox.domain.ArtifactEntity;
+import org.carlspring.strongbox.repositories.ArtifactCoordinatesRepository;
+import org.carlspring.strongbox.repositories.ArtifactEntityRepository;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.Assumptions;
 import org.junit.jupiter.api.BeforeEach;
@@ -31,8 +35,6 @@ import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.TestExecutionListeners;
 import org.springframework.util.CollectionUtils;
-import static org.assertj.core.api.Assertions.assertThat;
-import static org.carlspring.strongbox.services.support.ArtifactEntrySearchCriteria.Builder.anArtifactEntrySearchCriteria;
 
 /**
  * Functional test and usage example scenarios for {@link ArtifactEntryService}.
@@ -63,7 +65,7 @@ public class ArtifactEntryServiceTest
     private ArtifactEntityRepository artifactEntityRepository;
 
     @Inject
-    private  ArtifactCoordinatesService artifactCoordinatesService;
+    private  ArtifactCoordinatesRepository artifactCoordinatesRepository;
 
     @BeforeEach
     public void setup(TestInfo testInfo)
@@ -97,7 +99,7 @@ public class ArtifactEntryServiceTest
                                                                        .map(e -> (ArtifactCoordinates) e.getArtifactCoordinates())
                                                                        .collect(Collectors.toList());
         artifactEntityRepository.deleteAll(artifactEntries);
-        artifactCoordinatesService.delete(artifactCoordinates);
+        artifactCoordinatesRepository.deleteAll(artifactCoordinates);
 
         displayAllEntries(groupId);
     }
@@ -253,8 +255,7 @@ public class ArtifactEntryServiceTest
         assertThat(all).isEqualTo(3);
 
         List<Artifact> artifactEntries = findAll(groupId);
-        int removed = artifactEntityRepository.deleteAll(artifactEntries);
-        assertThat(removed).isEqualTo(all);
+        artifactEntityRepository.deleteAll(artifactEntries);
 
         int left = count(groupId);
         assertThat(left).isZero();
@@ -271,8 +272,7 @@ public class ArtifactEntryServiceTest
 
         List<Artifact> artifactEntries = findAll(groupId);
         artifactEntries.remove(0);
-        int removed = artifactEntityRepository.deleteAll(artifactEntries);
-        assertThat(removed).isEqualTo(all - 1);
+        artifactEntityRepository.deleteAll(artifactEntries);
 
         int left = count(groupId);
         assertThat(left).isEqualTo(1);
@@ -332,38 +332,6 @@ public class ArtifactEntryServiceTest
                                     assertThat(((RawArtifactCoordinates)artifactEntry.getArtifactCoordinates())
                                                        .getPath().startsWith(groupId + "/")).isTrue();
                                 });
-    }
-
-    /**
-     * Make sure that we are able to search artifacts by two coordinates that need to be joined with logical AND operator.
-     */
-    @Test
-    public void searchByTwoCoordinate(TestInfo testInfo)
-    {
-        final String groupId = getGroupId(GROUP_ID, testInfo);
-
-        logger.debug("There are a total of {} artifacts.", count(groupId));
-
-        // prepare search query key (coordinates)
-        RawArtifactCoordinates c1 = new RawArtifactCoordinates(groupId + "/" + ARTIFACT_ID + "/");
-
-        List<Artifact> result = artifactEntityRepository.findArtifactList(STORAGE_ID,
-                                                                          REPOSITORY_ID,
-                                                                          c1.getCoordinates(),
-                                                                          false);
-        assertThat(result).isNotNull();
-        assertThat(result).isNotEmpty();
-        assertThat(result).hasSize(1);
-
-        result.forEach(artifactEntry ->
-                       {
-                           logger.debug("Found artifact {}", artifactEntry);
-                           assertThat(((RawArtifactCoordinates)artifactEntry.getArtifactCoordinates())
-                                              .getPath().startsWith(groupId + "/" + ARTIFACT_ID)).isTrue();
-                       });
-
-        Long c = artifactEntityRepository.countArtifacts(STORAGE_ID, REPOSITORY_ID, c1.getCoordinates(), false);
-        assertThat(c).isEqualTo(Long.valueOf(1));
     }
 
     @Test

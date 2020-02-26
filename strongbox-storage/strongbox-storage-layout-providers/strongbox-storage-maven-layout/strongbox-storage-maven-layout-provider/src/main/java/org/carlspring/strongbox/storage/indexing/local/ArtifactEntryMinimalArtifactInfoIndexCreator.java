@@ -1,8 +1,5 @@
 package org.carlspring.strongbox.storage.indexing.local;
 
-import org.carlspring.strongbox.artifact.coordinates.MavenArtifactCoordinates;
-import org.carlspring.strongbox.domain.ArtifactEntity;
-
 import java.util.Map;
 
 import org.apache.commons.collections4.MapUtils;
@@ -10,6 +7,8 @@ import org.apache.maven.index.ArtifactAvailability;
 import org.apache.maven.index.ArtifactContext;
 import org.apache.maven.index.ArtifactInfo;
 import org.apache.maven.index.creator.MinimalArtifactInfoIndexCreator;
+import org.carlspring.strongbox.artifact.coordinates.MavenArtifactCoordinates;
+import org.carlspring.strongbox.domain.Artifact;
 import org.springframework.core.annotation.Order;
 import org.springframework.stereotype.Component;
 
@@ -32,7 +31,7 @@ public class ArtifactEntryMinimalArtifactInfoIndexCreator
     public void populateArtifactInfo(ArtifactContext artifactContext)
     {
         ArtifactEntryArtifactContext ac = (ArtifactEntryArtifactContext) artifactContext;
-        ArtifactEntity artifactEntry = ac.getArtifactEntry();
+        Artifact artifactEntry = ac.getArtifactEntry();
 
         MavenArtifactCoordinates coordinates = (MavenArtifactCoordinates) artifactEntry.getArtifactCoordinates();
 

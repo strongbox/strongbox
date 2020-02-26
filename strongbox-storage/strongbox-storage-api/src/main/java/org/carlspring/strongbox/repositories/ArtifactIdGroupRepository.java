@@ -32,8 +32,8 @@ public class ArtifactIdGroupRepository extends GremlinVertexRepository<ArtifactI
     }
 
     public List<ArtifactIdGroup> findMatching(String storageId,
-                                                        String repositoryId,
-                                                        PagingCriteria pagingCriteria)
+                                              String repositoryId,
+                                              PagingCriteria pagingCriteria)
     {
         return queries.findMatching(storageId, repositoryId, pagingCriteria);
     }

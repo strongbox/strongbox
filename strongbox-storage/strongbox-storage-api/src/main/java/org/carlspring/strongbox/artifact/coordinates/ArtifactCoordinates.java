@@ -1,7 +1,6 @@
 package org.carlspring.strongbox.artifact.coordinates;
 
 import java.net.URI;
-import java.util.Map;
 
 import javax.xml.bind.annotation.XmlRootElement;
 
@@ -16,8 +15,6 @@ public interface ArtifactCoordinates<C extends ArtifactCoordinates<C, V>, V exte
     
     V getNativeVersion();
 
-    Map<String, String> dropVersion();
-    
     String buildPath();
     
     URI buildResource();

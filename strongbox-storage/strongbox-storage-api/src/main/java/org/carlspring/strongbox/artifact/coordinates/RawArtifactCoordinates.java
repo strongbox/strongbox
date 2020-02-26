@@ -1,6 +1,5 @@
 package org.carlspring.strongbox.artifact.coordinates;
 
-import java.util.Map;
 import java.util.Optional;
 
 import org.carlspring.strongbox.db.schema.Vertices;
@@ -60,12 +59,6 @@ public class RawArtifactCoordinates
         return this;
     }
 
-    @Override
-    public Map<String, String> dropVersion()
-    {
-        return getCoordinates();
-    }
-    
     @Override
     public String convertToPath(RawArtifactCoordinates artifactCoordinates)
     {

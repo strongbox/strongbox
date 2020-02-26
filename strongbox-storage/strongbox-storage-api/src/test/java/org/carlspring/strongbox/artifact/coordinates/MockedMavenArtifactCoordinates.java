@@ -1,7 +1,5 @@
 package org.carlspring.strongbox.artifact.coordinates;
 
-import java.util.Map;
-
 import javax.xml.bind.annotation.XmlAccessType;
 import javax.xml.bind.annotation.XmlAccessorType;
 import javax.xml.bind.annotation.XmlAttribute;
@@ -77,15 +75,14 @@ public class MockedMavenArtifactCoordinates
     }
 
     @Override
-    public String buildPath()
+    public String convertToPath(MockedMavenArtifactCoordinates c)
     {
         try
         {
-            return convertArtifactToPath(toArtifact());
+            return convertArtifactToPath(c.toArtifact());
         }
         catch (Exception e)
         {
-            //e.printStackTrace();
             return getCoordinates().toString();
         }
     }
@@ -184,15 +181,6 @@ public class MockedMavenArtifactCoordinates
         }
         return new ComparableVersion(versionLocal);
     }
-
-    @Override
-    public Map<String, String> dropVersion()
-    {
-        Map<String, String> result = getCoordinates();
-        result.remove(VERSION);
-        return result;
-    }
-
 
     private static String convertArtifactToPath(Artifact artifact)
     {

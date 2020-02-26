@@ -154,8 +154,15 @@ public abstract class AbstractLayoutProvider<T extends ArtifactCoordinates>
                                                               RepositoryFileAttributeType.ARTIFACT);
 
                 boolean isArtifact = Boolean.TRUE.equals(attributesLocal.get(RepositoryFileAttributeType.ARTIFACT));
-
-                value = isArtifact ? getArtifactCoordinates(repositoryPath) : null;
+                if (!isArtifact) {
+                    value = null;
+                    break;
+                }
+                
+                T artifactCoordinates = getArtifactCoordinates(repositoryPath);
+                artifactCoordinates.setUuid(artifactCoordinates.buildPath());
+                
+                value = artifactCoordinates;
                 break;
             case RESOURCE_URL:
                 value = resolveResource(repositoryPath);

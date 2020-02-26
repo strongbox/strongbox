@@ -10,12 +10,11 @@ import javax.inject.Named;
 
 import org.apache.commons.lang.time.DateUtils;
 import org.carlspring.strongbox.configuration.Configuration;
-import org.carlspring.strongbox.domain.ArtifactEntity;
+import org.carlspring.strongbox.domain.Artifact;
 import org.carlspring.strongbox.providers.io.RepositoryPath;
 import org.carlspring.strongbox.providers.io.RepositoryPathResolver;
 import org.carlspring.strongbox.providers.repository.proxied.LocalStorageProxyRepositoryExpiredArtifactsCleaner;
 import org.carlspring.strongbox.repositories.ArtifactEntityRepository;
-import org.carlspring.strongbox.services.ArtifactEntryService;
 import org.carlspring.strongbox.services.ConfigurationManagementService;
 import org.carlspring.strongbox.storage.repository.remote.heartbeat.RemoteRepositoryAlivenessService;
 import org.springframework.aop.TargetSource;
@@ -63,12 +62,13 @@ abstract class BaseLocalStorageProxyRepositoryExpiredArtifactsCleanerTest
 
     protected abstract String getVersion();
 
-    protected ArtifactEntity downloadAndSaveArtifactEntry()
+    protected Artifact downloadAndSaveArtifactEntry()
             throws Exception
     {
-        Optional<ArtifactEntity> artifactEntryOptional = Optional.ofNullable(artifactEntityRepository.findOneArtifact(STORAGE_ID,
-                                                                                                                 getRepositoryId(),
-                                                                                                                 getPath()));
+        Artifact artifact = artifactEntityRepository.findOneArtifact(STORAGE_ID,
+                                                                     getRepositoryId(),
+                                                                     getPath());
+        Optional<Artifact> artifactEntryOptional = Optional.ofNullable(artifact);
         assertThat(artifactEntryOptional).isEqualTo(Optional.empty());
 
         RepositoryPath repositoryPath = proxyRepositoryProvider.fetchPath(repositoryPathResolver.resolve(STORAGE_ID,
@@ -82,7 +82,7 @@ abstract class BaseLocalStorageProxyRepositoryExpiredArtifactsCleanerTest
         artifactEntryOptional = Optional.ofNullable(artifactEntityRepository.findOneArtifact(STORAGE_ID,
                                                                                              getRepositoryId(),
                                                                                              getPath()));
-        ArtifactEntity artifactEntry = artifactEntryOptional.orElse(null);
+        Artifact artifactEntry = artifactEntryOptional.orElse(null);
         assertThat(artifactEntry).isNotNull();
         assertThat(artifactEntry.getLastUpdated()).isNotNull();
         assertThat(artifactEntry.getLastUsed()).isNotNull();

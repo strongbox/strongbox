@@ -9,7 +9,6 @@ import javax.persistence.EntityManager;
 import javax.persistence.PersistenceContext;
 import javax.transaction.Transactional;
 
-import org.carlspring.strongbox.data.criteria.DetachQueryTemplate;
 import org.carlspring.strongbox.data.criteria.OQueryTemplate;
 import org.carlspring.strongbox.data.criteria.QueryTemplate;
 import org.carlspring.strongbox.data.criteria.Selector;
@@ -44,8 +43,7 @@ public class AqlSearchServiceImpl implements AqlSearchService
     {
         SearchResults result = new SearchResults();
 
-        QueryTemplate<List<ArtifactEntity>, ArtifactEntity> queryTemplate = new DetachQueryTemplate<>(
-                new OQueryTemplate<>(entityManager));
+        QueryTemplate<List<ArtifactEntity>, ArtifactEntity> queryTemplate = new OQueryTemplate<>(entityManager);
         for (ArtifactEntity artifactEntry : queryTemplate.select(selector))
         {
             SearchResult r = new SearchResult();

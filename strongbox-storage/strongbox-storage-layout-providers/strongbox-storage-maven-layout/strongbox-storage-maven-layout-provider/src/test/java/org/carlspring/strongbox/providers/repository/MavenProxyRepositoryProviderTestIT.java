@@ -13,7 +13,7 @@ import org.apache.commons.io.FileUtils;
 import org.apache.maven.artifact.repository.metadata.Metadata;
 import org.carlspring.strongbox.config.Maven2LayoutProviderCronTasksTestConfig;
 import org.carlspring.strongbox.data.CacheManagerTestExecutionListener;
-import org.carlspring.strongbox.domain.ArtifactEntity;
+import org.carlspring.strongbox.domain.Artifact;
 import org.carlspring.strongbox.providers.io.RepositoryFiles;
 import org.carlspring.strongbox.providers.io.RepositoryPathResolver;
 import org.carlspring.strongbox.repositories.ArtifactEntityRepository;
@@ -160,9 +160,10 @@ public class MavenProxyRepositoryProviderTestIT
         String repositoryId = proxyRepository.getId();
         String path = "org/carlspring/properties-injector/1.6/properties-injector-1.6.jar";
 
-        Optional<ArtifactEntity> artifactEntry = Optional.ofNullable(artifactEntityRepository.findOneArtifact(storageId,
-                                                                                                              repositoryId,
-                                                                                                              path));
+        Artifact artifact = artifactEntityRepository.findOneArtifact(storageId,
+                                                                     repositoryId,
+                                                                     path);
+        Optional<Artifact> artifactEntry = Optional.ofNullable(artifact);
         assertThat(artifactEntry).isEqualTo(Optional.empty());
 
         artifactResolutionServiceHelper.assertStreamNotNull(storageId,

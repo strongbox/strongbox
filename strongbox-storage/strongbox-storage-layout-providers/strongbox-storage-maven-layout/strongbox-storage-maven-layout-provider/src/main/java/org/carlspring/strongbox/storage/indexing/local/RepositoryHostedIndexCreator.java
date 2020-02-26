@@ -1,24 +1,34 @@
 package org.carlspring.strongbox.storage.indexing.local;
 
+import java.io.IOException;
+import java.nio.file.Paths;
+import java.util.ArrayList;
+import java.util.LinkedHashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.Objects;
+
+import javax.inject.Inject;
+
+import org.apache.maven.index.ArtifactContext;
 import org.carlspring.strongbox.artifact.coordinates.MavenArtifactCoordinates;
 import org.carlspring.strongbox.data.service.support.search.PagingCriteria;
-import org.carlspring.strongbox.domain.ArtifactEntity;
-import org.carlspring.strongbox.domain.ArtifactIdGroupEntity;
+import org.carlspring.strongbox.domain.Artifact;
+import org.carlspring.strongbox.domain.ArtifactIdGroup;
 import org.carlspring.strongbox.providers.io.RepositoryPath;
-import org.carlspring.strongbox.services.ArtifactIdGroupService;
-import org.carlspring.strongbox.storage.indexing.*;
-import org.carlspring.strongbox.storage.indexing.RepositoryIndexDirectoryPathResolver.RepositoryIndexDirectoryPathResolverQualifier;
+import org.carlspring.strongbox.repositories.ArtifactIdGroupRepository;
+import org.carlspring.strongbox.storage.indexing.AbstractRepositoryIndexCreator;
+import org.carlspring.strongbox.storage.indexing.IndexPacker;
+import org.carlspring.strongbox.storage.indexing.IndexTypeEnum;
+import org.carlspring.strongbox.storage.indexing.Indexer;
+import org.carlspring.strongbox.storage.indexing.RepositoryCloseableIndexingContext;
 import org.carlspring.strongbox.storage.indexing.RepositoryIndexCreator.RepositoryIndexCreatorQualifier;
+import org.carlspring.strongbox.storage.indexing.RepositoryIndexDirectoryPathResolver;
+import org.carlspring.strongbox.storage.indexing.RepositoryIndexDirectoryPathResolver.RepositoryIndexDirectoryPathResolverQualifier;
+import org.carlspring.strongbox.storage.indexing.RepositoryIndexingContextFactory;
 import org.carlspring.strongbox.storage.indexing.RepositoryIndexingContextFactory.RepositoryIndexingContextFactoryQualifier;
 import org.carlspring.strongbox.storage.repository.Repository;
 import org.carlspring.strongbox.storage.repository.RepositoryTypeEnum;
-
-import javax.inject.Inject;
-import java.io.IOException;
-import java.nio.file.Paths;
-import java.util.*;
-
-import org.apache.maven.index.ArtifactContext;
 import org.springframework.stereotype.Component;
 
 /**
@@ -33,7 +43,7 @@ public class RepositoryHostedIndexCreator
     private static final int REPOSITORY_ARTIFACT_GROUP_FETCH_PAGE_SIZE = 100;
 
     @Inject
-    private ArtifactIdGroupService repositoryArtifactIdGroupService;
+    private ArtifactIdGroupRepository artifactIdGroupRepository;
 
     @Inject
     @RepositoryIndexDirectoryPathResolverQualifier(IndexTypeEnum.LOCAL)
@@ -73,7 +83,7 @@ public class RepositoryHostedIndexCreator
         final String storageId = repository.getStorage().getId();
         final String repositoryId = repository.getId();
 
-        final long totalArtifactGroupsInRepository = repositoryArtifactIdGroupService.count(storageId,
+        final long totalArtifactGroupsInRepository = artifactIdGroupRepository.count(storageId,
                                                                                             repositoryId);
         if (totalArtifactGroupsInRepository == 0)
         {
@@ -86,38 +96,36 @@ public class RepositoryHostedIndexCreator
         {
             final PagingCriteria pagingCriteria = new PagingCriteria(i * REPOSITORY_ARTIFACT_GROUP_FETCH_PAGE_SIZE,
                                                                      REPOSITORY_ARTIFACT_GROUP_FETCH_PAGE_SIZE);
-            final List<ArtifactIdGroupEntity> repositoryArtifactIdGroupEntries = repositoryArtifactIdGroupService.findMatching(
-                    storageId,
-                    repositoryId,
-                    pagingCriteria);
+            final List<ArtifactIdGroup> repositoryArtifactIdGroupEntries = artifactIdGroupRepository.findMatching(storageId,
+                                                                                                                  repositoryId,
+                                                                                                                  pagingCriteria);
 
             final List<ArtifactContext> artifactContexts = createArtifactContexts(repositoryArtifactIdGroupEntries);
             Indexer.INSTANCE.addArtifactsToIndex(artifactContexts, indexingContext);
         }
     }
 
-    private List<ArtifactContext> createArtifactContexts(final List<ArtifactIdGroupEntity> repositoryArtifactIdGroupEntries)
+    private List<ArtifactContext> createArtifactContexts(final List<ArtifactIdGroup> repositoryArtifactIdGroupEntries)
     {
         final List<ArtifactContext> artifactContexts = new ArrayList<>();
-        for (final ArtifactIdGroupEntity repositoryArtifactIdGroupEntry : repositoryArtifactIdGroupEntries)
+        for (final ArtifactIdGroup repositoryArtifactIdGroupEntry : repositoryArtifactIdGroupEntries)
         {
-            final Map<String, List<ArtifactEntity>> groupedByVersion = groupArtifactEntriesByVersion(
+            final Map<String, List<Artifact>> groupedByVersion = groupArtifactEntriesByVersion(
                     repositoryArtifactIdGroupEntry);
-            for (final Map.Entry<String, List<ArtifactEntity>> sameVersionArtifactEntries : groupedByVersion.entrySet())
+            for (final Map.Entry<String, List<Artifact>> sameVersionArtifactEntries : groupedByVersion.entrySet())
             {
-                for (final ArtifactEntity artifactEntry : sameVersionArtifactEntries.getValue())
+                for (final Artifact artifactEntry : sameVersionArtifactEntries.getValue())
                 {
                     if (!isIndexable(artifactEntry))
                     {
                         continue;
                     }
 
-                    final List<ArtifactEntity> groupClone = new ArrayList<>(sameVersionArtifactEntries.getValue());
+                    final List<Artifact> groupClone = new ArrayList<>(sameVersionArtifactEntries.getValue());
                     groupClone.remove(artifactEntry);
 
-                    final ArtifactEntryArtifactContextHelper artifactContextHelper = createArtifactContextHelper(
-                            artifactEntry,
-                            groupClone);
+                    final ArtifactEntryArtifactContextHelper artifactContextHelper = createArtifactContextHelper(artifactEntry,
+                                                                                                                 groupClone);
                     final ArtifactEntryArtifactContext ac = new ArtifactEntryArtifactContext(artifactEntry,
                                                                                              artifactContextHelper);
                     artifactContexts.add(ac);
@@ -127,14 +135,14 @@ public class RepositoryHostedIndexCreator
         return artifactContexts;
     }
 
-    private Map<String, List<ArtifactEntity>> groupArtifactEntriesByVersion(final ArtifactIdGroupEntity groupEntry)
+    private Map<String, List<Artifact>> groupArtifactEntriesByVersion(final ArtifactIdGroup groupEntry)
     {
-        final Map<String, List<ArtifactEntity>> groupedByVersion = new LinkedHashMap<>();
-        for (final ArtifactEntity artifactEntry : groupEntry.getArtifacts())
+        final Map<String, List<Artifact>> groupedByVersion = new LinkedHashMap<>();
+        for (final Artifact artifactEntry : groupEntry.getArtifacts())
         {
             final MavenArtifactCoordinates coordinates = (MavenArtifactCoordinates) artifactEntry.getArtifactCoordinates();
             final String version = coordinates.getVersion();
-            List<ArtifactEntity> artifactEntries = groupedByVersion.get(version);
+            List<Artifact> artifactEntries = groupedByVersion.get(version);
             if (artifactEntries == null)
             {
                 artifactEntries = new ArrayList<>();
@@ -145,8 +153,8 @@ public class RepositoryHostedIndexCreator
         return groupedByVersion;
     }
 
-    private ArtifactEntryArtifactContextHelper createArtifactContextHelper(final ArtifactEntity artifactEntry,
-                                                                           final List<ArtifactEntity> group)
+    private ArtifactEntryArtifactContextHelper createArtifactContextHelper(final Artifact artifactEntry,
+                                                                           final List<Artifact> group)
     {
         boolean pomExists = false;
         boolean sourcesExists = false;
@@ -165,7 +173,7 @@ public class RepositoryHostedIndexCreator
             return new ArtifactEntryArtifactContextHelper(pomExists, sourcesExists, javadocExists);
         }
 
-        for (final ArtifactEntity neighbour : group)
+        for (final Artifact neighbour : group)
         {
             final MavenArtifactCoordinates neighbourCoordinates = (MavenArtifactCoordinates) neighbour.getArtifactCoordinates();
             pomExists |=
@@ -183,7 +191,7 @@ public class RepositoryHostedIndexCreator
     /**
      * org.apache.maven.index.DefaultArtifactContextProducer#isIndexable(java.io.File)
      */
-    private boolean isIndexable(final ArtifactEntity artifactEntry)
+    private boolean isIndexable(final Artifact artifactEntry)
     {
         final String filename = Paths.get(artifactEntry.getArtifactPath()).getFileName().toString();
 
