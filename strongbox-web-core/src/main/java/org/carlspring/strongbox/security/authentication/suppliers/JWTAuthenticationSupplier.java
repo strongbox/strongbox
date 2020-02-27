@@ -64,7 +64,7 @@ class JWTAuthenticationSupplier
             hasHeader = StringUtils.isNotBlank(authHeader) && authHeader.startsWith(BEARER_AUTHORIZATION_PREFIX);
         }
         // fallback - check if a cookie is present (necessary for EventSource; check gh#1046).
-        else if (request.getCookies() != null && (request.getRequestURI().startsWith("/api") || request.getRequestURI().startsWith("/storages")))
+        else if (request.getCookies() != null && matchesScope(request))
         {
             hasCookie = Arrays.stream(request.getCookies())
                               .anyMatch(c -> c.getName()
@@ -77,6 +77,22 @@ class JWTAuthenticationSupplier
         }
 
         return false;
+    }
+
+    private boolean matchesScope(HttpServletRequest request)
+    {
+        final String uri = request.getRequestURI();
+
+        // wildcard match
+        boolean matches = uri.startsWith("/api") || uri.startsWith("/storages");
+
+        // exclude `/api/ping` since it's under the wild card match, but is called to check for liveliness which
+        // means it might contain the `cookie` thus triggering a basic auth (gh#1687).
+        if(matches && uri.equals("/api/ping")) {
+            matches = false;
+        }
+
+        return matches;
     }
 
 }
