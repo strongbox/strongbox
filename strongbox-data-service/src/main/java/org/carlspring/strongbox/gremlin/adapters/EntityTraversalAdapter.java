@@ -7,8 +7,6 @@ import org.carlspring.strongbox.gremlin.dsl.EntityTraversal;
 public interface EntityTraversalAdapter<S, E extends DomainObject>
 {
 
-    String getLabel();
-    
     EntityTraversal<S, E> fold();
 
     EntityTraversal<S, S> unfold(E entity);

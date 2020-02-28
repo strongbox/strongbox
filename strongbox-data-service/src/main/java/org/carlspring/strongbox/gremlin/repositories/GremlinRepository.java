@@ -1,15 +1,23 @@
 package org.carlspring.strongbox.gremlin.repositories;
 
+import static org.reflections.ReflectionUtils.withAnnotation;
+
+import java.lang.annotation.Annotation;
+import java.lang.reflect.Method;
+import java.util.Map;
 import java.util.Optional;
 import java.util.function.Supplier;
+import java.util.stream.Collectors;
 
 import javax.inject.Inject;
 
-import org.carlspring.strongbox.gremlin.dsl.EntityTraversal;
-import org.carlspring.strongbox.gremlin.dsl.EntityTraversalSource;
 import org.carlspring.strongbox.data.domain.DomainObject;
 import org.carlspring.strongbox.gremlin.adapters.EntityTraversalAdapter;
+import org.carlspring.strongbox.gremlin.dsl.EntityTraversal;
+import org.carlspring.strongbox.gremlin.dsl.EntityTraversalSource;
 import org.janusgraph.core.JanusGraph;
+import org.reflections.ReflectionUtils;
+import org.reflections.Reflections;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.data.repository.CrudRepository;
@@ -22,15 +30,53 @@ public abstract class GremlinRepository<S, E extends DomainObject> implements Cr
 {
 
     private static final Logger logger = LoggerFactory.getLogger(GremlinRepository.class);
-    
+
+    protected final Map<Class<? extends E>, String> labelsMap;
+
     @Inject
     private JanusGraph janusGraph;
 
-    protected abstract EntityTraversalAdapter<S, E> adapter();
-
-    protected String label()
+    public GremlinRepository(EntityType entityType,
+                             Class<E> entityClass)
     {
-        return adapter().getLabel();
+        Class<? extends Annotation> annotation = entityType.getEntityTypeAnnotation();
+        Method annotationValue = ReflectionUtils.getMethods(annotation, m -> "value".equals(m.getName()))
+                                                .iterator()
+                                                .next();
+        Reflections reflections = new Reflections("org.carlspring.strongbox.artifact.coordinates",
+                "org.carlspring.strongbox.domain");
+        labelsMap = reflections.getSubTypesOf(entityClass)
+                               .stream()
+                               .filter(withAnnotation(annotation))
+                               .collect(Collectors.toMap(c -> c,
+                                                         c -> entityTypeLabel(c.getAnnotation(annotation),
+                                                                              annotationValue)));
+    }
+
+    private static String entityTypeLabel(Annotation entityTypeAnnotation,
+                                          Method valueMethod)
+    {
+        try
+        {
+            return (String) valueMethod.invoke(entityTypeAnnotation);
+        }
+        catch (Exception e)
+        {
+            throw new RuntimeException(e);
+        }
+    }
+
+    protected String label(Class<?> entityClass)
+    {
+        return Optional.of(entityClass)
+                       .map(labelsMap::get)
+                       .orElseThrow(() -> new IllegalArgumentException(
+                               String.format("Declared label not found for type [%s].", entityClass.getSimpleName())));
+    }
+
+    protected String[] labels()
+    {
+        return labelsMap.values().toArray(new String[labelsMap.size()]);
     }
 
     protected EntityTraversalSource g()
@@ -42,7 +88,7 @@ public abstract class GremlinRepository<S, E extends DomainObject> implements Cr
 
     public Optional<E> findById(String uuid)
     {
-        EntityTraversal<S, E> traversal = start(this::g).findById(label(), uuid)
+        EntityTraversal<S, E> traversal = start(this::g).findById(labels(), uuid)
                                                         .map(adapter().fold());
         if (!traversal.hasNext())
         {
@@ -85,7 +131,7 @@ public abstract class GremlinRepository<S, E extends DomainObject> implements Cr
     @Override
     public void deleteById(String id)
     {
-        start(this::g).findById(label(), id)
+        start(this::g).findById(labels(), id)
                       .flatMap(adapter().cascade())
                       .dedup()
                       .sideEffect(t -> logger.debug(String.format("Delete [%s]-[%s]", t.get().label(), t.get().id())))
@@ -111,4 +157,5 @@ public abstract class GremlinRepository<S, E extends DomainObject> implements Cr
         throw new UnsupportedOperationException("TODO implement");
     }
 
+    protected abstract EntityTraversalAdapter<S, E> adapter();
 }

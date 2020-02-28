@@ -1,6 +1,5 @@
 package org.carlspring.strongbox.artifact.coordinates;
 
-import javax.persistence.Entity;
 import javax.xml.bind.annotation.XmlAccessType;
 import javax.xml.bind.annotation.XmlAccessorType;
 import javax.xml.bind.annotation.XmlAttribute;
@@ -12,12 +11,14 @@ import org.apache.maven.artifact.versioning.ComparableVersion;
 import org.carlspring.strongbox.artifact.MavenArtifact;
 import org.carlspring.strongbox.artifact.MavenArtifactUtils;
 import org.carlspring.strongbox.artifact.MavenRepositoryArtifact;
+import org.carlspring.strongbox.db.schema.Vertices;
 import org.carlspring.strongbox.domain.LayoutArtifactCoordinatesEntity;
+import org.neo4j.ogm.annotation.NodeEntity;
 
 /**
  * @author carlspring
  */
-@Entity
+@NodeEntity(Vertices.MAVEN_ARTIFACT_COORDINATES)
 @XmlRootElement(name = "maven-artifact-coordinates")
 @XmlAccessorType(XmlAccessType.NONE)
 @ArtifactCoordinatesLayout(name = MavenArtifactCoordinates.LAYOUT_NAME, alias = MavenArtifactCoordinates.LAYOUT_ALIAS)

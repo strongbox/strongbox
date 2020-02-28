@@ -20,6 +20,11 @@ public class ArtifactRepository extends GremlinVertexRepository<Artifact> implem
     @Inject
     ArtifactEntityQueries queries;
 
+    public ArtifactRepository()
+    {
+        super(Artifact.class);
+    }
+
     @Override
     protected EntityTraversalAdapter<Vertex, Artifact> adapter()
     {

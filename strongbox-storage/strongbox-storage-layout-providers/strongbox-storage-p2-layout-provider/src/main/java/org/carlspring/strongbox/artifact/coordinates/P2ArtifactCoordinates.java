@@ -14,7 +14,6 @@ import org.carlspring.strongbox.domain.LayoutArtifactCoordinatesEntity;
  * Proper path for this coordinates is in the format of: {id}/{version}/{classifier}
  * Example: strongbox.p2/1.0.0/osgi.bundle
  */
-@Entity
 @ArtifactCoordinatesLayout("p2")
 public class P2ArtifactCoordinates
         extends LayoutArtifactCoordinatesEntity<P2ArtifactCoordinates, P2ArtifactCoordinates>

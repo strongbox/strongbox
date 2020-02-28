@@ -1,5 +1,7 @@
 package org.carlspring.strongbox.gremlin.dsl;
 
+import static org.apache.tinkerpop.gremlin.process.traversal.P.within;
+
 import java.util.Optional;
 import java.util.UUID;
 
@@ -9,7 +11,6 @@ import org.apache.tinkerpop.gremlin.process.traversal.dsl.graph.GraphTraversal;
 import org.apache.tinkerpop.gremlin.structure.Edge;
 import org.apache.tinkerpop.gremlin.structure.Element;
 import org.apache.tinkerpop.gremlin.structure.Vertex;
-import org.carlspring.strongbox.gremlin.dsl.__;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -37,10 +38,9 @@ public interface EntityTraversalDsl<S, E> extends GraphTraversal.Admin<S, E>
     };
 
     @SuppressWarnings("unchecked")
-    default <E2> GraphTraversal<S, E2> findById(String label,
-                                                Object uuid)
+    default <E2> GraphTraversal<S, E2> findById(Object uuid, String... labels)
     {
-        return (GraphTraversal<S, E2>) hasLabel(label).has("uuid", uuid);
+        return (GraphTraversal<S, E2>) hasLabel(within(labels)).has("uuid", uuid);
     }
 
     @SuppressWarnings("unchecked")
@@ -68,7 +68,7 @@ public interface EntityTraversalDsl<S, E> extends GraphTraversal.Admin<S, E>
     {
         uuid = Optional.ofNullable(uuid)
                        .orElse(NULL);
-        GraphTraversal<S, Object> element = findById(label, uuid);
+        GraphTraversal<S, Object> element = findById(uuid, label);
 
         return element.fold()
                       .choose(t -> t.isEmpty(),

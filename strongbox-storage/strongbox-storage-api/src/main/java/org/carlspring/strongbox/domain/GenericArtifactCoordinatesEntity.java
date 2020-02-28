@@ -9,12 +9,14 @@ import org.carlspring.strongbox.data.domain.DomainEntity;
 import org.carlspring.strongbox.db.schema.Edges;
 import org.carlspring.strongbox.db.schema.Vertices;
 import org.neo4j.ogm.annotation.NodeEntity;
+import org.neo4j.ogm.annotation.Properties;
 import org.neo4j.ogm.annotation.Relationship;
 
 @NodeEntity(Vertices.GENERIC_ARTIFACT_COORDINATES)
 public class GenericArtifactCoordinatesEntity extends DomainEntity implements GenericArtifactCoordinates
 {
     private String version;
+    @Properties
     private final Map<String, String> coordinates = new LinkedHashMap<>();
     @Relationship(type = Edges.ARTIFACT_COORDINATES_INHERIT_GENERIC_ARTIFACT_COORDINATES, direction = Relationship.INCOMING)
     private LayoutArtifactCoordinatesEntity layoutArtifactCoordinates;
@@ -45,8 +47,8 @@ public class GenericArtifactCoordinatesEntity extends DomainEntity implements Ge
         return coordinates.get(coordinate);
     }
 
-    protected String setCoordinate(String coordinate,
-                                   String value)
+    public String setCoordinate(String coordinate,
+                                String value)
     {
         return coordinates.put(coordinate, value);
     }

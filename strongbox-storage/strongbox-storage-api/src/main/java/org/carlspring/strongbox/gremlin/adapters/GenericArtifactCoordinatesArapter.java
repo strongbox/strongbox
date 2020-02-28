@@ -18,18 +18,17 @@ import org.carlspring.strongbox.gremlin.dsl.__;
 /**
  * @author sbespalov
  *
- * @param <T>
  */
-public abstract class GenericArtifactCoordinatesArapter extends VertexEntityTraversalAdapter<GenericArtifactCoordinates>
+public class GenericArtifactCoordinatesArapter extends VertexEntityTraversalAdapter<GenericArtifactCoordinates>
 {
 
     @Override
     public EntityTraversal<Vertex, GenericArtifactCoordinates> fold()
     {
-        return __.<Vertex, Object>project("uuid", "path")
+        return __.<Vertex, Object>project("uuid", "version", "coordinates")
                  .by(__.enrichPropertyValue("uuid"))
-                 .by(__.enrichPropertyValue("path"))
-                 // TODO: enrich coordinates map
+                 .by(__.enrichPropertyValue("version"))
+                 .by(__.propertyMap())
                  .map(this::map);
     }
 
@@ -39,6 +38,9 @@ public abstract class GenericArtifactCoordinatesArapter extends VertexEntityTrav
         result.setUuid(extractObject(String.class, t.get().get("uuid")));
         result.setVersion(extractObject(String.class, t.get().get("version")));
 
+        Map<String, Object> coordinates = (Map<String, Object>) t.get().get("coordinates");
+        coordinates.entrySet().stream().forEach(e -> result.setCoordinate(e.getKey(), (String) e.getValue()));
+
         return result;
     }
 
@@ -46,6 +48,8 @@ public abstract class GenericArtifactCoordinatesArapter extends VertexEntityTrav
     public EntityTraversal<Vertex, Vertex> unfold(GenericArtifactCoordinates entity)
     {
         EntityTraversal<Vertex, Vertex> t = __.<Vertex>identity();
+        t = t.property(single, "version", entity.getVersion());
+
         for (Entry<String, String> coordinateEntry : entity.getCoordinates().entrySet())
         {
             t = t.property(single, coordinateEntry.getKey(), coordinateEntry.getValue());

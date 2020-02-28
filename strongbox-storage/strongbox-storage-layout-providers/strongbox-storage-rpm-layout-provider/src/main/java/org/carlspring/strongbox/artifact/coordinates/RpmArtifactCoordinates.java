@@ -1,17 +1,18 @@
 package org.carlspring.strongbox.artifact.coordinates;
 
-import javax.persistence.Entity;
 import javax.validation.constraints.NotBlank;
 import javax.xml.bind.annotation.XmlAccessType;
 import javax.xml.bind.annotation.XmlAccessorType;
 import javax.xml.bind.annotation.XmlRootElement;
 
 import org.carlspring.strongbox.artifact.coordinates.versioning.SemanticVersion;
+import org.carlspring.strongbox.db.schema.Vertices;
 import org.carlspring.strongbox.domain.LayoutArtifactCoordinatesEntity;
 import org.carlspring.strongbox.domain.RpmPackageArch;
 import org.carlspring.strongbox.domain.RpmPackageType;
 import org.carlspring.strongbox.util.RpmArtifactCoordinatesUtils;
 import org.codehaus.commons.nullanalysis.NotNull;
+import org.neo4j.ogm.annotation.NodeEntity;
 
 /**
  * This class is an {@link ArtifactCoordinates} implementation for RPM-packages.
@@ -31,7 +32,7 @@ import org.codehaus.commons.nullanalysis.NotNull;
  *
  * @author Ilya Shatalov <ilya@alov.me>
  */
-@Entity
+@NodeEntity(Vertices.RPM_ARTIFACT_COORDINATES)
 @SuppressWarnings("serial")
 @XmlRootElement(name = "PypiArtifactCoordinates")
 @XmlAccessorType(XmlAccessType.NONE)

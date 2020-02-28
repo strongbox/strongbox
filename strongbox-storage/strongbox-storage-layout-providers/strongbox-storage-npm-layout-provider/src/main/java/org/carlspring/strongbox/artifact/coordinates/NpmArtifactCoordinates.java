@@ -4,13 +4,14 @@ import java.net.URI;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-import javax.persistence.Entity;
 import javax.xml.bind.annotation.XmlAccessType;
 import javax.xml.bind.annotation.XmlAccessorType;
 import javax.xml.bind.annotation.XmlRootElement;
 
 import org.carlspring.strongbox.artifact.coordinates.versioning.SemanticVersion;
+import org.carlspring.strongbox.db.schema.Vertices;
 import org.carlspring.strongbox.domain.LayoutArtifactCoordinatesEntity;
+import org.neo4j.ogm.annotation.NodeEntity;
 import org.springframework.util.Assert;
 import org.springframework.util.StringUtils;
 
@@ -22,7 +23,7 @@ import org.springframework.util.StringUtils;
  * 
  * @author sbespalov
  */
-@Entity
+@NodeEntity(Vertices.NPM_ARTIFACT_COORDINATES)
 @XmlRootElement(name = "npmArtifactCoordinates")
 @XmlAccessorType(XmlAccessType.NONE)
 @ArtifactCoordinatesLayout(name = NpmArtifactCoordinates.LAYOUT_NAME, alias = NpmArtifactCoordinates.LAYOUT_ALIAS)

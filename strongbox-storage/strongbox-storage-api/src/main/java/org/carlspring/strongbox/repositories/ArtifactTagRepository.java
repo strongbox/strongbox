@@ -16,6 +16,11 @@ public class ArtifactTagRepository extends GremlinVertexRepository<ArtifactTag>
     @Inject
     ArtifactTagQueries queries;
 
+    public ArtifactTagRepository()
+    {
+        super(ArtifactTag.class);
+    }
+
     @Override
     protected EntityTraversalAdapter<Vertex, ArtifactTag> adapter()
     {

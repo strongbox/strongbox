@@ -19,6 +19,11 @@ public class ArtifactIdGroupRepository extends GremlinVertexRepository<ArtifactI
     @Inject
     ArtifactIdGroupQueries queries;
 
+    public ArtifactIdGroupRepository()
+    {
+        super(ArtifactIdGroup.class);
+    }
+
     @Override
     protected EntityTraversalAdapter<Vertex, ArtifactIdGroup> adapter()
     {

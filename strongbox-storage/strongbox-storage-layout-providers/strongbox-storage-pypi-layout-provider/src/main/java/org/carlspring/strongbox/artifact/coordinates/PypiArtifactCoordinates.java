@@ -1,14 +1,15 @@
 package org.carlspring.strongbox.artifact.coordinates;
 
-import javax.persistence.Entity;
 import javax.xml.bind.annotation.XmlAccessType;
 import javax.xml.bind.annotation.XmlAccessorType;
 import javax.xml.bind.annotation.XmlRootElement;
 
 import org.apache.commons.lang3.StringUtils;
 import org.carlspring.strongbox.artifact.coordinates.versioning.SemanticVersion;
+import org.carlspring.strongbox.db.schema.Vertices;
 import org.carlspring.strongbox.domain.LayoutArtifactCoordinatesEntity;
 import org.carlspring.strongbox.util.PypiArtifactCoordinatesUtils;
+import org.neo4j.ogm.annotation.NodeEntity;
 
 /**
  * This class is an {@link ArtifactCoordinates} implementation for pypi artifacts
@@ -20,7 +21,7 @@ import org.carlspring.strongbox.util.PypiArtifactCoordinatesUtils;
  * 
  * @author alecg956
  */
-@Entity
+@NodeEntity(Vertices.PYPI_ARTIFACT_COORDINATES)
 @XmlRootElement(name = "PypiArtifactCoordinates")
 @XmlAccessorType(XmlAccessType.NONE)
 @ArtifactCoordinatesLayout(name = PypiArtifactCoordinates.LAYOUT_NAME, alias = PypiArtifactCoordinates.LAYOUT_ALIAS)
