@@ -2,11 +2,13 @@ package org.carlspring.strongbox.providers.repository.group;
 
 import org.carlspring.strongbox.configuration.ConfigurationManager;
 import org.carlspring.strongbox.configuration.ConfigurationUtils;
+import org.carlspring.strongbox.services.RepositoryManagementService;
 import org.carlspring.strongbox.storage.Storage;
 import org.carlspring.strongbox.storage.repository.Repository;
 
 import javax.inject.Inject;
 
+import java.io.IOException;
 import java.util.Iterator;
 import java.util.LinkedHashSet;
 import java.util.Set;
@@ -24,8 +26,10 @@ import org.springframework.stereotype.Component;
 public class GroupRepositorySetCollector
 {
 
-    private static final Logger
-        logger = LoggerFactory.getLogger(GroupRepositorySetCollector.class);
+    private static final Logger logger = LoggerFactory.getLogger(GroupRepositorySetCollector.class);
+
+    @Inject
+    private RepositoryManagementService repositoryManagementService;
 
     @Inject
     private ConfigurationManager configurationManager;
@@ -40,7 +44,7 @@ public class GroupRepositorySetCollector
     {
         Set<Repository> result = groupRepository.getGroupRepositories()
                                                 .stream()
-                                                .map(groupRepoId -> getRepository(groupRepository.getStorage(),
+                                                .map(groupRepoId -> getRepository(groupRepository,
                                                                                   groupRepoId))
                                                 .filter(repository -> repository != null)
                                                 .collect(Collectors.toCollection(LinkedHashSet::new));
@@ -51,7 +55,7 @@ public class GroupRepositorySetCollector
         }
 
         Set<Repository> traverseResult = new LinkedHashSet<>();
-        for (Iterator<Repository> i = result.iterator(); i.hasNext(); )
+        for (Iterator<Repository> i = result.iterator(); i.hasNext();)
         {
             Repository r = i.next();
             if (CollectionUtils.isEmpty(r.getGroupRepositories()))
@@ -67,27 +71,46 @@ public class GroupRepositorySetCollector
         return traverseResult;
     }
 
-    private Repository getRepository(Storage storage,
+    private Repository getRepository(Repository groupRepository,
                                      String id)
     {
-        String sId = ConfigurationUtils.getStorageId(storage.getId(), id);
+        String sId = ConfigurationUtils.getStorageId(groupRepository.getStorage().getId(), id);
         String rId = ConfigurationUtils.getRepositoryId(id);
 
-        Storage groupRepositoryStorage = configurationManager.getConfiguration().getStorage(sId);
-        if (groupRepositoryStorage == null)
+        try
         {
-            logger.warn("Storage Configuration not found for id [{}]", id);
-            return null;
+            Storage groupRepositoryStorage = configurationManager.getConfiguration().getStorage(sId);
+            if (groupRepositoryStorage == null)
+            {
+                logger.warn("Storage [{}] not found for groupRepositoryId [{}]", sId, id);
+                markRepositoryOutOfService(groupRepository);
+                return null;
+            }
+
+            Repository repository = groupRepositoryStorage.getRepository(rId);
+            if (repository == null)
+            {
+                logger.warn("Repository [{}] not found for groupRepositoryId [{}]", rId, id);
+                markRepositoryOutOfService(groupRepository);
+                return null;
+            }
+
+            return repository;
+        }
+        catch (IOException e)
+        {
+            logger.error("Something went wrong while marking Repository Out of Service..");
         }
 
-        Repository repository = groupRepositoryStorage.getRepository(rId);
-        if (repository == null)
-        {
-            logger.warn("Repository [{}] not found for id [{}]", id);
-            return null;
-        }
+        return null;
+    }
+    
+    public void markRepositoryOutOfService(Repository groupRepository)
+        throws IOException
 
-        return repository;
+    {
+        logger.debug("Going to mark repository [{}] as Out of Service.", groupRepository.getId());
+        repositoryManagementService.putOutOfService(groupRepository.getStorage().getId(), groupRepository.getId());
     }
 
 }
