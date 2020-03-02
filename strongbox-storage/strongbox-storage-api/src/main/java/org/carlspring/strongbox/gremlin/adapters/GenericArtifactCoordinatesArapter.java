@@ -6,29 +6,41 @@ import static org.carlspring.strongbox.gremlin.adapters.EntityTraversalUtils.ext
 import java.util.Map;
 import java.util.Map.Entry;
 
+import javax.inject.Inject;
+
 import org.apache.tinkerpop.gremlin.process.traversal.Traverser;
 import org.apache.tinkerpop.gremlin.structure.Element;
 import org.apache.tinkerpop.gremlin.structure.Vertex;
 import org.carlspring.strongbox.artifact.coordinates.GenericArtifactCoordinates;
 import org.carlspring.strongbox.db.schema.Edges;
 import org.carlspring.strongbox.domain.GenericArtifactCoordinatesEntity;
+import org.carlspring.strongbox.domain.LayoutArtifactCoordinatesEntity;
 import org.carlspring.strongbox.gremlin.dsl.EntityTraversal;
 import org.carlspring.strongbox.gremlin.dsl.__;
+import org.springframework.stereotype.Component;
 
 /**
  * @author sbespalov
- *
  */
+@Component
 public class GenericArtifactCoordinatesArapter extends VertexEntityTraversalAdapter<GenericArtifactCoordinates>
 {
+
+    @Inject
+    private ArtifactCoordinatesAdapter artifactCoordinatesAdapter;
 
     @Override
     public EntityTraversal<Vertex, GenericArtifactCoordinates> fold()
     {
-        return __.<Vertex, Object>project("uuid", "version", "coordinates")
+        return __.<Vertex, Object>project("uuid", "version", "coordinates", "layoutArtifactCoordinates")
                  .by(__.enrichPropertyValue("uuid"))
                  .by(__.enrichPropertyValue("version"))
                  .by(__.propertyMap())
+                 .by(__.inE(Edges.ARTIFACT_COORDINATES_INHERIT_GENERIC_ARTIFACT_COORDINATES)
+                       .mapToObject(__.outV()
+                                      .map(artifactCoordinatesAdapter.fold())
+                                      .map(EntityTraversalUtils::castToObject))
+                       .fold())
                  .map(this::map);
     }
 
@@ -40,6 +52,10 @@ public class GenericArtifactCoordinatesArapter extends VertexEntityTraversalAdap
 
         Map<String, Object> coordinates = (Map<String, Object>) t.get().get("coordinates");
         coordinates.entrySet().stream().forEach(e -> result.setCoordinate(e.getKey(), (String) e.getValue()));
+
+        result.setLayoutArtifactCoordinates(extractObject(LayoutArtifactCoordinatesEntity.class,
+                                                          t.get()
+                                                           .get("layoutArtifactCoordinates")));
 
         return result;
     }

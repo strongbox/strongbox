@@ -7,6 +7,7 @@ import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
 
+import org.apache.tinkerpop.gremlin.process.traversal.Traverser;
 import org.apache.tinkerpop.gremlin.structure.Property;
 import org.carlspring.strongbox.gremlin.dsl.EntityTraversalDsl;
 
@@ -53,4 +54,10 @@ public class EntityTraversalUtils
                        .<List<E>>map(c -> c.stream().map(p -> p.value()).map(target::cast).collect(Collectors.toList()))
                        .orElse(null);
     }
+
+    public static <E> Object castToObject(Traverser<E> t)
+    {
+        return Object.class.cast(t.get());
+    }
+
 }
