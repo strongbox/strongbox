@@ -6,12 +6,15 @@ import org.carlspring.strongbox.storage.Storage;
 import org.carlspring.strongbox.storage.repository.Repository;
 
 import javax.inject.Inject;
+
 import java.util.Iterator;
 import java.util.LinkedHashSet;
 import java.util.Set;
 import java.util.stream.Collectors;
 
 import org.apache.commons.collections4.CollectionUtils;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Component;
 
 /**
@@ -20,6 +23,9 @@ import org.springframework.stereotype.Component;
 @Component
 public class GroupRepositorySetCollector
 {
+
+    private static final Logger
+        logger = LoggerFactory.getLogger(GroupRepositorySetCollector.class);
 
     @Inject
     private ConfigurationManager configurationManager;
@@ -36,6 +42,7 @@ public class GroupRepositorySetCollector
                                                 .stream()
                                                 .map(groupRepoId -> getRepository(groupRepository.getStorage(),
                                                                                   groupRepoId))
+                                                .filter(repository -> repository != null)
                                                 .collect(Collectors.toCollection(LinkedHashSet::new));
 
         if (!traverse)
@@ -66,7 +73,21 @@ public class GroupRepositorySetCollector
         String sId = ConfigurationUtils.getStorageId(storage.getId(), id);
         String rId = ConfigurationUtils.getRepositoryId(id);
 
-        return configurationManager.getConfiguration().getStorage(sId).getRepository(rId);
+        Storage groupRepositoryStorage = configurationManager.getConfiguration().getStorage(sId);
+        if (groupRepositoryStorage == null)
+        {
+            logger.warn("Storage Configuration not found for id [{}]", id);
+            return null;
+        }
+
+        Repository repository = groupRepositoryStorage.getRepository(rId);
+        if (repository == null)
+        {
+            logger.warn("Repository [{}] not found for id [{}]", id);
+            return null;
+        }
+
+        return repository;
     }
 
 }
