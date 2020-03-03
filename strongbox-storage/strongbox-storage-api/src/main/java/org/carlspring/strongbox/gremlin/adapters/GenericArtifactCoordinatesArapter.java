@@ -2,6 +2,7 @@ package org.carlspring.strongbox.gremlin.adapters;
 
 import static org.apache.tinkerpop.gremlin.structure.VertexProperty.Cardinality.single;
 import static org.carlspring.strongbox.gremlin.adapters.EntityTraversalUtils.extractObject;
+import static org.carlspring.strongbox.gremlin.dsl.EntityTraversalDsl.NULL;
 
 import java.util.Map;
 import java.util.Map.Entry;
@@ -32,16 +33,25 @@ public class GenericArtifactCoordinatesArapter extends VertexEntityTraversalAdap
     @Override
     public EntityTraversal<Vertex, GenericArtifactCoordinates> fold()
     {
-        return __.<Vertex, Object>project("uuid", "version", "coordinates", "layoutArtifactCoordinates")
+        return fold(artifactCoordinatesProjection());
+    }
+
+    <S> EntityTraversal<S, GenericArtifactCoordinates> fold(EntityTraversal<Vertex, Object> artifactCoordinatesTraversal)
+    {
+        return __.<S, Object>project("uuid", "version", "coordinates", "layoutArtifactCoordinates")
                  .by(__.enrichPropertyValue("uuid"))
                  .by(__.enrichPropertyValue("version"))
                  .by(__.propertyMap())
-                 .by(__.inE(Edges.ARTIFACT_COORDINATES_INHERIT_GENERIC_ARTIFACT_COORDINATES)
-                       .mapToObject(__.outV()
-                                      .map(artifactCoordinatesAdapter.fold())
-                                      .map(EntityTraversalUtils::castToObject))
-                       .fold())
+                 .by(artifactCoordinatesTraversal)
                  .map(this::map);
+    }
+
+    private EntityTraversal<Vertex, Object> artifactCoordinatesProjection()
+    {
+        return __.inE(Edges.ARTIFACT_COORDINATES_INHERIT_GENERIC_ARTIFACT_COORDINATES)
+                 .mapToObject(__.outV()
+                                .map(artifactCoordinatesAdapter.fold(__.<Vertex>identity().constant(NULL)))
+                                .map(EntityTraversalUtils::castToObject));
     }
 
     private GenericArtifactCoordinates map(Traverser<Map<String, Object>> t)
@@ -53,9 +63,10 @@ public class GenericArtifactCoordinatesArapter extends VertexEntityTraversalAdap
         Map<String, Object> coordinates = (Map<String, Object>) t.get().get("coordinates");
         coordinates.entrySet().stream().forEach(e -> result.setCoordinate(e.getKey(), (String) e.getValue()));
 
-        result.setLayoutArtifactCoordinates(extractObject(LayoutArtifactCoordinatesEntity.class,
-                                                          t.get()
-                                                           .get("layoutArtifactCoordinates")));
+        LayoutArtifactCoordinatesEntity artifactCoordinates = extractObject(LayoutArtifactCoordinatesEntity.class,
+                                                                            t.get()
+                                                                             .get("layoutArtifactCoordinates"));
+        result.setLayoutArtifactCoordinates(artifactCoordinates);
 
         return result;
     }

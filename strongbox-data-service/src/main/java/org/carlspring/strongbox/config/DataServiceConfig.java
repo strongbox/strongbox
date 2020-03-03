@@ -2,6 +2,7 @@ package org.carlspring.strongbox.config;
 
 import org.carlspring.strongbox.config.hazelcast.HazelcastConfiguration;
 import org.carlspring.strongbox.config.janusgraph.EmbeddedDbServerConfiguration;
+import org.carlspring.strongbox.gremlin.adapters.EntityTraversalAdaptersConfig;
 import org.carlspring.strongbox.gremlin.server.GremlinServerConfig;
 import org.carlspring.strongbox.repositories.RepositoriesConfig;
 import org.springframework.boot.context.properties.EnableConfigurationProperties;
@@ -34,6 +35,7 @@ import com.hazelcast.spring.cache.HazelcastCacheManager;
 @Import({ EmbeddedDbServerConfiguration.class,
           GremlinServerConfig.class,
           RepositoriesConfig.class,
+          EntityTraversalAdaptersConfig.class,
           HazelcastConfiguration.class })
 @EnableCaching(order = 105)
 public class DataServiceConfig

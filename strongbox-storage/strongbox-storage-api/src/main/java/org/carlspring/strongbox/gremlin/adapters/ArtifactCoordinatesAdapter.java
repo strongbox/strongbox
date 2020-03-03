@@ -1,6 +1,7 @@
 package org.carlspring.strongbox.gremlin.adapters;
 
 import java.util.Iterator;
+import java.util.Optional;
 import java.util.Set;
 
 import javax.inject.Inject;
@@ -26,20 +27,27 @@ public class ArtifactCoordinatesAdapter extends VertexEntityTraversalAdapter<Art
     public EntityTraversal<Vertex, ArtifactCoordinates> fold()
     {
 
-        return __.map(fold(artifactCoordinatesArapters.iterator()));
+        return __.map(fold(Optional.empty(), artifactCoordinatesArapters.iterator()));
     }
 
-    private EntityTraversal<ArtifactCoordinates, ArtifactCoordinates> fold(Iterator<LayoutArtifactCoordinatesArapter> iterator)
+    private EntityTraversal<ArtifactCoordinates, ArtifactCoordinates> fold(Optional<EntityTraversal<Vertex, Object>> artifactCoordinatesTraversal,
+                                                                           Iterator<LayoutArtifactCoordinatesArapter> iterator)
     {
         if (!iterator.hasNext())
         {
             return __.constant(null);
         }
-        return __.<ArtifactCoordinates>optional(iterator.next().fold())
-                 .fold()
-                 .choose(t -> t.isEmpty(),
-                         fold(iterator),
-                         __.<ArtifactCoordinates>unfold());
+
+        LayoutArtifactCoordinatesArapter layoutArtifactCoordinatesAdapter = iterator.next();
+        return __.<ArtifactCoordinates>optional(layoutArtifactCoordinatesAdapter.fold(artifactCoordinatesTraversal.orElse(layoutArtifactCoordinatesAdapter.genericArtifactCoordinatesProjection())))
+                 .choose(t -> t instanceof ArtifactCoordinates,
+                         __.identity(),
+                         fold(artifactCoordinatesTraversal, iterator));
+    }
+
+    <S> EntityTraversal<S, ArtifactCoordinates> fold(EntityTraversal<Vertex, Object> artifactCoordinatesTraversal)
+    {
+        return __.map(fold(Optional.of(artifactCoordinatesTraversal), artifactCoordinatesArapters.iterator()));
     }
 
     @Override

@@ -1,7 +1,9 @@
 package org.carlspring.strongbox.gremlin.adapters;
 
 import static org.carlspring.strongbox.gremlin.adapters.EntityTraversalUtils.extractObject;
+import static org.carlspring.strongbox.gremlin.dsl.EntityTraversalDsl.NULL;
 
+import java.util.Collections;
 import java.util.Map;
 
 import javax.inject.Inject;
@@ -25,31 +27,29 @@ public class RawArtifactCoordinatesAdapter
         extends LayoutArtifactCoordinatesArapter<RawArtifactCoordinates, RawArtifactCoordinates>
 {
 
-    @Inject
-    private GenericArtifactCoordinatesArapter genericArtifactCoordinatesArapter;
-
     @Override
     public EntityTraversal<Vertex, RawArtifactCoordinates> fold()
     {
-        return __.<Vertex>hasLabel(Vertices.RAW_ARTIFACT_COORDINATES)
-                 .project("uuid", "generic", "coordinates")
+        return fold(genericArtifactCoordinatesProjection());
+    }
+
+    <S> EntityTraversal<S, RawArtifactCoordinates> fold(EntityTraversal<Vertex, Object> genericArtifactCoordinatesTraversal)
+    {
+        return __.<S>hasLabel(Vertices.RAW_ARTIFACT_COORDINATES)
+                 .project("uuid", "genericArtifactCoordinates")
                  .by(__.enrichPropertyValue("uuid"))
-                 .by(__.enrichPropertyValue("genericArtifactCoordinates"))
-                 .by(__.outE(Edges.ARTIFACT_COORDINATES_INHERIT_GENERIC_ARTIFACT_COORDINATES)
-                       .mapToObject(__.inV()
-                                      .hasLabel(Vertices.GENERIC_ARTIFACT_COORDINATES)
-                                      .map(genericArtifactCoordinatesArapter.fold())
-                                      .map(EntityTraversalUtils::castToObject))
-                       .fold())
+                 .by(genericArtifactCoordinatesTraversal)
                  .map(this::map);
     }
 
     private RawArtifactCoordinates map(Traverser<Map<String, Object>> t)
     {
-
-        RawArtifactCoordinates result = new RawArtifactCoordinates(
-                extractObject(GenericArtifactCoordinatesEntity.class, t.get().get("genericArtifactCoordinates")));
+        GenericArtifactCoordinatesEntity genericArtifactCoordinates = extractObject(GenericArtifactCoordinatesEntity.class,
+                                                                                    t.get()
+                                                                                     .get("genericArtifactCoordinates"));
+        RawArtifactCoordinates result = new RawArtifactCoordinates(genericArtifactCoordinates);
         result.setUuid(extractObject(String.class, t.get().get("uuid")));
+        genericArtifactCoordinates.setLayoutArtifactCoordinates(result);
 
         return result;
     }

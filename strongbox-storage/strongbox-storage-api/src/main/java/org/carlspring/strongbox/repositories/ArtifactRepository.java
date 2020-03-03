@@ -32,15 +32,15 @@ public class ArtifactRepository extends GremlinVertexRepository<Artifact> implem
     }
 
     public List<Artifact> findArtifactList(String storageId,
-                                                 String repositoryId,
-                                                 Map<String, String> coordinates,
-                                                 boolean strict)
+                                           String repositoryId,
+                                           Map<String, String> coordinates,
+                                           boolean strict)
     {
         return queries.findArtifactList(storageId, repositoryId, coordinates, strict);
     }
 
     public List<Artifact> findMatching(ArtifactEntrySearchCriteria searchCriteria,
-                                             PagingCriteria pagingCriteria)
+                                       PagingCriteria pagingCriteria)
     {
         return queries.findMatching(searchCriteria, pagingCriteria);
     }
@@ -53,8 +53,8 @@ public class ArtifactRepository extends GremlinVertexRepository<Artifact> implem
     }
 
     public Artifact findOneArtifact(String storageId,
-                                          String repositoryId,
-                                          String path)
+                                    String repositoryId,
+                                    String path)
     {
         return queries.findOneArtifact(storageId, repositoryId, path);
     }
@@ -65,20 +65,32 @@ public class ArtifactRepository extends GremlinVertexRepository<Artifact> implem
 interface ArtifactEntityQueries extends org.springframework.data.repository.Repository<Artifact, String>
 {
 
-    List<Artifact> findArtifactList(String storageId,
-                                    String repositoryId,
-                                    Map<String, String> coordinates,
-                                    boolean strict);
+    default List<Artifact> findArtifactList(String storageId,
+                                            String repositoryId,
+                                            Map<String, String> coordinates,
+                                            boolean strict)
+    {
+        return null;
+    }
 
-    List<Artifact> findMatching(ArtifactEntrySearchCriteria searchCriteria,
-                                PagingCriteria pagingCriteria);
+    default List<Artifact> findMatching(ArtifactEntrySearchCriteria searchCriteria,
+                                        PagingCriteria pagingCriteria)
+    {
+        return null;
+    }
 
-    boolean artifactExists(String storageId,
-                           String repositoryId,
-                           String path);
+    default boolean artifactExists(String storageId,
+                                   String repositoryId,
+                                   String path)
+    {
+        return false;
+    }
 
-    Artifact findOneArtifact(String storageId,
-                             String repositoryId,
-                             String path);
+    default Artifact findOneArtifact(String storageId,
+                                     String repositoryId,
+                                     String path)
+    {
+        return null;
+    }
 
 }

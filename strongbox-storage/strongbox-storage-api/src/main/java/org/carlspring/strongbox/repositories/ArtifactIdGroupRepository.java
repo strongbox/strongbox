@@ -44,15 +44,15 @@ public class ArtifactIdGroupRepository extends GremlinVertexRepository<ArtifactI
     }
 
     public ArtifactIdGroup findOneOrCreate(String storageId,
-                                                     String repositoryId,
-                                                     String artifactId)
+                                           String repositoryId,
+                                           String artifactId)
     {
         return queries.findOneOrCreate(storageId, repositoryId, artifactId);
     }
 
     public ArtifactIdGroup findOne(String storageId,
-                                             String repositoryId,
-                                             String artifactId)
+                                   String repositoryId,
+                                   String artifactId)
     {
         return queries.findOne(storageId, repositoryId, artifactId);
     }
@@ -64,19 +64,32 @@ interface ArtifactIdGroupQueries
         extends org.springframework.data.repository.Repository<ArtifactIdGroup, String>
 {
 
-    long count(String storageId,
-               String repositoryId);
+    default long count(String storageId,
+                       String repositoryId)
+    {
+        return 0;
+    }
 
-    List<ArtifactIdGroup> findMatching(String storageId,
-                                                 String repositoryId,
-                                                 PagingCriteria pagingCriteria);
+    default List<ArtifactIdGroup> findMatching(String storageId,
+                                               String repositoryId,
+                                               PagingCriteria pagingCriteria)
+    {
+        return null;
+    }
 
-    ArtifactIdGroup findOneOrCreate(String storageId,
-                                              String repositoryId,
-                                              String artifactId);
+    //@Query("MATCH (aig:`ArtifactIdGroup`) WHERE aig.storageId=$storageId and aig.storageId=$repositoryId and aig.storageId=$artifactId RETURN ae, aeac, ac")
+    default ArtifactIdGroup findOneOrCreate(String storageId,
+                                            String repositoryId,
+                                            String artifactId)
+    {
+        return null;
+    }
 
-    ArtifactIdGroup findOne(String storageId,
-                                      String repositoryId,
-                                      String artifactId);
+    default ArtifactIdGroup findOne(String storageId,
+                                    String repositoryId,
+                                    String artifactId)
+    {
+        return null;
+    }
 
 }

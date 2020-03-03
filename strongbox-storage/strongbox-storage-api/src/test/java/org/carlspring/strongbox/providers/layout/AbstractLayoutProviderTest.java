@@ -57,8 +57,6 @@ class AbstractLayoutProviderTest
     @Inject
     private PropertiesBooter propertiesBooter;
     
-    @SuppressWarnings({ "PMD.UnusedPrivateField",
-                        "PMD.SingularField" })
     @Spy
     private ArtifactIdGroupService artifactGroupService;
 

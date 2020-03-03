@@ -41,5 +41,8 @@ interface UserQueries
         extends org.springframework.data.repository.Repository<User, String>
 {
 
-    List<User> findUsersWithRole(String role);
+    default List<User> findUsersWithRole(String role)
+    {
+        return null;
+    }
 }

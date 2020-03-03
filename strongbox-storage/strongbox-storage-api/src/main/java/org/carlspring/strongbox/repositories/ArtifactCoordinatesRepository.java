@@ -2,10 +2,8 @@ package org.carlspring.strongbox.repositories;
 
 import javax.inject.Inject;
 
-import org.apache.tinkerpop.gremlin.structure.Vertex;
 import org.carlspring.strongbox.artifact.coordinates.ArtifactCoordinates;
-import org.carlspring.strongbox.domain.Artifact;
-import org.carlspring.strongbox.gremlin.adapters.EntityTraversalAdapter;
+import org.carlspring.strongbox.gremlin.adapters.ArtifactCoordinatesAdapter;
 import org.carlspring.strongbox.gremlin.repositories.GremlinVertexRepository;
 import org.springframework.stereotype.Repository;
 
@@ -15,17 +13,20 @@ public class ArtifactCoordinatesRepository extends GremlinVertexRepository<Artif
 {
 
     @Inject
+    ArtifactCoordinatesAdapter artifactCoordinatesAdapter;
+
+    @Inject
     ArtifactCoordinatesQueries queries;
 
     public ArtifactCoordinatesRepository()
     {
         super(ArtifactCoordinates.class);
     }
-    
+
     @Override
-    protected EntityTraversalAdapter<Vertex, ArtifactCoordinates> adapter()
+    protected ArtifactCoordinatesAdapter adapter()
     {
-        return null;
+        return artifactCoordinatesAdapter;
     }
 
 }
