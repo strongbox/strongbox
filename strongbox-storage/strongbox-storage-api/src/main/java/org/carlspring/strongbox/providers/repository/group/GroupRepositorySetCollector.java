@@ -109,7 +109,8 @@ public class GroupRepositorySetCollector
         throws IOException
 
     {
-        logger.debug("Going to mark repository [{}] as Out of Service.", groupRepository.getId());
+        logger.debug("Going to mark repository [{}] as Out of Service as it contains reference to non-existent Repository/storage.",
+                     groupRepository.getId());
         repositoryManagementService.putOutOfService(groupRepository.getStorage().getId(), groupRepository.getId());
     }
 

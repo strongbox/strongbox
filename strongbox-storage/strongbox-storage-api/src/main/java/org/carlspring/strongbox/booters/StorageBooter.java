@@ -44,9 +44,6 @@ public class StorageBooter
     private GroupRepositorySetCollector groupRepositorySetCollector;
 
     @Inject
-    private PropertiesBooter propertiesBooter;
-
-    @Inject
     private HazelcastInstance hazelcastInstance;
 
     public StorageBooter()
@@ -63,11 +60,17 @@ public class StorageBooter
         {
             try
             {
-                final Configuration configuration = configurationManager.getConfiguration();
+                Configuration configuration = configurationManager.getConfiguration();
 
                 initializeStorages(configuration.getStorages());
 
                 Collection<Repository> repositories = getRepositoriesHierarchy(configuration.getStorages());
+
+                logger.info("Reloading Repository Configurations....");
+
+                configuration = configurationManager.getConfiguration();
+
+                repositories = getRepositoriesHierarchy(configuration.getStorages());
 
                 if (!repositories.isEmpty())
                 {
@@ -125,6 +128,10 @@ public class StorageBooter
         if (RepositoryStatusEnum.IN_SERVICE.getStatus().equals(repository.getStatus()))
         {
             repositoryManagementService.putInService(repository.getStorage().getId(), repository.getId());
+        }
+        else
+        {
+            logger.warn("Repository [{}:{}] is marked out of service.", repository.getStorage().getId(), repository.getId());
         }
     }
 
