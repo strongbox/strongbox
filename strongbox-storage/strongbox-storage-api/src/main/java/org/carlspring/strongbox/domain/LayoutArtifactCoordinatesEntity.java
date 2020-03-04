@@ -31,6 +31,7 @@ public abstract class LayoutArtifactCoordinatesEntity<C extends LayoutArtifactCo
     public LayoutArtifactCoordinatesEntity(GenericArtifactCoordinatesEntity genericArtifactCoordinates)
     {
         this.genericArtifactCoordinates = genericArtifactCoordinates;
+        super.setUuid(genericArtifactCoordinates.getUuid());
     }
 
     public GenericArtifactCoordinatesEntity getGenericArtifactCoordinates()

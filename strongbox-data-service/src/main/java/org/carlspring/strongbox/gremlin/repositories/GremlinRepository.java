@@ -11,11 +11,12 @@ import java.util.stream.Collectors;
 
 import javax.inject.Inject;
 
+import org.apache.tinkerpop.gremlin.structure.Graph;
 import org.carlspring.strongbox.data.domain.DomainObject;
 import org.carlspring.strongbox.gremlin.adapters.EntityTraversalAdapter;
 import org.carlspring.strongbox.gremlin.dsl.EntityTraversal;
 import org.carlspring.strongbox.gremlin.dsl.EntityTraversalSource;
-import org.janusgraph.core.JanusGraph;
+import org.carlspring.strongbox.gremlin.tx.TransactionContext;
 import org.reflections.ReflectionUtils;
 import org.reflections.Reflections;
 import org.slf4j.Logger;
@@ -34,7 +35,8 @@ public abstract class GremlinRepository<S, E extends DomainObject> implements Cr
     protected final Map<Class<? extends E>, String> labelsMap;
 
     @Inject
-    private JanusGraph janusGraph;
+    @TransactionContext
+    private Graph graph;
 
     public GremlinRepository(EntityType entityType,
                              Class<E> entityClass)
@@ -81,14 +83,14 @@ public abstract class GremlinRepository<S, E extends DomainObject> implements Cr
 
     protected EntityTraversalSource g()
     {
-        return janusGraph.traversal(EntityTraversalSource.class);
+        return graph.traversal(EntityTraversalSource.class);
     }
 
     protected abstract EntityTraversal<S, S> start(Supplier<EntityTraversalSource> g);
 
     public Optional<E> findById(String uuid)
     {
-        EntityTraversal<S, E> traversal = start(this::g).findById(labels(), uuid)
+        EntityTraversal<S, E> traversal = start(this::g).findById(uuid, labels())
                                                         .map(adapter().fold());
         if (!traversal.hasNext())
         {
@@ -131,7 +133,7 @@ public abstract class GremlinRepository<S, E extends DomainObject> implements Cr
     @Override
     public void deleteById(String id)
     {
-        start(this::g).findById(labels(), id)
+        start(this::g).findById(id, labels())
                       .flatMap(adapter().cascade())
                       .dedup()
                       .sideEffect(t -> logger.debug(String.format("Delete [%s]-[%s]", t.get().label(), t.get().id())))

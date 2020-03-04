@@ -11,6 +11,8 @@ import org.apache.tinkerpop.gremlin.structure.Vertex;
 import org.carlspring.strongbox.artifact.coordinates.ArtifactCoordinates;
 import org.carlspring.strongbox.gremlin.dsl.EntityTraversal;
 import org.carlspring.strongbox.gremlin.dsl.__;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Component;
 
 /**
@@ -20,6 +22,8 @@ import org.springframework.stereotype.Component;
 public class ArtifactCoordinatesAdapter extends VertexEntityTraversalAdapter<ArtifactCoordinates>
 {
 
+    private static final Logger logger = LoggerFactory.getLogger(ArtifactCoordinatesAdapter.class);
+    
     @Inject
     private Set<LayoutArtifactCoordinatesArapter> artifactCoordinatesArapters;
 

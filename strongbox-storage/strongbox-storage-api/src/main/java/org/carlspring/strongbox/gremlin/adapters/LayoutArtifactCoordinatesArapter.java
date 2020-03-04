@@ -28,7 +28,7 @@ public abstract class LayoutArtifactCoordinatesArapter<C extends LayoutArtifactC
                  .mapToObject(__.inV()
                                 .hasLabel(Vertices.GENERIC_ARTIFACT_COORDINATES)
                                 .map(genericArtifactCoordinatesArapter.fold(__.<Vertex>identity()
-                                                                              .constant(Collections.singletonList(NULL))))
+                                                                              .constant(NULL)))
                                 .map(EntityTraversalUtils::castToObject));
     }
 

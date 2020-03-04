@@ -2,15 +2,14 @@ package org.carlspring.strongbox.repositories;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
-import java.util.Optional;
-
 import javax.inject.Inject;
 import javax.transaction.Transactional;
 
 import org.apache.tinkerpop.gremlin.process.traversal.dsl.graph.GraphTraversalSource;
 import org.apache.tinkerpop.gremlin.structure.Graph;
 import org.apache.tinkerpop.gremlin.structure.Vertex;
-import org.carlspring.strongbox.artifact.coordinates.ArtifactCoordinates;
+import org.assertj.core.api.Condition;
+import org.carlspring.strongbox.artifact.coordinates.RawArtifactCoordinates;
 import org.carlspring.strongbox.config.DataServiceConfig;
 import org.carlspring.strongbox.data.CacheManagerTestExecutionListener;
 import org.carlspring.strongbox.db.schema.Edges;
@@ -42,9 +41,11 @@ public class ArtifactCoordinatesRepositoryTest
         GraphTraversalSource g = graph.traversal();
 
         String path = "path/to/resource/acrt-csw-gac-10.jar";
+        String version = "1.2.3";
         Vertex vGenericArtifactCoordinates = g.addV(Vertices.GENERIC_ARTIFACT_COORDINATES)
                                               .property("uuid", path)
                                               .property("path", path)
+                                              .property("version", version)
                                               .next();
 
         Vertex vRawArtifactCoordinates = g.addV(Vertices.RAW_ARTIFACT_COORDINATES)
@@ -56,8 +57,15 @@ public class ArtifactCoordinatesRepositoryTest
          .to(vGenericArtifactCoordinates)
          .next();
 
-        Optional<ArtifactCoordinates> artifactCordinates = artifactCoordinatesRepository.findById(path);
-        assertThat(artifactCordinates).isNotEmpty();
+        RawArtifactCoordinates artifactCordinates = (RawArtifactCoordinates) artifactCoordinatesRepository.findById(path)
+                                                                                                          .get();
+        assertThat(artifactCordinates.getUuid()).isEqualTo(path);
+        assertThat(artifactCordinates.getVersion()).isNull();
+        assertThat(artifactCordinates.getId()).isEqualTo(path);
+        assertThat(artifactCordinates.getGenericArtifactCoordinates().getVersion()).isEqualTo(version);
+        assertThat(artifactCordinates.getCoordinates()).hasSize(1);
+        assertThat(artifactCordinates.getCoordinates()).hasValueSatisfying(new Condition<>(path::equals,
+                "Coordinates should have path value."));
     }
 
 }
