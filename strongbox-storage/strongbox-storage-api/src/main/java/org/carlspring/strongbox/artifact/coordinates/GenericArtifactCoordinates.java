@@ -1,6 +1,5 @@
 package org.carlspring.strongbox.artifact.coordinates;
 
-import java.io.Serializable;
 import java.util.Map;
 
 import org.carlspring.strongbox.data.domain.DomainObject;

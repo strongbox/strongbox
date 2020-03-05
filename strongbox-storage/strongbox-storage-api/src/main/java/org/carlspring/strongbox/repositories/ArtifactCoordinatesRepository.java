@@ -29,6 +29,17 @@ public class ArtifactCoordinatesRepository extends GremlinVertexRepository<Artif
         return artifactCoordinatesAdapter;
     }
 
+    @Override
+    public <R extends ArtifactCoordinates> R save(R entity)
+    {
+        if (entity.getUuid() == null)
+        {
+            entity.buildPath();
+        }
+
+        return super.save(entity);
+    }
+
 }
 
 @Repository

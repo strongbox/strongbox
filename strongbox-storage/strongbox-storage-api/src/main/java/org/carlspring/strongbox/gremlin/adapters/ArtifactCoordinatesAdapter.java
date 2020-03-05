@@ -6,9 +6,14 @@ import java.util.Set;
 
 import javax.inject.Inject;
 
+import org.apache.tinkerpop.gremlin.process.traversal.Traversal;
+import org.apache.tinkerpop.gremlin.structure.Edge;
 import org.apache.tinkerpop.gremlin.structure.Element;
 import org.apache.tinkerpop.gremlin.structure.Vertex;
 import org.carlspring.strongbox.artifact.coordinates.ArtifactCoordinates;
+import org.carlspring.strongbox.artifact.coordinates.GenericArtifactCoordinates;
+import org.carlspring.strongbox.db.schema.Edges;
+import org.carlspring.strongbox.db.schema.Vertices;
 import org.carlspring.strongbox.gremlin.dsl.EntityTraversal;
 import org.carlspring.strongbox.gremlin.dsl.__;
 import org.slf4j.Logger;
@@ -23,9 +28,12 @@ public class ArtifactCoordinatesAdapter extends VertexEntityTraversalAdapter<Art
 {
 
     private static final Logger logger = LoggerFactory.getLogger(ArtifactCoordinatesAdapter.class);
-    
+
     @Inject
     private Set<LayoutArtifactCoordinatesArapter> artifactCoordinatesArapters;
+
+    @Inject
+    private GenericArtifactCoordinatesArapter genericArtifactCoordinatesArapter;
 
     @Override
     public EntityTraversal<Vertex, ArtifactCoordinates> fold()
@@ -57,13 +65,46 @@ public class ArtifactCoordinatesAdapter extends VertexEntityTraversalAdapter<Art
     @Override
     public EntityTraversal<Vertex, Vertex> unfold(ArtifactCoordinates entity)
     {
-        return null;
+        GenericArtifactCoordinates genericArtifactCoordinates = entity;
+
+        return __.<Vertex, Edge>coalesce(updateGenericArtifactCoordinates(genericArtifactCoordinates),
+                                         createGenericArtifactCoordinates(genericArtifactCoordinates))
+                 .outV();
+    }
+
+    private Traversal<?, Edge> createGenericArtifactCoordinates(GenericArtifactCoordinates genericArtifactCoordinates)
+    {
+        return __.<Vertex>addE(Edges.ARTIFACT_COORDINATES_INHERIT_GENERIC_ARTIFACT_COORDINATES)
+                 .from(__.identity())
+                 .to(saveGenericArtifactCoordinates(genericArtifactCoordinates));
+    }
+
+    private Traversal<Vertex, Edge> updateGenericArtifactCoordinates(GenericArtifactCoordinates genericArtifactCoordinates)
+    {
+        return __.outE(Edges.ARTIFACT_COORDINATES_INHERIT_GENERIC_ARTIFACT_COORDINATES)
+                 .as(Edges.ARTIFACT_COORDINATES_INHERIT_GENERIC_ARTIFACT_COORDINATES)
+                 .inV()
+                 .map(saveGenericArtifactCoordinates(genericArtifactCoordinates))
+                 .select(Edges.ARTIFACT_COORDINATES_INHERIT_GENERIC_ARTIFACT_COORDINATES);
+    }
+
+    private <S> EntityTraversal<S, Vertex> saveGenericArtifactCoordinates(GenericArtifactCoordinates genericArtifactCoordinates)
+    {
+        return __.<S>V()
+                 .saveV(Vertices.GENERIC_ARTIFACT_COORDINATES,
+                        genericArtifactCoordinates.getUuid(),
+                        genericArtifactCoordinatesArapter.unfold(genericArtifactCoordinates));
     }
 
     @Override
     public EntityTraversal<Vertex, ? extends Element> cascade()
     {
-        return null;
+        return __.<Vertex>aggregate("x")
+                 .outE(Edges.ARTIFACT_COORDINATES_INHERIT_GENERIC_ARTIFACT_COORDINATES)
+                 .inV()
+                 .map(genericArtifactCoordinatesArapter.cascade())
+                 .select("x")
+                 .unfold();
     }
 
 }

@@ -1,18 +1,13 @@
 package org.carlspring.strongbox.gremlin.adapters;
 
 import static org.carlspring.strongbox.gremlin.adapters.EntityTraversalUtils.extractObject;
-import static org.carlspring.strongbox.gremlin.dsl.EntityTraversalDsl.NULL;
 
-import java.util.Collections;
 import java.util.Map;
-
-import javax.inject.Inject;
 
 import org.apache.tinkerpop.gremlin.process.traversal.Traverser;
 import org.apache.tinkerpop.gremlin.structure.Element;
 import org.apache.tinkerpop.gremlin.structure.Vertex;
 import org.carlspring.strongbox.artifact.coordinates.RawArtifactCoordinates;
-import org.carlspring.strongbox.db.schema.Edges;
 import org.carlspring.strongbox.db.schema.Vertices;
 import org.carlspring.strongbox.domain.GenericArtifactCoordinatesEntity;
 import org.carlspring.strongbox.gremlin.dsl.EntityTraversal;
@@ -52,18 +47,6 @@ public class RawArtifactCoordinatesAdapter
         genericArtifactCoordinates.setLayoutArtifactCoordinates(result);
 
         return result;
-    }
-
-    @Override
-    public EntityTraversal<Vertex, Vertex> unfold(RawArtifactCoordinates entity)
-    {
-        return null;
-    }
-
-    @Override
-    public EntityTraversal<Vertex, ? extends Element> cascade()
-    {
-        return null;
     }
 
 }

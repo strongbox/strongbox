@@ -84,7 +84,8 @@ public abstract class LayoutArtifactCoordinatesEntity<C extends LayoutArtifactCo
     @Override
     public final String buildPath()
     {
-        return convertToPath((C) this);
+        setUuid(convertToPath((C) this));
+        return getUuid();
     }
 
     @Override
