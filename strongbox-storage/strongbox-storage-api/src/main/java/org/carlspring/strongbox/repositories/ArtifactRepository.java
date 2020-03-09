@@ -5,10 +5,9 @@ import java.util.Map;
 
 import javax.inject.Inject;
 
-import org.apache.tinkerpop.gremlin.structure.Vertex;
 import org.carlspring.strongbox.data.service.support.search.PagingCriteria;
 import org.carlspring.strongbox.domain.Artifact;
-import org.carlspring.strongbox.gremlin.adapters.EntityTraversalAdapter;
+import org.carlspring.strongbox.gremlin.adapters.ArtifactAdapter;
 import org.carlspring.strongbox.gremlin.repositories.GremlinVertexRepository;
 import org.carlspring.strongbox.services.support.ArtifactEntrySearchCriteria;
 import org.springframework.stereotype.Repository;
@@ -18,17 +17,14 @@ public class ArtifactRepository extends GremlinVertexRepository<Artifact> implem
 {
 
     @Inject
+    ArtifactAdapter artifactAdapter;
+    @Inject
     ArtifactEntityQueries queries;
 
-    public ArtifactRepository()
-    {
-        super(Artifact.class);
-    }
-
     @Override
-    protected EntityTraversalAdapter<Vertex, Artifact> adapter()
+    protected ArtifactAdapter adapter()
     {
-        return null;
+        return artifactAdapter;
     }
 
     public List<Artifact> findArtifactList(String storageId,

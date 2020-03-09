@@ -9,6 +9,7 @@ import org.apache.tinkerpop.gremlin.structure.Vertex;
 import org.carlspring.strongbox.db.schema.Edges;
 import org.carlspring.strongbox.db.schema.Vertices;
 import org.carlspring.strongbox.domain.LayoutArtifactCoordinatesEntity;
+import org.carlspring.strongbox.gremlin.adapters.EntityTraversalAdapter.UnfoldTraversal;
 import org.carlspring.strongbox.gremlin.dsl.EntityTraversal;
 import org.carlspring.strongbox.gremlin.dsl.__;
 
@@ -31,13 +32,7 @@ public abstract class LayoutArtifactCoordinatesArapter<C extends LayoutArtifactC
                                 .map(EntityTraversalUtils::castToObject));
     }
 
-    abstract <S> EntityTraversal<S, C> fold(EntityTraversal<Vertex, Object> genericArtifactCoordinatesTraversal);
-
-    @Override
-    public EntityTraversal<Vertex, Vertex> unfold(C entity)
-    {
-        throw new UnsupportedOperationException(String.format("Use [%s].", ArtifactCoordinatesAdapter.class));
-    }
+    abstract <S> EntityTraversal<S, C> fold(EntityTraversal<Vertex, Object> genericArtifactCoordinatesProjection);
 
     @Override
     public EntityTraversal<Vertex, ? extends Element> cascade()

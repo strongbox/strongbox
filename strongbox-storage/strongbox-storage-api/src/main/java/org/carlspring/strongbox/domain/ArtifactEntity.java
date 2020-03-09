@@ -6,6 +6,7 @@ import java.util.HashMap;
 import java.util.HashSet;
 import java.util.LinkedHashSet;
 import java.util.Map;
+import java.util.Objects;
 import java.util.Optional;
 import java.util.Set;
 
@@ -54,6 +55,23 @@ public class ArtifactEntity
 
     private final ArtifactArchiveListing artifactArchiveListing = new ArtifactEntityArchiveListing();
 
+    public ArtifactEntity()
+    {
+    }
+
+    public ArtifactEntity(String storageId,
+                          String repositoryId,
+                          GenericArtifactCoordinatesEntity artifactCoordinates)
+    {
+        Objects.nonNull(artifactCoordinates);
+        
+        this.storageId = storageId;
+        this.repositoryId = repositoryId;
+        this.artifactCoordinates = artifactCoordinates;
+        
+        artifactCoordinates.getLayoutArtifactCoordinates().buildPath();
+    }
+
     @Override
     public String getStorageId()
     {
@@ -87,7 +105,7 @@ public class ArtifactEntity
     @Override
     public void setArtifactCoordinates(ArtifactCoordinates artifactCoordinates)
     {
-        this.artifactCoordinates = ((LayoutArtifactCoordinatesEntity)artifactCoordinates).getGenericArtifactCoordinates();
+        this.artifactCoordinates = ((LayoutArtifactCoordinatesEntity) artifactCoordinates).getGenericArtifactCoordinates();
     }
 
     @Override
@@ -175,7 +193,7 @@ public class ArtifactEntity
     @Override
     public ArtifactArchiveListing getArtifactArchiveListing()
     {
-        return artifactArchiveListing ;
+        return artifactArchiveListing;
     }
 
     @Override
@@ -186,7 +204,7 @@ public class ArtifactEntity
                        .map(c -> c.buildPath())
                        .orElseThrow(() -> new IllegalStateException("ArtifactCoordinates required to be set."));
     }
-    
+
     public class ArtifactEntityArchiveListing implements ArtifactArchiveListing
     {
 
@@ -201,6 +219,5 @@ public class ArtifactEntity
         }
 
     }
-
 
 }

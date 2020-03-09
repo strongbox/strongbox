@@ -2,10 +2,11 @@ package org.carlspring.strongbox.gremlin.adapters;
 
 import static org.carlspring.strongbox.gremlin.adapters.EntityTraversalUtils.extractObject;
 
+import java.util.Collections;
 import java.util.Map;
+import java.util.Set;
 
 import org.apache.tinkerpop.gremlin.process.traversal.Traverser;
-import org.apache.tinkerpop.gremlin.structure.Element;
 import org.apache.tinkerpop.gremlin.structure.Vertex;
 import org.carlspring.strongbox.artifact.coordinates.RawArtifactCoordinates;
 import org.carlspring.strongbox.db.schema.Vertices;
@@ -23,17 +24,23 @@ public class RawArtifactCoordinatesAdapter
 {
 
     @Override
+    public Set<String> labels()
+    {
+        return Collections.singleton(Vertices.RAW_ARTIFACT_COORDINATES);
+    }
+
+    @Override
     public EntityTraversal<Vertex, RawArtifactCoordinates> fold()
     {
         return fold(genericArtifactCoordinatesProjection());
     }
 
-    <S> EntityTraversal<S, RawArtifactCoordinates> fold(EntityTraversal<Vertex, Object> genericArtifactCoordinatesTraversal)
+    <S> EntityTraversal<S, RawArtifactCoordinates> fold(EntityTraversal<Vertex, Object> genericArtifactCoordinatesProjection)
     {
         return __.<S>hasLabel(Vertices.RAW_ARTIFACT_COORDINATES)
                  .project("uuid", "genericArtifactCoordinates")
                  .by(__.enrichPropertyValue("uuid"))
-                 .by(genericArtifactCoordinatesTraversal)
+                 .by(genericArtifactCoordinatesProjection)
                  .map(this::map);
     }
 
@@ -42,11 +49,29 @@ public class RawArtifactCoordinatesAdapter
         GenericArtifactCoordinatesEntity genericArtifactCoordinates = extractObject(GenericArtifactCoordinatesEntity.class,
                                                                                     t.get()
                                                                                      .get("genericArtifactCoordinates"));
-        RawArtifactCoordinates result = new RawArtifactCoordinates(genericArtifactCoordinates);
+        RawArtifactCoordinates result;
+        if (genericArtifactCoordinates == null)
+        {
+            result = new RawArtifactCoordinates();
+        }
+        else
+        {
+            result = new RawArtifactCoordinates(genericArtifactCoordinates);
+            genericArtifactCoordinates.setLayoutArtifactCoordinates(result);
+        }
         result.setUuid(extractObject(String.class, t.get().get("uuid")));
-        genericArtifactCoordinates.setLayoutArtifactCoordinates(result);
 
         return result;
+    }
+
+    @Override
+    public UnfoldTraversal<Vertex> unfold(RawArtifactCoordinates entity)
+    {
+        if (!RawArtifactCoordinates.class.isInstance(entity))
+        {
+            return null;
+        }
+        return new UnfoldTraversal<Vertex>(Vertices.RAW_ARTIFACT_COORDINATES, __.identity());
     }
 
 }

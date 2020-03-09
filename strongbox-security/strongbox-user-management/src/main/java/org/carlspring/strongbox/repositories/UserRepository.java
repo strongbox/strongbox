@@ -18,11 +18,6 @@ public class UserRepository extends GremlinVertexRepository<User>
     @Inject
     UserQueries queries;
 
-    public UserRepository()
-    {
-        super(User.class);
-    }
-
     @Override
     protected EntityTraversalAdapter<Vertex, User> adapter()
     {

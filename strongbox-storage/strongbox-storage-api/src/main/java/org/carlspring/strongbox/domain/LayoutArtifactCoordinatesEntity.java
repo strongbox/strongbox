@@ -20,7 +20,7 @@ public abstract class LayoutArtifactCoordinatesEntity<C extends LayoutArtifactCo
 {
 
     @Relationship(type = Edges.ARTIFACT_COORDINATES_INHERIT_GENERIC_ARTIFACT_COORDINATES, direction = Relationship.OUTGOING)
-    private final GenericArtifactCoordinatesEntity genericArtifactCoordinates;
+    private GenericArtifactCoordinatesEntity genericArtifactCoordinates;
     private final ArtifactCoordinatesComparator<C, V> comparator = new ArtifactCoordinatesComparator<>();
 
     public LayoutArtifactCoordinatesEntity()
@@ -31,12 +31,18 @@ public abstract class LayoutArtifactCoordinatesEntity<C extends LayoutArtifactCo
     public LayoutArtifactCoordinatesEntity(GenericArtifactCoordinatesEntity genericArtifactCoordinates)
     {
         this.genericArtifactCoordinates = genericArtifactCoordinates;
+        this.genericArtifactCoordinates.setLayoutArtifactCoordinates(this);
         super.setUuid(genericArtifactCoordinates.getUuid());
     }
 
     public GenericArtifactCoordinatesEntity getGenericArtifactCoordinates()
     {
         return genericArtifactCoordinates;
+    }
+
+    public void setGenericArtifactCoordinates(GenericArtifactCoordinatesEntity genericArtifactCoordinates)
+    {
+        this.genericArtifactCoordinates = genericArtifactCoordinates;
     }
 
     public void setUuid(String uuid)

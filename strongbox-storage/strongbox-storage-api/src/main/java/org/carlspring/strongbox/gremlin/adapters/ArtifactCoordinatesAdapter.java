@@ -1,8 +1,13 @@
 package org.carlspring.strongbox.gremlin.adapters;
 
+import static org.apache.tinkerpop.gremlin.process.traversal.P.within;
+
 import java.util.Iterator;
+import java.util.Map;
+import java.util.Objects;
 import java.util.Optional;
 import java.util.Set;
+import java.util.stream.Collectors;
 
 import javax.inject.Inject;
 
@@ -14,6 +19,7 @@ import org.carlspring.strongbox.artifact.coordinates.ArtifactCoordinates;
 import org.carlspring.strongbox.artifact.coordinates.GenericArtifactCoordinates;
 import org.carlspring.strongbox.db.schema.Edges;
 import org.carlspring.strongbox.db.schema.Vertices;
+import org.carlspring.strongbox.domain.LayoutArtifactCoordinatesEntity;
 import org.carlspring.strongbox.gremlin.dsl.EntityTraversal;
 import org.carlspring.strongbox.gremlin.dsl.__;
 import org.slf4j.Logger;
@@ -29,47 +35,85 @@ public class ArtifactCoordinatesAdapter extends VertexEntityTraversalAdapter<Art
 
     private static final Logger logger = LoggerFactory.getLogger(ArtifactCoordinatesAdapter.class);
 
-    @Inject
-    private Set<LayoutArtifactCoordinatesArapter> artifactCoordinatesArapters;
+    private Map<String, LayoutArtifactCoordinatesArapter<?, ?>> artifactCoordinatesAraptersMap;
 
     @Inject
     private GenericArtifactCoordinatesArapter genericArtifactCoordinatesArapter;
+
+    @Inject
+    public void setArtifactCoordinatesArapters(Set<LayoutArtifactCoordinatesArapter<?, ?>> artifactCoordinatesArapters)
+    {
+        artifactCoordinatesAraptersMap = artifactCoordinatesArapters.stream()
+                                                                    .collect(Collectors.toMap(this::validateAndGetLabel,
+                                                                                              (a) -> a));
+    }
+
+    private String validateAndGetLabel(LayoutArtifactCoordinatesArapter<?, ?> adapterItem)
+    {
+        return Optional.of(adapterItem)
+                       .filter(a -> a.labels().size() == 1)
+                       .flatMap(a -> a.labels().stream().findFirst())
+                       .orElseThrow(() -> new IllegalArgumentException(
+                               String.format("The [%s] component must have only one label, but there was many instead [%s].",
+                                             ArtifactCoordinatesAdapter.class.getSimpleName(), adapterItem.labels())));
+    }
+
+    @Override
+    public Set<String> labels()
+    {
+        return artifactCoordinatesAraptersMap.keySet();
+    }
 
     @Override
     public EntityTraversal<Vertex, ArtifactCoordinates> fold()
     {
 
-        return __.map(fold(Optional.empty(), artifactCoordinatesArapters.iterator()));
+        return __.map(fold(Optional.empty(), artifactCoordinatesAraptersMap.values().iterator()));
     }
 
-    private EntityTraversal<ArtifactCoordinates, ArtifactCoordinates> fold(Optional<EntityTraversal<Vertex, Object>> artifactCoordinatesTraversal,
-                                                                           Iterator<LayoutArtifactCoordinatesArapter> iterator)
+    private EntityTraversal<ArtifactCoordinates, ArtifactCoordinates> fold(Optional<EntityTraversal<Vertex, Object>> optionalGenericArtifactCoordinatesProjection,
+                                                                           Iterator<LayoutArtifactCoordinatesArapter<?, ?>> iterator)
     {
         if (!iterator.hasNext())
         {
             return __.constant(null);
         }
 
-        LayoutArtifactCoordinatesArapter layoutArtifactCoordinatesAdapter = iterator.next();
-        return __.<ArtifactCoordinates>optional(layoutArtifactCoordinatesAdapter.fold(artifactCoordinatesTraversal.orElse(layoutArtifactCoordinatesAdapter.genericArtifactCoordinatesProjection())))
-                 .choose(t -> t instanceof ArtifactCoordinates,
+        LayoutArtifactCoordinatesArapter<?, ?> nextAdapter = iterator.next();
+        EntityTraversal<Vertex, Object> defaultGenericArtifactCoordinatesProjection = nextAdapter.genericArtifactCoordinatesProjection();
+        EntityTraversal<Vertex, Object> genericArtifactCoordinatesProjection = optionalGenericArtifactCoordinatesProjection.orElse(defaultGenericArtifactCoordinatesProjection);
+        EntityTraversal<Vertex, ?> nextTraversal = nextAdapter.fold(genericArtifactCoordinatesProjection);
+
+        return __.<ArtifactCoordinates>optional(__.hasLabel(within(nextAdapter.labels()))
+                                                  .map(nextTraversal)
+                                                  .map(t -> ArtifactCoordinates.class.cast(t.get())))
+                 .choose(ArtifactCoordinates.class::isInstance,
                          __.identity(),
-                         fold(artifactCoordinatesTraversal, iterator));
+                         fold(optionalGenericArtifactCoordinatesProjection, iterator));
     }
 
     <S> EntityTraversal<S, ArtifactCoordinates> fold(EntityTraversal<Vertex, Object> artifactCoordinatesTraversal)
     {
-        return __.map(fold(Optional.of(artifactCoordinatesTraversal), artifactCoordinatesArapters.iterator()));
+        return __.map(fold(Optional.of(artifactCoordinatesTraversal),
+                           artifactCoordinatesAraptersMap.values().iterator()));
     }
 
     @Override
-    public EntityTraversal<Vertex, Vertex> unfold(ArtifactCoordinates entity)
+    public UnfoldTraversal<Vertex> unfold(ArtifactCoordinates entity)
     {
-        GenericArtifactCoordinates genericArtifactCoordinates = entity;
+        UnfoldTraversal<Vertex> unfoldTraversal = artifactCoordinatesAraptersMap.values()
+                                                                                .stream()
+                                                                                .map(LayoutArtifactCoordinatesArapter.class::cast)
+                                                                                .map(a -> a.unfold((LayoutArtifactCoordinatesEntity<?, ?>) entity))
+                                                                                .filter(Objects::nonNull)
+                                                                                .findFirst()
+                                                                                .get();
 
-        return __.<Vertex, Edge>coalesce(updateGenericArtifactCoordinates(genericArtifactCoordinates),
-                                         createGenericArtifactCoordinates(genericArtifactCoordinates))
-                 .outV();
+        return new UnfoldTraversal<>(unfoldTraversal.getLabel(),
+                __.<Vertex, Edge>coalesce(updateGenericArtifactCoordinates(entity),
+                                          createGenericArtifactCoordinates(entity))
+                  .outV()
+                  .map(unfoldTraversal.getTraversal()));
     }
 
     private Traversal<?, Edge> createGenericArtifactCoordinates(GenericArtifactCoordinates genericArtifactCoordinates)
@@ -93,7 +137,7 @@ public class ArtifactCoordinatesAdapter extends VertexEntityTraversalAdapter<Art
         return __.<S>V()
                  .saveV(Vertices.GENERIC_ARTIFACT_COORDINATES,
                         genericArtifactCoordinates.getUuid(),
-                        genericArtifactCoordinatesArapter.unfold(genericArtifactCoordinates));
+                        genericArtifactCoordinatesArapter.unfold(genericArtifactCoordinates).getTraversal());
     }
 
     @Override

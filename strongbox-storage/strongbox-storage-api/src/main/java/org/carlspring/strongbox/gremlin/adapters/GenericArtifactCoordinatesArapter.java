@@ -5,8 +5,10 @@ import static org.carlspring.strongbox.gremlin.adapters.EntityTraversalUtils.ext
 import static org.carlspring.strongbox.gremlin.adapters.EntityTraversalUtils.extractObject;
 import static org.carlspring.strongbox.gremlin.dsl.EntityTraversalDsl.NULL;
 
+import java.util.Collections;
 import java.util.Map;
 import java.util.Map.Entry;
+import java.util.Set;
 
 import javax.inject.Inject;
 
@@ -15,6 +17,7 @@ import org.apache.tinkerpop.gremlin.structure.Element;
 import org.apache.tinkerpop.gremlin.structure.Vertex;
 import org.carlspring.strongbox.artifact.coordinates.GenericArtifactCoordinates;
 import org.carlspring.strongbox.db.schema.Edges;
+import org.carlspring.strongbox.db.schema.Vertices;
 import org.carlspring.strongbox.domain.GenericArtifactCoordinatesEntity;
 import org.carlspring.strongbox.domain.LayoutArtifactCoordinatesEntity;
 import org.carlspring.strongbox.gremlin.dsl.EntityTraversal;
@@ -30,6 +33,12 @@ public class GenericArtifactCoordinatesArapter extends VertexEntityTraversalAdap
 
     @Inject
     private ArtifactCoordinatesAdapter artifactCoordinatesAdapter;
+
+    @Override
+    public Set<String> labels()
+    {
+        return Collections.singleton(Vertices.GENERIC_ARTIFACT_COORDINATES);
+    }
 
     @Override
     public EntityTraversal<Vertex, GenericArtifactCoordinates> fold()
@@ -73,15 +82,16 @@ public class GenericArtifactCoordinatesArapter extends VertexEntityTraversalAdap
                                                                             t.get()
                                                                              .get("layoutArtifactCoordinates"));
         result.setLayoutArtifactCoordinates(artifactCoordinates);
+        artifactCoordinates.setGenericArtifactCoordinates(result);
 
         return result;
     }
 
     @Override
-    public EntityTraversal<Vertex, Vertex> unfold(GenericArtifactCoordinates entity)
+    public UnfoldTraversal<Vertex> unfold(GenericArtifactCoordinates entity)
     {
         EntityTraversal<Vertex, Vertex> t = __.<Vertex>identity();
-        
+
         if (entity.getVersion() != null)
         {
             t = t.property(single, "version", entity.getVersion());
@@ -96,7 +106,7 @@ public class GenericArtifactCoordinatesArapter extends VertexEntityTraversalAdap
             t = t.property(single, coordinateEntry.getKey(), coordinateEntry.getValue());
         }
 
-        return t;
+        return new UnfoldTraversal<>(Vertices.GENERIC_ARTIFACT_COORDINATES, t);
     }
 
     @Override

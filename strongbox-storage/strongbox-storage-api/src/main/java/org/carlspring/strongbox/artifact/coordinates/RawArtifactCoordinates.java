@@ -68,7 +68,7 @@ public class RawArtifactCoordinates
     @Override
     public String convertToPath(RawArtifactCoordinates artifactCoordinates)
     {
-        return Optional.ofNullable(artifactCoordinates.getCoordinate(PATH)).orElse("");
+        return artifactCoordinates.getId();
     }
 
 }
