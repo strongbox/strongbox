@@ -65,13 +65,13 @@ public class RawArtifactCoordinatesAdapter
     }
 
     @Override
-    public UnfoldTraversal<Vertex> unfold(RawArtifactCoordinates entity)
+    public UnfoldEntityTraversal<Vertex, Vertex> unfold(RawArtifactCoordinates entity)
     {
         if (!RawArtifactCoordinates.class.isInstance(entity))
         {
             return null;
         }
-        return new UnfoldTraversal<Vertex>(Vertices.RAW_ARTIFACT_COORDINATES, __.identity());
+        return new UnfoldEntityTraversal<>(Vertices.RAW_ARTIFACT_COORDINATES, __.identity());
     }
 
 }

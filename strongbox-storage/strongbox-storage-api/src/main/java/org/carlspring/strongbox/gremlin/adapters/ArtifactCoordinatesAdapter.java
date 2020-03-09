@@ -99,21 +99,21 @@ public class ArtifactCoordinatesAdapter extends VertexEntityTraversalAdapter<Art
     }
 
     @Override
-    public UnfoldTraversal<Vertex> unfold(ArtifactCoordinates entity)
+    public UnfoldEntityTraversal<Vertex, Vertex> unfold(ArtifactCoordinates entity)
     {
-        UnfoldTraversal<Vertex> unfoldTraversal = artifactCoordinatesAraptersMap.values()
-                                                                                .stream()
-                                                                                .map(LayoutArtifactCoordinatesArapter.class::cast)
-                                                                                .map(a -> a.unfold((LayoutArtifactCoordinatesEntity<?, ?>) entity))
-                                                                                .filter(Objects::nonNull)
-                                                                                .findFirst()
-                                                                                .get();
+        UnfoldEntityTraversal<Vertex, Vertex> unfoldTraversal = artifactCoordinatesAraptersMap.values()
+                                                                                              .stream()
+                                                                                              .map(LayoutArtifactCoordinatesArapter.class::cast)
+                                                                                              .map(a -> a.unfold((LayoutArtifactCoordinatesEntity<?, ?>) entity))
+                                                                                              .filter(Objects::nonNull)
+                                                                                              .findFirst()
+                                                                                              .get();
 
-        return new UnfoldTraversal<>(unfoldTraversal.getLabel(),
+        return new UnfoldEntityTraversal<>(unfoldTraversal.getEntityLabel(),
                 __.<Vertex, Edge>coalesce(updateGenericArtifactCoordinates(entity),
                                           createGenericArtifactCoordinates(entity))
                   .outV()
-                  .map(unfoldTraversal.getTraversal()));
+                  .map(unfoldTraversal));
     }
 
     private Traversal<?, Edge> createGenericArtifactCoordinates(GenericArtifactCoordinates genericArtifactCoordinates)
@@ -137,7 +137,7 @@ public class ArtifactCoordinatesAdapter extends VertexEntityTraversalAdapter<Art
         return __.<S>V()
                  .saveV(Vertices.GENERIC_ARTIFACT_COORDINATES,
                         genericArtifactCoordinates.getUuid(),
-                        genericArtifactCoordinatesArapter.unfold(genericArtifactCoordinates).getTraversal());
+                        genericArtifactCoordinatesArapter.unfold(genericArtifactCoordinates));
     }
 
     @Override

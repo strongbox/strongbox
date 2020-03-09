@@ -71,7 +71,7 @@ public class ArtifactAdapter extends VertexEntityTraversalAdapter<Artifact>
     }
 
     @Override
-    public UnfoldTraversal<Vertex> unfold(Artifact entity)
+    public UnfoldEntityTraversal<Vertex, Vertex> unfold(Artifact entity)
     {
         ArtifactCoordinates artifactCoordinates = entity.getArtifactCoordinates();
 
@@ -80,7 +80,7 @@ public class ArtifactAdapter extends VertexEntityTraversalAdapter<Artifact>
                                               .outV()
                                               .map(unfoldArtifact(entity));
 
-        return new UnfoldTraversal<>(Vertices.ARTIFACT, t);
+        return new UnfoldEntityTraversal<>(Vertices.ARTIFACT, t);
     }
 
     private Traversal<Vertex, Edge> updateArtifactCoordinates(ArtifactCoordinates artifactCoordinates)
@@ -101,13 +101,13 @@ public class ArtifactAdapter extends VertexEntityTraversalAdapter<Artifact>
 
     private <S2> EntityTraversal<S2, Vertex> saveArtifactCoordinates(ArtifactCoordinates artifactCoordinates)
     {
-        UnfoldTraversal<Vertex> artifactCoordinatesUnfold = artifactCoordinatesAdapter.unfold(artifactCoordinates);
-        String artifactCoordinatesLabel = artifactCoordinatesUnfold.getLabel();
+        UnfoldEntityTraversal<Vertex, Vertex> artifactCoordinatesUnfold = artifactCoordinatesAdapter.unfold(artifactCoordinates);
+        String artifactCoordinatesLabel = artifactCoordinatesUnfold.getEntityLabel();
 
         return __.<S2>V()
                  .saveV(artifactCoordinatesLabel,
                         artifactCoordinates.getUuid(),
-                        artifactCoordinatesUnfold.getTraversal())
+                        artifactCoordinatesUnfold)
                  .sideEffect(EntityTraversalUtils::traceVertex)
                  .outE(Edges.ARTIFACT_COORDINATES_INHERIT_GENERIC_ARTIFACT_COORDINATES)
                  .inV()

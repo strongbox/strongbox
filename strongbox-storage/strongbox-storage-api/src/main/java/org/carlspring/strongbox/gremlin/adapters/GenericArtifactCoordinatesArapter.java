@@ -88,7 +88,7 @@ public class GenericArtifactCoordinatesArapter extends VertexEntityTraversalAdap
     }
 
     @Override
-    public UnfoldTraversal<Vertex> unfold(GenericArtifactCoordinates entity)
+    public UnfoldEntityTraversal<Vertex, Vertex> unfold(GenericArtifactCoordinates entity)
     {
         EntityTraversal<Vertex, Vertex> t = __.<Vertex>identity();
 
@@ -106,7 +106,7 @@ public class GenericArtifactCoordinatesArapter extends VertexEntityTraversalAdap
             t = t.property(single, coordinateEntry.getKey(), coordinateEntry.getValue());
         }
 
-        return new UnfoldTraversal<>(Vertices.GENERIC_ARTIFACT_COORDINATES, t);
+        return new UnfoldEntityTraversal<>(Vertices.GENERIC_ARTIFACT_COORDINATES, t);
     }
 
     @Override

@@ -13,33 +13,8 @@ public interface EntityTraversalAdapter<S extends Element, E extends DomainObjec
 
     EntityTraversal<S, E> fold();
 
-    UnfoldTraversal<S> unfold(E entity);
+    UnfoldEntityTraversal<S, S> unfold(E entity);
 
     EntityTraversal<S, ? extends Element> cascade();
 
-    public static class UnfoldTraversal<S extends Element>
-    {
-
-        private final String label;
-        private final EntityTraversal<S, S> traversal;
-
-        public UnfoldTraversal(String label,
-                               EntityTraversal<S, S> traversal)
-        {
-            this.label = label;
-            this.traversal = traversal;
-        }
-
-        public String getLabel()
-        {
-            return label;
-        }
-
-        public EntityTraversal<S, S> getTraversal()
-        {
-            return traversal;
-        }
-
-    }
-    
 }
