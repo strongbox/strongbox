@@ -29,7 +29,7 @@ public class UnfoldEntityTraversal<S, E> implements EntityTraversal<S, E>
         this.target = target;
     }
 
-    public String getEntityLabel()
+    public String entityLabel()
     {
         return entityLabel;
     }

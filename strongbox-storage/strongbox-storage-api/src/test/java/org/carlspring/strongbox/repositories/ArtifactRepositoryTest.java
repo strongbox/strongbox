@@ -72,12 +72,13 @@ public class ArtifactRepositoryTest
                     .map(p -> p.get().value())
                     .toList()).contains(path, atIndex(0)).contains(path, atIndex(0)).hasSize(2);
 
-//        artifactRepository.delete(artifactEntity);
-//        assertThat(artifactRepository.findById(artifactEntity.getUuid())).isEmpty();
-//
-//        assertThat(g.V().hasLabel(Vertices.RAW_ARTIFACT_COORDINATES).has("uuid", path).hasNext()).isFalse();
-//        assertThat(g.V().hasLabel(Vertices.GENERIC_ARTIFACT_COORDINATES).has("uuid", path).hasNext()).isFalse();
-//        assertThat(g.E().hasLabel(Edges.ARTIFACT_COORDINATES_INHERIT_GENERIC_ARTIFACT_COORDINATES).hasNext()).isFalse();
+        artifactRepository.delete(artifactEntity);
+        assertThat(artifactRepository.findById(artifactEntity.getUuid())).isEmpty();
+
+        assertThat(g.V().hasLabel(Vertices.RAW_ARTIFACT_COORDINATES).has("uuid", path).hasNext()).isFalse();
+        assertThat(g.V().hasLabel(Vertices.GENERIC_ARTIFACT_COORDINATES).has("uuid", path).hasNext()).isFalse();
+        assertThat(g.E().hasLabel(Edges.ARTIFACT_COORDINATES_INHERIT_GENERIC_ARTIFACT_COORDINATES).hasNext()).isFalse();
+        assertThat(g.E().hasLabel(Edges.ARTIFACT_HAS_ARTIFACT_COORDINATES).hasNext()).isFalse();
     }
 
 }

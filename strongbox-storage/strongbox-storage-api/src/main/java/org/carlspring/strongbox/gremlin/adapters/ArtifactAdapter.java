@@ -102,7 +102,7 @@ public class ArtifactAdapter extends VertexEntityTraversalAdapter<Artifact>
     private <S2> EntityTraversal<S2, Vertex> saveArtifactCoordinates(ArtifactCoordinates artifactCoordinates)
     {
         UnfoldEntityTraversal<Vertex, Vertex> artifactCoordinatesUnfold = artifactCoordinatesAdapter.unfold(artifactCoordinates);
-        String artifactCoordinatesLabel = artifactCoordinatesUnfold.getEntityLabel();
+        String artifactCoordinatesLabel = artifactCoordinatesUnfold.entityLabel();
 
         return __.<S2>V()
                  .saveV(artifactCoordinatesLabel,
@@ -133,7 +133,16 @@ public class ArtifactAdapter extends VertexEntityTraversalAdapter<Artifact>
     @Override
     public EntityTraversal<Vertex, ? extends Element> cascade()
     {
-        return null;
+        return __.<Vertex>aggregate("x")
+                 .optional(__.outE(Edges.ARTIFACT_HAS_ARTIFACT_COORDINATES)
+                             .inV()
+                             .where(__.inE(Edges.ARTIFACT_HAS_ARTIFACT_COORDINATES).count().is(1))
+                             .aggregate("x")
+                             .inE(Edges.ARTIFACT_COORDINATES_INHERIT_GENERIC_ARTIFACT_COORDINATES)
+                             .outV()
+                             .aggregate("x"))
+                 .select("x")
+                 .unfold();
     }
 
 }

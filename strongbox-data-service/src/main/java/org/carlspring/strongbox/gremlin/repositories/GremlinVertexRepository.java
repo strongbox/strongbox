@@ -15,7 +15,7 @@ public abstract class GremlinVertexRepository<E extends DomainObject> extends Gr
     public <R extends E> R save(R entity)
     {
         UnfoldEntityTraversal<Vertex, Vertex> unfoldTraversal = adapter().unfold(entity);
-        Vertex resultVertex = start(this::g).saveV(unfoldTraversal.getEntityLabel(), entity.getUuid(),
+        Vertex resultVertex = start(this::g).saveV(unfoldTraversal.entityLabel(), entity.getUuid(),
                                                    unfoldTraversal)
                                             .next();
 

@@ -109,7 +109,7 @@ public class ArtifactCoordinatesAdapter extends VertexEntityTraversalAdapter<Art
                                                                                               .findFirst()
                                                                                               .get();
 
-        return new UnfoldEntityTraversal<>(unfoldTraversal.getEntityLabel(),
+        return new UnfoldEntityTraversal<>(unfoldTraversal.entityLabel(),
                 __.<Vertex, Edge>coalesce(updateGenericArtifactCoordinates(entity),
                                           createGenericArtifactCoordinates(entity))
                   .outV()
