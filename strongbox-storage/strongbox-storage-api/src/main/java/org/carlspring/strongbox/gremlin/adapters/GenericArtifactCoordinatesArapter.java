@@ -75,7 +75,7 @@ public class GenericArtifactCoordinatesArapter extends VertexEntityTraversalAdap
         coordinates.remove("version");
         coordinates.entrySet()
                    .stream()
-                   .forEach(e -> result.setCoordinate(e.getKey(),
+                   .forEach(e -> result.setCoordinate(e.getKey().replace("coordinates." , ""),
                                                       extractList(String.class, e.getValue()).iterator().next()));
 
         LayoutArtifactCoordinatesEntity artifactCoordinates = extractObject(LayoutArtifactCoordinatesEntity.class,
@@ -103,7 +103,7 @@ public class GenericArtifactCoordinatesArapter extends VertexEntityTraversalAdap
             {
                 continue;
             }
-            t = t.property(single, coordinateEntry.getKey(), coordinateEntry.getValue());
+            t = t.property(single, "coordinates." + coordinateEntry.getKey(), coordinateEntry.getValue());
         }
 
         return new UnfoldEntityTraversal<>(Vertices.GENERIC_ARTIFACT_COORDINATES, t);

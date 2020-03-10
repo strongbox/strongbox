@@ -1,10 +1,14 @@
 package org.carlspring.strongbox.gremlin.adapters;
 
+import static org.apache.tinkerpop.gremlin.structure.VertexProperty.Cardinality.set;
 import static org.apache.tinkerpop.gremlin.structure.VertexProperty.Cardinality.single;
 import static org.carlspring.strongbox.gremlin.adapters.EntityTraversalUtils.extractObject;
+import static org.carlspring.strongbox.gremlin.adapters.EntityTraversalUtils.extractList;
 
 import java.util.Collections;
+import java.util.HashSet;
 import java.util.Map;
+import java.util.Optional;
 import java.util.Set;
 
 import javax.inject.Inject;
@@ -18,6 +22,7 @@ import org.carlspring.strongbox.artifact.coordinates.ArtifactCoordinates;
 import org.carlspring.strongbox.db.schema.Edges;
 import org.carlspring.strongbox.db.schema.Vertices;
 import org.carlspring.strongbox.domain.Artifact;
+import org.carlspring.strongbox.domain.ArtifactArchiveListing;
 import org.carlspring.strongbox.domain.ArtifactEntity;
 import org.carlspring.strongbox.domain.GenericArtifactCoordinatesEntity;
 import org.carlspring.strongbox.gremlin.dsl.EntityTraversal;
@@ -45,10 +50,11 @@ public class ArtifactAdapter extends VertexEntityTraversalAdapter<Artifact>
     @Override
     public EntityTraversal<Vertex, Artifact> fold()
     {
-        return __.<Vertex, Object>project("uuid", "storageId", "repositoryId", "genericArtifactCoordinates")
+        return __.<Vertex, Object>project("uuid", "storageId", "repositoryId", "filenames", "genericArtifactCoordinates")
                  .by(__.enrichPropertyValue("uuid"))
                  .by(__.enrichPropertyValue("storageId"))
                  .by(__.enrichPropertyValue("repositoryId"))
+                 .by(__.enrichPropertyValues("filenames"))
                  .by(__.outE(Edges.ARTIFACT_HAS_ARTIFACT_COORDINATES)
                        .mapToObject(__.inV()
                                       .sideEffect(EntityTraversalUtils::traceVertex)
@@ -66,6 +72,11 @@ public class ArtifactAdapter extends VertexEntityTraversalAdapter<Artifact>
 
         ArtifactEntity result = new ArtifactEntity(storageId, repositoryId, artifactCoordinates);
         result.setUuid(extractObject(String.class, t.get().get("uuid")));
+
+        result.getArtifactArchiveListing()
+              .setFilenames(Optional.ofNullable(extractList(String.class, t.get().get("filenames")))
+                                    .map(HashSet::new)
+                                    .orElse(null));
 
         return result;
     }
@@ -125,6 +136,14 @@ public class ArtifactAdapter extends VertexEntityTraversalAdapter<Artifact>
         if (entity.getRepositoryId() != null)
         {
             t = t.property(single, "repositoryId", entity.getRepositoryId());
+        }
+
+        ArtifactArchiveListing artifactArchiveListing = entity.getArtifactArchiveListing();
+        t = t.sideEffect(__.properties("filenames").drop());
+        Set<String> filenames = artifactArchiveListing.getFilenames();
+        for (String filename : filenames)
+        {
+            t = t.property(set, "filenames", filename);
         }
 
         return t;

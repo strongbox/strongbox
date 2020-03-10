@@ -3,6 +3,9 @@ package org.carlspring.strongbox.repositories;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.data.Index.atIndex;
 
+import java.util.Arrays;
+import java.util.HashSet;
+
 import javax.inject.Inject;
 import javax.transaction.Transactional;
 
@@ -14,6 +17,8 @@ import org.carlspring.strongbox.config.DataServiceConfig;
 import org.carlspring.strongbox.data.CacheManagerTestExecutionListener;
 import org.carlspring.strongbox.db.schema.Edges;
 import org.carlspring.strongbox.db.schema.Vertices;
+import org.carlspring.strongbox.domain.Artifact;
+import org.carlspring.strongbox.domain.ArtifactArchiveListing;
 import org.carlspring.strongbox.domain.ArtifactEntity;
 import org.carlspring.strongbox.gremlin.tx.TransactionContext;
 import org.junit.jupiter.api.Test;
@@ -49,11 +54,16 @@ public class ArtifactRepositoryTest
 
         ArtifactEntity artifactEntity = new ArtifactEntity("storage0", repositoryId,
                 artifactCoordinates.getGenericArtifactCoordinates());
+        artifactEntity.getArtifactArchiveListing()
+                      .setFilenames(new HashSet<>(Arrays.asList("file1.txt", "readme.md", "icon.svg")));
 
         artifactEntity = artifactRepository.save(artifactEntity);
         assertThat(artifactEntity.getUuid()).isNotNull();
         assertThat(artifactEntity.getStorageId()).isEqualTo(storageId);
         assertThat(artifactEntity.getRepositoryId()).isEqualTo(repositoryId);
+
+        ArtifactArchiveListing artifactArchiveListing = artifactEntity.getArtifactArchiveListing();
+        assertThat(artifactArchiveListing.getFilenames()).containsOnly("file1.txt", "readme.md", "icon.svg");
 
         artifactCoordinates = (RawArtifactCoordinates) artifactEntity.getArtifactCoordinates();
         assertThat(artifactCoordinates.getUuid()).isEqualTo(path);
@@ -63,6 +73,12 @@ public class ArtifactRepositoryTest
         assertThat(artifactCoordinates.getCoordinates()).hasValueSatisfying(new Condition<>(path::equals,
                 "Coordinates should have path value."));
 
+        assertThat(g.E()
+                    .hasLabel(Edges.ARTIFACT_HAS_ARTIFACT_COORDINATES)
+                    .bothV()
+                    .properties("uuid")
+                    .map(p -> p.get().value())
+                    .toList()).contains(artifactEntity.getUuid(), path).hasSize(2);
         assertThat(g.V().hasLabel(Vertices.RAW_ARTIFACT_COORDINATES).has("uuid", path).hasNext()).isTrue();
         assertThat(g.V().hasLabel(Vertices.GENERIC_ARTIFACT_COORDINATES).has("uuid", path).hasNext()).isTrue();
         assertThat(g.E()
@@ -79,6 +95,50 @@ public class ArtifactRepositoryTest
         assertThat(g.V().hasLabel(Vertices.GENERIC_ARTIFACT_COORDINATES).has("uuid", path).hasNext()).isFalse();
         assertThat(g.E().hasLabel(Edges.ARTIFACT_COORDINATES_INHERIT_GENERIC_ARTIFACT_COORDINATES).hasNext()).isFalse();
         assertThat(g.E().hasLabel(Edges.ARTIFACT_HAS_ARTIFACT_COORDINATES).hasNext()).isFalse();
+    }
+
+    @Test
+    @Transactional
+    public void findByPathShouldWork()
+    {
+        GraphTraversalSource g = graph.traversal();
+        String storageId = "storage0";
+        String repositoryId = "repository-art-fbpsw";
+        String path = "path/to/resource/art-fbpsw-10.jar";
+
+        RawArtifactCoordinates artifactCoordinates = new RawArtifactCoordinates();
+        artifactCoordinates.setId(path);
+
+        ArtifactEntity artifactEntity = new ArtifactEntity(storageId, repositoryId,
+                artifactCoordinates.getGenericArtifactCoordinates());
+        artifactEntity.getArtifactArchiveListing()
+                      .setFilenames(new HashSet<>(Arrays.asList("file1.txt", "readme.md", "icon.svg")));
+
+        artifactEntity = artifactRepository.save(artifactEntity);
+        assertThat(artifactEntity.getUuid()).isNotNull();
+        assertThat(artifactEntity.getStorageId()).isEqualTo(storageId);
+        assertThat(artifactEntity.getRepositoryId()).isEqualTo(repositoryId);
+
+        artifactCoordinates = (RawArtifactCoordinates) artifactEntity.getArtifactCoordinates();
+        assertThat(artifactCoordinates.getUuid()).isEqualTo(path);
+        assertThat(artifactCoordinates.getVersion()).isNull();
+        assertThat(artifactCoordinates.getId()).isEqualTo(path);
+        assertThat(artifactCoordinates.getCoordinates()).hasSize(1);
+        assertThat(artifactCoordinates.getCoordinates()).hasValueSatisfying(new Condition<>(path::equals,
+                "Coordinates should have path value."));
+
+        Artifact artifact = artifactRepository.findOneArtifact(storageId, repositoryId, path);
+        ArtifactArchiveListing artifactArchiveListing = artifact.getArtifactArchiveListing();
+        assertThat(artifactArchiveListing.getFilenames()).containsOnly("file1.txt", "readme.md", "icon.svg");
+
+        artifactCoordinates = (RawArtifactCoordinates) artifact.getArtifactCoordinates();
+        assertThat(artifactCoordinates.getUuid()).isEqualTo(path);
+        assertThat(artifactCoordinates.getVersion()).isNull();
+        assertThat(artifactCoordinates.getId()).isEqualTo(path);
+        assertThat(artifactCoordinates.getCoordinates()).hasSize(1);
+        assertThat(artifactCoordinates.getCoordinates()).hasValueSatisfying(new Condition<>(path::equals,
+                "Coordinates should have path value."));
+
     }
 
 }

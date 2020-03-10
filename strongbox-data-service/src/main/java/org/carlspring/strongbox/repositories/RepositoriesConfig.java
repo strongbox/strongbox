@@ -21,7 +21,7 @@ public class RepositoriesConfig
     @Bean
     public SessionFactory sessionFactory(JanusGraph graph)
     {
-        return new SessionFactory(new GremlinGraphDriver(graph.tx()), "org.carlspring.strongbox.domain");
+        return new SessionFactory(new GremlinGraphDriver(graph.tx()), "org.carlspring.strongbox.domain", "org.carlspring.strongbox.artifact.coordinates");
     }
 
     @Bean

@@ -10,6 +10,8 @@ import org.carlspring.strongbox.domain.Artifact;
 import org.carlspring.strongbox.gremlin.adapters.ArtifactAdapter;
 import org.carlspring.strongbox.gremlin.repositories.GremlinVertexRepository;
 import org.carlspring.strongbox.services.support.ArtifactEntrySearchCriteria;
+import org.springframework.data.neo4j.annotation.Query;
+import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
 
 @Repository
@@ -82,11 +84,13 @@ interface ArtifactEntityQueries extends org.springframework.data.repository.Repo
         return false;
     }
 
-    default Artifact findOneArtifact(String storageId,
-                                     String repositoryId,
-                                     String path)
-    {
-        return null;
-    }
+    @Query("MATCH (gac:`GenericArtifactCoordinates` {uuid:$path})<-[ahac:`ArtifactHasArtifactCoordinates`]-(a:`Artifact`) " +
+            "WITH gac, ahac, a " +
+            "MATCH (gac)<-[acigac:`ArtifactCoordinatesInheritGenericArtifactCoordinates`]-(ac) " +
+            "WHERE a.storageId = $storageId and a.repositoryId = $repositoryId " +
+            "RETURN a, ahac, gac, acigac, ac")
+    Artifact findOneArtifact(@Param("storageId") String storageId,
+                             @Param("repositoryId") String repositoryId,
+                             @Param("path") String path);
 
 }

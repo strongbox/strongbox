@@ -1,7 +1,5 @@
 package org.carlspring.strongbox.artifact.coordinates;
 
-import java.util.Optional;
-
 import org.carlspring.strongbox.db.schema.Vertices;
 import org.carlspring.strongbox.domain.GenericArtifactCoordinatesEntity;
 import org.carlspring.strongbox.domain.LayoutArtifactCoordinatesEntity;
