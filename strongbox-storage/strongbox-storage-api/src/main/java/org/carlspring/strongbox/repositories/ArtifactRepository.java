@@ -84,11 +84,11 @@ interface ArtifactEntityQueries extends org.springframework.data.repository.Repo
         return false;
     }
 
-    @Query("MATCH (gac:`GenericArtifactCoordinates` {uuid:$path})<-[ahac:`ArtifactHasArtifactCoordinates`]-(a:`Artifact`) " +
-            "WITH gac, ahac, a " +
-            "MATCH (gac)<-[acigac:`ArtifactCoordinatesInheritGenericArtifactCoordinates`]-(ac) " +
-            "WHERE a.storageId = $storageId and a.repositoryId = $repositoryId " +
-            "RETURN a, ahac, gac, acigac, ac")
+    @Query("MATCH (genericCoordinates:GenericArtifactCoordinates)<-[r1]-(artifact:Artifact) " +
+           "WHERE genericCoordinates.uuid=$path and artifact.storageId=$storageId and artifact.repositoryId=$repositoryId " +
+           "WITH genericCoordinates, r1, artifact " +
+           "MATCH (genericCoordinates)<-[r2]-(layoutCoordinates) " +
+           "RETURN artifact, r1, genericCoordinates, r2, layoutCoordinates")
     Artifact findOneArtifact(@Param("storageId") String storageId,
                              @Param("repositoryId") String repositoryId,
                              @Param("path") String path);
