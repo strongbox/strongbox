@@ -26,6 +26,8 @@ public interface Artifact extends DomainObject
     Set<ArtifactTag> getTagSet();
 
     Map<String, String> getChecksums();
+    
+    void setChecksums(Map<String, String> digestMap);
 
     Long getSizeInBytes();
 

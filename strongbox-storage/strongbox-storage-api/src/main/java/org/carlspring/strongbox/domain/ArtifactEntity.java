@@ -1,14 +1,13 @@
 package org.carlspring.strongbox.domain;
 
-import java.io.Serializable;
 import java.util.Date;
-import java.util.HashMap;
 import java.util.HashSet;
 import java.util.LinkedHashSet;
 import java.util.Map;
 import java.util.Objects;
 import java.util.Optional;
 import java.util.Set;
+import java.util.stream.Collectors;
 
 import javax.persistence.Transient;
 
@@ -39,7 +38,7 @@ public class ArtifactEntity
     @Relationship(type = Edges.ARTIFACT_HAS_TAGS, direction = Relationship.OUTGOING)
     private Set<ArtifactTag> tagSet;
 
-    private Map<String, String> checksums;
+    private Set<String> checksums = new HashSet<>();
 
     private Set<String> filenames = new LinkedHashSet<>();
 
@@ -64,11 +63,11 @@ public class ArtifactEntity
                           GenericArtifactCoordinatesEntity artifactCoordinates)
     {
         Objects.nonNull(artifactCoordinates);
-        
+
         this.storageId = storageId;
         this.repositoryId = repositoryId;
         this.artifactCoordinates = artifactCoordinates;
-        
+
         artifactCoordinates.getLayoutArtifactCoordinates().buildPath();
     }
 
@@ -122,12 +121,29 @@ public class ArtifactEntity
     @Override
     public Map<String, String> getChecksums()
     {
-        return checksums = Optional.ofNullable(checksums).orElse(new HashMap<>());
+        return checksums.stream().collect(Collectors.toMap(e -> e.substring(1, e.indexOf("}")), e -> e.substring(e.indexOf("}") + 1)));
     }
 
-    protected void setChecksums(Map<String, String> checksums)
+    public void setChecksums(Map<String, String> checksums)
     {
-        this.checksums = checksums;
+        this.checksums.clear();
+        this.checksums.addAll(checksums.entrySet()
+                                       .stream()
+                                       .map(e -> "{" + e.getKey() + "}" + e.getValue())
+                                       .collect(Collectors.toSet()));
+    }
+
+    public void addChecksums(Set<String> checksums)
+    {
+        if (checksums == null)
+        {
+            return;
+        }
+        checksums.stream()
+                 .filter(e -> e.startsWith("{"))
+                 .filter(e -> e.indexOf("}") > 1)
+                 .filter(e -> !e.endsWith("}"))
+                 .forEach(this.checksums::add);
     }
 
     @Override

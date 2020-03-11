@@ -50,11 +50,12 @@ public class ArtifactAdapter extends VertexEntityTraversalAdapter<Artifact>
     @Override
     public EntityTraversal<Vertex, Artifact> fold()
     {
-        return __.<Vertex, Object>project("uuid", "storageId", "repositoryId", "filenames", "genericArtifactCoordinates")
+        return __.<Vertex, Object>project("uuid", "storageId", "repositoryId", "filenames", "checksums", "genericArtifactCoordinates")
                  .by(__.enrichPropertyValue("uuid"))
                  .by(__.enrichPropertyValue("storageId"))
                  .by(__.enrichPropertyValue("repositoryId"))
                  .by(__.enrichPropertyValues("filenames"))
+                 .by(__.enrichPropertyValues("checksums"))
                  .by(__.outE(Edges.ARTIFACT_HAS_ARTIFACT_COORDINATES)
                        .mapToObject(__.inV()
                                       .sideEffect(EntityTraversalUtils::traceVertex)
@@ -75,6 +76,10 @@ public class ArtifactAdapter extends VertexEntityTraversalAdapter<Artifact>
 
         result.getArtifactArchiveListing()
               .setFilenames(Optional.ofNullable(extractList(String.class, t.get().get("filenames")))
+                                    .map(HashSet::new)
+                                    .orElse(null));
+
+        result.addChecksums(Optional.ofNullable(extractList(String.class, t.get().get("checksums")))
                                     .map(HashSet::new)
                                     .orElse(null));
 
@@ -146,6 +151,13 @@ public class ArtifactAdapter extends VertexEntityTraversalAdapter<Artifact>
             t = t.property(set, "filenames", filename);
         }
 
+        Map<String, String> checksums = entity.getChecksums();
+        t = t.sideEffect(__.properties("checksums").drop());
+        for (String alg : checksums.keySet())
+        {
+            t = t.property(set, "checksums", "{" + alg + "}" + checksums.get(alg));
+        }
+        
         return t;
     }
 

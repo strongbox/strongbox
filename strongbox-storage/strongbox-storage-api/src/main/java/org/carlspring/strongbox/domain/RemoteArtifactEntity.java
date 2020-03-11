@@ -88,6 +88,11 @@ public class RemoteArtifactEntity extends DomainEntity implements RemoteArtifact
     {
         return artifact.getChecksums();
     }
+    
+    public void setChecksums(Map<String, String> checksums)
+    {
+        artifact.setChecksums(checksums);
+    }
 
     public Long getSizeInBytes()
     {

@@ -56,11 +56,15 @@ public class ArtifactRepositoryTest
                 artifactCoordinates.getGenericArtifactCoordinates());
         artifactEntity.getArtifactArchiveListing()
                       .setFilenames(new HashSet<>(Arrays.asList("file1.txt", "readme.md", "icon.svg")));
+        artifactEntity.addChecksums(new HashSet<>(
+                Arrays.asList("{md5}3111519d5b4efd31565831f735ab0d2f", "{sha-1}ba79baeb 9f10896a 46ae7471 5271b7f5 86e74640")));
 
         artifactEntity = artifactRepository.save(artifactEntity);
         assertThat(artifactEntity.getUuid()).isNotNull();
         assertThat(artifactEntity.getStorageId()).isEqualTo(storageId);
         assertThat(artifactEntity.getRepositoryId()).isEqualTo(repositoryId);
+        assertThat(artifactEntity.getChecksums()).containsEntry("md5", "3111519d5b4efd31565831f735ab0d2f")
+                                                 .containsEntry("sha-1", "ba79baeb 9f10896a 46ae7471 5271b7f5 86e74640");
 
         ArtifactArchiveListing artifactArchiveListing = artifactEntity.getArtifactArchiveListing();
         assertThat(artifactArchiveListing.getFilenames()).containsOnly("file1.txt", "readme.md", "icon.svg");

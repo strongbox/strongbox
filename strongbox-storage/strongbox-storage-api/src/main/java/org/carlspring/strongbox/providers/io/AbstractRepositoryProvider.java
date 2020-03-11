@@ -227,8 +227,7 @@ public abstract class AbstractRepositoryProvider implements RepositoryProvider, 
         artifactEntry.setSizeInBytes(cos.getByteCount());
 
         LayoutOutputStream los = StreamUtils.findSource(LayoutOutputStream.class, ctx.getStream());
-        artifactEntry.getChecksums().clear();
-        artifactEntry.getChecksums().putAll(los.getDigestMap());
+        artifactEntry.setChecksums(los.getDigestMap());
 
         ArtifactIdGroup artifactGroup = repositoryArtifactIdGroupService.findOneOrCreate(storage.getId(), repository.getId(), coordinates.getId());
         repositoryArtifactIdGroupService.addArtifactToGroup(artifactGroup, artifactEntry);
