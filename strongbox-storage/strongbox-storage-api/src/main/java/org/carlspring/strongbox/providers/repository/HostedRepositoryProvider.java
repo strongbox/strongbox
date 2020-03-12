@@ -41,7 +41,6 @@ public class HostedRepositoryProvider extends AbstractRepositoryProvider
 
     private static final String ALIAS = "hosted";
 
-    @PersistenceContext
     private EntityManager entityManager;
     
     @Inject

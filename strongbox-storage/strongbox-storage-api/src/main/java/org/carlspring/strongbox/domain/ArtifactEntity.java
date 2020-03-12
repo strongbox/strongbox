@@ -113,7 +113,7 @@ public class ArtifactEntity
         return tagSet = Optional.ofNullable(tagSet).orElse(new HashSet<>());
     }
 
-    protected void setTagSet(Set<ArtifactTag> tagSet)
+    public void setTagSet(Set<ArtifactTag> tagSet)
     {
         this.tagSet = tagSet;
     }

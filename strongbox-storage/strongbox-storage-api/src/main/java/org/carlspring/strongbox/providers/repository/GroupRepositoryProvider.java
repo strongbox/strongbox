@@ -62,7 +62,6 @@ public class GroupRepositoryProvider
     @Inject
     private GroupRepositorySetCollector groupRepositorySetCollector;
 
-    @PersistenceContext
     private EntityManager entityManager;
 
     @Inject

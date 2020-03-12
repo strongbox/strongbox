@@ -3,21 +3,26 @@ package org.carlspring.strongbox.gremlin.adapters;
 import static org.apache.tinkerpop.gremlin.structure.VertexProperty.Cardinality.set;
 import static org.apache.tinkerpop.gremlin.structure.VertexProperty.Cardinality.single;
 import static org.carlspring.strongbox.gremlin.adapters.EntityTraversalUtils.extractObject;
-import static org.carlspring.strongbox.gremlin.adapters.EntityTraversalUtils.extractList;
+import static org.carlspring.strongbox.gremlin.adapters.EntityTraversalUtils.extracPropertytList;
 
 import java.util.Collections;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
+import java.util.function.Function;
+import java.util.stream.Collectors;
 
 import javax.inject.Inject;
 
+import org.apache.tinkerpop.gremlin.process.traversal.P;
 import org.apache.tinkerpop.gremlin.process.traversal.Traversal;
 import org.apache.tinkerpop.gremlin.process.traversal.Traverser;
 import org.apache.tinkerpop.gremlin.structure.Edge;
 import org.apache.tinkerpop.gremlin.structure.Element;
 import org.apache.tinkerpop.gremlin.structure.Vertex;
+import org.carlspring.strongbox.artifact.ArtifactTag;
 import org.carlspring.strongbox.artifact.coordinates.ArtifactCoordinates;
 import org.carlspring.strongbox.db.schema.Edges;
 import org.carlspring.strongbox.db.schema.Vertices;
@@ -40,6 +45,8 @@ public class ArtifactAdapter extends VertexEntityTraversalAdapter<Artifact>
     GenericArtifactCoordinatesArapter genericArtifactCoordinatesArapter;
     @Inject
     ArtifactCoordinatesAdapter artifactCoordinatesAdapter;
+    @Inject
+    ArtifactTagAdapter artifactTagAdapter;
 
     @Override
     public Set<String> labels()
@@ -50,7 +57,13 @@ public class ArtifactAdapter extends VertexEntityTraversalAdapter<Artifact>
     @Override
     public EntityTraversal<Vertex, Artifact> fold()
     {
-        return __.<Vertex, Object>project("uuid", "storageId", "repositoryId", "filenames", "checksums", "genericArtifactCoordinates")
+        return __.<Vertex, Object>project("uuid",
+                                          "storageId",
+                                          "repositoryId",
+                                          "filenames",
+                                          "checksums",
+                                          "genericArtifactCoordinates",
+                                          "tags")
                  .by(__.enrichPropertyValue("uuid"))
                  .by(__.enrichPropertyValue("storageId"))
                  .by(__.enrichPropertyValue("repositoryId"))
@@ -58,9 +71,13 @@ public class ArtifactAdapter extends VertexEntityTraversalAdapter<Artifact>
                  .by(__.enrichPropertyValues("checksums"))
                  .by(__.outE(Edges.ARTIFACT_HAS_ARTIFACT_COORDINATES)
                        .mapToObject(__.inV()
-                                      .sideEffect(EntityTraversalUtils::traceVertex)
                                       .map(genericArtifactCoordinatesArapter.fold())
                                       .map(EntityTraversalUtils::castToObject)))
+                 .by(__.outE(Edges.ARTIFACT_HAS_TAGS)
+                       .mapToObject(__.inV()
+                                      .map(artifactTagAdapter.fold())
+                                      .map(EntityTraversalUtils::castToObject))
+                       .fold())
                  .map(this::map);
     }
 
@@ -75,13 +92,17 @@ public class ArtifactAdapter extends VertexEntityTraversalAdapter<Artifact>
         result.setUuid(extractObject(String.class, t.get().get("uuid")));
 
         result.getArtifactArchiveListing()
-              .setFilenames(Optional.ofNullable(extractList(String.class, t.get().get("filenames")))
+              .setFilenames(Optional.ofNullable(extracPropertytList(String.class, t.get().get("filenames")))
                                     .map(HashSet::new)
                                     .orElse(null));
 
-        result.addChecksums(Optional.ofNullable(extractList(String.class, t.get().get("checksums")))
+        result.addChecksums(Optional.ofNullable(extracPropertytList(String.class, t.get().get("checksums")))
                                     .map(HashSet::new)
                                     .orElse(null));
+
+        List<ArtifactTag> tags = extractObject(List.class,
+                                               t.get().get("tags"));
+        result.setTagSet(new HashSet<>(tags));
 
         return result;
     }
@@ -91,12 +112,23 @@ public class ArtifactAdapter extends VertexEntityTraversalAdapter<Artifact>
     {
         ArtifactCoordinates artifactCoordinates = entity.getArtifactCoordinates();
 
-        EntityTraversal<Vertex, Vertex> t = __.<Vertex, Edge>coalesce(updateArtifactCoordinates(artifactCoordinates),
-                                                                      createArtifactCoordinates(artifactCoordinates))
-                                              .outV()
-                                              .map(unfoldArtifact(entity));
+        Set<String> tagNames = entity.getTagSet().stream().map(ArtifactTag::getName).collect(Collectors.toSet());
+        EntityTraversal<Vertex, Vertex> unfoldTraversal = __.<Vertex, Edge>coalesce(updateArtifactCoordinates(artifactCoordinates),
+                                                                                    createArtifactCoordinates(artifactCoordinates))
+                                                            .outV()
+                                                            .sideEffect(__.outE(Edges.ARTIFACT_HAS_TAGS).drop())
+                                                            .map(unfoldArtifact(entity))
+                                                            .as(Vertices.ARTIFACT)
+                                                            .V()
+                                                            .hasLabel(Vertices.ARTIFACT_TAG)
+                                                            .has("uuid", P.within(tagNames))
+                                                            .addE(Edges.ARTIFACT_HAS_TAGS)
+                                                            .from(Vertices.ARTIFACT)
+                                                            .outV()
+                                                            .fold()
+                                                            .map(t -> t.get().stream().findFirst().get());
 
-        return new UnfoldEntityTraversal<>(Vertices.ARTIFACT, t);
+        return new UnfoldEntityTraversal<>(Vertices.ARTIFACT, unfoldTraversal);
     }
 
     private Traversal<Vertex, Edge> updateArtifactCoordinates(ArtifactCoordinates artifactCoordinates)
@@ -157,7 +189,7 @@ public class ArtifactAdapter extends VertexEntityTraversalAdapter<Artifact>
         {
             t = t.property(set, "checksums", "{" + alg + "}" + checksums.get(alg));
         }
-        
+
         return t;
     }
 

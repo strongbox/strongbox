@@ -1,7 +1,7 @@
 package org.carlspring.strongbox.gremlin.adapters;
 
 import static org.apache.tinkerpop.gremlin.structure.VertexProperty.Cardinality.single;
-import static org.carlspring.strongbox.gremlin.adapters.EntityTraversalUtils.extractList;
+import static org.carlspring.strongbox.gremlin.adapters.EntityTraversalUtils.extracPropertytList;
 import static org.carlspring.strongbox.gremlin.adapters.EntityTraversalUtils.extractObject;
 import static org.carlspring.strongbox.gremlin.dsl.EntityTraversalDsl.NULL;
 
@@ -76,7 +76,7 @@ public class GenericArtifactCoordinatesArapter extends VertexEntityTraversalAdap
         coordinates.entrySet()
                    .stream()
                    .forEach(e -> result.setCoordinate(e.getKey().replace("coordinates." , ""),
-                                                      extractList(String.class, e.getValue()).iterator().next()));
+                                                      extracPropertytList(String.class, e.getValue()).iterator().next()));
 
         LayoutArtifactCoordinatesEntity artifactCoordinates = extractObject(LayoutArtifactCoordinatesEntity.class,
                                                                             t.get()

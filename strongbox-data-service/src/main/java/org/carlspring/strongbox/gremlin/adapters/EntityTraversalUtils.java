@@ -8,6 +8,7 @@ import java.util.Optional;
 import java.util.stream.Collectors;
 
 import org.apache.tinkerpop.gremlin.process.traversal.Traverser;
+import org.apache.tinkerpop.gremlin.structure.Element;
 import org.apache.tinkerpop.gremlin.structure.Property;
 import org.apache.tinkerpop.gremlin.structure.Vertex;
 import org.carlspring.strongbox.gremlin.dsl.EntityTraversalDsl;
@@ -46,8 +47,8 @@ public class EntityTraversalUtils
         }
     }
 
-    public static <E> List<E> extractList(Class<E> target,
-                                          Object value)
+    public static <E> List<E> extracPropertytList(Class<E> target,
+                                                  Object value)
     {
         return Optional.of(value)
                        .filter(v -> !EntityTraversalDsl.NULL.equals(v))
@@ -61,7 +62,7 @@ public class EntityTraversalUtils
         return Object.class.cast(t.get());
     }
 
-    public static void traceVertex(Traverser<Vertex> t)
+    public static void traceVertex(Traverser<? extends Element> t)
     {
         System.out.println(String.format("[%s]-[%s]-[%s]", t.get().label(), t.get().id(),
                                          t.get().property("uuid").value()));
