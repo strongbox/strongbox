@@ -65,9 +65,16 @@ public class ArtifactTagServiceTest
                 artifactCoordinates.getGenericArtifactCoordinates());
         artifactEntity.setTagSet(new HashSet<ArtifactTag>(Arrays.asList(new ArtifactTag[] { releaseTag, latestTag, ltsTag })));
 
+        //Create Artifact with tags
         artifactEntity = artifactRepository.save(artifactEntity);
         assertThat(artifactEntity.getUuid()).isNotNull();
         assertThat(artifactEntity.getTagSet()).containsOnly(releaseTag, latestTag, ltsTag);
+
+        //Update Artifact tags
+        artifactEntity.setTagSet(new HashSet<ArtifactTag>(Arrays.asList(new ArtifactTag[] { releaseTag, latestTag})));
+        artifactEntity = artifactRepository.save(artifactEntity);
+        assertThat(artifactEntity.getUuid()).isNotNull();
+        assertThat(artifactEntity.getTagSet()).containsOnly(releaseTag, latestTag);
     }
 
 }

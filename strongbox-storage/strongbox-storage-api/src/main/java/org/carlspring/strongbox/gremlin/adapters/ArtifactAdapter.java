@@ -94,7 +94,7 @@ public class ArtifactAdapter extends VertexEntityTraversalAdapter<Artifact>
         result.getArtifactArchiveListing()
               .setFilenames(Optional.ofNullable(extracPropertytList(String.class, t.get().get("filenames")))
                                     .map(HashSet::new)
-                                    .orElse(null));
+                                    .orElse(new HashSet<>()));
 
         result.addChecksums(Optional.ofNullable(extracPropertytList(String.class, t.get().get("checksums")))
                                     .map(HashSet::new)
