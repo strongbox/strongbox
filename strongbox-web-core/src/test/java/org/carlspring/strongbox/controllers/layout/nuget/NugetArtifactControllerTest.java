@@ -31,7 +31,6 @@ import io.restassured.module.mockmvc.config.RestAssuredMockMvcConfig;
 import io.restassured.module.mockmvc.response.MockMvcResponse;
 import io.restassured.module.mockmvc.specification.MockMvcRequestSpecification;
 import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.springframework.http.HttpHeaders;
@@ -190,7 +189,6 @@ public class NugetArtifactControllerTest extends NugetRestAssuredBaseTest
     @ExtendWith({ RepositoryManagementTestExecutionListener.class,
                   ArtifactManagementTestExecutionListener.class })
     @Test
-    @Disabled("Disabling this test case till Multipart workaround is not found in rest assured MockMvcRequestSpecification.")
     public void testPackageCommonFlow(@NugetRepository(storageId = STORAGE_ID,
                                                        repositoryId = REPOSITORY_RELEASES_1)
                                       Repository repository,
@@ -260,7 +258,6 @@ public class NugetArtifactControllerTest extends NugetRestAssuredBaseTest
     @ExtendWith({ RepositoryManagementTestExecutionListener.class,
                   ArtifactManagementTestExecutionListener.class })
     @Test
-    @Disabled("Disabling this test case till Multipart workaround is not found in rest assured MockMvcRequestSpecification.")
     public void testChocolatey(@NugetRepository(storageId = STORAGE_ID,
                                                 repositoryId = REPOSITORY_RELEASES_1)
                                Repository repository,
@@ -272,9 +269,7 @@ public class NugetArtifactControllerTest extends NugetRestAssuredBaseTest
         final String storageId = repository.getStorage().getId();
         final String repositoryId = repository.getId();
         final String packageId = "Org.Carlspring.Strongbox.Examples.Nuget.Mono-Test";
-        final String packageVersion = "1.0.0";
 
-        long packageSize = Files.size(packagePath);
         byte[] packageContent = readPackageContent(packagePath);
 
         // Push
@@ -358,7 +353,7 @@ public class NugetArtifactControllerTest extends NugetRestAssuredBaseTest
     @ExtendWith({ RepositoryManagementTestExecutionListener.class,
                   ArtifactManagementTestExecutionListener.class })
     @Test
-    @Disabled("Disabling this test case till Multipart workaround is not found in rest assured MockMvcRequestSpecification.")
+    //@Disabled("Disabling this test case till Multipart workaround is not found in rest assured MockMvcRequestSpecification.")
     public void testLastVersionPackageSearch(@NugetRepository(storageId = STORAGE_ID,
                                                               repositoryId = REPOSITORY_RELEASES_1)
                                              Repository repository,
