@@ -3,6 +3,7 @@ package org.carlspring.strongbox.gremlin.adapters;
 import static org.apache.tinkerpop.gremlin.structure.VertexProperty.Cardinality.set;
 import static org.apache.tinkerpop.gremlin.structure.VertexProperty.Cardinality.single;
 import static org.carlspring.strongbox.gremlin.adapters.EntityTraversalUtils.extractObject;
+import static org.carlspring.strongbox.gremlin.dsl.EntityTraversalDsl.NULL;
 import static org.carlspring.strongbox.gremlin.adapters.EntityTraversalUtils.extracPropertytList;
 
 import java.util.Collections;
@@ -11,7 +12,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
-import java.util.function.Function;
 import java.util.stream.Collectors;
 
 import javax.inject.Inject;
@@ -30,7 +30,9 @@ import org.carlspring.strongbox.domain.Artifact;
 import org.carlspring.strongbox.domain.ArtifactArchiveListing;
 import org.carlspring.strongbox.domain.ArtifactEntity;
 import org.carlspring.strongbox.domain.GenericArtifactCoordinatesEntity;
+import org.carlspring.strongbox.domain.LayoutArtifactCoordinatesEntity;
 import org.carlspring.strongbox.gremlin.dsl.EntityTraversal;
+import org.carlspring.strongbox.gremlin.dsl.EntityTraversalDsl;
 import org.carlspring.strongbox.gremlin.dsl.__;
 import org.springframework.stereotype.Component;
 
@@ -38,7 +40,7 @@ import org.springframework.stereotype.Component;
  * @author sbespalov
  */
 @Component
-public class ArtifactAdapter extends VertexEntityTraversalAdapter<Artifact>
+public class ArtifactAdapter extends VertexEntityTraversalAdapter<Artifact> implements ArtifactHierarchyAdapter<Artifact>
 {
 
     @Inject
@@ -47,6 +49,8 @@ public class ArtifactAdapter extends VertexEntityTraversalAdapter<Artifact>
     ArtifactCoordinatesAdapter artifactCoordinatesAdapter;
     @Inject
     ArtifactTagAdapter artifactTagAdapter;
+    @Inject
+    GenericArtifactAdapter genericArtifactAdapter;
 
     @Override
     public Set<String> labels()
@@ -55,7 +59,26 @@ public class ArtifactAdapter extends VertexEntityTraversalAdapter<Artifact>
     }
 
     @Override
+    public Class<? extends Artifact> entityClass()
+    {
+        return Artifact.class;
+    }
+
+    @Override
     public EntityTraversal<Vertex, Artifact> fold()
+    {
+        return foldHierarchy(parentProjection(), childProjection());
+    }
+
+    @Override
+    public EntityTraversal<Vertex, Object> parentProjection()
+    {
+        return __.<Vertex>V().constant(EntityTraversalDsl.NULL);
+    }
+
+    @Override
+    public EntityTraversal<Vertex, Artifact> foldHierarchy(EntityTraversal<Vertex, Object> parentProjection,
+                                                           EntityTraversal<Vertex, Object> childProjection)
     {
         return __.<Vertex, Object>project("uuid",
                                           "storageId",
@@ -63,7 +86,8 @@ public class ArtifactAdapter extends VertexEntityTraversalAdapter<Artifact>
                                           "filenames",
                                           "checksums",
                                           "genericArtifactCoordinates",
-                                          "tags")
+                                          "tags",
+                                          "artifactHierarchyChild")
                  .by(__.enrichPropertyValue("uuid"))
                  .by(__.enrichPropertyValue("storageId"))
                  .by(__.enrichPropertyValue("repositoryId"))
@@ -78,7 +102,16 @@ public class ArtifactAdapter extends VertexEntityTraversalAdapter<Artifact>
                                       .map(artifactTagAdapter.fold())
                                       .map(EntityTraversalUtils::castToObject))
                        .fold())
+                 .by(childProjection)
                  .map(this::map);
+    }
+
+    public EntityTraversal<Vertex, Object> childProjection()
+    {
+        return __.inE(Edges.REMOTE_ARTIFACT_INHERIT_ARTIFACT)
+                 .mapToObject(__.outV()
+                                .map(genericArtifactAdapter.fold(__.<Vertex>identity().constant(NULL)))
+                                .map(EntityTraversalUtils::castToObject));
     }
 
     private Artifact map(Traverser<Map<String, Object>> t)
@@ -88,7 +121,7 @@ public class ArtifactAdapter extends VertexEntityTraversalAdapter<Artifact>
         GenericArtifactCoordinatesEntity artifactCoordinates = extractObject(GenericArtifactCoordinatesEntity.class,
                                                                              t.get().get("genericArtifactCoordinates"));
 
-        ArtifactEntity result = new ArtifactEntity(storageId, repositoryId, artifactCoordinates);
+        ArtifactEntity result = new ArtifactEntity(storageId, repositoryId, artifactCoordinates.getLayoutArtifactCoordinates());
         result.setUuid(extractObject(String.class, t.get().get("uuid")));
 
         result.getArtifactArchiveListing()
@@ -103,6 +136,12 @@ public class ArtifactAdapter extends VertexEntityTraversalAdapter<Artifact>
         List<ArtifactTag> tags = extractObject(List.class,
                                                t.get().get("tags"));
         result.setTagSet(new HashSet<>(tags));
+
+        Artifact artifactHierarchyChild = extractObject(Artifact.class,
+                                                        t.get()
+                                                         .get("artifactHierarchyChild"));
+        result.setArtifactHierarchyChild(artifactHierarchyChild);
+        // artifactCoordinates.setGenericArtifactCoordinates(result);
 
         return result;
     }
@@ -119,14 +158,14 @@ public class ArtifactAdapter extends VertexEntityTraversalAdapter<Artifact>
                                                             .sideEffect(__.outE(Edges.ARTIFACT_HAS_TAGS).drop())
                                                             .map(unfoldArtifact(entity))
                                                             .as(Vertices.ARTIFACT)
-                                                            .V()
-                                                            .hasLabel(Vertices.ARTIFACT_TAG)
-                                                            .has("uuid", P.within(tagNames))
-                                                            .addE(Edges.ARTIFACT_HAS_TAGS)
-                                                            .from(Vertices.ARTIFACT)
-                                                            .outV()
-                                                            .fold()
-                                                            .map(t -> t.get().stream().findFirst().get());
+                                                            .optional(__.V()
+                                                                        .hasLabel(Vertices.ARTIFACT_TAG)
+                                                                        .has("uuid", P.within(tagNames))
+                                                                        .addE(Edges.ARTIFACT_HAS_TAGS)
+                                                                        .from(Vertices.ARTIFACT)
+                                                                        .outV()
+                                                                        .fold()
+                                                                        .map(t -> t.get().stream().findFirst().get()));
 
         return new UnfoldEntityTraversal<>(Vertices.ARTIFACT, unfoldTraversal);
     }
@@ -156,10 +195,8 @@ public class ArtifactAdapter extends VertexEntityTraversalAdapter<Artifact>
                  .saveV(artifactCoordinatesLabel,
                         artifactCoordinates.getUuid(),
                         artifactCoordinatesUnfold)
-                 .sideEffect(EntityTraversalUtils::traceVertex)
                  .outE(Edges.ARTIFACT_COORDINATES_INHERIT_GENERIC_ARTIFACT_COORDINATES)
-                 .inV()
-                 .sideEffect(EntityTraversalUtils::traceVertex);
+                 .inV();
     }
 
     private EntityTraversal<Vertex, Vertex> unfoldArtifact(Artifact entity)

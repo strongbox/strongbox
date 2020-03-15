@@ -2,6 +2,7 @@ package org.carlspring.strongbox.gremlin.dsl;
 
 import static org.apache.tinkerpop.gremlin.process.traversal.P.within;
 
+import java.util.Arrays;
 import java.util.Optional;
 import java.util.UUID;
 
@@ -37,12 +38,25 @@ public interface EntityTraversalDsl<S, E> extends GraphTraversal.Admin<S, E>
 
     };
 
-    @SuppressWarnings("unchecked")
-    default <E2> GraphTraversal<S, E2> findById(Object uuid, String... labels)
-    {
-        return (GraphTraversal<S, E2>) hasLabel(within(labels)).has("uuid", uuid);
-    }
+//    @SuppressWarnings("unchecked")
+//    default <E2> GraphTraversal<S, E2> findById(Object uuid,
+//                                                String... labels)
+//    {
+//        EntityTraversal<S, S> result = __.<S>has(labels[0], "uuid", uuid);
+//        for (String label : Arrays.copyOfRange(labels, 1, labels.length))
+//        {
+//            result = __.choose(result, __.identity(), __.has(label, "uuid", uuid));
+//        }
+//
+//        return (GraphTraversal<S, E2>) choose(__.<S>has(labels[0], "uuid", uuid), __.identity(), result);
+//    }
 
+    @SuppressWarnings("unchecked")
+    default <E2> Traversal<S, E2> findById(Object uuid, String... labels)
+    {
+        return (Traversal<S, E2>) hasLabel(within(labels)).has("uuid", uuid);
+    }
+    
     @SuppressWarnings("unchecked")
     default Traversal<S, Object> enrichPropertyValue(String propertyName)
     {
@@ -68,15 +82,15 @@ public interface EntityTraversalDsl<S, E> extends GraphTraversal.Admin<S, E>
     {
         uuid = Optional.ofNullable(uuid)
                        .orElse(NULL);
-        GraphTraversal<S, Object> element = findById(uuid, label);
+        GraphTraversal<S, E> element = hasLabel(label).has("uuid", uuid);
 
         return element.fold()
                       .choose(t -> t.isEmpty(),
                               __.addV(label)
                                 .property("uuid",
-                                           Optional.of(uuid)
-                                           .filter(x -> !NULL.equals(x))
-                                           .orElse(UUID.randomUUID().toString()))
+                                          Optional.of(uuid)
+                                                  .filter(x -> !NULL.equals(x))
+                                                  .orElse(UUID.randomUUID().toString()))
                                 .trace("Created"),
                               __.unfold()
                                 .trace("Fetched"))
@@ -86,12 +100,12 @@ public interface EntityTraversalDsl<S, E> extends GraphTraversal.Admin<S, E>
     @SuppressWarnings("unchecked")
     default <E2> Traversal<S, E2> trace(String action)
     {
-        return (Traversal<S, E2>) sideEffect(t -> logger.debug(String.format("%s [%s]-[%s]-[%s]",
-                                                                             action,
-                                                                             ((Element) t.get()).label(),
-                                                                             ((Element) t.get()).id(),
-                                                                             ((Element) t.get()).property("uuid")
-                                                                                                .value())));
+        return (Traversal<S, E2>) sideEffect(t -> logger.info(String.format("%s [%s]-[%s]-[%s]",
+                                                                            action,
+                                                                            ((Element) t.get()).label(),
+                                                                            ((Element) t.get()).id(),
+                                                                            ((Element) t.get()).property("uuid")
+                                                                                               .orElse("null"))));
     }
 
 }

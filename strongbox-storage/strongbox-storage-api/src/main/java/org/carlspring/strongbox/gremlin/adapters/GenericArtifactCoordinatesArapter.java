@@ -82,7 +82,10 @@ public class GenericArtifactCoordinatesArapter extends VertexEntityTraversalAdap
                                                                             t.get()
                                                                              .get("layoutArtifactCoordinates"));
         result.setLayoutArtifactCoordinates(artifactCoordinates);
-        artifactCoordinates.setGenericArtifactCoordinates(result);
+        if (artifactCoordinates != null)
+        {
+            artifactCoordinates.setGenericArtifactCoordinates(result);
+        }
 
         return result;
     }

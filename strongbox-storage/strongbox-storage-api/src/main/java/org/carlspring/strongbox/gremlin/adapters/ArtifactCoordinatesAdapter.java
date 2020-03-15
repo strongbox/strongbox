@@ -35,7 +35,7 @@ public class ArtifactCoordinatesAdapter extends VertexEntityTraversalAdapter<Art
 
     private static final Logger logger = LoggerFactory.getLogger(ArtifactCoordinatesAdapter.class);
 
-    private Map<String, LayoutArtifactCoordinatesArapter<?, ?>> artifactCoordinatesAraptersMap;
+    private Map<String, LayoutArtifactCoordinatesArapter<?, ?>> artifactCoordinatesAdaptersMap;
 
     @Inject
     private GenericArtifactCoordinatesArapter genericArtifactCoordinatesArapter;
@@ -43,7 +43,7 @@ public class ArtifactCoordinatesAdapter extends VertexEntityTraversalAdapter<Art
     @Inject
     public void setArtifactCoordinatesArapters(Set<LayoutArtifactCoordinatesArapter<?, ?>> artifactCoordinatesArapters)
     {
-        artifactCoordinatesAraptersMap = artifactCoordinatesArapters.stream()
+        artifactCoordinatesAdaptersMap = artifactCoordinatesArapters.stream()
                                                                     .collect(Collectors.toMap(this::validateAndGetLabel,
                                                                                               (a) -> a));
     }
@@ -61,14 +61,14 @@ public class ArtifactCoordinatesAdapter extends VertexEntityTraversalAdapter<Art
     @Override
     public Set<String> labels()
     {
-        return artifactCoordinatesAraptersMap.keySet();
+        return artifactCoordinatesAdaptersMap.keySet();
     }
 
     @Override
     public EntityTraversal<Vertex, ArtifactCoordinates> fold()
     {
 
-        return __.map(fold(Optional.empty(), artifactCoordinatesAraptersMap.values().iterator()));
+        return __.map(fold(Optional.empty(), artifactCoordinatesAdaptersMap.values().iterator()));
     }
 
     private EntityTraversal<ArtifactCoordinates, ArtifactCoordinates> fold(Optional<EntityTraversal<Vertex, Object>> optionalGenericArtifactCoordinatesProjection,
@@ -95,13 +95,13 @@ public class ArtifactCoordinatesAdapter extends VertexEntityTraversalAdapter<Art
     <S> EntityTraversal<S, ArtifactCoordinates> fold(EntityTraversal<Vertex, Object> artifactCoordinatesTraversal)
     {
         return __.map(fold(Optional.of(artifactCoordinatesTraversal),
-                           artifactCoordinatesAraptersMap.values().iterator()));
+                           artifactCoordinatesAdaptersMap.values().iterator()));
     }
 
     @Override
     public UnfoldEntityTraversal<Vertex, Vertex> unfold(ArtifactCoordinates entity)
     {
-        UnfoldEntityTraversal<Vertex, Vertex> unfoldTraversal = artifactCoordinatesAraptersMap.values()
+        UnfoldEntityTraversal<Vertex, Vertex> unfoldTraversal = artifactCoordinatesAdaptersMap.values()
                                                                                               .stream()
                                                                                               .map(LayoutArtifactCoordinatesArapter.class::cast)
                                                                                               .map(a -> a.unfold((LayoutArtifactCoordinatesEntity<?, ?>) entity))

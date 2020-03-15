@@ -121,13 +121,15 @@ public class ArtifactEntryServiceTest
     {
         final String groupId = getGroupId(GROUP_ID, testInfo);
 
-        Artifact artifactEntry = new ArtifactEntity();
+        ArtifactCoordinates artifactCoordinates = createArtifactCoordinates(groupId,
+                                                                            ARTIFACT_ID + "1234",
+                                                                            "1.2.3",
+                                                                            "jar");
+        
+        Artifact artifactEntry = new ArtifactEntity(STORAGE_ID, REPOSITORY_ID, artifactCoordinates);
         artifactEntry.setStorageId(STORAGE_ID);
         artifactEntry.setRepositoryId(REPOSITORY_ID);
-        artifactEntry.setArtifactCoordinates(createArtifactCoordinates(groupId,
-                                                                       ARTIFACT_ID + "1234",
-                                                                       "1.2.3",
-                                                                       "jar"));
+        artifactEntry.setArtifactCoordinates(artifactCoordinates);
 
         assertThat(artifactEntry.getCreated()).isNull();
 
@@ -403,11 +405,12 @@ public class ArtifactEntryServiceTest
 
     private ArtifactEntity createArtifactEntry(String groupId)
     {
-        final ArtifactEntity artifactEntry = new ArtifactEntity();
-
+        ArtifactCoordinates artifactCoordinates = createArtifactCoordinates(groupId, ARTIFACT_ID + "1234", "1.2.3", "jar");
+        
+        final ArtifactEntity artifactEntry = new ArtifactEntity(STORAGE_ID, REPOSITORY_ID, artifactCoordinates);
         artifactEntry.setStorageId(STORAGE_ID);
         artifactEntry.setRepositoryId(REPOSITORY_ID);
-        artifactEntry.setArtifactCoordinates(createArtifactCoordinates(groupId, ARTIFACT_ID + "1234", "1.2.3", "jar"));
+        artifactEntry.setArtifactCoordinates(artifactCoordinates);
 
         return artifactEntry;
     }
@@ -456,7 +459,7 @@ public class ArtifactEntryServiceTest
                                      String storageId,
                                      String repositoryId)
     {
-        ArtifactEntity artifactEntry = new ArtifactEntity();
+        ArtifactEntity artifactEntry = new ArtifactEntity(storageId, repositoryId, coordinates);
         artifactEntry.setArtifactCoordinates(coordinates);
         artifactEntry.setStorageId(storageId);
         artifactEntry.setRepositoryId(repositoryId);

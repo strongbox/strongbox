@@ -236,7 +236,8 @@ public abstract class AbstractRepositoryProvider implements RepositoryProvider, 
     protected Artifact provideArtifact(RepositoryPath repositoryPath) throws IOException
     {
         return Optional.ofNullable(repositoryPath.getArtifactEntry())
-                       .orElse(new ArtifactEntity());
+                       .orElse(new ArtifactEntity(repositoryPath.getStorageId(), repositoryPath.getRepositoryId(),
+                               RepositoryFiles.readCoordinates(repositoryPath)));
     }
     
     protected boolean shouldStoreArtifact(Artifact artifactEntry)

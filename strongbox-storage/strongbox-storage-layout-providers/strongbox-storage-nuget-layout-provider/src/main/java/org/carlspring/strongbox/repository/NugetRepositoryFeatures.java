@@ -221,7 +221,7 @@ public class NugetRepositoryFeatures
                 continue;
             }
 
-            RemoteArtifactEntity remoteArtifactEntry = new RemoteArtifactEntity();
+            RemoteArtifactEntity remoteArtifactEntry = new RemoteArtifactEntity(storageId, repositoryId, c);
             remoteArtifactEntry.setStorageId(storageId);
             remoteArtifactEntry.setRepositoryId(repositoryId);
             remoteArtifactEntry.setArtifactCoordinates(c);

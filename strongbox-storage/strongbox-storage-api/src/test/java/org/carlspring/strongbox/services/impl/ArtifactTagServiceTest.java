@@ -61,8 +61,7 @@ public class ArtifactTagServiceTest
         RawArtifactCoordinates artifactCoordinates = new RawArtifactCoordinates();
         artifactCoordinates.setId(path);
 
-        ArtifactEntity artifactEntity = new ArtifactEntity(storageId, repositoryId,
-                artifactCoordinates.getGenericArtifactCoordinates());
+        ArtifactEntity artifactEntity = new ArtifactEntity(storageId, repositoryId, artifactCoordinates);
         artifactEntity.setTagSet(new HashSet<ArtifactTag>(Arrays.asList(new ArtifactTag[] { releaseTag, latestTag, ltsTag })));
 
         //Create Artifact with tags

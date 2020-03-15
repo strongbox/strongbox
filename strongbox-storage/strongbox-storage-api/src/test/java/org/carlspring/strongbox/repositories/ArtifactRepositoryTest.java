@@ -20,6 +20,8 @@ import org.carlspring.strongbox.db.schema.Vertices;
 import org.carlspring.strongbox.domain.Artifact;
 import org.carlspring.strongbox.domain.ArtifactArchiveListing;
 import org.carlspring.strongbox.domain.ArtifactEntity;
+import org.carlspring.strongbox.domain.RemoteArtifact;
+import org.carlspring.strongbox.domain.RemoteArtifactEntity;
 import org.carlspring.strongbox.gremlin.tx.TransactionContext;
 import org.junit.jupiter.api.Test;
 import org.springframework.boot.test.context.SpringBootTest;
@@ -52,8 +54,7 @@ public class ArtifactRepositoryTest
         RawArtifactCoordinates artifactCoordinates = new RawArtifactCoordinates();
         artifactCoordinates.setId(path);
 
-        ArtifactEntity artifactEntity = new ArtifactEntity("storage0", repositoryId,
-                artifactCoordinates.getGenericArtifactCoordinates());
+        ArtifactEntity artifactEntity = new ArtifactEntity("storage0", repositoryId, artifactCoordinates);
         artifactEntity.getArtifactArchiveListing()
                       .setFilenames(new HashSet<>(Arrays.asList("file1.txt", "readme.md", "icon.svg")));
         artifactEntity.addChecksums(new HashSet<>(
@@ -113,8 +114,7 @@ public class ArtifactRepositoryTest
         RawArtifactCoordinates artifactCoordinates = new RawArtifactCoordinates();
         artifactCoordinates.setId(path);
 
-        ArtifactEntity artifactEntity = new ArtifactEntity(storageId, repositoryId,
-                artifactCoordinates.getGenericArtifactCoordinates());
+        ArtifactEntity artifactEntity = new ArtifactEntity(storageId, repositoryId, artifactCoordinates);
         artifactEntity.getArtifactArchiveListing()
                       .setFilenames(new HashSet<>(Arrays.asList("file1.txt", "readme.md", "icon.svg")));
 
@@ -143,6 +143,28 @@ public class ArtifactRepositoryTest
         assertThat(artifactCoordinates.getCoordinates()).hasValueSatisfying(new Condition<>(path::equals,
                 "Coordinates should have path value."));
 
+    }
+
+    @Test
+    @Transactional
+    public void remoteArtifactShouldWork()
+    {
+        GraphTraversalSource g = graph.traversal();
+        String storageId = "storage0";
+        String repositoryId = "repository-art-rasw";
+        String path = "path/to/resource/art-rasw-10.jar";
+
+        RawArtifactCoordinates artifactCoordinates = new RawArtifactCoordinates();
+        artifactCoordinates.setId(path);
+
+        RemoteArtifactEntity remoteArtifactEntity = new RemoteArtifactEntity("storage0", repositoryId, artifactCoordinates);
+        remoteArtifactEntity.setIsCached(true);
+
+        remoteArtifactEntity = artifactRepository.save(remoteArtifactEntity);
+        assertThat(remoteArtifactEntity.getUuid()).isNotNull();
+        assertThat(remoteArtifactEntity.getStorageId()).isEqualTo(storageId);
+        assertThat(remoteArtifactEntity.getRepositoryId()).isEqualTo(repositoryId);
+        assertThat(remoteArtifactEntity).isInstanceOf(RemoteArtifact.class);
     }
 
 }

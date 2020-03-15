@@ -20,17 +20,28 @@ public class RemoteArtifactEntity extends DomainEntity implements RemoteArtifact
 {
 
     @Relationship(type = Edges.REMOTE_ARTIFACT_INHERIT_ARTIFACT, direction = Relationship.OUTGOING)
-    private final ArtifactEntity artifact;
+    private ArtifactEntity artifact = new ArtifactEntity();
     private Boolean isCached = Boolean.FALSE;
 
-    public RemoteArtifactEntity()
+    public RemoteArtifactEntity(String storageId,
+                                String repositoryId,
+                                ArtifactCoordinates artifactCoordinates)
     {
-        this(new ArtifactEntity());
+        this(new ArtifactEntity(storageId, repositoryId, artifactCoordinates));
+    }
+
+    RemoteArtifactEntity()
+    {
     }
 
     public RemoteArtifactEntity(ArtifactEntity artifactEntity)
     {
         this.artifact = artifactEntity;
+        artifactEntity.setArtifactHierarchyChild(this);
+        if (getArtifactCoordinates() != null)
+        {
+            setUuid(String.format("%s-%s-%s", getStorageId(), getRepositoryId(), getArtifactCoordinates().buildPath()));
+        }
     }
 
     public void setUuid(String uuid)
@@ -88,7 +99,7 @@ public class RemoteArtifactEntity extends DomainEntity implements RemoteArtifact
     {
         return artifact.getChecksums();
     }
-    
+
     public void setChecksums(Map<String, String> checksums)
     {
         artifact.setChecksums(checksums);
@@ -152,31 +163,6 @@ public class RemoteArtifactEntity extends DomainEntity implements RemoteArtifact
     public String getArtifactPath()
     {
         return artifact.getArtifactPath();
-    }
-
-    public boolean booleanValue()
-    {
-        return isCached.booleanValue();
-    }
-
-    public String toString()
-    {
-        return isCached.toString();
-    }
-
-    public int hashCode()
-    {
-        return isCached.hashCode();
-    }
-
-    public boolean equals(Object obj)
-    {
-        return isCached.equals(obj);
-    }
-
-    public int compareTo(Boolean b)
-    {
-        return isCached.compareTo(b);
     }
 
 }

@@ -54,6 +54,16 @@ public class RepositoryPath
         this.fileSystem = fileSystem;
     }
 
+    public String getStorageId()
+    {
+        return getRepository().getStorage().getId();
+    }
+
+    public String getRepositoryId()
+    {
+        return getRepository().getStorage().getId();
+    }
+    
     protected Path getTarget()
     {
         return target;

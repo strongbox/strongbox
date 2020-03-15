@@ -65,7 +65,7 @@ public class EntityTraversalUtils
     public static void traceVertex(Traverser<? extends Element> t)
     {
         System.out.println(String.format("[%s]-[%s]-[%s]", t.get().label(), t.get().id(),
-                                         t.get().property("uuid").value()));
+                                         t.get().property("uuid").orElse("empty")));
     }
 
 }

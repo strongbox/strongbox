@@ -22,9 +22,9 @@ public class DomainEntity implements DomainObject
     {
         if (this.uuid != null && !this.uuid.equals(uuid))
         {
-            throw new IllegalStateException("Can't change the uuid.");
+            throw new IllegalStateException(String.format("Can't change the uuid, [%s]->[%s].", this.uuid, uuid));
         }
-        
+
         this.uuid = uuid;
     }
 

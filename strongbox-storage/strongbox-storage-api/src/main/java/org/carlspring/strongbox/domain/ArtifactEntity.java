@@ -13,6 +13,7 @@ import javax.persistence.Transient;
 
 import org.carlspring.strongbox.artifact.ArtifactTag;
 import org.carlspring.strongbox.artifact.coordinates.ArtifactCoordinates;
+import org.carlspring.strongbox.artifact.coordinates.GenericArtifactCoordinates;
 import org.carlspring.strongbox.data.domain.DomainEntity;
 import org.carlspring.strongbox.db.schema.Edges;
 import org.carlspring.strongbox.db.schema.Vertices;
@@ -33,7 +34,7 @@ public class ArtifactEntity
     private String repositoryId;
 
     @Relationship(type = Edges.ARTIFACT_HAS_ARTIFACT_COORDINATES, direction = Relationship.OUTGOING)
-    private GenericArtifactCoordinatesEntity artifactCoordinates;
+    private GenericArtifactCoordinates artifactCoordinates;
 
     @Relationship(type = Edges.ARTIFACT_HAS_TAGS, direction = Relationship.OUTGOING)
     private Set<ArtifactTag> tagSet;
@@ -53,22 +54,27 @@ public class ArtifactEntity
     private Integer downloadCount = Integer.valueOf(0);
 
     private final ArtifactArchiveListing artifactArchiveListing = new ArtifactEntityArchiveListing();
+    
+    @Relationship(type = Edges.REMOTE_ARTIFACT_INHERIT_ARTIFACT, direction = Relationship.INCOMING)
+    private Artifact artifactHierarchyChild;
 
-    public ArtifactEntity()
+    ArtifactEntity()
     {
     }
 
     public ArtifactEntity(String storageId,
                           String repositoryId,
-                          GenericArtifactCoordinatesEntity artifactCoordinates)
+                          ArtifactCoordinates artifactCoordinates)
     {
         Objects.nonNull(artifactCoordinates);
 
         this.storageId = storageId;
         this.repositoryId = repositoryId;
         this.artifactCoordinates = artifactCoordinates;
-
-        artifactCoordinates.getLayoutArtifactCoordinates().buildPath();
+        if (getArtifactCoordinates() != null)
+        {
+            setUuid(String.format("%s-%s-%s", getStorageId(), getRepositoryId(), getArtifactCoordinates().buildPath()));
+        }
     }
 
     @Override
@@ -98,13 +104,16 @@ public class ArtifactEntity
     @Override
     public ArtifactCoordinates getArtifactCoordinates()
     {
-        return artifactCoordinates.getLayoutArtifactCoordinates();
+        if (artifactCoordinates instanceof ArtifactCoordinates) {
+            return (ArtifactCoordinates) artifactCoordinates;
+        }
+        return ((GenericArtifactCoordinatesEntity)artifactCoordinates).getLayoutArtifactCoordinates();
     }
 
     @Override
     public void setArtifactCoordinates(ArtifactCoordinates artifactCoordinates)
     {
-        this.artifactCoordinates = ((LayoutArtifactCoordinatesEntity) artifactCoordinates).getGenericArtifactCoordinates();
+        this.artifactCoordinates = artifactCoordinates;
     }
 
     @Override
@@ -219,6 +228,16 @@ public class ArtifactEntity
         return Optional.of(getArtifactCoordinates())
                        .map(c -> c.buildPath())
                        .orElseThrow(() -> new IllegalStateException("ArtifactCoordinates required to be set."));
+    }
+
+    public Artifact getArtifactHierarchyChild()
+    {
+        return artifactHierarchyChild;
+    }
+
+    public void setArtifactHierarchyChild(Artifact artifactHierarchyChild)
+    {
+        this.artifactHierarchyChild = artifactHierarchyChild;
     }
 
     public class ArtifactEntityArchiveListing implements ArtifactArchiveListing

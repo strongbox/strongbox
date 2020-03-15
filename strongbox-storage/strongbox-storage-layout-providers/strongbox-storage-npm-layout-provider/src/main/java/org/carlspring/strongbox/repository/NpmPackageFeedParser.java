@@ -176,12 +176,12 @@ public class NpmPackageFeedParser
     }
 
     private RemoteArtifactEntity parseVersion(String storageId,
-                                             String repositoryId,
-                                             PackageVersion packageVersion)
+                                              String repositoryId,
+                                              PackageVersion packageVersion)
     {
         NpmArtifactCoordinates c = NpmArtifactCoordinates.of(packageVersion.getName(), packageVersion.getVersion());
 
-        RemoteArtifactEntity remoteArtifactEntry = new RemoteArtifactEntity();
+        RemoteArtifactEntity remoteArtifactEntry = new RemoteArtifactEntity(storageId, repositoryId, c);
         remoteArtifactEntry.setStorageId(storageId);
         remoteArtifactEntry.setRepositoryId(repositoryId);
         remoteArtifactEntry.setArtifactCoordinates(c);
@@ -196,15 +196,15 @@ public class NpmPackageFeedParser
     }
 
     private RemoteArtifactEntity parseVersion(String storageId,
-                                             String repositoryId,
-                                             PackageEntry packageEntry)
+                                              String repositoryId,
+                                              PackageEntry packageEntry)
     {
         String scope = packageEntry.getScope();
         String packageId = NpmArtifactCoordinates.calculatePackageId("unscoped".equals(scope) ? null : scope,
                                                                      packageEntry.getName());
         NpmArtifactCoordinates c = NpmArtifactCoordinates.of(packageId, packageEntry.getVersion());
 
-        RemoteArtifactEntity remoteArtifactEntry = new RemoteArtifactEntity();
+        RemoteArtifactEntity remoteArtifactEntry = new RemoteArtifactEntity(storageId, repositoryId, c);
         remoteArtifactEntry.setStorageId(storageId);
         remoteArtifactEntry.setRepositoryId(repositoryId);
         remoteArtifactEntry.setArtifactCoordinates(c);
