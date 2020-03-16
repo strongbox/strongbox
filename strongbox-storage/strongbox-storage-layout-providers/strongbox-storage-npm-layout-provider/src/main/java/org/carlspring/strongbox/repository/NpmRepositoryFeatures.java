@@ -1,5 +1,6 @@
 package org.carlspring.strongbox.repository;
 
+import org.carlspring.strongbox.client.config.ProxyRepositoryConnectionConfigurationService;
 import org.carlspring.strongbox.config.NpmLayoutProviderConfig.NpmObjectMapper;
 import org.carlspring.strongbox.configuration.Configuration;
 import org.carlspring.strongbox.configuration.ConfigurationManager;
@@ -14,7 +15,6 @@ import org.carlspring.strongbox.npm.metadata.Change;
 import org.carlspring.strongbox.npm.metadata.PackageFeed;
 import org.carlspring.strongbox.npm.metadata.SearchResults;
 import org.carlspring.strongbox.providers.repository.event.RemoteRepositorySearchEvent;
-import org.carlspring.strongbox.service.ProxyRepositoryConnectionPoolConfigurationService;
 import org.carlspring.strongbox.services.ConfigurationManagementService;
 import org.carlspring.strongbox.storage.Storage;
 import org.carlspring.strongbox.storage.repository.Repository;
@@ -35,19 +35,16 @@ import javax.persistence.PersistenceContext;
 import javax.ws.rs.client.Client;
 import javax.ws.rs.client.Invocation;
 import javax.ws.rs.client.WebTarget;
+
 import java.io.IOException;
 import java.io.InputStream;
+import java.lang.reflect.InvocationTargetException;
 import java.util.Arrays;
 import java.util.LinkedHashSet;
 import java.util.Optional;
 import java.util.Set;
 import java.util.concurrent.Executor;
 
-import com.fasterxml.jackson.core.JsonFactory;
-import com.fasterxml.jackson.core.JsonParser;
-import com.fasterxml.jackson.core.JsonToken;
-import com.fasterxml.jackson.databind.JsonNode;
-import com.fasterxml.jackson.databind.ObjectMapper;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.context.annotation.Scope;
@@ -55,6 +52,12 @@ import org.springframework.context.annotation.ScopedProxyMode;
 import org.springframework.context.event.EventListener;
 import org.springframework.stereotype.Component;
 import org.springframework.util.Assert;
+
+import com.fasterxml.jackson.core.JsonFactory;
+import com.fasterxml.jackson.core.JsonParser;
+import com.fasterxml.jackson.core.JsonToken;
+import com.fasterxml.jackson.databind.JsonNode;
+import com.fasterxml.jackson.databind.ObjectMapper;
 
 @Component
 public class NpmRepositoryFeatures implements RepositoryFeatures
@@ -79,9 +82,6 @@ public class NpmRepositoryFeatures implements RepositoryFeatures
     private GenericSnapshotVersionValidator genericSnapshotVersionValidator;
 
     @Inject
-    private ProxyRepositoryConnectionPoolConfigurationService proxyRepositoryConnectionPoolConfigurationService;
-
-    @Inject
     private ConfigurationManager configurationManager;
 
     @PersistenceContext
@@ -96,6 +96,9 @@ public class NpmRepositoryFeatures implements RepositoryFeatures
 
     @Inject
     private NpmPackageFeedParser npmPackageFeedParser;
+
+    @Inject
+    private ProxyRepositoryConnectionConfigurationService proxyRepositoryConnectionConfigurationService;
 
     private Set<String> defaultArtifactCoordinateValidators;
 
@@ -152,7 +155,7 @@ public class NpmRepositoryFeatures implements RepositoryFeatures
         Client restClient = null;
         try
         {
-            restClient = proxyRepositoryConnectionPoolConfigurationService.getRestClient();
+            restClient = proxyRepositoryConnectionConfigurationService.getClientForRepository(remoteRepository);
             logger.debug("Search NPM packages for [{}].", remoteRepositoryUrl);
 
             WebTarget service = restClient.target(remoteRepository.getUrl());
@@ -190,7 +193,9 @@ public class NpmRepositoryFeatures implements RepositoryFeatures
 
     public void fetchRemoteChangesFeed(String storageId,
                                        String repositoryId)
-        throws IOException
+        throws IOException,
+        IllegalAccessException,
+        InvocationTargetException
     {
 
         Storage storage = getConfiguration().getStorage(storageId);
@@ -231,10 +236,12 @@ public class NpmRepositoryFeatures implements RepositoryFeatures
     private Integer fetchRemoteChangesFeed(Repository repository,
                                            String replicateUrl,
                                            Long since)
-        throws IOException
+        throws IOException,
+        IllegalAccessException,
+        InvocationTargetException
     {
         int result = 0;
-        Client restClient = proxyRepositoryConnectionPoolConfigurationService.getRestClient();
+        Client restClient = proxyRepositoryConnectionConfigurationService.getClientForRepository(repository);
         try
         {
             logger.debug("Fetching remote changes for [{}] since [{}].", replicateUrl, since);
@@ -354,7 +361,7 @@ public class NpmRepositoryFeatures implements RepositoryFeatures
         Client restClient = null;
         try
         {
-            restClient = proxyRepositoryConnectionPoolConfigurationService.getRestClient();
+            restClient = proxyRepositoryConnectionConfigurationService.getClientForRepository(remoteRepository);
             logger.debug("Downloading NPM changes feed for [{}].", remoteRepositoryUrl);
 
             WebTarget service = restClient.target(remoteRepository.getUrl());

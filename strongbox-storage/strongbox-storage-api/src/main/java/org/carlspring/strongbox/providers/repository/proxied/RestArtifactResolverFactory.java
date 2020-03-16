@@ -1,16 +1,17 @@
 package org.carlspring.strongbox.providers.repository.proxied;
 
-import java.net.MalformedURLException;
-import java.util.Objects;
+import org.carlspring.strongbox.client.RemoteRepositoryRetryArtifactDownloadConfiguration;
+import org.carlspring.strongbox.client.RestArtifactResolver;
+import org.carlspring.strongbox.client.config.ProxyRepositoryConnectionConfigurationService;
+import org.carlspring.strongbox.configuration.ConfigurationManager;
+import org.carlspring.strongbox.storage.repository.remote.RemoteRepository;
+import org.carlspring.strongbox.storage.repository.remote.heartbeat.RemoteRepositoryAlivenessService;
 
 import javax.inject.Inject;
 
-import org.carlspring.strongbox.client.RemoteRepositoryRetryArtifactDownloadConfiguration;
-import org.carlspring.strongbox.client.RestArtifactResolver;
-import org.carlspring.strongbox.configuration.ConfigurationManager;
-import org.carlspring.strongbox.service.ProxyRepositoryConnectionPoolConfigurationService;
-import org.carlspring.strongbox.storage.repository.remote.RemoteRepository;
-import org.carlspring.strongbox.storage.repository.remote.heartbeat.RemoteRepositoryAlivenessService;
+import java.net.MalformedURLException;
+import java.util.Objects;
+
 import org.glassfish.jersey.client.authentication.HttpAuthenticationFeature;
 import org.springframework.stereotype.Component;
 
@@ -22,11 +23,11 @@ public class RestArtifactResolverFactory
 {
 
     @Inject
-    private ProxyRepositoryConnectionPoolConfigurationService proxyRepositoryConnectionPoolConfigurationService;
-    
+    private ProxyRepositoryConnectionConfigurationService proxyRepositoryConnectionConfigurationService;
+
     @Inject
     private ConfigurationManager configurationManager;
-    
+
     @Inject
     private RemoteRepositoryAlivenessService remoteRepositoryAlivenessCacheManager;
 
@@ -38,25 +39,27 @@ public class RestArtifactResolverFactory
         RemoteRepositoryRetryArtifactDownloadConfiguration configuration = configurationManager.getConfiguration()
                                                                                                .getRemoteRepositoriesConfiguration()
                                                                                                .getRemoteRepositoryRetryArtifactDownloadConfiguration();
-        
+
         String username = repository.getUsername();
         String password = repository.getPassword();
         String url = repository.getUrl();
-        
-        final HttpAuthenticationFeature authenticationFeature = (username != null && password != null) ? HttpAuthenticationFeature.basic(username, password) : null;
-                
-        return new RestArtifactResolver(proxyRepositoryConnectionPoolConfigurationService.getRestClient(), url,
-                                        configuration,
-                                        authenticationFeature)
-                                {
-                        
-                                    @Override
-                                    public boolean isAlive()
-                                    {
-                                        return remoteRepositoryAlivenessCacheManager.isAlive(repository);
-                                    }
-                        
-                                };
+
+        final HttpAuthenticationFeature authenticationFeature = (username != null && password != null)
+                ? HttpAuthenticationFeature.basic(username, password) : null;
+
+        return new RestArtifactResolver(
+                proxyRepositoryConnectionConfigurationService.getClientForRepository(repository), url,
+                configuration,
+                authenticationFeature)
+        {
+
+            @Override
+            public boolean isAlive()
+            {
+                return remoteRepositoryAlivenessCacheManager.isAlive(repository);
+            }
+
+        };
     }
 
 }
