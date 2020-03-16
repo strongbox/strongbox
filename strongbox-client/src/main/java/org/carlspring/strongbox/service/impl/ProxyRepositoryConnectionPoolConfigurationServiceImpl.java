@@ -109,6 +109,10 @@ public class ProxyRepositoryConnectionPoolConfigurationServiceImpl
                     config.property(ClientProperties.PROXY_PASSWORD, proxyConfiguration.getPassword());
                 }
             }
+            else
+            {
+                logger.warn("Proxy host is in Non-Proxy host list, so not using proxy configurations in RestClient.");
+            }
         }
         catch (MalformedURLException e)
         {
@@ -161,6 +165,10 @@ public class ProxyRepositoryConnectionPoolConfigurationServiceImpl
                 context.setCredentialsProvider(credentialsProvider);
                 context.setAuthCache(authCache);
             }
+        }
+        else
+        {
+            logger.warn("Proxy host is in Non-Proxy host list, so not using proxy configurations in Http Client.");
         }
 
         return HttpClients.custom()

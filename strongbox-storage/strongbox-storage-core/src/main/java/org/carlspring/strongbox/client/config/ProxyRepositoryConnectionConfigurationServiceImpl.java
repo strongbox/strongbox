@@ -17,6 +17,10 @@ import org.apache.http.impl.client.CloseableHttpClient;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Component;
+import org.springframework.util.StringUtils;
+
+import com.google.common.collect.Lists;
+
 
 /**
  * @author ankit.tomar
@@ -42,15 +46,16 @@ public class ProxyRepositoryConnectionConfigurationServiceImpl implements ProxyR
             logger.debug("Proxy configuration settings for Repository [{}] are {}", repository.getId(),
                          repositoryProxyConfiguration);
 
-            if (repositoryProxyConfiguration != null)
+            if (isValidProxyConfiguration(repositoryProxyConfiguration))
             {
                 return proxyRepositoryConnectionPoolConfigurationService.getRestClient(repositoryProxyConfiguration);
             }
 
             ProxyServerConfiguration globalProxyConfiguration = getGlobalProxyConfiguration();
 
-            if (globalProxyConfiguration != null)
+            if (isValidProxyConfiguration(globalProxyConfiguration))
             {
+                globalProxyConfiguration.setNonProxyHosts(Lists.newArrayList("localhost"));
                 return proxyRepositoryConnectionPoolConfigurationService.getRestClient(globalProxyConfiguration);
             }
         }
@@ -63,13 +68,14 @@ public class ProxyRepositoryConnectionConfigurationServiceImpl implements ProxyR
         return proxyRepositoryConnectionPoolConfigurationService.getRestClient();
     }
 
+
     @Override
     public Client getClientForRepository(RemoteRepository remoteRepository)
     {
         try
         {
             ProxyServerConfiguration globalProxyConfiguration = getGlobalProxyConfiguration();
-            if (globalProxyConfiguration != null)
+            if (isValidProxyConfiguration(globalProxyConfiguration))
             {
                 return proxyRepositoryConnectionPoolConfigurationService.getRestClient(globalProxyConfiguration);
             }
@@ -129,7 +135,7 @@ public class ProxyRepositoryConnectionConfigurationServiceImpl implements ProxyR
             logger.debug("Proxy configuration settings for Repository [{}] are {}", repository.getId(),
                          repositoryProxyConfiguration);
 
-            if (repositoryProxyConfiguration != null)
+            if (isValidProxyConfiguration(repositoryProxyConfiguration))
             {
                 return proxyRepositoryConnectionPoolConfigurationService.getHttpClient(repositoryProxyConfiguration);
             }
@@ -141,5 +147,13 @@ public class ProxyRepositoryConnectionConfigurationServiceImpl implements ProxyR
         }
 
         return getHttpClient();
+    }
+
+    private boolean isValidProxyConfiguration(ProxyServerConfiguration repositoryProxyConfiguration)
+    {
+        return (repositoryProxyConfiguration != null 
+                && repositoryProxyConfiguration.getPort() != null
+                && !StringUtils.isEmpty(repositoryProxyConfiguration.getHost())
+                && !StringUtils.isEmpty(repositoryProxyConfiguration.getType()));
     }
 }
