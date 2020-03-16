@@ -8,21 +8,16 @@ import javax.annotation.PreDestroy;
 import javax.ws.rs.client.Client;
 import javax.ws.rs.client.ClientBuilder;
 
-import java.net.MalformedURLException;
+import java.net.Proxy;
 import java.net.URI;
 import java.net.URISyntaxException;
-import java.net.URL;
 import java.util.concurrent.TimeUnit;
 
 import org.apache.http.HttpHost;
 import org.apache.http.auth.AuthScope;
 import org.apache.http.auth.UsernamePasswordCredentials;
-import org.apache.http.client.AuthCache;
 import org.apache.http.client.CredentialsProvider;
-import org.apache.http.client.protocol.HttpClientContext;
 import org.apache.http.conn.routing.HttpRoute;
-import org.apache.http.impl.auth.BasicScheme;
-import org.apache.http.impl.client.BasicAuthCache;
 import org.apache.http.impl.client.BasicCredentialsProvider;
 import org.apache.http.impl.client.CloseableHttpClient;
 import org.apache.http.impl.client.HttpClients;
@@ -94,29 +89,29 @@ public class ProxyRepositoryConnectionPoolConfigurationServiceImpl
         // property to prevent closing connection manager when client is closed
         config.property(ApacheClientProperties.CONNECTION_MANAGER_SHARED, true);
 
-        try
+        if (proxyConfiguration != null
+                && !Proxy.Type.DIRECT.name().equalsIgnoreCase(proxyConfiguration.getType())
+                && Proxy.Type.HTTP.name().equalsIgnoreCase(proxyConfiguration.getType())
+                && (CollectionUtils.isEmpty(proxyConfiguration.getNonProxyHosts()))
+                    || !proxyConfiguration.getNonProxyHosts().contains(proxyConfiguration.getHost()))
         {
-            if (proxyConfiguration != null && (CollectionUtils.isEmpty(proxyConfiguration.getNonProxyHosts()))
-                                            || !proxyConfiguration.getNonProxyHosts().contains(proxyConfiguration.getHost()))
-            {
-                URL url = new URL(proxyConfiguration.getType(), proxyConfiguration.getHost(), proxyConfiguration.getPort(), "/");
-                config.property(ClientProperties.PROXY_URI, url.toExternalForm());
+            HttpHost proxy = new HttpHost(proxyConfiguration.getHost(), proxyConfiguration.getPort());
+            config.property(ClientProperties.PROXY_URI, proxy.toURI());
 
-                if (!StringUtils.isEmpty(proxyConfiguration.getUsername())
-                        && !StringUtils.isEmpty(proxyConfiguration.getPassword()))
-                {
-                    config.property(ClientProperties.PROXY_USERNAME, proxyConfiguration.getUsername());
-                    config.property(ClientProperties.PROXY_PASSWORD, proxyConfiguration.getPassword());
-                }
-            }
-            else
+            if (!StringUtils.isEmpty(proxyConfiguration.getUsername())
+                    && !StringUtils.isEmpty(proxyConfiguration.getPassword()))
             {
-                logger.warn("Proxy host is in Non-Proxy host list, so not using proxy configurations in RestClient.");
+                config.property(ClientProperties.PROXY_USERNAME, proxyConfiguration.getUsername());
+                config.property(ClientProperties.PROXY_PASSWORD, proxyConfiguration.getPassword());
             }
         }
-        catch (MalformedURLException e)
+        else if (proxyConfiguration != null && Proxy.Type.DIRECT.name().equalsIgnoreCase(proxyConfiguration.getType()))
         {
-            logger.error("Something went wrong while applying proxy configuration to Client.", e);
+            logger.info("Proxy Type is DIRECT ,so not using proxy configurations in RestClient.");
+        }
+        else
+        {
+            logger.info("Proxy host is in Non-Proxy host list, so not using proxy configurations in RestClient.");
         }
 
         java.util.logging.Logger logger = java.util.logging.Logger.getLogger("org.carlspring.strongbox.RestClient");
@@ -144,8 +139,11 @@ public class ProxyRepositoryConnectionPoolConfigurationServiceImpl
         DefaultProxyRoutePlanner routePlanner = null;
         CredentialsProvider credentialsProvider = null;
         
-        if (proxyConfiguration != null && (CollectionUtils.isEmpty(proxyConfiguration.getNonProxyHosts()))
-                                       || !proxyConfiguration.getNonProxyHosts().contains(proxyConfiguration.getHost()))
+        if (proxyConfiguration != null
+                && !Proxy.Type.DIRECT.name().equalsIgnoreCase(proxyConfiguration.getType())
+                && Proxy.Type.HTTP.name().equalsIgnoreCase(proxyConfiguration.getType())
+                && (CollectionUtils.isEmpty(proxyConfiguration.getNonProxyHosts()))
+                    || !proxyConfiguration.getNonProxyHosts().contains(proxyConfiguration.getHost()))
         {
             HttpHost proxy = new HttpHost(proxyConfiguration.getHost(), proxyConfiguration.getPort());
             routePlanner = new DefaultProxyRoutePlanner(proxy);
@@ -157,18 +155,15 @@ public class ProxyRepositoryConnectionPoolConfigurationServiceImpl
                 credentialsProvider.setCredentials(new AuthScope(proxy),
                                                    new UsernamePasswordCredentials(proxyConfiguration.getUsername(),
                                                                                    proxyConfiguration.getPassword()));
-
-                AuthCache authCache = new BasicAuthCache();
-                BasicScheme basicAuth = new BasicScheme();
-                authCache.put(proxy, basicAuth);
-                HttpClientContext context = HttpClientContext.create();
-                context.setCredentialsProvider(credentialsProvider);
-                context.setAuthCache(authCache);
             }
+        }
+        else if (proxyConfiguration != null && Proxy.Type.DIRECT.name().equalsIgnoreCase(proxyConfiguration.getType()))
+        {
+            logger.info("Proxy Type is DIRECT, so not using proxy configurations in HttpClient..");
         }
         else
         {
-            logger.warn("Proxy host is in Non-Proxy host list, so not using proxy configurations in Http Client.");
+            logger.warn("Proxy host is in Non-Proxy host list, so not using proxy configurations in HttpClient.");
         }
 
         return HttpClients.custom()

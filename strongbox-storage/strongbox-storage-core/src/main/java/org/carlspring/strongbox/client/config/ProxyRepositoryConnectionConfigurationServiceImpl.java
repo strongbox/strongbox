@@ -19,8 +19,6 @@ import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Component;
 import org.springframework.util.StringUtils;
 
-import com.google.common.collect.Lists;
-
 
 /**
  * @author ankit.tomar
@@ -55,7 +53,6 @@ public class ProxyRepositoryConnectionConfigurationServiceImpl implements ProxyR
 
             if (isValidProxyConfiguration(globalProxyConfiguration))
             {
-                globalProxyConfiguration.setNonProxyHosts(Lists.newArrayList("localhost"));
                 return proxyRepositoryConnectionPoolConfigurationService.getRestClient(globalProxyConfiguration);
             }
         }
