@@ -18,8 +18,6 @@ public interface ProxyRepositoryConnectionPoolConfigurationService
     Client getRestClient()
         throws MalformedURLException;
 
-    CloseableHttpClient getHttpClient();
-
     void setMaxTotal(int max);
 
     void setDefaultMaxPerRepository(int defaultMax);
@@ -37,4 +35,6 @@ public interface ProxyRepositoryConnectionPoolConfigurationService
 
     Client getRestClient(ProxyServerConfiguration proxyConfiguration)
         throws MalformedURLException;
+
+    CloseableHttpClient getHttpClient(ProxyServerConfiguration proxyConfiguration);
 }

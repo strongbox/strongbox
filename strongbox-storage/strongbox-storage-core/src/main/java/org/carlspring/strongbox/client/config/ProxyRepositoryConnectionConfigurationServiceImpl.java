@@ -14,6 +14,7 @@ import java.lang.reflect.InvocationTargetException;
 import java.net.MalformedURLException;
 
 import org.apache.commons.beanutils.BeanUtils;
+import org.apache.http.impl.client.CloseableHttpClient;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Component;
@@ -39,8 +40,7 @@ public class ProxyRepositoryConnectionConfigurationServiceImpl implements ProxyR
         try
         {
             ProxyServerConfiguration repositoryProxyConfiguration = repository.getProxyServerConfiguration();
-            logger.debug("Proxy configuration settings for Repository [{}] are {}", repository.getId(),
-                         repositoryProxyConfiguration);
+            logger.debug("Proxy configuration settings for Repository [{}] are {}", repository.getId(), repositoryProxyConfiguration);
 
             if (repositoryProxyConfiguration != null)
             {
@@ -80,7 +80,6 @@ public class ProxyRepositoryConnectionConfigurationServiceImpl implements ProxyR
         catch (IllegalAccessException | InvocationTargetException | MalformedURLException e)
         {
             logger.error("Exception occured while creating client with proxy configurations.", e);
-
         }
 
         return null;
@@ -104,5 +103,22 @@ public class ProxyRepositoryConnectionConfigurationServiceImpl implements ProxyR
         logger.debug("Global Proxy configuration settings are {}", globalProxyConfiguration);
         return globalProxyConfiguration;
 
+    }
+
+    @Override
+    public CloseableHttpClient getHttpClient()
+    {
+        ProxyServerConfiguration globalProxyConfiguration = null;
+        try
+        {
+            globalProxyConfiguration = getGlobalProxyConfiguration();
+
+        }
+        catch (IllegalAccessException | InvocationTargetException e)
+        {
+            logger.error("Something went wrong while creating http client with proxy configurations.", e);
+        }
+
+        return proxyRepositoryConnectionPoolConfigurationService.getHttpClient(globalProxyConfiguration);
     }
 }

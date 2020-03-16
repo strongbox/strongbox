@@ -1,27 +1,34 @@
 package org.carlspring.strongbox.service.impl;
 
-import java.net.MalformedURLException;
-import java.net.URI;
-import java.net.URISyntaxException;
-import java.net.URL;
-import java.util.Optional;
-import java.util.concurrent.TimeUnit;
+import org.carlspring.strongbox.client.ProxyServerConfiguration;
+import org.carlspring.strongbox.service.ProxyRepositoryConnectionPoolConfigurationService;
 
 import javax.annotation.PostConstruct;
 import javax.annotation.PreDestroy;
 import javax.ws.rs.client.Client;
 import javax.ws.rs.client.ClientBuilder;
 
+import java.net.MalformedURLException;
+import java.net.URI;
+import java.net.URISyntaxException;
+import java.net.URL;
+import java.util.concurrent.TimeUnit;
+
 import org.apache.http.HttpHost;
+import org.apache.http.auth.AuthScope;
+import org.apache.http.auth.UsernamePasswordCredentials;
+import org.apache.http.client.AuthCache;
+import org.apache.http.client.CredentialsProvider;
+import org.apache.http.client.protocol.HttpClientContext;
 import org.apache.http.conn.routing.HttpRoute;
+import org.apache.http.impl.auth.BasicScheme;
+import org.apache.http.impl.client.BasicAuthCache;
+import org.apache.http.impl.client.BasicCredentialsProvider;
 import org.apache.http.impl.client.CloseableHttpClient;
 import org.apache.http.impl.client.HttpClients;
+import org.apache.http.impl.conn.DefaultProxyRoutePlanner;
 import org.apache.http.impl.conn.PoolingHttpClientConnectionManager;
 import org.apache.http.pool.PoolStats;
-
-import org.carlspring.strongbox.client.ProxyServerConfiguration;
-import org.carlspring.strongbox.service.ProxyRepositoryConnectionPoolConfigurationService;
-
 import org.glassfish.jersey.apache.connector.ApacheClientProperties;
 import org.glassfish.jersey.apache.connector.ApacheConnectorProvider;
 import org.glassfish.jersey.client.ClientConfig;
@@ -90,15 +97,12 @@ public class ProxyRepositoryConnectionPoolConfigurationServiceImpl
         if (proxyConfiguration != null && (CollectionUtils.isEmpty(proxyConfiguration.getNonProxyHosts()))
                                        || !proxyConfiguration.getNonProxyHosts().contains(proxyConfiguration.getHost()))
         {
-            URL url = new URL(proxyConfiguration.getType(), proxyConfiguration.getHost(), proxyConfiguration.getPort(),
-                    "/");
+            URL url = new URL(proxyConfiguration.getType(), proxyConfiguration.getHost(), proxyConfiguration.getPort(), "/");
             config.property(ClientProperties.PROXY_URI, url.toExternalForm());
-            if (proxyConfiguration.getUsername() != null)
+            
+            if (proxyConfiguration.getUsername() != null && proxyConfiguration.getPassword() != null)
             {
                 config.property(ClientProperties.PROXY_USERNAME, proxyConfiguration.getUsername());
-            }
-            if (proxyConfiguration.getPassword() != null)
-            {
                 config.property(ClientProperties.PROXY_PASSWORD, proxyConfiguration.getPassword());
             }
         }
@@ -124,9 +128,36 @@ public class ProxyRepositoryConnectionPoolConfigurationServiceImpl
     }
 
     @Override
-    public CloseableHttpClient getHttpClient()
+    public CloseableHttpClient getHttpClient(ProxyServerConfiguration proxyConfiguration)
     {
+        DefaultProxyRoutePlanner routePlanner = null;
+        CredentialsProvider credentialsProvider = null;
+        
+        if (proxyConfiguration != null && (CollectionUtils.isEmpty(proxyConfiguration.getNonProxyHosts()))
+                                       || !proxyConfiguration.getNonProxyHosts().contains(proxyConfiguration.getHost()))
+        {
+            HttpHost proxy = new HttpHost(proxyConfiguration.getHost(), proxyConfiguration.getPort());
+            routePlanner = new DefaultProxyRoutePlanner(proxy);
+
+            if (proxyConfiguration.getUsername() != null && proxyConfiguration.getPassword() != null)
+            {
+                credentialsProvider = new BasicCredentialsProvider();
+                credentialsProvider.setCredentials(new AuthScope(proxy),
+                                                   new UsernamePasswordCredentials(proxyConfiguration.getUsername(),
+                                                                                   proxyConfiguration.getPassword()));
+
+                AuthCache authCache = new BasicAuthCache();
+                BasicScheme basicAuth = new BasicScheme();
+                authCache.put(proxy, basicAuth);
+                HttpClientContext context = HttpClientContext.create();
+                context.setCredentialsProvider(credentialsProvider);
+                context.setAuthCache(authCache);
+            }
+        }
+
         return HttpClients.custom()
+                          .setRoutePlanner(routePlanner)
+                          .setDefaultCredentialsProvider(credentialsProvider)
                           .setConnectionManagerShared(true)
                           .setConnectionManager(poolingHttpClientConnectionManager)
                           .build();
