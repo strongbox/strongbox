@@ -236,9 +236,7 @@ public class NpmRepositoryFeatures implements RepositoryFeatures
     private Integer fetchRemoteChangesFeed(Repository repository,
                                            String replicateUrl,
                                            Long since)
-        throws IOException,
-        IllegalAccessException,
-        InvocationTargetException
+        throws IOException
     {
         int result = 0;
         Client restClient = proxyRepositoryConnectionConfigurationService.getClientForRepository(repository);

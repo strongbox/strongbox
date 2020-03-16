@@ -34,38 +34,77 @@ public class ProxyRepositoryConnectionConfigurationServiceImpl implements ProxyR
     private ConfigurationManagementService configurationManagementService;
 
     public Client getClientForRepository(Repository repository)
-        throws IllegalAccessException,
-        InvocationTargetException,
-        MalformedURLException
     {
 
-        ProxyServerConfiguration repositoryProxyConfiguration = repository.getProxyServerConfiguration();
-        logger.debug("Proxy configuration settings for Repository [{}] are {}", repository.getId(),
-                     repositoryProxyConfiguration);
-
-        if (repositoryProxyConfiguration != null)
+        try
         {
-            return proxyRepositoryConnectionPoolConfigurationService.getRestClient(repositoryProxyConfiguration);
+            ProxyServerConfiguration repositoryProxyConfiguration = repository.getProxyServerConfiguration();
+            logger.debug("Proxy configuration settings for Repository [{}] are {}", repository.getId(), repositoryProxyConfiguration);
+
+            if (repositoryProxyConfiguration != null)
+            {
+                return proxyRepositoryConnectionPoolConfigurationService.getRestClient(repositoryProxyConfiguration);
+            }
+
+            ProxyServerConfiguration globalProxyConfiguration = getGlobalProxyConfiguration();
+
+            if (globalProxyConfiguration != null)
+            {
+                return proxyRepositoryConnectionPoolConfigurationService.getRestClient(globalProxyConfiguration);
+            }
+
+            return proxyRepositoryConnectionPoolConfigurationService.getRestClient();
         }
-
-        ProxyServerConfiguration globalProxyConfiguration = new ProxyServerConfiguration();
-        ProxyConfiguration proxyConfiguration = configurationManagementService.getConfiguration()
-                                                                              .getProxyConfiguration();
-
-        if (proxyConfiguration != null)
+        catch (IllegalAccessException | InvocationTargetException | MalformedURLException e)
         {
-            BeanUtils.copyProperties(globalProxyConfiguration, proxyConfiguration);
-            logger.debug("Global Proxy configuration settings are {}", globalProxyConfiguration);
-            return proxyRepositoryConnectionPoolConfigurationService.getRestClient(globalProxyConfiguration);
-        }
+            logger.error("Exception occured while creating client with proxy configurations.", e);
 
-        return proxyRepositoryConnectionPoolConfigurationService.getRestClient();
+        }
+        return null;
     }
 
     @Override
     public Client getClientForRepository(RemoteRepository remoteRepository)
-        throws MalformedURLException
     {
-        return proxyRepositoryConnectionPoolConfigurationService.getRestClient();
+        ProxyServerConfiguration globalProxyConfiguration = getGlobalProxyConfiguration();
+        try
+        {
+            if (globalProxyConfiguration != null)
+            {
+                return proxyRepositoryConnectionPoolConfigurationService.getRestClient(globalProxyConfiguration);
+            }
+            return proxyRepositoryConnectionPoolConfigurationService.getRestClient();
+        }
+        catch (MalformedURLException e)
+        {
+            logger.error("Exception occured while creating client with proxy configurations.", e);
+
+        }
+
+        return null;
+    }
+
+    private ProxyServerConfiguration getGlobalProxyConfiguration()
+    {
+        ProxyConfiguration proxyConfiguration = configurationManagementService.getConfiguration()
+                                                                              .getProxyConfiguration();
+
+        if (proxyConfiguration == null)
+        {
+            return null;
+        }
+
+        ProxyServerConfiguration globalProxyConfiguration = new ProxyServerConfiguration();
+        try
+        {
+            BeanUtils.copyProperties(globalProxyConfiguration, proxyConfiguration);
+        }
+        catch (IllegalAccessException | InvocationTargetException e)
+        {
+            logger.error("Something went wrong while copying proxy properties.", e);
+        }
+
+        logger.debug("Global Proxy configuration settings are {}", globalProxyConfiguration);
+        return globalProxyConfiguration;
     }
 }

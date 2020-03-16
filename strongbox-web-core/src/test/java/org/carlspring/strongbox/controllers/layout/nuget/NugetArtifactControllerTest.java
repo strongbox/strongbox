@@ -202,7 +202,7 @@ public class NugetArtifactControllerTest extends NugetRestAssuredBaseTest
                                       Path packagePath)
         throws Exception
     {
-        final String storageId = repository.getStorage().getIdProxyRepositoryConnectionConfigurationServiceImpl();
+        final String storageId = repository.getStorage().getId();
         final String repositoryId = repository.getId();
         final String packageId = "Org.Carlspring.Strongbox.Examples.Nuget.Mono";
         final String packageVersion = "1.0.0";

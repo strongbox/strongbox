@@ -287,9 +287,7 @@ public class NugetRepositoryFeatures
 
         @EventListener
         public void handle(RemoteRepositorySearchEvent event)
-            throws IOException,
-            IllegalAccessException,
-            InvocationTargetException
+            throws IOException
         {
             if (nugetSearchRequest == null)
             {
