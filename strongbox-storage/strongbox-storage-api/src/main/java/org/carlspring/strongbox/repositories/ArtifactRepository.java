@@ -51,11 +51,26 @@ public class ArtifactRepository extends GremlinVertexRepository<Artifact> implem
         return queries.artifactExists(storageId, repositoryId, path);
     }
 
+    public List<Artifact> findOneArtifactHierarchy(String storageId,
+                                                   String repositoryId,
+                                                   String path)
+    {
+        return queries.findOneArtifactHierarchy(storageId, repositoryId, path);
+    }
+
     public Artifact findOneArtifact(String storageId,
                                     String repositoryId,
                                     String path)
     {
-        return queries.findOneArtifact(storageId, repositoryId, path);
+        List<Artifact> result = queries.findOneArtifactHierarchy(storageId, repositoryId, path);
+        if (result.isEmpty())
+        {
+            return null;
+        }
+        return result.stream()
+                     .reduce((a1,
+                              a2) -> a1.getClass().isInstance(a2) ? a1 : a2)
+                     .get();
     }
 
 }
@@ -89,9 +104,11 @@ interface ArtifactEntityQueries extends org.springframework.data.repository.Repo
            "WHERE genericCoordinates.uuid=$path and artifact.storageId=$storageId and artifact.repositoryId=$repositoryId " +
            "WITH genericCoordinates, r1, artifact " +
            "MATCH (genericCoordinates)<-[r2]-(layoutCoordinates) " +
-           "RETURN artifact, r1, genericCoordinates, r2, layoutCoordinates")
-    Artifact findOneArtifact(@Param("storageId") String storageId,
-                             @Param("repositoryId") String repositoryId,
-                             @Param("path") String path);
+           "WITH genericCoordinates, r1, artifact, r2, layoutCoordinates " +
+           "OPTIONAL MATCH (artifact)<-[r3]-(remoteArtifact) " +
+           "RETURN artifact, r1, genericCoordinates, r2, layoutCoordinates, r3, remoteArtifact")
+    List<Artifact> findOneArtifactHierarchy(@Param("storageId") String storageId,
+                                            @Param("repositoryId") String repositoryId,
+                                            @Param("path") String path);
 
 }

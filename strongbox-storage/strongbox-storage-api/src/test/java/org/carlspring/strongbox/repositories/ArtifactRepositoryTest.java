@@ -165,6 +165,16 @@ public class ArtifactRepositoryTest
         assertThat(remoteArtifactEntity.getStorageId()).isEqualTo(storageId);
         assertThat(remoteArtifactEntity.getRepositoryId()).isEqualTo(repositoryId);
         assertThat(remoteArtifactEntity).isInstanceOf(RemoteArtifact.class);
+
+        assertThat(g.E()
+                    .hasLabel(Edges.REMOTE_ARTIFACT_INHERIT_ARTIFACT)
+                    .bothV()
+                    .properties("uuid")
+                    .map(p -> p.get().value())
+                    .toList()).containsExactly(remoteArtifactEntity.getUuid(), remoteArtifactEntity.getUuid());
+
+        Artifact artifact = artifactRepository.findOneArtifact(storageId, repositoryId, path);
+        assertThat(artifact).isInstanceOf(RemoteArtifact.class);
     }
 
 }
