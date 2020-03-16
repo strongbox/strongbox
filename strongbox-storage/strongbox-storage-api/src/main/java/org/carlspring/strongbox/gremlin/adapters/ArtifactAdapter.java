@@ -46,7 +46,7 @@ public class ArtifactAdapter extends VertexEntityTraversalAdapter<Artifact> impl
     @Inject
     GenericArtifactCoordinatesArapter genericArtifactCoordinatesArapter;
     @Inject
-    ArtifactCoordinatesAdapter artifactCoordinatesAdapter;
+    ArtifactCoordinatesHierarchyAdapter artifactCoordinatesAdapter;
     @Inject
     ArtifactTagAdapter artifactTagAdapter;
     @Inject

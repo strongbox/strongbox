@@ -3,32 +3,33 @@ package org.carlspring.strongbox.repositories;
 import javax.inject.Inject;
 
 import org.carlspring.strongbox.artifact.coordinates.ArtifactCoordinates;
-import org.carlspring.strongbox.gremlin.adapters.ArtifactCoordinatesAdapter;
+import org.carlspring.strongbox.artifact.coordinates.GenericArtifactCoordinates;
+import org.carlspring.strongbox.gremlin.adapters.ArtifactCoordinatesHierarchyAdapter;
 import org.carlspring.strongbox.gremlin.repositories.GremlinVertexRepository;
 import org.springframework.stereotype.Repository;
 
 @Repository
-public class ArtifactCoordinatesRepository extends GremlinVertexRepository<ArtifactCoordinates>
+public class ArtifactCoordinatesRepository extends GremlinVertexRepository<GenericArtifactCoordinates>
         implements ArtifactCoordinatesQueries
 {
 
     @Inject
-    ArtifactCoordinatesAdapter artifactCoordinatesAdapter;
+    ArtifactCoordinatesHierarchyAdapter artifactCoordinatesAdapter;
     @Inject
     ArtifactCoordinatesQueries queries;
 
     @Override
-    protected ArtifactCoordinatesAdapter adapter()
+    protected ArtifactCoordinatesHierarchyAdapter adapter()
     {
         return artifactCoordinatesAdapter;
     }
 
     @Override
-    public <R extends ArtifactCoordinates> R save(R entity)
+    public <R extends GenericArtifactCoordinates> R save(R entity)
     {
         if (entity.getUuid() == null)
         {
-            entity.buildPath();
+            ((ArtifactCoordinates)entity).buildPath();
         }
 
         return super.save(entity);
@@ -37,7 +38,7 @@ public class ArtifactCoordinatesRepository extends GremlinVertexRepository<Artif
 }
 
 @Repository
-interface ArtifactCoordinatesQueries extends org.springframework.data.repository.Repository<ArtifactCoordinates, String>
+interface ArtifactCoordinatesQueries extends org.springframework.data.repository.Repository<GenericArtifactCoordinates, String>
 {
 
 }

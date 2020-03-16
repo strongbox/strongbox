@@ -30,17 +30,19 @@ public class RawArtifactCoordinatesAdapter
     }
 
     @Override
-    public EntityTraversal<Vertex, RawArtifactCoordinates> fold()
+    public Class<? extends RawArtifactCoordinates> entityClass()
     {
-        return fold(genericArtifactCoordinatesProjection());
+        return RawArtifactCoordinates.class;
     }
 
-    <S> EntityTraversal<S, RawArtifactCoordinates> fold(EntityTraversal<Vertex, Object> genericArtifactCoordinatesProjection)
+    @Override
+    public EntityTraversal<Vertex, RawArtifactCoordinates> foldHierarchy(EntityTraversal<Vertex, Object> parentProjection,
+                                                                         EntityTraversal<Vertex, Object> childProjection)
     {
-        return __.<S>hasLabel(Vertices.RAW_ARTIFACT_COORDINATES)
+        return __.<Vertex>hasLabel(Vertices.RAW_ARTIFACT_COORDINATES)
                  .project("uuid", "genericArtifactCoordinates")
                  .by(__.enrichPropertyValue("uuid"))
-                 .by(genericArtifactCoordinatesProjection)
+                 .by(parentProjection)
                  .map(this::map);
     }
 

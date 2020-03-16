@@ -50,7 +50,7 @@ public abstract class EntityHierarchyAdapter<E extends DomainObject, A extends E
                        .flatMap(a -> a.labels().stream().findFirst())
                        .orElseThrow(() -> new IllegalArgumentException(
                                String.format("The [%s] component must have only one label, but there was many instead [%s].",
-                                             ArtifactCoordinatesAdapter.class.getSimpleName(), adapterItem.labels())));
+                                             ArtifactCoordinatesHierarchyAdapter.class.getSimpleName(), adapterItem.labels())));
     }
 
     @Override

@@ -21,6 +21,7 @@ import org.carlspring.strongbox.db.schema.Vertices;
 import org.carlspring.strongbox.domain.GenericArtifactCoordinatesEntity;
 import org.carlspring.strongbox.domain.LayoutArtifactCoordinatesEntity;
 import org.carlspring.strongbox.gremlin.dsl.EntityTraversal;
+import org.carlspring.strongbox.gremlin.dsl.EntityTraversalDsl;
 import org.carlspring.strongbox.gremlin.dsl.__;
 import org.springframework.stereotype.Component;
 
@@ -29,10 +30,11 @@ import org.springframework.stereotype.Component;
  */
 @Component
 public class GenericArtifactCoordinatesArapter extends VertexEntityTraversalAdapter<GenericArtifactCoordinates>
+        implements ArtifactCoodrinatesNodeAdapter<GenericArtifactCoordinates>
 {
 
     @Inject
-    private ArtifactCoordinatesAdapter artifactCoordinatesAdapter;
+    private ArtifactCoordinatesHierarchyAdapter artifactCoordinatesAdapter;
 
     @Override
     public Set<String> labels()
@@ -41,22 +43,37 @@ public class GenericArtifactCoordinatesArapter extends VertexEntityTraversalAdap
     }
 
     @Override
-    public EntityTraversal<Vertex, GenericArtifactCoordinates> fold()
+    public Class<? extends GenericArtifactCoordinates> entityClass()
     {
-        return fold(artifactCoordinatesProjection());
+        return GenericArtifactCoordinates.class;
     }
 
-    <S> EntityTraversal<S, GenericArtifactCoordinates> fold(EntityTraversal<Vertex, Object> artifactCoordinatesTraversal)
+    @Override
+    public EntityTraversal<Vertex, GenericArtifactCoordinates> fold()
     {
-        return __.<S, Object>project("uuid", "version", "coordinates", "layoutArtifactCoordinates")
+        return foldHierarchy(parentProjection(), childProjection());
+    }
+
+    @Override
+    public EntityTraversal<Vertex, Object> parentProjection()
+    {
+        return __.<Vertex>V().constant(EntityTraversalDsl.NULL);
+    }
+
+    @Override
+    public EntityTraversal<Vertex, GenericArtifactCoordinates> foldHierarchy(EntityTraversal<Vertex, Object> parentProjection,
+                                                                             EntityTraversal<Vertex, Object> childProjection)
+    {
+        return __.<Vertex, Object>project("uuid", "version", "coordinates", "layoutArtifactCoordinates")
                  .by(__.enrichPropertyValue("uuid"))
                  .by(__.enrichPropertyValue("version"))
                  .by(__.propertyMap())
-                 .by(artifactCoordinatesTraversal)
+                 .by(childProjection)
                  .map(this::map);
     }
 
-    private EntityTraversal<Vertex, Object> artifactCoordinatesProjection()
+    @Override
+    public EntityTraversal<Vertex, Object> childProjection()
     {
         return __.inE(Edges.ARTIFACT_COORDINATES_INHERIT_GENERIC_ARTIFACT_COORDINATES)
                  .mapToObject(__.outV()
@@ -75,7 +92,7 @@ public class GenericArtifactCoordinatesArapter extends VertexEntityTraversalAdap
         coordinates.remove("version");
         coordinates.entrySet()
                    .stream()
-                   .forEach(e -> result.setCoordinate(e.getKey().replace("coordinates." , ""),
+                   .forEach(e -> result.setCoordinate(e.getKey().replace("coordinates.", ""),
                                                       extracPropertytList(String.class, e.getValue()).iterator().next()));
 
         LayoutArtifactCoordinatesEntity artifactCoordinates = extractObject(LayoutArtifactCoordinatesEntity.class,
