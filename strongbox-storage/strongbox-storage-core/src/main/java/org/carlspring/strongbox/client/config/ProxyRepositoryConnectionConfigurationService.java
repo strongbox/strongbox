@@ -19,4 +19,6 @@ public interface ProxyRepositoryConnectionConfigurationService
 
     CloseableHttpClient getHttpClient();
 
+    CloseableHttpClient getHttpClient(Repository repository);
+
 }

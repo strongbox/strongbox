@@ -109,7 +109,7 @@ public class RepositoryProxyIndexCreator
         final IndexUpdateRequest updateRequest = new IndexUpdateRequest(indexingContext,
                                                                         resourceFetcherFactory.createIndexResourceFetcher(
                                                                                 indexingContext.getRepositoryUrl(),
-                                                                                proxyRepositoryConnectionConfigurationService.getHttpClient()));
+                                                                                proxyRepositoryConnectionConfigurationService.getHttpClient(repository)));
 
         updateRequest.setIndexTempDir(
                 RepositoryFiles.temporary(repositoryPathResolver.resolve(repository)).toFile());

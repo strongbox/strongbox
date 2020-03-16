@@ -40,6 +40,7 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 import org.springframework.util.CollectionUtils;
+import org.springframework.util.StringUtils;
 
 /**
  * @author korest
@@ -86,7 +87,6 @@ public class ProxyRepositoryConnectionPoolConfigurationServiceImpl
     
     @Override
     public Client getRestClient(ProxyServerConfiguration proxyConfiguration)
-        throws MalformedURLException
     {
         ClientConfig config = new ClientConfig();
         config.connectorProvider(new ApacheConnectorProvider());
@@ -94,17 +94,25 @@ public class ProxyRepositoryConnectionPoolConfigurationServiceImpl
         // property to prevent closing connection manager when client is closed
         config.property(ApacheClientProperties.CONNECTION_MANAGER_SHARED, true);
 
-        if (proxyConfiguration != null && (CollectionUtils.isEmpty(proxyConfiguration.getNonProxyHosts()))
-                                       || !proxyConfiguration.getNonProxyHosts().contains(proxyConfiguration.getHost()))
+        try
         {
-            URL url = new URL(proxyConfiguration.getType(), proxyConfiguration.getHost(), proxyConfiguration.getPort(), "/");
-            config.property(ClientProperties.PROXY_URI, url.toExternalForm());
-            
-            if (proxyConfiguration.getUsername() != null && proxyConfiguration.getPassword() != null)
+            if (proxyConfiguration != null && (CollectionUtils.isEmpty(proxyConfiguration.getNonProxyHosts()))
+                                            || !proxyConfiguration.getNonProxyHosts().contains(proxyConfiguration.getHost()))
             {
-                config.property(ClientProperties.PROXY_USERNAME, proxyConfiguration.getUsername());
-                config.property(ClientProperties.PROXY_PASSWORD, proxyConfiguration.getPassword());
+                URL url = new URL(proxyConfiguration.getType(), proxyConfiguration.getHost(), proxyConfiguration.getPort(), "/");
+                config.property(ClientProperties.PROXY_URI, url.toExternalForm());
+
+                if (!StringUtils.isEmpty(proxyConfiguration.getUsername())
+                        && !StringUtils.isEmpty(proxyConfiguration.getPassword()))
+                {
+                    config.property(ClientProperties.PROXY_USERNAME, proxyConfiguration.getUsername());
+                    config.property(ClientProperties.PROXY_PASSWORD, proxyConfiguration.getPassword());
+                }
             }
+        }
+        catch (MalformedURLException e)
+        {
+            logger.error("Something went wrong while applying proxy configuration to Client.", e);
         }
 
         java.util.logging.Logger logger = java.util.logging.Logger.getLogger("org.carlspring.strongbox.RestClient");
@@ -122,7 +130,6 @@ public class ProxyRepositoryConnectionPoolConfigurationServiceImpl
 
     @Override
     public Client getRestClient()
-        throws MalformedURLException
     {
         return getRestClient(null);
     }
@@ -139,7 +146,8 @@ public class ProxyRepositoryConnectionPoolConfigurationServiceImpl
             HttpHost proxy = new HttpHost(proxyConfiguration.getHost(), proxyConfiguration.getPort());
             routePlanner = new DefaultProxyRoutePlanner(proxy);
 
-            if (proxyConfiguration.getUsername() != null && proxyConfiguration.getPassword() != null)
+            if (!StringUtils.isEmpty(proxyConfiguration.getUsername())
+                    && !StringUtils.isEmpty(proxyConfiguration.getPassword()))
             {
                 credentialsProvider = new BasicCredentialsProvider();
                 credentialsProvider.setCredentials(new AuthScope(proxy),

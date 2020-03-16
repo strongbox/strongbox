@@ -4,8 +4,6 @@ import org.carlspring.strongbox.client.ProxyServerConfiguration;
 
 import javax.ws.rs.client.Client;
 
-import java.net.MalformedURLException;
-
 import org.apache.http.impl.client.CloseableHttpClient;
 import org.apache.http.pool.PoolStats;
 
@@ -15,8 +13,7 @@ import org.apache.http.pool.PoolStats;
 public interface ProxyRepositoryConnectionPoolConfigurationService
 {
 
-    Client getRestClient()
-        throws MalformedURLException;
+    Client getRestClient();
 
     void setMaxTotal(int max);
 
@@ -33,8 +30,7 @@ public interface ProxyRepositoryConnectionPoolConfigurationService
 
     void shutdown();
 
-    Client getRestClient(ProxyServerConfiguration proxyConfiguration)
-        throws MalformedURLException;
+    Client getRestClient(ProxyServerConfiguration proxyConfiguration);
 
     CloseableHttpClient getHttpClient(ProxyServerConfiguration proxyConfiguration);
 }

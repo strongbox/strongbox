@@ -11,7 +11,6 @@ import javax.inject.Inject;
 import javax.ws.rs.client.Client;
 
 import java.lang.reflect.InvocationTargetException;
-import java.net.MalformedURLException;
 
 import org.apache.commons.beanutils.BeanUtils;
 import org.apache.http.impl.client.CloseableHttpClient;
@@ -40,7 +39,8 @@ public class ProxyRepositoryConnectionConfigurationServiceImpl implements ProxyR
         try
         {
             ProxyServerConfiguration repositoryProxyConfiguration = repository.getProxyServerConfiguration();
-            logger.debug("Proxy configuration settings for Repository [{}] are {}", repository.getId(), repositoryProxyConfiguration);
+            logger.debug("Proxy configuration settings for Repository [{}] are {}", repository.getId(),
+                         repositoryProxyConfiguration);
 
             if (repositoryProxyConfiguration != null)
             {
@@ -53,15 +53,14 @@ public class ProxyRepositoryConnectionConfigurationServiceImpl implements ProxyR
             {
                 return proxyRepositoryConnectionPoolConfigurationService.getRestClient(globalProxyConfiguration);
             }
-
-            return proxyRepositoryConnectionPoolConfigurationService.getRestClient();
         }
-        catch (IllegalAccessException | InvocationTargetException | MalformedURLException e)
+        catch (IllegalAccessException | InvocationTargetException e)
         {
             logger.error("Exception occured while creating client with proxy configurations.", e);
 
         }
-        return null;
+
+        return proxyRepositoryConnectionPoolConfigurationService.getRestClient();
     }
 
     @Override
@@ -75,14 +74,13 @@ public class ProxyRepositoryConnectionConfigurationServiceImpl implements ProxyR
                 return proxyRepositoryConnectionPoolConfigurationService.getRestClient(globalProxyConfiguration);
             }
 
-            return proxyRepositoryConnectionPoolConfigurationService.getRestClient();
         }
-        catch (IllegalAccessException | InvocationTargetException | MalformedURLException e)
+        catch (IllegalAccessException | InvocationTargetException e)
         {
             logger.error("Exception occured while creating client with proxy configurations.", e);
         }
 
-        return null;
+        return proxyRepositoryConnectionPoolConfigurationService.getRestClient();
     }
 
     private ProxyServerConfiguration getGlobalProxyConfiguration()
@@ -120,5 +118,28 @@ public class ProxyRepositoryConnectionConfigurationServiceImpl implements ProxyR
         }
 
         return proxyRepositoryConnectionPoolConfigurationService.getHttpClient(globalProxyConfiguration);
+    }
+
+    @Override
+    public CloseableHttpClient getHttpClient(Repository repository)
+    {
+        try
+        {
+            ProxyServerConfiguration repositoryProxyConfiguration = repository.getProxyServerConfiguration();
+            logger.debug("Proxy configuration settings for Repository [{}] are {}", repository.getId(),
+                         repositoryProxyConfiguration);
+
+            if (repositoryProxyConfiguration != null)
+            {
+                return proxyRepositoryConnectionPoolConfigurationService.getHttpClient(repositoryProxyConfiguration);
+            }
+
+        }
+        catch (IllegalAccessException | InvocationTargetException e)
+        {
+            logger.error("Something went wrong while creating http client with proxy configurations.", e);
+        }
+
+        return getHttpClient();
     }
 }
