@@ -132,6 +132,8 @@ public class ArtifactRepositoryTest
                 "Coordinates should have path value."));
 
         Artifact artifact = artifactRepository.findOneArtifact(storageId, repositoryId, path);
+        assertThat(artifact).isInstanceOf(Artifact.class);
+        assertThat(artifact).isNotInstanceOf(RemoteArtifact.class);
         ArtifactArchiveListing artifactArchiveListing = artifact.getArtifactArchiveListing();
         assertThat(artifactArchiveListing.getFilenames()).containsOnly("file1.txt", "readme.md", "icon.svg");
 
