@@ -40,7 +40,7 @@ import org.springframework.stereotype.Component;
  * @author sbespalov
  */
 @Component
-public class ArtifactAdapter extends VertexEntityTraversalAdapter<Artifact> implements ArtifactHierarchyAdapter<Artifact>
+public class ArtifactAdapter extends VertexEntityTraversalAdapter<Artifact> implements ArtifactHierarchyNodeAdapter<Artifact>
 {
 
     @Inject
@@ -50,7 +50,7 @@ public class ArtifactAdapter extends VertexEntityTraversalAdapter<Artifact> impl
     @Inject
     ArtifactTagAdapter artifactTagAdapter;
     @Inject
-    GenericArtifactAdapter genericArtifactAdapter;
+    ArtifactHierarchyAdapter genericArtifactAdapter;
 
     @Override
     public Set<String> labels()

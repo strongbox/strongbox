@@ -30,7 +30,7 @@ import org.springframework.stereotype.Component;
  */
 @Component
 public class RemoteAritfactAdapter extends VertexEntityTraversalAdapter<RemoteArtifact>
-        implements ArtifactHierarchyAdapter<RemoteArtifact>
+        implements ArtifactHierarchyNodeAdapter<RemoteArtifact>
 {
 
     @Inject

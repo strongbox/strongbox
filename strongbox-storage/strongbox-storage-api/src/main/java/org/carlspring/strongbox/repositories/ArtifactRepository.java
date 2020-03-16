@@ -8,7 +8,7 @@ import javax.inject.Inject;
 import org.carlspring.strongbox.data.service.support.search.PagingCriteria;
 import org.carlspring.strongbox.domain.Artifact;
 import org.carlspring.strongbox.gremlin.adapters.ArtifactAdapter;
-import org.carlspring.strongbox.gremlin.adapters.GenericArtifactAdapter;
+import org.carlspring.strongbox.gremlin.adapters.ArtifactHierarchyAdapter;
 import org.carlspring.strongbox.gremlin.repositories.GremlinVertexRepository;
 import org.carlspring.strongbox.services.support.ArtifactEntrySearchCriteria;
 import org.springframework.data.neo4j.annotation.Query;
@@ -20,12 +20,12 @@ public class ArtifactRepository extends GremlinVertexRepository<Artifact> implem
 {
 
     @Inject
-    GenericArtifactAdapter artifactAdapter;
+    ArtifactHierarchyAdapter artifactAdapter;
     @Inject
     ArtifactEntityQueries queries;
 
     @Override
-    protected GenericArtifactAdapter adapter()
+    protected ArtifactHierarchyAdapter adapter()
     {
         return artifactAdapter;
     }
