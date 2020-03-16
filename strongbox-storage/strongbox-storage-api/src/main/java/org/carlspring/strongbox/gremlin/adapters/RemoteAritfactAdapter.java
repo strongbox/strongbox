@@ -72,14 +72,14 @@ public class RemoteAritfactAdapter extends VertexEntityTraversalAdapter<RemoteAr
                  .mapToObject(__.inV()
                                 .hasLabel(Vertices.ARTIFACT)
                                 .map(artifactAdapter.foldHierarchy(artifactAdapter.parentProjection(),
-                                                                   __.<Vertex>V().constant(EntityTraversalDsl.NULL)))
+                                                                   __.<Vertex>identity().constant(EntityTraversalDsl.NULL)))
                                 .map(EntityTraversalUtils::castToObject));
     }
 
     @Override
     public EntityTraversal<Vertex, Object> childProjection()
     {
-        return __.<Vertex>V().constant(EntityTraversalDsl.NULL);
+        return __.<Vertex>identity().constant(EntityTraversalDsl.NULL);
     }
 
     private RemoteArtifact map(Traverser<Map<String, Object>> t)

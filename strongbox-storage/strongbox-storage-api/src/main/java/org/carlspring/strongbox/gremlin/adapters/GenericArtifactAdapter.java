@@ -78,13 +78,13 @@ public class GenericArtifactAdapter extends VertexEntityTraversalAdapter<Artifac
     {
         if (!iterator.hasNext())
         {
-            return __.<Vertex>V().constant(null);
+            return __.<Vertex>V(-1).constant(null);
         }
 
         ArtifactHierarchyAdapter<?> nextAdapter = iterator.next();
         EntityTraversal<Vertex, Object> vParentProjection = parentProjection.map(EntityTraversal.class::cast)
                                                                             .orElseGet(nextAdapter::parentProjection);
-        EntityTraversal<Vertex, ?> nextTraversal = nextAdapter.foldHierarchy(vParentProjection, __.<Vertex>V().constant(NULL));
+        EntityTraversal<Vertex, ?> nextTraversal = nextAdapter.foldHierarchy(vParentProjection, __.<Vertex>identity().constant(NULL));
 
         return __.<Vertex>identity()
                  .optional(__.hasLabel(within(nextAdapter.labels()))
