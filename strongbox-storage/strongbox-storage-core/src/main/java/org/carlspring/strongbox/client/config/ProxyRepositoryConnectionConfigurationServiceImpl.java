@@ -39,7 +39,8 @@ public class ProxyRepositoryConnectionConfigurationServiceImpl implements ProxyR
         try
         {
             ProxyServerConfiguration repositoryProxyConfiguration = repository.getProxyServerConfiguration();
-            logger.debug("Proxy configuration settings for Repository [{}] are {}", repository.getId(), repositoryProxyConfiguration);
+            logger.debug("Proxy configuration settings for Repository [{}] are {}", repository.getId(),
+                         repositoryProxyConfiguration);
 
             if (repositoryProxyConfiguration != null)
             {
@@ -66,16 +67,17 @@ public class ProxyRepositoryConnectionConfigurationServiceImpl implements ProxyR
     @Override
     public Client getClientForRepository(RemoteRepository remoteRepository)
     {
-        ProxyServerConfiguration globalProxyConfiguration = getGlobalProxyConfiguration();
         try
         {
+            ProxyServerConfiguration globalProxyConfiguration = getGlobalProxyConfiguration();
             if (globalProxyConfiguration != null)
             {
                 return proxyRepositoryConnectionPoolConfigurationService.getRestClient(globalProxyConfiguration);
             }
+
             return proxyRepositoryConnectionPoolConfigurationService.getRestClient();
         }
-        catch (MalformedURLException e)
+        catch (IllegalAccessException | InvocationTargetException | MalformedURLException e)
         {
             logger.error("Exception occured while creating client with proxy configurations.", e);
 
@@ -85,6 +87,8 @@ public class ProxyRepositoryConnectionConfigurationServiceImpl implements ProxyR
     }
 
     private ProxyServerConfiguration getGlobalProxyConfiguration()
+        throws IllegalAccessException,
+        InvocationTargetException
     {
         ProxyConfiguration proxyConfiguration = configurationManagementService.getConfiguration()
                                                                               .getProxyConfiguration();
@@ -95,16 +99,10 @@ public class ProxyRepositoryConnectionConfigurationServiceImpl implements ProxyR
         }
 
         ProxyServerConfiguration globalProxyConfiguration = new ProxyServerConfiguration();
-        try
-        {
-            BeanUtils.copyProperties(globalProxyConfiguration, proxyConfiguration);
-        }
-        catch (IllegalAccessException | InvocationTargetException e)
-        {
-            logger.error("Something went wrong while copying proxy properties.", e);
-        }
+        BeanUtils.copyProperties(globalProxyConfiguration, proxyConfiguration);
 
         logger.debug("Global Proxy configuration settings are {}", globalProxyConfiguration);
         return globalProxyConfiguration;
+
     }
 }

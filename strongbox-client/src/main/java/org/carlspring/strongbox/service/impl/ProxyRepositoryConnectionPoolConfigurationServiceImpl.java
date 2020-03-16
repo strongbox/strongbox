@@ -32,6 +32,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
+import org.springframework.util.CollectionUtils;
 
 /**
  * @author korest
@@ -86,9 +87,11 @@ public class ProxyRepositoryConnectionPoolConfigurationServiceImpl
         // property to prevent closing connection manager when client is closed
         config.property(ApacheClientProperties.CONNECTION_MANAGER_SHARED, true);
 
-        if (proxyConfiguration != null)
+        if (proxyConfiguration != null && (CollectionUtils.isEmpty(proxyConfiguration.getNonProxyHosts()))
+                                       || !proxyConfiguration.getNonProxyHosts().contains(proxyConfiguration.getHost()))
         {
-            URL url = new URL(proxyConfiguration.getType(), proxyConfiguration.getHost(), proxyConfiguration.getPort(), "/");
+            URL url = new URL(proxyConfiguration.getType(), proxyConfiguration.getHost(), proxyConfiguration.getPort(),
+                    "/");
             config.property(ClientProperties.PROXY_URI, url.toExternalForm());
             if (proxyConfiguration.getUsername() != null)
             {
