@@ -6,7 +6,6 @@ import static org.carlspring.strongbox.services.support.ArtifactEntrySearchCrite
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.Date;
-import java.util.HashMap;
 import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
@@ -108,9 +107,7 @@ public class ArtifactEntryServiceTest
 
     private List<Artifact> findAll(final String groupId)
     {
-        HashMap<String, String> coordinates = new HashMap<>();
-        coordinates.put("path", String.format("%s", groupId));
-        return artifactEntityRepository.findArtifactList(null, null, coordinates, false);
+        return artifactEntityRepository.findByPathLike(STORAGE_ID, REPOSITORY_ID, groupId);
     }
 
     protected int count(final String groupId)
@@ -317,14 +314,9 @@ public class ArtifactEntryServiceTest
         final String groupId = getGroupId(GROUP_ID, testInfo);
 
         logger.debug("There are a total of {} artifacts.", count(groupId));
-
-        // prepare search query key (coordinates)
-        RawArtifactCoordinates coordinates = new RawArtifactCoordinates(groupId + "/");
-
-        List<Artifact> artifactEntries = artifactEntityRepository.findArtifactList(STORAGE_ID,
-                                                                                   REPOSITORY_ID,
-                                                                                   coordinates.getCoordinates(),
-                                                                                   false);
+        List<Artifact> artifactEntries = artifactEntityRepository.findByPathLike(STORAGE_ID,
+                                                                                 REPOSITORY_ID,
+                                                                                 groupId + "/");
 
         assertThat(artifactEntries).isNotNull();
         assertThat(artifactEntries).isNotEmpty();

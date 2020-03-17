@@ -101,7 +101,10 @@ public abstract class GremlinRepository<S extends Element, E extends DomainObjec
     @Override
     public void deleteAll(Iterable<? extends E> entities)
     {
-        throw new UnsupportedOperationException("TODO implement");
+        for (E entity : entities)
+        {
+            delete(entity);
+        }
     }
 
     @Override

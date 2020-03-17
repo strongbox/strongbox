@@ -17,7 +17,7 @@ import javax.inject.Inject;
 import org.carlspring.strongbox.artifact.coordinates.NugetArtifactCoordinates;
 import org.carlspring.strongbox.config.IntegrationTest;
 import org.carlspring.strongbox.domain.Artifact;
-import org.carlspring.strongbox.domain.RemoteArtifactEntity;
+import org.carlspring.strongbox.domain.RemoteArtifact;
 import org.carlspring.strongbox.providers.io.RepositoryFiles;
 import org.carlspring.strongbox.providers.io.RepositoryPath;
 import org.carlspring.strongbox.repositories.ArtifactRepository;
@@ -508,20 +508,15 @@ public class NugetArtifactControllerTest extends NugetRestAssuredBaseTest
                .assertThat()
                .body("feed.entry[0].title", equalTo(packageId));
 
-        Map<String, String> coordinatesMap = new HashMap<>();
-        coordinatesMap.put("id", packageId);
-        coordinatesMap.put("version", packageVersion);
-
-        List<Artifact> artifactEntryList = artifactEntityRepository.findArtifactList("storage-common-proxies",
-                                                                                     "nuget.org",
-                                                                                     coordinatesMap,
-                                                                                     true);
+        List<Artifact> artifactEntryList = artifactEntityRepository.findByPathLike("storage-common-proxies",
+                                                                                   "nuget.org",
+                                                                                   String.format("%s/%s", packageId, packageVersion));
         assertThat(artifactEntryList).isNotEmpty();
 
         Artifact artifactEntry = artifactEntryList.iterator().next();
         
-        assertThat(artifactEntry).isInstanceOf(RemoteArtifactEntity.class);
-        assertThat(((RemoteArtifactEntity)artifactEntry).getIsCached()).isFalse();
+        assertThat(artifactEntry).isInstanceOf(RemoteArtifact.class);
+        assertThat(((RemoteArtifact)artifactEntry).getIsCached()).isFalse();
 
         PrintStream originalSysOut = muteSystemOutput();
         try

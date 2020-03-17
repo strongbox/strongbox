@@ -30,13 +30,14 @@ public class ArtifactRepository extends GremlinVertexRepository<Artifact> implem
         return artifactAdapter;
     }
 
-    public List<Artifact> findArtifactList(String storageId,
-                                           String repositoryId,
-                                           Map<String, String> coordinates,
-                                           boolean strict)
+    public List<Artifact> findByPathLike(String storageId,
+                                         String repositoryId,
+                                         String path)
     {
-        return queries.findArtifactList(storageId, repositoryId, coordinates, strict);
+        return queries.findByPathLike(storageId, repositoryId, path);
     }
+
+
 
     public List<Artifact> findMatching(ArtifactEntrySearchCriteria searchCriteria,
                                        PagingCriteria pagingCriteria)
@@ -79,13 +80,16 @@ public class ArtifactRepository extends GremlinVertexRepository<Artifact> implem
 interface ArtifactEntityQueries extends org.springframework.data.repository.Repository<Artifact, String>
 {
 
-    default List<Artifact> findArtifactList(String storageId,
-                                            String repositoryId,
-                                            Map<String, String> coordinates,
-                                            boolean strict)
-    {
-        return null;
-    }
+    @Query("MATCH (genericCoordinates:GenericArtifactCoordinates)<-[r1]-(artifact:Artifact) " +
+           "WHERE genericCoordinates.uuid STARTS WITH $path and artifact.storageId=$storageId and artifact.repositoryId=$repositoryId " +
+           "WITH artifact, r1, genericCoordinates " +
+           "MATCH (genericCoordinates)<-[r2]-(layoutCoordinates) " +
+           "WITH artifact, r1, genericCoordinates, r2, layoutCoordinates " +
+           "OPTIONAL MATCH (artifact)<-[r3]-(remoteArtifact) " +
+           "RETURN artifact, r3, remoteArtifact, r1, genericCoordinates, r2, layoutCoordinates")
+    List<Artifact> findByPathLike(@Param("storageId") String storageId,
+                                  @Param("repositoryId") String repositoryId,
+                                  @Param("path") String path);
 
     default List<Artifact> findMatching(ArtifactEntrySearchCriteria searchCriteria,
                                         PagingCriteria pagingCriteria)
