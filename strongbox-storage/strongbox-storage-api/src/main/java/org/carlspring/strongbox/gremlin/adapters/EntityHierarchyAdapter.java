@@ -90,8 +90,7 @@ public abstract class EntityHierarchyAdapter<E extends DomainObject, A extends E
 
         return __.<Vertex>identity()
                  .optional(__.hasLabel(within(nextAdapter.labels()))
-                             .map(nextTraversal)
-                             .map(t -> nextAdapter.entityClass().cast(t.get())))
+                             .map(nextTraversal))
                  .choose((e) -> nextAdapter.entityClass().isInstance(e),
                          __.identity(),
                          fold(parentProjection, iterator));

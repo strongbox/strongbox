@@ -12,6 +12,7 @@ import java.util.Optional;
 import java.util.stream.Collectors;
 
 import javax.inject.Inject;
+import javax.transaction.Transactional;
 
 import org.apache.commons.lang3.time.DateUtils;
 import org.carlspring.strongbox.StorageApiTestConfig;
@@ -48,6 +49,7 @@ import org.springframework.util.CollectionUtils;
 @ContextConfiguration(classes = StorageApiTestConfig.class)
 @TestExecutionListeners(listeners = { CacheManagerTestExecutionListener.class },
                         mergeMode = TestExecutionListeners.MergeMode.MERGE_WITH_DEFAULTS)
+@Transactional
 public class ArtifactEntryServiceTest
 {
 
