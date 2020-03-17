@@ -10,7 +10,6 @@ import org.apache.tinkerpop.gremlin.process.traversal.dsl.graph.GraphTraversalSo
 import org.apache.tinkerpop.gremlin.structure.Graph;
 import org.assertj.core.api.Condition;
 import org.carlspring.strongbox.artifact.coordinates.RawArtifactCoordinates;
-import org.carlspring.strongbox.config.DataServiceConfig;
 import org.carlspring.strongbox.data.CacheManagerTestExecutionListener;
 import org.carlspring.strongbox.db.schema.Edges;
 import org.carlspring.strongbox.db.schema.Vertices;
@@ -23,7 +22,7 @@ import org.springframework.test.context.TestExecutionListeners;
 
 @SpringBootTest
 @ActiveProfiles(profiles = "test")
-@ContextConfiguration(classes = DataServiceConfig.class)
+@ContextConfiguration(classes = RepositoriesTestConfig.class)
 @TestExecutionListeners(listeners = { CacheManagerTestExecutionListener.class }, mergeMode = TestExecutionListeners.MergeMode.MERGE_WITH_DEFAULTS)
 public class ArtifactCoordinatesRepositoryTest
 {
