@@ -157,4 +157,9 @@ public class UnfoldEntityTraversal<S, E> implements EntityTraversal<S, E>
         return target.clone();
     }
 
+    public EntityTraversal<S, E> iterate()
+    {
+        return target.iterate();
+    }
+
 }

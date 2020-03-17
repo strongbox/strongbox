@@ -146,6 +146,25 @@ public class ArtifactRepositoryTest
                 "Coordinates should have path value."));
 
     }
+    
+    @Test
+    @Transactional
+    public void existsShouldWork()
+    {
+        GraphTraversalSource g = graph.traversal();
+        String storageId = "storage0";
+        String repositoryId = "repository-art-esw";
+        String path = "path/to/resource/art-esw-10.jar";
+
+        assertThat(artifactRepository.artifactExists(storageId, repositoryId, path)).isFalse();
+        
+        RawArtifactCoordinates artifactCoordinates = new RawArtifactCoordinates();
+        artifactCoordinates.setId(path);
+        ArtifactEntity artifactEntity = new ArtifactEntity(storageId, repositoryId, artifactCoordinates);
+        artifactRepository.save(artifactEntity);
+        
+        assertThat(artifactRepository.artifactExists(storageId, repositoryId, path)).isTrue();
+    }
 
     @Test
     @Transactional

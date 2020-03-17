@@ -2,6 +2,7 @@ package org.carlspring.strongbox.repositories;
 
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 
 import javax.inject.Inject;
 
@@ -44,11 +45,11 @@ public class ArtifactRepository extends GremlinVertexRepository<Artifact> implem
         return queries.findMatching(searchCriteria, pagingCriteria);
     }
 
-    public boolean artifactExists(String storageId,
+    public Boolean artifactExists(String storageId,
                                   String repositoryId,
                                   String path)
     {
-        return queries.artifactExists(storageId, repositoryId, path);
+        return Optional.ofNullable(queries.artifactExists(storageId, repositoryId, path)).orElse(Boolean.FALSE);
     }
 
     public List<Artifact> findOneArtifactHierarchy(String storageId,
@@ -93,20 +94,20 @@ interface ArtifactEntityQueries extends org.springframework.data.repository.Repo
         return null;
     }
 
-    default boolean artifactExists(String storageId,
-                                   String repositoryId,
-                                   String path)
-    {
-        return false;
-    }
+    @Query("MATCH (genericCoordinates:GenericArtifactCoordinates)<-[r1]-(artifact:Artifact) " +
+           "WHERE genericCoordinates.uuid=$path and artifact.storageId=$storageId and artifact.repositoryId=$repositoryId " +
+           "RETURN EXISTS(artifact.uuid)")
+    Boolean artifactExists(@Param("storageId") String storageId,
+                           @Param("repositoryId") String repositoryId,
+                           @Param("path") String path);
 
     @Query("MATCH (genericCoordinates:GenericArtifactCoordinates)<-[r1]-(artifact:Artifact) " +
            "WHERE genericCoordinates.uuid=$path and artifact.storageId=$storageId and artifact.repositoryId=$repositoryId " +
-           "WITH genericCoordinates, r1, artifact " +
+           "WITH artifact, r1, genericCoordinates " +
            "MATCH (genericCoordinates)<-[r2]-(layoutCoordinates) " +
-           "WITH genericCoordinates, r1, artifact, r2, layoutCoordinates " +
+           "WITH artifact, r1, genericCoordinates, r2, layoutCoordinates " +
            "OPTIONAL MATCH (artifact)<-[r3]-(remoteArtifact) " +
-           "RETURN artifact, r1, genericCoordinates, r2, layoutCoordinates, r3, remoteArtifact")
+           "RETURN artifact, r3, remoteArtifact, r1, genericCoordinates, r2, layoutCoordinates")
     List<Artifact> findOneArtifactHierarchy(@Param("storageId") String storageId,
                                             @Param("repositoryId") String repositoryId,
                                             @Param("path") String path);
