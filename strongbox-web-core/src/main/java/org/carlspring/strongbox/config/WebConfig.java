@@ -1,6 +1,5 @@
 package org.carlspring.strongbox.config;
 
-import org.apache.commons.lang.StringUtils;
 import org.carlspring.strongbox.configuration.ConfigurationManager;
 import org.carlspring.strongbox.configuration.StrongboxSecurityConfig;
 import org.carlspring.strongbox.converters.RoleFormToRoleConverter;
@@ -18,8 +17,6 @@ import org.carlspring.strongbox.interceptors.MavenArtifactRequestInterceptor;
 import org.carlspring.strongbox.jtwig.extensions.ByteSizeConversionExtension;
 import org.carlspring.strongbox.mapper.WebObjectMapperSubtypes;
 import org.carlspring.strongbox.providers.io.RepositoryPathResolver;
-import org.carlspring.strongbox.services.DirectoryListingService;
-import org.carlspring.strongbox.services.DirectoryListingServiceImpl;
 import org.carlspring.strongbox.utils.CustomAntPathMatcher;
 import org.carlspring.strongbox.web.CustomRequestMappingHandlerMapping;
 import org.carlspring.strongbox.web.DirectoryTraversalFilter;
@@ -33,13 +30,11 @@ import java.util.Arrays;
 import java.util.List;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
-
 import org.jtwig.environment.EnvironmentConfigurationBuilder;
 import org.jtwig.spring.boot.config.JtwigViewResolverConfigurer;
 import org.jtwig.web.servlet.JtwigRenderer;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.cache.annotation.EnableCaching;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.ComponentScan;
@@ -198,27 +193,6 @@ public class WebConfig
         return new LocalValidatorFactoryBean();
     }
     
-    @Bean
-    @Qualifier("loggingManagementDirectoryListingService")
-    public DirectoryListingService getLoggingManagementDirectoryListingService()
-    {
-        return createDirectoryListingServiceForTemplate("%s/api/logging");
-    }
-
-    private DirectoryListingService createDirectoryListingServiceForTemplate(String template)
-    {
-        String baseUrl = StringUtils.chomp(configurationManager.getConfiguration().getBaseUrl(), "/");
-        String finalUrl = String.format(template, baseUrl);
-        return new DirectoryListingServiceImpl(finalUrl);
-    }
-
-    @Bean
-    @Qualifier("browseRepositoryDirectoryListingService")
-    public DirectoryListingService getBrowseRepositoryDirectoryListingService()
-    {
-        return createDirectoryListingServiceForTemplate("%s/api/browse");
-    }
-
     @Override
     public void configurePathMatch(PathMatchConfigurer configurer)
     {
