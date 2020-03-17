@@ -8,7 +8,6 @@ import javax.inject.Inject;
 
 import org.carlspring.strongbox.data.service.support.search.PagingCriteria;
 import org.carlspring.strongbox.domain.Artifact;
-import org.carlspring.strongbox.gremlin.adapters.ArtifactAdapter;
 import org.carlspring.strongbox.gremlin.adapters.ArtifactHierarchyAdapter;
 import org.carlspring.strongbox.gremlin.repositories.GremlinVertexRepository;
 import org.carlspring.strongbox.services.support.ArtifactEntrySearchCriteria;

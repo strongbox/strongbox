@@ -20,7 +20,11 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.boot.context.properties.ConfigurationProperties;
 import org.springframework.context.annotation.Bean;
+import org.springframework.context.annotation.Condition;
+import org.springframework.context.annotation.ConditionContext;
+import org.springframework.context.annotation.Conditional;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.core.type.AnnotatedTypeMetadata;
 import org.strongbox.db.server.CassandraEmbeddedConfiguration;
 import org.strongbox.db.server.CassandraEmbeddedProperties;
 import org.strongbox.db.server.EmbeddedDbServer;
@@ -33,7 +37,8 @@ import org.strongbox.db.server.JanusGraphProperties;
  * @author sbespalov
  */
 @Configuration
-public class EmbeddedDbServerConfiguration
+@Conditional(EmbeddedDbServerConfiguration.class)
+public class EmbeddedDbServerConfiguration implements Condition
 {
 
     private static final Logger logger = LoggerFactory.getLogger(EmbeddedDbServerConfiguration.class);
@@ -132,6 +137,16 @@ public class EmbeddedDbServerConfiguration
     {
         return CassandraEmbeddedProperties.getInstance(janusGraphConfiguration.getStorageRoot(),
                                                        janusGraphConfiguration.getStoragePort());
+    }
+
+    @Override
+    public boolean matches(ConditionContext conditionContext,
+                           AnnotatedTypeMetadata metadata)
+
+    {
+        JanusGraphDbProfile profile = JanusGraphDbProfile.resolveProfile(conditionContext.getEnvironment());
+
+        return profile.getName().equals(JanusGraphDbProfile.PROFILE_EMBEDDED);
     }
 
 }
