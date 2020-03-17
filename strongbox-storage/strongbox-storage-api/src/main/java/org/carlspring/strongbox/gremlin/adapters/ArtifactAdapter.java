@@ -98,9 +98,9 @@ public class ArtifactAdapter extends VertexEntityTraversalAdapter<Artifact> impl
                                       .map(genericArtifactCoordinatesArapter.fold())
                                       .map(EntityTraversalUtils::castToObject)))
                  .by(__.outE(Edges.ARTIFACT_HAS_TAGS)
-                       .mapToObject(__.inV()
-                                      .map(artifactTagAdapter.fold())
-                                      .map(EntityTraversalUtils::castToObject))
+                       .inV()
+                       .map(artifactTagAdapter.fold())
+                       .map(EntityTraversalUtils::castToObject)
                        .fold())
                  .by(childProjection)
                  .map(this::map);
@@ -133,8 +133,7 @@ public class ArtifactAdapter extends VertexEntityTraversalAdapter<Artifact> impl
                                     .map(HashSet::new)
                                     .orElse(null));
 
-        List<ArtifactTag> tags = extractObject(List.class,
-                                               t.get().get("tags"));
+        List<ArtifactTag> tags = (List<ArtifactTag>) t.get().get("tags");
         result.setTagSet(new HashSet<>(tags));
 
         Artifact artifactHierarchyChild = extractObject(Artifact.class,

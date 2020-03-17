@@ -62,18 +62,24 @@ public class ArtifactTagServiceTest
         artifactCoordinates.setId(path);
 
         ArtifactEntity artifactEntity = new ArtifactEntity(storageId, repositoryId, artifactCoordinates);
-        artifactEntity.setTagSet(new HashSet<ArtifactTag>(Arrays.asList(new ArtifactTag[] { releaseTag, latestTag, ltsTag })));
+        artifactEntity.setTagSet(new HashSet<>(Arrays.asList(new ArtifactTag[] { releaseTag, latestTag, ltsTag })));
 
-        //Create Artifact with tags
+        // Create Artifact with tags
         artifactEntity = artifactRepository.save(artifactEntity);
         assertThat(artifactEntity.getUuid()).isNotNull();
         assertThat(artifactEntity.getTagSet()).containsOnly(releaseTag, latestTag, ltsTag);
 
-        //Update Artifact tags
-        artifactEntity.setTagSet(new HashSet<ArtifactTag>(Arrays.asList(new ArtifactTag[] { releaseTag, latestTag})));
+        // Update Artifact tags
+        artifactEntity.setTagSet(new HashSet<>(Arrays.asList(new ArtifactTag[] { releaseTag, latestTag })));
         artifactEntity = artifactRepository.save(artifactEntity);
         assertThat(artifactEntity.getUuid()).isNotNull();
         assertThat(artifactEntity.getTagSet()).containsOnly(releaseTag, latestTag);
+
+        // Remove Artifact tags
+        artifactEntity.setTagSet(new HashSet<>());
+        artifactEntity = artifactRepository.save(artifactEntity);
+        assertThat(artifactEntity.getUuid()).isNotNull();
+        assertThat(artifactEntity.getTagSet()).isEmpty();
     }
 
 }
