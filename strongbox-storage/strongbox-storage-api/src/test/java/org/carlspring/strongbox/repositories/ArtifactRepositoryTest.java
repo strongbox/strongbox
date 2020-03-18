@@ -5,6 +5,7 @@ import static org.assertj.core.data.Index.atIndex;
 
 import java.util.Arrays;
 import java.util.HashSet;
+import java.util.List;
 
 import javax.inject.Inject;
 import javax.transaction.Transactional;
@@ -145,7 +146,7 @@ public class ArtifactRepositoryTest
                 "Coordinates should have path value."));
 
     }
-    
+
     @Test
     @Transactional
     public void existsShouldWork()
@@ -156,13 +157,38 @@ public class ArtifactRepositoryTest
         String path = "path/to/resource/art-esw-10.jar";
 
         assertThat(artifactRepository.artifactExists(storageId, repositoryId, path)).isFalse();
-        
+
         RawArtifactCoordinates artifactCoordinates = new RawArtifactCoordinates();
         artifactCoordinates.setId(path);
         ArtifactEntity artifactEntity = new ArtifactEntity(storageId, repositoryId, artifactCoordinates);
         artifactRepository.save(artifactEntity);
-        
+
         assertThat(artifactRepository.artifactExists(storageId, repositoryId, path)).isTrue();
+    }
+
+    @Test
+    @Transactional
+    public void findByPathLikeShouldWork()
+    {
+        GraphTraversalSource g = graph.traversal();
+        String storageId = "storage0";
+        String repositoryId = "repository-art-fbpsw";
+        String path = "path/to/resource/art-fbpsw-10.jar";
+        String remotePath = "path/to/resource/art-fbpsw-remote-10.jar";
+
+        RawArtifactCoordinates artifactCoordinates = new RawArtifactCoordinates();
+        artifactCoordinates.setId(path);
+        ArtifactEntity artifactEntity = new ArtifactEntity(storageId, repositoryId, artifactCoordinates);
+        artifactEntity = artifactRepository.save(artifactEntity);
+
+        RawArtifactCoordinates remoteArtifactCoordinates = new RawArtifactCoordinates();
+        remoteArtifactCoordinates.setId(remotePath);
+        RemoteArtifactEntity remoteArtifactEntity = new RemoteArtifactEntity("storage0", repositoryId, remoteArtifactCoordinates);
+        remoteArtifactEntity.setIsCached(true);
+        remoteArtifactEntity = artifactRepository.save(remoteArtifactEntity);
+
+        List<Artifact> artifacts = artifactRepository.findByPathLike(storageId, repositoryId, "path/to/resource/art-fbpsw");
+        assertThat(artifacts).hasSize(2).contains(artifactEntity, remoteArtifactEntity);
     }
 
     @Test

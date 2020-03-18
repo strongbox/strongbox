@@ -1,14 +1,18 @@
 package org.carlspring.strongbox.repositories;
 
+import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
+import java.util.stream.Collectors;
 
 import javax.inject.Inject;
 
+import org.carlspring.strongbox.data.domain.DomainObject;
 import org.carlspring.strongbox.data.service.support.search.PagingCriteria;
 import org.carlspring.strongbox.domain.Artifact;
 import org.carlspring.strongbox.gremlin.adapters.ArtifactHierarchyAdapter;
+import org.carlspring.strongbox.gremlin.adapters.EntityTraversalUtils;
 import org.carlspring.strongbox.gremlin.repositories.GremlinVertexRepository;
 import org.carlspring.strongbox.services.support.ArtifactEntrySearchCriteria;
 import org.springframework.data.neo4j.annotation.Query;
@@ -34,10 +38,8 @@ public class ArtifactRepository extends GremlinVertexRepository<Artifact> implem
                                          String repositoryId,
                                          String path)
     {
-        return queries.findByPathLike(storageId, repositoryId, path);
+        return EntityTraversalUtils.reduceHierarchy(queries.findByPathLike(storageId, repositoryId, path));
     }
-
-
 
     public List<Artifact> findMatching(ArtifactEntrySearchCriteria searchCriteria,
                                        PagingCriteria pagingCriteria)
