@@ -1,6 +1,7 @@
 package org.carlspring.strongbox.repository;
 
 import java.io.IOException;
+import java.time.LocalDateTime;
 import java.util.Date;
 import java.util.HashSet;
 import java.util.Map;
@@ -185,8 +186,8 @@ public class NpmPackageFeedParser
         remoteArtifactEntry.setStorageId(storageId);
         remoteArtifactEntry.setRepositoryId(repositoryId);
         remoteArtifactEntry.setArtifactCoordinates(c);
-        remoteArtifactEntry.setLastUsed(new Date());
-        remoteArtifactEntry.setLastUpdated(new Date());
+        remoteArtifactEntry.setLastUsed(LocalDateTime.now());
+        remoteArtifactEntry.setLastUpdated(LocalDateTime.now());
         remoteArtifactEntry.setDownloadCount(0);
 
         // TODO make HEAD request for `tarball` URL ???
@@ -208,8 +209,8 @@ public class NpmPackageFeedParser
         remoteArtifactEntry.setStorageId(storageId);
         remoteArtifactEntry.setRepositoryId(repositoryId);
         remoteArtifactEntry.setArtifactCoordinates(c);
-        remoteArtifactEntry.setLastUsed(new Date());
-        remoteArtifactEntry.setLastUpdated(new Date());
+        remoteArtifactEntry.setLastUsed(LocalDateTime.now());
+        remoteArtifactEntry.setLastUpdated(LocalDateTime.now());
         remoteArtifactEntry.setDownloadCount(0);
 
         return remoteArtifactEntry;

@@ -5,6 +5,8 @@ import java.lang.reflect.UndeclaredThrowableException;
 import java.nio.file.Files;
 import java.nio.file.NoSuchFileException;
 import java.nio.file.Path;
+import java.time.ZoneId;
+import java.util.Date;
 import java.util.Map;
 import java.util.function.Function;
 
@@ -59,7 +61,7 @@ public class NpmPackageSupplier implements Function<Path, NpmPackageDesc>
         }
 
         NpmPackageDesc npmPackageDesc = new NpmPackageDesc();
-        npmPackageDesc.setReleaseDate(artifactEntry.getLastUpdated());
+        npmPackageDesc.setReleaseDate(Date.from(artifactEntry.getLastUpdated().atZone(ZoneId.systemDefault()).toInstant()));
 
         PackageVersion npmPackage = new PackageVersion();
         npmPackageDesc.setNpmPackage(npmPackage);

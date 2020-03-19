@@ -4,8 +4,8 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.carlspring.strongbox.services.support.ArtifactEntrySearchCriteria.Builder.anArtifactEntrySearchCriteria;
 
 import java.text.ParseException;
-import java.text.SimpleDateFormat;
-import java.util.Date;
+import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatterBuilder;
 import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
@@ -13,7 +13,6 @@ import java.util.stream.Collectors;
 import javax.inject.Inject;
 import javax.transaction.Transactional;
 
-import org.apache.commons.lang3.time.DateUtils;
 import org.carlspring.strongbox.StorageApiTestConfig;
 import org.carlspring.strongbox.artifact.coordinates.ArtifactCoordinates;
 import org.carlspring.strongbox.artifact.coordinates.RawArtifactCoordinates;
@@ -136,7 +135,7 @@ public class ArtifactEntryServiceTest
 
         assertThat(artifactEntry.getCreated()).isNotNull();
 
-        Date creationDate = artifactEntry.getCreated();
+        LocalDateTime creationDate = artifactEntry.getCreated();
         //Updating artifact entry in order to ensure that creationDate is not updated
         artifactEntry.setDownloadCount(1);
         artifactEntry = save(artifactEntry);
@@ -342,7 +341,7 @@ public class ArtifactEntryServiceTest
 
         final Artifact firstTimeSavedArtifactEntry = save(artifactEntry);
         final String artifactEntryId = firstTimeSavedArtifactEntry.getUuid();
-        final Date creationDate = firstTimeSavedArtifactEntry.getCreated();
+        final LocalDateTime creationDate = firstTimeSavedArtifactEntry.getCreated();
 
         final Artifact firstTimeReadFromDatabase = artifactEntityRepository.findById(artifactEntryId)
                                                                            .orElse(null);
@@ -374,7 +373,7 @@ public class ArtifactEntryServiceTest
                                                                            .orElse(null);
         assertThat(firstTimeReadFromDatabase).isNotNull();
 
-        final Date sampleDate = createSampleDate();
+        final LocalDateTime sampleDate = createSampleDate();
 
         firstTimeReadFromDatabase.setCreated(sampleDate);
         firstTimeReadFromDatabase.setLastUpdated(sampleDate);
@@ -391,10 +390,10 @@ public class ArtifactEntryServiceTest
         assertThat(secondTimeReadFromDatabase.getLastUsed()).isEqualTo(sampleDate);
     }
 
-    private Date createSampleDate()
-            throws ParseException
+    private LocalDateTime createSampleDate()
     {
-        return new SimpleDateFormat("yyyy-MM-dd HH:mm:ss").parse("2019-10-31 13:15:50");
+        return LocalDateTime.parse("2019-10-31 13:15:50",
+                                   new DateTimeFormatterBuilder().appendPattern("yyyy-MM-dd HH:mm:ss").toFormatter());
     }
 
     private ArtifactEntity createArtifactEntry(String groupId)
@@ -469,14 +468,14 @@ public class ArtifactEntryServiceTest
             final Artifact artifactEntry = artifactEntries.get(i);
             if (i == 0)
             {
-                artifactEntry.setLastUsed(new Date());
-                artifactEntry.setLastUpdated(new Date());
+                artifactEntry.setLastUsed(LocalDateTime.now());
+                artifactEntry.setLastUpdated(LocalDateTime.now());
                 artifactEntry.setSizeInBytes(1L);
             }
             else
             {
-                artifactEntry.setLastUsed(DateUtils.addDays(new Date(), -10));
-                artifactEntry.setLastUpdated(DateUtils.addDays(new Date(), -10));
+                artifactEntry.setLastUsed(LocalDateTime.now().minusDays(10));
+                artifactEntry.setLastUpdated(LocalDateTime.now().minusDays(10));
                 artifactEntry.setSizeInBytes(100000L);
             }
 

@@ -1,6 +1,7 @@
 package org.carlspring.strongbox.providers.repository;
 
 import java.io.IOException;
+import java.time.LocalDateTime;
 import java.util.Date;
 
 import org.carlspring.strongbox.artifact.AsyncArtifactEntryHandler;
@@ -24,7 +25,7 @@ public class ArtifactDownloadingEventHandler extends AsyncArtifactEntryHandler
         Artifact artifactEntry = repositoryPath.getArtifactEntry();
         
         artifactEntry.setDownloadCount(artifactEntry.getDownloadCount() + 1);
-        artifactEntry.setLastUsed(new Date());
+        artifactEntry.setLastUsed(LocalDateTime.now());
 
         return artifactEntry;
     }

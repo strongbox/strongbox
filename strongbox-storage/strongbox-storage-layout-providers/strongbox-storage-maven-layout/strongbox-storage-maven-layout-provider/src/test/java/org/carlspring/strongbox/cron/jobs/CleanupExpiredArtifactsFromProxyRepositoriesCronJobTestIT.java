@@ -94,8 +94,7 @@ public class CleanupExpiredArtifactsFromProxyRepositoriesCronJobTestIT
         assertThat(artifactEntry.getSizeInBytes()).isNotNull();
         assertThat(artifactEntry.getSizeInBytes()).isGreaterThan(0L);
 
-        artifactEntry.setLastUsed(
-                DateUtils.addDays(artifactEntry.getLastUsed(), -10));
+        artifactEntry.setLastUsed(artifactEntry.getLastUsed().minusDays(10));
         final Long sizeInBytes = artifactEntry.getSizeInBytes();
 
         artifactEntityRepository.save(artifactEntry);

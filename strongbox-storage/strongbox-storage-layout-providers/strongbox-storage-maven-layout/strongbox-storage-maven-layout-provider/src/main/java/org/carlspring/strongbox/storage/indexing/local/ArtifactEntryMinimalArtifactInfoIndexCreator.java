@@ -1,5 +1,6 @@
 package org.carlspring.strongbox.storage.indexing.local;
 
+import java.time.ZoneOffset;
 import java.util.Map;
 
 import org.apache.commons.collections4.MapUtils;
@@ -100,7 +101,7 @@ public class ArtifactEntryMinimalArtifactInfoIndexCreator
 
         populateArtifactInfoBySha1(ai, artifactEntry.getChecksums());
 
-        ai.setLastModified(artifactEntry.getLastUpdated().getTime());
+        ai.setLastModified(artifactEntry.getLastUpdated().atZone(ZoneOffset.systemDefault()).toInstant().getEpochSecond());
 
         ai.setSize(artifactEntry.getSizeInBytes());
 

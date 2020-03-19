@@ -89,7 +89,7 @@ abstract class BaseLocalStorageProxyRepositoryExpiredArtifactsCleanerTest
         assertThat(artifactEntry.getSizeInBytes()).isNotNull();
         assertThat(artifactEntry.getSizeInBytes()).isGreaterThan(0L);
 
-        artifactEntry.setLastUsed(DateUtils.addDays(artifactEntry.getLastUsed(), -10));
+        artifactEntry.setLastUsed(artifactEntry.getLastUsed().minusDays(10));
 
         return artifactEntityRepository.save(artifactEntry);
     }

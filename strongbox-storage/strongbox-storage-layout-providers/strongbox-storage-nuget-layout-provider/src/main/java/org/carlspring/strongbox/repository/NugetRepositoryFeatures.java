@@ -1,6 +1,7 @@
 package org.carlspring.strongbox.repository;
 
 import java.io.IOException;
+import java.time.LocalDateTime;
 import java.util.Arrays;
 import java.util.Date;
 import java.util.HashSet;
@@ -225,8 +226,8 @@ public class NugetRepositoryFeatures
             remoteArtifactEntry.setStorageId(storageId);
             remoteArtifactEntry.setRepositoryId(repositoryId);
             remoteArtifactEntry.setArtifactCoordinates(c);
-            remoteArtifactEntry.setLastUsed(new Date());
-            remoteArtifactEntry.setLastUpdated(new Date());
+            remoteArtifactEntry.setLastUsed(LocalDateTime.now());
+            remoteArtifactEntry.setLastUpdated(LocalDateTime.now());
             remoteArtifactEntry.setDownloadCount(0);
 
             remoteArtifactEntry.setSizeInBytes(packageEntry.getProperties().getPackageSize());

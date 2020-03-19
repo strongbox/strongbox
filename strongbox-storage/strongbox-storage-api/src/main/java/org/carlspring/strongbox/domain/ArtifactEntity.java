@@ -1,6 +1,6 @@
 package org.carlspring.strongbox.domain;
 
-import java.util.Date;
+import java.time.LocalDateTime;
 import java.util.HashSet;
 import java.util.LinkedHashSet;
 import java.util.Map;
@@ -17,8 +17,10 @@ import org.carlspring.strongbox.artifact.coordinates.GenericArtifactCoordinates;
 import org.carlspring.strongbox.data.domain.DomainEntity;
 import org.carlspring.strongbox.db.schema.Edges;
 import org.carlspring.strongbox.db.schema.Vertices;
+import org.carlspring.strongbox.gremlin.adapters.DateConverter;
 import org.neo4j.ogm.annotation.NodeEntity;
 import org.neo4j.ogm.annotation.Relationship;
+import org.neo4j.ogm.annotation.typeconversion.Convert;
 
 /**
  * @author carlspring
@@ -45,11 +47,14 @@ public class ArtifactEntity
 
     private Long sizeInBytes;
 
-    private Date lastUpdated;
+    @Convert(DateConverter.class)
+    private LocalDateTime lastUpdated;
 
-    private Date lastUsed;
+    @Convert(DateConverter.class)
+    private LocalDateTime lastUsed;
 
-    private Date created;
+    @Convert(DateConverter.class)
+    private LocalDateTime created;
 
     private Integer downloadCount = Integer.valueOf(0);
 
@@ -168,37 +173,37 @@ public class ArtifactEntity
     }
 
     @Override
-    public Date getLastUpdated()
+    public LocalDateTime getLastUpdated()
     {
-        return lastUpdated != null ? new Date(lastUpdated.getTime()) : null;
+        return lastUpdated;
     }
 
     @Override
-    public void setLastUpdated(Date lastUpdated)
+    public void setLastUpdated(LocalDateTime lastUpdated)
     {
-        this.lastUpdated = lastUpdated != null ? new Date(lastUpdated.getTime()) : null;
+        this.lastUpdated = lastUpdated;
     }
 
     @Override
-    public Date getLastUsed()
+    public LocalDateTime getLastUsed()
     {
-        return lastUsed != null ? new Date(lastUsed.getTime()) : null;
+        return lastUsed;
     }
 
     @Override
-    public void setLastUsed(Date lastUsed)
+    public void setLastUsed(LocalDateTime lastUsed)
     {
-        this.lastUsed = lastUsed != null ? new Date(lastUsed.getTime()) : null;
+        this.lastUsed = lastUsed;
     }
 
     @Override
-    public Date getCreated()
+    public LocalDateTime getCreated()
     {
         return created;
     }
 
     @Override
-    public void setCreated(Date created)
+    public void setCreated(LocalDateTime created)
     {
         this.created = created;
     }

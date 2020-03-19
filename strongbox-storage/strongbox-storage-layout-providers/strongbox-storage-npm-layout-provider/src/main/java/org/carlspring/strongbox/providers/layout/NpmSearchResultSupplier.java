@@ -3,6 +3,8 @@ package org.carlspring.strongbox.providers.layout;
 import java.io.IOException;
 import java.lang.reflect.UndeclaredThrowableException;
 import java.nio.file.Path;
+import java.time.ZoneId;
+import java.util.Date;
 import java.util.function.Function;
 
 import org.carlspring.strongbox.artifact.coordinates.NpmArtifactCoordinates;
@@ -49,7 +51,7 @@ public class NpmSearchResultSupplier implements Function<Path, SearchResult>
         PackageEntry packageEntry = new PackageEntry();
         searchResult.setPackage(packageEntry);
 
-        packageEntry.setDate(artifactEntry.getLastUpdated());
+        packageEntry.setDate(Date.from(artifactEntry.getLastUpdated().atZone(ZoneId.systemDefault()).toInstant()));
 
         packageEntry.setName(c.getName());
         packageEntry.setScope(c.getScope() == null ? "unscoped" : c.getScope());

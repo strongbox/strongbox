@@ -2,11 +2,14 @@ package org.carlspring.strongbox.gremlin.adapters;
 
 import static org.apache.tinkerpop.gremlin.structure.VertexProperty.Cardinality.set;
 import static org.apache.tinkerpop.gremlin.structure.VertexProperty.Cardinality.single;
-import static org.carlspring.strongbox.gremlin.adapters.EntityTraversalUtils.extractObject;
-import static org.carlspring.strongbox.gremlin.dsl.EntityTraversalDsl.NULL;
 import static org.carlspring.strongbox.gremlin.adapters.EntityTraversalUtils.extracPropertytList;
+import static org.carlspring.strongbox.gremlin.adapters.EntityTraversalUtils.extractObject;
+import static org.carlspring.strongbox.gremlin.adapters.EntityTraversalUtils.toDate;
+import static org.carlspring.strongbox.gremlin.adapters.EntityTraversalUtils.toLocalDateTime;
+import static org.carlspring.strongbox.gremlin.dsl.EntityTraversalDsl.NULL;
 
 import java.util.Collections;
+import java.util.Date;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
@@ -30,7 +33,6 @@ import org.carlspring.strongbox.domain.Artifact;
 import org.carlspring.strongbox.domain.ArtifactArchiveListing;
 import org.carlspring.strongbox.domain.ArtifactEntity;
 import org.carlspring.strongbox.domain.GenericArtifactCoordinatesEntity;
-import org.carlspring.strongbox.domain.LayoutArtifactCoordinatesEntity;
 import org.carlspring.strongbox.gremlin.dsl.EntityTraversal;
 import org.carlspring.strongbox.gremlin.dsl.EntityTraversalDsl;
 import org.carlspring.strongbox.gremlin.dsl.__;
@@ -83,6 +85,9 @@ public class ArtifactAdapter extends VertexEntityTraversalAdapter<Artifact> impl
         return __.<Vertex, Object>project("uuid",
                                           "storageId",
                                           "repositoryId",
+                                          "lastUpdated",
+                                          "lastUsed",
+                                          "created",
                                           "filenames",
                                           "checksums",
                                           "genericArtifactCoordinates",
@@ -91,6 +96,9 @@ public class ArtifactAdapter extends VertexEntityTraversalAdapter<Artifact> impl
                  .by(__.enrichPropertyValue("uuid"))
                  .by(__.enrichPropertyValue("storageId"))
                  .by(__.enrichPropertyValue("repositoryId"))
+                 .by(__.enrichPropertyValue("lastUpdated"))
+                 .by(__.enrichPropertyValue("lastUsed"))
+                 .by(__.enrichPropertyValue("created"))
                  .by(__.enrichPropertyValues("filenames"))
                  .by(__.enrichPropertyValues("checksums"))
                  .by(__.outE(Edges.ARTIFACT_HAS_ARTIFACT_COORDINATES)
@@ -124,6 +132,10 @@ public class ArtifactAdapter extends VertexEntityTraversalAdapter<Artifact> impl
         ArtifactEntity result = new ArtifactEntity(storageId, repositoryId, artifactCoordinates.getLayoutArtifactCoordinates());
         result.setUuid(extractObject(String.class, t.get().get("uuid")));
 
+        result.setCreated(toLocalDateTime(extractObject(Date.class, t.get().get("created"))));
+        result.setLastUpdated(toLocalDateTime(extractObject(Date.class, t.get().get("lastUpdated"))));
+        result.setLastUsed(toLocalDateTime(extractObject(Date.class, t.get().get("lastUsed"))));
+        
         result.getArtifactArchiveListing()
               .setFilenames(Optional.ofNullable(extracPropertytList(String.class, t.get().get("filenames")))
                                     .map(HashSet::new)
@@ -209,6 +221,18 @@ public class ArtifactAdapter extends VertexEntityTraversalAdapter<Artifact> impl
         if (entity.getRepositoryId() != null)
         {
             t = t.property(single, "repositoryId", entity.getRepositoryId());
+        }
+        if (entity.getCreated() != null)
+        {
+            t = t.property(single, "created", toDate(entity.getCreated()));
+        }
+        if (entity.getLastUpdated() != null)
+        {
+            t = t.property(single, "lastUpdated", toDate(entity.getLastUpdated()));
+        }
+        if (entity.getLastUsed() != null)
+        {
+            t = t.property(single, "lastUsed", toDate(entity.getLastUsed()));
         }
 
         ArtifactArchiveListing artifactArchiveListing = entity.getArtifactArchiveListing();

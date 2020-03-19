@@ -2,6 +2,7 @@ package org.carlspring.strongbox.gremlin.adapters;
 
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
+import java.time.LocalDateTime;
 import java.util.Date;
 import java.util.LinkedList;
 import java.util.List;
@@ -14,6 +15,7 @@ import org.apache.tinkerpop.gremlin.structure.Element;
 import org.apache.tinkerpop.gremlin.structure.Property;
 import org.carlspring.strongbox.data.domain.DomainObject;
 import org.carlspring.strongbox.gremlin.dsl.EntityTraversalDsl;
+import org.strongbox.util.Commons;
 
 public class EntityTraversalUtils
 {
@@ -86,4 +88,15 @@ public class EntityTraversalUtils
                               .collect(Collectors.toList());
 
     }
+
+    public static LocalDateTime toLocalDateTime(Date date)
+    {
+        return Commons.toLocalDateTime(date);
+    }
+
+    public static Date toDate(LocalDateTime date)
+    {
+        return Commons.toDate(date);
+    }
+
 }

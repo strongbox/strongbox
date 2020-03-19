@@ -1,5 +1,6 @@
 package org.carlspring.strongbox.domain;
 
+import java.time.LocalDateTime;
 import java.util.Date;
 import java.util.Map;
 import java.util.Set;
@@ -115,32 +116,32 @@ public class RemoteArtifactEntity extends DomainEntity implements RemoteArtifact
         artifact.setSizeInBytes(sizeInBytes);
     }
 
-    public Date getLastUpdated()
+    public LocalDateTime getLastUpdated()
     {
         return artifact.getLastUpdated();
     }
 
-    public void setLastUpdated(Date lastUpdated)
+    public void setLastUpdated(LocalDateTime lastUpdated)
     {
         artifact.setLastUpdated(lastUpdated);
     }
 
-    public Date getLastUsed()
+    public LocalDateTime getLastUsed()
     {
         return artifact.getLastUsed();
     }
 
-    public void setLastUsed(Date lastUsed)
+    public void setLastUsed(LocalDateTime lastUsed)
     {
         artifact.setLastUsed(lastUsed);
     }
 
-    public Date getCreated()
+    public LocalDateTime getCreated()
     {
         return artifact.getCreated();
     }
 
-    public void setCreated(Date created)
+    public void setCreated(LocalDateTime created)
     {
         artifact.setCreated(created);
     }

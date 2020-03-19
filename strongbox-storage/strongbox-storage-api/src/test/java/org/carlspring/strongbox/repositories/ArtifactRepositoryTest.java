@@ -3,6 +3,7 @@ package org.carlspring.strongbox.repositories;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.data.Index.atIndex;
 
+import java.time.LocalDateTime;
 import java.util.Arrays;
 import java.util.HashSet;
 import java.util.List;
@@ -59,6 +60,11 @@ public class ArtifactRepositoryTest
                       .setFilenames(new HashSet<>(Arrays.asList("file1.txt", "readme.md", "icon.svg")));
         artifactEntity.addChecksums(new HashSet<>(
                 Arrays.asList("{md5}3111519d5b4efd31565831f735ab0d2f", "{sha-1}ba79baeb 9f10896a 46ae7471 5271b7f5 86e74640")));
+        
+        LocalDateTime now = LocalDateTime.now();
+        artifactEntity.setCreated(now.minusDays(10));
+        artifactEntity.setLastUsed(now.minusDays(5));
+        artifactEntity.setLastUpdated(now);
 
         artifactEntity = artifactRepository.save(artifactEntity);
         assertThat(artifactEntity.getUuid()).isNotNull();
@@ -66,7 +72,10 @@ public class ArtifactRepositoryTest
         assertThat(artifactEntity.getRepositoryId()).isEqualTo(repositoryId);
         assertThat(artifactEntity.getChecksums()).containsEntry("md5", "3111519d5b4efd31565831f735ab0d2f")
                                                  .containsEntry("sha-1", "ba79baeb 9f10896a 46ae7471 5271b7f5 86e74640");
-
+        assertThat(artifactEntity.getCreated()).isEqualTo(now.minusDays(10));
+        assertThat(artifactEntity.getLastUpdated()).isEqualTo(now);
+        assertThat(artifactEntity.getLastUsed()).isEqualTo(now.minusDays(5));
+        
         ArtifactArchiveListing artifactArchiveListing = artifactEntity.getArtifactArchiveListing();
         assertThat(artifactArchiveListing.getFilenames()).containsOnly("file1.txt", "readme.md", "icon.svg");
 
@@ -117,12 +126,20 @@ public class ArtifactRepositoryTest
         ArtifactEntity artifactEntity = new ArtifactEntity(storageId, repositoryId, artifactCoordinates);
         artifactEntity.getArtifactArchiveListing()
                       .setFilenames(new HashSet<>(Arrays.asList("file1.txt", "readme.md", "icon.svg")));
-
+        
+        LocalDateTime now = LocalDateTime.now();
+        artifactEntity.setCreated(now.minusDays(10));
+        artifactEntity.setLastUsed(now.minusDays(5));
+        artifactEntity.setLastUpdated(now);
+        
         artifactEntity = artifactRepository.save(artifactEntity);
         assertThat(artifactEntity.getUuid()).isNotNull();
         assertThat(artifactEntity.getStorageId()).isEqualTo(storageId);
         assertThat(artifactEntity.getRepositoryId()).isEqualTo(repositoryId);
-
+        assertThat(artifactEntity.getCreated()).isEqualTo(now.minusDays(10));
+        assertThat(artifactEntity.getLastUpdated()).isEqualTo(now);
+        assertThat(artifactEntity.getLastUsed()).isEqualTo(now.minusDays(5));
+        
         artifactCoordinates = (RawArtifactCoordinates) artifactEntity.getArtifactCoordinates();
         assertThat(artifactCoordinates.getUuid()).isEqualTo(path);
         assertThat(artifactCoordinates.getVersion()).isNull();

@@ -1,6 +1,6 @@
 package org.carlspring.strongbox.domain;
 
-import java.util.Date;
+import java.time.LocalDateTime;
 import java.util.Map;
 import java.util.Set;
 
@@ -33,17 +33,17 @@ public interface Artifact extends DomainObject
 
     void setSizeInBytes(Long sizeInBytes);
 
-    Date getLastUpdated();
+    LocalDateTime getLastUpdated();
 
-    void setLastUpdated(Date lastUpdated);
+    void setLastUpdated(LocalDateTime lastUpdated);
 
-    Date getLastUsed();
+    LocalDateTime getLastUsed();
 
-    void setLastUsed(Date lastUsed);
+    void setLastUsed(LocalDateTime lastUsed);
 
-    Date getCreated();
+    LocalDateTime getCreated();
 
-    void setCreated(Date created);
+    void setCreated(LocalDateTime created);
 
     Integer getDownloadCount();
 

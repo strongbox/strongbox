@@ -5,6 +5,7 @@ import java.io.InputStream;
 import java.io.OutputStream;
 import java.net.URI;
 import java.nio.file.Path;
+import java.time.LocalDateTime;
 import java.util.Date;
 import java.util.Optional;
 
@@ -161,7 +162,7 @@ public abstract class AbstractRepositoryProvider implements RepositoryProvider, 
         ArtifactCoordinates coordinates = RepositoryFiles.readCoordinates(repositoryPath);
         artifactEntry.setArtifactCoordinates(coordinates);
 
-        Date now = new Date();
+        LocalDateTime now = LocalDateTime.now();
         artifactEntry.setCreated(now);
         artifactEntry.setLastUpdated(now);
         artifactEntry.setLastUsed(now);
