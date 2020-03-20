@@ -83,6 +83,7 @@ public interface EntityTraversalDsl<S, E> extends GraphTraversal.Admin<S, E>
                                                   Optional.of(uuid)
                                                           .filter(x -> !NULL.equals(x))
                                                           .orElse(UUID.randomUUID().toString()))
+                                        .property("created", System.currentTimeMillis())
                                         .trace("Created"),
                                       __.unfold()
                                         .trace("Fetched"))

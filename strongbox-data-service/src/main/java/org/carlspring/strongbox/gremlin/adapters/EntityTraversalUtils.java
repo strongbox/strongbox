@@ -116,6 +116,6 @@ public class EntityTraversalUtils
         {
             return null;
         }
-        return date.atZone(ZoneId.systemDefault()).toEpochSecond();
+        return date.atZone(ZoneId.systemDefault()).toInstant().toEpochMilli();
     }
 }

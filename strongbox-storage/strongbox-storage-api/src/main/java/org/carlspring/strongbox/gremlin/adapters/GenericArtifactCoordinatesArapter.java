@@ -90,6 +90,7 @@ public class GenericArtifactCoordinatesArapter extends VertexEntityTraversalAdap
         Map<String, Object> coordinates = (Map<String, Object>) t.get().get("coordinates");
         coordinates.remove("uuid");
         coordinates.remove("version");
+        coordinates.remove("created");
         coordinates.entrySet()
                    .stream()
                    .forEach(e -> result.setCoordinate(e.getKey().replace("coordinates.", ""),

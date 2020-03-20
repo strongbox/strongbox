@@ -2,6 +2,7 @@ package org.carlspring.strongbox.repositories;
 
 import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.util.Date;
 import java.util.List;
 import java.util.Optional;
 
@@ -85,6 +86,12 @@ public class ArtifactRepository extends GremlinVertexRepository<Artifact> implem
                      .get();
     }
 
+    @Override
+    public <R extends Artifact> R save(R entity)
+    {
+        return super.save(entity);
+    }
+
 }
 
 @Repository
@@ -103,14 +110,14 @@ interface ArtifactEntityQueries extends org.springframework.data.repository.Repo
                                   @Param("path") String path);
 
     @Query(value = "MATCH (genericCoordinates:GenericArtifactCoordinates)<-[r1]-(artifact:Artifact) " +
-                   "WHERE artifact.lastUsed >= coalesce($lastAccessedDate, artifact.lastUsed) and artifact.sizeInBytes >=  coalesce($minSizeInBytes, artifact.sizeInBytes)" +
+                   "WHERE artifact.lastUsed <= coalesce($lastAccessedDate, artifact.lastUsed) and artifact.sizeInBytes >=  coalesce($minSizeInBytes, artifact.sizeInBytes) " +
                    "WITH artifact, r1, genericCoordinates " +
                    "MATCH (genericCoordinates)<-[r2]-(layoutCoordinates) " +
                    "WITH artifact, r1, genericCoordinates, r2, layoutCoordinates " +
                    "OPTIONAL MATCH (artifact)<-[r3]-(remoteArtifact) " +
                    "RETURN artifact, r3, remoteArtifact, r1, genericCoordinates, r2, layoutCoordinates", 
            countQuery = "MATCH (artifact:Artifact) " +
-                        "WHERE artifact.lastUsed >= coalesce($lastAccessedDate, artifact.lastUsed) and artifact.sizeInBytes >=  coalesce($minSizeInBytes, artifact.sizeInBytes)" +
+                        "WHERE artifact.lastUsed <= coalesce($lastAccessedDate, artifact.lastUsed) and artifact.sizeInBytes >=  coalesce($minSizeInBytes, artifact.sizeInBytes) " +
                         "RETURN count(artifact)")
     Page<Artifact> findMatching(@Param("lastAccessedDate") LocalDateTime lastAccessedDate,
                                 @Param("minSizeInBytes") Long minSizeInBytes,
