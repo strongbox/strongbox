@@ -88,6 +88,7 @@ public class ArtifactAdapter extends VertexEntityTraversalAdapter<Artifact> impl
                                           "lastUsed",
                                           "created",
                                           "sizeInBytes",
+                                          "downloadCount",
                                           "filenames",
                                           "checksums",
                                           "genericArtifactCoordinates",
@@ -100,6 +101,7 @@ public class ArtifactAdapter extends VertexEntityTraversalAdapter<Artifact> impl
                  .by(__.enrichPropertyValue("lastUsed"))
                  .by(__.enrichPropertyValue("created"))
                  .by(__.enrichPropertyValue("sizeInBytes"))
+                 .by(__.enrichPropertyValue("downloadCount"))
                  .by(__.enrichPropertyValues("filenames"))
                  .by(__.enrichPropertyValues("checksums"))
                  .by(__.outE(Edges.ARTIFACT_HAS_ARTIFACT_COORDINATES)
@@ -137,6 +139,7 @@ public class ArtifactAdapter extends VertexEntityTraversalAdapter<Artifact> impl
         result.setLastUpdated(toLocalDateTime(extractObject(Long.class, t.get().get("lastUpdated"))));
         result.setLastUsed(toLocalDateTime(extractObject(Long.class, t.get().get("lastUsed"))));
         result.setSizeInBytes(extractObject(Long.class, t.get().get("sizeInBytes")));
+        result.setDownloadCount(extractObject(Integer.class, t.get().get("downloadCount")));
         
         result.getArtifactArchiveListing()
               .setFilenames(Optional.ofNullable(extracPropertytList(String.class, t.get().get("filenames")))
@@ -240,6 +243,10 @@ public class ArtifactAdapter extends VertexEntityTraversalAdapter<Artifact> impl
         {
             t = t.property(single, "sizeInBytes", entity.getSizeInBytes());
         }
+        if (entity.getDownloadCount() != null)
+        {
+            t = t.property(single, "downloadCount", entity.getDownloadCount());
+        }        
 
         ArtifactArchiveListing artifactArchiveListing = entity.getArtifactArchiveListing();
         t = t.sideEffect(__.properties("filenames").drop());
