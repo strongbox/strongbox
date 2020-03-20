@@ -103,19 +103,11 @@ public class EntityTraversalUtils
 
     public static LocalDateTime toLocalDateTime(Long value)
     {
-        if (value == null)
-        {
-            return null;
-        }
-        return Instant.ofEpochMilli(value).atZone(ZoneId.systemDefault()).toLocalDateTime();
+        return Commons.toLocalDateTime(value);
     }
 
     public static Long toLong(LocalDateTime date)
     {
-        if (date == null)
-        {
-            return null;
-        }
-        return date.atZone(ZoneId.systemDefault()).toInstant().toEpochMilli();
+        return Commons.toLong(date);
     }
 }
