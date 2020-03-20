@@ -4,12 +4,11 @@ import static org.apache.tinkerpop.gremlin.structure.VertexProperty.Cardinality.
 import static org.apache.tinkerpop.gremlin.structure.VertexProperty.Cardinality.single;
 import static org.carlspring.strongbox.gremlin.adapters.EntityTraversalUtils.extracPropertytList;
 import static org.carlspring.strongbox.gremlin.adapters.EntityTraversalUtils.extractObject;
-import static org.carlspring.strongbox.gremlin.adapters.EntityTraversalUtils.toDate;
 import static org.carlspring.strongbox.gremlin.adapters.EntityTraversalUtils.toLocalDateTime;
+import static org.carlspring.strongbox.gremlin.adapters.EntityTraversalUtils.toLong;
 import static org.carlspring.strongbox.gremlin.dsl.EntityTraversalDsl.NULL;
 
 import java.util.Collections;
-import java.util.Date;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
@@ -88,6 +87,7 @@ public class ArtifactAdapter extends VertexEntityTraversalAdapter<Artifact> impl
                                           "lastUpdated",
                                           "lastUsed",
                                           "created",
+                                          "sizeInBytes",
                                           "filenames",
                                           "checksums",
                                           "genericArtifactCoordinates",
@@ -99,6 +99,7 @@ public class ArtifactAdapter extends VertexEntityTraversalAdapter<Artifact> impl
                  .by(__.enrichPropertyValue("lastUpdated"))
                  .by(__.enrichPropertyValue("lastUsed"))
                  .by(__.enrichPropertyValue("created"))
+                 .by(__.enrichPropertyValue("sizeInBytes"))
                  .by(__.enrichPropertyValues("filenames"))
                  .by(__.enrichPropertyValues("checksums"))
                  .by(__.outE(Edges.ARTIFACT_HAS_ARTIFACT_COORDINATES)
@@ -132,9 +133,10 @@ public class ArtifactAdapter extends VertexEntityTraversalAdapter<Artifact> impl
         ArtifactEntity result = new ArtifactEntity(storageId, repositoryId, artifactCoordinates.getLayoutArtifactCoordinates());
         result.setUuid(extractObject(String.class, t.get().get("uuid")));
 
-        result.setCreated(toLocalDateTime(extractObject(Date.class, t.get().get("created"))));
-        result.setLastUpdated(toLocalDateTime(extractObject(Date.class, t.get().get("lastUpdated"))));
-        result.setLastUsed(toLocalDateTime(extractObject(Date.class, t.get().get("lastUsed"))));
+        result.setCreated(toLocalDateTime(extractObject(Long.class, t.get().get("created"))));
+        result.setLastUpdated(toLocalDateTime(extractObject(Long.class, t.get().get("lastUpdated"))));
+        result.setLastUsed(toLocalDateTime(extractObject(Long.class, t.get().get("lastUsed"))));
+        result.setSizeInBytes(extractObject(Long.class, t.get().get("sizeInBytes")));
         
         result.getArtifactArchiveListing()
               .setFilenames(Optional.ofNullable(extracPropertytList(String.class, t.get().get("filenames")))
@@ -224,15 +226,19 @@ public class ArtifactAdapter extends VertexEntityTraversalAdapter<Artifact> impl
         }
         if (entity.getCreated() != null)
         {
-            t = t.property(single, "created", toDate(entity.getCreated()));
+            t = t.property(single, "created", toLong(entity.getCreated()));
         }
         if (entity.getLastUpdated() != null)
         {
-            t = t.property(single, "lastUpdated", toDate(entity.getLastUpdated()));
+            t = t.property(single, "lastUpdated", toLong(entity.getLastUpdated()));
         }
         if (entity.getLastUsed() != null)
         {
-            t = t.property(single, "lastUsed", toDate(entity.getLastUsed()));
+            t = t.property(single, "lastUsed", toLong(entity.getLastUsed()));
+        }
+        if (entity.getSizeInBytes() != null)
+        {
+            t = t.property(single, "sizeInBytes", entity.getSizeInBytes());
         }
 
         ArtifactArchiveListing artifactArchiveListing = entity.getArtifactArchiveListing();

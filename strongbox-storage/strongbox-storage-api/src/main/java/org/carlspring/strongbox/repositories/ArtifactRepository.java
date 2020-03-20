@@ -1,20 +1,18 @@
 package org.carlspring.strongbox.repositories;
 
-import java.util.LinkedList;
+import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.util.List;
-import java.util.Map;
 import java.util.Optional;
-import java.util.stream.Collectors;
 
 import javax.inject.Inject;
 
-import org.carlspring.strongbox.data.domain.DomainObject;
-import org.carlspring.strongbox.data.service.support.search.PagingCriteria;
 import org.carlspring.strongbox.domain.Artifact;
 import org.carlspring.strongbox.gremlin.adapters.ArtifactHierarchyAdapter;
 import org.carlspring.strongbox.gremlin.adapters.EntityTraversalUtils;
 import org.carlspring.strongbox.gremlin.repositories.GremlinVertexRepository;
-import org.carlspring.strongbox.services.support.ArtifactEntrySearchCriteria;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.data.neo4j.annotation.Query;
 import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
@@ -41,10 +39,21 @@ public class ArtifactRepository extends GremlinVertexRepository<Artifact> implem
         return EntityTraversalUtils.reduceHierarchy(queries.findByPathLike(storageId, repositoryId, path));
     }
 
-    public List<Artifact> findMatching(ArtifactEntrySearchCriteria searchCriteria,
-                                       PagingCriteria pagingCriteria)
+    public Page<Artifact> findMatching(Integer lastAccessedTimeInDays,
+                                       Long minSizeInBytes,
+                                       Pageable pagination)
     {
-        return queries.findMatching(searchCriteria, pagingCriteria);
+        LocalDateTime date = Optional.ofNullable(lastAccessedTimeInDays)
+                                     .map(v -> LocalDateTime.now().minusDays(lastAccessedTimeInDays))
+                                     .orElse(null);
+        return findMatching(date, minSizeInBytes, pagination);
+    }
+
+    public Page<Artifact> findMatching(LocalDateTime lastAccessedDate,
+                                       Long minSizeInBytes,
+                                       Pageable pagination)
+    {
+        return queries.findMatching(lastAccessedDate, minSizeInBytes, pagination);
     }
 
     public Boolean artifactExists(String storageId,
@@ -93,11 +102,19 @@ interface ArtifactEntityQueries extends org.springframework.data.repository.Repo
                                   @Param("repositoryId") String repositoryId,
                                   @Param("path") String path);
 
-    default List<Artifact> findMatching(ArtifactEntrySearchCriteria searchCriteria,
-                                        PagingCriteria pagingCriteria)
-    {
-        return null;
-    }
+    @Query(value = "MATCH (genericCoordinates:GenericArtifactCoordinates)<-[r1]-(artifact:Artifact) " +
+                   "WHERE artifact.lastUsed >= coalesce($lastAccessedDate, artifact.lastUsed) and artifact.sizeInBytes >=  coalesce($minSizeInBytes, artifact.sizeInBytes)" +
+                   "WITH artifact, r1, genericCoordinates " +
+                   "MATCH (genericCoordinates)<-[r2]-(layoutCoordinates) " +
+                   "WITH artifact, r1, genericCoordinates, r2, layoutCoordinates " +
+                   "OPTIONAL MATCH (artifact)<-[r3]-(remoteArtifact) " +
+                   "RETURN artifact, r3, remoteArtifact, r1, genericCoordinates, r2, layoutCoordinates", 
+           countQuery = "MATCH (artifact:Artifact) " +
+                        "WHERE artifact.lastUsed >= coalesce($lastAccessedDate, artifact.lastUsed) and artifact.sizeInBytes >=  coalesce($minSizeInBytes, artifact.sizeInBytes)" +
+                        "RETURN count(artifact)")
+    Page<Artifact> findMatching(@Param("lastAccessedDate") LocalDateTime lastAccessedDate,
+                                @Param("minSizeInBytes") Long minSizeInBytes,
+                                Pageable page);
 
     @Query("MATCH (genericCoordinates:GenericArtifactCoordinates)<-[r1]-(artifact:Artifact) " +
            "WHERE genericCoordinates.uuid=$path and artifact.storageId=$storageId and artifact.repositoryId=$repositoryId " +

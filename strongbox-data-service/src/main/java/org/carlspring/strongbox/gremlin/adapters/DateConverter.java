@@ -1,25 +1,26 @@
 package org.carlspring.strongbox.gremlin.adapters;
 
+import java.time.Instant;
 import java.time.LocalDateTime;
-import java.util.Date;
+import java.time.ZoneId;
 
 import org.neo4j.ogm.typeconversion.AttributeConverter;
 
 /**
  * @author sbespalov
  */
-public class DateConverter implements AttributeConverter<LocalDateTime, LocalDateTime>
+public class DateConverter implements AttributeConverter<LocalDateTime, Long>
 {
 
     @Override
-    public LocalDateTime toGraphProperty(LocalDateTime value)
+    public Long toGraphProperty(LocalDateTime value)
     {
-        return value;
+        return value.atZone(ZoneId.systemDefault()).toEpochSecond();
     }
 
     @Override
-    public LocalDateTime toEntityAttribute(LocalDateTime value)
+    public LocalDateTime toEntityAttribute(Long value)
     {
-        return value;
+        return LocalDateTime.ofInstant(Instant.ofEpochMilli(value), ZoneId.systemDefault());
     }
 }

@@ -1,6 +1,7 @@
 package org.carlspring.strongbox.services.impl;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.carlspring.strongbox.services.support.ArtifactEntrySearchCriteria.Builder.anArtifactEntrySearchCriteria;
 
 import java.text.ParseException;
@@ -27,9 +28,13 @@ import org.junit.jupiter.api.Assumptions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.TestInfo;
+import org.neo4j.ogm.cypher.query.Pagination;
+import org.neo4j.ogm.cypher.query.SortOrder;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Sort;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.TestExecutionListeners;
@@ -45,8 +50,7 @@ import org.springframework.util.CollectionUtils;
 @SpringBootTest
 @ActiveProfiles(profiles = "test")
 @ContextConfiguration(classes = StorageApiTestConfig.class)
-@TestExecutionListeners(listeners = { CacheManagerTestExecutionListener.class },
-                        mergeMode = TestExecutionListeners.MergeMode.MERGE_WITH_DEFAULTS)
+@TestExecutionListeners(listeners = { CacheManagerTestExecutionListener.class }, mergeMode = TestExecutionListeners.MergeMode.MERGE_WITH_DEFAULTS)
 @Transactional
 public class ArtifactEntryServiceTest
 {
@@ -65,7 +69,7 @@ public class ArtifactEntryServiceTest
     private ArtifactRepository artifactEntityRepository;
 
     @Inject
-    private  ArtifactCoordinatesRepository artifactCoordinatesRepository;
+    private ArtifactCoordinatesRepository artifactCoordinatesRepository;
 
     @BeforeEach
     public void setup(TestInfo testInfo)
@@ -123,7 +127,7 @@ public class ArtifactEntryServiceTest
                                                                             ARTIFACT_ID + "1234",
                                                                             "1.2.3",
                                                                             "jar");
-        
+
         Artifact artifactEntry = new ArtifactEntity(STORAGE_ID, REPOSITORY_ID, artifactCoordinates);
         artifactEntry.setStorageId(STORAGE_ID);
         artifactEntry.setRepositoryId(REPOSITORY_ID);
@@ -136,7 +140,8 @@ public class ArtifactEntryServiceTest
         assertThat(artifactEntry.getCreated()).isNotNull();
 
         LocalDateTime creationDate = artifactEntry.getCreated();
-        //Updating artifact entry in order to ensure that creationDate is not updated
+        // Updating artifact entry in order to ensure that creationDate is not
+        // updated
         artifactEntry.setDownloadCount(1);
         artifactEntry = save(artifactEntry);
 
@@ -161,34 +166,36 @@ public class ArtifactEntryServiceTest
         assertThat(artifactEntry.getArtifactCoordinates()).isNotNull();
         assertThat(artifactEntry.getArtifactCoordinates().buildPath()).isEqualTo(jarCoordinates.buildPath());
 
-        //Simple field update
+        // Simple field update
         artifactEntry.setRepositoryId(REPOSITORY_ID + "abc");
-        artifactEntry = save(artifactEntry);
+        assertThatThrownBy(() -> save(artifactEntry)).isInstanceOf(IllegalStateException.class)
+                                                     .hasMessage("Can't change the uuid, [storage0-aestabc-org.carlspring.strongbox.aest.cascadeUpdateShouldWork/coordinates-test123/1.2.3/jar]->[storage0-aest-org.carlspring.strongbox.aest.cascadeUpdateShouldWork/coordinates-test123/1.2.3/jar].");
 
         artifactEntryOptional = Optional.ofNullable(artifactEntityRepository.findOneArtifact(STORAGE_ID,
-                                                                                         REPOSITORY_ID,
-                                                                                         jarCoordinates.buildPath()));
+                                                                                             REPOSITORY_ID,
+                                                                                             jarCoordinates.buildPath()));
         assertThat(artifactEntryOptional).isNotPresent();
 
         artifactEntryOptional = Optional.ofNullable(artifactEntityRepository.findOneArtifact(STORAGE_ID,
-                                                                                         REPOSITORY_ID + "abc",
-                                                                                         jarCoordinates.buildPath()));
+                                                                                             REPOSITORY_ID + "abc",
+                                                                                             jarCoordinates.buildPath()));
         assertThat(artifactEntryOptional).isPresent();
 
-        //Cascade field update
-        RawArtifactCoordinates nullArtifactCoordinates = (RawArtifactCoordinates)artifactEntry.getArtifactCoordinates();
+        // Cascade field update
+        RawArtifactCoordinates nullArtifactCoordinates = (RawArtifactCoordinates) artifactEntry.getArtifactCoordinates();
         nullArtifactCoordinates.setId(pomCoordinates.buildPath());
-        save(artifactEntry);
+        assertThatThrownBy(() -> save(artifactEntry)).isInstanceOf(IllegalStateException.class)
+                                                     .hasMessage("Can't change the uuid, [org.carlspring.strongbox.aest.cascadeUpdateShouldWork/coordinates-test123/1.2.3/jar]->[org.carlspring.strongbox.aest.cascadeUpdateShouldWork/coordinates-test123/1.2.3/pom].");
 
         artifactEntryOptional = Optional.ofNullable(artifactEntityRepository.findOneArtifact(STORAGE_ID,
-                                                                                         REPOSITORY_ID + "abc",
-                                                                                         jarCoordinates.buildPath()));
-        assertThat(artifactEntryOptional).isNotPresent();
-
-        artifactEntryOptional = Optional.ofNullable(artifactEntityRepository.findOneArtifact(STORAGE_ID,
-                                                                                         REPOSITORY_ID + "abc",
-                                                                                         pomCoordinates.buildPath()));
+                                                                                             REPOSITORY_ID + "abc",
+                                                                                             jarCoordinates.buildPath()));
         assertThat(artifactEntryOptional).isPresent();
+
+        artifactEntryOptional = Optional.ofNullable(artifactEntityRepository.findOneArtifact(STORAGE_ID,
+                                                                                             REPOSITORY_ID + "abc",
+                                                                                             pomCoordinates.buildPath()));
+        assertThat(artifactEntryOptional).isNotPresent();
     }
 
     private Artifact save(Artifact artifactEntry)
@@ -204,14 +211,13 @@ public class ArtifactEntryServiceTest
         int all = count(groupId);
         updateArtifactAttributes(groupId);
 
-        List<Artifact> entries = artifactEntityRepository.findMatching(anArtifactEntrySearchCriteria().withMinSizeInBytes(500L)
-                                                                                                      .build(),
-                                                                       PagingCriteria.ALL)
+        List<Artifact> entries = artifactEntityRepository.findMatching((Integer)null,
+                                                                       500L,
+                                                                       PageRequest.of(0, Integer.MAX_VALUE))
                                                          .stream()
                                                          .filter(e -> e.getArtifactCoordinates()
                                                                        .getId()
-                                                                       .startsWith(
-                                                                                   groupId))
+                                                                       .startsWith(groupId))
                                                          .collect(Collectors.toList());
 
         entries.forEach(entry -> logger.debug("Found artifact after search: [{}] - {}",
@@ -229,14 +235,12 @@ public class ArtifactEntryServiceTest
         int all = count(groupId);
         updateArtifactAttributes(groupId);
 
-        List<Artifact> entries = artifactEntityRepository.findMatching(anArtifactEntrySearchCriteria().withLastAccessedTimeInDays(5)
-                                                                                                      .build(),
-                                                                       PagingCriteria.ALL)
+        List<Artifact> entries = artifactEntityRepository.findMatching(5, null,
+                                                                       PageRequest.of(0, Integer.MAX_VALUE, Sort.by("'uuid'")))
                                                          .stream()
                                                          .filter(e -> e.getArtifactCoordinates()
                                                                        .getId()
-                                                                       .startsWith(
-                                                                                   groupId))
+                                                                       .startsWith(groupId))
                                                          .collect(Collectors.toList());
 
         entries.forEach(entry -> logger.debug("Found artifact after search: [{}] - {}",
@@ -286,10 +290,8 @@ public class ArtifactEntryServiceTest
         int all = count(groupId);
         updateArtifactAttributes(groupId);
 
-        List<Artifact> entries = artifactEntityRepository.findMatching(anArtifactEntrySearchCriteria().withMinSizeInBytes(500L)
-                                                                                                      .withLastAccessedTimeInDays(5)
-                                                                                                      .build(),
-                                                                       PagingCriteria.ALL)
+        List<Artifact> entries = artifactEntityRepository.findMatching(5, 500L,
+                                                                       PageRequest.of(0, Integer.MAX_VALUE))
                                                          .stream()
                                                          .filter(e -> e.getArtifactCoordinates()
                                                                        .getId()
@@ -321,12 +323,12 @@ public class ArtifactEntryServiceTest
         assertThat(artifactEntries).isNotEmpty();
         assertThat(artifactEntries).hasSize(2);
 
-        artifactEntries.forEach(artifactEntry ->
-                                {
-                                    logger.debug("Found artifact {}", artifactEntry);
-                                    assertThat(((RawArtifactCoordinates)artifactEntry.getArtifactCoordinates())
-                                                       .getPath().startsWith(groupId + "/")).isTrue();
-                                });
+        artifactEntries.forEach(artifactEntry -> {
+            logger.debug("Found artifact {}", artifactEntry);
+            assertThat(((RawArtifactCoordinates) artifactEntry.getArtifactCoordinates())
+                                                                                        .getPath()
+                                                                                        .startsWith(groupId + "/")).isTrue();
+        });
     }
 
     @Test
@@ -361,7 +363,7 @@ public class ArtifactEntryServiceTest
 
     @Test
     public void saveEntityCreatedLastUsedLastUpdatedPropertiesShouldRetainTime(TestInfo testInfo)
-            throws ParseException
+        throws ParseException
     {
         final String groupId = getGroupId(GROUP_ID, testInfo);
 
@@ -399,7 +401,7 @@ public class ArtifactEntryServiceTest
     private ArtifactEntity createArtifactEntry(String groupId)
     {
         ArtifactCoordinates artifactCoordinates = createArtifactCoordinates(groupId, ARTIFACT_ID + "1234", "1.2.3", "jar");
-        
+
         final ArtifactEntity artifactEntry = new ArtifactEntity(STORAGE_ID, REPOSITORY_ID, artifactCoordinates);
         artifactEntry.setStorageId(STORAGE_ID);
         artifactEntry.setRepositoryId(REPOSITORY_ID);
@@ -428,7 +430,8 @@ public class ArtifactEntryServiceTest
                                  String storageId,
                                  String repositoryId)
     {
-        // create 3 artifacts, one will have coordinates that matches our query, one - not
+        // create 3 artifacts, one will have coordinates that matches our query,
+        // one - not
         ArtifactCoordinates coordinates1 = createArtifactCoordinates(groupId, artifactId + "123", "1.2.3", "jar");
         ArtifactCoordinates coordinates2 = createArtifactCoordinates(groupId, artifactId, "1.2.3", "jar");
         ArtifactCoordinates coordinates3 = createArtifactCoordinates(groupId + "myId", artifactId + "321", "1.2.3",

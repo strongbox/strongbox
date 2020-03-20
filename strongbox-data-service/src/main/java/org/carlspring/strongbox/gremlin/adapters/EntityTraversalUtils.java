@@ -2,7 +2,9 @@ package org.carlspring.strongbox.gremlin.adapters;
 
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
+import java.time.Instant;
 import java.time.LocalDateTime;
+import java.time.ZoneId;
 import java.util.Date;
 import java.util.LinkedList;
 import java.util.List;
@@ -99,4 +101,21 @@ public class EntityTraversalUtils
         return Commons.toDate(date);
     }
 
+    public static LocalDateTime toLocalDateTime(Long value)
+    {
+        if (value == null)
+        {
+            return null;
+        }
+        return Instant.ofEpochMilli(value).atZone(ZoneId.systemDefault()).toLocalDateTime();
+    }
+
+    public static Long toLong(LocalDateTime date)
+    {
+        if (date == null)
+        {
+            return null;
+        }
+        return date.atZone(ZoneId.systemDefault()).toEpochSecond();
+    }
 }
