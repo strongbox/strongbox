@@ -1,11 +1,11 @@
 package org.carlspring.strongbox.client;
 
+import static org.assertj.core.api.Assertions.assertThat;
+
 import org.carlspring.strongbox.config.ClientConfig;
 import org.carlspring.strongbox.service.ProxyRepositoryConnectionPoolConfigurationService;
 
 import javax.inject.Inject;
-
-import java.net.MalformedURLException;
 
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -16,7 +16,6 @@ import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Import;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.ContextConfiguration;
-import static org.assertj.core.api.Assertions.assertThat;
 
 /**
  * @author korest
@@ -45,7 +44,6 @@ public class ArtifactResolverIT
 
     @BeforeEach
     public void setUp()
-        throws MalformedURLException
     {
         artifactResolver = new RestArtifactResolver(proxyRepositoryConnectionPoolConfigurationService.getRestClient(),
                                                     repositoryUrl,

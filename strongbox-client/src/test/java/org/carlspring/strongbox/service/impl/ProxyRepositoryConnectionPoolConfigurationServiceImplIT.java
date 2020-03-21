@@ -1,5 +1,7 @@
 package org.carlspring.strongbox.service.impl;
 
+import static org.assertj.core.api.Assertions.assertThat;
+
 import org.carlspring.strongbox.config.ClientConfig;
 import org.carlspring.strongbox.service.ProxyRepositoryConnectionPoolConfigurationService;
 
@@ -7,15 +9,12 @@ import javax.inject.Inject;
 import javax.ws.rs.client.Client;
 import javax.ws.rs.core.Response;
 
-import java.net.MalformedURLException;
-
 import org.junit.jupiter.api.Test;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Import;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.ContextConfiguration;
-import static org.assertj.core.api.Assertions.assertThat;
 
 /**
  * @author korest
@@ -60,7 +59,6 @@ public class ProxyRepositoryConnectionPoolConfigurationServiceImplIT
     // integration test, external call to repo
     @Test
     public void connectionsReleasedTest()
-        throws MalformedURLException
     {
         String repositoryUrl = "http://repo.spring.io/snapshot";
         for (int i = 0; i < 3; i++)
@@ -78,7 +76,6 @@ public class ProxyRepositoryConnectionPoolConfigurationServiceImplIT
     // integration test, external call to repo
     @Test
     public void connectionsLeakedTest()
-        throws MalformedURLException
     {
         String repositoryUrl = "http://repo.spring.io/snapshot";
         proxyRepositoryConnectionPoolConfigurationService.setMaxPerRepository(repositoryUrl, 3);

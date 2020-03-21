@@ -9,7 +9,6 @@ import org.carlspring.strongbox.storage.repository.remote.heartbeat.RemoteReposi
 
 import javax.inject.Inject;
 
-import java.net.MalformedURLException;
 import java.util.Objects;
 
 import org.glassfish.jersey.client.authentication.HttpAuthenticationFeature;
@@ -32,7 +31,6 @@ public class RestArtifactResolverFactory
     private RemoteRepositoryAlivenessService remoteRepositoryAlivenessCacheManager;
 
     public RestArtifactResolver newInstance(RemoteRepository repository)
-        throws MalformedURLException
     {
         Objects.requireNonNull(repository);
 
