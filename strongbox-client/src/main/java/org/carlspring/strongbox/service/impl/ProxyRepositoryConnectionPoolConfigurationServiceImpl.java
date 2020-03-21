@@ -90,8 +90,8 @@ public class ProxyRepositoryConnectionPoolConfigurationServiceImpl
         config.property(ApacheClientProperties.CONNECTION_MANAGER_SHARED, true);
 
         if (proxyConfiguration != null
-                && (CollectionUtils.isEmpty(proxyConfiguration.getNonProxyHosts()))
-                || !proxyConfiguration.getNonProxyHosts().contains(proxyConfiguration.getHost()))
+                && (CollectionUtils.isEmpty(proxyConfiguration.getNonProxyHosts())
+                    || !proxyConfiguration.getNonProxyHosts().contains(proxyConfiguration.getHost())))
         {
             if (Proxy.Type.HTTP.name().equalsIgnoreCase(proxyConfiguration.getType()))
             {
@@ -145,8 +145,8 @@ public class ProxyRepositoryConnectionPoolConfigurationServiceImpl
         CredentialsProvider credentialsProvider = null;
 
         if (proxyConfiguration != null
-                && (CollectionUtils.isEmpty(proxyConfiguration.getNonProxyHosts()))
-                || !proxyConfiguration.getNonProxyHosts().contains(proxyConfiguration.getHost()))
+                && (CollectionUtils.isEmpty(proxyConfiguration.getNonProxyHosts())
+                    || !proxyConfiguration.getNonProxyHosts().contains(proxyConfiguration.getHost())))
         {
             if (Proxy.Type.HTTP.name().equalsIgnoreCase(proxyConfiguration.getType()))
             {
