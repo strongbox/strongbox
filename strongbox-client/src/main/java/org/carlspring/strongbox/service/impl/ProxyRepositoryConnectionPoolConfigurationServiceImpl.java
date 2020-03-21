@@ -90,24 +90,29 @@ public class ProxyRepositoryConnectionPoolConfigurationServiceImpl
         config.property(ApacheClientProperties.CONNECTION_MANAGER_SHARED, true);
 
         if (proxyConfiguration != null
-                && !Proxy.Type.DIRECT.name().equalsIgnoreCase(proxyConfiguration.getType())
-                && Proxy.Type.HTTP.name().equalsIgnoreCase(proxyConfiguration.getType())
                 && (CollectionUtils.isEmpty(proxyConfiguration.getNonProxyHosts()))
-                    || !proxyConfiguration.getNonProxyHosts().contains(proxyConfiguration.getHost()))
+                || !proxyConfiguration.getNonProxyHosts().contains(proxyConfiguration.getHost()))
         {
-            HttpHost proxy = new HttpHost(proxyConfiguration.getHost(), proxyConfiguration.getPort());
-            config.property(ClientProperties.PROXY_URI, proxy.toURI());
-
-            if (!StringUtils.isEmpty(proxyConfiguration.getUsername())
-                    && !StringUtils.isEmpty(proxyConfiguration.getPassword()))
+            if (Proxy.Type.HTTP.name().equalsIgnoreCase(proxyConfiguration.getType()))
             {
-                config.property(ClientProperties.PROXY_USERNAME, proxyConfiguration.getUsername());
-                config.property(ClientProperties.PROXY_PASSWORD, proxyConfiguration.getPassword());
+                HttpHost proxy = new HttpHost(proxyConfiguration.getHost(), proxyConfiguration.getPort());
+                config.property(ClientProperties.PROXY_URI, proxy.toURI());
+
+                if (!StringUtils.isEmpty(proxyConfiguration.getUsername())
+                        && !StringUtils.isEmpty(proxyConfiguration.getPassword()))
+                {
+                    config.property(ClientProperties.PROXY_USERNAME, proxyConfiguration.getUsername());
+                    config.property(ClientProperties.PROXY_PASSWORD, proxyConfiguration.getPassword());
+                }
             }
-        }
-        else if (proxyConfiguration != null && Proxy.Type.DIRECT.name().equalsIgnoreCase(proxyConfiguration.getType()))
-        {
-            logger.info("Proxy Type is DIRECT ,so not using proxy configurations in RestClient.");
+            else if (Proxy.Type.SOCKS.name().equalsIgnoreCase(proxyConfiguration.getType()))
+            {
+              //TODO :: Implement SOCKS proxy
+            }
+            else if (Proxy.Type.DIRECT.name().equalsIgnoreCase(proxyConfiguration.getType()))
+            {
+                logger.info("Proxy Type is DIRECT ,so not using proxy configurations in RestClient.");
+            }
         }
         else
         {
@@ -138,28 +143,34 @@ public class ProxyRepositoryConnectionPoolConfigurationServiceImpl
     {
         DefaultProxyRoutePlanner routePlanner = null;
         CredentialsProvider credentialsProvider = null;
-        
-        if (proxyConfiguration != null
-                && !Proxy.Type.DIRECT.name().equalsIgnoreCase(proxyConfiguration.getType())
-                && Proxy.Type.HTTP.name().equalsIgnoreCase(proxyConfiguration.getType())
-                && (CollectionUtils.isEmpty(proxyConfiguration.getNonProxyHosts()))
-                    || !proxyConfiguration.getNonProxyHosts().contains(proxyConfiguration.getHost()))
-        {
-            HttpHost proxy = new HttpHost(proxyConfiguration.getHost(), proxyConfiguration.getPort());
-            routePlanner = new DefaultProxyRoutePlanner(proxy);
 
-            if (!StringUtils.isEmpty(proxyConfiguration.getUsername())
-                    && !StringUtils.isEmpty(proxyConfiguration.getPassword()))
-            {
-                credentialsProvider = new BasicCredentialsProvider();
-                credentialsProvider.setCredentials(new AuthScope(proxy),
-                                                   new UsernamePasswordCredentials(proxyConfiguration.getUsername(),
-                                                                                   proxyConfiguration.getPassword()));
-            }
-        }
-        else if (proxyConfiguration != null && Proxy.Type.DIRECT.name().equalsIgnoreCase(proxyConfiguration.getType()))
+        if (proxyConfiguration != null
+                && (CollectionUtils.isEmpty(proxyConfiguration.getNonProxyHosts()))
+                || !proxyConfiguration.getNonProxyHosts().contains(proxyConfiguration.getHost()))
         {
-            logger.info("Proxy Type is DIRECT, so not using proxy configurations in HttpClient..");
+            if (Proxy.Type.HTTP.name().equalsIgnoreCase(proxyConfiguration.getType()))
+            {
+                HttpHost proxy = new HttpHost(proxyConfiguration.getHost(), proxyConfiguration.getPort());
+                routePlanner = new DefaultProxyRoutePlanner(proxy);
+
+                if (!StringUtils.isEmpty(proxyConfiguration.getUsername())
+                        && !StringUtils.isEmpty(proxyConfiguration.getPassword()))
+                {
+                    credentialsProvider = new BasicCredentialsProvider();
+                    credentialsProvider.setCredentials(new AuthScope(proxy),
+                                                       new UsernamePasswordCredentials(proxyConfiguration.getUsername(),
+                                                                                       proxyConfiguration.getPassword()));
+                }
+            }
+            else if (Proxy.Type.SOCKS.name().equalsIgnoreCase(proxyConfiguration.getType()))
+            {
+                //TODO :: Implement SOCKS proxy
+            }
+            else if (Proxy.Type.DIRECT.name().equalsIgnoreCase(proxyConfiguration.getType()))
+            {
+                logger.info("Proxy Type is DIRECT, so not using proxy configurations in HttpClient..");
+            }
+
         }
         else
         {
