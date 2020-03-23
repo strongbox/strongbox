@@ -7,8 +7,9 @@ import java.util.Set;
 import org.carlspring.strongbox.artifact.ArtifactTag;
 import org.carlspring.strongbox.artifact.coordinates.ArtifactCoordinates;
 import org.carlspring.strongbox.data.domain.DomainObject;
+import org.carlspring.strongbox.gremlin.adapters.EntityHierarchyNode;
 
-public interface Artifact extends DomainObject
+public interface Artifact extends DomainObject, EntityHierarchyNode<Artifact>
 {
 
     String getStorageId();
@@ -26,7 +27,7 @@ public interface Artifact extends DomainObject
     Set<ArtifactTag> getTagSet();
 
     Map<String, String> getChecksums();
-    
+
     void setChecksums(Map<String, String> digestMap);
 
     Long getSizeInBytes();

@@ -1,15 +1,24 @@
 package org.carlspring.strongbox.domain;
 
+import java.util.Collections;
+import java.util.HashSet;
+import java.util.List;
 import java.util.Set;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 import org.carlspring.strongbox.data.domain.DomainEntity;
 import org.carlspring.strongbox.db.schema.Edges;
 import org.carlspring.strongbox.db.schema.Vertices;
+import org.carlspring.strongbox.gremlin.adapters.EntityTraversalUtils;
 import org.neo4j.ogm.annotation.NodeEntity;
 import org.neo4j.ogm.annotation.Relationship;
 
+import static org.carlspring.strongbox.gremlin.adapters.EntityTraversalUtils.reduceHierarchy;
+
 /**
  * @author Przemyslaw Fusik
+ * @author sbespalov
  */
 @NodeEntity(Vertices.ARTIFACT_ID_GROUP)
 public class ArtifactIdGroupEntity extends DomainEntity implements ArtifactIdGroup
@@ -17,33 +26,22 @@ public class ArtifactIdGroupEntity extends DomainEntity implements ArtifactIdGro
 
     private String storageId;
     private String repositoryId;
-    @Relationship(type = Edges.REPOSITORY_ARTIFACT_ID_GROUP_INHERIT_ARTIFACT_GROUP, direction = Relationship.OUTGOING)
-    private final ArtifactGroupEntity artifactGroup;
+    private String name;
+    @Relationship(type = Edges.ARTIFACT_GROUP_HAS_ARTIFACTS, direction = Relationship.OUTGOING)
+    private final Set<Artifact> artifacts = new HashSet<>();
 
-    public ArtifactIdGroupEntity()
+    ArtifactIdGroupEntity()
     {
-        this(new ArtifactGroupEntity());
     }
 
-    public ArtifactIdGroupEntity(ArtifactGroupEntity artifactGroup)
+    public ArtifactIdGroupEntity(String storageId,
+                                 String repositoryId,
+                                 String name)
     {
-        this.artifactGroup = artifactGroup;
-    }
-
-    public void setUuid(String uuid)
-    {
-        super.setUuid(uuid);
-        artifactGroup.setUuid(uuid);
-    }
-
-    public String getRepositoryId()
-    {
-        return repositoryId;
-    }
-
-    public void setRepositoryId(String repositoryId)
-    {
+        setUuid(String.format("%s-%s-%s", storageId, repositoryId, name));
+        this.storageId = storageId;
         this.repositoryId = repositoryId;
+        this.name = name;
     }
 
     public String getStorageId()
@@ -51,29 +49,26 @@ public class ArtifactIdGroupEntity extends DomainEntity implements ArtifactIdGro
         return storageId;
     }
 
-    public void setStorageId(String storageId)
+    public String getRepositoryId()
     {
-        this.storageId = storageId;
+        return repositoryId;
     }
 
-    public boolean equals(Object obj)
+    public String getName()
     {
-        return artifactGroup.equals(obj);
+        return name;
     }
 
+    @Override
     public Set<Artifact> getArtifacts()
     {
-        return artifactGroup.getArtifacts();
-    }
-
-    public ArtifactEntity putArtifactEntry(ArtifactEntity artifactEntry)
-    {
-        return artifactGroup.putArtifactEntry(artifactEntry);
-    }
-
-    public void setName(String artifactId)
-    {
-        setUuid(artifactId);
+        List<Artifact> result = reduceHierarchy(artifacts.stream()
+                                                         .flatMap(a -> a.getHierarchyChild() == null
+                                                                 ? Stream.of(a)
+                                                                 : Stream.of(a,
+                                                                             a.getHierarchyChild()))
+                                                         .collect(Collectors.toList()));
+        return Collections.unmodifiableSet(new HashSet<>(result));
     }
 
 }

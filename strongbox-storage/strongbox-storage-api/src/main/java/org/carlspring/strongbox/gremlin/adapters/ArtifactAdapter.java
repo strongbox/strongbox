@@ -156,7 +156,7 @@ public class ArtifactAdapter extends VertexEntityTraversalAdapter<Artifact> impl
         Artifact artifactHierarchyChild = extractObject(Artifact.class,
                                                         t.get()
                                                          .get("artifactHierarchyChild"));
-        result.setArtifactHierarchyChild(artifactHierarchyChild);
+        result.setHierarchyChild(artifactHierarchyChild);
         // artifactCoordinates.setGenericArtifactCoordinates(result);
 
         return result;

@@ -32,19 +32,13 @@ class RepositoryArtifactIdGroupServiceImplTest
     @Test
     public void repositoryArtifactIdGroupShouldBeProtectedByIndex()
     {
-        ArtifactIdGroupEntity g1 = new ArtifactIdGroupEntity();
-        g1.setName("a1");
-        g1.setRepositoryId("r1");
-        g1.setStorageId("s1");
+        ArtifactIdGroupEntity g1 = new ArtifactIdGroupEntity("r1", "s1", "a1");
         System.out.println(artifactIdGroupRepository.save(g1).getUuid());
 
-        assertThatExceptionOfType(SchemaViolationException.class)
-                .isThrownBy(() -> {
-                    ArtifactIdGroupEntity g2 = new ArtifactIdGroupEntity();
-                    g2.setName("a1");
-                    g2.setRepositoryId("r1");
-                    g2.setStorageId("s1");
-                    System.out.println(artifactIdGroupRepository.save(g2).getUuid());
+        assertThatExceptionOfType(SchemaViolationException.class).isThrownBy(() -> {
+            ArtifactIdGroupEntity g2 = new ArtifactIdGroupEntity("r1", "s1",
+                    "a1");
+            System.out.println(artifactIdGroupRepository.save(g2).getUuid());
         });
     }
 }

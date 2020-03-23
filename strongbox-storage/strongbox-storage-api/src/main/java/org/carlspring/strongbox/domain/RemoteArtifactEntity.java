@@ -1,7 +1,6 @@
 package org.carlspring.strongbox.domain;
 
 import java.time.LocalDateTime;
-import java.util.Date;
 import java.util.Map;
 import java.util.Set;
 
@@ -38,11 +37,23 @@ public class RemoteArtifactEntity extends DomainEntity implements RemoteArtifact
     public RemoteArtifactEntity(ArtifactEntity artifactEntity)
     {
         this.artifact = artifactEntity;
-        artifactEntity.setArtifactHierarchyChild(this);
+        artifactEntity.setHierarchyChild(this);
         if (getArtifactCoordinates() != null)
         {
             setUuid(String.format("%s-%s-%s", getStorageId(), getRepositoryId(), getArtifactCoordinates().buildPath()));
         }
+    }
+    
+    @Override
+    public Artifact getHierarchyChild()
+    {
+        return null;
+    }
+
+    @Override
+    public Artifact getHierarchyParent()
+    {
+        return artifact;
     }
 
     public void setUuid(String uuid)

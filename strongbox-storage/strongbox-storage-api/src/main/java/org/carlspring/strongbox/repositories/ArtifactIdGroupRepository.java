@@ -4,10 +4,9 @@ import java.util.List;
 
 import javax.inject.Inject;
 
-import org.apache.tinkerpop.gremlin.structure.Vertex;
 import org.carlspring.strongbox.data.service.support.search.PagingCriteria;
 import org.carlspring.strongbox.domain.ArtifactIdGroup;
-import org.carlspring.strongbox.gremlin.adapters.EntityTraversalAdapter;
+import org.carlspring.strongbox.gremlin.adapters.ArtifactIdGroupAdapter;
 import org.carlspring.strongbox.gremlin.repositories.GremlinVertexRepository;
 import org.springframework.stereotype.Repository;
 
@@ -17,12 +16,14 @@ public class ArtifactIdGroupRepository extends GremlinVertexRepository<ArtifactI
 {
 
     @Inject
+    ArtifactIdGroupAdapter adapter;
+    @Inject
     ArtifactIdGroupQueries queries;
 
     @Override
-    protected EntityTraversalAdapter<Vertex, ArtifactIdGroup> adapter()
+    protected ArtifactIdGroupAdapter adapter()
     {
-        return null;
+        return adapter;
     }
 
     public long count(String storageId,
@@ -72,7 +73,9 @@ interface ArtifactIdGroupQueries
         return null;
     }
 
-    //@Query("MATCH (aig:`ArtifactIdGroup`) WHERE aig.storageId=$storageId and aig.storageId=$repositoryId and aig.storageId=$artifactId RETURN ae, aeac, ac")
+    // @Query("MATCH (aig:`ArtifactIdGroup`) WHERE aig.storageId=$storageId and
+    // aig.storageId=$repositoryId and aig.storageId=$artifactId RETURN ae,
+    // aeac, ac")
     default ArtifactIdGroup findOneOrCreate(String storageId,
                                             String repositoryId,
                                             String artifactId)

@@ -137,12 +137,7 @@ public class ArtifactIdGroupServiceImpl
                                      String repositoryId,
                                      String artifactId)
     {
-        ArtifactIdGroupEntity result = new ArtifactIdGroupEntity();
-        result.setStorageId(storageId);
-        result.setRepositoryId(repositoryId);
-        result.setName(artifactId);
-
-        return result;
+        return new ArtifactIdGroupEntity(storageId, repositoryId, artifactId);
     }
 
 }

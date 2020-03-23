@@ -13,6 +13,7 @@ import org.carlspring.strongbox.gremlin.adapters.ArtifactHierarchyAdapter;
 import org.carlspring.strongbox.gremlin.adapters.EntityTraversalUtils;
 import org.carlspring.strongbox.gremlin.repositories.GremlinVertexRepository;
 import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.neo4j.annotation.Query;
 import org.springframework.data.repository.query.Param;
@@ -54,7 +55,9 @@ public class ArtifactRepository extends GremlinVertexRepository<Artifact> implem
                                        Long minSizeInBytes,
                                        Pageable pagination)
     {
-        return queries.findMatching(lastAccessedDate, minSizeInBytes, pagination);
+        Page<Artifact> result = queries.findMatching(lastAccessedDate, minSizeInBytes, pagination);
+
+        return new PageImpl<>(EntityTraversalUtils.reduceHierarchy(result.toList()), pagination, result.getTotalElements());
     }
 
     public Boolean artifactExists(String storageId,
@@ -115,10 +118,9 @@ interface ArtifactEntityQueries extends org.springframework.data.repository.Repo
                    "MATCH (genericCoordinates)<-[r2]-(layoutCoordinates) " +
                    "WITH artifact, r1, genericCoordinates, r2, layoutCoordinates " +
                    "OPTIONAL MATCH (artifact)<-[r3]-(remoteArtifact) " +
-                   "RETURN artifact, r3, remoteArtifact, r1, genericCoordinates, r2, layoutCoordinates", 
-           countQuery = "MATCH (artifact:Artifact) " +
-                        "WHERE artifact.lastUsed <= coalesce($lastAccessedDate, artifact.lastUsed) and artifact.sizeInBytes >=  coalesce($minSizeInBytes, artifact.sizeInBytes) " +
-                        "RETURN count(artifact)")
+                   "RETURN artifact, r3, remoteArtifact, r1, genericCoordinates, r2, layoutCoordinates", countQuery = "MATCH (artifact:Artifact) " +
+                                                                                                                      "WHERE artifact.lastUsed <= coalesce($lastAccessedDate, artifact.lastUsed) and artifact.sizeInBytes >=  coalesce($minSizeInBytes, artifact.sizeInBytes) " +
+                                                                                                                      "RETURN count(artifact)")
     Page<Artifact> findMatching(@Param("lastAccessedDate") LocalDateTime lastAccessedDate,
                                 @Param("minSizeInBytes") Long minSizeInBytes,
                                 Pageable page);

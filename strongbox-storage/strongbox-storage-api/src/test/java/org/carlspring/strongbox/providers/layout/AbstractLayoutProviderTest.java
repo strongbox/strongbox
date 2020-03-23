@@ -18,7 +18,7 @@ import org.carlspring.strongbox.StorageApiTestConfig;
 import org.carlspring.strongbox.artifact.coordinates.ArtifactCoordinates;
 import org.carlspring.strongbox.booters.PropertiesBooter;
 import org.carlspring.strongbox.data.CacheManagerTestExecutionListener;
-import org.carlspring.strongbox.domain.ArtifactGroupEntity;
+import org.carlspring.strongbox.domain.ArtifactGroup;
 import org.carlspring.strongbox.domain.ArtifactIdGroup;
 import org.carlspring.strongbox.domain.ArtifactIdGroupEntity;
 import org.carlspring.strongbox.providers.io.LayoutFileSystem;
@@ -116,7 +116,7 @@ class AbstractLayoutProviderTest
                                                                                           .resolve("1.8")
                                                                                           .resolve("abs-lay-prov-test-1.8.jar");
 
-        Set<ArtifactGroupEntity> artifactGroups = layoutProvider.getArtifactGroups(path);
+        Set<ArtifactGroup> artifactGroups = layoutProvider.getArtifactGroups(path);
         assertThat(artifactGroups).isNotNull();
         assertThat(artifactGroups).isEmpty();
 

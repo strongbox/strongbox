@@ -18,6 +18,7 @@ import org.carlspring.strongbox.data.domain.DomainEntity;
 import org.carlspring.strongbox.db.schema.Edges;
 import org.carlspring.strongbox.db.schema.Vertices;
 import org.carlspring.strongbox.gremlin.adapters.DateConverter;
+import org.carlspring.strongbox.gremlin.adapters.EntityHierarchyNode;
 import org.neo4j.ogm.annotation.NodeEntity;
 import org.neo4j.ogm.annotation.Relationship;
 import org.neo4j.ogm.annotation.typeconversion.Convert;
@@ -235,14 +236,21 @@ public class ArtifactEntity
                        .orElseThrow(() -> new IllegalStateException("ArtifactCoordinates required to be set."));
     }
 
-    public Artifact getArtifactHierarchyChild()
+    public void setHierarchyChild(Artifact artifactHierarchyChild)
+    {
+        this.artifactHierarchyChild = artifactHierarchyChild;
+    }
+    
+    @Override
+    public Artifact getHierarchyChild()
     {
         return artifactHierarchyChild;
     }
 
-    public void setArtifactHierarchyChild(Artifact artifactHierarchyChild)
+    @Override
+    public Artifact getHierarchyParent()
     {
-        this.artifactHierarchyChild = artifactHierarchyChild;
+        return null;
     }
 
     public class ArtifactEntityArchiveListing implements ArtifactArchiveListing

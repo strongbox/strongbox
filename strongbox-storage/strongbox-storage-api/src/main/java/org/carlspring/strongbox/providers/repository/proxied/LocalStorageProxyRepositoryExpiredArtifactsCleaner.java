@@ -1,7 +1,5 @@
 package org.carlspring.strongbox.providers.repository.proxied;
 
-import static org.carlspring.strongbox.services.support.ArtifactEntrySearchCriteria.Builder.anArtifactEntrySearchCriteria;
-
 import java.io.IOException;
 import java.util.Iterator;
 import java.util.List;
@@ -10,19 +8,19 @@ import javax.inject.Inject;
 
 import org.apache.commons.collections4.CollectionUtils;
 import org.carlspring.strongbox.configuration.ConfigurationManager;
-import org.carlspring.strongbox.data.service.support.search.PagingCriteria;
 import org.carlspring.strongbox.domain.Artifact;
 import org.carlspring.strongbox.providers.io.RepositoryPath;
 import org.carlspring.strongbox.providers.io.RepositoryPathResolver;
 import org.carlspring.strongbox.repositories.ArtifactRepository;
 import org.carlspring.strongbox.services.ArtifactManagementService;
-import org.carlspring.strongbox.services.support.ArtifactEntrySearchCriteria;
 import org.carlspring.strongbox.storage.Storage;
 import org.carlspring.strongbox.storage.repository.Repository;
 import org.carlspring.strongbox.storage.repository.remote.RemoteRepository;
 import org.carlspring.strongbox.storage.repository.remote.heartbeat.RemoteRepositoryAlivenessService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -55,22 +53,16 @@ public class LocalStorageProxyRepositoryExpiredArtifactsCleaner
                         final Long minSizeInBytes)
             throws IOException
     {
-        final ArtifactEntrySearchCriteria searchCriteria = anArtifactEntrySearchCriteria()
-                                                                   .withLastAccessedTimeInDays(lastAccessedTimeInDays)
-                                                                   .withMinSizeInBytes(minSizeInBytes)
-                                                                   .build();
-
-        final List<Artifact> artifactEntries = artifactEntityRepository.findMatching(searchCriteria,
-                                                                                           PagingCriteria.ALL);
-        filterAccessibleProxiedArtifacts(artifactEntries);
-
-        if (CollectionUtils.isEmpty(artifactEntries))
+        final Page<Artifact> artifactEntries = artifactEntityRepository.findMatching(lastAccessedTimeInDays, minSizeInBytes,
+                                                                                     PageRequest.of(0, Integer.MAX_VALUE));
+        filterAccessibleProxiedArtifacts(artifactEntries.toList());
+        if (artifactEntries.isEmpty())
         {
             return;
         }
 
         logger.debug("Cleaning artifacts {}", artifactEntries);
-        deleteFromStorage(artifactEntries);
+        deleteFromStorage(artifactEntries.toList());
     }
 
     private void filterAccessibleProxiedArtifacts(final List<Artifact> artifactEntries)
