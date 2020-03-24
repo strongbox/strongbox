@@ -70,6 +70,11 @@ public class RepositoryPath
         return fileSystem;
     }
 
+    public Storage getStorage()
+    {
+        return getRepository().getStorage();
+    }
+
     public Repository getRepository()
     {
         return getFileSystem().getRepository();
