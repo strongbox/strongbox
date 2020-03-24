@@ -2,7 +2,7 @@ configuration:
   instanceName: strongbox
   version: ${project.version}
   revision: ${strongbox.revision}
-  baseUrl: http://localhost:48080/
+  baseUrl: ~
   port: 48080
   sessionConfiguration:
     timeoutSeconds: 3600
