@@ -1,5 +1,6 @@
 server:
   port: 48080
+  forward-headers-strategy: framework
 spring:
   liquibase:
     enabled: false
