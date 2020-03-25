@@ -9,14 +9,11 @@ import java.util.Set;
 
 import javax.inject.Inject;
 
-import org.apache.tinkerpop.gremlin.process.traversal.Traversal;
 import org.apache.tinkerpop.gremlin.process.traversal.Traverser;
-import org.apache.tinkerpop.gremlin.structure.Edge;
 import org.apache.tinkerpop.gremlin.structure.Element;
 import org.apache.tinkerpop.gremlin.structure.Vertex;
 import org.carlspring.strongbox.db.schema.Edges;
 import org.carlspring.strongbox.db.schema.Vertices;
-import org.carlspring.strongbox.domain.Artifact;
 import org.carlspring.strongbox.domain.ArtifactEntity;
 import org.carlspring.strongbox.domain.RemoteArtifact;
 import org.carlspring.strongbox.domain.RemoteArtifactEntity;
@@ -95,35 +92,7 @@ public class RemoteAritfactAdapter extends VertexEntityTraversalAdapter<RemoteAr
     @Override
     public UnfoldEntityTraversal<Vertex, Vertex> unfold(RemoteArtifact entity)
     {
-        EntityTraversal<Vertex, Vertex> t = __.<Vertex, Edge>coalesce(updateArtifact(entity),
-                                                                      createArtifact(entity))
-                                              .outV()
-                                              .map(unfoldRemoteArtifact(entity));
-        return new UnfoldEntityTraversal<>(Vertices.REMOTE_ARTIFACT, t);
-    }
-
-    private Traversal<Vertex, Edge> updateArtifact(Artifact artifact)
-    {
-        return __.<Vertex>outE(Edges.REMOTE_ARTIFACT_INHERIT_ARTIFACT)
-                 .as(Edges.REMOTE_ARTIFACT_INHERIT_ARTIFACT)
-                 .inV()
-                 .map(saveArtifact(artifact))
-                 .select(Edges.REMOTE_ARTIFACT_INHERIT_ARTIFACT);
-    }
-
-    private Traversal<Vertex, Edge> createArtifact(Artifact artifactGroup)
-    {
-        return __.<Vertex>addE(Edges.REMOTE_ARTIFACT_INHERIT_ARTIFACT)
-                 .from(__.<Vertex>identity())
-                 .to(saveArtifact(artifactGroup));
-    }
-
-    private <S2> EntityTraversal<S2, Vertex> saveArtifact(Artifact artifactGroup)
-    {
-        return __.<S2>V()
-                 .saveV(Vertices.REMOTE_ARTIFACT,
-                        artifactGroup.getUuid(),
-                        artifactAdapter.unfold(artifactGroup));
+        return new UnfoldEntityTraversal<>(Vertices.REMOTE_ARTIFACT, unfoldRemoteArtifact(entity));
     }
 
     private EntityTraversal<Vertex, Vertex> unfoldRemoteArtifact(RemoteArtifact entity)

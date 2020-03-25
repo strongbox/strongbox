@@ -50,7 +50,10 @@ public class ArtifactIdGroupAdapter extends VertexEntityTraversalAdapter<Artifac
                  .by(__.outE(Edges.ARTIFACT_GROUP_HAS_ARTIFACTS)
                        .inV()
                        .trace("artifact")
-                       .optional(__.inE(Edges.REMOTE_ARTIFACT_INHERIT_ARTIFACT).trace(Edges.REMOTE_ARTIFACT_INHERIT_ARTIFACT).otherV().trace("remote-artifact"))
+                       .optional(__.inE(Edges.REMOTE_ARTIFACT_INHERIT_ARTIFACT)
+                                   .trace(Edges.REMOTE_ARTIFACT_INHERIT_ARTIFACT)
+                                   .otherV()
+                                   .trace("remote-artifact"))
                        .map(artifactAdapter.fold())
                        .map(EntityTraversalUtils::castToObject)
                        .fold())
@@ -61,7 +64,7 @@ public class ArtifactIdGroupAdapter extends VertexEntityTraversalAdapter<Artifac
     {
         ArtifactIdGroupEntity result = new ArtifactIdGroupEntity(extractObject(String.class, t.get().get("storageId")),
                 extractObject(String.class, t.get().get("repositoryId")), extractObject(String.class, t.get().get("name")));
-        Collection<ArtifactEntity> artifacts = (Collection<ArtifactEntity>) t.get().get("artifacts");
+        Collection<Artifact> artifacts = (Collection<Artifact>) t.get().get("artifacts");
         artifacts.stream().forEach(result::addArtifact);
 
         return result;
@@ -73,9 +76,11 @@ public class ArtifactIdGroupAdapter extends VertexEntityTraversalAdapter<Artifac
         EntityTraversal<Vertex, Vertex> saveArtifacstTraversal = __.<Vertex>identity();
         for (Artifact artifact : entity.getArtifacts())
         {
+            UnfoldEntityTraversal<Vertex, Vertex> unfoldArtifactTraversal = artifactAdapter.unfold(artifact);
             saveArtifacstTraversal = saveArtifacstTraversal.V()
-                                                           .saveV(Vertices.ARTIFACT, artifact.getUuid(),
-                                                                  artifactAdapter.unfold(artifact))
+                                                           .saveV(unfoldArtifactTraversal.entityLabel(), artifact.getUuid(),
+                                                                  unfoldArtifactTraversal)
+                                                           .optional(__.outE(Edges.REMOTE_ARTIFACT_INHERIT_ARTIFACT).otherV())
                                                            .aggregate("aiga");
         }
 
