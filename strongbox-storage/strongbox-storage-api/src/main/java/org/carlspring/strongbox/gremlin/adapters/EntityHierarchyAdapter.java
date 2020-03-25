@@ -115,6 +115,11 @@ public abstract class EntityHierarchyAdapter<E extends DomainObject, A extends E
                                                                            .map(a -> a.unfold((E) entity))
                                                                            .get();
 
+        if (getRootAdapter().labels().contains(unfoldTraversal.entityLabel()))
+        {
+            return unfoldTraversal;
+        }
+
         return new UnfoldEntityTraversal<>(unfoldTraversal.entityLabel(),
                 __.<Vertex, Edge>coalesce(updateParent(entity),
                                           createParent(entity))
