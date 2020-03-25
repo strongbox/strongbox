@@ -3,6 +3,7 @@ package org.carlspring.strongbox.domain;
 import java.util.Collections;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
@@ -71,4 +72,16 @@ public class ArtifactIdGroupEntity extends DomainEntity implements ArtifactIdGro
         return Collections.unmodifiableSet(new HashSet<>(result));
     }
 
+    @Override
+    public void addArtifact(Artifact artifact)
+    {
+        artifacts.add(Optional.of(artifact).map(a -> a.getHierarchyParent()).orElse(artifact));
+    }
+
+    @Override
+    public void removeArtifact(Artifact artifact)
+    {
+        artifacts.remove(Optional.of(artifact).map(a -> a.getHierarchyParent()).orElse(artifact));
+    }
+    
 }

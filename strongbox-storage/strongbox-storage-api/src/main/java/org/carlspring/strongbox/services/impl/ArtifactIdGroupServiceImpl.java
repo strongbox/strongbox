@@ -49,7 +49,7 @@ public class ArtifactIdGroupServiceImpl
         ArtifactTag lastVersionTag = artifactTagService.findOneOrCreate(ArtifactTagEntity.LAST_VERSION);
 
         artifact.getTagSet().add(lastVersionTag);
-        artifactGroup.getArtifacts().add(artifact);
+        artifactGroup.addArtifact(artifact);
 
         artifactGroup.getArtifacts()
                      .stream()

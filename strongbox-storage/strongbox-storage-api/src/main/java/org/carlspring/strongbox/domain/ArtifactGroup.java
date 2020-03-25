@@ -9,5 +9,9 @@ public interface ArtifactGroup extends DomainObject
     String getName();
 
     Set<Artifact> getArtifacts();
+    
+    void addArtifact(Artifact artifact);
+    
+    void removeArtifact(Artifact artifact);
 
 }

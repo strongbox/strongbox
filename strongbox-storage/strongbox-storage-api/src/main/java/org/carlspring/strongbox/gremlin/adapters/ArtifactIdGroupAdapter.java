@@ -1,10 +1,10 @@
 package org.carlspring.strongbox.gremlin.adapters;
 
+import static org.apache.tinkerpop.gremlin.structure.VertexProperty.Cardinality.single;
 import static org.carlspring.strongbox.gremlin.adapters.EntityTraversalUtils.extractObject;
 
 import java.util.Collection;
 import java.util.Collections;
-import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
 
@@ -31,7 +31,7 @@ public class ArtifactIdGroupAdapter extends VertexEntityTraversalAdapter<Artifac
 {
 
     @Inject
-    private ArtifactAdapter artifactAdapter;
+    private ArtifactHierarchyAdapter artifactAdapter;
 
     @Override
     public Set<String> labels()
@@ -49,6 +49,8 @@ public class ArtifactIdGroupAdapter extends VertexEntityTraversalAdapter<Artifac
                  .by(__.enrichPropertyValue("name"))
                  .by(__.outE(Edges.ARTIFACT_GROUP_HAS_ARTIFACTS)
                        .inV()
+                       .trace("artifact")
+                       .optional(__.inE(Edges.REMOTE_ARTIFACT_INHERIT_ARTIFACT).trace(Edges.REMOTE_ARTIFACT_INHERIT_ARTIFACT).otherV().trace("remote-artifact"))
                        .map(artifactAdapter.fold())
                        .map(EntityTraversalUtils::castToObject)
                        .fold())
@@ -60,7 +62,7 @@ public class ArtifactIdGroupAdapter extends VertexEntityTraversalAdapter<Artifac
         ArtifactIdGroupEntity result = new ArtifactIdGroupEntity(extractObject(String.class, t.get().get("storageId")),
                 extractObject(String.class, t.get().get("repositoryId")), extractObject(String.class, t.get().get("name")));
         Collection<ArtifactEntity> artifacts = (Collection<ArtifactEntity>) t.get().get("artifacts");
-        result.getArtifacts().addAll(artifacts);
+        artifacts.stream().forEach(result::addArtifact);
 
         return result;
     }
@@ -68,14 +70,52 @@ public class ArtifactIdGroupAdapter extends VertexEntityTraversalAdapter<Artifac
     @Override
     public UnfoldEntityTraversal<Vertex, Vertex> unfold(ArtifactIdGroup entity)
     {
-        // TODO Auto-generated method stub
-        return null;
+        EntityTraversal<Vertex, Vertex> saveArtifacstTraversal = __.<Vertex>identity();
+        for (Artifact artifact : entity.getArtifacts())
+        {
+            saveArtifacstTraversal = saveArtifacstTraversal.V()
+                                                           .saveV(Vertices.ARTIFACT, artifact.getUuid(),
+                                                                  artifactAdapter.unfold(artifact))
+                                                           .aggregate("aiga");
+        }
+
+        EntityTraversal<Vertex, Vertex> unfoldTraversal = __.<Vertex>sideEffect(__.outE(Edges.ARTIFACT_GROUP_HAS_ARTIFACTS)
+                                                                                  .drop())
+                                                            .map(unfoldArtifactGroup(entity))
+                                                            .store("aigaig")
+                                                            .sideEffect(saveArtifacstTraversal.select("aiga")
+                                                                                              .unfold()
+                                                                                              .trace("111")
+                                                                                              .addE(Edges.ARTIFACT_GROUP_HAS_ARTIFACTS)
+                                                                                              .from(__.select("aigaig")
+                                                                                                      .unfold()));
+
+        return new UnfoldEntityTraversal<>(Vertices.ARTIFACT_ID_GROUP, unfoldTraversal);
+    }
+
+    private EntityTraversal<Vertex, Vertex> unfoldArtifactGroup(ArtifactIdGroup entity)
+    {
+        EntityTraversal<Vertex, Vertex> unfoldEntityTraversal = __.identity();
+
+        if (entity.getStorageId() != null)
+        {
+            unfoldEntityTraversal = unfoldEntityTraversal.property(single, "storageId", entity.getStorageId());
+        }
+        if (entity.getRepositoryId() != null)
+        {
+            unfoldEntityTraversal = unfoldEntityTraversal.property(single, "repositoryId", entity.getRepositoryId());
+        }
+        if (entity.getName() != null)
+        {
+            unfoldEntityTraversal = unfoldEntityTraversal.property(single, "name", entity.getName());
+        }
+
+        return unfoldEntityTraversal;
     }
 
     @Override
     public EntityTraversal<Vertex, ? extends Element> cascade()
     {
-        // TODO Auto-generated method stub
         return null;
     }
 
