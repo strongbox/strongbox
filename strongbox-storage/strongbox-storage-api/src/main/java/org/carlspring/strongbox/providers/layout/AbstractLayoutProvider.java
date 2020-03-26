@@ -32,9 +32,10 @@ import org.carlspring.strongbox.providers.io.RepositoryPath;
 import org.carlspring.strongbox.services.RepositoryArtifactIdGroupService;
 import org.carlspring.strongbox.storage.Storage;
 import org.carlspring.strongbox.storage.repository.Repository;
+import org.carlspring.strongbox.util.StrongboxUriComponentsBuilder;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.web.util.UriComponentsBuilder;
 
 import com.google.common.collect.ImmutableSet;
 import com.google.common.collect.Sets;
@@ -65,6 +66,9 @@ public abstract class AbstractLayoutProvider<T extends ArtifactCoordinates>
 
     @Inject
     protected StorageProviderRegistry storageProviderRegistry;
+
+    @Inject
+    protected StrongboxUriComponentsBuilder uriBuilder;
 
     public abstract Set<String> getDefaultArtifactCoordinateValidators();
 
@@ -157,10 +161,7 @@ public abstract class AbstractLayoutProvider<T extends ArtifactCoordinates>
 
                 value = isArtifact ? getArtifactCoordinates(repositoryPath) : null;
                 break;
-            case RESOURCE_URL:
-                value = resolveResource(repositoryPath);
 
-                break;
             case ARTIFACT_PATH:
                 value = RepositoryFiles.relativizePath(repositoryPath);
 
@@ -190,20 +191,16 @@ public abstract class AbstractLayoutProvider<T extends ArtifactCoordinates>
         return result;
     }
 
-    public URL resolveResource(RepositoryPath repositoryPath)
+    public URL resolveResourceURL(RepositoryPath repositoryPath)
             throws IOException
     {
-        URI baseUri = configurationManager.getBaseUri();
-
         Repository repository = repositoryPath.getRepository();
         Storage storage = repository.getStorage();
         URI artifactResource = RepositoryFiles.resolveResource(repositoryPath);
 
-        return UriComponentsBuilder.fromUri(baseUri)
-                                   .pathSegment("storages", storage.getId(), repository.getId(), "/")
+        return uriBuilder.storageUriBuilder(storage.getId(), repository.getId(), artifactResource)
                                    .build()
                                    .toUri()
-                                   .resolve(artifactResource)
                                    .toURL();
     }
 

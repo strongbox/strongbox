@@ -114,7 +114,7 @@ public class LoggingManagementControllerTest
                                            .toString();
         }
 
-        String logDirectoryHomeUrl = getContextBaseUrl() + "/browse/";
+        String logDirectoryHomeUrl = getContextBaseUrl() + LoggingManagementController.BROWSE_BASE_PATH;
 
         //When
         //Getting the table elements
@@ -161,7 +161,7 @@ public class LoggingManagementControllerTest
                                            .toString();
         }
 
-        String logSubDirectoryUrl = getContextBaseUrl() + "/browse/test/";
+        String logSubDirectoryUrl = getContextBaseUrl() + LoggingManagementController.BROWSE_BASE_PATH + "/test/";
 
         //When
         //Getting the table elements

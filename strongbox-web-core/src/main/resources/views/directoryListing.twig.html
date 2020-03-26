@@ -4,7 +4,6 @@
     <title>Strongbox</title>
     <meta http-equiv="Content-Type" content="text/html; charset=UTF-8"/>
     <link href="https://fonts.googleapis.com/css?family=Open+Sans" rel="stylesheet">
-    <base href="{{currentUrl}}/">
     <style type="text/css">
         body {
             font-family: "Open Sans", "Trebuchet MS", verdana, lucida, arial, helvetica, sans-serif;
@@ -24,7 +23,7 @@
 </head>
 <body>
 
-    <h1>Index of {{ currentUrl }}/</h1>
+    <h1>Index of {{ currentPath }}/</h1>
 
     <table>
         <thead>
@@ -39,14 +38,14 @@
         {% if showBack|default(true) %}
         <tr>
             <td colspan="4">
-                <a href="../">..</a>
+                <a href="{{ currentPath }}/../">..</a>
             </td>
         </tr>
         {% endif %}
 
         {% for directory in directories %}
         <tr>
-            <td><a href="{{ directory.name }}/">{{ directory.name }}/</a></td>
+            <td><a href="{{ directory.url }}">{{ directory.name }}/</a></td>
             <td>{% if directory.lastModified %}{{ directory.lastModified }}{% else %}-{% endif %}</td>
             <td>{% if directory.size %}{{ directory.size }}{% else %}-{% endif %}</td>
             <td>{% if directory.description %}{{ directory.description }}{% else %}-{% endif %}</td>
@@ -55,7 +54,7 @@
 
         {% for file in files %}
         <tr>
-            <td><a href="{{ downloadBaseUrl }}/{{ file.name }}">{{ file.name }}</a></td>
+            <td><a href="{{ file.url }}">{{ file.name }}</a></td>
             <td>{% if file.lastModified %}{{ file.lastModified }}{% else %}-{% endif %}</td>
             <td>{{ file.size | default("-") | humanReadableSize  }}</td>
             <td>{% if file.description %}{{ file.description }}{% else %}-{% endif %}</td>

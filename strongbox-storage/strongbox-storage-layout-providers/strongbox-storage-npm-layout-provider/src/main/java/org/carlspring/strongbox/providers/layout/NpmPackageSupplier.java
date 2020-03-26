@@ -19,6 +19,8 @@ import org.carlspring.strongbox.npm.metadata.PackageVersion;
 import org.carlspring.strongbox.providers.io.RepositoryFiles;
 import org.carlspring.strongbox.providers.io.RepositoryPath;
 import org.carlspring.strongbox.services.ArtifactTagService;
+import org.carlspring.strongbox.util.StrongboxUriComponentsBuilder;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Component;
@@ -38,7 +40,10 @@ public class NpmPackageSupplier implements Function<Path, NpmPackageDesc>
 
     @Inject
     private ArtifactTagService artifactTagService;
-    
+
+    @Inject
+    StrongboxUriComponentsBuilder uriBuilder;
+
     @Override
     public NpmPackageDesc apply(Path path)
     {
@@ -78,7 +83,7 @@ public class NpmPackageSupplier implements Function<Path, NpmPackageDesc>
         String url;
         try
         {
-            url = layoutProvider.resolveResource(repositoryPath).toString();
+            url = layoutProvider.resolveResourceURL(repositoryPath).toString();
         }
         catch (IOException e)
         {

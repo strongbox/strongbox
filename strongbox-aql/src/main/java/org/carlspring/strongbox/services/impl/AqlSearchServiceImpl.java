@@ -1,7 +1,6 @@
 package org.carlspring.strongbox.services.impl;
 
 import java.io.IOException;
-import java.net.URL;
 import java.util.List;
 
 import javax.inject.Inject;
@@ -23,6 +22,8 @@ import org.carlspring.strongbox.services.AqlSearchService;
 import org.carlspring.strongbox.storage.repository.Repository;
 import org.carlspring.strongbox.storage.search.SearchResult;
 import org.carlspring.strongbox.storage.search.SearchResults;
+import org.carlspring.strongbox.util.StrongboxUriComponentsBuilder;
+
 import org.springframework.stereotype.Component;
 
 @Component
@@ -38,6 +39,9 @@ public class AqlSearchServiceImpl implements AqlSearchService
 
     @Inject
     private SnippetGenerator snippetGenerator;
+
+    @Inject
+    private StrongboxUriComponentsBuilder uriBuilder;
 
     public SearchResults search(Selector<ArtifactEntry> selector)
         throws IOException
@@ -61,11 +65,14 @@ public class AqlSearchServiceImpl implements AqlSearchService
 
             Repository repository = repositoryPath.getRepository();
 
-            URL artifactResource = RepositoryFiles.readResourceUrl(repositoryPath);
-            r.setUrl(artifactResource.toString());
+            r.setUrl(uriBuilder.storageUriBuilder(repositoryPath.getStorage().getId(),
+                                                  repositoryPath.getRepository().getId(),
+                                                  RepositoryFiles.resolveResource(repositoryPath))
+                               .build()
+                               .toUriString());
 
             List<CodeSnippet> snippets = snippetGenerator.generateSnippets(repository.getLayout(),
-                                                                             artifactEntry.getArtifactCoordinates());
+                                                                           artifactEntry.getArtifactCoordinates());
             r.setSnippets(snippets);
         }
 

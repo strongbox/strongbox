@@ -5,7 +5,6 @@ import org.carlspring.strongbox.storage.Storage;
 import org.carlspring.strongbox.storage.repository.Repository;
 
 import javax.inject.Inject;
-import java.net.URI;
 
 import org.springframework.stereotype.Component;
 
@@ -42,18 +41,6 @@ public class ConfigurationManager implements StoragesConfigurationManager
     public Configuration getConfiguration()
     {
         return configurationService.getConfiguration();
-    }
-
-    public URI getBaseUri()
-    {
-        try
-        {
-            return URI.create(getConfiguration().getBaseUrl());
-        }
-        catch (IllegalArgumentException e)
-        {
-            throw new InvalidConfigurationException(e);
-        }
     }
 
     public Integer getSessionTimeoutSeconds() {

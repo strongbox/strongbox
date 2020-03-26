@@ -1,15 +1,30 @@
 package org.carlspring.strongbox.domain;
 
+import java.net.URL;
 import java.util.ArrayList;
 import java.util.List;
 
 public class DirectoryListing
 {
 
+    /**
+     * URL to the current directory (i.e. http://localhost.dev/api/browse/some/path)
+     */
+    private URL link;
+
     private List<FileContent> directories;
 
     private List<FileContent> files;
 
+    public URL getLink()
+    {
+        return link;
+    }
+
+    public void setLink(URL link)
+    {
+        this.link = link;
+    }
 
     public List<FileContent> getDirectories()
     {

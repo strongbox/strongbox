@@ -12,6 +12,7 @@ import org.carlspring.strongbox.services.ArtifactResolutionService;
 import org.carlspring.strongbox.services.ConfigurationManagementService;
 import org.carlspring.strongbox.storage.Storage;
 import org.carlspring.strongbox.storage.repository.Repository;
+import org.carlspring.strongbox.util.StrongboxUriComponentsBuilder;
 
 import javax.inject.Inject;
 import javax.servlet.http.HttpServletResponse;
@@ -56,6 +57,19 @@ public abstract class BaseController
 
     @Inject
     protected ArtifactResolutionService artifactResolutionService;
+
+    @Inject
+    protected StrongboxUriComponentsBuilder uriBuilder;
+
+    /**
+     * Returns the current requestURI (i.e. /my/absolute/path/excluding/domain/without/trailing/slash)
+     *
+     * @return String
+     */
+    protected String getCurrentRequestURI()
+    {
+        return uriBuilder.getCurrentRequestURI();
+    }
 
     protected Configuration getConfiguration()
     {

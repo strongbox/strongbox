@@ -4,10 +4,8 @@ import org.carlspring.strongbox.booters.PropertiesBooter;
 import org.carlspring.strongbox.controllers.BaseController;
 import org.carlspring.strongbox.domain.DirectoryListing;
 import org.carlspring.strongbox.services.DirectoryListingService;
-import org.carlspring.strongbox.services.DirectoryListingServiceImpl;
 
 import javax.inject.Inject;
-import javax.servlet.http.HttpServletRequest;
 import java.io.BufferedInputStream;
 import java.io.IOException;
 import java.io.InputStream;
@@ -45,6 +43,7 @@ import org.springframework.web.bind.annotation.RequestHeader;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.servlet.ModelAndView;
 import org.springframework.web.servlet.mvc.method.annotation.SseEmitter;
+import org.springframework.web.util.UriComponentsBuilder;
 import static org.carlspring.strongbox.controllers.logging.LoggingManagementController.ROOT_CONTEXT;
 import static org.springframework.http.HttpStatus.BAD_REQUEST;
 
@@ -65,6 +64,8 @@ public class LoggingManagementController
 {
 
     public final static String ROOT_CONTEXT = "/api/logging";
+    public final static String DOWNLOAD_BASE_PATH = "/download";
+    public final static String BROWSE_BASE_PATH = "/browse";
 
     @Value("${strongbox.sse.timeoutMillis:600000}")
     private Long sseTimeoutMillis;
@@ -81,22 +82,13 @@ public class LoggingManagementController
     @Inject
     private Function<SseEmitter, SseEmitterAwareTailerListenerAdapter> tailerListenerAdapterPrototypeFactory;
 
+    @Inject
     private DirectoryListingService directoryListingService;
-
-    public DirectoryListingService getDirectoryListingService()
-    {
-        return Optional.ofNullable(directoryListingService).orElseGet(() -> {
-            String baseUrl = StringUtils.chomp(configurationManager.getConfiguration().getBaseUrl(), "/");
-
-            return directoryListingService = new DirectoryListingServiceImpl(
-                    String.format("%s" + ROOT_CONTEXT, baseUrl));
-        });
-    }
 
     @ApiOperation(value = "Used to download log data.")
     @ApiResponses(value = { @ApiResponse(code = 200, message = "The log file was retrieved successfully."),
                             @ApiResponse(code = 400, message = "Could not download log data.") })
-    @GetMapping(value = "/download/{path:.+}",
+    @GetMapping(value = DOWNLOAD_BASE_PATH + "/{path:.+}",
                 produces = { MediaType.APPLICATION_OCTET_STREAM_VALUE, // forces browser to actually download the file
                              MediaType.TEXT_PLAIN_VALUE,               // plain text / json upon errors
                              MediaType.APPLICATION_JSON_VALUE })
@@ -134,13 +126,12 @@ public class LoggingManagementController
     @ApiOperation(value = "Used to get logs directory.")
     @ApiResponses(value = { @ApiResponse(code = 200, message = "The logs directory was retrieved successfully."),
                             @ApiResponse(code = 500, message = "Server error.") })
-    @GetMapping(value = { "/browse/{path:.+}" },
+    @GetMapping(value = { BROWSE_BASE_PATH + "/{path:.+}" },
                 produces = { MediaType.TEXT_PLAIN_VALUE,
                              MediaType.TEXT_HTML_VALUE,
                              MediaType.APPLICATION_JSON_VALUE })
     public Object browseLogsDirectory(@PathVariable("path") Optional<String> path,
                                       ModelMap model,
-                                      HttpServletRequest request,
                                       @RequestHeader(value = HttpHeaders.ACCEPT,
                                                      required = false) String acceptHeader)
     {
@@ -162,20 +153,22 @@ public class LoggingManagementController
                 return getBadRequestResponseEntity("Requested path is not a directory!", acceptHeader);
             }
 
-            DirectoryListing directoryListing = getDirectoryListingService().fromPath(logsBaseDir, requestedLogPath);
+            UriComponentsBuilder baseBuilder = uriBuilder.getBuilder(ROOT_CONTEXT);
+
+            DirectoryListing directoryListing = directoryListingService.fromPath(baseBuilder.cloneBuilder().path("/browse"),
+                                                                                 baseBuilder.cloneBuilder().path("/download"),
+                                                                                 logsBaseDir,
+                                                                                 requestedLogPath);
 
             if (acceptHeader != null && acceptHeader.contains(MediaType.APPLICATION_JSON_VALUE))
             {
                 return ResponseEntity.ok(objectMapper.writer().writeValueAsString(directoryListing));
             }
 
-            String currentUrl = StringUtils.chomp(request.getRequestURI(), "/");
-            String downloadUrl = currentUrl.replaceFirst("/browse", "/download");
             boolean showBack = path.isPresent() && !StringUtils.isBlank(path.get());
 
             model.addAttribute("showBack", showBack);
-            model.addAttribute("currentUrl", currentUrl);
-            model.addAttribute("downloadBaseUrl", downloadUrl);
+            model.addAttribute("currentPath", getCurrentRequestURI());
             model.addAttribute("directories", directoryListing.getDirectories());
             model.addAttribute("files", directoryListing.getFiles());
 
