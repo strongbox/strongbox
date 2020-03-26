@@ -151,10 +151,7 @@ public class LayoutOutputStream extends MultipleDigestOutputStream
             {
                 cacheOutputStream.close();
             }
-            catch (IOException e)
-            {
-                //Do noting here
-            }
+            catch (IOException ignored) {}
             cacheOutputStream = null;
         }
         return null;
