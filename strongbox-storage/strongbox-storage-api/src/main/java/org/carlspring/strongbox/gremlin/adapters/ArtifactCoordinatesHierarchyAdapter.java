@@ -23,7 +23,7 @@ public class ArtifactCoordinatesHierarchyAdapter
     }
 
     @Override
-    public EntityTraversal<Vertex, ? extends Element> cascade()
+    public EntityTraversal<Vertex, Element> cascade()
     {
         return __.<Vertex>aggregate("x")
                  .outE(hierarchyEdge())

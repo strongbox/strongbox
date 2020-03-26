@@ -11,6 +11,7 @@ import org.carlspring.strongbox.artifact.ArtifactTag;
 import org.carlspring.strongbox.artifact.coordinates.RawArtifactCoordinates;
 import org.carlspring.strongbox.data.CacheManagerTestExecutionListener;
 import org.carlspring.strongbox.db.schema.Edges;
+import org.carlspring.strongbox.db.schema.Vertices;
 import org.carlspring.strongbox.domain.Artifact;
 import org.carlspring.strongbox.domain.ArtifactEntity;
 import org.carlspring.strongbox.domain.ArtifactIdGroupEntity;
@@ -102,15 +103,19 @@ public class ArtifactIdGroupRepositoryTest
         artifactIdGroupEntity = artifactIdGroupRepository.save(artifactIdGroupEntity);
         assertThat(artifactIdGroupEntity.getArtifacts()).isEmpty();
 
-        // artifactRepository.delete(artifactEntity);
-        // assertThat(artifactRepository.findById(artifactEntity.getUuid())).isEmpty();
-        //
-        // assertThat(g.V().hasLabel(Vertices.RAW_ARTIFACT_COORDINATES).has("uuid",
-        // path).hasNext()).isFalse();
-        // assertThat(g.V().hasLabel(Vertices.GENERIC_ARTIFACT_COORDINATES).has("uuid",
-        // path).hasNext()).isFalse();
-        // assertThat(g.E().hasLabel(Edges.ARTIFACT_COORDINATES_INHERIT_GENERIC_ARTIFACT_COORDINATES).hasNext()).isFalse();
-        // assertThat(g.E().hasLabel(Edges.ARTIFACT_HAS_ARTIFACT_COORDINATES).hasNext()).isFalse();
+        // Delete
+        artifactIdGroupEntity.addArtifact(artifactEntityOne);
+        artifactIdGroupEntity.addArtifact(artifactEntityTwo);
+        artifactIdGroupEntity.addArtifact(artifactEntityThree);
+        artifactIdGroupRepository.save(artifactIdGroupEntity);
+        artifactIdGroupRepository.delete(artifactIdGroupEntity);
+        assertThat(artifactIdGroupRepository.findById(artifactIdGroupEntity.getUuid())).isEmpty();
+        assertThat(g.V()
+                    .label()
+                    .toList()).hasSize(1).containsExactly(Vertices.ARTIFACT_TAG);
+        assertThat(g.E()
+                    .count()
+                    .next()).isEqualTo(0L);
     }
 
 }

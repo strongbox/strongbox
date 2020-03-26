@@ -131,7 +131,7 @@ public class GenericArtifactCoordinatesArapter extends VertexEntityTraversalAdap
     }
 
     @Override
-    public EntityTraversal<Vertex, ? extends Element> cascade()
+    public EntityTraversal<Vertex, Element> cascade()
     {
         return __.<Vertex>aggregate("x")
                  .inE(Edges.ARTIFACT_COORDINATES_INHERIT_GENERIC_ARTIFACT_COORDINATES)

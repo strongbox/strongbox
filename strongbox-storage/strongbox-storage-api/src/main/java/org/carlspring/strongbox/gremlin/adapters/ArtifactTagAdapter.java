@@ -52,9 +52,9 @@ public class ArtifactTagAdapter extends VertexEntityTraversalAdapter<ArtifactTag
     }
 
     @Override
-    public EntityTraversal<Vertex, ? extends Element> cascade()
+    public EntityTraversal<Vertex, Element> cascade()
     {
-        return __.identity();
+        return __.<Vertex>identity().map(t -> Element.class.cast(t.get()));
     }
 
 }

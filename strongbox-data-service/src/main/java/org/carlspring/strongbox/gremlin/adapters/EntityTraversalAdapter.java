@@ -15,6 +15,6 @@ public interface EntityTraversalAdapter<S extends Element, E extends DomainObjec
 
     UnfoldEntityTraversal<S, S> unfold(E entity);
 
-    EntityTraversal<S, ? extends Element> cascade();
+    EntityTraversal<S, Element> cascade();
 
 }

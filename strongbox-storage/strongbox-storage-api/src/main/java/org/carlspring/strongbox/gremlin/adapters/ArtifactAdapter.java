@@ -264,7 +264,7 @@ public class ArtifactAdapter extends VertexEntityTraversalAdapter<Artifact> impl
     }
 
     @Override
-    public EntityTraversal<Vertex, ? extends Element> cascade()
+    public EntityTraversal<Vertex, Element> cascade()
     {
         return __.<Vertex>aggregate("x")
                  .optional(__.outE(Edges.ARTIFACT_HAS_ARTIFACT_COORDINATES)

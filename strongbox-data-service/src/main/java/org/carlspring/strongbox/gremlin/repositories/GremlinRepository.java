@@ -87,7 +87,7 @@ public abstract class GremlinRepository<S extends Element, E extends DomainObjec
         start(this::g).findById(id, labels.toArray(new String[labels.size()]))
                       .flatMap(adapter().cascade())
                       .dedup()
-                      .sideEffect(t -> logger.debug(String.format("Delete [%s]-[%s]", t.get().label(), t.get().id())))
+                      .trace("Delete")
                       .drop()
                       .iterate();
     }

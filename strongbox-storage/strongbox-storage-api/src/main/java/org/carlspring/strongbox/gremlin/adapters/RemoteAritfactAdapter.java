@@ -108,7 +108,7 @@ public class RemoteAritfactAdapter extends VertexEntityTraversalAdapter<RemoteAr
     }
 
     @Override
-    public EntityTraversal<Vertex, ? extends Element> cascade()
+    public EntityTraversal<Vertex, Element> cascade()
     {
         return __.<Vertex>aggregate("x")
                  .outE(Edges.REMOTE_ARTIFACT_INHERIT_ARTIFACT)

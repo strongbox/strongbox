@@ -48,7 +48,7 @@ public abstract class LayoutArtifactCoordinatesArapter<C extends LayoutArtifactC
     }
 
     @Override
-    public EntityTraversal<Vertex, ? extends Element> cascade()
+    public EntityTraversal<Vertex, Element> cascade()
     {
         return null;
     }

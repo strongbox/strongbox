@@ -119,9 +119,17 @@ public class ArtifactIdGroupAdapter extends VertexEntityTraversalAdapter<Artifac
     }
 
     @Override
-    public EntityTraversal<Vertex, ? extends Element> cascade()
+    public EntityTraversal<Vertex, Element> cascade()
     {
-        return null;
+        return __.<Vertex>aggregate("x")
+                 .optional(__.outE(Edges.ARTIFACT_GROUP_HAS_ARTIFACTS)
+                             .trace("cascade-artifact0")
+                             .inV()
+                             .optional(__.inE(Edges.REMOTE_ARTIFACT_INHERIT_ARTIFACT).otherV())
+                             .trace("cascade-artifact")
+                             .flatMap(artifactAdapter.cascade()))
+                 .select("x")
+                 .unfold();
     }
 
 }

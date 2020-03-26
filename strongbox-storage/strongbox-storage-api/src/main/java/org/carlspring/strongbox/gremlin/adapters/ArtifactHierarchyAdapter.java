@@ -26,11 +26,11 @@ public class ArtifactHierarchyAdapter extends EntityHierarchyAdapter<Artifact, A
     }
 
     @Override
-    public EntityTraversal<Vertex, ? extends Element> cascade()
+    public EntityTraversal<Vertex, Element> cascade()
     {
         return __.<Vertex>aggregate("x")
-                 .outE(hierarchyEdge())
-                 .inV()
+                 .optional(__.outE(hierarchyEdge())
+                             .inV())
                  .map(artifactAdapter.cascade())
                  .select("x")
                  .unfold();
