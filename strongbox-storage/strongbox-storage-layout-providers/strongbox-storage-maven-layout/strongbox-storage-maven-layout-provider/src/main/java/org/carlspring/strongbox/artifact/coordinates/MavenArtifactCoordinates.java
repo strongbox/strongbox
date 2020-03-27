@@ -12,6 +12,7 @@ import org.carlspring.strongbox.artifact.MavenArtifact;
 import org.carlspring.strongbox.artifact.MavenArtifactUtils;
 import org.carlspring.strongbox.artifact.MavenRepositoryArtifact;
 import org.carlspring.strongbox.db.schema.Vertices;
+import org.carlspring.strongbox.domain.GenericArtifactCoordinatesEntity;
 import org.carlspring.strongbox.domain.LayoutArtifactCoordinatesEntity;
 import org.neo4j.ogm.annotation.NodeEntity;
 
@@ -54,6 +55,11 @@ public class MavenArtifactCoordinates
     public MavenArtifactCoordinates()
     {
         resetCoordinates(GROUPID, ARTIFACTID, VERSION, CLASSIFIER, EXTENSION);
+    }
+    
+    public MavenArtifactCoordinates(GenericArtifactCoordinatesEntity genericArtifactCoordinates)
+    {
+        super(genericArtifactCoordinates);
     }
 
     public MavenArtifactCoordinates(String... coordinateValues)

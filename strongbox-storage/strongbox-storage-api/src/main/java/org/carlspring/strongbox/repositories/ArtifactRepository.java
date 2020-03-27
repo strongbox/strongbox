@@ -1,8 +1,6 @@
 package org.carlspring.strongbox.repositories;
 
-import java.time.LocalDate;
 import java.time.LocalDateTime;
-import java.util.Date;
 import java.util.List;
 import java.util.Optional;
 
@@ -118,9 +116,10 @@ interface ArtifactEntityQueries extends org.springframework.data.repository.Repo
                    "MATCH (genericCoordinates)<-[r2]-(layoutCoordinates) " +
                    "WITH artifact, r1, genericCoordinates, r2, layoutCoordinates " +
                    "OPTIONAL MATCH (artifact)<-[r3]-(remoteArtifact) " +
-                   "RETURN artifact, r3, remoteArtifact, r1, genericCoordinates, r2, layoutCoordinates", countQuery = "MATCH (artifact:Artifact) " +
-                                                                                                                      "WHERE artifact.lastUsed <= coalesce($lastAccessedDate, artifact.lastUsed) and artifact.sizeInBytes >=  coalesce($minSizeInBytes, artifact.sizeInBytes) " +
-                                                                                                                      "RETURN count(artifact)")
+                   "RETURN artifact, r3, remoteArtifact, r1, genericCoordinates, r2, layoutCoordinates",
+           countQuery = "MATCH (artifact:Artifact) " +
+                        "WHERE artifact.lastUsed <= coalesce($lastAccessedDate, artifact.lastUsed) and artifact.sizeInBytes >=  coalesce($minSizeInBytes, artifact.sizeInBytes) " +
+                        "RETURN count(artifact)")
     Page<Artifact> findMatching(@Param("lastAccessedDate") LocalDateTime lastAccessedDate,
                                 @Param("minSizeInBytes") Long minSizeInBytes,
                                 Pageable page);

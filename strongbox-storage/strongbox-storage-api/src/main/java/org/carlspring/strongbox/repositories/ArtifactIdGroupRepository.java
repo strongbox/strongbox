@@ -1,14 +1,14 @@
 package org.carlspring.strongbox.repositories;
 
-import java.util.List;
 import java.util.Optional;
 
 import javax.inject.Inject;
 
-import org.carlspring.strongbox.data.service.support.search.PagingCriteria;
 import org.carlspring.strongbox.domain.ArtifactIdGroup;
 import org.carlspring.strongbox.gremlin.adapters.ArtifactIdGroupAdapter;
 import org.carlspring.strongbox.gremlin.repositories.GremlinVertexRepository;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.data.neo4j.annotation.Query;
 import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
@@ -29,17 +29,11 @@ public class ArtifactIdGroupRepository extends GremlinVertexRepository<ArtifactI
         return adapter;
     }
 
-    public long count(String storageId,
-                      String repositoryId)
-    {
-        return queries.count(storageId, repositoryId);
-    }
-
-    public List<ArtifactIdGroup> findMatching(String storageId,
+    public Page<ArtifactIdGroup> findMatching(String storageId,
                                               String repositoryId,
-                                              PagingCriteria pagingCriteria)
+                                              Pageable page)
     {
-        return queries.findMatching(storageId, repositoryId, pagingCriteria);
+        return queries.findMatching(storageId, repositoryId, page);
     }
 
     public Optional<ArtifactIdGroup> findOne(String storageId,
@@ -55,19 +49,19 @@ public class ArtifactIdGroupRepository extends GremlinVertexRepository<ArtifactI
 interface ArtifactIdGroupQueries
         extends org.springframework.data.repository.Repository<ArtifactIdGroup, String>
 {
-
-    default long count(String storageId,
-                       String repositoryId)
-    {
-        return 0;
-    }
-
-    default List<ArtifactIdGroup> findMatching(String storageId,
-                                               String repositoryId,
-                                               PagingCriteria pagingCriteria)
-    {
-        return null;
-    }
+    @Query(value = "MATCH (aig:`ArtifactIdGroup`)-[r0]->(artifact:Artifact)-[r1]->(genericCoordinates:GenericArtifactCoordinates) " +
+                   "WHERE aig.storageId=$storageId and aig.repositoryId=$repositoryId " +
+                   "WITH aig, r0, artifact, r1, genericCoordinates " +
+                   "MATCH (genericCoordinates)<-[r2]-(layoutCoordinates) " +
+                   "WITH aig, r0, artifact, r1, genericCoordinates, r2, layoutCoordinates " +
+                   "OPTIONAL MATCH (artifact)<-[r3]-(remoteArtifact) " +
+                   "RETURN aig, r0, artifact, r3, remoteArtifact, r1, genericCoordinates, r2, layoutCoordinates",
+           countQuery = "MATCH (aig:`ArtifactIdGroup`) " +
+                        "WHERE aig.storageId=$storageId and aig.repositoryId=$repositoryId " +
+                        "RETURN count(aig)")
+    Page<ArtifactIdGroup> findMatching(@Param("storageId") String storageId,
+                                       @Param("repositoryId") String repositoryId,
+                                       Pageable page);
 
     @Query("MATCH (aig:`ArtifactIdGroup`)-[r0]->(artifact:Artifact)-[r1]->(genericCoordinates:GenericArtifactCoordinates) " +
            "WHERE aig.storageId=$storageId and aig.repositoryId=$repositoryId and aig.name=$artifactId " +

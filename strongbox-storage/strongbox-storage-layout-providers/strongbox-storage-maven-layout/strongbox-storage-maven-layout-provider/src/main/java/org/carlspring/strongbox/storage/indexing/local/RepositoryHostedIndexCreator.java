@@ -12,7 +12,6 @@ import javax.inject.Inject;
 
 import org.apache.maven.index.ArtifactContext;
 import org.carlspring.strongbox.artifact.coordinates.MavenArtifactCoordinates;
-import org.carlspring.strongbox.data.service.support.search.PagingCriteria;
 import org.carlspring.strongbox.domain.Artifact;
 import org.carlspring.strongbox.domain.ArtifactIdGroup;
 import org.carlspring.strongbox.providers.io.RepositoryPath;
@@ -29,6 +28,8 @@ import org.carlspring.strongbox.storage.indexing.RepositoryIndexingContextFactor
 import org.carlspring.strongbox.storage.indexing.RepositoryIndexingContextFactory.RepositoryIndexingContextFactoryQualifier;
 import org.carlspring.strongbox.storage.repository.Repository;
 import org.carlspring.strongbox.storage.repository.RepositoryTypeEnum;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.stereotype.Component;
 
 /**
@@ -83,26 +84,22 @@ public class RepositoryHostedIndexCreator
         final String storageId = repository.getStorage().getId();
         final String repositoryId = repository.getId();
 
-        final long totalArtifactGroupsInRepository = artifactIdGroupRepository.count(storageId,
-                                                                                            repositoryId);
-        if (totalArtifactGroupsInRepository == 0)
+        PageRequest pageRequest = PageRequest.of(0,
+                                                 REPOSITORY_ARTIFACT_GROUP_FETCH_PAGE_SIZE);
+        Page<ArtifactIdGroup> page = artifactIdGroupRepository.findMatching(storageId,
+                                                                            repositoryId,
+                                                                            pageRequest);
+        if (page.getTotalElements() == 0)
         {
             return;
         }
-
-        final long iterations = totalArtifactGroupsInRepository / REPOSITORY_ARTIFACT_GROUP_FETCH_PAGE_SIZE + 1;
-
-        for (int i = 0; i < iterations; i++)
+        do
         {
-            final PagingCriteria pagingCriteria = new PagingCriteria(i * REPOSITORY_ARTIFACT_GROUP_FETCH_PAGE_SIZE,
-                                                                     REPOSITORY_ARTIFACT_GROUP_FETCH_PAGE_SIZE);
-            final List<ArtifactIdGroup> repositoryArtifactIdGroupEntries = artifactIdGroupRepository.findMatching(storageId,
-                                                                                                                  repositoryId,
-                                                                                                                  pagingCriteria);
-
-            final List<ArtifactContext> artifactContexts = createArtifactContexts(repositoryArtifactIdGroupEntries);
+            page = artifactIdGroupRepository.findMatching(storageId, repositoryId,
+                                                          pageRequest.next());
+            List<ArtifactContext> artifactContexts = createArtifactContexts(page.getContent());
             Indexer.INSTANCE.addArtifactsToIndex(artifactContexts, indexingContext);
-        }
+        } while (page.hasNext());
     }
 
     private List<ArtifactContext> createArtifactContexts(final List<ArtifactIdGroup> repositoryArtifactIdGroupEntries)
