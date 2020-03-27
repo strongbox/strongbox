@@ -49,10 +49,10 @@ public class ArtifactIdGroupRepository extends GremlinVertexRepository<ArtifactI
 interface ArtifactIdGroupQueries
         extends org.springframework.data.repository.Repository<ArtifactIdGroup, String>
 {
-    @Query(value = "MATCH (aig:`ArtifactIdGroup`)-[r0]->(artifact:Artifact)-[r1]->(genericCoordinates:GenericArtifactCoordinates) " +
+    @Query(value = "MATCH (aig:`ArtifactIdGroup`) " +
                    "WHERE aig.storageId=$storageId and aig.repositoryId=$repositoryId " +
-                   "WITH aig, r0, artifact, r1, genericCoordinates " +
-                   "MATCH (genericCoordinates)<-[r2]-(layoutCoordinates) " +
+                   "WITH aig " +
+                   "OPTIONAL MATCH (aig)-[r0]->(artifact:Artifact)-[r1]->(genericCoordinates:GenericArtifactCoordinates)<-[r2]-(layoutCoordinates) " +
                    "WITH aig, r0, artifact, r1, genericCoordinates, r2, layoutCoordinates " +
                    "OPTIONAL MATCH (artifact)<-[r3]-(remoteArtifact) " +
                    "RETURN aig, r0, artifact, r3, remoteArtifact, r1, genericCoordinates, r2, layoutCoordinates",
@@ -63,10 +63,10 @@ interface ArtifactIdGroupQueries
                                        @Param("repositoryId") String repositoryId,
                                        Pageable page);
 
-    @Query("MATCH (aig:`ArtifactIdGroup`)-[r0]->(artifact:Artifact)-[r1]->(genericCoordinates:GenericArtifactCoordinates) " +
+    @Query("MATCH (aig:`ArtifactIdGroup`) " +
            "WHERE aig.storageId=$storageId and aig.repositoryId=$repositoryId and aig.name=$artifactId " +
-           "WITH aig, r0, artifact, r1, genericCoordinates " +
-           "MATCH (genericCoordinates)<-[r2]-(layoutCoordinates) " +
+           "WITH aig " +
+           "OPTIONAL MATCH (aig)-[r0]->(artifact:Artifact)-[r1]->(genericCoordinates:GenericArtifactCoordinates)<-[r2]-(layoutCoordinates) " +
            "WITH aig, r0, artifact, r1, genericCoordinates, r2, layoutCoordinates " +
            "OPTIONAL MATCH (artifact)<-[r3]-(remoteArtifact) " +
            "RETURN aig, r0, artifact, r3, remoteArtifact, r1, genericCoordinates, r2, layoutCoordinates")

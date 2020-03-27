@@ -13,6 +13,7 @@ import org.carlspring.strongbox.gremlin.adapters.EntityTraversalAdapter;
 import org.carlspring.strongbox.gremlin.dsl.EntityTraversal;
 import org.carlspring.strongbox.gremlin.dsl.EntityTraversalSource;
 import org.carlspring.strongbox.gremlin.tx.TransactionContext;
+import org.neo4j.ogm.session.Session;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.data.repository.CrudRepository;
@@ -29,7 +30,9 @@ public abstract class GremlinRepository<S extends Element, E extends DomainObjec
     @Inject
     @TransactionContext
     private Graph graph;
-
+    @Inject
+    protected Session session;
+    
     protected EntityTraversalSource g()
     {
         return graph.traversal(EntityTraversalSource.class);
@@ -90,6 +93,7 @@ public abstract class GremlinRepository<S extends Element, E extends DomainObjec
                       .trace("Delete")
                       .drop()
                       .iterate();
+        session.clear();
     }
 
     @Override

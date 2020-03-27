@@ -21,9 +21,11 @@ import org.carlspring.strongbox.data.CacheManagerTestExecutionListener;
 import org.carlspring.strongbox.domain.ArtifactGroup;
 import org.carlspring.strongbox.domain.ArtifactIdGroup;
 import org.carlspring.strongbox.domain.ArtifactIdGroupEntity;
+import org.carlspring.strongbox.domain.LayoutArtifactCoordinatesEntity;
 import org.carlspring.strongbox.providers.io.LayoutFileSystem;
 import org.carlspring.strongbox.providers.io.RepositoryFileAttributeType;
 import org.carlspring.strongbox.providers.io.RepositoryPath;
+import org.carlspring.strongbox.repositories.ArtifactIdGroupRepository;
 import org.carlspring.strongbox.services.ArtifactIdGroupService;
 import org.carlspring.strongbox.storage.StorageDto;
 import org.carlspring.strongbox.storage.repository.RepositoryData;
@@ -58,12 +60,17 @@ class AbstractLayoutProviderTest
     private PropertiesBooter propertiesBooter;
     
     @Spy
+    @Inject
     private ArtifactIdGroupService artifactGroupService;
 
+    @Spy
+    @Inject
+    private ArtifactIdGroupRepository artifactIdGroupRepository;
+    
     @InjectMocks
     private AbstractLayoutProvider layoutProvider = Mockito.spy(AbstractLayoutProvider.class);
 
-    private ArtifactCoordinates artifactCoordinates = Mockito.spy(ArtifactCoordinates.class);
+    private LayoutArtifactCoordinatesEntity artifactCoordinates = Mockito.spy(LayoutArtifactCoordinatesEntity.class);
     
     private StorageFileSystemProviderTest storageFileSystemProvider = Mockito.spy(new StorageFileSystemProviderTest(FileSystems.getDefault().provider()));
 
@@ -98,7 +105,7 @@ class AbstractLayoutProviderTest
             }
         };
 
-        artifactGroupService = ctx.getBean(ArtifactIdGroupService.class);
+        //artifactGroupService = ctx.getBean(ArtifactIdGroupService.class);
 
         MockitoAnnotations.initMocks(this);
         Mockito.doReturn("abs-lay-prov-test").when(artifactCoordinates).getId();

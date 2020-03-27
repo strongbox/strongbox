@@ -23,6 +23,7 @@ import org.carlspring.strongbox.domain.RemoteArtifact;
 import org.carlspring.strongbox.domain.RemoteArtifactEntity;
 import org.carlspring.strongbox.gremlin.tx.TransactionContext;
 import org.junit.jupiter.api.Test;
+import org.neo4j.ogm.session.Session;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.ContextConfiguration;
@@ -31,7 +32,8 @@ import org.springframework.test.context.TestExecutionListeners;
 @SpringBootTest
 @ActiveProfiles(profiles = "test")
 @ContextConfiguration(classes = RepositoriesTestConfig.class)
-@TestExecutionListeners(listeners = { CacheManagerTestExecutionListener.class }, mergeMode = TestExecutionListeners.MergeMode.MERGE_WITH_DEFAULTS)
+@TestExecutionListeners(listeners = { CacheManagerTestExecutionListener.class },
+                        mergeMode = TestExecutionListeners.MergeMode.MERGE_WITH_DEFAULTS)
 public class ArtifactIdGroupRepositoryTest
 {
 
@@ -105,6 +107,9 @@ public class ArtifactIdGroupRepositoryTest
         artifactIdGroupEntity.removeArtifact(artifactEntityThree);
         artifactIdGroupEntity = artifactIdGroupRepository.save(artifactIdGroupEntity);
         assertThat(artifactIdGroupEntity.getArtifacts()).isEmpty();
+        assertThat(g.E()
+                    .hasLabel(Edges.ARTIFACT_GROUP_HAS_ARTIFACTS)
+                    .hasNext()).isFalse();
 
         // Delete
         artifactIdGroupEntity.addArtifact(artifactEntityOne);
@@ -130,7 +135,7 @@ public class ArtifactIdGroupRepositoryTest
         String repositoryId = "repository-aigrt-fosw";
         String pathTemplate = "path/to/resource/aigrt-fosw-%s.jar";
 
-        //First group
+        // First group
         RawArtifactCoordinates artifactCoordinatesOne = new RawArtifactCoordinates();
         artifactCoordinatesOne.setId(String.format(pathTemplate, "10"));
         ArtifactEntity artifactEntityOne = new ArtifactEntity(storageId, repositoryId, artifactCoordinatesOne);
@@ -150,7 +155,7 @@ public class ArtifactIdGroupRepositoryTest
         artifactIdGroupEntity.addArtifact(artifactEntityThree);
         artifactIdGroupRepository.save(artifactIdGroupEntity);
 
-        //Second group
+        // Second group
         pathTemplate = "path/to/resource/aigrt-fosw-another-%s.jar";
         RawArtifactCoordinates artifactCoordinatesAnotherOne = new RawArtifactCoordinates();
         artifactCoordinatesAnotherOne.setId(String.format(pathTemplate, "10"));
@@ -165,7 +170,7 @@ public class ArtifactIdGroupRepositoryTest
         artifactIdGroupEntityAnother.addArtifact(artifactEntityAnotherOne);
         artifactIdGroupEntityAnother.addArtifact(artifactEntityAnotherTwo);
         artifactIdGroupRepository.save(artifactIdGroupEntityAnother);
-        
+
         Optional<ArtifactIdGroup> artifactIdGroupOptional = artifactIdGroupRepository.findOne(storageId, repositoryId,
                                                                                               "path/to/resource/aigrt-fosw");
         assertThat(artifactIdGroupOptional).isNotEmpty();
@@ -177,5 +182,21 @@ public class ArtifactIdGroupRepositoryTest
         assertThat(artifactIdGroupOptional.get()
                                           .getArtifacts()).filteredOnAssertions(a -> assertThat(a).isInstanceOf(RemoteArtifact.class))
                                                           .hasSize(1);
+
+        artifactIdGroupEntity.removeArtifact(artifactEntityOne);
+        artifactIdGroupEntity.removeArtifact(artifactEntityTwo);
+        artifactIdGroupEntity.removeArtifact(artifactEntityThree);
+        artifactIdGroupEntity = artifactIdGroupRepository.save(artifactIdGroupEntity);
+        assertThat(artifactIdGroupEntity.getArtifacts()).isEmpty();
+        assertThat(g.E()
+                   .hasLabel(Edges.ARTIFACT_GROUP_HAS_ARTIFACTS)
+                   .count().next()).isEqualTo(2);
+        
+        artifactIdGroupOptional = artifactIdGroupRepository.findOne(storageId, repositoryId,
+                                                                    "path/to/resource/aigrt-fosw");
+        assertThat(artifactIdGroupOptional).isNotEmpty();
+        assertThat(artifactIdGroupOptional.get().getUuid()).isNotNull();
+        assertThat(artifactIdGroupOptional.get().getArtifacts()).isEmpty();
+
     }
 }

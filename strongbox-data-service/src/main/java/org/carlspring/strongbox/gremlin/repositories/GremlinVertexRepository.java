@@ -18,7 +18,8 @@ public abstract class GremlinVertexRepository<E extends DomainObject> extends Gr
         Vertex resultVertex = start(this::g).saveV(unfoldTraversal.entityLabel(), entity.getUuid(),
                                                    unfoldTraversal)
                                             .next();
-
+        session.clear();
+        
         return (R) findById(resultVertex.<String>property("uuid").value()).get();
     }
 
