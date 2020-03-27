@@ -2,6 +2,8 @@ package org.carlspring.strongbox.repositories;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
+import java.util.Optional;
+
 import javax.inject.Inject;
 import javax.transaction.Transactional;
 
@@ -14,6 +16,7 @@ import org.carlspring.strongbox.db.schema.Edges;
 import org.carlspring.strongbox.db.schema.Vertices;
 import org.carlspring.strongbox.domain.Artifact;
 import org.carlspring.strongbox.domain.ArtifactEntity;
+import org.carlspring.strongbox.domain.ArtifactIdGroup;
 import org.carlspring.strongbox.domain.ArtifactIdGroupEntity;
 import org.carlspring.strongbox.domain.ArtifactTagEntity;
 import org.carlspring.strongbox.domain.RemoteArtifact;
@@ -117,5 +120,38 @@ public class ArtifactIdGroupRepositoryTest
                     .count()
                     .next()).isEqualTo(0L);
     }
+    
+    
+    @Test
+    @Transactional
+    public void findOneShouldWork()
+    {
+        GraphTraversalSource g = graph.traversal();
+        String storageId = "storage0";
+        String repositoryId = "repository-aigrt-fosw";
+        String pathTemplate = "path/to/resource/aigrt-fosw-%s.jar";
 
+        RawArtifactCoordinates artifactCoordinatesOne = new RawArtifactCoordinates();
+        artifactCoordinatesOne.setId(String.format(pathTemplate, "10"));
+        ArtifactEntity artifactEntityOne = new ArtifactEntity(storageId, repositoryId, artifactCoordinatesOne);
+
+        RawArtifactCoordinates artifactCoordinatesTwo = new RawArtifactCoordinates();
+        artifactCoordinatesTwo.setId(String.format(pathTemplate, "20"));
+        Artifact artifactEntityTwo = new RemoteArtifactEntity(storageId, repositoryId, artifactCoordinatesTwo);
+
+        RawArtifactCoordinates artifactCoordinatesThree = new RawArtifactCoordinates();
+        artifactCoordinatesThree.setId(String.format(pathTemplate, "30"));
+        ArtifactEntity artifactEntityThree = new ArtifactEntity(storageId, repositoryId, artifactCoordinatesThree);
+
+        // Create
+        ArtifactIdGroupEntity artifactIdGroupEntity = new ArtifactIdGroupEntity(storageId, repositoryId, "path/to/resource/aigrt-fosw");
+        artifactIdGroupEntity.addArtifact(artifactEntityOne);
+        artifactIdGroupEntity.addArtifact(artifactEntityTwo);
+        artifactIdGroupEntity.addArtifact(artifactEntityThree);
+        artifactIdGroupEntity = artifactIdGroupRepository.save(artifactIdGroupEntity);
+        assertThat(artifactIdGroupEntity.getUuid()).isNotNull();
+        
+        Optional<ArtifactIdGroup> artifactIdGroupOptional = artifactIdGroupRepository.findOne(storageId, repositoryId, "path/to/resource/aigrt-fosw");
+        assertThat(artifactIdGroupOptional).isNotEmpty();
+    }
 }

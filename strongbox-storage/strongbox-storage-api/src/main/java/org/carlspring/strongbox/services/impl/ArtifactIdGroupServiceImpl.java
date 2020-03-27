@@ -103,7 +103,7 @@ public class ArtifactIdGroupServiceImpl
                                                  String repositoryId,
                                                  String artifactId)
     {
-        Optional<ArtifactIdGroup> optional = tryFind(storageId, repositoryId, artifactId);
+        Optional<ArtifactIdGroup> optional = artifactIdGroupRepository.findOne(storageId, repositoryId, artifactId);
         if (optional.isPresent())
         {
             return optional.get();
@@ -117,20 +117,13 @@ public class ArtifactIdGroupServiceImpl
         }
         catch (SchemaViolationException ex)
         {
-            optional = tryFind(storageId, repositoryId, artifactId);
+            optional = artifactIdGroupRepository.findOne(storageId, repositoryId, artifactId);
             if (optional.isPresent())
             {
                 return optional.get();
             }
             throw ex;
         }
-    }
-
-    protected Optional<ArtifactIdGroup> tryFind(String storageId,
-                                                String repositoryId,
-                                                String artifactId)
-    {
-        return Optional.ofNullable(artifactIdGroupRepository.findOne(storageId, repositoryId, artifactId));
     }
 
     protected ArtifactIdGroup create(String storageId,

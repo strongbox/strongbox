@@ -1,6 +1,7 @@
 package org.carlspring.strongbox.repositories;
 
 import java.util.List;
+import java.util.Optional;
 
 import javax.inject.Inject;
 
@@ -8,6 +9,8 @@ import org.carlspring.strongbox.data.service.support.search.PagingCriteria;
 import org.carlspring.strongbox.domain.ArtifactIdGroup;
 import org.carlspring.strongbox.gremlin.adapters.ArtifactIdGroupAdapter;
 import org.carlspring.strongbox.gremlin.repositories.GremlinVertexRepository;
+import org.springframework.data.neo4j.annotation.Query;
+import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
 
 @Repository
@@ -39,16 +42,9 @@ public class ArtifactIdGroupRepository extends GremlinVertexRepository<ArtifactI
         return queries.findMatching(storageId, repositoryId, pagingCriteria);
     }
 
-    public ArtifactIdGroup findOneOrCreate(String storageId,
-                                           String repositoryId,
-                                           String artifactId)
-    {
-        return queries.findOneOrCreate(storageId, repositoryId, artifactId);
-    }
-
-    public ArtifactIdGroup findOne(String storageId,
-                                   String repositoryId,
-                                   String artifactId)
+    public Optional<ArtifactIdGroup> findOne(String storageId,
+                                             String repositoryId,
+                                             String artifactId)
     {
         return queries.findOne(storageId, repositoryId, artifactId);
     }
@@ -73,21 +69,15 @@ interface ArtifactIdGroupQueries
         return null;
     }
 
-    // @Query("MATCH (aig:`ArtifactIdGroup`) WHERE aig.storageId=$storageId and
-    // aig.storageId=$repositoryId and aig.storageId=$artifactId RETURN ae,
-    // aeac, ac")
-    default ArtifactIdGroup findOneOrCreate(String storageId,
-                                            String repositoryId,
-                                            String artifactId)
-    {
-        return null;
-    }
-
-    default ArtifactIdGroup findOne(String storageId,
-                                    String repositoryId,
-                                    String artifactId)
-    {
-        return null;
-    }
+    @Query("MATCH (aig:`ArtifactIdGroup`)-[r0]->(artifact:Artifact)-[r1]->(genericCoordinates:GenericArtifactCoordinates) " +
+           "WHERE aig.storageId=$storageId and aig.repositoryId=$repositoryId and aig.name=$artifactId " +
+           "WITH aig, r0, artifact, r1, genericCoordinates " +
+           "MATCH (genericCoordinates)<-[r2]-(layoutCoordinates) " +
+           "WITH aig, r0, artifact, r1, genericCoordinates, r2, layoutCoordinates " +
+           "OPTIONAL MATCH (artifact)<-[r3]-(remoteArtifact) " +
+           "RETURN aig, r0, artifact, r3, remoteArtifact, r1, genericCoordinates, r2, layoutCoordinates")
+    Optional<ArtifactIdGroup> findOne(@Param("storageId") String storageId,
+                                      @Param("repositoryId") String repositoryId,
+                                      @Param("artifactId") String artifactId);
 
 }

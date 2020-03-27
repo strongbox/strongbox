@@ -7,6 +7,7 @@ import java.nio.file.Files;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
@@ -245,8 +246,8 @@ public abstract class AbstractLayoutProvider<T extends LayoutArtifactCoordinates
         Repository repository = path.getFileSystem().getRepository();
         Storage storage = repository.getStorage();
         ArtifactCoordinates c = RepositoryFiles.readCoordinates(path);
-        ArtifactIdGroup artifactIdGroup = artifactIdGroupRepository.findOne(storage.getId(), repository.getId(), c.getId());
+        Optional<ArtifactIdGroup> artifactIdGroup = artifactIdGroupRepository.findOne(storage.getId(), repository.getId(), c.getId());
         
-        return artifactIdGroup == null ? Collections.emptySet() : Sets.newHashSet(artifactIdGroup);
+        return artifactIdGroup.map(ArtifactGroup.class::cast).map(Collections::singleton).orElse(Collections.emptySet());
     }
 }
