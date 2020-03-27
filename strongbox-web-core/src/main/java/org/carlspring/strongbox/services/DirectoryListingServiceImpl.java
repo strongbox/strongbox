@@ -1,5 +1,6 @@
 package org.carlspring.strongbox.services;
 
+import org.carlspring.strongbox.booters.PropertiesBooter;
 import org.carlspring.strongbox.domain.DirectoryListing;
 import org.carlspring.strongbox.domain.FileContent;
 import org.carlspring.strongbox.providers.io.RepositoryFileAttributeType;
@@ -34,6 +35,9 @@ public class DirectoryListingServiceImpl
     private static final Logger logger = LoggerFactory.getLogger(DirectoryListingService.class);
 
     @Inject
+    private PropertiesBooter propertiesBooter;
+
+    @Inject
     private StrongboxUriComponentsBuilder uriBuilder;
 
     public DirectoryListingServiceImpl()
@@ -60,7 +64,8 @@ public class DirectoryListingServiceImpl
     }
 
     @Override
-    public DirectoryListing fromRepositories(String storageId, Map<String, ? extends Repository> repositories)
+    public DirectoryListing fromRepositories(String storageId,
+                                             Map<String, ? extends Repository> repositories)
             throws IOException
     {
         DirectoryListing directoryListing = new DirectoryListing();
@@ -86,63 +91,123 @@ public class DirectoryListingServiceImpl
     }
 
     @Override
-    public DirectoryListing fromRepositoryPath(RepositoryPath path)
+    public DirectoryListing fromRepositoryPath(RepositoryPath repositoryPath)
             throws IOException
     {
-        UriComponentsBuilder directoryListingBuilder = uriBuilder.browseUriBuilder(path.getStorage().getId(),
-                                                                                   path.getRepository().getId(),
-                                                                                   (String) null);
+        UriComponentsBuilder directoryLinkBuilder = uriBuilder.browseUriBuilder(repositoryPath.getStorage().getId(),
+                                                                                repositoryPath.getRepository().getId(),
+                                                                                (String) null);
 
-        UriComponentsBuilder downloadListingBuilder = uriBuilder.storageUriBuilder(path.getStorage().getId(),
-                                                                                   path.getRepository().getId(),
-                                                                                   (String) null);
+        UriComponentsBuilder fileLinkBuilder = uriBuilder.storageUriBuilder(repositoryPath.getStorage().getId(),
+                                                                            repositoryPath.getRepository().getId(),
+                                                                            (String) null);
 
-        return generateDirectoryListing(path.normalize(), directoryListingBuilder, downloadListingBuilder);
+        List<Path> contentPaths = fetchContent(repositoryPath);
+
+        return generateDirectoryListing(null, contentPaths, directoryLinkBuilder, fileLinkBuilder);
     }
 
     @Override
     public DirectoryListing fromPath(UriComponentsBuilder directoryLinkBuilder,
-                                     UriComponentsBuilder downloadLinkBuilder,
+                                     UriComponentsBuilder fileLinkBuilder,
                                      Path rootPath,
-                                     Path path)
+                                     Path requestedPath)
             throws IOException, RuntimeException
     {
         rootPath = rootPath.normalize();
-        path = path.normalize();
+        requestedPath = requestedPath.normalize();
 
-        if (!path.equals(rootPath) && !path.startsWith(rootPath))
+        if (!requestedPath.equals(rootPath) && !requestedPath.startsWith(rootPath))
         {
-            String message = String.format(
-                    "Requested directory listing for [%s] is outside the scope of the root path [%s]! Possible intrusion attack or misconfiguration!",
-                    path, rootPath);
+            String message = "Requested directory listing is outside the scope of the root path! Possible intrusion attack or misconfiguration!";
             logger.error(message);
             throw new RuntimeException(message);
         }
 
-        return generateDirectoryListing(path, directoryLinkBuilder, downloadLinkBuilder);
+        Path relativePath = rootPath.relativize(requestedPath);
+
+        List<Path> contentPaths = fetchContent(requestedPath);
+
+        return generateDirectoryListing(relativePath, contentPaths, directoryLinkBuilder, fileLinkBuilder);
     }
 
     /**
      * Generate a directory listing for a path.
      *
-     * @param path The path which will be listed
+     * @param relativePath         A relative path to the artifact within the scope of (directory|file)LinkBuilder
+     *                             This field is only needed/used when listing non-storage paths.
+     * @param contentPaths         List of Paths to iterate over to generate the DirectoryListing.
      * @param directoryLinkBuilder UriComponentsBuilder to be used for generating directory links
-     * @param downloadLinkBuilder UriComponentsBuilder to be used for generating download links;
-     *                            If null - file.url will be null as well.
+     * @param fileLinkBuilder      UriComponentsBuilder to be used for generating download links;
+     *                             If null - file.url will be null as well.
      *
      * @return
      *
      * @throws IOException
      */
-    private DirectoryListing generateDirectoryListing(Path path,
+    private DirectoryListing generateDirectoryListing(Path relativePath,
+                                                      List<Path> contentPaths,
                                                       UriComponentsBuilder directoryLinkBuilder,
-                                                      UriComponentsBuilder downloadLinkBuilder)
+                                                      UriComponentsBuilder fileLinkBuilder)
             throws IOException
     {
-
         DirectoryListing listing = new DirectoryListing();
         listing.setLink(uriBuilder.getCurrentRequestURL());
 
+        for (Path contentPath : contentPaths)
+        {
+            FileContent file = new FileContent(contentPath.getFileName().toString());
+
+            Map<String, Object> fileAttributes = Files.readAttributes(contentPath, "*");
+
+            file.setStorageId((String) fileAttributes.get(RepositoryFileAttributeType.STORAGE_ID.getName()));
+            file.setRepositoryId((String) fileAttributes.get(RepositoryFileAttributeType.REPOSITORY_ID.getName()));
+            file.setArtifactPath((String) fileAttributes.get(RepositoryFileAttributeType.ARTIFACT_PATH.getName()));
+            file.setLastModified(new Date(((FileTime) fileAttributes.get("lastModifiedTime")).toMillis()));
+            file.setSize((Long) fileAttributes.get("size"));
+
+            // Depending on scanned file/path this might not be a `storage` artifact (i.e. it could be a log file)
+            // in which case we need to set the artifactPath to the file's path.
+            if (file.getArtifactPath() == null)
+            {
+                file.setArtifactPath(StringUtils.removeStart(relativePath.toString() + "/" + file.getName(), "/"));
+            }
+
+            UriComponentsBuilder builder = null;
+            if (Boolean.TRUE.equals(fileAttributes.get("isDirectory")))
+            {
+                // TODO: Use `UriComponentsBuilder.clone()` when spring-framework/issues/24772 is fixed and released
+                builder = UriComponentsBuilder.fromUriString(directoryLinkBuilder.toUriString());
+                listing.getDirectories().add(file);
+            }
+            else
+            {
+                // TODO: Use `UriComponentsBuilder.clone()` when spring-framework/issues/24772 is fixed and released
+                if(fileLinkBuilder != null)
+                {
+                    builder = UriComponentsBuilder.fromUriString(fileLinkBuilder.toUriString());
+                }
+
+                listing.getFiles().add(file);
+            }
+
+            if(builder != null)
+            {
+                URL url = builder.path(sanitizedPath(file.getArtifactPath()))
+                                 .build()
+                                 .toUri()
+                                 .toURL();
+
+                file.setUrl(url);
+            }
+        }
+
+        return listing;
+    }
+
+    private List<Path> fetchContent(Path path)
+            throws IOException
+    {
         List<Path> contentPaths;
         try (Stream<Path> pathStream = Files.list(path))
         {
@@ -163,49 +228,7 @@ public class DirectoryListingServiceImpl
                                    .collect(Collectors.toList());
         }
 
-        for (Path contentPath : contentPaths)
-        {
-            FileContent file = new FileContent(contentPath.getFileName().toString());
-
-            Map<String, Object> fileAttributes = Files.readAttributes(contentPath, "*");
-
-            file.setStorageId((String) fileAttributes.get(RepositoryFileAttributeType.STORAGE_ID.getName()));
-            file.setRepositoryId((String) fileAttributes.get(RepositoryFileAttributeType.REPOSITORY_ID.getName()));
-            file.setArtifactPath((String) fileAttributes.get(RepositoryFileAttributeType.ARTIFACT_PATH.getName()));
-
-            if (Boolean.TRUE.equals(fileAttributes.get("isDirectory")))
-            {
-                // TODO: Use `UriComponentsBuilder.clone()` when spring-framework/issues/24772 is fixed.
-                URL fileUrl = UriComponentsBuilder.fromUriString(directoryLinkBuilder.toUriString())
-                                                  .path(sanitizedPath(file.getArtifactPath()))
-                                                  .build()
-                                                  .toUri()
-                                                  .toURL();
-
-                file.setUrl(fileUrl);
-
-                listing.getDirectories().add(file);
-            }
-            else
-            {
-                if(downloadLinkBuilder != null)
-                {
-                    // TODO: Use `UriComponentsBuilder.clone()` when spring-framework/issues/24772 is fixed.
-                    URL fileUrl = UriComponentsBuilder.fromUriString(downloadLinkBuilder.toUriString())
-                                                      .path(sanitizedPath(file.getArtifactPath()))
-                                                      .build()
-                                                      .toUri()
-                                                      .toURL();
-                    file.setUrl(fileUrl);
-                }
-
-                file.setLastModified(new Date(((FileTime) fileAttributes.get("lastModifiedTime")).toMillis()));
-                file.setSize((Long) fileAttributes.get("size"));
-                listing.getFiles().add(file);
-            }
-        }
-
-        return listing;
+        return contentPaths;
     }
 
     private String sanitizedPath(String path)

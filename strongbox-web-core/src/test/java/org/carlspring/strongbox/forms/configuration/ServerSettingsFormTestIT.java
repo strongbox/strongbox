@@ -31,7 +31,7 @@ public class ServerSettingsFormTestIT
 {
 
     private static final String INSTANCE_NAME_VALID = "new-instance";
-    private static final String URL_VALID = "url";
+    private static final String URL_VALID = "http://localhost.dev";
     private static final Integer PORT_VALID = 1;
     private static final Integer PORT_EMPTY = null;
     private static final Integer PORT_MIN_INVALID = 0;
@@ -142,12 +142,12 @@ public class ServerSettingsFormTestIT
                                                                                      ProxyConfigurationFormChecks.class);
 
         // then
-        assertThat(violations).as("Violations are empty!").hasSize(1);
+        assertThat(violations).as("Violations count mismatch!").hasSize(1);
         assertThat(violations).extracting("message").containsAnyOf("The name of this instance");
     }
 
     @Test
-    void testServerSettingsFormInvalidEmptyUrl()
+    void testServerSettingsFormValidEmptyUrl()
     {
         // given
         ServerSettingsForm serverSettingsForm = new ServerSettingsForm();
@@ -165,8 +165,7 @@ public class ServerSettingsFormTestIT
                                                                                      ProxyConfigurationFormChecks.class);
 
         // then
-        assertThat(violations).as("Violations are empty!").hasSize(1);
-        assertThat(violations).extracting("message").containsAnyOf("A base URL must be specified.");
+        assertThat(violations).as("Violations are not empty!").isEmpty();
     }
 
     @ParameterizedTest
@@ -190,7 +189,7 @@ public class ServerSettingsFormTestIT
                                                                                      ProxyConfigurationFormChecks.class);
 
         // then
-        assertThat(violations).as("Violations are empty!").hasSize(1);
+        assertThat(violations).as("Violations count mismatch!").hasSize(1);
         assertThat(violations).extracting("message").containsAnyOf(errorMessage);
     }
 
@@ -214,7 +213,7 @@ public class ServerSettingsFormTestIT
                                                                                      ProxyConfigurationFormChecks.class);
 
         // then
-        assertThat(violations).as("Violations are empty!").hasSize(1);
+        assertThat(violations).as("Violations count mismatch!").hasSize(1);
         assertThat(violations).extracting("message").containsAnyOf(
                 "Port number must be an integer between 1 and 65535.");
     }
@@ -239,7 +238,7 @@ public class ServerSettingsFormTestIT
                                                                                      ProxyConfigurationFormChecks.class);
 
         // then
-        assertThat(violations).as("Violations are empty!").hasSize(1);
+        assertThat(violations).as("Violations count mismatch!").hasSize(1);
         assertThat(violations).extracting("message").containsAnyOf("A host must be specified.");
     }
 }

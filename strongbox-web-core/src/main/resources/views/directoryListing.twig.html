@@ -23,7 +23,7 @@
 </head>
 <body>
 
-    <h1>Index of {{ currentPath }}/</h1>
+    <h1 class="currentPath">Index of {{ currentPath }}/</h1>
 
     <table>
         <thead>
@@ -36,7 +36,7 @@
         </thead>
         <tbody>
         {% if showBack|default(true) %}
-        <tr>
+        <tr class="showBack">
             <td colspan="4">
                 <a href="{{ currentPath }}/../">..</a>
             </td>
@@ -44,8 +44,8 @@
         {% endif %}
 
         {% for directory in directories %}
-        <tr>
-            <td><a href="{{ directory.url }}">{{ directory.name }}/</a></td>
+        <tr class="directory">
+            <td class="link"><a href="{{ directory.url }}">{{ directory.name }}/</a></td>
             <td>{% if directory.lastModified %}{{ directory.lastModified }}{% else %}-{% endif %}</td>
             <td>{% if directory.size %}{{ directory.size }}{% else %}-{% endif %}</td>
             <td>{% if directory.description %}{{ directory.description }}{% else %}-{% endif %}</td>
@@ -53,8 +53,8 @@
         {% endfor %}
 
         {% for file in files %}
-        <tr>
-            <td><a href="{{ file.url }}">{{ file.name }}</a></td>
+        <tr class="file">
+            <td class="link"><a href="{{ file.url }}">{{ file.name }}</a></td>
             <td>{% if file.lastModified %}{{ file.lastModified }}{% else %}-{% endif %}</td>
             <td>{{ file.size | default("-") | humanReadableSize  }}</td>
             <td>{% if file.description %}{{ file.description }}{% else %}-{% endif %}</td>

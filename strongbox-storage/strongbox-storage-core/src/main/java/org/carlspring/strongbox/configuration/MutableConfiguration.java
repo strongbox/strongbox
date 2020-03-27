@@ -29,7 +29,7 @@ public class MutableConfiguration
 
     private String revision;
 
-    private String baseUrl = "http://localhost/";
+    private String baseUrl = "http://localhost:48080";
 
     private int port = 48080;
 

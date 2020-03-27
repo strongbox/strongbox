@@ -57,7 +57,7 @@ public interface DirectoryListingService
      *
      * @param directoryLinkBuilder preferably a {@link StrongboxUriComponentsBuilder} instance to use as "base" when
      *                             generating urls.
-     * @param downloadLinkBuilder  download link builder - if null, should use `directoryLinkBuilder`.
+     * @param fileLinkBuilder      download link builder - if null, should use `directoryLinkBuilder`.
      * @param root                 The root path in which directory listing is allowed. Used as a
      *                             precaution to prevent directory traversing.
      *                             When "path" is outside "rootPath" an exception will be thrown.
@@ -69,7 +69,7 @@ public interface DirectoryListingService
      * @throws IOException
      */
     DirectoryListing fromPath(UriComponentsBuilder directoryLinkBuilder,
-                              UriComponentsBuilder downloadLinkBuilder,
+                              UriComponentsBuilder fileLinkBuilder,
                               Path root,
                               Path path)
             throws IOException, RuntimeException;

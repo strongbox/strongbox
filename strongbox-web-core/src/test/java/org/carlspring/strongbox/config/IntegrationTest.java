@@ -19,6 +19,7 @@ import java.util.function.Function;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import io.restassured.config.ObjectMapperConfig;
+import io.restassured.module.mockmvc.config.MockMvcParamConfig;
 import io.restassured.module.mockmvc.config.RestAssuredMockMvcConfig;
 import io.restassured.module.mockmvc.internal.MockMvcFactory;
 import io.restassured.module.mockmvc.internal.MockMvcRequestSpecificationImpl;
