@@ -120,8 +120,7 @@ public class ArtifactIdGroupRepositoryTest
                     .count()
                     .next()).isEqualTo(0L);
     }
-    
-    
+
     @Test
     @Transactional
     public void findOneShouldWork()
@@ -131,6 +130,7 @@ public class ArtifactIdGroupRepositoryTest
         String repositoryId = "repository-aigrt-fosw";
         String pathTemplate = "path/to/resource/aigrt-fosw-%s.jar";
 
+        //First group
         RawArtifactCoordinates artifactCoordinatesOne = new RawArtifactCoordinates();
         artifactCoordinatesOne.setId(String.format(pathTemplate, "10"));
         ArtifactEntity artifactEntityOne = new ArtifactEntity(storageId, repositoryId, artifactCoordinatesOne);
@@ -143,15 +143,39 @@ public class ArtifactIdGroupRepositoryTest
         artifactCoordinatesThree.setId(String.format(pathTemplate, "30"));
         ArtifactEntity artifactEntityThree = new ArtifactEntity(storageId, repositoryId, artifactCoordinatesThree);
 
-        // Create
-        ArtifactIdGroupEntity artifactIdGroupEntity = new ArtifactIdGroupEntity(storageId, repositoryId, "path/to/resource/aigrt-fosw");
+        ArtifactIdGroupEntity artifactIdGroupEntity = new ArtifactIdGroupEntity(storageId, repositoryId,
+                "path/to/resource/aigrt-fosw");
         artifactIdGroupEntity.addArtifact(artifactEntityOne);
         artifactIdGroupEntity.addArtifact(artifactEntityTwo);
         artifactIdGroupEntity.addArtifact(artifactEntityThree);
-        artifactIdGroupEntity = artifactIdGroupRepository.save(artifactIdGroupEntity);
-        assertThat(artifactIdGroupEntity.getUuid()).isNotNull();
+        artifactIdGroupRepository.save(artifactIdGroupEntity);
+
+        //Second group
+        pathTemplate = "path/to/resource/aigrt-fosw-another-%s.jar";
+        RawArtifactCoordinates artifactCoordinatesAnotherOne = new RawArtifactCoordinates();
+        artifactCoordinatesAnotherOne.setId(String.format(pathTemplate, "10"));
+        ArtifactEntity artifactEntityAnotherOne = new ArtifactEntity(storageId, repositoryId, artifactCoordinatesAnotherOne);
+
+        RawArtifactCoordinates artifactCoordinatesAnotherTwo = new RawArtifactCoordinates();
+        artifactCoordinatesAnotherTwo.setId(String.format(pathTemplate, "20"));
+        Artifact artifactEntityAnotherTwo = new RemoteArtifactEntity(storageId, repositoryId, artifactCoordinatesAnotherTwo);
+
+        ArtifactIdGroupEntity artifactIdGroupEntityAnother = new ArtifactIdGroupEntity(storageId, repositoryId,
+                "path/to/resource/aigrt-fosw-another");
+        artifactIdGroupEntityAnother.addArtifact(artifactEntityAnotherOne);
+        artifactIdGroupEntityAnother.addArtifact(artifactEntityAnotherTwo);
+        artifactIdGroupRepository.save(artifactIdGroupEntityAnother);
         
-        Optional<ArtifactIdGroup> artifactIdGroupOptional = artifactIdGroupRepository.findOne(storageId, repositoryId, "path/to/resource/aigrt-fosw");
+        Optional<ArtifactIdGroup> artifactIdGroupOptional = artifactIdGroupRepository.findOne(storageId, repositoryId,
+                                                                                              "path/to/resource/aigrt-fosw");
         assertThat(artifactIdGroupOptional).isNotEmpty();
+        assertThat(artifactIdGroupOptional.get().getUuid()).isNotNull();
+        assertThat(artifactIdGroupOptional.get().getStorageId()).isEqualTo(storageId);
+        assertThat(artifactIdGroupOptional.get().getRepositoryId()).isEqualTo(repositoryId);
+        assertThat(artifactIdGroupOptional.get().getArtifacts()).containsOnly(artifactEntityOne, artifactEntityTwo,
+                                                                              artifactEntityThree);
+        assertThat(artifactIdGroupOptional.get()
+                                          .getArtifacts()).filteredOnAssertions(a -> assertThat(a).isInstanceOf(RemoteArtifact.class))
+                                                          .hasSize(1);
     }
 }
