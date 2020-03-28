@@ -31,7 +31,7 @@ public class ArtifactIdGroupEntity extends DomainEntity implements ArtifactIdGro
     @Relationship(type = Edges.ARTIFACT_GROUP_HAS_ARTIFACTS, direction = Relationship.OUTGOING)
     private final Set<Artifact> artifacts = new HashSet<>();
 
-    ArtifactIdGroupEntity()
+    public ArtifactIdGroupEntity()
     {
     }
 
@@ -50,14 +50,29 @@ public class ArtifactIdGroupEntity extends DomainEntity implements ArtifactIdGro
         return storageId;
     }
 
+    public void setStorageId(String storageId)
+    {
+        this.storageId = storageId;
+    }
+
     public String getRepositoryId()
     {
         return repositoryId;
     }
 
+    public void setRepositoryId(String repositoryId)
+    {
+        this.repositoryId = repositoryId;
+    }
+
     public String getName()
     {
         return name;
+    }
+
+    public void setName(String name)
+    {
+        this.name = name;
     }
 
     @Override

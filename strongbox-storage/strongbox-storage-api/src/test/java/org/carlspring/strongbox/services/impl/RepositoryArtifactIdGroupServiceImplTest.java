@@ -3,6 +3,7 @@ package org.carlspring.strongbox.services.impl;
 import static org.assertj.core.api.Assertions.assertThatExceptionOfType;
 
 import javax.inject.Inject;
+import javax.transaction.Transactional;
 
 import org.carlspring.strongbox.StorageApiTestConfig;
 import org.carlspring.strongbox.data.CacheManagerTestExecutionListener;
@@ -23,6 +24,7 @@ import org.springframework.test.context.TestExecutionListeners;
 @ContextConfiguration(classes = StorageApiTestConfig.class)
 @TestExecutionListeners(listeners = { CacheManagerTestExecutionListener.class },
                         mergeMode = TestExecutionListeners.MergeMode.MERGE_WITH_DEFAULTS)
+@Transactional
 class RepositoryArtifactIdGroupServiceImplTest
 {
 
@@ -32,13 +34,15 @@ class RepositoryArtifactIdGroupServiceImplTest
     @Test
     public void repositoryArtifactIdGroupShouldBeProtectedByIndex()
     {
-        ArtifactIdGroupEntity g1 = new ArtifactIdGroupEntity("r1", "s1", "a1");
-        System.out.println(artifactIdGroupRepository.save(g1).getUuid());
+        ArtifactIdGroupEntity g1 = new ArtifactIdGroupEntity("s1", "r1", "a1");
+        artifactIdGroupRepository.save(g1).getUuid();
 
         assertThatExceptionOfType(SchemaViolationException.class).isThrownBy(() -> {
-            ArtifactIdGroupEntity g2 = new ArtifactIdGroupEntity("r1", "s1",
-                    "a1");
-            System.out.println(artifactIdGroupRepository.save(g2).getUuid());
+            ArtifactIdGroupEntity g2 = new ArtifactIdGroupEntity();
+            g2.setStorageId("s1");
+            g2.setRepositoryId("r1");
+            g2.setName("a1");
+            artifactIdGroupRepository.save(g2).getUuid();
         });
     }
 }

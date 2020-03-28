@@ -15,6 +15,8 @@ import org.carlspring.strongbox.testing.storage.repository.TestRepository;
 import org.carlspring.strongbox.testing.storage.repository.TestRepositoryManagementApplicationContext;
 
 import javax.inject.Inject;
+import javax.transaction.Transactional;
+
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
@@ -38,6 +40,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 @ContextConfiguration(classes = { StorageApiTestConfig.class })
 @TestExecutionListeners(listeners = { CacheManagerTestExecutionListener.class },
                         mergeMode = TestExecutionListeners.MergeMode.MERGE_WITH_DEFAULTS)
+@Transactional
 public class RepositoryManagementTest
 {
 
