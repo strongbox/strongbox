@@ -55,7 +55,8 @@ public class RemoteAritfactAdapter extends VertexEntityTraversalAdapter<RemoteAr
     public EntityTraversal<Vertex, RemoteArtifact> foldHierarchy(EntityTraversal<Vertex, Object> parentProjection,
                                                                  EntityTraversal<Vertex, Object> childProjection)
     {
-        return __.<Vertex, Object>project("uuid", "cached", "artifact")
+        return __.<Vertex, Object>project("id", "uuid", "cached", "artifact")
+                 .by(__.id())
                  .by(__.enrichPropertyValue("uuid"))
                  .by(__.enrichPropertyValue("cached"))
                  .by(parentProjection)
@@ -83,6 +84,7 @@ public class RemoteAritfactAdapter extends VertexEntityTraversalAdapter<RemoteAr
     {
         RemoteArtifactEntity result = new RemoteArtifactEntity(
                 extractObject(ArtifactEntity.class, t.get().get("artifact")));
+        result.setNativeId(extractObject(Long.class, t.get().get("id")));
         result.setUuid(extractObject(String.class, t.get().get("uuid")));
         result.setIsCached(extractObject(Boolean.class, t.get().get("cached")));
 

@@ -61,7 +61,7 @@ public class RepositoryPath
 
     public String getRepositoryId()
     {
-        return getRepository().getStorage().getId();
+        return getRepository().getId();
     }
     
     protected Path getTarget()

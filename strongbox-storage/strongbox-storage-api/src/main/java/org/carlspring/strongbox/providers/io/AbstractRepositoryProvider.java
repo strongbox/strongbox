@@ -243,7 +243,7 @@ public abstract class AbstractRepositoryProvider implements RepositoryProvider, 
     
     protected boolean shouldStoreArtifact(Artifact artifactEntry)
     {
-        return artifactEntry.getUuid() == null;
+        return artifactEntry.getNativeId() == null;
     }
     
     @Override

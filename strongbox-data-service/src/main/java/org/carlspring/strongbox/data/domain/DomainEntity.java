@@ -9,8 +9,19 @@ import org.neo4j.ogm.annotation.Id;
 public class DomainEntity implements DomainObject
 {
 
+    private Long id;
     @Id
     private String uuid;
+
+    public Long getNativeId()
+    {
+        return id;
+    }
+
+    public void setNativeId(Long id)
+    {
+        this.id = id;
+    }
 
     @Override
     public String getUuid()

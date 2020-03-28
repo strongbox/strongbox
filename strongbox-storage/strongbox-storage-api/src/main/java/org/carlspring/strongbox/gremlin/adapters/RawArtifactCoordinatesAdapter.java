@@ -40,7 +40,8 @@ public class RawArtifactCoordinatesAdapter
                                                                          EntityTraversal<Vertex, Object> childProjection)
     {
         return __.<Vertex>hasLabel(Vertices.RAW_ARTIFACT_COORDINATES)
-                 .project("uuid", "genericArtifactCoordinates")
+                 .project("id", "uuid", "genericArtifactCoordinates")
+                 .by(__.id())
                  .by(__.enrichPropertyValue("uuid"))
                  .by(parentProjection)
                  .map(this::map);
@@ -61,6 +62,7 @@ public class RawArtifactCoordinatesAdapter
             result = new RawArtifactCoordinates(genericArtifactCoordinates);
             genericArtifactCoordinates.setLayoutArtifactCoordinates(result);
         }
+        result.setNativeId(extractObject(Long.class, t.get().get("id")));
         result.setUuid(extractObject(String.class, t.get().get("uuid")));
 
         return result;

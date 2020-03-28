@@ -81,7 +81,8 @@ public class ArtifactAdapter extends VertexEntityTraversalAdapter<Artifact> impl
     public EntityTraversal<Vertex, Artifact> foldHierarchy(EntityTraversal<Vertex, Object> parentProjection,
                                                            EntityTraversal<Vertex, Object> childProjection)
     {
-        return __.<Vertex, Object>project("uuid",
+        return __.<Vertex, Object>project("id",
+                                          "uuid",
                                           "storageId",
                                           "repositoryId",
                                           "lastUpdated",
@@ -94,6 +95,7 @@ public class ArtifactAdapter extends VertexEntityTraversalAdapter<Artifact> impl
                                           "genericArtifactCoordinates",
                                           "tags",
                                           "artifactHierarchyChild")
+                 .by(__.id())
                  .by(__.enrichPropertyValue("uuid"))
                  .by(__.enrichPropertyValue("storageId"))
                  .by(__.enrichPropertyValue("repositoryId"))
@@ -121,7 +123,7 @@ public class ArtifactAdapter extends VertexEntityTraversalAdapter<Artifact> impl
     {
         return __.inE(Edges.REMOTE_ARTIFACT_INHERIT_ARTIFACT)
                  .mapToObject(__.outV()
-                                .map(genericArtifactAdapter.fold(__.<Vertex>identity().constant(NULL)))
+                                .map(genericArtifactAdapter.fold(() -> __.<Vertex>identity().constant(NULL)))
                                 .map(EntityTraversalUtils::castToObject));
     }
 
@@ -133,6 +135,7 @@ public class ArtifactAdapter extends VertexEntityTraversalAdapter<Artifact> impl
                                                                              t.get().get("genericArtifactCoordinates"));
 
         ArtifactEntity result = new ArtifactEntity(storageId, repositoryId, artifactCoordinates.getLayoutArtifactCoordinates());
+        result.setNativeId(extractObject(Long.class, t.get().get("id")));
         result.setUuid(extractObject(String.class, t.get().get("uuid")));
 
         result.setCreated(toLocalDateTime(extractObject(Long.class, t.get().get("created"))));

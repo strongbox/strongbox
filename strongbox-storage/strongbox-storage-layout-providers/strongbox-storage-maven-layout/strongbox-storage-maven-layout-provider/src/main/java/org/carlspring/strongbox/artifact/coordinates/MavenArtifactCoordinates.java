@@ -41,17 +41,6 @@ public class MavenArtifactCoordinates
 
     private static final String EXTENSION = "extension";
 
-    private String groupId;
-
-    private String artifactId;
-
-    private String version;
-
-    private String classifier;
-
-    private String extension = "jar";
-
-
     public MavenArtifactCoordinates()
     {
         resetCoordinates(GROUPID, ARTIFACTID, VERSION, CLASSIFIER, EXTENSION);
@@ -95,9 +84,9 @@ public class MavenArtifactCoordinates
             i++;
         }
 
-        if (extension == null)
+        if (getExtension() == null)
         {
-            extension = "jar";
+            setExtension("jar");
         }
 
     }
@@ -136,26 +125,24 @@ public class MavenArtifactCoordinates
     @XmlAttribute(name = "groupId")
     public String getGroupId()
     {
-        return groupId;
+        return getCoordinate(GROUPID);
     }
 
     public void setGroupId(String groupId)
     {
-        this.groupId = groupId;
-        setCoordinate(GROUPID, this.groupId);
+        setCoordinate(GROUPID, groupId);
     }
 
     @ArtifactLayoutCoordinate
     @XmlAttribute(name = "artifactId")
     public String getArtifactId()
     {
-        return artifactId;
+        return getCoordinate(ARTIFACTID);
     }
 
     public void setArtifactId(String artifactId)
     {
-        this.artifactId = artifactId;
-        setCoordinate(ARTIFACTID, this.artifactId);
+        setCoordinate(ARTIFACTID, artifactId);
     }
 
     @Override
@@ -173,40 +160,31 @@ public class MavenArtifactCoordinates
     @XmlAttribute(name = "version")
     public String getVersion()
     {
-        return version;
-    }
-
-    @Override
-    public void setVersion(String version)
-    {
-        this.version = version;
-        setCoordinate(VERSION, this.version);
+        return super.getVersion();
     }
 
     @ArtifactLayoutCoordinate
     @XmlAttribute(name = "classifier")
     public String getClassifier()
     {
-        return classifier;
+        return getCoordinate(CLASSIFIER);
     }
 
     public void setClassifier(String classifier)
     {
-        this.classifier = classifier;
-        setCoordinate(CLASSIFIER, this.classifier);
+        setCoordinate(CLASSIFIER, classifier);
     }
 
     @ArtifactLayoutCoordinate
     @XmlAttribute(name = "extension")
     public String getExtension()
     {
-        return extension;
+        return getCoordinate(EXTENSION);
     }
 
     public void setExtension(String extension)
     {
-        this.extension = extension;
-        setCoordinate(EXTENSION, this.extension);
+        setCoordinate(EXTENSION, extension);
     }
 
     @Override
@@ -223,9 +201,9 @@ public class MavenArtifactCoordinates
     @Override
     public String toString()
     {
-        return "MavenArtifactCoordinates{" + "groupId='" + groupId + '\'' + ", artifactId='" + artifactId + '\'' +
-               ", version='" + version + '\'' + ", classifier='" + classifier + '\'' + ", extension='" + extension +
-               '\'' + ", as path: " + buildPath() + '}';
+        return "MavenArtifactCoordinates{" + "groupId='" + getGroupId() + '\'' + ", artifactId='" + getArtifactId() + '\'' +
+               ", version='" + getVersion() + '\'' + ", classifier='" + getClassifier() + '\'' + ", extension='" + getExtension() +
+               '\'' + ", as path: " + convertToPath(this) + '}';
     }
 
 }

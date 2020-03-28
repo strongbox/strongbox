@@ -150,6 +150,9 @@ public class ArtifactIdGroupRepositoryTest
 
         ArtifactIdGroupEntity artifactIdGroupEntity = new ArtifactIdGroupEntity(storageId, repositoryId,
                 "path/to/resource/aigrt-fosw");
+        assertThat(artifactIdGroupRepository.findOne(storageId, repositoryId, "path/to/resource/aigrt-fosw")).isEmpty();
+
+        artifactIdGroupEntity = artifactIdGroupRepository.save(artifactIdGroupEntity);
         artifactIdGroupEntity.addArtifact(artifactEntityOne);
         artifactIdGroupEntity.addArtifact(artifactEntityTwo);
         artifactIdGroupEntity.addArtifact(artifactEntityThree);
@@ -189,9 +192,10 @@ public class ArtifactIdGroupRepositoryTest
         artifactIdGroupEntity = artifactIdGroupRepository.save(artifactIdGroupEntity);
         assertThat(artifactIdGroupEntity.getArtifacts()).isEmpty();
         assertThat(g.E()
-                   .hasLabel(Edges.ARTIFACT_GROUP_HAS_ARTIFACTS)
-                   .count().next()).isEqualTo(2);
-        
+                    .hasLabel(Edges.ARTIFACT_GROUP_HAS_ARTIFACTS)
+                    .count()
+                    .next()).isEqualTo(2);
+
         artifactIdGroupOptional = artifactIdGroupRepository.findOne(storageId, repositoryId,
                                                                     "path/to/resource/aigrt-fosw");
         assertThat(artifactIdGroupOptional).isNotEmpty();

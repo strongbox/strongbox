@@ -64,7 +64,8 @@ public class GenericArtifactCoordinatesArapter extends VertexEntityTraversalAdap
     public EntityTraversal<Vertex, GenericArtifactCoordinates> foldHierarchy(EntityTraversal<Vertex, Object> parentProjection,
                                                                              EntityTraversal<Vertex, Object> childProjection)
     {
-        return __.<Vertex, Object>project("uuid", "version", "coordinates", "layoutArtifactCoordinates")
+        return __.<Vertex, Object>project("id", "uuid", "version", "coordinates", "layoutArtifactCoordinates")
+                 .by(__.id())
                  .by(__.enrichPropertyValue("uuid"))
                  .by(__.enrichPropertyValue("version"))
                  .by(__.propertyMap())
@@ -77,13 +78,14 @@ public class GenericArtifactCoordinatesArapter extends VertexEntityTraversalAdap
     {
         return __.inE(Edges.ARTIFACT_COORDINATES_INHERIT_GENERIC_ARTIFACT_COORDINATES)
                  .mapToObject(__.outV()
-                                .map(artifactCoordinatesAdapter.fold(__.<Vertex>identity().constant(NULL)))
+                                .map(artifactCoordinatesAdapter.fold(() -> __.<Vertex>identity().constant(NULL)))
                                 .map(EntityTraversalUtils::castToObject));
     }
 
     private GenericArtifactCoordinates map(Traverser<Map<String, Object>> t)
     {
         GenericArtifactCoordinatesEntity result = new GenericArtifactCoordinatesEntity();
+        result.setNativeId(extractObject(Long.class, t.get().get("id")));
         result.setUuid(extractObject(String.class, t.get().get("uuid")));
         result.setVersion(extractObject(String.class, t.get().get("version")));
 

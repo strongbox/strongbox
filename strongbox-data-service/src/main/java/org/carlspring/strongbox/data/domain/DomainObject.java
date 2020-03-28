@@ -8,6 +8,10 @@ import java.io.Serializable;
  */
 public interface DomainObject extends Serializable
 {
+    default Long getNativeId()
+    {
+        return null;
+    }
 
     String getUuid();
 

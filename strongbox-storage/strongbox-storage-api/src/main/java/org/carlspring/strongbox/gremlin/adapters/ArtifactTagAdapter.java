@@ -32,7 +32,8 @@ public class ArtifactTagAdapter extends VertexEntityTraversalAdapter<ArtifactTag
     @Override
     public EntityTraversal<Vertex, ArtifactTag> fold()
     {
-        return __.<Vertex, Object>project("uuid")
+        return __.<Vertex, Object>project("id", "uuid")
+                 .by(__.id())
                  .by(__.enrichPropertyValue("uuid"))
                  .map(this::map);
     }
@@ -40,6 +41,7 @@ public class ArtifactTagAdapter extends VertexEntityTraversalAdapter<ArtifactTag
     private ArtifactTag map(Traverser<Map<String, Object>> t)
     {
         ArtifactTagEntity result = new ArtifactTagEntity();
+        result.setNativeId(extractObject(Long.class, t.get().get("id")));
         result.setUuid(extractObject(String.class, t.get().get("uuid")));
 
         return result;

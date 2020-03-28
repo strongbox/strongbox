@@ -8,6 +8,7 @@ import java.util.LinkedHashMap;
 import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
+import java.util.function.Supplier;
 import java.util.stream.Collectors;
 
 import javax.inject.Inject;
@@ -72,10 +73,10 @@ public abstract class EntityHierarchyAdapter<E extends DomainObject, A extends E
     public EntityTraversal<Vertex, E> fold()
     {
 
-        return __.map(fold(Optional.empty(), adaptersMap.values().iterator()));
+        return __.map(fold(null, adaptersMap.values().iterator()));
     }
 
-    private EntityTraversal<Vertex, E> fold(Optional<EntityTraversal<Vertex, ?>> parentProjection,
+    private EntityTraversal<Vertex, E> fold(Supplier<EntityTraversal<Vertex, Object>> parentProjectionSupplier,
                                             Iterator<A> iterator)
     {
         if (!iterator.hasNext())
@@ -84,21 +85,22 @@ public abstract class EntityHierarchyAdapter<E extends DomainObject, A extends E
         }
 
         A nextAdapter = iterator.next();
-        EntityTraversal<Vertex, Object> vParentProjection = parentProjection.map(EntityTraversal.class::cast)
-                                                                            .orElseGet(nextAdapter::parentProjection);
-        EntityTraversal<Vertex, ?> nextTraversal = nextAdapter.foldHierarchy(vParentProjection, __.<Vertex>identity().constant(NULL));
+        EntityTraversal<Vertex, Object> parentProjection = Optional.ofNullable(parentProjectionSupplier)
+                                                                   .map(Supplier::get)
+                                                                   .orElseGet(nextAdapter::parentProjection);
+        EntityTraversal<Vertex, ?> nextTraversal = nextAdapter.foldHierarchy(parentProjection, __.<Vertex>identity().constant(NULL));
 
         return __.<Vertex>identity()
                  .optional(__.hasLabel(within(nextAdapter.labels()))
                              .map(nextTraversal))
                  .choose((e) -> nextAdapter.entityClass().isInstance(e),
                          __.identity(),
-                         fold(parentProjection, iterator));
+                         fold(parentProjectionSupplier, iterator));
     }
 
-    <S> EntityTraversal<S, E> fold(EntityTraversal<Vertex, Object> artifactTraversal)
+    <S> EntityTraversal<S, E> fold(Supplier<EntityTraversal<Vertex, Object>> artifactTraversal)
     {
-        return __.map(fold(Optional.of(artifactTraversal),
+        return __.map(fold(artifactTraversal,
                            adaptersMap.values().iterator()));
     }
 

@@ -42,7 +42,8 @@ public class ArtifactIdGroupAdapter extends VertexEntityTraversalAdapter<Artifac
     @Override
     public EntityTraversal<Vertex, ArtifactIdGroup> fold()
     {
-        return __.<Vertex, Object>project("uuid", "storageId", "repositoryId", "name", "artifacts")
+        return __.<Vertex, Object>project("id", "uuid", "storageId", "repositoryId", "name", "artifacts")
+                 .by(__.id())
                  .by(__.enrichPropertyValue("uuid"))
                  .by(__.enrichPropertyValue("storageId"))
                  .by(__.enrichPropertyValue("repositoryId"))
@@ -64,6 +65,8 @@ public class ArtifactIdGroupAdapter extends VertexEntityTraversalAdapter<Artifac
     {
         ArtifactIdGroupEntity result = new ArtifactIdGroupEntity(extractObject(String.class, t.get().get("storageId")),
                 extractObject(String.class, t.get().get("repositoryId")), extractObject(String.class, t.get().get("name")));
+        result.setNativeId(extractObject(Long.class, t.get().get("id")));
+        result.setUuid(extractObject(String.class, t.get().get("uuid")));
         Collection<Artifact> artifacts = (Collection<Artifact>) t.get().get("artifacts");
         artifacts.stream().forEach(result::addArtifact);
 
