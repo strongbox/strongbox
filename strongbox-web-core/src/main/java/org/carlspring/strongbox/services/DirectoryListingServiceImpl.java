@@ -10,6 +10,7 @@ import org.carlspring.strongbox.storage.repository.Repository;
 import org.carlspring.strongbox.util.StrongboxUriComponentsBuilder;
 
 import javax.inject.Inject;
+import java.io.File;
 import java.io.IOException;
 import java.net.URL;
 import java.nio.file.Files;
@@ -170,7 +171,7 @@ public class DirectoryListingServiceImpl
             // in which case we need to set the artifactPath to the file's path.
             if (file.getArtifactPath() == null)
             {
-                file.setArtifactPath(StringUtils.removeStart(relativePath.toString() + "/" + file.getName(), "/"));
+                file.setArtifactPath(sanitizedPath(relativePath.toString() + "/" + file.getName()));
             }
 
             UriComponentsBuilder builder = null;
@@ -193,7 +194,7 @@ public class DirectoryListingServiceImpl
 
             if(builder != null)
             {
-                URL url = builder.path(sanitizedPath(file.getArtifactPath()))
+                URL url = builder.path("/" + file.getArtifactPath())
                                  .build()
                                  .toUri()
                                  .toURL();
@@ -231,9 +232,17 @@ public class DirectoryListingServiceImpl
         return contentPaths;
     }
 
-    private String sanitizedPath(String path)
+    private String sanitizedPath(final String rawPath)
     {
-        return "/" + StringUtils.removeStart(path, "/");
+        String sanitizedPath = rawPath;
+
+        if(!File.pathSeparator.equals("/")) {
+            sanitizedPath = sanitizedPath.replaceAll("\\\\", "/");
+        }
+
+        sanitizedPath = StringUtils.removeStart(sanitizedPath, "/");
+
+        return sanitizedPath;
     }
 
 }

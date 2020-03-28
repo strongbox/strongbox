@@ -27,7 +27,6 @@ import org.apache.commons.lang.StringUtils;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
-import org.junit.jupiter.params.provider.Arguments;
 import org.junit.jupiter.params.provider.ValueSource;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -112,18 +111,6 @@ public class LoggingManagementControllerTest
                                                     .body();
 
         assertThat(body.asByteArray().length).isEqualTo(file.toFile().length());
-    }
-
-    public static Stream<Arguments> testBrowseLogs()
-    {
-        final String path = "test/sub/path";
-
-        return Stream.of(
-                Arguments.of(MediaType.APPLICATION_JSON_VALUE, ""),
-                Arguments.of(MediaType.APPLICATION_JSON_VALUE, path),
-                Arguments.of(MediaType.TEXT_HTML_VALUE, ""),
-                Arguments.of(MediaType.TEXT_HTML_VALUE, path)
-        );
     }
 
     @WithMockUser(authorities = { "ADMIN" })
@@ -343,7 +330,7 @@ public class LoggingManagementControllerTest
             path = "";
         }
 
-        path = StringUtils.removeStart(path, "/");
+        path = StringUtils.removeStart(path, File.pathSeparator);
 
         return path;
     }
