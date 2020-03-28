@@ -29,7 +29,7 @@ import org.springframework.stereotype.Component;
 public class AqlSearchServiceImpl implements AqlSearchService
 {
 
-    @PersistenceContext
+    //@PersistenceContext
     private EntityManager entityManager;
 
     @Inject

@@ -84,7 +84,7 @@ public class NpmRepositoryFeatures implements RepositoryFeatures
     @Inject
     private ConfigurationManager configurationManager;
 
-    @PersistenceContext
+    //@PersistenceContext
     private EntityManager entityManager;
 
     @Inject

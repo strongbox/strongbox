@@ -52,7 +52,7 @@ public class NugetFilterODataParserTest
     
     private static final String REPOSITORY_RELEASES_4 = "nfodpt-releases-4";
     
-    @PersistenceContext
+    //@PersistenceContext
     private EntityManager entityManager;
 
 

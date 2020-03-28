@@ -71,7 +71,7 @@ public class FetchChangesFeedCronJobTestIT
     @Inject
     private ProxyRepositoryConnectionPoolConfigurationService proxyRepositoryConnectionPoolConfigurationService;
 
-    @PersistenceContext
+    //@PersistenceContext
     private EntityManager entityManager;
 
     @BeforeEach

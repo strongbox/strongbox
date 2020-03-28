@@ -91,7 +91,7 @@ public class NugetRepositoryFeatures
     @Inject
     private ProxyRepositoryConnectionPoolConfigurationService proxyRepositoryConnectionPoolConfigurationService;
 
-    @PersistenceContext
+    //@PersistenceContext
     private EntityManager entityManager;
 
     @Inject
