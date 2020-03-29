@@ -201,7 +201,7 @@ public class LoggingManagementControllerTest
             // if this is a subpath we need to have a `show back` link.
             if(StringUtils.isNotBlank(path))
             {
-                final String backUrl = DOWNLOAD_BASE_PATH + "/" + Paths.get(path).getParent().toString();
+                final String backUrl = DOWNLOAD_BASE_PATH + "/" + sanitizePath(Paths.get(path).getParent().toString());
                 assertThat(html).as("Missing back link").contains("class=\"showBack\"");
                 assertThat(html).as("Invalid back link").contains(backUrl);
             }
@@ -330,7 +330,8 @@ public class LoggingManagementControllerTest
             path = "";
         }
 
-        path = StringUtils.removeStart(path, File.pathSeparator);
+        path = path.replaceAll("\\\\", "/");
+        path = StringUtils.removeStart(path, "/");
 
         return path;
     }

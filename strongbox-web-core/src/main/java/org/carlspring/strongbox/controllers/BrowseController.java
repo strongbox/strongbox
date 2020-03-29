@@ -11,6 +11,7 @@ import org.carlspring.strongbox.web.RepositoryMapping;
 import javax.inject.Inject;
 import java.io.IOException;
 import java.nio.file.Files;
+import java.nio.file.Paths;
 import java.util.Map;
 
 import io.swagger.annotations.ApiOperation;
@@ -169,6 +170,12 @@ public class BrowseController
                 return ResponseEntity.ok(objectMapper.writer().writeValueAsString(directoryListing));
             }
 
+            String backPath = uriBuilder.getBuilder()
+                                        .path(Paths.get(getCurrentRequestURI()).getParent().toString())
+                                        .build()
+                                        .toUriString();
+
+            model.addAttribute("backPath", backPath);
             model.addAttribute("currentPath", getCurrentRequestURI());
             model.addAttribute("directories", directoryListing.getDirectories());
             model.addAttribute("files", directoryListing.getFiles());

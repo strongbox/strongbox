@@ -19,6 +19,8 @@ import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
+import java.net.MalformedURLException;
+import java.net.URL;
 import java.util.List;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -69,6 +71,17 @@ public abstract class BaseController
     protected String getCurrentRequestURI()
     {
         return uriBuilder.getCurrentRequestURI();
+    }
+
+    /**
+     * Returns the current requestURI (i.e. http://localhost:48080/my/absolute/path/excluding/domain/without/trailing/slash)
+     *
+     * @return String
+     */
+    protected URL getCurrentRequestURL()
+            throws MalformedURLException
+    {
+        return uriBuilder.getCurrentRequestURL();
     }
 
     protected Configuration getConfiguration()

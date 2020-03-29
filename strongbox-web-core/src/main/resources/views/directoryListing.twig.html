@@ -35,10 +35,10 @@
         </tr>
         </thead>
         <tbody>
-        {% if showBack|default(true) %}
+        {% if backPath|default(null) is not null %}
         <tr class="showBack">
             <td colspan="4">
-                <a href="../">..</a>
+                <a href="{{ backPath }}">..</a>
             </td>
         </tr>
         {% endif %}
