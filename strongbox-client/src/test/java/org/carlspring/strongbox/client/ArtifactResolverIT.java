@@ -1,7 +1,5 @@
 package org.carlspring.strongbox.client;
 
-import static org.assertj.core.api.Assertions.assertThat;
-
 import org.carlspring.strongbox.config.ClientConfig;
 import org.carlspring.strongbox.service.ProxyRepositoryConnectionPoolConfigurationService;
 
@@ -16,6 +14,7 @@ import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Import;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.ContextConfiguration;
+import static org.assertj.core.api.Assertions.assertThat;
 
 /**
  * @author korest
