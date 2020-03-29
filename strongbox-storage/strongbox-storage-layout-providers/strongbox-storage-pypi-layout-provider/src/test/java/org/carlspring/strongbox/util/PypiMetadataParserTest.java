@@ -13,6 +13,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.ContextConfiguration;
+import org.springframework.transaction.annotation.Transactional;
 
 import javax.validation.ConstraintViolationException;
 import java.io.FileInputStream;
@@ -24,6 +25,7 @@ import static org.assertj.core.api.Assertions.*;
 import static org.junit.jupiter.api.parallel.ExecutionMode.CONCURRENT;
 
 @SpringBootTest
+@Transactional
 @ActiveProfiles(profiles = "test")
 @Execution(CONCURRENT)
 @ContextConfiguration(classes = PypiLayoutProviderTestConfig.class)

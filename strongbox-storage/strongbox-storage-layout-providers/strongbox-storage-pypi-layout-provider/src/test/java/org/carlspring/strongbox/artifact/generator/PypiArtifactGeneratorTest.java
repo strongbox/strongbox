@@ -13,6 +13,7 @@ import org.junit.jupiter.api.parallel.Execution;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.ContextConfiguration;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.nio.file.Files;
 import java.nio.file.Path;
@@ -23,6 +24,7 @@ import static org.carlspring.strongbox.util.MessageDigestUtils.readChecksumFile;
 import static org.junit.jupiter.api.parallel.ExecutionMode.CONCURRENT;
 
 @SpringBootTest
+@Transactional
 @ActiveProfiles(profiles = "test")
 @Execution(CONCURRENT)
 @ContextConfiguration(classes = PypiLayoutProviderTestConfig.class)

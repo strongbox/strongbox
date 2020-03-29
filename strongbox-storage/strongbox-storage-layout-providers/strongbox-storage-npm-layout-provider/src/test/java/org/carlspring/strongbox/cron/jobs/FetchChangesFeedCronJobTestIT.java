@@ -55,6 +55,7 @@ import static org.mockito.Mockito.when;
 @ContextConfiguration(classes = { NpmLayoutProviderTestConfig.class })
 @ActiveProfiles(profiles = { "test", "FetchChangesFeedCronJobTestConfig" })
 @SpringBootTest
+@Transactional
 @Execution(CONCURRENT)
 public class FetchChangesFeedCronJobTestIT
         extends BaseCronJobWithNpmIndexingTestCase

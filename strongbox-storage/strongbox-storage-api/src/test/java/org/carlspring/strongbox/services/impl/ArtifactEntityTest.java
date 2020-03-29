@@ -44,10 +44,10 @@ import org.springframework.util.CollectionUtils;
  * @see https://dev.carlspring.org/youtrack/issue/SB-711
  */
 @SpringBootTest
+@Transactional
 @ActiveProfiles(profiles = "test")
 @ContextConfiguration(classes = StorageApiTestConfig.class)
 @TestExecutionListeners(listeners = { CacheManagerTestExecutionListener.class }, mergeMode = TestExecutionListeners.MergeMode.MERGE_WITH_DEFAULTS)
-@Transactional
 public class ArtifactEntityTest
 {
 

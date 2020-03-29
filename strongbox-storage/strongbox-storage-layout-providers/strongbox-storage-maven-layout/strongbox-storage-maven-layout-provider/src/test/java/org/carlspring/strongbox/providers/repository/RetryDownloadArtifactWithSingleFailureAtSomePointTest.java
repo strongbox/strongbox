@@ -16,6 +16,7 @@ import java.nio.file.Files;
 
 import org.apache.maven.artifact.Artifact;
 import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.springframework.core.io.Resource;
@@ -23,6 +24,7 @@ import org.springframework.core.io.Resource;
 /**
  * @author Przemyslaw Fusik
  */
+@Disabled
 public class RetryDownloadArtifactWithSingleFailureAtSomePointTest
         extends MockedRestArtifactResolverTestBase
         implements ArtifactResolverContext

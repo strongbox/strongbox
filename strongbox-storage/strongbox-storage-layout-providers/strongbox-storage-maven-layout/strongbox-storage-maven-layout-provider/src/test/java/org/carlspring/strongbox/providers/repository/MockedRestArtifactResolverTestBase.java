@@ -36,6 +36,7 @@ import org.springframework.core.io.ClassPathResource;
 import org.springframework.core.io.Resource;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.ContextConfiguration;
+import org.springframework.transaction.annotation.Transactional;
 import static org.junit.jupiter.api.parallel.ExecutionMode.CONCURRENT;
 
 /**
@@ -43,6 +44,7 @@ import static org.junit.jupiter.api.parallel.ExecutionMode.CONCURRENT;
  */
 @ActiveProfiles({"MockedRestArtifactResolverTestConfig", "test"})
 @SpringBootTest
+@Transactional
 @ContextConfiguration(classes = Maven2LayoutProviderTestConfig.class)
 @Execution(CONCURRENT)
 public abstract class MockedRestArtifactResolverTestBase

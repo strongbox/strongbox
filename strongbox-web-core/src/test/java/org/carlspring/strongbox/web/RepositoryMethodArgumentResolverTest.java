@@ -36,6 +36,7 @@ import org.springframework.core.MethodParameter;
 import org.springframework.mock.web.MockHttpServletRequest;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.ContextConfiguration;
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.ReflectionUtils;
 import org.springframework.web.bind.MissingPathVariableException;
 import org.springframework.web.bind.annotation.PutMapping;
@@ -51,6 +52,7 @@ import org.springframework.web.servlet.HandlerMapping;
  * @author ankit.tomar
  */
 @SpringBootTest
+@Transactional
 @Execution(ExecutionMode.SAME_THREAD)
 @ContextConfiguration(classes = RepositoryMethodArgumentResolverTest.RepositoryMethodArgumentResolverConfiguration.class)
 @ActiveProfiles({ "test", "RepositoryMethodArgumentResolverTest" })

@@ -20,11 +20,11 @@ import org.springframework.test.context.TestExecutionListeners;
  * @author Przemyslaw Fusik
  */
 @SpringBootTest
+@Transactional
 @ActiveProfiles(profiles = "test")
 @ContextConfiguration(classes = StorageApiTestConfig.class)
 @TestExecutionListeners(listeners = { CacheManagerTestExecutionListener.class },
                         mergeMode = TestExecutionListeners.MergeMode.MERGE_WITH_DEFAULTS)
-@Transactional
 class RepositoryArtifactIdGroupServiceImplTest
 {
 

@@ -30,12 +30,14 @@ import org.springframework.security.ldap.userdetails.LdapUserDetailsService;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.ContextHierarchy;
+import org.springframework.transaction.annotation.Transactional;
 
 /**
  * @author Przemyslaw Fusik
  * @author sbespalov
  */
 @SpringBootTest
+@Transactional
 @ContextHierarchy({ @ContextConfiguration(classes = UsersConfig.class),
                     @ContextConfiguration(locations = "classpath:/ldapServerApplicationContext.xml"),
                     @ContextConfiguration(initializers = LdapAuthenticationProviderTest.TestContextInitializer.class, locations = "classpath:/org/carlspring/strongbox/authentication/external/ldap/strongbox-authentication-providers.xml") })

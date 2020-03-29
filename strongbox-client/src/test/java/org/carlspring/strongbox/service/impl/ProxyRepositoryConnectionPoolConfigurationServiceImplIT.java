@@ -19,6 +19,7 @@ import static org.assertj.core.api.Assertions.assertThat;
  * @author korest
  */
 @SpringBootTest
+//!@Transactional
 @ActiveProfiles(profiles = "test")
 @ContextConfiguration
 public class ProxyRepositoryConnectionPoolConfigurationServiceImplIT

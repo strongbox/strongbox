@@ -26,6 +26,7 @@ import org.junit.jupiter.api.parallel.Execution;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.ContextConfiguration;
+import org.springframework.transaction.annotation.Transactional;
 
 /**
  * @author Sergey Bespalov
@@ -33,6 +34,7 @@ import org.springframework.test.context.ContextConfiguration;
  */
 @ContextConfiguration(classes = NugetLayoutProviderTestConfig.class)
 @SpringBootTest
+@Transactional
 @ActiveProfiles(profiles = "test")
 @Execution(CONCURRENT)
 public class NugetRemoteRepositoryTest

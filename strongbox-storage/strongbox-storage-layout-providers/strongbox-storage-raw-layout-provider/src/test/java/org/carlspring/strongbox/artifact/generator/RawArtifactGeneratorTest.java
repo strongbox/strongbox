@@ -25,11 +25,13 @@ import org.junit.jupiter.api.parallel.Execution;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.ContextConfiguration;
+import org.springframework.transaction.annotation.Transactional;
 
 /**
  * @author ankit.tomar
  */
 @SpringBootTest
+@Transactional
 @ActiveProfiles(profiles = "test")
 @Execution(CONCURRENT)
 @ContextConfiguration(classes = RawLayoutProviderTestConfig.class)

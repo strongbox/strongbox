@@ -22,11 +22,13 @@ import org.springframework.security.authentication.AuthenticationProvider;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.TestPropertySource;
+import org.springframework.transaction.annotation.Transactional;
 
 /**
  * @author Przemyslaw Fusik
  */
 @SpringBootTest
+@Transactional
 @ActiveProfiles({ "test", "AuthenticationProvidersRegistryTestConfig" })
 @TestPropertySource(properties = { "strongbox.config.file.authentication.providers=classpath:aprt-strongbox-authentication-providers.xml",
                                    "strongbox.authentication.providers.yaml=classpath:/etc/conf/aprt-strongbox-authentication-providers.yaml" })

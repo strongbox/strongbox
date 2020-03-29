@@ -30,6 +30,7 @@ import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.TestExecutionListeners;
 
 @SpringBootTest
+@Transactional
 @ActiveProfiles(profiles = "test")
 @ContextConfiguration(classes = RepositoriesTestConfig.class)
 @TestExecutionListeners(listeners = { CacheManagerTestExecutionListener.class },

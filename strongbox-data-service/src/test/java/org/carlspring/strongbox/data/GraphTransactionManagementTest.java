@@ -19,8 +19,10 @@ import org.springframework.test.annotation.Commit;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.TestPropertySource;
+import org.springframework.transaction.annotation.Transactional;
 
 @SpringBootTest
+//!@Transactional
 @TestPropertySource("/application.yaml")
 @ActiveProfiles(profiles = "test")
 @ContextConfiguration(classes = { DataServiceConfig.class,

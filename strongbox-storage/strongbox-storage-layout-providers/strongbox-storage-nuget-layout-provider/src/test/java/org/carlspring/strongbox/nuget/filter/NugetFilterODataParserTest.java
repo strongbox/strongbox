@@ -38,6 +38,7 @@ import org.springframework.test.context.ContextConfiguration;
  * @author Pablo Tirado
  */
 @SpringBootTest
+@Transactional
 @ActiveProfiles(profiles = "test")
 @ContextConfiguration(classes = NugetLayoutProviderTestConfig.class)
 @Execution(CONCURRENT)

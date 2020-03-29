@@ -24,9 +24,11 @@ import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.TestExecutionListeners;
+import org.springframework.transaction.annotation.Transactional;
 import static org.assertj.core.api.Assertions.assertThat;
 
 @SpringBootTest
+@Transactional
 @ActiveProfiles(profiles = "test")
 @ContextConfiguration(classes = { StorageApiTestConfig.class })
 @TestExecutionListeners(listeners = { CacheManagerTestExecutionListener.class },
@@ -42,8 +44,8 @@ public class RepositoryTest
     @BeforeEach
     public void init()
     {
-        yamlMapper = yamlMapperFactory.create(
-                Sets.newHashSet(CustomRepositoryConfigurationDto.class, RemoteRepositoryConfigurationDto.class));
+        yamlMapper = yamlMapperFactory.create(Sets.newHashSet(CustomRepositoryConfigurationDto.class,
+                                                              RemoteRepositoryConfigurationDto.class));
     }
 
     @Test

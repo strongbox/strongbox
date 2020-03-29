@@ -15,12 +15,14 @@ import com.google.common.collect.ImmutableMap;
 import org.junit.jupiter.api.Test;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.context.ActiveProfiles;
+import org.springframework.transaction.annotation.Transactional;
 import static org.assertj.core.api.Assertions.assertThat;
 
 /**
  * @author Przemyslaw Fusik
  */
 @SpringBootTest
+@Transactional
 @ActiveProfiles(profiles = "test")
 @CronApiTestConfig
 class CronTaskDataServiceImplTest

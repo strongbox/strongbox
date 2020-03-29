@@ -39,6 +39,7 @@ import org.springframework.test.context.TestExecutionListeners;
 import org.springframework.test.context.web.WebAppConfiguration;
 import org.springframework.test.web.servlet.setup.DefaultMockMvcBuilder;
 import org.springframework.test.web.servlet.setup.MockMvcBuilders;
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.context.WebApplicationContext;
 import org.springframework.web.servlet.mvc.method.annotation.SseEmitter;
 
@@ -56,6 +57,7 @@ import org.springframework.web.servlet.mvc.method.annotation.SseEmitter;
                             MockedRemoteRepositoriesHeartbeatConfig.class,
                             IntegrationTest.IntegrationTestsConfiguration.class,
                             TestingCoreConfig.class })
+@Transactional
 @WebAppConfiguration("classpath:")
 @WithUserDetails("admin")
 @ActiveProfiles("test")
