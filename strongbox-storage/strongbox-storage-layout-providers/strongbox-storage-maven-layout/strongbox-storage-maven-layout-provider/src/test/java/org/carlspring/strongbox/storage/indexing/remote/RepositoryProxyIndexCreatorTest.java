@@ -26,7 +26,6 @@ import java.nio.file.Path;
 import org.apache.lucene.search.Query;
 import org.apache.maven.index.MAVEN;
 import org.apache.maven.index.expr.UserInputSearchExpression;
-import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.junit.jupiter.api.parallel.Execution;
@@ -42,7 +41,6 @@ import static org.junit.jupiter.api.parallel.ExecutionMode.CONCURRENT;
 /**
  * @author carlspring
  */
-@Disabled
 @SpringBootTest
 @Transactional
 @ActiveProfiles(profiles = "test")

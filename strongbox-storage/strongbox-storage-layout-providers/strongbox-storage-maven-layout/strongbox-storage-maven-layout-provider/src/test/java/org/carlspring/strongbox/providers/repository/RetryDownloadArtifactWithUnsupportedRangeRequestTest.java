@@ -14,6 +14,8 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.nio.file.Files;
 
+import javax.transaction.Transactional;
+
 import org.apache.maven.artifact.Artifact;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -24,6 +26,7 @@ import static org.assertj.core.api.Assertions.assertThatExceptionOfType;
 /**
  * @author Przemyslaw Fusik
  */
+@Transactional
 public class RetryDownloadArtifactWithUnsupportedRangeRequestTest
         extends MockedRestArtifactResolverTestBase
         implements ArtifactResolverContext

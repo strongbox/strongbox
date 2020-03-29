@@ -50,7 +50,6 @@ import org.carlspring.strongbox.testing.storage.repository.RepositoryAttributes;
 import org.carlspring.strongbox.testing.storage.repository.RepositoryManagementTestExecutionListener;
 import org.carlspring.strongbox.testing.storage.repository.TestRepository.Group;
 
-import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.junit.jupiter.api.parallel.Execution;
@@ -65,7 +64,6 @@ import org.springframework.transaction.annotation.Transactional;
  * @author mtodorov
  * @author Pablo Tirado
  */
-@Disabled
 @SpringBootTest
 @Transactional
 @ActiveProfiles(profiles = "test")

@@ -39,8 +39,6 @@ import org.springframework.test.context.TestPropertySource;
 import org.springframework.transaction.annotation.Transactional;
 
 @SpringBootTest
-//!@Transactional
-@Disabled
 @ActiveProfiles({ "test", "JwtAuthenticationProviderTestConfig" })
 @TestPropertySource(properties = { "strongbox.config.file.authentication.providers=classpath:japt-strongbox-authentication-providers.xml",
                                    "strongbox.authentication.providers.yaml=classpath:/etc/conf/japt-strongbox-authentication-providers.yaml",

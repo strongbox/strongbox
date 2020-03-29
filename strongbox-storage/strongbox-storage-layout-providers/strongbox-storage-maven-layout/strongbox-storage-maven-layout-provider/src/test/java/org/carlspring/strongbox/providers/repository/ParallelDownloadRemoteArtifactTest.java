@@ -9,6 +9,8 @@ import org.carlspring.strongbox.testing.storage.repository.RepositoryManagementT
 import org.carlspring.strongbox.testing.storage.repository.TestRepository.Remote;
 
 import javax.inject.Inject;
+import javax.transaction.Transactional;
+
 import java.io.FilterInputStream;
 import java.io.IOException;
 import java.io.InputStream;
@@ -34,6 +36,7 @@ import static org.assertj.core.api.Assertions.assertThat;
  * @author sbespalov
  *
  */
+@Transactional
 public class ParallelDownloadRemoteArtifactTest
         extends MockedRestArtifactResolverTestBase
         implements ArtifactResolverContext

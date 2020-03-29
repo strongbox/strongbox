@@ -14,6 +14,8 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.nio.file.Files;
 
+import javax.transaction.Transactional;
+
 import org.apache.maven.artifact.Artifact;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Disabled;
@@ -24,7 +26,7 @@ import org.springframework.core.io.Resource;
 /**
  * @author Przemyslaw Fusik
  */
-@Disabled
+@Transactional
 public class RetryDownloadArtifactWithSingleFailureAtSomePointTest
         extends MockedRestArtifactResolverTestBase
         implements ArtifactResolverContext

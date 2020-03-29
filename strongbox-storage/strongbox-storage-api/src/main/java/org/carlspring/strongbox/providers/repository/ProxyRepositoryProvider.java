@@ -15,6 +15,7 @@ import javax.inject.Inject;
 import org.carlspring.strongbox.data.criteria.Paginator;
 import org.carlspring.strongbox.data.criteria.Predicate;
 import org.carlspring.strongbox.domain.Artifact;
+import org.carlspring.strongbox.domain.RemoteArtifact;
 import org.carlspring.strongbox.domain.RemoteArtifactEntity;
 import org.carlspring.strongbox.providers.io.AbstractRepositoryProvider;
 import org.carlspring.strongbox.providers.io.RepositoryFiles;
@@ -147,10 +148,10 @@ public class ProxyRepositoryProvider
     protected Artifact provideArtifact(RepositoryPath repositoryPath) throws IOException
     {
         Artifact artifactEntry = super.provideArtifact(repositoryPath);
-        Artifact remoteArtifactEntry = artifactEntry.getUuid() == null
+        Artifact remoteArtifactEntry = artifactEntry.getNativeId() == null
                 ? new RemoteArtifactEntity(repositoryPath.getStorageId(), repositoryPath.getRepositoryId(),
                         RepositoryFiles.readCoordinates(repositoryPath))
-                : (RemoteArtifactEntity) artifactEntry;
+                : (RemoteArtifact) artifactEntry;
 
         return remoteArtifactEntry;
     }

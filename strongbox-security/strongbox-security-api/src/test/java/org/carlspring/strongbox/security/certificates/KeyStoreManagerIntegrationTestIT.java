@@ -32,7 +32,6 @@ import org.springframework.transaction.annotation.Transactional;
 import static org.assertj.core.api.Assertions.assertThat;
 
 @SpringBootTest
-//!@Transactional
 @ActiveProfiles(profiles = "test")
 @ContextConfiguration
 public class KeyStoreManagerIntegrationTestIT
