@@ -7,6 +7,7 @@ import javax.xml.bind.annotation.XmlRootElement;
 import org.apache.commons.lang3.StringUtils;
 import org.carlspring.strongbox.artifact.coordinates.versioning.SemanticVersion;
 import org.carlspring.strongbox.db.schema.Vertices;
+import org.carlspring.strongbox.domain.GenericArtifactCoordinatesEntity;
 import org.carlspring.strongbox.domain.LayoutArtifactCoordinatesEntity;
 import org.carlspring.strongbox.util.PypiArtifactCoordinatesUtils;
 import org.neo4j.ogm.annotation.NodeEntity;
@@ -138,6 +139,11 @@ public class PypiArtifactCoordinates
     public PypiArtifactCoordinates(String distribution, String version, String packaging)
     {
         this(distribution, version, null, null, null, null, packaging);
+    }
+
+    public PypiArtifactCoordinates(GenericArtifactCoordinatesEntity genericArtifactCoordinates)
+    {
+        super(genericArtifactCoordinates);
     }
 
     /**
