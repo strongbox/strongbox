@@ -20,7 +20,7 @@ import org.springframework.stereotype.Component;
  */
 @Component
 public class RawArtifactCoordinatesAdapter
-        extends LayoutArtifactCoordinatesArapter<RawArtifactCoordinates, RawArtifactCoordinates>
+        extends LayoutArtifactCoordinatesAdapter<RawArtifactCoordinates, RawArtifactCoordinates>
 {
 
     @Override

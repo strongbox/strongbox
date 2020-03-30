@@ -16,7 +16,7 @@ import org.carlspring.strongbox.gremlin.dsl.__;
 /**
  * @author sbespalov
  */
-public abstract class LayoutArtifactCoordinatesArapter<C extends LayoutArtifactCoordinatesEntity<C, V>, V extends Comparable<V>>
+public abstract class LayoutArtifactCoordinatesAdapter<C extends LayoutArtifactCoordinatesEntity<C, V>, V extends Comparable<V>>
         extends VertexEntityTraversalAdapter<C>
         implements ArtifactCoodrinatesNodeAdapter<C>
 {

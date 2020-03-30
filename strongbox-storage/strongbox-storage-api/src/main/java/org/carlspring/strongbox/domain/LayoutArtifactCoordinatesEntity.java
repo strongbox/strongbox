@@ -19,7 +19,7 @@ public abstract class LayoutArtifactCoordinatesEntity<C extends LayoutArtifactCo
         implements ArtifactCoordinates<C, V>, ArtifactCoordinatesResourceConverter<C, V>
 {
 
-    @Relationship(type = Edges.ARTIFACT_COORDINATES_INHERIT_GENERIC_ARTIFACT_COORDINATES, direction = Relationship.OUTGOING)
+    @Relationship(type = Edges.ARTIFACT_COORDINATES_INHERIT_GENERIC_ARTIFACT_COORDINATES)
     private GenericArtifactCoordinatesEntity genericArtifactCoordinates;
     private final ArtifactCoordinatesComparator<C, V> comparator = new ArtifactCoordinatesComparator<>();
 
