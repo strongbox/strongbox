@@ -282,7 +282,7 @@ public abstract class LayoutFileSystemProvider extends StorageFileSystemProvider
                                          .orElseGet(() -> fetchArtifactEntry(repositoryPath));
         if (artifactEntry != null)
         {
-            artifactEntityRepository.delete((ArtifactEntity) artifactEntry);
+            artifactEntityRepository.delete(artifactEntry);
         }
         
         super.doDeletePath(repositoryPath, force);

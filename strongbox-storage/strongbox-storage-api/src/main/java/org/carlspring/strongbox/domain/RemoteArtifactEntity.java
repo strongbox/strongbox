@@ -21,7 +21,7 @@ public class RemoteArtifactEntity extends DomainEntity implements RemoteArtifact
 
     @Relationship(type = Edges.REMOTE_ARTIFACT_INHERIT_ARTIFACT, direction = Relationship.OUTGOING)
     private ArtifactEntity artifact = new ArtifactEntity();
-    private Boolean isCached = Boolean.FALSE;
+    private Boolean cached = Boolean.FALSE;
 
     public RemoteArtifactEntity(String storageId,
                                 String repositoryId,
@@ -64,12 +64,12 @@ public class RemoteArtifactEntity extends DomainEntity implements RemoteArtifact
 
     public Boolean getIsCached()
     {
-        return isCached;
+        return cached;
     }
 
     public void setIsCached(Boolean isCached)
     {
-        this.isCached = isCached;
+        this.cached = isCached;
     }
 
     public String getStorageId()

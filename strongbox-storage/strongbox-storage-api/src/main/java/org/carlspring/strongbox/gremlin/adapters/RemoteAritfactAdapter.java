@@ -103,7 +103,7 @@ public class RemoteAritfactAdapter extends VertexEntityTraversalAdapter<RemoteAr
 
         if (entity.getIsCached() != null)
         {
-            t = t.property(single, "сached", entity.getIsCached());
+            t = t.property(single, "cached", entity.getIsCached());
         }
 
         return t;
