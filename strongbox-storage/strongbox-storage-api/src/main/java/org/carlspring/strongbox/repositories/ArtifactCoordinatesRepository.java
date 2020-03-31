@@ -1,6 +1,7 @@
 package org.carlspring.strongbox.repositories;
 
 import javax.inject.Inject;
+import javax.transaction.Transactional;
 
 import org.carlspring.strongbox.artifact.coordinates.ArtifactCoordinates;
 import org.carlspring.strongbox.artifact.coordinates.GenericArtifactCoordinates;
@@ -9,6 +10,7 @@ import org.carlspring.strongbox.gremlin.repositories.GremlinVertexRepository;
 import org.springframework.stereotype.Repository;
 
 @Repository
+@Transactional
 public class ArtifactCoordinatesRepository extends GremlinVertexRepository<GenericArtifactCoordinates>
         implements ArtifactCoordinatesQueries
 {

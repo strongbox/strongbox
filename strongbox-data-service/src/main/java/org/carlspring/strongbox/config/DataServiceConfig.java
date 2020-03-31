@@ -12,7 +12,6 @@ import org.springframework.cache.annotation.EnableCaching;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.ComponentScan;
 import org.springframework.context.annotation.Configuration;
-import org.springframework.context.annotation.EnableAspectJAutoProxy;
 import org.springframework.context.annotation.Import;
 import org.springframework.context.annotation.Lazy;
 import org.springframework.transaction.annotation.EnableTransactionManagement;
@@ -31,14 +30,13 @@ import com.hazelcast.spring.cache.HazelcastCacheManager;
 @Lazy(false)
 @EnableConfigurationProperties
 @EnableTransactionManagement(proxyTargetClass = true, order = DataServiceConfig.TRANSACTIONAL_INTERCEPTOR_ORDER)
-@EnableAspectJAutoProxy(proxyTargetClass = true)
 @ComponentScan({ "org.carlspring.strongbox.data" })
 @Import({ EmbeddedDbServerConfiguration.class,
           InMemoryDbServerConfiguration.class,
           GremlinServerConfig.class,
           RepositoriesConfig.class,
           EntityTraversalAdaptersConfig.class,
-          HazelcastConfiguration.class })
+          HazelcastConfiguration.class})
 @EnableCaching(order = 105)
 public class DataServiceConfig
 {

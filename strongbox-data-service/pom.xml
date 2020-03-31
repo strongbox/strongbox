@@ -247,6 +247,11 @@
             </exclusions>
         </dependency>
 
+        <dependency>
+            <groupId>javax.transaction</groupId>
+            <artifactId>javax.transaction-api</artifactId>
+        </dependency>
+
     </dependencies>
 
 </project>

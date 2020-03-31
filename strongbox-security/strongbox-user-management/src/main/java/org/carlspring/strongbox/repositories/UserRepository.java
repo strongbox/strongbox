@@ -3,6 +3,7 @@ package org.carlspring.strongbox.repositories;
 import java.util.List;
 
 import javax.inject.Inject;
+import javax.transaction.Transactional;
 
 import org.apache.tinkerpop.gremlin.structure.Vertex;
 import org.carlspring.strongbox.gremlin.adapters.EntityTraversalAdapter;
@@ -11,6 +12,7 @@ import org.carlspring.strongbox.users.dto.User;
 import org.springframework.stereotype.Repository;
 
 @Repository
+@Transactional
 public class UserRepository extends GremlinVertexRepository<User>
         implements UserQueries
 {

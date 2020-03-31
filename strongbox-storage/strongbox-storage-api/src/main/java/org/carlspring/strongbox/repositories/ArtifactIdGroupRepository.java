@@ -3,6 +3,7 @@ package org.carlspring.strongbox.repositories;
 import java.util.Optional;
 
 import javax.inject.Inject;
+import javax.transaction.Transactional;
 
 import org.carlspring.strongbox.domain.ArtifactIdGroup;
 import org.carlspring.strongbox.gremlin.adapters.ArtifactIdGroupAdapter;
@@ -14,6 +15,7 @@ import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
 
 @Repository
+@Transactional
 public class ArtifactIdGroupRepository extends GremlinVertexRepository<ArtifactIdGroup>
         implements ArtifactIdGroupQueries
 {

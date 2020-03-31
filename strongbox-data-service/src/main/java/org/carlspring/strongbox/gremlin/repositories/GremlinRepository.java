@@ -5,6 +5,7 @@ import java.util.Set;
 import java.util.function.Supplier;
 
 import javax.inject.Inject;
+import javax.transaction.Transactional;
 
 import org.apache.tinkerpop.gremlin.structure.Element;
 import org.apache.tinkerpop.gremlin.structure.Graph;
@@ -22,6 +23,7 @@ import org.springframework.data.repository.CrudRepository;
  * @author sbespalov
  *
  */
+@Transactional
 public abstract class GremlinRepository<S extends Element, E extends DomainObject> implements CrudRepository<E, String>
 {
 

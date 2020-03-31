@@ -2,12 +2,15 @@ package org.carlspring.strongbox.gremlin.repositories;
 
 import java.util.function.Supplier;
 
+import javax.transaction.Transactional;
+
 import org.apache.tinkerpop.gremlin.structure.Vertex;
 import org.carlspring.strongbox.data.domain.DomainObject;
 import org.carlspring.strongbox.gremlin.adapters.UnfoldEntityTraversal;
 import org.carlspring.strongbox.gremlin.dsl.EntityTraversal;
 import org.carlspring.strongbox.gremlin.dsl.EntityTraversalSource;
 
+@Transactional
 public abstract class GremlinVertexRepository<E extends DomainObject> extends GremlinRepository<Vertex, E>
 {
 

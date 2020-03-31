@@ -5,6 +5,7 @@ import java.util.List;
 import java.util.Optional;
 
 import javax.inject.Inject;
+import javax.transaction.Transactional;
 
 import org.carlspring.strongbox.domain.Artifact;
 import org.carlspring.strongbox.gremlin.adapters.ArtifactHierarchyAdapter;
@@ -18,6 +19,7 @@ import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
 
 @Repository
+@Transactional
 public class ArtifactRepository extends GremlinVertexRepository<Artifact> implements ArtifactEntityQueries
 {
 
@@ -86,13 +88,7 @@ public class ArtifactRepository extends GremlinVertexRepository<Artifact> implem
                               a2) -> a1.getClass().isInstance(a2) ? a1 : a2)
                      .get();
     }
-
-    @Override
-    public <R extends Artifact> R save(R entity)
-    {
-        return super.save(entity);
-    }
-
+    
 }
 
 @Repository
