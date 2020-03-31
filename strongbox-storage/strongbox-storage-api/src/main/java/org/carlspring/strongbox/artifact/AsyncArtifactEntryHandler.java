@@ -7,7 +7,6 @@ import java.util.concurrent.locks.Lock;
 import javax.inject.Inject;
 
 import org.carlspring.strongbox.domain.Artifact;
-import org.carlspring.strongbox.domain.ArtifactEntity;
 import org.carlspring.strongbox.event.AsyncEventListener;
 import org.carlspring.strongbox.event.artifact.ArtifactEvent;
 import org.carlspring.strongbox.event.artifact.ArtifactEventTypeEnum;
@@ -82,7 +81,7 @@ public abstract class AsyncArtifactEntryHandler
         InterruptedException
     {
         Lock lock = repositoryPathLock.lock(repositoryPath,
-                                            ArtifactEntity.class.getSimpleName())
+                                            Artifact.class.getSimpleName())
                                       .writeLock();
         lock.lock();
         try
@@ -104,14 +103,14 @@ public abstract class AsyncArtifactEntryHandler
                 if (result == null)
                 {
                     logger.debug("No [{}] result for event [{}] and path [{}].",
-                                 ArtifactEntity.class.getSimpleName(),
+                                 Artifact.class.getSimpleName(),
                                  AsyncArtifactEntryHandler.this.getClass().getSimpleName(),
                                  repositoryPath);
 
                     return null;
                 }
 
-                return artifactEntityRepository.save((ArtifactEntity) result);
+                return artifactEntityRepository.save(result);
             }
             catch (IOException e)
             {

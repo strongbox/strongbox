@@ -8,7 +8,6 @@ import javax.inject.Inject;
 import org.carlspring.strongbox.artifact.AsyncArtifactEntryHandler;
 import org.carlspring.strongbox.domain.Artifact;
 import org.carlspring.strongbox.domain.ArtifactArchiveListing;
-import org.carlspring.strongbox.domain.ArtifactEntity;
 import org.carlspring.strongbox.event.artifact.ArtifactEventTypeEnum;
 import org.carlspring.strongbox.providers.io.RepositoryPath;
 import org.carlspring.strongbox.providers.layout.LayoutProvider;
@@ -45,7 +44,7 @@ public class ArtifactStoredEventListener
         if (artifactEntry == null)
         {
             logger.warn("No [{}] for [{}].",
-                        ArtifactEntity.class.getSimpleName(),
+                        Artifact.class.getSimpleName(),
                         repositoryPath);
 
             return null;
