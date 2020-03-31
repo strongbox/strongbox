@@ -10,6 +10,7 @@ import javax.xml.bind.annotation.XmlRootElement;
 
 import org.carlspring.strongbox.artifact.coordinates.versioning.SemanticVersion;
 import org.carlspring.strongbox.db.schema.Vertices;
+import org.carlspring.strongbox.domain.GenericArtifactCoordinatesEntity;
 import org.carlspring.strongbox.domain.LayoutArtifactCoordinatesEntity;
 import org.neo4j.ogm.annotation.NodeEntity;
 import org.springframework.util.Assert;
@@ -58,6 +59,10 @@ public class NpmArtifactCoordinates extends LayoutArtifactCoordinatesEntity<NpmA
 
     private static final String EXTENSION = "extension";
 
+    public NpmArtifactCoordinates(GenericArtifactCoordinatesEntity genericArtifactCoordinates)
+    {
+        super(genericArtifactCoordinates);
+    }
 
     public NpmArtifactCoordinates()
     {

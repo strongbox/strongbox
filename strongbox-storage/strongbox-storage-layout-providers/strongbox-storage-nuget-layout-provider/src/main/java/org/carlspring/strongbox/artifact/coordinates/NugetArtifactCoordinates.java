@@ -11,6 +11,7 @@ import javax.xml.bind.annotation.XmlRootElement;
 
 import org.carlspring.strongbox.artifact.coordinates.versioning.SemanticVersion;
 import org.carlspring.strongbox.db.schema.Vertices;
+import org.carlspring.strongbox.domain.GenericArtifactCoordinatesEntity;
 import org.carlspring.strongbox.domain.LayoutArtifactCoordinatesEntity;
 import org.neo4j.ogm.annotation.NodeEntity;
 import org.springframework.util.Assert;
@@ -43,7 +44,11 @@ public class NugetArtifactCoordinates
 
     private static final Pattern NUGET_PACKAGE_REGEXP = Pattern.compile(NUGET_PACKAGE_REGEXP_PATTERN);
 
-
+    public NugetArtifactCoordinates(GenericArtifactCoordinatesEntity genericArtifactCoordinates)
+    {
+        super(genericArtifactCoordinates);
+    }
+    
     public NugetArtifactCoordinates()
     {
         resetCoordinates(ID, VERSION, EXTENSION);
