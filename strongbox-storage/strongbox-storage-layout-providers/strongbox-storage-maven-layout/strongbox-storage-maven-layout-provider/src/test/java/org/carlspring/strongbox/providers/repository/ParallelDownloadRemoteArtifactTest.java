@@ -49,9 +49,6 @@ public class ParallelDownloadRemoteArtifactTest
     private Map<InputStream, Thread> remoteRepositoryConnectionOwnerMap = new ConcurrentHashMap<>();
     private int concurrency = Runtime.getRuntime().availableProcessors();
     
-    @Inject
-    private PlatformTransactionManager transactionManager;
-
     @Override
     public InputStream getInputStream()
     {
@@ -163,39 +160,36 @@ public class ParallelDownloadRemoteArtifactTest
         {
             this.result = result;
         }
-        
+
         @Override
         public void run()
         {
             initContext(ParallelDownloadRemoteArtifactTest.this);
             concurrencyWorkerInstanceHolder.set(hashCode());
-            
+
             try
             {
-                result = new TransactionTemplate(transactionManager).execute(t -> {
-                    try
-                    {
-                        artifactResolutionServiceHelper.assertStreamNotNull(storageId,
-                                                                            repositoryId,
-                                                                            path);
-                    }
-                    catch (AssertionError e)
-                    {
-                        return e;
-                    }
-                    catch (Throwable e)
-                    {
-                        e.printStackTrace();
-                        return e;
-                    }
+                try
+                {
+                    artifactResolutionServiceHelper.assertStreamNotNull(storageId,
+                                                                        repositoryId,
+                                                                        path);
+                }
+                catch (AssertionError e)
+                {
+                    result = e;
+                }
+                catch (Throwable e)
+                {
+                    e.printStackTrace();
+                    result = e;
+                }
 
-                    return null;
-                });
                 if (hashCode() != concurrencyWorkerInstanceHolder.get())
                 {
                     concurrentWorkerExecutionCount.incrementAndGet();
                 }
-            } 
+            }
             finally
             {
                 cleanContext();
@@ -243,6 +237,13 @@ public class ParallelDownloadRemoteArtifactTest
             verifyRead();
 
             return super.read(b, off, len);
+        }
+        
+        @Override
+        public void close()
+            throws IOException
+        {
+            super.close();
         }
 
         private void verifyRead()
