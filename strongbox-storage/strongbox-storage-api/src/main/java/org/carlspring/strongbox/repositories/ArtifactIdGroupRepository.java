@@ -56,8 +56,10 @@ interface ArtifactIdGroupQueries
                    "WITH aig " +
                    "OPTIONAL MATCH (aig)-[r0]->(artifact:Artifact)-[r1]->(genericCoordinates:GenericArtifactCoordinates)<-[r2]-(layoutCoordinates) " +
                    "WITH aig, r0, artifact, r1, genericCoordinates, r2, layoutCoordinates " +
+                   "OPTIONAL MATCH (artifact)-[r4]->(tag:ArtifactTag) " +
+                   "WITH aig, r0, artifact, r1, genericCoordinates, r2, layoutCoordinates, r4, tag " +
                    "OPTIONAL MATCH (artifact)<-[r3]-(remoteArtifact) " +
-                   "RETURN aig, r0, artifact, r3, remoteArtifact, r1, genericCoordinates, r2, layoutCoordinates",
+                   "RETURN aig, r0, artifact, r3, remoteArtifact, r1, genericCoordinates, r2, layoutCoordinates, r4, tag",
            countQuery = "MATCH (aig:`ArtifactIdGroup`) " +
                         "WHERE aig.storageId=$storageId and aig.repositoryId=$repositoryId " +
                         "RETURN count(aig)")
@@ -70,8 +72,10 @@ interface ArtifactIdGroupQueries
            "WITH aig " +
            "OPTIONAL MATCH (aig)-[r0]->(artifact:Artifact)-[r1]->(genericCoordinates:GenericArtifactCoordinates)<-[r2]-(layoutCoordinates) " +
            "WITH aig, r0, artifact, r1, genericCoordinates, r2, layoutCoordinates " +
+           "OPTIONAL MATCH (artifact)-[r4]->(tag:ArtifactTag) " +
+           "WITH aig, r0, artifact, r1, genericCoordinates, r2, layoutCoordinates, r4, tag " +
            "OPTIONAL MATCH (artifact)<-[r3]-(remoteArtifact) " +
-           "RETURN aig, r0, artifact, r3, remoteArtifact, r1, genericCoordinates, r2, layoutCoordinates")
+           "RETURN aig, r0, artifact, r3, remoteArtifact, r1, genericCoordinates, r2, layoutCoordinates,  r4, tag")
     Optional<ArtifactIdGroup> findOne(@Param("storageId") String storageId,
                                       @Param("repositoryId") String repositoryId,
                                       @Param("artifactId") String artifactId);

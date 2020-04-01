@@ -98,10 +98,11 @@ interface ArtifactEntityQueries extends org.springframework.data.repository.Repo
     @Query("MATCH (genericCoordinates:GenericArtifactCoordinates)<-[r1]-(artifact:Artifact) " +
            "WHERE genericCoordinates.uuid STARTS WITH $path and artifact.storageId=$storageId and artifact.repositoryId=$repositoryId " +
            "WITH artifact, r1, genericCoordinates " +
+           "OPTIONAL MATCH (artifact)-[r4]->(tag:ArtifactTag) " +
            "MATCH (genericCoordinates)<-[r2]-(layoutCoordinates) " +
-           "WITH artifact, r1, genericCoordinates, r2, layoutCoordinates " +
+           "WITH artifact, r1, genericCoordinates, r2, layoutCoordinates, r4, tag " +
            "OPTIONAL MATCH (artifact)<-[r3]-(remoteArtifact) " +
-           "RETURN artifact, r3, remoteArtifact, r1, genericCoordinates, r2, layoutCoordinates")
+           "RETURN artifact, r3, remoteArtifact, r1, genericCoordinates, r2, layoutCoordinates, r4, tag")
     List<Artifact> findByPathLike(@Param("storageId") String storageId,
                                   @Param("repositoryId") String repositoryId,
                                   @Param("path") String path);
@@ -109,10 +110,12 @@ interface ArtifactEntityQueries extends org.springframework.data.repository.Repo
     @Query(value = "MATCH (genericCoordinates:GenericArtifactCoordinates)<-[r1]-(artifact:Artifact) " +
                    "WHERE artifact.lastUsed <= coalesce($lastAccessedDate, artifact.lastUsed) and artifact.sizeInBytes >=  coalesce($minSizeInBytes, artifact.sizeInBytes) " +
                    "WITH artifact, r1, genericCoordinates " +
+                   "OPTIONAL MATCH (artifact)-[r4]->(tag:ArtifactTag) " +
+                   "WITH artifact, r1, genericCoordinates, r4, tag " +
                    "MATCH (genericCoordinates)<-[r2]-(layoutCoordinates) " +
-                   "WITH artifact, r1, genericCoordinates, r2, layoutCoordinates " +
+                   "WITH artifact, r1, genericCoordinates, r2, layoutCoordinates, r4, tag " +
                    "OPTIONAL MATCH (artifact)<-[r3]-(remoteArtifact) " +
-                   "RETURN artifact, r3, remoteArtifact, r1, genericCoordinates, r2, layoutCoordinates",
+                   "RETURN artifact, r3, remoteArtifact, r1, genericCoordinates, r2, layoutCoordinates, r4, tag",
            countQuery = "MATCH (artifact:Artifact) " +
                         "WHERE artifact.lastUsed <= coalesce($lastAccessedDate, artifact.lastUsed) and artifact.sizeInBytes >=  coalesce($minSizeInBytes, artifact.sizeInBytes) " +
                         "RETURN count(artifact)")
@@ -130,10 +133,12 @@ interface ArtifactEntityQueries extends org.springframework.data.repository.Repo
     @Query("MATCH (genericCoordinates:GenericArtifactCoordinates)<-[r1]-(artifact:Artifact) " +
            "WHERE genericCoordinates.uuid=$path and artifact.storageId=$storageId and artifact.repositoryId=$repositoryId " +
            "WITH artifact, r1, genericCoordinates " +
+           "OPTIONAL MATCH (artifact)-[r4]->(tag:ArtifactTag) " +
+           "WITH artifact, r1, genericCoordinates, r4, tag " +
            "MATCH (genericCoordinates)<-[r2]-(layoutCoordinates) " +
-           "WITH artifact, r1, genericCoordinates, r2, layoutCoordinates " +
+           "WITH artifact, r1, genericCoordinates, r2, layoutCoordinates, r4, tag " +
            "OPTIONAL MATCH (artifact)<-[r3]-(remoteArtifact) " +
-           "RETURN artifact, r3, remoteArtifact, r1, genericCoordinates, r2, layoutCoordinates")
+           "RETURN artifact, r3, remoteArtifact, r1, genericCoordinates, r2, layoutCoordinates, r4, tag")
     List<Artifact> findOneArtifactHierarchy(@Param("storageId") String storageId,
                                             @Param("repositoryId") String repositoryId,
                                             @Param("path") String path);

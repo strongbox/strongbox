@@ -176,12 +176,12 @@ public class ArtifactAdapter extends VertexEntityTraversalAdapter<Artifact> impl
                                                             .outV()
                                                             .sideEffect(__.outE(Edges.ARTIFACT_HAS_TAGS).drop())
                                                             .map(unfoldArtifact(entity))
-                                                            .store("aaa")
+                                                            .store(Vertices.ARTIFACT_TAG + ":" + entity.getUuid())
                                                             .sideEffect(__.V()
                                                                         .hasLabel(Vertices.ARTIFACT_TAG)
                                                                         .has("uuid", P.within(tagNames))
                                                                         .addE(Edges.ARTIFACT_HAS_TAGS)
-                                                                        .from(__.select("aaa").unfold()));
+                                                                        .from(__.select(Vertices.ARTIFACT_TAG + ":" + entity.getUuid()).unfold()));
 
         return new UnfoldEntityTraversal<>(Vertices.ARTIFACT, unfoldTraversal);
     }
