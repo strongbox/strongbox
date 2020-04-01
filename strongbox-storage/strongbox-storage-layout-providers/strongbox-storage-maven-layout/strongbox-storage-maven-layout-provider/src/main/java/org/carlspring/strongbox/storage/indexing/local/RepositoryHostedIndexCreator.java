@@ -30,6 +30,7 @@ import org.carlspring.strongbox.storage.repository.Repository;
 import org.carlspring.strongbox.storage.repository.RepositoryTypeEnum;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Component;
 
 /**
@@ -57,7 +58,7 @@ public class RepositoryHostedIndexCreator
     @Override
     protected void onIndexingContextCreated(final RepositoryPath repositoryIndexDirectoryPath,
                                             final RepositoryCloseableIndexingContext indexingContext)
-            throws IOException
+        throws IOException
     {
         indexingContext.purge();
         fulfillIndexingContext(indexingContext);
@@ -77,7 +78,7 @@ public class RepositoryHostedIndexCreator
     }
 
     private void fulfillIndexingContext(final RepositoryCloseableIndexingContext indexingContext)
-            throws IOException
+        throws IOException
     {
 
         final Repository repository = indexingContext.getRepositoryRaw();
@@ -86,20 +87,23 @@ public class RepositoryHostedIndexCreator
 
         PageRequest pageRequest = PageRequest.of(0,
                                                  REPOSITORY_ARTIFACT_GROUP_FETCH_PAGE_SIZE);
-        Page<ArtifactIdGroup> page = artifactIdGroupRepository.findMatching(storageId,
-                                                                            repositoryId,
-                                                                            pageRequest);
-        if (page.getTotalElements() == 0)
+        for (Page<ArtifactIdGroup> page = getPage(storageId,
+                                                  repositoryId,
+                                                  pageRequest); !page.isEmpty(); page = getPage(storageId, repositoryId,
+                                                                                                pageRequest.next()))
         {
-            return;
-        }
-        do
-        {
-            page = artifactIdGroupRepository.findMatching(storageId, repositoryId,
-                                                          pageRequest.next());
             List<ArtifactContext> artifactContexts = createArtifactContexts(page.getContent());
             Indexer.INSTANCE.addArtifactsToIndex(artifactContexts, indexingContext);
-        } while (page.hasNext());
+        }
+    }
+
+    private Page<ArtifactIdGroup> getPage(final String storageId,
+                                          final String repositoryId,
+                                          Pageable pageRequest)
+    {
+        return artifactIdGroupRepository.findMatching(storageId,
+                                                      repositoryId,
+                                                      pageRequest);
     }
 
     private List<ArtifactContext> createArtifactContexts(final List<ArtifactIdGroup> repositoryArtifactIdGroupEntries)
@@ -108,7 +112,7 @@ public class RepositoryHostedIndexCreator
         for (final ArtifactIdGroup repositoryArtifactIdGroupEntry : repositoryArtifactIdGroupEntries)
         {
             final Map<String, List<Artifact>> groupedByVersion = groupArtifactEntriesByVersion(
-                    repositoryArtifactIdGroupEntry);
+                                                                                               repositoryArtifactIdGroupEntry);
             for (final Map.Entry<String, List<Artifact>> sameVersionArtifactEntries : groupedByVersion.entrySet())
             {
                 for (final Artifact artifactEntry : sameVersionArtifactEntries.getValue())
@@ -124,7 +128,7 @@ public class RepositoryHostedIndexCreator
                     final ArtifactEntryArtifactContextHelper artifactContextHelper = createArtifactContextHelper(artifactEntry,
                                                                                                                  groupClone);
                     final ArtifactEntryArtifactContext ac = new ArtifactEntryArtifactContext(artifactEntry,
-                                                                                             artifactContextHelper);
+                            artifactContextHelper);
                     artifactContexts.add(ac);
                 }
             }
@@ -173,9 +177,8 @@ public class RepositoryHostedIndexCreator
         for (final Artifact neighbour : group)
         {
             final MavenArtifactCoordinates neighbourCoordinates = (MavenArtifactCoordinates) neighbour.getArtifactCoordinates();
-            pomExists |=
-                    ("pom".equals(neighbourCoordinates.getExtension()) &&
-                     neighbourCoordinates.getClassifier() == null);
+            pomExists |= ("pom".equals(neighbourCoordinates.getExtension()) &&
+                    neighbourCoordinates.getClassifier() == null);
             if (Objects.equals(coordinates.getExtension(), neighbourCoordinates.getExtension()))
             {
                 javadocExists |= "javadoc".equals(neighbourCoordinates.getClassifier());
@@ -193,12 +196,12 @@ public class RepositoryHostedIndexCreator
         final String filename = Paths.get(artifactEntry.getArtifactPath()).getFileName().toString();
 
         if (filename.equals("maven-metadata.xml")
-            // || filename.endsWith( "-javadoc.jar" )
-            // || filename.endsWith( "-javadocs.jar" )
-            // || filename.endsWith( "-sources.jar" )
-            || filename.endsWith(".properties")
-            // || filename.endsWith( ".xml" ) // NEXUS-3029
-            || filename.endsWith(".asc") || filename.endsWith(".md5") || filename.endsWith(".sha1"))
+                // || filename.endsWith( "-javadoc.jar" )
+                // || filename.endsWith( "-javadocs.jar" )
+                // || filename.endsWith( "-sources.jar" )
+                || filename.endsWith(".properties")
+                // || filename.endsWith( ".xml" ) // NEXUS-3029
+                || filename.endsWith(".asc") || filename.endsWith(".md5") || filename.endsWith(".sha1"))
         {
             return false;
         }
