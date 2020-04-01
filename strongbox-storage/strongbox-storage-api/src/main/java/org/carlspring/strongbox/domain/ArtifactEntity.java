@@ -18,7 +18,6 @@ import org.carlspring.strongbox.data.domain.DomainEntity;
 import org.carlspring.strongbox.db.schema.Edges;
 import org.carlspring.strongbox.db.schema.Vertices;
 import org.carlspring.strongbox.gremlin.adapters.DateConverter;
-import org.carlspring.strongbox.gremlin.adapters.EntityHierarchyNode;
 import org.neo4j.ogm.annotation.NodeEntity;
 import org.neo4j.ogm.annotation.Relationship;
 import org.neo4j.ogm.annotation.typeconversion.Convert;
@@ -136,7 +135,7 @@ public class ArtifactEntity
     @Override
     public Map<String, String> getChecksums()
     {
-        return checksums.stream().collect(Collectors.toMap(e -> e.substring(1, e.indexOf("}")), e -> e.substring(e.indexOf("}") + 1)));
+        return checksums.stream().filter(e -> !e.trim().isEmpty()).collect(Collectors.toMap(e -> e.substring(1, e.indexOf("}")), e -> e.substring(e.indexOf("}") + 1)));
     }
 
     public void setChecksums(Map<String, String> checksums)
@@ -258,7 +257,7 @@ public class ArtifactEntity
 
         public Set<String> getFilenames()
         {
-            return ArtifactEntity.this.filenames;
+            return ArtifactEntity.this.filenames.stream().filter(e -> !e.isEmpty()).collect(Collectors.toSet());
         }
 
         public void setFilenames(final Set<String> filenames)

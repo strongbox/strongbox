@@ -145,13 +145,13 @@ public class ArtifactAdapter extends VertexEntityTraversalAdapter<Artifact> impl
         result.setDownloadCount(extractObject(Integer.class, t.get().get("downloadCount")));
         
         result.getArtifactArchiveListing()
-              .setFilenames(Optional.ofNullable(extracPropertytList(String.class, t.get().get("filenames")))
-                                    .map(HashSet::new)
-                                    .orElse(new HashSet<>()));
+              .setFilenames(extracPropertytList(String.class, t.get().get("filenames")).stream()
+                                                                                       .filter(e -> !e.trim().isEmpty())
+                                                                                       .collect(Collectors.toSet()));
 
-        result.addChecksums(Optional.ofNullable(extracPropertytList(String.class, t.get().get("checksums")))
-                                    .map(HashSet::new)
-                                    .orElse(null));
+        result.addChecksums(extracPropertytList(String.class, t.get().get("checksums")).stream()
+                                                                                       .filter(e -> !e.trim().isEmpty())
+                                                                                       .collect(Collectors.toSet()));
 
         List<ArtifactTag> tags = (List<ArtifactTag>) t.get().get("tags");
         result.setTagSet(new HashSet<>(tags));
@@ -251,6 +251,7 @@ public class ArtifactAdapter extends VertexEntityTraversalAdapter<Artifact> impl
         ArtifactArchiveListing artifactArchiveListing = entity.getArtifactArchiveListing();
         t = t.sideEffect(__.properties("filenames").drop());
         Set<String> filenames = artifactArchiveListing.getFilenames();
+        t = t.property(set, "filenames", "");
         for (String filename : filenames)
         {
             t = t.property(set, "filenames", filename);
@@ -258,6 +259,7 @@ public class ArtifactAdapter extends VertexEntityTraversalAdapter<Artifact> impl
 
         Map<String, String> checksums = entity.getChecksums();
         t = t.sideEffect(__.properties("checksums").drop());
+        t = t.property(set, "checksums", "");
         for (String alg : checksums.keySet())
         {
             t = t.property(set, "checksums", "{" + alg + "}" + checksums.get(alg));
