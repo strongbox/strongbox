@@ -132,7 +132,7 @@ public abstract class EntityHierarchyAdapter<E extends DomainObject, A extends E
     private Traversal<?, Edge> createParent(E artifact)
     {
         return __.<Vertex>addE(hierarchyEdge())
-                 .from(__.identity().trace("child"))
+                 .from(__.identity())
                  .to(saveParent(artifact));
     }
 

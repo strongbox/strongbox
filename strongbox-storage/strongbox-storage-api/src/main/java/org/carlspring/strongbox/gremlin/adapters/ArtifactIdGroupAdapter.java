@@ -16,7 +16,6 @@ import org.apache.tinkerpop.gremlin.structure.Vertex;
 import org.carlspring.strongbox.db.schema.Edges;
 import org.carlspring.strongbox.db.schema.Vertices;
 import org.carlspring.strongbox.domain.Artifact;
-import org.carlspring.strongbox.domain.ArtifactEntity;
 import org.carlspring.strongbox.domain.ArtifactIdGroup;
 import org.carlspring.strongbox.domain.ArtifactIdGroupEntity;
 import org.carlspring.strongbox.gremlin.dsl.EntityTraversal;
@@ -50,11 +49,8 @@ public class ArtifactIdGroupAdapter extends VertexEntityTraversalAdapter<Artifac
                  .by(__.enrichPropertyValue("name"))
                  .by(__.outE(Edges.ARTIFACT_GROUP_HAS_ARTIFACTS)
                        .inV()
-                       .trace("artifact")
                        .optional(__.inE(Edges.REMOTE_ARTIFACT_INHERIT_ARTIFACT)
-                                   .trace(Edges.REMOTE_ARTIFACT_INHERIT_ARTIFACT)
-                                   .otherV()
-                                   .trace("remote-artifact"))
+                                   .otherV())
                        .map(artifactAdapter.fold())
                        .map(EntityTraversalUtils::castToObject)
                        .fold())
@@ -93,7 +89,6 @@ public class ArtifactIdGroupAdapter extends VertexEntityTraversalAdapter<Artifac
                                                             .store("aigaig")
                                                             .sideEffect(saveArtifacstTraversal.select("aiga")
                                                                                               .unfold()
-                                                                                              .trace("111")
                                                                                               .addE(Edges.ARTIFACT_GROUP_HAS_ARTIFACTS)
                                                                                               .from(__.select("aigaig")
                                                                                                       .unfold()));
@@ -126,10 +121,8 @@ public class ArtifactIdGroupAdapter extends VertexEntityTraversalAdapter<Artifac
     {
         return __.<Vertex>aggregate("x")
                  .optional(__.outE(Edges.ARTIFACT_GROUP_HAS_ARTIFACTS)
-                             .trace("cascade-artifact0")
                              .inV()
                              .optional(__.inE(Edges.REMOTE_ARTIFACT_INHERIT_ARTIFACT).otherV())
-                             .trace("cascade-artifact")
                              .flatMap(artifactAdapter.cascade()))
                  .select("x")
                  .unfold();
