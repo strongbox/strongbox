@@ -7,6 +7,7 @@ import java.util.Collection;
 import java.util.Collections;
 import java.util.Map;
 import java.util.Set;
+import java.util.UUID;
 
 import javax.inject.Inject;
 
@@ -73,6 +74,7 @@ public class ArtifactIdGroupAdapter extends VertexEntityTraversalAdapter<Artifac
     public UnfoldEntityTraversal<Vertex, Vertex> unfold(ArtifactIdGroup entity)
     {
         EntityTraversal<Vertex, Vertex> saveArtifacstTraversal = __.<Vertex>identity();
+        String storedArtifact = Vertices.ARTIFACT + ":" + UUID.randomUUID();
         for (Artifact artifact : entity.getArtifacts())
         {
             UnfoldEntityTraversal<Vertex, Vertex> unfoldArtifactTraversal = artifactAdapter.unfold(artifact);
@@ -80,17 +82,18 @@ public class ArtifactIdGroupAdapter extends VertexEntityTraversalAdapter<Artifac
                                                            .saveV(unfoldArtifactTraversal.entityLabel(), artifact.getUuid(),
                                                                   unfoldArtifactTraversal)
                                                            .optional(__.outE(Edges.REMOTE_ARTIFACT_INHERIT_ARTIFACT).otherV())
-                                                           .aggregate("aiga");
+                                                           .aggregate(storedArtifact);
         }
 
+        String storedArtifactIdGroup = Vertices.ARTIFACT_ID_GROUP + ":" + UUID.randomUUID();
         EntityTraversal<Vertex, Vertex> unfoldTraversal = __.<Vertex>sideEffect(__.outE(Edges.ARTIFACT_GROUP_HAS_ARTIFACTS)
                                                                                   .drop())
                                                             .map(unfoldArtifactGroup(entity))
-                                                            .store("aigaig")
-                                                            .sideEffect(saveArtifacstTraversal.select("aiga")
+                                                            .store(storedArtifactIdGroup)
+                                                            .sideEffect(saveArtifacstTraversal.select(storedArtifact)
                                                                                               .unfold()
                                                                                               .addE(Edges.ARTIFACT_GROUP_HAS_ARTIFACTS)
-                                                                                              .from(__.select("aigaig")
+                                                                                              .from(__.select(storedArtifactIdGroup)
                                                                                                       .unfold()));
 
         return new UnfoldEntityTraversal<>(Vertices.ARTIFACT_ID_GROUP, unfoldTraversal);

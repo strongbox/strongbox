@@ -99,6 +99,7 @@ interface ArtifactEntityQueries extends org.springframework.data.repository.Repo
            "WHERE genericCoordinates.uuid STARTS WITH $path and artifact.storageId=$storageId and artifact.repositoryId=$repositoryId " +
            "WITH artifact, r1, genericCoordinates " +
            "OPTIONAL MATCH (artifact)-[r4]->(tag:ArtifactTag) " +
+           "WITH artifact, r1, genericCoordinates, r4, tag " +
            "MATCH (genericCoordinates)<-[r2]-(layoutCoordinates) " +
            "WITH artifact, r1, genericCoordinates, r2, layoutCoordinates, r4, tag " +
            "OPTIONAL MATCH (artifact)<-[r3]-(remoteArtifact) " +

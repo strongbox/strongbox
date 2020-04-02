@@ -14,6 +14,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
+import java.util.UUID;
 import java.util.stream.Collectors;
 
 import javax.inject.Inject;
@@ -169,19 +170,20 @@ public class ArtifactAdapter extends VertexEntityTraversalAdapter<Artifact> impl
     public UnfoldEntityTraversal<Vertex, Vertex> unfold(Artifact entity)
     {
         ArtifactCoordinates artifactCoordinates = entity.getArtifactCoordinates();
-
+        String storedArtifactId = Vertices.ARTIFACT + ":" + UUID.randomUUID().toString();        
+        
         Set<String> tagNames = entity.getTagSet().stream().map(ArtifactTag::getName).collect(Collectors.toSet());
         EntityTraversal<Vertex, Vertex> unfoldTraversal = __.<Vertex, Edge>coalesce(updateArtifactCoordinates(artifactCoordinates),
                                                                                     createArtifactCoordinates(artifactCoordinates))
                                                             .outV()
                                                             .sideEffect(__.outE(Edges.ARTIFACT_HAS_TAGS).drop())
                                                             .map(unfoldArtifact(entity))
-                                                            .store(Vertices.ARTIFACT_TAG + ":" + entity.getUuid())
+                                                            .store(storedArtifactId)
                                                             .sideEffect(__.V()
                                                                         .hasLabel(Vertices.ARTIFACT_TAG)
                                                                         .has("uuid", P.within(tagNames))
                                                                         .addE(Edges.ARTIFACT_HAS_TAGS)
-                                                                        .from(__.select(Vertices.ARTIFACT_TAG + ":" + entity.getUuid()).unfold()));
+                                                                        .from(__.select(storedArtifactId).unfold()));
 
         return new UnfoldEntityTraversal<>(Vertices.ARTIFACT, unfoldTraversal);
     }
