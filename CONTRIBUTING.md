@@ -149,3 +149,5 @@ To accept, please:
 | Bishnu Gopal Patro           |                                              | Pune, India                             | 2019-10-19 |
 | Bartosz Czyzowski            |                                              | Jozefow, Poland                         | 2019-11-17 |
 | Ankit Tomar                  |                                              | Gurgaon, India                          | 2019-11-10 |
+| Valentin Bojinov             |                                              | Sofia, Bulgaria                         | 2020-04-01 |
+
