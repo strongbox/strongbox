@@ -8,6 +8,7 @@ import org.carlspring.strongbox.providers.io.RepositoryPathResolver;
 import org.carlspring.strongbox.services.ArtifactManagementService;
 import org.carlspring.strongbox.util.ThrowingComparator;
 import org.carlspring.strongbox.util.ThrowingConsumer;
+import org.janusgraph.diskstorage.locking.PermanentLockingException;
 
 import javax.annotation.PreDestroy;
 import java.io.IOException;
@@ -29,6 +30,7 @@ import java.util.stream.Stream;
 import org.junit.jupiter.api.TestInfo;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.dao.InvalidDataAccessApiUsageException;
 
 /**
  * @author sbespalov
@@ -206,7 +208,7 @@ public class TestArtifactContext implements AutoCloseable
     {
         try (InputStream is = Files.newInputStream(e.getValue()))
         {
-            artifactManagementService.store(e.getKey(), is);
+            storeWithRetry(e, is);
         }
         catch (IOException ioe)
         {
@@ -214,6 +216,25 @@ public class TestArtifactContext implements AutoCloseable
         }
 
         Files.delete(e.getValue());
+    }
+
+    private void storeWithRetry(Map.Entry<RepositoryPath, Path> entry,
+                                InputStream is)
+        throws IOException
+    {
+        for (int i = 0; i < 5; i++)
+        {
+            try
+            {
+                artifactManagementService.store(entry.getKey(), is);
+            }
+            catch (InvalidDataAccessApiUsageException e)
+            {
+                logger.warn(String.format("Retry store [%s], reason [%s].", i, e.getMessage()));
+                continue;
+            }
+            break;
+        }
     }
 
     /**
