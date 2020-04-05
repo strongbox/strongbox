@@ -42,17 +42,23 @@ public abstract class GremlinRepository<S extends Element, E extends DomainObjec
 
     protected abstract EntityTraversal<S, S> start(Supplier<EntityTraversalSource> g);
 
-    public Optional<E> findById(String uuid)
-    {
+    public abstract <R extends E> R save(Supplier<EntityTraversalSource> g, R entity);
+    
+    public Optional<E> findById(Supplier<EntityTraversalSource> g, String uuid){
         Set<String> labels = adapter().labels();
-        EntityTraversal<S, E> traversal = start(this::g).findById(uuid, labels.toArray(new String[labels.size()]))
+        EntityTraversal<S, E> traversal = start(g).findById(uuid, labels.toArray(new String[labels.size()]))
                                                         .map(adapter().fold());
         if (!traversal.hasNext())
         {
             return Optional.empty();
         }
 
-        return Optional.of(traversal.next());
+        return Optional.of(traversal.next());        
+    }
+    
+    public Optional<E> findById(String uuid)
+    {
+        return findById(this::g, uuid);
     }
 
     @Override

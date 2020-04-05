@@ -166,23 +166,6 @@ public class PypiArtifactCoordinates
         setCoordinate(DISTRIBUTION, id);
     }
 
-    /**
-     * @return Returns the VERSION coordinate value
-     */
-    @Override
-    public String getVersion()
-    {
-        return getCoordinate(VERSION);
-    }
-
-    /**
-     * @param version VERSION coordinate takes this value
-     */
-    @Override
-    public void setVersion(String version)
-    {
-        setCoordinate(VERSION, version);
-    }
 
     /**
      * @return Returns the BUILD coordinate value

@@ -15,15 +15,22 @@ public abstract class GremlinVertexRepository<E extends DomainObject> extends Gr
 {
 
     @Override
-    public <R extends E> R save(R entity)
+    public <R extends E> R save(Supplier<EntityTraversalSource> g,
+                                R entity)
     {
         UnfoldEntityTraversal<Vertex, Vertex> unfoldTraversal = adapter().unfold(entity);
-        Vertex resultVertex = start(this::g).saveV(unfoldTraversal.entityLabel(), entity.getUuid(),
+        Vertex resultVertex = start(g).saveV(unfoldTraversal.entityLabel(), entity.getUuid(),
                                                    unfoldTraversal)
                                             .next();
         session.clear();
-        
-        return (R) findById(resultVertex.<String>property("uuid").value()).get();
+
+        return (R) findById(g, resultVertex.<String>property("uuid").value()).get();
+    }
+
+    @Override
+    public <R extends E> R save(R entity)
+    {
+        return save(this::g, entity);
     }
 
     @Override

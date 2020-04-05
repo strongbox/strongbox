@@ -55,18 +55,6 @@ public class P2ArtifactCoordinates
         setCoordinate(ID, id);
     }
 
-    @Override
-    public String getVersion()
-    {
-        return getCoordinate(VERSION);
-    }
-
-    @Override
-    public void setVersion(String version)
-    {
-        setCoordinate(VERSION, version);
-    }
-
     public String getClassifier()
     {
         return getCoordinate(CLASSIFIER);

@@ -129,19 +129,6 @@ public class NpmArtifactCoordinates extends LayoutArtifactCoordinatesEntity<NpmA
         setName(id);
     }
 
-    @Override
-    public String getVersion()
-    {
-        return getCoordinate(VERSION);
-    }
-
-    @Override
-    public void setVersion(String version)
-    {
-        SemanticVersion.parse(version);
-        setCoordinate(VERSION, version);
-    }
-
     public void setExtension(String extension)
     {
         Matcher matcher = NPM_EXTENSION_PATTERN.matcher(extension);

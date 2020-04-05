@@ -107,18 +107,6 @@ public class RpmArtifactCoordinates
         setCoordinate(BASE_NAME, id);
     }
 
-    @Override
-    public String getVersion()
-    {
-        return getCoordinate(VERSION);
-    }
-
-    @Override
-    public void setVersion(String version)
-    {
-        setCoordinate(VERSION, version);
-    }
-
     public String getRelease()
     {
         return getCoordinate(RELEASE);

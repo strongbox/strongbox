@@ -87,13 +87,7 @@ public class NugetArtifactCoordinates
     @XmlAttribute(name="version")
     public String getVersion()
     {
-        return getCoordinate(VERSION);
-    }
-
-    @Override
-    public void setVersion(String version)
-    {
-        setCoordinate(VERSION, version);
+        return super.getVersion();
     }
 
     @ArtifactLayoutCoordinate
