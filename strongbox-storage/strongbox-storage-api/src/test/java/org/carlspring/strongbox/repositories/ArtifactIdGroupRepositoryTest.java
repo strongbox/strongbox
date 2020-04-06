@@ -120,10 +120,12 @@ public class ArtifactIdGroupRepositoryTest
         assertThat(artifactIdGroupRepository.findById(artifactIdGroupEntity.getUuid())).isEmpty();
         assertThat(g.V()
                     .label()
-                    .toList()).hasSize(1).containsExactly(Vertices.ARTIFACT_TAG);
+                    .toSet()).hasSize(3)
+                             .containsOnly(Vertices.RAW_ARTIFACT_COORDINATES, Vertices.GENERIC_ARTIFACT_COORDINATES,
+                                           Vertices.ARTIFACT_TAG);
         assertThat(g.E()
                     .count()
-                    .next()).isEqualTo(0L);
+                    .next()).isEqualTo(3L);
     }
 
     @Test
