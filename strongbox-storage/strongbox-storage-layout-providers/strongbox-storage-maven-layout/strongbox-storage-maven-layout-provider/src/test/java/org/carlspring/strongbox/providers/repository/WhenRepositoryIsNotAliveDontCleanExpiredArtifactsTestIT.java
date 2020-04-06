@@ -64,7 +64,7 @@ public class WhenRepositoryIsNotAliveDontCleanExpiredArtifactsTestIT
         Optional<Artifact> artifactEntryOptional = Optional.ofNullable(artifact);
 
         // it's still there
-        assertThat(artifactEntryOptional).isNotEqualTo(Optional.empty());
+        assertThat(artifactEntryOptional).isNotEmpty();
     }
 
     @Override
