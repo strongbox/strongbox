@@ -178,6 +178,20 @@ public abstract class AbstractRepositoryProvider implements RepositoryProvider, 
     {
         RepositoryPath repositoryPath = (RepositoryPath) ctx.getPath();
         logger.debug("Complete writing [{}]", repositoryPath);
+        
+        if (ctx.getArtifactUpdate())
+        {
+            artifactEventListenerRegistry.dispatchArtifactUpdatedEvent(repositoryPath);
+        }
+        else
+        {
+            artifactEventListenerRegistry.dispatchArtifactStoredEvent(repositoryPath);
+        }
+
+        if (RepositoryFiles.isMetadata(repositoryPath))
+        {
+            artifactEventListenerRegistry.dispatchArtifactMetadataStoredEvent(repositoryPath);
+        }
     }
 
     @Override
@@ -235,20 +249,6 @@ public abstract class AbstractRepositoryProvider implements RepositoryProvider, 
 
         ArtifactIdGroup artifactGroup = repositoryArtifactIdGroupService.findOneOrCreate(storage.getId(), repository.getId(), coordinates.getId());
         repositoryArtifactIdGroupService.addArtifactToGroup(artifactGroup, artifactEntry);
-        
-        if (ctx.getArtifactUpdate())
-        {
-            artifactEventListenerRegistry.dispatchArtifactUpdatedEvent(repositoryPath);
-        }
-        else
-        {
-            artifactEventListenerRegistry.dispatchArtifactStoredEvent(repositoryPath);
-        }
-
-        if (RepositoryFiles.isMetadata(repositoryPath))
-        {
-            artifactEventListenerRegistry.dispatchArtifactMetadataStoredEvent(repositoryPath);
-        }
     }
 
     protected Artifact provideArtifact(RepositoryPath repositoryPath) throws IOException
