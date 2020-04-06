@@ -16,6 +16,8 @@ public class RepositoryStreamContext
 
     private TransactionStatus transaction;
 
+    private Boolean artifactUpdate;
+
     public Path getPath()
     {
         return path;
@@ -54,6 +56,16 @@ public class RepositoryStreamContext
     public void setTransaction(TransactionStatus transaction)
     {
         this.transaction = transaction;
+    }
+    
+    public Boolean getArtifactUpdate()
+    {
+        return artifactUpdate;
+    }
+
+    public void setArtifactUpdate(Boolean artifactUpdate)
+    {
+        this.artifactUpdate = artifactUpdate;
     }
 
 }

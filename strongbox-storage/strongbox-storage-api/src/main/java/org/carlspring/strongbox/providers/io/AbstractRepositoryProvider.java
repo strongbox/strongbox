@@ -6,7 +6,6 @@ import java.io.OutputStream;
 import java.net.URI;
 import java.nio.file.Path;
 import java.time.LocalDateTime;
-import java.util.Date;
 import java.util.Optional;
 
 import javax.inject.Inject;
@@ -236,6 +235,20 @@ public abstract class AbstractRepositoryProvider implements RepositoryProvider, 
 
         ArtifactIdGroup artifactGroup = repositoryArtifactIdGroupService.findOneOrCreate(storage.getId(), repository.getId(), coordinates.getId());
         repositoryArtifactIdGroupService.addArtifactToGroup(artifactGroup, artifactEntry);
+        
+        if (ctx.getArtifactUpdate())
+        {
+            artifactEventListenerRegistry.dispatchArtifactUpdatedEvent(repositoryPath);
+        }
+        else
+        {
+            artifactEventListenerRegistry.dispatchArtifactStoredEvent(repositoryPath);
+        }
+
+        if (RepositoryFiles.isMetadata(repositoryPath))
+        {
+            artifactEventListenerRegistry.dispatchArtifactMetadataStoredEvent(repositoryPath);
+        }
     }
 
     protected Artifact provideArtifact(RepositoryPath repositoryPath) throws IOException

@@ -105,13 +105,6 @@ public class ArtifactManagementService
             throws IOException
     {
         long result;
-        boolean updatedArtifactFile = false;
-
-        if (RepositoryFiles.artifactExists(repositoryPath))
-        {
-            updatedArtifactFile = RepositoryFiles.isArtifact(repositoryPath);
-        }
-        
         try (final RepositoryOutputStream aos = artifactResolutionService.getOutputStream(repositoryPath))
         {
             result = writeArtifact(repositoryPath, is, aos);
@@ -127,21 +120,6 @@ public class ArtifactManagementService
             throw new ArtifactStorageException(e);
         }
 
-        if (updatedArtifactFile)
-        {
-            artifactEventListenerRegistry.dispatchArtifactUpdatedEvent(repositoryPath);
-        }
-        else
-        {
-            artifactEventListenerRegistry.dispatchArtifactStoredEvent(repositoryPath);
-        }
-
-        if (RepositoryFiles.isMetadata(repositoryPath))
-        {
-            artifactEventListenerRegistry.dispatchArtifactMetadataStoredEvent(repositoryPath);
-        }
-
-        
         return result;
     }
 

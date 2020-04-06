@@ -4,7 +4,6 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.nio.file.Path;
-import java.util.Optional;
 import java.util.concurrent.locks.Lock;
 import java.util.concurrent.locks.ReadWriteLock;
 
@@ -88,8 +87,20 @@ public class RepositoryStreamSupport
 
         logger.debug("Locked [{}].", path);
         
-        TransactionStatus transaction = transactionManager.getTransaction(new DefaultTransactionDefinition(Propagation.REQUIRED.value()));
-        ctx.setTransaction(transaction);
+        if (ctx instanceof RepositoryStreamWriteContext)
+        {
+            TransactionStatus transaction = transactionManager.getTransaction(new DefaultTransactionDefinition(
+                    Propagation.REQUIRED.value()));
+            ctx.setTransaction(transaction);
+
+            RepositoryPath repositoryPath = (RepositoryPath) ctx.getPath();
+            if (RepositoryFiles.artifactExists(repositoryPath))
+            {
+                ctx.setArtifactUpdate(RepositoryFiles.isArtifact(repositoryPath));
+            } else {
+                ctx.setArtifactUpdate(false);
+            }
+        }
         
         ctx.setOpened(true);
     }
@@ -106,7 +117,7 @@ public class RepositoryStreamSupport
         try
         {
             TransactionStatus transaction = ctx.getTransaction();
-            if (transaction.isRollbackOnly() || !transaction.isCompleted())
+            if (transaction != null && (transaction.isRollbackOnly() || !transaction.isCompleted()))
             {
                 logger.info("Rollback [{}]", getContext().getPath());
                 transactionManager.rollback(transaction);
@@ -174,7 +185,7 @@ public class RepositoryStreamSupport
             logger.debug("Flushed [{}]", getContext().getPath());
             
             TransactionStatus transaction = ctx.getTransaction();
-            if (!transaction.isRollbackOnly())
+            if (transaction != null && !transaction.isRollbackOnly())
             {
                 logger.debug("Commit [{}]", getContext().getPath());
                 RepositoryStreamSupport.this.commit();
