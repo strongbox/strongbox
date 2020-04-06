@@ -40,6 +40,7 @@ import org.carlspring.strongbox.storage.repository.Repository;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.context.ApplicationEventPublisher;
+import org.springframework.transaction.PlatformTransactionManager;
 import org.springframework.util.Assert;
 
 /**
@@ -74,6 +75,9 @@ public abstract class AbstractRepositoryProvider implements RepositoryProvider, 
     @Inject
     private RepositoryPathLock repositoryPathLock;
     
+    @Inject
+    private PlatformTransactionManager transactionManager;
+    
     protected Configuration getConfiguration()
     {
         return configurationManager.getConfiguration();
@@ -106,7 +110,7 @@ public abstract class AbstractRepositoryProvider implements RepositoryProvider, 
             return (RepositoryInputStream) is;
         }
 
-        return new RepositoryStreamSupport(repositoryPathLock.lock(repositoryPath), this).
+        return new RepositoryStreamSupport(repositoryPathLock.lock(repositoryPath), this, transactionManager).
                new RepositoryInputStream(repositoryPath, is);
     }
 
@@ -131,7 +135,7 @@ public abstract class AbstractRepositoryProvider implements RepositoryProvider, 
             return (RepositoryOutputStream) os;
         }
 
-        return new RepositoryStreamSupport(repositoryPathLock.lock(repositoryPath), this).
+        return new RepositoryStreamSupport(repositoryPathLock.lock(repositoryPath), this, transactionManager).
                new RepositoryOutputStream(repositoryPath, os);
     }
 

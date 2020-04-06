@@ -22,6 +22,10 @@ import org.carlspring.strongbox.io.RepositoryStreamWriteContext;
 import org.carlspring.strongbox.io.StreamUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.transaction.PlatformTransactionManager;
+import org.springframework.transaction.TransactionStatus;
+import org.springframework.transaction.annotation.Propagation;
+import org.springframework.transaction.support.DefaultTransactionDefinition;
 
 /**
  * @author sbespalov
@@ -38,12 +42,16 @@ public class RepositoryStreamSupport
     
     protected final RepositoryStreamCallback callback;
     
+    private final PlatformTransactionManager transactionManager;
+    
     
     public RepositoryStreamSupport(ReadWriteLock lockSource,
-                                   RepositoryStreamCallback callback)
+                                   RepositoryStreamCallback callback,
+                                   PlatformTransactionManager transactionManager)
     {
         this.lockSource = lockSource;
         this.callback = callback;
+        this.transactionManager = transactionManager;
     }
 
     protected void initContext(RepositoryStreamContext ctx)
@@ -80,6 +88,9 @@ public class RepositoryStreamSupport
 
         logger.debug("Locked [{}].", path);
         
+        TransactionStatus transaction = transactionManager.getTransaction(new DefaultTransactionDefinition(Propagation.REQUIRED.value()));
+        ctx.setTransaction(transaction);
+        
         ctx.setOpened(true);
     }
 
@@ -92,9 +103,21 @@ public class RepositoryStreamSupport
             return;
         }
 
-        ctx.getLock().unlock();
-        
-        logger.debug("Unlocked [{}].", ctx.getPath());
+        try
+        {
+            TransactionStatus transaction = ctx.getTransaction();
+            if (transaction.isRollbackOnly() || !transaction.isCompleted())
+            {
+                logger.info("Rollback [{}]", getContext().getPath());
+                transactionManager.rollback(transaction);
+                logger.info("Rollbedack [{}]", getContext().getPath());
+            }
+        }
+        finally
+        {
+            ctx.getLock().unlock();
+            logger.debug("Unlocked [{}].", ctx.getPath());
+        }
         
         clearContext();
     }
@@ -150,9 +173,18 @@ public class RepositoryStreamSupport
             
             logger.debug("Flushed [{}]", getContext().getPath());
             
-            RepositoryStreamSupport.this.commit();
-            
-            logger.debug("Commited [{}]", getContext().getPath());
+            TransactionStatus transaction = ctx.getTransaction();
+            if (!transaction.isRollbackOnly())
+            {
+                logger.debug("Commit [{}]", getContext().getPath());
+                RepositoryStreamSupport.this.commit();
+                transactionManager.commit(transaction);
+                logger.debug("Commited [{}]", getContext().getPath());
+            }
+            else
+            {
+                logger.debug("Skip commit [{}]", getContext().getPath());
+            }
         }
 
         @Override

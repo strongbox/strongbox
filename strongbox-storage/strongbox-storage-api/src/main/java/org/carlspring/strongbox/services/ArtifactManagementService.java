@@ -81,7 +81,7 @@ public class ArtifactManagementService
     @Inject
     protected RepositoryPathResolver repositoryPathResolver;
     
-    @Transactional
+    //@Transactional
     public long validateAndStore(RepositoryPath repositoryPath,
                                  InputStream is)
         throws IOException,
@@ -92,7 +92,7 @@ public class ArtifactManagementService
         return doStore(repositoryPath, is);
     }
 
-    @Transactional
+    //@Transactional
     public long store(RepositoryPath repositoryPath,
                       InputStream is)
         throws IOException
