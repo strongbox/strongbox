@@ -10,6 +10,8 @@ import org.carlspring.strongbox.gremlin.adapters.EntityTraversalAdapter;
 import org.carlspring.strongbox.gremlin.adapters.UserAdapter;
 import org.carlspring.strongbox.gremlin.repositories.GremlinVertexRepository;
 import org.carlspring.strongbox.users.dto.User;
+import org.springframework.data.neo4j.annotation.Query;
+import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
 
 @Repository
@@ -41,8 +43,9 @@ interface UserQueries
         extends org.springframework.data.repository.Repository<User, String>
 {
 
-    default List<User> findUsersWithRole(String role)
-    {
-        return null;
-    }
+    @Query("MATCH (user:User) " +
+           "WHERE has(user.roles) and ($role IN (user.roles)) " +
+           "RETURN user")
+    List<User> findUsersWithRole(@Param("role") String role);
+
 }
