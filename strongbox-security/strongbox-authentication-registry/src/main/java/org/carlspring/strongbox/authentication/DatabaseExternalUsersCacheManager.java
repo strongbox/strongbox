@@ -59,7 +59,7 @@ public class DatabaseExternalUsersCacheManager extends DatabaseUserService imple
             userEntry.setLastUpdated(LocalDateTime.now());
             userEntry.setSourceId(sourceId);
 
-            return save(userEntry);
+            return userRepository.save(userEntry);
         }
         catch (SchemaViolationException e)
         {

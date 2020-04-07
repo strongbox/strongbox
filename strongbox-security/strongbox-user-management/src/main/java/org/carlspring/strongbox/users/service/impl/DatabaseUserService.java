@@ -4,7 +4,9 @@ import static java.lang.annotation.RetentionPolicy.RUNTIME;
 
 import java.lang.annotation.Documented;
 import java.lang.annotation.Retention;
+import java.time.Instant;
 import java.time.LocalDateTime;
+import java.time.ZoneId;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -46,7 +48,7 @@ public class DatabaseUserService implements UserService
     private SecurityTokenProvider tokenProvider;
     
     @Inject
-    private UserRepository userRepository;
+    protected UserRepository userRepository;
 
     @Override
     @CacheEvict(cacheNames = CacheName.User.AUTHENTICATIONS, key = "#p0")
@@ -123,24 +125,29 @@ public class DatabaseUserService implements UserService
     @CacheEvict(cacheNames = CacheName.User.AUTHENTICATIONS, key = "#p0.username")
     public User save(User user)
     {
-        UserEntity userEntry = Optional.ofNullable(findByUsername(user.getUsername())).orElseGet(() -> new UserEntity(user.getUsername()));
+        UserEntity userEntity = Optional.ofNullable(findByUsername(user.getUsername())).orElseGet(() -> new UserEntity(user.getUsername()));
 
         if (!StringUtils.isBlank(user.getPassword()))
         {
-            userEntry.setPassword(user.getPassword());
+            userEntity.setPassword(user.getPassword());
         }
-        userEntry.setEnabled(user.isEnabled());
-        userEntry.setRoles(user.getRoles());
-        userEntry.setSecurityTokenKey(user.getSecurityTokenKey());
-        userEntry.setLastUpdated(LocalDateTime.now());
+        userEntity.setEnabled(user.isEnabled());
+        userEntity.setRoles(user.getRoles());
+        userEntity.setSecurityTokenKey(user.getSecurityTokenKey());
+        userEntity.setLastUpdated(LocalDateTime.now());
 
-        return userRepository.save(userEntry);
+        if (StringUtils.isNotBlank(user.getSourceId()) || StringUtils.isNotBlank(userEntity.getSourceId()))
+        {
+            throw new IllegalStateException("Can't modify external users.");
+        }
+        
+        return userRepository.save(userEntity);
     }
 
     public void expireUser(String username, boolean clearSourceId)
     {
         UserEntity externalUserEntry = findByUsername(username);
-        externalUserEntry.setLastUpdated(null);
+        externalUserEntry.setLastUpdated(LocalDateTime.ofInstant(Instant.ofEpochMilli(0), ZoneId.systemDefault()));
         if (clearSourceId)
         {
             externalUserEntry.setSourceId("empty");
