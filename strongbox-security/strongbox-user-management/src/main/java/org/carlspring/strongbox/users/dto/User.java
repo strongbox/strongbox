@@ -8,12 +8,9 @@ import org.carlspring.strongbox.data.domain.DomainObject;
 public interface User extends DomainObject
 {
 
-    default String getUuid()
-    {
-        return getUsername();
+    default String getUsername() {
+        return getUuid();
     }
-
-    String getUsername();
 
     String getPassword();
 
@@ -23,7 +20,7 @@ public interface User extends DomainObject
 
     boolean isEnabled();
 
-    Date getLastUpdate();
+    Date getLastUpdated();
 
     String getSourceId();
 

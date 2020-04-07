@@ -54,7 +54,7 @@ public class UserData implements Serializable, User
         this.enabled = source.isEnabled();
         this.roles = immuteRoles(source.getRoles());
         this.securityTokenKey = source.getSecurityTokenKey();
-        this.lastUpdate = immuteDate(source.getLastUpdate());
+        this.lastUpdate = immuteDate(source.getLastUpdated());
         this.sourceId = source.getSourceId();
     }
 
@@ -66,6 +66,12 @@ public class UserData implements Serializable, User
     private Set<String> immuteRoles(final Set<String> source)
     {
         return source != null ? ImmutableSet.copyOf(source) : Collections.emptySet();
+    }
+
+    @Override
+    public String getUuid()
+    {
+        return getUsername();
     }
 
     @Override
@@ -99,7 +105,7 @@ public class UserData implements Serializable, User
     }
 
     @Override
-    public Date getLastUpdate()
+    public Date getLastUpdated()
     {
         return lastUpdate;
     }

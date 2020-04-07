@@ -155,7 +155,7 @@ public class ConfigurableProviderManager extends ProviderManager implements User
 
     private boolean isInternalOrValidExternalUser(User user)
     {
-        Date userLastUpdate = Optional.ofNullable(user.getLastUpdate())
+        Date userLastUpdate = Optional.ofNullable(user.getLastUpdated())
                                       .orElse(Date.from(Instant.EPOCH));
         Date userExpireDate = Date.from(Instant.ofEpochMilli(userLastUpdate.getTime())
                                                .plusSeconds(externalUsersInvalidateSeconds));

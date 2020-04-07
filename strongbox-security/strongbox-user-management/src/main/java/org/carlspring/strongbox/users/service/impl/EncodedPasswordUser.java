@@ -25,6 +25,12 @@ public class EncodedPasswordUser implements User
         this.passwordEncoder = passwordEncoder;
     }
 
+    @Override
+    public String getUuid()
+    {
+        return getUsername();
+    }
+    
     public String getUsername()
     {
         return user.getUsername();
@@ -55,9 +61,9 @@ public class EncodedPasswordUser implements User
         return user.isEnabled();
     }
 
-    public Date getLastUpdate()
+    public Date getLastUpdated()
     {
-        return user.getLastUpdate();
+        return user.getLastUpdated();
     }
 
     public String getSourceId()

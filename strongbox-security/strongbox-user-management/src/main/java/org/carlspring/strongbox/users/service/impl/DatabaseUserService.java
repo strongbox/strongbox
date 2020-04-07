@@ -123,17 +123,16 @@ public class DatabaseUserService implements UserService
     @CacheEvict(cacheNames = CacheName.User.AUTHENTICATIONS, key = "#p0.username")
     public User save(User user)
     {
-        UserEntity userEntry = Optional.ofNullable(findByUsername(user.getUsername())).orElseGet(() -> new UserEntity());
+        UserEntity userEntry = Optional.ofNullable(findByUsername(user.getUsername())).orElseGet(() -> new UserEntity(user.getUsername()));
 
         if (!StringUtils.isBlank(user.getPassword()))
         {
             userEntry.setPassword(user.getPassword());
         }
-        userEntry.setUsername(user.getUsername());
         userEntry.setEnabled(user.isEnabled());
         userEntry.setRoles(user.getRoles());
         userEntry.setSecurityTokenKey(user.getSecurityTokenKey());
-        userEntry.setLastUpdate(new Date());
+        userEntry.setLastUpdated(new Date());
 
         return userRepository.save(userEntry);
     }
@@ -141,7 +140,7 @@ public class DatabaseUserService implements UserService
     public void expireUser(String username, boolean clearSourceId)
     {
         UserEntity externalUserEntry = findByUsername(username);
-        externalUserEntry.setLastUpdate(null);
+        externalUserEntry.setLastUpdated(null);
         if (clearSourceId)
         {
             externalUserEntry.setSourceId("empty");

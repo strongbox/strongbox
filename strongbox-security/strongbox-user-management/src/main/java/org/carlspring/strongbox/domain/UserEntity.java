@@ -17,8 +17,6 @@ import org.neo4j.ogm.annotation.NodeEntity;
 public class UserEntity extends DomainEntity implements User
 {
 
-    private String username;
-
     private String password;
 
     private boolean enabled = true;
@@ -27,19 +25,17 @@ public class UserEntity extends DomainEntity implements User
 
     private String securityTokenKey;
 
-    private Date lastUpdate;
+    private Date lastUpdated;
     
     private String sourceId;
 
-    @Override
-    public String getUsername()
+    UserEntity()
     {
-        return username;
     }
 
-    public void setUsername(String username)
+    public UserEntity(String username)
     {
-        this.username = username;
+        setUuid(username);
     }
 
     @Override
@@ -102,14 +98,14 @@ public class UserEntity extends DomainEntity implements User
     }
 
     @Override
-    public Date getLastUpdate()
+    public Date getLastUpdated()
     {
-        return lastUpdate;
+        return lastUpdated;
     }
 
-    public void setLastUpdate(Date lastUpdate)
+    public void setLastUpdated(Date lastUpdated)
     {
-        this.lastUpdate = lastUpdate;
+        this.lastUpdated = lastUpdated;
     }
 
     public String getSourceId()
@@ -122,5 +118,4 @@ public class UserEntity extends DomainEntity implements User
         this.sourceId = source;
     }
 
-    
 }

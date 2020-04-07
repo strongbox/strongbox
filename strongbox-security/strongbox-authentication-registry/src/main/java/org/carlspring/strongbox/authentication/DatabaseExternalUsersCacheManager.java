@@ -47,17 +47,16 @@ public class DatabaseExternalUsersCacheManager extends DatabaseUserService imple
                 optionalUser = Optional.empty();
             }
             
-            UserEntity userEntry = optionalUser.orElseGet(() -> new UserEntity());
+            UserEntity userEntry = optionalUser.orElseGet(() -> new UserEntity(username));
             
             if (!StringUtils.isBlank(user.getPassword()))
             {
                 userEntry.setPassword(user.getPassword());
             }
-            userEntry.setUsername(username);
             userEntry.setEnabled(user.isEnabled());
             userEntry.setRoles(user.getRoles());
             userEntry.setSecurityTokenKey(user.getSecurityTokenKey());
-            userEntry.setLastUpdate(new Date());
+            userEntry.setLastUpdated(new Date());
             userEntry.setSourceId(sourceId);
 
             return save(userEntry);

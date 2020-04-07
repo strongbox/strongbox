@@ -30,6 +30,12 @@ public class UserDto
     private String sourceId;
 
     @Override
+    public String getUuid()
+    {
+        return getUsername();
+    }
+    
+    @Override
     public String getUsername()
     {
         return username;
@@ -101,7 +107,7 @@ public class UserDto
 
 
     @Override
-    public Date getLastUpdate()
+    public Date getLastUpdated()
     {
         return lastUpdate;
     }
