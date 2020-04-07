@@ -1,6 +1,6 @@
 package org.carlspring.strongbox.domain;
 
-import java.util.Date;
+import java.time.LocalDateTime;
 import java.util.HashSet;
 import java.util.Set;
 
@@ -25,7 +25,7 @@ public class UserEntity extends DomainEntity implements User
 
     private String securityTokenKey;
 
-    private Date lastUpdated;
+    private LocalDateTime lastUpdated;
     
     private String sourceId;
 
@@ -98,12 +98,12 @@ public class UserEntity extends DomainEntity implements User
     }
 
     @Override
-    public Date getLastUpdated()
+    public LocalDateTime getLastUpdated()
     {
         return lastUpdated;
     }
 
-    public void setLastUpdated(Date lastUpdated)
+    public void setLastUpdated(LocalDateTime lastUpdated)
     {
         this.lastUpdated = lastUpdated;
     }

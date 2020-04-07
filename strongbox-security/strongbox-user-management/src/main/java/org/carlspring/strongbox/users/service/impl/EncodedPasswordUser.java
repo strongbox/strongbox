@@ -1,6 +1,6 @@
 package org.carlspring.strongbox.users.service.impl;
 
-import java.util.Date;
+import java.time.LocalDateTime;
 import java.util.Optional;
 import java.util.Set;
 
@@ -61,7 +61,7 @@ public class EncodedPasswordUser implements User
         return user.isEnabled();
     }
 
-    public Date getLastUpdated()
+    public LocalDateTime getLastUpdated()
     {
         return user.getLastUpdated();
     }

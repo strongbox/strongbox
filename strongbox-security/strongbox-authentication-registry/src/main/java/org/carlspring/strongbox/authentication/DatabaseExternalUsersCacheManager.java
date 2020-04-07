@@ -1,6 +1,6 @@
 package org.carlspring.strongbox.authentication;
 
-import java.util.Date;
+import java.time.LocalDateTime;
 import java.util.Optional;
 
 import org.apache.commons.lang3.StringUtils;
@@ -56,7 +56,7 @@ public class DatabaseExternalUsersCacheManager extends DatabaseUserService imple
             userEntry.setEnabled(user.isEnabled());
             userEntry.setRoles(user.getRoles());
             userEntry.setSecurityTokenKey(user.getSecurityTokenKey());
-            userEntry.setLastUpdated(new Date());
+            userEntry.setLastUpdated(LocalDateTime.now());
             userEntry.setSourceId(sourceId);
 
             return save(userEntry);

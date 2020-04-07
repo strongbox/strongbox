@@ -1,8 +1,8 @@
 package org.carlspring.strongbox.users.domain;
 
 import java.io.Serializable;
+import java.time.LocalDateTime;
 import java.util.Collections;
-import java.util.Date;
 import java.util.Set;
 import java.util.stream.Collectors;
 
@@ -33,7 +33,7 @@ public class UserData implements Serializable, User
 
     private final String securityTokenKey;
 
-    private final Date lastUpdate;
+    private final LocalDateTime lastUpdate;
 
     private String sourceId;
     
@@ -54,13 +54,8 @@ public class UserData implements Serializable, User
         this.enabled = source.isEnabled();
         this.roles = immuteRoles(source.getRoles());
         this.securityTokenKey = source.getSecurityTokenKey();
-        this.lastUpdate = immuteDate(source.getLastUpdated());
+        this.lastUpdate = source.getLastUpdated();
         this.sourceId = source.getSourceId();
-    }
-
-    private Date immuteDate(Date date)
-    {
-        return date == null ? null : new Date(date.getTime());
     }
 
     private Set<String> immuteRoles(final Set<String> source)
@@ -105,7 +100,7 @@ public class UserData implements Serializable, User
     }
 
     @Override
-    public Date getLastUpdated()
+    public LocalDateTime getLastUpdated()
     {
         return lastUpdate;
     }

@@ -3,7 +3,7 @@ package org.carlspring.strongbox.authentication;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatExceptionOfType;
 
-import java.util.Date;
+import java.time.LocalDateTime;
 import java.util.List;
 import java.util.UUID;
 import java.util.stream.Collectors;
@@ -89,7 +89,7 @@ public class ConfigurableProviderManagerTest
         user.setUsername(TEST_DUPLICATE_USER);
         user.setPassword("foobarpasswrod");
         user.setSourceId("someExternalUserSourceId");
-        user.setLastUpdate(new Date());
+        user.setLastUpdate(LocalDateTime.now());
         strongboxUserManager.cacheExternalUserDetails("someExternalUserSourceId", new StrongboxUserDetails(user));
         
         // Check that external user cached

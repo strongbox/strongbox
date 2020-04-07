@@ -1,6 +1,6 @@
 package org.carlspring.strongbox.users.service.impl;
 
-import java.util.Date;
+import java.time.LocalDateTime;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Map;
@@ -117,7 +117,7 @@ public class InMemoryUserService implements UserService
             userDto.setEnabled(user.isEnabled());
             userDto.setRoles(user.getRoles());
             userDto.setSecurityTokenKey(user.getSecurityTokenKey());
-            userDto.setLastUpdate(new Date());
+            userDto.setLastUpdate(LocalDateTime.now());
 
             users.putIfAbsent(user.getUsername(), userDto);
             

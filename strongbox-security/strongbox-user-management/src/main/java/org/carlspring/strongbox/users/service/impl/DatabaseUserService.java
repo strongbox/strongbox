@@ -4,7 +4,7 @@ import static java.lang.annotation.RetentionPolicy.RUNTIME;
 
 import java.lang.annotation.Documented;
 import java.lang.annotation.Retention;
-import java.util.Date;
+import java.time.LocalDateTime;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -132,7 +132,7 @@ public class DatabaseUserService implements UserService
         userEntry.setEnabled(user.isEnabled());
         userEntry.setRoles(user.getRoles());
         userEntry.setSecurityTokenKey(user.getSecurityTokenKey());
-        userEntry.setLastUpdated(new Date());
+        userEntry.setLastUpdated(LocalDateTime.now());
 
         return userRepository.save(userEntry);
     }

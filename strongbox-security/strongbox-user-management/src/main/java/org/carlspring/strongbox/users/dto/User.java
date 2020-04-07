@@ -1,6 +1,6 @@
 package org.carlspring.strongbox.users.dto;
 
-import java.util.Date;
+import java.time.LocalDateTime;
 import java.util.Set;
 
 import org.carlspring.strongbox.data.domain.DomainObject;
@@ -20,7 +20,7 @@ public interface User extends DomainObject
 
     boolean isEnabled();
 
-    Date getLastUpdated();
+    LocalDateTime getLastUpdated();
 
     String getSourceId();
 

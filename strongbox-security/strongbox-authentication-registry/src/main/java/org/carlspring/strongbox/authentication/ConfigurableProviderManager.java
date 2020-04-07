@@ -2,8 +2,8 @@ package org.carlspring.strongbox.authentication;
 
 import java.io.IOException;
 import java.time.Instant;
+import java.time.LocalDateTime;
 import java.util.ArrayList;
-import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -155,13 +155,12 @@ public class ConfigurableProviderManager extends ProviderManager implements User
 
     private boolean isInternalOrValidExternalUser(User user)
     {
-        Date userLastUpdate = Optional.ofNullable(user.getLastUpdated())
-                                      .orElse(Date.from(Instant.EPOCH));
-        Date userExpireDate = Date.from(Instant.ofEpochMilli(userLastUpdate.getTime())
-                                               .plusSeconds(externalUsersInvalidateSeconds));
-        Date nowDate = new Date();
+        LocalDateTime userLastUpdate = Optional.ofNullable(user.getLastUpdated())
+                                               .orElse(LocalDateTime.from(Instant.EPOCH));
+        LocalDateTime userExpireDate = userLastUpdate.plusSeconds(externalUsersInvalidateSeconds);
+        LocalDateTime nowDate = LocalDateTime.now();
 
-        return StringUtils.isBlank(user.getSourceId()) || nowDate.before(userExpireDate);
+        return StringUtils.isBlank(user.getSourceId()) || nowDate.isBefore(userExpireDate);
     }
 
     @Override

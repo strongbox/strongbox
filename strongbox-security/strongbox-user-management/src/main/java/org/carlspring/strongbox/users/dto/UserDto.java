@@ -1,7 +1,7 @@
 package org.carlspring.strongbox.users.dto;
 
 import java.io.Serializable;
-import java.util.Date;
+import java.time.LocalDateTime;
 import java.util.HashSet;
 import java.util.Set;
 
@@ -25,7 +25,7 @@ public class UserDto
     private String securityTokenKey;
 
     @JsonIgnore
-    private Date lastUpdate;
+    private LocalDateTime lastUpdate;
 
     private String sourceId;
 
@@ -107,12 +107,12 @@ public class UserDto
 
 
     @Override
-    public Date getLastUpdated()
+    public LocalDateTime getLastUpdated()
     {
         return lastUpdate;
     }
 
-    public void setLastUpdate(Date lastUpdate)
+    public void setLastUpdate(LocalDateTime lastUpdate)
     {
         this.lastUpdate = lastUpdate;
     }
