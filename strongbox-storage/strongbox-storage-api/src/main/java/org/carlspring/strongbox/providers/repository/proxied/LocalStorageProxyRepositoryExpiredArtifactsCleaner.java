@@ -1,6 +1,8 @@
 package org.carlspring.strongbox.providers.repository.proxied;
 
 import java.io.IOException;
+import java.util.ArrayList;
+import java.util.Collections;
 import java.util.Iterator;
 import java.util.List;
 
@@ -48,29 +50,31 @@ public class LocalStorageProxyRepositoryExpiredArtifactsCleaner
     @Inject
     private ArtifactManagementService artifactManagementService;
 
-    @Transactional(rollbackFor = Exception.class)
+    @Transactional
     public void cleanup(final Integer lastAccessedTimeInDays,
                         final Long minSizeInBytes)
             throws IOException
     {
         final Page<Artifact> artifactEntries = artifactEntityRepository.findMatching(lastAccessedTimeInDays, minSizeInBytes,
                                                                                      PageRequest.of(0, Integer.MAX_VALUE));
-        filterAccessibleProxiedArtifacts(artifactEntries.toList());
-        if (artifactEntries.isEmpty())
+        List<Artifact> artifactsToDelete = filterAccessibleProxiedArtifacts(artifactEntries.toList());
+        if (artifactsToDelete.isEmpty())
         {
             return;
         }
 
-        logger.debug("Cleaning artifacts {}", artifactEntries);
-        deleteFromStorage(artifactEntries.toList());
+        logger.debug("Cleaning artifacts {}", artifactsToDelete);
+        deleteFromStorage(artifactsToDelete);
     }
 
-    private void filterAccessibleProxiedArtifacts(final List<Artifact> artifactEntries)
+    private List<Artifact> filterAccessibleProxiedArtifacts(final List<Artifact> artifactEntries)
     {
         if (CollectionUtils.isEmpty(artifactEntries))
         {
-            return;
+            return Collections.emptyList();
         }
+        
+        List<Artifact> result = new ArrayList<>();
         for (final Iterator<Artifact> it = artifactEntries.iterator(); it.hasNext(); )
         {
             final Artifact artifactEntry = it.next();
@@ -78,24 +82,24 @@ public class LocalStorageProxyRepositoryExpiredArtifactsCleaner
             final Repository repository = storage.getRepository(artifactEntry.getRepositoryId());
             if (!repository.isProxyRepository())
             {
-                it.remove();
                 continue;
             }
             final RemoteRepository remoteRepository = repository.getRemoteRepository();
             if (remoteRepository == null)
             {
                 logger.warn("Repository {} is not associated with remote repository", repository.getId());
-                it.remove();
                 continue;
             }
             if (!remoteRepositoryAlivenessCacheManager.isAlive(remoteRepository))
             {
                 logger.warn("Remote repository {} is down. Artifacts won't be cleaned up.", remoteRepository.getUrl());
-                it.remove();
                 continue;
             }
+            
+            result.add(artifactEntry);
         }
-
+        
+        return result;
     }
 
     private void deleteFromStorage(final List<Artifact> artifactEntries)
