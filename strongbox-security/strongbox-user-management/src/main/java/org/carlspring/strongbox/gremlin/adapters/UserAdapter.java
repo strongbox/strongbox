@@ -43,7 +43,7 @@ public class UserAdapter extends VertexEntityTraversalAdapter<User>
                  .by(__.enrichPropertyValue("uuid"))
                  .by(__.enrichPropertyValue("password"))
                  .by(__.enrichPropertyValue("enabled"))
-                 .by(__.enrichPropertyValue("roles"))
+                 .by(__.enrichPropertyValues("roles"))
                  .by(__.enrichPropertyValue("securityTokenKey"))
                  .by(__.enrichPropertyValue("lastUpdated"))
                  .by(__.enrichPropertyValue("sourceId"))
