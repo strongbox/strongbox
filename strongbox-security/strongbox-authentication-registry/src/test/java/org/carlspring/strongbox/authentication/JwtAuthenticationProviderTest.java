@@ -66,7 +66,7 @@ public class JwtAuthenticationProviderTest
     private UserService userService;
 
     @Inject
-    private DatabaseUserService orientDbUserService;
+    private DatabaseUserService databaseUserService;
     
     @Inject
     private PasswordEncoder passwordEncoder;
@@ -88,7 +88,7 @@ public class JwtAuthenticationProviderTest
         user.setPassword("new_password");
         userService.updateAccountDetailsByUsername(new EncodedPasswordUser(user, passwordEncoder));
         
-        orientDbUserService.expireUser(TEST_USER, false);
+        databaseUserService.expireUser(TEST_USER, false);
         
         //Authentication should fail by token hash
         assertThrows(BadCredentialsException.class, new Authenticate(authentication)::execute);
@@ -97,11 +97,11 @@ public class JwtAuthenticationProviderTest
         authenticationManager.authenticate(authentication = getAuthentication(TEST_USER));
         
         //Change roles
-        UserEntity userEntity = orientDbUserService.findByUsername(TEST_USER);
+        UserEntity userEntity = databaseUserService.findByUsername(TEST_USER);
         userEntity.getRoles().add("LOGS_MANAGER");
         userService.save(userEntity);
         
-        orientDbUserService.expireUser(TEST_USER, false);
+        databaseUserService.expireUser(TEST_USER, false);
         
         //Authentication should fail by token hash
         assertThrows(BadCredentialsException.class, new Authenticate(authentication)::execute);
