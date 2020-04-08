@@ -297,6 +297,10 @@ pipeline {
                                 'STRONGBOX_LOG_CONSOLE_ENABLED': true
                         ]
                         modules = [
+                            choco: {
+                                agent = 'alpine-jdk8-mvn3.6-mono5-nuget3.4-choco0.10'
+                                tools = 'mvn mono choco'
+                            },
                             gradle: {
                                 agent = 'alpine-jdk8-mvn3.6-gradle5.6'
                                 tools = 'mvn gradle'
@@ -314,7 +318,6 @@ pipeline {
                                 agent = 'alpine-jdk8-mvn3.6-sbt1.3'
                                 tools = 'mvn'
                             },
-                            // Enable when ready.
                             pypi: {
                                 agent = 'alpine-jdk8-mvn3.6-pip19.3'
                                 tools = 'mvn python pip'
