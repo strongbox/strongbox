@@ -16,6 +16,7 @@ import java.util.stream.StreamSupport;
 
 import javax.inject.Inject;
 import javax.inject.Qualifier;
+import javax.transaction.Transactional;
 
 import org.apache.commons.lang3.StringUtils;
 import org.carlspring.strongbox.data.CacheName;
@@ -39,6 +40,7 @@ import org.springframework.stereotype.Component;
  */
 @Component
 @Database
+@Transactional
 public class DatabaseUserService implements UserService
 {
 

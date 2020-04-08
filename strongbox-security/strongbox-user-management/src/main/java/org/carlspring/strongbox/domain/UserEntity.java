@@ -19,7 +19,7 @@ public class UserEntity extends DomainEntity implements User
 
     private String password;
 
-    private boolean enabled = true;
+    private Boolean enabled = true;
 
     private Set<String> roles = new HashSet<>();
 
@@ -87,12 +87,12 @@ public class UserEntity extends DomainEntity implements User
     }
 
     @Override
-    public boolean isEnabled()
+    public Boolean isEnabled()
     {
         return enabled;
     }
 
-    public void setEnabled(final boolean enabled)
+    public void setEnabled(final Boolean enabled)
     {
         this.enabled = enabled;
     }

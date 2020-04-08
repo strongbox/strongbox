@@ -3,6 +3,8 @@ package org.carlspring.strongbox.authentication;
 import java.time.LocalDateTime;
 import java.util.Optional;
 
+import javax.transaction.Transactional;
+
 import org.apache.commons.lang3.StringUtils;
 import org.carlspring.strongbox.data.CacheName;
 import org.carlspring.strongbox.domain.UserEntity;
@@ -23,6 +25,7 @@ import org.springframework.stereotype.Component;
  * @author sbespalov
  */
 @Component
+@Transactional
 public class DatabaseExternalUsersCacheManager extends DatabaseUserService implements StrongboxExternalUsersCacheManager
 {
 

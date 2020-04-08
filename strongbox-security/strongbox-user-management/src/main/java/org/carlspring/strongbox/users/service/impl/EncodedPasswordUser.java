@@ -56,7 +56,7 @@ public class EncodedPasswordUser implements User
         return user.getSecurityTokenKey();
     }
 
-    public boolean isEnabled()
+    public Boolean isEnabled()
     {
         return user.isEnabled();
     }

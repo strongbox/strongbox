@@ -14,6 +14,7 @@ import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 import javax.inject.Inject;
+import javax.transaction.Transactional;
 
 import org.apache.commons.lang3.StringUtils;
 import org.carlspring.strongbox.authentication.api.AuthenticationItem;
@@ -103,6 +104,7 @@ public class ConfigurableProviderManager extends ProviderManager implements User
     }
 
     @Override
+    @Transactional
     public UserDetails loadUserByUsername(String username)
         throws UsernameNotFoundException
     {

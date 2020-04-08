@@ -27,7 +27,7 @@ public class UserData implements Serializable, User
 
     private final String password;
 
-    private final boolean enabled;
+    private final Boolean enabled;
 
     private final Set<String> roles;
 
@@ -94,7 +94,7 @@ public class UserData implements Serializable, User
     }
 
     @Override
-    public boolean isEnabled()
+    public Boolean isEnabled()
     {
         return enabled;
     }

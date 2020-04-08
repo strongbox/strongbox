@@ -18,7 +18,7 @@ public interface User extends DomainObject
 
     String getSecurityTokenKey();
 
-    boolean isEnabled();
+    Boolean isEnabled();
 
     LocalDateTime getLastUpdated();
 
