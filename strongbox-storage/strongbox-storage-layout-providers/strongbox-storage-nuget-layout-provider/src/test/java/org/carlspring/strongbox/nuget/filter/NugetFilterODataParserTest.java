@@ -26,7 +26,7 @@ import org.carlspring.strongbox.testing.artifact.ArtifactManagementTestExecution
 import org.carlspring.strongbox.testing.artifact.NugetTestArtifact;
 import org.carlspring.strongbox.testing.repository.NugetRepository;
 import org.carlspring.strongbox.testing.storage.repository.RepositoryManagementTestExecutionListener;
-
+import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.junit.jupiter.api.parallel.Execution;
@@ -41,6 +41,7 @@ import org.springframework.test.context.ContextConfiguration;
 @ActiveProfiles(profiles = "test")
 @ContextConfiguration(classes = NugetLayoutProviderTestConfig.class)
 @Execution(CONCURRENT)
+@Disabled
 public class NugetFilterODataParserTest
 {
 

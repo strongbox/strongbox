@@ -106,6 +106,7 @@ public class TransactionRetryAspect
                 if (shouldRetry(rootCause))
                 {
                     logger.warn(String.format("Retry [%s].", i));
+                    Thread.sleep(100);
                     continue;
                 }
 

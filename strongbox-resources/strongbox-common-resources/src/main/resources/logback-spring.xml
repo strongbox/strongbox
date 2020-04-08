@@ -147,7 +147,7 @@
         <logger name="org.carlspring.strongbox.security.authentication" level="INFO"/>
         <logger name="org.carlspring.strongbox.security.vote" level="INFO"/>
         <logger name="org.carlspring.strongbox.data" level="WARN"/>
-        <logger name="org.carlspring.strongbox.data.tx" level="WARN"/>
+        <logger name="org.carlspring.strongbox.data.tx" level="INFO"/>
         <logger name="org.carlspring.strongbox.data.criteria" level="INFO"/>
         <logger name="org.carlspring.strongbox.data.server" level="INFO"/>
         <!-- Strongbox packages -->

@@ -19,6 +19,7 @@ import org.carlspring.strongbox.testing.repository.NugetRepository;
 import org.carlspring.strongbox.testing.storage.repository.RepositoryAttributes;
 import org.carlspring.strongbox.testing.storage.repository.RepositoryManagementTestExecutionListener;
 import org.carlspring.strongbox.testing.storage.repository.TestRepository.Group;
+import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.junit.jupiter.api.parallel.Execution;
@@ -55,6 +56,7 @@ public class NugetGroupRepositoryProviderTest
     @ExtendWith({ RepositoryManagementTestExecutionListener.class,
                   ArtifactManagementTestExecutionListener.class })
     @Test
+    @Disabled
     public void testGroupSearch(@NugetRepository(repositoryId = REPOSITORY_RELEASES_1)
                                 Repository repository1,
                                 @NugetTestArtifact(repositoryId = REPOSITORY_RELEASES_1,

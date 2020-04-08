@@ -5,6 +5,7 @@ import java.text.SimpleDateFormat;
 import java.time.Instant;
 import java.time.LocalDateTime;
 import java.time.ZoneId;
+import java.util.Collections;
 import java.util.Date;
 import java.util.LinkedList;
 import java.util.List;
@@ -60,7 +61,7 @@ public class EntityTraversalUtils
                        .filter(v -> !EntityTraversalDsl.NULL.equals(v))
                        .map(v -> (List<Property<Object>>) v)
                        .<List<E>>map(c -> c.stream().map(p -> p.value()).map(target::cast).collect(Collectors.toList()))
-                       .orElse(null);
+                       .orElse(Collections.emptyList());
     }
 
     public static <E> Object castToObject(Traverser<E> t)
