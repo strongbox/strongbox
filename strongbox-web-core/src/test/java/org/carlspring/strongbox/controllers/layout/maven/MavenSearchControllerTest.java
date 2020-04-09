@@ -12,6 +12,7 @@ import org.carlspring.strongbox.testing.artifact.MavenTestArtifact;
 import org.carlspring.strongbox.testing.repository.MavenRepository;
 import org.carlspring.strongbox.testing.storage.repository.RepositoryManagementTestExecutionListener;
 import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.springframework.http.MediaType;
@@ -23,6 +24,7 @@ import org.springframework.http.MediaType;
  * @author Pablo Tirado
  */
 @IntegrationTest
+@Disabled
 public class MavenSearchControllerTest
         extends MavenRestAssuredBaseTest
 {

@@ -7,9 +7,9 @@ import javax.transaction.Transactional;
 
 import org.apache.commons.lang3.StringUtils;
 import org.carlspring.strongbox.data.CacheName;
+import org.carlspring.strongbox.domain.User;
 import org.carlspring.strongbox.domain.UserEntity;
 import org.carlspring.strongbox.users.domain.UserData;
-import org.carlspring.strongbox.users.dto.User;
 import org.carlspring.strongbox.users.service.UserAlreadyExistsException;
 import org.carlspring.strongbox.users.service.impl.DatabaseUserService;
 import org.carlspring.strongbox.users.userdetails.StrongboxExternalUsersCacheManager;

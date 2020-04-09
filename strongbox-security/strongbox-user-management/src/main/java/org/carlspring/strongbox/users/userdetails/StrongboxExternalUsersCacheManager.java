@@ -1,6 +1,6 @@
 package org.carlspring.strongbox.users.userdetails;
 
-import org.carlspring.strongbox.users.dto.User;
+import org.carlspring.strongbox.domain.User;
 import org.springframework.security.core.userdetails.UserDetails;
 
 /**

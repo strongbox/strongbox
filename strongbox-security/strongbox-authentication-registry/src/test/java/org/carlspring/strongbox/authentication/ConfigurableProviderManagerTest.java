@@ -13,7 +13,7 @@ import javax.inject.Inject;
 
 import org.carlspring.strongbox.config.hazelcast.HazelcastConfiguration;
 import org.carlspring.strongbox.config.hazelcast.HazelcastInstanceId;
-import org.carlspring.strongbox.users.dto.User;
+import org.carlspring.strongbox.domain.User;
 import org.carlspring.strongbox.users.dto.UserDto;
 import org.carlspring.strongbox.users.service.UserService;
 import org.carlspring.strongbox.users.service.impl.DatabaseUserService;

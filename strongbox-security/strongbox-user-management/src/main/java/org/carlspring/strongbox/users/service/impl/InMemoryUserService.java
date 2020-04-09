@@ -17,9 +17,9 @@ import javax.inject.Inject;
 
 import org.apache.commons.lang3.StringUtils;
 import org.carlspring.strongbox.data.CacheName;
+import org.carlspring.strongbox.domain.User;
 import org.carlspring.strongbox.users.domain.UserData;
 import org.carlspring.strongbox.users.domain.Users;
-import org.carlspring.strongbox.users.dto.User;
 import org.carlspring.strongbox.users.dto.UserDto;
 import org.carlspring.strongbox.users.dto.UsersDto;
 import org.carlspring.strongbox.users.security.SecurityTokenProvider;

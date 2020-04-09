@@ -24,7 +24,7 @@ import org.carlspring.strongbox.authentication.api.CustomAuthenticationItemMappe
 import org.carlspring.strongbox.authentication.registry.AuthenticationProvidersRegistry;
 import org.carlspring.strongbox.authentication.registry.AuthenticationProvidersRegistry.MergePropertiesContext;
 import org.carlspring.strongbox.authentication.support.AuthenticationConfigurationContext;
-import org.carlspring.strongbox.users.dto.User;
+import org.carlspring.strongbox.domain.User;
 import org.carlspring.strongbox.users.service.UserAlreadyExistsException;
 import org.carlspring.strongbox.users.userdetails.StrongboxExternalUsersCacheManager;
 import org.carlspring.strongbox.users.userdetails.UserDetailsMapper;

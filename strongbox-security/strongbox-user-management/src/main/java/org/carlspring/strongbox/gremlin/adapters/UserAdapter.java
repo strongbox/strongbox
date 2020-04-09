@@ -16,10 +16,10 @@ import org.apache.tinkerpop.gremlin.process.traversal.Traverser;
 import org.apache.tinkerpop.gremlin.structure.Element;
 import org.apache.tinkerpop.gremlin.structure.Vertex;
 import org.carlspring.strongbox.db.schema.Vertices;
+import org.carlspring.strongbox.domain.User;
 import org.carlspring.strongbox.domain.UserEntity;
 import org.carlspring.strongbox.gremlin.dsl.EntityTraversal;
 import org.carlspring.strongbox.gremlin.dsl.__;
-import org.carlspring.strongbox.users.dto.User;
 import org.springframework.stereotype.Component;
 
 /**

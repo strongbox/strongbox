@@ -3,8 +3,8 @@ package org.carlspring.strongbox.users.userdetails;
 import java.util.Collection;
 import java.util.stream.Collectors;
 
+import org.carlspring.strongbox.domain.User;
 import org.carlspring.strongbox.users.domain.UserData;
-import org.carlspring.strongbox.users.dto.User;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;

@@ -20,11 +20,11 @@ import javax.transaction.Transactional;
 
 import org.apache.commons.lang3.StringUtils;
 import org.carlspring.strongbox.data.CacheName;
+import org.carlspring.strongbox.domain.User;
 import org.carlspring.strongbox.domain.UserEntity;
 import org.carlspring.strongbox.repositories.UserRepository;
 import org.carlspring.strongbox.users.domain.UserData;
 import org.carlspring.strongbox.users.domain.Users;
-import org.carlspring.strongbox.users.dto.User;
 import org.carlspring.strongbox.users.security.SecurityTokenProvider;
 import org.carlspring.strongbox.users.service.UserService;
 import org.carlspring.strongbox.users.service.impl.DatabaseUserService.Database;

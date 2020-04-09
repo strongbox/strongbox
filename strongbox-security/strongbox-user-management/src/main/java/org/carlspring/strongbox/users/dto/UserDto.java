@@ -5,6 +5,8 @@ import java.time.LocalDateTime;
 import java.util.HashSet;
 import java.util.Set;
 
+import org.carlspring.strongbox.domain.User;
+
 import com.fasterxml.jackson.annotation.JsonIgnore;
 
 /**

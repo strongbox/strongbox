@@ -5,7 +5,7 @@ import java.util.Optional;
 import java.util.Set;
 
 import org.apache.commons.lang3.StringUtils;
-import org.carlspring.strongbox.users.dto.User;
+import org.carlspring.strongbox.domain.User;
 import org.springframework.security.crypto.password.PasswordEncoder;
 
 /**

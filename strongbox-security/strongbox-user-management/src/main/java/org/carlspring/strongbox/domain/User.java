@@ -1,4 +1,4 @@
-package org.carlspring.strongbox.users.dto;
+package org.carlspring.strongbox.domain;
 
 import java.time.LocalDateTime;
 import java.util.Set;

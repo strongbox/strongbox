@@ -14,9 +14,9 @@ import javax.transaction.Transactional;
 
 import org.apache.http.HttpHeaders;
 import org.carlspring.strongbox.config.IntegrationTest;
+import org.carlspring.strongbox.domain.User;
 import org.carlspring.strongbox.forms.users.UserForm;
 import org.carlspring.strongbox.rest.common.RestAssuredBaseTest;
-import org.carlspring.strongbox.users.dto.User;
 import org.carlspring.strongbox.users.dto.UserDto;
 import org.carlspring.strongbox.users.service.UserService;
 import org.carlspring.strongbox.users.service.impl.DatabaseUserService.Database;

@@ -6,8 +6,9 @@ import java.util.Set;
 
 import org.carlspring.strongbox.data.domain.DomainEntity;
 import org.carlspring.strongbox.db.schema.Vertices;
-import org.carlspring.strongbox.users.dto.User;
+import org.carlspring.strongbox.gremlin.adapters.DateConverter;
 import org.neo4j.ogm.annotation.NodeEntity;
+import org.neo4j.ogm.annotation.typeconversion.Convert;
 
 /**
  * @author sbespalov
@@ -25,6 +26,7 @@ public class UserEntity extends DomainEntity implements User
 
     private String securityTokenKey;
 
+    @Convert(DateConverter.class)
     private LocalDateTime lastUpdated;
     
     private String sourceId;
