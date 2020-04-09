@@ -130,7 +130,7 @@ public class AuthorizationConfigController
         catch (RuntimeException e)
         {
             String message = e.getMessage();
-            logger.error(message);
+            logger.error(message, e);
             return getBadRequestResponseEntity(message, acceptHeader);
         }
 

@@ -185,7 +185,7 @@ public class MavenIndexControllerTest
                .peek()
                .then()
                .statusCode(HttpStatus.BAD_REQUEST.value())
-               .content(equalTo("Indexing is disabled on this repository."));
+               .body(equalTo("Indexing is disabled on this repository."));
     }
 
     @ExtendWith({ RepositoryManagementTestExecutionListener.class,
@@ -261,7 +261,7 @@ public class MavenIndexControllerTest
                .peek()
                .then()
                .statusCode(HttpStatus.BAD_REQUEST.value())
-               .content(equalTo("Indexing is disabled on this repository."));
+               .body(equalTo("Indexing is disabled on this repository."));
     }
 
 

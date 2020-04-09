@@ -44,7 +44,7 @@ interface UserQueries
 {
 
     @Query("MATCH (user:User) " +
-           "WHERE has(user.roles) and ($role IN (user.roles)) " +
+           "WHERE $role IN (user.roles) " +
            "RETURN user")
     List<User> findUsersWithRole(@Param("role") String role);
 
