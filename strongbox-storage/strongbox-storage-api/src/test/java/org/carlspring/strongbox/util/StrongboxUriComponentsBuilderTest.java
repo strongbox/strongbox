@@ -38,14 +38,14 @@ class StrongboxUriComponentsBuilderTest
     }
 
     @Test
-    public void testGetCurrentRequestURI()
+    public void testGetCurrentRequestUri()
     {
-        final String requestURI = "/api/path/to/keep/without/trailing/slash/";
+        final String requestUri = "/api/path/to/keep/without/trailing/slash/";
         final String queryString = "query=string&should=be&kept=false";
 
         MockHttpServletRequest request = this.mockRequest();
         request.setQueryString(queryString);
-        request.setRequestURI(requestURI);
+        request.setRequestURI(requestUri);
         request.setContextPath("/");
 
         RequestContextHolder.setRequestAttributes(new ServletRequestAttributes(request));
@@ -53,8 +53,8 @@ class StrongboxUriComponentsBuilderTest
         try
         {
             StrongboxUriComponentsBuilder builder = mockBuilder();
-            String result = builder.getCurrentRequestURI();
-            String expectedRequestURI = StringUtils.removeEnd(requestURI, "/");
+            String result = builder.getCurrentRequestUri();
+            String expectedRequestURI = StringUtils.removeEnd(requestUri, "/");
 
             logger.debug(result);
 
@@ -67,7 +67,7 @@ class StrongboxUriComponentsBuilderTest
     }
 
     @Test
-    public void testGetCurrentRequestURL()
+    public void testGetCurrentRequestUrl()
             throws MalformedURLException
     {
         final String requestURI = "/api/path/to/keep/without/trailing/slash/";
@@ -83,7 +83,7 @@ class StrongboxUriComponentsBuilderTest
         try
         {
             StrongboxUriComponentsBuilder builder = mockBuilder();
-            String result = builder.getCurrentRequestURL().toString();
+            String result = builder.getCurrentRequestUrl().toString();
             String expectedRequestURI = "http://localhost:48080" + StringUtils.removeEnd(requestURI, "/");
 
             logger.debug(result);
@@ -97,7 +97,7 @@ class StrongboxUriComponentsBuilderTest
     }
 
     @Test
-    public void testGetBuilderShouldKeepRequestURIAndQuery()
+    public void testGetBuilderShouldKeepRequestUriAndQuery()
     {
         final String uri = "/api/path/to/keep";
         final String queryString = "query=string&should=be&kept=true";
@@ -123,7 +123,7 @@ class StrongboxUriComponentsBuilderTest
     }
 
     @Test
-    public void testGetBuilderShouldKeepRequestURIButRemoveQuery()
+    public void testGetBuilderShouldKeepRequestUriButRemoveQuery()
     {
         final String uri = "/api/path/to/keep";
         final String queryString = "query=string&should=be&kept=false";
@@ -149,7 +149,7 @@ class StrongboxUriComponentsBuilderTest
     }
 
     @Test
-    public void testGetBuilderShouldRemoveRequestURIAndQuery()
+    public void testGetBuilderShouldRemoveRequestUriAndQuery()
     {
         final String uri = "/api/path/to/remove";
         final String queryString = "query=string&should=be&kept=false";
@@ -198,7 +198,7 @@ class StrongboxUriComponentsBuilderTest
     }
 
     @Test
-    public void testGetBuilderShouldRemoveRequestURIAndQueryByDefault()
+    public void testGetBuilderShouldRemoveRequestUriAndQueryByDefault()
     {
         MockHttpServletRequest request = this.mockRequest();
         RequestContextHolder.setRequestAttributes(new ServletRequestAttributes(request));
@@ -216,7 +216,7 @@ class StrongboxUriComponentsBuilderTest
     }
 
     @Test
-    public void testGetBuilderShouldForceBaseURLWhenConfigured()
+    public void testGetBuilderShouldForceBaseUrlWhenConfigured()
     {
         MockHttpServletRequest request = this.mockRequest();
         RequestContextHolder.setRequestAttributes(new ServletRequestAttributes(request));
@@ -398,7 +398,7 @@ class StrongboxUriComponentsBuilderTest
     }
 
     @Test
-    public void testBrowseUriBuilderWithStorageIdRepositoryIdAndArtifactResourceURI()
+    public void testBrowseUriBuilderWithStorageIdRepositoryIdAndArtifactResourceUri()
             throws URISyntaxException
     {
         MockHttpServletRequest request = this.mockRequest();
@@ -406,20 +406,20 @@ class StrongboxUriComponentsBuilderTest
 
         String storageId = "my-storage-id";
         String repositoryId = "my-repository-id";
-        URI artifactResourceURI = new URI("/org/carlspring/strongbox/strongbox-distribution/maven-metadata.xml");
+        URI artifactResourceUri = new URI("/org/carlspring/strongbox/strongbox-distribution/maven-metadata.xml");
 
         try
         {
             UriComponentsBuilder uri = mockBuilder().browseUriBuilder(storageId,
                                                                        repositoryId,
-                                                                       artifactResourceURI);
+                                                                       artifactResourceUri);
             String result = uri.toUriString();
             logger.debug(result);
             assertThat(result).isEqualTo("http://localhost:48080%s/%s/%s/%s",
                                          BROWSE_ROOT_PATH,
                                          storageId,
                                          repositoryId,
-                                         StringUtils.removeStart(artifactResourceURI.getPath(), "/"));
+                                         StringUtils.removeStart(artifactResourceUri.getPath(), "/"));
         }
         finally
         {
@@ -531,7 +531,7 @@ class StrongboxUriComponentsBuilderTest
     }
 
     @Test
-    public void testStorageUriBuilderWithStorageIdRepositoryIdAndArtifactResourceURI()
+    public void testStorageUriBuilderWithStorageIdRepositoryIdAndArtifactResourceUri()
             throws URISyntaxException
     {
         MockHttpServletRequest request = this.mockRequest();
@@ -539,20 +539,20 @@ class StrongboxUriComponentsBuilderTest
 
         String storageId = "my-storage-id";
         String repositoryId = "my-repository-id";
-        URI artifactResourceURI = new URI("/org/carlspring/strongbox/strongbox-distribution/maven-metadata.xml");
+        URI artifactResourceUri = new URI("/org/carlspring/strongbox/strongbox-distribution/maven-metadata.xml");
 
         try
         {
             UriComponentsBuilder uri = mockBuilder().storageUriBuilder(storageId,
                                                                        repositoryId,
-                                                                       artifactResourceURI);
+                                                                       artifactResourceUri);
             String result = uri.toUriString();
             logger.debug(result);
             assertThat(result).isEqualTo("http://localhost:48080%s/%s/%s%s",
                                          ARTIFACT_ROOT_PATH,
                                          storageId,
                                          repositoryId,
-                                         artifactResourceURI.getPath());
+                                         artifactResourceUri.getPath());
         }
         finally
         {
@@ -586,14 +586,14 @@ class StrongboxUriComponentsBuilderTest
     private MockHttpServletRequest mockRequest(String scheme,
                                                String serverName,
                                                int serverPort,
-                                               String requestURI,
+                                               String requestUri,
                                                String contextPath)
     {
         MockHttpServletRequest request = new MockHttpServletRequest();
         request.setScheme(scheme);
         request.setServerName(serverName);
         request.setServerPort(serverPort);
-        request.setRequestURI(requestURI);
+        request.setRequestURI(requestUri);
         request.setContextPath(contextPath);
 
         return request;

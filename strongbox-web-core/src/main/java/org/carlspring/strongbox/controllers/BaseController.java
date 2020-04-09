@@ -68,9 +68,9 @@ public abstract class BaseController
      *
      * @return String
      */
-    protected String getCurrentRequestURI()
+    protected String getCurrentRequestUri()
     {
-        return uriBuilder.getCurrentRequestURI();
+        return uriBuilder.getCurrentRequestUri();
     }
 
     /**
@@ -78,10 +78,10 @@ public abstract class BaseController
      *
      * @return String
      */
-    protected URL getCurrentRequestURL()
+    protected URL getCurrentRequestUrl()
             throws MalformedURLException
     {
-        return uriBuilder.getCurrentRequestURL();
+        return uriBuilder.getCurrentRequestUrl();
     }
 
     protected Configuration getConfiguration()

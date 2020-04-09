@@ -50,7 +50,7 @@ public class DirectoryListingServiceImpl
             throws IOException
     {
         DirectoryListing directoryListing = new DirectoryListing();
-        directoryListing.setLink(uriBuilder.getCurrentRequestURL());
+        directoryListing.setLink(uriBuilder.getCurrentRequestUrl());
 
         for (Storage storage : storages.values())
         {
@@ -70,7 +70,7 @@ public class DirectoryListingServiceImpl
             throws IOException
     {
         DirectoryListing directoryListing = new DirectoryListing();
-        directoryListing.setLink(uriBuilder.getCurrentRequestURL());
+        directoryListing.setLink(uriBuilder.getCurrentRequestUrl());
 
         for (Repository repository : repositories.values())
         {
@@ -153,7 +153,7 @@ public class DirectoryListingServiceImpl
             throws IOException
     {
         DirectoryListing listing = new DirectoryListing();
-        listing.setLink(uriBuilder.getCurrentRequestURL());
+        listing.setLink(uriBuilder.getCurrentRequestUrl());
 
         for (Path contentPath : contentPaths)
         {
@@ -184,7 +184,7 @@ public class DirectoryListingServiceImpl
             else
             {
                 // TODO: Use `UriComponentsBuilder.clone()` when spring-framework/issues/24772 is fixed and released
-                if(fileLinkBuilder != null)
+                if (fileLinkBuilder != null)
                 {
                     builder = UriComponentsBuilder.fromUriString(fileLinkBuilder.toUriString());
                 }
@@ -192,7 +192,7 @@ public class DirectoryListingServiceImpl
                 listing.getFiles().add(file);
             }
 
-            if(builder != null)
+            if (builder != null)
             {
                 URL url = builder.path("/" + file.getArtifactPath())
                                  .build()
@@ -236,7 +236,8 @@ public class DirectoryListingServiceImpl
     {
         String sanitizedPath = rawPath;
 
-        if(!File.pathSeparator.equals("/")) {
+        if (!File.pathSeparator.equals("/"))
+        {
             sanitizedPath = sanitizedPath.replaceAll("\\\\", "/");
         }
 

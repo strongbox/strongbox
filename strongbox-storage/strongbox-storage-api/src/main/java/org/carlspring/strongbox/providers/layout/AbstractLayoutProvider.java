@@ -191,7 +191,7 @@ public abstract class AbstractLayoutProvider<T extends ArtifactCoordinates>
         return result;
     }
 
-    public URL resolveResourceURL(RepositoryPath repositoryPath)
+    public URL resolveResourceUrl(RepositoryPath repositoryPath)
             throws IOException
     {
         Repository repository = repositoryPath.getRepository();

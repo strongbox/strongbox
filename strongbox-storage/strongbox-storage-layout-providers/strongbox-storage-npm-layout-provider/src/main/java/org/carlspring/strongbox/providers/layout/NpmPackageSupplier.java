@@ -83,7 +83,7 @@ public class NpmPackageSupplier implements Function<Path, NpmPackageDesc>
         String url;
         try
         {
-            url = layoutProvider.resolveResourceURL(repositoryPath).toString();
+            url = layoutProvider.resolveResourceUrl(repositoryPath).toString();
         }
         catch (IOException e)
         {

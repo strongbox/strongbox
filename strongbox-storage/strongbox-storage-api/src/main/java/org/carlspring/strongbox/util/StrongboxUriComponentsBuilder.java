@@ -60,7 +60,7 @@ public class StrongboxUriComponentsBuilder
      *
      * @return String
      */
-    public String getCurrentRequestURI()
+    public String getCurrentRequestUri()
     {
         return StringUtils.removeEnd(getBuilder(false, true, null).build().getPath(), "/");
     }
@@ -70,14 +70,13 @@ public class StrongboxUriComponentsBuilder
      *
      * @return String
      */
-    public URL getCurrentRequestURL()
+    public URL getCurrentRequestUrl()
             throws MalformedURLException
     {
-        return getBuilder(false, true, null)
-                       .replacePath(getCurrentRequestURI())
-                       .build()
-                       .toUri()
-                       .toURL();
+        return getBuilder(false, true, null).replacePath(getCurrentRequestUri())
+                                            .build()
+                                            .toUri()
+                                            .toURL();
     }
 
     /**
@@ -136,7 +135,7 @@ public class StrongboxUriComponentsBuilder
         }
 
         // Append an additional path (i.e. /api/some/base/path)
-        if(appendPath != null)
+        if (appendPath != null)
         {
             builder.path(appendPath);
         }
@@ -221,6 +220,7 @@ public class StrongboxUriComponentsBuilder
      * `http://localhost:48080/storages/{storageId}`
      *
      * @return UriComponentsBuilder
+     *
      * @throws IllegalArgumentException
      */
     public UriComponentsBuilder storageUriBuilder(@NonNull String storageId)
@@ -233,6 +233,7 @@ public class StrongboxUriComponentsBuilder
      * `http://localhost:48080/storages/{storageId}/{repositoryId}`
      *
      * @return UriComponentsBuilder
+     *
      * @throws IllegalArgumentException
      */
     public UriComponentsBuilder storageUriBuilder(@NonNull String storageId,
@@ -253,6 +254,7 @@ public class StrongboxUriComponentsBuilder
      * @param artifactPath
      *
      * @return UriComponentsBuilder
+     *
      * @throws IllegalArgumentException
      */
     public UriComponentsBuilder storageUriBuilder(@NonNull String storageId,
@@ -269,7 +271,9 @@ public class StrongboxUriComponentsBuilder
      * @param storageId
      * @param repositoryId
      * @param artifactResource
+     *
      * @return
+     *
      * @throws IllegalArgumentException
      */
     public UriComponentsBuilder storageUriBuilder(@NonNull String storageId,

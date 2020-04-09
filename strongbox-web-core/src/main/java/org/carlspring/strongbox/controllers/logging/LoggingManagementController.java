@@ -167,15 +167,16 @@ public class LoggingManagementController
 
             boolean showBack = path.isPresent() && !StringUtils.isBlank(path.get());
             String backPath = null;
-            if(showBack) {
+            if (showBack)
+            {
                 backPath = uriBuilder.getBuilder()
-                                     .path(Paths.get(getCurrentRequestURI()).getParent().toString())
+                                     .path(Paths.get(getCurrentRequestUri()).getParent().toString())
                                      .build()
                                      .toUriString();
             }
 
             model.addAttribute("backPath", backPath);
-            model.addAttribute("currentPath", getCurrentRequestURI());
+            model.addAttribute("currentPath", getCurrentRequestUri());
             model.addAttribute("directories", directoryListing.getDirectories());
             model.addAttribute("files", directoryListing.getFiles());
 

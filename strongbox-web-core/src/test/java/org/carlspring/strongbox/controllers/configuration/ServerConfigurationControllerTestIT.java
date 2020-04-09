@@ -19,13 +19,9 @@ import org.junit.jupiter.params.provider.ValueSource;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.security.test.context.support.WithMockUser;
-
 import static org.carlspring.strongbox.controllers.configuration.ServerConfigurationController.FAILED_SAVE_SERVER_SETTINGS;
 import static org.carlspring.strongbox.controllers.configuration.ServerConfigurationController.SUCCESSFUL_SAVE_SERVER_SETTINGS;
-import static org.hamcrest.Matchers.containsString;
-import static org.hamcrest.Matchers.equalTo;
-import static org.hamcrest.Matchers.hasSize;
-import static org.hamcrest.Matchers.isEmptyOrNullString;
+import static org.hamcrest.Matchers.*;
 
 /**
  * @author Pablo Tirado
@@ -198,7 +194,9 @@ public class ServerConfigurationControllerTestIT
         String url = getContextBaseUrl() + "/serverSettings";
 
         // Save the form
-        mockMvc.log().all().contentType(MediaType.APPLICATION_JSON_VALUE)
+        mockMvc.log()
+               .all()
+               .contentType(MediaType.APPLICATION_JSON_VALUE)
                .accept(acceptHeader)
                .body(serverSettingsForm)
                .when()
@@ -210,7 +208,9 @@ public class ServerConfigurationControllerTestIT
 
 
         // Check if things are properly saved.
-        mockMvc.log().all().accept(MediaType.APPLICATION_JSON_VALUE)
+        mockMvc.log()
+               .all()
+               .accept(MediaType.APPLICATION_JSON_VALUE)
                .when()
                .get(url)
                .then()
@@ -250,7 +250,9 @@ public class ServerConfigurationControllerTestIT
         String url = getContextBaseUrl() + "/serverSettings";
 
         // Save the form
-        mockMvc.log().all().contentType(MediaType.APPLICATION_JSON_VALUE)
+        mockMvc.log()
+               .all()
+               .contentType(MediaType.APPLICATION_JSON_VALUE)
                .accept(acceptHeader)
                .body(serverSettingsForm)
                .when()
@@ -262,7 +264,9 @@ public class ServerConfigurationControllerTestIT
 
 
         // Check if things are properly saved.
-        mockMvc.log().all().accept(MediaType.APPLICATION_JSON_VALUE)
+        mockMvc.log()
+               .all()
+               .accept(MediaType.APPLICATION_JSON_VALUE)
                .when()
                .get(url)
                .then()

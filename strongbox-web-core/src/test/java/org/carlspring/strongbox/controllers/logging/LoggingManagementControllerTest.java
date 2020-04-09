@@ -190,7 +190,8 @@ public class LoggingManagementControllerTest
             Matcher matcher = pattern.matcher(html);
             // TODO: use matcher.results().count() when we switch to JDK11 as minimum version.
             int matches = 0;
-            while(matcher.find()) {
+            while (matcher.find())
+            {
                 matches++;
             }
             assertThat(matches).isEqualTo(expectedLogsCount);
@@ -199,7 +200,7 @@ public class LoggingManagementControllerTest
             assertThat(html).as("Invalid download link provided.").contains(expectedDownloadUrl);
 
             // if this is a subpath we need to have a `show back` link.
-            if(StringUtils.isNotBlank(path))
+            if (StringUtils.isNotBlank(path))
             {
                 final String backUrl = DOWNLOAD_BASE_PATH + "/" + sanitizePath(Paths.get(path).getParent().toString());
                 assertThat(html).as("Missing back link").contains("class=\"showBack\"");
@@ -307,7 +308,7 @@ public class LoggingManagementControllerTest
                  .map(Path::toFile)
                  .forEach(File::delete);
 
-            if(!rootPath.equals(subPath))
+            if (!rootPath.equals(subPath))
             {
                 subPath.toFile().delete();
             }

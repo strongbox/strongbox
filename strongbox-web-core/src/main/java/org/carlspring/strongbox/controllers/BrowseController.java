@@ -71,7 +71,7 @@ public class BrowseController
             }
 
             model.addAttribute("showBack", false);
-            model.addAttribute("currentPath", getCurrentRequestURI());
+            model.addAttribute("currentPath", getCurrentRequestUri());
             model.addAttribute("directories", directoryListing.getDirectories());
             model.addAttribute("files", directoryListing.getFiles());
 
@@ -114,7 +114,7 @@ public class BrowseController
                 return ResponseEntity.ok(objectMapper.writer().writeValueAsString(directoryListing));
             }
 
-            model.addAttribute("currentPath", getCurrentRequestURI());
+            model.addAttribute("currentPath", getCurrentRequestUri());
             model.addAttribute("directories", directoryListing.getDirectories());
             model.addAttribute("files", directoryListing.getFiles());
 
@@ -171,12 +171,12 @@ public class BrowseController
             }
 
             String backPath = uriBuilder.getBuilder()
-                                        .path(Paths.get(getCurrentRequestURI()).getParent().toString())
+                                        .path(Paths.get(getCurrentRequestUri()).getParent().toString())
                                         .build()
                                         .toUriString();
 
             model.addAttribute("backPath", backPath);
-            model.addAttribute("currentPath", getCurrentRequestURI());
+            model.addAttribute("currentPath", getCurrentRequestUri());
             model.addAttribute("directories", directoryListing.getDirectories());
             model.addAttribute("files", directoryListing.getFiles());
 
