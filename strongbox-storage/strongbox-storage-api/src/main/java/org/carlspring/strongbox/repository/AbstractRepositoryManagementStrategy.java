@@ -105,8 +105,7 @@ public abstract class AbstractRepositoryManagementStrategy
             throw new IOException(String.format("Failed to delete non-existing repository '%s'.", repositoryPath));
         }
         
-        //TODO: fix RegenerateNugetChecksumCronJobTestIT
-        //repositoryPath.getFileSystem().cleanupRootDirectory();
+        repositoryPath.getFileSystem().cleanupRootDirectory();
     }
 
 
