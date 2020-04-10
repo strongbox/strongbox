@@ -1,12 +1,17 @@
 package org.carlspring.strongbox.artifact.generator;
 
+import org.carlspring.strongbox.testing.artifact.LicenseConfig;
+
 import java.io.IOException;
+import java.io.OutputStream;
 import java.net.URI;
 import java.nio.file.Path;
 
+import org.apache.commons.io.IOUtils;
+import org.springframework.core.io.ClassPathResource;
+
 /**
  * @author sbespalov
- *
  */
 public interface ArtifactGenerator
 {
@@ -38,5 +43,14 @@ public interface ArtifactGenerator
     Path generateArtifact(URI uri,
                           long size)
         throws IOException;
+
+    default void copyLicenseFile(LicenseConfig licenseConfig, OutputStream os)
+            throws IOException
+    {
+        ClassPathResource resource = new ClassPathResource(licenseConfig.license().getLicenseFileSourcePath(),
+                                                           this.getClass().getClassLoader());
+
+        IOUtils.copy(resource.getInputStream(), os);
+    }
 
 }

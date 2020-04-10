@@ -3,14 +3,25 @@ package org.carlspring.strongbox.artifact.generation;
 import org.carlspring.strongbox.config.Maven2LayoutProviderTestConfig;
 import org.carlspring.strongbox.storage.repository.Repository;
 import org.carlspring.strongbox.testing.artifact.ArtifactManagementTestExecutionListener;
+import org.carlspring.strongbox.testing.artifact.LicenseConfig;
+import org.carlspring.strongbox.testing.artifact.LicenseType;
 import org.carlspring.strongbox.testing.artifact.MavenTestArtifact;
 import org.carlspring.strongbox.testing.repository.MavenRepository;
 import org.carlspring.strongbox.testing.storage.repository.RepositoryManagementTestExecutionListener;
 
+import java.io.IOException;
+import java.io.InputStream;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.util.List;
+import java.util.jar.JarEntry;
+import java.util.jar.JarFile;
 
 import org.apache.commons.codec.digest.MessageDigestAlgorithms;
+import org.apache.maven.model.License;
+import org.apache.maven.model.Model;
+import org.apache.maven.model.io.xpp3.MavenXpp3Reader;
+import org.codehaus.plexus.util.xml.pull.XmlPullParserException;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.junit.jupiter.api.parallel.Execution;
@@ -43,7 +54,10 @@ public class MavenArtifactGeneratorTest
                                        @MavenTestArtifact(repositoryId = REPOSITORY_RELEASES,
                                                           id = "org.carlspring.strongbox.testing:matg",
                                                           versions = "1.2.3",
-                                                          bytesSize = 2048)
+                                                          bytesSize = 2048,
+                                                          licenses = { @LicenseConfig(license = LicenseType.APACHE_2_0,
+                                                                                      destinationPath = "META-INF/LICENSE-Apache-2.0.md"),
+                                                                       @LicenseConfig(license = LicenseType.MIT) })
                                        Path artifactPath)
             throws Exception
     {
@@ -93,6 +107,46 @@ public class MavenArtifactGeneratorTest
 
         // JAR size
         assertThat(Files.size(artifactPath)).isGreaterThan(2048);
+
+        // License checks
+        checkLicenses(artifactPath);
+    }
+
+    public void checkLicenses(Path artifactPath)
+            throws IOException, XmlPullParserException
+    {
+        // 1) Check that the POM contains the list of licenses
+        // 2) Check that the license are located in the expected locations
+        JarFile jf = new JarFile(artifactPath.toFile());
+
+        assertThat(jf.getJarEntry("META-INF/LICENSE-Apache-2.0.md"))
+                .as("Did not find a license that was expected at specified location in the JAR!")
+                .isNotNull();
+
+        assertThat(jf.getJarEntry("LICENSE"))
+                .as("Did not find a license that was expected at the default location in the JAR!")
+                .isNotNull();
+
+        JarEntry pomEntry = jf.getJarEntry("META-INF/maven/org.carlspring.strongbox.testing/matg/pom.xml");
+
+        assertThat(pomEntry).as("Did not find a POM inside the JAR!").isNotNull();
+
+        MavenXpp3Reader reader = new MavenXpp3Reader();
+
+        try (InputStream is = jf.getInputStream(pomEntry))
+        {
+            Model model = reader.read(is);
+            List<License> licenses = model.getLicenses();
+
+            assertThat(licenses).as("Could not discover any licenses in the POM file!").isNotNull();
+            assertThat(licenses.size()).as("Could not discover any licenses in the POM file!").isEqualByComparingTo(2);
+
+            assertThat(licenses.get(0).getName()).as("Failed to locate a definition for the 'Apache 2.0' license in the POM file!")
+                                                 .isEqualTo("Apache 2.0");
+            assertThat(licenses.get(1).getName()).as("Failed to locate a definition for the 'MIT License' license in the POM file!")
+                                                 .isEqualTo("MIT License");
+        }
+
     }
 
 }
