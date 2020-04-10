@@ -25,6 +25,9 @@ import org.carlspring.strongbox.gremlin.tx.TransactionContext;
 import org.junit.jupiter.api.Test;
 import org.neo4j.ogm.session.Session;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.TestExecutionListeners;
@@ -204,5 +207,43 @@ public class ArtifactIdGroupRepositoryTest
         assertThat(artifactIdGroupOptional.get().getUuid()).isNotNull();
         assertThat(artifactIdGroupOptional.get().getArtifacts()).isEmpty();
 
+    }
+    
+    @Test
+    @Transactional
+    public void findArtifactsShouldWork()
+    {
+        GraphTraversalSource g = graph.traversal();
+        String storageId = "storage0";
+        String repositoryId = "repository-aigrt-fasw";
+        String pathTemplate = "path/to/resource/aigrt-fasw-%s.jar";
+
+        // First group
+        RawArtifactCoordinates artifactCoordinatesOne = new RawArtifactCoordinates();
+        artifactCoordinatesOne.setId(String.format(pathTemplate, "10"));
+        ArtifactEntity artifactEntityOne = new ArtifactEntity(storageId, repositoryId, artifactCoordinatesOne);
+
+        RawArtifactCoordinates artifactCoordinatesTwo = new RawArtifactCoordinates();
+        artifactCoordinatesTwo.setId(String.format(pathTemplate, "20"));
+        Artifact artifactEntityTwo = new RemoteArtifactEntity(storageId, repositoryId, artifactCoordinatesTwo);
+
+        RawArtifactCoordinates artifactCoordinatesThree = new RawArtifactCoordinates();
+        artifactCoordinatesThree.setId(String.format(pathTemplate, "30"));
+        ArtifactEntity artifactEntityThree = new ArtifactEntity(storageId, repositoryId, artifactCoordinatesThree);
+
+        ArtifactIdGroupEntity artifactIdGroupEntity = new ArtifactIdGroupEntity(storageId, repositoryId,
+                "path/to/resource/aigrt-fasw");
+        assertThat(artifactIdGroupRepository.findOne(storageId, repositoryId, "path/to/resource/aigrt-fasw")).isEmpty();
+
+        artifactIdGroupEntity = artifactIdGroupRepository.save(artifactIdGroupEntity);
+        artifactIdGroupEntity.addArtifact(artifactEntityOne);
+        artifactIdGroupEntity.addArtifact(artifactEntityTwo);
+        artifactIdGroupEntity.addArtifact(artifactEntityThree);
+        artifactIdGroupRepository.save(artifactIdGroupEntity);
+
+        Pageable page = PageRequest.of(0, Integer.MAX_VALUE);
+        Page<Artifact> artifacts = artifactIdGroupRepository.findArtifacts(storageId, repositoryId, "aigrt-fasw", String.format(pathTemplate, "10"), page );
+        assertThat(artifacts.getTotalElements()).isEqualTo(1);
+        assertThat(artifacts.get().map(a -> a.getArtifactCoordinates().getId())).contains(String.format(pathTemplate, "10"));
     }
 }
