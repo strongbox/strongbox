@@ -243,14 +243,13 @@ public class MavenArtifactGenerator implements ArtifactGenerator
         final Artifact pomArtifact = MavenArtifactTestUtils.getPOMArtifact(artifact);
         File pomFile = basedir.resolve(MavenArtifactUtils.convertArtifactToPath(pomArtifact)).toFile();
 
-        ZipEntry ze = new ZipEntry("META-INF/maven/" +
-                                   artifact.getGroupId() + "/" +
-                                   artifact.getArtifactId() + "/" +
-                                   "pom.xml");
-        zos.putNextEntry(ze);
-
         try (FileInputStream fis = new FileInputStream(pomFile))
         {
+            ZipEntry ze = new ZipEntry("META-INF/maven/" +
+                                       artifact.getGroupId() + "/" +
+                                       artifact.getArtifactId() + "/" +
+                                       "pom.xml");
+            zos.putNextEntry(ze);
 
             byte[] buffer = new byte[4096];
             int len;

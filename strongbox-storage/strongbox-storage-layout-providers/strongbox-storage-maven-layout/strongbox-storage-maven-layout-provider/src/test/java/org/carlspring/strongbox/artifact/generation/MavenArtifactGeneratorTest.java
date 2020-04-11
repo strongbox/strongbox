@@ -146,7 +146,6 @@ public class MavenArtifactGeneratorTest
             assertThat(licenses.get(1).getName()).as("Failed to locate a definition for the 'MIT License' license in the POM file!")
                                                  .isEqualTo("MIT License");
         }
-
     }
 
 }
