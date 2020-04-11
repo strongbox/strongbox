@@ -115,36 +115,37 @@ public class MavenArtifactGeneratorTest
     public void checkLicenses(Path artifactPath)
             throws IOException, XmlPullParserException
     {
-        // 1) Check that the POM contains the list of licenses
-        // 2) Check that the license are located in the expected locations
-        JarFile jf = new JarFile(artifactPath.toFile());
-
-        assertThat(jf.getJarEntry("META-INF/LICENSE-Apache-2.0.md"))
-                .as("Did not find a license that was expected at specified location in the JAR!")
-                .isNotNull();
-
-        assertThat(jf.getJarEntry("LICENSE"))
-                .as("Did not find a license that was expected at the default location in the JAR!")
-                .isNotNull();
-
-        JarEntry pomEntry = jf.getJarEntry("META-INF/maven/org.carlspring.strongbox.testing/matg/pom.xml");
-
-        assertThat(pomEntry).as("Did not find a POM inside the JAR!").isNotNull();
-
-        MavenXpp3Reader reader = new MavenXpp3Reader();
-
-        try (InputStream is = jf.getInputStream(pomEntry))
+        try (JarFile jf = new JarFile(artifactPath.toFile());)
         {
-            Model model = reader.read(is);
-            List<License> licenses = model.getLicenses();
+            // 1) Check that the license are located in the expected locations
+            assertThat(jf.getJarEntry("META-INF/LICENSE-Apache-2.0.md"))
+                    .as("Did not find a license that was expected at specified location in the JAR!")
+                    .isNotNull();
 
-            assertThat(licenses).as("Could not discover any licenses in the POM file!").isNotNull();
-            assertThat(licenses.size()).as("Could not discover any licenses in the POM file!").isEqualByComparingTo(2);
+            assertThat(jf.getJarEntry("LICENSE"))
+                    .as("Did not find a license that was expected at the default location in the JAR!")
+                    .isNotNull();
 
-            assertThat(licenses.get(0).getName()).as("Failed to locate a definition for the 'Apache 2.0' license in the POM file!")
-                                                 .isEqualTo("Apache 2.0");
-            assertThat(licenses.get(1).getName()).as("Failed to locate a definition for the 'MIT License' license in the POM file!")
-                                                 .isEqualTo("MIT License");
+            // 2) Check that the POM contains the list of licenses
+            JarEntry pomEntry = jf.getJarEntry("META-INF/maven/org.carlspring.strongbox.testing/matg/pom.xml");
+
+            assertThat(pomEntry).as("Did not find a POM inside the JAR!").isNotNull();
+
+            MavenXpp3Reader reader = new MavenXpp3Reader();
+
+            try (InputStream is = jf.getInputStream(pomEntry))
+            {
+                Model model = reader.read(is);
+                List<License> licenses = model.getLicenses();
+
+                assertThat(licenses).as("Could not discover any licenses in the POM file!").isNotNull();
+                assertThat(licenses.size()).as("Could not discover any licenses in the POM file!").isEqualByComparingTo(2);
+
+                assertThat(licenses.get(0).getName()).as("Failed to locate a definition for the 'Apache 2.0' license in the POM file!")
+                                                     .isEqualTo("Apache 2.0");
+                assertThat(licenses.get(1).getName()).as("Failed to locate a definition for the 'MIT License' license in the POM file!")
+                                                     .isEqualTo("MIT License");
+            }
         }
     }
 

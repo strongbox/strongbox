@@ -18,8 +18,8 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Properties;
 import java.util.Random;
-import java.util.zip.ZipEntry;
-import java.util.zip.ZipOutputStream;
+import java.util.jar.JarEntry;
+import java.util.jar.JarOutputStream;
 
 import org.apache.commons.io.IOUtils;
 import org.apache.maven.artifact.Artifact;
@@ -171,7 +171,7 @@ public class MavenArtifactGenerator implements ArtifactGenerator
         //noinspection ResultOfMethodCallIgnored
         artifactFile.getParentFile().mkdirs();
 
-        try (ZipOutputStream zos = new ZipOutputStream(newOutputStream(artifactFile)))
+        try (JarOutputStream zos = new JarOutputStream(newOutputStream(artifactFile)))
         {
             createMavenPropertiesFile(artifact, zos);
             addMavenPomFile(artifact, zos);
@@ -183,18 +183,18 @@ public class MavenArtifactGenerator implements ArtifactGenerator
         generateChecksumsForArtifact(artifactFile);
     }
 
-    private void copyLicenseFiles(ZipOutputStream zos)
+    private void copyLicenseFiles(JarOutputStream jos)
             throws IOException
     {
         if (licenses != null && licenses.length > 0)
         {
             for (LicenseConfig licenseConfig : licenses)
             {
-                ZipEntry ze = new ZipEntry(licenseConfig.destinationPath());
-                zos.putNextEntry(ze);
+                JarEntry jarEntry = new JarEntry(licenseConfig.destinationPath());
+                jos.putNextEntry(jarEntry);
 
-                copyLicenseFile(licenseConfig, zos);
-                zos.closeEntry();
+                copyLicenseFile(licenseConfig, jos);
+                jos.closeEntry();
             }
         }
     }
@@ -239,14 +239,14 @@ public class MavenArtifactGenerator implements ArtifactGenerator
         }
     }
 
-    private void addMavenPomFile(Artifact artifact, ZipOutputStream zos) throws IOException
+    private void addMavenPomFile(Artifact artifact, JarOutputStream zos) throws IOException
     {
         final Artifact pomArtifact = MavenArtifactTestUtils.getPOMArtifact(artifact);
         File pomFile = basedir.resolve(MavenArtifactUtils.convertArtifactToPath(pomArtifact)).toFile();
 
         try (FileInputStream fis = new FileInputStream(pomFile))
         {
-            ZipEntry ze = new ZipEntry("META-INF/maven/" +
+            JarEntry ze = new JarEntry("META-INF/maven/" +
                                        artifact.getGroupId() + "/" +
                                        artifact.getArtifactId() + "/" +
                                        "pom.xml");
@@ -265,14 +265,14 @@ public class MavenArtifactGenerator implements ArtifactGenerator
         }
     }
 
-    public static void createMavenPropertiesFile(Artifact artifact, ZipOutputStream zos)
+    public static void createMavenPropertiesFile(Artifact artifact, JarOutputStream jos)
             throws IOException
     {
-        ZipEntry ze = new ZipEntry("META-INF/maven/" +
+        JarEntry ze = new JarEntry("META-INF/maven/" +
                                    artifact.getGroupId() + "/" +
                                    artifact.getArtifactId() + "/" +
                                    "pom.properties");
-        zos.putNextEntry(ze);
+        jos.putNextEntry(ze);
 
         Properties properties = new Properties();
         properties.setProperty("groupId", artifact.getGroupId());
@@ -288,11 +288,11 @@ public class MavenArtifactGenerator implements ArtifactGenerator
         int len;
         while ((len = bais.read(buffer)) > 0)
         {
-            zos.write(buffer, 0, len);
+            jos.write(buffer, 0, len);
         }
 
         bais.close();
-        zos.closeEntry();
+        jos.closeEntry();
     }
 
     public void generatePom(Artifact artifact, String packaging)
