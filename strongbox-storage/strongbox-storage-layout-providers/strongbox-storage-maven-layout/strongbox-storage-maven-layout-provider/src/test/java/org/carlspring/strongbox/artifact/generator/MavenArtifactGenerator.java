@@ -4,33 +4,28 @@ import org.carlspring.commons.encryption.EncryptionAlgorithmsEnum;
 import org.carlspring.commons.io.MultipleDigestInputStream;
 import org.carlspring.commons.io.MultipleDigestOutputStream;
 import org.carlspring.strongbox.artifact.MavenArtifactUtils;
+import org.carlspring.strongbox.testing.artifact.LicenseConfig;
 import org.carlspring.strongbox.testing.artifact.MavenArtifactTestUtils;
 import org.carlspring.strongbox.util.TestFileUtils;
 
-import java.io.ByteArrayInputStream;
-import java.io.ByteArrayOutputStream;
-import java.io.File;
-import java.io.FileInputStream;
-import java.io.FileOutputStream;
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.OutputStream;
-import java.io.OutputStreamWriter;
-import java.io.Writer;
+import java.io.*;
 import java.net.URI;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.security.NoSuchAlgorithmException;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Properties;
 import java.util.Random;
-import java.util.zip.ZipEntry;
-import java.util.zip.ZipOutputStream;
+import java.util.jar.JarEntry;
+import java.util.jar.JarOutputStream;
 
 import org.apache.commons.io.IOUtils;
 import org.apache.maven.artifact.Artifact;
 import org.apache.maven.artifact.repository.metadata.Metadata;
 import org.apache.maven.artifact.repository.metadata.io.xpp3.MetadataXpp3Writer;
+import org.apache.maven.model.License;
 import org.apache.maven.model.Model;
 import org.apache.maven.model.io.xpp3.MavenXpp3Writer;
 import org.codehaus.plexus.util.WriterFactory;
@@ -48,6 +43,9 @@ public class MavenArtifactGenerator implements ArtifactGenerator
     public static final String PACKAGING_JAR = "jar";
 
     protected Path basedir;
+
+    private LicenseConfig[] licenses;
+
 
     public MavenArtifactGenerator()
     {
@@ -173,14 +171,32 @@ public class MavenArtifactGenerator implements ArtifactGenerator
         //noinspection ResultOfMethodCallIgnored
         artifactFile.getParentFile().mkdirs();
 
-        try(ZipOutputStream zos = new ZipOutputStream(newOutputStream(artifactFile)))
+        try (JarOutputStream zos = new JarOutputStream(newOutputStream(artifactFile)))
         {
             createMavenPropertiesFile(artifact, zos);
             addMavenPomFile(artifact, zos);
             TestFileUtils.generateFile(zos, bytesSize);
+            copyLicenseFiles(zos);
             zos.flush();
         }
+
         generateChecksumsForArtifact(artifactFile);
+    }
+
+    private void copyLicenseFiles(JarOutputStream jos)
+            throws IOException
+    {
+        if (licenses != null && licenses.length > 0)
+        {
+            for (LicenseConfig licenseConfig : licenses)
+            {
+                JarEntry jarEntry = new JarEntry(licenseConfig.destinationPath());
+                jos.putNextEntry(jarEntry);
+
+                copyLicenseFile(licenseConfig, jos);
+                jos.closeEntry();
+            }
+        }
     }
 
     protected OutputStream newOutputStream(File artifactFile)
@@ -223,19 +239,18 @@ public class MavenArtifactGenerator implements ArtifactGenerator
         }
     }
 
-    private void addMavenPomFile(Artifact artifact, ZipOutputStream zos) throws IOException
+    private void addMavenPomFile(Artifact artifact, JarOutputStream zos) throws IOException
     {
         final Artifact pomArtifact = MavenArtifactTestUtils.getPOMArtifact(artifact);
         File pomFile = basedir.resolve(MavenArtifactUtils.convertArtifactToPath(pomArtifact)).toFile();
 
-        ZipEntry ze = new ZipEntry("META-INF/maven/" +
-                                   artifact.getGroupId() + "/" +
-                                   artifact.getArtifactId() + "/" +
-                                   "pom.xml");
-        zos.putNextEntry(ze);
-
         try (FileInputStream fis = new FileInputStream(pomFile))
         {
+            JarEntry ze = new JarEntry("META-INF/maven/" +
+                                       artifact.getGroupId() + "/" +
+                                       artifact.getArtifactId() + "/" +
+                                       "pom.xml");
+            zos.putNextEntry(ze);
 
             byte[] buffer = new byte[4096];
             int len;
@@ -250,14 +265,14 @@ public class MavenArtifactGenerator implements ArtifactGenerator
         }
     }
 
-    private void createMavenPropertiesFile(Artifact artifact, ZipOutputStream zos)
+    public static void createMavenPropertiesFile(Artifact artifact, JarOutputStream jos)
             throws IOException
     {
-        ZipEntry ze = new ZipEntry("META-INF/maven/" +
+        JarEntry ze = new JarEntry("META-INF/maven/" +
                                    artifact.getGroupId() + "/" +
                                    artifact.getArtifactId() + "/" +
                                    "pom.properties");
-        zos.putNextEntry(ze);
+        jos.putNextEntry(ze);
 
         Properties properties = new Properties();
         properties.setProperty("groupId", artifact.getGroupId());
@@ -273,13 +288,12 @@ public class MavenArtifactGenerator implements ArtifactGenerator
         int len;
         while ((len = bais.read(buffer)) > 0)
         {
-            zos.write(buffer, 0, len);
+            jos.write(buffer, 0, len);
         }
 
         bais.close();
-        zos.closeEntry();
+        jos.closeEntry();
     }
-
 
     public void generatePom(Artifact artifact, String packaging)
             throws IOException,
@@ -298,6 +312,8 @@ public class MavenArtifactGenerator implements ArtifactGenerator
         model.setVersion(artifact.getVersion());
         model.setPackaging(packaging);
 
+        setLicensesInPom(model);
+
         logger.debug("Generating pom file for {}...", artifact);
 
         try (OutputStreamWriter pomFileWriter = new OutputStreamWriter(newOutputStream(pomFile)))
@@ -307,6 +323,25 @@ public class MavenArtifactGenerator implements ArtifactGenerator
         }
 
         generateChecksumsForArtifact(pomFile);
+    }
+
+    private void setLicensesInPom(Model model)
+    {
+        if (licenses != null && licenses.length > 0)
+        {
+            List<License> pomLicenses = new ArrayList<>();
+
+            for (LicenseConfig licenseConfig : licenses)
+            {
+                License license = new License();
+                license.setName(licenseConfig.license().getName());
+                license.setUrl(licenseConfig.license().getUrl());
+
+                pomLicenses.add(license);
+            }
+
+            model.setLicenses(pomLicenses);
+        }
     }
 
     private void generateChecksumsForArtifact(File artifactFile)
@@ -353,4 +388,15 @@ public class MavenArtifactGenerator implements ArtifactGenerator
     {
         return basedir;
     }
+
+    public LicenseConfig[] getLicenses()
+    {
+        return licenses;
+    }
+
+    public void setLicenses(LicenseConfig[] licenses)
+    {
+        this.licenses = licenses;
+    }
+
 }

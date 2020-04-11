@@ -21,6 +21,12 @@ public class MavenArtifactGeneratorStrategy implements ArtifactGeneratorStrategy
                                  Map<String, Object> attributesMap)
         throws IOException
     {
+        Object licenses = attributesMap.get("licenses");
+        if (licenses instanceof LicenseConfig[])
+        {
+            artifactGenerator.setLicenses((LicenseConfig[]) licenses);
+        }
+
         Path result;
         if ("maven-plugin".equals(attributesMap.get("packaging")))
         {
