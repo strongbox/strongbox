@@ -194,6 +194,7 @@ public class MavenArtifactGenerator implements ArtifactGenerator
                 zos.putNextEntry(ze);
 
                 copyLicenseFile(licenseConfig, zos);
+                zos.closeEntry();
             }
         }
     }
