@@ -4,7 +4,7 @@ import org.carlspring.commons.encryption.EncryptionAlgorithmsEnum;
 import org.carlspring.commons.io.MultipleDigestInputStream;
 import org.carlspring.commons.io.MultipleDigestOutputStream;
 import org.carlspring.strongbox.artifact.MavenArtifactUtils;
-import org.carlspring.strongbox.testing.artifact.LicenseConfig;
+import org.carlspring.strongbox.testing.artifact.LicenseConfiguration;
 import org.carlspring.strongbox.testing.artifact.MavenArtifactTestUtils;
 import org.carlspring.strongbox.util.TestFileUtils;
 
@@ -44,7 +44,7 @@ public class MavenArtifactGenerator implements ArtifactGenerator
 
     protected Path basedir;
 
-    private LicenseConfig[] licenses;
+    private LicenseConfiguration[] licenses;
 
 
     public MavenArtifactGenerator()
@@ -188,12 +188,12 @@ public class MavenArtifactGenerator implements ArtifactGenerator
     {
         if (licenses != null && licenses.length > 0)
         {
-            for (LicenseConfig licenseConfig : licenses)
+            for (LicenseConfiguration licenseConfiguration : licenses)
             {
-                JarEntry jarEntry = new JarEntry(licenseConfig.destinationPath());
+                JarEntry jarEntry = new JarEntry(licenseConfiguration.destinationPath());
                 jos.putNextEntry(jarEntry);
 
-                copyLicenseFile(licenseConfig, jos);
+                copyLicenseFile(licenseConfiguration, jos);
                 jos.closeEntry();
             }
         }
@@ -331,11 +331,11 @@ public class MavenArtifactGenerator implements ArtifactGenerator
         {
             List<License> pomLicenses = new ArrayList<>();
 
-            for (LicenseConfig licenseConfig : licenses)
+            for (LicenseConfiguration licenseConfiguration : licenses)
             {
                 License license = new License();
-                license.setName(licenseConfig.license().getName());
-                license.setUrl(licenseConfig.license().getUrl());
+                license.setName(licenseConfiguration.license().getName());
+                license.setUrl(licenseConfiguration.license().getUrl());
 
                 pomLicenses.add(license);
             }
@@ -389,12 +389,12 @@ public class MavenArtifactGenerator implements ArtifactGenerator
         return basedir;
     }
 
-    public LicenseConfig[] getLicenses()
+    public LicenseConfiguration[] getLicenses()
     {
         return licenses;
     }
 
-    public void setLicenses(LicenseConfig[] licenses)
+    public void setLicenses(LicenseConfiguration[] licenses)
     {
         this.licenses = licenses;
     }
