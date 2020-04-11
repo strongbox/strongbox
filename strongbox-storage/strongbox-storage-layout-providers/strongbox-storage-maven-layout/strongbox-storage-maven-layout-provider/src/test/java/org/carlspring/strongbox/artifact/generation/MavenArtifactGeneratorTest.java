@@ -3,7 +3,7 @@ package org.carlspring.strongbox.artifact.generation;
 import org.carlspring.strongbox.config.Maven2LayoutProviderTestConfig;
 import org.carlspring.strongbox.storage.repository.Repository;
 import org.carlspring.strongbox.testing.artifact.ArtifactManagementTestExecutionListener;
-import org.carlspring.strongbox.testing.artifact.LicenseConfig;
+import org.carlspring.strongbox.testing.artifact.LicenseConfiguration;
 import org.carlspring.strongbox.testing.artifact.LicenseType;
 import org.carlspring.strongbox.testing.artifact.MavenTestArtifact;
 import org.carlspring.strongbox.testing.repository.MavenRepository;
@@ -55,9 +55,9 @@ public class MavenArtifactGeneratorTest
                                                           id = "org.carlspring.strongbox.testing:matg",
                                                           versions = "1.2.3",
                                                           bytesSize = 2048,
-                                                          licenses = { @LicenseConfig(license = LicenseType.APACHE_2_0,
-                                                                                      destinationPath = "META-INF/LICENSE-Apache-2.0.md"),
-                                                                       @LicenseConfig(license = LicenseType.MIT) })
+                                                          licenses = { @LicenseConfiguration(license = LicenseType.APACHE_2_0,
+                                                                                             destinationPath = "META-INF/LICENSE-Apache-2.0.md"),
+                                                                       @LicenseConfiguration(license = LicenseType.MIT) })
                                        Path artifactPath)
             throws Exception
     {

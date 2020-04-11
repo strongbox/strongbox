@@ -22,9 +22,9 @@ public class MavenArtifactGeneratorStrategy implements ArtifactGeneratorStrategy
         throws IOException
     {
         Object licenses = attributesMap.get("licenses");
-        if (licenses instanceof LicenseConfig[])
+        if (licenses instanceof LicenseConfiguration[])
         {
-            artifactGenerator.setLicenses((LicenseConfig[]) licenses);
+            artifactGenerator.setLicenses((LicenseConfiguration[]) licenses);
         }
 
         Path result;

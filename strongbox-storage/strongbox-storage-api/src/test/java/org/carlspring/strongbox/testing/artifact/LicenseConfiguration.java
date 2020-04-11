@@ -10,7 +10,7 @@ import java.lang.annotation.*;
 @Target({ ElementType.PARAMETER, ElementType.ANNOTATION_TYPE})
 @Retention(RetentionPolicy.RUNTIME)
 @Documented
-public @interface LicenseConfig
+public @interface LicenseConfiguration
 {
 
     LicenseType license() default LicenseType.NONE;
