@@ -203,7 +203,6 @@ public class NugetArtifactControllerTest extends NugetRestAssuredBaseTest
         final String packageVersion = "1.0.0";
 
         long packageSize = Files.size(packagePath);
-        byte[] packageContent = readPackageContent(packagePath);
 
         // Push
         String url = getContextBaseUrl() + "/storages/{storageId}/{repositoryId}/";
@@ -269,8 +268,6 @@ public class NugetArtifactControllerTest extends NugetRestAssuredBaseTest
         final String storageId = repository.getStorage().getId();
         final String repositoryId = repository.getId();
         final String packageId = "Org.Carlspring.Strongbox.Examples.Nuget.Mono-Test";
-
-        byte[] packageContent = readPackageContent(packagePath);
 
         // Push
         String url = getContextBaseUrl() + "/storages/{storageId}/{repositoryId}/";
@@ -370,7 +367,7 @@ public class NugetArtifactControllerTest extends NugetRestAssuredBaseTest
 
         // VERSION 1.0.0
         Path packagePathV1 = packagePaths.get(0);
-        byte[] packageContent = readPackageContent(packagePathV1);
+        
         // Push
         String url = getContextBaseUrl() + "/storages/{storageId}/{repositoryId}/";
         createPushRequest(packagePathV1).when()
@@ -409,7 +406,7 @@ public class NugetArtifactControllerTest extends NugetRestAssuredBaseTest
 
         // VERSION 2.0.0
         Path packagePathV2 = packagePaths.get(1);
-        packageContent = readPackageContent(packagePathV2);
+
         // Push
         url = getContextBaseUrl() + "/storages/{storageId}/{repositoryId}/";
         createPushRequest(packagePathV2).when()
