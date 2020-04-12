@@ -81,7 +81,7 @@
                     </dependency>
                     <dependency>
                         <groupId>org.codehaus.groovy</groupId>
-                        <artifactId>groovy-all</artifactId>
+                        <artifactId>groovy-ant</artifactId>
                         <version>${version.groovy}</version>
                         <scope>runtime</scope>
                     </dependency>

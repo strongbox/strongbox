@@ -350,7 +350,6 @@ public class NugetArtifactControllerTest extends NugetRestAssuredBaseTest
     @ExtendWith({ RepositoryManagementTestExecutionListener.class,
                   ArtifactManagementTestExecutionListener.class })
     @Test
-    //@Disabled("Disabling this test case till Multipart workaround is not found in rest assured MockMvcRequestSpecification.")
     public void testLastVersionPackageSearch(@NugetRepository(storageId = STORAGE_ID,
                                                               repositoryId = REPOSITORY_RELEASES_1)
                                              Repository repository,
