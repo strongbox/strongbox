@@ -207,7 +207,7 @@ public class NugetArtifactControllerTest extends NugetRestAssuredBaseTest
 
         // Push
         String url = getContextBaseUrl() + "/storages/{storageId}/{repositoryId}/";
-        createPushRequest(packageContent).when()
+        createPushRequest(packagePath).when()
                                          .put(url, storageId, repositoryId)
                                          .peek()
                                          .then()
@@ -274,7 +274,7 @@ public class NugetArtifactControllerTest extends NugetRestAssuredBaseTest
 
         // Push
         String url = getContextBaseUrl() + "/storages/{storageId}/{repositoryId}/";
-        createPushRequest(packageContent).when()
+        createPushRequest(packagePath).when()
                                          .put(url, storageId, repositoryId)
                                          .peek()
                                          .then()
@@ -373,7 +373,7 @@ public class NugetArtifactControllerTest extends NugetRestAssuredBaseTest
         byte[] packageContent = readPackageContent(packagePathV1);
         // Push
         String url = getContextBaseUrl() + "/storages/{storageId}/{repositoryId}/";
-        createPushRequest(packageContent).when()
+        createPushRequest(packagePathV1).when()
                                          .put(url, storageId, repositoryId)
                                          .peek()
                                          .then()
@@ -412,7 +412,7 @@ public class NugetArtifactControllerTest extends NugetRestAssuredBaseTest
         packageContent = readPackageContent(packagePathV2);
         // Push
         url = getContextBaseUrl() + "/storages/{storageId}/{repositoryId}/";
-        createPushRequest(packageContent).when()
+        createPushRequest(packagePathV2).when()
                                          .put(url, storageId, repositoryId)
                                          .peek()
                                          .then()
@@ -447,12 +447,12 @@ public class NugetArtifactControllerTest extends NugetRestAssuredBaseTest
                .body("feed.entry[0].properties.Version", equalTo("2.0.0"));
     }
 
-    public MockMvcRequestSpecification createPushRequest(byte[] packageContent)
+    public MockMvcRequestSpecification createPushRequest(Path packagePath)
     {
         return mockMvc.header(HttpHeaders.USER_AGENT, "NuGet/*")
                       .header("X-NuGet-ApiKey", API_KEY)
-                      .contentType(MediaType.MULTIPART_FORM_DATA_VALUE.concat("; boundary=---------------------------123qwe"))
-                      .body(packageContent);
+                      .contentType(MediaType.MULTIPART_FORM_DATA_VALUE)
+                      .multiPart("package", packagePath.toFile());
     }
 
     @Test
