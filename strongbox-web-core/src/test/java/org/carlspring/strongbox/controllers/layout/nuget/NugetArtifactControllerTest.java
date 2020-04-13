@@ -207,10 +207,10 @@ public class NugetArtifactControllerTest extends NugetRestAssuredBaseTest
         // Push
         String url = getContextBaseUrl() + "/storages/{storageId}/{repositoryId}/";
         createPushRequest(packagePath).when()
-                                         .put(url, storageId, repositoryId)
-                                         .peek()
-                                         .then()
-                                         .statusCode(HttpStatus.CREATED.value());
+                                      .put(url, storageId, repositoryId)
+                                      .peek()
+                                      .then()
+                                      .statusCode(HttpStatus.CREATED.value());
 
         //Find by ID
 
@@ -272,10 +272,10 @@ public class NugetArtifactControllerTest extends NugetRestAssuredBaseTest
         // Push
         String url = getContextBaseUrl() + "/storages/{storageId}/{repositoryId}/";
         createPushRequest(packagePath).when()
-                                         .put(url, storageId, repositoryId)
-                                         .peek()
-                                         .then()
-                                         .statusCode(HttpStatus.CREATED.value());
+                                      .put(url, storageId, repositoryId)
+                                      .peek()
+                                      .then()
+                                      .statusCode(HttpStatus.CREATED.value());
 
         //Find by ID
 
@@ -370,10 +370,10 @@ public class NugetArtifactControllerTest extends NugetRestAssuredBaseTest
         // Push
         String url = getContextBaseUrl() + "/storages/{storageId}/{repositoryId}/";
         createPushRequest(packagePathV1).when()
-                                         .put(url, storageId, repositoryId)
-                                         .peek()
-                                         .then()
-                                         .statusCode(HttpStatus.CREATED.value());
+                                        .put(url, storageId, repositoryId)
+                                        .peek()
+                                        .then()
+                                        .statusCode(HttpStatus.CREATED.value());
 
         // Count
         url = getContextBaseUrl() +
@@ -409,10 +409,10 @@ public class NugetArtifactControllerTest extends NugetRestAssuredBaseTest
         // Push
         url = getContextBaseUrl() + "/storages/{storageId}/{repositoryId}/";
         createPushRequest(packagePathV2).when()
-                                         .put(url, storageId, repositoryId)
-                                         .peek()
-                                         .then()
-                                         .statusCode(HttpStatus.CREATED.value());
+                                        .put(url, storageId, repositoryId)
+                                        .peek()
+                                        .then()
+                                        .statusCode(HttpStatus.CREATED.value());
         
         // Count
         url = getContextBaseUrl() +

@@ -208,10 +208,10 @@
             <artifactId>strongbox-storage-maven-layout-provider</artifactId>
             <version>${project.version}</version>
             <exclusions>
-              <exclusion>
-                <groupId>org.codehaus.groovy</groupId>
-                <artifactId>groovy-all</artifactId>
-              </exclusion>
+                <exclusion>
+                    <groupId>org.codehaus.groovy</groupId>
+                    <artifactId>groovy-all</artifactId>
+                </exclusion>
             </exclusions>
         </dependency>
         <dependency>
