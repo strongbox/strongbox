@@ -58,7 +58,7 @@ public class RpmLayoutProviderConfig
     @Bean(FILE_SYSTEM_ALIAS)
     public LayoutFileSystemFactory rpmRepositoryFileSystemFactory(PropertiesBooter propertiesBooter)
     {
-            LayoutFileSystemProviderFactory providerFactory = rpmRepositoryFileSystemProviderFactory();
+        LayoutFileSystemProviderFactory providerFactory = rpmRepositoryFileSystemProviderFactory();
 
         return (repository) -> {
             StorageProvider storageProvider = storageProviderRegistry.getProvider(repository.getImplementation());
