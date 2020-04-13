@@ -7,6 +7,7 @@ import java.io.OutputStream;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.Collections;
+import java.util.Iterator;
 import java.util.LinkedHashMap;
 import java.util.LinkedList;
 import java.util.List;
@@ -31,6 +32,7 @@ import org.carlspring.strongbox.repositories.ArtifactIdGroupRepository;
 import org.carlspring.strongbox.services.support.ArtifactRoutingRulesChecker;
 import org.carlspring.strongbox.storage.Storage;
 import org.carlspring.strongbox.storage.repository.Repository;
+import org.carlspring.strongbox.util.ThrowingFunction;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Component;
@@ -203,37 +205,75 @@ public class GroupRepositoryProvider
 
         Storage storage = getConfiguration().getStorage(storageId);
         Repository groupRepository = storage.getRepository(repositoryId);
-        Set<String> groupRepositoryIdSet = groupRepositorySetCollector.collect(groupRepository)
-                                                                      .stream()
-                                                                      .map(r -> r.getStorage().getId() + ":" + r.getId())
-                                                                      .collect(Collectors.toSet());
+        Set<Repository> groupRepositorySet = groupRepositorySetCollector.collect(groupRepository);
 
-        if (groupRepositoryIdSet.isEmpty())
+        if (groupRepositorySet.isEmpty())
         {
-            return Collections.emptyList();
+            return new LinkedList<>();
         }
-        
-        List<Path> result = new LinkedList<Path>();
-        List<Artifact> searchResult = artifactIdGroupRepository.findArtifacts(storageId, repositoryId, predicate.getArtifactId(),
-                                                                              predicate.getCoordinateValues(), paginator.getSkip(),
-                                                                              paginator.getLimit());
-        for (Artifact artifactEntry : searchResult)
+
+        long skip = paginator.getSkip();
+        int limit = paginator.getLimit();
+
+        int groupSize = groupRepositorySet.size();
+        long groupSkip = (skip / (limit * groupSize)) * limit;
+        int groupLimit = limit;
+
+        skip = skip - groupSkip;
+
+        outer:
+        do
         {
-            RootRepositoryPath rootRepositoryPath = repositoryPathResolver.resolve(artifactEntry.getStorageId(),
-                                                                                   artifactEntry.getRepositoryId());
-            try
+            Paginator paginatorLocal = new Paginator();
+            paginatorLocal.setLimit(groupLimit);
+            paginatorLocal.setSkip(groupSkip);
+            paginatorLocal.setProperty(paginator.getProperty());
+            paginatorLocal.setOrder(paginator.getOrder());
+
+            groupLimit = 0;
+
+            for (Iterator<Repository> i = groupRepositorySet.iterator(); i.hasNext(); )
             {
-                result.add(rootRepositoryPath.resolve(artifactEntry));
+                Repository r = i.next();
+                RepositoryProvider repositoryProvider = repositoryProviderRegistry.getProvider(r.getType());
+
+                List<Path> repositoryResult = repositoryProvider.search(r.getStorage().getId(), r.getId(), predicate,
+                                                                        paginatorLocal);
+                if (repositoryResult.isEmpty())
+                {
+                    i.remove();
+                    continue;
+                }
+
+                // count coordinates intersection
+                groupLimit += repositoryResult.stream()
+                                              .map(ThrowingFunction.unchecked((Path p) -> resultMap.put(getArtifactCoordinates(p), p)))
+                                              .filter(p -> p != null)
+                                              .collect(Collectors.toList())
+                                              .size();
+
+                //Break search iterations if we have reached enough list size.
+                if (resultMap.size() >= limit + skip)
+                {
+                    break outer;
+                }
             }
-            catch (Exception e)
-            {
-                logger.error("Failed to resolve Artifact [{}]",
-                             artifactEntry.getArtifactCoordinates(), e);
-                continue;
-            }
+            groupSkip += limit;
+
+            // Will iterate until there is no more coordinates intersection and
+            // there is more search results within group repositories
         }
-        
-        return result;    
+        while (groupLimit > 0 && !groupRepositorySet.isEmpty());
+
+        LinkedList<Path> resultList = new LinkedList<>();
+        if (skip >= resultMap.size())
+        {
+            return resultList;
+        }
+        resultList.addAll(resultMap.values());
+
+        long toIndex = resultList.size() - skip > limit ? limit + skip : resultList.size();
+        return resultList.subList((int) skip, (int) toIndex);
     }
 
     private ArtifactCoordinates getArtifactCoordinates(Path p) throws IOException

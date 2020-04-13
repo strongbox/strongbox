@@ -168,6 +168,7 @@ interface ArtifactIdGroupQueries
            "WITH aig, r0, artifact, r1, genericCoordinates, r2, layoutCoordinates, r4, tag " +
            "OPTIONAL MATCH (artifact)<-[r3]-(remoteArtifact) " +
            "RETURN artifact, r3, remoteArtifact, r1, genericCoordinates, r2, layoutCoordinates,  r4, tag " +
+           "ORDER BY aig.name, genericCoordinates.version " +
            "SKIP $skip LIMIT $limit")
     List<Artifact> findArtifacts(@Param("storageRepositoryIds") Set<String> storageRepositoryIds,
                                  @Param("artifactId") String artifactId,
