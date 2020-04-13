@@ -150,7 +150,7 @@ public class NpmArtifactControllerTestIT
                .then()
                .statusCode(HttpStatus.OK.value())
                .and()
-               .body("objects.package.name", hasItem("Reston"));
+               .body("objects.package.name", hasItem("restonnode"));
         
         Artifact artifactEntry = artifactEntityRepository.findOneArtifact(storageId,
                                                                           repositoryId,
