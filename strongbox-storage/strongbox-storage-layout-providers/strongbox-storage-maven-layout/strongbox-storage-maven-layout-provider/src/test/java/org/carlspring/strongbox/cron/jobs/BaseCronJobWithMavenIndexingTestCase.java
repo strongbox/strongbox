@@ -34,7 +34,7 @@ public class BaseCronJobWithMavenIndexingTestCase
 
     protected static final String STORAGE0 = "storage0";
 
-    protected static final long EVENT_TIMEOUT_SECONDS = 20L;
+    protected static final long EVENT_TIMEOUT_SECONDS = 30L;
 
     @Inject
     protected CronTaskConfigurationService cronTaskConfigurationService;
