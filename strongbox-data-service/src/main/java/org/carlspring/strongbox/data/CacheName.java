@@ -16,6 +16,13 @@ public final class CacheName
         public static final String TAGS = "tags";
 
     }
+    
+    public static final class ArtifactIdGroup
+    {
+
+        public static final String ARTIFACT_ID_GROUPS = "ArtifactIdGroups";
+
+    }
 
     public static final class Repository
     {

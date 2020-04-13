@@ -9,8 +9,10 @@ import javax.transaction.Transactional;
 
 import org.apache.tinkerpop.gremlin.structure.Element;
 import org.apache.tinkerpop.gremlin.structure.Graph;
+import org.apache.tinkerpop.gremlin.structure.Vertex;
 import org.carlspring.strongbox.data.domain.DomainObject;
 import org.carlspring.strongbox.gremlin.adapters.EntityTraversalAdapter;
+import org.carlspring.strongbox.gremlin.adapters.UnfoldEntityTraversal;
 import org.carlspring.strongbox.gremlin.dsl.EntityTraversal;
 import org.carlspring.strongbox.gremlin.dsl.EntityTraversalSource;
 import org.carlspring.strongbox.gremlin.tx.TransactionContext;
@@ -42,7 +44,13 @@ public abstract class GremlinRepository<S extends Element, E extends DomainObjec
 
     protected abstract EntityTraversal<S, S> start(Supplier<EntityTraversalSource> g);
 
-    public abstract <R extends E> R save(Supplier<EntityTraversalSource> g, R entity);
+    public <R extends E> R save(Supplier<EntityTraversalSource> g, R entity) {
+        String uuid = merge(g, entity);
+        
+        return (R) findById(g, uuid).get();    
+    }
+    
+    public abstract String merge(Supplier<EntityTraversalSource> g, E entity);
     
     public Optional<E> findById(Supplier<EntityTraversalSource> g, String uuid){
         Set<String> labels = adapter().labels();

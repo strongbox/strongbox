@@ -6,6 +6,7 @@ import javax.inject.Inject;
 
 import org.carlspring.strongbox.artifact.ArtifactTag;
 import org.carlspring.strongbox.artifact.coordinates.ArtifactCoordinates;
+import org.carlspring.strongbox.data.CacheName;
 import org.carlspring.strongbox.domain.Artifact;
 import org.carlspring.strongbox.domain.ArtifactIdGroup;
 import org.carlspring.strongbox.domain.ArtifactIdGroupEntity;
@@ -16,6 +17,7 @@ import org.carlspring.strongbox.services.ArtifactTagService;
 import org.janusgraph.core.SchemaViolationException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.cache.annotation.Cacheable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.Assert;
@@ -58,7 +60,7 @@ public class ArtifactIdGroupServiceImpl
                               e2) -> e1.getArtifactCoordinates().compareTo(e2.getArtifactCoordinates()))
                      .forEach(e -> checkAndUpdateLastVersionTagIfNeeded(e, artifact, lastVersionTag));
 
-        artifactIdGroupRepository.save(artifactGroup);
+        artifactIdGroupRepository.merge(artifactGroup);
     }
 
     private Optional<Artifact> checkAndUpdateLastVersionTagIfNeeded(Artifact lastVersionEntry,
@@ -99,9 +101,11 @@ public class ArtifactIdGroupServiceImpl
         return result;
     }
 
+    //TODO: cache ArtifactIdGroup within NugetRepositoryFeatures and NpmPackageFeedParser bulk operations 
+    //@Cacheable(value = CacheName.ArtifactIdGroup.ARTIFACT_ID_GROUPS)
     public ArtifactIdGroup findOneOrCreate(String storageId,
-                                                 String repositoryId,
-                                                 String artifactId)
+                                           String repositoryId,
+                                           String artifactId)
     {
         Optional<ArtifactIdGroup> optional = artifactIdGroupRepository.findOne(storageId, repositoryId, artifactId);
         if (optional.isPresent())

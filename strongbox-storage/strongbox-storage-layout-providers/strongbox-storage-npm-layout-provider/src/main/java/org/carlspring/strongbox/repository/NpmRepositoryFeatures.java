@@ -501,10 +501,10 @@ public class NpmRepositoryFeatures implements RepositoryFeatures
                                    String repositoryId,
                                    RepositorySearchRequest predicate)
     {
-        Boolean result = artifactIdGroupRepository.artifactsExists(Collections.singleton(storageId + ":" + repositoryId),
+        Long result = artifactIdGroupRepository.countArtifacts(Collections.singleton(storageId + ":" + repositoryId),
                                                                    predicate.getArtifactId(),
                                                                    predicate.getCoordinateValues());
-        return result;
+        return Optional.of(result).filter(r -> r > 0).isPresent();
     }
 
     protected Configuration getConfiguration()

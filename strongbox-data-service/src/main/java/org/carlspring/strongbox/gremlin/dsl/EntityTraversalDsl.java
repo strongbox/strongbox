@@ -75,19 +75,6 @@ public interface EntityTraversalDsl<S, E> extends GraphTraversal.Admin<S, E>
     {
         uuid = Optional.ofNullable(uuid)
                        .orElse(NULL);
-        Object empty = new Object();
-//        return constant(empty).sideEffect(t -> System.out.println(t)).optional(__.V().hasLabel(label).has("uuid", uuid))
-//                              .choose((t) -> t.equals(empty), __.addV(label)
-//                                                                .property("uuid",
-//                                                                          Optional.of(uuid)
-//                                                                                  .filter(x -> !NULL.equals(x))
-//                                                                                  .orElse(UUID.randomUUID()
-//                                                                                              .toString()))
-//                                                                .property("created",
-//                                                                          System.currentTimeMillis())
-//                                                                .trace("Created"),
-//                                      __.identity()
-//                                        .trace("Fetched"));
         
         return hasLabel(label).has("uuid", uuid)
                               .fold()
@@ -98,14 +85,14 @@ public interface EntityTraversalDsl<S, E> extends GraphTraversal.Admin<S, E>
                                                           .filter(x -> !NULL.equals(x))
                                                           .orElse(UUID.randomUUID().toString()))
                                         .property("created", System.currentTimeMillis())
-                                        .trace("Created"),
+                                        .info("Created"),
                                       __.unfold()
                                         .trace("Fetched"))
                               .map(unfoldTraversal);
     }
 
     @SuppressWarnings("unchecked")
-    default <E2> Traversal<S, E2> trace(String action)
+    default <E2> Traversal<S, E2> info(String action)
     {
         return (Traversal<S, E2>) sideEffect(t -> logger.info(String.format("%s [%s]-[%s]-[%s]",
                                                                             action,
@@ -115,4 +102,14 @@ public interface EntityTraversalDsl<S, E> extends GraphTraversal.Admin<S, E>
                                                                                                .orElse("null"))));
     }
 
+    @SuppressWarnings("unchecked")
+    default <E2> Traversal<S, E2> trace(String action)
+    {
+        return (Traversal<S, E2>) sideEffect(t -> logger.trace(String.format("%s [%s]-[%s]-[%s]",
+                                                                             action,
+                                                                             ((Element) t.get()).label(),
+                                                                             ((Element) t.get()).id(),
+                                                                             ((Element) t.get()).property("uuid")
+                                                                                                .orElse("null"))));
+    }
 }

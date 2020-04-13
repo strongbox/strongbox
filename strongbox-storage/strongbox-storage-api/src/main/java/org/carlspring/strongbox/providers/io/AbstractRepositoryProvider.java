@@ -15,6 +15,7 @@ import org.carlspring.strongbox.artifact.ArtifactNotFoundException;
 import org.carlspring.strongbox.artifact.coordinates.ArtifactCoordinates;
 import org.carlspring.strongbox.configuration.Configuration;
 import org.carlspring.strongbox.configuration.ConfigurationManager;
+import org.carlspring.strongbox.data.CacheName;
 import org.carlspring.strongbox.data.criteria.Expression.ExpOperator;
 import org.carlspring.strongbox.data.criteria.Predicate;
 import org.carlspring.strongbox.data.criteria.Selector;
@@ -38,6 +39,8 @@ import org.carlspring.strongbox.storage.Storage;
 import org.carlspring.strongbox.storage.repository.Repository;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.cache.CacheManager;
+import org.springframework.cache.interceptor.SimpleKey;
 import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.transaction.PlatformTransactionManager;
 import org.springframework.util.Assert;
@@ -76,6 +79,9 @@ public abstract class AbstractRepositoryProvider implements RepositoryProvider, 
     
     @Inject
     private PlatformTransactionManager transactionManager;
+    
+    @Inject
+    private CacheManager cacheManager;
     
     protected Configuration getConfiguration()
     {
@@ -249,6 +255,7 @@ public abstract class AbstractRepositoryProvider implements RepositoryProvider, 
 
         ArtifactIdGroup artifactGroup = repositoryArtifactIdGroupService.findOneOrCreate(storage.getId(), repository.getId(), coordinates.getId());
         repositoryArtifactIdGroupService.addArtifactToGroup(artifactGroup, artifactEntry);
+        cacheManager.getCache(CacheName.ArtifactIdGroup.ARTIFACT_ID_GROUPS).evict(new SimpleKey(storage.getId(), repository.getId(), coordinates.getId()));
     }
 
     protected Artifact provideArtifact(RepositoryPath repositoryPath) throws IOException

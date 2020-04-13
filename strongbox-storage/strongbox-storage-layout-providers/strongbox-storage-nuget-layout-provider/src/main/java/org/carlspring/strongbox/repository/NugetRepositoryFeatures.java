@@ -21,6 +21,7 @@ import org.carlspring.strongbox.artifact.coordinates.NugetArtifactCoordinates;
 import org.carlspring.strongbox.client.ArtifactTransportException;
 import org.carlspring.strongbox.configuration.Configuration;
 import org.carlspring.strongbox.configuration.ConfigurationManager;
+import org.carlspring.strongbox.data.CacheName;
 import org.carlspring.strongbox.data.criteria.Paginator;
 import org.carlspring.strongbox.domain.Artifact;
 import org.carlspring.strongbox.domain.ArtifactIdGroup;
@@ -50,6 +51,7 @@ import org.carlspring.strongbox.storage.validation.deployment.RedeploymentValida
 import org.carlspring.strongbox.yaml.configuration.repository.NugetRepositoryConfiguration;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.cache.interceptor.SimpleKey;
 import org.springframework.context.annotation.Scope;
 import org.springframework.context.annotation.ScopedProxyMode;
 import org.springframework.context.event.EventListener;

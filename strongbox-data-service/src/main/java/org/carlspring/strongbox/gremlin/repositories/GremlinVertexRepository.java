@@ -13,18 +13,23 @@ import org.carlspring.strongbox.gremlin.dsl.EntityTraversalSource;
 @Transactional
 public abstract class GremlinVertexRepository<E extends DomainObject> extends GremlinRepository<Vertex, E>
 {
+    
+    public String merge(E entity)
+    {
+        return merge(this::g, entity);
+    }
 
     @Override
-    public <R extends E> R save(Supplier<EntityTraversalSource> g,
-                                R entity)
+    public String merge(Supplier<EntityTraversalSource> g,
+                        E entity)
     {
         UnfoldEntityTraversal<Vertex, Vertex> unfoldTraversal = adapter().unfold(entity);
         Vertex resultVertex = start(g).saveV(unfoldTraversal.entityLabel(), entity.getUuid(),
-                                                   unfoldTraversal)
-                                            .next();
+                                             unfoldTraversal)
+                                      .next();
         session.clear();
 
-        return (R) findById(g, resultVertex.<String>property("uuid").value()).get();
+        return resultVertex.<String>property("uuid").value();
     }
 
     @Override
