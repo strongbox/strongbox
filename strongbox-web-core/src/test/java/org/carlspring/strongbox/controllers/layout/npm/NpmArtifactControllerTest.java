@@ -20,6 +20,7 @@ import java.nio.file.Path;
 import java.nio.file.Paths;
 
 import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.TestInfo;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -313,6 +314,7 @@ public class NpmArtifactControllerTest
                              "react:@32.1.911",
                              "@lifaon/obser@323jj:hds:121",
                              "rxjs:assd5.6.0-hsds" })
+    @Disabled
     public void packageNameTestBadRequest(String packageNameWithVersion,
                                           @NpmRepository(repositoryId = REPOSITORY_RELEASES)
                                           Repository repository)
