@@ -87,6 +87,8 @@ public class RpmArtifactGenerator
             Builder builder = new Builder();
             builder.setPackage(coordinates.getBaseName(), coordinates.getVersion(), "1");
             builder.setBuildHost("localhost");
+            // TODO: Issue #1728
+            // For multiple licenses, this should be in the format: "Apache 2.0 or EPL or MIT"
             builder.setLicense("GPL");
             builder.setPlatform(NOARCH, LINUX);
             builder.setType(BINARY);
