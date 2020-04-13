@@ -9,21 +9,16 @@ import java.util.LinkedList;
 import java.util.List;
 
 import javax.inject.Inject;
-import javax.persistence.EntityManager;
-import javax.persistence.PersistenceContext;
 
 import org.carlspring.strongbox.artifact.ArtifactNotFoundException;
-import org.carlspring.strongbox.data.criteria.OQueryTemplate;
 import org.carlspring.strongbox.data.criteria.Paginator;
-import org.carlspring.strongbox.data.criteria.Predicate;
-import org.carlspring.strongbox.data.criteria.QueryTemplate;
-import org.carlspring.strongbox.data.criteria.Selector;
-import org.carlspring.strongbox.domain.ArtifactEntity;
+import org.carlspring.strongbox.domain.Artifact;
 import org.carlspring.strongbox.providers.io.AbstractRepositoryProvider;
 import org.carlspring.strongbox.providers.io.RepositoryFiles;
 import org.carlspring.strongbox.providers.io.RepositoryPath;
 import org.carlspring.strongbox.providers.io.RepositoryPathResolver;
 import org.carlspring.strongbox.providers.io.RootRepositoryPath;
+import org.carlspring.strongbox.repositories.ArtifactIdGroupRepository;
 import org.carlspring.strongbox.storage.Storage;
 import org.carlspring.strongbox.storage.repository.Repository;
 import org.slf4j.Logger;
@@ -41,7 +36,8 @@ public class HostedRepositoryProvider extends AbstractRepositoryProvider
 
     private static final String ALIAS = "hosted";
 
-    private EntityManager entityManager;
+    @Inject
+    private ArtifactIdGroupRepository artifactIdGroupRepository;
     
     @Inject
     private RepositoryPathResolver repositoryPathResolver;
@@ -82,7 +78,7 @@ public class HostedRepositoryProvider extends AbstractRepositoryProvider
     @Override
     public List<Path> search(String storageId,
                              String repositoryId,
-                             Predicate predicate,
+                             RepositorySearchRequest predicate,
                              Paginator paginator)
     {
         List<Path> result = new LinkedList<Path>();
@@ -90,13 +86,11 @@ public class HostedRepositoryProvider extends AbstractRepositoryProvider
         Storage storage = configurationManager.getConfiguration().getStorage(storageId);
         Repository repository = storage.getRepository(repositoryId);
         
-        Selector<ArtifactEntity> selector = createSelector(storageId, repositoryId, predicate).with(paginator).fetch();
-        
-        QueryTemplate<List<ArtifactEntity>, ArtifactEntity> queryTemplate = new OQueryTemplate<>(entityManager);
-        
         RootRepositoryPath rootRepositoryPath = repositoryPathResolver.resolve(repository);
-        List<ArtifactEntity> searchResult = queryTemplate.select(selector);
-        for (ArtifactEntity artifactEntry : searchResult)
+        List<Artifact> searchResult = artifactIdGroupRepository.findArtifacts(storageId, repositoryId, predicate.getArtifactId(),
+                                                                              predicate.getCoordinateValues(),
+                                                                              paginator.getSkip(), paginator.getLimit());
+        for (Artifact artifactEntry : searchResult)
         {
             
             try
@@ -117,13 +111,10 @@ public class HostedRepositoryProvider extends AbstractRepositoryProvider
     @Override
     public Long count(String storageId,
                       String repositoryId,
-                      Predicate predicate)
+                      RepositorySearchRequest predicate)
     {
-        Selector<ArtifactEntity> selector = createSelector(storageId, repositoryId, predicate).select("count(*)");
-
-        QueryTemplate<Long, ArtifactEntity> queryTemplate = new OQueryTemplate<>(entityManager);
-
-        return queryTemplate.select(selector);
+        return artifactIdGroupRepository.countArtifacts(storageId, repositoryId, predicate.getArtifactId(),
+                                                        predicate.getCoordinateValues());
     }
 
     @Override

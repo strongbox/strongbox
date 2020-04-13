@@ -2,6 +2,8 @@ package org.carlspring.strongbox.repositories;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
+import java.util.Collections;
+import java.util.List;
 import java.util.Optional;
 
 import javax.inject.Inject;
@@ -23,11 +25,7 @@ import org.carlspring.strongbox.domain.RemoteArtifact;
 import org.carlspring.strongbox.domain.RemoteArtifactEntity;
 import org.carlspring.strongbox.gremlin.tx.TransactionContext;
 import org.junit.jupiter.api.Test;
-import org.neo4j.ogm.session.Session;
 import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.data.domain.Page;
-import org.springframework.data.domain.PageRequest;
-import org.springframework.data.domain.Pageable;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.TestExecutionListeners;
@@ -241,9 +239,11 @@ public class ArtifactIdGroupRepositoryTest
         artifactIdGroupEntity.addArtifact(artifactEntityThree);
         artifactIdGroupRepository.save(artifactIdGroupEntity);
 
-        Pageable page = PageRequest.of(0, Integer.MAX_VALUE);
-        Page<Artifact> artifacts = artifactIdGroupRepository.findArtifacts(storageId, repositoryId, "aigrt-fasw", String.format(pathTemplate, "10"), page );
-        assertThat(artifacts.getTotalElements()).isEqualTo(1);
-        assertThat(artifacts.get().map(a -> a.getArtifactCoordinates().getId())).contains(String.format(pathTemplate, "10"));
+        List<Artifact> artifacts = artifactIdGroupRepository.findArtifacts(storageId, repositoryId, "aigrt-fasw",
+                                                                           Collections.singletonList(String.format(pathTemplate,
+                                                                                                                   "10")),
+                                                                           0L, Integer.MAX_VALUE);
+        assertThat(artifacts.size()).isEqualTo(1);
+        assertThat(artifacts.stream().map(a -> a.getArtifactCoordinates().getId())).contains(String.format(pathTemplate, "10"));
     }
 }

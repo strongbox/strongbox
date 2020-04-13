@@ -29,7 +29,7 @@ public class AqlPaginatorVisitor extends AQLBaseVisitor<Paginator>
         {
             return paginator;
         }
-        paginator.setSkip(Integer.valueOf(ctx.NUMBER().getText()));
+        paginator.setSkip(Long.valueOf(ctx.NUMBER().getText()));
 
         return paginator;
     }

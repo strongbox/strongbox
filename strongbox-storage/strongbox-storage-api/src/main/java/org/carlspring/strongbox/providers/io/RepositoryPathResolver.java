@@ -29,6 +29,15 @@ public class RepositoryPathResolver
     @Inject
     protected RepositoryFileSystemRegistry fileSystemRegistry;
 
+    public RootRepositoryPath resolve(String storageId,
+                                      String repositoryId)
+    {
+        Storage storage = configurationManager.getConfiguration().getStorage(storageId);
+        Objects.requireNonNull(storage, String.format("Storage [%s] not found", storageId));
+
+        return resolve(storage.getRepository(repositoryId));
+    }
+    
     public RootRepositoryPath resolve(final Repository repository)
     {
         Objects.requireNonNull(repository, "Repository should be provided");

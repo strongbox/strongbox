@@ -3,7 +3,7 @@ package org.carlspring.strongbox.repository;
 import java.io.IOException;
 import java.time.LocalDateTime;
 import java.util.Arrays;
-import java.util.Date;
+import java.util.Collections;
 import java.util.HashSet;
 import java.util.LinkedHashSet;
 import java.util.Optional;
@@ -12,8 +12,6 @@ import java.util.concurrent.locks.Lock;
 
 import javax.annotation.PostConstruct;
 import javax.inject.Inject;
-import javax.persistence.EntityManager;
-import javax.persistence.PersistenceContext;
 import javax.ws.rs.client.Client;
 import javax.ws.rs.client.WebTarget;
 
@@ -23,11 +21,7 @@ import org.carlspring.strongbox.artifact.coordinates.NugetArtifactCoordinates;
 import org.carlspring.strongbox.client.ArtifactTransportException;
 import org.carlspring.strongbox.configuration.Configuration;
 import org.carlspring.strongbox.configuration.ConfigurationManager;
-import org.carlspring.strongbox.data.criteria.Expression.ExpOperator;
-import org.carlspring.strongbox.data.criteria.OQueryTemplate;
 import org.carlspring.strongbox.data.criteria.Paginator;
-import org.carlspring.strongbox.data.criteria.Predicate;
-import org.carlspring.strongbox.data.criteria.Selector;
 import org.carlspring.strongbox.domain.Artifact;
 import org.carlspring.strongbox.domain.ArtifactIdGroup;
 import org.carlspring.strongbox.domain.ArtifactTagEntity;
@@ -37,7 +31,9 @@ import org.carlspring.strongbox.providers.io.RepositoryFiles;
 import org.carlspring.strongbox.providers.io.RepositoryPath;
 import org.carlspring.strongbox.providers.io.RepositoryPathLock;
 import org.carlspring.strongbox.providers.io.RepositoryPathResolver;
+import org.carlspring.strongbox.providers.repository.RepositorySearchRequest;
 import org.carlspring.strongbox.providers.repository.event.RemoteRepositorySearchEvent;
+import org.carlspring.strongbox.repositories.ArtifactIdGroupRepository;
 import org.carlspring.strongbox.repositories.ArtifactRepository;
 import org.carlspring.strongbox.service.ProxyRepositoryConnectionPoolConfigurationService;
 import org.carlspring.strongbox.services.ArtifactIdGroupService;
@@ -91,8 +87,8 @@ public class NugetRepositoryFeatures
     @Inject
     private ProxyRepositoryConnectionPoolConfigurationService proxyRepositoryConnectionPoolConfigurationService;
 
-    //@PersistenceContext
-    private EntityManager entityManager;
+    @Inject
+    private ArtifactIdGroupRepository artifactIdGroupRepository;
 
     @Inject
     private RedeploymentValidator redeploymentValidator;
@@ -147,7 +143,7 @@ public class NugetRepositoryFeatures
     public boolean downloadRemoteFeed(String storageId,
                                       String repositoryId,
                                       NugetSearchRequest nugetSearchRequest,
-                                      int skip,
+                                      long skip,
                                       int top)
             throws IOException
     {
@@ -302,16 +298,12 @@ public class NugetRepositoryFeatures
                 return;
             }
 
-            Selector<RemoteArtifactEntity> selector = new Selector<>(RemoteArtifactEntity.class);
-            selector.select("count(*)");
-            selector.where(Predicate.of(ExpOperator.EQ.of("storageId", event.getStorageId())))
-                    .and(Predicate.of(ExpOperator.EQ.of("repositoryId", event.getRepositoryId())));
-            if (!event.getPredicate().isEmpty())
-            {
-                selector.getPredicate().and(event.getPredicate());
-            }
-            OQueryTemplate<Long, RemoteArtifactEntity> queryTemplate = new OQueryTemplate<>(entityManager);
-            Long packageCount = queryTemplate.select(selector);
+            RepositorySearchRequest predicate = event.getPredicate();
+            String repositoryId = event.getRepositoryId();
+            String storageId = event.getStorageId();
+            Long packageCount = artifactIdGroupRepository.countArtifacts(Collections.singleton(storageId + ":" + repositoryId),
+                                                                         predicate.getArtifactId(),
+                                                                         predicate.getCoordinateValues());
 
             logger.debug("Remote repository [{}] cached package count is [{}]", repository.getId(), packageCount);
 

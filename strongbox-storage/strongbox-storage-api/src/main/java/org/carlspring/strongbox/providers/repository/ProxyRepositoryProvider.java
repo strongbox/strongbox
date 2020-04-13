@@ -13,7 +13,6 @@ import java.util.concurrent.locks.ReadWriteLock;
 import javax.inject.Inject;
 
 import org.carlspring.strongbox.data.criteria.Paginator;
-import org.carlspring.strongbox.data.criteria.Predicate;
 import org.carlspring.strongbox.domain.Artifact;
 import org.carlspring.strongbox.domain.RemoteArtifact;
 import org.carlspring.strongbox.domain.RemoteArtifactEntity;
@@ -124,7 +123,7 @@ public class ProxyRepositoryProvider
     @Override
     public List<Path> search(String storageId,
                              String repositoryId,
-                             Predicate predicate,
+                             RepositorySearchRequest predicate,
                              Paginator paginator)
     {
         RemoteRepositorySearchEvent event = new RemoteRepositorySearchEvent(storageId,
@@ -139,7 +138,7 @@ public class ProxyRepositoryProvider
     @Override
     public Long count(String storageId,
                       String repositoryId,
-                      Predicate predicate)
+                      RepositorySearchRequest predicate)
     {
         return hostedRepositoryProvider.count(storageId, repositoryId, predicate);
     }
