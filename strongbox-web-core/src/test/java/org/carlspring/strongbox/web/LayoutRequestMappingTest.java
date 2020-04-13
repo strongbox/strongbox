@@ -41,16 +41,21 @@ public class LayoutRequestMappingTest
 {
 
     private static final String TEST_LAYOUT_ALIAS = "test-layout-alias";
+
     private static final String ANOTHER_LAYOUT_ALIAS = "another-layout-alias";
 
     @Inject
     private MockMvc mockMvc;
+
     @Inject
     private StoragesConfigurationManager storagesConfigurationManager;
+
     @Inject
     private TestLayoutController testLayoutController;
+
     @Inject
     private AnotherLayoutController anotherLayoutController;
+
 
     @BeforeEach
     public void setup()
@@ -144,7 +149,7 @@ public class LayoutRequestMappingTest
         void download(@PathVariable(name = "storageId") String storageId,
                   @PathVariable(name = "repositoryId") String repositoryId)
             throws JsonProcessingException,
-            IOException;
+                   IOException;
 
     }
 
@@ -158,7 +163,7 @@ public class LayoutRequestMappingTest
         void download(@PathVariable(name = "storageId") String storageId,
                   @PathVariable(name = "repositoryId") String repositoryId)
             throws JsonProcessingException,
-            IOException;
+                   IOException;
 
     }
 }
