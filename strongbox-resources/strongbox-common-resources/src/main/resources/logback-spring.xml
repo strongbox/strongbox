@@ -111,6 +111,9 @@
         <!-- Strongbox packages -->
     
         <!-- Third-party packages -->
+        <logger name="org.neo4j.ogm.metadata.MetaData" level="INFO"/>
+        <logger name="org.neo4j.ogm.context.GraphEntityMapper" level="INFO"/>
+        
         <logger name="ch.qos.logback" level="ERROR"/>
     
         <logger name="com.orientechnologies.orient" level="ERROR"/>
@@ -153,6 +156,10 @@
         <!-- Strongbox packages -->
     
         <!-- Third-party packages -->
+        <logger name="org.neo4j.ogm" level="INFO"/>
+        <logger name="org.janusgraph" level="INFO" />
+        <logger name="org.janusgraph" level="INFO" />
+        
         <logger name="liquibase" level="WARN"/>
     
         <logger name="ch.qos.logback" level="ERROR"/>
