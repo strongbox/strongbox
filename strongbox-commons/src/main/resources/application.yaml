@@ -64,6 +64,9 @@ ehcache:
     store:
       dir: ${strongbox.vault}/cache
 management:
+  health:
+    neo4j:
+      enabled: false
   endpoint:
     health:
       show-details: always

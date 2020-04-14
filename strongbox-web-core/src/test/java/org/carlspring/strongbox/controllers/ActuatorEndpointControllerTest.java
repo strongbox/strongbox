@@ -9,7 +9,6 @@ import javax.inject.Inject;
 import io.restassured.module.mockmvc.specification.MockMvcRequestSpecification;
 import org.hamcrest.CoreMatchers;
 import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.ValueSource;
@@ -25,7 +24,6 @@ import static org.hamcrest.Matchers.notNullValue;
  * @author: adavid9
  */
 @IntegrationTest
-@Disabled
 public class ActuatorEndpointControllerTest
         extends RestAssuredBaseTest
 {
@@ -112,7 +110,6 @@ public class ActuatorEndpointControllerTest
     @ParameterizedTest
     @ValueSource(strings = { "/",
                              "/health",
-                             "/health/db",
                              "/info",
                              "/beans",
                              "/metrics",
