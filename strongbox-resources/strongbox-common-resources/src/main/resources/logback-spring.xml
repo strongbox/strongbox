@@ -110,10 +110,7 @@
         <logger name="org.carlspring.strongbox.data.server" level="DEBUG"/>
         <!-- Strongbox packages -->
     
-        <!-- Third-party packages -->
-        <logger name="org.neo4j.ogm.metadata.MetaData" level="INFO"/>
-        <logger name="org.neo4j.ogm.context.GraphEntityMapper" level="INFO"/>
-        
+        <!-- Third-party packages -->       
         <logger name="ch.qos.logback" level="ERROR"/>
     
         <logger name="com.orientechnologies.orient" level="ERROR"/>
