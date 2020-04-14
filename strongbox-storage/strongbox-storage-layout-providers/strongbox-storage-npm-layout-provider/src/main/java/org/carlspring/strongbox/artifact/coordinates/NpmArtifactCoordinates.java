@@ -128,6 +128,13 @@ public class NpmArtifactCoordinates extends LayoutArtifactCoordinatesEntity<NpmA
     {
         setName(id);
     }
+    
+    @Override
+    public void setVersion(String version)
+    {
+        SemanticVersion.parse(version);
+        super.setVersion(version);
+    }
 
     public void setExtension(String extension)
     {
