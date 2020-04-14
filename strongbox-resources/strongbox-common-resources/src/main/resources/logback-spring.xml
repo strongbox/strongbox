@@ -100,6 +100,10 @@
         <logger name="LOG_CHANGES" level="ERROR"/>
         <!-- ApacheDS -->
     
+        <logger name="org.neo4j.ogm" level="INFO"/>
+        <logger name="org.janusgraph" level="INFO" />
+        <logger name="springfox" level="INFO" />
+    
         <!-- Strongbox packages -->
         <logger name="org.carlspring.strongbox" level="DEBUG"/>
         <logger name="org.carlspring.strongbox.security.authentication" level="DEBUG"/>
@@ -153,10 +157,6 @@
         <!-- Strongbox packages -->
     
         <!-- Third-party packages -->
-        <logger name="org.neo4j.ogm" level="INFO"/>
-        <logger name="org.janusgraph" level="INFO" />
-        <logger name="org.janusgraph" level="INFO" />
-        
         <logger name="liquibase" level="WARN"/>
     
         <logger name="ch.qos.logback" level="ERROR"/>
