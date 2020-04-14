@@ -1,6 +1,5 @@
 package org.carlspring.strongbox.users.userdetails;
 
-import org.carlspring.strongbox.users.dto.User;
 import org.carlspring.strongbox.users.security.AuthoritiesProvider;
 
 import javax.inject.Inject;
@@ -8,7 +7,6 @@ import javax.inject.Inject;
 import java.util.stream.Collectors;
 
 import org.carlspring.strongbox.domain.User;
-import org.carlspring.strongbox.users.security.AuthoritiesProvider;
 import org.springframework.stereotype.Component;
 
 @Component
