@@ -77,6 +77,11 @@ public class ArtifactIdGroupAdapter extends VertexEntityTraversalAdapter<Artifac
         String storedArtifact = Vertices.ARTIFACT + ":" + UUID.randomUUID();
         for (Artifact artifact : entity.getArtifacts())
         {
+            //cascading create Artifacts only
+            if (artifact.getNativeId() != null)
+            {
+                continue;
+            }
             UnfoldEntityTraversal<Vertex, Vertex> unfoldArtifactTraversal = artifactAdapter.unfold(artifact);
             saveArtifacstTraversal = saveArtifacstTraversal.V()
                                                            .saveV(unfoldArtifactTraversal.entityLabel(), artifact.getUuid(),
@@ -86,9 +91,7 @@ public class ArtifactIdGroupAdapter extends VertexEntityTraversalAdapter<Artifac
         }
 
         String storedArtifactIdGroup = Vertices.ARTIFACT_ID_GROUP + ":" + UUID.randomUUID();
-        EntityTraversal<Vertex, Vertex> unfoldTraversal = __.<Vertex>sideEffect(__.outE(Edges.ARTIFACT_GROUP_HAS_ARTIFACTS)
-                                                                                  .drop())
-                                                            .map(unfoldArtifactGroup(entity))
+        EntityTraversal<Vertex, Vertex> unfoldTraversal = __.<Vertex, Vertex>map(unfoldArtifactGroup(entity))
                                                             .store(storedArtifactIdGroup)
                                                             .sideEffect(saveArtifacstTraversal.select(storedArtifact)
                                                                                               .unfold()

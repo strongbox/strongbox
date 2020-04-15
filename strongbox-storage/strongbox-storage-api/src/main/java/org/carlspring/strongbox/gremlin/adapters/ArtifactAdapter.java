@@ -172,7 +172,8 @@ public class ArtifactAdapter extends VertexEntityTraversalAdapter<Artifact> impl
         String storedArtifactId = Vertices.ARTIFACT + ":" + UUID.randomUUID().toString();        
         
         Set<String> tagNames = entity.getTagSet().stream().map(ArtifactTag::getName).collect(Collectors.toSet());
-        EntityTraversal<Vertex, Vertex> unfoldTraversal = __.<Vertex, Edge>coalesce(updateArtifactCoordinates(artifactCoordinates),
+        EntityTraversal<Vertex, Vertex> unfoldTraversal = __.<Vertex, Edge>coalesce(__.<Vertex>outE(Edges.ARTIFACT_HAS_ARTIFACT_COORDINATES),
+                                                                                    //cascading create ArtifactCoordinates only
                                                                                     createArtifactCoordinates(artifactCoordinates))
                                                             .outV()
                                                             .sideEffect(__.outE(Edges.ARTIFACT_HAS_TAGS).drop())
@@ -185,15 +186,6 @@ public class ArtifactAdapter extends VertexEntityTraversalAdapter<Artifact> impl
                                                                         .from(__.select(storedArtifactId).unfold()));
 
         return new UnfoldEntityTraversal<>(Vertices.ARTIFACT, unfoldTraversal);
-    }
-
-    private Traversal<Vertex, Edge> updateArtifactCoordinates(ArtifactCoordinates artifactCoordinates)
-    {
-        return __.<Vertex>outE(Edges.ARTIFACT_HAS_ARTIFACT_COORDINATES)
-                 .as(Edges.ARTIFACT_HAS_ARTIFACT_COORDINATES)
-                 .inV()
-                 .map(saveArtifactCoordinates(artifactCoordinates))
-                 .select(Edges.ARTIFACT_HAS_ARTIFACT_COORDINATES);
     }
 
     private Traversal<Vertex, Edge> createArtifactCoordinates(ArtifactCoordinates artifactCoordinates)

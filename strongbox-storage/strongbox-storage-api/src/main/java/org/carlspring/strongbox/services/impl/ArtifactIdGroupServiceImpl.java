@@ -12,6 +12,7 @@ import org.carlspring.strongbox.domain.ArtifactIdGroup;
 import org.carlspring.strongbox.domain.ArtifactIdGroupEntity;
 import org.carlspring.strongbox.domain.ArtifactTagEntity;
 import org.carlspring.strongbox.repositories.ArtifactIdGroupRepository;
+import org.carlspring.strongbox.repositories.ArtifactRepository;
 import org.carlspring.strongbox.services.ArtifactIdGroupService;
 import org.carlspring.strongbox.services.ArtifactTagService;
 import org.janusgraph.core.SchemaViolationException;
@@ -40,9 +41,12 @@ public class ArtifactIdGroupServiceImpl
 
     @Inject
     private ArtifactIdGroupRepository artifactIdGroupRepository;
+    
+    @Inject
+    private ArtifactRepository artifactRepository;
 
     @Override
-    public void addArtifactToGroup(ArtifactIdGroup artifactGroup,
+    public ArtifactCoordinates addArtifactToGroup(ArtifactIdGroup artifactGroup,
                                    Artifact artifact)
     {
         ArtifactCoordinates coordinates = artifact.getArtifactCoordinates();
@@ -53,56 +57,50 @@ public class ArtifactIdGroupServiceImpl
         artifact.getTagSet().add(lastVersionTag);
         artifactGroup.addArtifact(artifact);
 
-        artifactGroup.getArtifacts()
-                     .stream()
-                     .filter(e -> e.getTagSet().contains(lastVersionTag))
-                     .sorted((e1,
-                              e2) -> e1.getArtifactCoordinates().compareTo(e2.getArtifactCoordinates()))
-                     .forEach(e -> checkAndUpdateLastVersionTagIfNeeded(e, artifact, lastVersionTag));
-
-        artifactIdGroupRepository.merge(artifactGroup);
+        Artifact lastVersionArtifact = artifactGroup.getArtifacts()
+                                                    .stream()
+                                                    .filter(e -> e.getTagSet().contains(lastVersionTag))
+                                                    .reduce((a1,
+                                                             a2) -> reduceByLastVersionTag(a1, a2, lastVersionTag))
+                                                    .get();
+        
+        return lastVersionArtifact.getArtifactCoordinates();
     }
 
-    private Optional<Artifact> checkAndUpdateLastVersionTagIfNeeded(Artifact lastVersionEntry,
-                                                                    Artifact entity,
-                                                                    ArtifactTag lastVersionTag)
+    private Artifact reduceByLastVersionTag(Artifact a1,
+                                            Artifact a2,
+                                            ArtifactTag lastVersionTag)
     {
-        Optional<Artifact> result = Optional.empty();
-        ArtifactCoordinates coordinates = entity.getArtifactCoordinates();
+        int artifactCoordinatesComparison = a1.getArtifactCoordinates()
+                                              .compareTo(a2.getArtifactCoordinates());
+        if (artifactCoordinatesComparison > 0)
+        {
+            removeLastVersionTag(a2, lastVersionTag);
 
-        int artifactCoordinatesComparison = entity.getArtifactCoordinates()
-                                                  .compareTo(lastVersionEntry.getArtifactCoordinates());
-        if (artifactCoordinatesComparison == 0)
-        {
-            logger.debug("Set [{}] last version to [{}]",
-                         entity.getArtifactPath(),
-                         coordinates.getVersion());
-            entity.getTagSet().add(lastVersionTag);
+            return a1;
         }
-        else if (artifactCoordinatesComparison > 0)
+        else if (artifactCoordinatesComparison < 0)
         {
-            logger.debug("Update [{}] last version from [{}] to [{}]",
-                         entity.getArtifactPath(),
-                         lastVersionEntry.getArtifactCoordinates().getVersion(),
-                         coordinates.getVersion());
-            entity.getTagSet().add(lastVersionTag);
+            removeLastVersionTag(a1, lastVersionTag);
 
-            lastVersionEntry.getTagSet().remove(lastVersionTag);
-            result = Optional.of(lastVersionEntry);
-        }
-        else
-        {
-            logger.debug("Keep [{}] last version [{}]",
-                         entity.getArtifactPath(),
-                         lastVersionEntry.getArtifactCoordinates().getVersion());
-            entity.getTagSet().remove(lastVersionTag);
+            return a2;
         }
 
-        return result;
+        return a1;
     }
 
-    //TODO: cache ArtifactIdGroup within NugetRepositoryFeatures and NpmPackageFeedParser bulk operations 
-    //@Cacheable(value = CacheName.ArtifactIdGroup.ARTIFACT_ID_GROUPS)
+    private Artifact removeLastVersionTag(Artifact artifact,
+                                      ArtifactTag lastVersionTag)
+    {
+        artifact.getTagSet().remove(lastVersionTag);
+        if (artifact.getNativeId() != null)
+        {
+            artifactRepository.merge(artifact);
+        }
+        
+        return artifact;
+    }
+    
     public ArtifactIdGroup findOneOrCreate(String storageId,
                                            String repositoryId,
                                            String artifactId)

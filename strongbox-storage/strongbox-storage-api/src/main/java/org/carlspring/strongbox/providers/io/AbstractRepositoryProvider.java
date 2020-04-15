@@ -33,6 +33,7 @@ import org.carlspring.strongbox.providers.io.RepositoryStreamSupport.RepositoryO
 import org.carlspring.strongbox.providers.layout.LayoutProviderRegistry;
 import org.carlspring.strongbox.providers.repository.RepositoryProvider;
 import org.carlspring.strongbox.providers.repository.RepositoryProviderRegistry;
+import org.carlspring.strongbox.repositories.ArtifactIdGroupRepository;
 import org.carlspring.strongbox.repositories.ArtifactRepository;
 import org.carlspring.strongbox.services.ArtifactIdGroupService;
 import org.carlspring.strongbox.storage.Storage;
@@ -66,7 +67,10 @@ public abstract class AbstractRepositoryProvider implements RepositoryProvider, 
     protected ArtifactRepository artifactEntityRepository;
     
     @Inject
-    private ArtifactIdGroupService repositoryArtifactIdGroupService;
+    private ArtifactIdGroupService artifactIdGroupService;
+    
+    @Inject
+    private ArtifactIdGroupRepository artifactIdGroupRepository;
     
     @Inject
     protected ArtifactEventListenerRegistry artifactEventListenerRegistry;
@@ -253,9 +257,13 @@ public abstract class AbstractRepositoryProvider implements RepositoryProvider, 
         LayoutOutputStream los = StreamUtils.findSource(LayoutOutputStream.class, ctx.getStream());
         artifactEntry.setChecksums(los.getDigestMap());
 
-        ArtifactIdGroup artifactGroup = repositoryArtifactIdGroupService.findOneOrCreate(storage.getId(), repository.getId(), coordinates.getId());
-        repositoryArtifactIdGroupService.addArtifactToGroup(artifactGroup, artifactEntry);
-        cacheManager.getCache(CacheName.ArtifactIdGroup.ARTIFACT_ID_GROUPS).evict(new SimpleKey(storage.getId(), repository.getId(), coordinates.getId()));
+        ArtifactIdGroup artifactGroup = artifactIdGroupService.findOneOrCreate(storage.getId(), repository.getId(), coordinates.getId());
+        ArtifactCoordinates lastVersion = artifactIdGroupService.addArtifactToGroup(artifactGroup, artifactEntry);
+        logger.debug("Last version for group [{}] is [{}] with [{}]",
+                     artifactGroup.getName(),
+                     lastVersion.getVersion(),
+                     lastVersion.getPath());
+        artifactIdGroupRepository.merge(artifactGroup);
     }
 
     protected Artifact provideArtifact(RepositoryPath repositoryPath) throws IOException

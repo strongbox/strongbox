@@ -45,17 +45,6 @@ public class HazelcastConfiguration
                                                                                      .setTimeToLiveSeconds(authenticationsCacheInvalidateInterval));
     }
     
-    public MapConfig aritfactIdGroupCacheConfig(String name)
-    {
-        return new MapConfig().setName(name)
-                              .setNearCacheConfig(new NearCacheConfig().setCacheLocalEntries(true)
-                                                                       .setInMemoryFormat(InMemoryFormat.OBJECT)
-                                                                       .setEvictionConfig(new EvictionConfig().setMaximumSizePolicy(MaxSizePolicy.ENTRY_COUNT)
-                                                                                                              .setSize(1000))
-                                                                       .setInvalidateOnChange(true)
-                                                                       .setTimeToLiveSeconds(3600));
-    }
-
     @Value("${cacheManagerConfiguration.caches.remoteRepositoryAliveness.maxSizeLimit:1000}")
     public int remoteRepositoryAlivenessMaxSizeLimit;
 
@@ -138,8 +127,7 @@ public class HazelcastConfiguration
                                                                             tagsMaxSizeLimit,
                                                                             tagsMaxSizePolicy,
                                                                             tagsEvictionPolicy))
-                                          .addMapConfig(authenticationCacheConfig(CacheName.User.AUTHENTICATIONS))
-                                          .addMapConfig(aritfactIdGroupCacheConfig(CacheName.ArtifactIdGroup.ARTIFACT_ID_GROUPS));
+                                          .addMapConfig(authenticationCacheConfig(CacheName.User.AUTHENTICATIONS));
         config.setGroupConfig(new GroupConfig(groupConfigName, groupConfigPassword));
         config.getNetworkConfig().getJoin().getMulticastConfig().setEnabled(enableMulticastConfig);
 

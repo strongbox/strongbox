@@ -6,9 +6,13 @@ import java.util.Arrays;
 import java.util.Collections;
 import java.util.HashSet;
 import java.util.LinkedHashSet;
+import java.util.List;
+import java.util.Map;
+import java.util.Map.Entry;
 import java.util.Optional;
 import java.util.Set;
 import java.util.concurrent.locks.Lock;
+import java.util.stream.Collectors;
 
 import javax.annotation.PostConstruct;
 import javax.inject.Inject;
@@ -21,17 +25,13 @@ import org.carlspring.strongbox.artifact.coordinates.NugetArtifactCoordinates;
 import org.carlspring.strongbox.client.ArtifactTransportException;
 import org.carlspring.strongbox.configuration.Configuration;
 import org.carlspring.strongbox.configuration.ConfigurationManager;
-import org.carlspring.strongbox.data.CacheName;
 import org.carlspring.strongbox.data.criteria.Paginator;
 import org.carlspring.strongbox.domain.Artifact;
 import org.carlspring.strongbox.domain.ArtifactIdGroup;
 import org.carlspring.strongbox.domain.ArtifactTagEntity;
 import org.carlspring.strongbox.domain.RemoteArtifactEntity;
 import org.carlspring.strongbox.nuget.NugetSearchRequest;
-import org.carlspring.strongbox.providers.io.RepositoryFiles;
-import org.carlspring.strongbox.providers.io.RepositoryPath;
 import org.carlspring.strongbox.providers.io.RepositoryPathLock;
-import org.carlspring.strongbox.providers.io.RepositoryPathResolver;
 import org.carlspring.strongbox.providers.repository.RepositorySearchRequest;
 import org.carlspring.strongbox.providers.repository.event.RemoteRepositorySearchEvent;
 import org.carlspring.strongbox.repositories.ArtifactIdGroupRepository;
@@ -51,7 +51,6 @@ import org.carlspring.strongbox.storage.validation.deployment.RedeploymentValida
 import org.carlspring.strongbox.yaml.configuration.repository.NugetRepositoryConfiguration;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.cache.interceptor.SimpleKey;
 import org.springframework.context.annotation.Scope;
 import org.springframework.context.annotation.ScopedProxyMode;
 import org.springframework.context.event.EventListener;
@@ -82,9 +81,6 @@ public class NugetRepositoryFeatures
 
     @Inject
     private RepositoryPathLock repositoryPathLock;
-
-    @Inject
-    private RepositoryPathResolver repositoryPathResolver;
 
     @Inject
     private ProxyRepositoryConnectionPoolConfigurationService proxyRepositoryConnectionPoolConfigurationService;
@@ -237,29 +233,52 @@ public class NugetRepositoryFeatures
 
             artifactToSaveSet.add(remoteArtifactEntry);
         }
-
-        for (Artifact e : artifactToSaveSet)
+        
+        Map<String, List<Artifact>> artifactByGroupIdMap = artifactToSaveSet.stream()
+                                                                            .collect(Collectors.groupingBy(a -> a.getArtifactCoordinates()
+                                                                                                                 .getId()));
+        for (Entry<String, List<Artifact>> artifactIdGroupEntry : artifactByGroupIdMap.entrySet())
         {
-            RepositoryPath repositoryPath = repositoryPathResolver.resolve(repository, (NugetArtifactCoordinates) e.getArtifactCoordinates());
-
-            Storage storage = repository.getStorage();
-            ArtifactCoordinates coordinates = RepositoryFiles.readCoordinates(repositoryPath);
-            
-            Lock lock = repositoryPathLock.lock(repositoryPath).writeLock();
+            List<Artifact> artifacts = artifactIdGroupEntry.getValue();
+            String artifactGroupId = artifactIdGroupEntry.getKey();
+            ArtifactIdGroup artifactGroup = repositoryArtifactIdGroupService.findOneOrCreate(repository.getStorage().getId(),
+                                                                                             repository.getId(),
+                                                                                             artifactGroupId);
+            Lock lock = repositoryPathLock.lock(artifactGroup).writeLock();
             lock.lock();
-            
             try
             {
-                ArtifactIdGroup artifactGroup = repositoryArtifactIdGroupService.findOneOrCreate(storage.getId(),
-                                                                                                 repository.getId(),
-                                                                                                 coordinates.getId());
-                repositoryArtifactIdGroupService.addArtifactToGroup(artifactGroup, e);
+                ArtifactCoordinates lastVersion = saveArtifacts(artifacts, artifactGroup);
+                logger.debug("Last version for group [{}] is [{}] with [{}]",
+                             artifactGroup.getName(),
+                             lastVersion.getVersion(),
+                             lastVersion.getPath());
+                
+                artifactIdGroupRepository.merge(artifactGroup);
             }
             finally
             {
                 lock.unlock();
             }
         }
+    }
+
+    private ArtifactCoordinates saveArtifacts(List<Artifact> artifacts,
+                                              ArtifactIdGroup artifactGroup)
+    {
+        ArtifactCoordinates lastVersion = null;
+        for (Artifact e : artifacts)
+        {
+            if (artifactEntityRepository.artifactExists(e.getStorageId(),
+                                                        e.getRepositoryId(),
+                                                        e.getArtifactCoordinates().buildPath()))
+            {
+                continue;
+            }
+
+            lastVersion = repositoryArtifactIdGroupService.addArtifactToGroup(artifactGroup, e);
+        }
+        return lastVersion;
     }
 
     protected Configuration getConfiguration()

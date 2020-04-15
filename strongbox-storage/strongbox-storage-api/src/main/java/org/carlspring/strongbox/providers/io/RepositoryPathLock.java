@@ -10,6 +10,7 @@ import javax.annotation.Nonnull;
 import javax.inject.Inject;
 
 import org.carlspring.strongbox.artifact.coordinates.ArtifactCoordinates;
+import org.carlspring.strongbox.domain.ArtifactIdGroup;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Component;
@@ -53,6 +54,11 @@ public class RepositoryPathLock
         return lockService.getReentrantReadWriteLock(lockName);
     }
 
+    public ReadWriteLock lock(ArtifactIdGroup artifactGroup)
+    {
+        return lockService.getReentrantReadWriteLock(artifactGroup.getArtifactId());
+    }
+    
     private URI getLock(final @Nonnull RepositoryPath repositoryPath) throws IOException
     {
         if (RepositoryFiles.isArtifact(repositoryPath))

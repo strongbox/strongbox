@@ -2,11 +2,13 @@ package org.carlspring.strongbox.repository;
 
 import java.io.IOException;
 import java.time.LocalDateTime;
-import java.util.Date;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Map;
+import java.util.Map.Entry;
 import java.util.Set;
 import java.util.concurrent.locks.Lock;
+import java.util.stream.Collectors;
 
 import javax.inject.Inject;
 
@@ -23,14 +25,11 @@ import org.carlspring.strongbox.npm.metadata.PackageVersion;
 import org.carlspring.strongbox.npm.metadata.SearchResult;
 import org.carlspring.strongbox.npm.metadata.SearchResults;
 import org.carlspring.strongbox.npm.metadata.Versions;
-import org.carlspring.strongbox.providers.io.RepositoryFiles;
-import org.carlspring.strongbox.providers.io.RepositoryPath;
 import org.carlspring.strongbox.providers.io.RepositoryPathLock;
-import org.carlspring.strongbox.providers.io.RepositoryPathResolver;
+import org.carlspring.strongbox.repositories.ArtifactIdGroupRepository;
 import org.carlspring.strongbox.repositories.ArtifactRepository;
 import org.carlspring.strongbox.services.ArtifactIdGroupService;
 import org.carlspring.strongbox.services.ArtifactTagService;
-import org.carlspring.strongbox.storage.Storage;
 import org.carlspring.strongbox.storage.repository.Repository;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -47,17 +46,18 @@ public class NpmPackageFeedParser
     private ArtifactTagService artifactTagService;
 
     @Inject
-    private RepositoryPathResolver repositoryPathResolver;
-
-    @Inject
     private ArtifactRepository artifactEntityRepository;
     
     @Inject
     private ArtifactIdGroupService repositoryArtifactIdGroupService;
 
     @Inject
+    private ArtifactIdGroupRepository artifactIdGroupRepository;
+    
+    @Inject
     private RepositoryPathLock repositoryPathLock;
 
+    @Transactional
     public void parseSearchResult(Repository repository,
                                   SearchResults searchResults)
         throws IOException
@@ -90,11 +90,51 @@ public class NpmPackageFeedParser
                                       Set<Artifact> artifactToSaveSet)
         throws IOException
     {
-        for (Artifact e : artifactToSaveSet)
+        Map<String, List<Artifact>> artifactByGroupIdMap = artifactToSaveSet.stream()
+                                                                            .collect(Collectors.groupingBy(a -> a.getArtifactCoordinates()
+                                                                                                                 .getId()));
+        for (Entry<String, List<Artifact>> artifactIdGroupEntry : artifactByGroupIdMap.entrySet())
         {
-            RepositoryPath repositoryPath = repositoryPathResolver.resolve(repository).resolve(e);
-            saveArtifactEntry(repositoryPath);
+            List<Artifact> artifacts = artifactIdGroupEntry.getValue();
+            String artifactGroupId = artifactIdGroupEntry.getKey();
+            ArtifactIdGroup artifactGroup = repositoryArtifactIdGroupService.findOneOrCreate(repository.getStorage().getId(),
+                                                                                             repository.getId(),
+                                                                                             artifactGroupId);
+            Lock lock = repositoryPathLock.lock(artifactGroup).writeLock();
+            lock.lock();
+            try
+            {
+                ArtifactCoordinates lastVersion = saveArtifacts(artifacts, artifactGroup);
+                logger.debug("Last version for group [{}] is [{}] with [{}]",
+                             artifactGroup.getName(),
+                             lastVersion.getVersion(),
+                             lastVersion.getPath());
+                
+                artifactIdGroupRepository.merge(artifactGroup);
+            }
+            finally
+            {
+                lock.unlock();
+            }
         }
+    }
+
+    private ArtifactCoordinates saveArtifacts(List<Artifact> artifacts,
+                                              ArtifactIdGroup artifactGroup)
+    {
+        ArtifactCoordinates lastVersion = null;
+        for (Artifact e : artifacts)
+        {
+            if (artifactEntityRepository.artifactExists(e.getStorageId(),
+                                                        e.getRepositoryId(),
+                                                        e.getArtifactCoordinates().buildPath()))
+            {
+                continue;
+            }
+
+            lastVersion = repositoryArtifactIdGroupService.addArtifactToGroup(artifactGroup, e);
+        }
+        return lastVersion;
     }
 
     @Transactional
@@ -143,37 +183,6 @@ public class NpmPackageFeedParser
 
         saveArtifactEntrySet(repository, artifactToSaveSet);
 
-    }
-
-    private void saveArtifactEntry(RepositoryPath repositoryPath)
-        throws IOException
-    {
-        Artifact e = repositoryPath.getArtifactEntry();
-        
-        Repository repository = repositoryPath.getRepository();
-        Storage storage = repository.getStorage();
-        ArtifactCoordinates coordinates = RepositoryFiles.readCoordinates(repositoryPath);
-
-        Lock lock = repositoryPathLock.lock(repositoryPath).writeLock();
-        lock.lock();
-
-        try
-        {
-            if (artifactEntityRepository.artifactExists(e.getStorageId(), e.getRepositoryId(),
-                                                        e.getArtifactCoordinates().buildPath()))
-            {
-                return;
-            }
-
-            ArtifactIdGroup artifactGroup = repositoryArtifactIdGroupService.findOneOrCreate(storage.getId(),
-                                                                                             repository.getId(),
-                                                                                             coordinates.getId());
-            repositoryArtifactIdGroupService.addArtifactToGroup(artifactGroup, e);
-        } 
-        finally
-        {
-            lock.unlock();
-        }
     }
 
     private RemoteArtifactEntity parseVersion(String storageId,

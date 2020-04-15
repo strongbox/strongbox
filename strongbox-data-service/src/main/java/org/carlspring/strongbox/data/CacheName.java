@@ -17,20 +17,11 @@ public final class CacheName
 
     }
     
-    public static final class ArtifactIdGroup
-    {
-
-        public static final String ARTIFACT_ID_GROUPS = "ArtifactIdGroups";
-
-    }
-
     public static final class Repository
     {
 
         public static final String REMOTE_REPOSITORY_ALIVENESS = "remoteRepositoryAliveness";
 
     }
-
-
 
 }
