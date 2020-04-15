@@ -3,20 +3,14 @@ package org.carlspring.strongbox.repository;
 import java.io.IOException;
 import java.time.LocalDateTime;
 import java.util.HashSet;
-import java.util.List;
 import java.util.Map;
-import java.util.Map.Entry;
 import java.util.Set;
-import java.util.concurrent.locks.Lock;
-import java.util.stream.Collectors;
 
 import javax.inject.Inject;
 
 import org.carlspring.strongbox.artifact.ArtifactTag;
-import org.carlspring.strongbox.artifact.coordinates.ArtifactCoordinates;
 import org.carlspring.strongbox.artifact.coordinates.NpmArtifactCoordinates;
 import org.carlspring.strongbox.domain.Artifact;
-import org.carlspring.strongbox.domain.ArtifactIdGroup;
 import org.carlspring.strongbox.domain.ArtifactTagEntity;
 import org.carlspring.strongbox.domain.RemoteArtifactEntity;
 import org.carlspring.strongbox.npm.metadata.PackageEntry;
@@ -25,9 +19,6 @@ import org.carlspring.strongbox.npm.metadata.PackageVersion;
 import org.carlspring.strongbox.npm.metadata.SearchResult;
 import org.carlspring.strongbox.npm.metadata.SearchResults;
 import org.carlspring.strongbox.npm.metadata.Versions;
-import org.carlspring.strongbox.providers.io.RepositoryPathLock;
-import org.carlspring.strongbox.repositories.ArtifactIdGroupRepository;
-import org.carlspring.strongbox.repositories.ArtifactRepository;
 import org.carlspring.strongbox.services.ArtifactIdGroupService;
 import org.carlspring.strongbox.services.ArtifactTagService;
 import org.carlspring.strongbox.storage.repository.Repository;
@@ -46,16 +37,7 @@ public class NpmPackageFeedParser
     private ArtifactTagService artifactTagService;
 
     @Inject
-    private ArtifactRepository artifactEntityRepository;
-    
-    @Inject
     private ArtifactIdGroupService repositoryArtifactIdGroupService;
-
-    @Inject
-    private ArtifactIdGroupRepository artifactIdGroupRepository;
-    
-    @Inject
-    private RepositoryPathLock repositoryPathLock;
 
     @Transactional
     public void parseSearchResult(Repository repository,
@@ -83,58 +65,7 @@ public class NpmPackageFeedParser
             artifactToSaveSet.add(remoteArtifactEntry);
         }
 
-        saveArtifactEntrySet(repository, artifactToSaveSet);
-    }
-
-    private void saveArtifactEntrySet(Repository repository,
-                                      Set<Artifact> artifactToSaveSet)
-        throws IOException
-    {
-        Map<String, List<Artifact>> artifactByGroupIdMap = artifactToSaveSet.stream()
-                                                                            .collect(Collectors.groupingBy(a -> a.getArtifactCoordinates()
-                                                                                                                 .getId()));
-        for (Entry<String, List<Artifact>> artifactIdGroupEntry : artifactByGroupIdMap.entrySet())
-        {
-            List<Artifact> artifacts = artifactIdGroupEntry.getValue();
-            String artifactGroupId = artifactIdGroupEntry.getKey();
-            ArtifactIdGroup artifactGroup = repositoryArtifactIdGroupService.findOneOrCreate(repository.getStorage().getId(),
-                                                                                             repository.getId(),
-                                                                                             artifactGroupId);
-            Lock lock = repositoryPathLock.lock(artifactGroup).writeLock();
-            lock.lock();
-            try
-            {
-                ArtifactCoordinates lastVersion = saveArtifacts(artifacts, artifactGroup);
-                logger.debug("Last version for group [{}] is [{}] with [{}]",
-                             artifactGroup.getName(),
-                             lastVersion.getVersion(),
-                             lastVersion.getPath());
-                
-                artifactIdGroupRepository.merge(artifactGroup);
-            }
-            finally
-            {
-                lock.unlock();
-            }
-        }
-    }
-
-    private ArtifactCoordinates saveArtifacts(List<Artifact> artifacts,
-                                              ArtifactIdGroup artifactGroup)
-    {
-        ArtifactCoordinates lastVersion = null;
-        for (Artifact e : artifacts)
-        {
-            if (artifactEntityRepository.artifactExists(e.getStorageId(),
-                                                        e.getRepositoryId(),
-                                                        e.getArtifactCoordinates().buildPath()))
-            {
-                continue;
-            }
-
-            lastVersion = repositoryArtifactIdGroupService.addArtifactToGroup(artifactGroup, e);
-        }
-        return lastVersion;
+        repositoryArtifactIdGroupService.saveArtifacts(repository, artifactToSaveSet);
     }
 
     @Transactional
@@ -181,8 +112,7 @@ public class NpmPackageFeedParser
             artifactToSaveSet.add(remoteArtifactEntry);
         }
 
-        saveArtifactEntrySet(repository, artifactToSaveSet);
-
+        repositoryArtifactIdGroupService.saveArtifacts(repository, artifactToSaveSet);
     }
 
     private RemoteArtifactEntity parseVersion(String storageId,

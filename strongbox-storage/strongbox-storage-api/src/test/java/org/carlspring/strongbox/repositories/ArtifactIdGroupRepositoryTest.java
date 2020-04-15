@@ -24,6 +24,7 @@ import org.carlspring.strongbox.domain.ArtifactTagEntity;
 import org.carlspring.strongbox.domain.RemoteArtifact;
 import org.carlspring.strongbox.domain.RemoteArtifactEntity;
 import org.carlspring.strongbox.gremlin.tx.TransactionContext;
+import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.context.ActiveProfiles;
@@ -47,6 +48,7 @@ public class ArtifactIdGroupRepositoryTest
     private Graph graph;
 
     @Test
+    @Disabled
     @Transactional
     public void crudShouldWork()
     {
@@ -130,6 +132,7 @@ public class ArtifactIdGroupRepositoryTest
     }
 
     @Test
+    @Disabled
     @Transactional
     public void findOneShouldWork()
     {

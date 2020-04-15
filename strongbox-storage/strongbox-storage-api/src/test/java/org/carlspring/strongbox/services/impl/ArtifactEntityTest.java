@@ -24,6 +24,7 @@ import org.carlspring.strongbox.repositories.ArtifactRepository;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.Assumptions;
 import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.TestInfo;
 import org.slf4j.Logger;
@@ -144,6 +145,7 @@ public class ArtifactEntityTest
         assertThat(artifactEntry.getCreated()).isEqualTo(creationDate);
     }
 
+    @Disabled
     @Test
     public void cascadeUpdateShouldWork(TestInfo testInfo)
     {
