@@ -237,12 +237,5 @@ public class NpmArtifactCoordinates extends LayoutArtifactCoordinatesEntity<NpmA
     {
         return packageScope == null ? packageName : String.format("%s/%s", packageScope, packageName);
     }
-    
-    
-    public static void main(String args[]) {
-        NpmArtifactCoordinates a1 = NpmArtifactCoordinates.parse("react/react/0.0.0-dfabb77a9/react-0.0.0-dfabb77a9.tgz");
-        NpmArtifactCoordinates a2 = NpmArtifactCoordinates.parse("react/react/16.13.0/react-16.13.0.tgz");
-        
-        System.out.println(a1.compareTo(a2));
-    }
+
 }
