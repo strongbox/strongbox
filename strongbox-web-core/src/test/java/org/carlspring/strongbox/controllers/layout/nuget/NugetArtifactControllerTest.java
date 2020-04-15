@@ -232,37 +232,29 @@ public class NugetArtifactControllerTest extends NugetRestAssuredBaseTest
 
         // We need to mute `System.out` here manually because response body logging hardcoded in current version of
         // RestAssured, and we can not change it using configuration (@see `RestAssuredResponseOptionsGroovyImpl.peek(...)`).
-        PrintStream originalSysOut = muteSystemOutput();
-        try
-        {
-            // Get1
-            url = getContextBaseUrl() + "/storages/{storageId}/{repositoryId}/download/{artifactId}/{artifactVersion}";
-            mockMvc.header(HttpHeaders.USER_AGENT, "NuGet/*")
-                   .when()
-                   .get(url, storageId, repositoryId, packageId, packageVersion)
-                   .then()
-                   .log().status()
-                   .log().headers()
-                   .statusCode(HttpStatus.OK.value())
-                   .assertThat()
-                   .header(HttpHeaders.CONTENT_LENGTH, equalTo(String.valueOf(packageSize)));
+        // Get1
+        url = getContextBaseUrl() + "/storages/{storageId}/{repositoryId}/download/{artifactId}/{artifactVersion}";
+        mockMvc.header(HttpHeaders.USER_AGENT, "NuGet/*")
+               .when()
+               .get(url, storageId, repositoryId, packageId, packageVersion)
+               .then()
+               .log().status()
+               .log().headers()
+               .statusCode(HttpStatus.OK.value())
+               .assertThat()
+               .header(HttpHeaders.CONTENT_LENGTH, equalTo(String.valueOf(packageSize)));
 
-            // Get2
-            url = getContextBaseUrl() + "/storages/{storageId}/{repositoryId}/{artifactId}/{artifactVersion}";
-            mockMvc.header(HttpHeaders.USER_AGENT, "NuGet/*")
-                   .when()
-                   .get(url, storageId, repositoryId, packageId, packageVersion)
-                   .then()
-                   .log().status()
-                   .log().headers()
-                   .statusCode(HttpStatus.OK.value())
-                   .assertThat()
-                   .header(HttpHeaders.CONTENT_LENGTH, equalTo(String.valueOf(packageSize)));
-        }
-        finally
-        {
-            System.setOut(originalSysOut);
-        }
+        // Get2
+        url = getContextBaseUrl() + "/storages/{storageId}/{repositoryId}/{artifactId}/{artifactVersion}";
+        mockMvc.header(HttpHeaders.USER_AGENT, "NuGet/*")
+               .when()
+               .get(url, storageId, repositoryId, packageId, packageVersion)
+               .then()
+               .log().status()
+               .log().headers()
+               .statusCode(HttpStatus.OK.value())
+               .assertThat()
+               .header(HttpHeaders.CONTENT_LENGTH, equalTo(String.valueOf(packageSize)));
     }
 
     @ExtendWith({ RepositoryManagementTestExecutionListener.class,
@@ -312,25 +304,6 @@ public class NugetArtifactControllerTest extends NugetRestAssuredBaseTest
                .and()
                .assertThat()
                .body("feed.entry[0].title", equalTo(packageId));
-    }
-
-    /**
-     * Mute the system output to avoid malicious logging (binary content for example).
-     *
-     * @return
-     */
-    private PrintStream muteSystemOutput()
-    {
-        PrintStream original = System.out;
-        System.setOut(new PrintStream(new OutputStream()
-        {
-            public void write(int b)
-            {
-                //DO NOTHING
-            }
-        }));
-
-        return original;
     }
 
     @ExtendWith({ RepositoryManagementTestExecutionListener.class,
@@ -521,24 +494,16 @@ public class NugetArtifactControllerTest extends NugetRestAssuredBaseTest
         assertThat(artifactEntry).isInstanceOf(RemoteArtifactEntry.class);
         assertThat(((RemoteArtifactEntry)artifactEntry).getIsCached()).isFalse();
 
-        PrintStream originalSysOut = muteSystemOutput();
-        try
-        {
-            url = getContextBaseUrl() + "/storages/public/nuget-group/package/{artifactId}/{artifactVersion}";
-            mockMvc.header(HttpHeaders.USER_AGENT, "NuGet/*")
-                   .when()
-                   .get(url, packageId, packageVersion)
-                   .then()
-                   .log().status()
-                   .log().headers()
-                   .statusCode(HttpStatus.OK.value())
-                   .assertThat()
-                   .header(HttpHeaders.CONTENT_LENGTH, equalTo(String.valueOf(1499857)));
-        }
-        finally
-        {
-            System.setOut(originalSysOut);
-        }
+        url = getContextBaseUrl() + "/storages/public/nuget-group/package/{artifactId}/{artifactVersion}";
+        mockMvc.header(HttpHeaders.USER_AGENT, "NuGet/*")
+               .when()
+               .get(url, packageId, packageVersion)
+               .then()
+               .log().status()
+               .log().headers()
+               .statusCode(HttpStatus.OK.value())
+               .assertThat()
+               .header(HttpHeaders.CONTENT_LENGTH, equalTo(String.valueOf(1499857)));
     }
 
     @Test
