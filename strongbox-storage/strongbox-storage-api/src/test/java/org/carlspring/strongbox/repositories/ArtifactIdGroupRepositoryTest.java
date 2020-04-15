@@ -44,11 +44,12 @@ public class ArtifactIdGroupRepositoryTest
     @Inject
     private ArtifactTagRepository artifactTagRepository;
     @Inject
+    private ArtifactRepository artifactRepository;
+    @Inject
     @TransactionContext
     private Graph graph;
 
     @Test
-    @Disabled
     @Transactional
     public void crudShouldWork()
     {
@@ -78,7 +79,8 @@ public class ArtifactIdGroupRepositoryTest
         assertThat(artifactIdGroupEntity.getUuid()).isNotNull();
         assertThat(artifactIdGroupEntity.getStorageId()).isEqualTo(storageId);
         assertThat(artifactIdGroupEntity.getRepositoryId()).isEqualTo(repositoryId);
-        assertThat(artifactIdGroupEntity.getArtifacts()).containsOnly(artifactEntityOne, artifactEntityTwo,
+        assertThat(artifactIdGroupEntity.getArtifacts()).containsOnly(artifactEntityOne,
+                                                                      artifactEntityTwo,
                                                                       artifactEntityThree);
         assertThat(artifactIdGroupEntity.getArtifacts()).filteredOnAssertions(a -> assertThat(a).isInstanceOf(RemoteArtifact.class))
                                                         .hasSize(1);
@@ -88,13 +90,20 @@ public class ArtifactIdGroupRepositoryTest
                     .bothV()
                     .properties("uuid")
                     .map(p -> p.get().value())
-                    .toList()).contains(artifactEntityOne.getUuid(), artifactEntityTwo.getUuid(), artifactEntityThree.getUuid(),
+                    .toList()).contains(artifactEntityOne.getUuid(),
+                                        artifactEntityTwo.getUuid(),
+                                        artifactEntityThree.getUuid(),
                                         artifactIdGroupEntity.getUuid())
                               .hasSize(6);
 
         // Update
-        artifactIdGroupEntity.removeArtifact(artifactEntityOne);
-        artifactIdGroupEntity.removeArtifact(artifactEntityTwo);
+        artifactRepository.delete(artifactEntityOne);
+        artifactRepository.delete(artifactEntityTwo);
+        artifactIdGroupEntity = artifactIdGroupRepository.findById(artifactIdGroupEntity.getUuid())
+                                                         .map(ArtifactIdGroupEntity.class::cast)
+                                                         .get();
+        assertThat(artifactIdGroupEntity.getArtifacts()).containsOnly(artifactEntityThree);
+
         ArtifactTag latestVersionTag = artifactTagRepository.save(new ArtifactTagEntity(ArtifactTag.LAST_VERSION));
         artifactEntityOne.getTagSet().add(latestVersionTag);
         artifactIdGroupEntity.addArtifact(artifactEntityOne);
@@ -106,9 +115,11 @@ public class ArtifactIdGroupRepositoryTest
         assertThat(artifactIdGroupEntity.getArtifacts()).filteredOnAssertions(a -> assertThat(a.getTagSet()).contains(latestVersionTag))
                                                         .hasSize(1);
 
-        artifactIdGroupEntity.removeArtifact(artifactEntityOne);
-        artifactIdGroupEntity.removeArtifact(artifactEntityThree);
-        artifactIdGroupEntity = artifactIdGroupRepository.save(artifactIdGroupEntity);
+        artifactRepository.delete(artifactEntityOne);
+        artifactRepository.delete(artifactEntityThree);
+        artifactIdGroupEntity = artifactIdGroupRepository.findById(artifactIdGroupEntity.getUuid())
+                                                         .map(ArtifactIdGroupEntity.class::cast)
+                                                         .get();
         assertThat(artifactIdGroupEntity.getArtifacts()).isEmpty();
         assertThat(g.E()
                     .hasLabel(Edges.ARTIFACT_GROUP_HAS_ARTIFACTS)
@@ -124,7 +135,8 @@ public class ArtifactIdGroupRepositoryTest
         assertThat(g.V()
                     .label()
                     .toSet()).hasSize(3)
-                             .containsOnly(Vertices.RAW_ARTIFACT_COORDINATES, Vertices.GENERIC_ARTIFACT_COORDINATES,
+                             .containsOnly(Vertices.RAW_ARTIFACT_COORDINATES,
+                                           Vertices.GENERIC_ARTIFACT_COORDINATES,
                                            Vertices.ARTIFACT_TAG);
         assertThat(g.E()
                     .count()
@@ -132,7 +144,6 @@ public class ArtifactIdGroupRepositoryTest
     }
 
     @Test
-    @Disabled
     @Transactional
     public void findOneShouldWork()
     {
@@ -180,36 +191,41 @@ public class ArtifactIdGroupRepositoryTest
         artifactIdGroupEntityAnother.addArtifact(artifactEntityAnotherTwo);
         artifactIdGroupRepository.save(artifactIdGroupEntityAnother);
 
-        Optional<ArtifactIdGroup> artifactIdGroupOptional = artifactIdGroupRepository.findOne(storageId, repositoryId,
+        Optional<ArtifactIdGroup> artifactIdGroupOptional = artifactIdGroupRepository.findOne(storageId,
+                                                                                              repositoryId,
                                                                                               "path/to/resource/aigrt-fosw");
         assertThat(artifactIdGroupOptional).isNotEmpty();
         assertThat(artifactIdGroupOptional.get().getUuid()).isNotNull();
         assertThat(artifactIdGroupOptional.get().getStorageId()).isEqualTo(storageId);
         assertThat(artifactIdGroupOptional.get().getRepositoryId()).isEqualTo(repositoryId);
-        assertThat(artifactIdGroupOptional.get().getArtifacts()).containsOnly(artifactEntityOne, artifactEntityTwo,
+        assertThat(artifactIdGroupOptional.get().getArtifacts()).containsOnly(artifactEntityOne,
+                                                                              artifactEntityTwo,
                                                                               artifactEntityThree);
         assertThat(artifactIdGroupOptional.get()
                                           .getArtifacts()).filteredOnAssertions(a -> assertThat(a).isInstanceOf(RemoteArtifact.class))
                                                           .hasSize(1);
 
-        artifactIdGroupEntity.removeArtifact(artifactEntityOne);
-        artifactIdGroupEntity.removeArtifact(artifactEntityTwo);
-        artifactIdGroupEntity.removeArtifact(artifactEntityThree);
-        artifactIdGroupEntity = artifactIdGroupRepository.save(artifactIdGroupEntity);
+        artifactRepository.delete(artifactEntityOne);
+        artifactRepository.delete(artifactEntityTwo);
+        artifactRepository.delete(artifactEntityThree);
+        artifactIdGroupEntity = artifactIdGroupRepository.findById(artifactIdGroupEntity.getUuid())
+                                                         .map(ArtifactIdGroupEntity.class::cast)
+                                                         .get();
         assertThat(artifactIdGroupEntity.getArtifacts()).isEmpty();
         assertThat(g.E()
                     .hasLabel(Edges.ARTIFACT_GROUP_HAS_ARTIFACTS)
                     .count()
                     .next()).isEqualTo(2);
 
-        artifactIdGroupOptional = artifactIdGroupRepository.findOne(storageId, repositoryId,
+        artifactIdGroupOptional = artifactIdGroupRepository.findOne(storageId,
+                                                                    repositoryId,
                                                                     "path/to/resource/aigrt-fosw");
         assertThat(artifactIdGroupOptional).isNotEmpty();
         assertThat(artifactIdGroupOptional.get().getUuid()).isNotNull();
         assertThat(artifactIdGroupOptional.get().getArtifacts()).isEmpty();
 
     }
-    
+
     @Test
     @Transactional
     public void findArtifactsShouldWork()
@@ -242,10 +258,13 @@ public class ArtifactIdGroupRepositoryTest
         artifactIdGroupEntity.addArtifact(artifactEntityThree);
         artifactIdGroupRepository.save(artifactIdGroupEntity);
 
-        List<Artifact> artifacts = artifactIdGroupRepository.findArtifacts(storageId, repositoryId, "aigrt-fasw",
+        List<Artifact> artifacts = artifactIdGroupRepository.findArtifacts(storageId,
+                                                                           repositoryId,
+                                                                           "aigrt-fasw",
                                                                            Collections.singletonList(String.format(pathTemplate,
                                                                                                                    "10")),
-                                                                           0L, Integer.MAX_VALUE);
+                                                                           0L,
+                                                                           Integer.MAX_VALUE);
         assertThat(artifacts.size()).isEqualTo(1);
         assertThat(artifacts.stream().map(a -> a.getArtifactCoordinates().getId())).contains(String.format(pathTemplate, "10"));
     }
