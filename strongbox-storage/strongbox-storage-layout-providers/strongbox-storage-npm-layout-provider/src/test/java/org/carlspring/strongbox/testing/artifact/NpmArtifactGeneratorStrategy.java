@@ -23,7 +23,13 @@ public class NpmArtifactGeneratorStrategy implements ArtifactGeneratorStrategy<N
                                  Map<String, Object> attributesMap)
             throws IOException
     {
-        NpmArtifactCoordinates coordinates = new NpmArtifactCoordinates((String) attributesMap.get("scope"),
+    	 Object licenses = attributesMap.get("licenses");
+         if (licenses instanceof LicenseConfiguration[])
+         {
+             artifactGenerator.setLicenses((LicenseConfiguration[]) licenses);
+         }
+         
+    	NpmArtifactCoordinates coordinates = new NpmArtifactCoordinates((String) attributesMap.get("scope"),
                                                                         id,
                                                                         version,
                                                                         (String) attributesMap.get("extension"));
