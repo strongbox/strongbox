@@ -6,14 +6,17 @@ import java.util.concurrent.locks.Lock;
 
 import javax.inject.Inject;
 
+import org.apache.tinkerpop.gremlin.structure.Graph;
 import org.carlspring.strongbox.domain.Artifact;
 import org.carlspring.strongbox.event.AsyncEventListener;
 import org.carlspring.strongbox.event.artifact.ArtifactEvent;
 import org.carlspring.strongbox.event.artifact.ArtifactEventTypeEnum;
+import org.carlspring.strongbox.gremlin.dsl.EntityTraversalSource;
 import org.carlspring.strongbox.providers.io.RepositoryFiles;
 import org.carlspring.strongbox.providers.io.RepositoryPath;
 import org.carlspring.strongbox.providers.io.RepositoryPathLock;
 import org.carlspring.strongbox.repositories.ArtifactRepository;
+import org.janusgraph.core.JanusGraph;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.transaction.PlatformTransactionManager;
@@ -26,12 +29,12 @@ public abstract class AsyncArtifactEntryHandler
 
     @Inject
     private ArtifactRepository artifactEntityRepository;
-
     @Inject
     private RepositoryPathLock repositoryPathLock;
-
     @Inject
     private PlatformTransactionManager transactionManager;
+    @Inject
+    private JanusGraph janusGraph;
 
     private final ArtifactEventTypeEnum eventType;
 
@@ -59,21 +62,16 @@ public abstract class AsyncArtifactEntryHandler
         // TODO: this is needed just as workadound to have new transaction
         // within this async event (expected to be replaced with
         // just Propagation.REQUIRES_NEW after SB-1200)
-        Thread threadWithNewTransactionContext = new Thread(() -> {
-            try
-            {
-                handleLocked(repositoryPath);
-            }
-            catch (Exception e)
-            {
-                logger.error("Failed to handle async event [{}]",
-                             AsyncArtifactEntryHandler.this.getClass().getSimpleName(),
-                             e);
-            }
-        });
-
-        threadWithNewTransactionContext.start();
-        threadWithNewTransactionContext.join();
+        try
+        {
+            handleLocked(repositoryPath);
+        }
+        catch (Throwable e)
+        {
+            logger.error("Failed to handle async event [{}]",
+                         AsyncArtifactEntryHandler.this.getClass().getSimpleName(),
+                         e);
+        }
     }
 
     private void handleLocked(RepositoryPath repositoryPath)
@@ -96,27 +94,32 @@ public abstract class AsyncArtifactEntryHandler
 
     private void handleTransactional(RepositoryPath repositoryPath)
     {
-        new TransactionTemplate(transactionManager).execute(t -> {
-            try
+        Graph g = janusGraph.tx().createThreadedTx();
+        try
+        {
+            Artifact result = handleEvent(repositoryPath);
+            if (result == null)
             {
-                Artifact result = handleEvent(repositoryPath);
-                if (result == null)
-                {
-                    logger.debug("No [{}] result for event [{}] and path [{}].",
-                                 Artifact.class.getSimpleName(),
-                                 AsyncArtifactEntryHandler.this.getClass().getSimpleName(),
-                                 repositoryPath);
+                logger.debug("No [{}] result for event [{}] and path [{}].",
+                             Artifact.class.getSimpleName(),
+                             AsyncArtifactEntryHandler.this.getClass().getSimpleName(),
+                             repositoryPath);
 
-                    return null;
-                }
+                return;
+            }
 
-                return artifactEntityRepository.save(result);
-            }
-            catch (IOException e)
-            {
-                throw new UndeclaredThrowableException(e);
-            }
-        });
+            artifactEntityRepository.merge(() -> g.traversal(EntityTraversalSource.class), result);
+            g.tx().commit();
+        }
+        catch (Throwable e)
+        {
+            g.tx().rollback();
+            throw new UndeclaredThrowableException(e);
+        }
+        finally
+        {
+            g.tx().close();
+        }
     }
 
     protected abstract Artifact handleEvent(RepositoryPath repositoryPath)

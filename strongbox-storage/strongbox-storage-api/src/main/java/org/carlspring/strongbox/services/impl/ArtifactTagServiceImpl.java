@@ -9,6 +9,7 @@ import org.apache.tinkerpop.gremlin.structure.Graph;
 import org.carlspring.strongbox.artifact.ArtifactTag;
 import org.carlspring.strongbox.data.CacheName;
 import org.carlspring.strongbox.domain.ArtifactTagEntity;
+import org.carlspring.strongbox.gremlin.dsl.EntityTraversalSource;
 import org.carlspring.strongbox.repositories.ArtifactTagRepository;
 import org.carlspring.strongbox.services.ArtifactTagService;
 import org.janusgraph.core.JanusGraph;
@@ -39,7 +40,7 @@ public class ArtifactTagServiceImpl implements ArtifactTagService
             Graph g = janusGraph.tx().createThreadedTx();
             try
             {
-                ArtifactTagEntity result = artifactTagRepository.save(artifactTagEntry);
+                ArtifactTagEntity result = artifactTagRepository.save(() -> g.traversal(EntityTraversalSource.class), artifactTagEntry);
                 g.tx().commit();
 
                 return result;
