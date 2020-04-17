@@ -19,8 +19,6 @@ import org.carlspring.strongbox.repositories.ArtifactRepository;
 import org.janusgraph.core.JanusGraph;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.transaction.PlatformTransactionManager;
-import org.springframework.transaction.support.TransactionTemplate;
 
 public abstract class AsyncArtifactEntryHandler
 {
@@ -31,8 +29,6 @@ public abstract class AsyncArtifactEntryHandler
     private ArtifactRepository artifactEntityRepository;
     @Inject
     private RepositoryPathLock repositoryPathLock;
-    @Inject
-    private PlatformTransactionManager transactionManager;
     @Inject
     private JanusGraph janusGraph;
 
@@ -59,17 +55,15 @@ public abstract class AsyncArtifactEntryHandler
             return;
         }
 
-        // TODO: this is needed just as workadound to have new transaction
-        // within this async event (expected to be replaced with
-        // just Propagation.REQUIRES_NEW after SB-1200)
         try
         {
             handleLocked(repositoryPath);
         }
         catch (Throwable e)
         {
-            logger.error("Failed to handle async event [{}]",
+            logger.error("Failed to handle async event [{}] for [{}]",
                          AsyncArtifactEntryHandler.this.getClass().getSimpleName(),
+                         repositoryPath,
                          e);
         }
     }
@@ -78,8 +72,7 @@ public abstract class AsyncArtifactEntryHandler
         throws IOException,
         InterruptedException
     {
-        Lock lock = repositoryPathLock.lock(repositoryPath,
-                                            Artifact.class.getSimpleName())
+        Lock lock = repositoryPathLock.lock(repositoryPath)
                                       .writeLock();
         lock.lock();
         try
@@ -104,7 +97,8 @@ public abstract class AsyncArtifactEntryHandler
                              Artifact.class.getSimpleName(),
                              AsyncArtifactEntryHandler.this.getClass().getSimpleName(),
                              repositoryPath);
-
+                g.tx().rollback();
+                
                 return;
             }
 

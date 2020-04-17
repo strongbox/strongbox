@@ -193,7 +193,7 @@ public abstract class AbstractRepositoryProvider implements RepositoryProvider, 
         {
             artifactEventListenerRegistry.dispatchArtifactUpdatedEvent(repositoryPath);
         }
-        else
+        else if (RepositoryFiles.isArtifact(repositoryPath))
         {
             artifactEventListenerRegistry.dispatchArtifactStoredEvent(repositoryPath);
         }
