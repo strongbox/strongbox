@@ -159,7 +159,6 @@ public class NpmArtifactGenerator
     {
         Path packageJsonPath = packagePath.getParent().resolve("package.json");
         setLicensesInJson();
-        
         try (OutputStream out = new BufferedOutputStream(
                 Files.newOutputStream(packageJsonPath, StandardOpenOption.CREATE)))
         {
@@ -170,8 +169,9 @@ public class NpmArtifactGenerator
         tarOut.putArchiveEntry(entry);
 
         Files.copy(packageJsonPath, tarOut);
-
+        
         tarOut.closeArchiveEntry();
+
     }
     
     private void setLicensesInJson()
