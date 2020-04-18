@@ -81,7 +81,9 @@ public class RepositoryStreamSupport
         
         logger.debug("Locking [{}].", path);
         
-        Lock lock = ctx instanceof RepositoryStreamWriteContext ? lockSource.writeLock() : lockSource.readLock();
+        //TODO: ArtifactManagementServiceImplTest.testConcurrentReadWrite
+        //Lock lock = ctx instanceof RepositoryStreamWriteContext ? lockSource.writeLock() : lockSource.readLock();
+        Lock lock = lockSource.writeLock();
         ctx.setLock(lock);
         lock.lock();
 

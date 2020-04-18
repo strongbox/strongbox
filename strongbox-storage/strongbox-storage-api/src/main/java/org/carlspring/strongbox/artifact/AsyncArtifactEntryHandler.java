@@ -3,6 +3,7 @@ package org.carlspring.strongbox.artifact;
 import java.io.IOException;
 import java.lang.reflect.UndeclaredThrowableException;
 import java.util.concurrent.locks.Lock;
+import java.util.concurrent.locks.ReadWriteLock;
 
 import javax.inject.Inject;
 
@@ -72,8 +73,8 @@ public abstract class AsyncArtifactEntryHandler
         throws IOException,
         InterruptedException
     {
-        Lock lock = repositoryPathLock.lock(repositoryPath)
-                                      .writeLock();
+        ReadWriteLock lockSource = repositoryPathLock.lock(repositoryPath);
+        Lock lock = lockSource.writeLock();
         lock.lock();
         try
         {
