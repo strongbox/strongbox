@@ -2,10 +2,7 @@ package org.carlspring.strongbox.artifact.generation;
 
 import org.carlspring.strongbox.config.Maven2LayoutProviderTestConfig;
 import org.carlspring.strongbox.storage.repository.Repository;
-import org.carlspring.strongbox.testing.artifact.ArtifactManagementTestExecutionListener;
-import org.carlspring.strongbox.testing.artifact.LicenseConfiguration;
-import org.carlspring.strongbox.testing.artifact.LicenseType;
-import org.carlspring.strongbox.testing.artifact.MavenTestArtifact;
+import org.carlspring.strongbox.testing.artifact.*;
 import org.carlspring.strongbox.testing.repository.MavenRepository;
 import org.carlspring.strongbox.testing.storage.repository.RepositoryManagementTestExecutionListener;
 
@@ -14,8 +11,10 @@ import java.io.InputStream;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.List;
+import java.util.jar.Attributes;
 import java.util.jar.JarEntry;
 import java.util.jar.JarFile;
+import java.util.jar.Manifest;
 
 import org.apache.commons.codec.digest.MessageDigestAlgorithms;
 import org.apache.maven.model.License;
@@ -55,9 +54,9 @@ public class MavenArtifactGeneratorTest
                                                           id = "org.carlspring.strongbox.testing:matg",
                                                           versions = "1.2.3",
                                                           bytesSize = 2048,
-                                                          licenses = { @LicenseConfiguration(license = LicenseType.APACHE_2_0,
-                                                                                             destinationPath = "META-INF/LICENSE-Apache-2.0.md"),
-                                                                       @LicenseConfiguration(license = LicenseType.MIT) })
+                                                          licenses = { @MavenLicenseConfiguration(license = LicenseType.APACHE_2_0,
+                                                                                                  destinationPath = "META-INF/LICENSE-Apache-2.0.md"),
+                                                                       @MavenLicenseConfiguration(license = LicenseType.MIT) })
                                        Path artifactPath)
             throws Exception
     {
@@ -126,7 +125,19 @@ public class MavenArtifactGeneratorTest
                     .as("Did not find a license that was expected at the default location in the JAR!")
                     .isNotNull();
 
-            // 2) Check that the POM contains the list of licenses
+            // 2) Check the manifest
+            Manifest manifest = jf.getManifest();
+
+            assertThat(manifest).as("Failed to read manifest from META-INF/MANIFEST.MF!").isNotNull();
+
+            Attributes mainAttributes = manifest.getMainAttributes();
+
+            String listOfLicenseUrls = (String) mainAttributes.get(new Attributes.Name("Bundle-License"));
+            assertThat(listOfLicenseUrls).as("No licenses defined via the 'Bundle-License' attribute!").isNotNull();
+            assertThat(listOfLicenseUrls).as("Identified licenses do not match expected ones!")
+                                         .isEqualTo(LicenseType.APACHE_2_0.getUrl() + ", " + LicenseType.MIT.getUrl());
+
+            // 3) Check that the POM contains the list of licenses
             JarEntry pomEntry = jf.getJarEntry("META-INF/maven/org.carlspring.strongbox.testing/matg/pom.xml");
 
             assertThat(pomEntry).as("Did not find a POM inside the JAR!").isNotNull();
