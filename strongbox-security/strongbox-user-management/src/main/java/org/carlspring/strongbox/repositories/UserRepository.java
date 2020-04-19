@@ -1,7 +1,9 @@
 package org.carlspring.strongbox.repositories;
 
+import com.google.common.collect.Lists;
 import java.util.List;
 
+import java.util.stream.Collectors;
 import javax.inject.Inject;
 import javax.transaction.Transactional;
 
@@ -33,7 +35,11 @@ public class UserRepository extends GremlinVertexRepository<User>
 
     public List<User> findUsersWithRole(String role)
     {
-        return queries.findUsersWithRole(role);
+        return queries.findAllUsers()
+                      .stream()
+                      .filter(user -> user.getRoles().contains(role))
+                      .collect(Collectors.toList());
+        // return queries.findUsersWithRole(roles);
     }
 
     @Override
@@ -47,8 +53,8 @@ public class UserRepository extends GremlinVertexRepository<User>
     {
         return queries.findAllUsers();
     }
-    
-    
+
+
 }
 
 @Repository
@@ -56,6 +62,7 @@ interface UserQueries
         extends org.springframework.data.repository.Repository<User, String>
 {
 
+    // TODO :: find solution to query collection datatype
     @Query("MATCH (user:User) " +
            "WHERE $role IN (user.roles) " +
            "RETURN user")
