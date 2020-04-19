@@ -354,6 +354,21 @@ public abstract class LayoutFileSystemProvider extends StorageFileSystemProvider
     {
 
     }
+    
+    public Boolean artifactExists(RepositoryPath repositoryPath) throws IOException
+    {
+        Repository repository = repositoryPath.getRepository();
+        if (repository.isGroupRepository() || !RepositoryFiles.isArtifact(repositoryPath))
+        {
+            return Files.exists(repositoryPath);
+        }
+        
+        String repositoryId = repositoryPath.getRepositoryId();
+        String storageId = repositoryPath.getStorageId();
+        String path = RepositoryFiles.relativizePath(repositoryPath);
+        
+        return artifactEntityRepository.artifactExists(storageId, repositoryId, path);
+    }
 
     public class PathOutputStreamSupplier implements OutputStreamSupplier
     {

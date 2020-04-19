@@ -192,7 +192,7 @@ public class ArtifactRepositoryTest
         String repositoryId = "repository-art-aesw";
         String path = "path/to/resource/art-aesw-10.jar";
 
-        assertThat(artifactRepository.artifactEntityExists(storageId, repositoryId, path)).isFalse();
+        assertThat(artifactRepository.artifactExists(storageId, repositoryId, path)).isFalse();
 
         RawArtifactCoordinates artifactCoordinates = new RawArtifactCoordinates();
         artifactCoordinates.setId(path);

@@ -7,9 +7,14 @@ import java.util.Optional;
 import javax.inject.Inject;
 import javax.transaction.Transactional;
 
+import org.apache.tinkerpop.gremlin.process.traversal.dsl.graph.__;
+import org.apache.tinkerpop.gremlin.structure.Vertex;
+import org.carlspring.strongbox.db.schema.Edges;
+import org.carlspring.strongbox.db.schema.Vertices;
 import org.carlspring.strongbox.domain.Artifact;
 import org.carlspring.strongbox.gremlin.adapters.ArtifactHierarchyAdapter;
 import org.carlspring.strongbox.gremlin.adapters.EntityTraversalUtils;
+import org.carlspring.strongbox.gremlin.dsl.EntityTraversal;
 import org.carlspring.strongbox.gremlin.repositories.GremlinVertexRepository;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
@@ -66,14 +71,24 @@ public class ArtifactRepository extends GremlinVertexRepository<Artifact> implem
     {
         return Optional.ofNullable(queries.artifactEntityExists(storageId, repositoryId, path)).orElse(Boolean.FALSE);
     }
-    
-    
 
     public Boolean artifactExists(String storageId,
-                                  String repositoryId,
-                                  String path)
+                                            String repositoryId,
+                                            String path)
     {
-        return queries.artifactExists(storageId, repositoryId, path);
+        EntityTraversal<Vertex, Vertex> t = g().V()
+                                               .hasLabel(Vertices.GENERIC_ARTIFACT_COORDINATES)
+                                               .has("uuid", path)
+                                               .inE(Edges.ARTIFACT_HAS_ARTIFACT_COORDINATES)
+                                               .otherV()
+                                               .hasLabel(Vertices.ARTIFACT)
+                                               .has("storageId", storageId)
+                                               .has("repositoryId", repositoryId)
+                                               .optional(__.inE(Edges.REMOTE_ARTIFACT_INHERIT_ARTIFACT).otherV())
+                                               .choose(__.hasLabel(Vertices.REMOTE_ARTIFACT),
+                                                       __.has("cached", true),
+                                                       __.identity());
+        return t.hasNext();
     }
 
     public List<Artifact> findOneArtifactHierarchy(String storageId,
@@ -139,15 +154,6 @@ interface ArtifactEntityQueries extends org.springframework.data.repository.Repo
     Boolean artifactEntityExists(@Param("storageId") String storageId,
                                  @Param("repositoryId") String repositoryId,
                                  @Param("path") String path);
-
-    @Query("MATCH (genericCoordinates:GenericArtifactCoordinates)<-[r1]-(artifact:Artifact) " +
-           "WHERE genericCoordinates.uuid=$path and artifact.storageId=$storageId and artifact.repositoryId=$repositoryId " +
-           "WITH artifact " +
-           "OPTIONAL MATCH (artifact)<-[r3]-(remoteArtifact) " +
-           "RETURN remoteArtifact IS NULL OR remoteArtifact.cached = true")
-    Boolean artifactExists(@Param("storageId") String storageId,
-                           @Param("repositoryId") String repositoryId,
-                           @Param("path") String path);
 
     @Query("MATCH (genericCoordinates:GenericArtifactCoordinates)<-[r1]-(artifact:Artifact) " +
            "WHERE genericCoordinates.uuid=$path and artifact.storageId=$storageId and artifact.repositoryId=$repositoryId " +

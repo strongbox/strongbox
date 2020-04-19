@@ -32,7 +32,7 @@ public abstract class LayoutFileSystem
     public static final String TEMP = ".temp";
 
     private final Repository repository;
-    private final StorageFileSystemProvider provider;
+    private final LayoutFileSystemProvider provider;
     
     public LayoutFileSystem(PropertiesBooter propertiesBooter,
                             Repository repository,
@@ -50,7 +50,7 @@ public abstract class LayoutFileSystem
     }
 
     @Override
-    public StorageFileSystemProvider provider()
+    public LayoutFileSystemProvider provider()
     {
         return provider;
     }
