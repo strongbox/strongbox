@@ -4,8 +4,8 @@ import org.carlspring.commons.encryption.EncryptionAlgorithmsEnum;
 import org.carlspring.commons.io.MultipleDigestInputStream;
 import org.carlspring.commons.io.MultipleDigestOutputStream;
 import org.carlspring.strongbox.artifact.MavenArtifactUtils;
-import org.carlspring.strongbox.testing.artifact.LicenseConfiguration;
 import org.carlspring.strongbox.testing.artifact.MavenArtifactTestUtils;
+import org.carlspring.strongbox.testing.artifact.MavenLicenseConfiguration;
 import org.carlspring.strongbox.util.TestFileUtils;
 
 import java.io.*;
@@ -18,8 +18,10 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Properties;
 import java.util.Random;
+import java.util.jar.Attributes;
 import java.util.jar.JarEntry;
 import java.util.jar.JarOutputStream;
+import java.util.jar.Manifest;
 
 import org.apache.commons.io.IOUtils;
 import org.apache.maven.artifact.Artifact;
@@ -31,6 +33,7 @@ import org.apache.maven.model.io.xpp3.MavenXpp3Writer;
 import org.codehaus.plexus.util.WriterFactory;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.util.StringUtils;
 
 /**
  * @author mtodorov
@@ -44,7 +47,7 @@ public class MavenArtifactGenerator implements ArtifactGenerator
 
     protected Path basedir;
 
-    private LicenseConfiguration[] licenses;
+    private MavenLicenseConfiguration[] licenses;
 
 
     public MavenArtifactGenerator()
@@ -171,7 +174,7 @@ public class MavenArtifactGenerator implements ArtifactGenerator
         //noinspection ResultOfMethodCallIgnored
         artifactFile.getParentFile().mkdirs();
 
-        try (JarOutputStream zos = new JarOutputStream(newOutputStream(artifactFile)))
+        try (JarOutputStream zos = new JarOutputStream(newOutputStream(artifactFile), createManifest()))
         {
             createMavenPropertiesFile(artifact, zos);
             addMavenPomFile(artifact, zos);
@@ -183,17 +186,48 @@ public class MavenArtifactGenerator implements ArtifactGenerator
         generateChecksumsForArtifact(artifactFile);
     }
 
+    public Manifest createManifest()
+    {
+        Manifest manifest = new Manifest();
+        Attributes mainAttributes = manifest.getMainAttributes();
+        mainAttributes.put(Attributes.Name.MANIFEST_VERSION, "1.0.0");
+        mainAttributes.put(new Attributes.Name("Created-By"), "strongbox-maven-test-artifact-generator");
+
+        if (licenses != null)
+        {
+            String licenseUrls = "";
+            for (MavenLicenseConfiguration licenseConfiguration : licenses)
+            {
+                if (StringUtils.isEmpty(licenseUrls))
+                {
+                    licenseUrls = licenseConfiguration.license().getUrl();
+                }
+                else
+                {
+                    licenseUrls += ", " + licenseConfiguration.license().getUrl();
+                }
+            }
+
+            if (!StringUtils.isEmpty(licenseUrls))
+            {
+                mainAttributes.put(new Attributes.Name("Bundle-License"), licenseUrls);
+            }
+        }
+
+        return manifest;
+    }
+
     private void copyLicenseFiles(JarOutputStream jos)
             throws IOException
     {
         if (licenses != null && licenses.length > 0)
         {
-            for (LicenseConfiguration licenseConfiguration : licenses)
+            for (MavenLicenseConfiguration licenseConfiguration : licenses)
             {
                 JarEntry jarEntry = new JarEntry(licenseConfiguration.destinationPath());
                 jos.putNextEntry(jarEntry);
 
-                copyLicenseFile(licenseConfiguration, jos);
+                copyLicenseFile(licenseConfiguration.license().getLicenseFileSourcePath(), jos);
                 jos.closeEntry();
             }
         }
@@ -331,7 +365,7 @@ public class MavenArtifactGenerator implements ArtifactGenerator
         {
             List<License> pomLicenses = new ArrayList<>();
 
-            for (LicenseConfiguration licenseConfiguration : licenses)
+            for (MavenLicenseConfiguration licenseConfiguration : licenses)
             {
                 License license = new License();
                 license.setName(licenseConfiguration.license().getName());
@@ -389,12 +423,12 @@ public class MavenArtifactGenerator implements ArtifactGenerator
         return basedir;
     }
 
-    public LicenseConfiguration[] getLicenses()
+    public MavenLicenseConfiguration[] getLicenses()
     {
         return licenses;
     }
 
-    public void setLicenses(LicenseConfiguration[] licenses)
+    public void setLicenses(MavenLicenseConfiguration[] licenses)
     {
         this.licenses = licenses;
     }
