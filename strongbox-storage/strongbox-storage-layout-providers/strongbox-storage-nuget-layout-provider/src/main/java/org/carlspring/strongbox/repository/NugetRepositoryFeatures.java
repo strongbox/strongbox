@@ -200,11 +200,7 @@ public class NugetRepositoryFeatures
             String packageVersion = packageEntry.getProperties().getVersion().toString();
 
             NugetArtifactCoordinates c = new NugetArtifactCoordinates(packageId, packageVersion, "nupkg");
-            if (artifactEntityRepository.artifactExists(storageId, repositoryId, c.buildPath()))
-            {
-                continue;
-            }
-
+            
             RemoteArtifactEntity remoteArtifactEntry = new RemoteArtifactEntity(storageId, repositoryId, c);
             remoteArtifactEntry.setStorageId(storageId);
             remoteArtifactEntry.setRepositoryId(repositoryId);

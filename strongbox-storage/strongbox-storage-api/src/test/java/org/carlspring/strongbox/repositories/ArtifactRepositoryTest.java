@@ -166,23 +166,55 @@ public class ArtifactRepositoryTest
 
     @Test
     @Transactional
-    public void existsShouldWork()
+    public void artifactEntityExistsShouldWork()
     {
         GraphTraversalSource g = graph.traversal();
         String storageId = "storage0";
         String repositoryId = "repository-art-esw";
         String path = "path/to/resource/art-esw-10.jar";
 
-        assertThat(artifactRepository.artifactExists(storageId, repositoryId, path)).isFalse();
+        assertThat(artifactRepository.artifactEntityExists(storageId, repositoryId, path)).isFalse();
 
         RawArtifactCoordinates artifactCoordinates = new RawArtifactCoordinates();
         artifactCoordinates.setId(path);
         ArtifactEntity artifactEntity = new ArtifactEntity(storageId, repositoryId, artifactCoordinates);
         artifactRepository.save(artifactEntity);
 
-        assertThat(artifactRepository.artifactExists(storageId, repositoryId, path)).isTrue();
+        assertThat(artifactRepository.artifactEntityExists(storageId, repositoryId, path)).isTrue();
     }
 
+    @Test
+    @Transactional
+    public void artifactExistsShouldWork()
+    {
+        GraphTraversalSource g = graph.traversal();
+        String storageId = "storage0";
+        String repositoryId = "repository-art-aesw";
+        String path = "path/to/resource/art-aesw-10.jar";
+
+        assertThat(artifactRepository.artifactEntityExists(storageId, repositoryId, path)).isFalse();
+
+        RawArtifactCoordinates artifactCoordinates = new RawArtifactCoordinates();
+        artifactCoordinates.setId(path);
+        ArtifactEntity artifactEntity = new ArtifactEntity(storageId, repositoryId, artifactCoordinates);
+        artifactRepository.save(artifactEntity);
+        assertThat(artifactRepository.artifactExists(storageId, repositoryId, path)).isTrue();
+        
+        String remotePath = "path/to/resource/art-aesw-remote-10.jar";
+        RawArtifactCoordinates remoteArtifactCoordinates = new RawArtifactCoordinates();
+        remoteArtifactCoordinates.setId(remotePath);
+        RemoteArtifactEntity remoteArtifactEntity = new RemoteArtifactEntity("storage0", repositoryId, remoteArtifactCoordinates);
+        remoteArtifactEntity.setIsCached(false);
+        remoteArtifactEntity = artifactRepository.save(remoteArtifactEntity);
+        assertThat(remoteArtifactEntity.getIsCached()).isFalse();
+        assertThat(artifactRepository.artifactExists(storageId, repositoryId, remotePath)).isFalse();
+        
+        remoteArtifactEntity.setIsCached(true);
+        remoteArtifactEntity = artifactRepository.save(remoteArtifactEntity);
+        assertThat(artifactRepository.artifactExists(storageId, repositoryId, remotePath)).isTrue();
+    }
+
+    
     @Test
     @Transactional
     public void findByPathLikeShouldWork()

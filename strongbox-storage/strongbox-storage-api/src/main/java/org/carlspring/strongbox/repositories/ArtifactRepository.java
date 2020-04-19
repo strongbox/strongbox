@@ -60,11 +60,20 @@ public class ArtifactRepository extends GremlinVertexRepository<Artifact> implem
         return new PageImpl<>(EntityTraversalUtils.reduceHierarchy(result.toList()), pagination, result.getTotalElements());
     }
 
+    public Boolean artifactEntityExists(String storageId,
+                                        String repositoryId,
+                                        String path)
+    {
+        return Optional.ofNullable(queries.artifactEntityExists(storageId, repositoryId, path)).orElse(Boolean.FALSE);
+    }
+    
+    
+
     public Boolean artifactExists(String storageId,
                                   String repositoryId,
                                   String path)
     {
-        return Optional.ofNullable(queries.artifactExists(storageId, repositoryId, path)).orElse(Boolean.FALSE);
+        return queries.artifactExists(storageId, repositoryId, path);
     }
 
     public List<Artifact> findOneArtifactHierarchy(String storageId,
@@ -88,7 +97,7 @@ public class ArtifactRepository extends GremlinVertexRepository<Artifact> implem
                               a2) -> a1.getClass().isInstance(a2) ? a1 : a2)
                      .get();
     }
-    
+
 }
 
 @Repository
@@ -127,6 +136,15 @@ interface ArtifactEntityQueries extends org.springframework.data.repository.Repo
     @Query("MATCH (genericCoordinates:GenericArtifactCoordinates)<-[r1]-(artifact:Artifact) " +
            "WHERE genericCoordinates.uuid=$path and artifact.storageId=$storageId and artifact.repositoryId=$repositoryId " +
            "RETURN EXISTS(artifact.uuid)")
+    Boolean artifactEntityExists(@Param("storageId") String storageId,
+                                 @Param("repositoryId") String repositoryId,
+                                 @Param("path") String path);
+
+    @Query("MATCH (genericCoordinates:GenericArtifactCoordinates)<-[r1]-(artifact:Artifact) " +
+           "WHERE genericCoordinates.uuid=$path and artifact.storageId=$storageId and artifact.repositoryId=$repositoryId " +
+           "WITH artifact " +
+           "OPTIONAL MATCH (artifact)<-[r3]-(remoteArtifact) " +
+           "RETURN remoteArtifact IS NULL OR remoteArtifact.cached = true")
     Boolean artifactExists(@Param("storageId") String storageId,
                            @Param("repositoryId") String repositoryId,
                            @Param("path") String path);

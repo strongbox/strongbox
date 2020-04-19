@@ -93,7 +93,7 @@ public class ArtifactIdGroupServiceImpl
         ArtifactCoordinates lastVersion = null;
         for (Artifact e : artifacts)
         {
-            if (artifactRepository.artifactExists(e.getStorageId(),
+            if (artifactRepository.artifactEntityExists(e.getStorageId(),
                                                   e.getRepositoryId(),
                                                   e.getArtifactCoordinates().buildPath()))
             {
