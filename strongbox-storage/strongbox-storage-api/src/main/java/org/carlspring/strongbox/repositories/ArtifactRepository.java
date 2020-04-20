@@ -103,6 +103,7 @@ public class ArtifactRepository extends GremlinVertexRepository<Artifact> implem
                                                  .hasLabel(Vertices.ARTIFACT)
                                                  .has("storageId", storageId)
                                                  .has("repositoryId", repositoryId)
+                                                 .optional(__.inE(Edges.REMOTE_ARTIFACT_INHERIT_ARTIFACT).otherV())
                                                  .map(artifactAdapter.fold());
         if (!t.hasNext()) {
             return null;
