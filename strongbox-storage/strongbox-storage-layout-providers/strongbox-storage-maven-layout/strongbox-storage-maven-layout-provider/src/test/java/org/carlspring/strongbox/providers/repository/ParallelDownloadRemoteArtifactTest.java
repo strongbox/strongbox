@@ -241,6 +241,7 @@ public class ParallelDownloadRemoteArtifactTest
             throws IOException
         {
             super.close();
+            remoteArtifactInputStream = new RemoteArtifactInputStreamStub(jarArtifact);
         }
 
         private void verifyRead()
