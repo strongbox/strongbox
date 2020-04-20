@@ -125,6 +125,7 @@ public class NpmArtifactGenerator
             for (LicenseConfiguration licenseConfiguration : licenses)
             {
                 TarArchiveEntry tarEntry = new TarArchiveEntry(licenseConfiguration.destinationPath());
+                tarEntry.setSize(getLicenseFileSize(licenseConfiguration));
                 tarOut.putArchiveEntry(tarEntry);
 
                 copyLicenseFile(licenseConfiguration, tarOut);
