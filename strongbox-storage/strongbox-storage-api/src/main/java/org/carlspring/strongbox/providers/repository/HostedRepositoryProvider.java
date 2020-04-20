@@ -135,7 +135,7 @@ public class HostedRepositoryProvider extends AbstractRepositoryProvider
 
     private boolean artifactNotExists(RepositoryPath repositoryPath) throws IOException
     {
-        return RepositoryFiles.artifactDoesNotExist(repositoryPath);
+        return !RepositoryFiles.artifactExists(repositoryPath);
     }
 
 }

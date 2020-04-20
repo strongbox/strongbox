@@ -179,12 +179,6 @@ public abstract class RepositoryFiles
     {
         return repositoryPath.getFileSystem().provider().artifactExists(repositoryPath);
     }
-    
-    public static boolean artifactDoesNotExist(RepositoryPath repositoryPath)
-        throws IOException
-    {
-        return !artifactExists(repositoryPath);
-    }
 
     public static void deleteTrash(RepositoryPath repositoryPath)
         throws IOException

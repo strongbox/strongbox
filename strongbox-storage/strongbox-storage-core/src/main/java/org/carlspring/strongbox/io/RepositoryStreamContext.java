@@ -16,7 +16,7 @@ public class RepositoryStreamContext
 
     private TransactionStatus transaction;
 
-    private Boolean artifactUpdate;
+    private Boolean artifactExists;
 
     public Path getPath()
     {
@@ -57,15 +57,15 @@ public class RepositoryStreamContext
     {
         this.transaction = transaction;
     }
-    
-    public Boolean getArtifactUpdate()
+
+    public Boolean getArtifactExists()
     {
-        return artifactUpdate;
+        return artifactExists;
     }
 
-    public void setArtifactUpdate(Boolean artifactUpdate)
+    public void setArtifactExists(Boolean artifactExists)
     {
-        this.artifactUpdate = artifactUpdate;
+        this.artifactExists = artifactExists;
     }
 
 }

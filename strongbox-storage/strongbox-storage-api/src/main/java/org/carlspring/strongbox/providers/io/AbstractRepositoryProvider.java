@@ -189,16 +189,16 @@ public abstract class AbstractRepositoryProvider implements RepositoryProvider, 
         RepositoryPath repositoryPath = (RepositoryPath) ctx.getPath();
         logger.debug("Complete writing [{}]", repositoryPath);
         
-        if (ctx.getArtifactUpdate())
-        {
-            artifactEventListenerRegistry.dispatchArtifactUpdatedEvent(repositoryPath);
-        }
-        else if (RepositoryFiles.isArtifact(repositoryPath))
-        {
-            artifactEventListenerRegistry.dispatchArtifactStoredEvent(repositoryPath);
-        }
-
-        if (RepositoryFiles.isMetadata(repositoryPath))
+        if (RepositoryFiles.isArtifact(repositoryPath)) {
+            if (ctx.getArtifactExists())
+            {
+                artifactEventListenerRegistry.dispatchArtifactUpdatedEvent(repositoryPath);
+            }
+            else
+            {
+                artifactEventListenerRegistry.dispatchArtifactStoredEvent(repositoryPath);
+            }            
+        } else if (RepositoryFiles.isMetadata(repositoryPath))
         {
             artifactEventListenerRegistry.dispatchArtifactMetadataStoredEvent(repositoryPath);
         }
@@ -214,13 +214,6 @@ public abstract class AbstractRepositoryProvider implements RepositoryProvider, 
         if (!RepositoryFiles.isArtifact(repositoryPath))
         {
             return;
-        }
-
-        if (RepositoryFiles.artifactDoesNotExist(repositoryPath))
-        {
-            URI artifactResource = RepositoryFiles.resolveResource(repositoryPath);
-            
-            throw new ArtifactNotFoundException(artifactResource);
         }
         
         artifactEventListenerRegistry.dispatchArtifactDownloadingEvent(repositoryPath);

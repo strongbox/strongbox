@@ -98,9 +98,9 @@ public class RepositoryStreamSupport
             RepositoryPath repositoryPath = (RepositoryPath) ctx.getPath();
             if (RepositoryFiles.artifactExists(repositoryPath))
             {
-                ctx.setArtifactUpdate(RepositoryFiles.isArtifact(repositoryPath));
+                ctx.setArtifactExists(RepositoryFiles.isArtifact(repositoryPath));
             } else {
-                ctx.setArtifactUpdate(false);
+                ctx.setArtifactExists(false);
             }
         }
         
@@ -245,7 +245,7 @@ public class RepositoryStreamSupport
                 open();
                 
                 //Check that artifact exists.
-                if (!RepositoryFiles.artifactExists((RepositoryPath) path)) 
+                if (!ctx.getArtifactExists()) 
                 {
                     logger.debug("The path [{}] does not exist!", path);
                     
