@@ -94,15 +94,10 @@ public class RepositoryStreamSupport
             TransactionStatus transaction = transactionManager.getTransaction(new DefaultTransactionDefinition(
                     Propagation.REQUIRED.value()));
             ctx.setTransaction(transaction);
-
-            RepositoryPath repositoryPath = (RepositoryPath) ctx.getPath();
-            if (RepositoryFiles.artifactExists(repositoryPath))
-            {
-                ctx.setArtifactExists(RepositoryFiles.isArtifact(repositoryPath));
-            } else {
-                ctx.setArtifactExists(false);
-            }
         }
+        
+        RepositoryPath repositoryPath = (RepositoryPath) ctx.getPath();
+        ctx.setArtifactExists(RepositoryFiles.artifactExists(repositoryPath));
         
         ctx.setOpened(true);
     }
