@@ -34,11 +34,11 @@ public class UserRepository extends GremlinVertexRepository<User>
 
     public List<User> findUsersWithRole(String role)
     {
-        return queries.findAllUsers()
-                      .stream()
-                      .filter(user -> user.getRoles().contains(role))
-                      .collect(Collectors.toList());
-        // return queries.findUsersWithRole(roles);
+        //return queries.findAllUsers()
+        //              .stream()
+        //              .filter(user -> user.getRoles().contains(role))
+        //              .collect(Collectors.toList());
+         return queries.findUsersWithRole(role);
     }
 
     @Override
