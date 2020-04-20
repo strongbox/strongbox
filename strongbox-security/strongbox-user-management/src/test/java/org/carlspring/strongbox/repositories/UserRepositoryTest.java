@@ -4,6 +4,7 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 
 import org.carlspring.strongbox.config.DataServiceConfig;
+import org.carlspring.strongbox.config.UsersConfig;
 import org.carlspring.strongbox.domain.User;
 import org.carlspring.strongbox.domain.UserEntity;
 import org.carlspring.strongbox.gremlin.adapters.EntityTraversalUtils;
@@ -28,7 +29,8 @@ import com.google.common.collect.Sets;
  */
 @SpringBootTest
 @ActiveProfiles(profiles = "test")
-@ContextConfiguration(classes = DataServiceConfig.class)
+@ContextConfiguration(classes = { DataServiceConfig.class,
+                                  UsersConfig.class })
 public class UserRepositoryTest
 {
 
@@ -48,8 +50,8 @@ public class UserRepositoryTest
         List<User> findAllUsers = userRepository.findAllUsers();
         assertNotNull(findAllUsers);
         assertEquals(2, findAllUsers.size());
-        assertEquals(3, findAllUsers.iterator().next().getRoles().size());
-        assertEquals(3, findAllUsers.iterator().next().getRoles().size());
+        assertEquals(2, findAllUsers.iterator().next().getRoles().size());
+        assertEquals(2, findAllUsers.iterator().next().getRoles().size());
     }
 
     @Test
