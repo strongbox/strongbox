@@ -87,17 +87,8 @@ public class ProxyRepositoryProvider
         ReadWriteLock lockSource = repositoryPathLock.lock(repositoryPath, "pre-remote-fetch");
         Lock lock = lockSource.writeLock();
         lock.lock();
-
         try
         {
-            // This is the second attempt, but this time inside exclusive write lock
-            // Things might have changed.
-            RepositoryPath targetPath = hostedRepositoryProvider.fetchPath(repositoryPath);
-            if (targetPath != null)
-            {
-                return targetPath;
-
-            }
             return proxyRepositoryArtifactResolver.fetchRemoteResource(repositoryPath);
         }
         catch (IOException e)

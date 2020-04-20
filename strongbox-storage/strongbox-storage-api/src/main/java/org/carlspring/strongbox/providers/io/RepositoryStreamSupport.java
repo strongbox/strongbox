@@ -86,9 +86,7 @@ public class RepositoryStreamSupport
         Lock lock = lockSource.writeLock();
         ctx.setLock(lock);
         lock.lock();
-
         logger.debug("Locked [{}].", path);
-        
         if (ctx instanceof RepositoryStreamWriteContext)
         {
             TransactionStatus transaction = transactionManager.getTransaction(new DefaultTransactionDefinition(
