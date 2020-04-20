@@ -90,7 +90,9 @@ public class ArtifactIdGroupEntity extends DomainEntity implements ArtifactIdGro
     @Override
     public void addArtifact(Artifact artifact)
     {
-        artifacts.add(Optional.of(artifact).map(a -> a.getHierarchyParent()).orElse(artifact));
+        Artifact artifactParent = Optional.of(artifact).map(a -> a.getHierarchyParent()).orElse(artifact);
+        artifacts.remove(artifactParent);
+        artifacts.add(artifactParent);
     }
 
     @Override

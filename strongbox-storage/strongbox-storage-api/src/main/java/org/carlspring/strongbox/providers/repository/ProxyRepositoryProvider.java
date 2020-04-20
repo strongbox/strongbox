@@ -16,6 +16,7 @@ import org.carlspring.strongbox.data.criteria.Paginator;
 import org.carlspring.strongbox.domain.Artifact;
 import org.carlspring.strongbox.domain.RemoteArtifact;
 import org.carlspring.strongbox.domain.RemoteArtifactEntity;
+import org.carlspring.strongbox.io.RepositoryStreamWriteContext;
 import org.carlspring.strongbox.providers.io.AbstractRepositoryProvider;
 import org.carlspring.strongbox.providers.io.RepositoryFiles;
 import org.carlspring.strongbox.providers.io.RepositoryPath;
@@ -150,10 +151,17 @@ public class ProxyRepositoryProvider
     {
         RemoteArtifactEntity remoteArtifactEntry = (RemoteArtifactEntity) artifactEntry;
         boolean result = super.shouldStoreArtifact(artifactEntry) || !remoteArtifactEntry.getIsCached();
-
+        
         remoteArtifactEntry.setIsCached(true);
-
+        
         return result;
     }
 
+    @Override
+    public void commit(RepositoryStreamWriteContext ctx)
+        throws IOException
+    {
+        super.commit(ctx);
+    }
+    
 }
