@@ -2,6 +2,7 @@ package org.carlspring.strongbox.services.support;
 
 import java.io.IOException;
 import java.util.Set;
+import java.util.stream.Collectors;
 
 import javax.inject.Inject;
 
@@ -50,12 +51,15 @@ public class ArtifactStoredEventListener
             return null;
         }
 
-        final Repository repository = repositoryPath.getRepository();
-        final LayoutProvider layoutProvider = layoutProviderRegistry.getProvider(repository.getLayout());
-        final Set<String> archiveFilenames = layoutProvider.listArchiveFilenames(repositoryPath);
+        Repository repository = repositoryPath.getRepository();
+        LayoutProvider layoutProvider = layoutProviderRegistry.getProvider(repository.getLayout());
+        Set<String> archiveFilenames = layoutProvider.listArchiveFilenames(repositoryPath);
         if (archiveFilenames.isEmpty())
         {
             return null;
+        } else if (archiveFilenames.size() > 100) {
+            //TODO: issues/1752 
+            archiveFilenames = archiveFilenames.stream().limit(100).collect(Collectors.toSet());
         }
 
         ArtifactArchiveListing artifactArchiveListing = artifactEntry.getArtifactArchiveListing();

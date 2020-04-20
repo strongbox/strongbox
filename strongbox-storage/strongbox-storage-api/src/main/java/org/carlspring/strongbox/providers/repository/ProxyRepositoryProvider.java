@@ -67,7 +67,6 @@ public class ProxyRepositoryProvider
         throws IOException
     {
         RepositoryPath targetPath = hostedRepositoryProvider.fetchPath(repositoryPath);
-
         if (targetPath == null)
         {
             targetPath = resolvePathExclusive(repositoryPath);
