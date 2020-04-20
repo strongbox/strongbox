@@ -91,26 +91,24 @@ public class ArtifactRepository extends GremlinVertexRepository<Artifact> implem
         return t.hasNext();
     }
 
-    public List<Artifact> findOneArtifactHierarchy(String storageId,
-                                                   String repositoryId,
-                                                   String path)
-    {
-        return queries.findOneArtifactHierarchy(storageId, repositoryId, path);
-    }
-
     public Artifact findOneArtifact(String storageId,
                                     String repositoryId,
                                     String path)
     {
-        List<Artifact> result = queries.findOneArtifactHierarchy(storageId, repositoryId, path);
-        if (result.isEmpty())
-        {
+        EntityTraversal<Vertex, Artifact> t = g().V()
+                                                 .hasLabel(Vertices.GENERIC_ARTIFACT_COORDINATES)
+                                                 .has("uuid", path)
+                                                 .inE(Edges.ARTIFACT_HAS_ARTIFACT_COORDINATES)
+                                                 .otherV()
+                                                 .hasLabel(Vertices.ARTIFACT)
+                                                 .has("storageId", storageId)
+                                                 .has("repositoryId", repositoryId)
+                                                 .map(artifactAdapter.fold());
+        if (!t.hasNext()) {
             return null;
         }
-        return result.stream()
-                     .reduce((a1,
-                              a2) -> a1.getClass().isInstance(a2) ? a1 : a2)
-                     .get();
+            
+        return t.next();
     }
 
 }
@@ -154,18 +152,5 @@ interface ArtifactEntityQueries extends org.springframework.data.repository.Repo
     Boolean artifactEntityExists(@Param("storageId") String storageId,
                                  @Param("repositoryId") String repositoryId,
                                  @Param("path") String path);
-
-    @Query("MATCH (genericCoordinates:GenericArtifactCoordinates)<-[r1]-(artifact:Artifact) " +
-           "WHERE genericCoordinates.uuid=$path and artifact.storageId=$storageId and artifact.repositoryId=$repositoryId " +
-           "WITH artifact, r1, genericCoordinates " +
-           "OPTIONAL MATCH (artifact)-[r4]->(tag:ArtifactTag) " +
-           "WITH artifact, r1, genericCoordinates, r4, tag " +
-           "MATCH (genericCoordinates)<-[r2]-(layoutCoordinates) " +
-           "WITH artifact, r1, genericCoordinates, r2, layoutCoordinates, r4, tag " +
-           "OPTIONAL MATCH (artifact)<-[r3]-(remoteArtifact) " +
-           "RETURN artifact, r3, remoteArtifact, r1, genericCoordinates, r2, layoutCoordinates, r4, tag")
-    List<Artifact> findOneArtifactHierarchy(@Param("storageId") String storageId,
-                                            @Param("repositoryId") String repositoryId,
-                                            @Param("path") String path);
 
 }
