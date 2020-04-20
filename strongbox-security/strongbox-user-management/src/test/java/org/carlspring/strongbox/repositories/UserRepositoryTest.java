@@ -1,5 +1,8 @@
 package org.carlspring.strongbox.repositories;
 
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+
 import org.carlspring.strongbox.config.DataServiceConfig;
 import org.carlspring.strongbox.domain.User;
 import org.carlspring.strongbox.domain.UserEntity;
@@ -12,7 +15,6 @@ import java.util.Date;
 import java.util.List;
 import java.util.Set;
 
-import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.boot.test.context.SpringBootTest;
@@ -38,37 +40,36 @@ public class UserRepositoryTest
     {
         saveUserWithRoles("test-user1", Sets.newHashSet(SystemRole.ADMIN.name(), SystemRole.ARTIFACTS_MANAGER.name()));
         saveUserWithRoles("test-user2", Sets.newHashSet(SystemRole.ADMIN.name(), "CUSTOM_ROLE"));
-
     }
 
     @Test
     public void testFindAllUsers()
     {
         List<User> findAllUsers = userRepository.findAllUsers();
-        Assertions.assertNotNull(findAllUsers);
-        Assertions.assertEquals(2, findAllUsers.size());
-        Assertions.assertEquals(3, findAllUsers.iterator().next().getRoles().size());
-        Assertions.assertEquals(3, findAllUsers.iterator().next().getRoles().size());
+        assertNotNull(findAllUsers);
+        assertEquals(2, findAllUsers.size());
+        assertEquals(3, findAllUsers.iterator().next().getRoles().size());
+        assertEquals(3, findAllUsers.iterator().next().getRoles().size());
     }
 
     @Test
     public void testFindUsersWithRoleNotExist()
     {
         List<User> usersWithRole = userRepository.findUsersWithRole(SystemRole.REPOSITORY_MANAGER.name());
-        Assertions.assertNotNull(usersWithRole);
-        Assertions.assertEquals(0, usersWithRole.size());
+        assertNotNull(usersWithRole);
+        assertEquals(0, usersWithRole.size());
     }
 
     @Test
     public void testFindUsersWithRoleExist()
     {
         List<User> usersWithRole = userRepository.findUsersWithRole(SystemRole.ADMIN.name());
-        Assertions.assertNotNull(usersWithRole);
-        Assertions.assertEquals(2, usersWithRole.size());
+        assertNotNull(usersWithRole);
+        assertEquals(2, usersWithRole.size());
 
         usersWithRole = userRepository.findUsersWithRole("CUSTOM_ROLE");
-        Assertions.assertNotNull(usersWithRole);
-        Assertions.assertEquals(1, usersWithRole.size());
+        assertNotNull(usersWithRole);
+        assertEquals(1, usersWithRole.size());
     }
 
     private void saveUserWithRoles(String username,
