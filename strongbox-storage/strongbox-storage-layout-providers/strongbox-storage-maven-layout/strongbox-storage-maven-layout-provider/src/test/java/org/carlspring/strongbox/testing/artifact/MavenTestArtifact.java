@@ -71,6 +71,6 @@ public @interface MavenTestArtifact
     @AliasFor(annotation = TestArtifact.class)
     long bytesSize() default 1000000;
 
-    LicenseConfiguration[] licenses() default {};
+    MavenLicenseConfiguration[] licenses() default {};
 
 }
