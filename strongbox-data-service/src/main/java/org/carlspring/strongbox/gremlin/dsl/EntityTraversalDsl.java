@@ -123,10 +123,8 @@ public interface EntityTraversalDsl<S, E> extends GraphTraversal.Admin<S, E>
 
         if (!CollectionUtils.isEmpty(values))
         {
-            if (values.size() == 1)
-            {
-                graphTraversal = graphTraversal.property(Cardinality.set, key, "");
-            }
+            graphTraversal = graphTraversal.property(Cardinality.set, key, "");
+            
             for (String value : values)
             {
                 graphTraversal.property(Cardinality.set, key, value);
