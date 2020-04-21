@@ -24,17 +24,17 @@ import org.carlspring.strongbox.gremlin.dsl.__;
 /**
  * @author sbespalov
  */
-public abstract class LayoutArtifactCoordinatesArapter<C extends LayoutArtifactCoordinatesEntity<C, V>, V extends Comparable<V>>
+public abstract class LayoutArtifactCoordinatesAdapter<C extends LayoutArtifactCoordinatesEntity<C, V>, V extends Comparable<V>>
         extends VertexEntityTraversalAdapter<C>
         implements ArtifactCoodrinatesNodeAdapter<C>
 {
     @Inject
-    private GenericArtifactCoordinatesArapter genericArtifactCoordinatesArapter;
+    private GenericArtifactCoordinatesAdapter genericArtifactCoordinatesAdapter;
 
     private final String layoutCoorinatesLabel;
     private final Class<C> layoutCoordinatesClass;
     
-    public LayoutArtifactCoordinatesArapter(String label,
+    public LayoutArtifactCoordinatesAdapter(String label,
                                             Class<C> layoutCoordinatesClass)
     {
         this.layoutCoorinatesLabel = label;
@@ -65,7 +65,7 @@ public abstract class LayoutArtifactCoordinatesArapter<C extends LayoutArtifactC
         return __.outE(Edges.ARTIFACT_COORDINATES_INHERIT_GENERIC_ARTIFACT_COORDINATES)
                  .mapToObject(__.inV()
                                 .hasLabel(Vertices.GENERIC_ARTIFACT_COORDINATES)
-                                .map(genericArtifactCoordinatesArapter.foldHierarchy(genericArtifactCoordinatesArapter.parentProjection(),
+                                .map(genericArtifactCoordinatesAdapter.foldHierarchy(genericArtifactCoordinatesAdapter.parentProjection(),
                                                                                      __.<Vertex>identity()
                                                                                        .constant(NULL)))
                                 .map(EntityTraversalUtils::castToObject));

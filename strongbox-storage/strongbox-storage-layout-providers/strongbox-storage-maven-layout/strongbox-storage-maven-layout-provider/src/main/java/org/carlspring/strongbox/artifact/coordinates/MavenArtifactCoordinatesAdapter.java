@@ -2,7 +2,7 @@ package org.carlspring.strongbox.artifact.coordinates;
 
 import org.apache.maven.artifact.versioning.ComparableVersion;
 import org.carlspring.strongbox.db.schema.Vertices;
-import org.carlspring.strongbox.gremlin.adapters.LayoutArtifactCoordinatesArapter;
+import org.carlspring.strongbox.gremlin.adapters.LayoutArtifactCoordinatesAdapter;
 import org.springframework.stereotype.Component;
 
 /**
@@ -10,7 +10,7 @@ import org.springframework.stereotype.Component;
  */
 @Component
 public class MavenArtifactCoordinatesAdapter
-        extends LayoutArtifactCoordinatesArapter<MavenArtifactCoordinates, ComparableVersion>
+        extends LayoutArtifactCoordinatesAdapter<MavenArtifactCoordinates, ComparableVersion>
 {
 
     public MavenArtifactCoordinatesAdapter()
