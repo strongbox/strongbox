@@ -3,6 +3,7 @@ package org.carlspring.strongbox.repositories;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 
+import org.carlspring.strongbox.config.DataServiceConfig;
 import org.carlspring.strongbox.config.UsersConfig;
 import org.carlspring.strongbox.domain.User;
 import org.carlspring.strongbox.domain.UserEntity;
@@ -30,7 +31,8 @@ import com.google.common.collect.Sets;
  */
 @SpringBootTest
 @ActiveProfiles(profiles = "test")
-@ContextConfiguration(classes = RepositoriesTestConfig.class)
+@ContextConfiguration(classes = { DataServiceConfig.class,
+                                  UsersConfig.class })
 public class UserRepositoryTest
 {
 
