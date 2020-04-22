@@ -36,6 +36,5 @@ This task:
 * [Our chat](https://chat.carlspring.org/)
 * Points of contact:
   * @carlspring
-  * @fuss86
   * @sbespalov
   * @steve-todorov
