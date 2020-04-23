@@ -80,51 +80,13 @@ public class RepositoryPathResolver
                                   final String path)
     {
         RootRepositoryPath repositoryPath = resolve(repository);
-
         if (repository.isGroupRepository())
         {
             return repositoryPath.resolve(path);
         }
         
-        return new CachedRepositoryPath(repositoryPath.resolve(path));
-    }
-    
-    private class CachedRepositoryPath extends RepositoryPath
-    {
-
-        private CachedRepositoryPath(RepositoryPath target)
-        {
-            super(target.getTarget(), target.getFileSystem());
-        }
-
-        @Override
-        public Artifact getArtifactEntry()
-            throws IOException
-        {
-            if (this.getRepository().isGroupRepository() || !RepositoryFiles.isArtifact(this))
-            {
-                return null;
-            }
-
-            return artifactEntityRepository.findOneArtifact(getRepository().getStorage().getId(),
-                                                            getRepository().getId(),
-                                                            RepositoryFiles.relativizePath(this));
-            // TODO: we should check this restriction 
-//            if (Files.exists(this) && !Files.isDirectory(this) && RepositoryFiles.isArtifact(this) && result == null)
-//            {
-//                throw new IOException(String.format("Corresponding [%s] record not found for path [%s]",
-//                                                    ArtifactEntry.class.getSimpleName(), this));
-//            }
-
-        }
-
-        @Override
-        public RepositoryPath normalize()
-        {
-            RepositoryPath target = super.normalize();
-            return new CachedRepositoryPath(target);
-        }
-        
+        Artifact artifactEntity = artifactEntityRepository.findOneArtifact(repository.getStorage().getId(), repository.getId(), path);
+        return repositoryPath.resolve(artifactEntity);
     }
 
 }

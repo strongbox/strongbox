@@ -232,17 +232,15 @@ public abstract class AbstractRepositoryProvider implements RepositoryProvider, 
     public void commit(RepositoryStreamWriteContext ctx) throws IOException
     {
         RepositoryPath repositoryPath = (RepositoryPath) ctx.getPath();
-        Artifact artifactEntry = repositoryPath.artifact;
-        
-        Repository repository = repositoryPath.getRepository();
-        Storage storage = repository.getStorage();
-        ArtifactCoordinates coordinates = RepositoryFiles.readCoordinates(repositoryPath);
-        
-        repositoryPath.artifact = null;
+        Artifact artifactEntry = repositoryPath.getArtifactEntry();
         if (artifactEntry == null)
         {
             return;
         }
+
+        Repository repository = repositoryPath.getRepository();
+        Storage storage = repository.getStorage();
+        ArtifactCoordinates coordinates = RepositoryFiles.readCoordinates(repositoryPath);
         
         CountingOutputStream cos = StreamUtils.findSource(CountingOutputStream.class, ctx.getStream());
         artifactEntry.setSizeInBytes(cos.getByteCount());
