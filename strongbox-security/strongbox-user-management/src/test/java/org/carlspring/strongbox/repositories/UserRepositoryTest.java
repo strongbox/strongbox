@@ -3,20 +3,18 @@ package org.carlspring.strongbox.repositories;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 
-import org.carlspring.strongbox.config.DataServiceConfig;
-import org.carlspring.strongbox.config.UsersConfig;
-import org.carlspring.strongbox.domain.User;
-import org.carlspring.strongbox.domain.UserEntity;
-import org.carlspring.strongbox.gremlin.adapters.EntityTraversalUtils;
-import org.carlspring.strongbox.users.domain.SystemRole;
-
-import javax.inject.Inject;
-import javax.transaction.Transactional;
-
 import java.util.Date;
 import java.util.List;
 import java.util.Set;
 
+import javax.inject.Inject;
+import javax.transaction.Transactional;
+
+import org.carlspring.strongbox.config.DataServiceConfig;
+import org.carlspring.strongbox.domain.User;
+import org.carlspring.strongbox.domain.UserEntity;
+import org.carlspring.strongbox.gremlin.adapters.EntityTraversalUtils;
+import org.carlspring.strongbox.users.domain.SystemRole;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
@@ -31,8 +29,7 @@ import com.google.common.collect.Sets;
  */
 @SpringBootTest
 @ActiveProfiles(profiles = "test")
-@ContextConfiguration(classes = { DataServiceConfig.class,
-                                  UsersConfig.class })
+@ContextConfiguration(classes = DataServiceConfig.class )
 public class UserRepositoryTest
 {
 
