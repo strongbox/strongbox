@@ -10,7 +10,8 @@ import java.util.Set;
 import javax.inject.Inject;
 import javax.transaction.Transactional;
 
-import org.carlspring.strongbox.data.CacheManagerTestExecutionListener;
+import org.carlspring.strongbox.config.DataServiceConfig;
+import org.carlspring.strongbox.config.UsersConfig;
 import org.carlspring.strongbox.domain.User;
 import org.carlspring.strongbox.domain.UserEntity;
 import org.carlspring.strongbox.gremlin.adapters.EntityTraversalUtils;
@@ -21,7 +22,6 @@ import org.junit.jupiter.api.Test;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.ContextConfiguration;
-import org.springframework.test.context.TestExecutionListeners;
 
 import com.google.common.collect.Sets;
 
@@ -30,8 +30,8 @@ import com.google.common.collect.Sets;
  */
 @SpringBootTest
 @ActiveProfiles(profiles = "test")
-@ContextConfiguration(classes = RepositoriesTestConfig.class)
-@TestExecutionListeners(listeners = { CacheManagerTestExecutionListener.class }, mergeMode = TestExecutionListeners.MergeMode.MERGE_WITH_DEFAULTS)
+@ContextConfiguration(classes = { DataServiceConfig.class,
+                                  UsersConfig.class })
 public class UserRepositoryTest
 {
 
