@@ -243,19 +243,18 @@ public class ArtifactAdapter extends VertexEntityTraversalAdapter<Artifact> impl
 
         ArtifactArchiveListing artifactArchiveListing = entity.getArtifactArchiveListing();
 
-        t = t.sideEffect(__.properties("filenames").drop());
         Set<String> filenames = artifactArchiveListing.getFilenames();
-        t = __.property("filenames", filenames);
+        t = t.sideEffect(__.properties("filenames").drop());
+        t = t.property("filenames", filenames);
 
         Map<String, String> checksums = entity.getChecksums();
-        t = t.sideEffect(__.properties("checksums").drop());
-
         Set<String> checkSumAlgo = new HashSet<>();
         for (String alg : checksums.keySet())
         {
             checkSumAlgo.add("{" + alg + "}" + checksums.get(alg));
         }
-        t = __.property("checksums", checkSumAlgo);
+        t = t.sideEffect(__.properties("checksums").drop());
+        t = t.property("checksums", checkSumAlgo);
 
         return t;
     }
