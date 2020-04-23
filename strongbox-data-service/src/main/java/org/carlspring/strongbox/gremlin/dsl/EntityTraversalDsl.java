@@ -3,6 +3,7 @@ package org.carlspring.strongbox.gremlin.dsl;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.Optional;
+import java.util.Set;
 import java.util.UUID;
 
 import org.apache.tinkerpop.gremlin.process.traversal.Traversal;
@@ -11,8 +12,10 @@ import org.apache.tinkerpop.gremlin.process.traversal.dsl.graph.GraphTraversal;
 import org.apache.tinkerpop.gremlin.structure.Edge;
 import org.apache.tinkerpop.gremlin.structure.Element;
 import org.apache.tinkerpop.gremlin.structure.Vertex;
+import org.apache.tinkerpop.gremlin.structure.VertexProperty.Cardinality;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.util.CollectionUtils;
 
 /**
  * @author sbespalov
@@ -75,7 +78,7 @@ public interface EntityTraversalDsl<S, E> extends GraphTraversal.Admin<S, E>
     {
         uuid = Optional.ofNullable(uuid)
                        .orElse(NULL);
-        
+
         return hasLabel(label).has("uuid", uuid)
                               .fold()
                               .choose(Collection::isEmpty,
@@ -111,5 +114,23 @@ public interface EntityTraversalDsl<S, E> extends GraphTraversal.Admin<S, E>
                                                                              ((Element) t.get()).id(),
                                                                              ((Element) t.get()).property("uuid")
                                                                                                 .orElse("null"))));
+    }
+
+    default <E2> GraphTraversal<S, E2> property(final String key,
+                                                final Set<String> values)
+    {
+
+        if (CollectionUtils.isEmpty(values))
+        {
+            return (GraphTraversal<S, E2>) identity();
+        }
+
+        GraphTraversal<S, E2> t = (GraphTraversal<S, E2>) property(Cardinality.set, key, "");
+        for (String value : values)
+        {
+            t.property(Cardinality.set, key, value);
+        }
+
+        return t;
     }
 }

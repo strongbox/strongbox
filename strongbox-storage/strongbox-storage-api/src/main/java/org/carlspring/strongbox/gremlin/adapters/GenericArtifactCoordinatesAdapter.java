@@ -29,7 +29,7 @@ import org.springframework.stereotype.Component;
  * @author sbespalov
  */
 @Component
-public class GenericArtifactCoordinatesArapter extends VertexEntityTraversalAdapter<GenericArtifactCoordinates>
+public class GenericArtifactCoordinatesAdapter extends VertexEntityTraversalAdapter<GenericArtifactCoordinates>
         implements ArtifactCoodrinatesNodeAdapter<GenericArtifactCoordinates>
 {
 

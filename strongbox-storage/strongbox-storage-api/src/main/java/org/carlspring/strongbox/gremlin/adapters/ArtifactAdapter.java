@@ -45,7 +45,7 @@ public class ArtifactAdapter extends VertexEntityTraversalAdapter<Artifact> impl
 {
 
     @Inject
-    GenericArtifactCoordinatesArapter genericArtifactCoordinatesArapter;
+    GenericArtifactCoordinatesAdapter genericArtifactCoordinatesAdapter;
     @Inject
     ArtifactCoordinatesHierarchyAdapter artifactCoordinatesAdapter;
     @Inject
@@ -108,7 +108,7 @@ public class ArtifactAdapter extends VertexEntityTraversalAdapter<Artifact> impl
                  .by(__.enrichPropertyValues("checksums"))
                  .by(__.outE(Edges.ARTIFACT_HAS_ARTIFACT_COORDINATES)
                        .mapToObject(__.inV()
-                                      .map(genericArtifactCoordinatesArapter.fold())
+                                      .map(genericArtifactCoordinatesAdapter.fold())
                                       .map(EntityTraversalUtils::castToObject)))
                  .by(__.outE(Edges.ARTIFACT_HAS_TAGS)
                        .inV()
@@ -242,21 +242,19 @@ public class ArtifactAdapter extends VertexEntityTraversalAdapter<Artifact> impl
         }        
 
         ArtifactArchiveListing artifactArchiveListing = entity.getArtifactArchiveListing();
-        t = t.sideEffect(__.properties("filenames").drop());
+
         Set<String> filenames = artifactArchiveListing.getFilenames();
-        t = t.property(set, "filenames", "");
-        for (String filename : filenames)
-        {
-            t = t.property(set, "filenames", filename);
-        }
+        t = t.sideEffect(__.properties("filenames").drop());
+        t = t.property("filenames", filenames);
 
         Map<String, String> checksums = entity.getChecksums();
-        t = t.sideEffect(__.properties("checksums").drop());
-        t = t.property(set, "checksums", "");
+        Set<String> checkSumAlgo = new HashSet<>();
         for (String alg : checksums.keySet())
         {
-            t = t.property(set, "checksums", "{" + alg + "}" + checksums.get(alg));
+            checkSumAlgo.add("{" + alg + "}" + checksums.get(alg));
         }
+        t = t.sideEffect(__.properties("checksums").drop());
+        t = t.property("checksums", checkSumAlgo);
 
         return t;
     }

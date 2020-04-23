@@ -47,8 +47,8 @@ public class UserRepository extends GremlinVertexRepository<User>
     {
         return queries.findAllUsers();
     }
-    
-    
+
+
 }
 
 @Repository

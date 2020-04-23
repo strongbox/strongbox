@@ -93,11 +93,7 @@ public class UserAdapter extends VertexEntityTraversalAdapter<User>
 
         Set<String> roles = entity.getRoles();
         t = t.sideEffect(__.properties("roles").drop());
-        t = t.property(set, "roles", "");
-        for (String role : roles)
-        {
-            t = t.property(set, "roles", role);
-        }
+        t = t.property("roles", roles);
 
         return new UnfoldEntityTraversal<>(Vertices.USER, t);
     }
