@@ -86,6 +86,9 @@ public class RepositoryPathResolver
         }
         
         Artifact artifactEntity = artifactEntityRepository.findOneArtifact(repository.getStorage().getId(), repository.getId(), path);
+        if (artifactEntity == null) {
+            return repositoryPath.resolve(path);
+        }
         return repositoryPath.resolve(artifactEntity);
     }
 
