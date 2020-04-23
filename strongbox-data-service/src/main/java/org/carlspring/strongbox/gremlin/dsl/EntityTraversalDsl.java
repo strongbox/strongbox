@@ -78,7 +78,7 @@ public interface EntityTraversalDsl<S, E> extends GraphTraversal.Admin<S, E>
     {
         uuid = Optional.ofNullable(uuid)
                        .orElse(NULL);
-        
+
         return hasLabel(label).has("uuid", uuid)
                               .fold()
                               .choose(Collection::isEmpty,
@@ -115,22 +115,22 @@ public interface EntityTraversalDsl<S, E> extends GraphTraversal.Admin<S, E>
                                                                              ((Element) t.get()).property("uuid")
                                                                                                 .orElse("null"))));
     }
-    
-    default <E> GraphTraversal<S, E> property(final String key,
-                                              final Set<String> values,
-                                              GraphTraversal<S, E> graphTraversal)
+
+    default <E2> GraphTraversal<S, E2> property(final String key,
+                                                final Set<String> values)
     {
 
-        if (!CollectionUtils.isEmpty(values))
+        if (CollectionUtils.isEmpty(values))
         {
-            graphTraversal = graphTraversal.property(Cardinality.set, key, "");
-            
-            for (String value : values)
-            {
-                graphTraversal.property(Cardinality.set, key, value);
-            }
-            return graphTraversal;
+            return (GraphTraversal<S, E2>) identity();
         }
-        return graphTraversal;
+
+        GraphTraversal<S, E2> t = (GraphTraversal<S, E2>) property(Cardinality.set, key, "");
+        for (String value : values)
+        {
+            t.property(Cardinality.set, key, value);
+        }
+
+        return t;
     }
 }
