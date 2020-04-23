@@ -179,6 +179,8 @@ public abstract class AbstractRepositoryProvider implements RepositoryProvider, 
         artifactEntry.setCreated(now);
         artifactEntry.setLastUpdated(now);
         artifactEntry.setLastUsed(now);
+
+        repositoryPath.artifact = artifactEntry;
     }
 
     @Override
