@@ -177,7 +177,7 @@ public class NpmArtifactGenerator
     
     private void setLicensesInJson()
     {
-    	if (licenses != null && licenses.length > 0)
+        if (licenses != null && licenses.length > 0)
         {
             List<License> jsonLicenses = new ArrayList<>();
 

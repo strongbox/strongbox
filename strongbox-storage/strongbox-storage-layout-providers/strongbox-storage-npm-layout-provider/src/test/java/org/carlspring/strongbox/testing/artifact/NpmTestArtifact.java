@@ -69,6 +69,6 @@ public @interface NpmTestArtifact
      */
     String scope() default "";
     
-    LicenseConfiguration[] licenses() default {};
+    LicenseConfiguration[] licenses() default {};  
     
 }

@@ -52,7 +52,7 @@ class NpmArtifactGeneratorTest
     @ExtendWith({ RepositoryManagementTestExecutionListener.class,
                   ArtifactManagementTestExecutionListener.class })
     @Test
-    void testArtifactGeneration(@NpmRepository(repositoryId = REPOSITORY_RELEASES)
+    void testArtifactGeneration(@NpmRepository(repositoryId = REPOSITORY_RELEASES, cleanup=false)
                                 Repository repository,
                                 @NpmTestArtifact(repositoryId = REPOSITORY_RELEASES,
                                                  id = "npm-test-view",
@@ -81,62 +81,64 @@ class NpmArtifactGeneratorTest
         // File size
         assertThat(Files.size(path)).isGreaterThan(2048);
         
-        // License checks
-       checkLicenses(path);
+        //License checks
+        checkLicenses(path);
+        
     }
     
-    public void checkLicenses(Path artifactPath)
-            throws IOException, ParseException
+    public void checkLicenses(Path artifactPath) 
+    		throws IOException, ParseException
     {
-    	//1) Check that the license are located in the expected locations
-    	
-    	 assertThat(containsLicense(artifactPath, "LICENSE"))
-         .as("Did not find a license that was expected at the default location!")
-         .isTrue();
-    	 
-    	 assertThat(containsLicense(artifactPath, "LICENSE-Apache-2.0.md"))
-         .as("Did not find a license that was expected at the specified location!")
-         .isTrue();
-    	 
-    	// 3) Check that the package.json contains the list of licenses
-    	 
-    	 String jsonPath = artifactPath.getParent().toString() +"/package.json";
-    	 File json = new File(jsonPath);
-    	 JSONParser parser = new JSONParser(); 
-    	 FileReader reader = new FileReader(json.getAbsolutePath());
-    	 Object obj = parser.parse(reader);
-    	 JSONObject jsonObj = (JSONObject) obj;
-    	 JSONArray licenses = (JSONArray)jsonObj.get("licenses");
-    	 
-    	 assertThat(licenses.isEmpty())
-    	 .as("Could not discover any licenses in the package.json file!")
-    	 .isFalse();
-    	 
-    	 assertThat(licenses.get(0).toString().contains("Apache 2.0"))
-    	 .as("Failed to locate a definition for the 'Apache 2.0' license in the package.json file!")
-    	 .isTrue();
-    	 
-    	 assertThat(licenses.get(1).toString().contains("MIT"))
-    	 .as("Failed to locate a definition for the 'Apache 2.0' license in the package.json file!")
-    	 .isTrue();
-    		 
-    	 }
+      //1) Check that the license are located in the expected locations
+        
+        assertThat(containsLicense(artifactPath, "LICENSE"))
+        .as("Did not find a license that was expected at the default location!")
+        .isTrue();
+        
+        assertThat(containsLicense(artifactPath, "LICENSE-Apache-2.0.md"))
+        .as("Did not find a license that was expected at the specified location!")
+        .isTrue();
+        
+       // 3) Check that the package.json contains the list of licenses
+        
+        String jsonPath = artifactPath.getParent().toString() +"/package.json";
+        File json = new File(jsonPath);
+        JSONParser parser = new JSONParser(); 
+        FileReader reader = new FileReader(json.getAbsolutePath());
+        Object obj = parser.parse(reader);
+        JSONObject jsonObj = (JSONObject) obj;
+        JSONArray licenses = (JSONArray)jsonObj.get("licenses");
+        
+        assertThat(licenses.isEmpty())
+        .as("Could not discover any licenses in the package.json file!")
+        .isFalse();
+        
+        assertThat(licenses.get(0).toString().contains("Apache 2.0"))
+        .as("Failed to locate a definition for the 'Apache 2.0' license in the package.json file!")
+        .isTrue();
+        
+        assertThat(licenses.get(1).toString().contains("MIT"))
+        .as("Failed to locate a definition for the 'Apache 2.0' license in the package.json file!")
+        .isTrue();
+    }
     
     public boolean containsLicense(Path path, String s)
-    		throws FileNotFoundException, IOException {
-    	TarArchiveInputStream tarInput = new TarArchiveInputStream(new GzipCompressorInputStream(new FileInputStream(path.toString())));
-    	TarArchiveEntry currentEntry = tarInput.getNextTarEntry();
-    	while (currentEntry != null) {
-    	    if (currentEntry.getName().equals(s)) {
-    	    	tarInput.close();
-    	    	return true;
-    	    }
-    	    currentEntry = tarInput.getNextTarEntry();
-    	}
-    	tarInput.close();
-    	return false;
-    	
+            throws FileNotFoundException, IOException {
+        TarArchiveInputStream tarInput = new TarArchiveInputStream(new GzipCompressorInputStream(new FileInputStream(path.toString())));
+        TarArchiveEntry currentEntry = tarInput.getNextTarEntry();
+        while (currentEntry != null) {
+            if (currentEntry.getName().equals(s)) {
+                tarInput.close();
+                return true;
+            }
+            currentEntry = tarInput.getNextTarEntry();
+        }
+        tarInput.close();
+        return false;
+        
     }
 
-    	 
+         
 }
+    
+
