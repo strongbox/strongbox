@@ -31,12 +31,12 @@ configuration:
           customConfigurations: []
           groupRepositories: []
           artifactCoordinateValidators: []
-          inService: true
-          groupRepository: false
           proxyRepository: false
           hostedRepository: true
-          eligibleForCustomConnectionPool: false
+          groupRepository: false
+          inService: true
           virtualRepository: false
+          eligibleForCustomConnectionPool: false
           dataStore: "file-system"
         snapshots:
           id: "snapshots"
@@ -51,12 +51,12 @@ configuration:
           customConfigurations: []
           groupRepositories: []
           artifactCoordinateValidators: []
-          inService: true
-          groupRepository: false
           proxyRepository: false
           hostedRepository: true
-          eligibleForCustomConnectionPool: false
+          groupRepository: false
+          inService: true
           virtualRepository: false
+          eligibleForCustomConnectionPool: false
           dataStore: "file-system"
     storage-common-proxies:
       id: "storage-common-proxies"
@@ -81,12 +81,12 @@ configuration:
           customConfigurations: []
           groupRepositories: []
           artifactCoordinateValidators: []
-          inService: true
-          groupRepository: false
           proxyRepository: true
           hostedRepository: false
-          eligibleForCustomConnectionPool: false
+          groupRepository: false
+          inService: true
           virtualRepository: false
+          eligibleForCustomConnectionPool: false
           dataStore: "file-system"
         carlspring:
           id: "carlspring"
@@ -108,12 +108,12 @@ configuration:
           customConfigurations: []
           groupRepositories: []
           artifactCoordinateValidators: []
-          inService: true
-          groupRepository: false
           proxyRepository: true
           hostedRepository: false
-          eligibleForCustomConnectionPool: false
+          groupRepository: false
+          inService: true
           virtualRepository: false
+          eligibleForCustomConnectionPool: false
           dataStore: "file-system"
         apache-snapshots:
           id: "apache-snapshots"
@@ -135,12 +135,12 @@ configuration:
           customConfigurations: []
           groupRepositories: []
           artifactCoordinateValidators: []
-          inService: true
-          groupRepository: false
           proxyRepository: true
           hostedRepository: false
-          eligibleForCustomConnectionPool: false
+          groupRepository: false
+          inService: true
           virtualRepository: false
+          eligibleForCustomConnectionPool: false
           dataStore: "file-system"
         jboss-public-releases:
           id: "jboss-public-releases"
@@ -162,12 +162,12 @@ configuration:
           customConfigurations: []
           groupRepositories: []
           artifactCoordinateValidators: []
-          inService: true
-          groupRepository: false
           proxyRepository: true
           hostedRepository: false
-          eligibleForCustomConnectionPool: false
+          groupRepository: false
+          inService: true
           virtualRepository: false
+          eligibleForCustomConnectionPool: false
           dataStore: "file-system"
         maven-oracle:
           id: "maven-oracle"
@@ -189,12 +189,12 @@ configuration:
           customConfigurations: []
           groupRepositories: []
           artifactCoordinateValidators: []
-          inService: true
-          groupRepository: false
           proxyRepository: true
           hostedRepository: false
-          eligibleForCustomConnectionPool: false
+          groupRepository: false
+          inService: true
           virtualRepository: false
+          eligibleForCustomConnectionPool: false
           dataStore: "file-system"
         group-common-proxies:
           id: "group-common-proxies"
@@ -213,12 +213,12 @@ configuration:
           - "apache-snapshots"
           - "jboss-public-releases"
           artifactCoordinateValidators: []
-          inService: true
-          groupRepository: true
           proxyRepository: false
           hostedRepository: false
-          eligibleForCustomConnectionPool: false
+          groupRepository: true
+          inService: true
           virtualRepository: false
+          eligibleForCustomConnectionPool: false
           dataStore: "file-system"
         nuget.org:
           id: "nuget.org"
@@ -240,12 +240,12 @@ configuration:
           customConfigurations: []
           groupRepositories: []
           artifactCoordinateValidators: []
-          inService: true
-          groupRepository: false
           proxyRepository: true
           hostedRepository: false
-          eligibleForCustomConnectionPool: false
+          groupRepository: false
+          inService: true
           virtualRepository: false
+          eligibleForCustomConnectionPool: false
           dataStore: "file-system"
     storage-springsource-proxies:
       id: "storage-springsource-proxies"
@@ -270,12 +270,12 @@ configuration:
           customConfigurations: []
           groupRepositories: []
           artifactCoordinateValidators: []
-          inService: true
-          groupRepository: false
           proxyRepository: true
           hostedRepository: false
-          eligibleForCustomConnectionPool: false
+          groupRepository: false
+          inService: true
           virtualRepository: false
+          eligibleForCustomConnectionPool: false
           dataStore: "file-system"
         springsource-releases:
           id: "springsource-releases"
@@ -297,12 +297,12 @@ configuration:
           customConfigurations: []
           groupRepositories: []
           artifactCoordinateValidators: []
-          inService: true
-          groupRepository: false
           proxyRepository: true
           hostedRepository: false
-          eligibleForCustomConnectionPool: false
+          groupRepository: false
+          inService: true
           virtualRepository: false
+          eligibleForCustomConnectionPool: false
           dataStore: "file-system"
         springsource-milestones:
           id: "springsource-milestones"
@@ -324,12 +324,12 @@ configuration:
           customConfigurations: []
           groupRepositories: []
           artifactCoordinateValidators: []
-          inService: true
-          groupRepository: false
           proxyRepository: true
           hostedRepository: false
-          eligibleForCustomConnectionPool: false
+          groupRepository: false
+          inService: true
           virtualRepository: false
+          eligibleForCustomConnectionPool: false
           dataStore: "file-system"
         springsource-proxies:
           id: "springsource-proxies"
@@ -347,12 +347,12 @@ configuration:
           - "springsource-releases"
           - "springsource-milestones"
           artifactCoordinateValidators: []
-          inService: true
-          groupRepository: true
           proxyRepository: false
           hostedRepository: false
-          eligibleForCustomConnectionPool: false
+          groupRepository: true
+          inService: true
           virtualRepository: false
+          eligibleForCustomConnectionPool: false
           dataStore: "file-system"
     storage-ivy-proxies:
       id: "storage-ivy-proxies"
@@ -377,12 +377,12 @@ configuration:
           customConfigurations: []
           groupRepositories: []
           artifactCoordinateValidators: []
-          inService: true
-          groupRepository: false
           proxyRepository: true
           hostedRepository: false
-          eligibleForCustomConnectionPool: false
+          groupRepository: false
+          inService: true
           virtualRepository: false
+          eligibleForCustomConnectionPool: false
           dataStore: "file-system"
         typesafe-ivy-releases:
           id: "typesafe-ivy-releases"
@@ -404,12 +404,12 @@ configuration:
           customConfigurations: []
           groupRepositories: []
           artifactCoordinateValidators: []
-          inService: true
-          groupRepository: false
           proxyRepository: true
           hostedRepository: false
-          eligibleForCustomConnectionPool: false
+          groupRepository: false
+          inService: true
           virtualRepository: false
+          eligibleForCustomConnectionPool: false
           dataStore: "file-system"
         group-ivy-proxies:
           id: "group-ivy-proxies"
@@ -426,12 +426,12 @@ configuration:
           - "typesafe-releases"
           - "typesafe-ivy-releases"
           artifactCoordinateValidators: []
-          inService: true
-          groupRepository: true
           proxyRepository: false
           hostedRepository: false
-          eligibleForCustomConnectionPool: false
+          groupRepository: true
+          inService: true
           virtualRepository: false
+          eligibleForCustomConnectionPool: false
           dataStore: "file-system"
     storage-sbt-proxies:
       id: "storage-sbt-proxies"
@@ -456,12 +456,12 @@ configuration:
           customConfigurations: []
           groupRepositories: []
           artifactCoordinateValidators: []
-          inService: true
-          groupRepository: false
           proxyRepository: true
           hostedRepository: false
-          eligibleForCustomConnectionPool: false
+          groupRepository: false
+          inService: true
           virtualRepository: false
+          eligibleForCustomConnectionPool: false
           dataStore: "file-system"
         group-sbt-proxies:
           id: "group-sbt-proxies"
@@ -479,12 +479,12 @@ configuration:
           - "sbt-plugin-releases"
           - "storage-ivy-proxies:group-ivy-proxies"
           artifactCoordinateValidators: []
-          inService: true
-          groupRepository: true
           proxyRepository: false
           hostedRepository: false
-          eligibleForCustomConnectionPool: false
+          groupRepository: true
+          inService: true
           virtualRepository: false
+          eligibleForCustomConnectionPool: false
           dataStore: "file-system"
     storage-third-party:
       id: "storage-third-party"
@@ -502,12 +502,12 @@ configuration:
           customConfigurations: []
           groupRepositories: []
           artifactCoordinateValidators: []
-          inService: true
-          groupRepository: false
           proxyRepository: false
           hostedRepository: true
-          eligibleForCustomConnectionPool: false
+          groupRepository: false
+          inService: true
           virtualRepository: false
+          eligibleForCustomConnectionPool: false
           dataStore: "file-system"
         nuget-third-party:
           id: "nuget-third-party"
@@ -522,12 +522,12 @@ configuration:
           customConfigurations: []
           groupRepositories: []
           artifactCoordinateValidators: []
-          inService: true
-          groupRepository: false
           proxyRepository: false
           hostedRepository: true
-          eligibleForCustomConnectionPool: false
+          groupRepository: false
+          inService: true
           virtualRepository: false
+          eligibleForCustomConnectionPool: false
           dataStore: "file-system"
     storage-npm:
       id: "storage-npm"
@@ -548,12 +548,12 @@ configuration:
           - "redeployment-validator"
           - "generic-release-version-validator"
           - "generic-snapshot-version-validator"
-          inService: true
-          groupRepository: false
           proxyRepository: false
           hostedRepository: true
-          eligibleForCustomConnectionPool: false
+          groupRepository: false
+          inService: true
           virtualRepository: false
+          eligibleForCustomConnectionPool: false
           dataStore: "file-system"
         npmjs:
           id: "npmjs"
@@ -582,12 +582,12 @@ configuration:
           - "redeployment-validator"
           - "generic-release-version-validator"
           - "generic-snapshot-version-validator"
-          inService: true
-          groupRepository: false
           proxyRepository: true
           hostedRepository: false
-          eligibleForCustomConnectionPool: false
+          groupRepository: false
+          inService: true
           virtualRepository: false
+          eligibleForCustomConnectionPool: false
           dataStore: "file-system"
     storage-nuget:
       id: "storage-nuget"
@@ -605,12 +605,12 @@ configuration:
           customConfigurations: []
           groupRepositories: []
           artifactCoordinateValidators: []
-          inService: true
-          groupRepository: false
           proxyRepository: false
           hostedRepository: true
-          eligibleForCustomConnectionPool: false
+          groupRepository: false
+          inService: true
           virtualRepository: false
+          eligibleForCustomConnectionPool: false
           dataStore: "file-system"
     storage-pypi:
       id: "storage-pypi"
@@ -628,12 +628,12 @@ configuration:
           customConfigurations: []
           groupRepositories: []
           artifactCoordinateValidators: []
-          inService: true
-          groupRepository: false
           proxyRepository: false
           hostedRepository: true
-          eligibleForCustomConnectionPool: false
+          groupRepository: false
+          inService: true
           virtualRepository: false
+          eligibleForCustomConnectionPool: false
           dataStore: "file-system"
     storage-raw:
       id: "storage-raw"
@@ -651,12 +651,12 @@ configuration:
           customConfigurations: []
           groupRepositories: []
           artifactCoordinateValidators: []
-          inService: true
-          groupRepository: false
           proxyRepository: false
           hostedRepository: true
-          eligibleForCustomConnectionPool: false
+          groupRepository: false
+          inService: true
           virtualRepository: false
+          eligibleForCustomConnectionPool: false
           dataStore: "file-system"
     public:
       id: "public"
@@ -681,12 +681,12 @@ configuration:
           - "storage-sbt-proxies:group-sbt-proxies"
           - "storage-third-party:third-party"
           artifactCoordinateValidators: []
-          inService: true
-          groupRepository: true
           proxyRepository: false
           hostedRepository: false
-          eligibleForCustomConnectionPool: false
+          groupRepository: true
+          inService: true
           virtualRepository: false
+          eligibleForCustomConnectionPool: false
           dataStore: "file-system"
         nuget-group:
           id: "nuget-group"
@@ -703,12 +703,12 @@ configuration:
           - "storage-common-proxies:nuget.org"
           - "storage-third-party:nuget-third-party"
           artifactCoordinateValidators: []
-          inService: true
-          groupRepository: true
           proxyRepository: false
           hostedRepository: false
-          eligibleForCustomConnectionPool: false
+          groupRepository: true
+          inService: true
           virtualRepository: false
+          eligibleForCustomConnectionPool: false
           dataStore: "file-system"
         npm-group:
           id: "npm-group"
@@ -727,12 +727,12 @@ configuration:
           - "redeployment-validator"
           - "generic-release-version-validator"
           - "generic-snapshot-version-validator"
-          inService: true
-          groupRepository: true
           proxyRepository: false
           hostedRepository: false
-          eligibleForCustomConnectionPool: false
+          groupRepository: true
+          inService: true
           virtualRepository: false
+          eligibleForCustomConnectionPool: false
           dataStore: "file-system"
   routingRules:
     rules:

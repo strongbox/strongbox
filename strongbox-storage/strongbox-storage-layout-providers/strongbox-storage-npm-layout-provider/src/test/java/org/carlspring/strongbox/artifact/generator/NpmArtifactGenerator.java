@@ -128,7 +128,7 @@ public class NpmArtifactGenerator
                 tarEntry.setSize(getLicenseFileSize(licenseConfiguration));
                 tarOut.putArchiveEntry(tarEntry);
 
-                copyLicenseFile(licenseConfiguration, tarOut);
+                copyLicenseFile(licenseConfiguration.license().getLicenseFileSourcePath(), tarOut);
                 tarOut.closeArchiveEntry();
             }
         }
