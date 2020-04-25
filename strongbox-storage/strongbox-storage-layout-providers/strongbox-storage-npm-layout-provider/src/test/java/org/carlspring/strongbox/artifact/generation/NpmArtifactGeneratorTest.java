@@ -52,7 +52,7 @@ class NpmArtifactGeneratorTest
     @ExtendWith({ RepositoryManagementTestExecutionListener.class,
                   ArtifactManagementTestExecutionListener.class })
     @Test
-    void testArtifactGeneration(@NpmRepository(repositoryId = REPOSITORY_RELEASES, cleanup=false)
+    void testArtifactGeneration(@NpmRepository(repositoryId = REPOSITORY_RELEASES)
                                 Repository repository,
                                 @NpmTestArtifact(repositoryId = REPOSITORY_RELEASES,
                                                  id = "npm-test-view",
