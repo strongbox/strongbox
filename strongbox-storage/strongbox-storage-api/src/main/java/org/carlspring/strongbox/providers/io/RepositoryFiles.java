@@ -15,6 +15,7 @@ import java.util.stream.Collectors;
 import org.carlspring.strongbox.artifact.coordinates.ArtifactCoordinates;
 import org.carlspring.strongbox.domain.Artifact;
 import org.carlspring.strongbox.domain.RemoteArtifact;
+import org.carlspring.strongbox.storage.repository.Repository;
 
 /**
  * This utility class contains common methods to work with {@link RepositoryPath}
@@ -179,6 +180,12 @@ public abstract class RepositoryFiles
     public static boolean artifactExists(RepositoryPath repositoryPath)
         throws IOException
     {
+        Repository repository = repositoryPath.getRepository();
+        if (repository.isGroupRepository() || !isArtifact(repositoryPath))
+        {
+            return Files.exists(repositoryPath);
+        }
+
         Artifact artifactEntry = repositoryPath.getArtifactEntry();
         if (artifactEntry instanceof RemoteArtifact) {
             return Boolean.TRUE.equals(((RemoteArtifact) artifactEntry).getIsCached());
