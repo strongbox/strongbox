@@ -20,7 +20,7 @@ public class SpringSecurityUser
 
     private String password;
 
-    private boolean enabled;
+    private Boolean enabled;
 
     private Set<Role> roles = Collections.emptySet();
 
@@ -44,19 +44,19 @@ public class SpringSecurityUser
     @Override
     public boolean isAccountNonExpired()
     {
-        return enabled;
+        return Boolean.TRUE.equals(enabled);
     }
 
     @Override
     public boolean isAccountNonLocked()
     {
-        return enabled;
+        return Boolean.TRUE.equals(enabled);
     }
 
     @Override
     public boolean isCredentialsNonExpired()
     {
-        return enabled;
+        return Boolean.TRUE.equals(enabled);
     }
 
     @Override
@@ -73,10 +73,10 @@ public class SpringSecurityUser
     @Override
     public boolean isEnabled()
     {
-        return enabled;
+        return Boolean.TRUE.equals(enabled);
     }
 
-    public void setEnabled(boolean enabled)
+    public void setEnabled(Boolean enabled)
     {
         this.enabled = enabled;
     }
