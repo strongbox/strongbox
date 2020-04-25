@@ -129,7 +129,7 @@ public class GenericArtifactCoordinatesAdapter extends VertexEntityTraversalAdap
             t = t.property(single, "coordinates." + coordinateEntry.getKey(), coordinateEntry.getValue());
         }
 
-        return new UnfoldEntityTraversal<>(Vertices.GENERIC_ARTIFACT_COORDINATES, t);
+        return new UnfoldEntityTraversal<>(Vertices.GENERIC_ARTIFACT_COORDINATES, entity, t);
     }
 
     @Override

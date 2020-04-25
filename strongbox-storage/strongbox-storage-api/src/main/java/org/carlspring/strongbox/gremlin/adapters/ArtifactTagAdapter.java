@@ -50,7 +50,7 @@ public class ArtifactTagAdapter extends VertexEntityTraversalAdapter<ArtifactTag
     @Override
     public UnfoldEntityTraversal<Vertex, Vertex> unfold(ArtifactTag entity)
     {
-        return new UnfoldEntityTraversal<>(Vertices.ARTIFACT_TAG, __.identity());
+        return new UnfoldEntityTraversal<>(Vertices.ARTIFACT_TAG, entity, __.identity());
     }
 
     @Override

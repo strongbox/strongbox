@@ -94,7 +94,7 @@ public class RemoteAritfactAdapter extends VertexEntityTraversalAdapter<RemoteAr
     @Override
     public UnfoldEntityTraversal<Vertex, Vertex> unfold(RemoteArtifact entity)
     {
-        return new UnfoldEntityTraversal<>(Vertices.REMOTE_ARTIFACT, unfoldRemoteArtifact(entity));
+        return new UnfoldEntityTraversal<>(Vertices.REMOTE_ARTIFACT, entity, unfoldRemoteArtifact(entity));
     }
 
     private EntityTraversal<Vertex, Vertex> unfoldRemoteArtifact(RemoteArtifact entity)

@@ -106,7 +106,7 @@ public abstract class GremlinRepository<S extends Element, E extends DomainObjec
         start(this::g).findById(id, labels.toArray(new String[labels.size()]))
                       .flatMap(adapter().cascade())
                       .dedup()
-                      .trace("Delete")
+                      .debug("Delete")
                       .drop()
                       .iterate();
         session.clear();

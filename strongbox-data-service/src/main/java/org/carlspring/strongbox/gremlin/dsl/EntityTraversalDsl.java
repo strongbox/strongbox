@@ -13,6 +13,8 @@ import org.apache.tinkerpop.gremlin.structure.Edge;
 import org.apache.tinkerpop.gremlin.structure.Element;
 import org.apache.tinkerpop.gremlin.structure.Vertex;
 import org.apache.tinkerpop.gremlin.structure.VertexProperty.Cardinality;
+import org.carlspring.strongbox.data.domain.DomainObject;
+import org.carlspring.strongbox.gremlin.adapters.UnfoldEntityTraversal;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.util.CollectionUtils;
@@ -74,11 +76,12 @@ public interface EntityTraversalDsl<S, E> extends GraphTraversal.Admin<S, E>
 
     default <S2> Traversal<S, Vertex> saveV(String label,
                                             Object uuid,
-                                            Traversal<S2, Vertex> unfoldTraversal)
+                                            UnfoldEntityTraversal<S2, Vertex> unfoldTraversal)
     {
         uuid = Optional.ofNullable(uuid)
                        .orElse(NULL);
-
+        DomainObject entity = unfoldTraversal.entity();
+        
         return hasLabel(label).has("uuid", uuid)
                               .fold()
                               .choose(Collection::isEmpty,
@@ -90,8 +93,11 @@ public interface EntityTraversalDsl<S, E> extends GraphTraversal.Admin<S, E>
                                         .property("created", System.currentTimeMillis())
                                         .info("Created"),
                                       __.unfold()
-                                        .trace("Fetched"))
-                              .map(unfoldTraversal);
+                                        .debug("Fetched"))
+                              .map(unfoldTraversal)
+                              .sideEffect(t -> {
+                                  entity.applyUnfold(t);
+                              });
     }
 
     @SuppressWarnings("unchecked")
@@ -106,9 +112,9 @@ public interface EntityTraversalDsl<S, E> extends GraphTraversal.Admin<S, E>
     }
 
     @SuppressWarnings("unchecked")
-    default <E2> Traversal<S, E2> trace(String action)
+    default <E2> Traversal<S, E2> debug(String action)
     {
-        return (Traversal<S, E2>) sideEffect(t -> logger.trace(String.format("%s [%s]-[%s]-[%s]",
+        return (Traversal<S, E2>) sideEffect(t -> logger.debug(String.format("%s [%s]-[%s]-[%s]",
                                                                              action,
                                                                              ((Element) t.get()).label(),
                                                                              ((Element) t.get()).id(),

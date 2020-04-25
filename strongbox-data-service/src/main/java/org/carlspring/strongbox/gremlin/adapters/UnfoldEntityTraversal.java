@@ -14,24 +14,33 @@ import org.apache.tinkerpop.gremlin.process.traversal.dsl.graph.GraphTraversal;
 import org.apache.tinkerpop.gremlin.process.traversal.step.TraversalParent;
 import org.apache.tinkerpop.gremlin.process.traversal.traverser.TraverserRequirement;
 import org.apache.tinkerpop.gremlin.structure.Graph;
+import org.carlspring.strongbox.data.domain.DomainObject;
 import org.carlspring.strongbox.gremlin.dsl.EntityTraversal;
 
 public class UnfoldEntityTraversal<S, E> implements EntityTraversal<S, E>
 {
 
     private final String entityLabel;
+    private final DomainObject entity;
     private final EntityTraversal<S, E> target;
 
     public UnfoldEntityTraversal(String entityLabel,
+                                 DomainObject entity,
                                  EntityTraversal<S, E> target)
     {
         this.entityLabel = entityLabel;
+        this.entity = entity;
         this.target = target;
     }
 
     public String entityLabel()
     {
         return entityLabel;
+    }
+    
+    public DomainObject entity()
+    {
+        return entity;
     }
 
     public EntityTraversal<S, E> getTarget()

@@ -123,6 +123,7 @@ public abstract class EntityHierarchyAdapter<E extends DomainObject, A extends E
         }
 
         return new UnfoldEntityTraversal<>(unfoldTraversal.entityLabel(),
+                entity,
                 __.<Vertex, Edge>coalesce(updateParent(entity),
                                           createParent(entity))
                   .outV()

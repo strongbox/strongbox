@@ -13,6 +13,8 @@ import java.util.StringJoiner;
 import java.util.stream.Collectors;
 
 import org.carlspring.strongbox.artifact.coordinates.ArtifactCoordinates;
+import org.carlspring.strongbox.domain.Artifact;
+import org.carlspring.strongbox.domain.RemoteArtifact;
 
 /**
  * This utility class contains common methods to work with {@link RepositoryPath}
@@ -177,7 +179,13 @@ public abstract class RepositoryFiles
     public static boolean artifactExists(RepositoryPath repositoryPath)
         throws IOException
     {
-        return repositoryPath.getFileSystem().provider().artifactExists(repositoryPath);
+        Artifact artifactEntry = repositoryPath.getArtifactEntry();
+        if (artifactEntry == null) {
+            return false;
+        }
+        
+        return artifactEntry instanceof RemoteArtifact && ((RemoteArtifact) artifactEntry).getIsCached(); 
+        //return repositoryPath.getFileSystem().provider().artifactExists(repositoryPath);
     }
 
     public static void deleteTrash(RepositoryPath repositoryPath)

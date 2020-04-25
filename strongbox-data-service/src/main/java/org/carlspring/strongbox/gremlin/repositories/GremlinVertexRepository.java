@@ -28,7 +28,7 @@ public abstract class GremlinVertexRepository<E extends DomainObject> extends Gr
                                              unfoldTraversal)
                                       .next();
         session.clear();
-
+        
         return resultVertex.<String>property("uuid").value();
     }
 

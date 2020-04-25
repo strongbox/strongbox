@@ -185,7 +185,7 @@ public class ArtifactAdapter extends VertexEntityTraversalAdapter<Artifact> impl
                                                                         .addE(Edges.ARTIFACT_HAS_TAGS)
                                                                         .from(__.select(storedArtifactId).unfold()));
 
-        return new UnfoldEntityTraversal<>(Vertices.ARTIFACT, unfoldTraversal);
+        return new UnfoldEntityTraversal<>(Vertices.ARTIFACT, entity, unfoldTraversal);
     }
 
     private Traversal<Vertex, Edge> createArtifactCoordinates(ArtifactCoordinates artifactCoordinates)

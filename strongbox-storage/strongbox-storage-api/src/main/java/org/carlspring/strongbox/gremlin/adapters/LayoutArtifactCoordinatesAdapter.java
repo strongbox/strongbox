@@ -131,7 +131,7 @@ public abstract class LayoutArtifactCoordinatesAdapter<C extends LayoutArtifactC
     @Override
     public UnfoldEntityTraversal<Vertex, Vertex> unfold(C entity)
     {
-        return new UnfoldEntityTraversal<>(layoutCoorinatesLabel, __.identity());
+        return new UnfoldEntityTraversal<>(layoutCoorinatesLabel, entity, __.identity());
     }
     
     @Override

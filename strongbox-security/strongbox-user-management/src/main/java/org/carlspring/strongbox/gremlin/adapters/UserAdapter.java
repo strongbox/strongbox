@@ -95,7 +95,7 @@ public class UserAdapter extends VertexEntityTraversalAdapter<User>
         t = t.sideEffect(__.properties("roles").drop());
         t = t.property("roles", roles);
 
-        return new UnfoldEntityTraversal<>(Vertices.USER, t);
+        return new UnfoldEntityTraversal<>(Vertices.USER, entity, t);
     }
 
     @Override

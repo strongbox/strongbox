@@ -99,7 +99,7 @@ public class ArtifactIdGroupAdapter extends VertexEntityTraversalAdapter<Artifac
                                                                                               .from(__.select(storedArtifactIdGroup)
                                                                                                       .unfold()));
 
-        return new UnfoldEntityTraversal<>(Vertices.ARTIFACT_ID_GROUP, unfoldTraversal);
+        return new UnfoldEntityTraversal<>(Vertices.ARTIFACT_ID_GROUP, entity, unfoldTraversal);
     }
 
     private EntityTraversal<Vertex, Vertex> unfoldArtifactGroup(ArtifactIdGroup entity)
