@@ -6,6 +6,7 @@ import java.io.IOException;
 import java.io.OutputStream;
 import java.net.URI;
 import java.nio.file.Path;
+import java.nio.file.Paths;
 
 import org.apache.commons.io.IOUtils;
 import org.springframework.core.io.ClassPathResource;
@@ -52,4 +53,19 @@ public interface ArtifactGenerator
         IOUtils.copy(resource.getInputStream(), os);
     }
 
+    /**
+     * Added this to handle instantiation of TarArchiveEntry with only file name.
+     * When TarArchiveEntry is created with only file name it considers it's size as zero, so size has to be set explicitly.
+     * @param licenseConfiguration
+     * @return size of the license file in bytes
+     * @throws IOException
+     */
+    default long getLicenseFileSize(LicenseConfiguration licenseConfiguration)
+            throws IOException
+    {
+        ClassPathResource resource = new ClassPathResource(licenseConfiguration.license().getLicenseFileSourcePath(),
+                                                           this.getClass().getClassLoader());
+
+        return Paths.get(resource.getURI()).toFile().length();
+    }
 }
