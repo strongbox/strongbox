@@ -180,11 +180,11 @@ public abstract class RepositoryFiles
         throws IOException
     {
         Artifact artifactEntry = repositoryPath.getArtifactEntry();
-        if (artifactEntry == null) {
-            return false;
+        if (artifactEntry instanceof RemoteArtifact) {
+            return Boolean.TRUE.equals(((RemoteArtifact) artifactEntry).getIsCached());
         }
         
-        return artifactEntry instanceof RemoteArtifact && ((RemoteArtifact) artifactEntry).getIsCached(); 
+        return artifactEntry != null; 
         //return repositoryPath.getFileSystem().provider().artifactExists(repositoryPath);
     }
 

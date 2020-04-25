@@ -92,11 +92,7 @@ public class RepositoryPathResolver
             return repositoryPath.resolve(path);
         }
         
-        Artifact artifactEntity = artifactEntityRepository.findOneArtifact(repository.getStorage().getId(), repository.getId(), path);
-        if (artifactEntity == null) {
-            return repositoryPath.resolve(path);
-        }
-        return repositoryPath.resolve(artifactEntity);
+        return new LazyRepositoryPath(repositoryPath.resolve(path));
     }
     
     private class LazyRepositoryPath extends RepositoryPath
