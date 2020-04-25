@@ -3,7 +3,9 @@ package org.carlspring.strongbox.artifact.generator;
 import org.carlspring.strongbox.artifact.coordinates.NpmArtifactCoordinates;
 import org.carlspring.strongbox.npm.metadata.Dist;
 import org.carlspring.strongbox.npm.metadata.PackageVersion;
+import org.carlspring.strongbox.npm.metadata.License;
 import org.carlspring.strongbox.util.TestFileUtils;
+import org.carlspring.strongbox.testing.artifact.LicenseConfiguration;
 
 import java.io.BufferedOutputStream;
 import java.io.IOException;
@@ -16,6 +18,8 @@ import java.nio.file.StandardOpenOption;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 import java.util.Base64;
+import java.util.ArrayList;
+import java.util.List;
 
 import com.fasterxml.jackson.core.JsonEncoding;
 import com.fasterxml.jackson.core.JsonFactory;
@@ -39,6 +43,8 @@ public class NpmArtifactGenerator
     private Path packagePath;
 
     private ObjectMapper mapper = new ObjectMapper();
+    
+    private LicenseConfiguration[] licenses;
 
     public NpmArtifactGenerator(String basedir)
     {
@@ -100,6 +106,7 @@ public class NpmArtifactGenerator
 
             writeContent(tarOut, bytesSize);
             writePackageJson(tarOut);
+            copyLicenseFiles(tarOut);
 
             tarOut.close();
             gzipOut.close();
@@ -108,6 +115,23 @@ public class NpmArtifactGenerator
         calculateChecksum();
 
         return packagePath;
+    }
+    
+    private void copyLicenseFiles(TarArchiveOutputStream tarOut)
+            throws IOException
+    {
+        if (licenses != null && licenses.length > 0)
+        {
+            for (LicenseConfiguration licenseConfiguration : licenses)
+            {
+                TarArchiveEntry tarEntry = new TarArchiveEntry(licenseConfiguration.destinationPath());
+                tarEntry.setSize(getLicenseFileSize(licenseConfiguration));
+                tarOut.putArchiveEntry(tarEntry);
+
+                copyLicenseFile(licenseConfiguration.license().getLicenseFileSourcePath(), tarOut);
+                tarOut.closeArchiveEntry();
+            }
+        }
     }
 
     private void calculateChecksum()
@@ -135,6 +159,7 @@ public class NpmArtifactGenerator
             throws IOException
     {
         Path packageJsonPath = packagePath.getParent().resolve("package.json");
+        setLicensesInJson();
         try (OutputStream out = new BufferedOutputStream(
                 Files.newOutputStream(packageJsonPath, StandardOpenOption.CREATE)))
         {
@@ -145,8 +170,28 @@ public class NpmArtifactGenerator
         tarOut.putArchiveEntry(entry);
 
         Files.copy(packageJsonPath, tarOut);
-
+        
         tarOut.closeArchiveEntry();
+
+    }
+    
+    private void setLicensesInJson()
+    {
+        if (licenses != null && licenses.length > 0)
+        {
+            List<License> jsonLicenses = new ArrayList<>();
+
+            for (LicenseConfiguration licenseConfiguration : licenses)
+            {
+                License license = new License();
+                license.setType(licenseConfiguration.license().getName());
+                license.setUrl(licenseConfiguration.license().getUrl());
+
+                jsonLicenses.add(license);
+            }
+
+            packageJson.setLicenses(jsonLicenses);
+        }
     }
 
     private void writeContent(TarArchiveOutputStream tarOut,
@@ -255,6 +300,16 @@ public class NpmArtifactGenerator
         }
 
         return publishJsonPath;
+    }
+    
+    public LicenseConfiguration[] getLicenses()
+    {
+        return licenses;
+    }
+
+    public void setLicenses(LicenseConfiguration[] licenses)
+    {
+        this.licenses = licenses;
     }
 
 }
