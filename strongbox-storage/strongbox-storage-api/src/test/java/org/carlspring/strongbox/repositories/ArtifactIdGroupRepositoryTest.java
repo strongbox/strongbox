@@ -64,7 +64,7 @@ public class ArtifactIdGroupRepositoryTest
 
         RawArtifactCoordinates artifactCoordinatesTwo = new RawArtifactCoordinates();
         artifactCoordinatesTwo.setId(String.format(pathTemplate, "20"));
-        Artifact artifactEntityTwo = new RemoteArtifactEntity(storageId, repositoryId, artifactCoordinatesTwo);
+        RemoteArtifactEntity artifactEntityTwo = new RemoteArtifactEntity(storageId, repositoryId, artifactCoordinatesTwo);
 
         RawArtifactCoordinates artifactCoordinatesThree = new RawArtifactCoordinates();
         artifactCoordinatesThree.setId(String.format(pathTemplate, "30"));
@@ -98,7 +98,10 @@ public class ArtifactIdGroupRepositoryTest
 
         // Update
         artifactRepository.delete(artifactEntityOne);
+        artifactEntityOne.setNativeId(null);
         artifactRepository.delete(artifactEntityTwo);
+        artifactEntityTwo.setNativeId(null);
+        
         artifactIdGroupEntity = artifactIdGroupRepository.findById(artifactIdGroupEntity.getUuid())
                                                          .map(ArtifactIdGroupEntity.class::cast)
                                                          .get();
@@ -116,7 +119,9 @@ public class ArtifactIdGroupRepositoryTest
                                                         .hasSize(1);
 
         artifactRepository.delete(artifactEntityOne);
+        artifactEntityOne.setNativeId(null);
         artifactRepository.delete(artifactEntityThree);
+        artifactEntityThree.setNativeId(null);
         artifactIdGroupEntity = artifactIdGroupRepository.findById(artifactIdGroupEntity.getUuid())
                                                          .map(ArtifactIdGroupEntity.class::cast)
                                                          .get();
@@ -131,6 +136,7 @@ public class ArtifactIdGroupRepositoryTest
         artifactIdGroupEntity.addArtifact(artifactEntityThree);
         artifactIdGroupRepository.save(artifactIdGroupEntity);
         artifactIdGroupRepository.delete(artifactIdGroupEntity);
+        artifactIdGroupEntity.setNativeId(null);
         assertThat(artifactIdGroupRepository.findById(artifactIdGroupEntity.getUuid())).isEmpty();
         assertThat(g.V()
                     .label()
@@ -159,7 +165,7 @@ public class ArtifactIdGroupRepositoryTest
 
         RawArtifactCoordinates artifactCoordinatesTwo = new RawArtifactCoordinates();
         artifactCoordinatesTwo.setId(String.format(pathTemplate, "20"));
-        Artifact artifactEntityTwo = new RemoteArtifactEntity(storageId, repositoryId, artifactCoordinatesTwo);
+        RemoteArtifactEntity artifactEntityTwo = new RemoteArtifactEntity(storageId, repositoryId, artifactCoordinatesTwo);
 
         RawArtifactCoordinates artifactCoordinatesThree = new RawArtifactCoordinates();
         artifactCoordinatesThree.setId(String.format(pathTemplate, "30"));
@@ -206,8 +212,11 @@ public class ArtifactIdGroupRepositoryTest
                                                           .hasSize(1);
 
         artifactRepository.delete(artifactEntityOne);
+        artifactEntityOne.setNativeId(null);
         artifactRepository.delete(artifactEntityTwo);
+        artifactEntityTwo.setNativeId(null);
         artifactRepository.delete(artifactEntityThree);
+        artifactEntityThree.setNativeId(null);
         artifactIdGroupEntity = artifactIdGroupRepository.findById(artifactIdGroupEntity.getUuid())
                                                          .map(ArtifactIdGroupEntity.class::cast)
                                                          .get();
