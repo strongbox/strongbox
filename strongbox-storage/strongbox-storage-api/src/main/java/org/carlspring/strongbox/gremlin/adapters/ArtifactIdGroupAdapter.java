@@ -104,22 +104,26 @@ public class ArtifactIdGroupAdapter extends VertexEntityTraversalAdapter<Artifac
 
     private EntityTraversal<Vertex, Vertex> unfoldArtifactGroup(ArtifactIdGroup entity)
     {
-        EntityTraversal<Vertex, Vertex> unfoldEntityTraversal = __.identity();
+        EntityTraversal<Vertex, Vertex> t = __.identity();
+        //Skip update as ArtifactIdGroup assumed to be immutable 
+        if (entity.getNativeId() != null) {
+            return t;
+        }
 
         if (entity.getStorageId() != null)
         {
-            unfoldEntityTraversal = unfoldEntityTraversal.property(single, "storageId", entity.getStorageId());
+            t = t.property(single, "storageId", entity.getStorageId());
         }
         if (entity.getRepositoryId() != null)
         {
-            unfoldEntityTraversal = unfoldEntityTraversal.property(single, "repositoryId", entity.getRepositoryId());
+            t = t.property(single, "repositoryId", entity.getRepositoryId());
         }
         if (entity.getName() != null)
         {
-            unfoldEntityTraversal = unfoldEntityTraversal.property(single, "name", entity.getName());
+            t = t.property(single, "name", entity.getName());
         }
 
-        return unfoldEntityTraversal;
+        return t;
     }
 
     @Override
