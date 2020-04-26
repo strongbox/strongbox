@@ -9,9 +9,12 @@ import java.util.Set;
 import javax.inject.Inject;
 import javax.transaction.Transactional;
 
+import org.apache.tinkerpop.gremlin.structure.Vertex;
+import org.carlspring.strongbox.db.schema.Vertices;
 import org.carlspring.strongbox.domain.Artifact;
 import org.carlspring.strongbox.domain.ArtifactIdGroup;
 import org.carlspring.strongbox.gremlin.adapters.ArtifactIdGroupAdapter;
+import org.carlspring.strongbox.gremlin.dsl.EntityTraversal;
 import org.carlspring.strongbox.gremlin.repositories.GremlinVertexRepository;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -48,7 +51,18 @@ public class ArtifactIdGroupRepository extends GremlinVertexRepository<ArtifactI
                                              String repositoryId,
                                              String artifactId)
     {
-        return queries.findOne(storageId, repositoryId, artifactId);
+        EntityTraversal<Vertex, ArtifactIdGroup> t = g().V()
+                                                        .hasLabel(Vertices.ARTIFACT_ID_GROUP)
+                                                        .has("storageId", storageId)
+                                                        .has("repositoryId", repositoryId)
+                                                        .has("name", artifactId)
+                                                        .map(adapter.fold());
+        if (!t.hasNext())
+        {
+            return Optional.empty();
+        }
+
+        return Optional.of(t.next());
     }
 
     public Boolean artifactsExists(Set<String> storageRepositoryIds,
@@ -113,19 +127,6 @@ interface ArtifactIdGroupQueries
     Page<ArtifactIdGroup> findMatching(@Param("storageId") String storageId,
                                        @Param("repositoryId") String repositoryId,
                                        Pageable page);
-
-    @Query("MATCH (aig:`ArtifactIdGroup`) " +
-           "WHERE aig.storageId=$storageId and aig.repositoryId=$repositoryId and aig.name=$artifactId " +
-           "WITH aig " +
-           "OPTIONAL MATCH (aig)-[r0]->(artifact:Artifact)-[r1]->(genericCoordinates:GenericArtifactCoordinates)<-[r2]-(layoutCoordinates) " +
-           "WITH aig, r0, artifact, r1, genericCoordinates, r2, layoutCoordinates " +
-           "OPTIONAL MATCH (artifact)-[r4]->(tag:ArtifactTag) " +
-           "WITH aig, r0, artifact, r1, genericCoordinates, r2, layoutCoordinates, r4, tag " +
-           "OPTIONAL MATCH (artifact)<-[r3]-(remoteArtifact) " +
-           "RETURN aig, r0, artifact, r3, remoteArtifact, r1, genericCoordinates, r2, layoutCoordinates,  r4, tag")
-    Optional<ArtifactIdGroup> findOne(@Param("storageId") String storageId,
-                                      @Param("repositoryId") String repositoryId,
-                                      @Param("artifactId") String artifactId);
 
     @ExistsQuery("UNWIND $storageRepositoryIds as storageRepositoryIdPair " +
                  "WITH split(storageRepositoryIdPair, ':') as storageRepositoryId " +
