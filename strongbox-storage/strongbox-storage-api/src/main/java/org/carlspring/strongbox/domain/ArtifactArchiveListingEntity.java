@@ -1,6 +1,6 @@
 package org.carlspring.strongbox.domain;
 
-import static org.carlspring.strongbox.db.schema.Vertices.ARTIFACT_ARCHIVE_LISTING;;
+import static org.carlspring.strongbox.db.schema.Vertices.ARTIFACT_ARCHIVE_LISTING;
 
 import org.carlspring.strongbox.data.domain.DomainEntity;
 
@@ -31,6 +31,7 @@ public class ArtifactArchiveListingEntity extends DomainEntity implements Artifa
         this.fileName = fileName;
     }
 
+    @Override
     public String getStorageId()
     {
         return storageId;
@@ -41,6 +42,7 @@ public class ArtifactArchiveListingEntity extends DomainEntity implements Artifa
         this.storageId = storageId;
     }
 
+    @Override
     public String getRepositoryId()
     {
         return repositoryId;
