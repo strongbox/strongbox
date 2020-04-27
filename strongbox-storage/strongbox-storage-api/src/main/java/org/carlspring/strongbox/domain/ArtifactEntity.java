@@ -1,5 +1,21 @@
 package org.carlspring.strongbox.domain;
 
+import static org.carlspring.strongbox.db.schema.Edges.ARTIFACT_HAS_ARTIFACT_ARCHIVE_LISTING;
+import static org.carlspring.strongbox.db.schema.Edges.ARTIFACT_HAS_ARTIFACT_COORDINATES;
+import static org.carlspring.strongbox.db.schema.Edges.ARTIFACT_HAS_TAGS;
+import static org.carlspring.strongbox.db.schema.Edges.REMOTE_ARTIFACT_INHERIT_ARTIFACT;
+import static org.carlspring.strongbox.db.schema.Vertices.ARTIFACT;
+import static org.neo4j.ogm.annotation.Relationship.INCOMING;
+import static org.neo4j.ogm.annotation.Relationship.OUTGOING;
+
+import org.carlspring.strongbox.artifact.ArtifactTag;
+import org.carlspring.strongbox.artifact.coordinates.ArtifactCoordinates;
+import org.carlspring.strongbox.artifact.coordinates.GenericArtifactCoordinates;
+import org.carlspring.strongbox.data.domain.DomainEntity;
+import org.carlspring.strongbox.gremlin.adapters.DateConverter;
+
+import javax.persistence.Transient;
+
 import java.time.LocalDateTime;
 import java.util.HashSet;
 import java.util.LinkedHashSet;
@@ -9,15 +25,6 @@ import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Collectors;
 
-import javax.persistence.Transient;
-
-import org.carlspring.strongbox.artifact.ArtifactTag;
-import org.carlspring.strongbox.artifact.coordinates.ArtifactCoordinates;
-import org.carlspring.strongbox.artifact.coordinates.GenericArtifactCoordinates;
-import org.carlspring.strongbox.data.domain.DomainEntity;
-import org.carlspring.strongbox.db.schema.Edges;
-import org.carlspring.strongbox.db.schema.Vertices;
-import org.carlspring.strongbox.gremlin.adapters.DateConverter;
 import org.neo4j.ogm.annotation.NodeEntity;
 import org.neo4j.ogm.annotation.Relationship;
 import org.neo4j.ogm.annotation.typeconversion.Convert;
@@ -26,7 +33,7 @@ import org.neo4j.ogm.annotation.typeconversion.Convert;
  * @author carlspring
  * @author sbespalov
  */
-@NodeEntity(Vertices.ARTIFACT)
+@NodeEntity(ARTIFACT)
 public class ArtifactEntity
         extends DomainEntity implements Artifact
 {
@@ -35,15 +42,13 @@ public class ArtifactEntity
 
     private String repositoryId;
 
-    @Relationship(type = Edges.ARTIFACT_HAS_ARTIFACT_COORDINATES, direction = Relationship.OUTGOING)
+    @Relationship(type = ARTIFACT_HAS_ARTIFACT_COORDINATES, direction = OUTGOING)
     private GenericArtifactCoordinates artifactCoordinates;
 
-    @Relationship(type = Edges.ARTIFACT_HAS_TAGS, direction = Relationship.OUTGOING)
+    @Relationship(type = ARTIFACT_HAS_TAGS, direction = OUTGOING)
     private Set<ArtifactTag> tagSet;
 
     private Set<String> checksums = new HashSet<>();
-
-    private Set<String> filenames = new LinkedHashSet<>();
 
     private Long sizeInBytes;
 
@@ -58,9 +63,10 @@ public class ArtifactEntity
 
     private Integer downloadCount = Integer.valueOf(0);
 
-    private final ArtifactArchiveListing artifactArchiveListing = new ArtifactEntityArchiveListing();
-    
-    @Relationship(type = Edges.REMOTE_ARTIFACT_INHERIT_ARTIFACT, direction = Relationship.INCOMING)
+    @Relationship(type = ARTIFACT_HAS_ARTIFACT_ARCHIVE_LISTING)
+    private Set<ArtifactArchiveListing> artifactArchiveListings;
+
+    @Relationship(type = REMOTE_ARTIFACT_INHERIT_ARTIFACT, direction = INCOMING)
     private Artifact artifactHierarchyChild;
 
     ArtifactEntity()
@@ -109,7 +115,8 @@ public class ArtifactEntity
     @Override
     public ArtifactCoordinates getArtifactCoordinates()
     {
-        if (artifactCoordinates instanceof ArtifactCoordinates) {
+        if (artifactCoordinates instanceof ArtifactCoordinates)
+        {
             return (ArtifactCoordinates) artifactCoordinates;
         }
         return (ArtifactCoordinates) artifactCoordinates.getHierarchyChild();
@@ -135,7 +142,10 @@ public class ArtifactEntity
     @Override
     public Map<String, String> getChecksums()
     {
-        return checksums.stream().filter(e -> !e.trim().isEmpty()).collect(Collectors.toMap(e -> e.substring(1, e.indexOf("}")), e -> e.substring(e.indexOf("}") + 1)));
+        return checksums.stream()
+                        .filter(e -> !e.trim().isEmpty())
+                        .collect(Collectors.toMap(e -> e.substring(1, e.indexOf("}")),
+                                                  e -> e.substring(e.indexOf("}") + 1)));
     }
 
     public void setChecksums(Map<String, String> checksums)
@@ -221,12 +231,6 @@ public class ArtifactEntity
     }
 
     @Override
-    public ArtifactArchiveListing getArtifactArchiveListing()
-    {
-        return artifactArchiveListing;
-    }
-
-    @Override
     @Transient
     public String getArtifactPath()
     {
@@ -239,7 +243,7 @@ public class ArtifactEntity
     {
         this.artifactHierarchyChild = artifactHierarchyChild;
     }
-    
+
     @Override
     public Artifact getHierarchyChild()
     {
@@ -252,19 +256,10 @@ public class ArtifactEntity
         return null;
     }
 
-    public class ArtifactEntityArchiveListing implements ArtifactArchiveListing
+    @Override
+    public Set<ArtifactArchiveListing> getArtifactArchiveListings()
     {
-
-        public Set<String> getFilenames()
-        {
-            return ArtifactEntity.this.filenames.stream().filter(e -> !e.isEmpty()).collect(Collectors.toSet());
-        }
-
-        public void setFilenames(final Set<String> filenames)
-        {
-            ArtifactEntity.this.filenames = filenames;
-        }
-
+        return artifactArchiveListings;
     }
 
 }
