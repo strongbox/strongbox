@@ -262,4 +262,10 @@ public class ArtifactEntity
         return artifactArchiveListings;
     }
 
+    @Override
+    public void setArtifactArchiveListings(Set<ArtifactArchiveListing> artifactArchiveListings)
+    {
+        this.artifactArchiveListings = artifactArchiveListings;
+    }
+
 }

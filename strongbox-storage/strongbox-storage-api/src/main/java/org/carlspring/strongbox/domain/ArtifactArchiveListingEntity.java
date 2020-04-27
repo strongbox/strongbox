@@ -19,6 +19,21 @@ public class ArtifactArchiveListingEntity extends DomainEntity implements Artifa
 
     private String repositoryId;
 
+    public ArtifactArchiveListingEntity()
+    {
+        super();
+    }
+
+    public ArtifactArchiveListingEntity(String fileName,
+                                        String storageId,
+                                        String repositoryId)
+    {
+        super();
+        this.fileName = fileName;
+        this.storageId = storageId;
+        this.repositoryId = repositoryId;
+    }
+
     @Override
     public String getFileName()
     {

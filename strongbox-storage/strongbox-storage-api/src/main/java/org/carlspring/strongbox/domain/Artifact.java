@@ -54,4 +54,6 @@ public interface Artifact extends DomainObject, EntityHierarchyNode<Artifact>
 
     String getArtifactPath();
 
+    void setArtifactArchiveListings(Set<ArtifactArchiveListing> artifactArchiveListings);
+
 }

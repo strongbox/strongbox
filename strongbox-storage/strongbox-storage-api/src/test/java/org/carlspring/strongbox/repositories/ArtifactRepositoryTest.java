@@ -7,6 +7,8 @@ import java.time.LocalDateTime;
 import java.util.Arrays;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
+import java.util.stream.Collectors;
 
 import javax.inject.Inject;
 import javax.transaction.Transactional;
@@ -20,6 +22,7 @@ import org.carlspring.strongbox.db.schema.Edges;
 import org.carlspring.strongbox.db.schema.Vertices;
 import org.carlspring.strongbox.domain.Artifact;
 import org.carlspring.strongbox.domain.ArtifactArchiveListing;
+import org.carlspring.strongbox.domain.ArtifactArchiveListingEntity;
 import org.carlspring.strongbox.domain.ArtifactEntity;
 import org.carlspring.strongbox.domain.RemoteArtifact;
 import org.carlspring.strongbox.domain.RemoteArtifactEntity;
@@ -55,12 +58,16 @@ public class ArtifactRepositoryTest
         RawArtifactCoordinates artifactCoordinates = new RawArtifactCoordinates();
         artifactCoordinates.setId(path);
 
+        Set<ArtifactArchiveListing> artifactArchiveListings = new HashSet<>();
+        artifactArchiveListings.add(new ArtifactArchiveListingEntity("storage0", repositoryId, "file1.txt"));
+        artifactArchiveListings.add(new ArtifactArchiveListingEntity("storage0", repositoryId, "readme.md"));
+        artifactArchiveListings.add(new ArtifactArchiveListingEntity("storage0", repositoryId, "icon.svg"));
+
         ArtifactEntity artifactEntity = new ArtifactEntity("storage0", repositoryId, artifactCoordinates);
-        artifactEntity.getArtifactArchiveListing()
-                      .setFilenames(new HashSet<>(Arrays.asList("file1.txt", "readme.md", "icon.svg")));
-        artifactEntity.addChecksums(new HashSet<>(
-                Arrays.asList("{md5}3111519d5b4efd31565831f735ab0d2f", "{sha-1}ba79baeb 9f10896a 46ae7471 5271b7f5 86e74640")));
-        
+        artifactEntity.setArtifactArchiveListings(artifactArchiveListings);
+        artifactEntity.addChecksums(new HashSet<>(Arrays.asList("{md5}3111519d5b4efd31565831f735ab0d2f",
+                                                                "{sha-1}ba79baeb 9f10896a 46ae7471 5271b7f5 86e74640")));
+
         LocalDateTime now = LocalDateTime.now();
         artifactEntity.setCreated(now.minusDays(10));
         artifactEntity.setLastUsed(now.minusDays(5));
@@ -76,8 +83,13 @@ public class ArtifactRepositoryTest
         assertThat(artifactEntity.getLastUpdated()).isEqualTo(now);
         assertThat(artifactEntity.getLastUsed()).isEqualTo(now.minusDays(5));
         
-        ArtifactArchiveListing artifactArchiveListing = artifactEntity.getArtifactArchiveListing();
-        assertThat(artifactArchiveListing.getFilenames()).containsOnly("file1.txt", "readme.md", "icon.svg");
+        Set<String> fileNames = artifactEntity.getArtifactArchiveListings()
+                                              .stream()
+                                              .map(artifactArchiveListing -> {
+                                                  return artifactArchiveListing.getFileName();
+                                              })
+                                              .collect(Collectors.toSet());
+        assertThat(fileNames).containsOnly("file1.txt", "readme.md", "icon.svg");
 
         artifactCoordinates = (RawArtifactCoordinates) artifactEntity.getArtifactCoordinates();
         assertThat(artifactCoordinates.getUuid()).isEqualTo(path);
@@ -123,10 +135,13 @@ public class ArtifactRepositoryTest
         RawArtifactCoordinates artifactCoordinates = new RawArtifactCoordinates();
         artifactCoordinates.setId(path);
 
-        ArtifactEntity artifactEntity = new ArtifactEntity(storageId, repositoryId, artifactCoordinates);
-        artifactEntity.getArtifactArchiveListing()
-                      .setFilenames(new HashSet<>(Arrays.asList("file1.txt", "readme.md", "icon.svg")));
+        Set<ArtifactArchiveListing> artifactArchiveListings = new HashSet<>();
+        artifactArchiveListings.add(new ArtifactArchiveListingEntity("storage0", repositoryId, "file1.txt"));
+        artifactArchiveListings.add(new ArtifactArchiveListingEntity("storage0", repositoryId, "readme.md"));
+        artifactArchiveListings.add(new ArtifactArchiveListingEntity("storage0", repositoryId, "icon.svg"));
         
+        ArtifactEntity artifactEntity = new ArtifactEntity(storageId, repositoryId, artifactCoordinates);
+        artifactEntity.setArtifactArchiveListings(artifactArchiveListings);
         LocalDateTime now = LocalDateTime.now();
         artifactEntity.setCreated(now.minusDays(10));
         artifactEntity.setLastUsed(now.minusDays(5));
@@ -151,8 +166,13 @@ public class ArtifactRepositoryTest
         Artifact artifact = artifactRepository.findOneArtifact(storageId, repositoryId, path);
         assertThat(artifact).isInstanceOf(Artifact.class);
         assertThat(artifact).isNotInstanceOf(RemoteArtifact.class);
-        ArtifactArchiveListing artifactArchiveListing = artifact.getArtifactArchiveListing();
-        assertThat(artifactArchiveListing.getFilenames()).containsOnly("file1.txt", "readme.md", "icon.svg");
+        Set<String> fileNames = artifactEntity.getArtifactArchiveListings()
+                                              .stream()
+                                              .map(artifactArchiveListing -> {
+                                                  return artifactArchiveListing.getFileName();
+                                              })
+                                              .collect(Collectors.toSet());
+        assertThat(fileNames).containsOnly("file1.txt", "readme.md", "icon.svg");
 
         artifactCoordinates = (RawArtifactCoordinates) artifact.getArtifactCoordinates();
         assertThat(artifactCoordinates.getUuid()).isEqualTo(path);

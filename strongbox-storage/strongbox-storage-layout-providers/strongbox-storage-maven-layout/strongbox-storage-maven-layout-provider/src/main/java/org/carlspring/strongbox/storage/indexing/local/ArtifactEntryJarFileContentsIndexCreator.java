@@ -1,15 +1,16 @@
 package org.carlspring.strongbox.storage.indexing.local;
 
+import org.carlspring.strongbox.artifact.coordinates.MavenArtifactCoordinates;
+import org.carlspring.strongbox.domain.Artifact;
+
 import java.util.Set;
+import java.util.stream.Collectors;
 
 import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.maven.index.ArtifactContext;
 import org.apache.maven.index.ArtifactInfo;
 import org.apache.maven.index.creator.JarFileContentsIndexCreator;
-import org.carlspring.strongbox.artifact.coordinates.MavenArtifactCoordinates;
-import org.carlspring.strongbox.domain.Artifact;
-import org.carlspring.strongbox.domain.ArtifactArchiveListing;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -71,13 +72,17 @@ public class ArtifactEntryJarFileContentsIndexCreator
                                     final Artifact artifactEntry,
                                     final String strippedPrefix)
     {
-        ArtifactArchiveListing artifactArchiveListing = artifactEntry.getArtifactArchiveListing();
-        if (artifactArchiveListing == null || CollectionUtils.isEmpty(artifactArchiveListing.getFilenames()))
+        if (CollectionUtils.isEmpty(artifactEntry.getArtifactArchiveListings()))
         {
             return;
         }
-
-        Set<String> filenames = artifactArchiveListing.getFilenames();
+        
+        Set<String> filenames = artifactEntry.getArtifactArchiveListings()
+                                             .stream()
+                                             .map(artifactArchiveListing -> {
+                                                 return artifactArchiveListing.getFileName();
+                                             })
+                                             .collect(Collectors.toSet());
 
         final StringBuilder sb = new StringBuilder();
 

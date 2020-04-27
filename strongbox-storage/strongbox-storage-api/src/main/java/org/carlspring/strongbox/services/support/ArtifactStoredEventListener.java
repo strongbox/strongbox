@@ -9,6 +9,7 @@ import javax.inject.Inject;
 import org.carlspring.strongbox.artifact.AsyncArtifactEntryHandler;
 import org.carlspring.strongbox.domain.Artifact;
 import org.carlspring.strongbox.domain.ArtifactArchiveListing;
+import org.carlspring.strongbox.domain.ArtifactArchiveListingEntity;
 import org.carlspring.strongbox.event.artifact.ArtifactEventTypeEnum;
 import org.carlspring.strongbox.providers.io.RepositoryPath;
 import org.carlspring.strongbox.providers.layout.LayoutProvider;
@@ -57,13 +58,13 @@ public class ArtifactStoredEventListener
         if (archiveFilenames.isEmpty())
         {
             return null;
-        } else if (archiveFilenames.size() > 100) {
-            //TODO: issues/1752 
-            archiveFilenames = archiveFilenames.stream().limit(100).collect(Collectors.toSet());
         }
 
-        ArtifactArchiveListing artifactArchiveListing = artifactEntry.getArtifactArchiveListing();
-        artifactArchiveListing.setFilenames(archiveFilenames);
+        Set<ArtifactArchiveListing> artifactArchiveListings = archiveFilenames.stream()
+                                                                              .map(archiveFilename -> {
+                                                                                    return new ArtifactArchiveListingEntity();})
+                                                                              .collect(Collectors.toSet());
+        artifactEntry.setArtifactArchiveListings(artifactArchiveListings);
 
         return artifactEntry;
     }

@@ -40,17 +40,24 @@ import org.springframework.stereotype.Component;
  * @author sbespalov
  */
 @Component
-public class ArtifactAdapter extends VertexEntityTraversalAdapter<Artifact> implements ArtifactHierarchyNodeAdapter<Artifact>
+public class ArtifactAdapter extends VertexEntityTraversalAdapter<Artifact>
+        implements ArtifactHierarchyNodeAdapter<Artifact>
 {
 
     @Inject
     GenericArtifactCoordinatesAdapter genericArtifactCoordinatesAdapter;
+
     @Inject
     ArtifactCoordinatesHierarchyAdapter artifactCoordinatesAdapter;
+
     @Inject
     ArtifactTagAdapter artifactTagAdapter;
+
     @Inject
     ArtifactHierarchyAdapter genericArtifactAdapter;
+
+    @Inject
+    ArtifactArchiveListingAdapter artifactArchiveListingAdapter;
 
     @Override
     public Set<String> labels()
@@ -89,11 +96,11 @@ public class ArtifactAdapter extends VertexEntityTraversalAdapter<Artifact> impl
                                           "created",
                                           "sizeInBytes",
                                           "downloadCount",
-                                          "filenames",
                                           "checksums",
                                           "genericArtifactCoordinates",
                                           "tags",
-                                          "artifactHierarchyChild")
+                                          "artifactHierarchyChild",
+                                          "artifactArchiveListings")
                  .by(__.id())
                  .by(__.enrichPropertyValue("uuid"))
                  .by(__.enrichPropertyValue("storageId"))
@@ -103,7 +110,6 @@ public class ArtifactAdapter extends VertexEntityTraversalAdapter<Artifact> impl
                  .by(__.enrichPropertyValue("created"))
                  .by(__.enrichPropertyValue("sizeInBytes"))
                  .by(__.enrichPropertyValue("downloadCount"))
-                 .by(__.enrichPropertyValues("filenames"))
                  .by(__.enrichPropertyValues("checksums"))
                  .by(__.outE(Edges.ARTIFACT_HAS_ARTIFACT_COORDINATES)
                        .mapToObject(__.inV()
@@ -115,6 +121,11 @@ public class ArtifactAdapter extends VertexEntityTraversalAdapter<Artifact> impl
                        .map(EntityTraversalUtils::castToObject)
                        .fold())
                  .by(childProjection)
+                 .by(__.outE(Edges.ARTIFACT_HAS_ARTIFACT_ARCHIVE_LISTING)
+                       .inV()
+                       .map(artifactArchiveListingAdapter.fold())
+                       .map(EntityTraversalUtils::castToObject)
+                       .fold())
                  .map(this::map);
     }
 
@@ -143,11 +154,6 @@ public class ArtifactAdapter extends VertexEntityTraversalAdapter<Artifact> impl
         result.setSizeInBytes(extractObject(Long.class, t.get().get("sizeInBytes")));
         result.setDownloadCount(extractObject(Integer.class, t.get().get("downloadCount")));
         
-        result.getArtifactArchiveListing()
-              .setFilenames(extracPropertytList(String.class, t.get().get("filenames")).stream()
-                                                                                       .filter(e -> !e.trim().isEmpty())
-                                                                                       .collect(Collectors.toSet()));
-
         result.addChecksums(extracPropertytList(String.class, t.get().get("checksums")).stream()
                                                                                        .filter(e -> !e.trim().isEmpty())
                                                                                        .collect(Collectors.toSet()));
@@ -159,6 +165,10 @@ public class ArtifactAdapter extends VertexEntityTraversalAdapter<Artifact> impl
                                                         t.get()
                                                          .get("artifactHierarchyChild"));
         result.setHierarchyChild(artifactHierarchyChild);
+
+        List<ArtifactArchiveListing> artifactArchiveListings = (List<ArtifactArchiveListing>) t.get()
+                                                                                               .get("artifactArchiveListings");
+        result.setArtifactArchiveListings(new HashSet<>(artifactArchiveListings));
         // artifactCoordinates.setGenericArtifactCoordinates(result);
 
         return result;
@@ -236,13 +246,7 @@ public class ArtifactAdapter extends VertexEntityTraversalAdapter<Artifact> impl
         if (entity.getDownloadCount() != null)
         {
             t = t.property(single, "downloadCount", entity.getDownloadCount());
-        }        
-
-        ArtifactArchiveListing artifactArchiveListing = entity.getArtifactArchiveListing();
-
-        Set<String> filenames = artifactArchiveListing.getFilenames();
-        t = t.sideEffect(__.properties("filenames").drop());
-        t = t.property("filenames", filenames);
+        }
 
         Map<String, String> checksums = entity.getChecksums();
         Set<String> checkSumAlgo = new HashSet<>();
