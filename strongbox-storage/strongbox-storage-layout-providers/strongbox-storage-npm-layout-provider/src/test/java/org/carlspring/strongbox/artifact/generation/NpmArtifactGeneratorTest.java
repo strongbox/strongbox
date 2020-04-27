@@ -123,25 +123,25 @@ class NpmArtifactGeneratorTest
     }
     
    public void containsLicense(Path path, String s)
-		   throws FileNotFoundException, IOException
+           throws FileNotFoundException, IOException
    {
-	   TarArchineInputStream  tarInput = new TarArchiveInputStream(new GzipCompressorInputStream(new FileInputStream(path.toString())));
-	   TarArchiveEntry currentEntry = tarInput.getInput.getNextTarEntry();
-	   
-	   while (currentEntry != null) 
-	   {
-		   if (currentEntry.getName().equals(s)) 
-		   {
-			   tarInput.close();
-			   return true;
-		   }
-		   
-		   currentEntry = tarInput.getNextTarEntry();
-	   }
-	   
-	   tarInput.close();
-	   
-	   return false;
+       TarArchineInputStream  tarInput = new TarArchiveInputStream(new GzipCompressorInputStream(new FileInputStream(path.toString())));
+       TarArchiveEntry currentEntry = tarInput.getInput.getNextTarEntry();
+       
+       while (currentEntry != null) 
+       {
+           if (currentEntry.getName().equals(s)) 
+           {
+               tarInput.close();
+               return true;
+           }
+           
+           currentEntry = tarInput.getNextTarEntry();
+       }
+       
+       tarInput.close();
+       
+       return false;
    }
 
          
