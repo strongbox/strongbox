@@ -1,18 +1,21 @@
 package org.carlspring.strongbox.test.service;
 
+import static org.carlspring.strongbox.db.schema.Vertices.ARTIFACT;
+
+import org.carlspring.strongbox.gremlin.dsl.EntityTraversalSource;
+import org.carlspring.strongbox.gremlin.tx.TransactionContext;
+
 import javax.inject.Inject;
 
 import org.apache.tinkerpop.gremlin.process.traversal.dsl.graph.GraphTraversalSource;
 import org.apache.tinkerpop.gremlin.structure.Graph;
-import org.carlspring.strongbox.gremlin.dsl.EntityTraversalSource;
-import org.carlspring.strongbox.gremlin.tx.TransactionContext;
 import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 
 public class TransactionalTestService
 {
 
-    private static final String VERTEX_LABEL = "TransactionPropagationTestVertex";
+    private static final String VERTEX_LABEL = ARTIFACT;
 
     @Inject
     @TransactionContext
