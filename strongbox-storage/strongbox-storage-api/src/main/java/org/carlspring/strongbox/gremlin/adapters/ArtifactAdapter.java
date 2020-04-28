@@ -99,8 +99,9 @@ public class ArtifactAdapter extends VertexEntityTraversalAdapter<Artifact>
                                           "checksums",
                                           "genericArtifactCoordinates",
                                           "tags",
-                                          "artifactHierarchyChild",
-                                          "artifactArchiveListings")
+                                          "artifactArchiveListings",
+                                          "artifactHierarchyChild"
+                                          )
                  .by(__.id())
                  .by(__.enrichPropertyValue("uuid"))
                  .by(__.enrichPropertyValue("storageId"))
@@ -120,12 +121,12 @@ public class ArtifactAdapter extends VertexEntityTraversalAdapter<Artifact>
                        .map(artifactTagAdapter.fold())
                        .map(EntityTraversalUtils::castToObject)
                        .fold())
-                 .by(childProjection)
                  .by(__.outE(Edges.ARTIFACT_HAS_ARTIFACT_ARCHIVE_LISTING)
-                       .inV()
-                       .map(artifactArchiveListingAdapter.fold())
-                       .map(EntityTraversalUtils::castToObject)
-                       .fold())
+                     .inV()
+                     .map(artifactArchiveListingAdapter.fold())
+                     .map(EntityTraversalUtils::castToObject)
+                     .fold())
+                 .by(childProjection)
                  .map(this::map);
     }
 
@@ -180,7 +181,18 @@ public class ArtifactAdapter extends VertexEntityTraversalAdapter<Artifact>
         ArtifactCoordinates artifactCoordinates = entity.getArtifactCoordinates();
         String storedArtifactId = Vertices.ARTIFACT + ":" + UUID.randomUUID().toString();        
         
-        Set<String> tagNames = entity.getTagSet().stream().map(ArtifactTag::getName).collect(Collectors.toSet());
+        Set<String> tagNames = entity.getTagSet()
+                                     .stream()
+                                     .map(ArtifactTag::getName)
+                                     .collect(Collectors.toSet());
+        
+        Set<String> fileNames = entity.getArtifactArchiveListings()
+                                      .stream()
+                                      .map(artifactArchive -> {
+                                          return artifactArchive.getFileName();
+                                      })
+                                      .collect(Collectors.toSet());
+
         EntityTraversal<Vertex, Vertex> unfoldTraversal = __.<Vertex, Edge>coalesce(__.<Vertex>outE(Edges.ARTIFACT_HAS_ARTIFACT_COORDINATES),
                                                                                     //cascading create ArtifactCoordinates only
                                                                                     createArtifactCoordinates(artifactCoordinates))
@@ -192,6 +204,11 @@ public class ArtifactAdapter extends VertexEntityTraversalAdapter<Artifact>
                                                                         .hasLabel(Vertices.ARTIFACT_TAG)
                                                                         .has("uuid", P.within(tagNames))
                                                                         .addE(Edges.ARTIFACT_HAS_TAGS)
+                                                                        .from(__.select(storedArtifactId).unfold()))
+                                                            .sideEffect(__.V()
+                                                                        .hasLabel(Vertices.ARTIFACT_ARCHIVE_LISTING)
+                                                                        .has("filename", P.within(fileNames))
+                                                                        .addE(Edges.ARTIFACT_HAS_ARTIFACT_ARCHIVE_LISTING)
                                                                         .from(__.select(storedArtifactId).unfold()));
 
         return new UnfoldEntityTraversal<>(Vertices.ARTIFACT, entity, unfoldTraversal);

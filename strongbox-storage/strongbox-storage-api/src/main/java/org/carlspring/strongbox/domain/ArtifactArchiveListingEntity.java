@@ -28,10 +28,11 @@ public class ArtifactArchiveListingEntity extends DomainEntity implements Artifa
                                         String storageId,
                                         String repositoryId)
     {
-        super();
         this.fileName = fileName;
         this.storageId = storageId;
         this.repositoryId = repositoryId;
+
+        setUuid(String.format("%s/%s/%s", getStorageId(), getRepositoryId(), getFileName()));
     }
 
     @Override
