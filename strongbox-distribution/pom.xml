@@ -14,7 +14,7 @@
 
     <artifactId>strongbox-distribution</artifactId>
     <version>1.0-PR-62-SNAPSHOT</version>
-ackaging>pom</packaging>
+    <packaging>pom</packaging>
 
     <name>Strongbox: Distribution</name>
     <description>The Strongbox distribution.</description>
