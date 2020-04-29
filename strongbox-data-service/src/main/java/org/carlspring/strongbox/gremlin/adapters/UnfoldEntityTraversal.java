@@ -33,12 +33,12 @@ public class UnfoldEntityTraversal<S, E> implements EntityTraversal<S, E>
         this.target = target;
     }
 
-    public String entityLabel()
+    public String getEntityLabel()
     {
         return entityLabel;
     }
     
-    public DomainObject entity()
+    public DomainObject getEntity()
     {
         return entity;
     }

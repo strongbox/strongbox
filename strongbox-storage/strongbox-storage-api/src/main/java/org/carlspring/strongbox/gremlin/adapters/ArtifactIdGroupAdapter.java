@@ -102,8 +102,8 @@ public class ArtifactIdGroupAdapter extends VertexEntityTraversalAdapter<Artifac
                 continue;
             }
             UnfoldEntityTraversal<Vertex, Vertex> unfoldArtifactTraversal = artifactAdapter.unfold(artifact);
-            saveArtifacstTraversal = saveArtifacstTraversal.V()
-                                                           .saveV(unfoldArtifactTraversal.entityLabel(), artifact.getUuid(),
+            saveArtifacstTraversal = saveArtifacstTraversal.V(artifact)
+                                                           .saveV(artifact.getUuid(),
                                                                   unfoldArtifactTraversal)
                                                            .optional(__.outE(Edges.REMOTE_ARTIFACT_INHERIT_ARTIFACT).otherV())
                                                            .aggregate(storedArtifact);

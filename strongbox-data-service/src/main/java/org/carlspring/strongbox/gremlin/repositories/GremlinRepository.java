@@ -42,6 +42,8 @@ public abstract class GremlinRepository<S extends Element, E extends DomainObjec
         return graph.traversal(EntityTraversalSource.class);
     }
 
+    protected abstract EntityTraversal<S, S> start(E entity, Supplier<EntityTraversalSource> g);
+    
     protected abstract EntityTraversal<S, S> start(Supplier<EntityTraversalSource> g);
 
     public <R extends E> R save(Supplier<EntityTraversalSource> g, R entity) {

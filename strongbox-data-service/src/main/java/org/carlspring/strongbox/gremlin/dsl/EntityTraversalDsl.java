@@ -6,6 +6,7 @@ import java.util.Optional;
 import java.util.Set;
 import java.util.UUID;
 
+import org.apache.tinkerpop.gremlin.process.traversal.P;
 import org.apache.tinkerpop.gremlin.process.traversal.Traversal;
 import org.apache.tinkerpop.gremlin.process.traversal.dsl.GremlinDsl;
 import org.apache.tinkerpop.gremlin.process.traversal.dsl.graph.GraphTraversal;
@@ -25,7 +26,7 @@ import org.springframework.util.CollectionUtils;
  * @param <S>
  * @param <E>
  */
-@GremlinDsl
+@GremlinDsl(traversalSource = "org.carlspring.strongbox.gremlin.dsl.EntityTraversalSourceDsl")
 public interface EntityTraversalDsl<S, E> extends GraphTraversal.Admin<S, E>
 {
 
@@ -74,13 +75,13 @@ public interface EntityTraversalDsl<S, E> extends GraphTraversal.Admin<S, E>
                              __.<Edge>unfold().map(enrichObjectTraversal));
     }
 
-    default <S2> Traversal<S, Vertex> saveV(String label,
-                                            Object uuid,
+    default <S2> Traversal<S, Vertex> saveV(Object uuid,
                                             UnfoldEntityTraversal<S2, Vertex> unfoldTraversal)
     {
         uuid = Optional.ofNullable(uuid)
                        .orElse(NULL);
-        DomainObject entity = unfoldTraversal.entity();
+        DomainObject entity = unfoldTraversal.getEntity();
+        String label = unfoldTraversal.getEntityLabel();
         
         return hasLabel(label).has("uuid", uuid)
                               .fold()

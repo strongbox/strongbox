@@ -117,12 +117,12 @@ public abstract class EntityHierarchyAdapter<E extends DomainObject, A extends E
                                                                            .map(a -> a.unfold((E) entity))
                                                                            .get();
 
-        if (getRootAdapter().labels().contains(unfoldTraversal.entityLabel()))
+        if (getRootAdapter().labels().contains(unfoldTraversal.getEntityLabel()))
         {
             return unfoldTraversal;
         }
 
-        return new UnfoldEntityTraversal<>(unfoldTraversal.entityLabel(),
+        return new UnfoldEntityTraversal<>(unfoldTraversal.getEntityLabel(),
                 entity,
                 __.<Vertex, Edge>coalesce(updateParent(entity),
                                           createParent(entity))
@@ -146,13 +146,11 @@ public abstract class EntityHierarchyAdapter<E extends DomainObject, A extends E
                  .select(hierarchyEdge());
     }
 
-    private <S> EntityTraversal<S, Vertex> saveParent(E artifact)
+    private <S> EntityTraversal<S, Vertex> saveParent(E parent)
     {
-        String rootLabel = getRootAdapter().labels().stream().findFirst().get();
-        return __.<S>V()
-                 .saveV(rootLabel,
-                        artifact.getUuid(),
-                        getRootAdapter().unfold(artifact));
+        return __.<S>V(parent)
+                 .saveV(parent.getUuid(),
+                        getRootAdapter().unfold(parent));
     }
 
 }

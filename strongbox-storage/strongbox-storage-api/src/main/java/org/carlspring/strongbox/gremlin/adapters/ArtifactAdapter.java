@@ -1,6 +1,5 @@
 package org.carlspring.strongbox.gremlin.adapters;
 
-import static org.apache.tinkerpop.gremlin.structure.VertexProperty.Cardinality.set;
 import static org.apache.tinkerpop.gremlin.structure.VertexProperty.Cardinality.single;
 import static org.carlspring.strongbox.gremlin.adapters.EntityTraversalUtils.extracPropertytList;
 import static org.carlspring.strongbox.gremlin.adapters.EntityTraversalUtils.extractObject;
@@ -198,11 +197,9 @@ public class ArtifactAdapter extends VertexEntityTraversalAdapter<Artifact> impl
     private <S2> EntityTraversal<S2, Vertex> saveArtifactCoordinates(ArtifactCoordinates artifactCoordinates)
     {
         UnfoldEntityTraversal<Vertex, Vertex> artifactCoordinatesUnfold = artifactCoordinatesAdapter.unfold(artifactCoordinates);
-        String artifactCoordinatesLabel = artifactCoordinatesUnfold.entityLabel();
 
-        return __.<S2>V()
-                 .saveV(artifactCoordinatesLabel,
-                        artifactCoordinates.getUuid(),
+        return __.<S2>V(artifactCoordinates)
+                 .saveV(artifactCoordinates.getUuid(),
                         artifactCoordinatesUnfold)
                  .outE(Edges.ARTIFACT_COORDINATES_INHERIT_GENERIC_ARTIFACT_COORDINATES)
                  .inV();
