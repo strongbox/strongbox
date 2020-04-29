@@ -146,11 +146,15 @@ public abstract class EntityHierarchyAdapter<E extends DomainObject, A extends E
                  .select(hierarchyEdge());
     }
 
-    private <S> EntityTraversal<S, Vertex> saveParent(E parent)
+    private <S> EntityTraversal<S, Vertex> saveParent(E entity)
     {
-        return __.<S>V(parent)
-                 .saveV(parent.getUuid(),
-                        getRootAdapter().unfold(parent));
+        if (entity instanceof EntityHierarchyNode)
+        {
+            entity = (E) ((EntityHierarchyNode) entity).getHierarchyParent();
+        }
+        return __.<S>V(entity)
+                 .saveV(entity.getUuid(),
+                        getRootAdapter().unfold(entity));
     }
 
 }

@@ -42,7 +42,12 @@ public abstract class GremlinVertexRepository<E extends DomainObject> extends Gr
     public EntityTraversal<Vertex, Vertex> start(E entity,
                                                  Supplier<EntityTraversalSource> g)
     {
-        return g.get().V(entity);
+        Long vertexId = entity.getNativeId();
+        if (vertexId != null)
+        {
+            return g.get().V(vertexId);
+        }
+        return g.get().V();
     }
 
     @Override

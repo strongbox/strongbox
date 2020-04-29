@@ -38,11 +38,11 @@ public class EntityTraversalSourceDsl extends GraphTraversalSource
 
     public GraphTraversal<Vertex, Vertex> V(DomainObject entity)
     {
-        Long vertexId = entity.getNativeId();
-
         GraphTraversalSource clone = this.clone();
         clone.getBytecode().addStep(GraphTraversal.Symbols.V);
         GraphTraversal<Vertex, Vertex> traversal = new DefaultGraphTraversal<>(clone);
+        
+        Long vertexId = entity.getNativeId();
         if (vertexId != null)
         {
             traversal.asAdmin().addStep(new GraphStep<>(traversal.asAdmin(), Vertex.class, true, vertexId));
