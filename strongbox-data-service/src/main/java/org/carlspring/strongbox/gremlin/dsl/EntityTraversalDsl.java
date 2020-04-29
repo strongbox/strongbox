@@ -6,7 +6,6 @@ import java.util.Optional;
 import java.util.Set;
 import java.util.UUID;
 
-import org.apache.tinkerpop.gremlin.process.traversal.P;
 import org.apache.tinkerpop.gremlin.process.traversal.Traversal;
 import org.apache.tinkerpop.gremlin.process.traversal.dsl.GremlinDsl;
 import org.apache.tinkerpop.gremlin.process.traversal.dsl.graph.GraphTraversal;
@@ -75,6 +74,17 @@ public interface EntityTraversalDsl<S, E> extends GraphTraversal.Admin<S, E>
                              __.<Edge>unfold().map(enrichObjectTraversal));
     }
 
+    default GraphTraversal<S, Vertex> V(DomainObject entity)
+    {
+        Long nativeId = entity.getNativeId();
+        if (nativeId != null)
+        {
+            return V(nativeId);
+        }
+
+        return V();
+    }
+    
     default <S2> Traversal<S, Vertex> saveV(Object uuid,
                                             UnfoldEntityTraversal<S2, Vertex> unfoldTraversal)
     {

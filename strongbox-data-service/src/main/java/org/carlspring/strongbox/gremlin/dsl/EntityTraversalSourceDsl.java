@@ -8,7 +8,9 @@ import org.apache.tinkerpop.gremlin.process.traversal.dsl.graph.GraphTraversalSo
 import org.apache.tinkerpop.gremlin.process.traversal.step.map.GraphStep;
 import org.apache.tinkerpop.gremlin.structure.Graph;
 import org.apache.tinkerpop.gremlin.structure.Vertex;
-import org.carlspring.strongbox.data.domain.DomainEntity;
+import org.carlspring.strongbox.data.domain.DomainObject;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * @author sbespalov
@@ -16,6 +18,8 @@ import org.carlspring.strongbox.data.domain.DomainEntity;
 public class EntityTraversalSourceDsl extends GraphTraversalSource
 {
 
+    private static final Logger logger = LoggerFactory.getLogger(EntityTraversalSourceDsl.class);
+    
     public EntityTraversalSourceDsl(Graph graph,
                                     TraversalStrategies traversalStrategies)
     {
@@ -32,7 +36,7 @@ public class EntityTraversalSourceDsl extends GraphTraversalSource
         super(connection);
     }
 
-    public GraphTraversal<Vertex, Vertex> V(DomainEntity entity)
+    public GraphTraversal<Vertex, Vertex> V(DomainObject entity)
     {
         Long vertexId = entity.getNativeId();
 
