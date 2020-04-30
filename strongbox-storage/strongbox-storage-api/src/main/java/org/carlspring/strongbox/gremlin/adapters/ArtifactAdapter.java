@@ -188,8 +188,7 @@ public class ArtifactAdapter extends VertexEntityTraversalAdapter<Artifact>
             {
                 UnfoldEntityTraversal<Vertex, Vertex> unfoldArtifactArchiveListingTraversal = artifactArchiveListingAdapter.unfold(artifactArchiveListing);
                 artifactArchiveListingTraversal = artifactArchiveListingTraversal.V()
-                                                                                 .saveV(unfoldArtifactArchiveListingTraversal.entityLabel(),
-                                                                                        artifactArchiveListing.getUuid(),
+                                                                                 .saveV(artifactArchiveListing.getUuid(),
                                                                                         unfoldArtifactArchiveListingTraversal)
                                                                                  .optional(__.outE(Edges.ARTIFACT_HAS_ARTIFACT_ARCHIVE_LISTING)
                                                                                              .otherV())
