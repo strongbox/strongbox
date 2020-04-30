@@ -13,26 +13,27 @@ import org.neo4j.ogm.annotation.NodeEntity;
 public class ArtifactArchiveListingEntity extends DomainEntity implements ArtifactArchiveListing
 {
 
-    private String fileName;
-
     private String storageId;
 
     private String repositoryId;
+
+    private String fileName;
 
     public ArtifactArchiveListingEntity()
     {
         super();
     }
 
-    public ArtifactArchiveListingEntity(String fileName,
-                                        String storageId,
-                                        String repositoryId)
+    public ArtifactArchiveListingEntity(String storageId,
+                                        String repositoryId,
+                                        String fileName)
     {
-        this.fileName = fileName;
+
         this.storageId = storageId;
         this.repositoryId = repositoryId;
+        this.fileName = fileName;
 
-        setUuid(String.format("%s/%s/%s", getStorageId(), getRepositoryId(), getFileName()));
+        // setUuid(String.format("%s/%s/%s",getStorageId(), getRepositoryId(), getFileName()));
     }
 
     @Override

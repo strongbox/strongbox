@@ -62,7 +62,11 @@ public class ArtifactStoredEventListener
 
         Set<ArtifactArchiveListing> artifactArchiveListings = archiveFilenames.stream()
                                                                               .map(archiveFilename -> {
-                                                                                    return new ArtifactArchiveListingEntity();})
+                                                                                  return new ArtifactArchiveListingEntity(
+                                                                                          artifactEntry.getStorageId(),
+                                                                                          artifactEntry.getRepositoryId(),
+                                                                                          archiveFilename);
+                                                                              })
                                                                               .collect(Collectors.toSet());
         artifactEntry.setArtifactArchiveListings(artifactArchiveListings);
 

@@ -36,9 +36,9 @@ public class ArtifactArchiveListingAdapter extends VertexEntityTraversalAdapter<
     {
         return __.<Vertex, Object>project("id",
                                           "uuid",
-                                          "fileName",
                                           "storageId",
-                                          "repositoryId")
+                                          "repositoryId",
+                                          "fileName")
                  .by(__.id())
                  .by(__.enrichPropertyValue("uuid"))
                  .by(__.enrichPropertyValue("storageId"))
