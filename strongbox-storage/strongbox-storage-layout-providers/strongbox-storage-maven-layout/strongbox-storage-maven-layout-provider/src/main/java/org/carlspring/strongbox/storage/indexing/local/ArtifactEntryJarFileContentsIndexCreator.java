@@ -11,6 +11,7 @@ import org.apache.commons.lang3.StringUtils;
 import org.apache.maven.index.ArtifactContext;
 import org.apache.maven.index.ArtifactInfo;
 import org.apache.maven.index.creator.JarFileContentsIndexCreator;
+import org.carlspring.strongbox.domain.ArtifactArchiveListing;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -76,12 +77,10 @@ public class ArtifactEntryJarFileContentsIndexCreator
         {
             return;
         }
-        
+
         Set<String> filenames = artifactEntry.getArtifactArchiveListings()
                                              .stream()
-                                             .map(artifactArchiveListing -> {
-                                                 return artifactArchiveListing.getFileName();
-                                             })
+                                             .map(ArtifactArchiveListing::getFileName)
                                              .collect(Collectors.toSet());
 
         final StringBuilder sb = new StringBuilder();

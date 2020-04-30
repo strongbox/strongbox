@@ -85,9 +85,7 @@ public class ArtifactRepositoryTest
         
         Set<String> fileNames = artifactEntity.getArtifactArchiveListings()
                                               .stream()
-                                              .map(artifactArchiveListing -> {
-                                                  return artifactArchiveListing.getFileName();
-                                              })
+                                              .map(ArtifactArchiveListing::getFileName)
                                               .collect(Collectors.toSet());
         assertThat(fileNames).containsOnly("file1.txt", "readme.md", "icon.svg");
 
@@ -168,9 +166,7 @@ public class ArtifactRepositoryTest
         assertThat(artifact).isNotInstanceOf(RemoteArtifact.class);
         Set<String> fileNames = artifactEntity.getArtifactArchiveListings()
                                               .stream()
-                                              .map(artifactArchiveListing -> {
-                                                  return artifactArchiveListing.getFileName();
-                                              })
+                                              .map(ArtifactArchiveListing::getFileName)
                                               .collect(Collectors.toSet());
         assertThat(fileNames).containsOnly("file1.txt", "readme.md", "icon.svg");
 
