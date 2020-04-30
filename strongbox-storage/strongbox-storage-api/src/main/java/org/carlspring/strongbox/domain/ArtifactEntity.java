@@ -112,7 +112,7 @@ public class ArtifactEntity
         if (artifactCoordinates instanceof ArtifactCoordinates) {
             return (ArtifactCoordinates) artifactCoordinates;
         }
-        return ((GenericArtifactCoordinatesEntity)artifactCoordinates).getLayoutArtifactCoordinates();
+        return (ArtifactCoordinates) artifactCoordinates.getHierarchyChild();
     }
 
     @Override

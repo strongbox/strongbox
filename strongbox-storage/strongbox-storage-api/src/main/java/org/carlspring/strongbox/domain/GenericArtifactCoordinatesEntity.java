@@ -19,16 +19,22 @@ public class GenericArtifactCoordinatesEntity extends DomainEntity implements Ge
     @Properties
     private final Map<String, String> coordinates = new LinkedHashMap<>();
     @Relationship(type = Edges.ARTIFACT_COORDINATES_INHERIT_GENERIC_ARTIFACT_COORDINATES, direction = Relationship.INCOMING)
-    private LayoutArtifactCoordinatesEntity layoutArtifactCoordinates;
+    private GenericArtifactCoordinates layoutArtifactCoordinates;
 
-    public LayoutArtifactCoordinatesEntity getLayoutArtifactCoordinates()
+    public void setHierarchyChild(GenericArtifactCoordinates child) {
+        this.layoutArtifactCoordinates = child;
+    }
+    
+    @Override
+    public GenericArtifactCoordinates getHierarchyChild()
     {
         return layoutArtifactCoordinates;
     }
 
-    public void setLayoutArtifactCoordinates(LayoutArtifactCoordinatesEntity layoutArtifactCoordinates)
+    @Override
+    public GenericArtifactCoordinates getHierarchyParent()
     {
-        this.layoutArtifactCoordinates = layoutArtifactCoordinates;
+        return null;
     }
 
     protected void resetCoordinates(String... coordinates)

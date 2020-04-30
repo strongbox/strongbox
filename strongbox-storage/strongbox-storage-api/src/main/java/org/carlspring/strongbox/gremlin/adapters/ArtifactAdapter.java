@@ -133,7 +133,7 @@ public class ArtifactAdapter extends VertexEntityTraversalAdapter<Artifact> impl
         GenericArtifactCoordinatesEntity artifactCoordinates = extractObject(GenericArtifactCoordinatesEntity.class,
                                                                              t.get().get("genericArtifactCoordinates"));
 
-        ArtifactEntity result = new ArtifactEntity(storageId, repositoryId, artifactCoordinates.getLayoutArtifactCoordinates());
+        ArtifactEntity result = new ArtifactEntity(storageId, repositoryId, (ArtifactCoordinates) artifactCoordinates.getHierarchyChild());
         result.setNativeId(extractObject(Long.class, t.get().get("id")));
         result.setUuid(extractObject(String.class, t.get().get("uuid")));
 

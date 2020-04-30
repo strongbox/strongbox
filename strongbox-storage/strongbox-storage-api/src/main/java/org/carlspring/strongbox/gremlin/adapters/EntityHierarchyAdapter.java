@@ -148,10 +148,8 @@ public abstract class EntityHierarchyAdapter<E extends DomainObject, A extends E
 
     private <S> EntityTraversal<S, Vertex> saveParent(E entity)
     {
-        if (entity instanceof EntityHierarchyNode)
-        {
-            entity = (E) ((EntityHierarchyNode) entity).getHierarchyParent();
-        }
+        entity = (E) ((EntityHierarchyNode) entity).getHierarchyParent();
+        
         return __.<S>V(entity)
                  .saveV(entity.getUuid(),
                         getRootAdapter().unfold(entity));

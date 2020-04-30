@@ -123,7 +123,7 @@ public abstract class LayoutArtifactCoordinatesAdapter<C extends LayoutArtifactC
         else
         {
             result = layoutCoordinatesClass.getDeclaredConstructor(GenericArtifactCoordinatesEntity.class).newInstance(genericArtifactCoordinates);
-            genericArtifactCoordinates.setLayoutArtifactCoordinates(result);
+            genericArtifactCoordinates.setHierarchyChild(result);
         }
         return result;
     }

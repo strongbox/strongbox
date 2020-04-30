@@ -7,6 +7,7 @@ import java.util.Map;
 import org.carlspring.strongbox.artifact.coordinates.ArtifactCoordinates;
 import org.carlspring.strongbox.artifact.coordinates.ArtifactCoordinatesComparator;
 import org.carlspring.strongbox.artifact.coordinates.ArtifactCoordinatesResourceConverter;
+import org.carlspring.strongbox.artifact.coordinates.GenericArtifactCoordinates;
 import org.carlspring.strongbox.data.domain.DomainEntity;
 import org.carlspring.strongbox.db.schema.Edges;
 import org.neo4j.ogm.annotation.Relationship;
@@ -31,8 +32,20 @@ public abstract class LayoutArtifactCoordinatesEntity<C extends LayoutArtifactCo
     public LayoutArtifactCoordinatesEntity(GenericArtifactCoordinatesEntity genericArtifactCoordinates)
     {
         this.genericArtifactCoordinates = genericArtifactCoordinates;
-        this.genericArtifactCoordinates.setLayoutArtifactCoordinates(this);
+        this.genericArtifactCoordinates.setHierarchyChild(this);
         super.setUuid(genericArtifactCoordinates.getUuid());
+    }
+
+    @Override
+    public GenericArtifactCoordinates getHierarchyChild()
+    {
+        return null;
+    }
+
+    @Override
+    public GenericArtifactCoordinates getHierarchyParent()
+    {
+        return genericArtifactCoordinates;
     }
 
     public GenericArtifactCoordinatesEntity getGenericArtifactCoordinates()

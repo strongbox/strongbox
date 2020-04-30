@@ -101,7 +101,7 @@ public class GenericArtifactCoordinatesAdapter extends VertexEntityTraversalAdap
         LayoutArtifactCoordinatesEntity artifactCoordinates = extractObject(LayoutArtifactCoordinatesEntity.class,
                                                                             t.get()
                                                                              .get("layoutArtifactCoordinates"));
-        result.setLayoutArtifactCoordinates(artifactCoordinates);
+        result.setHierarchyChild(artifactCoordinates);
         if (artifactCoordinates != null)
         {
             artifactCoordinates.setGenericArtifactCoordinates(result);

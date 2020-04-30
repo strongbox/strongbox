@@ -3,12 +3,13 @@ package org.carlspring.strongbox.artifact.coordinates;
 import java.util.Map;
 
 import org.carlspring.strongbox.data.domain.DomainObject;
+import org.carlspring.strongbox.gremlin.adapters.EntityHierarchyNode;
 
 /**
  * @author sbespalov
  *
  */
-public interface GenericArtifactCoordinates extends DomainObject
+public interface GenericArtifactCoordinates extends DomainObject, EntityHierarchyNode<GenericArtifactCoordinates>
 {
 
     String getVersion();
