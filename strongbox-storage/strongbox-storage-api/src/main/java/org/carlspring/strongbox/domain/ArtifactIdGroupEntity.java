@@ -31,7 +31,7 @@ public class ArtifactIdGroupEntity extends DomainEntity implements ArtifactIdGro
     @Relationship(type = Edges.ARTIFACT_GROUP_HAS_ARTIFACTS, direction = Relationship.OUTGOING)
     private final Set<Artifact> artifacts = new HashSet<>();
 
-    public ArtifactIdGroupEntity()
+    ArtifactIdGroupEntity()
     {
     }
 
