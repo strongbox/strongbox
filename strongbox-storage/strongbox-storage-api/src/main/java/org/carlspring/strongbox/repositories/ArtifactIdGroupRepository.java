@@ -14,6 +14,7 @@ import org.carlspring.strongbox.artifact.ArtifactTag;
 import org.carlspring.strongbox.db.schema.Vertices;
 import org.carlspring.strongbox.domain.Artifact;
 import org.carlspring.strongbox.domain.ArtifactIdGroup;
+import org.carlspring.strongbox.domain.ArtifactIdGroupEntity;
 import org.carlspring.strongbox.gremlin.adapters.ArtifactIdGroupAdapter;
 import org.carlspring.strongbox.gremlin.dsl.EntityTraversal;
 import org.carlspring.strongbox.gremlin.repositories.GremlinVertexRepository;
@@ -60,11 +61,10 @@ public class ArtifactIdGroupRepository extends GremlinVertexRepository<ArtifactI
                                                                String artifactId,
                                                                Optional<ArtifactTag> tag)
     {
+        ArtifactIdGroup artifactIdGroup = new ArtifactIdGroupEntity(storageId, repositoryId, artifactId);
         EntityTraversal<Vertex, ArtifactIdGroup> t = g().V()
                                                         .hasLabel(Vertices.ARTIFACT_ID_GROUP)
-                                                        .has("storageId", storageId)
-                                                        .has("repositoryId", repositoryId)
-                                                        .has("name", artifactId)
+                                                        .has("uuid", artifactIdGroup.getUuid())
                                                         .map(adapter.fold(tag));
         if (!t.hasNext())
         {
