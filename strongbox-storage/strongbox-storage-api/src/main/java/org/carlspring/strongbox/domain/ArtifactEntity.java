@@ -1,6 +1,5 @@
 package org.carlspring.strongbox.domain;
 
-import static org.carlspring.strongbox.db.schema.Edges.ARTIFACT_HAS_ARTIFACT_ARCHIVE_LISTING;
 import static org.carlspring.strongbox.db.schema.Edges.ARTIFACT_HAS_ARTIFACT_COORDINATES;
 import static org.carlspring.strongbox.db.schema.Edges.ARTIFACT_HAS_TAGS;
 import static org.carlspring.strongbox.db.schema.Edges.REMOTE_ARTIFACT_INHERIT_ARTIFACT;
@@ -61,9 +60,6 @@ public class ArtifactEntity
     private LocalDateTime created;
 
     private Integer downloadCount = Integer.valueOf(0);
-
-    @Relationship(type = ARTIFACT_HAS_ARTIFACT_ARCHIVE_LISTING)
-    private Set<ArtifactArchiveListing> artifactArchiveListings;
 
     @Relationship(type = REMOTE_ARTIFACT_INHERIT_ARTIFACT, direction = INCOMING)
     private Artifact artifactHierarchyChild;
@@ -253,18 +249,6 @@ public class ArtifactEntity
     public Artifact getHierarchyParent()
     {
         return null;
-    }
-
-    @Override
-    public Set<ArtifactArchiveListing> getArtifactArchiveListings()
-    {
-        return artifactArchiveListings = Optional.ofNullable(artifactArchiveListings).orElse(new HashSet<>());
-    }
-
-    @Override
-    public void setArtifactArchiveListings(Set<ArtifactArchiveListing> artifactArchiveListings)
-    {
-        this.artifactArchiveListings = artifactArchiveListings;
     }
 
 }

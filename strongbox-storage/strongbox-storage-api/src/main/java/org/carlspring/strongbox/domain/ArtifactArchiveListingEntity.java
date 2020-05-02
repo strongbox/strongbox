@@ -13,10 +13,6 @@ import org.neo4j.ogm.annotation.NodeEntity;
 public class ArtifactArchiveListingEntity extends DomainEntity implements ArtifactArchiveListing
 {
 
-    private String storageId;
-
-    private String repositoryId;
-
     private String fileName;
 
     public ArtifactArchiveListingEntity()
@@ -28,12 +24,8 @@ public class ArtifactArchiveListingEntity extends DomainEntity implements Artifa
                                         String repositoryId,
                                         String fileName)
     {
-
-        this.storageId = storageId;
-        this.repositoryId = repositoryId;
         this.fileName = fileName;
-
-        // setUuid(String.format("%s/%s/%s",getStorageId(), getRepositoryId(), getFileName()));
+        // setUuid(String.format("%s/%s/%s", getStorageId(), getRepositoryId(), getFileName()));
     }
 
     @Override
@@ -47,27 +39,4 @@ public class ArtifactArchiveListingEntity extends DomainEntity implements Artifa
     {
         this.fileName = fileName;
     }
-
-    @Override
-    public String getStorageId()
-    {
-        return storageId;
-    }
-
-    public void setStorageId(String storageId)
-    {
-        this.storageId = storageId;
-    }
-
-    @Override
-    public String getRepositoryId()
-    {
-        return repositoryId;
-    }
-
-    public void setRepositoryId(String repositoryId)
-    {
-        this.repositoryId = repositoryId;
-    }
-
 }

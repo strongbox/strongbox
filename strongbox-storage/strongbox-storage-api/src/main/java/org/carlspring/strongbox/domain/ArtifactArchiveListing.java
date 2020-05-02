@@ -9,8 +9,4 @@ public interface ArtifactArchiveListing extends DomainObject
 
     void setFileName(String fileName);
 
-    String getStorageId();
-
-    String getRepositoryId();
-
 }

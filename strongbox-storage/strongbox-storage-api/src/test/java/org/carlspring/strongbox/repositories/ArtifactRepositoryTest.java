@@ -58,13 +58,7 @@ public class ArtifactRepositoryTest
         RawArtifactCoordinates artifactCoordinates = new RawArtifactCoordinates();
         artifactCoordinates.setId(path);
 
-        Set<ArtifactArchiveListing> artifactArchiveListings = new HashSet<>();
-        artifactArchiveListings.add(new ArtifactArchiveListingEntity("storage0", repositoryId, "file1.txt"));
-        artifactArchiveListings.add(new ArtifactArchiveListingEntity("storage0", repositoryId, "readme.md"));
-        artifactArchiveListings.add(new ArtifactArchiveListingEntity("storage0", repositoryId, "icon.svg"));
-
         ArtifactEntity artifactEntity = new ArtifactEntity("storage0", repositoryId, artifactCoordinates);
-        artifactEntity.setArtifactArchiveListings(artifactArchiveListings);
         artifactEntity.addChecksums(new HashSet<>(Arrays.asList("{md5}3111519d5b4efd31565831f735ab0d2f",
                                                                 "{sha-1}ba79baeb 9f10896a 46ae7471 5271b7f5 86e74640")));
 
@@ -83,12 +77,6 @@ public class ArtifactRepositoryTest
         assertThat(artifactEntity.getLastUpdated()).isEqualTo(now);
         assertThat(artifactEntity.getLastUsed()).isEqualTo(now.minusDays(5));
         
-        Set<String> fileNames = artifactEntity.getArtifactArchiveListings()
-                                              .stream()
-                                              .map(ArtifactArchiveListing::getFileName)
-                                              .collect(Collectors.toSet());
-        assertThat(fileNames).containsOnly("file1.txt", "readme.md", "icon.svg");
-
         artifactCoordinates = (RawArtifactCoordinates) artifactEntity.getArtifactCoordinates();
         assertThat(artifactCoordinates.getUuid()).isEqualTo(path);
         assertThat(artifactCoordinates.getVersion()).isNull();
@@ -133,13 +121,7 @@ public class ArtifactRepositoryTest
         RawArtifactCoordinates artifactCoordinates = new RawArtifactCoordinates();
         artifactCoordinates.setId(path);
 
-        Set<ArtifactArchiveListing> artifactArchiveListings = new HashSet<>();
-        artifactArchiveListings.add(new ArtifactArchiveListingEntity("storage0", repositoryId, "file1.txt"));
-        artifactArchiveListings.add(new ArtifactArchiveListingEntity("storage0", repositoryId, "readme.md"));
-        artifactArchiveListings.add(new ArtifactArchiveListingEntity("storage0", repositoryId, "icon.svg"));
-        
         ArtifactEntity artifactEntity = new ArtifactEntity(storageId, repositoryId, artifactCoordinates);
-        artifactEntity.setArtifactArchiveListings(artifactArchiveListings);
         LocalDateTime now = LocalDateTime.now();
         artifactEntity.setCreated(now.minusDays(10));
         artifactEntity.setLastUsed(now.minusDays(5));
@@ -164,11 +146,6 @@ public class ArtifactRepositoryTest
         Artifact artifact = artifactRepository.findOneArtifact(storageId, repositoryId, path);
         assertThat(artifact).isInstanceOf(Artifact.class);
         assertThat(artifact).isNotInstanceOf(RemoteArtifact.class);
-        Set<String> fileNames = artifactEntity.getArtifactArchiveListings()
-                                              .stream()
-                                              .map(ArtifactArchiveListing::getFileName)
-                                              .collect(Collectors.toSet());
-        assertThat(fileNames).containsOnly("file1.txt", "readme.md", "icon.svg");
 
         artifactCoordinates = (RawArtifactCoordinates) artifact.getArtifactCoordinates();
         assertThat(artifactCoordinates.getUuid()).isEqualTo(path);

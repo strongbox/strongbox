@@ -99,9 +99,7 @@ public class ArtifactAdapter extends VertexEntityTraversalAdapter<Artifact>
                                           "checksums",
                                           "genericArtifactCoordinates",
                                           "tags",
-                                          "artifactArchiveListings",
-                                          "artifactHierarchyChild"
-                                          )
+                                          "artifactHierarchyChild")
                  .by(__.id())
                  .by(__.enrichPropertyValue("uuid"))
                  .by(__.enrichPropertyValue("storageId"))
@@ -121,11 +119,6 @@ public class ArtifactAdapter extends VertexEntityTraversalAdapter<Artifact>
                        .map(artifactTagAdapter.fold())
                        .map(EntityTraversalUtils::castToObject)
                        .fold())
-                 .by(__.outE(Edges.ARTIFACT_HAS_ARTIFACT_ARCHIVE_LISTING)
-                     .inV()
-                     .map(artifactArchiveListingAdapter.fold())
-                     .map(EntityTraversalUtils::castToObject)
-                     .fold())
                  .by(childProjection)
                  .map(this::map);
     }
@@ -167,11 +160,6 @@ public class ArtifactAdapter extends VertexEntityTraversalAdapter<Artifact>
                                                          .get("artifactHierarchyChild"));
         result.setHierarchyChild(artifactHierarchyChild);
 
-        List<ArtifactArchiveListing> artifactArchiveListings = (List<ArtifactArchiveListing>) t.get()
-                                                                                               .get("artifactArchiveListings");
-        result.setArtifactArchiveListings(new HashSet<>(artifactArchiveListings));
-        // artifactCoordinates.setGenericArtifactCoordinates(result);
-
         return result;
     }
 
@@ -179,33 +167,12 @@ public class ArtifactAdapter extends VertexEntityTraversalAdapter<Artifact>
     public UnfoldEntityTraversal<Vertex, Vertex> unfold(Artifact entity)
     {
 
-        EntityTraversal<Vertex, Vertex> artifactArchiveListingTraversal = __.<Vertex>identity();
-        String storedArtifactArchiveListingId = Vertices.ARTIFACT_ARCHIVE_LISTING + ":" + UUID.randomUUID();
-        
-        for (ArtifactArchiveListing artifactArchiveListing : entity.getArtifactArchiveListings())
-        {
-            if (artifactArchiveListing.getNativeId() == null)
-            {
-                UnfoldEntityTraversal<Vertex, Vertex> unfoldArtifactArchiveListingTraversal = artifactArchiveListingAdapter.unfold(artifactArchiveListing);
-                artifactArchiveListingTraversal = artifactArchiveListingTraversal.V()
-                                                                                 .saveV(artifactArchiveListing.getUuid(),
-                                                                                        unfoldArtifactArchiveListingTraversal)
-                                                                                 .optional(__.outE(Edges.ARTIFACT_HAS_ARTIFACT_ARCHIVE_LISTING)
-                                                                                             .otherV())
-                                                                                 .aggregate(storedArtifactArchiveListingId);
-            }
-        }
-
         ArtifactCoordinates artifactCoordinates = entity.getArtifactCoordinates();
-        String storedArtifactId = Vertices.ARTIFACT + ":" + UUID.randomUUID().toString();        
-        
-        Set<String> tagNames = entity.getTagSet()
-                                     .stream()
-                                     .map(ArtifactTag::getName)
-                                     .collect(Collectors.toSet());
+        String storedArtifactId = Vertices.ARTIFACT + ":" + UUID.randomUUID().toString();
 
+        Set<String> tagNames = entity.getTagSet().stream().map(ArtifactTag::getName).collect(Collectors.toSet());
         EntityTraversal<Vertex, Vertex> unfoldTraversal = __.<Vertex, Edge>coalesce(__.<Vertex>outE(Edges.ARTIFACT_HAS_ARTIFACT_COORDINATES),
-                                                                                    //cascading create ArtifactCoordinates only
+                                                                                    // cascading create ArtifactCoordinates only
                                                                                     createArtifactCoordinates(artifactCoordinates))
                                                             .outV()
                                                             .sideEffect(__.outE(Edges.ARTIFACT_HAS_TAGS).drop())
@@ -215,12 +182,7 @@ public class ArtifactAdapter extends VertexEntityTraversalAdapter<Artifact>
                                                                           .hasLabel(Vertices.ARTIFACT_TAG)
                                                                           .has("uuid", P.within(tagNames))
                                                                           .addE(Edges.ARTIFACT_HAS_TAGS)
-                                                                          .from(__.select(storedArtifactId).unfold()))
-                                                            .sideEffect(artifactArchiveListingTraversal.select(storedArtifactArchiveListingId)
-                                                                                                       .unfold()
-                                                                                                       .addE(Edges.ARTIFACT_HAS_ARTIFACT_ARCHIVE_LISTING)
-                                                                                                       .from(__.select(storedArtifactId)
-                                                                                                               .unfold()));
+                                                                          .from(__.select(storedArtifactId).unfold()));
 
         return new UnfoldEntityTraversal<>(Vertices.ARTIFACT, entity, unfoldTraversal);
     }

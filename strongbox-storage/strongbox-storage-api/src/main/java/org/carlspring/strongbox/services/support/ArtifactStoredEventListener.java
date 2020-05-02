@@ -60,15 +60,15 @@ public class ArtifactStoredEventListener
             return null;
         }
 
-        Set<ArtifactArchiveListing> artifactArchiveListings = archiveFilenames.stream()
-                                                                              .map(archiveFilename -> {
-                                                                                  return new ArtifactArchiveListingEntity(
-                                                                                          artifactEntry.getStorageId(),
-                                                                                          artifactEntry.getRepositoryId(),
-                                                                                          archiveFilename);
-                                                                              })
-                                                                              .collect(Collectors.toSet());
-        artifactEntry.setArtifactArchiveListings(artifactArchiveListings);
+//        Set<ArtifactArchiveListing> artifactArchiveListings = archiveFilenames.stream()
+//                                                                              .map(archiveFilename -> {
+//                                                                                  return new ArtifactArchiveListingEntity(
+//                                                                                          artifactEntry.getStorageId(),
+//                                                                                          artifactEntry.getRepositoryId(),
+//                                                                                          archiveFilename);
+//                                                                              })
+//                                                                              .collect(Collectors.toSet());
+//        artifactEntry.setArtifactArchiveListings(artifactArchiveListings);
 
         return artifactEntry;
     }

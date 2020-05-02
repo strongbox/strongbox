@@ -36,13 +36,9 @@ public class ArtifactArchiveListingAdapter extends VertexEntityTraversalAdapter<
     {
         return __.<Vertex, Object>project("id",
                                           "uuid",
-                                          "storageId",
-                                          "repositoryId",
                                           "fileName")
                  .by(__.id())
                  .by(__.enrichPropertyValue("uuid"))
-                 .by(__.enrichPropertyValue("storageId"))
-                 .by(__.enrichPropertyValue("repositoryId"))
                  .by(__.enrichPropertyValue("fileName"))
                  .map(this::map);
     }
@@ -53,8 +49,6 @@ public class ArtifactArchiveListingAdapter extends VertexEntityTraversalAdapter<
         result.setNativeId(extractObject(Long.class, t.get().get("id")));
         result.setUuid(extractObject(String.class, t.get().get("uuid")));
         result.setFileName(extractObject(String.class, t.get().get("fileName")));
-        result.setStorageId(extractObject(String.class, t.get().get("storageId")));
-        result.setRepositoryId(extractObject(String.class, t.get().get("repositoryId")));
         return result;
     }
 
@@ -67,14 +61,6 @@ public class ArtifactArchiveListingAdapter extends VertexEntityTraversalAdapter<
         if (entity.getFileName() != null)
         {
             t = t.property(single, "fileName", entity.getFileName());
-        }
-        if (entity.getStorageId() != null)
-        {
-            t = t.property(single, "storageId", entity.getStorageId());
-        }
-        if (entity.getRepositoryId() != null)
-        {
-            t = t.property(single, "repositoryId", entity.getRepositoryId());
         }
 
         return new UnfoldEntityTraversal<>(ARTIFACT_ARCHIVE_LISTING, entity, t);

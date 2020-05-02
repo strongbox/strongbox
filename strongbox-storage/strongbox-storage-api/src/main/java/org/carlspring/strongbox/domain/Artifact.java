@@ -50,10 +50,6 @@ public interface Artifact extends DomainObject, EntityHierarchyNode<Artifact>
 
     void setDownloadCount(Integer downloadCount);
 
-    Set<ArtifactArchiveListing> getArtifactArchiveListings();
-
     String getArtifactPath();
-
-    void setArtifactArchiveListings(Set<ArtifactArchiveListing> artifactArchiveListings);
 
 }
