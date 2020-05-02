@@ -13,9 +13,11 @@ import javax.inject.Inject;
 import javax.transaction.Transactional;
 
 import java.util.List;
+import java.util.Set;
 
 import org.apache.tinkerpop.gremlin.structure.Vertex;
 import org.springframework.stereotype.Repository;
+import org.springframework.util.CollectionUtils;
 
 /**
  * @author ankit.tomar
@@ -45,6 +47,18 @@ public class ArtifactArchiveListingRepository extends GremlinVertexRepository<Ar
                                                                        .map(artifactArchiveListingAdapter.fold());
 
         return traversal.toList();
+    }
+
+    public void addArtifactToArtifactArchiveListingEdge(String uuid,
+                                                        Set<ArtifactArchiveListing> artifactArchiveListings)
+    {
+        if (!CollectionUtils.isEmpty(artifactArchiveListings))
+        {
+            EntityTraversal<Vertex, Vertex> traversal = g().V().hasLabel(ARTIFACT).has("uuid", uuid);
+            artifactArchiveListings.stream()
+                                   .map(artifactArchiveListing -> traversal.addE(ARTIFACT_HAS_ARTIFACT_ARCHIVE_LISTING)
+                                                                           .to(g().V(artifactArchiveListing.getNativeId())));
+        }
     }
 
 }

@@ -301,6 +301,18 @@ public class RepositoryPathResolver
         {
             throw new UnsupportedOperationException();
         }
+
+        @Override
+        public void setArtifactArchiveListings(Set<ArtifactArchiveListing> artifactArchiveListings)
+        {
+            throw new UnsupportedOperationException();
+        }
+
+        @Override
+        public Set<ArtifactArchiveListing> getArtifactArchiveListings()
+        {
+            throw new UnsupportedOperationException();
+        }
     }
 
 }

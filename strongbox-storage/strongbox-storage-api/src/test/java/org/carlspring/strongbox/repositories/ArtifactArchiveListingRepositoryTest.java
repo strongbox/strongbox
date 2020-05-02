@@ -4,6 +4,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 
 import org.carlspring.strongbox.artifact.coordinates.RawArtifactCoordinates;
 import org.carlspring.strongbox.data.CacheManagerTestExecutionListener;
+import org.carlspring.strongbox.db.schema.Vertices;
 import org.carlspring.strongbox.domain.ArtifactArchiveListing;
 import org.carlspring.strongbox.domain.ArtifactArchiveListingEntity;
 import org.carlspring.strongbox.domain.ArtifactEntity;
@@ -15,6 +16,7 @@ import javax.transaction.Transactional;
 import java.time.LocalDateTime;
 import java.util.Arrays;
 import java.util.HashSet;
+import java.util.Set;
 
 import org.apache.tinkerpop.gremlin.structure.Graph;
 import org.junit.jupiter.api.Test;
@@ -22,6 +24,8 @@ import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.TestExecutionListeners;
+
+import com.google.common.collect.Sets;
 
 /**
  * @author ankit.tomar
@@ -34,6 +38,9 @@ public class ArtifactArchiveListingRepositoryTest
 {
     @Inject
     private ArtifactArchiveListingRepository artifactArchiveListingRepository;
+
+    @Inject
+    private ArtifactRepository artifactRepository;
 
     @Inject
     @TransactionContext
@@ -56,20 +63,43 @@ public class ArtifactArchiveListingRepositoryTest
         artifactEntity.setLastUsed(now.minusDays(5));
         artifactEntity.setLastUpdated(now);
 
-        ArtifactArchiveListing artifactArchiveListing = new ArtifactArchiveListingEntity(storageId, repositoryId, "file1.txt");
+        artifactEntity = artifactRepository.save(artifactEntity);
+
+        Set<ArtifactArchiveListing> artifactArchiveListings = new HashSet<>();
+        ArtifactArchiveListing artifactArchiveListing = new ArtifactArchiveListingEntity(storageId, repositoryId,
+                "file1.txt");
         artifactArchiveListing = artifactArchiveListingRepository.save(artifactArchiveListing);
+        artifactArchiveListings.add(artifactArchiveListing);
         assertThat(artifactArchiveListing.getUuid()).isNotNull();
         assertThat(artifactArchiveListing.getFileName()).isEqualTo("file1.txt");
 
         artifactArchiveListing = new ArtifactArchiveListingEntity(storageId, repositoryId, "readme.md");
         artifactArchiveListing = artifactArchiveListingRepository.save(artifactArchiveListing);
+        artifactArchiveListings.add(artifactArchiveListing);
         assertThat(artifactArchiveListing.getUuid()).isNotNull();
         assertThat(artifactArchiveListing.getFileName()).isEqualTo("readme.md");
 
         artifactArchiveListing = new ArtifactArchiveListingEntity(storageId, repositoryId, "icon.svg");
         artifactArchiveListing = artifactArchiveListingRepository.save(artifactArchiveListing);
+        artifactArchiveListings.add(artifactArchiveListing);
         assertThat(artifactArchiveListing.getUuid()).isNotNull();
         assertThat(artifactArchiveListing.getFileName()).isEqualTo("icon.svg");
+
+        artifactArchiveListingRepository.addArtifactToArtifactArchiveListingEdge(artifactEntity.getUuid(),
+                                                                                 artifactArchiveListings);
+
+        assertThat(graph.traversal()
+                        .V()
+                        .hasLabel(Vertices.ARTIFACT)
+                        .has("uuid", artifactEntity.getUuid())
+                        .hasNext()).isTrue();
+
+        assertThat(graph.traversal()
+                        .V()
+                        .hasLabel(Vertices.ARTIFACT_ARCHIVE_LISTING)
+                        .properties("fileName")
+                        .map(t -> t.get().value())
+                        .toSet()).containsAll(Sets.newHashSet("file1.txt", "readme.md", "icon.svg"));
 
     }
 }

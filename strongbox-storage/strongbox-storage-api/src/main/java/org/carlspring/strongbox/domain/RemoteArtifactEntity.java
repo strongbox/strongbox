@@ -173,4 +173,16 @@ public class RemoteArtifactEntity extends DomainEntity implements RemoteArtifact
         return artifact.getArtifactPath();
     }
 
+    @Override
+    public void setArtifactArchiveListings(Set<ArtifactArchiveListing> artifactArchiveListings)
+    {
+        artifact.setArtifactArchiveListings(artifactArchiveListings);
+    }
+
+    @Override
+    public Set<ArtifactArchiveListing> getArtifactArchiveListings()
+    {
+        return artifact.getArtifactArchiveListings();
+    }
+
 }

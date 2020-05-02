@@ -64,6 +64,8 @@ public class ArtifactEntity
     @Relationship(type = REMOTE_ARTIFACT_INHERIT_ARTIFACT, direction = INCOMING)
     private Artifact artifactHierarchyChild;
 
+    private Set<ArtifactArchiveListing> artifactArchiveListings;
+
     ArtifactEntity()
     {
     }
@@ -251,4 +253,15 @@ public class ArtifactEntity
         return null;
     }
 
+    @Override
+    public void setArtifactArchiveListings(Set<ArtifactArchiveListing> artifactArchiveListings)
+    {
+        this.artifactArchiveListings = artifactArchiveListings;
+    }
+
+    @Override
+    public Set<ArtifactArchiveListing> getArtifactArchiveListings()
+    {
+        return artifactArchiveListings;
+    }
 }

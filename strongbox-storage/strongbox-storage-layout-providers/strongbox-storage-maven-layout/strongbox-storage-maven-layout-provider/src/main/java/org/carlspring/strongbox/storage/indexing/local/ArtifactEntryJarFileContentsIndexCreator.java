@@ -4,6 +4,8 @@ import org.carlspring.strongbox.artifact.coordinates.MavenArtifactCoordinates;
 import org.carlspring.strongbox.domain.Artifact;
 import org.carlspring.strongbox.services.ArtifactArchiveListingSearchService;
 
+import javax.inject.Inject;
+
 import java.util.Set;
 
 import org.apache.commons.lang3.StringUtils;
@@ -23,6 +25,7 @@ public class ArtifactEntryJarFileContentsIndexCreator
 
     public static final ArtifactEntryJarFileContentsIndexCreator INSTANCE = new ArtifactEntryJarFileContentsIndexCreator();
     
+    @Inject // TODO :: how to implement this 
     private ArtifactArchiveListingSearchService artifactArchiveListingSearchService;
 
     private ArtifactEntryJarFileContentsIndexCreator()
