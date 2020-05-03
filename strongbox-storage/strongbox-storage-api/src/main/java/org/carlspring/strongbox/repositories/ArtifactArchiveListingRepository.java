@@ -3,10 +3,12 @@ package org.carlspring.strongbox.repositories;
 import static org.carlspring.strongbox.db.schema.Edges.ARTIFACT_HAS_ARTIFACT_ARCHIVE_LISTING;
 import static org.carlspring.strongbox.db.schema.Vertices.ARTIFACT;
 
+import org.carlspring.strongbox.db.schema.Vertices;
 import org.carlspring.strongbox.domain.Artifact;
 import org.carlspring.strongbox.domain.ArtifactArchiveListing;
 import org.carlspring.strongbox.gremlin.adapters.ArtifactArchiveListingAdapter;
 import org.carlspring.strongbox.gremlin.dsl.EntityTraversal;
+import org.carlspring.strongbox.gremlin.dsl.__;
 import org.carlspring.strongbox.gremlin.repositories.GremlinVertexRepository;
 
 import javax.inject.Inject;
@@ -54,10 +56,15 @@ public class ArtifactArchiveListingRepository extends GremlinVertexRepository<Ar
     {
         if (!CollectionUtils.isEmpty(artifactArchiveListings))
         {
-            EntityTraversal<Vertex, Vertex> traversal = g().V().hasLabel(ARTIFACT).has("uuid", uuid);
+            EntityTraversal<Vertex, Vertex> outTraversal = g().V()
+                                                              .hasLabel(ARTIFACT)
+                                                              .has("uuid", uuid)
+                                                              .as("artifact");
+
             artifactArchiveListings.stream()
-                                   .map(artifactArchiveListing -> traversal.addE(ARTIFACT_HAS_ARTIFACT_ARCHIVE_LISTING)
-                                                                           .to(g().V(artifactArchiveListing.getNativeId())));
+                                   .map(artifactArchiveListing -> outTraversal.V(artifactArchiveListing)
+                                                                              .addE(ARTIFACT_HAS_ARTIFACT_ARCHIVE_LISTING)
+                                                                              .from("artifact"));
         }
     }
 

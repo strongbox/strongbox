@@ -1,10 +1,12 @@
 package org.carlspring.strongbox.repositories;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.carlspring.strongbox.db.schema.Edges.ARTIFACT_HAS_ARTIFACT_ARCHIVE_LISTING;
+import static org.carlspring.strongbox.db.schema.Vertices.ARTIFACT;
+import static org.carlspring.strongbox.db.schema.Vertices.ARTIFACT_ARCHIVE_LISTING;
 
 import org.carlspring.strongbox.artifact.coordinates.RawArtifactCoordinates;
 import org.carlspring.strongbox.data.CacheManagerTestExecutionListener;
-import org.carlspring.strongbox.db.schema.Vertices;
 import org.carlspring.strongbox.domain.ArtifactArchiveListing;
 import org.carlspring.strongbox.domain.ArtifactArchiveListingEntity;
 import org.carlspring.strongbox.domain.ArtifactEntity;
@@ -90,16 +92,21 @@ public class ArtifactArchiveListingRepositoryTest
 
         assertThat(graph.traversal()
                         .V()
-                        .hasLabel(Vertices.ARTIFACT)
+                        .hasLabel(ARTIFACT)
                         .has("uuid", artifactEntity.getUuid())
                         .hasNext()).isTrue();
 
         assertThat(graph.traversal()
                         .V()
-                        .hasLabel(Vertices.ARTIFACT_ARCHIVE_LISTING)
+                        .hasLabel(ARTIFACT_ARCHIVE_LISTING)
                         .properties("fileName")
                         .map(t -> t.get().value())
                         .toSet()).containsAll(Sets.newHashSet("file1.txt", "readme.md", "icon.svg"));
+
+        assertThat(graph.traversal()
+                        .E()
+                        .hasLabel(ARTIFACT_HAS_ARTIFACT_ARCHIVE_LISTING)
+                        .hasNext()).isTrue();
 
     }
 }

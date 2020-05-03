@@ -14,18 +14,18 @@ import org.apache.maven.index.ArtifactInfo;
 import org.apache.maven.index.creator.JarFileContentsIndexCreator;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.stereotype.Component;
 import org.springframework.util.CollectionUtils;
 
 /**
  * @author Przemyslaw Fusik
  */
+@Component
 public class ArtifactEntryJarFileContentsIndexCreator
         extends JarFileContentsIndexCreator
 {
 
-    public static final ArtifactEntryJarFileContentsIndexCreator INSTANCE = new ArtifactEntryJarFileContentsIndexCreator();
-    
-    @Inject // TODO :: how to implement this 
+    @Inject
     private ArtifactArchiveListingSearchService artifactArchiveListingSearchService;
 
     private ArtifactEntryJarFileContentsIndexCreator()
@@ -45,9 +45,9 @@ public class ArtifactEntryJarFileContentsIndexCreator
         final MavenArtifactCoordinates coordinates = (MavenArtifactCoordinates) artifactEntry.getArtifactCoordinates();
         final String extension = coordinates.getExtension();
 
-        if ("jar" .equals(extension) ||
-            "war" .equals(extension) ||
-            "zip" .equals(extension))
+        if ("jar".equals(extension) ||
+            "war".equals(extension) ||
+            "zip".equals(extension))
         {
             updateArtifactInfo(artifactInfo, artifactEntry);
         }

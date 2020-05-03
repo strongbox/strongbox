@@ -23,6 +23,12 @@ public class RepositoryLocalIndexingContextFactory
     @RepositoryIndexDirectoryPathResolverQualifier(IndexTypeEnum.LOCAL)
     private RepositoryIndexDirectoryPathResolver indexDirectoryPathResolver;
 
+    @Inject
+    public RepositoryLocalIndexingContextFactory(ArtifactEntryJarFileContentsIndexCreator artifactEntryJarFileContentsIndexCreator)
+    {
+        super(artifactEntryJarFileContentsIndexCreator);
+    }
+
     @Override
     protected RepositoryIndexDirectoryPathResolver getRepositoryIndexDirectoryPathResolver()
     {
