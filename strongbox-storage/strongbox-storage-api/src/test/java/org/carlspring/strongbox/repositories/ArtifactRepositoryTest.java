@@ -3,30 +3,27 @@ package org.carlspring.strongbox.repositories;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.data.Index.atIndex;
 
-import java.time.LocalDateTime;
-import java.util.Arrays;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Set;
-import java.util.stream.Collectors;
-
-import javax.inject.Inject;
-import javax.transaction.Transactional;
-
-import org.apache.tinkerpop.gremlin.process.traversal.dsl.graph.GraphTraversalSource;
-import org.apache.tinkerpop.gremlin.structure.Graph;
-import org.assertj.core.api.Condition;
 import org.carlspring.strongbox.artifact.coordinates.RawArtifactCoordinates;
 import org.carlspring.strongbox.data.CacheManagerTestExecutionListener;
 import org.carlspring.strongbox.db.schema.Edges;
 import org.carlspring.strongbox.db.schema.Vertices;
 import org.carlspring.strongbox.domain.Artifact;
-import org.carlspring.strongbox.domain.ArtifactArchiveListing;
-import org.carlspring.strongbox.domain.ArtifactArchiveListingEntity;
 import org.carlspring.strongbox.domain.ArtifactEntity;
 import org.carlspring.strongbox.domain.RemoteArtifact;
 import org.carlspring.strongbox.domain.RemoteArtifactEntity;
 import org.carlspring.strongbox.gremlin.tx.TransactionContext;
+
+import javax.inject.Inject;
+import javax.transaction.Transactional;
+
+import java.time.LocalDateTime;
+import java.util.Arrays;
+import java.util.HashSet;
+import java.util.List;
+
+import org.apache.tinkerpop.gremlin.process.traversal.dsl.graph.GraphTraversalSource;
+import org.apache.tinkerpop.gremlin.structure.Graph;
+import org.assertj.core.api.Condition;
 import org.junit.jupiter.api.Test;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.context.ActiveProfiles;
