@@ -152,11 +152,12 @@ public class RepositoryPathResolver
         }
         
     }
-    
-    private static class NullArtifact implements Artifact {
+
+    private static class NullArtifact implements Artifact
+    {
 
         private static final Artifact INSTANCE = new NullArtifact();
-        
+
         @Override
         public String getUuid()
         {
@@ -166,7 +167,7 @@ public class RepositoryPathResolver
         @Override
         public void applyUnfold(Traverser<Vertex> t)
         {
-            throw new UnsupportedOperationException();            
+            throw new UnsupportedOperationException();
         }
 
         @Override
@@ -190,7 +191,7 @@ public class RepositoryPathResolver
         @Override
         public void setStorageId(String storageId)
         {
-            throw new UnsupportedOperationException();            
+            throw new UnsupportedOperationException();
         }
 
         @Override
@@ -202,7 +203,7 @@ public class RepositoryPathResolver
         @Override
         public void setRepositoryId(String repositoryId)
         {
-            throw new UnsupportedOperationException();            
+            throw new UnsupportedOperationException();
         }
 
         @Override
@@ -214,7 +215,7 @@ public class RepositoryPathResolver
         @Override
         public void setArtifactCoordinates(ArtifactCoordinates artifactCoordinates)
         {
-            throw new UnsupportedOperationException();            
+            throw new UnsupportedOperationException();
         }
 
         @Override
@@ -232,7 +233,7 @@ public class RepositoryPathResolver
         @Override
         public void setChecksums(Map<String, String> digestMap)
         {
-            throw new UnsupportedOperationException();            
+            throw new UnsupportedOperationException();
         }
 
         @Override
@@ -256,7 +257,7 @@ public class RepositoryPathResolver
         @Override
         public void setLastUpdated(LocalDateTime lastUpdated)
         {
-            throw new UnsupportedOperationException();            
+            throw new UnsupportedOperationException();
         }
 
         @Override
@@ -268,7 +269,7 @@ public class RepositoryPathResolver
         @Override
         public void setLastUsed(LocalDateTime lastUsed)
         {
-            throw new UnsupportedOperationException();            
+            throw new UnsupportedOperationException();
         }
 
         @Override
@@ -280,7 +281,7 @@ public class RepositoryPathResolver
         @Override
         public void setCreated(LocalDateTime created)
         {
-            throw new UnsupportedOperationException();            
+            throw new UnsupportedOperationException();
         }
 
         @Override
@@ -292,12 +293,6 @@ public class RepositoryPathResolver
         @Override
         public void setDownloadCount(Integer downloadCount)
         {
-            throw new UnsupportedOperationException();            
-        }
-
-        @Override
-        public ArtifactArchiveListing getArtifactArchiveListing()
-        {
             throw new UnsupportedOperationException();
         }
 
@@ -306,7 +301,18 @@ public class RepositoryPathResolver
         {
             throw new UnsupportedOperationException();
         }
-        
+
+        @Override
+        public void setArtifactArchiveListings(Set<ArtifactArchiveListing> artifactArchiveListings)
+        {
+            throw new UnsupportedOperationException();
+        }
+
+        @Override
+        public Set<ArtifactArchiveListing> getArtifactArchiveListings()
+        {
+            throw new UnsupportedOperationException();
+        }
     }
 
 }

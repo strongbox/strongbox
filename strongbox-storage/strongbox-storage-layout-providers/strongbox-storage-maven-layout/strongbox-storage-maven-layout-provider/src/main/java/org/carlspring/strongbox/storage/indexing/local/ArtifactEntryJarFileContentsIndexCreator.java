@@ -1,26 +1,32 @@
 package org.carlspring.strongbox.storage.indexing.local;
 
+import org.carlspring.strongbox.artifact.coordinates.MavenArtifactCoordinates;
+import org.carlspring.strongbox.domain.Artifact;
+import org.carlspring.strongbox.services.ArtifactArchiveListingSearchService;
+
+import javax.inject.Inject;
+
 import java.util.Set;
 
-import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.maven.index.ArtifactContext;
 import org.apache.maven.index.ArtifactInfo;
 import org.apache.maven.index.creator.JarFileContentsIndexCreator;
-import org.carlspring.strongbox.artifact.coordinates.MavenArtifactCoordinates;
-import org.carlspring.strongbox.domain.Artifact;
-import org.carlspring.strongbox.domain.ArtifactArchiveListing;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.stereotype.Component;
+import org.springframework.util.CollectionUtils;
 
 /**
  * @author Przemyslaw Fusik
  */
+@Component
 public class ArtifactEntryJarFileContentsIndexCreator
         extends JarFileContentsIndexCreator
 {
 
-    public static final ArtifactEntryJarFileContentsIndexCreator INSTANCE = new ArtifactEntryJarFileContentsIndexCreator();
+    @Inject
+    private ArtifactArchiveListingSearchService artifactArchiveListingSearchService;
 
     private ArtifactEntryJarFileContentsIndexCreator()
     {
@@ -39,9 +45,9 @@ public class ArtifactEntryJarFileContentsIndexCreator
         final MavenArtifactCoordinates coordinates = (MavenArtifactCoordinates) artifactEntry.getArtifactCoordinates();
         final String extension = coordinates.getExtension();
 
-        if ("jar" .equals(extension) ||
-            "war" .equals(extension) ||
-            "zip" .equals(extension))
+        if ("jar".equals(extension) ||
+            "war".equals(extension) ||
+            "zip".equals(extension))
         {
             updateArtifactInfo(artifactInfo, artifactEntry);
         }
@@ -71,13 +77,13 @@ public class ArtifactEntryJarFileContentsIndexCreator
                                     final Artifact artifactEntry,
                                     final String strippedPrefix)
     {
-        ArtifactArchiveListing artifactArchiveListing = artifactEntry.getArtifactArchiveListing();
-        if (artifactArchiveListing == null || CollectionUtils.isEmpty(artifactArchiveListing.getFilenames()))
+
+        Set<String> filenames = artifactArchiveListingSearchService.fetchArchiveFileNames(artifactEntry);
+
+        if (CollectionUtils.isEmpty(filenames))
         {
             return;
         }
-
-        Set<String> filenames = artifactArchiveListing.getFilenames();
 
         final StringBuilder sb = new StringBuilder();
 

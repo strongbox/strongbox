@@ -1,13 +1,12 @@
 package org.carlspring.strongbox.domain;
 
-import java.io.Serializable;
-import java.util.Set;
+import org.carlspring.strongbox.data.domain.DomainObject;
 
-public interface ArtifactArchiveListing extends Serializable
+public interface ArtifactArchiveListing extends DomainObject
 {
 
-    Set<String> getFilenames();
+    String getFileName();
 
-    void setFilenames(Set<String> filenames);
+    void setFileName(String fileName);
 
 }

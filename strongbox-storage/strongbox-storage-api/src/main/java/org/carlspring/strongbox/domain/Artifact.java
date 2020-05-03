@@ -1,13 +1,13 @@
 package org.carlspring.strongbox.domain;
 
-import java.time.LocalDateTime;
-import java.util.Map;
-import java.util.Set;
-
 import org.carlspring.strongbox.artifact.ArtifactTag;
 import org.carlspring.strongbox.artifact.coordinates.ArtifactCoordinates;
 import org.carlspring.strongbox.data.domain.DomainObject;
 import org.carlspring.strongbox.gremlin.adapters.EntityHierarchyNode;
+
+import java.time.LocalDateTime;
+import java.util.Map;
+import java.util.Set;
 
 public interface Artifact extends DomainObject, EntityHierarchyNode<Artifact>
 {
@@ -50,8 +50,10 @@ public interface Artifact extends DomainObject, EntityHierarchyNode<Artifact>
 
     void setDownloadCount(Integer downloadCount);
 
-    ArtifactArchiveListing getArtifactArchiveListing();
-
     String getArtifactPath();
+
+    void setArtifactArchiveListings(Set<ArtifactArchiveListing> artifactArchiveListings);
+
+    Set<ArtifactArchiveListing> getArtifactArchiveListings();
 
 }

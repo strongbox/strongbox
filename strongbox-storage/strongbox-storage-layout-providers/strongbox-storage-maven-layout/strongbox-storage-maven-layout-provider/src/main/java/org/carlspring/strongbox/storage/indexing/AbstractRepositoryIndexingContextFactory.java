@@ -20,8 +20,15 @@ import org.slf4j.LoggerFactory;
 public abstract class AbstractRepositoryIndexingContextFactory
         implements RepositoryIndexingContextFactory
 {
+    private ArtifactEntryJarFileContentsIndexCreator artifactEntryJarFileContentsIndexCreator;
 
     protected final Logger logger = LoggerFactory.getLogger(getClass());
+
+    public AbstractRepositoryIndexingContextFactory(ArtifactEntryJarFileContentsIndexCreator artifactEntryJarFileContentsIndexCreator)
+    {
+        super();
+        this.artifactEntryJarFileContentsIndexCreator = artifactEntryJarFileContentsIndexCreator;
+    }
 
     @Override
     public RepositoryCloseableIndexingContext create(final Repository repository)
@@ -65,7 +72,7 @@ public abstract class AbstractRepositoryIndexingContextFactory
         final MavenRepositoryConfiguration repositoryConfiguration = (MavenRepositoryConfiguration) repository.getRepositoryConfiguration();
         if (repositoryConfiguration != null && repositoryConfiguration.isIndexingClassNamesEnabled())
         {
-            indexCreators.add(ArtifactEntryJarFileContentsIndexCreator.INSTANCE);
+            indexCreators.add(artifactEntryJarFileContentsIndexCreator);
         }
         return indexCreators;
     }

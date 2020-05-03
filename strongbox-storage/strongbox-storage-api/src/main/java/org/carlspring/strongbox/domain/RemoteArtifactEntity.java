@@ -21,6 +21,7 @@ public class RemoteArtifactEntity extends DomainEntity implements RemoteArtifact
 
     @Relationship(type = Edges.REMOTE_ARTIFACT_INHERIT_ARTIFACT, direction = Relationship.OUTGOING)
     private ArtifactEntity artifact = new ArtifactEntity();
+
     private Boolean cached = Boolean.FALSE;
 
     public RemoteArtifactEntity(String storageId,
@@ -43,7 +44,7 @@ public class RemoteArtifactEntity extends DomainEntity implements RemoteArtifact
             setUuid(String.format("%s-%s-%s", getStorageId(), getRepositoryId(), getArtifactCoordinates().buildPath()));
         }
     }
-    
+
     @Override
     public Artifact getHierarchyChild()
     {
@@ -167,14 +168,21 @@ public class RemoteArtifactEntity extends DomainEntity implements RemoteArtifact
         artifact.setDownloadCount(downloadCount);
     }
 
-    public ArtifactArchiveListing getArtifactArchiveListing()
-    {
-        return artifact.getArtifactArchiveListing();
-    }
-
     public String getArtifactPath()
     {
         return artifact.getArtifactPath();
+    }
+
+    @Override
+    public void setArtifactArchiveListings(Set<ArtifactArchiveListing> artifactArchiveListings)
+    {
+        artifact.setArtifactArchiveListings(artifactArchiveListings);
+    }
+
+    @Override
+    public Set<ArtifactArchiveListing> getArtifactArchiveListings()
+    {
+        return artifact.getArtifactArchiveListings();
     }
 
 }

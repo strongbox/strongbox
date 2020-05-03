@@ -40,17 +40,24 @@ import org.springframework.stereotype.Component;
  * @author sbespalov
  */
 @Component
-public class ArtifactAdapter extends VertexEntityTraversalAdapter<Artifact> implements ArtifactHierarchyNodeAdapter<Artifact>
+public class ArtifactAdapter extends VertexEntityTraversalAdapter<Artifact>
+        implements ArtifactHierarchyNodeAdapter<Artifact>
 {
 
     @Inject
     GenericArtifactCoordinatesAdapter genericArtifactCoordinatesAdapter;
+
     @Inject
     ArtifactCoordinatesHierarchyAdapter artifactCoordinatesAdapter;
+
     @Inject
     ArtifactTagAdapter artifactTagAdapter;
+
     @Inject
     ArtifactHierarchyAdapter genericArtifactAdapter;
+
+    @Inject
+    ArtifactArchiveListingAdapter artifactArchiveListingAdapter;
 
     @Override
     public Set<String> labels()
@@ -89,7 +96,6 @@ public class ArtifactAdapter extends VertexEntityTraversalAdapter<Artifact> impl
                                           "created",
                                           "sizeInBytes",
                                           "downloadCount",
-                                          "filenames",
                                           "checksums",
                                           "genericArtifactCoordinates",
                                           "tags",
@@ -103,7 +109,6 @@ public class ArtifactAdapter extends VertexEntityTraversalAdapter<Artifact> impl
                  .by(__.enrichPropertyValue("created"))
                  .by(__.enrichPropertyValue("sizeInBytes"))
                  .by(__.enrichPropertyValue("downloadCount"))
-                 .by(__.enrichPropertyValues("filenames"))
                  .by(__.enrichPropertyValues("checksums"))
                  .by(__.outE(Edges.ARTIFACT_HAS_ARTIFACT_COORDINATES)
                        .mapToObject(__.inV()
@@ -143,11 +148,6 @@ public class ArtifactAdapter extends VertexEntityTraversalAdapter<Artifact> impl
         result.setSizeInBytes(extractObject(Long.class, t.get().get("sizeInBytes")));
         result.setDownloadCount(extractObject(Integer.class, t.get().get("downloadCount")));
         
-        result.getArtifactArchiveListing()
-              .setFilenames(extracPropertytList(String.class, t.get().get("filenames")).stream()
-                                                                                       .filter(e -> !e.trim().isEmpty())
-                                                                                       .collect(Collectors.toSet()));
-
         result.addChecksums(extracPropertytList(String.class, t.get().get("checksums")).stream()
                                                                                        .filter(e -> !e.trim().isEmpty())
                                                                                        .collect(Collectors.toSet()));
@@ -159,7 +159,6 @@ public class ArtifactAdapter extends VertexEntityTraversalAdapter<Artifact> impl
                                                         t.get()
                                                          .get("artifactHierarchyChild"));
         result.setHierarchyChild(artifactHierarchyChild);
-        // artifactCoordinates.setGenericArtifactCoordinates(result);
 
         return result;
     }
@@ -167,22 +166,23 @@ public class ArtifactAdapter extends VertexEntityTraversalAdapter<Artifact> impl
     @Override
     public UnfoldEntityTraversal<Vertex, Vertex> unfold(Artifact entity)
     {
+
         ArtifactCoordinates artifactCoordinates = entity.getArtifactCoordinates();
-        String storedArtifactId = Vertices.ARTIFACT + ":" + UUID.randomUUID().toString();        
-        
+        String storedArtifactId = Vertices.ARTIFACT + ":" + UUID.randomUUID().toString();
+
         Set<String> tagNames = entity.getTagSet().stream().map(ArtifactTag::getName).collect(Collectors.toSet());
         EntityTraversal<Vertex, Vertex> unfoldTraversal = __.<Vertex, Edge>coalesce(__.<Vertex>outE(Edges.ARTIFACT_HAS_ARTIFACT_COORDINATES),
-                                                                                    //cascading create ArtifactCoordinates only
+                                                                                    // cascading create ArtifactCoordinates only
                                                                                     createArtifactCoordinates(artifactCoordinates))
                                                             .outV()
                                                             .sideEffect(__.outE(Edges.ARTIFACT_HAS_TAGS).drop())
                                                             .map(unfoldArtifact(entity))
                                                             .store(storedArtifactId)
                                                             .sideEffect(__.V()
-                                                                        .hasLabel(Vertices.ARTIFACT_TAG)
-                                                                        .has("uuid", P.within(tagNames))
-                                                                        .addE(Edges.ARTIFACT_HAS_TAGS)
-                                                                        .from(__.select(storedArtifactId).unfold()));
+                                                                          .hasLabel(Vertices.ARTIFACT_TAG)
+                                                                          .has("uuid", P.within(tagNames))
+                                                                          .addE(Edges.ARTIFACT_HAS_TAGS)
+                                                                          .from(__.select(storedArtifactId).unfold()));
 
         return new UnfoldEntityTraversal<>(Vertices.ARTIFACT, entity, unfoldTraversal);
     }
@@ -236,13 +236,7 @@ public class ArtifactAdapter extends VertexEntityTraversalAdapter<Artifact> impl
         if (entity.getDownloadCount() != null)
         {
             t = t.property(single, "downloadCount", entity.getDownloadCount());
-        }        
-
-        ArtifactArchiveListing artifactArchiveListing = entity.getArtifactArchiveListing();
-
-        Set<String> filenames = artifactArchiveListing.getFilenames();
-        t = t.sideEffect(__.properties("filenames").drop());
-        t = t.property("filenames", filenames);
+        }
 
         Map<String, String> checksums = entity.getChecksums();
         Set<String> checkSumAlgo = new HashSet<>();

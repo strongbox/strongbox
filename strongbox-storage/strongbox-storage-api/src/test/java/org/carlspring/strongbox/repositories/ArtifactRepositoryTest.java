@@ -3,27 +3,27 @@ package org.carlspring.strongbox.repositories;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.data.Index.atIndex;
 
-import java.time.LocalDateTime;
-import java.util.Arrays;
-import java.util.HashSet;
-import java.util.List;
-
-import javax.inject.Inject;
-import javax.transaction.Transactional;
-
-import org.apache.tinkerpop.gremlin.process.traversal.dsl.graph.GraphTraversalSource;
-import org.apache.tinkerpop.gremlin.structure.Graph;
-import org.assertj.core.api.Condition;
 import org.carlspring.strongbox.artifact.coordinates.RawArtifactCoordinates;
 import org.carlspring.strongbox.data.CacheManagerTestExecutionListener;
 import org.carlspring.strongbox.db.schema.Edges;
 import org.carlspring.strongbox.db.schema.Vertices;
 import org.carlspring.strongbox.domain.Artifact;
-import org.carlspring.strongbox.domain.ArtifactArchiveListing;
 import org.carlspring.strongbox.domain.ArtifactEntity;
 import org.carlspring.strongbox.domain.RemoteArtifact;
 import org.carlspring.strongbox.domain.RemoteArtifactEntity;
 import org.carlspring.strongbox.gremlin.tx.TransactionContext;
+
+import javax.inject.Inject;
+import javax.transaction.Transactional;
+
+import java.time.LocalDateTime;
+import java.util.Arrays;
+import java.util.HashSet;
+import java.util.List;
+
+import org.apache.tinkerpop.gremlin.process.traversal.dsl.graph.GraphTraversalSource;
+import org.apache.tinkerpop.gremlin.structure.Graph;
+import org.assertj.core.api.Condition;
 import org.junit.jupiter.api.Test;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.context.ActiveProfiles;
@@ -56,11 +56,9 @@ public class ArtifactRepositoryTest
         artifactCoordinates.setId(path);
 
         ArtifactEntity artifactEntity = new ArtifactEntity("storage0", repositoryId, artifactCoordinates);
-        artifactEntity.getArtifactArchiveListing()
-                      .setFilenames(new HashSet<>(Arrays.asList("file1.txt", "readme.md", "icon.svg")));
-        artifactEntity.addChecksums(new HashSet<>(
-                Arrays.asList("{md5}3111519d5b4efd31565831f735ab0d2f", "{sha-1}ba79baeb 9f10896a 46ae7471 5271b7f5 86e74640")));
-        
+        artifactEntity.addChecksums(new HashSet<>(Arrays.asList("{md5}3111519d5b4efd31565831f735ab0d2f",
+                                                                "{sha-1}ba79baeb 9f10896a 46ae7471 5271b7f5 86e74640")));
+
         LocalDateTime now = LocalDateTime.now();
         artifactEntity.setCreated(now.minusDays(10));
         artifactEntity.setLastUsed(now.minusDays(5));
@@ -76,9 +74,6 @@ public class ArtifactRepositoryTest
         assertThat(artifactEntity.getLastUpdated()).isEqualTo(now);
         assertThat(artifactEntity.getLastUsed()).isEqualTo(now.minusDays(5));
         
-        ArtifactArchiveListing artifactArchiveListing = artifactEntity.getArtifactArchiveListing();
-        assertThat(artifactArchiveListing.getFilenames()).containsOnly("file1.txt", "readme.md", "icon.svg");
-
         artifactCoordinates = (RawArtifactCoordinates) artifactEntity.getArtifactCoordinates();
         assertThat(artifactCoordinates.getUuid()).isEqualTo(path);
         assertThat(artifactCoordinates.getVersion()).isNull();
@@ -124,9 +119,6 @@ public class ArtifactRepositoryTest
         artifactCoordinates.setId(path);
 
         ArtifactEntity artifactEntity = new ArtifactEntity(storageId, repositoryId, artifactCoordinates);
-        artifactEntity.getArtifactArchiveListing()
-                      .setFilenames(new HashSet<>(Arrays.asList("file1.txt", "readme.md", "icon.svg")));
-        
         LocalDateTime now = LocalDateTime.now();
         artifactEntity.setCreated(now.minusDays(10));
         artifactEntity.setLastUsed(now.minusDays(5));
@@ -151,8 +143,6 @@ public class ArtifactRepositoryTest
         Artifact artifact = artifactRepository.findOneArtifact(storageId, repositoryId, path);
         assertThat(artifact).isInstanceOf(Artifact.class);
         assertThat(artifact).isNotInstanceOf(RemoteArtifact.class);
-        ArtifactArchiveListing artifactArchiveListing = artifact.getArtifactArchiveListing();
-        assertThat(artifactArchiveListing.getFilenames()).containsOnly("file1.txt", "readme.md", "icon.svg");
 
         artifactCoordinates = (RawArtifactCoordinates) artifact.getArtifactCoordinates();
         assertThat(artifactCoordinates.getUuid()).isEqualTo(path);

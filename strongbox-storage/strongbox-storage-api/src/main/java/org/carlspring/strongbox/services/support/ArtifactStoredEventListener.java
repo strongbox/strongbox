@@ -2,6 +2,8 @@ package org.carlspring.strongbox.services.support;
 
 import java.io.IOException;
 import java.util.Set;
+import java.util.function.Consumer;
+import java.util.function.Function;
 import java.util.stream.Collectors;
 
 import javax.inject.Inject;
@@ -9,10 +11,12 @@ import javax.inject.Inject;
 import org.carlspring.strongbox.artifact.AsyncArtifactEntryHandler;
 import org.carlspring.strongbox.domain.Artifact;
 import org.carlspring.strongbox.domain.ArtifactArchiveListing;
+import org.carlspring.strongbox.domain.ArtifactArchiveListingEntity;
 import org.carlspring.strongbox.event.artifact.ArtifactEventTypeEnum;
 import org.carlspring.strongbox.providers.io.RepositoryPath;
 import org.carlspring.strongbox.providers.layout.LayoutProvider;
 import org.carlspring.strongbox.providers.layout.LayoutProviderRegistry;
+import org.carlspring.strongbox.repositories.ArtifactArchiveListingRepository;
 import org.carlspring.strongbox.storage.repository.Repository;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -30,6 +34,9 @@ public class ArtifactStoredEventListener
 
     @Inject
     private LayoutProviderRegistry layoutProviderRegistry;
+
+    @Inject
+    private ArtifactArchiveListingRepository artifactArchiveListingRepository;
 
     public ArtifactStoredEventListener()
     {
@@ -57,13 +64,19 @@ public class ArtifactStoredEventListener
         if (archiveFilenames.isEmpty())
         {
             return null;
-        } else if (archiveFilenames.size() > 100) {
-            //TODO: issues/1752 
-            archiveFilenames = archiveFilenames.stream().limit(100).collect(Collectors.toSet());
         }
+        
+        Function<String, ArtifactArchiveListing> saveArtifactArchiveListing = archiveFilename -> {
+                                                                              return artifactArchiveListingRepository.save(new ArtifactArchiveListingEntity(
+                                                                                     artifactEntry.getStorageId(),
+                                                                                     artifactEntry.getRepositoryId(),
+                                                                                     archiveFilename));
+                                                                              };
 
-        ArtifactArchiveListing artifactArchiveListing = artifactEntry.getArtifactArchiveListing();
-        artifactArchiveListing.setFilenames(archiveFilenames);
+        Set<ArtifactArchiveListing> artifactArchiveListings = archiveFilenames.stream()
+                                                                              .map(saveArtifactArchiveListing)
+                                                                              .collect(Collectors.toSet());
+        artifactEntry.setArtifactArchiveListings(artifactArchiveListings);
 
         return artifactEntry;
     }

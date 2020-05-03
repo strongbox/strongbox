@@ -5,6 +5,7 @@ import org.carlspring.strongbox.storage.indexing.IndexTypeEnum;
 import org.carlspring.strongbox.storage.indexing.RepositoryIndexDirectoryPathResolver;
 import org.carlspring.strongbox.storage.indexing.RepositoryIndexDirectoryPathResolver.RepositoryIndexDirectoryPathResolverQualifier;
 import org.carlspring.strongbox.storage.indexing.RepositoryIndexingContextFactory.RepositoryIndexingContextFactoryQualifier;
+import org.carlspring.strongbox.storage.indexing.local.ArtifactEntryJarFileContentsIndexCreator;
 import org.carlspring.strongbox.storage.repository.Repository;
 import org.carlspring.strongbox.storage.repository.remote.RemoteRepository;
 
@@ -20,10 +21,15 @@ import org.springframework.stereotype.Component;
 public class RepositoryRemoteIndexingContextFactory
         extends AbstractRepositoryIndexingContextFactory
 {
-
     @Inject
     @RepositoryIndexDirectoryPathResolverQualifier(IndexTypeEnum.REMOTE)
     private RepositoryIndexDirectoryPathResolver indexDirectoryPathResolver;
+
+    @Inject
+    public RepositoryRemoteIndexingContextFactory(ArtifactEntryJarFileContentsIndexCreator artifactEntryJarFileContentsIndexCreator)
+    {
+        super(artifactEntryJarFileContentsIndexCreator);
+    }
 
     @Override
     protected RepositoryIndexDirectoryPathResolver getRepositoryIndexDirectoryPathResolver()
