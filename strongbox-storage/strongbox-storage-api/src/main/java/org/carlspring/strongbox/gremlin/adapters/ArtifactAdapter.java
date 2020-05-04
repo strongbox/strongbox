@@ -5,7 +5,6 @@ import static org.carlspring.strongbox.gremlin.adapters.EntityTraversalUtils.ext
 import static org.carlspring.strongbox.gremlin.adapters.EntityTraversalUtils.extractObject;
 import static org.carlspring.strongbox.gremlin.adapters.EntityTraversalUtils.toLocalDateTime;
 import static org.carlspring.strongbox.gremlin.adapters.EntityTraversalUtils.toLong;
-import static org.carlspring.strongbox.gremlin.dsl.EntityTraversalDsl.NULL;
 
 import java.util.Collections;
 import java.util.HashSet;
@@ -48,8 +47,6 @@ public class ArtifactAdapter extends VertexEntityTraversalAdapter<Artifact>
     ArtifactCoordinatesHierarchyAdapter artifactCoordinatesAdapter;
     @Inject
     ArtifactTagAdapter artifactTagAdapter;
-    @Inject
-    ArtifactHierarchyAdapter genericArtifactAdapter;
 
     @Override
     public Set<String> labels()
@@ -96,14 +93,6 @@ public class ArtifactAdapter extends VertexEntityTraversalAdapter<Artifact>
                        .fold())
                  .by(__.enrichPropertyValue("cached"))
                  .map(this::map);
-    }
-
-    public EntityTraversal<Vertex, Object> childProjection()
-    {
-        return __.inE(Edges.REMOTE_ARTIFACT_INHERIT_ARTIFACT)
-                 .mapToObject(__.outV()
-                                .map(genericArtifactAdapter.fold(() -> __.<Vertex>identity().constant(NULL)))
-                                .map(EntityTraversalUtils::castToObject));
     }
 
     private Artifact map(Traverser<Map<String, Object>> t)

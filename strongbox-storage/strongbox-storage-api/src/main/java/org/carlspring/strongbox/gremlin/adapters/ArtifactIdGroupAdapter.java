@@ -33,7 +33,7 @@ public class ArtifactIdGroupAdapter extends VertexEntityTraversalAdapter<Artifac
 {
 
     @Inject
-    private ArtifactHierarchyAdapter artifactAdapter;
+    private ArtifactAdapter artifactAdapter;
 
     @Override
     public Set<String> labels()

@@ -12,7 +12,7 @@ import org.apache.tinkerpop.gremlin.structure.Vertex;
 import org.carlspring.strongbox.db.schema.Edges;
 import org.carlspring.strongbox.db.schema.Vertices;
 import org.carlspring.strongbox.domain.Artifact;
-import org.carlspring.strongbox.gremlin.adapters.ArtifactHierarchyAdapter;
+import org.carlspring.strongbox.gremlin.adapters.ArtifactAdapter;
 import org.carlspring.strongbox.gremlin.adapters.EntityTraversalUtils;
 import org.carlspring.strongbox.gremlin.dsl.EntityTraversal;
 import org.carlspring.strongbox.gremlin.repositories.GremlinVertexRepository;
@@ -29,12 +29,12 @@ public class ArtifactRepository extends GremlinVertexRepository<Artifact> implem
 {
 
     @Inject
-    ArtifactHierarchyAdapter artifactAdapter;
+    ArtifactAdapter artifactAdapter;
     @Inject
     ArtifactEntityQueries queries;
 
     @Override
-    protected ArtifactHierarchyAdapter adapter()
+    protected ArtifactAdapter adapter()
     {
         return artifactAdapter;
     }
