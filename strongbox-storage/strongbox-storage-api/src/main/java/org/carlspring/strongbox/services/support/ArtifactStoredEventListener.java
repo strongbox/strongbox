@@ -57,7 +57,7 @@ public class ArtifactStoredEventListener
         if (archiveFilenames.isEmpty())
         {
             return null;
-        } else if (archiveFilenames.size() > 100) {
+        } else if (archiveFilenames.size() > 5) {
             //TODO: issues/1752 
             archiveFilenames = archiveFilenames.stream().limit(100).collect(Collectors.toSet());
         }
