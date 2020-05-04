@@ -1,20 +1,14 @@
 package org.carlspring.strongbox.providers.io;
 
 import java.io.IOException;
-import java.time.LocalDateTime;
-import java.util.Map;
+import java.lang.reflect.Proxy;
 import java.util.Objects;
-import java.util.Set;
 
 import javax.inject.Inject;
 
-import org.apache.tinkerpop.gremlin.process.traversal.Traverser;
-import org.apache.tinkerpop.gremlin.structure.Vertex;
-import org.carlspring.strongbox.artifact.ArtifactTag;
 import org.carlspring.strongbox.artifact.coordinates.ArtifactCoordinates;
 import org.carlspring.strongbox.configuration.ConfigurationManager;
 import org.carlspring.strongbox.domain.Artifact;
-import org.carlspring.strongbox.domain.ArtifactArchiveListing;
 import org.carlspring.strongbox.repositories.ArtifactRepository;
 import org.carlspring.strongbox.storage.Storage;
 import org.carlspring.strongbox.storage.repository.Repository;
@@ -153,160 +147,17 @@ public class RepositoryPathResolver
         
     }
     
-    private static class NullArtifact implements Artifact {
+    private static class NullArtifact
+    {
 
-        private static final Artifact INSTANCE = new NullArtifact();
-        
-        @Override
-        public String getUuid()
-        {
-            throw new UnsupportedOperationException();
-        }
+        private static final Artifact INSTANCE = (Artifact) Proxy.newProxyInstance(Artifact.class.getClassLoader(),
+                                                                                   new Class[] { Artifact.class },
+                                                                                   (proxy,
+                                                                                    method,
+                                                                                    args) -> {
+                                                                                       throw new UnsupportedOperationException();
+                                                                                   });
 
-        @Override
-        public void applyUnfold(Traverser<Vertex> t)
-        {
-            throw new UnsupportedOperationException();            
-        }
-
-        @Override
-        public Artifact getHierarchyChild()
-        {
-            throw new UnsupportedOperationException();
-        }
-
-        @Override
-        public Artifact getHierarchyParent()
-        {
-            throw new UnsupportedOperationException();
-        }
-
-        @Override
-        public String getStorageId()
-        {
-            throw new UnsupportedOperationException();
-        }
-
-        @Override
-        public void setStorageId(String storageId)
-        {
-            throw new UnsupportedOperationException();            
-        }
-
-        @Override
-        public String getRepositoryId()
-        {
-            throw new UnsupportedOperationException();
-        }
-
-        @Override
-        public void setRepositoryId(String repositoryId)
-        {
-            throw new UnsupportedOperationException();            
-        }
-
-        @Override
-        public ArtifactCoordinates getArtifactCoordinates()
-        {
-            throw new UnsupportedOperationException();
-        }
-
-        @Override
-        public void setArtifactCoordinates(ArtifactCoordinates artifactCoordinates)
-        {
-            throw new UnsupportedOperationException();            
-        }
-
-        @Override
-        public Set<ArtifactTag> getTagSet()
-        {
-            throw new UnsupportedOperationException();
-        }
-
-        @Override
-        public Map<String, String> getChecksums()
-        {
-            throw new UnsupportedOperationException();
-        }
-
-        @Override
-        public void setChecksums(Map<String, String> digestMap)
-        {
-            throw new UnsupportedOperationException();            
-        }
-
-        @Override
-        public Long getSizeInBytes()
-        {
-            throw new UnsupportedOperationException();
-        }
-
-        @Override
-        public void setSizeInBytes(Long sizeInBytes)
-        {
-            throw new UnsupportedOperationException();
-        }
-
-        @Override
-        public LocalDateTime getLastUpdated()
-        {
-            throw new UnsupportedOperationException();
-        }
-
-        @Override
-        public void setLastUpdated(LocalDateTime lastUpdated)
-        {
-            throw new UnsupportedOperationException();            
-        }
-
-        @Override
-        public LocalDateTime getLastUsed()
-        {
-            throw new UnsupportedOperationException();
-        }
-
-        @Override
-        public void setLastUsed(LocalDateTime lastUsed)
-        {
-            throw new UnsupportedOperationException();            
-        }
-
-        @Override
-        public LocalDateTime getCreated()
-        {
-            throw new UnsupportedOperationException();
-        }
-
-        @Override
-        public void setCreated(LocalDateTime created)
-        {
-            throw new UnsupportedOperationException();            
-        }
-
-        @Override
-        public Integer getDownloadCount()
-        {
-            throw new UnsupportedOperationException();
-        }
-
-        @Override
-        public void setDownloadCount(Integer downloadCount)
-        {
-            throw new UnsupportedOperationException();            
-        }
-
-        @Override
-        public ArtifactArchiveListing getArtifactArchiveListing()
-        {
-            throw new UnsupportedOperationException();
-        }
-
-        @Override
-        public String getArtifactPath()
-        {
-            throw new UnsupportedOperationException();
-        }
-        
     }
 
 }

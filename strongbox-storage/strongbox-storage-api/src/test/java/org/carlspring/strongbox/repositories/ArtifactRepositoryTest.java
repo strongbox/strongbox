@@ -21,8 +21,6 @@ import org.carlspring.strongbox.db.schema.Vertices;
 import org.carlspring.strongbox.domain.Artifact;
 import org.carlspring.strongbox.domain.ArtifactArchiveListing;
 import org.carlspring.strongbox.domain.ArtifactEntity;
-import org.carlspring.strongbox.domain.RemoteArtifact;
-import org.carlspring.strongbox.domain.RemoteArtifactEntity;
 import org.carlspring.strongbox.gremlin.tx.TransactionContext;
 import org.junit.jupiter.api.Test;
 import org.springframework.boot.test.context.SpringBootTest;
@@ -150,7 +148,6 @@ public class ArtifactRepositoryTest
 
         Artifact artifact = artifactRepository.findOneArtifact(storageId, repositoryId, path);
         assertThat(artifact).isInstanceOf(Artifact.class);
-        assertThat(artifact).isNotInstanceOf(RemoteArtifact.class);
         ArtifactArchiveListing artifactArchiveListing = artifact.getArtifactArchiveListing();
         assertThat(artifactArchiveListing.getFilenames()).containsOnly("file1.txt", "readme.md", "icon.svg");
 
@@ -203,11 +200,11 @@ public class ArtifactRepositoryTest
         String remotePath = "path/to/resource/art-aesw-remote-10.jar";
         RawArtifactCoordinates remoteArtifactCoordinates = new RawArtifactCoordinates();
         remoteArtifactCoordinates.setId(remotePath);
-        RemoteArtifactEntity remoteArtifactEntity = new RemoteArtifactEntity("storage0", repositoryId, remoteArtifactCoordinates);
+        ArtifactEntity remoteArtifactEntity = new ArtifactEntity("storage0", repositoryId, remoteArtifactCoordinates);
         remoteArtifactEntity.setIsCached(false);
         remoteArtifactEntity = artifactRepository.save(remoteArtifactEntity);
         assertThat(remoteArtifactEntity.getIsCached()).isFalse();
-        assertThat(artifactRepository.artifactExists(storageId, repositoryId, remotePath)).isFalse();
+        assertThat(artifactRepository.artifactExists(storageId, repositoryId, remotePath)).isTrue();
         
         remoteArtifactEntity.setIsCached(true);
         remoteArtifactEntity = artifactRepository.save(remoteArtifactEntity);
@@ -232,44 +229,12 @@ public class ArtifactRepositoryTest
 
         RawArtifactCoordinates remoteArtifactCoordinates = new RawArtifactCoordinates();
         remoteArtifactCoordinates.setId(remotePath);
-        RemoteArtifactEntity remoteArtifactEntity = new RemoteArtifactEntity("storage0", repositoryId, remoteArtifactCoordinates);
+        ArtifactEntity remoteArtifactEntity = new ArtifactEntity("storage0", repositoryId, remoteArtifactCoordinates);
         remoteArtifactEntity.setIsCached(true);
         remoteArtifactEntity = artifactRepository.save(remoteArtifactEntity);
 
         List<Artifact> artifacts = artifactRepository.findByPathLike(storageId, repositoryId, "path/to/resource/art-fbpsw");
         assertThat(artifacts).hasSize(2).contains(artifactEntity, remoteArtifactEntity);
-    }
-
-    @Test
-    @Transactional
-    public void remoteArtifactShouldWork()
-    {
-        GraphTraversalSource g = graph.traversal();
-        String storageId = "storage0";
-        String repositoryId = "repository-art-rasw";
-        String path = "path/to/resource/art-rasw-10.jar";
-
-        RawArtifactCoordinates artifactCoordinates = new RawArtifactCoordinates();
-        artifactCoordinates.setId(path);
-
-        RemoteArtifactEntity remoteArtifactEntity = new RemoteArtifactEntity("storage0", repositoryId, artifactCoordinates);
-        remoteArtifactEntity.setIsCached(true);
-
-        remoteArtifactEntity = artifactRepository.save(remoteArtifactEntity);
-        assertThat(remoteArtifactEntity.getUuid()).isNotNull();
-        assertThat(remoteArtifactEntity.getStorageId()).isEqualTo(storageId);
-        assertThat(remoteArtifactEntity.getRepositoryId()).isEqualTo(repositoryId);
-        assertThat(remoteArtifactEntity).isInstanceOf(RemoteArtifact.class);
-
-        assertThat(g.E()
-                    .hasLabel(Edges.REMOTE_ARTIFACT_INHERIT_ARTIFACT)
-                    .bothV()
-                    .properties("uuid")
-                    .map(p -> p.get().value())
-                    .toList()).containsExactly(remoteArtifactEntity.getUuid(), remoteArtifactEntity.getUuid());
-
-        Artifact artifact = artifactRepository.findOneArtifact(storageId, repositoryId, path);
-        assertThat(artifact).isInstanceOf(RemoteArtifact.class);
     }
 
 }

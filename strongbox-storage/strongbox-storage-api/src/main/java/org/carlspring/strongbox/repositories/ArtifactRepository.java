@@ -12,7 +12,7 @@ import org.apache.tinkerpop.gremlin.structure.Vertex;
 import org.carlspring.strongbox.db.schema.Edges;
 import org.carlspring.strongbox.db.schema.Vertices;
 import org.carlspring.strongbox.domain.Artifact;
-import org.carlspring.strongbox.gremlin.adapters.ArtifactHierarchyAdapter;
+import org.carlspring.strongbox.gremlin.adapters.ArtifactAdapter;
 import org.carlspring.strongbox.gremlin.adapters.EntityTraversalUtils;
 import org.carlspring.strongbox.gremlin.dsl.EntityTraversal;
 import org.carlspring.strongbox.gremlin.repositories.GremlinVertexRepository;
@@ -29,12 +29,12 @@ public class ArtifactRepository extends GremlinVertexRepository<Artifact> implem
 {
 
     @Inject
-    ArtifactHierarchyAdapter artifactAdapter;
+    ArtifactAdapter artifactAdapter;
     @Inject
     ArtifactEntityQueries queries;
 
     @Override
-    protected ArtifactHierarchyAdapter adapter()
+    protected ArtifactAdapter adapter()
     {
         return artifactAdapter;
     }
@@ -125,8 +125,7 @@ interface ArtifactEntityQueries extends org.springframework.data.repository.Repo
            "WITH artifact, r1, genericCoordinates, r4, tag " +
            "MATCH (genericCoordinates)<-[r2]-(layoutCoordinates) " +
            "WITH artifact, r1, genericCoordinates, r2, layoutCoordinates, r4, tag " +
-           "OPTIONAL MATCH (artifact)<-[r3]-(remoteArtifact) " +
-           "RETURN artifact, r3, remoteArtifact, r1, genericCoordinates, r2, layoutCoordinates, r4, tag")
+           "RETURN artifact, r1, genericCoordinates, r2, layoutCoordinates, r4, tag")
     List<Artifact> findByPathLike(@Param("storageId") String storageId,
                                   @Param("repositoryId") String repositoryId,
                                   @Param("path") String path);
@@ -138,8 +137,7 @@ interface ArtifactEntityQueries extends org.springframework.data.repository.Repo
                    "WITH artifact, r1, genericCoordinates, r4, tag " +
                    "MATCH (genericCoordinates)<-[r2]-(layoutCoordinates) " +
                    "WITH artifact, r1, genericCoordinates, r2, layoutCoordinates, r4, tag " +
-                   "OPTIONAL MATCH (artifact)<-[r3]-(remoteArtifact) " +
-                   "RETURN artifact, r3, remoteArtifact, r1, genericCoordinates, r2, layoutCoordinates, r4, tag",
+                   "RETURN artifact, r1, genericCoordinates, r2, layoutCoordinates, r4, tag",
            countQuery = "MATCH (artifact:Artifact) " +
                         "WHERE artifact.lastUsed <= coalesce($lastAccessedDate, artifact.lastUsed) and artifact.sizeInBytes >=  coalesce($minSizeInBytes, artifact.sizeInBytes) " +
                         "RETURN count(artifact)")

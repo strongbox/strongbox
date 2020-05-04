@@ -18,7 +18,6 @@ import javax.inject.Inject;
 import org.carlspring.commons.io.reloading.FSReloadableInputStreamHandler;
 import org.carlspring.strongbox.artifact.ArtifactNotFoundException;
 import org.carlspring.strongbox.domain.Artifact;
-import org.carlspring.strongbox.domain.ArtifactEntity;
 import org.carlspring.strongbox.event.artifact.ArtifactEventListenerRegistry;
 import org.carlspring.strongbox.event.repository.RepositoryEventListenerRegistry;
 import org.carlspring.strongbox.io.ByteRangeInputStream;
@@ -355,21 +354,6 @@ public abstract class LayoutFileSystemProvider extends StorageFileSystemProvider
 
     }
     
-    public Boolean artifactExists(RepositoryPath repositoryPath) throws IOException
-    {
-        Repository repository = repositoryPath.getRepository();
-        if (repository.isGroupRepository() || !RepositoryFiles.isArtifact(repositoryPath))
-        {
-            return Files.exists(repositoryPath);
-        }
-        
-        String repositoryId = repositoryPath.getRepositoryId();
-        String storageId = repositoryPath.getStorageId();
-        String path = RepositoryFiles.relativizePath(repositoryPath);
-        
-        return artifactEntityRepository.artifactExists(storageId, repositoryId, path);
-    }
-
     public class PathOutputStreamSupplier implements OutputStreamSupplier
     {
         private Path path;

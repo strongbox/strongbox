@@ -5,7 +5,6 @@ import static org.carlspring.strongbox.gremlin.adapters.EntityTraversalUtils.ext
 
 import java.util.Collection;
 import java.util.Collections;
-import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
@@ -34,7 +33,7 @@ public class ArtifactIdGroupAdapter extends VertexEntityTraversalAdapter<Artifac
 {
 
     @Inject
-    private ArtifactHierarchyAdapter artifactAdapter;
+    private ArtifactAdapter artifactAdapter;
 
     @Override
     public Set<String> labels()

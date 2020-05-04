@@ -60,9 +60,8 @@ public class ArtifactEntity
 
     private final ArtifactArchiveListing artifactArchiveListing = new ArtifactEntityArchiveListing();
     
-    @Relationship(type = Edges.REMOTE_ARTIFACT_INHERIT_ARTIFACT, direction = Relationship.INCOMING)
-    private Artifact artifactHierarchyChild;
-
+    private Boolean cached = Boolean.TRUE;
+    
     ArtifactEntity()
     {
     }
@@ -225,6 +224,16 @@ public class ArtifactEntity
     {
         return artifactArchiveListing;
     }
+    
+    public Boolean getIsCached()
+    {
+        return cached;
+    }
+
+    public void setIsCached(Boolean cached)
+    {
+        this.cached = cached;
+    }
 
     @Override
     @Transient
@@ -233,23 +242,6 @@ public class ArtifactEntity
         return Optional.of(getArtifactCoordinates())
                        .map(c -> c.buildPath())
                        .orElseThrow(() -> new IllegalStateException("ArtifactCoordinates required to be set."));
-    }
-
-    public void setHierarchyChild(Artifact artifactHierarchyChild)
-    {
-        this.artifactHierarchyChild = artifactHierarchyChild;
-    }
-    
-    @Override
-    public Artifact getHierarchyChild()
-    {
-        return artifactHierarchyChild;
-    }
-
-    @Override
-    public Artifact getHierarchyParent()
-    {
-        return null;
     }
 
     public class ArtifactEntityArchiveListing implements ArtifactArchiveListing
