@@ -204,7 +204,7 @@ public class ArtifactRepositoryTest
         remoteArtifactEntity.setIsCached(false);
         remoteArtifactEntity = artifactRepository.save(remoteArtifactEntity);
         assertThat(remoteArtifactEntity.getIsCached()).isFalse();
-        assertThat(artifactRepository.artifactExists(storageId, repositoryId, remotePath)).isFalse();
+        assertThat(artifactRepository.artifactExists(storageId, repositoryId, remotePath)).isTrue();
         
         remoteArtifactEntity.setIsCached(true);
         remoteArtifactEntity = artifactRepository.save(remoteArtifactEntity);
