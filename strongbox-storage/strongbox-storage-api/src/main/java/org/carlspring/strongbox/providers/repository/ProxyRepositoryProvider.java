@@ -14,8 +14,7 @@ import javax.inject.Inject;
 
 import org.carlspring.strongbox.data.criteria.Paginator;
 import org.carlspring.strongbox.domain.Artifact;
-import org.carlspring.strongbox.domain.RemoteArtifact;
-import org.carlspring.strongbox.domain.RemoteArtifactEntity;
+import org.carlspring.strongbox.domain.ArtifactEntity;
 import org.carlspring.strongbox.io.RepositoryStreamWriteContext;
 import org.carlspring.strongbox.providers.io.AbstractRepositoryProvider;
 import org.carlspring.strongbox.providers.io.RepositoryFiles;
@@ -138,21 +137,20 @@ public class ProxyRepositoryProvider
     protected Artifact provideArtifact(RepositoryPath repositoryPath) throws IOException
     {
         Artifact artifactEntry = super.provideArtifact(repositoryPath);
-        Artifact remoteArtifactEntry = artifactEntry.getNativeId() == null
-                ? new RemoteArtifactEntity(repositoryPath.getStorageId(), repositoryPath.getRepositoryId(),
-                        RepositoryFiles.readCoordinates(repositoryPath))
-                : (RemoteArtifact) artifactEntry;
-
-        return remoteArtifactEntry;
+        if (artifactEntry.getNativeId() == null) {
+            artifactEntry = new ArtifactEntity(repositoryPath.getStorageId(), repositoryPath.getRepositoryId(),
+                                      RepositoryFiles.readCoordinates(repositoryPath));
+            artifactEntry.setIsCached(Boolean.FALSE);
+        }
+        
+        return artifactEntry;
     }
 
     @Override
     protected boolean shouldStoreArtifact(Artifact artifactEntry)
     {
-        RemoteArtifactEntity remoteArtifactEntry = (RemoteArtifactEntity) artifactEntry;
-        boolean result = super.shouldStoreArtifact(artifactEntry) || !remoteArtifactEntry.getIsCached();
-        
-        remoteArtifactEntry.setIsCached(true);
+        boolean result = super.shouldStoreArtifact(artifactEntry) || !artifactEntry.getIsCached();
+        artifactEntry.setIsCached(true);
         
         return result;
     }

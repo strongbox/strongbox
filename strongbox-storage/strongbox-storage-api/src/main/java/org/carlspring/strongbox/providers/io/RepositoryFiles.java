@@ -14,7 +14,6 @@ import java.util.stream.Collectors;
 
 import org.carlspring.strongbox.artifact.coordinates.ArtifactCoordinates;
 import org.carlspring.strongbox.domain.Artifact;
-import org.carlspring.strongbox.domain.RemoteArtifact;
 import org.carlspring.strongbox.storage.repository.Repository;
 
 /**
@@ -187,12 +186,7 @@ public abstract class RepositoryFiles
         }
 
         Artifact artifactEntry = repositoryPath.getArtifactEntry();
-        if (artifactEntry instanceof RemoteArtifact) {
-            return Boolean.TRUE.equals(((RemoteArtifact) artifactEntry).getIsCached());
-        }
-        
-        return artifactEntry != null; 
-        //return repositoryPath.getFileSystem().provider().artifactExists(repositoryPath);
+        return artifactEntry != null && Boolean.TRUE.equals(artifactEntry.getIsCached()); 
     }
 
     public static void deleteTrash(RepositoryPath repositoryPath)

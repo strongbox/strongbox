@@ -32,7 +32,6 @@ import org.carlspring.strongbox.domain.ArtifactArchiveListing;
 import org.carlspring.strongbox.domain.ArtifactEntity;
 import org.carlspring.strongbox.domain.GenericArtifactCoordinatesEntity;
 import org.carlspring.strongbox.gremlin.dsl.EntityTraversal;
-import org.carlspring.strongbox.gremlin.dsl.EntityTraversalDsl;
 import org.carlspring.strongbox.gremlin.dsl.__;
 import org.springframework.stereotype.Component;
 
@@ -40,7 +39,7 @@ import org.springframework.stereotype.Component;
  * @author sbespalov
  */
 @Component
-public class ArtifactAdapter extends VertexEntityTraversalAdapter<Artifact> implements ArtifactHierarchyNodeAdapter<Artifact>
+public class ArtifactAdapter extends VertexEntityTraversalAdapter<Artifact>
 {
 
     @Inject
@@ -59,26 +58,7 @@ public class ArtifactAdapter extends VertexEntityTraversalAdapter<Artifact> impl
     }
 
     @Override
-    public Class<? extends Artifact> entityClass()
-    {
-        return Artifact.class;
-    }
-
-    @Override
     public EntityTraversal<Vertex, Artifact> fold()
-    {
-        return foldHierarchy(parentProjection(), childProjection());
-    }
-
-    @Override
-    public EntityTraversal<Vertex, Object> parentProjection()
-    {
-        return __.<Vertex>V().constant(EntityTraversalDsl.NULL);
-    }
-
-    @Override
-    public EntityTraversal<Vertex, Artifact> foldHierarchy(EntityTraversal<Vertex, Object> parentProjection,
-                                                           EntityTraversal<Vertex, Object> childProjection)
     {
         return __.<Vertex, Object>project("id",
                                           "uuid",
@@ -93,7 +73,7 @@ public class ArtifactAdapter extends VertexEntityTraversalAdapter<Artifact> impl
                                           "checksums",
                                           "genericArtifactCoordinates",
                                           "tags",
-                                          "artifactHierarchyChild")
+                                          "cached")
                  .by(__.id())
                  .by(__.enrichPropertyValue("uuid"))
                  .by(__.enrichPropertyValue("storageId"))
@@ -114,7 +94,7 @@ public class ArtifactAdapter extends VertexEntityTraversalAdapter<Artifact> impl
                        .map(artifactTagAdapter.fold())
                        .map(EntityTraversalUtils::castToObject)
                        .fold())
-                 .by(childProjection)
+                 .by(__.enrichPropertyValue("cached"))
                  .map(this::map);
     }
 
@@ -155,11 +135,7 @@ public class ArtifactAdapter extends VertexEntityTraversalAdapter<Artifact> impl
         List<ArtifactTag> tags = (List<ArtifactTag>) t.get().get("tags");
         result.setTagSet(new HashSet<>(tags));
 
-        Artifact artifactHierarchyChild = extractObject(Artifact.class,
-                                                        t.get()
-                                                         .get("artifactHierarchyChild"));
-        result.setHierarchyChild(artifactHierarchyChild);
-        // artifactCoordinates.setGenericArtifactCoordinates(result);
+        result.setIsCached(extractObject(Boolean.class, t.get().get("cached")));
 
         return result;
     }
@@ -252,7 +228,12 @@ public class ArtifactAdapter extends VertexEntityTraversalAdapter<Artifact> impl
         }
         t = t.sideEffect(__.properties("checksums").drop());
         t = t.property("checksums", checkSumAlgo);
-
+        
+        if (entity.getIsCached() != null)
+        {
+            t = t.property(single, "cached", entity.getIsCached());
+        }
+        
         return t;
     }
 

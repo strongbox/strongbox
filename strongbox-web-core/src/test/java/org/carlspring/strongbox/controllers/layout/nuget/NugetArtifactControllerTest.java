@@ -4,20 +4,15 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.carlspring.strongbox.utils.ArtifactControllerHelper.MULTIPART_BOUNDARY;
 import static org.hamcrest.CoreMatchers.equalTo;
 
-import java.io.OutputStream;
-import java.io.PrintStream;
 import java.nio.file.Files;
 import java.nio.file.Path;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 
 import javax.inject.Inject;
 
 import org.carlspring.strongbox.artifact.coordinates.NugetArtifactCoordinates;
 import org.carlspring.strongbox.config.IntegrationTest;
 import org.carlspring.strongbox.domain.Artifact;
-import org.carlspring.strongbox.domain.RemoteArtifact;
 import org.carlspring.strongbox.providers.io.RepositoryFiles;
 import org.carlspring.strongbox.providers.io.RepositoryPath;
 import org.carlspring.strongbox.repositories.ArtifactRepository;
@@ -487,9 +482,7 @@ public class NugetArtifactControllerTest extends NugetRestAssuredBaseTest
         assertThat(artifactEntryList).isNotEmpty();
 
         Artifact artifactEntry = artifactEntryList.iterator().next();
-        
-        assertThat(artifactEntry).isInstanceOf(RemoteArtifact.class);
-        assertThat(((RemoteArtifact)artifactEntry).getIsCached()).isFalse();
+        assertThat(artifactEntry.getIsCached()).isFalse();
 
         url = getContextBaseUrl() + "/storages/public/nuget-group/package/{artifactId}/{artifactVersion}";
         mockMvc.header(HttpHeaders.USER_AGENT, "NuGet/*")

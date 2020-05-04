@@ -11,8 +11,8 @@ import javax.inject.Inject;
 import org.carlspring.strongbox.artifact.ArtifactTag;
 import org.carlspring.strongbox.artifact.coordinates.NpmArtifactCoordinates;
 import org.carlspring.strongbox.domain.Artifact;
+import org.carlspring.strongbox.domain.ArtifactEntity;
 import org.carlspring.strongbox.domain.ArtifactTagEntity;
-import org.carlspring.strongbox.domain.RemoteArtifactEntity;
 import org.carlspring.strongbox.npm.metadata.PackageEntry;
 import org.carlspring.strongbox.npm.metadata.PackageFeed;
 import org.carlspring.strongbox.npm.metadata.PackageVersion;
@@ -54,7 +54,7 @@ public class NpmPackageFeedParser
         {
             PackageEntry packageEntry = searchResult.getPackage();
 
-            RemoteArtifactEntity remoteArtifactEntry = parseVersion(storageId, repositoryId, packageEntry);
+            ArtifactEntity remoteArtifactEntry = parseVersion(storageId, repositoryId, packageEntry);
             if (remoteArtifactEntry == null)
             {
                 continue;
@@ -98,7 +98,7 @@ public class NpmPackageFeedParser
         Set<Artifact> artifactToSaveSet = new HashSet<>();
         for (PackageVersion packageVersion : versionMap.values())
         {
-            RemoteArtifactEntity remoteArtifactEntry = parseVersion(storageId, repositoryId, packageVersion);
+            ArtifactEntity remoteArtifactEntry = parseVersion(storageId, repositoryId, packageVersion);
             if (remoteArtifactEntry == null)
             {
                 continue;
@@ -115,19 +115,20 @@ public class NpmPackageFeedParser
         repositoryArtifactIdGroupService.saveArtifacts(repository, artifactToSaveSet);
     }
 
-    private RemoteArtifactEntity parseVersion(String storageId,
+    private ArtifactEntity parseVersion(String storageId,
                                               String repositoryId,
                                               PackageVersion packageVersion)
     {
         NpmArtifactCoordinates c = NpmArtifactCoordinates.of(packageVersion.getName(), packageVersion.getVersion());
 
-        RemoteArtifactEntity remoteArtifactEntry = new RemoteArtifactEntity(storageId, repositoryId, c);
+        ArtifactEntity remoteArtifactEntry = new ArtifactEntity(storageId, repositoryId, c);
         remoteArtifactEntry.setStorageId(storageId);
         remoteArtifactEntry.setRepositoryId(repositoryId);
         remoteArtifactEntry.setArtifactCoordinates(c);
         remoteArtifactEntry.setLastUsed(LocalDateTime.now());
         remoteArtifactEntry.setLastUpdated(LocalDateTime.now());
         remoteArtifactEntry.setDownloadCount(0);
+        remoteArtifactEntry.setIsCached(Boolean.FALSE);
 
         // TODO make HEAD request for `tarball` URL ???
         // remoteArtifactEntry.setSizeInBytes(packageVersion.getProperties().getPackageSize());
@@ -135,22 +136,23 @@ public class NpmPackageFeedParser
         return remoteArtifactEntry;
     }
 
-    private RemoteArtifactEntity parseVersion(String storageId,
-                                              String repositoryId,
-                                              PackageEntry packageEntry)
+    private ArtifactEntity parseVersion(String storageId,
+                                        String repositoryId,
+                                        PackageEntry packageEntry)
     {
         String scope = packageEntry.getScope();
         String packageId = NpmArtifactCoordinates.calculatePackageId("unscoped".equals(scope) ? null : scope,
                                                                      packageEntry.getName());
         NpmArtifactCoordinates c = NpmArtifactCoordinates.of(packageId, packageEntry.getVersion());
 
-        RemoteArtifactEntity remoteArtifactEntry = new RemoteArtifactEntity(storageId, repositoryId, c);
+        ArtifactEntity remoteArtifactEntry = new ArtifactEntity(storageId, repositoryId, c);
         remoteArtifactEntry.setStorageId(storageId);
         remoteArtifactEntry.setRepositoryId(repositoryId);
         remoteArtifactEntry.setArtifactCoordinates(c);
         remoteArtifactEntry.setLastUsed(LocalDateTime.now());
         remoteArtifactEntry.setLastUpdated(LocalDateTime.now());
         remoteArtifactEntry.setDownloadCount(0);
+        remoteArtifactEntry.setIsCached(Boolean.FALSE);
 
         return remoteArtifactEntry;
     }

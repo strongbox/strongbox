@@ -9,7 +9,7 @@ import org.carlspring.strongbox.artifact.coordinates.ArtifactCoordinates;
 import org.carlspring.strongbox.data.domain.DomainObject;
 import org.carlspring.strongbox.gremlin.adapters.EntityHierarchyNode;
 
-public interface Artifact extends DomainObject, EntityHierarchyNode<Artifact>
+public interface Artifact extends DomainObject
 {
 
     String getStorageId();
@@ -49,6 +49,10 @@ public interface Artifact extends DomainObject, EntityHierarchyNode<Artifact>
     Integer getDownloadCount();
 
     void setDownloadCount(Integer downloadCount);
+    
+    Boolean getIsCached();
+
+    void setIsCached(Boolean cached);
 
     ArtifactArchiveListing getArtifactArchiveListing();
 

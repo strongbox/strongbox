@@ -2,20 +2,13 @@ package org.carlspring.strongbox.domain;
 
 import java.util.Collections;
 import java.util.HashSet;
-import java.util.List;
-import java.util.Optional;
 import java.util.Set;
-import java.util.stream.Collectors;
-import java.util.stream.Stream;
 
 import org.carlspring.strongbox.data.domain.DomainEntity;
 import org.carlspring.strongbox.db.schema.Edges;
 import org.carlspring.strongbox.db.schema.Vertices;
-import org.carlspring.strongbox.gremlin.adapters.EntityTraversalUtils;
 import org.neo4j.ogm.annotation.NodeEntity;
 import org.neo4j.ogm.annotation.Relationship;
-
-import static org.carlspring.strongbox.gremlin.adapters.EntityTraversalUtils.reduceHierarchy;
 
 /**
  * @author Przemyslaw Fusik
@@ -78,27 +71,20 @@ public class ArtifactIdGroupEntity extends DomainEntity implements ArtifactIdGro
     @Override
     public Set<Artifact> getArtifacts()
     {
-        List<Artifact> result = reduceHierarchy(artifacts.stream()
-                                                         .flatMap(a -> a.getHierarchyChild() == null
-                                                                 ? Stream.of(a)
-                                                                 : Stream.of(a,
-                                                                             a.getHierarchyChild()))
-                                                         .collect(Collectors.toList()));
-        return Collections.unmodifiableSet(new HashSet<>(result));
+        return Collections.unmodifiableSet(artifacts);
     }
 
     @Override
     public void addArtifact(Artifact artifact)
     {
-        Artifact artifactParent = Optional.of(artifact).map(a -> a.getHierarchyParent()).orElse(artifact);
-        artifacts.remove(artifactParent);
-        artifacts.add(artifactParent);
+        artifacts.remove(artifact);
+        artifacts.add(artifact);
     }
 
     @Override
     public void removeArtifact(Artifact artifact)
     {
-        artifacts.remove(Optional.of(artifact).map(a -> a.getHierarchyParent()).orElse(artifact));
+        artifacts.remove(artifact);
     }
     
 }

@@ -45,7 +45,6 @@ import org.carlspring.strongbox.artifact.generator.MavenArtifactDeployer;
 import org.carlspring.strongbox.client.ArtifactOperationException;
 import org.carlspring.strongbox.client.ArtifactTransportException;
 import org.carlspring.strongbox.config.IntegrationTest;
-import org.carlspring.strongbox.domain.RemoteArtifactEntity;
 import org.carlspring.strongbox.providers.io.RepositoryFiles;
 import org.carlspring.strongbox.providers.io.RepositoryPath;
 import org.carlspring.strongbox.providers.io.RootRepositoryPath;
@@ -1259,8 +1258,7 @@ public class MavenArtifactControllerTest
         assertThat(artifactEntry).isNotNull();
         assertThat(artifactEntry.getArtifactCoordinates()).isNotNull();
 
-        assertThat(artifactEntry).isInstanceOf(RemoteArtifactEntity.class);
-        assertThat(((RemoteArtifactEntity) artifactEntry).getIsCached()).isTrue();
+        assertThat(artifactEntry.getIsCached()).isTrue();
     }
 
     private ArtifactSnapshotVersion getCommonsHttpArtifactSnapshotVersionFromCarlspringRemote()

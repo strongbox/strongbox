@@ -21,7 +21,6 @@ import javax.ws.rs.client.WebTarget;
 import org.carlspring.strongbox.config.NpmLayoutProviderTestConfig;
 import org.carlspring.strongbox.cron.domain.CronTaskConfigurationDto;
 import org.carlspring.strongbox.domain.Artifact;
-import org.carlspring.strongbox.domain.RemoteArtifactEntity;
 import org.carlspring.strongbox.repositories.ArtifactRepository;
 import org.carlspring.strongbox.service.ProxyRepositoryConnectionPoolConfigurationService;
 import org.carlspring.strongbox.storage.repository.Repository;
@@ -99,7 +98,7 @@ public class FetchChangesFeedCronJobTestIT
                                                                              "MiniMVC");
         assertThat(artifactEntryList).hasSize(1);
 
-        RemoteArtifactEntity artifactEntry = (RemoteArtifactEntity) artifactEntryList.iterator().next();
+        Artifact artifactEntry = artifactEntryList.iterator().next();
         assertThat(artifactEntry.getIsCached()).isFalse();
 
         RepositoryData repositoryData = (RepositoryData) configurationManagementService.getConfiguration()

@@ -21,10 +21,7 @@ import org.carlspring.strongbox.domain.ArtifactEntity;
 import org.carlspring.strongbox.domain.ArtifactIdGroup;
 import org.carlspring.strongbox.domain.ArtifactIdGroupEntity;
 import org.carlspring.strongbox.domain.ArtifactTagEntity;
-import org.carlspring.strongbox.domain.RemoteArtifact;
-import org.carlspring.strongbox.domain.RemoteArtifactEntity;
 import org.carlspring.strongbox.gremlin.tx.TransactionContext;
-import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.context.ActiveProfiles;
@@ -64,7 +61,7 @@ public class ArtifactIdGroupRepositoryTest
 
         RawArtifactCoordinates artifactCoordinatesTwo = new RawArtifactCoordinates();
         artifactCoordinatesTwo.setId(String.format(pathTemplate, "20"));
-        RemoteArtifactEntity artifactEntityTwo = new RemoteArtifactEntity(storageId, repositoryId, artifactCoordinatesTwo);
+        ArtifactEntity artifactEntityTwo = new ArtifactEntity(storageId, repositoryId, artifactCoordinatesTwo);
 
         RawArtifactCoordinates artifactCoordinatesThree = new RawArtifactCoordinates();
         artifactCoordinatesThree.setId(String.format(pathTemplate, "30"));
@@ -82,8 +79,6 @@ public class ArtifactIdGroupRepositoryTest
         assertThat(artifactIdGroupEntity.getArtifacts()).containsOnly(artifactEntityOne,
                                                                       artifactEntityTwo,
                                                                       artifactEntityThree);
-        assertThat(artifactIdGroupEntity.getArtifacts()).filteredOnAssertions(a -> assertThat(a).isInstanceOf(RemoteArtifact.class))
-                                                        .hasSize(1);
 
         assertThat(g.E()
                     .hasLabel(Edges.ARTIFACT_GROUP_HAS_ARTIFACTS)
@@ -165,7 +160,7 @@ public class ArtifactIdGroupRepositoryTest
 
         RawArtifactCoordinates artifactCoordinatesTwo = new RawArtifactCoordinates();
         artifactCoordinatesTwo.setId(String.format(pathTemplate, "20"));
-        RemoteArtifactEntity artifactEntityTwo = new RemoteArtifactEntity(storageId, repositoryId, artifactCoordinatesTwo);
+        ArtifactEntity artifactEntityTwo = new ArtifactEntity(storageId, repositoryId, artifactCoordinatesTwo);
 
         RawArtifactCoordinates artifactCoordinatesThree = new RawArtifactCoordinates();
         artifactCoordinatesThree.setId(String.format(pathTemplate, "30"));
@@ -189,7 +184,7 @@ public class ArtifactIdGroupRepositoryTest
 
         RawArtifactCoordinates artifactCoordinatesAnotherTwo = new RawArtifactCoordinates();
         artifactCoordinatesAnotherTwo.setId(String.format(pathTemplate, "20"));
-        Artifact artifactEntityAnotherTwo = new RemoteArtifactEntity(storageId, repositoryId, artifactCoordinatesAnotherTwo);
+        Artifact artifactEntityAnotherTwo = new ArtifactEntity(storageId, repositoryId, artifactCoordinatesAnotherTwo);
 
         ArtifactIdGroupEntity artifactIdGroupEntityAnother = new ArtifactIdGroupEntity(storageId, repositoryId,
                 "path/to/resource/aigrt-fosw-another");
@@ -207,9 +202,6 @@ public class ArtifactIdGroupRepositoryTest
         assertThat(artifactIdGroupOptional.get().getArtifacts()).containsOnly(artifactEntityOne,
                                                                               artifactEntityTwo,
                                                                               artifactEntityThree);
-        assertThat(artifactIdGroupOptional.get()
-                                          .getArtifacts()).filteredOnAssertions(a -> assertThat(a).isInstanceOf(RemoteArtifact.class))
-                                                          .hasSize(1);
 
         artifactRepository.delete(artifactEntityOne);
         artifactEntityOne.setNativeId(null);
@@ -251,7 +243,7 @@ public class ArtifactIdGroupRepositoryTest
 
         RawArtifactCoordinates artifactCoordinatesTwo = new RawArtifactCoordinates();
         artifactCoordinatesTwo.setId(String.format(pathTemplate, "20"));
-        Artifact artifactEntityTwo = new RemoteArtifactEntity(storageId, repositoryId, artifactCoordinatesTwo);
+        Artifact artifactEntityTwo = new ArtifactEntity(storageId, repositoryId, artifactCoordinatesTwo);
 
         RawArtifactCoordinates artifactCoordinatesThree = new RawArtifactCoordinates();
         artifactCoordinatesThree.setId(String.format(pathTemplate, "30"));

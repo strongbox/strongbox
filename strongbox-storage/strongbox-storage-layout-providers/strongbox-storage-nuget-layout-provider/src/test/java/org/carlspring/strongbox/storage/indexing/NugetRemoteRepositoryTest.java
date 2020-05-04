@@ -12,7 +12,6 @@ import org.carlspring.strongbox.artifact.coordinates.NugetArtifactCoordinates;
 import org.carlspring.strongbox.client.ArtifactTransportException;
 import org.carlspring.strongbox.config.NugetLayoutProviderTestConfig;
 import org.carlspring.strongbox.domain.Artifact;
-import org.carlspring.strongbox.domain.RemoteArtifactEntity;
 import org.carlspring.strongbox.nuget.NugetSearchRequest;
 import org.carlspring.strongbox.repositories.ArtifactRepository;
 import org.carlspring.strongbox.repository.NugetRepositoryFeatures;
@@ -69,7 +68,7 @@ public class NugetRemoteRepositoryTest
         Optional<Artifact> optionalArtifactEntry = Optional.ofNullable(artifactEntry);
 
         assertThat(optionalArtifactEntry).isPresent();
-        assertThat(((RemoteArtifactEntity) optionalArtifactEntry.get()).getIsCached()).isFalse();
+        assertThat(optionalArtifactEntry.get().getIsCached()).isFalse();
     }
 
 }

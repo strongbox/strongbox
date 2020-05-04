@@ -21,8 +21,8 @@ import org.carlspring.strongbox.configuration.Configuration;
 import org.carlspring.strongbox.configuration.ConfigurationManager;
 import org.carlspring.strongbox.data.criteria.Paginator;
 import org.carlspring.strongbox.domain.Artifact;
+import org.carlspring.strongbox.domain.ArtifactEntity;
 import org.carlspring.strongbox.domain.ArtifactTagEntity;
-import org.carlspring.strongbox.domain.RemoteArtifactEntity;
 import org.carlspring.strongbox.nuget.NugetSearchRequest;
 import org.carlspring.strongbox.providers.repository.RepositorySearchRequest;
 import org.carlspring.strongbox.providers.repository.event.RemoteRepositorySearchEvent;
@@ -201,13 +201,14 @@ public class NugetRepositoryFeatures
 
             NugetArtifactCoordinates c = new NugetArtifactCoordinates(packageId, packageVersion, "nupkg");
             
-            RemoteArtifactEntity remoteArtifactEntry = new RemoteArtifactEntity(storageId, repositoryId, c);
+            ArtifactEntity remoteArtifactEntry = new ArtifactEntity(storageId, repositoryId, c);
             remoteArtifactEntry.setStorageId(storageId);
             remoteArtifactEntry.setRepositoryId(repositoryId);
             remoteArtifactEntry.setArtifactCoordinates(c);
             remoteArtifactEntry.setLastUsed(LocalDateTime.now());
             remoteArtifactEntry.setLastUpdated(LocalDateTime.now());
             remoteArtifactEntry.setDownloadCount(0);
+            remoteArtifactEntry.setIsCached(Boolean.FALSE);
 
             remoteArtifactEntry.setSizeInBytes(packageEntry.getProperties().getPackageSize());
 
