@@ -70,7 +70,7 @@ public class ArtifactAdapter extends VertexEntityTraversalAdapter<Artifact>
                                           "checksums",
                                           "genericArtifactCoordinates",
                                           "tags",
-                                          "cached")
+                                          "artifactFileExists")
                  .by(__.id())
                  .by(__.enrichPropertyValue("uuid"))
                  .by(__.enrichPropertyValue("storageId"))
@@ -91,7 +91,7 @@ public class ArtifactAdapter extends VertexEntityTraversalAdapter<Artifact>
                        .map(artifactTagAdapter.fold())
                        .map(EntityTraversalUtils::castToObject)
                        .fold())
-                 .by(__.enrichPropertyValue("cached"))
+                 .by(__.enrichPropertyValue("artifactFileExists"))
                  .map(this::map);
     }
 
@@ -124,7 +124,7 @@ public class ArtifactAdapter extends VertexEntityTraversalAdapter<Artifact>
         List<ArtifactTag> tags = (List<ArtifactTag>) t.get().get("tags");
         result.setTagSet(new HashSet<>(tags));
 
-        result.setIsCached(extractObject(Boolean.class, t.get().get("cached")));
+        result.setArtifactFileExists(extractObject(Boolean.class, t.get().get("artifactFileExists")));
 
         return result;
     }
@@ -218,9 +218,9 @@ public class ArtifactAdapter extends VertexEntityTraversalAdapter<Artifact>
         t = t.sideEffect(__.properties("checksums").drop());
         t = t.property("checksums", checkSumAlgo);
         
-        if (entity.getIsCached() != null)
+        if (entity.getArtifactFileExists() != null)
         {
-            t = t.property(single, "cached", entity.getIsCached());
+            t = t.property(single, "artifactFileExists", entity.getArtifactFileExists());
         }
         
         return t;

@@ -482,7 +482,7 @@ public class NugetArtifactControllerTest extends NugetRestAssuredBaseTest
         assertThat(artifactEntryList).isNotEmpty();
 
         Artifact artifactEntry = artifactEntryList.iterator().next();
-        assertThat(artifactEntry.getIsCached()).isFalse();
+        assertThat(artifactEntry.getArtifactFileExists()).isFalse();
 
         url = getContextBaseUrl() + "/storages/public/nuget-group/package/{artifactId}/{artifactVersion}";
         mockMvc.header(HttpHeaders.USER_AGENT, "NuGet/*")

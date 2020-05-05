@@ -50,9 +50,9 @@ public interface Artifact extends DomainObject
 
     void setDownloadCount(Integer downloadCount);
     
-    Boolean getIsCached();
+    Boolean getArtifactFileExists();
 
-    void setIsCached(Boolean cached);
+    void setArtifactFileExists(Boolean cached);
 
     ArtifactArchiveListing getArtifactArchiveListing();
 

@@ -60,7 +60,7 @@ public class ArtifactEntity
 
     private final ArtifactArchiveListing artifactArchiveListing = new ArtifactEntityArchiveListing();
     
-    private Boolean cached = Boolean.TRUE;
+    private Boolean artifactFileExists = Boolean.TRUE;
     
     ArtifactEntity()
     {
@@ -225,14 +225,14 @@ public class ArtifactEntity
         return artifactArchiveListing;
     }
     
-    public Boolean getIsCached()
+    public Boolean getArtifactFileExists()
     {
-        return cached;
+        return artifactFileExists;
     }
 
-    public void setIsCached(Boolean cached)
+    public void setArtifactFileExists(Boolean cached)
     {
-        this.cached = cached;
+        this.artifactFileExists = cached;
     }
 
     @Override

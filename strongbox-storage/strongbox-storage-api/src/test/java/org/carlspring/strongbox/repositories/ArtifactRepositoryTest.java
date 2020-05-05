@@ -201,12 +201,12 @@ public class ArtifactRepositoryTest
         RawArtifactCoordinates remoteArtifactCoordinates = new RawArtifactCoordinates();
         remoteArtifactCoordinates.setId(remotePath);
         ArtifactEntity remoteArtifactEntity = new ArtifactEntity("storage0", repositoryId, remoteArtifactCoordinates);
-        remoteArtifactEntity.setIsCached(false);
+        remoteArtifactEntity.setArtifactFileExists(false);
         remoteArtifactEntity = artifactRepository.save(remoteArtifactEntity);
-        assertThat(remoteArtifactEntity.getIsCached()).isFalse();
+        assertThat(remoteArtifactEntity.getArtifactFileExists()).isFalse();
         assertThat(artifactRepository.artifactExists(storageId, repositoryId, remotePath)).isTrue();
         
-        remoteArtifactEntity.setIsCached(true);
+        remoteArtifactEntity.setArtifactFileExists(true);
         remoteArtifactEntity = artifactRepository.save(remoteArtifactEntity);
         assertThat(artifactRepository.artifactExists(storageId, repositoryId, remotePath)).isTrue();
     }
@@ -230,7 +230,7 @@ public class ArtifactRepositoryTest
         RawArtifactCoordinates remoteArtifactCoordinates = new RawArtifactCoordinates();
         remoteArtifactCoordinates.setId(remotePath);
         ArtifactEntity remoteArtifactEntity = new ArtifactEntity("storage0", repositoryId, remoteArtifactCoordinates);
-        remoteArtifactEntity.setIsCached(true);
+        remoteArtifactEntity.setArtifactFileExists(true);
         remoteArtifactEntity = artifactRepository.save(remoteArtifactEntity);
 
         List<Artifact> artifacts = artifactRepository.findByPathLike(storageId, repositoryId, "path/to/resource/art-fbpsw");

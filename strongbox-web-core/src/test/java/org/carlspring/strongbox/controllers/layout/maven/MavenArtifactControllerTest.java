@@ -1258,7 +1258,7 @@ public class MavenArtifactControllerTest
         assertThat(artifactEntry).isNotNull();
         assertThat(artifactEntry.getArtifactCoordinates()).isNotNull();
 
-        assertThat(artifactEntry.getIsCached()).isTrue();
+        assertThat(artifactEntry.getArtifactFileExists()).isTrue();
     }
 
     private ArtifactSnapshotVersion getCommonsHttpArtifactSnapshotVersionFromCarlspringRemote()

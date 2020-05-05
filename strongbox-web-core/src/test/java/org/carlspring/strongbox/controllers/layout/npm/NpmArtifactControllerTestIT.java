@@ -128,7 +128,7 @@ public class NpmArtifactControllerTestIT
                                                                           repositoryId,
                                                                           coordinates.buildPath());
         assertThat(artifactEntry).isNotNull();
-        assertThat(artifactEntry.getIsCached()).isFalse();
+        assertThat(artifactEntry.getArtifactFileExists()).isFalse();
     }
 
     @ExtendWith(RepositoryManagementTestExecutionListener.class)
@@ -154,7 +154,7 @@ public class NpmArtifactControllerTestIT
                                                                           repositoryId,
                                                                           "Reston/Reston/0.2.0/Reston-0.2.0.tgz");
         assertThat(artifactEntry).isNotNull();
-        assertThat(artifactEntry.getIsCached()).isFalse();
+        assertThat(artifactEntry.getArtifactFileExists()).isFalse();
     }
 
     @ExtendWith({ RepositoryManagementTestExecutionListener.class,

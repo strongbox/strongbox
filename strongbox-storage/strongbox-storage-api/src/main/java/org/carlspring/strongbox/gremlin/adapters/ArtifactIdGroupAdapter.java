@@ -52,11 +52,6 @@ public class ArtifactIdGroupAdapter extends VertexEntityTraversalAdapter<Artifac
                                      .otherV()
                                      .has("uuid", tag.getName()));
         }
-        else
-        {
-            artifactsTraversal = artifactsTraversal.optional(__.inE(Edges.REMOTE_ARTIFACT_INHERIT_ARTIFACT)
-                                                               .otherV());
-        }
         
         return __.<Vertex, Object>project("id", "uuid", "storageId", "repositoryId", "name", "artifacts")
                  .by(__.id())
@@ -104,7 +99,6 @@ public class ArtifactIdGroupAdapter extends VertexEntityTraversalAdapter<Artifac
             saveArtifacstTraversal = saveArtifacstTraversal.V(artifact)
                                                            .saveV(artifact.getUuid(),
                                                                   unfoldArtifactTraversal)
-                                                           .optional(__.outE(Edges.REMOTE_ARTIFACT_INHERIT_ARTIFACT).otherV())
                                                            .aggregate(storedArtifact);
         }
 
@@ -150,7 +144,6 @@ public class ArtifactIdGroupAdapter extends VertexEntityTraversalAdapter<Artifac
         return __.<Vertex>aggregate("x")
                  .optional(__.outE(Edges.ARTIFACT_GROUP_HAS_ARTIFACTS)
                              .inV()
-                             .optional(__.inE(Edges.REMOTE_ARTIFACT_INHERIT_ARTIFACT).otherV())
                              .flatMap(artifactAdapter.cascade()))
                  .select("x")
                  .unfold();

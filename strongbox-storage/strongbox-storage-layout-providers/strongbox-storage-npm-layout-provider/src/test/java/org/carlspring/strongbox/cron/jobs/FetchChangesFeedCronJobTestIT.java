@@ -99,7 +99,7 @@ public class FetchChangesFeedCronJobTestIT
         assertThat(artifactEntryList).hasSize(1);
 
         Artifact artifactEntry = artifactEntryList.iterator().next();
-        assertThat(artifactEntry.getIsCached()).isFalse();
+        assertThat(artifactEntry.getArtifactFileExists()).isFalse();
 
         RepositoryData repositoryData = (RepositoryData) configurationManagementService.getConfiguration()
                                                                                        .getRepository(

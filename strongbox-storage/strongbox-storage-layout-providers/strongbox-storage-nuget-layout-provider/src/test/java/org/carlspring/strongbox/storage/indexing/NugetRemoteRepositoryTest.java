@@ -68,7 +68,7 @@ public class NugetRemoteRepositoryTest
         Optional<Artifact> optionalArtifactEntry = Optional.ofNullable(artifactEntry);
 
         assertThat(optionalArtifactEntry).isPresent();
-        assertThat(optionalArtifactEntry.get().getIsCached()).isFalse();
+        assertThat(optionalArtifactEntry.get().getArtifactFileExists()).isFalse();
     }
 
 }

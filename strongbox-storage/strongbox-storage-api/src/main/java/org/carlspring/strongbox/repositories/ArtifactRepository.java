@@ -73,8 +73,8 @@ public class ArtifactRepository extends GremlinVertexRepository<Artifact> implem
     }
 
     public Boolean artifactExists(String storageId,
-                                            String repositoryId,
-                                            String path)
+                                  String repositoryId,
+                                  String path)
     {
         EntityTraversal<Vertex, Vertex> t = g().V()
                                                .hasLabel(Vertices.GENERIC_ARTIFACT_COORDINATES)
@@ -84,10 +84,7 @@ public class ArtifactRepository extends GremlinVertexRepository<Artifact> implem
                                                .hasLabel(Vertices.ARTIFACT)
                                                .has("storageId", storageId)
                                                .has("repositoryId", repositoryId)
-                                               .optional(__.inE(Edges.REMOTE_ARTIFACT_INHERIT_ARTIFACT).otherV())
-                                               .choose(__.hasLabel(Vertices.REMOTE_ARTIFACT),
-                                                       __.has("cached", true),
-                                                       __.identity());
+                                               .has("artifactFileExists", true);
         return t.hasNext();
     }
 
@@ -103,12 +100,12 @@ public class ArtifactRepository extends GremlinVertexRepository<Artifact> implem
                                                  .hasLabel(Vertices.ARTIFACT)
                                                  .has("storageId", storageId)
                                                  .has("repositoryId", repositoryId)
-                                                 .optional(__.inE(Edges.REMOTE_ARTIFACT_INHERIT_ARTIFACT).otherV())
                                                  .map(artifactAdapter.fold());
-        if (!t.hasNext()) {
+        if (!t.hasNext())
+        {
             return null;
         }
-            
+
         return t.next();
     }
 

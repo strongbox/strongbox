@@ -140,7 +140,7 @@ public class ProxyRepositoryProvider
         if (artifactEntry.getNativeId() == null) {
             artifactEntry = new ArtifactEntity(repositoryPath.getStorageId(), repositoryPath.getRepositoryId(),
                                       RepositoryFiles.readCoordinates(repositoryPath));
-            artifactEntry.setIsCached(Boolean.FALSE);
+            artifactEntry.setArtifactFileExists(Boolean.FALSE);
         }
         
         return artifactEntry;
@@ -149,8 +149,8 @@ public class ProxyRepositoryProvider
     @Override
     protected boolean shouldStoreArtifact(Artifact artifactEntry)
     {
-        boolean result = super.shouldStoreArtifact(artifactEntry) || !artifactEntry.getIsCached();
-        artifactEntry.setIsCached(true);
+        boolean result = super.shouldStoreArtifact(artifactEntry) || !artifactEntry.getArtifactFileExists();
+        artifactEntry.setArtifactFileExists(true);
         
         return result;
     }

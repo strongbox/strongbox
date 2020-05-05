@@ -208,7 +208,7 @@ public class NugetRepositoryFeatures
             remoteArtifactEntry.setLastUsed(LocalDateTime.now());
             remoteArtifactEntry.setLastUpdated(LocalDateTime.now());
             remoteArtifactEntry.setDownloadCount(0);
-            remoteArtifactEntry.setIsCached(Boolean.FALSE);
+            remoteArtifactEntry.setArtifactFileExists(Boolean.FALSE);
 
             remoteArtifactEntry.setSizeInBytes(packageEntry.getProperties().getPackageSize());
 

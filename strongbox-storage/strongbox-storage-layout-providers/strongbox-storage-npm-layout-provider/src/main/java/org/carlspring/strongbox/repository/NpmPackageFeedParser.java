@@ -128,7 +128,7 @@ public class NpmPackageFeedParser
         remoteArtifactEntry.setLastUsed(LocalDateTime.now());
         remoteArtifactEntry.setLastUpdated(LocalDateTime.now());
         remoteArtifactEntry.setDownloadCount(0);
-        remoteArtifactEntry.setIsCached(Boolean.FALSE);
+        remoteArtifactEntry.setArtifactFileExists(Boolean.FALSE);
 
         // TODO make HEAD request for `tarball` URL ???
         // remoteArtifactEntry.setSizeInBytes(packageVersion.getProperties().getPackageSize());
@@ -152,7 +152,7 @@ public class NpmPackageFeedParser
         remoteArtifactEntry.setLastUsed(LocalDateTime.now());
         remoteArtifactEntry.setLastUpdated(LocalDateTime.now());
         remoteArtifactEntry.setDownloadCount(0);
-        remoteArtifactEntry.setIsCached(Boolean.FALSE);
+        remoteArtifactEntry.setArtifactFileExists(Boolean.FALSE);
 
         return remoteArtifactEntry;
     }
