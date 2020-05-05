@@ -204,7 +204,7 @@ public class ArtifactRepositoryTest
         remoteArtifactEntity.setArtifactFileExists(false);
         remoteArtifactEntity = artifactRepository.save(remoteArtifactEntity);
         assertThat(remoteArtifactEntity.getArtifactFileExists()).isFalse();
-        assertThat(artifactRepository.artifactExists(storageId, repositoryId, remotePath)).isTrue();
+        assertThat(artifactRepository.artifactExists(storageId, repositoryId, remotePath)).isFalse();
         
         remoteArtifactEntity.setArtifactFileExists(true);
         remoteArtifactEntity = artifactRepository.save(remoteArtifactEntity);
