@@ -79,7 +79,7 @@ public abstract class LayoutArtifactCoordinatesAdapter<C extends LayoutArtifactC
 
     @Override
     public EntityTraversal<Vertex, C> foldHierarchy(EntityTraversal<Vertex, Object> parentProjection,
-                                                                           EntityTraversal<Vertex, Object> childProjection)
+                                                    EntityTraversal<Vertex, Object> childProjection)
     {
         return __.<Vertex>hasLabel(layoutCoorinatesLabel)
                  .project("id", "uuid", "genericArtifactCoordinates")
