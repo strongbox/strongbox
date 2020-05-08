@@ -32,8 +32,8 @@ import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.ContextConfiguration;
 import static java.nio.file.Files.deleteIfExists;
-import static org.awaitility.Awaitility.await;
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.awaitility.Awaitility.await;
 import static org.junit.jupiter.api.parallel.ExecutionMode.CONCURRENT;
 
 /**
@@ -41,13 +41,15 @@ import static org.junit.jupiter.api.parallel.ExecutionMode.CONCURRENT;
  * @author Pablo Tirado
  */
 @ContextConfiguration(classes = NugetLayoutProviderCronTasksTestConfig.class)
-@SpringBootTest
+@SpringBootTest(properties = { "strongbox.vault=target/strongbox-vault-rnciscjtit" })
 @ActiveProfiles(profiles = "test")
 @Execution(CONCURRENT)
-public class RegenerateNugetChecksumCronJobTestIT
+public class RegenerateNugetChecksumInStoragesCronJobTestIT
         extends BaseCronJobWithNugetIndexingTestCase
 {
+
     private static final long BYTE_SIZE = 2048;
+
     private static final long DEFAULT_BYTE_SIZE = 1000000;
 
     @Override
@@ -61,41 +63,15 @@ public class RegenerateNugetChecksumCronJobTestIT
     @ExtendWith({ RepositoryManagementTestExecutionListener.class,
                   ArtifactManagementTestExecutionListener.class })
     @Test
-    public void testRegenerateNugetArtifactChecksum(@NugetRepository(storageId = "storage-nuget-rncc-trnac",
-                                                                     repositoryId = "repository-rnccjt-trnac")
-                                                    Repository repository,
-                                                    @NugetTestArtifact(storageId = "storage-nuget-rncc-trnac",
-                                                                       repositoryId = "repository-rnccjt-trnac",
-                                                                       id = "org.carlspring.strongbox.checksum-second",
-                                                                       versions = "1.0.0",
-                                                                       bytesSize = BYTE_SIZE)
-                                                    Path artifactNupkgPath)
-            throws Exception
-    {
-        Map<String, String> additionalProperties = Maps.newLinkedHashMap();
-        additionalProperties.put("basePath", "org.carlspring.strongbox.checksum-second");
-        additionalProperties.put("forceRegeneration", "false");
-
-        testRegenerateNugetChecksum(repository,
-                                    artifactNupkgPath,
-                                    repository.getStorage().getId(),
-                                    repository.getId(),
-                                    additionalProperties);
-    }
-
-    @ExtendWith({ RepositoryManagementTestExecutionListener.class,
-                         ArtifactManagementTestExecutionListener.class })
-    @Test
-    public void testRegenerateNugetChecksumInRepository(@NugetRepository(storageId = "storage-nuget-rncc-trncir",
-                                                                         repositoryId = "repository-rnccjt-trncir",
-                                                                         policy = RepositoryPolicyEnum.SNAPSHOT)
-                                                        Repository repository,
-                                                        @NugetTestArtifact(storageId = "storage-nuget-rncc-trncir",
-                                                                           repositoryId = "repository-rnccjt-trncir",
-                                                                           id = "org.carlspring.strongbox.checksum-one",
-                                                                           versions = "1.0.1-alpha",
-                                                                           bytesSize = BYTE_SIZE)
-                                                        Path artifactNupkgPath)
+    public void testRegenerateNugetChecksumInStorages(@NugetRepository(storageId = "storage-nuget-rncc-trncis2",
+                                                                       repositoryId = "repository-rnccjt-trncis2")
+                                                      Repository repository,
+                                                      @NugetTestArtifact(storageId = "storage-nuget-rncc-trncis2",
+                                                                         repositoryId = "repository-rnccjt-trncis2",
+                                                                         id = "org.carlspring.strongbox.checksum-one",
+                                                                         versions = "1.0.0",
+                                                                         bytesSize = BYTE_SIZE)
+                                                      Path artifactNupkgPath)
             throws Exception
     {
         Map<String, String> additionalProperties = Maps.newLinkedHashMap();
@@ -103,31 +79,7 @@ public class RegenerateNugetChecksumCronJobTestIT
 
         testRegenerateNugetChecksum(repository,
                                     artifactNupkgPath,
-                                    repository.getStorage().getId(),
-                                    repository.getId(),
-                                    additionalProperties);
-    }
-
-    @ExtendWith({ RepositoryManagementTestExecutionListener.class,
-                  ArtifactManagementTestExecutionListener.class })
-    @Test
-    public void testRegenerateNugetChecksumInStorage(@NugetRepository(storageId = "storage-nuget-rncc-trncis",
-                                                                      repositoryId = "repository-rnccjt-trncis")
-                                                     Repository repository,
-                                                     @NugetTestArtifact(storageId = "storage-nuget-rncc-trncis",
-                                                                        repositoryId = "repository-rnccjt-trncis",
-                                                                        id = "org.carlspring.strongbox.checksum-second",
-                                                                        versions = "1.0.0",
-                                                                        bytesSize = BYTE_SIZE)
-                                                     Path artifactNupkgPath)
-            throws Exception
-    {
-        Map<String, String> additionalProperties = Maps.newLinkedHashMap();
-        additionalProperties.put("forceRegeneration", "false");
-
-        testRegenerateNugetChecksum(repository,
-                                    artifactNupkgPath,
-                                    repository.getStorage().getId(),
+                                    null,
                                     null,
                                     additionalProperties);
     }
