@@ -40,7 +40,7 @@ import static org.junit.jupiter.api.parallel.ExecutionMode.CONCURRENT;
  * @author Pablo Tirado
  */
 @ContextConfiguration(classes = NugetLayoutProviderCronTasksTestConfig.class)
-@SpringBootTest(properties = { "strongbox.vault=target/strongbox-vault-rnciscjtit" })
+@SpringBootTest(properties = { "strongbox.vault=${strongbox.home}/../strongbox-vault-rnciscjtit" })
 @ActiveProfiles(profiles = "test")
 @Execution(CONCURRENT)
 public class RegenerateNugetChecksumInStoragesCronJobTestIT
