@@ -6,7 +6,6 @@ import org.carlspring.strongbox.providers.io.RepositoryFiles;
 import org.carlspring.strongbox.providers.io.RepositoryPath;
 import org.carlspring.strongbox.providers.io.RootRepositoryPath;
 import org.carlspring.strongbox.storage.repository.Repository;
-import org.carlspring.strongbox.storage.repository.RepositoryPolicyEnum;
 import org.carlspring.strongbox.testing.artifact.ArtifactManagementTestExecutionListener;
 import org.carlspring.strongbox.testing.artifact.NugetTestArtifact;
 import org.carlspring.strongbox.testing.repository.NugetRepository;
@@ -63,11 +62,11 @@ public class RegenerateNugetChecksumInStoragesCronJobTestIT
     @ExtendWith({ RepositoryManagementTestExecutionListener.class,
                   ArtifactManagementTestExecutionListener.class })
     @Test
-    public void testRegenerateNugetChecksumInStorages(@NugetRepository(storageId = "storage-nuget-rncc-trncis2",
-                                                                       repositoryId = "repository-rnccjt-trncis2")
+    public void testRegenerateNugetChecksumInStorages(@NugetRepository(storageId = "storage-nuget-rnciscjtit",
+                                                                       repositoryId = "repository-rnciscjtit")
                                                       Repository repository,
-                                                      @NugetTestArtifact(storageId = "storage-nuget-rncc-trncis2",
-                                                                         repositoryId = "repository-rnccjt-trncis2",
+                                                      @NugetTestArtifact(storageId = "storage-nuget-rnciscjtit",
+                                                                         repositoryId = "repository-rnciscjtit",
                                                                          id = "org.carlspring.strongbox.checksum-one",
                                                                          versions = "1.0.0",
                                                                          bytesSize = BYTE_SIZE)
@@ -143,3 +142,4 @@ public class RegenerateNugetChecksumInStoragesCronJobTestIT
         assertThat(Files.size(artifactNupkgPath)).isBetween(BYTE_SIZE, DEFAULT_BYTE_SIZE);
     }
 }
+

@@ -76,7 +76,7 @@ public class HazelcastConfiguration
     @Bean
     public HazelcastInstance hazelcastInstance(Config config)
     {
-        return Hazelcast.newHazelcastInstance(config);
+        return Hazelcast.getOrCreateHazelcastInstance(config);
     }
 
     @Value("${cacheManagerConfiguration.instanceId:strongbox}")
