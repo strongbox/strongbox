@@ -27,7 +27,6 @@ import org.carlspring.strongbox.testing.repository.MavenRepository;
 import org.carlspring.strongbox.testing.storage.repository.RepositoryManagementTestExecutionListener;
 import org.carlspring.strongbox.testing.storage.repository.TestRepository.Remote;
 import org.codehaus.plexus.util.StringUtils;
-import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.springframework.boot.test.context.SpringBootTest;
@@ -62,7 +61,6 @@ public class CleanupExpiredArtifactsFromProxyRepositoriesCronJobTestIT
 
     @ExtendWith(RepositoryManagementTestExecutionListener.class)
     @Test
-    @Disabled
     void expiredArtifactsCleanupCronJobShouldCleanupDatabaseAndStorage(
             @Remote(url = CENTRAL_URL)
             @MavenRepository(storageId = STORAGE_ID,
