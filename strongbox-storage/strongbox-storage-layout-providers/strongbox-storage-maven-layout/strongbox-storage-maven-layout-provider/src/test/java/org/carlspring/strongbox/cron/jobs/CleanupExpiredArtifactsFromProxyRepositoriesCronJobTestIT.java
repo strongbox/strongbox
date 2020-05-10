@@ -61,12 +61,11 @@ public class CleanupExpiredArtifactsFromProxyRepositoriesCronJobTestIT
 
     @ExtendWith(RepositoryManagementTestExecutionListener.class)
     @Test
-    void expiredArtifactsCleanupCronJobShouldCleanupDatabaseAndStorage(
-            @Remote(url = CENTRAL_URL)
-            @MavenRepository(storageId = STORAGE_ID,
-                             repositoryId = REPOSITORY_ID + "-expiredArtifactsCleanupCronJobShouldCleanupDatabaseAndStorage")
-            Repository repository)
-            throws Exception
+    void expiredArtifactsCleanupCronJobShouldCleanupDatabaseAndStorage(@Remote(url = CENTRAL_URL)
+                                                                       @MavenRepository(storageId = STORAGE_ID,
+                                                                                        repositoryId = REPOSITORY_ID + "-expiredArtifactsCleanupCronJobShouldCleanupDatabaseAndStorage")
+                                                                       Repository repository)
+        throws Exception
     {
         final String storageId = repository.getStorage().getId();
         final String repositoryId = repository.getId();
