@@ -272,6 +272,7 @@ public abstract class StorageFileSystemProvider
                                 boolean deleteChecksum)
         throws IOException
     {
+        logger.info("Going to delete [{}].",repositoryPath.getTarget().toString());
         doDeletePath(repositoryPath, force);
 
         if (!deleteChecksum)
