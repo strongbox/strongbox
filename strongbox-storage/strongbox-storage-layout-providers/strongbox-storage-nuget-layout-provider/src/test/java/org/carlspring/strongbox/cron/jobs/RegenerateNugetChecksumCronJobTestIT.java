@@ -45,7 +45,6 @@ import static org.junit.jupiter.api.parallel.ExecutionMode.CONCURRENT;
 @SpringBootTest
 @ActiveProfiles(profiles = "test")
 @Execution(CONCURRENT)
-@Disabled
 public class RegenerateNugetChecksumCronJobTestIT
         extends BaseCronJobWithNugetIndexingTestCase
 {
@@ -137,6 +136,7 @@ public class RegenerateNugetChecksumCronJobTestIT
     @ExtendWith({ RepositoryManagementTestExecutionListener.class,
                   ArtifactManagementTestExecutionListener.class })
     @Test
+    @Disabled
     public void testRegenerateNugetChecksumInStorages(@NugetRepository(storageId = "storage-nuget-rncc-trncis2",
                                                                        repositoryId = "repository-rnccjt-trncis2")
                                                       Repository repository,
