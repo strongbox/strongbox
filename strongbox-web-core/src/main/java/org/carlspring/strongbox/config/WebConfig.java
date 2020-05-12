@@ -138,7 +138,7 @@ public class WebConfig
 
         };
         result.setIncludeQueryString(true);
-        result.setIncludeHeaders(true);
+        result.setIncludeHeaders(false);
         result.setIncludeClientInfo(true);
         return result;
     }
