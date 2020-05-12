@@ -2,6 +2,7 @@ package org.carlspring.strongbox.controllers.layout.maven;
 
 import org.carlspring.strongbox.artifact.coordinates.MavenArtifactCoordinates;
 import org.carlspring.strongbox.controllers.BaseArtifactController;
+import org.carlspring.strongbox.controllers.support.ResponseEntityBody;
 import org.carlspring.strongbox.providers.io.RepositoryPath;
 import org.carlspring.strongbox.storage.ArtifactStorageException;
 import org.carlspring.strongbox.storage.repository.Repository;
@@ -49,10 +50,9 @@ import static org.springframework.http.HttpStatus.NOT_FOUND;
 public class MavenArtifactController
         extends BaseArtifactController
 {
-
     @PreAuthorize("authenticated")
-    @RequestMapping(value = "greet", method = RequestMethod.GET)
-    public ResponseEntity greet()
+    @RequestMapping(value = "/{storageId}/{repositoryId}/", method = RequestMethod.GET)
+    public ResponseEntity checkRepositoryAccess()
     {
         return new ResponseEntity<>("success", HttpStatus.OK);
     }

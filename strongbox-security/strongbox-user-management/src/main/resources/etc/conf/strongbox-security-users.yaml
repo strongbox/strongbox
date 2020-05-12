@@ -1,12 +1,12 @@
 users:
   user:
     - username: admin
-      password: "{bcrypt}$2a$10$WqtVx7Iio0cndyR1lEaKW.SWhUYmF/zHHG5hkAXvH5hUmklM7QfMO"
+      password: "$2a$10$zN21vv4YvRQJPvY7D28ewOnHE5MHWXerHLHkZDyjCCH2Ji4ThewLC"
       roles:
         - ADMIN
       securityTokenKey: admin-secret
     - username: deployer
-      password: "{bcrypt}$2a$10$WqtVx7Iio0cndyR1lEaKW.SWhUYmF/zHHG5hkAXvH5hUmklM7QfMO"
+      password: "$2a$10$QoRL1hvufz1yQCCTF/ZbUuxc108D4HXG80Kob6Xq1S0jDIpusWazG"
       roles:
         - UI_MANAGER
         - ARTIFACTS_MANAGER
