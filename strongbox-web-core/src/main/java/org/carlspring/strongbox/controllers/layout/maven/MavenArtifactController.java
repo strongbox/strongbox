@@ -51,8 +51,8 @@ public class MavenArtifactController
 {
 
     @PreAuthorize("authenticated")
-    @RequestMapping(value = "greet", method = RequestMethod.GET)
-    public ResponseEntity greet()
+    @RequestMapping(value = "/{storageId}/{repositoryId}/", method = RequestMethod.GET)
+    public ResponseEntity checkRepositoryAccess()
     {
         return new ResponseEntity<>("success", HttpStatus.OK);
     }
