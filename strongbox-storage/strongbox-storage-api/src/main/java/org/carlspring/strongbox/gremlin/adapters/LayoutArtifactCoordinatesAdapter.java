@@ -1,21 +1,16 @@
 package org.carlspring.strongbox.gremlin.adapters;
 
 import static org.carlspring.strongbox.gremlin.adapters.EntityTraversalUtils.extractObject;
-import static org.carlspring.strongbox.gremlin.dsl.EntityTraversalDsl.NULL;
 
 import java.lang.reflect.InvocationTargetException;
 import java.util.Collections;
 import java.util.Map;
 import java.util.Set;
 
-import javax.inject.Inject;
-
 import org.apache.tinkerpop.gremlin.process.traversal.Traverser;
 import org.apache.tinkerpop.gremlin.structure.Element;
 import org.apache.tinkerpop.gremlin.structure.Vertex;
-import org.carlspring.strongbox.db.schema.Edges;
-import org.carlspring.strongbox.db.schema.Vertices;
-import org.carlspring.strongbox.domain.GenericArtifactCoordinatesEntity;
+import org.carlspring.strongbox.artifact.coordinates.GenericArtifactCoordinates;
 import org.carlspring.strongbox.domain.LayoutArtifactCoordinatesEntity;
 import org.carlspring.strongbox.gremlin.dsl.EntityTraversal;
 import org.carlspring.strongbox.gremlin.dsl.EntityTraversalDsl;
@@ -25,15 +20,12 @@ import org.carlspring.strongbox.gremlin.dsl.__;
  * @author sbespalov
  */
 public abstract class LayoutArtifactCoordinatesAdapter<C extends LayoutArtifactCoordinatesEntity<C, V>, V extends Comparable<V>>
-        extends VertexEntityTraversalAdapter<C>
-        implements ArtifactCoodrinatesNodeAdapter<C>
+        extends VertexEntityTraversalAdapter<GenericArtifactCoordinates>
+        implements ArtifactCoodrinatesNodeAdapter
 {
-    @Inject
-    private GenericArtifactCoordinatesAdapter genericArtifactCoordinatesAdapter;
-
     private final String layoutCoorinatesLabel;
     private final Class<C> layoutCoordinatesClass;
-    
+
     public LayoutArtifactCoordinatesAdapter(String label,
                                             Class<C> layoutCoordinatesClass)
     {
@@ -52,52 +44,29 @@ public abstract class LayoutArtifactCoordinatesAdapter<C extends LayoutArtifactC
     {
         return layoutCoordinatesClass;
     }
-    
+
     @Override
-    public EntityTraversal<Vertex, C> fold()
+    public EntityTraversal<Vertex, GenericArtifactCoordinates> fold()
     {
-        return foldHierarchy(parentProjection(), childProjection());
+        return foldHierarchy(__.<Vertex>identity().constant(EntityTraversalDsl.NULL));
     }
 
     @Override
-    public EntityTraversal<Vertex, Object> parentProjection()
-    {
-        return __.outE(Edges.ARTIFACT_COORDINATES_INHERIT_GENERIC_ARTIFACT_COORDINATES)
-                 .mapToObject(__.inV()
-                                .hasLabel(Vertices.GENERIC_ARTIFACT_COORDINATES)
-                                .map(genericArtifactCoordinatesAdapter.foldHierarchy(genericArtifactCoordinatesAdapter.parentProjection(),
-                                                                                     __.<Vertex>identity()
-                                                                                       .constant(NULL)))
-                                .map(EntityTraversalUtils::castToObject));
-    }
-
-    @Override
-    public EntityTraversal<Vertex, Object> childProjection()
-    {
-        return __.<Vertex>identity().constant(EntityTraversalDsl.NULL);
-    }
-
-    @Override
-    public EntityTraversal<Vertex, C> foldHierarchy(EntityTraversal<Vertex, Object> parentProjection,
-                                                    EntityTraversal<Vertex, Object> childProjection)
+    public EntityTraversal<Vertex, GenericArtifactCoordinates> foldHierarchy(EntityTraversal<Vertex, Object> childProjection)
     {
         return __.<Vertex>hasLabel(layoutCoorinatesLabel)
-                 .project("id", "uuid", "genericArtifactCoordinates")
+                 .project("id", "uuid")
                  .by(__.id())
                  .by(__.enrichPropertyValue("uuid"))
-                 .by(parentProjection)
                  .map(this::map);
     }
 
     private C map(Traverser<Map<String, Object>> t)
     {
-        GenericArtifactCoordinatesEntity genericArtifactCoordinates = extractObject(GenericArtifactCoordinatesEntity.class,
-                                                                                    t.get()
-                                                                                     .get("genericArtifactCoordinates"));
         C result;
         try
         {
-            result = newInstance(genericArtifactCoordinates);
+            result = newInstance();
         }
         catch (InstantiationException | IllegalAccessException | InvocationTargetException | NoSuchMethodException e)
         {
@@ -109,31 +78,21 @@ public abstract class LayoutArtifactCoordinatesAdapter<C extends LayoutArtifactC
         return result;
     }
 
-    private C newInstance(GenericArtifactCoordinatesEntity genericArtifactCoordinates)
+    private C newInstance()
         throws InstantiationException,
         IllegalAccessException,
         InvocationTargetException,
         NoSuchMethodException
     {
-        C result;
-        if (genericArtifactCoordinates == null)
-        {
-            result = layoutCoordinatesClass.newInstance();
-        }
-        else
-        {
-            result = layoutCoordinatesClass.getDeclaredConstructor(GenericArtifactCoordinatesEntity.class).newInstance(genericArtifactCoordinates);
-            genericArtifactCoordinates.setHierarchyChild(result);
-        }
-        return result;
+        return layoutCoordinatesClass.newInstance();
     }
-    
+
     @Override
-    public UnfoldEntityTraversal<Vertex, Vertex> unfold(C entity)
+    public UnfoldEntityTraversal<Vertex, Vertex> unfold(GenericArtifactCoordinates entity)
     {
         return new UnfoldEntityTraversal<>(layoutCoorinatesLabel, entity, __.identity());
     }
-    
+
     @Override
     public EntityTraversal<Vertex, Element> cascade()
     {

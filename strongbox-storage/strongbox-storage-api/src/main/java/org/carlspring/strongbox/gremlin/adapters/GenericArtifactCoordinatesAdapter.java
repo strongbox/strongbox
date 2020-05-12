@@ -10,8 +10,6 @@ import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Set;
 
-import javax.inject.Inject;
-
 import org.apache.tinkerpop.gremlin.process.traversal.Traverser;
 import org.apache.tinkerpop.gremlin.structure.Element;
 import org.apache.tinkerpop.gremlin.structure.Vertex;
@@ -21,7 +19,6 @@ import org.carlspring.strongbox.db.schema.Vertices;
 import org.carlspring.strongbox.domain.GenericArtifactCoordinatesEntity;
 import org.carlspring.strongbox.domain.LayoutArtifactCoordinatesEntity;
 import org.carlspring.strongbox.gremlin.dsl.EntityTraversal;
-import org.carlspring.strongbox.gremlin.dsl.EntityTraversalDsl;
 import org.carlspring.strongbox.gremlin.dsl.__;
 import org.springframework.stereotype.Component;
 
@@ -30,11 +27,8 @@ import org.springframework.stereotype.Component;
  */
 @Component
 public class GenericArtifactCoordinatesAdapter extends VertexEntityTraversalAdapter<GenericArtifactCoordinates>
-        implements ArtifactCoodrinatesNodeAdapter<GenericArtifactCoordinates>
+        implements ArtifactCoodrinatesNodeAdapter
 {
-
-    @Inject
-    private ArtifactCoordinatesHierarchyAdapter artifactCoordinatesAdapter;
 
     @Override
     public Set<String> labels()
@@ -51,18 +45,11 @@ public class GenericArtifactCoordinatesAdapter extends VertexEntityTraversalAdap
     @Override
     public EntityTraversal<Vertex, GenericArtifactCoordinates> fold()
     {
-        return foldHierarchy(parentProjection(), childProjection());
+        return foldHierarchy(__.<Vertex>identity().constant(NULL));
     }
 
     @Override
-    public EntityTraversal<Vertex, Object> parentProjection()
-    {
-        return __.<Vertex>V().constant(EntityTraversalDsl.NULL);
-    }
-
-    @Override
-    public EntityTraversal<Vertex, GenericArtifactCoordinates> foldHierarchy(EntityTraversal<Vertex, Object> parentProjection,
-                                                                             EntityTraversal<Vertex, Object> childProjection)
+    public EntityTraversal<Vertex, GenericArtifactCoordinates> foldHierarchy(EntityTraversal<Vertex, Object> childProjection)
     {
         return __.<Vertex, Object>project("id", "uuid", "version", "coordinates", "layoutArtifactCoordinates")
                  .by(__.id())
@@ -71,15 +58,6 @@ public class GenericArtifactCoordinatesAdapter extends VertexEntityTraversalAdap
                  .by(__.propertyMap())
                  .by(childProjection)
                  .map(this::map);
-    }
-
-    @Override
-    public EntityTraversal<Vertex, Object> childProjection()
-    {
-        return __.inE(Edges.ARTIFACT_COORDINATES_INHERIT_GENERIC_ARTIFACT_COORDINATES)
-                 .mapToObject(__.outV()
-                                .map(artifactCoordinatesAdapter.fold(() -> __.<Vertex>identity().constant(NULL)))
-                                .map(EntityTraversalUtils::castToObject));
     }
 
     private GenericArtifactCoordinates map(Traverser<Map<String, Object>> t)

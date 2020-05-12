@@ -10,7 +10,7 @@ import org.carlspring.strongbox.gremlin.dsl.EntityTraversal;
 public interface EntityUpwardHierarchyNodeAdapter<E extends DomainObject> extends EntityTraversalAdapter<Vertex, E>
 {
 
-    <E2 extends E> EntityTraversal<Vertex, E> foldHierarchy(EntityTraversal<Vertex, E2> childProjection);
+    EntityTraversal<Vertex, E> foldHierarchy(EntityTraversal<Vertex, Object> childProjection);
 
     Class<? extends E> entityClass();
 

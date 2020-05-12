@@ -1,5 +1,7 @@
 package org.carlspring.strongbox.gremlin.adapters;
 
+import java.util.Set;
+
 import org.apache.tinkerpop.gremlin.structure.Element;
 import org.apache.tinkerpop.gremlin.structure.Vertex;
 import org.carlspring.strongbox.artifact.coordinates.GenericArtifactCoordinates;
@@ -13,20 +15,19 @@ import org.springframework.stereotype.Component;
  */
 @Component
 public class ArtifactCoordinatesHierarchyAdapter
-        extends EntityHierarchyAdapter<GenericArtifactCoordinates, ArtifactCoodrinatesNodeAdapter<?>>
+        extends EntityUpwardHierarchyAdapter<GenericArtifactCoordinates, ArtifactCoodrinatesNodeAdapter>
 {
 
-    @Override
-    protected String hierarchyEdge()
+    public ArtifactCoordinatesHierarchyAdapter(Set<ArtifactCoodrinatesNodeAdapter> artifactArapters)
     {
-        return Edges.ARTIFACT_COORDINATES_INHERIT_GENERIC_ARTIFACT_COORDINATES;
+        super(artifactArapters);
     }
 
     @Override
     public EntityTraversal<Vertex, Element> cascade()
     {
         return __.<Vertex>aggregate("x")
-                 .outE(hierarchyEdge())
+                 .outE(Edges.EXTENDS)
                  .inV()
                  .map(getRootAdapter().cascade())
                  .select("x")

@@ -12,8 +12,6 @@ import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Collectors;
 
-import javax.inject.Inject;
-
 import org.apache.tinkerpop.gremlin.structure.Vertex;
 import org.carlspring.strongbox.data.domain.DomainObject;
 import org.carlspring.strongbox.db.schema.Edges;
@@ -28,12 +26,12 @@ public abstract class EntityUpwardHierarchyAdapter<E extends DomainObject & Enti
 {
 
     /**
-     * 
+     * EntityUpwardHierarchyNodeAdapters mapped by Vertex label and sorted in
+     * descending order by entity class hierarchy.
      */
-    protected Map<String, A> adaptersMap;
+    protected final Map<String, A> adaptersMap;
 
-    @Inject
-    public void setArtifactArapters(Set<A> artifactArapters)
+    public EntityUpwardHierarchyAdapter(Set<A> artifactArapters)
     {
         adaptersMap = artifactArapters.stream()
                                       .sorted((a1,
@@ -66,17 +64,17 @@ public abstract class EntityUpwardHierarchyAdapter<E extends DomainObject & Enti
     }
 
     /**
-     * Gets the root class adapter from hierarchy.
+     * Gets the entity hierarchy root class adapter.
      * 
      * @return
      */
-    protected EntityHierarchyNodeAdapter<E> getRootAdapter()
+    protected EntityUpwardHierarchyNodeAdapter<E> getRootAdapter()
     {
-        return (EntityHierarchyNodeAdapter<E>) adaptersMap.values()
-                                                          .stream()
-                                                          .reduce((first,
-                                                                   second) -> second)
-                                                          .get();
+        return (EntityUpwardHierarchyNodeAdapter<E>) adaptersMap.values()
+                                                                .stream()
+                                                                .reduce((first,
+                                                                         second) -> second)
+                                                                .get();
     }
 
     @Override
@@ -94,7 +92,10 @@ public abstract class EntityUpwardHierarchyAdapter<E extends DomainObject & Enti
         }
 
         A nextAdapter = iterator.next();
-        EntityTraversal<Vertex, E> childTraversal = __.inE(Edges.EXTENDS).outV().map(fold(adaptersMap.values().iterator()));
+        EntityTraversal<Vertex, Object> childTraversal = (EntityTraversal<Vertex, Object>) __.inE(Edges.EXTENDS)
+                                                                                             .outV()
+                                                                                             .map(fold(adaptersMap.values()
+                                                                                                                  .iterator()));
         EntityTraversal<Vertex, E> nextTraversal = nextAdapter.foldHierarchy(childTraversal);
 
         return __.<Vertex>hasLabel(within(nextAdapter.labels()))
@@ -115,13 +116,15 @@ public abstract class EntityUpwardHierarchyAdapter<E extends DomainObject & Enti
         {
             hierarchy.add(0, entity = (E) entity.getHierarchyParent());
         }
-        EntityHierarchyNodeAdapter<E> rootAdapter = getRootAdapter();
+        EntityUpwardHierarchyNodeAdapter<E> rootAdapter = getRootAdapter();
         Class<? extends E> rootEntityType = rootAdapter.entityClass();
         E rootEntity = hierarchy.iterator().next();
-        if (!rootEntity.getClass().isAssignableFrom(rootEntityType))
+        if (!rootEntityType.isAssignableFrom(rootEntity.getClass()))
         {
             throw new IllegalArgumentException(
-                    String.format("Invalid hierarchy root type [%s], should be [%].", rootEntity.getClass(), rootEntityType));
+                    String.format("Invalid hierarchy root type [%s], should be assignable tp [%s].",
+                                  rootEntity.getClass(),
+                                  rootEntityType));
         }
 
         A entityHierarchyAdapter = null;
@@ -139,22 +142,26 @@ public abstract class EntityUpwardHierarchyAdapter<E extends DomainObject & Enti
                 if (result == null)
                 {
                     result = adapter.unfold(entityHierarchyNode);
-                    continue;
                 }
+                else
+                {
 
-                result = result.coalesce(// Update child
-                                         __.inE(Edges.EXTENDS)
-                                           .outV()
-                                           .saveV(entityHierarchyNode.getUuid(), adapter.unfold(entityHierarchyNode)),
-                                         // Create child
-                                         __.addE(Edges.EXTENDS)
-                                           .to(__.identity())
-                                           .from(__.saveV(entityHierarchyNode.getUuid(), adapter.unfold(entityHierarchyNode)))
-                                           .outV());
+                    result = result.coalesce(// Update child
+                                             __.inE(Edges.EXTENDS)
+                                               .outV()
+                                               .saveV(entityHierarchyNode.getUuid(), adapter.unfold(entityHierarchyNode)),
+                                             // Create child
+                                             __.addE(Edges.EXTENDS)
+                                               .to(__.identity())
+                                               .from(__.saveV(entityHierarchyNode.getUuid(), adapter.unfold(entityHierarchyNode)))
+                                               .outV());
+                }
+                break;
             }
         }
 
-        return new UnfoldEntityTraversal<>(entityHierarchyAdapter.labels().iterator().next(), entity, result);
+        String entityLabel = rootAdapter.labels().iterator().next();
+        return new UnfoldEntityTraversal<>(entityLabel, entity, result);
     }
 
 }
