@@ -14,10 +14,8 @@ import org.apache.tinkerpop.gremlin.process.traversal.Traverser;
 import org.apache.tinkerpop.gremlin.structure.Element;
 import org.apache.tinkerpop.gremlin.structure.Vertex;
 import org.carlspring.strongbox.artifact.coordinates.GenericArtifactCoordinates;
-import org.carlspring.strongbox.db.schema.Edges;
 import org.carlspring.strongbox.db.schema.Vertices;
 import org.carlspring.strongbox.domain.GenericArtifactCoordinatesEntity;
-import org.carlspring.strongbox.domain.LayoutArtifactCoordinatesEntity;
 import org.carlspring.strongbox.gremlin.dsl.EntityTraversal;
 import org.carlspring.strongbox.gremlin.dsl.__;
 import org.springframework.stereotype.Component;
@@ -76,15 +74,6 @@ public class GenericArtifactCoordinatesAdapter extends VertexEntityTraversalAdap
                    .forEach(e -> result.setCoordinate(e.getKey().replace("coordinates.", ""),
                                                       extracPropertytList(String.class, e.getValue()).iterator().next()));
 
-        LayoutArtifactCoordinatesEntity artifactCoordinates = extractObject(LayoutArtifactCoordinatesEntity.class,
-                                                                            t.get()
-                                                                             .get("layoutArtifactCoordinates"));
-        result.setHierarchyChild(artifactCoordinates);
-        if (artifactCoordinates != null)
-        {
-            artifactCoordinates.setGenericArtifactCoordinates(result);
-        }
-
         return result;
     }
 
@@ -113,12 +102,7 @@ public class GenericArtifactCoordinatesAdapter extends VertexEntityTraversalAdap
     @Override
     public EntityTraversal<Vertex, Element> cascade()
     {
-        return __.<Vertex>aggregate("x")
-                 .inE(Edges.ARTIFACT_COORDINATES_INHERIT_GENERIC_ARTIFACT_COORDINATES)
-                 .outV()
-                 .aggregate("x")
-                 .select("x")
-                 .unfold();
+        throw new UnsupportedOperationException();
     }
 
 }

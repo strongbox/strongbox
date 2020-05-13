@@ -20,27 +20,9 @@ public abstract class LayoutArtifactCoordinatesEntity<C extends LayoutArtifactCo
         implements ArtifactCoordinates<C, V>, ArtifactCoordinatesResourceConverter<C, V>
 {
 
-    @Relationship(type = Edges.ARTIFACT_COORDINATES_INHERIT_GENERIC_ARTIFACT_COORDINATES, direction = Relationship.OUTGOING)
-    private GenericArtifactCoordinatesEntity genericArtifactCoordinates;
+    @Relationship(type = Edges.EXTENDS, direction = Relationship.OUTGOING)
+    private GenericArtifactCoordinatesEntity genericArtifactCoordinates = new GenericArtifactCoordinatesEntity();
     private final ArtifactCoordinatesComparator<C, V> comparator = new ArtifactCoordinatesComparator<>();
-
-    public LayoutArtifactCoordinatesEntity()
-    {
-        this(new GenericArtifactCoordinatesEntity());
-    }
-
-    public LayoutArtifactCoordinatesEntity(GenericArtifactCoordinatesEntity genericArtifactCoordinates)
-    {
-        this.genericArtifactCoordinates = genericArtifactCoordinates;
-        this.genericArtifactCoordinates.setHierarchyChild(this);
-        super.setUuid(genericArtifactCoordinates.getUuid());
-    }
-
-    @Override
-    public GenericArtifactCoordinates getHierarchyChild()
-    {
-        return null;
-    }
 
     @Override
     public GenericArtifactCoordinates getHierarchyParent()
@@ -48,14 +30,10 @@ public abstract class LayoutArtifactCoordinatesEntity<C extends LayoutArtifactCo
         return genericArtifactCoordinates;
     }
 
-    public GenericArtifactCoordinatesEntity getGenericArtifactCoordinates()
+    @Override
+    public void setHierarchyParent(GenericArtifactCoordinates node)
     {
-        return genericArtifactCoordinates;
-    }
-
-    public void setGenericArtifactCoordinates(GenericArtifactCoordinatesEntity genericArtifactCoordinates)
-    {
-        this.genericArtifactCoordinates = genericArtifactCoordinates;
+        this.genericArtifactCoordinates = (GenericArtifactCoordinatesEntity) node;
     }
 
     public void setUuid(String uuid)

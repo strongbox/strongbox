@@ -3,16 +3,24 @@ package org.carlspring.strongbox.gremlin.adapters;
 public interface EntityHierarchyNode<T extends EntityHierarchyNode<T>>
 {
 
-    T getHierarchyChild();
-    
-    default void setHierarchyChild(T node) {
-        
+    default T getHierarchyChild()
+    {
+        return null;
     }
-    
-    T getHierarchyParent();
-    
-    default void setHierarchyParent(T node) {
-        
+
+    default void setHierarchyChild(T node)
+    {
+
+    }
+
+    default T getHierarchyParent()
+    {
+        return null;
+    }
+
+    default void setHierarchyParent(T node)
+    {
+
     }
 
 }

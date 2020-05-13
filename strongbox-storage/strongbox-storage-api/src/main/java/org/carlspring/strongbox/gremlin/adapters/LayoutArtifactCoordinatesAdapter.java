@@ -96,7 +96,7 @@ public abstract class LayoutArtifactCoordinatesAdapter<C extends LayoutArtifactC
     @Override
     public EntityTraversal<Vertex, Element> cascade()
     {
-        return null;
+        throw new UnsupportedOperationException();
     }
 
 }

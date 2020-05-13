@@ -59,11 +59,6 @@ public class NpmArtifactCoordinates extends LayoutArtifactCoordinatesEntity<NpmA
 
     private static final String EXTENSION = "extension";
 
-    public NpmArtifactCoordinates(GenericArtifactCoordinatesEntity genericArtifactCoordinates)
-    {
-        super(genericArtifactCoordinates);
-    }
-
     public NpmArtifactCoordinates()
     {
         resetCoordinates(SCOPE, NAME, VERSION, EXTENSION);

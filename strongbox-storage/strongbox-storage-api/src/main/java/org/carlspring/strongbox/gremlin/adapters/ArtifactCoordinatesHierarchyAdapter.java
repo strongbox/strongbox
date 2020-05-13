@@ -27,9 +27,9 @@ public class ArtifactCoordinatesHierarchyAdapter
     public EntityTraversal<Vertex, Element> cascade()
     {
         return __.<Vertex>aggregate("x")
-                 .outE(Edges.EXTENDS)
-                 .inV()
-                 .map(getRootAdapter().cascade())
+                 .inE(Edges.EXTENDS)
+                 .outV()
+                 .aggregate("x")
                  .select("x")
                  .unfold();
     }

@@ -84,9 +84,7 @@ public abstract class EntityUpwardHierarchyAdapter<E extends DomainObject & Enti
     {
 
         return __.map(fold(adaptersMap.values().iterator(),
-                           () -> __.<Vertex>sideEffect(t -> System.out.println("0*" + t.get()))
-                                   .inE(Edges.EXTENDS)
-                                   .sideEffect(t -> System.out.println("0.edge*" + t.get()))
+                           () -> __.inE(Edges.EXTENDS)
                                    .outV()
                                    .map(fold(adaptersMap.values()
                                                         .iterator(),
@@ -106,29 +104,26 @@ public abstract class EntityUpwardHierarchyAdapter<E extends DomainObject & Enti
         EntityTraversal<Vertex, E> childTraversal = childTraversalSupplier.get();
         if (childTraversal == null)
         {
-            return __.sideEffect(t -> System.out.println("2*" + t.get()))
-                     .choose(__.hasLabel(within(nextAdapter.labels())),
-                             __.sideEffect(t -> System.out.println("2.1*" + t.get())).map(nextTraversal),
+            return __.choose(__.hasLabel(within(nextAdapter.labels())),
+                             __.map(nextTraversal),
                              fold(iterator, childTraversalSupplier));
         }
         return __.choose(__.hasLabel(within(nextAdapter.labels())),
-                         __.sideEffect(t -> System.out.println("1*" + t.get()))
-                           .project("parent", "child")
-                           .by(nextAdapter.fold().sideEffect(t -> System.out.println("1.1*" + t.get())))
-                           .by(childTraversal.sideEffect(t -> System.out.println("1.2*" + t.get())))
-                           .map(this::parentWithChild),
+                         __.project("parent", "child")
+                           .by(nextAdapter.fold())
+                           .by(childTraversal)
+                           .sideEffect(this::parentWithChild)
+                           .select("child"),
                          fold(iterator, childTraversalSupplier));
     }
 
-    private E parentWithChild(Traverser<Map<String, Object>> t)
+    private void parentWithChild(Traverser<Map<String, Object>> t)
     {
         EntityHierarchyNode parent = extractObject(EntityHierarchyNode.class, t.get().get("parent"));
         EntityHierarchyNode child = extractObject(EntityHierarchyNode.class, t.get().get("child"));
-        
-        parent.setHierarchyChild(child);
-        child.setHierarchyChild(parent);
 
-        return (E) parent.getHierarchyChild();
+        parent.setHierarchyChild(child);
+        child.setHierarchyParent(parent);
     }
 
     @Override

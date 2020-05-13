@@ -75,10 +75,7 @@ public class ArtifactEntity
         this.storageId = storageId;
         this.repositoryId = repositoryId;
         this.artifactCoordinates = artifactCoordinates;
-        if (getArtifactCoordinates() != null)
-        {
-            setUuid(String.format("%s-%s-%s", getStorageId(), getRepositoryId(), getArtifactCoordinates().buildPath()));
-        }
+        setUuid(String.format("%s-%s-%s", getStorageId(), getRepositoryId(), getArtifactCoordinates().buildPath()));
     }
 
     @Override

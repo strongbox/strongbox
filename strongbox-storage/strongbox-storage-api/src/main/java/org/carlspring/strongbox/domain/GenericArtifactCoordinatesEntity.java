@@ -18,7 +18,7 @@ public class GenericArtifactCoordinatesEntity extends DomainEntity implements Ge
     private String version;
     @Properties
     private final Map<String, String> coordinates = new LinkedHashMap<>();
-    @Relationship(type = Edges.ARTIFACT_COORDINATES_INHERIT_GENERIC_ARTIFACT_COORDINATES, direction = Relationship.INCOMING)
+    @Relationship(type = Edges.EXTENDS, direction = Relationship.INCOMING)
     private GenericArtifactCoordinates layoutArtifactCoordinates;
 
     @Override
@@ -30,12 +30,6 @@ public class GenericArtifactCoordinatesEntity extends DomainEntity implements Ge
     public GenericArtifactCoordinates getHierarchyChild()
     {
         return layoutArtifactCoordinates;
-    }
-
-    @Override
-    public GenericArtifactCoordinates getHierarchyParent()
-    {
-        return null;
     }
 
     protected void resetCoordinates(String... coordinates)

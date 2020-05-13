@@ -94,7 +94,7 @@ public class ArtifactRepositoryTest
         assertThat(g.V().hasLabel(Vertices.RAW_ARTIFACT_COORDINATES).has("uuid", path).hasNext()).isTrue();
         assertThat(g.V().hasLabel(Vertices.GENERIC_ARTIFACT_COORDINATES).has("uuid", path).hasNext()).isTrue();
         assertThat(g.E()
-                    .hasLabel(Edges.ARTIFACT_COORDINATES_INHERIT_GENERIC_ARTIFACT_COORDINATES)
+                    .hasLabel(Edges.EXTENDS)
                     .bothV()
                     .properties("uuid")
                     .map(p -> p.get().value())
@@ -105,7 +105,7 @@ public class ArtifactRepositoryTest
 
         assertThat(g.V().hasLabel(Vertices.RAW_ARTIFACT_COORDINATES).has("uuid", path).hasNext()).isTrue();
         assertThat(g.V().hasLabel(Vertices.GENERIC_ARTIFACT_COORDINATES).has("uuid", path).hasNext()).isTrue();
-        assertThat(g.E().hasLabel(Edges.ARTIFACT_COORDINATES_INHERIT_GENERIC_ARTIFACT_COORDINATES).hasNext()).isTrue();
+        assertThat(g.E().hasLabel(Edges.EXTENDS).hasNext()).isTrue();
         assertThat(g.E().hasLabel(Edges.ARTIFACT_HAS_ARTIFACT_COORDINATES).hasNext()).isFalse();
     }
 

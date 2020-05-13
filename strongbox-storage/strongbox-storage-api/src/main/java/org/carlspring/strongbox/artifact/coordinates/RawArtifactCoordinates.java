@@ -1,7 +1,6 @@
 package org.carlspring.strongbox.artifact.coordinates;
 
 import org.carlspring.strongbox.db.schema.Vertices;
-import org.carlspring.strongbox.domain.GenericArtifactCoordinatesEntity;
 import org.carlspring.strongbox.domain.LayoutArtifactCoordinatesEntity;
 import org.neo4j.ogm.annotation.NodeEntity;
 
@@ -19,11 +18,6 @@ public class RawArtifactCoordinates
     public RawArtifactCoordinates()
     {
         resetCoordinates(PATH);
-    }
-    
-    public RawArtifactCoordinates(GenericArtifactCoordinatesEntity genericArtifactCoordinates)
-    {
-        super(genericArtifactCoordinates);
     }
 
     public RawArtifactCoordinates(String path)

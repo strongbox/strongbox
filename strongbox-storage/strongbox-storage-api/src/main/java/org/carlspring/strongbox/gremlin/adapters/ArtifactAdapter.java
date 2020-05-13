@@ -29,7 +29,6 @@ import org.carlspring.strongbox.db.schema.Vertices;
 import org.carlspring.strongbox.domain.Artifact;
 import org.carlspring.strongbox.domain.ArtifactArchiveListing;
 import org.carlspring.strongbox.domain.ArtifactEntity;
-import org.carlspring.strongbox.domain.GenericArtifactCoordinatesEntity;
 import org.carlspring.strongbox.gremlin.dsl.EntityTraversal;
 import org.carlspring.strongbox.gremlin.dsl.__;
 import org.springframework.stereotype.Component;
@@ -41,8 +40,6 @@ import org.springframework.stereotype.Component;
 public class ArtifactAdapter extends VertexEntityTraversalAdapter<Artifact>
 {
 
-    @Inject
-    GenericArtifactCoordinatesAdapter genericArtifactCoordinatesAdapter;
     @Inject
     ArtifactCoordinatesHierarchyAdapter artifactCoordinatesAdapter;
     @Inject
@@ -68,7 +65,7 @@ public class ArtifactAdapter extends VertexEntityTraversalAdapter<Artifact>
                                           "downloadCount",
                                           "filenames",
                                           "checksums",
-                                          "genericArtifactCoordinates",
+                                          "artifactCoordinates",
                                           "tags",
                                           "artifactFileExists")
                  .by(__.id())
@@ -84,7 +81,7 @@ public class ArtifactAdapter extends VertexEntityTraversalAdapter<Artifact>
                  .by(__.enrichPropertyValues("checksums"))
                  .by(__.outE(Edges.ARTIFACT_HAS_ARTIFACT_COORDINATES)
                        .mapToObject(__.inV()
-                                      .map(genericArtifactCoordinatesAdapter.fold())
+                                      .map(artifactCoordinatesAdapter.fold())
                                       .map(EntityTraversalUtils::castToObject)))
                  .by(__.outE(Edges.ARTIFACT_HAS_TAGS)
                        .inV()
@@ -99,10 +96,10 @@ public class ArtifactAdapter extends VertexEntityTraversalAdapter<Artifact>
     {
         String storageId = extractObject(String.class, t.get().get("storageId"));
         String repositoryId = extractObject(String.class, t.get().get("repositoryId"));
-        GenericArtifactCoordinatesEntity artifactCoordinates = extractObject(GenericArtifactCoordinatesEntity.class,
-                                                                             t.get().get("genericArtifactCoordinates"));
+        ArtifactCoordinates artifactCoordinates = extractObject(ArtifactCoordinates.class,
+                                                                t.get().get("artifactCoordinates"));
 
-        ArtifactEntity result = new ArtifactEntity(storageId, repositoryId, (ArtifactCoordinates) artifactCoordinates.getHierarchyChild());
+        ArtifactEntity result = new ArtifactEntity(storageId, repositoryId, artifactCoordinates);
         result.setNativeId(extractObject(Long.class, t.get().get("id")));
         result.setUuid(extractObject(String.class, t.get().get("uuid")));
 
@@ -166,7 +163,7 @@ public class ArtifactAdapter extends VertexEntityTraversalAdapter<Artifact>
         return __.<S2>V(artifactCoordinates)
                  .saveV(artifactCoordinates.getUuid(),
                         artifactCoordinatesUnfold)
-                 .outE(Edges.ARTIFACT_COORDINATES_INHERIT_GENERIC_ARTIFACT_COORDINATES)
+                 .outE(Edges.EXTENDS)
                  .inV();
     }
 
