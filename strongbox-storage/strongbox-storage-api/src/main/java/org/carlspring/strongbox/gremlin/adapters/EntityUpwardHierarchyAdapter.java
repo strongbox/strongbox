@@ -1,17 +1,19 @@
 package org.carlspring.strongbox.gremlin.adapters;
 
 import static org.apache.tinkerpop.gremlin.process.traversal.P.within;
+import static org.carlspring.strongbox.gremlin.adapters.EntityTraversalUtils.extractObject;
 
 import java.util.ArrayList;
-import java.util.Collection;
 import java.util.Iterator;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
+import java.util.function.Supplier;
 import java.util.stream.Collectors;
 
+import org.apache.tinkerpop.gremlin.process.traversal.Traverser;
 import org.apache.tinkerpop.gremlin.structure.Vertex;
 import org.carlspring.strongbox.data.domain.DomainObject;
 import org.carlspring.strongbox.db.schema.Edges;
@@ -81,10 +83,18 @@ public abstract class EntityUpwardHierarchyAdapter<E extends DomainObject & Enti
     public EntityTraversal<Vertex, E> fold()
     {
 
-        return __.map(fold(adaptersMap.values().iterator()));
+        return __.map(fold(adaptersMap.values().iterator(),
+                           () -> __.<Vertex>sideEffect(t -> System.out.println("0*" + t.get()))
+                                   .inE(Edges.EXTENDS)
+                                   .sideEffect(t -> System.out.println("0.edge*" + t.get()))
+                                   .outV()
+                                   .map(fold(adaptersMap.values()
+                                                        .iterator(),
+                                             () -> null))));
     }
 
-    private EntityTraversal<Vertex, E> fold(Iterator<A> iterator)
+    private EntityTraversal<?, E> fold(Iterator<A> iterator,
+                                       Supplier<EntityTraversal<Vertex, E>> childTraversalSupplier)
     {
         if (!iterator.hasNext())
         {
@@ -92,18 +102,33 @@ public abstract class EntityUpwardHierarchyAdapter<E extends DomainObject & Enti
         }
 
         A nextAdapter = iterator.next();
-        EntityTraversal<Vertex, Object> childTraversal = (EntityTraversal<Vertex, Object>) __.inE(Edges.EXTENDS)
-                                                                                             .outV()
-                                                                                             .map(fold(adaptersMap.values()
-                                                                                                                  .iterator()));
-        EntityTraversal<Vertex, E> nextTraversal = nextAdapter.foldHierarchy(childTraversal);
+        EntityTraversal<Vertex, E> nextTraversal = nextAdapter.fold();
+        EntityTraversal<Vertex, E> childTraversal = childTraversalSupplier.get();
+        if (childTraversal == null)
+        {
+            return __.sideEffect(t -> System.out.println("2*" + t.get()))
+                     .choose(__.hasLabel(within(nextAdapter.labels())),
+                             __.sideEffect(t -> System.out.println("2.1*" + t.get())).map(nextTraversal),
+                             fold(iterator, childTraversalSupplier));
+        }
+        return __.choose(__.hasLabel(within(nextAdapter.labels())),
+                         __.sideEffect(t -> System.out.println("1*" + t.get()))
+                           .project("parent", "child")
+                           .by(nextAdapter.fold().sideEffect(t -> System.out.println("1.1*" + t.get())))
+                           .by(childTraversal.sideEffect(t -> System.out.println("1.2*" + t.get())))
+                           .map(this::parentWithChild),
+                         fold(iterator, childTraversalSupplier));
+    }
 
-        return __.<Vertex>hasLabel(within(nextAdapter.labels()))
-                 .fold()
-                 .choose(Collection::isEmpty,
-                         fold(iterator),
-                         __.unfold()
-                           .map(nextTraversal));
+    private E parentWithChild(Traverser<Map<String, Object>> t)
+    {
+        EntityHierarchyNode parent = extractObject(EntityHierarchyNode.class, t.get().get("parent"));
+        EntityHierarchyNode child = extractObject(EntityHierarchyNode.class, t.get().get("child"));
+        
+        parent.setHierarchyChild(child);
+        child.setHierarchyChild(parent);
+
+        return (E) parent.getHierarchyChild();
     }
 
     @Override
@@ -127,7 +152,6 @@ public abstract class EntityUpwardHierarchyAdapter<E extends DomainObject & Enti
                                   rootEntityType));
         }
 
-        A entityHierarchyAdapter = null;
         EntityTraversal<Vertex, Vertex> result = null;
         for (E entityHierarchyNode : hierarchy)
         {
@@ -137,24 +161,23 @@ public abstract class EntityUpwardHierarchyAdapter<E extends DomainObject & Enti
                 {
                     continue;
                 }
-
-                entityHierarchyAdapter = adapter;
-                if (result == null)
+                else if (result == null)
                 {
                     result = adapter.unfold(entityHierarchyNode);
                 }
                 else
                 {
 
-                    result = result.coalesce(// Update child
-                                             __.inE(Edges.EXTENDS)
-                                               .outV()
-                                               .saveV(entityHierarchyNode.getUuid(), adapter.unfold(entityHierarchyNode)),
-                                             // Create child
-                                             __.addE(Edges.EXTENDS)
-                                               .to(__.identity())
-                                               .from(__.saveV(entityHierarchyNode.getUuid(), adapter.unfold(entityHierarchyNode)))
-                                               .outV());
+                    result = result.choose(__.inE(Edges.EXTENDS),
+                                           // Update child
+                                           __.inE(Edges.EXTENDS)
+                                             .outV()
+                                             .saveV(entityHierarchyNode.getUuid(), adapter.unfold(entityHierarchyNode)),
+                                           // Create child
+                                           __.addE(Edges.EXTENDS)
+                                             .from(__.saveV(entityHierarchyNode.getUuid(),
+                                                            adapter.unfold(entityHierarchyNode)))
+                                             .outV());
                 }
                 break;
             }

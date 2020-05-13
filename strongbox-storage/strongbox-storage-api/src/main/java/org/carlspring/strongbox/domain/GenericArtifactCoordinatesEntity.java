@@ -21,6 +21,7 @@ public class GenericArtifactCoordinatesEntity extends DomainEntity implements Ge
     @Relationship(type = Edges.ARTIFACT_COORDINATES_INHERIT_GENERIC_ARTIFACT_COORDINATES, direction = Relationship.INCOMING)
     private GenericArtifactCoordinates layoutArtifactCoordinates;
 
+    @Override
     public void setHierarchyChild(GenericArtifactCoordinates child) {
         this.layoutArtifactCoordinates = child;
     }
