@@ -68,13 +68,6 @@ Strongbox is available in the following formats:
 
 Other release could be downloaded from [here][release-all].
 
-# System requirements
-
-In order to build Strongbox in reasonably short times you need:
-* At least 16 GB RAM
-* An Intel i7 processor (or equivalent)
-* An SSD
-
 # Installation
 
 Please check [here][docs-user-getting-started] for detailed instruction on how to install and setup up Strongbox on the 
