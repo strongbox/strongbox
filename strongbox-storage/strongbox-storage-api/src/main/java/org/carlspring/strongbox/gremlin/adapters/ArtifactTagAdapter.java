@@ -2,9 +2,7 @@ package org.carlspring.strongbox.gremlin.adapters;
 
 import static org.carlspring.strongbox.gremlin.adapters.EntityTraversalUtils.extractObject;
 
-import java.util.Collections;
 import java.util.Map;
-import java.util.Set;
 
 import org.apache.tinkerpop.gremlin.process.traversal.Traverser;
 import org.apache.tinkerpop.gremlin.structure.Element;
@@ -24,9 +22,9 @@ public class ArtifactTagAdapter extends VertexEntityTraversalAdapter<ArtifactTag
 {
 
     @Override
-    public Set<String> labels()
+    public String label()
     {
-        return Collections.singleton(Vertices.ARTIFACT_TAG);
+        return Vertices.ARTIFACT_TAG;
     }
 
     @Override

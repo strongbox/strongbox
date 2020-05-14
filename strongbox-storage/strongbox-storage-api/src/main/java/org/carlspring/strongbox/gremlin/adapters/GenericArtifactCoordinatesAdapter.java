@@ -5,10 +5,8 @@ import static org.carlspring.strongbox.gremlin.adapters.EntityTraversalUtils.ext
 import static org.carlspring.strongbox.gremlin.adapters.EntityTraversalUtils.extractObject;
 import static org.carlspring.strongbox.gremlin.dsl.EntityTraversalDsl.NULL;
 
-import java.util.Collections;
 import java.util.Map;
 import java.util.Map.Entry;
-import java.util.Set;
 
 import org.apache.tinkerpop.gremlin.process.traversal.Traverser;
 import org.apache.tinkerpop.gremlin.structure.Element;
@@ -29,9 +27,9 @@ public class GenericArtifactCoordinatesAdapter extends VertexEntityTraversalAdap
 {
 
     @Override
-    public Set<String> labels()
+    public String label()
     {
-        return Collections.singleton(Vertices.GENERIC_ARTIFACT_COORDINATES);
+        return Vertices.GENERIC_ARTIFACT_COORDINATES;
     }
 
     @Override

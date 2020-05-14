@@ -6,7 +6,6 @@ import static org.carlspring.strongbox.gremlin.adapters.EntityTraversalUtils.ext
 import static org.carlspring.strongbox.gremlin.adapters.EntityTraversalUtils.toLocalDateTime;
 import static org.carlspring.strongbox.gremlin.adapters.EntityTraversalUtils.toLong;
 
-import java.util.Collections;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
@@ -46,9 +45,9 @@ public class ArtifactAdapter extends VertexEntityTraversalAdapter<Artifact>
     ArtifactTagAdapter artifactTagAdapter;
 
     @Override
-    public Set<String> labels()
+    public String label()
     {
-        return Collections.singleton(Vertices.ARTIFACT);
+        return Vertices.ARTIFACT;
     }
 
     @Override

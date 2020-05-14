@@ -1,13 +1,11 @@
 package org.carlspring.strongbox.gremlin.adapters;
 
-import static org.apache.tinkerpop.gremlin.structure.VertexProperty.Cardinality.set;
 import static org.apache.tinkerpop.gremlin.structure.VertexProperty.Cardinality.single;
 import static org.carlspring.strongbox.gremlin.adapters.EntityTraversalUtils.extracPropertytList;
 import static org.carlspring.strongbox.gremlin.adapters.EntityTraversalUtils.extractObject;
 import static org.carlspring.strongbox.gremlin.adapters.EntityTraversalUtils.toLocalDateTime;
 import static org.carlspring.strongbox.gremlin.adapters.EntityTraversalUtils.toLong;
 
-import java.util.Collections;
 import java.util.Map;
 import java.util.Set;
 import java.util.stream.Collectors;
@@ -30,9 +28,9 @@ public class UserAdapter extends VertexEntityTraversalAdapter<User>
 {
 
     @Override
-    public Set<String> labels()
+    public String label()
     {
-        return Collections.singleton(Vertices.USER);
+        return Vertices.USER;
     }
 
     @Override

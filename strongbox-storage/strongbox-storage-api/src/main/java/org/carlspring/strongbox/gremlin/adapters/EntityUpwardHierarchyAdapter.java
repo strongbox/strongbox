@@ -1,6 +1,5 @@
 package org.carlspring.strongbox.gremlin.adapters;
 
-import static org.apache.tinkerpop.gremlin.process.traversal.P.within;
 import static org.carlspring.strongbox.gremlin.adapters.EntityTraversalUtils.extractObject;
 
 import java.util.ArrayList;
@@ -51,18 +50,14 @@ public abstract class EntityUpwardHierarchyAdapter<E extends DomainObject & Enti
     private String validateAndGetLabel(A adapterItem)
     {
         return Optional.of(adapterItem)
-                       .filter(a -> a.labels().size() == 1)
-                       .flatMap(a -> a.labels().stream().findFirst())
-                       .orElseThrow(() -> new IllegalArgumentException(
-                               String.format("The [%s] component must have only one label, but there was many instead [%s].",
-                                             ArtifactCoordinatesHierarchyAdapter.class.getSimpleName(),
-                                             adapterItem.labels())));
+                       .map(EntityTraversalAdapter::label)
+                       .get();
     }
 
     @Override
-    public Set<String> labels()
+    public String label()
     {
-        return getRootAdapter().labels();
+        return getRootAdapter().label();
     }
 
     /**
@@ -104,11 +99,11 @@ public abstract class EntityUpwardHierarchyAdapter<E extends DomainObject & Enti
         EntityTraversal<Vertex, E> childTraversal = childTraversalSupplier.get();
         if (childTraversal == null)
         {
-            return __.choose(__.hasLabel(within(nextAdapter.labels())),
+            return __.choose(__.hasLabel(nextAdapter.label()),
                              __.map(nextTraversal),
                              fold(iterator, childTraversalSupplier));
         }
-        return __.choose(__.hasLabel(within(nextAdapter.labels())),
+        return __.choose(__.hasLabel(nextAdapter.label()),
                          __.project("parent", "child")
                            .by(nextAdapter.fold())
                            .by(childTraversal)
@@ -178,7 +173,7 @@ public abstract class EntityUpwardHierarchyAdapter<E extends DomainObject & Enti
             }
         }
 
-        String entityLabel = rootAdapter.labels().iterator().next();
+        String entityLabel = rootAdapter.label();
         return new UnfoldEntityTraversal<>(entityLabel, entity, result);
     }
 

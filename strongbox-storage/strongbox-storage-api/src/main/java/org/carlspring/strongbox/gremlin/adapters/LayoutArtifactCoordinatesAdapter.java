@@ -3,9 +3,7 @@ package org.carlspring.strongbox.gremlin.adapters;
 import static org.carlspring.strongbox.gremlin.adapters.EntityTraversalUtils.extractObject;
 
 import java.lang.reflect.InvocationTargetException;
-import java.util.Collections;
 import java.util.Map;
-import java.util.Set;
 
 import org.apache.tinkerpop.gremlin.process.traversal.Traverser;
 import org.apache.tinkerpop.gremlin.structure.Element;
@@ -34,9 +32,9 @@ public abstract class LayoutArtifactCoordinatesAdapter<C extends LayoutArtifactC
     }
 
     @Override
-    public Set<String> labels()
+    public String label()
     {
-        return Collections.singleton(layoutCoorinatesLabel);
+        return layoutCoorinatesLabel;
     }
 
     @Override

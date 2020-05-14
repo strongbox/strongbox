@@ -4,10 +4,8 @@ import static org.apache.tinkerpop.gremlin.structure.VertexProperty.Cardinality.
 import static org.carlspring.strongbox.gremlin.adapters.EntityTraversalUtils.extractObject;
 
 import java.util.Collection;
-import java.util.Collections;
 import java.util.Map;
 import java.util.Optional;
-import java.util.Set;
 import java.util.UUID;
 
 import javax.inject.Inject;
@@ -36,9 +34,9 @@ public class ArtifactIdGroupAdapter extends VertexEntityTraversalAdapter<Artifac
     private ArtifactAdapter artifactAdapter;
 
     @Override
-    public Set<String> labels()
+    public String label()
     {
-        return Collections.singleton(Vertices.ARTIFACT_ID_GROUP);
+        return Vertices.ARTIFACT_ID_GROUP;
     }
 
     public EntityTraversal<Vertex, ArtifactIdGroup> fold(Optional<ArtifactTag> optionalTag)

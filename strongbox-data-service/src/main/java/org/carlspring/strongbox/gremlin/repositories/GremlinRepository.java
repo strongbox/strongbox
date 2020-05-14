@@ -55,9 +55,9 @@ public abstract class GremlinRepository<S extends Element, E extends DomainObjec
     public abstract String merge(Supplier<EntityTraversalSource> g, E entity);
     
     public Optional<E> findById(Supplier<EntityTraversalSource> g, String uuid){
-        Set<String> labels = adapter().labels();
-        EntityTraversal<S, E> traversal = start(g).findById(uuid, labels.toArray(new String[labels.size()]))
-                                                        .map(adapter().fold());
+        String label = adapter().label();
+        EntityTraversal<S, E> traversal = start(g).findById(uuid, label)
+                                                  .map(adapter().fold());
         if (!traversal.hasNext())
         {
             return Optional.empty();
@@ -104,8 +104,8 @@ public abstract class GremlinRepository<S extends Element, E extends DomainObjec
     @Override
     public void deleteById(String id)
     {
-        Set<String> labels = adapter().labels();
-        start(this::g).findById(id, labels.toArray(new String[labels.size()]))
+        String label = adapter().label();
+        start(this::g).findById(id, label)
                       .flatMap(adapter().cascade())
                       .dedup()
                       .debug("Delete")
