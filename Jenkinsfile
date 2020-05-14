@@ -11,8 +11,7 @@ def notifyBranch = [recipients: [brokenTestsSuspects(), requestor()]]
 pipeline {
     agent {
         node {
-            label 'alpine:jdk8-mvn-3.5'
-            customWorkspace workspace().getUniqueWorkspacePath()
+            label 'alpine-jdk8-mvn3.6'
         }
     }
     parameters {
@@ -23,18 +22,20 @@ pipeline {
         disableConcurrentBuilds()
     }
     stages {
-        stage('Node')
-        {
+        stage('Node') {
             steps {
-                nodeInfo("mvn")
+                container("maven") {
+                    nodeInfo("mvn")
+                }
             }
         }
-        stage('Building')
-        {
+        stage('Building') {
             steps {
-                withMavenPlus(timestamps: true, mavenLocalRepo: workspace().getM2LocalRepoPath(), mavenSettingsConfig: '67aaee2b-ca74-4ae1-8eb9-c8f16eb5e534')
-                {
-                    sh "mvn -U clean install -Dmaven.test.failure.ignore=true"
+                container("maven") {
+                    withMavenPlus(timestamps: true, mavenLocalRepo: workspace().getM2LocalRepoPath(), mavenSettingsConfig: '67aaee2b-ca74-4ae1-8eb9-c8f16eb5e534')
+                    {
+                        sh "mvn -U clean install -Dmaven.test.failure.ignore=true"
+                    }
                 }
             }
         }
@@ -44,11 +45,13 @@ pipeline {
             }
             steps {
                 script {
-                    withMavenPlus(mavenLocalRepo: workspace().getM2LocalRepoPath(), mavenSettingsConfig: 'a5452263-40e5-4d71-a5aa-4fc94a0e6833', publisherStrategy: 'EXPLICIT')
-                    {
-                        sh "mvn deploy" +
-                           " -DskipTests" +
-                           " -DaltDeploymentRepository=${SERVER_ID}::default::${SERVER_URL}"
+                    container("maven") {
+                        withMavenPlus(mavenLocalRepo: workspace().getM2LocalRepoPath(), mavenSettingsConfig: 'a5452263-40e5-4d71-a5aa-4fc94a0e6833', publisherStrategy: 'EXPLICIT')
+                        {
+                            sh "mvn deploy" +
+                               " -DskipTests" +
+                               " -DaltDeploymentRepository=${SERVER_ID}::default::${SERVER_URL}"
+                        }
                     }
                 }
             }
@@ -78,7 +81,9 @@ pipeline {
         }
         cleanup {
             script {
-                workspace().clean()
+                container("maven") {
+                    workspace().clean()
+                }
             }
         }
     }
