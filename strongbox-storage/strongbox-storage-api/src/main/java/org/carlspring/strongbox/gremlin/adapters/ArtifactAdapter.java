@@ -151,7 +151,6 @@ public class ArtifactAdapter extends VertexEntityTraversalAdapter<Artifact>
     private Traversal<Vertex, Edge> createArtifactCoordinates(ArtifactCoordinates artifactCoordinates)
     {
         return __.<Vertex>addE(Edges.ARTIFACT_HAS_ARTIFACT_COORDINATES)
-                 .from(__.identity())
                  .to(saveArtifactCoordinates(artifactCoordinates));
     }
 
