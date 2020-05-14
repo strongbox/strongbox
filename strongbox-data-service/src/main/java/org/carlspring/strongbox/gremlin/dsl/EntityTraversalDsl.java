@@ -14,6 +14,7 @@ import org.apache.tinkerpop.gremlin.structure.Element;
 import org.apache.tinkerpop.gremlin.structure.Vertex;
 import org.apache.tinkerpop.gremlin.structure.VertexProperty.Cardinality;
 import org.carlspring.strongbox.data.domain.DomainObject;
+import org.carlspring.strongbox.data.domain.EntityHierarchyNode;
 import org.carlspring.strongbox.gremlin.adapters.UnfoldEntityTraversal;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -76,6 +77,16 @@ public interface EntityTraversalDsl<S, E> extends GraphTraversal.Admin<S, E>
 
     default GraphTraversal<S, Vertex> V(DomainObject entity)
     {
+        if (entity instanceof EntityHierarchyNode)
+        {
+            EntityHierarchyNode entityHierarchyNode = (EntityHierarchyNode) entity;
+            while (entityHierarchyNode.getHierarchyParent() != null)
+            {
+                entityHierarchyNode = entityHierarchyNode.getHierarchyParent();
+            }
+            entity = (DomainObject) entityHierarchyNode;
+        }
+        
         Long nativeId = entity.getNativeId();
         if (nativeId != null)
         {
@@ -92,7 +103,7 @@ public interface EntityTraversalDsl<S, E> extends GraphTraversal.Admin<S, E>
                        .orElse(NULL);
         DomainObject entity = unfoldTraversal.getEntity();
         String label = unfoldTraversal.getEntityLabel();
-        
+
         return hasLabel(label).has("uuid", uuid)
                               .fold()
                               .choose(Collection::isEmpty,
@@ -102,13 +113,16 @@ public interface EntityTraversalDsl<S, E> extends GraphTraversal.Admin<S, E>
                                                           .filter(x -> !NULL.equals(x))
                                                           .orElse(UUID.randomUUID().toString()))
                                         .property("created", System.currentTimeMillis())
+                                        .sideEffect(t -> {
+                                            entity.applyUnfold(t);
+                                        })
                                         .info("Created"),
-                                      __.unfold()
+                                      __.<Vertex>unfold()
+                                        .sideEffect(t -> {
+                                            entity.applyUnfold(t);
+                                        })
                                         .debug("Fetched"))
-                              .map(unfoldTraversal)
-                              .sideEffect(t -> {
-                                  entity.applyUnfold(t);
-                              });
+                              .map(unfoldTraversal);
     }
 
     @SuppressWarnings("unchecked")

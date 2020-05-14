@@ -15,6 +15,7 @@ import java.util.stream.Collectors;
 import org.apache.tinkerpop.gremlin.process.traversal.Traverser;
 import org.apache.tinkerpop.gremlin.structure.Vertex;
 import org.carlspring.strongbox.data.domain.DomainObject;
+import org.carlspring.strongbox.data.domain.EntityHierarchyNode;
 import org.carlspring.strongbox.db.schema.Edges;
 import org.carlspring.strongbox.gremlin.dsl.EntityTraversal;
 import org.carlspring.strongbox.gremlin.dsl.__;

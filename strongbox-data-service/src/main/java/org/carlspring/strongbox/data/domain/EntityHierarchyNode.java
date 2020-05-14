@@ -1,4 +1,4 @@
-package org.carlspring.strongbox.gremlin.adapters;
+package org.carlspring.strongbox.data.domain;
 
 public interface EntityHierarchyNode<T extends EntityHierarchyNode<T>>
 {

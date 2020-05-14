@@ -3,7 +3,7 @@ package org.carlspring.strongbox.artifact.coordinates;
 import java.util.Map;
 
 import org.carlspring.strongbox.data.domain.DomainObject;
-import org.carlspring.strongbox.gremlin.adapters.EntityHierarchyNode;
+import org.carlspring.strongbox.data.domain.EntityHierarchyNode;
 
 /**
  * @author sbespalov

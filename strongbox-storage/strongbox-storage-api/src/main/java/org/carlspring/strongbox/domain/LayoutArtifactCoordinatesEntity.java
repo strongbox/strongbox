@@ -21,8 +21,14 @@ public abstract class LayoutArtifactCoordinatesEntity<C extends LayoutArtifactCo
 {
 
     @Relationship(type = Edges.EXTENDS, direction = Relationship.OUTGOING)
-    private GenericArtifactCoordinatesEntity genericArtifactCoordinates = new GenericArtifactCoordinatesEntity();
+    private GenericArtifactCoordinatesEntity genericArtifactCoordinates;
     private final ArtifactCoordinatesComparator<C, V> comparator = new ArtifactCoordinatesComparator<>();
+
+    public LayoutArtifactCoordinatesEntity()
+    {
+        genericArtifactCoordinates = new GenericArtifactCoordinatesEntity();
+        genericArtifactCoordinates.setHierarchyChild(this);
+    }
 
     @Override
     public GenericArtifactCoordinates getHierarchyParent()
