@@ -9,7 +9,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
-import java.util.function.Supplier;
 import java.util.stream.Collectors;
 
 import org.apache.tinkerpop.gremlin.process.traversal.Traverser;
@@ -27,14 +26,18 @@ public abstract class EntityUpwardHierarchyAdapter<E extends DomainObject & Enti
         extends VertexEntityTraversalAdapter<E>
 {
 
+    private final int maxHierarchyDepth;
+
     /**
      * EntityUpwardHierarchyNodeAdapters mapped by Vertex label and sorted in
      * descending order by entity class hierarchy.
      */
     protected final Map<String, A> adaptersMap;
 
-    public EntityUpwardHierarchyAdapter(Set<A> artifactArapters)
+    public EntityUpwardHierarchyAdapter(Set<A> artifactArapters,
+                                        int maxHierarchyDepth)
     {
+        this.maxHierarchyDepth = maxHierarchyDepth;
         adaptersMap = artifactArapters.stream()
                                       .sorted((a1,
                                                a2) -> a1.entityClass().isAssignableFrom(a2.entityClass()) ? 1 : -1)
@@ -78,17 +81,12 @@ public abstract class EntityUpwardHierarchyAdapter<E extends DomainObject & Enti
     @Override
     public EntityTraversal<Vertex, E> fold()
     {
-
         return __.map(fold(adaptersMap.values().iterator(),
-                           () -> __.inE(Edges.EXTENDS)
-                                   .outV()
-                                   .map(fold(adaptersMap.values()
-                                                        .iterator(),
-                                             () -> null))));
+                           maxHierarchyDepth));
     }
 
     private EntityTraversal<?, E> fold(Iterator<A> iterator,
-                                       Supplier<EntityTraversal<Vertex, E>> childTraversalSupplier)
+                                       int depth)
     {
         if (!iterator.hasNext())
         {
@@ -97,20 +95,26 @@ public abstract class EntityUpwardHierarchyAdapter<E extends DomainObject & Enti
 
         A nextAdapter = iterator.next();
         EntityTraversal<Vertex, E> nextTraversal = nextAdapter.fold();
-        EntityTraversal<Vertex, E> childTraversal = childTraversalSupplier.get();
-        if (childTraversal == null)
+        if (depth == 0)
         {
             return __.choose(__.hasLabel(nextAdapter.label()),
                              __.map(nextTraversal),
-                             fold(iterator, childTraversalSupplier));
+                             fold(iterator, depth));
         }
+        
+        EntityTraversal<Vertex, E> childTraversal = __.inE(Edges.EXTENDS)
+                                                      .outV()
+                                                      .map(fold(adaptersMap.values()
+                                                                           .iterator(),
+                                                                depth - 1));
+        
         return __.choose(__.hasLabel(nextAdapter.label()),
                          __.project("parent", "child")
-                           .by(nextAdapter.fold())
+                           .by(nextTraversal)
                            .by(childTraversal)
                            .sideEffect(this::parentWithChild)
                            .select("child"),
-                         fold(iterator, childTraversalSupplier));
+                         fold(iterator, depth));
     }
 
     private void parentWithChild(Traverser<Map<String, Object>> t)

@@ -3,7 +3,6 @@ package org.carlspring.strongbox.gremlin.adapters;
 import static org.apache.tinkerpop.gremlin.structure.VertexProperty.Cardinality.single;
 import static org.carlspring.strongbox.gremlin.adapters.EntityTraversalUtils.extracPropertytList;
 import static org.carlspring.strongbox.gremlin.adapters.EntityTraversalUtils.extractObject;
-import static org.carlspring.strongbox.gremlin.dsl.EntityTraversalDsl.NULL;
 
 import java.util.Map;
 import java.util.Map.Entry;
@@ -41,19 +40,12 @@ public class GenericArtifactCoordinatesAdapter extends VertexEntityTraversalAdap
     @Override
     public EntityTraversal<Vertex, GenericArtifactCoordinates> fold()
     {
-        return foldHierarchy(__.<Vertex>identity().constant(NULL));
-    }
-
-    @Override
-    public EntityTraversal<Vertex, GenericArtifactCoordinates> foldHierarchy(EntityTraversal<Vertex, Object> childProjection)
-    {
-        return __.<Vertex, Object>project("id", "uuid", "version", "coordinates", "layoutArtifactCoordinates")
-                 .by(__.id())
-                 .by(__.enrichPropertyValue("uuid"))
-                 .by(__.enrichPropertyValue("version"))
-                 .by(__.propertyMap())
-                 .by(childProjection)
-                 .map(this::map);
+        return __.<Vertex, Object>project("id", "uuid", "version", "coordinates")
+                .by(__.id())
+                .by(__.enrichPropertyValue("uuid"))
+                .by(__.enrichPropertyValue("version"))
+                .by(__.propertyMap())
+                .map(this::map);    
     }
 
     private GenericArtifactCoordinates map(Traverser<Map<String, Object>> t)

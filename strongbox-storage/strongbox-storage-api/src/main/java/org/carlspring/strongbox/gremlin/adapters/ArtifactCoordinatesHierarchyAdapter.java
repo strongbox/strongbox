@@ -20,7 +20,7 @@ public class ArtifactCoordinatesHierarchyAdapter
 
     public ArtifactCoordinatesHierarchyAdapter(Set<ArtifactCoodrinatesNodeAdapter> artifactArapters)
     {
-        super(artifactArapters);
+        super(artifactArapters, 1);
     }
 
     @Override

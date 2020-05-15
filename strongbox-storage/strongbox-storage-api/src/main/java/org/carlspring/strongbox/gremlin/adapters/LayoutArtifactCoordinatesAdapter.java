@@ -11,7 +11,6 @@ import org.apache.tinkerpop.gremlin.structure.Vertex;
 import org.carlspring.strongbox.artifact.coordinates.GenericArtifactCoordinates;
 import org.carlspring.strongbox.domain.LayoutArtifactCoordinatesEntity;
 import org.carlspring.strongbox.gremlin.dsl.EntityTraversal;
-import org.carlspring.strongbox.gremlin.dsl.EntityTraversalDsl;
 import org.carlspring.strongbox.gremlin.dsl.__;
 
 /**
@@ -46,17 +45,11 @@ public abstract class LayoutArtifactCoordinatesAdapter<C extends LayoutArtifactC
     @Override
     public EntityTraversal<Vertex, GenericArtifactCoordinates> fold()
     {
-        return foldHierarchy(__.<Vertex>identity().constant(EntityTraversalDsl.NULL));
-    }
-
-    @Override
-    public EntityTraversal<Vertex, GenericArtifactCoordinates> foldHierarchy(EntityTraversal<Vertex, Object> childProjection)
-    {
         return __.<Vertex>hasLabel(layoutCoorinatesLabel)
-                 .project("id", "uuid")
-                 .by(__.id())
-                 .by(__.enrichPropertyValue("uuid"))
-                 .map(this::map);
+                .project("id", "uuid")
+                .by(__.id())
+                .by(__.enrichPropertyValue("uuid"))
+                .map(this::map);
     }
 
     private C map(Traverser<Map<String, Object>> t)
