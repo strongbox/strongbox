@@ -18,4 +18,10 @@ public class NugetArtifactCoordinatesAdapter
         super(Vertices.NUGET_ARTIFACT_COORDINATES, NugetArtifactCoordinates.class);
     }
 
+    @Override
+    protected NugetArtifactCoordinates newInstance()
+    {
+        return new NugetArtifactCoordinates();
+    }
+    
 }

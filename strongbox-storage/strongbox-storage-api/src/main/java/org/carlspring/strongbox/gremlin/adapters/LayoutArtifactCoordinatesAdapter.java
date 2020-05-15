@@ -45,38 +45,22 @@ public abstract class LayoutArtifactCoordinatesAdapter<C extends LayoutArtifactC
     @Override
     public EntityTraversal<Vertex, GenericArtifactCoordinates> fold()
     {
-        return __.<Vertex>hasLabel(layoutCoorinatesLabel)
-                .project("id", "uuid")
-                .by(__.id())
-                .by(__.enrichPropertyValue("uuid"))
-                .map(this::map);
+        return __.<Vertex, Object>project("id", "uuid")
+                 .by(__.id())
+                 .by(__.enrichPropertyValue("uuid"))
+                 .map(this::map);
     }
 
     private C map(Traverser<Map<String, Object>> t)
     {
-        C result;
-        try
-        {
-            result = newInstance();
-        }
-        catch (InstantiationException | IllegalAccessException | InvocationTargetException | NoSuchMethodException e)
-        {
-            throw new RuntimeException(e);
-        }
+        C result = newInstance();
         result.setNativeId(extractObject(Long.class, t.get().get("id")));
         result.setUuid(extractObject(String.class, t.get().get("uuid")));
 
         return result;
     }
 
-    private C newInstance()
-        throws InstantiationException,
-        IllegalAccessException,
-        InvocationTargetException,
-        NoSuchMethodException
-    {
-        return layoutCoordinatesClass.newInstance();
-    }
+    protected abstract C newInstance();
 
     @Override
     public UnfoldEntityTraversal<Vertex, Vertex> unfold(GenericArtifactCoordinates entity)

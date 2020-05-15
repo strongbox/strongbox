@@ -18,4 +18,10 @@ public class MavenArtifactCoordinatesAdapter
         super(Vertices.MAVEN_ARTIFACT_COORDINATES, MavenArtifactCoordinates.class);
     }
 
+    @Override
+    protected MavenArtifactCoordinates newInstance()
+    {
+        return new MavenArtifactCoordinates();
+    }
+    
 }

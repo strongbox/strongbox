@@ -18,4 +18,10 @@ public class PypiArtifactCoordinatesAdapter
         super(Vertices.PYPI_ARTIFACT_COORDINATES, PypiArtifactCoordinates.class);
     }
 
+    @Override
+    protected PypiArtifactCoordinates newInstance()
+    {
+        return new PypiArtifactCoordinates();
+    }
+    
 }

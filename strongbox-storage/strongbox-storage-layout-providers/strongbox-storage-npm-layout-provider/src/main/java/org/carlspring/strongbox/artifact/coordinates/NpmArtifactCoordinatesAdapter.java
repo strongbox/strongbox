@@ -18,4 +18,10 @@ public class NpmArtifactCoordinatesAdapter
         super(Vertices.NPM_ARTIFACT_COORDINATES, NpmArtifactCoordinates.class);
     }
 
+    @Override
+    protected NpmArtifactCoordinates newInstance()
+    {
+        return new NpmArtifactCoordinates();
+    }
+    
 }

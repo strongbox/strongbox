@@ -17,4 +17,10 @@ public class RawArtifactCoordinatesAdapter
         super(Vertices.RAW_ARTIFACT_COORDINATES, RawArtifactCoordinates.class);
     }
 
+    @Override
+    protected RawArtifactCoordinates newInstance()
+    {
+        return new RawArtifactCoordinates();
+    }
+    
 }
