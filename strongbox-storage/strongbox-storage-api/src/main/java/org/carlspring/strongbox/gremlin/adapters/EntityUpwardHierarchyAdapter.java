@@ -151,7 +151,8 @@ public abstract class EntityUpwardHierarchyAdapter<E extends DomainObject & Enti
                                              .saveV(entityHierarchyNode.getUuid(), adapter.unfold(entityHierarchyNode)),
                                            // Create child
                                            __.addE(Edges.EXTENDS)
-                                             .from(__.saveV(entityHierarchyNode.getUuid(),
+                                             .from(__.V(entityHierarchyNode)
+                                                     .saveV(entityHierarchyNode.getUuid(),
                                                             adapter.unfold(entityHierarchyNode)))
                                              .outV());
                 }
