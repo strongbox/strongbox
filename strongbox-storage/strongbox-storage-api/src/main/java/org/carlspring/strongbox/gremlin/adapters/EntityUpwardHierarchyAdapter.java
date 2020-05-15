@@ -39,9 +39,9 @@ public abstract class EntityUpwardHierarchyAdapter<E extends DomainObject & Enti
     {
         this.maxHierarchyDepth = maxHierarchyDepth;
         adaptersHierarchy = artifactArapters.stream()
-                                      .sorted((a1,
-                                               a2) -> a1.entityClass().isAssignableFrom(a2.entityClass()) ? 1 : -1)
-                                      .collect(Collectors.toCollection(LinkedList::new));
+                                            .sorted((a1,
+                                                     a2) -> a1.entityClass().isAssignableFrom(a2.entityClass()) ? 1 : -1)
+                                            .collect(Collectors.toCollection(LinkedList::new));
     }
 
     @Override
@@ -129,31 +129,31 @@ public abstract class EntityUpwardHierarchyAdapter<E extends DomainObject & Enti
         }
 
         EntityTraversal<Vertex, Vertex> result = null;
-        for (E entityHierarchyNode : hierarchy)
+        for (E hierarchyNode : hierarchy)
         {
-            for (A adapter : adaptersHierarchy)
+            for (A hierarchyNodeAdapter : adaptersHierarchy)
             {
-                if (!adapter.entityClass().isAssignableFrom(entityHierarchyNode.getClass()))
+                if (!hierarchyNodeAdapter.entityClass().isAssignableFrom(hierarchyNode.getClass()))
                 {
                     continue;
                 }
-                else if (result == null)
+
+                UnfoldEntityTraversal<Vertex, Vertex> hierarchyNodeTraversal = hierarchyNodeAdapter.unfold(hierarchyNode);
+                if (result == null)
                 {
-                    result = adapter.unfold(entityHierarchyNode);
+                    result = hierarchyNodeTraversal;
                 }
                 else
                 {
-
                     result = result.choose(__.inE(Edges.EXTENDS),
                                            // Update child
                                            __.inE(Edges.EXTENDS)
                                              .outV()
-                                             .saveV(entityHierarchyNode.getUuid(), adapter.unfold(entityHierarchyNode)),
+                                             .saveV(hierarchyNode.getUuid(), hierarchyNodeTraversal),
                                            // Create child
                                            __.addE(Edges.EXTENDS)
-                                             .from(__.V(entityHierarchyNode)
-                                                     .saveV(entityHierarchyNode.getUuid(),
-                                                            adapter.unfold(entityHierarchyNode)))
+                                             .from(__.saveV(hierarchyNode.getUuid(),
+                                                            hierarchyNodeTraversal))
                                              .outV());
                 }
                 break;
