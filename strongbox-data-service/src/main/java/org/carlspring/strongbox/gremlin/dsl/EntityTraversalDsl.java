@@ -16,6 +16,7 @@ import org.apache.tinkerpop.gremlin.structure.Vertex;
 import org.apache.tinkerpop.gremlin.structure.VertexProperty.Cardinality;
 import org.carlspring.strongbox.data.domain.DomainObject;
 import org.carlspring.strongbox.data.domain.EntityHierarchyNode;
+import org.carlspring.strongbox.gremlin.adapters.EntityTraversalUtils;
 import org.carlspring.strongbox.gremlin.adapters.UnfoldEntityTraversal;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -127,29 +128,13 @@ public interface EntityTraversalDsl<S, E> extends GraphTraversal.Admin<S, E>
                                             .orElse(UUID.randomUUID().toString()))
                           .property("created", System.currentTimeMillis())
                           .sideEffect(entity::applyUnfold)
-                          .sideEffect(this::infoCreated);
-    }
-
-    default <E2> void infoCreated(Traverser<E2> t)
-    {
-        info("Created", t);
-    }
-
-    default <E2> void info(String action,
-                           Traverser<E2> t)
-    {
-        logger.info(String.format("%s [%s]-[%s]-[%s]",
-                                  action,
-                                  ((Element) t.get()).label(),
-                                  ((Element) t.get()).id(),
-                                  ((Element) t.get()).property("uuid")
-                                                     .orElse("null")));
+                          .sideEffect(EntityTraversalUtils::infoCreated);
     }
 
     @SuppressWarnings("unchecked")
     default <E2> Traversal<S, E2> info(String action)
     {
-        return (Traversal<S, E2>) sideEffect(t -> info(action, t));
+        return (Traversal<S, E2>) sideEffect(t -> EntityTraversalUtils.info(action, t));
     }
     
     @SuppressWarnings("unchecked")

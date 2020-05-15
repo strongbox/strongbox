@@ -71,7 +71,9 @@ public class EntityTraversalUtils
 
     public static void traceVertex(Traverser<? extends Element> t)
     {
-        System.out.println(String.format("[%s]-[%s]-[%s]", t.get().label(), t.get().id(),
+        System.out.println(String.format("[%s]-[%s]-[%s]",
+                                         t.get().label(),
+                                         t.get().id(),
                                          t.get().property("uuid").orElse("empty")));
     }
 
@@ -110,5 +112,21 @@ public class EntityTraversalUtils
     public static Long toLong(LocalDateTime date)
     {
         return Commons.toLong(date);
+    }
+
+    public static <E2> void infoCreated(Traverser<E2> t)
+    {
+        info("Created", t);
+    }
+
+    public static <E2> void info(String action,
+                                 Traverser<E2> t)
+    {
+        EntityTraversalDsl.logger.info(String.format("%s [%s]-[%s]-[%s]",
+                                                     action,
+                                                     ((Element) t.get()).label(),
+                                                     ((Element) t.get()).id(),
+                                                     ((Element) t.get()).property("uuid")
+                                                                        .orElse("null")));
     }
 }
