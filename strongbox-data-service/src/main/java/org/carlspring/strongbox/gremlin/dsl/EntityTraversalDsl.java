@@ -7,6 +7,7 @@ import java.util.Set;
 import java.util.UUID;
 
 import org.apache.tinkerpop.gremlin.process.traversal.Traversal;
+import org.apache.tinkerpop.gremlin.process.traversal.Traverser;
 import org.apache.tinkerpop.gremlin.process.traversal.dsl.GremlinDsl;
 import org.apache.tinkerpop.gremlin.process.traversal.dsl.graph.GraphTraversal;
 import org.apache.tinkerpop.gremlin.structure.Edge;
@@ -86,16 +87,16 @@ public interface EntityTraversalDsl<S, E> extends GraphTraversal.Admin<S, E>
             }
             entity = (DomainObject) entityHierarchyNode;
         }
-        
+
         Long nativeId = entity.getNativeId();
         if (nativeId != null)
         {
-            return ((EntityTraversal<S, Vertex>)V(nativeId)).debug("Attached");
+            return ((EntityTraversal<S, Vertex>) V(nativeId)).debug("Attached");
         }
 
         return V();
     }
-    
+
     default <S2> Traversal<S, Vertex> saveV(Object uuid,
                                             UnfoldEntityTraversal<S2, Vertex> unfoldTraversal)
     {
@@ -107,35 +108,50 @@ public interface EntityTraversalDsl<S, E> extends GraphTraversal.Admin<S, E>
         return hasLabel(label).has("uuid", uuid)
                               .fold()
                               .choose(Collection::isEmpty,
-                                      __.addV(label)
-                                        .property("uuid",
-                                                  Optional.of(uuid)
-                                                          .filter(x -> !NULL.equals(x))
-                                                          .orElse(UUID.randomUUID().toString()))
-                                        .property("created", System.currentTimeMillis())
-                                        .sideEffect(t -> {
-                                            entity.applyUnfold(t);
-                                        })
-                                        .info("Created"),
+                                      __.addV(uuid, unfoldTraversal),
                                       __.<Vertex>unfold()
-                                        .sideEffect(t -> {
-                                            entity.applyUnfold(t);
-                                        })
+                                        .sideEffect(entity::applyUnfold)
                                         .debug("Fetched"))
                               .map(unfoldTraversal);
+    }
+
+    default <S2> Traversal<S, Vertex> addV(Object uuid,
+                                           UnfoldEntityTraversal<S2, Vertex> unfoldTraversal)
+    {
+        String label = unfoldTraversal.getEntityLabel();
+        DomainObject entity = unfoldTraversal.getEntity();
+
+        return addV(label).property("uuid",
+                                    Optional.of(uuid)
+                                            .filter(x -> !NULL.equals(x))
+                                            .orElse(UUID.randomUUID().toString()))
+                          .property("created", System.currentTimeMillis())
+                          .sideEffect(entity::applyUnfold)
+                          .sideEffect(this::infoCreated);
+    }
+
+    default <E2> void infoCreated(Traverser<E2> t)
+    {
+        info("Created", t);
+    }
+
+    default <E2> void info(String action,
+                           Traverser<E2> t)
+    {
+        logger.info(String.format("%s [%s]-[%s]-[%s]",
+                                  action,
+                                  ((Element) t.get()).label(),
+                                  ((Element) t.get()).id(),
+                                  ((Element) t.get()).property("uuid")
+                                                     .orElse("null")));
     }
 
     @SuppressWarnings("unchecked")
     default <E2> Traversal<S, E2> info(String action)
     {
-        return (Traversal<S, E2>) sideEffect(t -> logger.info(String.format("%s [%s]-[%s]-[%s]",
-                                                                            action,
-                                                                            ((Element) t.get()).label(),
-                                                                            ((Element) t.get()).id(),
-                                                                            ((Element) t.get()).property("uuid")
-                                                                                               .orElse("null"))));
+        return (Traversal<S, E2>) sideEffect(t -> info(action, t));
     }
-
+    
     @SuppressWarnings("unchecked")
     default <E2> Traversal<S, E2> debug(String action)
     {

@@ -138,7 +138,7 @@ public abstract class EntityUpwardHierarchyAdapter<E extends DomainObject & Enti
                 if (!hierarchyNodeAdapter.entityClass().isAssignableFrom(hierarchyNode.getClass()))
                 {
                     continue;
-                } 
+                }
                 else if (result == null)
                 {
                     result = hierarchyNodeAdapter.unfold(hierarchyNode).as(rootAlias);
@@ -152,8 +152,8 @@ public abstract class EntityUpwardHierarchyAdapter<E extends DomainObject & Enti
                                              .saveV(hierarchyNode.getUuid(), hierarchyNodeAdapter.unfold(hierarchyNode)),
                                            // Create child
                                            __.addE(Edges.EXTENDS)
-                                             .from(__.saveV(hierarchyNode.getUuid(),
-                                                            hierarchyNodeAdapter.unfold(hierarchyNode)))
+                                             .from(__.addV(hierarchyNode.getUuid(),
+                                                           hierarchyNodeAdapter.unfold(hierarchyNode)))
                                              .outV());
                 }
                 break;
@@ -162,7 +162,7 @@ public abstract class EntityUpwardHierarchyAdapter<E extends DomainObject & Enti
 
         result = result.select(rootAlias);
         String entityLabel = rootAdapter.label();
-        
+
         return new UnfoldEntityTraversal<>(entityLabel, entity, result);
     }
 
