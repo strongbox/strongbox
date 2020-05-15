@@ -147,8 +147,8 @@ public abstract class EntityUpwardHierarchyAdapter<E extends DomainObject & Enti
                     result = result.choose(__.inE(Edges.EXTENDS),
                                            // Update child
                                            __.inE(Edges.EXTENDS)
-                                             .outV()
-                                             .saveV(entityHierarchyNode.getUuid(), adapter.unfold(entityHierarchyNode)),
+                                             .outV(),
+                                             //.saveV(entityHierarchyNode.getUuid(), adapter.unfold(entityHierarchyNode)),
                                            // Create child
                                            __.addE(Edges.EXTENDS)
                                              .from(__.saveV(entityHierarchyNode.getUuid(),
