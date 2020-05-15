@@ -205,6 +205,7 @@ public class WebConfig
         return createDirectoryListingServiceForTemplate("%s/api/logging");
     }
 
+
     private DirectoryListingService createDirectoryListingServiceForTemplate(String template)
     {
         String baseUrl = StringUtils.chomp(configurationManager.getConfiguration().getBaseUrl(), "/");
@@ -239,6 +240,10 @@ public class WebConfig
 
         registry.addResourceHandler("*.html")
                 .addResourceLocations("classpath:/")
+                .setCachePeriod(3600);
+
+        registry.addResourceHandler("/database/**")
+                .addResourceLocations("classpath:/database/")
                 .setCachePeriod(3600);
 
         registry.addResourceHandler("/static/assets/**")
@@ -296,6 +301,8 @@ public class WebConfig
 
         return viewResolver;
     }
+
+
 
     @Bean
     MavenArtifactRequestInterceptor mavenArtifactRequestInterceptor(RepositoryPathResolver repositoryPathResolver)

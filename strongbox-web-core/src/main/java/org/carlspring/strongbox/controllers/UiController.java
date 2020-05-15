@@ -7,7 +7,6 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.GetMapping;
-
 /**
  * @author Steve Todorov
  */
@@ -35,5 +34,4 @@ public class UiController implements ErrorController
         return "/error";
     }
 
-    
 }
