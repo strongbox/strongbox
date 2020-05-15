@@ -3,11 +3,11 @@ package org.carlspring.strongbox.gremlin.adapters;
 import static org.carlspring.strongbox.gremlin.adapters.EntityTraversalUtils.extractObject;
 
 import java.util.ArrayList;
+import java.util.Deque;
 import java.util.Iterator;
-import java.util.LinkedHashMap;
+import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
-import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Collectors;
 
@@ -32,30 +32,16 @@ public abstract class EntityUpwardHierarchyAdapter<E extends DomainObject & Enti
      * EntityUpwardHierarchyNodeAdapters mapped by Vertex label and sorted in
      * descending order by entity class hierarchy.
      */
-    protected final Map<String, A> adaptersMap;
+    protected final Deque<A> adaptersHierarchy;
 
     public EntityUpwardHierarchyAdapter(Set<A> artifactArapters,
                                         int maxHierarchyDepth)
     {
         this.maxHierarchyDepth = maxHierarchyDepth;
-        adaptersMap = artifactArapters.stream()
+        adaptersHierarchy = artifactArapters.stream()
                                       .sorted((a1,
                                                a2) -> a1.entityClass().isAssignableFrom(a2.entityClass()) ? 1 : -1)
-                                      .collect(Collectors.toMap(this::validateAndGetLabel,
-                                                                (a) -> a,
-                                                                (u,
-                                                                 v) -> {
-                                                                    throw new IllegalStateException(
-                                                                            String.format("Duplicate key %s", u));
-                                                                },
-                                                                LinkedHashMap::new));
-    }
-
-    private String validateAndGetLabel(A adapterItem)
-    {
-        return Optional.of(adapterItem)
-                       .map(EntityTraversalAdapter::label)
-                       .get();
+                                      .collect(Collectors.toCollection(LinkedList::new));
     }
 
     @Override
@@ -71,17 +57,13 @@ public abstract class EntityUpwardHierarchyAdapter<E extends DomainObject & Enti
      */
     protected EntityUpwardHierarchyNodeAdapter<E> getRootAdapter()
     {
-        return (EntityUpwardHierarchyNodeAdapter<E>) adaptersMap.values()
-                                                                .stream()
-                                                                .reduce((first,
-                                                                         second) -> second)
-                                                                .get();
+        return adaptersHierarchy.descendingIterator().next();
     }
 
     @Override
     public EntityTraversal<Vertex, E> fold()
     {
-        return __.map(fold(adaptersMap.values().iterator(),
+        return __.map(fold(adaptersHierarchy.descendingIterator(),
                            maxHierarchyDepth));
     }
 
@@ -101,13 +83,12 @@ public abstract class EntityUpwardHierarchyAdapter<E extends DomainObject & Enti
                              __.map(nextTraversal),
                              fold(iterator, depth));
         }
-        
+
         EntityTraversal<Vertex, E> childTraversal = __.inE(Edges.EXTENDS)
                                                       .outV()
-                                                      .map(fold(adaptersMap.values()
-                                                                           .iterator(),
+                                                      .map(fold(adaptersHierarchy.descendingIterator(),
                                                                 depth - 1));
-        
+
         return __.choose(__.hasLabel(nextAdapter.label()),
                          __.project("parent", "child")
                            .by(nextTraversal)
@@ -150,7 +131,7 @@ public abstract class EntityUpwardHierarchyAdapter<E extends DomainObject & Enti
         EntityTraversal<Vertex, Vertex> result = null;
         for (E entityHierarchyNode : hierarchy)
         {
-            for (A adapter : adaptersMap.values())
+            for (A adapter : adaptersHierarchy)
             {
                 if (!adapter.entityClass().isAssignableFrom(entityHierarchyNode.getClass()))
                 {
