@@ -9,6 +9,7 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.UUID;
 import java.util.stream.Collectors;
 
 import org.apache.tinkerpop.gremlin.process.traversal.Traverser;
@@ -129,6 +130,7 @@ public abstract class EntityUpwardHierarchyAdapter<E extends DomainObject & Enti
         }
 
         EntityTraversal<Vertex, Vertex> result = null;
+        String rootAlias = rootEntityType.getSimpleName() + "-" + UUID.randomUUID().toString();
         for (E hierarchyNode : hierarchy)
         {
             for (A hierarchyNodeAdapter : adaptersHierarchy)
@@ -136,12 +138,10 @@ public abstract class EntityUpwardHierarchyAdapter<E extends DomainObject & Enti
                 if (!hierarchyNodeAdapter.entityClass().isAssignableFrom(hierarchyNode.getClass()))
                 {
                     continue;
-                }
-
-                UnfoldEntityTraversal<Vertex, Vertex> hierarchyNodeTraversal = hierarchyNodeAdapter.unfold(hierarchyNode);
-                if (result == null)
+                } 
+                else if (result == null)
                 {
-                    result = hierarchyNodeTraversal;
+                    result = hierarchyNodeAdapter.unfold(hierarchyNode).as(rootAlias);
                 }
                 else
                 {
@@ -149,18 +149,20 @@ public abstract class EntityUpwardHierarchyAdapter<E extends DomainObject & Enti
                                            // Update child
                                            __.inE(Edges.EXTENDS)
                                              .outV()
-                                             .saveV(hierarchyNode.getUuid(), hierarchyNodeTraversal),
+                                             .saveV(hierarchyNode.getUuid(), hierarchyNodeAdapter.unfold(hierarchyNode)),
                                            // Create child
                                            __.addE(Edges.EXTENDS)
                                              .from(__.saveV(hierarchyNode.getUuid(),
-                                                            hierarchyNodeTraversal))
+                                                            hierarchyNodeAdapter.unfold(hierarchyNode)))
                                              .outV());
                 }
                 break;
             }
         }
 
+        result = result.select(rootAlias);
         String entityLabel = rootAdapter.label();
+        
         return new UnfoldEntityTraversal<>(entityLabel, entity, result);
     }
 

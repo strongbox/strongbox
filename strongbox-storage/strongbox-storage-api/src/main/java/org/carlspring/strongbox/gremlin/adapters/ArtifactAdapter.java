@@ -160,9 +160,7 @@ public class ArtifactAdapter extends VertexEntityTraversalAdapter<Artifact>
 
         return __.<S2>V(artifactCoordinates)
                  .saveV(artifactCoordinates.getUuid(),
-                        artifactCoordinatesUnfold)
-                 .outE(Edges.EXTENDS)
-                 .inV();
+                        artifactCoordinatesUnfold);
     }
 
     private EntityTraversal<Vertex, Vertex> unfoldArtifact(Artifact entity)
