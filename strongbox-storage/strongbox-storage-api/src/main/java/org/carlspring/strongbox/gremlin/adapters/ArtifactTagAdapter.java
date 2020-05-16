@@ -1,6 +1,6 @@
 package org.carlspring.strongbox.gremlin.adapters;
 
-import static org.carlspring.strongbox.gremlin.adapters.EntityTraversalUtils.extractObject;
+import static org.carlspring.strongbox.gremlin.dsl.EntityTraversalUtils.extractObject;
 
 import java.util.Map;
 

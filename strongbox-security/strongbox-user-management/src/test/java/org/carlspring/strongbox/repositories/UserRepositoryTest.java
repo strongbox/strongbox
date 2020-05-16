@@ -14,7 +14,7 @@ import org.carlspring.strongbox.config.DataServiceConfig;
 import org.carlspring.strongbox.config.UsersConfig;
 import org.carlspring.strongbox.domain.User;
 import org.carlspring.strongbox.domain.UserEntity;
-import org.carlspring.strongbox.gremlin.adapters.EntityTraversalUtils;
+import org.carlspring.strongbox.gremlin.dsl.EntityTraversalUtils;
 import org.carlspring.strongbox.users.domain.SystemRole;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Disabled;

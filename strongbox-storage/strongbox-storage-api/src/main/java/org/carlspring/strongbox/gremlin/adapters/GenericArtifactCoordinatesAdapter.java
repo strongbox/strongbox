@@ -1,8 +1,8 @@
 package org.carlspring.strongbox.gremlin.adapters;
 
 import static org.apache.tinkerpop.gremlin.structure.VertexProperty.Cardinality.single;
-import static org.carlspring.strongbox.gremlin.adapters.EntityTraversalUtils.extracPropertytList;
-import static org.carlspring.strongbox.gremlin.adapters.EntityTraversalUtils.extractObject;
+import static org.carlspring.strongbox.gremlin.dsl.EntityTraversalUtils.extracPropertytList;
+import static org.carlspring.strongbox.gremlin.dsl.EntityTraversalUtils.extractObject;
 
 import java.util.Map;
 import java.util.Map.Entry;

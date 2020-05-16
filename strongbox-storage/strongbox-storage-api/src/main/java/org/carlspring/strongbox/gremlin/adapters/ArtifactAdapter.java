@@ -1,10 +1,10 @@
 package org.carlspring.strongbox.gremlin.adapters;
 
 import static org.apache.tinkerpop.gremlin.structure.VertexProperty.Cardinality.single;
-import static org.carlspring.strongbox.gremlin.adapters.EntityTraversalUtils.extracPropertytList;
-import static org.carlspring.strongbox.gremlin.adapters.EntityTraversalUtils.extractObject;
-import static org.carlspring.strongbox.gremlin.adapters.EntityTraversalUtils.toLocalDateTime;
-import static org.carlspring.strongbox.gremlin.adapters.EntityTraversalUtils.toLong;
+import static org.carlspring.strongbox.gremlin.dsl.EntityTraversalUtils.extracPropertytList;
+import static org.carlspring.strongbox.gremlin.dsl.EntityTraversalUtils.extractObject;
+import static org.carlspring.strongbox.gremlin.dsl.EntityTraversalUtils.toLocalDateTime;
+import static org.carlspring.strongbox.gremlin.dsl.EntityTraversalUtils.toLong;
 
 import java.util.HashSet;
 import java.util.List;
@@ -29,6 +29,7 @@ import org.carlspring.strongbox.domain.Artifact;
 import org.carlspring.strongbox.domain.ArtifactArchiveListing;
 import org.carlspring.strongbox.domain.ArtifactEntity;
 import org.carlspring.strongbox.gremlin.dsl.EntityTraversal;
+import org.carlspring.strongbox.gremlin.dsl.EntityTraversalUtils;
 import org.carlspring.strongbox.gremlin.dsl.__;
 import org.springframework.stereotype.Component;
 

@@ -1,4 +1,4 @@
-package org.carlspring.strongbox.gremlin.adapters;
+package org.carlspring.strongbox.gremlin.dsl;
 
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
@@ -17,7 +17,6 @@ import org.apache.tinkerpop.gremlin.process.traversal.Traverser;
 import org.apache.tinkerpop.gremlin.structure.Element;
 import org.apache.tinkerpop.gremlin.structure.Property;
 import org.carlspring.strongbox.data.domain.DomainObject;
-import org.carlspring.strongbox.gremlin.dsl.EntityTraversalDsl;
 import org.strongbox.util.Commons;
 
 public class EntityTraversalUtils
@@ -114,12 +113,12 @@ public class EntityTraversalUtils
         return Commons.toLong(date);
     }
 
-    public static <E2> void infoCreated(Traverser<E2> t)
+    static <E2> void created(Traverser<E2> t)
     {
         info("Created", t);
     }
 
-    public static <E2> void info(String action,
+    static <E2> void info(String action,
                                  Traverser<E2> t)
     {
         EntityTraversalDsl.logger.info(String.format("%s [%s]-[%s]-[%s]",
@@ -128,5 +127,21 @@ public class EntityTraversalUtils
                                                      ((Element) t.get()).id(),
                                                      ((Element) t.get()).property("uuid")
                                                                         .orElse("null")));
+    }
+
+    static <E2> void debug(String action,
+                                  Traverser<E2> t)
+    {
+        EntityTraversalDsl.logger.debug(String.format("%s [%s]-[%s]-[%s]",
+                                                      action,
+                                                      ((Element) t.get()).label(),
+                                                      ((Element) t.get()).id(),
+                                                      ((Element) t.get()).property("uuid")
+                                                                         .orElse("null")));
+    }
+    
+    static <E2> void fetched(Traverser<E2> t)
+    {
+        debug("Fetched", t);
     }
 }

@@ -1,6 +1,6 @@
 package org.carlspring.strongbox.gremlin.adapters;
 
-import static org.carlspring.strongbox.gremlin.adapters.EntityTraversalUtils.extractObject;
+import static org.carlspring.strongbox.gremlin.dsl.EntityTraversalUtils.extractObject;
 
 import java.util.ArrayList;
 import java.util.Deque;
@@ -141,7 +141,7 @@ public abstract class EntityUpwardHierarchyAdapter<E extends DomainObject & Enti
                 }
                 else if (result == null)
                 {
-                    result = hierarchyNodeAdapter.unfold(hierarchyNode).as(rootAlias);
+                    result = hierarchyNodeAdapter.unfold(hierarchyNode);
                 }
                 else
                 {
@@ -159,11 +159,13 @@ public abstract class EntityUpwardHierarchyAdapter<E extends DomainObject & Enti
                 break;
             }
         }
+        //Rollback to root vertex
+        for (int i = 0; i < hierarchy.size() - 1; i++)
+        {
+            result = result.outE(Edges.EXTENDS).inV();
+        }
 
-        result = result.select(rootAlias);
-        String entityLabel = rootAdapter.label();
-
-        return new UnfoldEntityTraversal<>(entityLabel, entity, result);
+        return new UnfoldEntityTraversal<>(rootAdapter.label(), entity, result);
     }
 
 }
