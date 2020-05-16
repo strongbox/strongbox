@@ -145,12 +145,10 @@ public abstract class EntityUpwardHierarchyAdapter<E extends DomainObject & Enti
                 }
                 else
                 {
-                    result = result.choose(__.inE(Edges.EXTENDS),
-                                           // Update child
-                                           __.inE(Edges.EXTENDS)
-                                             .outV()
-                                             .saveV(hierarchyNode.getUuid(), hierarchyNodeAdapter.unfold(hierarchyNode)),
-                                           // Create child
+                    result = result.optional(__.inE(Edges.EXTENDS)
+                                               .outV())
+                                   .choose(__.hasLabel(hierarchyNodeAdapter.label()),
+                                           __.saveV(hierarchyNode.getUuid(), hierarchyNodeAdapter.unfold(hierarchyNode)),
                                            __.addE(Edges.EXTENDS)
                                              .from(__.addV(hierarchyNode.getUuid(),
                                                            hierarchyNodeAdapter.unfold(hierarchyNode)))
@@ -159,7 +157,7 @@ public abstract class EntityUpwardHierarchyAdapter<E extends DomainObject & Enti
                 break;
             }
         }
-        //Rollback to root vertex
+        // Move back to root vertex
         for (int i = 0; i < hierarchy.size() - 1; i++)
         {
             result = result.outE(Edges.EXTENDS).inV();
