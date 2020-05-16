@@ -130,7 +130,6 @@ public abstract class EntityUpwardHierarchyAdapter<E extends DomainObject & Enti
         }
 
         EntityTraversal<Vertex, Vertex> result = null;
-        String rootAlias = rootEntityType.getSimpleName() + "-" + UUID.randomUUID().toString();
         for (E hierarchyNode : hierarchy)
         {
             for (A hierarchyNodeAdapter : adaptersHierarchy)
