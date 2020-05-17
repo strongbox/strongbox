@@ -36,31 +36,56 @@ import static org.assertj.core.api.Assertions.assertThat;
 public class AssetsManifestTest
 {
 
-    private static final String FILE_RESOURCE = "assets-manifest.json";
-    private static final String ROOT_PATH = "/";
-    private static final Pattern STYLES_REGEX = Pattern.compile("\\/static\\/assets\\/styles(.+).css");
-    private static final Pattern RUNTIME_REGEX = Pattern.compile("\\/static\\/assets\\/runtime(.+).js");
-    private static final Pattern POLYFILLS_REGEX = Pattern.compile("\\/static\\/assets\\/polyfills(.+).js");
-    private static final Pattern MAIN_REGEX = Pattern.compile("\\/static\\/assets\\/main(.+).js");
+    private static String fileResource = "assets-manifest.json";
+    private static String rootPath = "/";
+    private static Pattern styleRegex = Pattern.compile("\\/static\\/assets\\/styles(.+).css");
+    private static Pattern runtimeRegex = Pattern.compile("\\/static\\/assets\\/runtime(.+).js");
+    private static Pattern polyfillsRegex = Pattern.compile("\\/static\\/assets\\/polyfills(.+).js");
+    private static Pattern mainRegex = Pattern.compile("\\/static\\/assets\\/main(.+).js");
     private static List<Pattern> indexResourcePatterns;
+    private static final String DATABASE_ROOT = "/database";
 
     @Inject
     private ObjectMapper mapper;
 
     @Inject
     private MockMvcRequestSpecification mockMvc;
-    
+
     @BeforeAll
     static void init()
     {
         indexResourcePatterns = Lists.newArrayList();
-        indexResourcePatterns.add(STYLES_REGEX);
-        indexResourcePatterns.add(RUNTIME_REGEX);
-        indexResourcePatterns.add(POLYFILLS_REGEX);
-        indexResourcePatterns.add(MAIN_REGEX);
+        indexResourcePatterns.add(styleRegex);
+        indexResourcePatterns.add(runtimeRegex);
+        indexResourcePatterns.add(polyfillsRegex);
+        indexResourcePatterns.add(mainRegex);
+    }
+
+    void changeVariables()
+    {
+        fileResource = "database/assets-manifest.json";
+        rootPath = "/database";
+        styleRegex = Pattern.compile("\\/database\\/static\\/assets\\/styles(.+).css");
+        runtimeRegex = Pattern.compile("\\/database\\/static\\/assets\\/runtime(.+).js");
+        polyfillsRegex = Pattern.compile("\\/database\\/static\\/assets\\/polyfills(.+).js");
+        mainRegex = Pattern.compile("\\/database\\/static\\/assets\\/main(.+).js");
+        indexResourcePatterns.clear();
     }
 
     @Test
+    void webUiTest() throws IOException, URISyntaxException
+    {
+        testCheckAccessibleUIAssets();
+    }
+
+    @Test
+    void databaseUiTest() throws IOException, URISyntaxException
+    {
+        changeVariables();
+        init();
+        testCheckAccessibleUIAssets();
+    }
+
     void testCheckAccessibleUIAssets()
             throws IOException, URISyntaxException
     {
@@ -74,9 +99,9 @@ public class AssetsManifestTest
 
         // Convert JSON to Map.
         Map<String, String> manifestMap = mapper.readValue(manifestJsonStr,
-                                                           new TypeReference<Map<String, String>>()
-                                                           {
-                                                           });
+                new TypeReference<Map<String, String>>()
+                {
+                });
 
         // Iterate map, and check every value (asset path).
         for (Map.Entry<String, String> entry : manifestMap.entrySet())
@@ -90,9 +115,9 @@ public class AssetsManifestTest
     private Path checkFilePath()
             throws URISyntaxException
     {
-        URI manifestUri = ClassLoader.getSystemResource(FILE_RESOURCE).toURI();
+        URI manifestUri = ClassLoader.getSystemResource(fileResource).toURI();
         Path manifestPath = Paths.get(manifestUri);
-        String notExistsMessage = String.format("The file \"%s\" does not exist!", FILE_RESOURCE);
+        String notExistsMessage = String.format("The file \"%s\" does not exist!", fileResource);
         assertThat(Files.exists(manifestPath)).as(notExistsMessage).isTrue();
 
         return manifestPath;
@@ -103,7 +128,7 @@ public class AssetsManifestTest
     {
         byte[] manifestContent = Files.readAllBytes(manifestPath);
         String manifestJsonStr = new String(manifestContent);
-        String isEmptyMessage = String.format("The file \"%s\" is empty!", FILE_RESOURCE);
+        String isEmptyMessage = String.format("The file \"%s\" is empty!", fileResource);
         assertThat(StringUtils.isEmpty(manifestJsonStr)).as(isEmptyMessage).isFalse();
 
         return manifestJsonStr;
@@ -112,12 +137,19 @@ public class AssetsManifestTest
     private void checkAccessibleUIAsset(String assetFileName,
                                         String assetPath)
     {
-        boolean isIndexFile = StringUtils.equals(ROOT_PATH, assetPath);
+        boolean isIndexFile = StringUtils.equals(rootPath, assetPath);
 
         // Add filename for root path.
         if (isIndexFile)
         {
-            assetPath += assetFileName;
+            if (rootPath.equals(DATABASE_ROOT))
+            {
+                assetPath += "/" + assetFileName;
+            } else
+            {
+                assetPath += assetFileName;
+            }
+
         }
 
         MockMvcResponse response = mockMvc.get(assetPath);
